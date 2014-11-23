@@ -1,5 +1,6 @@
 package org.jboss.pnc.core.builder;
 
+import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -7,7 +8,7 @@ import java.util.Set;
  */
 class TaskSet<T> {
 
-    private Set<Task<T>> tasks;
+    private Set<Task<T>> tasks = new HashSet<Task<T>>();
 
     TaskSet(Set<T> tasks) {
         tasks.forEach(project -> wrap(project));

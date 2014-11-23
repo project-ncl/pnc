@@ -11,7 +11,7 @@
     </parent>
 
     <groupId>org.jboss.pnc</groupId>
-    <artifactId>build-driver</artifactId>
+    <artifactId>jenkins-build-driver</artifactId>
     <version>${project.parent.version}</version>
 
     <dependencies>

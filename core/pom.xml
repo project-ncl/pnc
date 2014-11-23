@@ -26,23 +26,20 @@
     </parent>
 
     <artifactId>core</artifactId>
-    <packaging>ejb</packaging>
+    <packaging>jar</packaging>
 
-    <name>as7example - ejb</name>
-
-    <url>http://jboss.org/jbossas</url>
-    <licenses>
-        <license>
-            <name>Apache License, Version 2.0</name>
-            <distribution>repo</distribution>
-            <url>http://www.apache.org/licenses/LICENSE-2.0.html</url>
-        </license>
-    </licenses>
+    <name>core</name>
 
     <dependencies>
         <dependency>
             <groupId>org.jboss.pnc</groupId>
             <artifactId>datastore</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.jboss.pnc</groupId>
+            <artifactId>model</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
 
@@ -58,21 +55,6 @@
             <scope>test</scope>
         </dependency>
 
-        <dependency>
-            <groupId>org.jboss.arquillian.junit</groupId>
-            <artifactId>arquillian-junit-container</artifactId>
-            <scope>test</scope>
-        </dependency>
-      
-        <dependency>
-            <groupId>org.jboss.arquillian.protocol</groupId>
-            <artifactId>arquillian-protocol-servlet</artifactId>
-            <scope>test</scope>               
-        </dependency>
-
     </dependencies>
-
-
-
 
 </project>

@@ -28,8 +28,9 @@ public class ProjectBuilder {
 
         TaskSet taskSet = new TaskSet(projects);
 
-        Task<Project> task;
-        while ((task = taskSet.getNext()) != null) {
+        while (true) {
+            final Task<Project> task = taskSet.getNext();
+            if (task == null) break;
 
             Consumer<BuildResult> onBuildComplete = buildResult -> {
                 task.buildComplete(buildResult);
