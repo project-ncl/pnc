@@ -2,7 +2,6 @@ package org.jboss.pnc.core.builder;
 
 import org.jboss.pnc.model.BuildResult;
 import org.jboss.pnc.model.BuildStatus;
-import org.jboss.pnc.model.Project;
 
 import java.util.Set;
 import java.util.function.Predicate;
@@ -10,20 +9,20 @@ import java.util.function.Predicate;
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-11-23.
  */
-class ProjectBuildTask {
-    private Project project;
+class Task<T> {
+    private T task;
 
     private BuildResult buildResult;
 
     private Status status;
 
-    ProjectBuildTask(Project project) {
-        this.project = project;
+    Task(T task) {
+        this.task = task;
         status = Status.NEW;
     }
 
-    Project getProject() {
-        return project;
+    T getTask() {
+        return task;
     }
 
     void setBuilding() {
@@ -48,10 +47,10 @@ class ProjectBuildTask {
         return Status.DONE.equals(status);
     }
 
-    boolean hasResolvedDependencies(Set<ProjectBuildTask> projectBuildTasks) {
-        Predicate<ProjectBuildTask> filterSuccess = t -> t.isDone() && t.buildResult.getStatus().equals(BuildStatus.SUCCESS);
-        long successfullyBuildDependencies = projectBuildTasks.stream().filter(filterSuccess).count();
-        return successfullyBuildDependencies == projectBuildTasks.size();
+    boolean hasResolvedDependencies(Set<Task<T>> tasks) {
+        Predicate<Task> filterSuccess = t -> t.isDone() && t.buildResult.getStatus().equals(BuildStatus.SUCCESS);
+        long successfullyBuildDependencies = tasks.stream().filter(filterSuccess).count();
+        return successfullyBuildDependencies == tasks.size();
     }
 
     enum Status {

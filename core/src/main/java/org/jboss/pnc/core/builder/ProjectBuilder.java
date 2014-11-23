@@ -16,7 +16,7 @@ import java.util.function.Consumer;
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-11-23.
  */
-public class Builder {
+public class ProjectBuilder {
 
     @Inject
     BuildDriverFactory buildDriverFactory;
@@ -26,17 +26,17 @@ public class Builder {
 
     public void buildProjects(Set<Project> projects) throws CoreException, InterruptedException {
 
-        BuildScheduler buildScheduler = new BuildScheduler(projects);
+        TaskSet taskSet = new TaskSet(projects);
 
-        ProjectBuildTask projectBuildTask;
-        while ((projectBuildTask = buildScheduler.getNext()) != null) {
+        Task<Project> task;
+        while ((task = taskSet.getNext()) != null) {
 
             Consumer<BuildResult> onBuildComplete = buildResult -> {
-                projectBuildTask.buildComplete(buildResult);
+                task.buildComplete(buildResult);
             };
 
-            buildProject(projectBuildTask.getProject(), onBuildComplete);
-            projectBuildTask.setBuilding();
+            task.setBuilding();
+            buildProject(task.getTask(), onBuildComplete);
         }
     }
 
