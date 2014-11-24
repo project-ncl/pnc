@@ -20,7 +20,7 @@ class TaskSet<T> {
     }
 
     /**
-     * Method blocks until there are no new tasks to build or all are build.
+     * Method blocks if there is any running task and no new tasks available to run.
      *
      * @return Task with resolved dependencies or null if there are no tasks left
      */

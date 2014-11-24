@@ -13,6 +13,7 @@ import org.jboss.pnc.model.Project;
 
 import javax.inject.Inject;
 import java.util.Set;
+import java.util.concurrent.Semaphore;
 import java.util.function.Consumer;
 
 /**
@@ -31,10 +32,13 @@ public class ProjectBuilder {
 
     public void buildProjects(Set<Project> projects) throws CoreException, InterruptedException {
 
-        TaskSet taskSet = new TaskSet(projects);
+        final TaskSet taskSet = new TaskSet(projects);
+
+        Semaphore maxConcurrentTasks = new Semaphore(3); //TODO configurable
 
         while (true) {
             final Task<Project> task = taskSet.getNext();
+            maxConcurrentTasks.acquire();
             if (task == null) break;
 
             Consumer<BuildResult> notifyTaskComplete = buildResult -> {
@@ -43,7 +47,8 @@ public class ProjectBuilder {
                 } else {
                     task.completedWithError();
                 }
-                notify();
+                maxConcurrentTasks.release();
+                taskSet.notify();
             };
 
             task.setBuilding();
