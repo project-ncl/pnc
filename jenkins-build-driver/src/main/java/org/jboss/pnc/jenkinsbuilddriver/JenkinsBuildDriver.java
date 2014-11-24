@@ -13,6 +13,8 @@ import java.util.function.Consumer;
  */
 //TODO implement me
 public class JenkinsBuildDriver implements BuildDriver {
+    private Consumer<BuildResult> onBuildComplete;
+
     @Override
     public String getDriverId() {
         return null;
@@ -30,15 +32,22 @@ public class JenkinsBuildDriver implements BuildDriver {
 
     @Override
     public void buildProject(Project project, Consumer<BuildResult> onBuildComplete) {
+        this.onBuildComplete = onBuildComplete;
         //TODO implement me
 
-        //notify build complete
-        onBuildComplete.accept(new BuildResult());
+        return;
     }
 
     @Override
     public BuildType getBuildType() {
         return BuildType.JAVA;
+    }
+
+    //TODO
+    private void notifyBuildComplete() {
+        //notify build complete
+
+        onBuildComplete.accept(new BuildResult());
     }
 
 }
