@@ -19,11 +19,24 @@ public class BuildResult {
      */
     private String buildImageId;
 
-    private Set<Artifact> artifacts;
-
     private Set<String> logs;
 
     public BuildStatus getStatus() {
         return status;
+    }
+
+    /**
+     * @return List of artifacts that were build by task producing this result.
+     */
+    public Set<Artifact> getBuildArtifacts() {
+        return null;//TODO
+    }
+
+    /**
+     * @return List of artifacts that were required by this build task.
+     * Artifacts can be from internal repo (already build) or imported.
+     */
+    public Set<Artifact> getDependencies() {
+        return null;//TODO
     }
 }

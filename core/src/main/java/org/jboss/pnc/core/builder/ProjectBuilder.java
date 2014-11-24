@@ -6,6 +6,7 @@ import org.jboss.pnc.core.exception.CoreException;
 import org.jboss.pnc.core.spi.builddriver.BuildDriver;
 import org.jboss.pnc.core.spi.repositorymanager.Repository;
 import org.jboss.pnc.core.spi.repositorymanager.RepositoryManager;
+import org.jboss.pnc.datastore.Datastore;
 import org.jboss.pnc.model.BuildResult;
 import org.jboss.pnc.model.Project;
 
@@ -24,6 +25,9 @@ public class ProjectBuilder {
     @Inject
     RepositoryManagerFactory repositoryManagerFactory;
 
+    @Inject
+    Datastore datastore;
+
     public void buildProjects(Set<Project> projects) throws CoreException, InterruptedException {
 
         TaskSet taskSet = new TaskSet(projects);
@@ -32,12 +36,8 @@ public class ProjectBuilder {
             final Task<Project> task = taskSet.getNext();
             if (task == null) break;
 
-            Consumer<BuildResult> onBuildComplete = buildResult -> {
-                task.buildComplete(buildResult);
-            };
-
             task.setBuilding();
-            buildProject(task.getTask(), onBuildComplete);
+            buildProject(task.getTask(), onBuildComplete(task));
         }
     }
 
@@ -55,6 +55,19 @@ public class ProjectBuilder {
         //buildDriver.setImage
 
         buildDriver.buildProject(project, onBuildComplete);
+
+    }
+
+    Consumer<BuildResult> onBuildComplete(Task<Project> task) {
+        return buildResult -> {
+            storeResult(buildResult);
+            
+            task.buildComplete(buildResult);
+        };
+    }
+
+    private void storeResult(BuildResult buildResult) {
+        datastore.storeCompletedBuild(buildResult);
     }
 
 }
