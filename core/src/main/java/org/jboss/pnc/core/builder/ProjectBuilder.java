@@ -8,6 +8,7 @@ import org.jboss.pnc.core.spi.repositorymanager.Repository;
 import org.jboss.pnc.core.spi.repositorymanager.RepositoryManager;
 import org.jboss.pnc.datastore.Datastore;
 import org.jboss.pnc.model.BuildResult;
+import org.jboss.pnc.model.BuildStatus;
 import org.jboss.pnc.model.Project;
 
 import javax.inject.Inject;
@@ -36,12 +37,21 @@ public class ProjectBuilder {
             final Task<Project> task = taskSet.getNext();
             if (task == null) break;
 
+            Consumer<BuildResult> notifyTaskComplete = buildResult -> {
+                if (buildResult.getStatus().equals(BuildStatus.SUCCESS)) {
+                    task.completedSuccessfully();
+                } else {
+                    task.completedWithError();
+                }
+                notify();
+            };
+
             task.setBuilding();
-            buildProject(task.getTask(), onBuildComplete(task));
+            buildProject(task.getTask(), notifyTaskComplete);
         }
     }
 
-    private void buildProject(Project project, Consumer<BuildResult> onBuildComplete) throws CoreException {
+    private void buildProject(Project project, Consumer<BuildResult> notifyTaskComplete) throws CoreException {
         BuildDriver buildDriver = buildDriverFactory.getBuildDriver(project.getBuildType());
         RepositoryManager repositoryManager = repositoryManagerFactory.getRepositoryManager(project.getBuildType());
 
@@ -54,15 +64,16 @@ public class ProjectBuilder {
         //TODO who should decide which image to use
         //buildDriver.setImage
 
-        buildDriver.buildProject(project, onBuildComplete);
+        buildDriver.buildProject(project, onBuildComplete(deployRepository, repositoryProxy));
 
     }
 
-    Consumer<BuildResult> onBuildComplete(Task<Project> task) {
+    Consumer<BuildResult> onBuildComplete(Repository deployRepository, Repository repositoryProxy) {
         return buildResult -> {
             storeResult(buildResult);
-            
-            task.buildComplete(buildResult);
+            //TODO if scratch etc
+            deployRepository.persist();
+            repositoryProxy.persist();
         };
     }
 

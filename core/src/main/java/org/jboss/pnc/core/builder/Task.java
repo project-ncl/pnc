@@ -1,6 +1,5 @@
 package org.jboss.pnc.core.builder;
 
-import org.jboss.pnc.model.BuildResult;
 import org.jboss.pnc.model.BuildStatus;
 
 import java.util.Set;
@@ -11,8 +10,6 @@ import java.util.function.Predicate;
  */
 class Task<T> {
     private T task;
-
-    private BuildResult buildResult;
 
     private Status status;
 
@@ -29,10 +26,12 @@ class Task<T> {
         status = Status.BUILDING;
     }
 
-    void buildComplete(BuildResult buildResult) {
-        this.buildResult = buildResult;
-        status = Status.DONE;
-        notify();
+    void completedSuccessfully() {
+        status = Status.SUCCESS;
+    }
+
+    void completedWithError() {
+        status = Status.FAILED;
     }
 
     boolean isNew() {
@@ -44,16 +43,16 @@ class Task<T> {
     }
 
     boolean isDone() {
-        return Status.DONE.equals(status);
+        return Status.SUCCESS.equals(status) || Status.FAILED.equals(status);
     }
 
     boolean hasResolvedDependencies(Set<Task<T>> tasks) {
-        Predicate<Task> filterSuccess = t -> t.isDone() && t.buildResult.getStatus().equals(BuildStatus.SUCCESS);
-        long successfullyBuildDependencies = tasks.stream().filter(filterSuccess).count();
-        return successfullyBuildDependencies == tasks.size();
+        Predicate<Task> filterSuccess = t -> t.status.equals(BuildStatus.SUCCESS);
+        long successfullyCompleted = tasks.stream().filter(filterSuccess).count();
+        return successfullyCompleted == tasks.size();
     }
 
     enum Status {
-        NEW, BUILDING, DONE;
+        NEW, BUILDING, SUCCESS, FAILED;
     }
 }
