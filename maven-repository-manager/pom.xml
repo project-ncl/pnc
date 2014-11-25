@@ -11,8 +11,4 @@
 
     <artifactId>maven-repository-manager</artifactId>
 
-    <dependencies>
-
-    </dependencies>
-
 </project>

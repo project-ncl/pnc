@@ -1,2 +1,3 @@
-*/target/
+target/
 /pnc-jenkins-plugin/work/
+*.iml

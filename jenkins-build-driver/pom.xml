@@ -17,7 +17,7 @@
     <dependencies>
         <dependency>
             <groupId>org.jboss.pnc</groupId>
-            <artifactId>core</artifactId>
+            <artifactId>orchestrator-core</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
     </dependencies>
