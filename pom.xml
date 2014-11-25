@@ -42,6 +42,7 @@
         <module>model</module>
         <module>web</module>
         <module>common</module>
+        <module>datastore-spi</module>
         <!--module>pnc-jenkins-plugin</module-->
     </modules>
 
