@@ -2,7 +2,6 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
@@ -11,13 +10,9 @@
         <version>1.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>maven-repository-manager</artifactId>
+    <artifactId>pnc-model</artifactId>
     <packaging>jar</packaging>
 
-    <description>Implementation of pnc-spi:org.jboss.pnc.spi.repositorymanager</description>
-
-    <dependencies>
-
-    </dependencies>
+    <description>Contains domain model for the orchestrator. This is just model classes + serialization helpers, and would also be suitable for writing a java client api to support integration.</description>
 
 </project>

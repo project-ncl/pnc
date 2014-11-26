@@ -1,7 +1,7 @@
 package org.jboss.pnc.jenkinsbuilddriver;
 
-import org.jboss.pnc.core.spi.builddriver.BuildDriver;
-import org.jboss.pnc.core.spi.repositorymanager.Repository;
+import org.jboss.pnc.spi.builddriver.BuildDriver;
+import org.jboss.pnc.spi.repositorymanager.Repository;
 import org.jboss.pnc.model.BuildResult;
 import org.jboss.pnc.model.BuildType;
 import org.jboss.pnc.model.Project;
@@ -39,8 +39,8 @@ public class JenkinsBuildDriver implements BuildDriver {
     }
 
     @Override
-    public BuildType getBuildType() {
-        return BuildType.JAVA;
+    public boolean canBuild(BuildType buildType) {
+        return BuildType.JAVA.equals(buildType);
     }
 
     //TODO

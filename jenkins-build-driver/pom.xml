@@ -2,23 +2,37 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.jboss.pnc</groupId>
         <artifactId>parent</artifactId>
+        <groupId>org.jboss.pnc</groupId>
         <version>1.0-SNAPSHOT</version>
     </parent>
 
-    <groupId>org.jboss.pnc</groupId>
     <artifactId>jenkins-build-driver</artifactId>
-    <version>${project.parent.version}</version>
+    <packaging>jar</packaging>
+
+    <description>Implementation of pnc-spi:org.jboss.pnc.spi.builddriver.</description>
 
     <dependencies>
+
+        <!-- Project dependencies -->
         <dependency>
             <groupId>org.jboss.pnc</groupId>
-            <artifactId>core</artifactId>
-            <version>${project.parent.version}</version>
+            <artifactId>pnc-spi</artifactId>
+            <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.jboss.pnc</groupId>
+            <artifactId>pnc-model</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <!-- Remote dependencies -->
+
+        <!-- Test dependencies -->
+
     </dependencies>
 </project>
