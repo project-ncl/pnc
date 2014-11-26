@@ -31,9 +31,10 @@
     <name>core</name>
 
     <dependencies>
+
         <dependency>
             <groupId>org.jboss.pnc</groupId>
-            <artifactId>datastore</artifactId>
+            <artifactId>datastore-spi</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
 

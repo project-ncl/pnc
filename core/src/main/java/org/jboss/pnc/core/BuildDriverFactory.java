@@ -20,7 +20,7 @@ public class BuildDriverFactory {
     public BuildDriver getBuildDriver(BuildType buildType) throws CoreException {
 
         for (BuildDriver driver : availableDrivers) {
-            if (buildType.equals(driver.getBuildType())) {
+            if (driver.canBuild(buildType)) {
                 return driver;
             }
         }

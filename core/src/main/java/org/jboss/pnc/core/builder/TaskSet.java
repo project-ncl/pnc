@@ -2,21 +2,42 @@ package org.jboss.pnc.core.builder;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.logging.Logger;
 
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-11-23.
  */
 class TaskSet<T> {
 
+    private Logger log = Logger.getLogger(TaskSet.class.getName());
+
     private Set<Task<T>> tasks = new HashSet<Task<T>>();
 
-    TaskSet(Set<T> tasks) {
-        tasks.forEach(project -> wrap(project));
-        tasks.stream().peek(project -> this.tasks.add(wrap(project)));
+    private Task<T> wrap(T task) {
+        Task wrappedTask = getWrappedTask(task);
+        if (wrappedTask == null) {
+            wrappedTask = new Task(task);
+            tasks.add(wrappedTask);
+        }
+        return wrappedTask;
     }
 
-    private Task<T> wrap(T project) {
-        return new Task(project);
+    private Task getWrappedTask(T task) {
+        for (Task<T> wrappedTask : tasks) {
+            if (wrappedTask.getTask().equals(task)) {
+                return wrappedTask;
+            }
+        }
+        return null;
+    }
+
+    void add(T task, Set<T> dependencies) {
+        Set<Task<T>> wrappedDependencies = new HashSet<>();
+        for (T dependency : dependencies) {
+            wrappedDependencies.add(wrap(dependency));
+        }
+        Task wrappedTask = wrap(task);
+        wrappedTask.setDependencies(wrappedDependencies);
     }
 
     /**
@@ -26,12 +47,16 @@ class TaskSet<T> {
      */
     Task<T> getNext() throws InterruptedException {
         for (Task<T> task : tasks) {
-            if (task.isNew() && task.hasResolvedDependencies(tasks)) {
+            if (task.isNew() && task.hasResolvedDependencies()) {
                 return task;
             }
         }
         if (isAnyTaskStillBuilding()) {
-            wait(); //TODO max timeout
+            synchronized (this) {
+                try {
+                    this.wait(); //TODO max timeout
+                } catch (InterruptedException e1){}
+            }
             return getNext();
         }
         return null;
@@ -40,6 +65,7 @@ class TaskSet<T> {
     private boolean isAnyTaskStillBuilding() {
         for (Task<T> task : tasks) {
             if (task.isBuilding()) {
+                log.finest("Task is still running " + task.getTask());
                 return true;
             }
         }
@@ -54,5 +80,4 @@ class TaskSet<T> {
         }
         return false;
     }
-
 }

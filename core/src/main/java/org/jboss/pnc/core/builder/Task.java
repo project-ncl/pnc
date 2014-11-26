@@ -1,7 +1,5 @@
 package org.jboss.pnc.core.builder;
 
-import org.jboss.pnc.model.BuildStatus;
-
 import java.util.Set;
 import java.util.function.Predicate;
 
@@ -13,9 +11,15 @@ class Task<T> {
 
     private Status status;
 
+    Set<Task<T>> dependencies;
+
     Task(T task) {
         this.task = task;
         status = Status.NEW;
+    }
+
+    void setDependencies(Set<Task<T>> dependencies) {
+        this.dependencies = dependencies;
     }
 
     T getTask() {
@@ -46,13 +50,18 @@ class Task<T> {
         return Status.SUCCESS.equals(status) || Status.FAILED.equals(status);
     }
 
-    boolean hasResolvedDependencies(Set<Task<T>> tasks) {
-        Predicate<Task> filterSuccess = t -> t.status.equals(BuildStatus.SUCCESS);
-        long successfullyCompleted = tasks.stream().filter(filterSuccess).count();
-        return successfullyCompleted == tasks.size();
+    boolean hasResolvedDependencies() {
+        Predicate<Task> filterSuccess = t -> t.status.equals(Status.SUCCESS);
+        long successfullyCompleted = dependencies.stream().filter(filterSuccess).count();
+        return successfullyCompleted == dependencies.size();
     }
 
     enum Status {
         NEW, BUILDING, SUCCESS, FAILED;
+    }
+
+    @Override
+    public String toString() {
+        return task.toString();
     }
 }

@@ -4,17 +4,19 @@ import org.jboss.pnc.core.BuildDriverFactory;
 import org.jboss.pnc.core.RepositoryManagerFactory;
 import org.jboss.pnc.core.exception.CoreException;
 import org.jboss.pnc.core.spi.builddriver.BuildDriver;
+import org.jboss.pnc.core.spi.datastore.Datastore;
 import org.jboss.pnc.core.spi.repositorymanager.Repository;
 import org.jboss.pnc.core.spi.repositorymanager.RepositoryManager;
-import org.jboss.pnc.datastore.Datastore;
 import org.jboss.pnc.model.BuildResult;
 import org.jboss.pnc.model.BuildStatus;
 import org.jboss.pnc.model.Project;
+import org.jboss.pnc.model.RepositoryManagerType;
 
 import javax.inject.Inject;
 import java.util.Set;
 import java.util.concurrent.Semaphore;
 import java.util.function.Consumer;
+import java.util.logging.Logger;
 
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-11-23.
@@ -30,16 +32,25 @@ public class ProjectBuilder {
     @Inject
     Datastore datastore;
 
+    @Inject
+    private Logger log;
+
     public void buildProjects(Set<Project> projects) throws CoreException, InterruptedException {
 
-        final TaskSet taskSet = new TaskSet(projects);
+        final TaskSet<Project> taskSet = new TaskSet();
+        for (Project project : projects) {
+            taskSet.add(project, project.getDependencies());
+        }
 
         Semaphore maxConcurrentTasks = new Semaphore(3); //TODO configurable
 
         while (true) {
             final Task<Project> task = taskSet.getNext();
-            maxConcurrentTasks.acquire();
             if (task == null) break;
+            log.info("Building task " + task);
+            synchronized (taskSet) {
+                maxConcurrentTasks.acquire();
+            }
 
             Consumer<BuildResult> notifyTaskComplete = buildResult -> {
                 if (buildResult.getStatus().equals(BuildStatus.SUCCESS)) {
@@ -47,8 +58,11 @@ public class ProjectBuilder {
                 } else {
                     task.completedWithError();
                 }
-                maxConcurrentTasks.release();
-                taskSet.notify();
+                log.finest("Notifying build completed " + task.getTask());
+                synchronized (taskSet) {
+                    maxConcurrentTasks.release();
+                    taskSet.notifyAll();
+                }
             };
 
             task.setBuilding();
@@ -58,7 +72,7 @@ public class ProjectBuilder {
 
     private void buildProject(Project project, Consumer<BuildResult> notifyTaskComplete) throws CoreException {
         BuildDriver buildDriver = buildDriverFactory.getBuildDriver(project.getBuildType());
-        RepositoryManager repositoryManager = repositoryManagerFactory.getRepositoryManager(project.getBuildType());
+        RepositoryManager repositoryManager = repositoryManagerFactory.getRepositoryManager(RepositoryManagerType.MAVEN); //TODO configure per project
 
         Repository deployRepository = repositoryManager.createEmptyRepository();
         Repository repositoryProxy = repositoryManager.createProxyRepository();
@@ -69,16 +83,17 @@ public class ProjectBuilder {
         //TODO who should decide which image to use
         //buildDriver.setImage
 
-        buildDriver.buildProject(project, onBuildComplete(deployRepository, repositoryProxy));
+        buildDriver.buildProject(project, onBuildComplete(notifyTaskComplete, deployRepository, repositoryProxy));
 
     }
 
-    Consumer<BuildResult> onBuildComplete(Repository deployRepository, Repository repositoryProxy) {
+    Consumer<BuildResult> onBuildComplete(Consumer<BuildResult> notifyTaskComplete, Repository deployRepository, Repository repositoryProxy) {
         return buildResult -> {
             storeResult(buildResult);
             //TODO if scratch etc
             deployRepository.persist();
             repositoryProxy.persist();
+            notifyTaskComplete.accept(buildResult);
         };
     }
 

@@ -14,10 +14,10 @@ public class Project {
     private BuildType buildType;
     private Set<Project> dependencies;
 
-    public Project(String name, BuildType buildType) {
-        this.name = name;
-        this.buildType = buildType;
-    }
+//    public Project(String name, BuildType buildType) {
+//        this.name = name;
+//        this.buildType = buildType;
+//    }
 
     public Project(String name, BuildType buildType, Project... dependencies) {
         this.name = name;
@@ -27,5 +27,18 @@ public class Project {
 
     public BuildType getBuildType() {
         return buildType;
+    }
+
+    public Set<Project> getDependencies() {
+        return dependencies;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    @Override
+    public String toString() {
+        return name;
     }
 }
