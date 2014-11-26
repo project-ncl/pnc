@@ -54,7 +54,7 @@
         </dependency>
         <dependency>
             <groupId>org.jboss.pnc</groupId>
-            <artifactId>model</artifactId>
+            <artifactId>pnc-model</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
 
