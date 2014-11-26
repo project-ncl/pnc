@@ -27,6 +27,6 @@ public interface BuildDriver {
 
     void setSourceRepository(Repository repositoryProxy);
 
-    boolean canBuild(BuildType buildType);
+    BuildType getBuildType();
 
 }

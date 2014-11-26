@@ -39,8 +39,8 @@ public class JenkinsBuildDriver implements BuildDriver {
     }
 
     @Override
-    public boolean canBuild(BuildType buildType) {
-        return BuildType.JAVA.equals(buildType);
+    public BuildType getBuildType() {
+        return BuildType.JAVA;
     }
 
     //TODO

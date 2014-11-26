@@ -62,12 +62,6 @@
         </dependency>
         <dependency>
             <groupId>org.jboss.pnc</groupId>
-            <artifactId>datastore-spi</artifactId>
-            <version>${project.version}</version>
-            <type>jar</type>
-        </dependency>
-        <dependency>
-            <groupId>org.jboss.pnc</groupId>
             <artifactId>jenkins-build-driver</artifactId>
             <version>${project.version}</version>
             <type>jar</type>

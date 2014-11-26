@@ -21,10 +21,6 @@ public class BuildResult {
 
     private Set<String> logs;
 
-    public void setStatus(BuildStatus status) {
-        this.status = status;
-    }
-
     public BuildStatus getStatus() {
         return status;
     }

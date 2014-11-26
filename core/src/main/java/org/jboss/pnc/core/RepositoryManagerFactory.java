@@ -1,12 +1,9 @@
 package org.jboss.pnc.core;
 
-import org.jboss.pnc.core.exception.CoreException;
 import org.jboss.pnc.core.spi.repositorymanager.RepositoryManager;
-import org.jboss.pnc.model.RepositoryManagerType;
+import org.jboss.pnc.model.BuildType;
 
 import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.inject.Instance;
-import javax.inject.Inject;
 
 
 /**
@@ -15,16 +12,7 @@ import javax.inject.Inject;
 @ApplicationScoped
 public class RepositoryManagerFactory {
 
-    @Inject
-    Instance<RepositoryManager> availableManagers;
-
-    public RepositoryManager getRepositoryManager(RepositoryManagerType managerType) throws CoreException {
-        for (RepositoryManager manager : availableManagers) {
-            if (manager.canManage(managerType)) {
-                return manager;
-            }
-        }
-        throw new CoreException("No repository manager available for " + managerType + " build type.");
+    public RepositoryManager getRepositoryManager(BuildType buildType) {
+        return null;//TODO
     }
-
 }
