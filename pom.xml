@@ -33,17 +33,16 @@
         </license>
     </licenses>
     <modules>
-        <module>core</module>
-        <module>ear</module>
+        <module>common</module>
+        <module>datastore</module>
+        <module>ear-package</module>
         <module>jenkins-build-driver</module>
         <module>maven-repository-manager</module>
-        <module>rest</module>
-        <module>datastore</module>
-        <module>model</module>
-        <module>web</module>
-        <module>common</module>
-        <module>datastore-spi</module>
-        <!--module>pnc-jenkins-plugin</module-->
+        <module>pnc-core</module>
+        <module>pnc-model</module>
+        <module>pnc-rest-bindings</module>
+        <module>pnc-spi</module>
+        <module>pnc-web</module>
     </modules>
 
     <properties>

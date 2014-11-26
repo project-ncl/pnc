@@ -1,6 +1,6 @@
 package org.jboss.pnc.datastore;
 
-import org.jboss.pnc.datastore.spi.Datastore;
+import org.jboss.pnc.spi.datastore.Datastore;
 import org.jboss.pnc.model.BuildResult;
 
 /**
