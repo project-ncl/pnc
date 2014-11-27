@@ -21,6 +21,11 @@
         <!-- Project dependencies -->
         <dependency>
             <groupId>org.jboss.pnc</groupId>
+            <artifactId>pnc-core</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.pnc</groupId>
             <artifactId>pnc-model</artifactId>
             <version>${project.parent.version}</version>
         </dependency>

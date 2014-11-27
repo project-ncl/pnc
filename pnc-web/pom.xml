@@ -36,6 +36,9 @@
 
     <dependencies>
 
+        <!-- Project dependencies -->
+
+        <!-- Remote dependencies -->
         <dependency>
             <groupId>javax.enterprise</groupId>
             <artifactId>cdi-api</artifactId>

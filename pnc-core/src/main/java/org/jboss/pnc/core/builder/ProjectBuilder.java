@@ -3,14 +3,14 @@ package org.jboss.pnc.core.builder;
 import org.jboss.pnc.core.BuildDriverFactory;
 import org.jboss.pnc.core.RepositoryManagerFactory;
 import org.jboss.pnc.core.exception.CoreException;
-import org.jboss.pnc.spi.builddriver.BuildDriver;
-import org.jboss.pnc.spi.datastore.Datastore;
-import org.jboss.pnc.spi.repositorymanager.Repository;
-import org.jboss.pnc.spi.repositorymanager.RepositoryManager;
 import org.jboss.pnc.model.BuildResult;
 import org.jboss.pnc.model.BuildStatus;
 import org.jboss.pnc.model.Project;
 import org.jboss.pnc.model.RepositoryManagerType;
+import org.jboss.pnc.spi.builddriver.BuildDriver;
+import org.jboss.pnc.spi.datastore.Datastore;
+import org.jboss.pnc.spi.repositorymanager.Repository;
+import org.jboss.pnc.spi.repositorymanager.RepositoryManager;
 
 import javax.inject.Inject;
 import java.util.Set;
@@ -61,7 +61,7 @@ public class ProjectBuilder {
                 log.finest("Notifying build completed " + task.getTask());
                 synchronized (taskSet) {
                     maxConcurrentTasks.release();
-                    taskSet.notifyAll();
+                    taskSet.notify();
                 }
             };
 
@@ -83,7 +83,7 @@ public class ProjectBuilder {
         //TODO who should decide which image to use
         //buildDriver.setImage
 
-        buildDriver.buildProject(project, onBuildComplete(notifyTaskComplete, deployRepository, repositoryProxy));
+        buildDriver.startProjectBuild(project, onBuildComplete(notifyTaskComplete, deployRepository, repositoryProxy));
 
     }
 
