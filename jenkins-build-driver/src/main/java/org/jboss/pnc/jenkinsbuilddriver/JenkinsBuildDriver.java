@@ -31,9 +31,10 @@ public class JenkinsBuildDriver implements BuildDriver {
     }
 
     @Override
-    public void buildProject(Project project, Consumer<BuildResult> onBuildComplete) {
+    public void startProjectBuild(Project project, Consumer<BuildResult> onBuildComplete) {
         this.onBuildComplete = onBuildComplete;
         //TODO implement me
+
 
         return;
     }

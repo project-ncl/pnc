@@ -20,8 +20,8 @@ public interface BuildDriver {
      * @param project
      * @param onBuildComplete
      */
-    //Future<BuildResult> buildProject(Project project);
-    void buildProject(Project project, Consumer<BuildResult> onBuildComplete);
+    //Future<BuildResult> startProjectBuild(Project project);
+    void startProjectBuild(Project project, Consumer<BuildResult> onBuildComplete);
 
     void setDeployRepository(Repository deployRepository);
 

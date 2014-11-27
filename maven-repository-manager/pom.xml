@@ -17,6 +17,11 @@
     <description>Implementation of pnc-spi:org.jboss.pnc.spi.repositorymanager</description>
 
     <dependencies>
+        <dependency>
+            <groupId>org.jboss.pnc</groupId>
+            <artifactId>pnc-spi</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 
     </dependencies>
 

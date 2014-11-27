@@ -21,7 +21,7 @@ public class BuildDriverMock implements BuildDriver {
     }
 
     @Override
-    public void buildProject(Project project, Consumer<BuildResult> onBuildComplete) {
+    public void startProjectBuild(Project project, Consumer<BuildResult> onBuildComplete) {
         this.onBuildComplete = onBuildComplete;
         new Thread(new FakeBuilder()).start();
         return;
