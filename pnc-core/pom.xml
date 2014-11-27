@@ -17,7 +17,6 @@
     <description>Contains implementations of action-controllers, which include the business logic for orchestrating builds, test runs, etc. Action controllers are used to isolate logic from the REST API, so it can be reused in embedded scenarios.</description>
 
     <dependencies>
-
         <!-- Project dependencies -->
         <dependency>
             <groupId>org.jboss.pnc</groupId>
@@ -86,17 +85,6 @@
 
     </dependencies>
 
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>org.jboss.arquillian</groupId>
-                <artifactId>arquillian-bom</artifactId>
-                <version>1.1.5.Final</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
 
     <build>
         <plugins>
