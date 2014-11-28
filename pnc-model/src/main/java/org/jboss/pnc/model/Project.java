@@ -11,22 +11,13 @@ public class Project {
 
     private String name;
     private String scmURL;
-    private BuildType buildType;
+    private Environment environment;
     private Set<Project> dependencies;
 
-//    public Project(String name, BuildType buildType) {
-//        this.name = name;
-//        this.buildType = buildType;
-//    }
-
-    public Project(String name, BuildType buildType, Project... dependencies) {
+    public Project(String name, Environment environment, Project... dependencies) {
         this.name = name;
-        this.buildType = buildType;
+        this.environment = environment;
         this.dependencies = new HashSet<Project>(Arrays.asList(dependencies));
-    }
-
-    public BuildType getBuildType() {
-        return buildType;
     }
 
     public Set<Project> getDependencies() {
@@ -40,5 +31,9 @@ public class Project {
     @Override
     public String toString() {
         return name;
+    }
+
+    public Environment getEnvironment() {
+        return environment;
     }
 }

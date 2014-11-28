@@ -3,6 +3,8 @@ package org.jboss.pnc.core.builder;
 import org.jboss.pnc.core.BuildDriverFactory;
 import org.jboss.pnc.core.RepositoryManagerFactory;
 import org.jboss.pnc.core.exception.CoreException;
+import org.jboss.pnc.spi.environment.EnvironmentDriver;
+import org.jboss.pnc.spi.environment.EnvironmentDriverProvider;
 import org.jboss.pnc.model.BuildResult;
 import org.jboss.pnc.model.BuildStatus;
 import org.jboss.pnc.model.Project;
@@ -31,6 +33,9 @@ public class ProjectBuilder {
 
     @Inject
     Datastore datastore;
+
+    @Inject
+    EnvironmentDriverProvider environmentDriverProvider;
 
     @Inject
     private Logger log;
@@ -71,7 +76,7 @@ public class ProjectBuilder {
     }
 
     private void buildProject(Project project, Consumer<BuildResult> notifyTaskComplete) throws CoreException {
-        BuildDriver buildDriver = buildDriverFactory.getBuildDriver(project.getBuildType());
+        BuildDriver buildDriver = buildDriverFactory.getBuildDriver(project.getEnvironment().getBuildType());
         RepositoryManager repositoryManager = repositoryManagerFactory.getRepositoryManager(RepositoryManagerType.MAVEN); //TODO configure per project
 
         Repository deployRepository = repositoryManager.createEmptyRepository();
@@ -80,8 +85,8 @@ public class ProjectBuilder {
         buildDriver.setDeployRepository(deployRepository);
         buildDriver.setSourceRepository(repositoryProxy);
 
-        //TODO who should decide which image to use
-        //buildDriver.setImage
+        EnvironmentDriver environmentDriver = environmentDriverProvider.getDriver(project.getEnvironment().getOperationalSystem());
+        environmentDriver.buildEnvironment(project.getEnvironment());
 
         buildDriver.startProjectBuild(project, onBuildComplete(notifyTaskComplete, deployRepository, repositoryProxy));
 
