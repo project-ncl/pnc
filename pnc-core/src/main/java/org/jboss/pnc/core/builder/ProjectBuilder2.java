@@ -23,7 +23,7 @@ import java.util.logging.Logger;
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-11-23.
  */
-public class ProjectBuilder {
+public class ProjectBuilder2 {
 
     @Inject
     BuildDriverFactory buildDriverFactory;
