@@ -35,8 +35,12 @@
     </dependencyManagement>
 
     <dependencies>
-
         <!-- Project dependencies -->
+        <dependency>
+            <groupId>org.jboss.pnc</groupId>
+            <artifactId>common</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 
         <!-- Remote dependencies -->
         <dependency>
