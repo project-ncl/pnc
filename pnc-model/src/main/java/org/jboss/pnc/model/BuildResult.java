@@ -7,6 +7,8 @@ import java.util.Set;
  */
 public class BuildResult {
 
+    private Project project;
+
     private BuildStatus status;
 
     /**
@@ -42,5 +44,13 @@ public class BuildResult {
      */
     public Set<Artifact> getDependencies() {
         return null;//TODO
+    }
+
+    public Project getProject() {
+        return project;
+    }
+
+    public void setProject(Project project) {
+        this.project = project;
     }
 }
