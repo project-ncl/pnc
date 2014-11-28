@@ -3,14 +3,14 @@ package org.jboss.pnc.core.builder;
 import org.jboss.pnc.core.BuildDriverFactory;
 import org.jboss.pnc.core.RepositoryManagerFactory;
 import org.jboss.pnc.core.exception.CoreException;
-import org.jboss.pnc.spi.environment.EnvironmentDriver;
-import org.jboss.pnc.spi.environment.EnvironmentDriverProvider;
 import org.jboss.pnc.model.BuildResult;
 import org.jboss.pnc.model.BuildStatus;
 import org.jboss.pnc.model.Project;
 import org.jboss.pnc.model.RepositoryManagerType;
 import org.jboss.pnc.spi.builddriver.BuildDriver;
 import org.jboss.pnc.spi.datastore.Datastore;
+import org.jboss.pnc.spi.environment.EnvironmentDriver;
+import org.jboss.pnc.spi.environment.EnvironmentDriverProvider;
 import org.jboss.pnc.spi.repositorymanager.Repository;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManager;
 
