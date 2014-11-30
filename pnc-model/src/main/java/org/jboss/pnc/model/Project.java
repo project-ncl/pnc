@@ -34,6 +34,9 @@ public class Project implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    // TODO:
+    // Is this meant to encapsulate all information regarding building a particular project?
+    // Might need to consider patchURL, command line properties etc?
     private String name;
 
     private String description;

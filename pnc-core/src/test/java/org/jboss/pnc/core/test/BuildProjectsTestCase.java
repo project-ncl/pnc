@@ -9,6 +9,7 @@ import org.jboss.pnc.core.builder.ProjectBuilder;
 import org.jboss.pnc.core.exception.CoreException;
 import org.jboss.pnc.core.test.mock.BuildDriverMock;
 import org.jboss.pnc.core.test.mock.DatastoreMock;
+import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.Environment;
 import org.jboss.pnc.model.Project;
 import org.jboss.pnc.model.ProjectBuildConfiguration;

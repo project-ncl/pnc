@@ -3,6 +3,8 @@ package org.jboss.pnc.model;
 import java.io.Serializable;
 
 import javax.persistence.*;
+import org.commonjava.maven.atlas.ident.ref.ProjectVersionRef;
+
 
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-11-23.
@@ -31,7 +33,10 @@ public class Artifact implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    private String identifier;
+    /**
+     * TODO: Is this meant to be a Maven GAV e.g. use ProjectVersionRef
+     */
+    private ProjectVersionRef identifier;
 
     private String checksum;
 

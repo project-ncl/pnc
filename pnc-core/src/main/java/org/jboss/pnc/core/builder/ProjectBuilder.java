@@ -10,6 +10,12 @@ import javax.inject.Inject;
 import org.jboss.pnc.core.BuildDriverFactory;
 import org.jboss.pnc.core.RepositoryManagerFactory;
 import org.jboss.pnc.core.exception.CoreException;
+import org.jboss.pnc.core.repository.RepositoryConfigurationImpl;
+import org.jboss.pnc.model.BuildConfiguration;
+import org.jboss.pnc.spi.environment.EnvironmentDriver;
+import org.jboss.pnc.spi.environment.EnvironmentDriverProvider;
+import org.jboss.pnc.model.BuildResult;
+
 import org.jboss.pnc.model.BuildStatus;
 import org.jboss.pnc.model.ProjectBuildConfiguration;
 import org.jboss.pnc.model.ProjectBuildResult;
@@ -19,6 +25,7 @@ import org.jboss.pnc.spi.datastore.Datastore;
 import org.jboss.pnc.spi.environment.EnvironmentDriver;
 import org.jboss.pnc.spi.environment.EnvironmentDriverProvider;
 import org.jboss.pnc.spi.repositorymanager.Repository;
+import org.jboss.pnc.spi.repositorymanager.RepositoryConfiguration;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManager;
 
 /**
@@ -86,18 +93,18 @@ public class ProjectBuilder {
                                                                                                                           // per
                                                                                                                           // project
 
-        Repository deployRepository = repositoryManager.createEmptyRepository();
-        Repository repositoryProxy = repositoryManager.createProxyRepository();
+        BuildConfiguration bc = new BuildConfiguration(project);
+        RepositoryConfiguration brc = repositoryManager.createBuildRepository(bc);
 
-        buildDriver.setDeployRepository(deployRepository);
-        buildDriver.setSourceRepository(repositoryProxy);
+        buildDriver.setDeployRepository(brc.getDeploymentRepository());
+        buildDriver.setSourceRepository(brc.getSourceRepository());
 
         EnvironmentDriver environmentDriver = environmentDriverProvider.getDriver(projectBuildConfiguration.getEnvironment()
                 .getOperationalSystem());
         environmentDriver.buildEnvironment(projectBuildConfiguration.getEnvironment());
 
         buildDriver.startProjectBuild(projectBuildConfiguration,
-                onBuildComplete(notifyTaskComplete, deployRepository, repositoryProxy));
+                onBuildComplete(notifyTaskComplete, brc.getDeploymentRepository(), brc.getSourceRepository()));
 
     }
 

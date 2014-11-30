@@ -22,12 +22,17 @@ public class JenkinsBuildDriver implements BuildDriver {
 
     @Override
     public void setDeployRepository(Repository deployRepository) {
-
+        // TODO: This should probably use the deployment repository
+        // embedded in a settings.xml (See below) and alter the command
+        // line to use that new deployment repository or set
+        // MAVEN_OPTS="-DaltDeploymentRepository=xxxx in the environment
+        // of the Jenkins job (where xxxx is the new deployment repostory)
     }
 
     @Override
     public void setSourceRepository(Repository repositoryProxy) {
-
+        // TODO: This should probably create a settings.xml file with an override
+        // so that Maven uses the proxy URL instead.
     }
 
     @Override
