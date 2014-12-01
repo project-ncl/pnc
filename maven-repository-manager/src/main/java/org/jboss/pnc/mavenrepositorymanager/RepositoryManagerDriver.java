@@ -3,7 +3,7 @@ package org.jboss.pnc.mavenrepositorymanager;
 import org.jboss.pnc.model.BuildCollection;
 import org.jboss.pnc.model.ProjectBuildConfiguration;
 import org.jboss.pnc.model.ProjectBuildResult;
-import org.jboss.pnc.model.RepositoryManagerType;
+import org.jboss.pnc.model.RepositoryType;
 import org.jboss.pnc.spi.repositorymanager.RepositoryConfiguration;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManager;
 
@@ -24,10 +24,10 @@ public class RepositoryManagerDriver implements RepositoryManager {
     }
 
     @Override
-    public boolean canManage(RepositoryManagerType managerType)
+    public boolean canManage(RepositoryType managerType)
     {
         log.info("Checking for type " + managerType);
-        if (managerType == RepositoryManagerType.MAVEN)
+        if (managerType == RepositoryType.MAVEN)
         {
             return true;
         }

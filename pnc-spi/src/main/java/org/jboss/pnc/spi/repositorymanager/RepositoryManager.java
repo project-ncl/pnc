@@ -3,7 +3,7 @@ package org.jboss.pnc.spi.repositorymanager;
 import org.jboss.pnc.model.BuildCollection;
 import org.jboss.pnc.model.ProjectBuildConfiguration;
 import org.jboss.pnc.model.ProjectBuildResult;
-import org.jboss.pnc.model.RepositoryManagerType;
+import org.jboss.pnc.model.RepositoryType;
 
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-11-23.
@@ -21,7 +21,7 @@ public interface RepositoryManager {
     RepositoryConfiguration createRepository( ProjectBuildConfiguration projectBuildConfiguration,
                                               BuildCollection buildCollection );
 
-    boolean canManage(RepositoryManagerType managerType);
+    boolean canManage(RepositoryType managerType);
 
     /**
      * Promote any deployed artifacts and process any uncaptured imports of input artifacts (dependencies, etc.)

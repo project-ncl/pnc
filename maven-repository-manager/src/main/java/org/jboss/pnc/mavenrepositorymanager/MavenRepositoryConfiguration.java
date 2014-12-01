@@ -1,6 +1,6 @@
 package org.jboss.pnc.mavenrepositorymanager;
 
-import org.jboss.pnc.model.RepositoryManagerType;
+import org.jboss.pnc.model.RepositoryType;
 import org.jboss.pnc.spi.repositorymanager.RepositoryConfiguration;
 import org.jboss.pnc.spi.repositorymanager.RepositoryConnectionInfo;
 
@@ -27,8 +27,8 @@ public class MavenRepositoryConfiguration implements RepositoryConfiguration
 
 
     @Override
-    public RepositoryManagerType getType() {
-        return RepositoryManagerType.MAVEN;
+    public RepositoryType getType() {
+        return RepositoryType.MAVEN;
     }
 
 

@@ -2,7 +2,7 @@ package org.jboss.pnc.core;
 
 import org.jboss.pnc.core.exception.CoreException;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManager;
-import org.jboss.pnc.model.RepositoryManagerType;
+import org.jboss.pnc.model.RepositoryType;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Instance;
@@ -22,7 +22,7 @@ public class RepositoryManagerFactory {
     @Inject
     private Logger log;
 
-    public RepositoryManager getRepositoryManager(RepositoryManagerType managerType) throws CoreException {
+    public RepositoryManager getRepositoryManager(RepositoryType managerType) throws CoreException {
 
         for (RepositoryManager manager : availableManagers) {
             if (manager.canManage(managerType)) {

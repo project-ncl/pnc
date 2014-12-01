@@ -7,7 +7,7 @@ import org.jboss.pnc.model.BuildCollection;
 import org.jboss.pnc.model.BuildStatus;
 import org.jboss.pnc.model.ProjectBuildConfiguration;
 import org.jboss.pnc.model.ProjectBuildResult;
-import org.jboss.pnc.model.RepositoryManagerType;
+import org.jboss.pnc.model.RepositoryType;
 import org.jboss.pnc.spi.builddriver.BuildDriver;
 import org.jboss.pnc.spi.datastore.Datastore;
 import org.jboss.pnc.spi.environment.EnvironmentDriver;
@@ -85,7 +85,7 @@ public class ProjectBuilder {
                                BuildCollection buildCollection,
             Consumer<ProjectBuildResult> notifyTaskComplete) throws CoreException {
         BuildDriver buildDriver = buildDriverFactory.getBuildDriver(projectBuildConfiguration.getEnvironment().getBuildType());
-        RepositoryManager repositoryManager = repositoryManagerFactory.getRepositoryManager(RepositoryManagerType.MAVEN); // TODO
+        RepositoryManager repositoryManager = repositoryManagerFactory.getRepositoryManager(RepositoryType.MAVEN); // TODO
                                                                                                                           // configure
                                                                                                                           // per
                                                                                                                           // project
