@@ -162,6 +162,9 @@ public class BuildProjectsTestCase {
                         projectBuildConfigurationC1, projectBuildConfigurationD1, projectBuildConfigurationE1,
                         projectBuildConfigurationF1 }));
 
+        log.info("Got projectBuilder: " + projectBuilder);
+        log.info("Building projectBuildConfigurations: " + projectBuildConfigurations.size());
+
         projectBuilder.buildProjects(projectBuildConfigurations);
 
         log.info("Got " + datastore.getBuildResults().size() + " results.");
