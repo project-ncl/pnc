@@ -1,24 +1,25 @@
 package org.jboss.pnc.core.builder;
 
-import org.jboss.pnc.core.BuildDriverFactory;
-import org.jboss.pnc.core.RepositoryManagerFactory;
-import org.jboss.pnc.core.exception.CoreException;
-import org.jboss.pnc.spi.environment.EnvironmentDriver;
-import org.jboss.pnc.spi.environment.EnvironmentDriverProvider;
-import org.jboss.pnc.model.BuildResult;
-import org.jboss.pnc.model.BuildStatus;
-import org.jboss.pnc.model.Project;
-import org.jboss.pnc.model.RepositoryManagerType;
-import org.jboss.pnc.spi.builddriver.BuildDriver;
-import org.jboss.pnc.spi.datastore.Datastore;
-import org.jboss.pnc.spi.repositorymanager.Repository;
-import org.jboss.pnc.spi.repositorymanager.RepositoryManager;
-
-import javax.inject.Inject;
 import java.util.Set;
 import java.util.concurrent.Semaphore;
 import java.util.function.Consumer;
 import java.util.logging.Logger;
+
+import javax.inject.Inject;
+
+import org.jboss.pnc.core.BuildDriverFactory;
+import org.jboss.pnc.core.RepositoryManagerFactory;
+import org.jboss.pnc.core.exception.CoreException;
+import org.jboss.pnc.model.BuildStatus;
+import org.jboss.pnc.model.ProjectBuildConfiguration;
+import org.jboss.pnc.model.ProjectBuildResult;
+import org.jboss.pnc.model.RepositoryManagerType;
+import org.jboss.pnc.spi.builddriver.BuildDriver;
+import org.jboss.pnc.spi.datastore.Datastore;
+import org.jboss.pnc.spi.environment.EnvironmentDriver;
+import org.jboss.pnc.spi.environment.EnvironmentDriverProvider;
+import org.jboss.pnc.spi.repositorymanager.Repository;
+import org.jboss.pnc.spi.repositorymanager.RepositoryManager;
 
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-11-23.
@@ -40,24 +41,26 @@ public class ProjectBuilder {
     @Inject
     private Logger log;
 
-    public void buildProjects(Set<Project> projects) throws CoreException, InterruptedException {
+    public void buildProjects(Set<ProjectBuildConfiguration> projectsBuildConfigurations) throws CoreException,
+            InterruptedException {
 
-        final TaskSet<Project> taskSet = new TaskSet();
-        for (Project project : projects) {
-            taskSet.add(project, project.getDependencies());
+        final TaskSet<ProjectBuildConfiguration> taskSet = new TaskSet<ProjectBuildConfiguration>();
+        for (ProjectBuildConfiguration projectBuildConfiguration : projectsBuildConfigurations) {
+            taskSet.add(projectBuildConfiguration, projectBuildConfiguration.getDependencies());
         }
 
-        Semaphore maxConcurrentTasks = new Semaphore(3); //TODO configurable
+        Semaphore maxConcurrentTasks = new Semaphore(3); // TODO configurable
 
         while (true) {
-            final Task<Project> task = taskSet.getNext();
-            if (task == null) break;
+            final Task<ProjectBuildConfiguration> task = taskSet.getNext();
+            if (task == null)
+                break;
             log.info("Building task " + task);
             synchronized (taskSet) {
                 maxConcurrentTasks.acquire();
             }
 
-            Consumer<BuildResult> notifyTaskComplete = buildResult -> {
+            Consumer<ProjectBuildResult> notifyTaskComplete = buildResult -> {
                 if (buildResult.getStatus().equals(BuildStatus.SUCCESS)) {
                     task.completedSuccessfully();
                 } else {
@@ -75,9 +78,13 @@ public class ProjectBuilder {
         }
     }
 
-    private void buildProject(Project project, Consumer<BuildResult> notifyTaskComplete) throws CoreException {
-        BuildDriver buildDriver = buildDriverFactory.getBuildDriver(project.getEnvironment().getBuildType());
-        RepositoryManager repositoryManager = repositoryManagerFactory.getRepositoryManager(RepositoryManagerType.MAVEN); //TODO configure per project
+    private void buildProject(ProjectBuildConfiguration projectBuildConfiguration,
+            Consumer<ProjectBuildResult> notifyTaskComplete) throws CoreException {
+        BuildDriver buildDriver = buildDriverFactory.getBuildDriver(projectBuildConfiguration.getEnvironment().getBuildType());
+        RepositoryManager repositoryManager = repositoryManagerFactory.getRepositoryManager(RepositoryManagerType.MAVEN); // TODO
+                                                                                                                          // configure
+                                                                                                                          // per
+                                                                                                                          // project
 
         Repository deployRepository = repositoryManager.createEmptyRepository();
         Repository repositoryProxy = repositoryManager.createProxyRepository();
@@ -85,24 +92,27 @@ public class ProjectBuilder {
         buildDriver.setDeployRepository(deployRepository);
         buildDriver.setSourceRepository(repositoryProxy);
 
-        EnvironmentDriver environmentDriver = environmentDriverProvider.getDriver(project.getEnvironment().getOperationalSystem());
-        environmentDriver.buildEnvironment(project.getEnvironment());
+        EnvironmentDriver environmentDriver = environmentDriverProvider.getDriver(projectBuildConfiguration.getEnvironment()
+                .getOperationalSystem());
+        environmentDriver.buildEnvironment(projectBuildConfiguration.getEnvironment());
 
-        buildDriver.startProjectBuild(project, onBuildComplete(notifyTaskComplete, deployRepository, repositoryProxy));
+        buildDriver.startProjectBuild(projectBuildConfiguration,
+                onBuildComplete(notifyTaskComplete, deployRepository, repositoryProxy));
 
     }
 
-    Consumer<BuildResult> onBuildComplete(Consumer<BuildResult> notifyTaskComplete, Repository deployRepository, Repository repositoryProxy) {
+    Consumer<ProjectBuildResult> onBuildComplete(Consumer<ProjectBuildResult> notifyTaskComplete, Repository deployRepository,
+            Repository repositoryProxy) {
         return buildResult -> {
             storeResult(buildResult);
-            //TODO if scratch etc
+            // TODO if scratch etc
             deployRepository.persist();
             repositoryProxy.persist();
             notifyTaskComplete.accept(buildResult);
         };
     }
 
-    private void storeResult(BuildResult buildResult) {
+    private void storeResult(ProjectBuildResult buildResult) {
         datastore.storeCompletedBuild(buildResult);
     }
 

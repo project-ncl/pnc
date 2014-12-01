@@ -1,19 +1,19 @@
 package org.jboss.pnc.jenkinsbuilddriver;
 
+import java.util.function.Consumer;
+
+import org.jboss.pnc.model.BuildType;
+import org.jboss.pnc.model.ProjectBuildConfiguration;
+import org.jboss.pnc.model.ProjectBuildResult;
 import org.jboss.pnc.spi.builddriver.BuildDriver;
 import org.jboss.pnc.spi.repositorymanager.Repository;
-import org.jboss.pnc.model.BuildResult;
-import org.jboss.pnc.model.BuildType;
-import org.jboss.pnc.model.Project;
-
-import java.util.function.Consumer;
 
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-11-23.
  */
-//TODO implement me
+// TODO implement me
 public class JenkinsBuildDriver implements BuildDriver {
-    private Consumer<BuildResult> onBuildComplete;
+    private Consumer<ProjectBuildResult> onBuildComplete;
 
     @Override
     public String getDriverId() {
@@ -31,10 +31,10 @@ public class JenkinsBuildDriver implements BuildDriver {
     }
 
     @Override
-    public void startProjectBuild(Project project, Consumer<BuildResult> onBuildComplete) {
-        this.onBuildComplete = onBuildComplete;
-        //TODO implement me
+    public void startProjectBuild(ProjectBuildConfiguration projectBuildConfiguration,
+            Consumer<ProjectBuildResult> onBuildComplete) {
 
+        this.onBuildComplete = onBuildComplete;
 
         return;
     }
@@ -44,11 +44,11 @@ public class JenkinsBuildDriver implements BuildDriver {
         return BuildType.JAVA.equals(buildType);
     }
 
-    //TODO
+    // TODO
     private void notifyBuildComplete() {
-        //notify build complete
+        // notify build complete
 
-        onBuildComplete.accept(new BuildResult());
+        onBuildComplete.accept(new ProjectBuildResult());
     }
 
 }
