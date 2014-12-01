@@ -1,15 +1,8 @@
 package org.jboss.pnc.model;
 
+import javax.persistence.*;
 import java.io.Serializable;
 import java.util.List;
-
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.NamedQuery;
-import javax.persistence.OneToMany;
 
 /**
  * The Class User maps the user that triggered the builds, and are linked to the ProjectBuildResult
@@ -36,7 +29,7 @@ public class User implements Serializable {
 
     private String username;
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany
     private List<ProjectBuildResult> projectBuildResults;
 
     /**
@@ -174,48 +167,8 @@ public class User implements Serializable {
      * @return the project build result
      */
     public ProjectBuildResult removeProjectBuildResult(ProjectBuildResult projectBuildResult) {
-
         getProjectBuildResults().remove(projectBuildResult);
         projectBuildResult.setUser(null);
-
         return projectBuildResult;
     }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see java.lang.Object#hashCode()
-     */
-    @Override
-    public int hashCode() {
-        int hash = 3;
-        hash = 53 * hash + (this.getUsername() != null ? this.getUsername().hashCode() : 0);
-        return hash;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see java.lang.Object#equals(java.lang.Object)
-     */
-    @Override
-    public boolean equals(Object o) {
-        if (o == this) {
-            return true;
-        }
-        if (!(o instanceof User)) {
-            return false;
-        }
-
-        User a = (User) o;
-        if (this.getUsername() == null && a.getUsername() == null) {
-            return true;
-        }
-
-        if ((this.getUsername().equals(a.getUsername()))) {
-            return true;
-        }
-        return false;
-    }
-
 }

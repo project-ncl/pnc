@@ -8,9 +8,11 @@ import org.jboss.pnc.model.ProjectBuildResult;
  * 2014-11-24.
  */
 public class DefaultDatastore implements Datastore {
-	public void storeCompletedBuild(ProjectBuildResult buildResult) {
-		buildResult.getStatus();
-		buildResult.getBuiltArtifacts();
-		buildResult.getDependencies();
-	}
+
+    @Override
+    public void storeCompletedBuild(ProjectBuildResult buildResult) {
+        buildResult.getStatus();
+        buildResult.getBuiltArtifacts();
+        buildResult.getDependencies();
+    }
 }

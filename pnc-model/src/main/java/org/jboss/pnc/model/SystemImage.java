@@ -36,9 +36,6 @@ public class SystemImage implements Serializable {
 
     private String description;
 
-    @Column(name = "image_blob")
-    private byte[] imageBlob;
-
     @Column(name = "image_url")
     private String imageUrl;
 
@@ -121,24 +118,6 @@ public class SystemImage implements Serializable {
     }
 
     /**
-     * Gets the image blob.
-     *
-     * @return the image blob
-     */
-    public byte[] getImageBlob() {
-        return imageBlob;
-    }
-
-    /**
-     * Sets the image blob.
-     *
-     * @param imageBlob the new image blob
-     */
-    public void setImageBlob(byte[] imageBlob) {
-        this.imageBlob = imageBlob;
-    }
-
-    /**
      * Gets the image url.
      *
      * @return the image url
@@ -154,34 +133,6 @@ public class SystemImage implements Serializable {
      */
     public void setImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see java.lang.Object#hashCode()
-     */
-    @Override
-    public int hashCode() {
-        return this.id.hashCode();
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see java.lang.Object#equals(java.lang.Object)
-     */
-    @Override
-    public boolean equals(Object o) {
-        if (o == this) {
-            return true;
-        }
-        if (!(o instanceof SystemImage)) {
-            return false;
-        }
-
-        SystemImage s = (SystemImage) o;
-        return this.id.equals(s.getId());
     }
 
     /*

@@ -2,20 +2,13 @@ package org.jboss.pnc.model;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
+import java.time.Instant;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.NamedQuery;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 /**
  * The Class ProjectBuildConfiguration cointains the informations needed to trigger the build of a project, i.e. the sources and
@@ -64,6 +57,7 @@ public class ProjectBuildConfiguration implements Serializable {
     @Column(name = "created")
     private Timestamp creationTime;
 
+    @Version
     @Column(name = "last_updated")
     private Timestamp lastModificationTime;
 
@@ -71,8 +65,9 @@ public class ProjectBuildConfiguration implements Serializable {
      * Instantiates a new project build configuration.
      */
     public ProjectBuildConfiguration() {
-        buildsToTrigger = new HashSet<BuildTrigger>();
-        triggeredByBuilds = new HashSet<BuildTrigger>();
+        buildsToTrigger = new HashSet<>();
+        triggeredByBuilds = new HashSet<>();
+        creationTime = Timestamp.from(Instant.now());
     }
 
     /**
@@ -231,13 +226,13 @@ public class ProjectBuildConfiguration implements Serializable {
 
     public Set<ProjectBuildConfiguration> getDependencies() {
         if (!buildsToTrigger.isEmpty()) {
-            Set<ProjectBuildConfiguration> dependencies = new HashSet<ProjectBuildConfiguration>();
+            Set<ProjectBuildConfiguration> dependencies = new HashSet<>();
             for (BuildTrigger buildTrigger : buildsToTrigger) {
                 dependencies.add(buildTrigger.getBuildConfiguration());
             }
             return dependencies;
         }
-        return null;
+        return Collections.emptySet();
     }
 
     public Set<BuildTrigger> addDependency(ProjectBuildConfiguration configuration) {
@@ -256,37 +251,6 @@ public class ProjectBuildConfiguration implements Serializable {
         }
 
         return buildsToTrigger;
-    }
-
-    @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((identifier == null) ? 0 : identifier.hashCode());
-        result = prime * result + ((project == null) ? 0 : project.hashCode());
-        return result;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (obj == null)
-            return false;
-        if (getClass() != obj.getClass())
-            return false;
-        ProjectBuildConfiguration other = (ProjectBuildConfiguration) obj;
-        if (identifier == null) {
-            if (other.identifier != null)
-                return false;
-        } else if (!identifier.equals(other.identifier))
-            return false;
-        if (project == null) {
-            if (other.project != null)
-                return false;
-        } else if (!project.equals(other.project))
-            return false;
-        return true;
     }
 
     @Override

@@ -2,15 +2,7 @@ package org.jboss.pnc.model;
 
 import java.io.Serializable;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Enumerated;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.NamedQuery;
+import javax.persistence.*;
 
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-11-23.
@@ -48,7 +40,7 @@ public class Artifact implements Serializable {
     @Column(name = "deploy_url")
     private String deployUrl;
 
-    @Enumerated
+    @Enumerated(EnumType.STRING)
     private ArtifactStatus status;
 
     // bi-directional many-to-one association to BuildResult

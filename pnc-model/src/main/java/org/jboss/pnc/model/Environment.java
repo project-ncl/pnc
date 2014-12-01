@@ -2,13 +2,7 @@ package org.jboss.pnc.model;
 
 import java.io.Serializable;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.NamedQuery;
+import javax.persistence.*;
 
 // TODO: Auto-generated Javadoc
 /**
@@ -24,12 +18,10 @@ public class Environment implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @ManyToOne
-    @JoinColumn(name = "build_type_id")
+    @Enumerated(EnumType.STRING)
     private BuildType buildType;
 
-    @ManyToOne
-    @JoinColumn(name = "operational_system_id")
+    @Enumerated(EnumType.STRING)
     private OperationalSystem operationalSystem;
 
     /**
@@ -101,41 +93,6 @@ public class Environment implements Serializable {
      */
     public void setOperationalSystem(OperationalSystem operationalSystem) {
         this.operationalSystem = operationalSystem;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see java.lang.Object#hashCode()
-     */
-    @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((buildType == null) ? 0 : buildType.hashCode());
-        result = prime * result + ((operationalSystem == null) ? 0 : operationalSystem.hashCode());
-        return result;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see java.lang.Object#equals(java.lang.Object)
-     */
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (obj == null)
-            return false;
-        if (getClass() != obj.getClass())
-            return false;
-        Environment other = (Environment) obj;
-        if (buildType != other.buildType)
-            return false;
-        if (operationalSystem != other.operationalSystem)
-            return false;
-        return true;
     }
 
     /*

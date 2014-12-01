@@ -58,7 +58,7 @@ public class Project implements Serializable {
      * Instantiates a new project.
      */
     public Project() {
-        this.projectBuildConfigurations = new HashSet<ProjectBuildConfiguration>();
+        this.projectBuildConfigurations = new HashSet<>();
     }
 
     /**
@@ -79,7 +79,7 @@ public class Project implements Serializable {
         this.issueTrackerUrl = issueTrackerUrl;
         this.projectUrl = projectUrl;
         this.license = license;
-        this.projectBuildConfigurations = new HashSet<ProjectBuildConfiguration>(Arrays.asList(projectBuildConfigurations));
+        this.projectBuildConfigurations = new HashSet<>(Arrays.asList(projectBuildConfigurations));
     }
 
     /**
@@ -205,24 +205,6 @@ public class Project implements Serializable {
         projectBuildConfigurations.remove(configuration);
 
         return projectBuildConfigurations;
-    }
-
-    @Override
-    public int hashCode() {
-        return this.id.hashCode();
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (o == this) {
-            return true;
-        }
-        if (!(o instanceof Project)) {
-            return false;
-        }
-
-        Project p = (Project) o;
-        return this.id.equals(p.getId());
     }
 
     @Override

@@ -143,47 +143,6 @@ public class BuildCollection implements Serializable {
     /*
      * (non-Javadoc)
      * 
-     * @see java.lang.Object#hashCode()
-     */
-    @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((productName == null) ? 0 : productName.hashCode());
-        result = prime * result + ((productVersion == null) ? 0 : productVersion.hashCode());
-        return result;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see java.lang.Object#equals(java.lang.Object)
-     */
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (obj == null)
-            return false;
-        if (getClass() != obj.getClass())
-            return false;
-        BuildCollection other = (BuildCollection) obj;
-        if (productName == null) {
-            if (other.productName != null)
-                return false;
-        } else if (!productName.equals(other.productName))
-            return false;
-        if (productVersion == null) {
-            if (other.productVersion != null)
-                return false;
-        } else if (!productVersion.equals(other.productVersion))
-            return false;
-        return true;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
      * @see java.lang.Object#toString()
      */
     @Override
