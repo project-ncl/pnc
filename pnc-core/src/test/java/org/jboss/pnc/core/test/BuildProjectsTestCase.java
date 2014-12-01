@@ -79,7 +79,7 @@ public class BuildProjectsTestCase {
         p1.addProjectBuildConfiguration(projectBuildConfigurationA1);
 
         Project p2 = new Project();
-        p1.setId(2);
+        p2.setId(2);
         p2.setName("p2-java");
 
         ProjectBuildConfiguration projectBuildConfigurationB1 = new ProjectBuildConfiguration();
@@ -95,7 +95,7 @@ public class BuildProjectsTestCase {
         p2.addProjectBuildConfiguration(projectBuildConfigurationB1);
 
         Project p3 = new Project();
-        p1.setId(3);
+        p3.setId(3);
         p3.setName("p3-java");
 
         ProjectBuildConfiguration projectBuildConfigurationC1 = new ProjectBuildConfiguration();
@@ -110,7 +110,7 @@ public class BuildProjectsTestCase {
         p3.addProjectBuildConfiguration(projectBuildConfigurationC1);
 
         Project p4 = new Project();
-        p1.setId(4);
+        p4.setId(4);
         p4.setName("p4-java");
 
         ProjectBuildConfiguration projectBuildConfigurationD1 = new ProjectBuildConfiguration();
@@ -127,7 +127,7 @@ public class BuildProjectsTestCase {
         p4.addProjectBuildConfiguration(projectBuildConfigurationD1);
 
         Project p5 = new Project();
-        p1.setId(5);
+        p5.setId(5);
         p5.setName("p5-docker");
 
         ProjectBuildConfiguration projectBuildConfigurationE1 = new ProjectBuildConfiguration();
@@ -143,7 +143,7 @@ public class BuildProjectsTestCase {
         p5.addProjectBuildConfiguration(projectBuildConfigurationE1);
 
         Project p6 = new Project();
-        p1.setId(6);
+        p6.setId(6);
         p6.setName("p6-java");
 
         ProjectBuildConfiguration projectBuildConfigurationF1 = new ProjectBuildConfiguration();
