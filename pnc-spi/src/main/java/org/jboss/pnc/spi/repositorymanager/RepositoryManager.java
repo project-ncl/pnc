@@ -1,7 +1,7 @@
 package org.jboss.pnc.spi.repositorymanager;
 
 import org.jboss.pnc.model.Artifact;
-import org.jboss.pnc.model.BuildConfiguration;
+import org.jboss.pnc.model.ProjectBuildConfiguration;
 import org.jboss.pnc.model.RepositoryManagerType;
 
 import java.util.List;
@@ -13,10 +13,7 @@ public interface RepositoryManager {
 
     boolean canManage(RepositoryManagerType managerType);
 
-    RepositoryConfiguration createBuildRepository(BuildConfiguration b);
-
-    // TODO: Is this API required?
-    // List<RepositoryConfigurationImpl> listOpenBuildRepositories(ProductConfiguration p);
+    RepositoryConfiguration createBuildRepository(ProjectBuildConfiguration productBuildConfiguration);
 
     List<Artifact> promoteBuildRepositoryOutput(RepositoryConfiguration b);
 

@@ -36,7 +36,7 @@ public class Artifact implements Serializable {
     /**
      * TODO: Is this meant to be a Maven GAV e.g. use ProjectVersionRef
      */
-    private ProjectVersionRef identifier;
+    private String identifier;
 
     private String checksum;
 

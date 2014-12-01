@@ -43,6 +43,13 @@
 
         <!-- Test dependencies -->
         <dependency>
+            <groupId>org.jboss.pnc</groupId>
+            <artifactId>maven-repository-manager</artifactId>
+            <version>${project.parent.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <scope>test</scope>

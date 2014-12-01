@@ -1,8 +1,13 @@
 package org.jboss.pnc.model;
 
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.NamedQuery;
 import java.io.Serializable;
-
-import javax.persistence.*;
 
 // TODO: Auto-generated Javadoc
 /**
@@ -97,7 +102,7 @@ public class Environment implements Serializable {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see java.lang.Object#toString()
      */
     @Override

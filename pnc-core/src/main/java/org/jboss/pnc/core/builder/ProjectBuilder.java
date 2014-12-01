@@ -1,21 +1,8 @@
 package org.jboss.pnc.core.builder;
 
-import java.util.Set;
-import java.util.concurrent.Semaphore;
-import java.util.function.Consumer;
-import java.util.logging.Logger;
-
-import javax.inject.Inject;
-
 import org.jboss.pnc.core.BuildDriverFactory;
 import org.jboss.pnc.core.RepositoryManagerFactory;
 import org.jboss.pnc.core.exception.CoreException;
-import org.jboss.pnc.core.repository.RepositoryConfigurationImpl;
-import org.jboss.pnc.model.BuildConfiguration;
-import org.jboss.pnc.spi.environment.EnvironmentDriver;
-import org.jboss.pnc.spi.environment.EnvironmentDriverProvider;
-import org.jboss.pnc.model.BuildResult;
-
 import org.jboss.pnc.model.BuildStatus;
 import org.jboss.pnc.model.ProjectBuildConfiguration;
 import org.jboss.pnc.model.ProjectBuildResult;
@@ -27,6 +14,12 @@ import org.jboss.pnc.spi.environment.EnvironmentDriverProvider;
 import org.jboss.pnc.spi.repositorymanager.Repository;
 import org.jboss.pnc.spi.repositorymanager.RepositoryConfiguration;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManager;
+
+import javax.inject.Inject;
+import java.util.Set;
+import java.util.concurrent.Semaphore;
+import java.util.function.Consumer;
+import java.util.logging.Logger;
 
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-11-23.
@@ -93,8 +86,7 @@ public class ProjectBuilder {
                                                                                                                           // per
                                                                                                                           // project
 
-        BuildConfiguration bc = new BuildConfiguration(project);
-        RepositoryConfiguration brc = repositoryManager.createBuildRepository(bc);
+        RepositoryConfiguration brc = repositoryManager.createBuildRepository(projectBuildConfiguration);
 
         buildDriver.setDeployRepository(brc.getDeploymentRepository());
         buildDriver.setSourceRepository(brc.getSourceRepository());
