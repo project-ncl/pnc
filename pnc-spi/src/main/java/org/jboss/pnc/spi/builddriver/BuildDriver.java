@@ -5,7 +5,7 @@ import java.util.function.Consumer;
 import org.jboss.pnc.model.BuildType;
 import org.jboss.pnc.model.ProjectBuildConfiguration;
 import org.jboss.pnc.model.ProjectBuildResult;
-import org.jboss.pnc.spi.repositorymanager.Repository;
+import org.jboss.pnc.spi.repositorymanager.RepositoryConfiguration;
 
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-11-23.
@@ -23,9 +23,7 @@ public interface BuildDriver {
     // Future<BuildResult> startProjectBuild(Project project);
     void startProjectBuild(ProjectBuildConfiguration projectBuildConfiguration, Consumer<ProjectBuildResult> onBuildComplete);
 
-    void setDeployRepository(Repository deployRepository);
-
-    void setSourceRepository(Repository repositoryProxy);
+    void setRepository(RepositoryConfiguration repository);
 
     boolean canBuild(BuildType buildType);
 

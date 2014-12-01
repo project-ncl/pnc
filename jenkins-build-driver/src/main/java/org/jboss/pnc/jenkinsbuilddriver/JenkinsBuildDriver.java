@@ -6,7 +6,7 @@ import org.jboss.pnc.model.BuildType;
 import org.jboss.pnc.model.ProjectBuildConfiguration;
 import org.jboss.pnc.model.ProjectBuildResult;
 import org.jboss.pnc.spi.builddriver.BuildDriver;
-import org.jboss.pnc.spi.repositorymanager.Repository;
+import org.jboss.pnc.spi.repositorymanager.RepositoryConfiguration;
 
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-11-23.
@@ -21,12 +21,7 @@ public class JenkinsBuildDriver implements BuildDriver {
     }
 
     @Override
-    public void setDeployRepository(Repository deployRepository) {
-
-    }
-
-    @Override
-    public void setSourceRepository(Repository repositoryProxy) {
+    public void setRepository(RepositoryConfiguration deployRepository) {
 
     }
 
