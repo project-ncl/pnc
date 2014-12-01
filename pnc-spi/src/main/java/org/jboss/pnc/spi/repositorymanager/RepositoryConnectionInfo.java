@@ -9,6 +9,8 @@ public interface RepositoryConnectionInfo
 
     String getToolchainUrl();
 
+    String getDeployUrl();
+
     Map<String, String> getProperties();
 
 }
