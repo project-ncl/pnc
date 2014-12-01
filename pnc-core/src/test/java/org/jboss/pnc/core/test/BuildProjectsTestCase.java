@@ -1,5 +1,7 @@
 package org.jboss.pnc.core.test;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.pnc.common.Resources;
@@ -10,6 +12,7 @@ import org.jboss.pnc.core.exception.CoreException;
 import org.jboss.pnc.core.test.mock.BuildDriverMock;
 import org.jboss.pnc.core.test.mock.DatastoreMock;
 import org.jboss.pnc.mavenrepositorymanager.RepositoryManagerDriver;
+import org.jboss.pnc.model.BuildCollection;
 import org.jboss.pnc.model.Environment;
 import org.jboss.pnc.model.Project;
 import org.jboss.pnc.model.ProjectBuildConfiguration;
@@ -21,12 +24,11 @@ import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import javax.inject.Inject;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.logging.Logger;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import javax.inject.Inject;
 
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-11-23.
@@ -124,7 +126,11 @@ public class BuildProjectsTestCase {
         log.info("Got projectBuilder: " + projectBuilder);
         log.info("Building projectBuildConfigurations: " + projectBuildConfigurations.size());
 
-        projectBuilder.buildProjects(projectBuildConfigurations);
+        BuildCollection buildCollection = new BuildCollection();
+        buildCollection.setProductName("foo");
+        buildCollection.setProductVersion("1.0");
+
+        projectBuilder.buildProjects(projectBuildConfigurations, buildCollection);
 
         assertThat(datastore.getBuildResults()).hasSize(3);
     }

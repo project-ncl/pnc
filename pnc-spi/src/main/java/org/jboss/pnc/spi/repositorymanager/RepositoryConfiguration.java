@@ -1,20 +1,15 @@
 package org.jboss.pnc.spi.repositorymanager;
 
+import org.jboss.pnc.model.RepositoryManagerType;
+
 /**
- * Encapsulates Aprox configuration for the source(s) repositories
- * and deployment repository,
+ * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-11-23.
  */
-public interface RepositoryConfiguration
-{
-    /**
-     * Persist the BuildConfiguration in storage
-     */
-    void persist ();
+public interface RepositoryConfiguration {
 
-    /**
-     * TODO: Should this be using Aprox api ?
-     */
-    Repository getSourceRepository();
+    RepositoryManagerType getType();
 
-    Repository getDeploymentRepository ();
+    String getId();
+
+    RepositoryConnectionInfo getConnectionInfo();
 }

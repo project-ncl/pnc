@@ -1,47 +1,45 @@
 package org.jboss.pnc.mavenrepositorymanager;
 
-import org.jboss.pnc.spi.repositorymanager.Repository;
+import org.jboss.pnc.model.RepositoryManagerType;
 import org.jboss.pnc.spi.repositorymanager.RepositoryConfiguration;
+import org.jboss.pnc.spi.repositorymanager.RepositoryConnectionInfo;
 
 public class MavenRepositoryConfiguration implements RepositoryConfiguration
 {
+
+    private final String id;
+
+    private final RepositoryConnectionInfo connectionInfo;
+
     // TODO: Create and pass in suitable parameters to Aprox to create the
     //       proxy repository.
-    public MavenRepositoryConfiguration()
+    public MavenRepositoryConfiguration(String id, MavenRepositoryConnectionInfo info)
     {
+        this.id = id;
+        this.connectionInfo = info;
     }
 
 
     @Override
-    public void persist() {
-
-    }
-
-    @Override
-    public Repository getSourceRepository() {
-        //TODO : call aprox ?
-        return new Repository() {
-            @Override
-            public void persist() {
-
-            }
-        };
-    }
-
-    @Override
-    public Repository getDeploymentRepository() {
-        //TODO : call aprox ?
-        return new Repository() {
-            @Override
-            public void persist() {
-
-            }
-        };
-    }
-
-
-    public String toString()
-    {
+    public String toString() {
         return "MavenRepositoryConfiguration " + this.hashCode();
+    }
+
+
+    @Override
+    public RepositoryManagerType getType() {
+        return RepositoryManagerType.MAVEN;
+    }
+
+
+    @Override
+    public String getId() {
+        return id;
+    }
+
+
+    @Override
+    public RepositoryConnectionInfo getConnectionInfo() {
+        return connectionInfo;
     }
 }
