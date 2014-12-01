@@ -1,11 +1,11 @@
 package org.jboss.pnc.spi.builddriver;
 
-import org.jboss.pnc.spi.repositorymanager.Repository;
-import org.jboss.pnc.model.BuildResult;
-import org.jboss.pnc.model.BuildType;
-import org.jboss.pnc.model.Project;
-
 import java.util.function.Consumer;
+
+import org.jboss.pnc.model.BuildType;
+import org.jboss.pnc.model.ProjectBuildConfiguration;
+import org.jboss.pnc.model.ProjectBuildResult;
+import org.jboss.pnc.spi.repositorymanager.Repository;
 
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-11-23.
@@ -20,8 +20,8 @@ public interface BuildDriver {
      * @param project
      * @param onBuildComplete
      */
-    //Future<BuildResult> startProjectBuild(Project project);
-    void startProjectBuild(Project project, Consumer<BuildResult> onBuildComplete);
+    // Future<BuildResult> startProjectBuild(Project project);
+    void startProjectBuild(ProjectBuildConfiguration projectBuildConfiguration, Consumer<ProjectBuildResult> onBuildComplete);
 
     void setDeployRepository(Repository deployRepository);
 

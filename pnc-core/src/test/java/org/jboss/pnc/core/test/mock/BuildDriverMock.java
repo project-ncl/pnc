@@ -1,19 +1,19 @@
 package org.jboss.pnc.core.test.mock;
 
-import org.jboss.pnc.spi.builddriver.BuildDriver;
-import org.jboss.pnc.spi.repositorymanager.Repository;
-import org.jboss.pnc.model.BuildResult;
+import java.util.function.Consumer;
+
 import org.jboss.pnc.model.BuildStatus;
 import org.jboss.pnc.model.BuildType;
-import org.jboss.pnc.model.Project;
-
-import java.util.function.Consumer;
+import org.jboss.pnc.model.ProjectBuildConfiguration;
+import org.jboss.pnc.model.ProjectBuildResult;
+import org.jboss.pnc.spi.builddriver.BuildDriver;
+import org.jboss.pnc.spi.repositorymanager.Repository;
 
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-11-24.
  */
 public class BuildDriverMock implements BuildDriver {
-    private Consumer<BuildResult> onBuildComplete;
+    private Consumer<ProjectBuildResult> onBuildComplete;
 
     @Override
     public String getDriverId() {
@@ -21,7 +21,8 @@ public class BuildDriverMock implements BuildDriver {
     }
 
     @Override
-    public void startProjectBuild(Project project, Consumer<BuildResult> onBuildComplete) {
+    public void startProjectBuild(ProjectBuildConfiguration projectBuildConfiguration,
+            Consumer<ProjectBuildResult> onBuildComplete) {
         this.onBuildComplete = onBuildComplete;
         new Thread(new FakeBuilder()).start();
         return;
@@ -50,7 +51,7 @@ public class BuildDriverMock implements BuildDriver {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-            BuildResult buildResult = new BuildResult();
+            ProjectBuildResult buildResult = new ProjectBuildResult();
             buildResult.setStatus(BuildStatus.SUCCESS);
             onBuildComplete.accept(buildResult);
         }
