@@ -2,7 +2,16 @@ package org.jboss.pnc.model;
 
 import java.io.Serializable;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.NamedQuery;
 
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-11-23.
@@ -21,6 +30,12 @@ import javax.persistence.*;
  * (identifier + checksum) should be unique
  */
 
+// TODO: We need to capture two types of artifact:
+// 1. Build output, which has an associated build result
+// 2. Import, which has an origin repository that we probably need to track
+//
+// Ordinarily, I'd model this as a common base class and two subclasses to capture the variant info.
+// I'm not sure how it would need to be modeled for efficient storage via JPA.
 @Entity
 @NamedQuery(name = "Artifact.findAll", query = "SELECT a FROM Artifact a")
 public class Artifact implements Serializable {
@@ -31,12 +46,21 @@ public class Artifact implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    /**
+     * TODO: Is this meant to be a Maven GAV e.g. use ProjectVersionRef [jdcasey] Non-maven repo artifacts might not conform to
+     * GAV standard.
+     */
     private String identifier;
+
+    // The type of repository that hosts this artifact. This is also a sort of description for what type of artifatct this is
+    // (maven, npm, etc.)
+    private RepositoryType repoType;
 
     private String checksum;
 
     private String filename;
 
+    // What is this used for?
     @Column(name = "deploy_url")
     private String deployUrl;
 
@@ -206,23 +230,30 @@ public class Artifact implements Serializable {
      */
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
+        if (this == obj) {
             return true;
-        if (obj == null)
+        }
+        if (obj == null) {
             return false;
-        if (getClass() != obj.getClass())
+        }
+        if (getClass() != obj.getClass()) {
             return false;
+        }
         Artifact other = (Artifact) obj;
         if (checksum == null) {
-            if (other.checksum != null)
+            if (other.checksum != null) {
                 return false;
-        } else if (!checksum.equals(other.checksum))
+            }
+        } else if (!checksum.equals(other.checksum)) {
             return false;
+        }
         if (identifier == null) {
-            if (other.identifier != null)
+            if (other.identifier != null) {
                 return false;
-        } else if (!identifier.equals(other.identifier))
+            }
+        } else if (!identifier.equals(other.identifier)) {
             return false;
+        }
         return true;
     }
 

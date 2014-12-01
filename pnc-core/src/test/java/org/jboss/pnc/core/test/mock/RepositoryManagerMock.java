@@ -3,7 +3,7 @@ package org.jboss.pnc.core.test.mock;
 import org.jboss.pnc.model.BuildCollection;
 import org.jboss.pnc.model.ProjectBuildConfiguration;
 import org.jboss.pnc.model.ProjectBuildResult;
-import org.jboss.pnc.model.RepositoryManagerType;
+import org.jboss.pnc.model.RepositoryType;
 import org.jboss.pnc.spi.repositorymanager.RepositoryConfiguration;
 import org.jboss.pnc.spi.repositorymanager.RepositoryConnectionInfo;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManager;
@@ -21,8 +21,8 @@ public class RepositoryManagerMock implements RepositoryManager {
             BuildCollection buildCollection) {
         return new RepositoryConfiguration() {
             @Override
-            public RepositoryManagerType getType() {
-                return RepositoryManagerType.MAVEN;
+            public RepositoryType getType() {
+                return RepositoryType.MAVEN;
             }
 
             @Override
@@ -62,7 +62,7 @@ public class RepositoryManagerMock implements RepositoryManager {
     }
 
     @Override
-    public boolean canManage(RepositoryManagerType managerType) {
+    public boolean canManage(RepositoryType managerType) {
         return true;
     }
 

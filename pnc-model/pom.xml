@@ -21,5 +21,9 @@
     		<artifactId>hibernate-jpa-2.1-api</artifactId>
     		<version>1.0.0.Final</version>
     	</dependency>
+        <dependency>
+          <groupId>org.commonjava.maven.atlas</groupId>
+          <artifactId>atlas-identities</artifactId>
+        </dependency>
     </dependencies>
 </project>

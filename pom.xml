@@ -35,6 +35,7 @@
         <version.jboss.maven.plugin>7.4.Final</version.jboss.maven.plugin>
         <version.jboss.bom>1.0.7.Final</version.jboss.bom>
         <version.jboss.as>7.2.0.Final</version.jboss.as>
+        <atlasVersion>0.13.6</atlasVersion>
 
         <!-- other plugin versions -->
         <version.ear.plugin>2.6</version.ear.plugin>
@@ -78,6 +79,13 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
+
+            <dependency>
+                <groupId>org.commonjava.maven.atlas</groupId>
+                <artifactId>atlas-identities</artifactId>
+                <version>${atlasVersion}</version>
+            </dependency>
+
         </dependencies>
     </dependencyManagement>
 
@@ -94,7 +102,7 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
-    
+
     <build>
         <pluginManagement>
             <plugins>
