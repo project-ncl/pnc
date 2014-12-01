@@ -23,6 +23,10 @@ public interface BuildDriver {
     // Future<BuildResult> startProjectBuild(Project project);
     void startProjectBuild(ProjectBuildConfiguration projectBuildConfiguration, Consumer<ProjectBuildResult> onBuildComplete);
 
+    /**
+     *
+     * @param deployRepository
+     */
     void setDeployRepository(Repository deployRepository);
 
     void setSourceRepository(Repository repositoryProxy);

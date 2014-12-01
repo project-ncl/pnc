@@ -7,6 +7,7 @@ import org.jboss.pnc.model.RepositoryManagerType;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
+import java.util.logging.Logger;
 
 
 /**
@@ -18,7 +19,11 @@ public class RepositoryManagerFactory {
     @Inject
     Instance<RepositoryManager> availableManagers;
 
+    @Inject
+    private Logger log;
+
     public RepositoryManager getRepositoryManager(RepositoryManagerType managerType) throws CoreException {
+
         for (RepositoryManager manager : availableManagers) {
             if (manager.canManage(managerType)) {
                 return manager;

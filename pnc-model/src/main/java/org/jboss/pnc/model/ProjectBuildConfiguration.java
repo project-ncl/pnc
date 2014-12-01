@@ -61,6 +61,10 @@ public class ProjectBuildConfiguration implements Serializable {
     @Column(name = "last_updated")
     private Timestamp lastModificationTime;
 
+    // TODO: What data format does Aprox need?
+    // @Column(name = "repositories")
+    private String repositories;
+
     /**
      * Instantiates a new project build configuration.
      */

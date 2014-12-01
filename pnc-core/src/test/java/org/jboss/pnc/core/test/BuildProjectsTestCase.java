@@ -9,6 +9,7 @@ import org.jboss.pnc.core.builder.ProjectBuilder;
 import org.jboss.pnc.core.exception.CoreException;
 import org.jboss.pnc.core.test.mock.BuildDriverMock;
 import org.jboss.pnc.core.test.mock.DatastoreMock;
+import org.jboss.pnc.mavenrepositorymanager.RepositoryManagerDriver;
 import org.jboss.pnc.model.Environment;
 import org.jboss.pnc.model.Project;
 import org.jboss.pnc.model.ProjectBuildConfiguration;
@@ -35,10 +36,16 @@ public class BuildProjectsTestCase {
 
     @Deployment
     public static JavaArchive createDeployment() {
-        JavaArchive jar = ShrinkWrap.create(JavaArchive.class).addClass(ProjectBuilder.class)
-                .addClass(BuildDriverFactory.class).addClass(RepositoryManagerFactory.class).addClass(Resources.class)
-                .addClass(EnvironmentBuilder.class).addClass(EnvironmentDriverProvider.class)
-                .addPackage(BuildDriverMock.class.getPackage()).addAsManifestResource(EmptyAsset.INSTANCE, "beans.xml")
+        JavaArchive jar = ShrinkWrap.create(JavaArchive.class)
+                .addClass(ProjectBuilder.class)
+                .addClass(BuildDriverFactory.class)
+                .addClass(RepositoryManagerFactory.class)
+                .addClass(Resources.class)
+                .addClass(EnvironmentBuilder.class)
+                .addClass(EnvironmentDriverProvider.class)
+                .addPackage(RepositoryManagerDriver.class.getPackage())
+                .addPackage(BuildDriverMock.class.getPackage())
+                .addAsManifestResource(EmptyAsset.INSTANCE, "beans.xml")
                 .addAsResource("META-INF/logging.properties");
         System.out.println(jar.toString(true));
         return jar;
