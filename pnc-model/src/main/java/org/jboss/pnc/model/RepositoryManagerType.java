@@ -1,9 +1,12 @@
 package org.jboss.pnc.model;
 
 /**
- * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-11-25.
+ * This class maps the different type of Repository Managers, whether they are Maven, NPM, CocoaPod repositories, Docker
+ * registries, etc
  */
 public enum RepositoryManagerType {
     MAVEN,
-    DOCKER;
+    DOCKER_REGISTRY,
+    NPM,
+    COCOA_POD
 }

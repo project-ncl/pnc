@@ -15,4 +15,11 @@
 
     <description>Contains domain model for the orchestrator. This is just model classes + serialization helpers, and would also be suitable for writing a java client api to support integration.</description>
 
+    <dependencies>
+    	<dependency>
+    		<groupId>org.hibernate.javax.persistence</groupId>
+    		<artifactId>hibernate-jpa-2.1-api</artifactId>
+    		<version>1.0.0.Final</version>
+    	</dependency>
+    </dependencies>
 </project>
