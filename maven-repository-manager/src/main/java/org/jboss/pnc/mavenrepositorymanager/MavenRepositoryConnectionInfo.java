@@ -24,4 +24,10 @@ public class MavenRepositoryConnectionInfo implements RepositoryConnectionInfo {
         return null;
     }
 
+    @Override
+    public String getDeployUrl() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
 }

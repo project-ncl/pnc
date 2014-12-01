@@ -33,7 +33,8 @@ public class RepositoryManagerMock implements RepositoryManager {
             @Override
             public RepositoryConnectionInfo getConnectionInfo() {
                 return new RepositoryConnectionInfo() {
-                    String repo = "http://localhost:8080/api/groups/test";
+                    // TODO: This is not connected to anything...
+                    String repo = "http://localhost:8090/api/groups/test";
 
                     @Override
                     public String getToolchainUrl() {
@@ -50,6 +51,11 @@ public class RepositoryManagerMock implements RepositoryManager {
 
                     @Override
                     public String getDependencyUrl() {
+                        return repo;
+                    }
+
+                    @Override
+                    public String getDeployUrl() {
                         return repo;
                     }
                 };
