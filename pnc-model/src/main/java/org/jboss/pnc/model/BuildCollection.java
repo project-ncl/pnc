@@ -4,6 +4,8 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
+
 import java.io.Serializable;
 import java.util.List;
 
@@ -22,11 +24,10 @@ public class BuildCollection implements Serializable {
     @GeneratedValue
     private Integer id;
 
-    private String productName;
+    private Integer productBuildBumber;
 
-    private String productVersion;
-
-    private String description;
+    @ManyToOne
+    private Product product;
 
     @ManyToMany
     private List<ProjectBuildResult> projectBuildResult;
@@ -57,85 +58,51 @@ public class BuildCollection implements Serializable {
     }
 
     /**
-     * Gets the product name.
-     *
-     * @return the product name
+     * @return the productBuildBumber
      */
-    public String getProductName() {
-        return productName;
+    public Integer getProductBuildBumber() {
+        return productBuildBumber;
     }
 
     /**
-     * Sets the product name.
-     *
-     * @param productName the new product name
+     * @param productBuildBumber the productBuildBumber to set
      */
-    public void setProductName(String productName) {
-        this.productName = productName;
+    public void setProductBuildBumber(Integer productBuildBumber) {
+        this.productBuildBumber = productBuildBumber;
     }
 
     /**
-     * Gets the product version.
-     *
-     * @return the product version
+     * @return the product
      */
-    public String getProductVersion() {
-        return productVersion;
+    public Product getProduct() {
+        return product;
     }
 
     /**
-     * Sets the product version.
-     *
-     * @param productVersion the new product version
+     * @param product the product to set
      */
-    public void setProductVersion(String productVersion) {
-        this.productVersion = productVersion;
+    public void setProduct(Product product) {
+        this.product = product;
     }
 
     /**
-     * Gets the description.
-     *
-     * @return the description
-     */
-    public String getDescription() {
-        return description;
-    }
-
-    /**
-     * Sets the description.
-     *
-     * @param description the new description
-     */
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    /**
-     * Gets the project build result.
-     *
-     * @return the project build result
+     * @return the projectBuildResult
      */
     public List<ProjectBuildResult> getProjectBuildResult() {
         return projectBuildResult;
     }
 
     /**
-     * Sets the project build result.
-     *
-     * @param projectBuildResult the new project build result
+     * @param projectBuildResult the projectBuildResult to set
      */
     public void setProjectBuildResult(List<ProjectBuildResult> projectBuildResult) {
         this.projectBuildResult = projectBuildResult;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see java.lang.Object#toString()
-     */
     @Override
     public String toString() {
-        return "BuildCollection [productName=" + productName + ", productVersion=" + productVersion + "]";
+        return "BuildCollection [productName=" + product.getName() + ", productVersion=" + product.getVersion()
+                + ", productBuildBumber=" + productBuildBumber + "]";
     }
 
 }
