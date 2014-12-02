@@ -42,7 +42,7 @@
     <concurrentBuild>false</concurrentBuild>
     <builders>
         <hudson.tasks.Shell>
-            <command>${hudson.tasks.Shell.command:mvn clean install}</command>
+            <command>${hudson.tasks.Shell.command}</command>
         </hudson.tasks.Shell>
     </builders>
     <publishers>

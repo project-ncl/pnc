@@ -5,12 +5,11 @@ import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.jenkinsbuilddriver.JenkinsBuildDriver;
-import org.jboss.pnc.model.Environment;
 import org.jboss.pnc.model.Project;
+import org.jboss.pnc.model.ProjectBuildConfiguration;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.asset.EmptyAsset;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
-import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import javax.inject.Inject;
@@ -40,12 +39,17 @@ public class JenkinsDriverTest {
     @Inject
     JenkinsBuildDriver jenkinsBuildDriver;
 
-    @Test
+    //TODO disable/enable by maven profile
+    //@Test /** disabled by default you need to configure pnc-config.ini in test/resources */
     public void startJenkinsJobTestCase() throws Exception {
 
-        Project project = new Project("PNC-executed-from-test", new Environment());
-        project.setScmUrl("https://github.com/project-ncl/pnc.git");
-        jenkinsBuildDriver.startProjectBuild(project);
+        ProjectBuildConfiguration projectBuildConfiguration = new ProjectBuildConfiguration();
+        projectBuildConfiguration.setScmUrl("https://github.com/project-ncl/pnc.git");
+        projectBuildConfiguration.setBuildScript("mvn clean install");
+        Project project = new Project();
+        project.setName("PNC-executed-from-test");
+        projectBuildConfiguration.setProject(project);
+        jenkinsBuildDriver.startProjectBuild(projectBuildConfiguration);
 
     }
 }

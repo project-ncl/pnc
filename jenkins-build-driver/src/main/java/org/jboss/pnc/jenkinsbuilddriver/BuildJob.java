@@ -6,6 +6,7 @@ import com.offbytwo.jenkins.model.BuildResult;
 import com.offbytwo.jenkins.model.BuildWithDetails;
 import com.offbytwo.jenkins.model.JobWithDetails;
 import org.jboss.pnc.model.BuildStatus;
+import org.jboss.pnc.model.ProjectBuildConfiguration;
 import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
 
 import java.io.IOException;
@@ -17,17 +18,22 @@ public class BuildJob {
     private JenkinsServer jenkinsServer;
     private BuildJobConfig buildJobConfig;
     JobWithDetails job;
-    private Build lastBuild;
 
     public BuildJob(JenkinsServer jenkinsServer) {
         this.jenkinsServer = jenkinsServer;
     }
 
-    public boolean configure(BuildJobConfig buildJobConfig, boolean override) throws BuildDriverException {
-        this.buildJobConfig = buildJobConfig;
+    public boolean configure(ProjectBuildConfiguration projectBuildConfiguration, boolean override) throws BuildDriverException {
+        String jobName = projectBuildConfiguration.getProject().getName();
+
+        this.buildJobConfig = new BuildJobConfig(
+                jobName,
+                projectBuildConfiguration.getScmUrl(),
+                projectBuildConfiguration.getBuildScript());
+
 
         try {
-            job = jenkinsServer.getJob(buildJobConfig.getName());
+            job = jenkinsServer.getJob(jobName);
         } catch (IOException e) {
             throw new BuildDriverException("Cannot check for existing job.", e);
         }
@@ -35,19 +41,19 @@ public class BuildJob {
         try {
             if (job != null) {
                 if (override) {
-                    jenkinsServer.updateJob(buildJobConfig.getName(), buildJobConfig.getXml());
+                    jenkinsServer.updateJob(jobName, buildJobConfig.getXml());
                 } else {
                     //TODO log
                     return false;
                 }
             } else {
-                jenkinsServer.createJob(buildJobConfig.getName(), buildJobConfig.getXml());
+                jenkinsServer.createJob(jobName, buildJobConfig.getXml());
             }
         } catch (IOException e) {
             throw new BuildDriverException("Cannot create/update job.", e);
         }
         try {
-            job = jenkinsServer.getJob(buildJobConfig.getName());
+            job = jenkinsServer.getJob(jobName);
         } catch (IOException e) {
             throw new BuildDriverException("Cannot retrieve just created job.", e);
         }
@@ -57,11 +63,7 @@ public class BuildJob {
     public boolean start() throws BuildDriverException {
         //TODO check if configured
         try {
-            if (buildJobConfig.getParams() != null) {
-                job.build(buildJobConfig.getParams());
-            } else {
-                job.build();
-            }
+            job.build();
         } catch (IOException e) {
             throw new BuildDriverException("Cannot start project build.", e);
         }
@@ -88,7 +90,7 @@ public class BuildJob {
         } catch (IOException e) {
             throw new BuildDriverException("Cannot check for existing job.", e);
         }
-        lastBuild = job.getLastBuild();
+        Build lastBuild = job.getLastBuild();
         BuildWithDetails lastBuildDetails = lastBuild.details();
         return lastBuildDetails;
     }

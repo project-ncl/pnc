@@ -9,7 +9,6 @@ import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.Map;
 import java.util.Properties;
 
 /**
@@ -18,11 +17,12 @@ import java.util.Properties;
 public class BuildJobConfig {
     private String name;
     private String scmUrl;
-    private String command;
+    private String buildScript = "mvn clean install"; //TODO
 
-    public BuildJobConfig(String name, String scmUrl) {
+    public BuildJobConfig(String name, String scmUrl, String buildScript) {
         this.name = name;
         this.scmUrl = scmUrl;
+        this.buildScript = buildScript;
     }
 
     public String getName() {
@@ -34,8 +34,8 @@ public class BuildJobConfig {
 
         Properties properties = new Properties();
         properties.setProperty("scm_url", scmUrl);
-        if (command != null) {
-            properties.setProperty("hudson.tasks.Shell.command", command);
+        if (buildScript != null) {
+            properties.setProperty("hudson.tasks.Shell.buildScript", buildScript);
         }
 
         return StringPropertyReplacer.replaceProperties(xmlString, properties);
@@ -73,8 +73,4 @@ public class BuildJobConfig {
 
     }
 
-
-    public Map<String, String> getParams() {
-        return null;
-    }
 }
