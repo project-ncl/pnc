@@ -208,4 +208,15 @@ public class Project implements Serializable {
         return "Project [name=" + name + "]";
     }
 
+    public Environment getEnvironment() {
+        return environment;
+    }
+
+    public String getScmUrl() {
+        return scmUrl;
+    }
+
+    public void setScmUrl(String scmUrl) {
+        this.scmUrl = scmUrl;
+    }
 }

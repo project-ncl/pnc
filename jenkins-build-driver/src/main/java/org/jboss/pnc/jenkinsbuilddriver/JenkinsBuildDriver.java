@@ -1,37 +1,88 @@
 package org.jboss.pnc.jenkinsbuilddriver;
 
+import com.offbytwo.jenkins.JenkinsServer;
+import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.model.BuildType;
-import org.jboss.pnc.model.ProjectBuildConfiguration;
-import org.jboss.pnc.model.ProjectBuildResult;
+import org.jboss.pnc.model.Project;
 import org.jboss.pnc.spi.builddriver.BuildDriver;
-import org.jboss.pnc.spi.repositorymanager.RepositoryConfiguration;
+import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
+import org.jboss.pnc.spi.repositorymanager.Repository;
 
-import java.util.function.Consumer;
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.Properties;
 
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-11-23.
  */
-// TODO implement me
+@ApplicationScoped
 public class JenkinsBuildDriver implements BuildDriver {
-    private Consumer<ProjectBuildResult> onBuildComplete;
+
+    private static final String DRIVER_ID = "jenkins-build-driver";
+
+    /**
+     * Server instance, use getter for lazy initialization
+     */
+    private JenkinsServer jenkinsServer;
+
+    @Inject
+    Configuration configuration;
+
+    private JenkinsServer getJenkinsServer() throws BuildDriverException {
+        if (jenkinsServer == null) {
+            initJenkinsServer();
+        }
+        return jenkinsServer;
+    }
+
+    private void initJenkinsServer() throws BuildDriverException {
+        try {
+            Properties properties = configuration.getModuleConfig(getDriverId());
+
+            String url = properties.getProperty("url");
+            String username = properties.getProperty("username");
+            String password = properties.getProperty("password");
+
+            if (url == null || username == null || password == null) {
+                throw new BuildDriverException("Missing config to instantiate " + getDriverId() + ".");
+            }
+
+            jenkinsServer = new JenkinsServer(new URI(url), username, password);
+        } catch (URISyntaxException e) {
+            throw new BuildDriverException("Cannot instantiate " + getDriverId() + ".", e);
+        }
+    }
 
     @Override
     public String getDriverId() {
-        return null;
+        return DRIVER_ID;
     }
 
     @Override
-    public void setRepository(RepositoryConfiguration deployRepository) {
-
+    public void setDeployRepository(Repository deployRepository) {
+        // TODO: This should probably use the deployment repository
+        // embedded in a settings.xml (See below) and alter the command
+        // line to use that new deployment repository or set
+        // MAVEN_OPTS="-DaltDeploymentRepository=xxxx in the environment
+        // of the Jenkins job (where xxxx is the new deployment repostory)
     }
+    public void startProjectBuild(Project project) throws BuildDriverException {
+        BuildJob build = new BuildJob(getJenkinsServer());
 
+        BuildJobConfig buildJobConfig = new BuildJobConfig(project.getName(), project.getScmUrl());
+
+        boolean configured = build.configure(buildJobConfig, true);
+        if (!configured) {
+            throw new AssertionError("Cannot configure build job.");
+        }
+
+        build.start();
     @Override
-    public void startProjectBuild(ProjectBuildConfiguration projectBuildConfiguration,
-            Consumer<ProjectBuildResult> onBuildComplete) {
-
-        this.onBuildComplete = onBuildComplete;
-
-        return;
+    public void setSourceRepository(Repository repositoryProxy) {
+        // TODO: This should probably create a settings.xml file with an override
+        // so that Maven uses the proxy URL instead.
     }
 
     @Override
@@ -39,11 +90,5 @@ public class JenkinsBuildDriver implements BuildDriver {
         return BuildType.JAVA.equals(buildType);
     }
 
-    // TODO
-    private void notifyBuildComplete() {
-        // notify build complete
-
-        onBuildComplete.accept(new ProjectBuildResult());
-    }
 
 }
