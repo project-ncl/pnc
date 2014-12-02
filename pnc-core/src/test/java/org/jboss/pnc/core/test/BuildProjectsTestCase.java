@@ -96,6 +96,7 @@ public class BuildProjectsTestCase {
         p4.setId(4);
         p4.setName("p4-java");
         ProjectBuildConfiguration projectBuildConfigurationD1 = new ProjectBuildConfiguration();
+        projectBuildConfigurationD1.setEnvironment(javaEnvironment);
         projectBuildConfigurationD1.setProject(p4);
         projectBuildConfigurationD1.addDependency(projectBuildConfigurationB1);
         projectBuildConfigurationD1.addDependency(projectBuildConfigurationC1);
@@ -103,8 +104,9 @@ public class BuildProjectsTestCase {
 
         Project p5 = new Project();
         p5.setId(5);
-        p5.setName("p5-docker");
+        p5.setName("p5-native");
         ProjectBuildConfiguration projectBuildConfigurationE1 = new ProjectBuildConfiguration();
+        projectBuildConfigurationE1.setEnvironment(nativeEnvironment);
         projectBuildConfigurationE1.setProject(p5);
         projectBuildConfigurationE1.addDependency(projectBuildConfigurationD1);
         p5.addProjectBuildConfiguration(projectBuildConfigurationE1);
@@ -132,6 +134,7 @@ public class BuildProjectsTestCase {
 
         projectBuilder.buildProjects(projectBuildConfigurations, buildCollection);
 
-        assertThat(datastore.getBuildResults()).hasSize(3);
+        assertThat(datastore.getBuildResults()).hasSize(6);
     }
+
 }
