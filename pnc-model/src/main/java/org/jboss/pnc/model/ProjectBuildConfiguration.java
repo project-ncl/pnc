@@ -223,7 +223,7 @@ public class ProjectBuildConfiguration implements Serializable {
         if (!buildsToTrigger.isEmpty()) {
             Set<ProjectBuildConfiguration> dependencies = new HashSet<>();
             for (BuildTrigger buildTrigger : buildsToTrigger) {
-                dependencies.add(buildTrigger.getBuildConfiguration());
+                dependencies.add(buildTrigger.getTriggeredBuildConfiguration());
             }
             return dependencies;
         }
