@@ -1,18 +1,11 @@
 package org.jboss.pnc.model;
 
-import java.io.Serializable;
-import java.util.List;
-
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
-import javax.persistence.NamedQuery;
-import javax.persistence.Table;
+import java.io.Serializable;
+import java.util.List;
 
 /**
  * The Class BuildCollection, that encapsulates the set of buildResults that compose a specific version of a Product (may be
@@ -21,26 +14,21 @@ import javax.persistence.Table;
  * @author avibelli
  */
 @Entity
-@Table(name = "build_collection")
-@NamedQuery(name = "BuildCollection.findAll", query = "SELECT b FROM BuildCollection b")
 public class BuildCollection implements Serializable {
 
     private static final long serialVersionUID = 1633628406382742445L;
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue
     private Integer id;
 
-    @Column(name = "product_name")
     private String productName;
 
-    @Column(name = "product_version")
     private String productVersion;
 
     private String description;
 
     @ManyToMany
-    @JoinTable(name = "build_collection_project_build_result", joinColumns = { @JoinColumn(name = "build_collection_id") }, inverseJoinColumns = { @JoinColumn(name = "project_build_result_id") })
     private List<ProjectBuildResult> projectBuildResult;
 
     /**

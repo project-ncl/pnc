@@ -79,7 +79,69 @@
                 <version>${version.ear.plugin}</version>
                 <configuration>
                     <version>6</version>
+                    <defaultLibBundleDir>lib</defaultLibBundleDir>
                     <fileNameMapping>no-version</fileNameMapping>
+                    <modules>
+                        <jarModule>
+                            <groupId>org.jboss.pnc</groupId>
+                            <artifactId>common</artifactId>
+                            <includeInApplicationXml>true</includeInApplicationXml>
+                            <bundleDir>/</bundleDir>
+                        </jarModule>
+                        <jarModule>
+                            <groupId>org.jboss.pnc</groupId>
+                            <artifactId>datastore</artifactId>
+                            <includeInApplicationXml>true</includeInApplicationXml>
+                            <bundleDir>/</bundleDir>
+                        </jarModule>
+                        <jarModule>
+                            <groupId>org.jboss.pnc</groupId>
+                            <artifactId>jenkins-build-driver</artifactId>
+                            <includeInApplicationXml>true</includeInApplicationXml>
+                            <bundleDir>/</bundleDir>
+                        </jarModule>
+                        <jarModule>
+                            <groupId>org.jboss.pnc</groupId>
+                            <artifactId>maven-repository-manager</artifactId>
+                            <includeInApplicationXml>true</includeInApplicationXml>
+                            <bundleDir>/</bundleDir>
+                        </jarModule>
+                        <jarModule>
+                            <groupId>org.jboss.pnc</groupId>
+                            <artifactId>pnc-core</artifactId>
+                            <includeInApplicationXml>true</includeInApplicationXml>
+                            <bundleDir>/</bundleDir>
+                        </jarModule>
+                        <jarModule>
+                            <groupId>org.jboss.pnc</groupId>
+                            <artifactId>pnc-model</artifactId>
+                            <includeInApplicationXml>true</includeInApplicationXml>
+                            <bundleDir>/</bundleDir>
+                        </jarModule>
+                        <jarModule>
+                            <groupId>org.jboss.pnc</groupId>
+                            <artifactId>pnc-rest-bindings</artifactId>
+                            <includeInApplicationXml>true</includeInApplicationXml>
+                            <bundleDir>/</bundleDir>
+                        </jarModule>
+                        <jarModule>
+                            <groupId>org.jboss.pnc</groupId>
+                            <artifactId>pnc-spi</artifactId>
+                            <includeInApplicationXml>true</includeInApplicationXml>
+                            <bundleDir>/</bundleDir>
+                        </jarModule>
+                        <jarModule>
+                            <groupId>org.jboss.pnc</groupId>
+                            <artifactId>docker-environment-driver</artifactId>
+                            <includeInApplicationXml>true</includeInApplicationXml>
+                            <bundleDir>/</bundleDir>
+                        </jarModule>
+                        <webModule>
+                            <groupId>org.jboss.pnc</groupId>
+                            <artifactId>pnc-web</artifactId>
+                            <bundleDir>/</bundleDir>
+                        </webModule>
+                    </modules>
                 </configuration>
             </plugin>
         </plugins>

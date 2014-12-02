@@ -1,5 +1,6 @@
 package org.jboss.pnc.model;
 
+import javax.persistence.*;
 import java.io.Serializable;
 import java.sql.Timestamp;
 import java.time.Instant;
@@ -7,8 +8,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
-
-import javax.persistence.*;
 
 /**
  * The Class ProjectBuildConfiguration cointains the informations needed to trigger the build of a project, i.e. the sources and
@@ -20,45 +19,37 @@ import javax.persistence.*;
  * @author avibelli
  */
 @Entity
-@Table(name = "build_configuration")
-@NamedQuery(name = "BuildConfiguration.findAll", query = "SELECT b FROM BuildConfiguration b")
 public class ProjectBuildConfiguration implements Serializable {
 
     private static final long serialVersionUID = -5890729679489304114L;
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue
     private Integer id;
 
     private String identifier;
 
-    @Column(name = "build_script")
     private String buildScript;
 
-    @Column(name = "scm_url")
     private String scmUrl;
 
-    @Column(name = "patches_url")
     private String patchesUrl;
 
     @ManyToOne
     private Project project;
 
     @ManyToOne
-    @JoinColumn(name = "environment_id")
     private Environment environment;
 
-    @OneToMany(mappedBy = "builds_to_trigger")
+    @OneToMany(mappedBy = "triggeredBuildConfiguration")
     private Set<BuildTrigger> buildsToTrigger;
 
-    @OneToMany(mappedBy = "triggered_by_builds")
+    @OneToMany(mappedBy = "buildConfiguration")
     private Set<BuildTrigger> triggeredByBuilds;
 
-    @Column(name = "created")
     private Timestamp creationTime;
 
     @Version
-    @Column(name = "last_updated")
     private Timestamp lastModificationTime;
 
     // TODO: What data format does Aprox need?
