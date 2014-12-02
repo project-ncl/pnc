@@ -17,7 +17,7 @@ public interface BuildDriver {
     /**
      * Method returns as soon as build was triggered.
      *
-     * @param project
+     * @param projectBuildConfiguration
      * @param onBuildComplete
      */
     // Future<BuildResult> startProjectBuild(Project project);
