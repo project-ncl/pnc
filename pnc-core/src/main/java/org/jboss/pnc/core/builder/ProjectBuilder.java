@@ -1,5 +1,12 @@
 package org.jboss.pnc.core.builder;
 
+import java.util.Set;
+import java.util.concurrent.Semaphore;
+import java.util.function.Consumer;
+import java.util.logging.Logger;
+
+import javax.inject.Inject;
+
 import org.jboss.pnc.core.BuildDriverFactory;
 import org.jboss.pnc.core.RepositoryManagerFactory;
 import org.jboss.pnc.core.exception.CoreException;
