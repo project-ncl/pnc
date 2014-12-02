@@ -96,6 +96,12 @@
                 <artifactId>arquillian-transaction-jta</artifactId>
                 <version>1.0.1.Final</version>
             </dependency>
+
+            <dependency>
+                <groupId>com.offbytwo.jenkins</groupId>
+                <artifactId>jenkins-client</artifactId>
+                <version>0.2.2-20141202</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -132,5 +138,16 @@
             </plugins>
         </pluginManagement>
     </build>
+
+    <repositories>
+        <repository>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <id>central</id>
+            <name>bintray</name>
+            <url>http://dl.bintray.com/rnc/maven</url>
+        </repository>
+    </repositories>
 
 </project>
