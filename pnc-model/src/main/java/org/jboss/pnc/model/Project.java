@@ -25,27 +25,23 @@ import javax.persistence.OneToMany;
  * ProjectBuildConfiguration
  */
 @Entity
-@NamedQuery(name = "Project.findAll", query = "SELECT p FROM Project p")
 public class Project implements Serializable {
 
     private static final long serialVersionUID = -4644857058640271044L;
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue
     private Integer id;
 
     private String name;
 
     private String description;
 
-    @Column(name = "issue_tracker_url")
     private String issueTrackerUrl;
 
-    @Column(name = "project_url")
     private String projectUrl;
 
     @ManyToOne
-    @JoinColumn(name = "current_license_id")
     private License license;
 
     @OneToMany(mappedBy = "project")

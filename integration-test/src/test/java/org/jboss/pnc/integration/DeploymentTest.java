@@ -7,16 +7,22 @@ import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.lang.invoke.MethodHandles;
 
 @RunWith(Arquillian.class)
 public class DeploymentTest {
+
+    public static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
     @Deployment
     public static EnterpriseArchive deploy() {
         EnterpriseArchive enterpriseArchive = Deployments.baseEar();
         WebArchive war = enterpriseArchive.getAsType(WebArchive.class, "/pnc-web.war");
         war.addClass(DeploymentTest.class);
-        System.out.println(enterpriseArchive.toString(true));
+        logger.info(enterpriseArchive.toString(true));
         return enterpriseArchive;
     }
 

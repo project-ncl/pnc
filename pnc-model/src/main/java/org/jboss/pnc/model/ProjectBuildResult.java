@@ -1,11 +1,11 @@
 package org.jboss.pnc.model;
 
+import javax.persistence.*;
 import java.io.Serializable;
 import java.sql.Timestamp;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
-
-import javax.persistence.*;
 
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-11-23.
@@ -17,41 +17,34 @@ import javax.persistence.*;
  * the set of buildResult that compose a Product
  */
 @Entity
-@Table(name = "build_result")
-@NamedQuery(name = "ProjectBuildResult.findAll", query = "SELECT b FROM ProjectBuildResult b")
 public class ProjectBuildResult implements Serializable {
 
     private static final long serialVersionUID = -5472083609387609797L;
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue
     private Integer id;
 
-    @Column(name = "build_script")
+    @ManyToOne
+    private Project project;
+
     private String buildScript;
 
-    @Column(name = "start_time")
     private Timestamp startTime;
 
-    @Column(name = "end_time")
     private Timestamp endTime;
 
     @ManyToOne
-    @Column(name = "project_build_configuration_id")
     private ProjectBuildConfiguration projectBuildConfiguration;
 
     @ManyToOne
-    @Column(name = "user_id")
     private User user;
 
-    @Column(name = "source_url")
     private String sourceUrl;
 
-    @Column(name = "patches_url")
     private String patchesUrl;
 
     @Lob
-    @Column(name = "build_log")
     private String buildLog;
 
     @Enumerated(value = EnumType.STRING)
@@ -72,19 +65,22 @@ public class ProjectBuildResult implements Serializable {
      * Image that was used to instantiate a build server.
      */
     @ManyToOne
-    @Column(name = "system_image_id")
     private SystemImage systemImage;
 
     // bi-directional many-to-many association to BuildCollection
+
     /** The build collections. */
     @ManyToMany(mappedBy = "projectBuildResult")
     private List<BuildCollection> buildCollections;
-
     /**
      * Instantiates a new project build result.
      */
     public ProjectBuildResult() {
         startTime = Timestamp.from(Instant.now());
+        buildCollections = new ArrayList<>();
+        buildCollections = new ArrayList<>();
+        dependencies = new ArrayList<>();
+        builtArtifacts = new ArrayList<>();
     }
 
     /**
@@ -328,6 +324,14 @@ public class ProjectBuildResult implements Serializable {
      */
     public List<BuildCollection> getBuildCollections() {
         return buildCollections;
+    }
+
+    public Project getProject() {
+        return project;
+    }
+
+    public void setProject(Project project) {
+        this.project = project;
     }
 
     /**

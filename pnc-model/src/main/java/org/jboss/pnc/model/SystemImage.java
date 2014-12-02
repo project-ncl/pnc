@@ -1,16 +1,10 @@
 package org.jboss.pnc.model;
 
-import java.io.Serializable;
-
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.NamedQuery;
-import javax.persistence.Table;
+import java.io.Serializable;
 
 /**
  * The Class SystemImage, selected by the Environment Driver to run a build, based on the buildConfiguration requirements
@@ -18,25 +12,21 @@ import javax.persistence.Table;
  * @author avibelli
  */
 @Entity
-@Table(name = "system_image")
-@NamedQuery(name = "SystemImage.findAll", query = "SELECT s FROM SystemImage s")
 public class SystemImage implements Serializable {
 
     private static final long serialVersionUID = 3170247997550146257L;
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue
     private Integer id;
 
     @ManyToOne
-    @JoinColumn(name = "environment_id")
     private Environment environment;
 
     private String name;
 
     private String description;
 
-    @Column(name = "image_url")
     private String imageUrl;
 
     /**

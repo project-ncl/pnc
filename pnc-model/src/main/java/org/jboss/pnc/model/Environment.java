@@ -8,19 +8,16 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.NamedQuery;
 import java.io.Serializable;
-
-// TODO: Auto-generated Javadoc
 /**
  * The Class Environment.
  */
 @Entity
-@NamedQuery(name = "Environment.findAll", query = "SELECT e FROM Environment e")
 public class Environment implements Serializable {
 
     private static final long serialVersionUID = 8213767399060607637L;
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue
     private Integer id;
 
     @Enumerated(EnumType.STRING)

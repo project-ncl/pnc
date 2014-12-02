@@ -1,21 +1,13 @@
 package org.jboss.pnc.model;
 
+import javax.persistence.*;
 import java.io.Serializable;
 import java.util.List;
-
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.NamedQuery;
-import javax.persistence.OneToMany;
 
 /**
  * The Class License maps the different licenses to be linked to the projects, i.e. APACHE 2.0, MIT, GLPL, etc
  */
 @Entity
-@NamedQuery(name = "License.findAll", query = "SELECT l FROM License l")
 public class License implements Serializable {
 
     private static final long serialVersionUID = 8893552998204511626L;
@@ -24,16 +16,12 @@ public class License implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(name = "full_name")
     private String fullName;
 
-    @Column(name = "full_text")
     private String fullText;
 
-    @Column(name = "ref_url")
     private String refUrl;
 
-    @Column(name = "short_name")
     private String shortName;
 
     // bi-directional many-to-one association to Project

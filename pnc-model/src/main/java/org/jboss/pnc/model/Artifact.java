@@ -1,17 +1,7 @@
 package org.jboss.pnc.model;
 
+import javax.persistence.*;
 import java.io.Serializable;
-
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.NamedQuery;
 
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-11-23.
@@ -29,7 +19,6 @@ import javax.persistence.NamedQuery;
  * 
  * (identifier + checksum) should be unique
  */
-
 // TODO: We need to capture two types of artifact:
 // 1. Build output, which has an associated build result
 // 2. Import, which has an origin repository that we probably need to track
@@ -37,13 +26,12 @@ import javax.persistence.NamedQuery;
 // Ordinarily, I'd model this as a common base class and two subclasses to capture the variant info.
 // I'm not sure how it would need to be modeled for efficient storage via JPA.
 @Entity
-@NamedQuery(name = "Artifact.findAll", query = "SELECT a FROM Artifact a")
 public class Artifact implements Serializable {
 
     private static final long serialVersionUID = -2368833657284575734L;
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue
     private Integer id;
 
     /**
@@ -61,7 +49,6 @@ public class Artifact implements Serializable {
     private String filename;
 
     // What is this used for?
-    @Column(name = "deploy_url")
     private String deployUrl;
 
     @Enumerated(EnumType.STRING)
@@ -69,7 +56,6 @@ public class Artifact implements Serializable {
 
     // bi-directional many-to-one association to BuildResult
     @ManyToOne
-    @JoinColumn(name = "project_build_result_id")
     private ProjectBuildResult projectBuildResult;
 
     /**
@@ -210,56 +196,6 @@ public class Artifact implements Serializable {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see java.lang.Object#hashCode()
-     */
-    @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((checksum == null) ? 0 : checksum.hashCode());
-        result = prime * result + ((identifier == null) ? 0 : identifier.hashCode());
-        return result;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see java.lang.Object#equals(java.lang.Object)
-     */
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (obj == null) {
-            return false;
-        }
-        if (getClass() != obj.getClass()) {
-            return false;
-        }
-        Artifact other = (Artifact) obj;
-        if (checksum == null) {
-            if (other.checksum != null) {
-                return false;
-            }
-        } else if (!checksum.equals(other.checksum)) {
-            return false;
-        }
-        if (identifier == null) {
-            if (other.identifier != null) {
-                return false;
-            }
-        } else if (!identifier.equals(other.identifier)) {
-            return false;
-        }
-        return true;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
      * @see java.lang.Object#toString()
      */
     @Override
