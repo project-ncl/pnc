@@ -1,11 +1,11 @@
 package org.jboss.pnc.model;
 
-import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
+
+import javax.persistence.*;
 
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-11-23.
@@ -37,9 +37,6 @@ public class Project implements Serializable {
 
     @OneToMany(mappedBy = "project")
     private Set<ProjectBuildConfiguration> projectBuildConfigurations;
-
-    @OneToMany(mappedBy = "project")
-    private List<ProjectBuildResult> projectBuildResults;
 
     /**
      * Instantiates a new project.
@@ -168,27 +165,24 @@ public class Project implements Serializable {
     }
 
     /**
-     * @return the projectBuildResults
+     * Add a projectBuildConfiguration to the set of projectBuildConfigurations
+     *
+     * @param configuration
+     * @return
      */
-    public List<ProjectBuildResult> getProjectBuildResults() {
-        return projectBuildResults;
-    }
-
-    /**
-     * @param projectBuildResults the projectBuildResults to set
-     */
-    public void setProjectBuildResults(List<ProjectBuildResult> projectBuildResults) {
-        this.projectBuildResults = projectBuildResults;
-    }
-
     public Set<ProjectBuildConfiguration> addProjectBuildConfiguration(ProjectBuildConfiguration configuration) {
         projectBuildConfigurations.add(configuration);
 
         return projectBuildConfigurations;
     }
 
+    /**
+     * Remove a projectBuildConfiguration from the set of projectBuildConfigurations
+     *
+     * @param configuration
+     * @return
+     */
     public Set<ProjectBuildConfiguration> removeProjectBuildConfiguration(ProjectBuildConfiguration configuration) {
-
         projectBuildConfigurations.remove(configuration);
 
         return projectBuildConfigurations;

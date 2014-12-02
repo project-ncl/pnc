@@ -25,9 +25,6 @@ public class ProjectBuildResult implements Serializable {
     @GeneratedValue
     private Integer id;
 
-    @ManyToOne
-    private Project project;
-
     private String buildScript;
 
     private Timestamp startTime;
@@ -72,12 +69,12 @@ public class ProjectBuildResult implements Serializable {
     /** The build collections. */
     @ManyToMany(mappedBy = "projectBuildResult")
     private List<BuildCollection> buildCollections;
+
     /**
      * Instantiates a new project build result.
      */
     public ProjectBuildResult() {
         startTime = Timestamp.from(Instant.now());
-        buildCollections = new ArrayList<>();
         buildCollections = new ArrayList<>();
         dependencies = new ArrayList<>();
         builtArtifacts = new ArrayList<>();
@@ -324,14 +321,6 @@ public class ProjectBuildResult implements Serializable {
      */
     public List<BuildCollection> getBuildCollections() {
         return buildCollections;
-    }
-
-    public Project getProject() {
-        return project;
-    }
-
-    public void setProject(Project project) {
-        this.project = project;
     }
 
     /**
