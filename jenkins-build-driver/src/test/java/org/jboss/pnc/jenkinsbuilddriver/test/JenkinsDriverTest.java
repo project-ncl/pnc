@@ -6,11 +6,13 @@ import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.jenkinsbuilddriver.JenkinsBuildDriver;
 import org.jboss.pnc.model.Project;
 import org.jboss.pnc.model.ProjectBuildConfiguration;
+import org.jboss.pnc.model.TaskStatus;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.asset.EmptyAsset;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
 
 import javax.inject.Inject;
+import java.util.function.Consumer;
 
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-11-23.
@@ -47,7 +49,9 @@ public class JenkinsDriverTest {
         Project project = new Project();
         project.setName("PNC-executed-from-test");
         projectBuildConfiguration.setProject(project);
-        jenkinsBuildDriver.startProjectBuild(projectBuildConfiguration);
+
+        Consumer<TaskStatus> updateStatus = (ts) -> {};
+        jenkinsBuildDriver.startProjectBuild(projectBuildConfiguration, updateStatus);
 
     }
 }
