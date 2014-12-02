@@ -2,7 +2,6 @@ package org.jboss.pnc.jenkinsbuilddriver.test;
 
 import com.offbytwo.jenkins.JenkinsServer;
 import org.jboss.arquillian.container.test.api.Deployment;
-import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.jenkinsbuilddriver.JenkinsBuildDriver;
 import org.jboss.pnc.model.Project;
@@ -10,14 +9,13 @@ import org.jboss.pnc.model.ProjectBuildConfiguration;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.asset.EmptyAsset;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
-import org.junit.runner.RunWith;
 
 import javax.inject.Inject;
 
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-11-23.
  */
-@RunWith(Arquillian.class)
+//@RunWith(Arquillian.class)
 public class JenkinsDriverTest {
 
     private JenkinsServer jenkins;
