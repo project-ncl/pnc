@@ -56,6 +56,18 @@ public class Product implements Serializable {
     }
 
     /**
+     * @param name
+     * @param description
+     * @param version
+     */
+    public Product(String name, String description, String version) {
+        super();
+        this.name = name;
+        this.description = description;
+        this.version = version;
+    }
+
+    /**
      * @return the id
      */
     public Integer getId() {

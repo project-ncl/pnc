@@ -14,6 +14,7 @@ import org.jboss.pnc.core.test.mock.DatastoreMock;
 import org.jboss.pnc.mavenrepositorymanager.RepositoryManagerDriver;
 import org.jboss.pnc.model.BuildCollection;
 import org.jboss.pnc.model.Environment;
+import org.jboss.pnc.model.Product;
 import org.jboss.pnc.model.Project;
 import org.jboss.pnc.model.ProjectBuildConfiguration;
 import org.jboss.pnc.model.builder.EnvironmentBuilder;
@@ -38,17 +39,11 @@ public class BuildProjectsTestCase {
 
     @Deployment
     public static JavaArchive createDeployment() {
-        JavaArchive jar = ShrinkWrap.create(JavaArchive.class)
-                .addClass(ProjectBuilder.class)
-                .addClass(BuildDriverFactory.class)
-                .addClass(RepositoryManagerFactory.class)
-                .addClass(Resources.class)
-                .addClass(EnvironmentBuilder.class)
-                .addClass(EnvironmentDriverProvider.class)
-                .addPackage(RepositoryManagerDriver.class.getPackage())
-                .addPackage(BuildDriverMock.class.getPackage())
-                .addAsManifestResource(EmptyAsset.INSTANCE, "beans.xml")
-                .addAsResource("META-INF/logging.properties");
+        JavaArchive jar = ShrinkWrap.create(JavaArchive.class).addClass(ProjectBuilder.class)
+                .addClass(BuildDriverFactory.class).addClass(RepositoryManagerFactory.class).addClass(Resources.class)
+                .addClass(EnvironmentBuilder.class).addClass(EnvironmentDriverProvider.class)
+                .addPackage(RepositoryManagerDriver.class.getPackage()).addPackage(BuildDriverMock.class.getPackage())
+                .addAsManifestResource(EmptyAsset.INSTANCE, "beans.xml").addAsResource("META-INF/logging.properties");
         System.out.println(jar.toString(true));
         return jar;
     }
@@ -128,9 +123,10 @@ public class BuildProjectsTestCase {
         log.info("Got projectBuilder: " + projectBuilder);
         log.info("Building projectBuildConfigurations: " + projectBuildConfigurations.size());
 
+        Product product = new Product("foo", "foo description", "1.0");
         BuildCollection buildCollection = new BuildCollection();
-        buildCollection.setProductName("foo");
-        buildCollection.setProductVersion("1.0");
+        buildCollection.setProduct(product);
+        buildCollection.setProductBuildBumber(1);
 
         projectBuilder.buildProjects(projectBuildConfigurations, buildCollection);
 
