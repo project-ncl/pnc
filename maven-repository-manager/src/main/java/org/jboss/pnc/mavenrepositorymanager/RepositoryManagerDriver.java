@@ -19,20 +19,15 @@ public class RepositoryManagerDriver implements RepositoryManager {
     @Inject
     private Logger log;
 
-    public RepositoryManagerDriver()
-    {
+    public RepositoryManagerDriver() {
     }
 
     @Override
-    public boolean canManage(RepositoryType managerType)
-    {
+    public boolean canManage(RepositoryType managerType) {
         log.info("Checking for type " + managerType);
-        if (managerType == RepositoryType.MAVEN)
-        {
+        if (managerType == RepositoryType.MAVEN) {
             return true;
-        }
-        else
-        {
+        } else {
             return false;
         }
     }
@@ -41,8 +36,8 @@ public class RepositoryManagerDriver implements RepositoryManager {
     public RepositoryConfiguration createRepository(ProjectBuildConfiguration projectBuildConfiguration,
             BuildCollection buildCollection) {
         // TODO Better way to generate id.
-        String id = String.format("build+%s+%s+%s+%s", buildCollection.getProductName(), buildCollection.getProductVersion(),
-                safeUrlPart(projectBuildConfiguration.getProject().getName()), System.currentTimeMillis());
+        String id = String.format("build+%s+%s+%s+%s", buildCollection.getProduct().getName(), buildCollection.getProduct()
+                .getVersion(), safeUrlPart(projectBuildConfiguration.getProject().getName()), System.currentTimeMillis());
         return new MavenRepositoryConfiguration(id, new MavenRepositoryConnectionInfo());
     }
 
