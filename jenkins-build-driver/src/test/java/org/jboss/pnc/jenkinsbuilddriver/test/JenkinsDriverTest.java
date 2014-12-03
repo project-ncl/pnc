@@ -51,7 +51,7 @@ public class JenkinsDriverTest {
         projectBuildConfiguration.setProject(project);
 
         Consumer<TaskStatus> updateStatus = (ts) -> {};
-        jenkinsBuildDriver.startProjectBuild(projectBuildConfiguration, updateStatus);
+        jenkinsBuildDriver.startProjectBuild(projectBuildConfiguration, null, updateStatus);
 
     }
 }

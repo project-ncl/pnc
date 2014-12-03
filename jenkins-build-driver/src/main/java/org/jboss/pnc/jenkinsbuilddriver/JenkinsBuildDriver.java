@@ -64,10 +64,9 @@ public class JenkinsBuildDriver implements BuildDriver {
 
     @Override
     public boolean startProjectBuild(ProjectBuildConfiguration projectBuildConfiguration,
+                                     RepositoryConfiguration repositoryConfiguration,
                                      Consumer<TaskStatus> onUpdate) {
-        Runnable projectBuild = new Runnable() {
-            @Override
-            public void run() {
+        Runnable projectBuild = () -> {
                 try {
                     BuildJob build = new BuildJob(getJenkinsServer());
                     boolean configured = build.configure(projectBuildConfiguration, true);
@@ -79,16 +78,10 @@ public class JenkinsBuildDriver implements BuildDriver {
                 } catch (BuildDriverException e) {
                     onUpdate.accept(new TaskStatus(TaskStatus.Operation.BUILD_SCHEDULED, -1));
                 }
-            }
         };
         //TODO use thread pool, return false if there are no available executors
         new Thread(projectBuild).start();
         return true;
-    }
-
-    @Override
-    public void setRepository(RepositoryConfiguration repository) {
-
     }
 
     @Override

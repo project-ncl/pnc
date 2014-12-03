@@ -1,8 +1,9 @@
 package org.jboss.pnc.core.test.mock;
 
-import org.jboss.pnc.model.*;
+import org.jboss.pnc.model.BuildType;
+import org.jboss.pnc.model.ProjectBuildConfiguration;
+import org.jboss.pnc.model.TaskStatus;
 import org.jboss.pnc.spi.builddriver.BuildDriver;
-import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
 import org.jboss.pnc.spi.repositorymanager.RepositoryConfiguration;
 
 import java.util.function.Consumer;
@@ -18,7 +19,7 @@ public class BuildDriverMock implements BuildDriver {
     }
 
     @Override
-    public boolean startProjectBuild(ProjectBuildConfiguration projectBuildConfiguration, Consumer<TaskStatus> onUpdate) {
+    public boolean startProjectBuild(ProjectBuildConfiguration projectBuildConfiguration, RepositoryConfiguration repositoryConfiguration, Consumer<TaskStatus> onUpdate) {
 
         Runnable projectBuild = new Runnable() {
             @Override
@@ -36,12 +37,6 @@ public class BuildDriverMock implements BuildDriver {
 
         onUpdate.accept(new TaskStatus(TaskStatus.Operation.BUILD_SCHEDULED, 0));
         return true;
-    }
-
-
-    @Override
-    public void setRepository(RepositoryConfiguration deployRepository) {
-
     }
 
     @Override
