@@ -1,11 +1,8 @@
 package org.jboss.pnc.model;
 
-import java.io.Serializable;
 import javax.persistence.*;
+import java.io.Serializable;
 import java.util.List;
-
-import javax.persistence.Table;
-import javax.persistence.UniqueConstraint;
 
 /**
  * The Class BuildCollection, that encapsulates the set of buildResults that compose a specific version of a Product.
@@ -15,7 +12,6 @@ import javax.persistence.UniqueConstraint;
  * @author avibelli
  */
 @Entity
-// @Table(uniqueConstraints = { @UniqueConstraint(columnNames = { "productVersion", "productBuildBumber" }) })
 public class BuildCollection implements Serializable {
 
     private static final long serialVersionUID = 1633628406382742445L;

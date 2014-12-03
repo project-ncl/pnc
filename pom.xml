@@ -24,7 +24,7 @@
         <module>maven-repository-manager</module>
         <module>pnc-core</module>
         <module>pnc-model</module>
-        <module>pnc-rest-bindings</module>
+        <module>pnc-rest</module>
         <module>pnc-spi</module>
         <module>pnc-web</module>
         <module>docker-environment-driver</module>
@@ -37,6 +37,10 @@
         <version.jboss.bom>1.0.7.Final</version.jboss.bom>
         <version.jboss.as>7.2.0.Final</version.jboss.as>
         <atlasVersion>0.13.6</atlasVersion>
+        <version.assertj-core>1.7.0</version.assertj-core>
+        <version.mockito-all>1.10.8</version.mockito-all>
+        <version.catch-exception>1.2.0</version.catch-exception>
+        <version.guava>13.0.1</version.guava>
 
         <!-- other plugin versions -->
         <version.ear.plugin>2.6</version.ear.plugin>
@@ -80,6 +84,31 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
+            <dependency>
+                <groupId>org.jboss.arquillian.container</groupId>
+                <artifactId>arquillian-weld-se-embedded-1.1</artifactId>
+                <version>1.0.0.CR8</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jboss.weld</groupId>
+                <artifactId>weld-spi</artifactId>
+                <version>1.1.Final</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jboss.weld</groupId>
+                <artifactId>weld-core</artifactId>
+                <version>1.1.5.Final</version>
+            </dependency>
+            <dependency>
+                <groupId>javax.el</groupId>
+                <artifactId>el-api</artifactId>
+                <version>2.2</version>
+            </dependency>
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-simple</artifactId>
+                <version>1.7.7</version>
+            </dependency>
 
             <dependency>
                 <groupId>org.commonjava.maven.atlas</groupId>
@@ -103,6 +132,11 @@
                 <artifactId>jenkins-client</artifactId>
                 <version>0.2.2-20141202</version>
             </dependency>
+            <dependency>
+                <groupId>com.google.guava</groupId>
+                <artifactId>guava</artifactId>
+                <version>${version.guava}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -115,7 +149,19 @@
         <dependency>
             <groupId>org.assertj</groupId>
             <artifactId>assertj-core</artifactId>
-            <version>1.7.0</version>
+            <version>${version.assertj-core}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-all</artifactId>
+            <version>${version.mockito-all}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.googlecode.catch-exception</groupId>
+            <artifactId>catch-exception</artifactId>
+            <version>${version.catch-exception}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

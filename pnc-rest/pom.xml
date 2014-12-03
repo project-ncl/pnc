@@ -11,36 +11,37 @@
         <version>1.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>pnc-rest-bindings</artifactId>
-    <packaging>jar</packaging>
+    <artifactId>pnc-rest</artifactId>
+    <packaging>ejb</packaging>
 
     <description>REST API. This is a series of classes that use JAX-RS to translate HTTP communications to calls into the action controllers in the core, and format any output (such as constructing resource URLs, etc.).</description>
 
     <dependencies>
-
         <!-- Project dependencies -->
         <dependency>
             <groupId>org.jboss.pnc</groupId>
             <artifactId>pnc-core</artifactId>
             <version>${project.parent.version}</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.jboss.pnc</groupId>
-            <artifactId>pnc-model</artifactId>
+            <artifactId>datastore</artifactId>
             <version>${project.parent.version}</version>
+            <scope>provided</scope>
         </dependency>
 
         <!-- Remote dependencies -->
         <dependency>
-            <groupId>javax.enterprise</groupId>
-            <artifactId>cdi-api</artifactId>
+            <groupId>org.jboss.spec</groupId>
+            <artifactId>jboss-javaee-6.0</artifactId>
+            <type>pom</type>
             <scope>provided</scope>
         </dependency>
 
         <dependency>
-            <groupId>org.jboss.spec.javax.ws.rs</groupId>
-            <artifactId>jboss-jaxrs-api_1.1_spec</artifactId>
-            <scope>provided</scope>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
         </dependency>
 
         <!-- Test dependencies -->

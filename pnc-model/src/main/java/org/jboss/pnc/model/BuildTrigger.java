@@ -1,9 +1,6 @@
 package org.jboss.pnc.model;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.ManyToOne;
+import javax.persistence.*;
 import java.io.Serializable;
 
 /**
@@ -21,10 +18,10 @@ public class BuildTrigger implements Serializable {
     @GeneratedValue
     private Integer id;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.ALL)
     private ProjectBuildConfiguration buildConfiguration;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.ALL)
     private ProjectBuildConfiguration triggeredBuildConfiguration;
 
     /**
