@@ -1,11 +1,22 @@
 package org.jboss.pnc.mavenrepositorymanager;
 
+import static org.jboss.pnc.common.util.UrlUtils.buildUrl;
+
+import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.model.BuildCollection;
+import org.jboss.pnc.model.ProductVersion;
 import org.jboss.pnc.model.ProjectBuildConfiguration;
 import org.jboss.pnc.model.ProjectBuildResult;
 import org.jboss.pnc.model.RepositoryType;
 import org.jboss.pnc.spi.repositorymanager.RepositoryConfiguration;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManager;
+import org.jboss.pnc.spi.repositorymanager.RepositoryManagerException;
+
+import java.net.MalformedURLException;
+import java.util.Properties;
+
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
 
 /**
  * Implementation of {@link RepositoryManager} that manages an <a href="https://github.com/jdcasey/aprox">AProx</a> instance to
@@ -13,7 +24,24 @@ import org.jboss.pnc.spi.repositorymanager.RepositoryManager;
  * 
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-11-25.
  */
+@ApplicationScoped
 public class RepositoryManagerDriver implements RepositoryManager {
+
+    private static final String MAVEN_REPOSITORY_CONFIG_SECTION = "maven-repository";
+
+    private static final String BASE_URL_PROPERTY = "base.url";
+
+    private static final String REPO_ID_FORMAT = "build+%s+%s+%s+%s";
+
+    @Inject
+    Configuration configuration;
+
+    protected RepositoryManagerDriver() {
+    }
+
+    public RepositoryManagerDriver(Configuration configuration) {
+        this.configuration = configuration;
+    }
 
     /**
      * Only supports {@link RepositoryType#MAVEN}.
@@ -32,12 +60,26 @@ public class RepositoryManagerDriver implements RepositoryManager {
      */
     @Override
     public RepositoryConfiguration createRepository(ProjectBuildConfiguration projectBuildConfiguration,
-            BuildCollection buildCollection) {
+            BuildCollection buildCollection) throws RepositoryManagerException {
         // TODO Better way to generate id.
-        String id = String.format("build+%s+%s+%s+%s", buildCollection.getProductVersion().getProduct().getName(),
-                buildCollection.getProductVersion().getVersion(),
+
+        ProductVersion pv = buildCollection.getProductVersion();
+
+        String id = String.format(REPO_ID_FORMAT, pv.getProduct().getName(), pv.getVersion(),
                 safeUrlPart(projectBuildConfiguration.getProject().getName()), System.currentTimeMillis());
-        return new MavenRepositoryConfiguration(id, new MavenRepositoryConnectionInfo());
+
+        Properties properties = configuration.getModuleConfig(MAVEN_REPOSITORY_CONFIG_SECTION);
+        String baseUrl = properties.getProperty(BASE_URL_PROPERTY);
+
+        String url;
+        try {
+            url = buildUrl(baseUrl, "api", "group", id);
+        } catch (MalformedURLException e) {
+            throw new RepositoryManagerException("Cannot format Maven repository URL. Base URL was: '%s'. Reason: %s", e,
+                    baseUrl, e.getMessage());
+        }
+
+        return new MavenRepositoryConfiguration(id, new MavenRepositoryConnectionInfo(url));
     }
 
     @Override
