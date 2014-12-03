@@ -1,10 +1,8 @@
 package org.jboss.pnc.core.test.mock;
 
-import org.jboss.pnc.model.BuildStatus;
-import org.jboss.pnc.model.BuildType;
-import org.jboss.pnc.model.ProjectBuildConfiguration;
-import org.jboss.pnc.model.ProjectBuildResult;
+import org.jboss.pnc.model.*;
 import org.jboss.pnc.spi.builddriver.BuildDriver;
+import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
 import org.jboss.pnc.spi.repositorymanager.RepositoryConfiguration;
 
 import java.util.function.Consumer;
@@ -13,7 +11,6 @@ import java.util.function.Consumer;
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-11-24.
  */
 public class BuildDriverMock implements BuildDriver {
-    private Consumer<ProjectBuildResult> onBuildComplete;
 
     @Override
     public String getDriverId() {
@@ -21,12 +18,26 @@ public class BuildDriverMock implements BuildDriver {
     }
 
     @Override
-    public void startProjectBuild(ProjectBuildConfiguration projectBuildConfiguration,
-            Consumer<ProjectBuildResult> onBuildComplete) {
-        this.onBuildComplete = onBuildComplete;
-        new Thread(new FakeBuilder()).start();
-        return;
+    public boolean startProjectBuild(ProjectBuildConfiguration projectBuildConfiguration, Consumer<TaskStatus> onUpdate) {
+
+        Runnable projectBuild = new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Thread.sleep(500);
+                    onUpdate.accept(new TaskStatus(TaskStatus.Operation.BUILD_SCHEDULED, 0));
+                } catch (InterruptedException e) {
+                    onUpdate.accept(new TaskStatus(TaskStatus.Operation.BUILD_SCHEDULED, -1));
+                }
+            }
+        };
+        //TODO use thread pool, return false if there are no available executors
+        new Thread(projectBuild).start();
+
+        onUpdate.accept(new TaskStatus(TaskStatus.Operation.BUILD_SCHEDULED, 0));
+        return true;
     }
+
 
     @Override
     public void setRepository(RepositoryConfiguration deployRepository) {
@@ -38,17 +49,4 @@ public class BuildDriverMock implements BuildDriver {
         return true;
     }
 
-    class FakeBuilder implements Runnable {
-        @Override
-        public void run() {
-            try {
-                Thread.sleep(500);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            ProjectBuildResult buildResult = new ProjectBuildResult();
-            buildResult.setStatus(BuildStatus.SUCCESS);
-            onBuildComplete.accept(buildResult);
-        }
-    }
 }

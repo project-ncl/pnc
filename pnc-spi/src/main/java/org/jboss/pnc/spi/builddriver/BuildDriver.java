@@ -2,7 +2,8 @@ package org.jboss.pnc.spi.builddriver;
 
 import org.jboss.pnc.model.BuildType;
 import org.jboss.pnc.model.ProjectBuildConfiguration;
-import org.jboss.pnc.model.ProjectBuildResult;
+import org.jboss.pnc.model.TaskStatus;
+import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
 import org.jboss.pnc.spi.repositorymanager.RepositoryConfiguration;
 
 import java.util.function.Consumer;
@@ -18,10 +19,10 @@ public interface BuildDriver {
      * Method returns as soon as build was triggered.
      *
      * @param projectBuildConfiguration
-     * @param onBuildComplete
+     * @return return false if driver is not ready for accepting new requests
      */
-    // Future<BuildResult> startProjectBuild(Project project);
-    void startProjectBuild(ProjectBuildConfiguration projectBuildConfiguration, Consumer<ProjectBuildResult> onBuildComplete);
+    boolean startProjectBuild(ProjectBuildConfiguration projectBuildConfiguration, Consumer<TaskStatus> onUpdate)
+            throws BuildDriverException;
 
     void setRepository(RepositoryConfiguration repository);
 

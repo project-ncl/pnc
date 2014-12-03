@@ -4,7 +4,7 @@ import com.offbytwo.jenkins.JenkinsServer;
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.model.BuildType;
 import org.jboss.pnc.model.ProjectBuildConfiguration;
-import org.jboss.pnc.model.ProjectBuildResult;
+import org.jboss.pnc.model.TaskStatus;
 import org.jboss.pnc.spi.builddriver.BuildDriver;
 import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
 import org.jboss.pnc.spi.repositorymanager.RepositoryConfiguration;
@@ -63,8 +63,27 @@ public class JenkinsBuildDriver implements BuildDriver {
     }
 
     @Override
-    public void startProjectBuild(ProjectBuildConfiguration projectBuildConfiguration, Consumer<ProjectBuildResult> onBuildComplete) {
-
+    public boolean startProjectBuild(ProjectBuildConfiguration projectBuildConfiguration,
+                                     Consumer<TaskStatus> onUpdate) {
+        Runnable projectBuild = new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    BuildJob build = new BuildJob(getJenkinsServer());
+                    boolean configured = build.configure(projectBuildConfiguration, true);
+                    if (!configured) {
+                        throw new AssertionError("Cannot configure build job.");
+                    }
+                    build.start();
+                    onUpdate.accept(new TaskStatus(TaskStatus.Operation.BUILD_SCHEDULED, 0));
+                } catch (BuildDriverException e) {
+                    onUpdate.accept(new TaskStatus(TaskStatus.Operation.BUILD_SCHEDULED, -1));
+                }
+            }
+        };
+        //TODO use thread pool, return false if there are no available executors
+        new Thread(projectBuild).start();
+        return true;
     }
 
     @Override
@@ -72,23 +91,11 @@ public class JenkinsBuildDriver implements BuildDriver {
 
     }
 
-    public void startProjectBuild(ProjectBuildConfiguration projectBuildConfiguration) throws BuildDriverException {
-        BuildJob build = new BuildJob(getJenkinsServer());
-
-//        BuildJobConfig buildJobConfig = new BuildJobConfig(project.getName(), project.getScmUrl());
-
-        boolean configured = build.configure(projectBuildConfiguration, true);
-        if (!configured) {
-            throw new AssertionError("Cannot configure build job.");
-        }
-
-        build.start();
-    }
-
     @Override
     public boolean canBuild(BuildType buildType) {
         return BuildType.JAVA.equals(buildType);
     }
+
 
 
 }
