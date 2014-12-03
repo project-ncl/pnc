@@ -1,10 +1,6 @@
 package org.jboss.pnc.model;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.ManyToMany;
-import javax.persistence.ManyToOne;
+import javax.persistence.*;
 
 import java.io.Serializable;
 import java.util.List;
@@ -26,7 +22,7 @@ public class BuildCollection implements Serializable {
 
     private Integer productBuildBumber;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.ALL)
     private Product product;
 
     @ManyToMany

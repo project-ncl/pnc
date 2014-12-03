@@ -4,7 +4,7 @@ import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.transaction.api.annotation.TransactionMode;
 import org.jboss.arquillian.transaction.api.annotation.Transactional;
-import org.jboss.pnc.datastore.ProjectBuildResultRepository;
+import org.jboss.pnc.datastore.repositories.ProjectBuildResultRepository;
 import org.jboss.pnc.integration.deployments.Deployments;
 import org.jboss.pnc.model.BuildStatus;
 import org.jboss.pnc.model.ProjectBuildResult;

@@ -17,14 +17,10 @@
 
 package org.jboss.pnc.model;
 
+import javax.persistence.*;
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
-
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.OneToMany;
 
 /**
  * @author avibelli
@@ -45,7 +41,7 @@ public class Product implements Serializable {
 
     private String version;
 
-    @OneToMany(mappedBy = "product")
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
     private Set<BuildCollection> productBuildCollections;
 
     /**

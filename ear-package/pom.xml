@@ -14,7 +14,6 @@
     <packaging>ear</packaging>
 
     <dependencies>
-
         <!-- Depend on the modules so that we can package them -->
         <dependency>
             <groupId>org.jboss.pnc</groupId>
@@ -59,6 +58,11 @@
         <dependency>
             <groupId>org.jboss.pnc</groupId>
             <artifactId>docker-environment-driver</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.pnc</groupId>
+            <artifactId>demo-data</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -133,6 +137,12 @@
                         <jarModule>
                             <groupId>org.jboss.pnc</groupId>
                             <artifactId>docker-environment-driver</artifactId>
+                            <includeInApplicationXml>true</includeInApplicationXml>
+                            <bundleDir>/</bundleDir>
+                        </jarModule>
+                        <jarModule>
+                            <groupId>org.jboss.pnc</groupId>
+                            <artifactId>demo-data</artifactId>
                             <includeInApplicationXml>true</includeInApplicationXml>
                             <bundleDir>/</bundleDir>
                         </jarModule>

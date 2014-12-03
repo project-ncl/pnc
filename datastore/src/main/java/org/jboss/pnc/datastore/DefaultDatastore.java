@@ -1,18 +1,20 @@
 package org.jboss.pnc.datastore;
 
-import org.jboss.pnc.spi.datastore.Datastore;
+import org.jboss.pnc.datastore.repositories.ProjectBuildResultRepository;
 import org.jboss.pnc.model.ProjectBuildResult;
+import org.jboss.pnc.spi.datastore.Datastore;
 
-/**
- * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on
- * 2014-11-24.
- */
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+
+@ApplicationScoped
 public class DefaultDatastore implements Datastore {
+
+    @Inject
+    ProjectBuildResultRepository projectBuildResultRepository;
 
     @Override
     public void storeCompletedBuild(ProjectBuildResult buildResult) {
-        buildResult.getStatus();
-        buildResult.getBuiltArtifacts();
-        buildResult.getDependencies();
+        projectBuildResultRepository.save(buildResult);
     }
 }

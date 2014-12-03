@@ -35,10 +35,10 @@ public class ProjectBuildConfiguration implements Serializable {
 
     private String patchesUrl;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.ALL)
     private Project project;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.ALL)
     private Environment environment;
 
     @OneToMany(mappedBy = "triggeredBuildConfiguration")

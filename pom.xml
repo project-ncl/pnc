@@ -29,6 +29,7 @@
         <module>pnc-web</module>
         <module>docker-environment-driver</module>
         <module>integration-test</module>
+        <module>demo-data</module>
     </modules>
 
     <properties>

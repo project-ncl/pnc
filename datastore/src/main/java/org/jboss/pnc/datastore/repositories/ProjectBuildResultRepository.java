@@ -1,4 +1,4 @@
-package org.jboss.pnc.datastore;
+package org.jboss.pnc.datastore.repositories;
 
 import org.jboss.pnc.model.ProjectBuildResult;
 import org.springframework.data.jpa.repository.JpaRepository;

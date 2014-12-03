@@ -1,4 +1,4 @@
-package org.jboss.pnc.datastore;
+package org.jboss.pnc.datastore.configuration;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Produces;
