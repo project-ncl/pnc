@@ -1,6 +1,7 @@
 package org.jboss.pnc.model;
 
 import javax.persistence.*;
+
 import java.io.Serializable;
 import java.sql.Timestamp;
 import java.time.Instant;
@@ -36,6 +37,9 @@ public class ProjectBuildConfiguration implements Serializable {
     private String patchesUrl;
 
     @ManyToOne(cascade = CascadeType.ALL)
+    private ProductVersion productVersion;
+
+    @ManyToOne
     private Project project;
 
     @ManyToOne(cascade = CascadeType.ALL)
@@ -147,6 +151,20 @@ public class ProjectBuildConfiguration implements Serializable {
      */
     public void setProject(Project project) {
         this.project = project;
+    }
+
+    /**
+     * @return the productVersion
+     */
+    public ProductVersion getProductVersion() {
+        return productVersion;
+    }
+
+    /**
+     * @param productVersion the productVersion to set
+     */
+    public void setProductVersion(ProductVersion productVersion) {
+        this.productVersion = productVersion;
     }
 
     /**

@@ -1,17 +1,21 @@
 package org.jboss.pnc.model;
 
-import javax.persistence.*;
-
 import java.io.Serializable;
+import javax.persistence.*;
 import java.util.List;
 
+import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
+
 /**
- * The Class BuildCollection, that encapsulates the set of buildResults that compose a specific version of a Product (may be
- * refactored to a proper entity)
+ * The Class BuildCollection, that encapsulates the set of buildResults that compose a specific version of a Product.
+ *
+ * There should be a unique constraint (productVersion, productBuildBumber)
  *
  * @author avibelli
  */
 @Entity
+// @Table(uniqueConstraints = { @UniqueConstraint(columnNames = { "productVersion", "productBuildBumber" }) })
 public class BuildCollection implements Serializable {
 
     private static final long serialVersionUID = 1633628406382742445L;
@@ -23,7 +27,7 @@ public class BuildCollection implements Serializable {
     private Integer productBuildBumber;
 
     @ManyToOne(cascade = CascadeType.ALL)
-    private Product product;
+    private ProductVersion productVersion;
 
     @ManyToMany
     private List<ProjectBuildResult> projectBuildResult;
@@ -68,17 +72,17 @@ public class BuildCollection implements Serializable {
     }
 
     /**
-     * @return the product
+     * @return the productVersion
      */
-    public Product getProduct() {
-        return product;
+    public ProductVersion getProductVersion() {
+        return productVersion;
     }
 
     /**
-     * @param product the product to set
+     * @param productVersion the productVersion to set
      */
-    public void setProduct(Product product) {
-        this.product = product;
+    public void setProductVersion(ProductVersion productVersion) {
+        this.productVersion = productVersion;
     }
 
     /**
@@ -97,8 +101,8 @@ public class BuildCollection implements Serializable {
 
     @Override
     public String toString() {
-        return "BuildCollection [productName=" + product.getName() + ", productVersion=" + product.getVersion()
-                + ", productBuildBumber=" + productBuildBumber + "]";
+        return "BuildCollection [productName=" + productVersion.getProduct().getName() + ", productVersion="
+                + productVersion.getVersion() + ", productBuildBumber=" + productBuildBumber + "]";
     }
 
 }

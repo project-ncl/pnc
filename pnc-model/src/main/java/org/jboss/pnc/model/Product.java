@@ -39,16 +39,14 @@ public class Product implements Serializable {
 
     private String description;
 
-    private String version;
-
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
-    private Set<BuildCollection> productBuildCollections;
+    private Set<ProductVersion> productVersions;
 
     /**
      * Instantiates a new product.
      */
     public Product() {
-        this.productBuildCollections = new HashSet<>();
+        productVersions = new HashSet<>();
     }
 
     /**
@@ -56,11 +54,10 @@ public class Product implements Serializable {
      * @param description
      * @param version
      */
-    public Product(String name, String description, String version) {
-        super();
+    public Product(String name, String description) {
+        this();
         this.name = name;
         this.description = description;
-        this.version = version;
     }
 
     /**
@@ -106,31 +103,29 @@ public class Product implements Serializable {
     }
 
     /**
-     * @return the version
+     * @return the productVersions
      */
-    public String getVersion() {
-        return version;
+    public Set<ProductVersion> getProductVersions() {
+        return productVersions;
     }
 
     /**
-     * @param version the version to set
+     * @param productVersions the productVersions to set
      */
-    public void setVersion(String version) {
-        this.version = version;
+    public void setProductVersions(Set<ProductVersion> productVersions) {
+        this.productVersions = productVersions;
     }
 
     /**
-     * @return the productBuildCollections
+     * Add a version for the Product
+     *
+     * @param version
+     * @return
      */
-    public Set<BuildCollection> getProductBuildCollections() {
-        return productBuildCollections;
-    }
+    public Set<ProductVersion> addVersion(ProductVersion version) {
+        productVersions.add(version);
 
-    /**
-     * @param productBuildCollections the productBuildCollections to set
-     */
-    public void setProductBuildCollections(Set<BuildCollection> productBuildCollections) {
-        this.productBuildCollections = productBuildCollections;
+        return productVersions;
     }
 
 }
