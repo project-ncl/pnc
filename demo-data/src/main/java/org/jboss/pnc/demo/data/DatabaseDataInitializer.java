@@ -2,7 +2,6 @@ package org.jboss.pnc.demo.data;
 
 import org.jboss.pnc.datastore.repositories.ProductRepository;
 import org.jboss.pnc.datastore.repositories.ProjectRepository;
-import org.jboss.pnc.model.BuildCollection;
 import org.jboss.pnc.model.Product;
 import org.jboss.pnc.model.Project;
 import org.jboss.pnc.model.ProjectBuildConfiguration;
@@ -48,9 +47,7 @@ public class DatabaseDataInitializer {
 
             projectRepository.save(project);
 
-            Product product = new Product("foo", "foo description", "1.0");
-            BuildCollection buildCollection = new BuildCollection();
-            buildCollection.setProduct(product);
+            Product product = new Product("foo", "foo description");
 
             productRepository.save(product);
         }

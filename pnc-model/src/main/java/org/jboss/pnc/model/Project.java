@@ -2,10 +2,14 @@ package org.jboss.pnc.model;
 
 import javax.persistence.*;
 import java.io.Serializable;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-11-23.
  * 
@@ -35,34 +39,17 @@ public class Project implements Serializable {
     private License license;
 
     @OneToMany(mappedBy = "project", cascade = CascadeType.ALL)
+    private Set<ProductVersionProject> projectVersionProjects;
+
+    @OneToMany(mappedBy = "project")
     private Set<ProjectBuildConfiguration> projectBuildConfigurations;
 
     /**
      * Instantiates a new project.
      */
     public Project() {
-        this.projectBuildConfigurations = new HashSet<>();
-    }
-
-    /**
-     * Instantiates a new project.
-     *
-     * @param name the name
-     * @param description the description
-     * @param issueTrackerUrl the issue tracker url
-     * @param projectUrl the project url
-     * @param license the license
-     * @param projectBuildConfigurations the project build configurations
-     */
-    public Project(String name, String description, String issueTrackerUrl, String projectUrl, License license,
-            ProjectBuildConfiguration... projectBuildConfigurations) {
-
-        this.name = name;
-        this.description = description;
-        this.issueTrackerUrl = issueTrackerUrl;
-        this.projectUrl = projectUrl;
-        this.license = license;
-        this.projectBuildConfigurations = new HashSet<>(Arrays.asList(projectBuildConfigurations));
+        projectVersionProjects = new HashSet<>();
+        projectBuildConfigurations = new HashSet<>();
     }
 
     /**
