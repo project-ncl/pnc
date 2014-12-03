@@ -3,7 +3,6 @@ package org.jboss.pnc.model;
 import java.io.Serializable;
 import java.util.List;
 
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -29,11 +28,9 @@ public class BuildCollection implements Serializable {
     @GeneratedValue
     private Integer id;
 
-    @Column(nullable = false)
     private Integer productBuildBumber;
 
     @ManyToOne
-    @Column(nullable = false)
     private ProductVersion productVersion;
 
     @ManyToMany
