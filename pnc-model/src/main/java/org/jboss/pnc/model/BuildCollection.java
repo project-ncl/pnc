@@ -19,7 +19,7 @@ import javax.persistence.UniqueConstraint;
  * @author avibelli
  */
 @Entity
-@Table(uniqueConstraints = { @UniqueConstraint(columnNames = { "productVersion", "productBuildBumber" }) })
+// @Table(uniqueConstraints = { @UniqueConstraint(columnNames = { "productVersion", "productBuildBumber" }) })
 public class BuildCollection implements Serializable {
 
     private static final long serialVersionUID = 1633628406382742445L;
