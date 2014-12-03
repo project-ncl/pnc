@@ -2,17 +2,21 @@ package org.jboss.pnc.core.test;
 
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
+import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.Resources;
 import org.jboss.pnc.core.BuildDriverFactory;
 import org.jboss.pnc.core.RepositoryManagerFactory;
 import org.jboss.pnc.core.builder.ProjectBuilder;
-import org.jboss.pnc.core.exception.CoreException;
 import org.jboss.pnc.core.test.mock.BuildDriverMock;
 import org.jboss.pnc.core.test.mock.DatastoreMock;
 import org.jboss.pnc.mavenrepositorymanager.RepositoryManagerDriver;
-import org.jboss.pnc.model.*;
+import org.jboss.pnc.model.BuildCollection;
+import org.jboss.pnc.model.Environment;
+import org.jboss.pnc.model.Product;
+import org.jboss.pnc.model.ProductVersion;
+import org.jboss.pnc.model.Project;
+import org.jboss.pnc.model.ProjectBuildConfiguration;
 import org.jboss.pnc.model.builder.EnvironmentBuilder;
-import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
 import org.jboss.pnc.spi.environment.EnvironmentDriverProvider;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.asset.EmptyAsset;
@@ -21,8 +25,9 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import javax.inject.Inject;
 import java.util.logging.Logger;
+
+import javax.inject.Inject;
 
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-11-23.
@@ -34,7 +39,7 @@ public class BuildProjectsTestCase {
     public static JavaArchive createDeployment() {
         JavaArchive jar = ShrinkWrap.create(JavaArchive.class).addClass(ProjectBuilder.class)
                 .addClass(BuildDriverFactory.class).addClass(RepositoryManagerFactory.class).addClass(Resources.class)
-                .addClass(EnvironmentBuilder.class).addClass(EnvironmentDriverProvider.class)
+                .addClass(EnvironmentBuilder.class).addClass(EnvironmentDriverProvider.class).addClass(Configuration.class)
                 .addPackage(RepositoryManagerDriver.class.getPackage()).addPackage(BuildDriverMock.class.getPackage())
                 .addAsManifestResource(EmptyAsset.INSTANCE, "beans.xml").addAsResource("META-INF/logging.properties");
         System.out.println(jar.toString(true));
@@ -51,7 +56,7 @@ public class BuildProjectsTestCase {
     Logger log;
 
     @Test
-    public void createProjectStructure() throws InterruptedException, CoreException, BuildDriverException {
+    public void createProjectStructure() throws Exception {
         Environment javaEnvironment = EnvironmentBuilder.defaultEnvironment().build();
         Environment nativeEnvironment = EnvironmentBuilder.defaultEnvironment().withNative().build();
 

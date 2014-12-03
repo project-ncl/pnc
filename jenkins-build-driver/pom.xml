@@ -22,12 +22,10 @@
         <dependency>
             <groupId>org.jboss.pnc</groupId>
             <artifactId>pnc-spi</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.jboss.pnc</groupId>
             <artifactId>common</artifactId>
-            <version>${project.version}</version>
         </dependency>
 
         <!-- Remote dependencies -->

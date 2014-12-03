@@ -1,12 +1,13 @@
 package org.jboss.pnc.common;
 
-import javax.enterprise.context.ApplicationScoped;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Properties;
+
+import javax.enterprise.context.ApplicationScoped;
 
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-12-02.
@@ -20,8 +21,12 @@ public class Configuration {
         readConfigurationFile();
     }
 
+    public Configuration(final Properties properties) {
+        this.properties = properties;
+    }
+
     //TODO return only part containing config for requested module
-    public Properties getModuleConfig(String moduleTag) {
+    public Properties getModuleConfig(final String moduleTag) {
         return properties;
     }
 
@@ -37,7 +42,7 @@ public class Configuration {
         file = new File(configFileName); //try full path
 
         if (!file.exists()) {
-            URL url = getClass().getClassLoader().getResource(configFileName);
+            final URL url = getClass().getClassLoader().getResource(configFileName);
             if (url != null) {
                 file = new File(url.getFile());
             }

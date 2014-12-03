@@ -19,7 +19,7 @@ public interface RepositoryManager {
      * @param buildCollection Used to determine which in-progress product repository should be used.
      */
     RepositoryConfiguration createRepository( ProjectBuildConfiguration projectBuildConfiguration,
-                                              BuildCollection buildCollection );
+            BuildCollection buildCollection) throws RepositoryManagerException;
 
     boolean canManage(RepositoryType managerType);
 
@@ -28,5 +28,5 @@ public interface RepositoryManager {
      * @param repository Used during the build, containing input and output artifacts
      * @param buildResult The record of the build, to which records of deployed / input artifacts should be attached
      */
-    void persistArtifacts( RepositoryConfiguration repository, ProjectBuildResult buildResult );
+    void persistArtifacts(RepositoryConfiguration repository, ProjectBuildResult buildResult) throws RepositoryManagerException;
 }

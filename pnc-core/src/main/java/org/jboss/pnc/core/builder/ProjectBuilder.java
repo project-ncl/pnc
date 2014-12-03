@@ -13,10 +13,12 @@ import org.jboss.pnc.spi.datastore.Datastore;
 import org.jboss.pnc.spi.environment.EnvironmentDriverProvider;
 import org.jboss.pnc.spi.repositorymanager.RepositoryConfiguration;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManager;
+import org.jboss.pnc.spi.repositorymanager.RepositoryManagerException;
 
-import javax.inject.Inject;
 import java.util.function.Consumer;
 import java.util.logging.Logger;
+
+import javax.inject.Inject;
 
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-11-23.
@@ -39,7 +41,7 @@ public class ProjectBuilder {
     private Logger log;
 
     public boolean buildProject(ProjectBuildConfiguration projectBuildConfiguration, BuildCollection buildCollection)
-            throws CoreException, BuildDriverException {
+            throws CoreException, BuildDriverException, RepositoryManagerException {
 
         BuildDriver buildDriver = buildDriverFactory.getBuildDriver(projectBuildConfiguration.getEnvironment().getBuildType());
         RepositoryManager repositoryManager = repositoryManagerFactory.getRepositoryManager(RepositoryType.MAVEN);
