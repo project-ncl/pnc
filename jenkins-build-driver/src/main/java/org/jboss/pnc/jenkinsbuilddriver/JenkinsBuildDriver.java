@@ -64,6 +64,7 @@ public class JenkinsBuildDriver implements BuildDriver {
 
     @Override
     public boolean startProjectBuild(ProjectBuildConfiguration projectBuildConfiguration,
+                                     RepositoryConfiguration repositoryConfiguration,
                                      Consumer<TaskStatus> onUpdate) {
         Runnable projectBuild = new Runnable() {
             @Override
@@ -84,11 +85,6 @@ public class JenkinsBuildDriver implements BuildDriver {
         //TODO use thread pool, return false if there are no available executors
         new Thread(projectBuild).start();
         return true;
-    }
-
-    @Override
-    public void setRepository(RepositoryConfiguration repository) {
-
     }
 
     @Override

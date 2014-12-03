@@ -44,15 +44,12 @@ public class ProjectBuilder {
         BuildDriver buildDriver = buildDriverFactory.getBuildDriver(projectBuildConfiguration.getEnvironment().getBuildType());
         RepositoryManager repositoryManager = repositoryManagerFactory.getRepositoryManager(RepositoryType.MAVEN);
 
-        RepositoryConfiguration repository = repositoryManager.createRepository( projectBuildConfiguration, buildCollection );
-
-        buildDriver.setRepository( repository );
-
+        RepositoryConfiguration repositoryConfiguration = repositoryManager.createRepository( projectBuildConfiguration, buildCollection );
 
         Consumer<TaskStatus> updateStatus = (ts) -> {
             //TODO update build task status to building
         };
-        return buildDriver.startProjectBuild(projectBuildConfiguration, updateStatus);
+        return buildDriver.startProjectBuild(projectBuildConfiguration, repositoryConfiguration, updateStatus);
 
     }
 

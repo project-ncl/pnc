@@ -19,12 +19,12 @@ public interface BuildDriver {
      * Method returns as soon as build was triggered.
      *
      * @param projectBuildConfiguration
+     * @param repositoryConfiguration
+     * @param onUpdate call to update the task status
      * @return return false if driver is not ready for accepting new requests
      */
-    boolean startProjectBuild(ProjectBuildConfiguration projectBuildConfiguration, Consumer<TaskStatus> onUpdate)
+    boolean startProjectBuild(ProjectBuildConfiguration projectBuildConfiguration, RepositoryConfiguration repositoryConfiguration, Consumer<TaskStatus> onUpdate)
             throws BuildDriverException;
-
-    void setRepository(RepositoryConfiguration repository);
 
     boolean canBuild(BuildType buildType);
 
