@@ -24,44 +24,44 @@ import java.util.Set;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 
 /**
+ * Class that contains all the versions for a Product
+ * 
  * @author avibelli
  *
  */
 @Entity
-public class Product implements Serializable {
+public class ProductVersion implements Serializable {
 
-    private static final long serialVersionUID = -9022966336791211855L;
+    private static final long serialVersionUID = 6314079319551264379L;
 
     @Id
     @GeneratedValue
     private Integer id;
 
-    private String name;
+    private String version;
 
-    private String description;
+    @ManyToOne
+    private Product product;
 
-    @OneToMany(mappedBy = "product")
-    private Set<ProductVersion> productVersions;
+    @OneToMany(mappedBy = "productVersion")
+    private Set<BuildCollection> productBuildCollections;
 
-    /**
-     * Instantiates a new product.
-     */
-    public Product() {
-        productVersions = new HashSet<>();
+    public ProductVersion() {
+        productBuildCollections = new HashSet<>();
     }
 
     /**
-     * @param name
-     * @param description
      * @param version
+     * @param product
      */
-    public Product(String name, String description) {
+    public ProductVersion(String version, Product product) {
         this();
-        this.name = name;
-        this.description = description;
+        this.version = version;
+        this.product = product;
     }
 
     /**
@@ -79,57 +79,45 @@ public class Product implements Serializable {
     }
 
     /**
-     * @return the name
+     * @return the version
      */
-    public String getName() {
-        return name;
+    public String getVersion() {
+        return version;
     }
 
     /**
-     * @param name the name to set
+     * @param version the version to set
      */
-    public void setName(String name) {
-        this.name = name;
+    public void setVersion(String version) {
+        this.version = version;
     }
 
     /**
-     * @return the description
+     * @return the product
      */
-    public String getDescription() {
-        return description;
+    public Product getProduct() {
+        return product;
     }
 
     /**
-     * @param description the description to set
+     * @param product the product to set
      */
-    public void setDescription(String description) {
-        this.description = description;
+    public void setProduct(Product product) {
+        this.product = product;
     }
 
     /**
-     * @return the productVersions
+     * @return the productBuildCollections
      */
-    public Set<ProductVersion> getProductVersions() {
-        return productVersions;
+    public Set<BuildCollection> getProductBuildCollections() {
+        return productBuildCollections;
     }
 
     /**
-     * @param productVersions the productVersions to set
+     * @param productBuildCollections the productBuildCollections to set
      */
-    public void setProductVersions(Set<ProductVersion> productVersions) {
-        this.productVersions = productVersions;
-    }
-
-    /**
-     * Add a version for the Product
-     *
-     * @param version
-     * @return
-     */
-    public Set<ProductVersion> addVersion(ProductVersion version) {
-        productVersions.add(version);
-
-        return productVersions;
+    public void setProductBuildCollections(Set<BuildCollection> productBuildCollections) {
+        this.productBuildCollections = productBuildCollections;
     }
 
 }

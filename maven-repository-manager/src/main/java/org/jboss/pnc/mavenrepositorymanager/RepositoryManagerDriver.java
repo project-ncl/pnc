@@ -36,8 +36,9 @@ public class RepositoryManagerDriver implements RepositoryManager {
     public RepositoryConfiguration createRepository(ProjectBuildConfiguration projectBuildConfiguration,
             BuildCollection buildCollection) {
         // TODO Better way to generate id.
-        String id = String.format("build+%s+%s+%s+%s", buildCollection.getProduct().getName(), buildCollection.getProduct()
-                .getVersion(), safeUrlPart(projectBuildConfiguration.getProject().getName()), System.currentTimeMillis());
+        String id = String.format("build+%s+%s+%s+%s", buildCollection.getProductVersion().getProduct().getName(),
+                buildCollection.getProductVersion().getVersion(),
+                safeUrlPart(projectBuildConfiguration.getProject().getName()), System.currentTimeMillis());
         return new MavenRepositoryConfiguration(id, new MavenRepositoryConnectionInfo());
     }
 
