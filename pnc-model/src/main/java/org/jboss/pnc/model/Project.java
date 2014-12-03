@@ -1,11 +1,10 @@
 package org.jboss.pnc.model;
 
+import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
-
-import javax.persistence.*;
 
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-11-23.
@@ -35,7 +34,7 @@ public class Project implements Serializable {
     @ManyToOne
     private License license;
 
-    @OneToMany(mappedBy = "project")
+    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL)
     private Set<ProjectBuildConfiguration> projectBuildConfigurations;
 
     /**
