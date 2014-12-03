@@ -41,7 +41,8 @@ public class BuildProjectsTestCase {
                 .addClass(BuildDriverFactory.class).addClass(RepositoryManagerFactory.class).addClass(Resources.class)
                 .addClass(EnvironmentBuilder.class).addClass(EnvironmentDriverProvider.class).addClass(Configuration.class)
                 .addPackage(RepositoryManagerDriver.class.getPackage()).addPackage(BuildDriverMock.class.getPackage())
-                .addAsManifestResource(EmptyAsset.INSTANCE, "beans.xml").addAsResource("META-INF/logging.properties");
+                .addAsManifestResource(EmptyAsset.INSTANCE, "beans.xml").addAsResource("META-INF/logging.properties")
+                .addAsResource("pnc-config.ini");
         System.out.println(jar.toString(true));
         return jar;
     }
