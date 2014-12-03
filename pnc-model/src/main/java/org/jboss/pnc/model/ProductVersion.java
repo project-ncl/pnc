@@ -18,11 +18,14 @@
 package org.jboss.pnc.model;
 
 import java.io.Serializable;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 
 /**
  * Class that contains all the versions for a Product
@@ -44,7 +47,11 @@ public class ProductVersion implements Serializable {
     @ManyToOne
     private Product product;
 
+    @OneToMany(mappedBy = "productVersion")
+    private Set<BuildCollection> productBuildCollections;
+
     public ProductVersion() {
+        productBuildCollections = new HashSet<>();
     }
 
     /**
@@ -52,7 +59,7 @@ public class ProductVersion implements Serializable {
      * @param product
      */
     public ProductVersion(String version, Product product) {
-        super();
+        this();
         this.version = version;
         this.product = product;
     }
@@ -97,6 +104,20 @@ public class ProductVersion implements Serializable {
      */
     public void setProduct(Product product) {
         this.product = product;
+    }
+
+    /**
+     * @return the productBuildCollections
+     */
+    public Set<BuildCollection> getProductBuildCollections() {
+        return productBuildCollections;
+    }
+
+    /**
+     * @param productBuildCollections the productBuildCollections to set
+     */
+    public void setProductBuildCollections(Set<BuildCollection> productBuildCollections) {
+        this.productBuildCollections = productBuildCollections;
     }
 
 }

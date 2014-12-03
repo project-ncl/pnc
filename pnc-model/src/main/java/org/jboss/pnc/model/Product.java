@@ -46,15 +46,11 @@ public class Product implements Serializable {
     @OneToMany(mappedBy = "product")
     private Set<ProductVersion> productVersions;
 
-    @OneToMany(mappedBy = "product")
-    private Set<BuildCollection> productBuildCollections;
-
     /**
      * Instantiates a new product.
      */
     public Product() {
         productVersions = new HashSet<>();
-        productBuildCollections = new HashSet<>();
     }
 
     /**
@@ -122,20 +118,6 @@ public class Product implements Serializable {
      */
     public void setProductVersions(Set<ProductVersion> productVersions) {
         this.productVersions = productVersions;
-    }
-
-    /**
-     * @return the productBuildCollections
-     */
-    public Set<BuildCollection> getProductBuildCollections() {
-        return productBuildCollections;
-    }
-
-    /**
-     * @param productBuildCollections the productBuildCollections to set
-     */
-    public void setProductBuildCollections(Set<BuildCollection> productBuildCollections) {
-        this.productBuildCollections = productBuildCollections;
     }
 
     /**
