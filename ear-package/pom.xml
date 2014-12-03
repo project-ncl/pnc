@@ -47,8 +47,9 @@
         </dependency>
         <dependency>
             <groupId>org.jboss.pnc</groupId>
-            <artifactId>pnc-rest-bindings</artifactId>
+            <artifactId>pnc-rest</artifactId>
             <version>${project.version}</version>
+            <type>ejb</type>
         </dependency>
         <dependency>
             <groupId>org.jboss.pnc</groupId>
@@ -124,12 +125,6 @@
                         </jarModule>
                         <jarModule>
                             <groupId>org.jboss.pnc</groupId>
-                            <artifactId>pnc-rest-bindings</artifactId>
-                            <includeInApplicationXml>true</includeInApplicationXml>
-                            <bundleDir>/</bundleDir>
-                        </jarModule>
-                        <jarModule>
-                            <groupId>org.jboss.pnc</groupId>
                             <artifactId>pnc-spi</artifactId>
                             <includeInApplicationXml>true</includeInApplicationXml>
                             <bundleDir>/</bundleDir>
@@ -146,6 +141,11 @@
                             <includeInApplicationXml>true</includeInApplicationXml>
                             <bundleDir>/</bundleDir>
                         </jarModule>
+                        <ejbModule>
+                            <groupId>org.jboss.pnc</groupId>
+                            <artifactId>pnc-rest</artifactId>
+                            <bundleDir>/</bundleDir>
+                        </ejbModule>
                         <webModule>
                             <groupId>org.jboss.pnc</groupId>
                             <artifactId>pnc-web</artifactId>

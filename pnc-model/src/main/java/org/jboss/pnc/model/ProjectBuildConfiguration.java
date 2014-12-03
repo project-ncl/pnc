@@ -39,16 +39,16 @@ public class ProjectBuildConfiguration implements Serializable {
     @ManyToOne(cascade = CascadeType.ALL)
     private ProductVersion productVersion;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.ALL)
     private Project project;
 
     @ManyToOne(cascade = CascadeType.ALL)
     private Environment environment;
 
-    @OneToMany(mappedBy = "triggeredBuildConfiguration")
+    @OneToMany(mappedBy = "triggeredBuildConfiguration", cascade = CascadeType.ALL)
     private Set<BuildTrigger> buildsToTrigger;
 
-    @OneToMany(mappedBy = "buildConfiguration")
+    @OneToMany(mappedBy = "buildConfiguration", cascade = CascadeType.ALL)
     private Set<BuildTrigger> triggeredByBuilds;
 
     private Timestamp creationTime;

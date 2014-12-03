@@ -1,15 +1,11 @@
 package org.jboss.pnc.model;
 
 import javax.persistence.*;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
-
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-11-23.
  * 
@@ -18,6 +14,7 @@ import javax.persistence.OneToMany;
  * also linked to a list of ProjectBuildResults, that contains the result of the build triggered with a
  * ProjectBuildConfiguration
  */
+@XmlRootElement
 @Entity
 public class Project implements Serializable {
 
@@ -41,7 +38,8 @@ public class Project implements Serializable {
     @OneToMany(mappedBy = "project", cascade = CascadeType.ALL)
     private Set<ProductVersionProject> projectVersionProjects;
 
-    @OneToMany(mappedBy = "project")
+    @XmlTransient
+    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL)
     private Set<ProjectBuildConfiguration> projectBuildConfigurations;
 
     /**
