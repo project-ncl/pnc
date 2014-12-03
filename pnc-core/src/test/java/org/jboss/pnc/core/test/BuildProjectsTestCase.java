@@ -15,6 +15,7 @@ import org.jboss.pnc.mavenrepositorymanager.RepositoryManagerDriver;
 import org.jboss.pnc.model.BuildCollection;
 import org.jboss.pnc.model.Environment;
 import org.jboss.pnc.model.Product;
+import org.jboss.pnc.model.ProductVersion;
 import org.jboss.pnc.model.Project;
 import org.jboss.pnc.model.ProjectBuildConfiguration;
 import org.jboss.pnc.model.builder.EnvironmentBuilder;
@@ -123,9 +124,11 @@ public class BuildProjectsTestCase {
         log.info("Got projectBuilder: " + projectBuilder);
         log.info("Building projectBuildConfigurations: " + projectBuildConfigurations.size());
 
-        Product product = new Product("foo", "foo description", "1.0");
+        Product product = new Product("foo", "foo description");
+        ProductVersion productVersion = new ProductVersion("1.0", product);
+        product.addVersion(productVersion);
         BuildCollection buildCollection = new BuildCollection();
-        buildCollection.setProduct(product);
+        buildCollection.setProductVersion(productVersion);
         buildCollection.setProductBuildBumber(1);
 
         projectBuilder.buildProjects(projectBuildConfigurations, buildCollection);

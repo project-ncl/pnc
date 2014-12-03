@@ -43,7 +43,8 @@ public class Product implements Serializable {
 
     private String description;
 
-    private String version;
+    @OneToMany(mappedBy = "product")
+    private Set<ProductVersion> productVersions;
 
     @OneToMany(mappedBy = "product")
     private Set<BuildCollection> productBuildCollections;
@@ -52,7 +53,8 @@ public class Product implements Serializable {
      * Instantiates a new product.
      */
     public Product() {
-        this.productBuildCollections = new HashSet<>();
+        productVersions = new HashSet<>();
+        productBuildCollections = new HashSet<>();
     }
 
     /**
@@ -60,11 +62,10 @@ public class Product implements Serializable {
      * @param description
      * @param version
      */
-    public Product(String name, String description, String version) {
-        super();
+    public Product(String name, String description) {
+        this();
         this.name = name;
         this.description = description;
-        this.version = version;
     }
 
     /**
@@ -110,17 +111,17 @@ public class Product implements Serializable {
     }
 
     /**
-     * @return the version
+     * @return the productVersions
      */
-    public String getVersion() {
-        return version;
+    public Set<ProductVersion> getProductVersions() {
+        return productVersions;
     }
 
     /**
-     * @param version the version to set
+     * @param productVersions the productVersions to set
      */
-    public void setVersion(String version) {
-        this.version = version;
+    public void setProductVersions(Set<ProductVersion> productVersions) {
+        this.productVersions = productVersions;
     }
 
     /**
@@ -135,6 +136,18 @@ public class Product implements Serializable {
      */
     public void setProductBuildCollections(Set<BuildCollection> productBuildCollections) {
         this.productBuildCollections = productBuildCollections;
+    }
+
+    /**
+     * Add a version for the Product
+     *
+     * @param version
+     * @return
+     */
+    public Set<ProductVersion> addVersion(ProductVersion version) {
+        productVersions.add(version);
+
+        return productVersions;
     }
 
 }
