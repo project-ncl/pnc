@@ -1,7 +1,13 @@
 package org.jboss.pnc.model;
 
-import javax.persistence.*;
 import java.io.Serializable;
+
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-11-23.
@@ -193,6 +199,20 @@ public class Artifact implements Serializable {
      */
     public void setProjectBuildResult(ProjectBuildResult projectBuildResult) {
         this.projectBuildResult = projectBuildResult;
+    }
+
+    /**
+     * @return the repoType
+     */
+    public RepositoryType getRepoType() {
+        return repoType;
+    }
+
+    /**
+     * @param repoType the repoType to set
+     */
+    public void setRepoType(RepositoryType repoType) {
+        this.repoType = repoType;
     }
 
     /*
