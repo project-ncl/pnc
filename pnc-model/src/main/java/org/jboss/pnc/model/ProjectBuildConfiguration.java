@@ -1,14 +1,12 @@
 package org.jboss.pnc.model;
 
-import javax.persistence.*;
-
 import java.io.Serializable;
 import java.sql.Timestamp;
 import java.time.Instant;
-import java.util.Collections;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
+
+import javax.persistence.*;
 
 /**
  * The Class ProjectBuildConfiguration cointains the informations needed to trigger the build of a project, i.e. the sources and
@@ -45,11 +43,11 @@ public class ProjectBuildConfiguration implements Serializable {
     @ManyToOne(cascade = CascadeType.ALL)
     private Environment environment;
 
-    @OneToMany(mappedBy = "triggeredBuildConfiguration", cascade = CascadeType.ALL)
-    private Set<BuildTrigger> buildsToTrigger;
+    @ManyToOne(cascade = CascadeType.ALL)
+    private ProjectBuildConfiguration parent;
 
-    @OneToMany(mappedBy = "buildConfiguration", cascade = CascadeType.ALL)
-    private Set<BuildTrigger> triggeredByBuilds;
+    @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL)
+    private Set<ProjectBuildConfiguration> dependencies;
 
     private Timestamp creationTime;
 
@@ -64,8 +62,7 @@ public class ProjectBuildConfiguration implements Serializable {
      * Instantiates a new project build configuration.
      */
     public ProjectBuildConfiguration() {
-        buildsToTrigger = new HashSet<>();
-        triggeredByBuilds = new HashSet<>();
+        dependencies = new HashSet<>();
         creationTime = Timestamp.from(Instant.now());
     }
 
@@ -182,31 +179,31 @@ public class ProjectBuildConfiguration implements Serializable {
     }
 
     /**
-     * @return the buildsToTrigger
+     * @return the parent
      */
-    public Set<BuildTrigger> getBuildsToTrigger() {
-        return buildsToTrigger;
+    public ProjectBuildConfiguration getParent() {
+        return parent;
     }
 
     /**
-     * @param buildsToTrigger the buildsToTrigger to set
+     * @param parent the parent to set
      */
-    public void setBuildsToTrigger(Set<BuildTrigger> buildsToTrigger) {
-        this.buildsToTrigger = buildsToTrigger;
+    public void setParent(ProjectBuildConfiguration parent) {
+        this.parent = parent;
     }
 
     /**
-     * @return the triggeredByBuilds
+     * @return the dependencies
      */
-    public Set<BuildTrigger> getTriggeredByBuilds() {
-        return triggeredByBuilds;
+    public Set<ProjectBuildConfiguration> getDependencies() {
+        return dependencies;
     }
 
     /**
-     * @param triggeredByBuilds the triggeredByBuilds to set
+     * @param dependencies the dependencies to set
      */
-    public void setTriggeredByBuilds(Set<BuildTrigger> triggeredByBuilds) {
-        this.triggeredByBuilds = triggeredByBuilds;
+    public void setDependencies(Set<ProjectBuildConfiguration> dependencies) {
+        this.dependencies = dependencies;
     }
 
     /**
@@ -237,33 +234,16 @@ public class ProjectBuildConfiguration implements Serializable {
         this.lastModificationTime = lastModificationTime;
     }
 
-    public Set<ProjectBuildConfiguration> getDependencies() {
-        if (!buildsToTrigger.isEmpty()) {
-            Set<ProjectBuildConfiguration> dependencies = new HashSet<>();
-            for (BuildTrigger buildTrigger : buildsToTrigger) {
-                dependencies.add(buildTrigger.getTriggeredBuildConfiguration());
-            }
-            return dependencies;
-        }
-        return Collections.emptySet();
+    public ProjectBuildConfiguration addDependency(ProjectBuildConfiguration configuration) {
+        configuration.setParent(this);
+        dependencies.add(configuration);
+        return this;
     }
 
-    public Set<BuildTrigger> addDependency(ProjectBuildConfiguration configuration) {
-        buildsToTrigger.add(new BuildTrigger(this, configuration));
-
-        return buildsToTrigger;
-    }
-
-    public Set<BuildTrigger> removeDependency(ProjectBuildConfiguration configuration) {
-
-        for (Iterator<BuildTrigger> iterator = buildsToTrigger.iterator(); iterator.hasNext();) {
-            BuildTrigger buildTrigger = iterator.next();
-            if (configuration.equals(buildTrigger.getTriggeredBuildConfiguration())) {
-                iterator.remove();
-            }
-        }
-
-        return buildsToTrigger;
+    public ProjectBuildConfiguration removeDependency(ProjectBuildConfiguration configuration) {
+        configuration.setParent(null);
+        dependencies.remove(configuration);
+        return this;
     }
 
     @Override
