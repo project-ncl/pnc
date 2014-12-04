@@ -20,7 +20,6 @@
         <dependency>
             <groupId>org.jboss.pnc</groupId>
             <artifactId>pnc-model</artifactId>
-            <version>${project.version}</version>
         </dependency>
     </dependencies>
 </project>

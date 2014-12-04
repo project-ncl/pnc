@@ -21,13 +21,11 @@
         <dependency>
             <groupId>org.jboss.pnc</groupId>
             <artifactId>pnc-core</artifactId>
-            <version>${project.parent.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.jboss.pnc</groupId>
             <artifactId>datastore</artifactId>
-            <version>${project.parent.version}</version>
             <scope>provided</scope>
         </dependency>
 
