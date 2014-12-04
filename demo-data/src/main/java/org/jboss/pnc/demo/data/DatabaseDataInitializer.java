@@ -5,6 +5,7 @@ import org.jboss.pnc.datastore.repositories.ProductRepository;
 import org.jboss.pnc.datastore.repositories.ProjectBuildConfigurationRepository;
 import org.jboss.pnc.datastore.repositories.ProjectRepository;
 import org.jboss.pnc.model.Product;
+import org.jboss.pnc.model.ProductVersion;
 import org.jboss.pnc.model.Project;
 import org.jboss.pnc.model.ProjectBuildConfiguration;
 import org.jboss.pnc.model.builder.EnvironmentBuilder;
@@ -47,6 +48,7 @@ public class DatabaseDataInitializer {
         Preconditions.checkState(projectRepository.count() > 0, "Expecting number of Projects > 0");
         Preconditions.checkState(productRepository.count() > 0, "Expecting number of Products > 0");
         Preconditions.checkState(projectBuildConfigurationRepository.count() > 0, "Expecting number of ProjectBuildConfigurations > 0");
+        Preconditions.checkState(projectBuildConfigurationRepository.findAll().get(0).getProductVersion() != null, "Product version must be not null");
     }
 
     @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
@@ -55,6 +57,7 @@ public class DatabaseDataInitializer {
 
         long numberOfProjectInDB = projectRepository.count();
         if(numberOfProjectInDB == 0) {
+
             Project project = new Project();
             project.setName("demo");
 
@@ -66,6 +69,11 @@ public class DatabaseDataInitializer {
             projectRepository.save(project);
 
             Product product = new Product("foo", "foo description");
+
+            ProductVersion productVersion = new ProductVersion();
+            productVersion.setProduct(product);
+            product.addVersion(productVersion);
+            projectBuildConfigurationA1.setProductVersion(productVersion);
 
             productRepository.save(product);
         } else {

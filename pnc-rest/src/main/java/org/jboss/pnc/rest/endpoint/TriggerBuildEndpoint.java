@@ -14,7 +14,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.lang.invoke.MethodHandles;
 
-@Path("/build")
+@Path("/configuration")
 public class TriggerBuildEndpoint {
 
     private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
@@ -31,7 +31,7 @@ public class TriggerBuildEndpoint {
 
     @POST
     @Produces(MediaType.APPLICATION_JSON)
-    @Path("{id}")
+    @Path("{id}/build")
     public Response getSpecificBuild(@PathParam("id") Integer id) {
         try {
             buildTriggerer.triggerBuilds(id);

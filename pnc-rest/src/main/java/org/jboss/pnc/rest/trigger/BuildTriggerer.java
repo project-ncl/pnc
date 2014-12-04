@@ -1,8 +1,6 @@
 package org.jboss.pnc.rest.trigger;
 
-import javax.ejb.Stateless;
-import javax.inject.Inject;
-
+import com.google.common.base.Preconditions;
 import org.jboss.pnc.core.builder.ProjectBuilder;
 import org.jboss.pnc.core.exception.CoreException;
 import org.jboss.pnc.datastore.repositories.ProjectBuildConfigurationRepository;
@@ -11,7 +9,8 @@ import org.jboss.pnc.model.ProjectBuildConfiguration;
 import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerException;
 
-import com.google.common.base.Preconditions;
+import javax.ejb.Stateless;
+import javax.inject.Inject;
 
 @Stateless
 public class BuildTriggerer {

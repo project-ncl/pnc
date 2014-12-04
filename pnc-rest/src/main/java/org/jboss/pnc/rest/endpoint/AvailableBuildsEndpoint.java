@@ -12,7 +12,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.List;
 
-@Path("/build/available")
+@Path("/configuration")
 public class AvailableBuildsEndpoint {
 
     BuildTriggerProvider buildTriggerProvider;
