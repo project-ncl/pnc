@@ -8,6 +8,7 @@ import com.offbytwo.jenkins.model.JobWithDetails;
 import org.jboss.pnc.model.BuildStatus;
 import org.jboss.pnc.model.ProjectBuildConfiguration;
 import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
+import org.jboss.pnc.spi.repositorymanager.RepositoryConfiguration;
 
 import java.io.IOException;
 
@@ -23,13 +24,14 @@ public class BuildJob {
         this.jenkinsServer = jenkinsServer;
     }
 
-    public boolean configure(ProjectBuildConfiguration projectBuildConfiguration, boolean override) throws BuildDriverException {
+    public boolean configure(ProjectBuildConfiguration projectBuildConfiguration, RepositoryConfiguration repositoryConfiguration, boolean override) throws BuildDriverException {
         String jobName = projectBuildConfiguration.getProject().getName();
 
         this.buildJobConfig = new BuildJobConfig(
                 jobName,
                 projectBuildConfiguration.getScmUrl(),
-                projectBuildConfiguration.getBuildScript());
+                projectBuildConfiguration.getBuildScript(),
+                repositoryConfiguration.getConnectionInfo());
 
 //FIXME: NullPointerException thrown, see BuildTest#shouldTriggerBuildAndFinishWithoutProblems
 //        try {
