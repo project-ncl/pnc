@@ -17,7 +17,8 @@ public class TaskStatus {
         BUILD_SCHEDULED,
         BUILD_IN_PROGRESS,
         BUILD_COMPLETED,
-        BUILD_FAILED;
+        BUILD_FAILED,
+        COMPLETED;
     }
 
     /**

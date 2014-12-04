@@ -3,6 +3,8 @@ package org.jboss.pnc.core.builder;
 import org.jboss.pnc.core.BuildDriverFactory;
 import org.jboss.pnc.core.RepositoryManagerFactory;
 import org.jboss.pnc.core.exception.CoreException;
+import org.jboss.pnc.core.task.Task;
+import org.jboss.pnc.core.task.TaskQueue;
 import org.jboss.pnc.model.BuildCollection;
 import org.jboss.pnc.model.ProjectBuildConfiguration;
 import org.jboss.pnc.model.RepositoryType;
@@ -38,6 +40,9 @@ public class ProjectBuilder {
     EnvironmentDriverProvider environmentDriverProvider;
 
     @Inject
+    TaskQueue taskQueue;
+
+    @Inject
     private Logger log;
 
     public boolean buildProject(ProjectBuildConfiguration projectBuildConfiguration, BuildCollection buildCollection)
@@ -46,12 +51,14 @@ public class ProjectBuilder {
         BuildDriver buildDriver = buildDriverFactory.getBuildDriver(projectBuildConfiguration.getEnvironment().getBuildType());
         RepositoryManager repositoryManager = repositoryManagerFactory.getRepositoryManager(RepositoryType.MAVEN);
 
-        RepositoryConfiguration repositoryConfiguration = repositoryManager.createRepository( projectBuildConfiguration, buildCollection );
+        RepositoryConfiguration repositoryConfiguration = repositoryManager.createRepository(projectBuildConfiguration, buildCollection);
 
+        Task buildTask = new Task(projectBuildConfiguration);
         Consumer<TaskStatus> updateStatus = (ts) -> {
-            //TODO update build task status to building
+            
         };
-        return buildDriver.startProjectBuild(projectBuildConfiguration, repositoryConfiguration, updateStatus);
+        boolean buildPassed = buildDriver.startProjectBuild(projectBuildConfiguration, repositoryConfiguration, updateStatus);
+        taskQueue.addTask(buildTask);
 
     }
 
