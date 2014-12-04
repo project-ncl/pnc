@@ -23,7 +23,6 @@
         <dependency>
             <groupId>org.jboss.pnc</groupId>
             <artifactId>pnc-spi</artifactId>
-            <version>${project.parent.version}</version>
         </dependency>
         <dependency>
             <groupId>org.jboss.spec</groupId>
