@@ -234,6 +234,20 @@ public class ProjectBuildConfiguration implements Serializable {
         this.lastModificationTime = lastModificationTime;
     }
 
+    /**
+     * @return the repositories
+     */
+    public String getRepositories() {
+        return repositories;
+    }
+
+    /**
+     * @param repositories the repositories to set
+     */
+    public void setRepositories(String repositories) {
+        this.repositories = repositories;
+    }
+
     public ProjectBuildConfiguration addDependency(ProjectBuildConfiguration configuration) {
         configuration.setParent(this);
         dependencies.add(configuration);
