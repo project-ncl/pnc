@@ -1,6 +1,7 @@
 package org.jboss.pnc.jenkinsbuilddriver;
 
 import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
+import org.jboss.pnc.spi.repositorymanager.RepositoryConnectionInfo;
 import org.jboss.util.StringPropertyReplacer;
 
 import java.io.File;
@@ -15,14 +16,16 @@ import java.util.Properties;
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-11-29.
  */
 public class BuildJobConfig {
+    private final RepositoryConnectionInfo connectionInfo;
     private String name;
     private String scmUrl;
-    private String buildScript = "mvn clean install"; //TODO
+    private String buildScript = "mvn -s settings.xml clean install"; //TODO
 
-    public BuildJobConfig(String name, String scmUrl, String buildScript) {
+    public BuildJobConfig(String name, String scmUrl, String buildScript, RepositoryConnectionInfo connectionInfo) {
         this.name = name;
         this.scmUrl = scmUrl;
         this.buildScript = buildScript;
+        this.connectionInfo = connectionInfo;
     }
 
     public String getName() {
@@ -34,9 +37,9 @@ public class BuildJobConfig {
 
         Properties properties = new Properties();
         properties.setProperty("scm_url", scmUrl);
-        if (buildScript != null) {
-            properties.setProperty("hudson.tasks.Shell.buildScript", buildScript);
-        }
+        
+        properties.setProperty("repoConfig", connectionInfo.getDependencyUrl());
+        properties.setProperty("hudson.tasks.Shell.command", buildScript);
 
         return StringPropertyReplacer.replaceProperties(xmlString, properties);
     }

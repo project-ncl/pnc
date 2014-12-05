@@ -68,7 +68,7 @@ public class JenkinsBuildDriver implements BuildDriver {
 //        Runnable projectBuild = () -> {
 //                try {
 //                    BuildJob build = new BuildJob(getJenkinsServer());
-//                    boolean configured = build.configure(projectBuildConfiguration, true);
+//                    boolean configured = build.configure(projectBuildConfiguration, repositoryConfiguration, true);
 //                    if (!configured) {
 //                        throw new AssertionError("Cannot configure build job.");
 //                    }
