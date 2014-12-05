@@ -6,6 +6,7 @@ import javax.xml.bind.annotation.XmlTransient;
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
+
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-11-23.
  * 
@@ -160,6 +161,30 @@ public class Project implements Serializable {
      */
     public void setProductVersionProjects(Set<ProductVersionProject> productVersionProjects) {
         this.productVersionProjects = productVersionProjects;
+    }
+
+    /**
+     * Add a productVersionProject to the set of productVersionProjects
+     *
+     * @param productVersionProject
+     * @return
+     */
+    public Set<ProductVersionProject> addProductVersionProject(ProductVersionProject productVersionProject) {
+        productVersionProjects.add(productVersionProject);
+
+        return productVersionProjects;
+    }
+
+    /**
+     * Remove a productVersionProject from the set of productVersionProjects
+     *
+     * @param productVersionProject
+     * @return
+     */
+    public Set<ProductVersionProject> removeProductVersionProject(ProductVersionProject productVersionProject) {
+        productVersionProjects.remove(productVersionProject);
+
+        return productVersionProjects;
     }
 
     /**

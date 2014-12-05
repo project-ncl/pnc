@@ -50,6 +50,11 @@ public class ProductVersionBuilder {
         ProductVersion productVersion = new ProductVersion();
         productVersion.setId(id);
         productVersion.setVersion(version);
+
+        // Set the bi-directional mapping
+        if (product != null) {
+            product.addVersion(productVersion);
+        }
         productVersion.setProduct(product);
 
         // Set the bi-directional mapping
