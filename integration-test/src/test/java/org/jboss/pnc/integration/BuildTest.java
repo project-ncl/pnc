@@ -32,7 +32,7 @@ public class BuildTest {
     public void shouldTriggerBuildAndFinishWithoutProblems() {
         given().
         when().
-            post("/pnc-web/rest/configuration/2/build").
+            post("/pnc-web/rest/configuration/3/build").
         then().
             statusCode(200);
     }

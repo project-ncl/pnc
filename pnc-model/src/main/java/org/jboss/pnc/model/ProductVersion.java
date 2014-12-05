@@ -18,6 +18,7 @@
 package org.jboss.pnc.model;
 
 import javax.persistence.*;
+
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
@@ -115,4 +116,27 @@ public class ProductVersion implements Serializable {
         this.productBuildCollections = productBuildCollections;
     }
 
+    /**
+     * Add a productBuildCollection to the set of productBuildCollections
+     *
+     * @param productBuildCollection
+     * @return
+     */
+    public Set<BuildCollection> addProductBuildCollection(BuildCollection productBuildCollection) {
+        productBuildCollections.add(productBuildCollection);
+
+        return productBuildCollections;
+    }
+
+    /**
+     * Remove a productBuildCollection from the set of productBuildCollections
+     *
+     * @param productBuildCollection
+     * @return
+     */
+    public Set<BuildCollection> removeProductBuildCollection(BuildCollection productBuildCollection) {
+        productBuildCollections.remove(productBuildCollection);
+
+        return productBuildCollections;
+    }
 }

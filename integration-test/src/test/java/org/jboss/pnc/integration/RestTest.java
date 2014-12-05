@@ -35,15 +35,15 @@ public class RestTest {
         when().
             get("/pnc-web/rest/configuration").
         then().
-            body(containsString("[{\"id\":2,\"identifier\":null,\"projectName\":\"demo\"}]"));
+            body(containsString("[{\"id\":3,\"identifier\":\"pnc-1.0.0.DR1\",\"projectName\":\"PNC Project\"}]"));
     }
 
     @Test
     public void shouldReturnSpecificConfiguration() {
         given().
         when().
-            get("/pnc-web/rest/configuration/2").
+            get("/pnc-web/rest/configuration/3").
         then().
-            body(containsString("{\"id\":2,\"identifier\":null,\"projectName\":\"demo\"}"));
+            body(containsString("{\"id\":3,\"identifier\":\"pnc-1.0.0.DR1\",\"projectName\":\"PNC Project\"}"));
     }
 }

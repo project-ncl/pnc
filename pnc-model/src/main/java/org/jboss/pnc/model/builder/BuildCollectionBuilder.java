@@ -50,6 +50,10 @@ public class BuildCollectionBuilder {
         BuildCollection buildCollection = new BuildCollection();
         buildCollection.setId(id);
         buildCollection.setProductBuildBumber(productBuildBumber);
+
+        if (productVersion != null) {
+            productVersion.addProductBuildCollection(buildCollection);
+        }
         buildCollection.setProductVersion(productVersion);
 
         // Set the bi-directional mapping

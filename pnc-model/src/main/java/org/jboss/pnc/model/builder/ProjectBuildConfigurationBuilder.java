@@ -77,7 +77,13 @@ public class ProjectBuildConfigurationBuilder {
         projectBuildConfiguration.setScmUrl(scmUrl);
         projectBuildConfiguration.setPatchesUrl(patchesUrl);
         projectBuildConfiguration.setProductVersion(productVersion);
+
+        // Set the bi-directional mapping
+        if (project != null) {
+            project.addProjectBuildConfiguration(projectBuildConfiguration);
+        }
         projectBuildConfiguration.setProject(project);
+
         projectBuildConfiguration.setEnvironment(environment);
         projectBuildConfiguration.setCreationTime(creationTime);
         projectBuildConfiguration.setLastModificationTime(lastModificationTime);
