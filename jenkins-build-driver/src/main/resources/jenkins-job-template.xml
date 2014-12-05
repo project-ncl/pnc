@@ -43,16 +43,7 @@
     <builders>
         <hudson.tasks.Shell>
             <command>
-                echo "
-                <settings>
-                    <mirrors>
-                        <mirror>
-                            <id>pnc-aprox</id>
-                            <mirrorOf>*</mirrorOf>
-                            <url>${repoConfig}</url>
-                        </mirror>
-                    </mirrors>
-                </settings>" > settings.xml
+                printf '\n<settings>\n<mirrors>\n<mirror>\n<id>pnc-aprox</id>\n<mirrorOf>*</mirrorOf>\n<url>${repoConfig}</url>\n</mirror>\n</mirrors>\n</settings>\n' > settings.xml
 
                 ${hudson.tasks.Shell.command}
 
