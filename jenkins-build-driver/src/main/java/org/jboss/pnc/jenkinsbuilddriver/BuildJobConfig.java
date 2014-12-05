@@ -38,10 +38,17 @@ public class BuildJobConfig {
         Properties properties = new Properties();
         properties.setProperty("scm_url", scmUrl);
         
-        properties.setProperty("repoConfig", connectionInfo.getDependencyUrl());
+        properties.setProperty("maven_settings", getMavenConfig(connectionInfo.getDependencyUrl()));
         properties.setProperty("hudson.tasks.Shell.command", buildScript);
 
         return StringPropertyReplacer.replaceProperties(xmlString, properties);
+    }
+
+    private String getMavenConfig(String dependencyUrl) {
+        String config = "printf \"<settings><mirrors><mirror><id>pnc-aprox</id><mirrorOf>*</mirrorOf><url>" + dependencyUrl +"</url></mirror></mirrors></settings>\" > settings.xml";
+        return config.replace("<", "&lt;")
+              .replace(">", "&gt;");
+
     }
 
     private String readConfigTemplate() throws BuildDriverException {

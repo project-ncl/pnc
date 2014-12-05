@@ -18,7 +18,8 @@ public class Configuration {
 
     public Configuration() throws IOException {
         //FIXME: FileNotFoundException thrown, see BuildTest#shouldTriggerBuildAndFinishWithoutProblems
-        //readConfigurationFile();
+        //TODO check with missing config
+        readConfigurationFile();
     }
 
     public Configuration(final Properties properties) {

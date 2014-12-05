@@ -43,19 +43,8 @@
     <builders>
         <hudson.tasks.Shell>
             <command>
-                echo "
-                <settings>
-                    <mirrors>
-                        <mirror>
-                            <id>pnc-aprox</id>
-                            <mirrorOf>*</mirrorOf>
-                            <url>${repoConfig}</url>
-                        </mirror>
-                    </mirrors>
-                </settings>" > settings.xml
-
+                ${maven_settings}
                 ${hudson.tasks.Shell.command}
-
             </command>
         </hudson.tasks.Shell>
     </builders>

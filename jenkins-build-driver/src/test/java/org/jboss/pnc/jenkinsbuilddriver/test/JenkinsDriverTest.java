@@ -2,22 +2,26 @@ package org.jboss.pnc.jenkinsbuilddriver.test;
 
 import com.offbytwo.jenkins.JenkinsServer;
 import org.jboss.arquillian.container.test.api.Deployment;
+import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.jenkinsbuilddriver.JenkinsBuildDriver;
-import org.jboss.pnc.model.Project;
-import org.jboss.pnc.model.ProjectBuildConfiguration;
-import org.jboss.pnc.model.TaskStatus;
+import org.jboss.pnc.model.*;
+import org.jboss.pnc.spi.repositorymanager.RepositoryConfiguration;
+import org.jboss.pnc.spi.repositorymanager.RepositoryConnectionInfo;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.asset.EmptyAsset;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import javax.inject.Inject;
+import java.util.Map;
 import java.util.function.Consumer;
 
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-11-23.
  */
-//@RunWith(Arquillian.class)
+@RunWith(Arquillian.class)
 public class JenkinsDriverTest {
 
     private JenkinsServer jenkins;
@@ -40,18 +44,57 @@ public class JenkinsDriverTest {
     JenkinsBuildDriver jenkinsBuildDriver;
 
     //TODO disable/enable by maven profile
-    //@Test /** disabled by default you need to configure pnc-config.ini in test/resources */
+    @Test
+    /** disabled by default you need to configure pnc-config.ini in test/resources */
     public void startJenkinsJobTestCase() throws Exception {
 
-        ProjectBuildConfiguration projectBuildConfiguration = new ProjectBuildConfiguration();
-        projectBuildConfiguration.setScmUrl("https://github.com/project-ncl/pnc.git");
-        projectBuildConfiguration.setBuildScript("mvn clean install");
+        ProjectBuildConfiguration pbc = new ProjectBuildConfiguration();
+        pbc.setScmUrl("https://github.com/project-ncl/pnc.git");
+        pbc.setBuildScript("mvn clean install");
         Project project = new Project();
         project.setName("PNC-executed-from-test");
-        projectBuildConfiguration.setProject(project);
+        pbc.setProject(project);
 
         Consumer<TaskStatus> updateStatus = (ts) -> {};
-        jenkinsBuildDriver.startProjectBuild(projectBuildConfiguration, null, updateStatus);
+        RepositoryConfiguration repositoryConfiguration = new RepositoryConfiguration() {
+            @Override
+            public RepositoryType getType() {
+                return RepositoryType.MAVEN;
+            }
+
+            @Override
+            public String getId() {
+                return "mock-config";
+            }
+
+            @Override
+            public RepositoryConnectionInfo getConnectionInfo() {
+                return new RepositoryConnectionInfo() {
+                    @Override
+                    public String getDependencyUrl() {
+                        return "https://repository.jboss.org/nexus/content/repositories/central";
+                    }
+
+                    @Override
+                    public String getToolchainUrl() {
+                        return null;
+                    }
+
+                    @Override
+                    public String getDeployUrl() {
+                        return null;
+                    }
+
+                    @Override
+                    public Map<String, String> getProperties() {
+                        return null;
+                    }
+                };
+            }
+        };
+
+
+        jenkinsBuildDriver.startProjectBuild(pbc, repositoryConfiguration, updateStatus);
 
     }
 }
