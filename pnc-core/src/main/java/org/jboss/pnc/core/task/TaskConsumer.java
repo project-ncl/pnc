@@ -2,6 +2,7 @@ package org.jboss.pnc.core.task;
 
 import org.jboss.pnc.core.task.handlers.Handler;
 import org.jboss.pnc.model.TaskStatus;
+import org.jboss.pnc.model.exchange.Task;
 
 import java.util.concurrent.BlockingQueue;
 

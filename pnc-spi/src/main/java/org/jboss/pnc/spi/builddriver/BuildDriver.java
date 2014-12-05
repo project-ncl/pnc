@@ -1,31 +1,21 @@
 package org.jboss.pnc.spi.builddriver;
 
 import org.jboss.pnc.model.BuildType;
-import org.jboss.pnc.model.ProjectBuildConfiguration;
-import org.jboss.pnc.model.TaskStatus;
-import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
-import org.jboss.pnc.spi.repositorymanager.RepositoryConfiguration;
-
-import java.util.function.Consumer;
+import org.jboss.pnc.model.exchange.Task;
 
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-11-23.
  */
-public interface BuildDriver {
+public interface BuildDriver<T> {
 
     String getDriverId();
+
+    boolean canBuild(BuildType buildType);
 
     /**
      * Method returns as soon as build was triggered.
      *
-     * @param projectBuildConfiguration
-     * @param repositoryConfiguration
-     * @param onUpdate call to update the task status
      * @return return false if driver is not ready for accepting new requests
      */
-    boolean startProjectBuild(ProjectBuildConfiguration projectBuildConfiguration, RepositoryConfiguration repositoryConfiguration, Consumer<TaskStatus> onUpdate)
-            throws BuildDriverException;
-
-    boolean canBuild(BuildType buildType);
-
+    boolean startProjectBuild(Task<T> buildTask);
 }

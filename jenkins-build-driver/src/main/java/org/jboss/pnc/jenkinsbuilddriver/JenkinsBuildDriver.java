@@ -5,6 +5,8 @@ import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.model.BuildType;
 import org.jboss.pnc.model.ProjectBuildConfiguration;
 import org.jboss.pnc.model.TaskStatus;
+import org.jboss.pnc.model.exchange.BuildTaskConfiguration;
+import org.jboss.pnc.model.exchange.Task;
 import org.jboss.pnc.spi.builddriver.BuildDriver;
 import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
 import org.jboss.pnc.spi.repositorymanager.RepositoryConfiguration;
@@ -20,7 +22,7 @@ import java.util.function.Consumer;
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-11-23.
  */
 @ApplicationScoped
-public class JenkinsBuildDriver implements BuildDriver {
+public class JenkinsBuildDriver implements BuildDriver<ProjectBuildConfiguration> {
 
     private static final String DRIVER_ID = "jenkins-build-driver";
 
@@ -63,34 +65,33 @@ public class JenkinsBuildDriver implements BuildDriver {
     }
 
     @Override
-    public boolean startProjectBuild(ProjectBuildConfiguration projectBuildConfiguration,
-                                     RepositoryConfiguration repositoryConfiguration,
-                                     Consumer<TaskStatus> onUpdate) {
-//        Runnable projectBuild = () -> {
-                try {
-                    BuildJob build = new BuildJob(getJenkinsServer());
-                    boolean configured = build.configure(projectBuildConfiguration, repositoryConfiguration, true);
-                    if (!configured) {
-                        throw new AssertionError("Cannot configure build job.");
-                    }
-                    build.start();
-                    onUpdate.accept(new TaskStatus(TaskStatus.Operation.BUILD_SCHEDULED, 0));
-                } catch (BuildDriverException e) {
-                    System.out.println(e);
-                    onUpdate.accept(new TaskStatus(TaskStatus.Operation.BUILD_SCHEDULED, -1)); //TODO lost exception
-                }
- //       };
-        //TODO use thread pool, return false if there are no available executors
-        //new Thread(projectBuild).start();
-   //     projectBuild.run();
-        return true;
-    }
-
-    @Override
     public boolean canBuild(BuildType buildType) {
         return BuildType.JAVA.equals(buildType);
     }
 
+    @Override
+    public boolean startProjectBuild(Task<BuildTaskConfiguration> buildTask) {
+        BuildTaskConfiguration buildConfig = buildTask.getTaskConfiguration();
+
+        ProjectBuildConfiguration projectBuildConfiguration = buildConfig.getProjectBuildConfiguration();
+
+        Runnable projectBuild = () -> {
+            try {
+                BuildJob build = new BuildJob(getJenkinsServer());
+                boolean configured = build.configure(projectBuildConfiguration, true);
+                if (!configured) {
+                    throw new AssertionError("Cannot configure build job.");
+                }
+                build.start();
+                buildTask.setStatus(new TaskStatus(TaskStatus.Operation.BUILD_SCHEDULED, 0));
+            } catch (BuildDriverException e) {
+                buildTask.setStatus(new TaskStatus(TaskStatus.Operation.BUILD_SCHEDULED, -1));
+            }
+        };
+        //TODO use thread pool, return false if there are no available executors
+        new Thread(projectBuild).start();
+        return true;
+    }
 
 
 }

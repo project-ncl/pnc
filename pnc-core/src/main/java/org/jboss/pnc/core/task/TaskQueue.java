@@ -3,6 +3,7 @@ package org.jboss.pnc.core.task;
 import org.jboss.pnc.core.task.handlers.CheckBuildProgressHandler;
 import org.jboss.pnc.core.task.handlers.CompleteBuildHandler;
 import org.jboss.pnc.core.task.handlers.StartBuildHandler;
+import org.jboss.pnc.model.exchange.Task;
 
 import javax.enterprise.context.ApplicationScoped;
 import java.util.concurrent.BlockingQueue;
