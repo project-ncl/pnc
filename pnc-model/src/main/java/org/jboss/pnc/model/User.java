@@ -10,6 +10,7 @@ import java.util.List;
  * @author avibelli
  */
 @Entity
+@Table(name = "users")
 public class User implements Serializable {
 
     private static final long serialVersionUID = 8437525005838384722L;
