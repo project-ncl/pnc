@@ -5,7 +5,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.net.URL;
 import java.util.Properties;
 
 /**
@@ -17,8 +16,6 @@ public class Configuration {
     private Properties properties;
 
     public Configuration() throws IOException {
-        //FIXME: FileNotFoundException thrown, see BuildTest#shouldTriggerBuildAndFinishWithoutProblems
-        //TODO check with missing config
         readConfigurationFile();
     }
 
@@ -42,20 +39,13 @@ public class Configuration {
 
         file = new File(configFileName); //try full path
 
-        if (!file.exists()) {
-            final URL url = getClass().getClassLoader().getResource(configFileName);
-            if (url != null) {
-                file = new File(url.getFile());
-            }
-        }
-
-        if (!file.exists()) {
-            throw new FileNotFoundException("Missing project config file.");
-        }
 
         properties = new Properties();
-        properties.load(new FileReader(file));
-
+        if (file.exists()) {
+            properties.load(new FileReader(file));
+        } else {
+            throw new FileNotFoundException("Missing properties file " + file.getAbsolutePath() + ".");
+        }
     }
 
 }

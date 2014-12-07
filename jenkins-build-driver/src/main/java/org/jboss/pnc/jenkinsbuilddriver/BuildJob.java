@@ -33,8 +33,6 @@ public class BuildJob {
                 projectBuildConfiguration.getBuildScript(),
                 repositoryConfiguration.getConnectionInfo());
 
-//FIXME: NullPointerException thrown, see BuildTest#shouldTriggerBuildAndFinishWithoutProblems
-//TODO check with missing config
         try {
             job = jenkinsServer.getJob(jobName);
         } catch (IOException e) {

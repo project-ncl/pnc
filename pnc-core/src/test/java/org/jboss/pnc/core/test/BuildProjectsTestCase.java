@@ -10,12 +10,7 @@ import org.jboss.pnc.core.builder.ProjectBuilder;
 import org.jboss.pnc.core.test.mock.BuildDriverMock;
 import org.jboss.pnc.core.test.mock.DatastoreMock;
 import org.jboss.pnc.mavenrepositorymanager.RepositoryManagerDriver;
-import org.jboss.pnc.model.BuildCollection;
-import org.jboss.pnc.model.Environment;
-import org.jboss.pnc.model.Product;
-import org.jboss.pnc.model.ProductVersion;
-import org.jboss.pnc.model.Project;
-import org.jboss.pnc.model.ProjectBuildConfiguration;
+import org.jboss.pnc.model.*;
 import org.jboss.pnc.model.builder.EnvironmentBuilder;
 import org.jboss.pnc.spi.environment.EnvironmentDriverProvider;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
@@ -25,9 +20,8 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.util.logging.Logger;
-
 import javax.inject.Inject;
+import java.util.logging.Logger;
 
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-11-23.
@@ -41,8 +35,7 @@ public class BuildProjectsTestCase {
                 .addClass(BuildDriverFactory.class).addClass(RepositoryManagerFactory.class).addClass(Resources.class)
                 .addClass(EnvironmentBuilder.class).addClass(EnvironmentDriverProvider.class).addClass(Configuration.class)
                 .addPackage(RepositoryManagerDriver.class.getPackage()).addPackage(BuildDriverMock.class.getPackage())
-                .addAsManifestResource(EmptyAsset.INSTANCE, "beans.xml").addAsResource("META-INF/logging.properties")
-                .addAsResource("pnc-config.ini");
+                .addAsManifestResource(EmptyAsset.INSTANCE, "beans.xml").addAsResource("META-INF/logging.properties");
         System.out.println(jar.toString(true));
         return jar;
     }

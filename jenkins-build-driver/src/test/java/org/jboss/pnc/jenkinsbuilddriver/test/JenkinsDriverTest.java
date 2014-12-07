@@ -5,7 +5,10 @@ import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.jenkinsbuilddriver.JenkinsBuildDriver;
-import org.jboss.pnc.model.*;
+import org.jboss.pnc.model.Project;
+import org.jboss.pnc.model.ProjectBuildConfiguration;
+import org.jboss.pnc.model.RepositoryType;
+import org.jboss.pnc.model.TaskStatus;
 import org.jboss.pnc.spi.repositorymanager.RepositoryConfiguration;
 import org.jboss.pnc.spi.repositorymanager.RepositoryConnectionInfo;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
@@ -32,7 +35,6 @@ public class JenkinsDriverTest {
                 .addAsManifestResource(EmptyAsset.INSTANCE, "beans.xml")
                 .addAsResource("META-INF/logging.properties")
                 .addAsResource("jenkins-job-template.xml")
-                .addAsResource("pnc-config.ini")
                 .addPackages(true, org.apache.http.client.HttpResponseException.class.getPackage())
                 .addClass(Configuration.class)
                 .addClass(JenkinsBuildDriver.class);

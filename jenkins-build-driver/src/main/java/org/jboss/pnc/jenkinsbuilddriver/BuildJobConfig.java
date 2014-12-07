@@ -1,12 +1,12 @@
 package org.jboss.pnc.jenkinsbuilddriver;
 
+import org.jboss.pnc.common.util.IoUtils;
 import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
 import org.jboss.pnc.spi.repositorymanager.RepositoryConnectionInfo;
 import org.jboss.util.StringPropertyReplacer;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -39,7 +39,7 @@ public class BuildJobConfig {
         properties.setProperty("scm_url", scmUrl);
         
         properties.setProperty("maven_settings", getMavenConfig(connectionInfo.getDependencyUrl()));
-        properties.setProperty("hudson.tasks.Shell.command", buildScript);
+        properties.setProperty("hudson.tasks.Shell.command", buildScript + " -s settings.xml");
 
         return StringPropertyReplacer.replaceProperties(xmlString, properties);
     }
@@ -55,32 +55,34 @@ public class BuildJobConfig {
 
         String templateFileName = System.getProperty("jenkins-job-template");
 
-        File file = null;
         if (templateFileName == null) {
             templateFileName = "jenkins-job-template.xml";
         }
 
-        file = new File(templateFileName); //try full path
+        File file = new File(templateFileName); //try full path
 
-        if (!file.exists()) {
-            URL url = getClass().getClassLoader().getResource(templateFileName);
-            if (url != null) {
-                file = new File(url.getFile());
+        String configString;
+        if (file.exists()) {
+            try {
+                byte[] encoded;
+                encoded = Files.readAllBytes(Paths.get(file.getPath()));
+                configString = new String(encoded, Charset.defaultCharset());
+            } catch (IOException e) {
+                throw new BuildDriverException("Cannot load " + templateFileName + ".", e);
+            }
+        } else {
+            try {
+                configString = IoUtils.readResource(templateFileName, getClass().getClassLoader());
+            } catch (IOException e) {
+                throw new BuildDriverException("Cannot load " + templateFileName + ".", e);
             }
         }
 
-        if (!file.exists()) {
-            throw new BuildDriverException("Cannot load jenkins-job-template.");
+        if (configString == null) {
+            throw new BuildDriverException("Cannot load " + templateFileName + ".");
         }
 
-        byte[] encoded;
-        try {
-            encoded = Files.readAllBytes(Paths.get(file.toURI()));
-        } catch (IOException e) {
-            throw new BuildDriverException("Cannot load jenkins-job-template.", e);
-        }
-        return new String(encoded, Charset.defaultCharset());
-
+        return configString;
     }
 
 }

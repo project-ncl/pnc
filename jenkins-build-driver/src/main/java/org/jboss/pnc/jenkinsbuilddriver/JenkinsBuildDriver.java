@@ -40,8 +40,6 @@ public class JenkinsBuildDriver implements BuildDriver {
     }
 
     private void initJenkinsServer() throws BuildDriverException {
-//FIXME: NullPointerException thrown, see BuildTest#shouldTriggerBuildAndFinishWithoutProblems
-//TODO check with missing config
         try {
             Properties properties = configuration.getModuleConfig(getDriverId());
 
@@ -68,9 +66,7 @@ public class JenkinsBuildDriver implements BuildDriver {
     public boolean startProjectBuild(ProjectBuildConfiguration projectBuildConfiguration,
                                      RepositoryConfiguration repositoryConfiguration,
                                      Consumer<TaskStatus> onUpdate) {
-        //FIXME: NullPointerException thrown, see BuildTest#shouldTriggerBuildAndFinishWithoutProblems
-        //TODO check with missing config
-        Runnable projectBuild = () -> {
+//        Runnable projectBuild = () -> {
                 try {
                     BuildJob build = new BuildJob(getJenkinsServer());
                     boolean configured = build.configure(projectBuildConfiguration, repositoryConfiguration, true);
@@ -80,12 +76,13 @@ public class JenkinsBuildDriver implements BuildDriver {
                     build.start();
                     onUpdate.accept(new TaskStatus(TaskStatus.Operation.BUILD_SCHEDULED, 0));
                 } catch (BuildDriverException e) {
-                    onUpdate.accept(new TaskStatus(TaskStatus.Operation.BUILD_SCHEDULED, -1));
+                    System.out.println(e);
+                    onUpdate.accept(new TaskStatus(TaskStatus.Operation.BUILD_SCHEDULED, -1)); //TODO lost exception
                 }
-        };
+ //       };
         //TODO use thread pool, return false if there are no available executors
         //new Thread(projectBuild).start();
-        projectBuild.run();
+   //     projectBuild.run();
         return true;
     }
 
