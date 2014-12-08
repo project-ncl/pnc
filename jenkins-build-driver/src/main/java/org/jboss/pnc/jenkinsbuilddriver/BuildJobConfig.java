@@ -34,15 +34,19 @@ public class BuildJobConfig {
         Properties properties = new Properties();
         properties.setProperty("scm_url", scmUrl);
         
-        //properties.setProperty("maven_settings", getMavenConfig(connectionInfo.getDependencyUrl()));
-        //properties.setProperty("hudson.tasks.Shell.command", buildScript + " -s settings.xml");
-        properties.setProperty("hudson.tasks.Shell.command", buildScript + "");
+        properties.setProperty("maven_settings", getMavenConfig(connectionInfo.getDependencyUrl(), connectionInfo.getDeployUrl()));
+        properties.setProperty("hudson.tasks.Shell.command", buildScript + " -s settings.xml");
 
         return StringPropertyReplacer.replaceProperties(xmlString, properties);
     }
 
-    private String getMavenConfig(String dependencyUrl) {
-        String config = "printf \"<settings><mirrors><mirror><id>pnc-aprox</id><mirrorOf>*</mirrorOf><url>" + dependencyUrl +"</url></mirror></mirrors></settings>\" > settings.xml";
+    private String getMavenConfig(String dependencyUrl, String deployUrl) {
+        String config = "printf \"<settings><mirrors><mirror><id>pnc-aprox</id><mirrorOf>*</mirrorOf><url>" + dependencyUrl +
+                "</url></mirror></mirrors><profiles><profile>" +
+                "<id>aprox-deployment</id><properties>" +
+                "<altDeploymentRepository>::default::" + deployUrl + "</altDeploymentRepository>" +
+                "</properties></profile></profiles><activeProfiles><activeProfile>aprox-deployment</activeProfile></activeProfiles>" +
+                "</settings>\" > settings.xml";
         return config.replace("<", "&lt;")
               .replace(">", "&gt;");
 
