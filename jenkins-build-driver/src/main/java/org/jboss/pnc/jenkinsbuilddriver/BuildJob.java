@@ -33,32 +33,31 @@ public class BuildJob {
                 projectBuildConfiguration.getBuildScript(),
                 repositoryConfiguration.getConnectionInfo());
 
-//FIXME: NullPointerException thrown, see BuildTest#shouldTriggerBuildAndFinishWithoutProblems
-//        try {
-//            job = jenkinsServer.getJob(jobName);
-//        } catch (IOException e) {
-//            throw new BuildDriverException("Cannot check for existing job.", e);
-//        }
-//
-//        try {
-//            if (job != null) {
-//                if (override) {
-//                    jenkinsServer.updateJob(jobName, buildJobConfig.getXml());
-//                } else {
-//                    //TODO log
-//                    return false;
-//                }
-//            } else {
-//                jenkinsServer.createJob(jobName, buildJobConfig.getXml());
-//            }
-//        } catch (IOException e) {
-//            throw new BuildDriverException("Cannot create/update job.", e);
-//        }
-//        try {
-//            job = jenkinsServer.getJob(jobName);
-//        } catch (IOException e) {
-//            throw new BuildDriverException("Cannot retrieve just created job.", e);
-//        }
+        try {
+            job = jenkinsServer.getJob(jobName);
+        } catch (IOException e) {
+            throw new BuildDriverException("Cannot check for existing job.", e);
+        }
+
+        try {
+            if (job != null) {
+                if (override) {
+                    jenkinsServer.updateJob(jobName, buildJobConfig.getXml());
+                } else {
+                    //TODO log
+                    return false;
+                }
+            } else {
+                jenkinsServer.createJob(jobName, buildJobConfig.getXml());
+            }
+        } catch (IOException e) {
+            throw new BuildDriverException("Cannot create/update job.", e);
+        }
+        try {
+            job = jenkinsServer.getJob(jobName);
+        } catch (IOException e) {
+            throw new BuildDriverException("Cannot retrieve just created job.", e);
+        }
         return job != null;
     }
 

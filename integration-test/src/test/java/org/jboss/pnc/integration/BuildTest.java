@@ -28,6 +28,7 @@ public class BuildTest {
         return enterpriseArchive;
     }
 
+    //@Ignore //FIXME TEST fails with 500
     @Test
     public void shouldTriggerBuildAndFinishWithoutProblems() {
         given().

@@ -117,7 +117,7 @@
               <groupId>org.jboss.pnc</groupId>
               <artifactId>pnc-web</artifactId>
               <version>${project.version}</version>
-	      <type>war</type>
+	          <type>war</type>
             </dependency>
             
             <dependency>
@@ -220,7 +220,12 @@
                 <artifactId>guava</artifactId>
                 <version>${version.guava}</version>
             </dependency>
-            
+            <dependency>
+                <groupId>org.jboss</groupId>
+                <artifactId>jboss-common-core</artifactId>
+                <version>2.2.22.GA</version>
+            </dependency>
+
             <!-- Test dependencies -->
             <dependency>
               <groupId>org.jboss.weld.se</groupId>

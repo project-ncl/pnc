@@ -26,7 +26,6 @@ public class RepositoryManagerDriverTest {
         driver = new RepositoryManagerDriver(config);
     }
 
-    //FIXME: Failed because of previous fixes, see BuildTest#shouldTriggerBuildAndFinishWithoutProblems
     @Ignore
     @Test
     public void formatRepositoryURLForSimpleInfo_CheckDependencyURL() throws Exception {

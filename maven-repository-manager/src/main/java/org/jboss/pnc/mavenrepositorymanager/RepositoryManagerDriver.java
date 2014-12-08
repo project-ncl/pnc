@@ -61,19 +61,21 @@ public class RepositoryManagerDriver implements RepositoryManager {
                 safeUrlPart(projectBuildConfiguration.getProject().getName()), System.currentTimeMillis());
 
         Properties properties = configuration.getModuleConfig(MAVEN_REPOSITORY_CONFIG_SECTION);
-        //FIXME: NullPointerException thrown, see BuildTest#shouldTriggerBuildAndFinishWithoutProblems
-//        String baseUrl = properties.getProperty(BASE_URL_PROPERTY);
-//
-//        String url;
+        String baseUrl = properties.getProperty(BASE_URL_PROPERTY);
+
+        String url;
 //        try {
-//            url = buildUrl(baseUrl, "api", "group", id);
+            url = buildUrl(baseUrl, "api", "group", id);
 //        } catch (MalformedURLException e) {
 //            throw new RepositoryManagerException("Cannot format Maven repository URL. Base URL was: '%s'. Reason: %s", e,
 //                    baseUrl, e.getMessage());
 //        }
-//
-//        return new MavenRepositoryConfiguration(id, new MavenRepositoryConnectionInfo(url));
-        return new MavenRepositoryConfiguration(id, new MavenRepositoryConnectionInfo(null));
+
+        return new MavenRepositoryConfiguration(id, new MavenRepositoryConnectionInfo(url));
+    }
+
+    private String buildUrl(String baseUrl, String api, String group, String id) {
+        return String.format("%s/%s/%s/%s", baseUrl, api, group, id);
     }
 
     @Override

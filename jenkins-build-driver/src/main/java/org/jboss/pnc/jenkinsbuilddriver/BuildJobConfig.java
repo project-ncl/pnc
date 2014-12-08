@@ -1,15 +1,11 @@
 package org.jboss.pnc.jenkinsbuilddriver;
 
+import org.jboss.pnc.common.util.IoUtils;
 import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
 import org.jboss.pnc.spi.repositorymanager.RepositoryConnectionInfo;
 import org.jboss.util.StringPropertyReplacer;
 
-import java.io.File;
 import java.io.IOException;
-import java.net.URL;
-import java.nio.charset.Charset;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.Properties;
 
 /**
@@ -19,7 +15,7 @@ public class BuildJobConfig {
     private final RepositoryConnectionInfo connectionInfo;
     private String name;
     private String scmUrl;
-    private String buildScript = "mvn -s settings.xml clean install"; //TODO
+    private String buildScript;
 
     public BuildJobConfig(String name, String scmUrl, String buildScript, RepositoryConnectionInfo connectionInfo) {
         this.name = name;
@@ -38,42 +34,26 @@ public class BuildJobConfig {
         Properties properties = new Properties();
         properties.setProperty("scm_url", scmUrl);
         
-        properties.setProperty("repoConfig", connectionInfo.getDependencyUrl());
-        properties.setProperty("hudson.tasks.Shell.command", buildScript);
+        //properties.setProperty("maven_settings", getMavenConfig(connectionInfo.getDependencyUrl()));
+        //properties.setProperty("hudson.tasks.Shell.command", buildScript + " -s settings.xml");
+        properties.setProperty("hudson.tasks.Shell.command", buildScript + "");
 
         return StringPropertyReplacer.replaceProperties(xmlString, properties);
     }
 
+    private String getMavenConfig(String dependencyUrl) {
+        String config = "printf \"<settings><mirrors><mirror><id>pnc-aprox</id><mirrorOf>*</mirrorOf><url>" + dependencyUrl +"</url></mirror></mirrors></settings>\" > settings.xml";
+        return config.replace("<", "&lt;")
+              .replace(">", "&gt;");
+
+    }
+
     private String readConfigTemplate() throws BuildDriverException {
-
-        String templateFileName = System.getProperty("jenkins-job-template");
-
-        File file = null;
-        if (templateFileName == null) {
-            templateFileName = "jenkins-job-template.xml";
-        }
-
-        file = new File(templateFileName); //try full path
-
-        if (!file.exists()) {
-            URL url = getClass().getClassLoader().getResource(templateFileName);
-            if (url != null) {
-                file = new File(url.getFile());
+            try {
+                return IoUtils.readFileOrResource("jenkins-job-template", "jenkins-job-template.xml", getClass().getClassLoader());
+            } catch (IOException e) {
+                throw new BuildDriverException("Cannot load config template.", e);
             }
-        }
-
-        if (!file.exists()) {
-            throw new BuildDriverException("Cannot load jenkins-job-template.");
-        }
-
-        byte[] encoded;
-        try {
-            encoded = Files.readAllBytes(Paths.get(file.toURI()));
-        } catch (IOException e) {
-            throw new BuildDriverException("Cannot load jenkins-job-template.", e);
-        }
-        return new String(encoded, Charset.defaultCharset());
-
     }
 
 }
