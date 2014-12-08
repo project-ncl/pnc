@@ -60,6 +60,11 @@
             <artifactId>shrinkwrap-resolver-impl-maven</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency> <!--Required to add lib to Arquillian deployment. -->
+            <groupId>org.jboss</groupId>
+            <artifactId>jboss-common-core</artifactId>
+            <scope>test</scope>
+        </dependency>
         <dependency>
             <groupId>com.jayway.restassured</groupId>
             <artifactId>rest-assured</artifactId>
