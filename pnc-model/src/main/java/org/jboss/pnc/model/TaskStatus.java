@@ -18,7 +18,8 @@ public class TaskStatus {
         BUILD_IN_PROGRESS,
         BUILD_COMPLETED,
         BUILD_FAILED,
-        COMPLETED;
+        COMPLETED,
+        CREATE_REPOSITORY, CREATE_JENKINS_JOB, RUN_JENKINS_JOB, STORE_BUILD_RESULTS;
     }
 
     /**
