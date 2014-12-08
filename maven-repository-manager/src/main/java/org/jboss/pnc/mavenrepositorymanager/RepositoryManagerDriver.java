@@ -23,7 +23,7 @@ public class RepositoryManagerDriver implements RepositoryManager {
 
     private static final String BASE_URL_PROPERTY = "base.url";
 
-    private static final String REPO_ID_FORMAT = "build/%s/%s/%s/%s";
+    private static final String REPO_ID_FORMAT = "build+%s+%s+%s+%s";
 
     @Inject
     Configuration configuration;
@@ -75,7 +75,7 @@ public class RepositoryManagerDriver implements RepositoryManager {
     }
 
     private String buildUrl(String baseUrl, String api, String group, String id) {
-        return String.format(REPO_ID_FORMAT, baseUrl, api, group, id);
+        return String.format("%s/%s/%s/%s", baseUrl, api, group, id);
     }
 
     @Override

@@ -1,14 +1,6 @@
 package org.jboss.pnc.demo.data;
 
-import java.lang.invoke.MethodHandles;
-
-import javax.annotation.PostConstruct;
-import javax.ejb.Singleton;
-import javax.ejb.Startup;
-import javax.ejb.TransactionAttribute;
-import javax.ejb.TransactionAttributeType;
-import javax.inject.Inject;
-
+import com.google.common.base.Preconditions;
 import org.jboss.pnc.datastore.repositories.ProductRepository;
 import org.jboss.pnc.datastore.repositories.ProductVersionProjectRepository;
 import org.jboss.pnc.datastore.repositories.ProductVersionRepository;
@@ -28,7 +20,13 @@ import org.jboss.pnc.model.builder.ProjectBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Preconditions;
+import javax.annotation.PostConstruct;
+import javax.ejb.Singleton;
+import javax.ejb.Startup;
+import javax.ejb.TransactionAttribute;
+import javax.ejb.TransactionAttributeType;
+import javax.inject.Inject;
+import java.lang.invoke.MethodHandles;
 
 /**
  * Data for the DEMO.
@@ -131,7 +129,7 @@ public class DatabaseDataInitializer {
             ProductVersionProject productVersionProject = ProductVersionProjectBuilder.newBuilder().project(project)
                     .productVersion(productVersion).build();
             ProjectBuildConfiguration projectBuildConfiguration = ProjectBuildConfigurationBuilder.newBuilder()
-                    .buildScript("mvn clean install").environment(EnvironmentBuilder.defaultEnvironment().build())
+                    .buildScript("mvn clean install -Dmaven.test.skip").environment(EnvironmentBuilder.defaultEnvironment().build())
                     .identifier(PNC_PROJECT_BUILD_CFG_ID).productVersion(productVersion).project(project)
                     .scmUrl("https://github.com/project-ncl/pnc.git").build();
 

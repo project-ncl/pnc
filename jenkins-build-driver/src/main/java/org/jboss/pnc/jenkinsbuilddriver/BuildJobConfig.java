@@ -19,7 +19,7 @@ public class BuildJobConfig {
     private final RepositoryConnectionInfo connectionInfo;
     private String name;
     private String scmUrl;
-    private String buildScript = "mvn -s settings.xml clean install"; //TODO
+    private String buildScript;
 
     public BuildJobConfig(String name, String scmUrl, String buildScript, RepositoryConnectionInfo connectionInfo) {
         this.name = name;
@@ -38,8 +38,9 @@ public class BuildJobConfig {
         Properties properties = new Properties();
         properties.setProperty("scm_url", scmUrl);
         
-        properties.setProperty("maven_settings", getMavenConfig(connectionInfo.getDependencyUrl()));
-        properties.setProperty("hudson.tasks.Shell.command", buildScript + " -s settings.xml");
+        //properties.setProperty("maven_settings", getMavenConfig(connectionInfo.getDependencyUrl()));
+        //properties.setProperty("hudson.tasks.Shell.command", buildScript + " -s settings.xml");
+        properties.setProperty("hudson.tasks.Shell.command", buildScript + "");
 
         return StringPropertyReplacer.replaceProperties(xmlString, properties);
     }
