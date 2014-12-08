@@ -1,7 +1,11 @@
 package org.jboss.pnc.mavenrepositorymanager;
 
 import org.jboss.pnc.common.Configuration;
-import org.jboss.pnc.model.*;
+import org.jboss.pnc.model.BuildCollection;
+import org.jboss.pnc.model.ProductVersion;
+import org.jboss.pnc.model.ProjectBuildConfiguration;
+import org.jboss.pnc.model.ProjectBuildResult;
+import org.jboss.pnc.model.RepositoryType;
 import org.jboss.pnc.spi.repositorymanager.RepositoryConfiguration;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManager;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerException;
@@ -57,7 +61,7 @@ public class RepositoryManagerDriver implements RepositoryManager {
 
         ProductVersion pv = buildCollection.getProductVersion();
 
-        String id = String.format(REPO_ID_FORMAT, pv.getProduct().getName(), pv.getVersion(),
+        String id = String.format(REPO_ID_FORMAT, safeUrlPart(pv.getProduct().getName()), pv.getVersion(),
                 safeUrlPart(projectBuildConfiguration.getProject().getName()), System.currentTimeMillis());
 
         Properties properties = configuration.getModuleConfig(MAVEN_REPOSITORY_CONFIG_SECTION);
@@ -75,7 +79,7 @@ public class RepositoryManagerDriver implements RepositoryManager {
     }
 
     private String buildUrl(String baseUrl, String api, String group, String id) {
-        return String.format("%s/%s/%s/%s", baseUrl, api, group, id);
+        return String.format("%s%s/%s/%s", baseUrl, api, group, id);
     }
 
     @Override
