@@ -5,7 +5,6 @@ import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.pnc.integration.deployments.Deployments;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -29,7 +28,7 @@ public class BuildTest {
         return enterpriseArchive;
     }
 
-    @Ignore //FIXME TEST fails with 500
+    //@Ignore //FIXME TEST fails with 500
     @Test
     public void shouldTriggerBuildAndFinishWithoutProblems() {
         given().
