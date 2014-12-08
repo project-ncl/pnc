@@ -1,8 +1,11 @@
 package org.jboss.pnc.common.util;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Scanner;
 
 /**
@@ -20,4 +23,45 @@ public class IoUtils {
         return configString;
     }
 
+    /**
+     *
+     * @param systemPropertyName Name of system property to override default file name
+     * @param defaultFileName
+     * @param classLoader
+     * @return
+     * @throws IOException
+     */
+    public static String readFileOrResource(String systemPropertyName, String defaultFileName, ClassLoader classLoader) throws IOException {
+
+        String templateFileName = System.getProperty(systemPropertyName);
+
+        if (templateFileName == null) {
+            templateFileName = defaultFileName;
+        }
+
+        File file = new File(templateFileName); //try full path
+
+        String configString;
+        if (file.exists()) {
+            try {
+                byte[] encoded;
+                encoded = Files.readAllBytes(Paths.get(file.getPath()));
+                configString = new String(encoded, Charset.defaultCharset());
+            } catch (IOException e) {
+                throw new IOException("Cannot load " + templateFileName + ".", e);
+            }
+        } else {
+            try {
+                configString = IoUtils.readResource(templateFileName, classLoader);
+            } catch (IOException e) {
+                throw new IOException("Cannot load " + templateFileName + ".", e);
+            }
+        }
+
+        if (configString == null) {
+            throw new IOException("Cannot load " + templateFileName + ".");
+        }
+
+        return configString;
+    }
 }

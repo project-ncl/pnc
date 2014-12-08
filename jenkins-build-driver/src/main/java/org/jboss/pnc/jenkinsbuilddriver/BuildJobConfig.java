@@ -5,11 +5,7 @@ import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
 import org.jboss.pnc.spi.repositorymanager.RepositoryConnectionInfo;
 import org.jboss.util.StringPropertyReplacer;
 
-import java.io.File;
 import java.io.IOException;
-import java.nio.charset.Charset;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.Properties;
 
 /**
@@ -53,37 +49,11 @@ public class BuildJobConfig {
     }
 
     private String readConfigTemplate() throws BuildDriverException {
-
-        String templateFileName = System.getProperty("jenkins-job-template");
-
-        if (templateFileName == null) {
-            templateFileName = "jenkins-job-template.xml";
-        }
-
-        File file = new File(templateFileName); //try full path
-
-        String configString;
-        if (file.exists()) {
             try {
-                byte[] encoded;
-                encoded = Files.readAllBytes(Paths.get(file.getPath()));
-                configString = new String(encoded, Charset.defaultCharset());
+                return IoUtils.readFileOrResource("jenkins-job-template", "jenkins-job-template.xml", getClass().getClassLoader());
             } catch (IOException e) {
-                throw new BuildDriverException("Cannot load " + templateFileName + ".", e);
+                throw new BuildDriverException("Cannot load config template.", e);
             }
-        } else {
-            try {
-                configString = IoUtils.readResource(templateFileName, getClass().getClassLoader());
-            } catch (IOException e) {
-                throw new BuildDriverException("Cannot load " + templateFileName + ".", e);
-            }
-        }
-
-        if (configString == null) {
-            throw new BuildDriverException("Cannot load " + templateFileName + ".");
-        }
-
-        return configString;
     }
 
 }
