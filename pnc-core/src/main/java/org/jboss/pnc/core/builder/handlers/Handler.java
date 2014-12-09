@@ -1,4 +1,4 @@
-package org.jboss.pnc.core.task.handlers;
+package org.jboss.pnc.core.builder.handlers;
 
 import org.jboss.pnc.core.builder.BuildTask;
 

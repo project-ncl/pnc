@@ -1,4 +1,4 @@
-package org.jboss.pnc.core.task.handlers;
+package org.jboss.pnc.core.builder.handlers;
 
 import org.jboss.pnc.core.BuildDriverFactory;
 import org.jboss.pnc.core.builder.BuildQueue;
@@ -13,8 +13,8 @@ import java.util.function.Consumer;
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-12-03.
  */
-public class StartBuildHandler implements Handler {
-    private Handler next;
+public class CompleteBuildHandler implements Handler {
+    private Handler next = null;
 
     @Inject
     BuildQueue buildQueue;
@@ -24,10 +24,12 @@ public class StartBuildHandler implements Handler {
 
     @Override
     public void handle(BuildTask task) {
-        if (task.getStatus().getOperation() == TaskStatus.Operation.CREATE_REPOSITORY.COMPLETED) {
-            startBuild(task);
+        if (task.getStatus().getOperation() == TaskStatus.Operation.BUILD_SCHEDULED.COMPLETED) {
+            completeBuild(task);
         } else {
-            next.handle(task);
+            if (next != null) {
+                next.handle(task);
+            }
         }
     }
 
@@ -36,13 +38,11 @@ public class StartBuildHandler implements Handler {
         next = handler;
     }
 
-    private void startBuild(BuildTask buildTask) {
-        buildTask.onStatusUpdate(new TaskStatus(TaskStatus.Operation.BUILD_SCHEDULED, 0));
+    private void completeBuild(BuildTask buildTask) {
+        buildTask.onStatusUpdate(new TaskStatus(TaskStatus.Operation.COMPLETING_BUILD, 0));
         try {
             Consumer<String> onComplete = (jobId) -> {
-                buildTask.onStatusUpdate(new TaskStatus(TaskStatus.Operation.BUILD_SCHEDULED, 100));
-                //buildTask.setBuildingJobId //TODO ?
-                buildQueue.add(buildTask);
+                buildTask.onStatusUpdate(new TaskStatus(TaskStatus.Operation.COMPLETING_BUILD, 100));
             };
 
             Consumer<Exception> onError = (e) -> {
@@ -54,13 +54,12 @@ public class StartBuildHandler implements Handler {
             assert (buildTask.getRepositoryConfiguration() != null);
 
             BuildDriver buildDriver = buildDriverFactory.getBuildDriver(buildTask.getProjectBuildConfiguration().getEnvironment().getBuildType());
-            buildDriver.startProjectBuild(buildTask.getProjectBuildConfiguration(), onComplete, onError);
+            //TODO get build log
+            //TODO get stored artifacts
+            //TODO clean up env
 
         } catch (CoreException e) {
             buildTask.onError(e);
         }
     }
-
-
-
 }
