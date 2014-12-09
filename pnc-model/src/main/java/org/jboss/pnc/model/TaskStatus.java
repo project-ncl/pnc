@@ -32,4 +32,12 @@ public class TaskStatus {
     public Operation getOperation() {
         return operation;
     }
+
+    public boolean isCompleted() {
+        return 100 == percentageDone;
+    }
+
+    public boolean isOperationCompleted(Operation operation) {
+        return operation.equals(this.operation) && isCompleted();
+    }
 }

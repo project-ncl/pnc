@@ -28,7 +28,7 @@ public class ConfigureRepositoryHandler implements OperationHandler {
 
     @Override
     public void handle(BuildTask task) {
-        if (task.getStatus() == null || task.getStatus().getOperation() == null) {
+        if (task.getStatus().isOperationCompleted(TaskStatus.Operation.NEW)) {
             createRepository(task);
         } else {
             if (next != null) {

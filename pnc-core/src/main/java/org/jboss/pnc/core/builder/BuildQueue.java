@@ -9,6 +9,7 @@ import java.util.concurrent.LinkedBlockingDeque;
  */
 @ApplicationScoped
 public class BuildQueue {
+
     private final BlockingQueue<BuildTask> queue = new LinkedBlockingDeque<>();
 
     public BuildTask take() throws InterruptedException {

@@ -21,6 +21,7 @@ public class ProjectBuilder {
 
     public void buildProject(ProjectBuildConfiguration projectBuildConfiguration, BuildCollection buildCollection, Consumer<TaskStatus> onStatusUpdate, Consumer<Exception> onError) {
         try {
+            log.fine("Adding build configuration " + projectBuildConfiguration);
             buildQueue.add(new BuildTask(projectBuildConfiguration, buildCollection, onStatusUpdate, onError));
         } catch (Exception e) {
             onError.accept(e);

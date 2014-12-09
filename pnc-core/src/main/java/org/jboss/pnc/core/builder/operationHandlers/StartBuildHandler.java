@@ -24,7 +24,7 @@ public class StartBuildHandler implements OperationHandler {
 
     @Override
     public void handle(BuildTask task) {
-        if (task.getStatus().getOperation() == TaskStatus.Operation.CREATE_REPOSITORY) { //TODO check for completed
+        if (task.getStatus().isOperationCompleted(TaskStatus.Operation.CREATE_REPOSITORY)) {
             startBuild(task);
         } else {
             if (next != null) {

@@ -24,7 +24,7 @@ public class CompleteBuildHandler implements OperationHandler {
 
     @Override
     public void handle(BuildTask task) {
-        if (task.getStatus().getOperation() == TaskStatus.Operation.BUILD_SCHEDULED) { //TODO check for completed
+        if (task.getStatus().isOperationCompleted(TaskStatus.Operation.BUILD_SCHEDULED)) {
             completeBuild(task);
         } else {
             if (next != null) {

@@ -15,7 +15,7 @@ public class BuildTask extends ProjectBuildConfiguration {
     private BuildCollection buildCollection;
     private Consumer<TaskStatus> onStatusUpdate;
     private Consumer<Exception> onError;
-    TaskStatus status;
+    private TaskStatus status;
     private RepositoryConfiguration repositoryConfiguration;
 
 
@@ -24,6 +24,7 @@ public class BuildTask extends ProjectBuildConfiguration {
         this.buildCollection = buildCollection;
         this.onStatusUpdate = onStatusUpdate;
         this.onError = onError;
+        status = new TaskStatus(TaskStatus.Operation.NEW, 100);
     }
 
 
