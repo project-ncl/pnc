@@ -33,7 +33,9 @@ import java.util.List;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-11-23.
@@ -99,23 +101,23 @@ public class BuildProjectsTest {
         projectBuildConfigurationB1.addDependency(projectBuildConfigurationB1);
         p2.addProjectBuildConfiguration(projectBuildConfigurationB1);
 
-//        Project p3 = new Project();
-//        p3.setId(3);
-//        p3.setName("p3-java");
-//        ProjectBuildConfiguration projectBuildConfigurationC1 = new ProjectBuildConfiguration();
-//        projectBuildConfigurationC1.setEnvironment(javaEnvironment);
-//        projectBuildConfigurationC1.setProject(p3);
-//        p3.addProjectBuildConfiguration(projectBuildConfigurationC1);
-//
-//        Project p4 = new Project();
-//        p4.setId(4);
-//        p4.setName("p4-java");
-//        ProjectBuildConfiguration projectBuildConfigurationD1 = new ProjectBuildConfiguration();
-//        projectBuildConfigurationD1.setEnvironment(javaEnvironment);
-//        projectBuildConfigurationD1.setProject(p4);
-//        projectBuildConfigurationD1.addDependency(projectBuildConfigurationB1);
-//        projectBuildConfigurationD1.addDependency(projectBuildConfigurationC1);
-//        p4.addProjectBuildConfiguration(projectBuildConfigurationD1);
+        Project p3 = new Project();
+        p3.setId(3);
+        p3.setName("p3-java");
+        ProjectBuildConfiguration projectBuildConfigurationC1 = new ProjectBuildConfiguration();
+        projectBuildConfigurationC1.setEnvironment(javaEnvironment);
+        projectBuildConfigurationC1.setProject(p3);
+        p3.addProjectBuildConfiguration(projectBuildConfigurationC1);
+
+        Project p4 = new Project();
+        p4.setId(4);
+        p4.setName("p4-java");
+        ProjectBuildConfiguration projectBuildConfigurationD1 = new ProjectBuildConfiguration();
+        projectBuildConfigurationD1.setEnvironment(javaEnvironment);
+        projectBuildConfigurationD1.setProject(p4);
+        projectBuildConfigurationD1.addDependency(projectBuildConfigurationB1);
+        projectBuildConfigurationD1.addDependency(projectBuildConfigurationC1);
+        p4.addProjectBuildConfiguration(projectBuildConfigurationD1);
 //
 //        Project p5 = new Project();
 //        p5.setId(5);
@@ -153,6 +155,57 @@ public class BuildProjectsTest {
 //        assertThat(datastore.getBuildResults()).hasSize(6);
 
 
+        //build single project
+        buildProject(projectBuildConfigurationB1, buildCollection);
+
+        //build multiple projects in parallel
+        class Config {
+            private final ProjectBuildConfiguration configuration;
+            private final BuildCollection collection;
+
+            Config(ProjectBuildConfiguration configuration, BuildCollection collection) {
+                this.configuration = configuration;
+                this.collection = collection;
+            }
+        }
+
+        Function<Config, Runnable> createJob = (config) -> {
+            Runnable task = () -> {
+                try {
+                    buildProject(config.configuration, config.collection);
+                } catch (InterruptedException e) {
+                    throw new AssertionError("Something went wrong.", e);
+                }
+            };
+            return task;
+        };
+
+        List<Runnable> list = new ArrayList();
+        list.add(createJob.apply(new Config(projectBuildConfigurationB1, buildCollection)));
+        list.add(createJob.apply(new Config(projectBuildConfigurationC1, buildCollection)));
+        list.add(createJob.apply(new Config(projectBuildConfigurationD1, buildCollection)));
+
+        Function<Runnable, Thread> runInNewThread = (r) -> {
+            Thread t = new Thread(r);
+            t.start();
+            return t;
+        };
+
+        Consumer<Thread> waitToComplete = (t) -> {
+            try {
+                t.join(30000);
+            } catch (InterruptedException e) {
+                throw new AssertionError("Interrupted while waiting threads to complete", e);
+            }
+        };
+
+        List<Thread> threads = list.stream().map(runInNewThread).collect(Collectors.toList());
+        threads.forEach(waitToComplete);
+
+        consumer.interrupt();
+    }
+
+    private void buildProject(ProjectBuildConfiguration projectBuildConfigurationB1, BuildCollection buildCollection) throws InterruptedException {
         List<TaskStatus> receivedStatuses = new ArrayList<TaskStatus>();
 
         final Semaphore semaphore = new Semaphore(6);
@@ -168,7 +221,6 @@ public class BuildProjectsTest {
         };
         semaphore.acquire(6); //there should be 6 callbacks
         projectBuilder.buildProject(projectBuildConfigurationB1, buildCollection, onStatusUpdate, onError);
-
         semaphore.tryAcquire(6, 30, TimeUnit.SECONDS); //wait for callback to release
 
         boolean receivedCREATE_REPOSITORY = false;
@@ -191,8 +243,6 @@ public class BuildProjectsTest {
                         " receivedBUILD_SCHEDULED: " + receivedBUILD_SCHEDULED +
                         " receivedCOMPLETING_BUILD: " + receivedCOMPLETING_BUILD,
                 receivedCREATE_REPOSITORY && receivedBUILD_SCHEDULED && receivedCOMPLETING_BUILD);
-
-        consumer.interrupt();
     }
 
 }
