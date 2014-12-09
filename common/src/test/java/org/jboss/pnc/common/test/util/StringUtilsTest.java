@@ -1,3 +1,5 @@
+package org.jboss.pnc.common.test.util;
+
 import org.jboss.pnc.common.util.StringUtils;
 import org.junit.Assert;
 import org.junit.Test;

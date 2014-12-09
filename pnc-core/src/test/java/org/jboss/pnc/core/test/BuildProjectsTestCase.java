@@ -4,6 +4,7 @@ import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.Resources;
+import org.jboss.pnc.common.util.BooleanWrapper;
 import org.jboss.pnc.core.BuildDriverFactory;
 import org.jboss.pnc.core.RepositoryManagerFactory;
 import org.jboss.pnc.core.builder.ProjectBuilder;
@@ -21,6 +22,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import javax.inject.Inject;
+import java.util.concurrent.Semaphore;
+import java.util.function.Consumer;
 import java.util.logging.Logger;
 
 /**
@@ -124,7 +127,22 @@ public class BuildProjectsTestCase {
 //        projectBuilder.buildProjects(projectBuildConfigurations, buildCollection);
 //        assertThat(datastore.getBuildResults()).hasSize(6);
 
-        boolean accepted = projectBuilder.buildProject(projectBuildConfigurationB1, buildCollection);
+        final Semaphore mutex = new Semaphore(1);
+        BooleanWrapper completed = new BooleanWrapper(false);
+
+        Consumer<TaskStatus> onStatusUpdate = (id) -> {
+            completed.set(true);
+            mutex.release();
+        };
+        Consumer<Exception> onError = (e) -> {
+            e.printStackTrace();
+        };
+        mutex.acquire();
+        jenkinsBuildDriver.startProjectBuild(pbc, repositoryConfiguration, onComplete, onError);
+
+        mutex.acquire(); //wait for callback to release
+        Assert.assertTrue("There was no complete callback.", completed.get());
+        projectBuilder.buildProject(projectBuildConfigurationB1, buildCollection, onStatusUpdate, onError);
         Assert.assertTrue("Project build should be accepted.", accepted);
 
     }

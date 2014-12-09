@@ -1,14 +1,18 @@
 package org.jboss.pnc.mavenrepositorymanager;
 
 import org.jboss.pnc.common.Configuration;
+import org.jboss.pnc.common.util.BooleanWrapper;
 import org.jboss.pnc.model.*;
 import org.jboss.pnc.spi.repositorymanager.RepositoryConfiguration;
 import org.jboss.pnc.spi.repositorymanager.RepositoryConnectionInfo;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.Properties;
+import java.util.concurrent.Semaphore;
+import java.util.function.Consumer;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.notNullValue;
@@ -34,18 +38,32 @@ public class RepositoryManagerDriverTest {
         BuildCollection bc = new BuildCollection();
         bc.setProductVersion(pbc.getProductVersion());
 
-        RepositoryConfiguration repositoryConfiguration = driver.createRepository(pbc, bc);
-        assertThat(repositoryConfiguration, notNullValue());
+        final Semaphore mutex = new Semaphore(1);
+        BooleanWrapper completed = new BooleanWrapper(false);
 
-        RepositoryConnectionInfo connectionInfo = repositoryConfiguration.getConnectionInfo();
-        assertThat(connectionInfo, notNullValue());
+        Consumer<RepositoryConfiguration> onComplete = (repositoryConfiguration) -> {
+            assertThat(repositoryConfiguration, notNullValue());
 
-        String expectedUrlWithoutTstamp = String.format("http://localhost/api/group/build+%s+%s+%s+", pbc.getProductVersion()
-                .getProduct().getName(), pbc.getProductVersion().getVersion(), pbc.getProject().getName());
+            RepositoryConnectionInfo connectionInfo = repositoryConfiguration.getConnectionInfo();
+            assertThat(connectionInfo, notNullValue());
 
-        assertThat(
-                "Expected URL prefix: " + expectedUrlWithoutTstamp + "\nActual URL was: " + connectionInfo.getDependencyUrl(),
-                connectionInfo.getDependencyUrl().startsWith(expectedUrlWithoutTstamp), equalTo(true));
+            String expectedUrlWithoutTstamp = String.format("http://localhost/api/group/build+%s+%s+%s+", pbc.getProductVersion()
+                    .getProduct().getName(), pbc.getProductVersion().getVersion(), pbc.getProject().getName());
+
+            assertThat(
+                    "Expected URL prefix: " + expectedUrlWithoutTstamp + "\nActual URL was: " + connectionInfo.getDependencyUrl(),
+                    connectionInfo.getDependencyUrl().startsWith(expectedUrlWithoutTstamp), equalTo(true));
+
+            completed.set(true);
+            mutex.release();
+        };
+        Consumer<Exception> onError = (e) -> {
+            e.printStackTrace();
+        };
+
+        driver.createRepository(pbc, bc, onComplete, onError);
+        mutex.acquire(); //wait for callback to release
+        Assert.assertTrue("There was no complete callback.", completed.get());
     }
 
     @Test
@@ -55,16 +73,31 @@ public class RepositoryManagerDriverTest {
         BuildCollection bc = new BuildCollection();
         bc.setProductVersion(pbc.getProductVersion());
 
-        RepositoryConfiguration repositoryConfiguration = driver.createRepository(pbc, bc);
-        assertThat(repositoryConfiguration, notNullValue());
+        final Semaphore mutex = new Semaphore(1);
+        BooleanWrapper completed = new BooleanWrapper(false);
 
-        RepositoryConnectionInfo connectionInfo = repositoryConfiguration.getConnectionInfo();
-        assertThat(connectionInfo, notNullValue());
+        Consumer<RepositoryConfiguration> onComplete = (repositoryConfiguration) -> {
+            assertThat(repositoryConfiguration, notNullValue());
 
-        String expectedUrl = connectionInfo.getDependencyUrl();
+            RepositoryConnectionInfo connectionInfo = repositoryConfiguration.getConnectionInfo();
+            assertThat(connectionInfo, notNullValue());
 
-        assertThat(connectionInfo.getToolchainUrl(), equalTo(expectedUrl));
-        assertThat(connectionInfo.getDeployUrl(), equalTo(expectedUrl));
+            String expectedUrl = connectionInfo.getDependencyUrl();
+
+            assertThat(connectionInfo.getToolchainUrl(), equalTo(expectedUrl));
+            assertThat(connectionInfo.getDeployUrl(), equalTo(expectedUrl));
+
+            completed.set(true);
+            mutex.release();
+        };
+        Consumer<Exception> onError = (e) -> {
+            e.printStackTrace();
+        };
+
+        driver.createRepository(pbc, bc, onComplete, onError);
+        mutex.acquire(); //wait for callback to release
+        Assert.assertTrue("There was no complete callback.", completed.get());
+
     }
 
     private ProjectBuildConfiguration simpleProjectBuildConfiguration() {

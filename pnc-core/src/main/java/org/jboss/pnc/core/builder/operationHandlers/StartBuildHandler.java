@@ -54,7 +54,8 @@ public class StartBuildHandler implements Handler {
             assert (buildTask.getRepositoryConfiguration() != null);
 
             BuildDriver buildDriver = buildDriverFactory.getBuildDriver(buildTask.getProjectBuildConfiguration().getEnvironment().getBuildType());
-            buildDriver.startProjectBuild(buildTask.getProjectBuildConfiguration(), onComplete, onError);
+            buildDriver.startProjectBuild(buildTask.getProjectBuildConfiguration(), buildTask.getRepositoryConfiguration(),
+                    onComplete, onError);
 
         } catch (CoreException e) {
             buildTask.onError(e);
