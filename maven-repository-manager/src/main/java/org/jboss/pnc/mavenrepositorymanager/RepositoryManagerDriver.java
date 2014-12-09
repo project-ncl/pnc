@@ -6,12 +6,16 @@ import org.jboss.pnc.model.ProductVersion;
 import org.jboss.pnc.model.ProjectBuildConfiguration;
 import org.jboss.pnc.model.ProjectBuildResult;
 import org.jboss.pnc.model.RepositoryType;
+import org.jboss.pnc.common.json.ConfigurationParseException;
+import org.jboss.pnc.common.json.module.MavenRepoDriverModuleConfig;
+import org.jboss.pnc.model.*;
 import org.jboss.pnc.spi.repositorymanager.RepositoryConfiguration;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManager;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerException;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+
 import java.util.Properties;
 
 /**
@@ -30,12 +34,12 @@ public class RepositoryManagerDriver implements RepositoryManager {
     private static final String REPO_ID_FORMAT = "build+%s+%s+%s+%s";
 
     @Inject
-    Configuration configuration;
+    Configuration<MavenRepoDriverModuleConfig> configuration;
 
     protected RepositoryManagerDriver() {
     }
 
-    public RepositoryManagerDriver(Configuration configuration) {
+    public RepositoryManagerDriver(Configuration<MavenRepoDriverModuleConfig> configuration) {
         this.configuration = configuration;
     }
 
@@ -64,16 +68,14 @@ public class RepositoryManagerDriver implements RepositoryManager {
         String id = String.format(REPO_ID_FORMAT, safeUrlPart(pv.getProduct().getName()), pv.getVersion(),
                 safeUrlPart(projectBuildConfiguration.getProject().getName()), System.currentTimeMillis());
 
-        Properties properties = configuration.getModuleConfig(MAVEN_REPOSITORY_CONFIG_SECTION);
-        String baseUrl = properties.getProperty(BASE_URL_PROPERTY);
-
-        String url;
-//        try {
+        String url = "";
+        try {
+            MavenRepoDriverModuleConfig config = configuration.getModuleConfig(MavenRepoDriverModuleConfig.class);
+            String baseUrl = config.getBaseUrl();
             url = buildUrl(baseUrl, "api", "group", id);
-//        } catch (MalformedURLException e) {
-//            throw new RepositoryManagerException("Cannot format Maven repository URL. Base URL was: '%s'. Reason: %s", e,
-//                    baseUrl, e.getMessage());
-//        }
+        } catch (ConfigurationParseException e) {
+            e.printStackTrace();
+        }
 
         return new MavenRepositoryConfiguration(id, new MavenRepositoryConnectionInfo(url));
     }
