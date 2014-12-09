@@ -41,6 +41,11 @@
             <artifactId>common</artifactId>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>com.wordnik</groupId>
+            <artifactId>swagger-jaxrs_2.10</artifactId>
+            <scope>provided</scope>
+        </dependency>
 
         <!-- Remote dependencies -->
         <dependency>

@@ -12,7 +12,9 @@ import org.slf4j.LoggerFactory;
 
 import java.lang.invoke.MethodHandles;
 
+import static com.jayway.restassured.RestAssured.get;
 import static com.jayway.restassured.RestAssured.given;
+import static com.jayway.restassured.path.json.JsonPath.from;
 
 @RunWith(Arquillian.class)
 public class BuildTest {
@@ -31,10 +33,12 @@ public class BuildTest {
     //@Ignore //FIXME TEST fails with 500
     @Test
     public void shouldTriggerBuildAndFinishWithoutProblems() {
-        given().
-        when().
-            post("/pnc-web/rest/configuration/3/build").
-        then().
-            statusCode(200);
+        Integer notNullId = from(get("/pnc-web/rest/configuration").asString()).get("[0].id");
+
+        given()
+        .when()
+            .post("/pnc-web/rest/configuration/" + notNullId + "/build")
+        .then()
+            .statusCode(200);
     }
 }

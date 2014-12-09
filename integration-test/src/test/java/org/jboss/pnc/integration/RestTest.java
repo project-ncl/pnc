@@ -12,7 +12,10 @@ import org.slf4j.LoggerFactory;
 
 import java.lang.invoke.MethodHandles;
 
+import static com.jayway.restassured.RestAssured.get;
 import static com.jayway.restassured.RestAssured.given;
+import static com.jayway.restassured.path.json.JsonPath.from;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.containsString;
 
 @RunWith(Arquillian.class)
@@ -31,19 +34,24 @@ public class RestTest {
 
     @Test
     public void shouldReturnListOfConfigurations() {
-        given().
-        when().
-            get("/pnc-web/rest/configuration").
-        then().
-            body(containsString("[{\"id\":3,\"identifier\":\"pnc-1.0.0.DR1\",\"projectName\":\"PNC Project\"}]"));
+        //given
+        String allConfigurations = get("/pnc-web/rest/configuration").asString();
+
+        //when
+        Integer notNullId = from(allConfigurations).get("[0].id");
+
+        //then
+        assertThat(notNullId).isNotNull();
     }
 
     @Test
     public void shouldReturnSpecificConfiguration() {
+        Integer notNullId = from(get("/pnc-web/rest/configuration").asString()).get("[0].id");
+
         given().
         when().
-            get("/pnc-web/rest/configuration/3").
+            get("/pnc-web/rest/configuration/" + notNullId).
         then().
-            body(containsString("{\"id\":3,\"identifier\":\"pnc-1.0.0.DR1\",\"projectName\":\"PNC Project\"}"));
+            body(containsString("{\"id\":" + notNullId + ",\"identifier\":\"pnc-1.0.0.DR1\",\"projectName\":\"PNC Project\"}"));
     }
 }
