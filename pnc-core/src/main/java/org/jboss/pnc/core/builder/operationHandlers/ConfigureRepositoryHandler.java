@@ -1,4 +1,4 @@
-package org.jboss.pnc.core.builder.handlers;
+package org.jboss.pnc.core.builder.operationHandlers;
 
 import org.jboss.pnc.core.RepositoryManagerFactory;
 import org.jboss.pnc.core.builder.BuildQueue;

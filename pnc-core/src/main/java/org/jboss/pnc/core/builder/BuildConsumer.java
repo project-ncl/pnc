@@ -1,8 +1,8 @@
 package org.jboss.pnc.core.builder;
 
-import org.jboss.pnc.core.builder.handlers.CompleteBuildHandler;
-import org.jboss.pnc.core.builder.handlers.ConfigureRepositoryHandler;
-import org.jboss.pnc.core.builder.handlers.StartBuildHandler;
+import org.jboss.pnc.core.builder.operationHandlers.CompleteBuildHandler;
+import org.jboss.pnc.core.builder.operationHandlers.ConfigureRepositoryHandler;
+import org.jboss.pnc.core.builder.operationHandlers.StartBuildHandler;
 
 import javax.inject.Inject;
 
