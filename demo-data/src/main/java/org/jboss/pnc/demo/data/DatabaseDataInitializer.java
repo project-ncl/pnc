@@ -129,7 +129,7 @@ public class DatabaseDataInitializer {
             ProductVersionProject productVersionProject = ProductVersionProjectBuilder.newBuilder().project(project)
                     .productVersion(productVersion).build();
             ProjectBuildConfiguration projectBuildConfiguration = ProjectBuildConfigurationBuilder.newBuilder()
-                    .buildScript("mvn clean install -Dmaven.test.skip").environment(EnvironmentBuilder.defaultEnvironment().build())
+                    .buildScript("mvn clean deploy -Dmaven.test.skip").environment(EnvironmentBuilder.defaultEnvironment().build())
                     .identifier(PNC_PROJECT_BUILD_CFG_ID).productVersion(productVersion).project(project)
                     .scmUrl("https://github.com/project-ncl/pnc.git").build();
 
