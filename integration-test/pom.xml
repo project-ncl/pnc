@@ -14,9 +14,13 @@
     <artifactId>integration-test</artifactId>
 
     <properties>
+        <app.server>wildfly</app.server>
         <jboss.version>8.2.0.Final</jboss.version>
         <test.server.unpack.dir>${project.build.directory}</test.server.unpack.dir>
-        <test.server.build.dir>${test.server.unpack.dir}/wildfly-${jboss.version}</test.server.build.dir>
+	<test.server.build.dir>${test.server.unpack.dir}/${app.server}-${jboss.version}</test.server.build.dir>
+        <arquillian.container.groupId>org.wildfly</arquillian.container.groupId>
+        <arquillian.container.artifactId>wildfly-arquillian-container-managed</arquillian.container.artifactId>
+        <arquillian.container.version>8.2.0.Final</arquillian.container.version>
     </properties>
 
 
@@ -39,12 +43,12 @@
             <artifactId>arquillian-junit-container</artifactId>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>org.wildfly</groupId>
-            <artifactId>wildfly-arquillian-container-managed</artifactId>
-            <version>${jboss.version}</version>
-            <scope>test</scope>
-        </dependency>
+	<dependency> <!-- Needs to be specified according to different container server: WildFly :8.2.0.Final or EAP 6.4 -->
+	    <groupId>${arquillian.container.groupId}</groupId>
+	    <artifactId>${arquillian.container.artifactId}</artifactId>
+	    <version>${arquillian.container.version}</version>
+	    <scope>test</scope>
+	</dependency>
         <dependency>
             <groupId>org.jboss.arquillian.extension</groupId>
             <artifactId>arquillian-transaction-jta</artifactId>
@@ -69,6 +73,7 @@
             <groupId>com.jayway.restassured</groupId>
             <artifactId>rest-assured</artifactId>
             <version>2.4.0</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 
@@ -79,37 +84,94 @@
                 <filtering>true</filtering>
             </testResource>
         </testResources>
-        <plugins>
-            <plugin>
-                <groupId>org.wildfly.plugins</groupId>
-                <artifactId>wildfly-maven-plugin</artifactId>
-                <version>1.0.2.Final</version>
-            </plugin>
-            <plugin>
-                <artifactId>maven-dependency-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>unpack-wildfly</id>
-                        <phase>generate-test-resources</phase>
-                        <goals>
-                            <goal>unpack</goal>
-                        </goals>
-                        <configuration>
-                            <artifactItems>
-                                <artifactItem>
-                                    <groupId>org.wildfly</groupId>
-                                    <artifactId>wildfly-dist</artifactId>
-                                    <version>${jboss.version}</version>
-                                    <type>zip</type>
-                                    <overWrite>true</overWrite>
-                                    <outputDirectory>${test.server.unpack.dir}</outputDirectory>
-                                </artifactItem>
-                            </artifactItems>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
     </build>
 
+
+    <profiles>
+        <profile>
+            <id>wildfly-820</id>
+            <activation>
+	        <activeByDefault>true</activeByDefault>
+            </activation>
+            <build>
+                <plugins>
+		    <plugin>
+			<groupId>org.wildfly.plugins</groupId>
+			<artifactId>wildfly-maven-plugin</artifactId>
+			<version>1.0.2.Final</version>
+		    </plugin>
+		    <plugin>
+			<artifactId>maven-dependency-plugin</artifactId>
+			<executions>
+			    <execution>
+				<id>unpack-wildfly</id>
+				<phase>generate-test-resources</phase>
+				<goals>
+				    <goal>unpack</goal>
+				</goals>
+				<configuration>
+				    <artifactItems>
+					<artifactItem>
+					    <groupId>org.wildfly</groupId>
+					    <artifactId>wildfly-dist</artifactId>
+					    <version>${jboss.version}</version>
+					    <type>zip</type>
+					    <overWrite>true</overWrite>
+					    <outputDirectory>${test.server.unpack.dir}</outputDirectory>
+					</artifactItem>
+				    </artifactItems>
+				</configuration>
+			    </execution>
+			</executions>
+		    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+	<!--
+	  It needs an existed EAP 6.4.0 zip file that can be downloaded from. Use URL schema for the location.
+	  mvn -Peap640 -Deap6.zip.url=http://download.devel.redhat.com/devel/candidates/JBEAP/JBEAP-6.4.0.DR12/jboss-eap-6.4.0.DR12.zip
+        -->
+        <profile>
+            <id>eap640</id>
+		<properties>
+		    <app.server>jboss-eap</app.server>
+		    <jboss.version>6.4</jboss.version>
+                    <arquillian.container.groupId>org.jboss.as</arquillian.container.groupId>
+                    <arquillian.container.artifactId>jboss-as-arquillian-container-managed</arquillian.container.artifactId>
+		    <arquillian.container.version>${version.jboss.as}</arquillian.container.version>
+		</properties>
+	        <build>
+                  <plugins>
+		    <plugin>
+			<groupId>org.jboss.as.plugins</groupId>
+			<artifactId>jboss-as-maven-plugin</artifactId>
+		    </plugin>
+
+		    <plugin>
+			 <groupId>org.apache.maven.plugins</groupId>
+			 <artifactId>maven-antrun-plugin</artifactId>
+			 <version>1.7</version>
+			 <executions>
+			   <execution>
+			     <id>prepare-eap-for-jdk8</id>
+			     <goals>
+			       <goal>run</goal>
+			     </goals>
+			     <phase>generate-test-resources</phase>
+			     <configuration>
+			       <target>
+				 <echo>Preparing EAP 6.4 application server</echo>
+				 <fail message="Please specify EAP 6.4 zip file URL via: -Deap6.zip.url=" unless="eap6.zip.url"/>
+				 <get usetimestamp="true" src="${eap6.zip.url}" skipexisting="true" dest="${test.server.unpack.dir}/${app.server}-${jboss.version}.zip"/>
+				 <unzip src="${test.server.unpack.dir}/${app.server}-${jboss.version}.zip" dest="${test.server.unpack.dir}/" overwrite="true" />
+			       </target>
+			     </configuration>
+			   </execution>
+			 </executions>
+		     </plugin>
+                </plugins>
+              </build>
+        </profile>
+    </profiles>
 </project>
