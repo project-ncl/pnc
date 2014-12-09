@@ -44,7 +44,7 @@ public class BuildJobConfig {
         String config = "printf \"<settings><mirrors><mirror><id>pnc-aprox</id><mirrorOf>*</mirrorOf><url>" + dependencyUrl +
                 "</url></mirror></mirrors><profiles><profile>" +
                 "<id>aprox-deployment</id><properties>" +
-                "<altDeploymentRepository>::default::" + deployUrl + "</altDeploymentRepository>" +
+                "<altDeploymentRepository>aprox::default::" + deployUrl + "</altDeploymentRepository>" +
                 "</properties></profile></profiles><activeProfiles><activeProfile>aprox-deployment</activeProfile></activeProfiles>" +
                 "</settings>\" > settings.xml";
         return config.replace("<", "&lt;")
