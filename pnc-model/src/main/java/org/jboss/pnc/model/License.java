@@ -1,8 +1,12 @@
 package org.jboss.pnc.model;
 
-import javax.persistence.*;
 import java.io.Serializable;
 import java.util.List;
+
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.OneToMany;
 
 /**
  * The Class License maps the different licenses to be linked to the projects, i.e. APACHE 2.0, MIT, GLPL, etc
@@ -13,12 +17,12 @@ public class License implements Serializable {
     private static final long serialVersionUID = 8893552998204511626L;
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue
     private Integer id;
 
     private String fullName;
 
-    private String fullText;
+    private String fullContent;
 
     private String refUrl;
 
@@ -71,21 +75,17 @@ public class License implements Serializable {
     }
 
     /**
-     * Gets the full text.
-     *
-     * @return the full text
+     * @return the fullContent
      */
-    public String getFullText() {
-        return this.fullText;
+    public String getFullContent() {
+        return fullContent;
     }
 
     /**
-     * Sets the full text.
-     *
-     * @param fullText the new full text
+     * @param fullContent the fullContent to set
      */
-    public void setFullText(String fullText) {
-        this.fullText = fullText;
+    public void setFullContent(String fullContent) {
+        this.fullContent = fullContent;
     }
 
     /**
