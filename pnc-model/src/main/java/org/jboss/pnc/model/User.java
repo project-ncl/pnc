@@ -1,8 +1,13 @@
 package org.jboss.pnc.model;
 
-import javax.persistence.*;
 import java.io.Serializable;
 import java.util.List;
+
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
 
 /**
  * The Class User maps the user that triggered the builds, and are linked to the ProjectBuildResult
@@ -10,7 +15,7 @@ import java.util.List;
  * @author avibelli
  */
 @Entity
-@Table(name = "users")
+@Table(name = "Users")
 public class User implements Serializable {
 
     private static final long serialVersionUID = 8437525005838384722L;
