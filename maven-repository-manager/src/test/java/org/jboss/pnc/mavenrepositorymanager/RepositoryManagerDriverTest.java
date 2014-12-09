@@ -12,6 +12,7 @@ import org.junit.Test;
 
 import java.util.Properties;
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 import static org.hamcrest.CoreMatchers.equalTo;
@@ -94,8 +95,9 @@ public class RepositoryManagerDriverTest {
             e.printStackTrace();
         };
 
+        mutex.acquire();
         driver.createRepository(pbc, bc, onComplete, onError);
-        mutex.acquire(); //wait for callback to release
+        mutex.tryAcquire(30, TimeUnit.SECONDS); //wait for callback to release
         Assert.assertTrue("There was no complete callback.", completed.get());
 
     }

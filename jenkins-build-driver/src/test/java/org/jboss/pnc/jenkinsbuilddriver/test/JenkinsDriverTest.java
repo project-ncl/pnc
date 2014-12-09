@@ -4,6 +4,7 @@ import com.offbytwo.jenkins.JenkinsServer;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.pnc.common.Configuration;
+import org.jboss.pnc.common.Resources;
 import org.jboss.pnc.common.util.BooleanWrapper;
 import org.jboss.pnc.jenkinsbuilddriver.JenkinsBuildDriver;
 import org.jboss.pnc.model.Project;
@@ -22,6 +23,7 @@ import org.junit.runner.RunWith;
 import javax.inject.Inject;
 import java.util.Map;
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 /**
@@ -40,6 +42,7 @@ public class JenkinsDriverTest {
                 .addAsResource("jenkins-job-template.xml")
                 .addPackages(true, org.apache.http.client.HttpResponseException.class.getPackage())
                 .addClass(Configuration.class)
+                .addClass(Resources.class)
                 .addClass(JenkinsBuildDriver.class);
         System.out.println(jar.toString(true));
         return jar;
@@ -48,7 +51,6 @@ public class JenkinsDriverTest {
     @Inject
     JenkinsBuildDriver jenkinsBuildDriver;
 
-    //TODO disable/enable by maven profile
     @Test
     /** disabled by default you need to configure pnc-config.ini in test/resources */
     public void startJenkinsJobTestCase() throws Exception {
@@ -111,7 +113,7 @@ public class JenkinsDriverTest {
         mutex.acquire();
         jenkinsBuildDriver.startProjectBuild(pbc, repositoryConfiguration, onComplete, onError);
 
-        mutex.acquire(); //wait for callback to release
+        mutex.tryAcquire(30, TimeUnit.SECONDS); //wait for callback to release
         Assert.assertTrue("There was no complete callback.", completed.get());
     }
 

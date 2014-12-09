@@ -10,6 +10,7 @@ import org.jboss.pnc.spi.repositorymanager.RepositoryManager;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Consumer;
 
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-11-25.
@@ -17,9 +18,11 @@ import java.util.Map;
 public class RepositoryManagerMock implements RepositoryManager {
 
     @Override
-    public RepositoryConfiguration createRepository(ProjectBuildConfiguration projectBuildConfiguration,
-            BuildCollection buildCollection) {
-        return new RepositoryConfiguration() {
+    public void createRepository(ProjectBuildConfiguration projectBuildConfiguration,
+            BuildCollection buildCollection,
+            Consumer<RepositoryConfiguration> onComplete, Consumer<Exception> onError) {
+
+        RepositoryConfiguration repositoryConfiguration = new RepositoryConfiguration() {
             @Override
             public RepositoryType getType() {
                 return RepositoryType.MAVEN;
@@ -43,7 +46,7 @@ public class RepositoryManagerMock implements RepositoryManager {
 
                     @Override
                     public Map<String, String> getProperties() {
-                        Map<String, String> props = new HashMap<>();
+                        Map<String, String> props = new HashMap<String, String>();
                         props.put("altDeploymentRepository", "test::default::" + repo);
 
                         return props;
@@ -61,6 +64,17 @@ public class RepositoryManagerMock implements RepositoryManager {
                 };
             }
         };
+
+        Runnable configureRepo = () -> {
+            try {
+                Thread.sleep(500);
+                onComplete.accept(repositoryConfiguration);
+            } catch (InterruptedException e) {
+                onError.accept(e);
+            }
+        };
+        new Thread(configureRepo).start();
+
     }
 
     @Override

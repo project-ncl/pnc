@@ -13,8 +13,8 @@ import java.util.function.Consumer;
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-12-03.
  */
-public class CompleteBuildHandler implements Handler {
-    private Handler next = null;
+public class CompleteBuildHandler implements OperationHandler {
+    private OperationHandler next = null;
 
     @Inject
     BuildQueue buildQueue;
@@ -24,7 +24,7 @@ public class CompleteBuildHandler implements Handler {
 
     @Override
     public void handle(BuildTask task) {
-        if (task.getStatus().getOperation() == TaskStatus.Operation.BUILD_SCHEDULED.COMPLETED) {
+        if (task.getStatus().getOperation() == TaskStatus.Operation.BUILD_SCHEDULED) { //TODO check for completed
             completeBuild(task);
         } else {
             if (next != null) {
@@ -34,7 +34,7 @@ public class CompleteBuildHandler implements Handler {
     }
 
     @Override
-    public void next(Handler handler) {
+    public void next(OperationHandler handler) {
         next = handler;
     }
 
@@ -57,6 +57,7 @@ public class CompleteBuildHandler implements Handler {
             //TODO get build log
             //TODO get stored artifacts
             //TODO clean up env
+            onComplete.accept("id");
 
         } catch (CoreException e) {
             buildTask.onError(e);

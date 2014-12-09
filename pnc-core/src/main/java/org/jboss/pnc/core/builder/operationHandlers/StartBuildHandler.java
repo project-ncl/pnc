@@ -13,8 +13,8 @@ import java.util.function.Consumer;
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-12-03.
  */
-public class StartBuildHandler implements Handler {
-    private Handler next;
+public class StartBuildHandler implements OperationHandler {
+    private OperationHandler next;
 
     @Inject
     BuildQueue buildQueue;
@@ -24,15 +24,17 @@ public class StartBuildHandler implements Handler {
 
     @Override
     public void handle(BuildTask task) {
-        if (task.getStatus().getOperation() == TaskStatus.Operation.CREATE_REPOSITORY.COMPLETED) {
+        if (task.getStatus().getOperation() == TaskStatus.Operation.CREATE_REPOSITORY) { //TODO check for completed
             startBuild(task);
         } else {
-            next.handle(task);
+            if (next != null) {
+                next.handle(task);
+            }
         }
     }
 
     @Override
-    public void next(Handler handler) {
+    public void next(OperationHandler handler) {
         next = handler;
     }
 

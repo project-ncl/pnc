@@ -1,5 +1,6 @@
 package org.jboss.pnc.core.builder;
 
+import org.jboss.pnc.model.BuildCollection;
 import org.jboss.pnc.model.ProjectBuildConfiguration;
 import org.jboss.pnc.model.TaskStatus;
 import org.jboss.pnc.spi.repositorymanager.RepositoryConfiguration;
@@ -11,14 +12,16 @@ import java.util.function.Consumer;
  */
 public class BuildTask extends ProjectBuildConfiguration {
     private ProjectBuildConfiguration projectBuildConfiguration;
+    private BuildCollection buildCollection;
     private Consumer<TaskStatus> onStatusUpdate;
     private Consumer<Exception> onError;
     TaskStatus status;
     private RepositoryConfiguration repositoryConfiguration;
 
 
-    public BuildTask(ProjectBuildConfiguration projectBuildConfiguration, Consumer<TaskStatus> onStatusUpdate, Consumer<Exception> onError) {
+    public BuildTask(ProjectBuildConfiguration projectBuildConfiguration, BuildCollection buildCollection, Consumer<TaskStatus> onStatusUpdate, Consumer<Exception> onError) {
         this.projectBuildConfiguration = projectBuildConfiguration;
+        this.buildCollection = buildCollection;
         this.onStatusUpdate = onStatusUpdate;
         this.onError = onError;
     }
@@ -33,6 +36,7 @@ public class BuildTask extends ProjectBuildConfiguration {
     }
 
     public void onStatusUpdate(TaskStatus status) {
+        this.status = status;
         onStatusUpdate.accept(status);
     }
 
@@ -42,6 +46,10 @@ public class BuildTask extends ProjectBuildConfiguration {
 
     public ProjectBuildConfiguration getProjectBuildConfiguration() {
         return projectBuildConfiguration;
+    }
+
+    public BuildCollection getBuildCollection() {
+        return buildCollection;
     }
 
     public RepositoryConfiguration getRepositoryConfiguration() {

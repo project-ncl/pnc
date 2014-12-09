@@ -1,5 +1,6 @@
 package org.jboss.pnc.core.builder;
 
+import org.jboss.pnc.model.BuildCollection;
 import org.jboss.pnc.model.ProjectBuildConfiguration;
 import org.jboss.pnc.model.TaskStatus;
 
@@ -18,9 +19,9 @@ public class ProjectBuilder {
     @Inject
     private Logger log;
 
-    public void buildProject(ProjectBuildConfiguration projectBuildConfiguration, Consumer<TaskStatus> onStatusUpdate, Consumer<Exception> onError) {
+    public void buildProject(ProjectBuildConfiguration projectBuildConfiguration, BuildCollection buildCollection, Consumer<TaskStatus> onStatusUpdate, Consumer<Exception> onError) {
         try {
-            buildQueue.add(new BuildTask(projectBuildConfiguration, onStatusUpdate, onError));
+            buildQueue.add(new BuildTask(projectBuildConfiguration, buildCollection, onStatusUpdate, onError));
         } catch (Exception e) {
             onError.accept(e);
         }

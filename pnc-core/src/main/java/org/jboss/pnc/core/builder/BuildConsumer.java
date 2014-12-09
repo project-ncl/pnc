@@ -14,6 +14,15 @@ public class BuildConsumer implements Runnable {
     @Inject
     BuildQueue buildQueue;
 
+    @Inject
+    ConfigureRepositoryHandler configureRepositoryHandler;
+
+    @Inject
+    StartBuildHandler startBuildHandler;
+
+    @Inject
+    CompleteBuildHandler completeBuildHandler;
+
     @Override
     public void run() {
         while (true) {
@@ -28,11 +37,9 @@ public class BuildConsumer implements Runnable {
     }
 
     private void runBuildTask(BuildTask buildTask) {
-        ConfigureRepositoryHandler configureRepositoryHandler = new ConfigureRepositoryHandler();
-        StartBuildHandler startBuildHandler = new StartBuildHandler();
-        CompleteBuildHandler completeBuildHandler = new CompleteBuildHandler();
-
         configureRepositoryHandler.next(startBuildHandler);
         startBuildHandler.next(completeBuildHandler);
+
+        configureRepositoryHandler.handle(buildTask);
     }
 }

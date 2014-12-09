@@ -17,8 +17,8 @@ import java.util.function.Consumer;
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-12-08.
  */
-public class ConfigureRepositoryHandler implements Handler {
-    private Handler next;
+public class ConfigureRepositoryHandler implements OperationHandler {
+    private OperationHandler next;
 
     @Inject
     BuildQueue buildQueue;
@@ -28,15 +28,17 @@ public class ConfigureRepositoryHandler implements Handler {
 
     @Override
     public void handle(BuildTask task) {
-        if (task.getStatus().getOperation() == null) {
+        if (task.getStatus() == null || task.getStatus().getOperation() == null) {
             createRepository(task);
         } else {
-            next.handle(task);
+            if (next != null) {
+                next.handle(task);
+            }
         }
     }
 
     @Override
-    public void next(Handler handler) {
+    public void next(OperationHandler handler) {
         next = handler;
     }
 
@@ -55,7 +57,12 @@ public class ConfigureRepositoryHandler implements Handler {
 
             RepositoryManager repositoryManager = repositoryManagerFactory.getRepositoryManager(RepositoryType.MAVEN);
             ProjectBuildConfiguration buildConfiguration = buildTask.getProjectBuildConfiguration();
-            BuildCollection buildCollection = null; //TODO
+            BuildCollection buildCollection = buildTask.getBuildCollection();
+
+            //TODO better validation
+            assert (buildConfiguration != null);
+            assert (buildCollection != null);
+
             repositoryManager.createRepository(buildConfiguration, buildCollection, onComplete, onError);
 
         } catch (CoreException e) {

@@ -6,11 +6,13 @@ import org.jboss.pnc.core.exception.CoreException;
 import org.jboss.pnc.datastore.repositories.ProjectBuildConfigurationRepository;
 import org.jboss.pnc.model.BuildCollection;
 import org.jboss.pnc.model.ProjectBuildConfiguration;
+import org.jboss.pnc.model.TaskStatus;
 import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerException;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
+import java.util.function.Consumer;
 
 @Stateless
 public class BuildTriggerer {
@@ -37,7 +39,14 @@ public class BuildTriggerer {
         final BuildCollection buildCollection = new BuildCollection();
         buildCollection.setProductVersion(configuration.getProductVersion());
 
-        projectBuilder.buildProject(configuration, buildCollection);
+        Consumer<TaskStatus> onStatusUpdate = (newStatus) -> {
+
+        };
+        Consumer<Exception> onError = (e) -> {
+            e.printStackTrace(); //TODO
+        };
+
+        projectBuilder.buildProject(configuration, buildCollection, onStatusUpdate, onError);
     }
 
 }

@@ -103,5 +103,4 @@ public class RepositoryManagerDriver implements RepositoryManager {
         return name.replaceAll("\\W+", "-").replaceAll("[|:]+", "-");
     }
 
-
 }

@@ -2,7 +2,6 @@ package org.jboss.pnc.core.test.mock;
 
 import org.jboss.pnc.model.BuildType;
 import org.jboss.pnc.model.ProjectBuildConfiguration;
-import org.jboss.pnc.model.TaskStatus;
 import org.jboss.pnc.spi.builddriver.BuildDriver;
 import org.jboss.pnc.spi.repositorymanager.RepositoryConfiguration;
 
@@ -19,29 +18,24 @@ public class BuildDriverMock implements BuildDriver {
     }
 
     @Override
-    public boolean startProjectBuild(ProjectBuildConfiguration projectBuildConfiguration, RepositoryConfiguration repositoryConfiguration, Consumer<TaskStatus> onUpdate) {
-
-        Runnable projectBuild = new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    Thread.sleep(500);
-                    onUpdate.accept(new TaskStatus(TaskStatus.Operation.BUILD_SCHEDULED, 0));
-                } catch (InterruptedException e) {
-                    onUpdate.accept(new TaskStatus(TaskStatus.Operation.BUILD_SCHEDULED, -1));
-                }
+    public void startProjectBuild(ProjectBuildConfiguration projectBuildConfiguration,
+                                  RepositoryConfiguration repositoryConfiguration,
+                                  Consumer<String> onComplete, Consumer<Exception> onError) {
+        Runnable projectBuild = () -> {
+            try {
+                Thread.sleep(500);
+                onComplete.accept("id");
+            } catch (InterruptedException e) {
+                onError.accept(e);
             }
         };
-        //TODO use thread pool, return false if there are no available executors
         new Thread(projectBuild).start();
-
-        onUpdate.accept(new TaskStatus(TaskStatus.Operation.BUILD_SCHEDULED, 0));
-        return true;
     }
 
     @Override
     public boolean canBuild(BuildType buildType) {
         return true;
     }
+
 
 }

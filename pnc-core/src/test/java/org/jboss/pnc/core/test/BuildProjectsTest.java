@@ -4,14 +4,20 @@ import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.Resources;
-import org.jboss.pnc.common.util.BooleanWrapper;
 import org.jboss.pnc.core.BuildDriverFactory;
 import org.jboss.pnc.core.RepositoryManagerFactory;
+import org.jboss.pnc.core.builder.BuildConsumer;
 import org.jboss.pnc.core.builder.ProjectBuilder;
+import org.jboss.pnc.core.builder.operationHandlers.OperationHandler;
 import org.jboss.pnc.core.test.mock.BuildDriverMock;
 import org.jboss.pnc.core.test.mock.DatastoreMock;
-import org.jboss.pnc.mavenrepositorymanager.RepositoryManagerDriver;
-import org.jboss.pnc.model.*;
+import org.jboss.pnc.model.BuildCollection;
+import org.jboss.pnc.model.Environment;
+import org.jboss.pnc.model.Product;
+import org.jboss.pnc.model.ProductVersion;
+import org.jboss.pnc.model.Project;
+import org.jboss.pnc.model.ProjectBuildConfiguration;
+import org.jboss.pnc.model.TaskStatus;
 import org.jboss.pnc.model.builder.EnvironmentBuilder;
 import org.jboss.pnc.spi.environment.EnvironmentDriverProvider;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
@@ -22,7 +28,10 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import javax.inject.Inject;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.logging.Logger;
 
@@ -30,15 +39,23 @@ import java.util.logging.Logger;
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-11-23.
  */
 @RunWith(Arquillian.class)
-public class BuildProjectsTestCase {
+public class BuildProjectsTest {
 
     @Deployment
     public static JavaArchive createDeployment() {
-        JavaArchive jar = ShrinkWrap.create(JavaArchive.class).addClass(ProjectBuilder.class)
-                .addClass(BuildDriverFactory.class).addClass(RepositoryManagerFactory.class).addClass(Resources.class)
-                .addClass(EnvironmentBuilder.class).addClass(EnvironmentDriverProvider.class).addClass(Configuration.class)
-                .addPackage(RepositoryManagerDriver.class.getPackage()).addPackage(BuildDriverMock.class.getPackage())
-                .addAsManifestResource(EmptyAsset.INSTANCE, "beans.xml").addAsResource("META-INF/logging.properties");
+        JavaArchive jar = ShrinkWrap.create(JavaArchive.class)
+                .addClass(Configuration.class)
+                .addClass(Resources.class)
+                .addClass(BuildDriverFactory.class)
+                .addClass(RepositoryManagerFactory.class)
+                .addClass(EnvironmentBuilder.class)
+                .addClass(EnvironmentDriverProvider.class)
+                .addPackage(OperationHandler.class.getPackage())
+                .addPackage(ProjectBuilder.class.getPackage())
+//                .addPackage(RepositoryManagerDriver.class.getPackage())
+                .addPackage(BuildDriverMock.class.getPackage())
+                .addAsManifestResource(EmptyAsset.INSTANCE, "beans.xml")
+                .addAsResource("META-INF/logging.properties");
         System.out.println(jar.toString(true));
         return jar;
     }
@@ -52,8 +69,16 @@ public class BuildProjectsTestCase {
     @Inject
     Logger log;
 
+    @Inject
+    BuildConsumer buildConsumer;
+
     @Test
-    public void createProjectStructure() throws Exception {
+    public void buildProjectTestCase() throws Exception {
+
+        //start build consumer
+        Thread consumer = new Thread(buildConsumer, "Build-consumer");
+        consumer.start();
+
         Environment javaEnvironment = EnvironmentBuilder.defaultEnvironment().build();
         Environment nativeEnvironment = EnvironmentBuilder.defaultEnvironment().withNative().build();
 
@@ -127,24 +152,47 @@ public class BuildProjectsTestCase {
 //        projectBuilder.buildProjects(projectBuildConfigurations, buildCollection);
 //        assertThat(datastore.getBuildResults()).hasSize(6);
 
-        final Semaphore mutex = new Semaphore(1);
-        BooleanWrapper completed = new BooleanWrapper(false);
 
-        Consumer<TaskStatus> onStatusUpdate = (id) -> {
-            completed.set(true);
-            mutex.release();
+        List<TaskStatus> receivedStatuses = new ArrayList<TaskStatus>();
+
+        final Semaphore semaphore = new Semaphore(6);
+
+        Consumer<TaskStatus> onStatusUpdate = (newStatus) -> {
+            receivedStatuses.add(newStatus);
+            semaphore.release(1);
+            log.finer("Received status update " + newStatus.getOperation());
+            log.finer("Semaphore released, there are " + semaphore.availablePermits() + " free entries.");
         };
         Consumer<Exception> onError = (e) -> {
             e.printStackTrace();
         };
-        mutex.acquire();
-        jenkinsBuildDriver.startProjectBuild(pbc, repositoryConfiguration, onComplete, onError);
-
-        mutex.acquire(); //wait for callback to release
-        Assert.assertTrue("There was no complete callback.", completed.get());
+        semaphore.acquire(6); //there should be 6 callbacks
         projectBuilder.buildProject(projectBuildConfigurationB1, buildCollection, onStatusUpdate, onError);
-        Assert.assertTrue("Project build should be accepted.", accepted);
 
+        semaphore.tryAcquire(6, 30, TimeUnit.SECONDS); //wait for callback to release
+
+        boolean receivedCREATE_REPOSITORY = false;
+        boolean receivedBUILD_SCHEDULED = false;
+        boolean receivedCOMPLETING_BUILD = false;
+        for (TaskStatus receivedStatus : receivedStatuses) {
+            if (receivedStatus.getOperation().equals(TaskStatus.Operation.CREATE_REPOSITORY)) {
+                receivedCREATE_REPOSITORY = true;
+            }
+            if (receivedStatus.getOperation().equals(TaskStatus.Operation.BUILD_SCHEDULED)) {
+                receivedBUILD_SCHEDULED = true;
+            }
+            if (receivedStatus.getOperation().equals(TaskStatus.Operation.COMPLETING_BUILD)) {
+                receivedCOMPLETING_BUILD = true;
+            }
+        }
+
+        Assert.assertTrue("All status updaters were not received." +
+                        " receivedCREATE_REPOSITORY: " + receivedCREATE_REPOSITORY +
+                        " receivedBUILD_SCHEDULED: " + receivedBUILD_SCHEDULED +
+                        " receivedCOMPLETING_BUILD: " + receivedCOMPLETING_BUILD,
+                receivedCREATE_REPOSITORY && receivedBUILD_SCHEDULED && receivedCOMPLETING_BUILD);
+
+        consumer.interrupt();
     }
 
 }
