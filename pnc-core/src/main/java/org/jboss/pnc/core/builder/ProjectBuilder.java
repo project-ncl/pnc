@@ -28,9 +28,6 @@ public class ProjectBuilder {
     BuildDriverFactory buildDriverFactory;
 
     @Inject
-    RepositoryManagerFactory repositoryManagerFactory;
-
-    @Inject
     Datastore datastore;
 
     @Inject
@@ -38,6 +35,9 @@ public class ProjectBuilder {
 
     @Inject
     TaskQueue taskQueue;
+
+    @Inject
+    private BuildQueue buildQueue;
 
     @Inject
     private Logger log;
@@ -55,35 +55,30 @@ public class ProjectBuilder {
 
         boolean buildQueued = buildDriver.startProjectBuild(buildTask);
 
-        Consumer<TaskStatus> onStatusUpdate = ;
-
-        buildProject2(null, (task) -> {
-                                    task.getOperation().
-                                });
     }
 
     public void buildProject2(ProjectBuildConfiguration projectBuildConfiguration, Consumer<TaskStatus> onStatusUpdate, Consumer<Exception> onError) {
         try {
-            RepositoryManager repositoryManager = repositoryManagerFactory.getRepositoryManager(RepositoryType.MAVEN);
-            BuildDriver buildDriver = buildDriverFactory.getBuildDriver(projectBuildConfiguration.getEnvironment().getBuildType());
+//            RepositoryManager repositoryManager = repositoryManagerFactory.getRepositoryManager(RepositoryType.MAVEN);
+//            BuildDriver buildDriver = buildDriverFactory.getBuildDriver(projectBuildConfiguration.getEnvironment().getBuildType());
+//
+//            onStatusUpdate.accept(new TaskStatus(TaskStatus.Operation.CREATE_REPOSITORY, 0));
+//            RepositoryConfiguration repositoryConfiguration = repositoryManager.createRepository(projectBuildConfiguration, null);
+//            onStatusUpdate.accept(new TaskStatus(TaskStatus.Operation.CREATE_REPOSITORY, 100));
+//
+//            onStatusUpdate.accept(new TaskStatus(TaskStatus.Operation.CREATE_JENKINS_JOB, 0));
+//            JobConfig jobConfig = buildDriver.configureJob(projectBuildConfiguration, repositoryConfiguration);
+//            onStatusUpdate.accept(new TaskStatus(TaskStatus.Operation.CREATE_JENKINS_JOB, 100));
+//
+//            onStatusUpdate.accept(new TaskStatus(TaskStatus.Operation.RUN_JENKINS_JOB, 0));
+//            ProjectBuildResult buildResult = buildDriver.runJob(jobConfig);
+//            onStatusUpdate.accept(new TaskStatus(TaskStatus.Operation.RUN_JENKINS_JOB, 100));
+//
+//            onStatusUpdate.accept(new TaskStatus(TaskStatus.Operation.STORE_BUILD_RESULTS, 0));
+//            datastore.storeCompletedBuild(buildResult);
+//            onStatusUpdate.accept(new TaskStatus(TaskStatus.Operation.STORE_BUILD_RESULTS, 100));
 
-            onStatusUpdate.accept(new TaskStatus(TaskStatus.Operation.CREATE_REPOSITORY, 0));
-            RepositoryConfiguration repositoryConfiguration = repositoryManager.createRepository(projectBuildConfiguration, null);
-            onStatusUpdate.accept(new TaskStatus(TaskStatus.Operation.CREATE_REPOSITORY, 100));
-
-            onStatusUpdate.accept(new TaskStatus(TaskStatus.Operation.CREATE_JENKINS_JOB, 0));
-            JobConfig jobConfig = buildDriver.configureJob(projectBuildConfiguration, repositoryConfiguration);
-            onStatusUpdate.accept(new TaskStatus(TaskStatus.Operation.CREATE_JENKINS_JOB, 100));
-
-            onStatusUpdate.accept(new TaskStatus(TaskStatus.Operation.RUN_JENKINS_JOB, 0));
-            ProjectBuildResult buildResult = buildDriver.runJob(jobConfig);
-            onStatusUpdate.accept(new TaskStatus(TaskStatus.Operation.RUN_JENKINS_JOB, 100));
-
-            onStatusUpdate.accept(new TaskStatus(TaskStatus.Operation.STORE_BUILD_RESULTS, 0));
-            datastore.storeCompletedBuild(buildResult);
-            onStatusUpdate.accept(new TaskStatus(TaskStatus.Operation.STORE_BUILD_RESULTS, 100));
-
-
+            buildQueue.add(new BuildTask(projectBuildConfiguration, onStatusUpdate, onError));
         } catch (Exception e) {
             onError.accept(e);
         }

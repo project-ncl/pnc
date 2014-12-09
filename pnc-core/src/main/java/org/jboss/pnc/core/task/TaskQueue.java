@@ -25,7 +25,6 @@ public class TaskQueue {
 
         StartBuildHandler startBuildHandler = new StartBuildHandler();
         startBuildHandler.next(checkBuildProgressHandler);
-
         new TaskConsumer(queue, startBuildHandler);
     }
 
