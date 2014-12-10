@@ -1,4 +1,4 @@
-package org.jboss.pnc.common.json.module;
+package org.jboss.pnc.common.json.moduleconfig;
 
 import org.jboss.pnc.common.json.AbstractModuleConfig;
 

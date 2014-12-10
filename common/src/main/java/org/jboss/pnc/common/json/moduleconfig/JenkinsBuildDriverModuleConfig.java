@@ -1,4 +1,4 @@
-package org.jboss.pnc.common.json.module;
+package org.jboss.pnc.common.json.moduleconfig;
 
 import java.net.URL;
 
