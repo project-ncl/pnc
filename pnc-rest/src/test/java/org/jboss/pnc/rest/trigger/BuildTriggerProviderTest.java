@@ -4,6 +4,7 @@ import org.jboss.pnc.datastore.repositories.ProjectBuildConfigurationRepository;
 import org.jboss.pnc.model.Project;
 import org.jboss.pnc.model.ProjectBuildConfiguration;
 import org.jboss.pnc.rest.assertion.ProjectBuildConfigurationRestAssertion;
+import org.jboss.pnc.rest.mapping.Mapper;
 import org.jboss.pnc.rest.mapping.ProjectBuildConfigurationRest;
 import org.junit.Test;
 
@@ -28,7 +29,7 @@ public class BuildTriggerProviderTest {
         ProjectBuildConfigurationRepository repository = mock(ProjectBuildConfigurationRepository.class);
         doReturn(Arrays.asList(exampleConfiguration)).when(repository).findAll();
 
-        BuildTriggerProvider buildTriggerProvider = new BuildTriggerProvider(repository);
+        BuildTriggerProvider buildTriggerProvider = new BuildTriggerProvider(repository, new Mapper());
 
         //when
         List<ProjectBuildConfigurationRest> buildConfigurations =  buildTriggerProvider.getAvailableBuildConfigurations();
@@ -50,7 +51,7 @@ public class BuildTriggerProviderTest {
         ProjectBuildConfigurationRepository repository = mock(ProjectBuildConfigurationRepository.class);
         doReturn(exampleConfiguration).when(repository).findOne(6);
 
-        BuildTriggerProvider buildTriggerProvider = new BuildTriggerProvider(repository);
+        BuildTriggerProvider buildTriggerProvider = new BuildTriggerProvider(repository, new Mapper());
 
         //when
         ProjectBuildConfigurationRest returnedConfiguration =  buildTriggerProvider.getSpecificConfiguration(6);
@@ -62,7 +63,7 @@ public class BuildTriggerProviderTest {
     @Test(expected = IllegalArgumentException.class)
     public void shouldThrowExceptionOnNull() throws Exception {
         //given
-        BuildTriggerProvider buildTriggerProvider = new BuildTriggerProvider(null);
+        BuildTriggerProvider buildTriggerProvider = new BuildTriggerProvider(null, null);
 
         //when
         buildTriggerProvider.getSpecificConfiguration(null);
@@ -74,7 +75,7 @@ public class BuildTriggerProviderTest {
         ProjectBuildConfigurationRepository repository = mock(ProjectBuildConfigurationRepository.class);
         doReturn(null).when(repository).findOne(6);
 
-        BuildTriggerProvider buildTriggerProvider = new BuildTriggerProvider(repository);
+        BuildTriggerProvider buildTriggerProvider = new BuildTriggerProvider(repository, new Mapper());
 
         //when
         ProjectBuildConfigurationRest returnedConfiguration =  buildTriggerProvider.getSpecificConfiguration(6);

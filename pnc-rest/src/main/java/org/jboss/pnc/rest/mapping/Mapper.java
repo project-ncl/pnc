@@ -1,18 +1,19 @@
 package org.jboss.pnc.rest.mapping;
 
-import org.jboss.pnc.model.ProjectBuildConfiguration;
+import org.dozer.DozerBeanMapper;
 
+import javax.enterprise.context.ApplicationScoped;
+import java.util.Arrays;
+
+@ApplicationScoped
 public class Mapper {
 
-    public static ProjectBuildConfigurationRest mapToProjectBuildConfigurationRest(ProjectBuildConfiguration projectBuildConfiguration) {
-        if(projectBuildConfiguration == null) {
+    private org.dozer.Mapper mapper = new DozerBeanMapper(Arrays.asList("mapping.xml"));
+
+    public <T> T mapTo(Object objectToBeMapped, Class<T> destinationClass) {
+        if(objectToBeMapped == null) {
             return null;
         }
-
-        ProjectBuildConfigurationRest projectBuildConfigurationRest = new ProjectBuildConfigurationRest();
-        projectBuildConfigurationRest.setId(projectBuildConfiguration.getId());
-        projectBuildConfigurationRest.setIdentifier(projectBuildConfiguration.getIdentifier());
-        projectBuildConfigurationRest.setProjectName(projectBuildConfiguration.getProject().getName());
-        return projectBuildConfigurationRest;
+        return mapper.map(objectToBeMapped, destinationClass);
     }
 }

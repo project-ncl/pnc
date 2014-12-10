@@ -14,24 +14,26 @@ import java.util.stream.Collectors;
 public class BuildTriggerProvider {
 
     private ProjectBuildConfigurationRepository projectBuildConfigurationRepository;
+    private Mapper mapper;
 
     //to make CDI happy
     public BuildTriggerProvider() {
     }
 
     @Inject
-    public BuildTriggerProvider(ProjectBuildConfigurationRepository repository) {
+    public BuildTriggerProvider(ProjectBuildConfigurationRepository repository, Mapper mapper) {
         this.projectBuildConfigurationRepository = repository;
+        this.mapper = mapper;
     }
 
     public ProjectBuildConfigurationRest getSpecificConfiguration(Integer configurationId) {
         Preconditions.checkArgument(configurationId != null, "Configuration can't be null");
-        return Mapper.mapToProjectBuildConfigurationRest(projectBuildConfigurationRepository.findOne(configurationId));
+        return mapper.mapTo(projectBuildConfigurationRepository.findOne(configurationId), ProjectBuildConfigurationRest.class);
     }
 
     public List<ProjectBuildConfigurationRest> getAvailableBuildConfigurations() {
         return projectBuildConfigurationRepository.findAll().stream()
-                .map(Mapper::mapToProjectBuildConfigurationRest)
+                .map(projectBuildConfiguration -> mapper.mapTo(projectBuildConfiguration, ProjectBuildConfigurationRest.class))
                 .collect(Collectors.toList());
     }
 
