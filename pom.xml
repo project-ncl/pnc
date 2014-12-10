@@ -52,6 +52,8 @@
         <maven.compiler.target>1.8</maven.compiler.target>
         <maven.compiler.source>1.8</maven.compiler.source>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+        <demo.pnc.ip.address>10.3.10.200</demo.pnc.ip.address>
     </properties>
 
     <dependencyManagement>
@@ -273,6 +275,10 @@
                 <plugin>
                     <artifactId>maven-surefire-plugin</artifactId>
                     <version>${version.surefire.plugin}</version>
+                </plugin>
+                <plugin>
+                    <artifactId>maven-war-plugin</artifactId>
+                    <version>2.5</version>
                 </plugin>
                 <plugin>
                     <groupId>org.jboss.as.plugins</groupId>
