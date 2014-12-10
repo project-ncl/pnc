@@ -13,32 +13,23 @@ import java.util.function.Consumer;
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-12-03.
  */
-public class CompleteBuildHandler implements OperationHandler {
-    private OperationHandler next = null;
+public class CompleteBuildHandler extends OperationHandlerBase implements OperationHandler {
 
-    @Inject
-    BuildQueue buildQueue;
-
-    @Inject
     BuildDriverFactory buildDriverFactory;
 
-    @Override
-    public void handle(BuildTask task) {
-        if (task.getStatus().isOperationCompleted(TaskStatus.Operation.BUILD_SCHEDULED)) {
-            completeBuild(task);
-        } else {
-            if (next != null) {
-                next.handle(task);
-            }
-        }
+    @Inject
+    public CompleteBuildHandler(BuildQueue buildQueue, BuildDriverFactory buildDriverFactory) {
+        super(buildQueue);
+        this.buildDriverFactory = buildDriverFactory;
     }
 
     @Override
-    public void next(OperationHandler handler) {
-        next = handler;
+    protected TaskStatus.Operation executeAfter() {
+        return TaskStatus.Operation.BUILD_SCHEDULED;
     }
 
-    private void completeBuild(BuildTask buildTask) {
+    @Override
+    protected void doHandle(BuildTask buildTask) {
         buildTask.onStatusUpdate(new TaskStatus(TaskStatus.Operation.COMPLETING_BUILD, 0));
         try {
             Consumer<String> onComplete = (jobId) -> {

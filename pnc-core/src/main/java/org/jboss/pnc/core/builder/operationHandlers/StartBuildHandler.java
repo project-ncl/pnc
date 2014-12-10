@@ -13,32 +13,23 @@ import java.util.function.Consumer;
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-12-03.
  */
-public class StartBuildHandler implements OperationHandler {
-    private OperationHandler next;
+public class StartBuildHandler extends OperationHandlerBase implements OperationHandler {
+
+    private final BuildDriverFactory buildDriverFactory;
 
     @Inject
-    BuildQueue buildQueue;
-
-    @Inject
-    BuildDriverFactory buildDriverFactory;
-
-    @Override
-    public void handle(BuildTask task) {
-        if (task.getStatus().isOperationCompleted(TaskStatus.Operation.CREATE_REPOSITORY)) {
-            startBuild(task);
-        } else {
-            if (next != null) {
-                next.handle(task);
-            }
-        }
+    public StartBuildHandler(BuildQueue buildQueue, BuildDriverFactory buildDriverFactory) {
+        super(buildQueue);
+        this.buildDriverFactory = buildDriverFactory;
     }
 
     @Override
-    public void next(OperationHandler handler) {
-        next = handler;
+    protected TaskStatus.Operation executeAfter() {
+        return TaskStatus.Operation.CREATE_REPOSITORY;
     }
 
-    private void startBuild(BuildTask buildTask) {
+    @Override
+    protected void doHandle(BuildTask buildTask) {
         buildTask.onStatusUpdate(new TaskStatus(TaskStatus.Operation.BUILD_SCHEDULED, 0));
         try {
             Consumer<String> onComplete = (jobId) -> {
@@ -63,7 +54,4 @@ public class StartBuildHandler implements OperationHandler {
             buildTask.onError(e);
         }
     }
-
-
-
 }

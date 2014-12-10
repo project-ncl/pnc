@@ -17,32 +17,23 @@ import java.util.function.Consumer;
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-12-08.
  */
-public class ConfigureRepositoryHandler implements OperationHandler {
-    private OperationHandler next;
+public class ConfigureRepositoryHandler extends OperationHandlerBase implements OperationHandler {
 
-    @Inject
-    BuildQueue buildQueue;
-
-    @Inject
     RepositoryManagerFactory repositoryManagerFactory;
 
-    @Override
-    public void handle(BuildTask task) {
-        if (task.getStatus().isOperationCompleted(TaskStatus.Operation.NEW)) {
-            createRepository(task);
-        } else {
-            if (next != null) {
-                next.handle(task);
-            }
-        }
+    @Inject
+    public ConfigureRepositoryHandler(BuildQueue buildQueue, RepositoryManagerFactory repositoryManagerFactory) {
+        super(buildQueue);
+        this.repositoryManagerFactory = repositoryManagerFactory;
     }
 
     @Override
-    public void next(OperationHandler handler) {
-        next = handler;
+    protected TaskStatus.Operation executeAfter() {
+        return TaskStatus.Operation.NEW;
     }
 
-    private void createRepository(BuildTask buildTask) {
+    @Override
+    protected void doHandle(BuildTask buildTask) {
         buildTask.onStatusUpdate(new TaskStatus(TaskStatus.Operation.CREATE_REPOSITORY, 0));
         try {
             Consumer<RepositoryConfiguration> onComplete = (repositoryConfiguration) -> {
