@@ -10,6 +10,8 @@
     <container qualifier="wf" default="true">
         <configuration>
             <property name="jbossHome">${test.server.build.dir}</property>
+            <property name="managementPort">${jboss.management.port}</property>
+            <property name="javaVmArguments">-Xmx512m -Djboss.socket.binding.port-offset=${jboss.port.offset}</property>
         </configuration>
     </container>
 

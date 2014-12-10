@@ -12,7 +12,8 @@ import org.slf4j.LoggerFactory;
 
 import java.lang.invoke.MethodHandles;
 
-import static com.jayway.restassured.RestAssured.get;
+import static org.jboss.pnc.integration.env.IntegrationTestEnv.getHttpPort;
+
 import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.path.json.JsonPath.from;
 
@@ -33,9 +34,11 @@ public class BuildTest {
     //@Ignore //FIXME TEST fails with 500
     @Test
     public void shouldTriggerBuildAndFinishWithoutProblems() {
-        Integer notNullId = from(get("/pnc-web/rest/configuration").asString()).get("[0].id");
+        Integer notNullId = from(given()
+                .port(getHttpPort()).get("/pnc-web/rest/configuration").asString()).get("[0].id");
 
         given()
+        .port(getHttpPort())
         .when()
             .post("/pnc-web/rest/configuration/" + notNullId + "/build")
         .then()
