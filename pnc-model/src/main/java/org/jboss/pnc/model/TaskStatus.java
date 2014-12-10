@@ -17,7 +17,9 @@ public class TaskStatus {
         BUILD_SCHEDULED,
         BUILD_IN_PROGRESS,
         BUILD_COMPLETED,
-        BUILD_FAILED;
+        BUILD_FAILED,
+        COMPLETED,
+        CREATE_REPOSITORY, CREATE_JENKINS_JOB, RUN_JENKINS_JOB, STORE_BUILD_RESULTS, COMPLETING_BUILD;
     }
 
     /**
@@ -29,5 +31,13 @@ public class TaskStatus {
 
     public Operation getOperation() {
         return operation;
+    }
+
+    public boolean isCompleted() {
+        return 100 == percentageDone;
+    }
+
+    public boolean isOperationCompleted(Operation operation) {
+        return operation.equals(this.operation) && isCompleted();
     }
 }

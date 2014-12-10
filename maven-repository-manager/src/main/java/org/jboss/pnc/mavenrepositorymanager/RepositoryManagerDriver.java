@@ -1,23 +1,24 @@
 package org.jboss.pnc.mavenrepositorymanager;
 
 import org.jboss.pnc.common.Configuration;
-import org.jboss.pnc.model.BuildCollection;
-import org.jboss.pnc.model.ProductVersion;
-import org.jboss.pnc.model.ProjectBuildConfiguration;
-import org.jboss.pnc.model.ProjectBuildResult;
-import org.jboss.pnc.model.RepositoryType;
+import org.jboss.pnc.model.*;
 import org.jboss.pnc.spi.repositorymanager.RepositoryConfiguration;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManager;
-import org.jboss.pnc.spi.repositorymanager.RepositoryManagerException;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import java.util.Properties;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 
 /**
  * Implementation of {@link RepositoryManager} that manages an <a href="https://github.com/jdcasey/aprox">AProx</a> instance to
  * support repositories for Maven-ish builds.
- * 
+ *
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-11-25.
  */
 @ApplicationScoped
@@ -32,10 +33,15 @@ public class RepositoryManagerDriver implements RepositoryManager {
     @Inject
     Configuration configuration;
 
-    protected RepositoryManagerDriver() {
+    ExecutorService executor;
+
+    public RepositoryManagerDriver() {
+        BlockingQueue<Runnable> workQueue = new LinkedBlockingQueue<>();
+        executor = new ThreadPoolExecutor(4, 4, 1, TimeUnit.HOURS, workQueue);//TODO configurable
     }
 
     public RepositoryManagerDriver(Configuration configuration) {
+        this();
         this.configuration = configuration;
     }
 
@@ -55,27 +61,29 @@ public class RepositoryManagerDriver implements RepositoryManager {
      * this back via a {@link MavenRepositoryConfiguration} instance.
      */
     @Override
-    public RepositoryConfiguration createRepository(ProjectBuildConfiguration projectBuildConfiguration,
-            BuildCollection buildCollection) throws RepositoryManagerException {
+    public void createRepository(ProjectBuildConfiguration projectBuildConfiguration,
+            BuildCollection buildCollection,
+            Consumer<RepositoryConfiguration> onComplete, Consumer<Exception> onError) {
         // TODO Better way to generate id.
 
-        ProductVersion pv = buildCollection.getProductVersion();
+        try {
+            Runnable command = () -> {
+                ProductVersion pv = buildCollection.getProductVersion();
+        
+                String id = String.format(REPO_ID_FORMAT, pv.getProduct().getName(), pv.getVersion(),
+                        safeUrlPart(projectBuildConfiguration.getProject().getName()), System.currentTimeMillis());
+        
+                Properties properties = configuration.getModuleConfig(MAVEN_REPOSITORY_CONFIG_SECTION);
+                String baseUrl = properties.getProperty(BASE_URL_PROPERTY);
+        
+                String url = buildUrl(baseUrl, "api", "group", id);
 
-        String id = String.format(REPO_ID_FORMAT, safeUrlPart(pv.getProduct().getName()), pv.getVersion(),
-                safeUrlPart(projectBuildConfiguration.getProject().getName()), System.currentTimeMillis());
-
-        Properties properties = configuration.getModuleConfig(MAVEN_REPOSITORY_CONFIG_SECTION);
-        String baseUrl = properties.getProperty(BASE_URL_PROPERTY);
-
-        String url;
-//        try {
-            url = buildUrl(baseUrl, "api", "group", id);
-//        } catch (MalformedURLException e) {
-//            throw new RepositoryManagerException("Cannot format Maven repository URL. Base URL was: '%s'. Reason: %s", e,
-//                    baseUrl, e.getMessage());
-//        }
-
-        return new MavenRepositoryConfiguration(id, new MavenRepositoryConnectionInfo(url));
+                onComplete.accept(new MavenRepositoryConfiguration(id, new MavenRepositoryConnectionInfo(url)));
+            };
+            executor.execute(command);
+        } catch (Exception e) {
+            onError.accept(e);
+        }
     }
 
     private String buildUrl(String baseUrl, String api, String group, String id) {

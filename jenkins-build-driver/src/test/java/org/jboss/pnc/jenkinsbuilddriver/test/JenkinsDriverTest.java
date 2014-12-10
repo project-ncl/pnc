@@ -4,6 +4,8 @@ import com.offbytwo.jenkins.JenkinsServer;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.pnc.common.Configuration;
+import org.jboss.pnc.common.Resources;
+import org.jboss.pnc.common.util.BooleanWrapper;
 import org.jboss.pnc.jenkinsbuilddriver.JenkinsBuildDriver;
 import org.jboss.pnc.model.Project;
 import org.jboss.pnc.model.ProjectBuildConfiguration;
@@ -14,11 +16,14 @@ import org.jboss.pnc.spi.repositorymanager.RepositoryConnectionInfo;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.asset.EmptyAsset;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import javax.inject.Inject;
 import java.util.Map;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 /**
@@ -37,6 +42,7 @@ public class JenkinsDriverTest {
                 .addAsResource("jenkins-job-template.xml")
                 .addPackages(true, org.apache.http.client.HttpResponseException.class.getPackage())
                 .addClass(Configuration.class)
+                .addClass(Resources.class)
                 .addClass(JenkinsBuildDriver.class);
         System.out.println(jar.toString(true));
         return jar;
@@ -45,16 +51,15 @@ public class JenkinsDriverTest {
     @Inject
     JenkinsBuildDriver jenkinsBuildDriver;
 
-    //TODO disable/enable by maven profile
     @Test
     /** disabled by default you need to configure pnc-config.ini in test/resources */
     public void startJenkinsJobTestCase() throws Exception {
 
         ProjectBuildConfiguration pbc = new ProjectBuildConfiguration();
         pbc.setScmUrl("https://github.com/project-ncl/pnc.git");
-        pbc.setBuildScript("mvn clean install");
+        pbc.setBuildScript("mvn clean install -Dmaven.test.skip");
         Project project = new Project();
-        project.setName("PNC-executed-from-test");
+        project.setName("PNC-executed-from-jenkins-driver-test");
         pbc.setProject(project);
 
         Consumer<TaskStatus> updateStatus = (ts) -> {};
@@ -95,8 +100,23 @@ public class JenkinsDriverTest {
             }
         };
 
+        final Semaphore mutex = new Semaphore(1);
+        BooleanWrapper completed = new BooleanWrapper(false);
 
-        jenkinsBuildDriver.startProjectBuild(pbc, repositoryConfiguration, updateStatus);
+        Consumer<String> onComplete = (id) -> {
+            completed.set(true);
+            mutex.release();
+        };
+        Consumer<Exception> onError = (e) -> {
+            e.printStackTrace();
+        };
+        mutex.acquire();
+        jenkinsBuildDriver.startProjectBuild(pbc, repositoryConfiguration, onComplete, onError);
 
+        mutex.tryAcquire(30, TimeUnit.SECONDS); //wait for callback to release
+        Assert.assertTrue("There was no complete callback.", completed.get());
+    }
+
+    class BooleanWrap {
     }
 }
