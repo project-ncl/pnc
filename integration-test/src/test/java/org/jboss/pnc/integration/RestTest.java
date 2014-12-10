@@ -12,11 +12,14 @@ import org.slf4j.LoggerFactory;
 
 import java.lang.invoke.MethodHandles;
 
+import static org.jboss.pnc.integration.env.IntegrationTestEnv.getHttpPort;
+
 import static com.jayway.restassured.RestAssured.get;
 import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.path.json.JsonPath.from;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.containsString;
+
 
 @RunWith(Arquillian.class)
 public class RestTest {
@@ -35,7 +38,8 @@ public class RestTest {
     @Test
     public void shouldReturnListOfConfigurations() {
         //given
-        String allConfigurations = get("/pnc-web/rest/configuration").asString();
+        String allConfigurations = given()
+                .port(getHttpPort()).get("/pnc-web/rest/configuration").asString();
 
         //when
         Integer notNullId = from(allConfigurations).get("[0].id");
@@ -46,9 +50,11 @@ public class RestTest {
 
     @Test
     public void shouldReturnSpecificConfiguration() {
-        Integer notNullId = from(get("/pnc-web/rest/configuration").asString()).get("[0].id");
+        Integer notNullId = from(given()
+                .port(getHttpPort()).get("/pnc-web/rest/configuration").asString()).get("[0].id");
 
         given().
+        port(getHttpPort()).
         when().
             get("/pnc-web/rest/configuration/" + notNullId).
         then().

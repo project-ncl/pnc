@@ -21,6 +21,8 @@
         <arquillian.container.groupId>org.wildfly</arquillian.container.groupId>
         <arquillian.container.artifactId>wildfly-arquillian-container-managed</arquillian.container.artifactId>
         <arquillian.container.version>8.2.0.Final</arquillian.container.version>
+        <jboss.port.offset>0</jboss.port.offset>
+        <default.management.port>9990</default.management.port>
     </properties>
 
 
@@ -84,6 +86,39 @@
                 <filtering>true</filtering>
             </testResource>
         </testResources>
+       <plugins>
+	       <plugin>
+		 <groupId>org.codehaus.gmavenplus</groupId>
+		 <artifactId>gmavenplus-plugin</artifactId>
+		 <version>1.2</version>
+		 <executions>
+		   <execution>
+		     <id>calculate-jboss-port-offset</id>
+		     <goals>
+		       <goal>execute</goal>
+		     </goals>
+		     <phase>validate</phase>
+		     <configuration>
+		       <scripts>
+			 <script>
+			   offset = Integer.valueOf(System.getProperty("jboss.port.offset", "0"))
+			   manPort = Integer.valueOf(project.properties["default.management.port"])
+			   project.properties['jboss.management.port'] = "${manPort + offset}".trim()
+			 </script>
+		       </scripts>
+		     </configuration>
+		   </execution>
+		 </executions>
+		 <dependencies>
+		   <dependency>
+		     <groupId>org.codehaus.groovy</groupId>
+		     <artifactId>groovy-all</artifactId>
+		     <version>2.3.7</version>
+		     <scope>runtime</scope>
+		   </dependency>
+		 </dependencies>
+	       </plugin>
+       </plugins>
     </build>
 
 
@@ -140,6 +175,7 @@
                     <arquillian.container.groupId>org.jboss.as</arquillian.container.groupId>
                     <arquillian.container.artifactId>jboss-as-arquillian-container-managed</arquillian.container.artifactId>
 		    <arquillian.container.version>${version.jboss.as}</arquillian.container.version>
+                    <default.management.port>9999</default.management.port>
 		</properties>
 	        <build>
                   <plugins>
