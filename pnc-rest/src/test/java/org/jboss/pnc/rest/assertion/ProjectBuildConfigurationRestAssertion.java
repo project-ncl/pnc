@@ -26,4 +26,11 @@ public class ProjectBuildConfigurationRestAssertion extends AbstractAssert<Proje
         }
         return this;
     }
+
+    public ProjectBuildConfigurationRestAssertion hasIdentifier(String identifier) {
+        if(!actual.getIdentifier().equals(identifier)) {
+            failWithMessage("Expected identifier %s but was %s", actual.getIdentifier(), identifier);
+        }
+        return this;
+    }
 }
