@@ -1,12 +1,62 @@
-<!-- Plain HTML page that kicks us into the app -->
-
+<!DOCTYPE html>
+<!--[if IE 8]><html class="ie8"><![endif]-->
+<!--[if IE 9]><html class="ie9"><![endif]-->
+<!--[if gt IE 9]><!-->
 <html>
-<head>
-</head>
-<body>
-<h2>Hi, welcome to one click build orchestrator.</h2>
-<form method="post" action="rest/configuration/3/build">
-<h3>Click <a href="#" onclick="document.forms[0].submit();return false;"><strong>the link</strong></a> to rebuild the <a href="http://en.wikipedia.org/wiki/Milky_Way">project</a>.</h3>
-</form>
-</body>
+<!--<![endif]-->
+  <head>
+    <title>Project Newcastle</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="lib/patternfly/dist/img/favicon.ico">
+    <link rel="apple-touch-icon-precomposed" sizes="144x144" href="lib/patternfly/dist/img/apple-touch-icon-144-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="114x114" href="lib/patternfly/dist/img/apple-touch-icon-114-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="72x72" href="lib/patternfly/dist/img/apple-touch-icon-72-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" href="lib/patternfly/dist/img/apple-touch-icon-57-precomposed.png">
+    <link href="lib/patternfly/dist/css/patternfly.css" rel="stylesheet" media="screen, print">
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+    <script src="lib/patternfly/components/html5shiv/dist/html5shiv.min.js"></script>
+    <script src="lib/patternfly/components/respond/dest/respond.min.js"></script>
+    <![endif]-->
+    <!-- IE8 requires jQuery and Bootstrap JS to load in head to prevent rendering bugs -->
+    <!-- IE8 requires jQuery v1.x -->
+    <script src="//code.jquery.com/jquery-1.10.2.min.js"></script>
+    <script src="lib/patternfly/components/bootstrap/dist/js/bootstrap.min.js"></script>
+    <script src="lib/patternfly/components/datatables/media/js/jquery.dataTables.js"></script>
+    <script src="lib/patternfly/dist/js/patternfly.min.js"></script>
+    <script src="scripts/pnc-rest-api-url.js"></script>
+    <script src="scripts/pnc-products.js"></script>
+  </head>
+  <body>
+    <nav class="navbar navbar-default navbar-pf" role="navigation">
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse-1">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="/">NCL Builder</a>
+      </div>
+      <div class="collapse navbar-collapse navbar-collapse-1">
+      </div>
+    </nav>
+    <div class="container-fluid">
+      <div class="row">
+        <div id="content" class="col-md-12">
+          <h1>Products</h1>
+          <table id="products" class="datatable table table-striped table-bordered">
+            <thead>
+              <tr>
+                <th>id</th>
+                <th>Identifier</th>
+                <th>Project Name</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+          </table>
+        </div><!-- /col -->
+      </div><!-- /row -->
+    </div><!-- /container -->
+  </body>
 </html>
