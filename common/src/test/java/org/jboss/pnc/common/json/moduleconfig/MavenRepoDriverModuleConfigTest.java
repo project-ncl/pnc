@@ -1,10 +1,11 @@
-package org.jboss.pnc.common.json.module;
+package org.jboss.pnc.common.json.moduleconfig;
 
 import java.io.IOException;
 
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.ConfigurationParseException;
-import org.jboss.pnc.common.json.module.JenkinsBuildDriverModuleConfig;
+import org.jboss.pnc.common.json.moduleconfig.JenkinsBuildDriverModuleConfig;
+import org.jboss.pnc.common.json.moduleconfig.MavenRepoDriverModuleConfig;
 import org.junit.Assert;
 import org.junit.Test;
 

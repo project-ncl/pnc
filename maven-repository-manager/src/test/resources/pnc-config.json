@@ -1,0 +1,9 @@
+{
+"@class":"ModuleConfigJson","name":"pnc-config",
+        "configs":[
+          {
+            "@module-config":"maven-repo-driver",
+            "baseUrl":"http://localhost/"
+          }
+        ]
+}
