@@ -1,5 +1,9 @@
 package org.jboss.pnc.rest.mapping;
 
+import javax.validation.constraints.NotNull;
+import javax.xml.bind.annotation.XmlRootElement;
+
+@XmlRootElement
 public class ProjectBuildConfigurationRest {
 
     private Integer id;
@@ -7,6 +11,9 @@ public class ProjectBuildConfigurationRest {
     private String identifier;
 
     private String projectName;
+
+    @NotNull
+    private Integer projectId;
 
     public Integer getId() {
         return id;
@@ -30,5 +37,13 @@ public class ProjectBuildConfigurationRest {
 
     public void setProjectName(String projectName) {
         this.projectName = projectName;
+    }
+
+    public Integer getProjectId() {
+        return projectId;
+    }
+
+    public void setProjectId(Integer projectId) {
+        this.projectId = projectId;
     }
 }

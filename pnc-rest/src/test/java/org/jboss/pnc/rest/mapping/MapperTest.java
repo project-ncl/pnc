@@ -42,4 +42,29 @@ public class MapperTest {
         assertThat(mappedObject).isNull();
     }
 
+    @Test
+    public void shouldReplaceValuesInDestinationObject() throws Exception {
+        //given 
+        Mapper mapper = new Mapper();
+        
+        ProjectBuilder projectBuilder = ProjectBuilder.newBuilder();
+        projectBuilder.name("test");
+
+        ProjectBuildConfigurationBuilder projectBuildConfigurationBuilder = ProjectBuildConfigurationBuilder.newBuilder();
+
+        projectBuildConfigurationBuilder.id(1);
+        ProjectBuildConfiguration destinationObject = projectBuildConfigurationBuilder.build();
+
+        projectBuildConfigurationBuilder.id(null).identifier("test").project(projectBuilder.build());
+        ProjectBuildConfiguration sourceObject = projectBuildConfigurationBuilder.build();
+
+        //when
+        ProjectBuildConfiguration mappedObject = mapper.mapTo(sourceObject, destinationObject);
+
+        //then
+        assertThat(mappedObject.getId()).isEqualTo(1);
+        assertThat(mappedObject.getIdentifier()).isEqualTo("test");
+        assertThat(mappedObject.getProject().getName()).isEqualTo("test");
+    }
+
 }

@@ -15,7 +15,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 
-public class BuildTriggerProviderTest {
+public class BuildConfigurationProviderTest {
 
     @Test
     public void shouldGetAllAvailableBuildConfigurations() throws Exception {
@@ -29,10 +29,10 @@ public class BuildTriggerProviderTest {
         ProjectBuildConfigurationRepository repository = mock(ProjectBuildConfigurationRepository.class);
         doReturn(Arrays.asList(exampleConfiguration)).when(repository).findAll();
 
-        BuildTriggerProvider buildTriggerProvider = new BuildTriggerProvider(repository, new Mapper());
+        BuildConfigurationProvider buildConfigurationProvider = new BuildConfigurationProvider(repository, null, new Mapper());
 
         //when
-        List<ProjectBuildConfigurationRest> buildConfigurations =  buildTriggerProvider.getAvailableBuildConfigurations();
+        List<ProjectBuildConfigurationRest> buildConfigurations =  buildConfigurationProvider.getAvailableBuildConfigurations();
 
         //then
         assertThat(buildConfigurations).hasSize(1);
@@ -51,10 +51,10 @@ public class BuildTriggerProviderTest {
         ProjectBuildConfigurationRepository repository = mock(ProjectBuildConfigurationRepository.class);
         doReturn(exampleConfiguration).when(repository).findOne(6);
 
-        BuildTriggerProvider buildTriggerProvider = new BuildTriggerProvider(repository, new Mapper());
+        BuildConfigurationProvider buildConfigurationProvider = new BuildConfigurationProvider(repository, null, new Mapper());
 
         //when
-        ProjectBuildConfigurationRest returnedConfiguration =  buildTriggerProvider.getSpecificConfiguration(6);
+        ProjectBuildConfigurationRest returnedConfiguration =  buildConfigurationProvider.getSpecificConfiguration(6);
 
         //then
         ProjectBuildConfigurationRestAssertion.assertThat(returnedConfiguration).hasId(6).hasProjectName("project");
@@ -63,10 +63,10 @@ public class BuildTriggerProviderTest {
     @Test(expected = IllegalArgumentException.class)
     public void shouldThrowExceptionOnNull() throws Exception {
         //given
-        BuildTriggerProvider buildTriggerProvider = new BuildTriggerProvider(null, null);
+        BuildConfigurationProvider buildConfigurationProvider = new BuildConfigurationProvider(null, null, null);
 
         //when
-        buildTriggerProvider.getSpecificConfiguration(null);
+        buildConfigurationProvider.getSpecificConfiguration(null);
     }
 
     @Test
@@ -75,10 +75,10 @@ public class BuildTriggerProviderTest {
         ProjectBuildConfigurationRepository repository = mock(ProjectBuildConfigurationRepository.class);
         doReturn(null).when(repository).findOne(6);
 
-        BuildTriggerProvider buildTriggerProvider = new BuildTriggerProvider(repository, new Mapper());
+        BuildConfigurationProvider buildConfigurationProvider = new BuildConfigurationProvider(repository, null, new Mapper());
 
         //when
-        ProjectBuildConfigurationRest returnedConfiguration =  buildTriggerProvider.getSpecificConfiguration(6);
+        ProjectBuildConfigurationRest returnedConfiguration =  buildConfigurationProvider.getSpecificConfiguration(6);
 
         //then
         assertThat(returnedConfiguration).isNull();
