@@ -1,7 +1,9 @@
 package org.jboss.pnc.core.builder;
 
+import org.jboss.pnc.core.builder.operationHandlers.ChainBuilder;
 import org.jboss.pnc.core.builder.operationHandlers.CompleteBuildHandler;
 import org.jboss.pnc.core.builder.operationHandlers.ConfigureRepositoryHandler;
+import org.jboss.pnc.core.builder.operationHandlers.OperationHandler;
 import org.jboss.pnc.core.builder.operationHandlers.StartBuildHandler;
 
 import javax.inject.Inject;
@@ -11,17 +13,23 @@ import javax.inject.Inject;
  */
 public class BuildConsumer implements Runnable {
 
-    @Inject
-    BuildQueue buildQueue;
+    private final BuildQueue buildQueue;
+    OperationHandler rootHandler;
 
     @Inject
-    ConfigureRepositoryHandler configureRepositoryHandler;
+    BuildConsumer(BuildQueue buildQueue,
+                  ConfigureRepositoryHandler configureRepositoryHandler,
+                  StartBuildHandler startBuildHandler,
+                  CompleteBuildHandler completeBuildHandler) {
 
-    @Inject
-    StartBuildHandler startBuildHandler;
+        this.buildQueue = buildQueue;
 
-    @Inject
-    CompleteBuildHandler completeBuildHandler;
+        rootHandler = new ChainBuilder()
+            .addNext(configureRepositoryHandler)
+            .addNext(startBuildHandler)
+            .addNext(completeBuildHandler)
+            .build();
+    }
 
     @Override
     public void run() {
@@ -37,9 +45,6 @@ public class BuildConsumer implements Runnable {
     }
 
     private void runBuildTask(BuildTask buildTask) {
-        configureRepositoryHandler.next(startBuildHandler);
-        startBuildHandler.next(completeBuildHandler);
-
-        configureRepositoryHandler.handle(buildTask);
+        rootHandler.handle(buildTask);
     }
 }
