@@ -3,8 +3,8 @@ package org.jboss.pnc.common.json;
 import java.io.IOException;
 import java.net.URL;
 
-import org.jboss.pnc.common.json.module.JenkinsBuildDriverModuleConfig;
-import org.jboss.pnc.common.json.module.MavenRepoDriverModuleConfig;
+import org.jboss.pnc.common.json.moduleconfig.JenkinsBuildDriverModuleConfig;
+import org.jboss.pnc.common.json.moduleconfig.MavenRepoDriverModuleConfig;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -14,7 +14,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class ModuleConfigJsonTest {
 
     @Test
-    @Ignore
     public void serialize() {
         try {
             ModuleConfigJson moduleConfigJson =  new ModuleConfigJson("pnc-config");

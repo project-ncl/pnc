@@ -7,7 +7,7 @@ import org.jboss.pnc.model.ProjectBuildConfiguration;
 import org.jboss.pnc.model.ProjectBuildResult;
 import org.jboss.pnc.model.RepositoryType;
 import org.jboss.pnc.common.json.ConfigurationParseException;
-import org.jboss.pnc.common.json.module.MavenRepoDriverModuleConfig;
+import org.jboss.pnc.common.json.moduleconfig.MavenRepoDriverModuleConfig;
 import org.jboss.pnc.model.*;
 import org.jboss.pnc.spi.repositorymanager.RepositoryConfiguration;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManager;

@@ -4,7 +4,7 @@ import com.offbytwo.jenkins.JenkinsServer;
 
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.ConfigurationParseException;
-import org.jboss.pnc.common.json.module.JenkinsBuildDriverModuleConfig;
+import org.jboss.pnc.common.json.moduleconfig.JenkinsBuildDriverModuleConfig;
 import org.jboss.pnc.model.BuildType;
 import org.jboss.pnc.model.ProjectBuildConfiguration;
 import org.jboss.pnc.model.TaskStatus;

@@ -1,7 +1,7 @@
 package org.jboss.pnc.common.json;
 
-import org.jboss.pnc.common.json.module.JenkinsBuildDriverModuleConfig;
-import org.jboss.pnc.common.json.module.MavenRepoDriverModuleConfig;
+import org.jboss.pnc.common.json.moduleconfig.JenkinsBuildDriverModuleConfig;
+import org.jboss.pnc.common.json.moduleconfig.MavenRepoDriverModuleConfig;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonSubTypes.Type;
