@@ -4,6 +4,7 @@ import org.jboss.pnc.common.util.IoUtils;
 import org.jboss.pnc.common.util.StringUtils;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.context.Dependent;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -19,7 +20,7 @@ import org.jboss.pnc.common.json.ConfigurationParseException;
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-12-02.
  */
-@ApplicationScoped
+@Dependent
 public class Configuration<T extends AbstractModuleConfig> {
 
     public static final String CONFIG_SYSPROP = "pnc-config-file";
