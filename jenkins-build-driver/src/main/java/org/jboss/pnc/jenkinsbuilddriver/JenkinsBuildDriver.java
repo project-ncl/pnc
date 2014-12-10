@@ -1,7 +1,10 @@
 package org.jboss.pnc.jenkinsbuilddriver;
 
 import com.offbytwo.jenkins.JenkinsServer;
+
 import org.jboss.pnc.common.Configuration;
+import org.jboss.pnc.common.json.ConfigurationParseException;
+import org.jboss.pnc.common.json.moduleconfig.JenkinsBuildDriverModuleConfig;
 import org.jboss.pnc.model.BuildType;
 import org.jboss.pnc.model.ProjectBuildConfiguration;
 import org.jboss.pnc.model.TaskStatus;
@@ -11,6 +14,7 @@ import org.jboss.pnc.spi.repositorymanager.RepositoryConfiguration;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Properties;
@@ -30,7 +34,7 @@ public class JenkinsBuildDriver implements BuildDriver {
     private JenkinsServer jenkinsServer;
 
     @Inject
-    Configuration configuration;
+    Configuration<JenkinsBuildDriverModuleConfig> configuration;
 
     private JenkinsServer getJenkinsServer() throws BuildDriverException {
         if (jenkinsServer == null) {
@@ -41,11 +45,12 @@ public class JenkinsBuildDriver implements BuildDriver {
 
     private void initJenkinsServer() throws BuildDriverException {
         try {
-            Properties properties = configuration.getModuleConfig(getDriverId());
+            JenkinsBuildDriverModuleConfig config = 
+                    configuration.getModuleConfig(JenkinsBuildDriverModuleConfig.class);
 
-            String url = properties.getProperty("url");
-            String username = properties.getProperty("username");
-            String password = properties.getProperty("password");
+            String url = config.getUrl().toString();
+            String username = config.getUsername();
+            String password = config.getPassword();
 
             if (url == null || username == null || password == null) {
                 throw new BuildDriverException("Missing config to instantiate " + getDriverId() + ".");
@@ -54,6 +59,8 @@ public class JenkinsBuildDriver implements BuildDriver {
             jenkinsServer = new JenkinsServer(new URI(url), username, password);
         } catch (URISyntaxException e) {
             throw new BuildDriverException("Cannot instantiate " + getDriverId() + ".", e);
+        } catch (ConfigurationParseException e) {
+            e.printStackTrace();
         }
     }
 
