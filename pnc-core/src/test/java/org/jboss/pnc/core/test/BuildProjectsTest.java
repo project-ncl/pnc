@@ -12,10 +12,6 @@ import org.jboss.pnc.core.builder.operationHandlers.OperationHandler;
 import org.jboss.pnc.core.test.mock.BuildDriverMock;
 import org.jboss.pnc.core.test.mock.DatastoreMock;
 import org.jboss.pnc.model.BuildCollection;
-import org.jboss.pnc.model.Environment;
-import org.jboss.pnc.model.Product;
-import org.jboss.pnc.model.ProductVersion;
-import org.jboss.pnc.model.Project;
 import org.jboss.pnc.model.ProjectBuildConfiguration;
 import org.jboss.pnc.model.TaskStatus;
 import org.jboss.pnc.model.builder.EnvironmentBuilder;
@@ -23,7 +19,9 @@ import org.jboss.pnc.spi.environment.EnvironmentDriverProvider;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.asset.EmptyAsset;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
+import org.junit.After;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -54,7 +52,6 @@ public class BuildProjectsTest {
                 .addClass(EnvironmentDriverProvider.class)
                 .addPackage(OperationHandler.class.getPackage())
                 .addPackage(ProjectBuilder.class.getPackage())
-//                .addPackage(RepositoryManagerDriver.class.getPackage())
                 .addPackage(BuildDriverMock.class.getPackage())
                 .addAsManifestResource(EmptyAsset.INSTANCE, "beans.xml")
                 .addAsResource("META-INF/logging.properties");
@@ -74,102 +71,42 @@ public class BuildProjectsTest {
     @Inject
     BuildConsumer buildConsumer;
 
-    @Test
-    public void buildProjectTestCase() throws Exception {
+    Thread consumer;
 
+    @Before
+    public void startConsumer() {
         //start build consumer
-        Thread consumer = new Thread(buildConsumer, "Build-consumer");
+        consumer = new Thread(buildConsumer, "Build-consumer");
         consumer.start();
+    }
 
-        Environment javaEnvironment = EnvironmentBuilder.defaultEnvironment().build();
-        Environment nativeEnvironment = EnvironmentBuilder.defaultEnvironment().withNative().build();
+    @After
+    public void stopConsumer() {
+        consumer.interrupt();
+    }
 
-//        Project p1 = new Project();
-//        p1.setId(1);
-//        p1.setName("p1-native");
-//        ProjectBuildConfiguration projectBuildConfigurationA1 = new ProjectBuildConfiguration();
-//        projectBuildConfigurationA1.setEnvironment(nativeEnvironment);
-//        projectBuildConfigurationA1.setProject(p1);
-//        p1.addProjectBuildConfiguration(projectBuildConfigurationA1);
+    @Test
+    public void buildSingleProjectTestCase() throws Exception {
 
-        Project p2 = new Project();
-        p2.setId(2);
-        p2.setName("p2-java");
-        ProjectBuildConfiguration projectBuildConfigurationB1 = new ProjectBuildConfiguration();
-        projectBuildConfigurationB1.setEnvironment(javaEnvironment);
-        projectBuildConfigurationB1.setProject(p2);
-        projectBuildConfigurationB1.addDependency(projectBuildConfigurationB1);
-        p2.addProjectBuildConfiguration(projectBuildConfigurationB1);
 
-        Project p3 = new Project();
-        p3.setId(3);
-        p3.setName("p3-java");
-        ProjectBuildConfiguration projectBuildConfigurationC1 = new ProjectBuildConfiguration();
-        projectBuildConfigurationC1.setEnvironment(javaEnvironment);
-        projectBuildConfigurationC1.setProject(p3);
-        p3.addProjectBuildConfiguration(projectBuildConfigurationC1);
+        BuildCollection buildCollection = new TestBuildCollectionBuilder().build("foo", "Foo desc.", "1.0");
+        TestProjectConfigurationBuilder configurationBuilder = new TestProjectConfigurationBuilder();
 
-        Project p4 = new Project();
-        p4.setId(4);
-        p4.setName("p4-java");
-        ProjectBuildConfiguration projectBuildConfigurationD1 = new ProjectBuildConfiguration();
-        projectBuildConfigurationD1.setEnvironment(javaEnvironment);
-        projectBuildConfigurationD1.setProject(p4);
-        projectBuildConfigurationD1.addDependency(projectBuildConfigurationB1);
-        projectBuildConfigurationD1.addDependency(projectBuildConfigurationC1);
-        p4.addProjectBuildConfiguration(projectBuildConfigurationD1);
-//
-//        Project p5 = new Project();
-//        p5.setId(5);
-//        p5.setName("p5-native");
-//        ProjectBuildConfiguration projectBuildConfigurationE1 = new ProjectBuildConfiguration();
-//        projectBuildConfigurationE1.setEnvironment(nativeEnvironment);
-//        projectBuildConfigurationE1.setProject(p5);
-//        projectBuildConfigurationE1.addDependency(projectBuildConfigurationD1);
-//        p5.addProjectBuildConfiguration(projectBuildConfigurationE1);
-//
-//        Project p6 = new Project();
-//        p6.setId(6);
-//        p6.setName("p6-java");
-//
-//        ProjectBuildConfiguration projectBuildConfigurationF1 = new ProjectBuildConfiguration();
-//        projectBuildConfigurationF1.setEnvironment(javaEnvironment);
-//        projectBuildConfigurationF1.setProject(p6);
-//        p6.addProjectBuildConfiguration(projectBuildConfigurationF1);
-//
-//        HashSet<ProjectBuildConfiguration> projectBuildConfigurations = new HashSet<>(
-//                Arrays.asList(new ProjectBuildConfiguration[] { projectBuildConfigurationA1, projectBuildConfigurationB1,
-//                        projectBuildConfigurationC1, projectBuildConfigurationD1, projectBuildConfigurationE1,
-//                        projectBuildConfigurationF1 }));
-//
-//        log.info("Got projectBuilder: " + projectBuilder);
-//        log.info("Building projectBuildConfigurations: " + projectBuildConfigurations.size());
-
-        Product product = new Product("foo", "foo description");
-        ProductVersion productVersion = new ProductVersion("1.0", product);
-        product.addVersion(productVersion);
-        BuildCollection buildCollection = new BuildCollection();
-        buildCollection.setProductVersion(productVersion);
-        buildCollection.setProductBuildBumber(1);
+//TOdo move this test to datastore test
 //        projectBuilder.buildProjects(projectBuildConfigurations, buildCollection);
 //        assertThat(datastore.getBuildResults()).hasSize(6);
 
+        buildProject(configurationBuilder.build(1, "c1-java"), buildCollection);
 
-        //build single project
-        buildProject(projectBuildConfigurationB1, buildCollection);
+    }
 
-        //build multiple projects in parallel
-        class Config {
-            private final ProjectBuildConfiguration configuration;
-            private final BuildCollection collection;
+    @Test
+    public void buildMultipleProjectsTestCase() throws Exception {
 
-            Config(ProjectBuildConfiguration configuration, BuildCollection collection) {
-                this.configuration = configuration;
-                this.collection = collection;
-            }
-        }
+        BuildCollection buildCollection = new TestBuildCollectionBuilder().build("foo", "Foo desc.", "1.0");
+        TestProjectConfigurationBuilder configurationBuilder = new TestProjectConfigurationBuilder();
 
-        Function<Config, Runnable> createJob = (config) -> {
+        Function<TestBuildConfig, Runnable> createJob = (config) -> {
             Runnable task = () -> {
                 try {
                     buildProject(config.configuration, config.collection);
@@ -181,9 +118,9 @@ public class BuildProjectsTest {
         };
 
         List<Runnable> list = new ArrayList();
-        list.add(createJob.apply(new Config(projectBuildConfigurationB1, buildCollection)));
-        list.add(createJob.apply(new Config(projectBuildConfigurationC1, buildCollection)));
-        list.add(createJob.apply(new Config(projectBuildConfigurationD1, buildCollection)));
+        for (int i = 0; i < 100; i++) { //create 100 project configurations
+            list.add(createJob.apply(new TestBuildConfig(configurationBuilder.build(i, "c" + i + "-java"), buildCollection)));
+        }
 
         Function<Runnable, Thread> runInNewThread = (r) -> {
             Thread t = new Thread(r);
@@ -217,7 +154,7 @@ public class BuildProjectsTest {
             log.finer("Semaphore released, there are " + semaphore.availablePermits() + " free entries.");
         };
         Consumer<Exception> onError = (e) -> {
-            e.printStackTrace();
+            throw new AssertionError(e);
         };
         semaphore.acquire(6); //there should be 6 callbacks
         projectBuilder.buildProject(projectBuildConfigurationB1, buildCollection, onStatusUpdate, onError);
@@ -243,6 +180,16 @@ public class BuildProjectsTest {
                         " receivedBUILD_SCHEDULED: " + receivedBUILD_SCHEDULED +
                         " receivedCOMPLETING_BUILD: " + receivedCOMPLETING_BUILD,
                 receivedCREATE_REPOSITORY && receivedBUILD_SCHEDULED && receivedCOMPLETING_BUILD);
+    }
+
+    class TestBuildConfig {
+        private final ProjectBuildConfiguration configuration;
+        private final BuildCollection collection;
+
+        TestBuildConfig(ProjectBuildConfiguration configuration, BuildCollection collection) {
+            this.configuration = configuration;
+            this.collection = collection;
+        }
     }
 
 }
