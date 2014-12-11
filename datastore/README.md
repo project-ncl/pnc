@@ -62,15 +62,16 @@ exit
 ### Add the PostgreSQL Module to the JBoss server
 
 To complete these prerequisite processes and configure the application server for the `newcastle` PostgreSQL database, complete the following steps:
-1. Create the following directory structure:
+
+1.  Create the following directory structure:
 ```
 mkdir -p $JBOSS_HOME/modules/org/postgresql/main
 ```
-2. Add the PostgreSQL JDBC driver into the directory you created in the previous step:
+2.  Add the PostgreSQL JDBC driver into the directory you created in the previous step:
 ```
 mvn dependency:copy -Dartifact=org.postgresql:postgresql:9.2-1004-jdbc41 -DoutputDirectory=$JBOSS_HOME/modules/org/postgresql/main/
 ```
-3. In the same directory, create a file named `module.xml`. Copy the following contents into the file:
+3.  In the same directory, create a file named `module.xml`. Copy the following contents into the file:
 ```
 <?xml version="1.0" encoding="UTF-8"?>
 <module xmlns="urn:jboss:module:1.0" name="org.postgresql">
