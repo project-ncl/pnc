@@ -32,7 +32,7 @@ public class User implements Serializable {
 
     private String username;
 
-    @OneToMany
+    @OneToMany(mappedBy = "user")
     private List<ProjectBuildResult> projectBuildResults;
 
     /**

@@ -22,6 +22,9 @@ public class BuildCollection implements Serializable {
 
     private Integer productBuildBumber;
 
+    @Enumerated(EnumType.STRING)
+    private ProductMilestone milestone;
+
     @ManyToOne(cascade = CascadeType.ALL)
     private ProductVersion productVersion;
 
@@ -65,6 +68,20 @@ public class BuildCollection implements Serializable {
      */
     public void setProductBuildBumber(Integer productBuildBumber) {
         this.productBuildBumber = productBuildBumber;
+    }
+
+    /**
+     * @return the milestone
+     */
+    public ProductMilestone getMilestone() {
+        return milestone;
+    }
+
+    /**
+     * @param milestone the milestone to set
+     */
+    public void setMilestone(ProductMilestone milestone) {
+        this.milestone = milestone;
     }
 
     /**
