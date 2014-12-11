@@ -1,6 +1,6 @@
 package org.jboss.pnc.rest.configuration;
 
-import org.jboss.pnc.rest.endpoint.AvailableBuildsEndpoint;
+import org.jboss.pnc.rest.endpoint.ProjectConfigurationEndpoint;
 import org.jboss.pnc.rest.endpoint.TriggerBuildEndpoint;
 
 import javax.ws.rs.ApplicationPath;
@@ -19,7 +19,8 @@ public class JaxRsActivator extends Application {
         resources.add(com.wordnik.swagger.jaxrs.listing.ApiListingResourceJSON.class);
         resources.add(com.wordnik.swagger.jaxrs.listing.ResourceListingProvider.class);
         resources.add(TriggerBuildEndpoint.class);
-        resources.add(AvailableBuildsEndpoint.class);
+        resources.add(ProjectConfigurationEndpoint.class);
+        resources.add(IllegalArgumentExceptionMapper.class);
         return resources;
     }
 
