@@ -70,7 +70,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-ear-plugin</artifactId>
-                <version>${version.ear.plugin}</version>
                 <configuration>
                     <version>6</version>
                     <defaultLibBundleDir>lib</defaultLibBundleDir>
