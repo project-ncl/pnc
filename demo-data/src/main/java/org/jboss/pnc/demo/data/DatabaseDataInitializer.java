@@ -120,7 +120,7 @@ public class DatabaseDataInitializer {
              */
 
             Product product = ProductBuilder.newBuilder().name(PNC_PRODUCT_NAME).description("Project Newcastle Product")
-                    .milestone(ProductMilestone.DR).build();
+                    .build();
             ProductVersion productVersion = ProductVersionBuilder.newBuilder().version(PNC_PRODUCT_VERSION).product(product)
                     .build();
 

@@ -62,7 +62,7 @@ public class UserBuilder {
         for (ProjectBuildResult projectBuildResult : projectBuildResults) {
             projectBuildResult.setUser(user);
         }
-        user.setProjectBuildResults(projectBuildResults);
+        user.setProjectBuildResult(projectBuildResults);
 
         return user;
     }

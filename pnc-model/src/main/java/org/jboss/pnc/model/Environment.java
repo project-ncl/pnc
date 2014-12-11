@@ -9,10 +9,13 @@ import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Table;
+
 /**
  * The Class Environment.
  */
 @Entity
+@Table(name = "environment")
 public class Environment implements Serializable {
 
     private static final long serialVersionUID = 8213767399060607637L;
@@ -22,11 +25,11 @@ public class Environment implements Serializable {
     private Integer id;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 50)
+    @Column(nullable = false, length = 50, name = "build_type")
     private BuildType buildType;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 50)
+    @Column(nullable = false, length = 50, name = "operational_system")
     private OperationalSystem operationalSystem;
 
     /**
@@ -102,7 +105,7 @@ public class Environment implements Serializable {
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see java.lang.Object#toString()
      */
     @Override

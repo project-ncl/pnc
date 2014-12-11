@@ -23,7 +23,9 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.Table;
 
 import org.hibernate.annotations.ForeignKey;
 
@@ -36,6 +38,7 @@ import org.hibernate.annotations.ForeignKey;
  *
  */
 @Entity
+@Table(name = "product_version_project")
 public class ProductVersionProject implements Serializable {
 
     private static final long serialVersionUID = 2596901834161647987L;
@@ -44,12 +47,13 @@ public class ProductVersionProject implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    @JoinColumn(name = "product_version_id")
     @ManyToOne
-    @ForeignKey(name = "fk_productversionproject_productversion")
+    @ForeignKey(name = "fk_product_version_project_product_version")
     private ProductVersion productVersion;
 
     @ManyToOne
-    @ForeignKey(name = "fk_productversionproject_project")
+    @ForeignKey(name = "fk_product_version_project_project")
     private Project project;
 
     public ProductVersionProject() {

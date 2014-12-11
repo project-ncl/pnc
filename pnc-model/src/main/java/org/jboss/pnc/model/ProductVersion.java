@@ -29,6 +29,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.Table;
 
 import org.hibernate.annotations.ForeignKey;
 
@@ -39,6 +40,7 @@ import org.hibernate.annotations.ForeignKey;
  *
  */
 @Entity
+@Table(name = "product_version")
 public class ProductVersion implements Serializable {
 
     private static final long serialVersionUID = 6314079319551264379L;
@@ -51,14 +53,15 @@ public class ProductVersion implements Serializable {
     private String version;
 
     @ManyToOne(cascade = CascadeType.ALL)
-    @ForeignKey(name = "fk_productversion_product")
+    @ForeignKey(name = "fk_product_version_product")
     private Product product;
 
+    @Column(name = "product_build_collection")
     @OneToMany(mappedBy = "productVersion", cascade = CascadeType.ALL)
-    private Set<BuildCollection> productBuildCollections;
+    private Set<BuildCollection> productBuildCollection;
 
     public ProductVersion() {
-        productBuildCollections = new HashSet<>();
+        productBuildCollection = new HashSet<>();
     }
 
     /**
@@ -125,17 +128,17 @@ public class ProductVersion implements Serializable {
     }
 
     /**
-     * @return the productBuildCollections
+     * @return the productBuildCollection
      */
-    public Set<BuildCollection> getProductBuildCollections() {
-        return productBuildCollections;
+    public Set<BuildCollection> getProductBuildCollection() {
+        return productBuildCollection;
     }
 
     /**
-     * @param productBuildCollections the productBuildCollections to set
+     * @param productBuildCollection the productBuildCollection to set
      */
-    public void setProductBuildCollections(Set<BuildCollection> productBuildCollections) {
-        this.productBuildCollections = productBuildCollections;
+    public void setProductBuildCollection(Set<BuildCollection> productBuildCollection) {
+        this.productBuildCollection = productBuildCollection;
     }
 
     /**
@@ -144,10 +147,10 @@ public class ProductVersion implements Serializable {
      * @param productBuildCollection
      * @return
      */
-    public Set<BuildCollection> addProductBuildCollection(BuildCollection productBuildCollection) {
-        productBuildCollections.add(productBuildCollection);
+    public Set<BuildCollection> addProductBuildCollection(BuildCollection prodBuildCollection) {
+        productBuildCollection.add(prodBuildCollection);
 
-        return productBuildCollections;
+        return productBuildCollection;
     }
 
     /**
@@ -156,9 +159,9 @@ public class ProductVersion implements Serializable {
      * @param productBuildCollection
      * @return
      */
-    public Set<BuildCollection> removeProductBuildCollection(BuildCollection productBuildCollection) {
-        productBuildCollections.remove(productBuildCollection);
+    public Set<BuildCollection> removeProductBuildCollection(BuildCollection prodBuildCollection) {
+        productBuildCollection.remove(prodBuildCollection);
 
-        return productBuildCollections;
+        return productBuildCollection;
     }
 }

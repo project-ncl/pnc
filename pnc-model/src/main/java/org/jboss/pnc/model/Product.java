@@ -24,18 +24,18 @@ import java.util.Set;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
+import javax.persistence.Table;
 
 /**
  * @author avibelli
  *
  */
 @Entity
+@Table(name = "product")
 public class Product implements Serializable {
 
     private static final long serialVersionUID = -9022966336791211855L;
@@ -49,18 +49,15 @@ public class Product implements Serializable {
 
     private String description;
 
-    @Column(nullable = false, length = 20)
-    @Enumerated(EnumType.STRING)
-    private ProductMilestone milestone;
-
+    @Column(name = "product_version")
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
-    private Set<ProductVersion> productVersions;
+    private Set<ProductVersion> productVersion;
 
     /**
      * Instantiates a new product.
      */
     public Product() {
-        productVersions = new HashSet<>();
+        productVersion = new HashSet<>();
     }
 
     /**
@@ -117,31 +114,17 @@ public class Product implements Serializable {
     }
 
     /**
-     * @return the milestone
+     * @return the productVersion
      */
-    public ProductMilestone getMilestone() {
-        return milestone;
+    public Set<ProductVersion> getProductVersion() {
+        return productVersion;
     }
 
     /**
-     * @param milestone the milestone to set
+     * @param productVersion the productVersion to set
      */
-    public void setMilestone(ProductMilestone milestone) {
-        this.milestone = milestone;
-    }
-
-    /**
-     * @return the productVersions
-     */
-    public Set<ProductVersion> getProductVersions() {
-        return productVersions;
-    }
-
-    /**
-     * @param productVersions the productVersions to set
-     */
-    public void setProductVersions(Set<ProductVersion> productVersions) {
-        this.productVersions = productVersions;
+    public void setProductVersion(Set<ProductVersion> productVersion) {
+        this.productVersion = productVersion;
     }
 
     /**
@@ -151,9 +134,9 @@ public class Product implements Serializable {
      * @return
      */
     public Set<ProductVersion> addVersion(ProductVersion version) {
-        productVersions.add(version);
+        productVersion.add(version);
 
-        return productVersions;
+        return productVersion;
     }
 
 }

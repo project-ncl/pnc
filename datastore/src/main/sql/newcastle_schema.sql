@@ -34,13 +34,13 @@ SET default_with_oids = false;
 
 CREATE TABLE artifact (
     id integer NOT NULL,
+    artifact_status character varying(255) NOT NULL,
     checksum character varying(255),
-    deployurl character varying(255),
+    deploy_url character varying(255),
     filename character varying(100) NOT NULL,
     identifier character varying(255) NOT NULL,
-    repotype character varying(255) NOT NULL,
-    status character varying(255) NOT NULL,
-    projectbuildresult_id integer
+    repository_type character varying(255) NOT NULL,
+    project_build_result_id integer
 );
 
 
@@ -68,23 +68,24 @@ ALTER SEQUENCE artifact_id_seq OWNED BY artifact.id;
 
 
 --
--- Name: buildcollection; Type: TABLE; Schema: public; Owner: newcastle; Tablespace: 
+-- Name: build_collection; Type: TABLE; Schema: public; Owner: newcastle; Tablespace: 
 --
 
-CREATE TABLE buildcollection (
+CREATE TABLE build_collection (
     id integer NOT NULL,
-    productbuildbumber integer NOT NULL,
-    productversion_id integer
+    product_build_number integer NOT NULL,
+    product_milestone character varying(20) NOT NULL,
+    product_version_id integer
 );
 
 
-ALTER TABLE public.buildcollection OWNER TO newcastle;
+ALTER TABLE public.build_collection OWNER TO newcastle;
 
 --
--- Name: buildcollection_id_seq; Type: SEQUENCE; Schema: public; Owner: newcastle
+-- Name: build_collection_id_seq; Type: SEQUENCE; Schema: public; Owner: newcastle
 --
 
-CREATE SEQUENCE buildcollection_id_seq
+CREATE SEQUENCE build_collection_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -92,26 +93,26 @@ CREATE SEQUENCE buildcollection_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.buildcollection_id_seq OWNER TO newcastle;
+ALTER TABLE public.build_collection_id_seq OWNER TO newcastle;
 
 --
--- Name: buildcollection_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: newcastle
+-- Name: build_collection_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: newcastle
 --
 
-ALTER SEQUENCE buildcollection_id_seq OWNED BY buildcollection.id;
+ALTER SEQUENCE build_collection_id_seq OWNED BY build_collection.id;
 
 
 --
--- Name: buildcollection_projectbuildresult; Type: TABLE; Schema: public; Owner: newcastle; Tablespace: 
+-- Name: build_collection_project_build_result; Type: TABLE; Schema: public; Owner: newcastle; Tablespace: 
 --
 
-CREATE TABLE buildcollection_projectbuildresult (
-    buildcollections_id integer NOT NULL,
+CREATE TABLE build_collection_project_build_result (
+    buildcollection_id integer NOT NULL,
     projectbuildresult_id integer NOT NULL
 );
 
 
-ALTER TABLE public.buildcollection_projectbuildresult OWNER TO newcastle;
+ALTER TABLE public.build_collection_project_build_result OWNER TO newcastle;
 
 --
 -- Name: environment; Type: TABLE; Schema: public; Owner: newcastle; Tablespace: 
@@ -119,8 +120,8 @@ ALTER TABLE public.buildcollection_projectbuildresult OWNER TO newcastle;
 
 CREATE TABLE environment (
     id integer NOT NULL,
-    buildtype character varying(50) NOT NULL,
-    operationalsystem character varying(50) NOT NULL
+    build_type character varying(50) NOT NULL,
+    operational_system character varying(50) NOT NULL
 );
 
 
@@ -153,10 +154,10 @@ ALTER SEQUENCE environment_id_seq OWNED BY environment.id;
 
 CREATE TABLE license (
     id integer NOT NULL,
-    fullcontent text NOT NULL,
-    fullname character varying(255) NOT NULL,
-    refurl character varying(255),
-    shortname character varying(255)
+    full_content text NOT NULL,
+    full_name character varying(255) NOT NULL,
+    ref_url character varying(255),
+    short_name character varying(255)
 );
 
 
@@ -190,7 +191,6 @@ ALTER SEQUENCE license_id_seq OWNED BY license.id;
 CREATE TABLE product (
     id integer NOT NULL,
     description character varying(255),
-    milestone character varying(20) NOT NULL,
     name character varying(100) NOT NULL
 );
 
@@ -219,23 +219,23 @@ ALTER SEQUENCE product_id_seq OWNED BY product.id;
 
 
 --
--- Name: productversion; Type: TABLE; Schema: public; Owner: newcastle; Tablespace: 
+-- Name: product_version; Type: TABLE; Schema: public; Owner: newcastle; Tablespace: 
 --
 
-CREATE TABLE productversion (
+CREATE TABLE product_version (
     id integer NOT NULL,
     version character varying(50) NOT NULL,
     product_id integer
 );
 
 
-ALTER TABLE public.productversion OWNER TO newcastle;
+ALTER TABLE public.product_version OWNER TO newcastle;
 
 --
--- Name: productversion_id_seq; Type: SEQUENCE; Schema: public; Owner: newcastle
+-- Name: product_version_id_seq; Type: SEQUENCE; Schema: public; Owner: newcastle
 --
 
-CREATE SEQUENCE productversion_id_seq
+CREATE SEQUENCE product_version_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -243,33 +243,33 @@ CREATE SEQUENCE productversion_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.productversion_id_seq OWNER TO newcastle;
+ALTER TABLE public.product_version_id_seq OWNER TO newcastle;
 
 --
--- Name: productversion_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: newcastle
+-- Name: product_version_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: newcastle
 --
 
-ALTER SEQUENCE productversion_id_seq OWNED BY productversion.id;
+ALTER SEQUENCE product_version_id_seq OWNED BY product_version.id;
 
 
 --
--- Name: productversionproject; Type: TABLE; Schema: public; Owner: newcastle; Tablespace: 
+-- Name: product_version_project; Type: TABLE; Schema: public; Owner: newcastle; Tablespace: 
 --
 
-CREATE TABLE productversionproject (
+CREATE TABLE product_version_project (
     id integer NOT NULL,
-    productversion_id integer,
+    product_version_id integer,
     project_id integer
 );
 
 
-ALTER TABLE public.productversionproject OWNER TO newcastle;
+ALTER TABLE public.product_version_project OWNER TO newcastle;
 
 --
--- Name: productversionproject_id_seq; Type: SEQUENCE; Schema: public; Owner: newcastle
+-- Name: product_version_project_id_seq; Type: SEQUENCE; Schema: public; Owner: newcastle
 --
 
-CREATE SEQUENCE productversionproject_id_seq
+CREATE SEQUENCE product_version_project_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -277,13 +277,13 @@ CREATE SEQUENCE productversionproject_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.productversionproject_id_seq OWNER TO newcastle;
+ALTER TABLE public.product_version_project_id_seq OWNER TO newcastle;
 
 --
--- Name: productversionproject_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: newcastle
+-- Name: product_version_project_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: newcastle
 --
 
-ALTER SEQUENCE productversionproject_id_seq OWNED BY productversionproject.id;
+ALTER SEQUENCE product_version_project_id_seq OWNED BY product_version_project.id;
 
 
 --
@@ -293,14 +293,100 @@ ALTER SEQUENCE productversionproject_id_seq OWNED BY productversionproject.id;
 CREATE TABLE project (
     id integer NOT NULL,
     description character varying(255),
-    issuetrackerurl character varying(255),
+    issue_tracker_url character varying(255),
     name character varying(100) NOT NULL,
-    projecturl character varying(255),
+    project_url character varying(255),
     license_id integer
 );
 
 
 ALTER TABLE public.project OWNER TO newcastle;
+
+--
+-- Name: project_build_configuration; Type: TABLE; Schema: public; Owner: newcastle; Tablespace: 
+--
+
+CREATE TABLE project_build_configuration (
+    id integer NOT NULL,
+    build_script character varying(255) NOT NULL,
+    creation_time timestamp without time zone,
+    identifier character varying(255) NOT NULL,
+    last_modification_time timestamp without time zone,
+    patches_url character varying(255),
+    repository character varying(255),
+    scm_url character varying(255) NOT NULL,
+    environment_id integer,
+    parent_id integer,
+    product_version_id integer,
+    project_id integer
+);
+
+
+ALTER TABLE public.project_build_configuration OWNER TO newcastle;
+
+--
+-- Name: project_build_configuration_id_seq; Type: SEQUENCE; Schema: public; Owner: newcastle
+--
+
+CREATE SEQUENCE project_build_configuration_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.project_build_configuration_id_seq OWNER TO newcastle;
+
+--
+-- Name: project_build_configuration_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: newcastle
+--
+
+ALTER SEQUENCE project_build_configuration_id_seq OWNED BY project_build_configuration.id;
+
+
+--
+-- Name: project_build_result; Type: TABLE; Schema: public; Owner: newcastle; Tablespace: 
+--
+
+CREATE TABLE project_build_result (
+    id integer NOT NULL,
+    build_driver_id character varying(255),
+    build_log text,
+    build_script character varying(255),
+    build_status character varying(255),
+    end_time timestamp without time zone,
+    patches_url character varying(255),
+    source_url character varying(255),
+    start_time timestamp without time zone,
+    systemimage bytea,
+    project_build_configuration_id integer,
+    user_id integer
+);
+
+
+ALTER TABLE public.project_build_result OWNER TO newcastle;
+
+--
+-- Name: project_build_result_id_seq; Type: SEQUENCE; Schema: public; Owner: newcastle
+--
+
+CREATE SEQUENCE project_build_result_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.project_build_result_id_seq OWNER TO newcastle;
+
+--
+-- Name: project_build_result_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: newcastle
+--
+
+ALTER SEQUENCE project_build_result_id_seq OWNED BY project_build_result.id;
+
 
 --
 -- Name: project_id_seq; Type: SEQUENCE; Schema: public; Owner: newcastle
@@ -324,111 +410,25 @@ ALTER SEQUENCE project_id_seq OWNED BY project.id;
 
 
 --
--- Name: projectbuildconfiguration; Type: TABLE; Schema: public; Owner: newcastle; Tablespace: 
+-- Name: system_image; Type: TABLE; Schema: public; Owner: newcastle; Tablespace: 
 --
 
-CREATE TABLE projectbuildconfiguration (
-    id integer NOT NULL,
-    buildscript character varying(255) NOT NULL,
-    creationtime timestamp without time zone,
-    identifier character varying(255) NOT NULL,
-    lastmodificationtime timestamp without time zone,
-    patchesurl character varying(255),
-    repositories character varying(255),
-    scmurl character varying(255) NOT NULL,
-    environment_id integer,
-    parent_id integer,
-    productversion_id integer,
-    project_id integer
-);
-
-
-ALTER TABLE public.projectbuildconfiguration OWNER TO newcastle;
-
---
--- Name: projectbuildconfiguration_id_seq; Type: SEQUENCE; Schema: public; Owner: newcastle
---
-
-CREATE SEQUENCE projectbuildconfiguration_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.projectbuildconfiguration_id_seq OWNER TO newcastle;
-
---
--- Name: projectbuildconfiguration_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: newcastle
---
-
-ALTER SEQUENCE projectbuildconfiguration_id_seq OWNED BY projectbuildconfiguration.id;
-
-
---
--- Name: projectbuildresult; Type: TABLE; Schema: public; Owner: newcastle; Tablespace: 
---
-
-CREATE TABLE projectbuildresult (
-    id integer NOT NULL,
-    builddriverid character varying(255),
-    buildlog text,
-    buildscript character varying(255),
-    endtime timestamp without time zone,
-    patchesurl character varying(255),
-    sourceurl character varying(255),
-    starttime timestamp without time zone,
-    status character varying(255),
-    projectbuildconfiguration_id integer,
-    systemimage_id integer,
-    user_id integer
-);
-
-
-ALTER TABLE public.projectbuildresult OWNER TO newcastle;
-
---
--- Name: projectbuildresult_id_seq; Type: SEQUENCE; Schema: public; Owner: newcastle
---
-
-CREATE SEQUENCE projectbuildresult_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.projectbuildresult_id_seq OWNER TO newcastle;
-
---
--- Name: projectbuildresult_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: newcastle
---
-
-ALTER SEQUENCE projectbuildresult_id_seq OWNED BY projectbuildresult.id;
-
-
---
--- Name: systemimage; Type: TABLE; Schema: public; Owner: newcastle; Tablespace: 
---
-
-CREATE TABLE systemimage (
+CREATE TABLE system_image (
     id integer NOT NULL,
     description character varying(255),
-    imageurl character varying(255),
+    image_url character varying(255),
     name character varying(255) NOT NULL,
     environment_id integer
 );
 
 
-ALTER TABLE public.systemimage OWNER TO newcastle;
+ALTER TABLE public.system_image OWNER TO newcastle;
 
 --
--- Name: systemimage_id_seq; Type: SEQUENCE; Schema: public; Owner: newcastle
+-- Name: system_image_id_seq; Type: SEQUENCE; Schema: public; Owner: newcastle
 --
 
-CREATE SEQUENCE systemimage_id_seq
+CREATE SEQUENCE system_image_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -436,13 +436,13 @@ CREATE SEQUENCE systemimage_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.systemimage_id_seq OWNER TO newcastle;
+ALTER TABLE public.system_image_id_seq OWNER TO newcastle;
 
 --
--- Name: systemimage_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: newcastle
+-- Name: system_image_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: newcastle
 --
 
-ALTER SEQUENCE systemimage_id_seq OWNED BY systemimage.id;
+ALTER SEQUENCE system_image_id_seq OWNED BY system_image.id;
 
 
 --
@@ -452,8 +452,8 @@ ALTER SEQUENCE systemimage_id_seq OWNED BY systemimage.id;
 CREATE TABLE users (
     id integer NOT NULL,
     email character varying(100) NOT NULL,
-    firstname character varying(255),
-    lastname character varying(255),
+    first_name character varying(255),
+    last_name character varying(255),
     username character varying(100) NOT NULL
 );
 
@@ -492,7 +492,7 @@ ALTER TABLE ONLY artifact ALTER COLUMN id SET DEFAULT nextval('artifact_id_seq':
 -- Name: id; Type: DEFAULT; Schema: public; Owner: newcastle
 --
 
-ALTER TABLE ONLY buildcollection ALTER COLUMN id SET DEFAULT nextval('buildcollection_id_seq'::regclass);
+ALTER TABLE ONLY build_collection ALTER COLUMN id SET DEFAULT nextval('build_collection_id_seq'::regclass);
 
 
 --
@@ -520,14 +520,14 @@ ALTER TABLE ONLY product ALTER COLUMN id SET DEFAULT nextval('product_id_seq'::r
 -- Name: id; Type: DEFAULT; Schema: public; Owner: newcastle
 --
 
-ALTER TABLE ONLY productversion ALTER COLUMN id SET DEFAULT nextval('productversion_id_seq'::regclass);
+ALTER TABLE ONLY product_version ALTER COLUMN id SET DEFAULT nextval('product_version_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: newcastle
 --
 
-ALTER TABLE ONLY productversionproject ALTER COLUMN id SET DEFAULT nextval('productversionproject_id_seq'::regclass);
+ALTER TABLE ONLY product_version_project ALTER COLUMN id SET DEFAULT nextval('product_version_project_id_seq'::regclass);
 
 
 --
@@ -541,21 +541,21 @@ ALTER TABLE ONLY project ALTER COLUMN id SET DEFAULT nextval('project_id_seq'::r
 -- Name: id; Type: DEFAULT; Schema: public; Owner: newcastle
 --
 
-ALTER TABLE ONLY projectbuildconfiguration ALTER COLUMN id SET DEFAULT nextval('projectbuildconfiguration_id_seq'::regclass);
+ALTER TABLE ONLY project_build_configuration ALTER COLUMN id SET DEFAULT nextval('project_build_configuration_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: newcastle
 --
 
-ALTER TABLE ONLY projectbuildresult ALTER COLUMN id SET DEFAULT nextval('projectbuildresult_id_seq'::regclass);
+ALTER TABLE ONLY project_build_result ALTER COLUMN id SET DEFAULT nextval('project_build_result_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: newcastle
 --
 
-ALTER TABLE ONLY systemimage ALTER COLUMN id SET DEFAULT nextval('systemimage_id_seq'::regclass);
+ALTER TABLE ONLY system_image ALTER COLUMN id SET DEFAULT nextval('system_image_id_seq'::regclass);
 
 
 --
@@ -574,11 +574,11 @@ ALTER TABLE ONLY artifact
 
 
 --
--- Name: buildcollection_pkey; Type: CONSTRAINT; Schema: public; Owner: newcastle; Tablespace: 
+-- Name: build_collection_pkey; Type: CONSTRAINT; Schema: public; Owner: newcastle; Tablespace: 
 --
 
-ALTER TABLE ONLY buildcollection
-    ADD CONSTRAINT buildcollection_pkey PRIMARY KEY (id);
+ALTER TABLE ONLY build_collection
+    ADD CONSTRAINT build_collection_pkey PRIMARY KEY (id);
 
 
 --
@@ -606,19 +606,35 @@ ALTER TABLE ONLY product
 
 
 --
--- Name: productversion_pkey; Type: CONSTRAINT; Schema: public; Owner: newcastle; Tablespace: 
+-- Name: product_version_pkey; Type: CONSTRAINT; Schema: public; Owner: newcastle; Tablespace: 
 --
 
-ALTER TABLE ONLY productversion
-    ADD CONSTRAINT productversion_pkey PRIMARY KEY (id);
+ALTER TABLE ONLY product_version
+    ADD CONSTRAINT product_version_pkey PRIMARY KEY (id);
 
 
 --
--- Name: productversionproject_pkey; Type: CONSTRAINT; Schema: public; Owner: newcastle; Tablespace: 
+-- Name: product_version_project_pkey; Type: CONSTRAINT; Schema: public; Owner: newcastle; Tablespace: 
 --
 
-ALTER TABLE ONLY productversionproject
-    ADD CONSTRAINT productversionproject_pkey PRIMARY KEY (id);
+ALTER TABLE ONLY product_version_project
+    ADD CONSTRAINT product_version_project_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: project_build_configuration_pkey; Type: CONSTRAINT; Schema: public; Owner: newcastle; Tablespace: 
+--
+
+ALTER TABLE ONLY project_build_configuration
+    ADD CONSTRAINT project_build_configuration_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: project_build_result_pkey; Type: CONSTRAINT; Schema: public; Owner: newcastle; Tablespace: 
+--
+
+ALTER TABLE ONLY project_build_result
+    ADD CONSTRAINT project_build_result_pkey PRIMARY KEY (id);
 
 
 --
@@ -630,27 +646,11 @@ ALTER TABLE ONLY project
 
 
 --
--- Name: projectbuildconfiguration_pkey; Type: CONSTRAINT; Schema: public; Owner: newcastle; Tablespace: 
+-- Name: system_image_pkey; Type: CONSTRAINT; Schema: public; Owner: newcastle; Tablespace: 
 --
 
-ALTER TABLE ONLY projectbuildconfiguration
-    ADD CONSTRAINT projectbuildconfiguration_pkey PRIMARY KEY (id);
-
-
---
--- Name: projectbuildresult_pkey; Type: CONSTRAINT; Schema: public; Owner: newcastle; Tablespace: 
---
-
-ALTER TABLE ONLY projectbuildresult
-    ADD CONSTRAINT projectbuildresult_pkey PRIMARY KEY (id);
-
-
---
--- Name: systemimage_pkey; Type: CONSTRAINT; Schema: public; Owner: newcastle; Tablespace: 
---
-
-ALTER TABLE ONLY systemimage
-    ADD CONSTRAINT systemimage_pkey PRIMARY KEY (id);
+ALTER TABLE ONLY system_image
+    ADD CONSTRAINT system_image_pkey PRIMARY KEY (id);
 
 
 --
@@ -662,59 +662,107 @@ ALTER TABLE ONLY users
 
 
 --
--- Name: fk_artifact_projectbuildresult; Type: FK CONSTRAINT; Schema: public; Owner: newcastle
+-- Name: fk_artifact_project_build_result; Type: FK CONSTRAINT; Schema: public; Owner: newcastle
 --
 
 ALTER TABLE ONLY artifact
-    ADD CONSTRAINT fk_artifact_projectbuildresult FOREIGN KEY (projectbuildresult_id) REFERENCES projectbuildresult(id);
+    ADD CONSTRAINT fk_artifact_project_build_result FOREIGN KEY (project_build_result_id) REFERENCES project_build_result(id);
 
 
 --
--- Name: fk_buildcollection_productversion; Type: FK CONSTRAINT; Schema: public; Owner: newcastle
+-- Name: fk_build_collection_product_version; Type: FK CONSTRAINT; Schema: public; Owner: newcastle
 --
 
-ALTER TABLE ONLY buildcollection
-    ADD CONSTRAINT fk_buildcollection_productversion FOREIGN KEY (productversion_id) REFERENCES productversion(id);
-
-
---
--- Name: fk_buildcollection_projectbuildresult_buildcollection; Type: FK CONSTRAINT; Schema: public; Owner: newcastle
---
-
-ALTER TABLE ONLY buildcollection_projectbuildresult
-    ADD CONSTRAINT fk_buildcollection_projectbuildresult_buildcollection FOREIGN KEY (buildcollections_id) REFERENCES buildcollection(id);
+ALTER TABLE ONLY build_collection
+    ADD CONSTRAINT fk_build_collection_product_version FOREIGN KEY (product_version_id) REFERENCES product_version(id);
 
 
 --
--- Name: fk_buildcollection_projectbuildresult_projectbuildresult; Type: FK CONSTRAINT; Schema: public; Owner: newcastle
+-- Name: fk_build_collection_project_build_result_build_collection; Type: FK CONSTRAINT; Schema: public; Owner: newcastle
 --
 
-ALTER TABLE ONLY buildcollection_projectbuildresult
-    ADD CONSTRAINT fk_buildcollection_projectbuildresult_projectbuildresult FOREIGN KEY (projectbuildresult_id) REFERENCES projectbuildresult(id);
-
-
---
--- Name: fk_productversion_product; Type: FK CONSTRAINT; Schema: public; Owner: newcastle
---
-
-ALTER TABLE ONLY productversion
-    ADD CONSTRAINT fk_productversion_product FOREIGN KEY (product_id) REFERENCES product(id);
+ALTER TABLE ONLY build_collection_project_build_result
+    ADD CONSTRAINT fk_build_collection_project_build_result_build_collection FOREIGN KEY (buildcollection_id) REFERENCES build_collection(id);
 
 
 --
--- Name: fk_productversionproject_productversion; Type: FK CONSTRAINT; Schema: public; Owner: newcastle
+-- Name: fk_build_collection_project_build_result_project_build_result; Type: FK CONSTRAINT; Schema: public; Owner: newcastle
 --
 
-ALTER TABLE ONLY productversionproject
-    ADD CONSTRAINT fk_productversionproject_productversion FOREIGN KEY (productversion_id) REFERENCES productversion(id);
+ALTER TABLE ONLY build_collection_project_build_result
+    ADD CONSTRAINT fk_build_collection_project_build_result_project_build_result FOREIGN KEY (projectbuildresult_id) REFERENCES project_build_result(id);
 
 
 --
--- Name: fk_productversionproject_project; Type: FK CONSTRAINT; Schema: public; Owner: newcastle
+-- Name: fk_product_version_product; Type: FK CONSTRAINT; Schema: public; Owner: newcastle
 --
 
-ALTER TABLE ONLY productversionproject
-    ADD CONSTRAINT fk_productversionproject_project FOREIGN KEY (project_id) REFERENCES project(id);
+ALTER TABLE ONLY product_version
+    ADD CONSTRAINT fk_product_version_product FOREIGN KEY (product_id) REFERENCES product(id);
+
+
+--
+-- Name: fk_product_version_project_product_version; Type: FK CONSTRAINT; Schema: public; Owner: newcastle
+--
+
+ALTER TABLE ONLY product_version_project
+    ADD CONSTRAINT fk_product_version_project_product_version FOREIGN KEY (product_version_id) REFERENCES product_version(id);
+
+
+--
+-- Name: fk_product_version_project_project; Type: FK CONSTRAINT; Schema: public; Owner: newcastle
+--
+
+ALTER TABLE ONLY product_version_project
+    ADD CONSTRAINT fk_product_version_project_project FOREIGN KEY (project_id) REFERENCES project(id);
+
+
+--
+-- Name: fk_project_build_configuration_environment; Type: FK CONSTRAINT; Schema: public; Owner: newcastle
+--
+
+ALTER TABLE ONLY project_build_configuration
+    ADD CONSTRAINT fk_project_build_configuration_environment FOREIGN KEY (environment_id) REFERENCES environment(id);
+
+
+--
+-- Name: fk_project_build_configuration_parent; Type: FK CONSTRAINT; Schema: public; Owner: newcastle
+--
+
+ALTER TABLE ONLY project_build_configuration
+    ADD CONSTRAINT fk_project_build_configuration_parent FOREIGN KEY (parent_id) REFERENCES project_build_configuration(id);
+
+
+--
+-- Name: fk_project_build_configuration_product_version; Type: FK CONSTRAINT; Schema: public; Owner: newcastle
+--
+
+ALTER TABLE ONLY project_build_configuration
+    ADD CONSTRAINT fk_project_build_configuration_product_version FOREIGN KEY (product_version_id) REFERENCES product_version(id);
+
+
+--
+-- Name: fk_project_build_configuration_project; Type: FK CONSTRAINT; Schema: public; Owner: newcastle
+--
+
+ALTER TABLE ONLY project_build_configuration
+    ADD CONSTRAINT fk_project_build_configuration_project FOREIGN KEY (project_id) REFERENCES project(id);
+
+
+--
+-- Name: fk_project_build_result_project_build_configuration; Type: FK CONSTRAINT; Schema: public; Owner: newcastle
+--
+
+ALTER TABLE ONLY project_build_result
+    ADD CONSTRAINT fk_project_build_result_project_build_configuration FOREIGN KEY (project_build_configuration_id) REFERENCES project_build_configuration(id);
+
+
+--
+-- Name: fk_project_build_result_user; Type: FK CONSTRAINT; Schema: public; Owner: newcastle
+--
+
+ALTER TABLE ONLY project_build_result
+    ADD CONSTRAINT fk_project_build_result_user FOREIGN KEY (user_id) REFERENCES users(id);
 
 
 --
@@ -726,67 +774,11 @@ ALTER TABLE ONLY project
 
 
 --
--- Name: fk_projectbuildconfiguration_environment; Type: FK CONSTRAINT; Schema: public; Owner: newcastle
+-- Name: fk_system_image_environment; Type: FK CONSTRAINT; Schema: public; Owner: newcastle
 --
 
-ALTER TABLE ONLY projectbuildconfiguration
-    ADD CONSTRAINT fk_projectbuildconfiguration_environment FOREIGN KEY (environment_id) REFERENCES environment(id);
-
-
---
--- Name: fk_projectbuildconfiguration_parent; Type: FK CONSTRAINT; Schema: public; Owner: newcastle
---
-
-ALTER TABLE ONLY projectbuildconfiguration
-    ADD CONSTRAINT fk_projectbuildconfiguration_parent FOREIGN KEY (parent_id) REFERENCES projectbuildconfiguration(id);
-
-
---
--- Name: fk_projectbuildconfiguration_productversion; Type: FK CONSTRAINT; Schema: public; Owner: newcastle
---
-
-ALTER TABLE ONLY projectbuildconfiguration
-    ADD CONSTRAINT fk_projectbuildconfiguration_productversion FOREIGN KEY (productversion_id) REFERENCES productversion(id);
-
-
---
--- Name: fk_projectbuildconfiguration_project; Type: FK CONSTRAINT; Schema: public; Owner: newcastle
---
-
-ALTER TABLE ONLY projectbuildconfiguration
-    ADD CONSTRAINT fk_projectbuildconfiguration_project FOREIGN KEY (project_id) REFERENCES project(id);
-
-
---
--- Name: fk_projectbuildresult_projectbuildconfiguration; Type: FK CONSTRAINT; Schema: public; Owner: newcastle
---
-
-ALTER TABLE ONLY projectbuildresult
-    ADD CONSTRAINT fk_projectbuildresult_projectbuildconfiguration FOREIGN KEY (projectbuildconfiguration_id) REFERENCES projectbuildconfiguration(id);
-
-
---
--- Name: fk_projectbuildresult_systemimage; Type: FK CONSTRAINT; Schema: public; Owner: newcastle
---
-
-ALTER TABLE ONLY projectbuildresult
-    ADD CONSTRAINT fk_projectbuildresult_systemimage FOREIGN KEY (systemimage_id) REFERENCES systemimage(id);
-
-
---
--- Name: fk_projectbuildresult_user; Type: FK CONSTRAINT; Schema: public; Owner: newcastle
---
-
-ALTER TABLE ONLY projectbuildresult
-    ADD CONSTRAINT fk_projectbuildresult_user FOREIGN KEY (user_id) REFERENCES users(id);
-
-
---
--- Name: fk_systemimage_environment; Type: FK CONSTRAINT; Schema: public; Owner: newcastle
---
-
-ALTER TABLE ONLY systemimage
-    ADD CONSTRAINT fk_systemimage_environment FOREIGN KEY (environment_id) REFERENCES environment(id);
+ALTER TABLE ONLY system_image
+    ADD CONSTRAINT fk_system_image_environment FOREIGN KEY (environment_id) REFERENCES environment(id);
 
 
 --

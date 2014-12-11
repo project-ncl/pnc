@@ -17,7 +17,7 @@ import javax.persistence.Table;
  * @author avibelli
  */
 @Entity
-@Table(name = "Users")
+@Table(name = "users")
 public class User implements Serializable {
 
     private static final long serialVersionUID = 8437525005838384722L;
@@ -29,15 +29,17 @@ public class User implements Serializable {
     @Column(nullable = false, length = 100)
     private String email;
 
+    @Column(name = "first_name")
     private String firstName;
 
+    @Column(name = "last_name")
     private String lastName;
 
     @Column(nullable = false, length = 100)
     private String username;
 
     @OneToMany(mappedBy = "user")
-    private List<ProjectBuildResult> projectBuildResults;
+    private List<ProjectBuildResult> projectBuildResult;
 
     /**
      * Instantiates a new user.
@@ -136,21 +138,17 @@ public class User implements Serializable {
     }
 
     /**
-     * Gets the project build results.
-     *
-     * @return the project build results
+     * @return the projectBuildResult
      */
-    public List<ProjectBuildResult> getProjectBuildResults() {
-        return projectBuildResults;
+    public List<ProjectBuildResult> getProjectBuildResult() {
+        return projectBuildResult;
     }
 
     /**
-     * Sets the project build results.
-     *
-     * @param projectBuildResults the new project build results
+     * @param projectBuildResult the projectBuildResult to set
      */
-    public void setProjectBuildResults(List<ProjectBuildResult> projectBuildResults) {
-        this.projectBuildResults = projectBuildResults;
+    public void setProjectBuildResult(List<ProjectBuildResult> projectBuildResult) {
+        this.projectBuildResult = projectBuildResult;
     }
 
     /**
@@ -159,12 +157,10 @@ public class User implements Serializable {
      * @param projectBuildResult the project build result
      * @return the project build result
      */
-    public ProjectBuildResult addProjectBuildResult(ProjectBuildResult projectBuildResult) {
+    public void addProjectBuildResult(ProjectBuildResult projBuildResult) {
 
-        getProjectBuildResults().add(projectBuildResult);
-        projectBuildResult.setUser(this);
-
-        return projectBuildResult;
+        getProjectBuildResult().add(projBuildResult);
+        projBuildResult.setUser(this);
     }
 
     /**
@@ -173,9 +169,8 @@ public class User implements Serializable {
      * @param projectBuildResult the project build result
      * @return the project build result
      */
-    public ProjectBuildResult removeProjectBuildResult(ProjectBuildResult projectBuildResult) {
-        getProjectBuildResults().remove(projectBuildResult);
+    public void removeProjectBuildResult(ProjectBuildResult projectBuildResult) {
+        getProjectBuildResult().remove(projectBuildResult);
         projectBuildResult.setUser(null);
-        return projectBuildResult;
     }
 }

@@ -35,25 +35,25 @@ You can use a PostgreSQL database with the `Pnc` application. As shown below, th
 
 ### Create the Database and User
 
-1. Make sure the PostgreSQL bin directory is in your PATH. Open a command line and change to the root directory psql. If you see an error that 'psql' is not a recognized command, you need to add the PostgreSQL bin directory to your PATH environment variable.
-2. Switch to the postgres user:
+1.  Make sure the PostgreSQL bin directory is in your PATH. Open a command line and change to the root directory psql. If you see an error that 'psql' is not a recognized command, you need to add the PostgreSQL bin directory to your PATH environment variable.
+2.  Switch to the postgres user:
 ```
 su - postgres
 ```
-3. Create the `newcastle` database:
+3.  Create the `newcastle` database:
 ```
 createdb newcastle
 ```
-4. Start the PostgreSQL interactive terminal:
+4.  Start the PostgreSQL interactive terminal:
 ```
 psql -U postgres
 ```
-5. Create `newcastle` user and grant all privileges on `newcastle` database.
+5.  Create `newcastle` user and grant all privileges on `newcastle` database.
 ```
 create user newcastle with password 'newcastle';
 grant all privileges on database newcastle to newcastle;
 ```
-6. Quit the interactive terminal and exit:
+6.  Quit the interactive terminal and exit:
 ```
 \q
 exit

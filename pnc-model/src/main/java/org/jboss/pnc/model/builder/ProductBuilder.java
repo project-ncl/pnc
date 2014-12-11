@@ -21,7 +21,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.jboss.pnc.model.Product;
-import org.jboss.pnc.model.ProductMilestone;
 import org.jboss.pnc.model.ProductVersion;
 
 /**
@@ -35,8 +34,6 @@ public class ProductBuilder {
     private String name;
 
     private String description;
-
-    private ProductMilestone milestone;
 
     private Set<ProductVersion> productVersions;
 
@@ -54,13 +51,12 @@ public class ProductBuilder {
         product.setId(id);
         product.setName(name);
         product.setDescription(description);
-        product.setMilestone(milestone);
 
         // Set the bi-directional mapping
         for (ProductVersion productVersion : productVersions) {
             productVersion.setProduct(product);
         }
-        product.setProductVersions(productVersions);
+        product.setProductVersion(productVersions);
 
         return product;
     }
@@ -77,11 +73,6 @@ public class ProductBuilder {
 
     public ProductBuilder description(String description) {
         this.description = description;
-        return this;
-    }
-
-    public ProductBuilder milestone(ProductMilestone milestone) {
-        this.milestone = milestone;
         return this;
     }
 
@@ -105,10 +96,6 @@ public class ProductBuilder {
 
     public String getDescription() {
         return description;
-    }
-
-    public ProductMilestone getMilestone() {
-        return milestone;
     }
 
     public Set<ProductVersion> getProductVersions() {

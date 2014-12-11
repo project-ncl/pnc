@@ -9,7 +9,9 @@ import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.Table;
 
 import org.hibernate.annotations.ForeignKey;
 
@@ -36,6 +38,7 @@ import org.hibernate.annotations.ForeignKey;
 // Ordinarily, I'd model this as a common base class and two subclasses to capture the variant info.
 // I'm not sure how it would need to be modeled for efficient storage via JPA.
 @Entity
+@Table(name = "artifact")
 public class Artifact implements Serializable {
 
     private static final long serialVersionUID = -2368833657284575734L;
@@ -53,9 +56,9 @@ public class Artifact implements Serializable {
 
     // The type of repository that hosts this artifact. This is also a sort of description for what type of artifatct this is
     // (maven, npm, etc.)
-    @Column(nullable = false)
+    @Column(nullable = false, name = "repository_type")
     @Enumerated(EnumType.STRING)
-    private RepositoryType repoType;
+    private RepositoryType repositoryType;
 
     private String checksum;
 
@@ -63,14 +66,16 @@ public class Artifact implements Serializable {
     private String filename;
 
     // What is this used for?
+    @Column(name = "deploy_url")
     private String deployUrl;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private ArtifactStatus status;
+    @Column(nullable = false, name = "artifact_status")
+    private ArtifactStatus artifactStatus;
 
+    @JoinColumn(name = "project_build_result_id")
     @ManyToOne
-    @ForeignKey(name = "fk_artifact_projectbuildresult")
+    @ForeignKey(name = "fk_artifact_project_build_result")
     private ProjectBuildResult projectBuildResult;
 
     /**
@@ -173,23 +178,17 @@ public class Artifact implements Serializable {
     }
 
     /**
-     * Gets the status.
-     * 
-     * The status (the genesis of the artifact, whether it has been imported or built internally).
-     *
-     * @return the status
+     * @return the artifactStatus
      */
-    public ArtifactStatus getStatus() {
-        return status;
+    public ArtifactStatus getArtifactStatus() {
+        return artifactStatus;
     }
 
     /**
-     * Sets the status.
-     *
-     * @param status the new status
+     * @param artifactStatus the artifactStatus to set
      */
-    public void setStatus(ArtifactStatus status) {
-        this.status = status;
+    public void setArtifactStatus(ArtifactStatus artifactStatus) {
+        this.artifactStatus = artifactStatus;
     }
 
     /**
@@ -211,17 +210,17 @@ public class Artifact implements Serializable {
     }
 
     /**
-     * @return the repoType
+     * @return the repositoryType
      */
-    public RepositoryType getRepoType() {
-        return repoType;
+    public RepositoryType getRepositoryType() {
+        return repositoryType;
     }
 
     /**
-     * @param repoType the repoType to set
+     * @param repositoryType the repositoryType to set
      */
-    public void setRepoType(RepositoryType repoType) {
-        this.repoType = repoType;
+    public void setRepositoryType(RepositoryType repositoryType) {
+        this.repositoryType = repositoryType;
     }
 
     /*

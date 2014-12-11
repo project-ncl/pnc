@@ -88,7 +88,7 @@ public class ProjectBuildResultBuilder {
         projectBuildResult.setSourceUrl(sourceUrl);
         projectBuildResult.setPatchesUrl(patchesUrl);
         projectBuildResult.setBuildLog(buildLog);
-        projectBuildResult.setStatus(status);
+        projectBuildResult.setBuildStatus(status);
         projectBuildResult.setBuildDriverId(buildDriverId);
         projectBuildResult.setSystemImage(systemImage);
 
@@ -96,15 +96,15 @@ public class ProjectBuildResultBuilder {
         for (Artifact artifact : builtArtifacts) {
             artifact.setProjectBuildResult(projectBuildResult);
         }
-        projectBuildResult.setBuiltArtifacts(builtArtifacts);
+        projectBuildResult.setBuiltArtifact(builtArtifacts);
 
         // Set the bi-directional mapping
         for (Artifact artifact : dependencies) {
             artifact.setProjectBuildResult(projectBuildResult);
         }
-        projectBuildResult.setDependencies(dependencies);
+        projectBuildResult.setDependency(dependencies);
 
-        projectBuildResult.setBuildCollections(buildCollections);
+        projectBuildResult.setBuildCollection(buildCollections);
 
         return projectBuildResult;
     }

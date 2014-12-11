@@ -6,16 +6,19 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.Lob;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.Table;
 
 import org.hibernate.annotations.ForeignKey;
 
@@ -29,6 +32,7 @@ import org.hibernate.annotations.ForeignKey;
  * the set of buildResult that compose a Product
  */
 @Entity
+@Table(name = "project_build_result")
 public class ProjectBuildResult implements Serializable {
 
     private static final long serialVersionUID = -5472083609387609797L;
@@ -37,59 +41,71 @@ public class ProjectBuildResult implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    @Column(name = "build_script")
     private String buildScript;
 
+    @Column(name = "start_time")
     private Timestamp startTime;
 
+    @Column(name = "end_time")
     private Timestamp endTime;
 
+    @JoinColumn(name = "project_build_configuration_id")
     @ManyToOne
-    @ForeignKey(name = "fk_projectbuildresult_projectbuildconfiguration")
+    @ForeignKey(name = "fk_project_build_result_project_build_configuration")
     private ProjectBuildConfiguration projectBuildConfiguration;
 
     @ManyToOne
-    @ForeignKey(name = "fk_projectbuildresult_user")
+    @ForeignKey(name = "fk_project_build_result_user")
     private User user;
 
+    @Column(name = "source_url")
     private String sourceUrl;
 
+    @Column(name = "patches_url")
     private String patchesUrl;
 
     @Lob
+    @Column(name = "build_log")
     private String buildLog;
 
+    @Column(name = "build_status")
     @Enumerated(value = EnumType.STRING)
-    private BuildStatus status;
+    private BuildStatus buildStatus;
 
+    @Column(name = "built_artifact")
     @OneToMany(mappedBy = "projectBuildResult")
-    private List<Artifact> builtArtifacts;
+    private List<Artifact> builtArtifact;
 
+    @Column(name = "dependency")
     @OneToMany(mappedBy = "projectBuildResult")
-    private List<Artifact> dependencies;
+    private List<Artifact> dependency;
 
     /**
      * Driver that was used to run the build.
      */
+    @Column(name = "build_driver_id")
     private String buildDriverId;
 
     /**
      * Image that was used to instantiate a build server.
      */
-    @ManyToOne
-    @ForeignKey(name = "fk_projectbuildresult_systemimage")
+    @JoinColumn(name = "system_image_id")
+    @ForeignKey(name = "fk_project_build_result_system_image")
     private SystemImage systemImage;
 
+    @Column(name = "build_collection")
     @ManyToMany(mappedBy = "projectBuildResult")
-    private List<BuildCollection> buildCollections;
+    private List<BuildCollection> buildCollection;
 
     /**
      * Instantiates a new project build result.
      */
     public ProjectBuildResult() {
         startTime = Timestamp.from(Instant.now());
-        buildCollections = new ArrayList<>();
-        dependencies = new ArrayList<>();
-        builtArtifacts = new ArrayList<>();
+        buildCollection = new ArrayList<>();
+        dependency = new ArrayList<>();
+        builtArtifact = new ArrayList<>();
     }
 
     /**
@@ -237,57 +253,59 @@ public class ProjectBuildResult implements Serializable {
     }
 
     /**
-     * Gets the status.
-     *
-     * @return the status
+     * @return the buildStatus
      */
-    public BuildStatus getStatus() {
-        return status;
+    public BuildStatus getBuildStatus() {
+        return buildStatus;
     }
 
     /**
-     * Sets the status.
-     *
-     * @param status the new status
+     * @param buildStatus the buildStatus to set
      */
-    public void setStatus(BuildStatus status) {
-        this.status = status;
+    public void setBuildStatus(BuildStatus buildStatus) {
+        this.buildStatus = buildStatus;
     }
 
     /**
-     * Gets the built artifacts.
-     *
-     * @return the built artifacts
+     * @return the builtArtifact
      */
-    public List<Artifact> getBuiltArtifacts() {
-        return builtArtifacts;
+    public List<Artifact> getBuiltArtifact() {
+        return builtArtifact;
     }
 
     /**
-     * Sets the built artifacts.
-     *
-     * @param builtArtifacts the new built artifacts
+     * @param builtArtifact the builtArtifact to set
      */
-    public void setBuiltArtifacts(List<Artifact> builtArtifacts) {
-        this.builtArtifacts = builtArtifacts;
+    public void setBuiltArtifact(List<Artifact> builtArtifact) {
+        this.builtArtifact = builtArtifact;
     }
 
     /**
-     * Gets the dependencies.
-     *
-     * @return the dependencies
+     * @return the dependency
      */
-    public List<Artifact> getDependencies() {
-        return dependencies;
+    public List<Artifact> getDependency() {
+        return dependency;
     }
 
     /**
-     * Sets the dependencies.
-     *
-     * @param dependencies the new dependencies
+     * @param dependency the dependency to set
      */
-    public void setDependencies(List<Artifact> dependencies) {
-        this.dependencies = dependencies;
+    public void setDependency(List<Artifact> dependency) {
+        this.dependency = dependency;
+    }
+
+    /**
+     * @return the buildCollection
+     */
+    public List<BuildCollection> getBuildCollection() {
+        return buildCollection;
+    }
+
+    /**
+     * @param buildCollection the buildCollection to set
+     */
+    public void setBuildCollection(List<BuildCollection> buildCollection) {
+        this.buildCollection = buildCollection;
     }
 
     /**
@@ -324,24 +342,6 @@ public class ProjectBuildResult implements Serializable {
      */
     public void setSystemImage(SystemImage systemImage) {
         this.systemImage = systemImage;
-    }
-
-    /**
-     * Gets the builds the collections.
-     *
-     * @return the builds the collections
-     */
-    public List<BuildCollection> getBuildCollections() {
-        return buildCollections;
-    }
-
-    /**
-     * Sets the builds the collections.
-     *
-     * @param buildCollections the new builds the collections
-     */
-    public void setBuildCollections(List<BuildCollection> buildCollections) {
-        this.buildCollections = buildCollections;
     }
 
     /**

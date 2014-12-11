@@ -8,6 +8,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
+import javax.persistence.Table;
 
 import org.hibernate.annotations.ForeignKey;
 
@@ -17,6 +18,7 @@ import org.hibernate.annotations.ForeignKey;
  * @author avibelli
  */
 @Entity
+@Table(name = "system_image")
 public class SystemImage implements Serializable {
 
     private static final long serialVersionUID = 3170247997550146257L;
@@ -26,7 +28,7 @@ public class SystemImage implements Serializable {
     private Integer id;
 
     @ManyToOne
-    @ForeignKey(name = "fk_systemimage_environment")
+    @ForeignKey(name = "fk_system_image_environment")
     private Environment environment;
 
     @Column(nullable = false)
@@ -34,6 +36,7 @@ public class SystemImage implements Serializable {
 
     private String description;
 
+    @Column(name = "image_url")
     private String imageUrl;
 
     /**

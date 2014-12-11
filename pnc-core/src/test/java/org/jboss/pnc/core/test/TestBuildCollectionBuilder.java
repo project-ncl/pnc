@@ -14,7 +14,7 @@ public class TestBuildCollectionBuilder {
         product.addVersion(productVersion);
         BuildCollection buildCollection = new BuildCollection();
         buildCollection.setProductVersion(productVersion);
-        buildCollection.setProductBuildBumber(1);
+        buildCollection.setProductBuildNumber(1);
         return buildCollection;
     }
 

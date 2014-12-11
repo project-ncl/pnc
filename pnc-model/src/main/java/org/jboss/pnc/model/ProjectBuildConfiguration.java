@@ -12,8 +12,10 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.Table;
 import javax.persistence.Version;
 
 import org.hibernate.annotations.ForeignKey;
@@ -28,6 +30,7 @@ import org.hibernate.annotations.ForeignKey;
  * @author avibelli
  */
 @Entity
+@Table(name = "project_build_configuration")
 public class ProjectBuildConfiguration implements Serializable {
 
     private static final long serialVersionUID = -5890729679489304114L;
@@ -39,47 +42,50 @@ public class ProjectBuildConfiguration implements Serializable {
     @Column(nullable = false)
     private String identifier;
 
-    @Column(nullable = false)
+    @Column(nullable = false, name = "build_script")
     private String buildScript;
 
-    @Column(nullable = false)
+    @Column(nullable = false, name = "scm_url")
     private String scmUrl;
 
+    @Column(name = "patches_url")
     private String patchesUrl;
 
+    @JoinColumn(name = "product_version_id")
     @ManyToOne(cascade = CascadeType.ALL)
-    @ForeignKey(name = "fk_projectbuildconfiguration_productversion")
+    @ForeignKey(name = "fk_project_build_configuration_product_version")
     private ProductVersion productVersion;
 
     @ManyToOne(cascade = CascadeType.ALL)
-    @ForeignKey(name = "fk_projectbuildconfiguration_project")
+    @ForeignKey(name = "fk_project_build_configuration_project")
     private Project project;
 
     @ManyToOne(cascade = CascadeType.ALL)
-    @ForeignKey(name = "fk_projectbuildconfiguration_environment")
+    @ForeignKey(name = "fk_project_build_configuration_environment")
     private Environment environment;
 
     @ManyToOne(cascade = CascadeType.ALL)
-    @ForeignKey(name = "fk_projectbuildconfiguration_parent")
+    @ForeignKey(name = "fk_project_build_configuration_parent")
     private ProjectBuildConfiguration parent;
 
     @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL)
-    private Set<ProjectBuildConfiguration> dependencies;
+    private Set<ProjectBuildConfiguration> dependency;
 
+    @Column(name = "creation_time")
     private Timestamp creationTime;
 
+    @Column(name = "last_modification_time")
     @Version
     private Timestamp lastModificationTime;
 
     // TODO: What data format does Aprox need?
-    // @Column(name = "repositories")
-    private String repositories;
+    private String repository;
 
     /**
      * Instantiates a new project build configuration.
      */
     public ProjectBuildConfiguration() {
-        dependencies = new HashSet<>();
+        dependency = new HashSet<>();
         creationTime = Timestamp.from(Instant.now());
     }
 
@@ -210,17 +216,31 @@ public class ProjectBuildConfiguration implements Serializable {
     }
 
     /**
-     * @return the dependencies
+     * @return the dependency
      */
-    public Set<ProjectBuildConfiguration> getDependencies() {
-        return dependencies;
+    public Set<ProjectBuildConfiguration> getDependency() {
+        return dependency;
     }
 
     /**
-     * @param dependencies the dependencies to set
+     * @param dependency the dependency to set
      */
-    public void setDependencies(Set<ProjectBuildConfiguration> dependencies) {
-        this.dependencies = dependencies;
+    public void setDependency(Set<ProjectBuildConfiguration> dependency) {
+        this.dependency = dependency;
+    }
+
+    /**
+     * @return the repository
+     */
+    public String getRepository() {
+        return repository;
+    }
+
+    /**
+     * @param repository the repository to set
+     */
+    public void setRepository(String repository) {
+        this.repository = repository;
     }
 
     /**
@@ -251,29 +271,15 @@ public class ProjectBuildConfiguration implements Serializable {
         this.lastModificationTime = lastModificationTime;
     }
 
-    /**
-     * @return the repositories
-     */
-    public String getRepositories() {
-        return repositories;
-    }
-
-    /**
-     * @param repositories the repositories to set
-     */
-    public void setRepositories(String repositories) {
-        this.repositories = repositories;
-    }
-
     public ProjectBuildConfiguration addDependency(ProjectBuildConfiguration configuration) {
         configuration.setParent(this);
-        dependencies.add(configuration);
+        dependency.add(configuration);
         return this;
     }
 
     public ProjectBuildConfiguration removeDependency(ProjectBuildConfiguration configuration) {
         configuration.setParent(null);
-        dependencies.remove(configuration);
+        dependency.remove(configuration);
         return this;
     }
 

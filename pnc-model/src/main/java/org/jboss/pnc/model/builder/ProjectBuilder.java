@@ -70,13 +70,13 @@ public class ProjectBuilder {
         for (ProductVersionProject productVersionProject : productVersionProjects) {
             productVersionProject.setProject(project);
         }
-        project.setProductVersionProjects(productVersionProjects);
+        project.setProductVersionProject(productVersionProjects);
 
         // Set the bi-directional mapping
         for (ProjectBuildConfiguration projectBuildConfiguration : projectBuildConfigurations) {
             projectBuildConfiguration.setProject(project);
         }
-        project.setProjectBuildConfigurations(projectBuildConfigurations);
+        project.setProjectBuildConfiguration(projectBuildConfigurations);
 
         return project;
     }
