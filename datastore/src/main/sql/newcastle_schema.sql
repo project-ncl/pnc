@@ -3,7 +3,6 @@
 --
 
 SET statement_timeout = 0;
-SET lock_timeout = 0;
 SET client_encoding = 'UTF8';
 SET standard_conforming_strings = on;
 SET check_function_bodies = false;
@@ -30,28 +29,25 @@ SET default_tablespace = '';
 SET default_with_oids = false;
 
 --
--- Name: artifact; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
+-- Name: artifact; Type: TABLE; Schema: public; Owner: newcastle; Tablespace: 
 --
 
 CREATE TABLE artifact (
     id integer NOT NULL,
+    checksum character varying(255),
+    deployurl character varying(255),
     filename character varying(100) NOT NULL,
-    build_result_id integer,
-    checksum character varying(50)
+    identifier character varying(255) NOT NULL,
+    repotype character varying(255) NOT NULL,
+    status character varying(255) NOT NULL,
+    projectbuildresult_id integer
 );
 
 
-ALTER TABLE public.artifact OWNER TO postgres;
+ALTER TABLE public.artifact OWNER TO newcastle;
 
 --
--- Name: TABLE artifact; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON TABLE artifact IS 'Build Artifacts';
-
-
---
--- Name: artifact_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+-- Name: artifact_id_seq; Type: SEQUENCE; Schema: public; Owner: newcastle
 --
 
 CREATE SEQUENCE artifact_id_seq
@@ -62,13 +58,33 @@ CREATE SEQUENCE artifact_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.artifact_id_seq OWNER TO postgres;
+ALTER TABLE public.artifact_id_seq OWNER TO newcastle;
 
 --
--- Name: build_collection_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+-- Name: artifact_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: newcastle
 --
 
-CREATE SEQUENCE build_collection_id_seq
+ALTER SEQUENCE artifact_id_seq OWNED BY artifact.id;
+
+
+--
+-- Name: buildcollection; Type: TABLE; Schema: public; Owner: newcastle; Tablespace: 
+--
+
+CREATE TABLE buildcollection (
+    id integer NOT NULL,
+    productbuildbumber integer NOT NULL,
+    productversion_id integer
+);
+
+
+ALTER TABLE public.buildcollection OWNER TO newcastle;
+
+--
+-- Name: buildcollection_id_seq; Type: SEQUENCE; Schema: public; Owner: newcastle
+--
+
+CREATE SEQUENCE buildcollection_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -76,52 +92,45 @@ CREATE SEQUENCE build_collection_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.build_collection_id_seq OWNER TO postgres;
+ALTER TABLE public.buildcollection_id_seq OWNER TO newcastle;
 
 --
--- Name: build_collection; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
+-- Name: buildcollection_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: newcastle
 --
 
-CREATE TABLE build_collection (
-    id integer DEFAULT nextval('build_collection_id_seq'::regclass) NOT NULL,
-    name character varying(20) NOT NULL,
-    description text
+ALTER SEQUENCE buildcollection_id_seq OWNED BY buildcollection.id;
+
+
+--
+-- Name: buildcollection_projectbuildresult; Type: TABLE; Schema: public; Owner: newcastle; Tablespace: 
+--
+
+CREATE TABLE buildcollection_projectbuildresult (
+    buildcollections_id integer NOT NULL,
+    projectbuildresult_id integer NOT NULL
 );
 
 
-ALTER TABLE public.build_collection OWNER TO postgres;
+ALTER TABLE public.buildcollection_projectbuildresult OWNER TO newcastle;
 
 --
--- Name: TABLE build_collection; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: environment; Type: TABLE; Schema: public; Owner: newcastle; Tablespace: 
 --
 
-COMMENT ON TABLE build_collection IS 'Group of build results, such as all builds that are part of a single product release';
-
-
---
--- Name: build_collection_build_result; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
---
-
-CREATE TABLE build_collection_build_result (
-    build_collection_id integer NOT NULL,
-    build_result_id integer NOT NULL
+CREATE TABLE environment (
+    id integer NOT NULL,
+    buildtype character varying(50) NOT NULL,
+    operationalsystem character varying(50) NOT NULL
 );
 
 
-ALTER TABLE public.build_collection_build_result OWNER TO postgres;
+ALTER TABLE public.environment OWNER TO newcastle;
 
 --
--- Name: TABLE build_collection_build_result; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: environment_id_seq; Type: SEQUENCE; Schema: public; Owner: newcastle
 --
 
-COMMENT ON TABLE build_collection_build_result IS 'Mapping between build results and build collections';
-
-
---
--- Name: build_configuration_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
---
-
-CREATE SEQUENCE build_configuration_id_seq
+CREATE SEQUENCE environment_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -129,137 +138,32 @@ CREATE SEQUENCE build_configuration_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.build_configuration_id_seq OWNER TO postgres;
+ALTER TABLE public.environment_id_seq OWNER TO newcastle;
 
 --
--- Name: build_configuration; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
+-- Name: environment_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: newcastle
 --
 
-CREATE TABLE build_configuration (
-    id integer DEFAULT nextval('build_configuration_id_seq'::regclass) NOT NULL,
-    project_id integer NOT NULL,
-    build_script text,
-    source_id character varying(30),
-    system_image_id integer,
-    name character varying(40) NOT NULL
+ALTER SEQUENCE environment_id_seq OWNED BY environment.id;
+
+
+--
+-- Name: license; Type: TABLE; Schema: public; Owner: newcastle; Tablespace: 
+--
+
+CREATE TABLE license (
+    id integer NOT NULL,
+    fullcontent text NOT NULL,
+    fullname character varying(255) NOT NULL,
+    refurl character varying(255),
+    shortname character varying(255)
 );
 
 
-ALTER TABLE public.build_configuration OWNER TO postgres;
+ALTER TABLE public.license OWNER TO newcastle;
 
 --
--- Name: TABLE build_configuration; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON TABLE build_configuration IS 'Build environment configuration';
-
-
---
--- Name: COLUMN build_configuration.build_script; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON COLUMN build_configuration.build_script IS 'Command line instructions to run the build';
-
-
---
--- Name: COLUMN build_configuration.source_id; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON COLUMN build_configuration.source_id IS 'Unique ID of the source to build';
-
-
---
--- Name: COLUMN build_configuration.system_image_id; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON COLUMN build_configuration.system_image_id IS 'ID of the system image to use to execute the build';
-
-
---
--- Name: COLUMN build_configuration.name; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON COLUMN build_configuration.name IS 'Descriptive name of this configuration';
-
-
---
--- Name: build_result_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
---
-
-CREATE SEQUENCE build_result_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.build_result_id_seq OWNER TO postgres;
-
---
--- Name: build_result; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
---
-
-CREATE TABLE build_result (
-    id integer DEFAULT nextval('build_result_id_seq'::regclass) NOT NULL,
-    start_time timestamp without time zone,
-    end_time timestamp without time zone,
-    source_url character varying(100),
-    build_environment_description text,
-    username character varying(20),
-    build_log text,
-    build_script text,
-    project_id integer,
-    project_name character varying(40),
-    user_id integer
-);
-
-
-ALTER TABLE public.build_result OWNER TO postgres;
-
---
--- Name: TABLE build_result; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON TABLE build_result IS 'Result of a build such as the command used to execute the build, the log file, and whether the build was successful.';
-
-
---
--- Name: build_trigger_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
---
-
-CREATE SEQUENCE build_trigger_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.build_trigger_id_seq OWNER TO postgres;
-
---
--- Name: build_trigger; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
---
-
-CREATE TABLE build_trigger (
-    id integer DEFAULT nextval('build_trigger_id_seq'::regclass) NOT NULL,
-    build_configuration_id integer,
-    triggered_build_configuration_id integer
-);
-
-
-ALTER TABLE public.build_trigger OWNER TO postgres;
-
---
--- Name: TABLE build_trigger; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON TABLE build_trigger IS 'Relationship to allow one build to automatically trigger execution of another build';
-
-
---
--- Name: license_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+-- Name: license_id_seq; Type: SEQUENCE; Schema: public; Owner: newcastle
 --
 
 CREATE SEQUENCE license_id_seq
@@ -270,32 +174,136 @@ CREATE SEQUENCE license_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.license_id_seq OWNER TO postgres;
+ALTER TABLE public.license_id_seq OWNER TO newcastle;
 
 --
--- Name: license; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
+-- Name: license_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: newcastle
 --
 
-CREATE TABLE license (
-    id integer DEFAULT nextval('license_id_seq'::regclass) NOT NULL,
-    short_name character varying(20),
-    full_name character varying(100),
-    full_text text,
-    ref_url character varying(100)
+ALTER SEQUENCE license_id_seq OWNED BY license.id;
+
+
+--
+-- Name: product; Type: TABLE; Schema: public; Owner: newcastle; Tablespace: 
+--
+
+CREATE TABLE product (
+    id integer NOT NULL,
+    description character varying(255),
+    milestone character varying(20) NOT NULL,
+    name character varying(100) NOT NULL
 );
 
 
-ALTER TABLE public.license OWNER TO postgres;
+ALTER TABLE public.product OWNER TO newcastle;
 
 --
--- Name: TABLE license; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: product_id_seq; Type: SEQUENCE; Schema: public; Owner: newcastle
 --
 
-COMMENT ON TABLE license IS 'Software Licenses';
+CREATE SEQUENCE product_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.product_id_seq OWNER TO newcastle;
+
+--
+-- Name: product_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: newcastle
+--
+
+ALTER SEQUENCE product_id_seq OWNED BY product.id;
 
 
 --
--- Name: project_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+-- Name: productversion; Type: TABLE; Schema: public; Owner: newcastle; Tablespace: 
+--
+
+CREATE TABLE productversion (
+    id integer NOT NULL,
+    version character varying(50) NOT NULL,
+    product_id integer
+);
+
+
+ALTER TABLE public.productversion OWNER TO newcastle;
+
+--
+-- Name: productversion_id_seq; Type: SEQUENCE; Schema: public; Owner: newcastle
+--
+
+CREATE SEQUENCE productversion_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.productversion_id_seq OWNER TO newcastle;
+
+--
+-- Name: productversion_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: newcastle
+--
+
+ALTER SEQUENCE productversion_id_seq OWNED BY productversion.id;
+
+
+--
+-- Name: productversionproject; Type: TABLE; Schema: public; Owner: newcastle; Tablespace: 
+--
+
+CREATE TABLE productversionproject (
+    id integer NOT NULL,
+    productversion_id integer,
+    project_id integer
+);
+
+
+ALTER TABLE public.productversionproject OWNER TO newcastle;
+
+--
+-- Name: productversionproject_id_seq; Type: SEQUENCE; Schema: public; Owner: newcastle
+--
+
+CREATE SEQUENCE productversionproject_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.productversionproject_id_seq OWNER TO newcastle;
+
+--
+-- Name: productversionproject_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: newcastle
+--
+
+ALTER SEQUENCE productversionproject_id_seq OWNED BY productversionproject.id;
+
+
+--
+-- Name: project; Type: TABLE; Schema: public; Owner: newcastle; Tablespace: 
+--
+
+CREATE TABLE project (
+    id integer NOT NULL,
+    description character varying(255),
+    issuetrackerurl character varying(255),
+    name character varying(100) NOT NULL,
+    projecturl character varying(255),
+    license_id integer
+);
+
+
+ALTER TABLE public.project OWNER TO newcastle;
+
+--
+-- Name: project_id_seq; Type: SEQUENCE; Schema: public; Owner: newcastle
 --
 
 CREATE SEQUENCE project_id_seq
@@ -306,58 +314,42 @@ CREATE SEQUENCE project_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.project_id_seq OWNER TO postgres;
+ALTER TABLE public.project_id_seq OWNER TO newcastle;
 
 --
--- Name: project; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
+-- Name: project_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: newcastle
 --
 
-CREATE TABLE project (
-    name character varying(20) NOT NULL,
-    id integer DEFAULT nextval('project_id_seq'::regclass) NOT NULL,
-    current_license_id integer,
-    description text,
-    scm_url character varying(50),
-    issue_tracker_url character varying(50),
-    project_url character varying(50)
+ALTER SEQUENCE project_id_seq OWNED BY project.id;
+
+
+--
+-- Name: projectbuildconfiguration; Type: TABLE; Schema: public; Owner: newcastle; Tablespace: 
+--
+
+CREATE TABLE projectbuildconfiguration (
+    id integer NOT NULL,
+    buildscript character varying(255) NOT NULL,
+    creationtime timestamp without time zone,
+    identifier character varying(255) NOT NULL,
+    lastmodificationtime timestamp without time zone,
+    patchesurl character varying(255),
+    repositories character varying(255),
+    scmurl character varying(255) NOT NULL,
+    environment_id integer,
+    parent_id integer,
+    productversion_id integer,
+    project_id integer
 );
 
 
-ALTER TABLE public.project OWNER TO postgres;
+ALTER TABLE public.projectbuildconfiguration OWNER TO newcastle;
 
 --
--- Name: TABLE project; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: projectbuildconfiguration_id_seq; Type: SEQUENCE; Schema: public; Owner: newcastle
 --
 
-COMMENT ON TABLE project IS 'Project to be built';
-
-
---
--- Name: COLUMN project.scm_url; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON COLUMN project.scm_url IS 'URL of the SCM repository';
-
-
---
--- Name: COLUMN project.issue_tracker_url; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON COLUMN project.issue_tracker_url IS 'URL to the project issue tracking system';
-
-
---
--- Name: COLUMN project.project_url; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON COLUMN project.project_url IS 'URL to homepage of the project';
-
-
---
--- Name: system_image_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
---
-
-CREATE SEQUENCE system_image_id_seq
+CREATE SEQUENCE projectbuildconfiguration_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -365,56 +357,42 @@ CREATE SEQUENCE system_image_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.system_image_id_seq OWNER TO postgres;
+ALTER TABLE public.projectbuildconfiguration_id_seq OWNER TO newcastle;
 
 --
--- Name: system_image; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
+-- Name: projectbuildconfiguration_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: newcastle
 --
 
-CREATE TABLE system_image (
-    id integer DEFAULT nextval('system_image_id_seq'::regclass) NOT NULL,
-    description text,
-    image_blob bytea,
-    image_url character varying(100),
-    name character varying(20)
+ALTER SEQUENCE projectbuildconfiguration_id_seq OWNED BY projectbuildconfiguration.id;
+
+
+--
+-- Name: projectbuildresult; Type: TABLE; Schema: public; Owner: newcastle; Tablespace: 
+--
+
+CREATE TABLE projectbuildresult (
+    id integer NOT NULL,
+    builddriverid character varying(255),
+    buildlog text,
+    buildscript character varying(255),
+    endtime timestamp without time zone,
+    patchesurl character varying(255),
+    sourceurl character varying(255),
+    starttime timestamp without time zone,
+    status character varying(255),
+    projectbuildconfiguration_id integer,
+    systemimage_id integer,
+    user_id integer
 );
 
 
-ALTER TABLE public.system_image OWNER TO postgres;
+ALTER TABLE public.projectbuildresult OWNER TO newcastle;
 
 --
--- Name: TABLE system_image; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: projectbuildresult_id_seq; Type: SEQUENCE; Schema: public; Owner: newcastle
 --
 
-COMMENT ON TABLE system_image IS 'Build system image';
-
-
---
--- Name: COLUMN system_image.image_blob; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON COLUMN system_image.image_blob IS 'Build system image file, this could be something like a VM or Docker image.';
-
-
---
--- Name: COLUMN system_image.image_url; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON COLUMN system_image.image_url IS 'URL location of the system image to use for the build';
-
-
---
--- Name: COLUMN system_image.name; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON COLUMN system_image.name IS 'Short name of the image for easy reference';
-
-
---
--- Name: user_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
---
-
-CREATE SEQUENCE user_id_seq
+CREATE SEQUENCE projectbuildresult_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -422,196 +400,393 @@ CREATE SEQUENCE user_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.user_id_seq OWNER TO postgres;
+ALTER TABLE public.projectbuildresult_id_seq OWNER TO newcastle;
 
 --
--- Name: user; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
+-- Name: projectbuildresult_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: newcastle
 --
 
-CREATE TABLE "user" (
-    id integer DEFAULT nextval('user_id_seq'::regclass) NOT NULL,
-    username character varying(20) NOT NULL,
-    first_name character varying(20),
-    last_name character varying(20),
-    email character varying(30)
+ALTER SEQUENCE projectbuildresult_id_seq OWNED BY projectbuildresult.id;
+
+
+--
+-- Name: systemimage; Type: TABLE; Schema: public; Owner: newcastle; Tablespace: 
+--
+
+CREATE TABLE systemimage (
+    id integer NOT NULL,
+    description character varying(255),
+    imageurl character varying(255),
+    name character varying(255) NOT NULL,
+    environment_id integer
 );
 
 
-ALTER TABLE public."user" OWNER TO postgres;
+ALTER TABLE public.systemimage OWNER TO newcastle;
 
 --
--- Name: TABLE "user"; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: systemimage_id_seq; Type: SEQUENCE; Schema: public; Owner: newcastle
 --
 
-COMMENT ON TABLE "user" IS 'System Users';
+CREATE SEQUENCE systemimage_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.systemimage_id_seq OWNER TO newcastle;
+
+--
+-- Name: systemimage_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: newcastle
+--
+
+ALTER SEQUENCE systemimage_id_seq OWNED BY systemimage.id;
 
 
 --
--- Name: pk_artifact_id; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
+-- Name: users; Type: TABLE; Schema: public; Owner: newcastle; Tablespace: 
+--
+
+CREATE TABLE users (
+    id integer NOT NULL,
+    email character varying(100) NOT NULL,
+    firstname character varying(255),
+    lastname character varying(255),
+    username character varying(100) NOT NULL
+);
+
+
+ALTER TABLE public.users OWNER TO newcastle;
+
+--
+-- Name: users_id_seq; Type: SEQUENCE; Schema: public; Owner: newcastle
+--
+
+CREATE SEQUENCE users_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.users_id_seq OWNER TO newcastle;
+
+--
+-- Name: users_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: newcastle
+--
+
+ALTER SEQUENCE users_id_seq OWNED BY users.id;
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: newcastle
+--
+
+ALTER TABLE ONLY artifact ALTER COLUMN id SET DEFAULT nextval('artifact_id_seq'::regclass);
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: newcastle
+--
+
+ALTER TABLE ONLY buildcollection ALTER COLUMN id SET DEFAULT nextval('buildcollection_id_seq'::regclass);
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: newcastle
+--
+
+ALTER TABLE ONLY environment ALTER COLUMN id SET DEFAULT nextval('environment_id_seq'::regclass);
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: newcastle
+--
+
+ALTER TABLE ONLY license ALTER COLUMN id SET DEFAULT nextval('license_id_seq'::regclass);
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: newcastle
+--
+
+ALTER TABLE ONLY product ALTER COLUMN id SET DEFAULT nextval('product_id_seq'::regclass);
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: newcastle
+--
+
+ALTER TABLE ONLY productversion ALTER COLUMN id SET DEFAULT nextval('productversion_id_seq'::regclass);
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: newcastle
+--
+
+ALTER TABLE ONLY productversionproject ALTER COLUMN id SET DEFAULT nextval('productversionproject_id_seq'::regclass);
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: newcastle
+--
+
+ALTER TABLE ONLY project ALTER COLUMN id SET DEFAULT nextval('project_id_seq'::regclass);
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: newcastle
+--
+
+ALTER TABLE ONLY projectbuildconfiguration ALTER COLUMN id SET DEFAULT nextval('projectbuildconfiguration_id_seq'::regclass);
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: newcastle
+--
+
+ALTER TABLE ONLY projectbuildresult ALTER COLUMN id SET DEFAULT nextval('projectbuildresult_id_seq'::regclass);
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: newcastle
+--
+
+ALTER TABLE ONLY systemimage ALTER COLUMN id SET DEFAULT nextval('systemimage_id_seq'::regclass);
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: newcastle
+--
+
+ALTER TABLE ONLY users ALTER COLUMN id SET DEFAULT nextval('users_id_seq'::regclass);
+
+
+--
+-- Name: artifact_pkey; Type: CONSTRAINT; Schema: public; Owner: newcastle; Tablespace: 
 --
 
 ALTER TABLE ONLY artifact
-    ADD CONSTRAINT pk_artifact_id PRIMARY KEY (id);
+    ADD CONSTRAINT artifact_pkey PRIMARY KEY (id);
 
 
 --
--- Name: pk_build_collection_build_result; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
+-- Name: buildcollection_pkey; Type: CONSTRAINT; Schema: public; Owner: newcastle; Tablespace: 
 --
 
-ALTER TABLE ONLY build_collection_build_result
-    ADD CONSTRAINT pk_build_collection_build_result PRIMARY KEY (build_collection_id, build_result_id);
-
-
---
--- Name: pk_build_collection_id; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
---
-
-ALTER TABLE ONLY build_collection
-    ADD CONSTRAINT pk_build_collection_id PRIMARY KEY (id);
+ALTER TABLE ONLY buildcollection
+    ADD CONSTRAINT buildcollection_pkey PRIMARY KEY (id);
 
 
 --
--- Name: pk_build_configuration_id; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
+-- Name: environment_pkey; Type: CONSTRAINT; Schema: public; Owner: newcastle; Tablespace: 
 --
 
-ALTER TABLE ONLY build_configuration
-    ADD CONSTRAINT pk_build_configuration_id PRIMARY KEY (id);
-
-
---
--- Name: pk_build_result; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
---
-
-ALTER TABLE ONLY build_result
-    ADD CONSTRAINT pk_build_result PRIMARY KEY (id);
+ALTER TABLE ONLY environment
+    ADD CONSTRAINT environment_pkey PRIMARY KEY (id);
 
 
 --
--- Name: pk_build_trigger_id; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
---
-
-ALTER TABLE ONLY build_trigger
-    ADD CONSTRAINT pk_build_trigger_id PRIMARY KEY (id);
-
-
---
--- Name: pk_license_id; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
+-- Name: license_pkey; Type: CONSTRAINT; Schema: public; Owner: newcastle; Tablespace: 
 --
 
 ALTER TABLE ONLY license
-    ADD CONSTRAINT pk_license_id PRIMARY KEY (id);
+    ADD CONSTRAINT license_pkey PRIMARY KEY (id);
 
 
 --
--- Name: pk_project_id; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
+-- Name: product_pkey; Type: CONSTRAINT; Schema: public; Owner: newcastle; Tablespace: 
+--
+
+ALTER TABLE ONLY product
+    ADD CONSTRAINT product_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: productversion_pkey; Type: CONSTRAINT; Schema: public; Owner: newcastle; Tablespace: 
+--
+
+ALTER TABLE ONLY productversion
+    ADD CONSTRAINT productversion_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: productversionproject_pkey; Type: CONSTRAINT; Schema: public; Owner: newcastle; Tablespace: 
+--
+
+ALTER TABLE ONLY productversionproject
+    ADD CONSTRAINT productversionproject_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: project_pkey; Type: CONSTRAINT; Schema: public; Owner: newcastle; Tablespace: 
 --
 
 ALTER TABLE ONLY project
-    ADD CONSTRAINT pk_project_id PRIMARY KEY (id);
+    ADD CONSTRAINT project_pkey PRIMARY KEY (id);
 
 
 --
--- Name: pk_system_image_id; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
+-- Name: projectbuildconfiguration_pkey; Type: CONSTRAINT; Schema: public; Owner: newcastle; Tablespace: 
 --
 
-ALTER TABLE ONLY system_image
-    ADD CONSTRAINT pk_system_image_id PRIMARY KEY (id);
-
-
---
--- Name: pk_user_id; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
---
-
-ALTER TABLE ONLY "user"
-    ADD CONSTRAINT pk_user_id PRIMARY KEY (id);
+ALTER TABLE ONLY projectbuildconfiguration
+    ADD CONSTRAINT projectbuildconfiguration_pkey PRIMARY KEY (id);
 
 
 --
--- Name: unique_project_name; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
+-- Name: projectbuildresult_pkey; Type: CONSTRAINT; Schema: public; Owner: newcastle; Tablespace: 
 --
 
-ALTER TABLE ONLY project
-    ADD CONSTRAINT unique_project_name UNIQUE (name);
+ALTER TABLE ONLY projectbuildresult
+    ADD CONSTRAINT projectbuildresult_pkey PRIMARY KEY (id);
 
 
 --
--- Name: fk_artifact_build_result_id; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+-- Name: systemimage_pkey; Type: CONSTRAINT; Schema: public; Owner: newcastle; Tablespace: 
+--
+
+ALTER TABLE ONLY systemimage
+    ADD CONSTRAINT systemimage_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: users_pkey; Type: CONSTRAINT; Schema: public; Owner: newcastle; Tablespace: 
+--
+
+ALTER TABLE ONLY users
+    ADD CONSTRAINT users_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: fk_artifact_projectbuildresult; Type: FK CONSTRAINT; Schema: public; Owner: newcastle
 --
 
 ALTER TABLE ONLY artifact
-    ADD CONSTRAINT fk_artifact_build_result_id FOREIGN KEY (build_result_id) REFERENCES build_result(id);
+    ADD CONSTRAINT fk_artifact_projectbuildresult FOREIGN KEY (projectbuildresult_id) REFERENCES projectbuildresult(id);
 
 
 --
--- Name: fk_build_collection_build_result_build_collection_id; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+-- Name: fk_buildcollection_productversion; Type: FK CONSTRAINT; Schema: public; Owner: newcastle
 --
 
-ALTER TABLE ONLY build_collection_build_result
-    ADD CONSTRAINT fk_build_collection_build_result_build_collection_id FOREIGN KEY (build_collection_id) REFERENCES build_collection(id);
-
-
---
--- Name: fk_build_collection_build_result_build_result_id; Type: FK CONSTRAINT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY build_collection_build_result
-    ADD CONSTRAINT fk_build_collection_build_result_build_result_id FOREIGN KEY (build_result_id) REFERENCES build_result(id);
+ALTER TABLE ONLY buildcollection
+    ADD CONSTRAINT fk_buildcollection_productversion FOREIGN KEY (productversion_id) REFERENCES productversion(id);
 
 
 --
--- Name: fk_build_configuration_project_id; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+-- Name: fk_buildcollection_projectbuildresult_buildcollection; Type: FK CONSTRAINT; Schema: public; Owner: newcastle
 --
 
-ALTER TABLE ONLY build_configuration
-    ADD CONSTRAINT fk_build_configuration_project_id FOREIGN KEY (project_id) REFERENCES project(id);
-
-
---
--- Name: fk_build_configuration_system_image_id; Type: FK CONSTRAINT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY build_configuration
-    ADD CONSTRAINT fk_build_configuration_system_image_id FOREIGN KEY (system_image_id) REFERENCES system_image(id);
+ALTER TABLE ONLY buildcollection_projectbuildresult
+    ADD CONSTRAINT fk_buildcollection_projectbuildresult_buildcollection FOREIGN KEY (buildcollections_id) REFERENCES buildcollection(id);
 
 
 --
--- Name: fk_build_result_project_id; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+-- Name: fk_buildcollection_projectbuildresult_projectbuildresult; Type: FK CONSTRAINT; Schema: public; Owner: newcastle
 --
 
-ALTER TABLE ONLY build_result
-    ADD CONSTRAINT fk_build_result_project_id FOREIGN KEY (project_id) REFERENCES project(id);
-
-
---
--- Name: fk_build_result_user_id; Type: FK CONSTRAINT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY build_result
-    ADD CONSTRAINT fk_build_result_user_id FOREIGN KEY (user_id) REFERENCES "user"(id);
+ALTER TABLE ONLY buildcollection_projectbuildresult
+    ADD CONSTRAINT fk_buildcollection_projectbuildresult_projectbuildresult FOREIGN KEY (projectbuildresult_id) REFERENCES projectbuildresult(id);
 
 
 --
--- Name: fk_build_trigger_build_configuration_id; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+-- Name: fk_productversion_product; Type: FK CONSTRAINT; Schema: public; Owner: newcastle
 --
 
-ALTER TABLE ONLY build_trigger
-    ADD CONSTRAINT fk_build_trigger_build_configuration_id FOREIGN KEY (build_configuration_id) REFERENCES build_configuration(id);
-
-
---
--- Name: fk_build_trigger_triggered_build_configuration_id; Type: FK CONSTRAINT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY build_trigger
-    ADD CONSTRAINT fk_build_trigger_triggered_build_configuration_id FOREIGN KEY (triggered_build_configuration_id) REFERENCES build_configuration(id);
+ALTER TABLE ONLY productversion
+    ADD CONSTRAINT fk_productversion_product FOREIGN KEY (product_id) REFERENCES product(id);
 
 
 --
--- Name: fk_project_license_id; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+-- Name: fk_productversionproject_productversion; Type: FK CONSTRAINT; Schema: public; Owner: newcastle
+--
+
+ALTER TABLE ONLY productversionproject
+    ADD CONSTRAINT fk_productversionproject_productversion FOREIGN KEY (productversion_id) REFERENCES productversion(id);
+
+
+--
+-- Name: fk_productversionproject_project; Type: FK CONSTRAINT; Schema: public; Owner: newcastle
+--
+
+ALTER TABLE ONLY productversionproject
+    ADD CONSTRAINT fk_productversionproject_project FOREIGN KEY (project_id) REFERENCES project(id);
+
+
+--
+-- Name: fk_project_license; Type: FK CONSTRAINT; Schema: public; Owner: newcastle
 --
 
 ALTER TABLE ONLY project
-    ADD CONSTRAINT fk_project_license_id FOREIGN KEY (current_license_id) REFERENCES license(id);
+    ADD CONSTRAINT fk_project_license FOREIGN KEY (license_id) REFERENCES license(id);
+
+
+--
+-- Name: fk_projectbuildconfiguration_environment; Type: FK CONSTRAINT; Schema: public; Owner: newcastle
+--
+
+ALTER TABLE ONLY projectbuildconfiguration
+    ADD CONSTRAINT fk_projectbuildconfiguration_environment FOREIGN KEY (environment_id) REFERENCES environment(id);
+
+
+--
+-- Name: fk_projectbuildconfiguration_parent; Type: FK CONSTRAINT; Schema: public; Owner: newcastle
+--
+
+ALTER TABLE ONLY projectbuildconfiguration
+    ADD CONSTRAINT fk_projectbuildconfiguration_parent FOREIGN KEY (parent_id) REFERENCES projectbuildconfiguration(id);
+
+
+--
+-- Name: fk_projectbuildconfiguration_productversion; Type: FK CONSTRAINT; Schema: public; Owner: newcastle
+--
+
+ALTER TABLE ONLY projectbuildconfiguration
+    ADD CONSTRAINT fk_projectbuildconfiguration_productversion FOREIGN KEY (productversion_id) REFERENCES productversion(id);
+
+
+--
+-- Name: fk_projectbuildconfiguration_project; Type: FK CONSTRAINT; Schema: public; Owner: newcastle
+--
+
+ALTER TABLE ONLY projectbuildconfiguration
+    ADD CONSTRAINT fk_projectbuildconfiguration_project FOREIGN KEY (project_id) REFERENCES project(id);
+
+
+--
+-- Name: fk_projectbuildresult_projectbuildconfiguration; Type: FK CONSTRAINT; Schema: public; Owner: newcastle
+--
+
+ALTER TABLE ONLY projectbuildresult
+    ADD CONSTRAINT fk_projectbuildresult_projectbuildconfiguration FOREIGN KEY (projectbuildconfiguration_id) REFERENCES projectbuildconfiguration(id);
+
+
+--
+-- Name: fk_projectbuildresult_systemimage; Type: FK CONSTRAINT; Schema: public; Owner: newcastle
+--
+
+ALTER TABLE ONLY projectbuildresult
+    ADD CONSTRAINT fk_projectbuildresult_systemimage FOREIGN KEY (systemimage_id) REFERENCES systemimage(id);
+
+
+--
+-- Name: fk_projectbuildresult_user; Type: FK CONSTRAINT; Schema: public; Owner: newcastle
+--
+
+ALTER TABLE ONLY projectbuildresult
+    ADD CONSTRAINT fk_projectbuildresult_user FOREIGN KEY (user_id) REFERENCES users(id);
+
+
+--
+-- Name: fk_systemimage_environment; Type: FK CONSTRAINT; Schema: public; Owner: newcastle
+--
+
+ALTER TABLE ONLY systemimage
+    ADD CONSTRAINT fk_systemimage_environment FOREIGN KEY (environment_id) REFERENCES environment(id);
 
 
 --

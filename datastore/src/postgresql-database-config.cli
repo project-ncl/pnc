@@ -1,0 +1,14 @@
+# $JBOSS_HOME/bin/jboss-cli.sh --file=/path/to/this/file.
+connect
+batch
+
+## Add Postgresql driver
+/subsystem=datasources/jdbc-driver=postgresql:add(driver-name=postgresql,driver-module-name=org.postgresql,driver-xa-datasource-class-name=org.postgresql.xa.PGXADataSource)
+
+## Add PNC Datasource
+data-source add --name=PNewcastleDS --driver-name=postgresql --jndi-name=java:jboss/datasources/PNewcastleDS --connection-url=jdbc:postgresql://localhost:5432/newcastle --user-name=newcastle --password=newcastle --use-ccm=false --max-pool-size=25 --blocking-timeout-wait-millis=5000
+data-source enable --name=PNewcastleDS
+
+run-batch
+#:reload
+

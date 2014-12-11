@@ -21,8 +21,11 @@ import java.io.Serializable;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
+
+import org.hibernate.annotations.ForeignKey;
 
 /**
  * Defines the relationship between the Product and the Project, for a specific version
@@ -38,13 +41,15 @@ public class ProductVersionProject implements Serializable {
     private static final long serialVersionUID = 2596901834161647987L;
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
     @ManyToOne
+    @ForeignKey(name = "fk_productversionproject_productversion")
     private ProductVersion productVersion;
 
     @ManyToOne
+    @ForeignKey(name = "fk_productversionproject_project")
     private Project project;
 
     public ProductVersionProject() {

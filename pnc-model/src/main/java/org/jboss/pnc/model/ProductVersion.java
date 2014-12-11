@@ -17,11 +17,20 @@
 
 package org.jboss.pnc.model;
 
-import javax.persistence.*;
-
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
+
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+
+import org.hibernate.annotations.ForeignKey;
 
 /**
  * Class that contains all the versions for a Product
@@ -35,12 +44,14 @@ public class ProductVersion implements Serializable {
     private static final long serialVersionUID = 6314079319551264379L;
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    @Column(nullable = false, length = 50)
     private String version;
 
     @ManyToOne(cascade = CascadeType.ALL)
+    @ForeignKey(name = "fk_productversion_product")
     private Product product;
 
     @OneToMany(mappedBy = "productVersion", cascade = CascadeType.ALL)
@@ -48,6 +59,17 @@ public class ProductVersion implements Serializable {
 
     public ProductVersion() {
         productBuildCollections = new HashSet<>();
+    }
+
+    /**
+     *
+     * @param id
+     * @param version
+     */
+    public ProductVersion(Integer id, String version) {
+        this();
+        this.version = version;
+        this.id = id;
     }
 
     /**

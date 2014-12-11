@@ -137,10 +137,11 @@ ALTER TABLE public.build_configuration_id_seq OWNER TO postgres;
 
 CREATE TABLE build_configuration (
     id integer DEFAULT nextval('build_configuration_id_seq'::regclass) NOT NULL,
-    project_id integer,
+    project_id integer NOT NULL,
     build_script text,
     source_id character varying(30),
-    system_image_id integer
+    system_image_id integer,
+    name character varying(40) NOT NULL
 );
 
 
@@ -172,6 +173,13 @@ COMMENT ON COLUMN build_configuration.source_id IS 'Unique ID of the source to b
 --
 
 COMMENT ON COLUMN build_configuration.system_image_id IS 'ID of the system image to use to execute the build';
+
+
+--
+-- Name: COLUMN build_configuration.name; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN build_configuration.name IS 'Descriptive name of this configuration';
 
 
 --
