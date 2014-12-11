@@ -17,6 +17,7 @@ import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.asset.EmptyAsset;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -30,7 +31,7 @@ import java.util.function.Consumer;
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-11-23.
  */
 @RunWith(Arquillian.class)
-public class JenkinsDriverTest {
+public class JenkinsDriverRemoteTest {
 
     private JenkinsServer jenkins;
 
@@ -52,7 +53,7 @@ public class JenkinsDriverTest {
     JenkinsBuildDriver jenkinsBuildDriver;
 
     @Test
-    /** disabled by default you need to configure pnc-config.ini in test/resources */
+    @Ignore
     public void startJenkinsJobTestCase() throws Exception {
 
         ProjectBuildConfiguration pbc = new ProjectBuildConfiguration();
