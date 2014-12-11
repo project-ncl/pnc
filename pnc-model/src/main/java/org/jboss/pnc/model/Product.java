@@ -17,10 +17,19 @@
 
 package org.jboss.pnc.model;
 
-import javax.persistence.*;
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
+
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.OneToMany;
 
 /**
  * @author avibelli
@@ -32,12 +41,17 @@ public class Product implements Serializable {
     private static final long serialVersionUID = -9022966336791211855L;
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    @Column(nullable = false, length = 100)
     private String name;
 
     private String description;
+
+    @Column(nullable = false, length = 20)
+    @Enumerated(EnumType.STRING)
+    private ProductMilestone milestone;
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
     private Set<ProductVersion> productVersions;
@@ -100,6 +114,20 @@ public class Product implements Serializable {
      */
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    /**
+     * @return the milestone
+     */
+    public ProductMilestone getMilestone() {
+        return milestone;
+    }
+
+    /**
+     * @param milestone the milestone to set
+     */
+    public void setMilestone(ProductMilestone milestone) {
+        this.milestone = milestone;
     }
 
     /**

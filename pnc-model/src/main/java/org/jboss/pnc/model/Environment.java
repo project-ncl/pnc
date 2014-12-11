@@ -2,10 +2,12 @@ package org.jboss.pnc.model;
 
 import java.io.Serializable;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 /**
  * The Class Environment.
@@ -16,13 +18,15 @@ public class Environment implements Serializable {
     private static final long serialVersionUID = 8213767399060607637L;
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 50)
     private BuildType buildType;
 
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 50)
     private OperationalSystem operationalSystem;
 
     /**

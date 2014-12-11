@@ -6,7 +6,17 @@ import java.time.Instant;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.persistence.*;
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.Version;
+
+import org.hibernate.annotations.ForeignKey;
 
 /**
  * The Class ProjectBuildConfiguration cointains the informations needed to trigger the build of a project, i.e. the sources and
@@ -23,27 +33,34 @@ public class ProjectBuildConfiguration implements Serializable {
     private static final long serialVersionUID = -5890729679489304114L;
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    @Column(nullable = false)
     private String identifier;
 
+    @Column(nullable = false)
     private String buildScript;
 
+    @Column(nullable = false)
     private String scmUrl;
 
     private String patchesUrl;
 
     @ManyToOne(cascade = CascadeType.ALL)
+    @ForeignKey(name = "fk_projectbuildconfiguration_productversion")
     private ProductVersion productVersion;
 
     @ManyToOne(cascade = CascadeType.ALL)
+    @ForeignKey(name = "fk_projectbuildconfiguration_project")
     private Project project;
 
     @ManyToOne(cascade = CascadeType.ALL)
+    @ForeignKey(name = "fk_projectbuildconfiguration_environment")
     private Environment environment;
 
     @ManyToOne(cascade = CascadeType.ALL)
+    @ForeignKey(name = "fk_projectbuildconfiguration_parent")
     private ProjectBuildConfiguration parent;
 
     @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL)

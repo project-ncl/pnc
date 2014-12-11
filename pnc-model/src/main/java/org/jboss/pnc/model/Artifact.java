@@ -2,12 +2,16 @@ package org.jboss.pnc.model;
 
 import java.io.Serializable;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
+
+import org.hibernate.annotations.ForeignKey;
 
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-11-23.
@@ -37,31 +41,36 @@ public class Artifact implements Serializable {
     private static final long serialVersionUID = -2368833657284575734L;
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
     /**
      * TODO: Is this meant to be a Maven GAV e.g. use ProjectVersionRef [jdcasey] Non-maven repo artifacts might not conform to
      * GAV standard.
      */
+    @Column(nullable = false)
     private String identifier;
 
     // The type of repository that hosts this artifact. This is also a sort of description for what type of artifatct this is
     // (maven, npm, etc.)
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
     private RepositoryType repoType;
 
     private String checksum;
 
+    @Column(nullable = false, length = 100)
     private String filename;
 
     // What is this used for?
     private String deployUrl;
 
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private ArtifactStatus status;
 
-    // bi-directional many-to-one association to BuildResult
     @ManyToOne
+    @ForeignKey(name = "fk_artifact_projectbuildresult")
     private ProjectBuildResult projectBuildResult;
 
     /**
