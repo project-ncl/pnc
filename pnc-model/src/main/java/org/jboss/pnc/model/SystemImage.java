@@ -1,10 +1,15 @@
 package org.jboss.pnc.model;
 
+import java.io.Serializable;
+
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
-import java.io.Serializable;
+
+import org.hibernate.annotations.ForeignKey;
 
 /**
  * The Class SystemImage, selected by the Environment Driver to run a build, based on the buildConfiguration requirements
@@ -17,12 +22,14 @@ public class SystemImage implements Serializable {
     private static final long serialVersionUID = 3170247997550146257L;
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
     @ManyToOne
+    @ForeignKey(name = "fk_systemimage_environment")
     private Environment environment;
 
+    @Column(nullable = false)
     private String name;
 
     private String description;

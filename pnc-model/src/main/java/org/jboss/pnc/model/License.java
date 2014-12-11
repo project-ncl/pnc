@@ -3,9 +3,12 @@ package org.jboss.pnc.model;
 import java.io.Serializable;
 import java.util.List;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Lob;
 import javax.persistence.OneToMany;
 
 /**
@@ -17,18 +20,20 @@ public class License implements Serializable {
     private static final long serialVersionUID = 8893552998204511626L;
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    @Column(nullable = false)
     private String fullName;
 
+    @Lob
+    @Column(nullable = false, length = 4096)
     private String fullContent;
 
     private String refUrl;
 
     private String shortName;
 
-    // bi-directional many-to-one association to Project
     @OneToMany(mappedBy = "license")
     private List<Project> projects;
 

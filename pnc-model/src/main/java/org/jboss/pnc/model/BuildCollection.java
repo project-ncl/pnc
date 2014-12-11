@@ -1,8 +1,18 @@
 package org.jboss.pnc.model;
 
-import javax.persistence.*;
 import java.io.Serializable;
 import java.util.List;
+
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
+
+import org.hibernate.annotations.ForeignKey;
 
 /**
  * The Class BuildCollection, that encapsulates the set of buildResults that compose a specific version of a Product.
@@ -17,15 +27,18 @@ public class BuildCollection implements Serializable {
     private static final long serialVersionUID = 1633628406382742445L;
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    @Column(nullable = false)
     private Integer productBuildBumber;
 
     @ManyToOne(cascade = CascadeType.ALL)
+    @ForeignKey(name = "fk_buildcollection_productversion")
     private ProductVersion productVersion;
 
     @ManyToMany
+    @ForeignKey(name = "fk_buildcollection_projectbuildresult_buildcollection", inverseName = "fk_buildcollection_projectbuildresult_projectbuildresult")
     private List<ProjectBuildResult> projectBuildResult;
 
     /**
