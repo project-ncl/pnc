@@ -48,6 +48,7 @@ public class Artifact implements Serializable {
 
     // The type of repository that hosts this artifact. This is also a sort of description for what type of artifatct this is
     // (maven, npm, etc.)
+    @Enumerated(EnumType.STRING)
     private RepositoryType repoType;
 
     private String checksum;

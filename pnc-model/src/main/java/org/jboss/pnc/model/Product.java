@@ -39,6 +39,9 @@ public class Product implements Serializable {
 
     private String description;
 
+    @Enumerated(EnumType.STRING)
+    private ProductMilestone milestone;
+
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
     private Set<ProductVersion> productVersions;
 
@@ -100,6 +103,20 @@ public class Product implements Serializable {
      */
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    /**
+     * @return the milestone
+     */
+    public ProductMilestone getMilestone() {
+        return milestone;
+    }
+
+    /**
+     * @param milestone the milestone to set
+     */
+    public void setMilestone(ProductMilestone milestone) {
+        this.milestone = milestone;
     }
 
     /**
