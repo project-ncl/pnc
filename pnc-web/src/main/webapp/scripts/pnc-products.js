@@ -2,7 +2,7 @@
 $(document).ready(function() {
   var prodTable = $('#products').dataTable( {
     'ajax': {
-      'url': 'http://localhost:8080/pnc-web/rest/configuration',
+      'url': PNC_REST_BASE_URL + 'configuration',
       'type': 'GET',
       'dataSrc': ''
     }, 
