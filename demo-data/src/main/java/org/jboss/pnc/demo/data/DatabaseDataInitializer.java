@@ -1,12 +1,14 @@
 package org.jboss.pnc.demo.data;
 
 import com.google.common.base.Preconditions;
+
 import org.jboss.pnc.datastore.repositories.ProductRepository;
 import org.jboss.pnc.datastore.repositories.ProductVersionProjectRepository;
 import org.jboss.pnc.datastore.repositories.ProductVersionRepository;
 import org.jboss.pnc.datastore.repositories.ProjectBuildConfigurationRepository;
 import org.jboss.pnc.datastore.repositories.ProjectRepository;
 import org.jboss.pnc.model.Product;
+import org.jboss.pnc.model.ProductMilestone;
 import org.jboss.pnc.model.ProductVersion;
 import org.jboss.pnc.model.ProductVersionProject;
 import org.jboss.pnc.model.Project;
@@ -26,6 +28,7 @@ import javax.ejb.Startup;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
 import javax.inject.Inject;
+
 import java.lang.invoke.MethodHandles;
 
 /**
@@ -94,8 +97,8 @@ public class DatabaseDataInitializer {
         // Check that ProjectBuildConfiguration and ProductVersionProject have a ProductVersion associated
         Preconditions.checkState(projectBuildConfigurationDB.getProductVersion().getVersion().equals(PNC_PRODUCT_VERSION),
                 "Product version mapped to ProjectBuildConfiguration must be " + PNC_PRODUCT_VERSION);
-        Preconditions.checkState(projectBuildConfigurationDB.getProductVersion().getProduct().getName().equals(PNC_PRODUCT_NAME),
-                "Product mapped to ProjectBuildConfiguration must be " + PNC_PRODUCT_NAME);
+        Preconditions.checkState(projectBuildConfigurationDB.getProductVersion().getProduct().getName()
+                .equals(PNC_PRODUCT_NAME), "Product mapped to ProjectBuildConfiguration must be " + PNC_PRODUCT_NAME);
 
         // Check data of ProjectBuildConfiguration
         Preconditions.checkState(projectBuildConfigurationDB.getProject().getName().equals(PNC_PROJECT_NAME),
@@ -129,9 +132,9 @@ public class DatabaseDataInitializer {
             ProductVersionProject productVersionProject = ProductVersionProjectBuilder.newBuilder().project(project)
                     .productVersion(productVersion).build();
             ProjectBuildConfiguration projectBuildConfiguration = ProjectBuildConfigurationBuilder.newBuilder()
-                    .buildScript("mvn clean deploy -Dmaven.test.skip").environment(EnvironmentBuilder.defaultEnvironment().build())
-                    .identifier(PNC_PROJECT_BUILD_CFG_ID).productVersion(productVersion).project(project)
-                    .scmUrl("https://github.com/project-ncl/pnc.git").build();
+                    .buildScript("mvn clean deploy -Dmaven.test.skip")
+                    .environment(EnvironmentBuilder.defaultEnvironment().build()).identifier(PNC_PROJECT_BUILD_CFG_ID)
+                    .productVersion(productVersion).project(project).scmUrl("https://github.com/project-ncl/pnc.git").build();
 
             projectRepository.save(project);
             productRepository.save(product);

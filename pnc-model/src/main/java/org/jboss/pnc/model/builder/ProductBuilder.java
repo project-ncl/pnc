@@ -56,7 +56,7 @@ public class ProductBuilder {
         for (ProductVersion productVersion : productVersions) {
             productVersion.setProduct(product);
         }
-        product.setProductVersions(productVersions);
+        product.setProductVersion(productVersions);
 
         return product;
     }

@@ -87,13 +87,13 @@ public class ProjectBuildConfigurationBuilder {
         projectBuildConfiguration.setEnvironment(environment);
         projectBuildConfiguration.setCreationTime(creationTime);
         projectBuildConfiguration.setLastModificationTime(lastModificationTime);
-        projectBuildConfiguration.setRepositories(repositories);
+        projectBuildConfiguration.setRepository(repositories);
 
         // Set the bi-directional mapping
         for (ProjectBuildConfiguration dependency : dependencies) {
             dependency.setParent(projectBuildConfiguration);
         }
-        projectBuildConfiguration.setDependencies(dependencies);
+        projectBuildConfiguration.setDependency(dependencies);
 
         return projectBuildConfiguration;
     }

@@ -44,7 +44,7 @@ public class DatastoreTest {
     public void shouldStoreResults() {
         //given
         ProjectBuildResult objectToBeStored = new ProjectBuildResult();
-        objectToBeStored.setStatus(BuildStatus.CANCELLED);
+        objectToBeStored.setBuildStatus(BuildStatus.CANCELLED);
 
         //when
         projectBuildResultRepository.save(objectToBeStored);

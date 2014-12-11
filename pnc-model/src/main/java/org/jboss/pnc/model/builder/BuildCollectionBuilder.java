@@ -52,8 +52,8 @@ public class BuildCollectionBuilder {
     public BuildCollection build() {
         BuildCollection buildCollection = new BuildCollection();
         buildCollection.setId(id);
-        buildCollection.setProductBuildBumber(productBuildBumber);
-        buildCollection.setMilestone(milestone);
+        buildCollection.setProductBuildNumber(productBuildBumber);
+        buildCollection.setProductMilestone(milestone);
 
         if (productVersion != null) {
             productVersion.addProductBuildCollection(buildCollection);
@@ -62,7 +62,7 @@ public class BuildCollectionBuilder {
 
         // Set the bi-directional mapping
         for (ProjectBuildResult projectBuildResult : projectBuildResults) {
-            projectBuildResult.getBuildCollections().add(buildCollection);
+            projectBuildResult.getBuildCollection().add(buildCollection);
         }
 
         buildCollection.setProjectBuildResult(projectBuildResults);

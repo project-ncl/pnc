@@ -1,8 +1,22 @@
 package org.jboss.pnc.model;
 
-import javax.persistence.*;
 import java.io.Serializable;
 import java.util.List;
+
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+
+import org.hibernate.annotations.ForeignKey;
 
 /**
  * The Class BuildCollection, that encapsulates the set of buildResults that compose a specific version of a Product.
@@ -12,23 +26,30 @@ import java.util.List;
  * @author avibelli
  */
 @Entity
+@Table(name = "build_collection")
 public class BuildCollection implements Serializable {
 
     private static final long serialVersionUID = 1633628406382742445L;
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    private Integer productBuildBumber;
+    @Column(nullable = false, name = "product_build_number")
+    private Integer productBuildNumber;
 
+    @Column(nullable = false, length = 20, name = "product_milestone")
     @Enumerated(EnumType.STRING)
-    private ProductMilestone milestone;
+    private ProductMilestone productMilestone;
 
+    @JoinColumn(name = "product_version_id")
     @ManyToOne(cascade = CascadeType.ALL)
+    @ForeignKey(name = "fk_build_collection_product_version")
     private ProductVersion productVersion;
 
+    @Column(name = "project_build_result")
     @ManyToMany
+    @ForeignKey(name = "fk_build_collection_project_build_result_build_collection", inverseName = "fk_build_collection_project_build_result_project_build_result")
     private List<ProjectBuildResult> projectBuildResult;
 
     /**
@@ -57,31 +78,31 @@ public class BuildCollection implements Serializable {
     }
 
     /**
-     * @return the productBuildBumber
+     * @return the productBuildNumber
      */
-    public Integer getProductBuildBumber() {
-        return productBuildBumber;
+    public Integer getProductBuildNumber() {
+        return productBuildNumber;
     }
 
     /**
-     * @param productBuildBumber the productBuildBumber to set
+     * @param productBuildNumber the productBuildNumber to set
      */
-    public void setProductBuildBumber(Integer productBuildBumber) {
-        this.productBuildBumber = productBuildBumber;
+    public void setProductBuildNumber(Integer productBuildNumber) {
+        this.productBuildNumber = productBuildNumber;
     }
 
     /**
-     * @return the milestone
+     * @return the productMilestone
      */
-    public ProductMilestone getMilestone() {
-        return milestone;
+    public ProductMilestone getProductMilestone() {
+        return productMilestone;
     }
 
     /**
-     * @param milestone the milestone to set
+     * @param productMilestone the productMilestone to set
      */
-    public void setMilestone(ProductMilestone milestone) {
-        this.milestone = milestone;
+    public void setProductMilestone(ProductMilestone productMilestone) {
+        this.productMilestone = productMilestone;
     }
 
     /**
@@ -115,7 +136,7 @@ public class BuildCollection implements Serializable {
     @Override
     public String toString() {
         return "BuildCollection [productName=" + productVersion.getProduct().getName() + ", productVersion="
-                + productVersion.getVersion() + ", productBuildBumber=" + productBuildBumber + "]";
+                + productVersion.getVersion() + ", productBuildNumber=" + productBuildNumber + "]";
     }
 
 }

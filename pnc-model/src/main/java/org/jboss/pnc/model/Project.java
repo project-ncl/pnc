@@ -1,11 +1,22 @@
 package org.jboss.pnc.model;
 
-import javax.persistence.*;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlTransient;
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
+
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
+
+import org.hibernate.annotations.ForeignKey;
 
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-11-23.
@@ -17,38 +28,45 @@ import java.util.Set;
  */
 @XmlRootElement
 @Entity
+@Table(name = "project")
 public class Project implements Serializable {
 
     private static final long serialVersionUID = -4644857058640271044L;
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    @Column(nullable = false, length = 100)
     private String name;
 
     private String description;
 
+    @Column(name = "issue_tracker_url")
     private String issueTrackerUrl;
 
+    @Column(name = "project_url")
     private String projectUrl;
 
     @ManyToOne
+    @ForeignKey(name = "fk_project_license")
     private License license;
 
+    @Column(name = "product_version_project")
     @OneToMany(mappedBy = "project", cascade = CascadeType.ALL)
-    private Set<ProductVersionProject> productVersionProjects;
+    private Set<ProductVersionProject> productVersionProject;
 
+    @Column(name = "project_build_configuration")
     @XmlTransient
     @OneToMany(mappedBy = "project", cascade = CascadeType.ALL)
-    private Set<ProjectBuildConfiguration> projectBuildConfigurations;
+    private Set<ProjectBuildConfiguration> projectBuildConfiguration;
 
     /**
      * Instantiates a new project.
      */
     public Project() {
-        productVersionProjects = new HashSet<>();
-        projectBuildConfigurations = new HashSet<>();
+        productVersionProject = new HashSet<>();
+        projectBuildConfiguration = new HashSet<>();
     }
 
     /**
@@ -136,31 +154,31 @@ public class Project implements Serializable {
     }
 
     /**
-     * @return the projectBuildConfigurations
+     * @return the productVersionProject
      */
-    public Set<ProjectBuildConfiguration> getProjectBuildConfigurations() {
-        return projectBuildConfigurations;
+    public Set<ProductVersionProject> getProductVersionProject() {
+        return productVersionProject;
     }
 
     /**
-     * @param projectBuildConfigurations the projectBuildConfigurations to set
+     * @param productVersionProject the productVersionProject to set
      */
-    public void setProjectBuildConfigurations(Set<ProjectBuildConfiguration> projectBuildConfigurations) {
-        this.projectBuildConfigurations = projectBuildConfigurations;
+    public void setProductVersionProject(Set<ProductVersionProject> productVersionProject) {
+        this.productVersionProject = productVersionProject;
     }
 
     /**
-     * @return the productVersionProjects
+     * @return the projectBuildConfiguration
      */
-    public Set<ProductVersionProject> getProductVersionProjects() {
-        return productVersionProjects;
+    public Set<ProjectBuildConfiguration> getProjectBuildConfiguration() {
+        return projectBuildConfiguration;
     }
 
     /**
-     * @param productVersionProjects the productVersionProjects to set
+     * @param projectBuildConfiguration the projectBuildConfiguration to set
      */
-    public void setProductVersionProjects(Set<ProductVersionProject> productVersionProjects) {
-        this.productVersionProjects = productVersionProjects;
+    public void setProjectBuildConfiguration(Set<ProjectBuildConfiguration> projectBuildConfiguration) {
+        this.projectBuildConfiguration = projectBuildConfiguration;
     }
 
     /**
@@ -169,10 +187,10 @@ public class Project implements Serializable {
      * @param productVersionProject
      * @return
      */
-    public Set<ProductVersionProject> addProductVersionProject(ProductVersionProject productVersionProject) {
-        productVersionProjects.add(productVersionProject);
+    public Set<ProductVersionProject> addProductVersionProject(ProductVersionProject prodVersionProject) {
+        productVersionProject.add(prodVersionProject);
 
-        return productVersionProjects;
+        return productVersionProject;
     }
 
     /**
@@ -181,10 +199,10 @@ public class Project implements Serializable {
      * @param productVersionProject
      * @return
      */
-    public Set<ProductVersionProject> removeProductVersionProject(ProductVersionProject productVersionProject) {
-        productVersionProjects.remove(productVersionProject);
+    public Set<ProductVersionProject> removeProductVersionProject(ProductVersionProject prodVersionProject) {
+        productVersionProject.remove(prodVersionProject);
 
-        return productVersionProjects;
+        return productVersionProject;
     }
 
     /**
@@ -194,9 +212,9 @@ public class Project implements Serializable {
      * @return
      */
     public Set<ProjectBuildConfiguration> addProjectBuildConfiguration(ProjectBuildConfiguration configuration) {
-        projectBuildConfigurations.add(configuration);
+        projectBuildConfiguration.add(configuration);
 
-        return projectBuildConfigurations;
+        return projectBuildConfiguration;
     }
 
     /**
@@ -206,9 +224,9 @@ public class Project implements Serializable {
      * @return
      */
     public Set<ProjectBuildConfiguration> removeProjectBuildConfiguration(ProjectBuildConfiguration configuration) {
-        projectBuildConfigurations.remove(configuration);
+        projectBuildConfiguration.remove(configuration);
 
-        return projectBuildConfigurations;
+        return projectBuildConfiguration;
     }
 
     @Override

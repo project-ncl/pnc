@@ -61,7 +61,7 @@ public class ProductVersionBuilder {
         for (BuildCollection buildCollection : productBuildCollections) {
             buildCollection.setProductVersion(productVersion);
         }
-        productVersion.setProductBuildCollections(productBuildCollections);
+        productVersion.setProductBuildCollection(productBuildCollections);
 
         return productVersion;
     }

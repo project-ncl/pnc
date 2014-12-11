@@ -55,11 +55,11 @@ public class ArtifactBuilder {
         Artifact artifact = new Artifact();
         artifact.setId(id);
         artifact.setIdentifier(identifier);
-        artifact.setRepoType(repoType);
+        artifact.setRepositoryType(repoType);
         artifact.setChecksum(checksum);
         artifact.setFilename(filename);
         artifact.setDeployUrl(deployUrl);
-        artifact.setStatus(status);
+        artifact.setArtifactStatus(status);
         artifact.setProjectBuildResult(projectBuildResult);
 
         return artifact;

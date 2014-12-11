@@ -3,34 +3,43 @@ package org.jboss.pnc.model;
 import java.io.Serializable;
 import java.util.List;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Lob;
 import javax.persistence.OneToMany;
+import javax.persistence.Table;
 
 /**
  * The Class License maps the different licenses to be linked to the projects, i.e. APACHE 2.0, MIT, GLPL, etc
  */
 @Entity
+@Table(name = "license")
 public class License implements Serializable {
 
     private static final long serialVersionUID = 8893552998204511626L;
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    @Column(nullable = false, name = "full_name")
     private String fullName;
 
+    @Lob
+    @Column(nullable = false, length = 4096, name = "full_content")
     private String fullContent;
 
+    @Column(name = "ref_url")
     private String refUrl;
 
+    @Column(name = "short_name")
     private String shortName;
 
-    // bi-directional many-to-one association to Project
     @OneToMany(mappedBy = "license")
-    private List<Project> projects;
+    private List<Project> project;
 
     /**
      * Instantiates a new license.
@@ -125,21 +134,17 @@ public class License implements Serializable {
     }
 
     /**
-     * Gets the projects.
-     *
-     * @return the projects
+     * @return the project
      */
-    public List<Project> getProjects() {
-        return this.projects;
+    public List<Project> getProject() {
+        return project;
     }
 
     /**
-     * Sets the projects.
-     *
-     * @param projects the new projects
+     * @param project the project to set
      */
-    public void setProjects(List<Project> projects) {
-        this.projects = projects;
+    public void setProject(List<Project> project) {
+        this.project = project;
     }
 
     /**
@@ -149,7 +154,7 @@ public class License implements Serializable {
      * @return the project
      */
     public Project addProject(Project project) {
-        getProjects().add(project);
+        getProject().add(project);
         project.setLicense(this);
 
         return project;
@@ -162,7 +167,7 @@ public class License implements Serializable {
      * @return the project
      */
     public Project removeProject(Project project) {
-        getProjects().remove(project);
+        getProject().remove(project);
         project.setLicense(null);
 
         return project;
