@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.jboss.pnc.model.BuildCollection;
+import org.jboss.pnc.model.ProductMilestone;
 import org.jboss.pnc.model.ProductVersion;
 import org.jboss.pnc.model.ProjectBuildResult;
 
@@ -33,6 +34,8 @@ public class BuildCollectionBuilder {
     private Integer id;
 
     private Integer productBuildBumber;
+
+    private ProductMilestone milestone;
 
     private ProductVersion productVersion;
 
@@ -50,6 +53,7 @@ public class BuildCollectionBuilder {
         BuildCollection buildCollection = new BuildCollection();
         buildCollection.setId(id);
         buildCollection.setProductBuildBumber(productBuildBumber);
+        buildCollection.setMilestone(milestone);
 
         if (productVersion != null) {
             productVersion.addProductBuildCollection(buildCollection);
@@ -81,6 +85,11 @@ public class BuildCollectionBuilder {
         return this;
     }
 
+    public BuildCollectionBuilder milestone(ProductMilestone milestone) {
+        this.milestone = milestone;
+        return this;
+    }
+
     public BuildCollectionBuilder projectBuildResult(ProjectBuildResult projectBuildResult) {
         this.projectBuildResults.add(projectBuildResult);
         return this;
@@ -97,6 +106,10 @@ public class BuildCollectionBuilder {
 
     public Integer getProductBuildBumber() {
         return productBuildBumber;
+    }
+
+    public ProductMilestone getMilestone() {
+        return milestone;
     }
 
     public ProductVersion getProductVersion() {
