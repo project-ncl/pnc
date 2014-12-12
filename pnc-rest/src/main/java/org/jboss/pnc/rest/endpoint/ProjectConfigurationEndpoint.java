@@ -1,70 +1,76 @@
 package org.jboss.pnc.rest.endpoint;
 
-import com.wordnik.swagger.annotations.*;
-import org.jboss.pnc.rest.mapping.ProjectBuildConfigurationRest;
-import org.jboss.pnc.rest.trigger.BuildConfigurationProvider;
+import com.wordnik.swagger.annotations.Api;
+import com.wordnik.swagger.annotations.ApiOperation;
+import com.wordnik.swagger.annotations.ApiParam;
+import org.jboss.pnc.rest.provider.ProjectConfigurationProvider;
+import org.jboss.pnc.rest.restmodel.ProjectBuildConfigurationRest;
 
 import javax.inject.Inject;
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 import java.util.List;
 
-@Api(value = "/configuration", description = "Project Build Configuration endpoint")
-@Path("/configuration")
+@Api(value = "/product/{productId}/version/{versionId}/project/{projectId}/configuration", description = "Project Configuration related information")
+@Path("/product/{productId}/version/{versionId}/project/{projectId}/configuration")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 public class ProjectConfigurationEndpoint {
 
-    BuildConfigurationProvider buildConfigurationProvider;
+    private ProjectConfigurationProvider projectConfigurationProvider;
 
     public ProjectConfigurationEndpoint() {
     }
 
     @Inject
-    public ProjectConfigurationEndpoint(BuildConfigurationProvider buildConfigurationProvider) {
-        this.buildConfigurationProvider = buildConfigurationProvider;
+    public ProjectConfigurationEndpoint(ProjectConfigurationProvider projectConfigurationProvider) {
+        this.projectConfigurationProvider = projectConfigurationProvider;
     }
 
-    @ApiOperation(value = "Finds list of provisioned Project Build Configurations", responseContainer="List", response = ProjectBuildConfigurationRest.class)
+    @ApiOperation(value = "Gets specific all Projects configuration")
     @GET
-    public Response getAvailableBuildForTrigger() {
-        List<ProjectBuildConfigurationRest> projectBuildConfigurations = buildConfigurationProvider.getAvailableBuildConfigurations();
-        return Response.ok().entity(projectBuildConfigurations).build();
+    public List<ProjectBuildConfigurationRest> getAll(
+            @ApiParam(value = "Product id", required = true) @PathParam("productId") Integer productId,
+            @ApiParam(value = "Product Version id", required = true) @PathParam("versionId") Integer productVersionId,
+            @ApiParam(value = "Project id", required = true) @PathParam("projectId") Integer projectId) {
+        return projectConfigurationProvider.getAll(projectId);
     }
 
-    @ApiOperation(value = "Stores provided configuration")
+    @ApiOperation(value = "Gets specific Project's configuration")
+    @GET
+    @Path("/{id}")
+    public ProjectBuildConfigurationRest getSpecific(
+            @ApiParam(value = "Product id", required = true) @PathParam("productId") Integer productId,
+            @ApiParam(value = "Product Version id", required = true) @PathParam("versionId") Integer productVersionId,
+            @ApiParam(value = "Project id", required = true) @PathParam("projectId") Integer projectId,
+            @ApiParam(value = "Project's Configuration id", required = true) @PathParam("id") Integer id) {
+        return projectConfigurationProvider.getSpecific(projectId, id);
+    }
+
+    @ApiOperation(value = "Creates new Project's configuration")
     @POST
-    public Response addNewConfiguration(ProjectBuildConfigurationRest configuration, @Context UriInfo uriInfo) {
+    public Response createNew(
+            @ApiParam(value = "Product id", required = true) @PathParam("productId") Integer productId,
+            @ApiParam(value = "Product Version id", required = true) @PathParam("versionId") Integer productVersionId,
+            @ApiParam(value = "Project id", required = true) @PathParam("projectId") Integer projectId,
+            @NotNull @Valid ProjectBuildConfigurationRest projectBuildConfigurationRest,
+            @Context UriInfo uriInfo) {
         UriBuilder uriBuilder = UriBuilder.fromUri(uriInfo.getRequestUri()).path("{id}");
-        int configurationId = buildConfigurationProvider.storeConfiguration(configuration);
-        return Response.created(uriBuilder.build(configurationId)).entity(configurationId).build();
+        int id = projectConfigurationProvider.store(projectId, projectBuildConfigurationRest);
+        return Response.created(uriBuilder.build(uriBuilder.build(id))).build();
     }
 
-    @ApiOperation(value = "Updates specific configuration")
-    @PUT
-    @Path("{id}")
-    public Response updateConfiguration(
-            @ApiParam(value = "Configuration id", required = true)
-            @PathParam("id") Integer id,
-            ProjectBuildConfigurationRest configuration) {
-        buildConfigurationProvider.updateConfiguration(configuration);
+    @ApiOperation(value = "Deletes Project's configuration")
+    @DELETE
+    @Path("/{id}")
+    public Response delete(
+            @ApiParam(value = "Product id", required = true) @PathParam("productId") Integer productId,
+            @ApiParam(value = "Product Version id", required = true) @PathParam("versionId") Integer productVersionId,
+            @ApiParam(value = "Project id", required = true) @PathParam("projectId") Integer projectId,
+            @ApiParam(value = "Project's Configuration id", required = true) @PathParam("id") Integer id) {
+        projectConfigurationProvider.delete(id);
         return Response.ok().build();
-    }
-
-    @ApiOperation(value = "Finds provisioned Project Build Configuration", response = ProjectBuildConfigurationRest.class)
-    @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Everything is OK"),
-            @ApiResponse(code = 404, message = "Configuration not found")
-    })
-    @GET
-    @Path("{id}")
-    public Response getSpecificBuild(
-            @ApiParam(value = "Configuration id", required = true)
-            @PathParam("id") Integer id) {
-        ProjectBuildConfigurationRest projectBuildConfigurations = buildConfigurationProvider.getSpecificConfiguration(id);
-        if(projectBuildConfigurations == null) {
-            return Response.status(404).build();
-        }
-        return Response.ok().entity(projectBuildConfigurations).build();
     }
 }

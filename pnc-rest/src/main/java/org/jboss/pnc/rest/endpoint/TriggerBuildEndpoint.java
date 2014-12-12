@@ -15,8 +15,8 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.lang.invoke.MethodHandles;
 
-@Api(value = "/configuration/id/build", description = "Triggering build configuration")
-@Path("/configuration")
+@Api(value = "/product/{productId}/version/{versionId}/project/{projectId}/configuration", description = "Triggering build configuration")
+@Path("/product/{productId}/version/{versionId}/project/{projectId}/configuration")
 public class TriggerBuildEndpoint {
 
     private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
@@ -38,10 +38,12 @@ public class TriggerBuildEndpoint {
     })
     @POST
     @Produces(MediaType.APPLICATION_JSON)
-    @Path("{id}/build")
+    @Path("/{id}/build")
     public Response getSpecificBuild(
-            @ApiParam(value = "Configurations id", required = true)
-            @PathParam("id") Integer id) {
+            @ApiParam(value = "Product id", required = true) @PathParam("productId") Integer productId,
+            @ApiParam(value = "Product Version id", required = true) @PathParam("versionId") Integer productVersionId,
+            @ApiParam(value = "Project id", required = true) @PathParam("projectId") Integer projectId,
+            @ApiParam(value = "Configuration id", required = true) @PathParam("id") Integer id) {
         try {
             buildTriggerer.triggerBuilds(id);
             return Response.ok().build();

@@ -18,7 +18,6 @@
 package org.jboss.pnc.model;
 
 import javax.persistence.*;
-
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
@@ -44,10 +43,14 @@ public class ProductVersion implements Serializable {
     private Product product;
 
     @OneToMany(mappedBy = "productVersion", cascade = CascadeType.ALL)
+    private Set<ProductVersionProject> productVersionProjects;
+
+    @OneToMany(mappedBy = "productVersion", cascade = CascadeType.ALL)
     private Set<BuildCollection> productBuildCollections;
 
     public ProductVersion() {
         productBuildCollections = new HashSet<>();
+        productVersionProjects = new HashSet<>();
     }
 
     /**
@@ -138,5 +141,13 @@ public class ProductVersion implements Serializable {
         productBuildCollections.remove(productBuildCollection);
 
         return productBuildCollections;
+    }
+
+    public Set<ProductVersionProject> getProductVersionProjects() {
+        return productVersionProjects;
+    }
+
+    public void setProductVersionProjects(Set<ProductVersionProject> productVersionProjects) {
+        this.productVersionProjects = productVersionProjects;
     }
 }
