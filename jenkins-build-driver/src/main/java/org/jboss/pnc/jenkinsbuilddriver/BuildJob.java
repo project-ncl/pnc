@@ -25,7 +25,7 @@ public class BuildJob {
     }
 
     public boolean configure(ProjectBuildConfiguration projectBuildConfiguration, RepositoryConfiguration repositoryConfiguration, boolean override) throws BuildDriverException {
-        String jobName = projectBuildConfiguration.getProject().getName();
+        String jobName = projectBuildConfiguration.getIdentifier();
 
         this.buildJobConfig = new BuildJobConfig(
                 jobName,
