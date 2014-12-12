@@ -1,7 +1,6 @@
 package org.jboss.pnc.rest.configuration;
 
-import org.jboss.pnc.rest.endpoint.ProjectConfigurationEndpoint;
-import org.jboss.pnc.rest.endpoint.TriggerBuildEndpoint;
+import org.jboss.pnc.rest.endpoint.*;
 
 import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.core.Application;
@@ -14,14 +13,26 @@ public class JaxRsActivator extends Application {
     @Override
     public Set<Class<?>> getClasses() {
         Set<Class<?>> resources = new HashSet<>();
+        addSwaggerResources(resources);
+        addProjectResources(resources);
+        return resources;
+    }
+
+    private void addProjectResources(Set<Class<?>> resources) {
+        resources.add(TriggerBuildEndpoint.class);
+        resources.add(ProductEndpoint.class);
+        resources.add(ProductVersionEndpoint.class);
+        resources.add(ProjectEndpoint.class);
+        resources.add(ProjectConfigurationEndpoint.class);
+        resources.add(LegacyEndpoint.class);
+        resources.add(IllegalArgumentExceptionMapper.class);
+    }
+
+    private void addSwaggerResources(Set<Class<?>> resources) {
         resources.add(com.wordnik.swagger.jaxrs.listing.ApiListingResource.class);
         resources.add(com.wordnik.swagger.jaxrs.listing.ApiDeclarationProvider.class);
         resources.add(com.wordnik.swagger.jaxrs.listing.ApiListingResourceJSON.class);
         resources.add(com.wordnik.swagger.jaxrs.listing.ResourceListingProvider.class);
-        resources.add(TriggerBuildEndpoint.class);
-        resources.add(ProjectConfigurationEndpoint.class);
-        resources.add(IllegalArgumentExceptionMapper.class);
-        return resources;
     }
 
 }

@@ -31,17 +31,24 @@ public class BuildTest {
         return enterpriseArchive;
     }
 
-    //@Ignore //FIXME TEST fails with 500
     @Test
     public void shouldTriggerBuildAndFinishWithoutProblems() {
-        Integer notNullId = from(given()
-                .port(getHttpPort()).get("/pnc-web/rest/configuration").asString()).get("[0].id");
+        int productId = extractIdFromRest("/pnc-web/rest/product");
+        int versionId = extractIdFromRest(String.format("/pnc-web/rest/product/%d/version", productId));
+        int projectId = extractIdFromRest(String.format("/pnc-web/rest/product/%d/version/%d/project", productId, versionId));
+        int configurationId = extractIdFromRest(String.format("/pnc-web/rest/product/%d/version/%d/project/%d/configuration", productId, versionId, projectId));
 
         given()
-        .port(getHttpPort())
+                .port(getHttpPort())
         .when()
-            .post("/pnc-web/rest/configuration/" + notNullId + "/build")
+            .post(String.format("/pnc-web/rest/product/%d/version/%d/project/%d/configuration/%d/build", productId, versionId, projectId, configurationId))
         .then()
             .statusCode(200);
+    }
+
+    Integer extractIdFromRest(String path) {
+        String returnedObject = from(given()
+                .port(getHttpPort()).get(path).asString()).get("[0].id").toString();
+        return Integer.valueOf(returnedObject);
     }
 }

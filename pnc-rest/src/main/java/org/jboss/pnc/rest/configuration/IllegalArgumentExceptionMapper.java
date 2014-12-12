@@ -6,6 +6,7 @@ import javax.ws.rs.ext.Provider;
 
 @Provider
 public class IllegalArgumentExceptionMapper implements ExceptionMapper<IllegalArgumentException> {
+
     @Override
     public Response toResponse(IllegalArgumentException e) {
         return Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build();

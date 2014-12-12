@@ -9,7 +9,7 @@ $(document).ready(function() {
     'columns': [
       { 'data': 'id' },
       { 'data': 'identifier' },
-      { 'data': 'projectName' },
+      { 'data': 'scmUrl' },
       { 'data': 
         function(json) {
           return '<button class="build btn btn-block btn-danger" value="' + json.id + '">build</button>';
