@@ -92,7 +92,7 @@ public class BuildProjectsTest {
         BuildCollection buildCollection = new TestBuildCollectionBuilder().build("foo", "Foo desc.", "1.0");
         TestProjectConfigurationBuilder configurationBuilder = new TestProjectConfigurationBuilder();
 
-//TOdo move this test to datastore test
+//TODO move this test to datastore test
 //        projectBuilder.buildProjects(projectBuildConfigurations, buildCollection);
 //        assertThat(datastore.getBuildResults()).hasSize(6);
 
@@ -145,7 +145,9 @@ public class BuildProjectsTest {
     private void buildProject(ProjectBuildConfiguration projectBuildConfigurationB1, BuildCollection buildCollection) throws InterruptedException {
         List<TaskStatus> receivedStatuses = new ArrayList<TaskStatus>();
 
-        final Semaphore semaphore = new Semaphore(6);
+        int nStatusUpdates = 6;
+
+        final Semaphore semaphore = new Semaphore(nStatusUpdates);
 
         Consumer<TaskStatus> onStatusUpdate = (newStatus) -> {
             receivedStatuses.add(newStatus);
@@ -156,9 +158,9 @@ public class BuildProjectsTest {
         Consumer<Exception> onError = (e) -> {
             throw new AssertionError(e);
         };
-        semaphore.acquire(6); //there should be 6 callbacks
+        semaphore.acquire(nStatusUpdates); //there should be 6 callbacks
         projectBuilder.buildProject(projectBuildConfigurationB1, buildCollection, onStatusUpdate, onError);
-        semaphore.tryAcquire(6, 30, TimeUnit.SECONDS); //wait for callback to release
+        semaphore.tryAcquire(nStatusUpdates, 30, TimeUnit.SECONDS); //wait for callback to release
 
         boolean receivedCREATE_REPOSITORY = false;
         boolean receivedBUILD_SCHEDULED = false;

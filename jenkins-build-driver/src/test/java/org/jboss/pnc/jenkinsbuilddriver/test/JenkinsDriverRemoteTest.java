@@ -7,17 +7,17 @@ import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.Resources;
 import org.jboss.pnc.common.util.BooleanWrapper;
 import org.jboss.pnc.jenkinsbuilddriver.JenkinsBuildDriver;
+import org.jboss.pnc.jenkinsbuilddriver.buildmonitor.JenkinsBuildMonitor;
 import org.jboss.pnc.model.Project;
 import org.jboss.pnc.model.ProjectBuildConfiguration;
 import org.jboss.pnc.model.RepositoryType;
-import org.jboss.pnc.model.TaskStatus;
+import org.jboss.pnc.model.builder.BuildDetails;
 import org.jboss.pnc.spi.repositorymanager.RepositoryConfiguration;
 import org.jboss.pnc.spi.repositorymanager.RepositoryConnectionInfo;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.asset.EmptyAsset;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -26,6 +26,7 @@ import java.util.Map;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
+import java.util.logging.Logger;
 
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-11-23.
@@ -34,6 +35,9 @@ import java.util.function.Consumer;
 public class JenkinsDriverRemoteTest {
 
     private JenkinsServer jenkins;
+
+    @Inject
+    Logger log;
 
     @Deployment
     public static JavaArchive createDeployment() {
@@ -44,7 +48,8 @@ public class JenkinsDriverRemoteTest {
                 .addPackages(true, org.apache.http.client.HttpResponseException.class.getPackage())
                 .addClass(Configuration.class)
                 .addClass(Resources.class)
-                .addClass(JenkinsBuildDriver.class);
+                .addClass(JenkinsBuildDriver.class)
+                .addClass(JenkinsBuildMonitor.class);
         System.out.println(jar.toString(true));
         return jar;
     }
@@ -53,71 +58,107 @@ public class JenkinsDriverRemoteTest {
     JenkinsBuildDriver jenkinsBuildDriver;
 
     @Test
-    @Ignore
     public void startJenkinsJobTestCase() throws Exception {
+        ProjectBuildConfiguration pbc = getProjectBuildConfiguration();
 
-        ProjectBuildConfiguration pbc = new ProjectBuildConfiguration();
-        pbc.setScmUrl("https://github.com/project-ncl/pnc.git");
-        pbc.setBuildScript("mvn clean install -Dmaven.test.skip");
-        Project project = new Project();
-        project.setName("PNC-executed-from-jenkins-driver-test");
-        pbc.setProject(project);
-
-        Consumer<TaskStatus> updateStatus = (ts) -> {};
-        RepositoryConfiguration repositoryConfiguration = new RepositoryConfiguration() {
-            @Override
-            public RepositoryType getType() {
-                return RepositoryType.MAVEN;
-            }
-
-            @Override
-            public String getId() {
-                return "mock-config";
-            }
-
-            @Override
-            public RepositoryConnectionInfo getConnectionInfo() {
-                return new RepositoryConnectionInfo() {
-                    @Override
-                    public String getDependencyUrl() {
-                        return "https://repository.jboss.org/nexus/content/repositories/central";
-                    }
-
-                    @Override
-                    public String getToolchainUrl() {
-                        return null;
-                    }
-
-                    @Override
-                    public String getDeployUrl() {
-                        return null;
-                    }
-
-                    @Override
-                    public Map<String, String> getProperties() {
-                        return null;
-                    }
-                };
-            }
-        };
+        RepositoryConfiguration repositoryConfiguration = getRepositoryConfiguration();
 
         final Semaphore mutex = new Semaphore(1);
         BooleanWrapper completed = new BooleanWrapper(false);
 
-        Consumer<String> onComplete = (id) -> {
+        class BuildTask {
+            BuildDetails buildDetails;
+        }
+
+        final BuildTask buildTask = new BuildTask();
+
+        Consumer<BuildDetails> onComplete = (buildDetails) -> {
+            buildTask.buildDetails = buildDetails;
             completed.set(true);
             mutex.release();
         };
         Consumer<Exception> onError = (e) -> {
-            e.printStackTrace();
+            throw new AssertionError(e);
         };
         mutex.acquire();
         jenkinsBuildDriver.startProjectBuild(pbc, repositoryConfiguration, onComplete, onError);
-
         mutex.tryAcquire(30, TimeUnit.SECONDS); //wait for callback to release
+
         Assert.assertTrue("There was no complete callback.", completed.get());
+        Assert.assertNotNull(buildTask.buildDetails);
+
+        completed.set(false);
+        long waitStarted = System.currentTimeMillis();
+        final Long[] buildTook = new Long[1];
+
+        Consumer<String> onWaitComplete = (s) -> {
+            completed.set(true);
+            buildTook[0] = System.currentTimeMillis() - waitStarted;
+            log.info("Received build completed in " + buildTook[0] + "ms.");
+            mutex.release();
+        };
+        Consumer<Exception> onWaitError = (e) -> {
+            throw new AssertionError(e);
+        };
+
+        jenkinsBuildDriver.waitBuildToComplete(buildTask.buildDetails, onWaitComplete, onWaitError);
+        mutex.tryAcquire(60, TimeUnit.SECONDS); //wait for callback to release
+
+        long expected = 10000;
+        Assert.assertTrue("Received build completed in " + buildTook[0] + " while expected >" + expected + ".", buildTook[0] >= expected);
+
+        Assert.assertTrue("There was no complete callback.", completed.get());
+
     }
 
-    class BooleanWrap {
+    private RepositoryConfiguration getRepositoryConfiguration() {
+        return new RepositoryConfiguration() {
+                @Override
+                public RepositoryType getType() {
+                    return RepositoryType.MAVEN;
+                }
+
+                @Override
+                public String getId() {
+                    return "mock-config";
+                }
+
+                @Override
+                public RepositoryConnectionInfo getConnectionInfo() {
+                    return new RepositoryConnectionInfo() {
+                        @Override
+                        public String getDependencyUrl() {
+                            return "https://repository.jboss.org/nexus/content/repositories/central";
+                        }
+
+                        @Override
+                        public String getToolchainUrl() {
+                            return null;
+                        }
+
+                        @Override
+                        public String getDeployUrl() {
+                            return null;
+                        }
+
+                        @Override
+                        public Map<String, String> getProperties() {
+                            return null;
+                        }
+                    };
+                }
+            };
     }
+
+    private ProjectBuildConfiguration getProjectBuildConfiguration() {
+        ProjectBuildConfiguration pbc = new ProjectBuildConfiguration();
+        pbc.setScmUrl("https://github.com/project-ncl/pnc.git");
+        pbc.setBuildScript("mvn clean install -Dmaven.test.skip");
+        pbc.setIdentifier("PNC-executed-from-jenkins-driver-test");
+        Project project = new Project();
+        project.setName("PNC-executed-from-jenkins-driver-test");
+        pbc.setProject(project);
+        return pbc;
+    }
+
 }
