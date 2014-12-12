@@ -1,409 +1,424 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-    <name>pnc</name>
-    <modelVersion>4.0.0</modelVersion>
-    <groupId>org.jboss.pnc</groupId>
-    <artifactId>parent</artifactId>
-    <version>1.0-SNAPSHOT</version>
-    <packaging>pom</packaging>
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
 
-    <url>https://github.com/project-ncl</url>
+  <groupId>org.jboss.pnc</groupId>
+  <artifactId>parent</artifactId>
+  <version>1.0-SNAPSHOT</version>
+  <packaging>pom</packaging>
 
-    <licenses>
-        <license>
-            <name>Apache License, Version 2.0</name>
-            <distribution>repo</distribution>
-            <url>http://www.apache.org/licenses/LICENSE-2.0.html</url>
-        </license>
-    </licenses>
+  <name>pnc</name>
+  <url>https://github.com/project-ncl</url>
 
-    <scm>
-        <connection>scm:git:https://github.com/project-ncl/pnc.git</connection>
-        <developerConnection>scm:git:git@github.com:project-ncl/pnc.git</developerConnection>
-        <url>https://github.com/project-ncl/pnc/</url>
-    </scm>
+  <licenses>
+    <license>
+      <name>Apache License, Version 2.0</name>
+      <distribution>repo</distribution>
+      <url>http://www.apache.org/licenses/LICENSE-2.0.html</url>
+    </license>
+  </licenses>
+
+  <scm>
+    <connection>scm:git:https://github.com/project-ncl/pnc.git</connection>
+    <developerConnection>scm:git:git@github.com:project-ncl/pnc.git</developerConnection>
+    <url>https://github.com/project-ncl/pnc/</url>
+  </scm>
 
 
-    <modules>
-        <module>common</module>
-        <module>datastore</module>
-        <module>ear-package</module>
-        <module>jenkins-build-driver</module>
-        <module>maven-repository-manager</module>
-        <module>pnc-core</module>
-        <module>pnc-model</module>
-        <module>pnc-rest</module>
-        <module>pnc-spi</module>
-        <module>pnc-web</module>
-        <module>docker-environment-driver</module>
-        <module>integration-test</module>
-        <module>demo-data</module>
-    </modules>
+  <modules>
+    <module>common</module>
+    <module>datastore</module>
+    <module>ear-package</module>
+    <module>jenkins-build-driver</module>
+    <module>maven-repository-manager</module>
+    <module>pnc-core</module>
+    <module>pnc-model</module>
+    <module>pnc-rest</module>
+    <module>pnc-spi</module>
+    <module>pnc-web</module>
+    <module>docker-environment-driver</module>
+    <module>integration-test</module>
+    <module>demo-data</module>
+  </modules>
 
-    <properties>
-        <version.jboss.maven.plugin>7.5.Final</version.jboss.maven.plugin>
-        <version.jboss.bom>1.0.7.Final</version.jboss.bom>
-        <version.jboss.as>7.2.0.Final</version.jboss.as>
-        <atlasVersion>0.13.6</atlasVersion>
-        <version.assertj-core>1.7.0</version.assertj-core>
-        <version.mockito-all>1.10.8</version.mockito-all>
-        <version.catch-exception>1.2.0</version.catch-exception>
-        <version.guava>13.0.1</version.guava>
+  <properties>
+    <version.jboss.maven.plugin>7.5.Final</version.jboss.maven.plugin>
+    <version.jboss.bom>1.0.7.Final</version.jboss.bom>
+    <version.jboss.as>7.2.0.Final</version.jboss.as>
+    <atlasVersion>0.13.6</atlasVersion>
+    <version.assertj-core>1.7.0</version.assertj-core>
+    <version.mockito-all>1.10.8</version.mockito-all>
+    <version.catch-exception>1.2.0</version.catch-exception>
+    <version.guava>13.0.1</version.guava>
 
-        <!-- other plugin versions -->
-        <version.ejb.plugin>2.3</version.ejb.plugin>
-        <version.surefire.plugin>2.18</version.surefire.plugin>
+    <!-- other plugin versions -->
+    <version.ejb.plugin>2.3</version.ejb.plugin>
+    <version.surefire.plugin>2.18</version.surefire.plugin>
 
-        <!-- maven-compiler-plugin -->
-        <maven.compiler.target>1.8</maven.compiler.target>
-        <maven.compiler.source>1.8</maven.compiler.source>
+    <!-- maven-compiler-plugin -->
+    <maven.compiler.target>1.8</maven.compiler.target>
+    <maven.compiler.source>1.8</maven.compiler.source>
 
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-        <demo.pnc.ip.address>10.3.10.200:8080</demo.pnc.ip.address>
-    </properties>
+    <demo.pnc.ip.address>10.3.10.200:8080</demo.pnc.ip.address>
+  </properties>
 
-    <dependencyManagement>
-        <dependencies>
-            <!-- Project modules, to support cross-module dependencies -->
-            <dependency>
-              <groupId>org.jboss.pnc</groupId>
-              <artifactId>common</artifactId>
-              <version>${project.version}</version>
-            </dependency>
-
-            <dependency>
-              <groupId>org.jboss.pnc</groupId>
-              <artifactId>datastore</artifactId>
-              <version>${project.version}</version>
-            </dependency>
-
-            <dependency>
-              <groupId>org.jboss.pnc</groupId>
-              <artifactId>ear-package</artifactId>
-              <version>${project.version}</version>
-	      <type>ear</type>
-            </dependency>
-
-            <dependency>
-              <groupId>org.jboss.pnc</groupId>
-              <artifactId>jenkins-build-driver</artifactId>
-              <version>${project.version}</version>
-            </dependency>
-
-            <dependency>
-              <groupId>org.jboss.pnc</groupId>
-              <artifactId>maven-repository-manager</artifactId>
-              <version>${project.version}</version>
-            </dependency>
-
-            <dependency>
-              <groupId>org.jboss.pnc</groupId>
-              <artifactId>pnc-core</artifactId>
-              <version>${project.version}</version>
-            </dependency>
-
-            <dependency>
-              <groupId>org.jboss.pnc</groupId>
-              <artifactId>pnc-model</artifactId>
-              <version>${project.version}</version>
-            </dependency>
-
-            <dependency>
-              <groupId>org.jboss.pnc</groupId>
-              <artifactId>pnc-rest</artifactId>
-              <version>${project.version}</version>
-	      <type>ejb</type>
-            </dependency>
-
-            <dependency>
-              <groupId>org.jboss.pnc</groupId>
-              <artifactId>pnc-spi</artifactId>
-              <version>${project.version}</version>
-            </dependency>
-
-            <dependency>
-              <groupId>org.jboss.pnc</groupId>
-              <artifactId>pnc-web</artifactId>
-              <version>${project.version}</version>
-	          <type>war</type>
-            </dependency>
-
-            <dependency>
-              <groupId>org.jboss.pnc</groupId>
-              <artifactId>docker-environment-driver</artifactId>
-              <version>${project.version}</version>
-            </dependency>
-
-            <dependency>
-              <groupId>org.jboss.pnc</groupId>
-              <artifactId>integration-test</artifactId>
-              <version>${project.version}</version>
-            </dependency>
-
-            <dependency>
-              <groupId>org.jboss.pnc</groupId>
-              <artifactId>demo-data</artifactId>
-              <version>${project.version}</version>
-            </dependency>
-            <!-- END: Project modules -->
-
-            <dependency>
-                <groupId>org.jboss.arquillian</groupId>
-                <artifactId>arquillian-bom</artifactId>
-                <version>1.1.5.Final</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.jboss.bom</groupId>
-                <artifactId>jboss-javaee-6.0-with-tools</artifactId>
-                <version>${version.jboss.bom}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.jboss.bom</groupId>
-                <artifactId>jboss-javaee-6.0-with-hibernate</artifactId>
-                <version>${version.jboss.bom}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.jboss.spec</groupId>
-                <artifactId>jboss-javaee-6.0</artifactId>
-                <version>1.0.0.Final</version>
-                <type>pom</type>
-            </dependency>
-
-            <dependency>
-                <groupId>org.jboss.arquillian.container</groupId>
-                <artifactId>arquillian-weld-se-embedded-1.1</artifactId>
-                <version>1.0.0.CR8</version>
-            </dependency>
-            <dependency>
-                <groupId>org.jboss.weld</groupId>
-                <artifactId>weld-spi</artifactId>
-                <version>1.1.Final</version>
-            </dependency>
-            <dependency>
-                <groupId>org.jboss.weld</groupId>
-                <artifactId>weld-core</artifactId>
-                <version>1.1.5.Final</version>
-            </dependency>
-            <dependency>
-                <groupId>javax.el</groupId>
-                <artifactId>el-api</artifactId>
-                <version>2.2</version>
-            </dependency>
-            <dependency>
-                <groupId>org.slf4j</groupId>
-                <artifactId>slf4j-simple</artifactId>
-                <version>1.7.7</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.commonjava.maven.atlas</groupId>
-                <artifactId>atlas-identities</artifactId>
-                <version>${atlasVersion}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.springframework.data</groupId>
-                <artifactId>spring-data-jpa</artifactId>
-                <version>1.7.1.RELEASE</version>
-            </dependency>
-            <dependency>
-                <groupId>org.jboss.arquillian.extension</groupId>
-                <artifactId>arquillian-transaction-jta</artifactId>
-                <version>1.0.1.Final</version>
-            </dependency>
-
-            <dependency>
-                <groupId>com.offbytwo.jenkins</groupId>
-                <artifactId>jenkins-client</artifactId>
-                <version>0.2.2-20141202</version>
-            </dependency>
-            <dependency>
-                <groupId>com.google.guava</groupId>
-                <artifactId>guava</artifactId>
-                <version>${version.guava}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.jboss</groupId>
-                <artifactId>jboss-common-core</artifactId>
-                <version>2.2.22.GA</version>
-            </dependency>
-            <dependency>
-                <groupId>com.wordnik</groupId>
-                <artifactId>swagger-jaxrs_2.10</artifactId>
-                <version>1.3.11</version>
-            </dependency>
-
-            <!-- Test dependencies -->
-            <dependency>
-              <groupId>org.jboss.weld.se</groupId>
-              <artifactId>weld-se</artifactId>
-              <version>2.2.0.SP1</version>
-              <scope>test</scope>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
-
+  <dependencyManagement>
     <dependencies>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.assertj</groupId>
-            <artifactId>assertj-core</artifactId>
-            <version>${version.assertj-core}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-all</artifactId>
-            <version>${version.mockito-all}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.googlecode.catch-exception</groupId>
-            <artifactId>catch-exception</artifactId>
-            <version>${version.catch-exception}</version>
-            <scope>test</scope>
-        </dependency>
+      <!-- Project modules, to support cross-module dependencies -->
+      <dependency>
+        <groupId>org.jboss.pnc</groupId>
+        <artifactId>common</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jboss.pnc</groupId>
+        <artifactId>datastore</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jboss.pnc</groupId>
+        <artifactId>ear-package</artifactId>
+        <version>${project.version}</version>
+        <type>ear</type>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jboss.pnc</groupId>
+        <artifactId>jenkins-build-driver</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jboss.pnc</groupId>
+        <artifactId>maven-repository-manager</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jboss.pnc</groupId>
+        <artifactId>pnc-core</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jboss.pnc</groupId>
+        <artifactId>pnc-model</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jboss.pnc</groupId>
+        <artifactId>pnc-rest</artifactId>
+        <version>${project.version}</version>
+        <type>ejb</type>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jboss.pnc</groupId>
+        <artifactId>pnc-spi</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jboss.pnc</groupId>
+        <artifactId>pnc-web</artifactId>
+        <version>${project.version}</version>
+        <type>war</type>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jboss.pnc</groupId>
+        <artifactId>docker-environment-driver</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jboss.pnc</groupId>
+        <artifactId>integration-test</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jboss.pnc</groupId>
+        <artifactId>demo-data</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <!-- END: Project modules -->
+
+      <dependency>
+        <groupId>org.jboss.arquillian</groupId>
+        <artifactId>arquillian-bom</artifactId>
+        <version>1.1.5.Final</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jboss.bom</groupId>
+        <artifactId>jboss-javaee-6.0-with-tools</artifactId>
+        <version>${version.jboss.bom}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jboss.bom</groupId>
+        <artifactId>jboss-javaee-6.0-with-hibernate</artifactId>
+        <version>${version.jboss.bom}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jboss.spec</groupId>
+        <artifactId>jboss-javaee-6.0</artifactId>
+        <version>1.0.0.Final</version>
+        <type>pom</type>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jboss.arquillian.container</groupId>
+        <artifactId>arquillian-weld-se-embedded-1.1</artifactId>
+        <version>1.0.0.CR8</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jboss.weld</groupId>
+        <artifactId>weld-spi</artifactId>
+        <version>1.1.Final</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jboss.weld</groupId>
+        <artifactId>weld-core</artifactId>
+        <version>1.1.5.Final</version>
+      </dependency>
+
+      <dependency>
+        <groupId>javax.el</groupId>
+        <artifactId>el-api</artifactId>
+        <version>2.2</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>slf4j-simple</artifactId>
+        <version>1.7.7</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.commonjava.maven.atlas</groupId>
+        <artifactId>atlas-identities</artifactId>
+        <version>${atlasVersion}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.springframework.data</groupId>
+        <artifactId>spring-data-jpa</artifactId>
+        <version>1.7.1.RELEASE</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jboss.arquillian.extension</groupId>
+        <artifactId>arquillian-transaction-jta</artifactId>
+        <version>1.0.1.Final</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.offbytwo.jenkins</groupId>
+        <artifactId>jenkins-client</artifactId>
+        <version>0.2.2-20141202</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.google.guava</groupId>
+        <artifactId>guava</artifactId>
+        <version>${version.guava}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jboss</groupId>
+        <artifactId>jboss-common-core</artifactId>
+        <version>2.2.22.GA</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.wordnik</groupId>
+        <artifactId>swagger-jaxrs_2.10</artifactId>
+        <version>1.3.11</version>
+      </dependency>
+
+      <!-- Test dependencies -->
+      <dependency>
+        <groupId>org.jboss.weld.se</groupId>
+        <artifactId>weld-se</artifactId>
+        <version>2.2.0.SP1</version>
+        <scope>test</scope>
+      </dependency>
     </dependencies>
+  </dependencyManagement>
 
-    <build>
-        <pluginManagement>
+  <dependencies>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.assertj</groupId>
+      <artifactId>assertj-core</artifactId>
+      <version>${version.assertj-core}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-all</artifactId>
+      <version>${version.mockito-all}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.googlecode.catch-exception</groupId>
+      <artifactId>catch-exception</artifactId>
+      <version>${version.catch-exception}</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
 
-            <plugins>
-                <plugin>
-                    <artifactId>maven-compiler-plugin</artifactId>
-                    <version>3.2</version>
-                    <configuration>
-                        <source>${maven.compiler.source}</source>
-                        <target>${maven.compiler.target}</target>
-                    </configuration>
-                </plugin>
-                <plugin>
-                    <artifactId>maven-surefire-plugin</artifactId>
-                    <version>${version.surefire.plugin}</version>
-                </plugin>
-                <plugin>
-                    <groupId>org.jboss.as.plugins</groupId>
-                    <artifactId>jboss-as-maven-plugin</artifactId>
-                    <version>${version.jboss.maven.plugin}</version>
-                    <inherited>true</inherited>
-                    <configuration>
-                        <skip>true</skip>
-                    </configuration>
-                </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-ear-plugin</artifactId>
-                    <version>2.9.1</version>
-                    <configuration>
-                        <archive>
-                            <index>true</index>
-                            <manifest>
-                                <addDefaultSpecificationEntries>
-                                    true
-                                </addDefaultSpecificationEntries>
-                                <addDefaultImplementationEntries>
-                                    true
-                                </addDefaultImplementationEntries>
-                            </manifest>
-                            <manifestEntries>
-                                <Implementation-URL>${project.url}</Implementation-URL>
-                                <Java-Version>${java.version}</Java-Version>
-                                <Java-Vendor>${java.vendor}</Java-Vendor>
-                                <Os-Name>${os.name}</Os-Name>
-                                <Os-Arch>${os.arch}</Os-Arch>
-                                <Os-Version>${os.version}</Os-Version>
-                                <Scm-Url>${project.scm.url}</Scm-Url>
-                                <Scm-Connection>${project.scm.connection}</Scm-Connection>
-                                <Scm-Revision>${buildNumber}</Scm-Revision>
-                                <Build-Timestamp>${build.datetime}</Build-Timestamp>
-                            </manifestEntries>
-                        </archive>
-                        <version>6</version>
-                        <defaultLibBundleDir>lib</defaultLibBundleDir>
-                        <fileNameMapping>no-version</fileNameMapping>
-                    </configuration>
-                </plugin>
+  <build>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <artifactId>maven-compiler-plugin</artifactId>
+          <version>3.2</version>
+          <configuration>
+            <source>${maven.compiler.source}</source>
+            <target>${maven.compiler.target}</target>
+          </configuration>
+        </plugin>
 
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-war-plugin</artifactId>
-                    <version>2.5</version>
-                    <configuration>
-                        <archive>
-                            <index>true</index>
-                            <manifest>
-                                <addDefaultSpecificationEntries>
-                                    true
-                                </addDefaultSpecificationEntries>
-                                <addDefaultImplementationEntries>
-                                    true
-                                </addDefaultImplementationEntries>
-                            </manifest>
-                            <manifestEntries>
-                                <Implementation-URL>${project.url}</Implementation-URL>
-                                <Java-Version>${java.version}</Java-Version>
-                                <Java-Vendor>${java.vendor}</Java-Vendor>
-                                <Os-Name>${os.name}</Os-Name>
-                                <Os-Arch>${os.arch}</Os-Arch>
-                                <Os-Version>${os.version}</Os-Version>
-                                <Scm-Url>${project.scm.url}</Scm-Url>
-                                <Scm-Connection>${project.scm.connection}</Scm-Connection>
-                                <Scm-Revision>${buildNumber}</Scm-Revision>
-                                <Build-Timestamp>${build.datetime}</Build-Timestamp>
-                            </manifestEntries>
-                        </archive>
-                    </configuration>
-                </plugin>
-                <plugin>
-                    <groupId>org.codehaus.mojo</groupId>
-                    <artifactId>buildnumber-maven-plugin</artifactId>
-                    <version>1.3</version>
-                    <executions>
-                        <execution>
-                            <phase>validate</phase>
-                            <id>buildnumber</id>
-                            <goals>
-                                <goal>create</goal>
-                            </goals>
-                            <configuration>
-                                <shortRevisionLength>8</shortRevisionLength>
-                                <timestampFormat>{0,date,dd MMMM yyyy}</timestampFormat>
-                            </configuration>
-                        </execution>
-                    </executions>
-                </plugin>
-            </plugins>
-        </pluginManagement>
+        <plugin>
+          <artifactId>maven-surefire-plugin</artifactId>
+          <version>${version.surefire.plugin}</version>
+        </plugin>
 
-        <plugins>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>buildnumber-maven-plugin</artifactId>
-            </plugin>
-        </plugins>
-    </build>
+        <plugin>
+          <groupId>org.jboss.as.plugins</groupId>
+          <artifactId>jboss-as-maven-plugin</artifactId>
+          <version>${version.jboss.maven.plugin}</version>
+          <inherited>true</inherited>
+          <configuration>
+            <skip>true</skip>
+          </configuration>
+        </plugin>
 
-    <repositories>
-        <repository>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-            <id>bintray</id>
-            <name>bintray</name>
-            <url>http://dl.bintray.com/rnc/maven</url>
-        </repository>
-    </repositories>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-ear-plugin</artifactId>
+          <version>2.9.1</version>
+          <configuration>
+            <archive>
+              <index>true</index>
+              <manifest>
+                <addDefaultSpecificationEntries>
+                  true
+                </addDefaultSpecificationEntries>
+                <addDefaultImplementationEntries>
+                  true
+                </addDefaultImplementationEntries>
+              </manifest>
+              <manifestEntries>
+                <Implementation-URL>${project.url}</Implementation-URL>
+                <Java-Version>${java.version}</Java-Version>
+                <Java-Vendor>${java.vendor}</Java-Vendor>
+                <Os-Name>${os.name}</Os-Name>
+                <Os-Arch>${os.arch}</Os-Arch>
+                <Os-Version>${os.version}</Os-Version>
+                <Scm-Url>${project.scm.url}</Scm-Url>
+                <Scm-Connection>${project.scm.connection}</Scm-Connection>
+                <Scm-Revision>${buildNumber}</Scm-Revision>
+                <Build-Timestamp>${build.datetime}</Build-Timestamp>
+              </manifestEntries>
+            </archive>
+            <version>6</version>
+            <defaultLibBundleDir>lib</defaultLibBundleDir>
+            <fileNameMapping>no-version</fileNameMapping>
+          </configuration>
+        </plugin>
+
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-war-plugin</artifactId>
+          <version>2.5</version>
+          <configuration>
+            <archive>
+              <index>true</index>
+              <manifest>
+                <addDefaultSpecificationEntries>
+                  true
+                </addDefaultSpecificationEntries>
+                <addDefaultImplementationEntries>
+                  true
+                </addDefaultImplementationEntries>
+              </manifest>
+              <manifestEntries>
+                <Implementation-URL>${project.url}</Implementation-URL>
+                <Java-Version>${java.version}</Java-Version>
+                <Java-Vendor>${java.vendor}</Java-Vendor>
+                <Os-Name>${os.name}</Os-Name>
+                <Os-Arch>${os.arch}</Os-Arch>
+                <Os-Version>${os.version}</Os-Version>
+                <Scm-Url>${project.scm.url}</Scm-Url>
+                <Scm-Connection>${project.scm.connection}</Scm-Connection>
+                <Scm-Revision>${buildNumber}</Scm-Revision>
+                <Build-Timestamp>${build.datetime}</Build-Timestamp>
+              </manifestEntries>
+            </archive>
+          </configuration>
+        </plugin>
+
+        <plugin>
+          <groupId>org.codehaus.mojo</groupId>
+          <artifactId>buildnumber-maven-plugin</artifactId>
+          <version>1.3</version>
+          <executions>
+            <execution>
+              <phase>validate</phase>
+              <id>buildnumber</id>
+              <goals>
+                <goal>create</goal>
+              </goals>
+              <configuration>
+                <shortRevisionLength>8</shortRevisionLength>
+                <timestampFormat>{0,date,dd MMMM yyyy}</timestampFormat>
+              </configuration>
+            </execution>
+          </executions>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+
+    <plugins>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>buildnumber-maven-plugin</artifactId>
+      </plugin>
+    </plugins>
+  </build>
+
+  <repositories>
+    <repository>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+      <id>bintray</id>
+      <name>bintray</name>
+      <url>http://dl.bintray.com/rnc/maven</url>
+    </repository>
+  </repositories>
 
 </project>
