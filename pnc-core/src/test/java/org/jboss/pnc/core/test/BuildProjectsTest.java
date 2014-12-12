@@ -145,7 +145,7 @@ public class BuildProjectsTest {
     private void buildProject(ProjectBuildConfiguration projectBuildConfigurationB1, BuildCollection buildCollection) throws InterruptedException {
         List<TaskStatus> receivedStatuses = new ArrayList<TaskStatus>();
 
-        int nStatusUpdates = 6;
+        int nStatusUpdates = 8;
 
         final Semaphore semaphore = new Semaphore(nStatusUpdates);
 
@@ -164,6 +164,7 @@ public class BuildProjectsTest {
 
         boolean receivedCREATE_REPOSITORY = false;
         boolean receivedBUILD_SCHEDULED = false;
+        boolean receivedBUILD_COMPLETED = false;
         boolean receivedCOMPLETING_BUILD = false;
         for (TaskStatus receivedStatus : receivedStatuses) {
             if (receivedStatus.getOperation().equals(TaskStatus.Operation.CREATE_REPOSITORY)) {
@@ -171,6 +172,9 @@ public class BuildProjectsTest {
             }
             if (receivedStatus.getOperation().equals(TaskStatus.Operation.BUILD_SCHEDULED)) {
                 receivedBUILD_SCHEDULED = true;
+            }
+            if (receivedStatus.getOperation().equals(TaskStatus.Operation.BUILD_COMPLETED)) {
+                receivedBUILD_COMPLETED = true;
             }
             if (receivedStatus.getOperation().equals(TaskStatus.Operation.COMPLETING_BUILD)) {
                 receivedCOMPLETING_BUILD = true;
@@ -180,8 +184,9 @@ public class BuildProjectsTest {
         Assert.assertTrue("All status updaters were not received." +
                         " receivedCREATE_REPOSITORY: " + receivedCREATE_REPOSITORY +
                         " receivedBUILD_SCHEDULED: " + receivedBUILD_SCHEDULED +
+                        " receivedBUILD_COMPLETED: " + receivedBUILD_COMPLETED +
                         " receivedCOMPLETING_BUILD: " + receivedCOMPLETING_BUILD,
-                receivedCREATE_REPOSITORY && receivedBUILD_SCHEDULED && receivedCOMPLETING_BUILD);
+                receivedCREATE_REPOSITORY && receivedBUILD_SCHEDULED && receivedBUILD_COMPLETED && receivedCOMPLETING_BUILD);
     }
 
     class TestBuildConfig {
