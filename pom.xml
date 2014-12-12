@@ -61,7 +61,7 @@
 
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-        <demo.pnc.ip.address>10.3.10.200</demo.pnc.ip.address>
+        <demo.pnc.ip.address>10.3.10.200:8080</demo.pnc.ip.address>
     </properties>
 
     <dependencyManagement>
