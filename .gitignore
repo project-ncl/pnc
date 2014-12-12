@@ -1,2 +1,7 @@
 # Maven
 target/
+
+# Eclipse
+.project
+.settings
+
