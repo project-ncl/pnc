@@ -1,17 +1,22 @@
 package org.jboss.pnc.jenkinsbuilddriver;
 
 import com.offbytwo.jenkins.JenkinsServer;
+import com.offbytwo.jenkins.model.Build;
+import com.offbytwo.jenkins.model.BuildWithDetails;
+import com.offbytwo.jenkins.model.JobWithDetails;
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.jenkinsbuilddriver.buildmonitor.JenkinsBuildMonitor;
 import org.jboss.pnc.model.BuildType;
 import org.jboss.pnc.model.ProjectBuildConfiguration;
 import org.jboss.pnc.model.builder.BuildDetails;
 import org.jboss.pnc.spi.builddriver.BuildDriver;
+import org.jboss.pnc.spi.builddriver.BuildDriverResult;
 import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
 import org.jboss.pnc.spi.repositorymanager.RepositoryConfiguration;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Properties;
@@ -48,7 +53,7 @@ public class JenkinsBuildDriver implements BuildDriver {
     ExecutorService executor;
 
     JenkinsBuildDriver() {
-        BlockingQueue<Runnable> workQueue = new LinkedBlockingQueue<>();
+        BlockingQueue<Runnable> workQueue = new LinkedBlockingQueue<Runnable>();
         //Jenkins IO thread pool
         executor = new ThreadPoolExecutor(4, 4, 1, TimeUnit.HOURS, workQueue); //TODO configurable
 
@@ -135,6 +140,43 @@ public class JenkinsBuildDriver implements BuildDriver {
         } catch (Exception e) {
             onError.accept(e);
         }
+    }
+
+    @Override
+    public void retrieveBuildResults(BuildDetails buildDetails,
+                                     Consumer<BuildDriverResult> onComplete, Consumer<Exception> onError) {
+        try {
+            Runnable job = () -> {
+                try {
+                    Build jenkinsBuild = getBuild(getJenkinsServer(), buildDetails);
+                    BuildWithDetails jenkinsBuildDetails = jenkinsBuild.details();
+
+                    BuildStatusAdapter bsa = new BuildStatusAdapter(jenkinsBuildDetails.getResult());
+
+                    BuildDriverResult buildDriverResult = new BuildDriverResult();
+                    buildDriverResult.setBuildStatus(bsa.getBuildStatus());
+                    buildDriverResult.setConsoleOutput(jenkinsBuildDetails.getConsoleOutputText());
+
+                    onComplete.accept(buildDriverResult);
+                } catch (Exception e) {
+                    onError.accept(e);
+                }
+            };
+            executor.execute(job);
+        } catch (Exception e) {
+            onError.accept(e);
+        }
+    }
+
+    private Build getBuild(JenkinsServer jenkinsServer, BuildDetails buildDetails) throws IOException, BuildDriverException {
+        String jobName = buildDetails.getJobName();
+        JobWithDetails buildJob = jenkinsServer.getJob(jobName);
+        Build jenkinsBuild = buildJob.getLastBuild();
+        int buildNumber = jenkinsBuild.getNumber();
+        if (buildNumber != buildDetails.getBuildNumber()) {
+            throw new BuildDriverException("Retrieved wrong build.");
+        }
+        return jenkinsBuild;
     }
 
 }

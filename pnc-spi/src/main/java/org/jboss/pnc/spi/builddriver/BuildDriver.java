@@ -20,4 +20,6 @@ public interface BuildDriver {
                                   RepositoryConfiguration repositoryConfiguration, Consumer<BuildDetails> onComplete, Consumer<Exception> onError);
 
     public void waitBuildToComplete(BuildDetails buildDetails, Consumer<String> onComplete, Consumer<Exception> onError);
+
+    public void retrieveBuildResults(BuildDetails buildDetails, Consumer<BuildDriverResult> onComplete, Consumer<Exception> onError);
 }

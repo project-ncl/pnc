@@ -8,10 +8,12 @@ import org.jboss.pnc.common.Resources;
 import org.jboss.pnc.common.util.BooleanWrapper;
 import org.jboss.pnc.jenkinsbuilddriver.JenkinsBuildDriver;
 import org.jboss.pnc.jenkinsbuilddriver.buildmonitor.JenkinsBuildMonitor;
+import org.jboss.pnc.model.BuildStatus;
 import org.jboss.pnc.model.Project;
 import org.jboss.pnc.model.ProjectBuildConfiguration;
 import org.jboss.pnc.model.RepositoryType;
 import org.jboss.pnc.model.builder.BuildDetails;
+import org.jboss.pnc.spi.builddriver.BuildDriverResult;
 import org.jboss.pnc.spi.repositorymanager.RepositoryConfiguration;
 import org.jboss.pnc.spi.repositorymanager.RepositoryConnectionInfo;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
@@ -59,7 +61,7 @@ public class JenkinsDriverRemoteTest {
     JenkinsBuildDriver jenkinsBuildDriver;
 
     @Test
-    @Ignore //requires configuration
+    @Ignore //requires configuration //TODO
     public void startJenkinsJobTestCase() throws Exception {
         ProjectBuildConfiguration pbc = getProjectBuildConfiguration();
 
@@ -104,10 +106,34 @@ public class JenkinsDriverRemoteTest {
         };
 
         jenkinsBuildDriver.waitBuildToComplete(buildTask.buildDetails, onWaitComplete, onWaitError);
-        mutex.tryAcquire(60, TimeUnit.SECONDS); //wait for callback to release
+        mutex.tryAcquire(120, TimeUnit.SECONDS); //wait for callback to release
 
-        long expected = 10000;
-        Assert.assertTrue("Received build completed in " + buildTook[0] + " while expected >" + expected + ".", buildTook[0] >= expected);
+        long minBuildTime = 10000;
+        Assert.assertTrue("Received build completed in " + buildTook[0] + " while expected >" + minBuildTime + ".", buildTook[0] >= minBuildTime);
+
+        Assert.assertTrue("There was no complete callback.", completed.get());
+
+
+        completed.set(false);
+
+        BuildDriverResult buildDriverResult = new BuildDriverResult();
+
+        Consumer<BuildDriverResult> onResultComplete = (receivedBuildDriverResult) -> {
+            completed.set(true);
+            buildDriverResult.setBuildStatus(receivedBuildDriverResult.getBuildStatus());
+            buildDriverResult.setConsoleOutput(receivedBuildDriverResult.getConsoleOutput());
+            mutex.release();
+        };
+        Consumer<Exception> onResultError = (e) -> {
+            throw new AssertionError(e);
+        };
+
+        jenkinsBuildDriver.retrieveBuildResults(buildTask.buildDetails, onResultComplete, onResultError);
+        mutex.tryAcquire(30, TimeUnit.SECONDS); //wait for callback to release
+
+        Assert.assertEquals(BuildStatus.SUCCESS, buildDriverResult.getBuildStatus());
+        Assert.assertTrue("Incomplete build log.", buildDriverResult.getConsoleOutput().contains("Building in workspace"));
+        Assert.assertTrue("Incomplete build log.", buildDriverResult.getConsoleOutput().contains("Finished: SUCCESS"));
 
         Assert.assertTrue("There was no complete callback.", completed.get());
 
