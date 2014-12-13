@@ -12,14 +12,15 @@ public class TaskStatus {
         this.percentageDone = percentageDone;
     }
 
-    public enum Operation {
+    public enum Operation { //TODO clean up
         NEW,
         BUILD_SCHEDULED,
         BUILD_IN_PROGRESS,
         BUILD_COMPLETED,
         BUILD_FAILED,
         COMPLETED,
-        CREATE_REPOSITORY, CREATE_JENKINS_JOB, RUN_JENKINS_JOB, STORE_BUILD_RESULTS, COMPLETING_BUILD;
+        CREATE_REPOSITORY, CREATE_JENKINS_JOB, RUN_JENKINS_JOB, STORE_BUILD_RESULTS, COMPLETING_BUILD,
+        COLLECT_RESULTS;
     }
 
     /**

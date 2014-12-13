@@ -145,7 +145,7 @@ public class BuildProjectsTest {
     private void buildProject(ProjectBuildConfiguration projectBuildConfigurationB1, BuildCollection buildCollection) throws InterruptedException {
         List<TaskStatus> receivedStatuses = new ArrayList<TaskStatus>();
 
-        int nStatusUpdates = 8;
+        int nStatusUpdates = 10;
 
         final Semaphore semaphore = new Semaphore(nStatusUpdates);
 
@@ -162,31 +162,23 @@ public class BuildProjectsTest {
         projectBuilder.buildProject(projectBuildConfigurationB1, buildCollection, onStatusUpdate, onError);
         semaphore.tryAcquire(nStatusUpdates, 30, TimeUnit.SECONDS); //wait for callback to release
 
-        boolean receivedCREATE_REPOSITORY = false;
-        boolean receivedBUILD_SCHEDULED = false;
-        boolean receivedBUILD_COMPLETED = false;
-        boolean receivedCOMPLETING_BUILD = false;
+        assertStatusUpdateReceived(receivedStatuses, TaskStatus.Operation.CREATE_REPOSITORY);
+        assertStatusUpdateReceived(receivedStatuses, TaskStatus.Operation.BUILD_SCHEDULED);
+        assertStatusUpdateReceived(receivedStatuses, TaskStatus.Operation.BUILD_COMPLETED);
+        assertStatusUpdateReceived(receivedStatuses, TaskStatus.Operation.COLLECT_RESULTS);
+        assertStatusUpdateReceived(receivedStatuses, TaskStatus.Operation.COMPLETING_BUILD);
+
+    }
+
+    private void assertStatusUpdateReceived(List<TaskStatus> receivedStatuses, TaskStatus.Operation operation) {
+        boolean received = false;
         for (TaskStatus receivedStatus : receivedStatuses) {
-            if (receivedStatus.getOperation().equals(TaskStatus.Operation.CREATE_REPOSITORY)) {
-                receivedCREATE_REPOSITORY = true;
-            }
-            if (receivedStatus.getOperation().equals(TaskStatus.Operation.BUILD_SCHEDULED)) {
-                receivedBUILD_SCHEDULED = true;
-            }
-            if (receivedStatus.getOperation().equals(TaskStatus.Operation.BUILD_COMPLETED)) {
-                receivedBUILD_COMPLETED = true;
-            }
-            if (receivedStatus.getOperation().equals(TaskStatus.Operation.COMPLETING_BUILD)) {
-                receivedCOMPLETING_BUILD = true;
+            if (receivedStatus.getOperation().equals(operation)) {
+                received = true;
+                break;
             }
         }
-
-        Assert.assertTrue("All status updaters were not received." +
-                        " receivedCREATE_REPOSITORY: " + receivedCREATE_REPOSITORY +
-                        " receivedBUILD_SCHEDULED: " + receivedBUILD_SCHEDULED +
-                        " receivedBUILD_COMPLETED: " + receivedBUILD_COMPLETED +
-                        " receivedCOMPLETING_BUILD: " + receivedCOMPLETING_BUILD,
-                receivedCREATE_REPOSITORY && receivedBUILD_SCHEDULED && receivedBUILD_COMPLETED && receivedCOMPLETING_BUILD);
+        Assert.assertTrue("Did not received status update for " + operation +".", received );
     }
 
     class TestBuildConfig {

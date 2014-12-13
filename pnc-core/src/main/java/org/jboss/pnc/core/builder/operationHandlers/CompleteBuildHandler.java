@@ -25,7 +25,7 @@ public class CompleteBuildHandler extends OperationHandlerBase implements Operat
 
     @Override
     protected TaskStatus.Operation executeAfter() {
-        return TaskStatus.Operation.BUILD_COMPLETED;
+        return TaskStatus.Operation.COLLECT_RESULTS;
     }
 
     @Override

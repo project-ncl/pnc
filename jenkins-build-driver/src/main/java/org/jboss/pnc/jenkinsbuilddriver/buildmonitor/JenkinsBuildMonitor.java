@@ -73,7 +73,7 @@ public class JenkinsBuildMonitor {
         Build jenkinsBuild = buildJob.getLastBuild();
         int buildNumber = jenkinsBuild.getNumber();
         if (buildNumber != buildDetails.getBuildNumber()) {
-            log.finer("Waiting job #" + buildDetails.getBuildNumber() + " to start.");
+            log.finer("Job #" + buildDetails.getBuildNumber() + " is not last job (probably hasn't started yet).");
             return null;
         }
         return jenkinsBuild;
