@@ -17,7 +17,9 @@ public abstract class OperationHandlerBase {
 
     public void handle(BuildTask task) {
         if (task.getStatus().isOperationCompleted(executeAfter())) {
-            doHandle(task);
+            //if (task.getLastStatusUpdateDiff() > getPullInterval()) { //TODO timeout
+                doHandle(task);
+            //}
         } else {
             if (next != null) {
                 next.handle(task);

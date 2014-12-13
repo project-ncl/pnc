@@ -2,8 +2,10 @@ package org.jboss.pnc.jenkinsbuilddriver;
 
 import com.offbytwo.jenkins.JenkinsServer;
 import org.jboss.pnc.common.Configuration;
+import org.jboss.pnc.jenkinsbuilddriver.buildmonitor.JenkinsBuildMonitor;
 import org.jboss.pnc.model.BuildType;
 import org.jboss.pnc.model.ProjectBuildConfiguration;
+import org.jboss.pnc.model.builder.BuildDetails;
 import org.jboss.pnc.spi.builddriver.BuildDriver;
 import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
 import org.jboss.pnc.spi.repositorymanager.RepositoryConfiguration;
@@ -40,11 +42,19 @@ public class JenkinsBuildDriver implements BuildDriver {
     @Inject
     private Logger log;
 
+    @Inject
+    JenkinsBuildMonitor jenkinsBuildMonitor;
+
     ExecutorService executor;
 
     JenkinsBuildDriver() {
         BlockingQueue<Runnable> workQueue = new LinkedBlockingQueue<>();
+        //Jenkins IO thread pool
         executor = new ThreadPoolExecutor(4, 4, 1, TimeUnit.HOURS, workQueue); //TODO configurable
+
+        //TODO executor shutdown
+        //TODO jenkinsBuildMonitor shutdown
+
     }
 
     private JenkinsServer getJenkinsServer() throws BuildDriverException {
@@ -84,23 +94,44 @@ public class JenkinsBuildDriver implements BuildDriver {
 
     @Override
     public void startProjectBuild(ProjectBuildConfiguration projectBuildConfiguration,
-                                  RepositoryConfiguration repositoryConfiguration, Consumer<String> onComplete, Consumer<Exception> onError) {
+                                  RepositoryConfiguration repositoryConfiguration,
+                                  Consumer<BuildDetails> onComplete, Consumer<Exception> onError) {
         try {
             Runnable job = () -> {
                 BuildJob build = null;
                 try {
-                    build = new BuildJob(getJenkinsServer());
-                    boolean configured = build.configure(projectBuildConfiguration, repositoryConfiguration ,true);
+                    build = new BuildJob(getJenkinsServer(), projectBuildConfiguration);
+                    boolean configured = build.configure(repositoryConfiguration ,true);
                     if (!configured) {
                         throw new AssertionError("Cannot configure build job.");
                     }
-                    build.start();
-                    onComplete.accept("JOB-ID"); //TODO
-                } catch (BuildDriverException e) {
+                    int buildNumber = build.start();
+                    BuildDetails buildDetails = new BuildDetails(build.getJobName(), buildNumber);
+                    onComplete.accept(buildDetails);
+                } catch (Exception e) {
                     onError.accept(e);
                 }
             };
             executor.execute(job);
+        } catch (Exception e) {
+            onError.accept(e);
+        }
+    }
+
+    @Override
+    public void waitBuildToComplete(BuildDetails buildDetails,
+                                    Consumer<String> onComplete, Consumer<Exception> onError) {
+        try {
+            Consumer<String> onMonitorComplete = (jobId) -> {
+                onComplete.accept("JOB-ID"); //TODO
+            };
+
+            Consumer<Exception> onMonitorError = (e) -> {
+                onError.accept(e);
+            };
+
+            jenkinsBuildMonitor.monitor(getJenkinsServer(), buildDetails, onMonitorComplete, onMonitorError);
+
         } catch (Exception e) {
             onError.accept(e);
         }

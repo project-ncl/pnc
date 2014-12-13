@@ -17,15 +17,17 @@ import java.io.IOException;
  */
 public class BuildJob {
     private JenkinsServer jenkinsServer;
+    private ProjectBuildConfiguration projectBuildConfiguration;
     private BuildJobConfig buildJobConfig;
     JobWithDetails job;
 
-    public BuildJob(JenkinsServer jenkinsServer) {
+    public BuildJob(JenkinsServer jenkinsServer, ProjectBuildConfiguration projectBuildConfiguration) {
         this.jenkinsServer = jenkinsServer;
+        this.projectBuildConfiguration = projectBuildConfiguration;
     }
 
-    public boolean configure(ProjectBuildConfiguration projectBuildConfiguration, RepositoryConfiguration repositoryConfiguration, boolean override) throws BuildDriverException {
-        String jobName = projectBuildConfiguration.getProject().getName();
+    public boolean configure(RepositoryConfiguration repositoryConfiguration, boolean override) throws BuildDriverException {
+        String jobName = getJobName();
 
         this.buildJobConfig = new BuildJobConfig(
                 jobName,
@@ -61,16 +63,22 @@ public class BuildJob {
         return job != null;
     }
 
-    public boolean start() throws BuildDriverException {
+    public String getJobName() {
+        return projectBuildConfiguration.getIdentifier();
+    }
+
+    public int start() throws BuildDriverException {
         //TODO check if configured
+        int jobBuildNumber = -1;
         try {
+            jobBuildNumber = job.getNextBuildNumber();
             job.build();
         } catch (IOException e) {
             throw new BuildDriverException("Cannot start project build.", e);
         }
 
         //TODO make sure the build was scheduled
-        return true;
+        return jobBuildNumber;
 //        this.lastBuild = job.getLastBuild();
 //        return getLastBuildDetails().isBuilding();
     }

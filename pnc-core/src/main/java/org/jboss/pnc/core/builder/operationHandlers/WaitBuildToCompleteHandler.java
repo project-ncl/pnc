@@ -5,7 +5,6 @@ import org.jboss.pnc.core.builder.BuildQueue;
 import org.jboss.pnc.core.builder.BuildTask;
 import org.jboss.pnc.core.exception.CoreException;
 import org.jboss.pnc.model.TaskStatus;
-import org.jboss.pnc.model.builder.BuildDetails;
 import org.jboss.pnc.spi.builddriver.BuildDriver;
 
 import javax.inject.Inject;
@@ -14,28 +13,27 @@ import java.util.function.Consumer;
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-12-03.
  */
-public class StartBuildHandler extends OperationHandlerBase implements OperationHandler {
+public class WaitBuildToCompleteHandler extends OperationHandlerBase implements OperationHandler {
 
     private final BuildDriverFactory buildDriverFactory;
 
     @Inject
-    public StartBuildHandler(BuildQueue buildQueue, BuildDriverFactory buildDriverFactory) {
+    public WaitBuildToCompleteHandler(BuildQueue buildQueue, BuildDriverFactory buildDriverFactory) {
         super(buildQueue);
         this.buildDriverFactory = buildDriverFactory;
     }
 
     @Override
     protected TaskStatus.Operation executeAfter() {
-        return TaskStatus.Operation.CREATE_REPOSITORY;
+        return TaskStatus.Operation.BUILD_SCHEDULED;
     }
 
     @Override
     protected void doHandle(BuildTask buildTask) {
-        buildTask.onStatusUpdate(new TaskStatus(TaskStatus.Operation.BUILD_SCHEDULED, 0));
+        buildTask.onStatusUpdate(new TaskStatus(TaskStatus.Operation.BUILD_COMPLETED, 0));
         try {
-            Consumer<BuildDetails> onComplete = (buildDetails) -> {
-                buildTask.onStatusUpdate(new TaskStatus(TaskStatus.Operation.BUILD_SCHEDULED, 100));
-                buildTask.setBuildDetails(buildDetails);
+            Consumer<String> onComplete = (jobId) -> {
+                buildTask.onStatusUpdate(new TaskStatus(TaskStatus.Operation.BUILD_COMPLETED, 100));
                 buildQueue.add(buildTask);
             };
 
@@ -44,12 +42,10 @@ public class StartBuildHandler extends OperationHandlerBase implements Operation
             };
 
             //TODO better validation
-            assert (buildTask.getProjectBuildConfiguration() != null);
-            assert (buildTask.getRepositoryConfiguration() != null);
+            assert (buildTask.getBuildDetails() != null);
 
             BuildDriver buildDriver = buildDriverFactory.getBuildDriver(buildTask.getProjectBuildConfiguration().getEnvironment().getBuildType());
-            buildDriver.startProjectBuild(buildTask.getProjectBuildConfiguration(), buildTask.getRepositoryConfiguration(),
-                    onComplete, onError);
+            buildDriver.waitBuildToComplete(buildTask.getBuildDetails(), onComplete, onError);
 
         } catch (CoreException e) {
             buildTask.onError(e);

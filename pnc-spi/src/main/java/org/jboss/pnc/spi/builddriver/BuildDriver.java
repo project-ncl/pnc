@@ -2,6 +2,7 @@ package org.jboss.pnc.spi.builddriver;
 
 import org.jboss.pnc.model.BuildType;
 import org.jboss.pnc.model.ProjectBuildConfiguration;
+import org.jboss.pnc.model.builder.BuildDetails;
 import org.jboss.pnc.spi.repositorymanager.RepositoryConfiguration;
 
 import java.util.function.Consumer;
@@ -16,5 +17,7 @@ public interface BuildDriver {
     boolean canBuild(BuildType buildType);
 
     public void startProjectBuild(ProjectBuildConfiguration projectBuildConfiguration,
-                                  RepositoryConfiguration repositoryConfiguration, Consumer<String> onComplete, Consumer<Exception> onError);
+                                  RepositoryConfiguration repositoryConfiguration, Consumer<BuildDetails> onComplete, Consumer<Exception> onError);
+
+    public void waitBuildToComplete(BuildDetails buildDetails, Consumer<String> onComplete, Consumer<Exception> onError);
 }

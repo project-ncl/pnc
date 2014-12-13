@@ -25,12 +25,12 @@ public class CompleteBuildHandler extends OperationHandlerBase implements Operat
 
     @Override
     protected TaskStatus.Operation executeAfter() {
-        return TaskStatus.Operation.BUILD_SCHEDULED;
+        return TaskStatus.Operation.BUILD_COMPLETED;
     }
 
     @Override
     protected void doHandle(BuildTask buildTask) {
-        buildTask.onStatusUpdate(new TaskStatus(TaskStatus.Operation.COMPLETING_BUILD, 0));
+        buildTask.onStatusUpdate(new TaskStatus(TaskStatus.Operation.COMPLETING_BUILD, 0)); //TODO rename operations
         try {
             Consumer<String> onComplete = (jobId) -> {
                 buildTask.onStatusUpdate(new TaskStatus(TaskStatus.Operation.COMPLETING_BUILD, 100));
