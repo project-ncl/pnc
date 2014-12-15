@@ -45,8 +45,8 @@ public class ConfigureRepositoryHandler extends OperationHandlerBase implements 
             };
 
             RepositoryManager repositoryManager = repositoryManagerFactory.getRepositoryManager(RepositoryType.MAVEN);
-            ProjectBuildConfiguration buildConfiguration = buildTask.getProjectBuildConfiguration();
-            BuildCollection buildCollection = buildTask.getBuildCollection();
+            ProjectBuildConfiguration buildConfiguration = buildTask.getBuildJobConfiguration().getProjectBuildConfiguration();
+            BuildCollection buildCollection = buildTask.getBuildJobConfiguration().getBuildCollection();
 
             //TODO better validation
             assert (buildConfiguration != null);

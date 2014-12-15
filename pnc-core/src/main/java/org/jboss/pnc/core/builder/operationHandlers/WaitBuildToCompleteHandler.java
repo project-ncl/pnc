@@ -3,6 +3,7 @@ package org.jboss.pnc.core.builder.operationHandlers;
 import org.jboss.pnc.core.BuildDriverFactory;
 import org.jboss.pnc.core.builder.BuildTask;
 import org.jboss.pnc.core.exception.CoreException;
+import org.jboss.pnc.model.ProjectBuildConfiguration;
 import org.jboss.pnc.model.TaskStatus;
 import org.jboss.pnc.spi.builddriver.BuildDriver;
 
@@ -38,11 +39,14 @@ public class WaitBuildToCompleteHandler extends OperationHandlerBase implements 
                 buildTask.onError(e);
             };
 
-            //TODO better validation
-            assert (buildTask.getBuildDetails() != null);
+            ProjectBuildConfiguration projectBuildConfiguration = buildTask.getBuildJobConfiguration().getProjectBuildConfiguration();
 
-            BuildDriver buildDriver = buildDriverFactory.getBuildDriver(buildTask.getProjectBuildConfiguration().getEnvironment().getBuildType());
-            buildDriver.waitBuildToComplete(buildTask.getBuildDetails(), onComplete, onError);
+            //TODO better validation
+            assert (buildTask.getBuildJobDetails() != null);
+            assert (projectBuildConfiguration != null);
+
+            BuildDriver buildDriver = buildDriverFactory.getBuildDriver(projectBuildConfiguration.getEnvironment().getBuildType());
+            buildDriver.waitBuildToComplete(buildTask.getBuildJobDetails(), onComplete, onError);
 
         } catch (CoreException e) {
             buildTask.onError(e);

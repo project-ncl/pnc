@@ -8,7 +8,7 @@ import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.jenkinsbuilddriver.buildmonitor.JenkinsBuildMonitor;
 import org.jboss.pnc.model.BuildType;
 import org.jboss.pnc.model.ProjectBuildConfiguration;
-import org.jboss.pnc.model.builder.BuildDetails;
+import org.jboss.pnc.spi.builddriver.BuildJobDetails;
 import org.jboss.pnc.spi.builddriver.BuildDriver;
 import org.jboss.pnc.spi.builddriver.BuildDriverResult;
 import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
@@ -100,7 +100,7 @@ public class JenkinsBuildDriver implements BuildDriver {
     @Override
     public void startProjectBuild(ProjectBuildConfiguration projectBuildConfiguration,
                                   RepositoryConfiguration repositoryConfiguration,
-                                  Consumer<BuildDetails> onComplete, Consumer<Exception> onError) {
+                                  Consumer<BuildJobDetails> onComplete, Consumer<Exception> onError) {
         try {
             Runnable job = () -> {
                 BuildJob build = null;
@@ -111,8 +111,8 @@ public class JenkinsBuildDriver implements BuildDriver {
                         throw new AssertionError("Cannot configure build job.");
                     }
                     int buildNumber = build.start();
-                    BuildDetails buildDetails = new BuildDetails(build.getJobName(), buildNumber);
-                    onComplete.accept(buildDetails);
+                    BuildJobDetails buildJobDetails = new BuildJobDetails(build.getJobName(), buildNumber);
+                    onComplete.accept(buildJobDetails);
                 } catch (Exception e) {
                     onError.accept(e);
                 }
@@ -124,7 +124,7 @@ public class JenkinsBuildDriver implements BuildDriver {
     }
 
     @Override
-    public void waitBuildToComplete(BuildDetails buildDetails,
+    public void waitBuildToComplete(BuildJobDetails buildJobDetails,
                                     Consumer<String> onComplete, Consumer<Exception> onError) {
         try {
             Consumer<String> onMonitorComplete = (jobId) -> {
@@ -135,7 +135,7 @@ public class JenkinsBuildDriver implements BuildDriver {
                 onError.accept(e);
             };
 
-            jenkinsBuildMonitor.monitor(getJenkinsServer(), buildDetails, onMonitorComplete, onMonitorError);
+            jenkinsBuildMonitor.monitor(getJenkinsServer(), buildJobDetails, onMonitorComplete, onMonitorError);
 
         } catch (Exception e) {
             onError.accept(e);
@@ -143,12 +143,12 @@ public class JenkinsBuildDriver implements BuildDriver {
     }
 
     @Override
-    public void retrieveBuildResults(BuildDetails buildDetails,
+    public void retrieveBuildResults(BuildJobDetails buildJobDetails,
                                      Consumer<BuildDriverResult> onComplete, Consumer<Exception> onError) {
         try {
             Runnable job = () -> {
                 try {
-                    Build jenkinsBuild = getBuild(getJenkinsServer(), buildDetails);
+                    Build jenkinsBuild = getBuild(getJenkinsServer(), buildJobDetails);
                     BuildWithDetails jenkinsBuildDetails = jenkinsBuild.details();
 
                     BuildStatusAdapter bsa = new BuildStatusAdapter(jenkinsBuildDetails.getResult());
@@ -168,15 +168,14 @@ public class JenkinsBuildDriver implements BuildDriver {
         }
     }
 
-    private Build getBuild(JenkinsServer jenkinsServer, BuildDetails buildDetails) throws IOException, BuildDriverException {
-        String jobName = buildDetails.getJobName();
+    private Build getBuild(JenkinsServer jenkinsServer, BuildJobDetails buildJobDetails) throws IOException, BuildDriverException {
+        String jobName = buildJobDetails.getJobName();
         JobWithDetails buildJob = jenkinsServer.getJob(jobName);
         Build jenkinsBuild = buildJob.getLastBuild();
         int buildNumber = jenkinsBuild.getNumber();
-        if (buildNumber != buildDetails.getBuildNumber()) {
+        if (buildNumber != buildJobDetails.getBuildNumber()) {
             throw new BuildDriverException("Retrieved wrong build.");
         }
         return jenkinsBuild;
     }
-
 }

@@ -2,6 +2,7 @@ package org.jboss.pnc.core.test;
 
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
+import org.jboss.arquillian.junit.InSequence;
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.Resources;
 import org.jboss.pnc.core.BuildDriverFactory;
@@ -12,12 +13,13 @@ import org.jboss.pnc.core.builder.ProjectBuilder;
 import org.jboss.pnc.core.builder.operationHandlers.OperationHandler;
 import org.jboss.pnc.core.exception.CoreException;
 import org.jboss.pnc.core.test.mock.BuildDriverMock;
+import org.jboss.pnc.core.test.mock.DatastoreMock;
 import org.jboss.pnc.model.BuildCollection;
 import org.jboss.pnc.model.ProjectBuildConfiguration;
+import org.jboss.pnc.model.ProjectBuildResult;
 import org.jboss.pnc.model.TaskStatus;
-import org.jboss.pnc.model.builder.BuildDetails;
 import org.jboss.pnc.model.builder.EnvironmentBuilder;
-import org.jboss.pnc.spi.datastore.Datastore;
+import org.jboss.pnc.spi.builddriver.BuildJobDetails;
 import org.jboss.pnc.spi.environment.EnvironmentDriverProvider;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.asset.EmptyAsset;
@@ -66,7 +68,7 @@ public class BuildProjectsTest {
     ProjectBuilder projectBuilder;
 
     @Inject
-    Datastore datastore;
+    DatastoreMock datastore;
 
     @Inject
     Logger log;
@@ -89,6 +91,7 @@ public class BuildProjectsTest {
     }
 
     @Test
+    @InSequence(10)
     public void buildSingleProjectTestCase() throws Exception {
 
 
@@ -104,6 +107,7 @@ public class BuildProjectsTest {
     }
 
     @Test
+    @InSequence(10)
     public void buildMultipleProjectsTestCase() throws Exception {
 
         BuildCollection buildCollection = new TestBuildCollectionBuilder().build("foo", "Foo desc.", "1.0");
@@ -148,6 +152,17 @@ public class BuildProjectsTest {
         threads.forEach(waitToComplete);
     }
 
+    @Test
+    @InSequence(20)
+    public void checkDatabaseForResult() {
+        List<ProjectBuildResult> buildResults = datastore.getBuildResults();
+        Assert.assertTrue("Missing datastore results.", buildResults.size() > 10);
+
+        ProjectBuildResult projectBuildResult = buildResults.get(0);
+        String buildLog = projectBuildResult.getBuildLog();
+        Assert.assertTrue("Invalid build log.", buildLog.contains("Finished: SUCCESS"));
+    }
+
     private void buildProject(ProjectBuildConfiguration projectBuildConfigurationB1, BuildCollection buildCollection) throws InterruptedException, CoreException {
         List<TaskStatus> receivedStatuses = new ArrayList<TaskStatus>();
 
@@ -161,11 +176,11 @@ public class BuildProjectsTest {
             log.finer("Received status update " + newStatus.getOperation());
             log.finer("Semaphore released, there are " + semaphore.availablePermits() + " free entries.");
         };
-        Consumer<BuildDetails> onComplete = (e) -> {
+        Consumer<BuildJobDetails> onComplete = (e) -> {
             //TODO
         };
         semaphore.acquire(nStatusUpdates); //there should be 6 callbacks
-        projectBuilder.buildProject(projectBuildConfigurationB1, buildCollection, onStatusUpdate, onComplete);
+        projectBuilder.buildProject(projectBuildConfigurationB1, onStatusUpdate, onComplete);
         semaphore.tryAcquire(nStatusUpdates, 30, TimeUnit.SECONDS); //wait for callback to release
 
         assertStatusUpdateReceived(receivedStatuses, TaskStatus.Operation.CREATE_REPOSITORY);

@@ -3,8 +3,9 @@ package org.jboss.pnc.core.builder.operationHandlers;
 import org.jboss.pnc.core.BuildDriverFactory;
 import org.jboss.pnc.core.builder.BuildTask;
 import org.jboss.pnc.core.exception.CoreException;
+import org.jboss.pnc.model.ProjectBuildConfiguration;
 import org.jboss.pnc.model.TaskStatus;
-import org.jboss.pnc.model.builder.BuildDetails;
+import org.jboss.pnc.spi.builddriver.BuildJobDetails;
 import org.jboss.pnc.spi.builddriver.BuildDriver;
 
 import javax.inject.Inject;
@@ -31,22 +32,23 @@ public class StartBuildHandler extends OperationHandlerBase implements Operation
     protected void doHandle(BuildTask buildTask) {
         buildTask.onStatusUpdate(new TaskStatus(TaskStatus.Operation.BUILD_SCHEDULED, TaskStatus.State.STARTED));
         try {
-            Consumer<BuildDetails> onComplete = (buildDetails) -> {
+            Consumer<BuildJobDetails> onComplete = (buildDetails) -> {
                 buildTask.onStatusUpdate(new TaskStatus(TaskStatus.Operation.BUILD_SCHEDULED, TaskStatus.State.COMPLETED));
-                buildTask.setBuildDetails(buildDetails);
+                buildTask.setBuildJobDetails(buildDetails);
             };
 
             Consumer<Exception> onError = (e) -> {
                 buildTask.onError(e);
             };
 
+            ProjectBuildConfiguration projectBuildConfiguration = buildTask.getBuildJobConfiguration().getProjectBuildConfiguration();
+
             //TODO better validation
-            assert (buildTask.getProjectBuildConfiguration() != null);
+            assert (projectBuildConfiguration != null);
             assert (buildTask.getRepositoryConfiguration() != null);
 
-            BuildDriver buildDriver = buildDriverFactory.getBuildDriver(buildTask.getProjectBuildConfiguration().getEnvironment().getBuildType());
-            buildDriver.startProjectBuild(buildTask.getProjectBuildConfiguration(), buildTask.getRepositoryConfiguration(),
-                    onComplete, onError);
+            BuildDriver buildDriver = buildDriverFactory.getBuildDriver(projectBuildConfiguration.getEnvironment().getBuildType());
+            buildDriver.startProjectBuild(projectBuildConfiguration, buildTask.getRepositoryConfiguration(), onComplete, onError);
 
         } catch (CoreException e) {
             buildTask.onError(e);
