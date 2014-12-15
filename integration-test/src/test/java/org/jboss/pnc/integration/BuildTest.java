@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory;
 
 import java.lang.invoke.MethodHandles;
 
-import static org.jboss.pnc.integration.env.IntegrationTestEnv.getHttpPort;
+import static org.jboss.pnc.integration.util.TestUtils.getHttpPort;
 
 import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.path.json.JsonPath.from;
