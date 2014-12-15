@@ -8,7 +8,7 @@ import java.util.concurrent.LinkedBlockingDeque;
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-12-08.
  */
 @ApplicationScoped
-public class BuildQueue {
+public class BuildTaskQueue {
 
     private final BlockingQueue<BuildTask> queue = new LinkedBlockingDeque<>();
 

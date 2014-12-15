@@ -1,7 +1,6 @@
 package org.jboss.pnc.core.builder.operationHandlers;
 
 import org.jboss.pnc.core.BuildDriverFactory;
-import org.jboss.pnc.core.builder.BuildQueue;
 import org.jboss.pnc.core.builder.BuildTask;
 import org.jboss.pnc.core.exception.CoreException;
 import org.jboss.pnc.model.TaskStatus;
@@ -18,8 +17,7 @@ public class WaitBuildToCompleteHandler extends OperationHandlerBase implements 
     private final BuildDriverFactory buildDriverFactory;
 
     @Inject
-    public WaitBuildToCompleteHandler(BuildQueue buildQueue, BuildDriverFactory buildDriverFactory) {
-        super(buildQueue);
+    public WaitBuildToCompleteHandler(BuildDriverFactory buildDriverFactory) {
         this.buildDriverFactory = buildDriverFactory;
     }
 
@@ -30,11 +28,10 @@ public class WaitBuildToCompleteHandler extends OperationHandlerBase implements 
 
     @Override
     protected void doHandle(BuildTask buildTask) {
-        buildTask.onStatusUpdate(new TaskStatus(TaskStatus.Operation.BUILD_COMPLETED, 0));
+        buildTask.onStatusUpdate(new TaskStatus(TaskStatus.Operation.WAITING_BUILD_TO_COMPLETE, TaskStatus.State.STARTED));
         try {
             Consumer<String> onComplete = (jobId) -> {
-                buildTask.onStatusUpdate(new TaskStatus(TaskStatus.Operation.BUILD_COMPLETED, 100));
-                buildQueue.add(buildTask);
+                buildTask.onStatusUpdate(new TaskStatus(TaskStatus.Operation.WAITING_BUILD_TO_COMPLETE, TaskStatus.State.COMPLETED));
             };
 
             Consumer<Exception> onError = (e) -> {
