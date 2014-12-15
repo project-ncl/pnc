@@ -38,6 +38,12 @@
       <artifactId>datastore</artifactId>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>pnc-rest</artifactId>
+      <scope>test</scope>
+      <type>ejb</type>
+    </dependency>
 
     <dependency>
       <groupId>org.jboss.arquillian.junit</groupId>
@@ -75,6 +81,11 @@
       <groupId>com.jayway.restassured</groupId>
       <artifactId>rest-assured</artifactId>
       <version>2.4.0</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.github.cukespace</groupId>
+      <artifactId>cukespace-core</artifactId>
       <scope>test</scope>
     </dependency>
   </dependencies>
