@@ -1,9 +1,9 @@
 package org.jboss.pnc.core.builder;
 
-import org.jboss.pnc.model.BuildCollection;
 import org.jboss.pnc.model.ProjectBuildConfiguration;
 import org.jboss.pnc.model.TaskStatus;
-import org.jboss.pnc.model.builder.BuildDetails;
+import org.jboss.pnc.spi.builddriver.BuildJobConfiguration;
+import org.jboss.pnc.spi.builddriver.BuildJobDetails;
 import org.jboss.pnc.spi.repositorymanager.RepositoryConfiguration;
 
 import java.util.Set;
@@ -13,26 +13,28 @@ import java.util.function.Consumer;
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-12-08.
  */
 public class BuildTask extends ProjectBuildConfiguration {
+
     private Set<BuildTask> runningBuilds;
     private BuildTaskQueue buildTaskQueue;
-    private ProjectBuildConfiguration projectBuildConfiguration;
-    private BuildCollection buildCollection;
     private Consumer<TaskStatus> onStatusUpdate;
-    private Consumer<BuildDetails> onComplete;
+    private Consumer<BuildJobDetails> onComplete;
     private TaskStatus status;
     private long lastStatusUpdate;
+
+    private BuildJobDetails buildJobDetails;
+    private BuildJobConfiguration buildJobConfiguration;
     private RepositoryConfiguration repositoryConfiguration;
-    private BuildDetails buildDetails; //TODO move all build related fields under BuildDetails
+
     private Exception exception = null;
 
-    public BuildTask(Set<BuildTask> runningBuilds, BuildTaskQueue buildTaskQueue, ProjectBuildConfiguration projectBuildConfiguration, BuildCollection buildCollection, Consumer<TaskStatus> onStatusUpdate, Consumer<BuildDetails> onComplete) {
+    public BuildTask(Set<BuildTask> runningBuilds, BuildTaskQueue buildTaskQueue, ProjectBuildConfiguration projectBuildConfiguration, Consumer<TaskStatus> onStatusUpdate, Consumer<BuildJobDetails> onComplete) {
         this.runningBuilds = runningBuilds;
         this.buildTaskQueue = buildTaskQueue;
-        this.projectBuildConfiguration = projectBuildConfiguration;
-        this.buildCollection = buildCollection;
         this.onStatusUpdate = onStatusUpdate;
         this.onComplete = onComplete;
         status = new TaskStatus(TaskStatus.Operation.NEW, TaskStatus.State.COMPLETED);
+
+        buildJobConfiguration = new BuildJobConfiguration(projectBuildConfiguration);
 
         this.buildTaskQueue.add(this); //TODO move out of constructor, create builder ?
         this.runningBuilds.add(this); //TODO move out of constructor, create builder ?
@@ -58,7 +60,7 @@ public class BuildTask extends ProjectBuildConfiguration {
     }
 
     public void onComplete() {
-        onComplete.accept(buildDetails);
+        onComplete.accept(buildJobDetails);
         runningBuilds.remove(this);
     }
 
@@ -67,28 +69,12 @@ public class BuildTask extends ProjectBuildConfiguration {
         buildTaskQueue.add(this); //task will be taken from queue by error handler
     }
 
-    public ProjectBuildConfiguration getProjectBuildConfiguration() {
-        return projectBuildConfiguration;
+    public void setBuildJobDetails(BuildJobDetails buildJobDetails) {
+        this.buildJobDetails = buildJobDetails;
     }
 
-    public BuildCollection getBuildCollection() {
-        return buildCollection;
-    }
-
-    public RepositoryConfiguration getRepositoryConfiguration() {
-        return repositoryConfiguration;
-    }
-
-    public void setRepositoryConfiguration(RepositoryConfiguration repositoryConfiguration) {
-        this.repositoryConfiguration = repositoryConfiguration;
-    }
-
-    public void setBuildDetails(BuildDetails buildDetails) {
-        this.buildDetails = buildDetails;
-    }
-
-    public BuildDetails getBuildDetails() {
-        return buildDetails;
+    public BuildJobDetails getBuildJobDetails() {
+        return buildJobDetails;
     }
 
     public long getLastStatusUpdate() {
@@ -101,5 +87,17 @@ public class BuildTask extends ProjectBuildConfiguration {
 
     public Exception getException() {
         return exception;
+    }
+
+    public void setRepositoryConfiguration(RepositoryConfiguration repositoryConfiguration) {
+        this.repositoryConfiguration = repositoryConfiguration;
+    }
+
+    public RepositoryConfiguration getRepositoryConfiguration() {
+        return repositoryConfiguration;
+    }
+
+    public BuildJobConfiguration getBuildJobConfiguration() {
+        return buildJobConfiguration;
     }
 }

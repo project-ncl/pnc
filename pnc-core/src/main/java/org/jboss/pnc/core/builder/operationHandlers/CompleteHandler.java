@@ -2,8 +2,8 @@ package org.jboss.pnc.core.builder.operationHandlers;
 
 import org.jboss.pnc.core.BuildDriverFactory;
 import org.jboss.pnc.core.builder.BuildTask;
+import org.jboss.pnc.core.builder.DatastoreAdapter;
 import org.jboss.pnc.model.TaskStatus;
-import org.jboss.pnc.spi.datastore.Datastore;
 
 import javax.inject.Inject;
 
@@ -13,12 +13,12 @@ import javax.inject.Inject;
 public class CompleteHandler extends OperationHandlerBase implements OperationHandler {
 
     BuildDriverFactory buildDriverFactory;
-    Datastore datastore;
+    DatastoreAdapter datastoreAdapter;
 
     @Inject
-    public CompleteHandler(BuildDriverFactory buildDriverFactory, Datastore datastore) {
+    public CompleteHandler(BuildDriverFactory buildDriverFactory, DatastoreAdapter datastoreAdapter) {
         this.buildDriverFactory = buildDriverFactory;
-        this.datastore = datastore;
+        this.datastoreAdapter = datastoreAdapter;
     }
 
     @Override
@@ -41,19 +41,13 @@ public class CompleteHandler extends OperationHandlerBase implements OperationHa
         try {
 
             //TODO clean up env
-            //TODO store results to db
 
-//            BuildDetails buildDetails = buildTask.getBuildDetails();
-//            ProjectBuildResult buildResult = new ProjectBuildResult();
-//            buildResult.setBuildLog(buildDetails.getBuildLog());
-//            buildResult.setStatus(buildResult.getStatus());
-//            buildResult.setBuildCollections();
-//            buildResult.setBuildCollections();
-//            datastore.storeCompletedBuild(buildResult);
+            datastoreAdapter.storeResult(buildTask.getBuildJobDetails(), buildTask.getBuildJobConfiguration());
 
             buildTask.onComplete();
         } catch (Exception e) {
             buildTask.onError(e);
         }
     }
+
 }

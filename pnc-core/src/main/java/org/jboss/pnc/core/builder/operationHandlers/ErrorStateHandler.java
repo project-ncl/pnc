@@ -1,18 +1,18 @@
 package org.jboss.pnc.core.builder.operationHandlers;
 
 import org.jboss.pnc.core.builder.BuildTask;
+import org.jboss.pnc.core.builder.DatastoreAdapter;
 import org.jboss.pnc.model.TaskStatus;
-import org.jboss.pnc.spi.datastore.Datastore;
 
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-12-03.
  */
 public class ErrorStateHandler extends OperationHandlerBase implements OperationHandler {
 
-    private Datastore datastore;
+    DatastoreAdapter datastoreAdapter;
 
-    public ErrorStateHandler(Datastore datastore) {
-        this.datastore = datastore;
+    public ErrorStateHandler(DatastoreAdapter datastoreAdapter) {
+        this.datastoreAdapter = datastoreAdapter;
     }
 
     @Override
@@ -33,13 +33,9 @@ public class ErrorStateHandler extends OperationHandlerBase implements Operation
     protected void doHandle(BuildTask buildTask) {
         try {
             //TODO clean up env
-            //TODO store results/error to db
 
-//            BuildDetails buildDetails = buildTask.getBuildDetails();
-//            ProjectBuildResult buildResult = new ProjectBuildResult();
-//            buildResult.setBuildLog(buildDetails.getBuildLog());
-//            buildResult.setStatus(buildResult.getStatus());
-//            datastore.storeCompletedBuild(buildResult);
+            datastoreAdapter.storeResult(buildTask.getBuildJobDetails(), buildTask.getBuildJobConfiguration());
+
 
             buildTask.onComplete();
         } catch (Exception e) {

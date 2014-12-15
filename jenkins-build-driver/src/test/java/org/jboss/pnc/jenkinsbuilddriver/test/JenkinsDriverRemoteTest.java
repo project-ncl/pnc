@@ -12,8 +12,8 @@ import org.jboss.pnc.model.BuildStatus;
 import org.jboss.pnc.model.Project;
 import org.jboss.pnc.model.ProjectBuildConfiguration;
 import org.jboss.pnc.model.RepositoryType;
-import org.jboss.pnc.model.builder.BuildDetails;
 import org.jboss.pnc.spi.builddriver.BuildDriverResult;
+import org.jboss.pnc.spi.builddriver.BuildJobDetails;
 import org.jboss.pnc.spi.repositorymanager.RepositoryConfiguration;
 import org.jboss.pnc.spi.repositorymanager.RepositoryConnectionInfo;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
@@ -71,13 +71,13 @@ public class JenkinsDriverRemoteTest {
         BooleanWrapper completed = new BooleanWrapper(false);
 
         class BuildTask {
-            BuildDetails buildDetails;
+            BuildJobDetails buildJobDetails;
         }
 
         final BuildTask buildTask = new BuildTask();
 
-        Consumer<BuildDetails> onComplete = (buildDetails) -> {
-            buildTask.buildDetails = buildDetails;
+        Consumer<BuildJobDetails> onComplete = (buildJobDetails) -> {
+            buildTask.buildJobDetails = buildJobDetails;
             completed.set(true);
             mutex.release();
         };
@@ -89,7 +89,7 @@ public class JenkinsDriverRemoteTest {
         mutex.tryAcquire(30, TimeUnit.SECONDS); //wait for callback to release
 
         Assert.assertTrue("There was no complete callback.", completed.get());
-        Assert.assertNotNull(buildTask.buildDetails);
+        Assert.assertNotNull(buildTask.buildJobDetails);
 
         completed.set(false);
         long waitStarted = System.currentTimeMillis();
@@ -105,7 +105,7 @@ public class JenkinsDriverRemoteTest {
             throw new AssertionError(e);
         };
 
-        jenkinsBuildDriver.waitBuildToComplete(buildTask.buildDetails, onWaitComplete, onWaitError);
+        jenkinsBuildDriver.waitBuildToComplete(buildTask.buildJobDetails, onWaitComplete, onWaitError);
         mutex.tryAcquire(120, TimeUnit.SECONDS); //wait for callback to release
 
         long minBuildTime = 10000;
@@ -128,7 +128,7 @@ public class JenkinsDriverRemoteTest {
             throw new AssertionError(e);
         };
 
-        jenkinsBuildDriver.retrieveBuildResults(buildTask.buildDetails, onResultComplete, onResultError);
+        jenkinsBuildDriver.retrieveBuildResults(buildTask.buildJobDetails, onResultComplete, onResultError);
         mutex.tryAcquire(30, TimeUnit.SECONDS); //wait for callback to release
 
         Assert.assertEquals(BuildStatus.SUCCESS, buildDriverResult.getBuildStatus());

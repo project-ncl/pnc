@@ -3,9 +3,9 @@ package org.jboss.pnc.core.test.mock;
 import org.jboss.pnc.model.BuildStatus;
 import org.jboss.pnc.model.BuildType;
 import org.jboss.pnc.model.ProjectBuildConfiguration;
-import org.jboss.pnc.model.builder.BuildDetails;
 import org.jboss.pnc.spi.builddriver.BuildDriver;
 import org.jboss.pnc.spi.builddriver.BuildDriverResult;
+import org.jboss.pnc.spi.builddriver.BuildJobDetails;
 import org.jboss.pnc.spi.repositorymanager.RepositoryConfiguration;
 
 import javax.inject.Inject;
@@ -28,12 +28,12 @@ public class BuildDriverMock implements BuildDriver {
     @Override
     public void startProjectBuild(ProjectBuildConfiguration projectBuildConfiguration,
                                   RepositoryConfiguration repositoryConfiguration,
-                                  Consumer<BuildDetails> onComplete, Consumer<Exception> onError) {
+                                  Consumer<BuildJobDetails> onComplete, Consumer<Exception> onError) {
         Runnable projectBuild = () -> {
             try {
                 log.fine("Building " + projectBuildConfiguration);
                 Thread.sleep(500);
-                onComplete.accept(new BuildDetails(projectBuildConfiguration.getIdentifier(), 1));
+                onComplete.accept(new BuildJobDetails(projectBuildConfiguration.getIdentifier(), 1));
             } catch (InterruptedException e) {
                 onError.accept(e);
             }
@@ -47,10 +47,10 @@ public class BuildDriverMock implements BuildDriver {
     }
 
     @Override
-    public void waitBuildToComplete(BuildDetails buildDetails, Consumer<String> onComplete, Consumer<Exception> onError) {
+    public void waitBuildToComplete(BuildJobDetails buildJobDetails, Consumer<String> onComplete, Consumer<Exception> onError) {
         Runnable projectBuild = () -> {
             try {
-                log.fine("Waiting " + buildDetails.getJobName());
+                log.fine("Waiting " + buildJobDetails.getJobName());
                 Thread.sleep(500);
                 onComplete.accept("");
             } catch (InterruptedException e) {
@@ -62,7 +62,7 @@ public class BuildDriverMock implements BuildDriver {
     }
 
     @Override
-    public void retrieveBuildResults(BuildDetails buildDetails, Consumer<BuildDriverResult> onComplete, Consumer<Exception> onError) {
+    public void retrieveBuildResults(BuildJobDetails buildJobDetails, Consumer<BuildDriverResult> onComplete, Consumer<Exception> onError) {
         Runnable projectBuild = () -> {
             try {
                 Thread.sleep(500);

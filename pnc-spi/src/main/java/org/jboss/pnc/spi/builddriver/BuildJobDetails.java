@@ -1,17 +1,20 @@
-package org.jboss.pnc.model.builder;
+package org.jboss.pnc.spi.builddriver;
 
 import org.jboss.pnc.model.BuildStatus;
+import org.jboss.pnc.model.ProjectBuildConfiguration;
+import org.jboss.pnc.spi.repositorymanager.RepositoryConfiguration;
 
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-12-11.
  */
-public class BuildDetails {
+public class BuildJobDetails {
+
     private final String jobName;
     private final int buildNumber;
     private String buildLog;
     private BuildStatus buildStatus;
 
-    public BuildDetails(String jobName, int buildNumber) {
+    public BuildJobDetails(String jobName, int buildNumber) {
         this.jobName = jobName;
         this.buildNumber = buildNumber;
     }

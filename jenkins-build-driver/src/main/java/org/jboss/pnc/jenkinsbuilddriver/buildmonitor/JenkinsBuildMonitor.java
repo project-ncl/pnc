@@ -4,7 +4,7 @@ import com.offbytwo.jenkins.JenkinsServer;
 import com.offbytwo.jenkins.model.Build;
 import com.offbytwo.jenkins.model.BuildWithDetails;
 import com.offbytwo.jenkins.model.JobWithDetails;
-import org.jboss.pnc.model.builder.BuildDetails;
+import org.jboss.pnc.spi.builddriver.BuildJobDetails;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -32,12 +32,12 @@ public class JenkinsBuildMonitor {
         executor = Executors.newScheduledThreadPool(nThreads);
     }
 
-    public void monitor(JenkinsServer jenkinsServer, BuildDetails buildDetails, Consumer<String> onMonitorComplete, Consumer<Exception> onMonitorError) {
+    public void monitor(JenkinsServer jenkinsServer, BuildJobDetails buildJobDetails, Consumer<String> onMonitorComplete, Consumer<Exception> onMonitorError) {
 
-        MonitorTask monitorTask = new MonitorTask(buildDetails, onMonitorComplete, onMonitorError);
+        MonitorTask monitorTask = new MonitorTask(onMonitorComplete, onMonitorError);
         Runnable monitor = () -> {
             try {
-                Build jenkinsBuild = getBuild(jenkinsServer, buildDetails);
+                Build jenkinsBuild = getBuild(jenkinsServer, buildJobDetails);
                 if (jenkinsBuild == null)
                     //Build didn't started yet.
                     return;
@@ -67,13 +67,13 @@ public class JenkinsBuildMonitor {
     /**
      * @return Build or null if build didn't started yet
      */
-    private Build getBuild(JenkinsServer jenkinsServer, BuildDetails buildDetails) throws IOException {
-        String jobName = buildDetails.getJobName();
+    private Build getBuild(JenkinsServer jenkinsServer, BuildJobDetails buildJobDetails) throws IOException {
+        String jobName = buildJobDetails.getJobName();
         JobWithDetails buildJob = jenkinsServer.getJob(jobName);
         Build jenkinsBuild = buildJob.getLastBuild();
         int buildNumber = jenkinsBuild.getNumber();
-        if (buildNumber != buildDetails.getBuildNumber()) {
-            log.finer("Job #" + buildDetails.getBuildNumber() + " is not last job (probably hasn't started yet).");
+        if (buildNumber != buildJobDetails.getBuildNumber()) {
+            log.finer("Job #" + buildJobDetails.getBuildNumber() + " is not last job (probably hasn't started yet).");
             return null;
         }
         return jenkinsBuild;

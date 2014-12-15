@@ -1,10 +1,9 @@
 package org.jboss.pnc.core.builder;
 
 import org.jboss.pnc.core.exception.CoreException;
-import org.jboss.pnc.model.BuildCollection;
 import org.jboss.pnc.model.ProjectBuildConfiguration;
 import org.jboss.pnc.model.TaskStatus;
-import org.jboss.pnc.model.builder.BuildDetails;
+import org.jboss.pnc.spi.builddriver.BuildJobDetails;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -28,10 +27,10 @@ public class ProjectBuilder {
 
     private Set<BuildTask> runningBuilds = new HashSet<>(); //TODO protect access
 
-    public void buildProject(ProjectBuildConfiguration projectBuildConfiguration, BuildCollection buildCollection, Consumer<TaskStatus> onStatusUpdate, Consumer<BuildDetails> onComplete) throws CoreException {
+    public void buildProject(ProjectBuildConfiguration projectBuildConfiguration, Consumer<TaskStatus> onStatusUpdate, Consumer<BuildJobDetails> onComplete) throws CoreException {
         try {
             log.fine("Adding build configuration " + projectBuildConfiguration);
-            BuildTask buildTask = new BuildTask(runningBuilds, buildTaskQueue, projectBuildConfiguration, buildCollection, onStatusUpdate, onComplete);
+            BuildTask buildTask = new BuildTask(runningBuilds, buildTaskQueue, projectBuildConfiguration, onStatusUpdate, onComplete);
             //BuildTask buildTask = new BuildTask(runningBuilds, projectBuildConfiguration, buildCollection, onStatusUpdate, onSuccessComplete, onError);
             //buildTaskQueue.add(buildTask);
             //runningBuilds.add(buildTask);
