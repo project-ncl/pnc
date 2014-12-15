@@ -68,6 +68,29 @@
     <finalName>${project.artifactId}</finalName>
     <plugins>
       <plugin>
+        <artifactId>maven-antrun-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>configure-datasource</id>
+            <goals>
+              <goal>run</goal>
+            </goals>
+            <phase>prepare-package</phase>
+            <configuration>
+              <tasks>
+                <echo message="Configuring datasource" />
+                <replace file="${project.build.outputDirectory}/META-INF/persistence.xml"
+                  token="@persistence.jta-data-source@" value="${persistence.jta-data-source}" />
+                <replace file="${project.build.outputDirectory}/META-INF/persistence.xml"
+                  token="@persistence.hibernate.dialect@" value="${persistence.hibernate.dialect}" />
+                <replace file="${project.build.outputDirectory}/META-INF/persistence.xml"
+                  token="@persistence.hibernate.hbm2ddl.auto@" value="${persistence.hibernate.hbm2ddl.auto}" />
+              </tasks>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
         <artifactId>maven-ejb-plugin</artifactId>
         <version>${version.ejb.plugin}</version>
         <configuration>
@@ -78,3 +101,4 @@
   </build>
 
 </project>
+
