@@ -68,6 +68,35 @@
     <finalName>${project.artifactId}</finalName>
     <plugins>
       <plugin>
+        <artifactId>maven-antrun-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>configure-datasource</id>
+            <goals>
+              <goal>run</goal>
+            </goals>
+            <phase>package</phase>
+            <configuration>
+              <tasks>
+                <echo message="Configuring datasource" />
+                <replace file="${project.build.directory}/ear-package/META-INF/pnc.xml"
+                  token="@datasource.jndi.name@" value="${datasource.jndi.name}" />
+                <replace file="${project.build.directory}/ear-package/META-INF/pnc.xml"
+                  token="@datasource.pool.name@" value="${datasource.pool.name}" />
+                <replace file="${project.build.directory}/ear-package/META-INF/pnc.xml"
+                  token="@datasource.connection.url@" value="${datasource.connection.url}" />
+                <replace file="${project.build.directory}/ear-package/META-INF/pnc.xml"
+                  token="@datasource.driver-class@" value="${datasource.driver-class}" />
+                <replace file="${project.build.directory}/ear-package/META-INF/pnc.xml"
+                  token="@datasource.security.user-name@" value="${datasource.security.user-name}" />
+                <replace file="${project.build.directory}/ear-package/META-INF/pnc.xml"
+                  token="@datasource.security.password@" value="${datasource.security.password}" />
+              </tasks>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-ear-plugin</artifactId>
         <configuration>

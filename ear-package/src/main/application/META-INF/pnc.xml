@@ -22,14 +22,14 @@
     xsi:schemaLocation="http://www.jboss.org/ironjacamar/schema http://docs.jboss.org/ironjacamar/schema/datasources_1_0.xsd">
    <!-- The datasource is bound into JNDI at this location. We reference 
       this in META-INF/persistence.xml -->
-    <datasource jndi-name="java:jboss/datasources/ExampleDS" pool-name="as7example"
+    <datasource jndi-name="@datasource.jndi.name@" pool-name="@datasource.pool.name@"
         enabled="true" use-java-context="true">
-        <connection-url>jdbc:h2:mem:as7example;DB_CLOSE_ON_EXIT=FALSE;DB_CLOSE_DELAY=-1</connection-url>
-        <driver>h2</driver>
+
+        <connection-url>@datasource.connection.url@</connection-url>
+        <driver-class>@datasource.driver-class@</driver-class>
         <security>
-            <user-name>sa</user-name>
-            <password>sa</password>
+            <user-name>@datasource.security.user-name@</user-name>
+            <password>@datasource.security.password@</password>
         </security>
     </datasource>
 </datasources>
- 
