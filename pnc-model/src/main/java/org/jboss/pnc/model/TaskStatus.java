@@ -4,30 +4,26 @@ package org.jboss.pnc.model;
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-12-03.
  */
 public class TaskStatus {
-    int percentageDone;
+    State state;
     Operation operation;
 
-    public TaskStatus(Operation operation, int percentageDone) {
+    public TaskStatus(Operation operation, State state) {
         this.operation = operation;
-        this.percentageDone = percentageDone;
+        this.state = state;
+    }
+
+    public enum State {
+        STARTED,
+        COMPLETED;
     }
 
     public enum Operation { //TODO clean up
         NEW,
         BUILD_SCHEDULED,
-        BUILD_IN_PROGRESS,
-        BUILD_COMPLETED,
-        BUILD_FAILED,
-        COMPLETED,
-        CREATE_REPOSITORY, CREATE_JENKINS_JOB, RUN_JENKINS_JOB, STORE_BUILD_RESULTS, COMPLETING_BUILD,
+        WAITING_BUILD_TO_COMPLETE,
+        CREATE_REPOSITORY,
+        COMPLETING_BUILD,
         COLLECT_RESULTS;
-    }
-
-    /**
-     * @return -1 if operation failed
-     */
-    public int getPercentageDone() {
-        return percentageDone;
     }
 
     public Operation getOperation() {
@@ -35,7 +31,7 @@ public class TaskStatus {
     }
 
     public boolean isCompleted() {
-        return 100 == percentageDone;
+        return State.COMPLETED.equals(state);
     }
 
     public boolean isOperationCompleted(Operation operation) {

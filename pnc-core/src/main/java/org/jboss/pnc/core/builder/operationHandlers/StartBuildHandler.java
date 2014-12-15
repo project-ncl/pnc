@@ -1,7 +1,6 @@
 package org.jboss.pnc.core.builder.operationHandlers;
 
 import org.jboss.pnc.core.BuildDriverFactory;
-import org.jboss.pnc.core.builder.BuildQueue;
 import org.jboss.pnc.core.builder.BuildTask;
 import org.jboss.pnc.core.exception.CoreException;
 import org.jboss.pnc.model.TaskStatus;
@@ -19,8 +18,7 @@ public class StartBuildHandler extends OperationHandlerBase implements Operation
     private final BuildDriverFactory buildDriverFactory;
 
     @Inject
-    public StartBuildHandler(BuildQueue buildQueue, BuildDriverFactory buildDriverFactory) {
-        super(buildQueue);
+    public StartBuildHandler(BuildDriverFactory buildDriverFactory) {
         this.buildDriverFactory = buildDriverFactory;
     }
 
@@ -31,12 +29,11 @@ public class StartBuildHandler extends OperationHandlerBase implements Operation
 
     @Override
     protected void doHandle(BuildTask buildTask) {
-        buildTask.onStatusUpdate(new TaskStatus(TaskStatus.Operation.BUILD_SCHEDULED, 0));
+        buildTask.onStatusUpdate(new TaskStatus(TaskStatus.Operation.BUILD_SCHEDULED, TaskStatus.State.STARTED));
         try {
             Consumer<BuildDetails> onComplete = (buildDetails) -> {
-                buildTask.onStatusUpdate(new TaskStatus(TaskStatus.Operation.BUILD_SCHEDULED, 100));
+                buildTask.onStatusUpdate(new TaskStatus(TaskStatus.Operation.BUILD_SCHEDULED, TaskStatus.State.COMPLETED));
                 buildTask.setBuildDetails(buildDetails);
-                buildQueue.add(buildTask);
             };
 
             Consumer<Exception> onError = (e) -> {

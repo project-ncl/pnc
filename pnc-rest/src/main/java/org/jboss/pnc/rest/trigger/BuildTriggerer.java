@@ -7,6 +7,7 @@ import org.jboss.pnc.datastore.repositories.ProjectBuildConfigurationRepository;
 import org.jboss.pnc.model.BuildCollection;
 import org.jboss.pnc.model.ProjectBuildConfiguration;
 import org.jboss.pnc.model.TaskStatus;
+import org.jboss.pnc.model.builder.BuildDetails;
 import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerException;
 
@@ -42,11 +43,11 @@ public class BuildTriggerer {
         Consumer<TaskStatus> onStatusUpdate = (newStatus) -> {
 
         };
-        Consumer<Exception> onError = (e) -> {
-            e.printStackTrace(); //TODO
+        Consumer<BuildDetails> onComplete = (buildDetails) -> {
+
         };
 
-        projectBuilder.buildProject(configuration, buildCollection, onStatusUpdate, onError);
+        projectBuilder.buildProject(configuration, buildCollection, onStatusUpdate, onComplete);
     }
 
 }

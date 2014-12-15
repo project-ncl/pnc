@@ -1,6 +1,5 @@
 package org.jboss.pnc.core.builder.operationHandlers;
 
-import org.jboss.pnc.core.builder.BuildQueue;
 import org.jboss.pnc.core.builder.BuildTask;
 import org.jboss.pnc.model.TaskStatus;
 
@@ -9,10 +8,8 @@ import org.jboss.pnc.model.TaskStatus;
  */
 public abstract class OperationHandlerBase {
     protected OperationHandler next;
-    protected BuildQueue buildQueue;
 
-    public OperationHandlerBase(BuildQueue buildQueue) {
-        this.buildQueue = buildQueue;
+    public OperationHandlerBase() {
     }
 
     public void handle(BuildTask task) {

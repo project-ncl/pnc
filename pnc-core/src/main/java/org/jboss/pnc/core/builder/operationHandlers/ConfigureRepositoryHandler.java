@@ -1,7 +1,7 @@
 package org.jboss.pnc.core.builder.operationHandlers;
 
 import org.jboss.pnc.core.RepositoryManagerFactory;
-import org.jboss.pnc.core.builder.BuildQueue;
+import org.jboss.pnc.core.builder.BuildTaskQueue;
 import org.jboss.pnc.core.builder.BuildTask;
 import org.jboss.pnc.core.exception.CoreException;
 import org.jboss.pnc.model.BuildCollection;
@@ -22,8 +22,7 @@ public class ConfigureRepositoryHandler extends OperationHandlerBase implements 
     RepositoryManagerFactory repositoryManagerFactory;
 
     @Inject
-    public ConfigureRepositoryHandler(BuildQueue buildQueue, RepositoryManagerFactory repositoryManagerFactory) {
-        super(buildQueue);
+    public ConfigureRepositoryHandler(BuildTaskQueue buildTaskQueue, RepositoryManagerFactory repositoryManagerFactory) {
         this.repositoryManagerFactory = repositoryManagerFactory;
     }
 
@@ -34,12 +33,11 @@ public class ConfigureRepositoryHandler extends OperationHandlerBase implements 
 
     @Override
     protected void doHandle(BuildTask buildTask) {
-        buildTask.onStatusUpdate(new TaskStatus(TaskStatus.Operation.CREATE_REPOSITORY, 0));
+        buildTask.onStatusUpdate(new TaskStatus(TaskStatus.Operation.CREATE_REPOSITORY, TaskStatus.State.STARTED));
         try {
             Consumer<RepositoryConfiguration> onComplete = (repositoryConfiguration) -> {
-                buildTask.onStatusUpdate(new TaskStatus(TaskStatus.Operation.CREATE_REPOSITORY, 100));
+                buildTask.onStatusUpdate(new TaskStatus(TaskStatus.Operation.CREATE_REPOSITORY, TaskStatus.State.COMPLETED));
                 buildTask.setRepositoryConfiguration(repositoryConfiguration);
-                buildQueue.add(buildTask);
             };
 
             Consumer<Exception> onError = (e) -> {

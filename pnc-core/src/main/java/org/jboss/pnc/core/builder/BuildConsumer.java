@@ -1,10 +1,10 @@
 package org.jboss.pnc.core.builder;
 
 import org.jboss.pnc.core.builder.operationHandlers.ChainBuilder;
-import org.jboss.pnc.core.builder.operationHandlers.CompleteBuildHandler;
+import org.jboss.pnc.core.builder.operationHandlers.CompleteHandler;
 import org.jboss.pnc.core.builder.operationHandlers.ConfigureRepositoryHandler;
 import org.jboss.pnc.core.builder.operationHandlers.OperationHandler;
-import org.jboss.pnc.core.builder.operationHandlers.RetrieveBuildResultsHandler;
+import org.jboss.pnc.core.builder.operationHandlers.CollectResultsHandler;
 import org.jboss.pnc.core.builder.operationHandlers.StartBuildHandler;
 import org.jboss.pnc.core.builder.operationHandlers.WaitBuildToCompleteHandler;
 
@@ -15,25 +15,25 @@ import javax.inject.Inject;
  */
 public class BuildConsumer implements Runnable {
 
-    private final BuildQueue buildQueue;
+    private final BuildTaskQueue buildTaskQueue;
     OperationHandler rootHandler;
 
     @Inject
-    BuildConsumer(BuildQueue buildQueue,
+    BuildConsumer(BuildTaskQueue buildTaskQueue,
                   ConfigureRepositoryHandler configureRepositoryHandler,
                   StartBuildHandler startBuildHandler,
                   WaitBuildToCompleteHandler waitBuildToCompleteHandler,
-                  RetrieveBuildResultsHandler retrieveBuildResultsHandler,
-                  CompleteBuildHandler completeBuildHandler) {
+                  CollectResultsHandler collectResultsHandler,
+                  CompleteHandler completeHandler) {
 
-        this.buildQueue = buildQueue;
+        this.buildTaskQueue = buildTaskQueue;
 
         rootHandler = new ChainBuilder()
             .addNext(configureRepositoryHandler)
             .addNext(startBuildHandler)
             .addNext(waitBuildToCompleteHandler)
-            .addNext(retrieveBuildResultsHandler)
-            .addNext(completeBuildHandler)
+            .addNext(collectResultsHandler)
+            .addNext(completeHandler)
             .build();
     }
 
@@ -41,7 +41,7 @@ public class BuildConsumer implements Runnable {
     public void run() {
         while (true) {
             try {
-                BuildTask buildTask = buildQueue.take();
+                BuildTask buildTask = buildTaskQueue.take();
                 runBuildTask(buildTask);
             } catch (InterruptedException e) {
                 break;
