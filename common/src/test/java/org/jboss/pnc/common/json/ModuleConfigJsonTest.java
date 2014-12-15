@@ -1,12 +1,10 @@
 package org.jboss.pnc.common.json;
 
 import java.io.IOException;
-import java.net.URL;
 
 import org.jboss.pnc.common.json.moduleconfig.JenkinsBuildDriverModuleConfig;
 import org.jboss.pnc.common.json.moduleconfig.MavenRepoDriverModuleConfig;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -18,7 +16,7 @@ public class ModuleConfigJsonTest {
         try {
             ModuleConfigJson moduleConfigJson =  new ModuleConfigJson("pnc-config");
             JenkinsBuildDriverModuleConfig jenkinsBuildDriverModuleConfig = 
-                    new JenkinsBuildDriverModuleConfig(new URL("http://test/url"), "pavel", "test");
+                    new JenkinsBuildDriverModuleConfig("http://test/url", "pavel", "test");
             MavenRepoDriverModuleConfig mavenRepoDriverModuleConfig = 
                     new MavenRepoDriverModuleConfig("http://something/base");
             moduleConfigJson.addConfig(jenkinsBuildDriverModuleConfig);

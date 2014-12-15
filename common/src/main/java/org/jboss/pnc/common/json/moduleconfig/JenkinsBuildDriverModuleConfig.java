@@ -1,17 +1,15 @@
 package org.jboss.pnc.common.json.moduleconfig;
 
-import java.net.URL;
-
 import org.jboss.pnc.common.json.AbstractModuleConfig;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class JenkinsBuildDriverModuleConfig extends AbstractModuleConfig{
-    private URL url;
+    private String url;
     private String username;
     private String password;
 
-    public JenkinsBuildDriverModuleConfig(@JsonProperty("url") URL url, 
+    public JenkinsBuildDriverModuleConfig(@JsonProperty("url") String url, 
             @JsonProperty("username") String username, @JsonProperty("password")String password) {
         super();
         this.url = url;
@@ -20,10 +18,10 @@ public class JenkinsBuildDriverModuleConfig extends AbstractModuleConfig{
     }
     
     
-    public URL getUrl() {
+    public String getUrl() {
         return url;
     }
-    public void setUrl(URL url) {
+    public void setUrl(String url) {
         this.url = url;
     }
     public String getUsername() {
