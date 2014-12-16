@@ -15,10 +15,4 @@
         </configuration>
     </container>
 
-    <extension qualifier="cucumber">
-        <property name="report">true</property>
-        <property name="report-directory">target/cucumber-report</property>
-        <property name="featureHome">src/test/resources</property>
-    </extension>
-
 </arquillian>

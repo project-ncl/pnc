@@ -270,11 +270,6 @@
         <version>2.2.0.SP1</version>
         <scope>test</scope>
       </dependency>
-      <dependency>
-        <groupId>com.github.cukespace</groupId>
-        <artifactId>cukespace-core</artifactId>
-        <version>1.5.10</version>
-      </dependency>
     </dependencies>
   </dependencyManagement>
 

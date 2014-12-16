@@ -54,9 +54,6 @@ public class ProjectConfigurationProvider {
     }
 
     public Integer store(Integer projectId, ProjectBuildConfigurationRest projectBuildConfigurationRest) {
-        Preconditions.checkArgument(projectBuildConfigurationRest.getIdentifier() != null, "Configuration identifier must not be null");
-        Preconditions.checkArgument(projectBuildConfigurationRest.getScmUrl() != null, "Configuration scm url must not be null");
-        Preconditions.checkArgument(projectBuildConfigurationRest.getBuildScript() != null, "Configuration build script must not be null");
         Project project = projectRepository.findOne(projectId);
         Preconditions.checkArgument(project != null, "Couldn't find project with id " + projectId);
         ProjectBuildConfiguration projectBuildConfiguration = projectBuildConfigurationRest.getProjectBuildConfiguration(project);
