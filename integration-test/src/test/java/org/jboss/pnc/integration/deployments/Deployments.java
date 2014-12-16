@@ -17,13 +17,28 @@ public class Deployments {
         PomEquippedResolveStage mavenResolver = Maven.resolver().loadPomFromFile(new File("pom.xml"));
 
         addEar(webArchive, mavenResolver);
+
+        return webArchive;
+    }
+
+    public static EnterpriseArchive baseEarWithTestDependencies() {
+        EnterpriseArchive webArchive = ShrinkWrap.create(EnterpriseArchive.class);
+        PomEquippedResolveStage mavenResolver = Maven.resolver().loadPomFromFile(new File("pom.xml"));
+
+        addEar(webArchive, mavenResolver);
         addAssertJ(webArchive, mavenResolver);
+        addRestAssured(webArchive, mavenResolver);
 
         return webArchive;
     }
 
     private static void addAssertJ(EnterpriseArchive webArchive, PomEquippedResolveStage mavenResolver) {
         File[] assertJ = mavenResolver.resolve("org.assertj:assertj-core:1.7.0").withTransitivity().asFile();
+        Stream.of(assertJ).forEach(lib -> webArchive.addAsLibrary(lib));
+    }
+
+    private static void addRestAssured(EnterpriseArchive webArchive, PomEquippedResolveStage mavenResolver) {
+        File[] assertJ = mavenResolver.resolve("com.jayway.restassured:rest-assured:2.4.0").withTransitivity().asFile();
         Stream.of(assertJ).forEach(lib -> webArchive.addAsLibrary(lib));
     }
 

@@ -7,7 +7,7 @@ import java.util.List;
 /**
  * The Class BuildCollection, that encapsulates the set of buildResults that compose a specific version of a Product.
  *
- * There should be a unique constraint (productVersion, productBuildBumber)
+ * There should be a unique constraint (productVersion, productBuildNumber)
  *
  * @author avibelli
  */
@@ -20,7 +20,7 @@ public class BuildCollection implements Serializable {
     @GeneratedValue
     private Integer id;
 
-    private Integer productBuildBumber;
+    private Integer productBuildNumber;
 
     @Enumerated(EnumType.STRING)
     private ProductMilestone milestone;
@@ -57,17 +57,17 @@ public class BuildCollection implements Serializable {
     }
 
     /**
-     * @return the productBuildBumber
+     * @return the productBuildNumber
      */
-    public Integer getProductBuildBumber() {
-        return productBuildBumber;
+    public Integer getProductBuildNumber() {
+        return productBuildNumber;
     }
 
     /**
-     * @param productBuildBumber the productBuildBumber to set
+     * @param productBuildNumber the productBuildNumber to set
      */
-    public void setProductBuildBumber(Integer productBuildBumber) {
-        this.productBuildBumber = productBuildBumber;
+    public void setProductBuildNumber(Integer productBuildNumber) {
+        this.productBuildNumber = productBuildNumber;
     }
 
     /**
@@ -115,7 +115,7 @@ public class BuildCollection implements Serializable {
     @Override
     public String toString() {
         return "BuildCollection [productName=" + productVersion.getProduct().getName() + ", productVersion="
-                + productVersion.getVersion() + ", productBuildBumber=" + productBuildBumber + "]";
+                + productVersion.getVersion() + ", productBuildNumber=" + productBuildNumber + "]";
     }
 
 }

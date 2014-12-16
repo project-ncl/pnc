@@ -6,6 +6,8 @@ import javax.xml.bind.annotation.XmlRootElement;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static org.jboss.pnc.rest.provider.StreamHelper.nullableStreamOf;
+
 @XmlRootElement(name = "ProductVersion")
 public class ProductVersionRest {
 
@@ -24,7 +26,7 @@ public class ProductVersionRest {
         this.id = productVersion.getId();
         this.version = productVersion.getVersion();
         this.productId = productVersion.getProduct().getId();
-        this.projectIds = productVersion.getProductVersionProjects().stream()
+        this.projectIds = nullableStreamOf(productVersion.getProductVersionProjects())
                 .map(productVersionProjects -> productVersionProjects.getProject().getId())
                 .collect(Collectors.toList());
 

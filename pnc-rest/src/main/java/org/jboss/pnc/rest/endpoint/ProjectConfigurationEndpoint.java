@@ -59,7 +59,7 @@ public class ProjectConfigurationEndpoint {
             @Context UriInfo uriInfo) {
         UriBuilder uriBuilder = UriBuilder.fromUri(uriInfo.getRequestUri()).path("{id}");
         int id = projectConfigurationProvider.store(projectId, projectBuildConfigurationRest);
-        return Response.created(uriBuilder.build(uriBuilder.build(id))).build();
+        return Response.created(uriBuilder.build(id)).build();
     }
 
     @ApiOperation(value = "Deletes Project's configuration")

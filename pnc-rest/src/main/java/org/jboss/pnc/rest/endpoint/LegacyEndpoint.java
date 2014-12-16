@@ -10,8 +10,8 @@ import org.jboss.pnc.rest.trigger.BuildTriggerer;
 
 import javax.inject.Inject;
 import javax.ws.rs.*;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
+import javax.ws.rs.core.*;
+import java.net.URI;
 import java.util.List;
 
 @Api(value = "/configuration", description = "Legacy endpoint - please use the new one (starts with Product)")
@@ -42,10 +42,13 @@ public class LegacyEndpoint {
     @POST
     @Path("{id}/build")
     public Response build(
-            @ApiParam(value = "Project's Configuration id", required = true) @PathParam("id") Integer id) {
+            @ApiParam(value = "Project's Configuration id", required = true) @PathParam("id") Integer id,
+            @Context UriInfo uriInfo) {
         try {
-            buildTriggerer.triggerBuilds(id);
-            return Response.ok().build();
+            Integer runningBuildId = buildTriggerer.triggerBuilds(id);
+            UriBuilder uriBuilder = UriBuilder.fromUri(uriInfo.getBaseUri()).path("/result/running/{id}");
+            URI uri = uriBuilder.build(runningBuildId);
+            return Response.created(uri).entity(uri).build();
         } catch (CoreException e) {
             return Response.serverError().entity("Core error: " + e.getMessage()).build();
         } catch (Exception e) {

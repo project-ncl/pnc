@@ -47,10 +47,10 @@ public class ProjectBuildResult implements Serializable {
     @Enumerated(value = EnumType.STRING)
     private BuildStatus status;
 
-    @OneToMany(mappedBy = "projectBuildResult")
+    @OneToMany(mappedBy = "projectBuildResult", cascade = CascadeType.ALL)
     private List<Artifact> builtArtifacts;
 
-    @OneToMany(mappedBy = "projectBuildResult")
+    @OneToMany(mappedBy = "projectBuildResult", cascade = CascadeType.ALL)
     private List<Artifact> dependencies;
 
     /**

@@ -52,7 +52,7 @@ public class BuildCollectionBuilder {
     public BuildCollection build() {
         BuildCollection buildCollection = new BuildCollection();
         buildCollection.setId(id);
-        buildCollection.setProductBuildBumber(productBuildBumber);
+        buildCollection.setProductBuildNumber(productBuildBumber);
         buildCollection.setMilestone(milestone);
 
         if (productVersion != null) {
