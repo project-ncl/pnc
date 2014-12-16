@@ -7,6 +7,8 @@ import javax.xml.bind.annotation.XmlRootElement;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static org.jboss.pnc.rest.provider.StreamHelper.nullableStreamOf;
+
 @XmlRootElement(name = "Project")
 public class ProjectRest {
 
@@ -31,7 +33,7 @@ public class ProjectRest {
         this.name = project.getName();
         this.issueTrackerUrl = project.getIssueTrackerUrl();
         this.projectUrl = project.getProjectUrl();
-        configurationIds = project.getProjectBuildConfigurations().stream()
+        configurationIds = nullableStreamOf(project.getProjectBuildConfigurations())
                 .map(projectBuildConfiguration -> projectBuildConfiguration.getId())
                 .collect(Collectors.toList());
     }

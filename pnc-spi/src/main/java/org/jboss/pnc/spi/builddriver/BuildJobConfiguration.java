@@ -39,4 +39,8 @@ public class BuildJobConfiguration {
     public void setBuildCollection(BuildCollection buildCollection) {
         this.buildCollection = buildCollection;
     }
+
+    public Integer getId() {
+        return this.projectBuildConfiguration.getId();
+    }
 }

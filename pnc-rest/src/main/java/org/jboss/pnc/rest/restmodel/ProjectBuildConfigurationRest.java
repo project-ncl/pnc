@@ -7,7 +7,7 @@ import org.jboss.pnc.model.builder.ProjectBuildConfigurationBuilder;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.sql.Timestamp;
 
-@XmlRootElement
+@XmlRootElement(name = "Configuration")
 public class ProjectBuildConfigurationRest {
 
     private Integer id;

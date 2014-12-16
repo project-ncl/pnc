@@ -7,11 +7,11 @@ import org.jboss.pnc.spi.builddriver.BuildJobDetails;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-11-23.
@@ -27,10 +27,10 @@ public class ProjectBuilder {
 
     private Set<BuildTask> runningBuilds = new HashSet<>(); //TODO protect access
 
-    public void buildProject(ProjectBuildConfiguration projectBuildConfiguration, Consumer<TaskStatus> onStatusUpdate, Consumer<BuildJobDetails> onComplete) throws CoreException {
+    public BuildTask buildProject(ProjectBuildConfiguration projectBuildConfiguration, Consumer<TaskStatus> onStatusUpdate, Consumer<BuildJobDetails> onComplete) throws CoreException {
         try {
             log.fine("Adding build configuration " + projectBuildConfiguration);
-            BuildTask buildTask = new BuildTask(runningBuilds, buildTaskQueue, projectBuildConfiguration, onStatusUpdate, onComplete);
+            return new BuildTask(runningBuilds, buildTaskQueue, projectBuildConfiguration, onStatusUpdate, onComplete);
             //BuildTask buildTask = new BuildTask(runningBuilds, projectBuildConfiguration, buildCollection, onStatusUpdate, onSuccessComplete, onError);
             //buildTaskQueue.add(buildTask);
             //runningBuilds.add(buildTask);
@@ -40,8 +40,7 @@ public class ProjectBuilder {
     }
 
     public Set<BuildTask> getRunningBuilds() {
-        //return runningBuilds.stream().map(t -> t.getBuildDetails()).collect(Collectors.toList());
-        return runningBuilds.stream().collect(Collectors.toSet()); //TODO protect state methods
+        return Collections.unmodifiableSet(runningBuilds);
     }
 
 }

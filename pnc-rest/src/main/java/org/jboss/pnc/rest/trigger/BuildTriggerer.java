@@ -31,7 +31,7 @@ public class BuildTriggerer {
         this.projectBuildConfigurationRepository = projectBuildConfigurationRepository;
     }
 
-    public void triggerBuilds( final Integer configurationId )
+    public Integer triggerBuilds( final Integer configurationId )
         throws InterruptedException, CoreException, BuildDriverException, RepositoryManagerException
     {
         final ProjectBuildConfiguration configuration = projectBuildConfigurationRepository.findOne(configurationId);
@@ -47,7 +47,7 @@ public class BuildTriggerer {
 
         };
 
-        projectBuilder.buildProject(configuration, onStatusUpdate, onComplete);
+        return projectBuilder.buildProject(configuration, onStatusUpdate, onComplete).getId();
     }
 
 }

@@ -11,9 +11,9 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
+import javax.ws.rs.core.*;
 import java.lang.invoke.MethodHandles;
+import java.net.URI;
 
 @Api(value = "/product/{productId}/version/{versionId}/project/{projectId}/configuration", description = "Triggering build configuration")
 @Path("/product/{productId}/version/{versionId}/project/{projectId}/configuration")
@@ -43,10 +43,13 @@ public class TriggerBuildEndpoint {
             @ApiParam(value = "Product id", required = true) @PathParam("productId") Integer productId,
             @ApiParam(value = "Product Version id", required = true) @PathParam("versionId") Integer productVersionId,
             @ApiParam(value = "Project id", required = true) @PathParam("projectId") Integer projectId,
-            @ApiParam(value = "Configuration id", required = true) @PathParam("id") Integer id) {
+            @ApiParam(value = "Configuration id", required = true) @PathParam("id") Integer id,
+            @Context UriInfo uriInfo) {
         try {
-            buildTriggerer.triggerBuilds(id);
-            return Response.ok().build();
+            Integer runningBuildId = buildTriggerer.triggerBuilds(id);
+            UriBuilder uriBuilder = UriBuilder.fromUri(uriInfo.getBaseUri()).path("/result/running/{id}");
+            URI uri = uriBuilder.build(runningBuildId);
+            return Response.ok(uri).entity(uri).build();
         } catch (CoreException e) {
             logger.error(e.getMessage(), e);
             return Response.serverError().entity("Core error: " + e.getMessage()).build();

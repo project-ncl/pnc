@@ -11,5 +11,5 @@ public enum BuildStatus { //TODO clean up
     BUILDING, 
     ABORTED, 
     CANCELLED,
-    UNKNOWN;
+    UNKNOWN
 }
