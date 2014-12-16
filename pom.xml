@@ -429,6 +429,10 @@
       <name>bintray</name>
       <url>http://dl.bintray.com/rnc/maven</url>
     </repository>
+    <repository>
+      <id>repo.bodar.com</id>
+      <url>http://repo.bodar.com</url>
+    </repository>
   </repositories>
 
   <profiles>
