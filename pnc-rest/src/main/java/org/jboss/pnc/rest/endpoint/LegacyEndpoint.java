@@ -40,7 +40,7 @@ public class LegacyEndpoint {
 
     @ApiOperation(value = "Triggers a build")
     @POST
-    @Path("{id}/build")
+    @Path("/{id}/build")
     public Response build(
             @ApiParam(value = "Project's Configuration id", required = true) @PathParam("id") Integer id,
             @Context UriInfo uriInfo) {
