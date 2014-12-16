@@ -1,11 +1,11 @@
 package org.jboss.pnc.integration;
 
 import com.jayway.restassured.http.ContentType;
+import org.hamcrest.CustomMatcher;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.junit.InSequence;
 import org.jboss.pnc.integration.deployments.Deployments;
-import org.jboss.pnc.integration.util.TestUtils;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -13,9 +13,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.invoke.MethodHandles;
+import java.util.function.Consumer;
+import java.util.stream.Stream;
 
 import static com.jayway.restassured.RestAssured.given;
-import static org.jboss.pnc.integration.util.TestUtils.getHttpPort;
+import static com.jayway.restassured.path.json.JsonPath.from;
+import static org.jboss.pnc.integration.env.IntegrationTestEnv.getHttpPort;
 
 
 @RunWith(Arquillian.class)
@@ -45,7 +48,7 @@ public class RestTest {
                 get("/pnc-web/rest/product").
         then().
                 statusCode(200).
-                body(TestUtils.containsJsonAttribute("[0].id", value -> productId = Integer.valueOf(value)));
+                body(containsJsonAttribute("[0].id", value -> productId = Integer.valueOf(value)));
     }
 
     @Test
@@ -58,7 +61,7 @@ public class RestTest {
                 get(String.format("/pnc-web/rest/product/%d", productId)).
         then().
                 statusCode(200).
-                body(TestUtils.containsJsonAttribute("id"));
+                body(containsJsonAttribute("id"));
     }
 
     @Test
@@ -71,7 +74,7 @@ public class RestTest {
                 get(String.format("/pnc-web/rest/product/%d/version", productId)).
         then().
                 statusCode(200).
-                body(TestUtils.containsJsonAttribute("[0].id", value -> productVersionId = Integer.valueOf(value)));
+                body(containsJsonAttribute("[0].id", value -> productVersionId = Integer.valueOf(value)));
     }
 
     @Test
@@ -84,7 +87,7 @@ public class RestTest {
                 get(String.format("/pnc-web/rest/product/%d/version/%d", productId, productVersionId)).
         then().
                 statusCode(200).
-                body(TestUtils.containsJsonAttribute("id"));
+                body(containsJsonAttribute("id"));
     }
 
     @Test
@@ -97,7 +100,7 @@ public class RestTest {
                 get(String.format("/pnc-web/rest/product/%d/version/%d/project", productId, productVersionId)).
                 then().
                 statusCode(200).
-                body(TestUtils.containsJsonAttribute("[0].id", value -> projectId = Integer.valueOf(value)));
+                body(containsJsonAttribute("[0].id", value -> projectId = Integer.valueOf(value)));
     }
 
     @Test
@@ -110,7 +113,7 @@ public class RestTest {
                 get(String.format("/pnc-web/rest/product/%d/version/%d/project/%d", productId, productVersionId, projectId)).
         then().
                 statusCode(200).
-                body(TestUtils.containsJsonAttribute("id"));
+                body(containsJsonAttribute("id"));
     }
 
     @Test
@@ -123,7 +126,7 @@ public class RestTest {
                 get(String.format("/pnc-web/rest/product/%d/version/%d/project/%d/configuration", productId, productVersionId, projectId)).
         then().
                 statusCode(200).
-                body(TestUtils.containsJsonAttribute("[0].id", value -> configurationId = Integer.valueOf(value)));
+                body(containsJsonAttribute("[0].id", value -> configurationId = Integer.valueOf(value)));
     }
 
     @Test
@@ -136,7 +139,7 @@ public class RestTest {
                 get(String.format("/pnc-web/rest/product/%d/version/%d/project/%d/configuration/%d", productId, productVersionId, projectId, configurationId)).
         then().
                 statusCode(200).
-                body(TestUtils.containsJsonAttribute("id"));
+                body(containsJsonAttribute("id"));
     }
 
     @Test
@@ -174,4 +177,22 @@ public class RestTest {
                 statusCode(200);
     }
 
+    private CustomMatcher<String> containsJsonAttribute(String jsonAttribute, Consumer<String>... actionWhenMatches) {
+        return new CustomMatcher<String>("matchesJson") {
+            @Override
+            public boolean matches(Object o) {
+                String rawJson = String.valueOf(o).intern();
+                logger.debug("Evaluating raw JSON: " + rawJson);
+                Object value = from(rawJson).get(jsonAttribute);
+                logger.debug("Got value from JSon: " + value);
+                if(value != null) {
+                    if(actionWhenMatches != null) {
+                        Stream.of(actionWhenMatches).forEach(action -> action.accept(String.valueOf(value)));
+                    }
+                    return true;
+                }
+                return false;
+            }
+        };
+    }
 }
