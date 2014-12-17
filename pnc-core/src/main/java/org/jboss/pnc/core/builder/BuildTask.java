@@ -21,7 +21,6 @@ public class BuildTask {
 
     private Set<BuildTask> runningBuilds;
     private BuildTaskQueue buildTaskQueue;
-    private ProjectBuildConfiguration projectBuildConfiguration;
     private Consumer<TaskStatus> onStatusUpdate;
     private Consumer<BuildJobDetails> onComplete;
     private TaskStatus status;
@@ -38,7 +37,6 @@ public class BuildTask {
     public BuildTask(Set<BuildTask> runningBuilds, BuildTaskQueue buildTaskQueue, ProjectBuildConfiguration projectBuildConfiguration, Consumer<TaskStatus> onStatusUpdate, Consumer<BuildJobDetails> onComplete) {
         this.runningBuilds = runningBuilds;
         this.buildTaskQueue = buildTaskQueue;
-        this.projectBuildConfiguration = projectBuildConfiguration;
         this.onStatusUpdate = onStatusUpdate;
         this.onComplete = onComplete;
         status = new TaskStatus(TaskStatus.Operation.NEW, TaskStatus.State.COMPLETED);
@@ -122,14 +120,16 @@ public class BuildTask {
 
         BuildTask buildTask = (BuildTask) o;
 
-        if (projectBuildConfiguration != null ? !projectBuildConfiguration.equals(buildTask.projectBuildConfiguration) : buildTask.projectBuildConfiguration != null)
+        ProjectBuildConfiguration projectBuildConfiguration = buildJobConfiguration.getProjectBuildConfiguration();
+        if (!projectBuildConfiguration.equals(buildTask.getBuildJobConfiguration().getProjectBuildConfiguration())) {
             return false;
+        }
 
         return true;
     }
 
     @Override
     public int hashCode() {
-        return projectBuildConfiguration != null ? projectBuildConfiguration.hashCode() : 0;
+        return buildJobConfiguration.getProjectBuildConfiguration().hashCode();
     }
 }
