@@ -30,7 +30,9 @@ public class ErrorStateHandler extends OperationHandlerBase implements Operation
         if (task.getException() != null) {
             doHandle(task);
         } else {
-            super.handle(task);
+            if (next != null) {
+                next.handle(task);
+            }
         }
     }
 

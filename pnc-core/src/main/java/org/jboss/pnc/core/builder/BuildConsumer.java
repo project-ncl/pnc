@@ -31,12 +31,12 @@ public class BuildConsumer implements Runnable {
         this.buildTaskQueue = buildTaskQueue;
 
         rootHandler = new ChainBuilder()
+            .addNext(errorStateHandler)
             .addNext(configureRepositoryHandler)
             .addNext(startBuildHandler)
             .addNext(waitBuildToCompleteHandler)
             .addNext(collectResultsHandler)
             .addNext(completeHandler)
-            .addNext(errorStateHandler)
             .build();
     }
 
