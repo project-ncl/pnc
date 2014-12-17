@@ -15,6 +15,9 @@ public class CompleteHandler extends OperationHandlerBase implements OperationHa
     BuildDriverFactory buildDriverFactory;
     DatastoreAdapter datastoreAdapter;
 
+    private static final org.jboss.logging.Logger log = org.jboss.logging.Logger.getLogger(CompleteHandler.class);
+
+
     @Inject
     public CompleteHandler(BuildDriverFactory buildDriverFactory, DatastoreAdapter datastoreAdapter) {
         this.buildDriverFactory = buildDriverFactory;
@@ -27,15 +30,6 @@ public class CompleteHandler extends OperationHandlerBase implements OperationHa
     }
 
     @Override
-    public void handle(BuildTask task) {
-        if (task.getException() != null) {
-            doHandle(task);
-        } else {
-            super.handle(task);
-        }
-    }
-
-    @Override
     protected void doHandle(BuildTask buildTask) {
         buildTask.onStatusUpdate(new TaskStatus(TaskStatus.Operation.COMPLETING_BUILD, TaskStatus.State.STARTED));
         try {
@@ -44,8 +38,10 @@ public class CompleteHandler extends OperationHandlerBase implements OperationHa
 
             datastoreAdapter.storeResult(buildTask.getBuildJobDetails(), buildTask.getBuildJobConfiguration());
 
+            buildTask.onStatusUpdate(new TaskStatus(TaskStatus.Operation.COMPLETING_BUILD, TaskStatus.State.COMPLETED));
             buildTask.onComplete();
         } catch (Exception e) {
+            log.error("Error while storing to datastore.", e);
             buildTask.onError(e);
         }
     }
