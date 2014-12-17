@@ -36,11 +36,6 @@ public class JenkinsBuildDriver implements BuildDriver {
 
     private static final String DRIVER_ID = "jenkins-build-driver";
 
-    /**
-     * Server instance, always use getter for lazy initialization
-     */
-    private JenkinsServer jenkinsServer;
-
     @Inject
     Configuration configuration;
 
@@ -62,13 +57,6 @@ public class JenkinsBuildDriver implements BuildDriver {
     }
 
     private JenkinsServer getJenkinsServer() throws BuildDriverException {
-        if (jenkinsServer == null) {
-            initJenkinsServer();
-        }
-        return jenkinsServer;
-    }
-
-    private void initJenkinsServer() throws BuildDriverException {
         try {
             Properties properties = configuration.getModuleConfig(getDriverId());
 
@@ -80,7 +68,7 @@ public class JenkinsBuildDriver implements BuildDriver {
                 throw new BuildDriverException("Missing config to instantiate " + getDriverId() + ".");
             }
 
-            jenkinsServer = new JenkinsServer(new URI(url), username, password);
+            return new JenkinsServer(new URI(url), username, password);
         } catch (URISyntaxException e) {
             throw new BuildDriverException("Cannot instantiate " + getDriverId() + ".", e);
         }
