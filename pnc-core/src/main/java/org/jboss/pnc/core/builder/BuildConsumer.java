@@ -3,6 +3,7 @@ package org.jboss.pnc.core.builder;
 import org.jboss.pnc.core.builder.operationHandlers.ChainBuilder;
 import org.jboss.pnc.core.builder.operationHandlers.CompleteHandler;
 import org.jboss.pnc.core.builder.operationHandlers.ConfigureRepositoryHandler;
+import org.jboss.pnc.core.builder.operationHandlers.ErrorStateHandler;
 import org.jboss.pnc.core.builder.operationHandlers.OperationHandler;
 import org.jboss.pnc.core.builder.operationHandlers.CollectResultsHandler;
 import org.jboss.pnc.core.builder.operationHandlers.StartBuildHandler;
@@ -24,7 +25,8 @@ public class BuildConsumer implements Runnable {
                   StartBuildHandler startBuildHandler,
                   WaitBuildToCompleteHandler waitBuildToCompleteHandler,
                   CollectResultsHandler collectResultsHandler,
-                  CompleteHandler completeHandler) {
+                  CompleteHandler completeHandler,
+                  ErrorStateHandler errorStateHandler) {
 
         this.buildTaskQueue = buildTaskQueue;
 
@@ -34,6 +36,7 @@ public class BuildConsumer implements Runnable {
             .addNext(waitBuildToCompleteHandler)
             .addNext(collectResultsHandler)
             .addNext(completeHandler)
+            .addNext(errorStateHandler)
             .build();
     }
 

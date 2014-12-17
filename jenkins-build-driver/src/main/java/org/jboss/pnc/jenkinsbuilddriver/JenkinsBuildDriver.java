@@ -4,13 +4,14 @@ import com.offbytwo.jenkins.JenkinsServer;
 import com.offbytwo.jenkins.model.Build;
 import com.offbytwo.jenkins.model.BuildWithDetails;
 import com.offbytwo.jenkins.model.JobWithDetails;
+import org.jboss.logging.Logger;
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.jenkinsbuilddriver.buildmonitor.JenkinsBuildMonitor;
 import org.jboss.pnc.model.BuildType;
 import org.jboss.pnc.model.ProjectBuildConfiguration;
-import org.jboss.pnc.spi.builddriver.BuildJobDetails;
 import org.jboss.pnc.spi.builddriver.BuildDriver;
 import org.jboss.pnc.spi.builddriver.BuildDriverResult;
+import org.jboss.pnc.spi.builddriver.BuildJobDetails;
 import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
 import org.jboss.pnc.spi.repositorymanager.RepositoryConfiguration;
 
@@ -26,7 +27,6 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
-import java.util.logging.Logger;
 
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-11-23.
@@ -44,8 +44,7 @@ public class JenkinsBuildDriver implements BuildDriver {
     @Inject
     Configuration configuration;
 
-    @Inject
-    private Logger log;
+    private static final Logger log = Logger.getLogger(JenkinsBuildDriver.class);
 
     @Inject
     JenkinsBuildMonitor jenkinsBuildMonitor;
@@ -111,6 +110,7 @@ public class JenkinsBuildDriver implements BuildDriver {
                         throw new AssertionError("Cannot configure build job.");
                     }
                     int buildNumber = build.start();
+                    log.info("Started jenkins job #" + buildNumber);
                     BuildJobDetails buildJobDetails = new BuildJobDetails(build.getJobName(), buildNumber);
                     onComplete.accept(buildJobDetails);
                 } catch (Exception e) {
