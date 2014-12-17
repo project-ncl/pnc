@@ -22,7 +22,7 @@ public class DatastoreAdapter {
     public void storeResult(BuildJobDetails buildDetails, BuildJobConfiguration buildJobConfiguration) {
         ProjectBuildResult buildResult = new ProjectBuildResult();
         buildResult.setBuildLog(buildDetails.getBuildLog());
-        buildResult.setStatus(buildResult.getStatus());
+        buildResult.setStatus(buildDetails.getBuildStatus());
         buildResult.setProjectBuildConfiguration(buildJobConfiguration.getProjectBuildConfiguration());
         datastore.storeCompletedBuild(buildResult);
     }
