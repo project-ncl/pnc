@@ -33,8 +33,8 @@ public class StartBuildHandler extends OperationHandlerBase implements Operation
         buildTask.onStatusUpdate(new TaskStatus(TaskStatus.Operation.BUILD_SCHEDULED, TaskStatus.State.STARTED));
         try {
             Consumer<BuildJobDetails> onComplete = (buildDetails) -> {
-                buildTask.onStatusUpdate(new TaskStatus(TaskStatus.Operation.BUILD_SCHEDULED, TaskStatus.State.COMPLETED));
                 buildTask.setBuildJobDetails(buildDetails);
+                buildTask.onStatusUpdate(new TaskStatus(TaskStatus.Operation.BUILD_SCHEDULED, TaskStatus.State.COMPLETED));
             };
 
             Consumer<Exception> onError = (e) -> {
@@ -44,8 +44,12 @@ public class StartBuildHandler extends OperationHandlerBase implements Operation
             ProjectBuildConfiguration projectBuildConfiguration = buildTask.getBuildJobConfiguration().getProjectBuildConfiguration();
 
             //TODO better validation
-            assert (projectBuildConfiguration != null);
-            assert (buildTask.getRepositoryConfiguration() != null);
+            if (projectBuildConfiguration == null) {
+                throw new CoreException("Missing projectBuildConfiguration for " + buildTask.toString());
+            }
+            if (buildTask.getRepositoryConfiguration() == null) {
+                throw new CoreException("Missing repositoryConfiguration.");
+            }
 
             BuildDriver buildDriver = buildDriverFactory.getBuildDriver(projectBuildConfiguration.getEnvironment().getBuildType());
             buildDriver.startProjectBuild(projectBuildConfiguration, buildTask.getRepositoryConfiguration(), onComplete, onError);

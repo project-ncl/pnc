@@ -4,14 +4,12 @@ import org.jboss.pnc.model.BuildCollection;
 import org.jboss.pnc.model.Product;
 import org.jboss.pnc.model.ProductVersion;
 import org.jboss.pnc.model.ProjectBuildConfiguration;
-import org.jboss.pnc.spi.repositorymanager.RepositoryConfiguration;
 
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-12-15.
  */
 public class BuildJobConfiguration {
     private ProjectBuildConfiguration projectBuildConfiguration;
-    private RepositoryConfiguration repositoryConfiguration;
     private BuildCollection buildCollection;
 
 

@@ -1,5 +1,6 @@
 package org.jboss.pnc.core.builder;
 
+import org.jboss.logging.Logger;
 import org.jboss.pnc.core.exception.CoreException;
 import org.jboss.pnc.model.ProjectBuildConfiguration;
 import org.jboss.pnc.model.TaskStatus;
@@ -11,7 +12,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Consumer;
-import java.util.logging.Logger;
 
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-11-23.
@@ -22,25 +22,35 @@ public class ProjectBuilder {
     @Inject
     private BuildTaskQueue buildTaskQueue; //TODO protect access
 
-    @Inject
-    private Logger log;
+    private Logger log = Logger.getLogger(ProjectBuilder.class);
 
-    private Set<BuildTask> runningBuilds = new HashSet<>(); //TODO protect access
+    private Set<BuildTask> runningBuilds = Collections.synchronizedSet(new HashSet<BuildTask>());
 
     public BuildTask buildProject(ProjectBuildConfiguration projectBuildConfiguration, Consumer<TaskStatus> onStatusUpdate, Consumer<BuildJobDetails> onComplete) throws CoreException {
         try {
-            log.fine("Adding build configuration " + projectBuildConfiguration);
-            return new BuildTask(runningBuilds, buildTaskQueue, projectBuildConfiguration, onStatusUpdate, onComplete);
-            //BuildTask buildTask = new BuildTask(runningBuilds, projectBuildConfiguration, buildCollection, onStatusUpdate, onSuccessComplete, onError);
-            //buildTaskQueue.add(buildTask);
-            //runningBuilds.add(buildTask);
+            log.debug("Adding build configuration " + projectBuildConfiguration);
+            BuildTask buildTask = new BuildTask(runningBuilds, buildTaskQueue, projectBuildConfiguration, onStatusUpdate, onComplete);
+
+            if (!isTaskAlreadyBuilding(buildTask)) {
+                this.buildTaskQueue.add(buildTask);
+                this.runningBuilds.add(buildTask);
+                return buildTask;
+            } else {
+                log.info("Rejecting already running task.");
+                //TODO return status rejected
+                return null;
+            }
         } catch (Exception e) {
             throw new CoreException(e);
         }
     }
 
+    private boolean isTaskAlreadyBuilding(BuildTask buildTask) {
+        return runningBuilds.contains(buildTask);
+    }
+
     public Set<BuildTask> getRunningBuilds() {
-        return Collections.unmodifiableSet(runningBuilds);
+        return Collections.unmodifiableSet(new HashSet<>(runningBuilds)); //return a copy to prevent ConcurrentModificationException
     }
 
 }
