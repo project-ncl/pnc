@@ -7,12 +7,13 @@
   <head>
     <title>Project Newcastle</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="shortcut icon" href="lib/patternfly/dist/img/favicon.ico">
+    <link rel="shortcut icon" href="img/favicon.ico">
     <link rel="apple-touch-icon-precomposed" sizes="144x144" href="lib/patternfly/dist/img/apple-touch-icon-144-precomposed.png">
     <link rel="apple-touch-icon-precomposed" sizes="114x114" href="lib/patternfly/dist/img/apple-touch-icon-114-precomposed.png">
     <link rel="apple-touch-icon-precomposed" sizes="72x72" href="lib/patternfly/dist/img/apple-touch-icon-72-precomposed.png">
     <link rel="apple-touch-icon-precomposed" href="lib/patternfly/dist/img/apple-touch-icon-57-precomposed.png">
     <link href="lib/patternfly/dist/css/patternfly.css" rel="stylesheet" media="screen, print">
+    <link href="lib/patternfly/dist/css/sticky-footer-navbar.css" rel="stylesheet">
     <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!--[if lt IE 9]>
     <script src="lib/patternfly/components/html5shiv/dist/html5shiv.min.js"></script>
@@ -36,27 +37,22 @@
           <span class="icon-bar"></span>
           <span class="icon-bar"></span>
         </button>
-        <a class="navbar-brand" href="/">NCL Builder</a>
+        <a class="navbar-brand" href="/">PNCL</a>
       </div>
       <div class="collapse navbar-collapse navbar-collapse-1">
+        <ul class="nav navbar-nav navbar-primary">
+          <li class="active">
+            <a href="views/product.html">Home</a>
+          </li>
+        </ul>
       </div>
     </nav>
-    <div class="container-fluid">
-      <div class="row">
-        <div id="content" class="col-md-12">
-          <h1>Products</h1>
-          <table id="products" class="datatable table table-striped table-bordered">
-            <thead>
-              <tr>
-                <th>id</th>
-                <th>Identifier</th>
-                <th>SCM Url</th>
-                <th>Action</th>
-              </tr>
-            </thead>
-          </table>
-        </div><!-- /col -->
-      </div><!-- /row -->
-    </div><!-- /container -->
+    <footer class="footer">
+      <div class="container">
+      <div align="center">
+        <p class="text-muted">PNC v0.2 <a href="https://github.com/project-ncl/pnc">https://github.com/project-ncl/pnc</a>   Red Hat, Inc. &#169; 2014<img style="padding-left: 20px;" src="../img/redhat.svg"></p>
+      </div>
+      </div>
+    </footer>
   </body>
 </html>

@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<!--[if IE 8]><html class="ie8"><![endif]-->
+<!--[if IE 9]><html class="ie9"><![endif]-->
+<!--[if gt IE 9]><!-->
+<html>
+<!--<![endif]-->
+  <head>
+    <title>Project List</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="../img/favicon.ico">
+    <link rel="apple-touch-icon-precomposed" sizes="144x144" href="../lib/patternfly/dist/img/apple-touch-icon-144-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="114x114" href="../lib/patternfly/dist/img/apple-touch-icon-114-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="72x72" href="../lib/patternfly/dist/img/apple-touch-icon-72-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" href="../lib/patternfly/dist/img/apple-touch-icon-57-precomposed.png">
+    <link href="../lib/patternfly/dist/css/patternfly.css" rel="stylesheet" media="screen, print">
+    <link href="../lib/patternfly/dist/css/sticky-footer-navbar.css" rel="stylesheet">
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+    <script src="lib/patternfly/components/html5shiv/dist/html5shiv.min.js"></script>
+    <script src="lib/patternfly/components/respond/dest/respond.min.js"></script>
+    <![endif]-->
+    <!-- IE8 requires jQuery and Bootstrap JS to load in head to prevent rendering bugs -->
+    <!-- IE8 requires jQuery v1.x -->
+    <script src="//code.jquery.com/jquery-1.10.2.min.js"></script>
+    <script src="../lib/patternfly/components/bootstrap/dist/js/bootstrap.min.js"></script>
+    <script src="../lib/patternfly/components/datatables/media/js/jquery.dataTables.js"></script>
+    <script src="../lib/patternfly/dist/js/patternfly.min.js"></script>
+    <script src="../scripts/pnc-rest-api-url.js"></script>
+    <script src="../scripts/pnc-projects.js"></script>
+  </head>
+  <body>
+    <nav class="navbar navbar-default navbar-pf" role="navigation">
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse-1">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="/">NCL Builder</a>
+      </div>
+      <div class="collapse navbar-collapse navbar-collapse-1">
+        <ul class="nav navbar-nav navbar-primary">
+          <li>
+            <a href="product.html">Home</a>
+          </li>                             
+        </ul>
+      </div>
+    </nav>
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-sm-8 col-md-10 border-right">
+          <ol class="breadcrumb">
+            <li><a href="product.html">Product</a></li>
+            <li><a href="productversions.html">Version</a></li>
+            <li>Project</li>                        
+          </ol>
+          <h1>Project List</h1>
+          <table id="projects" class="datatable table table-striped table-bordered">
+            <thead>
+              <tr>
+                <th>Project ID</th>
+                <th>Name</th>
+                <th>Description</th>
+                <th>IssueTracker Url</th>
+                <th>Project Url</th>
+                <th style='width: 10%;'>Action</th>
+              </tr>
+            </thead>
+          </table>
+        </div>
+        <div class="col-sm-4 col-md-2 sidebar-pf-right">
+          <div class="sidebar-header sidebar-header-bleed-left sidebar-header-bleed-right">
+            <h2 class="h2">Info</h2>
+          </div>
+          <dl>
+            <dt class="h4" style="font-weight: bold;">Product Name</dt>
+            <dd id="productInfoName"/>
+            <dt class="h4" style="font-weight: bold;">Product Description</dt>
+            <dd id="productInfoDesc"/>
+            <dt class="h4" style="font-weight: bold;">Product Version</dt>
+            <dd id="productInfoVersion" />
+          </dl>
+        </div>
+      </div>
+    </div>
+    <footer class="footer">
+      <div class="container">
+      <div align="center">
+        <p class="text-muted">PNC v0.2 <a href="https://github.com/project-ncl/pnc">https://github.com/project-ncl/pnc</a>   Red Hat, Inc. &#169; 2014<img style="padding-left: 20px;" src="../img/redhat.svg"></p>
+      </div>
+      </div>
+    </footer>
+  </body>
+</html>
