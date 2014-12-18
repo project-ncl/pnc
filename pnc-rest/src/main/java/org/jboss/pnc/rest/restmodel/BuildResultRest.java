@@ -63,7 +63,6 @@ public class BuildResultRest {
                 () -> projectBuildConfigurationId = projectBuildConfiguration.getId());
         this.sourceUrl = projectBuildConfiguration.getScmUrl();
         this.patchesUrl = projectBuildConfiguration.getPatchesUrl();
-        //task status runningBuild.getStatus() //TODO use to track current operation eg. env-setup, maven-repo-config, staring-build, waiting-build, storing-results
         this.status = runningBuild.getBuildJobDetails().getBuildStatus();
     }
 
