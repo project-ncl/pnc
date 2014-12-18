@@ -72,7 +72,7 @@ public class JenkinsBuildMonitor {
         String jobName = buildJobDetails.getJobName();
         JobWithDetails buildJob = jenkinsServer.getJob(jobName);
 
-        //List<Build> builds = buildJob.getLastBuild() //throws NPE if there are no build for this job.
+        //Build build = buildJob.getLastBuild() //throws NPE if there are no build for this job. see https://github.com/RisingOak/jenkins-client/issues/45
         List<Build> builds = buildJob.getBuilds();
 
         List<Build> buildsMatchingNumber = builds.stream().filter(b -> b.getNumber() == buildJobDetails.getBuildNumber()).collect(Collectors.toList());

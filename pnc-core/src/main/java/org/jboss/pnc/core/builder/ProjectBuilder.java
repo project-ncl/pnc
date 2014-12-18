@@ -9,9 +9,11 @@ import org.jboss.pnc.spi.builddriver.BuildJobDetails;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import java.util.Collections;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.List;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-11-23.
@@ -20,11 +22,11 @@ import java.util.function.Consumer;
 public class ProjectBuilder {
 
     @Inject
-    private BuildTaskQueue buildTaskQueue; //TODO protect access
+    private BuildTaskQueue buildTaskQueue;
 
     private Logger log = Logger.getLogger(ProjectBuilder.class);
 
-    private Set<BuildTask> runningBuilds = Collections.newSetFromMap(new ConcurrentHashMap());
+    private Queue<BuildTask> runningBuilds = new ConcurrentLinkedQueue<BuildTask>();
 
     public BuildTask buildProject(ProjectBuildConfiguration projectBuildConfiguration, Consumer<TaskStatus> onStatusUpdate, Consumer<BuildJobDetails> onComplete) throws CoreException {
         try {
@@ -49,8 +51,13 @@ public class ProjectBuilder {
         return runningBuilds.contains(buildTask);
     }
 
-    public Set<BuildTask> getRunningBuilds() {
-        return Collections.unmodifiableSet(runningBuilds);
+    /**
+     *
+     * @return a copy of working queue as a unmodifiableList
+     */
+    public List<BuildTask> getRunningBuilds() {
+        return Collections.unmodifiableList(runningBuilds.stream().collect(Collectors.toList()));
     }
+
 
 }

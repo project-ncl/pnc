@@ -7,7 +7,7 @@ import org.jboss.pnc.spi.builddriver.BuildJobConfiguration;
 import org.jboss.pnc.spi.builddriver.BuildJobDetails;
 import org.jboss.pnc.spi.repositorymanager.RepositoryConfiguration;
 
-import java.util.Set;
+import java.util.Queue;
 import java.util.function.Consumer;
 
 /**
@@ -15,7 +15,7 @@ import java.util.function.Consumer;
  */
 public class BuildTask {
 
-    private Set<BuildTask> runningBuilds;
+    private Queue<BuildTask> runningBuilds;
     private BuildTaskQueue buildTaskQueue;
     private Consumer<TaskStatus> onStatusUpdate;
     private Consumer<BuildJobDetails> onComplete;
@@ -30,7 +30,7 @@ public class BuildTask {
 
     Logger log = Logger.getLogger(BuildTask.class);
 
-    public BuildTask(Set<BuildTask> runningBuilds, BuildTaskQueue buildTaskQueue, ProjectBuildConfiguration projectBuildConfiguration, Consumer<TaskStatus> onStatusUpdate, Consumer<BuildJobDetails> onComplete) {
+    public BuildTask(Queue<BuildTask> runningBuilds, BuildTaskQueue buildTaskQueue, ProjectBuildConfiguration projectBuildConfiguration, Consumer<TaskStatus> onStatusUpdate, Consumer<BuildJobDetails> onComplete) {
         this.runningBuilds = runningBuilds;
         this.buildTaskQueue = buildTaskQueue;
         this.onStatusUpdate = onStatusUpdate;
