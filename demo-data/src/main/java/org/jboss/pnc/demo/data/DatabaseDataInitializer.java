@@ -1,6 +1,7 @@
 package org.jboss.pnc.demo.data;
 
 import com.google.common.base.Preconditions;
+
 import org.jboss.pnc.datastore.repositories.ProductRepository;
 import org.jboss.pnc.datastore.repositories.ProductVersionProjectRepository;
 import org.jboss.pnc.datastore.repositories.ProductVersionRepository;
@@ -26,6 +27,13 @@ import javax.ejb.Startup;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
 import javax.inject.Inject;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Unmarshaller;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.lang.invoke.MethodHandles;
 
 /**
@@ -59,6 +67,7 @@ public class DatabaseDataInitializer {
 
     @PostConstruct
     public void initialize() {
+    	logger.info("initialize()");
         initilizeData();
         verifyData();
     }
@@ -116,31 +125,109 @@ public class DatabaseDataInitializer {
              * All the bi-directional mapping settings are managed inside the Builders
              */
 
-            Product product = ProductBuilder.newBuilder().name(PNC_PRODUCT_NAME).description("Project Newcastle Product")
-                    .build();
-            ProductVersion productVersion = ProductVersionBuilder.newBuilder().version(PNC_PRODUCT_VERSION).product(product)
-                    .build();
+        	try {
+        		Product product1 = loadProductXML("/xml-demo-data/product/newcastle-demo-product-1.xml");
+        		Project project1 = loadProjectXML("/xml-demo-data/project/newcastle-demo-project-1.xml");
+ 
+        		ProductVersion productVersion1 = loadProductVersionXML("/xml-demo-data/product-version/newcastle-demo-product-1-version-1.xml");
+        		productVersion1.setProduct(product1);
+        		ProductVersionProject productVersionProject1 = ProductVersionProjectBuilder.newBuilder().project(project1)
+                        .productVersion(productVersion1).build();
 
-            Project project = ProjectBuilder.newBuilder().name(PNC_PROJECT_NAME).description("Project Newcastle Demo Project")
-                    .projectUrl("https://github.com/project-ncl/pnc")
-                    .issueTrackerUrl("https://projects.engineering.redhat.com/browse/NCL").build();
-
-            // Needed to build correct mapping
-            ProductVersionProject productVersionProject = ProductVersionProjectBuilder.newBuilder().project(project)
-                    .productVersion(productVersion).build();
-            ProjectBuildConfiguration projectBuildConfiguration = ProjectBuildConfigurationBuilder.newBuilder()
-                    .buildScript("mvn clean deploy -Dmaven.test.skip").environment(EnvironmentBuilder.defaultEnvironment().build())
-                    .identifier(PNC_PROJECT_BUILD_CFG_ID).productVersion(productVersion).project(project)
-                    .scmUrl("https://github.com/project-ncl/pnc.git").build();
-
-            projectRepository.save(project);
-            productRepository.save(product);
+        		ProjectBuildConfiguration projectBuildConfiguration1 = loadProjectBuildConfigurationXML("/xml-demo-data/build-configuration/newcastle-demo-build-configuration-1.xml");
+        		projectBuildConfiguration1.setEnvironment(EnvironmentBuilder.defaultEnvironment().build());
+        		projectBuildConfiguration1.setProject(project1);
+        		projectBuildConfiguration1.setProductVersion(productVersion1);
+        		
+        		ProjectBuildConfiguration projectBuildConfiguration2 = loadProjectBuildConfigurationXML("/xml-demo-data/build-configuration/newcastle-demo-build-configuration-2.xml");
+        		projectBuildConfiguration2.setEnvironment(EnvironmentBuilder.defaultEnvironment().build());
+        		projectBuildConfiguration2.setProject(project1);
+        		projectBuildConfiguration2.setProductVersion(productVersion1);
+        		
+        		ProjectBuildConfiguration projectBuildConfiguration3 = loadProjectBuildConfigurationXML("/xml-demo-data/build-configuration/newcastle-demo-build-configuration-3.xml");
+        		projectBuildConfiguration3.setEnvironment(EnvironmentBuilder.defaultEnvironment().build());
+        		projectBuildConfiguration3.setProject(project1);
+        		projectBuildConfiguration3.setProductVersion(productVersion1);
+        		
+        		ProjectBuildConfiguration projectBuildConfiguration4 = loadProjectBuildConfigurationXML("/xml-demo-data/build-configuration/newcastle-demo-build-configuration-4.xml");
+        		projectBuildConfiguration4.setEnvironment(EnvironmentBuilder.defaultEnvironment().build());
+        		projectBuildConfiguration4.setProject(project1);
+        		projectBuildConfiguration4.setProductVersion(productVersion1);
+        		
+                projectRepository.save(project1);
+                productRepository.save(product1);
+                productVersionRepository.save(productVersion1);
+                productVersionProjectRepository.save(productVersionProject1);
+                projectBuildConfigurationRepository.save(projectBuildConfiguration1);
+                projectBuildConfigurationRepository.save(projectBuildConfiguration2);
+                projectBuildConfigurationRepository.save(projectBuildConfiguration3);
+                projectBuildConfigurationRepository.save(projectBuildConfiguration4);
+        	} catch ( JAXBException e ) {
+        		logger.error( "Unable to load data from XML: " + e );
+        	} catch ( IOException e ) {
+        		logger.error( "Unable to load data from XML: " + e );
+        	}
 
         } else {
             logger.info("There are >0 ({}) projects in DB. Skipping initialization.", numberOfProjectInDB);
         }
 
         logger.info("Finished initializing DEMO data");
+    }
+    
+    private Product loadProductXML(String filePath) throws JAXBException, IOException {
+        InputStream is = this.getClass().getResourceAsStream(filePath);
+        Product product = null;
+        if (is != null) {
+            JAXBContext productJaxbCtxt = JAXBContext.newInstance(Product.class);
+            Unmarshaller unmarshaller = productJaxbCtxt.createUnmarshaller();
+            product = (Product) unmarshaller.unmarshal(new InputStreamReader(is));
+            is.close();
+            productRepository.save(product);
+        }
+        else {
+        	logger.warn("Unable to locate xml file: " + filePath);
+        }
+        return product;
+    }
+
+    private ProductVersion loadProductVersionXML(String filePath) throws JAXBException, IOException {
+        InputStream is = this.getClass().getResourceAsStream(filePath);
+        ProductVersion productVersion = null;
+        if (is != null) {
+            JAXBContext productVersionJaxbCtxt = JAXBContext.newInstance(ProductVersion.class);
+            Unmarshaller unmarshaller = productVersionJaxbCtxt.createUnmarshaller();
+            productVersion = (ProductVersion) unmarshaller.unmarshal(new InputStreamReader(is));
+            is.close();
+        }
+        else {
+        	logger.warn("Unable to locate xml file: " + filePath);
+        }
+        return productVersion;
+    }
+
+    private Project loadProjectXML(String filePath) throws JAXBException, IOException {
+        InputStream is = this.getClass().getResourceAsStream(filePath);
+
+        Project project = null;
+        if (is != null) {
+           JAXBContext projectJaxbCtxt = JAXBContext.newInstance(Project.class);
+           Unmarshaller unmarshaller = projectJaxbCtxt.createUnmarshaller();
+           project = (Project) unmarshaller.unmarshal(new InputStreamReader(is));
+        }
+        return project;
+    }
+
+    private ProjectBuildConfiguration loadProjectBuildConfigurationXML(String filePath) throws JAXBException, IOException {
+        InputStream is = this.getClass().getResourceAsStream(filePath);
+
+        ProjectBuildConfiguration projectBuildConfiguration = null;
+        if (is != null) {
+           JAXBContext projectJaxbCtxt = JAXBContext.newInstance(ProjectBuildConfiguration.class);
+           Unmarshaller unmarshaller = projectJaxbCtxt.createUnmarshaller();
+           projectBuildConfiguration = (ProjectBuildConfiguration) unmarshaller.unmarshal(new InputStreamReader(is));
+        }
+        return projectBuildConfiguration;
     }
 
 }

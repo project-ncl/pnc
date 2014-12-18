@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<projectBuildConfiguration>
+  <buildScript>mvn clean deploy -Dmaven.test.skip</buildScript>
+  <identifier>apache-commons-beanutils-1.8.3</identifier>
+  <scmUrl>http://git.app.eng.bos.redhat.com/git/apache/commons-beanutils.git</scmUrl>
+</projectBuildConfiguration>

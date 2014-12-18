@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<projectBuildConfiguration>
+  <buildScript>mvn clean deploy -Dmaven.test.skip</buildScript>
+  <identifier>jboss-servlet-spec-api-1.0.1</identifier>
+  <scmUrl>https://github.com/jboss/jboss-servlet-api_spec.git</scmUrl>
+</projectBuildConfiguration>

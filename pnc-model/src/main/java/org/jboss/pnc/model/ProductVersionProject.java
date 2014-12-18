@@ -23,6 +23,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
+import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  * Defines the relationship between the Product and the Project, for a specific version
@@ -32,6 +33,7 @@ import javax.persistence.ManyToOne;
  * @author avibelli
  *
  */
+@XmlRootElement
 @Entity
 public class ProductVersionProject implements Serializable {
 

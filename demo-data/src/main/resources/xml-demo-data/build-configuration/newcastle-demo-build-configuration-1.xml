@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<projectBuildConfiguration>
+  <buildScript>mvn clean deploy -Dmaven.test.skip</buildScript>
+  <identifier>pnc-1.0.0.DR1</identifier>
+  <scmUrl>https://github.com/project-ncl/pnc.git</scmUrl>
+</projectBuildConfiguration>

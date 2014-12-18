@@ -18,6 +18,8 @@
 package org.jboss.pnc.model;
 
 import javax.persistence.*;
+import javax.xml.bind.annotation.XmlRootElement;
+
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
@@ -26,6 +28,7 @@ import java.util.Set;
  * @author avibelli
  *
  */
+@XmlRootElement
 @Entity
 public class Product implements Serializable {
 

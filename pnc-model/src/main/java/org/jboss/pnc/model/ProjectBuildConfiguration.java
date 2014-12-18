@@ -7,6 +7,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import javax.persistence.*;
+import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  * The Class ProjectBuildConfiguration cointains the informations needed to trigger the build of a project, i.e. the sources and
@@ -17,6 +18,7 @@ import javax.persistence.*;
  *
  * @author avibelli
  */
+@XmlRootElement
 @Entity
 public class ProjectBuildConfiguration implements Serializable {
 

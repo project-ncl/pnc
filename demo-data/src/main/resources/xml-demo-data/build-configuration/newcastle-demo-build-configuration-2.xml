@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<projectBuildConfiguration>
+  <buildScript>mvn clean deploy -Dmaven.test.skip</buildScript>
+  <identifier>jboss-modules-1.5.0</identifier>
+  <scmUrl>https://github.com/jboss-modules/jboss-modules.git</scmUrl>
+</projectBuildConfiguration>
