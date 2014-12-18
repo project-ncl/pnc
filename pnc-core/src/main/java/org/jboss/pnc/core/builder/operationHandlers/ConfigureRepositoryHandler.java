@@ -36,8 +36,8 @@ public class ConfigureRepositoryHandler extends OperationHandlerBase implements 
         buildTask.onStatusUpdate(new TaskStatus(TaskStatus.Operation.CREATE_REPOSITORY, TaskStatus.State.STARTED));
         try {
             Consumer<RepositoryConfiguration> onComplete = (repositoryConfiguration) -> {
-                buildTask.onStatusUpdate(new TaskStatus(TaskStatus.Operation.CREATE_REPOSITORY, TaskStatus.State.COMPLETED));
                 buildTask.setRepositoryConfiguration(repositoryConfiguration);
+                buildTask.onStatusUpdate(new TaskStatus(TaskStatus.Operation.CREATE_REPOSITORY, TaskStatus.State.COMPLETED));
             };
 
             Consumer<Exception> onError = (e) -> {
@@ -49,8 +49,12 @@ public class ConfigureRepositoryHandler extends OperationHandlerBase implements 
             BuildCollection buildCollection = buildTask.getBuildJobConfiguration().getBuildCollection();
 
             //TODO better validation
-            assert (buildConfiguration != null);
-            assert (buildCollection != null);
+            if (buildConfiguration == null) {
+                throw new CoreException("Missing buildConfiguration.");
+            }
+            if (buildCollection == null) {
+                throw new CoreException("missing buildCollection");
+            }
 
             repositoryManager.createRepository(buildConfiguration, buildCollection, onComplete, onError);
 

@@ -17,6 +17,7 @@ public class TestProjectConfigurationBuilder {
         project.setId(id);
         project.setName(name);
         ProjectBuildConfiguration projectBuildConfiguration = new ProjectBuildConfiguration();
+        projectBuildConfiguration.setIdentifier(id + "");
         projectBuildConfiguration.setEnvironment(javaEnvironment);
         projectBuildConfiguration.setProject(project);
         projectBuildConfiguration.addDependency(projectBuildConfiguration);

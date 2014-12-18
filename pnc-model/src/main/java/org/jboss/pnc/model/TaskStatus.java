@@ -37,4 +37,12 @@ public class TaskStatus {
     public boolean isOperationCompleted(Operation operation) {
         return operation.equals(this.operation) && isCompleted();
     }
+
+    @Override
+    public String toString() {
+        return "TaskStatus{" +
+                "operation=" + operation +
+                ", state=" + state +
+                '}';
+    }
 }

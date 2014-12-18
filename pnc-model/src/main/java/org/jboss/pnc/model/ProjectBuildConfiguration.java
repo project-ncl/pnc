@@ -1,12 +1,17 @@
 package org.jboss.pnc.model;
 
+import javax.persistence.CascadeType;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.Version;
 import java.io.Serializable;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.HashSet;
 import java.util.Set;
-
-import javax.persistence.*;
 
 /**
  * The Class ProjectBuildConfiguration cointains the informations needed to trigger the build of a project, i.e. the sources and
@@ -265,4 +270,20 @@ public class ProjectBuildConfiguration implements Serializable {
         return "ProjectBuildConfiguration [project=" + project + ", identifier=" + identifier + "]";
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        ProjectBuildConfiguration that = (ProjectBuildConfiguration) o;
+
+        if (identifier != null ? !identifier.equals(that.identifier) : that.identifier != null) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return identifier != null ? identifier.hashCode() : 0;
+    }
 }

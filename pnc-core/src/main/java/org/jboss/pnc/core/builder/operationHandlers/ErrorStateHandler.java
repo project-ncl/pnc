@@ -38,6 +38,7 @@ public class ErrorStateHandler extends OperationHandlerBase implements Operation
 
     @Override
     protected void doHandle(BuildTask buildTask) {
+        log.warn("Handling exception", buildTask.getException());
         try {
             //TODO clean up env
 

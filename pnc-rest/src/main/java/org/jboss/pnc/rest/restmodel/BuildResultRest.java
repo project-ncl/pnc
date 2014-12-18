@@ -2,6 +2,7 @@ package org.jboss.pnc.rest.restmodel;
 
 import org.jboss.pnc.core.builder.BuildTask;
 import org.jboss.pnc.model.BuildStatus;
+import org.jboss.pnc.model.ProjectBuildConfiguration;
 import org.jboss.pnc.model.ProjectBuildResult;
 
 import javax.xml.bind.annotation.XmlRootElement;
@@ -53,15 +54,16 @@ public class BuildResultRest {
 
     public BuildResultRest(BuildTask runningBuild) {
         this.id = runningBuild.getId();
-        this.buildScript = runningBuild.getBuildScript();
-        this.startTime = runningBuild.getCreationTime();
+        ProjectBuildConfiguration projectBuildConfiguration = runningBuild.getBuildJobConfiguration().getProjectBuildConfiguration();
+        this.buildScript = projectBuildConfiguration.getBuildScript();
+        this.startTime = projectBuildConfiguration.getCreationTime();
         performIfNotNull(
                 runningBuild.getBuildJobConfiguration() != null &&
-                        runningBuild.getBuildJobConfiguration().getProjectBuildConfiguration() != null,
-                () -> projectBuildConfigurationId = runningBuild.getBuildJobConfiguration().getProjectBuildConfiguration().getId());
-        this.sourceUrl = runningBuild.getScmUrl();
-        this.patchesUrl = runningBuild.getPatchesUrl();
-        this.status = BuildStatus.BUILDING;
+                        projectBuildConfiguration != null,
+                () -> projectBuildConfigurationId = projectBuildConfiguration.getId());
+        this.sourceUrl = projectBuildConfiguration.getScmUrl();
+        this.patchesUrl = projectBuildConfiguration.getPatchesUrl();
+        this.status = runningBuild.getBuildJobDetails().getBuildStatus();
     }
 
     public Integer getId() {

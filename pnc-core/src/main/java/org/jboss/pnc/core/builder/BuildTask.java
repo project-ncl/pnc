@@ -1,5 +1,6 @@
 package org.jboss.pnc.core.builder;
 
+import org.jboss.logging.Logger;
 import org.jboss.pnc.model.ProjectBuildConfiguration;
 import org.jboss.pnc.model.TaskStatus;
 import org.jboss.pnc.spi.builddriver.BuildJobConfiguration;
@@ -13,7 +14,7 @@ import java.util.function.Consumer;
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-12-08.
  */
-public class BuildTask extends ProjectBuildConfiguration {
+public class BuildTask {
 
     private static final AtomicInteger jobCounter = new AtomicInteger();
     private final int id;
@@ -31,6 +32,8 @@ public class BuildTask extends ProjectBuildConfiguration {
 
     private Exception exception = null;
 
+    Logger log = Logger.getLogger(BuildTask.class);
+
     public BuildTask(Set<BuildTask> runningBuilds, BuildTaskQueue buildTaskQueue, ProjectBuildConfiguration projectBuildConfiguration, Consumer<TaskStatus> onStatusUpdate, Consumer<BuildJobDetails> onComplete) {
         this.runningBuilds = runningBuilds;
         this.buildTaskQueue = buildTaskQueue;
@@ -39,9 +42,6 @@ public class BuildTask extends ProjectBuildConfiguration {
         status = new TaskStatus(TaskStatus.Operation.NEW, TaskStatus.State.COMPLETED);
 
         buildJobConfiguration = new BuildJobConfiguration(projectBuildConfiguration);
-
-        this.buildTaskQueue.add(this); //TODO move out of constructor, create builder ?
-        this.runningBuilds.add(this); //TODO move out of constructor, create builder ?
 
         this.id = jobCounter.getAndIncrement();
     }
@@ -52,11 +52,13 @@ public class BuildTask extends ProjectBuildConfiguration {
 
     /**
      * Sets new status to task, if status state is State.COMPLETED task is added back to work queue.
+     * Note to set all required fields for further operations before calling this method.
      * onStatusUpdate is called
      *
      * @param newStatus
      */
     public void onStatusUpdate(TaskStatus newStatus) {
+        log.tracef("Updating task %s status to %s", toString(), newStatus.toString());
         lastStatusUpdate = System.currentTimeMillis();
         status = newStatus;
         onStatusUpdate.accept(newStatus);
@@ -107,8 +109,27 @@ public class BuildTask extends ProjectBuildConfiguration {
         return buildJobConfiguration;
     }
 
-    @Override
     public Integer getId() {
         return id;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        BuildTask buildTask = (BuildTask) o;
+
+        ProjectBuildConfiguration projectBuildConfiguration = buildJobConfiguration.getProjectBuildConfiguration();
+        if (!projectBuildConfiguration.equals(buildTask.getBuildJobConfiguration().getProjectBuildConfiguration())) {
+            return false;
+        }
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return buildJobConfiguration.getProjectBuildConfiguration().hashCode();
     }
 }
