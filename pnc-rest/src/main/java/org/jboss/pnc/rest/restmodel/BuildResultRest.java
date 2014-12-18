@@ -63,7 +63,7 @@ public class BuildResultRest {
                 () -> projectBuildConfigurationId = projectBuildConfiguration.getId());
         this.sourceUrl = projectBuildConfiguration.getScmUrl();
         this.patchesUrl = projectBuildConfiguration.getPatchesUrl();
-        this.status = runningBuild.getBuildJobDetails().getBuildStatus();
+        this.status = BuildStatus.BUILDING;
     }
 
     public Integer getId() {
