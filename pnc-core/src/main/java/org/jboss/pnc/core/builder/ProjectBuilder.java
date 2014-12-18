@@ -9,8 +9,8 @@ import org.jboss.pnc.spi.builddriver.BuildJobDetails;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 
 /**
@@ -24,7 +24,7 @@ public class ProjectBuilder {
 
     private Logger log = Logger.getLogger(ProjectBuilder.class);
 
-    private Set<BuildTask> runningBuilds = Collections.synchronizedSet(new HashSet<BuildTask>());
+    private Set<BuildTask> runningBuilds = Collections.newSetFromMap(new ConcurrentHashMap());
 
     public BuildTask buildProject(ProjectBuildConfiguration projectBuildConfiguration, Consumer<TaskStatus> onStatusUpdate, Consumer<BuildJobDetails> onComplete) throws CoreException {
         try {
@@ -50,7 +50,7 @@ public class ProjectBuilder {
     }
 
     public Set<BuildTask> getRunningBuilds() {
-        return Collections.unmodifiableSet(new HashSet<>(runningBuilds)); //return a copy to prevent ConcurrentModificationException
+        return Collections.unmodifiableSet(runningBuilds);
     }
 
 }
