@@ -4,17 +4,19 @@ import com.offbytwo.jenkins.JenkinsServer;
 import com.offbytwo.jenkins.model.Build;
 import com.offbytwo.jenkins.model.BuildWithDetails;
 import com.offbytwo.jenkins.model.JobWithDetails;
+import org.jboss.logging.Logger;
 import org.jboss.pnc.spi.builddriver.BuildJobDetails;
+import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
 
 import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
 import java.io.IOException;
+import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
-import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-12-11.
@@ -22,8 +24,7 @@ import java.util.logging.Logger;
 @ApplicationScoped
 public class JenkinsBuildMonitor {
 
-    @Inject
-    Logger log;
+    private static final Logger log = Logger.getLogger(JenkinsBuildMonitor.class);
 
     private ScheduledExecutorService executor; //TODO shutdown
 
@@ -67,16 +68,24 @@ public class JenkinsBuildMonitor {
     /**
      * @return Build or null if build didn't started yet
      */
-    private Build getBuild(JenkinsServer jenkinsServer, BuildJobDetails buildJobDetails) throws IOException {
+    private Build getBuild(JenkinsServer jenkinsServer, BuildJobDetails buildJobDetails) throws IOException, BuildDriverException {
         String jobName = buildJobDetails.getJobName();
         JobWithDetails buildJob = jenkinsServer.getJob(jobName);
-        Build jenkinsBuild = buildJob.getLastBuild();
-        int buildNumber = jenkinsBuild.getNumber();
-        if (buildNumber != buildJobDetails.getBuildNumber()) {
-            log.finer("Job #" + buildJobDetails.getBuildNumber() + " is not last job (probably hasn't started yet).");
+
+        //List<Build> builds = buildJob.getLastBuild() //throws NPE if there are no build for this job.
+        List<Build> builds = buildJob.getBuilds();
+
+        List<Build> buildsMatchingNumber = builds.stream().filter(b -> b.getNumber() == buildJobDetails.getBuildNumber()).collect(Collectors.toList());
+
+        if (buildsMatchingNumber.size() == 0) {
+            log.trace("There is no Job #" + buildJobDetails.getBuildNumber() + " for " + buildJobDetails.getJobName() + " (probably hasn't started yet).");
             return null;
+        } else if (buildsMatchingNumber.size() == 1) {
+            log.trace("Found Job #" + buildJobDetails.getBuildNumber() + " for " + buildJobDetails.getJobName() + ".");
+            return buildsMatchingNumber.get(0);
+        } else {
+            throw new BuildDriverException("There are multiple builds for " + buildJobDetails.getJobName() + " with the same build number " + buildJobDetails.getBuildNumber() + ".");
         }
-        return jenkinsBuild;
     }
 
 }

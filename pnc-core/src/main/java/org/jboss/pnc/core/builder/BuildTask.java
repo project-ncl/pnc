@@ -8,16 +8,12 @@ import org.jboss.pnc.spi.builddriver.BuildJobDetails;
 import org.jboss.pnc.spi.repositorymanager.RepositoryConfiguration;
 
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-12-08.
  */
 public class BuildTask {
-
-    private static final AtomicInteger jobCounter = new AtomicInteger();
-    private final int id;
 
     private Set<BuildTask> runningBuilds;
     private BuildTaskQueue buildTaskQueue;
@@ -26,7 +22,7 @@ public class BuildTask {
     private TaskStatus status;
     private long lastStatusUpdate;
 
-    private BuildJobDetails buildJobDetails;
+    private BuildJobDetails buildJobDetails; //TODO rename to repository config|results, build config|result
     private BuildJobConfiguration buildJobConfiguration;
     private RepositoryConfiguration repositoryConfiguration;
 
@@ -42,8 +38,6 @@ public class BuildTask {
         status = new TaskStatus(TaskStatus.Operation.NEW, TaskStatus.State.COMPLETED);
 
         buildJobConfiguration = new BuildJobConfiguration(projectBuildConfiguration);
-
-        this.id = jobCounter.getAndIncrement();
     }
 
     public TaskStatus getStatus() {
@@ -109,8 +103,9 @@ public class BuildTask {
         return buildJobConfiguration;
     }
 
+    @Deprecated
     public Integer getId() {
-        return id;
+        return getBuildJobConfiguration().getProjectBuildConfiguration().getId();
     }
 
     @Override
