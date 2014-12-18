@@ -1,5 +1,6 @@
 package org.jboss.pnc.core.builder;
 
+import org.jboss.logging.Logger;
 import org.jboss.pnc.model.ProjectBuildResult;
 import org.jboss.pnc.spi.builddriver.BuildJobConfiguration;
 import org.jboss.pnc.spi.builddriver.BuildJobDetails;
@@ -14,6 +15,8 @@ public class DatastoreAdapter {
 
     private Datastore datastore;
 
+    private static final Logger log = Logger.getLogger(DatastoreAdapter.class);
+
     @Inject
     public DatastoreAdapter(Datastore datastore) {
         this.datastore = datastore;
@@ -24,6 +27,7 @@ public class DatastoreAdapter {
         buildResult.setBuildLog(buildDetails.getBuildLog());
         buildResult.setStatus(buildDetails.getBuildStatus());
         buildResult.setProjectBuildConfiguration(buildJobConfiguration.getProjectBuildConfiguration());
+        log.tracef("Storing results of %s to datastore.", buildDetails.getJobName());
         datastore.storeCompletedBuild(buildResult);
     }
 
