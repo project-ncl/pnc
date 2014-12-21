@@ -7,13 +7,15 @@ import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.Resources;
 import org.jboss.pnc.common.util.BooleanWrapper;
 import org.jboss.pnc.jenkinsbuilddriver.JenkinsBuildDriver;
-import org.jboss.pnc.jenkinsbuilddriver.buildmonitor.JenkinsBuildMonitor;
-import org.jboss.pnc.model.BuildStatus;
+import org.jboss.pnc.jenkinsbuilddriver.JenkinsBuildMonitor;
+import org.jboss.pnc.jenkinsbuilddriver.JenkinsServerFactory;
+import org.jboss.pnc.model.BuildDriverStatus;
 import org.jboss.pnc.model.Project;
 import org.jboss.pnc.model.ProjectBuildConfiguration;
 import org.jboss.pnc.model.RepositoryType;
-import org.jboss.pnc.spi.builddriver.BuildDriverResult;
-import org.jboss.pnc.spi.builddriver.BuildJobDetails;
+import org.jboss.pnc.spi.builddriver.BuildResult;
+import org.jboss.pnc.spi.builddriver.CompletedBuild;
+import org.jboss.pnc.spi.builddriver.RunningBuild;
 import org.jboss.pnc.spi.repositorymanager.RepositoryConfiguration;
 import org.jboss.pnc.spi.repositorymanager.RepositoryConnectionInfo;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
@@ -52,7 +54,8 @@ public class JenkinsDriverRemoteTest {
                 .addClass(Configuration.class)
                 .addClass(Resources.class)
                 .addClass(JenkinsBuildDriver.class)
-                .addClass(JenkinsBuildMonitor.class);
+                .addClass(JenkinsBuildMonitor.class)
+                .addClass(JenkinsServerFactory.class);
         System.out.println(jar.toString(true));
         return jar;
     }
@@ -71,13 +74,13 @@ public class JenkinsDriverRemoteTest {
         BooleanWrapper completed = new BooleanWrapper(false);
 
         class BuildTask {
-            BuildJobDetails buildJobDetails;
+            CompletedBuild buildJobDetails;
         }
 
         final BuildTask buildTask = new BuildTask();
 
-        Consumer<BuildJobDetails> onComplete = (buildJobDetails) -> {
-            buildTask.buildJobDetails = buildJobDetails;
+        Consumer<CompletedBuild> onComplete = (completedBuild) -> {
+            buildTask.buildJobDetails = completedBuild;
             completed.set(true);
             mutex.release();
         };
@@ -85,7 +88,8 @@ public class JenkinsDriverRemoteTest {
             throw new AssertionError(e);
         };
         mutex.acquire();
-        jenkinsBuildDriver.startProjectBuild(pbc, repositoryConfiguration, onComplete, onError);
+        RunningBuild runningBuild = jenkinsBuildDriver.startProjectBuild(pbc, repositoryConfiguration);
+        runningBuild.monitor(onComplete, onError);
         mutex.tryAcquire(30, TimeUnit.SECONDS); //wait for callback to release
 
         Assert.assertTrue("There was no complete callback.", completed.get());
@@ -95,7 +99,7 @@ public class JenkinsDriverRemoteTest {
         long waitStarted = System.currentTimeMillis();
         final Long[] buildTook = new Long[1];
 
-        Consumer<String> onWaitComplete = (s) -> {
+        Consumer<CompletedBuild> onWaitComplete = (s) -> {
             completed.set(true);
             buildTook[0] = System.currentTimeMillis() - waitStarted;
             log.info("Received build completed in " + buildTook[0] + "ms.");
@@ -105,7 +109,7 @@ public class JenkinsDriverRemoteTest {
             throw new AssertionError(e);
         };
 
-        jenkinsBuildDriver.waitBuildToComplete(buildTask.buildJobDetails, onWaitComplete, onWaitError);
+        runningBuild.monitor(onWaitComplete, onWaitError);
         mutex.tryAcquire(120, TimeUnit.SECONDS); //wait for callback to release
 
         long minBuildTime = 10000;
@@ -113,27 +117,34 @@ public class JenkinsDriverRemoteTest {
 
         Assert.assertTrue("There was no complete callback.", completed.get());
 
-
         completed.set(false);
 
-        BuildDriverResult buildDriverResult = new BuildDriverResult();
+        class BuildResultWrapper {
+            private BuildResult result;
+            BuildResultWrapper(BuildResult result) {
+                this.result = result;
+            }
+        }
 
-        Consumer<BuildDriverResult> onResultComplete = (receivedBuildDriverResult) -> {
+        BuildResultWrapper resultWrapper = new BuildResultWrapper(null);
+
+        Consumer<BuildResult> onResultComplete = (buildResult) -> {
             completed.set(true);
-            buildDriverResult.setBuildStatus(receivedBuildDriverResult.getBuildStatus());
-            buildDriverResult.setConsoleOutput(receivedBuildDriverResult.getConsoleOutput());
+            resultWrapper.result = buildResult;
             mutex.release();
         };
         Consumer<Exception> onResultError = (e) -> {
             throw new AssertionError(e);
         };
 
-        jenkinsBuildDriver.retrieveBuildResults(buildTask.buildJobDetails, onResultComplete, onResultError);
+
         mutex.tryAcquire(30, TimeUnit.SECONDS); //wait for callback to release
 
-        Assert.assertEquals(BuildStatus.SUCCESS, buildDriverResult.getBuildStatus());
-        Assert.assertTrue("Incomplete build log.", buildDriverResult.getConsoleOutput().contains("Building in workspace"));
-        Assert.assertTrue("Incomplete build log.", buildDriverResult.getConsoleOutput().contains("Finished: SUCCESS"));
+        BuildResult buildResult = resultWrapper.result;
+
+        Assert.assertEquals(BuildDriverStatus.SUCCESS, buildResult.getBuildDriverStatus());
+        Assert.assertTrue("Incomplete build log.", buildResult.getBuildLog().contains("Building in workspace"));
+        Assert.assertTrue("Incomplete build log.", buildResult.getBuildLog().contains("Finished: SUCCESS"));
 
         Assert.assertTrue("There was no complete callback.", completed.get());
 

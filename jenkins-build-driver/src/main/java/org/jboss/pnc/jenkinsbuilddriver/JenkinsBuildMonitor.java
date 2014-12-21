@@ -1,14 +1,15 @@
-package org.jboss.pnc.jenkinsbuilddriver.buildmonitor;
+package org.jboss.pnc.jenkinsbuilddriver;
 
 import com.offbytwo.jenkins.JenkinsServer;
 import com.offbytwo.jenkins.model.Build;
 import com.offbytwo.jenkins.model.BuildWithDetails;
 import com.offbytwo.jenkins.model.JobWithDetails;
 import org.jboss.logging.Logger;
-import org.jboss.pnc.spi.builddriver.BuildJobDetails;
+import org.jboss.pnc.model.BuildDriverStatus;
 import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
 import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.Executors;
@@ -27,18 +28,23 @@ public class JenkinsBuildMonitor {
     private static final Logger log = Logger.getLogger(JenkinsBuildMonitor.class);
 
     private ScheduledExecutorService executor; //TODO shutdown
+    private JenkinsServerFactory jenkinsServerFactory;
 
-    JenkinsBuildMonitor() {
+    public JenkinsBuildMonitor() {}
+
+    @Inject
+    public JenkinsBuildMonitor(JenkinsServerFactory jenkinsServerFactory) {
+        this.jenkinsServerFactory = jenkinsServerFactory;
         int nThreads = 4; //TODO configurable
         executor = Executors.newScheduledThreadPool(nThreads);
     }
 
-    public void monitor(JenkinsServer jenkinsServer, BuildJobDetails buildJobDetails, Consumer<String> onMonitorComplete, Consumer<Exception> onMonitorError) {
+    public void monitor(String jobName, int buildNumber, Consumer<BuildDriverStatus> onMonitorComplete, Consumer<Exception> onMonitorError) {
 
         MonitorTask monitorTask = new MonitorTask(onMonitorComplete, onMonitorError);
         Runnable monitor = () -> {
             try {
-                Build jenkinsBuild = getBuild(jenkinsServer, buildJobDetails);
+                Build jenkinsBuild = getBuild(jenkinsServerFactory.getJenkinsServer(), jobName, buildNumber);
                 if (jenkinsBuild == null)
                     //Build didn't started yet.
                     return;
@@ -46,13 +52,15 @@ public class JenkinsBuildMonitor {
                 BuildWithDetails jenkinsBuildDetails = null;
                 try {
                     jenkinsBuildDetails = jenkinsBuild.details();
+                    log.tracef("Checking if %s N%s is running.", jobName, buildNumber);
                 } catch (IOException e) {
                     e.printStackTrace();//TODO
                 }
                 boolean building = jenkinsBuildDetails.isBuilding();
                 int duration = jenkinsBuildDetails.getDuration();
                 if (!building && duration > 0 ) {
-                    monitorTask.onMonitorComplete.accept(""); //TODO pass anything ?
+                    BuildStatusAdapter buildStatusAdapter = new BuildStatusAdapter(jenkinsBuildDetails.getResult());
+                    monitorTask.onMonitorComplete.accept(buildStatusAdapter.getBuildStatus());
                     monitorTask.getCancelHook().cancel(true);
                 }
             } catch (Exception e) {
@@ -68,23 +76,22 @@ public class JenkinsBuildMonitor {
     /**
      * @return Build or null if build didn't started yet
      */
-    private Build getBuild(JenkinsServer jenkinsServer, BuildJobDetails buildJobDetails) throws IOException, BuildDriverException {
-        String jobName = buildJobDetails.getJobName();
+    private Build getBuild(JenkinsServer jenkinsServer, String jobName, int buildNumber) throws IOException, BuildDriverException {
         JobWithDetails buildJob = jenkinsServer.getJob(jobName);
 
         //Build build = buildJob.getLastBuild() //throws NPE if there are no build for this job. see https://github.com/RisingOak/jenkins-client/issues/45
         List<Build> builds = buildJob.getBuilds();
 
-        List<Build> buildsMatchingNumber = builds.stream().filter(b -> b.getNumber() == buildJobDetails.getBuildNumber()).collect(Collectors.toList());
+        List<Build> buildsMatchingNumber = builds.stream().filter(b -> b.getNumber() == buildNumber).collect(Collectors.toList());
 
         if (buildsMatchingNumber.size() == 0) {
-            log.trace("There is no Job #" + buildJobDetails.getBuildNumber() + " for " + buildJobDetails.getJobName() + " (probably hasn't started yet).");
+            log.trace("There is no Job #" + buildNumber + " for " + jobName + " (probably hasn't started yet).");
             return null;
         } else if (buildsMatchingNumber.size() == 1) {
-            log.trace("Found Job #" + buildJobDetails.getBuildNumber() + " for " + buildJobDetails.getJobName() + ".");
+            log.trace("Found Job #" + buildNumber + " for " + jobName + ".");
             return buildsMatchingNumber.get(0);
         } else {
-            throw new BuildDriverException("There are multiple builds for " + buildJobDetails.getJobName() + " with the same build number " + buildJobDetails.getBuildNumber() + ".");
+            throw new BuildDriverException("There are multiple builds for " + jobName + " with the same build number " + buildNumber + ".");
         }
     }
 

@@ -9,8 +9,17 @@ import org.jboss.pnc.rest.restmodel.ProjectBuildConfigurationRest;
 import org.jboss.pnc.rest.trigger.BuildTriggerer;
 
 import javax.inject.Inject;
-import javax.ws.rs.*;
-import javax.ws.rs.core.*;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriBuilder;
+import javax.ws.rs.core.UriInfo;
 import java.net.URI;
 import java.util.List;
 
@@ -45,7 +54,7 @@ public class LegacyEndpoint {
             @ApiParam(value = "Project's Configuration id", required = true) @PathParam("id") Integer id,
             @Context UriInfo uriInfo) {
         try {
-            Integer runningBuildId = buildTriggerer.triggerBuilds(id);
+            String runningBuildId = buildTriggerer.triggerBuilds(id);
             UriBuilder uriBuilder = UriBuilder.fromUri(uriInfo.getBaseUri()).path("/result/running/{id}");
             URI uri = uriBuilder.build(runningBuildId);
             return Response.created(uri).entity(uri).build();

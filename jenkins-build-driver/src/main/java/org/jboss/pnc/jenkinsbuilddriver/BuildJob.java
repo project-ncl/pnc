@@ -5,7 +5,7 @@ import com.offbytwo.jenkins.model.Build;
 import com.offbytwo.jenkins.model.BuildResult;
 import com.offbytwo.jenkins.model.BuildWithDetails;
 import com.offbytwo.jenkins.model.JobWithDetails;
-import org.jboss.pnc.model.BuildStatus;
+import org.jboss.pnc.model.BuildDriverStatus;
 import org.jboss.pnc.model.ProjectBuildConfiguration;
 import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
 import org.jboss.pnc.spi.repositorymanager.RepositoryConfiguration;
@@ -20,6 +20,7 @@ public class BuildJob {
     private ProjectBuildConfiguration projectBuildConfiguration;
     private BuildJobConfig buildJobConfig;
     JobWithDetails job;
+    private int buildNumber;
 
     public BuildJob(JenkinsServer jenkinsServer, ProjectBuildConfiguration projectBuildConfiguration) {
         this.jenkinsServer = jenkinsServer;
@@ -69,16 +70,16 @@ public class BuildJob {
 
     public int start() throws BuildDriverException {
         //TODO check if configured
-        int jobBuildNumber = -1;
+        buildNumber = -1;
         try {
-            jobBuildNumber = job.getNextBuildNumber();
+            buildNumber = job.getNextBuildNumber();
             job.build();
         } catch (IOException e) {
             throw new BuildDriverException("Cannot start project build.", e);
         }
 
         //TODO make sure the build was scheduled
-        return jobBuildNumber;
+        return buildNumber;
 //        this.lastBuild = job.getLastBuild();
 //        return getLastBuildDetails().isBuilding();
     }
@@ -87,7 +88,7 @@ public class BuildJob {
         return getLastBuildDetails().isBuilding();
     }
 
-    public BuildStatus getBuildStatus() throws BuildDriverException, IOException {
+    public BuildDriverStatus getBuildStatus() throws BuildDriverException, IOException {
         BuildResult buildresult = getLastBuildDetails().getResult();
         BuildStatusAdapter bsa = new BuildStatusAdapter(buildresult);
         return bsa.getBuildStatus();
@@ -104,4 +105,7 @@ public class BuildJob {
         return lastBuildDetails;
     }
 
+    public int getBuildNumber() {
+        return buildNumber;
+    }
 }

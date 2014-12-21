@@ -1,4 +1,6 @@
-package org.jboss.pnc.jenkinsbuilddriver.buildmonitor;
+package org.jboss.pnc.jenkinsbuilddriver;
+
+import org.jboss.pnc.model.BuildDriverStatus;
 
 import java.util.concurrent.ScheduledFuture;
 import java.util.function.Consumer;
@@ -8,11 +10,11 @@ import java.util.function.Consumer;
 */
 class MonitorTask {
 
-    final Consumer<String> onMonitorComplete;
+    final Consumer<BuildDriverStatus> onMonitorComplete;
     final Consumer<Exception> onMonitorError;
     private ScheduledFuture cancelHook;
 
-    public MonitorTask(Consumer<String> onMonitorComplete, Consumer<Exception> onMonitorError) {
+    public MonitorTask(Consumer<BuildDriverStatus> onMonitorComplete, Consumer<Exception> onMonitorError) {
         this.onMonitorComplete = onMonitorComplete;
         this.onMonitorError = onMonitorError;
     }

@@ -76,7 +76,7 @@ public class TestProjectBuilder {
 //                        projectBuildConfigurationC1, projectBuildConfigurationD1, projectBuildConfigurationE1,
 //                        projectBuildConfigurationF1 }));
 //
-//        log.info("Got projectBuilder: " + projectBuilder);
+//        log.info("Got buildCoordinator: " + buildCoordinator);
 //        log.info("Building projectBuildConfigurations: " + projectBuildConfigurations.size());
 
 

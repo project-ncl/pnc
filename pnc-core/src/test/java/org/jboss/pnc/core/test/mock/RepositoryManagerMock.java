@@ -7,20 +7,19 @@ import org.jboss.pnc.model.RepositoryType;
 import org.jboss.pnc.spi.repositorymanager.RepositoryConfiguration;
 import org.jboss.pnc.spi.repositorymanager.RepositoryConnectionInfo;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManager;
+import org.jboss.pnc.spi.repositorymanager.RepositoryManagerException;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.Consumer;
 
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-11-25.
  */
 public class RepositoryManagerMock implements RepositoryManager {
 
+
     @Override
-    public void createRepository(ProjectBuildConfiguration projectBuildConfiguration,
-            BuildCollection buildCollection,
-            Consumer<RepositoryConfiguration> onComplete, Consumer<Exception> onError) {
+    public RepositoryConfiguration createRepository(ProjectBuildConfiguration projectBuildConfiguration, BuildCollection buildCollection) throws RepositoryManagerException {
 
         RepositoryConfiguration repositoryConfiguration = new RepositoryConfiguration() {
             @Override
@@ -65,21 +64,13 @@ public class RepositoryManagerMock implements RepositoryManager {
             }
         };
 
-        Runnable configureRepo = () -> {
-            try {
-                Thread.sleep(500);
-                onComplete.accept(repositoryConfiguration);
-            } catch (InterruptedException e) {
-                onError.accept(e);
-            }
-        };
-        new Thread(configureRepo).start();
-
+        return repositoryConfiguration;
     }
 
     @Override
     public void persistArtifacts(RepositoryConfiguration repository, ProjectBuildResult buildResult) {
     }
+
 
     @Override
     public boolean canManage(RepositoryType managerType) {

@@ -8,12 +8,12 @@ import org.jboss.pnc.model.ProjectBuildConfiguration;
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-12-15.
  */
-public class BuildJobConfiguration {
+public class BuildConfiguration {
     private ProjectBuildConfiguration projectBuildConfiguration;
     private BuildCollection buildCollection;
 
 
-    public BuildJobConfiguration(ProjectBuildConfiguration projectBuildConfiguration) {
+    public BuildConfiguration(ProjectBuildConfiguration projectBuildConfiguration) {
         this.projectBuildConfiguration = projectBuildConfiguration;
 
         //TODO remove buildCollection mock

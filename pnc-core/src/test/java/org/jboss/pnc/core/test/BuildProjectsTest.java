@@ -3,23 +3,21 @@ package org.jboss.pnc.core.test;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.junit.InSequence;
+import org.jboss.logging.Logger;
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.Resources;
 import org.jboss.pnc.core.BuildDriverFactory;
 import org.jboss.pnc.core.RepositoryManagerFactory;
-import org.jboss.pnc.core.builder.BuildConsumer;
-import org.jboss.pnc.core.builder.BuildTask;
-import org.jboss.pnc.core.builder.ProjectBuilder;
-import org.jboss.pnc.core.builder.operationHandlers.OperationHandler;
+import org.jboss.pnc.core.builder.BuildCoordinator;
+import org.jboss.pnc.core.builder.SubmittedBuild;
 import org.jboss.pnc.core.exception.CoreException;
 import org.jboss.pnc.core.test.mock.BuildDriverMock;
 import org.jboss.pnc.core.test.mock.DatastoreMock;
 import org.jboss.pnc.model.BuildCollection;
 import org.jboss.pnc.model.ProjectBuildConfiguration;
 import org.jboss.pnc.model.ProjectBuildResult;
-import org.jboss.pnc.model.TaskStatus;
 import org.jboss.pnc.model.builder.EnvironmentBuilder;
-import org.jboss.pnc.spi.builddriver.BuildJobDetails;
+import org.jboss.pnc.spi.BuildStatus;
 import org.jboss.pnc.spi.environment.EnvironmentDriverProvider;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.asset.EmptyAsset;
@@ -37,7 +35,6 @@ import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 /**
@@ -55,8 +52,7 @@ public class BuildProjectsTest {
                 .addClass(RepositoryManagerFactory.class)
                 .addClass(EnvironmentBuilder.class)
                 .addClass(EnvironmentDriverProvider.class)
-                .addPackage(OperationHandler.class.getPackage())
-                .addPackage(ProjectBuilder.class.getPackage())
+                .addPackage(BuildCoordinator.class.getPackage())
                 .addPackage(BuildDriverMock.class.getPackage())
                 .addAsManifestResource(EmptyAsset.INSTANCE, "beans.xml")
                 .addAsResource("META-INF/logging.properties");
@@ -65,29 +61,21 @@ public class BuildProjectsTest {
     }
 
     @Inject
-    ProjectBuilder projectBuilder;
+    BuildCoordinator buildCoordinator;
 
     @Inject
     DatastoreMock datastore;
 
-    @Inject
-    Logger log;
-
-    @Inject
-    BuildConsumer buildConsumer;
+    Logger log = Logger.getLogger(BuildProjectsTest.class);
 
     Thread consumer;
 
     @Before
     public void startConsumer() {
-        //start build consumer
-        consumer = new Thread(buildConsumer, "Build-consumer");
-        consumer.start();
     }
 
     @After
     public void stopConsumer() {
-        consumer.interrupt();
     }
 
     @Test
@@ -99,7 +87,7 @@ public class BuildProjectsTest {
         TestProjectConfigurationBuilder configurationBuilder = new TestProjectConfigurationBuilder();
 
 //TODO move this test to datastore test
-//        projectBuilder.buildProjects(projectBuildConfigurations, buildCollection);
+//        buildCoordinator.buildProjects(projectBuildConfigurations, buildCollection);
 //        assertThat(datastore.getBuildResults()).hasSize(6);
 
         buildProject(configurationBuilder.build(1, "c1-java"), buildCollection);
@@ -145,9 +133,9 @@ public class BuildProjectsTest {
 
         List<Thread> threads = list.stream().map(runInNewThread).collect(Collectors.toList());
 
-        Assert.assertTrue("There are no running builds.", projectBuilder.getRunningBuilds().size() > 0);
-        BuildTask buildTask = projectBuilder.getRunningBuilds().iterator().next();
-        Assert.assertTrue("Build has no status.", buildTask.getStatus() != null);
+        Assert.assertTrue("There are no running builds.", buildCoordinator.getSubmittedBuilds().size() > 0);
+        SubmittedBuild submittedBuild = buildCoordinator.getSubmittedBuilds().iterator().next();
+        Assert.assertTrue("Build has no status.", submittedBuild.getStatus() != null);
 
         threads.forEach(waitToComplete);
     }
@@ -163,43 +151,41 @@ public class BuildProjectsTest {
         Assert.assertTrue("Invalid build log.", buildLog.contains("Finished: SUCCESS"));
     }
 
-    private void buildProject(ProjectBuildConfiguration projectBuildConfigurationB1, BuildCollection buildCollection) throws InterruptedException, CoreException {
-        List<TaskStatus> receivedStatuses = new ArrayList<TaskStatus>();
+    private void buildProject(ProjectBuildConfiguration projectBuildConfiguration, BuildCollection buildCollection) throws InterruptedException, CoreException {
+        List<BuildStatus> receivedStatuses = new ArrayList();
 
         int nStatusUpdates = 10;
 
         final Semaphore semaphore = new Semaphore(nStatusUpdates);
 
-        Consumer<TaskStatus> onStatusUpdate = (newStatus) -> {
+        Consumer<BuildStatus> onStatusUpdate = (newStatus) -> {
             receivedStatuses.add(newStatus);
             semaphore.release(1);
-            log.finer("Received status update " + newStatus.getOperation());
-            log.finer("Semaphore released, there are " + semaphore.availablePermits() + " free entries.");
-        };
-        Consumer<BuildJobDetails> onComplete = (e) -> {
-            //TODO
+            log.debug("Received status update " + newStatus.toString());
+            log.trace("Semaphore released, there are " + semaphore.availablePermits() + " free entries.");
         };
         semaphore.acquire(nStatusUpdates); //there should be 6 callbacks
-        projectBuilder.buildProject(projectBuildConfigurationB1, onStatusUpdate, onComplete);
+        SubmittedBuild submittedBuild = buildCoordinator.build(projectBuildConfiguration);
+        submittedBuild.registerStatusUpdateListener(onStatusUpdate);
         semaphore.tryAcquire(nStatusUpdates, 30, TimeUnit.SECONDS); //wait for callback to release
 
-        assertStatusUpdateReceived(receivedStatuses, TaskStatus.Operation.CREATE_REPOSITORY);
-        assertStatusUpdateReceived(receivedStatuses, TaskStatus.Operation.BUILD_SCHEDULED);
-        assertStatusUpdateReceived(receivedStatuses, TaskStatus.Operation.WAITING_BUILD_TO_COMPLETE);
-        assertStatusUpdateReceived(receivedStatuses, TaskStatus.Operation.COLLECT_RESULTS);
-        assertStatusUpdateReceived(receivedStatuses, TaskStatus.Operation.COMPLETING_BUILD);
+        assertStatusUpdateReceived(receivedStatuses, BuildStatus.REPO_SETTING_UP);
+        assertStatusUpdateReceived(receivedStatuses, BuildStatus.BUILD_SETTING_UP);
+        assertStatusUpdateReceived(receivedStatuses, BuildStatus.BUILD_WAITING);
+        assertStatusUpdateReceived(receivedStatuses, BuildStatus.BUILD_COMPLETED_SUCCESS);
+        assertStatusUpdateReceived(receivedStatuses, BuildStatus.STORING_RESULTS);
 
     }
 
-    private void assertStatusUpdateReceived(List<TaskStatus> receivedStatuses, TaskStatus.Operation operation) {
+    private void assertStatusUpdateReceived(List<BuildStatus> receivedStatuses, BuildStatus status) {
         boolean received = false;
-        for (TaskStatus receivedStatus : receivedStatuses) {
-            if (receivedStatus.getOperation().equals(operation)) {
+        for (BuildStatus receivedStatus : receivedStatuses) {
+            if (receivedStatus.equals(status)) {
                 received = true;
                 break;
             }
         }
-        Assert.assertTrue("Did not received status update for " + operation +".", received );
+        Assert.assertTrue("Did not received status update for " + status +".", received );
     }
 
     class TestBuildConfig {

@@ -1,7 +1,7 @@
 package org.jboss.pnc.rest.provider;
 
-import org.jboss.pnc.core.builder.BuildTask;
-import org.jboss.pnc.core.builder.ProjectBuilder;
+import org.jboss.pnc.core.builder.BuildCoordinator;
+import org.jboss.pnc.core.builder.SubmittedBuild;
 import org.jboss.pnc.datastore.repositories.ProjectBuildResultRepository;
 import org.jboss.pnc.model.ProjectBuildResult;
 import org.jboss.pnc.rest.restmodel.BuildResultRest;
@@ -21,15 +21,15 @@ import static org.jboss.pnc.rest.provider.StreamHelper.nullableStreamOf;
 public class BuildResultProvider {
 
     private ProjectBuildResultRepository projectBuildResultRepository;
-    private ProjectBuilder projectBuilder;
+    private BuildCoordinator buildCoordinator;
 
     public BuildResultProvider() {
     }
 
     @Inject
-    public BuildResultProvider(ProjectBuildResultRepository projectBuildResultRepository, ProjectBuilder projectBuilder) {
+    public BuildResultProvider(ProjectBuildResultRepository projectBuildResultRepository, BuildCoordinator buildCoordinator) {
         this.projectBuildResultRepository = projectBuildResultRepository;
-        this.projectBuilder = projectBuilder;
+        this.buildCoordinator = buildCoordinator;
     }
 
     public List<BuildResultRest> getAllArchived() {
@@ -38,8 +38,8 @@ public class BuildResultProvider {
     }
 
     public List<BuildResultRest> getAllRunning() {
-        return nullableStreamOf(projectBuilder.getRunningBuilds())
-                .map(runningBuild -> new BuildResultRest(runningBuild)).collect(Collectors.toList());
+        return nullableStreamOf(buildCoordinator.getSubmittedBuilds())
+                .map(submittedBuild -> new BuildResultRest(submittedBuild)).collect(Collectors.toList());
     }
 
     public BuildResultRest getSpecific(Integer id) {
@@ -62,31 +62,31 @@ public class BuildResultProvider {
         return null;
     }
 
-    public BuildResultRest getSpecificRunning(Integer id) {
-        BuildTask runningBuild = getRunningBuild(id);
-        if(runningBuild != null) {
-            return new BuildResultRest(runningBuild);
+    public BuildResultRest getSpecificRunning(String id) {
+        SubmittedBuild submittedBuild = getSubmittedBuild(id);
+        if(submittedBuild != null) {
+            return new BuildResultRest(submittedBuild);
         }
         return null;
     }
 
-    private BuildTask getRunningBuild(Integer id) {
-        List<BuildTask> tasks = projectBuilder.getRunningBuilds().stream()
-                    .filter(task -> id.equals(task.getId()))
+    private SubmittedBuild getSubmittedBuild(String id) {
+        List<SubmittedBuild> submittedBuilds = buildCoordinator.getSubmittedBuilds().stream()
+                    .filter(submittedBuild -> id.equals(submittedBuild.getIdentifier()))
                     .collect(Collectors.toList());
-        if(!tasks.isEmpty()) {
-            return tasks.iterator().next();
+        if(!submittedBuilds.isEmpty()) {
+            return submittedBuilds.iterator().next();
         }
         return null;
     }
 
-    public StreamingOutput getLogsForRunningBuildId(Integer id) {
-        BuildTask runningBuild = getRunningBuild(id);
-        if(runningBuild != null) {
+    public StreamingOutput getLogsForRunningBuildId(String id) {
+        SubmittedBuild submittedBuild = getSubmittedBuild(id);
+        if(submittedBuild != null) {
             return outputStream -> {
                 Writer writer = new BufferedWriter(new OutputStreamWriter(outputStream));
-                if(runningBuild.getBuildJobDetails() != null && runningBuild.getBuildJobDetails().getBuildLog() != null) {
-                    writer.write(runningBuild.getBuildJobDetails().getBuildLog());
+                if(submittedBuild != null && submittedBuild.getBuildLog() != null) {
+                    writer.write(submittedBuild.getBuildLog());
                 }
                 writer.flush();
             };

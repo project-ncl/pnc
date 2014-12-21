@@ -46,7 +46,7 @@ public class TriggerBuildEndpoint {
             @ApiParam(value = "Configuration id", required = true) @PathParam("id") Integer id,
             @Context UriInfo uriInfo) {
         try {
-            Integer runningBuildId = buildTriggerer.triggerBuilds(id);
+            String runningBuildId = buildTriggerer.triggerBuilds(id);
             UriBuilder uriBuilder = UriBuilder.fromUri(uriInfo.getBaseUri()).path("/result/running/{id}");
             URI uri = uriBuilder.build(runningBuildId);
             return Response.ok(uri).entity(uri).build();

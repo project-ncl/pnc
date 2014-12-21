@@ -45,7 +45,7 @@ public class ProjectBuildResult implements Serializable {
     private String buildLog;
 
     @Enumerated(value = EnumType.STRING)
-    private BuildStatus status;
+    private BuildDriverStatus status;
 
     @OneToMany(mappedBy = "projectBuildResult", cascade = CascadeType.ALL)
     private List<Artifact> builtArtifacts;
@@ -229,7 +229,7 @@ public class ProjectBuildResult implements Serializable {
      *
      * @return the status
      */
-    public BuildStatus getStatus() {
+    public BuildDriverStatus getStatus() {
         return status;
     }
 
@@ -238,7 +238,7 @@ public class ProjectBuildResult implements Serializable {
      *
      * @param status the new status
      */
-    public void setStatus(BuildStatus status) {
+    public void setStatus(BuildDriverStatus status) {
         this.status = status;
     }
 

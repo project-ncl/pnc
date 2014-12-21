@@ -1,37 +1,30 @@
 package org.jboss.pnc.core;
 
-import org.jboss.pnc.core.builder.BuildConsumer;
+import org.jboss.logging.Logger;
 
-import javax.inject.Inject;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
-import java.util.logging.Logger;
+
 
 /**
+ * Not in use
+ *
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-12-16.
  */
+@Deprecated
 public class Lifecycle {
 
-    private BuildConsumer buildConsumer;
-    private Thread buildConsumerThread;
+    Logger log = Logger.getLogger(Lifecycle.class);
 
-    Logger log;
-
-    @Inject
-    public Lifecycle(Logger log, BuildConsumer buildConsumer) {
-        this.log = log;
-        this.buildConsumer = buildConsumer;
+    public Lifecycle(Logger log) {
     }
 
     public void start() {
         ThreadFactory threadFactory = Executors.defaultThreadFactory();
-        buildConsumerThread = threadFactory.newThread(buildConsumer);
-        buildConsumerThread.start();
         log.info("Core started.");
     }
 
     public void stop() {
-        buildConsumerThread.interrupt();
         log.info("Core stopped.");
     }
 

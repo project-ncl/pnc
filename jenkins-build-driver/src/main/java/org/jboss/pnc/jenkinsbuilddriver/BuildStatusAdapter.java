@@ -1,7 +1,7 @@
 package org.jboss.pnc.jenkinsbuilddriver;
 
 import com.offbytwo.jenkins.model.BuildResult;
-import org.jboss.pnc.model.BuildStatus;
+import org.jboss.pnc.model.BuildDriverStatus;
 
 /**
 * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-12-01.
@@ -13,22 +13,22 @@ class BuildStatusAdapter {
         this.buildResult = buildResult;
     }
 
-    BuildStatus getBuildStatus() {
+    BuildDriverStatus getBuildStatus() {
         switch (buildResult) {
             case FAILURE:
-                return BuildStatus.FAILED;
+                return BuildDriverStatus.FAILED;
             case UNSTABLE:
-                return BuildStatus.UNSTABLE;
+                return BuildDriverStatus.UNSTABLE;
             case REBUILDING:
-                return BuildStatus.REBUILDING;
+                return BuildDriverStatus.REBUILDING;
             case BUILDING:
-                return BuildStatus.BUILDING;
+                return BuildDriverStatus.BUILDING;
             case ABORTED:
-                return BuildStatus.ABORTED;
+                return BuildDriverStatus.ABORTED;
             case SUCCESS:
-                return BuildStatus.SUCCESS;
+                return BuildDriverStatus.SUCCESS;
             default:
-                return BuildStatus.UNKNOWN;
+                return BuildDriverStatus.UNKNOWN;
         }
     }
 }

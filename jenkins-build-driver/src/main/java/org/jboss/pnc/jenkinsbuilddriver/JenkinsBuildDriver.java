@@ -1,32 +1,21 @@
 package org.jboss.pnc.jenkinsbuilddriver;
 
-import com.offbytwo.jenkins.JenkinsServer;
-import com.offbytwo.jenkins.model.Build;
-import com.offbytwo.jenkins.model.BuildWithDetails;
-import com.offbytwo.jenkins.model.JobWithDetails;
 import org.jboss.logging.Logger;
 import org.jboss.pnc.common.Configuration;
-import org.jboss.pnc.jenkinsbuilddriver.buildmonitor.JenkinsBuildMonitor;
 import org.jboss.pnc.model.BuildType;
 import org.jboss.pnc.model.ProjectBuildConfiguration;
 import org.jboss.pnc.spi.builddriver.BuildDriver;
-import org.jboss.pnc.spi.builddriver.BuildDriverResult;
-import org.jboss.pnc.spi.builddriver.BuildJobDetails;
+import org.jboss.pnc.spi.builddriver.RunningBuild;
 import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
 import org.jboss.pnc.spi.repositorymanager.RepositoryConfiguration;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.Properties;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Consumer;
 
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-11-23.
@@ -34,19 +23,26 @@ import java.util.function.Consumer;
 @ApplicationScoped
 public class JenkinsBuildDriver implements BuildDriver {
 
-    private static final String DRIVER_ID = "jenkins-build-driver";
+    public static final String DRIVER_ID = "jenkins-build-driver";
 
     @Inject
     Configuration configuration;
 
     private static final Logger log = Logger.getLogger(JenkinsBuildDriver.class);
 
-    @Inject
+
+    JenkinsServerFactory jenkinsServerFactory;
     JenkinsBuildMonitor jenkinsBuildMonitor;
 
     ExecutorService executor;
 
-    JenkinsBuildDriver() {
+    JenkinsBuildDriver() {}
+
+    @Inject
+    JenkinsBuildDriver(JenkinsServerFactory jenkinsServerFactory, JenkinsBuildMonitor jenkinsBuildMonitor) { //TODO
+        this.jenkinsServerFactory = jenkinsServerFactory;
+        this.jenkinsBuildMonitor = jenkinsBuildMonitor;
+
         BlockingQueue<Runnable> workQueue = new LinkedBlockingQueue<Runnable>();
         //Jenkins IO thread pool
         executor = new ThreadPoolExecutor(4, 4, 1, TimeUnit.HOURS, workQueue); //TODO configurable
@@ -54,24 +50,6 @@ public class JenkinsBuildDriver implements BuildDriver {
         //TODO executor shutdown
         //TODO jenkinsBuildMonitor shutdown
 
-    }
-
-    private JenkinsServer getJenkinsServer() throws BuildDriverException {
-        try {
-            Properties properties = configuration.getModuleConfig(getDriverId());
-
-            String url = properties.getProperty("url");
-            String username = properties.getProperty("username");
-            String password = properties.getProperty("password");
-
-            if (url == null || username == null || password == null) {
-                throw new BuildDriverException("Missing config to instantiate " + getDriverId() + ".");
-            }
-
-            return new JenkinsServer(new URI(url), username, password);
-        } catch (URISyntaxException e) {
-            throw new BuildDriverException("Cannot instantiate " + getDriverId() + ".", e);
-        }
     }
 
     @Override
@@ -85,85 +63,16 @@ public class JenkinsBuildDriver implements BuildDriver {
     }
 
     @Override
-    public void startProjectBuild(ProjectBuildConfiguration projectBuildConfiguration,
-                                  RepositoryConfiguration repositoryConfiguration,
-                                  Consumer<BuildJobDetails> onComplete, Consumer<Exception> onError) {
-        try {
-            Runnable job = () -> {
-                BuildJob build = null;
-                try {
-                    build = new BuildJob(getJenkinsServer(), projectBuildConfiguration);
-                    boolean configured = build.configure(repositoryConfiguration ,true);
-                    if (!configured) {
-                        throw new AssertionError("Cannot configure build job.");
-                    }
-                    int buildNumber = build.start();
-                    log.info("Started jenkins job #" + buildNumber);
-                    BuildJobDetails buildJobDetails = new BuildJobDetails(build.getJobName(), buildNumber);
-                    onComplete.accept(buildJobDetails);
-                } catch (Exception e) {
-                    onError.accept(e);
-                }
-            };
-            executor.execute(job);
-        } catch (Exception e) {
-            onError.accept(e);
+    public RunningBuild startProjectBuild(ProjectBuildConfiguration projectBuildConfiguration, RepositoryConfiguration repositoryConfiguration) throws BuildDriverException {
+        BuildJob build = new BuildJob(jenkinsServerFactory.getJenkinsServer(), projectBuildConfiguration);
+        boolean configured = build.configure(repositoryConfiguration, true);
+        if (!configured) {
+            throw new AssertionError("Cannot configure build job.");
         }
+        int buildNumber = build.start();
+        log.infof("Started jenkins job %s #%s.", build.getJobName(), buildNumber);
+        return new JenkinsRunningBuild(jenkinsServerFactory, jenkinsBuildMonitor, build);
     }
 
-    @Override
-    public void waitBuildToComplete(BuildJobDetails buildJobDetails,
-                                    Consumer<String> onComplete, Consumer<Exception> onError) {
-        try {
-            Consumer<String> onMonitorComplete = (jobId) -> {
-                onComplete.accept("JOB-ID"); //TODO
-            };
 
-            Consumer<Exception> onMonitorError = (e) -> {
-                onError.accept(e);
-            };
-
-            jenkinsBuildMonitor.monitor(getJenkinsServer(), buildJobDetails, onMonitorComplete, onMonitorError);
-
-        } catch (Exception e) {
-            onError.accept(e);
-        }
-    }
-
-    @Override
-    public void retrieveBuildResults(BuildJobDetails buildJobDetails,
-                                     Consumer<BuildDriverResult> onComplete, Consumer<Exception> onError) {
-        try {
-            Runnable job = () -> {
-                try {
-                    Build jenkinsBuild = getBuild(getJenkinsServer(), buildJobDetails);
-                    BuildWithDetails jenkinsBuildDetails = jenkinsBuild.details();
-
-                    BuildStatusAdapter bsa = new BuildStatusAdapter(jenkinsBuildDetails.getResult());
-
-                    BuildDriverResult buildDriverResult = new BuildDriverResult();
-                    buildDriverResult.setBuildStatus(bsa.getBuildStatus());
-                    buildDriverResult.setConsoleOutput(jenkinsBuildDetails.getConsoleOutputText());
-
-                    onComplete.accept(buildDriverResult);
-                } catch (Exception e) {
-                    onError.accept(e);
-                }
-            };
-            executor.execute(job);
-        } catch (Exception e) {
-            onError.accept(e);
-        }
-    }
-
-    private Build getBuild(JenkinsServer jenkinsServer, BuildJobDetails buildJobDetails) throws IOException, BuildDriverException {
-        String jobName = buildJobDetails.getJobName();
-        JobWithDetails buildJob = jenkinsServer.getJob(jobName);
-        Build jenkinsBuild = buildJob.getLastBuild();
-        int buildNumber = jenkinsBuild.getNumber();
-        if (buildNumber != buildJobDetails.getBuildNumber()) {
-            throw new BuildDriverException("Retrieved wrong build.");
-        }
-        return jenkinsBuild;
-    }
 }

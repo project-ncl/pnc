@@ -24,7 +24,7 @@ import java.util.List;
 
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.BuildCollection;
-import org.jboss.pnc.model.BuildStatus;
+import org.jboss.pnc.model.BuildDriverStatus;
 import org.jboss.pnc.model.ProjectBuildConfiguration;
 import org.jboss.pnc.model.ProjectBuildResult;
 import org.jboss.pnc.model.SystemImage;
@@ -54,7 +54,7 @@ public class ProjectBuildResultBuilder {
 
     private String buildLog;
 
-    private BuildStatus status;
+    private BuildDriverStatus status;
 
     private List<Artifact> builtArtifacts;
 
@@ -154,7 +154,7 @@ public class ProjectBuildResultBuilder {
         return this;
     }
 
-    public ProjectBuildResultBuilder status(BuildStatus status) {
+    public ProjectBuildResultBuilder status(BuildDriverStatus status) {
         this.status = status;
         return this;
     }
@@ -230,7 +230,7 @@ public class ProjectBuildResultBuilder {
         return buildLog;
     }
 
-    public BuildStatus getStatus() {
+    public BuildDriverStatus getStatus() {
         return status;
     }
 
