@@ -58,7 +58,40 @@
             <li>Results</li>
           </ol>
           <h1>Results List</h1>
-          <div id="alert-space"></div>
+          <div class="dropdown">
+          <a href="#" data-toggle="dropdown">
+              <span class="pficon pficon-info"></span> Info
+          </a>
+          <div class="dropdown-menu infotip bottom-left">
+            <div class="arrow"></div>
+              <ul class="list-group">
+                <li class="list-group-item">
+                  <span class="i pficon pficon-info"></span>
+                  Product Name: <label id="productInfoName" >
+                </li>
+                <li class="list-group-item">
+                  Product Description: <label id="productInfoDesc"/>
+                </li>
+                <li class="list-group-item">
+                  <span class="i pficon pficon-info"></span>
+                  Product Version: <label id="productInfoVersion" />
+                </li>
+                <li class="list-group-item">
+                  <span class="i pficon pficon-info"></span>
+                  Project Name: <label id="projectInfoName"/>
+                </li>
+                <li class="list-group-item">
+                  Project Description: <label id="projectInfoDesc"/>
+                </li>
+                <li class="list-group-item">
+                  IssueTracker Url: <label id="projectInfoIssueTrackerUrl"/>
+                </li>
+                <li class="list-group-item">
+                  Project Url: <label id="projectInfoProjectUrl"/>
+                </li>
+              </ul>
+          </div>
+          </div>
           <table id="results" class="datatable table table-striped table-bordered">
             <thead>
               <tr>
