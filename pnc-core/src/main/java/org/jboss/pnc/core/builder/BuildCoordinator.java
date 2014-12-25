@@ -25,6 +25,7 @@ import javax.inject.Inject;
 import java.util.Collections;
 import java.util.List;
 import java.util.Queue;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -61,13 +62,21 @@ public class BuildCoordinator {
 
     public SubmittedBuild build(ProjectBuildConfiguration projectBuildConfiguration) throws CoreException {
         SubmittedBuild submittedBuild = new SubmittedBuild(projectBuildConfiguration);
+        return prepareBuild(submittedBuild);
+    }
+
+    public SubmittedBuild build(ProjectBuildConfiguration projectBuildConfiguration, Set<Consumer<BuildStatus>> statusUpdateListeners, Set<Consumer<String>> logConsumers) throws CoreException {
+        SubmittedBuild submittedBuild = new SubmittedBuild(projectBuildConfiguration, statusUpdateListeners, logConsumers);
+        return prepareBuild(submittedBuild);
+    }
+
+    private SubmittedBuild prepareBuild(SubmittedBuild submittedBuild) throws CoreException {
         if (!isBuildingAlreadySubmitted(submittedBuild)) {
             submittedBuilds.add(submittedBuild);
             submit(submittedBuild);
         } else {
             submittedBuild.setStatus(BuildStatus.REJECTED);
         }
-
         return submittedBuild;
     }
 

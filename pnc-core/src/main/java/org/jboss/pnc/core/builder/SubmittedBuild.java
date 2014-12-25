@@ -18,14 +18,16 @@ public class SubmittedBuild {
     private Set<Consumer<BuildStatus>> statusUpdateListeners;
     private Set<Consumer<String>> logConsumers;
 
-    SubmittedBuild() {
+    SubmittedBuild(ProjectBuildConfiguration projectBuildConfiguration) {
         statusUpdateListeners = new WeakSet();
         logConsumers = new WeakSet();
+        this.projectBuildConfiguration = projectBuildConfiguration;
     }
 
-    SubmittedBuild(ProjectBuildConfiguration projectBuildConfiguration) {
-        this();
-        this.projectBuildConfiguration = projectBuildConfiguration;
+    SubmittedBuild(ProjectBuildConfiguration projectBuildConfiguration, Set<Consumer<BuildStatus>> statusUpdateListeners, Set<Consumer<String>> logConsumers) {
+        this(projectBuildConfiguration);
+        this.statusUpdateListeners.addAll(statusUpdateListeners);
+        this.logConsumers.addAll(logConsumers);
     }
 
     public void registerStatusUpdateListener(Consumer<BuildStatus> statusUpdateListener) {

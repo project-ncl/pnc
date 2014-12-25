@@ -30,7 +30,9 @@ import org.junit.runner.RunWith;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
@@ -164,8 +166,10 @@ public class BuildProjectsTest {
             log.debug("Received status update " + newStatus.toString());
             log.trace("Semaphore released, there are " + semaphore.availablePermits() + " free entries.");
         };
+        Set<Consumer<BuildStatus>> statusUpdateListeners = new HashSet<>();
+        statusUpdateListeners.add(onStatusUpdate);
         semaphore.acquire(nStatusUpdates); //there should be 6 callbacks
-        SubmittedBuild submittedBuild = buildCoordinator.build(projectBuildConfiguration);
+        SubmittedBuild submittedBuild = buildCoordinator.build(projectBuildConfiguration, statusUpdateListeners, new HashSet<Consumer<String>>());
         submittedBuild.registerStatusUpdateListener(onStatusUpdate);
         semaphore.tryAcquire(nStatusUpdates, 30, TimeUnit.SECONDS); //wait for callback to release
 
