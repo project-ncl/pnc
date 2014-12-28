@@ -3,7 +3,6 @@ package org.jboss.pnc.core.test;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.junit.InSequence;
-import org.jboss.logging.Logger;
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.Resources;
 import org.jboss.pnc.core.BuildDriverFactory;
@@ -37,6 +36,7 @@ import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 /**
@@ -47,7 +47,8 @@ public class BuildProjectsTest {
 
     @Deployment
     public static JavaArchive createDeployment() {
-        JavaArchive jar = ShrinkWrap.create(JavaArchive.class)
+
+            JavaArchive jar = ShrinkWrap.create(JavaArchive.class)
                 .addClass(Configuration.class)
                 .addClass(Resources.class)
                 .addClass(BuildDriverFactory.class)
@@ -57,7 +58,9 @@ public class BuildProjectsTest {
                 .addPackage(BuildCoordinator.class.getPackage())
                 .addPackage(BuildDriverMock.class.getPackage())
                 .addAsManifestResource(EmptyAsset.INSTANCE, "beans.xml")
-                .addAsResource("META-INF/logging.properties");
+                .addAsResource("META-INF/logging.properties")
+                ;
+
         System.out.println(jar.toString(true));
         return jar;
     }
@@ -68,7 +71,7 @@ public class BuildProjectsTest {
     @Inject
     DatastoreMock datastore;
 
-    Logger log = Logger.getLogger(BuildProjectsTest.class);
+    private static final Logger log = Logger.getLogger(BuildProjectsTest.class.getName());
 
     Thread consumer;
 
@@ -154,24 +157,27 @@ public class BuildProjectsTest {
     }
 
     private void buildProject(ProjectBuildConfiguration projectBuildConfiguration, BuildCollection buildCollection) throws InterruptedException, CoreException {
+        log.info("Building project " + projectBuildConfiguration.getIdentifier());
         List<BuildStatus> receivedStatuses = new ArrayList();
 
-        int nStatusUpdates = 10;
+        int nStatusUpdates = 7;
 
         final Semaphore semaphore = new Semaphore(nStatusUpdates);
 
         Consumer<BuildStatus> onStatusUpdate = (newStatus) -> {
             receivedStatuses.add(newStatus);
             semaphore.release(1);
-            log.debug("Received status update " + newStatus.toString());
-            log.trace("Semaphore released, there are " + semaphore.availablePermits() + " free entries.");
+            log.fine("Received status update " + newStatus.toString());
+            log.finer("Semaphore released, there are " + semaphore.availablePermits() + " free entries.");
         };
         Set<Consumer<BuildStatus>> statusUpdateListeners = new HashSet<>();
         statusUpdateListeners.add(onStatusUpdate);
-        semaphore.acquire(nStatusUpdates); //there should be 6 callbacks
+        semaphore.acquire(nStatusUpdates);
         SubmittedBuild submittedBuild = buildCoordinator.build(projectBuildConfiguration, statusUpdateListeners, new HashSet<Consumer<String>>());
         submittedBuild.registerStatusUpdateListener(onStatusUpdate);
-        semaphore.tryAcquire(nStatusUpdates, 30, TimeUnit.SECONDS); //wait for callback to release
+        if (!semaphore.tryAcquire(nStatusUpdates, 30, TimeUnit.SECONDS)) { //wait for callback to release
+            throw new AssertionError("Timeout while waiting for status updates.");
+        }
 
         assertStatusUpdateReceived(receivedStatuses, BuildStatus.REPO_SETTING_UP);
         assertStatusUpdateReceived(receivedStatuses, BuildStatus.BUILD_SETTING_UP);

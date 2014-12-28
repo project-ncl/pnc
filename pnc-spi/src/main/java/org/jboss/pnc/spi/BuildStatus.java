@@ -20,6 +20,7 @@ public enum BuildStatus {
     BUILD_COMPLETED_SUCCESS,
     BUILD_COMPLETED_WITH_ERROR,
 
+    COLLECTING_RESULTS,
     STORING_RESULTS,
 
     /** Last build status which is set

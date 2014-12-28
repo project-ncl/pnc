@@ -135,7 +135,7 @@ public class BuildCoordinator {
 
     private CompletionStage<BuildResult> retrieveBuildResults(SubmittedBuild submittedBuild, CompletedBuild completedBuild) {
         return CompletableFuture.supplyAsync( () ->  {
-            submittedBuild.setStatus(BuildStatus.BUILD_SETTING_UP);
+            submittedBuild.setStatus(BuildStatus.COLLECTING_RESULTS);
             ProjectBuildConfiguration projectBuildConfiguration = submittedBuild.getProjectBuildConfiguration();
             try {
                 return completedBuild.getBuildResult();
