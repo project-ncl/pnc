@@ -1,11 +1,9 @@
 package org.jboss.pnc.jenkinsbuilddriver.test;
 
-import com.offbytwo.jenkins.JenkinsServer;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.pnc.common.Configuration;
-import org.jboss.pnc.common.Resources;
-import org.jboss.pnc.common.util.BooleanWrapper;
+import org.jboss.pnc.common.util.ObjectWrapper;
 import org.jboss.pnc.jenkinsbuilddriver.JenkinsBuildDriver;
 import org.jboss.pnc.jenkinsbuilddriver.JenkinsBuildMonitor;
 import org.jboss.pnc.jenkinsbuilddriver.JenkinsServerFactory;
@@ -39,10 +37,8 @@ import java.util.logging.Logger;
 @RunWith(Arquillian.class)
 public class JenkinsDriverRemoteTest {
 
-    private JenkinsServer jenkins;
+    private static final Logger log = Logger.getLogger(JenkinsDriverRemoteTest.class.getName());
 
-    @Inject
-    Logger log;
 
     @Deployment
     public static JavaArchive createDeployment() {
@@ -52,7 +48,6 @@ public class JenkinsDriverRemoteTest {
                 .addAsResource("jenkins-job-template.xml")
                 .addPackages(true, org.apache.http.client.HttpResponseException.class.getPackage())
                 .addClass(Configuration.class)
-                .addClass(Resources.class)
                 .addClass(JenkinsBuildDriver.class)
                 .addClass(JenkinsBuildMonitor.class)
                 .addClass(JenkinsServerFactory.class);
@@ -71,7 +66,7 @@ public class JenkinsDriverRemoteTest {
         RepositoryConfiguration repositoryConfiguration = getRepositoryConfiguration();
 
         final Semaphore mutex = new Semaphore(1);
-        BooleanWrapper completed = new BooleanWrapper(false);
+        ObjectWrapper<Boolean> completed = new ObjectWrapper(false);
 
         class BuildTask {
             CompletedBuild buildJobDetails;
@@ -127,16 +122,6 @@ public class JenkinsDriverRemoteTest {
         }
 
         BuildResultWrapper resultWrapper = new BuildResultWrapper(null);
-
-        Consumer<BuildResult> onResultComplete = (buildResult) -> {
-            completed.set(true);
-            resultWrapper.result = buildResult;
-            mutex.release();
-        };
-        Consumer<Exception> onResultError = (e) -> {
-            throw new AssertionError(e);
-        };
-
 
         mutex.tryAcquire(30, TimeUnit.SECONDS); //wait for callback to release
 

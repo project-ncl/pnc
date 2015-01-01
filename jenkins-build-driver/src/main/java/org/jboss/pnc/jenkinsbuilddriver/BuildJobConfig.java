@@ -11,7 +11,7 @@ import java.util.Properties;
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-11-29.
  */
-public class BuildJobConfig {
+class BuildJobConfig {
     private final RepositoryConnectionInfo connectionInfo;
     private String name;
     private String scmUrl;

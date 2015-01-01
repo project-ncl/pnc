@@ -1,7 +1,7 @@
 package org.jboss.pnc.mavenrepositorymanager;
 
 import org.jboss.pnc.common.Configuration;
-import org.jboss.pnc.common.util.BooleanWrapper;
+import org.jboss.pnc.common.util.ObjectWrapper;
 import org.jboss.pnc.model.*;
 import org.jboss.pnc.spi.repositorymanager.RepositoryConfiguration;
 import org.jboss.pnc.spi.repositorymanager.RepositoryConnectionInfo;
@@ -40,7 +40,7 @@ public class RepositoryManagerDriverTest {
         bc.setProductVersion(pbc.getProductVersion());
 
         final Semaphore mutex = new Semaphore(1);
-        BooleanWrapper completed = new BooleanWrapper(false);
+        ObjectWrapper<Boolean> completed = new ObjectWrapper(false);
 
         Consumer<RepositoryConfiguration> onComplete = (repositoryConfiguration) -> {
             assertThat(repositoryConfiguration, notNullValue());
@@ -76,7 +76,7 @@ public class RepositoryManagerDriverTest {
         bc.setProductVersion(pbc.getProductVersion());
 
         final Semaphore mutex = new Semaphore(1);
-        BooleanWrapper completed = new BooleanWrapper(false);
+        ObjectWrapper<Boolean> completed = new ObjectWrapper(false);
 
         Consumer<RepositoryConfiguration> onComplete = (repositoryConfiguration) -> {
             assertThat(repositoryConfiguration, notNullValue());

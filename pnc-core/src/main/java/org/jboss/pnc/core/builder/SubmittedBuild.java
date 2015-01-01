@@ -68,11 +68,8 @@ public class SubmittedBuild {
 
         SubmittedBuild submittedBuild = (SubmittedBuild) o;
 
-        if (!projectBuildConfiguration.equals(submittedBuild.getProjectBuildConfiguration())) {
-            return false;
-        }
+        return projectBuildConfiguration.equals(submittedBuild.getProjectBuildConfiguration());
 
-        return true;
     }
 
     @Override
@@ -89,6 +86,6 @@ public class SubmittedBuild {
     }
 
     public String getBuildLog() {
-        return null;//TODO
+        return null;//TODO reference to progressive log
     }
 }

@@ -1,11 +1,7 @@
 package org.jboss.pnc.jenkinsbuilddriver;
 
 import com.offbytwo.jenkins.JenkinsServer;
-import com.offbytwo.jenkins.model.Build;
-import com.offbytwo.jenkins.model.BuildResult;
-import com.offbytwo.jenkins.model.BuildWithDetails;
 import com.offbytwo.jenkins.model.JobWithDetails;
-import org.jboss.pnc.model.BuildDriverStatus;
 import org.jboss.pnc.model.ProjectBuildConfiguration;
 import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
 import org.jboss.pnc.spi.repositorymanager.RepositoryConfiguration;
@@ -15,11 +11,11 @@ import java.io.IOException;
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-11-29.
  */
-public class BuildJob {
+class BuildJob {
     private JenkinsServer jenkinsServer;
     private ProjectBuildConfiguration projectBuildConfiguration;
     private BuildJobConfig buildJobConfig;
-    JobWithDetails job;
+    private JobWithDetails job;
     private int buildNumber;
 
     public BuildJob(JenkinsServer jenkinsServer, ProjectBuildConfiguration projectBuildConfiguration) {
@@ -78,31 +74,7 @@ public class BuildJob {
             throw new BuildDriverException("Cannot start project build.", e);
         }
 
-        //TODO make sure the build was scheduled
         return buildNumber;
-//        this.lastBuild = job.getLastBuild();
-//        return getLastBuildDetails().isBuilding();
-    }
-
-    public boolean isRunning() throws BuildDriverException, IOException {
-        return getLastBuildDetails().isBuilding();
-    }
-
-    public BuildDriverStatus getBuildStatus() throws BuildDriverException, IOException {
-        BuildResult buildresult = getLastBuildDetails().getResult();
-        BuildStatusAdapter bsa = new BuildStatusAdapter(buildresult);
-        return bsa.getBuildStatus();
-    }
-
-    public BuildWithDetails getLastBuildDetails() throws BuildDriverException, IOException { //todo wrap io exc
-        try {
-            job = jenkinsServer.getJob(buildJobConfig.getName());
-        } catch (IOException e) {
-            throw new BuildDriverException("Cannot check for existing job.", e);
-        }
-        Build lastBuild = job.getLastBuild();
-        BuildWithDetails lastBuildDetails = lastBuild.details();
-        return lastBuildDetails;
     }
 
     public int getBuildNumber() {

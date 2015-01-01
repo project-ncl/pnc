@@ -7,10 +7,10 @@ import org.jboss.pnc.spi.builddriver.CompletedBuild;
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-12-23.
  */
-public class JenkinsCompletedBuild implements CompletedBuild {
+class JenkinsCompletedBuild implements CompletedBuild {
 
-    JenkinsServerFactory jenkinsServerFactory;
-    BuildJob buildJob;
+    private JenkinsServerFactory jenkinsServerFactory;
+    private BuildJob buildJob;
     private BuildDriverStatus buildDriverStatus;
 
     JenkinsCompletedBuild(JenkinsServerFactory jenkinsServerFactory, BuildJob buildJob, BuildDriverStatus buildDriverStatus) {

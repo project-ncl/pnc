@@ -47,12 +47,13 @@ public class BuildCoordinator {
 
 //    @Resource
 //    private ManagedThreadFactory threadFactory;
-    Executor executor = Executors.newFixedThreadPool(10);
+    private Executor executor = Executors.newFixedThreadPool(4); //TODO configurable
 
-    RepositoryManagerFactory repositoryManagerFactory;
-    BuildDriverFactory buildDriverFactory;
-    DatastoreAdapter datastoreAdapter;
+    private RepositoryManagerFactory repositoryManagerFactory;
+    private BuildDriverFactory buildDriverFactory;
+    private DatastoreAdapter datastoreAdapter;
 
+    @Deprecated
     public BuildCoordinator(){}
 
     @Inject
@@ -187,8 +188,8 @@ public class BuildCoordinator {
             } finally {
                 submittedBuild.setStatus(BuildStatus.DONE);
                 submittedBuilds.remove(submittedBuild);
-                return completedOk;
             }
+            return completedOk;
         }, executor);
     }
 

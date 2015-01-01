@@ -4,7 +4,6 @@ import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.junit.InSequence;
 import org.jboss.pnc.common.Configuration;
-import org.jboss.pnc.common.Resources;
 import org.jboss.pnc.core.BuildDriverFactory;
 import org.jboss.pnc.core.RepositoryManagerFactory;
 import org.jboss.pnc.core.builder.BuildCoordinator;
@@ -21,9 +20,7 @@ import org.jboss.pnc.spi.environment.EnvironmentDriverProvider;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.asset.EmptyAsset;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
-import org.junit.After;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -50,7 +47,6 @@ public class BuildProjectsTest {
 
             JavaArchive jar = ShrinkWrap.create(JavaArchive.class)
                 .addClass(Configuration.class)
-                .addClass(Resources.class)
                 .addClass(BuildDriverFactory.class)
                 .addClass(RepositoryManagerFactory.class)
                 .addClass(EnvironmentBuilder.class)
@@ -72,16 +68,6 @@ public class BuildProjectsTest {
     DatastoreMock datastore;
 
     private static final Logger log = Logger.getLogger(BuildProjectsTest.class.getName());
-
-    Thread consumer;
-
-    @Before
-    public void startConsumer() {
-    }
-
-    @After
-    public void stopConsumer() {
-    }
 
     @Test
     @InSequence(10)
@@ -177,7 +163,7 @@ public class BuildProjectsTest {
         semaphore.acquire(nStatusUpdates);
         SubmittedBuild submittedBuild = buildCoordinator.build(projectBuildConfiguration, statusUpdateListeners, new HashSet<Consumer<String>>());
         log.fine("Build " + submittedBuild.getIdentifier() + " has been submitted.");
-        if (!semaphore.tryAcquire(nStatusUpdates, 5, TimeUnit.SECONDS)) { //wait for callback to release
+        if (!semaphore.tryAcquire(nStatusUpdates, 15, TimeUnit.SECONDS)) { //wait for callback to release
             throw new AssertionError("Timeout while waiting for status updates.");
         }
 

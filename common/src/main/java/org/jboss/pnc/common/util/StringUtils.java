@@ -6,7 +6,7 @@ import java.util.Map;
 import java.util.Properties;
 
 /**
- * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-12-08.
+ * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2015-01-01.
  */
 public class StringUtils {
     public static String replaceEnv(String configString) {

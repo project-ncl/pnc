@@ -18,7 +18,7 @@ import java.util.function.Consumer;
  */
 public class BuildDriverMock implements BuildDriver {
 
-    Logger log = Logger.getLogger(BuildDriverMock.class);
+    public static final Logger log = Logger.getLogger(BuildDriverMock.class);
 
     @Override
     public String getDriverId() {

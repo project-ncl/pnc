@@ -13,7 +13,7 @@ import java.io.IOException;
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-12-23.
  */
-public class JenkinsBuildResult implements BuildResult {
+class JenkinsBuildResult implements BuildResult {
 
     private final JenkinsServerFactory jenkinsServerFactory;
     private BuildJob buildJob;
@@ -40,9 +40,8 @@ public class JenkinsBuildResult implements BuildResult {
 
     private BuildWithDetails getJenkinsBuildDetails() throws BuildDriverException {
         if (jenkinsBuildDetails == null) { //TODO synchronized
-            Build jenkinsBuild = null;
             try {
-                jenkinsBuild = getBuild(jenkinsServerFactory.getJenkinsServer(), buildJob);
+                Build jenkinsBuild = getBuild(jenkinsServerFactory.getJenkinsServer(), buildJob);
                 jenkinsBuildDetails = jenkinsBuild.details();
             } catch (IOException e) {
                 throw new BuildDriverException("Cannot read jenkins build details.", e);

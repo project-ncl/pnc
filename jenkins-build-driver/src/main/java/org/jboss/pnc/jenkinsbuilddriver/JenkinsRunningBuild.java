@@ -10,12 +10,12 @@ import java.util.function.Consumer;
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-12-23.
  */
-public class JenkinsRunningBuild implements RunningBuild {
+class JenkinsRunningBuild implements RunningBuild {
     private JenkinsServerFactory jenkinsServerFactory;
     private JenkinsBuildMonitor jenkinsBuildMonitor;
     private BuildJob buildJob;
 
-    Logger log = Logger.getLogger(JenkinsRunningBuild.class);
+    public static final Logger log = Logger.getLogger(JenkinsRunningBuild.class);
 
     public JenkinsRunningBuild(JenkinsServerFactory jenkinsServerFactory, JenkinsBuildMonitor jenkinsBuildMonitor, BuildJob buildJob) {
         this.jenkinsServerFactory = jenkinsServerFactory;

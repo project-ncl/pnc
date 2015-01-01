@@ -11,11 +11,6 @@ import org.jboss.pnc.spi.repositorymanager.RepositoryConfiguration;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-11-23.
@@ -31,25 +26,15 @@ public class JenkinsBuildDriver implements BuildDriver {
     private static final Logger log = Logger.getLogger(JenkinsBuildDriver.class);
 
 
-    JenkinsServerFactory jenkinsServerFactory;
-    JenkinsBuildMonitor jenkinsBuildMonitor;
-
-    ExecutorService executor;
+    private JenkinsServerFactory jenkinsServerFactory;
+    private JenkinsBuildMonitor jenkinsBuildMonitor;
 
     JenkinsBuildDriver() {}
 
     @Inject
-    JenkinsBuildDriver(JenkinsServerFactory jenkinsServerFactory, JenkinsBuildMonitor jenkinsBuildMonitor) { //TODO
+    JenkinsBuildDriver(JenkinsServerFactory jenkinsServerFactory, JenkinsBuildMonitor jenkinsBuildMonitor) {
         this.jenkinsServerFactory = jenkinsServerFactory;
         this.jenkinsBuildMonitor = jenkinsBuildMonitor;
-
-        BlockingQueue<Runnable> workQueue = new LinkedBlockingQueue<Runnable>();
-        //Jenkins IO thread pool
-        executor = new ThreadPoolExecutor(4, 4, 1, TimeUnit.HOURS, workQueue); //TODO configurable
-
-        //TODO executor shutdown
-        //TODO jenkinsBuildMonitor shutdown
-
     }
 
     @Override

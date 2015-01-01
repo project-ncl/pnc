@@ -10,7 +10,7 @@ import org.jboss.logging.Logger;
  */
 public class Lifecycle {
 
-    Logger log = Logger.getLogger(Lifecycle.class);
+    public static final Logger log = Logger.getLogger(Lifecycle.class);
 
     public Lifecycle() {
     }

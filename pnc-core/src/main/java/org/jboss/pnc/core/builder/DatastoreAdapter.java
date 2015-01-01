@@ -34,14 +34,14 @@ public class DatastoreAdapter {
             buildResult.setBuildLog(completedBuild.getBuildLog());
             buildResult.setStatus(completedBuild.getBuildDriverStatus());
             buildResult.setProjectBuildConfiguration(projectBuildConfiguration);
-            log.tracef("Storing results of pbcIdentifier: %s to datastore.", projectBuildConfiguration.getIdentifier());
+            log.debugf("Storing results of %s to datastore.", projectBuildConfiguration.getIdentifier());
             datastore.storeCompletedBuild(buildResult);
         } catch (Exception e) {
             throw new DatastoreException("Error storing the result to datastore.", e);
         }
     }
 
-    public void storeResult(SubmittedBuild submittedBuild, Throwable e) throws DatastoreException{
+    public void storeResult(SubmittedBuild submittedBuild, Throwable e) throws DatastoreException {
         ProjectBuildConfiguration projectBuildConfiguration = submittedBuild.getProjectBuildConfiguration();
 
         ProjectBuildResult buildResult = new ProjectBuildResult();
@@ -50,7 +50,7 @@ public class DatastoreAdapter {
         e.printStackTrace(printWriter);
         buildResult.setStatus(BuildDriverStatus.UNKNOWN); //TODO set error status
         buildResult.setBuildLog(stackTraceWriter.toString());
-        log.tracef("Storing ERROR result of %s to datastore. Error: %s", projectBuildConfiguration.getIdentifier(), stackTraceWriter.toString());
+        log.debugf("Storing ERROR result of %s to datastore. Error: %s", projectBuildConfiguration.getIdentifier(), stackTraceWriter.toString());
         datastore.storeCompletedBuild(buildResult);
     }
 }
