@@ -30,7 +30,7 @@ public class BuildDriverMock implements BuildDriver {
     public RunningBuild startProjectBuild(ProjectBuildConfiguration projectBuildConfiguration, RepositoryConfiguration repositoryConfiguration) throws BuildDriverException {
         try {
             log.debug("Building " + projectBuildConfiguration);
-            Thread.sleep(500);
+            Thread.sleep(250);
             return new RunningBuild() {
                 @Override
                 public void monitor(Consumer<CompletedBuild> onComplete, Consumer<Exception> onError) {

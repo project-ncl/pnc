@@ -102,7 +102,8 @@ public class BuildProjectsTest {
     @Test
     @InSequence(10)
     public void buildMultipleProjectsTestCase() throws Exception {
-
+        log.info("Start multiple projects build test.");
+        long startTime = System.currentTimeMillis();
         BuildCollection buildCollection = new TestBuildCollectionBuilder().build("foo", "Foo desc.", "1.0");
         TestProjectConfigurationBuilder configurationBuilder = new TestProjectConfigurationBuilder();
 
@@ -143,6 +144,7 @@ public class BuildProjectsTest {
         Assert.assertTrue("Build has no status.", submittedBuild.getStatus() != null);
 
         threads.forEach(waitToComplete);
+        log.info("Completed multiple projects build test in " + (System.currentTimeMillis() - startTime) + "ms.");
     }
 
     @Test
@@ -167,15 +169,15 @@ public class BuildProjectsTest {
         Consumer<BuildStatus> onStatusUpdate = (newStatus) -> {
             receivedStatuses.add(newStatus);
             semaphore.release(1);
-            log.fine("Received status update " + newStatus.toString());
+            log.fine("Received status update " + newStatus.toString() + " for project " + projectBuildConfiguration.getIdentifier());
             log.finer("Semaphore released, there are " + semaphore.availablePermits() + " free entries.");
         };
         Set<Consumer<BuildStatus>> statusUpdateListeners = new HashSet<>();
         statusUpdateListeners.add(onStatusUpdate);
         semaphore.acquire(nStatusUpdates);
         SubmittedBuild submittedBuild = buildCoordinator.build(projectBuildConfiguration, statusUpdateListeners, new HashSet<Consumer<String>>());
-        submittedBuild.registerStatusUpdateListener(onStatusUpdate);
-        if (!semaphore.tryAcquire(nStatusUpdates, 30, TimeUnit.SECONDS)) { //wait for callback to release
+        log.fine("Build " + submittedBuild.getIdentifier() + " has been submitted.");
+        if (!semaphore.tryAcquire(nStatusUpdates, 5, TimeUnit.SECONDS)) { //wait for callback to release
             throw new AssertionError("Timeout while waiting for status updates.");
         }
 

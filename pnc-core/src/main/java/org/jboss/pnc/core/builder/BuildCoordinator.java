@@ -45,7 +45,7 @@ public class BuildCoordinator {
 
 //    @Resource
 //    private ManagedThreadFactory threadFactory;
-    Executor executor = Executors.newFixedThreadPool(4);
+    Executor executor = Executors.newFixedThreadPool(10);
 
     RepositoryManagerFactory repositoryManagerFactory;
     BuildDriverFactory buildDriverFactory;
@@ -100,7 +100,7 @@ public class BuildCoordinator {
             } catch (RepositoryManagerException e) {
                 throw new CoreExceptionWrapper(e);
             }
-        });
+        }, executor);
     }
 
     private CompletableFuture<RunningBuild> buildSetUp(SubmittedBuild submittedBuild, BuildDriver buildDriver, RepositoryConfiguration repositoryConfiguration) {
@@ -112,7 +112,7 @@ public class BuildCoordinator {
             } catch (BuildDriverException e) {
                 throw new CoreExceptionWrapper(e);
             }
-        });
+        }, executor);
     }
 
     private CompletableFuture<CompletedBuild> waitBuildToComplete(SubmittedBuild submittedBuild, RunningBuild runningBuild) {
@@ -142,7 +142,7 @@ public class BuildCoordinator {
             } catch (BuildDriverException e) {
                 throw new CoreExceptionWrapper(e);
             }
-        });
+        }, executor);
     }
 
     private CompletableFuture<Boolean> storeResults(SubmittedBuild submittedBuild, BuildResult buildResult, Throwable e) {
@@ -177,7 +177,7 @@ public class BuildCoordinator {
                 submittedBuilds.remove(submittedBuild);
                 return completedOk;
             }
-        });
+        }, executor);
     }
 
     public List<SubmittedBuild> getSubmittedBuilds() {
