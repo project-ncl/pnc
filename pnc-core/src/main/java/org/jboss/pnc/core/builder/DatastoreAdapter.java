@@ -50,7 +50,7 @@ public class DatastoreAdapter {
         e.printStackTrace(printWriter);
         buildResult.setStatus(BuildDriverStatus.UNKNOWN); //TODO set error status
         buildResult.setBuildLog(stackTraceWriter.toString());
-        log.tracef("Storing ERROR results of pbcIdentifier: %s to datastore.", projectBuildConfiguration.getIdentifier());
+        log.tracef("Storing ERROR result of %s to datastore. Error: %s", projectBuildConfiguration.getIdentifier(), stackTraceWriter.toString());
         datastore.storeCompletedBuild(buildResult);
     }
 }

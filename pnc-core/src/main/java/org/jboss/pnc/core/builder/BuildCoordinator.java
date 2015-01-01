@@ -7,6 +7,8 @@ import org.jboss.pnc.core.exception.CoreException;
 import org.jboss.pnc.core.exception.CoreExceptionWrapper;
 import org.jboss.pnc.model.BuildCollection;
 import org.jboss.pnc.model.BuildDriverStatus;
+import org.jboss.pnc.model.Product;
+import org.jboss.pnc.model.ProductVersion;
 import org.jboss.pnc.model.ProjectBuildConfiguration;
 import org.jboss.pnc.model.RepositoryType;
 import org.jboss.pnc.spi.BuildStatus;
@@ -96,7 +98,17 @@ public class BuildCoordinator {
             submittedBuild.setStatus(BuildStatus.REPO_SETTING_UP);
             ProjectBuildConfiguration projectBuildConfiguration = submittedBuild.getProjectBuildConfiguration();
             try {
-                return repositoryManager.createRepository(submittedBuild.getProjectBuildConfiguration(), (BuildCollection) null);
+
+                //TODO remove buildCollection mock
+                BuildCollection buildCollection = new BuildCollection();
+                ProductVersion productVersion = new ProductVersion();
+                productVersion.setVersion("my-product-version");
+                Product product = new Product();
+                product.setName("my-product");
+                productVersion.setProduct(product);
+                buildCollection.setProductVersion(productVersion);
+
+                return repositoryManager.createRepository(projectBuildConfiguration, buildCollection);
             } catch (RepositoryManagerException e) {
                 throw new CoreExceptionWrapper(e);
             }
