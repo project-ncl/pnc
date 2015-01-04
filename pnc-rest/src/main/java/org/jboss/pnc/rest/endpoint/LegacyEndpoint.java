@@ -54,7 +54,7 @@ public class LegacyEndpoint {
             @ApiParam(value = "Project's Configuration id", required = true) @PathParam("id") Integer id,
             @Context UriInfo uriInfo) {
         try {
-            String runningBuildId = buildTriggerer.triggerBuilds(id);
+            Integer runningBuildId = buildTriggerer.triggerBuilds(id);
             UriBuilder uriBuilder = UriBuilder.fromUri(uriInfo.getBaseUri()).path("/result/running/{id}");
             URI uri = uriBuilder.build(runningBuildId);
             return Response.created(uri).entity(uri).build();

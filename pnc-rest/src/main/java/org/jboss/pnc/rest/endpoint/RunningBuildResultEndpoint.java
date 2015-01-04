@@ -43,7 +43,7 @@ public class RunningBuildResultEndpoint {
     @GET
     @Path("/{id}")
     public BuildResultRest getSpecific(
-            @ApiParam(value = "BuildResult id", required = true) @PathParam("id") String id) {
+            @ApiParam(value = "BuildResult id", required = true) @PathParam("id") Integer id) {
         return buildResultProvider.getSpecificRunning(id);
     }
 
@@ -51,7 +51,7 @@ public class RunningBuildResultEndpoint {
     @GET
     @Path("/{id}/log")
     public Response getLogs(
-            @ApiParam(value = "BuildResult id", required = true) @PathParam("id") String id) {
+            @ApiParam(value = "BuildResult id", required = true) @PathParam("id") Integer id) {
         return Response.ok(buildResultProvider.getLogsForRunningBuildId(id)).build();
     }
 }

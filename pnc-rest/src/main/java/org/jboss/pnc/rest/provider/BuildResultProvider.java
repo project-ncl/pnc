@@ -62,7 +62,7 @@ public class BuildResultProvider {
         return null;
     }
 
-    public BuildResultRest getSpecificRunning(String id) {
+    public BuildResultRest getSpecificRunning(Integer id) {
         SubmittedBuild submittedBuild = getSubmittedBuild(id);
         if(submittedBuild != null) {
             return new BuildResultRest(submittedBuild);
@@ -70,9 +70,9 @@ public class BuildResultProvider {
         return null;
     }
 
-    private SubmittedBuild getSubmittedBuild(String id) {
+    private SubmittedBuild getSubmittedBuild(Integer id) {
         List<SubmittedBuild> submittedBuilds = buildCoordinator.getSubmittedBuilds().stream()
-                    .filter(submittedBuild -> id.equals(submittedBuild.getIdentifier()))
+                    .filter(submittedBuild -> id.equals(submittedBuild.getProjectBuildConfiguration().getId()))
                     .collect(Collectors.toList());
         if(!submittedBuilds.isEmpty()) {
             return submittedBuilds.iterator().next();
@@ -80,7 +80,7 @@ public class BuildResultProvider {
         return null;
     }
 
-    public StreamingOutput getLogsForRunningBuildId(String id) {
+    public StreamingOutput getLogsForRunningBuildId(Integer id) {
         SubmittedBuild submittedBuild = getSubmittedBuild(id);
         if(submittedBuild != null) {
             return outputStream -> {

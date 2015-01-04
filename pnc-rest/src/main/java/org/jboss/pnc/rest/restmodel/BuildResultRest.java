@@ -13,7 +13,7 @@ import static org.jboss.pnc.rest.provider.Utility.performIfNotNull;
 @XmlRootElement(name = "BuildResult")
 public class BuildResultRest {
 
-    private String id;
+    private Integer id;
 
     private Timestamp startTime;
 
@@ -39,7 +39,7 @@ public class BuildResultRest {
     }
 
     public BuildResultRest(ProjectBuildResult buildResult) {
-        this.id = buildResult.getId() + ""; //FIXME
+        this.id = buildResult.getId();
         this.buildScript = buildResult.getBuildScript();
         this.startTime = buildResult.getStartTime();
         this.endTime = buildResult.getEndTime();
@@ -53,7 +53,7 @@ public class BuildResultRest {
     }
 
     public BuildResultRest(SubmittedBuild submittedBuild) {
-        this.id = submittedBuild.getIdentifier();
+        this.id = submittedBuild.getProjectBuildConfiguration().getId();
         ProjectBuildConfiguration projectBuildConfiguration = submittedBuild.getProjectBuildConfiguration();
         this.buildScript = projectBuildConfiguration.getBuildScript();
         this.startTime = projectBuildConfiguration.getCreationTime();
@@ -66,11 +66,11 @@ public class BuildResultRest {
         this.status = BuildDriverStatus.BUILDING;
     }
 
-    public String getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
