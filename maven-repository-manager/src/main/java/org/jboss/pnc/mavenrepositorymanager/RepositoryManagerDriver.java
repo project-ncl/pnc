@@ -30,6 +30,10 @@ public class RepositoryManagerDriver implements RepositoryManager {
 
     private Configuration configuration;
 
+    @Deprecated
+    public RepositoryManagerDriver() { //workaround for CDI constructor parameter injection bug
+    }
+
     @Inject
     public RepositoryManagerDriver(Configuration configuration) {
         this.configuration = configuration;
