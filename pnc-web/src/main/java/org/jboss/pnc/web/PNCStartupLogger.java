@@ -1,7 +1,6 @@
 package org.jboss.pnc.web;
 
 
-import javax.inject.Inject;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 import javax.servlet.annotation.WebListener;
@@ -15,8 +14,7 @@ import java.util.logging.Logger;
 @WebListener
 public class PNCStartupLogger implements ServletContextListener {
 
-    @Inject
-    Logger log;
+    public static final Logger log = Logger.getLogger(PNCStartupLogger.class.getName());
 
     @Override
     public void contextInitialized(ServletContextEvent event) {

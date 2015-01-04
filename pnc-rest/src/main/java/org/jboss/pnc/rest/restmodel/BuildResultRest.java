@@ -1,7 +1,7 @@
 package org.jboss.pnc.rest.restmodel;
 
-import org.jboss.pnc.core.builder.BuildTask;
-import org.jboss.pnc.model.BuildStatus;
+import org.jboss.pnc.core.builder.SubmittedBuild;
+import org.jboss.pnc.model.BuildDriverStatus;
 import org.jboss.pnc.model.ProjectBuildConfiguration;
 import org.jboss.pnc.model.ProjectBuildResult;
 
@@ -25,7 +25,7 @@ public class BuildResultRest {
 
     private String patchesUrl;
 
-    private BuildStatus status;
+    private BuildDriverStatus status;
 
     private Integer projectBuildConfigurationId;
 
@@ -52,18 +52,18 @@ public class BuildResultRest {
         this.buildDriverId = buildResult.getBuildDriverId();
     }
 
-    public BuildResultRest(BuildTask runningBuild) {
-        this.id = runningBuild.getId();
-        ProjectBuildConfiguration projectBuildConfiguration = runningBuild.getBuildJobConfiguration().getProjectBuildConfiguration();
+    public BuildResultRest(SubmittedBuild submittedBuild) {
+        this.id = submittedBuild.getProjectBuildConfiguration().getId();
+        ProjectBuildConfiguration projectBuildConfiguration = submittedBuild.getProjectBuildConfiguration();
         this.buildScript = projectBuildConfiguration.getBuildScript();
         this.startTime = projectBuildConfiguration.getCreationTime();
         performIfNotNull(
-                runningBuild.getBuildJobConfiguration() != null &&
+                submittedBuild.getProjectBuildConfiguration() != null &&
                         projectBuildConfiguration != null,
                 () -> projectBuildConfigurationId = projectBuildConfiguration.getId());
         this.sourceUrl = projectBuildConfiguration.getScmUrl();
         this.patchesUrl = projectBuildConfiguration.getPatchesUrl();
-        this.status = BuildStatus.BUILDING;
+        this.status = BuildDriverStatus.BUILDING;
     }
 
     public Integer getId() {
@@ -114,11 +114,11 @@ public class BuildResultRest {
         this.patchesUrl = patchesUrl;
     }
 
-    public BuildStatus getStatus() {
+    public BuildDriverStatus getStatus() {
         return status;
     }
 
-    public void setStatus(BuildStatus status) {
+    public void setStatus(BuildDriverStatus status) {
         this.status = status;
     }
 

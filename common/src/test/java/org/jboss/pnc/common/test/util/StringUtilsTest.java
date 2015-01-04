@@ -5,7 +5,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 /**
- * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-12-08.
+ * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2015-01-01.
  */
 public class StringUtilsTest {
 

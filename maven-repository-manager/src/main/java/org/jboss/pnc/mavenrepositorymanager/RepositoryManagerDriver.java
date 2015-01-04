@@ -1,19 +1,17 @@
 package org.jboss.pnc.mavenrepositorymanager;
 
 import org.jboss.pnc.common.Configuration;
-import org.jboss.pnc.model.*;
+import org.jboss.pnc.model.BuildCollection;
+import org.jboss.pnc.model.ProductVersion;
+import org.jboss.pnc.model.ProjectBuildConfiguration;
+import org.jboss.pnc.model.ProjectBuildResult;
+import org.jboss.pnc.model.RepositoryType;
 import org.jboss.pnc.spi.repositorymanager.RepositoryConfiguration;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManager;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import java.util.Properties;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
-import java.util.function.Consumer;
 
 /**
  * Implementation of {@link RepositoryManager} that manages an <a href="https://github.com/jdcasey/aprox">AProx</a> instance to
@@ -30,18 +28,14 @@ public class RepositoryManagerDriver implements RepositoryManager {
 
     private static final String REPO_ID_FORMAT = "build+%s+%s+%s+%s";
 
-    @Inject
-    Configuration configuration;
+    private Configuration configuration;
 
-    ExecutorService executor;
-
-    public RepositoryManagerDriver() {
-        BlockingQueue<Runnable> workQueue = new LinkedBlockingQueue<>();
-        executor = new ThreadPoolExecutor(4, 4, 1, TimeUnit.HOURS, workQueue);//TODO configurable
+    @Deprecated
+    public RepositoryManagerDriver() { //workaround for CDI constructor parameter injection bug
     }
 
+    @Inject
     public RepositoryManagerDriver(Configuration configuration) {
-        this();
         this.configuration = configuration;
     }
 
@@ -61,36 +55,25 @@ public class RepositoryManagerDriver implements RepositoryManager {
      * this back via a {@link MavenRepositoryConfiguration} instance.
      */
     @Override
-    public void createRepository(ProjectBuildConfiguration projectBuildConfiguration,
-            BuildCollection buildCollection,
-            Consumer<RepositoryConfiguration> onComplete, Consumer<Exception> onError) {
+    public RepositoryConfiguration createRepository(ProjectBuildConfiguration projectBuildConfiguration, BuildCollection buildCollection) {
+        ProductVersion pv = buildCollection.getProductVersion();
         // TODO Better way to generate id.
+        String id = String.format(REPO_ID_FORMAT, pv.getProduct().getName(), pv.getVersion(),
+                safeUrlPart(projectBuildConfiguration.getProject().getName()), System.currentTimeMillis());
 
-        try {
-            Runnable command = () -> {
-                ProductVersion pv = buildCollection.getProductVersion();
-        
-                String id = String.format(REPO_ID_FORMAT, pv.getProduct().getName(), pv.getVersion(),
-                        safeUrlPart(projectBuildConfiguration.getProject().getName()), System.currentTimeMillis());
-        
-                Properties properties = configuration.getModuleConfig(MAVEN_REPOSITORY_CONFIG_SECTION);
-                String baseUrl = properties.getProperty(BASE_URL_PROPERTY);
-        
-                String url = buildUrl(baseUrl, "api", "group", id);
+        Properties properties = configuration.getModuleConfig(MAVEN_REPOSITORY_CONFIG_SECTION);
+        String baseUrl = properties.getProperty(BASE_URL_PROPERTY);
 
-                onComplete.accept(new MavenRepositoryConfiguration(id, new MavenRepositoryConnectionInfo(url)));
-            };
-            executor.execute(command);
-        } catch (Exception e) {
-            onError.accept(e);
-        }
+        String url = buildUrl(baseUrl, "api", "group", id);
+
+        return new MavenRepositoryConfiguration(id, new MavenRepositoryConnectionInfo(url));
     }
 
     private String buildUrl(String baseUrl, String api, String group, String id) {
         return String.format("%s%s/%s/%s", baseUrl, api, group, id);
     }
 
-    @Override
+    @Override //TODO move under returned object (do not use the one from model) form createRepo
     public void persistArtifacts(RepositoryConfiguration repository, ProjectBuildResult buildResult) {
         // TODO Listing/sifting of imports, promotion of output artifacts to build result
     }

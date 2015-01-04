@@ -67,7 +67,7 @@ public class BuildResultsTest {
 
         ProjectBuildResult projectBuildResult = new ProjectBuildResult();
         projectBuildResult.setBuildLog("test");
-        projectBuildResult.setStatus(BuildStatus.SUCCESS);
+        projectBuildResult.setStatus(BuildDriverStatus.SUCCESS);
         projectBuildResult.setProjectBuildConfiguration(projectBuildConfiguration);
 
         artifact.setProjectBuildResult(projectBuildResult);

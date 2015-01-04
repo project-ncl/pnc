@@ -6,7 +6,7 @@ import org.jboss.arquillian.transaction.api.annotation.TransactionMode;
 import org.jboss.arquillian.transaction.api.annotation.Transactional;
 import org.jboss.pnc.datastore.repositories.ProjectBuildResultRepository;
 import org.jboss.pnc.integration.deployments.Deployments;
-import org.jboss.pnc.model.BuildStatus;
+import org.jboss.pnc.model.BuildDriverStatus;
 import org.jboss.pnc.model.ProjectBuildResult;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
@@ -44,7 +44,7 @@ public class DatastoreTest {
     public void shouldStoreResults() {
         //given
         ProjectBuildResult objectToBeStored = new ProjectBuildResult();
-        objectToBeStored.setStatus(BuildStatus.CANCELLED);
+        objectToBeStored.setStatus(BuildDriverStatus.CANCELLED);
 
         //when
         projectBuildResultRepository.save(objectToBeStored);

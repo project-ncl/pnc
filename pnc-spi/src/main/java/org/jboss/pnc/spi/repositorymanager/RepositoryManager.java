@@ -5,8 +5,6 @@ import org.jboss.pnc.model.ProjectBuildConfiguration;
 import org.jboss.pnc.model.ProjectBuildResult;
 import org.jboss.pnc.model.RepositoryType;
 
-import java.util.function.Consumer;
-
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-11-23.
  */
@@ -20,8 +18,7 @@ public interface RepositoryManager {
      * 
      * @param buildCollection Used to determine which in-progress product repository should be used.
      */
-    public void createRepository(ProjectBuildConfiguration projectBuildConfiguration, BuildCollection buildCollection,
-                                 Consumer<RepositoryConfiguration> onComplete, Consumer<Exception> onError);
+    public RepositoryConfiguration createRepository(ProjectBuildConfiguration projectBuildConfiguration, BuildCollection buildCollection) throws RepositoryManagerException;
 
     boolean canManage(RepositoryType managerType);
 

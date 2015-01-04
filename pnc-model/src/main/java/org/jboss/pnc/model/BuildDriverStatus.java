@@ -1,9 +1,11 @@
 package org.jboss.pnc.model;
 
 /**
+ * List of Jenkins job statuses.
+ *
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-11-23.
  */
-public enum BuildStatus { //TODO clean up
+public enum BuildDriverStatus {
     SUCCESS,
     FAILED, 
     UNSTABLE, 

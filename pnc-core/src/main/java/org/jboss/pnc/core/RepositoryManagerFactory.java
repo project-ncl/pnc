@@ -1,13 +1,12 @@
 package org.jboss.pnc.core;
 
 import org.jboss.pnc.core.exception.CoreException;
-import org.jboss.pnc.spi.repositorymanager.RepositoryManager;
 import org.jboss.pnc.model.RepositoryType;
+import org.jboss.pnc.spi.repositorymanager.RepositoryManager;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
-import java.util.logging.Logger;
 
 
 /**
@@ -18,9 +17,6 @@ public class RepositoryManagerFactory {
 
     @Inject
     Instance<RepositoryManager> availableManagers;
-
-    @Inject
-    private Logger log;
 
     public RepositoryManager getRepositoryManager(RepositoryType managerType) throws CoreException {
 
