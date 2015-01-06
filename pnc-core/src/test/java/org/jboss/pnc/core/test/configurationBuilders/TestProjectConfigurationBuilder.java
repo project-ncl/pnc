@@ -30,17 +30,17 @@ public class TestProjectConfigurationBuilder {
         return projectBuildConfiguration1;
     }
 
-    public ProjectBuildConfiguration buildConfigurationWithDependency() {
+    public ProjectBuildConfiguration buildConfigurationWithDependencies() {
         ProjectBuildConfiguration projectBuildConfiguration1 = build(1, "with-dependencies-1");
         ProjectBuildConfiguration projectBuildConfiguration2 = build(2, "with-dependencies-2");
         ProjectBuildConfiguration projectBuildConfiguration3 = build(3, "with-dependencies-3");
         ProjectBuildConfiguration projectBuildConfiguration4 = build(4, "with-dependencies-4");
         ProjectBuildConfiguration projectBuildConfiguration5 = build(5, "with-dependencies-5");
 
-        projectBuildConfiguration3.addDependency(projectBuildConfiguration2);
-        projectBuildConfiguration4.addDependency(projectBuildConfiguration3);
-        projectBuildConfiguration5.addDependency(projectBuildConfiguration1);
-        projectBuildConfiguration5.addDependency(projectBuildConfiguration4);
+        projectBuildConfiguration1.addDependency(projectBuildConfiguration2);
+        projectBuildConfiguration2.addDependency(projectBuildConfiguration3);
+        projectBuildConfiguration2.addDependency(projectBuildConfiguration4);
+        projectBuildConfiguration4.addDependency(projectBuildConfiguration5);
 
         return projectBuildConfiguration1;
     }

@@ -23,11 +23,11 @@ public class BuildTasksTree {
 
     BuildCoordinator buildCoordinator;
 
-    BuildTasksTree(BuildCoordinator buildCoordinator) {
+    public BuildTasksTree(BuildCoordinator buildCoordinator) {
         this.buildCoordinator = buildCoordinator;
     }
 
-    BuildTask getOrCreateSubmittedBuild(ProjectBuildConfiguration projectBuildConfiguration) {
+    public BuildTask getOrCreateSubmittedBuild(ProjectBuildConfiguration projectBuildConfiguration) {
         return getOrCreateSubmittedBuild(projectBuildConfiguration, Collections.emptySet(), Collections.emptySet());
     }
 

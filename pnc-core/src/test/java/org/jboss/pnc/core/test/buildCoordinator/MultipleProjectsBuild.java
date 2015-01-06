@@ -77,9 +77,9 @@ public class MultipleProjectsBuild extends ProjectBuilder {
 
     @Test
     @InSequence(20)
-    public void checkDatabaseForResult() {
+    public void checkDatabaseForResult() {  //TODO datastore task is waiting all build to complete see BuildCoordinator::startBuilding
         List<ProjectBuildResult> buildResults = datastore.getBuildResults();
-        Assert.assertTrue("Missing datastore results.", buildResults.size() == 100);
+        Assert.assertEquals("Wrong datastore results count.", 100, buildResults.size());
 
         ProjectBuildResult projectBuildResult = buildResults.get(0);
         String buildLog = projectBuildResult.getBuildLog();
