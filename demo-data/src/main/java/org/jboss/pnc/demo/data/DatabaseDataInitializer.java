@@ -128,18 +128,20 @@ public class DatabaseDataInitializer {
                     .productVersion(productVersion).build();
             ProjectBuildConfiguration projectBuildConfiguration = ProjectBuildConfigurationBuilder.newBuilder()
                     .buildScript("mvn clean deploy -Dmaven.test.skip").environment(EnvironmentBuilder.defaultEnvironment().build())
-                    .identifier(PNC_PROJECT_BUILD_CFG_ID).productVersion(productVersion).project(project)
+                    .id(1).identifier(PNC_PROJECT_BUILD_CFG_ID).productVersion(productVersion).project(project)
                     .scmUrl("https://github.com/project-ncl/pnc.git").build();
 
             // Additional configurations
             ProjectBuildConfiguration projectBuildConfiguration2 = ProjectBuildConfigurationBuilder.newBuilder()
                     .buildScript("mvn clean deploy -Dmaven.test.skip").environment(EnvironmentBuilder.defaultEnvironment().build())
-                    .identifier("jboss-modules-1.5.0").productVersion(productVersion).project(project)
+                    .id(2).identifier("jboss-modules-1.5.0").productVersion(productVersion).project(project)
                     .scmUrl("https://github.com/jboss-modules/jboss-modules.git").build();
             ProjectBuildConfiguration projectBuildConfiguration3 = ProjectBuildConfigurationBuilder.newBuilder()
                     .buildScript("mvn clean deploy -Dmaven.test.skip").environment(EnvironmentBuilder.defaultEnvironment().build())
-                    .identifier("jboss-servlet-spec-api-1.0.1").productVersion(productVersion).project(project)
-                    .scmUrl("https://github.com/jboss/jboss-servlet-api_spec.git").build();
+                    .id(3).identifier("jboss-servlet-spec-api-1.0.1").productVersion(productVersion).project(project)
+                    .scmUrl("https://github.com/jboss/jboss-servlet-api_spec.git")
+                    .dependency(projectBuildConfiguration2)
+                    .build();
 
             projectRepository.save(project);
             productRepository.save(product);
