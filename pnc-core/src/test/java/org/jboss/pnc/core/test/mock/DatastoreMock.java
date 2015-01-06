@@ -5,6 +5,7 @@ import org.jboss.pnc.spi.datastore.Datastore;
 
 import javax.enterprise.context.ApplicationScoped;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -16,14 +17,12 @@ public class DatastoreMock implements Datastore {
 
     private Logger log = Logger.getLogger(DatastoreMock.class.getName());
 
-    private List<ProjectBuildResult> buildResults = new ArrayList<>();
+    private List<ProjectBuildResult> buildResults = Collections.synchronizedList(new ArrayList<ProjectBuildResult>());
 
     @Override
     public void storeCompletedBuild(ProjectBuildResult buildResult) {
         log.info("Storing build " + buildResult.getProjectBuildConfiguration());
-        synchronized (this) {
-            buildResults.add(buildResult);
-        }
+        buildResults.add(buildResult);
     }
 
     public List<ProjectBuildResult> getBuildResults() {
