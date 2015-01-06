@@ -26,9 +26,9 @@ public class DatastoreAdapter {
         this.datastore = datastore;
     }
 
-    public void storeResult(SubmittedBuild submittedBuild, BuildResult completedBuild) throws DatastoreException {
+    public void storeResult(BuildTask buildTask, BuildResult completedBuild) throws DatastoreException {
         try {
-            ProjectBuildConfiguration projectBuildConfiguration = submittedBuild.getProjectBuildConfiguration();
+            ProjectBuildConfiguration projectBuildConfiguration = buildTask.getProjectBuildConfiguration();
 
             ProjectBuildResult buildResult = new ProjectBuildResult();
             buildResult.setBuildLog(completedBuild.getBuildLog());
@@ -41,8 +41,8 @@ public class DatastoreAdapter {
         }
     }
 
-    public void storeResult(SubmittedBuild submittedBuild, Throwable e) throws DatastoreException {
-        ProjectBuildConfiguration projectBuildConfiguration = submittedBuild.getProjectBuildConfiguration();
+    public void storeResult(BuildTask buildTask, Throwable e) throws DatastoreException {
+        ProjectBuildConfiguration projectBuildConfiguration = buildTask.getProjectBuildConfiguration();
 
         ProjectBuildResult buildResult = new ProjectBuildResult();
         StringWriter stackTraceWriter = new StringWriter();
@@ -52,5 +52,9 @@ public class DatastoreAdapter {
         buildResult.setBuildLog(stackTraceWriter.toString());
         log.debugf("Storing ERROR result of %s to datastore. Error: %s", projectBuildConfiguration.getIdentifier(), stackTraceWriter.toString());
         datastore.storeCompletedBuild(buildResult);
+    }
+
+    public boolean isProjectBuildConfigurationBuilt() {
+        return false; //TODO
     }
 }

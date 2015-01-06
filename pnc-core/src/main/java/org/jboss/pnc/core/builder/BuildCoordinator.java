@@ -21,9 +21,13 @@ import org.jboss.pnc.spi.datastore.DatastoreException;
 import org.jboss.pnc.spi.repositorymanager.RepositoryConfiguration;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManager;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerException;
+import org.jboss.util.graph.Edge;
+import org.jboss.util.graph.Vertex;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Queue;
@@ -34,16 +38,18 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /**
+ *
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-12-20.
  */
 @ApplicationScoped
 public class BuildCoordinator {
 
     private Logger log = Logger.getLogger(BuildCoordinator.class);
-    private Queue<SubmittedBuild> submittedBuilds = new ConcurrentLinkedQueue();
+    private Queue<BuildTask> buildTasks = new ConcurrentLinkedQueue(); //TODO garbage collector (time-out, error state)
 
 //    @Resource
 //    private ManagedThreadFactory threadFactory;
@@ -54,7 +60,7 @@ public class BuildCoordinator {
     private DatastoreAdapter datastoreAdapter;
 
     @Deprecated
-    public BuildCoordinator(){}
+    public BuildCoordinator(){} //workaround for CDI constructor parameter injection
 
     @Inject
     public BuildCoordinator(BuildDriverFactory buildDriverFactory, RepositoryManagerFactory repositoryManagerFactory, DatastoreAdapter datastoreAdapter) {
@@ -63,41 +69,91 @@ public class BuildCoordinator {
         this.datastoreAdapter = datastoreAdapter;
     }
 
-    public SubmittedBuild build(ProjectBuildConfiguration projectBuildConfiguration) throws CoreException {
-        SubmittedBuild submittedBuild = new SubmittedBuild(projectBuildConfiguration);
-        return prepareBuild(submittedBuild);
+    public BuildTask build(ProjectBuildConfiguration projectBuildConfiguration) throws CoreException {
+        return build(projectBuildConfiguration, Collections.emptySet(), Collections.emptySet());
     }
 
-    public SubmittedBuild build(ProjectBuildConfiguration projectBuildConfiguration, Set<Consumer<BuildStatus>> statusUpdateListeners, Set<Consumer<String>> logConsumers) throws CoreException {
-        SubmittedBuild submittedBuild = new SubmittedBuild(projectBuildConfiguration, statusUpdateListeners, logConsumers);
-        return prepareBuild(submittedBuild);
-    }
+    public BuildTask build(ProjectBuildConfiguration projectBuildConfiguration, Set<Consumer<BuildStatus>> statusUpdateListeners, Set<Consumer<String>> logConsumers) throws CoreException {
+        BuildTasksTree buildTasksTree = new BuildTasksTree(this);
 
-    private SubmittedBuild prepareBuild(SubmittedBuild submittedBuild) throws CoreException {
-        if (!isBuildingAlreadySubmitted(submittedBuild)) {
-            submittedBuilds.add(submittedBuild);
-            submit(submittedBuild);
+        BuildTask buildTask = buildTasksTree.getOrCreateSubmittedBuild(projectBuildConfiguration, statusUpdateListeners, logConsumers);
+
+        if (!isBuildAlreadySubmitted(buildTask)) {
+
+            Edge<BuildTask>[] cycles = buildTasksTree.findCycles();
+            if (cycles.length > 0) {
+                buildTask.setStatus(BuildStatus.REJECTED);
+                buildTask.setStatusDescription("Cycle dependencies found."); //TODO add edges to description
+            }
+
+            Predicate<Vertex<BuildTask>> acceptOnly = (vertex) -> {
+                BuildTask build = vertex.getData();
+                List<BuildStatus> buildStatuses = Arrays.asList(BuildStatus.NEW, BuildStatus.WAITING_FOR_DEPENDENCIES);
+                return buildStatuses.contains(build.getStatus());
+            };
+
+            buildTasksTree.getSubmittedBuilds().stream().filter(acceptOnly)
+                    .forEach(processBuildTask());
         } else {
-            submittedBuild.setStatus(BuildStatus.REJECTED);
+            buildTask.setStatus(BuildStatus.REJECTED);
+            buildTask.setStatusDescription("The configuration is already in the build queue.");
         }
-        return submittedBuild;
+        return buildTask;
     }
 
-    private void submit(SubmittedBuild submittedBuild) throws CoreException {
+    private Consumer<Vertex<BuildTask>> processBuildTask() {
+        return (vertex) -> {
+            BuildTask buildTask = vertex.getData();
+            List<BuildTask> missingDependencies = findDirectMissingDependencies(vertex);
+            missingDependencies.forEach((missingDependency) -> missingDependency.addWaiting(buildTask));
+            if (missingDependencies.size() == 0) {
+                try {
+                    startBuilding(buildTask);
+                    buildTasks.add(buildTask);
+                } catch (CoreException e) {
+                    buildTask.setStatus(BuildStatus.SYSTEM_ERROR);
+                    buildTask.setStatusDescription(e.getMessage());
+                }
+            } else {
+                buildTask.setStatus(BuildStatus.WAITING_FOR_DEPENDENCIES);
+                buildTask.setRequiredBuilds(missingDependencies);
+                buildTasks.add(buildTask);
+            }
+        };
+    }
+
+    private List<BuildTask> findDirectMissingDependencies(Vertex<BuildTask> vertex) {
+        List<BuildTask> missingDependencies = new ArrayList<>();
+        List<Edge<BuildTask>> outgoingEdges = vertex.getOutgoingEdges();
+        for (Edge<BuildTask> outgoingEdge : outgoingEdges) {
+            Vertex<BuildTask> dependentVertex = outgoingEdge.getTo();
+            BuildTask dependentBuildTask = dependentVertex.getData();
+            if (!isConfigurationBuilt(dependentBuildTask.projectBuildConfiguration)) {
+                missingDependencies.add(dependentBuildTask);
+            }
+        }
+        return missingDependencies;
+    }
+
+    private boolean isConfigurationBuilt(ProjectBuildConfiguration buildConfiguration) {
+        return datastoreAdapter.isProjectBuildConfigurationBuilt();
+    }
+
+    void startBuilding(BuildTask buildTask) throws CoreException {
         RepositoryManager repositoryManager = repositoryManagerFactory.getRepositoryManager(RepositoryType.MAVEN);
-        BuildDriver buildDriver = buildDriverFactory.getBuildDriver(submittedBuild.getProjectBuildConfiguration().getEnvironment().getBuildType());
+        BuildDriver buildDriver = buildDriverFactory.getBuildDriver(buildTask.getProjectBuildConfiguration().getEnvironment().getBuildType());
 
-        configureRepository(submittedBuild, repositoryManager)
-                .thenCompose(repositoryConfiguration -> buildSetUp(submittedBuild, buildDriver, repositoryConfiguration))
-                .thenCompose(runningBuild -> waitBuildToComplete(submittedBuild, runningBuild))
-                .thenCompose(completedBuild -> retrieveBuildResults(submittedBuild, completedBuild))
-                .handle((buildResults, e) -> storeResults(submittedBuild, buildResults, e));
+        configureRepository(buildTask, repositoryManager)
+                .thenCompose(repositoryConfiguration -> buildSetUp(buildTask, buildDriver, repositoryConfiguration))
+                .thenCompose(runningBuild -> waitBuildToComplete(buildTask, runningBuild))
+                .thenCompose(completedBuild -> retrieveBuildResults(buildTask, completedBuild))
+                .handle((buildResults, e) -> storeResults(buildTask, buildResults, e));
     }
 
-    private CompletableFuture<RepositoryConfiguration> configureRepository(SubmittedBuild submittedBuild, RepositoryManager repositoryManager) {
+    private CompletableFuture<RepositoryConfiguration> configureRepository(BuildTask buildTask, RepositoryManager repositoryManager) {
         return CompletableFuture.supplyAsync( () ->  {
-            submittedBuild.setStatus(BuildStatus.REPO_SETTING_UP);
-            ProjectBuildConfiguration projectBuildConfiguration = submittedBuild.getProjectBuildConfiguration();
+            buildTask.setStatus(BuildStatus.REPO_SETTING_UP);
+            ProjectBuildConfiguration projectBuildConfiguration = buildTask.getProjectBuildConfiguration();
             try {
 
                 //TODO remove buildCollection mock
@@ -116,19 +172,19 @@ public class BuildCoordinator {
         }, executor);
     }
 
-    private CompletableFuture<RunningBuild> buildSetUp(SubmittedBuild submittedBuild, BuildDriver buildDriver, RepositoryConfiguration repositoryConfiguration) {
+    private CompletableFuture<RunningBuild> buildSetUp(BuildTask buildTask, BuildDriver buildDriver, RepositoryConfiguration repositoryConfiguration) {
         return CompletableFuture.supplyAsync( () ->  {
-            submittedBuild.setStatus(BuildStatus.BUILD_SETTING_UP);
-            ProjectBuildConfiguration projectBuildConfiguration = submittedBuild.getProjectBuildConfiguration();
+            buildTask.setStatus(BuildStatus.BUILD_SETTING_UP);
+            ProjectBuildConfiguration projectBuildConfiguration = buildTask.getProjectBuildConfiguration();
             try {
-                return buildDriver.startProjectBuild(submittedBuild.getProjectBuildConfiguration(), repositoryConfiguration);
+                return buildDriver.startProjectBuild(buildTask.getProjectBuildConfiguration(), repositoryConfiguration);
             } catch (BuildDriverException e) {
                 throw new CoreExceptionWrapper(e);
             }
         }, executor);
     }
 
-    private CompletableFuture<CompletedBuild> waitBuildToComplete(SubmittedBuild submittedBuild, RunningBuild runningBuild) {
+    private CompletableFuture<CompletedBuild> waitBuildToComplete(BuildTask buildTask, RunningBuild runningBuild) {
         CompletableFuture<CompletedBuild> waitToCompleteFuture = new CompletableFuture();
             try {
                 Consumer<CompletedBuild> onComplete = (completedBuild) -> {
@@ -137,7 +193,7 @@ public class BuildCoordinator {
                 Consumer<Exception> onError = (e) -> {
                     waitToCompleteFuture.completeExceptionally(e);
                 };
-                submittedBuild.setStatus(BuildStatus.BUILD_WAITING);
+                buildTask.setStatus(BuildStatus.BUILD_WAITING);
 
                 runningBuild.monitor(onComplete, onError);
             } catch (Throwable throwable) { //TODO narrow down exception
@@ -146,10 +202,10 @@ public class BuildCoordinator {
         return waitToCompleteFuture;
     }
 
-    private CompletionStage<BuildResult> retrieveBuildResults(SubmittedBuild submittedBuild, CompletedBuild completedBuild) {
+    private CompletionStage<BuildResult> retrieveBuildResults(BuildTask buildTask, CompletedBuild completedBuild) {
         return CompletableFuture.supplyAsync( () ->  {
-            submittedBuild.setStatus(BuildStatus.COLLECTING_RESULTS);
-            ProjectBuildConfiguration projectBuildConfiguration = submittedBuild.getProjectBuildConfiguration();
+            buildTask.setStatus(BuildStatus.COLLECTING_RESULTS);
+            ProjectBuildConfiguration projectBuildConfiguration = buildTask.getProjectBuildConfiguration();
             try {
                 return completedBuild.getBuildResult();
             } catch (BuildDriverException e) {
@@ -158,7 +214,7 @@ public class BuildCoordinator {
         }, executor);
     }
 
-    private CompletableFuture<Boolean> storeResults(SubmittedBuild submittedBuild, BuildResult buildResult, Throwable e) {
+    private CompletableFuture<Boolean> storeResults(BuildTask buildTask, BuildResult buildResult, Throwable e) {
         return CompletableFuture.supplyAsync( () ->  {
             boolean completedOk = false;
             try {
@@ -168,43 +224,43 @@ public class BuildCoordinator {
                         BuildDriverStatus buildDriverStatus = buildResult.getBuildDriverStatus();
 
                         if (buildDriverStatus == BuildDriverStatus.SUCCESS) {
-                            submittedBuild.setStatus(BuildStatus.BUILD_COMPLETED_SUCCESS);
+                            buildTask.setStatus(BuildStatus.BUILD_COMPLETED_SUCCESS);
                         } else {
-                            submittedBuild.setStatus(BuildStatus.BUILD_COMPLETED_WITH_ERROR);
+                            buildTask.setStatus(BuildStatus.BUILD_COMPLETED_WITH_ERROR);
                         }
-                        submittedBuild.setStatus(BuildStatus.STORING_RESULTS);
-                        datastoreAdapter.storeResult(submittedBuild, buildResult);
+                        buildTask.setStatus(BuildStatus.STORING_RESULTS);
+                        datastoreAdapter.storeResult(buildTask, buildResult);
                         completedOk = true;
                     } else {
-                        datastoreAdapter.storeResult(submittedBuild, e);
+                        datastoreAdapter.storeResult(buildTask, e);
                         completedOk = false;
                     }
                 } catch (BuildDriverException bde) {
-                    submittedBuild.setStatusDescription("Error retrieving build results.");
-                    datastoreAdapter.storeResult(submittedBuild, bde);
+                    buildTask.setStatusDescription("Error retrieving build results.");
+                    datastoreAdapter.storeResult(buildTask, bde);
                 }
             } catch (DatastoreException de) {
-                log.errorf(e, "Error storing results of build configuration: %s to datastore.", submittedBuild.getIdentifier());
+                log.errorf(e, "Error storing results of build configuration: %s to datastore.", buildTask.getId());
             } finally {
-                submittedBuild.setStatus(BuildStatus.DONE);
-                submittedBuilds.remove(submittedBuild);
+                buildTask.setStatus(BuildStatus.DONE);
+                buildTasks.remove(buildTask);
             }
             return completedOk;
         }, executor);
     }
 
-    public List<SubmittedBuild> getSubmittedBuilds() {
-        return Collections.unmodifiableList(submittedBuilds.stream().collect(Collectors.toList()));
+    public List<BuildTask> getBuildTasks() {
+        return Collections.unmodifiableList(buildTasks.stream().collect(Collectors.toList()));
     }
 
-    public SubmittedBuild getBuild(String identifier) {
-        List<SubmittedBuild> submittedBuildsFiltered = submittedBuilds.stream()
+    public BuildTask getBuild(String identifier) {
+        List<BuildTask> buildsFilteredTask = buildTasks.stream()
                 .filter(b -> identifier.equals(b.projectBuildConfiguration.getIdentifier())).collect(Collectors.toList());
-        return submittedBuildsFiltered.get(0); //TODO validate that there is exactly one ?
+        return buildsFilteredTask.get(0); //TODO validate that there is exactly one ?
     }
 
-    private boolean isBuildingAlreadySubmitted(SubmittedBuild submittedBuild) {
-        return submittedBuilds.contains(submittedBuild);
+    private boolean isBuildAlreadySubmitted(BuildTask buildTask) {
+        return buildTasks.contains(buildTask);
     }
 
 

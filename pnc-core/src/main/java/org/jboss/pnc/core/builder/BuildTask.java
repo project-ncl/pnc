@@ -1,16 +1,19 @@
 package org.jboss.pnc.core.builder;
 
+import org.jboss.pnc.core.exception.CoreException;
 import org.jboss.pnc.model.ProjectBuildConfiguration;
 import org.jboss.pnc.spi.BuildStatus;
 import org.jboss.util.collection.WeakSet;
 
+import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
 
 /**
 * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-12-23.
 */
-public class SubmittedBuild {
+public class BuildTask {
     public ProjectBuildConfiguration projectBuildConfiguration;
     BuildStatus status = BuildStatus.NEW;
     private String statusDescription;
@@ -18,14 +21,23 @@ public class SubmittedBuild {
     private Set<Consumer<BuildStatus>> statusUpdateListeners;
     private Set<Consumer<String>> logConsumers;
 
-    SubmittedBuild(ProjectBuildConfiguration projectBuildConfiguration) {
+    /**
+     * A list of builds waiting for this build to complete.
+     */
+    private Set<BuildTask> waiting;
+    private List<BuildTask> requiredBuilds;
+    private BuildCoordinator buildCoordinator;
+
+    BuildTask(BuildCoordinator buildCoordinator, ProjectBuildConfiguration projectBuildConfiguration) {
+        this.buildCoordinator = buildCoordinator;
+        this.projectBuildConfiguration = projectBuildConfiguration;
         statusUpdateListeners = new WeakSet();
         logConsumers = new WeakSet();
-        this.projectBuildConfiguration = projectBuildConfiguration;
+        waiting = new HashSet<>();
     }
 
-    SubmittedBuild(ProjectBuildConfiguration projectBuildConfiguration, Set<Consumer<BuildStatus>> statusUpdateListeners, Set<Consumer<String>> logConsumers) {
-        this(projectBuildConfiguration);
+    BuildTask(BuildCoordinator buildCoordinator, ProjectBuildConfiguration projectBuildConfiguration, Set<Consumer<BuildStatus>> statusUpdateListeners, Set<Consumer<String>> logConsumers) {
+        this(buildCoordinator, projectBuildConfiguration);
         this.statusUpdateListeners.addAll(statusUpdateListeners);
         this.logConsumers.addAll(logConsumers);
     }
@@ -40,7 +52,26 @@ public class SubmittedBuild {
 
     public void setStatus(BuildStatus status) {
         statusUpdateListeners.forEach(consumer -> consumer.accept(status));
+        if (status.equals(BuildStatus.DONE)) {
+            waiting.forEach((submittedBuild) -> submittedBuild.requiredBuildCompleted(this));
+        }
         this.status = status;
+    }
+
+    void setRequiredBuilds(List<BuildTask> requiredBuilds) {
+        this.requiredBuilds = requiredBuilds;
+    }
+
+    private void requiredBuildCompleted(BuildTask completed) {
+        requiredBuilds.remove(completed);
+        if (requiredBuilds.size() == 0) {
+            try {
+                buildCoordinator.startBuilding(this);
+            } catch (CoreException e) {
+                setStatus(BuildStatus.SYSTEM_ERROR);
+                setStatusDescription(e.getMessage());
+            }
+        }
     }
 
     /**
@@ -61,14 +92,18 @@ public class SubmittedBuild {
         return projectBuildConfiguration;
     }
 
+    void addWaiting(BuildTask buildTask) {
+        waiting.add(buildTask);
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        SubmittedBuild submittedBuild = (SubmittedBuild) o;
+        BuildTask buildTask = (BuildTask) o;
 
-        return projectBuildConfiguration.equals(submittedBuild.getProjectBuildConfiguration());
+        return projectBuildConfiguration.equals(buildTask.getProjectBuildConfiguration());
 
     }
 
@@ -81,11 +116,13 @@ public class SubmittedBuild {
         this.statusDescription = statusDescription;
     }
 
-    public String getIdentifier() {
-        return projectBuildConfiguration.getIdentifier();
+
+    public Integer getId() {
+        return projectBuildConfiguration.getId();
     }
 
     public String getBuildLog() {
         return null;//TODO reference to progressive log
     }
+
 }

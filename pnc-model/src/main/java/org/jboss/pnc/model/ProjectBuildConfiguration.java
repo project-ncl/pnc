@@ -277,13 +277,13 @@ public class ProjectBuildConfiguration implements Serializable {
 
         ProjectBuildConfiguration that = (ProjectBuildConfiguration) o;
 
-        if (identifier != null ? !identifier.equals(that.identifier) : that.identifier != null) return false;
+        if (id != null ? !id.equals(that.id) : that.id != null) return false;
 
         return true;
     }
 
     @Override
     public int hashCode() {
-        return identifier != null ? identifier.hashCode() : 0;
+        return id != null ? id.hashCode() : 0;
     }
 }

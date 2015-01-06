@@ -1,6 +1,7 @@
 package org.jboss.pnc.core.test.mock;
 
 import org.jboss.logging.Logger;
+import org.jboss.pnc.common.util.RandomUtils;
 import org.jboss.pnc.model.BuildDriverStatus;
 import org.jboss.pnc.model.BuildType;
 import org.jboss.pnc.model.ProjectBuildConfiguration;
@@ -30,7 +31,7 @@ public class BuildDriverMock implements BuildDriver {
     public RunningBuild startProjectBuild(ProjectBuildConfiguration projectBuildConfiguration, RepositoryConfiguration repositoryConfiguration) throws BuildDriverException {
         try {
             log.debug("Building " + projectBuildConfiguration);
-            Thread.sleep(250);
+            Thread.sleep(RandomUtils.randInt(100, 300));
             return new RunningBuild() {
                 @Override
                 public void monitor(Consumer<CompletedBuild> onComplete, Consumer<Exception> onError) {
@@ -39,7 +40,6 @@ public class BuildDriverMock implements BuildDriver {
                         public BuildDriverStatus getCompleteStatus() {
                             return BuildDriverStatus.SUCCESS;
                         }
-
                         @Override
                         public BuildResult getBuildResult() throws BuildDriverException {
                             return getBuildResultMock();
