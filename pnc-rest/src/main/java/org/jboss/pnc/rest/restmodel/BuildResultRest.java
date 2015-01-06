@@ -1,6 +1,6 @@
 package org.jboss.pnc.rest.restmodel;
 
-import org.jboss.pnc.core.builder.SubmittedBuild;
+import org.jboss.pnc.core.builder.BuildTask;
 import org.jboss.pnc.model.BuildDriverStatus;
 import org.jboss.pnc.model.ProjectBuildConfiguration;
 import org.jboss.pnc.model.ProjectBuildResult;
@@ -52,13 +52,13 @@ public class BuildResultRest {
         this.buildDriverId = buildResult.getBuildDriverId();
     }
 
-    public BuildResultRest(SubmittedBuild submittedBuild) {
-        this.id = submittedBuild.getProjectBuildConfiguration().getId();
-        ProjectBuildConfiguration projectBuildConfiguration = submittedBuild.getProjectBuildConfiguration();
+    public BuildResultRest(BuildTask buildTask) {
+        this.id = buildTask.getProjectBuildConfiguration().getId();
+        ProjectBuildConfiguration projectBuildConfiguration = buildTask.getProjectBuildConfiguration();
         this.buildScript = projectBuildConfiguration.getBuildScript();
         this.startTime = projectBuildConfiguration.getCreationTime();
         performIfNotNull(
-                submittedBuild.getProjectBuildConfiguration() != null &&
+                buildTask.getProjectBuildConfiguration() != null &&
                         projectBuildConfiguration != null,
                 () -> projectBuildConfigurationId = projectBuildConfiguration.getId());
         this.sourceUrl = projectBuildConfiguration.getScmUrl();

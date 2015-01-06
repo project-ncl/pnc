@@ -12,15 +12,29 @@ public class TestProjectConfigurationBuilder {
 
     Environment javaEnvironment = EnvironmentBuilder.defaultEnvironment().build();
 
+    public ProjectBuildConfiguration buildConfigurationWhichDependsOnItself(int id, String name) {
+        Project project = new Project();
+        project.setId(id);
+        project.setName(name);
+        ProjectBuildConfiguration projectBuildConfiguration = new ProjectBuildConfiguration();
+        projectBuildConfiguration.setId(id);
+        projectBuildConfiguration.setIdentifier(id + "");
+        projectBuildConfiguration.setEnvironment(javaEnvironment);
+        projectBuildConfiguration.setProject(project);
+        projectBuildConfiguration.addDependency(projectBuildConfiguration);
+        project.addProjectBuildConfiguration(projectBuildConfiguration);
+        return projectBuildConfiguration;
+    }
+
     public ProjectBuildConfiguration build(int id, String name) {
         Project project = new Project();
         project.setId(id);
         project.setName(name);
         ProjectBuildConfiguration projectBuildConfiguration = new ProjectBuildConfiguration();
+        projectBuildConfiguration.setId(id);
         projectBuildConfiguration.setIdentifier(id + "");
         projectBuildConfiguration.setEnvironment(javaEnvironment);
         projectBuildConfiguration.setProject(project);
-        projectBuildConfiguration.addDependency(projectBuildConfiguration);
         project.addProjectBuildConfiguration(projectBuildConfiguration);
         return projectBuildConfiguration;
     }

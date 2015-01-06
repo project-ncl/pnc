@@ -7,7 +7,7 @@ import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.core.BuildDriverFactory;
 import org.jboss.pnc.core.RepositoryManagerFactory;
 import org.jboss.pnc.core.builder.BuildCoordinator;
-import org.jboss.pnc.core.builder.SubmittedBuild;
+import org.jboss.pnc.core.builder.BuildTask;
 import org.jboss.pnc.core.exception.CoreException;
 import org.jboss.pnc.core.test.mock.BuildDriverMock;
 import org.jboss.pnc.core.test.mock.DatastoreMock;
@@ -26,6 +26,7 @@ import org.junit.runner.RunWith;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -71,22 +72,26 @@ public class BuildProjectsTest {
 
     @Test
     @InSequence(10)
-    public void buildSingleProjectTestCase() throws Exception {
-
-
+    public void invalidConfigurationTestCase() throws Exception {
         BuildCollection buildCollection = new TestBuildCollectionBuilder().build("foo", "Foo desc.", "1.0");
         TestProjectConfigurationBuilder configurationBuilder = new TestProjectConfigurationBuilder();
 
-//TODO move this test to datastore test
-//        buildCoordinator.buildProjects(projectBuildConfigurations, buildCollection);
-//        assertThat(datastore.getBuildResults()).hasSize(6);
-
-        buildProject(configurationBuilder.build(1, "c1-java"), buildCollection);
-
+        ProjectBuildConfiguration projectBuildConfiguration = configurationBuilder.buildConfigurationWhichDependsOnItself(1, "c1-java");
+        BuildTask buildTask = buildCoordinator.build(projectBuildConfiguration, new HashSet<>(), new HashSet<Consumer<String>>());
+        Assert.assertEquals(BuildStatus.REJECTED, buildTask.getStatus());
+        Assert.assertTrue("Invalid status description.", buildTask.getStatusDescription().contains("itself"));
     }
 
     @Test
-    @InSequence(10)
+    @InSequence(20)
+    public void buildSingleProjectTestCase() throws Exception {
+        BuildCollection buildCollection = new TestBuildCollectionBuilder().build("foo", "Foo desc.", "1.0");
+        TestProjectConfigurationBuilder configurationBuilder = new TestProjectConfigurationBuilder();
+        buildProject(configurationBuilder.build(1, "c1-java"), buildCollection);
+    }
+
+    @Test
+    @InSequence(30)
     public void buildMultipleProjectsTestCase() throws Exception {
         log.info("Start multiple projects build test.");
         long startTime = System.currentTimeMillis();
@@ -125,16 +130,16 @@ public class BuildProjectsTest {
 
         List<Thread> threads = list.stream().map(runInNewThread).collect(Collectors.toList());
 
-        Assert.assertTrue("There are no running builds.", buildCoordinator.getSubmittedBuilds().size() > 0);
-        SubmittedBuild submittedBuild = buildCoordinator.getSubmittedBuilds().iterator().next();
-        Assert.assertTrue("Build has no status.", submittedBuild.getStatus() != null);
+        Assert.assertTrue("There are no running builds.", buildCoordinator.getBuildTasks().size() > 0);
+        BuildTask buildTask = buildCoordinator.getBuildTasks().iterator().next();
+        Assert.assertTrue("Build has no status.", buildTask.getStatus() != null);
 
         threads.forEach(waitToComplete);
         log.info("Completed multiple projects build test in " + (System.currentTimeMillis() - startTime) + "ms.");
     }
 
     @Test
-    @InSequence(20)
+    @InSequence(40)
     public void checkDatabaseForResult() {
         List<ProjectBuildResult> buildResults = datastore.getBuildResults();
         Assert.assertTrue("Missing datastore results.", buildResults.size() > 10);
@@ -155,15 +160,22 @@ public class BuildProjectsTest {
         Consumer<BuildStatus> onStatusUpdate = (newStatus) -> {
             receivedStatuses.add(newStatus);
             semaphore.release(1);
-            log.fine("Received status update " + newStatus.toString() + " for project " + projectBuildConfiguration.getIdentifier());
+            log.fine("Received status update " + newStatus.toString() + " for project " + projectBuildConfiguration.getId());
             log.finer("Semaphore released, there are " + semaphore.availablePermits() + " free entries.");
         };
         Set<Consumer<BuildStatus>> statusUpdateListeners = new HashSet<>();
         statusUpdateListeners.add(onStatusUpdate);
         semaphore.acquire(nStatusUpdates);
-        SubmittedBuild submittedBuild = buildCoordinator.build(projectBuildConfiguration, statusUpdateListeners, new HashSet<Consumer<String>>());
-        log.fine("Build " + submittedBuild.getIdentifier() + " has been submitted.");
+        BuildTask buildTask = buildCoordinator.build(projectBuildConfiguration, statusUpdateListeners, new HashSet<Consumer<String>>());
+
+        List<BuildStatus> errorStates = Arrays.asList(BuildStatus.REJECTED, BuildStatus.SYSTEM_ERROR);
+        if (errorStates.contains(buildTask.getStatus())) {
+            throw new AssertionError("Build " + buildTask.getId() + " has status:" + buildTask.getStatus() + " with description: " + buildTask.getStatusDescription() + "");
+        }
+
+        log.fine("Build " + buildTask.getId() + " has been submitted.");
         if (!semaphore.tryAcquire(nStatusUpdates, 15, TimeUnit.SECONDS)) { //wait for callback to release
+            log.warning("Build " + buildTask.getId() + " has status:" + buildTask.getStatus() + " with description: " + buildTask.getStatusDescription() + ".");
             throw new AssertionError("Timeout while waiting for status updates.");
         }
 
@@ -172,7 +184,6 @@ public class BuildProjectsTest {
         assertStatusUpdateReceived(receivedStatuses, BuildStatus.BUILD_WAITING);
         assertStatusUpdateReceived(receivedStatuses, BuildStatus.BUILD_COMPLETED_SUCCESS);
         assertStatusUpdateReceived(receivedStatuses, BuildStatus.STORING_RESULTS);
-
     }
 
     private void assertStatusUpdateReceived(List<BuildStatus> receivedStatuses, BuildStatus status) {
@@ -186,7 +197,7 @@ public class BuildProjectsTest {
         Assert.assertTrue("Did not received status update for " + status +".", received );
     }
 
-    class TestBuildConfig {
+    private class TestBuildConfig {
         private final ProjectBuildConfiguration configuration;
         private final BuildCollection collection;
 
@@ -195,5 +206,4 @@ public class BuildProjectsTest {
             this.collection = collection;
         }
     }
-
 }

@@ -34,5 +34,7 @@ public enum BuildStatus {
      * Missing configuration, un-satisfied dependencies, dependencies failed to build.
      * Rejected can be set before adding to the list of running builds or before dropping form list of running builds.
      */
-    REJECTED;
+    REJECTED,
+
+    SYSTEM_ERROR;
 }

@@ -1,7 +1,7 @@
 package org.jboss.pnc.rest.provider;
 
 import org.jboss.pnc.core.builder.BuildCoordinator;
-import org.jboss.pnc.core.builder.SubmittedBuild;
+import org.jboss.pnc.core.builder.BuildTask;
 import org.jboss.pnc.datastore.repositories.ProjectBuildResultRepository;
 import org.jboss.pnc.model.ProjectBuildResult;
 import org.jboss.pnc.rest.restmodel.BuildResultRest;
@@ -38,7 +38,7 @@ public class BuildResultProvider {
     }
 
     public List<BuildResultRest> getAllRunning() {
-        return nullableStreamOf(buildCoordinator.getSubmittedBuilds())
+        return nullableStreamOf(buildCoordinator.getBuildTasks())
                 .map(submittedBuild -> new BuildResultRest(submittedBuild)).collect(Collectors.toList());
     }
 
@@ -63,30 +63,30 @@ public class BuildResultProvider {
     }
 
     public BuildResultRest getSpecificRunning(Integer id) {
-        SubmittedBuild submittedBuild = getSubmittedBuild(id);
-        if(submittedBuild != null) {
-            return new BuildResultRest(submittedBuild);
+        BuildTask buildTask = getSubmittedBuild(id);
+        if(buildTask != null) {
+            return new BuildResultRest(buildTask);
         }
         return null;
     }
 
-    private SubmittedBuild getSubmittedBuild(Integer id) {
-        List<SubmittedBuild> submittedBuilds = buildCoordinator.getSubmittedBuilds().stream()
+    private BuildTask getSubmittedBuild(Integer id) {
+        List<BuildTask> buildTasks = buildCoordinator.getBuildTasks().stream()
                     .filter(submittedBuild -> id.equals(submittedBuild.getProjectBuildConfiguration().getId()))
                     .collect(Collectors.toList());
-        if(!submittedBuilds.isEmpty()) {
-            return submittedBuilds.iterator().next();
+        if(!buildTasks.isEmpty()) {
+            return buildTasks.iterator().next();
         }
         return null;
     }
 
     public StreamingOutput getLogsForRunningBuildId(Integer id) {
-        SubmittedBuild submittedBuild = getSubmittedBuild(id);
-        if(submittedBuild != null) {
+        BuildTask buildTask = getSubmittedBuild(id);
+        if(buildTask != null) {
             return outputStream -> {
                 Writer writer = new BufferedWriter(new OutputStreamWriter(outputStream));
-                if(submittedBuild != null && submittedBuild.getBuildLog() != null) {
-                    writer.write(submittedBuild.getBuildLog());
+                if(buildTask != null && buildTask.getBuildLog() != null) {
+                    writer.write(buildTask.getBuildLog());
                 }
                 writer.flush();
             };
