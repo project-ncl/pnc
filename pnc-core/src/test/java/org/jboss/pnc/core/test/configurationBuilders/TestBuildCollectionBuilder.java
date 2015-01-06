@@ -1,4 +1,4 @@
-package org.jboss.pnc.core.test;
+package org.jboss.pnc.core.test.configurationBuilders;
 
 import org.jboss.pnc.model.BuildCollection;
 import org.jboss.pnc.model.Product;
