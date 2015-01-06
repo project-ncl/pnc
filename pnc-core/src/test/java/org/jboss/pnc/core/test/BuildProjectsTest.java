@@ -72,14 +72,24 @@ public class BuildProjectsTest {
 
     @Test
     @InSequence(10)
-    public void invalidConfigurationTestCase() throws Exception {
-        BuildCollection buildCollection = new TestBuildCollectionBuilder().build("foo", "Foo desc.", "1.0");
+    public void dependsOnItselfConfigurationTestCase() throws Exception {
         TestProjectConfigurationBuilder configurationBuilder = new TestProjectConfigurationBuilder();
 
-        ProjectBuildConfiguration projectBuildConfiguration = configurationBuilder.buildConfigurationWhichDependsOnItself(1, "c1-java");
+        ProjectBuildConfiguration projectBuildConfiguration = configurationBuilder.buildConfigurationWhichDependsOnItself();
         BuildTask buildTask = buildCoordinator.build(projectBuildConfiguration, new HashSet<>(), new HashSet<Consumer<String>>());
         Assert.assertEquals(BuildStatus.REJECTED, buildTask.getStatus());
-        Assert.assertTrue("Invalid status description.", buildTask.getStatusDescription().contains("itself"));
+        Assert.assertTrue("Invalid status description: " + buildTask.getStatusDescription(), buildTask.getStatusDescription().contains("itself"));
+    }
+
+    @Test
+    @InSequence(15)
+    public void cycleConfigurationTestCase() throws Exception {
+        TestProjectConfigurationBuilder configurationBuilder = new TestProjectConfigurationBuilder();
+
+        ProjectBuildConfiguration projectBuildConfiguration = configurationBuilder.buildConfigurationWithCycleDependency();
+        BuildTask buildTask = buildCoordinator.build(projectBuildConfiguration, new HashSet<>(), new HashSet<Consumer<String>>());
+        Assert.assertEquals(BuildStatus.REJECTED, buildTask.getStatus());
+        Assert.assertTrue("Invalid status description: " + buildTask.getStatusDescription(), buildTask.getStatusDescription().contains("Cycle dependencies found"));
     }
 
     @Test
