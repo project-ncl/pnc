@@ -15,11 +15,13 @@ class BuildJobConfig {
     private final RepositoryConnectionInfo connectionInfo;
     private String name;
     private String scmUrl;
+    private String scmBranch;
     private String buildScript;
 
-    public BuildJobConfig(String name, String scmUrl, String buildScript, RepositoryConnectionInfo connectionInfo) {
+    public BuildJobConfig(String name, String scmUrl, String scmBranch, String buildScript, RepositoryConnectionInfo connectionInfo) {
         this.name = name;
         this.scmUrl = scmUrl;
+        this.scmBranch = scmBranch;
         this.buildScript = buildScript;
         this.connectionInfo = connectionInfo;
     }
@@ -33,7 +35,8 @@ class BuildJobConfig {
 
         Properties properties = new Properties();
         properties.setProperty("scm_url", scmUrl);
-        
+        properties.setProperty("scm_branch", scmBranch);
+
         properties.setProperty("maven_settings", getMavenConfig(connectionInfo.getDependencyUrl(), connectionInfo.getDeployUrl()));
         properties.setProperty("hudson.tasks.Shell.command", buildScript + " -s settings.xml");
 

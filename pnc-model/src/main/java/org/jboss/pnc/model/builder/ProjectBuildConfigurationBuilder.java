@@ -17,15 +17,15 @@
 
 package org.jboss.pnc.model.builder;
 
-import java.sql.Timestamp;
-import java.time.Instant;
-import java.util.HashSet;
-import java.util.Set;
-
 import org.jboss.pnc.model.Environment;
 import org.jboss.pnc.model.ProductVersion;
 import org.jboss.pnc.model.Project;
 import org.jboss.pnc.model.ProjectBuildConfiguration;
+
+import java.sql.Timestamp;
+import java.time.Instant;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * @author avibelli
@@ -40,6 +40,8 @@ public class ProjectBuildConfigurationBuilder {
     private String buildScript;
 
     private String scmUrl;
+
+    private String scmBranch;
 
     private String patchesUrl;
 
@@ -75,6 +77,7 @@ public class ProjectBuildConfigurationBuilder {
         projectBuildConfiguration.setIdentifier(identifier);
         projectBuildConfiguration.setBuildScript(buildScript);
         projectBuildConfiguration.setScmUrl(scmUrl);
+        projectBuildConfiguration.setScmBranch(scmBranch);
         projectBuildConfiguration.setPatchesUrl(patchesUrl);
         projectBuildConfiguration.setProductVersion(productVersion);
 
@@ -115,6 +118,11 @@ public class ProjectBuildConfigurationBuilder {
 
     public ProjectBuildConfigurationBuilder scmUrl(String scmUrl) {
         this.scmUrl = scmUrl;
+        return this;
+    }
+
+    public ProjectBuildConfigurationBuilder scmBranch(String scmBranch) {
+        this.scmBranch = scmBranch;
         return this;
     }
 

@@ -1,5 +1,6 @@
 package org.jboss.pnc.core.builder;
 
+import org.jboss.logging.Logger;
 import org.jboss.pnc.core.exception.CoreException;
 import org.jboss.pnc.model.ProjectBuildConfiguration;
 import org.jboss.pnc.spi.BuildStatus;
@@ -14,6 +15,9 @@ import java.util.function.Consumer;
 * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-12-23.
 */
 public class BuildTask {
+
+    public static final Logger log = Logger.getLogger(BuildTask.class);
+
     public ProjectBuildConfiguration projectBuildConfiguration;
     BuildStatus status = BuildStatus.NEW;
     private String statusDescription;
@@ -51,6 +55,7 @@ public class BuildTask {
     }
 
     public void setStatus(BuildStatus status) {
+        log.debugf("Updating build task #%s status to %s", this.getId(), status);
         statusUpdateListeners.forEach(consumer -> consumer.accept(status));
         if (status.equals(BuildStatus.DONE)) {
             waiting.forEach((submittedBuild) -> submittedBuild.requiredBuildCompleted(this));
