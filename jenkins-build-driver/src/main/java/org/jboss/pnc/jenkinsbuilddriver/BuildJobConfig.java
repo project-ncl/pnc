@@ -21,9 +21,13 @@ class BuildJobConfig {
     public BuildJobConfig(String name, String scmUrl, String scmBranch, String buildScript, RepositoryConnectionInfo connectionInfo) {
         this.name = name;
         this.scmUrl = scmUrl;
-        this.scmBranch = scmBranch;
         this.buildScript = buildScript;
         this.connectionInfo = connectionInfo;
+        if (scmBranch != null && !scmBranch.equals("")) {
+            this.scmBranch = scmBranch;
+        } else{
+            this.scmBranch = "*/master";
+        }
     }
 
     public String getName() {
