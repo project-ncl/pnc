@@ -12,6 +12,14 @@ $(document).ready(function() {
   sessionStorage.setItem('project', JSON.stringify(project));
   sessionStorage.setItem('configurationId', configurationId);
 
+  $('#productInfoName').html(product.name);
+  $('#productInfoDesc').html(product.description);
+  $('#productInfoVersion').html(version.version);
+  $('#projectInfoName').html(project.name);
+  $('#projectInfoDesc').html(project.description);
+  $('#projectInfoProjectUrl').html(project.projectUrl);
+  $('#projectInfoIssueTrackerUrl').html(project.issueTrackerUrl);
+
   var filteredResults = [];
   var buildConfigIdentifier = '';
   var buildConfigScript = '';
@@ -32,12 +40,12 @@ $(document).ready(function() {
          }
      }),
      $.ajax({
-         url: PNC_REST_BASE_URL + '/product/' + product.id + '/version/' + version.id + '/project/' + project.id + '/configuration',
+         url: PNC_REST_BASE_URL + '/product/' + product.id + '/version/' + version.id + '/project/' + project.id + '/configuration/' + configurationId,
          method: "GET",
          success: function (data) {
 
-           buildConfigIdentifier = data[0].identifier;
-           buildConfigScript = data[0].buildScript;
+           buildConfigIdentifier = data.identifier;
+           buildConfigScript = data.buildScript;
          },
          error: function (data) {
              console.log(JSON.stringify(data));
@@ -55,10 +63,20 @@ $(document).ready(function() {
        "aaData": filteredResults,
        "aoColumns": [
          { "sWidth": "5%", "data": "id" },
-         { "sWidth": "10%", "data": "status" },
+         { "sWidth": "10%", "data":
+            function(json) {
+              if (json.status == 'SUCCESS') {
+                return '<a class="label label-success">SUCCESS</a>';
+              }
+              else if (json.status == 'FAILED') {
+                return '<a class="label label-danger">FAILED</a>';
+              }
+              return '<a class="label label-warning">' + json.status + '</a>';
+            }
+         },
          { "bSortable": false, "sWidth": "60%", "data":
             function(json) {
-              return '<div class="divrep" id="divLog"><h2>...</h2></div><button class="logs btn btn-default" value="' + json.id + '">View Logs</button>';
+              return '<div class="divrep" id="divLog' + json.id  + '"><h2>...</h2></div><button class="logs btn btn-default" value="' + json.id + '">View Logs</button>';
             }
          },
          { "sWidth": "10%", "data":
@@ -86,10 +104,11 @@ $(document).ready(function() {
         cache: false,
         dataType: "text",
         success: function( data, textStatus, jqXHR ) {
+            var divLogId = "#divLog" + resultId;
             var resourceContent = data;
-            var preStyle = 'style="height: 30pc; overflow-y: scroll; overflow-x: scroll; width: ' + $("#divLog").width() + 'px;"';
+            var preStyle = 'style="height: 30pc; overflow-y: scroll; overflow-x: scroll; width: ' + $(divLogId).width() + 'px;"';
             data = '<pre ' + preStyle + '>' + data + '</pre>';
-            $("#divLog").html(data);
+            $(divLogId).html(data);
         }
     });
   });
