@@ -62,6 +62,7 @@ public class ProjectBuildConfiguration implements Serializable {
     // TODO: What data format does Aprox need?
     // @Column(name = "repositories")
     private String repositories;
+    private String scmBranch;
 
     /**
      * Instantiates a new project build configuration.
@@ -125,6 +126,14 @@ public class ProjectBuildConfiguration implements Serializable {
      */
     public void setScmUrl(String scmUrl) {
         this.scmUrl = scmUrl;
+    }
+
+    public String getScmBranch() {
+        return scmBranch;
+    }
+
+    public void setScmBranch(String scmBranch) {
+        this.scmBranch = scmBranch;
     }
 
     /**
@@ -286,4 +295,5 @@ public class ProjectBuildConfiguration implements Serializable {
     public int hashCode() {
         return id != null ? id.hashCode() : 0;
     }
+
 }

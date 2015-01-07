@@ -43,10 +43,6 @@
   </modules>
 
   <properties>
-    <!-- minimum jdk and maven versions -->
-    <jdk.min.version>1.8</jdk.min.version>
-    <maven.min.version>3.2</maven.min.version>
-
     <version.jboss.maven.plugin>7.5.Final</version.jboss.maven.plugin>
     <version.jboss.bom>1.0.7.Final</version.jboss.bom>
     <version.jboss.as>7.2.0.Final</version.jboss.as>
@@ -427,43 +423,6 @@
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>buildnumber-maven-plugin</artifactId>
       </plugin>
-
-      <!-- Check for the minimum version of Java and Maven.  Runs during the validate phase. -->
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-enforcer-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>enforce-java-version</id>
-            <goals>
-              <goal>enforce</goal>
-            </goals>
-            <configuration>
-              <rules>
-                <requireJavaVersion>
-                  <message>To build this project JDK ${jdk.min.version} (or greater) is required. Please install it.</message>
-                  <version>${jdk.min.version}</version>
-                </requireJavaVersion>
-              </rules>
-            </configuration>
-          </execution>
-          <execution>
-            <id>enforce-maven-version</id>
-            <goals>
-              <goal>enforce</goal>
-            </goals>
-            <configuration>
-              <rules>
-                <requireMavenVersion>
-                  <message>To build this project Maven ${maven.min.version} (or greater) is required. Please install it.</message>
-                  <version>${maven.min.version}</version>
-                </requireMavenVersion>
-              </rules>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-
     </plugins>
   </build>
 
