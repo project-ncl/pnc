@@ -13,6 +13,10 @@
   <artifactId>maven-repository-manager</artifactId>
 
   <description>Implementation of pnc-spi:org.jboss.pnc.spi.repositorymanager</description>
+  
+  <properties>
+    <aproxVersion>0.17.0</aproxVersion>
+  </properties>
 
   <dependencies>
     <dependency>
@@ -32,6 +36,16 @@
     <dependency>
       <groupId>org.jboss.weld.se</groupId>
       <artifactId>weld-se</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.commonjava.aprox</groupId>
+      <artifactId>aprox-folo-client-java</artifactId>
+      <version>${aproxVersion}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.commonjava.aprox</groupId>
+      <artifactId>aprox-client-core-java</artifactId>
+      <version>${aproxVersion}</version>
     </dependency>
   </dependencies>
 
