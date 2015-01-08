@@ -11,8 +11,12 @@
         <configuration>
             <property name="jbossHome">${test.server.build.dir}</property>
             <property name="managementPort">${jboss.management.port}</property>
-            <property name="javaVmArguments">-Xmx512m -Djboss.socket.binding.port-offset=${jboss.port.offset}</property>
+            <property name="javaVmArguments">-Xmx512m -Djboss.socket.binding.port-offset=${jboss.port.offset} ${argLine}</property>
         </configuration>
     </container>
+
+    <extension qualifier="jacoco">
+        <property name="includes">org.jboss.pnc.*</property>
+    </extension>
 
 </arquillian>
