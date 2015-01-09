@@ -55,6 +55,7 @@
     <!-- other plugin versions -->
     <version.ejb.plugin>2.3</version.ejb.plugin>
     <version.surefire.plugin>2.18</version.surefire.plugin>
+    <version.failsafe.plugin>2.18.1</version.failsafe.plugin>
 
     <!-- maven-compiler-plugin -->
     <maven.compiler.target>1.8</maven.compiler.target>
@@ -74,8 +75,10 @@
     <persistence.hibernate.dialect>org.hibernate.dialect.H2Dialect</persistence.hibernate.dialect>
     <persistence.hibernate.hbm2ddl.auto>create-drop</persistence.hibernate.hbm2ddl.auto>
 
-    <!-- Jacoco -->
-    <argLine></argLine>
+    <!-- Jacoco & Sonar -->
+    <sonar.jacoco.reportPath>${project.basedir}/target/jacoco-unit.exec</sonar.jacoco.reportPath>
+    <sonar.jacoco.itReportPath>${project.basedir}/../target/jacoco-it.exec</sonar.jacoco.itReportPath>
+    <itCoverageAgent></itCoverageAgent>
   </properties>
 
   <dependencyManagement>
@@ -337,6 +340,11 @@
         </plugin>
 
         <plugin>
+          <artifactId>maven-failsafe-plugin</artifactId>
+          <version>${version.failsafe.plugin}</version>
+        </plugin>
+
+        <plugin>
           <groupId>org.jboss.as.plugins</groupId>
           <artifactId>jboss-as-maven-plugin</artifactId>
           <version>${version.jboss.maven.plugin}</version>
@@ -439,15 +447,33 @@
 
     <plugins>
       <plugin>
+        <!--
+          Generated javaagent line if often included in some test via filtering. This is why it needs to be executed
+          before actual filtering occurs
+        -->
         <groupId>org.jacoco</groupId>
         <artifactId>jacoco-maven-plugin</artifactId>
         <executions>
-          <!-- prepare agent for measuring unit tests -->
           <execution>
             <id>prepare-unit-tests</id>
             <goals>
               <goal>prepare-agent</goal>
             </goals>
+            <phase>generate-resources</phase>
+            <configuration>
+              <destFile>${sonar.jacoco.reportPath}</destFile>
+            </configuration>
+          </execution>
+          <execution>
+            <id>prepare-integration-tests</id>
+            <goals>
+              <goal>prepare-agent</goal>
+            </goals>
+            <phase>generate-resources</phase>
+            <configuration>
+              <destFile>${sonar.jacoco.itReportPath}</destFile>
+              <propertyName>itCoverageAgent</propertyName>
+            </configuration>
           </execution>
         </executions>
       </plugin>
