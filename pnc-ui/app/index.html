@@ -1,71 +1,73 @@
-<!doctype html>
-<html class="no-js">
+<!DOCTYPE html>
+<!--[if IE 8]><html class="ie8"><![endif]-->
+<!--[if IE 9]><html class="ie9"><![endif]-->
+<!--[if gt IE 9]><!-->
+<html>
+<!--<![endif]-->
   <head>
     <meta charset="utf-8">
-    <title>Project Newcastle Build System</title>
-    <meta name="description" content="">
-    <meta name="viewport" content="width=device-width">
-    <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
-    <!-- build:css(.) styles/vendor.css -->
-    <!-- endbuild -->
+    <title>Project Newcastle</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="images/favicon.ico">
+    <link rel="apple-touch-icon-precomposed" sizes="144x144" href="bower_components/patternfly/dist/img/apple-touch-icon-144-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="114x114" href="bower_components/patternfly/dist/img/apple-touch-icon-114-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="72x72" href="bower_components/patternfly/dist/img/apple-touch-icon-72-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" href="bower_components/patternfly/dist/img/apple-touch-icon-57-precomposed.png">
 
     <!-- build:css({.tmp,app}) styles/dist.css -->
     <link rel="stylesheet" href="styles/main.css">
     <link rel="stylesheet" href="bower_components/patternfly/dist/css/patternfly.css" />
     <link rel="stylesheet" href="bower_components/font-awesome/css/font-awesome.css" />
+    <link rel="stylesheet" href="bower_components/patternfly/dist/css/sticky-footer-navbar.css" >
     <!-- endbuild -->
-  </head>
-  <body ng-app="pncUiApp">
-    <!--[if lt IE 7]>
-      <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
-    <![endif]-->
-
-    <!-- Add your site or application content here -->
-    <div class="container">
-      <div class="header">
-        <ul class="nav nav-pills pull-right">
-          <li class="active"><a ng-href="#">Home</a></li>
-          <li><a ng-href="#">About</a></li>
-          <li><a ng-href="#">Contact</a></li>
-        </ul>
-        <h3 class="text-muted">PNC Builder</h3>
-      </div>
-
-      <div ng-include="'views/main.html'" ng-controller="MainCtrl"></div>
-
-      <div class="footer">
-        <p><span class="glyphicon glyphicon-heart"></span> from the Yeoman team</p>
-      </div>
-    </div>
-
-    <!-- build:js(.) scripts/oldieshim.js -->
+    
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!--[if lt IE 9]>
-    <script src="bower_components/es5-shim/es5-shim.js"></script>
-    <script src="bower_components/json3/lib/json3.js"></script>
+    <script src="bower_components/patternfly/components/html5shiv/dist/html5shiv.min.js"></script>
+    <script src="bower_components/patternfly/components/respond/dest/respond.min.js"></script>
     <![endif]-->
-    <!-- endbuild -->
+    <!-- IE8 requires jQuery and Bootstrap JS to load in head to prevent rendering bugs -->
+    <!-- IE8 requires jQuery v1.x -->
 
     <!-- build:js scripts/modules.js -->
-    <script src="bower_components/angular/angular.js"></script>
-    <script src="bower_components/patternfly/dist/js/patternfly.js"></script>
-    <script src="bower_components/angular-patternfly/dist/angular-patternfly.js"></script>
-    <script src="bower_components/angular-patternfly/dist/angular-patternfly.min.js"></script>
-    <script src="bower_components/angular-resource/angular-resource.js"></script>
-    <script src="bower_components/angular-route/angular-route.js"></script>
-    <script src="bower_components/angular-cookies/angular-cookies.js"></script>
-    <script src="bower_components/angular-sanitize/angular-sanitize.js"></script>
+    <script src="bower_components/jquery/dist/jquery.js"></script>
+    <script src="bower_components/patternfly/components/bootstrap/dist/js/bootstrap.min.js"></script>
+    <script src="bower_components/patternfly/components/datatables/media/js/jquery.dataTables.js"></script>
+    <script src="bower_components/patternfly/dist/js/patternfly.min.js"></script>
     <!-- endbuild -->
 
-    <!-- build:js({.tmp,app}) scripts/scripts.js -->
-    <script src="scripts/app.js"></script>
-    <script src="scripts/controllers/main.js"></script>
-    <!-- endbuild -->
+    <script src="scripts/pnc-rest-api-url.js"></script>
+    <script src="scripts/pnc-products.js"></script>
 
-    <!-- build:js scripts/templates.js -->
-    <!-- endbuild -->
-
-    <!-- build:js(.) scripts/vendor.js -->
-    <!-- endbuild -->
-
-</body>
+  </head>
+  <body>
+    <nav class="navbar navbar-default navbar-pf" role="navigation">
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse-1">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="/">PNCL</a>
+      </div>
+      <div class="collapse navbar-collapse navbar-collapse-1">
+        <ul class="nav navbar-nav navbar-primary">
+          <li class="active">
+            <a href="views/product.html">Home</a>
+          </li>
+        </ul>
+      </div>
+    </nav>
+    <div class="jumbotron">
+      <h2>Project NCL</h2>
+    </div>
+    <footer class="footer">
+      <div class="container">
+      <div align="center">
+        <p class="text-muted">PNC v0.2 <a href="https://github.com/project-ncl/pnc">https://github.com/project-ncl/pnc</a>   Red Hat, Inc. &#169; 2014<img style="padding-left: 20px;" src="images/redhat.svg"></p>
+      </div>
+      </div>
+    </footer>
+  </body>
 </html>

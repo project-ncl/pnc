@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<!--[if IE 8]><html class="ie8"><![endif]-->
+<!--[if IE 9]><html class="ie9"><![endif]-->
+<!--[if gt IE 9]><!-->
+<html>
+<!--<![endif]-->
+  <head>
+    <meta charset="utf-8">
+    <title>Configuration Add</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="../images/favicon.ico">
+    <link rel="apple-touch-icon-precomposed" sizes="144x144" href="../bower_components/patternfly/dist/img/apple-touch-icon-144-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="114x114" href="../bower_components/patternfly/dist/img/apple-touch-icon-114-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="72x72" href="../bower_components/patternfly/dist/img/apple-touch-icon-72-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" href="../bower_components/patternfly/dist/img/apple-touch-icon-57-precomposed.png">
+
+    <link rel="stylesheet" href="../styles/dist.css">
+
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+    <script src="bower_components/patternfly/components/html5shiv/dist/html5shiv.min.js"></script>
+    <script src="bower_components/patternfly/components/respond/dest/respond.min.js"></script>
+    <![endif]-->
+    <!-- IE8 requires jQuery and Bootstrap JS to load in head to prevent rendering bugs -->
+    <!-- IE8 requires jQuery v1.x -->
+    <script src="../scripts/modules.js"></script>
+
+    <script src="../scripts/pnc-rest-api-url.js"></script>
+    <script src="../scripts/pnc-configurations.js"></script>
+
+  </head>
+  <body>
+    <nav class="navbar navbar-default navbar-pf" role="navigation">
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse-1">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="/">NCL Builder</a>
+      </div>
+      <div class="collapse navbar-collapse navbar-collapse-1">
+        <ul class="nav navbar-nav navbar-primary">
+          <li>
+            <a href="product.html">Home</a>
+          </li>                             
+        </ul>
+      </div>
+    </nav>
+    <div class="container-fluid">
+      <div class="row">
+        <div id="configuration_content_add" class="col-md-10">
+          <ol class="breadcrumb">
+            <li><a href="product.html">Product</a></li>
+            <li><a href="productversions.html">Version</a></li>
+            <li><a href="project.html">Project</a></li>
+            <li><a href="configurations.html">Configuration</a></li>
+            <li>Create new configuration</li>
+          </ol>
+          <h1>New Configuration</h1>
+          
+          <form class="form-horizontal">
+            <div class="form-group">
+              <label class="col-md-2 control-label" for="textInput">Identifier</label>
+              <div class="col-md-6">
+                <input type="text" id="addConfIdentifier" class="form-control">
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="col-md-2 control-label" for="textInput2">Build Script</label>
+              <div class="col-md-6">
+                <input type="text" id="addConfBuildScript" class="form-control">
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="col-md-2 control-label" for="textInput3">Scm Url</label>
+              <div class="col-md-6">
+                <input type="text" id="addConfScmUrl" class="form-control">
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="col-md-2 control-label" for="textInput4">Patches Url</label>
+              <div class="col-md-6">
+                <input type="text" id="addConfPatchesUrl" class="form-control">
+              </div>
+            </div>
+            <div class="form-group">
+              <div class="col-md-10 col-md-offset-2">
+                <button type="button" class="saveConfiguration btn btn-primary">Save</button>
+                <button type="button" class="cancelConfiguration btn btn-default">Cancel</button>
+              </div>
+            </div>
+          </form>
+        </div>
+
+        <div class="col-sm-4 col-md-2 sidebar-pf-right">
+          <div class="sidebar-header sidebar-header-bleed-left sidebar-header-bleed-right">
+            <h2 class="h2">Info</h2>
+          </div>
+          <dl>
+            <dt class="h4" style="font-weight: bold;">Product Name</dt>
+            <dd id="productInfoName"/>
+            <dt class="h4" style="font-weight: bold;">Product Description</dt>
+            <dd id="productInfoDesc"/>
+            <dt class="h4" style="font-weight: bold;">Product Version</dt>
+            <dd id="productInfoVersion" />
+            <dt class="h4" style="font-weight: bold;">Project Name</dt>
+            <dd id="projectInfoName"/>
+            <dt class="h4" style="font-weight: bold;">Project Description</dt>
+            <dd id="projectInfoDesc"/>
+            <dt class="h4" style="font-weight: bold;">IssueTracker Url</dt>
+            <dd id="projectInfoProjectUrl"/>
+            <dt class="h4" style="font-weight: bold;">Project Url</dt>
+            <dd id="projectInfoIssueTrackerUrl"/>
+          </dl>
+        </div>
+      </div>
+    </div>
+    <footer class="footer">
+      <div class="container">
+      <div align="center">
+        <p class="text-muted">PNC v0.2 <a href="https://github.com/project-ncl/pnc">https://github.com/project-ncl/pnc</a>   Red Hat, Inc. &#169; 2014<img style="padding-left: 20px;" src="../images/redhat.svg"></p>
+      </div>
+      </div>
+    </footer>  
+  </body>
+</html>
