@@ -44,6 +44,14 @@ Now everytime you save a file (html, css, js), Grunt is watching and will copy t
 _note: To make the consuming of remote REST endpoints working without incurring in the Cross-origin resource sharing (CORS) restriction, the `grunt-connect-proxy` has been used. Basically, all the request sent to `/pnc-web/rest` are proxied to `<endpointsLocalhost>`:`8080` (or `<endpointsCIServer>`:`8080`), while letting the browser think that they are all in the right domain._
 
 
+#### Grunt watch ENOSPC error
+
+The system has a limit to how many files can be watched by a user. You can run out of watches pretty quickly if you have Grunt running with other programs like Dropbox. This command increases the maximum amount of watches a user can have (refer to http://stackoverflow.com/questions/16748737/grunt-watch-error-waiting-fatal-error-watch-enospc):
+
+    echo fs.inotify.max_user_watches=524288 | sudo tee -a /etc/sysctl.conf && sudo sysctl -p
+
+_note: For Arch Linux add `fs.inotify.max_user_watches=524288` to `/etc/sysctl.d/99-sysctl.conf` and then execute `sysctl --system`. This will also persist across reboots_
+
 ### Generate distribution
 
 To create a distribution in `pnc-ui/dist/` directory:
