@@ -36,7 +36,7 @@ To run consuming REST endpoints from the local installation (`endpointsLocalhost
 
 To run consuming REST endpoints from the remote installation (`endpointsCIServer` value):
 
-    grunt serve --CIEndpoints 
+    grunt serve --target=CIEndpoints 
 
     
 Now everytime you save a file (html, css, js), Grunt is watching and will copy to configured directories, performing a livereload.
