@@ -1,6 +1,9 @@
 // Generated on 2015-01-07 using generator-angular 0.10.0
 'use strict';
 
+var LIVERELOAD_PORT = 35729;
+var PROXY_HOST = 'localhost';
+
 // # Globbing
 // for performance reasons we're only matching one level down:
 // 'test/spec/{,*/}*.js'
@@ -20,8 +23,26 @@ module.exports = function (grunt) {
     app: require('./bower.json').appPath || 'app',
     dist: 'dist',
     lib: 'app/bower_components',
-    tmp: '.tmp'
+    tmp: '.tmp',
+    proxyHost: PROXY_HOST
   };
+
+  grunt.registerTask( 'initRestConfig', function(){
+    if (!grunt.file.exists('./rest-config.json')){
+      var defaultContent = {
+        endpointsLocalhost: PROXY_HOST,
+        endpointsCIServer: 'localhost'
+      };
+      grunt.file.write('./rest-config.json',JSON.stringify(defaultContent,null,'\t'));
+    }
+    var config = grunt.config.getRaw();
+    config.local = grunt.file.readJSON('./rest-config.json');
+
+    var target = grunt.option('target') || 'localEndpoints';
+    if (target === 'CIEndpoints') {
+      appConfig.proxyHost = config.local.endpointsCIServer;
+    }
+  });
 
   // Define the configuration for all the tasks
   grunt.initConfig({
@@ -31,10 +52,6 @@ module.exports = function (grunt) {
 
     // Watches files for changes and runs tasks based on the changed files
     watch: {
-      /*bower: {
-        files: ['bower.json'],
-        tasks: ['wiredep']
-      },*/
       js: {
         files: ['<%= yeoman.app %>/scripts/{,*/}*.js'],
         tasks: ['newer:jshint:all'],
@@ -72,30 +89,29 @@ module.exports = function (grunt) {
         port: 9000,
         // Change this to '0.0.0.0' to access the server from outside.
         hostname: 'localhost',
-        livereload: 35729,
-        // Code below is meant to enable CORS (https://gist.github.com/Vp3n/5340891)
-        middleware: function(connect, options, middlewares) {
-          middlewares.unshift(function(req, res, next) {
-              res.setHeader('Access-Control-Allow-Origin', '*');
-              res.setHeader('Access-Control-Allow-Methods', '*');
-              next();
-          });
-
-          return middlewares;
-        }
+        livereload: LIVERELOAD_PORT
       },
+      proxies: [{
+        // Every request sent to <context> will be proxied to <host>:<port>
+        context: '/pnc-web/rest',
+        host:  '<%= yeoman.proxyHost %>',
+        port: 8080
+      }],
       livereload: {
         options: {
           open: true,
           middleware: function (connect) {
-            return [
-              connect.static('.tmp'),
-              connect().use(
-                '/app/bower_components',
-                connect.static('./app/bower_components')
-              ),
-              connect.static(appConfig.app)
-            ];
+            // Setup the proxy
+            var middlewares = [];
+            middlewares.push(connect.static('.tmp'));
+            middlewares.push(connect().use(
+              '/app/bower_components',
+              connect.static('./app/bower_components')
+            ));
+            middlewares.push(connect.static(appConfig.app));
+            middlewares.push(require('grunt-connect-proxy/lib/utils').proxyRequest);
+
+            return middlewares;
           }
         }
       },
@@ -103,15 +119,18 @@ module.exports = function (grunt) {
         options: {
           port: 9001,
           middleware: function (connect) {
-            return [
-              connect.static('.tmp'),
-              connect.static('test'),
-              connect().use(
-                '/app/bower_components',
-                connect.static('./app/bower_components')
-              ),
-              connect.static(appConfig.app)
-            ];
+            // Setup the proxy
+            var middlewares = [];
+            middlewares.push(connect.static('.tmp'));
+            middlewares.push(connect.static('test'));
+            middlewares.push(connect().use(
+              '/app/bower_components',
+              connect.static('./app/bower_components')
+            ));
+            middlewares.push(connect.static(appConfig.app));
+            middlewares.push(require('grunt-connect-proxy/lib/utils').proxyRequest);
+
+            return middlewares;
           }
         }
       },
@@ -170,14 +189,6 @@ module.exports = function (grunt) {
           src: '{,*/}*.css',
           dest: '<%= yeoman.tmp %>/styles/'
         }]
-      }
-    },
-
-    // Automatically inject Bower components into the app
-    wiredep: {
-      app: {
-        src: ['<%= yeoman.app %>/index.html'],
-        ignorePath:  /\.\.\//
       }
     },
 
@@ -422,10 +433,13 @@ module.exports = function (grunt) {
     }
 
     grunt.task.run([
+      'initRestConfig',
       'clean:server',
-      //'wiredep',
+      'concat',
       'concurrent:server',
+      'copy:fonts',
       'autoprefixer',
+      'configureProxies',
       'connect:livereload',
       'watch'
     ]);
@@ -437,6 +451,7 @@ module.exports = function (grunt) {
   });
 
   grunt.registerTask('test', [
+    'initRestConfig',
     'clean:server',
     'concurrent:test',
     'autoprefixer',
@@ -445,8 +460,8 @@ module.exports = function (grunt) {
   ]);
 
   grunt.registerTask('build', [
+    'initRestConfig',
     'clean:dist',
-    //'wiredep',
     'copy:fonts',
     'useminPrepare',
     'concurrent:dist',
@@ -472,4 +487,5 @@ module.exports = function (grunt) {
     'bower:install',
     'default'
   ]);
+
 };
