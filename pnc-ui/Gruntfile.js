@@ -63,6 +63,13 @@ module.exports = function (grunt) {
         files: ['test/spec/{,*/}*.js'],
         tasks: ['newer:jshint:test', 'karma']
       },
+      html: {
+        files: ['<%= yeoman.app %>/{,*/}*.html'],
+        tasks: ['htmlhint'],
+        options: {
+          livereload: '<%= connect.options.livereload %>'
+        }
+      },
       styles: {
         files: ['<%= yeoman.app %>/styles/{,*/}*.css'],
         tasks: ['newer:copy:styles', 'autoprefixer']
