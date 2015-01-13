@@ -162,6 +162,18 @@ module.exports = function (grunt) {
       }
     },
 
+    htmlhint: {
+      html: {
+        src: [
+          '<%= yeoman.app %>/*.html',
+          '<%= yeoman.app %>/views/{,*/}*.html'
+        ],
+        options: {
+          htmlhintrc: '.htmlhintrc'
+        }
+      }
+    },
+
     // Empties folders to start fresh
     clean: {
       dist: {
@@ -479,6 +491,7 @@ module.exports = function (grunt) {
 
   grunt.registerTask('default', [
     'newer:jshint',
+    'newer:htmlhint',
     'test',
     'build'
   ]);
