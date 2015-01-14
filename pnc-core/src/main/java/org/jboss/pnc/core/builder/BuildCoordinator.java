@@ -196,8 +196,8 @@ public class BuildCoordinator {
                 buildTask.setStatus(BuildStatus.BUILD_WAITING);
 
                 runningBuild.monitor(onComplete, onError);
-            } catch (Throwable throwable) { //TODO narrow down exception
-                waitToCompleteFuture.completeExceptionally(throwable);
+            } catch (Exception exception) {
+                waitToCompleteFuture.completeExceptionally(exception);
             }
         return waitToCompleteFuture;
     }

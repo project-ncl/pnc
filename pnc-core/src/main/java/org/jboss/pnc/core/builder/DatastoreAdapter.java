@@ -9,7 +9,6 @@ import org.jboss.pnc.spi.datastore.Datastore;
 import org.jboss.pnc.spi.datastore.DatastoreException;
 
 import javax.inject.Inject;
-import java.io.PrintWriter;
 import java.io.StringWriter;
 
 /**
@@ -46,11 +45,9 @@ public class DatastoreAdapter {
 
         ProjectBuildResult buildResult = new ProjectBuildResult();
         StringWriter stackTraceWriter = new StringWriter();
-        PrintWriter printWriter = new PrintWriter(stackTraceWriter);
-        e.printStackTrace(printWriter);
         buildResult.setStatus(BuildDriverStatus.UNKNOWN); //TODO set error status
         buildResult.setBuildLog(stackTraceWriter.toString());
-        log.debugf("Storing ERROR result of %s to datastore. Error: %s", projectBuildConfiguration.getIdentifier(), stackTraceWriter.toString());
+        log.debugf("Storing ERROR result of %s to datastore. Error: %s", projectBuildConfiguration.getIdentifier(), e);
         datastore.storeCompletedBuild(buildResult);
     }
 
