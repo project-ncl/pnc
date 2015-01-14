@@ -3,8 +3,8 @@ package org.jboss.pnc.rest.endpoint;
 import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
 import com.wordnik.swagger.annotations.ApiParam;
-import org.jboss.pnc.rest.provider.ProjectConfigurationProvider;
-import org.jboss.pnc.rest.restmodel.ProjectBuildConfigurationRest;
+import org.jboss.pnc.rest.provider.BuildConfigurationProvider;
+import org.jboss.pnc.rest.restmodel.BuildConfigurationRest;
 
 import javax.inject.Inject;
 import javax.validation.Valid;
@@ -17,36 +17,36 @@ import java.util.List;
 @Path("/product/{productId}/version/{versionId}/project/{projectId}/configuration")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
-public class ProjectConfigurationEndpoint {
+public class BuildConfigurationEndpoint {
 
-    private ProjectConfigurationProvider projectConfigurationProvider;
+    private BuildConfigurationProvider buildConfigurationProvider;
 
-    public ProjectConfigurationEndpoint() {
+    public BuildConfigurationEndpoint() {
     }
 
     @Inject
-    public ProjectConfigurationEndpoint(ProjectConfigurationProvider projectConfigurationProvider) {
-        this.projectConfigurationProvider = projectConfigurationProvider;
+    public BuildConfigurationEndpoint(BuildConfigurationProvider buildConfigurationProvider) {
+        this.buildConfigurationProvider = buildConfigurationProvider;
     }
 
     @ApiOperation(value = "Gets specific all Projects configuration")
     @GET
-    public List<ProjectBuildConfigurationRest> getAll(
+    public List<BuildConfigurationRest> getAll(
             @ApiParam(value = "Product id", required = true) @PathParam("productId") Integer productId,
             @ApiParam(value = "Product Version id", required = true) @PathParam("versionId") Integer productVersionId,
             @ApiParam(value = "Project id", required = true) @PathParam("projectId") Integer projectId) {
-        return projectConfigurationProvider.getAll(projectId);
+        return buildConfigurationProvider.getAll(projectId);
     }
 
     @ApiOperation(value = "Gets specific Project's configuration")
     @GET
     @Path("/{id}")
-    public ProjectBuildConfigurationRest getSpecific(
+    public BuildConfigurationRest getSpecific(
             @ApiParam(value = "Product id", required = true) @PathParam("productId") Integer productId,
             @ApiParam(value = "Product Version id", required = true) @PathParam("versionId") Integer productVersionId,
             @ApiParam(value = "Project id", required = true) @PathParam("projectId") Integer projectId,
             @ApiParam(value = "Project's Configuration id", required = true) @PathParam("id") Integer id) {
-        return projectConfigurationProvider.getSpecific(projectId, id);
+        return buildConfigurationProvider.getSpecific(projectId, id);
     }
 
     @ApiOperation(value = "Creates new Project's configuration")
@@ -55,10 +55,10 @@ public class ProjectConfigurationEndpoint {
             @ApiParam(value = "Product id", required = true) @PathParam("productId") Integer productId,
             @ApiParam(value = "Product Version id", required = true) @PathParam("versionId") Integer productVersionId,
             @ApiParam(value = "Project id", required = true) @PathParam("projectId") Integer projectId,
-            @NotNull @Valid ProjectBuildConfigurationRest projectBuildConfigurationRest,
+            @NotNull @Valid BuildConfigurationRest buildConfigurationRest,
             @Context UriInfo uriInfo) {
         UriBuilder uriBuilder = UriBuilder.fromUri(uriInfo.getRequestUri()).path("{id}");
-        int id = projectConfigurationProvider.store(projectId, projectBuildConfigurationRest);
+        int id = buildConfigurationProvider.store(projectId, buildConfigurationRest);
         return Response.created(uriBuilder.build(id)).build();
     }
 
@@ -70,7 +70,7 @@ public class ProjectConfigurationEndpoint {
             @ApiParam(value = "Product Version id", required = true) @PathParam("versionId") Integer productVersionId,
             @ApiParam(value = "Project id", required = true) @PathParam("projectId") Integer projectId,
             @ApiParam(value = "Project's Configuration id", required = true) @PathParam("id") Integer id) {
-        projectConfigurationProvider.delete(id);
+        buildConfigurationProvider.delete(id);
         return Response.ok().build();
     }
 }

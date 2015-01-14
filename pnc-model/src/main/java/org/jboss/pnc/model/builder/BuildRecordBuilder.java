@@ -25,8 +25,8 @@ import java.util.List;
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.BuildCollection;
 import org.jboss.pnc.model.BuildDriverStatus;
-import org.jboss.pnc.model.ProjectBuildConfiguration;
-import org.jboss.pnc.model.ProjectBuildResult;
+import org.jboss.pnc.model.BuildConfiguration;
+import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.SystemImage;
 import org.jboss.pnc.model.User;
 
@@ -34,7 +34,7 @@ import org.jboss.pnc.model.User;
  * @author avibelli
  *
  */
-public class ProjectBuildResultBuilder {
+public class BuildRecordBuilder {
 
     private Integer id;
 
@@ -44,7 +44,7 @@ public class ProjectBuildResultBuilder {
 
     private Timestamp endTime;
 
-    private ProjectBuildConfiguration projectBuildConfiguration;
+    private BuildConfiguration buildConfiguration;
 
     private User user;
 
@@ -66,130 +66,130 @@ public class ProjectBuildResultBuilder {
 
     private List<BuildCollection> buildCollections;
 
-    public ProjectBuildResultBuilder() {
+    public BuildRecordBuilder() {
         startTime = Timestamp.from(Instant.now());
         buildCollections = new ArrayList<>();
         dependencies = new ArrayList<>();
         builtArtifacts = new ArrayList<>();
     }
 
-    public static ProjectBuildResultBuilder newBuilder() {
-        return new ProjectBuildResultBuilder();
+    public static BuildRecordBuilder newBuilder() {
+        return new BuildRecordBuilder();
     }
 
-    public ProjectBuildResult build() {
-        ProjectBuildResult projectBuildResult = new ProjectBuildResult();
-        projectBuildResult.setId(id);
-        projectBuildResult.setBuildScript(buildScript);
-        projectBuildResult.setStartTime(startTime);
-        projectBuildResult.setEndTime(endTime);
-        projectBuildResult.setProjectBuildConfiguration(projectBuildConfiguration);
-        projectBuildResult.setUser(user);
-        projectBuildResult.setSourceUrl(sourceUrl);
-        projectBuildResult.setPatchesUrl(patchesUrl);
-        projectBuildResult.setBuildLog(buildLog);
-        projectBuildResult.setStatus(status);
-        projectBuildResult.setBuildDriverId(buildDriverId);
-        projectBuildResult.setSystemImage(systemImage);
+    public BuildRecord build() {
+        BuildRecord buildRecord = new BuildRecord();
+        buildRecord.setId(id);
+        buildRecord.setBuildScript(buildScript);
+        buildRecord.setStartTime(startTime);
+        buildRecord.setEndTime(endTime);
+        buildRecord.setBuildConfiguration(buildConfiguration);
+        buildRecord.setUser(user);
+        buildRecord.setSourceUrl(sourceUrl);
+        buildRecord.setPatchesUrl(patchesUrl);
+        buildRecord.setBuildLog(buildLog);
+        buildRecord.setStatus(status);
+        buildRecord.setBuildDriverId(buildDriverId);
+        buildRecord.setSystemImage(systemImage);
 
         // Set the bi-directional mapping
         for (Artifact artifact : builtArtifacts) {
-            artifact.setProjectBuildResult(projectBuildResult);
+            artifact.setBuildRecord(buildRecord);
         }
-        projectBuildResult.setBuiltArtifacts(builtArtifacts);
+        buildRecord.setBuiltArtifacts(builtArtifacts);
 
         // Set the bi-directional mapping
         for (Artifact artifact : dependencies) {
-            artifact.setProjectBuildResult(projectBuildResult);
+            artifact.setBuildRecord(buildRecord);
         }
-        projectBuildResult.setDependencies(dependencies);
+        buildRecord.setDependencies(dependencies);
 
-        projectBuildResult.setBuildCollections(buildCollections);
+        buildRecord.setBuildCollections(buildCollections);
 
-        return projectBuildResult;
+        return buildRecord;
     }
 
-    public ProjectBuildResultBuilder id(Integer id) {
+    public BuildRecordBuilder id(Integer id) {
         this.id = id;
         return this;
     }
 
-    public ProjectBuildResultBuilder buildScript(String buildScript) {
+    public BuildRecordBuilder buildScript(String buildScript) {
         this.buildScript = buildScript;
         return this;
     }
 
-    public ProjectBuildResultBuilder startTime(Timestamp startTime) {
+    public BuildRecordBuilder startTime(Timestamp startTime) {
         this.startTime = startTime;
         return this;
     }
 
-    public ProjectBuildResultBuilder endTime(Timestamp endTime) {
+    public BuildRecordBuilder endTime(Timestamp endTime) {
         this.endTime = endTime;
         return this;
     }
 
-    public ProjectBuildResultBuilder projectBuildConfiguration(ProjectBuildConfiguration projectBuildConfiguration) {
-        this.projectBuildConfiguration = projectBuildConfiguration;
+    public BuildRecordBuilder buildConfiguration(BuildConfiguration buildConfiguration) {
+        this.buildConfiguration = buildConfiguration;
         return this;
     }
 
-    public ProjectBuildResultBuilder user(User user) {
+    public BuildRecordBuilder user(User user) {
         this.user = user;
         return this;
     }
 
-    public ProjectBuildResultBuilder sourceUrl(String sourceUrl) {
+    public BuildRecordBuilder sourceUrl(String sourceUrl) {
         this.sourceUrl = sourceUrl;
         return this;
     }
 
-    public ProjectBuildResultBuilder patchesUrl(String patchesUrl) {
+    public BuildRecordBuilder patchesUrl(String patchesUrl) {
         this.patchesUrl = patchesUrl;
         return this;
     }
 
-    public ProjectBuildResultBuilder buildLog(String buildLog) {
+    public BuildRecordBuilder buildLog(String buildLog) {
         this.buildLog = buildLog;
         return this;
     }
 
-    public ProjectBuildResultBuilder status(BuildDriverStatus status) {
+    public BuildRecordBuilder status(BuildDriverStatus status) {
         this.status = status;
         return this;
     }
 
-    public ProjectBuildResultBuilder builtArtifact(Artifact builtArtifact) {
+    public BuildRecordBuilder builtArtifact(Artifact builtArtifact) {
         this.builtArtifacts.add(builtArtifact);
         return this;
     }
 
-    public ProjectBuildResultBuilder builtArtifacts(List<Artifact> builtArtifacts) {
+    public BuildRecordBuilder builtArtifacts(List<Artifact> builtArtifacts) {
         this.builtArtifacts = builtArtifacts;
         return this;
     }
 
-    public ProjectBuildResultBuilder dependency(Artifact builtArtifact) {
+    public BuildRecordBuilder dependency(Artifact builtArtifact) {
         this.dependencies.add(builtArtifact);
         return this;
     }
 
-    public ProjectBuildResultBuilder dependencies(List<Artifact> dependencies) {
+    public BuildRecordBuilder dependencies(List<Artifact> dependencies) {
         this.dependencies = dependencies;
         return this;
     }
 
-    public ProjectBuildResultBuilder buildDriverId(String buildDriverId) {
+    public BuildRecordBuilder buildDriverId(String buildDriverId) {
         this.buildDriverId = buildDriverId;
         return this;
     }
 
-    public ProjectBuildResultBuilder systemImage(SystemImage systemImage) {
+    public BuildRecordBuilder systemImage(SystemImage systemImage) {
         this.systemImage = systemImage;
         return this;
     }
 
-    public ProjectBuildResultBuilder buildCollections(List<BuildCollection> buildCollections) {
+    public BuildRecordBuilder buildCollections(List<BuildCollection> buildCollections) {
         this.buildCollections = buildCollections;
         return this;
     }
@@ -210,8 +210,8 @@ public class ProjectBuildResultBuilder {
         return endTime;
     }
 
-    public ProjectBuildConfiguration getProjectBuildConfiguration() {
-        return projectBuildConfiguration;
+    public BuildConfiguration getBuildConfiguration() {
+        return buildConfiguration;
     }
 
     public User getUser() {

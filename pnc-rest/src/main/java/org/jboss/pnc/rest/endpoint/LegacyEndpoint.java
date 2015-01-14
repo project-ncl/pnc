@@ -4,8 +4,8 @@ import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
 import com.wordnik.swagger.annotations.ApiParam;
 import org.jboss.pnc.core.exception.CoreException;
-import org.jboss.pnc.rest.provider.ProjectConfigurationProvider;
-import org.jboss.pnc.rest.restmodel.ProjectBuildConfigurationRest;
+import org.jboss.pnc.rest.provider.BuildConfigurationProvider;
+import org.jboss.pnc.rest.restmodel.BuildConfigurationRest;
 import org.jboss.pnc.rest.trigger.BuildTriggerer;
 
 import javax.inject.Inject;
@@ -29,22 +29,22 @@ import java.util.List;
 @Consumes(MediaType.APPLICATION_JSON)
 public class LegacyEndpoint {
 
-    private ProjectConfigurationProvider projectConfigurationProvider;
+    private BuildConfigurationProvider buildConfigurationProvider;
     private BuildTriggerer buildTriggerer;
 
     public LegacyEndpoint() {
     }
 
     @Inject
-    public LegacyEndpoint(ProjectConfigurationProvider projectConfigurationProvider, BuildTriggerer buildTriggerer) {
-        this.projectConfigurationProvider = projectConfigurationProvider;
+    public LegacyEndpoint(BuildConfigurationProvider buildConfigurationProvider, BuildTriggerer buildTriggerer) {
+        this.buildConfigurationProvider = buildConfigurationProvider;
         this.buildTriggerer = buildTriggerer;
     }
 
     @ApiOperation(value = "Gets all Product Configuration")
     @GET
-    public List<ProjectBuildConfigurationRest> getAll() {
-        return projectConfigurationProvider.getAll();
+    public List<BuildConfigurationRest> getAll() {
+        return buildConfigurationProvider.getAll();
     }
 
     @ApiOperation(value = "Triggers a build")

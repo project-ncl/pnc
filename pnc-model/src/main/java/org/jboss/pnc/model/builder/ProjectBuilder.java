@@ -23,7 +23,7 @@ import java.util.Set;
 import org.jboss.pnc.model.License;
 import org.jboss.pnc.model.ProductVersionProject;
 import org.jboss.pnc.model.Project;
-import org.jboss.pnc.model.ProjectBuildConfiguration;
+import org.jboss.pnc.model.BuildConfiguration;
 
 /**
  * @author avibelli
@@ -45,11 +45,11 @@ public class ProjectBuilder {
 
     private Set<ProductVersionProject> productVersionProjects;
 
-    private Set<ProjectBuildConfiguration> projectBuildConfigurations;
+    private Set<BuildConfiguration> buildConfigurations;
 
     private ProjectBuilder() {
         productVersionProjects = new HashSet<>();
-        projectBuildConfigurations = new HashSet<>();
+        buildConfigurations = new HashSet<>();
     }
 
     public static ProjectBuilder newBuilder() {
@@ -73,10 +73,10 @@ public class ProjectBuilder {
         project.setProductVersionProjects(productVersionProjects);
 
         // Set the bi-directional mapping
-        for (ProjectBuildConfiguration projectBuildConfiguration : projectBuildConfigurations) {
-            projectBuildConfiguration.setProject(project);
+        for (BuildConfiguration buildConfiguration : buildConfigurations) {
+            buildConfiguration.setProject(project);
         }
-        project.setProjectBuildConfigurations(projectBuildConfigurations);
+        project.setBuildConfigurations(buildConfigurations);
 
         return project;
     }
@@ -116,8 +116,8 @@ public class ProjectBuilder {
         return this;
     }
 
-    public ProjectBuilder projectBuildConfiguration(ProjectBuildConfiguration projectBuildConfiguration) {
-        this.projectBuildConfigurations.add(projectBuildConfiguration);
+    public ProjectBuilder buildConfiguration(BuildConfiguration buildConfiguration) {
+        this.buildConfigurations.add(buildConfiguration);
         return this;
     }
 
@@ -126,8 +126,8 @@ public class ProjectBuilder {
         return this;
     }
 
-    public ProjectBuilder projectBuildConfigurations(Set<ProjectBuildConfiguration> projectBuildConfigurations) {
-        this.projectBuildConfigurations = projectBuildConfigurations;
+    public ProjectBuilder buildConfigurations(Set<BuildConfiguration> buildConfigurations) {
+        this.buildConfigurations = buildConfigurations;
         return this;
     }
 
@@ -159,8 +159,8 @@ public class ProjectBuilder {
         return productVersionProjects;
     }
 
-    public Set<ProjectBuildConfiguration> getProjectBuildConfigurations() {
-        return projectBuildConfigurations;
+    public Set<BuildConfiguration> getBuildConfigurations() {
+        return buildConfigurations;
     }
 
 }

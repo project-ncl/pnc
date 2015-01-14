@@ -23,7 +23,7 @@ import java.util.List;
 import org.jboss.pnc.model.BuildCollection;
 import org.jboss.pnc.model.ProductMilestone;
 import org.jboss.pnc.model.ProductVersion;
-import org.jboss.pnc.model.ProjectBuildResult;
+import org.jboss.pnc.model.BuildRecord;
 
 /**
  * @author avibelli
@@ -39,10 +39,10 @@ public class BuildCollectionBuilder {
 
     private ProductVersion productVersion;
 
-    private List<ProjectBuildResult> projectBuildResults;
+    private List<BuildRecord> buildRecords;
 
     private BuildCollectionBuilder() {
-        projectBuildResults = new ArrayList<>();
+        buildRecords = new ArrayList<>();
     }
 
     public static BuildCollectionBuilder newBuilder() {
@@ -61,11 +61,11 @@ public class BuildCollectionBuilder {
         buildCollection.setProductVersion(productVersion);
 
         // Set the bi-directional mapping
-        for (ProjectBuildResult projectBuildResult : projectBuildResults) {
-            projectBuildResult.getBuildCollections().add(buildCollection);
+        for (BuildRecord buildRecord : buildRecords) {
+            buildRecord.getBuildCollections().add(buildCollection);
         }
 
-        buildCollection.setProjectBuildResult(projectBuildResults);
+        buildCollection.setBuildRecord(buildRecords);
 
         return buildCollection;
     }
@@ -90,13 +90,13 @@ public class BuildCollectionBuilder {
         return this;
     }
 
-    public BuildCollectionBuilder projectBuildResult(ProjectBuildResult projectBuildResult) {
-        this.projectBuildResults.add(projectBuildResult);
+    public BuildCollectionBuilder buildRecord(BuildRecord buildRecord) {
+        this.buildRecords.add(buildRecord);
         return this;
     }
 
-    public BuildCollectionBuilder projectBuildResults(List<ProjectBuildResult> projectBuildResult) {
-        this.projectBuildResults = projectBuildResult;
+    public BuildCollectionBuilder buildRecords(List<BuildRecord> buildRecords) {
+        this.buildRecords = buildRecords;
         return this;
     }
 
@@ -116,8 +116,8 @@ public class BuildCollectionBuilder {
         return productVersion;
     }
 
-    public List<ProjectBuildResult> getProjectBuildResults() {
-        return projectBuildResults;
+    public List<BuildRecord> getBuildRecords() {
+        return buildRecords;
     }
 
 }

@@ -4,14 +4,14 @@ import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.junit.InSequence;
 import org.jboss.arquillian.transaction.api.annotation.Transactional;
-import org.jboss.pnc.datastore.repositories.ProjectBuildConfigurationRepository;
-import org.jboss.pnc.datastore.repositories.ProjectBuildResultRepository;
+import org.jboss.pnc.datastore.repositories.BuildConfigurationRepository;
+import org.jboss.pnc.datastore.repositories.BuildRecordRepository;
 import org.jboss.pnc.integration.deployments.Deployments;
 import org.jboss.pnc.model.*;
 import org.jboss.pnc.rest.provider.BuildArtifactProvider;
-import org.jboss.pnc.rest.provider.BuildResultProvider;
+import org.jboss.pnc.rest.provider.BuildRecordProvider;
 import org.jboss.pnc.rest.restmodel.ArtifactRest;
-import org.jboss.pnc.rest.restmodel.BuildResultRest;
+import org.jboss.pnc.rest.restmodel.BuildRecordRest;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.junit.Test;
@@ -28,29 +28,29 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 
 @RunWith(Arquillian.class)
-public class BuildResultsTest {
+public class BuildRecordsTest {
 
     public static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-    private static Integer buildResultId;
+    private static Integer buildRecordId;
 
     @Inject
-    private ProjectBuildResultRepository projectBuildResultRepository;
+    private BuildRecordRepository buildRecordRepository;
 
     @Inject
-    private ProjectBuildConfigurationRepository projectBuildConfigurationRepository;
+    private BuildConfigurationRepository buildConfigurationRepository;
 
     @Inject
     private BuildArtifactProvider buildArtifactProvider;
 
     @Inject
-    private BuildResultProvider buildResultProvider;
+    private BuildRecordProvider buildRecordProvider;
 
     @Deployment
     public static EnterpriseArchive deploy() {
         EnterpriseArchive enterpriseArchive = Deployments.baseEarWithTestDependencies();
         WebArchive war = enterpriseArchive.getAsType(WebArchive.class, "/pnc-web.war");
-        war.addClass(BuildResultsTest.class);
+        war.addClass(BuildRecordsTest.class);
         logger.info(enterpriseArchive.toString(true));
         return enterpriseArchive;
     }
@@ -59,38 +59,38 @@ public class BuildResultsTest {
     @InSequence(-1)
     @Transactional
     public void shouldInsertValuesIntoDB() {
-        ProjectBuildConfiguration projectBuildConfiguration = projectBuildConfigurationRepository.findAll().iterator().next();
+        BuildConfiguration buildConfiguration = buildConfigurationRepository.findAll().iterator().next();
 
         Artifact artifact = new Artifact();
         artifact.setIdentifier("test");
         artifact.setStatus(ArtifactStatus.BINARY_BUILT);
 
-        ProjectBuildResult projectBuildResult = new ProjectBuildResult();
-        projectBuildResult.setBuildLog("test");
-        projectBuildResult.setStatus(BuildDriverStatus.SUCCESS);
-        projectBuildResult.setProjectBuildConfiguration(projectBuildConfiguration);
+        BuildRecord buildRecord = new BuildRecord();
+        buildRecord.setBuildLog("test");
+        buildRecord.setStatus(BuildDriverStatus.SUCCESS);
+        buildRecord.setBuildConfiguration(buildConfiguration);
 
-        artifact.setProjectBuildResult(projectBuildResult);
-        projectBuildResult.getBuiltArtifacts().add(artifact);
+        artifact.setBuildRecord(buildRecord);
+        buildRecord.getBuiltArtifacts().add(artifact);
 
-        projectBuildResult = projectBuildResultRepository.save(projectBuildResult);
+        buildRecord = buildRecordRepository.save(buildRecord);
 
-        buildResultId = projectBuildResult.getId();
+        buildRecordId = buildRecord.getId();
     }
 
     @Test
-    public void shouldGetAllBuildResults() {
+    public void shouldGetAllBuildRecords() {
         //when
-        List<BuildResultRest> buildResults = buildResultProvider.getAllArchived();
+        List<BuildRecordRest> buildRecords = buildRecordProvider.getAllArchived();
 
         //then
-        assertThat(buildResults).hasSize(1);
+        assertThat(buildRecords).hasSize(1);
     }
 
     @Test
     public void shouldGetSpecificBuildResult() {
         //when
-        BuildResultRest buildResults = buildResultProvider.getSpecific(buildResultId);
+        BuildRecordRest buildResults = buildRecordProvider.getSpecific(buildRecordId);
 
         //then
         assertThat(buildResults).isNotNull();
@@ -99,7 +99,7 @@ public class BuildResultsTest {
     @Test
     public void shouldGetLogsForSpecificBuildResult() {
         //when
-        StreamingOutput logs = buildResultProvider.getLogsForBuildId(buildResultId);
+        StreamingOutput logs = buildRecordProvider.getLogsForBuildId(buildRecordId);
 
         //then
         assertThat(logs).isNotNull();
@@ -108,7 +108,7 @@ public class BuildResultsTest {
     @Test
     public void shouldGetArtifactsForSpecificBuildResult() {
         //when
-        List<ArtifactRest> artifacts = buildArtifactProvider.getAll(buildResultId);
+        List<ArtifactRest> artifacts = buildArtifactProvider.getAll(buildRecordId);
 
         //then
         assertThat(artifacts).hasSize(1);

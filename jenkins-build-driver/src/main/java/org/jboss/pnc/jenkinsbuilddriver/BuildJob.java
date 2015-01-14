@@ -2,7 +2,7 @@ package org.jboss.pnc.jenkinsbuilddriver;
 
 import com.offbytwo.jenkins.JenkinsServer;
 import com.offbytwo.jenkins.model.JobWithDetails;
-import org.jboss.pnc.model.ProjectBuildConfiguration;
+import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
 import org.jboss.pnc.spi.repositorymanager.RepositoryConfiguration;
 
@@ -13,14 +13,14 @@ import java.io.IOException;
  */
 class BuildJob {
     private JenkinsServer jenkinsServer;
-    private ProjectBuildConfiguration projectBuildConfiguration;
+    private BuildConfiguration buildConfiguration;
     private BuildJobConfig buildJobConfig;
     private JobWithDetails job;
     private int buildNumber;
 
-    public BuildJob(JenkinsServer jenkinsServer, ProjectBuildConfiguration projectBuildConfiguration) {
+    public BuildJob(JenkinsServer jenkinsServer, BuildConfiguration buildConfiguration) {
         this.jenkinsServer = jenkinsServer;
-        this.projectBuildConfiguration = projectBuildConfiguration;
+        this.buildConfiguration = buildConfiguration;
     }
 
     public boolean configure(RepositoryConfiguration repositoryConfiguration, boolean override) throws BuildDriverException {
@@ -28,9 +28,9 @@ class BuildJob {
 
         this.buildJobConfig = new BuildJobConfig(
                 jobName,
-                projectBuildConfiguration.getScmUrl(),
-                projectBuildConfiguration.getScmBranch(),
-                projectBuildConfiguration.getBuildScript(),
+                buildConfiguration.getScmUrl(),
+                buildConfiguration.getScmBranch(),
+                buildConfiguration.getBuildScript(),
                 repositoryConfiguration.getConnectionInfo());
 
         try {
@@ -62,7 +62,7 @@ class BuildJob {
     }
 
     public String getJobName() {
-        return projectBuildConfiguration.getIdentifier();
+        return buildConfiguration.getIdentifier();
     }
 
     public int start() throws BuildDriverException {
