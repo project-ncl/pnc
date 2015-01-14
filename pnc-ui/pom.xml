@@ -42,7 +42,7 @@
                         <phase>generate-resources</phase>
                         <configuration>
                             <nodeVersion>v0.10.31</nodeVersion>
-                            <npmVersion>1.4.23</npmVersion>
+                            <npmVersion>2.2.0</npmVersion>
                         </configuration>
                     </execution>
 
