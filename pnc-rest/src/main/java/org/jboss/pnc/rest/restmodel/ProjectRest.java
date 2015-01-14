@@ -33,8 +33,8 @@ public class ProjectRest {
         this.name = project.getName();
         this.issueTrackerUrl = project.getIssueTrackerUrl();
         this.projectUrl = project.getProjectUrl();
-        configurationIds = nullableStreamOf(project.getProjectBuildConfigurations())
-                .map(projectBuildConfiguration -> projectBuildConfiguration.getId())
+        configurationIds = nullableStreamOf(project.getBuildConfigurations())
+                .map(buildConfiguration -> buildConfiguration.getId())
                 .collect(Collectors.toList());
     }
 

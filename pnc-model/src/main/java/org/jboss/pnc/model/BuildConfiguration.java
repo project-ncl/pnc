@@ -14,7 +14,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * The Class ProjectBuildConfiguration cointains the informations needed to trigger the build of a project, i.e. the sources and
+ * The Class BuildConfiguration cointains the informations needed to trigger the build of a project, i.e. the sources and
  * patches URLs, the build script, the environment needed to run, the project configurations that need to be triggered after a
  * successful build. It contains also creation and last modification time for historical purposes
  * 
@@ -23,7 +23,7 @@ import java.util.Set;
  * @author avibelli
  */
 @Entity
-public class ProjectBuildConfiguration implements Serializable {
+public class BuildConfiguration implements Serializable {
 
     private static final long serialVersionUID = -5890729679489304114L;
 
@@ -49,10 +49,10 @@ public class ProjectBuildConfiguration implements Serializable {
     private Environment environment;
 
     @ManyToOne(cascade = CascadeType.ALL)
-    private ProjectBuildConfiguration parent;
+    private BuildConfiguration parent;
 
     @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL)
-    private Set<ProjectBuildConfiguration> dependencies;
+    private Set<BuildConfiguration> dependencies;
 
     private Timestamp creationTime;
 
@@ -67,7 +67,7 @@ public class ProjectBuildConfiguration implements Serializable {
     /**
      * Instantiates a new project build configuration.
      */
-    public ProjectBuildConfiguration() {
+    public BuildConfiguration() {
         dependencies = new HashSet<>();
         creationTime = Timestamp.from(Instant.now());
     }
@@ -195,28 +195,28 @@ public class ProjectBuildConfiguration implements Serializable {
     /**
      * @return the parent
      */
-    public ProjectBuildConfiguration getParent() {
+    public BuildConfiguration getParent() {
         return parent;
     }
 
     /**
      * @param parent the parent to set
      */
-    public void setParent(ProjectBuildConfiguration parent) {
+    public void setParent(BuildConfiguration parent) {
         this.parent = parent;
     }
 
     /**
      * @return the dependencies
      */
-    public Set<ProjectBuildConfiguration> getDependencies() {
+    public Set<BuildConfiguration> getDependencies() {
         return dependencies;
     }
 
     /**
      * @param dependencies the dependencies to set
      */
-    public void setDependencies(Set<ProjectBuildConfiguration> dependencies) {
+    public void setDependencies(Set<BuildConfiguration> dependencies) {
         this.dependencies = dependencies;
     }
 
@@ -262,13 +262,13 @@ public class ProjectBuildConfiguration implements Serializable {
         this.repositories = repositories;
     }
 
-    public ProjectBuildConfiguration addDependency(ProjectBuildConfiguration configuration) {
+    public BuildConfiguration addDependency(BuildConfiguration configuration) {
         configuration.setParent(this);
         dependencies.add(configuration);
         return this;
     }
 
-    public ProjectBuildConfiguration removeDependency(ProjectBuildConfiguration configuration) {
+    public BuildConfiguration removeDependency(BuildConfiguration configuration) {
         configuration.setParent(null);
         dependencies.remove(configuration);
         return this;
@@ -276,7 +276,7 @@ public class ProjectBuildConfiguration implements Serializable {
 
     @Override
     public String toString() {
-        return "ProjectBuildConfiguration [project=" + project + ", identifier=" + identifier + "]";
+        return "BuildConfiguration [project=" + project + ", identifier=" + identifier + "]";
     }
 
     @Override
@@ -284,7 +284,7 @@ public class ProjectBuildConfiguration implements Serializable {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        ProjectBuildConfiguration that = (ProjectBuildConfiguration) o;
+        BuildConfiguration that = (BuildConfiguration) o;
 
         if (id != null ? !id.equals(that.id) : that.id != null) return false;
 

@@ -3,9 +3,9 @@ package org.jboss.pnc.rest.trigger;
 import com.google.common.base.Preconditions;
 import org.jboss.pnc.core.builder.BuildCoordinator;
 import org.jboss.pnc.core.exception.CoreException;
-import org.jboss.pnc.datastore.repositories.ProjectBuildConfigurationRepository;
+import org.jboss.pnc.datastore.repositories.BuildConfigurationRepository;
 import org.jboss.pnc.model.BuildCollection;
-import org.jboss.pnc.model.ProjectBuildConfiguration;
+import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerException;
 
@@ -16,28 +16,28 @@ import javax.inject.Inject;
 public class BuildTriggerer {
 
     private BuildCoordinator buildCoordinator;
-    private ProjectBuildConfigurationRepository projectBuildConfigurationRepository;
+    private BuildConfigurationRepository buildConfigurationRepository;
 
     //to make CDI happy
     public BuildTriggerer() {
     }
 
     @Inject
-    public BuildTriggerer(final BuildCoordinator buildCoordinator, final ProjectBuildConfigurationRepository projectBuildConfigurationRepository) {
+    public BuildTriggerer(final BuildCoordinator buildCoordinator, final BuildConfigurationRepository buildConfigurationRepository) {
         this.buildCoordinator = buildCoordinator;
-        this.projectBuildConfigurationRepository = projectBuildConfigurationRepository;
+        this.buildConfigurationRepository = buildConfigurationRepository;
     }
 
     public int triggerBuilds( final Integer configurationId )
         throws InterruptedException, CoreException, BuildDriverException, RepositoryManagerException
     {
-        final ProjectBuildConfiguration configuration = projectBuildConfigurationRepository.findOne(configurationId);
+        final BuildConfiguration configuration = buildConfigurationRepository.findOne(configurationId);
         Preconditions.checkArgument(configuration != null, "Can't find configuration with given id=" + configurationId);
 
         final BuildCollection buildCollection = new BuildCollection();
         buildCollection.setProductVersion(configuration.getProductVersion());
 
-        return buildCoordinator.build(configuration).getProjectBuildConfiguration().getId();
+        return buildCoordinator.build(configuration).getBuildConfiguration().getId();
     }
 
 }

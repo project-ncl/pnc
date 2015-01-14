@@ -11,8 +11,8 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import java.util.List;
 
-@Api(value = "/result/${buildResultId}/artifact", description = "Results of building process")
-@Path("/result/${buildResultId}/artifact")
+@Api(value = "/result/${buildRecordId}/artifact", description = "Results of building process")
+@Path("/result/${buildRecordId}/artifact")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 public class BuildArtifactEndpoint {
@@ -30,7 +30,7 @@ public class BuildArtifactEndpoint {
     @ApiOperation(value = "Gets all Build Artifacts")
     @GET
     public List<ArtifactRest> getAll(
-            @ApiParam(value = "Build Result id", required = true) @PathParam("buildResultId") Integer buildResultId) {
-        return buildArtifactProvider.getAll(buildResultId);
+            @ApiParam(value = "Build Result id", required = true) @PathParam("buildRecordId") Integer buildRecordId) {
+        return buildArtifactProvider.getAll(buildRecordId);
     }
 }

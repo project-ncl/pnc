@@ -4,7 +4,7 @@ import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.pnc.core.builder.BuildTask;
 import org.jboss.pnc.core.builder.BuildTasksTree;
 import org.jboss.pnc.core.test.configurationBuilders.TestProjectConfigurationBuilder;
-import org.jboss.pnc.model.ProjectBuildConfiguration;
+import org.jboss.pnc.model.BuildConfiguration;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -20,8 +20,8 @@ public class ReadDependenciesTest extends ProjectBuilder {
         TestProjectConfigurationBuilder configurationBuilder = new TestProjectConfigurationBuilder();
 
         BuildTasksTree buildTasksTree = new BuildTasksTree(buildCoordinator);
-        ProjectBuildConfiguration projectBuildConfiguration = configurationBuilder.buildConfigurationWithDependencies();
-        BuildTask buildTask = buildTasksTree.getOrCreateSubmittedBuild(projectBuildConfiguration);
+        BuildConfiguration buildConfiguration = configurationBuilder.buildConfigurationWithDependencies();
+        BuildTask buildTask = buildTasksTree.getOrCreateSubmittedBuild(buildConfiguration);
 
         Assert.assertEquals("Missing projects in tree structure.", 5, buildTasksTree.getSubmittedBuilds().size());
 

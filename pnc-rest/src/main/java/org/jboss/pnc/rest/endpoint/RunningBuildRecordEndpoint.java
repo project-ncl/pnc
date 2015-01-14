@@ -3,8 +3,8 @@ package org.jboss.pnc.rest.endpoint;
 import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
 import com.wordnik.swagger.annotations.ApiParam;
-import org.jboss.pnc.rest.provider.BuildResultProvider;
-import org.jboss.pnc.rest.restmodel.BuildResultRest;
+import org.jboss.pnc.rest.provider.BuildRecordProvider;
+import org.jboss.pnc.rest.restmodel.BuildRecordRest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,39 +19,39 @@ import java.util.List;
 @Path("/result/running")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
-public class RunningBuildResultEndpoint {
+public class RunningBuildRecordEndpoint {
 
     private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-    private BuildResultProvider buildResultProvider;
+    private BuildRecordProvider buildRecordProvider;
 
-    public RunningBuildResultEndpoint() {
+    public RunningBuildRecordEndpoint() {
     }
 
     @Inject
-    public RunningBuildResultEndpoint(BuildResultProvider buildCollectionProvider) {
-        this.buildResultProvider = buildCollectionProvider;
+    public RunningBuildRecordEndpoint(BuildRecordProvider buildRecordProvider) {
+        this.buildRecordProvider = buildRecordProvider;
     }
 
-    @ApiOperation(value = "Gets all running Build Results")
+    @ApiOperation(value = "Gets all running Build Records")
     @GET
-    public List<BuildResultRest> getAll() {
-        return buildResultProvider.getAllRunning();
+    public List<BuildRecordRest> getAll() {
+        return buildRecordProvider.getAllRunning();
     }
 
     @ApiOperation(value = "Gets specific Build Collection")
     @GET
     @Path("/{id}")
-    public BuildResultRest getSpecific(
-            @ApiParam(value = "BuildResult id", required = true) @PathParam("id") Integer id) {
-        return buildResultProvider.getSpecificRunning(id);
+    public BuildRecordRest getSpecific(
+            @ApiParam(value = "BuildRecord id", required = true) @PathParam("id") Integer id) {
+        return buildRecordProvider.getSpecificRunning(id);
     }
 
     @ApiOperation(value = "Gets specific Build Collection")
     @GET
     @Path("/{id}/log")
     public Response getLogs(
-            @ApiParam(value = "BuildResult id", required = true) @PathParam("id") Integer id) {
-        return Response.ok(buildResultProvider.getLogsForRunningBuildId(id)).build();
+            @ApiParam(value = "BuildRecord id", required = true) @PathParam("id") Integer id) {
+        return Response.ok(buildRecordProvider.getLogsForRunningBuildId(id)).build();
     }
 }

@@ -2,7 +2,7 @@ package org.jboss.pnc.core.builder;
 
 import org.jboss.logging.Logger;
 import org.jboss.pnc.core.exception.CoreException;
-import org.jboss.pnc.model.ProjectBuildConfiguration;
+import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.spi.BuildStatus;
 import org.jboss.util.collection.WeakSet;
 
@@ -18,7 +18,7 @@ public class BuildTask {
 
     public static final Logger log = Logger.getLogger(BuildTask.class);
 
-    public ProjectBuildConfiguration projectBuildConfiguration;
+    public BuildConfiguration buildConfiguration;
     BuildStatus status = BuildStatus.NEW;
     private String statusDescription;
 
@@ -32,16 +32,16 @@ public class BuildTask {
     private List<BuildTask> requiredBuilds;
     private BuildCoordinator buildCoordinator;
 
-    BuildTask(BuildCoordinator buildCoordinator, ProjectBuildConfiguration projectBuildConfiguration) {
+    BuildTask(BuildCoordinator buildCoordinator, BuildConfiguration buildConfiguration) {
         this.buildCoordinator = buildCoordinator;
-        this.projectBuildConfiguration = projectBuildConfiguration;
+        this.buildConfiguration = buildConfiguration;
         statusUpdateListeners = new WeakSet();
         logConsumers = new WeakSet();
         waiting = new HashSet<>();
     }
 
-    BuildTask(BuildCoordinator buildCoordinator, ProjectBuildConfiguration projectBuildConfiguration, Set<Consumer<BuildStatus>> statusUpdateListeners, Set<Consumer<String>> logConsumers) {
-        this(buildCoordinator, projectBuildConfiguration);
+    BuildTask(BuildCoordinator buildCoordinator, BuildConfiguration buildConfiguration, Set<Consumer<BuildStatus>> statusUpdateListeners, Set<Consumer<String>> logConsumers) {
+        this(buildCoordinator, buildConfiguration);
         this.statusUpdateListeners.addAll(statusUpdateListeners);
         this.logConsumers.addAll(logConsumers);
     }
@@ -93,8 +93,8 @@ public class BuildTask {
         return statusDescription;
     }
 
-    public ProjectBuildConfiguration getProjectBuildConfiguration() {
-        return projectBuildConfiguration;
+    public BuildConfiguration getBuildConfiguration() {
+        return buildConfiguration;
     }
 
     void addWaiting(BuildTask buildTask) {
@@ -108,13 +108,13 @@ public class BuildTask {
 
         BuildTask buildTask = (BuildTask) o;
 
-        return projectBuildConfiguration.equals(buildTask.getProjectBuildConfiguration());
+        return buildConfiguration.equals(buildTask.getBuildConfiguration());
 
     }
 
     @Override
     public int hashCode() {
-        return projectBuildConfiguration.hashCode();
+        return buildConfiguration.hashCode();
     }
 
     void setStatusDescription(String statusDescription) {
@@ -123,7 +123,7 @@ public class BuildTask {
 
 
     public Integer getId() {
-        return projectBuildConfiguration.getId();
+        return buildConfiguration.getId();
     }
 
     public String getBuildLog() {

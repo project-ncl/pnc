@@ -10,7 +10,7 @@ import org.jboss.pnc.core.exception.CoreException;
 import org.jboss.pnc.core.test.mock.BuildDriverMock;
 import org.jboss.pnc.core.test.mock.DatastoreMock;
 import org.jboss.pnc.model.BuildCollection;
-import org.jboss.pnc.model.ProjectBuildConfiguration;
+import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.builder.EnvironmentBuilder;
 import org.jboss.pnc.spi.BuildStatus;
 import org.jboss.pnc.spi.environment.EnvironmentDriverProvider;
@@ -61,8 +61,8 @@ public class ProjectBuilder {
         return jar;
     }
 
-    void buildProject(ProjectBuildConfiguration projectBuildConfiguration, BuildCollection buildCollection) throws InterruptedException, CoreException {
-        log.info("Building project " + projectBuildConfiguration.getIdentifier());
+    void buildProject(BuildConfiguration buildConfiguration, BuildCollection buildCollection) throws InterruptedException, CoreException {
+        log.info("Building project " + buildConfiguration.getIdentifier());
         List<BuildStatus> receivedStatuses = new ArrayList();
 
         int nStatusUpdates = 7;
@@ -72,13 +72,13 @@ public class ProjectBuilder {
         Consumer<BuildStatus> onStatusUpdate = (newStatus) -> {
             receivedStatuses.add(newStatus);
             semaphore.release(1);
-            log.fine("Received status update " + newStatus.toString() + " for project " + projectBuildConfiguration.getId());
+            log.fine("Received status update " + newStatus.toString() + " for project " + buildConfiguration.getId());
             log.finer("Semaphore released, there are " + semaphore.availablePermits() + " free entries.");
         };
         Set<Consumer<BuildStatus>> statusUpdateListeners = new HashSet<>();
         statusUpdateListeners.add(onStatusUpdate);
         semaphore.acquire(nStatusUpdates);
-        BuildTask buildTask = buildCoordinator.build(projectBuildConfiguration, statusUpdateListeners, new HashSet<Consumer<String>>());
+        BuildTask buildTask = buildCoordinator.build(buildConfiguration, statusUpdateListeners, new HashSet<Consumer<String>>());
 
         List<BuildStatus> errorStates = Arrays.asList(BuildStatus.REJECTED, BuildStatus.SYSTEM_ERROR);
         if (errorStates.contains(buildTask.getStatus())) {
@@ -110,10 +110,10 @@ public class ProjectBuilder {
     }
 
     protected class TestBuildConfig {
-        final ProjectBuildConfiguration configuration;
+        final BuildConfiguration configuration;
         final BuildCollection collection;
 
-        TestBuildConfig(ProjectBuildConfiguration configuration, BuildCollection collection) {
+        TestBuildConfig(BuildConfiguration configuration, BuildCollection collection) {
             this.configuration = configuration;
             this.collection = collection;
         }

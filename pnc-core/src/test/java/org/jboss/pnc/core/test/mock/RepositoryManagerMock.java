@@ -1,8 +1,8 @@
 package org.jboss.pnc.core.test.mock;
 
 import org.jboss.pnc.model.BuildCollection;
-import org.jboss.pnc.model.ProjectBuildConfiguration;
-import org.jboss.pnc.model.ProjectBuildResult;
+import org.jboss.pnc.model.BuildConfiguration;
+import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.RepositoryType;
 import org.jboss.pnc.spi.repositorymanager.RepositoryConfiguration;
 import org.jboss.pnc.spi.repositorymanager.RepositoryConnectionInfo;
@@ -19,7 +19,7 @@ public class RepositoryManagerMock implements RepositoryManager {
 
 
     @Override
-    public RepositoryConfiguration createRepository(ProjectBuildConfiguration projectBuildConfiguration, BuildCollection buildCollection) throws RepositoryManagerException {
+    public RepositoryConfiguration createRepository(BuildConfiguration buildConfiguration, BuildCollection buildCollection) throws RepositoryManagerException {
 
         RepositoryConfiguration repositoryConfiguration = new RepositoryConfiguration() {
             @Override
@@ -68,7 +68,7 @@ public class RepositoryManagerMock implements RepositoryManager {
     }
 
     @Override
-    public void persistArtifacts(RepositoryConfiguration repository, ProjectBuildResult buildResult) {
+    public void persistArtifacts(RepositoryConfiguration repository, BuildRecord buildRecord) {
     }
 
 

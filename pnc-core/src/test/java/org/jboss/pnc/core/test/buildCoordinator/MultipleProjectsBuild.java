@@ -7,7 +7,7 @@ import org.jboss.pnc.core.exception.CoreException;
 import org.jboss.pnc.core.test.configurationBuilders.TestBuildCollectionBuilder;
 import org.jboss.pnc.core.test.configurationBuilders.TestProjectConfigurationBuilder;
 import org.jboss.pnc.model.BuildCollection;
-import org.jboss.pnc.model.ProjectBuildResult;
+import org.jboss.pnc.model.BuildRecord;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -78,11 +78,11 @@ public class MultipleProjectsBuild extends ProjectBuilder {
     @Test
     @InSequence(20)
     public void checkDatabaseForResult() {  //TODO datastore task is waiting all build to complete see BuildCoordinator::startBuilding
-        List<ProjectBuildResult> buildResults = datastore.getBuildResults();
-        Assert.assertEquals("Wrong datastore results count.", 100, buildResults.size());
+        List<BuildRecord> buildRecords = datastore.getBuildRecords();
+        Assert.assertEquals("Wrong datastore results count.", 100, buildRecords.size());
 
-        ProjectBuildResult projectBuildResult = buildResults.get(0);
-        String buildLog = projectBuildResult.getBuildLog();
+        BuildRecord buildRecord = buildRecords.get(0);
+        String buildLog = buildRecord.getBuildLog();
         Assert.assertTrue("Invalid build log.", buildLog.contains("Finished: SUCCESS"));
     }
 
