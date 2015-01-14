@@ -30,8 +30,7 @@ module.exports = function (grunt) {
   grunt.registerTask( 'initRestConfig', function(){
     if (!grunt.file.exists('./rest-config.json')){
       var defaultContent = {
-        endpointsLocalhost: PROXY_HOST,
-        endpointsCIServer: 'localhost'
+        endpointsLocalhost: PROXY_HOST
       };
       grunt.file.write('./rest-config.json',JSON.stringify(defaultContent,null,'\t'));
     }
