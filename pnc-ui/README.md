@@ -23,11 +23,20 @@ Run:
 This task will create a file `rest-config.json` with default values:
 
     {
-        "endpointsLocalhost": "localhost",
-        "endpointsCIServer": "localhost"
+        "endpointsLocalhost": "localhost"
     };
     
-`endpointsLocalhost` points to a local installation of PNC application, while `endpointsCIServer` points to a remote installation of PNC application (defaults to PNC CI environment). This is useful if you want to develop UI without having a local installation of PNC, as you would consume REST endpoints from the remote installation.
+`endpointsLocalhost` points to a local installation of PNC application.
+
+
+ while `endpointsCIServer` points to a remote installation of PNC application (defaults to PNC CI environment). This is useful if you want to develop UI without having a local installation of PNC, as you would consume REST endpoints from the remote installation.
+
+If you wish to develop without a local installation of PNC, you can edit `rest-config.json` to add a remote server as an additional profile like so:
+    
+    {
+        "endpointsLocalhost": "localhost",
+        "endpointsCIServer": "my-ci-server.example.com"
+    };
 
 To run consuming REST endpoints from the local installation (`endpointsLocalhost` value):
 
