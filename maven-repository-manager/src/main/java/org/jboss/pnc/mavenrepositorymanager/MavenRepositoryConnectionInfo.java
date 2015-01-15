@@ -1,6 +1,6 @@
 package org.jboss.pnc.mavenrepositorymanager;
 
-import org.jboss.pnc.spi.repositorymanager.RepositoryConnectionInfo;
+import org.jboss.pnc.spi.repositorymanager.model.RepositoryConnectionInfo;
 
 import java.util.HashMap;
 import java.util.Map;

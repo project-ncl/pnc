@@ -4,6 +4,7 @@ import org.jboss.pnc.model.BuildCollection;
 import org.jboss.pnc.model.ProjectBuildConfiguration;
 import org.jboss.pnc.model.ProjectBuildResult;
 import org.jboss.pnc.model.RepositoryType;
+import org.jboss.pnc.spi.repositorymanager.model.RepositoryConfiguration;
 
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-11-23.
@@ -20,7 +21,8 @@ public interface RepositoryManager {
      * @param buildCollection Used to determine which in-progress product repository should be used.
      * @throws RepositoryManagerException
      */
-    public RepositoryConfiguration createRepository(ProjectBuildConfiguration projectBuildConfiguration, BuildCollection buildCollection) throws RepositoryManagerException;
+    RepositoryConfiguration createRepository(ProjectBuildConfiguration projectBuildConfiguration,
+            BuildCollection buildCollection) throws RepositoryManagerException;
 
     boolean canManage(RepositoryType managerType);
 

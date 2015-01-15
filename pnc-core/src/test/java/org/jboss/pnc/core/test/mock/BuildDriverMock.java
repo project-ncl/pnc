@@ -10,7 +10,7 @@ import org.jboss.pnc.spi.builddriver.BuildResult;
 import org.jboss.pnc.spi.builddriver.CompletedBuild;
 import org.jboss.pnc.spi.builddriver.RunningBuild;
 import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
-import org.jboss.pnc.spi.repositorymanager.RepositoryConfiguration;
+import org.jboss.pnc.spi.repositorymanager.model.RepositoryConfiguration;
 
 import java.util.function.Consumer;
 

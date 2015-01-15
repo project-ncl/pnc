@@ -2,9 +2,10 @@ package org.jboss.pnc.jenkinsbuilddriver;
 
 import com.offbytwo.jenkins.JenkinsServer;
 import com.offbytwo.jenkins.model.JobWithDetails;
+
 import org.jboss.pnc.model.ProjectBuildConfiguration;
 import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
-import org.jboss.pnc.spi.repositorymanager.RepositoryConfiguration;
+import org.jboss.pnc.spi.repositorymanager.model.RepositoryConfiguration;
 
 import java.io.IOException;
 

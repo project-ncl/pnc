@@ -2,7 +2,7 @@ package org.jboss.pnc.jenkinsbuilddriver;
 
 import org.jboss.pnc.common.util.IoUtils;
 import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
-import org.jboss.pnc.spi.repositorymanager.RepositoryConnectionInfo;
+import org.jboss.pnc.spi.repositorymanager.model.RepositoryConnectionInfo;
 import org.jboss.util.StringPropertyReplacer;
 
 import java.io.IOException;

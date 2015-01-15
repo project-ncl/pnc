@@ -20,9 +20,9 @@ import org.jboss.pnc.model.ProductVersion;
 import org.jboss.pnc.model.ProjectBuildConfiguration;
 import org.jboss.pnc.model.ProjectBuildResult;
 import org.jboss.pnc.model.RepositoryType;
-import org.jboss.pnc.spi.repositorymanager.RepositoryConfiguration;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManager;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerException;
+import org.jboss.pnc.spi.repositorymanager.model.RepositoryConfiguration;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -69,7 +69,7 @@ public class RepositoryManagerDriver implements RepositoryManager {
         Properties properties = configuration.getModuleConfig(MAVEN_REPOSITORY_CONFIG_SECTION);
 
         String baseUrl = properties.getProperty(BASE_URL_PROPERTY);
-        aprox = new Aprox(baseUrl, new AproxFoloAdminClientModule(), new AproxFoloContentClientModule());
+        aprox = new Aprox(baseUrl, new AproxFoloAdminClientModule(), new AproxFoloContentClientModule()).connect();
     }
 
     /**
@@ -111,7 +111,7 @@ public class RepositoryManagerDriver implements RepositoryManager {
                     e.getMessage());
         }
 
-        // TODO Better way to generate id.
+        // TODO Better way to generate id that doesn't rely on System.currentTimeMillis() but will still be relatively fast.
 
         String buildRepoId = String.format(REPO_ID_FORMAT, safeUrlPart(projectBuildConfiguration.getProject().getName()),
                 System.currentTimeMillis());
@@ -136,11 +136,17 @@ public class RepositoryManagerDriver implements RepositoryManager {
         return new MavenRepositoryConfiguration(buildRepoId, new MavenRepositoryConnectionInfo(url));
     }
 
+    // TODO: Remove once we upgrade beyond AProx 0.17.0
     private String trackingUrl(String buildRepoId) {
         return UrlUtils.buildUrl(aprox.getBaseUrl(), "/folo/track", buildRepoId, StoreType.group.singularEndpointName(),
                 buildRepoId);
     }
 
+    /**
+     * Retrieve tracking report from repository manager. Add each tracked download to the dependencies of the build result. Add
+     * each tracked upload to the built artifacts of the build result. Promote uploaded artifacts to the product-level storage.
+     * Finally, clear the tracking report, and delete the hosted repository + group associated with the completed build.
+     */
     @Override
     // TODO move under returned object (do not use the one from model) form createRepo
     public void persistArtifacts(RepositoryConfiguration repository, ProjectBuildResult buildResult)
@@ -209,6 +215,16 @@ public class RepositoryManagerDriver implements RepositoryManager {
         }
     }
 
+    /**
+     * Create the hosted repository and group necessary to support a single build. The hosted repository holds artifacts
+     * uploaded from the build, and the group coordinates access to this hosted repository, along with content from the
+     * product-level content group with which this build is associated. The group also provides a tracking target, so the
+     * repository manager can keep track of downloads and uploads for the build.
+     * 
+     * @param buildRepoId
+     * @param productRepoId
+     * @throws AproxClientException
+     */
     private void setupBuildRepos(String buildRepoId, String productRepoId) throws AproxClientException {
         // if the build-level group doesn't exist, create it.
         if (!aprox.stores().exists(StoreType.group, buildRepoId)) {
@@ -235,6 +251,19 @@ public class RepositoryManagerDriver implements RepositoryManager {
         }
     }
 
+    /**
+     * Lazily create product-level hosted repository and group if they don't exist. The group uses the following content
+     * preference order:
+     * <ol>
+     * <li>product-level hosted repository (artifacts built for this product release)</li>
+     * <li>global shared-releases hosted repository (contains artifacts from "released" product versions)</li>
+     * <li>global shared-imports hosted repository (contains anything imported for a previous build)</li>
+     * <li>the 'public' group, which manages the allowed remote repositories from which imports can be downloaded</li>
+     * </ol>
+     * 
+     * @param productRepoId
+     * @throws AproxClientException
+     */
     private void setupProductRepos(String productRepoId) throws AproxClientException {
         // if the product-level group doesn't exist, create it.
         if (!aprox.stores().exists(StoreType.group, productRepoId)) {
@@ -268,6 +297,11 @@ public class RepositoryManagerDriver implements RepositoryManager {
         }
     }
 
+    /**
+     * Lazily create the shared-releases and shared-imports global hosted repositories if they don't already exist.
+     * 
+     * @throws AproxClientException
+     */
     private void setupGlobalRepos() throws AproxClientException {
         // if the global shared-releases repository doesn't exist, create it.
         if (!aprox.stores().exists(StoreType.hosted, SHARED_RELEASES_ID)) {
