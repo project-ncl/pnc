@@ -1,14 +1,14 @@
 package org.jboss.pnc.rest.restmodel;
 
 import org.jboss.pnc.model.Project;
-import org.jboss.pnc.model.ProjectBuildConfiguration;
-import org.jboss.pnc.model.builder.ProjectBuildConfigurationBuilder;
+import org.jboss.pnc.model.BuildConfiguration;
+import org.jboss.pnc.model.builder.BuildConfigurationBuilder;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import java.sql.Timestamp;
 
 @XmlRootElement(name = "Configuration")
-public class ProjectBuildConfigurationRest {
+public class BuildConfigurationRest {
 
     private Integer id;
 
@@ -26,18 +26,18 @@ public class ProjectBuildConfigurationRest {
 
     private String repositories;
 
-    public ProjectBuildConfigurationRest() {
+    public BuildConfigurationRest() {
     }
 
-    public ProjectBuildConfigurationRest(ProjectBuildConfiguration projectBuildConfiguration) {
-        this.id = projectBuildConfiguration.getId();
-        this.identifier = projectBuildConfiguration.getIdentifier();
-        this.buildScript = projectBuildConfiguration.getBuildScript();
-        this.scmUrl = projectBuildConfiguration.getScmUrl();
-        this.patchesUrl = projectBuildConfiguration.getPatchesUrl();
-        this.creationTime = projectBuildConfiguration.getCreationTime();
-        this.lastModificationTime = projectBuildConfiguration.getLastModificationTime();
-        this.repositories = projectBuildConfiguration.getRepositories();
+    public BuildConfigurationRest(BuildConfiguration buildConfiguration) {
+        this.id = buildConfiguration.getId();
+        this.identifier = buildConfiguration.getIdentifier();
+        this.buildScript = buildConfiguration.getBuildScript();
+        this.scmUrl = buildConfiguration.getScmUrl();
+        this.patchesUrl = buildConfiguration.getPatchesUrl();
+        this.creationTime = buildConfiguration.getCreationTime();
+        this.lastModificationTime = buildConfiguration.getLastModificationTime();
+        this.repositories = buildConfiguration.getRepositories();
     }
 
     public Integer getId() {
@@ -104,8 +104,8 @@ public class ProjectBuildConfigurationRest {
         this.repositories = repositories;
     }
 
-    public ProjectBuildConfiguration getProjectBuildConfiguration(Project project) {
-        ProjectBuildConfigurationBuilder builder = ProjectBuildConfigurationBuilder.newBuilder();
+    public BuildConfiguration getBuildConfiguration(Project project) {
+        BuildConfigurationBuilder builder = BuildConfigurationBuilder.newBuilder();
         builder.project(project);
         builder.identifier(identifier);
         builder.buildScript(buildScript);

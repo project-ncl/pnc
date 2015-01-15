@@ -5,7 +5,7 @@ import java.io.Serializable;
 import java.util.List;
 
 /**
- * The Class BuildCollection, that encapsulates the set of buildResults that compose a specific version of a Product.
+ * The Class BuildCollection, that encapsulates the set of buildRecords that compose a specific version of a Product.
  *
  * There should be a unique constraint (productVersion, productBuildNumber)
  *
@@ -29,7 +29,7 @@ public class BuildCollection implements Serializable {
     private ProductVersion productVersion;
 
     @ManyToMany
-    private List<ProjectBuildResult> projectBuildResult;
+    private List<BuildRecord> buildRecord;
 
     /**
      * Instantiates a new builds the collection.
@@ -99,17 +99,17 @@ public class BuildCollection implements Serializable {
     }
 
     /**
-     * @return the projectBuildResult
+     * @return the buildRecord
      */
-    public List<ProjectBuildResult> getProjectBuildResult() {
-        return projectBuildResult;
+    public List<BuildRecord> getBuildRecord() {
+        return buildRecord;
     }
 
     /**
-     * @param projectBuildResult the projectBuildResult to set
+     * @param buildRecord the buildRecord to set
      */
-    public void setProjectBuildResult(List<ProjectBuildResult> projectBuildResult) {
-        this.projectBuildResult = projectBuildResult;
+    public void setBuildRecord(List<BuildRecord> record) {
+        this.buildRecord = record;
     }
 
     @Override

@@ -3,8 +3,8 @@ package org.jboss.pnc.mavenrepositorymanager;
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.model.BuildCollection;
 import org.jboss.pnc.model.ProductVersion;
-import org.jboss.pnc.model.ProjectBuildConfiguration;
-import org.jboss.pnc.model.ProjectBuildResult;
+import org.jboss.pnc.model.BuildConfiguration;
+import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.RepositoryType;
 import org.jboss.pnc.spi.repositorymanager.RepositoryConfiguration;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManager;
@@ -55,11 +55,11 @@ public class RepositoryManagerDriver implements RepositoryManager {
      * this back via a {@link MavenRepositoryConfiguration} instance.
      */
     @Override
-    public RepositoryConfiguration createRepository(ProjectBuildConfiguration projectBuildConfiguration, BuildCollection buildCollection) {
+    public RepositoryConfiguration createRepository(BuildConfiguration buildConfiguration, BuildCollection buildCollection) {
         ProductVersion pv = buildCollection.getProductVersion();
         // TODO Better way to generate id.
         String id = String.format(REPO_ID_FORMAT, pv.getProduct().getName(), pv.getVersion(),
-                safeUrlPart(projectBuildConfiguration.getProject().getName()), System.currentTimeMillis());
+                safeUrlPart(buildConfiguration.getProject().getName()), System.currentTimeMillis());
 
         Properties properties = configuration.getModuleConfig(MAVEN_REPOSITORY_CONFIG_SECTION);
         String baseUrl = properties.getProperty(BASE_URL_PROPERTY);
@@ -74,7 +74,7 @@ public class RepositoryManagerDriver implements RepositoryManager {
     }
 
     @Override //TODO move under returned object (do not use the one from model) form createRepo
-    public void persistArtifacts(RepositoryConfiguration repository, ProjectBuildResult buildResult) {
+    public void persistArtifacts(RepositoryConfiguration repository, BuildRecord buildRecord) {
         // TODO Listing/sifting of imports, promotion of output artifacts to build result
     }
 

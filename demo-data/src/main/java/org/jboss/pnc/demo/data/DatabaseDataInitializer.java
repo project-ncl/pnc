@@ -4,18 +4,18 @@ import com.google.common.base.Preconditions;
 import org.jboss.pnc.datastore.repositories.ProductRepository;
 import org.jboss.pnc.datastore.repositories.ProductVersionProjectRepository;
 import org.jboss.pnc.datastore.repositories.ProductVersionRepository;
-import org.jboss.pnc.datastore.repositories.ProjectBuildConfigurationRepository;
+import org.jboss.pnc.datastore.repositories.BuildConfigurationRepository;
 import org.jboss.pnc.datastore.repositories.ProjectRepository;
 import org.jboss.pnc.model.Product;
 import org.jboss.pnc.model.ProductVersion;
 import org.jboss.pnc.model.ProductVersionProject;
 import org.jboss.pnc.model.Project;
-import org.jboss.pnc.model.ProjectBuildConfiguration;
+import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.builder.EnvironmentBuilder;
 import org.jboss.pnc.model.builder.ProductBuilder;
 import org.jboss.pnc.model.builder.ProductVersionBuilder;
 import org.jboss.pnc.model.builder.ProductVersionProjectBuilder;
-import org.jboss.pnc.model.builder.ProjectBuildConfigurationBuilder;
+import org.jboss.pnc.model.builder.BuildConfigurationBuilder;
 import org.jboss.pnc.model.builder.ProjectBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,7 +49,7 @@ public class DatabaseDataInitializer {
     ProductRepository productRepository;
 
     @Inject
-    ProjectBuildConfigurationRepository projectBuildConfigurationRepository;
+    BuildConfigurationRepository buildConfigurationRepository;
 
     @Inject
     ProductVersionRepository productVersionRepository;
@@ -67,16 +67,16 @@ public class DatabaseDataInitializer {
         // Check number of entities in DB
         Preconditions.checkState(projectRepository.count() > 0, "Expecting number of Projects > 0");
         Preconditions.checkState(productRepository.count() > 0, "Expecting number of Products > 0");
-        Preconditions.checkState(projectBuildConfigurationRepository.count() > 0,
-                "Expecting number of ProjectBuildConfigurations > 0");
+        Preconditions.checkState(buildConfigurationRepository.count() > 0,
+                "Expecting number of BuildConfigurations > 0");
         Preconditions.checkState(productVersionRepository.count() > 0, "Expecting number of ProductVersions > 0");
         Preconditions.checkState(productVersionProjectRepository.count() > 0, "Expecting number of ProductVersionProjects > 0");
 
-        ProjectBuildConfiguration projectBuildConfigurationDB = projectBuildConfigurationRepository.findAll().get(0);
+        BuildConfiguration buildConfigurationDB = buildConfigurationRepository.findAll().get(0);
 
-        // Check that ProjectBuildConfiguration and ProductVersionProject have a ProductVersion associated
-        Preconditions.checkState(projectBuildConfigurationDB.getProductVersion() != null,
-                "Product version of projectBuildConfiguration must be not null");
+        // Check that BuildConfiguration and ProductVersionProject have a ProductVersion associated
+        Preconditions.checkState(buildConfigurationDB.getProductVersion() != null,
+                "Product version of buildConfiguration must be not null");
 
         ProductVersionProject productVersionProjectDB = productVersionProjectRepository.findAll().get(0);
 
@@ -91,15 +91,15 @@ public class DatabaseDataInitializer {
         Preconditions.checkState(productVersionProjectDB.getProject().getName().equals(PNC_PROJECT_NAME),
                 "Project mapped to Product must be " + PNC_PROJECT_NAME);
 
-        // Check that ProjectBuildConfiguration and ProductVersionProject have a ProductVersion associated
-        Preconditions.checkState(projectBuildConfigurationDB.getProductVersion().getVersion().equals(PNC_PRODUCT_VERSION),
-                "Product version mapped to ProjectBuildConfiguration must be " + PNC_PRODUCT_VERSION);
-        Preconditions.checkState(projectBuildConfigurationDB.getProductVersion().getProduct().getName().equals(PNC_PRODUCT_NAME),
-                "Product mapped to ProjectBuildConfiguration must be " + PNC_PRODUCT_NAME);
+        // Check that BuildConfiguration and ProductVersionProject have a ProductVersion associated
+        Preconditions.checkState(buildConfigurationDB.getProductVersion().getVersion().equals(PNC_PRODUCT_VERSION),
+                "Product version mapped to BuildConfiguration must be " + PNC_PRODUCT_VERSION);
+        Preconditions.checkState(buildConfigurationDB.getProductVersion().getProduct().getName().equals(PNC_PRODUCT_NAME),
+                "Product mapped to BuildConfiguration must be " + PNC_PRODUCT_NAME);
 
-        // Check data of ProjectBuildConfiguration
-        Preconditions.checkState(projectBuildConfigurationDB.getProject().getName().equals(PNC_PROJECT_NAME),
-                "Project mapped to ProjectBuildConfiguration must be " + PNC_PROJECT_NAME);
+        // Check data of BuildConfiguration
+        Preconditions.checkState(buildConfigurationDB.getProject().getName().equals(PNC_PROJECT_NAME),
+                "Project mapped to BuildConfiguration must be " + PNC_PROJECT_NAME);
 
     }
 
@@ -126,7 +126,7 @@ public class DatabaseDataInitializer {
             // Needed to build correct mapping
             ProductVersionProject productVersionProject = ProductVersionProjectBuilder.newBuilder().project(project)
                     .productVersion(productVersion).build();
-            ProjectBuildConfiguration projectBuildConfiguration = ProjectBuildConfigurationBuilder.newBuilder()
+            BuildConfiguration buildConfiguration = BuildConfigurationBuilder.newBuilder()
                     .buildScript("mvn clean deploy -Dmaven.test.skip").environment(EnvironmentBuilder.defaultEnvironment().build())
                     .id(1).identifier(PNC_PROJECT_BUILD_CFG_ID).productVersion(productVersion).project(project)
                     .scmUrl("https://github.com/project-ncl/pnc.git")
@@ -134,15 +134,15 @@ public class DatabaseDataInitializer {
                     .build();
 
             // Additional configurations
-            ProjectBuildConfiguration projectBuildConfiguration2 = ProjectBuildConfigurationBuilder.newBuilder()
+            BuildConfiguration buildConfiguration2 = BuildConfigurationBuilder.newBuilder()
                     .buildScript("mvn clean deploy -Dmaven.test.skip").environment(EnvironmentBuilder.defaultEnvironment().build())
                     .id(2).identifier("jboss-modules-1.5.0").productVersion(productVersion).project(project)
                     .scmUrl("https://github.com/jboss-modules/jboss-modules.git").build();
-            ProjectBuildConfiguration projectBuildConfiguration3 = ProjectBuildConfigurationBuilder.newBuilder()
+            BuildConfiguration buildConfiguration3 = BuildConfigurationBuilder.newBuilder()
                     .buildScript("mvn clean deploy -Dmaven.test.skip").environment(EnvironmentBuilder.defaultEnvironment().build())
                     .id(3).identifier("jboss-servlet-spec-api-1.0.1").productVersion(productVersion).project(project)
                     .scmUrl("https://github.com/jboss/jboss-servlet-api_spec.git")
-                    .dependency(projectBuildConfiguration2)
+                    .dependency(buildConfiguration2)
                     .build();
 
             projectRepository.save(project);

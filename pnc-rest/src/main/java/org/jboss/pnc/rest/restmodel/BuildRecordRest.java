@@ -2,16 +2,16 @@ package org.jboss.pnc.rest.restmodel;
 
 import org.jboss.pnc.core.builder.BuildTask;
 import org.jboss.pnc.model.BuildDriverStatus;
-import org.jboss.pnc.model.ProjectBuildConfiguration;
-import org.jboss.pnc.model.ProjectBuildResult;
+import org.jboss.pnc.model.BuildConfiguration;
+import org.jboss.pnc.model.BuildRecord;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import java.sql.Timestamp;
 
 import static org.jboss.pnc.rest.provider.Utility.performIfNotNull;
 
-@XmlRootElement(name = "BuildResult")
-public class BuildResultRest {
+@XmlRootElement(name = "BuildRecord")
+public class BuildRecordRest {
 
     private Integer id;
 
@@ -27,7 +27,7 @@ public class BuildResultRest {
 
     private BuildDriverStatus status;
 
-    private Integer projectBuildConfigurationId;
+    private Integer buildConfigurationId;
 
     private Integer userId;
 
@@ -35,34 +35,34 @@ public class BuildResultRest {
 
     private Integer systemImageId;
 
-    public BuildResultRest() {
+    public BuildRecordRest() {
     }
 
-    public BuildResultRest(ProjectBuildResult buildResult) {
-        this.id = buildResult.getId();
-        this.buildScript = buildResult.getBuildScript();
-        this.startTime = buildResult.getStartTime();
-        this.endTime = buildResult.getEndTime();
-        performIfNotNull(buildResult.getProjectBuildConfiguration() != null, () -> projectBuildConfigurationId = buildResult.getProjectBuildConfiguration().getId());
-        performIfNotNull(buildResult.getUser() != null, () -> userId = buildResult.getUser().getId());
-        performIfNotNull(buildResult.getSystemImage() != null, () -> systemImageId = buildResult.getSystemImage().getId());
-        this.sourceUrl = buildResult.getSourceUrl();
-        this.patchesUrl = buildResult.getPatchesUrl();
-        this.status = buildResult.getStatus();
-        this.buildDriverId = buildResult.getBuildDriverId();
+    public BuildRecordRest(BuildRecord buildRecord) {
+        this.id = buildRecord.getId();
+        this.buildScript = buildRecord.getBuildScript();
+        this.startTime = buildRecord.getStartTime();
+        this.endTime = buildRecord.getEndTime();
+        performIfNotNull(buildRecord.getBuildConfiguration() != null, () -> buildConfigurationId = buildRecord.getBuildConfiguration().getId());
+        performIfNotNull(buildRecord.getUser() != null, () -> userId = buildRecord.getUser().getId());
+        performIfNotNull(buildRecord.getSystemImage() != null, () -> systemImageId = buildRecord.getSystemImage().getId());
+        this.sourceUrl = buildRecord.getSourceUrl();
+        this.patchesUrl = buildRecord.getPatchesUrl();
+        this.status = buildRecord.getStatus();
+        this.buildDriverId = buildRecord.getBuildDriverId();
     }
 
-    public BuildResultRest(BuildTask buildTask) {
-        this.id = buildTask.getProjectBuildConfiguration().getId();
-        ProjectBuildConfiguration projectBuildConfiguration = buildTask.getProjectBuildConfiguration();
-        this.buildScript = projectBuildConfiguration.getBuildScript();
-        this.startTime = projectBuildConfiguration.getCreationTime();
+    public BuildRecordRest(BuildTask buildTask) {
+        this.id = buildTask.getBuildConfiguration().getId();
+        BuildConfiguration buildConfiguration = buildTask.getBuildConfiguration();
+        this.buildScript = buildConfiguration.getBuildScript();
+        this.startTime = buildConfiguration.getCreationTime();
         performIfNotNull(
-                buildTask.getProjectBuildConfiguration() != null &&
-                        projectBuildConfiguration != null,
-                () -> projectBuildConfigurationId = projectBuildConfiguration.getId());
-        this.sourceUrl = projectBuildConfiguration.getScmUrl();
-        this.patchesUrl = projectBuildConfiguration.getPatchesUrl();
+                buildTask.getBuildConfiguration() != null &&
+                        buildConfiguration != null,
+                () -> buildConfigurationId = buildConfiguration.getId());
+        this.sourceUrl = buildConfiguration.getScmUrl();
+        this.patchesUrl = buildConfiguration.getPatchesUrl();
         this.status = BuildDriverStatus.BUILDING;
     }
 
@@ -122,12 +122,12 @@ public class BuildResultRest {
         this.status = status;
     }
 
-    public Integer getProjectBuildConfigurationId() {
-        return projectBuildConfigurationId;
+    public Integer getBuildConfigurationId() {
+        return buildConfigurationId;
     }
 
-    public void setProjectBuildConfigurationId(Integer projectBuildConfigurationId) {
-        this.projectBuildConfigurationId = projectBuildConfigurationId;
+    public void setBuildConfigurationId(Integer buildConfigurationId) {
+        this.buildConfigurationId = buildConfigurationId;
     }
 
     public Integer getUserId() {

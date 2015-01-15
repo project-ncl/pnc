@@ -2,9 +2,9 @@ package org.jboss.pnc.rest.provider;
 
 import org.jboss.pnc.core.builder.BuildCoordinator;
 import org.jboss.pnc.core.builder.BuildTask;
-import org.jboss.pnc.datastore.repositories.ProjectBuildResultRepository;
-import org.jboss.pnc.model.ProjectBuildResult;
-import org.jboss.pnc.rest.restmodel.BuildResultRest;
+import org.jboss.pnc.datastore.repositories.BuildRecordRepository;
+import org.jboss.pnc.model.BuildRecord;
+import org.jboss.pnc.rest.restmodel.BuildRecordRest;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
@@ -18,61 +18,61 @@ import java.util.stream.Collectors;
 import static org.jboss.pnc.rest.provider.StreamHelper.nullableStreamOf;
 
 @Stateless
-public class BuildResultProvider {
+public class BuildRecordProvider {
 
-    private ProjectBuildResultRepository projectBuildResultRepository;
+    private BuildRecordRepository buildRecordRepository;
     private BuildCoordinator buildCoordinator;
 
-    public BuildResultProvider() {
+    public BuildRecordProvider() {
     }
 
     @Inject
-    public BuildResultProvider(ProjectBuildResultRepository projectBuildResultRepository, BuildCoordinator buildCoordinator) {
-        this.projectBuildResultRepository = projectBuildResultRepository;
+    public BuildRecordProvider(BuildRecordRepository buildRecordRepository, BuildCoordinator buildCoordinator) {
+        this.buildRecordRepository = buildRecordRepository;
         this.buildCoordinator = buildCoordinator;
     }
 
-    public List<BuildResultRest> getAllArchived() {
-        return nullableStreamOf(projectBuildResultRepository.findAll())
-                .map(buildResult -> new BuildResultRest(buildResult)).collect(Collectors.toList());
+    public List<BuildRecordRest> getAllArchived() {
+        return nullableStreamOf(buildRecordRepository.findAll())
+                .map(buildRecord -> new BuildRecordRest(buildRecord)).collect(Collectors.toList());
     }
 
-    public List<BuildResultRest> getAllRunning() {
+    public List<BuildRecordRest> getAllRunning() {
         return nullableStreamOf(buildCoordinator.getBuildTasks())
-                .map(submittedBuild -> new BuildResultRest(submittedBuild)).collect(Collectors.toList());
+                .map(submittedBuild -> new BuildRecordRest(submittedBuild)).collect(Collectors.toList());
     }
 
-    public BuildResultRest getSpecific(Integer id) {
-        ProjectBuildResult buildResult = projectBuildResultRepository.findOne(id);
-        if(buildResult != null) {
-            return new BuildResultRest(buildResult);
+    public BuildRecordRest getSpecific(Integer id) {
+        BuildRecord buildRecord = buildRecordRepository.findOne(id);
+        if(buildRecord != null) {
+            return new BuildRecordRest(buildRecord);
         }
         return null;
     }
 
     public StreamingOutput getLogsForBuildId(Integer id) {
-        ProjectBuildResult buildResult = projectBuildResultRepository.findOne(id);
-        if(buildResult != null) {
+        BuildRecord buildRecord = buildRecordRepository.findOne(id);
+        if(buildRecord != null) {
             return outputStream -> {
                 Writer writer = new BufferedWriter(new OutputStreamWriter(outputStream));
-                writer.write(buildResult.getBuildLog());
+                writer.write(buildRecord.getBuildLog());
                 writer.flush();
             };
         }
         return null;
     }
 
-    public BuildResultRest getSpecificRunning(Integer id) {
+    public BuildRecordRest getSpecificRunning(Integer id) {
         BuildTask buildTask = getSubmittedBuild(id);
         if(buildTask != null) {
-            return new BuildResultRest(buildTask);
+            return new BuildRecordRest(buildTask);
         }
         return null;
     }
 
     private BuildTask getSubmittedBuild(Integer id) {
         List<BuildTask> buildTasks = buildCoordinator.getBuildTasks().stream()
-                    .filter(submittedBuild -> id.equals(submittedBuild.getProjectBuildConfiguration().getId()))
+                    .filter(submittedBuild -> id.equals(submittedBuild.getBuildConfiguration().getId()))
                     .collect(Collectors.toList());
         if(!buildTasks.isEmpty()) {
             return buildTasks.iterator().next();

@@ -14,10 +14,10 @@ import java.util.List;
  * starting and ending time of a build, the status of the build, the sources url used, the user that triggered the build, plus
  * all the Artifacts that were built and all the Artifacts that were used for the final build. It stores also the buildDriverID
  * that was used to run the build, the system Image where is was run in, and is mapped to a BuildCollection, that encapsulates
- * the set of buildResult that compose a Product
+ * the set of buildRecord that compose a Product
  */
 @Entity
-public class ProjectBuildResult implements Serializable {
+public class BuildRecord implements Serializable {
 
     private static final long serialVersionUID = -5472083609387609797L;
 
@@ -32,7 +32,7 @@ public class ProjectBuildResult implements Serializable {
     private Timestamp endTime;
 
     @ManyToOne
-    private ProjectBuildConfiguration projectBuildConfiguration;
+    private BuildConfiguration buildConfiguration;
 
     @ManyToOne
     private User user;
@@ -47,10 +47,10 @@ public class ProjectBuildResult implements Serializable {
     @Enumerated(value = EnumType.STRING)
     private BuildDriverStatus status;
 
-    @OneToMany(mappedBy = "projectBuildResult", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "buildRecord", cascade = CascadeType.ALL)
     private List<Artifact> builtArtifacts;
 
-    @OneToMany(mappedBy = "projectBuildResult", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "buildRecord", cascade = CascadeType.ALL)
     private List<Artifact> dependencies;
 
     /**
@@ -67,13 +67,13 @@ public class ProjectBuildResult implements Serializable {
     // bi-directional many-to-many association to BuildCollection
 
     /** The build collections. */
-    @ManyToMany(mappedBy = "projectBuildResult")
+    @ManyToMany(mappedBy = "buildRecord")
     private List<BuildCollection> buildCollections;
 
     /**
      * Instantiates a new project build result.
      */
-    public ProjectBuildResult() {
+    public BuildRecord() {
         startTime = Timestamp.from(Instant.now());
         buildCollections = new ArrayList<>();
         dependencies = new ArrayList<>();
@@ -333,23 +333,23 @@ public class ProjectBuildResult implements Serializable {
     }
 
     /**
-     * @return the projectBuildConfiguration
+     * @return the buildConfiguration
      */
-    public ProjectBuildConfiguration getProjectBuildConfiguration() {
-        return projectBuildConfiguration;
+    public BuildConfiguration getBuildConfiguration() {
+        return buildConfiguration;
     }
 
     /**
-     * @param projectBuildConfiguration the projectBuildConfiguration to set
+     * @param buildConfiguration the buildConfiguration to set
      */
-    public void setProjectBuildConfiguration(ProjectBuildConfiguration projectBuildConfiguration) {
-        this.projectBuildConfiguration = projectBuildConfiguration;
+    public void setBuildConfiguration(BuildConfiguration buildConfiguration) {
+        this.buildConfiguration = buildConfiguration;
     }
 
     @Override
     public String toString() {
-        return "ProjectBuildResult [id=" + id + ", project=" + projectBuildConfiguration.getProject().getName()
-                + ", projectBuildConfiguration=" + projectBuildConfiguration + "]";
+        return "BuildRecord [id=" + id + ", project=" + buildConfiguration.getProject().getName()
+                + ", buildConfiguration=" + buildConfiguration + "]";
     }
 
 }
