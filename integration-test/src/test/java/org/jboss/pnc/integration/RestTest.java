@@ -30,6 +30,7 @@ public class RestTest {
     private static int productVersionId;
     private static int projectId;
     private static int configurationId;
+    private static int userId;
 
     @Deployment(testable = false)
     public static EnterpriseArchive deploy() {
@@ -175,6 +176,52 @@ public class RestTest {
                 delete(String.format("/pnc-web/rest/product/%d/version/%d/project/%d/configuration/%d", productId, productVersionId, projectId, configurationId)).
         then().
                 statusCode(200);
+    }
+
+    @Test
+    @InSequence(10)
+    public void shouldGetAllUsers() {
+        given().
+                contentType(ContentType.JSON).
+                port(getHttpPort()).
+        when().
+                get("/pnc-web/rest/user").
+        then().
+                statusCode(200).
+                body(containsJsonAttribute("[0].id", value -> userId = Integer.valueOf(value)));
+    }
+
+    @Test
+    @InSequence(11)
+    public void shouldGetSpecificUser() {
+        given().
+                contentType(ContentType.JSON).
+                port(getHttpPort()).
+        when().
+                get(String.format("/pnc-web/rest/user/%d", userId)).
+        then().
+                statusCode(200).
+                body(containsJsonAttribute("id"));
+    }
+
+    @Test
+    @InSequence(12)
+    public void shouldCreateNewUser() {
+        String rawJson = "{\n" +
+                "                \"email\": \"project-ncl@github.com\",\n" +
+                "                \"firstName\": \"project\",\n" +
+                "                \"lastName\": \"ncl\",\n" +
+                "                \"username\": \"project-ncl\"\n" +
+                "        }";
+
+        given().
+                body(rawJson).
+                contentType(ContentType.JSON).
+                port(getHttpPort()).
+        when().
+                post("/pnc-web/rest/user/").
+        then().
+                statusCode(201);
     }
 
     private CustomMatcher<String> containsJsonAttribute(String jsonAttribute, Consumer<String>... actionWhenMatches) {
