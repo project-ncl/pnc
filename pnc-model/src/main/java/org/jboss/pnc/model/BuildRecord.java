@@ -348,8 +348,8 @@ public class BuildRecord implements Serializable {
 
     @Override
     public String toString() {
-        return "BuildRecord [id=" + id + ", project=" + buildConfiguration.getProject().getName()
-                + ", buildConfiguration=" + buildConfiguration + "]";
+        return "BuildRecord [id=" + id + ", project=" + buildConfiguration.getProject().getName() + ", buildConfiguration="
+                + buildConfiguration + "]";
     }
 
 }
