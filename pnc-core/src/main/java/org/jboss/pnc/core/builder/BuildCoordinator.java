@@ -9,7 +9,7 @@ import org.jboss.pnc.model.BuildCollection;
 import org.jboss.pnc.model.BuildDriverStatus;
 import org.jboss.pnc.model.Product;
 import org.jboss.pnc.model.ProductVersion;
-import org.jboss.pnc.model.ProjectBuildConfiguration;
+import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.RepositoryType;
 import org.jboss.pnc.spi.BuildStatus;
 import org.jboss.pnc.spi.builddriver.BuildDriver;
@@ -70,14 +70,14 @@ public class BuildCoordinator {
         this.datastoreAdapter = datastoreAdapter;
     }
 
-    public BuildTask build(ProjectBuildConfiguration projectBuildConfiguration) throws CoreException {
-        return build(projectBuildConfiguration, Collections.emptySet(), Collections.emptySet());
+    public BuildTask build(BuildConfiguration buildConfiguration) throws CoreException {
+        return build(buildConfiguration, Collections.emptySet(), Collections.emptySet());
     }
 
-    public BuildTask build(ProjectBuildConfiguration projectBuildConfiguration, Set<Consumer<BuildStatus>> statusUpdateListeners, Set<Consumer<String>> logConsumers) throws CoreException {
+    public BuildTask build(BuildConfiguration buildConfiguration, Set<Consumer<BuildStatus>> statusUpdateListeners, Set<Consumer<String>> logConsumers) throws CoreException {
         BuildTasksTree buildTasksTree = new BuildTasksTree(this);
 
-        BuildTask buildTask = buildTasksTree.getOrCreateSubmittedBuild(projectBuildConfiguration, statusUpdateListeners, logConsumers);
+        BuildTask buildTask = buildTasksTree.getOrCreateSubmittedBuild(buildConfiguration, statusUpdateListeners, logConsumers);
 
         if (!isBuildAlreadySubmitted(buildTask)) {
 
@@ -129,20 +129,20 @@ public class BuildCoordinator {
         for (Edge<BuildTask> outgoingEdge : outgoingEdges) {
             Vertex<BuildTask> dependentVertex = outgoingEdge.getTo();
             BuildTask dependentBuildTask = dependentVertex.getData();
-            if (!isConfigurationBuilt(dependentBuildTask.projectBuildConfiguration)) {
+            if (!isConfigurationBuilt(dependentBuildTask.buildConfiguration)) {
                 missingDependencies.add(dependentBuildTask);
             }
         }
         return missingDependencies;
     }
 
-    private boolean isConfigurationBuilt(ProjectBuildConfiguration buildConfiguration) {
-        return datastoreAdapter.isProjectBuildConfigurationBuilt();
+    private boolean isConfigurationBuilt(BuildConfiguration buildConfiguration) {
+        return datastoreAdapter.isBuildConfigurationBuilt();
     }
 
     void startBuilding(BuildTask buildTask) throws CoreException {
         RepositoryManager repositoryManager = repositoryManagerFactory.getRepositoryManager(RepositoryType.MAVEN);
-        BuildDriver buildDriver = buildDriverFactory.getBuildDriver(buildTask.getProjectBuildConfiguration().getEnvironment().getBuildType());
+        BuildDriver buildDriver = buildDriverFactory.getBuildDriver(buildTask.getBuildConfiguration().getEnvironment().getBuildType());
 
         configureRepository(buildTask, repositoryManager)
                 .thenCompose(repositoryConfiguration -> buildSetUp(buildTask, buildDriver, repositoryConfiguration))
@@ -154,7 +154,7 @@ public class BuildCoordinator {
     private CompletableFuture<RepositoryConfiguration> configureRepository(BuildTask buildTask, RepositoryManager repositoryManager) {
         return CompletableFuture.supplyAsync( () ->  {
             buildTask.setStatus(BuildStatus.REPO_SETTING_UP);
-            ProjectBuildConfiguration projectBuildConfiguration = buildTask.getProjectBuildConfiguration();
+            BuildConfiguration buildConfiguration = buildTask.getBuildConfiguration();
             try {
 
                 //TODO remove buildCollection mock
@@ -166,7 +166,7 @@ public class BuildCoordinator {
                 productVersion.setProduct(product);
                 buildCollection.setProductVersion(productVersion);
 
-                return repositoryManager.createRepository(projectBuildConfiguration, buildCollection);
+                return repositoryManager.createRepository(buildConfiguration, buildCollection);
             } catch (RepositoryManagerException e) {
                 throw new CoreExceptionWrapper(e);
             }
@@ -176,9 +176,9 @@ public class BuildCoordinator {
     private CompletableFuture<RunningBuild> buildSetUp(BuildTask buildTask, BuildDriver buildDriver, RepositoryConfiguration repositoryConfiguration) {
         return CompletableFuture.supplyAsync( () ->  {
             buildTask.setStatus(BuildStatus.BUILD_SETTING_UP);
-            ProjectBuildConfiguration projectBuildConfiguration = buildTask.getProjectBuildConfiguration();
+            BuildConfiguration buildConfiguration = buildTask.getBuildConfiguration();
             try {
-                return buildDriver.startProjectBuild(buildTask.getProjectBuildConfiguration(), repositoryConfiguration);
+                return buildDriver.startProjectBuild(buildTask.getBuildConfiguration(), repositoryConfiguration);
             } catch (BuildDriverException e) {
                 throw new CoreExceptionWrapper(e);
             }
@@ -206,7 +206,7 @@ public class BuildCoordinator {
     private CompletionStage<BuildResult> retrieveBuildResults(BuildTask buildTask, CompletedBuild completedBuild) {
         return CompletableFuture.supplyAsync( () ->  {
             buildTask.setStatus(BuildStatus.COLLECTING_RESULTS);
-            ProjectBuildConfiguration projectBuildConfiguration = buildTask.getProjectBuildConfiguration();
+            BuildConfiguration buildConfiguration = buildTask.getBuildConfiguration();
             try {
                 return completedBuild.getBuildResult();
             } catch (BuildDriverException e) {
@@ -256,7 +256,7 @@ public class BuildCoordinator {
 
     public BuildTask getBuild(String identifier) {
         List<BuildTask> buildsFilteredTask = buildTasks.stream()
-                .filter(b -> identifier.equals(b.projectBuildConfiguration.getIdentifier())).collect(Collectors.toList());
+                .filter(b -> identifier.equals(b.buildConfiguration.getIdentifier())).collect(Collectors.toList());
         return buildsFilteredTask.get(0); //TODO validate that there is exactly one ?
     }
 

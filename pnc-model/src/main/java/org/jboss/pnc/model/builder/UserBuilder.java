@@ -20,7 +20,7 @@ package org.jboss.pnc.model.builder;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.jboss.pnc.model.ProjectBuildResult;
+import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.User;
 
 /**
@@ -39,10 +39,10 @@ public class UserBuilder {
 
     private String username;
 
-    private List<ProjectBuildResult> projectBuildResults;
+    private List<BuildRecord> buildRecords;
 
     private UserBuilder() {
-        projectBuildResults = new ArrayList<>();
+        buildRecords = new ArrayList<>();
     }
 
     public static UserBuilder newBuilder() {
@@ -59,10 +59,10 @@ public class UserBuilder {
         user.setUsername(username);
 
         // Set the bi-directional mapping
-        for (ProjectBuildResult projectBuildResult : projectBuildResults) {
-            projectBuildResult.setUser(user);
+        for (BuildRecord buildRecord : buildRecords) {
+            buildRecord.setUser(user);
         }
-        user.setProjectBuildResults(projectBuildResults);
+        user.setBuildRecords(buildRecords);
 
         return user;
     }
@@ -92,13 +92,13 @@ public class UserBuilder {
         return this;
     }
 
-    public UserBuilder projectBuildResult(ProjectBuildResult projectBuildResult) {
-        this.projectBuildResults.add(projectBuildResult);
+    public UserBuilder buildRecord(BuildRecord buildRecord) {
+        this.buildRecords.add(buildRecord);
         return this;
     }
 
-    public UserBuilder projectBuildResults(List<ProjectBuildResult> projectBuildResults) {
-        this.projectBuildResults = projectBuildResults;
+    public UserBuilder buildRecords(List<BuildRecord> buildRecords) {
+        this.buildRecords = buildRecords;
         return this;
     }
 
@@ -122,8 +122,8 @@ public class UserBuilder {
         return username;
     }
 
-    public List<ProjectBuildResult> getProjectBuildResults() {
-        return projectBuildResults;
+    public List<BuildRecord> getBuildRecords() {
+        return buildRecords;
     }
 
 }

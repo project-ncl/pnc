@@ -17,11 +17,11 @@
 
 package org.jboss.pnc.datastore.repositories;
 
+import java.util.List;
+
 import org.jboss.pnc.model.ProductVersion;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-
-import java.util.List;
 
 /**
  * @author avibelli

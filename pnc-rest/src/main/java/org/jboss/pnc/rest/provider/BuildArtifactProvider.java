@@ -24,8 +24,8 @@ public class BuildArtifactProvider {
         this.artifactRepository = artifactRepository;
     }
 
-    public List<ArtifactRest> getAll(Integer buildResultId) {
-        return nullableStreamOf(artifactRepository.findByProjectBuildResult(buildResultId))
+    public List<ArtifactRest> getAll(Integer buildRecordId) {
+        return nullableStreamOf(artifactRepository.findByBuildRecord(buildRecordId))
                 .map(artifact -> new ArtifactRest(artifact))
                 .collect(Collectors.toList());
     }

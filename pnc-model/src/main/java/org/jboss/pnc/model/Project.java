@@ -11,9 +11,8 @@ import java.util.Set;
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-11-23.
  * 
  * The class Project incapsulates the basic properties of a Project, i.e. the name, description, license. It is linked to a list
- * of ProjectBuildConfigurations, that contain the build configurations of the Project in its lifetime. The class Project is
- * also linked to a list of ProjectBuildResults, that contains the result of the build triggered with a
- * ProjectBuildConfiguration
+ * of BuildConfigurations, that contain the build configurations of the Project in its lifetime. The class Project is also
+ * linked to a list of buildRecords, that contains the result of the build triggered with a BuildConfiguration
  */
 @XmlRootElement
 @Entity
@@ -41,14 +40,14 @@ public class Project implements Serializable {
 
     @XmlTransient
     @OneToMany(mappedBy = "project", cascade = CascadeType.ALL)
-    private Set<ProjectBuildConfiguration> projectBuildConfigurations;
+    private Set<BuildConfiguration> buildConfigurations;
 
     /**
      * Instantiates a new project.
      */
     public Project() {
         productVersionProjects = new HashSet<>();
-        projectBuildConfigurations = new HashSet<>();
+        buildConfigurations = new HashSet<>();
     }
 
     /**
@@ -136,17 +135,17 @@ public class Project implements Serializable {
     }
 
     /**
-     * @return the projectBuildConfigurations
+     * @return the buildConfigurations
      */
-    public Set<ProjectBuildConfiguration> getProjectBuildConfigurations() {
-        return projectBuildConfigurations;
+    public Set<BuildConfiguration> getBuildConfigurations() {
+        return buildConfigurations;
     }
 
     /**
-     * @param projectBuildConfigurations the projectBuildConfigurations to set
+     * @param buildConfigurations the buildConfigurations to set
      */
-    public void setProjectBuildConfigurations(Set<ProjectBuildConfiguration> projectBuildConfigurations) {
-        this.projectBuildConfigurations = projectBuildConfigurations;
+    public void setBuildConfigurations(Set<BuildConfiguration> buildConfigurations) {
+        this.buildConfigurations = buildConfigurations;
     }
 
     /**
@@ -188,27 +187,27 @@ public class Project implements Serializable {
     }
 
     /**
-     * Add a projectBuildConfiguration to the set of projectBuildConfigurations
+     * Add a buildConfiguration to the set of buildConfigurations
      *
      * @param configuration
      * @return
      */
-    public Set<ProjectBuildConfiguration> addProjectBuildConfiguration(ProjectBuildConfiguration configuration) {
-        projectBuildConfigurations.add(configuration);
+    public Set<BuildConfiguration> addBuildConfiguration(BuildConfiguration configuration) {
+        buildConfigurations.add(configuration);
 
-        return projectBuildConfigurations;
+        return buildConfigurations;
     }
 
     /**
-     * Remove a projectBuildConfiguration from the set of projectBuildConfigurations
+     * Remove a buildConfiguration from the set of buildConfigurations
      *
      * @param configuration
      * @return
      */
-    public Set<ProjectBuildConfiguration> removeProjectBuildConfiguration(ProjectBuildConfiguration configuration) {
-        projectBuildConfigurations.remove(configuration);
+    public Set<BuildConfiguration> removeBuildConfiguration(BuildConfiguration configuration) {
+        buildConfigurations.remove(configuration);
 
-        return projectBuildConfigurations;
+        return buildConfigurations;
     }
 
     @Override

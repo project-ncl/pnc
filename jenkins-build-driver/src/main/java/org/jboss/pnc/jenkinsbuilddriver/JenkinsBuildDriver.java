@@ -3,7 +3,7 @@ package org.jboss.pnc.jenkinsbuilddriver;
 import org.jboss.logging.Logger;
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.model.BuildType;
-import org.jboss.pnc.model.ProjectBuildConfiguration;
+import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.spi.builddriver.BuildDriver;
 import org.jboss.pnc.spi.builddriver.RunningBuild;
 import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
@@ -48,8 +48,8 @@ public class JenkinsBuildDriver implements BuildDriver {
     }
 
     @Override
-    public RunningBuild startProjectBuild(ProjectBuildConfiguration projectBuildConfiguration, RepositoryConfiguration repositoryConfiguration) throws BuildDriverException {
-        BuildJob build = new BuildJob(jenkinsServerFactory.getJenkinsServer(), projectBuildConfiguration);
+    public RunningBuild startProjectBuild(BuildConfiguration buildConfiguration, RepositoryConfiguration repositoryConfiguration) throws BuildDriverException {
+        BuildJob build = new BuildJob(jenkinsServerFactory.getJenkinsServer(), buildConfiguration);
         boolean configured = build.configure(repositoryConfiguration, true);
         if (!configured) {
             throw new AssertionError("Cannot configure build job.");

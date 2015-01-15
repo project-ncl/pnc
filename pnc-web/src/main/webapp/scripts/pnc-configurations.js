@@ -37,8 +37,8 @@ $(document).ready(function() {
          method: "GET",
          success: function (data) {
            $.each(data, function(entryIndex, entry){
-             if ($.inArray(entry['projectBuildConfigurationId'], configurationsWithResults) === -1) {
-                configurationsWithResults.push(entry['projectBuildConfigurationId']);
+             if ($.inArray(entry['configurationIds'], configurationsWithResults) === -1) {
+                configurationsWithResults.push(entry['configurationIds']);
              }
            });
          },

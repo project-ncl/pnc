@@ -5,7 +5,7 @@ import org.jboss.arquillian.junit.InSequence;
 import org.jboss.pnc.core.builder.BuildCoordinator;
 import org.jboss.pnc.core.builder.BuildTask;
 import org.jboss.pnc.core.test.configurationBuilders.TestProjectConfigurationBuilder;
-import org.jboss.pnc.model.ProjectBuildConfiguration;
+import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.spi.BuildStatus;
 import org.junit.Assert;
 import org.junit.Test;
@@ -29,8 +29,8 @@ public class ConfigurationsTest extends ProjectBuilder {
     public void dependsOnItselfConfigurationTestCase() throws Exception {
         TestProjectConfigurationBuilder configurationBuilder = new TestProjectConfigurationBuilder();
 
-        ProjectBuildConfiguration projectBuildConfiguration = configurationBuilder.buildConfigurationWhichDependsOnItself();
-        BuildTask buildTask = buildCoordinator.build(projectBuildConfiguration, new HashSet<>(), new HashSet<Consumer<String>>());
+        BuildConfiguration buildConfiguration = configurationBuilder.buildConfigurationWhichDependsOnItself();
+        BuildTask buildTask = buildCoordinator.build(buildConfiguration, new HashSet<>(), new HashSet<Consumer<String>>());
         Assert.assertEquals(BuildStatus.REJECTED, buildTask.getStatus());
         Assert.assertTrue("Invalid status description: " + buildTask.getStatusDescription(), buildTask.getStatusDescription().contains("itself"));
     }
@@ -40,8 +40,8 @@ public class ConfigurationsTest extends ProjectBuilder {
     public void cycleConfigurationTestCase() throws Exception {
         TestProjectConfigurationBuilder configurationBuilder = new TestProjectConfigurationBuilder();
 
-        ProjectBuildConfiguration projectBuildConfiguration = configurationBuilder.buildConfigurationWithCycleDependency();
-        BuildTask buildTask = buildCoordinator.build(projectBuildConfiguration, new HashSet<>(), new HashSet<Consumer<String>>());
+        BuildConfiguration buildConfiguration = configurationBuilder.buildConfigurationWithCycleDependency();
+        BuildTask buildTask = buildCoordinator.build(buildConfiguration, new HashSet<>(), new HashSet<Consumer<String>>());
         Assert.assertEquals(BuildStatus.REJECTED, buildTask.getStatus());
         Assert.assertTrue("Invalid status description: " + buildTask.getStatusDescription(), buildTask.getStatusDescription().contains("Cycle dependencies found"));
     }

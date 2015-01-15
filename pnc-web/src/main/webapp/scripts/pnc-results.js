@@ -30,7 +30,7 @@ $(document).ready(function() {
          method: "GET",
          success: function (data) {
            $.each(data, function(entryIndex, entry){
-             if (entry['projectBuildConfigurationId'] == configurationId) {
+             if (entry['configurationIds'] == configurationId) {
                 filteredResults.push(entry);
              }
            });

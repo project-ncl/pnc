@@ -1,7 +1,7 @@
 package org.jboss.pnc.spi.builddriver;
 
 import org.jboss.pnc.model.BuildType;
-import org.jboss.pnc.model.ProjectBuildConfiguration;
+import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
 import org.jboss.pnc.spi.repositorymanager.model.RepositoryConfiguration;
 
@@ -14,6 +14,6 @@ public interface BuildDriver {
 
     boolean canBuild(BuildType buildType);
 
-    public RunningBuild startProjectBuild(ProjectBuildConfiguration projectBuildConfiguration, RepositoryConfiguration repositoryConfiguration) throws BuildDriverException;
+    public RunningBuild startProjectBuild(BuildConfiguration buildConfiguration, RepositoryConfiguration repositoryConfiguration) throws BuildDriverException;
 
 }

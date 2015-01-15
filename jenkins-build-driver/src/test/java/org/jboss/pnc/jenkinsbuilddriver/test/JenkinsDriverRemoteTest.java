@@ -9,7 +9,7 @@ import org.jboss.pnc.jenkinsbuilddriver.JenkinsBuildMonitor;
 import org.jboss.pnc.jenkinsbuilddriver.JenkinsServerFactory;
 import org.jboss.pnc.model.BuildDriverStatus;
 import org.jboss.pnc.model.Project;
-import org.jboss.pnc.model.ProjectBuildConfiguration;
+import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.RepositoryType;
 import org.jboss.pnc.spi.builddriver.BuildResult;
 import org.jboss.pnc.spi.builddriver.CompletedBuild;
@@ -62,7 +62,7 @@ public class JenkinsDriverRemoteTest {
     @Test
     @Ignore //requires configuration //TODO
     public void startJenkinsJobTestCase() throws Exception {
-        ProjectBuildConfiguration pbc = getProjectBuildConfiguration();
+        BuildConfiguration pbc = getBuildConfiguration();
 
         RepositoryConfiguration repositoryConfiguration = getRepositoryConfiguration();
 
@@ -175,8 +175,8 @@ public class JenkinsDriverRemoteTest {
             };
     }
 
-    private ProjectBuildConfiguration getProjectBuildConfiguration() {
-        ProjectBuildConfiguration pbc = new ProjectBuildConfiguration();
+    private BuildConfiguration getBuildConfiguration() {
+        BuildConfiguration pbc = new BuildConfiguration();
         pbc.setScmUrl("https://github.com/project-ncl/pnc.git");
         pbc.setBuildScript("mvn clean install -Dmaven.test.skip");
         pbc.setIdentifier("PNC-executed-from-jenkins-driver-test");

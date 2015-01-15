@@ -9,8 +9,6 @@ package org.jboss.pnc.model;
  * what kind of Native builds?)
  */
 public enum BuildType {
-    JAVA,
-    DOCKER,
-    NATIVE
+    JAVA, DOCKER, NATIVE
 
 }

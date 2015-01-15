@@ -4,10 +4,10 @@ import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.transaction.api.annotation.TransactionMode;
 import org.jboss.arquillian.transaction.api.annotation.Transactional;
-import org.jboss.pnc.datastore.repositories.ProjectBuildResultRepository;
+import org.jboss.pnc.datastore.repositories.BuildRecordRepository;
 import org.jboss.pnc.integration.deployments.Deployments;
 import org.jboss.pnc.model.BuildDriverStatus;
-import org.jboss.pnc.model.ProjectBuildResult;
+import org.jboss.pnc.model.BuildRecord;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.junit.Test;
@@ -28,7 +28,7 @@ public class DatastoreTest {
     public static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
     @Inject
-    private ProjectBuildResultRepository projectBuildResultRepository;
+    private BuildRecordRepository buildRecordRepository;
 
 
     @Deployment
@@ -43,12 +43,12 @@ public class DatastoreTest {
     @Test
     public void shouldStoreResults() {
         //given
-        ProjectBuildResult objectToBeStored = new ProjectBuildResult();
+        BuildRecord objectToBeStored = new BuildRecord();
         objectToBeStored.setStatus(BuildDriverStatus.CANCELLED);
 
         //when
-        projectBuildResultRepository.save(objectToBeStored);
-        List<ProjectBuildResult> objectsInDb = projectBuildResultRepository.findAll();
+        buildRecordRepository.save(objectToBeStored);
+        List<BuildRecord> objectsInDb = buildRecordRepository.findAll();
 
         //then
         assertThat(objectsInDb).hasSize(1).containsExactly(objectToBeStored);

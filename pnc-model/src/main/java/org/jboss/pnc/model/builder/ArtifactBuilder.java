@@ -19,7 +19,7 @@ package org.jboss.pnc.model.builder;
 
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.ArtifactStatus;
-import org.jboss.pnc.model.ProjectBuildResult;
+import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.RepositoryType;
 
 /**
@@ -42,7 +42,7 @@ public class ArtifactBuilder {
 
     private ArtifactStatus status;
 
-    private ProjectBuildResult projectBuildResult;
+    private BuildRecord buildRecord;
 
     private ArtifactBuilder() {
     }
@@ -60,7 +60,7 @@ public class ArtifactBuilder {
         artifact.setFilename(filename);
         artifact.setDeployUrl(deployUrl);
         artifact.setStatus(status);
-        artifact.setProjectBuildResult(projectBuildResult);
+        artifact.setBuildRecord(buildRecord);
 
         return artifact;
     }
@@ -100,8 +100,8 @@ public class ArtifactBuilder {
         return this;
     }
 
-    public ArtifactBuilder projectBuildResult(ProjectBuildResult projectBuildResult) {
-        this.projectBuildResult = projectBuildResult;
+    public ArtifactBuilder buildRecord(BuildRecord buildRecord) {
+        this.buildRecord = buildRecord;
         return this;
     }
 
@@ -133,8 +133,8 @@ public class ArtifactBuilder {
         return status;
     }
 
-    public ProjectBuildResult getProjectBuildResult() {
-        return projectBuildResult;
+    public BuildRecord getBuildRecord() {
+        return buildRecord;
     }
 
 }

@@ -16,9 +16,9 @@ import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.ArtifactStatus;
 import org.jboss.pnc.model.BuildCollection;
+import org.jboss.pnc.model.BuildConfiguration;
+import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.ProductVersion;
-import org.jboss.pnc.model.ProjectBuildConfiguration;
-import org.jboss.pnc.model.ProjectBuildResult;
 import org.jboss.pnc.model.RepositoryType;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManager;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerException;
@@ -91,8 +91,8 @@ public class RepositoryManagerDriver implements RepositoryManager {
      *         (or product, or shared-releases).
      */
     @Override
-    public RepositoryConfiguration createRepository(ProjectBuildConfiguration projectBuildConfiguration,
-            BuildCollection buildCollection) throws RepositoryManagerException {
+    public RepositoryConfiguration createRepository(BuildConfiguration buildConfiguration, BuildCollection buildCollection)
+            throws RepositoryManagerException {
 
         try {
             setupGlobalRepos();
@@ -113,7 +113,7 @@ public class RepositoryManagerDriver implements RepositoryManager {
 
         // TODO Better way to generate id that doesn't rely on System.currentTimeMillis() but will still be relatively fast.
 
-        String buildRepoId = String.format(REPO_ID_FORMAT, safeUrlPart(projectBuildConfiguration.getProject().getName()),
+        String buildRepoId = String.format(REPO_ID_FORMAT, safeUrlPart(buildConfiguration.getProject().getName()),
                 System.currentTimeMillis());
         try {
             setupBuildRepos(buildRepoId, productRepoId);
@@ -149,7 +149,7 @@ public class RepositoryManagerDriver implements RepositoryManager {
      */
     @Override
     // TODO move under returned object (do not use the one from model) form createRepo
-    public void persistArtifacts(RepositoryConfiguration repository, ProjectBuildResult buildResult)
+    public void persistArtifacts(RepositoryConfiguration repository, BuildRecord buildResult)
             throws RepositoryManagerException {
         String trackingId = repository.getId();
         TrackedContentDTO report;

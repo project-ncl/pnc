@@ -2,8 +2,8 @@ package org.jboss.pnc.core.builder;
 
 import org.jboss.logging.Logger;
 import org.jboss.pnc.model.BuildDriverStatus;
-import org.jboss.pnc.model.ProjectBuildConfiguration;
-import org.jboss.pnc.model.ProjectBuildResult;
+import org.jboss.pnc.model.BuildConfiguration;
+import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.spi.builddriver.BuildResult;
 import org.jboss.pnc.spi.datastore.Datastore;
 import org.jboss.pnc.spi.datastore.DatastoreException;
@@ -27,31 +27,31 @@ public class DatastoreAdapter {
 
     public void storeResult(BuildTask buildTask, BuildResult completedBuild) throws DatastoreException {
         try {
-            ProjectBuildConfiguration projectBuildConfiguration = buildTask.getProjectBuildConfiguration();
+            BuildConfiguration buildConfiguration = buildTask.getBuildConfiguration();
 
-            ProjectBuildResult buildResult = new ProjectBuildResult();
-            buildResult.setBuildLog(completedBuild.getBuildLog());
-            buildResult.setStatus(completedBuild.getBuildDriverStatus());
-            buildResult.setProjectBuildConfiguration(projectBuildConfiguration);
-            log.debugf("Storing results of %s to datastore.", projectBuildConfiguration.getIdentifier());
-            datastore.storeCompletedBuild(buildResult);
+            BuildRecord buildRecord = new BuildRecord();
+            buildRecord.setBuildLog(completedBuild.getBuildLog());
+            buildRecord.setStatus(completedBuild.getBuildDriverStatus());
+            buildRecord.setBuildConfiguration(buildConfiguration);
+            log.debugf("Storing results of %s to datastore.", buildConfiguration.getIdentifier());
+            datastore.storeCompletedBuild(buildRecord);
         } catch (Exception e) {
             throw new DatastoreException("Error storing the result to datastore.", e);
         }
     }
 
     public void storeResult(BuildTask buildTask, Throwable e) throws DatastoreException {
-        ProjectBuildConfiguration projectBuildConfiguration = buildTask.getProjectBuildConfiguration();
+        BuildConfiguration buildConfiguration = buildTask.getBuildConfiguration();
 
-        ProjectBuildResult buildResult = new ProjectBuildResult();
+        BuildRecord buildRecord = new BuildRecord();
         StringWriter stackTraceWriter = new StringWriter();
-        buildResult.setStatus(BuildDriverStatus.UNKNOWN); //TODO set error status
-        buildResult.setBuildLog(stackTraceWriter.toString());
-        log.debugf("Storing ERROR result of %s to datastore. Error: %s", projectBuildConfiguration.getIdentifier(), e);
-        datastore.storeCompletedBuild(buildResult);
+        buildRecord.setStatus(BuildDriverStatus.UNKNOWN); //TODO set error status
+        buildRecord.setBuildLog(stackTraceWriter.toString());
+        log.debugf("Storing ERROR result of %s to datastore. Error: %s", buildConfiguration.getIdentifier(), e);
+        datastore.storeCompletedBuild(buildRecord);
     }
 
-    public boolean isProjectBuildConfigurationBuilt() {
+    public boolean isBuildConfigurationBuilt() {
         return false; //TODO
     }
 }

@@ -83,7 +83,7 @@ public class RepositoryManagerDriverTest {
     // @Ignore
     @Test
     public void formatRepositoryURLForSimpleInfo_CheckDependencyURL() throws Exception {
-        ProjectBuildConfiguration pbc = simpleProjectBuildConfiguration();
+        BuildConfiguration pbc = simpleBuildConfiguration();
 
         BuildCollection bc = new BuildCollection();
         bc.setProductVersion(pbc.getProductVersion());
@@ -109,7 +109,7 @@ public class RepositoryManagerDriverTest {
     @Test
     // @Ignore //TODO UPDATE this test
     public void formatRepositoryURLForSimpleInfo_AllURLsMatch() throws Exception {
-        ProjectBuildConfiguration pbc = simpleProjectBuildConfiguration();
+        BuildConfiguration pbc = simpleBuildConfiguration();
 
         BuildCollection bc = new BuildCollection();
         bc.setProductVersion(pbc.getProductVersion());
@@ -126,7 +126,7 @@ public class RepositoryManagerDriverTest {
         assertThat(connectionInfo.getDeployUrl(), equalTo(expectedUrl));
     }
 
-    private ProjectBuildConfiguration simpleProjectBuildConfiguration() {
+    private BuildConfiguration simpleBuildConfiguration() {
         Project project = new Project();
         project.setName("myproject");
 
@@ -137,7 +137,7 @@ public class RepositoryManagerDriverTest {
         pv.setProduct(product);
         pv.setVersion("1.0");
 
-        ProjectBuildConfiguration pbc = new ProjectBuildConfiguration();
+        BuildConfiguration pbc = new BuildConfiguration();
         pbc.setProject(project);
         pbc.setProductVersion(pv);
 
