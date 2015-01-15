@@ -11,9 +11,8 @@ import java.util.Set;
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-11-23.
  * 
  * The class Project incapsulates the basic properties of a Project, i.e. the name, description, license. It is linked to a list
- * of BuildConfigurations, that contain the build configurations of the Project in its lifetime. The class Project is
- * also linked to a list of buildRecords, that contains the result of the build triggered with a
- * BuildConfiguration
+ * of BuildConfigurations, that contain the build configurations of the Project in its lifetime. The class Project is also
+ * linked to a list of buildRecords, that contains the result of the build triggered with a BuildConfiguration
  */
 @XmlRootElement
 @Entity

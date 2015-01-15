@@ -19,8 +19,8 @@ import javax.persistence.ManyToOne;
  * The status indicates the genesis of the artifact, whether it has been imported from external repositories, or built
  * internally.
  * 
- * All the artifacts are mapped to the BuildRecord, that are the results deriving from a BuildConfiguration, so
- * that given a build, the artifacts used can be tracked
+ * All the artifacts are mapped to the BuildRecord, that are the results deriving from a BuildConfiguration, so that given a
+ * build, the artifacts used can be tracked
  * 
  * 
  * (identifier + checksum) should be unique
