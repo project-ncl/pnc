@@ -1,6 +1,7 @@
 package org.jboss.pnc.rest.restmodel;
 
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
 
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.model.builder.UserBuilder;
@@ -69,6 +70,7 @@ public class UserRest {
         this.username = username;
     }
 
+    @XmlTransient
     public User getUser() {
         UserBuilder userBuilder = UserBuilder.newBuilder();
         userBuilder.username(username);
