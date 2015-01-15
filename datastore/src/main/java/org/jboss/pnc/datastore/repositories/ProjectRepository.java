@@ -16,7 +16,7 @@ public interface ProjectRepository extends JpaRepository<Project, Integer> {
             "where p.productVersion.product.id = ?1 " +
             "and " +
             "p.productVersion.id = ?2")
-    List<Project> findByProductAndProductVerionId(Integer productId, Integer productVersionId);
+    List<Project> findByProductAndProductVersionId(Integer productId, Integer productVersionId);
 
     @Query("select u from Project u " +
             "inner join u.productVersionProjects p " +
