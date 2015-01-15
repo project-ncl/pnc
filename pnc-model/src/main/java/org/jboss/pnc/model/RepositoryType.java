@@ -5,8 +5,5 @@ package org.jboss.pnc.model;
  * registries, etc
  */
 public enum RepositoryType {
-    MAVEN,
-    DOCKER_REGISTRY,
-    NPM,
-    COCOA_POD
+    MAVEN, DOCKER_REGISTRY, NPM, COCOA_POD
 }

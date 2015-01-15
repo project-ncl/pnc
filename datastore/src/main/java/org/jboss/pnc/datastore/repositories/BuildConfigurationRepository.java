@@ -1,10 +1,10 @@
 package org.jboss.pnc.datastore.repositories;
 
+import java.util.List;
+
 import org.jboss.pnc.model.BuildConfiguration;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-
-import java.util.List;
 
 /*
  * How to use Spring Data: https://speakerdeck.com/olivergierke/spring-data-repositories-a-deep-dive-2
