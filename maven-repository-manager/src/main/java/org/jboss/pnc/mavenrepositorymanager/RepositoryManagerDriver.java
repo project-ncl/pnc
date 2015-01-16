@@ -11,6 +11,7 @@ import org.commonjava.aprox.model.core.Group;
 import org.commonjava.aprox.model.core.HostedRepository;
 import org.commonjava.aprox.model.core.StoreKey;
 import org.commonjava.aprox.model.core.StoreType;
+import org.commonjava.maven.atlas.ident.ref.ArtifactRef;
 import org.commonjava.maven.atlas.ident.util.ArtifactPathInfo;
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.model.Artifact;
@@ -160,46 +161,65 @@ public class RepositoryManagerDriver implements RepositoryManager {
                     e.getMessage());
         }
 
-        List<Artifact> deps = new ArrayList<>();
         Set<TrackedContentEntryDTO> downloads = report.getDownloads();
-        for (TrackedContentEntryDTO download : downloads) {
-            Artifact artifact = new Artifact();
-            artifact.setChecksum(download.getSha256());
-            artifact.setDeployUrl(download.getOriginUrl());
+        if (downloads != null) {
+            List<Artifact> deps = new ArrayList<>();
 
-            String path = download.getPath();
-            artifact.setFilename(new File(path).getName());
+            for (TrackedContentEntryDTO download : downloads) {
+                Artifact artifact = new Artifact();
+                artifact.setChecksum(download.getSha256());
+                artifact.setDeployUrl(download.getOriginUrl());
 
-            ArtifactPathInfo pathInfo = ArtifactPathInfo.parse(path);
-            artifact.setIdentifier(pathInfo.getProjectId().toString());
+                String path = download.getPath();
+                artifact.setFilename(new File(path).getName());
 
-            artifact.setRepoType(RepositoryType.MAVEN);
-            artifact.setStatus(ArtifactStatus.BINARY_IMPORTED);
-            deps.add(artifact);
+                ArtifactPathInfo pathInfo = ArtifactPathInfo.parse(path);
+                if (pathInfo == null) {
+                    // metadata file. Ignore.
+                    continue;
+                }
+
+                ArtifactRef aref = new ArtifactRef(pathInfo.getProjectId(), pathInfo.getType(), pathInfo.getClassifier(), false);
+                artifact.setIdentifier(aref.toString());
+
+                artifact.setRepoType(RepositoryType.MAVEN);
+                artifact.setStatus(ArtifactStatus.BINARY_IMPORTED);
+                deps.add(artifact);
+            }
+
+            buildResult.setDependencies(deps);
         }
 
-        buildResult.setDependencies(deps);
-
-        List<Artifact> builds = new ArrayList<>();
         Set<TrackedContentEntryDTO> uploads = report.getUploads();
-        for (TrackedContentEntryDTO upload : uploads) {
-            Artifact artifact = new Artifact();
-            artifact.setChecksum(upload.getSha256());
-            artifact.setDeployUrl(upload.getLocalUrl());
+        if (uploads != null) {
+            List<Artifact> builds = new ArrayList<>();
 
-            String path = upload.getPath();
-            artifact.setFilename(new File(path).getName());
+            for (TrackedContentEntryDTO upload : uploads) {
+                Artifact artifact = new Artifact();
+                artifact.setChecksum(upload.getSha256());
+                artifact.setDeployUrl(upload.getLocalUrl());
 
-            ArtifactPathInfo pathInfo = ArtifactPathInfo.parse(path);
-            artifact.setIdentifier(pathInfo.getProjectId().toString());
+                String path = upload.getPath();
+                artifact.setFilename(new File(path).getName());
 
-            artifact.setRepoType(RepositoryType.MAVEN);
-            artifact.setStatus(ArtifactStatus.BINARY_BUILT);
-            builds.add(artifact);
+                ArtifactPathInfo pathInfo = ArtifactPathInfo.parse(path);
+                if (pathInfo == null) {
+                    // metadata file. Ignore.
+                    continue;
+                }
+
+                ArtifactRef aref = new ArtifactRef(pathInfo.getProjectId(), pathInfo.getType(), pathInfo.getClassifier(), false);
+                artifact.setIdentifier(aref.toString());
+
+                artifact.setRepoType(RepositoryType.MAVEN);
+                artifact.setStatus(ArtifactStatus.BINARY_BUILT);
+                builds.add(artifact);
+            }
+
+            buildResult.setBuiltArtifacts(builds);
         }
 
-        buildResult.setBuiltArtifacts(builds);
-
+        // NOTE: For the following, the artifacts need to be collated by GAV, since they are identified by GAVTC.
         // TODO: Promote deps/downloads/imports (whatever we want to call them) into product-level (global?) imports hosted repo
         // TODO: Promote uploads/build artifacts to product-level hosted repo.
 
