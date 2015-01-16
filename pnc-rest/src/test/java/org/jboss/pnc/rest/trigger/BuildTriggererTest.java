@@ -1,8 +1,8 @@
 package org.jboss.pnc.rest.trigger;
 
 import org.jboss.pnc.core.builder.BuildCoordinator;
-import org.jboss.pnc.datastore.repositories.ProjectBuildConfigurationRepository;
-import org.jboss.pnc.model.ProjectBuildConfiguration;
+import org.jboss.pnc.datastore.repositories.BuildConfigurationRepository;
+import org.jboss.pnc.model.BuildConfiguration;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -17,10 +17,10 @@ public class BuildTriggererTest {
     @Ignore //TODO enable
     public void shouldTriggerBuild() throws Exception {
         //given
-        ProjectBuildConfiguration exampleConfiguration = new ProjectBuildConfiguration();
+        BuildConfiguration exampleConfiguration = new BuildConfiguration();
         exampleConfiguration.setId(6);
 
-        ProjectBuildConfigurationRepository repository = mock(ProjectBuildConfigurationRepository.class);
+        BuildConfigurationRepository repository = mock(BuildConfigurationRepository.class);
         doReturn(exampleConfiguration).when(repository).findOne(6);
 
         BuildCoordinator builder = mock(BuildCoordinator.class);

@@ -21,7 +21,7 @@ public class BuildCollectionRest {
 
     private Integer productVersionId;
 
-    private List<Integer> projectBuildResultIds;
+    private List<Integer> buildRecordIds;
 
     public BuildCollectionRest() {
     }
@@ -31,8 +31,8 @@ public class BuildCollectionRest {
         this.productBuildNumber = buildCollection.getProductBuildNumber();
         this.milestone = buildCollection.getMilestone();
         performIfNotNull(buildCollection.getProductVersion() != null, () ->this.productVersionId = buildCollection.getProductVersion().getId());
-        this.projectBuildResultIds = nullableStreamOf(buildCollection.getProjectBuildResult())
-                .map(projectBuildResult -> projectBuildResult.getId())
+        this.buildRecordIds = nullableStreamOf(buildCollection.getBuildRecord())
+                .map(buildRecord -> buildRecord.getId())
                 .collect(Collectors.toList());
 
     }
@@ -69,12 +69,12 @@ public class BuildCollectionRest {
         this.productVersionId = productVersionId;
     }
 
-    public List<Integer> getProjectBuildResultIds() {
-        return projectBuildResultIds;
+    public List<Integer> getBuildRecordIds() {
+        return buildRecordIds;
     }
 
-    public void setProjectBuildResultIds(List<Integer> projectBuildResultIds) {
-        this.projectBuildResultIds = projectBuildResultIds;
+    public void setBuildRecordIds(List<Integer> buildRecordIds) {
+        this.buildRecordIds = buildRecordIds;
     }
 
 }

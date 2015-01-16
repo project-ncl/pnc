@@ -20,7 +20,7 @@ package org.jboss.pnc.model.builder;
 import org.jboss.pnc.model.Environment;
 import org.jboss.pnc.model.ProductVersion;
 import org.jboss.pnc.model.Project;
-import org.jboss.pnc.model.ProjectBuildConfiguration;
+import org.jboss.pnc.model.BuildConfiguration;
 
 import java.sql.Timestamp;
 import java.time.Instant;
@@ -31,7 +31,7 @@ import java.util.Set;
  * @author avibelli
  *
  */
-public class ProjectBuildConfigurationBuilder {
+public class BuildConfigurationBuilder {
 
     private Integer id;
 
@@ -51,9 +51,9 @@ public class ProjectBuildConfigurationBuilder {
 
     private Environment environment;
 
-    private ProjectBuildConfiguration parent;
+    private BuildConfiguration parent;
 
-    private Set<ProjectBuildConfiguration> dependencies;
+    private Set<BuildConfiguration> dependencies;
 
     private Timestamp creationTime;
 
@@ -61,112 +61,112 @@ public class ProjectBuildConfigurationBuilder {
 
     private String repositories;
 
-    private ProjectBuildConfigurationBuilder() {
+    private BuildConfigurationBuilder() {
         dependencies = new HashSet<>();
         creationTime = Timestamp.from(Instant.now());
     }
 
-    public static ProjectBuildConfigurationBuilder newBuilder() {
-        return new ProjectBuildConfigurationBuilder();
+    public static BuildConfigurationBuilder newBuilder() {
+        return new BuildConfigurationBuilder();
     }
 
-    public ProjectBuildConfiguration build() {
+    public BuildConfiguration build() {
 
-        ProjectBuildConfiguration projectBuildConfiguration = new ProjectBuildConfiguration();
-        projectBuildConfiguration.setId(id);
-        projectBuildConfiguration.setIdentifier(identifier);
-        projectBuildConfiguration.setBuildScript(buildScript);
-        projectBuildConfiguration.setScmUrl(scmUrl);
-        projectBuildConfiguration.setScmBranch(scmBranch);
-        projectBuildConfiguration.setPatchesUrl(patchesUrl);
-        projectBuildConfiguration.setProductVersion(productVersion);
+        BuildConfiguration buildConfiguration = new BuildConfiguration();
+        buildConfiguration.setId(id);
+        buildConfiguration.setIdentifier(identifier);
+        buildConfiguration.setBuildScript(buildScript);
+        buildConfiguration.setScmUrl(scmUrl);
+        buildConfiguration.setScmBranch(scmBranch);
+        buildConfiguration.setPatchesUrl(patchesUrl);
+        buildConfiguration.setProductVersion(productVersion);
 
         // Set the bi-directional mapping
         if (project != null) {
-            project.addProjectBuildConfiguration(projectBuildConfiguration);
+            project.addBuildConfiguration(buildConfiguration);
         }
-        projectBuildConfiguration.setProject(project);
+        buildConfiguration.setProject(project);
 
-        projectBuildConfiguration.setEnvironment(environment);
-        projectBuildConfiguration.setCreationTime(creationTime);
-        projectBuildConfiguration.setLastModificationTime(lastModificationTime);
-        projectBuildConfiguration.setRepositories(repositories);
+        buildConfiguration.setEnvironment(environment);
+        buildConfiguration.setCreationTime(creationTime);
+        buildConfiguration.setLastModificationTime(lastModificationTime);
+        buildConfiguration.setRepositories(repositories);
 
         // Set the bi-directional mapping
-        for (ProjectBuildConfiguration dependency : dependencies) {
-            dependency.setParent(projectBuildConfiguration);
+        for (BuildConfiguration dependency : dependencies) {
+            dependency.setParent(buildConfiguration);
         }
-        projectBuildConfiguration.setDependencies(dependencies);
+        buildConfiguration.setDependencies(dependencies);
 
-        return projectBuildConfiguration;
+        return buildConfiguration;
     }
 
-    public ProjectBuildConfigurationBuilder id(Integer id) {
+    public BuildConfigurationBuilder id(Integer id) {
         this.id = id;
         return this;
     }
 
-    public ProjectBuildConfigurationBuilder identifier(String identifier) {
+    public BuildConfigurationBuilder identifier(String identifier) {
         this.identifier = identifier;
         return this;
     }
 
-    public ProjectBuildConfigurationBuilder buildScript(String buildScript) {
+    public BuildConfigurationBuilder buildScript(String buildScript) {
         this.buildScript = buildScript;
         return this;
     }
 
-    public ProjectBuildConfigurationBuilder scmUrl(String scmUrl) {
+    public BuildConfigurationBuilder scmUrl(String scmUrl) {
         this.scmUrl = scmUrl;
         return this;
     }
 
-    public ProjectBuildConfigurationBuilder scmBranch(String scmBranch) {
+    public BuildConfigurationBuilder scmBranch(String scmBranch) {
         this.scmBranch = scmBranch;
         return this;
     }
 
-    public ProjectBuildConfigurationBuilder patchesUrl(String patchesUrl) {
+    public BuildConfigurationBuilder patchesUrl(String patchesUrl) {
         this.patchesUrl = patchesUrl;
         return this;
     }
 
-    public ProjectBuildConfigurationBuilder productVersion(ProductVersion productVersion) {
+    public BuildConfigurationBuilder productVersion(ProductVersion productVersion) {
         this.productVersion = productVersion;
         return this;
     }
 
-    public ProjectBuildConfigurationBuilder project(Project project) {
+    public BuildConfigurationBuilder project(Project project) {
         this.project = project;
         return this;
     }
 
-    public ProjectBuildConfigurationBuilder environment(Environment environment) {
+    public BuildConfigurationBuilder environment(Environment environment) {
         this.environment = environment;
         return this;
     }
 
-    public ProjectBuildConfigurationBuilder dependency(ProjectBuildConfiguration dependency) {
+    public BuildConfigurationBuilder dependency(BuildConfiguration dependency) {
         this.dependencies.add(dependency);
         return this;
     }
 
-    public ProjectBuildConfigurationBuilder dependencies(Set<ProjectBuildConfiguration> dependencies) {
+    public BuildConfigurationBuilder dependencies(Set<BuildConfiguration> dependencies) {
         this.dependencies = dependencies;
         return this;
     }
 
-    public ProjectBuildConfigurationBuilder creationTime(Timestamp creationTime) {
+    public BuildConfigurationBuilder creationTime(Timestamp creationTime) {
         this.creationTime = creationTime;
         return this;
     }
 
-    public ProjectBuildConfigurationBuilder lastModificationTime(Timestamp lastModificationTime) {
+    public BuildConfigurationBuilder lastModificationTime(Timestamp lastModificationTime) {
         this.lastModificationTime = lastModificationTime;
         return this;
     }
 
-    public ProjectBuildConfigurationBuilder repositories(String repositories) {
+    public BuildConfigurationBuilder repositories(String repositories) {
         this.repositories = repositories;
         return this;
     }
@@ -203,11 +203,11 @@ public class ProjectBuildConfigurationBuilder {
         return environment;
     }
 
-    public ProjectBuildConfiguration getParent() {
+    public BuildConfiguration getParent() {
         return parent;
     }
 
-    public Set<ProjectBuildConfiguration> getDependencies() {
+    public Set<BuildConfiguration> getDependencies() {
         return dependencies;
     }
 

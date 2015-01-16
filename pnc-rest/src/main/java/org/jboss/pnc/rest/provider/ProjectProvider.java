@@ -26,7 +26,7 @@ public class ProjectProvider {
     }
 
     public List<ProjectRest> getAll(Integer productId, Integer productVersionId) {
-        List<Project> product = projectRepository.findByProductAndProductVerionId(productId, productVersionId);
+        List<Project> product = projectRepository.findByProductAndProductVersionId(productId, productVersionId);
         return nullableStreamOf(product)
                 .map(productVersion -> new ProjectRest(productVersion))
                 .collect(Collectors.toList());

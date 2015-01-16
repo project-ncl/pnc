@@ -6,6 +6,5 @@ package org.jboss.pnc.model;
  * This class indicates the genesis of an artifact, whether is was imported or built internally
  */
 public enum ArtifactStatus {
-    BINARY_IMPORTED,
-    BINARY_BUILT
+    BINARY_IMPORTED, BINARY_BUILT
 }

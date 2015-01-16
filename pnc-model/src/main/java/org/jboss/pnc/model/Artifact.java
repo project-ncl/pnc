@@ -19,8 +19,8 @@ import javax.persistence.ManyToOne;
  * The status indicates the genesis of the artifact, whether it has been imported from external repositories, or built
  * internally.
  * 
- * All the artifacts are mapped to the ProjectBuildResult, that are the results deriving from a ProjectBuildConfiguration, so
- * that given a build, the artifacts used can be tracked
+ * All the artifacts are mapped to the BuildRecord, that are the results deriving from a BuildConfiguration, so that given a
+ * build, the artifacts used can be tracked
  * 
  * 
  * (identifier + checksum) should be unique
@@ -60,9 +60,9 @@ public class Artifact implements Serializable {
     @Enumerated(EnumType.STRING)
     private ArtifactStatus status;
 
-    // bi-directional many-to-one association to BuildResult
+    // bi-directional many-to-one association to buildRecord
     @ManyToOne
-    private ProjectBuildResult projectBuildResult;
+    private BuildRecord buildRecord;
 
     /**
      * Instantiates a new artifact.
@@ -184,21 +184,21 @@ public class Artifact implements Serializable {
     }
 
     /**
-     * Gets the project build result.
+     * Gets the project build record.
      *
-     * @return the project build result
+     * @return the project build record
      */
-    public ProjectBuildResult getProjectBuildResult() {
-        return projectBuildResult;
+    public BuildRecord getBuildRecord() {
+        return buildRecord;
     }
 
     /**
-     * Sets the project build result.
+     * Sets the project build record.
      *
-     * @param projectBuildResult the new project build result
+     * @param buildRecord the new project build record
      */
-    public void setProjectBuildResult(ProjectBuildResult projectBuildResult) {
-        this.projectBuildResult = projectBuildResult;
+    public void setBuildRecord(BuildRecord buildRecord) {
+        this.buildRecord = buildRecord;
     }
 
     /**

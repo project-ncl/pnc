@@ -8,9 +8,10 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.validation.constraints.NotNull;
 
 /**
- * The Class User maps the user that triggered the builds, and are linked to the ProjectBuildResult
+ * The Class User maps the user that triggered the builds, and are linked to the BuildRecord
  *
  * @author avibelli
  */
@@ -24,16 +25,18 @@ public class User implements Serializable {
     @GeneratedValue
     private Integer id;
 
+    @NotNull
     private String email;
 
     private String firstName;
 
     private String lastName;
 
+    @NotNull
     private String username;
 
     @OneToMany(mappedBy = "user")
-    private List<ProjectBuildResult> projectBuildResults;
+    private List<BuildRecord> buildRecords;
 
     /**
      * Instantiates a new user.
@@ -132,46 +135,74 @@ public class User implements Serializable {
     }
 
     /**
-     * Gets the project build results.
+     * Gets the project build record.
      *
-     * @return the project build results
+     * @return the project build record
      */
-    public List<ProjectBuildResult> getProjectBuildResults() {
-        return projectBuildResults;
+    public List<BuildRecord> getBuildRecords() {
+        return buildRecords;
     }
 
     /**
-     * Sets the project build results.
+     * Sets the project build record.
      *
-     * @param projectBuildResults the new project build results
+     * @param buildRecords the new project build record
      */
-    public void setProjectBuildResults(List<ProjectBuildResult> projectBuildResults) {
-        this.projectBuildResults = projectBuildResults;
+    public void setBuildRecords(List<BuildRecord> buildRecords) {
+        this.buildRecords = buildRecords;
     }
 
     /**
-     * Adds the project build result.
+     * Adds the project build record.
      *
-     * @param projectBuildResult the project build result
-     * @return the project build result
+     * @param buildRecords the project build record
+     * @return the project build record
      */
-    public ProjectBuildResult addProjectBuildResult(ProjectBuildResult projectBuildResult) {
+    public BuildRecord addBuildRecord(BuildRecord buildRecord) {
 
-        getProjectBuildResults().add(projectBuildResult);
-        projectBuildResult.setUser(this);
+        getBuildRecords().add(buildRecord);
+        buildRecord.setUser(this);
 
-        return projectBuildResult;
+        return buildRecord;
     }
 
     /**
-     * Removes the project build result.
+     * Removes the project build record.
      *
-     * @param projectBuildResult the project build result
-     * @return the project build result
+     * @param buildRecord the project build record
+     * @return the project build record
      */
-    public ProjectBuildResult removeProjectBuildResult(ProjectBuildResult projectBuildResult) {
-        getProjectBuildResults().remove(projectBuildResult);
-        projectBuildResult.setUser(null);
-        return projectBuildResult;
+    public BuildRecord removeBuildRecord(BuildRecord buildRecord) {
+        getBuildRecords().remove(buildRecord);
+        buildRecord.setUser(null);
+        return buildRecord;
     }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((username == null) ? 0 : username.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null || getClass() != obj.getClass()) {
+            return false;
+        }
+        User other = (User) obj;
+        if (username == null) {
+            if (other.username != null) {
+                return false;
+            }
+        } else if (!username.equals(other.username)) {
+            return false;
+        }
+        return true;
+    }
+
 }
