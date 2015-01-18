@@ -508,18 +508,23 @@
 
   <profiles>
     <profile>
-      <id>postgreSQL</id>
+      <id>postgresql</id>
+      <activation>
+        <property>
+          <name>postgresql</name>
+        </property>
+      </activation>
       <properties>
         <!-- PostgreSQL datasource configuration properties -->
-        <datasource.jndi.name>java:jboss/datasources/PNewcastleDS</datasource.jndi.name>
+        <datasource.jndi.name>java:jboss/datasources/NewcastleDS</datasource.jndi.name>
         <datasource.pool.name>PncDS</datasource.pool.name>
         <datasource.connection.url>jdbc:postgresql://localhost:5432/newcastle</datasource.connection.url>
         <datasource.driver-class>org.postgresql.Driver</datasource.driver-class>
         <datasource.security.user-name>newcastle</datasource.security.user-name>
         <datasource.security.password>newcastle</datasource.security.password>
-        <persistence.jta-data-source>java:jboss/datasources/PNewcastleDS</persistence.jta-data-source>
+        <persistence.jta-data-source>java:jboss/datasources/NewcastleDS</persistence.jta-data-source>
         <persistence.hibernate.dialect>org.hibernate.dialect.PostgreSQLDialect</persistence.hibernate.dialect>
-        <persistence.hibernate.hbm2ddl.auto>none</persistence.hibernate.hbm2ddl.auto>
+        <persistence.hibernate.hbm2ddl.auto>create</persistence.hibernate.hbm2ddl.auto>
       </properties>
     </profile>
   </profiles>

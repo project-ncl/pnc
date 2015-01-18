@@ -22,8 +22,8 @@
     <arquillian.container.version>8.2.0.Final</arquillian.container.version>
     <jboss.port.offset>0</jboss.port.offset>
     <default.management.port>9990</default.management.port>
+    <version.org.postgresql>9.3-1102-jdbc41</version.org.postgresql>
   </properties>
-
 
   <dependencies>
     <dependency>
@@ -158,20 +158,16 @@
     </plugins>
   </build>
 
-
   <profiles>
     <profile>
       <id>wildfly-820</id>
       <activation>
-        <activeByDefault>true</activeByDefault>
+        <property>
+          <name>!eap</name>
+        </property>
       </activation>
       <build>
         <plugins>
-          <plugin>
-            <groupId>org.wildfly.plugins</groupId>
-            <artifactId>wildfly-maven-plugin</artifactId>
-            <version>1.0.2.Final</version>
-          </plugin>
           <plugin>
             <artifactId>maven-dependency-plugin</artifactId>
             <executions>
@@ -196,6 +192,11 @@
               </execution>
             </executions>
           </plugin>
+          <plugin>
+            <groupId>org.wildfly.plugins</groupId>
+            <artifactId>wildfly-maven-plugin</artifactId>
+            <version>1.0.2.Final</version>
+          </plugin>
         </plugins>
       </build>
     </profile>
@@ -204,6 +205,11 @@
       Use URL schema for the location. mvn -Peap640 -Deap6.zip.url=http://download.devel.redhat.com/devel/candidates/JBEAP/JBEAP-6.4.0.DR12/jboss-eap-6.4.0.DR12.zip -->
     <profile>
       <id>eap640</id>
+      <activation>
+        <property>
+          <name>eap</name>
+        </property>
+      </activation>
       <properties>
         <app.server>jboss-eap</app.server>
         <jboss.version>6.4</jboss.version>
@@ -250,5 +256,116 @@
         </plugins>
       </build>
     </profile>
+
+    <profile>
+      <id>postgresql</id>
+      <activation>
+        <property>
+          <name>postgresql</name>
+        </property>
+      </activation>
+      <dependencies>
+        <dependency>
+          <groupId>org.postgresql</groupId>
+          <artifactId>postgresql</artifactId>
+          <version>${version.org.postgresql}</version>
+        </dependency>
+      </dependencies>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.wildfly.plugins</groupId>
+            <artifactId>wildfly-maven-plugin</artifactId>
+            <version>1.0.2.Final</version>
+            <executions>
+              <execution>
+                <id>start-server</id>
+                <phase>generate-test-resources</phase>
+                <goals>
+                  <goal>start</goal>
+                </goals>
+                <configuration>
+                  <jbossHome>${test.server.build.dir}</jbossHome>
+                </configuration>
+              </execution>
+              <execution>
+                <id>deploy-driver</id>
+                <phase>generate-test-resources</phase>
+                <goals>
+                  <goal>deploy-artifact</goal>
+                </goals>
+                <configuration>
+                  <groupId>org.postgresql</groupId>
+                  <artifactId>postgresql</artifactId>
+                  <name>postgresql-jdbc.jar</name>
+                </configuration>
+              </execution>
+              <execution>
+                <id>add-datasource</id>
+                <phase>generate-test-resources</phase>
+                <goals>
+                  <goal>add-resource</goal>
+                </goals>
+                <configuration>
+                  <address>subsystem=datasources</address>
+                  <resources>
+                    <resource>
+                      <address>xa-data-source=java:jboss/datasources/NewcastleDS</address>
+                      <properties>
+                        <xa-datasource-class>org.postgresql.xa.PGXADataSource</xa-datasource-class>                        <jndi-name>java:jboss/datasources/NewcastleDS</jndi-name>
+                        <enabled>true</enabled>
+                        <driver-name>postgresql-jdbc.jar</driver-name>
+                      </properties>
+                      <resources>
+                        <resource>
+                          <address>
+                            xa-datasource-properties=DatabaseName
+                          </address>
+                          <properties>
+                            <value>newcastle</value>
+                          </properties>
+                        </resource>
+                        <resource>
+                          <address>
+                            xa-datasource-properties=ServerName
+                          </address>
+                          <properties>
+                            <value>localhost</value>
+                          </properties>
+                        </resource>
+                        <resource>
+                          <address>
+                            xa-datasource-properties=User
+                          </address>
+                          <properties>
+                            <value>newcastle</value>
+                          </properties>
+                        </resource>
+                        <resource>
+                          <address>
+                            xa-datasource-properties=Password
+                          </address>
+                          <properties>
+                            <value>newcastle</value>
+                          </properties>
+                        </resource>
+                      </resources>
+                    </resource>
+                  </resources>
+                </configuration>
+              </execution>
+              <execution>
+                <id>shutdown-server</id>
+                <phase>generate-test-resources</phase>
+                <goals>
+                  <goal>shutdown</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
   </profiles>
 </project>
