@@ -9,7 +9,7 @@ $(document).ready(function() {
   var version = $.parseJSON(sessionStorage.getItem('version'));
   var project = $.parseJSON(sessionStorage.getItem('project'));
   //var configuration = $.parseJSON(sessionStorage.getItem('configuration'));
-  var configurationId = sessionStorage.getItem('configurationId');
+  var configurationId = parseInt(sessionStorage.getItem('configurationId'));
   sessionStorage.clear();
   sessionStorage.setItem('product', JSON.stringify(product));
   sessionStorage.setItem('version', JSON.stringify(version));
@@ -36,7 +36,7 @@ $(document).ready(function() {
          success: function (data) {
            $.each(data, function(entryIndex, entry){
             console.log('checking /result entry: %O', entry);
-             if (entry.buildConfigurationId == configurationId) {
+             if (parseInt(entry.buildConfigurationId) === configurationId) {
                 console.log('found entry for configurationId=%d', configurationId);
                 filteredResults.push(entry);
              }

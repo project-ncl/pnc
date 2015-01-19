@@ -383,7 +383,7 @@ module.exports = function (grunt) {
             'views/{,*/}*.html',
             'images/{,*/}*.{webp}',
             'fonts/{,*/}*.*',
-            'scripts/{pnc-configurations,pnc-products,pnc-productversions,pnc-projects,pnc-rest-api-url,pnc-results.js}.js',
+            'scripts/{pnc-configurations,pnc-products,pnc-productversions,pnc-projects,pnc-rest-api-url,pnc-results}.js',
           ]
         }, {
           expand: true,
