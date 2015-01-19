@@ -25,6 +25,11 @@
       <artifactId>swagger-jaxrs_2.10</artifactId>
       <scope>provided</scope>
     </dependency>
+    <dependency>
+      <groupId>org.jboss.pnc</groupId>
+      <artifactId>pnc-ui</artifactId>
+      <scope>compile</scope>
+    </dependency>
 
     <!-- Remote dependencies -->
     <dependency>

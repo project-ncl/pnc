@@ -36,6 +36,7 @@
     <module>pnc-model</module>
     <module>pnc-rest</module>
     <module>pnc-spi</module>
+    <module>pnc-ui</module>
     <module>pnc-web</module>
     <module>docker-environment-driver</module>
     <module>integration-test</module>
@@ -137,6 +138,12 @@
       <dependency>
         <groupId>org.jboss.pnc</groupId>
         <artifactId>pnc-spi</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jboss.pnc</groupId>
+        <artifactId>pnc-ui</artifactId>
         <version>${project.version}</version>
       </dependency>
 
