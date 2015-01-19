@@ -72,7 +72,7 @@
     <datasource.security.user-name>sa</datasource.security.user-name>
     <datasource.security.password>sa</datasource.security.password>
     <persistence.jta-data-source>java:jboss/datasources/ExampleDS</persistence.jta-data-source>
-    <persistence.hibernate.dialect>org.hibernate.dialect.H2Dialect</persistence.hibernate.dialect>
+    <persistence.hibernate.dialect>org.jboss.pnc.datastore.H2Dialect</persistence.hibernate.dialect>
     <persistence.hibernate.hbm2ddl.auto>create-drop</persistence.hibernate.hbm2ddl.auto>
 
     <!-- Jacoco & Sonar -->
