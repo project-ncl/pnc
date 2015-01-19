@@ -15,6 +15,7 @@ $(document).ready(function() {
   sessionStorage.setItem('version', JSON.stringify(version));
   sessionStorage.setItem('project', JSON.stringify(project));
   sessionStorage.setItem('configurationId', configurationId);
+  console.log('Loading results for configurationId: %d', configurationId);
 
   $('#productInfoName').html(product.name);
   $('#productInfoDesc').html(product.description);
@@ -34,7 +35,9 @@ $(document).ready(function() {
          method: 'GET',
          success: function (data) {
            $.each(data, function(entryIndex, entry){
-             if (entry.buildConfigurationId === configurationId) {
+            console.log('checking /result entry: %O', entry);
+             if (entry.buildConfigurationId == configurationId) {
+                console.log('found entry for configurationId=%d', configurationId);
                 filteredResults.push(entry);
              }
            });
@@ -57,6 +60,7 @@ $(document).ready(function() {
      })
   ).then( function(){
       loadDataTable(filteredResults);
+      console.log('filteredResults=%O, buildConfigIdentifier=%d, buildConfigScript=%s', filteredResults, buildConfigIdentifier, buildConfigScript);
   });
 
   function loadDataTable(filteredResults) {
