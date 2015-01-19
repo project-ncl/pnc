@@ -51,6 +51,10 @@ module.exports = function (grunt) {
 
     // Watches files for changes and runs tasks based on the changed files
     watch: {
+      bower: {
+        files: ['bower.json'],
+        tasks: ['wiredep']
+      },
       js: {
         files: ['<%= yeoman.app %>/scripts/{,*/}*.js'],
         tasks: ['newer:jshint:all'],
@@ -207,6 +211,15 @@ module.exports = function (grunt) {
           src: '{,*/}*.css',
           dest: '<%= yeoman.tmp %>/styles/'
         }]
+      }
+    },
+
+    // Automatically inject Bower components into the app
+    wiredep: {
+      app: {
+        src: ['<%= yeoman.app %>/index.html'],
+        exclude: ['bower_components/bootstrap/dist/css/bootstrap.css'],
+        ignorePath:  /\.\.\//
       }
     },
 
@@ -453,6 +466,7 @@ module.exports = function (grunt) {
     grunt.task.run([
       'initRestConfig',
       'clean:server',
+      'wiredep',
       'concat',
       'concurrent:server',
       'copy:fonts',
@@ -481,6 +495,7 @@ module.exports = function (grunt) {
     'initRestConfig',
     'clean:dist',
     'copy:fonts',
+    'wiredep',
     'useminPrepare',
     'concurrent:dist',
     'autoprefixer',
