@@ -4,6 +4,7 @@ import org.jboss.pnc.common.util.IoUtils;
 import org.jboss.pnc.common.util.StringUtils;
 
 import javax.enterprise.context.ApplicationScoped;
+
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.Properties;
@@ -14,6 +15,8 @@ import java.util.Properties;
 @ApplicationScoped
 public class Configuration {
 
+    public static final String CONFIG_SYSPROP = "pnc-config-file";
+    
     private Properties properties;
 
     public Configuration() throws IOException {
@@ -32,7 +35,7 @@ public class Configuration {
 
     private void readConfigurationFile() throws IOException {
 
-        String configString = IoUtils.readFileOrResource("pnc-config-file", "pnc-config.ini", getClass().getClassLoader()); //TODO use json instead
+        String configString = IoUtils.readFileOrResource(CONFIG_SYSPROP, "pnc-config.ini", getClass().getClassLoader()); //TODO use json instead
         configString = StringUtils.replaceEnv(configString);
 
         properties = new Properties();

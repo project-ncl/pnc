@@ -7,7 +7,7 @@ import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.spi.builddriver.BuildDriver;
 import org.jboss.pnc.spi.builddriver.RunningBuild;
 import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
-import org.jboss.pnc.spi.repositorymanager.RepositoryConfiguration;
+import org.jboss.pnc.spi.repositorymanager.model.RepositoryConfiguration;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;

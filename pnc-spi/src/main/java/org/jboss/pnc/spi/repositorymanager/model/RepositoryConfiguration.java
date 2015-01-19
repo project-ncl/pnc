@@ -1,4 +1,4 @@
-package org.jboss.pnc.spi.repositorymanager;
+package org.jboss.pnc.spi.repositorymanager.model;
 
 import org.jboss.pnc.model.RepositoryType;
 

@@ -4,10 +4,10 @@ import org.jboss.pnc.model.BuildCollection;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.RepositoryType;
-import org.jboss.pnc.spi.repositorymanager.RepositoryConfiguration;
-import org.jboss.pnc.spi.repositorymanager.RepositoryConnectionInfo;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManager;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerException;
+import org.jboss.pnc.spi.repositorymanager.model.RepositoryConfiguration;
+import org.jboss.pnc.spi.repositorymanager.model.RepositoryConnectionInfo;
 
 import java.util.HashMap;
 import java.util.Map;
