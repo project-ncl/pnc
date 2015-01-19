@@ -36,6 +36,7 @@
     <module>pnc-model</module>
     <module>pnc-rest</module>
     <module>pnc-spi</module>
+    <module>pnc-ui</module>
     <module>pnc-web</module>
     <module>docker-environment-driver</module>
     <module>integration-test</module>
@@ -72,7 +73,7 @@
     <datasource.security.user-name>sa</datasource.security.user-name>
     <datasource.security.password>sa</datasource.security.password>
     <persistence.jta-data-source>java:jboss/datasources/ExampleDS</persistence.jta-data-source>
-    <persistence.hibernate.dialect>org.hibernate.dialect.H2Dialect</persistence.hibernate.dialect>
+    <persistence.hibernate.dialect>org.jboss.pnc.datastore.H2Dialect</persistence.hibernate.dialect>
     <persistence.hibernate.hbm2ddl.auto>create-drop</persistence.hibernate.hbm2ddl.auto>
 
     <!-- Jacoco & Sonar -->
@@ -137,6 +138,12 @@
       <dependency>
         <groupId>org.jboss.pnc</groupId>
         <artifactId>pnc-spi</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jboss.pnc</groupId>
+        <artifactId>pnc-ui</artifactId>
         <version>${project.version}</version>
       </dependency>
 
