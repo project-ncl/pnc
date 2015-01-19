@@ -34,7 +34,7 @@ $(document).ready(function() {
          method: 'GET',
          success: function (data) {
            $.each(data, function(entryIndex, entry){
-             if (entry.configurationIds === configurationId) {
+             if (entry.buildConfigurationId === configurationId) {
                 filteredResults.push(entry);
              }
            });
