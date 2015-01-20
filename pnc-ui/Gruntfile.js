@@ -465,7 +465,7 @@ module.exports = function (grunt) {
       'initRestConfig',
       'clean:server',
       'wiredep',
-      'concat',
+      //'concat',
       'concurrent:server',
       'copy:fonts',
       'autoprefixer',

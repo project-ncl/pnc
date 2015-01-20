@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html ng-app="pncui">
   <head>
     <meta charset="utf-8">
     <title>Project Newcastle</title>
@@ -42,10 +42,11 @@
     <!-- endbuild -->
 
     <!-- build:js({.tmp,app}) scripts/pnc.js -->
-    <script src="scripts/placeholder.js"></script>
+    <script src="scripts/app.js"></script>
+    <script src="scripts/controllers/rootCtrl.js"></script>
     <!-- endbuild -->
   </head>
-  <body>
+  <body ng-controller="RootCtrl">
     <nav class="navbar navbar-default navbar-pf" role="navigation">
       <div class="navbar-header">
         <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse-1">
@@ -138,9 +139,9 @@
             <li><a href="#">Home</a></li>
             <li>Typography</li>
           </ol>
-          <h1>Application Heading h1</h1>
+          <h1>{{'Angular PNC APP'}}</h1>
           <section>
-            <h2>Body Copy h2</h2>
+            <h2>Special Greeting: {{messages[0].text}}</h2>
             <p>Nullam quis risus eget urna mollis ornare vel eu leo. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nullam id dolor id nibh ultricies vehicula.</p>
             <p>Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec ullamcorper nulla non metus auctor fringilla. Duis mollis, est non commodo luctus, nisi erat porttitor ligula, eget lacinia odio sem nec elit. Donec ullamcorper nulla non metus auctor fringilla.</p>
             <p>Maecenas sed diam eget risus varius blandit sit amet non magna. Donec id elit non mi porta gravida at eget metus. Duis mollis, est non commodo luctus, nisi erat porttitor ligula, eget lacinia odio sem nec elit.</p>
