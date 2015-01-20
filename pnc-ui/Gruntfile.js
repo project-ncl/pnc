@@ -267,35 +267,35 @@ module.exports = function (grunt) {
     // By default, your `index.html`'s <!-- Usemin block --> will take care of
     // minification. These next options are pre-configured if you do not wish
     // to use the Usemin blocks.
-    cssmin: {
-      options: {
-        report: 'min'
-      },
-      dist: {
-        files: {
-          '<%= yeoman.dist %>/styles/main.css': [
-            '.tmp/styles/{,*/}*.css'
-          ]
-        }
-      }
-    },
-    uglify: {
-      options: {
-        mangle: false,
-        compress: true,
-        report: true
-      },
-      dist: {
-        files: {
-          '<%= yeoman.dist %>/scripts/scripts.js': [
-            '<%= yeoman.dist %>/scripts/scripts.js'
-          ]
-        }
-      }
-    },
-    concat: {
-      dist: {}
-    },
+    // cssmin: {
+    //   options: {
+    //     report: 'min'
+    //   },
+    //   dist: {
+    //     files: {
+    //       '<%= yeoman.dist %>/styles/main.css': [
+    //         '.tmp/styles/{,*/}*.css'
+    //       ]
+    //     }
+    //   }
+    // },
+    // uglify: {
+    //   options: {
+    //     mangle: false,
+    //     compress: true,
+    //     report: true
+    //   },
+    //   dist: {
+    //     files: {
+    //       '<%= yeoman.dist %>/scripts/scripts.js': [
+    //         '<%= yeoman.dist %>/scripts/scripts.js'
+    //       ]
+    //     }
+    //   }
+    // },
+    // concat: {
+    //   dist: {}
+    // },
 
     imagemin: {
       dist: {
@@ -391,12 +391,10 @@ module.exports = function (grunt) {
           dest: '<%= yeoman.dist %>',
           src: [
             '*.{ico,png,txt}',
-            '.htaccess',
             '*.html',
             'views/{,*/}*.html',
             'images/{,*/}*.{webp}',
             'fonts/{,*/}*.*',
-            'scripts/{pnc-configurations,pnc-products,pnc-productversions,pnc-projects,pnc-rest-api-url,pnc-results}.js',
           ]
         }, {
           expand: true,
