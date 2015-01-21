@@ -256,7 +256,7 @@ public class BuildCoordinator {
 
     public BuildTask getBuild(String identifier) {
         List<BuildTask> buildsFilteredTask = buildTasks.stream()
-                .filter(b -> identifier.equals(b.buildConfiguration.getIdentifier())).collect(Collectors.toList());
+                .filter(b -> identifier.equals(b.buildConfiguration.getName())).collect(Collectors.toList());
         return buildsFilteredTask.get(0); //TODO validate that there is exactly one ?
     }
 

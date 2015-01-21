@@ -179,7 +179,7 @@ public class JenkinsDriverRemoteTest {
         BuildConfiguration pbc = new BuildConfiguration();
         pbc.setScmUrl("https://github.com/project-ncl/pnc.git");
         pbc.setBuildScript("mvn clean install -Dmaven.test.skip");
-        pbc.setIdentifier("PNC-executed-from-jenkins-driver-test");
+        pbc.setName("PNC-executed-from-jenkins-driver-test");
         Project project = new Project();
         project.setName("PNC-executed-from-jenkins-driver-test");
         pbc.setProject(project);

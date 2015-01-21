@@ -147,7 +147,7 @@ public class RestTest {
     @InSequence(8)
     public void shouldCreateNewProjectConfiguration() {
         String rawJson = "{\n" +
-                "                \"identifier\": \"pnc-1.0.0.DR1\",\n" +
+                "                \"name\": \"pnc-1.0.0.DR1\",\n" +
                 "                \"buildScript\": \"mvn clean deploy -Dmaven.test.skip\",\n" +
                 "                \"scmUrl\": \"https://github.com/project-ncl/pnc.git\",\n" +
                 "                \"patchesUrl\": null,\n" +

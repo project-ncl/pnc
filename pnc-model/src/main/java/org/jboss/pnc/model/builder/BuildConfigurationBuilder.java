@@ -35,7 +35,7 @@ public class BuildConfigurationBuilder {
 
     private Integer id;
 
-    private String identifier;
+    private String name;
 
     private String buildScript;
 
@@ -44,6 +44,8 @@ public class BuildConfigurationBuilder {
     private String scmBranch;
 
     private String patchesUrl;
+
+    private String description;
 
     private ProductVersion productVersion;
 
@@ -74,11 +76,12 @@ public class BuildConfigurationBuilder {
 
         BuildConfiguration buildConfiguration = new BuildConfiguration();
         buildConfiguration.setId(id);
-        buildConfiguration.setIdentifier(identifier);
+        buildConfiguration.setName(name);
         buildConfiguration.setBuildScript(buildScript);
         buildConfiguration.setScmUrl(scmUrl);
         buildConfiguration.setScmBranch(scmBranch);
         buildConfiguration.setPatchesUrl(patchesUrl);
+        buildConfiguration.setDescription(description);
         buildConfiguration.setProductVersion(productVersion);
 
         // Set the bi-directional mapping
@@ -106,8 +109,8 @@ public class BuildConfigurationBuilder {
         return this;
     }
 
-    public BuildConfigurationBuilder identifier(String identifier) {
-        this.identifier = identifier;
+    public BuildConfigurationBuilder name(String name) {
+        this.name = name;
         return this;
     }
 
@@ -128,6 +131,11 @@ public class BuildConfigurationBuilder {
 
     public BuildConfigurationBuilder patchesUrl(String patchesUrl) {
         this.patchesUrl = patchesUrl;
+        return this;
+    }
+
+    public BuildConfigurationBuilder description(String description) {
+        this.description = description;
         return this;
     }
 
@@ -175,8 +183,8 @@ public class BuildConfigurationBuilder {
         return id;
     }
 
-    public String getIdentifier() {
-        return identifier;
+    public String getName() {
+        return name;
     }
 
     public String getBuildScript() {
@@ -189,6 +197,10 @@ public class BuildConfigurationBuilder {
 
     public String getPatchesUrl() {
         return patchesUrl;
+    }
+
+    public String getDescription() {
+        return description;
     }
 
     public ProductVersion getProductVersion() {

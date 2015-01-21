@@ -63,7 +63,7 @@ class BuildJob {
     }
 
     public String getJobName() {
-        return buildConfiguration.getIdentifier();
+        return buildConfiguration.getName();
     }
 
     public int start() throws BuildDriverException {

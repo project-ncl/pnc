@@ -51,7 +51,7 @@ public class TestProjectConfigurationBuilder {
         project.setName(name);
         BuildConfiguration buildConfiguration = new BuildConfiguration();
         buildConfiguration.setId(id);
-        buildConfiguration.setIdentifier(id + "");
+        buildConfiguration.setName(id + "");
         buildConfiguration.setEnvironment(javaEnvironment);
         buildConfiguration.setProject(project);
         project.addBuildConfiguration(buildConfiguration);

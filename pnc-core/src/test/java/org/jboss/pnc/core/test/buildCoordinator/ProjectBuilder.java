@@ -62,7 +62,7 @@ public class ProjectBuilder {
     }
 
     void buildProject(BuildConfiguration buildConfiguration, BuildCollection buildCollection) throws InterruptedException, CoreException {
-        log.info("Building project " + buildConfiguration.getIdentifier());
+        log.info("Building project " + buildConfiguration.getName());
         List<BuildStatus> receivedStatuses = new ArrayList();
 
         int nStatusUpdates = 7;

@@ -12,7 +12,7 @@ public class BuildConfigurationRest {
 
     private Integer id;
 
-    private String identifier;
+    private String name;
 
     private String buildScript;
 
@@ -31,7 +31,7 @@ public class BuildConfigurationRest {
 
     public BuildConfigurationRest(BuildConfiguration buildConfiguration) {
         this.id = buildConfiguration.getId();
-        this.identifier = buildConfiguration.getIdentifier();
+        this.name = buildConfiguration.getName();
         this.buildScript = buildConfiguration.getBuildScript();
         this.scmUrl = buildConfiguration.getScmUrl();
         this.patchesUrl = buildConfiguration.getPatchesUrl();
@@ -48,12 +48,12 @@ public class BuildConfigurationRest {
         this.id = id;
     }
 
-    public String getIdentifier() {
-        return identifier;
+    public String getName() {
+        return name;
     }
 
-    public void setIdentifier(String identifier) {
-        this.identifier = identifier;
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getBuildScript() {
@@ -107,7 +107,7 @@ public class BuildConfigurationRest {
     public BuildConfiguration getBuildConfiguration(Project project) {
         BuildConfigurationBuilder builder = BuildConfigurationBuilder.newBuilder();
         builder.project(project);
-        builder.identifier(identifier);
+        builder.name(name);
         builder.buildScript(buildScript);
         builder.scmUrl(scmUrl);
         builder.patchesUrl(patchesUrl);

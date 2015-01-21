@@ -31,13 +31,15 @@ public class BuildConfiguration implements Serializable {
     @GeneratedValue
     private Integer id;
 
-    private String identifier;
+    private String name;
 
     private String buildScript;
 
     private String scmUrl;
 
-    private String patchesUrl;
+    private String description;
+
+	private String patchesUrl;
 
     @ManyToOne(cascade = CascadeType.ALL)
     private ProductVersion productVersion;
@@ -89,15 +91,15 @@ public class BuildConfiguration implements Serializable {
     /**
      * @return the identifier
      */
-    public String getIdentifier() {
-        return identifier;
+    public String getName() {
+        return name;
     }
 
     /**
      * @param identifier the identifier to set
      */
-    public void setIdentifier(String identifier) {
-        this.identifier = identifier;
+    public void setName(String name) {
+        this.name = name;
     }
 
     /**
@@ -149,6 +151,14 @@ public class BuildConfiguration implements Serializable {
     public void setPatchesUrl(String patchesUrl) {
         this.patchesUrl = patchesUrl;
     }
+
+    public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
+	}
 
     /**
      * @return the project
@@ -276,7 +286,7 @@ public class BuildConfiguration implements Serializable {
 
     @Override
     public String toString() {
-        return "BuildConfiguration [project=" + project + ", identifier=" + identifier + "]";
+        return "BuildConfiguration [project=" + project + ", identifier=" + name + "]";
     }
 
     @Override

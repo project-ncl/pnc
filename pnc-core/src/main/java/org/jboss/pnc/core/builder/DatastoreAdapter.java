@@ -33,7 +33,7 @@ public class DatastoreAdapter {
             buildRecord.setBuildLog(completedBuild.getBuildLog());
             buildRecord.setStatus(completedBuild.getBuildDriverStatus());
             buildRecord.setBuildConfiguration(buildConfiguration);
-            log.debugf("Storing results of %s to datastore.", buildConfiguration.getIdentifier());
+            log.debugf("Storing results of %s to datastore.", buildConfiguration.getName());
             datastore.storeCompletedBuild(buildRecord);
         } catch (Exception e) {
             throw new DatastoreException("Error storing the result to datastore.", e);
@@ -47,7 +47,7 @@ public class DatastoreAdapter {
         StringWriter stackTraceWriter = new StringWriter();
         buildRecord.setStatus(BuildDriverStatus.UNKNOWN); //TODO set error status
         buildRecord.setBuildLog(stackTraceWriter.toString());
-        log.debugf("Storing ERROR result of %s to datastore. Error: %s", buildConfiguration.getIdentifier(), e);
+        log.debugf("Storing ERROR result of %s to datastore. Error: %s", buildConfiguration.getName(), e);
         datastore.storeCompletedBuild(buildRecord);
     }
 

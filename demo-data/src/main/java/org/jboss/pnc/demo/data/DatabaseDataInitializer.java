@@ -120,7 +120,6 @@ public class DatabaseDataInitializer {
             /*
              * All the bi-directional mapping settings are managed inside the Builders
              */
-
             Product product = ProductBuilder.newBuilder().name(PNC_PRODUCT_NAME).description("Project Newcastle Product")
                     .build();
             ProductVersion productVersion = ProductVersionBuilder.newBuilder().version(PNC_PRODUCT_VERSION).product(product)
@@ -135,21 +134,22 @@ public class DatabaseDataInitializer {
                     .productVersion(productVersion).build();
             BuildConfiguration buildConfiguration = BuildConfigurationBuilder.newBuilder()
                     .buildScript("mvn clean deploy -Dmaven.test.skip")
-                    .environment(EnvironmentBuilder.defaultEnvironment().build()).id(1).identifier(PNC_PROJECT_BUILD_CFG_ID)
+                    .environment(EnvironmentBuilder.defaultEnvironment().build()).id(1).name(PNC_PROJECT_BUILD_CFG_ID)
                     .productVersion(productVersion).project(project).scmUrl("https://github.com/project-ncl/pnc.git")
-                    .scmBranch("*/v0.2").build();
+                    .scmBranch("*/v0.2").description("Test build config for project newcastle").build();
 
             // Additional configurations
             BuildConfiguration buildConfiguration2 = BuildConfigurationBuilder.newBuilder()
                     .buildScript("mvn clean deploy -Dmaven.test.skip")
-                    .environment(EnvironmentBuilder.defaultEnvironment().build()).id(2).identifier("jboss-modules-1.5.0")
-                    .productVersion(productVersion).project(project)
+                    .environment(EnvironmentBuilder.defaultEnvironment().build()).id(2).name("jboss-modules-1.5.0")
+                    .productVersion(productVersion).project(project).description("Test config for JBoss modules build master branch.")
                     .scmUrl("https://github.com/jboss-modules/jboss-modules.git").build();
             BuildConfiguration buildConfiguration3 = BuildConfigurationBuilder.newBuilder()
                     .buildScript("mvn clean deploy -Dmaven.test.skip")
                     .environment(EnvironmentBuilder.defaultEnvironment().build()).id(3)
-                    .identifier("jboss-servlet-spec-api-1.0.1").productVersion(productVersion).project(project)
-                    .scmUrl("https://github.com/jboss/jboss-servlet-api_spec.git").dependency(buildConfiguration2).build();
+                    .name("jboss-servlet-spec-api-1.0.1").productVersion(productVersion).project(project)
+                    .scmUrl("https://github.com/jboss/jboss-servlet-api_spec.git").dependency(buildConfiguration2)
+                    .description("Test build for jboss java servlet api").build();
 
             User demoUser = UserBuilder.newBuilder().username("demo-user").firstName("Demo First Name")
                     .lastName("Demo Last Name").email("demo-user@pnc.com").build();
