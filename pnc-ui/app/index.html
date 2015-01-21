@@ -14,7 +14,7 @@
     <!-- endbuild -->
     
     <!-- build:css(.tmp) styles/pnc.css -->
-    <link rel="stylesheet" href="styles/placeholder.css" />
+    <!-- include: "type": "css", "files": "styles/**/*.css" -->
     <!-- endbuild -->
     
     <!-- build:js(.) scripts/oldieshim.js -->
@@ -43,7 +43,7 @@
 
     <!-- build:js({.tmp,app}) scripts/pnc.js -->
     <script src="scripts/app.js"></script>
-    <script src="scripts/controllers/rootCtrl.js"></script>
+    <!-- include: "type": "js", "files": ["scripts/**/*.js", "!scripts/app.js"] -->
     <!-- endbuild -->
   </head>
   <body ng-controller="RootCtrl">

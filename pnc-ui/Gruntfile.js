@@ -90,6 +90,10 @@ module.exports = function (grunt) {
           '{<%= yeoman.app %>,<%= yeoman.tmp %>}/scripts/{,*/}*.js',
           '<%= yeoman.app %>/images/{,*/}*.{png,jpg,jpeg,gif,webp,svg,ico}'
         ]
+      },
+      includeSource: {
+        files: ['<%= yeoman.app %>/index.html'],
+        tasks: ['includeSource:server']
       }
     },
 
@@ -199,6 +203,24 @@ module.exports = function (grunt) {
       server: '<%= yeoman.tmp %>'
     },
 
+    // Wires our own scripts and styles into index.html
+    includeSource: {
+      options: {
+        basePath: 'app',
+        baseUrl: '',
+      },
+      server: {
+        files: {
+          '.tmp/index.html': '<%= yeoman.app %>/index.html'
+        }
+      },
+      dist: {
+        files: {
+          '<%= yeoman.dist %>/index.html': '<%= yeoman.app %>/index.html'
+        }
+      }
+    },
+
     // Add vendor prefixed styles
     autoprefixer: {
       options: {
@@ -239,7 +261,7 @@ module.exports = function (grunt) {
     // concat, minify and revision files. Creates configurations in memory so
     // additional tasks can operate on them
     useminPrepare: {
-      html: '<%= yeoman.app %>/index.html',
+      html: '<%= yeoman.dist %>/index.html',
       options: {
         dest: '<%= yeoman.dist %>',
         flow: {
@@ -465,6 +487,7 @@ module.exports = function (grunt) {
       'initRestConfig',
       'clean:server',
       'wiredep',
+      'includeSource:server',
       //'concat',
       'concurrent:server',
       'copy:fonts',
@@ -494,6 +517,7 @@ module.exports = function (grunt) {
     'clean:dist',
     'copy:fonts',
     'wiredep',
+    'includeSource:dist',
     'useminPrepare',
     'concurrent:dist',
     'autoprefixer',
