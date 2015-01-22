@@ -20,6 +20,10 @@
 
   <dependencies>
     <dependency>
+      <groupId>org.apache.httpcomponents</groupId>
+      <artifactId>httpclient</artifactId>
+    </dependency>
+    <dependency>
       <groupId>org.jboss.pnc</groupId>
       <artifactId>pnc-spi</artifactId>
     </dependency>
@@ -33,7 +37,6 @@
         </exclusion>
       </exclusions>
     </dependency>
-
     <dependency>
       <groupId>javax.enterprise</groupId>
       <artifactId>cdi-api</artifactId>
@@ -53,7 +56,6 @@
       <artifactId>aprox-client-core-java</artifactId>
       <version>${aproxVersion}</version>
     </dependency>
-    
     <dependency>
       <groupId>org.commonjava.aprox.embed</groupId>
       <artifactId>aprox-embedder-savant</artifactId>

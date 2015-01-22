@@ -4,4 +4,8 @@ target/
 # Eclipse
 .project
 .settings
+.classpath
+
+# DB test file
+maven-repository-manager/derby.log
 

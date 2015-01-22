@@ -47,11 +47,14 @@
     <version.jboss.maven.plugin>7.5.Final</version.jboss.maven.plugin>
     <version.jboss.bom>1.0.7.Final</version.jboss.bom>
     <version.jboss.as>7.2.0.Final</version.jboss.as>
+    <version.junit>4.11</version.junit>
     <atlasVersion>0.13.6</atlasVersion>
     <version.assertj-core>1.7.0</version.assertj-core>
     <version.mockito-all>1.10.8</version.mockito-all>
     <version.catch-exception>1.2.0</version.catch-exception>
     <version.guava>13.0.1</version.guava>
+    <version.org.apache.httpcomponents.httpclient>4.3.6</version.org.apache.httpcomponents.httpclient>
+    <version.org.apache.httpcomponents.httpcore>4.3.3</version.org.apache.httpcomponents.httpcore>
 
     <!-- other plugin versions -->
     <version.ejb.plugin>2.3</version.ejb.plugin>
@@ -172,6 +175,18 @@
         <version>${project.version}</version>
       </dependency>
       <!-- END: Project modules -->
+
+      <dependency>
+        <groupId>org.apache.httpcomponents</groupId>
+        <artifactId>httpclient</artifactId>
+        <version>${version.org.apache.httpcomponents.httpclient}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.apache.httpcomponents</groupId>
+        <artifactId>httpcore</artifactId>
+        <version>${version.org.apache.httpcomponents.httpcore}</version>
+      </dependency>
 
       <dependency>
         <groupId>org.jboss.arquillian</groupId>
@@ -307,6 +322,7 @@
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
+      <version>${version.junit}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
