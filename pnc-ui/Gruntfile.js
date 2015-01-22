@@ -119,8 +119,8 @@ module.exports = function (grunt) {
             var middlewares = [];
             middlewares.push(connect.static('.tmp'));
             middlewares.push(connect().use(
-              '/app/bower_components',
-              connect.static('./app/bower_components')
+              '/<%= yeoman.lib %>',
+              connect.static('./<%= yeoman.lib %>')
             ));
             middlewares.push(connect.static(appConfig.app));
             middlewares.push(require('grunt-connect-proxy/lib/utils').proxyRequest);
@@ -138,8 +138,8 @@ module.exports = function (grunt) {
             middlewares.push(connect.static('.tmp'));
             middlewares.push(connect.static('test'));
             middlewares.push(connect().use(
-              '/app/bower_components',
-              connect.static('./app/bower_components')
+              '/<%= yeoman.lib %>',
+              connect.static('./<%= yeoman.lib %>')
             ));
             middlewares.push(connect.static(appConfig.app));
             middlewares.push(require('grunt-connect-proxy/lib/utils').proxyRequest);
@@ -208,6 +208,7 @@ module.exports = function (grunt) {
       options: {
         basePath: 'app',
         baseUrl: '',
+        ordering: 'top-down'
       },
       server: {
         files: {
@@ -240,7 +241,7 @@ module.exports = function (grunt) {
     wiredep: {
       app: {
         src: ['<%= yeoman.app %>/index.html'],
-        exclude: ['bower_components/bootstrap/dist/css/bootstrap.css'],
+        exclude: ['<%= yeoman.lib %>/bootstrap/dist/css/bootstrap.css'],
         ignorePath:  /\.\.\//
       }
     },
@@ -425,7 +426,7 @@ module.exports = function (grunt) {
           src: ['generated/*']
         }, {
           expand: true,
-          cwd: 'app/bower_components/bootstrap/dist',
+          cwd: '<%= yeoman.lib %>/bootstrap/dist',
           src: 'fonts/*',
           dest: '<%= yeoman.dist %>'
         }, {
@@ -471,7 +472,7 @@ module.exports = function (grunt) {
     bower: {
       install: {
         options: {
-          targetDir: 'app/bower_components/'
+          targetDir: '<%= yeoman.lib %>'
         }
       }
     }
