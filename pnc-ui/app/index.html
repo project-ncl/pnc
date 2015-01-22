@@ -3,6 +3,7 @@
   <head>
     <meta charset="utf-8">
     <title>Project Newcastle</title>
+    <base href="/">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="shortcut icon" href="images/favicon.ico">
     <!-- build:css(app) styles/vendor.css -->
@@ -12,11 +13,11 @@
     <link rel="stylesheet" href="bower_components/bootstrap-select/dist/css/bootstrap-select.css" />
     <!-- endbower -->
     <!-- endbuild -->
-    
+
     <!-- build:css(.tmp) styles/pnc.css -->
     <!-- include: "type": "css", "files": "styles/**/*.css" -->
     <!-- endbuild -->
-    
+
     <!-- build:js(.) scripts/oldieshim.js -->
     <!--[if lt IE 9]>
     <script src="bower_components/es5-shim/es5-shim.js"></script>
@@ -32,12 +33,12 @@
     <script src="bower_components/angular-patternfly/dist/angular-patternfly.js"></script>
     <script src="bower_components/angular-patternfly/dist/angular-patternfly.min.js"></script>
     <script src="bower_components/angular-resource/angular-resource.js"></script>
-    <script src="bower_components/angular-route/angular-route.js"></script>
     <script src="bower_components/angular-cookies/angular-cookies.js"></script>
     <script src="bower_components/angular-sanitize/angular-sanitize.js"></script>
     <script src="bower_components/angular-bootstrap/ui-bootstrap-tpls.js"></script>
     <script src="bower_components/bootstrap/dist/js/bootstrap.js"></script>
     <script src="bower_components/bootstrap-select/dist/js/bootstrap-select.js"></script>
+    <script src="bower_components/ui-router/release/angular-ui-router.js"></script>
     <!-- endbower -->
     <!-- endbuild -->
 
@@ -112,44 +113,15 @@
         </ul>
         <ul class="nav navbar-nav navbar-primary">
           <li>
-            <a href="dashboard.html">Dashboard</a>
+            <a ui-sref="dashboard" href>Dashboard</a>
           </li>
           <li>
-            <a href="form.html">Form</a>
-          </li>
-          <li>
-            <a href="bootstrap-treeview-2.html">Tree View</a>
-          </li>
-          <li>
-            <a href="tab.html">Tab</a>
-          </li>
-          <li>
-            <a href="basic.html">Basic</a>
-          </li>
-          <li class="active">
-            <a href="typography-2.html">Typography</a>
+            <a ui-sref="build-cfg" href>Build Config</a>
           </li>
         </ul>
       </div>
     </nav>
-    <div class="container-fluid">
-      <div class="row">
-        <div class="col-md-12">
-          <ol class="breadcrumb">
-            <li><a href="#">Home</a></li>
-            <li>Typography</li>
-          </ol>
-          <h1>{{'Angular PNC APP'}}</h1>
-          <section>
-            <h2>Special Greeting: {{messages[0].text}}</h2>
-            <p>Nullam quis risus eget urna mollis ornare vel eu leo. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nullam id dolor id nibh ultricies vehicula.</p>
-            <p>Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec ullamcorper nulla non metus auctor fringilla. Duis mollis, est non commodo luctus, nisi erat porttitor ligula, eget lacinia odio sem nec elit. Donec ullamcorper nulla non metus auctor fringilla.</p>
-            <p>Maecenas sed diam eget risus varius blandit sit amet non magna. Donec id elit non mi porta gravida at eget metus. Duis mollis, est non commodo luctus, nisi erat porttitor ligula, eget lacinia odio sem nec elit.</p>
-            <h3>Lead Body Copy h3</h3>
-            <p class="lead">Vivamus sagittis lacus vel augue laoreet rutrum faucibus dolor auctor. Duis mollis, est non commodo luctus.</p>
-          </section>
-        </div><!-- /col -->
-      </div><!-- /row -->
-    </div><!-- /container -->
+    <div ui-view></div>
+
   </body>
 </html>
