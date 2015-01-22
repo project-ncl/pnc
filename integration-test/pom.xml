@@ -13,6 +13,7 @@
   <artifactId>integration-test</artifactId>
 
   <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <app.server>wildfly</app.server>
     <jboss.version>8.2.0.Final</jboss.version>
     <test.server.unpack.dir>${project.build.directory}</test.server.unpack.dir>
