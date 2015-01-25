@@ -23,7 +23,6 @@
     <arquillian.container.version>8.2.0.Final</arquillian.container.version>
     <jboss.port.offset>0</jboss.port.offset>
     <default.management.port>9990</default.management.port>
-    <version.org.postgresql>9.3-1102-jdbc41</version.org.postgresql>
   </properties>
 
   <dependencies>
@@ -51,7 +50,7 @@
       <artifactId>arquillian-junit-container</artifactId>
       <scope>test</scope>
     </dependency>
-    <dependency> <!-- Needs to be specified according to different container server: WildFly 
+    <dependency> <!-- Needs to be specified according to different container server: WildFly
         :8.2.0.Final or EAP 6.4 -->
       <groupId>${arquillian.container.groupId}</groupId>
       <artifactId>${arquillian.container.artifactId}</artifactId>
@@ -81,7 +80,6 @@
     <dependency>
       <groupId>com.jayway.restassured</groupId>
       <artifactId>rest-assured</artifactId>
-      <version>2.4.0</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
@@ -125,7 +123,6 @@
       <plugin>
         <groupId>org.codehaus.gmavenplus</groupId>
         <artifactId>gmavenplus-plugin</artifactId>
-        <version>1.2</version>
         <executions>
           <execution>
             <id>calculate-jboss-port-offset</id>
@@ -196,13 +193,12 @@
           <plugin>
             <groupId>org.wildfly.plugins</groupId>
             <artifactId>wildfly-maven-plugin</artifactId>
-            <version>1.0.2.Final</version>
           </plugin>
         </plugins>
       </build>
     </profile>
 
-    <!-- It needs an existed EAP 6.4.0 zip file that can be downloaded from. 
+    <!-- It needs an existed EAP 6.4.0 zip file that can be downloaded from.
       Use URL schema for the location. mvn -Peap640 -Deap6.zip.url=http://download.devel.redhat.com/devel/candidates/JBEAP/JBEAP-6.4.0.DR12/jboss-eap-6.4.0.DR12.zip -->
     <profile>
       <id>eap640</id>
@@ -229,7 +225,6 @@
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-antrun-plugin</artifactId>
-            <version>1.7</version>
             <executions>
               <execution>
                 <id>prepare-eap-for-jdk8</id>
@@ -269,7 +264,6 @@
         <dependency>
           <groupId>org.postgresql</groupId>
           <artifactId>postgresql</artifactId>
-          <version>${version.org.postgresql}</version>
         </dependency>
       </dependencies>
       <build>
@@ -277,7 +271,6 @@
           <plugin>
             <groupId>org.wildfly.plugins</groupId>
             <artifactId>wildfly-maven-plugin</artifactId>
-            <version>1.0.2.Final</version>
             <executions>
               <execution>
                 <id>start-server</id>

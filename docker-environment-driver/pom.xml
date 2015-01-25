@@ -21,12 +21,21 @@
   <dependencies>
     <dependency>
       <groupId>org.jboss.pnc</groupId>
+      <artifactId>pnc-model</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.pnc</groupId>
       <artifactId>pnc-spi</artifactId>
     </dependency>
     <dependency>
       <groupId>org.jboss.spec</groupId>
       <artifactId>jboss-javaee-6.0</artifactId>
       <type>pom</type>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>javax.enterprise</groupId>
+      <artifactId>cdi-api</artifactId>
       <scope>provided</scope>
     </dependency>
   </dependencies>

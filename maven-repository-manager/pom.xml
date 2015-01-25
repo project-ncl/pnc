@@ -13,15 +13,15 @@
   <artifactId>maven-repository-manager</artifactId>
 
   <description>Implementation of pnc-spi:org.jboss.pnc.spi.repositorymanager</description>
-  
-  <properties>
-    <aproxVersion>0.18.1</aproxVersion>
-  </properties>
 
   <dependencies>
     <dependency>
       <groupId>org.apache.httpcomponents</groupId>
       <artifactId>httpclient</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.pnc</groupId>
+      <artifactId>pnc-model</artifactId>
     </dependency>
     <dependency>
       <groupId>org.jboss.pnc</groupId>
@@ -46,26 +46,23 @@
       <groupId>org.jboss.weld.se</groupId>
       <artifactId>weld-se</artifactId>
     </dependency>
+
     <dependency>
       <groupId>org.commonjava.aprox</groupId>
       <artifactId>aprox-folo-client-java</artifactId>
-      <version>${aproxVersion}</version>
     </dependency>
     <dependency>
       <groupId>org.commonjava.aprox</groupId>
       <artifactId>aprox-client-core-java</artifactId>
-      <version>${aproxVersion}</version>
     </dependency>
     <dependency>
       <groupId>org.commonjava.aprox.embed</groupId>
       <artifactId>aprox-embedder-savant</artifactId>
-      <version>${aproxVersion}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.commonjava.aprox</groupId>
       <artifactId>aprox-test-fixtures-core</artifactId>
-      <version>${aproxVersion}</version>
       <scope>test</scope>
     </dependency>
   </dependencies>

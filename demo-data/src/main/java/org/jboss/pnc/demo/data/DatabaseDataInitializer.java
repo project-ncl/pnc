@@ -2,6 +2,7 @@ package org.jboss.pnc.demo.data;
 
 import com.google.common.base.Preconditions;
 
+import org.jboss.logging.Logger;
 import org.jboss.pnc.datastore.repositories.ProductRepository;
 import org.jboss.pnc.datastore.repositories.ProductVersionProjectRepository;
 import org.jboss.pnc.datastore.repositories.ProductVersionRepository;
@@ -21,7 +22,6 @@ import org.jboss.pnc.model.builder.ProductVersionProjectBuilder;
 import org.jboss.pnc.model.builder.BuildConfigurationBuilder;
 import org.jboss.pnc.model.builder.ProjectBuilder;
 import org.jboss.pnc.model.builder.UserBuilder;
-import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
@@ -40,7 +40,7 @@ import java.lang.invoke.MethodHandles;
 @Startup
 public class DatabaseDataInitializer {
 
-    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+    private static final Logger logger = Logger.getLogger(MethodHandles.lookup().lookupClass());
 
     private static final String PNC_PRODUCT_NAME = "PNC Product";
     private static final String PNC_PRODUCT_VERSION = "1.0.0.DR1";
@@ -159,7 +159,7 @@ public class DatabaseDataInitializer {
             userRepository.save(demoUser);
 
         } else {
-            logger.info("There are >0 ({}) projects in DB. Skipping initialization.", numberOfProjectInDB);
+            logger.info("There are >0 ({}) projects in DB. Skipping initialization." + numberOfProjectInDB);
         }
 
         logger.info("Finished initializing DEMO data");

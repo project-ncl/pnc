@@ -3,8 +3,7 @@ package org.jboss.pnc.rest.endpoint;
 import com.wordnik.swagger.annotations.*;
 import org.jboss.pnc.core.exception.CoreException;
 import org.jboss.pnc.rest.trigger.BuildTriggerer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.jboss.logging.Logger;
 
 import javax.inject.Inject;
 import javax.ws.rs.POST;
@@ -19,7 +18,7 @@ import java.net.URI;
 @Path("/product/{productId}/version/{versionId}/project/{projectId}/configuration")
 public class TriggerBuildEndpoint {
 
-    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+    private static final Logger logger = Logger.getLogger(MethodHandles.lookup().lookupClass());
 
     private BuildTriggerer buildTriggerer;
 
