@@ -7,9 +7,9 @@ import org.jboss.pnc.common.util.ObjectWrapper;
 import org.jboss.pnc.jenkinsbuilddriver.JenkinsBuildDriver;
 import org.jboss.pnc.jenkinsbuilddriver.JenkinsBuildMonitor;
 import org.jboss.pnc.jenkinsbuilddriver.JenkinsServerFactory;
+import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildDriverStatus;
 import org.jboss.pnc.model.Project;
-import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.RepositoryType;
 import org.jboss.pnc.spi.builddriver.BuildResult;
 import org.jboss.pnc.spi.builddriver.CompletedBuild;
@@ -24,13 +24,13 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import javax.inject.Inject;
-
 import java.util.Map;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.logging.Logger;
+
+import javax.inject.Inject;
 
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-11-23.
@@ -147,6 +147,11 @@ public class JenkinsDriverRemoteTest {
                 public String getId() {
                     return "mock-config";
                 }
+
+            @Override
+            public String getCollectionId() {
+                return "mock-collection";
+            }
 
                 @Override
                 public RepositoryConnectionInfo getConnectionInfo() {

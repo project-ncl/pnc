@@ -33,6 +33,11 @@ public class RepositoryManagerMock implements RepositoryManager {
             }
 
             @Override
+            public String getCollectionId() {
+                return "test-collection";
+            }
+
+            @Override
             public RepositoryConnectionInfo getConnectionInfo() {
                 return new RepositoryConnectionInfo() {
                     // TODO: This is not connected to anything...

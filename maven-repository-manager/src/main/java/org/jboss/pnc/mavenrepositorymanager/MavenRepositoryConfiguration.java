@@ -11,11 +11,14 @@ public class MavenRepositoryConfiguration implements RepositoryConfiguration
 
     private final RepositoryConnectionInfo connectionInfo;
 
+    private String collectionId;
+
     // TODO: Create and pass in suitable parameters to Aprox to create the
     //       proxy repository.
-    public MavenRepositoryConfiguration(String id, MavenRepositoryConnectionInfo info)
+    public MavenRepositoryConfiguration(String id, String collectionId, MavenRepositoryConnectionInfo info)
     {
         this.id = id;
+        this.collectionId = collectionId;
         this.connectionInfo = info;
     }
 
@@ -37,6 +40,9 @@ public class MavenRepositoryConfiguration implements RepositoryConfiguration
         return id;
     }
 
+    public String getCollectionId() {
+        return collectionId;
+    }
 
     @Override
     public RepositoryConnectionInfo getConnectionInfo() {

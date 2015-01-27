@@ -1,4 +1,4 @@
-package org.jboss.pnc.mavenrepositorymanager;
+package org.jboss.pnc.mavenrepositorymanager.fixture;
 
 import org.commonjava.aprox.core.expire.ScheduleManager;
 import org.commonjava.aprox.inject.TestData;
