@@ -14,8 +14,8 @@ import javax.ws.rs.core.*;
 import java.lang.invoke.MethodHandles;
 import java.net.URI;
 
-@Api(value = "/product/{productId}/version/{versionId}/project/{projectId}/configuration", description = "Triggering build configuration")
-@Path("/product/{productId}/version/{versionId}/project/{projectId}/configuration")
+@Api(value = "/project/{projectId}/configuration", description = "Triggering Build Configuration")
+@Path("/project/{projectId}/configuration")
 public class TriggerBuildEndpoint {
 
     private static final Logger logger = Logger.getLogger(MethodHandles.lookup().lookupClass());
@@ -31,19 +31,14 @@ public class TriggerBuildEndpoint {
     }
 
     @ApiOperation(value = "Triggers build")
-    @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Everything is OK"),
-            @ApiResponse(code = 500, message = "Something went wrong")
-    })
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "Everything is OK"),
+            @ApiResponse(code = 500, message = "Something went wrong") })
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/{id}/build")
     public Response getSpecificBuild(
-            @ApiParam(value = "Product id", required = true) @PathParam("productId") Integer productId,
-            @ApiParam(value = "Product Version id", required = true) @PathParam("versionId") Integer productVersionId,
             @ApiParam(value = "Project id", required = true) @PathParam("projectId") Integer projectId,
-            @ApiParam(value = "Configuration id", required = true) @PathParam("id") Integer id,
-            @Context UriInfo uriInfo) {
+            @ApiParam(value = "Configuration id", required = true) @PathParam("id") Integer id, @Context UriInfo uriInfo) {
         try {
             Integer runningBuildId = buildTriggerer.triggerBuilds(id);
             UriBuilder uriBuilder = UriBuilder.fromUri(uriInfo.getBaseUri()).path("/result/running/{id}");

@@ -33,18 +33,23 @@ public class BuildRecordProvider {
     }
 
     public List<BuildRecordRest> getAllArchived() {
-        return nullableStreamOf(buildRecordRepository.findAll())
-                .map(buildRecord -> new BuildRecordRest(buildRecord)).collect(Collectors.toList());
+        return nullableStreamOf(buildRecordRepository.findAll()).map(buildRecord -> new BuildRecordRest(buildRecord)).collect(
+                Collectors.toList());
     }
 
     public List<BuildRecordRest> getAllRunning() {
-        return nullableStreamOf(buildCoordinator.getBuildTasks())
-                .map(submittedBuild -> new BuildRecordRest(submittedBuild)).collect(Collectors.toList());
+        return nullableStreamOf(buildCoordinator.getBuildTasks()).map(submittedBuild -> new BuildRecordRest(submittedBuild))
+                .collect(Collectors.toList());
+    }
+
+    public List<BuildRecordRest> getAllArchivedOfBuildConfiguration(Integer buildRecordId) {
+        return nullableStreamOf(buildRecordRepository.findByBuildConfigurationId(buildRecordId)).map(
+                buildRecord -> new BuildRecordRest(buildRecord)).collect(Collectors.toList());
     }
 
     public BuildRecordRest getSpecific(Integer id) {
         BuildRecord buildRecord = buildRecordRepository.findOne(id);
-        if(buildRecord != null) {
+        if (buildRecord != null) {
             return new BuildRecordRest(buildRecord);
         }
         return null;
@@ -52,7 +57,7 @@ public class BuildRecordProvider {
 
     public StreamingOutput getLogsForBuildId(Integer id) {
         BuildRecord buildRecord = buildRecordRepository.findOne(id);
-        if(buildRecord != null) {
+        if (buildRecord != null) {
             return outputStream -> {
                 Writer writer = new BufferedWriter(new OutputStreamWriter(outputStream));
                 writer.write(buildRecord.getBuildLog());
@@ -64,7 +69,7 @@ public class BuildRecordProvider {
 
     public BuildRecordRest getSpecificRunning(Integer id) {
         BuildTask buildTask = getSubmittedBuild(id);
-        if(buildTask != null) {
+        if (buildTask != null) {
             return new BuildRecordRest(buildTask);
         }
         return null;
@@ -72,9 +77,9 @@ public class BuildRecordProvider {
 
     private BuildTask getSubmittedBuild(Integer id) {
         List<BuildTask> buildTasks = buildCoordinator.getBuildTasks().stream()
-                    .filter(submittedBuild -> id.equals(submittedBuild.getBuildConfiguration().getId()))
-                    .collect(Collectors.toList());
-        if(!buildTasks.isEmpty()) {
+                .filter(submittedBuild -> id.equals(submittedBuild.getBuildConfiguration().getId()))
+                .collect(Collectors.toList());
+        if (!buildTasks.isEmpty()) {
             return buildTasks.iterator().next();
         }
         return null;
@@ -82,10 +87,10 @@ public class BuildRecordProvider {
 
     public StreamingOutput getLogsForRunningBuildId(Integer id) {
         BuildTask buildTask = getSubmittedBuild(id);
-        if(buildTask != null) {
+        if (buildTask != null) {
             return outputStream -> {
                 Writer writer = new BufferedWriter(new OutputStreamWriter(outputStream));
-                if(buildTask != null && buildTask.getBuildLog() != null) {
+                if (buildTask != null && buildTask.getBuildLog() != null) {
                     writer.write(buildTask.getBuildLog());
                 }
                 writer.flush();

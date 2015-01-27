@@ -33,6 +33,11 @@ public class DatastoreAdapter {
             buildRecord.setBuildLog(completedBuild.getBuildLog());
             buildRecord.setStatus(completedBuild.getBuildDriverStatus());
             buildRecord.setBuildConfiguration(buildConfiguration);
+            // Additional information needed for historical purpose
+            buildRecord.setBuildScript(buildConfiguration.getBuildScript());
+            buildRecord.setPatchesUrl(buildConfiguration.getPatchesUrl());
+            buildRecord.setSourceUrl(buildConfiguration.getScmUrl());
+
             log.debugf("Storing results of %s to datastore.", buildConfiguration.getName());
             datastore.storeCompletedBuild(buildRecord);
         } catch (Exception e) {
@@ -47,6 +52,11 @@ public class DatastoreAdapter {
         StringWriter stackTraceWriter = new StringWriter();
         buildRecord.setStatus(BuildDriverStatus.UNKNOWN); //TODO set error status
         buildRecord.setBuildLog(stackTraceWriter.toString());
+        buildRecord.setBuildConfiguration(buildConfiguration);
+        // Additional information needed for historical purpose
+        buildRecord.setBuildScript(buildConfiguration.getBuildScript());
+        buildRecord.setPatchesUrl(buildConfiguration.getPatchesUrl());
+        buildRecord.setSourceUrl(buildConfiguration.getScmUrl());
         log.debugf("Storing ERROR result of %s to datastore. Error: %s", buildConfiguration.getName(), e);
         datastore.storeCompletedBuild(buildRecord);
     }
