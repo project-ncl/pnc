@@ -40,7 +40,7 @@ $(document).ready(function() {
   $('#projects tbody').on( 'click', 'button.configurations', function (event) {
     event.preventDefault();
     $.ajax({
-        url: PNC_REST_BASE_URL + '/product/' + product.id + '/version/' + version.id + '/project/' + $(this).attr('value'),
+        url: PNC_REST_BASE_URL + '/project/' + $(this).attr('value'),
         method: 'GET',
         success: function( data ) {
             sessionStorage.setItem('project', JSON.stringify(data));

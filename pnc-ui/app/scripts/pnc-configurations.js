@@ -57,13 +57,13 @@ $(document).ready(function() {
       $('#configuration').dataTable( {
         stateSave: true,
         'ajax': {
-          'url': PNC_REST_BASE_URL + '/product/' + product.id + '/version/' + version.id + '/project/' + project.id + '/configuration',
+          'url': PNC_REST_BASE_URL + '/project/' + project.id + '/configuration',
           'type': 'GET',
           'dataSrc': ''
         },
         'columns': [
           { 'data': 'id' },
-          { 'data': 'identifier' },
+          { 'data': 'name' },
           { 'data': 'buildScript' },
           { 'data': 'scmUrl' },
           { 'data': 'patchesUrl' },
@@ -125,7 +125,7 @@ $(document).ready(function() {
 
       var configId = $(this).data('configuration-id');
 
-      $.post(PNC_REST_BASE_URL + '/product/' + product.id + '/version/' + version.id + '/project/' + project.id + '/configuration/' + configId + '/build')
+      $.post(PNC_REST_BASE_URL + '/project/' + project.id + '/configuration/' + configId + '/build')
         .done(
           function(data, text, xhr) {
             $('#alert-space').prepend('<br/><div class="alert alert-success" role="alert">Build successfully triggered</div>');
@@ -253,13 +253,13 @@ $(document).ready(function() {
 
        event.preventDefault();
 
-       var identifier = $('#addConfIdentifier').val();
+       var name = $('#addConfIdentifier').val();
        var buildScript = $('#addConfBuildScript').val();
        var scmUrl = $('#addConfScmUrl').val();
        var patchesUrl = $('#addConfPatchesUrl').val();
 
        var JSONObj = {
-            'identifier': identifier,
+            'name': name,
             'buildScript': buildScript,
             'scmUrl': scmUrl,
             'patchesUrl': patchesUrl
@@ -269,7 +269,7 @@ $(document).ready(function() {
        console.log('Creating new build configuration: ' + data);
 
        $.ajax({
-               url: PNC_REST_BASE_URL + '/product/' + product.id + '/version/' + version.id + '/project/' + project.id + '/configuration',
+               url: PNC_REST_BASE_URL + '/project/' + project.id + '/configuration',
                type: 'POST',
                dataType : 'json',
                data: data,

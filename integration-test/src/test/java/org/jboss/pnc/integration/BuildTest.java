@@ -36,12 +36,12 @@ public class BuildTest {
         int productId = extractIdFromRest("/pnc-web/rest/product");
         int versionId = extractIdFromRest(String.format("/pnc-web/rest/product/%d/version", productId));
         int projectId = extractIdFromRest(String.format("/pnc-web/rest/product/%d/version/%d/project", productId, versionId));
-        int configurationId = extractIdFromRest(String.format("/pnc-web/rest/product/%d/version/%d/project/%d/configuration", productId, versionId, projectId));
+        int configurationId = extractIdFromRest(String.format("/pnc-web/rest/project/%d/configuration", projectId));
 
         given()
                 .port(getHttpPort())
         .when()
-            .post(String.format("/pnc-web/rest/product/%d/version/%d/project/%d/configuration/%d/build", productId, versionId, projectId, configurationId))
+            .post(String.format("/pnc-web/rest/project/%d/configuration/%d/build", projectId, configurationId))
         .then()
             .statusCode(200);
     }
