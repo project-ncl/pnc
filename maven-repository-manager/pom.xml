@@ -49,6 +49,10 @@
 
     <dependency>
       <groupId>org.commonjava.aprox</groupId>
+      <artifactId>aprox-promote-client-java</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.commonjava.aprox</groupId>
       <artifactId>aprox-folo-client-java</artifactId>
     </dependency>
     <dependency>
@@ -66,4 +70,19 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
+  
+  <build>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <artifactId>maven-surefire-plugin</artifactId>
+          <configuration>
+            <forkCount>4</forkCount>
+            <reuseForks>false</reuseForks>
+            <redirectTestOutputToFile>true</redirectTestOutputToFile>
+          </configuration>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+  </build>
 </project>

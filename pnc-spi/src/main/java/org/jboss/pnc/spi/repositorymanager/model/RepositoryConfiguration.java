@@ -11,5 +11,7 @@ public interface RepositoryConfiguration {
 
     String getId();
 
+    String getCollectionId();
+
     RepositoryConnectionInfo getConnectionInfo();
 }
