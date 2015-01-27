@@ -3,14 +3,18 @@ package org.jboss.pnc.rest.endpoint;
 import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
 import com.wordnik.swagger.annotations.ApiParam;
+
 import org.jboss.pnc.rest.provider.BuildConfigurationProvider;
+import org.jboss.pnc.rest.provider.BuildRecordProvider;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationRest;
+import org.jboss.pnc.rest.restmodel.BuildRecordRest;
 
 import javax.inject.Inject;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
+
 import java.util.List;
 
 @Api(value = "/project/{projectId}/configuration", description = "Build Configuration related information")
@@ -20,13 +24,16 @@ import java.util.List;
 public class BuildConfigurationEndpoint {
 
     private BuildConfigurationProvider buildConfigurationProvider;
+    private BuildRecordProvider buildRecordProvider;
 
     public BuildConfigurationEndpoint() {
     }
 
     @Inject
-    public BuildConfigurationEndpoint(BuildConfigurationProvider buildConfigurationProvider) {
+    public BuildConfigurationEndpoint(BuildConfigurationProvider buildConfigurationProvider,
+            BuildRecordProvider buildRecordProvider) {
         this.buildConfigurationProvider = buildConfigurationProvider;
+        this.buildRecordProvider = buildRecordProvider;
     }
 
     @ApiOperation(value = "Gets all Project's Build Configurations")
@@ -43,6 +50,15 @@ public class BuildConfigurationEndpoint {
             @ApiParam(value = "Project id", required = true) @PathParam("projectId") Integer projectId,
             @ApiParam(value = "Project's Configuration id", required = true) @PathParam("id") Integer id) {
         return buildConfigurationProvider.getSpecific(projectId, id);
+    }
+
+    @ApiOperation(value = "Gets the Build Records of a specific Build Configuration")
+    @GET
+    @Path("/{id}/result")
+    public List<BuildRecordRest> getResultsOfSpecificBuildConfiguration(
+            @ApiParam(value = "Project id", required = true) @PathParam("projectId") Integer projectId,
+            @ApiParam(value = "Project's Configuration id", required = true) @PathParam("id") Integer id) {
+        return buildRecordProvider.getAllArchivedOfBuildConfiguration(id);
     }
 
     @ApiOperation(value = "Creates new Project's Build Configuration")

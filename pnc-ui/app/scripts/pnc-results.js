@@ -31,15 +31,15 @@ $(document).ready(function() {
 
   $.when(
      $.ajax({
-         url: PNC_REST_BASE_URL + '/result',
+         url: PNC_REST_BASE_URL + '/project/' + project.id + '/configuration/' + configurationId + '/result',
          method: 'GET',
          success: function (data) {
            $.each(data, function(entryIndex, entry){
-            console.log('checking /result entry: %O', entry);
-             if (parseInt(entry.buildConfigurationId) === configurationId) {
+             console.log('checking /result entry: %O', entry);
+             //if (parseInt(entry.buildConfigurationId) === configurationId) {
                 console.log('found entry for configurationId=%d', configurationId);
                 filteredResults.push(entry);
-             }
+             //}
            });
          },
          error: function (data) {
