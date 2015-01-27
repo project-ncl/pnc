@@ -43,7 +43,7 @@ $(document).ready(function() {
            console.log('Querying for existing builds, result: %O', data);
            $.each(data, function(entryIndex, entry){
               if ($.inArray(entry.buildConfigurationId, configurationsWithResults) === -1) {
-                console.log(String.format('Found existing build: configId={%d}', entry.buildConfigurationId));
+                console.log('Found existing build: configId={%d}', entry.buildConfigurationId);
                 configurationsWithResults.push(entry.buildConfigurationId);
              }
             console.log('configurations with results: %O', configurationsWithResults);
