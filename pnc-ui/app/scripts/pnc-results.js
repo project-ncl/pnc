@@ -47,11 +47,11 @@ $(document).ready(function() {
          }
      }),
      $.ajax({
-         url: PNC_REST_BASE_URL + '/product/' + product.id + '/version/' + version.id + '/project/' + project.id + '/configuration/' + configurationId,
+         url: PNC_REST_BASE_URL + '/project/' + project.id + '/configuration/' + configurationId,
          method: 'GET',
          success: function (data) {
 
-           buildConfigIdentifier = data.identifier;
+           buildConfigIdentifier = data.name;
            buildConfigScript = data.buildScript;
          },
          error: function (data) {

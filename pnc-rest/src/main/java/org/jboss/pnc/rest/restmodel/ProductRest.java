@@ -26,8 +26,7 @@ public class ProductRest {
         this.id = product.getId();
         this.name = product.getName();
         this.description = product.getDescription();
-        productVersionIds = nullableStreamOf(product.getProductVersions())
-                .map(productVersion -> productVersion.getId())
+        productVersionIds = nullableStreamOf(product.getProductVersions()).map(productVersion -> productVersion.getId())
                 .collect(Collectors.toList());
     }
 
