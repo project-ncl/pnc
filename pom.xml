@@ -45,7 +45,7 @@
 
   <properties>
     <atlasVersion>0.13.6</atlasVersion>
-    <aproxVersion>0.18.4-SNAPSHOT</aproxVersion>
+    <aproxVersion>0.18.4</aproxVersion>
     <version.jboss.maven.plugin>7.5.Final</version.jboss.maven.plugin>
     <version.jboss.bom>1.0.7.Final</version.jboss.bom>
     <version.jboss.as>7.2.0.Final</version.jboss.as>
