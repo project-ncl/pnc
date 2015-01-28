@@ -1,0 +1,9 @@
+{
+    "name":"pnc-1.0.0.DR1",
+    "buildScript":"mvn clean deploy -Dmaven.test.skip",
+    "scmUrl":"https://github.com/project-ncl/pnc.git",
+    "patchesUrl":null,
+    "creationTime":1418382545021,
+    "lastModificationTime":1418382545038,
+    "repositories":null
+}
