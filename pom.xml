@@ -60,6 +60,8 @@
     <version.org.apache.httpcomponents.httpcore>4.3.3</version.org.apache.httpcomponents.httpcore>
     <version.org.postgresql>9.3-1102-jdbc41</version.org.postgresql>
     <version.querydsl>3.6.1</version.querydsl>
+    <version.jackson>2.4.4</version.jackson>
+    <version.jackson.annotations>2.4.1</version.jackson.annotations>
 
     <!-- maven-compiler-plugin -->
     <maven.compiler.target>1.8</maven.compiler.target>
@@ -438,6 +440,24 @@
         <version>${version.querydsl}</version>
       </dependency>
       <!-- /Query DSL support -->
+      
+        <dependency>
+          <groupId>com.fasterxml.jackson.core</groupId>
+          <artifactId>jackson-core</artifactId>
+          <version>${version.jackson}</version>
+        </dependency>
+        
+        <dependency>
+          <groupId>com.fasterxml.jackson.core</groupId>
+          <artifactId>jackson-databind</artifactId>
+          <version>${version.jackson}</version>
+        </dependency>        
+
+        <dependency>
+          <groupId>com.fasterxml.jackson.core</groupId>
+          <artifactId>jackson-annotations</artifactId>
+          <version>${version.jackson.annotations}</version>
+        </dependency>        
     </dependencies>
   </dependencyManagement>
 

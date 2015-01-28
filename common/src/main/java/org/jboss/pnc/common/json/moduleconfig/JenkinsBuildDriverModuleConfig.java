@@ -4,6 +4,7 @@ import org.jboss.pnc.common.json.AbstractModuleConfig;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+
 public class JenkinsBuildDriverModuleConfig extends AbstractModuleConfig{
     private String url;
     private String username;
