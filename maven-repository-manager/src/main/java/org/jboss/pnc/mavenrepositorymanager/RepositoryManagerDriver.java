@@ -76,6 +76,14 @@ public class RepositoryManagerDriver implements RepositoryManager {
         Properties properties = configuration.getModuleConfig(MAVEN_REPOSITORY_CONFIG_SECTION);
 
         String baseUrl = properties.getProperty(BASE_URL_PROPERTY);
+        if (baseUrl.endsWith("/")) {
+            baseUrl = baseUrl.substring(0, baseUrl.length() - 1);
+        }
+
+        if (!baseUrl.endsWith("/api")) {
+            baseUrl += "/api";
+        }
+
         aprox = new Aprox(baseUrl, new AproxFoloAdminClientModule(), new AproxFoloContentClientModule(),
                 new AproxPromoteClientModule()).connect();
     }
