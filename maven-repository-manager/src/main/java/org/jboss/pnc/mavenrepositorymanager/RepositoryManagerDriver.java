@@ -1,5 +1,16 @@
 package org.jboss.pnc.mavenrepositorymanager;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+
 import org.commonjava.aprox.client.core.Aprox;
 import org.commonjava.aprox.client.core.AproxClientException;
 import org.commonjava.aprox.folo.client.AproxFoloAdminClientModule;
@@ -10,14 +21,20 @@ import org.commonjava.aprox.model.core.StoreKey;
 import org.commonjava.aprox.model.core.StoreType;
 import org.commonjava.aprox.promote.client.AproxPromoteClientModule;
 import org.jboss.pnc.common.Configuration;
+import org.commonjava.aprox.promote.model.PromoteRequest;
+import org.commonjava.aprox.promote.model.PromoteResult;
+import org.commonjava.maven.atlas.ident.ref.ArtifactRef;
+import org.commonjava.maven.atlas.ident.util.ArtifactPathInfo;
+import org.jboss.logging.Logger;
+import org.jboss.pnc.common.Configuration;
+import org.jboss.pnc.common.json.ConfigurationParseException;
+import org.jboss.pnc.common.json.moduleconfig.MavenRepoDriverModuleConfig;
+import org.jboss.pnc.model.Artifact;
+import org.jboss.pnc.model.ArtifactStatus;
 import org.jboss.pnc.model.BuildCollection;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.ProductVersion;
 import org.jboss.pnc.model.RepositoryType;
-import org.jboss.pnc.model.builder.ArtifactBuilder;
-import org.jboss.pnc.common.json.ConfigurationParseException;
-import org.jboss.pnc.common.json.moduleconfig.MavenRepoDriverModuleConfig;
-import org.jboss.pnc.model.*;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManager;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerException;
 import org.jboss.pnc.spi.repositorymanager.model.RepositoryConfiguration;
@@ -36,10 +53,10 @@ import java.util.Properties;
  */
 @ApplicationScoped
 public class RepositoryManagerDriver implements RepositoryManager {
-
-    private static final String MAVEN_REPOSITORY_CONFIG_SECTION = "maven-repository";
-
-    private static final String BASE_URL_PROPERTY = "base.url";
+    
+    private static final Logger log = Logger.getLogger(RepositoryManagerDriver.class);
+    
+    public static final String DRIVER_ID = "maven-repo-driver";
 
     private static final String GROUP_ID_FORMAT = "product+%s+%s";
 
@@ -58,20 +75,23 @@ public class RepositoryManagerDriver implements RepositoryManager {
     }
 
     @Inject
-    public RepositoryManagerDriver(Configuration configuration) {
-        Properties properties = configuration.getModuleConfig(MAVEN_REPOSITORY_CONFIG_SECTION);
+    public RepositoryManagerDriver(Configuration<MavenRepoDriverModuleConfig> configuration) {
+        MavenRepoDriverModuleConfig config;
+        try {
+            config = configuration.getModuleConfig(MavenRepoDriverModuleConfig.class);
+            String baseUrl = config.getBaseUrl();
+            if (baseUrl.endsWith("/")) {
+                baseUrl = baseUrl.substring(0, baseUrl.length() - 1);
+            }
 
-        String baseUrl = properties.getProperty(BASE_URL_PROPERTY);
-        if (baseUrl.endsWith("/")) {
-            baseUrl = baseUrl.substring(0, baseUrl.length() - 1);
+            if (!baseUrl.endsWith("/api")) {
+                baseUrl += "/api";
+            }
+            aprox = new Aprox(baseUrl, new AproxFoloAdminClientModule(), new AproxFoloContentClientModule(),
+                    new AproxPromoteClientModule()).connect();
+        } catch (ConfigurationParseException e) {
+            log.error("Cannot read configuration for " + RepositoryManagerDriver.DRIVER_ID + ".", e);
         }
-
-        if (!baseUrl.endsWith("/api")) {
-            baseUrl += "/api";
-        }
-
-        aprox = new Aprox(baseUrl, new AproxFoloAdminClientModule(), new AproxFoloContentClientModule(),
-                new AproxPromoteClientModule()).connect();
     }
 
     /**

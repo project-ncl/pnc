@@ -4,8 +4,6 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import org.jboss.logging.Logger;
-import org.jboss.pnc.common.Configuration;
-import org.jboss.pnc.common.json.module.JenkinsBuildDriverModuleConfig;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildType;
 import org.jboss.pnc.spi.builddriver.BuildDriver;
@@ -20,9 +18,6 @@ import org.jboss.pnc.spi.repositorymanager.model.RepositoryConfiguration;
 public class JenkinsBuildDriver implements BuildDriver {
 
     public static final String DRIVER_ID = "jenkins-build-driver";
-
-    @Inject
-    Configuration<JenkinsBuildDriverModuleConfig> configuration;
 
     private static final Logger log = Logger.getLogger(JenkinsBuildDriver.class);
 
