@@ -1,14 +1,15 @@
 package org.jboss.pnc.core.builder;
 
 import org.jboss.logging.Logger;
-import org.jboss.pnc.model.BuildDriverStatus;
 import org.jboss.pnc.model.BuildConfiguration;
+import org.jboss.pnc.model.BuildDriverStatus;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.spi.builddriver.BuildResult;
 import org.jboss.pnc.spi.datastore.Datastore;
 import org.jboss.pnc.spi.datastore.DatastoreException;
 
 import javax.inject.Inject;
+import java.io.PrintWriter;
 import java.io.StringWriter;
 
 /**
@@ -50,8 +51,13 @@ public class DatastoreAdapter {
 
         BuildRecord buildRecord = new BuildRecord();
         StringWriter stackTraceWriter = new StringWriter();
-        buildRecord.setStatus(BuildDriverStatus.UNKNOWN); //TODO set error status
-        buildRecord.setBuildLog(stackTraceWriter.toString());
+        PrintWriter stackTracePrinter = new PrintWriter(stackTraceWriter);
+        e.printStackTrace(stackTracePrinter);
+        buildRecord.setStatus(BuildDriverStatus.UNKNOWN); //TODO set error status. Is it ok to store DBS (Jenkins), if we are storing BSD than UNKNOWN is the right one
+
+        String errorMessage = "Last build status: " + buildTask.getStatus().toString() + "\n";
+        errorMessage += "Caught exception: " + stackTraceWriter.toString();
+        buildRecord.setBuildLog(errorMessage);
         buildRecord.setBuildConfiguration(buildConfiguration);
         // Additional information needed for historical purpose
         buildRecord.setBuildScript(buildConfiguration.getBuildScript());
