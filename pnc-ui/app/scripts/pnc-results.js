@@ -27,7 +27,6 @@ $(document).ready(function() {
 
   var filteredResults = [];
   var buildConfigIdentifier = '';
-  var buildConfigScript = '';
 
   $.when(
      $.ajax({
@@ -36,10 +35,8 @@ $(document).ready(function() {
          success: function (data) {
            $.each(data, function(entryIndex, entry){
              console.log('checking /result entry: %O', entry);
-             //if (parseInt(entry.buildConfigurationId) === configurationId) {
-                console.log('found entry for configurationId=%d', configurationId);
-                filteredResults.push(entry);
-             //}
+             console.log('found entry for configurationId=%d', configurationId);
+             filteredResults.push(entry);
            });
          },
          error: function (data) {
@@ -52,7 +49,6 @@ $(document).ready(function() {
          success: function (data) {
 
            buildConfigIdentifier = data.name;
-           buildConfigScript = data.buildScript;
          },
          error: function (data) {
              console.log(JSON.stringify(data));
@@ -60,7 +56,6 @@ $(document).ready(function() {
      })
   ).then( function(){
       loadDataTable(filteredResults);
-      console.log('filteredResults=%O, buildConfigIdentifier=%d, buildConfigScript=%s', filteredResults, buildConfigIdentifier, buildConfigScript);
   });
 
   function loadDataTable(filteredResults) {
@@ -95,8 +90,7 @@ $(document).ready(function() {
          },
          { 'sWidth': '15%', 'data':
             function(json) {
-              console.log(json);
-              return buildConfigScript;
+              return json.buildScript;
             }
          }
        ]

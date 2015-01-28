@@ -36,7 +36,7 @@ public class BuildConfigurationEndpoint {
         this.buildRecordProvider = buildRecordProvider;
     }
 
-    @ApiOperation(value = "Gets all Project's Build Configurations")
+    @ApiOperation(value = "Gets all Build Configurations")
     @GET
     public List<BuildConfigurationRest> getAll(
             @ApiParam(value = "Project id", required = true) @PathParam("projectId") Integer projectId) {
@@ -48,7 +48,7 @@ public class BuildConfigurationEndpoint {
     @Path("/{id}")
     public BuildConfigurationRest getSpecific(
             @ApiParam(value = "Project id", required = true) @PathParam("projectId") Integer projectId,
-            @ApiParam(value = "Project's Configuration id", required = true) @PathParam("id") Integer id) {
+            @ApiParam(value = "Build Configuration id", required = true) @PathParam("id") Integer id) {
         return buildConfigurationProvider.getSpecific(projectId, id);
     }
 
@@ -57,7 +57,7 @@ public class BuildConfigurationEndpoint {
     @Path("/{id}/result")
     public List<BuildRecordRest> getResultsOfSpecificBuildConfiguration(
             @ApiParam(value = "Project id", required = true) @PathParam("projectId") Integer projectId,
-            @ApiParam(value = "Project's Configuration id", required = true) @PathParam("id") Integer id) {
+            @ApiParam(value = "Build Configuration id", required = true) @PathParam("id") Integer id) {
         return buildRecordProvider.getAllArchivedOfBuildConfiguration(id);
     }
 
@@ -70,7 +70,7 @@ public class BuildConfigurationEndpoint {
         return Response.created(uriBuilder.build(id)).build();
     }
 
-    @ApiOperation(value = "Creates new Project's Build Configuration for a Product Version")
+    @ApiOperation(value = "Creates new Build Configuration for a Product Version")
     @POST
     @Path("/{id}/version/{versionId}")
     public Response createNew(@ApiParam(value = "Project id", required = true) @PathParam("projectId") Integer projectId,
@@ -81,12 +81,34 @@ public class BuildConfigurationEndpoint {
         return Response.created(uriBuilder.build(id)).build();
     }
 
-    @ApiOperation(value = "Deletes a Project's Build Configuration")
+    @ApiOperation(value = "Deletes a Build Configuration")
     @DELETE
     @Path("/{id}")
     public Response delete(@ApiParam(value = "Project id", required = true) @PathParam("projectId") Integer projectId,
-            @ApiParam(value = "Project's Configuration id", required = true) @PathParam("id") Integer id) {
+            @ApiParam(value = "Build Configuration id", required = true) @PathParam("id") Integer id) {
         buildConfigurationProvider.delete(id);
         return Response.ok().build();
     }
+
+    @ApiOperation(value = "Updates an existing Build Configuration")
+    @PUT
+    @Path("/{id}")
+    public Response update(@ApiParam(value = "Project id", required = true) @PathParam("projectId") Integer projectId,
+            @ApiParam(value = "Build Configuration id", required = true) @PathParam("id") Integer id,
+            @NotNull @Valid BuildConfigurationRest buildConfigurationRest, @Context UriInfo uriInfo) {
+        buildConfigurationProvider.update(buildConfigurationRest);
+        return Response.ok().build();
+    }
+
+    @ApiOperation(value = "Clone a Build Configuration")
+    @POST
+    @Path("/{id}/clone")
+    public Response clone(@ApiParam(value = "Project id", required = true) @PathParam("projectId") Integer projectId,
+            @ApiParam(value = "Build Configuration id", required = true) @PathParam("id") Integer id, @Context UriInfo uriInfo) {
+
+        UriBuilder uriBuilder = UriBuilder.fromUri(uriInfo.getRequestUri()).path("{id}");
+        int newId = buildConfigurationProvider.clone(projectId, id);
+        return Response.created(uriBuilder.build(newId)).build();
+    }
+
 }
