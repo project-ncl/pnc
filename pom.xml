@@ -39,7 +39,6 @@
     <module>pnc-ui</module>
     <module>pnc-web</module>
     <module>docker-environment-driver</module>
-    <module>integration-test</module>
     <module>demo-data</module>
   </modules>
 
@@ -767,6 +766,17 @@
         <persistence.hibernate.dialect>org.hibernate.dialect.PostgreSQLDialect</persistence.hibernate.dialect>
         <persistence.hibernate.hbm2ddl.auto>create</persistence.hibernate.hbm2ddl.auto>
       </properties>
+    </profile>
+    <profile>
+      <id>integration-test</id>
+      <activation>
+        <property>
+          <name>!skipTests</name>
+        </property>
+      </activation>
+      <modules>
+        <module>integration-test</module>
+      </modules>
     </profile>
   </profiles>
 
