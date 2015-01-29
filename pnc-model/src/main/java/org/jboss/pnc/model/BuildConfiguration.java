@@ -89,14 +89,14 @@ public class BuildConfiguration implements Serializable {
     }
 
     /**
-     * @return the identifier
+     * @return the name
      */
     public String getName() {
         return name;
     }
 
     /**
-     * @param identifier the identifier to set
+     * @param name the name to set
      */
     public void setName(String name) {
         this.name = name;
@@ -286,7 +286,7 @@ public class BuildConfiguration implements Serializable {
 
     @Override
     public String toString() {
-        return "BuildConfiguration [project=" + project + ", identifier=" + name + "]";
+        return "BuildConfiguration [project=" + project + ", name=" + name + "]";
     }
 
     @Override

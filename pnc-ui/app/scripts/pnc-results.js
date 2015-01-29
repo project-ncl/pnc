@@ -26,7 +26,7 @@ $(document).ready(function() {
   $('#projectInfoIssueTrackerUrl').html(project.issueTrackerUrl);
 
   var filteredResults = [];
-  var buildConfigIdentifier = '';
+  var buildConfigName = '';
 
   $.when(
      $.ajax({
@@ -48,7 +48,7 @@ $(document).ready(function() {
          method: 'GET',
          success: function (data) {
 
-           buildConfigIdentifier = data.name;
+           buildConfigName = data.name;
          },
          error: function (data) {
              console.log(JSON.stringify(data));
@@ -85,7 +85,7 @@ $(document).ready(function() {
          { 'sWidth': '10%', 'data':
             function(json) {
               console.log(json);
-              return buildConfigIdentifier;
+              return buildConfigName;
             }
          },
          { 'sWidth': '15%', 'data':

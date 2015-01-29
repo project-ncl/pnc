@@ -253,13 +253,15 @@ $(document).ready(function() {
 
        event.preventDefault();
 
-       var name = $('#addConfIdentifier').val();
+       var name = $('#addConfName').val();
+       var description = $('#addConfDescription').val();
        var buildScript = $('#addConfBuildScript').val();
        var scmUrl = $('#addConfScmUrl').val();
        var patchesUrl = $('#addConfPatchesUrl').val();
 
        var JSONObj = {
             'name': name,
+            'description': description,
             'buildScript': buildScript,
             'scmUrl': scmUrl,
             'patchesUrl': patchesUrl
