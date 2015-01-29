@@ -24,6 +24,7 @@ import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.ProductVersion;
 import org.jboss.pnc.model.RepositoryType;
+import org.jboss.pnc.model.builder.ArtifactBuilder;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManager;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerException;
 import org.jboss.pnc.spi.repositorymanager.model.RepositoryConfiguration;
@@ -192,8 +193,7 @@ public class RepositoryManagerDriver implements RepositoryManager {
      * @param buildResult The build result where dependency artifact metadata should be appended
      * @throws RepositoryManagerException In case of a client API transport error or an error during promotion of artifacts
      */
-    private void processDownloads(TrackedContentDTO report, BuildRecord buildResult)
-            throws RepositoryManagerException {
+    private void processDownloads(TrackedContentDTO report, BuildRecord buildResult) throws RepositoryManagerException {
 
         AproxContentClientModule content;
         try {
@@ -224,14 +224,7 @@ public class RepositoryManagerDriver implements RepositoryManager {
                     paths.add(download.getPath());
                 }
 
-                Artifact artifact = new Artifact();
-                artifact.setChecksum(download.getSha256());
-
-                artifact.setDeployUrl(content.contentUrl(download.getStoreKey(), download.getPath()));
-
                 String path = download.getPath();
-                artifact.setFilename(new File(path).getName());
-
                 ArtifactPathInfo pathInfo = ArtifactPathInfo.parse(path);
                 if (pathInfo == null) {
                     // metadata file. Ignore.
@@ -239,11 +232,12 @@ public class RepositoryManagerDriver implements RepositoryManager {
                 }
 
                 ArtifactRef aref = new ArtifactRef(pathInfo.getProjectId(), pathInfo.getType(), pathInfo.getClassifier(), false);
-                artifact.setIdentifier(aref.toString());
 
-                artifact.setRepoType(RepositoryType.MAVEN);
-                artifact.setStatus(ArtifactStatus.BINARY_IMPORTED);
-                deps.add(artifact);
+                ArtifactBuilder artifactBuilder = ArtifactBuilder.newBuilder().checksum(download.getSha256())
+                        .deployUrl(content.contentUrl(download.getStoreKey(), download.getPath()))
+                        .filename(new File(path).getName()).identifier(aref.toString()).repoType(RepositoryType.MAVEN)
+                        .status(ArtifactStatus.BINARY_IMPORTED).buildRecord(buildResult);
+                deps.add(artifactBuilder.build());
             }
 
             for (Map.Entry<StoreKey, Set<String>> entry : toPromote.entrySet()) {
@@ -287,15 +281,8 @@ public class RepositoryManagerDriver implements RepositoryManager {
             List<Artifact> builds = new ArrayList<>();
 
             for (TrackedContentEntryDTO upload : uploads) {
-                Artifact artifact = new Artifact();
-                artifact.setChecksum(upload.getSha256());
-
-                content.contentUrl(StoreType.hosted, collectionId, upload.getPath());
-                artifact.setDeployUrl(upload.getLocalUrl());
 
                 String path = upload.getPath();
-                artifact.setFilename(new File(path).getName());
-
                 ArtifactPathInfo pathInfo = ArtifactPathInfo.parse(path);
                 if (pathInfo == null) {
                     // metadata file. Ignore.
@@ -303,11 +290,13 @@ public class RepositoryManagerDriver implements RepositoryManager {
                 }
 
                 ArtifactRef aref = new ArtifactRef(pathInfo.getProjectId(), pathInfo.getType(), pathInfo.getClassifier(), false);
-                artifact.setIdentifier(aref.toString());
+                content.contentUrl(StoreType.hosted, collectionId, upload.getPath());
 
-                artifact.setRepoType(RepositoryType.MAVEN);
-                artifact.setStatus(ArtifactStatus.BINARY_BUILT);
-                builds.add(artifact);
+                ArtifactBuilder artifactBuilder = ArtifactBuilder.newBuilder().checksum(upload.getSha256())
+                        .deployUrl(upload.getLocalUrl()).filename(new File(path).getName()).identifier(aref.toString())
+                        .repoType(RepositoryType.MAVEN).status(ArtifactStatus.BINARY_BUILT).buildRecord(buildResult);
+
+                builds.add(artifactBuilder.build());
             }
 
             buildResult.setBuiltArtifacts(builds);
