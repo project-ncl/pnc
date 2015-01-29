@@ -71,7 +71,6 @@ public class BuildConfigurationProvider {
         buildConfiguration.setName(buildConfigurationRest.getName());
         buildConfiguration.setBuildScript(buildConfigurationRest.getBuildScript());
         buildConfiguration.setScmUrl(buildConfigurationRest.getScmUrl());
-        buildConfiguration.setPatchesUrl(buildConfigurationRest.getPatchesUrl());
         buildConfiguration.setCreationTime(buildConfigurationRest.getCreationTime());
         buildConfiguration.setLastModificationTime(buildConfigurationRest.getLastModificationTime());
         buildConfiguration.setRepositories(buildConfigurationRest.getRepositories());
@@ -87,7 +86,6 @@ public class BuildConfigurationProvider {
 
         BuildConfiguration clonedBuildConfiguration = BuildConfigurationBuilder.newBuilder().name("_" + buildConfiguration.getName())
                 .buildScript(buildConfiguration.getBuildScript()).scmUrl(buildConfiguration.getScmUrl())
-                .scmBranch(buildConfiguration.getScmBranch()).patchesUrl(buildConfiguration.getPatchesUrl())
                 .description(buildConfiguration.getDescription()).productVersion(buildConfiguration.getProductVersion())
                 .project(buildConfiguration.getProject()).environment(buildConfiguration.getEnvironment())
                 .creationTime(buildConfiguration.getCreationTime())

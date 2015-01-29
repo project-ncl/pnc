@@ -23,8 +23,6 @@ public class BuildRecordRest {
 
     private String sourceUrl;
 
-    private String patchesUrl;
-
     private BuildDriverStatus status;
 
     private Integer buildConfigurationId;
@@ -47,7 +45,6 @@ public class BuildRecordRest {
         performIfNotNull(buildRecord.getUser() != null, () -> userId = buildRecord.getUser().getId());
         performIfNotNull(buildRecord.getSystemImage() != null, () -> systemImageId = buildRecord.getSystemImage().getId());
         this.sourceUrl = buildRecord.getSourceUrl();
-        this.patchesUrl = buildRecord.getPatchesUrl();
         this.status = buildRecord.getStatus();
         this.buildDriverId = buildRecord.getBuildDriverId();
     }
@@ -62,7 +59,6 @@ public class BuildRecordRest {
                         buildConfiguration != null,
                 () -> buildConfigurationId = buildConfiguration.getId());
         this.sourceUrl = buildConfiguration.getScmUrl();
-        this.patchesUrl = buildConfiguration.getPatchesUrl();
         this.status = BuildDriverStatus.BUILDING;
     }
 
@@ -104,14 +100,6 @@ public class BuildRecordRest {
 
     public void setSourceUrl(String sourceUrl) {
         this.sourceUrl = sourceUrl;
-    }
-
-    public String getPatchesUrl() {
-        return patchesUrl;
-    }
-
-    public void setPatchesUrl(String patchesUrl) {
-        this.patchesUrl = patchesUrl;
     }
 
     public BuildDriverStatus getStatus() {

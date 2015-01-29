@@ -50,8 +50,6 @@ public class BuildRecordBuilder {
 
     private String sourceUrl;
 
-    private String patchesUrl;
-
     private String buildLog;
 
     private BuildDriverStatus status;
@@ -86,7 +84,6 @@ public class BuildRecordBuilder {
         buildRecord.setBuildConfiguration(buildConfiguration);
         buildRecord.setUser(user);
         buildRecord.setSourceUrl(sourceUrl);
-        buildRecord.setPatchesUrl(patchesUrl);
         buildRecord.setBuildLog(buildLog);
         buildRecord.setStatus(status);
         buildRecord.setBuildDriverId(buildDriverId);
@@ -141,11 +138,6 @@ public class BuildRecordBuilder {
 
     public BuildRecordBuilder sourceUrl(String sourceUrl) {
         this.sourceUrl = sourceUrl;
-        return this;
-    }
-
-    public BuildRecordBuilder patchesUrl(String patchesUrl) {
-        this.patchesUrl = patchesUrl;
         return this;
     }
 
@@ -220,10 +212,6 @@ public class BuildRecordBuilder {
 
     public String getSourceUrl() {
         return sourceUrl;
-    }
-
-    public String getPatchesUrl() {
-        return patchesUrl;
     }
 
     public String getBuildLog() {

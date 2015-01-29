@@ -145,7 +145,6 @@ public class RestTest {
             properties.put("_name", _NAME);
             properties.put("_buildScript", _BUILDSCRIPT);
             properties.put("_scmUrl", _SCMURL);
-            properties.put("_patchesUrl", "");
             properties.put("_creationTime", String.valueOf(1518382545038L));
             properties.put("_lastModificationTime", String.valueOf(155382545038L));
             properties.put("_repositories", "");
@@ -212,8 +211,6 @@ public class RestTest {
                 clonedBuildConfiguration.body().jsonPath().getString("buildScript"));
         Assertions.assertThat(originalBuildConfiguration.body().jsonPath().getString("scmUrl")).isEqualTo(
                 clonedBuildConfiguration.body().jsonPath().getString("scmUrl"));
-        Assertions.assertThat(originalBuildConfiguration.body().jsonPath().getString("patchesUrl")).isEqualTo(
-                clonedBuildConfiguration.body().jsonPath().getString("patchesUrl"));
         Assertions.assertThat(originalBuildConfiguration.body().jsonPath().getString("creationTime")).isEqualTo(
                 clonedBuildConfiguration.body().jsonPath().getString("creationTime"));
         Assertions.assertThat(originalBuildConfiguration.body().jsonPath().getString("lastModificationTime")).isEqualTo(

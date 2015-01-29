@@ -3,7 +3,6 @@
     "name": "${_name}",
     "buildScript": "${_buildScript}",
     "scmUrl": "${_scmUrl}",
-    "patchesUrl": "${_patchesUrl}",
     "creationTime": ${_creationTime},
     "lastModificationTime": ${_lastModificationTime},
     "repositories": "${_repositories}"

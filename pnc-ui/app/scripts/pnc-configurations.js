@@ -66,7 +66,6 @@ $(document).ready(function() {
           { 'data': 'name' },
           { 'data': 'buildScript' },
           { 'data': 'scmUrl' },
-          { 'data': 'patchesUrl' },
           { 'data':
             function(json) {
               if (json.creationTime === null) {
@@ -257,14 +256,12 @@ $(document).ready(function() {
        var description = $('#addConfDescription').val();
        var buildScript = $('#addConfBuildScript').val();
        var scmUrl = $('#addConfScmUrl').val();
-       var patchesUrl = $('#addConfPatchesUrl').val();
 
        var JSONObj = {
             'name': name,
             'description': description,
             'buildScript': buildScript,
             'scmUrl': scmUrl,
-            'patchesUrl': patchesUrl
        };
 
        var data = JSON.stringify(JSONObj);

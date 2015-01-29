@@ -20,8 +20,6 @@ public class BuildConfigurationRest {
 
     private String scmUrl;
 
-    private String patchesUrl;
-
     private Timestamp creationTime;
 
     private Timestamp lastModificationTime;
@@ -37,7 +35,6 @@ public class BuildConfigurationRest {
         this.description = buildConfiguration.getDescription();
         this.buildScript = buildConfiguration.getBuildScript();
         this.scmUrl = buildConfiguration.getScmUrl();
-        this.patchesUrl = buildConfiguration.getPatchesUrl();
         this.creationTime = buildConfiguration.getCreationTime();
         this.lastModificationTime = buildConfiguration.getLastModificationTime();
         this.repositories = buildConfiguration.getRepositories();
@@ -83,14 +80,6 @@ public class BuildConfigurationRest {
         this.scmUrl = scmUrl;
     }
 
-    public String getPatchesUrl() {
-        return patchesUrl;
-    }
-
-    public void setPatchesUrl(String patchesUrl) {
-        this.patchesUrl = patchesUrl;
-    }
-
     public Timestamp getCreationTime() {
         return creationTime;
     }
@@ -122,7 +111,6 @@ public class BuildConfigurationRest {
         builder.description(description);
         builder.buildScript(buildScript);
         builder.scmUrl(scmUrl);
-        builder.patchesUrl(patchesUrl);
         builder.creationTime(creationTime);
         builder.lastModificationTime(lastModificationTime);
         builder.repositories(repositories);
