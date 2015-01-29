@@ -39,8 +39,6 @@ public class BuildConfiguration implements Serializable {
 
     private String description;
 
-	private String patchesUrl;
-
     @ManyToOne(cascade = CascadeType.ALL)
     private ProductVersion productVersion;
 
@@ -136,20 +134,6 @@ public class BuildConfiguration implements Serializable {
 
     public void setScmBranch(String scmBranch) {
         this.scmBranch = scmBranch;
-    }
-
-    /**
-     * @return the patchesUrl
-     */
-    public String getPatchesUrl() {
-        return patchesUrl;
-    }
-
-    /**
-     * @param patchesUrl the patchesUrl to set
-     */
-    public void setPatchesUrl(String patchesUrl) {
-        this.patchesUrl = patchesUrl;
     }
 
     public String getDescription() {

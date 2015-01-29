@@ -39,8 +39,6 @@ public class BuildRecord implements Serializable {
 
     private String sourceUrl;
 
-    private String patchesUrl;
-
     @Lob
     private String buildLog;
 
@@ -186,24 +184,6 @@ public class BuildRecord implements Serializable {
      */
     public void setSourceUrl(String sourceUrl) {
         this.sourceUrl = sourceUrl;
-    }
-
-    /**
-     * Gets the patches url.
-     *
-     * @return the patches url
-     */
-    public String getPatchesUrl() {
-        return patchesUrl;
-    }
-
-    /**
-     * Sets the patches url.
-     *
-     * @param patchesUrl the new patches url
-     */
-    public void setPatchesUrl(String patchesUrl) {
-        this.patchesUrl = patchesUrl;
     }
 
     /**
