@@ -30,6 +30,8 @@ import java.util.Set;
 public class Product implements Serializable {
 
     private static final long serialVersionUID = -9022966336791211855L;
+    
+    public static final String DEFAULT_SORTING_FIELD = "name";
 
     @Id
     @GeneratedValue

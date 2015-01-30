@@ -21,6 +21,8 @@ public class User implements Serializable {
 
     private static final long serialVersionUID = 8437525005838384722L;
 
+    public static final String DEFAULT_SORTING_FIELD = "username";
+
     @Id
     @GeneratedValue
     private Integer id;

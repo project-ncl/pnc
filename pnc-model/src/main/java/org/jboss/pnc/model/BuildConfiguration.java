@@ -7,6 +7,7 @@ import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Version;
+
 import java.io.Serializable;
 import java.sql.Timestamp;
 import java.time.Instant;
@@ -26,6 +27,8 @@ import java.util.Set;
 public class BuildConfiguration implements Serializable {
 
     private static final long serialVersionUID = -5890729679489304114L;
+    
+    public static final String DEFAULT_SORTING_FIELD = "name";
 
     @Id
     @GeneratedValue

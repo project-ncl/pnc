@@ -1,6 +1,6 @@
 package org.jboss.pnc.rest.provider;
 
-import java.util.List;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import javax.ejb.Stateless;
@@ -11,7 +11,7 @@ import org.jboss.pnc.model.Product;
 import org.jboss.pnc.rest.restmodel.ProductRest;
 
 @Stateless
-public class ProductProvider {
+public class ProductProvider extends BasePaginationProvider<ProductRest, Product> {
 
     private ProductRepository productRepository;
 
@@ -24,8 +24,24 @@ public class ProductProvider {
     public ProductProvider() {
     }
 
-    public List<ProductRest> getAll() {
-        return productRepository.findAll().stream().map(product -> new ProductRest(product)).collect(Collectors.toList());
+    // Needed to map the Entity into the proper REST object
+    @Override
+    public Function<? super Product, ? extends ProductRest> toRestModel() {
+        return product -> new ProductRest(product);
+    }
+
+    @Override
+    public String getDefaultSortingField() {
+        return Product.DEFAULT_SORTING_FIELD;
+    }
+
+    public Object getAll(Integer pageIndex, Integer pageSize, String field, String sorting) {
+
+        if (noPaginationRequired(pageIndex, pageSize, field, sorting)) {
+            return productRepository.findAll().stream().map(toRestModel()).collect(Collectors.toList());
+        } else {
+            return transform(productRepository.findAll(buildPageRequest(pageIndex, pageSize, field, sorting)));
+        }
     }
 
     public ProductRest getSpecific(Integer id) {
@@ -35,4 +51,5 @@ public class ProductProvider {
         }
         return null;
     }
+
 }

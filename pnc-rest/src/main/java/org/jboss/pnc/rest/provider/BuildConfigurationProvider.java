@@ -1,24 +1,25 @@
 package org.jboss.pnc.rest.provider;
 
-import com.google.common.base.Preconditions;
+import static org.jboss.pnc.rest.provider.StreamHelper.nullableStreamOf;
 
-import org.jboss.pnc.datastore.repositories.BuildConfigurationRepository;
-import org.jboss.pnc.datastore.repositories.ProjectRepository;
-import org.jboss.pnc.model.Project;
-import org.jboss.pnc.model.BuildConfiguration;
-import org.jboss.pnc.model.builder.BuildConfigurationBuilder;
-import org.jboss.pnc.rest.restmodel.BuildConfigurationRest;
+import java.util.List;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 
-import java.util.List;
-import java.util.stream.Collectors;
+import org.jboss.pnc.datastore.repositories.BuildConfigurationRepository;
+import org.jboss.pnc.datastore.repositories.ProjectRepository;
+import org.jboss.pnc.model.BuildConfiguration;
+import org.jboss.pnc.model.Project;
+import org.jboss.pnc.model.builder.BuildConfigurationBuilder;
+import org.jboss.pnc.rest.restmodel.BuildConfigurationRest;
 
-import static org.jboss.pnc.rest.provider.StreamHelper.nullableStreamOf;
+import com.google.common.base.Preconditions;
 
 @Stateless
-public class BuildConfigurationProvider {
+public class BuildConfigurationProvider extends BasePaginationProvider<BuildConfigurationRest, BuildConfiguration> {
 
     private BuildConfigurationRepository buildConfigurationRepository;
     private ProjectRepository projectRepository;
@@ -34,6 +35,26 @@ public class BuildConfigurationProvider {
     public BuildConfigurationProvider() {
     }
 
+    // Needed to map the Entity into the proper REST object
+    @Override
+    public Function<? super BuildConfiguration, ? extends BuildConfigurationRest> toRestModel() {
+        return projectConfiguration -> new BuildConfigurationRest(projectConfiguration);
+    }
+
+    @Override
+    public String getDefaultSortingField() {
+        return BuildConfiguration.DEFAULT_SORTING_FIELD;
+    }
+
+    public Object getAll(Integer pageIndex, Integer pageSize, String field, String sorting) {
+
+        if (noPaginationRequired(pageIndex, pageSize, field, sorting)) {
+            return buildConfigurationRepository.findAll().stream().map(toRestModel()).collect(Collectors.toList());
+        } else {
+            return transform(buildConfigurationRepository.findAll(buildPageRequest(pageIndex, pageSize, field, sorting)));
+        }
+    }
+
     public List<BuildConfigurationRest> getAll(Integer projectId) {
         List<BuildConfiguration> product = buildConfigurationRepository.findByProjectId(projectId);
         return nullableStreamOf(product).map(projectConfiguration -> new BuildConfigurationRest(projectConfiguration)).collect(
@@ -46,12 +67,6 @@ public class BuildConfigurationProvider {
             return new BuildConfigurationRest(projectConfiguration);
         }
         return null;
-    }
-
-    public List<BuildConfigurationRest> getAll() {
-        List<BuildConfiguration> product = buildConfigurationRepository.findAll();
-        return nullableStreamOf(product).map(projectConfiguration -> new BuildConfigurationRest(projectConfiguration)).collect(
-                Collectors.toList());
     }
 
     public Integer store(Integer projectId, BuildConfigurationRest buildConfigurationRest) {
@@ -85,12 +100,12 @@ public class BuildConfigurationProvider {
         Preconditions.checkArgument(buildConfiguration != null, "Couldn't find buildConfiguration with id "
                 + buildConfigurationId);
 
-        BuildConfiguration clonedBuildConfiguration = BuildConfigurationBuilder.newBuilder().name("_" + buildConfiguration.getName())
-                .buildScript(buildConfiguration.getBuildScript()).scmUrl(buildConfiguration.getScmUrl())
-                .scmBranch(buildConfiguration.getScmBranch()).patchesUrl(buildConfiguration.getPatchesUrl())
-                .description(buildConfiguration.getDescription()).productVersion(buildConfiguration.getProductVersion())
-                .project(buildConfiguration.getProject()).environment(buildConfiguration.getEnvironment())
-                .creationTime(buildConfiguration.getCreationTime())
+        BuildConfiguration clonedBuildConfiguration = BuildConfigurationBuilder.newBuilder()
+                .name("_" + buildConfiguration.getName()).buildScript(buildConfiguration.getBuildScript())
+                .scmUrl(buildConfiguration.getScmUrl()).scmBranch(buildConfiguration.getScmBranch())
+                .patchesUrl(buildConfiguration.getPatchesUrl()).description(buildConfiguration.getDescription())
+                .productVersion(buildConfiguration.getProductVersion()).project(buildConfiguration.getProject())
+                .environment(buildConfiguration.getEnvironment()).creationTime(buildConfiguration.getCreationTime())
                 .lastModificationTime(buildConfiguration.getLastModificationTime())
                 .repositories(buildConfiguration.getRepositories()).dependencies(buildConfiguration.getDependencies()).build();
 

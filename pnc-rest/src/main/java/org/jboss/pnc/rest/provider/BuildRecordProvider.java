@@ -1,24 +1,26 @@
 package org.jboss.pnc.rest.provider;
 
+import static org.jboss.pnc.rest.provider.StreamHelper.nullableStreamOf;
+
+import java.io.BufferedWriter;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
+import java.util.List;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
+import javax.ejb.Stateless;
+import javax.inject.Inject;
+import javax.ws.rs.core.StreamingOutput;
+
 import org.jboss.pnc.core.builder.BuildCoordinator;
 import org.jboss.pnc.core.builder.BuildTask;
 import org.jboss.pnc.datastore.repositories.BuildRecordRepository;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.rest.restmodel.BuildRecordRest;
 
-import javax.ejb.Stateless;
-import javax.inject.Inject;
-import javax.ws.rs.core.StreamingOutput;
-import java.io.BufferedWriter;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import static org.jboss.pnc.rest.provider.StreamHelper.nullableStreamOf;
-
 @Stateless
-public class BuildRecordProvider {
+public class BuildRecordProvider extends BasePaginationProvider<BuildRecordRest, BuildRecord> {
 
     private BuildRecordRepository buildRecordRepository;
     private BuildCoordinator buildCoordinator;
@@ -32,9 +34,24 @@ public class BuildRecordProvider {
         this.buildCoordinator = buildCoordinator;
     }
 
-    public List<BuildRecordRest> getAllArchived() {
-        return nullableStreamOf(buildRecordRepository.findAll()).map(buildRecord -> new BuildRecordRest(buildRecord)).collect(
-                Collectors.toList());
+    // Needed to map the Entity into the proper REST object
+    @Override
+    public Function<? super BuildRecord, ? extends BuildRecordRest> toRestModel() {
+        return buildRecord -> new BuildRecordRest(buildRecord);
+    }
+
+    @Override
+    public String getDefaultSortingField() {
+        return BuildRecord.DEFAULT_SORTING_FIELD;
+    }
+
+    public Object getAllArchived(Integer pageIndex, Integer pageSize, String field, String sorting) {
+
+        if (noPaginationRequired(pageIndex, pageSize, field, sorting)) {
+            return buildRecordRepository.findAll().stream().map(toRestModel()).collect(Collectors.toList());
+        } else {
+            return transform(buildRecordRepository.findAll(buildPageRequest(pageIndex, pageSize, field, sorting)));
+        }
     }
 
     public List<BuildRecordRest> getAllRunning() {

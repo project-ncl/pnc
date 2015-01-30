@@ -20,12 +20,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
+import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
+
 import java.lang.invoke.MethodHandles;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-
 
 @RunWith(Arquillian.class)
 public class BuildRecordsTest {
@@ -80,37 +81,37 @@ public class BuildRecordsTest {
 
     @Test
     public void shouldGetAllBuildRecords() {
-        //when
-        List<BuildRecordRest> buildRecords = buildRecordProvider.getAllArchived();
+        // when
+        List<BuildRecordRest> buildRecords = (List<BuildRecordRest>) buildRecordProvider.getAllArchived(null, null, null, null);
 
-        //then
+        // then
         assertThat(buildRecords).hasSize(1);
     }
 
     @Test
     public void shouldGetSpecificBuildResult() {
-        //when
+        // when
         BuildRecordRest buildResults = buildRecordProvider.getSpecific(buildRecordId);
 
-        //then
+        // then
         assertThat(buildResults).isNotNull();
     }
 
     @Test
     public void shouldGetLogsForSpecificBuildResult() {
-        //when
+        // when
         StreamingOutput logs = buildRecordProvider.getLogsForBuildId(buildRecordId);
 
-        //then
+        // then
         assertThat(logs).isNotNull();
     }
 
     @Test
     public void shouldGetArtifactsForSpecificBuildResult() {
-        //when
+        // when
         List<ArtifactRest> artifacts = buildArtifactProvider.getAll(buildRecordId);
 
-        //then
+        // then
         assertThat(artifacts).hasSize(1);
     }
 
