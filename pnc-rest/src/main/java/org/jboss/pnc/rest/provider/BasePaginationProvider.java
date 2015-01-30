@@ -17,7 +17,7 @@ public abstract class BasePaginationProvider<K, T> {
     public static final int MAX_PAGE_SIZE = 100;
     public static final int DEFAULT_PAGE_SIZE = 15;
 
-    public abstract Function<? super T, ? extends K> mapper();
+    public abstract Function<? super T, ? extends K> toRestModel();
 
     public abstract String getDefaultSortingField();
 
@@ -26,8 +26,10 @@ public abstract class BasePaginationProvider<K, T> {
         if (page.getContent().isEmpty()) {
             content = Collections.emptyList();
         } else {
-            content = page.getContent().stream().map(mapper()).collect(Collectors.toList());
+            content = page.getContent().stream().map(toRestModel()).collect(Collectors.toList());
         }
+
+        // We assume to be sorting by one field
         Order order = page.getSort().iterator().next();
         return new Pagination<K>(content, page.getNumberOfElements(), page.getTotalElements(), page.getNumber() + 1,
                 page.getTotalPages(), page.getSize(), order.getDirection().equals(Direction.ASC), order.getProperty());

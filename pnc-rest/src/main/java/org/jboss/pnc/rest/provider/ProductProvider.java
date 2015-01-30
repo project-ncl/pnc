@@ -24,20 +24,21 @@ public class ProductProvider extends BasePaginationProvider<ProductRest, Product
     public ProductProvider() {
     }
 
+    // Needed to map the Entity into the proper REST object
     @Override
-    public Function<? super Product, ? extends ProductRest> mapper() {
+    public Function<? super Product, ? extends ProductRest> toRestModel() {
         return product -> new ProductRest(product);
     }
 
     @Override
     public String getDefaultSortingField() {
-        return "name";
+        return Product.DEFAULT_SORTING_FIELD;
     }
 
     public Object getAll(Integer pageIndex, Integer pageSize, String field, String sorting) {
 
         if (noPaginationRequired(pageIndex, pageSize, field, sorting)) {
-            return productRepository.findAll().stream().map(mapper()).collect(Collectors.toList());
+            return productRepository.findAll().stream().map(toRestModel()).collect(Collectors.toList());
         } else {
             return transform(productRepository.findAll(buildPageRequest(pageIndex, pageSize, field, sorting)));
         }

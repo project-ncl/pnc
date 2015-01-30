@@ -35,8 +35,10 @@ public class ProductEndpoint {
 
     @ApiOperation(value = "Gets all Products")
     @GET
-    public Response getAll(@QueryParam("pageIndex") Integer pageIndex, @QueryParam("pageSize") Integer pageSize,
-            @QueryParam("sorted_by") String field, @QueryParam("sorting") String sorting) {
+    public Response getAll(@ApiParam(value = "Page index", required = false) @QueryParam("pageIndex") Integer pageIndex,
+            @ApiParam(value = "Pagination size", required = false) @QueryParam("pageSize") Integer pageSize,
+            @ApiParam(value = "Sorting field", required = false) @QueryParam("sorted_by") String field,
+            @ApiParam(value = "Sort direction", required = false) @QueryParam("sorting") String sorting) {
 
         return Response.ok(productProvider.getAll(pageIndex, pageSize, field, sorting)).build();
     }

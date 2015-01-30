@@ -3,6 +3,7 @@ package org.jboss.pnc.model;
 import javax.persistence.*;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
+
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
@@ -19,6 +20,8 @@ import java.util.Set;
 public class Project implements Serializable {
 
     private static final long serialVersionUID = -4644857058640271044L;
+
+    public static final String DEFAULT_SORTING_FIELD = "name";
 
     @Id
     @GeneratedValue

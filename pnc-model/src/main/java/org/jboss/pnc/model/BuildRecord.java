@@ -1,6 +1,7 @@
 package org.jboss.pnc.model;
 
 import javax.persistence.*;
+
 import java.io.Serializable;
 import java.sql.Timestamp;
 import java.time.Instant;
@@ -20,6 +21,8 @@ import java.util.List;
 public class BuildRecord implements Serializable {
 
     private static final long serialVersionUID = -5472083609387609797L;
+
+    public static final String DEFAULT_SORTING_FIELD = "id";
 
     @Id
     @GeneratedValue
