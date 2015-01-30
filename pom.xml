@@ -314,6 +314,12 @@
         <version>1.7.1.RELEASE</version>
       </dependency>
 
+      <dependency>
+        <groupId>org.springframework.data</groupId>
+        <artifactId>spring-data-commons</artifactId>
+        <version>1.9.2.RELEASE</version>
+      </dependency>
+
       <!-- Test dependencies -->
       <dependency>
           <groupId>junit</groupId>
