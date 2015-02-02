@@ -8,38 +8,50 @@
 
     $stateProvider
       .state('build-config', {
+        abstract: true,
         url: '/build-config',
-        templateUrl: 'scripts/build-config/build-config.html',
-        controller: 'BuildConfigCtrl'
+        views: {
+          'content@': {
+            templateUrl: 'scripts/build-config/build-config.html',
+          }
+        }
+      })
+
+      .state('build-config.product-list', {
+        url: '/product',
+        resolve: {
+          productFactory: 'Product',
+          productList: function(productFactory) {
+            return productFactory.query().$promise;
+          }
+        },
+        views: {
+          'content@build-config': {
+            templateUrl: 'scripts/build-config/build-config.product-list.html',
+            controller: 'ProductListCtrl'
+          }
+        }
+      })
+      .state('build-config.product-list.product', {
+        url: '/product/{productId:int}',
+        resolve: {
+          productFactory: 'Product',
+          productDetails: function(productFactory, $stateParams) {
+            return productFactory.get({ productId: $stateParams.productId })
+              .$promise;
+          }
+        },
+        views: {
+          'content@build-config': {
+            templateUrl: 'scripts/build-config/build-config.product.show.html',
+            controller: 'ProductCtrl'
+          }
+        }
+      })
+
+      .state('build-config.product.show.version', {
+        abstract: true
       });
-      // .when('/build-config/products', {
-      //   templateUrl: 'scripts/build-config/build-config-select.html',
-      //   controller: 'ProductCtrl'
-      // })
-      // .when('/build-config/products/:productId/version', {
-      //   templateUrl: 'scripts/build-config/build-config-select.html',
-      //   controller: 'VersionCtrl'
-      // })
-    }
-  ]);
+  }]);
+
 })();
-
-
-//   module.config(['$stateProvider', function($stateProvider) {
-//     $stateProvider.state('dashboard', {
-//       url: '',
-//       templateUrl: 'scripts/dashboard/dashboard.html',
-//       controller: 'DashboardCtrl'
-//     });
-
-
-//   var module = angular.module('pnc.Dashboard', ['ui.router']);
-
-//   module.config(['$stateProvider', function($stateProvider) {
-//     $stateProvider.state('dashboard', {
-//       url: '',
-//       templateUrl: 'scripts/dashboard/dashboard.html',
-//       controller: 'DashboardCtrl'
-//     });
-//   }]);
-// })();

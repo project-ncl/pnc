@@ -7,9 +7,12 @@
   module.config(['$stateProvider', function($stateProvider) {
     $stateProvider.state('dashboard', {
       url: '',
-      templateUrl: 'scripts/dashboard/dashboard.html',
-      controller: 'DashboardCtrl'
+      views: {
+        'content@': {
+          templateUrl: 'scripts/dashboard/dashboard.html',
+          controller: 'DashboardCtrl'
+        }
+      }
     });
   }]);
 })();
-
