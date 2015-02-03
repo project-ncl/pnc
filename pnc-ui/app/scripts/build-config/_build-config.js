@@ -13,6 +13,7 @@
         views: {
           'content@': {
             templateUrl: 'scripts/build-config/build-config.html',
+            controller: 'BuildConfigCtrl'
           }
         }
       })
@@ -33,7 +34,7 @@
         }
       })
       .state('build-config.product-list.product', {
-        url: '/product/{productId:int}',
+        url: '/{productId:int}',
         resolve: {
           productFactory: 'Product',
           productDetails: function(productFactory, $stateParams) {
@@ -49,8 +50,39 @@
         }
       })
 
-      .state('build-config.product.show.version', {
-        abstract: true
+      .state('build-config.product-list.product.version-list', {
+        url: '/version',
+        resolve: {
+          versionFactory: 'Version',
+          versionList: function(versionFactory, $stateParams) {
+            return versionFactory.query({ productId: $stateParams.productId })
+              .$promise;
+          }
+        },
+        views: {
+          'content@build-config': {
+            template: '<span></span>',
+            controller: 'VersionListCtrl'
+          }
+        }
+      })
+      .state('build-config.product-list.product.version-list.version', {
+        url: '/{versionId:int}',
+        resolve: {
+          versionFactory: 'Version',
+          versionDetails: function(versionFactory, $stateParams) {
+            return versionFactory.get({
+              productId: $stateParams.productId,
+              versionId: $stateParams.versionId
+            }).$promise;
+          }
+        },
+        views: {
+          'content@build-config': {
+            template: '<span></span>',
+            controller: 'VersionCtrl'
+          }
+        }
       });
   }]);
 

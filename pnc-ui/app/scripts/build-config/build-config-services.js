@@ -2,7 +2,7 @@
 
 (function () {
   var module = angular.module('pnc.BuildConfig');
-  
+
   var baseUrl = 'pnc-web/rest';
 
   module.factory('Product', ['$resource',
@@ -11,7 +11,7 @@
     }
   ]);
 
-  module.factory('Version', ['$resource', 
+  module.factory('Version', ['$resource',
     function($resource) {
       return $resource(baseUrl + '/product/:productId/version/:versionId', {
         productId: '@productId',
@@ -20,15 +20,16 @@
     }
   ]);
 
-  module.factory('Project', ['$resource', 
+  module.factory('Project', ['$resource',
     function($resource) {
-      return $resource(baseUrl + '/product/{productId}/version/{versionId}/project/:projectId');
+      return $resource(baseUrl + '/project/:projectId');
     }
   ]);
 
-  module.factory('Configuration', ['$resource', 
+  module.factory('Configuration', ['$resource',
     function($resource) {
-      return $resource(baseUrl + '/product/{productId}/version/:versionId/project/:projectId');
+      return $resource(baseUrl +
+        'project/:projectId/configuration/:configurationId');
     }
   ]);
 

@@ -1,0 +1,45 @@
+<style>
+.card {
+  padding:1rem;
+  padding-bottom: 0;
+  box-shadow:0 1px 2px #aaa;
+  background:white;
+  margin:0 1rem 1rem;
+  border-radius:3px;
+  //user-select:none;
+  height: 20rem;
+  overflow-y: hidden;
+}
+
+.card-internal {
+  overflow-x: hidden;
+  overflow-y: auto
+  height: 15.5rem;
+}
+
+.card-filter {
+  height:3rem;
+}
+.card table tbody tr {
+  cursor: pointer;
+}
+</style>
+<div class="card col-md-2" data-ng-if="shouldShow()">
+  <div class="card-filter">
+  <input type="text" class="form-control input-sm" placeholder="filter">
+  </div>
+  <div class="card-internal">
+  <table class="table table-condensed table-hover">
+    <thead>
+      <tr>
+        <th>{{ pncTitle }}</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr data-ng-repeat="item in pncItems" data-ng-class="{'active': isActive(item)}" data-ng-click="pncClick()(item)">
+        <td>{{ item[pncNameField] }}</td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+</div>

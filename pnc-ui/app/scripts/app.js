@@ -16,7 +16,7 @@
       $stateProvider.state('error', {
         url: '/error',
         templateUrl: 'error.html'
-      })
+      });
 
       // Redirect any unmatched URLs to the error state.
       $urlRouterProvider.otherwise('/error');

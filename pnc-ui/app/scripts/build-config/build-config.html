@@ -1,2 +1,36 @@
-<div ui-view="content">
+<style>
+.column-browser {
+  background: #d5d5d5;
+  padding-top: 1rem
+}
+</style>
+<div class="container-fluid">
+<div class="row column-browser">
+  <div data-pnc-browse-column data-pnc-title="Product"
+    data-pnc-top-level="true"
+    data-pnc-name-field="name"
+    data-pnc-items="columnBrowse.products.list"
+    data-pnc-selected="columnBrowse.products.selected"
+    data-pnc-click="columnBrowse.products.click"></div>
+<div data-pnc-browse-column data-pnc-title="Version"
+    data-pnc-items="columnBrowse.versions.list"
+    data-pnc-name-field="version"
+    data-pnc-selected="columnBrowse.versions.selected"
+    data-pnc-watch="columnBrowse.products.selected"
+    data-pnc-click="columnBrowse.versions.click"></div>
 </div>
+<div class="row" data-ui-view="content">
+
+</div>
+</div>
+
+<!--
+       pncTitle: '@',
+        pncTopLevel: '@',
+        pncIdField: '@',
+        pncNameField: '@',
+        pncItems: '=',
+        pncSelected: '=',
+        pncWatch: '=',
+        pncClick: '&'
+ -->
