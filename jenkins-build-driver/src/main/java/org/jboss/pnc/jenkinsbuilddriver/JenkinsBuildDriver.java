@@ -56,7 +56,7 @@ public class JenkinsBuildDriver implements BuildDriver {
         }
         int buildNumber = build.start();
         log.infof("Started jenkins job %s #%s.", build.getJobName(), buildNumber);
-        return new JenkinsRunningBuild(jenkinsServerFactory, jenkinsBuildMonitor, build);
+        return new JenkinsRunningBuild(repositoryConfiguration, jenkinsServerFactory, jenkinsBuildMonitor, build);
     }
 
 

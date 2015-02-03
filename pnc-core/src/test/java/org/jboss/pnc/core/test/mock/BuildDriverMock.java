@@ -2,11 +2,11 @@ package org.jboss.pnc.core.test.mock;
 
 import org.jboss.logging.Logger;
 import org.jboss.pnc.common.util.RandomUtils;
+import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildDriverStatus;
 import org.jboss.pnc.model.BuildType;
-import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.spi.builddriver.BuildDriver;
-import org.jboss.pnc.spi.builddriver.BuildResult;
+import org.jboss.pnc.spi.builddriver.BuildDriverResult;
 import org.jboss.pnc.spi.builddriver.CompletedBuild;
 import org.jboss.pnc.spi.builddriver.RunningBuild;
 import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
@@ -33,6 +33,9 @@ public class BuildDriverMock implements BuildDriver {
             log.debug("Building " + buildConfiguration);
             Thread.sleep(RandomUtils.randInt(100, 300));
             return new RunningBuild() {
+
+                RepositoryConfiguration repositoryConfiguration = new RepositoryConfigurationMock();
+
                 @Override
                 public void monitor(Consumer<CompletedBuild> onComplete, Consumer<Exception> onError) {
                     onComplete.accept(new CompletedBuild() {
@@ -41,10 +44,20 @@ public class BuildDriverMock implements BuildDriver {
                             return BuildDriverStatus.SUCCESS;
                         }
                         @Override
-                        public BuildResult getBuildResult() throws BuildDriverException {
-                            return getBuildResultMock();
+                        public BuildDriverResult getBuildResult() throws BuildDriverException {
+                            return getBuildResultMock(repositoryConfiguration);
+                        }
+
+                        @Override
+                        public RepositoryConfiguration getRepositoryConfiguration() {
+                            return repositoryConfiguration;
                         }
                     });
+                }
+
+                @Override
+                public RepositoryConfiguration getRepositoryConfiguration() {
+                    return repositoryConfiguration;
                 }
             };
         } catch (InterruptedException e) {
@@ -53,8 +66,8 @@ public class BuildDriverMock implements BuildDriver {
         }
     }
 
-    private BuildResult getBuildResultMock() {
-        return new BuildResult() {
+    private BuildDriverResult getBuildResultMock(RepositoryConfiguration repositoryConfiguration) {
+        return new BuildDriverResult() {
             @Override
             public String getBuildLog() throws BuildDriverException {
                 return "Building in workspace ... Finished: SUCCESS";
@@ -63,6 +76,11 @@ public class BuildDriverMock implements BuildDriver {
             @Override
             public BuildDriverStatus getBuildDriverStatus() throws BuildDriverException {
                 return BuildDriverStatus.SUCCESS;
+            }
+
+            @Override
+            public RepositoryConfiguration getRepositoryConfiguration() {
+                return repositoryConfiguration;
             }
         };
     }

@@ -1,9 +1,5 @@
 package org.jboss.pnc.mavenrepositorymanager;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.junit.Assert.assertThat;
-
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
@@ -20,7 +16,7 @@ import org.commonjava.maven.atlas.ident.ref.ProjectVersionRef;
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.BuildCollection;
 import org.jboss.pnc.model.BuildConfiguration;
-import org.jboss.pnc.model.BuildRecord;
+import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
 import org.jboss.pnc.spi.repositorymanager.model.RepositoryConfiguration;
 import org.junit.Test;
 
@@ -28,6 +24,10 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.junit.Assert.assertThat;
 
 public class RepositoryManagerDriver03Test 
     extends AbstractRepositoryManagerDriverTest
@@ -67,10 +67,9 @@ public class RepositoryManagerDriver03Test
             assertThat("Failed to download: " + url, downloaded, equalTo(true));
         }
 
-        BuildRecord record = new BuildRecord();
-        driver.persistArtifacts(rc, record);
+        RepositoryManagerResult repositoryManagerResult = rc.extractBuildArtifacts();
 
-        List<Artifact> deps = record.getDependencies();
+        List<Artifact> deps = repositoryManagerResult.getDependencies();
         System.out.println(deps);
 
         assertThat(deps, notNullValue());

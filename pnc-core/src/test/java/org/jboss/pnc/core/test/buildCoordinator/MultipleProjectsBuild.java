@@ -84,6 +84,10 @@ public class MultipleProjectsBuild extends ProjectBuilder {
         BuildRecord buildRecord = buildRecords.get(0);
         String buildLog = buildRecord.getBuildLog();
         Assert.assertTrue("Invalid build log.", buildLog.contains("Finished: SUCCESS"));
+
+        assertBuildArtifactsPresent(buildRecord.getBuiltArtifacts());
+        assertBuildArtifactsPresent(buildRecord.getDependencies());
     }
+
 
 }

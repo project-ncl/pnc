@@ -7,13 +7,16 @@ import org.jboss.pnc.common.util.ObjectWrapper;
 import org.jboss.pnc.jenkinsbuilddriver.JenkinsBuildDriver;
 import org.jboss.pnc.jenkinsbuilddriver.JenkinsBuildMonitor;
 import org.jboss.pnc.jenkinsbuilddriver.JenkinsServerFactory;
+import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildDriverStatus;
 import org.jboss.pnc.model.Project;
 import org.jboss.pnc.model.RepositoryType;
-import org.jboss.pnc.spi.builddriver.BuildResult;
+import org.jboss.pnc.spi.builddriver.BuildDriverResult;
 import org.jboss.pnc.spi.builddriver.CompletedBuild;
 import org.jboss.pnc.spi.builddriver.RunningBuild;
+import org.jboss.pnc.spi.repositorymanager.RepositoryManagerException;
+import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
 import org.jboss.pnc.spi.repositorymanager.model.RepositoryConfiguration;
 import org.jboss.pnc.spi.repositorymanager.model.RepositoryConnectionInfo;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
@@ -24,13 +27,14 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import javax.inject.Inject;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.logging.Logger;
-
-import javax.inject.Inject;
 
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-11-23.
@@ -116,8 +120,8 @@ public class JenkinsDriverRemoteTest {
         completed.set(false);
 
         class BuildResultWrapper {
-            private BuildResult result;
-            BuildResultWrapper(BuildResult result) {
+            private BuildDriverResult result;
+            BuildResultWrapper(BuildDriverResult result) {
                 this.result = result;
             }
         }
@@ -126,11 +130,11 @@ public class JenkinsDriverRemoteTest {
 
         mutex.tryAcquire(30, TimeUnit.SECONDS); //wait for callback to release
 
-        BuildResult buildResult = resultWrapper.result;
+        BuildDriverResult buildDriverResult = resultWrapper.result;
 
-        Assert.assertEquals(BuildDriverStatus.SUCCESS, buildResult.getBuildDriverStatus());
-        Assert.assertTrue("Incomplete build log.", buildResult.getBuildLog().contains("Building in workspace"));
-        Assert.assertTrue("Incomplete build log.", buildResult.getBuildLog().contains("Finished: SUCCESS"));
+        Assert.assertEquals(BuildDriverStatus.SUCCESS, buildDriverResult.getBuildDriverStatus());
+        Assert.assertTrue("Incomplete build log.", buildDriverResult.getBuildLog().contains("Building in workspace"));
+        Assert.assertTrue("Incomplete build log.", buildDriverResult.getBuildLog().contains("Finished: SUCCESS"));
 
         Assert.assertTrue("There was no complete callback.", completed.get());
 
@@ -148,10 +152,10 @@ public class JenkinsDriverRemoteTest {
                     return "mock-config";
                 }
 
-            @Override
-            public String getCollectionId() {
-                return "mock-collection";
-            }
+                @Override
+                public String getCollectionId() {
+                    return "mock-collection";
+                }
 
                 @Override
                 public RepositoryConnectionInfo getConnectionInfo() {
@@ -177,7 +181,32 @@ public class JenkinsDriverRemoteTest {
                         }
                     };
                 }
-            };
+
+            @Override
+            public RepositoryManagerResult extractBuildArtifacts() throws RepositoryManagerException {
+                return new RepositoryManagerResult() {
+                    @Override
+                    public List<Artifact> getBuiltArtifacts() {
+                        List<Artifact> builtArtifacts = Collections.emptyList();
+                        builtArtifacts.add(getArtifact(1));
+                        return builtArtifacts;
+                    }
+
+                    @Override
+                    public List<Artifact> getDependencies() {
+                        List<Artifact> dependencies = Collections.emptyList();
+                        dependencies.add(getArtifact(10));
+                        return dependencies;
+                    }
+                };
+            }
+            private Artifact getArtifact(int i) {
+                Artifact artifact = new Artifact();
+                artifact.setId(i);
+                artifact.setIdentifier("test" + i);
+                return artifact;
+            }
+        };
     }
 
     private BuildConfiguration getBuildConfiguration() {
