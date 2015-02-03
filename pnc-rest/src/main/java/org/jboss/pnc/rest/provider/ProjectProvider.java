@@ -1,15 +1,14 @@
 package org.jboss.pnc.rest.provider;
 
-import java.util.List;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-
-import javax.ejb.Stateless;
-import javax.inject.Inject;
-
 import org.jboss.pnc.datastore.repositories.ProjectRepository;
 import org.jboss.pnc.model.Project;
 import org.jboss.pnc.rest.restmodel.ProjectRest;
+
+import javax.ejb.Stateless;
+import javax.inject.Inject;
+import java.util.List;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import static org.jboss.pnc.rest.provider.StreamHelper.nullableStreamOf;
 
@@ -47,14 +46,14 @@ public class ProjectProvider extends BasePaginationProvider<ProjectRest, Project
         }
     }
     
-    public List<ProjectRest> getAll(Integer productId, Integer productVersionId) {
+    public List<ProjectRest> getAll(Integer productId, Integer productVersionId, String field, String sorting, String rsql) {
         List<Project> project = projectRepository.findByProductAndProductVersionId(productId, productVersionId);
         return nullableStreamOf(project).map(productVersion -> new ProjectRest(productVersion)).collect(Collectors.toList());
     }
 
     public ProjectRest getSpecific(Integer productId, Integer productVersionId, Integer projectId) {
         Project project = projectRepository
-                .findByProductAndProductVersionIdAndProjectId(productId, productVersionId, projectId);
+                .findByProductAndProductVersionIdAndProjectId(productVersionId, projectId);
         if (project != null) {
             return new ProjectRest(project);
         }

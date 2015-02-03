@@ -3,16 +3,14 @@ package org.jboss.pnc.rest.endpoint;
 import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
 import com.wordnik.swagger.annotations.ApiParam;
-
-import org.jboss.pnc.rest.restmodel.ProductVersionRest;
-import org.jboss.pnc.rest.restmodel.ProjectRest;
 import org.jboss.pnc.rest.provider.ProductVersionProvider;
 import org.jboss.pnc.rest.provider.ProjectProvider;
+import org.jboss.pnc.rest.restmodel.ProductVersionRest;
+import org.jboss.pnc.rest.restmodel.ProjectRest;
 
 import javax.inject.Inject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
-
 import java.util.List;
 
 @Api(value = "/product/{productId}/version", description = "Product Version related information")
@@ -53,8 +51,13 @@ public class ProductVersionEndpoint {
     @GET
     @Path("/{id}/project")
     public List<ProjectRest> getAllProjectsOfProductVersion(
+            @ApiParam(value = "Page index", required = false) @QueryParam("pageIndex") Integer pageIndex,
+            @ApiParam(value = "Pagination size", required = false) @QueryParam("pageSize") Integer pageSize,
+            @ApiParam(value = "Sorting field", required = false) @QueryParam("sorted_by") String field,
+            @ApiParam(value = "Sort direction", required = false) @QueryParam("sorting") String sorting,
             @ApiParam(value = "Product id", required = true) @PathParam("productId") Integer productId,
-            @ApiParam(value = "Product Version id", required = true) @PathParam("id") Integer productVersionId) {
-        return projectProvider.getAll(productId, productVersionId);
+            @ApiParam(value = "Product Version id", required = true) @PathParam("id") Integer productVersionId,
+            @ApiParam(value = "RSQL query", required = false) @QueryParam("q") String rsql) {
+        return projectProvider.getAll(productId, productVersionId, field, sorting, rsql);
     }
 }

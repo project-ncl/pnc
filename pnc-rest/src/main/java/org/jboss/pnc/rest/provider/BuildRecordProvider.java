@@ -1,7 +1,16 @@
 package org.jboss.pnc.rest.provider;
 
-import static org.jboss.pnc.rest.provider.StreamHelper.nullableStreamOf;
+import org.jboss.pnc.core.builder.BuildCoordinator;
+import org.jboss.pnc.core.builder.BuildTask;
+import org.jboss.pnc.datastore.repositories.BuildRecordRepository;
+import org.jboss.pnc.model.BuildRecord;
+import org.jboss.pnc.rest.repository.RSQLAdapter;
+import org.jboss.pnc.rest.repository.RSQLAdapterFactory;
+import org.jboss.pnc.rest.restmodel.BuildRecordRest;
 
+import javax.ejb.Stateless;
+import javax.inject.Inject;
+import javax.ws.rs.core.StreamingOutput;
 import java.io.BufferedWriter;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
@@ -9,15 +18,7 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import javax.ejb.Stateless;
-import javax.inject.Inject;
-import javax.ws.rs.core.StreamingOutput;
-
-import org.jboss.pnc.core.builder.BuildCoordinator;
-import org.jboss.pnc.core.builder.BuildTask;
-import org.jboss.pnc.datastore.repositories.BuildRecordRepository;
-import org.jboss.pnc.model.BuildRecord;
-import org.jboss.pnc.rest.restmodel.BuildRecordRest;
+import static org.jboss.pnc.rest.provider.StreamHelper.nullableStreamOf;
 
 @Stateless
 public class BuildRecordProvider extends BasePaginationProvider<BuildRecordRest, BuildRecord> {
@@ -45,12 +46,12 @@ public class BuildRecordProvider extends BasePaginationProvider<BuildRecordRest,
         return BuildRecord.DEFAULT_SORTING_FIELD;
     }
 
-    public Object getAllArchived(Integer pageIndex, Integer pageSize, String field, String sorting) {
-
+    public Object getAllArchived(Integer pageIndex, Integer pageSize, String field, String sorting, String rsqls) {
+        RSQLAdapter<BuildRecord> rsqlAdapter = RSQLAdapterFactory.fromRSQL(rsqls);
         if (noPaginationRequired(pageIndex, pageSize, field, sorting)) {
-            return buildRecordRepository.findAll().stream().map(toRestModel()).collect(Collectors.toList());
+            return buildRecordRepository.findAll(rsqlAdapter).stream().map(toRestModel()).collect(Collectors.toList());
         } else {
-            return transform(buildRecordRepository.findAll(buildPageRequest(pageIndex, pageSize, field, sorting)));
+            return transform(buildRecordRepository.findAll(rsqlAdapter, buildPageRequest(pageIndex, pageSize, field, sorting)));
         }
     }
 

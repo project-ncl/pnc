@@ -20,9 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
-import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
-
 import java.lang.invoke.MethodHandles;
 import java.util.List;
 
@@ -82,7 +80,7 @@ public class BuildRecordsTest {
     @Test
     public void shouldGetAllBuildRecords() {
         // when
-        List<BuildRecordRest> buildRecords = (List<BuildRecordRest>) buildRecordProvider.getAllArchived(null, null, null, null);
+        List<BuildRecordRest> buildRecords = (List<BuildRecordRest>) buildRecordProvider.getAllArchived(null, null, null, null, null);
 
         // then
         assertThat(buildRecords).hasSize(1);
