@@ -1,21 +1,15 @@
 package org.jboss.pnc.rest.endpoint;
 
-import javax.inject.Inject;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-
-import org.jboss.pnc.rest.provider.ProjectProvider;
-import org.jboss.pnc.rest.restmodel.ProjectRest;
-
 import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
 import com.wordnik.swagger.annotations.ApiParam;
+import org.jboss.pnc.rest.provider.ProjectProvider;
+import org.jboss.pnc.rest.restmodel.ProjectRest;
+
+import javax.inject.Inject;
+import javax.ws.rs.*;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 @Api(value = "/project", description = "Project related information")
 @Path("/project")
@@ -39,7 +33,6 @@ public class ProjectEndpoint {
             @ApiParam(value = "Pagination size", required = false) @QueryParam("pageSize") Integer pageSize,
             @ApiParam(value = "Sorting field", required = false) @QueryParam("sorted_by") String field,
             @ApiParam(value = "Sort direction", required = false) @QueryParam("sorting") String sorting) {
-
         return Response.ok(projectProvider.getAll(pageIndex, pageSize, field, sorting)).build();
     }
 
