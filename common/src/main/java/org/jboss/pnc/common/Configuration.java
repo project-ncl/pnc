@@ -54,7 +54,7 @@ public class Configuration<T extends AbstractModuleConfig> {
 
     private void readConfigurationFile() throws IOException {
 
-        String configString = IoUtils.readFileOrResource(CONFIG_SYSPROP, "pnc-config.ini", getClass().getClassLoader()); //TODO use json instead
+        String configString = IoUtils.readFileOrResource(CONFIG_SYSPROP, "pnc-config.json", getClass().getClassLoader()); //TODO use json instead
         configString = StringUtils.replaceEnv(configString);
 
         properties = new Properties();
