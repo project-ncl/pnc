@@ -49,6 +49,11 @@
       <scope>provided</scope>
     </dependency>
     
+    <dependency>
+      <groupId>javax.inject</groupId>
+      <artifactId>javax.inject</artifactId>
+    </dependency>
+    
     <!-- JClouds -->
     <dependency>
       <groupId>org.apache.jclouds</groupId>

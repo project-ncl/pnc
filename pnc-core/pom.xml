@@ -64,6 +64,12 @@
       <groupId>org.jboss</groupId>
       <artifactId>jboss-common-core</artifactId>
     </dependency>
+    
+    <dependency>
+      <groupId>org.jboss.spec.javax.ejb</groupId>
+      <artifactId>jboss-ejb-api_3.1_spec</artifactId>
+      <scope>provided</scope>
+    </dependency>
 
     <!-- Test dependencies -->
     <dependency>
