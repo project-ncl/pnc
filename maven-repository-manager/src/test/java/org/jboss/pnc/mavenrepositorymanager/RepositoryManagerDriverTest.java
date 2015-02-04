@@ -11,7 +11,6 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
@@ -28,6 +27,8 @@ import org.commonjava.aprox.test.fixture.core.CoreServerFixture;
 import org.commonjava.maven.atlas.ident.ref.ArtifactRef;
 import org.commonjava.maven.atlas.ident.ref.ProjectVersionRef;
 import org.jboss.pnc.common.Configuration;
+import org.jboss.pnc.common.json.ModuleConfigJson;
+import org.jboss.pnc.common.json.moduleconfig.MavenRepoDriverModuleConfig;
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.BuildCollection;
 import org.jboss.pnc.model.BuildConfiguration;
@@ -42,6 +43,8 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class RepositoryManagerDriverTest {
 
@@ -62,8 +65,14 @@ public class RepositoryManagerDriverTest {
         oldIni = sysprops.getProperty(Configuration.CONFIG_SYSPROP);
 
         url = fixture.getUrl();
-        File configFile = temp.newFile("pnc-config.ini");
-        FileUtils.write(configFile, "base.url=" + url);
+        File configFile = temp.newFile("pnc-config.json");
+        ModuleConfigJson moduleConfigJson =  new ModuleConfigJson("pnc-config");
+        MavenRepoDriverModuleConfig mavenRepoDriverModuleConfig = 
+                new MavenRepoDriverModuleConfig(fixture.getUrl());
+        moduleConfigJson.addConfig(mavenRepoDriverModuleConfig);
+        
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.writeValue(configFile, moduleConfigJson);
 
         sysprops.setProperty(Configuration.CONFIG_SYSPROP, configFile.getAbsolutePath());
         System.setProperties(sysprops);
@@ -80,7 +89,7 @@ public class RepositoryManagerDriverTest {
 
         System.out.println("Using base URL: " + url);
 
-        Configuration config = new Configuration(props);
+        Configuration<MavenRepoDriverModuleConfig> config = new Configuration<MavenRepoDriverModuleConfig>(props);
         driver = new RepositoryManagerDriver(config);
     }
 
