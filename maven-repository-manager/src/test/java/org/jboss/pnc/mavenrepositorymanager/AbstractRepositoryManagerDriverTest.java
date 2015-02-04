@@ -1,9 +1,13 @@
 package org.jboss.pnc.mavenrepositorymanager;
 
-import org.apache.commons.io.FileUtils;
+import java.io.File;
+import java.util.Properties;
+
 import org.commonjava.aprox.boot.BootStatus;
 import org.commonjava.aprox.test.fixture.core.CoreServerFixture;
 import org.jboss.pnc.common.Configuration;
+import org.jboss.pnc.common.json.ModuleConfigJson;
+import org.jboss.pnc.common.json.moduleconfig.MavenRepoDriverModuleConfig;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.Product;
 import org.jboss.pnc.model.ProductVersion;
@@ -13,8 +17,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.rules.TemporaryFolder;
 
-import java.io.File;
-import java.util.Properties;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class AbstractRepositoryManagerDriverTest {
 
@@ -35,8 +38,14 @@ public class AbstractRepositoryManagerDriverTest {
         oldIni = sysprops.getProperty(Configuration.CONFIG_SYSPROP);
 
         url = fixture.getUrl();
-        File configFile = temp.newFile("pnc-config.ini");
-        FileUtils.write(configFile, "base.url=" + url);
+        File configFile = temp.newFile("pnc-config.json");
+        ModuleConfigJson moduleConfigJson =  new ModuleConfigJson("pnc-config");
+        MavenRepoDriverModuleConfig mavenRepoDriverModuleConfig = 
+                new MavenRepoDriverModuleConfig(fixture.getUrl());
+        moduleConfigJson.addConfig(mavenRepoDriverModuleConfig);
+        
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.writeValue(configFile, moduleConfigJson);
 
         sysprops.setProperty(Configuration.CONFIG_SYSPROP, configFile.getAbsolutePath());
         System.setProperties(sysprops);
@@ -53,7 +62,7 @@ public class AbstractRepositoryManagerDriverTest {
 
         System.out.println("Using base URL: " + url);
 
-        Configuration config = new Configuration(props);
+        Configuration<MavenRepoDriverModuleConfig> config = new Configuration<MavenRepoDriverModuleConfig>(props);
         driver = new RepositoryManagerDriver(config);
     }
 
