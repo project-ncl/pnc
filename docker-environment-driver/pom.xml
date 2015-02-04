@@ -19,6 +19,8 @@
 
 
   <dependencies>
+  
+    <!-- Project dependencies -->
     <dependency>
       <groupId>org.jboss.pnc</groupId>
       <artifactId>pnc-model</artifactId>
@@ -27,6 +29,8 @@
       <groupId>org.jboss.pnc</groupId>
       <artifactId>pnc-spi</artifactId>
     </dependency>
+    
+    <!-- Remote dependencies -->
     <dependency>
       <groupId>org.jboss.spec</groupId>
       <artifactId>jboss-javaee-6.0</artifactId>
@@ -38,6 +42,44 @@
       <artifactId>cdi-api</artifactId>
       <scope>provided</scope>
     </dependency>
+    
+    <dependency>
+      <groupId>org.jboss.spec.javax.ejb</groupId>
+      <artifactId>jboss-ejb-api_3.1_spec</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    
+    <!-- JClouds -->
+    <dependency>
+      <groupId>org.apache.jclouds</groupId>
+      <artifactId>jclouds-core</artifactId>
+    </dependency>
+        
+    <dependency>
+      <groupId>org.apache.jclouds.labs</groupId>
+      <artifactId>docker</artifactId>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.apache.jclouds</groupId>
+      <artifactId>jclouds-compute</artifactId>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.apache.jclouds.driver</groupId>
+      <artifactId>jclouds-sshj</artifactId>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.apache.jclouds.driver</groupId>
+      <artifactId>jclouds-slf4j</artifactId>
+    </dependency>
+    
+    <dependency>
+      <groupId>com.google.guava</groupId>
+      <artifactId>guava</artifactId>
+    </dependency>
+    
   </dependencies>
 
 </project>

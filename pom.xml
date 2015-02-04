@@ -55,13 +55,14 @@
     <version.assertj-core>1.7.0</version.assertj-core>
     <version.mockito-all>1.10.8</version.mockito-all>
     <version.catch-exception>1.2.0</version.catch-exception>
-    <version.guava>13.0.1</version.guava>
+    <version.guava>17.0</version.guava>
     <version.org.apache.httpcomponents.httpclient>4.3.6</version.org.apache.httpcomponents.httpclient>
     <version.org.apache.httpcomponents.httpcore>4.3.3</version.org.apache.httpcomponents.httpcore>
     <version.org.postgresql>9.3-1102-jdbc41</version.org.postgresql>
     <version.querydsl>3.6.1</version.querydsl>
     <version.jackson>2.4.4</version.jackson>
     <version.jackson.annotations>2.4.1</version.jackson.annotations>
+    <version.jclouds>1.8.1</version.jclouds>
 
     <!-- maven-compiler-plugin -->
     <maven.compiler.target>1.8</maven.compiler.target>
@@ -329,6 +330,36 @@
         <groupId>org.springframework.data</groupId>
         <artifactId>spring-data-commons</artifactId>
         <version>1.9.2.RELEASE</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.apache.jclouds.labs</groupId>
+        <artifactId>docker</artifactId>
+        <version>${version.jclouds}</version>
+      </dependency>
+		
+      <dependency>
+        <groupId>org.apache.jclouds.driver</groupId>
+        <artifactId>jclouds-sshj</artifactId>
+        <version>${version.jclouds}</version>
+      </dependency>
+	  
+      <dependency>
+        <groupId>org.apache.jclouds</groupId>
+        <artifactId>jclouds-core</artifactId>
+        <version>${version.jclouds}</version>
+      </dependency>
+      
+      <dependency>
+        <groupId>org.apache.jclouds</groupId>
+        <artifactId>jclouds-compute</artifactId>
+        <version>${version.jclouds}</version>
+      </dependency>
+      
+      <dependency>
+        <groupId>org.apache.jclouds.driver</groupId>
+        <artifactId>jclouds-slf4j</artifactId>
+        <version>${version.jclouds}</version>
       </dependency>
 
       <!-- Test dependencies -->
