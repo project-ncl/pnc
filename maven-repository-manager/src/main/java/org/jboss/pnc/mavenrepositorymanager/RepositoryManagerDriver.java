@@ -2,44 +2,25 @@ package org.jboss.pnc.mavenrepositorymanager;
 
 import org.commonjava.aprox.client.core.Aprox;
 import org.commonjava.aprox.client.core.AproxClientException;
-import org.commonjava.aprox.client.core.module.AproxContentClientModule;
 import org.commonjava.aprox.folo.client.AproxFoloAdminClientModule;
 import org.commonjava.aprox.folo.client.AproxFoloContentClientModule;
-import org.commonjava.aprox.folo.dto.TrackedContentDTO;
-import org.commonjava.aprox.folo.dto.TrackedContentEntryDTO;
 import org.commonjava.aprox.model.core.Group;
 import org.commonjava.aprox.model.core.HostedRepository;
 import org.commonjava.aprox.model.core.StoreKey;
 import org.commonjava.aprox.model.core.StoreType;
 import org.commonjava.aprox.promote.client.AproxPromoteClientModule;
-import org.commonjava.aprox.promote.model.PromoteRequest;
-import org.commonjava.aprox.promote.model.PromoteResult;
-import org.commonjava.maven.atlas.ident.ref.ArtifactRef;
-import org.commonjava.maven.atlas.ident.util.ArtifactPathInfo;
 import org.jboss.pnc.common.Configuration;
-import org.jboss.pnc.model.Artifact;
-import org.jboss.pnc.model.ArtifactStatus;
 import org.jboss.pnc.model.BuildCollection;
 import org.jboss.pnc.model.BuildConfiguration;
-import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.ProductVersion;
 import org.jboss.pnc.model.RepositoryType;
-import org.jboss.pnc.model.builder.ArtifactBuilder;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManager;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerException;
 import org.jboss.pnc.spi.repositorymanager.model.RepositoryConfiguration;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
-
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import java.util.Properties;
 
 /**
  * Implementation of {@link RepositoryManager} that manages an <a href="https://github.com/jdcasey/aprox">AProx</a> instance to
@@ -149,200 +130,9 @@ public class RepositoryManagerDriver implements RepositoryManager {
                     e.getMessage());
         }
 
-        return new MavenRepositoryConfiguration(buildRepoId, productRepoId, new MavenRepositoryConnectionInfo(url));
+        return new MavenRepositoryConfiguration(aprox, buildRepoId, productRepoId, new MavenRepositoryConnectionInfo(url));
     }
 
-    /**
-     * Retrieve tracking report from repository manager. Add each tracked download to the dependencies of the build result. Add
-     * each tracked upload to the built artifacts of the build result. Promote uploaded artifacts to the product-level storage.
-     * Finally, clear the tracking report, and delete the hosted repository + group associated with the completed build.
-     */
-    @Override
-    // TODO move under returned object (do not use the one from model) form createRepo
-    public void persistArtifacts(RepositoryConfiguration repository, BuildRecord buildResult) throws RepositoryManagerException {
-        String buildId = repository.getId();
-
-        TrackedContentDTO report;
-        try {
-            report = aprox.module(AproxFoloAdminClientModule.class).getTrackingReport(buildId, StoreType.group, buildId);
-        } catch (AproxClientException e) {
-            throw new RepositoryManagerException("Failed to retrieve tracking report for: %s. Reason: %s", e, buildId,
-                    e.getMessage());
-        }
-
-        processUploads(report, buildResult, repository);
-        processDownloads(report, buildResult);
-
-        // clean up.
-        try {
-            aprox.module(AproxFoloAdminClientModule.class).clearTrackingRecord(buildId, StoreType.group, buildId);
-            aprox.stores().delete(StoreType.group, buildId);
-            aprox.stores().delete(StoreType.remote, buildId);
-        } catch (AproxClientException e) {
-            throw new RepositoryManagerException(
-                    "Failed to clean up build repositories / tracking information for: %s. Reason: %s", e, buildId,
-                    e.getMessage());
-        }
-    }
-
-    /**
-     * Promote all build dependencies NOT ALREADY CAPTURED to the hosted repository holding store for the shared imports, then
-     * for each dependency artifact, add its metadata to the build result.
-     * 
-     * @param report The tracking report that contains info about artifacts downloaded by the build
-     * @param buildResult The build result where dependency artifact metadata should be appended
-     * @throws RepositoryManagerException In case of a client API transport error or an error during promotion of artifacts
-     */
-    private void processDownloads(TrackedContentDTO report, BuildRecord buildResult) throws RepositoryManagerException {
-
-        AproxContentClientModule content;
-        try {
-            content = aprox.content();
-        } catch (AproxClientException e) {
-            throw new RepositoryManagerException("Failed to retrieve AProx client module. Reason: %s", e, e.getMessage());
-        }
-
-        Set<TrackedContentEntryDTO> downloads = report.getDownloads();
-        if (downloads != null) {
-            List<Artifact> deps = new ArrayList<>();
-
-            Map<StoreKey, Set<String>> toPromote = new HashMap<>();
-
-            StoreKey sharedImports = new StoreKey(StoreType.hosted, SHARED_IMPORTS_ID);
-            StoreKey sharedReleases = new StoreKey(StoreType.hosted, SHARED_RELEASES_ID);
-
-            for (TrackedContentEntryDTO download : downloads) {
-                StoreKey sk = download.getStoreKey();
-                if (!sharedImports.equals(sk) && !sharedReleases.equals(sk)) {
-                    // this has not been captured, so promote it.
-                    Set<String> paths = toPromote.get(sk);
-                    if (paths == null) {
-                        paths = new HashSet<>();
-                        toPromote.put(sk, paths);
-                    }
-
-                    paths.add(download.getPath());
-                }
-
-                String path = download.getPath();
-                ArtifactPathInfo pathInfo = ArtifactPathInfo.parse(path);
-                if (pathInfo == null) {
-                    // metadata file. Ignore.
-                    continue;
-                }
-
-                ArtifactRef aref = new ArtifactRef(pathInfo.getProjectId(), pathInfo.getType(), pathInfo.getClassifier(), false);
-
-                ArtifactBuilder artifactBuilder = ArtifactBuilder.newBuilder().checksum(download.getSha256())
-                        .deployUrl(content.contentUrl(download.getStoreKey(), download.getPath()))
-                        .filename(new File(path).getName()).identifier(aref.toString()).repoType(RepositoryType.MAVEN)
-                        .status(ArtifactStatus.BINARY_IMPORTED).buildRecord(buildResult);
-                deps.add(artifactBuilder.build());
-            }
-
-            for (Map.Entry<StoreKey, Set<String>> entry : toPromote.entrySet()) {
-                PromoteRequest req = new PromoteRequest(entry.getKey(), sharedImports, entry.getValue()).setPurgeSource(false);
-                doPromote(req);
-            }
-
-            buildResult.setDependencies(deps);
-        }
-    }
-
-    /**
-     * Promote all build output to the hosted repository holding store for the build collection to which this build belongs,
-     * then for each output artifact, add its metadata to the build result.
-     * 
-     * @param report The tracking report that contains info about artifacts uploaded (output) from the build
-     * @param buildResult The build result where output artifact metadata should be appended
-     * @param repository The AProx connection configuration containing the build- and collection-level repo id's
-     * @throws RepositoryManagerException In case of a client API transport error or an error during promotion of artifacts
-     */
-    private void processUploads(TrackedContentDTO report, BuildRecord buildResult, RepositoryConfiguration repository)
-            throws RepositoryManagerException {
-
-        AproxContentClientModule content;
-        try {
-            content = aprox.content();
-        } catch (AproxClientException e) {
-            throw new RepositoryManagerException("Failed to retrieve AProx client module. Reason: %s", e, e.getMessage());
-        }
-
-        String buildId = repository.getId();
-        String collectionId = repository.getCollectionId();
-
-        Set<TrackedContentEntryDTO> uploads = report.getUploads();
-        if (uploads != null) {
-            PromoteRequest promoteReq = new PromoteRequest(new StoreKey(StoreType.hosted, buildId), new StoreKey(
-                    StoreType.hosted, collectionId));
-
-            doPromote(promoteReq);
-
-            List<Artifact> builds = new ArrayList<>();
-
-            for (TrackedContentEntryDTO upload : uploads) {
-
-                String path = upload.getPath();
-                ArtifactPathInfo pathInfo = ArtifactPathInfo.parse(path);
-                if (pathInfo == null) {
-                    // metadata file. Ignore.
-                    continue;
-                }
-
-                ArtifactRef aref = new ArtifactRef(pathInfo.getProjectId(), pathInfo.getType(), pathInfo.getClassifier(), false);
-                content.contentUrl(StoreType.hosted, collectionId, upload.getPath());
-
-                ArtifactBuilder artifactBuilder = ArtifactBuilder.newBuilder().checksum(upload.getSha256())
-                        .deployUrl(upload.getLocalUrl()).filename(new File(path).getName()).identifier(aref.toString())
-                        .repoType(RepositoryType.MAVEN).status(ArtifactStatus.BINARY_BUILT).buildRecord(buildResult);
-
-                builds.add(artifactBuilder.build());
-            }
-
-            buildResult.setBuiltArtifacts(builds);
-        }
-    }
-
-    /**
-     * Promotes a set of artifact paths (or everything, if the path-set is missing) from a particular AProx artifact store to
-     * another, and handle the various error conditions that may arise. If the promote call fails, attempt to rollback before
-     * throwing an exception.
-     * 
-     * @param req The promotion request to process, which contains source and target store keys, and (optionally) the set of
-     *        paths to promote
-     * @throws RepositoryManagerException When either the client API throws an exception due to something unexpected in
-     *         transport, or if the promotion process results in an error.
-     */
-    private void doPromote(PromoteRequest req) throws RepositoryManagerException {
-        AproxPromoteClientModule promoter;
-        try {
-            promoter = aprox.module(AproxPromoteClientModule.class);
-        } catch (AproxClientException e) {
-            throw new RepositoryManagerException("Failed to retrieve AProx client module. Reason: %s", e, e.getMessage());
-        }
-
-        try {
-            PromoteResult result = promoter.promote(req);
-            if (result.getError() != null) {
-                String addendum = "";
-                try {
-                    PromoteResult rollback = promoter.rollback(result);
-                    if (rollback.getError() != null) {
-                        addendum = "\nROLLBACK WARNING: Promotion rollback also failed! Reason given: " + result.getError();
-                    }
-
-                } catch (AproxClientException e) {
-                    throw new RepositoryManagerException("Rollback failed for promotion of: %s. Reason: %s", e, req,
-                            e.getMessage());
-                }
-
-                throw new RepositoryManagerException("Failed to promote: %s. Reason given was: %s%s", req, result.getError(),
-                        addendum);
-            }
-        } catch (AproxClientException e) {
-            throw new RepositoryManagerException("Failed to promote: %s. Reason: %s", e, req, e.getMessage());
-        }
-    }
 
     /**
      * Create the hosted repository and group necessary to support a single build. The hosted repository holds artifacts

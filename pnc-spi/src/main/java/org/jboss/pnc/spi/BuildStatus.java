@@ -20,7 +20,7 @@ public enum BuildStatus {
     BUILD_COMPLETED_SUCCESS,
     BUILD_COMPLETED_WITH_ERROR,
 
-    COLLECTING_RESULTS,
+    COLLECTING_RESULTS_FROM_BUILD_DRIVER,
     STORING_RESULTS,
 
     /** Last build status which is set
@@ -36,5 +36,5 @@ public enum BuildStatus {
      */
     REJECTED,
 
-    SYSTEM_ERROR;
+    SYSTEM_ERROR, COLLECTING_RESULTS_FROM_REPOSITORY_NAMAGER;
 }

@@ -6,27 +6,28 @@ import org.jboss.pnc.core.RepositoryManagerFactory;
 import org.jboss.pnc.core.exception.CoreException;
 import org.jboss.pnc.core.exception.CoreExceptionWrapper;
 import org.jboss.pnc.model.BuildCollection;
+import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildDriverStatus;
 import org.jboss.pnc.model.Product;
 import org.jboss.pnc.model.ProductVersion;
-import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.RepositoryType;
+import org.jboss.pnc.spi.BuildResult;
 import org.jboss.pnc.spi.BuildStatus;
 import org.jboss.pnc.spi.builddriver.BuildDriver;
-import org.jboss.pnc.spi.builddriver.BuildResult;
+import org.jboss.pnc.spi.builddriver.BuildDriverResult;
 import org.jboss.pnc.spi.builddriver.CompletedBuild;
 import org.jboss.pnc.spi.builddriver.RunningBuild;
 import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
 import org.jboss.pnc.spi.datastore.DatastoreException;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManager;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerException;
+import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
 import org.jboss.pnc.spi.repositorymanager.model.RepositoryConfiguration;
 import org.jboss.util.graph.Edge;
 import org.jboss.util.graph.Vertex;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -55,6 +56,7 @@ public class BuildCoordinator {
 //    @Resource
 //    private ManagedThreadFactory threadFactory;
     private Executor executor = Executors.newFixedThreadPool(4); //TODO configurable
+    //TODO override executor and implement "protected void afterExecute(Runnable r, Throwable t) { }" to catch possible exceptions
 
     private RepositoryManagerFactory repositoryManagerFactory;
     private BuildDriverFactory buildDriverFactory;
@@ -147,7 +149,8 @@ public class BuildCoordinator {
         configureRepository(buildTask, repositoryManager)
                 .thenCompose(repositoryConfiguration -> buildSetUp(buildTask, buildDriver, repositoryConfiguration))
                 .thenCompose(runningBuild -> waitBuildToComplete(buildTask, runningBuild))
-                .thenCompose(completedBuild -> retrieveBuildResults(buildTask, completedBuild))
+                .thenCompose(completedBuild -> retrieveBuildDriverResults(buildTask, completedBuild))
+                .thenCompose(buildDriverResult -> retrieveRepositoryManagerResults(buildTask, buildDriverResult))
                 .handle((buildResults, e) -> storeResults(buildTask, buildResults, e));
     }
 
@@ -203,13 +206,30 @@ public class BuildCoordinator {
         return waitToCompleteFuture;
     }
 
-    private CompletionStage<BuildResult> retrieveBuildResults(BuildTask buildTask, CompletedBuild completedBuild) {
+    private CompletionStage<BuildDriverResult> retrieveBuildDriverResults(BuildTask buildTask, CompletedBuild completedBuild) {
         return CompletableFuture.supplyAsync( () ->  {
-            buildTask.setStatus(BuildStatus.COLLECTING_RESULTS);
+            buildTask.setStatus(BuildStatus.COLLECTING_RESULTS_FROM_BUILD_DRIVER);
             BuildConfiguration buildConfiguration = buildTask.getBuildConfiguration();
             try {
                 return completedBuild.getBuildResult();
             } catch (BuildDriverException e) {
+                throw new CoreExceptionWrapper(e);
+            }
+        }, executor);
+    }
+
+    private CompletionStage<BuildResult> retrieveRepositoryManagerResults(BuildTask buildTask, BuildDriverResult buildDriverResult) {
+        return CompletableFuture.supplyAsync( () ->  {
+            try {
+                buildTask.setStatus(BuildStatus.COLLECTING_RESULTS_FROM_REPOSITORY_NAMAGER);
+                if (BuildDriverStatus.SUCCESS.equals(buildDriverResult.getBuildDriverStatus())) {
+                    RepositoryConfiguration repositoryConfiguration = buildDriverResult.getRepositoryConfiguration();
+                    RepositoryManagerResult repositoryManagerResult = repositoryConfiguration.extractBuildArtifacts();
+                    return new DefaultBuildResult(buildDriverResult, repositoryManagerResult);
+                } else {
+                    return new DefaultBuildResult(buildDriverResult, null);
+                }
+            } catch (BuildDriverException | RepositoryManagerException e) {
                 throw new CoreExceptionWrapper(e);
             }
         }, executor);
@@ -222,7 +242,7 @@ public class BuildCoordinator {
                 try {
                     if (buildResult != null) {
 
-                        BuildDriverStatus buildDriverStatus = buildResult.getBuildDriverStatus();
+                        BuildDriverStatus buildDriverStatus = buildResult.getBuildDriverResult().getBuildDriverStatus();
 
                         if (buildDriverStatus == BuildDriverStatus.SUCCESS) {
                             buildTask.setStatus(BuildStatus.BUILD_COMPLETED_SUCCESS);

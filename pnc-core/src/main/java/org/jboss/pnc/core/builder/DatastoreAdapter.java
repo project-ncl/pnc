@@ -1,16 +1,20 @@
 package org.jboss.pnc.core.builder;
 
 import org.jboss.logging.Logger;
+import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildDriverStatus;
 import org.jboss.pnc.model.BuildRecord;
-import org.jboss.pnc.spi.builddriver.BuildResult;
+import org.jboss.pnc.spi.BuildResult;
+import org.jboss.pnc.spi.builddriver.BuildDriverResult;
 import org.jboss.pnc.spi.datastore.Datastore;
 import org.jboss.pnc.spi.datastore.DatastoreException;
+import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
 
 import javax.inject.Inject;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.List;
 
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-12-15.
@@ -26,14 +30,22 @@ public class DatastoreAdapter {
         this.datastore = datastore;
     }
 
-    public void storeResult(BuildTask buildTask, BuildResult completedBuild) throws DatastoreException {
+    public void storeResult(BuildTask buildTask, BuildResult buildResult) throws DatastoreException {
         try {
             BuildConfiguration buildConfiguration = buildTask.getBuildConfiguration();
+            BuildDriverResult buildDriverResult = buildResult.getBuildDriverResult();
+            RepositoryManagerResult repositoryManagerResult = buildResult.getRepositoryManagerResult();
 
             BuildRecord buildRecord = new BuildRecord();
-            buildRecord.setBuildLog(completedBuild.getBuildLog());
-            buildRecord.setStatus(completedBuild.getBuildDriverStatus());
             buildRecord.setBuildConfiguration(buildConfiguration);
+            // Build driver results
+            buildRecord.setBuildLog(buildDriverResult.getBuildLog());
+            buildRecord.setStatus(buildDriverResult.getBuildDriverStatus());
+            // Repository manager results
+            linkArtifactsWithBuildRecord(repositoryManagerResult.getBuiltArtifacts(), buildRecord);
+            buildRecord.setBuiltArtifacts(repositoryManagerResult.getBuiltArtifacts());
+            linkArtifactsWithBuildRecord(repositoryManagerResult.getDependencies(), buildRecord);
+            buildRecord.setDependencies(repositoryManagerResult.getDependencies());
             // Additional information needed for historical purpose
             buildRecord.setBuildScript(buildConfiguration.getBuildScript());
             buildRecord.setPatchesUrl(buildConfiguration.getPatchesUrl());
@@ -44,6 +56,10 @@ public class DatastoreAdapter {
         } catch (Exception e) {
             throw new DatastoreException("Error storing the result to datastore.", e);
         }
+    }
+
+    private void linkArtifactsWithBuildRecord(List<Artifact> artifacts, BuildRecord buildRecord) {
+        artifacts.forEach(a -> a.setBuildRecord(buildRecord));
     }
 
     public void storeResult(BuildTask buildTask, Throwable e) throws DatastoreException {

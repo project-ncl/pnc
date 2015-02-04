@@ -5,23 +5,26 @@ import com.offbytwo.jenkins.model.Build;
 import com.offbytwo.jenkins.model.BuildWithDetails;
 import com.offbytwo.jenkins.model.JobWithDetails;
 import org.jboss.pnc.model.BuildDriverStatus;
-import org.jboss.pnc.spi.builddriver.BuildResult;
+import org.jboss.pnc.spi.builddriver.BuildDriverResult;
 import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
+import org.jboss.pnc.spi.repositorymanager.model.RepositoryConfiguration;
 
 import java.io.IOException;
 
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-12-23.
  */
-class JenkinsBuildResult implements BuildResult {
+class JenkinsBuildResult implements BuildDriverResult {
 
     private final JenkinsServerFactory jenkinsServerFactory;
     private BuildJob buildJob;
+    private RepositoryConfiguration repositoryConfiguration;
     private BuildWithDetails jenkinsBuildDetails = null;
 
-    JenkinsBuildResult(JenkinsServerFactory jenkinsServerFactory, BuildJob buildJob) {
+    JenkinsBuildResult(JenkinsServerFactory jenkinsServerFactory, BuildJob buildJob, RepositoryConfiguration repositoryConfiguration) {
         this.jenkinsServerFactory = jenkinsServerFactory;
         this.buildJob = buildJob;
+        this.repositoryConfiguration = repositoryConfiguration;
     }
 
     @Override
@@ -61,4 +64,8 @@ class JenkinsBuildResult implements BuildResult {
         return jenkinsBuild;
     }
 
+    @Override
+    public RepositoryConfiguration getRepositoryConfiguration() {
+        return repositoryConfiguration;
+    }
 }

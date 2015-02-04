@@ -9,6 +9,7 @@ import org.jboss.pnc.core.builder.BuildTask;
 import org.jboss.pnc.core.exception.CoreException;
 import org.jboss.pnc.core.test.mock.BuildDriverMock;
 import org.jboss.pnc.core.test.mock.DatastoreMock;
+import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.BuildCollection;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.builder.EnvironmentBuilder;
@@ -65,7 +66,7 @@ public class ProjectBuilder {
         log.info("Building project " + buildConfiguration.getName());
         List<BuildStatus> receivedStatuses = new ArrayList();
 
-        int nStatusUpdates = 7;
+        int nStatusUpdates = 8;
 
         final Semaphore semaphore = new Semaphore(nStatusUpdates);
 
@@ -106,7 +107,7 @@ public class ProjectBuilder {
                 break;
             }
         }
-        Assert.assertTrue("Did not received status update for " + status + ".", received);
+        Assert.assertTrue("Did not received update for status " + status + ".", received);
     }
 
     protected class TestBuildConfig {
@@ -119,5 +120,11 @@ public class ProjectBuilder {
         }
     }
 
+
+    protected void assertBuildArtifactsPresent(List<Artifact> builtArtifacts) {
+        Assert.assertTrue("Missing built artifacts.", builtArtifacts.size() > 0);
+        Artifact artifact = builtArtifacts.get(0);
+        Assert.assertTrue("Invalid built artifact in result.", artifact.getIdentifier().startsWith("test"));
+    }
 
 }

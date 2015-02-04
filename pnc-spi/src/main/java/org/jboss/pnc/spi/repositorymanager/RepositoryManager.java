@@ -2,7 +2,6 @@ package org.jboss.pnc.spi.repositorymanager;
 
 import org.jboss.pnc.model.BuildCollection;
 import org.jboss.pnc.model.BuildConfiguration;
-import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.RepositoryType;
 import org.jboss.pnc.spi.repositorymanager.model.RepositoryConfiguration;
 
@@ -25,14 +24,5 @@ public interface RepositoryManager {
             throws RepositoryManagerException;
 
     boolean canManage(RepositoryType managerType);
-
-    /**
-     * Promote any deployed artifacts and process any uncaptured imports of input artifacts (dependencies, etc.)
-     * 
-     * @param repository Used during the build, containing input and output artifacts
-     * @param buildRecord The record of the build, to which records of deployed / input artifacts should be attached
-     * @throws RepositoryManagerException
-     */
-    void persistArtifacts(RepositoryConfiguration repository, BuildRecord buildRecord) throws RepositoryManagerException;
 
 }
