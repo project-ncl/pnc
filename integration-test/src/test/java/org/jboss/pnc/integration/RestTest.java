@@ -2,7 +2,6 @@ package org.jboss.pnc.integration;
 
 import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.path.json.JsonPath.from;
-import static org.hamcrest.Matchers.equalTo;
 import static org.jboss.pnc.integration.env.IntegrationTestEnv.getHttpPort;
 
 import java.io.IOException;
@@ -27,8 +26,6 @@ import org.slf4j.LoggerFactory;
 
 import com.jayway.restassured.http.ContentType;
 import com.jayway.restassured.response.Response;
-import com.jayway.restassured.response.ResponseBody;
-import com.jayway.restassured.response.ResponseBodyData;
 
 @RunWith(Arquillian.class)
 public class RestTest {
@@ -40,6 +37,12 @@ public class RestTest {
     private static int projectId;
     private static int configurationId;
     private static int userId;
+
+    private static Integer newProductId;
+
+    private static final String PRODUCT_BASE_REST_URI = "/pnc-web/rest/product/";
+    private static final String BUILD_CONFIGURATION_BASE_REST_URI = "/pnc-web/rest/project/%d/configuration/%d";
+    private static final String BUILD_CONFIGURATION_CLONE_REST_URI = BUILD_CONFIGURATION_BASE_REST_URI + "/clone/";
 
     @Deployment(testable = false)
     public static EnterpriseArchive deploy() {
@@ -107,8 +110,8 @@ public class RestTest {
     @InSequence(7)
     public void shouldGetSpecificBuildConfigurationAssignedToProject() {
         given().contentType(ContentType.JSON).port(getHttpPort()).when()
-                .get(String.format("/pnc-web/rest/project/%d/configuration/%d", projectId, configurationId)).then()
-                .statusCode(200).body(containsJsonAttribute("id"));
+                .get(String.format(BUILD_CONFIGURATION_BASE_REST_URI, projectId, configurationId)).then().statusCode(200)
+                .body(containsJsonAttribute("id"));
     }
 
     @Test
@@ -155,12 +158,11 @@ public class RestTest {
             logger.info("New updated file:" + rawJson);
 
             given().body(rawJson).contentType(ContentType.JSON).port(getHttpPort()).when()
-                    .put(String.format("/pnc-web/rest/project/%d/configuration/%d", projectId, configurationId)).then()
-                    .statusCode(200);
+                    .put(String.format(BUILD_CONFIGURATION_BASE_REST_URI, projectId, configurationId)).then().statusCode(200);
 
             // Reading updated resource
             Response response = given().contentType(ContentType.JSON).port(getHttpPort()).when()
-                    .get(String.format("/pnc-web/rest/project/%d/configuration/%d", projectId, configurationId));
+                    .get(String.format(BUILD_CONFIGURATION_BASE_REST_URI, projectId, configurationId));
 
             Assertions.assertThat(response.statusCode()).isEqualTo(200);
             Assertions.assertThat(response.body().jsonPath().getInt("id")).isEqualTo(configurationId);
@@ -177,32 +179,23 @@ public class RestTest {
     @InSequence(10)
     public void shouldCloneBuildConfiguration() {
 
+        String buildConfigurationRestURI = String.format(BUILD_CONFIGURATION_CLONE_REST_URI, projectId, configurationId);
         Response response = given().body("").contentType(ContentType.JSON).port(getHttpPort()).when()
-                .post(String.format("/pnc-web/rest/project/%d/configuration/%d/clone", projectId, configurationId));
+                .post(buildConfigurationRestURI);
         Assertions.assertThat(response.statusCode()).isEqualTo(201);
 
         String location = response.getHeader("Location");
         logger.info("Found location in Response header: " + location);
 
-        int lastIndexOf = location.lastIndexOf(String.format("/pnc-web/rest/project/%d/configuration/%d/clone/", projectId,
-                configurationId));
-
-        String clonedResourceURI = location.substring(lastIndexOf);
-        logger.info("ClonedResourceURI: " + clonedResourceURI);
-
-        String clonedBuildConfigurationId = clonedResourceURI.replace(
-                String.format("/pnc-web/rest/project/%d/configuration/%d/clone/", projectId, configurationId), "");
+        Integer clonedBuildConfigurationId = Integer.valueOf(location.substring(location.lastIndexOf(buildConfigurationRestURI)
+                + buildConfigurationRestURI.length()));
         logger.info("Cloned id of buildConfiguration: " + clonedBuildConfigurationId);
 
         Response originalBuildConfiguration = given().contentType(ContentType.JSON).port(getHttpPort()).when()
-                .get(String.format("/pnc-web/rest/project/%d/configuration/%d", projectId, configurationId));
+                .get(String.format(BUILD_CONFIGURATION_BASE_REST_URI, projectId, configurationId));
 
-        Response clonedBuildConfiguration = given()
-                .contentType(ContentType.JSON)
-                .port(getHttpPort())
-                .when()
-                .get(String.format("/pnc-web/rest/project/%d/configuration/%d", projectId,
-                        Integer.valueOf(clonedBuildConfigurationId)));
+        Response clonedBuildConfiguration = given().contentType(ContentType.JSON).port(getHttpPort()).when()
+                .get(String.format(BUILD_CONFIGURATION_BASE_REST_URI, projectId, clonedBuildConfigurationId));
 
         Assertions.assertThat(originalBuildConfiguration.body().jsonPath().getInt("id")).isNotEqualTo(
                 "_" + clonedBuildConfiguration.body().jsonPath().getInt("id"));
@@ -227,8 +220,7 @@ public class RestTest {
     @InSequence(11)
     public void shouldDeleteProjectConfiguration() {
         given().contentType(ContentType.JSON).port(getHttpPort()).when()
-                .delete(String.format("/pnc-web/rest/project/%d/configuration/%d", projectId, configurationId)).then()
-                .statusCode(200);
+                .delete(String.format(BUILD_CONFIGURATION_BASE_REST_URI, projectId, configurationId)).then().statusCode(200);
     }
 
     @Test
@@ -257,6 +249,63 @@ public class RestTest {
         } catch (IOException e) {
             Assertions.fail("Could not read user.json file", e);
         }
+    }
+
+    @Test
+    @InSequence(15)
+    public void shouldCreateNewProduct() {
+        try {
+            String rawJson = IoUtils.readFileOrResource("product", "product.json", getClass().getClassLoader());
+            logger.info(rawJson);
+
+            Response response = given().body(rawJson).contentType(ContentType.JSON).port(getHttpPort()).when()
+                    .post("/pnc-web/rest/product/");
+            Assertions.assertThat(response.statusCode()).isEqualTo(201);
+
+            String location = response.getHeader("Location");
+            logger.info("Found location in Response header: " + location);
+
+            newProductId = Integer.valueOf(location.substring(location.lastIndexOf(PRODUCT_BASE_REST_URI)
+                    + PRODUCT_BASE_REST_URI.length()));
+
+            logger.info("Created id of product: " + newProductId);
+
+        } catch (IOException e) {
+            Assertions.fail("Could not read product.json file", e);
+        }
+    }
+
+    @Test
+    @InSequence(16)
+    public void shouldUpdateProduct() {
+
+        logger.info("### newProductId: " + newProductId);
+
+        Response response = given().contentType(ContentType.JSON).port(getHttpPort()).when()
+                .get(String.format("/pnc-web/rest/product/%d", newProductId));
+
+        Assertions.assertThat(response.statusCode()).isEqualTo(200);
+        Assertions.assertThat(response.body().jsonPath().getInt("id")).isEqualTo(newProductId);
+        Assertions.assertThat(response.body().jsonPath().getString("name ")).isEqualTo(
+                "JBoss Enterprise Application Platform 6");
+
+        String rawJson = response.body().jsonPath().prettyPrint();
+        rawJson = rawJson.replace("JBoss Enterprise Application Platform 6", "JBoss Enterprise Application Platform 7");
+
+        logger.info("### rawJson: " + response.body().jsonPath().prettyPrint());
+
+        given().body(rawJson).contentType(ContentType.JSON).port(getHttpPort()).when()
+                .put(String.format("/pnc-web/rest/product/%d", newProductId)).then().statusCode(200);
+
+        // Reading updated resource
+        Response updateResponse = given().contentType(ContentType.JSON).port(getHttpPort()).when()
+                .get(String.format("/pnc-web/rest/product/%d", newProductId));
+
+        Assertions.assertThat(updateResponse.statusCode()).isEqualTo(200);
+        Assertions.assertThat(updateResponse.body().jsonPath().getInt("id")).isEqualTo(newProductId);
+        Assertions.assertThat(updateResponse.body().jsonPath().getString("name")).isEqualTo(
+                "JBoss Enterprise Application Platform 7");
+
     }
 
     private CustomMatcher<String> containsJsonAttribute(String jsonAttribute, Consumer<String>... actionWhenMatches) {
