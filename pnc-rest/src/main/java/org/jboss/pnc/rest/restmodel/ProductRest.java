@@ -1,8 +1,13 @@
 package org.jboss.pnc.rest.restmodel;
 
+import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.Product;
+import org.jboss.pnc.model.Project;
+import org.jboss.pnc.model.builder.BuildConfigurationBuilder;
+import org.jboss.pnc.model.builder.ProductBuilder;
 
 import javax.xml.bind.annotation.XmlRootElement;
+
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -60,5 +65,12 @@ public class ProductRest {
 
     public void setProductVersionIds(List<Integer> productVersionIds) {
         this.productVersionIds = productVersionIds;
+    }
+
+    public Product getProduct(ProductRest productRest) {
+        ProductBuilder builder = ProductBuilder.newBuilder();
+        builder.name(productRest.getName());
+        builder.description(productRest.getDescription());
+        return builder.build();
     }
 }

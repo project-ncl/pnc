@@ -1,15 +1,18 @@
 package org.jboss.pnc.rest.provider;
 
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
+import javax.ejb.Stateless;
+import javax.inject.Inject;
+
 import org.jboss.pnc.datastore.repositories.ProductRepository;
 import org.jboss.pnc.model.Product;
 import org.jboss.pnc.rest.repository.RSQLAdapter;
 import org.jboss.pnc.rest.repository.RSQLAdapterFactory;
 import org.jboss.pnc.rest.restmodel.ProductRest;
 
-import javax.ejb.Stateless;
-import javax.inject.Inject;
-import java.util.function.Function;
-import java.util.stream.Collectors;
+import com.google.common.base.Preconditions;
 
 @Stateless
 public class ProductProvider extends BasePaginationProvider<ProductRest, Product> {
@@ -51,6 +54,24 @@ public class ProductProvider extends BasePaginationProvider<ProductRest, Product
             return new ProductRest(product);
         }
         return null;
+    }
+
+    public Integer store(ProductRest productRest) {
+        Product product = productRest.getProduct(productRest);
+        product = productRepository.save(product);
+        return product.getId();
+    }
+
+    public Integer update(ProductRest productRest) {
+        Product product = productRepository.findOne(productRest.getId());
+        Preconditions.checkArgument(product != null, "Couldn't find product with id " + productRest.getId());
+
+        // Applying the changes
+        product.setName(productRest.getName());
+        product.setDescription(productRest.getDescription());
+
+        product = productRepository.saveAndFlush(product);
+        return product.getId();
     }
 
 }
