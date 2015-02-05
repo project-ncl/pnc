@@ -115,8 +115,12 @@
           <li>
             <a ui-sref="dashboard" href>Dashboard</a>
           </li>
-          <li>
-            <a ui-sref="build-config.product-list" href>Build Config</a>
+          <li class="dropdown">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Build Config<span class="caret"></span></a>
+              <ul class="dropdown-menu" role="menu">
+                <li><a href ui-sref="build-config.product-list">Products</a></li>
+                <li><a href class="disabled"S>Projects</a></li>
+             </ul>
           </li>
         </ul>
       </div>
