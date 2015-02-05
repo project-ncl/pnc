@@ -92,6 +92,9 @@
       var versionCol = newColumn(
         function(version) {
           console.log('versionCol >> selected: %O', version);
+            $state.go('build-config.product.show.version.show', {
+              versionId: version.id,
+              productId: productCol.selected.id });
         },
         function() {
           console.log('versionCol.updateList >> productCol = %O', productCol);
@@ -137,14 +140,16 @@
   ]);
 
   module.controller('VersionCtrl',
-    ['$scope', '$stateParams', '$state', 'versionDetails',
-    function ($scope, $stateParams, $state, versionDetails) {
+    ['$scope', '$stateParams', '$state', 'productDetails', 'versionDetails',
+    function ($scope, $stateParams, $state, productDetails, versionDetails) {
       console.log('VersionCtrl::versionDetails=%O', versionDetails);
       console.log('VersionCtrl::$stateParams=%O', $stateParams);
       console.log('VersionCtrl::$state=%O', $state);
       console.log('VersionCtrl::$scope=%O', $scope);
+      $scope.product = productDetails;
       $scope.version = versionDetails;
+      $scope.columnBrowse.products.setSelected(productDetails);
+      $scope.columnBrowse.versions.setSelected(versionDetails);
     }
   ]);
-
 })();

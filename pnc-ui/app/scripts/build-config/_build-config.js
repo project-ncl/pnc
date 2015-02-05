@@ -49,8 +49,9 @@
         }
       })
 
-      .state('build-config.product-list.product.version-list', {
+      .state('build-config.product.show.version', {
         url: '/version',
+        abstract: true/*,
         resolve: {
           versionFactory: 'Version',
           versionList: function(versionFactory, $stateParams) {
@@ -63,9 +64,9 @@
             template: '<span></span>',
             controller: 'VersionListCtrl'
           }
-        }
+        }*/
       })
-      .state('build-config.product-list.product.version-list.version', {
+      .state('build-config.product.show.version.show', {
         url: '/{versionId:int}',
         resolve: {
           versionFactory: 'Version',
@@ -78,7 +79,7 @@
         },
         views: {
           'content@build-config': {
-            template: '<span></span>',
+            templateUrl: 'scripts/build-config/build-config.product.show.version.show.html',
             controller: 'VersionCtrl'
           }
         }
