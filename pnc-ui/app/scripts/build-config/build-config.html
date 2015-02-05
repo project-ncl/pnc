@@ -1,36 +1,61 @@
 <style>
 .column-browser {
-  background: #d5d5d5;
-  padding-top: 1rem
+  background: #d9d9d9;
+  padding-top: 1rem;
 }
 </style>
+
 <div class="container-fluid">
-<div class="row column-browser">
-  <div data-pnc-browse-column data-pnc-title="Product"
-    data-pnc-top-level="true"
-    data-pnc-name-field="name"
-    data-pnc-items="columnBrowse.products.list"
-    data-pnc-selected="columnBrowse.products.selected"
-    data-pnc-click="columnBrowse.products.click"></div>
-<div data-pnc-browse-column data-pnc-title="Version"
-    data-pnc-items="columnBrowse.versions.list"
-    data-pnc-name-field="version"
-    data-pnc-selected="columnBrowse.versions.selected"
-    data-pnc-watch="columnBrowse.products.selected"
-    data-pnc-click="columnBrowse.versions.click"></div>
-</div>
-<div class="row" data-ui-view="content">
 
-</div>
-</div>
+  <!-- Column Browser -->
+  <div class="row column-browser">
+    <div class="col-lg-12 col-sm-push-3 col-md-push-2">
+      <div data-pnc-browse-column data-pnc-title="Product"
+        data-pnc-top-level="true"
+        data-pnc-name-field="name"
+        data-pnc-items="columnBrowse.products.list"
+        data-pnc-selected="columnBrowse.products.selected"
+        data-pnc-click="columnBrowse.products.click">
+      </div>
+      <div data-pnc-browse-column data-pnc-title="Version"
+        data-pnc-items="columnBrowse.versions.list"
+        data-pnc-name-field="version"
+        data-pnc-selected="columnBrowse.versions.selected"
+        data-pnc-watch="columnBrowse.products.selected"
+        data-pnc-click="columnBrowse.versions.click">
+      </div>
+    </div>
+  </div>
+  <!-- /Column Browser -->
+  <div class="row">
+    <div class="col-sm-9 col-md-10 col-sm-push-3 col-md-push-2">
+      <div class="row">
+        <div class="col-md-12" data-ui-view="content">
+        </div>
+      </div>
+    </div>
 
-<!--
-       pncTitle: '@',
-        pncTopLevel: '@',
-        pncIdField: '@',
-        pncNameField: '@',
-        pncItems: '=',
-        pncSelected: '=',
-        pncWatch: '=',
-        pncClick: '&'
- -->
+
+<!-- Sidebar -->
+<!--     <div class="col-sm-3 col-md-2 col-sm-pull-9 col-md-pull-10 sidebar-pf sidebar-pf-left">
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <h4 class="panel-title">Actions</h4>
+        </div>
+        <div class="panel-body">
+          <ul class="nav nav-pills nav-stacked">
+            <li><a href>Build</a></li>
+            <li><a href>Edit</a></li>
+            <li><a href>Clone</a></li>
+            <li><a href>Delete</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div> --><!-- /col -->
+
+
+
+  </div>
+</div>

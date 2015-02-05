@@ -1,8 +1,5 @@
-<div class="container-fluid">
-  <div class="row">
-    <div class="col-md-12">
-      <h1>Products</h1>
-    </div>
+  <div class="col-md-12">
+    <h1>Products</h1>
   </div>
   <div class="row">
     <div class="col-md-6">
@@ -12,7 +9,7 @@
           <th>Description</th>
         </thead>
         <tbody style="cursor: pointer;">
-          <tr ng-repeat="product in products" ng-click="navigate(product)">
+          <tr ng-repeat="product in products" ng-click="columnBrowse.products.click(product)">
             <td>{{ product.name }}</td>
             <td>{{ product.description }}</td>
           </tr>
@@ -20,4 +17,4 @@
       </table>
     </div>
   </div>
-</div>
+

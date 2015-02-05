@@ -30,6 +30,16 @@
           list: [],
           selected: null,
 
+          setSelected: function(item) {
+            var that = this;
+            (function() {
+              that.selected = item;
+              if (that.child) {
+                that.child.updateList();
+              }
+            })();
+          },
+
           clearSelected: function() {
             var that = this;
             (function() {
@@ -50,10 +60,10 @@
 
         newCol.click = function(clickedItem) {
           console.log('Click >> clickedItem: %O', clickedItem);
-          newCol.selected = clickedItem;
-          if (newCol.child) {
-            newCol.child.updateList();
-          }
+          // newCol.selected = clickedItem;
+          // if (newCol.child) {
+          //   newCol.child.updateList();
+          // }
           navigateFn(clickedItem);
         };
 
@@ -104,16 +114,9 @@
   ]);
 
   module.controller('ProductListCtrl',
-    ['$scope', '$state', '$stateParams', 'productList',
-    function($scope, $state, $stateParams, productList) {
-      console.log('currentProduct=%O', $scope.currentProduct);
+    ['$scope','productList',
+    function($scope, productList) {
       $scope.products = productList;
-      $scope.navigate = function(product) {
-        $state.go('build-config.product-list.product',
-          { productId: product.id });
-      };
-
-      console.log('ProductListCtrl::productList=%O', productList);
     }
   ]);
 
@@ -121,6 +124,7 @@
     function ($scope, $stateParams, productDetails) {
       console.log('ProductCtrl::productDetails=%O', productDetails);
       $scope.product = productDetails;
+      $scope.columnBrowse.products.setSelected(productDetails);
     }
   ]);
 
