@@ -8,6 +8,21 @@
     ['$scope', '$state', 'Product', 'Version',
     function($scope, $state, Product, Version) {
 
+      /* Creates new column object for use with the column-browse-column
+       * directive the column browse UI element directive. The object will
+       * be wired up so as to automatically keep child and parent objects
+       * in sync.
+       *
+       * param: navigateFn - a function which should navigate to the
+       *        desired UI state when an item in the column is clicked.
+       *        The function will be passed the clicked item as the sole
+       *        parameter.
+       *
+       * param: updateListFn - a function that should return the list of
+       *         items to display.
+       *
+       * param: parent - the column's parent column.
+       */
       var newColumn = function(navigateFn, updateListFn, parent) {
         var columnPrototype = {
           parent: null,
@@ -50,6 +65,12 @@
         return newCol;
       };
 
+
+
+      /*
+       * Create columns for GUI.
+       */
+
       var productCol = newColumn(
         function(product) {
           $state.go('build-config.product-list.product', {
@@ -62,21 +83,24 @@
 
       var versionCol = newColumn(
         function(version) {
-          console.log('VersionColumn >> selected: %O', version);
+          console.log('versionCol >> selected: %O', version);
         },
         function() {
-          console.log('productCol = %O', productCol);
+          console.log('versionCol.updateList >> productCol = %O', productCol);
           return Version.query({ productId:
             productCol.selected.id });
         },
         productCol
       );
 
+      // Add columns to scope so can be accessed in the view and
+      // from inherriting controllers.
       $scope.columnBrowse = {
         products: productCol,
         versions: versionCol
       }
 
+      // Initialise the first column with values.
       $scope.columnBrowse.products.updateList();
     }
   ]);
