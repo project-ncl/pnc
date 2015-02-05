@@ -65,15 +65,13 @@
         return newCol;
       };
 
-
-
       /*
        * Create columns for GUI.
        */
 
       var productCol = newColumn(
         function(product) {
-          $state.go('build-config.product-list.product', {
+          $state.go('build-config.product.show', {
             productId: product.id });
         },
         function() {

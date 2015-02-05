@@ -17,8 +17,7 @@
           }
         }
       })
-
-      .state('build-config.product-list', {
+      .state('build-config.product', {
         url: '/product',
         resolve: {
           productFactory: 'Product',
@@ -28,12 +27,12 @@
         },
         views: {
           'content@build-config': {
-            templateUrl: 'scripts/build-config/build-config.product-list.html',
+            templateUrl: 'scripts/build-config/build-config.product.html',
             controller: 'ProductListCtrl'
           }
         }
       })
-      .state('build-config.product-list.product', {
+      .state('build-config.product.show', {
         url: '/{productId:int}',
         resolve: {
           productFactory: 'Product',
