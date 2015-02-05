@@ -708,11 +708,6 @@
 
     <plugins>
       <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-enforcer-plugin</artifactId>
-      </plugin>
-
-      <plugin>
         <!--
           Generated javaagent line if often included in some test via filtering. This is why it needs to be executed
           before actual filtering occurs
