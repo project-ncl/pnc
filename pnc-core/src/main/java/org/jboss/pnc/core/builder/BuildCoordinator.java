@@ -211,7 +211,14 @@ public class BuildCoordinator {
             buildTask.setStatus(BuildStatus.COLLECTING_RESULTS_FROM_BUILD_DRIVER);
             BuildConfiguration buildConfiguration = buildTask.getBuildConfiguration();
             try {
-                return completedBuild.getBuildResult();
+                BuildDriverResult buildResult = completedBuild.getBuildResult();
+                BuildDriverStatus buildDriverStatus = buildResult.getBuildDriverStatus();
+                if (buildDriverStatus == BuildDriverStatus.SUCCESS) {
+                    buildTask.setStatus(BuildStatus.BUILD_COMPLETED_SUCCESS);
+                } else {
+                    buildTask.setStatus(BuildStatus.BUILD_COMPLETED_WITH_ERROR);
+                }
+                return buildResult;
             } catch (BuildDriverException e) {
                 throw new CoreExceptionWrapper(e);
             }
@@ -239,26 +246,13 @@ public class BuildCoordinator {
         return CompletableFuture.supplyAsync( () ->  {
             boolean completedOk = false;
             try {
-                try {
-                    if (buildResult != null) {
-
-                        BuildDriverStatus buildDriverStatus = buildResult.getBuildDriverResult().getBuildDriverStatus();
-
-                        if (buildDriverStatus == BuildDriverStatus.SUCCESS) {
-                            buildTask.setStatus(BuildStatus.BUILD_COMPLETED_SUCCESS);
-                        } else {
-                            buildTask.setStatus(BuildStatus.BUILD_COMPLETED_WITH_ERROR);
-                        }
-                        buildTask.setStatus(BuildStatus.STORING_RESULTS);
-                        datastoreAdapter.storeResult(buildTask, buildResult);
-                        completedOk = true;
-                    } else {
-                        datastoreAdapter.storeResult(buildTask, e);
-                        completedOk = false;
-                    }
-                } catch (BuildDriverException bde) {
-                    buildTask.setStatusDescription("Error retrieving build results.");
-                    datastoreAdapter.storeResult(buildTask, bde);
+                if (buildResult != null) {
+                    buildTask.setStatus(BuildStatus.STORING_RESULTS);
+                    datastoreAdapter.storeResult(buildTask, buildResult);
+                    completedOk = true;
+                } else {
+                    datastoreAdapter.storeResult(buildTask, e);
+                    completedOk = false;
                 }
             } catch (DatastoreException de) {
                 log.errorf(e, "Error storing results of build configuration: %s to datastore.", buildTask.getId());
