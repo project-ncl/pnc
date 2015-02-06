@@ -1,17 +1,15 @@
 package org.jboss.pnc.rest.restmodel;
 
-import org.jboss.pnc.model.BuildConfiguration;
-import org.jboss.pnc.model.Product;
-import org.jboss.pnc.model.Project;
-import org.jboss.pnc.model.builder.BuildConfigurationBuilder;
-import org.jboss.pnc.model.builder.ProductBuilder;
-
-import javax.xml.bind.annotation.XmlRootElement;
+import static org.jboss.pnc.rest.provider.StreamHelper.nullableStreamOf;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.jboss.pnc.rest.provider.StreamHelper.nullableStreamOf;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
+
+import org.jboss.pnc.model.Product;
+import org.jboss.pnc.model.builder.ProductBuilder;
 
 @XmlRootElement(name = "Product")
 public class ProductRest {
@@ -31,7 +29,7 @@ public class ProductRest {
         this.id = product.getId();
         this.name = product.getName();
         this.description = product.getDescription();
-        productVersionIds = nullableStreamOf(product.getProductVersions()).map(productVersion -> productVersion.getId())
+        this.productVersionIds = nullableStreamOf(product.getProductVersions()).map(productVersion -> productVersion.getId())
                 .collect(Collectors.toList());
     }
 
@@ -67,6 +65,7 @@ public class ProductRest {
         this.productVersionIds = productVersionIds;
     }
 
+    @XmlTransient
     public Product getProduct(ProductRest productRest) {
         ProductBuilder builder = ProductBuilder.newBuilder();
         builder.name(productRest.getName());
