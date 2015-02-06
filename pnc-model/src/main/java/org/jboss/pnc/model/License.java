@@ -8,6 +8,8 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 
+import org.hibernate.annotations.Type;
+
 /**
  * The Class License maps the different licenses to be linked to the projects, i.e. APACHE 2.0, MIT, GLPL, etc
  */
@@ -16,12 +18,15 @@ public class License implements Serializable {
 
     private static final long serialVersionUID = 8893552998204511626L;
 
+    public static final String DEFAULT_SORTING_FIELD = "shortName";
+
     @Id
     @GeneratedValue
     private Integer id;
 
     private String fullName;
 
+    @Type(type = "org.hibernate.type.TextType")
     private String fullContent;
 
     private String refUrl;
