@@ -2,10 +2,10 @@ package org.jboss.pnc.rest.provider;
 
 import org.jboss.pnc.core.builder.BuildCoordinator;
 import org.jboss.pnc.core.builder.BuildTask;
+import org.jboss.pnc.datastore.predicates.RSQLPredicateProducer;
 import org.jboss.pnc.datastore.repositories.BuildRecordRepository;
 import org.jboss.pnc.model.BuildRecord;
-import org.jboss.pnc.rest.repository.RSQLAdapter;
-import org.jboss.pnc.rest.repository.RSQLAdapterFactory;
+import org.jboss.pnc.datastore.predicates.rsql.RSQLPredicate;
 import org.jboss.pnc.rest.restmodel.BuildRecordRest;
 
 import javax.ejb.Stateless;
@@ -47,11 +47,11 @@ public class BuildRecordProvider extends BasePaginationProvider<BuildRecordRest,
     }
 
     public Object getAllArchived(Integer pageIndex, Integer pageSize, String field, String sorting, String rsqls) {
-        RSQLAdapter<BuildRecord> rsqlAdapter = RSQLAdapterFactory.fromRSQL(rsqls);
+        RSQLPredicate<BuildRecord> rsqlPredicate = RSQLPredicateProducer.fromRSQL(BuildRecord.class, rsqls);
         if (noPaginationRequired(pageIndex, pageSize, field, sorting)) {
-            return buildRecordRepository.findAll(rsqlAdapter).stream().map(toRestModel()).collect(Collectors.toList());
+            return nullableStreamOf(buildRecordRepository.findAll(rsqlPredicate.toPredicate())).map(toRestModel()).collect(Collectors.toList());
         } else {
-            return transform(buildRecordRepository.findAll(rsqlAdapter, buildPageRequest(pageIndex, pageSize, field, sorting)));
+            return transform(buildRecordRepository.findAll(rsqlPredicate.toPredicate(), buildPageRequest(pageIndex, pageSize, field, sorting)));
         }
     }
 

@@ -90,10 +90,6 @@
       <groupId>org.springframework.data</groupId>
       <artifactId>spring-data-commons</artifactId>
     </dependency>
-    <dependency>
-      <groupId>cz.jirutka.rsql</groupId>
-      <artifactId>rsql-parser</artifactId>
-    </dependency>
 
     <!-- Test dependencies -->
     <dependency>
@@ -102,21 +98,12 @@
       <scope>test</scope>
     </dependency>
 
-    <!-- Transitive dependencies for RSQL/Datastore adapter -->
+    <!-- Transitive dependencies to make enforcer happy -->
     <dependency>
-      <groupId>org.springframework.data</groupId>
-      <artifactId>spring-data-jpa</artifactId>
+      <groupId>com.mysema.querydsl</groupId>
+      <artifactId>querydsl-core</artifactId>
     </dependency>
-    <dependency>
-      <groupId>org.hibernate.javax.persistence</groupId>
-      <artifactId>hibernate-jpa-2.0-api</artifactId>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-api</artifactId>
-    </dependency>
-    <!-- /Transitive dependencies for RSQL/Datastore adapter -->
+    <!-- /Transitive dependencies to make enforcer happy -->
 
   </dependencies>
 

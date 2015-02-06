@@ -5,10 +5,10 @@ import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.transaction.api.annotation.TransactionMode;
 import org.jboss.arquillian.transaction.api.annotation.Transactional;
+import org.jboss.pnc.datastore.predicates.RSQLPredicateProducer;
 import org.jboss.pnc.datastore.repositories.UserRepository;
 import org.jboss.pnc.integration.deployments.Deployments;
 import org.jboss.pnc.model.User;
-import org.jboss.pnc.rest.repository.RSQLAdapterFactory;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.junit.Test;
@@ -19,8 +19,10 @@ import org.slf4j.LoggerFactory;
 import javax.inject.Inject;
 import java.lang.invoke.MethodHandles;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.jboss.pnc.rest.provider.StreamHelper.nullableStreamOf;
 
 @RunWith(Arquillian.class)
 @Transactional(TransactionMode.ROLLBACK)
@@ -90,7 +92,7 @@ public class RSQLTest {
     }
 
     private List<User> selectUsers(String rsqlQuery) throws RSQLParserException {
-        return userRepository.findAll(RSQLAdapterFactory.fromRSQL(rsqlQuery));
+        return nullableStreamOf(userRepository.findAll(RSQLPredicateProducer.fromRSQL(User.class, rsqlQuery).toPredicate())).collect(Collectors.toList());
     }
 
 }

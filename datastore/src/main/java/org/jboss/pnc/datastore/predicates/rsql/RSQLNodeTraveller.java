@@ -1,4 +1,4 @@
-package org.jboss.pnc.rest.repository;
+package org.jboss.pnc.datastore.predicates.rsql;
 
 import cz.jirutka.rsql.parser.ast.*;
 
