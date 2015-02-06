@@ -14,8 +14,8 @@ import javax.ws.rs.core.Response;
 import java.lang.invoke.MethodHandles;
 import java.util.List;
 
-@Api(value = "/result/running", description = "Results for running builds")
-@Path("/result/running")
+@Api(value = "/record/running", description = "Build Records for running builds")
+@Path("/record/running")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 public class RunningBuildRecordEndpoint {
@@ -38,19 +38,17 @@ public class RunningBuildRecordEndpoint {
         return buildRecordProvider.getAllRunning();
     }
 
-    @ApiOperation(value = "Gets specific Build Collection")
+    @ApiOperation(value = "Gets specific running Build Record")
     @GET
     @Path("/{id}")
-    public BuildRecordRest getSpecific(
-            @ApiParam(value = "BuildRecord id", required = true) @PathParam("id") Integer id) {
+    public BuildRecordRest getSpecific(@ApiParam(value = "BuildRecord id", required = true) @PathParam("id") Integer id) {
         return buildRecordProvider.getSpecificRunning(id);
     }
 
-    @ApiOperation(value = "Gets specific Build Collection")
+    @ApiOperation(value = "Gets specific log of a Running Build Record")
     @GET
     @Path("/{id}/log")
-    public Response getLogs(
-            @ApiParam(value = "BuildRecord id", required = true) @PathParam("id") Integer id) {
+    public Response getLogs(@ApiParam(value = "BuildRecord id", required = true) @PathParam("id") Integer id) {
         return Response.ok(buildRecordProvider.getLogsForRunningBuildId(id)).build();
     }
 }

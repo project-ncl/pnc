@@ -11,8 +11,8 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-@Api(value = "/result", description = "Results of building process")
-@Path("/result")
+@Api(value = "/record", description = "Records of building process")
+@Path("/record")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 public class BuildRecordEndpoint {
@@ -50,4 +50,10 @@ public class BuildRecordEndpoint {
     public Response getLogs(@ApiParam(value = "BuildRecord id", required = true) @PathParam("id") Integer id) {
         return Response.ok(buildRecordProvider.getLogsForBuildId(id)).build();
     }
+
+    /**
+     * TODO avibelli - (need to wait for additional fields in BuildRecord)
+     * 
+     * GET /record/configuration/{configurationId} Gets the Build Records triggered by a specific Build Configuration
+     */
 }

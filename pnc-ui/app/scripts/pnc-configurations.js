@@ -37,7 +37,7 @@ $(document).ready(function() {
 
   $.when(
      $.ajax({
-         url: PNC_REST_BASE_URL + '/result',
+         url: PNC_REST_BASE_URL + '/record',
          method: 'GET',
          success: function (data) {
            console.log('Querying for existing builds, result: %O', data);
@@ -155,7 +155,7 @@ $(document).ready(function() {
   }
 
   function getBuildStatusPromise(configId) {
-    return $.get(PNC_REST_BASE_URL + '/result/running/' + configId)
+    return $.get(PNC_REST_BASE_URL + '/record/running/' + configId)
       .fail( function (data, text, xhr) {
         throw new Error('Error in HTTP request getting build status xhr=' + xhr);
       });
