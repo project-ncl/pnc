@@ -5,33 +5,135 @@
 
   var baseUrl = 'pnc-web/rest';
 
-  module.factory('Product', ['$resource',
+  module.factory('PncRestClient', ['$resource',
     function($resource) {
-      return $resource(baseUrl + '/product/:productId');
+      return {
+
+        Product: function($resource) {
+          return $resource(baseUrl + '/product/:productId');
+        },
+
+        Version: function($resource) {
+          return $resource(baseUrl + '/product/:productId/version/:versionId', {
+            productId: '@productId',
+            versionId: '@versionId'
+          },{
+            getProjects: {
+              method: 'GET',
+              params: {
+                productId: '@productId',
+                versionId: '@versionId'
+              },
+              url: 'bleh',
+              isArray: true
+            }
+          });
+        },
+
+        Project: function($resource) {
+          return $resource(baseUrl + '/project/:projectId');
+        },
+
+        Configuration: function($resource) {
+          return null;
+        }
+      };
     }
   ]);
 
-  module.factory('Version', ['$resource',
+  /*
+  GET    /configuration                                                                   Gets all current Build Configurations
+  POST   /configuration                                                                 Creates new Build Configuration
+  GET    /configuration/{id}                                                             Gets a specific Build Configuration
+  PUT    /configuration/{id}                                                             Updates an existing Build Configuration
+  DELETE /configuration/{id}                                                         Deletes a Build Configuration
+  POST   /configuration/{id}/build                                                   Triggers build for a Build Configurations
+  POST   /configuration/{id}/clone                                                  Clones a Build Configuration
+  GET    /configuration/project/{projectId}                                      Gets all current Build Configurations of a Project
+  GET    /configuration/configurationset/{configurationsetId}         Gets all Build Configurations of a Build Configuration Set (see below * )
+  GET  /configuration/product/{id}                                                  Gets all current Build Configurations of a Product
+  GET  /configuration/product/{id}/version/{id}                               Gets all current Build Configurations of a ProductVersion
+*/
+
+
+
+
+  module.factory('PncRestMockClient', ['$resource',
     function($resource) {
-      return $resource(baseUrl + '/product/:productId/version/:versionId', {
-        productId: '@productId',
-        versionId: '@versionId'
-      });
+      return {
+
+        Configuration: function($resource) {
+          return $resource(baseUrl + '/configuration/:configurationId', {
+            configurationId: '@configurationId'
+          },{
+            update: {
+              method: 'PUT',
+            },
+            build: {
+              method: 'POST',
+              url: '/configuration/:configurationId/build',
+              isArray: false,
+              params: {
+                configurationId: '@configurationId'
+              }
+            },
+            getForProject: {
+              method: 'GET',
+              url: '/configuration/project/{projectId:int}',
+              isArray: true,
+              params: {
+                projectId: '@projectId'
+              }
+            },
+            getForProduct: {
+              method: 'GET',
+              url: '/configuration/product/{productId:int}',
+              isArray: true,
+              params: {
+                productId: '@productId'
+              }
+            },
+            getForProductVersion: {
+              method: 'GET',
+              url: '/configuration/product/{id}/version/{id}',
+              isArray: true,
+              params: {
+                productId: '@productId',
+                versionId: '@versionId'
+              }
+            }
+          });
+        }
+      };
     }
   ]);
 
-  module.factory('Project', ['$resource',
-    function($resource) {
-      return $resource(baseUrl + '/project/:projectId');
-    }
-  ]);
+  // module.factory('Product', ['$resource',
+  //   function($resource) {
+  //     return $resource(baseUrl + '/product/:productId');
+  //   }
+  // ]);
 
-  module.factory('Configuration', ['$resource',
-    function($resource) {
-      return $resource(baseUrl +
-        'project/:projectId/configuration/:configurationId');
-    }
-  ]);
+  // module.factory('Version', ['$resource',
+  //   function($resource) {
+  //     return $resource(baseUrl + '/product/:productId/version/:versionId', {
+  //       productId: '@productId',
+  //       versionId: '@versionId'
+  //     });
+  //   }
+  // ]);
 
+  // module.factory('Project', ['$resource',
+  //   function($resource) {
+  //     return $resource(baseUrl + '/project/:projectId');
+  //   }
+  // ]);
+
+  // module.factory('Configuration', ['$resource',
+  //   function($resource) {
+  //     return $resource(baseUrl +
+  //       'project/:projectId/configuration/:configurationId');
+  //   }
+  // ]);
 
 })();

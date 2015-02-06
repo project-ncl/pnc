@@ -109,7 +109,7 @@
       $scope.columnBrowse = {
         products: productCol,
         versions: versionCol
-      }
+      };
 
       // Initialise the first column with values.
       $scope.columnBrowse.products.updateList();

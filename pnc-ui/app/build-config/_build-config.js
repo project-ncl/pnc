@@ -20,9 +20,9 @@
       .state('build-config.product', {
         url: '/product',
         resolve: {
-          productFactory: 'Product',
-          productList: function(productFactory) {
-            return productFactory.query().$promise;
+          restClient: 'PncRestClient',
+          productList: function(restClient) {
+            return restClient.product.query().$promise;
           }
         },
         views: {
@@ -35,9 +35,9 @@
       .state('build-config.product.show', {
         url: '/{productId:int}',
         resolve: {
-          productFactory: 'Product',
-          productDetails: function(productFactory, $stateParams) {
-            return productFactory.get({ productId: $stateParams.productId })
+          restClient: 'restClient',
+          productDetails: function(restClient, $stateParams) {
+            return restClient.product.get({ productId: $stateParams.productId })
               .$promise;
           }
         },
@@ -53,10 +53,10 @@
         url: '/version',
         abstract: true/*,
         resolve: {
-          versionFactory: 'Version',
-          versionList: function(versionFactory, $stateParams) {
-            return versionFactory.query({ productId: $stateParams.productId })
-              .$promise;
+          restClient: 'PncRestClient',
+          versionList: function(restClient, $stateParams) {
+            return restClient.version.query(
+              { productId: $stateParams.productId }).$promise;
           }
         },
         views: {
@@ -69,9 +69,9 @@
       .state('build-config.product.show.version.show', {
         url: '/{versionId:int}',
         resolve: {
-          versionFactory: 'Version',
-          versionDetails: function(versionFactory, $stateParams) {
-            return versionFactory.get({
+          restClient: 'PncRestClient',
+          versionDetails: function(restClient, $stateParams) {
+            return restClient.version.get({
               productId: $stateParams.productId,
               versionId: $stateParams.versionId
             }).$promise;
