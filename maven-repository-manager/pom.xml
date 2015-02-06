@@ -77,6 +77,9 @@
       <plugins>
         <plugin>
           <artifactId>maven-surefire-plugin</artifactId>
+          <configuration>
+            <skipTests>true</skipTests>
+          </configuration>
           <!--
           <configuration>
             <forkCount>4</forkCount>
