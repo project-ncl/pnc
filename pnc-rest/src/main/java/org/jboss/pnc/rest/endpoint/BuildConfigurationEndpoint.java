@@ -54,7 +54,7 @@ public class BuildConfigurationEndpoint {
 
     @ApiOperation(value = "Gets the Build Records of a specific Build Configuration")
     @GET
-    @Path("/{id}/result")
+    @Path("/{id}/record")
     public List<BuildRecordRest> getResultsOfSpecificBuildConfiguration(
             @ApiParam(value = "Project id", required = true) @PathParam("projectId") Integer projectId,
             @ApiParam(value = "Build Configuration id", required = true) @PathParam("id") Integer id) {

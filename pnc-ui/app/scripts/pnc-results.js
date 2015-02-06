@@ -30,11 +30,11 @@ $(document).ready(function() {
 
   $.when(
      $.ajax({
-         url: PNC_REST_BASE_URL + '/project/' + project.id + '/configuration/' + configurationId + '/result',
+         url: PNC_REST_BASE_URL + '/project/' + project.id + '/configuration/' + configurationId + '/record',
          method: 'GET',
          success: function (data) {
            $.each(data, function(entryIndex, entry){
-             console.log('checking /result entry: %O', entry);
+             console.log('checking /record entry: %O', entry);
              console.log('found entry for configurationId=%d', configurationId);
              filteredResults.push(entry);
            });
@@ -102,7 +102,7 @@ $(document).ready(function() {
     var resultId = $(this).attr('value');
 
     $.ajax({
-        url: PNC_REST_BASE_URL + '/result/' + resultId + '/log',
+        url: PNC_REST_BASE_URL + '/record/' + resultId + '/log',
         method: 'GET',
         async: false,
         cache: false,
