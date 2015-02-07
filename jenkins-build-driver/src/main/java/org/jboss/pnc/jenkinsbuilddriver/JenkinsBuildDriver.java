@@ -1,16 +1,15 @@
 package org.jboss.pnc.jenkinsbuilddriver;
 
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+
 import org.jboss.logging.Logger;
-import org.jboss.pnc.common.Configuration;
-import org.jboss.pnc.model.BuildType;
 import org.jboss.pnc.model.BuildConfiguration;
+import org.jboss.pnc.model.BuildType;
 import org.jboss.pnc.spi.builddriver.BuildDriver;
 import org.jboss.pnc.spi.builddriver.RunningBuild;
 import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
 import org.jboss.pnc.spi.repositorymanager.model.RepositoryConfiguration;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
 
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-11-23.
@@ -19,9 +18,6 @@ import javax.inject.Inject;
 public class JenkinsBuildDriver implements BuildDriver {
 
     public static final String DRIVER_ID = "jenkins-build-driver";
-
-    @Inject
-    Configuration configuration;
 
     private static final Logger log = Logger.getLogger(JenkinsBuildDriver.class);
 
