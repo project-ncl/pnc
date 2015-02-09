@@ -17,19 +17,19 @@
 
 package org.jboss.pnc.rest.provider;
 
-import java.util.function.Function;
-import java.util.stream.Collectors;
+import com.google.common.base.Preconditions;
+import org.jboss.pnc.datastore.predicates.RSQLPredicateProducer;
+import org.jboss.pnc.datastore.predicates.rsql.RSQLPredicate;
+import org.jboss.pnc.datastore.repositories.LicenseRepository;
+import org.jboss.pnc.model.License;
+import org.jboss.pnc.rest.restmodel.LicenseRest;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
-import org.jboss.pnc.datastore.repositories.LicenseRepository;
-import org.jboss.pnc.model.License;
-import org.jboss.pnc.rest.repository.RSQLAdapter;
-import org.jboss.pnc.rest.repository.RSQLAdapterFactory;
-import org.jboss.pnc.rest.restmodel.LicenseRest;
-
-import com.google.common.base.Preconditions;
+import static org.jboss.pnc.rest.provider.StreamHelper.nullableStreamOf;
 
 /**
  * Created by avibelli on Feb 5, 2015
@@ -60,11 +60,11 @@ public class LicenseProvider extends BasePaginationProvider<LicenseRest, License
     }
 
     public Object getAll(Integer pageIndex, Integer pageSize, String field, String sorting, String rsql) {
-        RSQLAdapter<License> rsqlAdapter = RSQLAdapterFactory.fromRSQL(rsql);
+        RSQLPredicate filteringCriteria = RSQLPredicateProducer.fromRSQL(License.class, rsql);
         if (noPaginationRequired(pageIndex, pageSize, field, sorting)) {
-            return licenseRepository.findAll(rsqlAdapter).stream().map(toRestModel()).collect(Collectors.toList());
+            return nullableStreamOf(licenseRepository.findAll(filteringCriteria.toPredicate())).map(toRestModel()).collect(Collectors.toList());
         } else {
-            return transform(licenseRepository.findAll(rsqlAdapter, buildPageRequest(pageIndex, pageSize, field, sorting)));
+            return transform(licenseRepository.findAll(filteringCriteria.toPredicate(), buildPageRequest(pageIndex, pageSize, field, sorting)));
         }
     }
 
