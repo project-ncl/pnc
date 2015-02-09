@@ -3,13 +3,20 @@ package org.jboss.pnc.rest.endpoint;
 import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
 import com.wordnik.swagger.annotations.ApiParam;
+
 import org.jboss.pnc.rest.provider.ProjectProvider;
+import org.jboss.pnc.rest.restmodel.ProductRest;
 import org.jboss.pnc.rest.restmodel.ProjectRest;
 
 import javax.inject.Inject;
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import javax.ws.rs.*;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriBuilder;
+import javax.ws.rs.core.UriInfo;
 
 @Api(value = "/project", description = "Project related information")
 @Path("/project")
@@ -41,5 +48,22 @@ public class ProjectEndpoint {
     @Path("/{id}")
     public ProjectRest getSpecific(@ApiParam(value = "Project id", required = true) @PathParam("id") Integer id) {
         return projectProvider.getSpecific(id);
+    }
+
+    @ApiOperation(value = "Creates a new Project")
+    @POST
+    public Response createNew(@NotNull @Valid ProjectRest projectRest, @Context UriInfo uriInfo) {
+        int id = projectProvider.store(projectRest);
+        UriBuilder uriBuilder = UriBuilder.fromUri(uriInfo.getRequestUri()).path("{id}");
+        return Response.created(uriBuilder.build(id)).build();
+    }
+
+    @ApiOperation(value = "Updates an existing Project")
+    @PUT
+    @Path("/{id}")
+    public Response update(@ApiParam(value = "Project id", required = true) @PathParam("id") Integer productId,
+            @NotNull @Valid ProjectRest projectRest, @Context UriInfo uriInfo) {
+        projectProvider.update(projectRest);
+        return Response.ok().build();
     }
 }

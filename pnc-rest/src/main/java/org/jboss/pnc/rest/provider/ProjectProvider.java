@@ -1,19 +1,22 @@
 package org.jboss.pnc.rest.provider;
 
-import org.jboss.pnc.datastore.repositories.ProjectRepository;
-import org.jboss.pnc.model.Project;
-import org.jboss.pnc.rest.restmodel.ProjectRest;
-
-import javax.ejb.Stateless;
-import javax.inject.Inject;
-import java.util.List;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-
 import static org.jboss.pnc.datastore.predicates.ProjectPredicates.withProductId;
 import static org.jboss.pnc.datastore.predicates.ProjectPredicates.withProductVersionId;
 import static org.jboss.pnc.datastore.predicates.ProjectPredicates.withProjectId;
 import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
+
+import java.util.List;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
+import javax.ejb.Stateless;
+import javax.inject.Inject;
+
+import org.jboss.pnc.datastore.repositories.ProjectRepository;
+import org.jboss.pnc.model.Project;
+import org.jboss.pnc.rest.restmodel.ProjectRest;
+
+import com.google.common.base.Preconditions;
 
 @Stateless
 public class ProjectProvider extends BasePaginationProvider<ProjectRest, Project> {
@@ -48,7 +51,7 @@ public class ProjectProvider extends BasePaginationProvider<ProjectRest, Project
             return transform(projectRepository.findAll(buildPageRequest(pageIndex, pageSize, field, sorting)));
         }
     }
-    
+
     public List<ProjectRest> getAll(Integer productId, Integer productVersionId, String field, String sorting, String rsql) {
         Iterable<Project> project = projectRepository.findAll(withProductVersionId(productVersionId).and(withProductId(productId)));
         return nullableStreamOf(project).map(productVersion -> new ProjectRest(productVersion)).collect(Collectors.toList());
@@ -69,6 +72,27 @@ public class ProjectProvider extends BasePaginationProvider<ProjectRest, Project
             return new ProjectRest(project);
         }
         return null;
+    }
+
+    public Integer store(ProjectRest projectRest) {
+        Project project = projectRest.getProject(projectRest);
+        project = projectRepository.save(project);
+        return project.getId();
+    }
+
+    public Integer update(ProjectRest projectRest) {
+        Project project = projectRepository.findOne(projectRest.getId());
+        Preconditions.checkArgument(project != null, "Couldn't find project with id " + projectRest.getId());
+
+        // Applying the changes
+        project.setDescription(projectRest.getDescription());
+        project.setIssueTrackerUrl(projectRest.getIssueTrackerUrl());
+        project.setLicense(projectRest.getLicense());
+        project.setName(projectRest.getName());
+        project.setProjectUrl(projectRest.getProjectUrl());
+
+        project = projectRepository.saveAndFlush(project);
+        return project.getId();
     }
 
 }
