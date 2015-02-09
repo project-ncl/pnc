@@ -2,6 +2,7 @@ package org.jboss.pnc.datastore.predicates.rsql;
 
 
 import com.mysema.query.types.expr.BooleanExpression;
+import org.jboss.pnc.datastore.predicates.RSQLPredicate;
 
 /**
  * Empty implementation of a RSQL adapter
@@ -10,12 +11,11 @@ import com.mysema.query.types.expr.BooleanExpression;
  *     Converts RSQL query into Spring Data's {@link org.springframework.data.jpa.domain.Specification}, which in turn
  *     might be used for selecting records.
  * </p>
- * @param <Entity> An entity type.
  */
-public class EmptyRSQLPredicate<Entity> implements RSQLPredicate<Entity> {
+public class EmptyRSQLPredicate implements RSQLPredicate {
 
    @Override
-   public BooleanExpression toPredicate() {
+   public BooleanExpression get() {
       return null;
    }
 

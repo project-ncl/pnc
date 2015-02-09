@@ -9,7 +9,8 @@ import javax.inject.Inject;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.jboss.pnc.rest.provider.StreamHelper.nullableStreamOf;
+import static org.jboss.pnc.datastore.predicates.ArtifactPredicates.withBuildRecordId;
+import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
 
 @Stateless
 public class BuildArtifactProvider {
@@ -25,7 +26,7 @@ public class BuildArtifactProvider {
     }
 
     public List<ArtifactRest> getAll(Integer buildRecordId) {
-        return nullableStreamOf(artifactRepository.findByBuildRecord(buildRecordId))
+        return nullableStreamOf(artifactRepository.findAll(withBuildRecordId(buildRecordId)))
                 .map(artifact -> new ArtifactRest(artifact))
                 .collect(Collectors.toList());
     }

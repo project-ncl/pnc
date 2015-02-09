@@ -1,4 +1,4 @@
-package org.jboss.pnc.rest.provider;
+package org.jboss.pnc.rest.utils;
 
 import java.util.Collection;
 import java.util.stream.Stream;

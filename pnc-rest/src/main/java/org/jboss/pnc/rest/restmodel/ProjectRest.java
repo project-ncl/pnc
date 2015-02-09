@@ -7,7 +7,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.jboss.pnc.rest.provider.StreamHelper.nullableStreamOf;
+import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
 
 @XmlRootElement(name = "Project")
 public class ProjectRest {

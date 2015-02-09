@@ -7,6 +7,7 @@ import com.mysema.query.types.path.PathBuilder;
 import cz.jirutka.rsql.parser.RSQLParser;
 import cz.jirutka.rsql.parser.RSQLParserException;
 import cz.jirutka.rsql.parser.ast.*;
+import org.jboss.pnc.datastore.predicates.RSQLPredicate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,7 +16,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-public class RSQLNodeTravellerPredicate<Entity> implements RSQLPredicate<Entity> {
+public class RSQLNodeTravellerPredicate<Entity> implements RSQLPredicate {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
@@ -36,7 +37,7 @@ public class RSQLNodeTravellerPredicate<Entity> implements RSQLPredicate<Entity>
    }
 
    @Override
-   public BooleanExpression toPredicate() {
+   public BooleanExpression get() {
 
       PathBuilder<Entity> pathBuilder = new PathBuilder<>(selectingClass, selectingClass.getSimpleName().toLowerCase());
 

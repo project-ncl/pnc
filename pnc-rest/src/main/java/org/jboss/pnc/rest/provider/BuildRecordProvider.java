@@ -5,7 +5,7 @@ import org.jboss.pnc.core.builder.BuildTask;
 import org.jboss.pnc.datastore.predicates.RSQLPredicateProducer;
 import org.jboss.pnc.datastore.repositories.BuildRecordRepository;
 import org.jboss.pnc.model.BuildRecord;
-import org.jboss.pnc.datastore.predicates.rsql.RSQLPredicate;
+import org.jboss.pnc.datastore.predicates.RSQLPredicate;
 import org.jboss.pnc.rest.restmodel.BuildRecordRest;
 
 import javax.ejb.Stateless;
@@ -18,7 +18,8 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static org.jboss.pnc.rest.provider.StreamHelper.nullableStreamOf;
+import static org.jboss.pnc.datastore.predicates.BuildRecordRepositoryPredicates.withBuildRecordId;
+import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
 
 @Stateless
 public class BuildRecordProvider extends BasePaginationProvider<BuildRecordRest, BuildRecord> {
@@ -47,11 +48,11 @@ public class BuildRecordProvider extends BasePaginationProvider<BuildRecordRest,
     }
 
     public Object getAllArchived(Integer pageIndex, Integer pageSize, String field, String sorting, String rsqls) {
-        RSQLPredicate<BuildRecord> rsqlPredicate = RSQLPredicateProducer.fromRSQL(BuildRecord.class, rsqls);
+        RSQLPredicate rsqlPredicate = RSQLPredicateProducer.fromRSQL(BuildRecord.class, rsqls);
         if (noPaginationRequired(pageIndex, pageSize, field, sorting)) {
-            return nullableStreamOf(buildRecordRepository.findAll(rsqlPredicate.toPredicate())).map(toRestModel()).collect(Collectors.toList());
+            return nullableStreamOf(buildRecordRepository.findAll(rsqlPredicate.get())).map(toRestModel()).collect(Collectors.toList());
         } else {
-            return transform(buildRecordRepository.findAll(rsqlPredicate.toPredicate(), buildPageRequest(pageIndex, pageSize, field, sorting)));
+            return transform(buildRecordRepository.findAll(rsqlPredicate.get(), buildPageRequest(pageIndex, pageSize, field, sorting)));
         }
     }
 
@@ -61,7 +62,7 @@ public class BuildRecordProvider extends BasePaginationProvider<BuildRecordRest,
     }
 
     public List<BuildRecordRest> getAllArchivedOfBuildConfiguration(Integer buildRecordId) {
-        return nullableStreamOf(buildRecordRepository.findByBuildConfigurationId(buildRecordId)).map(
+        return nullableStreamOf(buildRecordRepository.findAll(withBuildRecordId(buildRecordId))).map(
                 buildRecord -> new BuildRecordRest(buildRecord)).collect(Collectors.toList());
     }
 

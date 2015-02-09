@@ -4,7 +4,7 @@ import com.google.common.base.Preconditions;
 import org.jboss.pnc.datastore.predicates.RSQLPredicateProducer;
 import org.jboss.pnc.datastore.repositories.ProductRepository;
 import org.jboss.pnc.model.Product;
-import org.jboss.pnc.datastore.predicates.rsql.RSQLPredicate;
+import org.jboss.pnc.datastore.predicates.RSQLPredicate;
 import org.jboss.pnc.rest.restmodel.ProductRest;
 
 import javax.ejb.Stateless;
@@ -12,7 +12,7 @@ import javax.inject.Inject;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static org.jboss.pnc.rest.provider.StreamHelper.nullableStreamOf;
+import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
 
 @Stateless
 public class ProductProvider extends BasePaginationProvider<ProductRest, Product> {
@@ -40,11 +40,11 @@ public class ProductProvider extends BasePaginationProvider<ProductRest, Product
     }
 
     public Object getAll(Integer pageIndex, Integer pageSize, String field, String sorting, String rsql) {
-        RSQLPredicate<Product> rsqlPredicate = RSQLPredicateProducer.fromRSQL(Product.class, rsql);
+        RSQLPredicate rsqlPredicate = RSQLPredicateProducer.fromRSQL(Product.class, rsql);
         if (noPaginationRequired(pageIndex, pageSize, field, sorting)) {
-            return nullableStreamOf(productRepository.findAll(rsqlPredicate.toPredicate())).map(toRestModel()).collect(Collectors.toList());
+            return nullableStreamOf(productRepository.findAll(rsqlPredicate.get())).map(toRestModel()).collect(Collectors.toList());
         } else {
-            return transform(productRepository.findAll(rsqlPredicate.toPredicate(), buildPageRequest(pageIndex, pageSize, field, sorting)));
+            return transform(productRepository.findAll(rsqlPredicate.get(), buildPageRequest(pageIndex, pageSize, field, sorting)));
         }
     }
 
