@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.lang.invoke.MethodHandles;
 import java.nio.charset.Charset;
 import java.util.Properties;
+import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
@@ -19,8 +20,14 @@ import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.junit.InSequence;
 import org.jboss.pnc.common.util.IoUtils;
 import org.jboss.pnc.integration.deployments.Deployments;
+import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.License;
+import org.jboss.pnc.model.ProductVersionProject;
+import org.jboss.pnc.model.Project;
 import org.jboss.pnc.model.builder.LicenseBuilder;
+import org.jboss.pnc.model.builder.ProductVersionBuilder;
+import org.jboss.pnc.model.builder.ProductVersionProjectBuilder;
+import org.jboss.pnc.model.builder.ProjectBuilder;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
 import org.jboss.util.StringPropertyReplacer;
 import org.junit.Test;
@@ -28,6 +35,7 @@ import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.jayway.restassured.http.ContentType;
@@ -45,11 +53,14 @@ public class RestTest {
     private static int userId;
 
     private static Integer newProductId;
+    private static Integer newProjectId;
     private static Integer licenseId;
 
     private static final String PRODUCT_REST_ENDPOINT = "/pnc-web/rest/product/";
+    private static final String PROJECT_REST_ENDPOINT = "/pnc-web/rest/project/";
+    private static final String PROJECT_REST_ENDPOINT_SPECIFIC = PROJECT_REST_ENDPOINT + "%d";
     private static final String LICENSE_REST_ENDPOINT = "/pnc-web/rest/license/";
-    private static final String LICENSE_REST_ENDPOINT_SPECIFIC = "/pnc-web/rest/license/%d";
+    private static final String LICENSE_REST_ENDPOINT_SPECIFIC = LICENSE_REST_ENDPOINT + "%d";
     private static final String BUILD_CONFIGURATION_REST_ENDPOINT = "/pnc-web/rest/project/%d/configuration/%d";
     private static final String BUILD_CONFIGURATION_CLONE_REST_ENDPOINT = BUILD_CONFIGURATION_REST_ENDPOINT + "/clone/";
 
@@ -375,6 +386,62 @@ public class RestTest {
         Assertions.assertThat(updateResponse.statusCode()).isEqualTo(200);
         Assertions.assertThat(updateResponse.body().jsonPath().getInt("id")).isEqualTo(licenseId);
         Assertions.assertThat(updateResponse.body().jsonPath().getString("shortName")).isEqualTo("GPL 2.0");
+
+    }
+
+    @Test
+    @InSequence(19)
+    public void shouldCreateNewProject() {
+
+        try {
+            String rawJson = IoUtils.readFileOrResource("project", "project.json", getClass().getClassLoader());
+            logger.info(rawJson);
+
+            Response response = given().body(rawJson).contentType(ContentType.JSON).port(getHttpPort())
+                    .header("Content-Type", "application/json; charset=UTF-8").when().post(PROJECT_REST_ENDPOINT);
+            Assertions.assertThat(response.statusCode()).isEqualTo(201);
+
+            String location = response.getHeader("Location");
+            logger.info("Found location in Response header: " + location);
+
+            newProjectId = Integer.valueOf(location.substring(location.lastIndexOf(PROJECT_REST_ENDPOINT)
+                    + PROJECT_REST_ENDPOINT.length()));
+
+            logger.info("Created id of project: " + newProjectId);
+
+        } catch (IOException e) {
+            Assertions.fail("Could not read project.json file", e);
+        }
+    }
+
+    @Test
+    @InSequence(20)
+    public void shouldUpdateProject() {
+
+        logger.info("### newProjectId: " + newProjectId);
+
+        Response response = given().contentType(ContentType.JSON).port(getHttpPort()).when()
+                .get(String.format(PROJECT_REST_ENDPOINT_SPECIFIC, newProjectId));
+
+        Assertions.assertThat(response.statusCode()).isEqualTo(200);
+        Assertions.assertThat(response.body().jsonPath().getInt("id")).isEqualTo(newProjectId);
+        Assertions.assertThat(response.body().jsonPath().getString("name")).isEqualTo("New Project");
+
+        String rawJson = response.body().jsonPath().prettyPrint();
+        rawJson = rawJson.replace("New Project", "New Awesome Project");
+
+        logger.info("### rawJson: " + response.body().jsonPath().prettyPrint());
+
+        given().body(rawJson).contentType(ContentType.JSON).port(getHttpPort()).when()
+                .put(String.format(PROJECT_REST_ENDPOINT_SPECIFIC, newProjectId)).then().statusCode(200);
+
+        // Reading updated resource
+        Response updateResponse = given().contentType(ContentType.JSON).port(getHttpPort()).when()
+                .get(String.format(PROJECT_REST_ENDPOINT_SPECIFIC, newProjectId));
+
+        Assertions.assertThat(updateResponse.statusCode()).isEqualTo(200);
+        Assertions.assertThat(updateResponse.body().jsonPath().getInt("id")).isEqualTo(newProjectId);
+        Assertions.assertThat(updateResponse.body().jsonPath().getString("name")).isEqualTo("New Awesome Project");
 
     }
 
