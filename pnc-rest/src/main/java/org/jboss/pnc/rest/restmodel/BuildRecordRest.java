@@ -8,7 +8,7 @@ import org.jboss.pnc.model.BuildRecord;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.sql.Timestamp;
 
-import static org.jboss.pnc.rest.provider.Utility.performIfNotNull;
+import static org.jboss.pnc.rest.utils.Utility.performIfNotNull;
 
 @XmlRootElement(name = "BuildRecord")
 public class BuildRecordRest {

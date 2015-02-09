@@ -10,7 +10,10 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static org.jboss.pnc.rest.provider.StreamHelper.nullableStreamOf;
+import static org.jboss.pnc.datastore.predicates.ProjectPredicates.withProductId;
+import static org.jboss.pnc.datastore.predicates.ProjectPredicates.withProductVersionId;
+import static org.jboss.pnc.datastore.predicates.ProjectPredicates.withProjectId;
+import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
 
 @Stateless
 public class ProjectProvider extends BasePaginationProvider<ProjectRest, Project> {
@@ -47,13 +50,13 @@ public class ProjectProvider extends BasePaginationProvider<ProjectRest, Project
     }
     
     public List<ProjectRest> getAll(Integer productId, Integer productVersionId, String field, String sorting, String rsql) {
-        List<Project> project = projectRepository.findByProductAndProductVersionId(productId, productVersionId);
+        Iterable<Project> project = projectRepository.findAll(withProductVersionId(productVersionId).and(withProductId(productId)));
         return nullableStreamOf(project).map(productVersion -> new ProjectRest(productVersion)).collect(Collectors.toList());
     }
 
     public ProjectRest getSpecific(Integer productId, Integer productVersionId, Integer projectId) {
         Project project = projectRepository
-                .findByProductAndProductVersionIdAndProjectId(productVersionId, projectId);
+                .findOne(withProductVersionId(productVersionId).and(withProjectId(projectId)));
         if (project != null) {
             return new ProjectRest(project);
         }

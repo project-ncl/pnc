@@ -15,10 +15,10 @@ public interface RSQLPredicateProducer {
      * @return New adapter.
      * @throws java.lang.IllegalArgumentException In case of parsing or converting exceptions.
      */
-    public static <Entity> org.jboss.pnc.datastore.predicates.rsql.RSQLPredicate<Entity> fromRSQL(Class<Entity> selectingClass, String query) {
+    public static <Entity> RSQLPredicate fromRSQL(Class<Entity> selectingClass, String query) {
         try {
             if(query == null || query.isEmpty()) {
-                return new EmptyRSQLPredicate<>();
+                return new EmptyRSQLPredicate();
             }
             return new RSQLNodeTravellerPredicate<>(selectingClass, query);
         } catch (Exception e) {

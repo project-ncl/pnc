@@ -19,7 +19,7 @@ package org.jboss.pnc.rest.provider;
 
 import com.google.common.base.Preconditions;
 import org.jboss.pnc.datastore.predicates.RSQLPredicateProducer;
-import org.jboss.pnc.datastore.predicates.rsql.RSQLPredicate;
+import org.jboss.pnc.datastore.predicates.RSQLPredicate;
 import org.jboss.pnc.datastore.repositories.LicenseRepository;
 import org.jboss.pnc.model.License;
 import org.jboss.pnc.rest.restmodel.LicenseRest;
@@ -29,7 +29,7 @@ import javax.inject.Inject;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static org.jboss.pnc.rest.provider.StreamHelper.nullableStreamOf;
+import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
 
 /**
  * Created by avibelli on Feb 5, 2015
@@ -62,9 +62,9 @@ public class LicenseProvider extends BasePaginationProvider<LicenseRest, License
     public Object getAll(Integer pageIndex, Integer pageSize, String field, String sorting, String rsql) {
         RSQLPredicate filteringCriteria = RSQLPredicateProducer.fromRSQL(License.class, rsql);
         if (noPaginationRequired(pageIndex, pageSize, field, sorting)) {
-            return nullableStreamOf(licenseRepository.findAll(filteringCriteria.toPredicate())).map(toRestModel()).collect(Collectors.toList());
+            return nullableStreamOf(licenseRepository.findAll(filteringCriteria.get())).map(toRestModel()).collect(Collectors.toList());
         } else {
-            return transform(licenseRepository.findAll(filteringCriteria.toPredicate(), buildPageRequest(pageIndex, pageSize, field, sorting)));
+            return transform(licenseRepository.findAll(filteringCriteria.get(), buildPageRequest(pageIndex, pageSize, field, sorting)));
         }
     }
 

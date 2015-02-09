@@ -9,7 +9,9 @@ import javax.inject.Inject;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.jboss.pnc.rest.provider.StreamHelper.nullableStreamOf;
+import static org.jboss.pnc.datastore.ProductVersionPredicates.withProductId;
+import static org.jboss.pnc.datastore.ProductVersionPredicates.withProductVersionId;
+import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
 
 @Stateless
 public class ProductVersionProvider {
@@ -26,14 +28,14 @@ public class ProductVersionProvider {
     }
 
     public List<ProductVersionRest> getAll(Integer productId) {
-        List<ProductVersion> product = productVersionRepository.findByProductId(productId);
+        Iterable<ProductVersion> product = productVersionRepository.findAll(withProductId(productId));
         return nullableStreamOf(product)
                 .map(productVersion -> new ProductVersionRest(productVersion))
                 .collect(Collectors.toList());
     }
 
     public ProductVersionRest getSpecific(Integer productId, Integer productVersionId) {
-        ProductVersion productVersion = productVersionRepository.findByProductIdAndProductVersionId(productId, productVersionId);
+        ProductVersion productVersion = productVersionRepository.findOne(withProductId(productId).and(withProductVersionId(productVersionId)));
         if(productVersion != null) {
             return new ProductVersionRest(productVersion);
         }

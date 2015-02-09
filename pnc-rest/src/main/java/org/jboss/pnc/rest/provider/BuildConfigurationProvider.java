@@ -1,14 +1,6 @@
 package org.jboss.pnc.rest.provider;
 
-import static org.jboss.pnc.rest.provider.StreamHelper.nullableStreamOf;
-
-import java.util.List;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-
-import javax.ejb.Stateless;
-import javax.inject.Inject;
-
+import com.google.common.base.Preconditions;
 import org.jboss.pnc.datastore.repositories.BuildConfigurationRepository;
 import org.jboss.pnc.datastore.repositories.ProjectRepository;
 import org.jboss.pnc.model.BuildConfiguration;
@@ -16,7 +8,15 @@ import org.jboss.pnc.model.Project;
 import org.jboss.pnc.model.builder.BuildConfigurationBuilder;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationRest;
 
-import com.google.common.base.Preconditions;
+import javax.ejb.Stateless;
+import javax.inject.Inject;
+import java.util.List;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
+import static org.jboss.pnc.datastore.predicates.BuildConfigurationPredicates.withConfigurationId;
+import static org.jboss.pnc.datastore.predicates.BuildConfigurationPredicates.withProjectId;
+import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
 
 @Stateless
 public class BuildConfigurationProvider extends BasePaginationProvider<BuildConfigurationRest, BuildConfiguration> {
@@ -56,13 +56,13 @@ public class BuildConfigurationProvider extends BasePaginationProvider<BuildConf
     }
 
     public List<BuildConfigurationRest> getAll(Integer projectId) {
-        List<BuildConfiguration> product = buildConfigurationRepository.findByProjectId(projectId);
+        Iterable<BuildConfiguration> product = buildConfigurationRepository.findAll(withProjectId(projectId));
         return nullableStreamOf(product).map(projectConfiguration -> new BuildConfigurationRest(projectConfiguration)).collect(
                 Collectors.toList());
     }
 
     public BuildConfigurationRest getSpecific(Integer projectId, Integer id) {
-        BuildConfiguration projectConfiguration = buildConfigurationRepository.findByProjectIdAndConfigurationId(projectId, id);
+        BuildConfiguration projectConfiguration = buildConfigurationRepository.findOne(withProjectId(projectId).and(withConfigurationId(id)));
         if (projectConfiguration != null) {
             return new BuildConfigurationRest(projectConfiguration);
         }

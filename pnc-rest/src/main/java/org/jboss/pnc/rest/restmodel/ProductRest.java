@@ -1,6 +1,6 @@
 package org.jboss.pnc.rest.restmodel;
 
-import static org.jboss.pnc.rest.provider.StreamHelper.nullableStreamOf;
+import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
 
 import java.util.List;
 import java.util.stream.Collectors;
