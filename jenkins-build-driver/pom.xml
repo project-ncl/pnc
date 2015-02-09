@@ -15,6 +15,19 @@
 
   <description>Implementation of pnc-spi:org.jboss.pnc.spi.builddriver.</description>
 
+  <dependencyManagement>
+    <dependencies>
+    
+      <dependency>
+        <groupId>com.google.guava</groupId>
+        <artifactId>guava</artifactId>
+        <version>13.0.1</version>
+        <scope>test</scope>
+      </dependency>
+  
+    </dependencies>
+  </dependencyManagement>
+  
   <dependencies>
 
     <!-- Project dependencies -->
@@ -56,6 +69,12 @@
       </dependency>
 
     <!-- Test dependencies -->
+    
+    <dependency>
+      <groupId>com.google.guava</groupId>
+      <artifactId>guava</artifactId>
+      <scope>test</scope>
+    </dependency>
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
