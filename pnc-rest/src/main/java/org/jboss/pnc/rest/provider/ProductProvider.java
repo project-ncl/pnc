@@ -1,18 +1,18 @@
 package org.jboss.pnc.rest.provider;
 
-import java.util.function.Function;
-import java.util.stream.Collectors;
+import com.google.common.base.Preconditions;
+import org.jboss.pnc.datastore.predicates.RSQLPredicateProducer;
+import org.jboss.pnc.datastore.repositories.ProductRepository;
+import org.jboss.pnc.model.Product;
+import org.jboss.pnc.datastore.predicates.rsql.RSQLPredicate;
+import org.jboss.pnc.rest.restmodel.ProductRest;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
-import org.jboss.pnc.datastore.repositories.ProductRepository;
-import org.jboss.pnc.model.Product;
-import org.jboss.pnc.rest.repository.RSQLAdapter;
-import org.jboss.pnc.rest.repository.RSQLAdapterFactory;
-import org.jboss.pnc.rest.restmodel.ProductRest;
-
-import com.google.common.base.Preconditions;
+import static org.jboss.pnc.rest.provider.StreamHelper.nullableStreamOf;
 
 @Stateless
 public class ProductProvider extends BasePaginationProvider<ProductRest, Product> {
@@ -40,11 +40,11 @@ public class ProductProvider extends BasePaginationProvider<ProductRest, Product
     }
 
     public Object getAll(Integer pageIndex, Integer pageSize, String field, String sorting, String rsql) {
-        RSQLAdapter<Product> rsqlAdapter = RSQLAdapterFactory.fromRSQL(rsql);
+        RSQLPredicate<Product> rsqlPredicate = RSQLPredicateProducer.fromRSQL(Product.class, rsql);
         if (noPaginationRequired(pageIndex, pageSize, field, sorting)) {
-            return productRepository.findAll(rsqlAdapter).stream().map(toRestModel()).collect(Collectors.toList());
+            return nullableStreamOf(productRepository.findAll(rsqlPredicate.toPredicate())).map(toRestModel()).collect(Collectors.toList());
         } else {
-            return transform(productRepository.findAll(rsqlAdapter, buildPageRequest(pageIndex, pageSize, field, sorting)));
+            return transform(productRepository.findAll(rsqlPredicate.toPredicate(), buildPageRequest(pageIndex, pageSize, field, sorting)));
         }
     }
 

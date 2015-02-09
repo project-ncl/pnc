@@ -1,15 +1,17 @@
 package org.jboss.pnc.rest.provider;
 
+import org.jboss.pnc.datastore.predicates.RSQLPredicateProducer;
 import org.jboss.pnc.datastore.repositories.UserRepository;
 import org.jboss.pnc.model.User;
-import org.jboss.pnc.rest.repository.RSQLAdapterFactory;
+import org.jboss.pnc.datastore.predicates.rsql.RSQLPredicate;
 import org.jboss.pnc.rest.restmodel.UserRest;
-import org.springframework.data.jpa.domain.Specification;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+
+import static org.jboss.pnc.rest.provider.StreamHelper.nullableStreamOf;
 
 @Stateless
 public class UserProvider extends BasePaginationProvider<UserRest, User> {
@@ -37,11 +39,11 @@ public class UserProvider extends BasePaginationProvider<UserRest, User> {
     }
 
     public Object getAll(Integer pageIndex, Integer pageSize, String field, String sorting, String query) {
-        Specification<User> filteringCriteria = RSQLAdapterFactory.fromRSQL(query);
+        RSQLPredicate filteringCriteria = RSQLPredicateProducer.fromRSQL(User.class, query);
         if (noPaginationRequired(pageIndex, pageSize, field, sorting)) {
-            return userRepository.findAll(filteringCriteria).stream().map(toRestModel()).collect(Collectors.toList());
+            return nullableStreamOf(userRepository.findAll(filteringCriteria.toPredicate())).map(toRestModel()).collect(Collectors.toList());
         } else {
-            return transform(userRepository.findAll(filteringCriteria, buildPageRequest(pageIndex, pageSize, field, sorting)));
+            return transform(userRepository.findAll(filteringCriteria.toPredicate(), buildPageRequest(pageIndex, pageSize, field, sorting)));
         }
     }
 
