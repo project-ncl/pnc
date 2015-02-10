@@ -1,0 +1,46 @@
+Start the Docker daemon: sudo systemctl start docker
+
+Start at boot: sudo systemctl enable docker
+
+Verify that Docker is working: sudo docker run -i -t fedora /bin/bash
+
+Docker Jenkins (https://registry.hub.docker.com/_/jenkins/):
+    Start and make volume persistent: docker run --name myjenkins -p 8080:8080 -v /var/jenkins_home jenkins
+    Copy data out of the container: docker cp myjenkins:/var/jenkins_home /tmp/jenkins
+    Start created container: docker start myjenkins
+    Stop running container: docker stop myjenkins
+
+Start daemon with listening on TCP socket:
+    docker -d -H tcp://127.0.0.1:2375 -H unix:///var/run/docker.sock
+    Verify: docker -H tcp://127.0.0.1:2375 version
+
+Enable SSHD using Dockerfile:
+    Copy docker file
+    Create new docker image: docker build -t isshd-jenkins <PATH to Dockerfile>
+    Run: docker run -p 22222:44555 -p 8080:8080 --name ssh-jenkins -v /var/jenkins_home isshd-jenkins
+    
+
+Running Docker on VM:
+    (Start as usual, but with TCP socket enabled:
+        docker -d -H tcp://0.0.0.0:2375 -H unix:///var/run/docker.sock)
+
+    Prepare socket config /etc/systemd/system/docker-tcp.socket:
+            [Unit]
+            Description=Docker Socket for the API
+
+            [Socket]
+            ListenStream=2375
+            Service=docker.service
+
+            [Install]
+            WantedBy=sockets.target
+        
+    Enable docker-tcp: sudo systemctl enable docker-tcp.socket
+    Start docker-tcp: sudo systemctl start docker-tcp.socket
+    Start docker: sudo systemctl start docker
+    Verify: docker -H tcp://127.0.0.1:2375 version
+
+    Pull image: sudo docker pull jbartece/isshd-jenkins
+    Start container from image as usual
+
+    
