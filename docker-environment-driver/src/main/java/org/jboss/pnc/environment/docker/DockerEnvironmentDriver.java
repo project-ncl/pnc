@@ -22,11 +22,18 @@ import org.jclouds.docker.DockerApi;
 import org.jclouds.docker.domain.Config;
 import org.jclouds.docker.domain.HostConfig;
 import org.jclouds.docker.features.RemoteApi;
+import org.jclouds.domain.LoginCredentials;
+import org.jclouds.http.handlers.BackoffLimitedRetryHandler;
 import org.jclouds.logging.slf4j.config.SLF4JLoggingModule;
+import org.jclouds.ssh.SshClient;
+import org.jclouds.sshj.SshjSshClient;
 import org.jclouds.sshj.config.SshjSshClientModule;
 
+import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.net.HostAndPort;
 import com.google.inject.Module;
+import com.jcraft.jsch.agentproxy.Connector;
 
 /**
  * 
@@ -36,27 +43,35 @@ import com.google.inject.Module;
 @Stateless
 public class DockerEnvironmentDriver implements EnvironmentDriver {
 
-    private static final Logger logger = Logger.getLogger(MethodHandles.lookup().lookupClass()
-            .getName());
+    private static final String CONTAINER_PSSWD = "changeme";
+
+    private static final String CONTAINER_USER = "root";
 
     private static final String IMAGE_ID = "jbartece/isshd-jenkins";
 
     private static final String DOCKER_ENDPOINT = "http://10.3.8.102:2375";
+    
+    private static final Logger logger = Logger.getLogger(MethodHandles.lookup().lookupClass()
+            .getName());
+
 
     @Inject
     private Generator generator;
+    
+    private ComputeServiceContext dockerContext;
 
     private RemoteApi dockerClient;
 
     @PostConstruct
     private void init() {
-        ComputeServiceContext context = ContextBuilder.newBuilder("docker")
+        dockerContext = ContextBuilder.newBuilder("docker")
                 .endpoint(DOCKER_ENDPOINT)
-                .credentials("root", "changeme")
+                .credentials(CONTAINER_USER, CONTAINER_PSSWD)
                 .modules(ImmutableSet.<Module> of(new SLF4JLoggingModule(),
                         new SshjSshClientModule()))
                 .buildView(ComputeServiceContext.class);
-        dockerClient = context.unwrapApi(DockerApi.class).getRemoteApi();
+        dockerClient = dockerContext.unwrapApi(DockerApi.class).getRemoteApi();
+
     }
 
     @Override
@@ -81,9 +96,27 @@ public class DockerEnvironmentDriver implements EnvironmentDriver {
         dockerClient.startContainer(containerId,
                 HostConfig.builder().portBindings(createPortBinding(jenkinsPort, sshPort)).build());
 
+        copyFileToContainer(sshPort, "~/.m2/settings.xml", "YEEEEAH!!!!!!");
         return new RunningEnvironment(containerId, jenkinsPort, sshPort);
     }
 
+    private void copyFileToContainer(int sshPort, String pathOnHost, String data) {
+        SshClient sshClient = new SshjSshClient(new BackoffLimitedRetryHandler() {}, 
+                HostAndPort.fromParts("10.3.8.102", sshPort), 
+                LoginCredentials.builder().user(CONTAINER_USER).password(CONTAINER_PSSWD).build(), 
+                1000, Optional.<Connector>absent() );
+        
+        try {
+            sshClient.connect();
+            sshClient.put(pathOnHost, data);
+
+        } finally {
+            if (sshClient != null)
+                sshClient.disconnect();
+        }
+        
+    }
+    
     @Override
     public void destroyEnvironment(RunningEnvironment runningEnv) {
         logger.warning("Stopping container");
