@@ -6,5 +6,6 @@
     "patchesUrl": "${_patchesUrl}",
     "creationTime": ${_creationTime},
     "lastModificationTime": ${_lastModificationTime},
-    "repositories": "${_repositories}"
+    "repositories": "${_repositories}",
+    "projectId": "${_projectId}"
 }

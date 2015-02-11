@@ -14,8 +14,7 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static org.jboss.pnc.datastore.predicates.BuildConfigurationPredicates.withConfigurationId;
-import static org.jboss.pnc.datastore.predicates.BuildConfigurationPredicates.withProjectId;
+import static org.jboss.pnc.datastore.predicates.BuildConfigurationPredicates.*;
 import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
 
 @Stateless
@@ -46,8 +45,8 @@ public class BuildConfigurationProvider extends BasePaginationProvider<BuildConf
         return BuildConfiguration.DEFAULT_SORTING_FIELD;
     }
 
+    @Deprecated
     public Object getAll(Integer pageIndex, Integer pageSize, String field, String sorting) {
-
         if (noPaginationRequired(pageIndex, pageSize, field, sorting)) {
             return buildConfigurationRepository.findAll().stream().map(toRestModel()).collect(Collectors.toList());
         } else {
@@ -55,24 +54,44 @@ public class BuildConfigurationProvider extends BasePaginationProvider<BuildConf
         }
     }
 
-    public List<BuildConfigurationRest> getAll(Integer projectId) {
-        Iterable<BuildConfiguration> product = buildConfigurationRepository.findAll(withProjectId(projectId));
-        return nullableStreamOf(product).map(projectConfiguration -> new BuildConfigurationRest(projectConfiguration)).collect(
-                Collectors.toList());
+    public List<BuildConfigurationRest> getAll() {
+        return mapToListOfBuildConfigurationRest(buildConfigurationRepository.findAll());
     }
 
+    public List<BuildConfigurationRest> getAllForProject(Integer projectId) {
+        return mapToListOfBuildConfigurationRest(buildConfigurationRepository.findAll(withProjectId(projectId)));
+    }
+
+    public List<BuildConfigurationRest> getAllForProduct(Integer productId) {
+        return mapToListOfBuildConfigurationRest(buildConfigurationRepository.findAll(withProductId(productId)));
+    }
+
+    public List<BuildConfigurationRest> getAllForProductAndProductVersion(Integer productId, Integer versionId) {
+        return mapToListOfBuildConfigurationRest(buildConfigurationRepository.findAll(withProductId(productId).and(withProductVersionId(versionId))));
+    }
+
+    @Deprecated
     public BuildConfigurationRest getSpecific(Integer projectId, Integer id) {
         BuildConfiguration projectConfiguration = buildConfigurationRepository.findOne(withProjectId(projectId).and(withConfigurationId(id)));
-        if (projectConfiguration != null) {
-            return new BuildConfigurationRest(projectConfiguration);
-        }
-        return null;
+        return mapToBuildConfigurationRest(projectConfiguration);
     }
 
+    public BuildConfigurationRest getSpecific(Integer id) {
+        BuildConfiguration projectConfiguration = buildConfigurationRepository.findOne(withConfigurationId(id));
+        return mapToBuildConfigurationRest(projectConfiguration);
+    }
+
+    @Deprecated
     public Integer store(Integer projectId, BuildConfigurationRest buildConfigurationRest) {
         Project project = projectRepository.findOne(projectId);
         Preconditions.checkArgument(project != null, "Couldn't find project with id " + projectId);
-        BuildConfiguration buildConfiguration = buildConfigurationRest.getBuildConfiguration(project);
+        BuildConfiguration buildConfiguration = buildConfigurationRest.toBuildConfiguration(project);
+        buildConfiguration = buildConfigurationRepository.save(buildConfiguration);
+        return buildConfiguration.getId();
+    }
+
+    public Integer store(BuildConfigurationRest buildConfigurationRest) {
+        BuildConfiguration buildConfiguration = buildConfigurationRest.toBuildConfiguration();
         buildConfiguration = buildConfigurationRepository.save(buildConfiguration);
         return buildConfiguration.getId();
     }
@@ -95,7 +114,12 @@ public class BuildConfigurationProvider extends BasePaginationProvider<BuildConf
         return buildConfiguration.getId();
     }
 
+    @Deprecated
     public Integer clone(Integer projectId, Integer buildConfigurationId) {
+        return clone(buildConfigurationId);
+    }
+
+    public Integer clone(Integer buildConfigurationId) {
         BuildConfiguration buildConfiguration = buildConfigurationRepository.findOne(buildConfigurationId);
         Preconditions.checkArgument(buildConfiguration != null, "Couldn't find buildConfiguration with id "
                 + buildConfigurationId);
@@ -115,5 +139,17 @@ public class BuildConfigurationProvider extends BasePaginationProvider<BuildConf
 
     public void delete(Integer configurationId) {
         buildConfigurationRepository.delete(configurationId);
+    }
+
+    private BuildConfigurationRest mapToBuildConfigurationRest(BuildConfiguration projectConfiguration) {
+        if (projectConfiguration != null) {
+            return new BuildConfigurationRest(projectConfiguration);
+        }
+        return null;
+    }
+
+    private List<BuildConfigurationRest> mapToListOfBuildConfigurationRest(Iterable<BuildConfiguration> entries) {
+        return nullableStreamOf(entries).map(projectConfiguration -> new BuildConfigurationRest(projectConfiguration)).collect(
+                Collectors.toList());
     }
 }
