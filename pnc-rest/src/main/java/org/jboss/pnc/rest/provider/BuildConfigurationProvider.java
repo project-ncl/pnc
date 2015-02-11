@@ -4,7 +4,6 @@ import com.google.common.base.Preconditions;
 import org.jboss.pnc.datastore.repositories.BuildConfigurationRepository;
 import org.jboss.pnc.datastore.repositories.ProjectRepository;
 import org.jboss.pnc.model.BuildConfiguration;
-import org.jboss.pnc.model.Project;
 import org.jboss.pnc.model.builder.BuildConfigurationBuilder;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationRest;
 
@@ -37,21 +36,17 @@ public class BuildConfigurationProvider extends BasePaginationProvider<BuildConf
     // Needed to map the Entity into the proper REST object
     @Override
     public Function<? super BuildConfiguration, ? extends BuildConfigurationRest> toRestModel() {
-        return projectConfiguration -> new BuildConfigurationRest(projectConfiguration);
+        return projectConfiguration -> {
+            if(projectConfiguration != null) {
+                return new BuildConfigurationRest(projectConfiguration);
+            }
+            return null;
+        };
     }
 
     @Override
     public String getDefaultSortingField() {
         return BuildConfiguration.DEFAULT_SORTING_FIELD;
-    }
-
-    @Deprecated
-    public Object getAll(Integer pageIndex, Integer pageSize, String field, String sorting) {
-        if (noPaginationRequired(pageIndex, pageSize, field, sorting)) {
-            return buildConfigurationRepository.findAll().stream().map(toRestModel()).collect(Collectors.toList());
-        } else {
-            return transform(buildConfigurationRepository.findAll(buildPageRequest(pageIndex, pageSize, field, sorting)));
-        }
     }
 
     public List<BuildConfigurationRest> getAll() {
@@ -70,24 +65,9 @@ public class BuildConfigurationProvider extends BasePaginationProvider<BuildConf
         return mapToListOfBuildConfigurationRest(buildConfigurationRepository.findAll(withProductId(productId).and(withProductVersionId(versionId))));
     }
 
-    @Deprecated
-    public BuildConfigurationRest getSpecific(Integer projectId, Integer id) {
-        BuildConfiguration projectConfiguration = buildConfigurationRepository.findOne(withProjectId(projectId).and(withConfigurationId(id)));
-        return mapToBuildConfigurationRest(projectConfiguration);
-    }
-
     public BuildConfigurationRest getSpecific(Integer id) {
         BuildConfiguration projectConfiguration = buildConfigurationRepository.findOne(withConfigurationId(id));
-        return mapToBuildConfigurationRest(projectConfiguration);
-    }
-
-    @Deprecated
-    public Integer store(Integer projectId, BuildConfigurationRest buildConfigurationRest) {
-        Project project = projectRepository.findOne(projectId);
-        Preconditions.checkArgument(project != null, "Couldn't find project with id " + projectId);
-        BuildConfiguration buildConfiguration = buildConfigurationRest.toBuildConfiguration(project);
-        buildConfiguration = buildConfigurationRepository.save(buildConfiguration);
-        return buildConfiguration.getId();
+        return toRestModel().apply(projectConfiguration);
     }
 
     public Integer store(BuildConfigurationRest buildConfigurationRest) {
@@ -114,11 +94,6 @@ public class BuildConfigurationProvider extends BasePaginationProvider<BuildConf
         return buildConfiguration.getId();
     }
 
-    @Deprecated
-    public Integer clone(Integer projectId, Integer buildConfigurationId) {
-        return clone(buildConfigurationId);
-    }
-
     public Integer clone(Integer buildConfigurationId) {
         BuildConfiguration buildConfiguration = buildConfigurationRepository.findOne(buildConfigurationId);
         Preconditions.checkArgument(buildConfiguration != null, "Couldn't find buildConfiguration with id "
@@ -139,13 +114,6 @@ public class BuildConfigurationProvider extends BasePaginationProvider<BuildConf
 
     public void delete(Integer configurationId) {
         buildConfigurationRepository.delete(configurationId);
-    }
-
-    private BuildConfigurationRest mapToBuildConfigurationRest(BuildConfiguration projectConfiguration) {
-        if (projectConfiguration != null) {
-            return new BuildConfigurationRest(projectConfiguration);
-        }
-        return null;
     }
 
     private List<BuildConfigurationRest> mapToListOfBuildConfigurationRest(Iterable<BuildConfiguration> entries) {

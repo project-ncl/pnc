@@ -1,22 +1,19 @@
 package org.jboss.pnc.rest.provider;
 
-import static org.jboss.pnc.datastore.predicates.ProjectPredicates.withProductId;
-import static org.jboss.pnc.datastore.predicates.ProjectPredicates.withProductVersionId;
-import static org.jboss.pnc.datastore.predicates.ProjectPredicates.withProjectId;
-import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
-
-import java.util.List;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-
-import javax.ejb.Stateless;
-import javax.inject.Inject;
-
+import com.google.common.base.Preconditions;
 import org.jboss.pnc.datastore.repositories.ProjectRepository;
 import org.jboss.pnc.model.Project;
 import org.jboss.pnc.rest.restmodel.ProjectRest;
 
-import com.google.common.base.Preconditions;
+import javax.ejb.Stateless;
+import javax.inject.Inject;
+import java.util.List;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
+import static org.jboss.pnc.datastore.predicates.ProjectPredicates.withProductId;
+import static org.jboss.pnc.datastore.predicates.ProjectPredicates.withProductVersionId;
+import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
 
 @Stateless
 public class ProjectProvider extends BasePaginationProvider<ProjectRest, Project> {
@@ -57,15 +54,6 @@ public class ProjectProvider extends BasePaginationProvider<ProjectRest, Project
         return nullableStreamOf(project).map(productVersion -> new ProjectRest(productVersion)).collect(Collectors.toList());
     }
 
-    public ProjectRest getSpecific(Integer productId, Integer productVersionId, Integer projectId) {
-        Project project = projectRepository
-                .findOne(withProductVersionId(productVersionId).and(withProjectId(projectId)));
-        if (project != null) {
-            return new ProjectRest(project);
-        }
-        return null;
-    }
-
     public ProjectRest getSpecific(Integer id) {
         Project project = projectRepository.findOne(id);
         if (project != null) {
@@ -75,7 +63,7 @@ public class ProjectProvider extends BasePaginationProvider<ProjectRest, Project
     }
 
     public Integer store(ProjectRest projectRest) {
-        Project project = projectRest.getProject(projectRest);
+        Project project = projectRest.toProject();
         project = projectRepository.save(project);
         return project.getId();
     }

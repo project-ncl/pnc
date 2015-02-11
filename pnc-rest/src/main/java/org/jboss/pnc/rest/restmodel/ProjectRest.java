@@ -1,16 +1,14 @@
 package org.jboss.pnc.rest.restmodel;
 
-import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
-
-import java.util.List;
-import java.util.stream.Collectors;
-
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlTransient;
-
 import org.jboss.pnc.model.License;
 import org.jboss.pnc.model.Project;
 import org.jboss.pnc.model.builder.ProjectBuilder;
+
+import javax.xml.bind.annotation.XmlRootElement;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
 
 @XmlRootElement(name = "Project")
 public class ProjectRest {
@@ -180,18 +178,16 @@ public class ProjectRest {
     /**
      * Gets the project.
      *
-     * @param projectRest the project rest
      * @return the project
      */
-    @XmlTransient
-    public Project getProject(ProjectRest projectRest) {
+    public Project toProject() {
         ProjectBuilder builder = ProjectBuilder.newBuilder();
-        builder.id(projectRest.getId());
-        builder.name(projectRest.getName());
-        builder.description(projectRest.getDescription());
-        builder.issueTrackerUrl(projectRest.getIssueTrackerUrl());
-        builder.projectUrl(projectRest.getProjectUrl());
-        builder.license(projectRest.getLicense());
+        builder.id(id);
+        builder.name(name);
+        builder.description(description);
+        builder.issueTrackerUrl(issueTrackerUrl);
+        builder.projectUrl(projectUrl);
+        builder.license(license);
         return builder.build();
     }
 
