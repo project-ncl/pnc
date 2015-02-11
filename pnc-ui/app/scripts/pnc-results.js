@@ -30,7 +30,7 @@ $(document).ready(function() {
 
   $.when(
      $.ajax({
-         url: PNC_REST_BASE_URL + '/project/' + project.id + '/configuration/' + configurationId + '/record',
+         url: PNC_REST_BASE_URL + '/record/configuration/' + configurationId,
          method: 'GET',
          success: function (data) {
            $.each(data, function(entryIndex, entry){
@@ -44,7 +44,7 @@ $(document).ready(function() {
          }
      }),
      $.ajax({
-         url: PNC_REST_BASE_URL + '/project/' + project.id + '/configuration/' + configurationId,
+         url: PNC_REST_BASE_URL + '/configuration/' + configurationId,
          method: 'GET',
          success: function (data) {
 

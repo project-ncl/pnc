@@ -12,11 +12,13 @@ public class ProjectPredicates {
     }
 
     public static BooleanExpression withProductVersionId(Integer productVersionId) {
-        return createNotNullPredicate(productVersionId != null, () -> QProject.project.productVersionProjects.any().productVersion.id.eq(productVersionId));
+        return createNotNullPredicate(productVersionId != null,
+                () -> QProject.project.productVersionProjects.any().productVersion.id.eq(productVersionId));
     }
 
     public static BooleanExpression withProductId(Integer productId) {
-        return createNotNullPredicate(productId != null, () -> QProject.project.productVersionProjects.any().productVersion.product.id.eq(productId));
+        return createNotNullPredicate(productId != null,
+                () -> QProject.project.productVersionProjects.any().productVersion.product.id.eq(productId));
     }
 
 }

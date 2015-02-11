@@ -1,14 +1,19 @@
 package org.jboss.pnc.integration;
 
-import com.jayway.restassured.http.ContentType;
-import com.jayway.restassured.response.Response;
+import static com.jayway.restassured.RestAssured.given;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.jboss.pnc.integration.env.IntegrationTestEnv.getHttpPort;
+
+import java.io.IOException;
+import java.lang.invoke.MethodHandles;
+
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.junit.InSequence;
 import org.jboss.pnc.common.util.IoUtils;
 import org.jboss.pnc.integration.assertions.JsonMatcher;
-import org.jboss.pnc.integration.matchers.ResponseAssertion;
 import org.jboss.pnc.integration.deployments.Deployments;
+import org.jboss.pnc.integration.matchers.ResponseAssertion;
 import org.jboss.pnc.integration.template.JsonTemplateBuilder;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
 import org.junit.Test;
@@ -16,17 +21,20 @@ import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.lang.invoke.MethodHandles;
-
-import static com.jayway.restassured.RestAssured.given;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.jboss.pnc.integration.env.IntegrationTestEnv.getHttpPort;
+import com.jayway.restassured.http.ContentType;
+import com.jayway.restassured.response.Response;
 
 @RunWith(Arquillian.class)
 public class BuildConfigurationRestTest {
 
     public static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+
+    private static final String PRODUCT_REST_ENDPOINT = "/pnc-web/rest/product/";
+    private static final String PRODUCT_VERSION_REST_ENDPOINT = "/pnc-web/rest/product/%d/version";
+    private static final String PROJECT_PRODUCT_VERSION_REST_ENDPOINT = "/pnc-web/rest/product/%d/version/%d/project";
+    private static final String CONFIGURATION_REST_ENDPOINT = "/pnc-web/rest/configuration/";
+    private static final String CONFIGURATION_SPECIFIC_REST_ENDPOINT = "/pnc-web/rest/configuration/%d";
+    private static final String CONFIGURATION_CLONE_REST_ENDPOINT = "/pnc-web/rest/configuration/%d/clone";
 
     private static int productId;
     private static int productVersionId;
@@ -43,7 +51,7 @@ public class BuildConfigurationRestTest {
     @Test
     @InSequence(-4)
     public void prepareProductId() {
-        given().contentType(ContentType.JSON).port(getHttpPort()).when().get("/pnc-web/rest/product/").then().statusCode(200)
+        given().contentType(ContentType.JSON).port(getHttpPort()).when().get(PRODUCT_REST_ENDPOINT).then().statusCode(200)
                 .body(JsonMatcher.containsJsonAttribute("[0].id", value -> productId = Integer.valueOf(value)));
     }
 
@@ -51,7 +59,7 @@ public class BuildConfigurationRestTest {
     @InSequence(-3)
     public void prepareProductVersionId() {
         given().contentType(ContentType.JSON).port(getHttpPort()).when()
-                .get(String.format("/pnc-web/rest/product/%d/version", productId)).then().statusCode(200)
+                .get(String.format(PRODUCT_VERSION_REST_ENDPOINT, productId)).then().statusCode(200)
                 .body(JsonMatcher.containsJsonAttribute("[0].id", value -> productVersionId = Integer.valueOf(value)));
     }
 
@@ -59,22 +67,22 @@ public class BuildConfigurationRestTest {
     @InSequence(-2)
     public void prepareProjectId() {
         given().contentType(ContentType.JSON).port(getHttpPort()).when()
-                .get(String.format("/pnc-web/rest/product/%d/version/%d/project", productId, productVersionId)).then()
-                .statusCode(200).body(JsonMatcher.containsJsonAttribute("[0].id", value -> projectId = Integer.valueOf(value)));
+                .get(String.format(PROJECT_PRODUCT_VERSION_REST_ENDPOINT, productId, productVersionId)).then().statusCode(200)
+                .body(JsonMatcher.containsJsonAttribute("[0].id", value -> projectId = Integer.valueOf(value)));
     }
 
     @Test
     @InSequence(-1)
     public void shouldGetAllBuildConfigurations() {
-        given().contentType(ContentType.JSON).port(getHttpPort()).when()
-                .get("/pnc-web/rest/configuration/").then().statusCode(200)
+        given().contentType(ContentType.JSON).port(getHttpPort()).when().get(CONFIGURATION_REST_ENDPOINT).then()
+                .statusCode(200)
                 .body(JsonMatcher.containsJsonAttribute("[0].id", value -> configurationId = Integer.valueOf(value)));
     }
 
     @Test
     public void shouldGetSpecificBuildConfiguration() {
         given().contentType(ContentType.JSON).port(getHttpPort()).when()
-                .get(String.format("/pnc-web/rest/configuration/%d", configurationId)).then().statusCode(200)
+                .get(String.format(CONFIGURATION_SPECIFIC_REST_ENDPOINT, configurationId)).then().statusCode(200)
                 .body(JsonMatcher.containsJsonAttribute("id"));
     }
 
@@ -82,13 +90,13 @@ public class BuildConfigurationRestTest {
     public void shouldCreateNewBuildConfiguration() throws IOException {
         String rawJson = loadJsonFromFile("buildConfiguration");
 
-        given().body(rawJson).contentType(ContentType.JSON).port(getHttpPort()).when()
-                .post(String.format("/pnc-web/rest/configuration")).then().statusCode(201);
+        given().body(rawJson).contentType(ContentType.JSON).port(getHttpPort()).when().post(CONFIGURATION_REST_ENDPOINT).then()
+                .statusCode(201);
     }
 
     @Test
     public void shouldUpdateBuildConfiguration() throws IOException {
-        //given
+        // given
         final String updatedScmUrl = "https://github.com/project-ncl/pnc.git";
         final String updatedBuildScript = "mvn clean deploy -Dmaven.test.skip=true";
         final String updatedName = "pnc-1.0.1.ER1";
@@ -105,26 +113,23 @@ public class BuildConfigurationRestTest {
         configurationTemplate.addValue("_repositories", "");
         configurationTemplate.addValue("_projectId", updatedProjectId);
 
-        //when
+        // when
         given().body(configurationTemplate.fillTemplate()).contentType(ContentType.JSON).port(getHttpPort()).when()
-                .put(String.format("/pnc-web/rest/configuration/%d", configurationId)).then().statusCode(200);
+                .put(String.format(CONFIGURATION_SPECIFIC_REST_ENDPOINT, configurationId)).then().statusCode(200);
 
         Response response = given().contentType(ContentType.JSON).port(getHttpPort()).when()
-                .get(String.format("/pnc-web/rest/configuration/%d", configurationId));
+                .get(String.format(CONFIGURATION_SPECIFIC_REST_ENDPOINT, configurationId));
 
-        //then
+        // then
         ResponseAssertion.assertThat(response).hasStatus(200);
-        ResponseAssertion.assertThat(response)
-                .hasJsonValueEqual("id", configurationId)
-                .hasJsonValueEqual("name", updatedName)
-                .hasJsonValueEqual("buildScript", updatedBuildScript)
-                .hasJsonValueEqual("scmUrl", updatedScmUrl)
+        ResponseAssertion.assertThat(response).hasJsonValueEqual("id", configurationId).hasJsonValueEqual("name", updatedName)
+                .hasJsonValueEqual("buildScript", updatedBuildScript).hasJsonValueEqual("scmUrl", updatedScmUrl)
                 .hasJsonValueEqual("projectId", updatedProjectId);
     }
 
     @Test
     public void shouldCloneBuildConfiguration() {
-        String buildConfigurationRestURI = String.format("/pnc-web/rest/configuration/%d/clone", configurationId);
+        String buildConfigurationRestURI = String.format(CONFIGURATION_CLONE_REST_ENDPOINT, configurationId);
         Response response = given().body("").contentType(ContentType.JSON).port(getHttpPort()).when()
                 .post(buildConfigurationRestURI);
 
@@ -133,10 +138,10 @@ public class BuildConfigurationRestTest {
         logger.info("Cloned id of buildConfiguration: " + clonedBuildConfigurationId);
 
         Response originalBuildConfiguration = given().contentType(ContentType.JSON).port(getHttpPort()).when()
-                .get(String.format("/pnc-web/rest/configuration/%d", configurationId));
+                .get(String.format(CONFIGURATION_SPECIFIC_REST_ENDPOINT, configurationId));
 
         Response clonedBuildConfiguration = given().contentType(ContentType.JSON).port(getHttpPort()).when()
-                .get(String.format("/pnc-web/rest/configuration/%d", clonedBuildConfigurationId));
+                .get(String.format(CONFIGURATION_SPECIFIC_REST_ENDPOINT, clonedBuildConfigurationId));
 
         ResponseAssertion.assertThat(response).hasStatus(201).hasLocationMatches(".*\\/pnc-web\\/rest\\/configuration\\/\\d+");
 
@@ -162,7 +167,7 @@ public class BuildConfigurationRestTest {
     @InSequence(999)
     public void shouldDeleteProjectConfiguration() {
         given().contentType(ContentType.JSON).port(getHttpPort()).when()
-                .delete(String.format("/pnc-web/rest/configuration/%d", configurationId)).then().statusCode(200);
+                .delete(String.format(CONFIGURATION_SPECIFIC_REST_ENDPOINT, configurationId)).then().statusCode(200);
     }
 
     private String loadJsonFromFile(String resource) throws IOException {

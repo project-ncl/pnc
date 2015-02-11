@@ -1,22 +1,30 @@
 package org.jboss.pnc.rest.endpoint;
 
-import com.wordnik.swagger.annotations.Api;
-import com.wordnik.swagger.annotations.ApiOperation;
-import com.wordnik.swagger.annotations.ApiParam;
-
-import org.jboss.pnc.rest.provider.ProjectProvider;
-import org.jboss.pnc.rest.restmodel.ProductRest;
-import org.jboss.pnc.rest.restmodel.ProjectRest;
+import java.util.List;
 
 import javax.inject.Inject;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-import javax.ws.rs.*;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
+
+import org.jboss.pnc.rest.provider.ProjectProvider;
+import org.jboss.pnc.rest.restmodel.ProjectRest;
+
+import com.wordnik.swagger.annotations.Api;
+import com.wordnik.swagger.annotations.ApiOperation;
+import com.wordnik.swagger.annotations.ApiParam;
 
 @Api(value = "/project", description = "Project related information")
 @Path("/project")
@@ -65,5 +73,14 @@ public class ProjectEndpoint {
             @NotNull @Valid ProjectRest projectRest, @Context UriInfo uriInfo) {
         projectProvider.update(projectRest);
         return Response.ok().build();
+    }
+
+    @ApiOperation(value = "Gets all Projects of a Product Version")
+    @GET
+    @Path("/product/{productId}/version/{versionId}")
+    public List<ProjectRest> getAllByProductId(
+            @ApiParam(value = "Product id", required = true) @PathParam("productId") Integer productId,
+            @ApiParam(value = "Product Version id id", required = true) @PathParam("versionId") Integer versionId) {
+        return projectProvider.getAllForProductAndProductVersion(productId, versionId);
     }
 }
