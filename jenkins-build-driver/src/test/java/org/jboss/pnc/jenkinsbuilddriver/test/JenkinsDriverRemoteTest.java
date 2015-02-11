@@ -64,7 +64,6 @@ public class JenkinsDriverRemoteTest {
     JenkinsBuildDriver jenkinsBuildDriver;
 
     @Test
-    @Ignore //requires configuration //TODO
     public void startJenkinsJobTestCase() throws Exception {
         BuildConfiguration pbc = getBuildConfiguration();
 
