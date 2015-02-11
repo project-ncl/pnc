@@ -1,16 +1,9 @@
 package org.jboss.pnc.rest.provider;
 
-import org.jboss.pnc.core.builder.BuildCoordinator;
-import org.jboss.pnc.core.builder.BuildTask;
-import org.jboss.pnc.datastore.predicates.RSQLPredicateProducer;
-import org.jboss.pnc.datastore.repositories.BuildRecordRepository;
-import org.jboss.pnc.model.BuildRecord;
-import org.jboss.pnc.datastore.predicates.RSQLPredicate;
-import org.jboss.pnc.rest.restmodel.BuildRecordRest;
+import static org.jboss.pnc.datastore.predicates.BuildRecordRepositoryPredicates.withBuildConfigurationId;
+import static org.jboss.pnc.datastore.predicates.BuildRecordRepositoryPredicates.withBuildRecordId;
+import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
 
-import javax.ejb.Stateless;
-import javax.inject.Inject;
-import javax.ws.rs.core.StreamingOutput;
 import java.io.BufferedWriter;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
@@ -18,8 +11,17 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static org.jboss.pnc.datastore.predicates.BuildRecordRepositoryPredicates.withBuildRecordId;
-import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
+import javax.ejb.Stateless;
+import javax.inject.Inject;
+import javax.ws.rs.core.StreamingOutput;
+
+import org.jboss.pnc.core.builder.BuildCoordinator;
+import org.jboss.pnc.core.builder.BuildTask;
+import org.jboss.pnc.datastore.predicates.RSQLPredicate;
+import org.jboss.pnc.datastore.predicates.RSQLPredicateProducer;
+import org.jboss.pnc.datastore.repositories.BuildRecordRepository;
+import org.jboss.pnc.model.BuildRecord;
+import org.jboss.pnc.rest.restmodel.BuildRecordRest;
 
 @Stateless
 public class BuildRecordProvider extends BasePaginationProvider<BuildRecordRest, BuildRecord> {
@@ -50,9 +52,11 @@ public class BuildRecordProvider extends BasePaginationProvider<BuildRecordRest,
     public Object getAllArchived(Integer pageIndex, Integer pageSize, String field, String sorting, String rsqls) {
         RSQLPredicate rsqlPredicate = RSQLPredicateProducer.fromRSQL(BuildRecord.class, rsqls);
         if (noPaginationRequired(pageIndex, pageSize, field, sorting)) {
-            return nullableStreamOf(buildRecordRepository.findAll(rsqlPredicate.get())).map(toRestModel()).collect(Collectors.toList());
+            return nullableStreamOf(buildRecordRepository.findAll(rsqlPredicate.get())).map(toRestModel()).collect(
+                    Collectors.toList());
         } else {
-            return transform(buildRecordRepository.findAll(rsqlPredicate.get(), buildPageRequest(pageIndex, pageSize, field, sorting)));
+            return transform(buildRecordRepository.findAll(rsqlPredicate.get(),
+                    buildPageRequest(pageIndex, pageSize, field, sorting)));
         }
     }
 
@@ -63,6 +67,11 @@ public class BuildRecordProvider extends BasePaginationProvider<BuildRecordRest,
 
     public List<BuildRecordRest> getAllArchivedOfBuildConfiguration(Integer buildRecordId) {
         return nullableStreamOf(buildRecordRepository.findAll(withBuildRecordId(buildRecordId))).map(
+                buildRecord -> new BuildRecordRest(buildRecord)).collect(Collectors.toList());
+    }
+
+    public List<BuildRecordRest> getAllForBuildConfiguration(Integer configurationId) {
+        return nullableStreamOf(buildRecordRepository.findAll(withBuildConfigurationId(configurationId))).map(
                 buildRecord -> new BuildRecordRest(buildRecord)).collect(Collectors.toList());
     }
 

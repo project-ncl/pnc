@@ -10,4 +10,8 @@ public class BuildRecordRepositoryPredicates {
     public static BooleanExpression withBuildRecordId(Integer buildRecordId) {
         return createNotNullPredicate(buildRecordId != null, () -> QBuildRecord.buildRecord.id.eq(buildRecordId));
     }
+
+    public static BooleanExpression withBuildConfigurationId(Integer configurationId) {
+        return createNotNullPredicate(configurationId != null, () -> QBuildRecord.buildRecord.buildConfiguration.id.eq(configurationId));
+    }
 }

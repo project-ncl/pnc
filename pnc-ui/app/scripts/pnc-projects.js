@@ -19,7 +19,7 @@ $(document).ready(function() {
   $('#projects').dataTable( {
     stateSave: true,
     'ajax': {
-      'url': PNC_REST_BASE_URL + '/product/' + product.id + '/version/' + version.id + '/project',
+      'url': PNC_REST_BASE_URL + '/project/product/' + product.id + '/version/' + version.id ,
       'type': 'GET',
       'dataSrc': ''
     }, 

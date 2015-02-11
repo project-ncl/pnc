@@ -1,20 +1,27 @@
 package org.jboss.pnc.rest.provider;
 
-import com.google.common.base.Preconditions;
+import static org.jboss.pnc.datastore.predicates.BuildConfigurationPredicates.withConfigurationId;
+import static org.jboss.pnc.datastore.predicates.BuildConfigurationPredicates.withProductId;
+import static org.jboss.pnc.datastore.predicates.BuildConfigurationPredicates.withProductVersionId;
+import static org.jboss.pnc.datastore.predicates.BuildConfigurationPredicates.withProjectId;
+import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
+
+import java.util.List;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
+import javax.ejb.Stateless;
+import javax.inject.Inject;
+
+import org.jboss.pnc.datastore.predicates.RSQLPredicate;
+import org.jboss.pnc.datastore.predicates.RSQLPredicateProducer;
 import org.jboss.pnc.datastore.repositories.BuildConfigurationRepository;
 import org.jboss.pnc.datastore.repositories.ProjectRepository;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.builder.BuildConfigurationBuilder;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationRest;
 
-import javax.ejb.Stateless;
-import javax.inject.Inject;
-import java.util.List;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-
-import static org.jboss.pnc.datastore.predicates.BuildConfigurationPredicates.*;
-import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
+import com.google.common.base.Preconditions;
 
 @Stateless
 public class BuildConfigurationProvider extends BasePaginationProvider<BuildConfigurationRest, BuildConfiguration> {
@@ -37,7 +44,7 @@ public class BuildConfigurationProvider extends BasePaginationProvider<BuildConf
     @Override
     public Function<? super BuildConfiguration, ? extends BuildConfigurationRest> toRestModel() {
         return projectConfiguration -> {
-            if(projectConfiguration != null) {
+            if (projectConfiguration != null) {
                 return new BuildConfigurationRest(projectConfiguration);
             }
             return null;
@@ -47,6 +54,17 @@ public class BuildConfigurationProvider extends BasePaginationProvider<BuildConf
     @Override
     public String getDefaultSortingField() {
         return BuildConfiguration.DEFAULT_SORTING_FIELD;
+    }
+
+    public Object getAll(Integer pageIndex, Integer pageSize, String field, String sorting, String rsqls) {
+        RSQLPredicate rsqlPredicate = RSQLPredicateProducer.fromRSQL(BuildConfiguration.class, rsqls);
+        if (noPaginationRequired(pageIndex, pageSize, field, sorting)) {
+            return nullableStreamOf(buildConfigurationRepository.findAll(rsqlPredicate.get())).map(toRestModel()).collect(
+                    Collectors.toList());
+        } else {
+            return transform(buildConfigurationRepository.findAll(rsqlPredicate.get(),
+                    buildPageRequest(pageIndex, pageSize, field, sorting)));
+        }
     }
 
     public List<BuildConfigurationRest> getAll() {
@@ -62,7 +80,8 @@ public class BuildConfigurationProvider extends BasePaginationProvider<BuildConf
     }
 
     public List<BuildConfigurationRest> getAllForProductAndProductVersion(Integer productId, Integer versionId) {
-        return mapToListOfBuildConfigurationRest(buildConfigurationRepository.findAll(withProductId(productId).and(withProductVersionId(versionId))));
+        return mapToListOfBuildConfigurationRest(buildConfigurationRepository.findAll(withProductId(productId).and(
+                withProductVersionId(versionId))));
     }
 
     public BuildConfigurationRest getSpecific(Integer id) {

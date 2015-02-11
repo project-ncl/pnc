@@ -1,19 +1,21 @@
 package org.jboss.pnc.rest.provider;
 
-import com.google.common.base.Preconditions;
-import org.jboss.pnc.datastore.repositories.ProjectRepository;
-import org.jboss.pnc.model.Project;
-import org.jboss.pnc.rest.restmodel.ProjectRest;
+import static org.jboss.pnc.datastore.predicates.ProjectPredicates.withProductId;
+import static org.jboss.pnc.datastore.predicates.ProjectPredicates.withProductVersionId;
+import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
 
-import javax.ejb.Stateless;
-import javax.inject.Inject;
 import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static org.jboss.pnc.datastore.predicates.ProjectPredicates.withProductId;
-import static org.jboss.pnc.datastore.predicates.ProjectPredicates.withProductVersionId;
-import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
+import javax.ejb.Stateless;
+import javax.inject.Inject;
+
+import org.jboss.pnc.datastore.repositories.ProjectRepository;
+import org.jboss.pnc.model.Project;
+import org.jboss.pnc.rest.restmodel.ProjectRest;
+
+import com.google.common.base.Preconditions;
 
 @Stateless
 public class ProjectProvider extends BasePaginationProvider<ProjectRest, Project> {
@@ -50,7 +52,8 @@ public class ProjectProvider extends BasePaginationProvider<ProjectRest, Project
     }
 
     public List<ProjectRest> getAll(Integer productId, Integer productVersionId, String field, String sorting, String rsql) {
-        Iterable<Project> project = projectRepository.findAll(withProductVersionId(productVersionId).and(withProductId(productId)));
+        Iterable<Project> project = projectRepository.findAll(withProductVersionId(productVersionId).and(
+                withProductId(productId)));
         return nullableStreamOf(project).map(productVersion -> new ProjectRest(productVersion)).collect(Collectors.toList());
     }
 
@@ -81,6 +84,14 @@ public class ProjectProvider extends BasePaginationProvider<ProjectRest, Project
 
         project = projectRepository.saveAndFlush(project);
         return project.getId();
+    }
+
+    public List<ProjectRest> getAllForProductAndProductVersion(Integer productId, Integer versionId) {
+        return mapToListOfProjectRest(projectRepository.findAll(withProductId(productId).and(withProductVersionId(versionId))));
+    }
+
+    private List<ProjectRest> mapToListOfProjectRest(Iterable<Project> entries) {
+        return nullableStreamOf(entries).map(project -> new ProjectRest(project)).collect(Collectors.toList());
     }
 
 }

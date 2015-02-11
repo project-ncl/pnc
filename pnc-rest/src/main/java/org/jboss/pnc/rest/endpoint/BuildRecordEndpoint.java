@@ -1,15 +1,23 @@
 package org.jboss.pnc.rest.endpoint;
 
-import com.wordnik.swagger.annotations.Api;
-import com.wordnik.swagger.annotations.ApiOperation;
-import com.wordnik.swagger.annotations.ApiParam;
+import java.util.List;
+
+import javax.inject.Inject;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+
 import org.jboss.pnc.rest.provider.BuildRecordProvider;
 import org.jboss.pnc.rest.restmodel.BuildRecordRest;
 
-import javax.inject.Inject;
-import javax.ws.rs.*;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
+import com.wordnik.swagger.annotations.Api;
+import com.wordnik.swagger.annotations.ApiOperation;
+import com.wordnik.swagger.annotations.ApiParam;
 
 @Api(value = "/record", description = "Records of building process")
 @Path("/record")
@@ -51,9 +59,11 @@ public class BuildRecordEndpoint {
         return Response.ok(buildRecordProvider.getLogsForBuildId(id)).build();
     }
 
-    /**
-     * TODO avibelli - (need to wait for additional fields in BuildRecord)
-     * 
-     * GET /record/configuration/{configurationId} Gets the Build Records triggered by a specific Build Configuration
-     */
+    @ApiOperation(value = "Gets the Build Records linked to a specific Build Configuration")
+    @GET
+    @Path("/configuration/{configurationId}")
+    public List<BuildRecordRest> getAllForBuildConfiguration(
+            @ApiParam(value = "BuildC Configuration id", required = true) @PathParam("configurationId") Integer configurationId) {
+        return buildRecordProvider.getAllForBuildConfiguration(configurationId);
+    }
 }
