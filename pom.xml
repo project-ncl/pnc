@@ -913,11 +913,6 @@
     </profile>
     <profile>
       <id>integration-test</id>
-      <activation>
-        <property>
-          <name>!skipTests</name>
-        </property>
-      </activation>
       <modules>
         <module>integration-test</module>
       </modules>
