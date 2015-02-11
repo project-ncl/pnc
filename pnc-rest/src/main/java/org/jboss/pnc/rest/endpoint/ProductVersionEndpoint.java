@@ -1,17 +1,31 @@
 package org.jboss.pnc.rest.endpoint;
 
-import com.wordnik.swagger.annotations.Api;
-import com.wordnik.swagger.annotations.ApiOperation;
-import com.wordnik.swagger.annotations.ApiParam;
+import java.util.List;
+
+import javax.inject.Inject;
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriBuilder;
+import javax.ws.rs.core.UriInfo;
+
 import org.jboss.pnc.rest.provider.ProductVersionProvider;
 import org.jboss.pnc.rest.provider.ProjectProvider;
 import org.jboss.pnc.rest.restmodel.ProductVersionRest;
 import org.jboss.pnc.rest.restmodel.ProjectRest;
 
-import javax.inject.Inject;
-import javax.ws.rs.*;
-import javax.ws.rs.core.MediaType;
-import java.util.List;
+import com.wordnik.swagger.annotations.Api;
+import com.wordnik.swagger.annotations.ApiOperation;
+import com.wordnik.swagger.annotations.ApiParam;
 
 @Api(value = "/product/{productId}/version", description = "Product Version related information")
 @Path("/product/{productId}/version")
@@ -19,23 +33,21 @@ import java.util.List;
 @Consumes(MediaType.APPLICATION_JSON)
 public class ProductVersionEndpoint {
 
-    private ProductVersionProvider productProviderProvider;
-    private ProjectProvider projectProvider;
+    private ProductVersionProvider productVersionProvider;
 
     public ProductVersionEndpoint() {
     }
 
     @Inject
-    public ProductVersionEndpoint(ProductVersionProvider productProviderProvider, ProjectProvider projectProvider) {
-        this.productProviderProvider = productProviderProvider;
-        this.projectProvider = projectProvider;
+    public ProductVersionEndpoint(ProductVersionProvider productVersionProvider, ProjectProvider projectProvider) {
+        this.productVersionProvider = productVersionProvider;
     }
 
     @ApiOperation(value = "Gets all Product Versions")
     @GET
     public List<ProductVersionRest> getAll(
             @ApiParam(value = "Product id", required = true) @PathParam("productId") Integer productId) {
-        return productProviderProvider.getAll(productId);
+        return productVersionProvider.getAll(productId);
     }
 
     @ApiOperation(value = "Gets specific Product Version")
@@ -44,20 +56,26 @@ public class ProductVersionEndpoint {
     public ProductVersionRest getSpecific(
             @ApiParam(value = "Product id", required = true) @PathParam("productId") Integer productId,
             @ApiParam(value = "Product Version id", required = true) @PathParam("id") Integer id) {
-        return productProviderProvider.getSpecific(productId, id);
+        return productVersionProvider.getSpecific(productId, id);
     }
 
-    @ApiOperation(value = "Gets all Projects of a specific Product Version")
-    @GET
-    @Path("/{id}/project")
-    public List<ProjectRest> getAllProjectsOfProductVersion(
-            @ApiParam(value = "Page index", required = false) @QueryParam("pageIndex") Integer pageIndex,
-            @ApiParam(value = "Pagination size", required = false) @QueryParam("pageSize") Integer pageSize,
-            @ApiParam(value = "Sorting field", required = false) @QueryParam("sorted_by") String field,
-            @ApiParam(value = "Sort direction", required = false) @QueryParam("sorting") String sorting,
-            @ApiParam(value = "Product id", required = true) @PathParam("productId") Integer productId,
-            @ApiParam(value = "Product Version id", required = true) @PathParam("id") Integer productVersionId,
-            @ApiParam(value = "RSQL query", required = false) @QueryParam("q") String rsql) {
-        return projectProvider.getAll(productId, productVersionId, field, sorting, rsql);
+    @ApiOperation(value = "Creates a new Product Version")
+    @POST
+    public Response createNew(@ApiParam(value = "Product id", required = true) @PathParam("productId") Integer productId,
+            @NotNull @Valid ProductVersionRest productVersionRest, @Context UriInfo uriInfo) {
+        int id = productVersionProvider.store(productId, productVersionRest);
+        UriBuilder uriBuilder = UriBuilder.fromUri(uriInfo.getRequestUri()).path("{id}");
+        return Response.created(uriBuilder.build(id)).build();
     }
+
+    @ApiOperation(value = "Updates an existing Product Version")
+    @PUT
+    @Path("/{id}")
+    public Response update(@ApiParam(value = "Product id", required = true) @PathParam("productId") Integer productId,
+            @ApiParam(value = "Product Version id", required = true) @PathParam("id") Integer id,
+            @NotNull @Valid ProductVersionRest productVersionRest, @Context UriInfo uriInfo) {
+        productVersionProvider.update(productVersionRest);
+        return Response.ok().build();
+    }
+
 }

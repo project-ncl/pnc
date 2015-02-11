@@ -1,12 +1,14 @@
 package org.jboss.pnc.rest.restmodel;
 
-import org.jboss.pnc.model.ProductVersion;
+import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
 
-import javax.xml.bind.annotation.XmlRootElement;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
+import javax.xml.bind.annotation.XmlRootElement;
+
+import org.jboss.pnc.model.ProductVersion;
+import org.jboss.pnc.model.builder.ProductVersionBuilder;
 
 @XmlRootElement(name = "ProductVersion")
 public class ProductVersionRest {
@@ -26,9 +28,8 @@ public class ProductVersionRest {
         this.id = productVersion.getId();
         this.version = productVersion.getVersion();
         this.productId = productVersion.getProduct().getId();
-        this.projectIds = nullableStreamOf(productVersion.getProductVersionProjects())
-                .map(productVersionProjects -> productVersionProjects.getProject().getId())
-                .collect(Collectors.toList());
+        this.projectIds = nullableStreamOf(productVersion.getProductVersionProjects()).map(
+                productVersionProjects -> productVersionProjects.getProject().getId()).collect(Collectors.toList());
 
     }
 
@@ -63,4 +64,12 @@ public class ProductVersionRest {
     public void setProjectIds(List<Integer> projectIds) {
         this.projectIds = projectIds;
     }
+
+    public ProductVersion toProductVersion() {
+        ProductVersionBuilder builder = ProductVersionBuilder.newBuilder();
+        builder.id(id);
+        builder.version(version);
+        return builder.build();
+    }
+
 }

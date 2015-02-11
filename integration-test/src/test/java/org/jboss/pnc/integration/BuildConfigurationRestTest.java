@@ -31,7 +31,7 @@ public class BuildConfigurationRestTest {
 
     private static final String PRODUCT_REST_ENDPOINT = "/pnc-web/rest/product/";
     private static final String PRODUCT_VERSION_REST_ENDPOINT = "/pnc-web/rest/product/%d/version";
-    private static final String PROJECT_PRODUCT_VERSION_REST_ENDPOINT = "/pnc-web/rest/product/%d/version/%d/project";
+    private static final String PROJECT_PRODUCT_VERSION_REST_ENDPOINT = "/pnc-web/rest/project/product/%d/version/%d";
     private static final String CONFIGURATION_REST_ENDPOINT = "/pnc-web/rest/configuration/";
     private static final String CONFIGURATION_SPECIFIC_REST_ENDPOINT = "/pnc-web/rest/configuration/%d";
     private static final String CONFIGURATION_CLONE_REST_ENDPOINT = "/pnc-web/rest/configuration/%d/clone";

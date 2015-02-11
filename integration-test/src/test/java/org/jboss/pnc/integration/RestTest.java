@@ -86,7 +86,7 @@ public class RestTest {
     @InSequence(4)
     public void shouldGetAllProjectAssignedToProductAndProductVersion() {
         given().contentType(ContentType.JSON).port(getHttpPort()).when()
-                .get(String.format("/pnc-web/rest/product/%d/version/%d/project", productId, productVersionId)).then()
+                .get(String.format("/pnc-web/rest/project/product/%d/version/%d", productId, productVersionId)).then()
                 .statusCode(200).body(JsonMatcher.containsJsonAttribute("[0].id", value -> projectId = Integer.valueOf(value)));
     }
 
