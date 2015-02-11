@@ -23,6 +23,7 @@
     <arquillian.container.version>8.2.0.Final</arquillian.container.version>
     <jboss.port.offset>0</jboss.port.offset>
     <default.management.port>9990</default.management.port>
+    <jboss.management.port>${default.management.port}</jboss.management.port>
   </properties>
 
   <dependencies>

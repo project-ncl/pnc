@@ -54,7 +54,6 @@ public class Product implements Serializable {
     /**
      * @param name
      * @param description
-     * @param version
      */
     public Product(String name, String description) {
         this();
@@ -126,7 +125,6 @@ public class Product implements Serializable {
      */
     public Set<ProductVersion> addVersion(ProductVersion version) {
         productVersions.add(version);
-
         return productVersions;
     }
 

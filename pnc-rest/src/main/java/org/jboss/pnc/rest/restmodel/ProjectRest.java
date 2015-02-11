@@ -2,6 +2,7 @@ package org.jboss.pnc.rest.restmodel;
 
 import org.jboss.pnc.model.License;
 import org.jboss.pnc.model.Project;
+import org.jboss.pnc.model.builder.BuildConfigurationBuilder;
 import org.jboss.pnc.model.builder.ProjectBuilder;
 
 import javax.xml.bind.annotation.XmlRootElement;
@@ -188,6 +189,10 @@ public class ProjectRest {
         builder.issueTrackerUrl(issueTrackerUrl);
         builder.projectUrl(projectUrl);
         builder.license(license);
+
+        configurationIds.forEach(configurationId ->
+                builder.buildConfiguration(BuildConfigurationBuilder.newBuilder().id(configurationId).build()));
+
         return builder.build();
     }
 
