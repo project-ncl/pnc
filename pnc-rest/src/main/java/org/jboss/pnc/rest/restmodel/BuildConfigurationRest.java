@@ -1,11 +1,14 @@
 package org.jboss.pnc.rest.restmodel;
 
-import org.jboss.pnc.model.Project;
 import org.jboss.pnc.model.BuildConfiguration;
+import org.jboss.pnc.model.Project;
 import org.jboss.pnc.model.builder.BuildConfigurationBuilder;
+import org.jboss.pnc.model.builder.ProjectBuilder;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import java.sql.Timestamp;
+
+import static org.jboss.pnc.rest.utils.Utility.performIfNotNull;
 
 @XmlRootElement(name = "Configuration")
 public class BuildConfigurationRest {
@@ -28,6 +31,8 @@ public class BuildConfigurationRest {
 
     private String repositories;
 
+    private Integer projectId;
+
     public BuildConfigurationRest() {
     }
 
@@ -41,6 +46,7 @@ public class BuildConfigurationRest {
         this.creationTime = buildConfiguration.getCreationTime();
         this.lastModificationTime = buildConfiguration.getLastModificationTime();
         this.repositories = buildConfiguration.getRepositories();
+        performIfNotNull(buildConfiguration.getProject() != null, () -> this.projectId = buildConfiguration.getProject().getId());
     }
 
     public Integer getId() {
@@ -115,7 +121,16 @@ public class BuildConfigurationRest {
         this.repositories = repositories;
     }
 
-    public BuildConfiguration getBuildConfiguration(Project project) {
+    public Integer getProjectId() {
+        return projectId;
+    }
+
+    public void setProjectId(Integer projectId) {
+        this.projectId = projectId;
+    }
+
+    @Deprecated
+    public BuildConfiguration toBuildConfiguration(Project project) {
         BuildConfigurationBuilder builder = BuildConfigurationBuilder.newBuilder();
         builder.project(project);
         builder.name(name);
@@ -126,6 +141,25 @@ public class BuildConfigurationRest {
         builder.creationTime(creationTime);
         builder.lastModificationTime(lastModificationTime);
         builder.repositories(repositories);
+        return builder.build();
+    }
+
+    public BuildConfiguration toBuildConfiguration() {
+        BuildConfigurationBuilder builder = BuildConfigurationBuilder.newBuilder();
+        builder.name(name);
+        builder.description(description);
+        builder.buildScript(buildScript);
+        builder.scmUrl(scmUrl);
+        builder.patchesUrl(patchesUrl);
+        builder.creationTime(creationTime);
+        builder.lastModificationTime(lastModificationTime);
+        builder.repositories(repositories);
+
+        if(projectId != null) {
+            Project project = ProjectBuilder.newBuilder().id(projectId).build();
+            builder.project(project);
+        }
+
         return builder.build();
     }
 }

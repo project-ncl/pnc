@@ -14,4 +14,13 @@ public class BuildConfigurationPredicates {
     public static BooleanExpression withProjectId(Integer projectId) {
         return createNotNullPredicate(projectId != null, () -> QBuildConfiguration.buildConfiguration.project.id.eq(projectId));
     }
+
+    public static BooleanExpression withProductId(Integer productId) {
+        return createNotNullPredicate(productId != null, () -> QBuildConfiguration.buildConfiguration.productVersion.product.id.eq(productId));
+    }
+
+    public static BooleanExpression withProductVersionId(Integer productVersionId) {
+        return createNotNullPredicate(productVersionId != null, () -> QBuildConfiguration.buildConfiguration.productVersion.id.eq(productVersionId));
+    }
+
 }
