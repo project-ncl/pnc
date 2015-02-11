@@ -129,21 +129,6 @@ public class BuildConfigurationRest {
         this.projectId = projectId;
     }
 
-    @Deprecated
-    public BuildConfiguration toBuildConfiguration(Project project) {
-        BuildConfigurationBuilder builder = BuildConfigurationBuilder.newBuilder();
-        builder.project(project);
-        builder.name(name);
-        builder.description(description);
-        builder.buildScript(buildScript);
-        builder.scmUrl(scmUrl);
-        builder.patchesUrl(patchesUrl);
-        builder.creationTime(creationTime);
-        builder.lastModificationTime(lastModificationTime);
-        builder.repositories(repositories);
-        return builder.build();
-    }
-
     public BuildConfiguration toBuildConfiguration() {
         BuildConfigurationBuilder builder = BuildConfigurationBuilder.newBuilder();
         builder.name(name);

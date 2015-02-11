@@ -91,6 +91,7 @@ public class BuildConfigurationEndpoint {
     @ApiOperation(value = "Triggers a specific Build Configuration to build")
     @POST
     @Path("/{id}/build")
+    @Consumes(MediaType.WILDCARD)
     public Response trigger(@ApiParam(value = "Build Configuration id", required = true) @PathParam("id") Integer id, @Context UriInfo uriInfo) {
         try {
             Integer runningBuildId = buildTriggerer.triggerBuilds(id);

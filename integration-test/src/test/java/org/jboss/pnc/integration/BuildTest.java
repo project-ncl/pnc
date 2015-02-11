@@ -33,15 +33,12 @@ public class BuildTest {
 
     @Test
     public void shouldTriggerBuildAndFinishWithoutProblems() {
-        int productId = extractIdFromRest("/pnc-web/rest/product");
-        int versionId = extractIdFromRest(String.format("/pnc-web/rest/product/%d/version", productId));
-        int projectId = extractIdFromRest(String.format("/pnc-web/rest/product/%d/version/%d/project", productId, versionId));
-        int configurationId = extractIdFromRest(String.format("/pnc-web/rest/project/%d/configuration", projectId));
+        int configurationId = extractIdFromRest("/pnc-web/rest/configuration");
 
         given()
-                .port(getHttpPort())
+            .port(getHttpPort())
         .when()
-            .post(String.format("/pnc-web/rest/project/%d/configuration/%d/build", projectId, configurationId))
+            .post(String.format("/pnc-web/rest/configuration/%d/build", configurationId))
         .then()
             .statusCode(200);
     }
