@@ -41,6 +41,12 @@ public class Product implements Serializable {
 
     private String description;
 
+    private String abbreviation;
+
+    private String productCode;
+
+    private String pgmSystemName;
+
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
     private Set<ProductVersion> productVersions;
 
@@ -102,6 +108,39 @@ public class Product implements Serializable {
     public void setDescription(String description) {
         this.description = description;
     }
+
+    /**
+     * Shortened informal name of the product
+     */
+    public String getAbbreviation() {
+		return abbreviation;
+	}
+
+	public void setAbbreviation(String abbreviation) {
+		this.abbreviation = abbreviation;
+	}
+
+	/**
+     * Product code in internal systems
+     */
+	public String getProductCode() {
+		return productCode;
+	}
+
+	public void setProductCode(String productCode) {
+		this.productCode = productCode;
+	}
+
+    /**
+     * Name of the product used by program management planning system
+     */
+	public String getPgmSystemName() {
+		return pgmSystemName;
+	}
+
+	public void setPgmSystemName(String pgmSystemName) {
+		this.pgmSystemName = pgmSystemName;
+	}
 
     /**
      * @return the productVersions
