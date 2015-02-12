@@ -9,7 +9,7 @@
       url: '',
       views: {
         'content@': {
-          templateUrl: 'scripts/dashboard/dashboard.html',
+          templateUrl: 'dashboard/dashboard.html',
           controller: 'DashboardCtrl'
         }
       }

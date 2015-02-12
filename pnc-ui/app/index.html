@@ -6,7 +6,7 @@
     <base href="/">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="shortcut icon" href="images/favicon.ico">
-    <!-- build:css(app) styles/vendor.css -->
+    <!-- build:css(.) styles/vendor.css -->
     <!-- bower:css -->
     <link rel="stylesheet" href="bower_components/patternfly/dist/css/patternfly.css" />
     <link rel="stylesheet" href="bower_components/font-awesome/css/font-awesome.css" />
@@ -18,14 +18,14 @@
     <!-- include: "type": "css", "files": "styles/**/*.css" -->
     <!-- endbuild -->
 
-    <!-- build:js(.) scripts/oldieshim.js -->
+    <!-- build:js(.) oldieshim.js -->
     <!--[if lt IE 9]>
     <script src="bower_components/es5-shim/es5-shim.js"></script>
     <script src="bower_components/json3/lib/json3.js"></script>
     <![endif]-->
     <!-- endbuild -->
 
-    <!-- build:js(app) scripts/vendor.js -->
+    <!-- build:js(.) scripts/vendor.js -->
     <!-- bower:js -->
     <script src="bower_components/jquery/dist/jquery.js"></script>
     <script src="bower_components/angular/angular.js"></script>
@@ -43,8 +43,8 @@
     <!-- endbuild -->
 
     <!-- build:js({.tmp,app}) scripts/pnc.js -->
-    <script src="scripts/app.js"></script>
-    <!-- include: "type": "js", "files": ["scripts/**/*.js", "!scripts/app.js"] -->
+    <script src="app.js"></script>
+    <!-- include: "type": "js", "files": ["**/*.js", "!app.js"] -->
     <!-- endbuild -->
   </head>
   <body>

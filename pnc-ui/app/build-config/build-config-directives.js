@@ -1,3 +1,4 @@
+
 'use strict';
 
 (function() {
@@ -20,7 +21,7 @@
         pncWatch: '=',
         pncClick: '&'
       },
-      templateUrl: 'scripts/build-config/pnc-browse-column.html',
+      templateUrl: 'build-config/pnc-browse-column.html',
       controller: ['$scope', function($scope) {
 
         $scope.pncIdField = $scope.pncIdField || DEFAULT_ID_FIELD;

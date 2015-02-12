@@ -12,7 +12,7 @@
         url: '/build-config',
         views: {
           'content@': {
-            templateUrl: 'scripts/build-config/build-config.html',
+            templateUrl: 'build-config/build-config.html',
             controller: 'BuildConfigCtrl'
           }
         }
@@ -27,7 +27,7 @@
         },
         views: {
           'content@build-config': {
-            templateUrl: 'scripts/build-config/build-config.product.html',
+            templateUrl: 'build-config/build-config.product.html',
             controller: 'ProductListCtrl'
           }
         }
@@ -43,7 +43,7 @@
         },
         views: {
           'content@build-config': {
-            templateUrl: 'scripts/build-config/build-config.product.show.html',
+            templateUrl: 'build-config/build-config.product.show.html',
             controller: 'ProductCtrl'
           }
         }
@@ -79,7 +79,7 @@
         },
         views: {
           'content@build-config': {
-            templateUrl: 'scripts/build-config/build-config.product.show.version.show.html',
+            templateUrl: 'build-config/build-config.product.show.version.show.html',
             controller: 'VersionCtrl'
           }
         }
