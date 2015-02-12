@@ -22,7 +22,7 @@ module.exports = function (grunt) {
   var appConfig = {
     app: require('./bower.json').appPath || 'app',
     dist: 'dist',
-    lib: 'app/bower_components',
+    lib: 'bower_components',
     tmp: '.tmp',
     proxyHost: PROXY_HOST
   };
@@ -115,17 +115,15 @@ module.exports = function (grunt) {
         options: {
           open: true,
           middleware: function (connect) {
-            // Setup the proxy
-            var middlewares = [];
-            middlewares.push(connect.static('.tmp'));
-            middlewares.push(connect().use(
-              '/<%= yeoman.lib %>',
-              connect.static('./<%= yeoman.lib %>')
-            ));
-            middlewares.push(connect.static(appConfig.app));
-            middlewares.push(require('grunt-connect-proxy/lib/utils').proxyRequest);
-
-            return middlewares;
+            return [
+              connect.static('.tmp'),
+              connect().use(
+                '/bower_components',
+                connect.static('./bower_components')
+              ),
+              connect.static(appConfig.app),
+              require('grunt-connect-proxy/lib/utils').proxyRequest
+            ];
           }
         }
       },
