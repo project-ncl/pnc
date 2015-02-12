@@ -40,6 +40,14 @@ public class BuildRecordBuilder {
 
     private String buildScript;
 
+    private String name;
+
+    private String description;
+
+    private String sourceUrl;
+
+    private String patchesUrl;
+
     private Timestamp startTime;
 
     private Timestamp endTime;
@@ -47,10 +55,6 @@ public class BuildRecordBuilder {
     private BuildConfiguration buildConfiguration;
 
     private User user;
-
-    private String sourceUrl;
-
-    private String patchesUrl;
 
     private String buildLog;
 
@@ -81,6 +85,8 @@ public class BuildRecordBuilder {
         BuildRecord buildRecord = new BuildRecord();
         buildRecord.setId(id);
         buildRecord.setBuildScript(buildScript);
+        buildRecord.setName(name);
+        buildRecord.setDescription(description);
         buildRecord.setStartTime(startTime);
         buildRecord.setEndTime(endTime);
         buildRecord.setBuildConfiguration(buildConfiguration);
@@ -116,6 +122,16 @@ public class BuildRecordBuilder {
 
     public BuildRecordBuilder buildScript(String buildScript) {
         this.buildScript = buildScript;
+        return this;
+    }
+
+    public BuildRecordBuilder name(String name) {
+        this.name = name;
+        return this;
+    }
+
+    public BuildRecordBuilder description(String description) {
+        this.description = description;
         return this;
     }
 
@@ -200,6 +216,14 @@ public class BuildRecordBuilder {
 
     public String getBuildScript() {
         return buildScript;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getDescription() {
+        return description;
     }
 
     public Timestamp getStartTime() {

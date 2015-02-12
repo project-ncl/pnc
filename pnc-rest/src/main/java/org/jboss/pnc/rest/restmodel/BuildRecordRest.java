@@ -1,14 +1,15 @@
 package org.jboss.pnc.rest.restmodel;
 
-import org.jboss.pnc.core.builder.BuildTask;
-import org.jboss.pnc.model.BuildDriverStatus;
-import org.jboss.pnc.model.BuildConfiguration;
-import org.jboss.pnc.model.BuildRecord;
+import static org.jboss.pnc.rest.utils.Utility.performIfNotNull;
 
-import javax.xml.bind.annotation.XmlRootElement;
 import java.sql.Timestamp;
 
-import static org.jboss.pnc.rest.utils.Utility.performIfNotNull;
+import javax.xml.bind.annotation.XmlRootElement;
+
+import org.jboss.pnc.core.builder.BuildTask;
+import org.jboss.pnc.model.BuildConfiguration;
+import org.jboss.pnc.model.BuildDriverStatus;
+import org.jboss.pnc.model.BuildRecord;
 
 @XmlRootElement(name = "BuildRecord")
 public class BuildRecordRest {
@@ -20,6 +21,10 @@ public class BuildRecordRest {
     private Timestamp endTime;
 
     private String buildScript;
+
+    private String name;
+
+    private String description;
 
     private String sourceUrl;
 
@@ -41,9 +46,12 @@ public class BuildRecordRest {
     public BuildRecordRest(BuildRecord buildRecord) {
         this.id = buildRecord.getId();
         this.buildScript = buildRecord.getBuildScript();
+        this.name = buildRecord.getName();
+        this.description = buildRecord.getDescription();
         this.startTime = buildRecord.getStartTime();
         this.endTime = buildRecord.getEndTime();
-        performIfNotNull(buildRecord.getBuildConfiguration() != null, () -> buildConfigurationId = buildRecord.getBuildConfiguration().getId());
+        performIfNotNull(buildRecord.getBuildConfiguration() != null, () -> buildConfigurationId = buildRecord
+                .getBuildConfiguration().getId());
         performIfNotNull(buildRecord.getUser() != null, () -> userId = buildRecord.getUser().getId());
         performIfNotNull(buildRecord.getSystemImage() != null, () -> systemImageId = buildRecord.getSystemImage().getId());
         this.sourceUrl = buildRecord.getSourceUrl();
@@ -56,10 +64,10 @@ public class BuildRecordRest {
         this.id = buildTask.getBuildConfiguration().getId();
         BuildConfiguration buildConfiguration = buildTask.getBuildConfiguration();
         this.buildScript = buildConfiguration.getBuildScript();
+        this.name = buildConfiguration.getName();
+        this.description = buildConfiguration.getDescription();
         this.startTime = buildConfiguration.getCreationTime();
-        performIfNotNull(
-                buildTask.getBuildConfiguration() != null &&
-                        buildConfiguration != null,
+        performIfNotNull(buildTask.getBuildConfiguration() != null && buildConfiguration != null,
                 () -> buildConfigurationId = buildConfiguration.getId());
         this.sourceUrl = buildConfiguration.getScmUrl();
         this.patchesUrl = buildConfiguration.getPatchesUrl();
@@ -96,6 +104,22 @@ public class BuildRecordRest {
 
     public void setBuildScript(String buildScript) {
         this.buildScript = buildScript;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     public String getSourceUrl() {

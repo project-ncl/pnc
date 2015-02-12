@@ -1,12 +1,21 @@
 package org.jboss.pnc.model;
 
-import javax.persistence.*;
-
 import java.io.Serializable;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.persistence.CascadeType;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.Lob;
+import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-11-23.
@@ -28,21 +37,25 @@ public class BuildRecord implements Serializable {
     @GeneratedValue
     private Integer id;
 
+    @ManyToOne
+    private BuildConfiguration buildConfiguration;
+
     private String buildScript;
+
+    private String name;
+
+    private String description;
+
+    private String sourceUrl;
+
+    private String patchesUrl;
 
     private Timestamp startTime;
 
     private Timestamp endTime;
 
     @ManyToOne
-    private BuildConfiguration buildConfiguration;
-
-    @ManyToOne
     private User user;
-
-    private String sourceUrl;
-
-    private String patchesUrl;
 
     @Lob
     private String buildLog;
@@ -347,6 +360,34 @@ public class BuildRecord implements Serializable {
      */
     public void setBuildConfiguration(BuildConfiguration buildConfiguration) {
         this.buildConfiguration = buildConfiguration;
+    }
+
+    /**
+     * @return the name
+     */
+    public String getName() {
+        return name;
+    }
+
+    /**
+     * @param name the name to set
+     */
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    /**
+     * @return the description
+     */
+    public String getDescription() {
+        return description;
+    }
+
+    /**
+     * @param description the description to set
+     */
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     @Override
