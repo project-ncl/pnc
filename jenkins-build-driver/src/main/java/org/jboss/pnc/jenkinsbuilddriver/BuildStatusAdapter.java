@@ -20,7 +20,6 @@ class BuildStatusAdapter {
             case UNSTABLE:
                 return BuildDriverStatus.UNSTABLE;
             case REBUILDING:
-                return BuildDriverStatus.REBUILDING;
             case BUILDING:
                 return BuildDriverStatus.BUILDING;
             case ABORTED:
