@@ -20,6 +20,12 @@ public class ProductRest {
 
     private String description;
 
+    private String abbreviation;
+
+    private String productCode;
+
+    private String pgmSystemName;
+
     private List<Integer> productVersionIds;
 
     public ProductRest() {
@@ -29,6 +35,9 @@ public class ProductRest {
         this.id = product.getId();
         this.name = product.getName();
         this.description = product.getDescription();
+        this.abbreviation = product.getAbbreviation();
+        this.productCode = product.getProductCode();
+        this.pgmSystemName = product.getPgmSystemName();
         this.productVersionIds = nullableStreamOf(product.getProductVersions()).map(productVersion -> productVersion.getId())
                 .collect(Collectors.toList());
     }
@@ -56,6 +65,30 @@ public class ProductRest {
     public void setDescription(String description) {
         this.description = description;
     }
+
+    public String getAbbreviation() {
+		return abbreviation;
+	}
+
+	public void setAbbreviation(String abbreviation) {
+		this.abbreviation = abbreviation;
+	}
+
+	public String getProductCode() {
+		return productCode;
+	}
+
+	public void setProductCode(String productCode) {
+		this.productCode = productCode;
+	}
+
+	public String getPgmSystemName() {
+		return pgmSystemName;
+	}
+
+	public void setPgmSystemName(String pgmSystemName) {
+		this.pgmSystemName = pgmSystemName;
+	}
 
     public List<Integer> getProductVersionIds() {
         return productVersionIds;

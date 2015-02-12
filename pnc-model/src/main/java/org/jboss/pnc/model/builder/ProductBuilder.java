@@ -35,6 +35,12 @@ public class ProductBuilder {
 
     private String description;
 
+    private String abbreviation;
+
+    private String productCode;
+
+    private String pgmSystemName;
+
     private Set<ProductVersion> productVersions;
 
     private ProductBuilder() {
@@ -51,6 +57,9 @@ public class ProductBuilder {
         product.setId(id);
         product.setName(name);
         product.setDescription(description);
+        product.setAbbreviation(abbreviation);
+        product.setProductCode(productCode);
+        product.setPgmSystemName(pgmSystemName);
 
         // Set the bi-directional mapping
         for (ProductVersion productVersion : productVersions) {
@@ -76,6 +85,21 @@ public class ProductBuilder {
         return this;
     }
 
+    public ProductBuilder abbreviation(String abbreviation) {
+        this.abbreviation = abbreviation;
+        return this;
+    }
+
+    public ProductBuilder productCode(String productCode) {
+        this.productCode = productCode;
+        return this;
+    }
+
+    public ProductBuilder pgmSystemName(String pgmSystemName) {
+        this.pgmSystemName = pgmSystemName;
+        return this;
+    }
+
     public ProductBuilder productVersion(ProductVersion productVersion) {
         this.productVersions.add(productVersion);
         return this;
@@ -96,6 +120,18 @@ public class ProductBuilder {
 
     public String getDescription() {
         return description;
+    }
+
+    public String getAbbreviation() {
+        return abbreviation;
+    }
+
+    public String getProductCode() {
+        return productCode;
+    }
+
+    public String getPgmSystemName() {
+        return pgmSystemName;
     }
 
     public Set<ProductVersion> getProductVersions() {
