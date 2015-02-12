@@ -1,14 +1,13 @@
 package org.jboss.pnc.rest.restmodel;
 
-import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
+import org.jboss.pnc.model.Product;
+import org.jboss.pnc.model.ProductVersion;
 
+import javax.xml.bind.annotation.XmlRootElement;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import javax.xml.bind.annotation.XmlRootElement;
-
-import org.jboss.pnc.model.ProductVersion;
-import org.jboss.pnc.model.builder.ProductVersionBuilder;
+import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
 
 @XmlRootElement(name = "ProductVersion")
 public class ProductVersionRest {
@@ -65,11 +64,32 @@ public class ProductVersionRest {
         this.projectIds = projectIds;
     }
 
-    public ProductVersion toProductVersion() {
-        ProductVersionBuilder builder = ProductVersionBuilder.newBuilder();
-        builder.id(id);
-        builder.version(version);
-        return builder.build();
+    public ProductVersion toProductVersion(Product product) {
+        ProductVersion productVersionToBeUpdated = getProductVersionFromProductOrNewOne(product);
+        return toProductVersion(productVersionToBeUpdated);
+    }
+
+    public ProductVersion toProductVersion(ProductVersion productVersion) {
+        productVersion.setVersion(version);
+        return productVersion;
+    }
+
+    /**
+     * Checks if ProductVersion is present in Product. If it is true - returns it or creates new one otherwise.
+     */
+    private ProductVersion getProductVersionFromProductOrNewOne(Product product) {
+        List<ProductVersion> productVersionsInProduct = nullableStreamOf(product.getProductVersions())
+                .filter(productVersion -> productVersion.getId().equals(id))
+                .collect(Collectors.toList());
+
+        if(!productVersionsInProduct.isEmpty()) {
+            return productVersionsInProduct.get(0);
+        }
+
+        ProductVersion productVersion = new ProductVersion();
+        productVersion.setProduct(product);
+        product.getProductVersions().add(productVersion);
+        return productVersion;
     }
 
 }
