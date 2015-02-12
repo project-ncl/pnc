@@ -1,12 +1,7 @@
 package org.jboss.pnc.integration;
 
-import static com.jayway.restassured.RestAssured.given;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.jboss.pnc.integration.env.IntegrationTestEnv.getHttpPort;
-
-import java.io.IOException;
-import java.lang.invoke.MethodHandles;
-
+import com.jayway.restassured.http.ContentType;
+import com.jayway.restassured.response.Response;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.junit.InSequence;
@@ -21,8 +16,12 @@ import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.jayway.restassured.http.ContentType;
-import com.jayway.restassured.response.Response;
+import java.io.IOException;
+import java.lang.invoke.MethodHandles;
+
+import static com.jayway.restassured.RestAssured.given;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.jboss.pnc.integration.env.IntegrationTestEnv.getHttpPort;
 
 @RunWith(Arquillian.class)
 public class BuildConfigurationRestTest {
@@ -145,8 +144,11 @@ public class BuildConfigurationRestTest {
 
         ResponseAssertion.assertThat(response).hasStatus(201).hasLocationMatches(".*\\/pnc-web\\/rest\\/configuration\\/\\d+");
 
+        assertThat(originalBuildConfiguration.body().jsonPath().getString("creationTime")).isNotEqualTo(
+                clonedBuildConfiguration.body().jsonPath().getString("creationTime"));
         assertThat(originalBuildConfiguration.body().jsonPath().getInt("id")).isNotEqualTo(
                 "_" + clonedBuildConfiguration.body().jsonPath().getInt("id"));
+
         assertThat("_" + originalBuildConfiguration.body().jsonPath().getString("name")).isEqualTo(
                 clonedBuildConfiguration.body().jsonPath().getString("name"));
         assertThat(originalBuildConfiguration.body().jsonPath().getString("buildScript")).isEqualTo(
@@ -155,8 +157,6 @@ public class BuildConfigurationRestTest {
                 clonedBuildConfiguration.body().jsonPath().getString("scmUrl"));
         assertThat(originalBuildConfiguration.body().jsonPath().getString("patchesUrl")).isEqualTo(
                 clonedBuildConfiguration.body().jsonPath().getString("patchesUrl"));
-        assertThat(originalBuildConfiguration.body().jsonPath().getString("creationTime")).isEqualTo(
-                clonedBuildConfiguration.body().jsonPath().getString("creationTime"));
         assertThat(originalBuildConfiguration.body().jsonPath().getString("lastModificationTime")).isEqualTo(
                 clonedBuildConfiguration.body().jsonPath().getString("lastModificationTime"));
         assertThat(originalBuildConfiguration.body().jsonPath().getString("repositories")).isEqualTo(

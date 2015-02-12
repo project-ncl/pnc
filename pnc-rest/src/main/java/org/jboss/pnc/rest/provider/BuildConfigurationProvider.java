@@ -1,27 +1,21 @@
 package org.jboss.pnc.rest.provider;
 
-import static org.jboss.pnc.datastore.predicates.BuildConfigurationPredicates.withConfigurationId;
-import static org.jboss.pnc.datastore.predicates.BuildConfigurationPredicates.withProductId;
-import static org.jboss.pnc.datastore.predicates.BuildConfigurationPredicates.withProductVersionId;
-import static org.jboss.pnc.datastore.predicates.BuildConfigurationPredicates.withProjectId;
-import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
-
-import java.util.List;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-
-import javax.ejb.Stateless;
-import javax.inject.Inject;
-
+import com.google.common.base.Preconditions;
 import org.jboss.pnc.datastore.predicates.RSQLPredicate;
 import org.jboss.pnc.datastore.predicates.RSQLPredicateProducer;
 import org.jboss.pnc.datastore.repositories.BuildConfigurationRepository;
 import org.jboss.pnc.datastore.repositories.ProjectRepository;
 import org.jboss.pnc.model.BuildConfiguration;
-import org.jboss.pnc.model.builder.BuildConfigurationBuilder;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationRest;
 
-import com.google.common.base.Preconditions;
+import javax.ejb.Stateless;
+import javax.inject.Inject;
+import java.util.List;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
+import static org.jboss.pnc.datastore.predicates.BuildConfigurationPredicates.*;
+import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
 
 @Stateless
 public class BuildConfigurationProvider extends BasePaginationProvider<BuildConfigurationRest, BuildConfiguration> {
@@ -118,14 +112,7 @@ public class BuildConfigurationProvider extends BasePaginationProvider<BuildConf
         Preconditions.checkArgument(buildConfiguration != null, "Couldn't find buildConfiguration with id "
                 + buildConfigurationId);
 
-        BuildConfiguration clonedBuildConfiguration = BuildConfigurationBuilder.newBuilder()
-                .name("_" + buildConfiguration.getName()).buildScript(buildConfiguration.getBuildScript())
-                .scmUrl(buildConfiguration.getScmUrl()).scmBranch(buildConfiguration.getScmBranch())
-                .patchesUrl(buildConfiguration.getPatchesUrl()).description(buildConfiguration.getDescription())
-                .productVersion(buildConfiguration.getProductVersion()).project(buildConfiguration.getProject())
-                .environment(buildConfiguration.getEnvironment()).creationTime(buildConfiguration.getCreationTime())
-                .lastModificationTime(buildConfiguration.getLastModificationTime())
-                .repositories(buildConfiguration.getRepositories()).dependencies(buildConfiguration.getDependencies()).build();
+        BuildConfiguration clonedBuildConfiguration = buildConfiguration.clone();
 
         clonedBuildConfiguration = buildConfigurationRepository.save(clonedBuildConfiguration);
         return clonedBuildConfiguration.getId();
