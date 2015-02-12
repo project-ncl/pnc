@@ -1,15 +1,14 @@
 package org.jboss.pnc.rest.restmodel;
 
-import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
+import org.jboss.pnc.model.Product;
+import org.jboss.pnc.model.builder.ProductBuilder;
+import org.jboss.pnc.model.builder.ProductVersionBuilder;
 
+import javax.xml.bind.annotation.XmlRootElement;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlTransient;
-
-import org.jboss.pnc.model.Product;
-import org.jboss.pnc.model.builder.ProductBuilder;
+import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
 
 @XmlRootElement(name = "Product")
 public class ProductRest {
@@ -98,11 +97,20 @@ public class ProductRest {
         this.productVersionIds = productVersionIds;
     }
 
-    @XmlTransient
-    public Product getProduct(ProductRest productRest) {
+    public Product toProduct() {
         ProductBuilder builder = ProductBuilder.newBuilder();
-        builder.name(productRest.getName());
-        builder.description(productRest.getDescription());
+
+        builder.id(id);
+        builder.name(name);
+        builder.description(description);
+        builder.abbreviation(abbreviation);
+        builder.productCode(productCode);
+        builder.setPgmSystemName(pgmSystemName);
+        nullableStreamOf(productVersionIds).forEach(productVersionId -> {
+            ProductVersionBuilder productVersionBuilder = ProductVersionBuilder.newBuilder().id(productVersionId);
+            builder.productVersion(productVersionBuilder);
+        });
+
         return builder.build();
     }
 }

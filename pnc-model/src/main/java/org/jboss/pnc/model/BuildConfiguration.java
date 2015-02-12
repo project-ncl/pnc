@@ -24,7 +24,7 @@ import java.util.Set;
  * @author avibelli
  */
 @Entity
-public class BuildConfiguration implements Serializable {
+public class BuildConfiguration implements Serializable, Cloneable {
 
     private static final long serialVersionUID = -5890729679489304114L;
     
@@ -312,4 +312,21 @@ public class BuildConfiguration implements Serializable {
         return id != null ? id.hashCode() : 0;
     }
 
+    /**
+     * Creates a shallow based clone and overrides {@link #creationTime}, {@link #name} and erases {@link #id}.
+     *
+     * @return This objects clone.
+     */
+    @Override
+    public BuildConfiguration clone() {
+        try {
+            BuildConfiguration clone = (BuildConfiguration) super.clone();
+            clone.name = "_" + name;
+            clone.creationTime = Timestamp.from(Instant.now());
+            clone.id = null;
+            return clone;
+        } catch (CloneNotSupportedException e) {
+            throw new IllegalStateException("Cloning error" + e);
+        }
+    }
 }

@@ -1,31 +1,18 @@
 package org.jboss.pnc.rest.endpoint;
 
-import java.util.List;
+import com.wordnik.swagger.annotations.Api;
+import com.wordnik.swagger.annotations.ApiOperation;
+import com.wordnik.swagger.annotations.ApiParam;
+import org.jboss.pnc.rest.provider.ProductVersionProvider;
+import org.jboss.pnc.rest.provider.ProjectProvider;
+import org.jboss.pnc.rest.restmodel.ProductVersionRest;
 
 import javax.inject.Inject;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriBuilder;
-import javax.ws.rs.core.UriInfo;
-
-import org.jboss.pnc.rest.provider.ProductVersionProvider;
-import org.jboss.pnc.rest.provider.ProjectProvider;
-import org.jboss.pnc.rest.restmodel.ProductVersionRest;
-import org.jboss.pnc.rest.restmodel.ProjectRest;
-
-import com.wordnik.swagger.annotations.Api;
-import com.wordnik.swagger.annotations.ApiOperation;
-import com.wordnik.swagger.annotations.ApiParam;
+import javax.ws.rs.*;
+import javax.ws.rs.core.*;
+import java.util.List;
 
 @Api(value = "/product/{productId}/version", description = "Product Version related information")
 @Path("/product/{productId}/version")
@@ -74,7 +61,7 @@ public class ProductVersionEndpoint {
     public Response update(@ApiParam(value = "Product id", required = true) @PathParam("productId") Integer productId,
             @ApiParam(value = "Product Version id", required = true) @PathParam("id") Integer id,
             @NotNull @Valid ProductVersionRest productVersionRest, @Context UriInfo uriInfo) {
-        productVersionProvider.update(productVersionRest);
+        productVersionProvider.update(productId, productVersionRest);
         return Response.ok().build();
     }
 

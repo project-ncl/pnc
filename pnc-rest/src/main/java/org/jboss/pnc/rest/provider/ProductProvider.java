@@ -57,8 +57,7 @@ public class ProductProvider extends BasePaginationProvider<ProductRest, Product
     }
 
     public Integer store(ProductRest productRest) {
-        Product product = productRest.getProduct(productRest);
-        product = productRepository.save(product);
+        Product product = productRepository.save(productRest.toProduct());
         return product.getId();
     }
 
@@ -66,11 +65,7 @@ public class ProductProvider extends BasePaginationProvider<ProductRest, Product
         Product product = productRepository.findOne(productRest.getId());
         Preconditions.checkArgument(product != null, "Couldn't find product with id " + productRest.getId());
 
-        // Applying the changes
-        product.setName(productRest.getName());
-        product.setDescription(productRest.getDescription());
-
-        product = productRepository.saveAndFlush(product);
+        product = productRepository.saveAndFlush(productRest.toProduct());
         return product.getId();
     }
 

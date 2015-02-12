@@ -17,11 +17,11 @@
 
 package org.jboss.pnc.model.builder;
 
-import java.util.HashSet;
-import java.util.Set;
-
 import org.jboss.pnc.model.Product;
 import org.jboss.pnc.model.ProductVersion;
+
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * @author avibelli
@@ -52,7 +52,6 @@ public class ProductBuilder {
     }
 
     public Product build() {
-
         Product product = new Product();
         product.setId(id);
         product.setName(name);
@@ -110,6 +109,11 @@ public class ProductBuilder {
         return this;
     }
 
+    public ProductBuilder productVersion(ProductVersionBuilder productVersionBuilder) {
+        this.productVersions.add(productVersionBuilder.build());
+        return this;
+    }
+
     public Integer getId() {
         return id;
     }
@@ -138,4 +142,8 @@ public class ProductBuilder {
         return productVersions;
     }
 
+
+    public void setPgmSystemName(String pgmSystemName) {
+        this.pgmSystemName = pgmSystemName;
+    }
 }

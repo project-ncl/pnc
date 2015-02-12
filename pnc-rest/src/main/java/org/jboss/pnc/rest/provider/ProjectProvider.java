@@ -1,21 +1,19 @@
 package org.jboss.pnc.rest.provider;
 
-import static org.jboss.pnc.datastore.predicates.ProjectPredicates.withProductId;
-import static org.jboss.pnc.datastore.predicates.ProjectPredicates.withProductVersionId;
-import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
-
-import java.util.List;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-
-import javax.ejb.Stateless;
-import javax.inject.Inject;
-
+import com.google.common.base.Preconditions;
 import org.jboss.pnc.datastore.repositories.ProjectRepository;
 import org.jboss.pnc.model.Project;
 import org.jboss.pnc.rest.restmodel.ProjectRest;
 
-import com.google.common.base.Preconditions;
+import javax.ejb.Stateless;
+import javax.inject.Inject;
+import java.util.List;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
+import static org.jboss.pnc.datastore.predicates.ProjectPredicates.withProductId;
+import static org.jboss.pnc.datastore.predicates.ProjectPredicates.withProductVersionId;
+import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
 
 @Stateless
 public class ProjectProvider extends BasePaginationProvider<ProjectRest, Project> {
@@ -74,15 +72,7 @@ public class ProjectProvider extends BasePaginationProvider<ProjectRest, Project
     public Integer update(ProjectRest projectRest) {
         Project project = projectRepository.findOne(projectRest.getId());
         Preconditions.checkArgument(project != null, "Couldn't find project with id " + projectRest.getId());
-
-        // Applying the changes
-        project.setDescription(projectRest.getDescription());
-        project.setIssueTrackerUrl(projectRest.getIssueTrackerUrl());
-        project.setLicense(projectRest.getLicense());
-        project.setName(projectRest.getName());
-        project.setProjectUrl(projectRest.getProjectUrl());
-
-        project = projectRepository.saveAndFlush(project);
+        project = projectRepository.save(projectRest.toProject());
         return project.getId();
     }
 
