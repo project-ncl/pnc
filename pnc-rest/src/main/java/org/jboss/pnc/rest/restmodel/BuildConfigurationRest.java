@@ -6,6 +6,7 @@ import org.jboss.pnc.model.builder.BuildConfigurationBuilder;
 import org.jboss.pnc.model.builder.ProjectBuilder;
 
 import javax.xml.bind.annotation.XmlRootElement;
+
 import java.sql.Timestamp;
 
 import static org.jboss.pnc.rest.utils.Utility.performIfNotNull;
@@ -21,7 +22,9 @@ public class BuildConfigurationRest {
 
     private String buildScript;
 
-    private String scmUrl;
+    private String scmRepoURL;
+
+    private String scmRevision;
 
     private String patchesUrl;
 
@@ -41,12 +44,14 @@ public class BuildConfigurationRest {
         this.name = buildConfiguration.getName();
         this.description = buildConfiguration.getDescription();
         this.buildScript = buildConfiguration.getBuildScript();
-        this.scmUrl = buildConfiguration.getScmUrl();
+        this.scmRepoURL = buildConfiguration.getScmRepoURL();
+        this.scmRevision = buildConfiguration.getScmRevision();
         this.patchesUrl = buildConfiguration.getPatchesUrl();
         this.creationTime = buildConfiguration.getCreationTime();
         this.lastModificationTime = buildConfiguration.getLastModificationTime();
         this.repositories = buildConfiguration.getRepositories();
-        performIfNotNull(buildConfiguration.getProject() != null, () -> this.projectId = buildConfiguration.getProject().getId());
+        performIfNotNull(buildConfiguration.getProject() != null, () -> this.projectId = buildConfiguration.getProject()
+                .getId());
     }
 
     public Integer getId() {
@@ -81,12 +86,20 @@ public class BuildConfigurationRest {
         this.buildScript = buildScript;
     }
 
-    public String getScmUrl() {
-        return scmUrl;
+    public String getScmRepoURL() {
+        return scmRepoURL;
     }
 
-    public void setScmUrl(String scmUrl) {
-        this.scmUrl = scmUrl;
+    public void setScmRepoURL(String scmRepoURL) {
+        this.scmRepoURL = scmRepoURL;
+    }
+
+    public String getScmRevision() {
+        return scmRevision;
+    }
+
+    public void setScmRevision(String scmRevision) {
+        this.scmRevision = scmRevision;
     }
 
     public String getPatchesUrl() {
@@ -134,13 +147,14 @@ public class BuildConfigurationRest {
         builder.name(name);
         builder.description(description);
         builder.buildScript(buildScript);
-        builder.scmUrl(scmUrl);
+        builder.scmRepoURL(scmRepoURL);
+        builder.scmRevision(scmRevision);
         builder.patchesUrl(patchesUrl);
         builder.creationTime(creationTime);
         builder.lastModificationTime(lastModificationTime);
         builder.repositories(repositories);
 
-        if(projectId != null) {
+        if (projectId != null) {
             Project project = ProjectBuilder.newBuilder().id(projectId).build();
             builder.project(project);
         }

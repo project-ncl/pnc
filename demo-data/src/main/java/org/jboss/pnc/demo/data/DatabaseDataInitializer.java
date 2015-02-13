@@ -135,20 +135,21 @@ public class DatabaseDataInitializer {
             BuildConfiguration buildConfiguration = BuildConfigurationBuilder.newBuilder()
                     .buildScript("mvn clean deploy -Dmaven.test.skip")
                     .environment(EnvironmentBuilder.defaultEnvironment().build()).id(1).name(PNC_PROJECT_BUILD_CFG_ID)
-                    .productVersion(productVersion).project(project).scmUrl("https://github.com/project-ncl/pnc.git")
-                    .scmBranch("*/v0.2").description("Test build config for project newcastle").build();
+                    .productVersion(productVersion).project(project).scmRepoURL("https://github.com/project-ncl/pnc.git")
+                    .scmRevision("*/v0.2").description("Test build config for project newcastle").build();
 
             // Additional configurations
             BuildConfiguration buildConfiguration2 = BuildConfigurationBuilder.newBuilder()
                     .buildScript("mvn clean deploy -Dmaven.test.skip")
                     .environment(EnvironmentBuilder.defaultEnvironment().build()).id(2).name("jboss-modules-1.5.0")
-                    .productVersion(productVersion).project(project).description("Test config for JBoss modules build master branch.")
-                    .scmUrl("https://github.com/jboss-modules/jboss-modules.git").build();
+                    .productVersion(productVersion).project(project)
+                    .description("Test config for JBoss modules build master branch.")
+                    .scmRepoURL("https://github.com/jboss-modules/jboss-modules.git").build();
             BuildConfiguration buildConfiguration3 = BuildConfigurationBuilder.newBuilder()
                     .buildScript("mvn clean deploy -Dmaven.test.skip")
-                    .environment(EnvironmentBuilder.defaultEnvironment().build()).id(3)
-                    .name("jboss-servlet-spec-api-1.0.1").productVersion(productVersion).project(project)
-                    .scmUrl("https://github.com/jboss/jboss-servlet-api_spec.git").dependency(buildConfiguration2)
+                    .environment(EnvironmentBuilder.defaultEnvironment().build()).id(3).name("jboss-servlet-spec-api-1.0.1")
+                    .productVersion(productVersion).project(project)
+                    .scmRepoURL("https://github.com/jboss/jboss-servlet-api_spec.git").dependency(buildConfiguration2)
                     .description("Test build for jboss java servlet api").build();
 
             User demoUser = UserBuilder.newBuilder().username("demo-user").firstName("Demo First Name")

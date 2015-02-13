@@ -46,7 +46,9 @@ public class BuildRecord implements Serializable {
 
     private String description;
 
-    private String sourceUrl;
+    private String scmRepoURL;
+
+    private String scmRevision;
 
     private String patchesUrl;
 
@@ -187,21 +189,31 @@ public class BuildRecord implements Serializable {
     }
 
     /**
-     * Gets the source url.
-     *
-     * @return the source url
+     * @return the scmRepoURL
      */
-    public String getSourceUrl() {
-        return sourceUrl;
+    public String getScmRepoURL() {
+        return scmRepoURL;
     }
 
     /**
-     * Sets the source url.
-     *
-     * @param sourceUrl the new source url
+     * @param scmRepoURL the scmRepoURL to set
      */
-    public void setSourceUrl(String sourceUrl) {
-        this.sourceUrl = sourceUrl;
+    public void setScmRepoURL(String scmRepoURL) {
+        this.scmRepoURL = scmRepoURL;
+    }
+
+    /**
+     * @return the scmRevision
+     */
+    public String getScmRevision() {
+        return scmRevision;
+    }
+
+    /**
+     * @param scmRevision the scmRevision to set
+     */
+    public void setScmRevision(String scmRevision) {
+        this.scmRevision = scmRevision;
     }
 
     /**
