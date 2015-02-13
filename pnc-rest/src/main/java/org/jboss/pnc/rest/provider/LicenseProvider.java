@@ -33,7 +33,6 @@ import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
 
 /**
  * Created by avibelli on Feb 5, 2015
- *
  */
 @Stateless
 public class LicenseProvider extends BasePaginationProvider<LicenseRest, License> {
@@ -77,23 +76,18 @@ public class LicenseProvider extends BasePaginationProvider<LicenseRest, License
     }
 
     public Integer store(LicenseRest licenseRest) {
-        License license = licenseRest.getLicense(licenseRest);
-        license = licenseRepository.save(license);
-        return license.getId();
+        return licenseRepository.save(licenseRest.toLicense()).getId();
     }
 
-    public Integer update(LicenseRest licenseRest) {
+    public void update(LicenseRest licenseRest) {
         License license = licenseRepository.findOne(licenseRest.getId());
         Preconditions.checkArgument(license != null, "Couldn't find license with id " + licenseRest.getId());
+        licenseRepository.saveAndFlush(licenseRest.toLicense());
+    }
 
-        // Applying the changes
-        license.setFullContent(licenseRest.getFullContent());
-        license.setFullName(licenseRest.getFullName());
-        license.setRefUrl(licenseRest.getRefUrl());
-        license.setShortName(licenseRest.getShortName());
-
-        license = licenseRepository.saveAndFlush(license);
-        return license.getId();
+    public void delete(Integer id) {
+        Preconditions.checkArgument(licenseRepository.exists(id), "Couldn't find license with id " + id);
+        licenseRepository.delete(id);
     }
 
 }

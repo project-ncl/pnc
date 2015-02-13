@@ -1,15 +1,15 @@
 package org.jboss.pnc.rest.restmodel;
 
-import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
+import org.jboss.pnc.model.License;
+import org.jboss.pnc.model.Project;
+import org.jboss.pnc.model.builder.LicenseBuilder;
+import org.jboss.pnc.model.builder.ProjectBuilder;
 
+import javax.xml.bind.annotation.XmlRootElement;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlTransient;
-
-import org.jboss.pnc.model.License;
-import org.jboss.pnc.model.builder.LicenseBuilder;
+import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
 
 /**
  * Created by avibelli on Feb 5, 2015
@@ -28,7 +28,7 @@ public class LicenseRest {
 
     private String shortName;
 
-    private List<Integer> projects;
+    private List<Integer> projectsIds;
 
     public LicenseRest() {
 
@@ -40,7 +40,7 @@ public class LicenseRest {
         this.fullContent = license.getFullContent();
         this.refUrl = license.getRefUrl();
         this.shortName = license.getShortName();
-        this.projects = nullableStreamOf(license.getProjects()).map(project -> project.getId()).collect(Collectors.toList());
+        this.projectsIds = nullableStreamOf(license.getProjects()).map(project -> project.getId()).collect(Collectors.toList());
     }
 
     /**
@@ -116,25 +116,28 @@ public class LicenseRest {
     /**
      * @return the projects
      */
-    public List<Integer> getProjects() {
-        return projects;
+    public List<Integer> getProjectsIds() {
+        return projectsIds;
     }
 
     /**
-     * @param projects the projects to set
+     * @param projectsIds the projects to set
      */
-    public void setProjects(List<Integer> projects) {
-        this.projects = projects;
+    public void setProjectsIds(List<Integer> projectsIds) {
+        this.projectsIds = projectsIds;
     }
 
-    @XmlTransient
-    public License getLicense(LicenseRest licenseRest) {
+    public License toLicense() {
         LicenseBuilder licenseBuilder = LicenseBuilder.newBuilder();
         licenseBuilder.id(id);
         licenseBuilder.fullName(fullName);
         licenseBuilder.fullContent(fullContent);
         licenseBuilder.refUrl(refUrl);
         licenseBuilder.shortName(shortName);
+        List<Project> projects = nullableStreamOf(projectsIds)
+                .map(projectId -> ProjectBuilder.newBuilder().id(projectId).build())
+                .collect(Collectors.toList());
+        licenseBuilder.projects(projects);
 
         return licenseBuilder.build();
     }
