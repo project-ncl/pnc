@@ -29,8 +29,8 @@ class BuildJob {
 
         this.buildJobConfig = new BuildJobConfig(
                 jobName,
-                buildConfiguration.getScmUrl(),
-                buildConfiguration.getScmBranch(),
+                buildConfiguration.getScmRepoURL(),
+                buildConfiguration.getScmRevision(),
                 buildConfiguration.getBuildScript(),
                 repositoryConfiguration.getConnectionInfo());
 

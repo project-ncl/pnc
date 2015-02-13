@@ -65,7 +65,8 @@ $(document).ready(function() {
           { 'data': 'id' },
           { 'data': 'name' },
           { 'data': 'buildScript' },
-          { 'data': 'scmUrl' },
+          { 'data': 'scmRepoURL' },
+          { 'data': 'scmRevision' },
           { 'data': 'patchesUrl' },
           { 'data':
             function(json) {
@@ -256,14 +257,16 @@ $(document).ready(function() {
        var name = $('#addConfName').val();
        var description = $('#addConfDescription').val();
        var buildScript = $('#addConfBuildScript').val();
-       var scmUrl = $('#addConfScmUrl').val();
+       var scmRepoURL = $('#addConfScmRepoURL').val();
+       var scmRevision = $('#addConfScmRevision').val();
        var patchesUrl = $('#addConfPatchesUrl').val();
 
        var JSONObj = {
             'name': name,
             'description': description,
             'buildScript': buildScript,
-            'scmUrl': scmUrl,
+            'scmRepoURL': scmRepoURL,
+            'scmRevision': scmRevision,
             'patchesUrl': patchesUrl
        };
 

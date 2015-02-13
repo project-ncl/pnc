@@ -2,7 +2,7 @@
     "id": ${_id},
     "name": "${_name}",
     "buildScript": "${_buildScript}",
-    "scmUrl": "${_scmUrl}",
+    "scmRepoURL": "${_scmRepoURL}",
     "patchesUrl": "${_patchesUrl}",
     "creationTime": ${_creationTime},
     "lastModificationTime": ${_lastModificationTime},

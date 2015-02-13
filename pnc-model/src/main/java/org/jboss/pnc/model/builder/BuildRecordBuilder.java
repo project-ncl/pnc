@@ -44,7 +44,9 @@ public class BuildRecordBuilder {
 
     private String description;
 
-    private String sourceUrl;
+    private String scmRepoURL;
+
+    private String scmRevision;
 
     private String patchesUrl;
 
@@ -91,7 +93,8 @@ public class BuildRecordBuilder {
         buildRecord.setEndTime(endTime);
         buildRecord.setBuildConfiguration(buildConfiguration);
         buildRecord.setUser(user);
-        buildRecord.setSourceUrl(sourceUrl);
+        buildRecord.setScmRepoURL(scmRepoURL);
+        buildRecord.setScmRevision(scmRevision);
         buildRecord.setPatchesUrl(patchesUrl);
         buildRecord.setBuildLog(buildLog);
         buildRecord.setStatus(status);
@@ -155,8 +158,13 @@ public class BuildRecordBuilder {
         return this;
     }
 
-    public BuildRecordBuilder sourceUrl(String sourceUrl) {
-        this.sourceUrl = sourceUrl;
+    public BuildRecordBuilder scmRepoURL(String scmRepoURL) {
+        this.scmRepoURL = scmRepoURL;
+        return this;
+    }
+
+    public BuildRecordBuilder scmRevision(String scmRevision) {
+        this.scmRevision = scmRevision;
         return this;
     }
 
@@ -242,8 +250,12 @@ public class BuildRecordBuilder {
         return user;
     }
 
-    public String getSourceUrl() {
-        return sourceUrl;
+    public String getScmRepoURL() {
+        return scmRepoURL;
+    }
+
+    public String getScmRevision() {
+        return scmRevision;
     }
 
     public String getPatchesUrl() {

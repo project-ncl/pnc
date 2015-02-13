@@ -105,7 +105,7 @@ public class BuildConfigurationRestTest {
         configurationTemplate.addValue("_id", String.valueOf(configurationId));
         configurationTemplate.addValue("_name", updatedName);
         configurationTemplate.addValue("_buildScript", updatedBuildScript);
-        configurationTemplate.addValue("_scmUrl", updatedScmUrl);
+        configurationTemplate.addValue("_scmRepoURL", updatedScmUrl);
         configurationTemplate.addValue("_patchesUrl", "");
         configurationTemplate.addValue("_creationTime", String.valueOf(1518382545038L));
         configurationTemplate.addValue("_lastModificationTime", String.valueOf(155382545038L));
@@ -122,7 +122,7 @@ public class BuildConfigurationRestTest {
         // then
         ResponseAssertion.assertThat(response).hasStatus(200);
         ResponseAssertion.assertThat(response).hasJsonValueEqual("id", configurationId).hasJsonValueEqual("name", updatedName)
-                .hasJsonValueEqual("buildScript", updatedBuildScript).hasJsonValueEqual("scmUrl", updatedScmUrl)
+                .hasJsonValueEqual("buildScript", updatedBuildScript).hasJsonValueEqual("scmRepoURL", updatedScmUrl)
                 .hasJsonValueEqual("projectId", updatedProjectId);
     }
 
@@ -153,8 +153,8 @@ public class BuildConfigurationRestTest {
                 clonedBuildConfiguration.body().jsonPath().getString("name"));
         assertThat(originalBuildConfiguration.body().jsonPath().getString("buildScript")).isEqualTo(
                 clonedBuildConfiguration.body().jsonPath().getString("buildScript"));
-        assertThat(originalBuildConfiguration.body().jsonPath().getString("scmUrl")).isEqualTo(
-                clonedBuildConfiguration.body().jsonPath().getString("scmUrl"));
+        assertThat(originalBuildConfiguration.body().jsonPath().getString("scmRepoURL")).isEqualTo(
+                clonedBuildConfiguration.body().jsonPath().getString("scmRepoURL"));
         assertThat(originalBuildConfiguration.body().jsonPath().getString("patchesUrl")).isEqualTo(
                 clonedBuildConfiguration.body().jsonPath().getString("patchesUrl"));
         assertThat(originalBuildConfiguration.body().jsonPath().getString("lastModificationTime")).isEqualTo(

@@ -97,7 +97,8 @@ public class BuildConfigurationProvider extends BasePaginationProvider<BuildConf
         // Applying the changes
         buildConfiguration.setName(buildConfigurationRest.getName());
         buildConfiguration.setBuildScript(buildConfigurationRest.getBuildScript());
-        buildConfiguration.setScmUrl(buildConfigurationRest.getScmUrl());
+        buildConfiguration.setScmRepoURL(buildConfigurationRest.getScmRepoURL());
+        buildConfiguration.setScmRevision(buildConfigurationRest.getScmRevision());
         buildConfiguration.setPatchesUrl(buildConfigurationRest.getPatchesUrl());
         buildConfiguration.setCreationTime(buildConfigurationRest.getCreationTime());
         buildConfiguration.setLastModificationTime(buildConfigurationRest.getLastModificationTime());

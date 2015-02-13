@@ -44,17 +44,12 @@ public class JenkinsDriverRemoteTest {
 
     private static final Logger log = Logger.getLogger(JenkinsDriverRemoteTest.class.getName());
 
-
     @Deployment
     public static JavaArchive createDeployment() {
-        JavaArchive jar = ShrinkWrap.create(JavaArchive.class)
-                .addAsManifestResource(EmptyAsset.INSTANCE, "beans.xml")
-                .addAsResource("META-INF/logging.properties")
-                .addAsResource("jenkins-job-template.xml")
+        JavaArchive jar = ShrinkWrap.create(JavaArchive.class).addAsManifestResource(EmptyAsset.INSTANCE, "beans.xml")
+                .addAsResource("META-INF/logging.properties").addAsResource("jenkins-job-template.xml")
                 .addPackages(true, org.apache.http.client.HttpResponseException.class.getPackage())
-                .addClass(Configuration.class)
-                .addClass(JenkinsBuildDriver.class)
-                .addClass(JenkinsBuildMonitor.class)
+                .addClass(Configuration.class).addClass(JenkinsBuildDriver.class).addClass(JenkinsBuildMonitor.class)
                 .addClass(JenkinsServerFactory.class);
         System.out.println(jar.toString(true));
         return jar;
@@ -89,7 +84,7 @@ public class JenkinsDriverRemoteTest {
         mutex.acquire();
         RunningBuild runningBuild = jenkinsBuildDriver.startProjectBuild(pbc, repositoryConfiguration);
         runningBuild.monitor(onComplete, onError);
-        mutex.tryAcquire(30, TimeUnit.SECONDS); //wait for callback to release
+        mutex.tryAcquire(30, TimeUnit.SECONDS); // wait for callback to release
 
         Assert.assertTrue("There was no complete callback.", completed.get());
         Assert.assertNotNull(buildTask.buildJobDetails);
@@ -109,10 +104,11 @@ public class JenkinsDriverRemoteTest {
         };
 
         runningBuild.monitor(onWaitComplete, onWaitError);
-        mutex.tryAcquire(120, TimeUnit.SECONDS); //wait for callback to release
+        mutex.tryAcquire(120, TimeUnit.SECONDS); // wait for callback to release
 
         long minBuildTime = 10000;
-        Assert.assertTrue("Received build completed in " + buildTook[0] + " while expected >" + minBuildTime + ".", buildTook[0] >= minBuildTime);
+        Assert.assertTrue("Received build completed in " + buildTook[0] + " while expected >" + minBuildTime + ".",
+                buildTook[0] >= minBuildTime);
 
         Assert.assertTrue("There was no complete callback.", completed.get());
 
@@ -120,6 +116,7 @@ public class JenkinsDriverRemoteTest {
 
         class BuildResultWrapper {
             private BuildDriverResult result;
+
             BuildResultWrapper(BuildDriverResult result) {
                 this.result = result;
             }
@@ -127,7 +124,7 @@ public class JenkinsDriverRemoteTest {
 
         BuildResultWrapper resultWrapper = new BuildResultWrapper(null);
 
-        mutex.tryAcquire(30, TimeUnit.SECONDS); //wait for callback to release
+        mutex.tryAcquire(30, TimeUnit.SECONDS); // wait for callback to release
 
         BuildDriverResult buildDriverResult = resultWrapper.result;
 
@@ -141,45 +138,45 @@ public class JenkinsDriverRemoteTest {
 
     private RepositoryConfiguration getRepositoryConfiguration() {
         return new RepositoryConfiguration() {
-                @Override
-                public RepositoryType getType() {
-                    return RepositoryType.MAVEN;
-                }
+            @Override
+            public RepositoryType getType() {
+                return RepositoryType.MAVEN;
+            }
 
-                @Override
-                public String getId() {
-                    return "mock-config";
-                }
+            @Override
+            public String getId() {
+                return "mock-config";
+            }
 
-                @Override
-                public String getCollectionId() {
-                    return "mock-collection";
-                }
+            @Override
+            public String getCollectionId() {
+                return "mock-collection";
+            }
 
-                @Override
-                public RepositoryConnectionInfo getConnectionInfo() {
-                    return new RepositoryConnectionInfo() {
-                        @Override
-                        public String getDependencyUrl() {
-                            return "https://repository.jboss.org/nexus/content/repositories/central";
-                        }
+            @Override
+            public RepositoryConnectionInfo getConnectionInfo() {
+                return new RepositoryConnectionInfo() {
+                    @Override
+                    public String getDependencyUrl() {
+                        return "https://repository.jboss.org/nexus/content/repositories/central";
+                    }
 
-                        @Override
-                        public String getToolchainUrl() {
-                            return null;
-                        }
+                    @Override
+                    public String getToolchainUrl() {
+                        return null;
+                    }
 
-                        @Override
-                        public String getDeployUrl() {
-                            return null;
-                        }
+                    @Override
+                    public String getDeployUrl() {
+                        return null;
+                    }
 
-                        @Override
-                        public Map<String, String> getProperties() {
-                            return null;
-                        }
-                    };
-                }
+                    @Override
+                    public Map<String, String> getProperties() {
+                        return null;
+                    }
+                };
+            }
 
             @Override
             public RepositoryManagerResult extractBuildArtifacts() throws RepositoryManagerException {
@@ -199,6 +196,7 @@ public class JenkinsDriverRemoteTest {
                     }
                 };
             }
+
             private Artifact getArtifact(int i) {
                 Artifact artifact = new Artifact();
                 artifact.setId(i);
@@ -210,7 +208,7 @@ public class JenkinsDriverRemoteTest {
 
     private BuildConfiguration getBuildConfiguration() {
         BuildConfiguration pbc = new BuildConfiguration();
-        pbc.setScmUrl("https://github.com/project-ncl/pnc.git");
+        pbc.setScmRepoURL("https://github.com/project-ncl/pnc.git");
         pbc.setBuildScript("mvn clean install -Dmaven.test.skip");
         pbc.setName("PNC-executed-from-jenkins-driver-test");
         Project project = new Project();

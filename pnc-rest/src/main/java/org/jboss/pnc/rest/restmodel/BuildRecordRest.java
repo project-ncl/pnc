@@ -26,7 +26,9 @@ public class BuildRecordRest {
 
     private String description;
 
-    private String sourceUrl;
+    private String scmRepoURL;
+
+    private String scmRevision;
 
     private String patchesUrl;
 
@@ -54,7 +56,8 @@ public class BuildRecordRest {
                 .getBuildConfiguration().getId());
         performIfNotNull(buildRecord.getUser() != null, () -> userId = buildRecord.getUser().getId());
         performIfNotNull(buildRecord.getSystemImage() != null, () -> systemImageId = buildRecord.getSystemImage().getId());
-        this.sourceUrl = buildRecord.getSourceUrl();
+        this.scmRepoURL = buildRecord.getScmRepoURL();
+        this.scmRevision = buildRecord.getScmRevision();
         this.patchesUrl = buildRecord.getPatchesUrl();
         this.status = buildRecord.getStatus();
         this.buildDriverId = buildRecord.getBuildDriverId();
@@ -69,7 +72,8 @@ public class BuildRecordRest {
         this.startTime = buildConfiguration.getCreationTime();
         performIfNotNull(buildTask.getBuildConfiguration() != null && buildConfiguration != null,
                 () -> buildConfigurationId = buildConfiguration.getId());
-        this.sourceUrl = buildConfiguration.getScmUrl();
+        this.scmRepoURL = buildConfiguration.getScmRepoURL();
+        this.scmRevision = buildConfiguration.getScmRevision();
         this.patchesUrl = buildConfiguration.getPatchesUrl();
         this.status = BuildDriverStatus.BUILDING;
     }
@@ -122,12 +126,20 @@ public class BuildRecordRest {
         this.description = description;
     }
 
-    public String getSourceUrl() {
-        return sourceUrl;
+    public String getScmRepoURL() {
+        return scmRepoURL;
     }
 
-    public void setSourceUrl(String sourceUrl) {
-        this.sourceUrl = sourceUrl;
+    public void setScmRepoURL(String scmRepoURL) {
+        this.scmRepoURL = scmRepoURL;
+    }
+
+    public String getScmRevision() {
+        return scmRevision;
+    }
+
+    public void setScmRevision(String scmRevision) {
+        this.scmRevision = scmRevision;
     }
 
     public String getPatchesUrl() {

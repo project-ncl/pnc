@@ -27,7 +27,7 @@ import java.util.Set;
 public class BuildConfiguration implements Serializable, Cloneable {
 
     private static final long serialVersionUID = -5890729679489304114L;
-    
+
     public static final String DEFAULT_SORTING_FIELD = "name";
 
     @Id
@@ -38,11 +38,13 @@ public class BuildConfiguration implements Serializable, Cloneable {
 
     private String buildScript;
 
-    private String scmUrl;
+    private String scmRepoURL;
+
+    private String scmRevision;
 
     private String description;
 
-	private String patchesUrl;
+    private String patchesUrl;
 
     @ManyToOne(cascade = CascadeType.ALL)
     private ProductVersion productVersion;
@@ -67,7 +69,6 @@ public class BuildConfiguration implements Serializable, Cloneable {
     // TODO: What data format does Aprox need?
     // @Column(name = "repositories")
     private String repositories;
-    private String scmBranch;
 
     /**
      * Instantiates a new project build configuration.
@@ -120,25 +121,31 @@ public class BuildConfiguration implements Serializable, Cloneable {
     }
 
     /**
-     * @return the scmUrl
+     * @return the scmRepoURL
      */
-    public String getScmUrl() {
-        return scmUrl;
+    public String getScmRepoURL() {
+        return scmRepoURL;
     }
 
     /**
-     * @param scmUrl the scmUrl to set
+     * @param scmRepoURL the scmRepoURL to set
      */
-    public void setScmUrl(String scmUrl) {
-        this.scmUrl = scmUrl;
+    public void setScmRepoURL(String scmRepoURL) {
+        this.scmRepoURL = scmRepoURL;
     }
 
-    public String getScmBranch() {
-        return scmBranch;
+    /**
+     * @return the scmRevision
+     */
+    public String getScmRevision() {
+        return scmRevision;
     }
 
-    public void setScmBranch(String scmBranch) {
-        this.scmBranch = scmBranch;
+    /**
+     * @param scmRevision the scmRevision to set
+     */
+    public void setScmRevision(String scmRevision) {
+        this.scmRevision = scmRevision;
     }
 
     /**
@@ -156,12 +163,12 @@ public class BuildConfiguration implements Serializable, Cloneable {
     }
 
     public String getDescription() {
-		return description;
-	}
+        return description;
+    }
 
-	public void setDescription(String description) {
-		this.description = description;
-	}
+    public void setDescription(String description) {
+        this.description = description;
+    }
 
     /**
      * @return the project

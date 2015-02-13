@@ -49,7 +49,8 @@ public class DatastoreAdapter {
             // Additional information needed for historical purpose
             buildRecord.setBuildScript(buildConfiguration.getBuildScript());
             buildRecord.setPatchesUrl(buildConfiguration.getPatchesUrl());
-            buildRecord.setSourceUrl(buildConfiguration.getScmUrl());
+            buildRecord.setScmRepoURL(buildConfiguration.getScmRepoURL());
+            buildRecord.setScmRevision(buildConfiguration.getScmRevision());
 
             log.debugf("Storing results of %s to datastore.", buildConfiguration.getName());
             datastore.storeCompletedBuild(buildRecord);
@@ -69,7 +70,8 @@ public class DatastoreAdapter {
         StringWriter stackTraceWriter = new StringWriter();
         PrintWriter stackTracePrinter = new PrintWriter(stackTraceWriter);
         e.printStackTrace(stackTracePrinter);
-        buildRecord.setStatus(BuildDriverStatus.UNKNOWN); //TODO set error status. Is it ok to store DBS (Jenkins), if we are storing BSD than UNKNOWN is the right one
+        buildRecord.setStatus(BuildDriverStatus.UNKNOWN); // TODO set error status. Is it ok to store DBS (Jenkins), if we are
+                                                          // storing BSD than UNKNOWN is the right one
 
         String errorMessage = "Last build status: " + buildTask.getStatus().toString() + "\n";
         errorMessage += "Caught exception: " + stackTraceWriter.toString();
@@ -78,12 +80,13 @@ public class DatastoreAdapter {
         // Additional information needed for historical purpose
         buildRecord.setBuildScript(buildConfiguration.getBuildScript());
         buildRecord.setPatchesUrl(buildConfiguration.getPatchesUrl());
-        buildRecord.setSourceUrl(buildConfiguration.getScmUrl());
+        buildRecord.setScmRepoURL(buildConfiguration.getScmRepoURL());
+        buildRecord.setScmRevision(buildConfiguration.getScmRevision());
         log.debugf("Storing ERROR result of %s to datastore. Error: %s", buildConfiguration.getName(), e);
         datastore.storeCompletedBuild(buildRecord);
     }
 
     public boolean isBuildConfigurationBuilt() {
-        return false; //TODO
+        return false; // TODO
     }
 }

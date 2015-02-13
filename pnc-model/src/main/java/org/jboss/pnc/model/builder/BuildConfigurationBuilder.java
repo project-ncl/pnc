@@ -39,9 +39,9 @@ public class BuildConfigurationBuilder {
 
     private String buildScript;
 
-    private String scmUrl;
+    private String scmRepoURL;
 
-    private String scmBranch;
+    private String scmRevision;
 
     private String patchesUrl;
 
@@ -78,8 +78,8 @@ public class BuildConfigurationBuilder {
         buildConfiguration.setId(id);
         buildConfiguration.setName(name);
         buildConfiguration.setBuildScript(buildScript);
-        buildConfiguration.setScmUrl(scmUrl);
-        buildConfiguration.setScmBranch(scmBranch);
+        buildConfiguration.setScmRepoURL(scmRepoURL);
+        buildConfiguration.setScmRevision(scmRevision);
         buildConfiguration.setPatchesUrl(patchesUrl);
         buildConfiguration.setDescription(description);
         buildConfiguration.setProductVersion(productVersion);
@@ -119,13 +119,13 @@ public class BuildConfigurationBuilder {
         return this;
     }
 
-    public BuildConfigurationBuilder scmUrl(String scmUrl) {
-        this.scmUrl = scmUrl;
+    public BuildConfigurationBuilder scmRepoURL(String scmRepoURL) {
+        this.scmRepoURL = scmRepoURL;
         return this;
     }
 
-    public BuildConfigurationBuilder scmBranch(String scmBranch) {
-        this.scmBranch = scmBranch;
+    public BuildConfigurationBuilder scmRevision(String scmRevision) {
+        this.scmRevision = scmRevision;
         return this;
     }
 
@@ -191,8 +191,12 @@ public class BuildConfigurationBuilder {
         return buildScript;
     }
 
-    public String getScmUrl() {
-        return scmUrl;
+    public String getScmRepoURL() {
+        return scmRepoURL;
+    }
+
+    public String getScmRevision() {
+        return scmRevision;
     }
 
     public String getPatchesUrl() {
