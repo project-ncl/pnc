@@ -5,8 +5,8 @@
   var module = angular.module('pnc.BuildConfig');
 
   module.controller('BuildConfigCtrl',
-    ['$scope', '$state', 'Product', 'Version',
-    function($scope, $state, Product, Version) {
+    ['$scope', '$state', 'PncRestClient',
+    function($scope, $state, PncRestClient) {
 
       /* Creates new column object for use with the column-browse-column
        * directive the column browse UI element directive. The object will
@@ -85,7 +85,7 @@
             productId: product.id });
         },
         function() {
-          return Product.query();
+          return PncRestClient.Product.query();
         }
       );
 
@@ -98,7 +98,7 @@
         },
         function() {
           console.log('versionCol.updateList >> productCol = %O', productCol);
-          return Version.query({ productId:
+          return PncRestClient.Version.query({ productId:
             productCol.selected.id });
         },
         productCol
@@ -119,6 +119,7 @@
   module.controller('ProductListCtrl',
     ['$scope','productList',
     function($scope, productList) {
+      console.log('ProductListCtrl >> scope=%O, productList=%O', $scope, productList);
       $scope.products = productList;
     }
   ]);

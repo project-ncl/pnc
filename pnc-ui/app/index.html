@@ -56,7 +56,7 @@
           <span class="icon-bar"></span>
           <span class="icon-bar"></span>
         </button>
-        <a class="navbar-brand" href ui-sref="/">
+        <a class="navbar-brand" href data-ui-sref="/">
           Project Newcastle
         </a>
       </div>
@@ -82,19 +82,20 @@
         </ul>
         <ul class="nav navbar-nav navbar-primary">
           <li>
-            <a ui-sref="dashboard" href>Dashboard</a>
+            <a data-ui-sref="dashboard" href>Dashboard</a>
           </li>
           <li class="dropdown">
             <a href class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Build Config<span class="caret"></span></a>
               <ul class="dropdown-menu" role="menu">
-                <li><a href ui-sref="build-config.product">Products</a></li>
+                <li><a href data-ui-sref="build-config.product">Products</a></li>
                 <li><a href class="disabled">Projects</a></li>
+                <li><a href class="disabled">Configurations</a></li>
              </ul>
           </li>
         </ul>
       </div>
     </nav>
-    <div ui-view="content"></div>
+    <div data-ui-view="content"></div>
 
   </body>
 </html>

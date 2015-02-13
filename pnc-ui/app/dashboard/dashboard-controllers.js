@@ -4,10 +4,8 @@
 
   var module = angular.module('pnc.Dashboard');
 
-  module.controller('DashboardCtrl', ['$scope', '$stateParams',
-    function ($scope, $stateParams) {
+  module.controller('DashboardCtrl', ['$scope', function ($scope) {
       $scope.title = 'Dashboard';
-    }
-  ]);
+  }]);
 
 })();

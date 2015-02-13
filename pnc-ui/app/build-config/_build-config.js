@@ -2,7 +2,7 @@
 
 (function() {
 
-  var module = angular.module('pnc.BuildConfig', ['ui.router']);
+  var module = angular.module('pnc.BuildConfig', ['ui.router', 'ngResource']);
 
   module.config(['$stateProvider', function($stateProvider) {
 
@@ -22,7 +22,7 @@
         resolve: {
           restClient: 'PncRestClient',
           productList: function(restClient) {
-            return restClient.product.query().$promise;
+            return restClient.Product.query().$promise;
           }
         },
         views: {
@@ -35,9 +35,9 @@
       .state('build-config.product.show', {
         url: '/{productId:int}',
         resolve: {
-          restClient: 'restClient',
+          restClient: 'PncRestClient',
           productDetails: function(restClient, $stateParams) {
-            return restClient.product.get({ productId: $stateParams.productId })
+            return restClient.Product.get({ productId: $stateParams.productId })
               .$promise;
           }
         },
@@ -71,7 +71,7 @@
         resolve: {
           restClient: 'PncRestClient',
           versionDetails: function(restClient, $stateParams) {
-            return restClient.version.get({
+            return restClient.Version.get({
               productId: $stateParams.productId,
               versionId: $stateParams.versionId
             }).$promise;

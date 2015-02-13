@@ -8,59 +8,18 @@
   module.factory('PncRestClient', ['$resource',
     function($resource) {
       return {
+        Product: $resource(baseUrl + '/product/:productId', {
+            productId: '@productId'
+        }),
 
-        Product: function($resource) {
-          return $resource(baseUrl + '/product/:productId');
-        },
-
-        Version: function($resource) {
-          return $resource(baseUrl + '/product/:productId/version/:versionId', {
+        Version: $resource(baseUrl + '/product/:productId/version/:versionId', {
             productId: '@productId',
             versionId: '@versionId'
-          },{
-            getProjects: {
-              method: 'GET',
-              params: {
-                productId: '@productId',
-                versionId: '@versionId'
-              },
-              url: 'bleh',
-              isArray: true
-            }
-          });
-        },
+        }),
 
         Project: function($resource) {
           return $resource(baseUrl + '/project/:projectId');
         },
-
-        Configuration: function($resource) {
-          return null;
-        }
-      };
-    }
-  ]);
-
-  /*
-  GET    /configuration                                                                   Gets all current Build Configurations
-  POST   /configuration                                                                 Creates new Build Configuration
-  GET    /configuration/{id}                                                             Gets a specific Build Configuration
-  PUT    /configuration/{id}                                                             Updates an existing Build Configuration
-  DELETE /configuration/{id}                                                         Deletes a Build Configuration
-  POST   /configuration/{id}/build                                                   Triggers build for a Build Configurations
-  POST   /configuration/{id}/clone                                                  Clones a Build Configuration
-  GET    /configuration/project/{projectId}                                      Gets all current Build Configurations of a Project
-  GET    /configuration/configurationset/{configurationsetId}         Gets all Build Configurations of a Build Configuration Set (see below * )
-  GET  /configuration/product/{id}                                                  Gets all current Build Configurations of a Product
-  GET  /configuration/product/{id}/version/{id}                               Gets all current Build Configurations of a ProductVersion
-*/
-
-
-
-
-  module.factory('PncRestMockClient', ['$resource',
-    function($resource) {
-      return {
 
         Configuration: function($resource) {
           return $resource(baseUrl + '/configuration/:configurationId', {
@@ -107,6 +66,20 @@
       };
     }
   ]);
+
+  /*
+  GET    /configuration                                                                   Gets all current Build Configurations
+  POST   /configuration                                                                 Creates new Build Configuration
+  GET    /configuration/{id}                                                             Gets a specific Build Configuration
+  PUT    /configuration/{id}                                                             Updates an existing Build Configuration
+  DELETE /configuration/{id}                                                         Deletes a Build Configuration
+  POST   /configuration/{id}/build                                                   Triggers build for a Build Configurations
+  POST   /configuration/{id}/clone                                                  Clones a Build Configuration
+  GET    /configuration/project/{projectId}                                      Gets all current Build Configurations of a Project
+  GET    /configuration/configurationset/{configurationsetId}         Gets all Build Configurations of a Build Configuration Set (see below * )
+  GET  /configuration/product/{id}                                                  Gets all current Build Configurations of a Product
+  GET  /configuration/product/{id}/version/{id}                               Gets all current Build Configurations of a ProductVersion
+*/
 
   // module.factory('Product', ['$resource',
   //   function($resource) {
