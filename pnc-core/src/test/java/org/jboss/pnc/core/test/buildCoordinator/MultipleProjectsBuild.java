@@ -4,9 +4,9 @@ import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.junit.InSequence;
 import org.jboss.pnc.core.builder.BuildTask;
 import org.jboss.pnc.core.exception.CoreException;
-import org.jboss.pnc.core.test.configurationBuilders.TestBuildCollectionBuilder;
+import org.jboss.pnc.core.test.configurationBuilders.TestBuildRecordSetBuilder;
 import org.jboss.pnc.core.test.configurationBuilders.TestProjectConfigurationBuilder;
-import org.jboss.pnc.model.BuildCollection;
+import org.jboss.pnc.model.BuildRecordSet;
 import org.jboss.pnc.model.BuildRecord;
 import org.junit.Assert;
 import org.junit.Test;
@@ -32,7 +32,7 @@ public class MultipleProjectsBuild extends ProjectBuilder {
     public void buildMultipleProjectsTestCase() throws Exception {
         log.info("Start multiple projects build test.");
         long startTime = System.currentTimeMillis();
-        BuildCollection buildCollection = new TestBuildCollectionBuilder().build("foo", "Foo desc.", "1.0");
+        BuildRecordSet buildRecordSet = new TestBuildRecordSetBuilder().build("foo", "Foo desc.", "1.0");
         TestProjectConfigurationBuilder configurationBuilder = new TestProjectConfigurationBuilder();
 
         Function<TestBuildConfig, Runnable> createJob = (config) -> {
@@ -48,7 +48,7 @@ public class MultipleProjectsBuild extends ProjectBuilder {
 
         List<Runnable> list = new ArrayList();
         for (int i = 0; i < 100; i++) { //create 100 project configurations
-            list.add(createJob.apply(new TestBuildConfig(configurationBuilder.build(i, "c" + i + "-java"), buildCollection)));
+            list.add(createJob.apply(new TestBuildConfig(configurationBuilder.build(i, "c" + i + "-java"), buildRecordSet)));
         }
 
         Function<Runnable, Thread> runInNewThread = (r) -> {

@@ -2,9 +2,9 @@ package org.jboss.pnc.core.test.buildCoordinator;
 
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.junit.InSequence;
-import org.jboss.pnc.core.test.configurationBuilders.TestBuildCollectionBuilder;
+import org.jboss.pnc.core.test.configurationBuilders.TestBuildRecordSetBuilder;
 import org.jboss.pnc.core.test.configurationBuilders.TestProjectConfigurationBuilder;
-import org.jboss.pnc.model.BuildCollection;
+import org.jboss.pnc.model.BuildRecordSet;
 import org.jboss.pnc.model.BuildRecord;
 import org.junit.Assert;
 import org.junit.Test;
@@ -21,9 +21,9 @@ public class ProjectWithDependenciesBuildTest extends ProjectBuilder {
     @Test
     @InSequence(10)
     public void buildProjectTestCase() throws Exception {
-        BuildCollection buildCollection = new TestBuildCollectionBuilder().build("foo", "Foo desc.", "1.0");
+        BuildRecordSet buildRecordSet = new TestBuildRecordSetBuilder().build("foo", "Foo desc.", "1.0");
         TestProjectConfigurationBuilder configurationBuilder = new TestProjectConfigurationBuilder();
-        buildProject(configurationBuilder.buildConfigurationWithDependencies(), buildCollection);
+        buildProject(configurationBuilder.buildConfigurationWithDependencies(), buildRecordSet);
     }
 
     @Test

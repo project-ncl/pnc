@@ -46,10 +46,10 @@ public class ProductVersion implements Serializable {
     private Set<ProductVersionProject> productVersionProjects;
 
     @OneToMany(mappedBy = "productVersion", cascade = CascadeType.ALL)
-    private Set<BuildCollection> productBuildCollections;
+    private Set<BuildRecordSet> productBuildRecordSets;
 
     public ProductVersion() {
-        productBuildCollections = new HashSet<>();
+        productBuildRecordSets = new HashSet<>();
         productVersionProjects = new HashSet<>();
     }
 
@@ -106,41 +106,41 @@ public class ProductVersion implements Serializable {
     }
 
     /**
-     * @return the productBuildCollections
+     * @return the productBuildRecordSets
      */
-    public Set<BuildCollection> getProductBuildCollections() {
-        return productBuildCollections;
+    public Set<BuildRecordSet> getProductBuildRecordSets() {
+        return productBuildRecordSets;
     }
 
     /**
-     * @param productBuildCollections the productBuildCollections to set
+     * @param productBuildRecordSets the productBuildRecordSets to set
      */
-    public void setProductBuildCollections(Set<BuildCollection> productBuildCollections) {
-        this.productBuildCollections = productBuildCollections;
+    public void setProductBuildRecordSets(Set<BuildRecordSet> productBuildRecordSets) {
+        this.productBuildRecordSets = productBuildRecordSets;
     }
 
     /**
-     * Add a productBuildCollection to the set of productBuildCollections
+     * Add a productBuildRecordSet to the set of productBuildRecordSets
      *
-     * @param productBuildCollection
+     * @param productBuildRecordSet
      * @return
      */
-    public Set<BuildCollection> addProductBuildCollection(BuildCollection productBuildCollection) {
-        productBuildCollections.add(productBuildCollection);
+    public Set<BuildRecordSet> addProductBuildRecordSet(BuildRecordSet productBuildRecordSet) {
+        productBuildRecordSets.add(productBuildRecordSet);
 
-        return productBuildCollections;
+        return productBuildRecordSets;
     }
 
     /**
-     * Remove a productBuildCollection from the set of productBuildCollections
+     * Remove a productBuildRecordSet from the set of productBuildRecordSets
      *
-     * @param productBuildCollection
+     * @param productBuildRecordSet
      * @return
      */
-    public Set<BuildCollection> removeProductBuildCollection(BuildCollection productBuildCollection) {
-        productBuildCollections.remove(productBuildCollection);
+    public Set<BuildRecordSet> removeProductBuildRecordSet(BuildRecordSet productBuildRecordSet) {
+        productBuildRecordSets.remove(productBuildRecordSet);
 
-        return productBuildCollections;
+        return productBuildRecordSets;
     }
 
     public Set<ProductVersionProject> getProductVersionProjects() {

@@ -10,7 +10,7 @@ import org.jboss.pnc.core.exception.CoreException;
 import org.jboss.pnc.core.test.mock.BuildDriverMock;
 import org.jboss.pnc.core.test.mock.DatastoreMock;
 import org.jboss.pnc.model.Artifact;
-import org.jboss.pnc.model.BuildCollection;
+import org.jboss.pnc.model.BuildRecordSet;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.builder.EnvironmentBuilder;
 import org.jboss.pnc.spi.BuildStatus;
@@ -62,7 +62,7 @@ public class ProjectBuilder {
         return jar;
     }
 
-    void buildProject(BuildConfiguration buildConfiguration, BuildCollection buildCollection) throws InterruptedException, CoreException {
+    void buildProject(BuildConfiguration buildConfiguration, BuildRecordSet buildRecordSet) throws InterruptedException, CoreException {
         log.info("Building project " + buildConfiguration.getName());
         List<BuildStatus> receivedStatuses = new ArrayList();
 
@@ -112,9 +112,9 @@ public class ProjectBuilder {
 
     protected class TestBuildConfig {
         final BuildConfiguration configuration;
-        final BuildCollection collection;
+        final BuildRecordSet collection;
 
-        TestBuildConfig(BuildConfiguration configuration, BuildCollection collection) {
+        TestBuildConfig(BuildConfiguration configuration, BuildRecordSet collection) {
             this.configuration = configuration;
             this.collection = collection;
         }

@@ -20,7 +20,7 @@ package org.jboss.pnc.model.builder;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.jboss.pnc.model.BuildCollection;
+import org.jboss.pnc.model.BuildRecordSet;
 import org.jboss.pnc.model.ProductMilestone;
 import org.jboss.pnc.model.ProductVersion;
 import org.jboss.pnc.model.BuildRecord;
@@ -29,7 +29,7 @@ import org.jboss.pnc.model.BuildRecord;
  * @author avibelli
  *
  */
-public class BuildCollectionBuilder {
+public class BuildRecordSetBuilder {
 
     private Integer id;
 
@@ -41,61 +41,61 @@ public class BuildCollectionBuilder {
 
     private List<BuildRecord> buildRecords;
 
-    private BuildCollectionBuilder() {
+    private BuildRecordSetBuilder() {
         buildRecords = new ArrayList<>();
     }
 
-    public static BuildCollectionBuilder newBuilder() {
-        return new BuildCollectionBuilder();
+    public static BuildRecordSetBuilder newBuilder() {
+        return new BuildRecordSetBuilder();
     }
 
-    public BuildCollection build() {
-        BuildCollection buildCollection = new BuildCollection();
-        buildCollection.setId(id);
-        buildCollection.setProductBuildNumber(productBuildBumber);
-        buildCollection.setMilestone(milestone);
+    public BuildRecordSet build() {
+        BuildRecordSet buildRecordSet = new BuildRecordSet();
+        buildRecordSet.setId(id);
+        buildRecordSet.setProductBuildNumber(productBuildBumber);
+        buildRecordSet.setMilestone(milestone);
 
         if (productVersion != null) {
-            productVersion.addProductBuildCollection(buildCollection);
+            productVersion.addProductBuildRecordSet(buildRecordSet);
         }
-        buildCollection.setProductVersion(productVersion);
+        buildRecordSet.setProductVersion(productVersion);
 
         // Set the bi-directional mapping
         for (BuildRecord buildRecord : buildRecords) {
-            buildRecord.getBuildCollections().add(buildCollection);
+            buildRecord.getBuildRecordSets().add(buildRecordSet);
         }
 
-        buildCollection.setBuildRecord(buildRecords);
+        buildRecordSet.setBuildRecord(buildRecords);
 
-        return buildCollection;
+        return buildRecordSet;
     }
 
-    public BuildCollectionBuilder id(Integer id) {
+    public BuildRecordSetBuilder id(Integer id) {
         this.id = id;
         return this;
     }
 
-    public BuildCollectionBuilder productBuildBumber(Integer productBuildBumber) {
+    public BuildRecordSetBuilder productBuildBumber(Integer productBuildBumber) {
         this.productBuildBumber = productBuildBumber;
         return this;
     }
 
-    public BuildCollectionBuilder productVersion(ProductVersion productVersion) {
+    public BuildRecordSetBuilder productVersion(ProductVersion productVersion) {
         this.productVersion = productVersion;
         return this;
     }
 
-    public BuildCollectionBuilder milestone(ProductMilestone milestone) {
+    public BuildRecordSetBuilder milestone(ProductMilestone milestone) {
         this.milestone = milestone;
         return this;
     }
 
-    public BuildCollectionBuilder buildRecord(BuildRecord buildRecord) {
+    public BuildRecordSetBuilder buildRecord(BuildRecord buildRecord) {
         this.buildRecords.add(buildRecord);
         return this;
     }
 
-    public BuildCollectionBuilder buildRecords(List<BuildRecord> buildRecords) {
+    public BuildRecordSetBuilder buildRecords(List<BuildRecord> buildRecords) {
         this.buildRecords = buildRecords;
         return this;
     }

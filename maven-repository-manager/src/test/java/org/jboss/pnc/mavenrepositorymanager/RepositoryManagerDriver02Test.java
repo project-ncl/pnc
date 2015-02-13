@@ -4,7 +4,7 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
 
-import org.jboss.pnc.model.BuildCollection;
+import org.jboss.pnc.model.BuildRecordSet;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.spi.repositorymanager.model.RepositoryConfiguration;
 import org.jboss.pnc.spi.repositorymanager.model.RepositoryConnectionInfo;
@@ -18,7 +18,7 @@ public class RepositoryManagerDriver02Test
     public void formatRepositoryURLForSimpleInfo_AllURLsMatch() throws Exception {
         BuildConfiguration pbc = simpleBuildConfiguration();
 
-        BuildCollection bc = new BuildCollection();
+        BuildRecordSet bc = new BuildRecordSet();
         bc.setProductVersion(pbc.getProductVersion());
 
         RepositoryConfiguration repositoryConfiguration = driver.createRepository(pbc, bc);

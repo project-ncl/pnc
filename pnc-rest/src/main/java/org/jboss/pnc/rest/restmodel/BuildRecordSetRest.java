@@ -1,6 +1,6 @@
 package org.jboss.pnc.rest.restmodel;
 
-import org.jboss.pnc.model.BuildCollection;
+import org.jboss.pnc.model.BuildRecordSet;
 import org.jboss.pnc.model.ProductMilestone;
 
 import javax.xml.bind.annotation.XmlRootElement;
@@ -10,8 +10,8 @@ import java.util.stream.Collectors;
 import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
 import static org.jboss.pnc.rest.utils.Utility.performIfNotNull;
 
-@XmlRootElement(name = "BuildCollection")
-public class BuildCollectionRest {
+@XmlRootElement(name = "BuildRecordSet")
+public class BuildRecordSetRest {
 
     private Integer id;
 
@@ -23,15 +23,15 @@ public class BuildCollectionRest {
 
     private List<Integer> buildRecordIds;
 
-    public BuildCollectionRest() {
+    public BuildRecordSetRest() {
     }
 
-    public BuildCollectionRest(BuildCollection buildCollection) {
-        this.id = buildCollection.getId();
-        this.productBuildNumber = buildCollection.getProductBuildNumber();
-        this.milestone = buildCollection.getMilestone();
-        performIfNotNull(buildCollection.getProductVersion() != null, () ->this.productVersionId = buildCollection.getProductVersion().getId());
-        this.buildRecordIds = nullableStreamOf(buildCollection.getBuildRecord())
+    public BuildRecordSetRest(BuildRecordSet buildRecordSet) {
+        this.id = buildRecordSet.getId();
+        this.productBuildNumber = buildRecordSet.getProductBuildNumber();
+        this.milestone = buildRecordSet.getMilestone();
+        performIfNotNull(buildRecordSet.getProductVersion() != null, () ->this.productVersionId = buildRecordSet.getProductVersion().getId());
+        this.buildRecordIds = nullableStreamOf(buildRecordSet.getBuildRecord())
                 .map(buildRecord -> buildRecord.getId())
                 .collect(Collectors.toList());
 
