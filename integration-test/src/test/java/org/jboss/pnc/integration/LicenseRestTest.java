@@ -1,15 +1,13 @@
 package org.jboss.pnc.integration;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.restassured.http.ContentType;
 import com.jayway.restassured.response.Response;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.junit.InSequence;
 import org.jboss.pnc.integration.Utils.ResponseUtils;
+import org.jboss.pnc.integration.assertions.ResponseAssertion;
 import org.jboss.pnc.integration.deployments.Deployments;
-import org.jboss.pnc.integration.matchers.ResponseAssertion;
 import org.jboss.pnc.rest.endpoint.LicenseEndpoint;
 import org.jboss.pnc.rest.provider.LicenseProvider;
 import org.jboss.pnc.rest.restmodel.LicenseRest;
@@ -20,22 +18,23 @@ import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.lang.invoke.MethodHandles;
 
 import static com.jayway.restassured.RestAssured.given;
 import static org.fest.assertions.Assertions.assertThat;
+import static org.jboss.pnc.integration.Utils.JsonUtils.fromJson;
+import static org.jboss.pnc.integration.Utils.JsonUtils.toJson;
 import static org.jboss.pnc.integration.env.IntegrationTestEnv.getHttpPort;
 
 @RunWith(Arquillian.class)
 public class LicenseRestTest {
 
+    private static final String LICENSE_REST_ENDPOINT = "/pnc-web/rest/license/";
+    private static final String LICENSE_REST_ENDPOINT_SPECIFIC = LICENSE_REST_ENDPOINT + "%d";
+
     public static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
     private static Integer licenseId;
-
-    private static final String LICENSE_REST_ENDPOINT = "/pnc-web/rest/license/";
-    private static final String LICENSE_REST_ENDPOINT_SPECIFIC = LICENSE_REST_ENDPOINT + "%d";
 
     @Deployment(testable = false)
     public static EnterpriseArchive deploy() {
@@ -54,7 +53,7 @@ public class LicenseRestTest {
     @InSequence(0)
     public void shouldCreateNewLicense() throws Exception {
         //given
-        String loremIpsumLicense = asText(loremIpsumLicense());
+        String loremIpsumLicense = toJson(loremIpsumLicense());
 
         //when
         Response response = given().body(loremIpsumLicense).contentType(ContentType.JSON).port(getHttpPort())
@@ -76,13 +75,13 @@ public class LicenseRestTest {
         loremIpsumLicenseModified.setId(licenseId);
 
         //when
-        Response putResponse = given().body(asText(loremIpsumLicenseModified)).contentType(ContentType.JSON).port(getHttpPort()).when()
+        Response putResponse = given().body(toJson(loremIpsumLicenseModified)).contentType(ContentType.JSON).port(getHttpPort()).when()
                 .put(String.format(LICENSE_REST_ENDPOINT_SPECIFIC, licenseId));
 
         Response getResponse = given().contentType(ContentType.JSON).port(getHttpPort()).when()
                 .get(String.format(LICENSE_REST_ENDPOINT_SPECIFIC, licenseId));
 
-        LicenseRest noLoremIpsum = asLicenseRest(getResponse.body().asString());
+        LicenseRest noLoremIpsum = fromJson(getResponse.body().asString(), LicenseRest.class);
 
         //then
         ResponseAssertion.assertThat(putResponse).hasStatus(200);
@@ -104,14 +103,6 @@ public class LicenseRestTest {
         //then
         ResponseAssertion.assertThat(deleteResponse).hasStatus(200);
         ResponseAssertion.assertThat(getResponse).hasStatus(204);
-    }
-
-    private LicenseRest asLicenseRest(String license) throws IOException {
-        return new ObjectMapper().readValue(license, LicenseRest.class);
-    }
-
-    private String asText(LicenseRest license) throws JsonProcessingException {
-        return new ObjectMapper().writer().withDefaultPrettyPrinter().writeValueAsString(license);
     }
 
     private LicenseRest loremIpsumLicense() {

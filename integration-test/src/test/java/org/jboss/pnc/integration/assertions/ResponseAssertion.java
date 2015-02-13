@@ -1,4 +1,4 @@
-package org.jboss.pnc.integration.matchers;
+package org.jboss.pnc.integration.assertions;
 
 import com.jayway.restassured.response.Response;
 import org.assertj.core.api.AbstractAssert;

@@ -1,18 +1,15 @@
 package org.jboss.pnc.model;
 
+import javax.persistence.*;
 import java.io.Serializable;
-
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
 
 /**
  * The Class Environment.
  */
 @Entity
 public class Environment implements Serializable {
+
+    public static final String DEFAULT_SORTING_FIELD = "id";
 
     private static final long serialVersionUID = 8213767399060607637L;
 
