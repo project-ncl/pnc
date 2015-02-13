@@ -1,7 +1,5 @@
 package org.jboss.pnc.integration;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
 import com.jayway.restassured.http.ContentType;
 import com.jayway.restassured.response.Response;
 import org.assertj.core.api.Assertions;
@@ -11,7 +9,6 @@ import org.jboss.arquillian.junit.InSequence;
 import org.jboss.pnc.common.util.IoUtils;
 import org.jboss.pnc.integration.assertions.JsonMatcher;
 import org.jboss.pnc.integration.deployments.Deployments;
-import org.jboss.pnc.model.builder.LicenseBuilder;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -36,13 +33,10 @@ public class RestTest {
 
     private static Integer newProductId;
     private static Integer newProjectId;
-    private static Integer licenseId;
 
     private static final String PRODUCT_REST_ENDPOINT = "/pnc-web/rest/product/";
     private static final String PROJECT_REST_ENDPOINT = "/pnc-web/rest/project/";
     private static final String PROJECT_REST_ENDPOINT_SPECIFIC = PROJECT_REST_ENDPOINT + "%d";
-    private static final String LICENSE_REST_ENDPOINT = "/pnc-web/rest/license/";
-    private static final String LICENSE_REST_ENDPOINT_SPECIFIC = LICENSE_REST_ENDPOINT + "%d";
 
     @Deployment(testable = false)
     public static EnterpriseArchive deploy() {
@@ -185,67 +179,6 @@ public class RestTest {
 
     @Test
     @InSequence(11)
-    public void shouldCreateNewLicense() {
-        try {
-            String gplLicense = IoUtils.readFileOrResource("license", "gpl_license.txt", getClass().getClassLoader());
-
-            LicenseBuilder licenseBuilder = LicenseBuilder.newBuilder();
-            licenseBuilder.fullName("GNU General Public License, version 2").refUrl("http://www.gnu.org/licenses/gpl-2.0.html")
-                    .shortName("GPL").fullContent(gplLicense);
-
-            ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
-            String json = ow.writeValueAsString(licenseBuilder.build());
-
-            Response response = given().body(json).contentType(ContentType.JSON).port(getHttpPort())
-                    .header("Content-Type", "application/json; charset=UTF-8").when().post(LICENSE_REST_ENDPOINT);
-            Assertions.assertThat(response.statusCode()).isEqualTo(201);
-
-            String location = response.getHeader("Location");
-            logger.info("Found location in Response header: " + location);
-
-            licenseId = Integer.valueOf(location.substring(location.lastIndexOf(LICENSE_REST_ENDPOINT)
-                    + LICENSE_REST_ENDPOINT.length()));
-
-            logger.info("Created id of license: " + licenseId);
-
-        } catch (IOException e) {
-            Assertions.fail("Could not read license.json file", e);
-        }
-    }
-
-    @Test
-    @InSequence(12)
-    public void shouldUpdateLicense() {
-
-        logger.info("### newLicenseId: " + licenseId);
-
-        Response response = given().contentType(ContentType.JSON).port(getHttpPort()).when()
-                .get(String.format(LICENSE_REST_ENDPOINT_SPECIFIC, licenseId));
-
-        Assertions.assertThat(response.statusCode()).isEqualTo(200);
-        Assertions.assertThat(response.body().jsonPath().getInt("id")).isEqualTo(licenseId);
-        Assertions.assertThat(response.body().jsonPath().getString("shortName")).isEqualTo("GPL");
-
-        String rawJson = response.body().jsonPath().prettyPrint();
-        rawJson = rawJson.replace("GPL", "GPL 2.0");
-
-        logger.info("### rawJson: " + response.body().jsonPath().prettyPrint());
-
-        given().body(rawJson).contentType(ContentType.JSON).port(getHttpPort()).when()
-                .put(String.format(LICENSE_REST_ENDPOINT_SPECIFIC, licenseId)).then().statusCode(200);
-
-        // Reading updated resource
-        Response updateResponse = given().contentType(ContentType.JSON).port(getHttpPort()).when()
-                .get(String.format(LICENSE_REST_ENDPOINT_SPECIFIC, licenseId));
-
-        Assertions.assertThat(updateResponse.statusCode()).isEqualTo(200);
-        Assertions.assertThat(updateResponse.body().jsonPath().getInt("id")).isEqualTo(licenseId);
-        Assertions.assertThat(updateResponse.body().jsonPath().getString("shortName")).isEqualTo("GPL 2.0");
-
-    }
-
-    @Test
-    @InSequence(13)
     public void shouldCreateNewProject() {
 
         try {
@@ -270,7 +203,7 @@ public class RestTest {
     }
 
     @Test
-    @InSequence(14)
+    @InSequence(12)
     public void shouldUpdateProject() {
 
         logger.info("### newProjectId: " + newProjectId);
@@ -297,6 +230,5 @@ public class RestTest {
         Assertions.assertThat(updateResponse.statusCode()).isEqualTo(200);
         Assertions.assertThat(updateResponse.body().jsonPath().getInt("id")).isEqualTo(newProjectId);
         Assertions.assertThat(updateResponse.body().jsonPath().getString("name")).isEqualTo("New Awesome Project");
-
     }
 }

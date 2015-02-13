@@ -17,29 +17,17 @@
 
 package org.jboss.pnc.rest.endpoint;
 
-import javax.inject.Inject;
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriBuilder;
-import javax.ws.rs.core.UriInfo;
-
-import org.jboss.pnc.rest.provider.LicenseProvider;
-import org.jboss.pnc.rest.restmodel.LicenseRest;
-
 import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
 import com.wordnik.swagger.annotations.ApiParam;
+import org.jboss.pnc.rest.provider.LicenseProvider;
+import org.jboss.pnc.rest.restmodel.LicenseRest;
+
+import javax.inject.Inject;
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
+import javax.ws.rs.*;
+import javax.ws.rs.core.*;
 
 /**
  * Created by avibelli on Feb 5, 2015
@@ -92,6 +80,14 @@ public class LicenseEndpoint {
     public Response update(@ApiParam(value = "License id", required = true) @PathParam("id") Integer licenseId,
             @NotNull @Valid LicenseRest licenseRest, @Context UriInfo uriInfo) {
         licenseProvider.update(licenseRest);
+        return Response.ok().build();
+    }
+
+    @ApiOperation(value = "Deletes an existing Product")
+    @DELETE
+    @Path("/{id}")
+    public Response delete(@ApiParam(value = "License id", required = true) @PathParam("id") Integer licenseId) {
+        licenseProvider.delete(licenseId);
         return Response.ok().build();
     }
 }

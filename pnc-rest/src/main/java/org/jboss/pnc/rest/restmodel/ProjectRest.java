@@ -1,8 +1,8 @@
 package org.jboss.pnc.rest.restmodel;
 
-import org.jboss.pnc.model.License;
 import org.jboss.pnc.model.Project;
 import org.jboss.pnc.model.builder.BuildConfigurationBuilder;
+import org.jboss.pnc.model.builder.LicenseBuilder;
 import org.jboss.pnc.model.builder.ProjectBuilder;
 
 import javax.xml.bind.annotation.XmlRootElement;
@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
+import static org.jboss.pnc.rest.utils.Utility.performIfNotNull;
 
 @XmlRootElement(name = "Project")
 public class ProjectRest {
@@ -26,7 +27,7 @@ public class ProjectRest {
 
     private List<Integer> configurationIds;
 
-    private License license;
+    private Integer licenseId;
 
     /**
      * Instantiates a new project rest.
@@ -47,7 +48,7 @@ public class ProjectRest {
         this.projectUrl = project.getProjectUrl();
         this.configurationIds = nullableStreamOf(project.getBuildConfigurations()).map(
                 buildConfiguration -> buildConfiguration.getId()).collect(Collectors.toList());
-        this.license = project.getLicense();
+        performIfNotNull(project.getLicense() != null, () -> this.licenseId = project.getLicense().getId());
     }
 
     /**
@@ -158,22 +159,12 @@ public class ProjectRest {
         this.configurationIds = configurationIds;
     }
 
-    /**
-     * Gets the license.
-     *
-     * @return the license
-     */
-    public License getLicense() {
-        return license;
+    public Integer getLicenseId() {
+        return licenseId;
     }
 
-    /**
-     * Sets the license.
-     *
-     * @param license the new license
-     */
-    public void setLicense(License license) {
-        this.license = license;
+    public void setLicenseId(Integer licenseId) {
+        this.licenseId = licenseId;
     }
 
     /**
@@ -188,7 +179,8 @@ public class ProjectRest {
         builder.description(description);
         builder.issueTrackerUrl(issueTrackerUrl);
         builder.projectUrl(projectUrl);
-        builder.license(license);
+
+        performIfNotNull(this.licenseId != null, () -> builder.license(LicenseBuilder.newBuilder().id(licenseId).build()));
 
         nullableStreamOf(configurationIds).forEach(configurationId ->
                 builder.buildConfiguration(BuildConfigurationBuilder.newBuilder().id(configurationId).build()));
