@@ -43,6 +43,8 @@ public class ProductVersion implements Serializable {
 
     private boolean supported;
 
+    private String internalDownloadUrl;
+
     @ManyToOne(cascade = CascadeType.ALL)
     private Product product;
 
@@ -72,13 +74,15 @@ public class ProductVersion implements Serializable {
      * @param product
      * @param released
      * @param supported
+     * @param internalDownloadUrl
      */
-    public ProductVersion(String version, Product product, boolean released, boolean supported) {
+    public ProductVersion(String version, Product product, boolean released, boolean supported, String internalDownloadUrl) {
         this();
         this.version = version;
         this.product = product;
         this.released = released;
         this.supported = supported;
+        this.internalDownloadUrl = internalDownloadUrl;
     }
 
     /**
@@ -147,6 +151,19 @@ public class ProductVersion implements Serializable {
 
     public void setSupported(boolean supported) {
         this.supported = supported;
+    }
+
+    /**
+     * URL which can be used to download the product distribution
+     * 
+     * @return
+     */
+    public String getInternalDownloadUrl() {
+        return internalDownloadUrl;
+    }
+
+    public void setInternalDownloadUrl(String internalDownloadUrl) {
+        this.internalDownloadUrl = internalDownloadUrl;
     }
 
     /**

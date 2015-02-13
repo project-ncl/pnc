@@ -22,6 +22,8 @@ public class ProductVersionBuilder {
 
     private boolean supported;
 
+    private String internalDownloadUrl;
+
     private Set<BuildRecordSet> productBuildRecordSets;
 
     private ProductVersionBuilder() {
@@ -38,6 +40,7 @@ public class ProductVersionBuilder {
         productVersion.setVersion(version);
         productVersion.setReleased(released);
         productVersion.setSupported(supported);
+        productVersion.setInternalDownloadUrl(internalDownloadUrl);
 
         if (product != null) {
             product.addVersion(productVersion);
@@ -73,6 +76,11 @@ public class ProductVersionBuilder {
         return this;
     }
 
+    public ProductVersionBuilder internalDownloadUrl(String internalDownloadUrl) {
+        this.internalDownloadUrl = internalDownloadUrl;
+        return this;
+    }
+
     public ProductVersionBuilder product(Product product) {
         this.product = product;
         return this;
@@ -102,6 +110,10 @@ public class ProductVersionBuilder {
 
     public boolean isSupported() {
         return supported;
+    }
+
+    public String getInternalDownloadUrl() {
+    	return internalDownloadUrl;
     }
 
     public Product getProduct() {

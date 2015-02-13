@@ -20,6 +20,8 @@ public class ProductVersionRest {
 
     private boolean supported;
 
+    private String internalDownloadUrl;
+
     private Integer productId;
 
     List<Integer> projectIds;
@@ -32,6 +34,7 @@ public class ProductVersionRest {
         this.version = productVersion.getVersion();
         this.released = productVersion.isReleased();
         this.supported = productVersion.isSupported();
+        this.internalDownloadUrl = productVersion.getInternalDownloadUrl();
         this.productId = productVersion.getProduct().getId();
         this.projectIds = nullableStreamOf(productVersion.getProductVersionProjects()).map(
                 productVersionProjects -> productVersionProjects.getProject().getId()).collect(Collectors.toList());
@@ -70,6 +73,14 @@ public class ProductVersionRest {
         this.supported = supported;
     }
 
+    public String getInternalDownloadUrl() {
+        return internalDownloadUrl;
+    }
+
+    public void setInternalDownloadUrl(String internalDownloadUrl) {
+        this.internalDownloadUrl = internalDownloadUrl;
+    }
+
     public Integer getProductId() {
         return productId;
     }
@@ -95,6 +106,7 @@ public class ProductVersionRest {
         productVersion.setVersion(version);
         productVersion.setReleased(released);
         productVersion.setSupported(supported);
+        productVersion.setInternalDownloadUrl(internalDownloadUrl);
         return productVersion;
     }
 
