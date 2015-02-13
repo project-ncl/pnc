@@ -39,6 +39,10 @@ public class ProductVersion implements Serializable {
 
     private String version;
 
+    private boolean released;
+
+    private boolean supported;
+
     @ManyToOne(cascade = CascadeType.ALL)
     private Product product;
 
@@ -61,6 +65,20 @@ public class ProductVersion implements Serializable {
         this();
         this.version = version;
         this.product = product;
+    }
+
+    /**
+     * @param version
+     * @param product
+     * @param released
+     * @param supported
+     */
+    public ProductVersion(String version, Product product, boolean released, boolean supported) {
+        this();
+        this.version = version;
+        this.product = product;
+        this.released = released;
+        this.supported = supported;
     }
 
     /**
@@ -103,6 +121,32 @@ public class ProductVersion implements Serializable {
      */
     public void setProduct(Product product) {
         this.product = product;
+    }
+
+    /**
+     * Flag to show whether this product version has been released
+     * 
+     * @return
+     */
+    public boolean isReleased() {
+        return released;
+    }
+
+    public void setReleased(boolean released) {
+        this.released = released;
+    }
+
+    /**
+     * Flag showing whether this product version is currently supported
+     * 
+     * @return
+     */
+    public boolean isSupported() {
+        return supported;
+    }
+
+    public void setSupported(boolean supported) {
+        this.supported = supported;
     }
 
     /**

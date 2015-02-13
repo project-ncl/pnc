@@ -18,6 +18,10 @@ public class ProductVersionBuilder {
 
     private Product product;
 
+    private boolean released;
+
+    private boolean supported;
+
     private Set<BuildRecordSet> productBuildRecordSets;
 
     private ProductVersionBuilder() {
@@ -32,6 +36,8 @@ public class ProductVersionBuilder {
         ProductVersion productVersion = new ProductVersion();
         productVersion.setId(id);
         productVersion.setVersion(version);
+        productVersion.setReleased(released);
+        productVersion.setSupported(supported);
 
         if (product != null) {
             product.addVersion(productVersion);
@@ -57,6 +63,16 @@ public class ProductVersionBuilder {
         return this;
     }
 
+    public ProductVersionBuilder released(boolean released) {
+        this.released = released;
+        return this;
+    }
+
+    public ProductVersionBuilder supported(boolean supported) {
+        this.supported = supported;
+        return this;
+    }
+
     public ProductVersionBuilder product(Product product) {
         this.product = product;
         return this;
@@ -78,6 +94,14 @@ public class ProductVersionBuilder {
 
     public String getVersion() {
         return version;
+    }
+
+    public boolean isReleased() {
+        return released;
+    }
+
+    public boolean isSupported() {
+        return supported;
     }
 
     public Product getProduct() {
