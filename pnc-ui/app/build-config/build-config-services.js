@@ -17,9 +17,20 @@
             versionId: '@versionId'
         }),
 
-        Project: function($resource) {
-          return $resource(baseUrl + '/project/:projectId');
-        },
+        Project: $resource(baseUrl + '/project/:projectId', {
+            projectId: '@projectId',
+          },{
+            getForProductVersion: {
+              method: 'GET',
+              url: baseUrl +
+                '/project/product/:productId/version/:versionId',
+              isArray: true,
+              params: {
+                productId: '@productId',
+                versionId: '@versionId'
+              }
+            }
+          }),
 
         Configuration: function($resource) {
           return $resource(baseUrl + '/configuration/:configurationId', {

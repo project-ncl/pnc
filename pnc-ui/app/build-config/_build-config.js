@@ -6,18 +6,18 @@
 
   module.config(['$stateProvider', function($stateProvider) {
 
-    $stateProvider
-      .state('build-config', {
+    $stateProvider.state('build-config', {
         abstract: true,
         url: '/build-config',
         views: {
           'content@': {
             templateUrl: 'build-config/views/build-config.html',
-            controller: 'BuildConfigCtrl'
+            controller: 'BuildConfigController'
           }
         }
-      })
-      .state('build-config.product', {
+      });
+
+      $stateProvider.state('build-config.product', {
         url: '/product',
         resolve: {
           restClient: 'PncRestClient',
@@ -28,11 +28,12 @@
         views: {
           'content@build-config': {
             templateUrl: 'build-config/views/product.html',
-            controller: 'ProductListCtrl'
+            controller: 'ProductListController'
           }
         }
-      })
-      .state('build-config.product.show', {
+      });
+
+      $stateProvider.state('build-config.product.show', {
         url: '/{productId:int}',
         resolve: {
           restClient: 'PncRestClient',
@@ -44,29 +45,17 @@
         views: {
           'content@build-config': {
             templateUrl: 'build-config/views/product.show.html',
-            controller: 'ProductCtrl'
+            controller: 'ProductShowController'
           }
         }
-      })
+      });
 
-      .state('build-config.product.show.version', {
+      $stateProvider.state('build-config.product.show.version', {
         url: '/version',
-        abstract: true/*,
-        resolve: {
-          restClient: 'PncRestClient',
-          versionList: function(restClient, $stateParams) {
-            return restClient.version.query(
-              { productId: $stateParams.productId }).$promise;
-          }
-        },
-        views: {
-          'content@build-config': {
-            template: '<span></span>',
-            controller: 'VersionListCtrl'
-          }
-        }*/
-      })
-      .state('build-config.product.show.version.show', {
+        abstract: true
+      });
+
+      $stateProvider.state('build-config.product.show.version.show', {
         url: '/{versionId:int}',
         resolve: {
           restClient: 'PncRestClient',
@@ -79,9 +68,26 @@
         },
         views: {
           'content@build-config': {
-            templateUrl: 'build-config/views/product.show.version.show.html',
-            controller: 'VersionCtrl'
+            templateUrl: 'build-config/views/version.show.html',
+            controller: 'VersionShowController'
           }
+        }
+      });
+
+      $stateProvider.state('build-config.product.show.version.show.project', {
+        url: '/project',
+        abstract: true
+      });
+
+      $stateProvider.state(
+        'build-config.product.show.version.show.project.show', {
+          url: '/{projectId:int}',
+          views:{
+            'content@build-config': {
+              templateUrl:
+                'build-config/views/project.show.html',
+              controller: 'ProjectShowController'
+            }
         }
       });
   }]);

@@ -35,7 +35,7 @@
         };
 
         $scope.shouldShow = function() {
-          return ($scope.pncTopLevel || ($scope.pncItems.length > 0));
+          return ($scope.pncTopLevel || ($scope.pncItems && $scope.pncItems.length > 0));
         };
 
       }],

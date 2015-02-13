@@ -10,7 +10,7 @@
       views: {
         'content@': {
           templateUrl: 'dashboard/views/dashboard.html',
-          controller: 'DashboardCtrl'
+          controller: 'DashboardController'
         }
       }
     });

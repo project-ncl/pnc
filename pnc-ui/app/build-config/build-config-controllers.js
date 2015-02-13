@@ -4,7 +4,8 @@
 
   var module = angular.module('pnc.BuildConfig');
 
-  module.controller('BuildConfigCtrl',
+
+  module.controller('BuildConfigController',
     ['$scope', '$state', 'PncRestClient',
     function($scope, $state, PncRestClient) {
 
@@ -104,11 +105,26 @@
         productCol
       );
 
+      var projectCol = newColumn(
+        function(project) {
+          console.log('projectCol >> selected: %O', project);
+        },
+        function() {
+          console.log('projectCol.updateList >> versionCol = %O', versionCol);
+          return PncRestClient.Project.getForProductVersion({
+            productId: productCol.selected.id,
+            versionId: versionCol.selected.id,
+          });
+        },
+        versionCol
+      );
+
       // Add columns to scope so can be accessed in the view and
       // from inherriting controllers.
       $scope.columnBrowse = {
         products: productCol,
-        versions: versionCol
+        versions: versionCol,
+        projects: projectCol
       };
 
       // Initialise the first column with values.
@@ -116,41 +132,59 @@
     }
   ]);
 
-  module.controller('ProductListCtrl',
+  module.controller('ProductListController',
     ['$scope','productList',
     function($scope, productList) {
-      console.log('ProductListCtrl >> scope=%O, productList=%O', $scope, productList);
+      console.log('ProductListController >> scope=%O, productList=%O', $scope, productList);
       $scope.products = productList;
     }
   ]);
 
-  module.controller('ProductCtrl', ['$scope', '$stateParams', 'productDetails',
+  module.controller('ProductShowController', ['$scope', '$stateParams', 'productDetails',
     function ($scope, $stateParams, productDetails) {
-      console.log('ProductCtrl::productDetails=%O', productDetails);
+      console.log('ProductShowController::productDetails=%O', productDetails);
       $scope.product = productDetails;
       $scope.columnBrowse.products.setSelected(productDetails);
     }
   ]);
 
-  module.controller('VersionListCtrl', ['$scope', '$stateParams', 'versionList',
+  module.controller('VersionListController',
+    ['$scope', '$stateParams', 'versionList',
     function ($scope, $stateParams, versionList) {
-      console.log('VersionListCtrl::versionList=%O', versionList);
-      console.log('VersionListCtrl::$stateParams=%O', $stateParams);
+      console.log('VersionListController::versionList=%O', versionList);
+      console.log('VersionListController::$stateParams=%O', $stateParams);
       $scope.versions = versionList;
     }
   ]);
 
-  module.controller('VersionCtrl',
+  module.controller('VersionShowController',
     ['$scope', '$stateParams', '$state', 'productDetails', 'versionDetails',
     function ($scope, $stateParams, $state, productDetails, versionDetails) {
-      console.log('VersionCtrl::versionDetails=%O', versionDetails);
-      console.log('VersionCtrl::$stateParams=%O', $stateParams);
-      console.log('VersionCtrl::$state=%O', $state);
-      console.log('VersionCtrl::$scope=%O', $scope);
+      console.log('VersionController::versionDetails=%O', versionDetails);
+      console.log('VersionController::$stateParams=%O', $stateParams);
+      console.log('VersionController::$state=%O', $state);
+      console.log('VersionController::$scope=%O', $scope);
       $scope.product = productDetails;
       $scope.version = versionDetails;
       $scope.columnBrowse.products.setSelected(productDetails);
       $scope.columnBrowse.versions.setSelected(versionDetails);
+    }
+  ]);
+
+  module.controller('ProjectShowController',
+    ['$scope',
+    '$stateParams',
+    'projectDetails',
+    'versionDetails',
+    'productDetails',
+    function($scope, $stateParams, projectDetails, versionDetails, productDetails) {
+      $scope.project = projectDetails;
+      $scope.version = versionDetails;
+      $scope.product = productDetails;
+
+      $scope.columnBrowse.products.setSelected(productDetails);
+      $scope.columnBrowse.versions.setSelected(versionDetails);
+      $scope.columnBrowse.projects.setSelected(projectDetails);
     }
   ]);
 })();
