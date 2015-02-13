@@ -4,7 +4,7 @@ import com.google.common.base.Preconditions;
 import org.jboss.pnc.core.builder.BuildCoordinator;
 import org.jboss.pnc.core.exception.CoreException;
 import org.jboss.pnc.datastore.repositories.BuildConfigurationRepository;
-import org.jboss.pnc.model.BuildCollection;
+import org.jboss.pnc.model.BuildRecordSet;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerException;
@@ -34,8 +34,8 @@ public class BuildTriggerer {
         final BuildConfiguration configuration = buildConfigurationRepository.findOne(configurationId);
         Preconditions.checkArgument(configuration != null, "Can't find configuration with given id=" + configurationId);
 
-        final BuildCollection buildCollection = new BuildCollection();
-        buildCollection.setProductVersion(configuration.getProductVersion());
+        final BuildRecordSet buildRecordSet = new BuildRecordSet();
+        buildRecordSet.setProductVersion(configuration.getProductVersion());
 
         return buildCoordinator.build(configuration).getBuildConfiguration().getId();
     }

@@ -1,6 +1,6 @@
 package org.jboss.pnc.core.test.mock;
 
-import org.jboss.pnc.model.BuildCollection;
+import org.jboss.pnc.model.BuildRecordSet;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.RepositoryType;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManager;
@@ -14,7 +14,7 @@ public class RepositoryManagerMock implements RepositoryManager {
 
 
     @Override
-    public RepositoryConfiguration createRepository(BuildConfiguration buildConfiguration, BuildCollection buildCollection) throws RepositoryManagerException {
+    public RepositoryConfiguration createRepository(BuildConfiguration buildConfiguration, BuildRecordSet buildRecordSet) throws RepositoryManagerException {
 
         RepositoryConfiguration repositoryConfiguration = new RepositoryConfigurationMock();
         return repositoryConfiguration;

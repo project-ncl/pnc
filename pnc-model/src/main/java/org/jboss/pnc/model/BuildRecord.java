@@ -23,7 +23,7 @@ import javax.persistence.OneToMany;
  * This class contains the build result of a project configuration, and contains additional metadata, as the build script, the
  * starting and ending time of a build, the status of the build, the sources url used, the user that triggered the build, plus
  * all the Artifacts that were built and all the Artifacts that were used for the final build. It stores also the buildDriverID
- * that was used to run the build, the system Image where is was run in, and is mapped to a BuildCollection, that encapsulates
+ * that was used to run the build, the system Image where is was run in, and is mapped to a BuildRecordSet, that encapsulates
  * the set of buildRecord that compose a Product
  */
 @Entity
@@ -82,18 +82,18 @@ public class BuildRecord implements Serializable {
     @ManyToOne
     private SystemImage systemImage;
 
-    // bi-directional many-to-many association to BuildCollection
+    // bi-directional many-to-many association to buildRecordSet
 
     /** The build collections. */
     @ManyToMany(mappedBy = "buildRecord")
-    private List<BuildCollection> buildCollections;
+    private List<BuildRecordSet> buildRecordSets;
 
     /**
      * Instantiates a new project build result.
      */
     public BuildRecord() {
         startTime = Timestamp.from(Instant.now());
-        buildCollections = new ArrayList<>();
+        buildRecordSets = new ArrayList<>();
         dependencies = new ArrayList<>();
         builtArtifacts = new ArrayList<>();
     }
@@ -343,24 +343,6 @@ public class BuildRecord implements Serializable {
     }
 
     /**
-     * Gets the builds the collections.
-     *
-     * @return the builds the collections
-     */
-    public List<BuildCollection> getBuildCollections() {
-        return buildCollections;
-    }
-
-    /**
-     * Sets the builds the collections.
-     *
-     * @param buildCollections the new builds the collections
-     */
-    public void setBuildCollections(List<BuildCollection> buildCollections) {
-        this.buildCollections = buildCollections;
-    }
-
-    /**
      * @return the buildConfiguration
      */
     public BuildConfiguration getBuildConfiguration() {
@@ -400,6 +382,20 @@ public class BuildRecord implements Serializable {
      */
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    /**
+     * @return the buildRecordSets
+     */
+    public List<BuildRecordSet> getBuildRecordSets() {
+        return buildRecordSets;
+    }
+
+    /**
+     * @param buildRecordSets the buildRecordSets to set
+     */
+    public void setBuildRecordSets(List<BuildRecordSet> buildRecordSets) {
+        this.buildRecordSets = buildRecordSets;
     }
 
     @Override

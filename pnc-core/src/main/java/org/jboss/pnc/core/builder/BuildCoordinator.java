@@ -5,7 +5,7 @@ import org.jboss.pnc.core.BuildDriverFactory;
 import org.jboss.pnc.core.RepositoryManagerFactory;
 import org.jboss.pnc.core.exception.CoreException;
 import org.jboss.pnc.core.exception.CoreExceptionWrapper;
-import org.jboss.pnc.model.BuildCollection;
+import org.jboss.pnc.model.BuildRecordSet;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildDriverStatus;
 import org.jboss.pnc.model.Product;
@@ -160,16 +160,16 @@ public class BuildCoordinator {
             BuildConfiguration buildConfiguration = buildTask.getBuildConfiguration();
             try {
 
-                //TODO remove buildCollection mock
-                BuildCollection buildCollection = new BuildCollection();
+                //TODO remove buildRecordSet mock
+                BuildRecordSet buildRecordSet = new BuildRecordSet();
                 ProductVersion productVersion = new ProductVersion();
                 productVersion.setVersion("my-product-version");
                 Product product = new Product();
                 product.setName("my-product");
                 productVersion.setProduct(product);
-                buildCollection.setProductVersion(productVersion);
+                buildRecordSet.setProductVersion(productVersion);
 
-                return repositoryManager.createRepository(buildConfiguration, buildCollection);
+                return repositoryManager.createRepository(buildConfiguration, buildRecordSet);
             } catch (RepositoryManagerException e) {
                 throw new CoreExceptionWrapper(e);
             }

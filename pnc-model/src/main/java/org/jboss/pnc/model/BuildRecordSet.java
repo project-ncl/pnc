@@ -5,14 +5,14 @@ import java.io.Serializable;
 import java.util.List;
 
 /**
- * The Class BuildCollection, that encapsulates the set of buildRecords that compose a specific version of a Product.
+ * The Class BuildRecordSet, that encapsulates the set of buildRecords that compose a specific version of a Product.
  *
  * There should be a unique constraint (productVersion, productBuildNumber)
  *
  * @author avibelli
  */
 @Entity
-public class BuildCollection implements Serializable {
+public class BuildRecordSet implements Serializable {
 
     private static final long serialVersionUID = 1633628406382742445L;
 
@@ -34,7 +34,7 @@ public class BuildCollection implements Serializable {
     /**
      * Instantiates a new builds the collection.
      */
-    public BuildCollection() {
+    public BuildRecordSet() {
 
     }
 
@@ -114,7 +114,7 @@ public class BuildCollection implements Serializable {
 
     @Override
     public String toString() {
-        return "BuildCollection [productName=" + productVersion.getProduct().getName() + ", productVersion="
+        return "BuildRecordSet [productName=" + productVersion.getProduct().getName() + ", productVersion="
                 + productVersion.getVersion() + ", productBuildNumber=" + productBuildNumber + "]";
     }
 

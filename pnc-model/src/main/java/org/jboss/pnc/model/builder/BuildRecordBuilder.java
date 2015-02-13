@@ -23,7 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.jboss.pnc.model.Artifact;
-import org.jboss.pnc.model.BuildCollection;
+import org.jboss.pnc.model.BuildRecordSet;
 import org.jboss.pnc.model.BuildDriverStatus;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildRecord;
@@ -70,11 +70,11 @@ public class BuildRecordBuilder {
 
     private SystemImage systemImage;
 
-    private List<BuildCollection> buildCollections;
+    private List<BuildRecordSet> buildRecordSets;
 
     public BuildRecordBuilder() {
         startTime = Timestamp.from(Instant.now());
-        buildCollections = new ArrayList<>();
+        buildRecordSets = new ArrayList<>();
         dependencies = new ArrayList<>();
         builtArtifacts = new ArrayList<>();
     }
@@ -113,7 +113,7 @@ public class BuildRecordBuilder {
         }
         buildRecord.setDependencies(dependencies);
 
-        buildRecord.setBuildCollections(buildCollections);
+        buildRecord.setBuildRecordSets(buildRecordSets);
 
         return buildRecord;
     }
@@ -213,8 +213,8 @@ public class BuildRecordBuilder {
         return this;
     }
 
-    public BuildRecordBuilder buildCollections(List<BuildCollection> buildCollections) {
-        this.buildCollections = buildCollections;
+    public BuildRecordBuilder buildRecordSets(List<BuildRecordSet> buildRecordSets) {
+        this.buildRecordSets = buildRecordSets;
         return this;
     }
 
@@ -286,8 +286,8 @@ public class BuildRecordBuilder {
         return systemImage;
     }
 
-    public List<BuildCollection> getBuildCollections() {
-        return buildCollections;
+    public List<BuildRecordSet> getBuildRecordSets() {
+        return buildRecordSets;
     }
 
 }

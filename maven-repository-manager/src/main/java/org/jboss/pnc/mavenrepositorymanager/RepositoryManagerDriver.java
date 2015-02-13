@@ -31,7 +31,7 @@ import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.moduleconfig.MavenRepoDriverModuleConfig;
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.ArtifactStatus;
-import org.jboss.pnc.model.BuildCollection;
+import org.jboss.pnc.model.BuildRecordSet;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.ProductVersion;
 import org.jboss.pnc.model.RepositoryType;
@@ -114,7 +114,7 @@ public class RepositoryManagerDriver implements RepositoryManager {
      *         (or product, or shared-releases).
      */
     @Override
-    public RepositoryConfiguration createRepository(BuildConfiguration buildConfiguration, BuildCollection buildCollection)
+    public RepositoryConfiguration createRepository(BuildConfiguration buildConfiguration, BuildRecordSet buildRecordSet)
             throws RepositoryManagerException {
 
         try {
@@ -123,7 +123,7 @@ public class RepositoryManagerDriver implements RepositoryManager {
             throw new RepositoryManagerException("Failed to setup shared-releases hosted repository: %s", e, e.getMessage());
         }
 
-        ProductVersion pv = buildCollection.getProductVersion();
+        ProductVersion pv = buildRecordSet.getProductVersion();
 
         String productRepoId = String.format(GROUP_ID_FORMAT, safeUrlPart(pv.getProduct().getName()),
                 safeUrlPart(pv.getVersion()));

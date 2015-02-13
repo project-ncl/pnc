@@ -1,6 +1,6 @@
 package org.jboss.pnc.model.builder;
 
-import org.jboss.pnc.model.BuildCollection;
+import org.jboss.pnc.model.BuildRecordSet;
 import org.jboss.pnc.model.Product;
 import org.jboss.pnc.model.ProductVersion;
 
@@ -18,10 +18,10 @@ public class ProductVersionBuilder {
 
     private Product product;
 
-    private Set<BuildCollection> productBuildCollections;
+    private Set<BuildRecordSet> productBuildRecordSets;
 
     private ProductVersionBuilder() {
-        productBuildCollections = new HashSet<>();
+        productBuildRecordSets = new HashSet<>();
     }
 
     public static ProductVersionBuilder newBuilder() {
@@ -39,10 +39,10 @@ public class ProductVersionBuilder {
         }
 
         // Set the bi-directional mapping
-        for (BuildCollection buildCollection : productBuildCollections) {
-            buildCollection.setProductVersion(productVersion);
+        for (BuildRecordSet buildRecordSet : productBuildRecordSets) {
+            buildRecordSet.setProductVersion(productVersion);
         }
-        productVersion.setProductBuildCollections(productBuildCollections);
+        productVersion.setProductBuildRecordSets(productBuildRecordSets);
 
         return productVersion;
     }
@@ -62,13 +62,13 @@ public class ProductVersionBuilder {
         return this;
     }
 
-    public ProductVersionBuilder productBuildCollection(BuildCollection productBuildCollection) {
-        this.productBuildCollections.add(productBuildCollection);
+    public ProductVersionBuilder productBuildRecordSet(BuildRecordSet productBuildRecordSet) {
+        this.productBuildRecordSets.add(productBuildRecordSet);
         return this;
     }
 
-    public ProductVersionBuilder productBuildCollections(Set<BuildCollection> productBuildCollections) {
-        this.productBuildCollections = productBuildCollections;
+    public ProductVersionBuilder productBuildRecordSets(Set<BuildRecordSet> productBuildRecordSets) {
+        this.productBuildRecordSets = productBuildRecordSets;
         return this;
     }
 
@@ -84,8 +84,12 @@ public class ProductVersionBuilder {
         return product;
     }
 
-    public Set<BuildCollection> getProductBuildCollections() {
-        return productBuildCollections;
+    public Set<BuildRecordSet> getProductBuildRecordSets() {
+        return productBuildRecordSets;
+    }
+
+    public void setProductBuildRecordSets(Set<BuildRecordSet> productBuildRecordSets) {
+        this.productBuildRecordSets = productBuildRecordSets;
     }
 
     public ProductVersionBuilder product(ProductBuilder productBuilder) {

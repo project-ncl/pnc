@@ -14,7 +14,7 @@ import org.commonjava.aprox.model.core.StoreType;
 import org.commonjava.maven.atlas.ident.ref.ArtifactRef;
 import org.commonjava.maven.atlas.ident.ref.ProjectVersionRef;
 import org.jboss.pnc.model.Artifact;
-import org.jboss.pnc.model.BuildCollection;
+import org.jboss.pnc.model.BuildRecordSet;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
 import org.jboss.pnc.spi.repositorymanager.model.RepositoryConfiguration;
@@ -37,7 +37,7 @@ public class RepositoryManagerDriver03Test
     public void persistArtifacts_ContainsTwoDownloads() throws Exception {
         BuildConfiguration pbc = simpleBuildConfiguration();
 
-        BuildCollection bc = new BuildCollection();
+        BuildRecordSet bc = new BuildRecordSet();
         bc.setProductVersion(pbc.getProductVersion());
 
         RepositoryConfiguration rc = driver.createRepository(pbc, bc);
