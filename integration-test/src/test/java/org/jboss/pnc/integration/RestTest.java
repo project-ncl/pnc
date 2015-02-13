@@ -7,7 +7,7 @@ import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.junit.InSequence;
 import org.jboss.pnc.common.util.IoUtils;
-import org.jboss.pnc.integration.assertions.JsonMatcher;
+import org.jboss.pnc.integration.matchers.JsonMatcher;
 import org.jboss.pnc.integration.deployments.Deployments;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
 import org.junit.Test;

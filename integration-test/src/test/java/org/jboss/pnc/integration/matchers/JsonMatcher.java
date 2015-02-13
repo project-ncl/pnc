@@ -1,4 +1,4 @@
-package org.jboss.pnc.integration.assertions;
+package org.jboss.pnc.integration.matchers;
 
 import org.hamcrest.CustomMatcher;
 import org.slf4j.Logger;

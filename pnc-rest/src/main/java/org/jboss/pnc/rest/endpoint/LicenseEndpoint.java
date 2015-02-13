@@ -74,7 +74,7 @@ public class LicenseEndpoint {
         return Response.created(uriBuilder.build(id)).build();
     }
 
-    @ApiOperation(value = "Updates an existing Product")
+    @ApiOperation(value = "Updates an existing License")
     @PUT
     @Path("/{id}")
     public Response update(@ApiParam(value = "License id", required = true) @PathParam("id") Integer licenseId,
@@ -83,7 +83,7 @@ public class LicenseEndpoint {
         return Response.ok().build();
     }
 
-    @ApiOperation(value = "Deletes an existing Product")
+    @ApiOperation(value = "Deletes an existing License")
     @DELETE
     @Path("/{id}")
     public Response delete(@ApiParam(value = "License id", required = true) @PathParam("id") Integer licenseId) {
