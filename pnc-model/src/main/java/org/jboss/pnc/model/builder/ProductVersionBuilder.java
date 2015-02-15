@@ -4,9 +4,6 @@ import org.jboss.pnc.model.BuildRecordSet;
 import org.jboss.pnc.model.Product;
 import org.jboss.pnc.model.ProductVersion;
 
-import java.util.HashSet;
-import java.util.Set;
-
 /**
  * @author avibelli
  */
@@ -24,10 +21,9 @@ public class ProductVersionBuilder {
 
     private String internalDownloadUrl;
 
-    private Set<BuildRecordSet> productBuildRecordSets;
+    private BuildRecordSet buildRecordSet;
 
     private ProductVersionBuilder() {
-        productBuildRecordSets = new HashSet<>();
     }
 
     public static ProductVersionBuilder newBuilder() {
@@ -41,17 +37,12 @@ public class ProductVersionBuilder {
         productVersion.setReleased(released);
         productVersion.setSupported(supported);
         productVersion.setInternalDownloadUrl(internalDownloadUrl);
+        productVersion.setBuildRecordSet(buildRecordSet);
 
         if (product != null) {
             product.addVersion(productVersion);
             productVersion.setProduct(product);
         }
-
-        // Set the bi-directional mapping
-        for (BuildRecordSet buildRecordSet : productBuildRecordSets) {
-            buildRecordSet.setProductVersion(productVersion);
-        }
-        productVersion.setProductBuildRecordSets(productBuildRecordSets);
 
         return productVersion;
     }
@@ -86,13 +77,8 @@ public class ProductVersionBuilder {
         return this;
     }
 
-    public ProductVersionBuilder productBuildRecordSet(BuildRecordSet productBuildRecordSet) {
-        this.productBuildRecordSets.add(productBuildRecordSet);
-        return this;
-    }
-
-    public ProductVersionBuilder productBuildRecordSets(Set<BuildRecordSet> productBuildRecordSets) {
-        this.productBuildRecordSets = productBuildRecordSets;
+    public ProductVersionBuilder buildRecordSet(BuildRecordSet buildRecordSet) {
+        this.buildRecordSet = buildRecordSet;
         return this;
     }
 
@@ -120,12 +106,8 @@ public class ProductVersionBuilder {
         return product;
     }
 
-    public Set<BuildRecordSet> getProductBuildRecordSets() {
-        return productBuildRecordSets;
-    }
-
-    public void setProductBuildRecordSets(Set<BuildRecordSet> productBuildRecordSets) {
-        this.productBuildRecordSets = productBuildRecordSets;
+    public BuildRecordSet getBuildRecordSet() {
+        return buildRecordSet;
     }
 
     public ProductVersionBuilder product(ProductBuilder productBuilder) {

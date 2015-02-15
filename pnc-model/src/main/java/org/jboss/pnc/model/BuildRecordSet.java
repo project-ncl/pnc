@@ -25,7 +25,7 @@ public class BuildRecordSet implements Serializable {
     @Enumerated(EnumType.STRING)
     private ProductMilestone milestone;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @OneToOne(mappedBy="buildRecordSet")
     private ProductVersion productVersion;
 
     @ManyToMany

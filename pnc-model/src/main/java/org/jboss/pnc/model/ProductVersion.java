@@ -18,6 +18,7 @@
 package org.jboss.pnc.model;
 
 import javax.persistence.*;
+
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
@@ -51,11 +52,11 @@ public class ProductVersion implements Serializable {
     @OneToMany(mappedBy = "productVersion", cascade = CascadeType.ALL)
     private Set<ProductVersionProject> productVersionProjects;
 
-    @OneToMany(mappedBy = "productVersion", cascade = CascadeType.ALL)
-    private Set<BuildRecordSet> productBuildRecordSets;
+    @OneToOne
+    @JoinColumn(name="buildrecordset_id")
+    private BuildRecordSet buildRecordSet;
 
     public ProductVersion() {
-        productBuildRecordSets = new HashSet<>();
         productVersionProjects = new HashSet<>();
     }
 
@@ -167,41 +168,17 @@ public class ProductVersion implements Serializable {
     }
 
     /**
-     * @return the productBuildRecordSets
+     * Build record set represents the set of completed builds
+     * which produced the artifacts included in the product release
+     * 
+     * @return The set of build records for this release
      */
-    public Set<BuildRecordSet> getProductBuildRecordSets() {
-        return productBuildRecordSets;
+    public BuildRecordSet getBuildRecordSet() {
+        return buildRecordSet;
     }
 
-    /**
-     * @param productBuildRecordSets the productBuildRecordSets to set
-     */
-    public void setProductBuildRecordSets(Set<BuildRecordSet> productBuildRecordSets) {
-        this.productBuildRecordSets = productBuildRecordSets;
-    }
-
-    /**
-     * Add a productBuildRecordSet to the set of productBuildRecordSets
-     *
-     * @param productBuildRecordSet
-     * @return
-     */
-    public Set<BuildRecordSet> addProductBuildRecordSet(BuildRecordSet productBuildRecordSet) {
-        productBuildRecordSets.add(productBuildRecordSet);
-
-        return productBuildRecordSets;
-    }
-
-    /**
-     * Remove a productBuildRecordSet from the set of productBuildRecordSets
-     *
-     * @param productBuildRecordSet
-     * @return
-     */
-    public Set<BuildRecordSet> removeProductBuildRecordSet(BuildRecordSet productBuildRecordSet) {
-        productBuildRecordSets.remove(productBuildRecordSet);
-
-        return productBuildRecordSets;
+    public void setBuildRecordSet(BuildRecordSet buildRecordSet) {
+        this.buildRecordSet = buildRecordSet;
     }
 
     public Set<ProductVersionProject> getProductVersionProjects() {

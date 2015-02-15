@@ -56,7 +56,7 @@ public class BuildRecordSetBuilder {
         buildRecordSet.setMilestone(milestone);
 
         if (productVersion != null) {
-            productVersion.addProductBuildRecordSet(buildRecordSet);
+            productVersion.setBuildRecordSet(buildRecordSet);
         }
         buildRecordSet.setProductVersion(productVersion);
 
