@@ -109,7 +109,7 @@
             </goals>
             <phase>prepare-package</phase>
             <configuration>
-              <tasks>
+              <target>
                 <echo message="Configuring datasource" />
                 <replace file="${project.build.outputDirectory}/META-INF/persistence.xml"
                   token="@persistence.jta-data-source@" value="${persistence.jta-data-source}" />
@@ -117,7 +117,7 @@
                   token="@persistence.hibernate.dialect@" value="${persistence.hibernate.dialect}" />
                 <replace file="${project.build.outputDirectory}/META-INF/persistence.xml"
                   token="@persistence.hibernate.hbm2ddl.auto@" value="${persistence.hibernate.hbm2ddl.auto}" />
-              </tasks>
+              </target>
             </configuration>
           </execution>
         </executions>
