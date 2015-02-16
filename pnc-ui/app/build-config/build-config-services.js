@@ -3,7 +3,7 @@
 (function () {
   var module = angular.module('pnc.BuildConfig');
 
-  var baseUrl = 'pnc-web/rest';
+  var baseUrl = '/pnc-web/rest';
 
   module.factory('PncRestClient', ['$resource',
     function($resource) {
