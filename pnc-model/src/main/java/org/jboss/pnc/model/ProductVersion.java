@@ -18,6 +18,7 @@
 package org.jboss.pnc.model;
 
 import javax.persistence.*;
+
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
@@ -39,17 +40,23 @@ public class ProductVersion implements Serializable {
 
     private String version;
 
+    private boolean released;
+
+    private boolean supported;
+
+    private String internalDownloadUrl;
+
     @ManyToOne(cascade = CascadeType.ALL)
     private Product product;
 
     @OneToMany(mappedBy = "productVersion", cascade = CascadeType.ALL)
     private Set<ProductVersionProject> productVersionProjects;
 
-    @OneToMany(mappedBy = "productVersion", cascade = CascadeType.ALL)
-    private Set<BuildRecordSet> productBuildRecordSets;
+    @OneToOne
+    @JoinColumn(name="buildrecordset_id")
+    private BuildRecordSet buildRecordSet;
 
     public ProductVersion() {
-        productBuildRecordSets = new HashSet<>();
         productVersionProjects = new HashSet<>();
     }
 
@@ -61,6 +68,22 @@ public class ProductVersion implements Serializable {
         this();
         this.version = version;
         this.product = product;
+    }
+
+    /**
+     * @param version
+     * @param product
+     * @param released
+     * @param supported
+     * @param internalDownloadUrl
+     */
+    public ProductVersion(String version, Product product, boolean released, boolean supported, String internalDownloadUrl) {
+        this();
+        this.version = version;
+        this.product = product;
+        this.released = released;
+        this.supported = supported;
+        this.internalDownloadUrl = internalDownloadUrl;
     }
 
     /**
@@ -106,41 +129,56 @@ public class ProductVersion implements Serializable {
     }
 
     /**
-     * @return the productBuildRecordSets
-     */
-    public Set<BuildRecordSet> getProductBuildRecordSets() {
-        return productBuildRecordSets;
-    }
-
-    /**
-     * @param productBuildRecordSets the productBuildRecordSets to set
-     */
-    public void setProductBuildRecordSets(Set<BuildRecordSet> productBuildRecordSets) {
-        this.productBuildRecordSets = productBuildRecordSets;
-    }
-
-    /**
-     * Add a productBuildRecordSet to the set of productBuildRecordSets
-     *
-     * @param productBuildRecordSet
+     * Flag to show whether this product version has been released
+     * 
      * @return
      */
-    public Set<BuildRecordSet> addProductBuildRecordSet(BuildRecordSet productBuildRecordSet) {
-        productBuildRecordSets.add(productBuildRecordSet);
+    public boolean isReleased() {
+        return released;
+    }
 
-        return productBuildRecordSets;
+    public void setReleased(boolean released) {
+        this.released = released;
     }
 
     /**
-     * Remove a productBuildRecordSet from the set of productBuildRecordSets
-     *
-     * @param productBuildRecordSet
+     * Flag showing whether this product version is currently supported
+     * 
      * @return
      */
-    public Set<BuildRecordSet> removeProductBuildRecordSet(BuildRecordSet productBuildRecordSet) {
-        productBuildRecordSets.remove(productBuildRecordSet);
+    public boolean isSupported() {
+        return supported;
+    }
 
-        return productBuildRecordSets;
+    public void setSupported(boolean supported) {
+        this.supported = supported;
+    }
+
+    /**
+     * URL which can be used to download the product distribution
+     * 
+     * @return
+     */
+    public String getInternalDownloadUrl() {
+        return internalDownloadUrl;
+    }
+
+    public void setInternalDownloadUrl(String internalDownloadUrl) {
+        this.internalDownloadUrl = internalDownloadUrl;
+    }
+
+    /**
+     * Build record set represents the set of completed builds
+     * which produced the artifacts included in the product release
+     * 
+     * @return The set of build records for this release
+     */
+    public BuildRecordSet getBuildRecordSet() {
+        return buildRecordSet;
+    }
+
+    public void setBuildRecordSet(BuildRecordSet buildRecordSet) {
+        this.buildRecordSet = buildRecordSet;
     }
 
     public Set<ProductVersionProject> getProductVersionProjects() {

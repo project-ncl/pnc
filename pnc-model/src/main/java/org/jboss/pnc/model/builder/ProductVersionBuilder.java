@@ -4,9 +4,6 @@ import org.jboss.pnc.model.BuildRecordSet;
 import org.jboss.pnc.model.Product;
 import org.jboss.pnc.model.ProductVersion;
 
-import java.util.HashSet;
-import java.util.Set;
-
 /**
  * @author avibelli
  */
@@ -18,10 +15,15 @@ public class ProductVersionBuilder {
 
     private Product product;
 
-    private Set<BuildRecordSet> productBuildRecordSets;
+    private boolean released;
+
+    private boolean supported;
+
+    private String internalDownloadUrl;
+
+    private BuildRecordSet buildRecordSet;
 
     private ProductVersionBuilder() {
-        productBuildRecordSets = new HashSet<>();
     }
 
     public static ProductVersionBuilder newBuilder() {
@@ -32,17 +34,15 @@ public class ProductVersionBuilder {
         ProductVersion productVersion = new ProductVersion();
         productVersion.setId(id);
         productVersion.setVersion(version);
+        productVersion.setReleased(released);
+        productVersion.setSupported(supported);
+        productVersion.setInternalDownloadUrl(internalDownloadUrl);
+        productVersion.setBuildRecordSet(buildRecordSet);
 
         if (product != null) {
             product.addVersion(productVersion);
             productVersion.setProduct(product);
         }
-
-        // Set the bi-directional mapping
-        for (BuildRecordSet buildRecordSet : productBuildRecordSets) {
-            buildRecordSet.setProductVersion(productVersion);
-        }
-        productVersion.setProductBuildRecordSets(productBuildRecordSets);
 
         return productVersion;
     }
@@ -57,18 +57,28 @@ public class ProductVersionBuilder {
         return this;
     }
 
+    public ProductVersionBuilder released(boolean released) {
+        this.released = released;
+        return this;
+    }
+
+    public ProductVersionBuilder supported(boolean supported) {
+        this.supported = supported;
+        return this;
+    }
+
+    public ProductVersionBuilder internalDownloadUrl(String internalDownloadUrl) {
+        this.internalDownloadUrl = internalDownloadUrl;
+        return this;
+    }
+
     public ProductVersionBuilder product(Product product) {
         this.product = product;
         return this;
     }
 
-    public ProductVersionBuilder productBuildRecordSet(BuildRecordSet productBuildRecordSet) {
-        this.productBuildRecordSets.add(productBuildRecordSet);
-        return this;
-    }
-
-    public ProductVersionBuilder productBuildRecordSets(Set<BuildRecordSet> productBuildRecordSets) {
-        this.productBuildRecordSets = productBuildRecordSets;
+    public ProductVersionBuilder buildRecordSet(BuildRecordSet buildRecordSet) {
+        this.buildRecordSet = buildRecordSet;
         return this;
     }
 
@@ -80,16 +90,24 @@ public class ProductVersionBuilder {
         return version;
     }
 
+    public boolean isReleased() {
+        return released;
+    }
+
+    public boolean isSupported() {
+        return supported;
+    }
+
+    public String getInternalDownloadUrl() {
+    	return internalDownloadUrl;
+    }
+
     public Product getProduct() {
         return product;
     }
 
-    public Set<BuildRecordSet> getProductBuildRecordSets() {
-        return productBuildRecordSets;
-    }
-
-    public void setProductBuildRecordSets(Set<BuildRecordSet> productBuildRecordSets) {
-        this.productBuildRecordSets = productBuildRecordSets;
+    public BuildRecordSet getBuildRecordSet() {
+        return buildRecordSet;
     }
 
     public ProductVersionBuilder product(ProductBuilder productBuilder) {

@@ -16,6 +16,12 @@ public class ProductVersionRest {
 
     private String version;
 
+    private boolean released;
+
+    private boolean supported;
+
+    private String internalDownloadUrl;
+
     private Integer productId;
 
     List<Integer> projectIds;
@@ -26,6 +32,9 @@ public class ProductVersionRest {
     public ProductVersionRest(ProductVersion productVersion) {
         this.id = productVersion.getId();
         this.version = productVersion.getVersion();
+        this.released = productVersion.isReleased();
+        this.supported = productVersion.isSupported();
+        this.internalDownloadUrl = productVersion.getInternalDownloadUrl();
         this.productId = productVersion.getProduct().getId();
         this.projectIds = nullableStreamOf(productVersion.getProductVersionProjects()).map(
                 productVersionProjects -> productVersionProjects.getProject().getId()).collect(Collectors.toList());
@@ -46,6 +55,30 @@ public class ProductVersionRest {
 
     public void setVersion(String version) {
         this.version = version;
+    }
+
+    public boolean isReleased() {
+        return released;
+    }
+
+    public void setReleased(boolean released) {
+        this.released = released;
+    }
+
+    public boolean isSupported() {
+        return supported;
+    }
+
+    public void setSupported(boolean supported) {
+        this.supported = supported;
+    }
+
+    public String getInternalDownloadUrl() {
+        return internalDownloadUrl;
+    }
+
+    public void setInternalDownloadUrl(String internalDownloadUrl) {
+        this.internalDownloadUrl = internalDownloadUrl;
     }
 
     public Integer getProductId() {
@@ -71,6 +104,9 @@ public class ProductVersionRest {
 
     public ProductVersion toProductVersion(ProductVersion productVersion) {
         productVersion.setVersion(version);
+        productVersion.setReleased(released);
+        productVersion.setSupported(supported);
+        productVersion.setInternalDownloadUrl(internalDownloadUrl);
         return productVersion;
     }
 
