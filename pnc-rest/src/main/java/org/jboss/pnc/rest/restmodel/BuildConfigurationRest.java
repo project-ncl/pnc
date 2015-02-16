@@ -1,8 +1,8 @@
 package org.jboss.pnc.rest.restmodel;
 
 import org.jboss.pnc.model.BuildConfiguration;
-import org.jboss.pnc.model.Project;
 import org.jboss.pnc.model.builder.BuildConfigurationBuilder;
+import org.jboss.pnc.model.builder.EnvironmentBuilder;
 import org.jboss.pnc.model.builder.ProjectBuilder;
 
 import javax.xml.bind.annotation.XmlRootElement;
@@ -36,6 +36,8 @@ public class BuildConfigurationRest {
 
     private Integer projectId;
 
+    private Integer environmentId;
+
     public BuildConfigurationRest() {
     }
 
@@ -52,6 +54,7 @@ public class BuildConfigurationRest {
         this.repositories = buildConfiguration.getRepositories();
         performIfNotNull(buildConfiguration.getProject() != null, () -> this.projectId = buildConfiguration.getProject()
                 .getId());
+        performIfNotNull(buildConfiguration.getEnvironment() != null, () -> this.environmentId = buildConfiguration.getEnvironment().getId());
     }
 
     public Integer getId() {
@@ -142,6 +145,14 @@ public class BuildConfigurationRest {
         this.projectId = projectId;
     }
 
+    public Integer getEnvironmentId() {
+        return environmentId;
+    }
+
+    public void setEnvironmentId(Integer environmentId) {
+        this.environmentId = environmentId;
+    }
+
     public BuildConfiguration toBuildConfiguration() {
         BuildConfigurationBuilder builder = BuildConfigurationBuilder.newBuilder();
         builder.name(name);
@@ -154,10 +165,8 @@ public class BuildConfigurationRest {
         builder.lastModificationTime(lastModificationTime);
         builder.repositories(repositories);
 
-        if (projectId != null) {
-            Project project = ProjectBuilder.newBuilder().id(projectId).build();
-            builder.project(project);
-        }
+        performIfNotNull(projectId != null, () -> builder.project(ProjectBuilder.newBuilder().id(projectId).build()));
+        performIfNotNull(environmentId != null, () -> builder.environment(EnvironmentBuilder.emptyEnvironment().id(environmentId).build()));
 
         return builder.build();
     }

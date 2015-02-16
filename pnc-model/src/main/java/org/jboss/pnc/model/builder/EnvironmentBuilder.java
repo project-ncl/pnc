@@ -6,8 +6,9 @@ import org.jboss.pnc.model.OperationalSystem;
 
 public class EnvironmentBuilder {
 
-    BuildType buildTool = BuildType.JAVA;
-    OperationalSystem operationalSystem = OperationalSystem.LINUX;
+    private BuildType buildType = BuildType.JAVA;
+    private OperationalSystem operationalSystem = OperationalSystem.LINUX;
+    private Integer id;
 
     private EnvironmentBuilder() {
 
@@ -17,9 +18,13 @@ public class EnvironmentBuilder {
         return new EnvironmentBuilder();
     }
 
+    public static EnvironmentBuilder emptyEnvironment() {
+        return new EnvironmentBuilder().id(null).buildTool(null).operationalSystem(null);
+    }
+
     public Environment build() {
         Environment environment = new Environment();
-        environment.setBuildType(buildTool);
+        environment.setBuildType(buildType);
         environment.setOperationalSystem(operationalSystem);
         return environment;
     }
@@ -28,17 +33,22 @@ public class EnvironmentBuilder {
         return operationalSystem;
     }
 
-    public BuildType getBuildTool() {
-        return buildTool;
+    public BuildType getBuildType() {
+        return buildType;
     }
 
-    public EnvironmentBuilder withDocker() {
-        this.buildTool = BuildType.DOCKER;
+    public EnvironmentBuilder buildTool(BuildType buildType) {
+        this.buildType = buildType;
         return this;
     }
 
-    public EnvironmentBuilder withNative() {
-        this.buildTool = BuildType.NATIVE;
+    public EnvironmentBuilder id(Integer id) {
+        this.id = id;
+        return  this;
+    }
+
+    private EnvironmentBuilder operationalSystem(OperationalSystem operationalSystem) {
+        this.operationalSystem = operationalSystem;
         return this;
     }
 }

@@ -6,11 +6,15 @@ import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.junit.InSequence;
 import org.jboss.pnc.common.util.IoUtils;
-import org.jboss.pnc.integration.matchers.JsonMatcher;
-import org.jboss.pnc.integration.deployments.Deployments;
 import org.jboss.pnc.integration.assertions.ResponseAssertion;
+import org.jboss.pnc.integration.deployments.Deployments;
+import org.jboss.pnc.integration.matchers.JsonMatcher;
 import org.jboss.pnc.integration.template.JsonTemplateBuilder;
+import org.jboss.pnc.rest.endpoint.BuildConfigurationEndpoint;
+import org.jboss.pnc.rest.provider.BuildConfigurationProvider;
+import org.jboss.pnc.rest.restmodel.BuildConfigurationRest;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
+import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -43,6 +47,12 @@ public class BuildConfigurationRestTest {
     @Deployment(testable = false)
     public static EnterpriseArchive deploy() {
         EnterpriseArchive enterpriseArchive = Deployments.baseEar();
+
+        JavaArchive restJar = enterpriseArchive.getAsType(JavaArchive.class, "/pnc-rest.jar");
+        restJar.addClass(BuildConfigurationProvider.class);
+        restJar.addClass(BuildConfigurationEndpoint.class);
+        restJar.addClass(BuildConfigurationRest.class);
+
         logger.info(enterpriseArchive.toString(true));
         return enterpriseArchive;
     }
