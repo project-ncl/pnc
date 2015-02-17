@@ -1,20 +1,18 @@
-  <div class="row">
-    <div class="col-md-6">
-      <h1>{{ product.name }} {{ version.version }}</h1>
-    </div>
+<div class="row">
+  <div class="col-md-5">
+    <h1>{{ product.name }} {{ version.version }}</h1>
   </div>
-    <div class="row">
-      <div class="col-md-6">
-        <p>{{ product.description }}</p>
-      </div>
-    </div>
-     <div class="row">
-    <div class="col-md-6">
-    <div class="btn-group" role="group" aria-label="Action Toolbar">
-        <button type="button" class="btn btn-lg btn-default disabled" data-toggle="tooltip" title="Start Build"><i class="fa fa-play"></i> Build</button>
-        <button type="button" class="btn btn-lg btn-default disabled" data-toggle="tooltip" title="Clone Configuration"><i class="fa fa-files-o"></i> Clone</button>
-        <button type="button" class="btn btn-lg btn-default disabled" data-toggle="tooltip" title="Edit Configuration"><i class="pficon pficon-edit"></i> Edit</button>
-        <button type="button" class="btn btn-lg btn-danger disabled" data-toggle="tooltip" title="Delete Configuration"><i class="pficon pficon-delete"></i> Delete</button>
-      </div>
-    </div>
-    </div>
+  <div class="col-md-3">
+     <span class="btn-group pull-right" style="margin-top: 2rem;" role="group" aria-label="Action Toolbar">
+      <button type="button" class="btn btn-lg btn-default disabled" data-toggle="tooltip" title="Start Build"><i class="fa fa-play"></i> Build</button>
+      <button type="button" class="btn btn-lg btn-default disabled" data-toggle="tooltip" title="Clone Configuration"><i class="fa fa-files-o"></i> Clone</button>
+      <button type="button" class="btn btn-lg btn-default disabled" data-toggle="tooltip" title="Edit Configuration"><i class="pficon pficon-edit"></i> Edit</button>
+      <button type="button" class="btn btn-lg btn-danger disabled" data-toggle="tooltip" title="Delete Configuration"><i class="pficon pficon-delete"></i> Delete</button>
+    </span>
+  </div>
+</div>
+<div class="row">
+  <div class="col-md-6">
+    <p>{{ product.description }}</p>
+  </div>
+</div>
