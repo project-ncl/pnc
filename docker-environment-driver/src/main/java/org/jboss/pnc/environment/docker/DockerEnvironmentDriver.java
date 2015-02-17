@@ -16,6 +16,7 @@ import org.jboss.pnc.model.Environment;
 import org.jboss.pnc.model.OperationalSystem;
 import org.jboss.pnc.spi.environment.EnvironmentDriver;
 import org.jboss.pnc.spi.environment.RunningEnvironment;
+import org.jboss.pnc.spi.environment.exception.EnvironmentDriverException;
 import org.jclouds.ContextBuilder;
 import org.jclouds.compute.ComputeServiceContext;
 import org.jclouds.docker.DockerApi;
@@ -36,6 +37,7 @@ import com.google.inject.Module;
 import com.jcraft.jsch.agentproxy.Connector;
 
 /**
+ * Implementation of environment driver, which uses Docker to run environments
  * 
  * @author Jakub Bartecek <jbartece@redhat.com>
  *
@@ -43,25 +45,34 @@ import com.jcraft.jsch.agentproxy.Connector;
 @Stateless
 public class DockerEnvironmentDriver implements EnvironmentDriver {
 
-    private static final String CONTAINER_PSSWD = "changeme";
+    private static final Logger logger =
+            Logger.getLogger(MethodHandles.lookup().lookupClass().getName());
 
+    /** User in running environment to which we can connect with SSH */
     private static final String CONTAINER_USER = "root";
 
+    /** Password of user to which we can connect with SSH */
+    private static final String CONTAINER_PSSWD = "changeme";
+
+    /** ID of docker image */
     private static final String IMAGE_ID = "jbartece/isshd-jenkins";
 
+    /** Connection URL to Docker control port */
     private static final String DOCKER_ENDPOINT = "http://10.3.8.102:2375";
-    
-    private static final Logger logger = Logger.getLogger(MethodHandles.lookup().lookupClass()
-            .getName());
-
 
     @Inject
     private Generator generator;
-    
+
+    @Inject
+    private ConfigurationBuilder configBuilder;
+
     private ComputeServiceContext dockerContext;
 
     private RemoteApi dockerClient;
 
+    /**
+     * Prepares connection to Docker daemon
+     */
     @PostConstruct
     private void init() {
         dockerContext = ContextBuilder.newBuilder("docker")
@@ -71,11 +82,11 @@ public class DockerEnvironmentDriver implements EnvironmentDriver {
                         new SshjSshClientModule()))
                 .buildView(ComputeServiceContext.class);
         dockerClient = dockerContext.unwrapApi(DockerApi.class).getRemoteApi();
-
     }
 
     @Override
-    public RunningEnvironment buildEnvironment(Environment buildEnvironment) {
+    public RunningEnvironment buildEnvironment(Environment buildEnvironment, String dependencyUrl,
+            String deployUrl) throws EnvironmentDriverException {
         if (buildEnvironment.getBuildType() != BuildType.DOCKER ||
                 buildEnvironment.getOperationalSystem() != OperationalSystem.LINUX)
             throw new UnsupportedOperationException(
@@ -85,27 +96,62 @@ public class DockerEnvironmentDriver implements EnvironmentDriver {
         int sshPort = generator.generateSshPort();
         String containerId = generator.generateContainerId();
 
-        logger.warning("Creating container");
-        dockerClient.createContainer(
-                containerId,
-                Config.builder()
-                        .imageId(IMAGE_ID)
-                        .build());
+        try {
+            dockerClient.createContainer(
+                    containerId,
+                    Config.builder()
+                            .imageId(IMAGE_ID)
+                            .build());
 
-        logger.warning("Starting container");
-        dockerClient.startContainer(containerId,
-                HostConfig.builder().portBindings(createPortBinding(jenkinsPort, sshPort)).build());
+            dockerClient.startContainer(containerId,
+                    HostConfig.builder()
+                            .portBindings(createPortBinding(jenkinsPort, sshPort))
+                            .build());
 
-        copyFileToContainer(sshPort, "~/.m2/settings.xml", "YEEEEAH!!!!!!");
+            copyFileToContainer(sshPort, "/root/.m2/settings.xml",
+                    configBuilder.createMavenConfig(dependencyUrl, deployUrl));
+        } catch (RuntimeException e) {
+            throw new EnvironmentDriverException("Cannot create environment.", e);
+        }
+
+        logger.info("Created and started Docker container with ID: " + containerId);
         return new RunningEnvironment(containerId, jenkinsPort, sshPort);
     }
 
+    @Override
+    public void destroyEnvironment(RunningEnvironment runningEnv) throws EnvironmentDriverException {
+        try {
+            dockerClient.stopContainer(runningEnv.getId());
+            dockerClient.removeContainer(runningEnv.getId());
+        } catch (RuntimeException e) {
+            throw new EnvironmentDriverException("Cannot destroy environment.", e);
+        }
+        logger.info("Stopped Docker container with ID: " + runningEnv.getId());
+    }
+
+    @Override
+    public boolean canBuildEnvironment(Environment environment) {
+        if (environment.getBuildType() == BuildType.DOCKER ||
+                environment.getOperationalSystem() == OperationalSystem.LINUX)
+            return true;
+        else
+            return false;
+    }
+
+    /**
+     * Copy file to container using SSH tunnel
+     * 
+     * @param sshPort Target port on which SSH service is running
+     * @param pathOnHost Path in target container, where the data are passed
+     * @param data Data, which are transfered to the target container
+     */
     private void copyFileToContainer(int sshPort, String pathOnHost, String data) {
-        SshClient sshClient = new SshjSshClient(new BackoffLimitedRetryHandler() {}, 
-                HostAndPort.fromParts("10.3.8.102", sshPort), 
-                LoginCredentials.builder().user(CONTAINER_USER).password(CONTAINER_PSSWD).build(), 
-                1000, Optional.<Connector>absent() );
-        
+        SshClient sshClient = new SshjSshClient(new BackoffLimitedRetryHandler() {
+        }, // TODO check retryHandler configuration
+                HostAndPort.fromParts("10.3.8.102", sshPort),
+                LoginCredentials.builder().user(CONTAINER_USER).password(CONTAINER_PSSWD).build(),
+                1000, Optional.<Connector> absent());
+
         try {
             sshClient.connect();
             sshClient.put(pathOnHost, data);
@@ -114,27 +160,17 @@ public class DockerEnvironmentDriver implements EnvironmentDriver {
             if (sshClient != null)
                 sshClient.disconnect();
         }
-        
-    }
-    
-    @Override
-    public void destroyEnvironment(RunningEnvironment runningEnv) {
-        logger.warning("Stopping container");
-        dockerClient.stopContainer(runningEnv.getId());
-        logger.warning("Removing container");
-        dockerClient.removeContainer(runningEnv.getId());
+
     }
 
-    @Override
-    public boolean canBuildEnviroment(Environment environment) {
-        if (environment.getBuildType() == BuildType.DOCKER ||
-                environment.getOperationalSystem() == OperationalSystem.LINUX)
-            return true;
-        else
-            return false;
-    }
-
-    private static Map<String, List<Map<String, String>>> createPortBinding(
+    /**
+     * Prepares port binding configuration of a container
+     * 
+     * @param jenkinsPort Requested jenkinsPort
+     * @param sshPort Requested sshPort
+     * @return Prepared configuration of port binding
+     */
+    private Map<String, List<Map<String, String>>> createPortBinding(
             int jenkinsPort, int sshPort) {
         Map<String, List<Map<String, String>>> portBindings = new HashMap<>();
 
@@ -144,12 +180,19 @@ public class DockerEnvironmentDriver implements EnvironmentDriver {
         return portBindings;
     }
 
-    private static List<Map<String, String>> createHostBindings(int hostPort) {
-        Map<String, String> jenkinsHostBinding = new HashMap<>();
-        jenkinsHostBinding.put("HostIp", "0.0.0.0");
-        jenkinsHostBinding.put("HostPort", Integer.toString(hostPort));
+    /**
+     * Creates host port binding configuration
+     * 
+     * @param hostPort Requested port to which will be container port mapped
+     * @return Prepared configuration of host binding
+     */
+    private List<Map<String, String>> createHostBindings(int hostPort) {
+        Map<String, String> singleHostBinding = new HashMap<>();
+        singleHostBinding.put("HostIp", "0.0.0.0");
+        singleHostBinding.put("HostPort", Integer.toString(hostPort));
+
         List<Map<String, String>> hostBindings = new ArrayList<>();
-        hostBindings.add(jenkinsHostBinding);
+        hostBindings.add(singleHostBinding);
         return hostBindings;
     }
 

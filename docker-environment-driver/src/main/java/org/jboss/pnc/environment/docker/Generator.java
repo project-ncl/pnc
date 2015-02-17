@@ -20,7 +20,7 @@ public class Generator {
 
     private static final int MIN_SSH_PORT = 30000;
 
-    private static final String PREFIX = "PNC-jenkins-container-";
+    private static final String ID_PREFIX = "PNC-jenkins-container-";
 
     private int suffix = 0;
     
@@ -37,7 +37,7 @@ public class Generator {
             suffix = 0;
         suffix++;
 
-        return PREFIX + suffix;
+        return ID_PREFIX + suffix;
     }
     
     /**

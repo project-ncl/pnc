@@ -9,6 +9,7 @@ import org.jboss.pnc.model.Environment;
 import org.jboss.pnc.spi.environment.EnvironmentDriver;
 
 /**
+ * Creates instances of environment drivers
  * 
  * @author Jakub Bartecek <jbartece@redhat.com>
  *
@@ -19,9 +20,15 @@ public class EnvironmentDriverFactory {
     @Inject
     Instance<EnvironmentDriver> availableDrivers;
     
+    /**
+     * Gets environment driver, which can manage requested environment
+     * @param environment Requested environment specification
+     * @return Available driver for given environment
+     * @throws CoreException Throw if no suitable driver for selected environment was found
+     */
     public EnvironmentDriver getDriver(Environment environment) throws CoreException {
         for (EnvironmentDriver driver : availableDrivers) {
-            if (driver.canBuildEnviroment(environment))
+            if (driver.canBuildEnvironment(environment))
                 return driver;
         }
 
