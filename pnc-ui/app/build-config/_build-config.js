@@ -33,6 +33,28 @@
         }
       });
 
+      $stateProvider.state('build-config.configuration', {
+        url: '/configuration',
+        abstract: true
+      });
+
+      $stateProvider.state('build-config.configuration.show', {
+        url: '/{configurationId:int}',
+        resolve: {
+          restClient: 'PncRestClient',
+          configurationDetails: function(restClient, $stateParams) {
+            return restClient.Configuration.get({
+              configurationId: $stateParams.configurationId }).$promise;
+          }
+        },
+        views: {
+          'content@': {
+            templateUrl: 'build-config/views/configuration.show.html',
+            controller: 'ConfigurationShowController'
+          }
+        }
+      });
+
       $stateProvider.state('build-config.product.show', {
         url: '/{productId:int}',
         resolve: {

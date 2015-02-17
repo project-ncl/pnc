@@ -32,8 +32,7 @@
             }
           }),
 
-        Configuration: function($resource) {
-          return $resource(baseUrl + '/configuration/:configurationId', {
+        Configuration: $resource(baseUrl + '/configuration/:configurationId', {
             configurationId: '@configurationId'
           },{
             update: {
@@ -41,39 +40,38 @@
             },
             build: {
               method: 'POST',
-              url: '/configuration/:configurationId/build',
+              url: '/configuration/:configurationId/build ',
               isArray: false,
               params: {
                 configurationId: '@configurationId'
               }
             },
-            getForProject: {
-              method: 'GET',
-              url: '/configuration/project/{projectId:int}',
-              isArray: true,
-              params: {
-                projectId: '@projectId'
-              }
-            },
-            getForProduct: {
-              method: 'GET',
-              url: '/configuration/product/{productId:int}',
-              isArray: true,
-              params: {
-                productId: '@productId'
-              }
-            },
-            getForProductVersion: {
-              method: 'GET',
-              url: '/configuration/product/{id}/version/{id}',
-              isArray: true,
-              params: {
-                productId: '@productId',
-                versionId: '@versionId'
-              }
-            }
-          });
-        }
+            // getForProject: {
+            //   method: 'GET',
+            //   url: '/configuration/project/{projectId:int}',
+            //   isArray: true,
+            //   params: {
+            //     projectId: '@projectId'
+            //   }
+            // },
+            // getForProduct: {
+            //   method: 'GET',
+            //   url: '/configuration/product/{productId:int}',
+            //   isArray: true,
+            //   params: {
+            //     productId: '@productId'
+            //   }
+            // },
+            // getForProductVersion: {
+            //   method: 'GET',
+            //   url: '/configuration/product/{id}/version/{id}',
+            //   isArray: true,
+            //   params: {
+            //     productId: '@productId',
+            //     versionId: '@versionId'
+            //   }
+            // }
+        })
       };
     }
   ]);

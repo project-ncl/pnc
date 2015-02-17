@@ -4,7 +4,6 @@
 
   var module = angular.module('pnc.BuildConfig');
 
-
   module.controller('BuildConfigController',
     ['$scope', '$state', 'PncRestClient',
     function($scope, $state, PncRestClient) {
@@ -187,4 +186,12 @@
       $scope.columnBrowse.projects.setSelected(projectDetails);
     }
   ]);
+
+  module.controller('ConfigurationShowController', [
+    '$scope', '$stateParams', 'configurationDetails',
+    function($scope, $stateParams, configurationDetails) {
+      $scope.buildConfig = configurationDetails;
+    }
+  ]);
+
 })();
