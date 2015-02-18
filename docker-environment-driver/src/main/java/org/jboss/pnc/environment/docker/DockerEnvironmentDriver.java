@@ -1,5 +1,6 @@
 package org.jboss.pnc.environment.docker;
 
+import java.io.InputStream;
 import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -25,6 +26,7 @@ import org.jclouds.docker.domain.HostConfig;
 import org.jclouds.docker.features.RemoteApi;
 import org.jclouds.domain.LoginCredentials;
 import org.jclouds.http.handlers.BackoffLimitedRetryHandler;
+import org.jclouds.io.Payloads;
 import org.jclouds.logging.slf4j.config.SLF4JLoggingModule;
 import org.jclouds.ssh.SshClient;
 import org.jclouds.sshj.SshjSshClient;
@@ -109,13 +111,13 @@ public class DockerEnvironmentDriver implements EnvironmentDriver {
                             .build());
 
             copyFileToContainer(sshPort, "/root/.m2/settings.xml",
-                    configBuilder.createMavenConfig(dependencyUrl, deployUrl));
+                    configBuilder.createMavenConfig(dependencyUrl, deployUrl), null);
         } catch (RuntimeException e) {
             throw new EnvironmentDriverException("Cannot create environment.", e);
         }
 
         logger.info("Created and started Docker container with ID: " + containerId);
-        return new RunningEnvironment(containerId, jenkinsPort, sshPort);
+        return new DockerRunningEnvironment(containerId, jenkinsPort, sshPort);
     }
 
     @Override
@@ -138,14 +140,40 @@ public class DockerEnvironmentDriver implements EnvironmentDriver {
             return false;
     }
 
+    @Override
+    public void transferDataToEnvironment(RunningEnvironment runningEnvironment,
+            String pathOnHost, String data) throws EnvironmentDriverException {
+        if (!(runningEnvironment instanceof DockerRunningEnvironment))
+            throw new EnvironmentDriverException(
+                    "DockerEnvironmentDriver cannot manage non-Docker environments. " + runningEnvironment);
+
+        DockerRunningEnvironment dockerEnv = (DockerRunningEnvironment) runningEnvironment;
+        copyFileToContainer(dockerEnv.getSshPort(), pathOnHost, data, null);
+    }
+
+    @Override
+    public void transferDataToEnvironment(RunningEnvironment runningEnvironment,
+            String pathOnHost, InputStream stream) throws EnvironmentDriverException {
+        if (!(runningEnvironment instanceof DockerRunningEnvironment))
+            throw new EnvironmentDriverException(
+                    "DockerEnvironmentDriver cannot manage non-Docker environments. " + runningEnvironment);
+
+        DockerRunningEnvironment dockerEnv = (DockerRunningEnvironment) runningEnvironment;
+        copyFileToContainer(dockerEnv.getSshPort(), pathOnHost, null, stream);
+    }
+
     /**
-     * Copy file to container using SSH tunnel
+     * Copy file to container using SSH tunnel.
+     * Data can be passed using stringData or streamData variable. Exactly one of this variables has to be not null.
      * 
      * @param sshPort Target port on which SSH service is running
      * @param pathOnHost Path in target container, where the data are passed
-     * @param data Data, which are transfered to the target container
+     * @param stringData Data, which will be transfered to the target container (may be null if streamData are set)
+     * @param streamData Data, which will be transfered to the target container (may be null if stringData are set)
+     * @throws EnvironmentDriverException Thrown if both stringData and streamData are null
      */
-    private void copyFileToContainer(int sshPort, String pathOnHost, String data) {
+    private void copyFileToContainer(int sshPort, String pathOnHost, String stringData,
+            InputStream streamData) throws EnvironmentDriverException {
         SshClient sshClient = new SshjSshClient(new BackoffLimitedRetryHandler() {
         }, // TODO check retryHandler configuration
                 HostAndPort.fromParts("10.3.8.102", sshPort),
@@ -154,7 +182,15 @@ public class DockerEnvironmentDriver implements EnvironmentDriver {
 
         try {
             sshClient.connect();
-            sshClient.put(pathOnHost, data);
+            if (stringData != null)
+                sshClient.put(pathOnHost, stringData);
+            else {
+                if (streamData != null)
+                    sshClient.put(pathOnHost, Payloads.newInputStreamPayload(streamData));
+                else
+                    throw new EnvironmentDriverException(
+                            "It is not possible to send null data to the container.");
+            }
 
         } finally {
             if (sshClient != null)

@@ -1,5 +1,6 @@
 package org.jboss.pnc.core.test.mock;
 
+import java.io.InputStream;
 import java.lang.invoke.MethodHandles;
 import java.util.logging.Logger;
 
@@ -15,24 +16,37 @@ public class EnvironmentDriverMock implements EnvironmentDriver {
 
     private static final Logger logger = Logger.getLogger(MethodHandles.lookup().lookupClass().getName());
 
-
     @Override
-    public RunningEnvironment buildEnvironment(Environment buildEnvironment, String dependencyUrl,
-            String deployUrl) throws EnvironmentDriverException {
+    public RunningEnvironment buildEnvironment(Environment environment, String dependencyUrl, String deployUrl)
+            throws EnvironmentDriverException {
         // TODO Auto-generated method stub
         return null;
-    }
-    
-    @Override
-    public void destroyEnvironment(RunningEnvironment env) {
-        // TODO Auto-generated method stub
-        
     }
 
     @Override
     public boolean canBuildEnvironment(Environment environment) {
         // TODO Auto-generated method stub
         return false;
+    }
+
+    @Override
+    public void destroyEnvironment(RunningEnvironment runningEnvironment) throws EnvironmentDriverException {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void transferDataToEnvironment(RunningEnvironment runningEnvironment, String pathOnHost,
+            InputStream stream) throws EnvironmentDriverException {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void transferDataToEnvironment(RunningEnvironment runningEnvironment, String pathOnHost,
+            String data) throws EnvironmentDriverException {
+        // TODO Auto-generated method stub
+        
     }
 
 }
