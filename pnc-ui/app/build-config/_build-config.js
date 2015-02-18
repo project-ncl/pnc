@@ -2,7 +2,15 @@
 
 (function() {
 
-  var module = angular.module('pnc.BuildConfig', ['ui.router', 'ngResource']);
+  var module = angular.module('pnc.BuildConfig', [
+    'ui.router', 
+    'ngResource',
+    'xeditable'
+  ]);
+
+  module.run(function(editableOptions, editableThemes) {
+    editableOptions.theme = 'default';
+  });
 
   module.config(['$stateProvider', function($stateProvider) {
 

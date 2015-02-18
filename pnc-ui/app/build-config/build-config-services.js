@@ -37,6 +37,9 @@
           },{
             update: {
               method: 'PUT',
+              params: {
+                configurationId: '@id'
+              }
             },
             build: {
               method: 'POST',

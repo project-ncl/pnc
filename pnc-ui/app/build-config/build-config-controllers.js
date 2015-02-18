@@ -188,9 +188,17 @@
   ]);
 
   module.controller('ConfigurationShowController', [
-    '$scope', '$stateParams', 'configurationDetails',
-    function($scope, $stateParams, configurationDetails) {
+    '$scope', 
+    '$stateParams', 
+    'configurationDetails',
+    'PncRestClient',
+    function($scope, $stateParams, configurationDetails, PncRestClient) {
       $scope.buildConfig = configurationDetails;
+
+      $scope.updateConfiguration = function() {
+        console.log('form update: %O', $scope.buildConfig);
+        $scope.buildConfig.$update();        
+      }
     }
   ]);
 
