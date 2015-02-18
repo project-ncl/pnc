@@ -1,6 +1,11 @@
 package org.jboss.pnc.environment.docker;
 
+import java.io.InputStream;
+
+import javax.inject.Inject;
+
 import org.jboss.pnc.spi.environment.RunningEnvironment;
+import org.jboss.pnc.spi.environment.exception.EnvironmentDriverException;
 
 /**
  * Implementation of Docker environment used by DockerEnvironmentDriver
@@ -9,6 +14,8 @@ import org.jboss.pnc.spi.environment.RunningEnvironment;
  *
  */
 public class DockerRunningEnvironment implements RunningEnvironment {
+
+    private DockerEnvironmentDriver dockerEnvDriver;
 
     /**
      * ID of environment
@@ -25,8 +32,9 @@ public class DockerRunningEnvironment implements RunningEnvironment {
      */
     private final int sshPort;
 
-    public DockerRunningEnvironment(String id, int jenkinsPort, int sshPort) {
-        super();
+    public DockerRunningEnvironment(DockerEnvironmentDriver dockerEnvDriver, String id, int jenkinsPort,
+            int sshPort) {
+        this.dockerEnvDriver = dockerEnvDriver;
         this.id = id;
         this.jenkinsPort = jenkinsPort;
         this.sshPort = sshPort;
@@ -44,10 +52,28 @@ public class DockerRunningEnvironment implements RunningEnvironment {
 
     /**
      * SSH port on which is container accessible
+     * 
      * @return
      */
     public int getSshPort() {
         return sshPort;
+    }
+
+    @Override
+    public void transferDataToEnvironment(String pathOnHost, InputStream stream)
+            throws EnvironmentDriverException {
+        dockerEnvDriver.copyFileToContainer(this.sshPort, pathOnHost, null, stream);
+
+    }
+
+    @Override
+    public void transferDataToEnvironment(String pathOnHost, String data) throws EnvironmentDriverException {
+        dockerEnvDriver.copyFileToContainer(this.sshPort, pathOnHost, data, null);
+    }
+
+    @Override
+    public void destroyEnvironment() throws EnvironmentDriverException {
+        dockerEnvDriver.destroyEnvironment(this.id);
     }
 
 }

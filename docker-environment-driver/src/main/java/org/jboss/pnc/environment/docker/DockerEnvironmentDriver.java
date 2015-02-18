@@ -117,18 +117,7 @@ public class DockerEnvironmentDriver implements EnvironmentDriver {
         }
 
         logger.info("Created and started Docker container with ID: " + containerId);
-        return new DockerRunningEnvironment(containerId, jenkinsPort, sshPort);
-    }
-
-    @Override
-    public void destroyEnvironment(RunningEnvironment runningEnv) throws EnvironmentDriverException {
-        try {
-            dockerClient.stopContainer(runningEnv.getId());
-            dockerClient.removeContainer(runningEnv.getId());
-        } catch (RuntimeException e) {
-            throw new EnvironmentDriverException("Cannot destroy environment.", e);
-        }
-        logger.info("Stopped Docker container with ID: " + runningEnv.getId());
+        return new DockerRunningEnvironment(this, containerId, jenkinsPort, sshPort);
     }
 
     @Override
@@ -139,27 +128,21 @@ public class DockerEnvironmentDriver implements EnvironmentDriver {
         else
             return false;
     }
-
-    @Override
-    public void transferDataToEnvironment(RunningEnvironment runningEnvironment,
-            String pathOnHost, String data) throws EnvironmentDriverException {
-        if (!(runningEnvironment instanceof DockerRunningEnvironment))
-            throw new EnvironmentDriverException(
-                    "DockerEnvironmentDriver cannot manage non-Docker environments. " + runningEnvironment);
-
-        DockerRunningEnvironment dockerEnv = (DockerRunningEnvironment) runningEnvironment;
-        copyFileToContainer(dockerEnv.getSshPort(), pathOnHost, data, null);
-    }
-
-    @Override
-    public void transferDataToEnvironment(RunningEnvironment runningEnvironment,
-            String pathOnHost, InputStream stream) throws EnvironmentDriverException {
-        if (!(runningEnvironment instanceof DockerRunningEnvironment))
-            throw new EnvironmentDriverException(
-                    "DockerEnvironmentDriver cannot manage non-Docker environments. " + runningEnvironment);
-
-        DockerRunningEnvironment dockerEnv = (DockerRunningEnvironment) runningEnvironment;
-        copyFileToContainer(dockerEnv.getSshPort(), pathOnHost, null, stream);
+    
+    /**
+     * Destroys running container
+     * 
+     * @param containerId ID of container
+     * @throws EnvironmentDriverException Thrown if any error occurs during destroying running environment
+     */
+    public void destroyEnvironment(String containerId) throws EnvironmentDriverException {
+        try {
+            dockerClient.stopContainer(containerId);
+            dockerClient.removeContainer(containerId);
+        } catch (RuntimeException e) {
+            throw new EnvironmentDriverException("Cannot destroy environment.", e);
+        }
+        logger.info("Stopped Docker container with ID: " + containerId);
     }
 
     /**
@@ -172,7 +155,7 @@ public class DockerEnvironmentDriver implements EnvironmentDriver {
      * @param streamData Data, which will be transfered to the target container (may be null if stringData are set)
      * @throws EnvironmentDriverException Thrown if both stringData and streamData are null
      */
-    private void copyFileToContainer(int sshPort, String pathOnHost, String stringData,
+    public void copyFileToContainer(int sshPort, String pathOnHost, String stringData,
             InputStream streamData) throws EnvironmentDriverException {
         SshClient sshClient = new SshjSshClient(new BackoffLimitedRetryHandler() {
         }, // TODO check retryHandler configuration
