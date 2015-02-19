@@ -140,7 +140,7 @@ public class BuildConfigurationEndpoint {
         return buildConfigurationProvider.getAllForProduct(pageIndex, pageSize, sortingRsql, rsql, productId);
     }
 
-    @ApiOperation(value = "Gets all Build Configurations of a Product Version")
+    @ApiOperation(value = "Gets all Build Configurations of the Specified Product Version")
     @GET
     @Path("/product/{productId}/version/{versionId}")
     public List<BuildConfigurationRest> getAllByProductId(
@@ -149,7 +149,7 @@ public class BuildConfigurationEndpoint {
             @ApiParam(value = "Sorting RSQL") @QueryParam("sort") String sortingRsql,
             @ApiParam(value = "RSQL query", required = false) @QueryParam("q") String rsql,
             @ApiParam(value = "Product id", required = true) @PathParam("productId") Integer productId,
-            @ApiParam(value = "Product Version id id", required = true) @PathParam("versionId") Integer versionId) {
+            @ApiParam(value = "Product Version id", required = true) @PathParam("versionId") Integer versionId) {
         return buildConfigurationProvider.getAllForProductAndProductVersion(pageIndex, pageSize, sortingRsql, rsql, productId, versionId);
     }
 }

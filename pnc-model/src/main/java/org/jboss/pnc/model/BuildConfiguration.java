@@ -5,8 +5,10 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.PreRemove;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Version;
 
@@ -64,6 +66,9 @@ public class BuildConfiguration implements Serializable, Cloneable {
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "buildConfiguration")
     private Set<BuildRecord> buildRecords;
 
+    @ManyToMany(mappedBy = "buildConfigurations")
+    private Set<BuildConfigurationSet> buildConfigurationSets;
+
     private Timestamp creationTime;
 
     @Version
@@ -82,7 +87,15 @@ public class BuildConfiguration implements Serializable, Cloneable {
     public BuildConfiguration() {
         dependencies = new HashSet<>();
         buildRecords = new HashSet<>();
+        buildConfigurationSets = new HashSet<BuildConfigurationSet>();
         creationTime = Timestamp.from(Instant.now());
+    }
+
+    @PreRemove
+    private void removeConfigurationFromSets() {
+        for (BuildConfigurationSet bcs : buildConfigurationSets) {
+            bcs.getBuildConfigurations().remove(this);
+        }
     }
 
     /**
@@ -217,6 +230,32 @@ public class BuildConfiguration implements Serializable, Cloneable {
      */
     public void setEnvironment(Environment environment) {
         this.environment = environment;
+    }
+
+    /**
+     * @return the buildConfigurationSets which contain this build configuration
+     */
+    public Set<BuildConfigurationSet> getBuildConfigurationSets() {
+        return buildConfigurationSets;
+    }
+
+    /**
+     * @param buildConfigurationSets the list of buildConfigurationSets
+     */
+    public void setBuildConfigurationSets(Set<BuildConfigurationSet> buildConfigurationSets) {
+        if (buildConfigurationSets == null ){
+            this.buildConfigurationSets = new HashSet<BuildConfigurationSet>();
+        }
+        this.buildConfigurationSets = buildConfigurationSets;
+    }
+
+    /**
+     * @param add to the list of buildConfigurationSets
+     */
+    public void addBuildConfigurationSet(BuildConfigurationSet buildConfigurationSet) {
+        if (!this.buildConfigurationSets.contains(buildConfigurationSet)) {
+            this.buildConfigurationSets.add(buildConfigurationSet);
+        }
     }
 
     /**
@@ -369,8 +408,6 @@ public class BuildConfiguration implements Serializable, Cloneable {
 
         private String description;
 
-        private ProductVersion productVersion;
-
         private Project project;
 
         private Environment environment;
@@ -378,6 +415,8 @@ public class BuildConfiguration implements Serializable, Cloneable {
         private BuildConfiguration parent;
 
         private Set<BuildConfiguration> dependencies;
+
+        private Set<BuildConfigurationSet> buildConfigurationSets;
 
         private Timestamp creationTime;
 
@@ -387,6 +426,7 @@ public class BuildConfiguration implements Serializable, Cloneable {
 
         private Builder() {
             dependencies = new HashSet<>();
+            buildConfigurationSets = new HashSet<BuildConfigurationSet>();
             creationTime = Timestamp.from(Instant.now());
             lastModificationTime = Timestamp.from(Instant.now());
         }
@@ -402,9 +442,7 @@ public class BuildConfiguration implements Serializable, Cloneable {
             buildConfiguration.setBuildScript(buildScript);
             buildConfiguration.setScmRepoURL(scmRepoURL);
             buildConfiguration.setScmRevision(scmRevision);
-            buildConfiguration.setPatchesUrl(patchesUrl);
             buildConfiguration.setDescription(description);
-            buildConfiguration.setProductVersion(productVersion);
 
             // Set the bi-directional mapping
             if (project != null) {
@@ -416,6 +454,11 @@ public class BuildConfiguration implements Serializable, Cloneable {
             buildConfiguration.setCreationTime(creationTime);
             buildConfiguration.setLastModificationTime(lastModificationTime);
             buildConfiguration.setRepositories(repositories);
+            buildConfiguration.setBuildConfigurationSets(buildConfigurationSets);
+            for (BuildConfigurationSet buildConfigurationSet : buildConfigurationSets)
+            {
+                buildConfigurationSet.addBuildConfigurations(buildConfiguration);
+            }
 
             // Set the bi-directional mapping
             for (BuildConfiguration dependency : dependencies) {
@@ -461,11 +504,6 @@ public class BuildConfiguration implements Serializable, Cloneable {
             return this;
         }
 
-        public Builder productVersion(ProductVersion productVersion) {
-            this.productVersion = productVersion;
-            return this;
-        }
-
         public Builder project(Project project) {
             this.project = project;
             return this;
@@ -489,6 +527,16 @@ public class BuildConfiguration implements Serializable, Cloneable {
         /**
          * Sets create time and ignores Null values (since they may affect the entity consistency).
          */
+        public Builder buildConfigurationSet(BuildConfigurationSet buildConfigurationSet) {
+            this.buildConfigurationSets.add(buildConfigurationSet);
+            return this;
+        }
+
+        public Builder buildConfigurationSets(Set<BuildConfigurationSet> buildConfigurationSets) {
+            this.buildConfigurationSets = buildConfigurationSets;
+            return this;
+        }
+
         public Builder creationTime(Timestamp creationTime) {
             if (creationTime != null) {
                 this.creationTime = creationTime;
@@ -509,6 +557,66 @@ public class BuildConfiguration implements Serializable, Cloneable {
         public Builder repositories(String repositories) {
             this.repositories = repositories;
             return this;
+        }
+
+        public Integer getId() {
+            return id;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public String getBuildScript() {
+            return buildScript;
+        }
+
+        public String getScmRepoURL() {
+            return scmRepoURL;
+        }
+
+        public String getScmRevision() {
+            return scmRevision;
+        }
+
+        public String getPatchesUrl() {
+            return patchesUrl;
+        }
+
+        public String getDescription() {
+            return description;
+        }
+
+        public Project getProject() {
+            return project;
+        }
+
+        public Environment getEnvironment() {
+            return environment;
+        }
+
+        public BuildConfiguration getParent() {
+            return parent;
+        }
+
+        public Set<BuildConfiguration> getDependencies() {
+            return dependencies;
+        }
+
+        public Set<BuildConfigurationSet> getBuildConfigurationSets() {
+            return buildConfigurationSets;
+        }
+
+        public Timestamp getCreationTime() {
+            return creationTime;
+        }
+
+        public Timestamp getLastModificationTime() {
+            return lastModificationTime;
+        }
+
+        public String getRepositories() {
+            return repositories;
         }
 
     }

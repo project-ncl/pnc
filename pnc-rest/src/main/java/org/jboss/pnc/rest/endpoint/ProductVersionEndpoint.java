@@ -3,8 +3,10 @@ package org.jboss.pnc.rest.endpoint;
 import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
 import com.wordnik.swagger.annotations.ApiParam;
+
 import org.jboss.pnc.rest.provider.ProductVersionProvider;
 import org.jboss.pnc.rest.provider.ProjectProvider;
+import org.jboss.pnc.rest.restmodel.BuildConfigurationSetRest;
 import org.jboss.pnc.rest.restmodel.ProductVersionRest;
 
 import javax.inject.Inject;
@@ -12,6 +14,7 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
+
 import java.util.List;
 
 @Api(value = "/product/{productId}/version", description = "Product Version related information")
@@ -67,6 +70,19 @@ public class ProductVersionEndpoint {
             @NotNull @Valid ProductVersionRest productVersionRest, @Context UriInfo uriInfo) {
         productVersionProvider.update(productId, productVersionRest);
         return Response.ok().build();
+    }
+
+    @ApiOperation(value = "Gets build configuration sets associated with a product version")
+    @GET
+    @Path("/{id}/configuration-sets")
+    public List<BuildConfigurationSetRest> getBuildConfigurationSets(
+            @ApiParam(value = "Page index") @QueryParam("pageIndex") @DefaultValue("0") int pageIndex,
+            @ApiParam(value = "Pagination size") @DefaultValue("50") @QueryParam("pageSize") int pageSize,
+            @ApiParam(value = "Sorting RSQL") @QueryParam("sort") String sortingRsql,
+            @ApiParam(value = "RSQL query") @QueryParam("q") String rsql,
+            @ApiParam(value = "Product id", required = true) @PathParam("productId") Integer productId,
+            @ApiParam(value = "Product Version id", required = true) @PathParam("id") Integer id) {
+        return productVersionProvider.getBuildConfigurationSets(id);
     }
 
 }

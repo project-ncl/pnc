@@ -40,7 +40,7 @@ public class DatabaseDataInitializer {
     ProductVersionRepository productVersionRepository;
 
     @Inject
-    ProductVersionProjectRepository productVersionProjectRepository;
+    BuildConfigurationSetRepository buildConfigurationSetRepository;
 
     @Inject
     UserRepository userRepository;
@@ -63,31 +63,31 @@ public class DatabaseDataInitializer {
         Preconditions.checkState(productRepository.count() > 0, "Expecting number of Products > 0");
         Preconditions.checkState(buildConfigurationRepository.count() > 0, "Expecting number of BuildConfigurations > 0");
         Preconditions.checkState(productVersionRepository.count() > 0, "Expecting number of ProductVersions > 0");
-        Preconditions.checkState(productVersionProjectRepository.count() > 0, "Expecting number of ProductVersionProjects > 0");
+        Preconditions.checkState(buildConfigurationSetRepository.count() > 0, "Expecting number of BuildRepositorySets > 0");
 
         BuildConfiguration buildConfigurationDB = buildConfigurationRepository.findAll().get(0);
 
-        // Check that BuildConfiguration and ProductVersionProject have a ProductVersion associated
-        Preconditions.checkState(buildConfigurationDB.getProductVersion() != null,
+        // Check that BuildConfiguration and BuildConfigurationSet have a ProductVersion associated
+        Preconditions.checkState(buildConfigurationDB.getBuildConfigurationSets().iterator().next().getProductVersion() != null,
                 "Product version of buildConfiguration must be not null");
 
-        ProductVersionProject productVersionProjectDB = productVersionProjectRepository.findAll().get(0);
+        BuildConfigurationSet buildConfigurationSetDB = buildConfigurationSetRepository.findAll().get(0);
 
-        Preconditions.checkState(productVersionProjectDB.getProductVersion() != null,
-                "Product version of productVersionProject must be not null");
+        Preconditions.checkState(buildConfigurationSetDB.getProductVersion() != null,
+                "Product version of buildConfigurationSet must be not null");
 
-        // Check that mapping between Product and Project via ProductVersionProject is correct
-        Preconditions.checkState(productVersionProjectDB.getProductVersion().getProduct().getName().equals(PNC_PRODUCT_NAME),
+        // Check that mapping between Product and Build Configuration via BuildConfigurationSet is correct
+        Preconditions.checkState(buildConfigurationSetDB.getProductVersion().getProduct().getName().equals(PNC_PRODUCT_NAME),
                 "Product mapped to Project must be " + PNC_PRODUCT_NAME);
-        Preconditions.checkState(productVersionProjectDB.getProductVersion().getVersion().equals(PNC_PRODUCT_VERSION),
+        Preconditions.checkState(buildConfigurationSetDB.getProductVersion().getVersion().equals(PNC_PRODUCT_VERSION),
                 "Product version mapped to Project must be " + PNC_PRODUCT_VERSION);
-        Preconditions.checkState(productVersionProjectDB.getProject().getName().equals(PNC_PROJECT_1_NAME),
-                "Project mapped to Product must be " + PNC_PROJECT_1_NAME);
 
-        // Check that BuildConfiguration and ProductVersionProject have a ProductVersion associated
-        Preconditions.checkState(buildConfigurationDB.getProductVersion().getVersion().equals(PNC_PRODUCT_VERSION),
+        // Check that BuildConfiguration and BuildConfigurationSet have a ProductVersion associated
+        Preconditions.checkState(buildConfigurationDB.getBuildConfigurationSets().iterator().next()
+                .getProductVersion().getVersion().equals(PNC_PRODUCT_VERSION),
                 "Product version mapped to BuildConfiguration must be " + PNC_PRODUCT_VERSION);
-        Preconditions.checkState(buildConfigurationDB.getProductVersion().getProduct().getName().equals(PNC_PRODUCT_NAME),
+        Preconditions.checkState(buildConfigurationDB.getBuildConfigurationSets().iterator().next()
+                .getProductVersion().getProduct().getName().equals(PNC_PRODUCT_NAME),
                 "Product mapped to BuildConfiguration must be " + PNC_PRODUCT_NAME);
 
         // Check data of BuildConfiguration
@@ -109,7 +109,8 @@ public class DatabaseDataInitializer {
             /*
              * All the bi-directional mapping settings are managed inside the Builders
              */
-            Product product = Product.Builder.newBuilder().name(PNC_PRODUCT_NAME).description("Project Newcastle Product")
+            // Example product and product version
+            Product product = Product.Builder.newBuilder().name(PNC_PRODUCT_NAME).description("Example Product for Project Newcastle Demo")
                     .build();
             product = productRepository.save(product);
 
@@ -135,14 +136,6 @@ public class DatabaseDataInitializer {
             projectRepository.save(project2);
             projectRepository.save(project3);
 
-            // Map projects to the product version
-            ProductVersionProject productVersionProject1 = ProductVersionProject.Builder.newBuilder().project(project1)
-                    .productVersion(productVersion).build();
-            ProductVersionProject productVersionProject2 = ProductVersionProject.Builder.newBuilder().project(project2)
-                    .productVersion(productVersion).build();
-            ProductVersionProject productVersionProject3 = ProductVersionProject.Builder.newBuilder().project(project3)
-                    .productVersion(productVersion).build();
-
             // Example build configurations
             BuildConfiguration buildConfiguration1 = BuildConfiguration.Builder.newBuilder()
                     .name(PNC_PROJECT_BUILD_CFG_ID)
@@ -151,7 +144,6 @@ public class DatabaseDataInitializer {
                     .environment(environment1)
                     .buildScript("mvn clean deploy -Dmaven.test.skip")
                     .scmRepoURL("https://github.com/project-ncl/pnc.git")
-                    .productVersion(productVersion)
                     .scmRevision("*/v0.2")
                     .build();
             buildConfiguration1 = buildConfigurationRepository.save(buildConfiguration1);
@@ -162,7 +154,6 @@ public class DatabaseDataInitializer {
                     .description("Test config for JBoss modules build master branch.")
                     .environment(environment2)
                     .buildScript("mvn clean deploy -Dmaven.test.skip")
-                    .productVersion(productVersion)
                     .scmRepoURL("https://github.com/jboss-modules/jboss-modules.git")
                     .scmRevision("9e7115771a791feaa5be23b1255416197f2cda38")
                     .build();
@@ -174,11 +165,17 @@ public class DatabaseDataInitializer {
                     .description("Test build for jboss java servlet api")
                     .environment(environment1)
                     .buildScript("mvn clean deploy -Dmaven.test.skip")
-                    .productVersion(productVersion)
                     .scmRepoURL("https://github.com/jboss/jboss-servlet-api_spec.git")
                     .dependency(buildConfiguration2)
                     .build();
             buildConfiguration3 = buildConfigurationRepository.save(buildConfiguration3);
+
+            // Build config set containing the three example build configs
+            BuildConfigurationSet buildConfigurationSet1 = BuildConfigurationSet.Builder.newBuilder().name("Build Config Set 1")
+                    .buildConfiguration(buildConfiguration1)
+                    .buildConfiguration(buildConfiguration2)
+                    .buildConfiguration(buildConfiguration3)
+                    .productVersion(productVersion).build();
 
             User demoUser = User.Builder.newBuilder().username("demo-user").firstName("Demo First Name")
                     .lastName("Demo Last Name").email("demo-user@pnc.com").build();
@@ -188,10 +185,7 @@ public class DatabaseDataInitializer {
                     .scmRepoURL(buildConfiguration3.getScmRepoURL()).scmRevision(buildConfiguration3.getScmRevision())
                     .description("Build record test for jboss java servlet api").build();
 
-            project1.getBuildConfigurations().add(buildConfiguration1);
-            project2.getBuildConfigurations().add(buildConfiguration2);
-            project3.getBuildConfigurations().add(buildConfiguration3);
-
+            buildConfigurationSetRepository.save(buildConfigurationSet1);
             userRepository.save(demoUser);
             buildRecordRepository.save(buildRecord);
 

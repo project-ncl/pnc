@@ -9,7 +9,7 @@ import org.jboss.pnc.datastore.repositories.BuildConfigurationRepository;
 import org.jboss.pnc.datastore.repositories.ProjectRepository;
 import org.jboss.pnc.integration.deployments.Deployments;
 import org.jboss.pnc.model.BuildConfiguration;
-import org.jboss.pnc.model.ProductVersionProject;
+import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.Project;
 import org.jboss.pnc.rest.restmodel.ProjectRest;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
@@ -58,8 +58,8 @@ public class ProjectMappingTest {
         configurationId = buildConfiguration.getId();
     }
 
-    @Test
-    public void shouldRemapProjectRestToProject() {
+   @Test
+   public void shouldRemapProjectRestToProject() {
         //given
         ProjectRest projectRest = new ProjectRest();
         projectRest.setId(1);
@@ -74,16 +74,14 @@ public class ProjectMappingTest {
         List<Integer> buildConfigurationIds = project.getBuildConfigurations().stream()
                 .map(buildConfiguration -> buildConfiguration.getId())
                 .collect(Collectors.toList());
-        Set<ProductVersionProject> productVersionIds = project.getProductVersionProjects();
 
-        //than
+        //then
         assertThat(project.getId()).isEqualTo(1);
         assertThat(project.getDescription()).isEqualTo("description");
         assertThat(project.getIssueTrackerUrl()).isEqualTo("issueTracker");
         assertThat(project.getName()).isEqualTo("name");
         assertThat(project.getProjectUrl()).isEqualTo("projectUrl");
         assertThat(buildConfigurationIds).containsExactly(2);
-        assertThat(productVersionIds).isEmpty();
     }
 
     @Test

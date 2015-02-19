@@ -1,19 +1,24 @@
 package org.jboss.pnc.rest.provider;
 
 import com.google.common.base.Preconditions;
+
 import org.jboss.pnc.datastore.limits.RSQLPageLimitAndSortingProducer;
 import org.jboss.pnc.datastore.predicates.RSQLPredicate;
 import org.jboss.pnc.datastore.predicates.RSQLPredicateProducer;
 import org.jboss.pnc.datastore.repositories.ProductRepository;
 import org.jboss.pnc.datastore.repositories.ProductVersionRepository;
+import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.Product;
 import org.jboss.pnc.model.ProductVersion;
+import org.jboss.pnc.rest.restmodel.BuildConfigurationSetRest;
 import org.jboss.pnc.rest.restmodel.ProductVersionRest;
 import org.springframework.data.domain.Pageable;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
+
 import java.util.List;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -76,6 +81,18 @@ public class ProductVersionProvider {
 
     private Function<ProductVersion, ProductVersionRest> toRestModel() {
         return productVersion -> new ProductVersionRest(productVersion);
+    }
+
+    private Function<BuildConfigurationSet, BuildConfigurationSetRest> buildConfigSetToRestModel() {
+        return buildConfigSet -> new BuildConfigurationSetRest(buildConfigSet);
+    }
+
+    public List<BuildConfigurationSetRest> getBuildConfigurationSets(Integer productVersionId) {
+        ProductVersion productVersion = productVersionRepository.findOne(withProductVersionId(productVersionId));
+        Set<BuildConfigurationSet> buildConfigSets = productVersion.getBuildConfigurationSets();
+        return nullableStreamOf(buildConfigSets)
+                .map(buildConfigSetToRestModel())
+                .collect(Collectors.toList());
     }
 
 }

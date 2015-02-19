@@ -63,9 +63,12 @@ public class DatastoreTest {
 
         Environment environment = Environment.Builder.defaultEnvironment().build();
 
+        BuildConfigurationSet buildConfigurationSet = BuildConfigurationSet.Builder.newBuilder().name("Test build config set")
+                .productVersion(productVersion).build();
+   
         BuildConfiguration buildConfiguration = BuildConfiguration.Builder.newBuilder()
                 .buildScript("mvn clean deploy -Dmaven.test.skip").environment(environment)
-                .name("DS_PROJECT_BUILD_CFG_ID").productVersion(productVersion).project(project)
+                .name("DS_PROJECT_BUILD_CFG_ID").buildConfigurationSet(buildConfigurationSet).project(project)
                 .scmRepoURL("https://github.com/ds-project-ncl/pnc.git").scmRevision("*/v0.2")
                 .description("Test build config for project newcastle").build();
 

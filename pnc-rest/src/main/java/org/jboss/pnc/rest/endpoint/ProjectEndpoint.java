@@ -63,16 +63,4 @@ public class ProjectEndpoint {
         return Response.ok().build();
     }
 
-    @ApiOperation(value = "Gets all Projects of a Product Version")
-    @GET
-    @Path("/product/{productId}/version/{versionId}")
-    public List<ProjectRest> getAllByProductId(
-            @ApiParam(value = "Page index") @QueryParam("pageIndex") @DefaultValue("0") int pageIndex,
-            @ApiParam(value = "Pagination size") @DefaultValue("50") @QueryParam("pageSize") int pageSize,
-            @ApiParam(value = "Sorting RSQL") @QueryParam("sort") String sortingRsql,
-            @ApiParam(value = "RSQL query") @QueryParam("q") String rsql,
-            @ApiParam(value = "Product id", required = true) @PathParam("productId") Integer productId,
-            @ApiParam(value = "Product Version id id", required = true) @PathParam("versionId") Integer versionId) {
-        return projectProvider.getAllForProductAndProductVersion(pageIndex, pageSize, sortingRsql, rsql, productId, versionId);
-    }
 }

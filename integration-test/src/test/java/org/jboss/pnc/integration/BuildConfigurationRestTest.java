@@ -36,13 +36,15 @@ public class BuildConfigurationRestTest {
 
     private static final String PRODUCT_REST_ENDPOINT = "/pnc-rest/rest/product/";
     private static final String PRODUCT_VERSION_REST_ENDPOINT = "/pnc-rest/rest/product/%d/version";
-    private static final String PROJECT_PRODUCT_VERSION_REST_ENDPOINT = "/pnc-rest/rest/project/product/%d/version/%d";
-    private static final String PROJECT_REST_ENDPOINT = "/pnc-rest/rest/project/%d";
+    private static final String PROJECT_REST_ENDPOINT = "/pnc-rest/rest/project/";
+    private static final String PROJECT_SPECIFIC_REST_ENDPOINT = "/pnc-rest/rest/project/%d";
     private static final String CONFIGURATION_REST_ENDPOINT = "/pnc-rest/rest/configuration/";
     private static final String CONFIGURATION_SPECIFIC_REST_ENDPOINT = "/pnc-rest/rest/configuration/%d";
     private static final String CONFIGURATION_CLONE_REST_ENDPOINT = "/pnc-rest/rest/configuration/%d/clone";
     private static final String ENVIRONMENT_REST_ENDPOINT = "/pnc-rest/rest/environment";
     private static final String SPECIFIC_ENVIRONMENT_REST_ENDPOINT = "/pnc-rest/rest/environment/%d";
+    private static final String CONFIGURATION_SET_REST_ENDPOINT = "/pnc-rest/rest/configuration-set/";
+    private static final String CONFIGURATION_SET_SPECIFIC_REST_ENDPOINT = "/pnc-rest/rest/configuration-set/%d";
 
     private static int productId;
     private static int productVersionId;
@@ -52,6 +54,7 @@ public class BuildConfigurationRestTest {
 
     private static AtomicBoolean isInitialized = new AtomicBoolean();
 
+    private static int configurationSetId;
 
     @Deployment(testable = false)
     public static EnterpriseArchive deploy() {
@@ -81,13 +84,16 @@ public class BuildConfigurationRestTest {
                     .body(JsonMatcher.containsJsonAttribute("[0].id", value -> productVersionId = Integer.valueOf(value)));
 
             given().contentType(ContentType.JSON).port(getHttpPort()).when()
-                    .get(String.format(PROJECT_PRODUCT_VERSION_REST_ENDPOINT, productId, productVersionId)).then().statusCode(200)
-                    .body(JsonMatcher.containsJsonAttribute("[0].id", value -> projectId = Integer.valueOf(value)));
-
-            given().contentType(ContentType.JSON).port(getHttpPort()).when()
                     .get(String.format(ENVIRONMENT_REST_ENDPOINT, productId)).then().statusCode(200)
                     .body(JsonMatcher.containsJsonAttribute("[0].id", value -> environmentId = Integer.valueOf(value)));
         }
+    }
+
+    @Test
+    @InSequence(-2)
+    public void prepareProjectId() {
+        given().contentType(ContentType.JSON).port(getHttpPort()).when().get(PROJECT_REST_ENDPOINT).then().statusCode(200)
+                .body(JsonMatcher.containsJsonAttribute("[0].id", value -> projectId = Integer.valueOf(value)));
     }
 
     @Test
@@ -138,7 +144,7 @@ public class BuildConfigurationRestTest {
         configurationTemplate.addValue("_environmentId", String.valueOf(environmentId));
 
         Response projectResponseBeforeTheUpdate = given().contentType(ContentType.JSON).port(getHttpPort()).when()
-                .get(String.format(PROJECT_REST_ENDPOINT, projectId));
+                .get(String.format(PROJECT_SPECIFIC_REST_ENDPOINT, projectId));
         Response environmentResponseBeforeTheUpdate = given().contentType(ContentType.JSON).port(getHttpPort()).when()
                 .get(String.format(SPECIFIC_ENVIRONMENT_REST_ENDPOINT, environmentId));
         // when
@@ -152,7 +158,7 @@ public class BuildConfigurationRestTest {
 
         // then
         Response projectResponseAfterTheUpdate = given().contentType(ContentType.JSON).port(getHttpPort()).when()
-                .get(String.format(PROJECT_REST_ENDPOINT, projectId));
+                .get(String.format(PROJECT_SPECIFIC_REST_ENDPOINT, projectId));
         Response environmentResponseAfterTheUpdate = given().contentType(ContentType.JSON).port(getHttpPort()).when()
                 .get(String.format(SPECIFIC_ENVIRONMENT_REST_ENDPOINT, environmentId));
 
@@ -203,10 +209,26 @@ public class BuildConfigurationRestTest {
 
     @Test
     @InSequence(999)
-    public void shouldDeleteProjectConfiguration() throws Exception {
+    public void shouldDeleteBuildConfiguration() throws Exception {
         given().contentType(ContentType.JSON).port(getHttpPort()).when()
                 .delete(String.format(CONFIGURATION_SPECIFIC_REST_ENDPOINT, configurationId)).then().statusCode(200);
     }
+
+    @Test
+    @InSequence(-1)
+    public void shouldGetAllBuildConfigurationSets() {
+        given().contentType(ContentType.JSON).port(getHttpPort()).when().get(CONFIGURATION_SET_REST_ENDPOINT).then()
+                .statusCode(200)
+                .body(JsonMatcher.containsJsonAttribute("[0].id", value -> configurationSetId = Integer.valueOf(value)));
+    }
+
+    @Test
+    public void shouldGetSpecificBuildConfigurationSet() {
+        given().contentType(ContentType.JSON).port(getHttpPort()).when()
+                .get(String.format(CONFIGURATION_SET_SPECIFIC_REST_ENDPOINT, configurationSetId)).then().statusCode(200)
+                .body(JsonMatcher.containsJsonAttribute("id"));
+    }
+
 
     private String loadJsonFromFile(String resource) throws IOException {
         return IoUtils.readFileOrResource(resource, resource + ".json", getClass().getClassLoader());
