@@ -50,7 +50,7 @@ public class EnvironmentEndpoint {
     public Response createNew(@NotNull @Valid EnvironmentRest environmentRest, @Context UriInfo uriInfo) {
         int id = environmentProvider.store(environmentRest);
         UriBuilder uriBuilder = UriBuilder.fromUri(uriInfo.getRequestUri()).path("{id}");
-        return Response.created(uriBuilder.build(id)).build();
+        return Response.created(uriBuilder.build(id)).entity(environmentProvider.getSpecific(id)).build();
     }
 
     @ApiOperation(value = "Updates an existing Environment")

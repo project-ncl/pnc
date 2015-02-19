@@ -5,6 +5,7 @@ import com.wordnik.swagger.annotations.ApiOperation;
 import com.wordnik.swagger.annotations.ApiParam;
 import org.jboss.pnc.core.exception.CoreException;
 import org.jboss.pnc.rest.provider.BuildConfigurationProvider;
+import org.jboss.pnc.rest.provider.BuildRecordProvider;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationRest;
 import org.jboss.pnc.rest.trigger.BuildTriggerer;
 import org.slf4j.Logger;
@@ -29,14 +30,16 @@ public class BuildConfigurationEndpoint {
 
     private BuildConfigurationProvider buildConfigurationProvider;
     private BuildTriggerer buildTriggerer;
+    private BuildRecordProvider buildRecordProvider;
 
     public BuildConfigurationEndpoint() {
     }
 
     @Inject
-    public BuildConfigurationEndpoint(BuildConfigurationProvider buildConfigurationProvider, BuildTriggerer buildTriggerer) {
+    public BuildConfigurationEndpoint(BuildConfigurationProvider buildConfigurationProvider, BuildTriggerer buildTriggerer, BuildRecordProvider buildRecordProvider) {
         this.buildConfigurationProvider = buildConfigurationProvider;
         this.buildTriggerer = buildTriggerer;
+        this.buildRecordProvider = buildRecordProvider;
     }
 
     @ApiOperation(value = "Gets all Build Configurations")
@@ -55,7 +58,7 @@ public class BuildConfigurationEndpoint {
     public Response createNew(@NotNull @Valid BuildConfigurationRest buildConfigurationRest, @Context UriInfo uriInfo) {
         UriBuilder uriBuilder = UriBuilder.fromUri(uriInfo.getRequestUri()).path("{id}");
         int id = buildConfigurationProvider.store(buildConfigurationRest);
-        return Response.created(uriBuilder.build(id)).build();
+        return Response.created(uriBuilder.build(id)).entity(buildConfigurationProvider.getSpecific(id)).build();
     }
 
     @ApiOperation(value = "Gets a specific Build Configuration")
@@ -90,7 +93,7 @@ public class BuildConfigurationEndpoint {
             @Context UriInfo uriInfo) {
         UriBuilder uriBuilder = UriBuilder.fromUri(uriInfo.getBaseUri()).path("/configuration/{id}");
         int newId = buildConfigurationProvider.clone(id);
-        return Response.created(uriBuilder.build(newId)).build();
+        return Response.created(uriBuilder.build(newId)).entity(buildConfigurationProvider.getSpecific(newId)).build();
     }
 
     @ApiOperation(value = "Triggers the build of a specific Build Configuration")
@@ -103,7 +106,7 @@ public class BuildConfigurationEndpoint {
             Integer runningBuildId = buildTriggerer.triggerBuilds(id);
             UriBuilder uriBuilder = UriBuilder.fromUri(uriInfo.getBaseUri()).path("/result/running/{id}");
             URI uri = uriBuilder.build(runningBuildId);
-            return Response.ok(uri).entity(uri).build();
+            return Response.ok(uri).header("location", uri).entity(buildRecordProvider.getSpecificRunning(runningBuildId)).build();
         } catch (CoreException e) {
             logger.error(e.getMessage(), e);
             return Response.serverError().entity("Core error: " + e.getMessage()).build();

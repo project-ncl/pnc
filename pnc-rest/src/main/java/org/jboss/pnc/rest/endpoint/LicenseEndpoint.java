@@ -71,7 +71,7 @@ public class LicenseEndpoint {
     public Response createNew(@NotNull @Valid LicenseRest licenseRest, @Context UriInfo uriInfo) {
         int id = licenseProvider.store(licenseRest);
         UriBuilder uriBuilder = UriBuilder.fromUri(uriInfo.getRequestUri()).path("{id}");
-        return Response.created(uriBuilder.build(id)).build();
+        return Response.created(uriBuilder.build(id)).entity(licenseProvider.getSpecific(id)).build();
     }
 
     @ApiOperation(value = "Updates an existing License")

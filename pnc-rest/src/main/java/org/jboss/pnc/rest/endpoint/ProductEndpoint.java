@@ -62,7 +62,7 @@ public class ProductEndpoint {
     public Response createNew(@NotNull @Valid ProductRest productRest, @Context UriInfo uriInfo) {
         int id = productProvider.store(productRest);
         UriBuilder uriBuilder = UriBuilder.fromUri(uriInfo.getRequestUri()).path("{id}");
-        return Response.created(uriBuilder.build(id)).build();
+        return Response.created(uriBuilder.build(id)).entity(productProvider.getSpecific(id)).build();
     }
 
     @ApiOperation(value = "Updates an existing Product")

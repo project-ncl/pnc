@@ -52,7 +52,7 @@ public class ProductVersionEndpoint {
             @NotNull @Valid ProductVersionRest productVersionRest, @Context UriInfo uriInfo) {
         int id = productVersionProvider.store(productId, productVersionRest);
         UriBuilder uriBuilder = UriBuilder.fromUri(uriInfo.getRequestUri()).path("{id}");
-        return Response.created(uriBuilder.build(id)).build();
+        return Response.created(uriBuilder.build(id)).entity(productVersionProvider.getSpecific(productId, id)).build();
     }
 
     @ApiOperation(value = "Updates an existing Product Version")
