@@ -18,10 +18,14 @@
 package org.jboss.pnc.model;
 
 import java.io.Serializable;
+import java.util.Set;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 
 /**
@@ -33,30 +37,29 @@ import javax.persistence.ManyToOne;
  *
  */
 @Entity
-public class ProductVersionProject implements Serializable {
+public class BuildConfigurationSet implements Serializable {
 
     private static final long serialVersionUID = 2596901834161647987L;
+
+    public static final String DEFAULT_SORTING_FIELD = "id";
 
     @Id
     @GeneratedValue
     private Integer id;
 
+    private String name;
+
     @ManyToOne
     private ProductVersion productVersion;
 
-    @ManyToOne
-    private Project project;
+    @ManyToMany
+    @JoinTable(
+            name="build_configuration_set_map",
+            joinColumns={@JoinColumn(name="build_configuration_set_id", referencedColumnName="id")},
+            inverseJoinColumns={@JoinColumn(name="build_configuration_id", referencedColumnName="id")})
+    private Set<BuildConfiguration> buildConfigurations;
 
-    public ProductVersionProject() {
-    }
-
-    /**
-     * @param productVersion
-     * @param project
-     */
-    public ProductVersionProject(ProductVersion productVersion, Project project) {
-        this.productVersion = productVersion;
-        this.project = project;
+    public BuildConfigurationSet() {
     }
 
     /**
@@ -74,6 +77,20 @@ public class ProductVersionProject implements Serializable {
     }
 
     /**
+     * @return the id
+     */
+    public String getName() {
+        return name;
+    }
+
+    /**
+     * @param id the id to set
+     */
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    /**
      * @return the productVersion
      */
     public ProductVersion getProductVersion() {
@@ -88,17 +105,24 @@ public class ProductVersionProject implements Serializable {
     }
 
     /**
-     * @return the project
+     * @return the buildConfigurations set
      */
-    public Project getProject() {
-        return project;
+    public Set<BuildConfiguration> getBuildConfigurations() {
+        return buildConfigurations;
     }
 
     /**
-     * @param project the project to set
+     * @param buildConfigurations the buildConfigurations to set
      */
-    public void setProject(Project project) {
-        this.project = project;
+    public void setBuildConfigurations(Set<BuildConfiguration> buildConfigurations) {
+        this.buildConfigurations = buildConfigurations;
+    }
+
+    /**
+     * @param buildConfiguration the buildConfiguration to add to the set
+     */
+    public void addBuildConfigurations(BuildConfiguration buildConfiguration) {
+        this.buildConfigurations.add(buildConfiguration);
     }
 
 }

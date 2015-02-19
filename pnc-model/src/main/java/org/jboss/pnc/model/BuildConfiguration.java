@@ -4,8 +4,10 @@ import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.PreRemove;
 import javax.persistence.Version;
 
 import java.io.Serializable;
@@ -61,6 +63,9 @@ public class BuildConfiguration implements Serializable, Cloneable {
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "buildConfiguration")
     private Set<BuildRecord> buildRecords;
 
+    @ManyToMany(mappedBy = "buildConfigurations")
+    private Set<BuildConfigurationSet> buildConfigurationSets;
+
     private Timestamp creationTime;
 
     @Version
@@ -79,7 +84,15 @@ public class BuildConfiguration implements Serializable, Cloneable {
     public BuildConfiguration() {
         dependencies = new HashSet<>();
         buildRecords = new HashSet<>();
+        buildConfigurationSets = new HashSet<BuildConfigurationSet>();
         creationTime = Timestamp.from(Instant.now());
+    }
+
+    @PreRemove
+    private void removeConfigurationFromSets() {
+        for (BuildConfigurationSet bcs : buildConfigurationSets) {
+            bcs.getBuildConfigurations().remove(this);
+        }
     }
 
     /**
@@ -214,6 +227,32 @@ public class BuildConfiguration implements Serializable, Cloneable {
      */
     public void setEnvironment(Environment environment) {
         this.environment = environment;
+    }
+
+    /**
+     * @return the buildConfigurationSets which contain this build configuration
+     */
+    public Set<BuildConfigurationSet> getBuildConfigurationSets() {
+        return buildConfigurationSets;
+    }
+
+    /**
+     * @param buildConfigurationSets the list of buildConfigurationSets
+     */
+    public void setBuildConfigurationSets(Set<BuildConfigurationSet> buildConfigurationSets) {
+        if (buildConfigurationSets == null ){
+            this.buildConfigurationSets = new HashSet<BuildConfigurationSet>();
+        }
+        this.buildConfigurationSets = buildConfigurationSets;
+    }
+
+    /**
+     * @param add to the list of buildConfigurationSets
+     */
+    public void addBuildConfigurationSet(BuildConfigurationSet buildConfigurationSet) {
+        if (!this.buildConfigurationSets.contains(buildConfigurationSet)) {
+            this.buildConfigurationSets.add(buildConfigurationSet);
+        }
     }
 
     /**

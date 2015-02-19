@@ -49,15 +49,15 @@ public class ProductVersion implements Serializable {
     @ManyToOne(cascade = CascadeType.ALL)
     private Product product;
 
-    @OneToMany(mappedBy = "productVersion", cascade = CascadeType.ALL)
-    private Set<ProductVersionProject> productVersionProjects;
+    @OneToMany(mappedBy = "productVersion")
+    private Set<BuildConfigurationSet> buildConfigurationSets;
 
     @OneToOne
     @JoinColumn(name="buildrecordset_id")
     private BuildRecordSet buildRecordSet;
 
     public ProductVersion() {
-        productVersionProjects = new HashSet<>();
+        buildConfigurationSets = new HashSet<>();
     }
 
     /**
@@ -181,11 +181,11 @@ public class ProductVersion implements Serializable {
         this.buildRecordSet = buildRecordSet;
     }
 
-    public Set<ProductVersionProject> getProductVersionProjects() {
-        return productVersionProjects;
+    public Set<BuildConfigurationSet> getBuildConfigurationSets() {
+        return buildConfigurationSets;
     }
 
-    public void setProductVersionProjects(Set<ProductVersionProject> productVersionProjects) {
-        this.productVersionProjects = productVersionProjects;
+    public void setBuildConfigurationSets(Set<BuildConfigurationSet> buildConfigurationSets) {
+        this.buildConfigurationSets = buildConfigurationSets;
     }
 }
