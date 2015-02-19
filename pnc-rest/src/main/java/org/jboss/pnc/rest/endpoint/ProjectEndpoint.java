@@ -63,7 +63,7 @@ public class ProjectEndpoint {
     public Response createNew(@NotNull @Valid ProjectRest projectRest, @Context UriInfo uriInfo) {
         int id = projectProvider.store(projectRest);
         UriBuilder uriBuilder = UriBuilder.fromUri(uriInfo.getRequestUri()).path("{id}");
-        return Response.created(uriBuilder.build(id)).build();
+        return Response.created(uriBuilder.build(id)).entity(projectProvider.getSpecific(id)).build();
     }
 
     @ApiOperation(value = "Updates an existing Project")

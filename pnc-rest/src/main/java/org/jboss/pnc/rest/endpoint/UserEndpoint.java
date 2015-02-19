@@ -51,7 +51,7 @@ public class UserEndpoint {
     public Response createNew(@NotNull @Valid UserRest userRest, @Context UriInfo uriInfo) {
         int id = userProvider.store(userRest);
         UriBuilder uriBuilder = UriBuilder.fromUri(uriInfo.getRequestUri()).path("{id}");
-        return Response.created(uriBuilder.build(id)).build();
+        return Response.created(uriBuilder.build(id)).entity(userProvider.getSpecific(id)).build();
     }
 
 }
