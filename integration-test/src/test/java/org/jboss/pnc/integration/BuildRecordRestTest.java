@@ -1,7 +1,6 @@
 package org.jboss.pnc.integration;
 
 import static com.jayway.restassured.RestAssured.given;
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.jboss.pnc.integration.env.IntegrationTestEnv.getHttpPort;
 
 import java.lang.invoke.MethodHandles;
@@ -11,7 +10,6 @@ import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.junit.InSequence;
 import org.jboss.pnc.integration.assertions.ResponseAssertion;
 import org.jboss.pnc.integration.deployments.Deployments;
-import org.jboss.pnc.integration.matchers.JsonMatcher;
 import org.jboss.pnc.rest.endpoint.BuildConfigurationEndpoint;
 import org.jboss.pnc.rest.endpoint.BuildRecordEndpoint;
 import org.jboss.pnc.rest.provider.BuildConfigurationProvider;
@@ -37,6 +35,7 @@ public class BuildRecordRestTest {
     private static final String BUILD_RECORD_SPECIFIC_REST_ENDPOINT = "/pnc-web/rest/record/%d";
     private static final String CONFIGURATION_SPECIFIC_REST_ENDPOINT = "/pnc-web/rest/configuration/%d";
     private static final String BUILD_RECORD_NAME_REST_ENDPOINT = "/pnc-web/rest/record?q=name==%s";
+    private static final String BUILD_RECORD_PROJECT_REST_ENDPOINT = "/pnc-web/rest/record/project/%d";
     private static final String BUILD_RECORD_PROJECT_BR_NAME_REST_ENDPOINT = "/pnc-web/rest/record/project/%d?q=name==%s";
 
     private static int buildRecordId;
@@ -62,7 +61,7 @@ public class BuildRecordRestTest {
 
     @Test
     @InSequence(-1)
-    public void prepareProductId() {
+    public void prepareBaseData() {
         Response response = given().contentType(ContentType.JSON).port(getHttpPort()).when().get(BUILD_RECORD_REST_ENDPOINT);
 
         ResponseAssertion.assertThat(response).hasStatus(200);
@@ -94,13 +93,33 @@ public class BuildRecordRestTest {
     }
 
     @Test
-    public void shouldGetBuildRecordForProject() {
+    public void shouldGetBuildRecordWithName() {
 
         Response response = given().contentType(ContentType.JSON).port(getHttpPort()).when()
                 .get(String.format(BUILD_RECORD_NAME_REST_ENDPOINT, buildRecordName));
 
         ResponseAssertion.assertThat(response).hasStatus(200);
         ResponseAssertion.assertThat(response).hasJsonValueEqual("[0].id", buildRecordId);
+    }
+
+    @Test
+    public void shouldGetBuildRecordForProject() {
+
+        Response response = given().contentType(ContentType.JSON).port(getHttpPort()).when()
+                .get(String.format(CONFIGURATION_SPECIFIC_REST_ENDPOINT, configurationId));
+
+        ResponseAssertion.assertThat(response).hasStatus(200);
+        ResponseAssertion.assertThat(response).hasJsonValueEqual("id", configurationId);
+
+        projectId = response.body().jsonPath().getInt("projectId");
+
+        logger.info("projectId: {} ", projectId);
+
+        Response response2 = given().contentType(ContentType.JSON).port(getHttpPort()).when()
+                .get(String.format(BUILD_RECORD_PROJECT_REST_ENDPOINT, projectId));
+
+        ResponseAssertion.assertThat(response2).hasStatus(200);
+        ResponseAssertion.assertThat(response2).hasJsonValueEqual("[0].id", buildRecordId);
     }
 
     @Test
