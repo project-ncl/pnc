@@ -10,6 +10,8 @@
 
   module.run(function(editableOptions, editableThemes) {
     editableOptions.theme = 'default';
+    // to remove unused failure from jshint
+    console.log(editableThemes);
   });
 
   module.config(['$stateProvider', function($stateProvider) {
@@ -43,8 +45,25 @@
 
       $stateProvider.state('build-config.configuration', {
         url: '/configuration',
-        abstract: true
+        resolve: {
+          restClient: 'PncRestClient',
+          configurationList: function(restClient) {
+            return restClient.Configuration.query().$promise;
+          }
+        },
+        views: {
+          'content@': {
+            templateUrl: 'build-config/views/configuration.html',
+            controller: 'ConfigurationListController'
+          }
+        }
       });
+
+      /*
+      $stateProvider.state('build-config.configuration', {
+        url: '/configuration',
+        abstract: true
+      });*/
 
       $stateProvider.state('build-config.configuration.show', {
         url: '/{configurationId:int}',
@@ -112,10 +131,17 @@
       $stateProvider.state(
         'build-config.product.show.version.show.project.show', {
           url: '/{projectId:int}',
+          resolve: {
+          restClient: 'PncRestClient',
+          projectDetails: function(restClient, $stateParams) {
+            return restClient.Project.get({
+              projectId: $stateParams.projectId
+            }).$promise;
+          }
+        },
           views:{
             'content@build-config': {
-              templateUrl:
-                'build-config/views/project.show.html',
+              templateUrl: 'build-config/views/project.show.html',
               controller: 'ProjectShowController'
             }
         }

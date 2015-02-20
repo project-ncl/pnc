@@ -107,15 +107,37 @@
       var projectCol = newColumn(
         function(project) {
           console.log('projectCol >> selected: %O', project);
+          $state.go('build-config.product.show.version.show.project.show', {
+            projectId: project.id,
+            versionId: versionCol.selected.id,
+            productId: versionCol.parent.selected.id });
         },
         function() {
           console.log('projectCol.updateList >> versionCol = %O', versionCol);
           return PncRestClient.Project.getForProductVersion({
-            productId: productCol.selected.id,
+            productId: versionCol.parent.selected.id,
             versionId: versionCol.selected.id,
           });
         },
         versionCol
+      );
+
+      var configurationCol = newColumn(
+        function(buildConfig) {
+          console.log('configurationCol >> selected: %O', buildConfig);
+          $state.go('build-config.configuration.show', {
+            configurationId: buildConfig.id,
+            projectId: projectCol.selected.id,
+            versionId: projectCol.parent.selected.id,
+            productId: projectCol.parent.parent.selected.id });
+        },
+        function() {
+          console.log('configurationCol.updateList >> projectCol = %O', projectCol);
+          return PncRestClient.Configuration.getForProject({
+            projectId: projectCol.selected.id
+          });
+        },
+        projectCol
       );
 
       // Add columns to scope so can be accessed in the view and
@@ -123,7 +145,8 @@
       $scope.columnBrowse = {
         products: productCol,
         versions: versionCol,
-        projects: projectCol
+        projects: projectCol,
+        configurations: configurationCol
       };
 
       // Initialise the first column with values.
@@ -170,13 +193,24 @@
     }
   ]);
 
+  module.controller('ProjectListController',
+    ['$scope', '$stateParams', 'projectList',
+    function ($scope, $stateParams, projectList) {
+      console.log('ProjectListController::versionList=%O', projectList);
+      console.log('ProjectListController::$stateParams=%O', $stateParams);
+      $scope.projects = projectList;
+    }
+  ]);
+
   module.controller('ProjectShowController',
     ['$scope',
     '$stateParams',
+    '$state',
     'projectDetails',
     'versionDetails',
     'productDetails',
-    function($scope, $stateParams, projectDetails, versionDetails, productDetails) {
+    function($scope, $stateParams, $state, projectDetails, versionDetails, productDetails) {
+
       $scope.project = projectDetails;
       $scope.version = versionDetails;
       $scope.product = productDetails;
@@ -187,12 +221,19 @@
     }
   ]);
 
+  module.controller('ConfigurationListController',
+    ['$scope','configurationList',
+    function($scope, configurationList) {
+      console.log('ConfigurationListController >> scope=%O, configurationList=%O', $scope, configurationList);
+      $scope.configurations = configurationList;
+    }
+  ]);
+
   module.controller('ConfigurationShowController', [
     '$scope', 
     '$stateParams', 
     'configurationDetails',
-    'PncRestClient',
-    function($scope, $stateParams, configurationDetails, PncRestClient) {
+    function($scope, $stateParams, configurationDetails) {
       $scope.buildConfig = configurationDetails;
 
       $scope.updateConfiguration = function() {
@@ -201,12 +242,14 @@
         $scope.buildConfig.$update().then(
           // Success
           function(result) {
+            console.log(result);
             $scope.configForm.setAlert(alertStates.success);
           },
           // Failure
           function(response) {
+            console.log(response);
             $scope.configForm.setAlert(alertStates.failure);
-            error = "error";
+            error = 'error';
           }
         );
         return error;      

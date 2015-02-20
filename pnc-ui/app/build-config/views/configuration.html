@@ -1,0 +1,31 @@
+<div class="col-md-12">
+  <h1>Build Configurations</h1>
+</div>
+<div class="row">
+  <div class="col-md-8">
+    <table class="table table-bordered table-striped table-hover">
+      <thead>
+        <th>Name</th>
+        <th>Description</th>
+        <th>Project</th>
+        <th>SCM Repository</th>
+        <th>SCM Revision</th>
+        <th>Created</th>
+        <th>Modified</th>
+        <th>User</th>
+      </thead>
+      <tbody style="cursor: pointer;">
+        <tr ng-repeat="configuration in configurations">
+          <td>{{ configuration.name }}</td>
+          <td>{{ configuration.description }}</td>
+          <td>{{ configuration.projectId }}</td>
+          <td>{{ configuration.scmRepoURL }}</td>
+          <td>{{ configuration.scmRevision }}</td>
+          <td>{{ configuration.creationTime | date:'medium'}}</td>
+          <td>{{ configuration.lastModificationTime | date:'medium'}}</td>
+          <td></td>                              
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

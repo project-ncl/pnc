@@ -49,49 +49,35 @@
                 configurationId: '@configurationId'
               }
             },
-            // getForProject: {
-            //   method: 'GET',
-            //   url: '/configuration/project/{projectId:int}',
-            //   isArray: true,
-            //   params: {
-            //     projectId: '@projectId'
-            //   }
-            // },
-            // getForProduct: {
-            //   method: 'GET',
-            //   url: '/configuration/product/{productId:int}',
-            //   isArray: true,
-            //   params: {
-            //     productId: '@productId'
-            //   }
-            // },
-            // getForProductVersion: {
-            //   method: 'GET',
-            //   url: '/configuration/product/{id}/version/{id}',
-            //   isArray: true,
-            //   params: {
-            //     productId: '@productId',
-            //     versionId: '@versionId'
-            //   }
-            // }
+            getForProject: {
+               method: 'GET',
+               url: baseUrl + '/configuration/project/:projectId',
+               isArray: true,
+               params: {
+                 projectId: '@projectId'
+               }
+            },
+            getForProduct: {
+               method: 'GET',
+               url: baseUrl + '/configuration/product/:productId',
+               isArray: true,
+               params: {
+                 productId: '@productId'
+               }
+            },
+            getForProductVersion: {
+               method: 'GET',
+               url: baseUrl + '/configuration/product/:productId/version/:versionId',
+               isArray: true,
+               params: {
+                 productId: '@productId',
+                 versionId: '@versionId'
+               }
+            }
         })
       };
     }
   ]);
-
-  /*
-  GET    /configuration                                                                   Gets all current Build Configurations
-  POST   /configuration                                                                 Creates new Build Configuration
-  GET    /configuration/{id}                                                             Gets a specific Build Configuration
-  PUT    /configuration/{id}                                                             Updates an existing Build Configuration
-  DELETE /configuration/{id}                                                         Deletes a Build Configuration
-  POST   /configuration/{id}/build                                                   Triggers build for a Build Configurations
-  POST   /configuration/{id}/clone                                                  Clones a Build Configuration
-  GET    /configuration/project/{projectId}                                      Gets all current Build Configurations of a Project
-  GET    /configuration/configurationset/{configurationsetId}         Gets all Build Configurations of a Build Configuration Set (see below * )
-  GET  /configuration/product/{id}                                                  Gets all current Build Configurations of a Product
-  GET  /configuration/product/{id}/version/{id}                               Gets all current Build Configurations of a ProductVersion
-*/
 
   // module.factory('Product', ['$resource',
   //   function($resource) {
