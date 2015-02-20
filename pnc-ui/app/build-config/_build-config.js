@@ -8,10 +8,8 @@
     'xeditable'
   ]);
 
-  module.run(function(editableOptions, editableThemes) {
+  module.run(function(editableOptions) {
     editableOptions.theme = 'default';
-    // to remove unused failure from jshint
-    console.log(editableThemes);
   });
 
   module.config(['$stateProvider', function($stateProvider) {
@@ -72,6 +70,15 @@
           configurationDetails: function(restClient, $stateParams) {
             return restClient.Configuration.get({
               configurationId: $stateParams.configurationId }).$promise;
+          },
+          environmentDetails: function(restClient, $stateParams, configurationDetails) {
+            return restClient.Environment.get({
+              environmentId: configurationDetails.environmentId  }).$promise;
+          },
+          projectDetails: function(restClient, $stateParams, configurationDetails) {
+            return restClient.Project.get({
+              projectId: configurationDetails.projectId
+            });
           }
         },
         views: {
