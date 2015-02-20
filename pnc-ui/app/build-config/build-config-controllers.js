@@ -48,6 +48,16 @@
                 that.child.clearSelected();
               }
             })();
+          },
+
+          clearLists: function() {
+            var that = this;
+            (function() {
+              that.list = null;
+              if (that.child) {
+                that.child.clearLists();
+              }
+            })();
           }
         };
 
@@ -69,6 +79,7 @@
 
         newCol.updateList = function() {
           newCol.clearSelected();
+          newCol.clearLists();
           newCol.list = updateListFn();
         };
 
