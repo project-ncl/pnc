@@ -197,8 +197,40 @@
 
       $scope.updateConfiguration = function() {
         console.log('form update: %O', $scope.buildConfig);
-        $scope.buildConfig.$update();        
-      }
+        var error;
+        $scope.buildConfig.$update().then(
+          // Success
+          function(result) {
+            $scope.configForm.setAlert(alertStates.success);
+          },
+          // Failure
+          function(response) {
+            $scope.configForm.setAlert(alertStates.failure);
+            error = "error";
+          }
+        );
+        return error;      
+      };
+
+      var alertStates = { none: 0, success: 1, failure: 2 };
+      var alert = alertStates.none;
+
+      $scope.configForm = {};
+      $scope.configForm.cancelAlert = function() {
+        alert = alertStates.none;
+      };
+      $scope.configForm.hasAlert = function() {
+        return alert !== alertStates.none;
+      };
+      $scope.configForm.showFailure = function() {
+        return alert === alertStates.failure;
+      };
+      $scope.configForm.showSuccess = function() {
+        return alert === alertStates.success;
+      };
+      $scope.configForm.setAlert = function(status) {
+        alert = status;
+      };
     }
   ]);
 

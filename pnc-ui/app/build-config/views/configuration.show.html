@@ -22,9 +22,34 @@
       <div class="row">
         <hr>
       </div>
+
+      <div class="row" data-ng-show="configForm.hasAlert()">
+        <div class="col-md-6 col-md-offset-3">
+
+          <div class="alert alert-success" data-ng-show="configForm.showSuccess()">
+            <button type="button" class="close" data-ng-click="configForm.cancelAlert()">
+              <span class="pficon pficon-close"></span>
+            </button>
+            <span class="pficon pficon-ok"></span>
+            Configuration sucessfully updated.
+          </div>
+
+          <div class="alert alert-danger" data-ng-show="configForm.showFailure()">
+            <button type="button" class="close" data-ng-click="configForm.cancelAlert()">
+              <span class="pficon pficon-close"></span>
+            </button>
+            <span class="pficon-layered">
+              <span class="pficon pficon-error-octagon"></span>
+              <span class="pficon pficon-error-exclamation"></span>
+            </span>
+            Error updating configuration.
+          </div>
+        </div>
+      </div>
+
       <div class="row">
         <div class="col-md-6 col-md-offset-3">
-          <form data-editable-form class="form-horizontal" name="configurationForm" data-onaftersave="updateConfiguration()">
+          <form data-editable-form class="form-horizontal" name="configurationForm" data-onbeforesave="updateConfiguration()">
 
             <div class="form-group">
               <label for="input-name" class="col-sm-2 control-label">Name</label>
@@ -50,56 +75,56 @@
             <div class="form-group">
               <label for="input-description" class="col-sm-2 control-label">Description</label>
               <div class="col-sm-10">
-                <p id="input-description" class="form-control-static" data-e-class="form-control" data-editable-textarea="buildConfig.description" data-e-name="description" data-e-required>{{ buildConfig.description || 'Empty' }}</p>
+                <p id="input-description" class="form-control-static" data-e-class="form-control" data-editable-textarea="buildConfig.description" data-e-name="description">{{ buildConfig.description || 'Empty' }}</p>
               </div>
             </div>
 
             <div class="form-group">
               <label for="input-scm-repo-url" class="col-sm-2 control-label">SCM Repository</label>
               <div class="col-sm-10">
-                <p id="input-scm-repo-url" class="form-control-static" data-e-class="form-control" data-editable-text="buildConfig.scmRepoURL" data-e-name="scmRepoURL" data-e-required>{{ buildConfig.scmRepoURL || 'Empty' }}</p>
+                <p id="input-scm-repo-url" class="form-control-static" data-e-class="form-control" data-editable-text="buildConfig.scmRepoURL" data-e-name="scmRepoURL">{{ buildConfig.scmRepoURL || 'Empty' }}</p>
               </div>
             </div>
 
             <div class="form-group">
               <label for="input-scm-revision" class="col-sm-2 control-label">SCM Revision</label>
               <div class="col-sm-10">
-                <p id="input-scm-revision" class="form-control-static" data-e-class="form-control" data-editable-text="buildConfig.scmRevision" data-e-name="scmRevision" data-e-required>{{ buildConfig.scmRevision || 'Empty' }}</p>
+                <p id="input-scm-revision" class="form-control-static" data-e-class="form-control" data-editable-text="buildConfig.scmRevision" data-e-name="scmRevision">{{ buildConfig.scmRevision || 'Empty' }}</p>
               </div>
             </div>
 
             <div class="form-group">
               <label for="input-patches-url" class="col-sm-2 control-label">Patches Url</label>
               <div class="col-sm-10">
-                <p id="input-patches-url" class="form-control-static" data-e-class="form-control" data-editable-text="buildConfig.patchesUrl" data-e-name="patchesUrl" data-e-required>{{ buildConfig.patchesUrl || 'Empty' }}</p>
+                <p id="input-patches-url" class="form-control-static" data-e-class="form-control" data-editable-text="buildConfig.patchesUrl" data-e-name="patchesUrl">{{ buildConfig.patchesUrl || 'Empty' }}</p>
               </div>
             </div>
 
             <div class="form-group">
               <label for="input-repositories" class="col-sm-2 control-label">Repositories</label>
               <div class="col-sm-10">
-                <p id="input-repositories" class="form-control-static" data-e-class="form-control" data-editable-text="buildConfig.repositories" data-e-name="repositories" data-e-required>{{ buildConfig.repositories || 'Empty' }}</p>
+                <p id="input-repositories" class="form-control-static" data-e-class="form-control" data-editable-text="buildConfig.repositories" data-e-name="repositories">{{ buildConfig.repositories || 'Empty' }}</p>
               </div>
             </div>
 
             <div class="form-group">
               <label for="input-project" class="col-sm-2 control-label">Project</label>
               <div class="col-sm-10">
-                <p id="input-project" class="form-control-static" data-e-class="form-control" data-editable-text="buildConfig.projectId" data-e-name="projectId" data-e-required>{{ buildConfig.projectId || 'Empty' }}</p>
+                <p id="input-project" class="form-control-static" data-e-class="form-control" data-editable-text="buildConfig.projectId" data-e-name="projectId">{{ buildConfig.projectId || 'Empty' }}</p>
               </div>
             </div>
 
             <div class="form-group">
               <label for="input-environment" class="col-sm-2 control-label">Environment</label>
               <div class="col-sm-10">
-                <p id="input-environment" class="form-control-static" data-e-class="form-control" data-editable-text="buildConfig.environmentId" data-e-name="environmentId" data-e-required>{{ buildConfig.environmentId || 'Empty' }}</p>
+                <p id="input-environment" class="form-control-static" data-e-class="form-control" data-editable-text="buildConfig.environmentId" data-e-name="environmentId">{{ buildConfig.environmentId || 'Empty' }}</p>
               </div>
             </div>
             
             <div class="form-group">
               <label for="input-build-script" class="col-sm-2 control-label">Build Script</label>
               <div class="col-sm-10">
-                <pre id="input-build-script" data-e-class="form-control" data-editable-textarea="buildConfig.buildScript" data-e-name="buildScript" data-e-required>{{ buildConfig.buildScript || 'Empty' }}</pre>
+                <pre id="input-build-script" data-e-class="form-control" data-editable-textarea="buildConfig.buildScript" data-e-name="buildScript">{{ buildConfig.buildScript || 'Empty' }}</pre>
               </div>
             </div>
             
