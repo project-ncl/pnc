@@ -1,28 +1,6 @@
 package org.jboss.pnc.demo.data;
 
-import com.google.common.base.Preconditions;
-
-import org.jboss.logging.Logger;
-import org.jboss.pnc.datastore.repositories.ProductRepository;
-import org.jboss.pnc.datastore.repositories.ProductVersionProjectRepository;
-import org.jboss.pnc.datastore.repositories.ProductVersionRepository;
-import org.jboss.pnc.datastore.repositories.BuildConfigurationRepository;
-import org.jboss.pnc.datastore.repositories.ProjectRepository;
-import org.jboss.pnc.datastore.repositories.UserRepository;
-import org.jboss.pnc.model.Product;
-import org.jboss.pnc.model.ProductVersion;
-import org.jboss.pnc.model.ProductVersionProject;
-import org.jboss.pnc.model.Project;
-import org.jboss.pnc.model.BuildConfiguration;
-import org.jboss.pnc.model.User;
-import org.jboss.pnc.model.builder.EnvironmentBuilder;
-import org.jboss.pnc.model.builder.ProductBuilder;
-import org.jboss.pnc.model.builder.ProductVersionBuilder;
-import org.jboss.pnc.model.builder.ProductVersionProjectBuilder;
-import org.jboss.pnc.model.builder.BuildConfigurationBuilder;
-import org.jboss.pnc.model.builder.ProjectBuilder;
-import org.jboss.pnc.model.builder.UserBuilder;
-import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 import javax.annotation.PostConstruct;
 import javax.ejb.Singleton;
@@ -31,7 +9,31 @@ import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
 import javax.inject.Inject;
 
-import java.lang.invoke.MethodHandles;
+import org.jboss.logging.Logger;
+import org.jboss.pnc.datastore.repositories.BuildConfigurationRepository;
+import org.jboss.pnc.datastore.repositories.BuildRecordRepository;
+import org.jboss.pnc.datastore.repositories.ProductRepository;
+import org.jboss.pnc.datastore.repositories.ProductVersionProjectRepository;
+import org.jboss.pnc.datastore.repositories.ProductVersionRepository;
+import org.jboss.pnc.datastore.repositories.ProjectRepository;
+import org.jboss.pnc.datastore.repositories.UserRepository;
+import org.jboss.pnc.model.BuildConfiguration;
+import org.jboss.pnc.model.BuildRecord;
+import org.jboss.pnc.model.Product;
+import org.jboss.pnc.model.ProductVersion;
+import org.jboss.pnc.model.ProductVersionProject;
+import org.jboss.pnc.model.Project;
+import org.jboss.pnc.model.User;
+import org.jboss.pnc.model.builder.BuildConfigurationBuilder;
+import org.jboss.pnc.model.builder.BuildRecordBuilder;
+import org.jboss.pnc.model.builder.EnvironmentBuilder;
+import org.jboss.pnc.model.builder.ProductBuilder;
+import org.jboss.pnc.model.builder.ProductVersionBuilder;
+import org.jboss.pnc.model.builder.ProductVersionProjectBuilder;
+import org.jboss.pnc.model.builder.ProjectBuilder;
+import org.jboss.pnc.model.builder.UserBuilder;
+
+import com.google.common.base.Preconditions;
 
 /**
  * Data for the DEMO.
@@ -64,6 +66,9 @@ public class DatabaseDataInitializer {
 
     @Inject
     UserRepository userRepository;
+
+    @Inject
+    BuildRecordRepository buildRecordRepository;
 
     @PostConstruct
     public void initialize() {
@@ -155,9 +160,15 @@ public class DatabaseDataInitializer {
             User demoUser = UserBuilder.newBuilder().username("demo-user").firstName("Demo First Name")
                     .lastName("Demo Last Name").email("demo-user@pnc.com").build();
 
+            BuildRecord buildRecord = BuildRecordBuilder.newBuilder().buildScript("mvn clean deploy -Dmaven.test.skip").id(1)
+                    .name(PNC_PROJECT_BUILD_CFG_ID).buildConfiguration(buildConfiguration3)
+                    .scmRepoURL("https://github.com/project-ncl/pnc.git").scmRevision("*/v0.2")
+                    .description("Build record test").build();
+
             projectRepository.save(project);
             productRepository.save(product);
             userRepository.save(demoUser);
+            buildRecordRepository.save(buildRecord);
 
         } else {
             logger.info("There are >0 ({}) projects in DB. Skipping initialization." + numberOfProjectInDB);

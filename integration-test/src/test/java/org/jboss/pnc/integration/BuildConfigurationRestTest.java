@@ -173,12 +173,12 @@ public class BuildConfigurationRestTest {
                 clonedBuildConfiguration.body().jsonPath().getString("repositories"));
     }
 
-    @Test
-    @InSequence(999)
-    public void shouldDeleteProjectConfiguration() {
-        given().contentType(ContentType.JSON).port(getHttpPort()).when()
-                .delete(String.format(CONFIGURATION_SPECIFIC_REST_ENDPOINT, configurationId)).then().statusCode(200);
-    }
+//    @Test
+//    @InSequence(999)
+//    public void shouldDeleteProjectConfiguration() {
+//        given().contentType(ContentType.JSON).port(getHttpPort()).when()
+//                .delete(String.format(CONFIGURATION_SPECIFIC_REST_ENDPOINT, configurationId)).then().statusCode(200);
+//    }
 
     private String loadJsonFromFile(String resource) throws IOException {
         return IoUtils.readFileOrResource(resource, resource + ".json", getClass().getClassLoader());

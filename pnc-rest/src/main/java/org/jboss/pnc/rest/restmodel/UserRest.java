@@ -71,13 +71,13 @@ public class UserRest {
     }
 
     @XmlTransient
-    public User getUser() {
-        UserBuilder userBuilder = UserBuilder.newBuilder();
-        userBuilder.username(username);
-        userBuilder.email(email);
-        userBuilder.firstName(firstName);
-        userBuilder.lastName(lastName);
-        return userBuilder.build();
+    public User toUser() {
+        UserBuilder builder = UserBuilder.newBuilder();
+        builder.username(username);
+        builder.email(email);
+        builder.firstName(firstName);
+        builder.lastName(lastName);
+        return builder.build();
     }
 
 }

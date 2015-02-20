@@ -14,4 +14,8 @@ public class BuildRecordRepositoryPredicates {
     public static BooleanExpression withBuildConfigurationId(Integer configurationId) {
         return createNotNullPredicate(configurationId != null, () -> QBuildRecord.buildRecord.buildConfiguration.id.eq(configurationId));
     }
+    
+    public static BooleanExpression withProjectId(Integer projectId) {
+        return createNotNullPredicate(projectId != null, () -> QBuildRecord.buildRecord.buildConfiguration.project.id.eq(projectId));
+    }
 }
