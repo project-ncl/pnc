@@ -3,143 +3,141 @@
     width: 100%;
   }
 </style>
-<div class="container-fluid">
-  <div class="row">
-    <div class="col-md-8 col-md-offset-2">
-      <div class="row">
-        <div class="col-md-8">
-          <h1>Build Configuration Details</h1>
+<div class="row">
+  <div class="col-md-8 col-md-offset-2">
+    <div class="row">
+      <div class="col-md-8">
+        <h1>Build Configuration Details</h1>
+      </div>
+      <div class="col-md-4">
+        <span class="btn-group pull-right" style="margin-top: 2rem;" role="group" aria-label="Action Toolbar">
+          <button type="button" class="btn btn-lg btn-default disabled" data-toggle="tooltip" title="Start Build"><i class="fa fa-play"></i> Build</button>
+          <button type="button" class="btn btn-lg btn-default disabled" data-toggle="tooltip" title="Clone Configuration"><i class="fa fa-files-o"></i> Clone</button>
+          <button type="button" class="btn btn-lg btn-default" data-toggle="tooltip" title="Edit Configuration" data-ng-click="configurationForm.$show()" data-ng-class="{ 'active': configurationForm.$visible }"><i class="pficon pficon-edit"></i> Edit</button>
+          <button type="button" class="btn btn-lg btn-danger disabled" data-toggle="tooltip" title="Delete Configuration"><i class="pficon pficon-delete"></i> Delete</button>
+        </span>
+      </div>
+    </div>
+    <div class="row">
+      <hr>
+    </div>
+
+    <div class="row" data-ng-show="configForm.hasAlert()">
+      <div class="col-md-6 col-md-offset-3">
+
+        <div class="alert alert-success" data-ng-show="configForm.showSuccess()">
+          <button type="button" class="close" data-ng-click="configForm.cancelAlert()">
+            <span class="pficon pficon-close"></span>
+          </button>
+          <span class="pficon pficon-ok"></span>
+          Configuration sucessfully updated.
         </div>
-        <div class="col-md-4">
-          <span class="btn-group pull-right" style="margin-top: 2rem;" role="group" aria-label="Action Toolbar">
-            <button type="button" class="btn btn-lg btn-default disabled" data-toggle="tooltip" title="Start Build"><i class="fa fa-play"></i> Build</button>
-            <button type="button" class="btn btn-lg btn-default disabled" data-toggle="tooltip" title="Clone Configuration"><i class="fa fa-files-o"></i> Clone</button>
-            <button type="button" class="btn btn-lg btn-default" data-toggle="tooltip" title="Edit Configuration" data-ng-click="configurationForm.$show()" data-ng-class="{ 'active': configurationForm.$visible }"><i class="pficon pficon-edit"></i> Edit</button>
-            <button type="button" class="btn btn-lg btn-danger disabled" data-toggle="tooltip" title="Delete Configuration"><i class="pficon pficon-delete"></i> Delete</button>
+
+        <div class="alert alert-danger" data-ng-show="configForm.showFailure()">
+          <button type="button" class="close" data-ng-click="configForm.cancelAlert()">
+            <span class="pficon pficon-close"></span>
+          </button>
+          <span class="pficon-layered">
+            <span class="pficon pficon-error-octagon"></span>
+            <span class="pficon pficon-error-exclamation"></span>
           </span>
+          Error updating configuration.
         </div>
       </div>
-      <div class="row">
-        <hr>
-      </div>
+    </div>
 
-      <div class="row" data-ng-show="configForm.hasAlert()">
-        <div class="col-md-6 col-md-offset-3">
+    <div class="row">
+      <div class="col-md-6 col-md-offset-3">
+        <form data-editable-form class="form-horizontal" name="configurationForm" data-onbeforesave="updateConfiguration()">
 
-          <div class="alert alert-success" data-ng-show="configForm.showSuccess()">
-            <button type="button" class="close" data-ng-click="configForm.cancelAlert()">
-              <span class="pficon pficon-close"></span>
-            </button>
-            <span class="pficon pficon-ok"></span>
-            Configuration sucessfully updated.
+          <div class="form-group">
+            <label for="input-name" class="col-sm-2 control-label">Name</label>
+            <div class="col-sm-10">
+              <p id="input-name" class="form-control-static" data-e-class="form-control" data-editable-text="buildConfig.name" data-e-name="name" data-e-required>{{ buildConfig.name || 'Empty' }}</p>
+            </div>
           </div>
 
-          <div class="alert alert-danger" data-ng-show="configForm.showFailure()">
-            <button type="button" class="close" data-ng-click="configForm.cancelAlert()">
-              <span class="pficon pficon-close"></span>
-            </button>
-            <span class="pficon-layered">
-              <span class="pficon pficon-error-octagon"></span>
-              <span class="pficon pficon-error-exclamation"></span>
-            </span>
-            Error updating configuration.
+          <div class="form-group">
+            <label for="static-created" class="col-sm-2 control-label">Created</label>
+            <div class="col-sm-10">
+              <p id="static-created" class="form-control-static">{{ buildConfig.creationTime | date:'medium'}}</p>
+            </div>
           </div>
-        </div>
-      </div>
 
-      <div class="row">
-        <div class="col-md-6 col-md-offset-3">
-          <form data-editable-form class="form-horizontal" name="configurationForm" data-onbeforesave="updateConfiguration()">
+          <div class="form-group">
+            <label for="static-modified" class="col-sm-2 control-label">Modified</label>
+            <div class="col-sm-10">
+              <p id="static-modified" class="form-control-static">{{ buildConfig.lastModificationTime | date:'medium'}}</p>
+            </div>
+          </div>
 
-            <div class="form-group">
-              <label for="input-name" class="col-sm-2 control-label">Name</label>
-              <div class="col-sm-10">
-                <p id="input-name" class="form-control-static" data-e-class="form-control" data-editable-text="buildConfig.name" data-e-name="name" data-e-required>{{ buildConfig.name || 'Empty' }}</p>
-              </div>
+          <div class="form-group">
+            <label for="input-description" class="col-sm-2 control-label">Description</label>
+            <div class="col-sm-10">
+              <p id="input-description" class="form-control-static" data-e-class="form-control" data-editable-textarea="buildConfig.description" data-e-name="description">{{ buildConfig.description || 'Empty' }}</p>
             </div>
+          </div>
 
-            <div class="form-group">
-              <label for="static-created" class="col-sm-2 control-label">Created</label>
-              <div class="col-sm-10">
-                <p id="static-created" class="form-control-static">{{ buildConfig.creationTime | date:'medium'}}</p>
-              </div>
+          <div class="form-group">
+            <label for="input-scm-repo-url" class="col-sm-2 control-label">SCM Repository</label>
+            <div class="col-sm-10">
+              <p id="input-scm-repo-url" class="form-control-static" data-e-class="form-control" data-editable-text="buildConfig.scmRepoURL" data-e-name="scmRepoURL">{{ buildConfig.scmRepoURL || 'Empty' }}</p>
             </div>
+          </div>
 
-            <div class="form-group">
-              <label for="static-modified" class="col-sm-2 control-label">Modified</label>
-              <div class="col-sm-10">
-                <p id="static-modified" class="form-control-static">{{ buildConfig.lastModificationTime | date:'medium'}}</p>
-              </div>
+          <div class="form-group">
+            <label for="input-scm-revision" class="col-sm-2 control-label">SCM Revision</label>
+            <div class="col-sm-10">
+              <p id="input-scm-revision" class="form-control-static" data-e-class="form-control" data-editable-text="buildConfig.scmRevision" data-e-name="scmRevision">{{ buildConfig.scmRevision || 'Empty' }}</p>
             </div>
+          </div>
 
-            <div class="form-group">
-              <label for="input-description" class="col-sm-2 control-label">Description</label>
-              <div class="col-sm-10">
-                <p id="input-description" class="form-control-static" data-e-class="form-control" data-editable-textarea="buildConfig.description" data-e-name="description">{{ buildConfig.description || 'Empty' }}</p>
-              </div>
+          <div class="form-group">
+            <label for="input-patches-url" class="col-sm-2 control-label">Patches Url</label>
+            <div class="col-sm-10">
+              <p id="input-patches-url" class="form-control-static" data-e-class="form-control" data-editable-text="buildConfig.patchesUrl" data-e-name="patchesUrl">{{ buildConfig.patchesUrl || 'Empty' }}</p>
             </div>
+          </div>
 
-            <div class="form-group">
-              <label for="input-scm-repo-url" class="col-sm-2 control-label">SCM Repository</label>
-              <div class="col-sm-10">
-                <p id="input-scm-repo-url" class="form-control-static" data-e-class="form-control" data-editable-text="buildConfig.scmRepoURL" data-e-name="scmRepoURL">{{ buildConfig.scmRepoURL || 'Empty' }}</p>
-              </div>
+          <div class="form-group">
+            <label for="input-repositories" class="col-sm-2 control-label">Repositories</label>
+            <div class="col-sm-10">
+              <p id="input-repositories" class="form-control-static" data-e-class="form-control" data-editable-text="buildConfig.repositories" data-e-name="repositories">{{ buildConfig.repositories || 'Empty' }}</p>
             </div>
+          </div>
 
-            <div class="form-group">
-              <label for="input-scm-revision" class="col-sm-2 control-label">SCM Revision</label>
-              <div class="col-sm-10">
-                <p id="input-scm-revision" class="form-control-static" data-e-class="form-control" data-editable-text="buildConfig.scmRevision" data-e-name="scmRevision">{{ buildConfig.scmRevision || 'Empty' }}</p>
-              </div>
+          <div class="form-group">
+            <label for="input-project" class="col-sm-2 control-label">Project</label>
+            <div class="col-sm-10">
+              <p id="input-project" class="form-control-static" data-e-class="form-control" data-editable-text="buildConfig.projectId" data-e-name="projectId">{{ buildConfig.projectId || 'Empty' }}</p>
             </div>
+          </div>
 
-            <div class="form-group">
-              <label for="input-patches-url" class="col-sm-2 control-label">Patches Url</label>
-              <div class="col-sm-10">
-                <p id="input-patches-url" class="form-control-static" data-e-class="form-control" data-editable-text="buildConfig.patchesUrl" data-e-name="patchesUrl">{{ buildConfig.patchesUrl || 'Empty' }}</p>
-              </div>
+          <div class="form-group">
+            <label for="input-environment" class="col-sm-2 control-label">Environment</label>
+            <div class="col-sm-10">
+              <p id="input-environment" class="form-control-static" data-e-class="form-control" data-editable-text="buildConfig.environmentId" data-e-name="environmentId">{{ buildConfig.environmentId || 'Empty' }}</p>
             </div>
-
-            <div class="form-group">
-              <label for="input-repositories" class="col-sm-2 control-label">Repositories</label>
-              <div class="col-sm-10">
-                <p id="input-repositories" class="form-control-static" data-e-class="form-control" data-editable-text="buildConfig.repositories" data-e-name="repositories">{{ buildConfig.repositories || 'Empty' }}</p>
-              </div>
+          </div>
+          
+          <div class="form-group">
+            <label for="input-build-script" class="col-sm-2 control-label">Build Script</label>
+            <div class="col-sm-10">
+              <pre id="input-build-script" data-e-class="form-control" data-editable-textarea="buildConfig.buildScript" data-e-name="buildScript">{{ buildConfig.buildScript || 'Empty' }}</pre>
             </div>
-
-            <div class="form-group">
-              <label for="input-project" class="col-sm-2 control-label">Project</label>
-              <div class="col-sm-10">
-                <p id="input-project" class="form-control-static" data-e-class="form-control" data-editable-text="buildConfig.projectId" data-e-name="projectId">{{ buildConfig.projectId || 'Empty' }}</p>
-              </div>
+          </div>
+          
+          <div class="form-group" data-ng-show="configurationForm.$visible">
+            <div class="col-sm-offset-2 col-sm-10">
+              <button type="submit" class="btn btn-primary" data-ng-disabled="configurationForm.$waiting">
+                Save
+              </button>
+              <button type="button" class="btn btn-default" data-ng-disabled="configurationForm.$waiting" data-ng-click="configurationForm.$cancel()">
+                Cancel
+              </button>
             </div>
-
-            <div class="form-group">
-              <label for="input-environment" class="col-sm-2 control-label">Environment</label>
-              <div class="col-sm-10">
-                <p id="input-environment" class="form-control-static" data-e-class="form-control" data-editable-text="buildConfig.environmentId" data-e-name="environmentId">{{ buildConfig.environmentId || 'Empty' }}</p>
-              </div>
-            </div>
-            
-            <div class="form-group">
-              <label for="input-build-script" class="col-sm-2 control-label">Build Script</label>
-              <div class="col-sm-10">
-                <pre id="input-build-script" data-e-class="form-control" data-editable-textarea="buildConfig.buildScript" data-e-name="buildScript">{{ buildConfig.buildScript || 'Empty' }}</pre>
-              </div>
-            </div>
-            
-            <div class="form-group" data-ng-show="configurationForm.$visible">
-              <div class="col-sm-offset-2 col-sm-10">
-                <button type="submit" class="btn btn-primary" data-ng-disabled="configurationForm.$waiting">
-                  Save
-                </button>
-                <button type="button" class="btn btn-default" data-ng-disabled="configurationForm.$waiting" data-ng-click="configurationForm.$cancel()">
-                  Cancel
-                </button>
-              </div>
-            </div>
-          </form>
-        </div>
+          </div>
+        </form>
       </div>
     </div>
   </div>
