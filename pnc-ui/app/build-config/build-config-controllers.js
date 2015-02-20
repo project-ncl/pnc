@@ -277,6 +277,14 @@
         );
         return error;      
       };
+
+      $scope.cloneConfig = function() {
+        configurationDetails.$clone().then(function() {
+          $state.go('build-config.product.show.version.show.project.show.' + 
+                    'configuration.show');
+        });
+      };
+
       
       var alertStates = { none: 0, success: 1, failure: 2 };
       var alert = alertStates.none;

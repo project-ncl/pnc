@@ -45,12 +45,20 @@
                 configurationId: '@id'
               }
             },
-            build: {
+            clone: {
               method: 'POST',
-              url: '/configuration/:configurationId/build ',
+              url: baseUrl + '/configuration/:configurationId/clone',
               isArray: false,
               params: {
-                configurationId: '@configurationId'
+                configurationId: '@id'
+              }
+            },
+            build: {
+              method: 'POST',
+              url: baseUrl + '/configuration/:configurationId/build',
+              isArray: false,
+              params: {
+                configurationId: '@id'
               }
             },
             getForProject: {
