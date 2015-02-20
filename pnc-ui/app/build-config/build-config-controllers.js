@@ -247,12 +247,18 @@
 
   module.controller('ConfigurationShowController', [
     '$scope', 
-    '$stateParams', 
+    '$stateParams',
+    '$state',
+    'PncRestClient',
+    'projectDetails',
+    'environmentDetails',
     'configurationDetails',
-    function($scope, $stateParams, configurationDetails) {
-
+    function($scope, $stateParams, $state, PncRestClient, projectDetails, environmentDetails, configurationDetails) {
+    
+      $scope.project = projectDetails;
+      $scope.environment = environmentDetails;      
       $scope.buildConfig = configurationDetails;
-
+      
       $scope.updateConfiguration = function() {
         console.log('form update: %O', $scope.buildConfig);
         var error;
@@ -271,7 +277,7 @@
         );
         return error;      
       };
-
+      
       var alertStates = { none: 0, success: 1, failure: 2 };
       var alert = alertStates.none;
 

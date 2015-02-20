@@ -31,6 +31,10 @@
               }
             }
           }),
+        
+        Environment: $resource(baseUrl + '/environment/:environmentId', {
+            environmentId: '@environmentId'
+        }),
 
         Configuration: $resource(baseUrl + '/configuration/:configurationId', {
             configurationId: '@configurationId'

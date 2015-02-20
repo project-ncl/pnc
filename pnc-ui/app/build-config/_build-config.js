@@ -161,7 +161,11 @@
           configurationDetails: function(restClient, $stateParams) {
             return restClient.Configuration.get({
               configurationId: $stateParams.configurationId }).$promise;
-          }
+          },
+          environmentDetails: function(restClient, $stateParams, configurationDetails) {
+            return restClient.Environment.get({
+              environmentId: configurationDetails.environmentId  }).$promise;
+          },
         },
         views: {
           'content@build-config': {
@@ -173,3 +177,5 @@
   }]);
 
 })();
+
+
