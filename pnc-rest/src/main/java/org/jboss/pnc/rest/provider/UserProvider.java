@@ -56,7 +56,7 @@ public class UserProvider extends BasePaginationProvider<UserRest, User> {
     }
 
     public Integer store(UserRest userRest) {
-        User user = userRest.getUser();
+        User user = userRest.toUser();
         user = userRepository.save(user);
         return user.getId();
     }

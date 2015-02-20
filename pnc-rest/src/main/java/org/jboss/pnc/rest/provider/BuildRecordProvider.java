@@ -2,6 +2,7 @@ package org.jboss.pnc.rest.provider;
 
 import static org.jboss.pnc.datastore.predicates.BuildRecordRepositoryPredicates.withBuildConfigurationId;
 import static org.jboss.pnc.datastore.predicates.BuildRecordRepositoryPredicates.withBuildRecordId;
+import static org.jboss.pnc.datastore.predicates.BuildRecordRepositoryPredicates.withProjectId;
 import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
 
 import java.io.BufferedWriter;
@@ -72,6 +73,11 @@ public class BuildRecordProvider extends BasePaginationProvider<BuildRecordRest,
 
     public List<BuildRecordRest> getAllForBuildConfiguration(Integer configurationId) {
         return nullableStreamOf(buildRecordRepository.findAll(withBuildConfigurationId(configurationId))).map(
+                buildRecord -> new BuildRecordRest(buildRecord)).collect(Collectors.toList());
+    }
+    
+    public List<BuildRecordRest> getAllForProject(Integer projectId) {
+        return nullableStreamOf(buildRecordRepository.findAll(withProjectId(projectId))).map(
                 buildRecord -> new BuildRecordRest(buildRecord)).collect(Collectors.toList());
     }
 

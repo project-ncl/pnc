@@ -63,7 +63,16 @@ public class BuildRecordEndpoint {
     @GET
     @Path("/configuration/{configurationId}")
     public List<BuildRecordRest> getAllForBuildConfiguration(
-            @ApiParam(value = "BuildC Configuration id", required = true) @PathParam("configurationId") Integer configurationId) {
+            @ApiParam(value = "Build Configuration id", required = true) @PathParam("configurationId") Integer configurationId) {
         return buildRecordProvider.getAllForBuildConfiguration(configurationId);
+    }
+
+    @ApiOperation(value = "Gets the Build Records linked to a specific Project")
+    @GET
+    @Path("/project/{projectId}")
+    public List<BuildRecordRest> getAllForProject(
+            @ApiParam(value = "Project id", required = true) @PathParam("projectId") Integer projectId,
+            @ApiParam(value = "RSQL query", required = false) @QueryParam("q") String rsql) {
+        return buildRecordProvider.getAllForProject(projectId);
     }
 }
