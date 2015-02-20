@@ -15,7 +15,7 @@
         <th>User</th>
       </thead>
       <tbody style="cursor: pointer;">
-        <tr ng-repeat="configuration in configurations">
+        <tr data-ng-repeat="configuration in configurations" data-ng-click="showConfiguration(configuration)">
           <td>{{ configuration.name }}</td>
           <td>{{ configuration.description }}</td>
           <td>{{ configuration.projectId }}</td>
