@@ -132,18 +132,42 @@
         'build-config.product.show.version.show.project.show', {
           url: '/{projectId:int}',
           resolve: {
-          restClient: 'PncRestClient',
-          projectDetails: function(restClient, $stateParams) {
-            return restClient.Project.get({
-              projectId: $stateParams.projectId
-            }).$promise;
-          }
-        },
+            restClient: 'PncRestClient',
+            projectDetails: function(restClient, $stateParams) {
+              return restClient.Project.get({
+                projectId: $stateParams.projectId
+              }).$promise;
+            }
+          },
           views:{
             'content@build-config': {
               templateUrl: 'build-config/views/project.show.html',
               controller: 'ProjectShowController'
             }
+        }
+      });
+
+      $stateProvider.state(
+        'build-config.product.show.version.show.project.show.configuration', {
+          url: '/configuration',
+          abstract: true
+        });
+
+      $stateProvider.state(
+        'build-config.product.show.version.show.project.show.configuration.show', {
+        url: '/{configurationId:int}',
+        resolve: {
+          restClient: 'PncRestClient',
+          configurationDetails: function(restClient, $stateParams) {
+            return restClient.Configuration.get({
+              configurationId: $stateParams.configurationId }).$promise;
+          }
+        },
+        views: {
+          'content@build-config': {
+            templateUrl: 'build-config/views/configuration.show.html',
+            controller: 'ConfigurationShowController'
+          }
         }
       });
   }]);

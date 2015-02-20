@@ -136,7 +136,7 @@
       var configurationCol = newColumn(
         function(buildConfig) {
           console.log('configurationCol >> selected: %O', buildConfig);
-          $state.go('build-config.configuration.show', {
+          $state.go('build-config.product.show.version.show.project.show.configuration.show', {
             configurationId: buildConfig.id,
             projectId: projectCol.selected.id,
             versionId: projectCol.parent.selected.id,
