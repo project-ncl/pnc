@@ -258,7 +258,11 @@
       $scope.project = projectDetails;
       $scope.environment = environmentDetails;      
       $scope.buildConfig = configurationDetails;
-      
+
+      if ($scope.columnBrowse) {
+         $scope.columnBrowse.configurations.setSelected(configurationDetails);
+      }
+
       $scope.updateConfiguration = function() {
         console.log('form update: %O', $scope.buildConfig);
         var error;
