@@ -8,6 +8,8 @@
     ['$scope', '$state', 'PncRestClient',
     function($scope, $state, PncRestClient) {
 
+      // TODO: Refactor into service.
+
       /* Creates new column object for use with the column-browse-column
        * directive the column browse UI element directive. The object will
        * be wired up so as to automatically keep child and parent objects
@@ -253,8 +255,8 @@
     'projectDetails',
     'environmentDetails',
     'configurationDetails',
-    function($scope, $stateParams, $state, PncRestClient, projectDetails, environmentDetails, configurationDetails) {
-    
+    function($scope, $stateParams, $state, PncRestClient, projectDetails, 
+             environmentDetails, configurationDetails) {    
       $scope.project = projectDetails;
       $scope.environment = environmentDetails;      
       $scope.buildConfig = configurationDetails;
@@ -312,4 +314,30 @@
     }
   ]);
 
+  module.controller('ConfigurationCreateController', 
+    ['$scope', '$state', 'PncRestClient', 'environments', 'projects', 
+      function($scope, $state, PncRestClient, environments, projects) {
+        $scope.createConfigForm = {};
+        $scope.createConfigForm.data = new PncRestClient.Configuration();
+        $scope.createConfigForm.environments = environments;
+        $scope.createConfigForm.projects = projects;
+
+        $scope.createConfigForm.submit = function() {
+          console.log('FORM SUBMITTED: %O', $scope.createConfigForm.data);
+          $scope.createConfigForm.data.$save().then(
+            function(result) {
+              console.log('SUCCESS: %O', result);
+              console.log('result.id='+result.id);
+              $state.go('build-config.configuration.show', { 
+                configurationId: result.id
+              });
+            },
+            function(response) {
+              console.log('ERROR: response: %O', response);
+            }
+          );
+        };
+      }
+    ]
+  );
 })();
