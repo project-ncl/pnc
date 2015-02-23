@@ -2,8 +2,6 @@ package org.jboss.pnc.environment.docker;
 
 import java.io.InputStream;
 
-import javax.inject.Inject;
-
 import org.jboss.pnc.spi.environment.RunningEnvironment;
 import org.jboss.pnc.spi.environment.exception.EnvironmentDriverException;
 

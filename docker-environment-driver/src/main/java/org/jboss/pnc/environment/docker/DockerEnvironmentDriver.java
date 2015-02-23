@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.logging.Logger;
 
 import javax.annotation.PostConstruct;
+import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 
@@ -44,6 +45,7 @@ import com.jcraft.jsch.agentproxy.Connector;
  * @author Jakub Bartecek <jbartece@redhat.com>
  *
  */
+@LocalBean
 @Stateless
 public class DockerEnvironmentDriver implements EnvironmentDriver {
 
