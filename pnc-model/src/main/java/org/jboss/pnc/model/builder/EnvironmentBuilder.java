@@ -24,6 +24,7 @@ public class EnvironmentBuilder {
 
     public Environment build() {
         Environment environment = new Environment();
+        environment.setId(id);
         environment.setBuildType(buildType);
         environment.setOperationalSystem(operationalSystem);
         return environment;

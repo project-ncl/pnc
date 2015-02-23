@@ -7,5 +7,6 @@
     "creationTime": ${_creationTime},
     "lastModificationTime": ${_lastModificationTime},
     "repositories": "${_repositories}",
-    "projectId": "${_projectId}"
+    "projectId": "${_projectId}",
+    "environmentId": "${_environmentId}"
 }
