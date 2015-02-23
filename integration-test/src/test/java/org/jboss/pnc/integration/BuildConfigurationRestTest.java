@@ -40,13 +40,16 @@ public class BuildConfigurationRestTest {
     private static final String CONFIGURATION_REST_ENDPOINT = "/pnc-web/rest/configuration/";
     private static final String CONFIGURATION_SPECIFIC_REST_ENDPOINT = "/pnc-web/rest/configuration/%d";
     private static final String CONFIGURATION_CLONE_REST_ENDPOINT = "/pnc-web/rest/configuration/%d/clone";
+    private static final String ENVIRONMENT_REST_ENDPOINT = "/pnc-web/rest/environment";
 
     private static int productId;
     private static int productVersionId;
     private static int projectId;
     private static int configurationId;
+    private static int environmentId;
 
     private static AtomicBoolean isInitialized = new AtomicBoolean();
+
 
     @Deployment(testable = false)
     public static EnterpriseArchive deploy() {
@@ -78,6 +81,10 @@ public class BuildConfigurationRestTest {
             given().contentType(ContentType.JSON).port(getHttpPort()).when()
                     .get(String.format(PROJECT_PRODUCT_VERSION_REST_ENDPOINT, productId, productVersionId)).then().statusCode(200)
                     .body(JsonMatcher.containsJsonAttribute("[0].id", value -> projectId = Integer.valueOf(value)));
+
+            given().contentType(ContentType.JSON).port(getHttpPort()).when()
+                    .get(String.format(ENVIRONMENT_REST_ENDPOINT, productId)).then().statusCode(200)
+                    .body(JsonMatcher.containsJsonAttribute("[0].id", value -> environmentId = Integer.valueOf(value)));
         }
     }
 
@@ -114,6 +121,7 @@ public class BuildConfigurationRestTest {
         configurationTemplate.addValue("_lastModificationTime", String.valueOf(155382545038L));
         configurationTemplate.addValue("_repositories", "");
         configurationTemplate.addValue("_projectId", updatedProjectId);
+        configurationTemplate.addValue("_environmentId", String.valueOf(environmentId));
 
         // when
         given().body(configurationTemplate.fillTemplate()).contentType(ContentType.JSON).port(getHttpPort()).when()
@@ -126,7 +134,7 @@ public class BuildConfigurationRestTest {
         ResponseAssertion.assertThat(response).hasStatus(200);
         ResponseAssertion.assertThat(response).hasJsonValueEqual("id", configurationId).hasJsonValueEqual("name", updatedName)
                 .hasJsonValueEqual("buildScript", updatedBuildScript).hasJsonValueEqual("scmRepoURL", updatedScmUrl)
-                .hasJsonValueEqual("projectId", updatedProjectId);
+                .hasJsonValueEqual("projectId", updatedProjectId).hasJsonValueEqual("environmentId", environmentId);
     }
 
     @Test
