@@ -153,8 +153,9 @@ public class BuildConfigurationRest {
         this.environmentId = environmentId;
     }
 
-    public BuildConfiguration toBuildConfiguration() {
+    public BuildConfiguration toBuildConfiguration(BuildConfiguration buildConfiguration) {
         BuildConfigurationBuilder builder = BuildConfigurationBuilder.newBuilder();
+        builder.id(id);
         builder.name(name);
         builder.description(description);
         builder.buildScript(buildScript);
@@ -168,6 +169,14 @@ public class BuildConfigurationRest {
         performIfNotNull(projectId != null, () -> builder.project(ProjectBuilder.newBuilder().id(projectId).build()));
         performIfNotNull(environmentId != null, () -> builder.environment(EnvironmentBuilder.emptyEnvironment().id(environmentId).build()));
 
+        overrideWithDataFromOriginalConfiguration(buildConfiguration, builder);
         return builder.build();
+    }
+
+    private void overrideWithDataFromOriginalConfiguration(BuildConfiguration buildConfiguration, BuildConfigurationBuilder builder) {
+        performIfNotNull(buildConfiguration != null, () -> {
+            builder.lastModificationTime(buildConfiguration.getLastModificationTime());
+            builder.creationTime(buildConfiguration.getCreationTime());
+        });
     }
 }

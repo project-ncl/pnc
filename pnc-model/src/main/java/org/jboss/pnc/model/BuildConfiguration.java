@@ -58,13 +58,16 @@ public class BuildConfiguration implements Serializable, Cloneable {
     @ManyToOne(cascade = CascadeType.ALL)
     private BuildConfiguration parent;
 
-    @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL)
-    private Set<BuildConfiguration> dependencies;
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "buildConfiguration")
+    private Set<BuildRecord> buildRecords;
 
     private Timestamp creationTime;
 
     @Version
     private Timestamp lastModificationTime;
+
+    @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL)
+    private Set<BuildConfiguration> dependencies;
 
     // TODO: What data format does Aprox need?
     // @Column(name = "repositories")
@@ -75,6 +78,7 @@ public class BuildConfiguration implements Serializable, Cloneable {
      */
     public BuildConfiguration() {
         dependencies = new HashSet<>();
+        buildRecords = new HashSet<>();
         creationTime = Timestamp.from(Instant.now());
     }
 
@@ -291,6 +295,15 @@ public class BuildConfiguration implements Serializable, Cloneable {
     public BuildConfiguration removeDependency(BuildConfiguration configuration) {
         configuration.setParent(null);
         dependencies.remove(configuration);
+        return this;
+    }
+
+    public Set<BuildRecord> getBuildRecords() {
+        return buildRecords;
+    }
+
+    public BuildConfiguration addBuildRecord(BuildRecord buildRecord) {
+        this.buildRecords.add(buildRecord);
         return this;
     }
 
