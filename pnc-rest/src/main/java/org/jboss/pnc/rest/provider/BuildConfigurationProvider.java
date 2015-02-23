@@ -84,7 +84,7 @@ public class BuildConfigurationProvider extends BasePaginationProvider<BuildConf
     }
 
     public Integer store(BuildConfigurationRest buildConfigurationRest) {
-        BuildConfiguration buildConfiguration = buildConfigurationRest.toBuildConfiguration();
+        BuildConfiguration buildConfiguration = buildConfigurationRest.toBuildConfiguration(null);
         buildConfiguration = buildConfigurationRepository.save(buildConfiguration);
         return buildConfiguration.getId();
     }
@@ -93,18 +93,7 @@ public class BuildConfigurationProvider extends BasePaginationProvider<BuildConf
         BuildConfiguration buildConfiguration = buildConfigurationRepository.findOne(buildConfigurationRest.getId());
         Preconditions.checkArgument(buildConfiguration != null, "Couldn't find buildConfiguration with id "
                 + buildConfigurationRest.getId());
-
-        // Applying the changes
-        buildConfiguration.setName(buildConfigurationRest.getName());
-        buildConfiguration.setBuildScript(buildConfigurationRest.getBuildScript());
-        buildConfiguration.setScmRepoURL(buildConfigurationRest.getScmRepoURL());
-        buildConfiguration.setScmRevision(buildConfigurationRest.getScmRevision());
-        buildConfiguration.setPatchesUrl(buildConfigurationRest.getPatchesUrl());
-        buildConfiguration.setCreationTime(buildConfigurationRest.getCreationTime());
-        buildConfiguration.setLastModificationTime(buildConfigurationRest.getLastModificationTime());
-        buildConfiguration.setRepositories(buildConfigurationRest.getRepositories());
-
-        buildConfiguration = buildConfigurationRepository.saveAndFlush(buildConfiguration);
+        buildConfiguration = buildConfigurationRepository.saveAndFlush(buildConfigurationRest.toBuildConfiguration(buildConfiguration));
         return buildConfiguration.getId();
     }
 

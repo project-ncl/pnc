@@ -15,6 +15,7 @@ import org.jboss.pnc.rest.provider.BuildConfigurationProvider;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationRest;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -22,6 +23,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.lang.invoke.MethodHandles;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static com.jayway.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -44,6 +46,8 @@ public class BuildConfigurationRestTest {
     private static int projectId;
     private static int configurationId;
 
+    private static AtomicBoolean isInitialized = new AtomicBoolean();
+
     @Deployment(testable = false)
     public static EnterpriseArchive deploy() {
         EnterpriseArchive enterpriseArchive = Deployments.baseEar();
@@ -57,35 +61,24 @@ public class BuildConfigurationRestTest {
         return enterpriseArchive;
     }
 
-    @Test
-    @InSequence(-4)
-    public void prepareProductId() {
-        given().contentType(ContentType.JSON).port(getHttpPort()).when().get(PRODUCT_REST_ENDPOINT).then().statusCode(200)
-                .body(JsonMatcher.containsJsonAttribute("[0].id", value -> productId = Integer.valueOf(value)));
-    }
+    @Before
+    public void prepareData() {
+        if(!isInitialized.getAndSet(true)) {
+            given().contentType(ContentType.JSON).port(getHttpPort()).when().get(CONFIGURATION_REST_ENDPOINT).then()
+                    .statusCode(200)
+                    .body(JsonMatcher.containsJsonAttribute("[0].id", value -> configurationId = Integer.valueOf(value)));
 
-    @Test
-    @InSequence(-3)
-    public void prepareProductVersionId() {
-        given().contentType(ContentType.JSON).port(getHttpPort()).when()
-                .get(String.format(PRODUCT_VERSION_REST_ENDPOINT, productId)).then().statusCode(200)
-                .body(JsonMatcher.containsJsonAttribute("[0].id", value -> productVersionId = Integer.valueOf(value)));
-    }
+            given().contentType(ContentType.JSON).port(getHttpPort()).when().get(PRODUCT_REST_ENDPOINT).then().statusCode(200)
+                    .body(JsonMatcher.containsJsonAttribute("[0].id", value -> productId = Integer.valueOf(value)));
 
-    @Test
-    @InSequence(-2)
-    public void prepareProjectId() {
-        given().contentType(ContentType.JSON).port(getHttpPort()).when()
-                .get(String.format(PROJECT_PRODUCT_VERSION_REST_ENDPOINT, productId, productVersionId)).then().statusCode(200)
-                .body(JsonMatcher.containsJsonAttribute("[0].id", value -> projectId = Integer.valueOf(value)));
-    }
+            given().contentType(ContentType.JSON).port(getHttpPort()).when()
+                    .get(String.format(PRODUCT_VERSION_REST_ENDPOINT, productId)).then().statusCode(200)
+                    .body(JsonMatcher.containsJsonAttribute("[0].id", value -> productVersionId = Integer.valueOf(value)));
 
-    @Test
-    @InSequence(-1)
-    public void shouldGetAllBuildConfigurations() {
-        given().contentType(ContentType.JSON).port(getHttpPort()).when().get(CONFIGURATION_REST_ENDPOINT).then()
-                .statusCode(200)
-                .body(JsonMatcher.containsJsonAttribute("[0].id", value -> configurationId = Integer.valueOf(value)));
+            given().contentType(ContentType.JSON).port(getHttpPort()).when()
+                    .get(String.format(PROJECT_PRODUCT_VERSION_REST_ENDPOINT, productId, productVersionId)).then().statusCode(200)
+                    .body(JsonMatcher.containsJsonAttribute("[0].id", value -> projectId = Integer.valueOf(value)));
+        }
     }
 
     @Test
@@ -173,12 +166,12 @@ public class BuildConfigurationRestTest {
                 clonedBuildConfiguration.body().jsonPath().getString("repositories"));
     }
 
-//    @Test
-//    @InSequence(999)
-//    public void shouldDeleteProjectConfiguration() {
-//        given().contentType(ContentType.JSON).port(getHttpPort()).when()
-//                .delete(String.format(CONFIGURATION_SPECIFIC_REST_ENDPOINT, configurationId)).then().statusCode(200);
-//    }
+    @Test
+    @InSequence(999)
+    public void shouldDeleteProjectConfiguration() throws Exception {
+        given().contentType(ContentType.JSON).port(getHttpPort()).when()
+                .delete(String.format(CONFIGURATION_SPECIFIC_REST_ENDPOINT, configurationId)).then().statusCode(200);
+    }
 
     private String loadJsonFromFile(String resource) throws IOException {
         return IoUtils.readFileOrResource(resource, resource + ".json", getClass().getClassLoader());
