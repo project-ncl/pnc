@@ -3,89 +3,92 @@
 (function () {
   var module = angular.module('pnc.BuildConfig');
 
-  var baseUrl = '/pnc-web/rest';
+  var DEFAULT_BASE_URL = '/pnc-web/rest';
 
   module.factory('PncRestClient', ['$resource',
     function($resource) {
+
+      var baseUrl = DEFAULT_BASE_URL;
+
       return {
+        getBaseUrl: function() {
+          return baseUrl;
+        },
+        setBaseUrl: function(url) {
+          baseUrl = url;
+        },
+
         Product: $resource(baseUrl + '/product/:productId', {
-            productId: '@productId'
+            productId: '@id'
+        },{
+          update: {
+              method: 'PUT',
+          }
         }),
 
         Version: $resource(baseUrl + '/product/:productId/version/:versionId', {
-            productId: '@productId',
-            versionId: '@versionId'
+          versionId: '@id',
+          productId: '@productId'
+        },{
+          update: {
+            method: 'PUT',
+          }
         }),
 
         Project: $resource(baseUrl + '/project/:projectId', {
-            projectId: '@projectId',
-          },{
-            getForProductVersion: {
-              method: 'GET',
-              url: baseUrl +
-                '/project/product/:productId/version/:versionId',
-              isArray: true,
-              params: {
-                productId: '@productId',
-                versionId: '@versionId'
-              }
-            }
-          }),
-        
+          projectId: '@id'
+        },{
+          update: {
+            method: 'PUT',
+          },
+          getAllForProductVersion: {
+            method: 'GET',
+            url: baseUrl +
+              '/project/product/:productId/version/:versionId',
+            isArray: true,
+          }
+        }),
+
         Environment: $resource(baseUrl + '/environment/:environmentId', {
-            environmentId: '@environmentId'
+          environmentId: '@id'
+        },{
+          update: {
+            method: 'PUT',
+          }
         }),
 
         Configuration: $resource(baseUrl + '/configuration/:configurationId', {
-            configurationId: '@configurationId'
+            configurationId: '@id'
           },{
             update: {
-              method: 'PUT',
-              params: {
-                configurationId: '@id'
-              }
+              method: 'PUT'
             },
             clone: {
               method: 'POST',
               url: baseUrl + '/configuration/:configurationId/clone',
               isArray: false,
-              params: {
-                configurationId: '@id'
-              }
             },
             build: {
               method: 'POST',
               url: baseUrl + '/configuration/:configurationId/build',
               isArray: false,
-              params: {
-                configurationId: '@id'
-              }
             },
-            getForProject: {
+            getAllForProduct: {
+              method: 'GET',
+              url: baseUrl + '/configuration/product/:productId',
+              isArray: true,
+            },
+            getAllForProductVersion: {
+              method: 'GET',
+              url: baseUrl +
+                '/configuration/product/:productId/version/:versionId',
+              isArray: true,
+            },
+            getAllForProject: {
                method: 'GET',
                url: baseUrl + '/configuration/project/:projectId',
                isArray: true,
-               params: {
-                 projectId: '@projectId'
-               }
             },
-            getForProduct: {
-               method: 'GET',
-               url: baseUrl + '/configuration/product/:productId',
-               isArray: true,
-               params: {
-                 productId: '@productId'
-               }
-            },
-            getForProductVersion: {
-               method: 'GET',
-               url: baseUrl + '/configuration/product/:productId/version/:versionId',
-               isArray: true,
-               params: {
-                 productId: '@productId',
-                 versionId: '@versionId'
-               }
-            }
         })
       };
     }

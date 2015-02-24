@@ -37,7 +37,7 @@
     </thead>
     <tbody>
       <tr data-ng-repeat="item in pncItems" data-ng-class="{'active': isActive(item)}" data-ng-click="pncClick()(item)">
-        <td>{{ item[pncNameField] }}</td>
+        <td>{{ item[pncNameField] || 'Unamed ' + pncTitle }}</td>
       </tr>
     </tbody>
   </table>

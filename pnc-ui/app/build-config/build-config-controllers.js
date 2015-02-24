@@ -127,7 +127,7 @@
         },
         function() {
           console.log('projectCol.updateList >> versionCol = %O', versionCol);
-          return PncRestClient.Project.getForProductVersion({
+          return PncRestClient.Project.getAllForProductVersion({
             productId: versionCol.parent.selected.id,
             versionId: versionCol.selected.id,
           });
@@ -146,7 +146,7 @@
         },
         function() {
           console.log('configurationCol.updateList >> projectCol = %O', projectCol);
-          return PncRestClient.Configuration.getForProject({
+          return PncRestClient.Configuration.getAllForProject({
             projectId: projectCol.selected.id
           });
         },
@@ -240,7 +240,7 @@
       console.log('ConfigurationListController >> scope=%O, configurationList=%O', $scope, configurationList);
       $scope.configurations = configurationList;
       $scope.showConfiguration = function(configuration) {
-        $state.go('build-config.configuration.show', { 
+        $state.go('build-config.configuration.show', {
           configurationId: configuration.id
         });
       };
@@ -248,17 +248,17 @@
   ]);
 
   module.controller('ConfigurationShowController', [
-    '$scope', 
+    '$scope',
     '$stateParams',
     '$state',
     'PncRestClient',
     'projectDetails',
     'environmentDetails',
     'configurationDetails',
-    function($scope, $stateParams, $state, PncRestClient, projectDetails, 
-             environmentDetails, configurationDetails) {    
+    function($scope, $stateParams, $state, PncRestClient, projectDetails,
+             environmentDetails, configurationDetails) {
       $scope.project = projectDetails;
-      $scope.environment = environmentDetails;      
+      $scope.environment = environmentDetails;
       $scope.buildConfig = configurationDetails;
 
       if ($scope.columnBrowse) {
@@ -281,17 +281,17 @@
             error = 'error';
           }
         );
-        return error;      
+        return error;
       };
 
       $scope.cloneConfig = function() {
         configurationDetails.$clone().then(function() {
-          $state.go('build-config.product.show.version.show.project.show.' + 
+          $state.go('build-config.product.show.version.show.project.show.' +
                     'configuration.show');
         });
       };
 
-      
+
       var alertStates = { none: 0, success: 1, failure: 2 };
       var alert = alertStates.none;
 
@@ -314,8 +314,8 @@
     }
   ]);
 
-  module.controller('ConfigurationCreateController', 
-    ['$scope', '$state', 'PncRestClient', 'environments', 'projects', 
+  module.controller('ConfigurationCreateController',
+    ['$scope', '$state', 'PncRestClient', 'environments', 'projects',
       function($scope, $state, PncRestClient, environments, projects) {
         $scope.createConfigForm = {};
         $scope.createConfigForm.data = new PncRestClient.Configuration();
@@ -328,7 +328,7 @@
             function(result) {
               console.log('SUCCESS: %O', result);
               console.log('result.id='+result.id);
-              $state.go('build-config.configuration.show', { 
+              $state.go('build-config.configuration.show', {
                 configurationId: result.id
               });
             },
