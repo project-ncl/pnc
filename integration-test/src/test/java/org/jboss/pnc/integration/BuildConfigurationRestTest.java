@@ -27,7 +27,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import static com.jayway.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.jboss.pnc.integration.Utils.JsonUtils.toJson;
 import static org.jboss.pnc.integration.env.IntegrationTestEnv.getHttpPort;
 
 @RunWith(Arquillian.class)
@@ -106,12 +105,10 @@ public class BuildConfigurationRestTest {
 
     @Test
     public void shouldCreateNewBuildConfigurationWithCreateAndModifiedTime() throws IOException {
-        BuildConfigurationRest testedConfiguration = new BuildConfigurationRest();
-        testedConfiguration.setCreationTime(null);
-        testedConfiguration.setLastModificationTime(null);
-        testedConfiguration.setName("Empty Create and Modify time");
+        JsonTemplateBuilder configurationTemplate = JsonTemplateBuilder.fromResource("buildConfigurationWithEmptyCreateDate_template");
+        configurationTemplate.addValue("_environmentId", String.valueOf(environmentId));
 
-        Response response = given().body(toJson(testedConfiguration)).contentType(ContentType.JSON).port(getHttpPort()).when().post(CONFIGURATION_REST_ENDPOINT);
+        Response response = given().body(configurationTemplate.fillTemplate()).contentType(ContentType.JSON).port(getHttpPort()).when().post(CONFIGURATION_REST_ENDPOINT);
 
         ResponseAssertion.assertThat(response).hasStatus(201);
         ResponseAssertion.assertThat(response).hasJsonValueNotNullOrEmpty("creationTime").hasJsonValueNotNullOrEmpty("lastModificationTime");

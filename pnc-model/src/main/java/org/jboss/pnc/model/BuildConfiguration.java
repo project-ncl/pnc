@@ -49,10 +49,10 @@ public class BuildConfiguration implements Serializable, Cloneable {
     @ManyToOne(cascade = CascadeType.ALL)
     private ProductVersion productVersion;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH})
     private Project project;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.DETACH, CascadeType.REFRESH})
     private Environment environment;
 
     @ManyToOne(cascade = CascadeType.ALL)

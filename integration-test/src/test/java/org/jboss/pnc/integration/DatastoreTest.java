@@ -60,7 +60,7 @@ public class DatastoreTest {
 
         BuildConfiguration buildConfiguration = BuildConfigurationBuilder.newBuilder()
                 .buildScript("mvn clean deploy -Dmaven.test.skip").environment(EnvironmentBuilder.defaultEnvironment().build())
-                .id(1).name("DS_PROJECT_BUILD_CFG_ID").productVersion(productVersion).project(project)
+                .name("DS_PROJECT_BUILD_CFG_ID").productVersion(productVersion).project(project)
                 .scmRepoURL("https://github.com/ds-project-ncl/pnc.git").scmRevision("*/v0.2")
                 .description("Test build config for project newcastle").build();
 
@@ -72,7 +72,7 @@ public class DatastoreTest {
         projectRepository.save(project);
 
         // when
-        buildRecord = buildRecordRepository.save(buildRecord);
+        buildRecord = buildRecordRepository.saveAndFlush(buildRecord);
         List<BuildRecord> objectsInDb = buildRecordRepository.findAll();
 
         // then
