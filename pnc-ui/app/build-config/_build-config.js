@@ -3,9 +3,10 @@
 (function() {
 
   var module = angular.module('pnc.BuildConfig', [
-    'ui.router', 
+    'ui.router',
     'ngResource',
-    'xeditable'
+    'xeditable',
+    'pnc.components.confirmClick'
     ]);
 
   module.run(function(editableOptions) {

@@ -311,6 +311,19 @@
       $scope.configForm.setAlert = function(status) {
         alert = status;
       };
+
+      $scope.deleteConfig = function() {
+        $scope.buildConfig.$delete().then(
+          // Success
+          function (result) {
+            console.log('Successfully deteled: result=%O', result);
+          },
+          // Failure
+          function (response) {
+            console.log('Failed to delete: response=%O', response);
+          }
+        );
+      };
     }
   ]);
 
