@@ -27,6 +27,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import static com.jayway.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.jboss.pnc.integration.Utils.JsonUtils.toJson;
 import static org.jboss.pnc.integration.env.IntegrationTestEnv.getHttpPort;
 
 @RunWith(Arquillian.class)
@@ -66,7 +67,7 @@ public class BuildConfigurationRestTest {
 
     @Before
     public void prepareData() {
-        if(!isInitialized.getAndSet(true)) {
+        if (!isInitialized.getAndSet(true)) {
             given().contentType(ContentType.JSON).port(getHttpPort()).when().get(CONFIGURATION_REST_ENDPOINT).then()
                     .statusCode(200)
                     .body(JsonMatcher.containsJsonAttribute("[0].id", value -> configurationId = Integer.valueOf(value)));
@@ -102,6 +103,20 @@ public class BuildConfigurationRestTest {
         given().body(rawJson).contentType(ContentType.JSON).port(getHttpPort()).when().post(CONFIGURATION_REST_ENDPOINT).then()
                 .statusCode(201);
     }
+
+    @Test
+    public void shouldCreateNewBuildConfigurationWithCreateAndModifiedTime() throws IOException {
+        BuildConfigurationRest testedConfiguration = new BuildConfigurationRest();
+        testedConfiguration.setCreationTime(null);
+        testedConfiguration.setLastModificationTime(null);
+        testedConfiguration.setName("Empty Create and Modify time");
+
+        Response response = given().body(toJson(testedConfiguration)).contentType(ContentType.JSON).port(getHttpPort()).when().post(CONFIGURATION_REST_ENDPOINT);
+
+        ResponseAssertion.assertThat(response).hasStatus(201);
+        ResponseAssertion.assertThat(response).hasJsonValueNotNullOrEmpty("creationTime").hasJsonValueNotNullOrEmpty("lastModificationTime");
+    }
+
 
     @Test
     public void shouldUpdateBuildConfiguration() throws IOException {
