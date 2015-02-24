@@ -1,4 +1,4 @@
-package org.jboss.pnc.datastore;
+package org.jboss.pnc.datastore.predicates;
 
 import com.mysema.query.types.expr.BooleanExpression;
 import org.jboss.pnc.model.QProductVersion;

@@ -6,6 +6,7 @@ import org.assertj.core.api.AbstractAssert;
 import java.util.regex.Pattern;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 public class ResponseAssertion extends AbstractAssert<ResponseAssertion, Response> {
@@ -38,4 +39,9 @@ public class ResponseAssertion extends AbstractAssert<ResponseAssertion, Respons
         return this;
     }
 
+    public ResponseAssertion hasJsonValueNotNullOrEmpty(String jsonKey) {
+        String retrievedString = actual.body().jsonPath().getString(jsonKey);
+        assertFalse("Expected json node " + jsonKey + " not to be empty", retrievedString == null || retrievedString.isEmpty());
+        return this;
+    }
 }

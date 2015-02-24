@@ -12,8 +12,8 @@ import javax.inject.Inject;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.jboss.pnc.datastore.ProductVersionPredicates.withProductId;
-import static org.jboss.pnc.datastore.ProductVersionPredicates.withProductVersionId;
+import static org.jboss.pnc.datastore.predicates.ProductVersionPredicates.withProductId;
+import static org.jboss.pnc.datastore.predicates.ProductVersionPredicates.withProductVersionId;
 import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
 
 @Stateless

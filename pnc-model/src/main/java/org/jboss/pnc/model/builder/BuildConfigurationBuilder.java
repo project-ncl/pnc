@@ -164,8 +164,13 @@ public class BuildConfigurationBuilder {
         return this;
     }
 
+    /**
+     * Sets create time and ignores Null values (since they may affect the entity consistency).
+     */
     public BuildConfigurationBuilder creationTime(Timestamp creationTime) {
-        this.creationTime = creationTime;
+        if (creationTime != null) {
+            this.creationTime = creationTime;
+        }
         return this;
     }
 

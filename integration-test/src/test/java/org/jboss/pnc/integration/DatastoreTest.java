@@ -1,12 +1,5 @@
 package org.jboss.pnc.integration;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
-import java.lang.invoke.MethodHandles;
-import java.util.List;
-
-import javax.inject.Inject;
-
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.transaction.api.annotation.TransactionMode;
@@ -15,26 +8,20 @@ import org.jboss.pnc.datastore.repositories.BuildRecordRepository;
 import org.jboss.pnc.datastore.repositories.ProductRepository;
 import org.jboss.pnc.datastore.repositories.ProjectRepository;
 import org.jboss.pnc.integration.deployments.Deployments;
-import org.jboss.pnc.model.BuildConfiguration;
-import org.jboss.pnc.model.BuildDriverStatus;
-import org.jboss.pnc.model.BuildRecord;
-import org.jboss.pnc.model.Product;
-import org.jboss.pnc.model.ProductVersion;
-import org.jboss.pnc.model.ProductVersionProject;
-import org.jboss.pnc.model.Project;
-import org.jboss.pnc.model.builder.BuildConfigurationBuilder;
-import org.jboss.pnc.model.builder.BuildRecordBuilder;
-import org.jboss.pnc.model.builder.EnvironmentBuilder;
-import org.jboss.pnc.model.builder.ProductBuilder;
-import org.jboss.pnc.model.builder.ProductVersionBuilder;
-import org.jboss.pnc.model.builder.ProductVersionProjectBuilder;
-import org.jboss.pnc.model.builder.ProjectBuilder;
+import org.jboss.pnc.model.*;
+import org.jboss.pnc.model.builder.*;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.inject.Inject;
+import java.lang.invoke.MethodHandles;
+import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(Arquillian.class)
 @Transactional(TransactionMode.ROLLBACK)
@@ -71,8 +58,6 @@ public class DatastoreTest {
                 .projectUrl("https://github.com/ds-project-ncl/pnc")
                 .issueTrackerUrl("https://projects.engineering.redhat.com/browse/NCL").build();
 
-        ProductVersionProject productVersionProject = ProductVersionProjectBuilder.newBuilder().project(project)
-                .productVersion(productVersion).build();
         BuildConfiguration buildConfiguration = BuildConfigurationBuilder.newBuilder()
                 .buildScript("mvn clean deploy -Dmaven.test.skip").environment(EnvironmentBuilder.defaultEnvironment().build())
                 .id(1).name("DS_PROJECT_BUILD_CFG_ID").productVersion(productVersion).project(project)
@@ -85,7 +70,6 @@ public class DatastoreTest {
                 .description("DataStore Build record test").status(BuildDriverStatus.CANCELLED).build();
 
         projectRepository.save(project);
-        productRepository.save(product);
 
         // when
         buildRecord = buildRecordRepository.save(buildRecord);
