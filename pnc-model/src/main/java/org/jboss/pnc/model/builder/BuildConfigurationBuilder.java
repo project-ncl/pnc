@@ -66,6 +66,7 @@ public class BuildConfigurationBuilder {
     private BuildConfigurationBuilder() {
         dependencies = new HashSet<>();
         creationTime = Timestamp.from(Instant.now());
+        lastModificationTime = Timestamp.from(Instant.now());
     }
 
     public static BuildConfigurationBuilder newBuilder() {
@@ -73,7 +74,6 @@ public class BuildConfigurationBuilder {
     }
 
     public BuildConfiguration build() {
-
         BuildConfiguration buildConfiguration = new BuildConfiguration();
         buildConfiguration.setId(id);
         buildConfiguration.setName(name);
@@ -174,8 +174,13 @@ public class BuildConfigurationBuilder {
         return this;
     }
 
+    /**
+     * Sets last update time and ignores Null values (since they may affect the entity consistency).
+     */
     public BuildConfigurationBuilder lastModificationTime(Timestamp lastModificationTime) {
-        this.lastModificationTime = lastModificationTime;
+        if (lastModificationTime != null) {
+            this.lastModificationTime = lastModificationTime;
+        }
         return this;
     }
 

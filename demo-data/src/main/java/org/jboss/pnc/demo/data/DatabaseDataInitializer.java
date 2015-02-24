@@ -1,6 +1,10 @@
 package org.jboss.pnc.demo.data;
 
-import java.lang.invoke.MethodHandles;
+import com.google.common.base.Preconditions;
+import org.jboss.logging.Logger;
+import org.jboss.pnc.datastore.repositories.*;
+import org.jboss.pnc.model.*;
+import org.jboss.pnc.model.builder.*;
 
 import javax.annotation.PostConstruct;
 import javax.ejb.Singleton;
@@ -8,32 +12,7 @@ import javax.ejb.Startup;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
 import javax.inject.Inject;
-
-import org.jboss.logging.Logger;
-import org.jboss.pnc.datastore.repositories.BuildConfigurationRepository;
-import org.jboss.pnc.datastore.repositories.BuildRecordRepository;
-import org.jboss.pnc.datastore.repositories.ProductRepository;
-import org.jboss.pnc.datastore.repositories.ProductVersionProjectRepository;
-import org.jboss.pnc.datastore.repositories.ProductVersionRepository;
-import org.jboss.pnc.datastore.repositories.ProjectRepository;
-import org.jboss.pnc.datastore.repositories.UserRepository;
-import org.jboss.pnc.model.BuildConfiguration;
-import org.jboss.pnc.model.BuildRecord;
-import org.jboss.pnc.model.Product;
-import org.jboss.pnc.model.ProductVersion;
-import org.jboss.pnc.model.ProductVersionProject;
-import org.jboss.pnc.model.Project;
-import org.jboss.pnc.model.User;
-import org.jboss.pnc.model.builder.BuildConfigurationBuilder;
-import org.jboss.pnc.model.builder.BuildRecordBuilder;
-import org.jboss.pnc.model.builder.EnvironmentBuilder;
-import org.jboss.pnc.model.builder.ProductBuilder;
-import org.jboss.pnc.model.builder.ProductVersionBuilder;
-import org.jboss.pnc.model.builder.ProductVersionProjectBuilder;
-import org.jboss.pnc.model.builder.ProjectBuilder;
-import org.jboss.pnc.model.builder.UserBuilder;
-
-import com.google.common.base.Preconditions;
+import java.lang.invoke.MethodHandles;
 
 /**
  * Data for the DEMO.
@@ -69,6 +48,9 @@ public class DatabaseDataInitializer {
 
     @Inject
     BuildRecordRepository buildRecordRepository;
+
+    @Inject
+    EnvironmentRepository environmentRepository;
 
     @PostConstruct
     public void initialize() {
@@ -122,6 +104,9 @@ public class DatabaseDataInitializer {
         long numberOfProjectInDB = projectRepository.count();
         if (numberOfProjectInDB == 0) {
 
+            Environment environment1 = createAndPersistDefultEnvironment();
+            Environment environment2 = createAndPersistDefultEnvironment();
+
             /*
              * All the bi-directional mapping settings are managed inside the Builders
              */
@@ -137,33 +122,42 @@ public class DatabaseDataInitializer {
             // Needed to build correct mapping
             ProductVersionProject productVersionProject = ProductVersionProjectBuilder.newBuilder().project(project)
                     .productVersion(productVersion).build();
+
             BuildConfiguration buildConfiguration = BuildConfigurationBuilder.newBuilder()
                     .buildScript("mvn clean deploy -Dmaven.test.skip")
-                    .environment(EnvironmentBuilder.defaultEnvironment().build()).id(1).name(PNC_PROJECT_BUILD_CFG_ID)
+                    .environment(environment1).name(PNC_PROJECT_BUILD_CFG_ID)
                     .productVersion(productVersion).project(project).scmRepoURL("https://github.com/project-ncl/pnc.git")
                     .scmRevision("*/v0.2").description("Test build config for project newcastle").build();
+            buildConfiguration = buildConfigurationRepository.save(buildConfiguration);
 
             // Additional configurations
             BuildConfiguration buildConfiguration2 = BuildConfigurationBuilder.newBuilder()
                     .buildScript("mvn clean deploy -Dmaven.test.skip")
-                    .environment(EnvironmentBuilder.defaultEnvironment().build()).id(2).name("jboss-modules-1.5.0")
+                    .environment(environment2).name("jboss-modules-1.5.0")
                     .productVersion(productVersion).project(project)
                     .description("Test config for JBoss modules build master branch.")
                     .scmRepoURL("https://github.com/jboss-modules/jboss-modules.git").build();
+            buildConfiguration2 = buildConfigurationRepository.save(buildConfiguration2);
+
             BuildConfiguration buildConfiguration3 = BuildConfigurationBuilder.newBuilder()
                     .buildScript("mvn clean deploy -Dmaven.test.skip")
-                    .environment(EnvironmentBuilder.defaultEnvironment().build()).id(3).name("jboss-servlet-spec-api-1.0.1")
+                    .environment(environment1).name("jboss-servlet-spec-api-1.0.1")
                     .productVersion(productVersion).project(project)
                     .scmRepoURL("https://github.com/jboss/jboss-servlet-api_spec.git").dependency(buildConfiguration2)
                     .description("Test build for jboss java servlet api").build();
+            buildConfiguration3 = buildConfigurationRepository.save(buildConfiguration3);
 
             User demoUser = UserBuilder.newBuilder().username("demo-user").firstName("Demo First Name")
                     .lastName("Demo Last Name").email("demo-user@pnc.com").build();
 
-            BuildRecord buildRecord = BuildRecordBuilder.newBuilder().buildScript("mvn clean deploy -Dmaven.test.skip").id(1)
+            BuildRecord buildRecord = BuildRecordBuilder.newBuilder().buildScript("mvn clean deploy -Dmaven.test.skip")
                     .name(PNC_PROJECT_BUILD_CFG_ID).buildConfiguration(buildConfiguration3)
                     .scmRepoURL("https://github.com/project-ncl/pnc.git").scmRevision("*/v0.2")
                     .description("Build record test").build();
+
+            project.getBuildConfigurations().add(buildConfiguration);
+            project.getBuildConfigurations().add(buildConfiguration2);
+            project.getBuildConfigurations().add(buildConfiguration3);
 
             projectRepository.save(project);
             productRepository.save(product);
@@ -175,6 +169,11 @@ public class DatabaseDataInitializer {
         }
 
         logger.info("Finished initializing DEMO data");
+    }
+
+    private Environment createAndPersistDefultEnvironment() {
+        Environment environment = EnvironmentBuilder.defaultEnvironment().build();
+        return environmentRepository.save(environment);
     }
 
 }

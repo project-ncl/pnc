@@ -93,7 +93,7 @@ public class BuildConfigurationProvider extends BasePaginationProvider<BuildConf
         BuildConfiguration buildConfiguration = buildConfigurationRepository.findOne(buildConfigurationRest.getId());
         Preconditions.checkArgument(buildConfiguration != null, "Couldn't find buildConfiguration with id "
                 + buildConfigurationRest.getId());
-        buildConfiguration = buildConfigurationRepository.saveAndFlush(buildConfigurationRest.toBuildConfiguration(buildConfiguration));
+        buildConfiguration = buildConfigurationRepository.save(buildConfigurationRest.toBuildConfiguration(buildConfiguration));
         return buildConfiguration.getId();
     }
 

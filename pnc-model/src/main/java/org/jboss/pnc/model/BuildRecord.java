@@ -27,7 +27,7 @@ public class BuildRecord implements Serializable {
     @GeneratedValue
     private Integer id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private BuildConfiguration buildConfiguration;
 
     private String buildScript;
