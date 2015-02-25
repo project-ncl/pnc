@@ -51,7 +51,7 @@ public class DockerRunningEnvironment implements RunningEnvironment {
     /**
      * SSH port on which is container accessible
      * 
-     * @return
+     * @return Opened container SSH port
      */
     public int getSshPort() {
         return sshPort;
@@ -61,7 +61,6 @@ public class DockerRunningEnvironment implements RunningEnvironment {
     public void transferDataToEnvironment(String pathOnHost, InputStream stream)
             throws EnvironmentDriverException {
         dockerEnvDriver.copyFileToContainer(this.sshPort, pathOnHost, null, stream);
-
     }
 
     @Override

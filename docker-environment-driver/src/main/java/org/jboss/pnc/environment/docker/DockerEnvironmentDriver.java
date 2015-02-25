@@ -75,6 +75,18 @@ public class DockerEnvironmentDriver implements EnvironmentDriver {
     private RemoteApi dockerClient;
 
     /**
+     * States of creating Docker container
+     * 
+     * @author Jakub Bartecek <jbartece@redhat.com>
+     *
+     */
+    private enum BuildContainerState {
+        NOT_BUILT,
+        BUILT,
+        STARTED,
+    }
+
+    /**
      * Prepares connection to Docker daemon
      */
     @PostConstruct
@@ -100,37 +112,50 @@ public class DockerEnvironmentDriver implements EnvironmentDriver {
         int sshPort = generator.generateSshPort();
         String containerId = generator.generateContainerId();
 
+        BuildContainerState buildContainerState = BuildContainerState.NOT_BUILT;
         try {
             dockerClient.createContainer(
                     containerId,
                     Config.builder()
                             .imageId(IMAGE_ID)
                             .build());
+            buildContainerState = BuildContainerState.BUILT;
 
             dockerClient.startContainer(containerId,
                     HostConfig.builder()
                             .portBindings(createPortBinding(jenkinsPort, sshPort))
                             .build());
+            buildContainerState = BuildContainerState.STARTED;
 
             copyFileToContainer(sshPort, "/root/.m2/settings.xml",
                     configBuilder.createMavenConfig(dependencyUrl, deployUrl), null);
         } catch (RuntimeException e) {
+            // Creating container failed => clean up
+            if (buildContainerState != BuildContainerState.NOT_BUILT) {
+                if (buildContainerState == BuildContainerState.BUILT)
+                    destroyContainer(containerId, false);
+                else
+                    destroyEnvironment(containerId);
+            }
             throw new EnvironmentDriverException("Cannot create environment.", e);
+        } finally {
+
         }
 
-        logger.info("Created and started Docker container with ID: " + containerId);
+        logger.info("Created and started Docker container. ID: " + containerId 
+                + ", SSH port: " + sshPort + ", Jenkins Port: " + jenkinsPort);
         return new DockerRunningEnvironment(this, containerId, jenkinsPort, sshPort);
     }
 
     @Override
     public boolean canBuildEnvironment(Environment environment) {
-        if (environment.getBuildType() == BuildType.DOCKER ||
+        if (environment.getBuildType() == BuildType.DOCKER &&
                 environment.getOperationalSystem() == OperationalSystem.LINUX)
             return true;
         else
             return false;
     }
-    
+
     /**
      * Destroys running container
      * 
@@ -138,8 +163,20 @@ public class DockerEnvironmentDriver implements EnvironmentDriver {
      * @throws EnvironmentDriverException Thrown if any error occurs during destroying running environment
      */
     public void destroyEnvironment(String containerId) throws EnvironmentDriverException {
+        destroyContainer(containerId, true);
+    }
+
+    /**
+     * Destroys container
+     * 
+     * @param containerId ID of container
+     * @param isRunning True if the container is running
+     * @throws EnvironmentDriverException Thrown if any error occurs during destroying running environment
+     */
+    private void destroyContainer(String containerId, boolean isRunning) throws EnvironmentDriverException {
         try {
-            dockerClient.stopContainer(containerId);
+            if (isRunning)
+                dockerClient.stopContainer(containerId);
             dockerClient.removeContainer(containerId);
         } catch (RuntimeException e) {
             throw new EnvironmentDriverException("Cannot destroy environment.", e);
