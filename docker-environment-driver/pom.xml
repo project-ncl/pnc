@@ -40,12 +40,18 @@
 				<version>${jboss.version}</version>
 				<scope>test</scope>
 			</dependency>
-			<dependency><!-- This must go *BEFORE* the Arquillian BOM. -->
+			<dependency>
 				<groupId>org.jboss.shrinkwrap.resolver</groupId>
 				<artifactId>shrinkwrap-resolver-bom</artifactId>
 				<version>2.1.1</version>
 				<scope>import</scope>
 				<type>pom</type>
+			</dependency>
+
+			<dependency>
+				<groupId>org.jboss.resteasy</groupId>
+				<artifactId>resteasy-jaxrs</artifactId>
+				<version>2.3.5.Final</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
@@ -174,6 +180,13 @@
 			<artifactId>shrinkwrap-resolver-impl-maven-archive</artifactId>
 			<scope>test</scope>
 		</dependency>
+
+		<dependency>
+			<groupId>org.jboss.resteasy</groupId>
+			<artifactId>resteasy-jaxrs</artifactId>
+			<scope>test</scope>
+		</dependency>
+
 		<!-- /Test dependencies -->
 
 		<!-- Test coverage -->
