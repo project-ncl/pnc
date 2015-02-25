@@ -317,6 +317,7 @@
           // Success
           function (result) {
             console.log('Successfully deteled: result=%O', result);
+            $state.go('build-config.configuration');
           },
           // Failure
           function (response) {
