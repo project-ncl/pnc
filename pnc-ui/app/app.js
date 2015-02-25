@@ -1,7 +1,7 @@
 'use strict';
 
 (function() {
-  var app = angular.module('pncui', [
+  var app = angular.module('pnc', [
     'ngResource',
     'ui.router',
     'pnc.Dashboard',

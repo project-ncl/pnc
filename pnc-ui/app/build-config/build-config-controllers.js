@@ -4,11 +4,11 @@
 
   var module = angular.module('pnc.BuildConfig');
 
-  module.controller('BuildConfigController',
-    ['$scope', '$state', 'PncRestClient',
+  module.controller('BuildConfigController', [
+    '$scope', '$state', 'PncRestClient',
     function($scope, $state, PncRestClient) {
 
-      // TODO: Refactor into service.
+      // TODO: Refactor methods into a service.
 
       /* Creates new column object for use with the column-browse-column
        * directive the column browse UI element directive. The object will
@@ -167,15 +167,17 @@
     }
   ]);
 
-  module.controller('ProductListController',
-    ['$scope','productList',
+  module.controller('ProductListController', [
+    '$scope','productList',
     function($scope, productList) {
-      console.log('ProductListController >> scope=%O, productList=%O', $scope, productList);
+      console.log('ProductListController >> scope=%O, productList=%O', 
+                  $scope, productList);
       $scope.products = productList;
     }
   ]);
 
-  module.controller('ProductShowController', ['$scope', '$stateParams', 'productDetails',
+  module.controller('ProductShowController', [
+    '$scope', '$stateParams', 'productDetails',
     function ($scope, $stateParams, productDetails) {
       console.log('ProductShowController::productDetails=%O', productDetails);
       $scope.product = productDetails;
@@ -183,8 +185,8 @@
     }
   ]);
 
-  module.controller('VersionListController',
-    ['$scope', '$stateParams', 'versionList',
+  module.controller('VersionListController', [
+    '$scope', '$stateParams', 'versionList',
     function ($scope, $stateParams, versionList) {
       console.log('VersionListController::versionList=%O', versionList);
       console.log('VersionListController::$stateParams=%O', $stateParams);
@@ -192,8 +194,8 @@
     }
   ]);
 
-  module.controller('VersionShowController',
-    ['$scope', '$stateParams', '$state', 'productDetails', 'versionDetails',
+  module.controller('VersionShowController', [
+    '$scope', '$stateParams', '$state', 'productDetails', 'versionDetails',
     function ($scope, $stateParams, $state, productDetails, versionDetails) {
       console.log('VersionController::versionDetails=%O', versionDetails);
       console.log('VersionController::$stateParams=%O', $stateParams);
@@ -206,8 +208,8 @@
     }
   ]);
 
-  module.controller('ProjectListController',
-    ['$scope', '$stateParams', 'projectList',
+  module.controller('ProjectListController', [
+    '$scope', '$stateParams', 'projectList',
     function ($scope, $stateParams, projectList) {
       console.log('ProjectListController::versionList=%O', projectList);
       console.log('ProjectListController::$stateParams=%O', $stateParams);
@@ -215,14 +217,11 @@
     }
   ]);
 
-  module.controller('ProjectShowController',
-    ['$scope',
-    '$stateParams',
-    '$state',
-    'projectDetails',
-    'versionDetails',
+  module.controller('ProjectShowController', [
+    '$scope', '$stateParams', '$state', 'projectDetails', 'versionDetails',
     'productDetails',
-    function($scope, $stateParams, $state, projectDetails, versionDetails, productDetails) {
+    function($scope, $stateParams, $state, projectDetails, versionDetails, 
+             productDetails) {
 
       $scope.project = projectDetails;
       $scope.version = versionDetails;
@@ -234,10 +233,11 @@
     }
   ]);
 
-  module.controller('ConfigurationListController',
-    ['$scope', '$state', 'configurationList',
+  module.controller('ConfigurationListController', [
+    '$scope', '$state', 'configurationList',
     function($scope, $state, configurationList) {
-      console.log('ConfigurationListController >> scope=%O, configurationList=%O', $scope, configurationList);
+      console.log('ConfigurationListController >> scope=%O, configurationList=%O', 
+                  $scope, configurationList);
       $scope.configurations = configurationList;
       $scope.showConfiguration = function(configuration) {
         $state.go('build-config.configuration.show', {
@@ -248,13 +248,8 @@
   ]);
 
   module.controller('ConfigurationShowController', [
-    '$scope',
-    '$stateParams',
-    '$state',
-    'PncRestClient',
-    'projectDetails',
-    'environmentDetails',
-    'configurationDetails',
+    '$scope', '$stateParams', '$state', 'PncRestClient', 'projectDetails',
+    'environmentDetails', 'configurationDetails',
     function($scope, $stateParams, $state, PncRestClient, projectDetails,
              environmentDetails, configurationDetails) {
       $scope.project = projectDetails;
@@ -328,30 +323,30 @@
     }
   ]);
 
-  module.controller('ConfigurationCreateController',
-    ['$scope', '$state', 'PncRestClient', 'environments', 'projects',
-      function($scope, $state, PncRestClient, environments, projects) {
-        $scope.createConfigForm = {};
-        $scope.createConfigForm.data = new PncRestClient.Configuration();
-        $scope.createConfigForm.environments = environments;
-        $scope.createConfigForm.projects = projects;
+  module.controller('ConfigurationCreateController', [
+    '$scope', '$state', 'PncRestClient', 'environments', 'projects',
+    function($scope, $state, PncRestClient, environments, projects) {
+      $scope.createConfigForm = {};
+      $scope.createConfigForm.data = new PncRestClient.Configuration();
+      $scope.createConfigForm.environments = environments;
+      $scope.createConfigForm.projects = projects;
 
-        $scope.createConfigForm.submit = function() {
-          console.log('FORM SUBMITTED: %O', $scope.createConfigForm.data);
-          $scope.createConfigForm.data.$save().then(
-            function(result) {
-              console.log('SUCCESS: %O', result);
-              console.log('result.id='+result.id);
-              $state.go('build-config.configuration.show', {
-                configurationId: result.id
-              });
-            },
-            function(response) {
-              console.log('ERROR: response: %O', response);
-            }
-          );
-        };
-      }
-    ]
-  );
+      $scope.createConfigForm.submit = function() {
+        console.log('FORM SUBMITTED: %O', $scope.createConfigForm.data);
+        $scope.createConfigForm.data.$save().then(
+          function(result) {
+            console.log('SUCCESS: %O', result);
+            console.log('result.id='+result.id);
+            $state.go('build-config.configuration.show', {
+              configurationId: result.id
+            });
+          },
+          function(response) {
+            console.log('ERROR: response: %O', response);
+          }
+        );
+      };
+    }
+  ]);
+
 })();
