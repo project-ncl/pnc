@@ -2,7 +2,8 @@
 
 (function() {
 
-  var module = angular.module('pnc.Dashboard', ['ui.router']);
+  var module = angular.module('pnc.Dashboard', [
+    'ui.router', 'patternfly.notification']);
 
   module.config(['$stateProvider', function($stateProvider) {
     $stateProvider.state('dashboard', {

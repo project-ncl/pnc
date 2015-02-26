@@ -47,6 +47,15 @@
     <script src="app.js"></script>
     <!-- include: "type": "js", "files": ["**/*.js", "!app.js"] -->
     <!-- endbuild -->
+
+  <style>
+    .notification-area {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      width: 30rem;
+    }
+  </style>
   </head>
   <body>
     <nav class="navbar navbar-default navbar-pf" role="navigation">
@@ -96,6 +105,7 @@
         </ul>
       </div>
     </nav>
+    <div class="notification-area"><pf-notification-list></pf-notification-list></div>
     <div class="container-fluid" data-ui-view="content"></div>
 
   </body>

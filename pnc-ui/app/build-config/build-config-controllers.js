@@ -170,7 +170,7 @@
   module.controller('ProductListController', [
     '$scope','productList',
     function($scope, productList) {
-      console.log('ProductListController >> scope=%O, productList=%O', 
+      console.log('ProductListController >> scope=%O, productList=%O',
                   $scope, productList);
       $scope.products = productList;
     }
@@ -220,7 +220,7 @@
   module.controller('ProjectShowController', [
     '$scope', '$stateParams', '$state', 'projectDetails', 'versionDetails',
     'productDetails',
-    function($scope, $stateParams, $state, projectDetails, versionDetails, 
+    function($scope, $stateParams, $state, projectDetails, versionDetails,
              productDetails) {
 
       $scope.project = projectDetails;
@@ -236,7 +236,7 @@
   module.controller('ConfigurationListController', [
     '$scope', '$state', 'configurationList',
     function($scope, $state, configurationList) {
-      console.log('ConfigurationListController >> scope=%O, configurationList=%O', 
+      console.log('ConfigurationListController >> scope=%O, configurationList=%O',
                   $scope, configurationList);
       $scope.configurations = configurationList;
       $scope.showConfiguration = function(configuration) {
@@ -248,10 +248,12 @@
   ]);
 
   module.controller('ConfigurationShowController', [
-    '$scope', '$stateParams', '$state', 'PncRestClient', 'projectDetails',
-    'environmentDetails', 'configurationDetails',
-    function($scope, $stateParams, $state, PncRestClient, projectDetails,
-             environmentDetails, configurationDetails) {
+    '$scope', '$stateParams', '$state', '$log', 'PncRestClient',
+    'Notifications', 'projectDetails', 'environmentDetails',
+    'configurationDetails',
+    function($scope, $stateParams, $state, $log, PncRestClient, Notifications,
+             projectDetails, environmentDetails, configurationDetails) {
+
       $scope.project = projectDetails;
       $scope.environment = environmentDetails;
       $scope.buildConfig = configurationDetails;
@@ -261,62 +263,42 @@
       }
 
       $scope.updateConfiguration = function() {
-        console.log('form update: %O', $scope.buildConfig);
-        var error;
+        $log.debug('ConfigurationShowController.updateConfiguration ' +
+                   '$scope: %O', $scope);
+
         $scope.buildConfig.$update().then(
-          // Success
           function(result) {
-            console.log(result);
-            $scope.configForm.setAlert(alertStates.success);
+            Notifications.success('Configuration updated.');
           },
-          // Failure
           function(response) {
-            console.log(response);
-            $scope.configForm.setAlert(alertStates.failure);
-            error = 'error';
+            $log.error('Update configuration: ' + $scope.buildConfig.name +
+                       ' failed, response: %O', response);
+            Notifications.error('Unable to reach server.');
           }
         );
-        return error;
       };
 
       $scope.cloneConfig = function() {
         configurationDetails.$clone().then(function() {
+          Notifications.success('Configuration cloned.');
           $state.go('build-config.product.show.version.show.project.show.' +
                     'configuration.show');
+        },
+        function(response) {
+          Notifications.error('Unable to reach server');
         });
-      };
-
-
-      var alertStates = { none: 0, success: 1, failure: 2 };
-      var alert = alertStates.none;
-
-      $scope.configForm = {};
-      $scope.configForm.cancelAlert = function() {
-        alert = alertStates.none;
-      };
-      $scope.configForm.hasAlert = function() {
-        return alert !== alertStates.none;
-      };
-      $scope.configForm.showFailure = function() {
-        return alert === alertStates.failure;
-      };
-      $scope.configForm.showSuccess = function() {
-        return alert === alertStates.success;
-      };
-      $scope.configForm.setAlert = function(status) {
-        alert = status;
       };
 
       $scope.deleteConfig = function() {
         $scope.buildConfig.$delete().then(
           // Success
           function (result) {
-            console.log('Successfully deteled: result=%O', result);
+            Notifications.success('Configuration Deleted');
             $state.go('build-config.configuration');
           },
           // Failure
           function (response) {
-            console.log('Failed to delete: response=%O', response);
+            Notifications.error('Unable to reach server');
           }
         );
       };
@@ -324,25 +306,25 @@
   ]);
 
   module.controller('ConfigurationCreateController', [
-    '$scope', '$state', 'PncRestClient', 'environments', 'projects',
-    function($scope, $state, PncRestClient, environments, projects) {
+    '$scope', '$state', 'PncRestClient', 'Notifications', 'environments',
+    'projects',
+    function($scope, $state, PncRestClient, Notifications, environments,
+             projects) {
       $scope.createConfigForm = {};
       $scope.createConfigForm.data = new PncRestClient.Configuration();
       $scope.createConfigForm.environments = environments;
       $scope.createConfigForm.projects = projects;
 
       $scope.createConfigForm.submit = function() {
-        console.log('FORM SUBMITTED: %O', $scope.createConfigForm.data);
         $scope.createConfigForm.data.$save().then(
           function(result) {
-            console.log('SUCCESS: %O', result);
-            console.log('result.id='+result.id);
+            Notifications.success('Configuration created');
             $state.go('build-config.configuration.show', {
               configurationId: result.id
             });
           },
           function(response) {
-            console.log('ERROR: response: %O', response);
+            Notifications.error('Unable to reach server');
           }
         );
       };

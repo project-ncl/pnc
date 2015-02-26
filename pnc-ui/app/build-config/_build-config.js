@@ -6,8 +6,9 @@
     'ui.router',
     'ngResource',
     'xeditable',
-    'pnc.util.confirmClick'
-    ]);
+    'patternfly.notification',
+    'pnc.util.confirmClick',
+  ]);
 
   module.run(function(editableOptions) {
     editableOptions.theme = 'default';
@@ -65,12 +66,12 @@
           return restClient.Configuration.get({
             configurationId: $stateParams.configurationId }).$promise;
         },
-        environmentDetails: function(restClient, $stateParams, 
+        environmentDetails: function(restClient, $stateParams,
                                      configurationDetails) {
           return restClient.Environment.get({
             environmentId: configurationDetails.environmentId  }).$promise;
         },
-        projectDetails: function(restClient, $stateParams, 
+        projectDetails: function(restClient, $stateParams,
                                  configurationDetails) {
           return restClient.Project.get({
             projectId: configurationDetails.projectId }).$promise;
@@ -183,7 +184,7 @@
             return restClient.Configuration.get({
               configurationId: $stateParams.configurationId }).$promise;
           },
-          environmentDetails: function(restClient, $stateParams, 
+          environmentDetails: function(restClient, $stateParams,
                                        configurationDetails) {
             return restClient.Environment.get({
               environmentId: configurationDetails.environmentId  }).$promise;
@@ -199,5 +200,3 @@
   }]);
 
 })();
-
-
