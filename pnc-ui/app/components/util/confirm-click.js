@@ -2,10 +2,10 @@
 
 (function() {
 
-  var module = angular.module('pnc.util.confirmClick');
+  var module = angular.module('pnc.util.confirmClick', []);
 
   /**
-   * @ngdoc directive 
+   * @ngdoc directive
    * @name pnc.util:pncConfirmClick
    * @author Alex Creasy
    * @restrict A
@@ -20,7 +20,7 @@
    * confirms the supplied function will be called.
    * @example
    * <button pnc-confirm-click="deleteAllTheThings()" pnc-confirm-message="Are
-   * you sure you want to delete all the things?">Delete All The Things</button> 
+   * you sure you want to delete all the things?">Delete All The Things</button>
    */
   module.directive('pncConfirmClick', function () {
     var DEFAULT_MESSAGE = "Are you sure?";
