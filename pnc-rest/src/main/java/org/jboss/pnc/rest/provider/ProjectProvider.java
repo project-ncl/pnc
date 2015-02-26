@@ -11,8 +11,6 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static org.jboss.pnc.datastore.predicates.ProjectPredicates.withProductId;
-import static org.jboss.pnc.datastore.predicates.ProjectPredicates.withProductVersionId;
 import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
 
 @Stateless
@@ -49,9 +47,8 @@ public class ProjectProvider extends BasePaginationProvider<ProjectRest, Project
         }
     }
 
-    public List<ProjectRest> getAll(Integer productId, Integer productVersionId, String field, String sorting, String rsql) {
-        Iterable<Project> project = projectRepository.findAll(withProductVersionId(productVersionId).and(
-                withProductId(productId)));
+    public List<ProjectRest> getAll(String field, String sorting, String rsql) {
+        Iterable<Project> project = projectRepository.findAll();
         return nullableStreamOf(project).map(productVersion -> new ProjectRest(productVersion)).collect(Collectors.toList());
     }
 
@@ -74,10 +71,6 @@ public class ProjectProvider extends BasePaginationProvider<ProjectRest, Project
         Preconditions.checkArgument(project != null, "Couldn't find project with id " + projectRest.getId());
         project = projectRepository.save(projectRest.toProject());
         return project.getId();
-    }
-
-    public List<ProjectRest> getAllForProductAndProductVersion(Integer productId, Integer versionId) {
-        return mapToListOfProjectRest(projectRepository.findAll(withProductId(productId).and(withProductVersionId(versionId))));
     }
 
     private List<ProjectRest> mapToListOfProjectRest(Iterable<Project> entries) {

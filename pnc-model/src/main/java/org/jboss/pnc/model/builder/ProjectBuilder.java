@@ -21,7 +21,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.jboss.pnc.model.License;
-import org.jboss.pnc.model.ProductVersionProject;
+import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.Project;
 import org.jboss.pnc.model.BuildConfiguration;
 
@@ -43,12 +43,9 @@ public class ProjectBuilder {
 
     private License license;
 
-    private Set<ProductVersionProject> productVersionProjects;
-
     private Set<BuildConfiguration> buildConfigurations;
 
     private ProjectBuilder() {
-        productVersionProjects = new HashSet<>();
         buildConfigurations = new HashSet<>();
     }
 
@@ -65,12 +62,6 @@ public class ProjectBuilder {
         project.setIssueTrackerUrl(issueTrackerUrl);
         project.setProjectUrl(projectUrl);
         project.setLicense(license);
-
-        // Set the bi-directional mapping
-        for (ProductVersionProject productVersionProject : productVersionProjects) {
-            productVersionProject.setProject(project);
-        }
-        project.setProductVersionProjects(productVersionProjects);
 
         // Set the bi-directional mapping
         for (BuildConfiguration buildConfiguration : buildConfigurations) {
@@ -111,18 +102,8 @@ public class ProjectBuilder {
         return this;
     }
 
-    public ProjectBuilder productVersionProject(ProductVersionProject productVersionProject) {
-        this.productVersionProjects.add(productVersionProject);
-        return this;
-    }
-
     public ProjectBuilder buildConfiguration(BuildConfiguration buildConfiguration) {
         this.buildConfigurations.add(buildConfiguration);
-        return this;
-    }
-
-    public ProjectBuilder productVersionProjects(Set<ProductVersionProject> productVersionProjects) {
-        this.productVersionProjects = productVersionProjects;
         return this;
     }
 
@@ -153,10 +134,6 @@ public class ProjectBuilder {
 
     public License getLicense() {
         return license;
-    }
-
-    public Set<ProductVersionProject> getProductVersionProjects() {
-        return productVersionProjects;
     }
 
     public Set<BuildConfiguration> getBuildConfigurations() {

@@ -38,9 +38,6 @@ public class Project implements Serializable {
     @ManyToOne
     private License license;
 
-    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL)
-    private Set<ProductVersionProject> productVersionProjects;
-
     @XmlTransient
     @OneToMany(mappedBy = "project")
     private Set<BuildConfiguration> buildConfigurations;
@@ -49,7 +46,6 @@ public class Project implements Serializable {
      * Instantiates a new project.
      */
     public Project() {
-        productVersionProjects = new HashSet<>();
         buildConfigurations = new HashSet<>();
     }
 
@@ -149,44 +145,6 @@ public class Project implements Serializable {
      */
     public void setBuildConfigurations(Set<BuildConfiguration> buildConfigurations) {
         this.buildConfigurations = buildConfigurations;
-    }
-
-    /**
-     * @return the productVersionProjects
-     */
-    public Set<ProductVersionProject> getProductVersionProjects() {
-        return productVersionProjects;
-    }
-
-    /**
-     * @param productVersionProjects the productVersionProjects to set
-     */
-    public void setProductVersionProjects(Set<ProductVersionProject> productVersionProjects) {
-        this.productVersionProjects = productVersionProjects;
-    }
-
-    /**
-     * Add a productVersionProject to the set of productVersionProjects
-     *
-     * @param productVersionProject
-     * @return
-     */
-    public Set<ProductVersionProject> addProductVersionProject(ProductVersionProject productVersionProject) {
-        productVersionProjects.add(productVersionProject);
-
-        return productVersionProjects;
-    }
-
-    /**
-     * Remove a productVersionProject from the set of productVersionProjects
-     *
-     * @param productVersionProject
-     * @return
-     */
-    public Set<ProductVersionProject> removeProductVersionProject(ProductVersionProject productVersionProject) {
-        productVersionProjects.remove(productVersionProject);
-
-        return productVersionProjects;
     }
 
     /**
