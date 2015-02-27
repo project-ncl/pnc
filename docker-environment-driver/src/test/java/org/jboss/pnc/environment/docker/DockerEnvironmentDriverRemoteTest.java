@@ -14,6 +14,9 @@ import javax.ws.rs.core.MediaType;
 
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
+import org.jboss.pnc.common.Configuration;
+import org.jboss.pnc.common.json.ConfigurationParseException;
+import org.jboss.pnc.common.json.moduleconfig.DockerEnvironmentDriverModuleConfig;
 import org.jboss.pnc.model.BuildType;
 import org.jboss.pnc.model.Environment;
 import org.jboss.pnc.model.OperationalSystem;
@@ -25,6 +28,7 @@ import org.jboss.shrinkwrap.api.asset.EmptyAsset;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.jboss.shrinkwrap.resolver.api.maven.Maven;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -39,16 +43,21 @@ public class DockerEnvironmentDriverRemoteTest {
 
     private static final Logger log = Logger.getLogger(DockerEnvironmentDriverRemoteTest.class.getName());
 
+    private final String APROX_DEPENDENCY_URL = "AProx dependency URL";
+
+    private final String APROX_DEPLOY_URL = "AProx deploy URL";
+
     @Inject
     private DockerEnvironmentDriver dockerEnvDriver;
 
-    private final String DOCKER_IP = "10.3.8.102";
+    @Inject
+    private Configuration<DockerEnvironmentDriverModuleConfig> configurationService;
 
-    private final String DOCKER_CONTROL_ENDPOINT = "http://10.3.8.102:2375";
+    private String dockerIp;
 
-    private final String APROX_DEPENDENCY_URL = "AProx deoendency URL";
+    private String dockerControlEndpoint;
 
-    private final String APROX_DEPLOY_URL = "AProx deploy URL";
+    private boolean isInitialized = false;
 
     @Deployment
     public static WebArchive createDeployment() {
@@ -56,6 +65,7 @@ public class DockerEnvironmentDriverRemoteTest {
                 .create(WebArchive.class)
                 .addAsManifestResource(EmptyAsset.INSTANCE, "beans.xml")
                 .addAsResource("jenkins-maven-config.xml")
+                .addAsResource("pnc-config.json")
                 .addPackages(true, DockerEnvironmentDriver.class.getPackage());
 
         JavaArchive[] libs = Maven.configureResolver()
@@ -70,6 +80,17 @@ public class DockerEnvironmentDriverRemoteTest {
 
         log.info("Deployment: " + testedEjb.toString(true));
         return testedEjb;
+    }
+
+    @Before
+    public void init() throws ConfigurationParseException {
+        if (!isInitialized) {
+            DockerEnvironmentDriverModuleConfig config =
+                    configurationService.getModuleConfig(DockerEnvironmentDriverModuleConfig.class);
+            dockerIp = config.getIp();
+            dockerControlEndpoint = "http://" + dockerIp + ":2375";
+            isInitialized = true;
+        }
     }
 
     @Test
@@ -128,7 +149,7 @@ public class DockerEnvironmentDriverRemoteTest {
         String pathToFile = "/tmp/testFile-" + UUID.randomUUID().toString() + ".txt";
 
         // Get content of container's file system
-        String fsContentOld = processGetRequest(DOCKER_CONTROL_ENDPOINT + "/containers/"
+        String fsContentOld = processGetRequest(dockerControlEndpoint + "/containers/"
                 + runningEnv.getId() + "/changes");
         fsContentOld.contains(pathToFile);
 
@@ -140,7 +161,7 @@ public class DockerEnvironmentDriverRemoteTest {
         }
 
         // Get content of container's file system
-        String fsContentNew = processGetRequest(DOCKER_CONTROL_ENDPOINT + "/containers/"
+        String fsContentNew = processGetRequest(dockerControlEndpoint + "/containers/"
                 + runningEnv.getId() + "/changes");
         assertTrue("File was not coppied to the container.", fsContentNew.contains(pathToFile));
 
@@ -161,7 +182,7 @@ public class DockerEnvironmentDriverRemoteTest {
 
         // Test if the container is running
         try {
-            testResponseHttpCode(200, DOCKER_CONTROL_ENDPOINT + "/containers/" + containerId + "/json");
+            testResponseHttpCode(200, dockerControlEndpoint + "/containers/" + containerId + "/json");
             assertEquals(baseErrorMsg + " Container is running", shouldBeRunning, true);
         } catch (Exception e) {
             assertEquals(baseErrorMsg + " Container is not running", shouldBeRunning, false);
@@ -181,7 +202,7 @@ public class DockerEnvironmentDriverRemoteTest {
      */
     private boolean testOpenedPort(int port) {
         try {
-            Socket echoSocket = new Socket(DOCKER_IP, port);
+            Socket echoSocket = new Socket(dockerIp, port);
             echoSocket.close();
         } catch (IOException e) {
             return false;

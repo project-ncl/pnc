@@ -12,6 +12,9 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.ws.rs.core.MediaType;
 
+import org.jboss.pnc.common.Configuration;
+import org.jboss.pnc.common.json.ConfigurationParseException;
+import org.jboss.pnc.common.json.moduleconfig.DockerEnvironmentDriverModuleConfig;
 import org.jboss.pnc.model.BuildType;
 import org.jboss.pnc.model.Environment;
 import org.jboss.pnc.model.OperationalSystem;
@@ -56,15 +59,6 @@ public class DockerEnvironmentDriver implements EnvironmentDriver {
     private static final Logger logger =
             Logger.getLogger(MethodHandles.lookup().lookupClass().getName());
 
-    /** User in running environment to which we can connect with SSH */
-    private static final String CONTAINER_USER = "root";
-
-    /** Password of user to which we can connect with SSH */
-    private static final String CONTAINER_PSSWD = "changeme";
-
-    /** Connection URL to Docker control port */
-    private static final String DOCKER_ENDPOINT = "http://10.3.8.102:2375";
-
     /** ID of docker image */
     private static final String IMAGE_ID = "jbartece/isshd-jenkins";
 
@@ -74,9 +68,23 @@ public class DockerEnvironmentDriver implements EnvironmentDriver {
     @Inject
     private ConfigurationBuilder configBuilder;
 
+    @Inject
+    private Configuration<DockerEnvironmentDriverModuleConfig> configurationService;
+
     private ComputeServiceContext dockerContext;
 
     private RemoteApi dockerClient;
+
+    /** User in running environment to which we can connect with SSH */
+    private String containerUser;
+
+    /** Password of user to which we can connect with SSH */
+    private String containerUserPsswd;
+
+    /** Connection URL to Docker control port */
+    private String dockerEndpoint;
+
+    private String dockerIp;
 
     /**
      * States of creating Docker container
@@ -92,12 +100,22 @@ public class DockerEnvironmentDriver implements EnvironmentDriver {
 
     /**
      * Prepares connection to Docker daemon
+     * 
+     * @throws ConfigurationParseException Thrown if configuration cannot be obtained
      */
     @PostConstruct
-    private void init() {
+    private void init() throws ConfigurationParseException {
+        DockerEnvironmentDriverModuleConfig config =
+                configurationService.getModuleConfig(DockerEnvironmentDriverModuleConfig.class);
+
+        dockerIp = config.getIp();
+        dockerEndpoint = "http://" + dockerIp + ":2375";
+        containerUser = config.getInContainerUser();
+        containerUserPsswd = config.getInContainerUserPassword();
+
         dockerContext = ContextBuilder.newBuilder("docker")
-                .endpoint(DOCKER_ENDPOINT)
-                .credentials(CONTAINER_USER, CONTAINER_PSSWD)
+                .endpoint(dockerEndpoint)
+                .credentials(containerUser, containerUserPsswd)
                 .modules(ImmutableSet.<Module> of(new SLF4JLoggingModule(),
                         new SshjSshClientModule()))
                 .buildView(ComputeServiceContext.class);
@@ -130,11 +148,11 @@ public class DockerEnvironmentDriver implements EnvironmentDriver {
                             .build());
             buildContainerState = BuildContainerState.STARTED;
 
-            Map<String, HostPortMapping> containerPortMappings = 
+            Map<String, HostPortMapping> containerPortMappings =
                     getContainerPortMappings(createdContainer.getId());
             // Find out, which ports are opened for SSH and Jenkins
-             sshPort = getSshPort(containerPortMappings);
-             jenkinsPort = getJenkinsPort(containerPortMappings);
+            sshPort = getSshPort(containerPortMappings);
+            jenkinsPort = getJenkinsPort(containerPortMappings);
 
             copyFileToContainer(sshPort, "/root/.m2/settings.xml",
                     configBuilder.createMavenConfig(dependencyUrl, deployUrl), null);
@@ -146,7 +164,6 @@ public class DockerEnvironmentDriver implements EnvironmentDriver {
                 else
                     destroyContainer(containerId, true);
             }
-            e.printStackTrace();
             throw new EnvironmentDriverException("Cannot create environment.", e);
         }
 
@@ -207,8 +224,8 @@ public class DockerEnvironmentDriver implements EnvironmentDriver {
             InputStream streamData) throws EnvironmentDriverException {
         SshClient sshClient = new SshjSshClient(new BackoffLimitedRetryHandler() {
         }, // TODO check retryHandler configuration
-                HostAndPort.fromParts("10.3.8.102", sshPort),
-                LoginCredentials.builder().user(CONTAINER_USER).password(CONTAINER_PSSWD).build(),
+                HostAndPort.fromParts(dockerIp, sshPort),
+                LoginCredentials.builder().user(containerUser).password(containerUserPsswd).build(),
                 1000, Optional.<Connector> absent());
 
         try {
@@ -229,9 +246,10 @@ public class DockerEnvironmentDriver implements EnvironmentDriver {
         }
 
     }
-    
+
     /**
-     * Gets public host port of Jenkins 
+     * Gets public host port of Jenkins
+     * 
      * @param ports Port mappings of container
      * @return Public host port of Jenkins
      */
@@ -240,7 +258,8 @@ public class DockerEnvironmentDriver implements EnvironmentDriver {
     }
 
     /**
-     * Gets public host port of SSH 
+     * Gets public host port of SSH
+     * 
      * @param ports Port mappings of container
      * @return Public host port of SSH
      */
@@ -259,7 +278,7 @@ public class DockerEnvironmentDriver implements EnvironmentDriver {
         Map<String, HostPortMapping> resultMap = new HashMap<>();
         String response =
                 processGetRequest(String.class,
-                        DOCKER_ENDPOINT + "/containers/" + containerId + "/json");
+                        dockerEndpoint + "/containers/" + containerId + "/json");
 
         ObjectMapper objectMapper = new ObjectMapper();
         JsonNode rootNode = objectMapper.readTree(response);
@@ -271,7 +290,7 @@ public class DockerEnvironmentDriver implements EnvironmentDriver {
                 });
 
         for (Map.Entry<String, List<HostPortMapping>> entry : portsMap.entrySet()) {
-            resultMap.put(entry.getKey().substring(0, entry.getKey().indexOf("/")), 
+            resultMap.put(entry.getKey().substring(0, entry.getKey().indexOf("/")),
                     entry.getValue().get(0));
         }
 
@@ -292,6 +311,5 @@ public class DockerEnvironmentDriver implements EnvironmentDriver {
         ClientResponse<T> response = request.get(clazz);
         return response.getEntity();
     }
-
 
 }
