@@ -17,8 +17,8 @@
 
 package org.jboss.pnc.model.builder;
 
-import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.Environment;
+import org.jboss.pnc.model.ProductVersion;
 import org.jboss.pnc.model.Project;
 import org.jboss.pnc.model.BuildConfiguration;
 
@@ -47,6 +47,8 @@ public class BuildConfigurationBuilder {
 
     private String description;
 
+    private ProductVersion productVersion;
+
     private Project project;
 
     private Environment environment;
@@ -54,8 +56,6 @@ public class BuildConfigurationBuilder {
     private BuildConfiguration parent;
 
     private Set<BuildConfiguration> dependencies;
-
-    private Set<BuildConfigurationSet> buildConfigurationSets;
 
     private Timestamp creationTime;
 
@@ -65,7 +65,6 @@ public class BuildConfigurationBuilder {
 
     private BuildConfigurationBuilder() {
         dependencies = new HashSet<>();
-        buildConfigurationSets = new HashSet<BuildConfigurationSet>();
         creationTime = Timestamp.from(Instant.now());
         lastModificationTime = Timestamp.from(Instant.now());
     }
@@ -83,6 +82,7 @@ public class BuildConfigurationBuilder {
         buildConfiguration.setScmRevision(scmRevision);
         buildConfiguration.setPatchesUrl(patchesUrl);
         buildConfiguration.setDescription(description);
+        buildConfiguration.setProductVersion(productVersion);
 
         // Set the bi-directional mapping
         if (project != null) {
@@ -94,11 +94,6 @@ public class BuildConfigurationBuilder {
         buildConfiguration.setCreationTime(creationTime);
         buildConfiguration.setLastModificationTime(lastModificationTime);
         buildConfiguration.setRepositories(repositories);
-        buildConfiguration.setBuildConfigurationSets(buildConfigurationSets);
-        for (BuildConfigurationSet buildConfigurationSet : buildConfigurationSets)
-        {
-            buildConfigurationSet.addBuildConfigurations(buildConfiguration);
-        }
 
         // Set the bi-directional mapping
         for (BuildConfiguration dependency : dependencies) {
@@ -144,6 +139,11 @@ public class BuildConfigurationBuilder {
         return this;
     }
 
+    public BuildConfigurationBuilder productVersion(ProductVersion productVersion) {
+        this.productVersion = productVersion;
+        return this;
+    }
+
     public BuildConfigurationBuilder project(Project project) {
         this.project = project;
         return this;
@@ -167,16 +167,6 @@ public class BuildConfigurationBuilder {
     /**
      * Sets create time and ignores Null values (since they may affect the entity consistency).
      */
-    public BuildConfigurationBuilder buildConfigurationSet(BuildConfigurationSet buildConfigurationSet) {
-        this.buildConfigurationSets.add(buildConfigurationSet);
-        return this;
-    }
-
-    public BuildConfigurationBuilder buildConfigurationSets(Set<BuildConfigurationSet> buildConfigurationSets) {
-        this.buildConfigurationSets = buildConfigurationSets;
-        return this;
-    }
-
     public BuildConfigurationBuilder creationTime(Timestamp creationTime) {
         if (creationTime != null) {
             this.creationTime = creationTime;
@@ -227,6 +217,10 @@ public class BuildConfigurationBuilder {
         return description;
     }
 
+    public ProductVersion getProductVersion() {
+        return productVersion;
+    }
+
     public Project getProject() {
         return project;
     }
@@ -241,10 +235,6 @@ public class BuildConfigurationBuilder {
 
     public Set<BuildConfiguration> getDependencies() {
         return dependencies;
-    }
-
-    public Set<BuildConfigurationSet> getBuildConfigurationSets() {
-        return buildConfigurationSets;
     }
 
     public Timestamp getCreationTime() {

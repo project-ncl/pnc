@@ -24,7 +24,7 @@ public class ProductVersionRest {
 
     private Integer productId;
 
-    List<Integer> buildConfigurationSetIds;
+    List<Integer> projectIds;
 
     public ProductVersionRest() {
     }
@@ -36,6 +36,8 @@ public class ProductVersionRest {
         this.supported = productVersion.isSupported();
         this.internalDownloadUrl = productVersion.getInternalDownloadUrl();
         this.productId = productVersion.getProduct().getId();
+        this.projectIds = nullableStreamOf(productVersion.getProductVersionProjects()).map(
+                productVersionProjects -> productVersionProjects.getProject().getId()).collect(Collectors.toList());
 
     }
 
@@ -87,12 +89,12 @@ public class ProductVersionRest {
         this.productId = productId;
     }
 
-    public List<Integer> getBuildConfigurationSetIds() {
-        return buildConfigurationSetIds;
+    public List<Integer> getProjectIds() {
+        return projectIds;
     }
 
-    public void setBuildConfigurationSetIds(List<Integer> buildConfigurationSetIds) {
-        this.buildConfigurationSetIds = buildConfigurationSetIds;
+    public void setProjectIds(List<Integer> projectIds) {
+        this.projectIds = projectIds;
     }
 
     public ProductVersion toProductVersion(Product product) {
