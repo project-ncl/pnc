@@ -1,6 +1,19 @@
 package org.jboss.pnc.datastore.predicates.rsql;
 
-import cz.jirutka.rsql.parser.ast.*;
+import cz.jirutka.rsql.parser.ast.AndNode;
+import cz.jirutka.rsql.parser.ast.ComparisonNode;
+import cz.jirutka.rsql.parser.ast.EqualNode;
+import cz.jirutka.rsql.parser.ast.GreaterThanNode;
+import cz.jirutka.rsql.parser.ast.GreaterThanOrEqualNode;
+import cz.jirutka.rsql.parser.ast.InNode;
+import cz.jirutka.rsql.parser.ast.LessThanNode;
+import cz.jirutka.rsql.parser.ast.LessThanOrEqualNode;
+import cz.jirutka.rsql.parser.ast.LogicalNode;
+import cz.jirutka.rsql.parser.ast.NoArgRSQLVisitorAdapter;
+import cz.jirutka.rsql.parser.ast.Node;
+import cz.jirutka.rsql.parser.ast.NotEqualNode;
+import cz.jirutka.rsql.parser.ast.NotInNode;
+import cz.jirutka.rsql.parser.ast.OrNode;
 
 abstract class RSQLNodeTraveller<T> extends NoArgRSQLVisitorAdapter<T> {
 

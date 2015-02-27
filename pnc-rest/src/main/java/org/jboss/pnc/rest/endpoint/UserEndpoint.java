@@ -11,6 +11,7 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
+import java.util.List;
 
 @Api(value = "/user", description = "User related information")
 @Path("/user")
@@ -30,13 +31,11 @@ public class UserEndpoint {
 
     @ApiOperation(value = "Gets all Users")
     @GET
-    public Response getAll(@ApiParam(value = "Page index", required = false) @QueryParam("pageIndex") Integer pageIndex,
-            @ApiParam(value = "Pagination size", required = false) @QueryParam("pageSize") Integer pageSize,
-            @ApiParam(value = "Sorting field", required = false) @QueryParam("sorted_by") String field,
-            @ApiParam(value = "Sort direction", required = false) @QueryParam("sorting") String sorting,
-            @ApiParam(value = "RSQL query", required = false) @QueryParam("q") String rsql) {
-
-        return Response.ok(userProvider.getAll(pageIndex, pageSize, field, sorting, rsql)).build();
+    public List<UserRest> getAll(@ApiParam(value = "Page index") @QueryParam("pageIndex") @DefaultValue("0") Integer pageIndex,
+            @ApiParam(value = "Pagination size") @DefaultValue("50") @QueryParam("pageSize") Integer pageSize,
+            @ApiParam(value = "Sorting RSQL") @QueryParam("sort") String sortingRsql,
+            @ApiParam(value = "RSQL query") @QueryParam("q") String rsql) {
+        return userProvider.getAll(pageIndex, pageSize, sortingRsql, rsql);
     }
 
     @ApiOperation(value = "Gets specific User")

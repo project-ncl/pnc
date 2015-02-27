@@ -1,23 +1,16 @@
 package org.jboss.pnc.rest.endpoint;
 
-import java.util.List;
-
-import javax.inject.Inject;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-
-import org.jboss.pnc.rest.provider.BuildRecordProvider;
-import org.jboss.pnc.rest.restmodel.BuildRecordRest;
-
 import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
 import com.wordnik.swagger.annotations.ApiParam;
+import org.jboss.pnc.rest.provider.BuildRecordProvider;
+import org.jboss.pnc.rest.restmodel.BuildRecordRest;
+
+import javax.inject.Inject;
+import javax.ws.rs.*;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import java.util.List;
 
 @Api(value = "/record", description = "Records of building process")
 @Path("/record")
@@ -37,12 +30,12 @@ public class BuildRecordEndpoint {
 
     @ApiOperation(value = "Gets all Build Records")
     @GET
-    public Response getAll(@ApiParam(value = "Page index", required = false) @QueryParam("pageIndex") Integer pageIndex,
-            @ApiParam(value = "Pagination size", required = false) @QueryParam("pageSize") Integer pageSize,
-            @ApiParam(value = "Sorting field", required = false) @QueryParam("sorted_by") String field,
-            @ApiParam(value = "Sort direction", required = false) @QueryParam("sorting") String sorting,
+    public List<BuildRecordRest> getAll(
+            @ApiParam(value = "Page index") @QueryParam("pageIndex") @DefaultValue("0") Integer pageIndex,
+            @ApiParam(value = "Pagination size") @DefaultValue("50") @QueryParam("pageSize") Integer pageSize,
+            @ApiParam(value = "Sorting RSQL") @QueryParam("sort") String sortingRsql,
             @ApiParam(value = "RSQL query", required = false) @QueryParam("q") String rsql) {
-        return Response.ok(buildRecordProvider.getAllArchived(pageIndex, pageSize, field, sorting, rsql)).build();
+        return buildRecordProvider.getAllArchived(pageIndex, pageSize, sortingRsql, rsql);
     }
 
     @ApiOperation(value = "Gets specific Build Record")
@@ -63,16 +56,23 @@ public class BuildRecordEndpoint {
     @GET
     @Path("/configuration/{configurationId}")
     public List<BuildRecordRest> getAllForBuildConfiguration(
+            @ApiParam(value = "Page index") @QueryParam("pageIndex") @DefaultValue("0") Integer pageIndex,
+            @ApiParam(value = "Pagination size") @DefaultValue("50") @QueryParam("pageSize") Integer pageSize,
+            @ApiParam(value = "Sorting RSQL") @QueryParam("sort") String sortingRsql,
+            @ApiParam(value = "RSQL query", required = false) @QueryParam("q") String rsql,
             @ApiParam(value = "Build Configuration id", required = true) @PathParam("configurationId") Integer configurationId) {
-        return buildRecordProvider.getAllForBuildConfiguration(configurationId);
+        return buildRecordProvider.getAllForBuildConfiguration(pageIndex, pageSize, sortingRsql, rsql, configurationId);
     }
 
     @ApiOperation(value = "Gets the Build Records linked to a specific Project")
     @GET
     @Path("/project/{projectId}")
     public List<BuildRecordRest> getAllForProject(
+            @ApiParam(value = "Page index") @QueryParam("pageIndex") @DefaultValue("0") Integer pageIndex,
+            @ApiParam(value = "Pagination size") @DefaultValue("50") @QueryParam("pageSize") Integer pageSize,
+            @ApiParam(value = "Sorting RSQL") @QueryParam("sort") String sortingRsql,
             @ApiParam(value = "Project id", required = true) @PathParam("projectId") Integer projectId,
             @ApiParam(value = "RSQL query", required = false) @QueryParam("q") String rsql) {
-        return buildRecordProvider.getAllForProject(projectId);
+        return buildRecordProvider.getAllForProject(pageIndex, pageSize, sortingRsql, rsql, projectId);
     }
 }

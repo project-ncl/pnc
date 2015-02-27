@@ -1,20 +1,3 @@
-/*
- * JBoss, Home of Professional Open Source
- * Copyright 2012, Red Hat, Inc., and individual contributors
- * by the @authors tag. See the copyright.txt in the distribution for a
- * full listing of individual contributors.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- * http://www.apache.org/licenses/LICENSE-2.0
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package org.jboss.pnc.rest.endpoint;
 
 import com.wordnik.swagger.annotations.Api;
@@ -28,6 +11,7 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
+import java.util.List;
 
 /**
  * Created by avibelli on Feb 5, 2015
@@ -51,12 +35,12 @@ public class LicenseEndpoint {
 
     @ApiOperation(value = "Gets all Licenses")
     @GET
-    public Response getAll(@ApiParam(value = "Page index", required = false) @QueryParam("pageIndex") Integer pageIndex,
-            @ApiParam(value = "Pagination size", required = false) @QueryParam("pageSize") Integer pageSize,
-            @ApiParam(value = "Sorting field", required = false) @QueryParam("sorted_by") String field,
-            @ApiParam(value = "Sort direction", required = false) @QueryParam("sorting") String sorting,
+    public List<LicenseRest> getAll(
+            @ApiParam(value = "Page index") @QueryParam("pageIndex") @DefaultValue("0") Integer pageIndex,
+            @ApiParam(value = "Pagination size") @DefaultValue("50") @QueryParam("pageSize") Integer pageSize,
+            @ApiParam(value = "Sorting RSQL") @QueryParam("sort") String sortingRsql,
             @ApiParam(value = "RSQL query", required = false) @QueryParam("q") String rsql) {
-        return Response.ok(licenseProvider.getAll(pageIndex, pageSize, field, sorting, rsql)).build();
+        return licenseProvider.getAll(pageIndex, pageSize, sortingRsql, rsql);
     }
 
     @ApiOperation(value = "Get specific License")

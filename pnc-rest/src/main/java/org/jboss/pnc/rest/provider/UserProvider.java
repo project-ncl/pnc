@@ -1,20 +1,23 @@
 package org.jboss.pnc.rest.provider;
 
+import org.jboss.pnc.datastore.limits.RSQLPageLimitAndSortingProducer;
+import org.jboss.pnc.datastore.predicates.RSQLPredicate;
 import org.jboss.pnc.datastore.predicates.RSQLPredicateProducer;
 import org.jboss.pnc.datastore.repositories.UserRepository;
 import org.jboss.pnc.model.User;
-import org.jboss.pnc.datastore.predicates.RSQLPredicate;
 import org.jboss.pnc.rest.restmodel.UserRest;
+import org.springframework.data.domain.Pageable;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
+import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
 
 @Stateless
-public class UserProvider extends BasePaginationProvider<UserRest, User> {
+public class UserProvider {
 
     private UserRepository userRepository;
 
@@ -27,24 +30,12 @@ public class UserProvider extends BasePaginationProvider<UserRest, User> {
         this.userRepository = userRepository;
     }
 
-    // Needed to map the Entity into the proper REST object
-    @Override
-    public Function<? super User, ? extends UserRest> toRestModel() {
-        return user -> new UserRest(user);
-    }
-
-    @Override
-    public String getDefaultSortingField() {
-        return User.DEFAULT_SORTING_FIELD;
-    }
-
-    public Object getAll(Integer pageIndex, Integer pageSize, String field, String sorting, String query) {
+    public List<UserRest> getAll(Integer pageIndex, Integer pageSize, String sortingRsql, String query) {
         RSQLPredicate filteringCriteria = RSQLPredicateProducer.fromRSQL(User.class, query);
-        if (noPaginationRequired(pageIndex, pageSize, field, sorting)) {
-            return nullableStreamOf(userRepository.findAll(filteringCriteria.get())).map(toRestModel()).collect(Collectors.toList());
-        } else {
-            return transform(userRepository.findAll(filteringCriteria.get(), buildPageRequest(pageIndex, pageSize, field, sorting)));
-        }
+        Pageable paging = RSQLPageLimitAndSortingProducer.fromRSQL(pageSize, pageIndex, sortingRsql);
+        return nullableStreamOf(userRepository.findAll(filteringCriteria.get(), paging))
+                .map(toRestModel())
+                .collect(Collectors.toList());
     }
 
     public UserRest getSpecific(Integer userId) {
@@ -61,4 +52,7 @@ public class UserProvider extends BasePaginationProvider<UserRest, User> {
         return user.getId();
     }
 
+    public Function<? super User, ? extends UserRest> toRestModel() {
+        return user -> new UserRest(user);
+    }
 }

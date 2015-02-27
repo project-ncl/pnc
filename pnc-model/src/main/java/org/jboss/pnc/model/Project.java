@@ -1,9 +1,6 @@
 package org.jboss.pnc.model;
 
 import javax.persistence.*;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlTransient;
-
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
@@ -15,7 +12,6 @@ import java.util.Set;
  * of BuildConfigurations, that contain the build configurations of the Project in its lifetime. The class Project is also
  * linked to a list of buildRecords, that contains the result of the build triggered with a BuildConfiguration
  */
-@XmlRootElement
 @Entity
 public class Project implements Serializable {
 
@@ -41,7 +37,6 @@ public class Project implements Serializable {
     @OneToMany(mappedBy = "project", cascade = CascadeType.ALL)
     private Set<ProductVersionProject> productVersionProjects;
 
-    @XmlTransient
     @OneToMany(mappedBy = "project")
     private Set<BuildConfiguration> buildConfigurations;
 

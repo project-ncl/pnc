@@ -1,12 +1,13 @@
 package org.jboss.pnc.rest.provider;
 
 import com.google.common.base.Preconditions;
+import org.jboss.pnc.datastore.limits.RSQLPageLimitAndSortingProducer;
 import org.jboss.pnc.datastore.predicates.RSQLPredicate;
 import org.jboss.pnc.datastore.predicates.RSQLPredicateProducer;
 import org.jboss.pnc.datastore.repositories.BuildConfigurationRepository;
-import org.jboss.pnc.datastore.repositories.ProjectRepository;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationRest;
+import org.springframework.data.domain.Pageable;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
@@ -18,64 +19,62 @@ import static org.jboss.pnc.datastore.predicates.BuildConfigurationPredicates.*;
 import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
 
 @Stateless
-public class BuildConfigurationProvider extends BasePaginationProvider<BuildConfigurationRest, BuildConfiguration> {
+public class BuildConfigurationProvider {
 
     private BuildConfigurationRepository buildConfigurationRepository;
-    private ProjectRepository projectRepository;
 
     @Inject
-    public BuildConfigurationProvider(BuildConfigurationRepository buildConfigurationRepository,
-            ProjectRepository projectRepository) {
+    public BuildConfigurationProvider(BuildConfigurationRepository buildConfigurationRepository) {
         this.buildConfigurationRepository = buildConfigurationRepository;
-        this.projectRepository = projectRepository;
     }
 
     // needed for EJB/CDI
     public BuildConfigurationProvider() {
     }
 
-    // Needed to map the Entity into the proper REST object
-    @Override
     public Function<? super BuildConfiguration, ? extends BuildConfigurationRest> toRestModel() {
-        return projectConfiguration -> {
-            if (projectConfiguration != null) {
-                return new BuildConfigurationRest(projectConfiguration);
-            }
-            return null;
-        };
+        return projectConfiguration -> new BuildConfigurationRest(projectConfiguration);
     }
 
-    @Override
-    public String getDefaultSortingField() {
-        return BuildConfiguration.DEFAULT_SORTING_FIELD;
+    public List<BuildConfigurationRest> getAll(Integer pageIndex, Integer pageSize, String sortingRsql, String query) {
+        RSQLPredicate filteringCriteria = RSQLPredicateProducer.fromRSQL(BuildConfiguration.class, query);
+        Pageable paging = RSQLPageLimitAndSortingProducer.fromRSQL(pageSize, pageIndex, sortingRsql);
+
+        return nullableStreamOf(buildConfigurationRepository.findAll(filteringCriteria.get(), paging))
+                .map(toRestModel())
+                .collect(Collectors.toList());
     }
 
-    public Object getAll(Integer pageIndex, Integer pageSize, String field, String sorting, String rsqls) {
-        RSQLPredicate rsqlPredicate = RSQLPredicateProducer.fromRSQL(BuildConfiguration.class, rsqls);
-        if (noPaginationRequired(pageIndex, pageSize, field, sorting)) {
-            return nullableStreamOf(buildConfigurationRepository.findAll(rsqlPredicate.get())).map(toRestModel()).collect(
-                    Collectors.toList());
-        } else {
-            return transform(buildConfigurationRepository.findAll(rsqlPredicate.get(),
-                    buildPageRequest(pageIndex, pageSize, field, sorting)));
-        }
+    public List<BuildConfigurationRest> getAllForProject(Integer pageIndex, Integer pageSize, String sortingRsql, String query,
+            Integer projectId) {
+        RSQLPredicate filteringCriteria = RSQLPredicateProducer.fromRSQL(BuildConfiguration.class, query);
+        Pageable paging = RSQLPageLimitAndSortingProducer.fromRSQL(pageSize, pageIndex, sortingRsql);
+
+        return mapToListOfBuildConfigurationRest(
+                buildConfigurationRepository.findAll(
+                        withProjectId(projectId)
+                                .and(filteringCriteria.get()), paging));
     }
 
-    public List<BuildConfigurationRest> getAll() {
-        return mapToListOfBuildConfigurationRest(buildConfigurationRepository.findAll());
+    public List<BuildConfigurationRest> getAllForProduct(Integer pageIndex, Integer pageSize, String sortingRsql, String query,
+            Integer productId) {
+        RSQLPredicate filteringCriteria = RSQLPredicateProducer.fromRSQL(BuildConfiguration.class, query);
+        Pageable paging = RSQLPageLimitAndSortingProducer.fromRSQL(pageSize, pageIndex, sortingRsql);
+        return mapToListOfBuildConfigurationRest(
+                buildConfigurationRepository.findAll(
+                        withProductId(productId)
+                                .and(filteringCriteria.get()), paging));
     }
 
-    public List<BuildConfigurationRest> getAllForProject(Integer projectId) {
-        return mapToListOfBuildConfigurationRest(buildConfigurationRepository.findAll(withProjectId(projectId)));
-    }
+    public List<BuildConfigurationRest> getAllForProductAndProductVersion(Integer pageIndex, Integer pageSize,
+            String sortingRsql, String query, Integer productId, Integer versionId) {
+        RSQLPredicate filteringCriteria = RSQLPredicateProducer.fromRSQL(BuildConfiguration.class, query);
+        Pageable paging = RSQLPageLimitAndSortingProducer.fromRSQL(pageSize, pageIndex, sortingRsql);
 
-    public List<BuildConfigurationRest> getAllForProduct(Integer productId) {
-        return mapToListOfBuildConfigurationRest(buildConfigurationRepository.findAll(withProductId(productId)));
-    }
-
-    public List<BuildConfigurationRest> getAllForProductAndProductVersion(Integer productId, Integer versionId) {
-        return mapToListOfBuildConfigurationRest(buildConfigurationRepository.findAll(withProductId(productId).and(
-                withProductVersionId(versionId))));
+        return mapToListOfBuildConfigurationRest(buildConfigurationRepository.findAll(
+                withProductId(productId)
+                        .and(withProductVersionId(versionId))
+                        .and(filteringCriteria.get()), paging));
     }
 
     public BuildConfigurationRest getSpecific(Integer id) {

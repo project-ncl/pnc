@@ -11,6 +11,7 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
+import java.util.List;
 
 @Api(value = "/environment", description = "Environment related information")
 @Path("/environment")
@@ -30,12 +31,12 @@ public class EnvironmentEndpoint {
 
     @ApiOperation(value = "Gets all Environments")
     @GET
-    public Response getAll(@ApiParam(value = "Page index", required = false) @QueryParam("pageIndex") Integer pageIndex,
-            @ApiParam(value = "Pagination size", required = false) @QueryParam("pageSize") Integer pageSize,
-            @ApiParam(value = "Sorting field", required = false) @QueryParam("sorted_by") String field,
-            @ApiParam(value = "Sort direction", required = false) @QueryParam("sorting") String sorting,
+    public List<EnvironmentRest> getAll(
+            @ApiParam(value = "Page index") @QueryParam("pageIndex") @DefaultValue("0") Integer pageIndex,
+            @ApiParam(value = "Pagination size") @DefaultValue("50") @QueryParam("pageSize") Integer pageSize,
+            @ApiParam(value = "Sorting RSQL") @QueryParam("sort") String sortingRsql,
             @ApiParam(value = "RSQL query", required = false) @QueryParam("q") String rsql) {
-        return Response.ok(environmentProvider.getAll(pageIndex, pageSize, field, sorting, rsql)).build();
+        return environmentProvider.getAll(pageIndex, pageSize, sortingRsql, rsql);
     }
 
     @ApiOperation(value = "Get specific Environment")

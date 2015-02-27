@@ -44,13 +44,13 @@ public class BuildConfigurationEndpoint {
 
     @ApiOperation(value = "Gets all Build Configurations")
     @GET
-    public Response getAll(@ApiParam(value = "Page index", required = false) @QueryParam("pageIndex") Integer pageIndex,
-            @ApiParam(value = "Pagination size", required = false) @QueryParam("pageSize") Integer pageSize,
-            @ApiParam(value = "Sorting field", required = false) @QueryParam("sorted_by") String field,
-            @ApiParam(value = "Sort direction", required = false) @QueryParam("sorting") String sorting,
+    public List<BuildConfigurationRest> getAll(
+            @ApiParam(value = "Page index") @QueryParam("pageIndex") @DefaultValue("0") Integer pageIndex,
+            @ApiParam(value = "Pagination size") @DefaultValue("50") @QueryParam("pageSize") Integer pageSize,
+            @ApiParam(value = "Sorting RSQL") @QueryParam("sort") String sortingRsql,
             @ApiParam(value = "RSQL query", required = false) @QueryParam("q") String rsql) {
 
-        return Response.ok(buildConfigurationProvider.getAll(pageIndex, pageSize, field, sorting, rsql)).build();
+        return buildConfigurationProvider.getAll(pageIndex, pageSize, sortingRsql, rsql);
     }
 
     @ApiOperation(value = "Creates a new Build Configuration")
@@ -120,24 +120,36 @@ public class BuildConfigurationEndpoint {
     @GET
     @Path("/project/{projectId}")
     public List<BuildConfigurationRest> getAllByProjectId(
+            @ApiParam(value = "Page index") @QueryParam("pageIndex") @DefaultValue("0") Integer pageIndex,
+            @ApiParam(value = "Pagination size") @DefaultValue("50") @QueryParam("pageSize") Integer pageSize,
+            @ApiParam(value = "Sorting RSQL") @QueryParam("sort") String sortingRsql,
+            @ApiParam(value = "RSQL query", required = false) @QueryParam("q") String rsql,
             @ApiParam(value = "Project id", required = true) @PathParam("projectId") Integer projectId) {
-        return buildConfigurationProvider.getAllForProject(projectId);
+        return buildConfigurationProvider.getAllForProject(pageIndex, pageSize, sortingRsql, rsql, projectId);
     }
 
     @ApiOperation(value = "Gets all Build Configurations of a Product")
     @GET
     @Path("/product/{productId}")
     public List<BuildConfigurationRest> getAllByProductId(
+            @ApiParam(value = "Page index") @QueryParam("pageIndex") @DefaultValue("0") Integer pageIndex,
+            @ApiParam(value = "Pagination size") @DefaultValue("50") @QueryParam("pageSize") Integer pageSize,
+            @ApiParam(value = "Sorting RSQL") @QueryParam("sort") String sortingRsql,
+            @ApiParam(value = "RSQL query", required = false) @QueryParam("q") String rsql,
             @ApiParam(value = "Product id", required = true) @PathParam("productId") Integer productId) {
-        return buildConfigurationProvider.getAllForProduct(productId);
+        return buildConfigurationProvider.getAllForProduct(pageIndex, pageSize, sortingRsql, rsql, productId);
     }
 
     @ApiOperation(value = "Gets all Build Configurations of a Product Version")
     @GET
     @Path("/product/{productId}/version/{versionId}")
     public List<BuildConfigurationRest> getAllByProductId(
+            @ApiParam(value = "Page index") @QueryParam("pageIndex") @DefaultValue("0") Integer pageIndex,
+            @ApiParam(value = "Pagination size") @DefaultValue("50") @QueryParam("pageSize") Integer pageSize,
+            @ApiParam(value = "Sorting RSQL") @QueryParam("sort") String sortingRsql,
+            @ApiParam(value = "RSQL query", required = false) @QueryParam("q") String rsql,
             @ApiParam(value = "Product id", required = true) @PathParam("productId") Integer productId,
             @ApiParam(value = "Product Version id id", required = true) @PathParam("versionId") Integer versionId) {
-        return buildConfigurationProvider.getAllForProductAndProductVersion(productId, versionId);
+        return buildConfigurationProvider.getAllForProductAndProductVersion(pageIndex, pageSize, sortingRsql, rsql, productId, versionId);
     }
 }
