@@ -58,11 +58,9 @@ public class DatastoreTest {
                 .projectUrl("https://github.com/ds-project-ncl/pnc")
                 .issueTrackerUrl("https://projects.engineering.redhat.com/browse/NCL").build();
 
-        BuildConfigurationSet buildConfigurationSet = BuildConfigurationSetBuilder.newBuilder().name("Test build config set")
-                .productVersion(productVersion).build();
         BuildConfiguration buildConfiguration = BuildConfigurationBuilder.newBuilder()
                 .buildScript("mvn clean deploy -Dmaven.test.skip").environment(EnvironmentBuilder.defaultEnvironment().build())
-                .id(1).name("DS_PROJECT_BUILD_CFG_ID").buildConfigurationSet(buildConfigurationSet).project(project)
+                .name("DS_PROJECT_BUILD_CFG_ID").productVersion(productVersion).project(project)
                 .scmRepoURL("https://github.com/ds-project-ncl/pnc.git").scmRevision("*/v0.2")
                 .description("Test build config for project newcastle").build();
 

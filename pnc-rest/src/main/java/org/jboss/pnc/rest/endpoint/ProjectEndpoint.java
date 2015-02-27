@@ -75,12 +75,12 @@ public class ProjectEndpoint {
         return Response.ok().build();
     }
 
-    /*@ApiOperation(value = "Gets all Projects of a Product Version")
+    @ApiOperation(value = "Gets all Projects of a Product Version")
     @GET
     @Path("/product/{productId}/version/{versionId}")
     public List<ProjectRest> getAllByProductId(
             @ApiParam(value = "Product id", required = true) @PathParam("productId") Integer productId,
             @ApiParam(value = "Product Version id id", required = true) @PathParam("versionId") Integer versionId) {
         return projectProvider.getAllForProductAndProductVersion(productId, versionId);
-    }*/
+    }
 }
