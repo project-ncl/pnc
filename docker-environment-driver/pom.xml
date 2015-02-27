@@ -47,12 +47,6 @@
 				<scope>import</scope>
 				<type>pom</type>
 			</dependency>
-
-			<dependency>
-				<groupId>org.jboss.resteasy</groupId>
-				<artifactId>resteasy-jaxrs</artifactId>
-				<version>2.3.5.Final</version>
-			</dependency>
 		</dependencies>
 	</dependencyManagement>
 
@@ -102,6 +96,27 @@
 			<groupId>org.jboss</groupId>
 			<artifactId>jboss-common-core</artifactId>
 		</dependency>
+
+		<dependency>
+			<groupId>org.jboss.resteasy</groupId>
+			<artifactId>resteasy-jaxrs</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-annotations</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-core</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-databind</artifactId>
+		</dependency>
+
 		<!-- /Remote dependencies -->
 
 		<!-- JClouds -->
@@ -181,26 +196,8 @@
 			<scope>test</scope>
 		</dependency>
 
-		<dependency>
-			<groupId>org.jboss.resteasy</groupId>
-			<artifactId>resteasy-jaxrs</artifactId>
-			<scope>test</scope>
-		</dependency>
-
 		<!-- /Test dependencies -->
 
-		<!-- Test coverage -->
-		<!-- <dependency> -->
-		<!-- <groupId>org.jboss.arquillian.extension</groupId> -->
-		<!-- <artifactId>arquillian-jacoco</artifactId> -->
-		<!-- <scope>test</scope> -->
-		<!-- </dependency> -->
-		<!-- <dependency> -->
-		<!-- <groupId>org.jacoco</groupId> -->
-		<!-- <artifactId>org.jacoco.core</artifactId> -->
-		<!-- <scope>test</scope> -->
-		<!-- </dependency> -->
-		<!-- /Test coverage -->
 	</dependencies>
 
 	<build>

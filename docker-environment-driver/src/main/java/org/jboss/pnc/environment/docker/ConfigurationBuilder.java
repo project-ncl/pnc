@@ -3,7 +3,7 @@ package org.jboss.pnc.environment.docker;
 import java.io.IOException;
 import java.util.Properties;
 
-import javax.ejb.Stateless;
+import javax.enterprise.context.ApplicationScoped;
 
 import org.jboss.pnc.common.util.IoUtils;
 import org.jboss.pnc.spi.environment.exception.EnvironmentDriverException;
@@ -15,7 +15,7 @@ import org.jboss.util.StringPropertyReplacer;
  * @author Jakub Bartecek <jbartece@redhat.com>
  *
  */
-@Stateless
+@ApplicationScoped
 public class ConfigurationBuilder {
 
     /**

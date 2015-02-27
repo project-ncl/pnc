@@ -6,7 +6,6 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.Socket;
-import java.util.Random;
 import java.util.UUID;
 import java.util.logging.Logger;
 
@@ -26,7 +25,6 @@ import org.jboss.shrinkwrap.api.asset.EmptyAsset;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.jboss.shrinkwrap.resolver.api.maven.Maven;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -44,28 +42,13 @@ public class DockerEnvironmentDriverRemoteTest {
     @Inject
     private DockerEnvironmentDriver dockerEnvDriver;
 
-    @Inject
-    private Generator generator;
-
     private final String DOCKER_IP = "10.3.8.102";
 
     private final String DOCKER_CONTROL_ENDPOINT = "http://10.3.8.102:2375";
 
-    private final String CONTAINER_ID_PREFIX = "PNC-TEST-ID-" + UUID.randomUUID().toString() + "-";
+    private final String APROX_DEPENDENCY_URL = "AProx deoendency URL";
 
-    private final int FIRST_JENKINS_PORT = 15000;
-
-    private final int FIRST_SSH_PORT = 15050;
-
-    private final String APROX_DEPENDENCY_URL = "";
-
-    private final String APROX_DEPLOY_URL = "";
-
-    private final Random randomObj = new Random();
-
-    private int generatedSshPort;
-
-    private int generatedJenkinsPort;
+    private final String APROX_DEPLOY_URL = "AProx deploy URL";
 
     @Deployment
     public static WebArchive createDeployment() {
@@ -89,15 +72,6 @@ public class DockerEnvironmentDriverRemoteTest {
         return testedEjb;
     }
 
-    @Before
-    public void init() {
-        generator.reInit();
-
-        // generate SSH and Jenkins Port
-        this.generatedJenkinsPort = getJenkinsPort();
-        this.generatedSshPort = getShhPort();
-    }
-
     @Test
     public void injectedTypeTest() {
         assertNotNull(dockerEnvDriver);
@@ -118,26 +92,21 @@ public class DockerEnvironmentDriverRemoteTest {
 
     @Test
     public void buildDestroyEnvironmentTest() throws EnvironmentDriverException, InterruptedException {
-        generator.forceNextValues(generatedSshPort, generatedJenkinsPort, CONTAINER_ID_PREFIX);
-        testRunningContainer(generatedJenkinsPort, generatedSshPort, CONTAINER_ID_PREFIX + "1", false,
-                "Requested environment is running before test.");
-
         // Create container
         Environment environment = new Environment(BuildType.DOCKER, OperationalSystem.LINUX);
-        dockerEnvDriver.buildEnvironment(environment, APROX_DEPENDENCY_URL, APROX_DEPLOY_URL);
+        DockerRunningEnvironment runningEnv = (DockerRunningEnvironment)
+                dockerEnvDriver.buildEnvironment(environment, APROX_DEPENDENCY_URL, APROX_DEPLOY_URL);
 
         try {
-            testRunningContainer(generatedJenkinsPort, generatedSshPort, CONTAINER_ID_PREFIX + "1", true,
-                    "Environment wasn't successfully built.");
+            testRunningContainer(runningEnv, true, "Environment wasn't successfully built.");
         } catch (Exception | AssertionError e) {
-            dockerEnvDriver.destroyEnvironment(CONTAINER_ID_PREFIX + "1");
+            dockerEnvDriver.destroyEnvironment(runningEnv.getId());
             throw e;
         }
 
         // Destroy container
-        dockerEnvDriver.destroyEnvironment(CONTAINER_ID_PREFIX + "1");
-        testRunningContainer(generatedJenkinsPort, generatedSshPort, CONTAINER_ID_PREFIX + "1", false,
-                "Environment wasn't successfully destroyed.");
+        dockerEnvDriver.destroyEnvironment(runningEnv.getId());
+        testRunningContainer(runningEnv, false, "Environment wasn't successfully destroyed.");
     }
 
     @Test
@@ -150,57 +119,46 @@ public class DockerEnvironmentDriverRemoteTest {
         copyFileToContainerInvariantData(null, new ByteArrayInputStream("TEST CONTENT".getBytes("UTF-8")));
     }
 
-    /**
-     * @return SSH port from the available range on Docker host
-     */
-    private int getShhPort() {
-        return randInt(FIRST_SSH_PORT, FIRST_SSH_PORT + 49);
-    }
-
-    /**
-     * @return Jenkins port from the available range on Docker host
-     */
-    private int getJenkinsPort() {
-        return randInt(FIRST_JENKINS_PORT, FIRST_JENKINS_PORT + 49);
-    }
-
     private void copyFileToContainerInvariantData(String string, InputStream stream) throws Exception {
-        generator.forceNextValues(generatedSshPort, generatedJenkinsPort, CONTAINER_ID_PREFIX);
         Environment environment = new Environment(BuildType.DOCKER, OperationalSystem.LINUX);
 
-        dockerEnvDriver.buildEnvironment(environment, APROX_DEPENDENCY_URL, APROX_DEPLOY_URL);
+        DockerRunningEnvironment runningEnv = (DockerRunningEnvironment)
+                dockerEnvDriver.buildEnvironment(environment, APROX_DEPENDENCY_URL, APROX_DEPLOY_URL);
 
         String pathToFile = "/tmp/testFile-" + UUID.randomUUID().toString() + ".txt";
 
         // Get content of container's file system
         String fsContentOld = processGetRequest(DOCKER_CONTROL_ENDPOINT + "/containers/"
-                + CONTAINER_ID_PREFIX + "1" + "/changes");
+                + runningEnv.getId() + "/changes");
         fsContentOld.contains(pathToFile);
 
         try {
-            dockerEnvDriver.copyFileToContainer(generatedSshPort, pathToFile, string, stream);
+            dockerEnvDriver.copyFileToContainer(runningEnv.getSshPort(), pathToFile, string, stream);
         } catch (Exception | AssertionError e) {
-            dockerEnvDriver.destroyEnvironment(CONTAINER_ID_PREFIX + "1");
+            dockerEnvDriver.destroyEnvironment(runningEnv.getId());
             throw e;
         }
 
         // Get content of container's file system
         String fsContentNew = processGetRequest(DOCKER_CONTROL_ENDPOINT + "/containers/"
-                + CONTAINER_ID_PREFIX + "1" + "/changes");
+                + runningEnv.getId() + "/changes");
         assertTrue("File was not coppied to the container.", fsContentNew.contains(pathToFile));
 
-        dockerEnvDriver.destroyEnvironment(CONTAINER_ID_PREFIX + "1");
+        dockerEnvDriver.destroyEnvironment(runningEnv.getId());
     }
 
     /**
      * Checks if container was started and the services are on.
      * 
-     * @param jenkinsPort Opened Jenkins UI port
-     * @param sshPort Opened SSH port
-     * @param containerId ID of Docker container
+     * @param runningEnv Connection data about environment to test
+     * @param shouldBeRunning Indicates, if the environment should be running or should be not available
+     * @param baseErrorMsg Prefix of error message, which is printed if the container is not in expected state
      */
-    private void testRunningContainer(int jenkinsPort, int sshPort, String containerId,
-            boolean shouldBeRunning, String baseErrorMsg) {
+    private void testRunningContainer(DockerRunningEnvironment runningEnv, boolean shouldBeRunning,
+            String baseErrorMsg) {
+        int sshPort = runningEnv.getSshPort();
+        String containerId = runningEnv.getId();
+
         // Test if the container is running
         try {
             testResponseHttpCode(200, DOCKER_CONTROL_ENDPOINT + "/containers/" + containerId + "/json");
@@ -263,16 +221,4 @@ public class DockerEnvironmentDriverRemoteTest {
             throw new Exception("Server returned unexpected HTTP code! Returned code:" + response.getStatus());
     }
 
-    /**
-     * Generates random number in specified range
-     * 
-     * @param min Min value
-     * @param max Max value
-     * @return Generated value
-     */
-    private int randInt(int min, int max) {
-        int randomNum = randomObj.nextInt((max - min) + 1) + min;
-
-        return randomNum;
-    }
 }

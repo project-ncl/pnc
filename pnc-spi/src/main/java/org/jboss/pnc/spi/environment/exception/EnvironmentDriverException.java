@@ -21,7 +21,7 @@ public class EnvironmentDriverException extends Exception {
      * @param msg Error message
      * @param cause Exception, which caused this exception
      */
-    public EnvironmentDriverException(String msg, Throwable cause) {
+    public EnvironmentDriverException(String msg, Exception cause) {
         super(msg, cause);
     }
 }
