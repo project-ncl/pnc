@@ -34,8 +34,12 @@ public class RunningBuildRecordEndpoint {
 
     @ApiOperation(value = "Gets all running Build Records")
     @GET
-    public List<BuildRecordRest> getAll() {
-        return buildRecordProvider.getAllRunning();
+    public List<BuildRecordRest> getAll(
+            @ApiParam(value = "Page index") @QueryParam("pageIndex") @DefaultValue("0") Integer pageIndex,
+            @ApiParam(value = "Pagination size") @DefaultValue("50") @QueryParam("pageSize") Integer pageSize,
+            @ApiParam(value = "Sorting RSQL") @QueryParam("sort") String sortingRsql,
+            @ApiParam(value = "RSQL query", required = false) @QueryParam("q") String rsql) {
+        return buildRecordProvider.getAllRunning(pageIndex, pageSize, sortingRsql, rsql);
     }
 
     @ApiOperation(value = "Gets specific running Build Record")

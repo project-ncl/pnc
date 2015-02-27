@@ -1,15 +1,20 @@
 package org.jboss.pnc.rest.provider;
 
 import com.google.common.base.Preconditions;
+import org.jboss.pnc.datastore.limits.RSQLPageLimitAndSortingProducer;
+import org.jboss.pnc.datastore.predicates.RSQLPredicate;
+import org.jboss.pnc.datastore.predicates.RSQLPredicateProducer;
 import org.jboss.pnc.datastore.repositories.ProductRepository;
 import org.jboss.pnc.datastore.repositories.ProductVersionRepository;
 import org.jboss.pnc.model.Product;
 import org.jboss.pnc.model.ProductVersion;
 import org.jboss.pnc.rest.restmodel.ProductVersionRest;
+import org.springframework.data.domain.Pageable;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import java.util.List;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static org.jboss.pnc.datastore.predicates.ProductVersionPredicates.withProductId;
@@ -32,10 +37,14 @@ public class ProductVersionProvider {
     public ProductVersionProvider() {
     }
 
-    public List<ProductVersionRest> getAll(Integer productId) {
-        Iterable<ProductVersion> product = productVersionRepository.findAll(withProductId(productId));
-        return nullableStreamOf(product).map(productVersion -> new ProductVersionRest(productVersion)).collect(
-                Collectors.toList());
+    public List<ProductVersionRest> getAll(Integer pageIndex, Integer pageSize, String sortingRsql, String query, Integer productId) {
+        RSQLPredicate filteringCriteria = RSQLPredicateProducer.fromRSQL(ProductVersion.class, query);
+        Pageable paging = RSQLPageLimitAndSortingProducer.fromRSQL(pageSize, pageIndex, sortingRsql);
+
+        Iterable<ProductVersion> product = productVersionRepository.findAll(withProductId(productId).and(filteringCriteria.get()), paging);
+        return nullableStreamOf(product)
+                .map(toRestModel())
+                .collect(Collectors.toList());
     }
 
     public ProductVersionRest getSpecific(Integer productId, Integer productVersionId) {
@@ -63,6 +72,10 @@ public class ProductVersionProvider {
         Preconditions.checkArgument(product != null,
                 "Couldn't find Product with id " + product.getId());
         productVersionRepository.save(productVersionRest.toProductVersion(productVersion));
+    }
+
+    private Function<ProductVersion, ProductVersionRest> toRestModel() {
+        return productVersion -> new ProductVersionRest(productVersion);
     }
 
 }

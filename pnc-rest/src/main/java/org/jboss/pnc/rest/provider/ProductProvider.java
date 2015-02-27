@@ -1,21 +1,24 @@
 package org.jboss.pnc.rest.provider;
 
 import com.google.common.base.Preconditions;
+import org.jboss.pnc.datastore.limits.RSQLPageLimitAndSortingProducer;
+import org.jboss.pnc.datastore.predicates.RSQLPredicate;
 import org.jboss.pnc.datastore.predicates.RSQLPredicateProducer;
 import org.jboss.pnc.datastore.repositories.ProductRepository;
 import org.jboss.pnc.model.Product;
-import org.jboss.pnc.datastore.predicates.RSQLPredicate;
 import org.jboss.pnc.rest.restmodel.ProductRest;
+import org.springframework.data.domain.Pageable;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
+import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
 
 @Stateless
-public class ProductProvider extends BasePaginationProvider<ProductRest, Product> {
+public class ProductProvider {
 
     private ProductRepository productRepository;
 
@@ -28,24 +31,13 @@ public class ProductProvider extends BasePaginationProvider<ProductRest, Product
     public ProductProvider() {
     }
 
-    // Needed to map the Entity into the proper REST object
-    @Override
-    public Function<? super Product, ? extends ProductRest> toRestModel() {
-        return product -> new ProductRest(product);
-    }
+    public List<ProductRest> getAll(Integer pageIndex, Integer pageSize, String sortingRsql, String query) {
+        RSQLPredicate filteringCriteria = RSQLPredicateProducer.fromRSQL(Product.class, query);
+        Pageable paging = RSQLPageLimitAndSortingProducer.fromRSQL(pageSize, pageIndex, sortingRsql);
 
-    @Override
-    public String getDefaultSortingField() {
-        return Product.DEFAULT_SORTING_FIELD;
-    }
-
-    public Object getAll(Integer pageIndex, Integer pageSize, String field, String sorting, String rsql) {
-        RSQLPredicate rsqlPredicate = RSQLPredicateProducer.fromRSQL(Product.class, rsql);
-        if (noPaginationRequired(pageIndex, pageSize, field, sorting)) {
-            return nullableStreamOf(productRepository.findAll(rsqlPredicate.get())).map(toRestModel()).collect(Collectors.toList());
-        } else {
-            return transform(productRepository.findAll(rsqlPredicate.get(), buildPageRequest(pageIndex, pageSize, field, sorting)));
-        }
+        return nullableStreamOf(productRepository.findAll(filteringCriteria.get(), paging))
+                .map(toRestModel())
+                .collect(Collectors.toList());
     }
 
     public ProductRest getSpecific(Integer id) {
@@ -67,6 +59,10 @@ public class ProductProvider extends BasePaginationProvider<ProductRest, Product
 
         product = productRepository.saveAndFlush(productRest.toProduct());
         return product.getId();
+    }
+
+    public Function<? super Product, ? extends ProductRest> toRestModel() {
+        return product -> new ProductRest(product);
     }
 
 }

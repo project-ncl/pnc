@@ -1,22 +1,24 @@
 package org.jboss.pnc.rest.provider;
 
 import com.google.common.base.Preconditions;
+import org.jboss.pnc.datastore.limits.RSQLPageLimitAndSortingProducer;
 import org.jboss.pnc.datastore.predicates.RSQLPredicate;
 import org.jboss.pnc.datastore.predicates.RSQLPredicateProducer;
 import org.jboss.pnc.datastore.repositories.EnvironmentRepository;
 import org.jboss.pnc.model.Environment;
-import org.jboss.pnc.model.User;
 import org.jboss.pnc.rest.restmodel.EnvironmentRest;
+import org.springframework.data.domain.Pageable;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
+import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
 
 @Stateless
-public class EnvironmentProvider extends BasePaginationProvider<EnvironmentRest, Environment> {
+public class EnvironmentProvider {
 
     private EnvironmentRepository environmentRepository;
 
@@ -29,24 +31,13 @@ public class EnvironmentProvider extends BasePaginationProvider<EnvironmentRest,
         this.environmentRepository = environmentRepository;
     }
 
-    // Needed to map the Entity into the proper REST object
-    @Override
-    public Function<? super Environment, ? extends EnvironmentRest> toRestModel() {
-        return environment -> new EnvironmentRest(environment);
-    }
+    public List<EnvironmentRest> getAll(Integer pageIndex, Integer pageSize, String sortingRsql, String query) {
+        RSQLPredicate filteringCriteria = RSQLPredicateProducer.fromRSQL(Environment.class, query);
+        Pageable paging = RSQLPageLimitAndSortingProducer.fromRSQL(pageSize, pageIndex, sortingRsql);
 
-    @Override
-    public String getDefaultSortingField() {
-        return Environment.DEFAULT_SORTING_FIELD;
-    }
-
-    public Object getAll(Integer pageIndex, Integer pageSize, String field, String sorting, String query) {
-        RSQLPredicate filteringCriteria = RSQLPredicateProducer.fromRSQL(User.class, query);
-        if (noPaginationRequired(pageIndex, pageSize, field, sorting)) {
-            return nullableStreamOf(environmentRepository.findAll(filteringCriteria.get())).map(toRestModel()).collect(Collectors.toList());
-        } else {
-            return transform(environmentRepository.findAll(filteringCriteria.get(), buildPageRequest(pageIndex, pageSize, field, sorting)));
-        }
+        return nullableStreamOf(environmentRepository.findAll(filteringCriteria.get(), paging))
+                .map(toRestModel())
+                .collect(Collectors.toList());
     }
 
     public EnvironmentRest getSpecific(Integer environmentId) {
@@ -70,5 +61,9 @@ public class EnvironmentProvider extends BasePaginationProvider<EnvironmentRest,
     public void delete(Integer environmentId) {
         Preconditions.checkArgument(environmentRepository.exists(environmentId), "Couldn't find environment with id " + environmentId);
         environmentRepository.delete(environmentId);
+    }
+
+    public Function<? super Environment, ? extends EnvironmentRest> toRestModel() {
+        return environment -> new EnvironmentRest(environment);
     }
 }

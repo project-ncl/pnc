@@ -1,15 +1,6 @@
 package org.jboss.pnc.integration;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
-
-import java.lang.invoke.MethodHandles;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import javax.inject.Inject;
-import javax.ws.rs.core.StreamingOutput;
-
+import cz.jirutka.rsql.parser.RSQLParserException;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.junit.InSequence;
@@ -18,12 +9,8 @@ import org.jboss.pnc.datastore.predicates.RSQLPredicateProducer;
 import org.jboss.pnc.datastore.repositories.BuildConfigurationRepository;
 import org.jboss.pnc.datastore.repositories.BuildRecordRepository;
 import org.jboss.pnc.integration.deployments.Deployments;
-import org.jboss.pnc.model.Artifact;
-import org.jboss.pnc.model.ArtifactStatus;
-import org.jboss.pnc.model.BuildConfiguration;
-import org.jboss.pnc.model.BuildDriverStatus;
-import org.jboss.pnc.model.BuildRecord;
-import org.jboss.pnc.rest.provider.BuildArtifactProvider;
+import org.jboss.pnc.model.*;
+import org.jboss.pnc.rest.provider.ArtifactProvider;
 import org.jboss.pnc.rest.provider.BuildRecordProvider;
 import org.jboss.pnc.rest.restmodel.ArtifactRest;
 import org.jboss.pnc.rest.restmodel.BuildRecordRest;
@@ -34,7 +21,14 @@ import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import cz.jirutka.rsql.parser.RSQLParserException;
+import javax.inject.Inject;
+import javax.ws.rs.core.StreamingOutput;
+import java.lang.invoke.MethodHandles;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
 
 @RunWith(Arquillian.class)
 public class BuildRecordsTest {
@@ -50,7 +44,7 @@ public class BuildRecordsTest {
     private BuildConfigurationRepository buildConfigurationRepository;
 
     @Inject
-    private BuildArtifactProvider buildArtifactProvider;
+    private ArtifactProvider artifactProvider;
 
     @Inject
     private BuildRecordProvider buildRecordProvider;
@@ -92,8 +86,7 @@ public class BuildRecordsTest {
     @Test
     public void shouldGetAllBuildRecords() {
         // when
-        List<BuildRecordRest> buildRecords = (List<BuildRecordRest>) buildRecordProvider.getAllArchived(null, null, null, null,
-                null);
+        List<BuildRecordRest> buildRecords = (List<BuildRecordRest>) buildRecordProvider.getAllArchived(0, 999, null, null);
 
         // then
         assertThat(buildRecords).isNotNull();
@@ -121,7 +114,7 @@ public class BuildRecordsTest {
     @Test
     public void shouldGetArtifactsForSpecificBuildResult() {
         // when
-        List<ArtifactRest> artifacts = buildArtifactProvider.getAll(buildRecordId);
+        List<ArtifactRest> artifacts = artifactProvider.getAll(0, 999, null, null, buildRecordId);
 
         // then
         assertThat(artifacts).hasSize(1);

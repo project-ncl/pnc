@@ -1,9 +1,13 @@
 package org.jboss.pnc.rest.provider;
 
 import com.google.common.base.Preconditions;
+import org.jboss.pnc.datastore.limits.RSQLPageLimitAndSortingProducer;
+import org.jboss.pnc.datastore.predicates.RSQLPredicate;
+import org.jboss.pnc.datastore.predicates.RSQLPredicateProducer;
 import org.jboss.pnc.datastore.repositories.ProjectRepository;
 import org.jboss.pnc.model.Project;
 import org.jboss.pnc.rest.restmodel.ProjectRest;
+import org.springframework.data.domain.Pageable;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
@@ -16,7 +20,7 @@ import static org.jboss.pnc.datastore.predicates.ProjectPredicates.withProductVe
 import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
 
 @Stateless
-public class ProjectProvider extends BasePaginationProvider<ProjectRest, Project> {
+public class ProjectProvider {
 
     private ProjectRepository projectRepository;
 
@@ -29,30 +33,17 @@ public class ProjectProvider extends BasePaginationProvider<ProjectRest, Project
     public ProjectProvider() {
     }
 
-    // Needed to map the Entity into the proper REST object
-    @Override
-    public Function<? super Project, ? extends ProjectRest> toRestModel() {
-        return project -> new ProjectRest(project);
-    }
-
-    @Override
     public String getDefaultSortingField() {
         return Project.DEFAULT_SORTING_FIELD;
     }
 
-    public Object getAll(Integer pageIndex, Integer pageSize, String field, String sorting) {
+    public List<ProjectRest> getAll(Integer pageIndex, Integer pageSize, String sortingRsql, String query) {
+        RSQLPredicate filteringCriteria = RSQLPredicateProducer.fromRSQL(Project.class, query);
+        Pageable paging = RSQLPageLimitAndSortingProducer.fromRSQL(pageSize, pageIndex, sortingRsql);
 
-        if (noPaginationRequired(pageIndex, pageSize, field, sorting)) {
-            return projectRepository.findAll().stream().map(toRestModel()).collect(Collectors.toList());
-        } else {
-            return transform(projectRepository.findAll(buildPageRequest(pageIndex, pageSize, field, sorting)));
-        }
-    }
-
-    public List<ProjectRest> getAll(Integer productId, Integer productVersionId, String field, String sorting, String rsql) {
-        Iterable<Project> project = projectRepository.findAll(withProductVersionId(productVersionId).and(
-                withProductId(productId)));
-        return nullableStreamOf(project).map(productVersion -> new ProjectRest(productVersion)).collect(Collectors.toList());
+        return nullableStreamOf(projectRepository.findAll(filteringCriteria.get(), paging))
+                .map(toRestModel())
+                .collect(Collectors.toList());
     }
 
     public ProjectRest getSpecific(Integer id) {
@@ -76,12 +67,20 @@ public class ProjectProvider extends BasePaginationProvider<ProjectRest, Project
         return project.getId();
     }
 
-    public List<ProjectRest> getAllForProductAndProductVersion(Integer productId, Integer versionId) {
-        return mapToListOfProjectRest(projectRepository.findAll(withProductId(productId).and(withProductVersionId(versionId))));
+    public Function<? super Project, ? extends ProjectRest> toRestModel() {
+        return project -> new ProjectRest(project);
     }
 
-    private List<ProjectRest> mapToListOfProjectRest(Iterable<Project> entries) {
-        return nullableStreamOf(entries).map(project -> new ProjectRest(project)).collect(Collectors.toList());
-    }
+    public List<ProjectRest> getAllForProductAndProductVersion(Integer pageIndex, Integer pageSize, String sortingRsql, String query,
+            Integer productId, Integer versionId) {
+        RSQLPredicate filteringCriteria = RSQLPredicateProducer.fromRSQL(Project.class, query);
+        Pageable paging = RSQLPageLimitAndSortingProducer.fromRSQL(pageSize, pageIndex, sortingRsql);
 
+        return nullableStreamOf(projectRepository.findAll(
+                withProductId(productId)
+                        .and(withProductVersionId(versionId))
+                        .and(filteringCriteria.get()), paging))
+                .map(toRestModel())
+                .collect(Collectors.toList());
+    }
 }
