@@ -52,8 +52,8 @@ public class ProductVersion implements Serializable {
     @OneToMany(mappedBy = "productVersion", cascade = CascadeType.ALL)
     private Set<ProductVersionProject> productVersionProjects;
 
-    @OneToOne
-    @JoinColumn(name="buildrecordset_id")
+    @OneToOne(optional = true, cascade = { CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH })
+    @JoinColumn(name = "buildrecordset_id")
     private BuildRecordSet buildRecordSet;
 
     public ProductVersion() {
@@ -168,8 +168,7 @@ public class ProductVersion implements Serializable {
     }
 
     /**
-     * Build record set represents the set of completed builds
-     * which produced the artifacts included in the product release
+     * Build record set represents the set of completed builds which produced the artifacts included in the product release
      * 
      * @return The set of build records for this release
      */
@@ -188,4 +187,10 @@ public class ProductVersion implements Serializable {
     public void setProductVersionProjects(Set<ProductVersionProject> productVersionProjects) {
         this.productVersionProjects = productVersionProjects;
     }
+
+    @Override
+    public String toString() {
+        return "ProductVersion [id=" + id + ", version=" + version + "]";
+    }
+
 }

@@ -24,6 +24,7 @@ public class JaxRsActivator extends Application {
         resources.add(ProjectEndpoint.class);
         resources.add(BuildConfigurationEndpoint.class);
         resources.add(BuildRecordEndpoint.class);
+        resources.add(BuildRecordSetEndpoint.class);
         resources.add(RunningBuildRecordEndpoint.class);
         resources.add(UserEndpoint.class);
         resources.add(LicenseEndpoint.class);

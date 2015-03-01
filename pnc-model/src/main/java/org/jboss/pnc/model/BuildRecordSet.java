@@ -1,13 +1,21 @@
 package org.jboss.pnc.model;
 
-import javax.persistence.*;
 import java.io.Serializable;
 import java.util.List;
 
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
+import javax.persistence.OneToOne;
+import javax.persistence.PreRemove;
+
 /**
  * The Class BuildRecordSet, that encapsulates the set of buildRecords that compose a specific version of a Product.
- *
- * There should be a unique constraint (productVersion, productBuildNumber)
  *
  * @author avibelli
  */
@@ -16,19 +24,20 @@ public class BuildRecordSet implements Serializable {
 
     private static final long serialVersionUID = 1633628406382742445L;
 
+    public static final String DEFAULT_SORTING_FIELD = "id";
+
     @Id
     @GeneratedValue
     private Integer id;
 
-    private Integer productBuildNumber;
-
     @Enumerated(EnumType.STRING)
     private ProductMilestone milestone;
 
-    @OneToOne(mappedBy="buildRecordSet")
+    @OneToOne(optional = true, mappedBy = "buildRecordSet")
     private ProductVersion productVersion;
 
     @ManyToMany
+    @JoinTable(name = "build_record_set_map", joinColumns = { @JoinColumn(name = "build_record_set_id", referencedColumnName = "id") }, inverseJoinColumns = { @JoinColumn(name = "build_record_id", referencedColumnName = "id") })
     private List<BuildRecord> buildRecord;
 
     /**
@@ -36,6 +45,13 @@ public class BuildRecordSet implements Serializable {
      */
     public BuildRecordSet() {
 
+    }
+
+    @PreRemove
+    private void removeFromProductVersion() {
+        if (productVersion != null) {
+            productVersion.setBuildRecordSet(null);
+        }
     }
 
     /**
@@ -54,20 +70,6 @@ public class BuildRecordSet implements Serializable {
      */
     public void setId(Integer id) {
         this.id = id;
-    }
-
-    /**
-     * @return the productBuildNumber
-     */
-    public Integer getProductBuildNumber() {
-        return productBuildNumber;
-    }
-
-    /**
-     * @param productBuildNumber the productBuildNumber to set
-     */
-    public void setProductBuildNumber(Integer productBuildNumber) {
-        this.productBuildNumber = productBuildNumber;
     }
 
     /**
@@ -115,7 +117,7 @@ public class BuildRecordSet implements Serializable {
     @Override
     public String toString() {
         return "BuildRecordSet [productName=" + productVersion.getProduct().getName() + ", productVersion="
-                + productVersion.getVersion() + ", productBuildNumber=" + productBuildNumber + "]";
+                + productVersion.getVersion() + "]";
     }
 
 }

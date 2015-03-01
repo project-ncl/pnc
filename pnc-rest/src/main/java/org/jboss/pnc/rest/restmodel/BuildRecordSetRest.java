@@ -1,21 +1,23 @@
 package org.jboss.pnc.rest.restmodel;
 
-import org.jboss.pnc.model.BuildRecordSet;
-import org.jboss.pnc.model.ProductMilestone;
+import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
+import static org.jboss.pnc.rest.utils.Utility.performIfNotNull;
 
-import javax.xml.bind.annotation.XmlRootElement;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
-import static org.jboss.pnc.rest.utils.Utility.performIfNotNull;
+import javax.xml.bind.annotation.XmlRootElement;
+
+import org.jboss.pnc.model.BuildRecordSet;
+import org.jboss.pnc.model.ProductMilestone;
+import org.jboss.pnc.model.builder.BuildRecordBuilder;
+import org.jboss.pnc.model.builder.BuildRecordSetBuilder;
+import org.jboss.pnc.model.builder.ProductVersionBuilder;
 
 @XmlRootElement(name = "BuildRecordSet")
 public class BuildRecordSetRest {
 
     private Integer id;
-
-    private Integer productBuildNumber;
 
     private ProductMilestone milestone;
 
@@ -28,11 +30,10 @@ public class BuildRecordSetRest {
 
     public BuildRecordSetRest(BuildRecordSet buildRecordSet) {
         this.id = buildRecordSet.getId();
-        this.productBuildNumber = buildRecordSet.getProductBuildNumber();
         this.milestone = buildRecordSet.getMilestone();
-        performIfNotNull(buildRecordSet.getProductVersion() != null, () ->this.productVersionId = buildRecordSet.getProductVersion().getId());
-        this.buildRecordIds = nullableStreamOf(buildRecordSet.getBuildRecord())
-                .map(buildRecord -> buildRecord.getId())
+        performIfNotNull(buildRecordSet.getProductVersion() != null, () -> this.productVersionId = buildRecordSet
+                .getProductVersion().getId());
+        this.buildRecordIds = nullableStreamOf(buildRecordSet.getBuildRecord()).map(buildRecord -> buildRecord.getId())
                 .collect(Collectors.toList());
 
     }
@@ -43,14 +44,6 @@ public class BuildRecordSetRest {
 
     public void setId(Integer id) {
         this.id = id;
-    }
-
-    public Integer getProductBuildNumber() {
-        return productBuildNumber;
-    }
-
-    public void setProductBuildNumber(Integer productBuildNumber) {
-        this.productBuildNumber = productBuildNumber;
     }
 
     public ProductMilestone getMilestone() {
@@ -75,6 +68,22 @@ public class BuildRecordSetRest {
 
     public void setBuildRecordIds(List<Integer> buildRecordIds) {
         this.buildRecordIds = buildRecordIds;
+    }
+
+    public BuildRecordSet toBuildRecordSet() {
+        BuildRecordSetBuilder builder = BuildRecordSetBuilder.newBuilder();
+        builder.id(id);
+        builder.milestone(milestone);
+
+        performIfNotNull(productVersionId != null,
+                () -> builder.productVersion(ProductVersionBuilder.newBuilder().id(productVersionId).build()));
+
+        nullableStreamOf(buildRecordIds).forEach(buildRecordId -> {
+            BuildRecordBuilder buildRecordBuilder = BuildRecordBuilder.newBuilder().id(buildRecordId);
+            builder.buildRecord(buildRecordBuilder.build());
+        });
+
+        return builder.build();
     }
 
 }

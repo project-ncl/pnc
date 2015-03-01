@@ -1,0 +1,4 @@
+{
+    "productVersionId": ${_productVersionId},
+    "buildRecordIds": [${_buildRecordIds}]
+}

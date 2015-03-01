@@ -33,8 +33,6 @@ public class BuildRecordSetBuilder {
 
     private Integer id;
 
-    private Integer productBuildBumber;
-
     private ProductMilestone milestone;
 
     private ProductVersion productVersion;
@@ -52,7 +50,6 @@ public class BuildRecordSetBuilder {
     public BuildRecordSet build() {
         BuildRecordSet buildRecordSet = new BuildRecordSet();
         buildRecordSet.setId(id);
-        buildRecordSet.setProductBuildNumber(productBuildBumber);
         buildRecordSet.setMilestone(milestone);
 
         if (productVersion != null) {
@@ -72,11 +69,6 @@ public class BuildRecordSetBuilder {
 
     public BuildRecordSetBuilder id(Integer id) {
         this.id = id;
-        return this;
-    }
-
-    public BuildRecordSetBuilder productBuildBumber(Integer productBuildBumber) {
-        this.productBuildBumber = productBuildBumber;
         return this;
     }
 
@@ -102,10 +94,6 @@ public class BuildRecordSetBuilder {
 
     public Integer getId() {
         return id;
-    }
-
-    public Integer getProductBuildBumber() {
-        return productBuildBumber;
     }
 
     public ProductMilestone getMilestone() {
