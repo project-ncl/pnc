@@ -14,7 +14,6 @@ public class TestBuildRecordSetBuilder {
         product.addVersion(productVersion);
         BuildRecordSet buildRecordSet = new BuildRecordSet();
         buildRecordSet.setProductVersion(productVersion);
-        buildRecordSet.setProductBuildNumber(1);
         return buildRecordSet;
     }
 

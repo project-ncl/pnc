@@ -113,6 +113,10 @@ public class BuildRecordBuilder {
         }
         buildRecord.setDependencies(dependencies);
 
+        // Set the bi-directional mapping
+        for (BuildRecordSet buildRecordSet : buildRecordSets) {
+            buildRecordSet.getBuildRecord().add(buildRecord);
+        }
         buildRecord.setBuildRecordSets(buildRecordSets);
 
         return buildRecord;

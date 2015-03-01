@@ -1,6 +1,22 @@
 package org.jboss.pnc.rest.provider;
 
-import com.google.common.base.Strings;
+import static org.jboss.pnc.datastore.predicates.BuildRecordPredicates.withBuildConfigurationId;
+import static org.jboss.pnc.datastore.predicates.BuildRecordPredicates.withBuildRecordId;
+import static org.jboss.pnc.datastore.predicates.BuildRecordPredicates.withProjectId;
+import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
+
+import java.io.BufferedWriter;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
+import java.lang.invoke.MethodHandles;
+import java.util.List;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
+import javax.ejb.Stateless;
+import javax.inject.Inject;
+import javax.ws.rs.core.StreamingOutput;
+
 import org.jboss.pnc.core.builder.BuildCoordinator;
 import org.jboss.pnc.core.builder.BuildTask;
 import org.jboss.pnc.datastore.limits.RSQLPageLimitAndSortingProducer;
@@ -13,19 +29,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Pageable;
 
-import javax.ejb.Stateless;
-import javax.inject.Inject;
-import javax.ws.rs.core.StreamingOutput;
-import java.io.BufferedWriter;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
-import java.lang.invoke.MethodHandles;
-import java.util.List;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-
-import static org.jboss.pnc.datastore.predicates.BuildRecordRepositoryPredicates.*;
-import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
+import com.google.common.base.Strings;
 
 @Stateless
 public class BuildRecordProvider {
