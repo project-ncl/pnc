@@ -11,7 +11,7 @@
       </div>
       <div class="col-md-6">
         <span class="btn-group pull-right" style="margin-top: 2rem;" role="group" aria-label="Action Toolbar">
-          <button type="button" class="btn btn-lg btn-default disabled" data-toggle="tooltip" title="Start Build"><i class="fa fa-play"></i> Build</button>
+          <button type="button" class="btn btn-lg btn-default" data-toggle="tooltip" title="Start Build" ng-click="controls.build()"><i class="fa fa-play"></i> Build</button>
           <button type="button" class="btn btn-lg btn-default" data-toggle="tooltip" title="Clone Configuration" data-ng-click="cloneConfig()"><i class="fa fa-files-o"></i> Clone</button>
           <button type="button" class="btn btn-lg btn-default" data-toggle="tooltip" title="Edit Configuration" data-ng-click="configurationForm.$show()" data-ng-class="{ 'active': configurationForm.$visible }"><i class="pficon pficon-edit"></i> Edit</button>
           <button type="button" class="btn btn-lg btn-danger" data-toggle="tooltip" title="Delete Configuration" pnc-confirm-click="deleteConfig()" pnc-confirm-message="{{ 'Confirm the deletion of Build Configuration: ' + buildConfig.name + ' ?'}}"><i class="pficon pficon-delete"></i> Delete</button>

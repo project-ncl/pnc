@@ -8,7 +8,10 @@
     '$scope', '$state', 'PncRestClient',
     function($scope, $state, PncRestClient) {
 
-      // TODO: Refactor methods into a service.
+      /*
+       * TODO: IF the column browser feature is to be kept this code wil be
+       * factored out into a second directive and a service.
+       */
 
       /* Creates new column object for use with the column-browse-column
        * directive the column browse UI element directive. The object will
@@ -262,6 +265,27 @@
          $scope.columnBrowse.configurations.setSelected(configurationDetails);
       }
 
+      $scope.controls = {};
+
+
+      $scope.controls.build = function() {
+        $log.debug('ConfigurationShowController.buildConfiguration ' +
+                   '>> $scope=%O', $scope);
+
+        $scope.buildConfig.$build().then(
+          function(result) {
+            Notifications.success('Initiated build of configuration:' +
+                                  $scope.buildConfig.name);
+          },
+          function(response) {
+            $log.error('Failed to initiated build: %O, response: %O',
+                       $scope.buildConfig, response);
+            Notifications.error('Action Failed.');
+          }
+
+        );
+      };
+
       $scope.updateConfiguration = function() {
         $log.debug('ConfigurationShowController.updateConfiguration ' +
                    '$scope: %O', $scope);
@@ -271,9 +295,9 @@
             Notifications.success('Configuration updated.');
           },
           function(response) {
-            $log.error('Update configuration: ' + $scope.buildConfig.name +
-                       ' failed, response: %O', response);
-            Notifications.error('Unable to reach server.');
+            $log.error('Update configuration: %O failed, response: %O',
+                       $scope.buildConfig, response);
+            Notifications.error('Action Failed.');
           }
         );
       };
@@ -285,7 +309,9 @@
                     'configuration.show');
         },
         function(response) {
-          Notifications.error('Unable to reach server');
+            $log.error('Clone configuration: %O failed, response: %O',
+                       $scope.buildConfig, response);
+          Notifications.error('Action Failed.');
         });
       };
 
@@ -298,7 +324,9 @@
           },
           // Failure
           function (response) {
-            Notifications.error('Unable to reach server');
+            $log.error('Delete configuration: %O failed, response: %O',
+                       $scope.buildConfig, response);
+            Notifications.error('Action Failed.');
           }
         );
       };
@@ -306,9 +334,9 @@
   ]);
 
   module.controller('ConfigurationCreateController', [
-    '$scope', '$state', 'PncRestClient', 'Notifications', 'environments',
-    'projects',
-    function($scope, $state, PncRestClient, Notifications, environments,
+    '$scope', '$state', '$log', 'PncRestClient', 'Notifications',
+    'environments', 'projects',
+    function($scope, $state, $log, PncRestClient, Notifications, environments,
              projects) {
       $scope.createConfigForm = {};
       $scope.createConfigForm.data = new PncRestClient.Configuration();
@@ -324,7 +352,8 @@
             });
           },
           function(response) {
-            Notifications.error('Unable to reach server');
+            $log.error('Create configuration failed: response: %O', response);
+            Notifications.error('Action Failed.');
           }
         );
       };
