@@ -24,6 +24,8 @@ public class RSQLPageLimits extends EmptyPageLimits {
 
     private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
+    private static final String FIXED_START_OF_SORTING_EXPRESSION = "sort";
+
     private final List<String> sortingFields = new ArrayList<>();
     private Sort.Direction sortingDirection = Sort.DEFAULT_DIRECTION;
 
@@ -31,9 +33,15 @@ public class RSQLPageLimits extends EmptyPageLimits {
         super(size, offset);
         Preconditions.checkArgument(sortingRsql != null && !sortingRsql.isEmpty(), "RSQL for sorting can't be null or empty");
 
+        StringBuilder sortingRsqlBuilder = new StringBuilder(sortingRsql);
+        if(!sortingRsql.startsWith(FIXED_START_OF_SORTING_EXPRESSION)) {
+            sortingRsqlBuilder.insert(0, FIXED_START_OF_SORTING_EXPRESSION);
+        }
+
         RSQLParser rsqlParser = new RSQLParser(new SortingRSQLNodesFactory());
         try {
-            Node parse = rsqlParser.parse(sortingRsql);
+            //since we need to parse nodes (operand + operation + arguments, we have to append some work at the beginning).
+            Node parse = rsqlParser.parse(sortingRsqlBuilder.toString());
             parse.accept(new SortingRSQLVisitor<Boolean, Void>() {
                 @Override public Boolean visit(AscendingSortingNode node, Void param) {
                     sortingDirection = Sort.Direction.ASC;

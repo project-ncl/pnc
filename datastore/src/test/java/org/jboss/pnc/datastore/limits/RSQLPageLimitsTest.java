@@ -76,6 +76,20 @@ public class RSQLPageLimitsTest {
         PageableAssertion.assertThat(testedLimits).hasSorting(Sort.Direction.DESC, "id", "name");
     }
 
+    @Test
+    public void shouldAllowSortingStringWithoutSortAtTheBeginning() throws Exception {
+        //given
+        int size = 12;
+        int offset = 13;
+        String sorting = "=desc=(id,name)";
+
+        //when
+        Pageable testedLimits = RSQLPageLimitAndSortingProducer.fromRSQL(size, offset, sorting);
+
+        //then
+        PageableAssertion.assertThat(testedLimits).hasSorting(Sort.Direction.DESC, "id", "name");
+    }
+
     @Test(expected = IllegalArgumentException.class)
     public void shouldRejectNegativeSize() throws Exception {
         //given

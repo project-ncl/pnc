@@ -3,29 +3,33 @@ package org.jboss.pnc.integration;
 import cz.jirutka.rsql.parser.RSQLParserException;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
-import org.jboss.arquillian.transaction.api.annotation.TransactionMode;
 import org.jboss.arquillian.transaction.api.annotation.Transactional;
+import org.jboss.pnc.datastore.limits.RSQLPageLimitAndSortingProducer;
 import org.jboss.pnc.datastore.predicates.RSQLPredicateProducer;
 import org.jboss.pnc.datastore.repositories.UserRepository;
 import org.jboss.pnc.integration.deployments.Deployments;
 import org.jboss.pnc.model.User;
+import org.jboss.pnc.model.builder.UserBuilder;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Pageable;
 
 import javax.inject.Inject;
 import java.lang.invoke.MethodHandles;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
 
 @RunWith(Arquillian.class)
-@Transactional(TransactionMode.ROLLBACK)
+@Transactional
 public class RSQLTest {
 
     public static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
@@ -33,6 +37,7 @@ public class RSQLTest {
     @Inject
     private UserRepository userRepository;
 
+    private static final AtomicBoolean isInitialized = new AtomicBoolean();
 
     @Deployment
     public static EnterpriseArchive deploy() {
@@ -41,6 +46,15 @@ public class RSQLTest {
         war.addClass(RSQLTest.class);
         logger.info(enterpriseArchive.toString(true));
         return enterpriseArchive;
+    }
+
+    @Before
+    public void before() {
+        if(!isInitialized.getAndSet(true)) {
+            userRepository.save(UserBuilder.newBuilder().username("Abacki").email("a@rh.com").build());
+            userRepository.save(UserBuilder.newBuilder().username("Babacki").email("b@rh.com").build());
+            userRepository.save(UserBuilder.newBuilder().username("Cabacki").email("c@rh.com").build());
+        }
     }
 
     @Test
@@ -91,8 +105,41 @@ public class RSQLTest {
         assertThat(users).isEmpty();
     }
 
+    @Test
+    public void shouldLimitReturnedUsers() throws RSQLParserException {
+        // given
+        int pageSize = 1;
+        int pageNumber = 0;
+        String sortingQuery = "";
+
+        // when
+        List<User> users = sortUsers(pageSize, pageNumber, sortingQuery);
+
+        //then
+        assertThat(users).hasSize(1);
+    }
+
+    @Test
+    public void shouldSortById() throws RSQLParserException {
+        // given
+        int pageSize = 999;
+        int pageNumber = 0;
+        String sortingQuery = "=asc=id";
+
+        // when
+        List<User> users = sortUsers(pageSize, pageNumber, sortingQuery);
+        List<String> sortedUsers = nullableStreamOf(users).map(user -> user.getUsername()).collect(Collectors.toList());
+
+        //then
+        assertThat(sortedUsers).containsExactly("demo-user", "Abacki", "Babacki", "Cabacki");
+    }
+
     private List<User> selectUsers(String rsqlQuery) throws RSQLParserException {
         return nullableStreamOf(userRepository.findAll(RSQLPredicateProducer.fromRSQL(User.class, rsqlQuery).get())).collect(Collectors.toList());
     }
 
+    private List<User> sortUsers(int pageSize, int offset, String sorting) throws RSQLParserException {
+        Pageable pageable = RSQLPageLimitAndSortingProducer.fromRSQL(pageSize, offset, sorting);
+        return nullableStreamOf(userRepository.findAll(pageable)).collect(Collectors.toList());
+    }
 }
