@@ -1,6 +1,31 @@
 #Project-ncl
 
-Main Modules:
+Building Project
+----------------
+Requirements:
+
+* JDK 8
+* Maven 3.2
+
+Command line arguments:
+
+The default build is executed by running `ḿvn clean install`.<br />
+By default the tests that require remote services and integration tests are disabled.<br />
+In order to run remote and integration tests you have to specify remote services location and credentials by edit configuration file `common/src/main/resources/pnc-config.json`.<br />
+By default the configuration file uses env variables, you can set required variables (see file for list of them) instead of editing the file itself.<br />
+If you want to use different (external) config file location you can define path to it with `-Dpnc-config-file=/path/to/pnc-config.json`.
+
+Remote tests are defined by class name *RemoteTest.java<br />
+To run remote test use `ḿvn clean install -DremoteTest=true`
+
+Integration tests are placed in module "integrations-tests" to run them use `-Pintegration-test`.
+
+Both command line options can be combined to run all tests.
+`ḿvn clean install -DremoteTest=true -Pintegration-test`
+
+
+Main Modules
+------------
 * `datastore`: Implementation of pnc-spi:org.jboss.pnc.spi.datastore
 * `jenkins-build-driver`: Implementation of pnc-spi:org.jboss.pnc.spi.builddriver
 * `maven-repository-manager`: Implementation of pnc-spi:org.jboss.pnc.spi.repositorymanager
