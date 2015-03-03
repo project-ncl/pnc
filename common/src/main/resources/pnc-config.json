@@ -3,13 +3,13 @@
         "configs":[
           {
             "@module-config":"jenkins-build-driver",
-            "url":"http://test/url",
-            "username":"pavel",
-            "password":"test"
+            "url":"${env.PNC_JENKINS_URL}",
+            "username":"${env.PNC_JENKINS_USERNAME}",
+            "password":"${env.PNC_JENKINS_PASSWORD}"
           },
           {
             "@module-config":"maven-repo-driver",
-            "baseUrl":"http://something/base"
+            "baseUrl":"${env.PNC_APROX_URL}"
           }
         ]
 }
