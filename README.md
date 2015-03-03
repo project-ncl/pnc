@@ -9,7 +9,7 @@ Requirements:
 
 Command line arguments:
 
-The default build is executed by running `ḿvn clean install`.<br />
+The default build is executed by running `mvn clean install`.<br />
 By default the tests that require remote services and integration tests are disabled.<br />
 In order to run remote and integration tests you have to specify remote services location and credentials by edit configuration file `common/src/main/resources/pnc-config.json`.<br />
 By default the configuration file uses env variables, you can set required variables (see file for list of them) instead of editing the file itself.<br />
