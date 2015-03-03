@@ -20,8 +20,7 @@ To run remote test use `ḿvn clean install -DremoteTest=true`
 
 Integration tests are placed in module "integrations-tests" to run them use `-Pintegration-test`.
 
-Both command line options can be combined to run all tests.
-`ḿvn clean install -DremoteTest=true -Pintegration-test`
+To run remote and integration tests combine both commands `ḿvn clean install -DremoteTest=true -Pintegration-test`.
 
 
 Main Modules
