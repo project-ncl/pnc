@@ -39,11 +39,7 @@ public class Configuration<T extends AbstractModuleConfig> {
             log.info("Loading configuration for class: " + moduleClass 
                     + " from file: " + configFile.getAbsolutePath());
 
-            T config = new ConfigurationJSONParser<T>().parseJSONConfig(configString, moduleClass);
-            if (config != null) {
-                return config;
-            }
-            throw new ConfigurationParseException("Config could not be parsed");
+            return new ConfigurationJSONParser<T>().parseJSONConfig(configString, moduleClass);
         } catch (IOException e) {
             throw new ConfigurationParseException("Config could not be parsed", e);
         }
