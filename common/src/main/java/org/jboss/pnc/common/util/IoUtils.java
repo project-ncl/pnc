@@ -26,6 +26,7 @@ public class IoUtils {
 
     /**
      * Reads whole content of file to String
+     * 
      * @param fileName Existing file
      * @return File content
      * @throws IOException Thrown if data couldn't be loaded
@@ -34,7 +35,21 @@ public class IoUtils {
         try (Scanner sc = new Scanner(fileName, Charset.defaultCharset().name())) {
             sc.useDelimiter("\\A");
             return sc.next();
-        } 
+        }
+    }
+
+    /**
+     * Reads whole content of input stream to String
+     * 
+     * @param stream Opened stream
+     * @return Stream content
+     * @throws IOException Thrown if data couldn't be loaded
+     */
+    public static String readStreamAsString(InputStream stream) throws IOException {
+        try (Scanner sc = new Scanner(stream, Charset.defaultCharset().name())) {
+            sc.useDelimiter("\\A");
+            return sc.next();
+        }
     }
 
     /**
