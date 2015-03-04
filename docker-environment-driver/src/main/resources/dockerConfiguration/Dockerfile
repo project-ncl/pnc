@@ -3,6 +3,7 @@ MAINTAINER Jakub Bartecek <jbartece@redhat.com>
 USER root
 
 #Install SSHD
+# why? see http://blog.docker.com/2014/06/why-you-dont-need-to-run-sshd-in-docker/
 RUN apt-get update && apt-get install -y openssh-server
 RUN mkdir /var/run/sshd
 
@@ -19,12 +20,22 @@ RUN echo "export VISIBLE=now" >> /etc/profile
 #RUN chown jenkins /usr/sbin/sshd
 
 #Install maven
-ADD http://mirror.hosting90.cz/apache/maven/maven-3/3.2.5/binaries/apache-maven-3.2.5-bin.tar.gz /root/maven.tar.gz
-RUN mkdir /usr/apache-maven/
-RUN tar -xzvf /root/maven.tar.gz --directory=/usr/apache-maven
-RUN echo "export M2_HOME=/usr/apache-maven/apache-maven-3.2.5" >> /etc/profile
-RUN echo "export PATH=$PATH:/usr/apache-maven/apache-maven-3.2.5/bin" >> /etc/profile
+# set installed Maven version you can easily change it later
+ENV MAVEN_VERSION 3.2.5
+RUN curl -sSL http://archive.apache.org/dist/maven/maven-3/$MAVEN_VERSION/binaries/apache-maven-$MAVEN_VERSION-bin.tar.gz | tar xzf - -C /usr/share \
+&& mv /usr/share/apache-maven-$MAVEN_VERSION /usr/share/maven \
+&& ln -s /usr/share/maven/bin/mvn /usr/bin/mvn
+ 
+RUN echo "export M2_HOME=/usr/share/maven" >> /etc/profile
+# isn't better to set it like? ^^^
+# ENV M2_HOME /usr/share/maven 
 RUN mkdir /root/.m2
+
+# Could be used for images based on this Docker image to specify default mirrored repository if different from Maven Central below
+ENV mavenRepositoryUrl http://repo.maven.apache.org/maven2
+ADD settings.xml /usr/share/maven/conf/settings.xml
+
+ADD isolate-with-iptables.sh /tmp/isolate-with-iptables.sh
 
 #Prepare script to start Jenkins and SSH daemon
 RUN echo "/usr/sbin/sshd -D & \n /usr/local/bin/jenkins.sh " > /usr/bin/startPrograms.sh
