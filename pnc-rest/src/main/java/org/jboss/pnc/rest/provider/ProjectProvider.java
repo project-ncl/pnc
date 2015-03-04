@@ -37,7 +37,7 @@ public class ProjectProvider {
         return Project.DEFAULT_SORTING_FIELD;
     }
 
-    public List<ProjectRest> getAll(Integer pageIndex, Integer pageSize, String sortingRsql, String query) {
+    public List<ProjectRest> getAll(int pageIndex, int pageSize, String sortingRsql, String query) {
         RSQLPredicate filteringCriteria = RSQLPredicateProducer.fromRSQL(Project.class, query);
         Pageable paging = RSQLPageLimitAndSortingProducer.fromRSQL(pageSize, pageIndex, sortingRsql);
 
@@ -71,7 +71,7 @@ public class ProjectProvider {
         return project -> new ProjectRest(project);
     }
 
-    public List<ProjectRest> getAllForProductAndProductVersion(Integer pageIndex, Integer pageSize, String sortingRsql, String query,
+    public List<ProjectRest> getAllForProductAndProductVersion(int pageIndex, int pageSize, String sortingRsql, String query,
             Integer productId, Integer versionId) {
         RSQLPredicate filteringCriteria = RSQLPredicateProducer.fromRSQL(Project.class, query);
         Pageable paging = RSQLPageLimitAndSortingProducer.fromRSQL(pageSize, pageIndex, sortingRsql);

@@ -31,7 +31,7 @@ public class ArtifactProvider {
         this.artifactRepository = artifactRepository;
     }
 
-    public List<ArtifactRest> getAll(Integer pageIndex, Integer pageSize, String sortingRsql, String query, Integer buildRecordId) {
+    public List<ArtifactRest> getAll(int pageIndex, int pageSize, String sortingRsql, String query, Integer buildRecordId) {
         RSQLPredicate filteringCriteria = RSQLPredicateProducer.fromRSQL(Artifact.class, query);
         Pageable paging = RSQLPageLimitAndSortingProducer.fromRSQL(pageSize, pageIndex, sortingRsql);
 

@@ -30,7 +30,7 @@ public class UserProvider {
         this.userRepository = userRepository;
     }
 
-    public List<UserRest> getAll(Integer pageIndex, Integer pageSize, String sortingRsql, String query) {
+    public List<UserRest> getAll(int pageIndex, int pageSize, String sortingRsql, String query) {
         RSQLPredicate filteringCriteria = RSQLPredicateProducer.fromRSQL(User.class, query);
         Pageable paging = RSQLPageLimitAndSortingProducer.fromRSQL(pageSize, pageIndex, sortingRsql);
         return nullableStreamOf(userRepository.findAll(filteringCriteria.get(), paging))

@@ -31,7 +31,7 @@ public class LicenseProvider {
         this.licenseRepository = licenseRepository;
     }
 
-    public List<LicenseRest> getAll(Integer pageIndex, Integer pageSize, String sortingRsql, String query) {
+    public List<LicenseRest> getAll(int pageIndex, int pageSize, String sortingRsql, String query) {
         RSQLPredicate filteringCriteria = RSQLPredicateProducer.fromRSQL(License.class, query);
         Pageable paging = RSQLPageLimitAndSortingProducer.fromRSQL(pageSize, pageIndex, sortingRsql);
 

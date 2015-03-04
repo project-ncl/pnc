@@ -31,7 +31,7 @@ public class EnvironmentProvider {
         this.environmentRepository = environmentRepository;
     }
 
-    public List<EnvironmentRest> getAll(Integer pageIndex, Integer pageSize, String sortingRsql, String query) {
+    public List<EnvironmentRest> getAll(int pageIndex, int pageSize, String sortingRsql, String query) {
         RSQLPredicate filteringCriteria = RSQLPredicateProducer.fromRSQL(Environment.class, query);
         Pageable paging = RSQLPageLimitAndSortingProducer.fromRSQL(pageSize, pageIndex, sortingRsql);
 
