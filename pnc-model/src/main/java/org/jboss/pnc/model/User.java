@@ -1,6 +1,7 @@
 package org.jboss.pnc.model;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.Entity;
@@ -205,6 +206,83 @@ public class User implements Serializable {
             return false;
         }
         return true;
+    }
+
+    public static class Builder {
+
+        private Integer id;
+
+        private String email;
+
+        private String firstName;
+
+        private String lastName;
+
+        private String username;
+
+        private List<BuildRecord> buildRecords;
+
+        private Builder() {
+            buildRecords = new ArrayList<>();
+        }
+
+        public static Builder newBuilder() {
+            return new Builder();
+        }
+
+        public User build() {
+
+            User user = new User();
+            user.setId(id);
+            user.setEmail(email);
+            user.setFirstName(firstName);
+            user.setLastName(lastName);
+            user.setUsername(username);
+
+            // Set the bi-directional mapping
+            for (BuildRecord buildRecord : buildRecords) {
+                buildRecord.setUser(user);
+            }
+            user.setBuildRecords(buildRecords);
+
+            return user;
+        }
+
+        public Builder id(Integer id) {
+            this.id = id;
+            return this;
+        }
+
+        public Builder email(String email) {
+            this.email = email;
+            return this;
+        }
+
+        public Builder firstName(String firstName) {
+            this.firstName = firstName;
+            return this;
+        }
+
+        public Builder lastName(String lastName) {
+            this.lastName = lastName;
+            return this;
+        }
+
+        public Builder username(String username) {
+            this.username = username;
+            return this;
+        }
+
+        public Builder buildRecord(BuildRecord buildRecord) {
+            this.buildRecords.add(buildRecord);
+            return this;
+        }
+
+        public Builder buildRecords(List<BuildRecord> buildRecords) {
+            this.buildRecords = buildRecords;
+            return this;
+        }
+
     }
 
 }

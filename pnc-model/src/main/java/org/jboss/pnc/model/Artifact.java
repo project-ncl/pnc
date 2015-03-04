@@ -223,4 +223,81 @@ public class Artifact implements Serializable {
         return "Artifact [identifier=" + identifier + "]";
     }
 
+    public static class Builder {
+
+        private Integer id;
+
+        private String identifier;
+
+        private RepositoryType repoType;
+
+        private String checksum;
+
+        private String filename;
+
+        private String deployUrl;
+
+        private ArtifactStatus status;
+
+        private BuildRecord buildRecord;
+
+        public static Builder newBuilder() {
+            return new Builder();
+        }
+
+        public Artifact build() {
+            Artifact artifact = new Artifact();
+            artifact.setId(id);
+            artifact.setIdentifier(identifier);
+            artifact.setRepoType(repoType);
+            artifact.setChecksum(checksum);
+            artifact.setFilename(filename);
+            artifact.setDeployUrl(deployUrl);
+            artifact.setStatus(status);
+            artifact.setBuildRecord(buildRecord);
+
+            return artifact;
+        }
+
+        public Builder id(Integer id) {
+            this.id = id;
+            return this;
+        }
+
+        public Builder identifier(String identifier) {
+            this.identifier = identifier;
+            return this;
+        }
+
+        public Builder repoType(RepositoryType repoType) {
+            this.repoType = repoType;
+            return this;
+        }
+
+        public Builder checksum(String checksum) {
+            this.checksum = checksum;
+            return this;
+        }
+
+        public Builder filename(String filename) {
+            this.filename = filename;
+            return this;
+        }
+
+        public Builder deployUrl(String deployUrl) {
+            this.deployUrl = deployUrl;
+            return this;
+        }
+
+        public Builder status(ArtifactStatus status) {
+            this.status = status;
+            return this;
+        }
+
+        public Builder buildRecord(BuildRecord buildRecord) {
+            this.buildRecord = buildRecord;
+            return this;
+        }
+
+    }
 }

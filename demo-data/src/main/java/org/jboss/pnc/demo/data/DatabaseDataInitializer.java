@@ -4,7 +4,6 @@ import com.google.common.base.Preconditions;
 import org.jboss.logging.Logger;
 import org.jboss.pnc.datastore.repositories.*;
 import org.jboss.pnc.model.*;
-import org.jboss.pnc.model.builder.*;
 
 import javax.annotation.PostConstruct;
 import javax.ejb.Singleton;
@@ -110,20 +109,20 @@ public class DatabaseDataInitializer {
             /*
              * All the bi-directional mapping settings are managed inside the Builders
              */
-            Product product = ProductBuilder.newBuilder().name(PNC_PRODUCT_NAME).description("Project Newcastle Product")
+            Product product = Product.Builder.newBuilder().name(PNC_PRODUCT_NAME).description("Project Newcastle Product")
                     .build();
-            ProductVersion productVersion = ProductVersionBuilder.newBuilder().version(PNC_PRODUCT_VERSION).product(product)
+            ProductVersion productVersion = ProductVersion.Builder.newBuilder().version(PNC_PRODUCT_VERSION).product(product)
                     .build();
 
-            Project project = ProjectBuilder.newBuilder().name(PNC_PROJECT_NAME).description("Project Newcastle Demo Project")
+            Project project = Project.Builder.newBuilder().name(PNC_PROJECT_NAME).description("Project Newcastle Demo Project")
                     .projectUrl("https://github.com/project-ncl/pnc")
                     .issueTrackerUrl("https://projects.engineering.redhat.com/browse/NCL").build();
 
             // Needed to build correct mapping
-            ProductVersionProject productVersionProject = ProductVersionProjectBuilder.newBuilder().project(project)
+            ProductVersionProject productVersionProject = ProductVersionProject.Builder.newBuilder().project(project)
                     .productVersion(productVersion).build();
 
-            BuildConfiguration buildConfiguration = BuildConfigurationBuilder.newBuilder()
+            BuildConfiguration buildConfiguration = BuildConfiguration.Builder.newBuilder()
                     .buildScript("mvn clean deploy -Dmaven.test.skip")
                     .environment(environment1).name(PNC_PROJECT_BUILD_CFG_ID)
                     .productVersion(productVersion).project(project).scmRepoURL("https://github.com/project-ncl/pnc.git")
@@ -131,7 +130,7 @@ public class DatabaseDataInitializer {
             buildConfiguration = buildConfigurationRepository.save(buildConfiguration);
 
             // Additional configurations
-            BuildConfiguration buildConfiguration2 = BuildConfigurationBuilder.newBuilder()
+            BuildConfiguration buildConfiguration2 = BuildConfiguration.Builder.newBuilder()
                     .buildScript("mvn clean deploy -Dmaven.test.skip")
                     .environment(environment2).name("jboss-modules-1.5.0")
                     .productVersion(productVersion).project(project)
@@ -139,7 +138,7 @@ public class DatabaseDataInitializer {
                     .scmRepoURL("https://github.com/jboss-modules/jboss-modules.git").build();
             buildConfiguration2 = buildConfigurationRepository.save(buildConfiguration2);
 
-            BuildConfiguration buildConfiguration3 = BuildConfigurationBuilder.newBuilder()
+            BuildConfiguration buildConfiguration3 = BuildConfiguration.Builder.newBuilder()
                     .buildScript("mvn clean deploy -Dmaven.test.skip")
                     .environment(environment1).name("jboss-servlet-spec-api-1.0.1")
                     .productVersion(productVersion).project(project)
@@ -147,10 +146,10 @@ public class DatabaseDataInitializer {
                     .description("Test build for jboss java servlet api").build();
             buildConfiguration3 = buildConfigurationRepository.save(buildConfiguration3);
 
-            User demoUser = UserBuilder.newBuilder().username("demo-user").firstName("Demo First Name")
+            User demoUser = User.Builder.newBuilder().username("demo-user").firstName("Demo First Name")
                     .lastName("Demo Last Name").email("demo-user@pnc.com").build();
 
-            BuildRecord buildRecord = BuildRecordBuilder.newBuilder().buildScript("mvn clean deploy -Dmaven.test.skip")
+            BuildRecord buildRecord = BuildRecord.Builder.newBuilder().buildScript("mvn clean deploy -Dmaven.test.skip")
                     .name(PNC_PROJECT_BUILD_CFG_ID).buildConfiguration(buildConfiguration3)
                     .scmRepoURL("https://github.com/project-ncl/pnc.git").scmRevision("*/v0.2")
                     .description("Build record test").build();
@@ -172,7 +171,7 @@ public class DatabaseDataInitializer {
     }
 
     private Environment createAndPersistDefultEnvironment() {
-        Environment environment = EnvironmentBuilder.defaultEnvironment().build();
+        Environment environment = Environment.Builder.defaultEnvironment().build();
         return environmentRepository.save(environment);
     }
 

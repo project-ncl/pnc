@@ -9,7 +9,6 @@ import org.jboss.pnc.datastore.predicates.RSQLPredicateProducer;
 import org.jboss.pnc.datastore.repositories.UserRepository;
 import org.jboss.pnc.integration.deployments.Deployments;
 import org.jboss.pnc.model.User;
-import org.jboss.pnc.model.builder.UserBuilder;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.junit.Before;
@@ -51,9 +50,9 @@ public class RSQLTest {
     @Before
     public void before() {
         if(!isInitialized.getAndSet(true)) {
-            userRepository.save(UserBuilder.newBuilder().username("Abacki").email("a@rh.com").build());
-            userRepository.save(UserBuilder.newBuilder().username("Babacki").email("b@rh.com").build());
-            userRepository.save(UserBuilder.newBuilder().username("Cabacki").email("c@rh.com").build());
+            userRepository.save(User.Builder.newBuilder().username("Abacki").email("a@rh.com").build());
+            userRepository.save(User.Builder.newBuilder().username("Babacki").email("b@rh.com").build());
+            userRepository.save(User.Builder.newBuilder().username("Cabacki").email("c@rh.com").build());
         }
     }
 

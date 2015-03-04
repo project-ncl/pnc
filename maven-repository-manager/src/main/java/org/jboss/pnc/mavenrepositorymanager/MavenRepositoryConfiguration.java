@@ -17,7 +17,6 @@ import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.ArtifactStatus;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.RepositoryType;
-import org.jboss.pnc.model.builder.ArtifactBuilder;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerException;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
 import org.jboss.pnc.spi.repositorymanager.model.RepositoryConfiguration;
@@ -159,7 +158,7 @@ public class MavenRepositoryConfiguration implements RepositoryConfiguration
 
                 ArtifactRef aref = new ArtifactRef(pathInfo.getProjectId(), pathInfo.getType(), pathInfo.getClassifier(), false);
 
-                ArtifactBuilder artifactBuilder = ArtifactBuilder.newBuilder().checksum(download.getSha256())
+                Artifact.Builder artifactBuilder = Artifact.Builder.newBuilder().checksum(download.getSha256())
                         .deployUrl(content.contentUrl(download.getStoreKey(), download.getPath()))
                         .filename(new File(path).getName()).identifier(aref.toString()).repoType(RepositoryType.MAVEN)
                         .status(ArtifactStatus.BINARY_IMPORTED);
@@ -215,7 +214,7 @@ public class MavenRepositoryConfiguration implements RepositoryConfiguration
                 ArtifactRef aref = new ArtifactRef(pathInfo.getProjectId(), pathInfo.getType(), pathInfo.getClassifier(), false);
                 content.contentUrl(StoreType.hosted, collectionId, upload.getPath());
 
-                ArtifactBuilder artifactBuilder = ArtifactBuilder.newBuilder().checksum(upload.getSha256())
+                Artifact.Builder artifactBuilder = Artifact.Builder.newBuilder().checksum(upload.getSha256())
                         .deployUrl(upload.getLocalUrl()).filename(new File(path).getName()).identifier(aref.toString())
                         .repoType(RepositoryType.MAVEN).status(ArtifactStatus.BINARY_BUILT);
 

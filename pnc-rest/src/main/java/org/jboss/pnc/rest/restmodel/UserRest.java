@@ -4,7 +4,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 
 import org.jboss.pnc.model.User;
-import org.jboss.pnc.model.builder.UserBuilder;
 
 @XmlRootElement(name = "User")
 public class UserRest {
@@ -72,7 +71,7 @@ public class UserRest {
 
     @XmlTransient
     public User toUser() {
-        UserBuilder builder = UserBuilder.newBuilder();
+        User.Builder builder = User.Builder.newBuilder();
         builder.username(username);
         builder.email(email);
         builder.firstName(firstName);

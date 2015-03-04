@@ -7,6 +7,7 @@ import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Version;
+
 import java.io.Serializable;
 import java.sql.Timestamp;
 import java.time.Instant;
@@ -348,4 +349,165 @@ public class BuildConfiguration implements Serializable, Cloneable {
             throw new IllegalStateException("Cloning error" + e);
         }
     }
+
+    public static class Builder {
+
+        private Integer id;
+
+        private String name;
+
+        private String buildScript;
+
+        private String scmRepoURL;
+
+        private String scmRevision;
+
+        private String patchesUrl;
+
+        private String description;
+
+        private ProductVersion productVersion;
+
+        private Project project;
+
+        private Environment environment;
+
+        private BuildConfiguration parent;
+
+        private Set<BuildConfiguration> dependencies;
+
+        private Timestamp creationTime;
+
+        private Timestamp lastModificationTime;
+
+        private String repositories;
+
+        private Builder() {
+            dependencies = new HashSet<>();
+            creationTime = Timestamp.from(Instant.now());
+            lastModificationTime = Timestamp.from(Instant.now());
+        }
+
+        public static Builder newBuilder() {
+            return new Builder();
+        }
+
+        public BuildConfiguration build() {
+            BuildConfiguration buildConfiguration = new BuildConfiguration();
+            buildConfiguration.setId(id);
+            buildConfiguration.setName(name);
+            buildConfiguration.setBuildScript(buildScript);
+            buildConfiguration.setScmRepoURL(scmRepoURL);
+            buildConfiguration.setScmRevision(scmRevision);
+            buildConfiguration.setPatchesUrl(patchesUrl);
+            buildConfiguration.setDescription(description);
+            buildConfiguration.setProductVersion(productVersion);
+
+            // Set the bi-directional mapping
+            if (project != null) {
+                project.addBuildConfiguration(buildConfiguration);
+            }
+            buildConfiguration.setProject(project);
+
+            buildConfiguration.setEnvironment(environment);
+            buildConfiguration.setCreationTime(creationTime);
+            buildConfiguration.setLastModificationTime(lastModificationTime);
+            buildConfiguration.setRepositories(repositories);
+
+            // Set the bi-directional mapping
+            for (BuildConfiguration dependency : dependencies) {
+                dependency.setParent(buildConfiguration);
+            }
+            buildConfiguration.setDependencies(dependencies);
+
+            return buildConfiguration;
+        }
+
+        public Builder id(Integer id) {
+            this.id = id;
+            return this;
+        }
+
+        public Builder name(String name) {
+            this.name = name;
+            return this;
+        }
+
+        public Builder buildScript(String buildScript) {
+            this.buildScript = buildScript;
+            return this;
+        }
+
+        public Builder scmRepoURL(String scmRepoURL) {
+            this.scmRepoURL = scmRepoURL;
+            return this;
+        }
+
+        public Builder scmRevision(String scmRevision) {
+            this.scmRevision = scmRevision;
+            return this;
+        }
+
+        public Builder patchesUrl(String patchesUrl) {
+            this.patchesUrl = patchesUrl;
+            return this;
+        }
+
+        public Builder description(String description) {
+            this.description = description;
+            return this;
+        }
+
+        public Builder productVersion(ProductVersion productVersion) {
+            this.productVersion = productVersion;
+            return this;
+        }
+
+        public Builder project(Project project) {
+            this.project = project;
+            return this;
+        }
+
+        public Builder environment(Environment environment) {
+            this.environment = environment;
+            return this;
+        }
+
+        public Builder dependency(BuildConfiguration dependency) {
+            this.dependencies.add(dependency);
+            return this;
+        }
+
+        public Builder dependencies(Set<BuildConfiguration> dependencies) {
+            this.dependencies = dependencies;
+            return this;
+        }
+
+        /**
+         * Sets create time and ignores Null values (since they may affect the entity consistency).
+         */
+        public Builder creationTime(Timestamp creationTime) {
+            if (creationTime != null) {
+                this.creationTime = creationTime;
+            }
+            return this;
+        }
+
+        /**
+         * Sets last update time and ignores Null values (since they may affect the entity consistency).
+         */
+        public Builder lastModificationTime(Timestamp lastModificationTime) {
+            if (lastModificationTime != null) {
+                this.lastModificationTime = lastModificationTime;
+            }
+            return this;
+        }
+
+        public Builder repositories(String repositories) {
+            this.repositories = repositories;
+            return this;
+        }
+
+    }
+
 }

@@ -1,6 +1,7 @@
 package org.jboss.pnc.model;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.Entity;
@@ -183,4 +184,75 @@ public class License implements Serializable {
         return "License [fullName=" + fullName + "]";
     }
 
+    public static class Builder {
+
+        private Integer id;
+
+        private String fullName;
+
+        private String fullContent;
+
+        private String refUrl;
+
+        private String shortName;
+
+        private List<Project> projects;
+
+        private Builder() {
+            projects = new ArrayList<>();
+        }
+
+        public static Builder newBuilder() {
+            return new Builder();
+        }
+
+        public License build() {
+
+            License license = new License();
+            license.setId(id);
+            license.setFullName(fullName);
+            license.setFullContent(fullContent);
+            license.setRefUrl(refUrl);
+            license.setShortName(shortName);
+
+            // Set the bi-directional mapping
+            for (Project project : projects) {
+                project.setLicense(license);
+            }
+            license.setProjects(projects);
+
+            return license;
+        }
+
+        public Builder id(Integer id) {
+            this.id = id;
+            return this;
+        }
+
+        public Builder fullName(String fullName) {
+            this.fullName = fullName;
+            return this;
+        }
+
+        public Builder fullContent(String fullContent) {
+            this.fullContent = fullContent;
+            return this;
+        }
+
+        public Builder refUrl(String refUrl) {
+            this.refUrl = refUrl;
+            return this;
+        }
+
+        public Builder shortName(String shortName) {
+            this.shortName = shortName;
+            return this;
+        }
+
+        public Builder projects(List<Project> projects) {
+            this.projects = projects;
+            return this;
+        }
+
+    }
 }

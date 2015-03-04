@@ -1,9 +1,8 @@
 package org.jboss.pnc.rest.restmodel;
 
+import org.jboss.pnc.model.License;
 import org.jboss.pnc.model.Project;
-import org.jboss.pnc.model.builder.BuildConfigurationBuilder;
-import org.jboss.pnc.model.builder.LicenseBuilder;
-import org.jboss.pnc.model.builder.ProjectBuilder;
+import org.jboss.pnc.model.BuildConfiguration;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.List;
@@ -173,17 +172,17 @@ public class ProjectRest {
      * @return the project
      */
     public Project toProject() {
-        ProjectBuilder builder = ProjectBuilder.newBuilder();
+        Project.Builder builder = Project.Builder.newBuilder();
         builder.id(id);
         builder.name(name);
         builder.description(description);
         builder.issueTrackerUrl(issueTrackerUrl);
         builder.projectUrl(projectUrl);
 
-        performIfNotNull(this.licenseId != null, () -> builder.license(LicenseBuilder.newBuilder().id(licenseId).build()));
+        performIfNotNull(this.licenseId != null, () -> builder.license(License.Builder.newBuilder().id(licenseId).build()));
 
         nullableStreamOf(configurationIds).forEach(configurationId ->
-                builder.buildConfiguration(BuildConfigurationBuilder.newBuilder().id(configurationId).build()));
+                builder.buildConfiguration(BuildConfiguration.Builder.newBuilder().id(configurationId).build()));
 
         return builder.build();
     }

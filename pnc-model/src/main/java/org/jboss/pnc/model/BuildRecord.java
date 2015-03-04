@@ -12,6 +12,7 @@ import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.PreRemove;
+
 import java.io.Serializable;
 import java.sql.Timestamp;
 import java.time.Instant;
@@ -412,6 +413,196 @@ public class BuildRecord implements Serializable {
     public String toString() {
         return "BuildRecord [id=" + id + ", project=" + buildConfiguration.getProject().getName() + ", buildConfiguration="
                 + buildConfiguration + "]";
+    }
+
+    public static class Builder {
+
+        private Integer id;
+
+        private String buildScript;
+
+        private String name;
+
+        private String description;
+
+        private String scmRepoURL;
+
+        private String scmRevision;
+
+        private String patchesUrl;
+
+        private Timestamp startTime;
+
+        private Timestamp endTime;
+
+        private BuildConfiguration buildConfiguration;
+
+        private User user;
+
+        private String buildLog;
+
+        private BuildDriverStatus status;
+
+        private List<Artifact> builtArtifacts;
+
+        private List<Artifact> dependencies;
+
+        private String buildDriverId;
+
+        private SystemImage systemImage;
+
+        private List<BuildRecordSet> buildRecordSets;
+
+        public Builder() {
+            startTime = Timestamp.from(Instant.now());
+            buildRecordSets = new ArrayList<>();
+            dependencies = new ArrayList<>();
+            builtArtifacts = new ArrayList<>();
+        }
+
+        public static Builder newBuilder() {
+            return new Builder();
+        }
+
+        public BuildRecord build() {
+            BuildRecord buildRecord = new BuildRecord();
+            buildRecord.setId(id);
+            buildRecord.setBuildScript(buildScript);
+            buildRecord.setName(name);
+            buildRecord.setDescription(description);
+            buildRecord.setStartTime(startTime);
+            buildRecord.setEndTime(endTime);
+            buildRecord.setBuildConfiguration(buildConfiguration);
+            buildRecord.setUser(user);
+            buildRecord.setScmRepoURL(scmRepoURL);
+            buildRecord.setScmRevision(scmRevision);
+            buildRecord.setPatchesUrl(patchesUrl);
+            buildRecord.setBuildLog(buildLog);
+            buildRecord.setStatus(status);
+            buildRecord.setBuildDriverId(buildDriverId);
+            buildRecord.setSystemImage(systemImage);
+
+            // Set the bi-directional mapping
+            for (Artifact artifact : builtArtifacts) {
+                artifact.setBuildRecord(buildRecord);
+            }
+            buildRecord.setBuiltArtifacts(builtArtifacts);
+
+            // Set the bi-directional mapping
+            for (Artifact artifact : dependencies) {
+                artifact.setBuildRecord(buildRecord);
+            }
+            buildRecord.setDependencies(dependencies);
+
+            // Set the bi-directional mapping
+            for (BuildRecordSet buildRecordSet : buildRecordSets) {
+                buildRecordSet.getBuildRecord().add(buildRecord);
+            }
+            buildRecord.setBuildRecordSets(buildRecordSets);
+
+            return buildRecord;
+        }
+
+        public Builder id(Integer id) {
+            this.id = id;
+            return this;
+        }
+
+        public Builder buildScript(String buildScript) {
+            this.buildScript = buildScript;
+            return this;
+        }
+
+        public Builder name(String name) {
+            this.name = name;
+            return this;
+        }
+
+        public Builder description(String description) {
+            this.description = description;
+            return this;
+        }
+
+        public Builder startTime(Timestamp startTime) {
+            this.startTime = startTime;
+            return this;
+        }
+
+        public Builder endTime(Timestamp endTime) {
+            this.endTime = endTime;
+            return this;
+        }
+
+        public Builder buildConfiguration(BuildConfiguration buildConfiguration) {
+            this.buildConfiguration = buildConfiguration;
+            return this;
+        }
+
+        public Builder user(User user) {
+            this.user = user;
+            return this;
+        }
+
+        public Builder scmRepoURL(String scmRepoURL) {
+            this.scmRepoURL = scmRepoURL;
+            return this;
+        }
+
+        public Builder scmRevision(String scmRevision) {
+            this.scmRevision = scmRevision;
+            return this;
+        }
+
+        public Builder patchesUrl(String patchesUrl) {
+            this.patchesUrl = patchesUrl;
+            return this;
+        }
+
+        public Builder buildLog(String buildLog) {
+            this.buildLog = buildLog;
+            return this;
+        }
+
+        public Builder status(BuildDriverStatus status) {
+            this.status = status;
+            return this;
+        }
+
+        public Builder builtArtifact(Artifact builtArtifact) {
+            this.builtArtifacts.add(builtArtifact);
+            return this;
+        }
+
+        public Builder builtArtifacts(List<Artifact> builtArtifacts) {
+            this.builtArtifacts = builtArtifacts;
+            return this;
+        }
+
+        public Builder dependency(Artifact builtArtifact) {
+            this.dependencies.add(builtArtifact);
+            return this;
+        }
+
+        public Builder dependencies(List<Artifact> dependencies) {
+            this.dependencies = dependencies;
+            return this;
+        }
+
+        public Builder buildDriverId(String buildDriverId) {
+            this.buildDriverId = buildDriverId;
+            return this;
+        }
+
+        public Builder systemImage(SystemImage systemImage) {
+            this.systemImage = systemImage;
+            return this;
+        }
+
+        public Builder buildRecordSets(List<BuildRecordSet> buildRecordSets) {
+            this.buildRecordSets = buildRecordSets;
+            return this;
+        }
+
     }
 
 }

@@ -9,7 +9,6 @@ import org.jboss.pnc.datastore.repositories.ProductRepository;
 import org.jboss.pnc.datastore.repositories.ProjectRepository;
 import org.jboss.pnc.integration.deployments.Deployments;
 import org.jboss.pnc.model.*;
-import org.jboss.pnc.model.builder.*;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.junit.Test;
@@ -50,21 +49,21 @@ public class DatastoreTest {
     @Test
     public void shouldStoreResults() {
         // given
-        Product product = ProductBuilder.newBuilder().name("DS_PRODUCT").description("DS_PRODUCT_DESC").build();
-        ProductVersion productVersion = ProductVersionBuilder.newBuilder().version("DS_PRODUCT_VERSION").product(product)
+        Product product = Product.Builder.newBuilder().name("DS_PRODUCT").description("DS_PRODUCT_DESC").build();
+        ProductVersion productVersion = ProductVersion.Builder.newBuilder().version("DS_PRODUCT_VERSION").product(product)
                 .build();
 
-        Project project = ProjectBuilder.newBuilder().name("DS_PROJECT_NAME").description("DS_PROJECT_NAME_DESC")
+        Project project = Project.Builder.newBuilder().name("DS_PROJECT_NAME").description("DS_PROJECT_NAME_DESC")
                 .projectUrl("https://github.com/ds-project-ncl/pnc")
                 .issueTrackerUrl("https://projects.engineering.redhat.com/browse/NCL").build();
 
-        BuildConfiguration buildConfiguration = BuildConfigurationBuilder.newBuilder()
-                .buildScript("mvn clean deploy -Dmaven.test.skip").environment(EnvironmentBuilder.defaultEnvironment().build())
+        BuildConfiguration buildConfiguration = BuildConfiguration.Builder.newBuilder()
+                .buildScript("mvn clean deploy -Dmaven.test.skip").environment(Environment.Builder.defaultEnvironment().build())
                 .name("DS_PROJECT_BUILD_CFG_ID").productVersion(productVersion).project(project)
                 .scmRepoURL("https://github.com/ds-project-ncl/pnc.git").scmRevision("*/v0.2")
                 .description("Test build config for project newcastle").build();
 
-        BuildRecord buildRecord = BuildRecordBuilder.newBuilder().buildScript("mvn clean deploy -Dmaven.test.skip").id(1)
+        BuildRecord buildRecord = BuildRecord.Builder.newBuilder().buildScript("mvn clean deploy -Dmaven.test.skip").id(1)
                 .name("PNC_PROJECT_BUILD_CFG_ID").buildConfiguration(buildConfiguration)
                 .scmRepoURL("https://github.com/project-ncl/pnc.git").scmRevision("*/v0.2")
                 .description("DataStore Build record test").status(BuildDriverStatus.CANCELLED).build();

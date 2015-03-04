@@ -3,14 +3,13 @@ package org.jboss.pnc.core.test.configurationBuilders;
 import org.jboss.pnc.model.Environment;
 import org.jboss.pnc.model.Project;
 import org.jboss.pnc.model.BuildConfiguration;
-import org.jboss.pnc.model.builder.EnvironmentBuilder;
 
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-12-10.
  */
 public class TestProjectConfigurationBuilder {
 
-    Environment javaEnvironment = EnvironmentBuilder.defaultEnvironment().build();
+    Environment javaEnvironment = Environment.Builder.defaultEnvironment().build();
 
     public BuildConfiguration buildConfigurationWhichDependsOnItself() {
         BuildConfiguration buildConfiguration = build(1, "depends-on-itself");
