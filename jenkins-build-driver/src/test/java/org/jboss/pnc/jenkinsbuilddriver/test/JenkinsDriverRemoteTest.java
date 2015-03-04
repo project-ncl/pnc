@@ -63,7 +63,7 @@ public class JenkinsDriverRemoteTest {
         RepositoryConfiguration repositoryConfiguration = getRepositoryConfiguration();
 
         final Semaphore mutex = new Semaphore(1);
-        ObjectWrapper<Boolean> completed = new ObjectWrapper(false);
+        ObjectWrapper<Boolean> completed = new ObjectWrapper<>(false);
         ObjectWrapper<BuildDriverResult> resultWrapper = new ObjectWrapper<>();
         ObjectWrapper<Long> buildStarted = new ObjectWrapper<>();
         ObjectWrapper<Long> buildTook = new ObjectWrapper<>();
