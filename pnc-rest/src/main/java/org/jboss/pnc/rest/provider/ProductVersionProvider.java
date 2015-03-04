@@ -37,7 +37,7 @@ public class ProductVersionProvider {
     public ProductVersionProvider() {
     }
 
-    public List<ProductVersionRest> getAll(Integer pageIndex, Integer pageSize, String sortingRsql, String query, Integer productId) {
+    public List<ProductVersionRest> getAll(int pageIndex, int pageSize, String sortingRsql, String query, Integer productId) {
         RSQLPredicate filteringCriteria = RSQLPredicateProducer.fromRSQL(ProductVersion.class, query);
         Pageable paging = RSQLPageLimitAndSortingProducer.fromRSQL(pageSize, pageIndex, sortingRsql);
 

@@ -36,7 +36,7 @@ public class BuildConfigurationProvider {
         return projectConfiguration -> new BuildConfigurationRest(projectConfiguration);
     }
 
-    public List<BuildConfigurationRest> getAll(Integer pageIndex, Integer pageSize, String sortingRsql, String query) {
+    public List<BuildConfigurationRest> getAll(int pageIndex, int pageSize, String sortingRsql, String query) {
         RSQLPredicate filteringCriteria = RSQLPredicateProducer.fromRSQL(BuildConfiguration.class, query);
         Pageable paging = RSQLPageLimitAndSortingProducer.fromRSQL(pageSize, pageIndex, sortingRsql);
 
@@ -56,7 +56,7 @@ public class BuildConfigurationProvider {
                                 .and(filteringCriteria.get()), paging));
     }
 
-    public List<BuildConfigurationRest> getAllForProduct(Integer pageIndex, Integer pageSize, String sortingRsql, String query,
+    public List<BuildConfigurationRest> getAllForProduct(int pageIndex, int pageSize, String sortingRsql, String query,
             Integer productId) {
         RSQLPredicate filteringCriteria = RSQLPredicateProducer.fromRSQL(BuildConfiguration.class, query);
         Pageable paging = RSQLPageLimitAndSortingProducer.fromRSQL(pageSize, pageIndex, sortingRsql);
@@ -66,7 +66,7 @@ public class BuildConfigurationProvider {
                                 .and(filteringCriteria.get()), paging));
     }
 
-    public List<BuildConfigurationRest> getAllForProductAndProductVersion(Integer pageIndex, Integer pageSize,
+    public List<BuildConfigurationRest> getAllForProductAndProductVersion(int pageIndex, int pageSize,
             String sortingRsql, String query, Integer productId, Integer versionId) {
         RSQLPredicate filteringCriteria = RSQLPredicateProducer.fromRSQL(BuildConfiguration.class, query);
         Pageable paging = RSQLPageLimitAndSortingProducer.fromRSQL(pageSize, pageIndex, sortingRsql);

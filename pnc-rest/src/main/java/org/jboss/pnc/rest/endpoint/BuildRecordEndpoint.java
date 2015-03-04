@@ -31,8 +31,8 @@ public class BuildRecordEndpoint {
     @ApiOperation(value = "Gets all Build Records")
     @GET
     public List<BuildRecordRest> getAll(
-            @ApiParam(value = "Page index") @QueryParam("pageIndex") @DefaultValue("0") Integer pageIndex,
-            @ApiParam(value = "Pagination size") @DefaultValue("50") @QueryParam("pageSize") Integer pageSize,
+            @ApiParam(value = "Page index") @QueryParam("pageIndex") @DefaultValue("0") int pageIndex,
+            @ApiParam(value = "Pagination size") @DefaultValue("50") @QueryParam("pageSize") int pageSize,
             @ApiParam(value = "Sorting RSQL") @QueryParam("sort") String sortingRsql,
             @ApiParam(value = "RSQL query", required = false) @QueryParam("q") String rsql) {
         return buildRecordProvider.getAllArchived(pageIndex, pageSize, sortingRsql, rsql);
@@ -56,8 +56,8 @@ public class BuildRecordEndpoint {
     @GET
     @Path("/configuration/{configurationId}")
     public List<BuildRecordRest> getAllForBuildConfiguration(
-            @ApiParam(value = "Page index") @QueryParam("pageIndex") @DefaultValue("0") Integer pageIndex,
-            @ApiParam(value = "Pagination size") @DefaultValue("50") @QueryParam("pageSize") Integer pageSize,
+            @ApiParam(value = "Page index") @QueryParam("pageIndex") @DefaultValue("0") int pageIndex,
+            @ApiParam(value = "Pagination size") @DefaultValue("50") @QueryParam("pageSize") int pageSize,
             @ApiParam(value = "Sorting RSQL") @QueryParam("sort") String sortingRsql,
             @ApiParam(value = "RSQL query", required = false) @QueryParam("q") String rsql,
             @ApiParam(value = "Build Configuration id", required = true) @PathParam("configurationId") Integer configurationId) {
@@ -68,8 +68,8 @@ public class BuildRecordEndpoint {
     @GET
     @Path("/project/{projectId}")
     public List<BuildRecordRest> getAllForProject(
-            @ApiParam(value = "Page index") @QueryParam("pageIndex") @DefaultValue("0") Integer pageIndex,
-            @ApiParam(value = "Pagination size") @DefaultValue("50") @QueryParam("pageSize") Integer pageSize,
+            @ApiParam(value = "Page index") @QueryParam("pageIndex") @DefaultValue("0") int pageIndex,
+            @ApiParam(value = "Pagination size") @DefaultValue("50") @QueryParam("pageSize") int pageSize,
             @ApiParam(value = "Sorting RSQL") @QueryParam("sort") String sortingRsql,
             @ApiParam(value = "Project id", required = true) @PathParam("projectId") Integer projectId,
             @ApiParam(value = "RSQL query", required = false) @QueryParam("q") String rsql) {

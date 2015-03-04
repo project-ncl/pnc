@@ -1,16 +1,6 @@
 package org.jboss.pnc.rest.provider;
 
-import static org.jboss.pnc.datastore.predicates.BuildRecordSetPredicates.withBuildRecordId;
-import static org.jboss.pnc.datastore.predicates.BuildRecordSetPredicates.withProductVersionId;
-import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
-
-import java.util.List;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-
-import javax.ejb.Stateless;
-import javax.inject.Inject;
-
+import com.google.common.base.Preconditions;
 import org.jboss.pnc.datastore.limits.RSQLPageLimitAndSortingProducer;
 import org.jboss.pnc.datastore.predicates.RSQLPredicate;
 import org.jboss.pnc.datastore.predicates.RSQLPredicateProducer;
@@ -21,7 +11,15 @@ import org.jboss.pnc.model.ProductVersion;
 import org.jboss.pnc.rest.restmodel.BuildRecordSetRest;
 import org.springframework.data.domain.Pageable;
 
-import com.google.common.base.Preconditions;
+import javax.ejb.Stateless;
+import javax.inject.Inject;
+import java.util.List;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
+import static org.jboss.pnc.datastore.predicates.BuildRecordSetPredicates.withBuildRecordId;
+import static org.jboss.pnc.datastore.predicates.BuildRecordSetPredicates.withProductVersionId;
+import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
 
 @Stateless
 public class BuildRecordSetProvider {
@@ -43,7 +41,7 @@ public class BuildRecordSetProvider {
         return buildRecordSet -> new BuildRecordSetRest(buildRecordSet);
     }
 
-    public List<BuildRecordSetRest> getAll(Integer pageIndex, Integer pageSize, String sortingRsql, String query) {
+    public List<BuildRecordSetRest> getAll(int pageIndex, int pageSize, String sortingRsql, String query) {
         RSQLPredicate filteringCriteria = RSQLPredicateProducer.fromRSQL(BuildRecordSet.class, query);
         Pageable paging = RSQLPageLimitAndSortingProducer.fromRSQL(pageSize, pageIndex, sortingRsql);
 
@@ -90,7 +88,7 @@ public class BuildRecordSetProvider {
         buildRecordSetRepository.delete(buildRecordSetId);
     }
 
-    public List<BuildRecordSetRest> getAllForProductVersion(Integer pageIndex, Integer pageSize, String sortingRsql,
+    public List<BuildRecordSetRest> getAllForProductVersion(int pageIndex, int pageSize, String sortingRsql,
             String query, Integer versionId) {
 
         RSQLPredicate filteringCriteria = RSQLPredicateProducer.fromRSQL(BuildRecordSet.class, query);
@@ -101,7 +99,7 @@ public class BuildRecordSetProvider {
                 buildRecordSet -> new BuildRecordSetRest(buildRecordSet)).collect(Collectors.toList());
     }
 
-    public List<BuildRecordSetRest> getAllForBuildRecord(Integer pageIndex, Integer pageSize, String sortingRsql, String query,
+    public List<BuildRecordSetRest> getAllForBuildRecord(int pageIndex, int pageSize, String sortingRsql, String query,
             Integer recordId) {
 
         RSQLPredicate filteringCriteria = RSQLPredicateProducer.fromRSQL(BuildRecordSet.class, query);
