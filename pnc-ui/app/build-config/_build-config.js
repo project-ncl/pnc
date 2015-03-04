@@ -8,6 +8,7 @@
     'xeditable',
     'patternfly.notification',
     'pnc.util.confirmClick',
+    'pnc.remote.restClient'
   ]);
 
   module.run(function(editableOptions) {

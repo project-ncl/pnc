@@ -10,9 +10,10 @@
    * @author Alex Creasy
    * @restrict A
    * @element ANY
-   * @param {function} pnc-confirm-click A function to be executed if the user
-   * confirms they wish to continue.
-   * @param {string=} pnc-confirm-message A message to display to the user.
+   * @param {function} pnc-confirm-click
+   * A function to be executed if the user confirms they wish to continue.
+   * @param {string=} pnc-confirm-message
+   * A message to display to the user.
    * @description
    * This directive can be used on any elements that performs destructive
    * actions when clicked. Upon clicking the user will be presented with the

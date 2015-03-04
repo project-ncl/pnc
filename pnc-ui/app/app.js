@@ -5,7 +5,8 @@
     'ngResource',
     'ui.router',
     'pnc.Dashboard',
-    'pnc.BuildConfig'
+    'pnc.BuildConfig',
+    'pnc.remote'
   ]);
 
   app.config(['$stateProvider', '$urlRouterProvider', '$locationProvider',
