@@ -24,7 +24,7 @@
   cursor: pointer;
 }
 </style>
-<div class="card col-md-2" data-ng-if="shouldShow()">
+<div class="card col-md-2" ng-if="shouldShow()">
   <div class="card-filter">
   <input type="text" class="form-control input-sm" placeholder="filter">
   </div>
@@ -36,7 +36,7 @@
       </tr>
     </thead>
     <tbody>
-      <tr data-ng-repeat="item in pncItems" data-ng-class="{'active': isActive(item)}" data-ng-click="pncClick()(item)">
+      <tr ng-repeat="item in pncItems" ng-class="{'active': isActive(item)}" ng-click="pncClick()(item)">
         <td>{{ item[pncNameField] || 'Unamed ' + pncTitle }}</td>
       </tr>
     </tbody>
