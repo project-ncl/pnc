@@ -57,9 +57,10 @@ class JenkinsBuildResult implements BuildDriverResult {
         String jobName = buildJob.getJobName();
         JobWithDetails buildJobWithDetails = jenkinsServer.getJob(jobName);
         Build jenkinsBuild = buildJobWithDetails.getLastBuild();
-        int buildNumber = jenkinsBuild.getNumber();
-        if (buildNumber != buildJob.getBuildNumber()) {
-            throw new BuildDriverException("Retrieved wrong build.");
+        int retrievedBuildNumber = jenkinsBuild.getNumber();
+        int jobBuildNumber = buildJob.getBuildNumber();
+        if (retrievedBuildNumber != jobBuildNumber) {
+            throw new BuildDriverException("Retrieved wrong build. Build numbers doesn't match. [retrievedBuildNumber: " + retrievedBuildNumber + " != jobBuildNumber: " + jobBuildNumber + "]");
         }
         return jenkinsBuild;
     }
