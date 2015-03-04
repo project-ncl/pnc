@@ -177,8 +177,7 @@ module.exports = function (grunt) {
     htmlhint: {
       html: {
         src: [
-          '<%= yeoman.app %>/*.html',
-          '<%= yeoman.app %>/views/{,*/}*.html'
+          '<%= yeoman.app %>/**/*.html'
         ],
         options: {
           htmlhintrc: '.htmlhintrc'
@@ -532,7 +531,7 @@ module.exports = function (grunt) {
 
   grunt.registerTask('default', [
     'newer:jshint',
-    'newer:htmlhint',
+ //   'newer:htmlhint',
     'test',
     'build'
   ]);
