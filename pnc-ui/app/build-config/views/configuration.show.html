@@ -11,10 +11,10 @@
       </div>
       <div class="col-md-6">
         <span class="btn-group pull-right" style="margin-top: 2rem;" role="group" aria-label="Action Toolbar">
-          <button type="button" class="btn btn-lg btn-default" data-toggle="tooltip" title="Start Build" ng-click="controls.build()"><i class="fa fa-play"></i> Build</button>
-          <button type="button" class="btn btn-lg btn-default" data-toggle="tooltip" title="Clone Configuration" data-ng-click="cloneConfig()"><i class="fa fa-files-o"></i> Clone</button>
+          <button type="button" class="btn btn-lg btn-default" data-toggle="tooltip" title="Start Build" ng-click="configControls.build()"><i class="fa fa-play"></i> Build</button>
+          <button type="button" class="btn btn-lg btn-default" data-toggle="tooltip" title="Clone Configuration" data-ng-click="configControls.clone()"><i class="fa fa-files-o"></i> Clone</button>
           <button type="button" class="btn btn-lg btn-default" data-toggle="tooltip" title="Edit Configuration" data-ng-click="configurationForm.$show()" data-ng-class="{ 'active': configurationForm.$visible }"><i class="pficon pficon-edit"></i> Edit</button>
-          <button type="button" class="btn btn-lg btn-danger" data-toggle="tooltip" title="Delete Configuration" pnc-confirm-click="deleteConfig()" pnc-confirm-message="{{ 'Confirm the deletion of Build Configuration: ' + buildConfig.name + ' ?'}}"><i class="pficon pficon-delete"></i> Delete</button>
+          <button type="button" class="btn btn-lg btn-danger" data-toggle="tooltip" title="Delete Configuration" pnc-confirm-click="configControls.delete()" pnc-confirm-message="{{ 'Confirm the deletion of Build Configuration: ' + buildConfig.name + ' ?'}}"><i class="pficon pficon-delete"></i> Delete</button>
         </span>
       </div>
     </div>
@@ -22,33 +22,9 @@
       <hr>
     </div>
 
-    <div class="row" data-ng-show="configForm.hasAlert()">
-      <div class="col-md-6 col-md-offset-3">
-
-        <div class="alert alert-success" data-ng-show="configForm.showSuccess()">
-          <button type="button" class="close" data-ng-click="configForm.cancelAlert()">
-            <span class="pficon pficon-close"></span>
-          </button>
-          <span class="pficon pficon-ok"></span>
-          Configuration sucessfully updated.
-        </div>
-
-        <div class="alert alert-danger" data-ng-show="configForm.showFailure()">
-          <button type="button" class="close" data-ng-click="configForm.cancelAlert()">
-            <span class="pficon pficon-close"></span>
-          </button>
-          <span class="pficon-layered">
-            <span class="pficon pficon-error-octagon"></span>
-            <span class="pficon pficon-error-exclamation"></span>
-          </span>
-          Error updating configuration.
-        </div>
-      </div>
-    </div>
-
     <div class="row">
       <div class="col-md-8">
-        <form data-editable-form class="form-horizontal" name="configurationForm" data-onbeforesave="updateConfiguration()">
+        <form data-editable-form class="form-horizontal" name="configurationForm" data-onbeforesave="configControls.update()">
 
           <div class="form-group">
             <label for="input-name" class="col-sm-2 control-label">Name</label>

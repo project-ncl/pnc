@@ -265,15 +265,17 @@
          $scope.columnBrowse.configurations.setSelected(configurationDetails);
       }
 
-      $scope.controls = {};
+      $scope.configControls = {};
 
-
-      $scope.controls.build = function() {
+      // Executing a build of a configuration
+      $scope.configControls.build = function() {
         $log.debug('ConfigurationShowController.buildConfiguration ' +
                    '>> $scope=%O', $scope);
 
         $scope.buildConfig.$build().then(
           function(result) {
+            $log.debug('Initiated Build: %O, result: %O', $scope.buildConfig,
+                       result);
             Notifications.success('Initiated build of configuration:' +
                                   $scope.buildConfig.name);
           },
@@ -286,12 +288,15 @@
         );
       };
 
-      $scope.updateConfiguration = function() {
+      // Update a build configuration after editting
+      $scope.configControls.update = function() {
         $log.debug('ConfigurationShowController.updateConfiguration ' +
                    '$scope: %O', $scope);
 
         $scope.buildConfig.$update().then(
           function(result) {
+            $log.debug('Update Config: %O, result: %O', $scope.buildConfig,
+                       result);
             Notifications.success('Configuration updated.');
           },
           function(response) {
@@ -302,25 +307,33 @@
         );
       };
 
-      $scope.cloneConfig = function() {
-        configurationDetails.$clone().then(function() {
+      // Cloning a build configuration
+      $scope.configControls.clone = function() {
+        $scope.buildConfig.$clone().then(function(result) {
+          $log.debug('Clone Configuration: %O Successful Result: %O',
+               $scope.buildConfig, result);
+          $state.go('build-config.configuration.show', {
+            configurationId: result.id
+          });
           Notifications.success('Configuration cloned.');
-          $state.go('build-config.product.show.version.show.project.show.' +
-                    'configuration.show');
         },
         function(response) {
-            $log.error('Clone configuration: %O failed, response: %O',
-                       $scope.buildConfig, response);
+          $log.error('Clone configuration: %O failed, response: %O',
+                     $scope.buildConfig, response);
           Notifications.error('Action Failed.');
         });
       };
 
-      $scope.deleteConfig = function() {
+      // Deleting a build configuration
+      $scope.configControls.delete = function() {
         $scope.buildConfig.$delete().then(
           // Success
           function (result) {
+            $log.debug('Delete Config: %O success result: %O',
+                       $scope.buildConfig, result);
             Notifications.success('Configuration Deleted');
-            $state.go('build-config.configuration');
+            $state.go('build-config.configuration', {}, { reload: true,
+                      inherit: false, notify: true });
           },
           // Failure
           function (response) {
