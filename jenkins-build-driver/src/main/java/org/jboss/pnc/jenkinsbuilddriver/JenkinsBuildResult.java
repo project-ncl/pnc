@@ -4,6 +4,7 @@ import com.offbytwo.jenkins.JenkinsServer;
 import com.offbytwo.jenkins.model.Build;
 import com.offbytwo.jenkins.model.BuildWithDetails;
 import com.offbytwo.jenkins.model.JobWithDetails;
+import org.jboss.pnc.common.util.StreamCollectors;
 import org.jboss.pnc.model.BuildDriverStatus;
 import org.jboss.pnc.spi.builddriver.BuildDriverResult;
 import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
@@ -56,7 +57,7 @@ class JenkinsBuildResult implements BuildDriverResult {
     private Build getBuild(JenkinsServer jenkinsServer, BuildJob buildJob) throws IOException, BuildDriverException {
         String jobName = buildJob.getJobName();
         JobWithDetails buildJobWithDetails = jenkinsServer.getJob(jobName);
-        Build jenkinsBuild = buildJobWithDetails.getLastBuild();
+        Build jenkinsBuild = buildJobWithDetails.getBuilds().stream().filter(j -> buildJob.getBuildNumber() == j.getNumber()).collect(StreamCollectors.singletonCollector());
         int retrievedBuildNumber = jenkinsBuild.getNumber();
         int jobBuildNumber = buildJob.getBuildNumber();
         if (retrievedBuildNumber != jobBuildNumber) {
