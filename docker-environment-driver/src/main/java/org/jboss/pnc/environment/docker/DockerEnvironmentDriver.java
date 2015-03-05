@@ -21,6 +21,7 @@ import org.jboss.pnc.model.OperationalSystem;
 import org.jboss.pnc.spi.environment.EnvironmentDriver;
 import org.jboss.pnc.spi.environment.RunningEnvironment;
 import org.jboss.pnc.spi.environment.exception.EnvironmentDriverException;
+import org.jboss.pnc.spi.repositorymanager.model.RepositoryConfiguration;
 import org.jboss.resteasy.client.ClientRequest;
 import org.jboss.resteasy.client.ClientResponse;
 import org.jclouds.ContextBuilder;
@@ -123,8 +124,8 @@ public class DockerEnvironmentDriver implements EnvironmentDriver {
     }
 
     @Override
-    public RunningEnvironment buildEnvironment(Environment buildEnvironment, String dependencyUrl,
-            String deployUrl) throws EnvironmentDriverException {
+    public RunningEnvironment buildEnvironment(Environment buildEnvironment, 
+            RepositoryConfiguration repositoryConfiguration) throws EnvironmentDriverException {
         if (!canBuildEnvironment(buildEnvironment))
             throw new UnsupportedOperationException(
                     "DockerEnvironmentDriver currently provides support only for Linux enviroments on Docker.");
@@ -155,7 +156,8 @@ public class DockerEnvironmentDriver implements EnvironmentDriver {
             jenkinsPort = getJenkinsPort(containerPortMappings);
 
             copyFileToContainer(sshPort, "/root/.m2/settings.xml",
-                    configBuilder.createMavenConfig(dependencyUrl, deployUrl), null);
+                    configBuilder.createMavenConfig(repositoryConfiguration.getConnectionInfo().getDependencyUrl(), 
+                            repositoryConfiguration.getConnectionInfo().getDeployUrl()), null);
         } catch (Exception e) {
             // Creating container failed => clean up
             if (buildContainerState != BuildContainerState.NOT_BUILT) {
@@ -169,7 +171,7 @@ public class DockerEnvironmentDriver implements EnvironmentDriver {
 
         logger.info("Created and started Docker container. ID: " + containerId
                 + ", SSH port: " + sshPort + ", Jenkins Port: " + jenkinsPort);
-        return new DockerRunningEnvironment(this, containerId, jenkinsPort, sshPort);
+        return new DockerRunningEnvironment(this, repositoryConfiguration, containerId, jenkinsPort, sshPort);
     }
 
     @Override

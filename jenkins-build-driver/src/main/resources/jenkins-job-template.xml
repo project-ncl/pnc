@@ -43,7 +43,6 @@
     <builders>
         <hudson.tasks.Shell>
             <command>
-                ${maven_settings}
                 ${hudson.tasks.Shell.command}
             </command>
         </hudson.tasks.Shell>

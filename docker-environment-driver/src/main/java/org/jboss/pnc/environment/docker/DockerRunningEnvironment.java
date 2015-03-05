@@ -4,6 +4,7 @@ import java.io.InputStream;
 
 import org.jboss.pnc.spi.environment.RunningEnvironment;
 import org.jboss.pnc.spi.environment.exception.EnvironmentDriverException;
+import org.jboss.pnc.spi.repositorymanager.model.RepositoryConfiguration;
 
 /**
  * Implementation of Docker environment used by DockerEnvironmentDriver
@@ -29,9 +30,13 @@ public class DockerRunningEnvironment implements RunningEnvironment {
      * Port to SSH to running environment
      */
     private final int sshPort;
+    
+    private final RepositoryConfiguration repositoryConfiguration;
 
-    public DockerRunningEnvironment(DockerEnvironmentDriver dockerEnvDriver, String id, int jenkinsPort,
-            int sshPort) {
+    public DockerRunningEnvironment(DockerEnvironmentDriver dockerEnvDriver, 
+            RepositoryConfiguration repositoryConfiguration, 
+            String id, int jenkinsPort, int sshPort) {
+        this.repositoryConfiguration = repositoryConfiguration;
         this.dockerEnvDriver = dockerEnvDriver;
         this.id = id;
         this.jenkinsPort = jenkinsPort;
@@ -71,6 +76,11 @@ public class DockerRunningEnvironment implements RunningEnvironment {
     @Override
     public void destroyEnvironment() throws EnvironmentDriverException {
         dockerEnvDriver.destroyEnvironment(this.id);
+    }
+
+    @Override
+    public RepositoryConfiguration getRepositoryConfiguration() {
+        return repositoryConfiguration;
     }
 
 }

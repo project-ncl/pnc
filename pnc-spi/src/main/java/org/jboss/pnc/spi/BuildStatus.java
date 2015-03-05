@@ -21,7 +21,10 @@ public enum BuildStatus {
     BUILD_COMPLETED_WITH_ERROR,
 
     COLLECTING_RESULTS_FROM_BUILD_DRIVER,
+    BUILD_ENV_DESTROYING,
+    BUILD_ENV_DESTROYED,
     STORING_RESULTS,
+    RESULTS_STORED,
 
     /** Last build status which is set
      *  after storing to db and

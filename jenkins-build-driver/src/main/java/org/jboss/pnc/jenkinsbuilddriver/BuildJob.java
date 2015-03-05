@@ -1,13 +1,13 @@
 package org.jboss.pnc.jenkinsbuilddriver;
 
+import java.io.IOException;
+
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
-import org.jboss.pnc.spi.repositorymanager.model.RepositoryConfiguration;
+import org.jboss.pnc.spi.environment.RunningEnvironment;
 
 import com.offbytwo.jenkins.JenkinsServer;
 import com.offbytwo.jenkins.model.JobWithDetails;
-
-import java.io.IOException;
 
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-11-29.
@@ -24,15 +24,14 @@ class BuildJob {
         this.buildConfiguration = buildConfiguration;
     }
 
-    public boolean configure(RepositoryConfiguration repositoryConfiguration, boolean override) throws BuildDriverException {
+    public boolean configure(RunningEnvironment runningEnvironment, boolean override) throws BuildDriverException {
         String jobName = getJobName();
 
         this.buildJobConfig = new BuildJobConfig(
                 jobName,
                 buildConfiguration.getScmRepoURL(),
                 buildConfiguration.getScmRevision(),
-                buildConfiguration.getBuildScript(),
-                repositoryConfiguration.getConnectionInfo());
+                buildConfiguration.getBuildScript());
 
         try {
             job = jenkinsServer.getJob(jobName);

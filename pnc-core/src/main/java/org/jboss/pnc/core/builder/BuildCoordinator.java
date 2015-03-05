@@ -1,33 +1,5 @@
 package org.jboss.pnc.core.builder;
 
-import org.jboss.logging.Logger;
-import org.jboss.pnc.core.BuildDriverFactory;
-import org.jboss.pnc.core.RepositoryManagerFactory;
-import org.jboss.pnc.core.exception.CoreException;
-import org.jboss.pnc.core.exception.CoreExceptionWrapper;
-import org.jboss.pnc.model.BuildRecordSet;
-import org.jboss.pnc.model.BuildConfiguration;
-import org.jboss.pnc.model.BuildDriverStatus;
-import org.jboss.pnc.model.Product;
-import org.jboss.pnc.model.ProductVersion;
-import org.jboss.pnc.model.RepositoryType;
-import org.jboss.pnc.spi.BuildResult;
-import org.jboss.pnc.spi.BuildStatus;
-import org.jboss.pnc.spi.builddriver.BuildDriver;
-import org.jboss.pnc.spi.builddriver.BuildDriverResult;
-import org.jboss.pnc.spi.builddriver.CompletedBuild;
-import org.jboss.pnc.spi.builddriver.RunningBuild;
-import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
-import org.jboss.pnc.spi.datastore.DatastoreException;
-import org.jboss.pnc.spi.repositorymanager.RepositoryManager;
-import org.jboss.pnc.spi.repositorymanager.RepositoryManagerException;
-import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
-import org.jboss.pnc.spi.repositorymanager.model.RepositoryConfiguration;
-import org.jboss.util.graph.Edge;
-import org.jboss.util.graph.Vertex;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -42,6 +14,39 @@ import java.util.concurrent.Executors;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+
+import org.jboss.logging.Logger;
+import org.jboss.pnc.core.BuildDriverFactory;
+import org.jboss.pnc.core.EnvironmentDriverFactory;
+import org.jboss.pnc.core.RepositoryManagerFactory;
+import org.jboss.pnc.core.exception.CoreException;
+import org.jboss.pnc.core.exception.CoreExceptionWrapper;
+import org.jboss.pnc.model.BuildConfiguration;
+import org.jboss.pnc.model.BuildDriverStatus;
+import org.jboss.pnc.model.BuildRecordSet;
+import org.jboss.pnc.model.Product;
+import org.jboss.pnc.model.ProductVersion;
+import org.jboss.pnc.model.RepositoryType;
+import org.jboss.pnc.spi.BuildResult;
+import org.jboss.pnc.spi.BuildStatus;
+import org.jboss.pnc.spi.builddriver.BuildDriver;
+import org.jboss.pnc.spi.builddriver.BuildDriverResult;
+import org.jboss.pnc.spi.builddriver.CompletedBuild;
+import org.jboss.pnc.spi.builddriver.RunningBuild;
+import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
+import org.jboss.pnc.spi.datastore.DatastoreException;
+import org.jboss.pnc.spi.environment.EnvironmentDriver;
+import org.jboss.pnc.spi.environment.RunningEnvironment;
+import org.jboss.pnc.spi.environment.exception.EnvironmentDriverException;
+import org.jboss.pnc.spi.repositorymanager.RepositoryManager;
+import org.jboss.pnc.spi.repositorymanager.RepositoryManagerException;
+import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
+import org.jboss.pnc.spi.repositorymanager.model.RepositoryConfiguration;
+import org.jboss.util.graph.Edge;
+import org.jboss.util.graph.Vertex;
 
 /**
  *
@@ -60,16 +65,19 @@ public class BuildCoordinator {
 
     private RepositoryManagerFactory repositoryManagerFactory;
     private BuildDriverFactory buildDriverFactory;
+    private EnvironmentDriverFactory environmentDriverFactory;
     private DatastoreAdapter datastoreAdapter;
 
     @Deprecated
     public BuildCoordinator(){} //workaround for CDI constructor parameter injection
 
     @Inject
-    public BuildCoordinator(BuildDriverFactory buildDriverFactory, RepositoryManagerFactory repositoryManagerFactory, DatastoreAdapter datastoreAdapter) {
+    public BuildCoordinator(BuildDriverFactory buildDriverFactory, RepositoryManagerFactory repositoryManagerFactory, 
+            EnvironmentDriverFactory environmentDriverFactory, DatastoreAdapter datastoreAdapter) {
         this.buildDriverFactory = buildDriverFactory;
         this.repositoryManagerFactory = repositoryManagerFactory;
         this.datastoreAdapter = datastoreAdapter;
+        this.environmentDriverFactory = environmentDriverFactory;
     }
 
     public BuildTask build(BuildConfiguration buildConfiguration) throws CoreException {
@@ -145,12 +153,15 @@ public class BuildCoordinator {
     void startBuilding(BuildTask buildTask) throws CoreException {
         RepositoryManager repositoryManager = repositoryManagerFactory.getRepositoryManager(RepositoryType.MAVEN);
         BuildDriver buildDriver = buildDriverFactory.getBuildDriver(buildTask.getBuildConfiguration().getEnvironment().getBuildType());
+        EnvironmentDriver envDriver = environmentDriverFactory.getDriver(buildTask.getBuildConfiguration().getEnvironment());
 
         configureRepository(buildTask, repositoryManager)
-                .thenCompose(repositoryConfiguration -> buildSetUp(buildTask, buildDriver, repositoryConfiguration))
+                .thenCompose(repositoryConfiguration -> setUpEnvironment(buildTask, envDriver, repositoryConfiguration))
+                .thenCompose(runningEnvironment -> buildSetUp(buildTask, buildDriver, runningEnvironment))
                 .thenCompose(runningBuild -> waitBuildToComplete(buildTask, runningBuild))
                 .thenCompose(completedBuild -> retrieveBuildDriverResults(buildTask, completedBuild))
                 .thenCompose(buildDriverResult -> retrieveRepositoryManagerResults(buildTask, buildDriverResult))
+                .thenCompose(buildResults -> destroyEnvironment(buildTask, buildResults))
                 .handle((buildResults, e) -> storeResults(buildTask, buildResults, e));
     }
 
@@ -176,12 +187,27 @@ public class BuildCoordinator {
         }, executor);
     }
 
-    private CompletableFuture<RunningBuild> buildSetUp(BuildTask buildTask, BuildDriver buildDriver, RepositoryConfiguration repositoryConfiguration) {
+    private CompletableFuture<RunningEnvironment> setUpEnvironment(BuildTask buildTask, 
+            EnvironmentDriver envDriver, RepositoryConfiguration repositoryConfiguration) {
+            return CompletableFuture.supplyAsync( () ->  {
+                buildTask.setStatus(BuildStatus.BUILD_ENV_SETTING_UP);
+                
+                try {
+                    RunningEnvironment runningEnv = envDriver.buildEnvironment(
+                            buildTask.getBuildConfiguration().getEnvironment(), repositoryConfiguration);
+                    buildTask.setStatus(BuildStatus.BUILD_ENV_SETUP_COMPLETE_SUCCESS);
+                    return runningEnv;
+                } catch (EnvironmentDriverException e) {
+                    throw new CoreExceptionWrapper(e);
+                }          
+            }, executor);
+    }
+
+    private CompletableFuture<RunningBuild> buildSetUp(BuildTask buildTask, BuildDriver buildDriver, RunningEnvironment runningEnvironment) {
         return CompletableFuture.supplyAsync( () ->  {
             buildTask.setStatus(BuildStatus.BUILD_SETTING_UP);
-            BuildConfiguration buildConfiguration = buildTask.getBuildConfiguration();
             try {
-                return buildDriver.startProjectBuild(buildTask.getBuildConfiguration(), repositoryConfiguration);
+                return buildDriver.startProjectBuild(buildTask.getBuildConfiguration(), runningEnvironment);
             } catch (BuildDriverException e) {
                 throw new CoreExceptionWrapper(e);
             }
@@ -189,7 +215,7 @@ public class BuildCoordinator {
     }
 
     private CompletableFuture<CompletedBuild> waitBuildToComplete(BuildTask buildTask, RunningBuild runningBuild) {
-        CompletableFuture<CompletedBuild> waitToCompleteFuture = new CompletableFuture();
+        CompletableFuture<CompletedBuild> waitToCompleteFuture = new CompletableFuture<>();
             try {
                 Consumer<CompletedBuild> onComplete = (completedBuild) -> {
                     waitToCompleteFuture.complete(completedBuild);
@@ -209,7 +235,6 @@ public class BuildCoordinator {
     private CompletionStage<BuildDriverResult> retrieveBuildDriverResults(BuildTask buildTask, CompletedBuild completedBuild) {
         return CompletableFuture.supplyAsync( () ->  {
             buildTask.setStatus(BuildStatus.COLLECTING_RESULTS_FROM_BUILD_DRIVER);
-            BuildConfiguration buildConfiguration = buildTask.getBuildConfiguration();
             try {
                 BuildDriverResult buildResult = completedBuild.getBuildResult();
                 BuildDriverStatus buildDriverStatus = buildResult.getBuildDriverStatus();
@@ -229,12 +254,12 @@ public class BuildCoordinator {
         return CompletableFuture.supplyAsync( () ->  {
             try {
                 buildTask.setStatus(BuildStatus.COLLECTING_RESULTS_FROM_REPOSITORY_NAMAGER);
+                RunningEnvironment runningEnvironment  = buildDriverResult.getRunningEnvironment();
                 if (BuildDriverStatus.SUCCESS.equals(buildDriverResult.getBuildDriverStatus())) {
-                    RepositoryConfiguration repositoryConfiguration = buildDriverResult.getRepositoryConfiguration();
-                    RepositoryManagerResult repositoryManagerResult = repositoryConfiguration.extractBuildArtifacts();
-                    return new DefaultBuildResult(buildDriverResult, repositoryManagerResult);
+                    RepositoryManagerResult repositoryManagerResult = runningEnvironment.getRepositoryConfiguration().extractBuildArtifacts();
+                    return new DefaultBuildResult(runningEnvironment, buildDriverResult, repositoryManagerResult);
                 } else {
-                    return new DefaultBuildResult(buildDriverResult, null);
+                    return new DefaultBuildResult(runningEnvironment, buildDriverResult, null);
                 }
             } catch (BuildDriverException | RepositoryManagerException e) {
                 throw new CoreExceptionWrapper(e);
@@ -242,6 +267,19 @@ public class BuildCoordinator {
         }, executor);
     }
 
+    private CompletableFuture<BuildResult> destroyEnvironment(BuildTask buildTask, BuildResult buildResult ) {
+        return CompletableFuture.supplyAsync( () ->  {
+            try {
+                buildTask.setStatus(BuildStatus.BUILD_ENV_DESTROYING);
+                buildResult.getRunningEnvironment().destroyEnvironment();
+                buildTask.setStatus(BuildStatus.BUILD_ENV_DESTROYED);
+                return buildResult;
+            } catch (EnvironmentDriverException e) {
+                throw new CoreExceptionWrapper(e);
+            }
+        }, executor);
+    }
+    
     private CompletableFuture<Boolean> storeResults(BuildTask buildTask, BuildResult buildResult, Throwable e) {
         return CompletableFuture.supplyAsync( () ->  {
             boolean completedOk = false;
@@ -264,6 +302,7 @@ public class BuildCoordinator {
         }, executor);
     }
 
+    
     public List<BuildTask> getBuildTasks() {
         return Collections.unmodifiableList(buildTasks.stream().collect(Collectors.toList()));
     }

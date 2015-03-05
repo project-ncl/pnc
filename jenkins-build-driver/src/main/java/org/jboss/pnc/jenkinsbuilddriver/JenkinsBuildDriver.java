@@ -9,6 +9,7 @@ import org.jboss.pnc.model.BuildType;
 import org.jboss.pnc.spi.builddriver.BuildDriver;
 import org.jboss.pnc.spi.builddriver.RunningBuild;
 import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
+import org.jboss.pnc.spi.environment.RunningEnvironment;
 import org.jboss.pnc.spi.repositorymanager.model.RepositoryConfiguration;
 
 /**
@@ -44,15 +45,15 @@ public class JenkinsBuildDriver implements BuildDriver {
     }
 
     @Override
-    public RunningBuild startProjectBuild(BuildConfiguration buildConfiguration, RepositoryConfiguration repositoryConfiguration) throws BuildDriverException {
+    public RunningBuild startProjectBuild(BuildConfiguration buildConfiguration, RunningEnvironment runningEnvironment) throws BuildDriverException {
         BuildJob build = new BuildJob(jenkinsServerFactory.getJenkinsServer(), buildConfiguration);
-        boolean configured = build.configure(repositoryConfiguration, true);
+        boolean configured = build.configure(runningEnvironment, true);
         if (!configured) {
             throw new AssertionError("Cannot configure build job.");
         }
         int buildNumber = build.start();
         log.infof("Started jenkins job %s #%s.", build.getJobName(), buildNumber);
-        return new JenkinsRunningBuild(repositoryConfiguration, jenkinsServerFactory, jenkinsBuildMonitor, build);
+        return new JenkinsRunningBuild(runningEnvironment, jenkinsServerFactory, jenkinsBuildMonitor, build);
     }
 
 

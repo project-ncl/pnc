@@ -4,6 +4,7 @@ import java.io.InputStream;
 import java.io.Serializable;
 
 import org.jboss.pnc.spi.environment.exception.EnvironmentDriverException;
+import org.jboss.pnc.spi.repositorymanager.model.RepositoryConfiguration;
 
 /**
  * Identification of environment started by environment driver
@@ -12,7 +13,7 @@ import org.jboss.pnc.spi.environment.exception.EnvironmentDriverException;
  *
  */
 public interface RunningEnvironment extends Serializable {
-    
+
     /**
      * Destroys current running environment
      * 
@@ -39,17 +40,19 @@ public interface RunningEnvironment extends Serializable {
      * @throws EnvironmentDriverException Thrown if it the data transfer couldn't be finished.
      */
     void transferDataToEnvironment(String pathOnHost, String data) throws EnvironmentDriverException;
-    
+
     /**
      * 
      * @return ID of an environment
      */
-    public String getId();
+    String getId();
 
     /**
      * 
      * @return Port to connect to Jenkins UI
      */
-    public int getJenkinsPort();
+    int getJenkinsPort();
+
+    RepositoryConfiguration getRepositoryConfiguration();
 
 }

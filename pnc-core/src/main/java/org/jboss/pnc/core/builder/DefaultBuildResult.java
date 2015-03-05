@@ -2,6 +2,7 @@ package org.jboss.pnc.core.builder;
 
 import org.jboss.pnc.spi.BuildResult;
 import org.jboss.pnc.spi.builddriver.BuildDriverResult;
+import org.jboss.pnc.spi.environment.RunningEnvironment;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
 
 /**
@@ -10,8 +11,11 @@ import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
 public class DefaultBuildResult implements BuildResult {
 
     private BuildDriverResult buildDriverResult;
+    
+    private RunningEnvironment runningEnvironment;
 
-    public DefaultBuildResult(BuildDriverResult buildDriverResult, RepositoryManagerResult repositoryManagerResult) {
+    public DefaultBuildResult(RunningEnvironment runningEnvironment, BuildDriverResult buildDriverResult, 
+            RepositoryManagerResult repositoryManagerResult) {
         this.buildDriverResult = buildDriverResult;
         this.repositoryManagerResult = repositoryManagerResult;
     }
@@ -26,5 +30,10 @@ public class DefaultBuildResult implements BuildResult {
     @Override
     public RepositoryManagerResult getRepositoryManagerResult() {
         return repositoryManagerResult;
+    }
+    
+    @Override
+    public RunningEnvironment getRunningEnvironment() {
+        return runningEnvironment;
     }
 }

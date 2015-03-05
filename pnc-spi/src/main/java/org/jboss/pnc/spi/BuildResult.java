@@ -1,6 +1,7 @@
 package org.jboss.pnc.spi;
 
 import org.jboss.pnc.spi.builddriver.BuildDriverResult;
+import org.jboss.pnc.spi.environment.RunningEnvironment;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
 
 /**
@@ -13,4 +14,6 @@ public interface BuildResult {
      * @return Note that RepositoryManagerResult can return nul if build was not successful completed.
      */
     RepositoryManagerResult getRepositoryManagerResult();
+
+    RunningEnvironment getRunningEnvironment();
 }

@@ -2,7 +2,7 @@ package org.jboss.pnc.spi.builddriver;
 
 import org.jboss.pnc.model.BuildDriverStatus;
 import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
-import org.jboss.pnc.spi.repositorymanager.model.RepositoryConfiguration;
+import org.jboss.pnc.spi.environment.RunningEnvironment;
 
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-12-23.
@@ -12,5 +12,5 @@ public interface CompletedBuild {
 
     BuildDriverResult getBuildResult() throws BuildDriverException;
 
-    RepositoryConfiguration getRepositoryConfiguration();
+    RunningEnvironment getRunningEnvironment();
 }
