@@ -10,6 +10,12 @@
           {
             "@module-config":"maven-repo-driver",
             "baseUrl":"${env.PNC_APROX_URL}"
+          },
+          {
+            "@module-config":"docker-environment-driver",
+            "ip":"${env.PNC_DOCKER_IP}",
+            "inContainerUser":"${env.PNC_DOCKER_CONT_USER}",
+            "inContainerUserPassword":"${env.PNC_DOCKER_CONT_PASSWORD}"
           }
         ]
 }
