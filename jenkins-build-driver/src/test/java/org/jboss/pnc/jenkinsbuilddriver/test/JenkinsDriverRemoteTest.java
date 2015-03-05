@@ -58,8 +58,8 @@ public class JenkinsDriverRemoteTest {
     @Inject
     JenkinsBuildDriver jenkinsBuildDriver;
 
-    @Ignore
     @Test
+    @Ignore("To be fixed by NCL-554")
     public void startJenkinsJobTestCase() throws Exception {
         BuildConfiguration pbc = getBuildConfiguration();
 

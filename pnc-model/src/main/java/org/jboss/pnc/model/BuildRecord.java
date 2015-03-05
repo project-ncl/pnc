@@ -1,11 +1,5 @@
 package org.jboss.pnc.model;
 
-import java.io.Serializable;
-import java.sql.Timestamp;
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
-
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -18,10 +12,15 @@ import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.PreRemove;
+import java.io.Serializable;
+import java.sql.Timestamp;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-11-23.
- * 
+ * <p>
  * This class contains the build result of a project configuration, and contains additional metadata, as the build script, the
  * starting and ending time of a build, the status of the build, the sources url used, the user that triggered the build, plus
  * all the Artifacts that were built and all the Artifacts that were used for the final build. It stores also the buildDriverID
@@ -39,7 +38,7 @@ public class BuildRecord implements Serializable {
     @GeneratedValue
     private Integer id;
 
-    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @ManyToOne(cascade = { CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH }, fetch = FetchType.LAZY)
     private BuildConfiguration buildConfiguration;
 
     private String buildScript;
@@ -86,7 +85,9 @@ public class BuildRecord implements Serializable {
 
     // bi-directional many-to-many association to buildRecordSet
 
-    /** The build collections. */
+    /**
+     * The build collections.
+     */
     @ManyToMany(mappedBy = "buildRecord")
     private List<BuildRecordSet> buildRecordSets;
 
