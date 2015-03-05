@@ -7,7 +7,6 @@ import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Version;
-
 import java.io.Serializable;
 import java.sql.Timestamp;
 import java.time.Instant;
@@ -18,7 +17,7 @@ import java.util.Set;
  * The Class BuildConfiguration cointains the informations needed to trigger the build of a project, i.e. the sources and
  * patches URLs, the build script, the environment needed to run, the project configurations that need to be triggered after a
  * successful build. It contains also creation and last modification time for historical purposes
- * 
+ * <p>
  * (project + name) should be unique
  *
  * @author avibelli
@@ -49,13 +48,13 @@ public class BuildConfiguration implements Serializable, Cloneable {
     @ManyToOne(cascade = CascadeType.ALL)
     private ProductVersion productVersion;
 
-    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH})
+    @ManyToOne(cascade = { CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH })
     private Project project;
 
-    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.DETACH, CascadeType.REFRESH})
+    @ManyToOne(cascade = { CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH })
     private Environment environment;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne(cascade = { CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH })
     private BuildConfiguration parent;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "buildConfiguration")
@@ -66,7 +65,7 @@ public class BuildConfiguration implements Serializable, Cloneable {
     @Version
     private Timestamp lastModificationTime;
 
-    @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "parent", cascade = { CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH })
     private Set<BuildConfiguration> dependencies;
 
     // TODO: What data format does Aprox need?

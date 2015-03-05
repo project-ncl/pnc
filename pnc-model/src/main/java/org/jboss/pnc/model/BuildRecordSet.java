@@ -1,8 +1,5 @@
 package org.jboss.pnc.model;
 
-import java.io.Serializable;
-import java.util.List;
-
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -13,6 +10,8 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.PreRemove;
+import java.io.Serializable;
+import java.util.List;
 
 /**
  * The Class BuildRecordSet, that encapsulates the set of buildRecords that compose a specific version of a Product.
@@ -33,11 +32,13 @@ public class BuildRecordSet implements Serializable {
     @Enumerated(EnumType.STRING)
     private ProductMilestone milestone;
 
-    @OneToOne(optional = true, mappedBy = "buildRecordSet")
+    @OneToOne(mappedBy = "buildRecordSet")
     private ProductVersion productVersion;
 
     @ManyToMany
-    @JoinTable(name = "build_record_set_map", joinColumns = { @JoinColumn(name = "build_record_set_id", referencedColumnName = "id") }, inverseJoinColumns = { @JoinColumn(name = "build_record_id", referencedColumnName = "id") })
+    @JoinTable(name = "build_record_set_map", joinColumns = {
+            @JoinColumn(name = "build_record_set_id", referencedColumnName = "id") }, inverseJoinColumns = {
+            @JoinColumn(name = "build_record_id", referencedColumnName = "id") })
     private List<BuildRecord> buildRecord;
 
     /**
@@ -116,8 +117,8 @@ public class BuildRecordSet implements Serializable {
 
     @Override
     public String toString() {
-        return "BuildRecordSet [productName=" + productVersion.getProduct().getName() + ", productVersion="
-                + productVersion.getVersion() + "]";
+        return "BuildRecordSet [productName=" + productVersion.getProduct().getName() + ", productVersion=" + productVersion
+                .getVersion() + "]";
     }
 
 }

@@ -17,20 +17,19 @@
 
 package org.jboss.pnc.model;
 
-import java.io.Serializable;
-
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
+import java.io.Serializable;
 
 /**
  * Defines the relationship between the Product and the Project, for a specific version
- * 
+ * <p>
  * I.e. Product_1 may be mapped to Project_A and Project_B for version 1.0, but mapped only to Project_B for version 1.1
- * 
- * @author avibelli
  *
+ * @author avibelli
  */
 @Entity
 public class ProductVersionProject implements Serializable {
@@ -41,7 +40,7 @@ public class ProductVersionProject implements Serializable {
     @GeneratedValue
     private Integer id;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.ALL)
     private ProductVersion productVersion;
 
     @ManyToOne

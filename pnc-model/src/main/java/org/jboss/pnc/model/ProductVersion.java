@@ -17,17 +17,22 @@
 
 package org.jboss.pnc.model;
 
-import javax.persistence.*;
-
+import javax.persistence.CascadeType;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
 /**
  * Class that contains all the versions for a Product
- * 
- * @author avibelli
  *
+ * @author avibelli
  */
 @Entity
 public class ProductVersion implements Serializable {
@@ -46,13 +51,13 @@ public class ProductVersion implements Serializable {
 
     private String internalDownloadUrl;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne(cascade = { CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH })
     private Product product;
 
     @OneToMany(mappedBy = "productVersion", cascade = CascadeType.ALL)
     private Set<ProductVersionProject> productVersionProjects;
 
-    @OneToOne(optional = true, cascade = { CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH })
+    @OneToOne(optional = true, cascade = { CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH })
     @JoinColumn(name = "buildrecordset_id")
     private BuildRecordSet buildRecordSet;
 
@@ -130,7 +135,7 @@ public class ProductVersion implements Serializable {
 
     /**
      * Flag to show whether this product version has been released
-     * 
+     *
      * @return
      */
     public boolean isReleased() {
@@ -143,7 +148,7 @@ public class ProductVersion implements Serializable {
 
     /**
      * Flag showing whether this product version is currently supported
-     * 
+     *
      * @return
      */
     public boolean isSupported() {
@@ -156,7 +161,7 @@ public class ProductVersion implements Serializable {
 
     /**
      * URL which can be used to download the product distribution
-     * 
+     *
      * @return
      */
     public String getInternalDownloadUrl() {
@@ -169,7 +174,7 @@ public class ProductVersion implements Serializable {
 
     /**
      * Build record set represents the set of completed builds which produced the artifacts included in the product release
-     * 
+     *
      * @return The set of build records for this release
      */
     public BuildRecordSet getBuildRecordSet() {
