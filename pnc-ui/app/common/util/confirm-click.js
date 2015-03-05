@@ -24,19 +24,19 @@
    * you sure you want to delete all the things?">Delete All The Things</button>
    */
   module.directive('pncConfirmClick', function () {
-    var DEFAULT_MESSAGE = "Are you sure?";
+    var DEFAULT_MESSAGE = 'Are you sure?';
 
     return {
       restrict: 'A',
       link: function(scope, element, attrs) {
         element.bind('click', function() {
           var message = attrs.pncConfirmMessage || DEFAULT_MESSAGE;
-          if (confirm(message)) {
+          if (confirm(message)) { // jshint ignore:line
             scope.$apply(attrs.pncConfirmClick);
           }
         });
       }
-    }
+    };
   });
 
 })();
