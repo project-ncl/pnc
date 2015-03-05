@@ -76,7 +76,11 @@
                                  configurationDetails) {
           return restClient.Project.get({
             projectId: configurationDetails.projectId }).$promise;
-        }
+        },
+        buildRecords: function(restClient, $stateParams) {
+          return restClient.Record.getAllForConfiguration({
+            configurationId: $stateParams.configurationId }).$promise;
+        },
       },
       views: {
         'content@': {
@@ -189,6 +193,10 @@
                                        configurationDetails) {
             return restClient.Environment.get({
               environmentId: configurationDetails.environmentId  }).$promise;
+          },
+          buildRecords: function(restClient, $stateParams) {
+            return restClient.Record.getAllForConfiguration({
+              configurationId: $stateParams.configurationId }).$promise;
           },
         },
         views: {

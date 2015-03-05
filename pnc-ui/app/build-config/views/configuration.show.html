@@ -4,7 +4,7 @@
   }
 </style>
 <div class="row">
-  <div class="col-md-8 col-md-offset-2">
+  <div class="col-md-8">
     <div class="row">
       <div class="col-md-6">
         <h1>Build Configuration Details</h1>
@@ -115,6 +115,34 @@
           </div>
         </form>
       </div>
+    </div>
+  </div>
+  <div class="col-md-3 col-md-offset-1" >
+    <div class="row">
+      <div class="col-md-6">
+      <h3 class="sub-header">Build Status</h3>
+      </div>
+    </div>
+    <div>
+      <table class="table table-striped">
+        <tbody style="cursor: pointer;">
+          <tr ng-repeat="record in buildRecords">
+            <td>
+            <span ng-switch on="record.status">
+               <img ng-switch-when="BUILDING" src='../../images/blue_anime.gif'>
+               <img ng-switch-when="SUCCESS" src='../../images/success_small.png'>
+               <img ng-switch-when="UNSTABLE" src='../../images/red_small.png'>
+               <img ng-switch-when="FAILED" src='../../images/red_small.png'>
+               <img ng-switch-when="ABORTED" src='../../images/aborted_small.png'>
+               <img ng-switch-when="CANCELLED" src='../../images/aborted_small.png'>
+               <img ng-switch-default src='../../images/unknown_small.png'>
+            </span>
+            </td>
+            <td>{{ record.name }}</td>
+            <td>{{ record.startTime | date:'medium'}}</td>
+          </tr>
+        </tbody>
+      </table>
     </div>
   </div>
 </div>
