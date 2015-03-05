@@ -92,8 +92,34 @@
            method: 'GET',
            url: REST_DEFAULTS.BASE_URL + '/configuration/project/:projectId',
            isArray: true,
-         },
-       })
+          },
+        }),
+
+        Record: $resource(REST_DEFAULTS.BASE_URL + '/record/:recordId', {}, {
+          getLog: {
+            method: 'GET',
+            url: REST_DEFAULTS.BASE_URL + '/record/:recordId/log',
+            isArray: false
+          },
+          getAllForConfiguration: {
+            method: 'GET',
+            url: REST_DEFAULTS.BASE_URL + '/record/configuration/:configurationId',
+            isArray: true,
+          },
+          getAllForProject: {
+            method: 'GET',
+            url: REST_DEFAULTS.BASE_URL + 'record/project/:projectId',
+            isArray: true
+          }
+        }),
+
+        Running: $resource(REST_DEFAULTS.BASE_URL + '/record/running/:recordId', {}, {
+          getLog: {
+            method: 'GET',
+            url: REST_DEFAULTS.BASE_URL + '/record/running/:recordId/log',
+            isArray: false
+          }
+        })
       };
     }
   ]);
