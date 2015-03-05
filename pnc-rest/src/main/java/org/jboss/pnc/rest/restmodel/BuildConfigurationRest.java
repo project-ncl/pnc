@@ -1,9 +1,8 @@
 package org.jboss.pnc.rest.restmodel;
 
 import org.jboss.pnc.model.BuildConfiguration;
-import org.jboss.pnc.model.builder.BuildConfigurationBuilder;
-import org.jboss.pnc.model.builder.EnvironmentBuilder;
-import org.jboss.pnc.model.builder.ProjectBuilder;
+import org.jboss.pnc.model.Environment;
+import org.jboss.pnc.model.Project;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
@@ -154,7 +153,7 @@ public class BuildConfigurationRest {
     }
 
     public BuildConfiguration toBuildConfiguration(BuildConfiguration buildConfiguration) {
-        BuildConfigurationBuilder builder = BuildConfigurationBuilder.newBuilder();
+        BuildConfiguration.Builder builder = BuildConfiguration.Builder.newBuilder();
         builder.id(id);
         builder.name(name);
         builder.description(description);
@@ -166,14 +165,14 @@ public class BuildConfigurationRest {
         builder.lastModificationTime(lastModificationTime);
         builder.repositories(repositories);
 
-        performIfNotNull(projectId != null, () -> builder.project(ProjectBuilder.newBuilder().id(projectId).build()));
-        performIfNotNull(environmentId != null, () -> builder.environment(EnvironmentBuilder.emptyEnvironment().id(environmentId).build()));
+        performIfNotNull(projectId != null, () -> builder.project(Project.Builder.newBuilder().id(projectId).build()));
+        performIfNotNull(environmentId != null, () -> builder.environment(Environment.Builder.emptyEnvironment().id(environmentId).build()));
 
         overrideWithDataFromOriginalConfiguration(buildConfiguration, builder);
         return builder.build();
     }
 
-    private void overrideWithDataFromOriginalConfiguration(BuildConfiguration buildConfiguration, BuildConfigurationBuilder builder) {
+    private void overrideWithDataFromOriginalConfiguration(BuildConfiguration buildConfiguration, BuildConfiguration.Builder builder) {
         performIfNotNull(buildConfiguration != null, () -> {
             builder.lastModificationTime(buildConfiguration.getLastModificationTime());
             builder.creationTime(buildConfiguration.getCreationTime());

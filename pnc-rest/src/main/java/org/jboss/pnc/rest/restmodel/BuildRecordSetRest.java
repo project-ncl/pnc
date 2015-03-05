@@ -10,9 +10,8 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import org.jboss.pnc.model.BuildRecordSet;
 import org.jboss.pnc.model.ProductMilestone;
-import org.jboss.pnc.model.builder.BuildRecordBuilder;
-import org.jboss.pnc.model.builder.BuildRecordSetBuilder;
-import org.jboss.pnc.model.builder.ProductVersionBuilder;
+import org.jboss.pnc.model.BuildRecord;
+import org.jboss.pnc.model.ProductVersion;
 
 @XmlRootElement(name = "BuildRecordSet")
 public class BuildRecordSetRest {
@@ -71,15 +70,15 @@ public class BuildRecordSetRest {
     }
 
     public BuildRecordSet toBuildRecordSet() {
-        BuildRecordSetBuilder builder = BuildRecordSetBuilder.newBuilder();
+        BuildRecordSet.Builder builder = BuildRecordSet.Builder.newBuilder();
         builder.id(id);
         builder.milestone(milestone);
 
         performIfNotNull(productVersionId != null,
-                () -> builder.productVersion(ProductVersionBuilder.newBuilder().id(productVersionId).build()));
+                () -> builder.productVersion(ProductVersion.Builder.newBuilder().id(productVersionId).build()));
 
         nullableStreamOf(buildRecordIds).forEach(buildRecordId -> {
-            BuildRecordBuilder buildRecordBuilder = BuildRecordBuilder.newBuilder().id(buildRecordId);
+            BuildRecord.Builder buildRecordBuilder = BuildRecord.Builder.newBuilder().id(buildRecordId);
             builder.buildRecord(buildRecordBuilder.build());
         });
 

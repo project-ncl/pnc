@@ -2,8 +2,6 @@ package org.jboss.pnc.rest.restmodel;
 
 import org.jboss.pnc.model.License;
 import org.jboss.pnc.model.Project;
-import org.jboss.pnc.model.builder.LicenseBuilder;
-import org.jboss.pnc.model.builder.ProjectBuilder;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.List;
@@ -128,18 +126,15 @@ public class LicenseRest {
     }
 
     public License toLicense() {
-        LicenseBuilder licenseBuilder = LicenseBuilder.newBuilder();
-        licenseBuilder.id(id);
-        licenseBuilder.fullName(fullName);
-        licenseBuilder.fullContent(fullContent);
-        licenseBuilder.refUrl(refUrl);
-        licenseBuilder.shortName(shortName);
         List<Project> projects = nullableStreamOf(projectsIds)
-                .map(projectId -> ProjectBuilder.newBuilder().id(projectId).build())
+                .map(projectId -> Project.Builder.newBuilder().id(projectId).build())
                 .collect(Collectors.toList());
-        licenseBuilder.projects(projects);
+        License license = License.Builder.newBuilder()
+            .id(id).fullName(fullName)
+            .fullContent(fullContent).refUrl(refUrl)
+            .shortName(shortName).projects(projects).build();
 
-        return licenseBuilder.build();
+        return license;
     }
 
 }

@@ -10,7 +10,9 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.PreRemove;
+
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -121,4 +123,68 @@ public class BuildRecordSet implements Serializable {
                 .getVersion() + "]";
     }
 
+    public static class Builder {
+
+        private Integer id;
+
+        private ProductMilestone milestone;
+
+        private ProductVersion productVersion;
+
+        private List<BuildRecord> buildRecords;
+
+        private Builder() {
+            buildRecords = new ArrayList<>();
+        }
+
+        public static Builder newBuilder() {
+            return new Builder();
+        }
+
+        public BuildRecordSet build() {
+            BuildRecordSet buildRecordSet = new BuildRecordSet();
+            buildRecordSet.setId(id);
+            buildRecordSet.setMilestone(milestone);
+
+            if (productVersion != null) {
+                productVersion.setBuildRecordSet(buildRecordSet);
+            }
+            buildRecordSet.setProductVersion(productVersion);
+
+            // Set the bi-directional mapping
+            for (BuildRecord buildRecord : buildRecords) {
+                buildRecord.getBuildRecordSets().add(buildRecordSet);
+            }
+
+            buildRecordSet.setBuildRecord(buildRecords);
+
+            return buildRecordSet;
+        }
+
+        public Builder id(Integer id) {
+            this.id = id;
+            return this;
+        }
+
+        public Builder productVersion(ProductVersion productVersion) {
+            this.productVersion = productVersion;
+            return this;
+        }
+
+        public Builder milestone(ProductMilestone milestone) {
+            this.milestone = milestone;
+            return this;
+        }
+
+        public Builder buildRecord(BuildRecord buildRecord) {
+            this.buildRecords.add(buildRecord);
+            return this;
+        }
+
+        public Builder buildRecords(List<BuildRecord> buildRecords) {
+            this.buildRecords = buildRecords;
+            return this;
+        }
+
+    }
 }

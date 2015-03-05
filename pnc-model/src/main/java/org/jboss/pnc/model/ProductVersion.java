@@ -25,6 +25,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
+
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
@@ -198,4 +199,84 @@ public class ProductVersion implements Serializable {
         return "ProductVersion [id=" + id + ", version=" + version + "]";
     }
 
+    public static class Builder {
+
+        private Integer id;
+
+        private String version;
+
+        private Product product;
+
+        private boolean released;
+
+        private boolean supported;
+
+        private String internalDownloadUrl;
+
+        private BuildRecordSet buildRecordSet;
+
+        private Builder() {
+        }
+
+        public static Builder newBuilder() {
+            return new Builder();
+        }
+
+        public ProductVersion build() {
+            ProductVersion productVersion = new ProductVersion();
+            productVersion.setId(id);
+            productVersion.setVersion(version);
+            productVersion.setReleased(released);
+            productVersion.setSupported(supported);
+            productVersion.setInternalDownloadUrl(internalDownloadUrl);
+            productVersion.setBuildRecordSet(buildRecordSet);
+
+            if (product != null) {
+                product.addVersion(productVersion);
+                productVersion.setProduct(product);
+            }
+
+            return productVersion;
+        }
+
+        public Builder id(Integer id) {
+            this.id = id;
+            return this;
+        }
+
+        public Builder version(String version) {
+            this.version = version;
+            return this;
+        }
+
+        public Builder released(boolean released) {
+            this.released = released;
+            return this;
+        }
+
+        public Builder supported(boolean supported) {
+            this.supported = supported;
+            return this;
+        }
+
+        public Builder internalDownloadUrl(String internalDownloadUrl) {
+            this.internalDownloadUrl = internalDownloadUrl;
+            return this;
+        }
+
+        public Builder product(Product product) {
+            this.product = product;
+            return this;
+        }
+
+        public Builder buildRecordSet(BuildRecordSet buildRecordSet) {
+            this.buildRecordSet = buildRecordSet;
+            return this;
+        }
+
+        public Builder product(Product.Builder productBuilder) {
+            this.product = productBuilder.build();
+            return this;
+        }
+    }
 }

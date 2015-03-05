@@ -1,6 +1,7 @@
 package org.jboss.pnc.model;
 
 import javax.persistence.*;
+
 import java.io.Serializable;
 
 /**
@@ -102,5 +103,51 @@ public class Environment implements Serializable {
     @Override
     public String toString() {
         return "Environment [operationalSystem=" + operationalSystem + ", buildType=" + buildType + "]";
+    }
+
+    public static class Builder {
+
+        private BuildType buildType = BuildType.JAVA;
+        private OperationalSystem operationalSystem = OperationalSystem.LINUX;
+        private Integer id;
+
+        private Builder() {
+
+        }
+
+        public static Builder defaultEnvironment() {
+            return new Builder();
+        }
+
+        public static Builder emptyEnvironment() {
+            return new Builder().id(null).buildType(null).operationalSystem(null);
+        }
+
+        public Environment build() {
+            Environment environment = new Environment();
+            environment.setId(id);
+            environment.setBuildType(buildType);
+            environment.setOperationalSystem(operationalSystem);
+            return environment;
+        }
+
+        public OperationalSystem getOperationalSystem() {
+            return operationalSystem;
+        }
+
+        public Builder buildType(BuildType buildType) {
+            this.buildType = buildType;
+            return this;
+        }
+
+        public Builder id(Integer id) {
+            this.id = id;
+            return  this;
+        }
+
+        private Builder operationalSystem(OperationalSystem operationalSystem) {
+            this.operationalSystem = operationalSystem;
+            return this;
+        }
     }
 }

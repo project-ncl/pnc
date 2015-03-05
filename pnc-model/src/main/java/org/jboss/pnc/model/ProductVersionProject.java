@@ -22,6 +22,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
+
 import java.io.Serializable;
 
 /**
@@ -98,6 +99,52 @@ public class ProductVersionProject implements Serializable {
      */
     public void setProject(Project project) {
         this.project = project;
+    }
+
+    public static class Builder {
+
+        private Integer id;
+
+        private ProductVersion productVersion;
+
+        private Project project;
+
+        private Builder() {
+
+        }
+
+        public ProductVersionProject build() {
+            ProductVersionProject productVersionProject = new ProductVersionProject();
+            productVersionProject.setId(id);
+            productVersionProject.setProductVersion(productVersion);
+
+            if (project != null) {
+                project.addProductVersionProject(productVersionProject);
+            }
+            productVersionProject.setProject(project);
+
+            return productVersionProject;
+        }
+
+        public static Builder newBuilder() {
+            return new Builder();
+        }
+
+        public Builder id(Integer id) {
+            this.id = id;
+            return this;
+        }
+
+        public Builder productVersion(ProductVersion productVersion) {
+            this.productVersion = productVersion;
+            return this;
+        }
+
+        public Builder project(Project project) {
+            this.project = project;
+            return this;
+        }
+
     }
 
 }

@@ -1,6 +1,7 @@
 package org.jboss.pnc.model;
 
 import javax.persistence.*;
+
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
@@ -213,4 +214,111 @@ public class Project implements Serializable {
         return "Project [name=" + name + "]";
     }
 
+    public static class Builder {
+
+        private Integer id;
+
+        private String name;
+
+        private String description;
+
+        private String issueTrackerUrl;
+
+        private String projectUrl;
+
+        private License license;
+
+        private Set<ProductVersionProject> productVersionProjects;
+
+        private Set<BuildConfiguration> buildConfigurations;
+
+        private Builder() {
+            productVersionProjects = new HashSet<>();
+            buildConfigurations = new HashSet<>();
+        }
+
+        public static Builder newBuilder() {
+            return new Builder();
+        }
+
+        public Project build() {
+
+            Project project = new Project();
+            project.setId(id);
+            project.setName(name);
+            project.setDescription(description);
+            project.setIssueTrackerUrl(issueTrackerUrl);
+            project.setProjectUrl(projectUrl);
+            project.setLicense(license);
+
+            // Set the bi-directional mapping
+            for (ProductVersionProject productVersionProject : productVersionProjects) {
+                productVersionProject.setProject(project);
+            }
+            project.setProductVersionProjects(productVersionProjects);
+
+            // Set the bi-directional mapping
+            for (BuildConfiguration buildConfiguration : buildConfigurations) {
+                buildConfiguration.setProject(project);
+            }
+            project.setBuildConfigurations(buildConfigurations);
+
+            return project;
+        }
+
+        public Builder id(Integer id) {
+            this.id = id;
+            return this;
+        }
+
+        public Builder name(String name) {
+            this.name = name;
+            return this;
+        }
+
+        public Builder description(String description) {
+            this.description = description;
+            return this;
+        }
+
+        public Builder issueTrackerUrl(String issueTrackerUrl) {
+            this.issueTrackerUrl = issueTrackerUrl;
+            return this;
+        }
+
+        public Builder projectUrl(String projectUrl) {
+            this.projectUrl = projectUrl;
+            return this;
+        }
+
+        public Builder license(License license) {
+            this.license = license;
+            return this;
+        }
+
+        public Builder productVersionProject(ProductVersionProject productVersionProject) {
+            this.productVersionProjects.add(productVersionProject);
+            return this;
+        }
+
+        public Builder buildConfiguration(BuildConfiguration buildConfiguration) {
+            this.buildConfigurations.add(buildConfiguration);
+            return this;
+        }
+
+        public Builder productVersionProjects(Set<ProductVersionProject> productVersionProjects) {
+            this.productVersionProjects = productVersionProjects;
+            return this;
+        }
+
+        public Builder buildConfigurations(Set<BuildConfiguration> buildConfigurations) {
+            this.buildConfigurations = buildConfigurations;
+            return this;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+    }
 }

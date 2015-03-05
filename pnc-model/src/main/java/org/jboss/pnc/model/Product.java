@@ -18,6 +18,7 @@
 package org.jboss.pnc.model;
 
 import javax.persistence.*;
+
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
@@ -167,4 +168,92 @@ public class Product implements Serializable {
         return productVersions;
     }
 
+    public static class Builder {
+
+        private Integer id;
+
+        private String name;
+
+        private String description;
+
+        private String abbreviation;
+
+        private String productCode;
+
+        private String pgmSystemName;
+
+        private Set<ProductVersion> productVersions;
+
+        private Builder() {
+            productVersions = new HashSet<>();
+        }
+
+        public static Builder newBuilder() {
+            return new Builder();
+        }
+
+        public Product build() {
+            Product product = new Product();
+            product.setId(id);
+            product.setName(name);
+            product.setDescription(description);
+            product.setAbbreviation(abbreviation);
+            product.setProductCode(productCode);
+            product.setPgmSystemName(pgmSystemName);
+
+            // Set the bi-directional mapping
+            for (ProductVersion productVersion : productVersions) {
+                productVersion.setProduct(product);
+            }
+            product.setProductVersions(productVersions);
+
+            return product;
+        }
+
+        public Builder id(Integer id) {
+            this.id = id;
+            return this;
+        }
+
+        public Builder name(String name) {
+            this.name = name;
+            return this;
+        }
+
+        public Builder description(String description) {
+            this.description = description;
+            return this;
+        }
+
+        public Builder abbreviation(String abbreviation) {
+            this.abbreviation = abbreviation;
+            return this;
+        }
+
+        public Builder productCode(String productCode) {
+            this.productCode = productCode;
+            return this;
+        }
+
+        public Builder pgmSystemName(String pgmSystemName) {
+            this.pgmSystemName = pgmSystemName;
+            return this;
+        }
+
+        public Builder productVersion(ProductVersion productVersion) {
+            this.productVersions.add(productVersion);
+            return this;
+        }
+
+        public Builder productVersions(Set<ProductVersion> productVersions) {
+            this.productVersions = productVersions;
+            return this;
+        }
+
+        public Builder productVersion(ProductVersion.Builder productVersionBuilder) {
+            this.productVersions.add(productVersionBuilder.build());
+            return this;
+        }
+
+    }
 }

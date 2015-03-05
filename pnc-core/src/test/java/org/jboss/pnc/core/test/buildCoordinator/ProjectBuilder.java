@@ -24,7 +24,7 @@ import org.jboss.pnc.core.test.mock.DatastoreMock;
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.BuildRecordSet;
 import org.jboss.pnc.model.BuildConfiguration;
-import org.jboss.pnc.model.builder.EnvironmentBuilder;
+import org.jboss.pnc.model.Environment;
 import org.jboss.pnc.spi.BuildStatus;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.asset.EmptyAsset;
@@ -51,7 +51,7 @@ public class ProjectBuilder {
                 .addClass(Configuration.class)
                 .addClass(BuildDriverFactory.class)
                 .addClass(RepositoryManagerFactory.class)
-                .addClass(EnvironmentBuilder.class)
+                .addClass(Environment.Builder.class)
                 .addPackage(BuildCoordinator.class.getPackage())
                 .addPackage(BuildDriverMock.class.getPackage())
                 .addAsManifestResource(EmptyAsset.INSTANCE, "beans.xml")

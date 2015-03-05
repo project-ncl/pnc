@@ -19,7 +19,6 @@ import org.jboss.pnc.integration.deployments.Deployments;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.BuildRecordSet;
 import org.jboss.pnc.model.ProductVersion;
-import org.jboss.pnc.model.builder.BuildRecordSetBuilder;
 import org.jboss.pnc.rest.provider.BuildRecordSetProvider;
 import org.jboss.pnc.rest.restmodel.BuildRecordSetRest;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
@@ -70,7 +69,7 @@ public class BuildRecordSetsTest {
         buildRecordId = buildRecord.getId();
         productVersionId = productVersion.getId();
 
-        BuildRecordSetBuilder builder = BuildRecordSetBuilder.newBuilder();
+        BuildRecordSet.Builder builder = BuildRecordSet.Builder.newBuilder();
         BuildRecordSet buildRecordSet = builder.buildRecord(buildRecord).productVersion(productVersion).build();
 
         buildRecordSet = buildRecordSetRepository.save(buildRecordSet);
