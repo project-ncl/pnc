@@ -1,43 +1,61 @@
 <!DOCTYPE html>
-<!--[if IE 8]><html class="ie8"><![endif]-->
-<!--[if IE 9]><html class="ie9"><![endif]-->
-<!--[if gt IE 9]><!-->
-<html>
-<!--<![endif]-->
+<html ng-app="pnc">
   <head>
     <meta charset="utf-8">
     <title>Project Newcastle</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="shortcut icon" href="images/favicon.ico">
-    <link rel="apple-touch-icon-precomposed" sizes="144x144" href="bower_components/patternfly/dist/img/apple-touch-icon-144-precomposed.png">
-    <link rel="apple-touch-icon-precomposed" sizes="114x114" href="bower_components/patternfly/dist/img/apple-touch-icon-114-precomposed.png">
-    <link rel="apple-touch-icon-precomposed" sizes="72x72" href="bower_components/patternfly/dist/img/apple-touch-icon-72-precomposed.png">
-    <link rel="apple-touch-icon-precomposed" href="bower_components/patternfly/dist/img/apple-touch-icon-57-precomposed.png">
-
-    <!-- build:css({.tmp,app}) styles/dist.css -->
-    <link rel="stylesheet" href="bower_components/patternfly/dist/css/patternfly.css">
-    <link rel="stylesheet" href="bower_components/font-awesome/css/font-awesome.css">
-    <link rel="stylesheet" href="styles/sticky-footer-navbar.css">
+    <!-- build:css(.) styles/vendor.css -->
+    <!-- bower:css -->
+    <link rel="stylesheet" href="bower_components/patternfly/dist/css/patternfly.css" />
+    <link rel="stylesheet" href="bower_components/font-awesome/css/font-awesome.css" />
+    <link rel="stylesheet" href="bower_components/bootstrap-select/dist/css/bootstrap-select.css" />
+    <link rel="stylesheet" href="bower_components/angular-xeditable/dist/css/xeditable.css" />
+    <!-- endbower -->
     <!-- endbuild -->
 
-    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- build:css(.tmp) styles/pnc.css -->
+    <!-- include: "type": "css", "files": "styles/**/*.css" -->
+    <!-- endbuild -->
+
+    <!-- build:js(.) oldieshim.js -->
     <!--[if lt IE 9]>
-    <script src="bower_components/patternfly/components/html5shiv/dist/html5shiv.min.js"></script>
-    <script src="bower_components/patternfly/components/respond/dest/respond.min.js"></script>
+    <script src="bower_components/es5-shim/es5-shim.js"></script>
+    <script src="bower_components/json3/lib/json3.js"></script>
     <![endif]-->
-    <!-- IE8 requires jQuery and Bootstrap JS to load in head to prevent rendering bugs -->
-    <!-- IE8 requires jQuery v1.x -->
-
-    <!-- build:js scripts/modules.js -->
-    <script src="bower_components/jquery/dist/jquery.js"></script>
-    <script src="bower_components/patternfly/components/bootstrap/dist/js/bootstrap.min.js"></script>
-    <script src="bower_components/patternfly/components/datatables/media/js/jquery.dataTables.js"></script>
-    <script src="bower_components/patternfly/dist/js/patternfly.min.js"></script>
     <!-- endbuild -->
 
-    <script src="scripts/pnc-rest-api-url.js"></script>
-    <script src="scripts/pnc-products.js"></script>
+    <!-- build:js(.) scripts/vendor.js -->
+    <!-- bower:js -->
+    <script src="bower_components/jquery/dist/jquery.js"></script>
+    <script src="bower_components/angular/angular.js"></script>
+    <script src="bower_components/patternfly/dist/js/patternfly.js"></script>
+    <script src="bower_components/angular-patternfly/dist/angular-patternfly.js"></script>
+    <script src="bower_components/angular-patternfly/dist/angular-patternfly.min.js"></script>
+    <script src="bower_components/angular-resource/angular-resource.js"></script>
+    <script src="bower_components/angular-cookies/angular-cookies.js"></script>
+    <script src="bower_components/angular-sanitize/angular-sanitize.js"></script>
+    <script src="bower_components/angular-bootstrap/ui-bootstrap-tpls.js"></script>
+    <script src="bower_components/bootstrap/dist/js/bootstrap.js"></script>
+    <script src="bower_components/bootstrap-select/dist/js/bootstrap-select.js"></script>
+    <script src="bower_components/ui-router/release/angular-ui-router.js"></script>
+    <script src="bower_components/angular-xeditable/dist/js/xeditable.js"></script>
+    <!-- endbower -->
+    <!-- endbuild -->
 
+    <!-- build:js({.tmp,app}) scripts/pnc.js -->
+    <script src="app.js"></script>
+    <!-- include: "type": "js", "files": ["**/*.js", "!app.js"] -->
+    <!-- endbuild -->
+
+  <style>
+    .notification-area {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      width: 30rem;
+    }
+  </style>
   </head>
   <body>
     <nav class="navbar navbar-default navbar-pf" role="navigation">
@@ -48,25 +66,47 @@
           <span class="icon-bar"></span>
           <span class="icon-bar"></span>
         </button>
-        <a class="navbar-brand" href="/">PNCL</a>
+        <a class="navbar-brand" href ui-sref="/">
+          Project Newcastle
+        </a>
       </div>
       <div class="collapse navbar-collapse navbar-collapse-1">
+        <ul class="nav navbar-nav navbar-utility">
+          <li class="dropdown">
+            <a href class="dropdown-toggle" data-toggle="dropdown">
+              <span class="pficon pficon-user"></span>
+              Johnny Droptables <b class="caret"></b>
+            </a>
+            <ul class="dropdown-menu">
+              <li>
+                <a href>Settings</a>
+              </li>
+              <li>
+                <a href>Another link</a>
+              </li>
+              <li>
+                <a href>Another link</a>
+              </li>
+            </ul>
+          </li>
+        </ul>
         <ul class="nav navbar-nav navbar-primary">
-          <li class="active">
-            <a href="views/product.html">Home</a>
+          <li>
+            <a ui-sref="dashboard" href>Dashboard</a>
+          </li>
+          <li class="dropdown">
+            <a href class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Build Config<span class="caret"></span></a>
+              <ul class="dropdown-menu" role="menu">
+                <li><a href ui-sref="build-config.product">Products</a></li>
+                <li><a href class="disabled">Projects</a></li>
+                <li><a href ui-sref="build-config.configuration">Configurations</a></li>
+             </ul>
           </li>
         </ul>
       </div>
     </nav>
-    <div class="jumbotron">
-      <h2>Project NCL</h2>
-    </div>
-    <footer class="footer">
-      <div class="container">
-      <div align="center">
-        <p class="text-muted">PNC v0.3 <a href="https://github.com/project-ncl/pnc">https://github.com/project-ncl/pnc</a>   Red Hat, Inc. &#169; 2014<img style="padding-left: 20px;" src="images/redhat.svg" alt="Shadow Man Logo"></p>
-      </div>
-      </div>
-    </footer>
+    <div class="notification-area"><pf-notification-list></pf-notification-list></div>
+    <div class="container-fluid" ui-view="content"></div>
+
   </body>
 </html>

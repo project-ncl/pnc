@@ -1,0 +1,83 @@
+<style>
+.column-browser {
+  /*background: #fdfbfb;*/
+  border-bottom: 1px solid #d0d0d0;
+}
+
+.column-browser-body {
+  margin-top: 1rem;
+}
+.column-brower-header-collapse {
+  background: transparent;
+  box-shadow: none;
+  vertical-align: text-top;
+}
+</style>
+  <!-- Column Browser -->
+  <div class="row sidebar-pf column-browser">
+    <div class="column-browser-header pull-right">
+      <button type="button" class="btn column-brower-header-collapse" data-toggle="collapse" data-target=".column-browser-body">
+        <span class="glyphicon glyphicon-collapse-up"></span>
+      </button>
+    </div>
+    <div class="col-md-offset-2 column-browser-body collapse in">
+      <div pnc-browse-column pnc-title="Product"
+        pnc-top-level="true"
+        pnc-name-field="name"
+        pnc-items="columnBrowse.products.list"
+        pnc-selected="columnBrowse.products.selected"
+        pnc-click="columnBrowse.products.click">
+      </div>
+      <div pnc-browse-column pnc-title="Version"
+        pnc-items="columnBrowse.versions.list"
+        pnc-name-field="version"
+        pnc-selected="columnBrowse.versions.selected"
+        pnc-watch="columnBrowse.products.selected"
+        pnc-click="columnBrowse.versions.click">
+      </div>
+      <div pnc-browse-column pnc-title="Project"
+        pnc-items="columnBrowse.projects.list"
+        pnc-name-field="name"
+        pnc-selected="columnBrowse.projects.selected"
+        pnc-watch="columnBrowse.versions.selected"
+        pnc-click="columnBrowse.projects.click">
+      </div>
+      <div pnc-browse-column pnc-title="Configuration"
+        pnc-items="columnBrowse.configurations.list"
+        pnc-name-field="name"
+        pnc-selected="columnBrowse.configurations.selected"
+        pnc-watch="columnBrowse.projects.selected"
+        pnc-click="columnBrowse.configurations.click">
+      </div>
+    </div>
+  </div>
+  <!-- /Column Browser -->
+  <div class="row">
+    <div class="col-sm-9 col-md-10 col-sm-push-3 col-md-push-2" ui-view="content">
+<!--       <div class="row" ui-view="content">
+        <div class="col-md-12" ui-view="content">
+        </div>
+      </div>
+    </div> -->
+
+
+<!-- Sidebar -->
+<!--     <div class="col-sm-3 col-md-2 col-sm-pull-9 col-md-pull-10 sidebar-pf sidebar-pf-left">
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <h4 class="panel-title">Actions</h4>
+        </div>
+        <div class="panel-body">
+          <ul class="nav nav-pills nav-stacked">
+            <li><a href>Build</a></li>
+            <li><a href>Edit</a></li>
+            <li><a href>Clone</a></li>
+            <li><a href>Delete</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div> --><!-- /col -->
+  </div>
+</div>

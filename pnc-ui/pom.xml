@@ -117,7 +117,7 @@
                                         <include>.tmp/**</include>
                                         <include>node/**</include>
                                         <include>node_modules/**</include>
-                                        <include>app/bower_components/**</include>
+                                        <include>bower_components/**</include>
                                         <include>.build-tmp/**</include>
                                     </includes>
                                     <followSymlinks>false</followSymlinks>
