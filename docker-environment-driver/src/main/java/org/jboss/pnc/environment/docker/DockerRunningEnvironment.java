@@ -31,16 +31,19 @@ public class DockerRunningEnvironment implements RunningEnvironment {
      */
     private final int sshPort;
     
+    private final String containerUrl;
+
     private final RepositoryConfiguration repositoryConfiguration;
 
-    public DockerRunningEnvironment(DockerEnvironmentDriver dockerEnvDriver, 
-            RepositoryConfiguration repositoryConfiguration, 
-            String id, int jenkinsPort, int sshPort) {
+    public DockerRunningEnvironment(DockerEnvironmentDriver dockerEnvDriver,
+            RepositoryConfiguration repositoryConfiguration,
+            String id, int jenkinsPort, int sshPort, String containerUrl) {
         this.repositoryConfiguration = repositoryConfiguration;
         this.dockerEnvDriver = dockerEnvDriver;
         this.id = id;
         this.jenkinsPort = jenkinsPort;
         this.sshPort = sshPort;
+        this.containerUrl = containerUrl;
     }
 
     @Override
@@ -51,6 +54,16 @@ public class DockerRunningEnvironment implements RunningEnvironment {
     @Override
     public int getJenkinsPort() {
         return jenkinsPort;
+    }
+
+    @Override
+    public String getJenkinsUrl() {
+        return containerUrl + ":" + jenkinsPort;
+    }
+
+    @Override
+    public RepositoryConfiguration getRepositoryConfiguration() {
+        return repositoryConfiguration;
     }
 
     /**
@@ -76,11 +89,6 @@ public class DockerRunningEnvironment implements RunningEnvironment {
     @Override
     public void destroyEnvironment() throws EnvironmentDriverException {
         dockerEnvDriver.destroyEnvironment(this.id);
-    }
-
-    @Override
-    public RepositoryConfiguration getRepositoryConfiguration() {
-        return repositoryConfiguration;
     }
 
 }

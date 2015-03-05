@@ -16,7 +16,7 @@ public class ModuleConfigJsonTest {
         try {
             ModuleConfigJson moduleConfigJson =  new ModuleConfigJson("pnc-config");
             JenkinsBuildDriverModuleConfig jenkinsBuildDriverModuleConfig = 
-                    new JenkinsBuildDriverModuleConfig("http://test/url", "pavel", "test");
+                    new JenkinsBuildDriverModuleConfig("pavel", "test");
             MavenRepoDriverModuleConfig mavenRepoDriverModuleConfig = 
                     new MavenRepoDriverModuleConfig("http://something/base");
             moduleConfigJson.addConfig(jenkinsBuildDriverModuleConfig);

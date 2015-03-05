@@ -43,7 +43,8 @@ public class JenkinsBuildMonitor {
         executor = Executors.newScheduledThreadPool(nThreads);
     }
 
-    public void monitor(String jobName, int buildNumber, Consumer<BuildDriverStatus> onMonitorComplete, Consumer<Exception> onMonitorError) {
+    public void monitor(String jobName, int buildNumber, Consumer<BuildDriverStatus> onMonitorComplete, 
+            Consumer<Exception> onMonitorError, String jenkinsUrl) {
 
 //        ObjectWrapper<Integer> statusRetrieveFailed = 0;
         AtomicInteger statusRetrieveFailed = new AtomicInteger(0);
@@ -52,7 +53,7 @@ public class JenkinsBuildMonitor {
         ObjectWrapper<ScheduledFuture> futureReference = new ObjectWrapper();
         Runnable monitor = () -> {
             try {
-                Build jenkinsBuild = getBuild(jenkinsServerFactory.getJenkinsServer(), jobName, buildNumber);
+                Build jenkinsBuild = getBuild(jenkinsServerFactory.getJenkinsServer(jenkinsUrl), jobName, buildNumber);
                 if (jenkinsBuild == null)
                     //Build didn't started yet.
                     return;

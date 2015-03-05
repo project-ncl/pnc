@@ -3,7 +3,6 @@
         "configs":[
           {
             "@module-config":"jenkins-build-driver",
-            "url":"${env.PNC_JENKINS_URL}",
             "username":"${env.PNC_JENKINS_USERNAME}",
             "password":"${env.PNC_JENKINS_PASSWORD}"
           },

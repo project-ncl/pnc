@@ -46,7 +46,7 @@ class JenkinsBuildResult implements BuildDriverResult {
     private BuildWithDetails getJenkinsBuildDetails() throws BuildDriverException {
         if (jenkinsBuildDetails == null) { //TODO synchronized
             try {
-                Build jenkinsBuild = getBuild(jenkinsServerFactory.getJenkinsServer(), buildJob);
+                Build jenkinsBuild = getBuild(jenkinsServerFactory.getJenkinsServer(runningEnvironment.getJenkinsUrl()), buildJob);
                 jenkinsBuildDetails = jenkinsBuild.details();
             } catch (IOException e) {
                 throw new BuildDriverException("Cannot read jenkins build details.", e);

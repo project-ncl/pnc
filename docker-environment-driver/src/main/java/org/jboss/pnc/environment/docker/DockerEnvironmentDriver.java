@@ -171,7 +171,7 @@ public class DockerEnvironmentDriver implements EnvironmentDriver {
 
         logger.info("Created and started Docker container. ID: " + containerId
                 + ", SSH port: " + sshPort + ", Jenkins Port: " + jenkinsPort);
-        return new DockerRunningEnvironment(this, repositoryConfiguration, containerId, jenkinsPort, sshPort);
+        return new DockerRunningEnvironment(this, repositoryConfiguration, containerId, jenkinsPort, sshPort, "http://" + dockerIp);
     }
 
     @Override

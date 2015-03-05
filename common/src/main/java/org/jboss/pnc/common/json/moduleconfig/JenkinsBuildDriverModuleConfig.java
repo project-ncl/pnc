@@ -6,25 +6,15 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 
 public class JenkinsBuildDriverModuleConfig extends AbstractModuleConfig{
-    private String url;
     private String username;
     private String password;
 
-    public JenkinsBuildDriverModuleConfig(@JsonProperty("url") String url, 
-            @JsonProperty("username") String username, @JsonProperty("password")String password) {
+    public JenkinsBuildDriverModuleConfig(@JsonProperty("username") String username, @JsonProperty("password")String password) {
         super();
-        this.url = url;
         this.username = username;
         this.password = password;
     }
     
-    
-    public String getUrl() {
-        return url;
-    }
-    public void setUrl(String url) {
-        this.url = url;
-    }
     public String getUsername() {
         return username;
     }
@@ -39,6 +29,6 @@ public class JenkinsBuildDriverModuleConfig extends AbstractModuleConfig{
     }
     @Override
     public String toString() {
-        return "JenkinsBuildDriverModuleConfig [url=" + url + ", username=" + username + ", password=" + password + "]";
+        return "JenkinsBuildDriverModuleConfig [username=" + username + ", password=" + password + "]";
     }
 }

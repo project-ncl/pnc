@@ -20,7 +20,8 @@ class JenkinsRunningBuild implements RunningBuild {
 
     public static final Logger log = Logger.getLogger(JenkinsRunningBuild.class);
 
-    public JenkinsRunningBuild(RunningEnvironment runningEnvironment, JenkinsServerFactory jenkinsServerFactory, JenkinsBuildMonitor jenkinsBuildMonitor, BuildJob buildJob) {
+    public JenkinsRunningBuild(RunningEnvironment runningEnvironment, JenkinsServerFactory jenkinsServerFactory, 
+            JenkinsBuildMonitor jenkinsBuildMonitor, BuildJob buildJob) {
         this.runningEnvironment = runningEnvironment;
         this.jenkinsServerFactory = jenkinsServerFactory;
         this.jenkinsBuildMonitor = jenkinsBuildMonitor;
@@ -35,7 +36,8 @@ class JenkinsRunningBuild implements RunningBuild {
         Consumer<Exception> onBuildError = (e) -> {
             onError.accept(e);
         };
-        jenkinsBuildMonitor.monitor(buildJob.getJobName(), buildJob.getBuildNumber(), onBuildComplete, onBuildError);
+        jenkinsBuildMonitor.monitor(buildJob.getJobName(), buildJob.getBuildNumber(), 
+                onBuildComplete, onBuildError, runningEnvironment.getJenkinsUrl());
         log.infof("Waiting jenkins job %s #%s to complete.", buildJob.getJobName(), buildJob.getBuildNumber());
     }
 
