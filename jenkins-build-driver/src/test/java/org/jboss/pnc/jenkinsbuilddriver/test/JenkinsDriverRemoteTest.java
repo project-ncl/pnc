@@ -22,10 +22,12 @@ import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.asset.EmptyAsset;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import javax.inject.Inject;
+
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -56,6 +58,7 @@ public class JenkinsDriverRemoteTest {
     @Inject
     JenkinsBuildDriver jenkinsBuildDriver;
 
+    @Ignore
     @Test
     public void startJenkinsJobTestCase() throws Exception {
         BuildConfiguration pbc = getBuildConfiguration();
