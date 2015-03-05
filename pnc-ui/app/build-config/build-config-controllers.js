@@ -375,4 +375,34 @@
     }
   ]);
 
+  module.controller('RecordDetailController', [
+    '$scope', '$state', '$log', 'PncRestClient', 'Notifications',
+    'recordDetails', 'configurationDetails', 'projectDetails',
+    function($scope, $state, $log, PncRestClient, Notifications, recordDetails,
+             configurationDetails, projectDetails) {
+
+      this.record = recordDetails;
+      this.configuration = configurationDetails;
+      this.project = projectDetails;
+    }
+  ]);
+
+  module.controller('RecordInfoController', ['$log',
+    function($log) {
+      $log.debug('RecordInfoController');
+    }
+  ]);
+
+  module.controller('RecordResultController', ['$log',
+    function($log) {
+      $log.debug('RecordResultController');
+    }
+  ]);
+
+  module.controller('RecordOutputController', ['$log',
+    function($log) {
+      $log.debug('RecordOutputController');
+    }
+  ]);
+
 })();
