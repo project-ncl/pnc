@@ -62,7 +62,7 @@ public class AbstractRepositoryManagerDriverTest {
 
         System.out.println("Using base URL: " + url);
 
-        Configuration<MavenRepoDriverModuleConfig> config = new Configuration<MavenRepoDriverModuleConfig>(props);
+        Configuration<MavenRepoDriverModuleConfig> config = new Configuration<MavenRepoDriverModuleConfig>();
         driver = new RepositoryManagerDriver(config);
     }
 
@@ -79,9 +79,7 @@ public class AbstractRepositoryManagerDriverTest {
         if (fixture != null) {
             fixture.stop();
         }
-    }
-
-    protected BuildConfiguration simpleBuildConfiguration() {
+    }    protected BuildConfiguration simpleBuildConfiguration() {
         Project project = new Project();
         project.setName("myproject");
 

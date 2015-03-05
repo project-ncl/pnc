@@ -14,13 +14,42 @@ import java.util.Scanner;
 public class IoUtils {
 
     public static String readResource(String name, ClassLoader classLoader) throws IOException {
-        String configString;InputStream is = classLoader.getResourceAsStream(name);
+        String configString;
+        InputStream is = classLoader.getResourceAsStream(name);
         try {
             configString = new Scanner(is, Charset.defaultCharset().name()).useDelimiter("\\A").next();
         } finally {
             is.close();
         }
         return configString;
+    }
+
+    /**
+     * Reads whole content of file to String
+     * 
+     * @param fileName Existing file
+     * @return File content
+     * @throws IOException Thrown if data couldn't be loaded
+     */
+    public static String readFileAsString(File fileName) throws IOException {
+        try (Scanner sc = new Scanner(fileName, Charset.defaultCharset().name())) {
+            sc.useDelimiter("\\A");
+            return sc.next();
+        }
+    }
+
+    /**
+     * Reads whole content of input stream to String
+     * 
+     * @param stream Opened stream
+     * @return Stream content
+     * @throws IOException Thrown if data couldn't be loaded
+     */
+    public static String readStreamAsString(InputStream stream) throws IOException {
+        try (Scanner sc = new Scanner(stream, Charset.defaultCharset().name())) {
+            sc.useDelimiter("\\A");
+            return sc.next();
+        }
     }
 
     /**
@@ -31,7 +60,8 @@ public class IoUtils {
      * @return
      * @throws IOException
      */
-    public static String readFileOrResource(String systemPropertyName, String defaultFileName, ClassLoader classLoader) throws IOException {
+    public static String readFileOrResource(String systemPropertyName, String defaultFileName,
+            ClassLoader classLoader) throws IOException {
 
         String templateFileName = System.getProperty(systemPropertyName);
 
@@ -39,7 +69,7 @@ public class IoUtils {
             templateFileName = defaultFileName;
         }
 
-        File file = new File(templateFileName); //try full path
+        File file = new File(templateFileName); // try full path
 
         String configString;
         if (file.exists()) {

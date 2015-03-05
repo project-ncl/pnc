@@ -3,7 +3,7 @@
         "configs":[
           {
             "@module-config":"maven-repo-driver",
-            "baseUrl":"http://10.3.8.89/"
+            "baseUrl":"${env.PNC_APROX_URL}"
           }
         ]
 }

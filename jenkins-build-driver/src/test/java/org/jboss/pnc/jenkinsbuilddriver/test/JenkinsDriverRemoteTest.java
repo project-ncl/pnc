@@ -5,8 +5,6 @@ import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.util.ObjectWrapper;
 import org.jboss.pnc.jenkinsbuilddriver.JenkinsBuildDriver;
-import org.jboss.pnc.jenkinsbuilddriver.JenkinsBuildMonitor;
-import org.jboss.pnc.jenkinsbuilddriver.JenkinsServerFactory;
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildDriverStatus;
@@ -15,6 +13,7 @@ import org.jboss.pnc.model.RepositoryType;
 import org.jboss.pnc.spi.builddriver.BuildDriverResult;
 import org.jboss.pnc.spi.builddriver.CompletedBuild;
 import org.jboss.pnc.spi.builddriver.RunningBuild;
+import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerException;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
 import org.jboss.pnc.spi.repositorymanager.model.RepositoryConfiguration;
@@ -23,7 +22,6 @@ import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.asset.EmptyAsset;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -49,8 +47,8 @@ public class JenkinsDriverRemoteTest {
         JavaArchive jar = ShrinkWrap.create(JavaArchive.class).addAsManifestResource(EmptyAsset.INSTANCE, "beans.xml")
                 .addAsResource("META-INF/logging.properties").addAsResource("jenkins-job-template.xml")
                 .addPackages(true, org.apache.http.client.HttpResponseException.class.getPackage())
-                .addClass(Configuration.class).addClass(JenkinsBuildDriver.class).addClass(JenkinsBuildMonitor.class)
-                .addClass(JenkinsServerFactory.class);
+                .addPackages(true, Configuration.class.getPackage())
+                .addPackage(JenkinsBuildDriver.class.getPackage());
         System.out.println(jar.toString(true));
         return jar;
     }
@@ -65,7 +63,10 @@ public class JenkinsDriverRemoteTest {
         RepositoryConfiguration repositoryConfiguration = getRepositoryConfiguration();
 
         final Semaphore mutex = new Semaphore(1);
-        ObjectWrapper<Boolean> completed = new ObjectWrapper(false);
+        ObjectWrapper<Boolean> completed = new ObjectWrapper<>(false);
+        ObjectWrapper<BuildDriverResult> resultWrapper = new ObjectWrapper<>();
+        ObjectWrapper<Long> buildStarted = new ObjectWrapper<>();
+        ObjectWrapper<Long> buildTook = new ObjectWrapper<>();
 
         class BuildTask {
             CompletedBuild buildJobDetails;
@@ -76,64 +77,42 @@ public class JenkinsDriverRemoteTest {
         Consumer<CompletedBuild> onComplete = (completedBuild) -> {
             buildTask.buildJobDetails = completedBuild;
             completed.set(true);
+            buildTook.set(System.currentTimeMillis() - buildStarted.get());
+            log.info("Received build completed in " + buildTook.get() + "ms.");
+
+            try {
+                resultWrapper.set(completedBuild.getBuildResult());
+            } catch (BuildDriverException e) {
+                throw new AssertionError("Cannot get build result.", e);
+            }
+
             mutex.release();
         };
+
         Consumer<Exception> onError = (e) -> {
             throw new AssertionError(e);
         };
+
         mutex.acquire();
         RunningBuild runningBuild = jenkinsBuildDriver.startProjectBuild(pbc, repositoryConfiguration);
+        buildStarted.set(System.currentTimeMillis());
         runningBuild.monitor(onComplete, onError);
-        mutex.tryAcquire(30, TimeUnit.SECONDS); // wait for callback to release
+        mutex.tryAcquire(60, TimeUnit.SECONDS); // wait for callback to release
 
         Assert.assertTrue("There was no complete callback.", completed.get());
         Assert.assertNotNull(buildTask.buildJobDetails);
 
-        completed.set(false);
-        long waitStarted = System.currentTimeMillis();
-        final Long[] buildTook = new Long[1];
+        long minBuildTime = 5000;
+        Assert.assertTrue("Received build completed in " + buildTook.get() + " while expected >" + minBuildTime + ".",
+                buildTook.get() >= minBuildTime);
 
-        Consumer<CompletedBuild> onWaitComplete = (s) -> {
-            completed.set(true);
-            buildTook[0] = System.currentTimeMillis() - waitStarted;
-            log.info("Received build completed in " + buildTook[0] + "ms.");
-            mutex.release();
-        };
-        Consumer<Exception> onWaitError = (e) -> {
-            throw new AssertionError(e);
-        };
-
-        runningBuild.monitor(onWaitComplete, onWaitError);
-        mutex.tryAcquire(120, TimeUnit.SECONDS); // wait for callback to release
-
-        long minBuildTime = 10000;
-        Assert.assertTrue("Received build completed in " + buildTook[0] + " while expected >" + minBuildTime + ".",
-                buildTook[0] >= minBuildTime);
-
-        Assert.assertTrue("There was no complete callback.", completed.get());
-
-        completed.set(false);
-
-        class BuildResultWrapper {
-            private BuildDriverResult result;
-
-            BuildResultWrapper(BuildDriverResult result) {
-                this.result = result;
-            }
-        }
-
-        BuildResultWrapper resultWrapper = new BuildResultWrapper(null);
-
-        mutex.tryAcquire(30, TimeUnit.SECONDS); // wait for callback to release
-
-        BuildDriverResult buildDriverResult = resultWrapper.result;
+        BuildDriverResult buildDriverResult = resultWrapper.get();
 
         Assert.assertEquals(BuildDriverStatus.SUCCESS, buildDriverResult.getBuildDriverStatus());
         Assert.assertTrue("Incomplete build log.", buildDriverResult.getBuildLog().contains("Building in workspace"));
         Assert.assertTrue("Incomplete build log.", buildDriverResult.getBuildLog().contains("Finished: SUCCESS"));
 
         Assert.assertTrue("There was no complete callback.", completed.get());
-
     }
 
     private RepositoryConfiguration getRepositoryConfiguration() {
@@ -209,7 +188,7 @@ public class JenkinsDriverRemoteTest {
     private BuildConfiguration getBuildConfiguration() {
         BuildConfiguration pbc = new BuildConfiguration();
         pbc.setScmRepoURL("https://github.com/project-ncl/pnc.git");
-        pbc.setBuildScript("mvn clean install -Dmaven.test.skip");
+        pbc.setBuildScript("mvn validate");
         pbc.setName("PNC-executed-from-jenkins-driver-test");
         Project project = new Project();
         project.setName("PNC-executed-from-jenkins-driver-test");
