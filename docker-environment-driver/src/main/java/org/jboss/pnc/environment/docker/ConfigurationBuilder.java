@@ -28,7 +28,7 @@ public class ConfigurationBuilder {
      */
     public String createMavenConfig(String dependencyUrl, String deployUrl)
             throws EnvironmentDriverException {
-        String template = loadConfigTemplate("jenkins-maven-config", "jenkins-maven-config.xml");
+        String template = loadConfigTemplate("jenkins-maven-config.xml");
 
         Properties propertiesToReplace = new Properties();
         propertiesToReplace.setProperty("dependencyUrl", dependencyUrl);
@@ -40,16 +40,14 @@ public class ConfigurationBuilder {
     /**
      * Loads configuration template
      * 
-     * @param systemPropertyName Name of system property with filename
      * @param fileName Name of default template file name
      * @return Loaded template
      * @throws EnvironmentDriverException Thrown if template cannot be loaded
      */
-    private String loadConfigTemplate(String systemPropertyName, String fileName)
+    private String loadConfigTemplate(String fileName)
             throws EnvironmentDriverException {
         try {
-            return IoUtils.readFileOrResource(systemPropertyName, fileName,
-                    getClass().getClassLoader());
+            return IoUtils.readResource(fileName, getClass().getClassLoader());
         } catch (IOException e) {
             throw new EnvironmentDriverException("Cannot load Maven config template.", e);
         }
