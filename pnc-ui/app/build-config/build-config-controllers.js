@@ -345,6 +345,12 @@
           }
         );
       };
+
+      $scope.configControls.goTo = function(record) {
+        $state.go('build-config.record.detail.info', {
+          recordId: record.id
+        });
+      };
     }
   ]);
 
