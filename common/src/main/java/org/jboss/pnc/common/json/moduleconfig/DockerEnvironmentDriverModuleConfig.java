@@ -55,8 +55,7 @@ public class DockerEnvironmentDriverModuleConfig extends AbstractModuleConfig {
         return "DockerEnvironmentDriverModuleConfig ["
                 + (ip != null ? "ip=" + ip + ", " : "")
                 + (inContainerUser != null ? "inContainerUser=" + inContainerUser + ", " : "")
-                + (inContainerUserPassword != null ? "inContainerUserPassword=" + inContainerUserPassword
-                        : "") + "]";
+                + "inContainerUserPassword=HIDDEN]";
     }
 
 }

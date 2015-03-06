@@ -29,6 +29,6 @@ public class JenkinsBuildDriverModuleConfig extends AbstractModuleConfig{
     }
     @Override
     public String toString() {
-        return "JenkinsBuildDriverModuleConfig [username=" + username + ", password=" + password + "]";
+        return "JenkinsBuildDriverModuleConfig [username=HIDDEN, password=" + password + "]";
     }
 }
