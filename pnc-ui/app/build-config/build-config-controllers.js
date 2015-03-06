@@ -393,9 +393,11 @@
     }
   ]);
 
-  module.controller('RecordResultController', ['$log',
-    function($log) {
+  module.controller('RecordResultController', ['$log', 'buildLog',
+    function($log, buildLog) {
       $log.debug('RecordResultController');
+      this.log = buildLog;
+      $log('Log: %O', this.log);
     }
   ]);
 

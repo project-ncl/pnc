@@ -70,7 +70,14 @@
       url: '/result',
       controller: 'RecordResultController',
       controllerAs: 'resultCtrl',
-      templateUrl: 'build-config/views/record.detail.result.html'
+      templateUrl: 'build-config/views/record.detail.result.html',
+      resolve: {
+        restClient: 'PncRestClient',
+        buildLog: function(restClient, recordDetails) {
+          return restClient.Record.getLog({
+            recordId: recordDetails.id}).$promise;
+        }
+      }
     });
 
     $stateProvider.state('build-config.record.detail.output', {
