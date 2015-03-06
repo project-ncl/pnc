@@ -176,7 +176,7 @@ public class DockerEnvironmentDriver implements EnvironmentDriver {
 
     @Override
     public boolean canBuildEnvironment(Environment environment) {
-        if (environment.getBuildType() == BuildType.DOCKER &&
+        if (environment.getBuildType() == BuildType.JAVA &&
                 environment.getOperationalSystem() == OperationalSystem.LINUX)
             return true;
         else
