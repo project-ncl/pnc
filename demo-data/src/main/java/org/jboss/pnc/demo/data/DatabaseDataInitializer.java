@@ -111,37 +111,38 @@ public class DatabaseDataInitializer {
              */
             Product product = Product.Builder.newBuilder().name(PNC_PRODUCT_NAME).description("Project Newcastle Product")
                     .build();
+            product = productRepository.save(product);
+
             ProductVersion productVersion = ProductVersion.Builder.newBuilder().version(PNC_PRODUCT_VERSION).product(product)
                     .build();
+            productVersion = productVersionRepository.save(productVersion);
 
             Project project = Project.Builder.newBuilder().name(PNC_PROJECT_NAME).description("Project Newcastle Demo Project")
                     .projectUrl("https://github.com/project-ncl/pnc")
                     .issueTrackerUrl("https://projects.engineering.redhat.com/browse/NCL").build();
+            project = projectRepository.save(project);
 
             // Needed to build correct mapping
             ProductVersionProject productVersionProject = ProductVersionProject.Builder.newBuilder().project(project)
                     .productVersion(productVersion).build();
 
             BuildConfiguration buildConfiguration = BuildConfiguration.Builder.newBuilder()
-                    .buildScript("mvn clean deploy -Dmaven.test.skip")
-                    .environment(environment1).name(PNC_PROJECT_BUILD_CFG_ID)
+                    .buildScript("mvn clean deploy -Dmaven.test.skip").environment(environment1).name(PNC_PROJECT_BUILD_CFG_ID)
                     .productVersion(productVersion).project(project).scmRepoURL("https://github.com/project-ncl/pnc.git")
                     .scmRevision("*/v0.2").description("Test build config for project newcastle").build();
             buildConfiguration = buildConfigurationRepository.save(buildConfiguration);
 
             // Additional configurations
             BuildConfiguration buildConfiguration2 = BuildConfiguration.Builder.newBuilder()
-                    .buildScript("mvn clean deploy -Dmaven.test.skip")
-                    .environment(environment2).name("jboss-modules-1.5.0")
+                    .buildScript("mvn clean deploy -Dmaven.test.skip").environment(environment2).name("jboss-modules-1.5.0")
                     .productVersion(productVersion).project(project)
                     .description("Test config for JBoss modules build master branch.")
                     .scmRepoURL("https://github.com/jboss-modules/jboss-modules.git").build();
             buildConfiguration2 = buildConfigurationRepository.save(buildConfiguration2);
 
             BuildConfiguration buildConfiguration3 = BuildConfiguration.Builder.newBuilder()
-                    .buildScript("mvn clean deploy -Dmaven.test.skip")
-                    .environment(environment1).name("jboss-servlet-spec-api-1.0.1")
-                    .productVersion(productVersion).project(project)
+                    .buildScript("mvn clean deploy -Dmaven.test.skip").environment(environment1)
+                    .name("jboss-servlet-spec-api-1.0.1").productVersion(productVersion).project(project)
                     .scmRepoURL("https://github.com/jboss/jboss-servlet-api_spec.git").dependency(buildConfiguration2)
                     .description("Test build for jboss java servlet api").build();
             buildConfiguration3 = buildConfigurationRepository.save(buildConfiguration3);
@@ -158,8 +159,6 @@ public class DatabaseDataInitializer {
             project.getBuildConfigurations().add(buildConfiguration2);
             project.getBuildConfigurations().add(buildConfiguration3);
 
-            projectRepository.save(project);
-            productRepository.save(product);
             userRepository.save(demoUser);
             buildRecordRepository.save(buildRecord);
 
