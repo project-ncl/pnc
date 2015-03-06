@@ -60,9 +60,6 @@ public class DockerEnvironmentDriver implements EnvironmentDriver {
     private static final Logger logger =
             Logger.getLogger(MethodHandles.lookup().lookupClass().getName());
 
-    /** ID of docker image */
-    private static final String IMAGE_ID = "jbartece/isshd-jenkins";
-
     @Inject
     private Generator generator;
 
@@ -84,6 +81,9 @@ public class DockerEnvironmentDriver implements EnvironmentDriver {
 
     /** Connection URL to Docker control port */
     private String dockerEndpoint;
+
+    /** ID of docker image */
+    private String dockerImageId;
 
     private String dockerIp;
 
@@ -113,6 +113,7 @@ public class DockerEnvironmentDriver implements EnvironmentDriver {
         dockerEndpoint = "http://" + dockerIp + ":2375";
         containerUser = config.getInContainerUser();
         containerUserPsswd = config.getInContainerUserPassword();
+        dockerImageId = config.getDockerImageId();
 
         dockerContext = ContextBuilder.newBuilder("docker")
                 .endpoint(dockerEndpoint)
@@ -124,7 +125,7 @@ public class DockerEnvironmentDriver implements EnvironmentDriver {
     }
 
     @Override
-    public RunningEnvironment buildEnvironment(Environment buildEnvironment, 
+    public RunningEnvironment buildEnvironment(Environment buildEnvironment,
             RepositoryConfiguration repositoryConfiguration) throws EnvironmentDriverException {
         if (!canBuildEnvironment(buildEnvironment))
             throw new UnsupportedOperationException(
@@ -139,7 +140,7 @@ public class DockerEnvironmentDriver implements EnvironmentDriver {
             Container createdContainer = dockerClient.createContainer(
                     containerId,
                     Config.builder()
-                            .imageId(IMAGE_ID)
+                            .imageId(dockerImageId)
                             .build());
             buildContainerState = BuildContainerState.BUILT;
 
@@ -156,7 +157,8 @@ public class DockerEnvironmentDriver implements EnvironmentDriver {
             jenkinsPort = getJenkinsPort(containerPortMappings);
 
             copyFileToContainer(sshPort, "/root/.m2/settings.xml",
-                    configBuilder.createMavenConfig(repositoryConfiguration.getConnectionInfo().getDependencyUrl(), 
+                    configBuilder.createMavenConfig(repositoryConfiguration.getConnectionInfo()
+                            .getDependencyUrl(),
                             repositoryConfiguration.getConnectionInfo().getDeployUrl()), null);
         } catch (Exception e) {
             // Creating container failed => clean up
@@ -171,7 +173,8 @@ public class DockerEnvironmentDriver implements EnvironmentDriver {
 
         logger.info("Created and started Docker container. ID: " + containerId
                 + ", SSH port: " + sshPort + ", Jenkins Port: " + jenkinsPort);
-        return new DockerRunningEnvironment(this, repositoryConfiguration, containerId, jenkinsPort, sshPort, "http://" + dockerIp);
+        return new DockerRunningEnvironment(this, repositoryConfiguration, containerId, jenkinsPort, sshPort,
+                "http://" + dockerIp);
     }
 
     @Override
