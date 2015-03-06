@@ -137,7 +137,8 @@ public class DatabaseDataInitializer {
                     .buildScript("mvn clean deploy -Dmaven.test.skip").environment(environment2).name("jboss-modules-1.5.0")
                     .productVersion(productVersion).project(project)
                     .description("Test config for JBoss modules build master branch.")
-                    .scmRepoURL("https://github.com/jboss-modules/jboss-modules.git").build();
+                    .scmRepoURL("https://github.com/jboss-modules/jboss-modules.git")
+                    .scmRevision("9e7115771a791feaa5be23b1255416197f2cda38").build();
             buildConfiguration2 = buildConfigurationRepository.save(buildConfiguration2);
 
             BuildConfiguration buildConfiguration3 = BuildConfiguration.Builder.newBuilder()
