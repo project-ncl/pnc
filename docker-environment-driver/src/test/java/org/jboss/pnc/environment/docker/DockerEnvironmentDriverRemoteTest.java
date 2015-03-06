@@ -6,6 +6,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.Socket;
+import java.util.Map;
 import java.util.UUID;
 import java.util.logging.Logger;
 
@@ -20,7 +21,12 @@ import org.jboss.pnc.common.json.moduleconfig.DockerEnvironmentDriverModuleConfi
 import org.jboss.pnc.model.BuildType;
 import org.jboss.pnc.model.Environment;
 import org.jboss.pnc.model.OperationalSystem;
+import org.jboss.pnc.model.RepositoryType;
 import org.jboss.pnc.spi.environment.exception.EnvironmentDriverException;
+import org.jboss.pnc.spi.repositorymanager.RepositoryManagerException;
+import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
+import org.jboss.pnc.spi.repositorymanager.model.RepositoryConfiguration;
+import org.jboss.pnc.spi.repositorymanager.model.RepositoryConnectionInfo;
 import org.jboss.resteasy.client.ClientRequest;
 import org.jboss.resteasy.client.ClientResponse;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
@@ -43,9 +49,11 @@ public class DockerEnvironmentDriverRemoteTest {
 
     private static final Logger log = Logger.getLogger(DockerEnvironmentDriverRemoteTest.class.getName());
 
-    private final String APROX_DEPENDENCY_URL = "AProx dependency URL";
+    private static final String APROX_DEPENDENCY_URL = "AProx dependency URL";
 
-    private final String APROX_DEPLOY_URL = "AProx deploy URL";
+    private static final String APROX_DEPLOY_URL = "AProx deploy URL";
+
+    private static final RepositoryConfiguration DUMMY_REPOSITORY_CONFIGURATION = new DummyRepositoryConfiguration();
 
     @Inject
     private DockerEnvironmentDriver dockerEnvDriver;
@@ -116,7 +124,7 @@ public class DockerEnvironmentDriverRemoteTest {
         // Create container
         Environment environment = new Environment(BuildType.DOCKER, OperationalSystem.LINUX);
         DockerRunningEnvironment runningEnv = (DockerRunningEnvironment)
-                dockerEnvDriver.buildEnvironment(environment, APROX_DEPENDENCY_URL, APROX_DEPLOY_URL);
+                dockerEnvDriver.buildEnvironment(environment, DUMMY_REPOSITORY_CONFIGURATION);
 
         try {
             testRunningContainer(runningEnv, true, "Environment wasn't successfully built.");
@@ -144,7 +152,7 @@ public class DockerEnvironmentDriverRemoteTest {
         Environment environment = new Environment(BuildType.DOCKER, OperationalSystem.LINUX);
 
         DockerRunningEnvironment runningEnv = (DockerRunningEnvironment)
-                dockerEnvDriver.buildEnvironment(environment, APROX_DEPENDENCY_URL, APROX_DEPLOY_URL);
+                dockerEnvDriver.buildEnvironment(environment, DUMMY_REPOSITORY_CONFIGURATION);
 
         String pathToFile = "/tmp/testFile-" + UUID.randomUUID().toString() + ".txt";
 
@@ -240,6 +248,56 @@ public class DockerEnvironmentDriverRemoteTest {
         ClientResponse<String> response = request.get(String.class);
         if (response.getStatus() != ecode)
             throw new Exception("Server returned unexpected HTTP code! Returned code:" + response.getStatus());
+    }
+
+    private static class DummyRepositoryConfiguration implements RepositoryConfiguration {
+
+        @Override
+        public RepositoryType getType() {
+            return null;
+        }
+
+        @Override
+        public String getId() {
+            return null;
+        }
+
+        @Override
+        public String getCollectionId() {
+            return null;
+        }
+
+        @Override
+        public RepositoryConnectionInfo getConnectionInfo() {
+            return new RepositoryConnectionInfo() {
+
+                @Override
+                public String getToolchainUrl() {
+                    return null;
+                }
+
+                @Override
+                public Map<String, String> getProperties() {
+                    return null;
+                }
+
+                @Override
+                public String getDeployUrl() {
+                    return APROX_DEPLOY_URL;
+                }
+
+                @Override
+                public String getDependencyUrl() {
+                    return APROX_DEPENDENCY_URL;
+                }
+            };
+        }
+
+        @Override
+        public RepositoryManagerResult extractBuildArtifacts() throws RepositoryManagerException {
+            return null;
+        }
+
     }
 
 }

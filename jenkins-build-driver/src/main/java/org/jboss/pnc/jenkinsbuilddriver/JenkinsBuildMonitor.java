@@ -50,7 +50,7 @@ public class JenkinsBuildMonitor {
         AtomicInteger statusRetrieveFailed = new AtomicInteger(0);
 
 
-        ObjectWrapper<ScheduledFuture> futureReference = new ObjectWrapper();
+        ObjectWrapper<ScheduledFuture<?>> futureReference = new ObjectWrapper<>();
         Runnable monitor = () -> {
             try {
                 Build jenkinsBuild = getBuild(jenkinsServerFactory.getJenkinsServer(jenkinsUrl), jobName, buildNumber);
@@ -81,7 +81,7 @@ public class JenkinsBuildMonitor {
             }
         };
 
-        ScheduledFuture future = executor.scheduleAtFixedRate(monitor, 0L, 5L, TimeUnit.SECONDS); //TODO configurable
+        ScheduledFuture<?> future = executor.scheduleAtFixedRate(monitor, 0L, 5L, TimeUnit.SECONDS); //TODO configurable
         futureReference.set(future);
 
     }

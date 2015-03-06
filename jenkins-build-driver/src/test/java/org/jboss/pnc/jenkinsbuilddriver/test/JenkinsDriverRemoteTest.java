@@ -1,5 +1,16 @@
 package org.jboss.pnc.jenkinsbuilddriver.test;
 
+import java.io.InputStream;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
+import java.util.logging.Logger;
+
+import javax.inject.Inject;
+
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.pnc.common.Configuration;
@@ -14,6 +25,8 @@ import org.jboss.pnc.spi.builddriver.BuildDriverResult;
 import org.jboss.pnc.spi.builddriver.CompletedBuild;
 import org.jboss.pnc.spi.builddriver.RunningBuild;
 import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
+import org.jboss.pnc.spi.environment.RunningEnvironment;
+import org.jboss.pnc.spi.environment.exception.EnvironmentDriverException;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerException;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
 import org.jboss.pnc.spi.repositorymanager.model.RepositoryConfiguration;
@@ -25,16 +38,6 @@ import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import javax.inject.Inject;
-
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.Semaphore;
-import java.util.concurrent.TimeUnit;
-import java.util.function.Consumer;
-import java.util.logging.Logger;
 
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-11-23.
@@ -63,7 +66,7 @@ public class JenkinsDriverRemoteTest {
     public void startJenkinsJobTestCase() throws Exception {
         BuildConfiguration pbc = getBuildConfiguration();
 
-        RepositoryConfiguration repositoryConfiguration = getRepositoryConfiguration();
+        RunningEnvironment runningEnvironment = getRunningEnvironment();
 
         final Semaphore mutex = new Semaphore(1);
         ObjectWrapper<Boolean> completed = new ObjectWrapper<>(false);
@@ -97,7 +100,7 @@ public class JenkinsDriverRemoteTest {
         };
 
         mutex.acquire();
-        RunningBuild runningBuild = jenkinsBuildDriver.startProjectBuild(pbc, repositoryConfiguration);
+        RunningBuild runningBuild = jenkinsBuildDriver.startProjectBuild(pbc, runningEnvironment);
         buildStarted.set(System.currentTimeMillis());
         runningBuild.monitor(onComplete, onError);
         mutex.tryAcquire(60, TimeUnit.SECONDS); // wait for callback to release
@@ -116,6 +119,48 @@ public class JenkinsDriverRemoteTest {
         Assert.assertTrue("Incomplete build log.", buildDriverResult.getBuildLog().contains("Finished: SUCCESS"));
 
         Assert.assertTrue("There was no complete callback.", completed.get());
+    }
+
+    private RunningEnvironment getRunningEnvironment() {
+        final RepositoryConfiguration repositoryConfiguration = getRepositoryConfiguration();
+        return new RunningEnvironment() {
+            
+            @Override
+            public void transferDataToEnvironment(String pathOnHost, String data) throws EnvironmentDriverException {
+                
+            }
+            
+            @Override
+            public void transferDataToEnvironment(String pathOnHost, InputStream stream)
+                    throws EnvironmentDriverException {
+                
+            }
+            
+            @Override
+            public RepositoryConfiguration getRepositoryConfiguration() {
+                return repositoryConfiguration;
+            }
+            
+            @Override
+            public String getJenkinsUrl() {
+                return System.getProperty("PNC_JENKINS_URL");
+            }
+            
+            @Override
+            public int getJenkinsPort() {
+                return 0;
+            }
+            
+            @Override
+            public String getId() {
+                return null;
+            }
+            
+            @Override
+            public void destroyEnvironment() throws EnvironmentDriverException {
+                
+            }
+        };
     }
 
     private RepositoryConfiguration getRepositoryConfiguration() {

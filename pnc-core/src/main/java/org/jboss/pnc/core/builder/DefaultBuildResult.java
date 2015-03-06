@@ -16,6 +16,7 @@ public class DefaultBuildResult implements BuildResult {
 
     public DefaultBuildResult(RunningEnvironment runningEnvironment, BuildDriverResult buildDriverResult, 
             RepositoryManagerResult repositoryManagerResult) {
+        this.runningEnvironment = runningEnvironment;
         this.buildDriverResult = buildDriverResult;
         this.repositoryManagerResult = repositoryManagerResult;
     }

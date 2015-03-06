@@ -195,9 +195,11 @@ public class BuildCoordinator {
                 try {
                     RunningEnvironment runningEnv = envDriver.buildEnvironment(
                             buildTask.getBuildConfiguration().getEnvironment(), repositoryConfiguration);
+                    
                     buildTask.setStatus(BuildStatus.BUILD_ENV_SETUP_COMPLETE_SUCCESS);
                     return runningEnv;
                 } catch (EnvironmentDriverException e) {
+                    buildTask.setStatus(BuildStatus.BUILD_ENV_SETUP_COMPLETE_WITH_ERROR);
                     throw new CoreExceptionWrapper(e);
                 }          
             }, executor);

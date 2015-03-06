@@ -82,7 +82,7 @@ public class DatastoreAdapter {
         buildRecord.setPatchesUrl(buildConfiguration.getPatchesUrl());
         buildRecord.setScmRepoURL(buildConfiguration.getScmRepoURL());
         buildRecord.setScmRevision(buildConfiguration.getScmRevision());
-        log.debugf("Storing ERROR result of %s to datastore. Error: %s", buildConfiguration.getName(), e);
+        log.debugf("Storing ERROR result of %s to datastore. Error: %s", buildConfiguration.getName() + "\n\n\n Exception: " + errorMessage, e);
         datastore.storeCompletedBuild(buildRecord);
     }
 

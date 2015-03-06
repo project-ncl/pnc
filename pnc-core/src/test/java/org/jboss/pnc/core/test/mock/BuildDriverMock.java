@@ -10,6 +10,7 @@ import org.jboss.pnc.spi.builddriver.BuildDriverResult;
 import org.jboss.pnc.spi.builddriver.CompletedBuild;
 import org.jboss.pnc.spi.builddriver.RunningBuild;
 import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
+import org.jboss.pnc.spi.environment.RunningEnvironment;
 import org.jboss.pnc.spi.repositorymanager.model.RepositoryConfiguration;
 
 import java.util.function.Consumer;
@@ -28,13 +29,11 @@ public class BuildDriverMock implements BuildDriver {
 
 
     @Override
-    public RunningBuild startProjectBuild(BuildConfiguration buildConfiguration, RepositoryConfiguration repositoryConfiguration) throws BuildDriverException {
+    public RunningBuild startProjectBuild(BuildConfiguration buildConfiguration, final RunningEnvironment runningEnvironment) throws BuildDriverException {
         try {
             log.debug("Building " + buildConfiguration);
             Thread.sleep(RandomUtils.randInt(100, 300));
             return new RunningBuild() {
-
-                RepositoryConfiguration repositoryConfiguration = new RepositoryConfigurationMock();
 
                 @Override
                 public void monitor(Consumer<CompletedBuild> onComplete, Consumer<Exception> onError) {
@@ -45,19 +44,19 @@ public class BuildDriverMock implements BuildDriver {
                         }
                         @Override
                         public BuildDriverResult getBuildResult() throws BuildDriverException {
-                            return getBuildResultMock(repositoryConfiguration);
+                            return getBuildResultMock(runningEnvironment);
                         }
 
                         @Override
-                        public RepositoryConfiguration getRepositoryConfiguration() {
-                            return repositoryConfiguration;
+                        public RunningEnvironment getRunningEnvironment() {
+                            return runningEnvironment;
                         }
                     });
                 }
 
                 @Override
-                public RepositoryConfiguration getRepositoryConfiguration() {
-                    return repositoryConfiguration;
+                public RunningEnvironment getRunningEnvironment() {
+                    return runningEnvironment;
                 }
             };
         } catch (InterruptedException e) {
@@ -66,7 +65,7 @@ public class BuildDriverMock implements BuildDriver {
         }
     }
 
-    private BuildDriverResult getBuildResultMock(RepositoryConfiguration repositoryConfiguration) {
+    private BuildDriverResult getBuildResultMock(final RunningEnvironment runningEnvironment) {
         return new BuildDriverResult() {
             @Override
             public String getBuildLog() throws BuildDriverException {
@@ -79,8 +78,8 @@ public class BuildDriverMock implements BuildDriver {
             }
 
             @Override
-            public RepositoryConfiguration getRepositoryConfiguration() {
-                return repositoryConfiguration;
+            public RunningEnvironment getRunningEnvironment() {
+                return runningEnvironment;
             }
         };
     }
