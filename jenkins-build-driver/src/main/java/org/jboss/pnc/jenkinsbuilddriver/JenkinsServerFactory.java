@@ -21,10 +21,9 @@ public class JenkinsServerFactory {
     @Inject
     Configuration<JenkinsBuildDriverModuleConfig> configuration;
 
-    JenkinsServer getJenkinsServer() throws BuildDriverException {
+    JenkinsServer getJenkinsServer(String url) throws BuildDriverException {
         try {
             JenkinsBuildDriverModuleConfig config = configuration.getModuleConfig(JenkinsBuildDriverModuleConfig.class);
-            String url = config.getUrl();
             String username = config.getUsername();
             String password = config.getPassword();
 

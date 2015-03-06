@@ -16,7 +16,7 @@ public class ModuleConfigJsonTest {
         try {
             ModuleConfigJson moduleConfigJson =  new ModuleConfigJson("pnc-config");
             JenkinsBuildDriverModuleConfig jenkinsBuildDriverModuleConfig = 
-                    new JenkinsBuildDriverModuleConfig("http://test/url", "pavel", "test");
+                    new JenkinsBuildDriverModuleConfig("pavel", "test");
             MavenRepoDriverModuleConfig mavenRepoDriverModuleConfig = 
                     new MavenRepoDriverModuleConfig("http://something/base");
             moduleConfigJson.addConfig(jenkinsBuildDriverModuleConfig);
@@ -37,7 +37,7 @@ public class ModuleConfigJsonTest {
     public void deserialize() {
         try {
             String json = "{\"@class\":\"ModuleConfigJson\",\"name\":\"pnc-config\",\"configs\""
-                    + ":[{\"@module-config\":\"jenkins-build-driver\",\"url\":\"http://test/url\""
+                    + ":[{\"@module-config\":\"jenkins-build-driver\""
                     + ",\"username\":\"pavel\",\"password\":\"test\"},{\"@module-config\":\"maven-repo-driver\""
                     + ",\"baseUrl\":\"http://something/base\"}]}";    
 

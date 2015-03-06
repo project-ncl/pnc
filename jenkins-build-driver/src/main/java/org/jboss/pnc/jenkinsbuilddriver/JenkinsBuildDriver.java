@@ -9,7 +9,7 @@ import org.jboss.pnc.model.BuildType;
 import org.jboss.pnc.spi.builddriver.BuildDriver;
 import org.jboss.pnc.spi.builddriver.RunningBuild;
 import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
-import org.jboss.pnc.spi.repositorymanager.model.RepositoryConfiguration;
+import org.jboss.pnc.spi.environment.RunningEnvironment;
 
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-11-23.
@@ -44,15 +44,15 @@ public class JenkinsBuildDriver implements BuildDriver {
     }
 
     @Override
-    public RunningBuild startProjectBuild(BuildConfiguration buildConfiguration, RepositoryConfiguration repositoryConfiguration) throws BuildDriverException {
-        BuildJob build = new BuildJob(jenkinsServerFactory.getJenkinsServer(), buildConfiguration);
-        boolean configured = build.configure(repositoryConfiguration, true);
+    public RunningBuild startProjectBuild(BuildConfiguration buildConfiguration, RunningEnvironment runningEnvironment) throws BuildDriverException {
+        BuildJob build = new BuildJob(jenkinsServerFactory.getJenkinsServer(runningEnvironment.getJenkinsUrl()), buildConfiguration);
+        boolean configured = build.configure(runningEnvironment, true);
         if (!configured) {
             throw new AssertionError("Cannot configure build job.");
         }
         int buildNumber = build.start();
         log.infof("Started jenkins job %s #%s.", build.getJobName(), buildNumber);
-        return new JenkinsRunningBuild(repositoryConfiguration, jenkinsServerFactory, jenkinsBuildMonitor, build);
+        return new JenkinsRunningBuild(runningEnvironment, jenkinsServerFactory, jenkinsBuildMonitor, build);
     }
 
 

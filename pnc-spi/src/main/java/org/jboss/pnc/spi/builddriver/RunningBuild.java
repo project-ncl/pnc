@@ -1,8 +1,8 @@
 package org.jboss.pnc.spi.builddriver;
 
-import org.jboss.pnc.spi.repositorymanager.model.RepositoryConfiguration;
-
 import java.util.function.Consumer;
+
+import org.jboss.pnc.spi.environment.RunningEnvironment;
 
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-12-23.
@@ -10,5 +10,5 @@ import java.util.function.Consumer;
 public interface RunningBuild {
     void monitor(Consumer<CompletedBuild> onComplete, Consumer<Exception> onError);
 
-    RepositoryConfiguration getRepositoryConfiguration();
+    RunningEnvironment getRunningEnvironment();
 }

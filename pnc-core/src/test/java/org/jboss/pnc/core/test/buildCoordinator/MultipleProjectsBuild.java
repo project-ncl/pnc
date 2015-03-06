@@ -46,7 +46,7 @@ public class MultipleProjectsBuild extends ProjectBuilder {
             return task;
         };
 
-        List<Runnable> list = new ArrayList();
+        List<Runnable> list = new ArrayList<>();
         for (int i = 0; i < 100; i++) { //create 100 project configurations
             list.add(createJob.apply(new TestBuildConfig(configurationBuilder.build(i, "c" + i + "-java"), buildRecordSet)));
         }

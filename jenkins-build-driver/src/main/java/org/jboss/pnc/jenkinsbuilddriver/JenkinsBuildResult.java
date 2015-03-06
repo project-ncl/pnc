@@ -1,16 +1,17 @@
 package org.jboss.pnc.jenkinsbuilddriver;
 
-import com.offbytwo.jenkins.JenkinsServer;
-import com.offbytwo.jenkins.model.Build;
-import com.offbytwo.jenkins.model.BuildWithDetails;
-import com.offbytwo.jenkins.model.JobWithDetails;
+import java.io.IOException;
+
 import org.jboss.pnc.common.util.StreamCollectors;
 import org.jboss.pnc.model.BuildDriverStatus;
 import org.jboss.pnc.spi.builddriver.BuildDriverResult;
 import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
-import org.jboss.pnc.spi.repositorymanager.model.RepositoryConfiguration;
+import org.jboss.pnc.spi.environment.RunningEnvironment;
 
-import java.io.IOException;
+import com.offbytwo.jenkins.JenkinsServer;
+import com.offbytwo.jenkins.model.Build;
+import com.offbytwo.jenkins.model.BuildWithDetails;
+import com.offbytwo.jenkins.model.JobWithDetails;
 
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-12-23.
@@ -19,13 +20,13 @@ class JenkinsBuildResult implements BuildDriverResult {
 
     private final JenkinsServerFactory jenkinsServerFactory;
     private BuildJob buildJob;
-    private RepositoryConfiguration repositoryConfiguration;
+    private RunningEnvironment runningEnvironment;
     private BuildWithDetails jenkinsBuildDetails = null;
 
-    JenkinsBuildResult(JenkinsServerFactory jenkinsServerFactory, BuildJob buildJob, RepositoryConfiguration repositoryConfiguration) {
+    JenkinsBuildResult(JenkinsServerFactory jenkinsServerFactory, BuildJob buildJob, RunningEnvironment runningEnvironment) {
         this.jenkinsServerFactory = jenkinsServerFactory;
         this.buildJob = buildJob;
-        this.repositoryConfiguration = repositoryConfiguration;
+        this.runningEnvironment = runningEnvironment;
     }
 
     @Override
@@ -45,7 +46,7 @@ class JenkinsBuildResult implements BuildDriverResult {
     private BuildWithDetails getJenkinsBuildDetails() throws BuildDriverException {
         if (jenkinsBuildDetails == null) { //TODO synchronized
             try {
-                Build jenkinsBuild = getBuild(jenkinsServerFactory.getJenkinsServer(), buildJob);
+                Build jenkinsBuild = getBuild(jenkinsServerFactory.getJenkinsServer(runningEnvironment.getJenkinsUrl()), buildJob);
                 jenkinsBuildDetails = jenkinsBuild.details();
             } catch (IOException e) {
                 throw new BuildDriverException("Cannot read jenkins build details.", e);
@@ -67,7 +68,7 @@ class JenkinsBuildResult implements BuildDriverResult {
     }
 
     @Override
-    public RepositoryConfiguration getRepositoryConfiguration() {
-        return repositoryConfiguration;
+    public RunningEnvironment getRunningEnvironment() {
+        return runningEnvironment;
     }
 }

@@ -15,15 +15,14 @@ import javax.inject.Inject;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.core.BuildDriverFactory;
-import org.jboss.pnc.core.RepositoryManagerFactory;
 import org.jboss.pnc.core.builder.BuildCoordinator;
 import org.jboss.pnc.core.builder.BuildTask;
 import org.jboss.pnc.core.exception.CoreException;
 import org.jboss.pnc.core.test.mock.BuildDriverMock;
 import org.jboss.pnc.core.test.mock.DatastoreMock;
 import org.jboss.pnc.model.Artifact;
-import org.jboss.pnc.model.BuildRecordSet;
 import org.jboss.pnc.model.BuildConfiguration;
+import org.jboss.pnc.model.BuildRecordSet;
 import org.jboss.pnc.model.Environment;
 import org.jboss.pnc.spi.BuildStatus;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
@@ -49,11 +48,9 @@ public class ProjectBuilder {
 
         JavaArchive jar = ShrinkWrap.create(JavaArchive.class)
                 .addClass(Configuration.class)
-                .addClass(BuildDriverFactory.class)
-                .addClass(RepositoryManagerFactory.class)
                 .addClass(Environment.Builder.class)
-                .addPackage(BuildCoordinator.class.getPackage())
-                .addPackage(BuildDriverMock.class.getPackage())
+                .addPackages(true, BuildDriverFactory.class.getPackage(),
+                        BuildDriverMock.class.getPackage())
                 .addAsManifestResource(EmptyAsset.INSTANCE, "beans.xml")
                 .addAsResource("META-INF/logging.properties");
 
@@ -63,9 +60,10 @@ public class ProjectBuilder {
 
     void buildProject(BuildConfiguration buildConfiguration, BuildRecordSet buildRecordSet) throws InterruptedException, CoreException {
         log.info("Building project " + buildConfiguration.getName());
-        List<BuildStatus> receivedStatuses = new ArrayList();
+        List<BuildStatus> receivedStatuses = new ArrayList<>();
 
-        int nStatusUpdates = 8;
+        //Defines a number of callbacks, which are executed after buildStatus update
+        final int nStatusUpdates = 12;
 
         final Semaphore semaphore = new Semaphore(nStatusUpdates);
 
@@ -80,7 +78,7 @@ public class ProjectBuilder {
         semaphore.acquire(nStatusUpdates);
         BuildTask buildTask = buildCoordinator.build(buildConfiguration, statusUpdateListeners, new HashSet<Consumer<String>>());
 
-        List<BuildStatus> errorStates = Arrays.asList(BuildStatus.REJECTED, BuildStatus.SYSTEM_ERROR);
+        List<BuildStatus> errorStates = Arrays.asList(BuildStatus.REJECTED, BuildStatus.SYSTEM_ERROR, BuildStatus.BUILD_ENV_SETUP_COMPLETE_WITH_ERROR);
         if (errorStates.contains(buildTask.getStatus())) {
             throw new AssertionError("Build " + buildTask.getId() + " has status:" + buildTask.getStatus() + " with description: " + buildTask.getStatusDescription() + "");
         }
@@ -91,10 +89,14 @@ public class ProjectBuilder {
             throw new AssertionError("Timeout while waiting for status updates.");
         }
 
+        assertStatusUpdateReceived(receivedStatuses, BuildStatus.BUILD_ENV_SETTING_UP);
+        assertStatusUpdateReceived(receivedStatuses, BuildStatus.BUILD_ENV_SETUP_COMPLETE_SUCCESS);
         assertStatusUpdateReceived(receivedStatuses, BuildStatus.REPO_SETTING_UP);
         assertStatusUpdateReceived(receivedStatuses, BuildStatus.BUILD_SETTING_UP);
         assertStatusUpdateReceived(receivedStatuses, BuildStatus.BUILD_WAITING);
         assertStatusUpdateReceived(receivedStatuses, BuildStatus.BUILD_COMPLETED_SUCCESS);
+        assertStatusUpdateReceived(receivedStatuses, BuildStatus.BUILD_ENV_DESTROYING);
+        assertStatusUpdateReceived(receivedStatuses, BuildStatus.BUILD_ENV_DESTROYED);
         assertStatusUpdateReceived(receivedStatuses, BuildStatus.STORING_RESULTS);
     }
 
