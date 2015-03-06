@@ -18,12 +18,16 @@ public class DockerEnvironmentDriverModuleConfig extends AbstractModuleConfig {
 
     private String inContainerUserPassword;
 
+    private String dockerImageId;
+
     public DockerEnvironmentDriverModuleConfig(@JsonProperty("ip") String ip,
             @JsonProperty("inContainerUser") String inContainerUser,
-            @JsonProperty("inContainerUserPassword") String inContainerUserPassword) {
+            @JsonProperty("inContainerUserPassword") String inContainerUserPassword,
+            @JsonProperty("dockerImageId") String dockerImageId) {
         this.ip = ip;
         this.inContainerUser = inContainerUser;
         this.inContainerUserPassword = inContainerUserPassword;
+        this.dockerImageId = dockerImageId;
     }
 
     public String getIp() {
@@ -48,6 +52,14 @@ public class DockerEnvironmentDriverModuleConfig extends AbstractModuleConfig {
 
     public void setInContainerUserPassword(String inContainerUserPassword) {
         this.inContainerUserPassword = inContainerUserPassword;
+    }
+
+    public String getDockerImageId() {
+        return dockerImageId;
+    }
+
+    public void setDockerImageId(String dockerImageId) {
+        this.dockerImageId = dockerImageId;
     }
 
     @Override
