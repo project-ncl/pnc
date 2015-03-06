@@ -253,13 +253,15 @@
   module.controller('ConfigurationShowController', [
     '$scope', '$stateParams', '$state', '$log', 'PncRestClient',
     'Notifications', 'projectDetails', 'environmentDetails',
-    'configurationDetails',
+    'configurationDetails', 'buildRecords',
     function($scope, $stateParams, $state, $log, PncRestClient, Notifications,
-             projectDetails, environmentDetails, configurationDetails) {
+             projectDetails, environmentDetails, configurationDetails, buildRecords) {
 
       $scope.project = projectDetails;
       $scope.environment = environmentDetails;
       $scope.buildConfig = configurationDetails;
+      $scope.buildRecords = buildRecords;
+
 
       if ($scope.columnBrowse) {
          $scope.columnBrowse.configurations.setSelected(configurationDetails);

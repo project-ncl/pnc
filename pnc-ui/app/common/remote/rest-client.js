@@ -95,11 +95,13 @@
           },
         }),
 
-        Record: $resource(REST_DEFAULTS.BASE_URL + '/record/:recordId', {}, {
+        Record: $resource(REST_DEFAULTS.BASE_URL + '/record/:recordId', {
+          recordId: '@id'
+        }, {
           getLog: {
             method: 'GET',
             url: REST_DEFAULTS.BASE_URL + '/record/:recordId/log',
-            isArray: false
+            isArray: false,
           },
           getAllForConfiguration: {
             method: 'GET',
@@ -109,19 +111,22 @@
           getAllForProject: {
             method: 'GET',
             url: REST_DEFAULTS.BASE_URL + 'record/project/:projectId',
-            isArray: true
-          }
+            isArray: true,
+          },
         }),
 
-        Running: $resource(REST_DEFAULTS.BASE_URL + '/record/running/:recordId', {}, {
+        Running: $resource(REST_DEFAULTS.BASE_URL + '/record/running/:recordId', {
+          recordId: '@id'
+        }, {
           getLog: {
             method: 'GET',
             url: REST_DEFAULTS.BASE_URL + '/record/running/:recordId/log',
-            isArray: false
-          }
-        })
+            isArray: false,
+          },
+        }),
       };
     }
   ]);
 
 })();
+
