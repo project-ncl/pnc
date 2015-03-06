@@ -129,13 +129,13 @@
           <tr ng-repeat="record in buildRecords">
             <td>
             <span ng-switch on="record.status">
-               <img ng-switch-when="BUILDING" src='../../images/blue_anime.gif'>
-               <img ng-switch-when="SUCCESS" src='../../images/success_small.png'>
-               <img ng-switch-when="UNSTABLE" src='../../images/red_small.png'>
-               <img ng-switch-when="FAILED" src='../../images/red_small.png'>
-               <img ng-switch-when="ABORTED" src='../../images/aborted_small.png'>
-               <img ng-switch-when="CANCELLED" src='../../images/aborted_small.png'>
-               <img ng-switch-default src='../../images/unknown_small.png'>
+               <img ng-switch-when="BUILDING" alt="BUILDING" src='../../images/blue_anime.gif'>
+               <img ng-switch-when="SUCCESS" alt="SUCCESS" src='../../images/success_small.png'>
+               <img ng-switch-when="UNSTABLE" alt="UNSTABLE" src='../../images/red_small.png'>
+               <img ng-switch-when="FAILED" alt="FAILED" src='../../images/red_small.png'>
+               <img ng-switch-when="ABORTED" alt="ABORTED" src='../../images/aborted_small.png'>
+               <img ng-switch-when="CANCELLED" alt="CANCELLED" src='../../images/aborted_small.png'>
+               <img ng-switch-default alt="UNKNOWN" src='../../images/unknown_small.png'>
             </span>
             </td>
             <td>{{ record.name }}</td>

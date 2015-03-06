@@ -48,17 +48,91 @@
     <!-- include: "type": "js", "files": ["**/*.js", "!app.js"] -->
     <!-- endbuild -->
 
-  <style>
-    .notification-area {
-      position: absolute;
-      top: 1rem;
-      right: 1rem;
-      width: 30rem;
-    }
-  </style>
+    <style>
+.notification-area {
+   position: absolute;
+   top: 1rem;
+   right: 1rem;
+   width: 30rem;
+}
+html {
+    position: relative;
+    min-height: 100%;
+}
+body {
+    padding-bottom: 60px;
+}
+.footer {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    height: 60px;
+    text-align: center;
+}
+/* navbar background */
+.navbar-header {
+    background-color: #cc0000 !important;
+    background-image: url('images/redhat-header.png');
+    background-repeat: no-repeat;
+    background-position: right;
+}
+/* header text color */
+.navbar-header .navbar-brand {
+    color: #ffffff !important;
+}
+/* menu text color */
+.navbar-default .navbar-nav > li > a {
+    color: #ffffff !important;
+}
+.navbar-default .navbar-nav > li > a:hover {
+    color: #cccccc !important;
+}
+/* open menu background */
+.navbar-default .navbar-nav > .open > a {
+    background-color: #781f1c !important;
+}
+ul.pagination.pull-right {
+    margin-top: 0px !important;
+}
+.navbar-brand {
+    font-weight: bold !important;
+}
+.navbar-brand img {
+    height: 20px !important;
+    float: left !important;
+    margin-right: 0.5em !important;
+}
+.navbar-utility li a {
+    border-left: 0px !important;
+    /* fix 1px red line under user menu */
+    height: 26px !important;
+}
+.navbar-pf .navbar-brand {
+    padding-top: 3px !important;
+    padding-bottom: 3px !important;
+}
+/* shrink collapsed menu a bit in order not to resize header bar */
+.navbar-header .navbar-toggle {
+    padding-top: 7px !important;
+    padding-bottom: 5px !important;
+}
+/* fix padding for navbar-utility collapsed menu */
+.navbar-utility li.dropdown a.dropdown-toggle {
+    padding-left: 20px !important;
+}
+/* fix icon placement for navbar-utility collapsed menu */
+.navbar-utility span.fa, .navbar-utility span.pficon {
+    width: 12px !important;
+    position: relative !important;
+    top: 0px !important;
+    left: 0px !important;
+}
+   </style>
+
   </head>
   <body>
     <nav class="navbar navbar-default navbar-pf" role="navigation">
+      <!-- header -->
       <div class="navbar-header">
         <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse-1">
           <span class="sr-only">Toggle navigation</span>
@@ -67,10 +141,11 @@
           <span class="icon-bar"></span>
         </button>
         <a class="navbar-brand" href ui-sref="/">
-          Project Newcastle
+          <img src="images/redhat-logo.png" alt="Red Hat" /> Project Newcastle
         </a>
       </div>
       <div class="collapse navbar-collapse navbar-collapse-1">
+        <!-- user menu -->
         <ul class="nav navbar-nav navbar-utility">
           <li class="dropdown">
             <a href class="dropdown-toggle" data-toggle="dropdown">
@@ -107,6 +182,16 @@
     </nav>
     <div class="notification-area"><pf-notification-list></pf-notification-list></div>
     <div class="container-fluid" ui-view="content"></div>
+    <div class="footer">
+      <div class="container">
+          <p>
+          <a href="https://github.com/project-ncl/pnc">PNC</a>
+          <span>     (Version: 0.3)</span>
+          <span> | </span>
+          Red Hat, Inc. © 2014
+          </p>
+      </div><!-- /.container -->
+    </div><!-- /.footer -->
 
   </body>
 </html>
