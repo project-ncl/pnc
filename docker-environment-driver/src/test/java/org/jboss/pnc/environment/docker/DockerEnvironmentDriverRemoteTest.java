@@ -108,10 +108,10 @@ public class DockerEnvironmentDriverRemoteTest {
 
     @Test
     public void canBuildEnvironmentTest() {
-        Environment goodEnv = new Environment(BuildType.DOCKER, OperationalSystem.LINUX);
+        Environment goodEnv = new Environment(BuildType.JAVA, OperationalSystem.LINUX);
         Environment badEnv1 = new Environment(null, null);
-        Environment badEnv2 = new Environment(BuildType.JAVA, OperationalSystem.LINUX);
-        Environment badEnv3 = new Environment(BuildType.DOCKER, OperationalSystem.WINDOWS);
+        Environment badEnv2 = new Environment(BuildType.DOCKER, OperationalSystem.LINUX);
+        Environment badEnv3 = new Environment(BuildType.JAVA, OperationalSystem.WINDOWS);
 
         assertTrue(dockerEnvDriver.canBuildEnvironment(goodEnv));
         assertFalse(dockerEnvDriver.canBuildEnvironment(badEnv1));
@@ -122,7 +122,7 @@ public class DockerEnvironmentDriverRemoteTest {
     @Test
     public void buildDestroyEnvironmentTest() throws EnvironmentDriverException, InterruptedException {
         // Create container
-        Environment environment = new Environment(BuildType.DOCKER, OperationalSystem.LINUX);
+        Environment environment = new Environment(BuildType.JAVA, OperationalSystem.LINUX);
         DockerRunningEnvironment runningEnv = (DockerRunningEnvironment)
                 dockerEnvDriver.buildEnvironment(environment, DUMMY_REPOSITORY_CONFIGURATION);
 
@@ -149,7 +149,7 @@ public class DockerEnvironmentDriverRemoteTest {
     }
 
     private void copyFileToContainerInvariantData(String string, InputStream stream) throws Exception {
-        Environment environment = new Environment(BuildType.DOCKER, OperationalSystem.LINUX);
+        Environment environment = new Environment(BuildType.JAVA, OperationalSystem.LINUX);
 
         DockerRunningEnvironment runningEnv = (DockerRunningEnvironment)
                 dockerEnvDriver.buildEnvironment(environment, DUMMY_REPOSITORY_CONFIGURATION);
