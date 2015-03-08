@@ -27,6 +27,66 @@
       }
     });
 
+    $stateProvider.state('build-config.record', {
+      abstract: true,
+      url: '/record',
+      views: {
+        'content@': {
+          template: '<div ui-view></div>'
+        }
+      }
+    });
+
+    $stateProvider.state('build-config.record.detail', {
+      url: '/{recordId:int}',
+      templateUrl: 'build-config/views/record.detail.html',
+      controller: 'RecordDetailController',
+      controllerAs: 'recordCtrl',
+      resolve: {
+        restClient: 'PncRestClient',
+        recordDetails: function(restClient, $stateParams) {
+          return restClient.Record.get({
+            recordId: $stateParams.recordId }).$promise;
+        },
+        configurationDetails: function(restClient, recordDetails) {
+          return restClient.Configuration.get({
+            configurationId: recordDetails.buildConfigurationId }).$promise;
+        },
+        projectDetails: function(restClient, configurationDetails) {
+          return restClient.Project.get({
+            projectId: configurationDetails.projectId }).$promise;
+        }
+      },
+    });
+
+    $stateProvider.state('build-config.record.detail.info', {
+      url: '/info',
+      templateUrl: 'build-config/views/record.detail.info.html',
+      controller: 'RecordInfoController',
+      controllerAs: 'infoCtrl',
+    });
+
+    $stateProvider.state('build-config.record.detail.result', {
+      url: '/result',
+      controller: 'RecordResultController',
+      controllerAs: 'resultCtrl',
+      templateUrl: 'build-config/views/record.detail.result.html',
+      resolve: {
+        restClient: 'PncRestClient',
+        buildLog: function(restClient, recordDetails) {
+          return restClient.Record.getLog({
+            recordId: recordDetails.id}).$promise;
+        }
+      }
+    });
+
+    $stateProvider.state('build-config.record.detail.output', {
+      url: '/output',
+      controller: 'RecordOutputController',
+      controllerAs: 'outputCtrl',
+      templateUrl: 'build-config/views/record.detail.output.html'
+    });
+
     $stateProvider.state('build-config.product', {
       url: '/product',
       resolve: {

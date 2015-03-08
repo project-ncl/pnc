@@ -105,7 +105,7 @@ public class BuildRecordProvider {
 
     public StreamingOutput getLogsForBuildId(Integer id) {
         BuildRecord buildRecord = buildRecordRepository.findOne(id);
-        if (buildRecord != null) {
+        if (buildRecord != null && buildRecord.getBuildLog() != null) {
             return outputStream -> {
                 Writer writer = new BufferedWriter(new OutputStreamWriter(outputStream));
                 writer.write(buildRecord.getBuildLog());

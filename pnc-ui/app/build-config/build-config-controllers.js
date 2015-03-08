@@ -345,6 +345,12 @@
           }
         );
       };
+
+      $scope.configControls.goTo = function(record) {
+        $state.go('build-config.record.detail.info', {
+          recordId: record.id
+        });
+      };
     }
   ]);
 
@@ -372,6 +378,38 @@
           }
         );
       };
+    }
+  ]);
+
+  module.controller('RecordDetailController', [
+    '$scope', '$state', '$log', 'PncRestClient', 'Notifications',
+    'recordDetails', 'configurationDetails', 'projectDetails',
+    function($scope, $state, $log, PncRestClient, Notifications, recordDetails,
+             configurationDetails, projectDetails) {
+
+      this.record = recordDetails;
+      this.configuration = configurationDetails;
+      this.project = projectDetails;
+    }
+  ]);
+
+  module.controller('RecordInfoController', ['$log',
+    function($log) {
+      $log.debug('RecordInfoController');
+    }
+  ]);
+
+  module.controller('RecordResultController', ['$log', 'buildLog',
+    function($log, buildLog) {
+      $log.debug('RecordResultController');
+      this.log = buildLog;
+      $log('Log: %O', this.log);
+    }
+  ]);
+
+  module.controller('RecordOutputController', ['$log',
+    function($log) {
+      $log.debug('RecordOutputController');
     }
   ]);
 
