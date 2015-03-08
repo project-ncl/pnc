@@ -3,6 +3,7 @@ package org.jboss.pnc.jenkinsbuilddriver;
 import org.jboss.pnc.model.BuildDriverStatus;
 import org.jboss.pnc.spi.builddriver.BuildDriverResult;
 import org.jboss.pnc.spi.builddriver.CompletedBuild;
+import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
 import org.jboss.pnc.spi.environment.RunningEnvironment;
 
 /**
@@ -28,7 +29,7 @@ class JenkinsCompletedBuild implements CompletedBuild {
     }
 
     @Override
-    public BuildDriverResult getBuildResult() {
+    public BuildDriverResult getBuildResult() throws BuildDriverException {
         return new JenkinsBuildResult(jenkinsServerFactory, buildJob, runningEnvironment);
     }
 
