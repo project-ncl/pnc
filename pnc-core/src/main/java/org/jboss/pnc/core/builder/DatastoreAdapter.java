@@ -41,11 +41,13 @@ public class DatastoreAdapter {
             // Build driver results
             buildRecord.setBuildLog(buildDriverResult.getBuildLog());
             buildRecord.setStatus(buildDriverResult.getBuildDriverStatus());
-            // Repository manager results
-            linkArtifactsWithBuildRecord(repositoryManagerResult.getBuiltArtifacts(), buildRecord);
-            buildRecord.setBuiltArtifacts(repositoryManagerResult.getBuiltArtifacts());
-            linkArtifactsWithBuildRecord(repositoryManagerResult.getDependencies(), buildRecord);
-            buildRecord.setDependencies(repositoryManagerResult.getDependencies());
+            // Repository manager results, it's null in case of failed build
+            if (repositoryManagerResult != null) {
+                linkArtifactsWithBuildRecord(repositoryManagerResult.getBuiltArtifacts(), buildRecord);
+                buildRecord.setBuiltArtifacts(repositoryManagerResult.getBuiltArtifacts());
+                linkArtifactsWithBuildRecord(repositoryManagerResult.getDependencies(), buildRecord);
+                buildRecord.setDependencies(repositoryManagerResult.getDependencies());
+            }
             // Additional information needed for historical purpose
             buildRecord.setBuildScript(buildConfiguration.getBuildScript());
             buildRecord.setPatchesUrl(buildConfiguration.getPatchesUrl());
