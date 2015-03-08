@@ -180,9 +180,9 @@ public class DatabaseDataInitializer {
                     .lastName("Demo Last Name").email("demo-user@pnc.com").build();
 
             BuildRecord buildRecord = BuildRecord.Builder.newBuilder().buildScript("mvn clean deploy -Dmaven.test.skip")
-                    .name(PNC_PROJECT_BUILD_CFG_ID).buildConfiguration(buildConfiguration3)
-                    .scmRepoURL("https://github.com/project-ncl/pnc.git").scmRevision("*/v0.2")
-                    .description("Build record test").build();
+                    .name(buildConfiguration3.getName()).buildConfiguration(buildConfiguration3)
+                    .scmRepoURL(buildConfiguration3.getScmRepoURL()).scmRevision(buildConfiguration3.getScmRevision())
+                    .description("Build record test for jboss java servlet api").build();
 
             project1.getBuildConfigurations().add(buildConfiguration1);
             project2.getBuildConfigurations().add(buildConfiguration2);
