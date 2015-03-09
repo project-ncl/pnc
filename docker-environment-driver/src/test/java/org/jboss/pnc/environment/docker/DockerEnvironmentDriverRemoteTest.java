@@ -11,13 +11,13 @@ import java.util.UUID;
 import java.util.logging.Logger;
 
 import javax.inject.Inject;
-import javax.ws.rs.core.MediaType;
 
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.moduleconfig.DockerEnvironmentDriverModuleConfig;
+import org.jboss.pnc.common.util.HttpUtils;
 import org.jboss.pnc.model.BuildType;
 import org.jboss.pnc.model.Environment;
 import org.jboss.pnc.model.OperationalSystem;
@@ -27,8 +27,6 @@ import org.jboss.pnc.spi.repositorymanager.RepositoryManagerException;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
 import org.jboss.pnc.spi.repositorymanager.model.RepositoryConfiguration;
 import org.jboss.pnc.spi.repositorymanager.model.RepositoryConnectionInfo;
-import org.jboss.resteasy.client.ClientRequest;
-import org.jboss.resteasy.client.ClientResponse;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.asset.EmptyAsset;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
@@ -157,7 +155,7 @@ public class DockerEnvironmentDriverRemoteTest {
         String pathToFile = "/tmp/testFile-" + UUID.randomUUID().toString() + ".txt";
 
         // Get content of container's file system
-        String fsContentOld = processGetRequest(dockerControlEndpoint + "/containers/"
+        String fsContentOld = HttpUtils.processGetRequest(String.class, dockerControlEndpoint + "/containers/"
                 + runningEnv.getId() + "/changes");
         fsContentOld.contains(pathToFile);
 
@@ -169,7 +167,7 @@ public class DockerEnvironmentDriverRemoteTest {
         }
 
         // Get content of container's file system
-        String fsContentNew = processGetRequest(dockerControlEndpoint + "/containers/"
+        String fsContentNew = HttpUtils.processGetRequest(String.class, dockerControlEndpoint + "/containers/"
                 + runningEnv.getId() + "/changes");
         assertTrue("File was not coppied to the container.", fsContentNew.contains(pathToFile));
 
@@ -184,20 +182,27 @@ public class DockerEnvironmentDriverRemoteTest {
      * @param baseErrorMsg Prefix of error message, which is printed if the container is not in expected state
      */
     private void testRunningContainer(DockerRunningEnvironment runningEnv, boolean shouldBeRunning,
-            String baseErrorMsg) {
+            String baseErrorMsg)  {
         int sshPort = runningEnv.getSshPort();
         String containerId = runningEnv.getId();
 
         // Test if the container is running
         try {
-            testResponseHttpCode(200, dockerControlEndpoint + "/containers/" + containerId + "/json");
+            HttpUtils.testResponseHttpCode(200, dockerControlEndpoint + "/containers/" + containerId + "/json");
             assertEquals(baseErrorMsg + " Container is running", shouldBeRunning, true);
         } catch (Exception e) {
             assertEquals(baseErrorMsg + " Container is not running", shouldBeRunning, false);
         }
 
-        // Test if Jenkins is running is not performed currently
-        // It would take 20-30 seconds to get code 200 from Jenkins
+        // Test if Jenkins is running
+        try {
+            HttpUtils.testResponseHttpCode(200, runningEnv.getJenkinsUrl());
+            if(!shouldBeRunning)
+                fail("Jenkins is running, but should be down");
+        } catch (Exception e) {
+            if(shouldBeRunning)
+                fail("Jenkins wasn't started successully");
+        }
 
         // Test it the SSH port is opened
         assertEquals(baseErrorMsg + " Test opened SSH port", shouldBeRunning, testOpenedPort(sshPort));
@@ -218,37 +223,6 @@ public class DockerEnvironmentDriverRemoteTest {
         return true;
     }
 
-    /**
-     * Process HTTP GET request and get the data as String.
-     * Client accepts application/json MIME type.
-     * 
-     * @param url Request URL
-     * @throws Exception Thrown if some error occurs in communication with server
-     */
-    protected String processGetRequest(String url) throws Exception {
-        ClientRequest request = new ClientRequest(url);
-        request.accept(MediaType.APPLICATION_JSON);
-
-        ClientResponse<String> response = request.get(String.class);
-        return response.getEntity();
-    }
-
-    /**
-     * Process HTTP requests and tests if server responds with expected HTTP code.
-     * Request is implicitly set to accept MIME type application/json.
-     * 
-     * @param ecode Expected HTTP error code
-     * @param url Request URL
-     * @throws Exception Thrown if some error occurs in communication with server
-     */
-    protected void testResponseHttpCode(int ecode, String url) throws Exception {
-        ClientRequest request = new ClientRequest(url);
-        request.accept(MediaType.APPLICATION_JSON);
-
-        ClientResponse<String> response = request.get(String.class);
-        if (response.getStatus() != ecode)
-            throw new Exception("Server returned unexpected HTTP code! Returned code:" + response.getStatus());
-    }
 
     private static class DummyRepositoryConfiguration implements RepositoryConfiguration {
 

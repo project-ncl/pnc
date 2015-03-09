@@ -10,11 +10,11 @@ import java.util.logging.Logger;
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import javax.ws.rs.core.MediaType;
 
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.moduleconfig.DockerEnvironmentDriverModuleConfig;
+import org.jboss.pnc.common.util.HttpUtils;
 import org.jboss.pnc.model.BuildType;
 import org.jboss.pnc.model.Environment;
 import org.jboss.pnc.model.OperationalSystem;
@@ -22,8 +22,6 @@ import org.jboss.pnc.spi.environment.EnvironmentDriver;
 import org.jboss.pnc.spi.environment.RunningEnvironment;
 import org.jboss.pnc.spi.environment.exception.EnvironmentDriverException;
 import org.jboss.pnc.spi.repositorymanager.model.RepositoryConfiguration;
-import org.jboss.resteasy.client.ClientRequest;
-import org.jboss.resteasy.client.ClientResponse;
 import org.jclouds.ContextBuilder;
 import org.jclouds.compute.ComputeServiceContext;
 import org.jclouds.docker.DockerApi;
@@ -57,8 +55,10 @@ import com.jcraft.jsch.agentproxy.Connector;
 @ApplicationScoped
 public class DockerEnvironmentDriver implements EnvironmentDriver {
 
-    private static final Logger logger =
-            Logger.getLogger(MethodHandles.lookup().lookupClass().getName());
+    private static final Logger logger = Logger.getLogger(MethodHandles.lookup().lookupClass().getName());
+
+    /** Time how long the driver waits until all services are fully up and running (in seconds) */
+    private static final int MAX_CONTAINER_LOADING_TIME = 180;
 
     @Inject
     private Generator generator;
@@ -160,6 +160,9 @@ public class DockerEnvironmentDriver implements EnvironmentDriver {
                     configBuilder.createMavenConfig(repositoryConfiguration.getConnectionInfo()
                             .getDependencyUrl(),
                             repositoryConfiguration.getConnectionInfo().getDeployUrl()), null);
+            
+            // Wait until Jenkins is fully up and running
+            waitToInitServices("http://" + dockerIp + ":" + jenkinsPort);
         } catch (Exception e) {
             // Creating container failed => clean up
             if (buildContainerState != BuildContainerState.NOT_BUILT) {
@@ -173,6 +176,8 @@ public class DockerEnvironmentDriver implements EnvironmentDriver {
 
         logger.info("Created and started Docker container. ID: " + containerId
                 + ", SSH port: " + sshPort + ", Jenkins Port: " + jenkinsPort);
+
+
         return new DockerRunningEnvironment(this, repositoryConfiguration, containerId, jenkinsPort, sshPort,
                 "http://" + dockerIp);
     }
@@ -273,6 +278,40 @@ public class DockerEnvironmentDriver implements EnvironmentDriver {
     }
 
     /**
+     * Wait until Jenkins in container is fully up and running
+     * 
+     * @throws EnvironmentDriverException Thrown if the services are not initialized in time specified by variable
+     *         MAX_CONTAINER_LOADING_TIME
+     */
+    private void waitToInitServices(String jenkinsUrl) throws EnvironmentDriverException {
+        for (int i = 0; i < MAX_CONTAINER_LOADING_TIME; i++) {
+            try {
+                HttpUtils.testResponseHttpCode(200, jenkinsUrl);
+                return;
+            } catch (Exception e1) {
+                // Jenkins is not fully up
+                logger.fine("Container services are not fully up and running. Waiting ...");
+                sleep(1000);
+            }
+        }
+
+        throw new EnvironmentDriverException("Jenkins server in container was not fully up and running in: "
+                + MAX_CONTAINER_LOADING_TIME + " seconds");
+    }
+
+    /**
+     * Sleeps for specified amount of time. If sleep is interrupted
+     * the exception is suppressed
+     * @param miliSeconds Time to sleep
+     */
+    private void sleep(int miliSeconds) {
+        try {
+            Thread.sleep(miliSeconds);
+        } catch (InterruptedException e) {
+        }
+    }
+
+    /**
      * Get container port mapping from Docker daemon REST interface.
      * 
      * @param containerId ID of running container
@@ -281,9 +320,8 @@ public class DockerEnvironmentDriver implements EnvironmentDriver {
      */
     private Map<String, HostPortMapping> getContainerPortMappings(String containerId) throws Exception {
         Map<String, HostPortMapping> resultMap = new HashMap<>();
-        String response =
-                processGetRequest(String.class,
-                        dockerEndpoint + "/containers/" + containerId + "/json");
+        String response = HttpUtils.processGetRequest(String.class,
+                dockerEndpoint + "/containers/" + containerId + "/json");
 
         ObjectMapper objectMapper = new ObjectMapper();
         JsonNode rootNode = objectMapper.readTree(response);
@@ -300,21 +338,6 @@ public class DockerEnvironmentDriver implements EnvironmentDriver {
         }
 
         return resultMap;
-    }
-
-    /**
-     * Process HTTP GET request and get the data as String.
-     * Client accepts application/json MIME type.
-     * 
-     * @param url Request URL
-     * @throws Exception Thrown if some error occurs in communication with server
-     */
-    private <T> T processGetRequest(Class<T> clazz, String url) throws Exception {
-        ClientRequest request = new ClientRequest(url);
-        request.accept(MediaType.APPLICATION_JSON);
-
-        ClientResponse<T> response = request.get(clazz);
-        return response.getEntity();
     }
 
 }
