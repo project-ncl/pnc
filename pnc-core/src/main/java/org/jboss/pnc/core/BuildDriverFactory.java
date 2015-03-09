@@ -1,8 +1,8 @@
 package org.jboss.pnc.core;
 
 import org.jboss.pnc.core.exception.CoreException;
-import org.jboss.pnc.spi.builddriver.BuildDriver;
 import org.jboss.pnc.model.BuildType;
+import org.jboss.pnc.spi.builddriver.BuildDriver;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Instance;
@@ -25,7 +25,7 @@ public class BuildDriverFactory {
             }
         }
 
-        throw new CoreException("No build driver available for " + buildType + " build type.");
+        throw new CoreException("No build driver available for " + buildType + " build type."); //TODO create test to make sure exception is properly handled
     }
 
 }

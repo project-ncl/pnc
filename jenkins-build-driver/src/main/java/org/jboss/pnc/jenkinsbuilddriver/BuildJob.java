@@ -1,13 +1,12 @@
 package org.jboss.pnc.jenkinsbuilddriver;
 
-import java.io.IOException;
-
+import com.offbytwo.jenkins.JenkinsServer;
+import com.offbytwo.jenkins.model.JobWithDetails;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
 import org.jboss.pnc.spi.environment.RunningEnvironment;
 
-import com.offbytwo.jenkins.JenkinsServer;
-import com.offbytwo.jenkins.model.JobWithDetails;
+import java.io.IOException;
 
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-11-29.
@@ -42,13 +41,13 @@ class BuildJob {
         try {
             if (job != null) {
                 if (override) {
-                    jenkinsServer.updateJob(jobName, buildJobConfig.getXml());
+                    jenkinsServer.updateJob(jobName, buildJobConfig.getXml(), false);
                 } else {
                     //TODO log
                     return false;
                 }
             } else {
-                jenkinsServer.createJob(jobName, buildJobConfig.getXml());
+                jenkinsServer.createJob(jobName, buildJobConfig.getXml(), false);
             }
         } catch (IOException e) {
             throw new BuildDriverException("Cannot create/update job.", e);
@@ -70,7 +69,7 @@ class BuildJob {
         buildNumber = -1;
         try {
             buildNumber = job.getNextBuildNumber();
-            job.build();
+            job.build(false);
         } catch (IOException e) {
             throw new BuildDriverException("Cannot start project build.", e);
         }
