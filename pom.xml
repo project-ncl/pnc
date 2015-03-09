@@ -188,21 +188,21 @@
         <scope>import</scope>
         <type>pom</type>
       </dependency>
-      
+
       <dependency>
         <groupId>org.wildfly</groupId>
         <artifactId>wildfly-arquillian-container-embedded</artifactId>
         <version>${jboss.version}</version>
         <scope>test</scope>
       </dependency>
-        
+
       <dependency>
         <groupId>org.wildfly</groupId>
         <artifactId>wildfly-embedded</artifactId>
         <version>${jboss.version}</version>
         <scope>test</scope>
       </dependency>
-        
+
       <dependency>
         <groupId>com.offbytwo.jenkins</groupId>
         <artifactId>jenkins-client</artifactId>
@@ -360,31 +360,31 @@
         <artifactId>docker</artifactId>
         <version>${version.jclouds}</version>
       </dependency>
-		
+
       <dependency>
         <groupId>org.apache.jclouds.driver</groupId>
         <artifactId>jclouds-sshj</artifactId>
         <version>${version.jclouds}</version>
       </dependency>
-	  
+
       <dependency>
         <groupId>org.apache.jclouds</groupId>
         <artifactId>jclouds-core</artifactId>
         <version>${version.jclouds}</version>
       </dependency>
-      
+
       <dependency>
         <groupId>org.apache.jclouds</groupId>
         <artifactId>jclouds-compute</artifactId>
         <version>${version.jclouds}</version>
       </dependency>
-      
+
       <dependency>
         <groupId>org.apache.jclouds.driver</groupId>
         <artifactId>jclouds-slf4j</artifactId>
         <version>${version.jclouds}</version>
       </dependency>
-      
+
       <dependency>
         <groupId>org.jboss.resteasy</groupId>
         <artifactId>resteasy-jaxrs</artifactId>
@@ -500,24 +500,24 @@
         <version>${version.querydsl}</version>
       </dependency>
       <!-- /Query DSL support -->
-      
+
         <dependency>
           <groupId>com.fasterxml.jackson.core</groupId>
           <artifactId>jackson-core</artifactId>
           <version>${version.jackson}</version>
         </dependency>
-        
+
         <dependency>
           <groupId>com.fasterxml.jackson.core</groupId>
           <artifactId>jackson-databind</artifactId>
           <version>${version.jackson}</version>
-        </dependency>        
+        </dependency>
 
         <dependency>
           <groupId>com.fasterxml.jackson.core</groupId>
           <artifactId>jackson-annotations</artifactId>
           <version>${version.jackson.annotations}</version>
-        </dependency>        
+        </dependency>
     </dependencies>
   </dependencyManagement>
 
@@ -940,14 +940,14 @@
         <persistence.hibernate.hbm2ddl.auto>create</persistence.hibernate.hbm2ddl.auto>
       </properties>
     </profile>
-    
+
     <profile>
       <id>integration-test</id>
       <modules>
         <module>integration-test</module>
       </modules>
     </profile>
-    
+
     <profile>
       <id>exclude-remote-test</id>
       <activation>
@@ -965,7 +965,7 @@
                 <exclude>**/*RemoteTest*.java</exclude>
               </excludes>
             </configuration>
-          </plugin>      
+          </plugin>
         </plugins>
       </build>
     </profile>
