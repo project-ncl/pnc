@@ -18,7 +18,7 @@
 		<test.server.unpack.dir>${project.build.directory}</test.server.unpack.dir>
 		<test.server.build.dir>${test.server.unpack.dir}/${app.server}-${jboss.version}</test.server.build.dir>
 	</properties>
-	
+
 	<dependencies>
 
 		<!-- Project dependencies -->
@@ -64,11 +64,6 @@
 		<dependency>
 			<groupId>org.jboss</groupId>
 			<artifactId>jboss-common-core</artifactId>
-		</dependency>
-
-		<dependency>
-			<groupId>org.jboss.resteasy</groupId>
-			<artifactId>resteasy-jaxrs</artifactId>
 		</dependency>
 
 		<dependency>
