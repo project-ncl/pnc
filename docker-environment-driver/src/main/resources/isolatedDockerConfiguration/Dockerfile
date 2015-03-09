@@ -48,6 +48,9 @@ USER root
 # why? see http://blog.docker.com/2014/06/why-you-dont-need-to-run-sshd-in-docker/
 RUN yum -y install openssh-server  && yum clean all
 RUN mkdir /var/run/sshd
+RUN ssh-keygen -b 1024 -t rsa -f /etc/ssh/ssh_host_key
+RUN ssh-keygen -b 1024 -t rsa -f /etc/ssh/ssh_host_rsa_key 
+RUN ssh-keygen -b 1024 -t dsa -f /etc/ssh/ssh_host_dsa_key
 
 #!!!! CHANGE ROOT PASSWORD BEFORE REAL USE !!!!
 RUN echo 'root:changeme' | chpasswd
