@@ -23,6 +23,7 @@ VOLUME /var/jenkins_home
 # or config file with your custom jenkins Docker image.
 RUN mkdir -p /usr/share/jenkins/ref/init.groovy.d
 COPY init.groovy /usr/share/jenkins/ref/init.groovy.d/tcp-slave-angent-port.groovy
+COPY plugins.sh /usr/local/bin/plugins.sh
 ENV JENKINS_VERSION 1.554.1
 # could use ADD but this one does not check Last-Modified header
 # see https://github.com/docker/docker/issues/8331
@@ -37,8 +38,10 @@ USER jenkins
 COPY jenkins.sh /usr/local/bin/jenkins.sh
 ENTRYPOINT ["/usr/local/bin/jenkins.sh"]
 # from a derived Dockerfile, can use `RUN plugin.sh active.txt` to setup /usr/share/jenkins/ref/plugins from a support bundle
-
+COPY plugins.txt /usr/share/jenkins/plugins.txt
+RUN /usr/local/bin/plugins.sh /usr/share/jenkins/plugins.txt
 ## end of jenkins installation
+
 
 USER root
 #Install SSHD
