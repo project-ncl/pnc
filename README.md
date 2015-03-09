@@ -16,11 +16,11 @@ By default the configuration file uses env variables, you can set required varia
 If you want to use a different (external) config file location you can define a path to it with `-Dpnc-config-file=/path/to/pnc-config.json`.
 
 Remote tests are defined by class name *RemoteTest.java<br />
-To run remote test use `ḿvn clean install -DremoteTest=true`
+To run remote test use `mvn clean install -DremoteTest=true`
 
 Integration tests are placed in module "integrations-tests" to run them use `-Pintegration-test`.
 
-To run remote and integration tests combine both commands `ḿvn clean install -DremoteTest=true -Pintegration-test`.
+To run remote and integration tests combine both commands `mvn clean install -DremoteTest=true -Pintegration-test`.
 
 
 Main Modules
