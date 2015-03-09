@@ -4,12 +4,14 @@ import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.PreRemove;
+import javax.persistence.SequenceGenerator;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -28,7 +30,8 @@ public class BuildRecordSet implements Serializable {
     public static final String DEFAULT_SORTING_FIELD = "id";
 
     @Id
-    @GeneratedValue
+    @SequenceGenerator(name="build_record_set_id_seq", sequenceName="build_record_set_id_seq", allocationSize=1)    
+    @GeneratedValue(strategy=GenerationType.SEQUENCE, generator="build_record_set_id_seq")
     private Integer id;
 
     @Enumerated(EnumType.STRING)

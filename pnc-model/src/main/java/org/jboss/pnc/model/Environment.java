@@ -15,7 +15,8 @@ public class Environment implements Serializable {
     private static final long serialVersionUID = 8213767399060607637L;
 
     @Id
-    @GeneratedValue
+    @SequenceGenerator(name="environment_id_seq", sequenceName="environment_id_seq", allocationSize=1)    
+    @GeneratedValue(strategy=GenerationType.SEQUENCE, generator="environment_id_seq")
     private Integer id;
 
     @Enumerated(EnumType.STRING)

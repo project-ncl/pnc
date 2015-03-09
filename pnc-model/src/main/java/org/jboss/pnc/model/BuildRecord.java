@@ -6,12 +6,14 @@ import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Lob;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.PreRemove;
+import javax.persistence.SequenceGenerator;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
@@ -36,7 +38,8 @@ public class BuildRecord implements Serializable {
     public static final String DEFAULT_SORTING_FIELD = "id";
 
     @Id
-    @GeneratedValue
+    @SequenceGenerator(name="build_record_id_seq", sequenceName="build_record_id_seq", allocationSize=1)    
+    @GeneratedValue(strategy=GenerationType.SEQUENCE, generator="build_record_id_seq")
     private Integer id;
 
     @ManyToOne(cascade = { CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH }, fetch = FetchType.LAZY)

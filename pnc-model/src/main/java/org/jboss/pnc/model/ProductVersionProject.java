@@ -20,8 +20,10 @@ package org.jboss.pnc.model;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
+import javax.persistence.SequenceGenerator;
 
 import java.io.Serializable;
 
@@ -38,7 +40,8 @@ public class ProductVersionProject implements Serializable {
     private static final long serialVersionUID = 2596901834161647987L;
 
     @Id
-    @GeneratedValue
+    @SequenceGenerator(name="product_version_project_id_seq", sequenceName="product_version_project_id_seq", allocationSize=1)    
+    @GeneratedValue(strategy=GenerationType.SEQUENCE, generator="product_version_project_id_seq")
     private Integer id;
 
     @ManyToOne(cascade = CascadeType.ALL)

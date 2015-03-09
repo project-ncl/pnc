@@ -6,8 +6,10 @@ import java.util.List;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
+import javax.persistence.SequenceGenerator;
 
 import org.hibernate.annotations.Type;
 
@@ -22,7 +24,8 @@ public class License implements Serializable {
     public static final String DEFAULT_SORTING_FIELD = "shortName";
 
     @Id
-    @GeneratedValue
+    @SequenceGenerator(name="license_id_seq", sequenceName="license_id_seq", allocationSize=1)    
+    @GeneratedValue(strategy=GenerationType.SEQUENCE, generator="license_id_seq")
     private Integer id;
 
     private String fullName;
