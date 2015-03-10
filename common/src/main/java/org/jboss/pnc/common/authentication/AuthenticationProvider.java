@@ -9,8 +9,12 @@ import javax.ejb.Stateless;
 public class AuthenticationProvider {
     @Resource
     private SessionContext sctx;
+    private static String loggedInUser;
     
     public String getLoggedInUser() {
-        return sctx.getCallerPrincipal().getName();
+        if(loggedInUser == null) {
+            loggedInUser =  sctx.getCallerPrincipal().getName();
+        }
+        return loggedInUser;
       }
 }
