@@ -35,7 +35,8 @@ public class Product implements Serializable {
     public static final String DEFAULT_SORTING_FIELD = "name";
 
     @Id
-    @GeneratedValue
+    @SequenceGenerator(name="product_id_seq", sequenceName="product_id_seq", allocationSize=1)    
+    @GeneratedValue(strategy=GenerationType.SEQUENCE, generator="product_id_seq")
     private Integer id;
 
     private String name;

@@ -6,8 +6,10 @@ import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
+import javax.persistence.SequenceGenerator;
 
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-11-23.
@@ -37,7 +39,8 @@ public class Artifact implements Serializable {
     private static final long serialVersionUID = -2368833657284575734L;
 
     @Id
-    @GeneratedValue
+    @SequenceGenerator(name="artifact_id_seq", sequenceName="artifact_id_seq", allocationSize=1)    
+    @GeneratedValue(strategy=GenerationType.SEQUENCE, generator="artifact_id_seq")
     private Integer id;
 
     /**
