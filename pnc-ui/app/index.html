@@ -14,8 +14,8 @@
     <!-- endbower -->
     <!-- endbuild -->
 
-    <!-- build:css(.tmp) styles/pnc.css -->
-    <!-- include: "type": "css", "files": "styles/**/*.css" -->
+    <!-- build:css(app) styles/pnc.css -->
+    <!-- include: "type": "css", "files": "**/*.css" -->
     <!-- endbuild -->
 
     <!-- build:js(.) oldieshim.js -->
@@ -43,7 +43,7 @@
     <!-- endbower -->
     <!-- endbuild -->
 
-    <!-- build:js({.tmp,app}) scripts/pnc.js -->
+    <!-- build:js(app) scripts/pnc.js -->
     <script src="app.js"></script>
     <!-- include: "type": "js", "files": ["**/*.js", "!app.js"] -->
     <!-- endbuild -->
