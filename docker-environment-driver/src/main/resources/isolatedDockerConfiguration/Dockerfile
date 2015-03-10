@@ -77,8 +77,8 @@ ADD settings.xml /usr/share/maven/conf/settings.xml
 
 ADD isolate-with-iptables.sh /tmp/isolate-with-iptables.sh
 
-#Prepare script to start Jenkins and SSH daemon
-RUN echo -e "/usr/sbin/sshd -D & \n /usr/local/bin/jenkins.sh " > /usr/bin/startPrograms.sh
+#Prepare script to start Jenkins, SSH daemon and ip-tables
+RUN echo -e "/tmp/isolate-with-iptables.sh & \n /usr/sbin/sshd -D & \n /usr/local/bin/jenkins.sh " > /usr/bin/startPrograms.sh
 
 #Expose SSH port
 EXPOSE 22
