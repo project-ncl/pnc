@@ -6,7 +6,8 @@
             "ip":"${env.PNC_DOCKER_IP}",
             "inContainerUser":"${env.PNC_DOCKER_CONT_USER}",
             "inContainerUserPassword":"${env.PNC_DOCKER_CONT_PASSWORD}",
-            "dockerImageId":"${env.PNC_DOCKER_IMAGE_ID}"
+            "dockerImageId":"${env.PNC_DOCKER_IMAGE_ID}",
+            "firewallAllowedDestinations":"${env.PNC_DOCKER_IMAGE_FIREWALL_ALLOWED}"
           }
         ]
 }

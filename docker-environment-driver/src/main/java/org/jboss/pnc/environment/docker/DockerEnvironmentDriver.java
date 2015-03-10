@@ -1,16 +1,5 @@
 package org.jboss.pnc.environment.docker;
 
-import java.io.InputStream;
-import java.lang.invoke.MethodHandles;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.logging.Logger;
-
-import javax.annotation.PostConstruct;
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.moduleconfig.DockerEnvironmentDriverModuleConfig;
@@ -36,6 +25,18 @@ import org.jclouds.logging.slf4j.config.SLF4JLoggingModule;
 import org.jclouds.ssh.SshClient;
 import org.jclouds.sshj.SshjSshClient;
 import org.jclouds.sshj.config.SshjSshClientModule;
+
+import javax.annotation.PostConstruct;
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+
+import java.io.InputStream;
+import java.lang.invoke.MethodHandles;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.logging.Logger;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -86,6 +87,8 @@ public class DockerEnvironmentDriver implements EnvironmentDriver {
     private String dockerImageId;
 
     private String dockerIp;
+    
+    private String containerFirewallAllowedDestinations;
 
     /**
      * States of creating Docker container
@@ -114,6 +117,7 @@ public class DockerEnvironmentDriver implements EnvironmentDriver {
         containerUser = config.getInContainerUser();
         containerUserPsswd = config.getInContainerUserPassword();
         dockerImageId = config.getDockerImageId();
+        containerFirewallAllowedDestinations = config.getFirewallAllowedDestinations();
 
         dockerContext = ContextBuilder.newBuilder("docker")
                 .endpoint(dockerEndpoint)
@@ -141,12 +145,14 @@ public class DockerEnvironmentDriver implements EnvironmentDriver {
                     containerId,
                     Config.builder()
                             .imageId(dockerImageId)
+                            .env(prepareEnvVariables())
                             .build());
             buildContainerState = BuildContainerState.BUILT;
 
             dockerClient.startContainer(containerId,
                     HostConfig.builder()
                             .publishAllPorts(true)
+                            .privileged(true)
                             .build());
             buildContainerState = BuildContainerState.STARTED;
 
@@ -309,6 +315,17 @@ public class DockerEnvironmentDriver implements EnvironmentDriver {
             Thread.sleep(miliSeconds);
         } catch (InterruptedException e) {
         }
+    }
+
+    /**
+     * Prepares configuration of environment variables
+     * for creating Docker container
+     * @return Environment variables configuration
+     */
+    private List<String> prepareEnvVariables() {
+        List<String> envVariables = new ArrayList<>();
+        envVariables.add("firewallAllowedDestinations=" + containerFirewallAllowedDestinations);
+        return envVariables;
     }
 
     /**

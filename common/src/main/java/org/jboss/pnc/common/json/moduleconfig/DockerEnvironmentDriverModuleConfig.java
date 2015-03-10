@@ -20,14 +20,18 @@ public class DockerEnvironmentDriverModuleConfig extends AbstractModuleConfig {
 
     private String dockerImageId;
 
+    private String firewallAllowedDestinations;
+
     public DockerEnvironmentDriverModuleConfig(@JsonProperty("ip") String ip,
             @JsonProperty("inContainerUser") String inContainerUser,
             @JsonProperty("inContainerUserPassword") String inContainerUserPassword,
-            @JsonProperty("dockerImageId") String dockerImageId) {
+            @JsonProperty("dockerImageId") String dockerImageId,
+            @JsonProperty("firewallAllowedDestinations") String firewallAllowedDestinations) {
         this.ip = ip;
         this.inContainerUser = inContainerUser;
         this.inContainerUserPassword = inContainerUserPassword;
         this.dockerImageId = dockerImageId;
+        this.firewallAllowedDestinations = firewallAllowedDestinations;
     }
 
     public String getIp() {
@@ -67,7 +71,18 @@ public class DockerEnvironmentDriverModuleConfig extends AbstractModuleConfig {
         return "DockerEnvironmentDriverModuleConfig ["
                 + (ip != null ? "ip=" + ip + ", " : "")
                 + (inContainerUser != null ? "inContainerUser=" + inContainerUser + ", " : "")
+                + (dockerImageId != null ? "dockerImageId=" + dockerImageId + ", " : "")
+                + (firewallAllowedDestinations != null ? "firewallAllowedDestinations="
+                        + firewallAllowedDestinations + ", " : "")
                 + "inContainerUserPassword=HIDDEN]";
+    }
+
+    public String getFirewallAllowedDestinations() {
+        return firewallAllowedDestinations;
+    }
+
+    public void setFirewallAllowedDestinations(String firewallAllowedDestinations) {
+        this.firewallAllowedDestinations = firewallAllowedDestinations;
     }
 
 }
