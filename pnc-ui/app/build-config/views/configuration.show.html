@@ -4,7 +4,7 @@
   }
 </style>
 <div class="row">
-  <div class="col-md-8">
+  <div class="col-md-7">
     <div class="row">
       <div class="col-md-6">
         <h1>Build Configuration Details</h1>
@@ -23,7 +23,7 @@
     </div>
 
     <div class="row">
-      <div class="col-md-8">
+      <div class="col-md-7">
         <form editable-form class="form-horizontal" name="configurationForm" onbeforesave="configControls.update()">
 
           <div class="form-group">
@@ -117,32 +117,36 @@
       </div>
     </div>
   </div>
-  <div class="col-md-3 col-md-offset-1" >
+  <div class="col-md-4 col-md-offset-1" >
     <div class="row">
       <div class="col-md-6">
-      <h3 class="sub-header">Build Status</h3>
+        <h3 class="sub-header">Build Status</h3>
       </div>
     </div>
     <div>
       <table class="table table-striped">
         <tbody style="cursor: pointer;">
-          <tr ng-repeat="record in buildRecords">
-            <td>
-            <span ng-switch on="record.status">
-               <img ng-switch-when="BUILDING" alt="BUILDING" src='images/blue_anime.gif'>
-               <img ng-switch-when="SUCCESS" alt="SUCCESS" src='images/success_small.png'>
-               <img ng-switch-when="UNSTABLE" alt="UNSTABLE" src='images/red_small.png'>
-               <img ng-switch-when="FAILED" alt="FAILED" src='images/red_small.png'>
-               <img ng-switch-when="ABORTED" alt="ABORTED" src='images/aborted_small.png'>
-               <img ng-switch-when="CANCELLED" alt="CANCELLED" src='images/aborted_small.png'>
-               <img ng-switch-default alt="UNKNOWN" src='images/unknown_small.png'>
-            </span>
-            </td>
-            <td>{{ record.name }}</td>
-            <td>{{ record.startTime | date:'medium'}}</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
+          <a>
+          <tr ng-repeat="record in buildRecords" ng-click="configControls.goTo(record)">
+              <td>
+                <span ng-switch on="record.status">
+                  <img ng-switch-when="BUILDING" alt="BUILDING" src='images/blue_anime.gif'>
+                  <img ng-switch-when="SUCCESS" alt="SUCCESS" src='images/success_small.png'>
+                  <img ng-switch-when="UNSTABLE" alt="UNSTABLE" src='images/red_small.png'>
+                  <img ng-switch-when="FAILED" alt="FAILED" src='images/red_small.png'>
+                  <img ng-switch-when="ABORTED" alt="ABORTED" src='images/aborted_small.png'>
+                  <img ng-switch-when="CANCELLED" alt="CANCELLED" src='images/aborted_small.png'>
+                  <img ng-switch-default alt="UNKNOWN" src='images/unknown_small.png'>
+               </span>
+             </td>
+             <td># {{ record.id }}</td>
+             <td>{{ record.name }}</td>
+             <td>{{ record.startTime | date:'medium'}}</td>
+           </tr>
+         </a>
+       </tbody>
+     </table>
+   </div>
+ </div>
 </div>
+

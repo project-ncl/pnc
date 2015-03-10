@@ -1,0 +1,34 @@
+<div class="row">
+  <div class="col-md-8 col-md-offset-2">
+    <div class="row">
+      <div class="col-md-12">
+        <h1>
+           <span ng-switch on="recordCtrl.record.status">
+              <img ng-switch-when="BUILDING" alt="BUILDING" src='images/blue_anime.gif'>
+              <img ng-switch-when="SUCCESS" alt="SUCCESS" src='images/success_small.png'>
+              <img ng-switch-when="UNSTABLE" alt="UNSTABLE" src='images/red_small.png'>
+              <img ng-switch-when="FAILED" alt="FAILED" src='images/red_small.png'>
+              <img ng-switch-when="ABORTED" alt="ABORTED" src='images/aborted_small.png'>
+              <img ng-switch-when="CANCELLED" alt="CANCELLED" src='images/aborted_small.png'>
+              <img ng-switch-default alt="UNKNOWN" src='images/unknown_small.png'>
+           </span>
+           # {{ recordCtrl.record.id }} &mdash; {{ recordCtrl.configuration.name }} {{ recordCtrl.record.startTime | date:'medium'}}
+        </h1>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-12">
+        <ul class="nav nav-tabs" style="margin-top: 3rem;">
+          <li role="presentation" ui-sref-active="active"><a href ui-sref="build-config.record.detail.info">Build Info</a></li>
+          <li role="presentation" ui-sref-active="active"><a href ui-sref="build-config.record.detail.result">Build Result</a></li>
+          <li role="presentation" ui-sref-active="active"><a href ui-sref="build-config.record.detail.output">Build Output</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-12" ui-view>
+      </div>
+    </div>
+  </div>
+</div>
+
