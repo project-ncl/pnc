@@ -532,7 +532,7 @@ module.exports = function (grunt) {
 
   grunt.registerTask('default', [
     'newer:jshint',
- //   'newer:htmlhint',
+    'newer:htmlhint',
     'test',
     'build'
   ]);
