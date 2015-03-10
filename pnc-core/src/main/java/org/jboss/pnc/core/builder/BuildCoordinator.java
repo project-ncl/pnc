@@ -32,6 +32,7 @@ import org.jboss.util.graph.Vertex;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -153,15 +154,17 @@ public class BuildCoordinator {
         RepositoryManager repositoryManager = repositoryManagerFactory.getRepositoryManager(RepositoryType.MAVEN);
         BuildDriver buildDriver = buildDriverFactory.getBuildDriver(buildTask.getBuildConfiguration().getEnvironment().getBuildType());
         EnvironmentDriver envDriver = environmentDriverFactory.getDriver(buildTask.getBuildConfiguration().getEnvironment());
-
+        
+        RunningEnvironmentWrapper backupRunningEnvironment = new RunningEnvironmentWrapper();
+        
         configureRepository(buildTask, repositoryManager)
-                .thenCompose(repositoryConfiguration -> setUpEnvironment(buildTask, envDriver, repositoryConfiguration))
+                .thenCompose(repositoryConfiguration -> setUpEnvironment(buildTask, envDriver, repositoryConfiguration, backupRunningEnvironment))
                 .thenCompose(runningEnvironment -> buildSetUp(buildTask, buildDriver, runningEnvironment))
                 .thenCompose(runningBuild -> waitBuildToComplete(buildTask, runningBuild))
                 .thenCompose(completedBuild -> retrieveBuildDriverResults(buildTask, completedBuild))
                 .thenCompose(buildDriverResult -> retrieveRepositoryManagerResults(buildTask, buildDriverResult))
                 .thenCompose(buildResults -> destroyEnvironment(buildTask, buildResults))
-                .handle((buildResults, e) -> storeResults(buildTask, buildResults, e));
+                .handle((buildResults, e) -> storeResults(buildTask, buildResults, backupRunningEnvironment, e));
     }
 
     private CompletableFuture<RepositoryConfiguration> configureRepository(BuildTask buildTask, RepositoryManager repositoryManager) {
@@ -187,14 +190,16 @@ public class BuildCoordinator {
     }
 
     private CompletableFuture<RunningEnvironment> setUpEnvironment(BuildTask buildTask, 
-            EnvironmentDriver envDriver, RepositoryConfiguration repositoryConfiguration) {
+            EnvironmentDriver envDriver, RepositoryConfiguration repositoryConfiguration,
+            RunningEnvironmentWrapper backupRunningEnvironment) {
             return CompletableFuture.supplyAsync( () ->  {
                 buildTask.setStatus(BuildStatus.BUILD_ENV_SETTING_UP);
                 
                 try {
                     RunningEnvironment runningEnv = envDriver.buildEnvironment(
                             buildTask.getBuildConfiguration().getEnvironment(), repositoryConfiguration);
-                    
+
+                    backupRunningEnvironment.setRunningEnvironment(runningEnv);
                     buildTask.setStatus(BuildStatus.BUILD_ENV_SETUP_COMPLETE_SUCCESS);
                     return runningEnv;
                 } catch (EnvironmentDriverException e) {
@@ -281,7 +286,8 @@ public class BuildCoordinator {
         }, executor);
     }
     
-    private CompletableFuture<Boolean> storeResults(BuildTask buildTask, BuildResult buildResult, Throwable e) {
+    private CompletableFuture<Boolean> storeResults(BuildTask buildTask, BuildResult buildResult,
+            RunningEnvironmentWrapper backupRunningEnvironment, Throwable e) {
         return CompletableFuture.supplyAsync( () ->  {
             boolean completedOk = false;
             try {
@@ -291,11 +297,18 @@ public class BuildCoordinator {
                     completedOk = true;
                 } else {
                     datastoreAdapter.storeResult(buildTask, e);
+                    if(backupRunningEnvironment.getRunningEnvironment() != null)
+                        backupRunningEnvironment.getRunningEnvironment().destroyEnvironment();
                     completedOk = false;
                 }
             } catch (DatastoreException de) {
                 log.errorf(e, "Error storing results of build configuration: %s to datastore.", buildTask.getId());
-            } finally {
+            } 
+            catch (EnvironmentDriverException envE) {
+                log.warn("Running environment" + backupRunningEnvironment.getRunningEnvironment() 
+                        +  " couldn't be destroyed!", envE);
+            }
+            finally {
                 buildTask.setStatus(BuildStatus.DONE);
                 buildTasks.remove(buildTask);
             }
@@ -316,6 +329,24 @@ public class BuildCoordinator {
 
     private boolean isBuildAlreadySubmitted(BuildTask buildTask) {
         return buildTasks.contains(buildTask);
+    }
+    
+    /**
+     * Dummy wrapper for interface RunningEnvironment
+     * @author Jakub Bartecek <jbartece@redhat.com>
+     *
+     */
+    private class RunningEnvironmentWrapper {
+        
+        private RunningEnvironment runningEnvironment;
+        
+        public RunningEnvironment getRunningEnvironment() {
+            return runningEnvironment;
+        }
+        
+        public void setRunningEnvironment(RunningEnvironment runningEnvironment) {
+            this.runningEnvironment = runningEnvironment;
+        }
     }
 
 
