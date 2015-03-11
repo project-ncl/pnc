@@ -37,10 +37,12 @@ public class BuildConfigurationRestTest {
     private static final String PRODUCT_REST_ENDPOINT = "/pnc-web/rest/product/";
     private static final String PRODUCT_VERSION_REST_ENDPOINT = "/pnc-web/rest/product/%d/version";
     private static final String PROJECT_PRODUCT_VERSION_REST_ENDPOINT = "/pnc-web/rest/project/product/%d/version/%d";
+    private static final String PROJECT_REST_ENDPOINT = "/pnc-web/rest/project/%d";
     private static final String CONFIGURATION_REST_ENDPOINT = "/pnc-web/rest/configuration/";
     private static final String CONFIGURATION_SPECIFIC_REST_ENDPOINT = "/pnc-web/rest/configuration/%d";
     private static final String CONFIGURATION_CLONE_REST_ENDPOINT = "/pnc-web/rest/configuration/%d/clone";
     private static final String ENVIRONMENT_REST_ENDPOINT = "/pnc-web/rest/environment";
+    private static final String SPECIFIC_ENVIRONMENT_REST_ENDPOINT = "/pnc-web/rest/environment/%d";
 
     private static int productId;
     private static int productVersionId;
@@ -135,18 +137,31 @@ public class BuildConfigurationRestTest {
         configurationTemplate.addValue("_projectId", updatedProjectId);
         configurationTemplate.addValue("_environmentId", String.valueOf(environmentId));
 
+        Response projectResponseBeforeTheUpdate = given().contentType(ContentType.JSON).port(getHttpPort()).when()
+                .get(String.format(PROJECT_REST_ENDPOINT, projectId));
+        Response environmentResponseBeforeTheUpdate = given().contentType(ContentType.JSON).port(getHttpPort()).when()
+                .get(String.format(SPECIFIC_ENVIRONMENT_REST_ENDPOINT, environmentId));
         // when
+
         given().body(configurationTemplate.fillTemplate()).contentType(ContentType.JSON).port(getHttpPort()).when()
                 .put(String.format(CONFIGURATION_SPECIFIC_REST_ENDPOINT, configurationId)).then().statusCode(200);
 
         Response response = given().contentType(ContentType.JSON).port(getHttpPort()).when()
                 .get(String.format(CONFIGURATION_SPECIFIC_REST_ENDPOINT, configurationId));
 
+
         // then
+        Response projectResponseAfterTheUpdate = given().contentType(ContentType.JSON).port(getHttpPort()).when()
+                .get(String.format(PROJECT_REST_ENDPOINT, projectId));
+        Response environmentResponseAfterTheUpdate = given().contentType(ContentType.JSON).port(getHttpPort()).when()
+                .get(String.format(SPECIFIC_ENVIRONMENT_REST_ENDPOINT, environmentId));
+
         ResponseAssertion.assertThat(response).hasStatus(200);
         ResponseAssertion.assertThat(response).hasJsonValueEqual("id", configurationId).hasJsonValueEqual("name", updatedName)
                 .hasJsonValueEqual("buildScript", updatedBuildScript).hasJsonValueEqual("scmRepoURL", updatedScmUrl)
                 .hasJsonValueEqual("projectId", updatedProjectId).hasJsonValueEqual("environmentId", environmentId);
+        assertThat(projectResponseBeforeTheUpdate.getBody().print()).isEqualTo(projectResponseAfterTheUpdate.getBody().print());
+        assertThat(environmentResponseBeforeTheUpdate.getBody().print()).isEqualTo(environmentResponseAfterTheUpdate.getBody().print());
     }
 
     @Test
