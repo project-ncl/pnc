@@ -14,6 +14,7 @@ import javax.inject.Inject;
 
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.pnc.common.Configuration;
+import org.jboss.pnc.common.authentication.AuthenticationProvider;
 import org.jboss.pnc.core.BuildDriverFactory;
 import org.jboss.pnc.core.builder.BuildCoordinator;
 import org.jboss.pnc.core.builder.BuildTask;
@@ -40,7 +41,7 @@ public class ProjectBuilder {
 
     @Inject
     DatastoreMock datastore;
-
+    
     private static final Logger log = Logger.getLogger(ProjectBuilder.class.getName());
 
     @Deployment
@@ -49,6 +50,7 @@ public class ProjectBuilder {
         JavaArchive jar = ShrinkWrap.create(JavaArchive.class)
                 .addClass(Configuration.class)
                 .addClass(Environment.Builder.class)
+                .addClass(AuthenticationProvider.class)
                 .addPackages(true, BuildDriverFactory.class.getPackage(),
                         BuildDriverMock.class.getPackage())
                 .addAsManifestResource(EmptyAsset.INSTANCE, "beans.xml")
