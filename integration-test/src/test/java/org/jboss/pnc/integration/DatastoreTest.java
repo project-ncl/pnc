@@ -5,6 +5,7 @@ import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.transaction.api.annotation.TransactionMode;
 import org.jboss.arquillian.transaction.api.annotation.Transactional;
 import org.jboss.pnc.datastore.repositories.BuildRecordRepository;
+import org.jboss.pnc.datastore.repositories.EnvironmentRepository;
 import org.jboss.pnc.datastore.repositories.ProductRepository;
 import org.jboss.pnc.datastore.repositories.ProjectRepository;
 import org.jboss.pnc.integration.deployments.Deployments;
@@ -37,6 +38,9 @@ public class DatastoreTest {
     @Inject
     BuildRecordRepository buildRecordRepository;
 
+    @Inject
+    EnvironmentRepository environmentRepository;
+
     @Deployment
     public static EnterpriseArchive deploy() {
         EnterpriseArchive enterpriseArchive = Deployments.baseEarWithTestDependencies();
@@ -57,8 +61,10 @@ public class DatastoreTest {
                 .projectUrl("https://github.com/ds-project-ncl/pnc")
                 .issueTrackerUrl("https://projects.engineering.redhat.com/browse/NCL").build();
 
+        Environment environment = Environment.Builder.defaultEnvironment().build();
+
         BuildConfiguration buildConfiguration = BuildConfiguration.Builder.newBuilder()
-                .buildScript("mvn clean deploy -Dmaven.test.skip").environment(Environment.Builder.defaultEnvironment().build())
+                .buildScript("mvn clean deploy -Dmaven.test.skip").environment(environment)
                 .name("DS_PROJECT_BUILD_CFG_ID").productVersion(productVersion).project(project)
                 .scmRepoURL("https://github.com/ds-project-ncl/pnc.git").scmRevision("*/v0.2")
                 .description("Test build config for project newcastle").build();
@@ -68,7 +74,9 @@ public class DatastoreTest {
                 .scmRepoURL("https://github.com/project-ncl/pnc.git").scmRevision("*/v0.2")
                 .description("DataStore Build record test").status(BuildDriverStatus.CANCELLED).build();
 
+        environmentRepository.save(environment);
         projectRepository.save(project);
+
 
         // when
         buildRecord = buildRecordRepository.saveAndFlush(buildRecord);
