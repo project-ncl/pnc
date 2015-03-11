@@ -402,8 +402,8 @@
   module.controller('RecordResultController', ['$log', 'buildLog',
     function($log, buildLog) {
       $log.debug('RecordResultController');
-      this.log = buildLog;
-      $log('Log: %O', this.log);
+      $log.debug('Log: %O', buildLog);
+      this.log = buildLog.payload;
     }
   ]);
 

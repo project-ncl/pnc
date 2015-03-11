@@ -21,6 +21,15 @@
     'REST_DEFAULTS',
     function($resource, REST_DEFAULTS) {
 
+      function convertStringResponseToJson(data, headers) {
+        // ng-resource expects a JSON object or array of JSON objects,
+        // however the rest end point returns a raw string, we need to
+        // convert it to an object.
+        var response = {}
+        response.payload = data;
+        return response;
+      };
+
       return {
         Product: $resource(REST_DEFAULTS.BASE_URL + '/product/:productId', {
           productId: '@id'
@@ -102,6 +111,7 @@
             method: 'GET',
             url: REST_DEFAULTS.BASE_URL + '/record/:recordId/log',
             isArray: false,
+            transformResponse: convertStringResponseToJson
           },
           getAllForConfiguration: {
             method: 'GET',
@@ -122,6 +132,7 @@
             method: 'GET',
             url: REST_DEFAULTS.BASE_URL + '/record/running/:recordId/log',
             isArray: false,
+            transformResponse: convertStringResponseToJson
           },
         }),
       };
