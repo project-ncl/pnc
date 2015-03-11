@@ -131,6 +131,10 @@ public class DatabaseDataInitializer {
                     .projectUrl("https://github.com/jboss/jboss-servlet-api_spec")
                     .issueTrackerUrl("https://issues.jboss.org/browse/JBEE").build();
 
+            projectRepository.save(project1);
+            projectRepository.save(project2);
+            projectRepository.save(project3);
+
             // Map projects to the product version
             ProductVersionProject productVersionProject1 = ProductVersionProject.Builder.newBuilder().project(project1)
                     .productVersion(productVersion).build();
