@@ -76,3 +76,11 @@ ul.pagination.pull-right {
     top: 0px !important;
     left: 0px !important;
 }
+
+.clickable-table {
+  cursor: pointer;
+}
+
+.push-down {
+  margin-top: 3rem;
+}
