@@ -1,0 +1,46 @@
+.column-browser {
+  border-bottom: 1px solid #d0d0d0;
+}
+
+.column-browser-body {
+  margin-top: 1rem;
+}
+
+.column-brower-header-collapse {
+  background: transparent;
+  box-shadow: none;
+  vertical-align: text-top;
+}
+
+.editable-wrap {
+    width: 100%;
+}
+.card {
+  padding:1rem;
+  padding-bottom: 0;
+  box-shadow:0 1px 2px #aaa;
+  background:white;
+  margin:0 1rem 1rem;
+  border-radius:3px;
+  //user-select:none;
+  height: 20rem;
+  overflow-y: hidden;
+}
+
+.card-internal {
+  overflow-x: hidden;
+  overflow-y: auto
+  height: 15.5rem;
+}
+
+.card-filter {
+  height:3rem;
+}
+
+.card table tbody tr {
+  cursor: pointer;
+}
+
+.model-buttons {
+  margin-top: 2rem;
+}

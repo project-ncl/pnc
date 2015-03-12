@@ -5,7 +5,7 @@
         <h1>Build Configurations</h1>
       </div>
       <div class="col-md-6">
-        <span class="btn-group pull-right" style="margin-top: 2rem;" role="group" aria-label="Action Toolbar">
+        <span class="btn-group pull-right h1" role="group" aria-label="Action Toolbar">
           <button type="button" class="btn btn-lg btn-default" data-toggle="tooltip" title="New Configuration" ui-sref="build-config.configuration.create"><i class="pficon pficon-edit"></i> New Configuration</button>
         </span>
       </div>
@@ -23,7 +23,7 @@
             <th>Modified</th>
             <th>User</th>
           </thead>
-          <tbody style="cursor: pointer;">
+          <tbody class="clickable-table">
             <tr ng-repeat="configuration in configurations" ng-click="showConfiguration(configuration)">
               <td>{{ configuration.name }}</td>
               <td>{{ configuration.description }}</td>

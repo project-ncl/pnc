@@ -1,8 +1,3 @@
-<style>
-  .editable-wrap {
-    width: 100%;
-  }
-</style>
 <div class="row">
   <div class="col-md-8">
     <div class="row">
@@ -10,7 +5,7 @@
         <h1>Product Version Details</h1>
       </div>
       <div class="col-md-6">
-         <span class="btn-group pull-right" style="margin-top: 2rem;" role="group" aria-label="Action Toolbar">
+         <span class="btn-group pull-right model-buttons" role="group" aria-label="Action Toolbar">
           <button type="button" class="btn btn-lg btn-default disabled" data-toggle="tooltip" title="Edit Version"><i class="pficon pficon-edit"></i> Edit</button>
           <button type="button" class="btn btn-lg btn-danger disabled" data-toggle="tooltip" title="Delete Version"><i class="pficon pficon-delete"></i> Delete</button>
         </span>
@@ -25,23 +20,23 @@
         <form editable-form class="form-horizontal">
 
           <div class="form-group">
-            <label for="input-name" class="col-sm-3 control-label">Version</label>
+            <label for="input-version" class="col-sm-3 control-label">Version</label>
             <div class="col-sm-9">
-              <p id="input-name" class="form-control-static" e-class="form-control" editable-text="version.version" e-name="version" e-required>{{ version.version || 'Empty' }}</p>
+              <p id="input-version" e-class="form-control" editable-text="version.version" e-name="version" e-required>{{ version.version || 'Empty' }}</p>
             </div>
           </div>
 
           <div class="form-group">
             <label for="input-name" class="col-sm-3 control-label">Product Name</label>
             <div class="col-sm-9">
-              <p id="input-name" class="form-control-static" e-class="form-control" editable-text="product.name" e-name="name" e-required>{{ product.name || 'Empty' }}</p>
+              <p id="input-name" e-class="form-control" editable-text="product.name" e-name="name" e-required>{{ product.name || 'Empty' }}</p>
             </div>
           </div>
 
           <div class="form-group">
-            <label for="static-project" class="col-sm-3 control-label">Product Description</label>
+            <label for="static-description" class="col-sm-3 control-label">Product Description</label>
             <div class="col-sm-9">
-              <p id="static-project" class="form-control-static">{{ product.description || 'Empty' }}</p>
+              <p id="static-description" class="form-control-static">{{ product.description || 'Empty' }}</p>
             </div>
           </div>
         </form>
