@@ -1,6 +1,19 @@
 <div class="row">
   <div class="col-md-7">
-    <div class="row">
+    <pnc-header>
+      <pnc-header-title>Build Configuration Details</pnc-header-title>
+      <pnc-header-buttons>
+        <button type="button" class="btn btn-lg btn-default" data-toggle="tooltip" title="Start Build" ng-click="configControls.build()"><i class="fa fa-play"></i> Build</button>
+        <button type="button" class="btn btn-lg btn-default" data-toggle="tooltip" title="Clone Configuration" ng-click="configControls.clone()"><i class="fa fa-files-o"></i> Clone</button>
+        <button type="button" class="btn btn-lg btn-default" data-toggle="tooltip" title="Edit Configuration" ng-click="configurationForm.$show()" ng-class="{ 'active': configurationForm.$visible }"><i class="pficon pficon-edit"></i> Edit</button>
+        <button type="button" class="btn btn-lg btn-danger" data-toggle="tooltip" title="Delete Configuration" pnc-confirm-click="configControls.delete()" pnc-confirm-message="{{ 'Confirm the deletion of Build Configuration: ' + buildConfig.name + ' ?'}}"><i class="pficon pficon-delete"></i> Delete</button>
+      </pnc-header-buttons>
+    </pnc-header>
+
+
+
+
+<!--     <div class="row">
       <div class="col-md-6">
         <h1>Build Configuration Details</h1>
       </div>
@@ -15,10 +28,10 @@
     </div>
     <div class="row">
       <hr>
-    </div>
+    </div> -->
 
     <div class="row">
-      <div class="col-md-7">
+      <div class="col-md-12">
         <form editable-form class="form-horizontal" name="configurationForm" onbeforesave="configControls.update()">
 
           <div class="form-group">
