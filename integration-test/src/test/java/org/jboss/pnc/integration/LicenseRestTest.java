@@ -12,7 +12,7 @@ import org.jboss.pnc.rest.endpoint.LicenseEndpoint;
 import org.jboss.pnc.rest.provider.LicenseProvider;
 import org.jboss.pnc.rest.restmodel.LicenseRest;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
-import org.jboss.shrinkwrap.api.spec.JavaArchive;
+import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -29,7 +29,7 @@ import static org.jboss.pnc.integration.env.IntegrationTestEnv.getHttpPort;
 @RunWith(Arquillian.class)
 public class LicenseRestTest {
 
-    private static final String LICENSE_REST_ENDPOINT = "/pnc-web/rest/license/";
+    private static final String LICENSE_REST_ENDPOINT = "/pnc-rest/rest/license/";
     private static final String LICENSE_REST_ENDPOINT_SPECIFIC = LICENSE_REST_ENDPOINT + "%d";
 
     public static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
@@ -40,10 +40,10 @@ public class LicenseRestTest {
     public static EnterpriseArchive deploy() {
         EnterpriseArchive enterpriseArchive = Deployments.baseEar();
 
-        JavaArchive restJar = enterpriseArchive.getAsType(JavaArchive.class, "/pnc-rest.jar");
-        restJar.addClass(LicenseProvider.class);
-        restJar.addClass(LicenseEndpoint.class);
-        restJar.addClass(LicenseRest.class);
+        WebArchive restWar = enterpriseArchive.getAsType(WebArchive.class, "/pnc-rest.war");
+        restWar.addClass(LicenseProvider.class);
+        restWar.addClass(LicenseEndpoint.class);
+        restWar.addClass(LicenseRest.class);
 
         logger.info(enterpriseArchive.toString(true));
         return enterpriseArchive;
@@ -61,7 +61,7 @@ public class LicenseRestTest {
         licenseId = ResponseUtils.getIdFromLocationHeader(response);
 
         //then
-        ResponseAssertion.assertThat(response).hasStatus(201).hasLocationMatches(".*\\/pnc-web\\/rest\\/license\\/\\d+");
+        ResponseAssertion.assertThat(response).hasStatus(201).hasLocationMatches(".*\\/pnc-rest\\/rest\\/license\\/\\d+");
         assertThat(licenseId).isNotNull();
     }
 

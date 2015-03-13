@@ -1,11 +1,7 @@
 package org.jboss.pnc.integration;
 
-import static com.jayway.restassured.RestAssured.given;
-import static org.jboss.pnc.integration.env.IntegrationTestEnv.getHttpPort;
-
-import java.io.IOException;
-import java.lang.invoke.MethodHandles;
-
+import com.jayway.restassured.http.ContentType;
+import com.jayway.restassured.response.Response;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.junit.InSequence;
@@ -20,28 +16,31 @@ import org.jboss.pnc.rest.provider.BuildRecordSetProvider;
 import org.jboss.pnc.rest.restmodel.BuildRecordRest;
 import org.jboss.pnc.rest.restmodel.BuildRecordSetRest;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
-import org.jboss.shrinkwrap.api.spec.JavaArchive;
+import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.jayway.restassured.http.ContentType;
-import com.jayway.restassured.response.Response;
+import java.io.IOException;
+import java.lang.invoke.MethodHandles;
+
+import static com.jayway.restassured.RestAssured.given;
+import static org.jboss.pnc.integration.env.IntegrationTestEnv.getHttpPort;
 
 @RunWith(Arquillian.class)
 public class BuildRecordSetRestTest {
 
     public static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-    private static final String PRODUCT_REST_ENDPOINT = "/pnc-web/rest/product/";
-    private static final String PRODUCT_VERSION_REST_ENDPOINT = "/pnc-web/rest/product/%d/version/";
-    private static final String BUILD_RECORD_REST_ENDPOINT = "/pnc-web/rest/record/";
+    private static final String PRODUCT_REST_ENDPOINT = "/pnc-rest/rest/product/";
+    private static final String PRODUCT_VERSION_REST_ENDPOINT = "/pnc-rest/rest/product/%d/version/";
+    private static final String BUILD_RECORD_REST_ENDPOINT = "/pnc-rest/rest/record/";
 
-    private static final String BUILD_RECORD_SET_REST_ENDPOINT = "/pnc-web/rest/recordset/";
-    private static final String BUILD_RECORD_SET_SPECIFIC_REST_ENDPOINT = "/pnc-web/rest/recordset/%d";
-    private static final String BUILD_RECORD_SET_PRODUCT_VERSION_REST_ENDPOINT = "/pnc-web/rest/recordset/productversion/%d";
-    private static final String BUILD_RECORD_SET_BUILD_RECORD_REST_ENDPOINT = "/pnc-web/rest/recordset/record/%d";
+    private static final String BUILD_RECORD_SET_REST_ENDPOINT = "/pnc-rest/rest/recordset/";
+    private static final String BUILD_RECORD_SET_SPECIFIC_REST_ENDPOINT = "/pnc-rest/rest/recordset/%d";
+    private static final String BUILD_RECORD_SET_PRODUCT_VERSION_REST_ENDPOINT = "/pnc-rest/rest/recordset/productversion/%d";
+    private static final String BUILD_RECORD_SET_BUILD_RECORD_REST_ENDPOINT = "/pnc-rest/rest/recordset/record/%d";
 
     private static int productId;
     private static String productVersionName;
@@ -55,13 +54,13 @@ public class BuildRecordSetRestTest {
     public static EnterpriseArchive deploy() {
         EnterpriseArchive enterpriseArchive = Deployments.baseEar();
 
-        JavaArchive restJar = enterpriseArchive.getAsType(JavaArchive.class, "/pnc-rest.jar");
-        restJar.addClass(BuildRecordSetProvider.class);
-        restJar.addClass(BuildRecordSetEndpoint.class);
-        restJar.addClass(BuildRecordSetRest.class);
-        restJar.addClass(BuildRecordProvider.class);
-        restJar.addClass(BuildRecordEndpoint.class);
-        restJar.addClass(BuildRecordRest.class);
+        WebArchive restWar = enterpriseArchive.getAsType(WebArchive.class, "/pnc-rest.war");
+        restWar.addClass(BuildRecordSetProvider.class);
+        restWar.addClass(BuildRecordSetEndpoint.class);
+        restWar.addClass(BuildRecordSetRest.class);
+        restWar.addClass(BuildRecordProvider.class);
+        restWar.addClass(BuildRecordEndpoint.class);
+        restWar.addClass(BuildRecordRest.class);
 
         logger.info(enterpriseArchive.toString(true));
         return enterpriseArchive;
@@ -106,7 +105,7 @@ public class BuildRecordSetRestTest {
         Response response = given().body(buildRecordSetTemplate.fillTemplate()).contentType(ContentType.JSON)
                 .port(getHttpPort()).when().post(BUILD_RECORD_SET_REST_ENDPOINT);
 
-        ResponseAssertion.assertThat(response).hasStatus(201).hasLocationMatches(".*\\/pnc-web\\/rest\\/recordset\\/\\d+");
+        ResponseAssertion.assertThat(response).hasStatus(201).hasLocationMatches(".*\\/pnc-rest\\/rest\\/recordset\\/\\d+");
 
         String location = response.getHeader("Location");
         newBuildRecordSetId = Integer.valueOf(location.substring(location.lastIndexOf("/") + 1));

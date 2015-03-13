@@ -11,9 +11,14 @@
   </parent>
 
   <artifactId>pnc-rest</artifactId>
-  <packaging>ejb</packaging>
+  <packaging>war</packaging>
 
   <description>REST API. This is a series of classes that use JAX-RS to translate HTTP communications to calls into the action controllers in the core, and format any output (such as constructing resource URLs, etc.).</description>
+
+    <properties>
+        <failOnMissingWebXml>false</failOnMissingWebXml>
+    </properties>
+
 
   <dependencies>
     <!-- Project dependencies -->
@@ -75,6 +80,7 @@
     <dependency>
       <groupId>com.google.guava</groupId>
       <artifactId>guava</artifactId>
+      <scope>provided</scope>
     </dependency>
 
     <dependency>
@@ -89,6 +95,7 @@
     <dependency>
       <groupId>org.springframework.data</groupId>
       <artifactId>spring-data-commons</artifactId>
+      <scope>provided</scope>
     </dependency>
 
     <!-- Test dependencies -->
@@ -97,19 +104,24 @@
       <artifactId>junit</artifactId>
       <scope>test</scope>
     </dependency>
-
-    <!-- Transitive dependencies to make enforcer happy -->
-    <dependency>
-      <groupId>com.mysema.querydsl</groupId>
-      <artifactId>querydsl-core</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-api</artifactId>
-    </dependency>
-    <!-- /Transitive dependencies to make enforcer happy -->
-
   </dependencies>
 
+  <build>
+    <finalName>${project.artifactId}</finalName>
+    <resources>
+      <resource>
+        <directory>src/main/resources</directory>
+        <filtering>true</filtering>
+      </resource>
+    </resources>
+    <plugins>
+      <plugin>
+        <artifactId>maven-war-plugin</artifactId>
+        <configuration>
+          <attachClasses>true</attachClasses>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
 
 </project>

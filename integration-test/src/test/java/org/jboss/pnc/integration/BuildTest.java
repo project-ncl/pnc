@@ -25,7 +25,7 @@ public class BuildTest {
     @Deployment(testable = false)
     public static EnterpriseArchive deploy() {
         EnterpriseArchive enterpriseArchive = Deployments.baseEar();
-        WebArchive war = enterpriseArchive.getAsType(WebArchive.class, "/pnc-web.war");
+        WebArchive war = enterpriseArchive.getAsType(WebArchive.class, "/pnc-rest.war");
         war.addClass(BuildTest.class);
         logger.info(enterpriseArchive.toString(true));
         return enterpriseArchive;
@@ -33,12 +33,12 @@ public class BuildTest {
 
     @Test
     public void shouldTriggerBuildAndFinishWithoutProblems() {
-        int configurationId = extractIdFromRest("/pnc-web/rest/configuration");
+        int configurationId = extractIdFromRest("/pnc-rest/rest/configuration");
 
         given()
             .port(getHttpPort())
         .when()
-            .post(String.format("/pnc-web/rest/configuration/%d/build", configurationId))
+            .post(String.format("/pnc-rest/rest/configuration/%d/build", configurationId))
         .then()
             .statusCode(200);
     }

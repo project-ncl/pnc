@@ -34,17 +34,17 @@
       <scope>test</scope>
       <type>ear</type>
     </dependency>
-
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>datastore</artifactId>
+      <artifactId>ear-package</artifactId>
       <scope>test</scope>
+      <type>pom</type>
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>pnc-rest</artifactId>
-      <type>ejb</type>
       <scope>test</scope>
+      <classifier>classes</classifier>
     </dependency>
 
     <dependency>

@@ -5,7 +5,7 @@
   var module = angular.module('pnc.remote.restClient', ['ngResource']);
 
   module.constant('REST_DEFAULTS', {
-    'BASE_URL': '/pnc-web/rest'
+    'BASE_URL': '/pnc-rest/rest'
   });
 
   /**

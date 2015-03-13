@@ -1,4 +1,4 @@
-package org.jboss.pnc.rest;
+package org.jboss.pnc.rest.configuration;
 
 import org.jboss.pnc.core.Lifecycle;
 

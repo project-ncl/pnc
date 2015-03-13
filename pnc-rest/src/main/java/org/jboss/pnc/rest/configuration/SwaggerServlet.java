@@ -1,4 +1,4 @@
-package org.jboss.pnc.web.configuration;
+package org.jboss.pnc.rest.configuration;
 
 import com.wordnik.swagger.config.ConfigFactory;
 import com.wordnik.swagger.config.ScannerFactory;

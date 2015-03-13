@@ -107,7 +107,7 @@ module.exports = function (grunt) {
       },
       proxies: [{
         // Every request sent to <context> will be proxied to <host>:<port>
-        context: '/pnc-web/rest',
+        context: '/pnc-rest/rest',
         host:  '<%= yeoman.proxyHost %>',
         port: 8080
       }],

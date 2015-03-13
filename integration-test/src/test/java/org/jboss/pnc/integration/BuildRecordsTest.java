@@ -52,7 +52,7 @@ public class BuildRecordsTest {
     @Deployment
     public static EnterpriseArchive deploy() {
         EnterpriseArchive enterpriseArchive = Deployments.baseEarWithTestDependencies();
-        WebArchive war = enterpriseArchive.getAsType(WebArchive.class, "/pnc-web.war");
+        WebArchive war = enterpriseArchive.getAsType(WebArchive.class, "/pnc-rest.war");
         war.addClass(BuildRecordsTest.class);
         logger.info(enterpriseArchive.toString(true));
         return enterpriseArchive;

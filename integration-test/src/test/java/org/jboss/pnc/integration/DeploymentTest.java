@@ -20,7 +20,7 @@ public class DeploymentTest {
     @Deployment
     public static EnterpriseArchive deploy() {
         EnterpriseArchive enterpriseArchive = Deployments.baseEar();
-        WebArchive war = enterpriseArchive.getAsType(WebArchive.class, "/pnc-web.war");
+        WebArchive war = enterpriseArchive.getAsType(WebArchive.class, "/pnc-rest.war");
         war.addClass(DeploymentTest.class);
         logger.info(enterpriseArchive.toString(true));
         return enterpriseArchive;

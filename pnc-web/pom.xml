@@ -14,43 +14,9 @@
   <packaging>war</packaging>
 
   <dependencies>
-    <!-- Project dependencies -->
-    <dependency>
-      <groupId>org.jboss.pnc</groupId>
-      <artifactId>common</artifactId>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>com.wordnik</groupId>
-      <artifactId>swagger-jaxrs_2.10</artifactId>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>com.wordnik</groupId>
-      <artifactId>swagger-core_2.10</artifactId>
-      <scope>provided</scope>
-    </dependency>
     <dependency>
       <groupId>org.jboss.pnc</groupId>
       <artifactId>pnc-ui</artifactId>
-      <scope>compile</scope>
-    </dependency>
-
-    <!-- Remote dependencies -->
-    <dependency>
-      <groupId>javax.enterprise</groupId>
-      <artifactId>cdi-api</artifactId>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.jboss.spec.javax.annotation</groupId>
-      <artifactId>jboss-annotations-api_1.1_spec</artifactId>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.jboss.spec.javax.servlet</groupId>
-      <artifactId>jboss-servlet-api_3.0_spec</artifactId>
-      <scope>provided</scope>
     </dependency>
   </dependencies>
 

@@ -114,6 +114,13 @@
 
       <dependency>
         <groupId>org.jboss.pnc</groupId>
+        <artifactId>ear-package</artifactId>
+        <version>${project.version}</version>
+        <type>pom</type>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jboss.pnc</groupId>
         <artifactId>jenkins-build-driver</artifactId>
         <version>${project.version}</version>
       </dependency>
@@ -136,11 +143,28 @@
         <version>${project.version}</version>
       </dependency>
 
+      <!-- Use this dependency to attach WAR itself -->
       <dependency>
         <groupId>org.jboss.pnc</groupId>
         <artifactId>pnc-rest</artifactId>
         <version>${project.version}</version>
-        <type>ejb</type>
+        <type>war</type>
+      </dependency>
+
+      <!-- Use this dependency to attach transitive dependencies -->
+      <dependency>
+        <groupId>org.jboss.pnc</groupId>
+        <artifactId>pnc-rest</artifactId>
+        <version>${project.version}</version>
+        <type>pom</type>
+      </dependency>
+
+      <!-- Use this dependency to attach war classes -->
+      <dependency>
+        <groupId>org.jboss.pnc</groupId>
+        <artifactId>pnc-rest</artifactId>
+        <version>${project.version}</version>
+        <classifier>classes</classifier>
       </dependency>
 
       <dependency>
