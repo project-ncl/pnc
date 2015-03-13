@@ -1,0 +1,24 @@
+<div>
+<pnc-header>
+  <pnc-header-title>Products</pnc-header-title>
+  <pnc-header-buttons>
+    <button type="button" class="btn btn-lg btn-default disabled" data-toggle="tooltip" title="Create Product">
+      <i class="pficon pficon-edit"></i> Create
+    </button>
+  </pnc-header-buttons>
+</pnc-header>
+
+<table class="table table-bordered table-striped">
+  <thead>
+    <th>Name</th>
+    <th>Description</th>
+  </thead>
+  <tbody>
+
+    <tr ng-repeat="product in listCtrl.products">
+      <td><a href ui-sref="product.detail({ productId: product.id })">{{ product.name }}</a></td>
+      <td>{{ product.description }}</td>
+    </tr>
+  </tbody>
+</table>
+</div>

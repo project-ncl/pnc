@@ -43,7 +43,7 @@
   });
 
   module.directive('pncHeader', function() {
-    var tmpl = '<div class="row"><div class="col-md-12"><div class="row"><span ng-transclude></span></div><div class="row"><hr></div></div></div>';
+    var tmpl = '<div class="row"><div class="col-md-12"><div class="row page-header"><span ng-transclude></span></div></div></div>';
 
     return {
       restrict: 'E',

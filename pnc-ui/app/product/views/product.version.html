@@ -1,0 +1,38 @@
+<div>
+  <pnc-header>
+    <pnc-header-title>Product Version Details</pnc-header-title>
+    <pnc-header-buttons>
+      <button type="button" class="btn btn-lg btn-default disabled" data-toggle="tooltip" title="Edit Version">
+        <i class="pficon pficon-edit"></i> Edit
+      </button>
+      <button type="button" class="btn btn-lg btn-danger disabled" data-toggle="tooltip" title="Delete Version">
+        <i class="pficon pficon-delete"></i> Delete
+      </button>
+    </pnc-header-buttons>
+  </pnc-header>
+
+  <form editable-form class="form-horizontal">
+    <div class="form-group">
+      <label for="input-version" class="col-sm-3 control-label">Version</label>
+      <div class="col-sm-9">
+        <p id="input-version" e-class="form-control" editable-text="versionCtrl.version.version" e-name="version" e-required>{{ versionCtrl.version.version || 'Empty' }}</p>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="input-name" class="col-sm-3 control-label">Product Name</label>
+      <div class="col-sm-9">
+        <a id="input-name" e-class="form-control" editable-text="versionCtrl.product.name" e-name="name" e-required href ui-sref="product.detail({ productId: versionCtrl.product.id})">
+          {{ versionCtrl.product.name || 'Empty' }}
+        </a>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="static-description" class="col-sm-3 control-label">Product Description</label>
+      <div class="col-sm-9">
+        <p id="static-description" class="form-control-static">{{ versionCtrl.product.description || 'Empty' }}</p>
+      </div>
+    </div>
+  </form>
+</div>
