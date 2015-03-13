@@ -236,19 +236,19 @@
     }
   ]);
 
-  module.controller('ConfigurationListController', [
-    '$scope', '$state', 'configurationList',
-    function($scope, $state, configurationList) {
-      console.log('ConfigurationListController >> scope=%O, configurationList=%O',
-                  $scope, configurationList);
-      $scope.configurations = configurationList;
-      $scope.showConfiguration = function(configuration) {
-        $state.go('build-config.configuration.show', {
-          configurationId: configuration.id
-        });
-      };
-    }
-  ]);
+  // module.controller('ConfigurationListController', [
+  //   '$scope', '$state', 'configurationList',
+  //   function($scope, $state, configurationList) {
+  //     console.log('ConfigurationListController >> scope=%O, configurationList=%O',
+  //                 $scope, configurationList);
+  //     $scope.configurations = configurationList;
+  //     $scope.showConfiguration = function(configuration) {
+  //       $state.go('build-config.configuration.show', {
+  //         configurationId: configuration.id
+  //       });
+  //     };
+  //   }
+  // ]);
 
   module.controller('ConfigurationShowController', [
     '$scope', '$stateParams', '$state', '$log', 'PncRestClient',

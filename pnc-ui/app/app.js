@@ -2,13 +2,13 @@
 
 (function() {
   var app = angular.module('pnc', [
-    'ngResource',
     'ui.router',
     'pnc.Dashboard',
     'pnc.remote',
-    'pnc.BuildConfig',
     'pnc.product',
-    'pnc.project'
+    'pnc.project',
+    'pnc.configuration'
+
   ]);
 
   app.config(['$stateProvider', '$urlRouterProvider', '$locationProvider',
