@@ -1,0 +1,42 @@
+<div>
+  <pnc-header>
+    <pnc-header-title>Project Details</pnc-header-title>
+    <pnc-header-buttons>
+      <button type="button" class="btn btn-lg btn-default disabled" data-toggle="tooltip" title="Edit Project">
+        <i class="pficon pficon-edit"></i> Edit
+      </button>
+      <button type="button" class="btn btn-lg btn-danger disabled" data-toggle="tooltip" title="Delete Project">
+        <i class="pficon pficon-delete"></i> Delete
+      </button>
+    </pnc-header-buttons>
+  </pnc-header>
+
+  <form editable-form class="form-horizontal">
+
+    <div class="form-group">
+      <label for="input-name" class="col-sm-3 control-label">Name</label>
+      <div class="col-sm-9">
+        <p id="input-name" e-class="form-control" editable-text="detailCtrl.project.name" e-name="name" e-required>{{ detailCtrl.project.name || 'Empty' }}</p>
+      </div>
+    </div>
+    <div class="form-group">
+      <label for="static-description" class="col-sm-3 control-label">Description</label>
+      <div class="col-sm-9">
+        <p id="static-description" class="form-control-static">{{ detailCtrl.project.description || 'Empty' }}</p>
+      </div>
+    </div>
+    <div class="form-group">
+      <label for="input-url" class="col-sm-3 control-label">URL</label>
+      <div class="col-sm-9">
+        <p id="input-url" e-class="form-control" editable-text="detailCtrl.project.projectUrl" e-name="projectUrl" e-required>{{ detailCtrl.project.projectUrl || 'Empty' }}</p>
+      </div>
+    </div>
+    <div class="form-group">
+      <label for="input-issue-tracker" class="col-sm-3 control-label">Issue tracker</label>
+      <div class="col-sm-9">
+        <p id="input-issue-tracker" e-class="form-control" editable-text="detailCtrl.project.issueTrackerUrl" e-name="issueTrackerUrl" e-required>{{ detailCtrl.project.issueTrackerUrl || 'Empty' }}</p>
+      </div>
+    </div>
+
+  </form>
+</div>

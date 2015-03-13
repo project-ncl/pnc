@@ -8,6 +8,7 @@
     'pnc.remote',
     'pnc.BuildConfig',
     'pnc.product',
+    'pnc.project'
   ]);
 
   app.config(['$stateProvider', '$urlRouterProvider', '$locationProvider',
