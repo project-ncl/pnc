@@ -4,7 +4,8 @@
 
   var module = angular.module('pnc.product', [
     'ui.router',
-    'pnc.remote.restClient'
+    'pnc.remote.restClient',
+    'pnc.util.header'
   ]);
 
   module.config(['$stateProvider', function($stateProvider) {
