@@ -4,8 +4,10 @@
 
   var module = angular.module('pnc.configuration', [
     'ui.router',
+    'xeditable',
     'pnc.remote.restClient',
-    'pnc.util.header'
+    'pnc.util.header',
+    'pnc.util.confirmClick'
   ]);
 
   module.config(['$stateProvider', function($stateProvider) {
@@ -55,39 +57,42 @@
           templateUrl: 'common/templates/two-col-right-sidebar.tmpl.html'
         }
       }
-      // controller: 'ConfigurationDetailController',
-      // controllerAs: 'configDtlCtrl',
-      // resolve: {
-      //   restClient: 'PncRestClient',
-      //   configurationDetail: function(restClient, $stateParams) {
-      //     return restClient.Configuration.get({
-      //       configurationId: $stateParams.configurationId }).$promise;
-      //   }
-      //   environmentDetail: function(restClient, $stateParams,
-      //                                configurationDetails) {
-      //     return restClient.Environment.get({
-      //       environmentId: configurationDetails.environmentId  }).$promise;
-      //   },
-      //   projectDetail: function(restClient, $stateParams,
-      //                            configurationDetails) {
-      //     return restClient.Project.get({
-      //       projectId: configurationDetails.projectId }).$promise;
-      //   },
-      //   buildRecords: function(restClient, $stateParams) {
-      //     return restClient.Record.getAllForConfiguration({
-      //       configurationId: $stateParams.configurationId }).$promise;
-      //   }
-      // },
     });
 
+    // Populate main and sidebar views.
     $stateProvider.state('configuration.detail.show', {
       url: '/configuration/{configurationId:int}',
       views: {
-        'main': {
-          templateUrl: 'configuration/views/configuration.detail-main.html'
+        '': {
+          templateUrl: 'configuration/views/configuration.detail-main.html',
+          controller: 'ConfigurationDetailController',
+          controllerAs: 'detailCtrl'
         },
         'sidebar': {
-          templateUrl: 'configuration/views/configuration.detail-sidebar.html'
+          templateUrl: 'configuration/views/configuration.detail-sidebar.html',
+          controller: 'ConfigurationSidebarController',
+          controllerAs: 'sidebarCtrl'
+        },
+      },
+      resolve: {
+        restClient: 'PncRestClient',
+        configurationDetail: function(restClient, $stateParams) {
+          return restClient.Configuration.get({
+            configurationId: $stateParams.configurationId }).$promise;
+        },
+        environmentDetail: function(restClient, $stateParams,
+                                     configurationDetail) {
+          return restClient.Environment.get({
+            environmentId: configurationDetail.environmentId  }).$promise;
+        },
+        projectDetail: function(restClient, $stateParams,
+                                 configurationDetail) {
+          return restClient.Project.get({
+            projectId: configurationDetail.projectId }).$promise;
+        },
+        buildRecordList: function(restClient, $stateParams) {
+          return restClient.Record.getAllForConfiguration({
+            configurationId: $stateParams.configurationId }).$promise;
         }
       }
     });

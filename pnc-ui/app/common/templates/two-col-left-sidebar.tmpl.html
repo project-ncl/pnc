@@ -1,7 +1,7 @@
 <!--
 Provides a template for a responsive two column view:
   - A sidebar on the left (ui-view name: sidebar)
-  - A main content area (ui-view name: main)
+  - A main content area (default ui-view)
 
 When placed inside a <div class="fluid-container"> the sidebar
 will collapse beneath the main content if the screen gets too narrow.
@@ -10,7 +10,7 @@ will collapse beneath the main content if the screen gets too narrow.
   <!-- main -->
   <div class="col-sm-9 col-md-10 col-sm-push-3 col-md-push-2">
     <div class="row">
-      <div class="col-md-12" ui-view="main">
+      <div class="col-md-12" ui-view>
       </div>
     </div>
   </div> <!-- / main -->

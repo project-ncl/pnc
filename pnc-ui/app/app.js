@@ -31,10 +31,14 @@
   ]);
 
   app.run(['$rootScope', '$log',
+
+    // Handle errors with state changes.
     function($rootScope, $log) {
       $rootScope.$on('$stateChangeError',
         function(event, toState, toParams, fromState, fromParams, error) {
-          $log.debug('Caught $stateChangeError: arguments=%O', arguments);
+          $log.debug('Caught $stateChangeError: event=%O, toState=%O, ' +
+                     'toParams=%O, fromState=%O, fromParams=%O, error=%O',
+                     event, toState, toParams, fromState, fromParams, error);
         }
       );
     }

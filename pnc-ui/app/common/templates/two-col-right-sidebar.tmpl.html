@@ -1,19 +1,19 @@
 <!--
 Provides a template for a responsive two column view:
-  - A main content area (ui-view name: main)
+  - A main content area (default ui-view)
   - A sidebar on the right (ui-view name: sidebar)
 
 When placed inside a <div class="fluid-container"> the sidebar
 will collapse beneath the main content if the screen gets too narrow.
 -->
-<div class="row" style="overflow: hidden;">
+<div class="row">
   <div class="col-sm-8 col-md-9">
     <div class="row">
-      <div class="col-md-12" ui-view="main">
+      <div class="col-md-12" ui-view>
       </div>
     </div>
   </div>
-  <div class="col-sm-4 col-md-3 sidebar-pf sidebar-pf-right" style="min-height: 100000000px;">
+  <div class="col-sm-4 col-md-3 sidebar-pf sidebar-pf-right">
     <div class="row">
       <div class="col-md-12" ui-view="sidebar">
       </div>
