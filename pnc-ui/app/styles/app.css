@@ -87,3 +87,7 @@ ul.pagination.pull-right {
 .push-down {
   margin-top: 3rem;
 }
+
+.full-height {
+  min-height: 560px;
+}
