@@ -44,8 +44,8 @@ public class DatastoreTest {
     @Deployment
     public static EnterpriseArchive deploy() {
         EnterpriseArchive enterpriseArchive = Deployments.baseEarWithTestDependencies();
-        WebArchive war = enterpriseArchive.getAsType(WebArchive.class, "/pnc-web.war");
-        war.addClass(DatastoreTest.class);
+        WebArchive restWar = enterpriseArchive.getAsType(WebArchive.class, "/pnc-rest.war");
+        restWar.addClass(DatastoreTest.class);
         logger.info(enterpriseArchive.toString(true));
         return enterpriseArchive;
     }

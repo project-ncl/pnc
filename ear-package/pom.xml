@@ -42,7 +42,7 @@
     <dependency>
       <groupId>org.jboss.pnc</groupId>
       <artifactId>pnc-rest</artifactId>
-      <type>ejb</type>
+      <type>war</type>
     </dependency>
     <dependency>
       <groupId>org.jboss.pnc</groupId>
@@ -158,11 +158,11 @@
               <includeInApplicationXml>true</includeInApplicationXml>
               <bundleDir>/</bundleDir>
             </jarModule>
-            <ejbModule>
+            <webModule>
               <groupId>org.jboss.pnc</groupId>
               <artifactId>pnc-rest</artifactId>
               <bundleDir>/</bundleDir>
-            </ejbModule>
+            </webModule>
             <webModule>
               <groupId>org.jboss.pnc</groupId>
               <artifactId>pnc-web</artifactId>

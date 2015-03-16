@@ -14,7 +14,7 @@ import org.jboss.pnc.rest.endpoint.BuildConfigurationEndpoint;
 import org.jboss.pnc.rest.provider.BuildConfigurationProvider;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationRest;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
-import org.jboss.shrinkwrap.api.spec.JavaArchive;
+import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -34,15 +34,15 @@ public class BuildConfigurationRestTest {
 
     public static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-    private static final String PRODUCT_REST_ENDPOINT = "/pnc-web/rest/product/";
-    private static final String PRODUCT_VERSION_REST_ENDPOINT = "/pnc-web/rest/product/%d/version";
-    private static final String PROJECT_PRODUCT_VERSION_REST_ENDPOINT = "/pnc-web/rest/project/product/%d/version/%d";
-    private static final String PROJECT_REST_ENDPOINT = "/pnc-web/rest/project/%d";
-    private static final String CONFIGURATION_REST_ENDPOINT = "/pnc-web/rest/configuration/";
-    private static final String CONFIGURATION_SPECIFIC_REST_ENDPOINT = "/pnc-web/rest/configuration/%d";
-    private static final String CONFIGURATION_CLONE_REST_ENDPOINT = "/pnc-web/rest/configuration/%d/clone";
-    private static final String ENVIRONMENT_REST_ENDPOINT = "/pnc-web/rest/environment";
-    private static final String SPECIFIC_ENVIRONMENT_REST_ENDPOINT = "/pnc-web/rest/environment/%d";
+    private static final String PRODUCT_REST_ENDPOINT = "/pnc-rest/rest/product/";
+    private static final String PRODUCT_VERSION_REST_ENDPOINT = "/pnc-rest/rest/product/%d/version";
+    private static final String PROJECT_PRODUCT_VERSION_REST_ENDPOINT = "/pnc-rest/rest/project/product/%d/version/%d";
+    private static final String PROJECT_REST_ENDPOINT = "/pnc-rest/rest/project/%d";
+    private static final String CONFIGURATION_REST_ENDPOINT = "/pnc-rest/rest/configuration/";
+    private static final String CONFIGURATION_SPECIFIC_REST_ENDPOINT = "/pnc-rest/rest/configuration/%d";
+    private static final String CONFIGURATION_CLONE_REST_ENDPOINT = "/pnc-rest/rest/configuration/%d/clone";
+    private static final String ENVIRONMENT_REST_ENDPOINT = "/pnc-rest/rest/environment";
+    private static final String SPECIFIC_ENVIRONMENT_REST_ENDPOINT = "/pnc-rest/rest/environment/%d";
 
     private static int productId;
     private static int productVersionId;
@@ -57,10 +57,10 @@ public class BuildConfigurationRestTest {
     public static EnterpriseArchive deploy() {
         EnterpriseArchive enterpriseArchive = Deployments.baseEar();
 
-        JavaArchive restJar = enterpriseArchive.getAsType(JavaArchive.class, "/pnc-rest.jar");
-        restJar.addClass(BuildConfigurationProvider.class);
-        restJar.addClass(BuildConfigurationEndpoint.class);
-        restJar.addClass(BuildConfigurationRest.class);
+        WebArchive restWar = enterpriseArchive.getAsType(WebArchive.class, "/pnc-rest.war");
+        restWar.addClass(BuildConfigurationProvider.class);
+        restWar.addClass(BuildConfigurationEndpoint.class);
+        restWar.addClass(BuildConfigurationRest.class);
 
         logger.info(enterpriseArchive.toString(true));
         return enterpriseArchive;
@@ -180,7 +180,7 @@ public class BuildConfigurationRestTest {
         Response clonedBuildConfiguration = given().contentType(ContentType.JSON).port(getHttpPort()).when()
                 .get(String.format(CONFIGURATION_SPECIFIC_REST_ENDPOINT, clonedBuildConfigurationId));
 
-        ResponseAssertion.assertThat(response).hasStatus(201).hasLocationMatches(".*\\/pnc-web\\/rest\\/configuration\\/\\d+");
+        ResponseAssertion.assertThat(response).hasStatus(201).hasLocationMatches(".*\\/pnc-rest\\/rest\\/configuration\\/\\d+");
 
         assertThat(originalBuildConfiguration.body().jsonPath().getString("creationTime")).isNotEqualTo(
                 clonedBuildConfiguration.body().jsonPath().getString("creationTime"));

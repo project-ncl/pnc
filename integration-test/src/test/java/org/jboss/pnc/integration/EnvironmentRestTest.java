@@ -6,15 +6,15 @@ import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.junit.InSequence;
 import org.jboss.pnc.integration.Utils.ResponseUtils;
-import org.jboss.pnc.integration.deployments.Deployments;
 import org.jboss.pnc.integration.assertions.ResponseAssertion;
+import org.jboss.pnc.integration.deployments.Deployments;
 import org.jboss.pnc.model.BuildType;
 import org.jboss.pnc.model.OperationalSystem;
 import org.jboss.pnc.rest.endpoint.EnvironmentEndpoint;
 import org.jboss.pnc.rest.provider.EnvironmentProvider;
 import org.jboss.pnc.rest.restmodel.EnvironmentRest;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
-import org.jboss.shrinkwrap.api.spec.JavaArchive;
+import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -31,7 +31,7 @@ import static org.jboss.pnc.integration.env.IntegrationTestEnv.getHttpPort;
 @RunWith(Arquillian.class)
 public class EnvironmentRestTest {
 
-    private static final String ENVIRONMENT_REST_ENDPOINT = "/pnc-web/rest/environment/";
+    private static final String ENVIRONMENT_REST_ENDPOINT = "/pnc-rest/rest/environment/";
     private static final String ENVIRONMENT_REST_ENDPOINT_SPECIFIC = ENVIRONMENT_REST_ENDPOINT + "%d";
 
     public static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
@@ -42,10 +42,10 @@ public class EnvironmentRestTest {
     public static EnterpriseArchive deploy() {
         EnterpriseArchive enterpriseArchive = Deployments.baseEar();
 
-        JavaArchive restJar = enterpriseArchive.getAsType(JavaArchive.class, "/pnc-rest.jar");
-        restJar.addClass(EnvironmentProvider.class);
-        restJar.addClass(EnvironmentEndpoint.class);
-        restJar.addClass(EnvironmentRest.class);
+        WebArchive restWar = enterpriseArchive.getAsType(WebArchive.class, "/pnc-rest.war");
+        restWar.addClass(EnvironmentProvider.class);
+        restWar.addClass(EnvironmentEndpoint.class);
+        restWar.addClass(EnvironmentRest.class);
 
         logger.info(enterpriseArchive.toString(true));
         return enterpriseArchive;
@@ -63,7 +63,7 @@ public class EnvironmentRestTest {
         environmentId = ResponseUtils.getIdFromLocationHeader(response);
 
         //then
-        ResponseAssertion.assertThat(response).hasStatus(201).hasLocationMatches(".*\\/pnc-web\\/rest\\/environment\\/\\d+");
+        ResponseAssertion.assertThat(response).hasStatus(201).hasLocationMatches(".*\\/pnc-rest\\/rest\\/environment\\/\\d+");
         assertThat(environmentId).isNotNull();
     }
 

@@ -1,11 +1,13 @@
 package org.jboss.pnc.integration.deployments;
 
+import org.jboss.arquillian.container.test.api.Testable;
 import org.jboss.shrinkwrap.api.Archive;
 import org.jboss.shrinkwrap.api.GenericArchive;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.container.LibraryContainer;
 import org.jboss.shrinkwrap.api.importer.ZipImporter;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
+import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.jboss.shrinkwrap.resolver.api.maven.Maven;
 import org.jboss.shrinkwrap.resolver.api.maven.PomEquippedResolveStage;
 
@@ -15,23 +17,32 @@ import java.util.stream.Stream;
 public class Deployments {
 
     public static EnterpriseArchive baseEar() {
-        EnterpriseArchive webArchive = ShrinkWrap.create(EnterpriseArchive.class);
+        EnterpriseArchive ear = ShrinkWrap.create(EnterpriseArchive.class);
         PomEquippedResolveStage mavenResolver = Maven.resolver().loadPomFromFile(new File("pom.xml"));
 
-        addEar(webArchive, mavenResolver);
+        addEar(ear, mavenResolver);
 
-        return webArchive;
+        setTestableWar(ear);
+
+        return ear;
     }
 
     public static EnterpriseArchive baseEarWithTestDependencies() {
-        EnterpriseArchive webArchive = ShrinkWrap.create(EnterpriseArchive.class);
+        EnterpriseArchive ear = ShrinkWrap.create(EnterpriseArchive.class);
         PomEquippedResolveStage mavenResolver = Maven.resolver().loadPomFromFile(new File("pom.xml"));
 
-        addEar(webArchive, mavenResolver);
-        addAssertJ(webArchive, mavenResolver);
-        addRestAssured(webArchive, mavenResolver);
+        addEar(ear, mavenResolver);
+        addAssertJ(ear, mavenResolver);
+        addRestAssured(ear, mavenResolver);
 
-        return webArchive;
+        setTestableWar(ear);
+
+        return ear;
+    }
+
+    private static void setTestableWar(EnterpriseArchive ear) {
+        WebArchive restWar = ear.getAsType(WebArchive.class, "/pnc-rest.war");
+        ear.addAsModule(Testable.archiveToTest(restWar));
     }
 
     private static void addAssertJ(LibraryContainer<?> webArchive, PomEquippedResolveStage mavenResolver) {

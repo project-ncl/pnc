@@ -1,10 +1,7 @@
 package org.jboss.pnc.integration;
 
-import static com.jayway.restassured.RestAssured.given;
-import static org.jboss.pnc.integration.env.IntegrationTestEnv.getHttpPort;
-
-import java.lang.invoke.MethodHandles;
-
+import com.jayway.restassured.http.ContentType;
+import com.jayway.restassured.response.Response;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.junit.InSequence;
@@ -17,26 +14,28 @@ import org.jboss.pnc.rest.provider.BuildRecordProvider;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationRest;
 import org.jboss.pnc.rest.restmodel.BuildRecordRest;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
-import org.jboss.shrinkwrap.api.spec.JavaArchive;
+import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.jayway.restassured.http.ContentType;
-import com.jayway.restassured.response.Response;
+import java.lang.invoke.MethodHandles;
+
+import static com.jayway.restassured.RestAssured.given;
+import static org.jboss.pnc.integration.env.IntegrationTestEnv.getHttpPort;
 
 @RunWith(Arquillian.class)
 public class BuildRecordRestTest {
 
     public static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-    private static final String BUILD_RECORD_REST_ENDPOINT = "/pnc-web/rest/record/";
-    private static final String BUILD_RECORD_SPECIFIC_REST_ENDPOINT = "/pnc-web/rest/record/%d";
-    private static final String CONFIGURATION_SPECIFIC_REST_ENDPOINT = "/pnc-web/rest/configuration/%d";
-    private static final String BUILD_RECORD_NAME_REST_ENDPOINT = "/pnc-web/rest/record?q=name==%s";
-    private static final String BUILD_RECORD_PROJECT_REST_ENDPOINT = "/pnc-web/rest/record/project/%d";
-    private static final String BUILD_RECORD_PROJECT_BR_NAME_REST_ENDPOINT = "/pnc-web/rest/record/project/%d?q=name==%s";
+    private static final String BUILD_RECORD_REST_ENDPOINT = "/pnc-rest/rest/record/";
+    private static final String BUILD_RECORD_SPECIFIC_REST_ENDPOINT = "/pnc-rest/rest/record/%d";
+    private static final String CONFIGURATION_SPECIFIC_REST_ENDPOINT = "/pnc-rest/rest/configuration/%d";
+    private static final String BUILD_RECORD_NAME_REST_ENDPOINT = "/pnc-rest/rest/record?q=name==%s";
+    private static final String BUILD_RECORD_PROJECT_REST_ENDPOINT = "/pnc-rest/rest/record/project/%d";
+    private static final String BUILD_RECORD_PROJECT_BR_NAME_REST_ENDPOINT = "/pnc-rest/rest/record/project/%d?q=name==%s";
 
     private static int buildRecordId;
     private static int configurationId;
@@ -47,13 +46,13 @@ public class BuildRecordRestTest {
     public static EnterpriseArchive deploy() {
         EnterpriseArchive enterpriseArchive = Deployments.baseEar();
 
-        JavaArchive restJar = enterpriseArchive.getAsType(JavaArchive.class, "/pnc-rest.jar");
-        restJar.addClass(BuildConfigurationProvider.class);
-        restJar.addClass(BuildConfigurationEndpoint.class);
-        restJar.addClass(BuildConfigurationRest.class);
-        restJar.addClass(BuildRecordProvider.class);
-        restJar.addClass(BuildRecordEndpoint.class);
-        restJar.addClass(BuildRecordRest.class);
+        WebArchive restWar = enterpriseArchive.getAsType(WebArchive.class, "/pnc-rest.war");
+        restWar.addClass(BuildConfigurationProvider.class);
+        restWar.addClass(BuildConfigurationEndpoint.class);
+        restWar.addClass(BuildConfigurationRest.class);
+        restWar.addClass(BuildRecordProvider.class);
+        restWar.addClass(BuildRecordEndpoint.class);
+        restWar.addClass(BuildRecordRest.class);
 
         logger.info(enterpriseArchive.toString(true));
         return enterpriseArchive;

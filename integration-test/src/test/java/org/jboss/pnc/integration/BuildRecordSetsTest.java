@@ -1,12 +1,5 @@
 package org.jboss.pnc.integration;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
-import java.lang.invoke.MethodHandles;
-import java.util.List;
-
-import javax.inject.Inject;
-
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.junit.InSequence;
@@ -27,6 +20,12 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.inject.Inject;
+import java.lang.invoke.MethodHandles;
+import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(Arquillian.class)
 public class BuildRecordSetsTest {
@@ -52,7 +51,7 @@ public class BuildRecordSetsTest {
     @Deployment
     public static EnterpriseArchive deploy() {
         EnterpriseArchive enterpriseArchive = Deployments.baseEarWithTestDependencies();
-        WebArchive war = enterpriseArchive.getAsType(WebArchive.class, "/pnc-web.war");
+        WebArchive war = enterpriseArchive.getAsType(WebArchive.class, "/pnc-rest.war");
         war.addClass(BuildRecordSetsTest.class);
         logger.info(enterpriseArchive.toString(true));
         return enterpriseArchive;
