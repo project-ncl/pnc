@@ -15,8 +15,6 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static org.jboss.pnc.datastore.predicates.ProjectPredicates.withProductId;
-import static org.jboss.pnc.datastore.predicates.ProjectPredicates.withProductVersionId;
 import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
 
 @Stateless
@@ -40,7 +38,6 @@ public class ProjectProvider {
     public List<ProjectRest> getAll(int pageIndex, int pageSize, String sortingRsql, String query) {
         RSQLPredicate filteringCriteria = RSQLPredicateProducer.fromRSQL(Project.class, query);
         Pageable paging = RSQLPageLimitAndSortingProducer.fromRSQL(pageSize, pageIndex, sortingRsql);
-
         return nullableStreamOf(projectRepository.findAll(filteringCriteria.get(), paging))
                 .map(toRestModel())
                 .collect(Collectors.toList());
@@ -71,16 +68,4 @@ public class ProjectProvider {
         return project -> new ProjectRest(project);
     }
 
-    public List<ProjectRest> getAllForProductAndProductVersion(int pageIndex, int pageSize, String sortingRsql, String query,
-            Integer productId, Integer versionId) {
-        RSQLPredicate filteringCriteria = RSQLPredicateProducer.fromRSQL(Project.class, query);
-        Pageable paging = RSQLPageLimitAndSortingProducer.fromRSQL(pageSize, pageIndex, sortingRsql);
-
-        return nullableStreamOf(projectRepository.findAll(
-                withProductId(productId)
-                        .and(withProductVersionId(versionId))
-                        .and(filteringCriteria.get()), paging))
-                .map(toRestModel())
-                .collect(Collectors.toList());
-    }
 }

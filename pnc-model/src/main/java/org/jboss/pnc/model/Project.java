@@ -36,9 +36,6 @@ public class Project implements Serializable {
     @ManyToOne
     private License license;
 
-    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL)
-    private Set<ProductVersionProject> productVersionProjects;
-
     @OneToMany(mappedBy = "project")
     private Set<BuildConfiguration> buildConfigurations;
 
@@ -46,7 +43,6 @@ public class Project implements Serializable {
      * Instantiates a new project.
      */
     public Project() {
-        productVersionProjects = new HashSet<>();
         buildConfigurations = new HashSet<>();
     }
 
@@ -149,44 +145,6 @@ public class Project implements Serializable {
     }
 
     /**
-     * @return the productVersionProjects
-     */
-    public Set<ProductVersionProject> getProductVersionProjects() {
-        return productVersionProjects;
-    }
-
-    /**
-     * @param productVersionProjects the productVersionProjects to set
-     */
-    public void setProductVersionProjects(Set<ProductVersionProject> productVersionProjects) {
-        this.productVersionProjects = productVersionProjects;
-    }
-
-    /**
-     * Add a productVersionProject to the set of productVersionProjects
-     *
-     * @param productVersionProject
-     * @return
-     */
-    public Set<ProductVersionProject> addProductVersionProject(ProductVersionProject productVersionProject) {
-        productVersionProjects.add(productVersionProject);
-
-        return productVersionProjects;
-    }
-
-    /**
-     * Remove a productVersionProject from the set of productVersionProjects
-     *
-     * @param productVersionProject
-     * @return
-     */
-    public Set<ProductVersionProject> removeProductVersionProject(ProductVersionProject productVersionProject) {
-        productVersionProjects.remove(productVersionProject);
-
-        return productVersionProjects;
-    }
-
-    /**
      * Add a buildConfiguration to the set of buildConfigurations
      *
      * @param configuration
@@ -229,12 +187,9 @@ public class Project implements Serializable {
 
         private License license;
 
-        private Set<ProductVersionProject> productVersionProjects;
-
         private Set<BuildConfiguration> buildConfigurations;
 
         private Builder() {
-            productVersionProjects = new HashSet<>();
             buildConfigurations = new HashSet<>();
         }
 
@@ -251,12 +206,6 @@ public class Project implements Serializable {
             project.setIssueTrackerUrl(issueTrackerUrl);
             project.setProjectUrl(projectUrl);
             project.setLicense(license);
-
-            // Set the bi-directional mapping
-            for (ProductVersionProject productVersionProject : productVersionProjects) {
-                productVersionProject.setProject(project);
-            }
-            project.setProductVersionProjects(productVersionProjects);
 
             // Set the bi-directional mapping
             for (BuildConfiguration buildConfiguration : buildConfigurations) {
@@ -297,18 +246,8 @@ public class Project implements Serializable {
             return this;
         }
 
-        public Builder productVersionProject(ProductVersionProject productVersionProject) {
-            this.productVersionProjects.add(productVersionProject);
-            return this;
-        }
-
         public Builder buildConfiguration(BuildConfiguration buildConfiguration) {
             this.buildConfigurations.add(buildConfiguration);
-            return this;
-        }
-
-        public Builder productVersionProjects(Set<ProductVersionProject> productVersionProjects) {
-            this.productVersionProjects = productVersionProjects;
             return this;
         }
 
@@ -319,6 +258,30 @@ public class Project implements Serializable {
 
         public String getName() {
             return name;
+        }
+
+        public Integer getId() {
+            return id;
+        }
+
+        public String getDescription() {
+            return description;
+        }
+
+        public String getIssueTrackerUrl() {
+            return issueTrackerUrl;
+        }
+
+        public String getProjectUrl() {
+            return projectUrl;
+        }
+
+        public License getLicense() {
+            return license;
+        }
+
+        public Set<BuildConfiguration> getBuildConfigurations() {
+            return buildConfigurations;
         }
 
     }
