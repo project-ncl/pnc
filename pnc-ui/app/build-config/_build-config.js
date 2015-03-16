@@ -266,6 +266,68 @@
           }
         }
       });
+
+    $stateProvider.state('build-config.product.show.version.show.configurationSet', {
+      url: '/configuration-set',
+      abstract: true
+    });
+
+    $stateProvider.state(
+      'build-config.product.show.version.show.configurationSet.show', {
+        url: '/{configurationSetId:int}',
+        resolve: {
+          restClient: 'PncRestClient',
+          configurationSetDetails: function(restClient, $stateParams) {
+            return restClient.ConfigurationSet.get({
+              configurationSetId: $stateParams.configurationSetId
+            }).$promise;
+          }
+        },
+        views:{
+          'content@build-config': {
+            templateUrl: 'build-config/views/configuration-set.show.html',
+            controller: 'ConfigurationSetShowController'
+          }
+        }
+      });
+
+    $stateProvider.state(
+      'build-config.product.show.version.show.configurationSet.show.configuration', {
+        url: '/configuration',
+        abstract: true
+      });
+
+    $stateProvider.state(
+      'build-config.product.show.version.show.configurationSet.show.configuration.show', {
+        url: '/{configurationId:int}',
+        resolve: {
+          restClient: 'PncRestClient',
+          configurationDetails: function(restClient, $stateParams) {
+            return restClient.Configuration.get({
+              configurationId: $stateParams.configurationId }).$promise;
+          },
+          environmentDetails: function(restClient, $stateParams,
+                                       configurationDetails) {
+            return restClient.Environment.get({
+              environmentId: configurationDetails.environmentId  }).$promise;
+          },
+          projectDetails: function(restClient, $stateParams,
+                                       configurationDetails) {
+            return restClient.Project.get({
+              projectId: configurationDetails.projectId }).$promise;
+          },
+          buildRecords: function(restClient, $stateParams) {
+            return restClient.Record.getAllForConfiguration({
+              configurationId: $stateParams.configurationId }).$promise;
+          },
+        },
+        views: {
+          'content@build-config': {
+            templateUrl: 'build-config/views/configuration.show.html',
+            controller: 'ConfigurationShowController'
+          }
+        }
+      });
   }]);
 
 })();

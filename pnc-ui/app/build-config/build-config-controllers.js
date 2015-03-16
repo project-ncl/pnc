@@ -120,17 +120,17 @@
         productCol
       );
 
-      var projectCol = newColumn(
-        function(project) {
-          console.log('projectCol >> selected: %O', project);
-          $state.go('build-config.product.show.version.show.project.show', {
-            projectId: project.id,
+      var configurationSetCol = newColumn(
+        function(configurationSet) {
+          console.log('configurationSetCol >> selected: %O', configurationSet);
+          $state.go('build-config.product.show.version.show.configurationSet.show', {
+            configurationSetId: configurationSet.id,
             versionId: versionCol.selected.id,
             productId: versionCol.parent.selected.id });
         },
         function() {
-          console.log('projectCol.updateList >> versionCol = %O', versionCol);
-          return PncRestClient.Project.getAllForProductVersion({
+          console.log('configurationSetCol.updateList >> versionCol = %O', versionCol);
+          return PncRestClient.ConfigurationSet.getAllForProductVersion({
             productId: versionCol.parent.selected.id,
             versionId: versionCol.selected.id,
           });
@@ -141,19 +141,19 @@
       var configurationCol = newColumn(
         function(buildConfig) {
           console.log('configurationCol >> selected: %O', buildConfig);
-          $state.go('build-config.product.show.version.show.project.show.configuration.show', {
+          $state.go('build-config.product.show.version.show.configurationSet.show.configuration.show', {
             configurationId: buildConfig.id,
-            projectId: projectCol.selected.id,
-            versionId: projectCol.parent.selected.id,
-            productId: projectCol.parent.parent.selected.id });
+            configurationSetId: configurationSetCol.selected.id,
+            versionId: configurationSetCol.parent.selected.id,
+            productId: configurationSetCol.parent.parent.selected.id });
         },
         function() {
-          console.log('configurationCol.updateList >> projectCol = %O', projectCol);
-          return PncRestClient.Configuration.getAllForProject({
-            projectId: projectCol.selected.id
+          console.log('configurationCol.updateList >> configurationSetCol = %O', configurationSetCol);
+          return PncRestClient.Configuration.getAllForConfigurationSet({
+            configurationSetId: configurationSetCol.selected.id
           });
         },
-        projectCol
+        configurationSetCol
       );
 
       // Add columns to scope so can be accessed in the view and
@@ -161,7 +161,7 @@
       $scope.columnBrowse = {
         products: productCol,
         versions: versionCol,
-        projects: projectCol,
+        configurationSets: configurationSetCol,
         configurations: configurationCol
       };
 
@@ -211,28 +211,28 @@
     }
   ]);
 
-  module.controller('ProjectListController', [
-    '$scope', '$stateParams', 'projectList',
-    function ($scope, $stateParams, projectList) {
-      console.log('ProjectListController::versionList=%O', projectList);
-      console.log('ProjectListController::$stateParams=%O', $stateParams);
-      $scope.projects = projectList;
+  module.controller('ConfigurationSetListController', [
+    '$scope', '$stateParams', 'configurationSetList',
+    function ($scope, $stateParams, configurationSetList) {
+      console.log('ConfigurationSetListController::versionList=%O', configurationSetList);
+      console.log('ConfigurationSetListController::$stateParams=%O', $stateParams);
+      $scope.configurationSets = configurationSetList;
     }
   ]);
 
-  module.controller('ProjectShowController', [
-    '$scope', '$stateParams', '$state', 'projectDetails', 'versionDetails',
+  module.controller('ConfigurationSetShowController', [
+    '$scope', '$stateParams', '$state', 'configurationSetDetails', 'versionDetails',
     'productDetails',
-    function($scope, $stateParams, $state, projectDetails, versionDetails,
+    function($scope, $stateParams, $state, configurationSetDetails, versionDetails,
              productDetails) {
 
-      $scope.project = projectDetails;
+      $scope.configurationSet = configurationSetDetails;
       $scope.version = versionDetails;
       $scope.product = productDetails;
 
       $scope.columnBrowse.products.setSelected(productDetails);
       $scope.columnBrowse.versions.setSelected(versionDetails);
-      $scope.columnBrowse.projects.setSelected(projectDetails);
+      $scope.columnBrowse.configurationSets.setSelected(configurationSetDetails);
     }
   ]);
 
@@ -255,7 +255,7 @@
     'Notifications', 'projectDetails', 'environmentDetails',
     'configurationDetails', 'buildRecords',
     function($scope, $stateParams, $state, $log, PncRestClient, Notifications,
-             projectDetails, environmentDetails, configurationDetails, buildRecords) {
+    		projectDetails, environmentDetails, configurationDetails, buildRecords) {
 
       $scope.project = projectDetails;
       $scope.environment = environmentDetails;
