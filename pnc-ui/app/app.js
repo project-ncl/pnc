@@ -29,4 +29,15 @@
       $urlRouterProvider.otherwise('/error');
     }
   ]);
+
+  app.run(['$rootScope', '$log',
+    function($rootScope, $log) {
+      $rootScope.$on('$stateChangeError',
+        function(event, toState, toParams, fromState, fromParams, error) {
+          $log.debug('Caught $stateChangeError: arguments=%O', arguments);
+        }
+      );
+    }
+  ]);
+
 })();
