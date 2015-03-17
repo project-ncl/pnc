@@ -12,6 +12,8 @@ import org.jboss.pnc.rest.restmodel.BuildConfigurationSetRest;
 import org.jboss.pnc.rest.restmodel.BuildRecordSetRest;
 import org.springframework.data.domain.Pageable;
 
+import com.google.common.base.Preconditions;
+
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 
@@ -76,6 +78,18 @@ public class BuildConfigurationSetProvider {
         BuildConfigurationSet buildConfigurationSet = buildConfigurationSetRest.toBuildConfigurationSet();
         buildConfigurationSet = buildConfigurationSetRepository.save(buildConfigurationSet);
         return buildConfigurationSet.getId();
+    }
+
+    public Integer update(BuildConfigurationSetRest buildConfigurationSetRest) {
+        BuildConfigurationSet buildConfigurationSet = buildConfigurationSetRepository.findOne(buildConfigurationSetRest.getId());
+        Preconditions.checkArgument(buildConfigurationSet != null, "Couldn't find buildConfigurationSet with id "
+                + buildConfigurationSetRest.getId());
+        buildConfigurationSet = buildConfigurationSetRepository.save(buildConfigurationSetRest.toBuildConfigurationSet(buildConfigurationSet));
+        return buildConfigurationSet.getId();
+    }
+
+    public void delete(Integer configurationSetId) {
+        buildConfigurationSetRepository.delete(configurationSetId);
     }
 
     private Function<BuildConfiguration, BuildConfigurationRest> buildConfigToRestModel() {

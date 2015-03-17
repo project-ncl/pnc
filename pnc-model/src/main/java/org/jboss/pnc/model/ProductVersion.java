@@ -218,6 +218,8 @@ public class ProductVersion implements Serializable {
 
         private BuildRecordSet buildRecordSet;
 
+        private Set<BuildConfigurationSet> buildConfigurationSets = new HashSet<>();
+
         private Builder() {
         }
 
@@ -233,6 +235,12 @@ public class ProductVersion implements Serializable {
             productVersion.setSupported(supported);
             productVersion.setInternalDownloadUrl(internalDownloadUrl);
             productVersion.setBuildRecordSet(buildRecordSet);
+
+            // Set the bi-directional mapping
+            for (BuildConfigurationSet buildConfigurationSet : buildConfigurationSets) {
+                buildConfigurationSet.setProductVersion(productVersion);
+            }
+            productVersion.setBuildConfigurationSets(buildConfigurationSets);
 
             if (product != null) {
                 product.addVersion(productVersion);

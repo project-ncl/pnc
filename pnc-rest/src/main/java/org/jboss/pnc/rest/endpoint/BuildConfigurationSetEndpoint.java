@@ -7,9 +7,11 @@ import javax.inject.Inject;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -76,6 +78,24 @@ public class BuildConfigurationSetEndpoint {
     public BuildConfigurationSetRest getSpecific(
             @ApiParam(value = "Build Configuration Set id", required = true) @PathParam("id") Integer id) {
         return buildConfigurationSetProvider.getSpecific(id);
+    }
+
+    @ApiOperation(value = "Updates an existing Build Configuration Set")
+    @PUT
+    @Path("/{id}")
+    public Response update(@ApiParam(value = "Build Configuration Set id", required = true) @PathParam("id") Integer id,
+            @NotNull @Valid BuildConfigurationSetRest buildConfigurationSetRest, @Context UriInfo uriInfo) {
+        buildConfigurationSetRest.setId(id);
+        buildConfigurationSetProvider.update(buildConfigurationSetRest);
+        return Response.ok().build();
+    }
+
+    @ApiOperation(value = "Removes a specific Build Configuration Set")
+    @DELETE
+    @Path("/{id}")
+    public Response deleteSpecific(@ApiParam(value = "Build Configuration Set id", required = true) @PathParam("id") Integer id) {
+        buildConfigurationSetProvider.delete(id);
+        return Response.ok().build();
     }
 
     @ApiOperation(value = "Gets the Configurations for the Specified Set")

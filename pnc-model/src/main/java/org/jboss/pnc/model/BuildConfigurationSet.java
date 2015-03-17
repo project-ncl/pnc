@@ -53,7 +53,7 @@ public class BuildConfigurationSet implements Serializable {
 
     private String name;
 
-    @ManyToOne(cascade = { CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH })
+    @ManyToOne(cascade = { CascadeType.REFRESH, CascadeType.DETACH })
     private ProductVersion productVersion;
 
     @ManyToMany
