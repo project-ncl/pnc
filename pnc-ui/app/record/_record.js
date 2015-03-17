@@ -18,7 +18,7 @@
       url: '/record',
       views: {
         'content@': {
-          templateUrl: '/common/templates/single-col-center.tmpl.html'
+          templateUrl: 'common/templates/single-col-center.tmpl.html'
         }
       }
     });

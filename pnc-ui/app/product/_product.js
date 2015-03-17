@@ -13,14 +13,14 @@
       abstract: true,
       views: {
         'content@': {
-          templateUrl: '/common/templates/single-col-center.tmpl.html'
+          templateUrl: 'common/templates/single-col-center.tmpl.html'
         }
       }
     });
 
     $stateProvider.state('product.list', {
       url: '/product',
-      templateUrl: '/product/views/product.list.html',
+      templateUrl: 'product/views/product.list.html',
       controller: 'ProductListController',
       controllerAs: 'listCtrl',
       resolve: {
