@@ -53,6 +53,12 @@
         },{
           update: {
             method: 'PUT',
+          },
+          getAllForProductVersion: {
+            method: 'GET',
+            url: REST_DEFAULTS.BASE_URL +
+            '/project/product/:productId/version/:versionId',
+            isArray: true,
           }
         }),
 
@@ -85,31 +91,18 @@
             url: REST_DEFAULTS.BASE_URL + '/configuration/product/:productId',
             isArray: true,
           },
+          getAllForProductVersion: {
+            method: 'GET',
+            url: REST_DEFAULTS.BASE_URL +
+            '/configuration/product/:productId/version/:versionId',
+            isArray: true,
+          },
           getAllForProject: {
            method: 'GET',
            url: REST_DEFAULTS.BASE_URL + '/configuration/project/:projectId',
            isArray: true,
           },
-          getAllForConfigurationSet: {
-            method: 'GET',
-            url: REST_DEFAULTS.BASE_URL + '/configuration-set/:configurationSetId/configurations',
-            isArray: true,
-          }
         }),
-
-        ConfigurationSet: $resource(REST_DEFAULTS.BASE_URL + '/configuration-set/:configurationSetId', {
-        	configurationSetId: '@id'
-          },{
-            update: {
-              method: 'PUT',
-            },
-            getAllForProductVersion: {
-              method: 'GET',
-              url: REST_DEFAULTS.BASE_URL +
-              '/product/:productId/version/:versionId/configuration-sets',
-              isArray: true,
-            }
-          }),
 
         Record: $resource(REST_DEFAULTS.BASE_URL + '/record/:recordId', {
           recordId: '@id'
