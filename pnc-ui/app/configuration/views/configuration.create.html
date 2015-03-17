@@ -1,0 +1,86 @@
+<div>
+  <div class="page-header">
+    <h1>Create Build Configuration</h1>
+  </div>
+
+  <form class="form-horizontal" name="configurationForm" ng-submit="createCtrl.submit()">
+    <div class="form-group">
+      <label for="input-name" class="col-sm-2 control-label">Name</label>
+      <div class="col-sm-10">
+      <input id="input-name" class="form-control" name="name" ng-model="createCtrl.data.name" required>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="input-project" class="col-sm-2 control-label">Project</label>
+      <div class="col-sm-10">
+      <select ng-model="createCtrl.data.projectId">
+      <option ng-repeat="project in createCtrl.projects" value="{{ project.id }}">
+            {{ project.name }}
+          </option>
+        </select>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="input-description" class="col-sm-2 control-label">Description</label>
+      <div class="col-sm-10">
+      <textarea id="input-description" class="form-control" name="description" ng-model="createCtrl.data.description"></textarea>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="input-scm-repo-url" class="col-sm-2 control-label">SCM Url</label>
+      <div class="col-sm-10">
+      <input id="input-scm-repo-url" class="form-control" name="scmRepoURL" ng-model="createCtrl.data.scmRepoURL">
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="input-scm-revision" class="col-sm-2 control-label">SCM Revision</label>
+      <div class="col-sm-10">
+      <input id="input-scm-revision" class="form-control" name="scmRevision" ng-model="createCtrl.data.scmRevision">
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="input-patches-url" class="col-sm-2 control-label">Patches Url</label>
+      <div class="col-sm-10">
+      <input id="input-patches-url" class="form-control" name="patchesUrl" ng-model="createCtrl.data.patchesUrl">
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="input-build-script" class="col-sm-2 control-label">Build Script</label>
+      <div class="col-sm-10">
+      <textarea id="input-build-script" class="form-control" name="buildScript" spellcheck="false" ng-model="createCtrl.data.buildScript"></textarea>
+      </div>
+    </div>
+
+      <!--<div class="form-group">
+        <label for="input-repositories" class="col-sm-2 control-label">Repositories</label>
+        <div class="col-sm-10">
+          <input id="input-repositories" class="form-control" name="repositories" ng-model="createCtrl.data.repositories">
+        </div>
+      </div>-->
+
+      <div class="form-group">
+        <label for="input-environment" class="col-sm-2 control-label">Environment</label>
+        <div class="col-sm-10">
+        <select ng-model="createCtrl.data.environmentId">
+        <option ng-repeat="environment in createCtrl.environments" value="{{ environment.id }}">
+              {{ environment.operationalSystem + ' / ' + environment.buildType }}
+            </option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <div class="col-sm-offset-2 col-sm-10">
+          <input type="submit" class="btn btn-primary" value="Create">
+          <input type="reset" class="btn btn-default" value="Clear">
+        </div>
+      </div>
+    </form>
+  </div>
+

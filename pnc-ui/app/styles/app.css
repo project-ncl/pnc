@@ -17,6 +17,9 @@ body {
     width: 100%;
     height: 60px;
     text-align: center;
+    background-color: #fafafa;
+    border-top: 1px solid #e9e9e9;
+    padding-top: 1rem;
 }
 /* navbar background */
 .navbar-header {
@@ -83,4 +86,8 @@ ul.pagination.pull-right {
 
 .push-down {
   margin-top: 3rem;
+}
+
+.full-height {
+  min-height: 560px;
 }
