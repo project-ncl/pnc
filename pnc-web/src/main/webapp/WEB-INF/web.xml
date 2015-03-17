@@ -12,20 +12,10 @@
         </web-resource-collection>
         <auth-constraint>
             <role-name>pnc-admin</role-name>
-        </auth-constraint>
-    </security-constraint>
-    
-    <security-constraint>
-        <web-resource-collection>
-            <web-resource-name>pnc-web</web-resource-name>
-            <url-pattern>/pnc-web/#!/build-config/configuration/*</url-pattern>
-        </web-resource-collection>
-        <auth-constraint>
             <role-name>pnc-user</role-name>
         </auth-constraint>
     </security-constraint>
     
-
     <login-config>
         <auth-method>KEYCLOAK</auth-method>
         <realm-name>this is ignored currently</realm-name>
