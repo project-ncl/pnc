@@ -45,7 +45,8 @@ class BuildJobConfig {
 
     private String readConfigTemplate() throws BuildDriverException {
             try {
-                return IoUtils.readFileOrResource("jenkins-job-template", "jenkins-job-template.xml", getClass().getClassLoader());
+                //return IoUtils.readFileOrResource("jenkins-job-template", "jenkins-job-template.xml", getClass().getClassLoader());
+                return IoUtils.readFileOrResource("jenkins-job-template", "freeform-job-template.xml", getClass().getClassLoader());
             } catch (IOException e) {
                 throw new BuildDriverException("Cannot load config template.", e);
             }
