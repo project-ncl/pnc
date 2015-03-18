@@ -29,7 +29,7 @@ Environment variables, which can be used to set up application:
 * `PNC_DOCKER_CONT_USER` - User account in image used in Docker
 * `PNC_DOCKER_CONT_PASSWORD` - User's password set up by variable `PNC_DOCKER_CONT_USER`
 * `PNC_DOCKER_IMAGE_ID` - ImageID of image on Docker host
-* `PNC_DOCKER_IMAGE_FIREWALL_ALLOWED` - List of allowed destinations by firewall in Docker container. Format: <IPv4>:<Port>(,<IPv4>:<Port>)+
+* `PNC_DOCKER_IMAGE_FIREWALL_ALLOWED` - List of allowed destinations by firewall in Docker container. <br /> Format: \<IPv4>:\<Port>(,\<IPv4>:\<Port>)+
 
 
 Set up of Docker host
@@ -46,8 +46,7 @@ Steps to set up Docker daemon:
     ListenStream=2375 <br />
     Service=docker.service <br /><br />
     [Install] <br />
-    WantedBy=sockets.target <br /> 
-
+    WantedBy=sockets.target 
 2. Enable `docker-tcp` service: Run `sudo systemctl enable docker-tcp.socket`
 3. Start `docker-tcp` service: Run `sudo systemctl start docker-tcp.socket`
 4. Start `docker` service: Run `sudo systemctl start docker`
