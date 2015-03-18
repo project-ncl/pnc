@@ -2,7 +2,7 @@ package org.jboss.pnc.spi.environment;
 
 import org.jboss.pnc.model.Environment;
 import org.jboss.pnc.spi.environment.exception.EnvironmentDriverException;
-import org.jboss.pnc.spi.repositorymanager.model.RepositoryConfiguration;
+import org.jboss.pnc.spi.repositorymanager.model.RepositorySession;
 
 /**
  * SPI interface for Environment driver, which provides support
@@ -17,13 +17,13 @@ public interface EnvironmentDriver {
      * Creates and starts new clean environment.
      * 
      * @param environment Specification of requested environment
-     * @param repositoryConfiguration Configuration of repository to store built artifacts
+     * @param repositorySession Configuration of repository to store built artifacts
      * 
      * @return Identification of a new started environment
      * @throws EnvironmentDriverException Thrown if any error occurs during starting new environment
      */
     RunningEnvironment buildEnvironment(Environment buildEnvironment,
-            RepositoryConfiguration repositoryConfiguration) throws EnvironmentDriverException;
+            RepositorySession repositorySession) throws EnvironmentDriverException;
 
     /**
      * Test if selected driver can build requested environment

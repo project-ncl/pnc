@@ -29,7 +29,7 @@ import org.jboss.pnc.spi.environment.RunningEnvironment;
 import org.jboss.pnc.spi.environment.exception.EnvironmentDriverException;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerException;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
-import org.jboss.pnc.spi.repositorymanager.model.RepositoryConfiguration;
+import org.jboss.pnc.spi.repositorymanager.model.RepositorySession;
 import org.jboss.pnc.spi.repositorymanager.model.RepositoryConnectionInfo;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.asset.EmptyAsset;
@@ -122,7 +122,7 @@ public class JenkinsDriverRemoteTest {
     }
 
     private RunningEnvironment getRunningEnvironment() {
-        final RepositoryConfiguration repositoryConfiguration = getRepositoryConfiguration();
+        final RepositorySession repositoryConfiguration = getRepositoryConfiguration();
         return new RunningEnvironment() {
             
             @Override
@@ -137,7 +137,7 @@ public class JenkinsDriverRemoteTest {
             }
             
             @Override
-            public RepositoryConfiguration getRepositoryConfiguration() {
+            public RepositorySession getRepositorySession() {
                 return repositoryConfiguration;
             }
             
@@ -163,8 +163,8 @@ public class JenkinsDriverRemoteTest {
         };
     }
 
-    private RepositoryConfiguration getRepositoryConfiguration() {
-        return new RepositoryConfiguration() {
+    private RepositorySession getRepositoryConfiguration() {
+        return new RepositorySession() {
             @Override
             public RepositoryType getType() {
                 return RepositoryType.MAVEN;

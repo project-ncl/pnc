@@ -10,7 +10,7 @@ import org.jboss.pnc.model.OperationalSystem;
 import org.jboss.pnc.spi.environment.EnvironmentDriver;
 import org.jboss.pnc.spi.environment.RunningEnvironment;
 import org.jboss.pnc.spi.environment.exception.EnvironmentDriverException;
-import org.jboss.pnc.spi.repositorymanager.model.RepositoryConfiguration;
+import org.jboss.pnc.spi.repositorymanager.model.RepositorySession;
 import org.jclouds.ContextBuilder;
 import org.jclouds.compute.ComputeServiceContext;
 import org.jclouds.docker.DockerApi;
@@ -130,7 +130,7 @@ public class DockerEnvironmentDriver implements EnvironmentDriver {
 
     @Override
     public RunningEnvironment buildEnvironment(Environment buildEnvironment,
-            RepositoryConfiguration repositoryConfiguration) throws EnvironmentDriverException {
+            RepositorySession repositorySession) throws EnvironmentDriverException {
         if (!canBuildEnvironment(buildEnvironment))
             throw new UnsupportedOperationException(
                     "DockerEnvironmentDriver currently provides support only for Linux enviroments on Docker.");
@@ -163,9 +163,9 @@ public class DockerEnvironmentDriver implements EnvironmentDriver {
             jenkinsPort = getJenkinsPort(containerPortMappings);
 
             copyFileToContainer(sshPort, "/root/.m2/settings.xml",
-                    configBuilder.createMavenConfig(repositoryConfiguration.getConnectionInfo()
+                    configBuilder.createMavenConfig(repositorySession.getConnectionInfo()
                             .getDependencyUrl(),
-                            repositoryConfiguration.getConnectionInfo().getDeployUrl()), null);
+                            repositorySession.getConnectionInfo().getDeployUrl()), null);
             
             // Wait until Jenkins is fully up and running
             waitToInitServices("http://" + dockerIp + ":" + jenkinsPort);
@@ -184,7 +184,7 @@ public class DockerEnvironmentDriver implements EnvironmentDriver {
                 + ", SSH port: " + sshPort + ", Jenkins Port: " + jenkinsPort);
 
 
-        return new DockerRunningEnvironment(this, repositoryConfiguration, containerId, jenkinsPort, sshPort,
+        return new DockerRunningEnvironment(this, repositorySession, containerId, jenkinsPort, sshPort,
                 "http://" + dockerIp);
     }
 

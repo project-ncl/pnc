@@ -1,16 +1,5 @@
 package org.jboss.pnc.mavenrepositorymanager;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-
 import org.commonjava.aprox.client.core.Aprox;
 import org.commonjava.aprox.client.core.AproxClientException;
 import org.commonjava.aprox.folo.client.AproxFoloAdminClientModule;
@@ -20,28 +9,26 @@ import org.commonjava.aprox.model.core.HostedRepository;
 import org.commonjava.aprox.model.core.StoreKey;
 import org.commonjava.aprox.model.core.StoreType;
 import org.commonjava.aprox.promote.client.AproxPromoteClientModule;
-import org.jboss.pnc.common.Configuration;
-import org.commonjava.aprox.promote.model.PromoteRequest;
-import org.commonjava.aprox.promote.model.PromoteResult;
-import org.commonjava.maven.atlas.ident.ref.ArtifactRef;
-import org.commonjava.maven.atlas.ident.util.ArtifactPathInfo;
 import org.jboss.logging.Logger;
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.moduleconfig.MavenRepoDriverModuleConfig;
 import org.jboss.pnc.model.Artifact;
-import org.jboss.pnc.model.ArtifactStatus;
-import org.jboss.pnc.model.BuildRecordSet;
 import org.jboss.pnc.model.BuildConfiguration;
+import org.jboss.pnc.model.BuildRecord;
+import org.jboss.pnc.model.BuildRecordSet;
 import org.jboss.pnc.model.ProductVersion;
 import org.jboss.pnc.model.RepositoryType;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManager;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerException;
-import org.jboss.pnc.spi.repositorymanager.model.RepositoryConfiguration;
+import org.jboss.pnc.spi.repositorymanager.model.RepositorySession;
+import org.jboss.pnc.spi.repositorymanager.model.RunningRepositoryPromotion;
 
+import java.util.List;
+
+import javax.annotation.PreDestroy;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import java.util.Properties;
 
 /**
  * Implementation of {@link RepositoryManager} that manages an <a href="https://github.com/jdcasey/aprox">AProx</a> instance to
@@ -74,6 +61,7 @@ public class RepositoryManagerDriver implements RepositoryManager {
     public RepositoryManagerDriver() { // workaround for CDI constructor parameter injection bug
     }
 
+    @SuppressWarnings("resource")
     @Inject
     public RepositoryManagerDriver(Configuration<MavenRepoDriverModuleConfig> configuration) {
         MavenRepoDriverModuleConfig config;
@@ -87,11 +75,17 @@ public class RepositoryManagerDriver implements RepositoryManager {
             if (!baseUrl.endsWith("/api")) {
                 baseUrl += "/api";
             }
+
             aprox = new Aprox(baseUrl, new AproxFoloAdminClientModule(), new AproxFoloContentClientModule(),
                     new AproxPromoteClientModule()).connect();
         } catch (ConfigurationParseException e) {
             log.error("Cannot read configuration for " + RepositoryManagerDriver.DRIVER_ID + ".", e);
         }
+    }
+
+    @PreDestroy
+    public void shutdown() {
+        aprox.close();
     }
 
     /**
@@ -103,17 +97,15 @@ public class RepositoryManagerDriver implements RepositoryManager {
     }
 
     /**
-     * Currently, we're using the AutoProx add-on of AProx. This add-on supports a series of rules (implemented as groovy
-     * scripts), which match repository/group naming patterns and create remote repositories, hosted repositories, and groups in
-     * flexible configurations on demand. Because these rules will create the necessary repositories the first time they are
-     * accessed, this driver only has to formulate a repository URL that will trigger the appropriate AutoProx rule, then pass
-     * this back via a {@link MavenRepositoryConfiguration} instance.
+     * Use the AProx client API to setup global and build-set level repos and groups, then setup the repo/group needed for this
+     * build. Calculate the URL to use for resolving artifacts using the AProx Folo API (Folo is an artifact activity-tracker).
+     * Return a new session ({@link MavenRepositorySession}) containing this information.
      * 
      * @throws RepositoryManagerException In the event one or more repositories or groups can't be created to support the build
      *         (or product, or shared-releases).
      */
     @Override
-    public RepositoryConfiguration createRepository(BuildConfiguration buildConfiguration, BuildRecordSet buildRecordSet)
+    public RepositorySession createBuildRepository(BuildConfiguration buildConfiguration, BuildRecordSet buildRecordSet)
             throws RepositoryManagerException {
 
         try {
@@ -122,10 +114,7 @@ public class RepositoryManagerDriver implements RepositoryManager {
             throw new RepositoryManagerException("Failed to setup shared-releases hosted repository: %s", e, e.getMessage());
         }
 
-        ProductVersion pv = buildRecordSet.getProductVersion();
-
-        String productRepoId = String.format(GROUP_ID_FORMAT, safeUrlPart(pv.getProduct().getName()),
-                safeUrlPart(pv.getVersion()));
+        String productRepoId = getRecordSetRepoId(buildRecordSet);
         try {
             setupProductRepos(productRepoId);
         } catch (AproxClientException e) {
@@ -154,9 +143,17 @@ public class RepositoryManagerDriver implements RepositoryManager {
                     e.getMessage());
         }
 
-        return new MavenRepositoryConfiguration(aprox, buildRepoId, productRepoId, new MavenRepositoryConnectionInfo(url));
+        return new MavenRepositorySession(aprox, buildRepoId, productRepoId, new MavenRepositoryConnectionInfo(url));
     }
 
+
+    private String getRecordSetRepoId(BuildRecordSet buildRecordSet) {
+        // FIXME: This seems wrong. What if there's no product? However, there's no way to tell which BuildConfigurationSet
+        // context we're working within.
+        ProductVersion pv = buildRecordSet.getProductVersion();
+
+        return String.format(GROUP_ID_FORMAT, safeUrlPart(pv.getProduct().getName()), safeUrlPart(pv.getVersion()));
+    }
 
     /**
      * Create the hosted repository and group necessary to support a single build. The hosted repository holds artifacts
@@ -278,6 +275,31 @@ public class RepositoryManagerDriver implements RepositoryManager {
      */
     protected Aprox getAprox() {
         return aprox;
+    }
+
+    @Override
+    public RunningRepositoryPromotion promoteRepository(BuildRecord buildRecord, BuildRecordSet buildRecordSet)
+            throws RepositoryManagerException {
+
+        List<Artifact> artifacts = buildRecord.getBuiltArtifacts();
+        String buildRepo = null;
+
+        arts: for (Artifact artifact : artifacts) {
+            String url = artifact.getDeployUrl();
+            String[] parts = url.split("/");
+            for (int i = 0; i < parts.length; i++) {
+                if (StoreType.hosted.singularEndpointName().equals(parts[i])) {
+                    if (parts.length <= i + 1) {
+                        continue arts;
+                    }
+
+                    buildRepo = parts[i + 1];
+                    break;
+                }
+            }
+        }
+
+        return new MavenRunningPromotion(buildRepo, getRecordSetRepoId(buildRecordSet), aprox);
     }
 
 }

@@ -19,7 +19,7 @@ import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.BuildRecordSet;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
-import org.jboss.pnc.spi.repositorymanager.model.RepositoryConfiguration;
+import org.jboss.pnc.spi.repositorymanager.model.RepositorySession;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -42,7 +42,7 @@ public class RepositoryManagerDriver04Test
         BuildRecordSet bc = new BuildRecordSet();
         bc.setProductVersion(pbc.getProductVersion());
 
-        RepositoryConfiguration rc = driver.createRepository(pbc, bc);
+        RepositorySession rc = driver.createBuildRepository(pbc, bc);
         assertThat(rc, notNullValue());
 
         String baseUrl = rc.getConnectionInfo().getDeployUrl();

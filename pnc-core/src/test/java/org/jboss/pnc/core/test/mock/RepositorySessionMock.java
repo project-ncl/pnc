@@ -4,7 +4,7 @@ import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.RepositoryType;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerException;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
-import org.jboss.pnc.spi.repositorymanager.model.RepositoryConfiguration;
+import org.jboss.pnc.spi.repositorymanager.model.RepositorySession;
 import org.jboss.pnc.spi.repositorymanager.model.RepositoryConnectionInfo;
 
 import java.util.ArrayList;
@@ -15,7 +15,7 @@ import java.util.Map;
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2015-02-02.
  */
-public class RepositoryConfigurationMock implements RepositoryConfiguration {
+public class RepositorySessionMock implements RepositorySession {
     @Override
     public RepositoryType getType() {
         return RepositoryType.MAVEN;

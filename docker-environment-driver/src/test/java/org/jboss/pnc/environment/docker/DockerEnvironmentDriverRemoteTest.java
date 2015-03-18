@@ -25,7 +25,7 @@ import org.jboss.pnc.model.RepositoryType;
 import org.jboss.pnc.spi.environment.exception.EnvironmentDriverException;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerException;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
-import org.jboss.pnc.spi.repositorymanager.model.RepositoryConfiguration;
+import org.jboss.pnc.spi.repositorymanager.model.RepositorySession;
 import org.jboss.pnc.spi.repositorymanager.model.RepositoryConnectionInfo;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.asset.EmptyAsset;
@@ -51,7 +51,7 @@ public class DockerEnvironmentDriverRemoteTest {
 
     private static final String APROX_DEPLOY_URL = "AProx deploy URL";
 
-    private static final RepositoryConfiguration DUMMY_REPOSITORY_CONFIGURATION = new DummyRepositoryConfiguration();
+    private static final RepositorySession DUMMY_REPOSITORY_CONFIGURATION = new DummyRepositoryConfiguration();
 
     @Inject
     private DockerEnvironmentDriver dockerEnvDriver;
@@ -224,7 +224,7 @@ public class DockerEnvironmentDriverRemoteTest {
     }
 
 
-    private static class DummyRepositoryConfiguration implements RepositoryConfiguration {
+    private static class DummyRepositoryConfiguration implements RepositorySession {
 
         @Override
         public RepositoryType getType() {
