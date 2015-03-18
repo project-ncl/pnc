@@ -143,12 +143,12 @@ public class JenkinsDriverRemoteTest {
             
             @Override
             public String getJenkinsUrl() {
-                return System.getenv("PNC_JENKINS_URL");
+                return System.getenv("PNC_JENKINS_URL") + ":" + getJenkinsPort();
             }
             
             @Override
             public int getJenkinsPort() {
-                return 8082;
+                return 8080;
             }
             
             @Override
