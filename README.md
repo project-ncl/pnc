@@ -39,16 +39,15 @@ Currently is used Docker daemon, which listens on unprotected Docker control soc
 
 Steps to set up Docker daemon:
 
-1. Prepare socket config: Create file `/etc/systemd/system/docker-tcp.socket` with content:
-<code>  
+1. Prepare socket config: Create file `/etc/systemd/system/docker-tcp.socket` with content: <br />
     [Unit] <br />
     Description=Docker Socket for the API <br /><br />
     [Socket] <br />
     ListenStream=2375 <br />
     Service=docker.service <br /><br />
     [Install] <br />
-    WantedBy=sockets.target <br /> <br />
-</code>
+    WantedBy=sockets.target <br /> 
+
 2. Enable `docker-tcp` service: Run `sudo systemctl enable docker-tcp.socket`
 3. Start `docker-tcp` service: Run `sudo systemctl start docker-tcp.socket`
 4. Start `docker` service: Run `sudo systemctl start docker`
