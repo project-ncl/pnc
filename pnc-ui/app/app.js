@@ -8,7 +8,8 @@
     'pnc.product',
     'pnc.project',
     'pnc.configuration',
-    'pnc.record'
+    'pnc.record',
+    'pnc.websockets'
   ]);
 
   app.config(['$stateProvider', '$urlRouterProvider', '$locationProvider',
