@@ -53,6 +53,12 @@ Steps to set up Docker daemon:
 5. Verify the service: Run `docker -H tcp://127.0.0.1:2375 version`. If you get response in 1-2 seconds without errors, the service is running.
 6. Add image to Docker daemon: The Docker daemon has to have imported image, which is specified by environment variable `PNC_DOCKER_IMAGE_ID` (or is set in pnc-config.json file) You can use `docker pull` to download image from remote repository or `docker build` to create image from Dockerfile. 
 
+
+Possible issues:
+------------
+* It is not possible to create Docker environment, because the client cannot connect to Docker host using SSH. Solution: You have to  allow using strong ciphers in JCE (http://www.oracle.com/technetwork/java/javase/downloads/jce8-download-2133166.html)
+
+
 Main Modules
 ------------
 * `datastore`: Implementation of pnc-spi:org.jboss.pnc.spi.datastore
