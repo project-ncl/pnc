@@ -78,8 +78,14 @@ public class RepositoryManagerDriver implements RepositoryManager {
 
             aprox = new Aprox(baseUrl, new AproxFoloAdminClientModule(), new AproxFoloContentClientModule(),
                     new AproxPromoteClientModule()).connect();
+
+            setupGlobalRepos();
+
         } catch (ConfigurationParseException e) {
-            log.error("Cannot read configuration for " + RepositoryManagerDriver.DRIVER_ID + ".", e);
+            throw new IllegalStateException("Cannot read configuration for " + RepositoryManagerDriver.DRIVER_ID + ".", e);
+        } catch (AproxClientException e) {
+            throw new IllegalStateException("Failed to setup shared-releases or shared-imports hosted repository: "
+                    + e.getMessage(), e);
         }
     }
 
@@ -108,22 +114,17 @@ public class RepositoryManagerDriver implements RepositoryManager {
     public RepositorySession createBuildRepository(BuildConfiguration buildConfiguration, BuildRecordSet buildRecordSet)
             throws RepositoryManagerException {
 
-        try {
-            setupGlobalRepos();
-        } catch (AproxClientException e) {
-            throw new RepositoryManagerException("Failed to setup shared-releases hosted repository: %s", e, e.getMessage());
-        }
-
         String productRepoId = getRecordSetRepoId(buildRecordSet);
-        try {
-            setupProductRepos(productRepoId);
-        } catch (AproxClientException e) {
-            throw new RepositoryManagerException("Failed to setup product-local hosted repository or repository group: %s", e,
-                    e.getMessage());
+        if (productRepoId != null) {
+            try {
+                setupProductRepos(productRepoId);
+            } catch (AproxClientException e) {
+                throw new RepositoryManagerException("Failed to setup product-local hosted repository or repository group: %s",
+                        e, e.getMessage());
+            }
         }
 
         // TODO Better way to generate id that doesn't rely on System.currentTimeMillis() but will still be relatively fast.
-
         String buildRepoId = String.format(REPO_ID_FORMAT, safeUrlPart(buildConfiguration.getProject().getName()),
                 System.currentTimeMillis());
         try {
@@ -151,6 +152,9 @@ public class RepositoryManagerDriver implements RepositoryManager {
         // FIXME: This seems wrong. What if there's no product? However, there's no way to tell which BuildConfigurationSet
         // context we're working within.
         ProductVersion pv = buildRecordSet.getProductVersion();
+        if (pv == null) {
+            return null;
+        }
 
         return String.format(GROUP_ID_FORMAT, safeUrlPart(pv.getProduct().getName()), safeUrlPart(pv.getVersion()));
     }
@@ -184,8 +188,13 @@ public class RepositoryManagerDriver implements RepositoryManager {
             // 1. build-local artifacts
             buildGroup.addConstituent(new StoreKey(StoreType.hosted, buildRepoId));
 
-            // 2. product-level group
-            buildGroup.addConstituent(new StoreKey(StoreType.group, productRepoId));
+            if (productRepoId != null) {
+                // 2. product-level group
+                buildGroup.addConstituent(new StoreKey(StoreType.group, productRepoId));
+            } else {
+                // 2. Global-level repos, for captured/shared artifacts and access to the outside world
+                addGlobalConstituents(buildGroup);
+            }
 
             aprox.stores().create(buildGroup, Group.class);
         }
@@ -223,18 +232,24 @@ public class RepositoryManagerDriver implements RepositoryManager {
             // 1. product-local artifacts
             productGroup.addConstituent(new StoreKey(StoreType.hosted, productRepoId));
 
-            // 2. global shared-releases artifacts
-            productGroup.addConstituent(new StoreKey(StoreType.hosted, SHARED_RELEASES_ID));
-
-            // 3. global shared-imports artifacts
-            productGroup.addConstituent(new StoreKey(StoreType.hosted, SHARED_IMPORTS_ID));
-
-            // 4. public group, containing remote proxies to the outside world
-            // TODO: Configuration by product to determine whether outside world access is permitted.
-            productGroup.addConstituent(new StoreKey(StoreType.group, PUBLIC_GROUP_ID));
+            // 2. Global-level repos, for captured/shared artifacts and access to the outside world
+            addGlobalConstituents(productGroup);
 
             aprox.stores().create(productGroup, Group.class);
         }
+    }
+
+    private void addGlobalConstituents(Group group) {
+        // 1. global shared-releases artifacts
+        group.addConstituent(new StoreKey(StoreType.hosted, SHARED_RELEASES_ID));
+
+        // 2. global shared-imports artifacts
+        group.addConstituent(new StoreKey(StoreType.hosted, SHARED_IMPORTS_ID));
+
+        // 3. public group, containing remote proxies to the outside world
+
+        // TODO: Configuration by product to determine whether outside world access is permitted.
+        group.addConstituent(new StoreKey(StoreType.group, PUBLIC_GROUP_ID));
     }
 
     /**
@@ -281,6 +296,7 @@ public class RepositoryManagerDriver implements RepositoryManager {
     public RunningRepositoryPromotion promoteRepository(BuildRecord buildRecord, BuildRecordSet buildRecordSet)
             throws RepositoryManagerException {
 
+        // FIXME: This is AWFUL! Need to store the buildRepoId in the record.
         List<Artifact> artifacts = buildRecord.getBuiltArtifacts();
         String buildRepo = null;
 
