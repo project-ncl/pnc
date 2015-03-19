@@ -74,7 +74,22 @@ public class BuildConfigurationSetRest {
         builder.name(name);
         performIfNotNull(productVersionId != null, () -> builder.productVersion(ProductVersion.Builder.newBuilder().id(productVersionId).build()));
 
+        nullableStreamOf(buildConfigurationIds).forEach(buildConfigurationId -> {
+            BuildConfiguration.Builder buildConfigurationBuilder = BuildConfiguration.Builder.newBuilder().id(buildConfigurationId);
+            builder.buildConfiguration(buildConfigurationBuilder.build());
+        });
         return builder.build();
+    }
+
+    public BuildConfigurationSet toBuildConfigurationSet(BuildConfigurationSet buildConfigurationSet) {
+        buildConfigurationSet.setName(name);
+        performIfNotNull(productVersionId != null, () -> buildConfigurationSet.setProductVersion(ProductVersion.Builder.newBuilder().id(productVersionId).build()));
+
+        nullableStreamOf(buildConfigurationIds).forEach(buildConfigurationId -> {
+            BuildConfiguration.Builder buildConfigurationBuilder = BuildConfiguration.Builder.newBuilder().id(buildConfigurationId);
+            buildConfigurationSet.addBuildConfigurations(buildConfigurationBuilder.build());
+        });
+        return buildConfigurationSet;
     }
 
 }

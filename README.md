@@ -24,6 +24,8 @@ To run remote and integration tests combine both commands `mvn clean install -Dr
 
 Environment variables, which can be used to set up application:
 
+* `PNC_JENKINS_USERNAME` - Username of user created in Jenkins server inside the Docker container
+* `PNC_JENKINS_PASSWORD` - Password of user specified with `PNC_JENKINS_USERNAME`
 * `PNC_APROX_URL` - URL to AProx repository
 * `PNC_DOCKER_IP` - IP address of host with Docker daemon
 * `PNC_DOCKER_CONT_USER` - User account in image used in Docker
@@ -52,6 +54,12 @@ Steps to set up Docker daemon:
 4. Start `docker` service: Run `sudo systemctl start docker`
 5. Verify the service: Run `docker -H tcp://127.0.0.1:2375 version`. If you get response in 1-2 seconds without errors, the service is running.
 6. Add image to Docker daemon: The Docker daemon has to have imported image, which is specified by environment variable `PNC_DOCKER_IMAGE_ID` (or is set in pnc-config.json file) You can use `docker pull` to download image from remote repository or `docker build` to create image from Dockerfile. 
+
+
+Possible issues:
+------------
+* It is not possible to create Docker environment, because the client cannot connect to Docker host using SSH. Solution: You have to  allow using strong ciphers in JCE (http://www.oracle.com/technetwork/java/javase/downloads/jce8-download-2133166.html)
+
 
 Main Modules
 ------------
