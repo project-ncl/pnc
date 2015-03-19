@@ -24,6 +24,8 @@ To run remote and integration tests combine both commands `mvn clean install -Dr
 
 Environment variables, which can be used to set up application:
 
+* `PNC_JENKINS_USERNAME` - Username of user created in Jenkins server inside the Docker container
+* `PNC_JENKINS_PASSWORD` - Password of user specified with `PNC_JENKINS_USERNAME`
 * `PNC_APROX_URL` - URL to AProx repository
 * `PNC_DOCKER_IP` - IP address of host with Docker daemon
 * `PNC_DOCKER_CONT_USER` - User account in image used in Docker
