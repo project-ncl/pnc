@@ -110,7 +110,8 @@ public class DatabaseDataInitializer {
              * All the bi-directional mapping settings are managed inside the Builders
              */
             // Example product and product version
-            Product product = Product.Builder.newBuilder().name(PNC_PRODUCT_NAME).description("Example Product for Project Newcastle Demo")
+            Product product = Product.Builder.newBuilder().name(PNC_PRODUCT_NAME).description(
+                    "Example Product for Project Newcastle Demo")
                     .build();
             product = productRepository.save(product);
 
@@ -131,10 +132,15 @@ public class DatabaseDataInitializer {
                     .name("JBoss JavaEE Servlet Spec API").description("JavaEE Servlet Spec API")
                     .projectUrl("https://github.com/jboss/jboss-servlet-api_spec")
                     .issueTrackerUrl("https://issues.jboss.org/browse/JBEE").build();
+            Project project4 = Project.Builder.newBuilder()
+                    .name("Fabric8").description("Integration platform for working with Apache ActiveMQ, Camel, CXF and Karaf in the cloud")
+                    .projectUrl("https://github.com/fabric8io/fabric8")
+                    .issueTrackerUrl("https://github.com/fabric8io/fabric8/issues").build();
 
             projectRepository.save(project1);
             projectRepository.save(project2);
             projectRepository.save(project3);
+            projectRepository.save(project4);
 
             // Example build configurations
             BuildConfiguration buildConfiguration1 = BuildConfiguration.Builder.newBuilder()
@@ -170,12 +176,25 @@ public class DatabaseDataInitializer {
                     .build();
             buildConfiguration3 = buildConfigurationRepository.save(buildConfiguration3);
 
+            BuildConfiguration buildConfiguration4 = BuildConfiguration.Builder.newBuilder()
+                    .name("io-fabric8-2.2-SNAPSHOT")
+                    .project(project4)
+                    .description("Test build for Fabric8")
+                    .environment(environment1)
+                    .buildScript("mvn clean deploy -Dmaven.test.skip")
+                    .scmRepoURL("https://github.com/fabric8io/fabric8.git")
+                    .build();
+            buildConfiguration4 = buildConfigurationRepository.save(buildConfiguration4);
+
             // Build config set containing the three example build configs
             BuildConfigurationSet buildConfigurationSet1 = BuildConfigurationSet.Builder.newBuilder().name("Build Config Set 1")
                     .buildConfiguration(buildConfiguration1)
                     .buildConfiguration(buildConfiguration2)
                     .buildConfiguration(buildConfiguration3)
                     .productVersion(productVersion).build();
+
+            BuildConfigurationSet buildConfigurationSet2 = BuildConfigurationSet.Builder.newBuilder().name("Fabric Configuration Set")
+                    .buildConfiguration(buildConfiguration4).build();
 
             User demoUser = User.Builder.newBuilder().username("demo-user").firstName("Demo First Name")
                     .lastName("Demo Last Name").email("demo-user@pnc.com").build();
@@ -186,6 +205,7 @@ public class DatabaseDataInitializer {
                     .description("Build record test for jboss java servlet api").build();
 
             buildConfigurationSetRepository.save(buildConfigurationSet1);
+            buildConfigurationSetRepository.save(buildConfigurationSet2);
             userRepository.save(demoUser);
             buildRecordRepository.save(buildRecord);
 
