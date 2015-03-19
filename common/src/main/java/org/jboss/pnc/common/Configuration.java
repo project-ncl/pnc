@@ -7,8 +7,10 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import javax.enterprise.context.Dependent;
+import javax.inject.Inject;
 
 import org.jboss.logging.Logger;
+import org.jboss.pnc.common.authentication.AuthenticationProvider;
 import org.jboss.pnc.common.json.AbstractModuleConfig;
 import org.jboss.pnc.common.json.ConfigurationJSONParser;
 import org.jboss.pnc.common.json.ConfigurationParseException;
@@ -25,6 +27,9 @@ public class Configuration<T extends AbstractModuleConfig> {
     private static final Logger log = Logger.getLogger(Configuration.class);
     
     public static final String CONFIG_SYSPROP = "pnc-config-file";
+    
+    @Inject
+    private AuthenticationProvider authenticationProvider;
     
     /**
      * Reads configuration for module
@@ -49,6 +54,11 @@ public class Configuration<T extends AbstractModuleConfig> {
         if (configFileName == null) 
             configFileName = "pnc-config.json";
         log.info("Loading configuration from file: " + configFileName);
+        if(authenticationProvider != null) {
+            String loggedInUser = authenticationProvider.getLoggedInUser();
+            log.info("Authentication Provider: loggedInUser: " + loggedInUser);
+        }
+        
 
         //Try to open stream from full path
         File file = new File(configFileName); 

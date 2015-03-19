@@ -14,6 +14,7 @@ import javax.inject.Inject;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.pnc.common.Configuration;
+import org.jboss.pnc.common.authentication.AuthenticationProvider;
 import org.jboss.pnc.common.util.ObjectWrapper;
 import org.jboss.pnc.jenkinsbuilddriver.JenkinsBuildDriver;
 import org.jboss.pnc.model.Artifact;
@@ -53,6 +54,7 @@ public class JenkinsDriverRemoteTest {
                 .addAsResource("META-INF/logging.properties").addAsResource("jenkins-job-template.xml")
                 .addPackages(true, org.apache.http.client.HttpResponseException.class.getPackage())
                 .addPackages(true, Configuration.class.getPackage())
+                .addPackages(true, AuthenticationProvider.class.getPackage())
                 .addPackage(JenkinsBuildDriver.class.getPackage());
         System.out.println(jar.toString(true));
         return jar;
