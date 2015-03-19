@@ -1,10 +1,13 @@
 package org.jboss.pnc.core.builder;
 
-import org.jboss.logging.Logger;
+import org.jboss.pnc.core.events.DefaultBuildStatusChangedEvent;
 import org.jboss.pnc.core.exception.CoreException;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.spi.BuildStatus;
+import org.jboss.pnc.spi.events.BuildStatusChangedEvent;
 import org.jboss.util.collection.WeakSet;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashSet;
 import java.util.List;
@@ -16,13 +19,13 @@ import java.util.function.Consumer;
 */
 public class BuildTask {
 
-    public static final Logger log = Logger.getLogger(BuildTask.class);
+    public static final Logger log = LoggerFactory.getLogger(BuildTask.class);
 
     public BuildConfiguration buildConfiguration;
     BuildStatus status = BuildStatus.NEW;
     private String statusDescription;
 
-    private Set<Consumer<BuildStatus>> statusUpdateListeners;
+    private Set<Consumer<BuildStatusChangedEvent>> statusUpdateListeners;
     private Set<Consumer<String>> logConsumers;
 
     /**
@@ -40,13 +43,13 @@ public class BuildTask {
         waiting = new HashSet<>();
     }
 
-    BuildTask(BuildCoordinator buildCoordinator, BuildConfiguration buildConfiguration, Set<Consumer<BuildStatus>> statusUpdateListeners, Set<Consumer<String>> logConsumers) {
+    BuildTask(BuildCoordinator buildCoordinator, BuildConfiguration buildConfiguration, Set<Consumer<BuildStatusChangedEvent>> statusUpdateListeners, Set<Consumer<String>> logConsumers) {
         this(buildCoordinator, buildConfiguration);
         this.statusUpdateListeners.addAll(statusUpdateListeners);
         this.logConsumers.addAll(logConsumers);
     }
 
-    public void registerStatusUpdateListener(Consumer<BuildStatus> statusUpdateListener) {
+    public void registerStatusUpdateListener(Consumer<BuildStatusChangedEvent> statusUpdateListener) {
         this.statusUpdateListeners.add(statusUpdateListener);
     }
 
@@ -55,8 +58,10 @@ public class BuildTask {
     }
 
     public void setStatus(BuildStatus status) {
-        log.debugf("Updating build task #%s status to %s", this.getId(), status);
-        statusUpdateListeners.forEach(consumer -> consumer.accept(status));
+        BuildStatusChangedEvent buildStatusChangedEvent = new DefaultBuildStatusChangedEvent(this.status, status, buildConfiguration.getId());
+        log.debug("Updating build task {} status to {}", this.getId(), buildStatusChangedEvent);
+
+        statusUpdateListeners.forEach(consumer -> consumer.accept(buildStatusChangedEvent));
         if (status.equals(BuildStatus.DONE)) {
             waiting.forEach((submittedBuild) -> submittedBuild.requiredBuildCompleted(this));
         }

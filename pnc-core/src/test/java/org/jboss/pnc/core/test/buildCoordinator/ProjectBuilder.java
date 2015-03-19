@@ -1,17 +1,5 @@
 package org.jboss.pnc.core.test.buildCoordinator;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.concurrent.Semaphore;
-import java.util.concurrent.TimeUnit;
-import java.util.function.Consumer;
-import java.util.logging.Logger;
-
-import javax.inject.Inject;
-
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.core.BuildDriverFactory;
@@ -25,10 +13,18 @@ import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildRecordSet;
 import org.jboss.pnc.model.Environment;
 import org.jboss.pnc.spi.BuildStatus;
+import org.jboss.pnc.spi.events.BuildStatusChangedEvent;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.asset.EmptyAsset;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.junit.Assert;
+
+import javax.inject.Inject;
+import java.util.*;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
+import java.util.logging.Logger;
 
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2015-01-06.
@@ -67,16 +63,16 @@ public class ProjectBuilder {
 
         final Semaphore semaphore = new Semaphore(nStatusUpdates);
 
-        Consumer<BuildStatus> onStatusUpdate = (newStatus) -> {
-            receivedStatuses.add(newStatus);
+        Consumer<BuildStatusChangedEvent> onStatusUpdate = (statusUpdate) -> {
+            receivedStatuses.add(statusUpdate.getNewStatus());
             semaphore.release(1);
-            log.fine("Received status update " + newStatus.toString() + " for project " + buildConfiguration.getId());
+            log.fine("Received status update " + statusUpdate.toString() + " for project " + buildConfiguration.getId());
             log.finer("Semaphore released, there are " + semaphore.availablePermits() + " free entries.");
         };
-        Set<Consumer<BuildStatus>> statusUpdateListeners = new HashSet<>();
+        Set<Consumer<BuildStatusChangedEvent>> statusUpdateListeners = new HashSet<>();
         statusUpdateListeners.add(onStatusUpdate);
         semaphore.acquire(nStatusUpdates);
-        BuildTask buildTask = buildCoordinator.build(buildConfiguration, statusUpdateListeners, new HashSet<Consumer<String>>());
+        BuildTask buildTask = buildCoordinator.build(buildConfiguration, statusUpdateListeners, new HashSet<>());
 
         List<BuildStatus> errorStates = Arrays.asList(BuildStatus.REJECTED, BuildStatus.SYSTEM_ERROR, BuildStatus.BUILD_ENV_SETUP_COMPLETE_WITH_ERROR);
         if (errorStates.contains(buildTask.getStatus())) {
