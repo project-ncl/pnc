@@ -100,8 +100,6 @@ public class MavenRepositorySession implements RepositorySession
         // clean up.
         try {
             aprox.module(AproxFoloAdminClientModule.class).clearTrackingRecord(id, StoreType.group, id);
-            aprox.stores().delete(StoreType.group, id);
-            aprox.stores().delete(StoreType.remote, id);
         } catch (AproxClientException e) {
             throw new RepositoryManagerException(
                     "Failed to clean up build repositories / tracking information for: %s. Reason: %s", e, id,

@@ -117,7 +117,7 @@ public class RepositoryManagerDriver implements RepositoryManager {
         String productRepoId = getRecordSetRepoId(buildRecordSet);
         if (productRepoId != null) {
             try {
-                setupProductRepos(productRepoId);
+                setupProductRepos(productRepoId, buildRecordSet);
             } catch (AproxClientException e) {
                 throw new RepositoryManagerException("Failed to setup product-local hosted repository or repository group: %s",
                         e, e.getMessage());
@@ -128,7 +128,7 @@ public class RepositoryManagerDriver implements RepositoryManager {
         String buildRepoId = String.format(REPO_ID_FORMAT, safeUrlPart(buildConfiguration.getProject().getName()),
                 System.currentTimeMillis());
         try {
-            setupBuildRepos(buildRepoId, productRepoId);
+            setupBuildRepos(buildRepoId, productRepoId, buildConfiguration, buildRecordSet);
         } catch (AproxClientException e) {
             throw new RepositoryManagerException("Failed to setup build-local hosted repository or repository group: %s", e,
                     e.getMessage());
@@ -169,7 +169,8 @@ public class RepositoryManagerDriver implements RepositoryManager {
      * @param productRepoId
      * @throws AproxClientException
      */
-    private void setupBuildRepos(String buildRepoId, String productRepoId) throws AproxClientException {
+    private void setupBuildRepos(String buildRepoId, String productRepoId, BuildConfiguration buildConfig,
+            BuildRecordSet buildRecords) throws AproxClientException {
         // if the build-level group doesn't exist, create it.
         if (!aprox.stores().exists(StoreType.group, buildRepoId)) {
             // if the product-level storage repo (for in-progress product builds) doesn't exist, create it.
@@ -178,7 +179,9 @@ public class RepositoryManagerDriver implements RepositoryManager {
                 buildArtifacts.setAllowSnapshots(true);
                 buildArtifacts.setAllowReleases(true);
 
-                aprox.stores().create(buildArtifacts, HostedRepository.class);
+                aprox.stores().create(buildArtifacts,
+                        "Creating hosted repository for build: " + buildRepoId + " of: " + buildConfig.getProject().getName(),
+                        HostedRepository.class);
             }
 
             Group buildGroup = new Group(buildRepoId);
@@ -191,12 +194,14 @@ public class RepositoryManagerDriver implements RepositoryManager {
             if (productRepoId != null) {
                 // 2. product-level group
                 buildGroup.addConstituent(new StoreKey(StoreType.group, productRepoId));
-            } else {
-                // 2. Global-level repos, for captured/shared artifacts and access to the outside world
-                addGlobalConstituents(buildGroup);
             }
+            // 2. Global-level repos, for captured/shared artifacts and access to the outside world
+            addGlobalConstituents(buildGroup);
 
-            aprox.stores().create(buildGroup, Group.class);
+            aprox.stores().create(
+                    buildGroup,
+                    "Creating repository group for resolving artifacts in build: " + buildRepoId + " of: "
+                            + buildConfig.getProject().getName(), Group.class);
         }
     }
 
@@ -211,44 +216,31 @@ public class RepositoryManagerDriver implements RepositoryManager {
      * </ol>
      * 
      * @param productRepoId
+     * @param buildRecordSet
      * @throws AproxClientException
      */
-    private void setupProductRepos(String productRepoId) throws AproxClientException {
+    private void setupProductRepos(String productRepoId, BuildRecordSet buildRecordSet) throws AproxClientException {
+        ProductVersion pv = buildRecordSet.getProductVersion();
+
         // if the product-level group doesn't exist, create it.
         if (!aprox.stores().exists(StoreType.group, productRepoId)) {
-            // if the product-level storage repo (for in-progress product builds) doesn't exist, create it.
-            if (!aprox.stores().exists(StoreType.hosted, productRepoId)) {
-                HostedRepository productArtifacts = new HostedRepository(productRepoId);
-                productArtifacts.setAllowSnapshots(false);
-                productArtifacts.setAllowReleases(true);
-
-                aprox.stores().create(productArtifacts, HostedRepository.class);
-            }
-
             Group productGroup = new Group(productRepoId);
 
-            // Priorities for product-local group:
-
-            // 1. product-local artifacts
-            productGroup.addConstituent(new StoreKey(StoreType.hosted, productRepoId));
-
-            // 2. Global-level repos, for captured/shared artifacts and access to the outside world
-            addGlobalConstituents(productGroup);
-
-            aprox.stores().create(productGroup, Group.class);
+            aprox.stores().create(
+                    productGroup,
+                    "Creating group: " + productRepoId + " for grouping repos of builds related to: "
+                            + pv.getProduct().getName() + ":" + pv.getVersion(), Group.class);
         }
     }
 
     private void addGlobalConstituents(Group group) {
         // 1. global shared-releases artifacts
-        group.addConstituent(new StoreKey(StoreType.hosted, SHARED_RELEASES_ID));
+        group.addConstituent(new StoreKey(StoreType.group, SHARED_RELEASES_ID));
 
         // 2. global shared-imports artifacts
         group.addConstituent(new StoreKey(StoreType.hosted, SHARED_IMPORTS_ID));
 
         // 3. public group, containing remote proxies to the outside world
-
-        // TODO: Configuration by product to determine whether outside world access is permitted.
         group.addConstituent(new StoreKey(StoreType.group, PUBLIC_GROUP_ID));
     }
 
@@ -259,21 +251,20 @@ public class RepositoryManagerDriver implements RepositoryManager {
      */
     private void setupGlobalRepos() throws AproxClientException {
         // if the global shared-releases repository doesn't exist, create it.
-        if (!aprox.stores().exists(StoreType.hosted, SHARED_RELEASES_ID)) {
-            HostedRepository sharedArtifacts = new HostedRepository(SHARED_RELEASES_ID);
-            sharedArtifacts.setAllowSnapshots(false);
-            sharedArtifacts.setAllowReleases(true);
+        if (!aprox.stores().exists(StoreType.group, SHARED_RELEASES_ID)) {
+            Group sharedArtifacts = new Group(SHARED_RELEASES_ID);
 
-            aprox.stores().create(sharedArtifacts, HostedRepository.class);
+            aprox.stores().create(sharedArtifacts, "Creating global shared-builds repository group.", Group.class);
         }
 
         // if the global imports repo doesn't exist, create it.
         if (!aprox.stores().exists(StoreType.hosted, SHARED_IMPORTS_ID)) {
-            HostedRepository productArtifacts = new HostedRepository(SHARED_IMPORTS_ID);
-            productArtifacts.setAllowSnapshots(false);
-            productArtifacts.setAllowReleases(true);
+            HostedRepository sharedImports = new HostedRepository(SHARED_IMPORTS_ID);
+            sharedImports.setAllowSnapshots(false);
+            sharedImports.setAllowReleases(true);
 
-            aprox.stores().create(productArtifacts, HostedRepository.class);
+            aprox.stores().create(sharedImports, "Creating global repository for hosting external imports used in builds.",
+                    HostedRepository.class);
         }
     }
 

@@ -37,7 +37,8 @@ public class MavenRunningPromotion implements RunningRepositoryPromotion {
 
             recordSetGroup.addConstituent(new StoreKey(StoreType.hosted, buildRepoId));
 
-            boolean result = aprox.stores().update(recordSetGroup);
+            boolean result = aprox.stores().update(recordSetGroup,
+                    "Promoting build repo: " + buildRepoId + " to group: " + recordSetRepoId);
             onComplete.accept(new MavenCompletedPromotion(result));
 
         } catch (AproxClientException | RepositoryManagerException e) {
