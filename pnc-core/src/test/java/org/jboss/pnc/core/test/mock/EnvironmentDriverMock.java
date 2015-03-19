@@ -10,7 +10,7 @@ import org.jboss.pnc.model.Environment;
 import org.jboss.pnc.spi.environment.EnvironmentDriver;
 import org.jboss.pnc.spi.environment.RunningEnvironment;
 import org.jboss.pnc.spi.environment.exception.EnvironmentDriverException;
-import org.jboss.pnc.spi.repositorymanager.model.RepositoryConfiguration;
+import org.jboss.pnc.spi.repositorymanager.model.RepositorySession;
 
 /**
  * 
@@ -24,7 +24,7 @@ public class EnvironmentDriverMock implements EnvironmentDriver {
 
     @Override
     public RunningEnvironment buildEnvironment(Environment buildEnvironment,
-            final RepositoryConfiguration repositoryConfiguration) throws EnvironmentDriverException {
+            final RepositorySession repositoryConfiguration) throws EnvironmentDriverException {
         return new RunningEnvironment() {
             
             @Override
@@ -37,7 +37,7 @@ public class EnvironmentDriverMock implements EnvironmentDriver {
             }
             
             @Override
-            public RepositoryConfiguration getRepositoryConfiguration() {
+            public RepositorySession getRepositorySession() {
                 return repositoryConfiguration;
             }
             

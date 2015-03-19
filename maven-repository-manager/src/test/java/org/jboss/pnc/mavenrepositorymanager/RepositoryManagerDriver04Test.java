@@ -1,5 +1,9 @@
 package org.jboss.pnc.mavenrepositorymanager;
 
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.junit.Assert.assertThat;
+
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
@@ -16,10 +20,10 @@ import org.commonjava.aprox.model.core.StoreType;
 import org.commonjava.maven.atlas.ident.ref.ArtifactRef;
 import org.commonjava.maven.atlas.ident.ref.ProjectVersionRef;
 import org.jboss.pnc.model.Artifact;
-import org.jboss.pnc.model.BuildRecordSet;
 import org.jboss.pnc.model.BuildConfiguration;
+import org.jboss.pnc.model.BuildRecordSet;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
-import org.jboss.pnc.spi.repositorymanager.model.RepositoryConfiguration;
+import org.jboss.pnc.spi.repositorymanager.model.RepositorySession;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -27,22 +31,18 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.junit.Assert.assertThat;
-
 public class RepositoryManagerDriver04Test 
     extends AbstractRepositoryManagerDriverTest
 {
 
     @Test
-    public void persistArtifacts_ContainsTwoUploads() throws Exception {
+    public void extractBuildArtifacts_ContainsTwoUploads() throws Exception {
         BuildConfiguration pbc = simpleBuildConfiguration();
 
         BuildRecordSet bc = new BuildRecordSet();
         bc.setProductVersion(pbc.getProductVersion());
 
-        RepositoryConfiguration rc = driver.createRepository(pbc, bc);
+        RepositorySession rc = driver.createBuildRepository(pbc, bc);
         assertThat(rc, notNullValue());
 
         String baseUrl = rc.getConnectionInfo().getDeployUrl();
@@ -95,7 +95,7 @@ public class RepositoryManagerDriver04Test
         Aprox aprox = driver.getAprox();
 
         for (String path : new String[] { pomPath, jarPath }) {
-            final String url = aprox.content().contentUrl(StoreType.hosted, rc.getCollectionId(), path);
+            final String url = aprox.content().contentUrl(StoreType.hosted, rc.getId(), path);
             boolean downloaded = client.execute(new HttpGet(url), new ResponseHandler<Boolean>() {
                 @Override
                 public Boolean handleResponse(HttpResponse response) throws ClientProtocolException, IOException {

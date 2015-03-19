@@ -4,7 +4,7 @@ import java.io.InputStream;
 
 import org.jboss.pnc.spi.environment.RunningEnvironment;
 import org.jboss.pnc.spi.environment.exception.EnvironmentDriverException;
-import org.jboss.pnc.spi.repositorymanager.model.RepositoryConfiguration;
+import org.jboss.pnc.spi.repositorymanager.model.RepositorySession;
 
 /**
  * Implementation of Docker environment used by DockerEnvironmentDriver
@@ -33,12 +33,12 @@ public class DockerRunningEnvironment implements RunningEnvironment {
     
     private final String containerUrl;
 
-    private final RepositoryConfiguration repositoryConfiguration;
+    private final RepositorySession repositorySession;
 
     public DockerRunningEnvironment(DockerEnvironmentDriver dockerEnvDriver,
-            RepositoryConfiguration repositoryConfiguration,
+            RepositorySession repositorySession,
             String id, int jenkinsPort, int sshPort, String containerUrl) {
-        this.repositoryConfiguration = repositoryConfiguration;
+        this.repositorySession = repositorySession;
         this.dockerEnvDriver = dockerEnvDriver;
         this.id = id;
         this.jenkinsPort = jenkinsPort;
@@ -62,8 +62,8 @@ public class DockerRunningEnvironment implements RunningEnvironment {
     }
 
     @Override
-    public RepositoryConfiguration getRepositoryConfiguration() {
-        return repositoryConfiguration;
+    public RepositorySession getRepositorySession() {
+        return repositorySession;
     }
 
     /**

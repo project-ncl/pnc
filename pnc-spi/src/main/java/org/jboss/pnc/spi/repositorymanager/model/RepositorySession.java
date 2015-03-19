@@ -7,7 +7,7 @@ import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-11-23.
  */
-public interface RepositoryConfiguration {
+public interface RepositorySession {
 
     RepositoryType getType();
 
