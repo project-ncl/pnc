@@ -130,10 +130,15 @@ public class DatabaseDataInitializer {
                     .name("JBoss JavaEE Servlet Spec API").description("JavaEE Servlet Spec API")
                     .projectUrl("https://github.com/jboss/jboss-servlet-api_spec")
                     .issueTrackerUrl("https://issues.jboss.org/browse/JBEE").build();
+            Project project4 = Project.Builder.newBuilder()
+                    .name("Fabric8").description("Integration platform for working with Apache ActiveMQ, Camel, CXF and Karaf in the cloud")
+                    .projectUrl("https://github.com/fabric8io/fabric8")
+                    .issueTrackerUrl("https://github.com/fabric8io/fabric8/issues").build();
 
             projectRepository.save(project1);
             projectRepository.save(project2);
             projectRepository.save(project3);
+            projectRepository.save(project4);
 
             // Map projects to the product version
             ProductVersionProject productVersionProject1 = ProductVersionProject.Builder.newBuilder().project(project1)
@@ -141,6 +146,8 @@ public class DatabaseDataInitializer {
             ProductVersionProject productVersionProject2 = ProductVersionProject.Builder.newBuilder().project(project2)
                     .productVersion(productVersion).build();
             ProductVersionProject productVersionProject3 = ProductVersionProject.Builder.newBuilder().project(project3)
+                    .productVersion(productVersion).build();
+            ProductVersionProject productVersionProject4 = ProductVersionProject.Builder.newBuilder().project(project4)
                     .productVersion(productVersion).build();
 
             // Example build configurations
@@ -180,20 +187,36 @@ public class DatabaseDataInitializer {
                     .build();
             buildConfiguration3 = buildConfigurationRepository.save(buildConfiguration3);
 
+            BuildConfiguration buildConfiguration4 = BuildConfiguration.Builder.newBuilder()
+                    .name("io-fabric8-2.2-SNAPSHOT")
+                    .project(project4)
+                    .description("Test build for Fabric8")
+                    .environment(environment1)
+                    .buildScript("mvn clean deploy -Dmaven.test.skip")
+                    .scmRepoURL("https://github.com/fabric8io/fabric8.git")
+                    .build();
+            buildConfiguration4 = buildConfigurationRepository.save(buildConfiguration4);
+
             User demoUser = User.Builder.newBuilder().username("demo-user").firstName("Demo First Name")
                     .lastName("Demo Last Name").email("demo-user@pnc.com").build();
 
-            BuildRecord buildRecord = BuildRecord.Builder.newBuilder().buildScript("mvn clean deploy -Dmaven.test.skip")
+            BuildRecord buildRecord1 = BuildRecord.Builder.newBuilder().buildScript("mvn clean deploy -Dmaven.test.skip")
                     .name(buildConfiguration3.getName()).buildConfiguration(buildConfiguration3)
                     .scmRepoURL(buildConfiguration3.getScmRepoURL()).scmRevision(buildConfiguration3.getScmRevision())
                     .description("Build record test for jboss java servlet api").build();
+            BuildRecord buildRecord2 = BuildRecord.Builder.newBuilder().buildScript("mvn clean deploy -Dmaven.test.skip")
+                    .name(buildConfiguration4.getName()).buildConfiguration(buildConfiguration4)
+                    .scmRepoURL(buildConfiguration4.getScmRepoURL()).scmRevision(buildConfiguration4.getScmRevision())
+                    .description("Build record test for Fabric8").build();
 
             project1.getBuildConfigurations().add(buildConfiguration1);
             project2.getBuildConfigurations().add(buildConfiguration2);
             project3.getBuildConfigurations().add(buildConfiguration3);
+            project4.getBuildConfigurations().add(buildConfiguration4);
 
             userRepository.save(demoUser);
-            buildRecordRepository.save(buildRecord);
+            buildRecordRepository.save(buildRecord1);
+            buildRecordRepository.save(buildRecord2);
 
         } else {
             logger.info("There are >0 ({}) projects in DB. Skipping initialization." + numberOfProjectInDB);
