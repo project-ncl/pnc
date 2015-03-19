@@ -6,6 +6,7 @@ import org.jboss.pnc.core.BuildDriverFactory;
 import org.jboss.pnc.core.builder.BuildCoordinator;
 import org.jboss.pnc.core.builder.BuildTask;
 import org.jboss.pnc.core.exception.CoreException;
+import org.jboss.pnc.core.test.buildCoordinator.event.TestCDIBuildStatusChangedReceiver;
 import org.jboss.pnc.core.test.mock.BuildDriverMock;
 import org.jboss.pnc.core.test.mock.DatastoreMock;
 import org.jboss.pnc.model.Artifact;
@@ -13,18 +14,21 @@ import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildRecordSet;
 import org.jboss.pnc.model.Environment;
 import org.jboss.pnc.spi.BuildStatus;
-import org.jboss.pnc.spi.events.BuildStatusChangedEvent;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.asset.EmptyAsset;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
-import org.junit.Assert;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Consumer;
-import java.util.logging.Logger;
+
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2015-01-06.
@@ -37,25 +41,27 @@ public class ProjectBuilder {
     @Inject
     DatastoreMock datastore;
 
-    private static final Logger log = Logger.getLogger(ProjectBuilder.class.getName());
+    @Inject
+    TestCDIBuildStatusChangedReceiver statusChangedReceiver;
+
+    private static final Logger log = LoggerFactory.getLogger(ProjectBuilder.class);
 
     @Deployment
     public static JavaArchive createDeployment() {
-
         JavaArchive jar = ShrinkWrap.create(JavaArchive.class)
                 .addClass(Configuration.class)
                 .addClass(Environment.Builder.class)
-                .addPackages(true, BuildDriverFactory.class.getPackage(),
-                        BuildDriverMock.class.getPackage())
+                .addClass(TestCDIBuildStatusChangedReceiver.class)
+                .addPackages(true, BuildDriverFactory.class.getPackage(), BuildDriverMock.class.getPackage())
                 .addAsManifestResource(EmptyAsset.INSTANCE, "beans.xml")
                 .addAsResource("META-INF/logging.properties");
 
-        System.out.println(jar.toString(true));
+        log.debug(jar.toString(true));
         return jar;
     }
 
     void buildProject(BuildConfiguration buildConfiguration, BuildRecordSet buildRecordSet) throws InterruptedException, CoreException {
-        log.info("Building project " + buildConfiguration.getName());
+        log.info("Building project {}", buildConfiguration.getName());
         List<BuildStatus> receivedStatuses = new ArrayList<>();
 
         //Defines a number of callbacks, which are executed after buildStatus update
@@ -63,26 +69,26 @@ public class ProjectBuilder {
 
         final Semaphore semaphore = new Semaphore(nStatusUpdates);
 
-        Consumer<BuildStatusChangedEvent> onStatusUpdate = (statusUpdate) -> {
+        statusChangedReceiver.addBuildStatusChangedEventListener(statusUpdate -> {
             receivedStatuses.add(statusUpdate.getNewStatus());
             semaphore.release(1);
-            log.fine("Received status update " + statusUpdate.toString() + " for project " + buildConfiguration.getId());
-            log.finer("Semaphore released, there are " + semaphore.availablePermits() + " free entries.");
-        };
-        Set<Consumer<BuildStatusChangedEvent>> statusUpdateListeners = new HashSet<>();
-        statusUpdateListeners.add(onStatusUpdate);
+            log.debug("Received status update {} for project {}", statusUpdate.toString(), buildConfiguration.getId());
+            log.debug("Semaphore released, there are {} free entries", semaphore.availablePermits());
+        });
+
         semaphore.acquire(nStatusUpdates);
-        BuildTask buildTask = buildCoordinator.build(buildConfiguration, statusUpdateListeners, new HashSet<>());
+        BuildTask buildTask = buildCoordinator.build(buildConfiguration);
 
         List<BuildStatus> errorStates = Arrays.asList(BuildStatus.REJECTED, BuildStatus.SYSTEM_ERROR, BuildStatus.BUILD_ENV_SETUP_COMPLETE_WITH_ERROR);
         if (errorStates.contains(buildTask.getStatus())) {
-            throw new AssertionError("Build " + buildTask.getId() + " has status:" + buildTask.getStatus() + " with description: " + buildTask.getStatusDescription() + "");
+            fail("Build " + buildTask.getId() + " has status:" + buildTask.getStatus() + " with description: " + buildTask.getStatusDescription());
         }
 
-        log.fine("Build " + buildTask.getId() + " has been submitted.");
+        log.debug("Build {} has been submitted", buildTask.getId());
         if (!semaphore.tryAcquire(nStatusUpdates, 15, TimeUnit.SECONDS)) { //wait for callback to release
-            log.warning("Build " + buildTask.getId() + " has status:" + buildTask.getStatus() + " with description: " + buildTask.getStatusDescription() + ".");
-            throw new AssertionError("Timeout while waiting for status updates.");
+            log.warn("Build {} has status {} with description {}", buildTask.getId(), buildTask.getStatus(),
+                    buildTask.getStatusDescription());
+            fail("Timeout while waiting for status updates");
         }
 
         assertStatusUpdateReceived(receivedStatuses, BuildStatus.BUILD_ENV_SETTING_UP);
@@ -104,7 +110,7 @@ public class ProjectBuilder {
                 break;
             }
         }
-        Assert.assertTrue("Did not received update for status " + status + ".", received);
+        assertTrue("Did not received update for status " + status + ".", received);
     }
 
     protected class TestBuildConfig {
@@ -119,9 +125,9 @@ public class ProjectBuilder {
 
 
     protected void assertBuildArtifactsPresent(List<Artifact> builtArtifacts) {
-        Assert.assertTrue("Missing built artifacts.", builtArtifacts.size() > 0);
+        assertTrue("Missing built artifacts.", builtArtifacts.size() > 0);
         Artifact artifact = builtArtifacts.get(0);
-        Assert.assertTrue("Invalid built artifact in result.", artifact.getIdentifier().startsWith("test"));
+        assertTrue("Invalid built artifact in result.", artifact.getIdentifier().startsWith("test"));
     }
 
 }

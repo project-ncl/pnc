@@ -27,12 +27,14 @@ import org.jboss.util.graph.Edge;
 import org.jboss.util.graph.Vertex;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 /**
  *
@@ -54,16 +56,19 @@ public class BuildCoordinator {
     private EnvironmentDriverFactory environmentDriverFactory;
     private DatastoreAdapter datastoreAdapter;
 
+    private Instance<Consumer<BuildStatusChangedEvent>> registeredEventListeners;
+
     @Deprecated
     public BuildCoordinator(){} //workaround for CDI constructor parameter injection
 
     @Inject
     public BuildCoordinator(BuildDriverFactory buildDriverFactory, RepositoryManagerFactory repositoryManagerFactory, 
-            EnvironmentDriverFactory environmentDriverFactory, DatastoreAdapter datastoreAdapter) {
+            EnvironmentDriverFactory environmentDriverFactory, DatastoreAdapter datastoreAdapter, Instance<Consumer<BuildStatusChangedEvent>> registeredEventListeners) {
         this.buildDriverFactory = buildDriverFactory;
         this.repositoryManagerFactory = repositoryManagerFactory;
         this.datastoreAdapter = datastoreAdapter;
         this.environmentDriverFactory = environmentDriverFactory;
+        this.registeredEventListeners = registeredEventListeners;
     }
 
     public BuildTask build(BuildConfiguration buildConfiguration) throws CoreException {
@@ -71,9 +76,10 @@ public class BuildCoordinator {
     }
 
     public BuildTask build(BuildConfiguration buildConfiguration, Set<Consumer<BuildStatusChangedEvent>> statusUpdateListeners, Set<Consumer<String>> logConsumers) throws CoreException {
+        Set<Consumer<BuildStatusChangedEvent>> aggregatedListOfEventConsumers = createListOfConsumers(statusUpdateListeners);
         BuildTasksTree buildTasksTree = new BuildTasksTree(this);
 
-        BuildTask buildTask = buildTasksTree.getOrCreateSubmittedBuild(buildConfiguration, statusUpdateListeners, logConsumers);
+        BuildTask buildTask = buildTasksTree.getOrCreateSubmittedBuild(buildConfiguration, aggregatedListOfEventConsumers, logConsumers);
 
         if (!isBuildAlreadySubmitted(buildTask)) {
 
@@ -96,6 +102,15 @@ public class BuildCoordinator {
             buildTask.setStatusDescription("The configuration is already in the build queue.");
         }
         return buildTask;
+    }
+
+    private Set<Consumer<BuildStatusChangedEvent>> createListOfConsumers(Set<Consumer<BuildStatusChangedEvent>> initialSet) {
+        Set<Consumer<BuildStatusChangedEvent>> aggregatedConsumers = new HashSet<>();
+        aggregatedConsumers.addAll(initialSet);
+        if(registeredEventListeners != null) {
+            StreamSupport.stream(registeredEventListeners.spliterator(), false).forEach(listener -> aggregatedConsumers.add(listener));
+        }
+        return aggregatedConsumers;
     }
 
     private Consumer<Vertex<BuildTask>> processBuildTask() {
