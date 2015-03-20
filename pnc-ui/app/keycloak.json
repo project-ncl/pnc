@@ -4,7 +4,7 @@
   "realm-public-key" : "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCF6WP9SC6i9ulVqAItdu1qhsN9LoIywlJ3Qw7RUIMmPjKToCnDoq8glkJAkS4I3PbpWaFSBRvSObmAm4XvGv69kl1UPUW76Wgyqvr09fNSNds34MV4NuULE1muHHj3x49RqH4J/UPQvICtE77t+lvjd526uqHPyn+mZlN4B0K6hQIDAQAB",
   "auth-server-url" : "https://keycloak-pncauth.rhcloud.com/auth",
   "ssl-required" : "none",
-  "use-resource-role-mappings" : true,
+  "use-resource-role-mappings" : false,
   "enable-cors" : true,
   "cors-max-age" : 1000,
   "cors-allowed-methods" : "POST,PUT,DELETE,GET",

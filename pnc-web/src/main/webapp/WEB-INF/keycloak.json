@@ -5,6 +5,7 @@
   "ssl-required": "none",
   "resource": "pnc-rest-local",
   "bearer-only" : true,
+  "use-resource-role-mappings" : false,
   "credentials": {
     "secret": "ed9cc83f-8c01-4cf6-b761-8052d7aae986"
   }
