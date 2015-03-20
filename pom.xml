@@ -873,6 +873,9 @@
             <phase>generate-resources</phase>
             <configuration>
               <destFile>${sonar.jacoco.reportPath}</destFile>
+              <includes>
+                <include>org.jboss.pnc.*</include>
+              </includes>
             </configuration>
           </execution>
           <execution>
