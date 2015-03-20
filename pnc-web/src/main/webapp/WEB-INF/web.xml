@@ -3,18 +3,28 @@
       xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
       version="3.0">
 
-    <module-name>pnc-web</module-name>
+    <module-name>pnc-rest</module-name>
 
     <security-constraint>
         <web-resource-collection>
-            <web-resource-name>pnc-web</web-resource-name>
-            <url-pattern>/*</url-pattern>
+            <web-resource-name>products-rest-endpoint</web-resource-name>
+            <url-pattern>/rest/products</url-pattern>
         </web-resource-collection>
         <auth-constraint>
-            <role-name>pnc-admin</role-name>
-            <role-name>pnc-user</role-name>
+            <role-name>admin</role-name>
         </auth-constraint>
     </security-constraint>
+    
+    <security-constraint>
+        <web-resource-collection>
+            <web-resource-name>configuration-rest-endpoint</web-resource-name>
+            <url-pattern>/rest/configuration</url-pattern>
+        </web-resource-collection>
+        <auth-constraint>
+            <role-name>user</role-name>
+        </auth-constraint>
+    </security-constraint>
+    
     
     <login-config>
         <auth-method>KEYCLOAK</auth-method>
@@ -22,9 +32,9 @@
     </login-config>
 
     <security-role>
-        <role-name>pnc-admin</role-name>
+        <role-name>admin</role-name>
     </security-role>
     <security-role>
-        <role-name>pnc-user</role-name>
+        <role-name>user</role-name>
     </security-role>
 </web-app>
