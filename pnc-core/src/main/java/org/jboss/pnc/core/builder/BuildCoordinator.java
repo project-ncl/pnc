@@ -6,12 +6,7 @@ import org.jboss.pnc.core.EnvironmentDriverFactory;
 import org.jboss.pnc.core.RepositoryManagerFactory;
 import org.jboss.pnc.core.exception.CoreException;
 import org.jboss.pnc.core.exception.CoreExceptionWrapper;
-import org.jboss.pnc.model.BuildConfiguration;
-import org.jboss.pnc.model.BuildDriverStatus;
-import org.jboss.pnc.model.BuildRecordSet;
-import org.jboss.pnc.model.Product;
-import org.jboss.pnc.model.ProductVersion;
-import org.jboss.pnc.model.RepositoryType;
+import org.jboss.pnc.model.*;
 import org.jboss.pnc.spi.BuildResult;
 import org.jboss.pnc.spi.BuildStatus;
 import org.jboss.pnc.spi.builddriver.BuildDriver;
@@ -23,6 +18,7 @@ import org.jboss.pnc.spi.datastore.DatastoreException;
 import org.jboss.pnc.spi.environment.EnvironmentDriver;
 import org.jboss.pnc.spi.environment.RunningEnvironment;
 import org.jboss.pnc.spi.environment.exception.EnvironmentDriverException;
+import org.jboss.pnc.spi.events.BuildStatusChangedEvent;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManager;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerException;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
@@ -31,22 +27,14 @@ import org.jboss.util.graph.Edge;
 import org.jboss.util.graph.Vertex;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Queue;
-import java.util.Set;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionStage;
-import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
+import java.util.*;
+import java.util.concurrent.*;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 /**
  *
@@ -68,26 +56,30 @@ public class BuildCoordinator {
     private EnvironmentDriverFactory environmentDriverFactory;
     private DatastoreAdapter datastoreAdapter;
 
+    private Instance<Consumer<BuildStatusChangedEvent>> registeredEventListeners;
+
     @Deprecated
     public BuildCoordinator(){} //workaround for CDI constructor parameter injection
 
     @Inject
     public BuildCoordinator(BuildDriverFactory buildDriverFactory, RepositoryManagerFactory repositoryManagerFactory, 
-            EnvironmentDriverFactory environmentDriverFactory, DatastoreAdapter datastoreAdapter) {
+            EnvironmentDriverFactory environmentDriverFactory, DatastoreAdapter datastoreAdapter, Instance<Consumer<BuildStatusChangedEvent>> registeredEventListeners) {
         this.buildDriverFactory = buildDriverFactory;
         this.repositoryManagerFactory = repositoryManagerFactory;
         this.datastoreAdapter = datastoreAdapter;
         this.environmentDriverFactory = environmentDriverFactory;
+        this.registeredEventListeners = registeredEventListeners;
     }
 
     public BuildTask build(BuildConfiguration buildConfiguration) throws CoreException {
         return build(buildConfiguration, Collections.emptySet(), Collections.emptySet());
     }
 
-    public BuildTask build(BuildConfiguration buildConfiguration, Set<Consumer<BuildStatus>> statusUpdateListeners, Set<Consumer<String>> logConsumers) throws CoreException {
+    public BuildTask build(BuildConfiguration buildConfiguration, Set<Consumer<BuildStatusChangedEvent>> statusUpdateListeners, Set<Consumer<String>> logConsumers) throws CoreException {
+        Set<Consumer<BuildStatusChangedEvent>> aggregatedListOfEventConsumers = createListOfConsumers(statusUpdateListeners);
         BuildTasksTree buildTasksTree = new BuildTasksTree(this);
 
-        BuildTask buildTask = buildTasksTree.getOrCreateSubmittedBuild(buildConfiguration, statusUpdateListeners, logConsumers);
+        BuildTask buildTask = buildTasksTree.getOrCreateSubmittedBuild(buildConfiguration, aggregatedListOfEventConsumers, logConsumers);
 
         if (!isBuildAlreadySubmitted(buildTask)) {
 
@@ -110,6 +102,15 @@ public class BuildCoordinator {
             buildTask.setStatusDescription("The configuration is already in the build queue.");
         }
         return buildTask;
+    }
+
+    private Set<Consumer<BuildStatusChangedEvent>> createListOfConsumers(Set<Consumer<BuildStatusChangedEvent>> initialSet) {
+        Set<Consumer<BuildStatusChangedEvent>> aggregatedConsumers = new HashSet<>();
+        aggregatedConsumers.addAll(initialSet);
+        if(registeredEventListeners != null) {
+            StreamSupport.stream(registeredEventListeners.spliterator(), false).forEach(listener -> aggregatedConsumers.add(listener));
+        }
+        return aggregatedConsumers;
     }
 
     private Consumer<Vertex<BuildTask>> processBuildTask() {

@@ -3,6 +3,7 @@ package org.jboss.pnc.core.builder;
 import org.jboss.logging.Logger;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.spi.BuildStatus;
+import org.jboss.pnc.spi.events.BuildStatusChangedEvent;
 import org.jboss.util.graph.Edge;
 import org.jboss.util.graph.Graph;
 import org.jboss.util.graph.Vertex;
@@ -31,7 +32,7 @@ public class BuildTasksTree {
         return getOrCreateSubmittedBuild(buildConfiguration, Collections.emptySet(), Collections.emptySet());
     }
 
-    BuildTask getOrCreateSubmittedBuild(BuildConfiguration buildConfiguration, Set<Consumer<BuildStatus>> statusUpdateListeners, Set<Consumer<String>> logConsumers) {
+    BuildTask getOrCreateSubmittedBuild(BuildConfiguration buildConfiguration, Set<Consumer<BuildStatusChangedEvent>> statusUpdateListeners, Set<Consumer<String>> logConsumers) {
         Vertex<BuildTask> submittedBuildVertex = getVertexByBuildConfiguration(buildConfiguration);
         if (submittedBuildVertex != null) {
             return submittedBuildVertex.getData();
