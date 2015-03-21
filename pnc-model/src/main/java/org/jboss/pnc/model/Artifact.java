@@ -10,6 +10,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
+import javax.validation.constraints.NotNull;
 
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-11-23.
@@ -64,6 +65,7 @@ public class Artifact implements Serializable {
     private ArtifactStatus status;
 
     // bi-directional many-to-one association to buildRecord
+    @NotNull
     @ManyToOne
     private BuildRecord buildRecord;
 

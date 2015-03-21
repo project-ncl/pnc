@@ -105,15 +105,18 @@ public class BuildConfigurationRestTest {
 
     @Test
     public void shouldCreateNewBuildConfiguration() throws IOException {
-        String rawJson = loadJsonFromFile("buildConfiguration");
+        JsonTemplateBuilder configurationTemplate = JsonTemplateBuilder.fromResource("buildConfiguration_create_template");
+        configurationTemplate.addValue("_projectId", String.valueOf(projectId));
+        configurationTemplate.addValue("_environmentId", String.valueOf(environmentId));
 
-        given().body(rawJson).contentType(ContentType.JSON).port(getHttpPort()).when().post(CONFIGURATION_REST_ENDPOINT).then()
+        given().body(configurationTemplate.fillTemplate()).contentType(ContentType.JSON).port(getHttpPort()).when().post(CONFIGURATION_REST_ENDPOINT).then()
                 .statusCode(201);
     }
 
     @Test
     public void shouldCreateNewBuildConfigurationWithCreateAndModifiedTime() throws IOException {
-        JsonTemplateBuilder configurationTemplate = JsonTemplateBuilder.fromResource("buildConfigurationWithEmptyCreateDate_template");
+        JsonTemplateBuilder configurationTemplate = JsonTemplateBuilder.fromResource("buildConfiguration_WithEmptyCreateDate_template");
+        configurationTemplate.addValue("_projectId", String.valueOf(projectId));
         configurationTemplate.addValue("_environmentId", String.valueOf(environmentId));
 
         Response response = given().body(configurationTemplate.fillTemplate()).contentType(ContentType.JSON).port(getHttpPort()).when().post(CONFIGURATION_REST_ENDPOINT);
@@ -131,7 +134,7 @@ public class BuildConfigurationRestTest {
         final String updatedName = "pnc-1.0.1.ER1";
         final String updatedProjectId = String.valueOf(projectId);
 
-        JsonTemplateBuilder configurationTemplate = JsonTemplateBuilder.fromResource("buildConfiguration_template");
+        JsonTemplateBuilder configurationTemplate = JsonTemplateBuilder.fromResource("buildConfiguration_update_template");
         configurationTemplate.addValue("_id", String.valueOf(configurationId));
         configurationTemplate.addValue("_name", updatedName);
         configurationTemplate.addValue("_buildScript", updatedBuildScript);

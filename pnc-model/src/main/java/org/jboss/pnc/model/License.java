@@ -10,6 +10,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
+import javax.validation.constraints.NotNull;
 
 import org.hibernate.annotations.Type;
 
@@ -28,8 +29,10 @@ public class License implements Serializable {
     @GeneratedValue(strategy=GenerationType.SEQUENCE, generator="license_id_seq")
     private Integer id;
 
+    @NotNull
     private String fullName;
 
+    @NotNull
     @Type(type = "org.hibernate.type.TextType")
     private String fullContent;
 

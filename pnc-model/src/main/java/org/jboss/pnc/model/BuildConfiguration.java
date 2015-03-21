@@ -11,6 +11,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.PreRemove;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Version;
+import javax.validation.constraints.NotNull;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
@@ -39,6 +40,7 @@ public class BuildConfiguration implements Serializable, Cloneable {
     @GeneratedValue(strategy=GenerationType.SEQUENCE, generator="build_configuration_id_seq")
     private Integer id;
 
+    @NotNull
     private String name;
 
     private String buildScript;
@@ -54,9 +56,11 @@ public class BuildConfiguration implements Serializable, Cloneable {
     @ManyToOne(cascade = { CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH })
     private ProductVersion productVersion;
 
+    @NotNull
     @ManyToOne(cascade = { CascadeType.REFRESH, CascadeType.DETACH })
     private Project project;
 
+    @NotNull
     @ManyToOne(cascade = { CascadeType.REFRESH, CascadeType.DETACH })
     private Environment environment;
 
@@ -69,8 +73,10 @@ public class BuildConfiguration implements Serializable, Cloneable {
     @ManyToMany(mappedBy = "buildConfigurations")
     private Set<BuildConfigurationSet> buildConfigurationSets;
 
+    @NotNull
     private Timestamp creationTime;
 
+    @NotNull
     @Version
     private Timestamp lastModificationTime;
 

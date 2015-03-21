@@ -14,6 +14,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.PreRemove;
 import javax.persistence.SequenceGenerator;
+import javax.validation.constraints.NotNull;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
@@ -42,6 +43,7 @@ public class BuildRecord implements Serializable {
     @GeneratedValue(strategy=GenerationType.SEQUENCE, generator="build_record_id_seq")
     private Integer id;
 
+    @NotNull
     @ManyToOne(cascade = { CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH }, fetch = FetchType.LAZY)
     private BuildConfiguration buildConfiguration;
 
@@ -57,10 +59,13 @@ public class BuildRecord implements Serializable {
 
     private String patchesUrl;
 
+    @NotNull
     private Timestamp startTime;
 
+    @NotNull
     private Timestamp endTime;
 
+    @NotNull
     @ManyToOne
     private User user;
 
