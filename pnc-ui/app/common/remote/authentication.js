@@ -11,7 +11,7 @@
    * @author Pavel Slegr
    * @author Alex Creasy
    */
-  var module = angular.module('pnc.remote.authentication', ['Notifications']);
+  var module = angular.module('pnc.remote.authentication', []);
 
   var auth = {};
   var logout = function(){
