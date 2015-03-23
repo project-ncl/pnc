@@ -4,7 +4,7 @@ import java.io.InputStream;
 import java.io.Serializable;
 
 import org.jboss.pnc.spi.environment.exception.EnvironmentDriverException;
-import org.jboss.pnc.spi.repositorymanager.model.RepositorySession;
+import org.jboss.pnc.spi.repositorymanager.model.RepositoryConfiguration;
 
 /**
  * Identification of environment started by environment driver
@@ -59,6 +59,6 @@ public interface RunningEnvironment extends Serializable {
      */
     String getJenkinsUrl();
 
-    RepositorySession getRepositorySession();
+    RepositoryConfiguration getRepositoryConfiguration();
 
 }

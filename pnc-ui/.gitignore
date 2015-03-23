@@ -6,4 +6,3 @@ bower_components
 .build-tmp
 node
 rest-config.json
-/target/

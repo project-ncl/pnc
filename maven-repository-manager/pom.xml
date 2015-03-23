@@ -73,43 +73,20 @@
       <artifactId>aprox-test-fixtures-core</artifactId>
       <scope>test</scope>
     </dependency>
-    <dependency>
-      <groupId>org.apache.derby</groupId>
-      <artifactId>derby</artifactId>
-    </dependency>
   </dependencies>
-  
-  <dependencyManagement>
-    <dependencies>
-      <dependency>
-        <groupId>org.jboss.resteasy</groupId>
-        <artifactId>resteasy-jaxrs</artifactId>
-        <version>3.0.9.Final</version>
-      </dependency>
-      <dependency>
-        <groupId>org.jboss.resteasy</groupId>
-        <artifactId>jaxrs-api</artifactId>
-        <version>3.0.9.Final</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.derby</groupId>
-        <artifactId>derby</artifactId>
-        <version>10.10.2.0</version>
-        <scope>test</scope>
-      </dependency>
-    </dependencies>
-  </dependencyManagement>
   
   <build>
     <pluginManagement>
       <plugins>
         <plugin>
           <artifactId>maven-surefire-plugin</artifactId>
+          <!--
           <configuration>
-            <forkCount>2C</forkCount>
+            <forkCount>1C</forkCount>
             <reuseForks>false</reuseForks>
             <redirectTestOutputToFile>true</redirectTestOutputToFile>
           </configuration>
+          -->
         </plugin>
       </plugins>
     </pluginManagement>
