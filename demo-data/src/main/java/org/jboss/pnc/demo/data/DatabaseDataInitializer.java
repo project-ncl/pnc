@@ -1,6 +1,7 @@
 package org.jboss.pnc.demo.data;
 
 import com.google.common.base.Preconditions;
+
 import org.jboss.logging.Logger;
 import org.jboss.pnc.datastore.repositories.*;
 import org.jboss.pnc.model.*;
@@ -11,7 +12,11 @@ import javax.ejb.Startup;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
 import javax.inject.Inject;
+
 import java.lang.invoke.MethodHandles;
+import java.sql.Timestamp;
+import java.time.Instant;
+import java.util.Date;
 
 /**
  * Data for the DEMO.
@@ -183,7 +188,10 @@ public class DatabaseDataInitializer {
             BuildRecord buildRecord = BuildRecord.Builder.newBuilder().buildScript("mvn clean deploy -Dmaven.test.skip")
                     .name(buildConfiguration3.getName()).buildConfiguration(buildConfiguration3)
                     .scmRepoURL(buildConfiguration3.getScmRepoURL()).scmRevision(buildConfiguration3.getScmRevision())
-                    .description("Build record test for jboss java servlet api").build();
+                    .description("Build record test for jboss java servlet api")
+                    .startTime(Timestamp.from(Instant.now()))
+                    .endTime(Timestamp.from(Instant.now()))
+                    .user(demoUser).build();
 
             buildConfigurationSetRepository.save(buildConfigurationSet1);
             userRepository.save(demoUser);

@@ -18,6 +18,7 @@
 package org.jboss.pnc.model;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 
 import java.io.Serializable;
 import java.util.HashSet;
@@ -39,6 +40,7 @@ public class Product implements Serializable {
     @GeneratedValue(strategy=GenerationType.SEQUENCE, generator="product_id_seq")
     private Integer id;
 
+    @NotNull
     private String name;
 
     private String description;

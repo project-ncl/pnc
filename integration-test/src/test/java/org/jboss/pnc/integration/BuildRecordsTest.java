@@ -1,6 +1,7 @@
 package org.jboss.pnc.integration;
 
 import cz.jirutka.rsql.parser.RSQLParserException;
+
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.junit.InSequence;
@@ -8,7 +9,10 @@ import org.jboss.arquillian.transaction.api.annotation.Transactional;
 import org.jboss.pnc.datastore.predicates.RSQLPredicateProducer;
 import org.jboss.pnc.datastore.repositories.BuildConfigurationRepository;
 import org.jboss.pnc.datastore.repositories.BuildRecordRepository;
+import org.jboss.pnc.datastore.repositories.UserRepository;
+import org.jboss.pnc.integration.assertions.ResponseAssertion;
 import org.jboss.pnc.integration.deployments.Deployments;
+import org.jboss.pnc.integration.matchers.JsonMatcher;
 import org.jboss.pnc.model.*;
 import org.jboss.pnc.rest.provider.ArtifactProvider;
 import org.jboss.pnc.rest.provider.BuildRecordProvider;
@@ -16,18 +20,27 @@ import org.jboss.pnc.rest.restmodel.ArtifactRest;
 import org.jboss.pnc.rest.restmodel.BuildRecordRest;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.jayway.restassured.http.ContentType;
+import com.jayway.restassured.response.Response;
+
 import javax.inject.Inject;
 import javax.ws.rs.core.StreamingOutput;
+
 import java.lang.invoke.MethodHandles;
+import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.jayway.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.jboss.pnc.integration.env.IntegrationTestEnv.getHttpPort;
 import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
 
 @RunWith(Arquillian.class)
@@ -49,6 +62,9 @@ public class BuildRecordsTest {
     @Inject
     private BuildRecordProvider buildRecordProvider;
 
+    @Inject
+    private UserRepository userRepository;
+
     @Deployment
     public static EnterpriseArchive deploy() {
         EnterpriseArchive enterpriseArchive = Deployments.baseEarWithTestDependencies();
@@ -57,6 +73,7 @@ public class BuildRecordsTest {
         logger.info(enterpriseArchive.toString(true));
         return enterpriseArchive;
     }
+
 
     @Test
     @InSequence(-1)
@@ -68,12 +85,20 @@ public class BuildRecordsTest {
         Artifact artifact = new Artifact();
         artifact.setIdentifier("test");
         artifact.setStatus(ArtifactStatus.BINARY_BUILT);
+        
+        List<User> users = userRepository.findAll();
+        assertThat(users.size() > 0).isTrue();
+        User user = users.get(0);
 
         BuildRecord buildRecord = new BuildRecord();
         buildRecord.setName("java-apns-1.0.0.Beta5");
         buildRecord.setBuildLog("test");
         buildRecord.setStatus(BuildDriverStatus.SUCCESS);
         buildRecord.setBuildConfiguration(buildConfiguration);
+        buildRecord.setStartTime(Timestamp.from(Instant.now()));
+        buildRecord.setEndTime(Timestamp.from(Instant.now()));
+        logger.info(user.toString());
+        buildRecord.setUser(user);
 
         artifact.setBuildRecord(buildRecord);
         buildRecord.getBuiltArtifacts().add(artifact);

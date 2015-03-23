@@ -31,6 +31,7 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
+import javax.validation.constraints.NotNull;
 
 /**
  * Defines the relationship between the Product and the Project, for a specific version
@@ -51,6 +52,7 @@ public class BuildConfigurationSet implements Serializable {
     @GeneratedValue(strategy=GenerationType.SEQUENCE, generator="build_configuration_set_id_seq")
     private Integer id;
 
+    @NotNull
     private String name;
 
     @ManyToOne(cascade = { CascadeType.REFRESH, CascadeType.DETACH })

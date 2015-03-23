@@ -1,6 +1,7 @@
 package org.jboss.pnc.model;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 
 import java.io.Serializable;
 import java.util.HashSet;
@@ -25,6 +26,7 @@ public class Project implements Serializable {
     @GeneratedValue(strategy=GenerationType.SEQUENCE, generator="project_id_seq")
     private Integer id;
 
+    @NotNull
     private String name;
 
     private String description;

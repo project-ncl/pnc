@@ -5,5 +5,7 @@
     "patchesUrl":null,
     "creationTime":1418382545021,
     "lastModificationTime":1418382545038,
-    "repositories":null
+    "repositories":null,
+    "projectId": "${_projectId}",
+    "environmentId": "${_environmentId}"
 }

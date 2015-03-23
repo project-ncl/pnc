@@ -27,6 +27,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.SequenceGenerator;
+import javax.validation.constraints.NotNull;
 
 import java.io.Serializable;
 import java.util.HashSet;
@@ -47,6 +48,7 @@ public class ProductVersion implements Serializable {
     @GeneratedValue(strategy=GenerationType.SEQUENCE, generator="product_version_id_seq")
     private Integer id;
 
+    @NotNull
     private String version;
 
     private boolean released;
@@ -55,6 +57,7 @@ public class ProductVersion implements Serializable {
 
     private String internalDownloadUrl;
 
+    @NotNull
     @ManyToOne(cascade = { CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH })
     private Product product;
 
