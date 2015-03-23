@@ -6,7 +6,7 @@ import static org.junit.Assert.assertThat;
 
 import org.jboss.pnc.model.BuildRecordSet;
 import org.jboss.pnc.model.BuildConfiguration;
-import org.jboss.pnc.spi.repositorymanager.model.RepositorySession;
+import org.jboss.pnc.spi.repositorymanager.model.RepositoryConfiguration;
 import org.jboss.pnc.spi.repositorymanager.model.RepositoryConnectionInfo;
 import org.junit.Test;
 
@@ -21,7 +21,7 @@ public class RepositoryManagerDriver02Test
         BuildRecordSet bc = new BuildRecordSet();
         bc.setProductVersion(pbc.getProductVersion());
 
-        RepositorySession repositoryConfiguration = driver.createBuildRepository(pbc, bc);
+        RepositoryConfiguration repositoryConfiguration = driver.createRepository(pbc, bc);
         assertThat(repositoryConfiguration, notNullValue());
 
         RepositoryConnectionInfo connectionInfo = repositoryConfiguration.getConnectionInfo();

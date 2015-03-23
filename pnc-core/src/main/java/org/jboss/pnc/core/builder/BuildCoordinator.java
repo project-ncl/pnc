@@ -22,7 +22,7 @@ import org.jboss.pnc.spi.events.BuildStatusChangedEvent;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManager;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerException;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
-import org.jboss.pnc.spi.repositorymanager.model.RepositorySession;
+import org.jboss.pnc.spi.repositorymanager.model.RepositoryConfiguration;
 import org.jboss.util.graph.Edge;
 import org.jboss.util.graph.Vertex;
 
@@ -168,7 +168,7 @@ public class BuildCoordinator {
                 .handle((buildResults, e) -> storeResults(buildTask, buildResults, backupRunningEnvironment, e));
     }
 
-    private CompletableFuture<RepositorySession> configureRepository(BuildTask buildTask, RepositoryManager repositoryManager) {
+    private CompletableFuture<RepositoryConfiguration> configureRepository(BuildTask buildTask, RepositoryManager repositoryManager) {
         return CompletableFuture.supplyAsync( () ->  {
             buildTask.setStatus(BuildStatus.REPO_SETTING_UP);
             BuildConfiguration buildConfiguration = buildTask.getBuildConfiguration();
@@ -183,7 +183,7 @@ public class BuildCoordinator {
                 productVersion.setProduct(product);
                 buildRecordSet.setProductVersion(productVersion);
 
-                return repositoryManager.createBuildRepository(buildConfiguration, buildRecordSet);
+                return repositoryManager.createRepository(buildConfiguration, buildRecordSet);
             } catch (RepositoryManagerException e) {
                 throw new CoreExceptionWrapper(e);
             }
@@ -191,14 +191,14 @@ public class BuildCoordinator {
     }
 
     private CompletableFuture<RunningEnvironment> setUpEnvironment(BuildTask buildTask, 
-            EnvironmentDriver envDriver, RepositorySession repositorySession,
+            EnvironmentDriver envDriver, RepositoryConfiguration repositoryConfiguration,
             RunningEnvironmentWrapper backupRunningEnvironment) {
             return CompletableFuture.supplyAsync( () ->  {
                 buildTask.setStatus(BuildStatus.BUILD_ENV_SETTING_UP);
                 
                 try {
                     RunningEnvironment runningEnv = envDriver.buildEnvironment(
-                            buildTask.getBuildConfiguration().getEnvironment(), repositorySession);
+                            buildTask.getBuildConfiguration().getEnvironment(), repositoryConfiguration);
 
                     backupRunningEnvironment.setRunningEnvironment(runningEnv);
                     buildTask.setStatus(BuildStatus.BUILD_ENV_SETUP_COMPLETE_SUCCESS);
@@ -263,7 +263,7 @@ public class BuildCoordinator {
                 buildTask.setStatus(BuildStatus.COLLECTING_RESULTS_FROM_REPOSITORY_NAMAGER);
                 RunningEnvironment runningEnvironment  = buildDriverResult.getRunningEnvironment();
                 if (BuildDriverStatus.SUCCESS.equals(buildDriverResult.getBuildDriverStatus())) {
-                    RepositoryManagerResult repositoryManagerResult = runningEnvironment.getRepositorySession().extractBuildArtifacts();
+                    RepositoryManagerResult repositoryManagerResult = runningEnvironment.getRepositoryConfiguration().extractBuildArtifacts();
                     return new DefaultBuildResult(runningEnvironment, buildDriverResult, repositoryManagerResult);
                 } else {
                     return new DefaultBuildResult(runningEnvironment, buildDriverResult, null);

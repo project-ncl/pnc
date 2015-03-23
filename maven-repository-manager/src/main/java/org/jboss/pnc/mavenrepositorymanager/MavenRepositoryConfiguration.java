@@ -15,11 +15,12 @@ import org.commonjava.maven.atlas.ident.ref.ArtifactRef;
 import org.commonjava.maven.atlas.ident.util.ArtifactPathInfo;
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.ArtifactStatus;
+import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.RepositoryType;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerException;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
+import org.jboss.pnc.spi.repositorymanager.model.RepositoryConfiguration;
 import org.jboss.pnc.spi.repositorymanager.model.RepositoryConnectionInfo;
-import org.jboss.pnc.spi.repositorymanager.model.RepositorySession;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -30,7 +31,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public class MavenRepositorySession implements RepositorySession
+public class MavenRepositoryConfiguration implements RepositoryConfiguration
 {
 
     private Aprox aprox;
@@ -42,7 +43,7 @@ public class MavenRepositorySession implements RepositorySession
 
     // TODO: Create and pass in suitable parameters to Aprox to create the
     //       proxy repository.
-    public MavenRepositorySession(Aprox aprox, String id, String collectionId, MavenRepositoryConnectionInfo info)
+    public MavenRepositoryConfiguration(Aprox aprox, String id, String collectionId, MavenRepositoryConnectionInfo info)
     {
         this.aprox = aprox;
         this.id = id;
@@ -68,7 +69,6 @@ public class MavenRepositorySession implements RepositorySession
         return id;
     }
 
-    @Override
     public String getCollectionId() {
         return collectionId;
     }
@@ -100,6 +100,8 @@ public class MavenRepositorySession implements RepositorySession
         // clean up.
         try {
             aprox.module(AproxFoloAdminClientModule.class).clearTrackingRecord(id, StoreType.group, id);
+            aprox.stores().delete(StoreType.group, id);
+            aprox.stores().delete(StoreType.remote, id);
         } catch (AproxClientException e) {
             throw new RepositoryManagerException(
                     "Failed to clean up build repositories / tracking information for: %s. Reason: %s", e, id,
@@ -174,7 +176,8 @@ public class MavenRepositorySession implements RepositorySession
     }
 
     /**
-     * Return output artifacts metadata.
+     * Promote all build output to the hosted repository holding store for the build collection to which this build belongs,
+     * and return output artifacts metadata.
      *
      * @param report The tracking report that contains info about artifacts uploaded (output) from the build
      * @return List of output artifacts meta data
@@ -183,8 +186,20 @@ public class MavenRepositorySession implements RepositorySession
     private List<Artifact> processUploads(TrackedContentDTO report)
             throws RepositoryManagerException {
 
+        AproxContentClientModule content;
+        try {
+            content = aprox.content();
+        } catch (AproxClientException e) {
+            throw new RepositoryManagerException("Failed to retrieve AProx client module. Reason: %s", e, e.getMessage());
+        }
+
         Set<TrackedContentEntryDTO> uploads = report.getUploads();
         if (uploads != null) {
+            PromoteRequest promoteReq = new PromoteRequest(new StoreKey(StoreType.hosted, id), new StoreKey(
+                    StoreType.hosted, collectionId));
+
+            doPromote(promoteReq);
+
             List<Artifact> builds = new ArrayList<>();
 
             for (TrackedContentEntryDTO upload : uploads) {
@@ -197,6 +212,7 @@ public class MavenRepositorySession implements RepositorySession
                 }
 
                 ArtifactRef aref = new ArtifactRef(pathInfo.getProjectId(), pathInfo.getType(), pathInfo.getClassifier(), false);
+                content.contentUrl(StoreType.hosted, collectionId, upload.getPath());
 
                 Artifact.Builder artifactBuilder = Artifact.Builder.newBuilder().checksum(upload.getSha256())
                         .deployUrl(upload.getLocalUrl()).filename(new File(path).getName()).identifier(aref.toString())
