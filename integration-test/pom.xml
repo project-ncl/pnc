@@ -19,8 +19,9 @@
     <jboss.version>8.2.0.Final</jboss.version>
     <test.server.unpack.dir>${project.build.directory}</test.server.unpack.dir>
     <test.server.build.dir>${test.server.unpack.dir}/${app.server}-${jboss.version}</test.server.build.dir>
+    <arquillian.container.type>managed</arquillian.container.type>
     <arquillian.container.groupId>org.wildfly</arquillian.container.groupId>
-    <arquillian.container.artifactId>wildfly-arquillian-container-managed</arquillian.container.artifactId>
+    <arquillian.container.artifactId>wildfly-arquillian-container-${arquillian.container.type}</arquillian.container.artifactId>
     <arquillian.container.version>8.2.0.Final</arquillian.container.version>
     <jboss.port.offset>0</jboss.port.offset>
     <default.management.port>9990</default.management.port>
@@ -160,11 +161,18 @@
 
   <profiles>
     <profile>
-      <id>wildfly-820</id>
+      <id>wildfly-820-remote</id>
       <activation>
         <property>
-          <name>!eap</name>
+            <name>arquillian.container.type</name>
+            <value>remote</value>
         </property>
+      </activation>
+    </profile>
+    <profile>
+      <id>wildfly-820-managed</id>
+      <activation>
+        <activeByDefault>true</activeByDefault>
       </activation>
       <build>
         <plugins>
