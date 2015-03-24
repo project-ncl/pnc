@@ -20,6 +20,8 @@ class BuildJob {
     private JobWithDetails job;
     private int buildNumber;
     
+    private boolean crumbflag;
+    
     private static final Logger log = Logger.getLogger(BuildJob.class.getName());
 
     public BuildJob(JenkinsServer jenkinsServer, BuildConfiguration buildConfiguration) {
@@ -27,9 +29,12 @@ class BuildJob {
         this.buildConfiguration = buildConfiguration;
     }
 
-    public boolean configure(RunningEnvironment runningEnvironment, boolean override) throws BuildDriverException {
+    public boolean configure(RunningEnvironment runningEnvironment, boolean override, boolean crumbFlag) throws BuildDriverException {
         String jobName = getJobName();
-
+        
+        // is jenkins using Default Crumb Issuer - Prevent Cross Site Request Forgery exploits
+        this.crumbflag = crumbFlag;
+        
         this.buildJobConfig = new BuildJobConfig(
                 jobName,
                 buildConfiguration.getScmRepoURL(),
@@ -39,20 +44,19 @@ class BuildJob {
         try {
             job = jenkinsServer.getJob(jobName);
         } catch (IOException e) {
-            // mnovotny: no job exist so throwing exception is effectively stopping configuration 
-            //throw new BuildDriverException("Cannot check for existing job.", e);           
+            throw new BuildDriverException("Cannot check for existing job.", e);
         }
 
         try {
             if (job != null) {
                 if (override) {
-                    jenkinsServer.updateJob(jobName, buildJobConfig.getXml(), false);
+                    jenkinsServer.updateJob(jobName, buildJobConfig.getXml(), crumbflag);
                 } else {
                     throw new BuildDriverException("Cannot update existing job without 'override=true'."); 
                 }
             } else {
                 log.info("job config:\n" + buildJobConfig.getXml());
-                jenkinsServer.createJob(jobName, buildJobConfig.getXml(), false);
+                jenkinsServer.createJob(jobName, buildJobConfig.getXml(), crumbflag);
             }
         } catch (IOException e) {
             throw new BuildDriverException("Cannot create/update job.", e);
@@ -74,7 +78,7 @@ class BuildJob {
         buildNumber = -1;
         try {
             buildNumber = job.getNextBuildNumber();
-            job.build(false);
+            job.build(crumbflag);
         } catch (IOException e) {
             throw new BuildDriverException("Cannot start project build.", e);
         }
