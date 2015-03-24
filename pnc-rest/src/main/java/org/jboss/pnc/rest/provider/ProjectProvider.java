@@ -64,6 +64,10 @@ public class ProjectProvider {
         return project.getId();
     }
 
+    public void delete(Integer projectId) {
+        projectRepository.delete(projectId);
+    }
+
     public Function<? super Project, ? extends ProjectRest> toRestModel() {
         return project -> new ProjectRest(project);
     }
