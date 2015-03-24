@@ -106,4 +106,16 @@ public class BuildConfigurationSetEndpoint {
         return buildConfigurationSetProvider.getBuildConfigurations(id);
     }
 
+    @ApiOperation(value = "Builds the Configurations for the Specified Set")
+    @POST
+    @Path("/{id}/build")
+    public Response build(
+            @ApiParam(value = "Build Configuration Set id", required = true) @PathParam("id") Integer id) {
+        BuildConfigurationSetRest buildConfigSet = buildConfigurationSetProvider.getSpecific(id);
+        logger.info("Executing build configuration set: " + buildConfigSet.getName() );
+        // This is just a place holder until the logic is added for executing a set
+        logger.info("Not currently implemented");
+        return Response.ok().build();
+    }
+
 }
