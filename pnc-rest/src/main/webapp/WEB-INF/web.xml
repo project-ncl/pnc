@@ -11,7 +11,7 @@
             <url-pattern>/rest/product</url-pattern>
         </web-resource-collection>
         <auth-constraint>
-            <role-name>admin</role-name>
+            <role-name>product-manager</role-name>
         </auth-constraint>
     </security-constraint>
     
@@ -21,7 +21,7 @@
             <url-pattern>/rest/product/*</url-pattern>
         </web-resource-collection>
         <auth-constraint>
-            <role-name>admin</role-name>
+            <role-name>product-manager</role-name>
         </auth-constraint>
     </security-constraint>
     
@@ -32,7 +32,7 @@
             <url-pattern>/rest/configuration</url-pattern>
         </web-resource-collection>
         <auth-constraint>
-            <role-name>user</role-name>
+            <role-name>config-manager</role-name>
         </auth-constraint>
     </security-constraint>
     
@@ -42,7 +42,7 @@
             <url-pattern>/rest/configuration/*</url-pattern>
         </web-resource-collection>
         <auth-constraint>
-            <role-name>user</role-name>
+            <role-name>config-manager</role-name>
         </auth-constraint>
     </security-constraint>
     
@@ -58,5 +58,11 @@
     </security-role>
     <security-role>
         <role-name>user</role-name>
+    </security-role>
+    <security-role>
+        <role-name>product-manager</role-name>
+    </security-role>
+    <security-role>
+        <role-name>config-manager</role-name>
     </security-role>
 </web-app>
