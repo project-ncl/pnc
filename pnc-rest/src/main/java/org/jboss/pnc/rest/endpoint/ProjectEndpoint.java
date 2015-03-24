@@ -3,6 +3,7 @@ package org.jboss.pnc.rest.endpoint;
 import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
 import com.wordnik.swagger.annotations.ApiParam;
+
 import org.jboss.pnc.rest.provider.ProjectProvider;
 import org.jboss.pnc.rest.restmodel.ProjectRest;
 
@@ -11,6 +12,7 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
+
 import java.util.List;
 
 @Api(value = "/project", description = "Project related information")
@@ -60,6 +62,14 @@ public class ProjectEndpoint {
     public Response update(@ApiParam(value = "Project id", required = true) @PathParam("id") Integer productId,
             @NotNull @Valid ProjectRest projectRest, @Context UriInfo uriInfo) {
         projectProvider.update(projectRest);
+        return Response.ok().build();
+    }
+
+    @ApiOperation(value = "Removes a specific project and associated build configurations")
+    @DELETE
+    @Path("/{id}")
+    public Response deleteSpecific(@ApiParam(value = "Project id", required = true) @PathParam("id") Integer id) {
+        projectProvider.delete(id);
         return Response.ok().build();
     }
 

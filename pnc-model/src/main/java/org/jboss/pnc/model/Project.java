@@ -38,7 +38,7 @@ public class Project implements Serializable {
     @ManyToOne
     private License license;
 
-    @OneToMany(mappedBy = "project")
+    @OneToMany(mappedBy = "project", cascade={CascadeType.REFRESH, CascadeType.REMOVE})
     private Set<BuildConfiguration> buildConfigurations;
 
     /**
