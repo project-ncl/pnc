@@ -1,5 +1,9 @@
 package org.jboss.pnc.model;
 
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -12,10 +16,6 @@ import javax.persistence.ManyToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.PreRemove;
 import javax.persistence.SequenceGenerator;
-
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * The Class BuildRecordSet, that encapsulates the set of buildRecords that compose a specific version of a Product.
@@ -33,6 +33,8 @@ public class BuildRecordSet implements Serializable {
     @SequenceGenerator(name="build_record_set_id_seq", sequenceName="build_record_set_id_seq", allocationSize=1)    
     @GeneratedValue(strategy=GenerationType.SEQUENCE, generator="build_record_set_id_seq")
     private Integer id;
+
+    private String buildSetContentId;
 
     @Enumerated(EnumType.STRING)
     private ProductMilestone milestone;
@@ -120,6 +122,18 @@ public class BuildRecordSet implements Serializable {
         this.buildRecord = record;
     }
 
+    public String getBuildSetContentId() {
+        return this.buildSetContentId;
+    }
+
+    /**
+     * @param buildSetContentId The identifier to use when aggregating and retrieving content related to this record set which
+     *        is stored via external services.
+     */
+    public void setBuildSetContentId(String buildSetContentId) {
+        this.buildSetContentId = buildSetContentId;
+    }
+
     @Override
     public String toString() {
         return "BuildRecordSet [productName=" + productVersion.getProduct().getName() + ", productVersion=" + productVersion
@@ -129,6 +143,8 @@ public class BuildRecordSet implements Serializable {
     public static class Builder {
 
         private Integer id;
+
+        private String buildSetContentId;
 
         private ProductMilestone milestone;
 
@@ -147,6 +163,7 @@ public class BuildRecordSet implements Serializable {
         public BuildRecordSet build() {
             BuildRecordSet buildRecordSet = new BuildRecordSet();
             buildRecordSet.setId(id);
+            buildRecordSet.setBuildSetContentId(buildSetContentId);
             buildRecordSet.setMilestone(milestone);
 
             if (productVersion != null) {
@@ -166,6 +183,11 @@ public class BuildRecordSet implements Serializable {
 
         public Builder id(Integer id) {
             this.id = id;
+            return this;
+        }
+
+        public Builder buildSetContentId(String buildSetContentId) {
+            this.buildSetContentId = buildSetContentId;
             return this;
         }
 

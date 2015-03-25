@@ -4,8 +4,8 @@ import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.RepositoryType;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerException;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
-import org.jboss.pnc.spi.repositorymanager.model.RepositorySession;
 import org.jboss.pnc.spi.repositorymanager.model.RepositoryConnectionInfo;
+import org.jboss.pnc.spi.repositorymanager.model.RepositorySession;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -24,11 +24,6 @@ public class RepositorySessionMock implements RepositorySession {
     @Override
     public String getId() {
         return "test";
-    }
-
-    @Override
-    public String getCollectionId() {
-        return "test-collection";
     }
 
     @Override

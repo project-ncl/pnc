@@ -9,22 +9,17 @@ import org.commonjava.aprox.model.core.HostedRepository;
 import org.commonjava.aprox.model.core.StoreKey;
 import org.commonjava.aprox.model.core.StoreType;
 import org.commonjava.aprox.promote.client.AproxPromoteClientModule;
-import org.jboss.logging.Logger;
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.moduleconfig.MavenRepoDriverModuleConfig;
-import org.jboss.pnc.model.Artifact;
-import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.BuildRecordSet;
-import org.jboss.pnc.model.ProductVersion;
 import org.jboss.pnc.model.RepositoryType;
+import org.jboss.pnc.spi.BuildExecution;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManager;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerException;
 import org.jboss.pnc.spi.repositorymanager.model.RepositorySession;
 import org.jboss.pnc.spi.repositorymanager.model.RunningRepositoryPromotion;
-
-import java.util.List;
 
 import javax.annotation.PreDestroy;
 import javax.enterprise.context.ApplicationScoped;
@@ -41,13 +36,7 @@ import javax.inject.Inject;
 @ApplicationScoped
 public class RepositoryManagerDriver implements RepositoryManager {
     
-    private static final Logger log = Logger.getLogger(RepositoryManagerDriver.class);
-    
     public static final String DRIVER_ID = "maven-repo-driver";
-
-    private static final String GROUP_ID_FORMAT = "product+%s+%s";
-
-    private static final String REPO_ID_FORMAT = "build+%s+%s";
 
     public static final String PUBLIC_GROUP_ID = "public";
 
@@ -111,24 +100,23 @@ public class RepositoryManagerDriver implements RepositoryManager {
      *         (or product, or shared-releases).
      */
     @Override
-    public RepositorySession createBuildRepository(BuildConfiguration buildConfiguration, BuildRecordSet buildRecordSet)
+    public RepositorySession createBuildRepository(BuildExecution buildExecution)
             throws RepositoryManagerException {
 
-        String productRepoId = getRecordSetRepoId(buildRecordSet);
-        if (productRepoId != null) {
+        String topId = buildExecution.getTopContentId();
+        String setId = buildExecution.getBuildSetContentId();
+        String buildId = buildExecution.getBuildContentId();
+        if (setId != null) {
             try {
-                setupProductRepos(productRepoId, buildRecordSet);
+                setupBuildSetRepos(setId);
             } catch (AproxClientException e) {
                 throw new RepositoryManagerException("Failed to setup product-local hosted repository or repository group: %s",
                         e, e.getMessage());
             }
         }
 
-        // TODO Better way to generate id that doesn't rely on System.currentTimeMillis() but will still be relatively fast.
-        String buildRepoId = String.format(REPO_ID_FORMAT, safeUrlPart(buildConfiguration.getProject().getName()),
-                System.currentTimeMillis());
         try {
-            setupBuildRepos(buildRepoId, productRepoId, buildConfiguration, buildRecordSet);
+            setupBuildRepos(buildId, setId, topId);
         } catch (AproxClientException e) {
             throw new RepositoryManagerException("Failed to setup build-local hosted repository or repository group: %s", e,
                     e.getMessage());
@@ -138,26 +126,15 @@ public class RepositoryManagerDriver implements RepositoryManager {
         String url;
 
         try {
-            url = aprox.module(AproxFoloContentClientModule.class).trackingUrl(buildRepoId, StoreType.group, buildRepoId);
+            url = aprox.module(AproxFoloContentClientModule.class).trackingUrl(buildId, StoreType.group, buildId);
         } catch (AproxClientException e) {
             throw new RepositoryManagerException("Failed to retrieve AProx client module for the artifact tracker: %s", e,
                     e.getMessage());
         }
 
-        return new MavenRepositorySession(aprox, buildRepoId, productRepoId, new MavenRepositoryConnectionInfo(url));
+        return new MavenRepositorySession(aprox, buildId, new MavenRepositoryConnectionInfo(url));
     }
 
-
-    private String getRecordSetRepoId(BuildRecordSet buildRecordSet) {
-        // FIXME: This seems wrong. What if there's no product? However, there's no way to tell which BuildConfigurationSet
-        // context we're working within.
-        ProductVersion pv = buildRecordSet.getProductVersion();
-        if (pv == null) {
-            return null;
-        }
-
-        return String.format(GROUP_ID_FORMAT, safeUrlPart(pv.getProduct().getName()), safeUrlPart(pv.getVersion()));
-    }
 
     /**
      * Create the hosted repository and group necessary to support a single build. The hosted repository holds artifacts
@@ -169,8 +146,7 @@ public class RepositoryManagerDriver implements RepositoryManager {
      * @param productRepoId
      * @throws AproxClientException
      */
-    private void setupBuildRepos(String buildRepoId, String productRepoId, BuildConfiguration buildConfig,
-            BuildRecordSet buildRecords) throws AproxClientException {
+    private void setupBuildRepos(String buildRepoId, String productRepoId, String projectName) throws AproxClientException {
         // if the build-level group doesn't exist, create it.
         if (!aprox.stores().exists(StoreType.group, buildRepoId)) {
             // if the product-level storage repo (for in-progress product builds) doesn't exist, create it.
@@ -180,7 +156,7 @@ public class RepositoryManagerDriver implements RepositoryManager {
                 buildArtifacts.setAllowReleases(true);
 
                 aprox.stores().create(buildArtifacts,
-                        "Creating hosted repository for build: " + buildRepoId + " of: " + buildConfig.getProject().getName(),
+                        "Creating hosted repository for build: " + buildRepoId + " of: " + projectName,
                         HostedRepository.class);
             }
 
@@ -200,36 +176,27 @@ public class RepositoryManagerDriver implements RepositoryManager {
 
             aprox.stores().create(
                     buildGroup,
-                    "Creating repository group for resolving artifacts in build: " + buildRepoId + " of: "
-                            + buildConfig.getProject().getName(), Group.class);
+                    "Creating repository group for resolving artifacts in build: " + buildRepoId + " of: " + projectName,
+                    Group.class);
         }
     }
 
     /**
-     * Lazily create product-level hosted repository and group if they don't exist. The group uses the following content
-     * preference order:
-     * <ol>
-     * <li>product-level hosted repository (artifacts built for this product release)</li>
-     * <li>global shared-releases hosted repository (contains artifacts from "released" product versions)</li>
-     * <li>global shared-imports hosted repository (contains anything imported for a previous build)</li>
-     * <li>the 'public' group, which manages the allowed remote repositories from which imports can be downloaded</li>
-     * </ol>
+     * Lazily create group related to a build set if it doesn't exist. The group will contain repositories for any builds that
+     * have been promoted to it, to allow other related builds to access their artifacts.
      * 
-     * @param productRepoId
-     * @param buildRecordSet
+     * @param setId
      * @throws AproxClientException
      */
-    private void setupProductRepos(String productRepoId, BuildRecordSet buildRecordSet) throws AproxClientException {
-        ProductVersion pv = buildRecordSet.getProductVersion();
+    private void setupBuildSetRepos(String setId) throws AproxClientException {
 
         // if the product-level group doesn't exist, create it.
-        if (!aprox.stores().exists(StoreType.group, productRepoId)) {
-            Group productGroup = new Group(productRepoId);
+        if (!aprox.stores().exists(StoreType.group, setId)) {
+            Group productGroup = new Group(setId);
 
             aprox.stores().create(
                     productGroup,
-                    "Creating group: " + productRepoId + " for grouping repos of builds related to: "
-                            + pv.getProduct().getName() + ":" + pv.getVersion(), Group.class);
+                    "Creating group: " + setId + " for access to repos of builds related to that product.", Group.class);
         }
     }
 
@@ -269,14 +236,6 @@ public class RepositoryManagerDriver implements RepositoryManager {
     }
 
     /**
-     * Sift out spaces, pipe characters and colons (things that don't play well in URLs) from the project name, and convert them
-     * to dashes. This is only for naming repositories, so an approximate match to the project in question is fine.
-     */
-    private String safeUrlPart(String name) {
-        return name.replaceAll("\\W+", "-").replaceAll("[|:]+", "-");
-    }
-
-    /**
      * Convenience method for tests.
      */
     protected Aprox getAprox() {
@@ -284,29 +243,18 @@ public class RepositoryManagerDriver implements RepositoryManager {
     }
 
     @Override
-    public RunningRepositoryPromotion promoteRepository(BuildRecord buildRecord, BuildRecordSet buildRecordSet)
+    public RunningRepositoryPromotion promoteBuild(BuildRecord buildRecord, BuildRecordSet buildRecordSet)
             throws RepositoryManagerException {
 
-        // FIXME: This is AWFUL! Need to store the buildRepoId in the record.
-        List<Artifact> artifacts = buildRecord.getBuiltArtifacts();
-        String buildRepo = null;
+        return new MavenRunningPromotion(StoreType.hosted, buildRecord.getBuildContentId(),
+                buildRecordSet.getBuildSetContentId(), aprox);
+    }
 
-        arts: for (Artifact artifact : artifacts) {
-            String url = artifact.getDeployUrl();
-            String[] parts = url.split("/");
-            for (int i = 0; i < parts.length; i++) {
-                if (StoreType.hosted.singularEndpointName().equals(parts[i])) {
-                    if (parts.length <= i + 1) {
-                        continue arts;
-                    }
+    @Override
+    public RunningRepositoryPromotion promoteBuildSet(BuildRecordSet buildRecordSet, String toGroup)
+            throws RepositoryManagerException {
 
-                    buildRepo = parts[i + 1];
-                    break;
-                }
-            }
-        }
-
-        return new MavenRunningPromotion(buildRepo, getRecordSetRepoId(buildRecordSet), aprox);
+        return new MavenRunningPromotion(StoreType.group, buildRecordSet.getBuildSetContentId(), toGroup, aprox);
     }
 
 }

@@ -4,10 +4,9 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
 
-import org.jboss.pnc.model.BuildRecordSet;
-import org.jboss.pnc.model.BuildConfiguration;
-import org.jboss.pnc.spi.repositorymanager.model.RepositorySession;
+import org.jboss.pnc.spi.BuildExecution;
 import org.jboss.pnc.spi.repositorymanager.model.RepositoryConnectionInfo;
+import org.jboss.pnc.spi.repositorymanager.model.RepositorySession;
 import org.junit.Test;
 
 public class RepositoryManagerDriver02Test 
@@ -16,12 +15,9 @@ public class RepositoryManagerDriver02Test
 
     @Test
     public void formatRepositoryURLForSimpleInfo_AllURLsMatch() throws Exception {
-        BuildConfiguration pbc = simpleBuildConfiguration();
+        BuildExecution execution = simpleBuildExecution();
 
-        BuildRecordSet bc = new BuildRecordSet();
-        bc.setProductVersion(pbc.getProductVersion());
-
-        RepositorySession repositoryConfiguration = driver.createBuildRepository(pbc, bc);
+        RepositorySession repositoryConfiguration = driver.createBuildRepository(execution);
         assertThat(repositoryConfiguration, notNullValue());
 
         RepositoryConnectionInfo connectionInfo = repositoryConfiguration.getConnectionInfo();

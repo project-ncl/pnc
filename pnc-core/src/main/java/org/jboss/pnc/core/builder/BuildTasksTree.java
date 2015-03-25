@@ -2,7 +2,10 @@ package org.jboss.pnc.core.builder;
 
 import org.jboss.logging.Logger;
 import org.jboss.pnc.model.BuildConfiguration;
+import org.jboss.pnc.model.BuildConfigurationSet;
+import org.jboss.pnc.model.ProductVersion;
 import org.jboss.pnc.spi.BuildStatus;
+import org.jboss.pnc.spi.content.ContentIdentifierManager;
 import org.jboss.pnc.spi.events.BuildStatusChangedEvent;
 import org.jboss.util.graph.Edge;
 import org.jboss.util.graph.Graph;
@@ -24,8 +27,36 @@ public class BuildTasksTree {
 
     BuildCoordinator buildCoordinator;
 
-    public BuildTasksTree(BuildCoordinator buildCoordinator) {
+    private final String topContentId;
+
+    private final String buildSetContentId;
+
+    private ContentIdentifierManager contentIdentifierManager;
+
+    public BuildTasksTree(BuildCoordinator buildCoordinator, ContentIdentifierManager contentIdentifierManager) {
         this.buildCoordinator = buildCoordinator;
+        this.contentIdentifierManager = contentIdentifierManager;
+        this.topContentId = ContentIdentifierManager.GLOBAL_CONTENT_ID;
+        this.buildSetContentId = null;
+    }
+
+    public BuildTasksTree(BuildCoordinator buildCoordinator, ContentIdentifierManager contentIdentifierManager,
+            ProductVersion productVersion) {
+        this.buildCoordinator = buildCoordinator;
+        this.topContentId = contentIdentifierManager.getProductContentId(productVersion);
+        this.buildSetContentId = null;
+    }
+
+    public BuildTasksTree(BuildCoordinator buildCoordinator, ContentIdentifierManager contentIdentifierManager,
+            BuildConfigurationSet buildConfigurationSet) {
+        this.buildCoordinator = buildCoordinator;
+        this.contentIdentifierManager = contentIdentifierManager;
+        this.topContentId = contentIdentifierManager.getProductContentId(buildConfigurationSet.getProductVersion());
+        this.buildSetContentId = contentIdentifierManager.getBuildSetContentId(buildConfigurationSet);
+
+        for (BuildConfiguration buildConfiguration : buildConfigurationSet.getBuildConfigurations()) {
+            getOrCreateSubmittedBuild(buildConfiguration);
+        }
     }
 
     public BuildTask getOrCreateSubmittedBuild(BuildConfiguration buildConfiguration) {
@@ -37,7 +68,10 @@ public class BuildTasksTree {
         if (submittedBuildVertex != null) {
             return submittedBuildVertex.getData();
         } else {
-            BuildTask buildTask = new BuildTask(buildCoordinator, buildConfiguration, statusUpdateListeners, logConsumers);
+            String buildContentId = contentIdentifierManager.getBuildContentId(buildConfiguration);
+            BuildTask buildTask = new BuildTask(buildCoordinator, buildConfiguration, topContentId, buildSetContentId,
+                    buildContentId, statusUpdateListeners, logConsumers);
+
             addElementAndItsChildrenToTree(buildTask);
             return buildTask;
         }
@@ -60,7 +94,10 @@ public class BuildTasksTree {
             }
             Vertex<BuildTask> childVertex = getVertexByBuildConfiguration(childBuildConfiguration);
             if (childVertex == null) { //if it don't exists yet (it could exist in case of cycle)
-                BuildTask childBuildTask = new BuildTask(buildCoordinator, childBuildConfiguration);
+                String buildContentId = contentIdentifierManager.getBuildContentId(childBuildConfiguration);
+                BuildTask childBuildTask = new BuildTask(buildCoordinator, childBuildConfiguration, topContentId,
+                        buildSetContentId, buildContentId);
+
                 childVertex = addElementAndItsChildrenToTree(childBuildTask);
             }
             tree.addEdge(parentVertex, childVertex, 1);

@@ -1,6 +1,10 @@
 package org.jboss.pnc.environment.docker;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -25,8 +29,8 @@ import org.jboss.pnc.model.RepositoryType;
 import org.jboss.pnc.spi.environment.exception.EnvironmentDriverException;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerException;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
-import org.jboss.pnc.spi.repositorymanager.model.RepositorySession;
 import org.jboss.pnc.spi.repositorymanager.model.RepositoryConnectionInfo;
+import org.jboss.pnc.spi.repositorymanager.model.RepositorySession;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.asset.EmptyAsset;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
@@ -67,14 +71,14 @@ public class DockerEnvironmentDriverRemoteTest {
 
     @Deployment
     public static WebArchive createDeployment() {
-        WebArchive testedEjb = ShrinkWrap
+        final WebArchive testedEjb = ShrinkWrap
                 .create(WebArchive.class)
                 .addAsManifestResource(EmptyAsset.INSTANCE, "beans.xml")
                 .addAsResource("jenkins-maven-config.xml")
                 .addAsResource("pnc-config.json")
                 .addPackages(true, DockerEnvironmentDriver.class.getPackage());
 
-        JavaArchive[] libs = Maven.configureResolver()
+        final JavaArchive[] libs = Maven.configureResolver()
                 .withMavenCentralRepo(true)
                 .loadPomFromFile("pom.xml")
                 .importRuntimeDependencies()
@@ -91,7 +95,7 @@ public class DockerEnvironmentDriverRemoteTest {
     @Before
     public void init() throws ConfigurationParseException {
         if (!isInitialized) {
-            DockerEnvironmentDriverModuleConfig config =
+            final DockerEnvironmentDriverModuleConfig config =
                     configurationService.getModuleConfig(DockerEnvironmentDriverModuleConfig.class);
             dockerIp = config.getIp();
             dockerControlEndpoint = "http://" + dockerIp + ":2375";
@@ -106,10 +110,10 @@ public class DockerEnvironmentDriverRemoteTest {
 
     @Test
     public void canBuildEnvironmentTest() {
-        Environment goodEnv = new Environment(BuildType.JAVA, OperationalSystem.LINUX);
-        Environment badEnv1 = new Environment(null, null);
-        Environment badEnv2 = new Environment(BuildType.DOCKER, OperationalSystem.LINUX);
-        Environment badEnv3 = new Environment(BuildType.JAVA, OperationalSystem.WINDOWS);
+        final Environment goodEnv = new Environment(BuildType.JAVA, OperationalSystem.LINUX);
+        final Environment badEnv1 = new Environment(null, null);
+        final Environment badEnv2 = new Environment(BuildType.DOCKER, OperationalSystem.LINUX);
+        final Environment badEnv3 = new Environment(BuildType.JAVA, OperationalSystem.WINDOWS);
 
         assertTrue(dockerEnvDriver.canBuildEnvironment(goodEnv));
         assertFalse(dockerEnvDriver.canBuildEnvironment(badEnv1));
@@ -120,8 +124,8 @@ public class DockerEnvironmentDriverRemoteTest {
     @Test
     public void buildDestroyEnvironmentTest() throws EnvironmentDriverException, InterruptedException {
         // Create container
-        Environment environment = new Environment(BuildType.JAVA, OperationalSystem.LINUX);
-        DockerRunningEnvironment runningEnv = (DockerRunningEnvironment)
+        final Environment environment = new Environment(BuildType.JAVA, OperationalSystem.LINUX);
+        final DockerRunningEnvironment runningEnv = (DockerRunningEnvironment)
                 dockerEnvDriver.buildEnvironment(environment, DUMMY_REPOSITORY_CONFIGURATION);
 
         try {
@@ -146,16 +150,16 @@ public class DockerEnvironmentDriverRemoteTest {
         copyFileToContainerInvariantData(null, new ByteArrayInputStream("TEST CONTENT".getBytes("UTF-8")));
     }
 
-    private void copyFileToContainerInvariantData(String string, InputStream stream) throws Exception {
-        Environment environment = new Environment(BuildType.JAVA, OperationalSystem.LINUX);
+    private void copyFileToContainerInvariantData(final String string, final InputStream stream) throws Exception {
+        final Environment environment = new Environment(BuildType.JAVA, OperationalSystem.LINUX);
 
-        DockerRunningEnvironment runningEnv = (DockerRunningEnvironment)
+        final DockerRunningEnvironment runningEnv = (DockerRunningEnvironment)
                 dockerEnvDriver.buildEnvironment(environment, DUMMY_REPOSITORY_CONFIGURATION);
 
-        String pathToFile = "/tmp/testFile-" + UUID.randomUUID().toString() + ".txt";
+        final String pathToFile = "/tmp/testFile-" + UUID.randomUUID().toString() + ".txt";
 
         // Get content of container's file system
-        String fsContentOld = HttpUtils.processGetRequest(String.class, dockerControlEndpoint + "/containers/"
+        final String fsContentOld = HttpUtils.processGetRequest(String.class, dockerControlEndpoint + "/containers/"
                 + runningEnv.getId() + "/changes");
         fsContentOld.contains(pathToFile);
 
@@ -167,7 +171,7 @@ public class DockerEnvironmentDriverRemoteTest {
         }
 
         // Get content of container's file system
-        String fsContentNew = HttpUtils.processGetRequest(String.class, dockerControlEndpoint + "/containers/"
+        final String fsContentNew = HttpUtils.processGetRequest(String.class, dockerControlEndpoint + "/containers/"
                 + runningEnv.getId() + "/changes");
         assertTrue("File was not coppied to the container.", fsContentNew.contains(pathToFile));
 
@@ -181,27 +185,29 @@ public class DockerEnvironmentDriverRemoteTest {
      * @param shouldBeRunning Indicates, if the environment should be running or should be not available
      * @param baseErrorMsg Prefix of error message, which is printed if the container is not in expected state
      */
-    private void testRunningContainer(DockerRunningEnvironment runningEnv, boolean shouldBeRunning,
-            String baseErrorMsg)  {
-        int sshPort = runningEnv.getSshPort();
-        String containerId = runningEnv.getId();
+    private void testRunningContainer(final DockerRunningEnvironment runningEnv, final boolean shouldBeRunning,
+            final String baseErrorMsg)  {
+        final int sshPort = runningEnv.getSshPort();
+        final String containerId = runningEnv.getId();
 
         // Test if the container is running
         try {
             HttpUtils.testResponseHttpCode(200, dockerControlEndpoint + "/containers/" + containerId + "/json");
             assertEquals(baseErrorMsg + " Container is running", shouldBeRunning, true);
-        } catch (Exception e) {
+        } catch (final Exception e) {
             assertEquals(baseErrorMsg + " Container is not running", shouldBeRunning, false);
         }
 
         // Test if Jenkins is running
         try {
             HttpUtils.testResponseHttpCode(200, runningEnv.getJenkinsUrl());
-            if(!shouldBeRunning)
+            if(!shouldBeRunning) {
                 fail("Jenkins is running, but should be down");
-        } catch (Exception e) {
-            if(shouldBeRunning)
+            }
+        } catch (final Exception e) {
+            if(shouldBeRunning) {
                 fail("Jenkins wasn't started successully");
+            }
         }
 
         // Test it the SSH port is opened
@@ -213,11 +219,11 @@ public class DockerEnvironmentDriverRemoteTest {
      * 
      * @param generatedSshPort Port to test
      */
-    private boolean testOpenedPort(int port) {
+    private boolean testOpenedPort(final int port) {
         try {
-            Socket echoSocket = new Socket(dockerIp, port);
+            final Socket echoSocket = new Socket(dockerIp, port);
             echoSocket.close();
-        } catch (IOException e) {
+        } catch (final IOException e) {
             return false;
         }
         return true;
@@ -233,11 +239,6 @@ public class DockerEnvironmentDriverRemoteTest {
 
         @Override
         public String getId() {
-            return null;
-        }
-
-        @Override
-        public String getCollectionId() {
             return null;
         }
 

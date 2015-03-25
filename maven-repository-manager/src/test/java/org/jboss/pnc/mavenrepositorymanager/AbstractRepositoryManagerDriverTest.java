@@ -1,23 +1,20 @@
 package org.jboss.pnc.mavenrepositorymanager;
 
-import java.io.File;
-import java.util.Properties;
-
 import org.commonjava.aprox.boot.BootStatus;
 import org.commonjava.aprox.test.fixture.core.CoreServerFixture;
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.ModuleConfigJson;
 import org.jboss.pnc.common.json.moduleconfig.MavenRepoDriverModuleConfig;
-import org.jboss.pnc.model.BuildConfiguration;
-import org.jboss.pnc.model.Product;
-import org.jboss.pnc.model.ProductVersion;
-import org.jboss.pnc.model.Project;
+import org.jboss.pnc.spi.BuildExecution;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.rules.TemporaryFolder;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import java.io.File;
+import java.util.Properties;
 
 public class AbstractRepositoryManagerDriverTest {
 
@@ -39,11 +36,10 @@ public class AbstractRepositoryManagerDriverTest {
 
         url = fixture.getUrl();
         File configFile = temp.newFile("pnc-config.json");
-        ModuleConfigJson moduleConfigJson =  new ModuleConfigJson("pnc-config");
-        MavenRepoDriverModuleConfig mavenRepoDriverModuleConfig = 
-                new MavenRepoDriverModuleConfig(fixture.getUrl());
+        ModuleConfigJson moduleConfigJson = new ModuleConfigJson("pnc-config");
+        MavenRepoDriverModuleConfig mavenRepoDriverModuleConfig = new MavenRepoDriverModuleConfig(fixture.getUrl());
         moduleConfigJson.addConfig(mavenRepoDriverModuleConfig);
-        
+
         ObjectMapper mapper = new ObjectMapper();
         mapper.writeValue(configFile, moduleConfigJson);
 
@@ -79,22 +75,27 @@ public class AbstractRepositoryManagerDriverTest {
         if (fixture != null) {
             fixture.stop();
         }
-    }    protected BuildConfiguration simpleBuildConfiguration() {
-        Project project = new Project();
-        project.setName("myproject");
+    }
 
-        Product product = new Product();
-        product.setName("myproduct");
+    protected BuildExecution simpleBuildExecution() {
+        return new BuildExecution() {
 
-        ProductVersion pv = new ProductVersion();
-        pv.setProduct(product);
-        pv.setVersion("1.0");
+            @Override
+            public String getTopContentId() {
+                return "myproduct-1.0";
+            }
 
-        BuildConfiguration pbc = new BuildConfiguration();
-        pbc.setProject(project);
-        pbc.setProductVersion(pv);
+            @Override
+            public String getBuildSetContentId() {
+                return null;
+            }
 
-        return pbc;
+            @Override
+            public String getBuildContentId() {
+                return "myproject-12345";
+            }
+
+        };
     }
 
 }

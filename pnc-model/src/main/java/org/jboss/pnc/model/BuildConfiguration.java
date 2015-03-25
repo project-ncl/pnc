@@ -84,6 +84,7 @@ public class BuildConfiguration implements Serializable, Cloneable {
     private Set<BuildConfiguration> dependencies;
 
     // TODO: What data format does Aprox need?
+    // [jdcasey] I'm not sure what this is supposed to do in the repository manager...so hard to say what format is required.
     // @Column(name = "repositories")
     private String repositories;
 

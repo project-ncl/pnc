@@ -6,7 +6,9 @@ import org.jboss.pnc.core.EnvironmentDriverFactory;
 import org.jboss.pnc.core.RepositoryManagerFactory;
 import org.jboss.pnc.core.exception.CoreException;
 import org.jboss.pnc.core.exception.CoreExceptionWrapper;
-import org.jboss.pnc.model.*;
+import org.jboss.pnc.model.BuildConfiguration;
+import org.jboss.pnc.model.BuildDriverStatus;
+import org.jboss.pnc.model.RepositoryType;
 import org.jboss.pnc.spi.BuildResult;
 import org.jboss.pnc.spi.BuildStatus;
 import org.jboss.pnc.spi.builddriver.BuildDriver;
@@ -14,6 +16,7 @@ import org.jboss.pnc.spi.builddriver.BuildDriverResult;
 import org.jboss.pnc.spi.builddriver.CompletedBuild;
 import org.jboss.pnc.spi.builddriver.RunningBuild;
 import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
+import org.jboss.pnc.spi.content.ContentIdentifierManager;
 import org.jboss.pnc.spi.datastore.DatastoreException;
 import org.jboss.pnc.spi.environment.EnvironmentDriver;
 import org.jboss.pnc.spi.environment.RunningEnvironment;
@@ -26,15 +29,26 @@ import org.jboss.pnc.spi.repositorymanager.model.RepositorySession;
 import org.jboss.util.graph.Edge;
 import org.jboss.util.graph.Vertex;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.inject.Instance;
-import javax.inject.Inject;
-import java.util.*;
-import java.util.concurrent.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Queue;
+import java.util.Set;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
+
+import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.inject.Instance;
+import javax.inject.Inject;
 
 /**
  *
@@ -55,6 +69,7 @@ public class BuildCoordinator {
     private BuildDriverFactory buildDriverFactory;
     private EnvironmentDriverFactory environmentDriverFactory;
     private DatastoreAdapter datastoreAdapter;
+    private ContentIdentifierManager contentIdentifierManager;
 
     private Instance<Consumer<BuildStatusChangedEvent>> registeredEventListeners;
 
@@ -63,12 +78,15 @@ public class BuildCoordinator {
 
     @Inject
     public BuildCoordinator(BuildDriverFactory buildDriverFactory, RepositoryManagerFactory repositoryManagerFactory, 
-            EnvironmentDriverFactory environmentDriverFactory, DatastoreAdapter datastoreAdapter, Instance<Consumer<BuildStatusChangedEvent>> registeredEventListeners) {
+            EnvironmentDriverFactory environmentDriverFactory, DatastoreAdapter datastoreAdapter,
+            Instance<Consumer<BuildStatusChangedEvent>> registeredEventListeners,
+            ContentIdentifierManager contentIdentifierManager) {
         this.buildDriverFactory = buildDriverFactory;
         this.repositoryManagerFactory = repositoryManagerFactory;
         this.datastoreAdapter = datastoreAdapter;
         this.environmentDriverFactory = environmentDriverFactory;
         this.registeredEventListeners = registeredEventListeners;
+        this.contentIdentifierManager = contentIdentifierManager;
     }
 
     public BuildTask build(BuildConfiguration buildConfiguration) throws CoreException {
@@ -77,7 +95,7 @@ public class BuildCoordinator {
 
     public BuildTask build(BuildConfiguration buildConfiguration, Set<Consumer<BuildStatusChangedEvent>> statusUpdateListeners, Set<Consumer<String>> logConsumers) throws CoreException {
         Set<Consumer<BuildStatusChangedEvent>> aggregatedListOfEventConsumers = createListOfConsumers(statusUpdateListeners);
-        BuildTasksTree buildTasksTree = new BuildTasksTree(this);
+        BuildTasksTree buildTasksTree = new BuildTasksTree(this, contentIdentifierManager);
 
         BuildTask buildTask = buildTasksTree.getOrCreateSubmittedBuild(buildConfiguration, aggregatedListOfEventConsumers, logConsumers);
 
@@ -171,19 +189,8 @@ public class BuildCoordinator {
     private CompletableFuture<RepositorySession> configureRepository(BuildTask buildTask, RepositoryManager repositoryManager) {
         return CompletableFuture.supplyAsync( () ->  {
             buildTask.setStatus(BuildStatus.REPO_SETTING_UP);
-            BuildConfiguration buildConfiguration = buildTask.getBuildConfiguration();
             try {
-
-                //TODO remove buildRecordSet mock
-                BuildRecordSet buildRecordSet = new BuildRecordSet();
-                ProductVersion productVersion = new ProductVersion();
-                productVersion.setVersion("my-product-version");
-                Product product = new Product();
-                product.setName("my-product");
-                productVersion.setProduct(product);
-                buildRecordSet.setProductVersion(productVersion);
-
-                return repositoryManager.createBuildRepository(buildConfiguration, buildRecordSet);
+                return repositoryManager.createBuildRepository(buildTask);
             } catch (RepositoryManagerException e) {
                 throw new CoreExceptionWrapper(e);
             }
@@ -298,8 +305,9 @@ public class BuildCoordinator {
                     completedOk = true;
                 } else {
                     datastoreAdapter.storeResult(buildTask, e);
-                    if(backupRunningEnvironment.getRunningEnvironment() != null)
+                    if(backupRunningEnvironment.getRunningEnvironment() != null) {
                         backupRunningEnvironment.getRunningEnvironment().destroyEnvironment();
+                    }
                     completedOk = false;
                 }
             } catch (DatastoreException de) {
