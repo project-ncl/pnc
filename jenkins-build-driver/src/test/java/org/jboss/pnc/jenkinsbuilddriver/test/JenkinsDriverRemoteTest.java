@@ -1,16 +1,5 @@
 package org.jboss.pnc.jenkinsbuilddriver.test;
 
-import java.io.InputStream;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.Semaphore;
-import java.util.concurrent.TimeUnit;
-import java.util.function.Consumer;
-import java.util.logging.Logger;
-
-import javax.inject.Inject;
-
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.pnc.common.Configuration;
@@ -29,14 +18,25 @@ import org.jboss.pnc.spi.environment.RunningEnvironment;
 import org.jboss.pnc.spi.environment.exception.EnvironmentDriverException;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerException;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
-import org.jboss.pnc.spi.repositorymanager.model.RepositorySession;
 import org.jboss.pnc.spi.repositorymanager.model.RepositoryConnectionInfo;
+import org.jboss.pnc.spi.repositorymanager.model.RepositorySession;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.asset.EmptyAsset;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import java.io.InputStream;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
+import java.util.logging.Logger;
+
+import javax.inject.Inject;
 
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-11-23.
@@ -172,11 +172,6 @@ public class JenkinsDriverRemoteTest {
             @Override
             public String getId() {
                 return "mock-config";
-            }
-
-            @Override
-            public String getCollectionId() {
-                return "mock-collection";
             }
 
             @Override

@@ -1,5 +1,11 @@
 package org.jboss.pnc.model;
 
+import java.io.Serializable;
+import java.sql.Timestamp;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -15,12 +21,6 @@ import javax.persistence.OneToMany;
 import javax.persistence.PreRemove;
 import javax.persistence.SequenceGenerator;
 import javax.validation.constraints.NotNull;
-
-import java.io.Serializable;
-import java.sql.Timestamp;
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-11-23.
@@ -50,6 +50,8 @@ public class BuildRecord implements Serializable {
     private String buildScript;
 
     private String name;
+
+    private String buildContentId;
 
     private String description;
 
@@ -417,6 +419,17 @@ public class BuildRecord implements Serializable {
         this.buildRecordSets = buildRecordSets;
     }
 
+    public String getBuildContentId() {
+        return buildContentId;
+    }
+
+    /**
+     * @param buildContentId The identifier to use when accessing repository or other content stored via external services.
+     */
+    public void setBuildContentId(String buildContentId) {
+        this.buildContentId = buildContentId;
+    }
+
     @Override
     public String toString() {
         return "BuildRecord [id=" + id + ", project=" + buildConfiguration.getProject().getName() + ", buildConfiguration="
@@ -426,6 +439,8 @@ public class BuildRecord implements Serializable {
     public static class Builder {
 
         private Integer id;
+
+        private String buildContentId;
 
         private String buildScript;
 
@@ -475,6 +490,7 @@ public class BuildRecord implements Serializable {
         public BuildRecord build() {
             BuildRecord buildRecord = new BuildRecord();
             buildRecord.setId(id);
+            buildRecord.setBuildContentId(buildContentId);
             buildRecord.setBuildScript(buildScript);
             buildRecord.setName(name);
             buildRecord.setDescription(description);
@@ -513,6 +529,11 @@ public class BuildRecord implements Serializable {
 
         public Builder id(Integer id) {
             this.id = id;
+            return this;
+        }
+
+        public Builder buildContentId(String buildContentId) {
+            this.buildContentId = buildContentId;
             return this;
         }
 

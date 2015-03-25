@@ -1,9 +1,9 @@
 package org.jboss.pnc.spi.repositorymanager;
 
-import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.BuildRecordSet;
 import org.jboss.pnc.model.RepositoryType;
+import org.jboss.pnc.spi.BuildExecution;
 import org.jboss.pnc.spi.repositorymanager.model.RepositorySession;
 import org.jboss.pnc.spi.repositorymanager.model.RunningRepositoryPromotion;
 
@@ -22,7 +22,7 @@ public interface RepositoryManager {
      * @param buildRecordSet Used to determine which in-progress product repository should be used.
      * @throws RepositoryManagerException
      */
-    RepositorySession createBuildRepository(BuildConfiguration buildConfiguration, BuildRecordSet buildRecordSet)
+    RepositorySession createBuildRepository(BuildExecution buildExecution)
             throws RepositoryManagerException;
 
     /**
@@ -36,7 +36,21 @@ public interface RepositoryManager {
      * 
      * @throws RepositoryManagerException
      */
-    RunningRepositoryPromotion promoteRepository(BuildRecord buildRecord, BuildRecordSet buildRecordSet)
+    RunningRepositoryPromotion promoteBuild(BuildRecord buildRecord, BuildRecordSet buildRecordSet)
+            throws RepositoryManagerException;
+
+    /**
+     * Add the repository group containing output associated with the specified {@link BuildRecordSet} to the membership of the
+     * repository group with the given ID.
+     * 
+     * @param buildRecordSet The record-set that should be promoted
+     * @param toGroup The group into which the record-set should be promoted
+     * 
+     * @return An object representing the running promotion process, with a callback method for the result.
+     * 
+     * @throws RepositoryManagerException
+     */
+    RunningRepositoryPromotion promoteBuildSet(BuildRecordSet buildRecordSet, String toGroup)
             throws RepositoryManagerException;
 
     boolean canManage(RepositoryType managerType);

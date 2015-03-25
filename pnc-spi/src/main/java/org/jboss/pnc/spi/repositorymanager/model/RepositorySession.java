@@ -13,8 +13,6 @@ public interface RepositorySession {
 
     String getId();
 
-    String getCollectionId();
-
     RepositoryConnectionInfo getConnectionInfo();
 
     /**

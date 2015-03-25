@@ -1,9 +1,9 @@
 package org.jboss.pnc.core.test.mock;
 
-import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.BuildRecordSet;
 import org.jboss.pnc.model.RepositoryType;
+import org.jboss.pnc.spi.BuildExecution;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManager;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerException;
 import org.jboss.pnc.spi.repositorymanager.model.CompletedRepositoryPromotion;
@@ -32,7 +32,7 @@ public class RepositoryManagerMock implements RepositoryManager {
     }
 
     @Override
-    public RepositorySession createBuildRepository(BuildConfiguration buildConfiguration, BuildRecordSet buildRecordSet) throws RepositoryManagerException {
+    public RepositorySession createBuildRepository(BuildExecution buildExecution) throws RepositoryManagerException {
 
         RepositorySession repositoryConfiguration = new RepositorySessionMock();
         return repositoryConfiguration;
@@ -44,7 +44,13 @@ public class RepositoryManagerMock implements RepositoryManager {
     }
 
     @Override
-    public RunningRepositoryPromotion promoteRepository(BuildRecord buildRecord, BuildRecordSet buildRecordSet)
+    public RunningRepositoryPromotion promoteBuild(BuildRecord buildRecord, BuildRecordSet buildRecordSet)
+            throws RepositoryManagerException {
+        return new RunningRepositoryPromotionMock(promotionSuccess, promotionError);
+    }
+
+    @Override
+    public RunningRepositoryPromotion promoteBuildSet(BuildRecordSet buildRecordSet, String toGroup)
             throws RepositoryManagerException {
         return new RunningRepositoryPromotionMock(promotionSuccess, promotionError);
     }

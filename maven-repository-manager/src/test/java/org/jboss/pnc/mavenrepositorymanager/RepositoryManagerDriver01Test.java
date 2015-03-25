@@ -4,10 +4,9 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
 
-import org.jboss.pnc.model.BuildRecordSet;
-import org.jboss.pnc.model.BuildConfiguration;
-import org.jboss.pnc.spi.repositorymanager.model.RepositorySession;
+import org.jboss.pnc.spi.BuildExecution;
 import org.jboss.pnc.spi.repositorymanager.model.RepositoryConnectionInfo;
+import org.jboss.pnc.spi.repositorymanager.model.RepositorySession;
 import org.junit.Test;
 
 public class RepositoryManagerDriver01Test 
@@ -16,20 +15,17 @@ public class RepositoryManagerDriver01Test
 
     @Test
     public void formatRepositoryURLForSimpleInfo_CheckDependencyURL() throws Exception {
-        BuildConfiguration pbc = simpleBuildConfiguration();
+        BuildExecution execution = simpleBuildExecution();
 
-        BuildRecordSet bc = new BuildRecordSet();
-        bc.setProductVersion(pbc.getProductVersion());
-
-        RepositorySession repositoryConfiguration = driver.createBuildRepository(pbc, bc);
+        RepositorySession repositoryConfiguration = driver.createBuildRepository(execution);
 
         assertThat(repositoryConfiguration, notNullValue());
 
         RepositoryConnectionInfo connectionInfo = repositoryConfiguration.getConnectionInfo();
         assertThat(connectionInfo, notNullValue());
 
-        String expectedUrlPrefix = String.format("%sfolo/track/build+%s", url, pbc.getProject().getName());
-        String expectedGroupPathPrefix = String.format("/group/build+%s", pbc.getProject().getName());
+        String expectedUrlPrefix = String.format("%sfolo/track/%s", url, execution.getBuildContentId());
+        String expectedGroupPathPrefix = String.format("/group/%s", execution.getBuildContentId());
 
         assertThat("Expected URL prefix: " + expectedUrlPrefix + "\nActual URL was: " + connectionInfo.getDependencyUrl(),
                 connectionInfo.getDependencyUrl().startsWith(expectedUrlPrefix), equalTo(true));

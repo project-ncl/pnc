@@ -20,8 +20,7 @@ import org.commonjava.aprox.model.core.StoreType;
 import org.commonjava.maven.atlas.ident.ref.ArtifactRef;
 import org.commonjava.maven.atlas.ident.ref.ProjectVersionRef;
 import org.jboss.pnc.model.Artifact;
-import org.jboss.pnc.model.BuildConfiguration;
-import org.jboss.pnc.model.BuildRecordSet;
+import org.jboss.pnc.spi.BuildExecution;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
 import org.jboss.pnc.spi.repositorymanager.model.RepositorySession;
 import org.junit.Test;
@@ -37,12 +36,9 @@ public class RepositoryManagerDriver04Test
 
     @Test
     public void extractBuildArtifacts_ContainsTwoUploads() throws Exception {
-        BuildConfiguration pbc = simpleBuildConfiguration();
+        BuildExecution execution = simpleBuildExecution();
 
-        BuildRecordSet bc = new BuildRecordSet();
-        bc.setProductVersion(pbc.getProductVersion());
-
-        RepositorySession rc = driver.createBuildRepository(pbc, bc);
+        RepositorySession rc = driver.createBuildRepository(execution);
         assertThat(rc, notNullValue());
 
         String baseUrl = rc.getConnectionInfo().getDeployUrl();

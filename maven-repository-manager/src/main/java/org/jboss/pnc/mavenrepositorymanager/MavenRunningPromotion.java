@@ -13,32 +13,35 @@ import java.util.function.Consumer;
 
 public class MavenRunningPromotion implements RunningRepositoryPromotion {
 
-    private String buildRepoId;
-    private String recordSetRepoId;
+    private StoreType fromType;
+    private String fromId;
+    private String toId;
     private Aprox aprox;
 
-    public MavenRunningPromotion(String buildRepoId, String recordSetRepoId, Aprox aprox) {
-        this.buildRepoId = buildRepoId;
-        this.recordSetRepoId = recordSetRepoId;
+    public MavenRunningPromotion(StoreType fromType, String fromId, String toId, Aprox aprox) {
+        this.fromType = fromType;
+        this.fromId = fromId;
+        this.toId = toId;
         this.aprox = aprox;
     }
 
     @Override
     public void monitor(Consumer<CompletedRepositoryPromotion> onComplete, Consumer<Exception> onError) {
         try {
-            if (!aprox.stores().exists(StoreType.hosted, buildRepoId)) {
-                throw new RepositoryManagerException("No such build repository: %s", buildRepoId);
+            if (!aprox.stores().exists(fromType, fromId)) {
+                throw new RepositoryManagerException("No such %s repository: %s", fromType.singularEndpointName(), fromId);
             }
 
-            Group recordSetGroup = aprox.stores().load(StoreType.group, recordSetRepoId, Group.class);
+            Group recordSetGroup = aprox.stores().load(StoreType.group, toId, Group.class);
             if (recordSetGroup == null) {
-                throw new RepositoryManagerException("No such build-record group: %s", recordSetRepoId);
+                throw new RepositoryManagerException("No such group: %s", toId);
             }
 
-            recordSetGroup.addConstituent(new StoreKey(StoreType.hosted, buildRepoId));
+            recordSetGroup.addConstituent(new StoreKey(fromType, fromId));
 
             boolean result = aprox.stores().update(recordSetGroup,
-                    "Promoting build repo: " + buildRepoId + " to group: " + recordSetRepoId);
+                    "Promoting " + fromType.singularEndpointName() + " repository : " + fromId + " to group: " + toId);
+
             onComplete.accept(new MavenCompletedPromotion(result));
 
         } catch (AproxClientException | RepositoryManagerException e) {

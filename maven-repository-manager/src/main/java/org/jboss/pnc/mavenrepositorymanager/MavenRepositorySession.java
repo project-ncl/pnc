@@ -38,15 +38,12 @@ public class MavenRepositorySession implements RepositorySession
 
     private final RepositoryConnectionInfo connectionInfo;
 
-    private String collectionId;
-
     // TODO: Create and pass in suitable parameters to Aprox to create the
     //       proxy repository.
-    public MavenRepositorySession(Aprox aprox, String id, String collectionId, MavenRepositoryConnectionInfo info)
+    public MavenRepositorySession(Aprox aprox, String id, MavenRepositoryConnectionInfo info)
     {
         this.aprox = aprox;
         this.id = id;
-        this.collectionId = collectionId;
         this.connectionInfo = info;
     }
 
@@ -66,11 +63,6 @@ public class MavenRepositorySession implements RepositorySession
     @Override
     public String getId() {
         return id;
-    }
-
-    @Override
-    public String getCollectionId() {
-        return collectionId;
     }
 
     @Override
