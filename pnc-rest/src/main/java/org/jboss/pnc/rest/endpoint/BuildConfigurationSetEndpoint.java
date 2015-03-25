@@ -22,6 +22,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 
+import org.jboss.pnc.datastore.repositories.BuildConfigurationSetRepository;
 import org.jboss.pnc.rest.provider.BuildConfigurationSetProvider;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationRest;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationSetRest;
@@ -115,6 +116,26 @@ public class BuildConfigurationSetEndpoint {
         logger.info("Executing build configuration set: " + buildConfigSet.getName() );
         // This is just a place holder until the logic is added for executing a set
         logger.info("Not currently implemented");
+        return Response.ok().build();
+    }
+
+    @ApiOperation(value = "Adds a configuration to the Specified Set")
+    @POST
+    @Path("/{id}/configurations")
+    public Response addConfiguration(
+            @ApiParam(value = "Build Configuration Set id", required = true) @PathParam("id") Integer id,
+            BuildConfigurationRest buildConfig) {
+        buildConfigurationSetProvider.addConfiguration(id, buildConfig.getId());
+        return Response.ok().build();
+    }
+
+    @ApiOperation(value = "Removes a configuration from the specified config set")
+    @DELETE
+    @Path("/{id}/configurations/{configId}")
+    public Response addConfiguration(
+            @ApiParam(value = "Build configuration set id", required = true) @PathParam("id") Integer id,
+            @ApiParam(value = "Build configuration id", required = true) @PathParam("configId") Integer configId) {
+        buildConfigurationSetProvider.removeConfiguration(id, configId);
         return Response.ok().build();
     }
 

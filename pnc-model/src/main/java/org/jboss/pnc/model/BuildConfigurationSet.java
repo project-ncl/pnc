@@ -127,8 +127,15 @@ public class BuildConfigurationSet implements Serializable {
     /**
      * @param buildConfiguration the buildConfiguration to add to the set
      */
-    public void addBuildConfigurations(BuildConfiguration buildConfiguration) {
+    public void addBuildConfiguration(BuildConfiguration buildConfiguration) {
         this.buildConfigurations.add(buildConfiguration);
+    }
+
+    /**
+     * @param buildConfiguration the buildConfiguration to remove from the set
+     */
+    public void removeBuildConfiguration(BuildConfiguration buildConfiguration) {
+        this.buildConfigurations.remove(buildConfiguration);
     }
 
     public static class Builder {

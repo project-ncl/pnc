@@ -463,7 +463,7 @@ public class BuildConfiguration implements Serializable, Cloneable {
             buildConfiguration.setBuildConfigurationSets(buildConfigurationSets);
             for (BuildConfigurationSet buildConfigurationSet : buildConfigurationSets)
             {
-                buildConfigurationSet.addBuildConfigurations(buildConfiguration);
+                buildConfigurationSet.addBuildConfiguration(buildConfiguration);
             }
 
             // Set the bi-directional mapping

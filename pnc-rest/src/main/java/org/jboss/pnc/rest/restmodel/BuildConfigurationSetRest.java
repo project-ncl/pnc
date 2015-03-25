@@ -87,7 +87,7 @@ public class BuildConfigurationSetRest {
 
         nullableStreamOf(buildConfigurationIds).forEach(buildConfigurationId -> {
             BuildConfiguration.Builder buildConfigurationBuilder = BuildConfiguration.Builder.newBuilder().id(buildConfigurationId);
-            buildConfigurationSet.addBuildConfigurations(buildConfigurationBuilder.build());
+            buildConfigurationSet.addBuildConfiguration(buildConfigurationBuilder.build());
         });
         return buildConfigurationSet;
     }
