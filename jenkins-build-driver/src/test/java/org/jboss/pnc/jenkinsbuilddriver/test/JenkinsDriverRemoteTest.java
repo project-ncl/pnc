@@ -35,7 +35,6 @@ import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.asset.EmptyAsset;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -50,7 +49,7 @@ public class JenkinsDriverRemoteTest {
     @Deployment
     public static JavaArchive createDeployment() {
         JavaArchive jar = ShrinkWrap.create(JavaArchive.class).addAsManifestResource(EmptyAsset.INSTANCE, "beans.xml")
-                .addAsResource("META-INF/logging.properties").addAsResource("jenkins-job-template.xml")
+                .addAsResource("META-INF/logging.properties").addAsResource("freeform-job-template.xml")
                 .addPackages(true, org.apache.http.client.HttpResponseException.class.getPackage())
                 .addPackages(true, Configuration.class.getPackage())
                 .addPackage(JenkinsBuildDriver.class.getPackage());
@@ -62,7 +61,7 @@ public class JenkinsDriverRemoteTest {
     JenkinsBuildDriver jenkinsBuildDriver;
 
     @Test
-    @Ignore("To be fixed by NCL-554")
+    //@Ignore("To be fixed by NCL-554")
     public void startJenkinsJobTestCase() throws Exception {
         BuildConfiguration pbc = getBuildConfiguration();
 
@@ -143,12 +142,12 @@ public class JenkinsDriverRemoteTest {
             
             @Override
             public String getJenkinsUrl() {
-                return System.getProperty("PNC_JENKINS_URL");
+                return System.getenv("PNC_JENKINS_URL") + ":" + getJenkinsPort();
             }
             
             @Override
             public int getJenkinsPort() {
-                return 0;
+                return Integer.parseInt(System.getenv("PNC_JENKINS_PORT"));
             }
             
             @Override
@@ -236,6 +235,7 @@ public class JenkinsDriverRemoteTest {
     private BuildConfiguration getBuildConfiguration() {
         BuildConfiguration pbc = new BuildConfiguration();
         pbc.setScmRepoURL("https://github.com/project-ncl/pnc.git");
+        pbc.setScmRevision("*/master"); // this is default
         pbc.setBuildScript("mvn validate");
         pbc.setName("PNC-executed-from-jenkins-driver-test");
         Project project = new Project();

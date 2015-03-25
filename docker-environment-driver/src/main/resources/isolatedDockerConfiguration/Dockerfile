@@ -8,6 +8,9 @@ RUN yum -y install tar gzip java java-devel && yum clean all
 # set JAVA_HOME
 ENV JAVA_HOME /usr/lib/jvm/java-openjdk
 
+# openjdk bug with SSL connection https://bugzilla.redhat.com/show_bug.cgi?id=1167153
+RUN sed -i 's/jdk.tls.disabledAlgorithms=SSLv3/jdk.tls.disabledAlgorithms=EC,ECDHE,ECDH,SSLv3/g' $JAVA_HOME/jre/lib/security/java.security
+
 ## jenkins instalation
 ENV JENKINS_HOME /var/jenkins_home
 
@@ -36,9 +39,11 @@ EXPOSE 8080
 EXPOSE 50000
 USER jenkins
 COPY jenkins.sh /usr/local/bin/jenkins.sh
+# we use script for launching SSHD, isolation and jenkins at the end
 #ENTRYPOINT ["/usr/local/bin/jenkins.sh"]
 # from a derived Dockerfile, can use `RUN plugin.sh active.txt` to setup /usr/share/jenkins/ref/plugins from a support bundle
 COPY plugins.txt /usr/share/jenkins/plugins.txt
+COPY jenkins-config/* /var/jenkins_home/
 RUN /usr/local/bin/plugins.sh /usr/share/jenkins/plugins.txt
 ## end of jenkins installation
 
@@ -46,7 +51,7 @@ RUN /usr/local/bin/plugins.sh /usr/share/jenkins/plugins.txt
 USER root
 #Install SSHD
 # why? see http://blog.docker.com/2014/06/why-you-dont-need-to-run-sshd-in-docker/
-RUN yum -y install openssh-server  && yum clean all
+RUN yum -y install openssh-server git  && yum clean all
 RUN mkdir /var/run/sshd
 RUN ssh-keygen -b 1024 -t rsa -f /etc/ssh/ssh_host_key
 RUN ssh-keygen -b 1024 -t rsa -f /etc/ssh/ssh_host_rsa_key 

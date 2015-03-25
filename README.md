@@ -26,12 +26,16 @@ Environment variables, which can be used to set up application:
 
 * `PNC_JENKINS_USERNAME` - Username of user created in Jenkins server inside the Docker container
 * `PNC_JENKINS_PASSWORD` - Password of user specified with `PNC_JENKINS_USERNAME`
+* `PNC_JENKINS_URL` - URL of Jenkins instance dedicated or in docker container
+* `PNC_JENKINS_PORT` - Port of Jenkins dedicated or in docker container specified with `PNC_JENKINS_URL`
 * `PNC_APROX_URL` - URL to AProx repository
 * `PNC_DOCKER_IP` - IP address of host with Docker daemon
 * `PNC_DOCKER_CONT_USER` - User account in image used in Docker
 * `PNC_DOCKER_CONT_PASSWORD` - User's password set up by variable `PNC_DOCKER_CONT_USER`
 * `PNC_DOCKER_IMAGE_ID` - ImageID of image on Docker host
 * `PNC_DOCKER_IMAGE_FIREWALL_ALLOWED` - List of allowed destinations by firewall in Docker container. <br /> Format: \<IPv4>:\<Port>(,\<IPv4>:\<Port>)+
+
+
 
 
 Set up of Docker host

@@ -24,13 +24,15 @@ public class JenkinsBuildDriver implements BuildDriver {
 
     private JenkinsServerFactory jenkinsServerFactory;
     private JenkinsBuildMonitor jenkinsBuildMonitor;
+    
+    private boolean isCrumbUsed;
 
     JenkinsBuildDriver() {}
 
     @Inject
     JenkinsBuildDriver(JenkinsServerFactory jenkinsServerFactory, JenkinsBuildMonitor jenkinsBuildMonitor) {
         this.jenkinsServerFactory = jenkinsServerFactory;
-        this.jenkinsBuildMonitor = jenkinsBuildMonitor;
+        this.jenkinsBuildMonitor = jenkinsBuildMonitor;        
     }
 
     @Override
@@ -42,11 +44,22 @@ public class JenkinsBuildDriver implements BuildDriver {
     public boolean canBuild(BuildType buildType) {
         return BuildType.JAVA.equals(buildType);
     }
+    
+    public void init(RunningEnvironment runningEnvironment) {
+        try {
+            this.isCrumbUsed = jenkinsServerFactory.isJenkinsServerSecuredWithCSRF(runningEnvironment.getJenkinsUrl());    
+        } catch ( BuildDriverException bde) {
+            log.debug("Getting Jenkins Build Driver CSRF setting failed", bde);
+        }
+    }
 
     @Override
     public RunningBuild startProjectBuild(BuildConfiguration buildConfiguration, RunningEnvironment runningEnvironment) throws BuildDriverException {
+        
+        init(runningEnvironment);
+        
         BuildJob build = new BuildJob(jenkinsServerFactory.getJenkinsServer(runningEnvironment.getJenkinsUrl()), buildConfiguration);
-        boolean configured = build.configure(runningEnvironment, true);
+        boolean configured = build.configure(runningEnvironment, true, isCrumbUsed);
         if (!configured) {
             throw new AssertionError("Cannot configure build job.");
         }
