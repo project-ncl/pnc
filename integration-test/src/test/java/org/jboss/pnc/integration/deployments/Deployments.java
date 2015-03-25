@@ -45,7 +45,7 @@ public class Deployments {
     }
 
     private static void addEar(Archive<?> webArchive, PomEquippedResolveStage mavenResolver) {
-        File[] manuallyAddedLibs = mavenResolver.resolve("org.jboss.pnc:ear-package:ear:1.0-SNAPSHOT").withoutTransitivity().asFile();
+        File[] manuallyAddedLibs = mavenResolver.resolve("org.jboss.pnc:ear-package:ear:0.3-SNAPSHOT").withoutTransitivity().asFile();
         Stream.of(manuallyAddedLibs).forEach(lib -> webArchive.merge(ShrinkWrap.create(ZipImporter.class).
                 importFrom(lib).as(GenericArchive.class)));
     }
