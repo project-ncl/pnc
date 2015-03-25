@@ -6,7 +6,7 @@
 	<parent>
 		<groupId>org.jboss.pnc</groupId>
 		<artifactId>parent</artifactId>
-		<version>1.0-SNAPSHOT</version>
+		<version>0.3-SNAPSHOT</version>
 	</parent>
 
 	<artifactId>docker-environment-driver</artifactId>
