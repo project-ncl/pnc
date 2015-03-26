@@ -17,6 +17,7 @@ import org.commonjava.aprox.client.core.util.UrlUtils;
 import org.commonjava.aprox.model.core.StoreType;
 import org.commonjava.maven.atlas.ident.ref.ArtifactRef;
 import org.commonjava.maven.atlas.ident.ref.ProjectVersionRef;
+import org.jboss.pnc.mavenrepositorymanager.fixture.TestBuildExecution;
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.spi.BuildExecution;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
@@ -34,7 +35,7 @@ public class RepositoryManagerDriver03Test
 
     @Test
     public void extractBuildArtifacts_ContainsTwoDownloads() throws Exception {
-        BuildExecution execution = simpleBuildExecution();
+        BuildExecution execution = new TestBuildExecution();
 
         RepositorySession rc = driver.createBuildRepository(execution);
         assertThat(rc, notNullValue());

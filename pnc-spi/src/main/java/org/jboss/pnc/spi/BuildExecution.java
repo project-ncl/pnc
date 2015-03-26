@@ -7,4 +7,6 @@ public interface BuildExecution {
     String getBuildSetContentId();
 
     String getBuildContentId();
+
+    String getProjectName();
 }

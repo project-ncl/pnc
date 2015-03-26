@@ -4,6 +4,7 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
 
+import org.jboss.pnc.mavenrepositorymanager.fixture.TestBuildExecution;
 import org.jboss.pnc.spi.BuildExecution;
 import org.jboss.pnc.spi.repositorymanager.model.RepositoryConnectionInfo;
 import org.jboss.pnc.spi.repositorymanager.model.RepositorySession;
@@ -15,7 +16,7 @@ public class RepositoryManagerDriver02Test
 
     @Test
     public void formatRepositoryURLForSimpleInfo_AllURLsMatch() throws Exception {
-        BuildExecution execution = simpleBuildExecution();
+        BuildExecution execution = new TestBuildExecution();
 
         RepositorySession repositoryConfiguration = driver.createBuildRepository(execution);
         assertThat(repositoryConfiguration, notNullValue());
