@@ -68,6 +68,7 @@
     <version.jackson.annotations>2.4.1</version.jackson.annotations>
     <version.jclouds>1.8.1</version.jclouds>
     <version.jbpm>6.2.0.Final</version.jbpm>
+    <version.keycloak>1.1.0.Final</version.keycloak>
 
     <!-- maven-compiler-plugin -->
     <maven.compiler.target>1.8</maven.compiler.target>
@@ -114,6 +115,14 @@
 
   <dependencyManagement>
     <dependencies>
+
+    <dependency>
+        <groupId>org.keycloak</groupId>
+        <artifactId>keycloak-core</artifactId>
+        <version>${version.keycloak}</version>
+    </dependency>
+    
+    
       <!-- Project modules, to support cross-module dependencies -->
       <dependency>
         <groupId>org.jboss.pnc</groupId>
