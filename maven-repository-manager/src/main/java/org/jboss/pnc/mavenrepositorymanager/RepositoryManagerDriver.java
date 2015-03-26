@@ -35,7 +35,7 @@ import javax.inject.Inject;
  */
 @ApplicationScoped
 public class RepositoryManagerDriver implements RepositoryManager {
-    
+
     public static final String DRIVER_ID = "maven-repo-driver";
 
     public static final String PUBLIC_GROUP_ID = "public";
@@ -100,8 +100,7 @@ public class RepositoryManagerDriver implements RepositoryManager {
      *         (or product, or shared-releases).
      */
     @Override
-    public RepositorySession createBuildRepository(BuildExecution buildExecution)
-            throws RepositoryManagerException {
+    public RepositorySession createBuildRepository(BuildExecution buildExecution) throws RepositoryManagerException {
 
         String topId = buildExecution.getTopContentId();
         if (topId != null) {
@@ -117,8 +116,8 @@ public class RepositoryManagerDriver implements RepositoryManager {
             try {
                 setupBuildSetRepos(setId);
             } catch (AproxClientException e) {
-                throw new RepositoryManagerException("Failed to setup repository group for build configuration set: %s",
-                        e, e.getMessage());
+                throw new RepositoryManagerException("Failed to setup repository group for build configuration set: %s", e,
+                        e.getMessage());
             }
         }
 
@@ -140,9 +139,8 @@ public class RepositoryManagerDriver implements RepositoryManager {
                     e.getMessage());
         }
 
-        return new MavenRepositorySession(aprox, buildId, new MavenRepositoryConnectionInfo(url));
+        return new MavenRepositorySession(aprox, buildId, setId, new MavenRepositoryConnectionInfo(url));
     }
-
 
     /**
      * Create the hosted repository and group necessary to support a single build. The hosted repository holds artifacts
@@ -166,8 +164,7 @@ public class RepositoryManagerDriver implements RepositoryManager {
                 buildArtifacts.setAllowReleases(true);
 
                 aprox.stores().create(buildArtifacts,
-                        "Creating hosted repository for build: " + buildRepoId + " of: " + projectName,
-                        HostedRepository.class);
+                        "Creating hosted repository for build: " + buildRepoId + " of: " + projectName, HostedRepository.class);
             }
 
             Group buildGroup = new Group(buildRepoId);
@@ -188,8 +185,7 @@ public class RepositoryManagerDriver implements RepositoryManager {
             // Global-level repos, for captured/shared artifacts and access to the outside world
             addGlobalConstituents(buildGroup);
 
-            aprox.stores().create(
-                    buildGroup,
+            aprox.stores().create(buildGroup,
                     "Creating repository group for resolving artifacts in build: " + buildRepoId + " of: " + projectName,
                     Group.class);
         }
@@ -227,8 +223,7 @@ public class RepositoryManagerDriver implements RepositoryManager {
         if (!aprox.stores().exists(StoreType.group, productId)) {
             Group productGroup = new Group(productId);
 
-            aprox.stores().create(
-                    productGroup,
+            aprox.stores().create(productGroup,
                     "Creating group: " + productId + " for access to repos of builds related to that product.", Group.class);
         }
     }
@@ -276,11 +271,9 @@ public class RepositoryManagerDriver implements RepositoryManager {
     }
 
     @Override
-    public RunningRepositoryPromotion promoteBuild(BuildRecord buildRecord, BuildRecordSet buildRecordSet)
-            throws RepositoryManagerException {
+    public RunningRepositoryPromotion promoteBuild(BuildRecord buildRecord, String toGroup) throws RepositoryManagerException {
 
-        return new MavenRunningPromotion(StoreType.hosted, buildRecord.getBuildContentId(),
-                buildRecordSet.getBuildSetContentId(), aprox);
+        return new MavenRunningPromotion(StoreType.hosted, buildRecord.getBuildContentId(), toGroup, aprox);
     }
 
     @Override

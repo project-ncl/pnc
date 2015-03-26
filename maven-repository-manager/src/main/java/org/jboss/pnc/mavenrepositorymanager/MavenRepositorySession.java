@@ -6,6 +6,7 @@ import org.commonjava.aprox.client.core.module.AproxContentClientModule;
 import org.commonjava.aprox.folo.client.AproxFoloAdminClientModule;
 import org.commonjava.aprox.folo.dto.TrackedContentDTO;
 import org.commonjava.aprox.folo.dto.TrackedContentEntryDTO;
+import org.commonjava.aprox.model.core.Group;
 import org.commonjava.aprox.model.core.StoreKey;
 import org.commonjava.aprox.model.core.StoreType;
 import org.commonjava.aprox.promote.client.AproxPromoteClientModule;
@@ -34,16 +35,18 @@ public class MavenRepositorySession implements RepositorySession
 {
 
     private Aprox aprox;
-    private final String id;
+    private final String buildRepoId;
+    private String buildSetId;
 
     private final RepositoryConnectionInfo connectionInfo;
 
     // TODO: Create and pass in suitable parameters to Aprox to create the
     //       proxy repository.
-    public MavenRepositorySession(Aprox aprox, String id, MavenRepositoryConnectionInfo info)
+    public MavenRepositorySession(Aprox aprox, String buildRepoId, String buildSetId, MavenRepositoryConnectionInfo info)
     {
         this.aprox = aprox;
-        this.id = id;
+        this.buildRepoId = buildRepoId;
+        this.buildSetId = buildSetId;
         this.connectionInfo = info;
     }
 
@@ -61,8 +64,13 @@ public class MavenRepositorySession implements RepositorySession
 
 
     @Override
-    public String getId() {
-        return id;
+    public String getBuildRepositoryId() {
+        return buildRepoId;
+    }
+
+    @Override
+    public String getBuildSetRepositoryId() {
+        return buildSetId;
     }
 
     @Override
@@ -79,9 +87,10 @@ public class MavenRepositorySession implements RepositorySession
     public RepositoryManagerResult extractBuildArtifacts() throws RepositoryManagerException {
         TrackedContentDTO report;
         try {
-            report = aprox.module(AproxFoloAdminClientModule.class).getTrackingReport(id, StoreType.group, id);
+            report = aprox.module(AproxFoloAdminClientModule.class)
+                    .getTrackingReport(buildRepoId, StoreType.group, buildRepoId);
         } catch (AproxClientException e) {
-            throw new RepositoryManagerException("Failed to retrieve tracking report for: %s. Reason: %s", e, id,
+            throw new RepositoryManagerException("Failed to retrieve tracking report for: %s. Reason: %s", e, buildRepoId,
                     e.getMessage());
         }
 
@@ -91,10 +100,10 @@ public class MavenRepositorySession implements RepositorySession
 
         // clean up.
         try {
-            aprox.module(AproxFoloAdminClientModule.class).clearTrackingRecord(id, StoreType.group, id);
+            aprox.module(AproxFoloAdminClientModule.class).clearTrackingRecord(buildRepoId, StoreType.group, buildRepoId);
         } catch (AproxClientException e) {
             throw new RepositoryManagerException(
-                    "Failed to clean up build repositories / tracking information for: %s. Reason: %s", e, id,
+                    "Failed to clean up build repositories / tracking information for: %s. Reason: %s", e, buildRepoId,
                     e.getMessage());
         }
         return repositoryManagerResult;
@@ -243,5 +252,29 @@ public class MavenRepositorySession implements RepositorySession
         }
     }
 
+
+    /**
+     * If the build-set repository ID is set, add the build repository (hosted component) containing the build output as a
+     * member of the group corresponding to that build-set ID. If the build-set group doesn't exist, try to create it.
+     */
+    @Override
+    public void promoteToBuildContentSet() throws RepositoryManagerException {
+        if (buildSetId != null) {
+            try {
+                Group setGroup = aprox.stores().load(StoreType.group, buildSetId, Group.class);
+                if (setGroup == null) {
+                    setGroup = new Group(buildSetId, new StoreKey(StoreType.hosted, buildRepoId));
+                    aprox.stores().create(setGroup, "Adding build-set group: " + buildSetId, Group.class);
+                } else {
+                    setGroup.addConstituent(new StoreKey(StoreType.hosted, buildRepoId));
+                    aprox.stores().update(setGroup, "Adding build: " + buildRepoId + " to build-set: " + buildSetId);
+                }
+            } catch (AproxClientException e) {
+                throw new RepositoryManagerException(
+                        "Failed to promote build repository: %s to build-set group: %s. Reason: %s", e, buildRepoId,
+                        buildSetId, e.getMessage());
+            }
+        }
+    }
 
 }

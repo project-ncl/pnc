@@ -170,7 +170,7 @@ public class JenkinsDriverRemoteTest {
             }
 
             @Override
-            public String getId() {
+            public String getBuildRepositoryId() {
                 return "mock-config";
             }
 
@@ -223,6 +223,16 @@ public class JenkinsDriverRemoteTest {
                 artifact.setId(i);
                 artifact.setIdentifier("test" + i);
                 return artifact;
+            }
+
+            @Override
+            public String getBuildSetRepositoryId() {
+                return null;
+            }
+
+            @Override
+            public void promoteToBuildContentSet() throws RepositoryManagerException {
+                // not triggered because getBuildSetRepositoryId() returns null
             }
         };
     }
