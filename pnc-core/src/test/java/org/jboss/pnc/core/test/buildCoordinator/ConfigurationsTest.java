@@ -3,17 +3,17 @@ package org.jboss.pnc.core.test.buildCoordinator;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.junit.InSequence;
 import org.jboss.pnc.core.builder.BuildCoordinator;
+import org.jboss.pnc.core.builder.BuildSetTask;
 import org.jboss.pnc.core.builder.BuildTask;
 import org.jboss.pnc.core.test.configurationBuilders.TestProjectConfigurationBuilder;
 import org.jboss.pnc.model.BuildConfiguration;
+import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.spi.BuildStatus;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import javax.inject.Inject;
-import java.util.HashSet;
-import java.util.function.Consumer;
 
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-11-23.
@@ -30,7 +30,7 @@ public class ConfigurationsTest extends ProjectBuilder {
         TestProjectConfigurationBuilder configurationBuilder = new TestProjectConfigurationBuilder();
 
         BuildConfiguration buildConfiguration = configurationBuilder.buildConfigurationWhichDependsOnItself();
-        BuildTask buildTask = buildCoordinator.build(buildConfiguration, new HashSet<>(), new HashSet<Consumer<String>>());
+        BuildTask buildTask = buildCoordinator.build(buildConfiguration);
         Assert.assertEquals(BuildStatus.REJECTED, buildTask.getStatus());
         Assert.assertTrue("Invalid status description: " + buildTask.getStatusDescription(), buildTask.getStatusDescription().contains("itself"));
     }
@@ -40,10 +40,10 @@ public class ConfigurationsTest extends ProjectBuilder {
     public void cycleConfigurationTestCase() throws Exception {
         TestProjectConfigurationBuilder configurationBuilder = new TestProjectConfigurationBuilder();
 
-        BuildConfiguration buildConfiguration = configurationBuilder.buildConfigurationWithCycleDependency();
-        BuildTask buildTask = buildCoordinator.build(buildConfiguration, new HashSet<>(), new HashSet<Consumer<String>>());
-        Assert.assertEquals(BuildStatus.REJECTED, buildTask.getStatus());
-        Assert.assertTrue("Invalid status description: " + buildTask.getStatusDescription(), buildTask.getStatusDescription().contains("Cycle dependencies found"));
+        BuildConfigurationSet buildConfigurationSet = configurationBuilder.buildConfigurationSetWithCycleDependency();
+        BuildSetTask buildSetTask = buildCoordinator.build(buildConfigurationSet);
+        Assert.assertEquals(BuildStatus.REJECTED, buildSetTask.getStatus());
+        Assert.assertTrue("Invalid status description: " + buildSetTask.getStatusDescription(), buildSetTask.getStatusDescription().contains("Cycle dependencies found"));
     }
 
 }

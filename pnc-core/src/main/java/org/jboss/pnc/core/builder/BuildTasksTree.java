@@ -4,17 +4,16 @@ import org.jboss.logging.Logger;
 import org.jboss.pnc.core.content.ContentIdentityManager;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationSet;
-import org.jboss.pnc.model.ProductVersion;
 import org.jboss.pnc.spi.BuildStatus;
-import org.jboss.pnc.spi.events.BuildStatusChangedEvent;
 import org.jboss.util.graph.Edge;
 import org.jboss.util.graph.Graph;
 import org.jboss.util.graph.Vertex;
 
-import java.util.Collections;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2015-01-05.
@@ -25,56 +24,94 @@ public class BuildTasksTree {
 
     private Graph<BuildTask> tree = new Graph<>();
 
-    BuildCoordinator buildCoordinator;
+    /**
+     * If there are cycles found in buildSetTask the status is set to BuildStatus.REJECTED;
+     *
+     * @param buildCoordinator
+     * @param buildSetTask
+     * @return
+     */
+    //TODO jdcasey: do we need ot pass around ContentIdentityManager, it's stateless
+    public static BuildTasksTree newInstance(BuildCoordinator buildCoordinator, BuildSetTask buildSetTask,
+            ContentIdentityManager contentIdentityManager) {
 
-    private final String topContentId;
+        BuildConfigurationSet buildConfigurationSet = buildSetTask.getBuildConfigurationSet();
 
-    private final String buildSetContentId;
+        BuildTasksTree instance = new BuildTasksTree();
 
-    private ContentIdentityManager contentIdentityManager;
+        //TODO jdcasey: can we always use buildConfigSet also in case of single build
+        String topContentId = contentIdentityManager.getProductContentId(buildConfigurationSet.getProductVersion());
+        String buildSetContentId = contentIdentityManager.getBuildSetContentId(buildConfigurationSet);
 
-    public BuildTasksTree(BuildCoordinator buildCoordinator, ContentIdentityManager contentIdentityManager) {
-        this.buildCoordinator = buildCoordinator;
-        this.contentIdentityManager = contentIdentityManager;
-        this.topContentId = null;
-        this.buildSetContentId = null;
-    }
+        instance.buildTree(buildSetTask, buildCoordinator, topContentId, buildSetContentId, contentIdentityManager);
 
-    public BuildTasksTree(BuildCoordinator buildCoordinator, ContentIdentityManager contentIdentityManager,
-            ProductVersion productVersion) {
-        this.buildCoordinator = buildCoordinator;
-        this.contentIdentityManager = contentIdentityManager;
-        this.topContentId = contentIdentityManager.getProductContentId(productVersion);
-        this.buildSetContentId = null;
-    }
-
-    public BuildTasksTree(BuildCoordinator buildCoordinator, ContentIdentityManager contentIdentityManager,
-            BuildConfigurationSet buildConfigurationSet) {
-        this.buildCoordinator = buildCoordinator;
-        this.contentIdentityManager = contentIdentityManager;
-        this.topContentId = contentIdentityManager.getProductContentId(buildConfigurationSet.getProductVersion());
-        this.buildSetContentId = contentIdentityManager.getBuildSetContentId(buildConfigurationSet);
-
-        for (BuildConfiguration buildConfiguration : buildConfigurationSet.getBuildConfigurations()) {
-            getOrCreateSubmittedBuild(buildConfiguration);
+        Edge<BuildTask>[] cycles = instance.tree.findCycles();
+        if (cycles.length > 0) {
+            buildSetTask.setStatus(BuildStatus.REJECTED);
+            String configurationsInCycles = Arrays.asList(cycles).stream()
+                    .map(e -> e.getFrom().getName() + "->" + e.getTo().getName())
+                    .collect(Collectors.joining(", "));
+            buildSetTask.setStatusDescription("Cycle dependencies found [" + configurationsInCycles + "]");
         }
+
+        return instance;
     }
 
-    public BuildTask getOrCreateSubmittedBuild(BuildConfiguration buildConfiguration) {
-        return getOrCreateSubmittedBuild(buildConfiguration, Collections.emptySet(), Collections.emptySet());
+    private void buildTree(BuildSetTask buildSetTask,
+            BuildCoordinator buildCoordinator,
+            String topContentId,
+            String buildSetContentId,
+            ContentIdentityManager contentIdentityManager) {
+        BuildConfigurationSet buildConfigurationSet = buildSetTask.getBuildConfigurationSet();
+
+        Set<PotentialDependency> potentialDependencies = new HashSet<>();
+        buildConfigurationSet.getBuildConfigurations().stream()
+            .map(buildConfiguration -> addToTree(
+                    buildConfiguration,
+                    potentialDependencies,
+                    buildCoordinator,
+                    topContentId,
+                    buildSetContentId,
+                    contentIdentityManager))
+            .forEach(buildTask -> buildSetTask.addBuildTask(buildTask));
     }
 
-    BuildTask getOrCreateSubmittedBuild(BuildConfiguration buildConfiguration, Set<Consumer<BuildStatusChangedEvent>> statusUpdateListeners, Set<Consumer<String>> logConsumers) {
-        Vertex<BuildTask> submittedBuildVertex = getVertexByBuildConfiguration(buildConfiguration);
-        if (submittedBuildVertex != null) {
-            return submittedBuildVertex.getData();
-        } else {
+    private BuildTask addToTree(BuildConfiguration buildConfiguration,
+                                Set<PotentialDependency> potentialDependencies,
+                                BuildCoordinator buildCoordinator,
+                                String topContentId,
+                                String buildSetContentId,
+                                ContentIdentityManager contentIdentityManager) {
+        Vertex<BuildTask> buildVertex = getVertexByBuildConfiguration(buildConfiguration);
+        if (buildVertex == null) {
             String buildContentId = contentIdentityManager.getBuildContentId(buildConfiguration);
-            BuildTask buildTask = new BuildTask(buildCoordinator, buildConfiguration, topContentId, buildSetContentId,
-                    buildContentId, statusUpdateListeners, logConsumers);
+            BuildTask buildTask = new BuildTask(buildCoordinator, buildConfiguration, topContentId, buildSetContentId, buildContentId);
 
-            addElementAndItsChildrenToTree(buildTask);
+            Vertex<BuildTask> vertex = new Vertex(buildTask.getId().toString(), buildTask);
+            tree.addVertex(vertex);
+
+            potentialDependencies.stream()
+                    //keep only objects that depend on this
+                    .filter(potentialDependency -> potentialDependency.getTo().equals(buildConfiguration))
+                    .forEach(potentialDependency -> tree.addEdge(potentialDependency.getFrom(), vertex, 1));
+
+            for (BuildConfiguration childBuildConfiguration : buildConfiguration.getDependencies()) {
+                if (checkIfDependsOnItself(buildTask, childBuildConfiguration)) {
+                    buildTask.setStatus(BuildStatus.REJECTED);
+                    buildTask.setStatusDescription("Configuration depends on itself.");
+                    break;
+                }
+                Vertex<BuildTask> childVertex = getVertexByBuildConfiguration(childBuildConfiguration);
+                if (childVertex != null) {
+                    //connect nodes if dependency exists in the tree
+                    tree.addEdge(vertex, childVertex, 1);
+                } else {
+                    potentialDependencies.add(new PotentialDependency(vertex, childBuildConfiguration));
+                }
+            }
             return buildTask;
+        } else {
+            return buildVertex.getData();
         }
     }
 
@@ -82,38 +119,34 @@ public class BuildTasksTree {
         return tree.findVertexByName(buildConfiguration.getId().toString());
     }
 
-    private Vertex<BuildTask> addElementAndItsChildrenToTree(BuildTask parentBuildTask) {
-        Vertex<BuildTask> parentVertex = new Vertex(parentBuildTask.getId().toString(), parentBuildTask);
-        tree.addVertex(parentVertex);
-        BuildConfiguration parentBuildConfiguration = parentBuildTask.getBuildConfiguration();
-        for (BuildConfiguration childBuildConfiguration : parentBuildConfiguration.getDependencies()) {
-            if (parentBuildConfiguration.equals(childBuildConfiguration)) {
-                log.debugf("Project build configuration %s depends on itself.", parentBuildTask.getId());
-                parentBuildTask.setStatus(BuildStatus.REJECTED);
-                parentBuildTask.setStatusDescription("Configuration depends on itself.");
-                break;
-            }
-            Vertex<BuildTask> childVertex = getVertexByBuildConfiguration(childBuildConfiguration);
-            if (childVertex == null) { //if it don't exists yet (it could exist in case of cycle)
-                String buildContentId = contentIdentityManager.getBuildContentId(childBuildConfiguration);
-                BuildTask childBuildTask = new BuildTask(buildCoordinator, childBuildConfiguration, topContentId,
-                        buildSetContentId, buildContentId);
-
-                childVertex = addElementAndItsChildrenToTree(childBuildTask);
-            }
-            tree.addEdge(parentVertex, childVertex, 1);
-        }
-        return parentVertex;
-    }
-
-
-    Edge<BuildTask>[] findCycles() {
-        return tree.findCycles();
-    }
-
-    public List<Vertex<BuildTask>> getSubmittedBuilds() {
+    public List<Vertex<BuildTask>> getBuildTasks() {
         return tree.getVerticies();
     }
 
+    private boolean checkIfDependsOnItself(BuildTask buildTask, BuildConfiguration childBuildConfiguration) {
+        BuildConfiguration buildConfiguration = buildTask.getBuildConfiguration();
+        if (buildConfiguration.equals(childBuildConfiguration)) {
+            log.debugf("Project build configuration %s depends on itself.", buildTask.getId());
+            return true;
+        }
+        return false;
+    }
 
+    private class PotentialDependency {
+        private final Vertex<BuildTask> from;
+        private BuildConfiguration to;
+
+        public PotentialDependency(Vertex<BuildTask> from, BuildConfiguration to) {
+            this.from = from;
+            this.to = to;
+        }
+
+        public Vertex<BuildTask> getFrom() {
+            return from;
+        }
+
+        public BuildConfiguration getTo() {
+            return to;
+        }
+    }
 }

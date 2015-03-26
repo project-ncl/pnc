@@ -1,6 +1,7 @@
 package org.jboss.pnc.core.builder;
 
 import org.jboss.logging.Logger;
+import org.jboss.pnc.common.util.StreamCollectors;
 import org.jboss.pnc.core.BuildDriverFactory;
 import org.jboss.pnc.core.EnvironmentDriverFactory;
 import org.jboss.pnc.core.RepositoryManagerFactory;
@@ -8,6 +9,7 @@ import org.jboss.pnc.core.content.ContentIdentityManager;
 import org.jboss.pnc.core.exception.CoreException;
 import org.jboss.pnc.core.exception.CoreExceptionWrapper;
 import org.jboss.pnc.model.BuildConfiguration;
+import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.BuildDriverStatus;
 import org.jboss.pnc.model.RepositoryType;
 import org.jboss.pnc.spi.BuildResult;
@@ -29,13 +31,14 @@ import org.jboss.pnc.spi.repositorymanager.model.RepositorySession;
 import org.jboss.util.graph.Edge;
 import org.jboss.util.graph.Vertex;
 
+import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.event.Event;
+import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Queue;
-import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -44,11 +47,6 @@ import java.util.concurrent.Executors;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.inject.Instance;
-import javax.inject.Inject;
 
 /**
  *
@@ -69,9 +67,8 @@ public class BuildCoordinator {
     private BuildDriverFactory buildDriverFactory;
     private EnvironmentDriverFactory environmentDriverFactory;
     private DatastoreAdapter datastoreAdapter;
+    private Event<BuildStatusChangedEvent> buildStatusChangedEventNotifier;
     private ContentIdentityManager contentIdentityManager;
-
-    private Instance<Consumer<BuildStatusChangedEvent>> registeredEventListeners;
 
     @Deprecated
     public BuildCoordinator(){} //workaround for CDI constructor parameter injection
@@ -79,78 +76,76 @@ public class BuildCoordinator {
     @Inject
     public BuildCoordinator(BuildDriverFactory buildDriverFactory, RepositoryManagerFactory repositoryManagerFactory, 
             EnvironmentDriverFactory environmentDriverFactory, DatastoreAdapter datastoreAdapter,
-            Instance<Consumer<BuildStatusChangedEvent>> registeredEventListeners,
- ContentIdentityManager contentIdentityManager) {
+            Event<BuildStatusChangedEvent> buildStatusChangedEventNotifier,
+            ContentIdentityManager contentIdentityManager) {
         this.buildDriverFactory = buildDriverFactory;
         this.repositoryManagerFactory = repositoryManagerFactory;
         this.datastoreAdapter = datastoreAdapter;
         this.environmentDriverFactory = environmentDriverFactory;
-        this.registeredEventListeners = registeredEventListeners;
+        this.buildStatusChangedEventNotifier = buildStatusChangedEventNotifier;
         this.contentIdentityManager = contentIdentityManager;
     }
 
     public BuildTask build(BuildConfiguration buildConfiguration) throws CoreException {
-        return build(buildConfiguration, Collections.emptySet(), Collections.emptySet());
-    }
-
-    public BuildTask build(BuildConfiguration buildConfiguration, Set<Consumer<BuildStatusChangedEvent>> statusUpdateListeners, Set<Consumer<String>> logConsumers) throws CoreException {
-        Set<Consumer<BuildStatusChangedEvent>> aggregatedListOfEventConsumers = createListOfConsumers(statusUpdateListeners);
-        BuildTasksTree buildTasksTree = new BuildTasksTree(this, contentIdentityManager,
-                buildConfiguration.getProductVersion());
-
-        BuildTask buildTask = buildTasksTree.getOrCreateSubmittedBuild(buildConfiguration, aggregatedListOfEventConsumers, logConsumers);
-
-        if (!isBuildAlreadySubmitted(buildTask)) {
-
-            Edge<BuildTask>[] cycles = buildTasksTree.findCycles();
-            if (cycles.length > 0) {
-                buildTask.setStatus(BuildStatus.REJECTED);
-                buildTask.setStatusDescription("Cycle dependencies found."); //TODO add edges to description
-            }
-
-            Predicate<Vertex<BuildTask>> acceptOnly = (vertex) -> {
-                BuildTask build = vertex.getData();
-                List<BuildStatus> buildStatuses = Arrays.asList(BuildStatus.NEW, BuildStatus.WAITING_FOR_DEPENDENCIES);
-                return buildStatuses.contains(build.getStatus());
-            };
-
-            buildTasksTree.getSubmittedBuilds().stream().filter(acceptOnly)
-                    .forEach(processBuildTask());
-        } else {
-            buildTask.setStatus(BuildStatus.REJECTED);
-            buildTask.setStatusDescription("The configuration is already in the build queue.");
-        }
+        BuildConfigurationSet buildConfigurationSet = new BuildConfigurationSet();
+        buildConfigurationSet.addBuildConfiguration(buildConfiguration);
+        BuildSetTask buildSetTask = build(buildConfigurationSet);
+        BuildTask buildTask = buildSetTask.getBuildTasks().stream().collect(StreamCollectors.singletonCollector());
         return buildTask;
     }
 
-    private Set<Consumer<BuildStatusChangedEvent>> createListOfConsumers(Set<Consumer<BuildStatusChangedEvent>> initialSet) {
-        Set<Consumer<BuildStatusChangedEvent>> aggregatedConsumers = new HashSet<>();
-        aggregatedConsumers.addAll(initialSet);
-        if(registeredEventListeners != null) {
-            StreamSupport.stream(registeredEventListeners.spliterator(), false).forEach(listener -> aggregatedConsumers.add(listener));
-        }
-        return aggregatedConsumers;
+    public BuildSetTask build(BuildConfigurationSet buildConfigurationSet) throws CoreException {
+        BuildSetTask buildSetTask = new BuildSetTask(buildConfigurationSet);
+        build(buildSetTask);
+        return buildSetTask;
     }
 
-    private Consumer<Vertex<BuildTask>> processBuildTask() {
-        return (vertex) -> {
-            BuildTask buildTask = vertex.getData();
-            List<BuildTask> missingDependencies = findDirectMissingDependencies(vertex);
-            missingDependencies.forEach((missingDependency) -> missingDependency.addWaiting(buildTask));
-            if (missingDependencies.size() == 0) {
-                try {
-                    startBuilding(buildTask);
-                    buildTasks.add(buildTask);
-                } catch (CoreException e) {
-                    buildTask.setStatus(BuildStatus.SYSTEM_ERROR);
-                    buildTask.setStatusDescription(e.getMessage());
-                }
+    private void build(BuildSetTask buildSetTask) throws CoreException {
+
+        BuildTasksTree buildTasksTree = BuildTasksTree.newInstance(this, buildSetTask, contentIdentityManager);
+
+        Predicate<Vertex<BuildTask>> acceptOnlyStatus = (vertex) -> {
+            BuildTask build = vertex.getData();
+            List<BuildStatus> buildStatuses = Arrays.asList(BuildStatus.NEW, BuildStatus.WAITING_FOR_DEPENDENCIES);
+            return buildStatuses.contains(build.getStatus());
+        };
+
+        Predicate<Vertex<BuildTask>> rejectAlreadySubmitted = (vertex) -> {
+            BuildTask build = vertex.getData();
+            if (isBuildAlreadySubmitted(build)) {
+                build.setStatus(BuildStatus.REJECTED);
+                build.setStatusDescription("The configuration is already in the build queue.");
+                return false;
             } else {
-                buildTask.setStatus(BuildStatus.WAITING_FOR_DEPENDENCIES);
-                buildTask.setRequiredBuilds(missingDependencies);
-                buildTasks.add(buildTask);
+                return true;
             }
         };
+
+        if (!BuildStatus.REJECTED.equals(buildSetTask.getStatus())) {
+            buildTasksTree.getBuildTasks().stream()
+                    .filter(acceptOnlyStatus)
+                    .filter(rejectAlreadySubmitted)
+                    .forEach(v -> processBuildTask(v));
+        }
+    }
+
+    private void processBuildTask(Vertex<BuildTask> vertex) {
+        BuildTask buildTask = vertex.getData();
+        List<BuildTask> missingDependencies = findDirectMissingDependencies(vertex);
+        missingDependencies.forEach((missingDependency) -> missingDependency.addWaiting(buildTask));
+        if (missingDependencies.size() == 0) {
+            try {
+                startBuilding(buildTask);
+                buildTasks.add(buildTask);
+            } catch (CoreException e) {
+                buildTask.setStatus(BuildStatus.SYSTEM_ERROR);
+                buildTask.setStatusDescription(e.getMessage());
+            }
+        } else {
+            buildTask.setStatus(BuildStatus.WAITING_FOR_DEPENDENCIES);
+            buildTask.setRequiredBuilds(missingDependencies);
+            buildTasks.add(buildTask);
+        }
     }
 
     private List<BuildTask> findDirectMissingDependencies(Vertex<BuildTask> vertex) {
@@ -201,9 +196,9 @@ public class BuildCoordinator {
     private CompletableFuture<RunningEnvironment> setUpEnvironment(BuildTask buildTask, 
             EnvironmentDriver envDriver, RepositorySession repositorySession,
             RunningEnvironmentWrapper backupRunningEnvironment) {
-            return CompletableFuture.supplyAsync( () ->  {
+            return CompletableFuture.supplyAsync(() -> {
                 buildTask.setStatus(BuildStatus.BUILD_ENV_SETTING_UP);
-                
+
                 try {
                     RunningEnvironment runningEnv = envDriver.buildEnvironment(
                             buildTask.getBuildConfiguration().getEnvironment(), repositorySession);
@@ -214,12 +209,12 @@ public class BuildCoordinator {
                 } catch (EnvironmentDriverException e) {
                     buildTask.setStatus(BuildStatus.BUILD_ENV_SETUP_COMPLETE_WITH_ERROR);
                     throw new CoreExceptionWrapper(e);
-                }          
+                }
             }, executor);
     }
 
     private CompletableFuture<RunningBuild> buildSetUp(BuildTask buildTask, BuildDriver buildDriver, RunningEnvironment runningEnvironment) {
-        return CompletableFuture.supplyAsync( () ->  {
+        return CompletableFuture.supplyAsync(() -> {
             buildTask.setStatus(BuildStatus.BUILD_SETTING_UP);
             try {
                 return buildDriver.startProjectBuild(buildTask.getBuildConfiguration(), runningEnvironment);
@@ -248,7 +243,7 @@ public class BuildCoordinator {
     }
 
     private CompletionStage<BuildDriverResult> retrieveBuildDriverResults(BuildTask buildTask, CompletedBuild completedBuild) {
-        return CompletableFuture.supplyAsync( () ->  {
+        return CompletableFuture.supplyAsync(() -> {
             buildTask.setStatus(BuildStatus.COLLECTING_RESULTS_FROM_BUILD_DRIVER);
             try {
                 BuildDriverResult buildResult = completedBuild.getBuildResult();
@@ -283,7 +278,7 @@ public class BuildCoordinator {
     }
 
     private CompletableFuture<BuildResult> destroyEnvironment(BuildTask buildTask, BuildResult buildResult ) {
-        return CompletableFuture.supplyAsync( () ->  {
+        return CompletableFuture.supplyAsync(() -> {
             try {
                 buildTask.setStatus(BuildStatus.BUILD_ENV_DESTROYING);
                 buildResult.getRunningEnvironment().destroyEnvironment();
@@ -350,12 +345,17 @@ public class BuildCoordinator {
     private boolean isBuildAlreadySubmitted(BuildTask buildTask) {
         return buildTasks.contains(buildTask);
     }
-    
+
+    Event<BuildStatusChangedEvent> getBuildStatusChangedEventNotifier() {
+        return buildStatusChangedEventNotifier;
+    }
+
     /**
      * Dummy wrapper for interface RunningEnvironment
      * @author Jakub Bartecek <jbartece@redhat.com>
      *
      */
+    //TODO replace with objectWrapper
     private class RunningEnvironmentWrapper {
         
         private RunningEnvironment runningEnvironment;
