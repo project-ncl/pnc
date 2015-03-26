@@ -38,6 +38,7 @@
     <module>pnc-spi</module>
     <module>pnc-ui</module>
     <module>pnc-web</module>
+    <module>pnc-processes</module>
     <module>docker-environment-driver</module>
     <module>demo-data</module>
   </modules>
@@ -65,6 +66,7 @@
     <version.jackson>2.4.4</version.jackson>
     <version.jackson.annotations>2.4.1</version.jackson.annotations>
     <version.jclouds>1.8.1</version.jclouds>
+    <version.jbpm>6.2.0.Final</version.jbpm>
 
     <!-- maven-compiler-plugin -->
     <maven.compiler.target>1.8</maven.compiler.target>
@@ -420,6 +422,12 @@
         <groupId>org.jboss.resteasy</groupId>
         <artifactId>resteasy-jaxrs</artifactId>
         <version>2.3.5.Final</version>
+      </dependency>
+      
+      <dependency>
+        <groupId>org.jbpm</groupId>
+        <artifactId>jbpm-test</artifactId>
+        <version>${version.jbpm}</version>
       </dependency>
 
       <!-- Test dependencies -->
@@ -873,6 +881,9 @@
             <phase>generate-resources</phase>
             <configuration>
               <destFile>${sonar.jacoco.reportPath}</destFile>
+              <includes>
+                <include>org.jboss.pnc.*</include>
+              </includes>
             </configuration>
           </execution>
           <execution>
