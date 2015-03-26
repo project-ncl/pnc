@@ -56,6 +56,9 @@ public class BuildConfigurationEndpoint {
     @ApiOperation(value = "Creates a new Build Configuration")
     @POST
     public Response createNew(@NotNull @Valid BuildConfigurationRest buildConfigurationRest, @Context UriInfo uriInfo) {
+        if (buildConfigurationRest.getId() != null) {
+            return Response.status(Response.Status.BAD_REQUEST).build();
+        }
         UriBuilder uriBuilder = UriBuilder.fromUri(uriInfo.getRequestUri()).path("{id}");
         int id = buildConfigurationProvider.store(buildConfigurationRest);
         return Response.created(uriBuilder.build(id)).entity(buildConfigurationProvider.getSpecific(id)).build();

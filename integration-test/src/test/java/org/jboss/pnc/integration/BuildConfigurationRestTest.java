@@ -125,6 +125,30 @@ public class BuildConfigurationRestTest {
         ResponseAssertion.assertThat(response).hasJsonValueNotNullOrEmpty("creationTime").hasJsonValueNotNullOrEmpty("lastModificationTime");
     }
 
+    @Test
+    public void shouldFailToCreateNewBuildConfiguration() throws IOException {
+        // given
+        final String scmUrl = "https://github.com/project-ncl/pnc.git";
+        final String buildScript = "mvn clean deploy -Dmaven.test.skip=true";
+        final String name = "Bad Request Example Config";
+        final String id = String.valueOf(projectId);
+
+        JsonTemplateBuilder configurationTemplate = JsonTemplateBuilder.fromResource("buildConfiguration_update_template");
+        configurationTemplate.addValue("_id", String.valueOf(configurationId));
+        configurationTemplate.addValue("_name", name);
+        configurationTemplate.addValue("_buildScript", buildScript);
+        configurationTemplate.addValue("_scmRepoURL", scmUrl);
+        configurationTemplate.addValue("_patchesUrl", "");
+        configurationTemplate.addValue("_creationTime", String.valueOf(1518382545038L));
+        configurationTemplate.addValue("_lastModificationTime", String.valueOf(155382545038L));
+        configurationTemplate.addValue("_repositories", "");
+        configurationTemplate.addValue("_projectId", id);
+        configurationTemplate.addValue("_environmentId", String.valueOf(environmentId));
+
+        given().body(configurationTemplate.fillTemplate()).contentType(ContentType.JSON).port(getHttpPort()).when().post(CONFIGURATION_REST_ENDPOINT).then()
+        .statusCode(400);
+
+    }
 
     @Test
     public void shouldUpdateBuildConfiguration() throws IOException {
