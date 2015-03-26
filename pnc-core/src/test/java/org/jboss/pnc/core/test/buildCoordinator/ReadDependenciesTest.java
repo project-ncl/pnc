@@ -3,8 +3,8 @@ package org.jboss.pnc.core.test.buildCoordinator;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.pnc.core.builder.BuildTask;
 import org.jboss.pnc.core.builder.BuildTasksTree;
+import org.jboss.pnc.core.content.ContentIdentityManager;
 import org.jboss.pnc.core.test.configurationBuilders.TestProjectConfigurationBuilder;
-import org.jboss.pnc.core.test.mock.MockContentIdentifierManager;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.junit.Assert;
 import org.junit.Test;
@@ -19,9 +19,9 @@ public class ReadDependenciesTest extends ProjectBuilder {
     @Test
     public void createDependencyTreeTestCase() {
         TestProjectConfigurationBuilder configurationBuilder = new TestProjectConfigurationBuilder();
-        MockContentIdentifierManager contentIdentifierManager = new MockContentIdentifierManager();
+        ContentIdentityManager contentIdentityManager = new ContentIdentityManager();
 
-        BuildTasksTree buildTasksTree = new BuildTasksTree(buildCoordinator, contentIdentifierManager);
+        BuildTasksTree buildTasksTree = new BuildTasksTree(buildCoordinator, contentIdentityManager);
         BuildConfiguration buildConfiguration = configurationBuilder.buildConfigurationWithDependencies();
         BuildTask buildTask = buildTasksTree.getOrCreateSubmittedBuild(buildConfiguration);
 

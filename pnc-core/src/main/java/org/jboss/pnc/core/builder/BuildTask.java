@@ -167,4 +167,9 @@ public class BuildTask implements BuildExecution {
         return null;//TODO reference to progressive log
     }
 
+    @Override
+    public String getProjectName() {
+        return buildConfiguration.getProject().getName();
+    }
+
 }

@@ -4,6 +4,7 @@ import org.jboss.logging.Logger;
 import org.jboss.pnc.core.BuildDriverFactory;
 import org.jboss.pnc.core.EnvironmentDriverFactory;
 import org.jboss.pnc.core.RepositoryManagerFactory;
+import org.jboss.pnc.core.content.ContentIdentityManager;
 import org.jboss.pnc.core.exception.CoreException;
 import org.jboss.pnc.core.exception.CoreExceptionWrapper;
 import org.jboss.pnc.model.BuildConfiguration;
@@ -16,7 +17,6 @@ import org.jboss.pnc.spi.builddriver.BuildDriverResult;
 import org.jboss.pnc.spi.builddriver.CompletedBuild;
 import org.jboss.pnc.spi.builddriver.RunningBuild;
 import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
-import org.jboss.pnc.spi.content.ContentIdentifierManager;
 import org.jboss.pnc.spi.datastore.DatastoreException;
 import org.jboss.pnc.spi.environment.EnvironmentDriver;
 import org.jboss.pnc.spi.environment.RunningEnvironment;
@@ -69,7 +69,7 @@ public class BuildCoordinator {
     private BuildDriverFactory buildDriverFactory;
     private EnvironmentDriverFactory environmentDriverFactory;
     private DatastoreAdapter datastoreAdapter;
-    private ContentIdentifierManager contentIdentifierManager;
+    private ContentIdentityManager contentIdentityManager;
 
     private Instance<Consumer<BuildStatusChangedEvent>> registeredEventListeners;
 
@@ -80,13 +80,13 @@ public class BuildCoordinator {
     public BuildCoordinator(BuildDriverFactory buildDriverFactory, RepositoryManagerFactory repositoryManagerFactory, 
             EnvironmentDriverFactory environmentDriverFactory, DatastoreAdapter datastoreAdapter,
             Instance<Consumer<BuildStatusChangedEvent>> registeredEventListeners,
-            ContentIdentifierManager contentIdentifierManager) {
+ ContentIdentityManager contentIdentityManager) {
         this.buildDriverFactory = buildDriverFactory;
         this.repositoryManagerFactory = repositoryManagerFactory;
         this.datastoreAdapter = datastoreAdapter;
         this.environmentDriverFactory = environmentDriverFactory;
         this.registeredEventListeners = registeredEventListeners;
-        this.contentIdentifierManager = contentIdentifierManager;
+        this.contentIdentityManager = contentIdentityManager;
     }
 
     public BuildTask build(BuildConfiguration buildConfiguration) throws CoreException {
@@ -95,7 +95,8 @@ public class BuildCoordinator {
 
     public BuildTask build(BuildConfiguration buildConfiguration, Set<Consumer<BuildStatusChangedEvent>> statusUpdateListeners, Set<Consumer<String>> logConsumers) throws CoreException {
         Set<Consumer<BuildStatusChangedEvent>> aggregatedListOfEventConsumers = createListOfConsumers(statusUpdateListeners);
-        BuildTasksTree buildTasksTree = new BuildTasksTree(this, contentIdentifierManager);
+        BuildTasksTree buildTasksTree = new BuildTasksTree(this, contentIdentityManager,
+                buildConfiguration.getProductVersion());
 
         BuildTask buildTask = buildTasksTree.getOrCreateSubmittedBuild(buildConfiguration, aggregatedListOfEventConsumers, logConsumers);
 

@@ -1,10 +1,14 @@
 package org.jboss.pnc.core.test.buildCoordinator;
 
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.core.BuildDriverFactory;
 import org.jboss.pnc.core.builder.BuildCoordinator;
 import org.jboss.pnc.core.builder.BuildTask;
+import org.jboss.pnc.core.content.ContentIdentityManager;
 import org.jboss.pnc.core.exception.CoreException;
 import org.jboss.pnc.core.test.buildCoordinator.event.TestCDIBuildStatusChangedReceiver;
 import org.jboss.pnc.core.test.mock.BuildDriverMock;
@@ -20,15 +24,13 @@ import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import javax.inject.Inject;
 
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2015-01-06.
@@ -52,7 +54,8 @@ public class ProjectBuilder {
                 .addClass(Configuration.class)
                 .addClass(Environment.Builder.class)
                 .addClass(TestCDIBuildStatusChangedReceiver.class)
-                .addPackages(true, BuildDriverFactory.class.getPackage(), BuildDriverMock.class.getPackage())
+                .addPackages(true, BuildDriverFactory.class.getPackage(), BuildDriverMock.class.getPackage(),
+                        ContentIdentityManager.class.getPackage())
                 .addAsManifestResource(EmptyAsset.INSTANCE, "beans.xml")
                 .addAsResource("META-INF/logging.properties");
 

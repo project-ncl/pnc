@@ -1,11 +1,15 @@
 package org.jboss.pnc.mavenrepositorymanager;
 
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.junit.Assert.assertThat;
+
 import org.commonjava.aprox.boot.BootStatus;
+import org.commonjava.aprox.model.core.Group;
+import org.commonjava.aprox.model.core.StoreKey;
 import org.commonjava.aprox.test.fixture.core.CoreServerFixture;
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.ModuleConfigJson;
 import org.jboss.pnc.common.json.moduleconfig.MavenRepoDriverModuleConfig;
-import org.jboss.pnc.spi.BuildExecution;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -14,6 +18,7 @@ import org.junit.rules.TemporaryFolder;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.File;
+import java.util.List;
 import java.util.Properties;
 
 public class AbstractRepositoryManagerDriverTest {
@@ -77,25 +82,16 @@ public class AbstractRepositoryManagerDriverTest {
         }
     }
 
-    protected BuildExecution simpleBuildExecution() {
-        return new BuildExecution() {
+    protected void assertGroupConstituents(Group buildGroup, StoreKey... constituents) {
+        List<StoreKey> groupConstituents = buildGroup.getConstituents();
+        for (int i = 0; i < constituents.length; i++) {
+            assertThat("Group constituency too small to contain all the expected members.", groupConstituents.size() > i,
+                    equalTo(true));
 
-            @Override
-            public String getTopContentId() {
-                return "myproduct-1.0";
-            }
-
-            @Override
-            public String getBuildSetContentId() {
-                return null;
-            }
-
-            @Override
-            public String getBuildContentId() {
-                return "myproject-12345";
-            }
-
-        };
+            StoreKey expected = constituents[i];
+            StoreKey actual = groupConstituents.get(i);
+            assertThat(actual, equalTo(expected));
+        }
     }
 
 }

@@ -104,21 +104,29 @@ public class RepositoryManagerDriver implements RepositoryManager {
             throws RepositoryManagerException {
 
         String topId = buildExecution.getTopContentId();
+        if (topId != null) {
+            try {
+                setupProductRepos(topId);
+            } catch (AproxClientException e) {
+                throw new RepositoryManagerException("Failed to setup product-level repository group: %s", e, e.getMessage());
+            }
+        }
+
         String setId = buildExecution.getBuildSetContentId();
-        String buildId = buildExecution.getBuildContentId();
         if (setId != null) {
             try {
                 setupBuildSetRepos(setId);
             } catch (AproxClientException e) {
-                throw new RepositoryManagerException("Failed to setup product-local hosted repository or repository group: %s",
+                throw new RepositoryManagerException("Failed to setup repository group for build configuration set: %s",
                         e, e.getMessage());
             }
         }
 
+        String buildId = buildExecution.getBuildContentId();
         try {
-            setupBuildRepos(buildId, setId, topId);
+            setupBuildRepos(buildId, setId, topId, buildExecution.getProjectName());
         } catch (AproxClientException e) {
-            throw new RepositoryManagerException("Failed to setup build-local hosted repository or repository group: %s", e,
+            throw new RepositoryManagerException("Failed to setup repository or repository group for this build: %s", e,
                     e.getMessage());
         }
 
@@ -144,9 +152,11 @@ public class RepositoryManagerDriver implements RepositoryManager {
      * 
      * @param buildRepoId
      * @param productRepoId
+     * @param string
      * @throws AproxClientException
      */
-    private void setupBuildRepos(String buildRepoId, String productRepoId, String projectName) throws AproxClientException {
+    private void setupBuildRepos(String buildRepoId, String buildSetRepoId, String productRepoId, String projectName)
+            throws AproxClientException {
         // if the build-level group doesn't exist, create it.
         if (!aprox.stores().exists(StoreType.group, buildRepoId)) {
             // if the product-level storage repo (for in-progress product builds) doesn't exist, create it.
@@ -162,16 +172,20 @@ public class RepositoryManagerDriver implements RepositoryManager {
 
             Group buildGroup = new Group(buildRepoId);
 
-            // Priorities for build-local group:
-
-            // 1. build-local artifacts
+            // build-local artifacts
             buildGroup.addConstituent(new StoreKey(StoreType.hosted, buildRepoId));
 
+            if (buildSetRepoId != null) {
+                // build-set-level group
+                buildGroup.addConstituent(new StoreKey(StoreType.group, buildSetRepoId));
+            }
+
             if (productRepoId != null) {
-                // 2. product-level group
+                // product-level group
                 buildGroup.addConstituent(new StoreKey(StoreType.group, productRepoId));
             }
-            // 2. Global-level repos, for captured/shared artifacts and access to the outside world
+
+            // Global-level repos, for captured/shared artifacts and access to the outside world
             addGlobalConstituents(buildGroup);
 
             aprox.stores().create(
@@ -192,11 +206,30 @@ public class RepositoryManagerDriver implements RepositoryManager {
 
         // if the product-level group doesn't exist, create it.
         if (!aprox.stores().exists(StoreType.group, setId)) {
-            Group productGroup = new Group(setId);
+            Group setGroup = new Group(setId);
+
+            aprox.stores().create(setGroup,
+                    "Creating group: " + setId + " for access to repos of builds related to build configuration set.",
+                    Group.class);
+        }
+    }
+
+    /**
+     * Lazily create group related to a build set if it doesn't exist. The group will contain repositories for any builds that
+     * have been promoted to it, to allow other related builds to access their artifacts.
+     * 
+     * @param setId
+     * @throws AproxClientException
+     */
+    private void setupProductRepos(String productId) throws AproxClientException {
+
+        // if the product-level group doesn't exist, create it.
+        if (!aprox.stores().exists(StoreType.group, productId)) {
+            Group productGroup = new Group(productId);
 
             aprox.stores().create(
                     productGroup,
-                    "Creating group: " + setId + " for access to repos of builds related to that product.", Group.class);
+                    "Creating group: " + productId + " for access to repos of builds related to that product.", Group.class);
         }
     }
 
