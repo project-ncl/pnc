@@ -1,13 +1,5 @@
 package org.jboss.pnc.mavenrepositorymanager;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
@@ -20,28 +12,17 @@ import org.commonjava.aprox.model.core.HostedRepository;
 import org.commonjava.aprox.model.core.StoreKey;
 import org.commonjava.aprox.model.core.StoreType;
 import org.commonjava.aprox.promote.client.AproxPromoteClientModule;
-import org.jboss.pnc.common.Configuration;
-import org.commonjava.aprox.promote.model.PromoteRequest;
-import org.commonjava.aprox.promote.model.PromoteResult;
-import org.commonjava.maven.atlas.ident.ref.ArtifactRef;
-import org.commonjava.maven.atlas.ident.util.ArtifactPathInfo;
 import org.jboss.logging.Logger;
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.moduleconfig.MavenRepoDriverModuleConfig;
-import org.jboss.pnc.model.Artifact;
-import org.jboss.pnc.model.ArtifactStatus;
-import org.jboss.pnc.model.BuildRecordSet;
 import org.jboss.pnc.model.BuildConfiguration;
+import org.jboss.pnc.model.BuildRecordSet;
 import org.jboss.pnc.model.ProductVersion;
 import org.jboss.pnc.model.RepositoryType;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManager;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerException;
 import org.jboss.pnc.spi.repositorymanager.model.RepositoryConfiguration;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import java.util.Properties;
 
 /**
  * Implementation of {@link RepositoryManager} that manages an <a href="https://github.com/jdcasey/aprox">AProx</a> instance to
@@ -75,7 +56,7 @@ public class RepositoryManagerDriver implements RepositoryManager {
     }
 
     @Inject
-    public RepositoryManagerDriver(Configuration<MavenRepoDriverModuleConfig> configuration) {
+    public RepositoryManagerDriver(final Configuration<MavenRepoDriverModuleConfig> configuration) {
         MavenRepoDriverModuleConfig config;
         try {
             config = configuration.getModuleConfig(MavenRepoDriverModuleConfig.class);
@@ -89,7 +70,7 @@ public class RepositoryManagerDriver implements RepositoryManager {
             }
             aprox = new Aprox(baseUrl, new AproxFoloAdminClientModule(), new AproxFoloContentClientModule(),
                     new AproxPromoteClientModule()).connect();
-        } catch (ConfigurationParseException e) {
+        } catch (final ConfigurationParseException e) {
             log.error("Cannot read configuration for " + RepositoryManagerDriver.DRIVER_ID + ".", e);
         }
     }
@@ -98,7 +79,7 @@ public class RepositoryManagerDriver implements RepositoryManager {
      * Only supports {@link RepositoryType#MAVEN}.
      */
     @Override
-    public boolean canManage(RepositoryType managerType) {
+    public boolean canManage(final RepositoryType managerType) {
         return (managerType == RepositoryType.MAVEN);
     }
 
@@ -113,33 +94,33 @@ public class RepositoryManagerDriver implements RepositoryManager {
      *         (or product, or shared-releases).
      */
     @Override
-    public RepositoryConfiguration createRepository(BuildConfiguration buildConfiguration, BuildRecordSet buildRecordSet)
+    public RepositoryConfiguration createRepository(final BuildConfiguration buildConfiguration, final BuildRecordSet buildRecordSet)
             throws RepositoryManagerException {
 
         try {
             setupGlobalRepos();
-        } catch (AproxClientException e) {
+        } catch (final AproxClientException e) {
             throw new RepositoryManagerException("Failed to setup shared-releases hosted repository: %s", e, e.getMessage());
         }
 
-        ProductVersion pv = buildRecordSet.getProductVersion();
+        final ProductVersion pv = buildRecordSet.getProductVersion();
 
-        String productRepoId = String.format(GROUP_ID_FORMAT, safeUrlPart(pv.getProduct().getName()),
+        final String productRepoId = String.format(GROUP_ID_FORMAT, safeUrlPart(pv.getProduct().getName()),
                 safeUrlPart(pv.getVersion()));
         try {
             setupProductRepos(productRepoId);
-        } catch (AproxClientException e) {
+        } catch (final AproxClientException e) {
             throw new RepositoryManagerException("Failed to setup product-local hosted repository or repository group: %s", e,
                     e.getMessage());
         }
 
         // TODO Better way to generate id that doesn't rely on System.currentTimeMillis() but will still be relatively fast.
 
-        String buildRepoId = String.format(REPO_ID_FORMAT, safeUrlPart(buildConfiguration.getProject().getName()),
+        final String buildRepoId = String.format(REPO_ID_FORMAT, safeUrlPart(buildConfiguration.getProject().getName()),
                 System.currentTimeMillis());
         try {
             setupBuildRepos(buildRepoId, productRepoId);
-        } catch (AproxClientException e) {
+        } catch (final AproxClientException e) {
             throw new RepositoryManagerException("Failed to setup build-local hosted repository or repository group: %s", e,
                     e.getMessage());
         }
@@ -149,7 +130,7 @@ public class RepositoryManagerDriver implements RepositoryManager {
 
         try {
             url = aprox.module(AproxFoloContentClientModule.class).trackingUrl(buildRepoId, StoreType.group, buildRepoId);
-        } catch (AproxClientException e) {
+        } catch (final AproxClientException e) {
             throw new RepositoryManagerException("Failed to retrieve AProx client module for the artifact tracker: %s", e,
                     e.getMessage());
         }
@@ -168,19 +149,19 @@ public class RepositoryManagerDriver implements RepositoryManager {
      * @param productRepoId
      * @throws AproxClientException
      */
-    private void setupBuildRepos(String buildRepoId, String productRepoId) throws AproxClientException {
+    private void setupBuildRepos(final String buildRepoId, final String productRepoId) throws AproxClientException {
         // if the build-level group doesn't exist, create it.
         if (!aprox.stores().exists(StoreType.group, buildRepoId)) {
             // if the product-level storage repo (for in-progress product builds) doesn't exist, create it.
             if (!aprox.stores().exists(StoreType.hosted, buildRepoId)) {
-                HostedRepository buildArtifacts = new HostedRepository(buildRepoId);
+                final HostedRepository buildArtifacts = new HostedRepository(buildRepoId);
                 buildArtifacts.setAllowSnapshots(true);
                 buildArtifacts.setAllowReleases(true);
 
                 aprox.stores().create(buildArtifacts, HostedRepository.class);
             }
 
-            Group buildGroup = new Group(buildRepoId);
+            final Group buildGroup = new Group(buildRepoId);
 
             // Priorities for build-local group:
 
@@ -189,6 +170,16 @@ public class RepositoryManagerDriver implements RepositoryManager {
 
             // 2. product-level group
             buildGroup.addConstituent(new StoreKey(StoreType.group, productRepoId));
+
+            // 3. global shared-releases artifacts
+            buildGroup.addConstituent( new StoreKey( StoreType.hosted, SHARED_RELEASES_ID ) );
+
+            // 4. global shared-imports artifacts
+            buildGroup.addConstituent( new StoreKey( StoreType.hosted, SHARED_IMPORTS_ID ) );
+
+            // 5. public group, containing remote proxies to the outside world
+            // TODO: Configuration by product to determine whether outside world access is permitted.
+            buildGroup.addConstituent( new StoreKey( StoreType.group, PUBLIC_GROUP_ID ) );
 
             aprox.stores().create(buildGroup, Group.class);
         }
@@ -207,34 +198,21 @@ public class RepositoryManagerDriver implements RepositoryManager {
      * @param productRepoId
      * @throws AproxClientException
      */
-    private void setupProductRepos(String productRepoId) throws AproxClientException {
+    private void setupProductRepos(final String productRepoId) throws AproxClientException {
         // if the product-level group doesn't exist, create it.
         if (!aprox.stores().exists(StoreType.group, productRepoId)) {
             // if the product-level storage repo (for in-progress product builds) doesn't exist, create it.
             if (!aprox.stores().exists(StoreType.hosted, productRepoId)) {
-                HostedRepository productArtifacts = new HostedRepository(productRepoId);
+                final HostedRepository productArtifacts = new HostedRepository(productRepoId);
                 productArtifacts.setAllowSnapshots(false);
                 productArtifacts.setAllowReleases(true);
 
                 aprox.stores().create(productArtifacts, HostedRepository.class);
             }
 
-            Group productGroup = new Group(productRepoId);
+            final Group productGroup = new Group(productRepoId);
 
-            // Priorities for product-local group:
-
-            // 1. product-local artifacts
             productGroup.addConstituent(new StoreKey(StoreType.hosted, productRepoId));
-
-            // 2. global shared-releases artifacts
-            productGroup.addConstituent(new StoreKey(StoreType.hosted, SHARED_RELEASES_ID));
-
-            // 3. global shared-imports artifacts
-            productGroup.addConstituent(new StoreKey(StoreType.hosted, SHARED_IMPORTS_ID));
-
-            // 4. public group, containing remote proxies to the outside world
-            // TODO: Configuration by product to determine whether outside world access is permitted.
-            productGroup.addConstituent(new StoreKey(StoreType.group, PUBLIC_GROUP_ID));
 
             aprox.stores().create(productGroup, Group.class);
         }
@@ -248,7 +226,7 @@ public class RepositoryManagerDriver implements RepositoryManager {
     private void setupGlobalRepos() throws AproxClientException {
         // if the global shared-releases repository doesn't exist, create it.
         if (!aprox.stores().exists(StoreType.hosted, SHARED_RELEASES_ID)) {
-            HostedRepository sharedArtifacts = new HostedRepository(SHARED_RELEASES_ID);
+            final HostedRepository sharedArtifacts = new HostedRepository(SHARED_RELEASES_ID);
             sharedArtifacts.setAllowSnapshots(false);
             sharedArtifacts.setAllowReleases(true);
 
@@ -257,7 +235,7 @@ public class RepositoryManagerDriver implements RepositoryManager {
 
         // if the global imports repo doesn't exist, create it.
         if (!aprox.stores().exists(StoreType.hosted, SHARED_IMPORTS_ID)) {
-            HostedRepository productArtifacts = new HostedRepository(SHARED_IMPORTS_ID);
+            final HostedRepository productArtifacts = new HostedRepository(SHARED_IMPORTS_ID);
             productArtifacts.setAllowSnapshots(false);
             productArtifacts.setAllowReleases(true);
 
@@ -269,7 +247,7 @@ public class RepositoryManagerDriver implements RepositoryManager {
      * Sift out spaces, pipe characters and colons (things that don't play well in URLs) from the project name, and convert them
      * to dashes. This is only for naming repositories, so an approximate match to the project in question is fine.
      */
-    private String safeUrlPart(String name) {
+    private String safeUrlPart(final String name) {
         return name.replaceAll("\\W+", "-").replaceAll("[|:]+", "-");
     }
 
