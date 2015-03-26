@@ -302,6 +302,12 @@ public class BuildCoordinator {
             try {
                 if (buildResult != null) {
                     buildTask.setStatus(BuildStatus.STORING_RESULTS);
+                            if (backupRunningEnvironment.getRunningEnvironment() != null
+                                    && backupRunningEnvironment.getRunningEnvironment().getRepositorySession() != null) {
+                                backupRunningEnvironment.getRunningEnvironment().getRepositorySession()
+                                        .promoteToBuildContentSet();
+                            }
+
                     datastoreAdapter.storeResult(buildTask, buildResult);
                     completedOk = true;
                 } else {
@@ -314,6 +320,10 @@ public class BuildCoordinator {
             } catch (DatastoreException de) {
                 log.errorf(e, "Error storing results of build configuration: %s to datastore.", buildTask.getId());
             } 
+ catch (RepositoryManagerException repoE) {
+                        log.warn("Promotion of build output repository: " + buildTask.getBuildContentId()
+                                + " to build-set group: " + buildTask.getBuildSetContentId() + " failed!", repoE);
+                    }
             catch (EnvironmentDriverException envE) {
                 log.warn("Running environment" + backupRunningEnvironment.getRunningEnvironment() 
                         +  " couldn't be destroyed!", envE);

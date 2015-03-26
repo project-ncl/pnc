@@ -21,7 +21,7 @@ public class RepositoryManagerDriver05Test extends AbstractRepositoryManagerDriv
         Aprox aprox = driver.getAprox();
 
         RepositorySession repositoryConfiguration = driver.createBuildRepository(execution);
-        String repoId = repositoryConfiguration.getId();
+        String repoId = repositoryConfiguration.getBuildRepositoryId();
 
         assertThat(repoId, equalTo(execution.getBuildContentId()));
 

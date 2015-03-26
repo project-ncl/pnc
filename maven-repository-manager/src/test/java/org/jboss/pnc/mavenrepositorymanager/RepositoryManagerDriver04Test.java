@@ -92,7 +92,7 @@ public class RepositoryManagerDriver04Test
         Aprox aprox = driver.getAprox();
 
         for (String path : new String[] { pomPath, jarPath }) {
-            final String url = aprox.content().contentUrl(StoreType.hosted, rc.getId(), path);
+            final String url = aprox.content().contentUrl(StoreType.hosted, rc.getBuildRepositoryId(), path);
             boolean downloaded = client.execute(new HttpGet(url), new ResponseHandler<Boolean>() {
                 @Override
                 public Boolean handleResponse(HttpResponse response) throws ClientProtocolException, IOException {

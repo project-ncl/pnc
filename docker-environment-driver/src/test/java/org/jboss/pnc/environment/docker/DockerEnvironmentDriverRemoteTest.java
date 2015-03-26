@@ -238,7 +238,7 @@ public class DockerEnvironmentDriverRemoteTest {
         }
 
         @Override
-        public String getId() {
+        public String getBuildRepositoryId() {
             return null;
         }
 
@@ -271,6 +271,16 @@ public class DockerEnvironmentDriverRemoteTest {
         @Override
         public RepositoryManagerResult extractBuildArtifacts() throws RepositoryManagerException {
             return null;
+        }
+
+        @Override
+        public String getBuildSetRepositoryId() {
+            return null;
+        }
+
+        @Override
+        public void promoteToBuildContentSet() throws RepositoryManagerException {
+            // not triggered because getBuildSetRepositoryId() returns null
         }
 
     }

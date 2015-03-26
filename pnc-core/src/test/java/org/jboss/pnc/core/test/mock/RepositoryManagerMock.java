@@ -44,7 +44,7 @@ public class RepositoryManagerMock implements RepositoryManager {
     }
 
     @Override
-    public RunningRepositoryPromotion promoteBuild(BuildRecord buildRecord, BuildRecordSet buildRecordSet)
+    public RunningRepositoryPromotion promoteBuild(BuildRecord buildRecord, String toGroup)
             throws RepositoryManagerException {
         return new RunningRepositoryPromotionMock(promotionSuccess, promotionError);
     }

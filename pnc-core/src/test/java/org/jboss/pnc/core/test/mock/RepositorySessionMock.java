@@ -22,7 +22,7 @@ public class RepositorySessionMock implements RepositorySession {
     }
 
     @Override
-    public String getId() {
+    public String getBuildRepositoryId() {
         return "test";
     }
 
@@ -81,5 +81,15 @@ public class RepositorySessionMock implements RepositorySession {
         artifact.setId(i);
         artifact.setIdentifier("test" + i);
         return artifact;
+    }
+
+    @Override
+    public String getBuildSetRepositoryId() {
+        return null;
+    }
+
+    @Override
+    public void promoteToBuildContentSet() throws RepositoryManagerException {
+        // not triggered because getBuildSetRepositoryId() returns null
     }
 }

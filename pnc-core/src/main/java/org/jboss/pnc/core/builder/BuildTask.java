@@ -71,7 +71,8 @@ public class BuildTask implements BuildExecution {
     }
 
     public void setStatus(BuildStatus status) {
-        BuildStatusChangedEvent buildStatusChangedEvent = new DefaultBuildStatusChangedEvent(this.status, status, buildConfiguration.getId());
+        BuildStatusChangedEvent buildStatusChangedEvent = new DefaultBuildStatusChangedEvent(this.status, status,
+                buildConfiguration.getId(), this);
         log.debug("Updating build task {} status to {}", this.getId(), buildStatusChangedEvent);
 
         statusUpdateListeners.forEach(consumer -> consumer.accept(buildStatusChangedEvent));

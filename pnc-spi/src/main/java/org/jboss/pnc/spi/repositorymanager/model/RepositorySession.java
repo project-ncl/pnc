@@ -11,14 +11,22 @@ public interface RepositorySession {
 
     RepositoryType getType();
 
-    String getId();
+    String getBuildRepositoryId();
+
+    String getBuildSetRepositoryId();
 
     RepositoryConnectionInfo getConnectionInfo();
 
     /**
-     * Promote any deployed artifacts and process any uncaptured imports of input artifacts (dependencies, etc.)
+     * Process any uncaptured imports of input artifacts (dependencies, etc.) and return the result containing dependencies and
+     * build output.
      *
      * @throws org.jboss.pnc.spi.repositorymanager.RepositoryManagerException
      */
     RepositoryManagerResult extractBuildArtifacts() throws RepositoryManagerException;
+
+    /**
+     * Promote the build repository containing build output to the content-set group, if it exists.
+     */
+    void promoteToBuildContentSet() throws RepositoryManagerException;
 }

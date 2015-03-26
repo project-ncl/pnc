@@ -1,5 +1,6 @@
 package org.jboss.pnc.core.events;
 
+import org.jboss.pnc.spi.BuildExecution;
 import org.jboss.pnc.spi.BuildStatus;
 import org.jboss.pnc.spi.events.BuildStatusChangedEvent;
 
@@ -8,11 +9,14 @@ public class DefaultBuildStatusChangedEvent implements BuildStatusChangedEvent {
     private final BuildStatus oldStatus;
     private final BuildStatus newStatus;
     private final int buildConfigurationId;
+    private final BuildExecution buildExecution;
 
-    public DefaultBuildStatusChangedEvent(BuildStatus oldStatus, BuildStatus newStatus, int buildConfigurationId) {
+    public DefaultBuildStatusChangedEvent(BuildStatus oldStatus, BuildStatus newStatus, int buildConfigurationId,
+            BuildExecution execution) {
         this.oldStatus = oldStatus;
         this.newStatus = newStatus;
         this.buildConfigurationId = buildConfigurationId;
+        this.buildExecution = execution;
     }
 
     @Override
@@ -30,6 +34,11 @@ public class DefaultBuildStatusChangedEvent implements BuildStatusChangedEvent {
         return buildConfigurationId;
     }
 
+    @Override
+    public BuildExecution getBuildExecution() {
+        return buildExecution;
+    }
+
     @Override public String toString() {
         return "DefaultBuildStatusChangedEvent{" +
                 "oldStatus=" + oldStatus +
@@ -37,4 +46,5 @@ public class DefaultBuildStatusChangedEvent implements BuildStatusChangedEvent {
                 ", buildConfigurationId=" + buildConfigurationId +
                 '}';
     }
+
 }
