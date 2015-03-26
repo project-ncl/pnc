@@ -19,6 +19,7 @@ import org.jboss.pnc.rest.restmodel.BuildConfigurationRest;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationSetRest;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
+import org.json.JSONObject;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -52,6 +53,7 @@ public class BuildConfigurationSetRestTest {
     private static int productVersionId;
     private static String buildConfName;
     private static int buildConfId;
+    private static int buildConfId2;
     private static int newBuildConfSetId;
 
     @Deployment(testable = false)
@@ -88,6 +90,7 @@ public class BuildConfigurationSetRestTest {
                 .get(BUILD_CONFIGURATION_REST_ENDPOINT);
         ResponseAssertion.assertThat(responseBuildConf).hasStatus(200);
         buildConfId = responseBuildConf.body().jsonPath().getInt("[0].id");
+        buildConfId2 = responseBuildConf.body().jsonPath().getInt("[1].id");
         buildConfName = responseBuildConf.body().jsonPath().getString("[0].name");
 
         logger.info("productVersionId: {} ", productVersionId);
@@ -159,6 +162,30 @@ public class BuildConfigurationSetRestTest {
 
         ResponseAssertion.assertThat(response).hasStatus(200);
         ResponseAssertion.assertThat(response).hasJsonValueNotNullOrEmpty("[0].id");
+    }
+
+    @Test
+    @InSequence(4)
+    public void testAddBuildConfigurationToBuildConfigurationSet() {
+
+        JSONObject buildConfig = new JSONObject();
+        buildConfig.put("id", buildConfId2);
+
+        Response response = given().body(buildConfig.toString())
+                .contentType(ContentType.JSON).port(getHttpPort()).when()
+                .post(String.format(BUILD_CONFIGURATION_SET_CONFIGURATIONS_REST_ENDPOINT, newBuildConfSetId));
+
+        ResponseAssertion.assertThat(response).hasStatus(200);
+    }
+
+    @Test
+    @InSequence(5)
+    public void testRemoveBuildConfigurationToBuildConfigurationSet() {
+
+        Response response = given().port(getHttpPort()).when()
+                .delete(String.format(BUILD_CONFIGURATION_SET_CONFIGURATIONS_REST_ENDPOINT + "/%d", newBuildConfSetId, buildConfId2));
+
+        ResponseAssertion.assertThat(response).hasStatus(200);
     }
 
     @Test

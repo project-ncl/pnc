@@ -3,6 +3,7 @@ package org.jboss.pnc.rest.provider;
 import org.jboss.pnc.datastore.limits.RSQLPageLimitAndSortingProducer;
 import org.jboss.pnc.datastore.predicates.RSQLPredicate;
 import org.jboss.pnc.datastore.predicates.RSQLPredicateProducer;
+import org.jboss.pnc.datastore.repositories.BuildConfigurationRepository;
 import org.jboss.pnc.datastore.repositories.BuildConfigurationSetRepository;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationSet;
@@ -30,6 +31,9 @@ import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
 public class BuildConfigurationSetProvider {
 
     private BuildConfigurationSetRepository buildConfigurationSetRepository;
+
+    @Inject
+    private BuildConfigurationRepository buildConfigurationRepository;
 
     public BuildConfigurationSetProvider() {
     }
@@ -103,5 +107,20 @@ public class BuildConfigurationSetProvider {
                 .map(buildConfigToRestModel())
                 .collect(Collectors.toList());
     }
+
+    public void addConfiguration(Integer configurationSetId, Integer configurationId) {
+        BuildConfigurationSet buildConfigSet = buildConfigurationSetRepository.findOne(configurationSetId);
+        BuildConfiguration buildConfig = buildConfigurationRepository.findOne(configurationId);
+        buildConfigSet.addBuildConfiguration(buildConfig);
+        buildConfigurationSetRepository.save(buildConfigSet);
+    }
+
+    public void removeConfiguration(Integer configurationSetId, Integer configurationId) {
+        BuildConfigurationSet buildConfigSet = buildConfigurationSetRepository.findOne(configurationSetId);
+        BuildConfiguration buildConfig = buildConfigurationRepository.findOne(configurationId);
+        buildConfigSet.removeBuildConfiguration(buildConfig);
+        buildConfigurationSetRepository.save(buildConfigSet);
+    }
+
 
 }

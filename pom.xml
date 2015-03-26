@@ -60,6 +60,7 @@
     <version.org.apache.httpcomponents.httpclient>4.3.6</version.org.apache.httpcomponents.httpclient>
     <version.org.apache.httpcomponents.httpcore>4.3.3</version.org.apache.httpcomponents.httpcore>
     <version.org.postgresql>9.3-1102-jdbc41</version.org.postgresql>
+    <version.org.json>20141113</version.org.json>
     <version.querydsl>3.6.1</version.querydsl>
     <version.jackson>2.4.4</version.jackson>
     <version.jackson.annotations>2.4.1</version.jackson.annotations>
@@ -558,6 +559,13 @@
           <artifactId>commons-codec</artifactId>
           <version>1.6</version>
         </dependency>
+
+      <dependency>
+        <groupId>org.json</groupId>
+        <artifactId>json</artifactId>
+        <version>${version.org.json}</version>
+      </dependency>
+
     </dependencies>
   </dependencyManagement>
 
