@@ -19,7 +19,7 @@
         }
       },
       data: {
-        proxy: 'configuration-set.list'
+        proxy: 'configuration-set.list',
       }
     });
 
@@ -38,7 +38,7 @@
         }
       }
     });
-    
+
     $stateProvider.state('configuration-set.detail', {
       url: '/configuration-set/{configurationSetId:int}',
       templateUrl: 'configuration-set/views/configuration-set.detail.html',
