@@ -23,7 +23,7 @@
       <div class="form-group">
         <label for="static-project" class="col-sm-2 control-label">Project</label>
         <div class="col-sm-10">
-          <p id="static-project" class="form-control-static">{{ project.name || 'Empty' }}</p>
+          <p id="static-project" class="form-control-static">{{ detailCtrl.project.name || 'Empty' }}</p>
         </div>
       </div>
 
@@ -86,7 +86,7 @@
         <div class="form-group">
           <label for="static-environment" class="col-sm-2 control-label">Environment</label>
           <div class="col-sm-10">
-            <p id="static-environment" class="form-control-static">{{ environment.buildType || 'Empty' }} - {{ environment.operationalSystem || 'Empty' }}</p>
+            <p id="static-environment" class="form-control-static">{{ detailCtrl.environment.buildType || 'Empty' }} - {{ detailCtrl.environment.operationalSystem || 'Empty' }}</p>
           </div>
         </div>
 

@@ -42,6 +42,14 @@
                      event, toState, toParams, fromState, fromParams, error);
         }
       );
+      // Turn on for debugging purposes
+      /*$rootScope.$on('$stateChangeSuccess',
+        function(event, toState, toParams, fromState, fromParams, error) {
+          $log.debug('Caught $stateChangeSuccess: event=%O, toState=%O, ' +
+                     'toParams=%O, fromState=%O, fromParams=%O, error=%O',
+                     event, toState, toParams, fromState, fromParams, error);
+        }
+      );*/
     }
   ]);
 

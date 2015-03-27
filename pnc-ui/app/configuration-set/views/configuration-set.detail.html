@@ -1,0 +1,48 @@
+<div>
+  <pnc-header>
+    <pnc-header-title>{{ detailCtrl.set.name }}</pnc-header-title>
+    <pnc-header-buttons>
+      <button type="button" class="btn btn-lg btn-default" data-toggle="tooltip" title="Start Build" ng-click="detailCtrl.build()">
+        <i class="fa fa-play"></i> Build
+      </button>
+      <button type="button" class="btn btn-lg btn-default disabled" data-toggle="tooltip" title="Edit Configuration">
+        <i class="pficon pficon-edit"></i> Edit
+      </button>
+      <button type="button" class="btn btn-lg btn-danger" data-toggle="tooltip" title="Delete Set" pnc-confirm-click="detailCtrl.delete()" pnc-confirm-message="{{ 'Confirm the deletion of Configuration Set: ' + detailCtrl.set.name + ' ?'}}">
+        <i class="pficon pficon-delete"></i> Delete
+      </button>
+    </pnc-header-buttons>
+  </pnc-header>
+
+  <input ng-model="searchText" placeholder="filter config...">
+  <table class="table table-bordered table-striped table-hover">
+    <thead>
+      <th>Name</th>
+      <th>Created</th>
+      <th>Modified</th>
+      <th>User</th>
+      <th>Last Build</th>
+      <th>Actions</th>
+    </thead>
+    <tbody>
+      <tr ng-repeat="configuration in detailCtrl.configurations | filter:searchText">
+        <td>
+          <a ui-sref="configuration.detail.show({configurationId: configuration.id})" href>
+            {{ configuration.name }}
+          </a>
+        </td>
+        <td>{{ configuration.creationTime | date:'medium'}}</td>
+        <td>{{ configuration.lastModificationTime | date:'medium'}}</td>
+        <td>John Doe</td>
+        <td>-</td>
+        <td class="text-center">
+          <span class="btn-group" role="group" aria-label="Action Tools">
+            <button class="btn btn-xs btn-default">Edit</button>
+            <button class="btn btn-xs btn-default">Remove</button>
+            <button class="btn btn-xs btn-danger">Delete</button>
+          </span>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>

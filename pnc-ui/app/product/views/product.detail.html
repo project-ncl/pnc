@@ -1,6 +1,6 @@
 <div>
   <pnc-header>
-    <pnc-header-title>Product Details</pnc-header-title>
+    <pnc-header-title>{{ detailCtrl.product.name || 'Empty' }}</pnc-header-title>
     <pnc-header-buttons>
       <button type="button" class="btn btn-lg btn-default disabled" data-toggle="tooltip" title="Edit Product">
         <i class="pficon pficon-edit"></i> Edit
@@ -13,30 +13,38 @@
 
   <form editable-form class="form-horizontal">
     <div class="form-group">
-      <label for="input-name" class="col-sm-3 control-label">Name</label>
-      <div class="col-sm-9">
+      <label for="input-name" class="col-sm-1 control-label">Name</label>
+      <div class="col-sm-11">
         <p id="input-name" e-class="form-control" editable-text="detailCtrl.product.name" e-name="name" e-required>{{ detailCtrl.product.name || 'Empty' }}</p>
       </div>
     </div>
 
     <div class="form-group">
-      <label for="static-project" class="col-sm-3 control-label">Description</label>
-      <div class="col-sm-9">
+      <label for="static-project" class="col-sm-1 control-label">Description</label>
+      <div class="col-sm-11">
         <p id="static-project" class="form-control-static">{{ detailCtrl.product.description || 'Empty' }}</p>
       </div>
     </div>
 
-    <div class="form-group">
-      <label for="static-versions" class="col-sm-3 control-label">Versions</label>
-      <div class="col-sm-9">
-        <ul id="static-versions" class="form-control-static">
-          <li ng-repeat="version in detailCtrl.versions">
-            <a href ui-sref="product.version({ productId: detailCtrl.product.id, versionId: version.id })">
-              {{ version.version }}
-            </a>
-          </li>
-        </ul>
-      </div>
-    </div>
+    <pnc-header>
+      <pnc-header-title><small>Product Versions</small></pnc-header-title>
+    </pnc-header>
+
+    <input ng-model="searchText" placeholder="filter versions...">
+    <table class="table table-bordered table-striped">
+      <thead>
+        <th>Version</th>
+        <th>Phase</th>
+        <th>Description</th>
+      </thead>
+      <tbody>
+        <tr ng-repeat="version in detailCtrl.versions | filter:searchText">
+          <td><a href ui-sref="product.version({ productId: detailCtrl.product.id, versionId: version.id })">{{ version.version }}</a></td>
+          <td> tbd (Building | Testing | Released)</td>
+          <td>{{ version.description }}</td>
+        </tr>
+      </tbody>
+    </table>
+
   </form>
 </div>

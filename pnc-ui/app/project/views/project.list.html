@@ -8,6 +8,7 @@
     </pnc-header-buttons>
   </pnc-header>
 
+  <input ng-model="searchText" placeholder="filter projects...">
   <table class="table table-bordered table-striped">
     <thead>
       <th>Name</th>
@@ -15,10 +16,11 @@
     </thead>
     <tbody>
 
-      <tr ng-repeat="project in listCtrl.projects">
+      <tr ng-repeat="project in listCtrl.projects | filter:searchText">
         <td><a href ui-sref="project.detail({ projectId: project.id })">{{ project.name }}</a></td>
         <td>{{ project.description }}</td>
       </tr>
     </tbody>
   </table>
+
 </div>
