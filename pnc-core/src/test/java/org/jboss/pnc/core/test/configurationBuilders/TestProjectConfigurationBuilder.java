@@ -66,6 +66,7 @@ public class TestProjectConfigurationBuilder {
 
     public BuildConfigurationSet buildConfigurationSet() {
         BuildConfigurationSet buildConfigurationSet = new BuildConfigurationSet();
+        buildConfigurationSet.setName("test-build-configuration");
         buildConfigurationWithDependencies(buildConfigurationSet);
 
         return buildConfigurationSet;
@@ -73,6 +74,7 @@ public class TestProjectConfigurationBuilder {
 
     public BuildConfigurationSet buildConfigurationSetWithCycleDependency() {
         BuildConfigurationSet buildConfigurationSet = new BuildConfigurationSet();
+        buildConfigurationSet.setName("test-cycle");
         buildConfigurationWithCycleDependency(buildConfigurationSet);
 
         return buildConfigurationSet;

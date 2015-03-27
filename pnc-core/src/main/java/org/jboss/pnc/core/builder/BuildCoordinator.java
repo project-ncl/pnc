@@ -89,6 +89,7 @@ public class BuildCoordinator {
 
     public BuildTask build(BuildConfiguration buildConfiguration) throws CoreException {
         BuildConfigurationSet buildConfigurationSet = new BuildConfigurationSet();
+        buildConfigurationSet.setName(buildConfiguration.getName());
         buildConfigurationSet.addBuildConfiguration(buildConfiguration);
         BuildSetTask buildSetTask = build(buildConfigurationSet);
         BuildTask buildTask = buildSetTask.getBuildTasks().stream().collect(StreamCollectors.singletonCollector());
