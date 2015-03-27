@@ -63,7 +63,7 @@ public class BuildConfigurationSet implements Serializable {
             name="build_configuration_set_map",
             joinColumns={@JoinColumn(name="build_configuration_set_id", referencedColumnName="id")},
             inverseJoinColumns={@JoinColumn(name="build_configuration_id", referencedColumnName="id")})
-    private Set<BuildConfiguration> buildConfigurations;
+    private Set<BuildConfiguration> buildConfigurations = new HashSet<>();
 
     public BuildConfigurationSet() {
     }

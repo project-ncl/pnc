@@ -6,14 +6,13 @@ import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.spi.BuildExecution;
 import org.jboss.pnc.spi.BuildStatus;
 import org.jboss.pnc.spi.events.BuildStatusChangedEvent;
-import org.jboss.util.collection.WeakSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.enterprise.event.Event;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.function.Consumer;
 
 /**
 * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-12-23.
@@ -23,11 +22,11 @@ public class BuildTask implements BuildExecution {
     public static final Logger log = LoggerFactory.getLogger(BuildTask.class);
 
     public BuildConfiguration buildConfiguration;
+    private BuildTaskType buildTaskType;
     BuildStatus status = BuildStatus.NEW;
     private String statusDescription;
 
-    private Set<Consumer<BuildStatusChangedEvent>> statusUpdateListeners;
-    private Set<Consumer<String>> logConsumers;
+    Event<BuildStatusChangedEvent> buildStatusChangedEvent;
 
     /**
      * A list of builds waiting for this build to complete.
@@ -43,39 +42,21 @@ public class BuildTask implements BuildExecution {
     private String buildContentId;
 
     BuildTask(BuildCoordinator buildCoordinator, BuildConfiguration buildConfiguration, String topContentId,
-            String buildSetContentId, String buildContentId) {
+              String buildSetContentId, String buildContentId, BuildTaskType buildTaskType) {
         this.buildCoordinator = buildCoordinator;
         this.buildConfiguration = buildConfiguration;
+        this.buildTaskType = buildTaskType;
+        this.buildStatusChangedEvent = buildCoordinator.getBuildStatusChangedEventNotifier();
         this.topContentId = topContentId;
         this.buildSetContentId = buildSetContentId;
         this.buildContentId = buildContentId;
-        statusUpdateListeners = new WeakSet();
-        logConsumers = new WeakSet();
         waiting = new HashSet<>();
     }
 
-    BuildTask(BuildCoordinator buildCoordinator, BuildConfiguration buildConfiguration, String topContentId,
-            String buildSetContentId, String buildContentId, Set<Consumer<BuildStatusChangedEvent>> statusUpdateListeners,
-            Set<Consumer<String>> logConsumers) {
-        this(buildCoordinator, buildConfiguration, topContentId, buildSetContentId, buildContentId);
-        this.statusUpdateListeners.addAll(statusUpdateListeners);
-        this.logConsumers.addAll(logConsumers);
-    }
-
-    public void registerStatusUpdateListener(Consumer<BuildStatusChangedEvent> statusUpdateListener) {
-        this.statusUpdateListeners.add(statusUpdateListener);
-    }
-
-    public void registerLogConsumer(Consumer<String> logConsumer) {
-        this.logConsumers.add(logConsumer);
-    }
-
     public void setStatus(BuildStatus status) {
-        BuildStatusChangedEvent buildStatusChangedEvent = new DefaultBuildStatusChangedEvent(this.status, status,
-                buildConfiguration.getId(), this);
-        log.debug("Updating build task {} status to {}", this.getId(), buildStatusChangedEvent);
-
-        statusUpdateListeners.forEach(consumer -> consumer.accept(buildStatusChangedEvent));
+        BuildStatusChangedEvent buildStatusChanged = new DefaultBuildStatusChangedEvent(this.status, status, buildConfiguration.getId(), this);
+        log.debug("Updating build task {} status to {}", this.getId(), buildStatusChanged);
+        buildStatusChangedEvent.fire(buildStatusChanged);
         if (status.equals(BuildStatus.DONE)) {
             waiting.forEach((submittedBuild) -> submittedBuild.requiredBuildCompleted(this));
         }
@@ -173,4 +154,7 @@ public class BuildTask implements BuildExecution {
         return buildConfiguration.getProject().getName();
     }
 
+    public BuildTaskType getBuildTaskType() {
+        return buildTaskType;
+    }
 }
