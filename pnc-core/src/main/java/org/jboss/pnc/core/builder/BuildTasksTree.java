@@ -39,7 +39,6 @@ public class BuildTasksTree {
 
         BuildTasksTree instance = new BuildTasksTree();
 
-        //TODO jdcasey: can we always use buildConfigSet also in case of single build
         String topContentId = contentIdentityManager.getProductContentId(buildConfigurationSet.getProductVersion());
         String buildSetContentId = contentIdentityManager.getBuildSetContentId(buildConfigurationSet);
 
@@ -72,7 +71,8 @@ public class BuildTasksTree {
                     buildCoordinator,
                     topContentId,
                     buildSetContentId,
-                    contentIdentityManager))
+                    contentIdentityManager,
+                    buildSetTask.getBuildTaskType()))
             .forEach(buildTask -> buildSetTask.addBuildTask(buildTask));
     }
 
@@ -81,11 +81,18 @@ public class BuildTasksTree {
                                 BuildCoordinator buildCoordinator,
                                 String topContentId,
                                 String buildSetContentId,
-                                ContentIdentityManager contentIdentityManager) {
+                                ContentIdentityManager contentIdentityManager,
+                                BuildTaskType buildTaskType) {
         Vertex<BuildTask> buildVertex = getVertexByBuildConfiguration(buildConfiguration);
         if (buildVertex == null) {
             String buildContentId = contentIdentityManager.getBuildContentId(buildConfiguration);
-            BuildTask buildTask = new BuildTask(buildCoordinator, buildConfiguration, topContentId, buildSetContentId, buildContentId);
+            BuildTask buildTask = new BuildTask(
+                    buildCoordinator,
+                    buildConfiguration,
+                    topContentId,
+                    buildSetContentId,
+                    buildContentId,
+                    buildTaskType);
 
             Vertex<BuildTask> vertex = new Vertex(buildTask.getId().toString(), buildTask);
             tree.addVertex(vertex);

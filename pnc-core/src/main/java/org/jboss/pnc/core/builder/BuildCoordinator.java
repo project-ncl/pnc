@@ -91,13 +91,14 @@ public class BuildCoordinator {
         BuildConfigurationSet buildConfigurationSet = new BuildConfigurationSet();
         buildConfigurationSet.setName(buildConfiguration.getName());
         buildConfigurationSet.addBuildConfiguration(buildConfiguration);
-        BuildSetTask buildSetTask = build(buildConfigurationSet);
+        BuildSetTask buildSetTask = new BuildSetTask(buildConfigurationSet, BuildTaskType.STANDALONE_BUILD);
+        build(buildSetTask);
         BuildTask buildTask = buildSetTask.getBuildTasks().stream().collect(StreamCollectors.singletonCollector());
         return buildTask;
     }
 
     public BuildSetTask build(BuildConfigurationSet buildConfigurationSet) throws CoreException {
-        BuildSetTask buildSetTask = new BuildSetTask(buildConfigurationSet);
+        BuildSetTask buildSetTask = new BuildSetTask(buildConfigurationSet, BuildTaskType.COMPOSED_BUILD);
         build(buildSetTask);
         return buildSetTask;
     }

@@ -22,6 +22,7 @@ public class BuildTask implements BuildExecution {
     public static final Logger log = LoggerFactory.getLogger(BuildTask.class);
 
     public BuildConfiguration buildConfiguration;
+    private BuildTaskType buildTaskType;
     BuildStatus status = BuildStatus.NEW;
     private String statusDescription;
 
@@ -41,9 +42,10 @@ public class BuildTask implements BuildExecution {
     private String buildContentId;
 
     BuildTask(BuildCoordinator buildCoordinator, BuildConfiguration buildConfiguration, String topContentId,
-            String buildSetContentId, String buildContentId) {
+              String buildSetContentId, String buildContentId, BuildTaskType buildTaskType) {
         this.buildCoordinator = buildCoordinator;
         this.buildConfiguration = buildConfiguration;
+        this.buildTaskType = buildTaskType;
         this.buildStatusChangedEvent = buildCoordinator.getBuildStatusChangedEventNotifier();
         this.topContentId = topContentId;
         this.buildSetContentId = buildSetContentId;
@@ -152,4 +154,7 @@ public class BuildTask implements BuildExecution {
         return buildConfiguration.getProject().getName();
     }
 
+    public BuildTaskType getBuildTaskType() {
+        return buildTaskType;
+    }
 }

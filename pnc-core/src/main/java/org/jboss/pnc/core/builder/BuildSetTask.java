@@ -13,13 +13,16 @@ public class BuildSetTask {
 
     private BuildConfigurationSet buildConfigurationSet;
 
+    private final BuildTaskType buildTaskType;
+
     private BuildStatus status;
 
     private String statusDescription;
     private Set<BuildTask> buildTasks = new HashSet<>();
 
-    public BuildSetTask(BuildConfigurationSet buildConfigurationSet) {
+    public BuildSetTask(BuildConfigurationSet buildConfigurationSet, BuildTaskType buildTaskType) {
         this.buildConfigurationSet = buildConfigurationSet;
+        this.buildTaskType = buildTaskType;
     }
 
     public BuildConfigurationSet getBuildConfigurationSet() {
@@ -52,5 +55,9 @@ public class BuildSetTask {
 
     public Integer getId() {
         return buildConfigurationSet.getId();
+    }
+
+    public BuildTaskType getBuildTaskType() {
+        return buildTaskType;
     }
 }
