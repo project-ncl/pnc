@@ -31,9 +31,8 @@ public class BuildTasksTree {
      * @param buildSetTask
      * @return
      */
-    //TODO jdcasey: do we need ot pass around ContentIdentityManager, it's stateless
-    public static BuildTasksTree newInstance(BuildCoordinator buildCoordinator, BuildSetTask buildSetTask,
-            ContentIdentityManager contentIdentityManager) {
+    public static BuildTasksTree newInstance(BuildCoordinator buildCoordinator, BuildSetTask buildSetTask) {
+        ContentIdentityManager contentIdentityManager = new ContentIdentityManager();
 
         BuildConfigurationSet buildConfigurationSet = buildSetTask.getBuildConfigurationSet();
 
@@ -42,7 +41,7 @@ public class BuildTasksTree {
         String topContentId = contentIdentityManager.getProductContentId(buildConfigurationSet.getProductVersion());
         String buildSetContentId = contentIdentityManager.getBuildSetContentId(buildConfigurationSet);
 
-        instance.buildTree(buildSetTask, buildCoordinator, topContentId, buildSetContentId, contentIdentityManager);
+        instance.buildTree(buildSetTask, buildCoordinator, topContentId, buildSetContentId);
 
         Edge<BuildTask>[] cycles = instance.tree.findCycles();
         if (cycles.length > 0) {
@@ -59,8 +58,7 @@ public class BuildTasksTree {
     private void buildTree(BuildSetTask buildSetTask,
             BuildCoordinator buildCoordinator,
             String topContentId,
-            String buildSetContentId,
-            ContentIdentityManager contentIdentityManager) {
+            String buildSetContentId) {
         BuildConfigurationSet buildConfigurationSet = buildSetTask.getBuildConfigurationSet();
 
         Set<PotentialDependency> potentialDependencies = new HashSet<>();
@@ -71,18 +69,18 @@ public class BuildTasksTree {
                     buildCoordinator,
                     topContentId,
                     buildSetContentId,
-                    contentIdentityManager,
                     buildSetTask.getBuildTaskType()))
             .forEach(buildTask -> buildSetTask.addBuildTask(buildTask));
     }
 
     private BuildTask addToTree(BuildConfiguration buildConfiguration,
-                                Set<PotentialDependency> potentialDependencies,
-                                BuildCoordinator buildCoordinator,
-                                String topContentId,
-                                String buildSetContentId,
-                                ContentIdentityManager contentIdentityManager,
-                                BuildTaskType buildTaskType) {
+            Set<PotentialDependency> potentialDependencies,
+            BuildCoordinator buildCoordinator,
+            String topContentId,
+            String buildSetContentId,
+            BuildTaskType buildTaskType) {
+
+        ContentIdentityManager contentIdentityManager = new ContentIdentityManager();
         Vertex<BuildTask> buildVertex = getVertexByBuildConfiguration(buildConfiguration);
         if (buildVertex == null) {
             String buildContentId = contentIdentityManager.getBuildContentId(buildConfiguration);

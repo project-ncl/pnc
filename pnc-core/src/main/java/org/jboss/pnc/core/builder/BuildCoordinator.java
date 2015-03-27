@@ -105,7 +105,7 @@ public class BuildCoordinator {
 
     private void build(BuildSetTask buildSetTask) throws CoreException {
 
-        BuildTasksTree buildTasksTree = BuildTasksTree.newInstance(this, buildSetTask, contentIdentityManager);
+        BuildTasksTree buildTasksTree = BuildTasksTree.newInstance(this, buildSetTask);
 
         Predicate<Vertex<BuildTask>> acceptOnlyStatus = (vertex) -> {
             BuildTask build = vertex.getData();
