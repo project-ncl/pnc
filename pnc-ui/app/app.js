@@ -9,6 +9,7 @@
     'pnc.project',
     'pnc.configuration',
     'pnc.record',
+    'pnc.configuration-set',
     'pnc.websockets'
   ]);
 
