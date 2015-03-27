@@ -59,7 +59,7 @@ public class TestProjectConfigurationBuilder {
         buildConfiguration.setProject(project);
         project.addBuildConfiguration(buildConfiguration);
         if (buildConfigurationSet != null) {
-            buildConfigurationSet.addBuildConfigurations(buildConfiguration);
+            buildConfigurationSet.addBuildConfiguration(buildConfiguration);
         }
         return buildConfiguration;
     }

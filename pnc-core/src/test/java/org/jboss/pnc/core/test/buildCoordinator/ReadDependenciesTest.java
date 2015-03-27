@@ -22,13 +22,8 @@ public class ReadDependenciesTest extends ProjectBuilder {
         ContentIdentityManager contentIdentityManager = new ContentIdentityManager();
         BuildConfigurationSet buildConfigurationSet = configurationBuilder.buildConfigurationSet();
         BuildSetTask buildSetTask = new BuildSetTask(buildConfigurationSet);
-        BuildTasksTree buildTasksTree = BuildTasksTree.newInstance(buildCoordinator, buildSetTask);
+        BuildTasksTree buildTasksTree = BuildTasksTree.newInstance(buildCoordinator, buildSetTask, contentIdentityManager);
 
-        BuildTasksTree buildTasksTree = new BuildTasksTree(buildCoordinator);
-        BuildConfiguration buildConfiguration = configurationBuilder.buildConfigurationWithDependencies();
-        BuildTask buildTask = buildTasksTree.getOrCreateSubmittedBuild(buildConfiguration);
-
-        Assert.assertEquals("Missing projects in tree structure.", 5, buildTasksTree.getSubmittedBuilds().size());
-
+        Assert.assertEquals("Missing projects in tree structure.", 5, buildTasksTree.getBuildTasks().size());
     }
 }

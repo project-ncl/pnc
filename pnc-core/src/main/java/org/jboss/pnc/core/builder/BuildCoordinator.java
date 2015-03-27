@@ -1,6 +1,7 @@
 package org.jboss.pnc.core.builder;
 
 import org.jboss.logging.Logger;
+import org.jboss.pnc.common.util.ObjectWrapper;
 import org.jboss.pnc.common.util.StreamCollectors;
 import org.jboss.pnc.core.BuildDriverFactory;
 import org.jboss.pnc.core.EnvironmentDriverFactory;
@@ -170,7 +171,7 @@ public class BuildCoordinator {
         BuildDriver buildDriver = buildDriverFactory.getBuildDriver(buildTask.getBuildConfiguration().getEnvironment().getBuildType());
         EnvironmentDriver envDriver = environmentDriverFactory.getDriver(buildTask.getBuildConfiguration().getEnvironment());
         
-        RunningEnvironmentWrapper backupRunningEnvironment = new RunningEnvironmentWrapper();
+        ObjectWrapper<RunningEnvironment> backupRunningEnvironment = new ObjectWrapper();
         
         configureRepository(buildTask, repositoryManager)
                 .thenCompose(repositoryConfiguration -> setUpEnvironment(buildTask, envDriver, repositoryConfiguration, backupRunningEnvironment))
@@ -195,7 +196,7 @@ public class BuildCoordinator {
 
     private CompletableFuture<RunningEnvironment> setUpEnvironment(BuildTask buildTask, 
             EnvironmentDriver envDriver, RepositorySession repositorySession,
-            RunningEnvironmentWrapper backupRunningEnvironment) {
+            ObjectWrapper<RunningEnvironment> backupRunningEnvironment) {
             return CompletableFuture.supplyAsync(() -> {
                 buildTask.setStatus(BuildStatus.BUILD_ENV_SETTING_UP);
 
@@ -203,7 +204,7 @@ public class BuildCoordinator {
                     RunningEnvironment runningEnv = envDriver.buildEnvironment(
                             buildTask.getBuildConfiguration().getEnvironment(), repositorySession);
 
-                    backupRunningEnvironment.setRunningEnvironment(runningEnv);
+                    backupRunningEnvironment.set(runningEnv);
                     buildTask.setStatus(BuildStatus.BUILD_ENV_SETUP_COMPLETE_SUCCESS);
                     return runningEnv;
                 } catch (EnvironmentDriverException e) {
@@ -291,37 +292,27 @@ public class BuildCoordinator {
     }
     
     private CompletableFuture<Boolean> storeResults(BuildTask buildTask, BuildResult buildResult,
-            RunningEnvironmentWrapper backupRunningEnvironment, Throwable e) {
-        return CompletableFuture.supplyAsync( () ->  {
+            ObjectWrapper<RunningEnvironment> backupRunningEnvironment, Throwable e) {
+        return CompletableFuture.supplyAsync( () -> {
             boolean completedOk = false;
             try {
                 if (buildResult != null) {
                     buildTask.setStatus(BuildStatus.STORING_RESULTS);
-                            if (backupRunningEnvironment.getRunningEnvironment() != null
-                                    && backupRunningEnvironment.getRunningEnvironment().getRepositorySession() != null) {
-                                backupRunningEnvironment.getRunningEnvironment().getRepositorySession()
-                                        .promoteToBuildContentSet();
-                            }
-
                     datastoreAdapter.storeResult(buildTask, buildResult);
                     completedOk = true;
                 } else {
                     datastoreAdapter.storeResult(buildTask, e);
-                    if(backupRunningEnvironment.getRunningEnvironment() != null) {
-                        backupRunningEnvironment.getRunningEnvironment().destroyEnvironment();
+                    if(backupRunningEnvironment.get() != null) {
+                        backupRunningEnvironment.get().destroyEnvironment();
                     }
                     completedOk = false;
                 }
             } catch (DatastoreException de) {
                 log.errorf(e, "Error storing results of build configuration: %s to datastore.", buildTask.getId());
-            } 
- catch (RepositoryManagerException repoE) {
-                        log.warn("Promotion of build output repository: " + buildTask.getBuildContentId()
-                                + " to build-set group: " + buildTask.getBuildSetContentId() + " failed!", repoE);
-                    }
+            }
             catch (EnvironmentDriverException envE) {
-                log.warn("Running environment" + backupRunningEnvironment.getRunningEnvironment() 
-                        +  " couldn't be destroyed!", envE);
+                log.warn("Running environment" + backupRunningEnvironment.get()
+                        + " couldn't be destroyed!", envE);
             }
             finally {
                 buildTask.setStatus(BuildStatus.DONE);
@@ -349,25 +340,5 @@ public class BuildCoordinator {
     Event<BuildStatusChangedEvent> getBuildStatusChangedEventNotifier() {
         return buildStatusChangedEventNotifier;
     }
-
-    /**
-     * Dummy wrapper for interface RunningEnvironment
-     * @author Jakub Bartecek <jbartece@redhat.com>
-     *
-     */
-    //TODO replace with objectWrapper
-    private class RunningEnvironmentWrapper {
-        
-        private RunningEnvironment runningEnvironment;
-        
-        public RunningEnvironment getRunningEnvironment() {
-            return runningEnvironment;
-        }
-        
-        public void setRunningEnvironment(RunningEnvironment runningEnvironment) {
-            this.runningEnvironment = runningEnvironment;
-        }
-    }
-
 
 }
