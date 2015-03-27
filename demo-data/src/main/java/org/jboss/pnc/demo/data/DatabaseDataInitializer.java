@@ -115,7 +115,7 @@ public class DatabaseDataInitializer {
              * All the bi-directional mapping settings are managed inside the Builders
              */
             // Example product and product version
-            Product product = Product.Builder.newBuilder().name(PNC_PRODUCT_NAME).description(
+            Product product = Product.Builder.newBuilder().name(PNC_PRODUCT_NAME).abbreviation("PNC").description(
                     "Example Product for Project Newcastle Demo")
                     .build();
             product = productRepository.save(product);

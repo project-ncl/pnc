@@ -24,7 +24,7 @@ body {
 /* navbar background */
 .navbar-header {
     background-color: #cc0000 !important;
-    background-image: url('/images/redhat-header.png');
+    background-image: url('../images/redhat-header.png');
     background-repeat: no-repeat;
     background-position: right;
 }
@@ -90,4 +90,13 @@ ul.pagination.pull-right {
 
 .full-height {
   min-height: 560px;
+}
+
+.breadcrumb {
+    padding-left: 8px;
+    background-color: rgba(0, 0, 0, 0.06);
+    list-style: outside none none;
+    border-radius: 1px;
+    padding: 8px 15px;
+    margin-bottom: 20px;
 }

@@ -15,12 +15,13 @@
   ]);
 
   module.controller('ProjectDetailController', [
-    '$log', '$state', 'projectDetail',
-    function($log, $state, projectDetail) {
+    '$log', '$state', 'projectDetail', 'projectConfigurationList',
+    function($log, $state, projectDetail, projectConfigurationList) {
       $log.debug('ProjectDetailController >> this=%O, projectDetail=%O',
                  this, projectDetail);
 
       this.project = projectDetail;
+      this.projectConfigurationList = projectConfigurationList;
     }
   ]);
 

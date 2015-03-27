@@ -7,7 +7,8 @@
     'xeditable',
     'pnc.remote.restClient',
     'pnc.util.header',
-    'pnc.util.confirmClick'
+    'pnc.util.confirmClick',
+    'angularUtils.directives.uiBreadcrumbs'
   ]);
 
   module.config(['$stateProvider', function($stateProvider) {
@@ -15,14 +16,21 @@
       abstract: true,
       views: {
         'content@': {
-          templateUrl: 'common/templates/single-col-center.tmpl.html'
+          templateUrl: 'common/templates/single-col.tmpl.html'
+          //templateUrl: 'common/templates/single-col-center.tmpl.html'
         }
+      },
+      data: {
+        proxy: 'configuration.list'
       }
     });
 
     $stateProvider.state('configuration.list', {
       url: '/configuration',
       templateUrl: 'configuration/views/configuration.list.html',
+      data: {
+        displayName: 'Build Configurations'
+      },
       controller: 'ConfigurationListController',
       controllerAs: 'listCtrl',
       resolve: {
@@ -36,6 +44,9 @@
     $stateProvider.state('configuration.create', {
       url: '/configuration/create',
       templateUrl: 'configuration/views/configuration.create.html',
+      data: {
+        displayName: 'Create Build Configuration'
+      },
       controller: 'ConfigurationCreateController',
       controllerAs: 'createCtrl',
       resolve: {
@@ -56,12 +67,18 @@
         'content@': {
           templateUrl: 'common/templates/two-col-right-sidebar.tmpl.html'
         }
+      },
+      data: {
+        proxy: 'configuration.detail.show'
       }
     });
 
     // Populate main and sidebar views.
     $stateProvider.state('configuration.detail.show', {
       url: '/configuration/{configurationId:int}',
+      data: {
+         displayName: '{{ configurationDetail.name }}',
+      },
       views: {
         '': {
           templateUrl: 'configuration/views/configuration.detail-main.html',
@@ -82,6 +99,7 @@
         },
         environmentDetail: function(restClient, $stateParams,
                                      configurationDetail) {
+                                     
           return restClient.Environment.get({
             environmentId: configurationDetail.environmentId  }).$promise;
         },

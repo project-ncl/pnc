@@ -5,7 +5,8 @@
   var module = angular.module('pnc.product', [
     'ui.router',
     'pnc.remote.restClient',
-    'pnc.util.header'
+    'pnc.util.header',
+    'angularUtils.directives.uiBreadcrumbs'
   ]);
 
   module.config(['$stateProvider', function($stateProvider) {
@@ -13,14 +14,21 @@
       abstract: true,
       views: {
         'content@': {
-          templateUrl: 'common/templates/single-col-center.tmpl.html'
+          templateUrl: 'common/templates/single-col.tmpl.html'
+          //templateUrl: 'common/templates/single-col-center.tmpl.html'
         }
+      },
+      data: {
+        proxy: 'product.list'
       }
     });
 
     $stateProvider.state('product.list', {
       url: '/product',
       templateUrl: 'product/views/product.list.html',
+      data: {
+        displayName: 'Products'
+      },
       controller: 'ProductListController',
       controllerAs: 'listCtrl',
       resolve: {
@@ -34,6 +42,9 @@
     $stateProvider.state('product.detail', {
       url: '/product/{productId:int}',
       templateUrl: 'product/views/product.detail.html',
+      data: {
+         displayName: '{{ productDetail.name }}',
+      },
       controller: 'ProductDetailController',
       controllerAs: 'detailCtrl',
       resolve: {
@@ -47,10 +58,14 @@
         }
       }
     });
-
+    
     $stateProvider.state('product.version', {
+      //parent: 'product.detail',
       url: '/product/{productId:int}/version/{versionId:int}',
       templateUrl: 'product/views/product.version.html',
+      data: {
+         displayName: '{{ versionDetail.version }}'
+      },
       controller: 'ProductVersionController',
       controllerAs: 'versionCtrl',
       resolve: {
@@ -64,9 +79,14 @@
             productId: $stateParams.productId,
             versionId: $stateParams.versionId }).$promise;
         },
+        buildConfigurationSets: function(restClient, $stateParams) {
+          return restClient.Version.getAllBuildConfigurationSets({
+            productId: $stateParams.productId,
+            versionId: $stateParams.versionId }).$promise;
+        }
       }
     });
 
   }]);
-
+  
 })();

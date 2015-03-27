@@ -8,6 +8,7 @@
     </pnc-header-buttons>
   </pnc-header>
 
+  <input ng-model="searchText" placeholder="filter config...">
   <table class="table table-bordered table-striped table-hover">
     <thead>
       <th>Name</th>
@@ -20,7 +21,7 @@
       <th>User</th>
     </thead>
     <tbody>
-      <tr ng-repeat="configuration in listCtrl.configurations">
+      <tr ng-repeat="configuration in listCtrl.configurations | filter:searchText">
         <td>
           <a ui-sref="configuration.detail.show({configurationId: configuration.id})" href>
             {{ configuration.name }}

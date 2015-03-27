@@ -45,7 +45,12 @@
         },{
           update: {
             method: 'PUT',
-          }
+          },
+          getAllBuildConfigurationSets: {
+            method: 'GET',
+            url: REST_DEFAULTS.BASE_URL + '/product/:productId/version/:versionId/configuration-sets',
+            isArray: true
+          },
         }),
 
         Project: $resource(REST_DEFAULTS.BASE_URL + '/project/:projectId', {
@@ -135,6 +140,35 @@
             transformResponse: convertStringResponseToJson
           },
         }),
+        ConfigurationSet: $resource(REST_DEFAULTS.BASE_URL + '/configuration-set/:configurationSetId', {
+          'configurationSetId': '@id'
+        },{
+          getConfigurations: {
+            method: 'GET',
+            url: REST_DEFAULTS.BASE_URL + '/configuration-set/:configurationSetId/configurations',
+            isArray: true
+          },
+          build: {
+            method: 'POST',
+            url: REST_DEFAULTS.BASE_URL + '/configuration-set/:configurationSetId/build',
+            isArray: false,
+          },
+        }),
+
+        RecordSet: $resource(REST_DEFAULTS.BASE_URL + '/recordset/:recordsetId', {
+          recordsetId: '@id'
+        },{
+          getAllForProductVersion: {
+            method: 'GET',
+            url: REST_DEFAULTS.BASE_URL + '/recordset/productversion/:versionId',
+            isArray: true
+          },
+          getRecords: {
+            method: 'GET',
+            url: REST_DEFAULTS.BASE_URL + '/recordset/record/:recordId',
+            isArray: true
+          }
+        })
       };
     }
   ]);
