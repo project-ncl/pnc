@@ -47,7 +47,6 @@
   </modules>
 
   <properties>
-    <remoteTest>false</remoteTest>
     <!-- minimum jdk and maven versions -->
     <jdk.min.version>1.8</jdk.min.version>
     <maven.min.version>3.2</maven.min.version>
@@ -109,6 +108,10 @@
     <jboss.port.offset>0</jboss.port.offset>
     <default.management.port>9990</default.management.port>
     <jboss.management.port>${default.management.port}</jboss.management.port>
+    <failsafe.test.skip>true</failsafe.test.skip>
+    <failsafe.test.remote.skip>true</failsafe.test.remote.skip>
+    <failsafe.test.container.skip>true</failsafe.test.container.skip>
+    <surefire.test.remote.skip>false</surefire.test.remote.skip>
   </properties>
 
   <dependencyManagement>
@@ -997,7 +1000,7 @@
             </goals>
             <configuration>
               <excludedGroups>org.jboss.pnc.test.category.ContainerTest</excludedGroups>
-              <skip>true</skip>
+              <skip>${surefire.test.remote.skip}</skip>
             </configuration>
           </execution>
         </executions>
@@ -1016,7 +1019,7 @@
               <value>org.jboss.pnc.test.listener.PrintTestNameListener</value>
             </property>
           </properties>
-          <skip>true</skip>
+          <skip>${failsafe.test.skip}</skip>
         </configuration>
         <executions>
           <execution>
@@ -1038,7 +1041,7 @@
             </goals>
             <configuration>
               <groups>org.jboss.pnc.test.category.ContainerTest, org.jboss.pnc.test.category.RemoteTest</groups>
-              <skip>true</skip>
+              <skip>${failsafe.test.remote.skip}</skip>
             </configuration>
           </execution>
         </executions>
@@ -1060,53 +1063,19 @@
   <profiles>
     <profile>
       <id>container-tests</id>
-      <build>
-        <plugins>
-          <plugin>
-            <artifactId>maven-failsafe-plugin</artifactId>
-            <configuration>
-              <skip>false</skip>
-            </configuration>
-          </plugin>
-        </plugins>
-      </build>
+      <properties>
+        <failsafe.test.skip>false</failsafe.test.skip>
+        <failsafe.test.container.skip>false</failsafe.test.container.skip>
+      </properties>
     </profile>
 
     <profile>
       <id>remote-tests</id>
-      <build>
-        <plugins>
-          <plugin>
-            <artifactId>maven-surefire-plugin</artifactId>
-            <executions>
-              <execution>
-                <id>remote-test</id>
-                <goals>
-                  <goal>test</goal>
-                </goals>
-                <configuration>
-                  <skip>false</skip>
-                </configuration>
-              </execution>
-            </executions>
-          </plugin>
-          <plugin>
-            <artifactId>maven-failsafe-plugin</artifactId>
-            <executions>
-              <execution>
-                <id>container-remote-tests</id>
-                <goals>
-                  <goal>integration-test</goal>
-                  <goal>verify</goal>
-                </goals>
-                <configuration>
-                  <skip>false</skip>
-                </configuration>
-              </execution>
-            </executions>
-          </plugin>
-        </plugins>
-      </build>
+      <properties>
+        <!-- if container tests are disabled, we don't want to prevent container-remote tests from executing -->
+        <failsafe.test.remote.skip>${failsafe.test.skip}</failsafe.test.remote.skip>
+        <surefire.test.remote.skip>false</surefire.test.remote.skip>
+      </properties>
     </profile>
 
     <profile>

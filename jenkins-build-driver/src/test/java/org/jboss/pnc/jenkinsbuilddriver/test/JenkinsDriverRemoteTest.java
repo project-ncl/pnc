@@ -16,7 +16,6 @@ import org.jboss.pnc.spi.repositorymanager.RepositoryManagerException;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
 import org.jboss.pnc.spi.repositorymanager.model.RepositoryConnectionInfo;
 import org.jboss.pnc.spi.repositorymanager.model.RepositorySession;
-import org.jboss.pnc.test.category.ContainerTest;
 import org.jboss.pnc.test.category.RemoteTest;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.asset.EmptyAsset;
@@ -40,7 +39,7 @@ import java.util.logging.Logger;
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-11-23.
  */
 @RunWith(Arquillian.class)
-@Category({ContainerTest.class, RemoteTest.class})
+@Category(RemoteTest.class)
 public class JenkinsDriverRemoteTest {
 
     private static final Logger log = Logger.getLogger(JenkinsDriverRemoteTest.class.getName());
