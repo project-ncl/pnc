@@ -1,5 +1,14 @@
 package org.jboss.pnc.mavenrepositorymanager;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import org.commonjava.aprox.client.core.Aprox;
 import org.commonjava.aprox.client.core.AproxClientException;
 import org.commonjava.aprox.client.core.module.AproxContentClientModule;
@@ -15,35 +24,25 @@ import org.commonjava.maven.atlas.ident.ref.ArtifactRef;
 import org.commonjava.maven.atlas.ident.util.ArtifactPathInfo;
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.ArtifactStatus;
-import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.RepositoryType;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerException;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
 import org.jboss.pnc.spi.repositorymanager.model.RepositoryConfiguration;
 import org.jboss.pnc.spi.repositorymanager.model.RepositoryConnectionInfo;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 public class MavenRepositoryConfiguration implements RepositoryConfiguration
 {
 
-    private Aprox aprox;
+    private final Aprox aprox;
     private final String id;
 
     private final RepositoryConnectionInfo connectionInfo;
 
-    private String collectionId;
+    private final String collectionId;
 
     // TODO: Create and pass in suitable parameters to Aprox to create the
     //       proxy repository.
-    public MavenRepositoryConfiguration(Aprox aprox, String id, String collectionId, MavenRepositoryConnectionInfo info)
+    public MavenRepositoryConfiguration(final Aprox aprox, final String id, final String collectionId, final MavenRepositoryConnectionInfo info)
     {
         this.aprox = aprox;
         this.id = id;
@@ -69,6 +68,7 @@ public class MavenRepositoryConfiguration implements RepositoryConfiguration
         return id;
     }
 
+    @Override
     public String getCollectionId() {
         return collectionId;
     }
@@ -88,21 +88,21 @@ public class MavenRepositoryConfiguration implements RepositoryConfiguration
         TrackedContentDTO report;
         try {
             report = aprox.module(AproxFoloAdminClientModule.class).getTrackingReport(id, StoreType.group, id);
-        } catch (AproxClientException e) {
+        } catch (final AproxClientException e) {
             throw new RepositoryManagerException("Failed to retrieve tracking report for: %s. Reason: %s", e, id,
                     e.getMessage());
         }
 
-        List<Artifact> uploads = processUploads(report);
-        List<Artifact> downloads = processDownloads(report);
-        RepositoryManagerResult repositoryManagerResult = new MavenRepositoryManagerResult(uploads, downloads);
+        final List<Artifact> uploads = processUploads(report);
+        final List<Artifact> downloads = processDownloads(report);
+        final RepositoryManagerResult repositoryManagerResult = new MavenRepositoryManagerResult(uploads, downloads);
 
         // clean up.
         try {
             aprox.module(AproxFoloAdminClientModule.class).clearTrackingRecord(id, StoreType.group, id);
             aprox.stores().delete(StoreType.group, id);
             aprox.stores().delete(StoreType.remote, id);
-        } catch (AproxClientException e) {
+        } catch (final AproxClientException e) {
             throw new RepositoryManagerException(
                     "Failed to clean up build repositories / tracking information for: %s. Reason: %s", e, id,
                     e.getMessage());
@@ -118,26 +118,26 @@ public class MavenRepositoryConfiguration implements RepositoryConfiguration
      * @return List of dependency artifacts meta data
      * @throws RepositoryManagerException In case of a client API transport error or an error during promotion of artifacts
      */
-    private List<Artifact> processDownloads(TrackedContentDTO report) throws RepositoryManagerException {
+    private List<Artifact> processDownloads(final TrackedContentDTO report) throws RepositoryManagerException {
 
         AproxContentClientModule content;
         try {
             content = aprox.content();
-        } catch (AproxClientException e) {
+        } catch (final AproxClientException e) {
             throw new RepositoryManagerException("Failed to retrieve AProx client module. Reason: %s", e, e.getMessage());
         }
 
-        Set<TrackedContentEntryDTO> downloads = report.getDownloads();
+        final Set<TrackedContentEntryDTO> downloads = report.getDownloads();
         if (downloads != null) {
-            List<Artifact> deps = new ArrayList<>();
+            final List<Artifact> deps = new ArrayList<>();
 
-            Map<StoreKey, Set<String>> toPromote = new HashMap<>();
+            final Map<StoreKey, Set<String>> toPromote = new HashMap<>();
 
-            StoreKey sharedImports = new StoreKey(StoreType.hosted, RepositoryManagerDriver.SHARED_IMPORTS_ID);
-            StoreKey sharedReleases = new StoreKey(StoreType.hosted, RepositoryManagerDriver.SHARED_RELEASES_ID);
+            final StoreKey sharedImports = new StoreKey(StoreType.hosted, RepositoryManagerDriver.SHARED_IMPORTS_ID);
+            final StoreKey sharedReleases = new StoreKey(StoreType.hosted, RepositoryManagerDriver.SHARED_RELEASES_ID);
 
-            for (TrackedContentEntryDTO download : downloads) {
-                StoreKey sk = download.getStoreKey();
+            for (final TrackedContentEntryDTO download : downloads) {
+                final StoreKey sk = download.getStoreKey();
                 if (!sharedImports.equals(sk) && !sharedReleases.equals(sk)) {
                     // this has not been captured, so promote it.
                     Set<String> paths = toPromote.get(sk);
@@ -149,24 +149,24 @@ public class MavenRepositoryConfiguration implements RepositoryConfiguration
                     paths.add(download.getPath());
                 }
 
-                String path = download.getPath();
-                ArtifactPathInfo pathInfo = ArtifactPathInfo.parse(path);
+                final String path = download.getPath();
+                final ArtifactPathInfo pathInfo = ArtifactPathInfo.parse(path);
                 if (pathInfo == null) {
                     // metadata file. Ignore.
                     continue;
                 }
 
-                ArtifactRef aref = new ArtifactRef(pathInfo.getProjectId(), pathInfo.getType(), pathInfo.getClassifier(), false);
+                final ArtifactRef aref = new ArtifactRef(pathInfo.getProjectId(), pathInfo.getType(), pathInfo.getClassifier(), false);
 
-                Artifact.Builder artifactBuilder = Artifact.Builder.newBuilder().checksum(download.getSha256())
+                final Artifact.Builder artifactBuilder = Artifact.Builder.newBuilder().checksum(download.getSha256())
                         .deployUrl(content.contentUrl(download.getStoreKey(), download.getPath()))
                         .filename(new File(path).getName()).identifier(aref.toString()).repoType(RepositoryType.MAVEN)
                         .status(ArtifactStatus.BINARY_IMPORTED);
                 deps.add(artifactBuilder.build());
             }
 
-            for (Map.Entry<StoreKey, Set<String>> entry : toPromote.entrySet()) {
-                PromoteRequest req = new PromoteRequest(entry.getKey(), sharedImports, entry.getValue()).setPurgeSource(false);
+            for (final Map.Entry<StoreKey, Set<String>> entry : toPromote.entrySet()) {
+                final PromoteRequest req = new PromoteRequest(entry.getKey(), sharedImports, entry.getValue()).setPurgeSource(false);
                 doPromote(req);
             }
 
@@ -183,38 +183,38 @@ public class MavenRepositoryConfiguration implements RepositoryConfiguration
      * @return List of output artifacts meta data
      * @throws RepositoryManagerException In case of a client API transport error or an error during promotion of artifacts
      */
-    private List<Artifact> processUploads(TrackedContentDTO report)
+    private List<Artifact> processUploads(final TrackedContentDTO report)
             throws RepositoryManagerException {
 
-        AproxContentClientModule content;
-        try {
-            content = aprox.content();
-        } catch (AproxClientException e) {
-            throw new RepositoryManagerException("Failed to retrieve AProx client module. Reason: %s", e, e.getMessage());
-        }
+        //        AproxContentClientModule content;
+        //        try {
+        //            content = aprox.content();
+        //        } catch (final AproxClientException e) {
+        //            throw new RepositoryManagerException("Failed to retrieve AProx client module. Reason: %s", e, e.getMessage());
+        //        }
 
-        Set<TrackedContentEntryDTO> uploads = report.getUploads();
+        final Set<TrackedContentEntryDTO> uploads = report.getUploads();
         if (uploads != null) {
-            PromoteRequest promoteReq = new PromoteRequest(new StoreKey(StoreType.hosted, id), new StoreKey(
-                    StoreType.hosted, collectionId));
+            //            PromoteRequest promoteReq = new PromoteRequest(new StoreKey(StoreType.hosted, id), new StoreKey(
+            //                    StoreType.hosted, collectionId));
+            //
+            //            doPromote(promoteReq);
 
-            doPromote(promoteReq);
+            final List<Artifact> builds = new ArrayList<>();
 
-            List<Artifact> builds = new ArrayList<>();
+            for (final TrackedContentEntryDTO upload : uploads) {
 
-            for (TrackedContentEntryDTO upload : uploads) {
-
-                String path = upload.getPath();
-                ArtifactPathInfo pathInfo = ArtifactPathInfo.parse(path);
+                final String path = upload.getPath();
+                final ArtifactPathInfo pathInfo = ArtifactPathInfo.parse(path);
                 if (pathInfo == null) {
                     // metadata file. Ignore.
                     continue;
                 }
 
-                ArtifactRef aref = new ArtifactRef(pathInfo.getProjectId(), pathInfo.getType(), pathInfo.getClassifier(), false);
-                content.contentUrl(StoreType.hosted, collectionId, upload.getPath());
+                final ArtifactRef aref = new ArtifactRef(pathInfo.getProjectId(), pathInfo.getType(), pathInfo.getClassifier(), false);
+                //                String url = content.contentUrl(StoreType.hosted, collectionId, upload.getPath());
 
-                Artifact.Builder artifactBuilder = Artifact.Builder.newBuilder().checksum(upload.getSha256())
+                final Artifact.Builder artifactBuilder = Artifact.Builder.newBuilder().checksum(upload.getSha256())
                         .deployUrl(upload.getLocalUrl()).filename(new File(path).getName()).identifier(aref.toString())
                         .repoType(RepositoryType.MAVEN).status(ArtifactStatus.BINARY_BUILT);
 
@@ -236,25 +236,25 @@ public class MavenRepositoryConfiguration implements RepositoryConfiguration
      * @throws RepositoryManagerException When either the client API throws an exception due to something unexpected in
      *         transport, or if the promotion process results in an error.
      */
-    private void doPromote(PromoteRequest req) throws RepositoryManagerException {
+    private void doPromote(final PromoteRequest req) throws RepositoryManagerException {
         AproxPromoteClientModule promoter;
         try {
             promoter = aprox.module(AproxPromoteClientModule.class);
-        } catch (AproxClientException e) {
+        } catch (final AproxClientException e) {
             throw new RepositoryManagerException("Failed to retrieve AProx client module. Reason: %s", e, e.getMessage());
         }
 
         try {
-            PromoteResult result = promoter.promote(req);
+            final PromoteResult result = promoter.promote(req);
             if (result.getError() != null) {
                 String addendum = "";
                 try {
-                    PromoteResult rollback = promoter.rollback(result);
+                    final PromoteResult rollback = promoter.rollback(result);
                     if (rollback.getError() != null) {
                         addendum = "\nROLLBACK WARNING: Promotion rollback also failed! Reason given: " + result.getError();
                     }
 
-                } catch (AproxClientException e) {
+                } catch (final AproxClientException e) {
                     throw new RepositoryManagerException("Rollback failed for promotion of: %s. Reason: %s", e, req,
                             e.getMessage());
                 }
@@ -262,7 +262,7 @@ public class MavenRepositoryConfiguration implements RepositoryConfiguration
                 throw new RepositoryManagerException("Failed to promote: %s. Reason given was: %s%s", req, result.getError(),
                         addendum);
             }
-        } catch (AproxClientException e) {
+        } catch (final AproxClientException e) {
             throw new RepositoryManagerException("Failed to promote: %s. Reason: %s", e, req, e.getMessage());
         }
     }
