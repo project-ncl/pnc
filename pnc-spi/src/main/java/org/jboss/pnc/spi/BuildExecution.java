@@ -9,4 +9,6 @@ public interface BuildExecution {
     String getBuildContentId();
 
     String getProjectName();
+
+    BuildExecutionType getBuildExecutionType();
 }

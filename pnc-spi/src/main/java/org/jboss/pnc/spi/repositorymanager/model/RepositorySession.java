@@ -24,9 +24,4 @@ public interface RepositorySession {
      * @throws org.jboss.pnc.spi.repositorymanager.RepositoryManagerException
      */
     RepositoryManagerResult extractBuildArtifacts() throws RepositoryManagerException;
-
-    /**
-     * Promote the build repository containing build output to the content-set group, if it exists.
-     */
-    void promoteToBuildContentSet() throws RepositoryManagerException;
 }

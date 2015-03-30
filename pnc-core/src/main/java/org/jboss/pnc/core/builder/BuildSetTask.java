@@ -2,6 +2,7 @@ package org.jboss.pnc.core.builder;
 
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.spi.BuildStatus;
+import org.jboss.pnc.spi.BuildExecutionType;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -13,14 +14,14 @@ public class BuildSetTask {
 
     private BuildConfigurationSet buildConfigurationSet;
 
-    private final BuildTaskType buildTaskType;
+    private final BuildExecutionType buildTaskType;
 
     private BuildStatus status;
 
     private String statusDescription;
     private Set<BuildTask> buildTasks = new HashSet<>();
 
-    public BuildSetTask(BuildConfigurationSet buildConfigurationSet, BuildTaskType buildTaskType) {
+    public BuildSetTask(BuildConfigurationSet buildConfigurationSet, BuildExecutionType buildTaskType) {
         this.buildConfigurationSet = buildConfigurationSet;
         this.buildTaskType = buildTaskType;
     }
@@ -57,7 +58,7 @@ public class BuildSetTask {
         return buildConfigurationSet.getId();
     }
 
-    public BuildTaskType getBuildTaskType() {
+    public BuildExecutionType getBuildTaskType() {
         return buildTaskType;
     }
 }

@@ -17,6 +17,7 @@ import org.commonjava.maven.atlas.ident.util.ArtifactPathInfo;
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.ArtifactStatus;
 import org.jboss.pnc.model.RepositoryType;
+import org.jboss.pnc.spi.BuildExecutionType;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerException;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
 import org.jboss.pnc.spi.repositorymanager.model.RepositoryConnectionInfo;
@@ -39,14 +40,17 @@ public class MavenRepositorySession implements RepositorySession
     private String buildSetId;
 
     private final RepositoryConnectionInfo connectionInfo;
+    private BuildExecutionType buildExecutionType;
 
     // TODO: Create and pass in suitable parameters to Aprox to create the
     //       proxy repository.
-    public MavenRepositorySession(Aprox aprox, String buildRepoId, String buildSetId, MavenRepositoryConnectionInfo info)
+    public MavenRepositorySession(Aprox aprox, String buildRepoId, String buildSetId, BuildExecutionType buildExecutionType,
+            MavenRepositoryConnectionInfo info)
     {
         this.aprox = aprox;
         this.buildRepoId = buildRepoId;
         this.buildSetId = buildSetId;
+        this.buildExecutionType = buildExecutionType;
         this.connectionInfo = info;
     }
 
@@ -96,6 +100,8 @@ public class MavenRepositorySession implements RepositorySession
 
         List<Artifact> uploads = processUploads(report);
         List<Artifact> downloads = processDownloads(report);
+        promoteToBuildContentSet();
+
         RepositoryManagerResult repositoryManagerResult = new MavenRepositoryManagerResult(uploads, downloads);
 
         // clean up.
@@ -254,12 +260,12 @@ public class MavenRepositorySession implements RepositorySession
 
 
     /**
-     * If the build-set repository ID is set, add the build repository (hosted component) containing the build output as a
-     * member of the group corresponding to that build-set ID. If the build-set group doesn't exist, try to create it.
+     * If the execution type is {@link BuildExecutionType#COMPOSED_BUILD} and build-set repository ID is set, add the build
+     * repository (hosted component) containing the build output as a member of the group corresponding to that build-set ID. If
+     * the build-set group doesn't exist, try to create it.
      */
-    @Override
     public void promoteToBuildContentSet() throws RepositoryManagerException {
-        if (buildSetId != null) {
+        if (buildExecutionType == BuildExecutionType.COMPOSED_BUILD && buildSetId != null) {
             try {
                 Group setGroup = aprox.stores().load(StoreType.group, buildSetId, Group.class);
                 if (setGroup == null) {

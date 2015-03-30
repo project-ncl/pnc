@@ -1,6 +1,7 @@
 package org.jboss.pnc.mavenrepositorymanager.fixture;
 
 import org.jboss.pnc.spi.BuildExecution;
+import org.jboss.pnc.spi.BuildExecutionType;
 
 public class TestBuildExecution implements BuildExecution {
 
@@ -12,14 +13,17 @@ public class TestBuildExecution implements BuildExecution {
 
     private String projectName = "my project";
 
-    public TestBuildExecution(String topId, String setId, String buildId) {
+    private BuildExecutionType buildExecutionType;
+
+    public TestBuildExecution(String topId, String setId, String buildId, BuildExecutionType type) {
         this.topContentId = topId;
         this.buildSetContentId = setId;
         this.buildContentId = buildId;
+        this.buildExecutionType = type;
     }
 
     public TestBuildExecution() {
-        this("product+myproduct+1-0", null, "build+myproject+12345");
+        this("product+myproduct+1-0", null, "build+myproject+12345", BuildExecutionType.STANDALONE_BUILD);
     }
 
     @Override
@@ -56,6 +60,11 @@ public class TestBuildExecution implements BuildExecution {
 
     public void setProjectName(String projectName) {
         this.projectName = projectName;
+    }
+
+    @Override
+    public BuildExecutionType getBuildExecutionType() {
+        return buildExecutionType;
     }
 
 }
