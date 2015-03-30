@@ -87,9 +87,4 @@ public class RepositorySessionMock implements RepositorySession {
     public String getBuildSetRepositoryId() {
         return null;
     }
-
-    @Override
-    public void promoteToBuildContentSet() throws RepositoryManagerException {
-        // not triggered because getBuildSetRepositoryId() returns null
-    }
 }

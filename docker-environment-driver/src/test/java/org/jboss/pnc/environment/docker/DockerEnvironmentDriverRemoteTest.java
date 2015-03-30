@@ -278,11 +278,6 @@ public class DockerEnvironmentDriverRemoteTest {
             return null;
         }
 
-        @Override
-        public void promoteToBuildContentSet() throws RepositoryManagerException {
-            // not triggered because getBuildSetRepositoryId() returns null
-        }
-
     }
 
 }

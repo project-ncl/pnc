@@ -10,6 +10,7 @@ import org.commonjava.aprox.model.core.StoreKey;
 import org.commonjava.aprox.model.core.StoreType;
 import org.jboss.pnc.mavenrepositorymanager.fixture.TestBuildExecution;
 import org.jboss.pnc.spi.BuildExecution;
+import org.jboss.pnc.spi.BuildExecutionType;
 import org.jboss.pnc.spi.repositorymanager.model.RepositorySession;
 import org.junit.Test;
 
@@ -17,7 +18,8 @@ public class RepositoryManagerDriver05Test extends AbstractRepositoryManagerDriv
 
     @Test
     public void verifyGroupComposition_ProjectVersion_NoConfSet() throws Exception {
-        BuildExecution execution = new TestBuildExecution("product+myproduct+1.0", null, "build+myproject+12345");
+        BuildExecution execution = new TestBuildExecution("product+myproduct+1.0", null, "build+myproject+12345",
+                BuildExecutionType.STANDALONE_BUILD);
         Aprox aprox = driver.getAprox();
 
         RepositorySession repositoryConfiguration = driver.createBuildRepository(execution);

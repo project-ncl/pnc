@@ -5,6 +5,7 @@ import org.jboss.pnc.core.content.ContentIdentityManager;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.spi.BuildStatus;
+import org.jboss.pnc.spi.BuildExecutionType;
 import org.jboss.util.graph.Edge;
 import org.jboss.util.graph.Graph;
 import org.jboss.util.graph.Vertex;
@@ -78,7 +79,7 @@ public class BuildTasksTree {
             BuildCoordinator buildCoordinator,
             String topContentId,
             String buildSetContentId,
-            BuildTaskType buildTaskType) {
+            BuildExecutionType buildTaskType) {
 
         ContentIdentityManager contentIdentityManager = new ContentIdentityManager();
         Vertex<BuildTask> buildVertex = getVertexByBuildConfiguration(buildConfiguration);

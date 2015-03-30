@@ -15,6 +15,7 @@ import org.jboss.pnc.model.BuildDriverStatus;
 import org.jboss.pnc.model.RepositoryType;
 import org.jboss.pnc.spi.BuildResult;
 import org.jboss.pnc.spi.BuildStatus;
+import org.jboss.pnc.spi.BuildExecutionType;
 import org.jboss.pnc.spi.builddriver.BuildDriver;
 import org.jboss.pnc.spi.builddriver.BuildDriverResult;
 import org.jboss.pnc.spi.builddriver.CompletedBuild;
@@ -35,6 +36,7 @@ import org.jboss.util.graph.Vertex;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -91,14 +93,14 @@ public class BuildCoordinator {
         BuildConfigurationSet buildConfigurationSet = new BuildConfigurationSet();
         buildConfigurationSet.setName(buildConfiguration.getName());
         buildConfigurationSet.addBuildConfiguration(buildConfiguration);
-        BuildSetTask buildSetTask = new BuildSetTask(buildConfigurationSet, BuildTaskType.STANDALONE_BUILD);
+        BuildSetTask buildSetTask = new BuildSetTask(buildConfigurationSet, BuildExecutionType.STANDALONE_BUILD);
         build(buildSetTask);
         BuildTask buildTask = buildSetTask.getBuildTasks().stream().collect(StreamCollectors.singletonCollector());
         return buildTask;
     }
 
     public BuildSetTask build(BuildConfigurationSet buildConfigurationSet) throws CoreException {
-        BuildSetTask buildSetTask = new BuildSetTask(buildConfigurationSet, BuildTaskType.COMPOSED_BUILD);
+        BuildSetTask buildSetTask = new BuildSetTask(buildConfigurationSet, BuildExecutionType.COMPOSED_BUILD);
         build(buildSetTask);
         return buildSetTask;
     }

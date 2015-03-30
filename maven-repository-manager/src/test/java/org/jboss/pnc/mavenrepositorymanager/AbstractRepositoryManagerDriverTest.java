@@ -23,6 +23,8 @@ import java.util.Properties;
 
 public class AbstractRepositoryManagerDriverTest {
 
+    protected static final String CONFIG_SYSPROP = "pnc-config-file";
+
     @Rule
     public TemporaryFolder temp = new TemporaryFolder();
 
@@ -37,7 +39,7 @@ public class AbstractRepositoryManagerDriverTest {
         fixture = new CoreServerFixture(temp);
 
         Properties sysprops = System.getProperties();
-        oldIni = sysprops.getProperty(Configuration.CONFIG_SYSPROP);
+        oldIni = sysprops.getProperty(CONFIG_SYSPROP);
 
         url = fixture.getUrl();
         File configFile = temp.newFile("pnc-config.json");
@@ -48,7 +50,7 @@ public class AbstractRepositoryManagerDriverTest {
         ObjectMapper mapper = new ObjectMapper();
         mapper.writeValue(configFile, moduleConfigJson);
 
-        sysprops.setProperty(Configuration.CONFIG_SYSPROP, configFile.getAbsolutePath());
+        sysprops.setProperty(CONFIG_SYSPROP, configFile.getAbsolutePath());
         System.setProperties(sysprops);
 
         fixture.start();
@@ -71,9 +73,9 @@ public class AbstractRepositoryManagerDriverTest {
     public void teardown() throws Exception {
         Properties sysprops = System.getProperties();
         if (oldIni == null) {
-            sysprops.remove(Configuration.CONFIG_SYSPROP);
+            sysprops.remove(CONFIG_SYSPROP);
         } else {
-            sysprops.setProperty(Configuration.CONFIG_SYSPROP, oldIni);
+            sysprops.setProperty(CONFIG_SYSPROP, oldIni);
         }
         System.setProperties(sysprops);
 
