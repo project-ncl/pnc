@@ -30,6 +30,7 @@
     <module>test-common</module>
     <module>test-arquillian-container</module>
     <module>common</module>
+    <module>auth</module>
     <module>datastore</module>
     <module>ear-package</module>
     <module>jenkins-build-driver</module>

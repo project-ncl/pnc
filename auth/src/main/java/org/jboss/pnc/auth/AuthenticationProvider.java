@@ -1,4 +1,4 @@
-package org.jboss.pnc.common.auth;
+package org.jboss.pnc.auth;
 
 import java.util.Set;
 
