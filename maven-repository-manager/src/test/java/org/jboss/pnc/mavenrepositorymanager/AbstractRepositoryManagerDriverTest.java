@@ -21,6 +21,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class AbstractRepositoryManagerDriverTest {
 
+    protected static final String CONFIG_SYSPROP = "pnc-config-file";
+
     @Rule
     public TemporaryFolder temp = new TemporaryFolder();
 
@@ -34,20 +36,20 @@ public class AbstractRepositoryManagerDriverTest {
     public void setup() throws Exception {
         fixture = new CoreServerFixture(temp);
 
-        Properties sysprops = System.getProperties();
-        oldIni = sysprops.getProperty(Configuration.CONFIG_SYSPROP);
+        final Properties sysprops = System.getProperties();
+        oldIni = sysprops.getProperty( CONFIG_SYSPROP );
 
         url = fixture.getUrl();
-        File configFile = temp.newFile("pnc-config.json");
-        ModuleConfigJson moduleConfigJson =  new ModuleConfigJson("pnc-config");
-        MavenRepoDriverModuleConfig mavenRepoDriverModuleConfig = 
+        final File configFile = temp.newFile("pnc-config.json");
+        final ModuleConfigJson moduleConfigJson =  new ModuleConfigJson("pnc-config");
+        final MavenRepoDriverModuleConfig mavenRepoDriverModuleConfig = 
                 new MavenRepoDriverModuleConfig(fixture.getUrl());
         moduleConfigJson.addConfig(mavenRepoDriverModuleConfig);
         
-        ObjectMapper mapper = new ObjectMapper();
+        final ObjectMapper mapper = new ObjectMapper();
         mapper.writeValue(configFile, moduleConfigJson);
 
-        sysprops.setProperty(Configuration.CONFIG_SYSPROP, configFile.getAbsolutePath());
+        sysprops.setProperty( CONFIG_SYSPROP, configFile.getAbsolutePath() );
         System.setProperties(sysprops);
 
         fixture.start();
@@ -57,22 +59,22 @@ public class AbstractRepositoryManagerDriverTest {
             throw new IllegalStateException("server fixture failed to boot.", status.getError());
         }
 
-        Properties props = new Properties();
+        final Properties props = new Properties();
         props.setProperty("base.url", url);
 
         System.out.println("Using base URL: " + url);
 
-        Configuration<MavenRepoDriverModuleConfig> config = new Configuration<MavenRepoDriverModuleConfig>();
+        final Configuration<MavenRepoDriverModuleConfig> config = new Configuration<MavenRepoDriverModuleConfig>();
         driver = new RepositoryManagerDriver(config);
     }
 
     @After
     public void teardown() throws Exception {
-        Properties sysprops = System.getProperties();
+        final Properties sysprops = System.getProperties();
         if (oldIni == null) {
-            sysprops.remove(Configuration.CONFIG_SYSPROP);
+            sysprops.remove( CONFIG_SYSPROP );
         } else {
-            sysprops.setProperty(Configuration.CONFIG_SYSPROP, oldIni);
+            sysprops.setProperty( CONFIG_SYSPROP, oldIni );
         }
         System.setProperties(sysprops);
 
@@ -80,17 +82,17 @@ public class AbstractRepositoryManagerDriverTest {
             fixture.stop();
         }
     }    protected BuildConfiguration simpleBuildConfiguration() {
-        Project project = new Project();
+        final Project project = new Project();
         project.setName("myproject");
 
-        Product product = new Product();
+        final Product product = new Product();
         product.setName("myproduct");
 
-        ProductVersion pv = new ProductVersion();
+        final ProductVersion pv = new ProductVersion();
         pv.setProduct(product);
         pv.setVersion("1.0");
 
-        BuildConfiguration pbc = new BuildConfiguration();
+        final BuildConfiguration pbc = new BuildConfiguration();
         pbc.setProject(project);
         pbc.setProductVersion(pv);
 
