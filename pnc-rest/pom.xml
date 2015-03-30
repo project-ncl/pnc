@@ -106,8 +106,8 @@
 
     <!-- Test dependencies -->
     <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
+      <groupId>org.jboss.pnc</groupId>
+      <artifactId>test-common</artifactId>
       <scope>test</scope>
     </dependency>
   </dependencies>
