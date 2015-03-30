@@ -5,10 +5,8 @@ import groovy.json.StringEscapeUtils;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.pnc.integration.deployments.Deployments;
-import org.jboss.pnc.test.category.ContainerTest;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,7 +18,6 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.jboss.pnc.integration.env.IntegrationTestEnv.getHttpPort;
 
 @RunWith(Arquillian.class)
-@Category(ContainerTest.class)
 public class NCL468Test {
 
     public static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());

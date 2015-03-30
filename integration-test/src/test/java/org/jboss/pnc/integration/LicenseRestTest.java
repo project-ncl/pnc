@@ -11,11 +11,9 @@ import org.jboss.pnc.integration.deployments.Deployments;
 import org.jboss.pnc.rest.endpoint.LicenseEndpoint;
 import org.jboss.pnc.rest.provider.LicenseProvider;
 import org.jboss.pnc.rest.restmodel.LicenseRest;
-import org.jboss.pnc.test.category.ContainerTest;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,7 +27,6 @@ import static org.jboss.pnc.integration.Utils.JsonUtils.toJson;
 import static org.jboss.pnc.integration.env.IntegrationTestEnv.getHttpPort;
 
 @RunWith(Arquillian.class)
-@Category(ContainerTest.class)
 public class LicenseRestTest {
 
     private static final String LICENSE_REST_ENDPOINT = "/pnc-rest/rest/license/";
