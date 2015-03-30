@@ -1,5 +1,21 @@
 package org.jboss.pnc.environment.docker;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.Socket;
+import java.util.Map;
+import java.util.UUID;
+import java.util.logging.Logger;
+
+import javax.inject.Inject;
+
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.pnc.common.Configuration;
@@ -15,36 +31,22 @@ import org.jboss.pnc.spi.repositorymanager.RepositoryManagerException;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
 import org.jboss.pnc.spi.repositorymanager.model.RepositoryConnectionInfo;
 import org.jboss.pnc.spi.repositorymanager.model.RepositorySession;
-import org.jboss.pnc.test.category.ContainerTest;
-import org.jboss.pnc.test.category.RemoteTest;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.asset.EmptyAsset;
+import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.jboss.shrinkwrap.resolver.api.maven.Maven;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
-
-import javax.inject.Inject;
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.Socket;
-import java.util.Map;
-import java.util.UUID;
-import java.util.logging.Logger;
-
-import static org.junit.Assert.*;
 
 /**
  * Unit tests for DockerEnnvironmentDriver
- *
+ * 
  * @author Jakub Bartecek <jbartece@redhat.com>
+ *
  */
 @RunWith(Arquillian.class)
-@Category({RemoteTest.class, ContainerTest.class})
 public class DockerEnvironmentDriverRemoteTest {
 
     private static final Logger log = Logger.getLogger(DockerEnvironmentDriverRemoteTest.class.getName());
@@ -71,17 +73,18 @@ public class DockerEnvironmentDriverRemoteTest {
     public static WebArchive createDeployment() {
         final WebArchive testedEjb = ShrinkWrap
                 .create(WebArchive.class)
-                .addAsWebInfResource(EmptyAsset.INSTANCE, "beans.xml")
+                .addAsManifestResource(EmptyAsset.INSTANCE, "beans.xml")
                 .addAsResource("jenkins-maven-config.xml")
                 .addAsResource("pnc-config.json")
-                .addPackage(RemoteTest.class.getPackage())
                 .addPackages(true, DockerEnvironmentDriver.class.getPackage());
 
-        File[] libs = Maven.resolver()
+        final JavaArchive[] libs = Maven.configureResolver()
+                .withMavenCentralRepo(true)
                 .loadPomFromFile("pom.xml")
                 .importRuntimeDependencies()
                 .resolve()
-                .withTransitivity().asFile();
+                .withTransitivity()
+                .as(JavaArchive.class);
 
         testedEjb.addAsLibraries(libs);
 
@@ -177,7 +180,7 @@ public class DockerEnvironmentDriverRemoteTest {
 
     /**
      * Checks if container was started and the services are on.
-     *
+     * 
      * @param runningEnv Connection data about environment to test
      * @param shouldBeRunning Indicates, if the environment should be running or should be not available
      * @param baseErrorMsg Prefix of error message, which is printed if the container is not in expected state
@@ -213,7 +216,7 @@ public class DockerEnvironmentDriverRemoteTest {
 
     /**
      * Checks if the specified port is opened on Docker host
-     *
+     * 
      * @param generatedSshPort Port to test
      */
     private boolean testOpenedPort(final int port) {

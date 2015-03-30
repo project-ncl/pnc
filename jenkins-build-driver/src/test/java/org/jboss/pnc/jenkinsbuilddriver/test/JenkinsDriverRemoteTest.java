@@ -5,7 +5,11 @@ import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.util.ObjectWrapper;
 import org.jboss.pnc.jenkinsbuilddriver.JenkinsBuildDriver;
-import org.jboss.pnc.model.*;
+import org.jboss.pnc.model.Artifact;
+import org.jboss.pnc.model.BuildConfiguration;
+import org.jboss.pnc.model.BuildDriverStatus;
+import org.jboss.pnc.model.Project;
+import org.jboss.pnc.model.RepositoryType;
 import org.jboss.pnc.spi.builddriver.BuildDriverResult;
 import org.jboss.pnc.spi.builddriver.CompletedBuild;
 import org.jboss.pnc.spi.builddriver.RunningBuild;
@@ -16,16 +20,13 @@ import org.jboss.pnc.spi.repositorymanager.RepositoryManagerException;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
 import org.jboss.pnc.spi.repositorymanager.model.RepositoryConnectionInfo;
 import org.jboss.pnc.spi.repositorymanager.model.RepositorySession;
-import org.jboss.pnc.test.category.RemoteTest;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.asset.EmptyAsset;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.junit.Assert;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 
-import javax.inject.Inject;
 import java.io.InputStream;
 import java.util.Collections;
 import java.util.List;
@@ -35,11 +36,12 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.logging.Logger;
 
+import javax.inject.Inject;
+
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-11-23.
  */
 @RunWith(Arquillian.class)
-@Category(RemoteTest.class)
 public class JenkinsDriverRemoteTest {
 
     private static final Logger log = Logger.getLogger(JenkinsDriverRemoteTest.class.getName());

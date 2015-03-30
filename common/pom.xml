@@ -57,12 +57,6 @@
       <artifactId>resteasy-jaxrs</artifactId>
     </dependency>
 
-    <dependency>
-      <groupId>org.jboss.pnc</groupId>
-      <artifactId>test-common</artifactId>
-      <scope>test</scope>
-    </dependency>
-
   </dependencies>
 
 </project>

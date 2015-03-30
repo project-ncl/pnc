@@ -12,40 +12,23 @@ import org.slf4j.LoggerFactory;
 
 import java.lang.invoke.MethodHandles;
 
-import static org.jboss.pnc.integration.env.IntegrationTestEnv.getHttpPort;
-
-import static com.jayway.restassured.RestAssured.given;
-import static com.jayway.restassured.path.json.JsonPath.from;
-
 @RunWith(Arquillian.class)
-public class BuildTest {
+public class DeploymentTest {
 
     public static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-    @Deployment(testable = false)
+    @Deployment
     public static EnterpriseArchive deploy() {
         EnterpriseArchive enterpriseArchive = Deployments.baseEar();
         WebArchive war = enterpriseArchive.getAsType(WebArchive.class, "/pnc-rest.war");
-        war.addClass(BuildTest.class);
+        war.addClass(DeploymentTest.class);
         logger.info(enterpriseArchive.toString(true));
         return enterpriseArchive;
     }
 
     @Test
-    public void shouldTriggerBuildAndFinishWithoutProblems() {
-        int configurationId = extractIdFromRest("/pnc-rest/rest/configuration");
-
-        given()
-            .port(getHttpPort())
-        .when()
-            .post(String.format("/pnc-rest/rest/configuration/%d/build", configurationId))
-        .then()
-            .statusCode(200);
+    public void shouldDeployApp() {
+        //empty
     }
 
-    Integer extractIdFromRest(String path) {
-        String returnedObject = from(given()
-                .port(getHttpPort()).get(path).asString()).get("[0].id").toString();
-        return Integer.valueOf(returnedObject);
-    }
 }

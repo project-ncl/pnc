@@ -7,29 +7,20 @@ Requirements:
 * JDK 8
 * Maven 3.2
 
+Command line arguments:
 
-Building
---------
 The default build is executed by running `mvn clean install`.<br />
 By default the tests that require remote services and integration tests are disabled.<br />
-
-Integration tests are placed in module "integrations-tests" and most of them needs a JEE server (Wildfly or EAP).
-In order to run them you need to specify `-Pcontainer-tests`.
-
-Remote tests requires turning on additional Maven profile - `-Premote-tests`.
-In order to run remote and integration tests you have to specify remote services location and credentials by editing configuration file `common/src/main/resources/pnc-config.json` and use both profiles (`-Pcontainer-tests` and `-Premote-tests`)<br />
+In order to run remote and integration tests you have to specify remote services location and credentials by editing configuration file `common/src/main/resources/pnc-config.json`.<br />
 By default the configuration file uses env variables, you can set required variables (see file for list of them) instead of editing the file itself.<br />
 If you want to use a different (external) config file location you can define a path to it with `-Dpnc-config-file=/path/to/pnc-config.json`.
 
+Remote tests are defined by class name *RemoteTest.java<br />
+To run remote test use `mvn clean install -DremoteTest=true`
 
-Integration and Container tests
--------------------------------
-There is a slight difference between **integration** and **container** test. By a **container** test we understand a test which needs a JEE server to run.
-An **integration** test checks if several modules work correctly together.
+Integration tests are placed in module "integrations-tests" to run them use `-Pintegration-test`.
 
-
-Environmental variables
------------------------
+To run remote and integration tests combine both commands `mvn clean install -DremoteTest=true -Pintegration-test`.
 
 Environment variables, which can be used to set up application:
 
@@ -43,6 +34,8 @@ Environment variables, which can be used to set up application:
 * `PNC_DOCKER_CONT_PASSWORD` - User's password set up by variable `PNC_DOCKER_CONT_USER`
 * `PNC_DOCKER_IMAGE_ID` - ImageID of image on Docker host
 * `PNC_DOCKER_IMAGE_FIREWALL_ALLOWED` - List of allowed destinations by firewall in Docker container. <br /> Format: \<IPv4>:\<Port>(,\<IPv4>:\<Port>)+
+
+
 
 
 Set up of Docker host
@@ -83,3 +76,4 @@ Main Modules
 * `pnc-spi`: Contains all SPI interfaces the orchestrator will use to coordinate its sub-services for provisioning environments and repositories, triggering builds, storing domain objects. It is meant to be used in conjunction with pnc-model
 * `pnc-processes`: Contains jBPM processes for PNC
 * `pnc-web`: Contains Web UI resoures (html + js pages, images etc.)
+
