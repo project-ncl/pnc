@@ -1,17 +1,25 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0"?>
 <arquillian xmlns="http://jboss.org/schema/arquillian"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://jboss.org/schema/arquillian
-http://jboss.org/schema/arquillian/arquillian_1_0.xsd">
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+            xsi:schemaLocation="http://jboss.org/schema/arquillian http://jboss.org/schema/arquillian/arquillian_1_0.xsd">
 
-	<!-- Uncomment to have test archives exported to the file system for inspection -->
-	<!-- 	<engine> -->
-	<!-- 	<property name="deploymentExportPath">/tmp/test-PNC/</property> -->
-	<!-- 	</engine> -->
+  <defaultProtocol type="Servlet 3.0" />
 
+  <engine>
+    <property name="deploymentExportPath">${project.build.directory}</property>
+  </engine>
 
-	<!-- Force the use of the Servlet 3.0 protocol with all containers, as it 
-		is the most mature -->
-	<defaultProtocol type="Servlet 3.0" />
+  <container qualifier="wf" default="true">
+    <configuration>
+      <property name="jbossHome">${test.server.build.dir}</property>
+      <property name="managementPort">${jboss.management.port}</property>
+      <property name="javaVmArguments">-Xmx512m -Djboss.socket.binding.port-offset=${jboss.port.offset} ${itCoverageAgent}</property>
+      <!--<property name="javaVmArguments">-Xrunjdwp:transport=dt_socket,address=1044,server=y,suspend=y</property>-->
+    </configuration>
+  </container>
 
-</arquillian> 
+  <extension qualifier="jacoco">
+    <property name="includes">org.jboss.pnc.*</property>
+  </extension>
+
+</arquillian>

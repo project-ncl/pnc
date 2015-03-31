@@ -27,6 +27,8 @@
 
 
   <modules>
+    <module>test-common</module>
+    <module>test-arquillian-container</module>
     <module>common</module>
     <module>datastore</module>
     <module>ear-package</module>
@@ -41,10 +43,10 @@
     <module>pnc-processes</module>
     <module>docker-environment-driver</module>
     <module>demo-data</module>
+    <module>integration-test</module>
   </modules>
 
   <properties>
-    <remoteTest>false</remoteTest>
     <!-- minimum jdk and maven versions -->
     <jdk.min.version>1.8</jdk.min.version>
     <maven.min.version>3.2</maven.min.version>
@@ -73,9 +75,11 @@
     <maven.compiler.source>1.8</maven.compiler.source>
 
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <illegaltransitivereportonly>false</illegaltransitivereportonly>
 
-    <demo.pnc.ip.address>10.3.10.200:8080</demo.pnc.ip.address>
+    <!--<demo.pnc.ip.address>10.3.10.200:8080</demo.pnc.ip.address>-->
+    <demo.pnc.ip.address>127.0.0.1:8080</demo.pnc.ip.address>
 
     <datasource.jndi.name>java:jboss/datasources/ExampleDS</datasource.jndi.name>
     <datasource.pool.name>as7example</datasource.pool.name>
@@ -91,11 +95,42 @@
     <sonar.jacoco.reportPath>${project.basedir}/target/jacoco-unit.exec</sonar.jacoco.reportPath>
     <sonar.jacoco.itReportPath>${project.basedir}/../target/jacoco-it.exec</sonar.jacoco.itReportPath>
     <itCoverageAgent></itCoverageAgent>
+
+    <!-- Integration tests -->
+    <app.server>wildfly</app.server>
+    <jboss.version>8.2.0.Final</jboss.version>
+    <test.server.unpack.dir>../target/</test.server.unpack.dir>
+    <test.server.build.dir>${test.server.unpack.dir}/${app.server}-${jboss.version}</test.server.build.dir>
+    <arquillian.container.type>managed</arquillian.container.type>
+    <arquillian.container.groupId>org.wildfly</arquillian.container.groupId>
+    <arquillian.container.artifactId>wildfly-arquillian-container-${arquillian.container.type}</arquillian.container.artifactId>
+    <arquillian.container.version>8.2.0.Final</arquillian.container.version>
+    <jboss.port.offset>0</jboss.port.offset>
+    <default.management.port>9990</default.management.port>
+    <jboss.management.port>${default.management.port}</jboss.management.port>
+    <failsafe.test.skip>true</failsafe.test.skip>
+    <failsafe.test.remote.skip>true</failsafe.test.remote.skip>
+    <failsafe.test.container.skip>true</failsafe.test.container.skip>
+    <surefire.test.remote.skip>false</surefire.test.remote.skip>
   </properties>
 
   <dependencyManagement>
     <dependencies>
       <!-- Project modules, to support cross-module dependencies -->
+      <dependency>
+        <groupId>org.jboss.pnc</groupId>
+        <artifactId>test-common</artifactId>
+        <version>${project.version}</version>
+        <scope>test</scope>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jboss.pnc</groupId>
+        <artifactId>test-arquillian-container</artifactId>
+        <version>${project.version}</version>
+        <scope>test</scope>
+      </dependency>
+
       <dependency>
         <groupId>org.jboss.pnc</groupId>
         <artifactId>common</artifactId>
@@ -435,7 +470,6 @@
           <groupId>junit</groupId>
           <artifactId>junit</artifactId>
           <version>${version.junit}</version>
-          <scope>test</scope>
       </dependency>
 
       <dependency>
@@ -461,13 +495,11 @@
         <groupId>org.assertj</groupId>
         <artifactId>assertj-core</artifactId>
         <version>${version.assertj-core}</version>
-        <scope>test</scope>
       </dependency>
       <dependency>
         <groupId>org.mockito</groupId>
         <artifactId>mockito-all</artifactId>
         <version>${version.mockito-all}</version>
-        <scope>test</scope>
       </dependency>
       <dependency>
         <groupId>com.googlecode.catch-exception</groupId>
@@ -508,7 +540,6 @@
         <groupId>com.jayway.restassured</groupId>
         <artifactId>rest-assured</artifactId>
         <version>2.4.0</version>
-        <scope>test</scope>
       </dependency>
 
       <dependency>
@@ -577,30 +608,13 @@
     </dependencies>
   </dependencyManagement>
 
-  <dependencies>
-    <dependency>
-      <groupId>com.googlecode.catch-exception</groupId>
-      <artifactId>catch-exception</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.assertj</groupId>
-      <artifactId>assertj-core</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.mockito</groupId>
-      <artifactId>mockito-all</artifactId>
-      <scope>test</scope>
-    </dependency>
-  </dependencies>
-
   <build>
+    <testResources>
+      <testResource>
+        <directory>src/test/resources</directory>
+        <filtering>true</filtering>
+      </testResource>
+    </testResources>
     <pluginManagement>
       <plugins>
         <plugin>
@@ -715,43 +729,36 @@
         </plugin>
 
         <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-install-plugin</artifactId>
           <version>2.5.2</version>
         </plugin>
 
         <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-jar-plugin</artifactId>
           <version>2.5</version>
         </plugin>
 
         <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-resources-plugin</artifactId>
           <version>2.7</version>
         </plugin>
 
         <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-site-plugin</artifactId>
           <version>3.4</version>
         </plugin>
 
         <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-surefire-plugin</artifactId>
           <version>2.18.1</version>
         </plugin>
 
         <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-failsafe-plugin</artifactId>
           <version>2.18.1</version>
         </plugin>
 
         <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-ear-plugin</artifactId>
           <version>2.9.1</version>
           <configuration>
@@ -785,7 +792,6 @@
         </plugin>
 
         <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-war-plugin</artifactId>
           <version>2.5</version>
           <configuration>
@@ -838,6 +844,35 @@
           <groupId>org.codehaus.gmavenplus</groupId>
           <artifactId>gmavenplus-plugin</artifactId>
           <version>1.2</version>
+          <executions>
+            <execution>
+              <id>calculate-jboss-port-offset</id>
+              <goals>
+                <goal>execute</goal>
+              </goals>
+              <phase>validate</phase>
+              <configuration>
+                <scripts>
+                  <script>
+                    offset = Integer.valueOf(System.getProperty("jboss.port.offset",
+                    "0"))
+                    manPort =
+                    Integer.valueOf(project.properties["default.management.port"])
+                    project.properties['jboss.management.port'] =
+                    "${manPort + offset}".trim()
+                  </script>
+                </scripts>
+              </configuration>
+            </execution>
+          </executions>
+          <dependencies>
+            <dependency>
+              <groupId>org.codehaus.groovy</groupId>
+              <artifactId>groovy-all</artifactId>
+              <version>2.3.7</version>
+              <scope>runtime</scope>
+            </dependency>
+          </dependencies>
         </plugin>
 
         <plugin>
@@ -938,6 +973,80 @@
           </execution>
         </executions>
       </plugin>
+      <plugin>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <properties>
+            <property>
+              <name>listener</name>
+              <value>org.jboss.pnc.test.listener.PrintTestNameListener</value>
+            </property>
+          </properties>
+        </configuration>
+        <executions>
+          <execution>
+            <id>default-test</id>
+            <goals>
+              <goal>test</goal>
+            </goals>
+            <configuration>
+              <excludedGroups>org.jboss.pnc.test.category.ContainerTest, org.jboss.pnc.test.category.RemoteTest</excludedGroups>
+            </configuration>
+          </execution>
+          <execution>
+            <id>remote-test</id>
+            <goals>
+              <goal>test</goal>
+            </goals>
+            <configuration>
+              <groups>org.jboss.pnc.test.category.RemoteTest</groups>
+              <excludedGroups>org.jboss.pnc.test.category.ContainerTest</excludedGroups>
+              <skip>${surefire.test.remote.skip}</skip>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <artifactId>maven-failsafe-plugin</artifactId>
+        <configuration>
+          <!-- property set by jacoco-maven-plugin -->
+          <argLine>${itCoverageAgent}</argLine>
+          <includes>
+            <include>**/*.java</include>
+          </includes>
+          <properties>
+            <property>
+              <name>listener</name>
+              <value>org.jboss.pnc.test.listener.PrintTestNameListener</value>
+            </property>
+          </properties>
+          <skip>${failsafe.test.skip}</skip>
+        </configuration>
+        <executions>
+          <execution>
+            <id>container-tests</id>
+            <goals>
+              <goal>integration-test</goal>
+              <goal>verify</goal>
+            </goals>
+            <configuration>
+              <groups>org.jboss.pnc.test.category.ContainerTest</groups>
+              <excludedGroups>org.jboss.pnc.test.category.RemoteTest</excludedGroups>
+            </configuration>
+          </execution>
+          <execution>
+            <id>container-remote-tests</id>
+            <goals>
+              <goal>integration-test</goal>
+              <goal>verify</goal>
+            </goals>
+            <configuration>
+              <groups>org.jboss.pnc.test.category.ContainerTest, org.jboss.pnc.test.category.RemoteTest</groups>
+              <skip>${failsafe.test.remote.skip}</skip>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
     </plugins>
   </build>
 
@@ -950,13 +1059,26 @@
       <name>bintray</name>
       <url>http://dl.bintray.com/rnc/maven</url>
     </repository>
-    <repository>
-      <id>repo.bodar.com</id>
-      <url>http://repo.bodar.com</url>
-    </repository>
   </repositories>
 
   <profiles>
+    <profile>
+      <id>container-tests</id>
+      <properties>
+        <failsafe.test.skip>false</failsafe.test.skip>
+        <failsafe.test.container.skip>false</failsafe.test.container.skip>
+      </properties>
+    </profile>
+
+    <profile>
+      <id>remote-tests</id>
+      <properties>
+        <!-- if container tests are disabled, we don't want to prevent container-remote tests from executing -->
+        <failsafe.test.remote.skip>${failsafe.test.skip}</failsafe.test.remote.skip>
+        <surefire.test.remote.skip>false</surefire.test.remote.skip>
+      </properties>
+    </profile>
+
     <profile>
       <id>postgresql</id>
       <activation>
@@ -977,34 +1099,75 @@
         <persistence.hibernate.hbm2ddl.auto>create</persistence.hibernate.hbm2ddl.auto>
       </properties>
     </profile>
-    
+
     <profile>
-      <id>integration-test</id>
-      <modules>
-        <module>integration-test</module>
-      </modules>
-    </profile>
-    
-    <profile>
-      <id>exclude-remote-test</id>
+      <id>wildfly-820</id>
       <activation>
         <property>
-            <name>!remoteTest</name>
+          <name>!eap</name>
         </property>
       </activation>
       <build>
         <plugins>
           <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-surefire-plugin</artifactId>
-            <configuration>
-              <excludes>
-                <exclude>**/*RemoteTest*.java</exclude>
-              </excludes>
-            </configuration>
-          </plugin>      
+            <groupId>org.wildfly.plugins</groupId>
+            <artifactId>wildfly-maven-plugin</artifactId>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
+    <profile>
+      <id>wildfly-820-remote</id>
+      <activation>
+        <property>
+          <name>arquillian.container.type</name>
+          <value>remote</value>
+        </property>
+      </activation>
+    </profile>
+
+    <profile>
+      <id>wildfly-820-managed</id>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.wildfly.plugins</groupId>
+            <artifactId>wildfly-maven-plugin</artifactId>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
+    <!-- It needs an existed EAP 6.4.0 zip file that can be downloaded from.
+      Use URL schema for the location. mvn -Peap640 -Deap6.zip.url=http://download.devel.redhat.com/devel/candidates/JBEAP/JBEAP-6.4.0.DR12/jboss-eap-6.4.0.DR12.zip -->
+    <profile>
+      <id>eap640</id>
+      <activation>
+        <property>
+          <name>eap</name>
+        </property>
+      </activation>
+      <properties>
+        <app.server>jboss-eap</app.server>
+        <jboss.version>6.4</jboss.version>
+        <arquillian.container.groupId>org.jboss.as</arquillian.container.groupId>
+        <arquillian.container.artifactId>jboss-as-arquillian-container-managed</arquillian.container.artifactId>
+        <arquillian.container.version>${version.jboss.as}</arquillian.container.version>
+        <default.management.port>9999</default.management.port>
+      </properties>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.jboss.as.plugins</groupId>
+            <artifactId>jboss-as-maven-plugin</artifactId>
+          </plugin>
         </plugins>
       </build>
     </profile>
   </profiles>
+
 </project>
