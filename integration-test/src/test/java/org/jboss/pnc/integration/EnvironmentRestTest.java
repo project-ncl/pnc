@@ -13,9 +13,11 @@ import org.jboss.pnc.model.OperationalSystem;
 import org.jboss.pnc.rest.endpoint.EnvironmentEndpoint;
 import org.jboss.pnc.rest.provider.EnvironmentProvider;
 import org.jboss.pnc.rest.restmodel.EnvironmentRest;
+import org.jboss.pnc.test.category.ContainerTest;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,6 +31,7 @@ import static org.jboss.pnc.integration.Utils.JsonUtils.toJson;
 import static org.jboss.pnc.integration.env.IntegrationTestEnv.getHttpPort;
 
 @RunWith(Arquillian.class)
+@Category(ContainerTest.class)
 public class EnvironmentRestTest {
 
     private static final String ENVIRONMENT_REST_ENDPOINT = "/pnc-rest/rest/environment/";
