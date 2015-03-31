@@ -10,12 +10,11 @@ public class JenkinsBuildDriverModuleConfigTest {
     @Test
     public void test() {
         try {
-            Configuration<JenkinsBuildDriverModuleConfig> configuration = 
-                    new Configuration<JenkinsBuildDriverModuleConfig>();
-            JenkinsBuildDriverModuleConfig jen_config = 
+            Configuration configuration = new Configuration();
+            JenkinsBuildDriverModuleConfig jenConfig = 
                     configuration.getModuleConfig(JenkinsBuildDriverModuleConfig.class);
-            Assert.assertNotNull(jen_config);
-            System.out.println(jen_config);
+            Assert.assertNotNull(jenConfig);
+            System.out.println(jenConfig);
         } catch (ConfigurationParseException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();

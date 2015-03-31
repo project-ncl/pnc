@@ -10,12 +10,11 @@ public class MavenRepoDriverModuleConfigTest {
     @Test
     public void test() {
         try {
-            Configuration<MavenRepoDriverModuleConfig> configuration = 
-                    new Configuration<MavenRepoDriverModuleConfig>();
-            MavenRepoDriverModuleConfig jen_config = 
+            Configuration configuration = new Configuration();
+            MavenRepoDriverModuleConfig mavenConfig = 
                     configuration.getModuleConfig(MavenRepoDriverModuleConfig.class);
-            Assert.assertNotNull(jen_config);
-            System.out.println(jen_config);
+            Assert.assertNotNull(mavenConfig);
+            System.out.println(mavenConfig);
         } catch (ConfigurationParseException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();

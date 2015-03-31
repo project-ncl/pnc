@@ -65,7 +65,7 @@ public class AbstractRepositoryManagerDriverTest {
 
         System.out.println("Using base URL: " + url);
 
-        Configuration<MavenRepoDriverModuleConfig> config = new Configuration<MavenRepoDriverModuleConfig>();
+        Configuration config = new Configuration();
         driver = new RepositoryManagerDriver(config);
     }
 
