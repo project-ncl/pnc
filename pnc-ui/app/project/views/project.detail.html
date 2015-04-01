@@ -1,6 +1,6 @@
 <div>
   <pnc-header>
-    <pnc-header-title>Project Details</pnc-header-title>
+    <pnc-header-title>{{ detailCtrl.project.name || 'Empty' }}</pnc-header-title>
     <pnc-header-buttons>
       <button type="button" class="btn btn-lg btn-default disabled" data-toggle="tooltip" title="Edit Project">
         <i class="pficon pficon-edit"></i> Edit
@@ -43,6 +43,11 @@
 
   <pnc-header>
     <pnc-header-title><small>Build Configurations</small></pnc-header-title>
+    <pnc-header-buttons>
+        <button type="button" class="btn btn-lg btn-default disabled" data-toggle="tooltip" title="Create Build Configuration">
+            <i class="pficon pficon-add"></i> Create
+        </button>
+    </pnc-header-buttons>
   </pnc-header>
 
   <input ng-model="searchText" placeholder="filter config...">

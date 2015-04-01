@@ -59,6 +59,22 @@
         }
       }
     });
+
+    $stateProvider.state('configuration-set.create', {
+      url: '/configuration-set/create',
+      templateUrl: 'configuration-set/views/configuration-set.create.html',
+      data: {
+        displayName: 'Create Build Configuration Set'
+      },
+      controller: 'ConfigurationSetCreateController',
+      controllerAs: 'createSetCtrl',
+      resolve: {
+        restClient: 'PncRestClient',
+        products: function(restClient) {
+          return restClient.Product.query().$promise;
+        },
+      },
+    });
   }]);
 
 })();
