@@ -123,6 +123,19 @@
         <version>${version.keycloak}</version>
     </dependency>
     
+    <dependency>
+        <groupId>org.keycloak</groupId>
+        <artifactId>keycloak-adapter-core</artifactId>
+        <version>${version.keycloak}</version>
+    </dependency>
+    
+    <dependency>
+        <groupId>org.keycloak</groupId>
+        <artifactId>keycloak-installed-adapter</artifactId>
+        <version>${version.keycloak}</version>
+    </dependency>
+    
+    
     
       <!-- Project modules, to support cross-module dependencies -->
       <dependency>
