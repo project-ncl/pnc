@@ -1,8 +1,11 @@
 package org.jboss.pnc.rest.endpoint;
 
+import static org.jboss.pnc.rest.validation.RestInputValidation.validateIdIsNull;
+
 import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
 import com.wordnik.swagger.annotations.ApiParam;
+
 import org.jboss.pnc.core.exception.CoreException;
 import org.jboss.pnc.rest.provider.BuildConfigurationProvider;
 import org.jboss.pnc.rest.provider.BuildRecordProvider;
@@ -16,6 +19,7 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
+
 import java.lang.invoke.MethodHandles;
 import java.net.URI;
 import java.util.List;
@@ -56,9 +60,7 @@ public class BuildConfigurationEndpoint {
     @ApiOperation(value = "Creates a new Build Configuration")
     @POST
     public Response createNew(@NotNull @Valid BuildConfigurationRest buildConfigurationRest, @Context UriInfo uriInfo) {
-        if (buildConfigurationRest.getId() != null) {
-            return Response.status(Response.Status.BAD_REQUEST).build();
-        }
+        validateIdIsNull(buildConfigurationRest);
         UriBuilder uriBuilder = UriBuilder.fromUri(uriInfo.getRequestUri()).path("{id}");
         int id = buildConfigurationProvider.store(buildConfigurationRest);
         return Response.created(uriBuilder.build(id)).entity(buildConfigurationProvider.getSpecific(id)).build();
@@ -77,6 +79,8 @@ public class BuildConfigurationEndpoint {
     @Path("/{id}")
     public Response update(@ApiParam(value = "Build Configuration id", required = true) @PathParam("id") Integer id,
             @NotNull @Valid BuildConfigurationRest buildConfigurationRest, @Context UriInfo uriInfo) {
+        validateIdIsNull(buildConfigurationRest);
+        buildConfigurationRest.setId(id);
         buildConfigurationProvider.update(buildConfigurationRest);
         return Response.ok().build();
     }

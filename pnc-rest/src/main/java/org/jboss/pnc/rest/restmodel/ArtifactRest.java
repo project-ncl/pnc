@@ -1,5 +1,6 @@
 package org.jboss.pnc.rest.restmodel;
 
+import org.jboss.pnc.common.Identifiable;
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.ArtifactStatus;
 import org.jboss.pnc.model.RepositoryType;
@@ -7,7 +8,7 @@ import org.jboss.pnc.model.RepositoryType;
 import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement(name = "Artifact")
-public class ArtifactRest {
+public class ArtifactRest implements Identifiable<Integer> {
 
     private Integer id;
 

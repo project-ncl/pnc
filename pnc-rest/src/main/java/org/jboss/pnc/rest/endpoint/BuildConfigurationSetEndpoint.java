@@ -1,5 +1,7 @@
 package org.jboss.pnc.rest.endpoint;
 
+import static org.jboss.pnc.rest.validation.RestInputValidation.validateIdIsNull;
+
 import java.lang.invoke.MethodHandles;
 import java.util.List;
 
@@ -68,6 +70,7 @@ public class BuildConfigurationSetEndpoint {
     @ApiOperation(value = "Creates a new Build Configuration Set")
     @POST
     public Response createNew(@NotNull @Valid BuildConfigurationSetRest buildConfigurationSetRest, @Context UriInfo uriInfo) {
+        validateIdIsNull(buildConfigurationSetRest);
         UriBuilder uriBuilder = UriBuilder.fromUri(uriInfo.getRequestUri()).path("{id}");
         int id = buildConfigurationSetProvider.store(buildConfigurationSetRest);
         return Response.created(uriBuilder.build(id)).entity(buildConfigurationSetProvider.getSpecific(id)).build();
@@ -86,6 +89,7 @@ public class BuildConfigurationSetEndpoint {
     @Path("/{id}")
     public Response update(@ApiParam(value = "Build Configuration Set id", required = true) @PathParam("id") Integer id,
             @NotNull @Valid BuildConfigurationSetRest buildConfigurationSetRest, @Context UriInfo uriInfo) {
+        validateIdIsNull(buildConfigurationSetRest);
         buildConfigurationSetRest.setId(id);
         buildConfigurationSetProvider.update(buildConfigurationSetRest);
         return Response.ok().build();

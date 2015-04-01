@@ -3,15 +3,20 @@ package org.jboss.pnc.rest.endpoint;
 import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
 import com.wordnik.swagger.annotations.ApiParam;
+
 import org.jboss.pnc.rest.provider.ProductProvider;
 import org.jboss.pnc.rest.restmodel.ProductRest;
+import org.jboss.pnc.rest.validation.BadRequestException;
 
 import javax.inject.Inject;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
+
 import java.util.List;
+
+import static org.jboss.pnc.rest.validation.RestInputValidation.validateIdIsNull;
 
 @Api(value = "/product", description = "Product related information")
 @Path("/product")
@@ -49,6 +54,7 @@ public class ProductEndpoint {
     @ApiOperation(value = "Creates a new Product")
     @POST
     public Response createNew(@NotNull @Valid ProductRest productRest, @Context UriInfo uriInfo) {
+        validateIdIsNull(productRest);
         int id = productProvider.store(productRest);
         UriBuilder uriBuilder = UriBuilder.fromUri(uriInfo.getRequestUri()).path("{id}");
         return Response.created(uriBuilder.build(id)).entity(productProvider.getSpecific(id)).build();
@@ -58,7 +64,9 @@ public class ProductEndpoint {
     @PUT
     @Path("/{id}")
     public Response update(@ApiParam(value = "Product id", required = true) @PathParam("id") Integer productId,
-            @NotNull @Valid ProductRest productRest, @Context UriInfo uriInfo) {
+            @NotNull @Valid ProductRest productRest, @Context UriInfo uriInfo) throws BadRequestException {
+        validateIdIsNull(productRest);
+        productRest.setId(productId);
         productProvider.update(productRest);
         return Response.ok().build();
     }

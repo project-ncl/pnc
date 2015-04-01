@@ -1,5 +1,7 @@
 package org.jboss.pnc.rest.endpoint;
 
+import static org.jboss.pnc.rest.validation.RestInputValidation.validateIdIsNull;
+
 import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
 import com.wordnik.swagger.annotations.ApiParam;
@@ -57,6 +59,7 @@ public class ProductVersionEndpoint {
     @POST
     public Response createNew(@ApiParam(value = "Product id", required = true) @PathParam("productId") Integer productId,
             @NotNull @Valid ProductVersionRest productVersionRest, @Context UriInfo uriInfo) {
+        validateIdIsNull(productVersionRest);
         int id = productVersionProvider.store(productId, productVersionRest);
         UriBuilder uriBuilder = UriBuilder.fromUri(uriInfo.getRequestUri()).path("{id}");
         return Response.created(uriBuilder.build(id)).entity(productVersionProvider.getSpecific(productId, id)).build();
@@ -68,6 +71,8 @@ public class ProductVersionEndpoint {
     public Response update(@ApiParam(value = "Product id", required = true) @PathParam("productId") Integer productId,
             @ApiParam(value = "Product Version id", required = true) @PathParam("id") Integer id,
             @NotNull @Valid ProductVersionRest productVersionRest, @Context UriInfo uriInfo) {
+        validateIdIsNull(productVersionRest);
+        productVersionRest.setId(id);
         productVersionProvider.update(productId, productVersionRest);
         return Response.ok().build();
     }

@@ -1,8 +1,11 @@
 package org.jboss.pnc.rest.endpoint;
 
+import static org.jboss.pnc.rest.validation.RestInputValidation.validateIdIsNull;
+
 import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
 import com.wordnik.swagger.annotations.ApiParam;
+
 import org.jboss.pnc.rest.provider.LicenseProvider;
 import org.jboss.pnc.rest.restmodel.LicenseRest;
 
@@ -11,6 +14,7 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
+
 import java.util.List;
 
 /**
@@ -53,6 +57,7 @@ public class LicenseEndpoint {
     @ApiOperation(value = "Creates a new License")
     @POST
     public Response createNew(@NotNull @Valid LicenseRest licenseRest, @Context UriInfo uriInfo) {
+        validateIdIsNull(licenseRest);
         int id = licenseProvider.store(licenseRest);
         UriBuilder uriBuilder = UriBuilder.fromUri(uriInfo.getRequestUri()).path("{id}");
         return Response.created(uriBuilder.build(id)).entity(licenseProvider.getSpecific(id)).build();
@@ -63,6 +68,8 @@ public class LicenseEndpoint {
     @Path("/{id}")
     public Response update(@ApiParam(value = "License id", required = true) @PathParam("id") Integer licenseId,
             @NotNull @Valid LicenseRest licenseRest, @Context UriInfo uriInfo) {
+        validateIdIsNull(licenseRest);
+        licenseRest.setId(licenseId);
         licenseProvider.update(licenseRest);
         return Response.ok().build();
     }

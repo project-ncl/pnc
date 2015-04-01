@@ -1,8 +1,11 @@
 package org.jboss.pnc.rest.endpoint;
 
+import static org.jboss.pnc.rest.validation.RestInputValidation.validateIdIsNull;
+
 import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
 import com.wordnik.swagger.annotations.ApiParam;
+
 import org.jboss.pnc.rest.provider.EnvironmentProvider;
 import org.jboss.pnc.rest.restmodel.EnvironmentRest;
 
@@ -11,6 +14,7 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
+
 import java.util.List;
 
 @Api(value = "/environment", description = "Environment related information")
@@ -49,6 +53,7 @@ public class EnvironmentEndpoint {
     @ApiOperation(value = "Creates a new Environment")
     @POST
     public Response createNew(@NotNull @Valid EnvironmentRest environmentRest, @Context UriInfo uriInfo) {
+        validateIdIsNull(environmentRest);
         int id = environmentProvider.store(environmentRest);
         UriBuilder uriBuilder = UriBuilder.fromUri(uriInfo.getRequestUri()).path("{id}");
         return Response.created(uriBuilder.build(id)).entity(environmentProvider.getSpecific(id)).build();
@@ -59,6 +64,8 @@ public class EnvironmentEndpoint {
     @Path("/{id}")
     public Response update(@ApiParam(value = "Environment id", required = true) @PathParam("id") Integer environmentId,
             @NotNull @Valid EnvironmentRest environmentRest, @Context UriInfo uriInfo) {
+        validateIdIsNull(environmentRest);
+        environmentRest.setId(environmentId);
         environmentProvider.update(environmentRest);
         return Response.ok().build();
     }
