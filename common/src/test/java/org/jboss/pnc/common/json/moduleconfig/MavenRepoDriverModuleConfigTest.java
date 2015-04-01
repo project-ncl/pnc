@@ -1,24 +1,27 @@
 package org.jboss.pnc.common.json.moduleconfig;
 
+import static org.junit.Assert.*;
+
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.ConfigurationParseException;
-import org.junit.Assert;
 import org.junit.Test;
 
-public class MavenRepoDriverModuleConfigTest {
-
+/**
+ * 
+ * @author Jakub Bartecek <jbartece@redhat.com>
+ *
+ */
+public class MavenRepoDriverModuleConfigTest extends AbstractModuleConfigTest {
+    
     @Test
-    public void test() {
-        try {
+    public void loadMavenRepoDriverConfigTest() throws ConfigurationParseException {
             Configuration configuration = new Configuration();
+            
             MavenRepoDriverModuleConfig mavenConfig = 
                     configuration.getModuleConfig(MavenRepoDriverModuleConfig.class);
-            Assert.assertNotNull(mavenConfig);
-            System.out.println(mavenConfig);
-        } catch (ConfigurationParseException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
+            
+            assertNotNull(mavenConfig);
+            assertEquals("1.1.1.1", mavenConfig.getBaseUrl());
     }
-
+    
 }

@@ -30,6 +30,8 @@ public class Configuration {
     
     private Map<Class<?>, AbstractModuleConfig> configCache = new HashMap<>();
     
+    private ConfigurationJSONParser configurationJsonParser = new ConfigurationJSONParser();
+    
     /**
      * Reads configuration for module
      * 
@@ -42,15 +44,20 @@ public class Configuration {
         if(configCache.containsKey(moduleClass))
             return (T) configCache.get(moduleClass);
         
-        try (InputStream configStream = this.getConfigStream()) {
-            log.info("Loading configuration for class: " + moduleClass);
-            String configString = StringUtils.replaceEnv(IoUtils.readStreamAsString(configStream));
+        synchronized(this) {
+            if(configCache.containsKey(moduleClass))
+                return (T) configCache.get(moduleClass);
             
-            T config = new ConfigurationJSONParser().parseJSONConfig(configString, moduleClass);
-            configCache.put(moduleClass, config);
-            return config;
-        } catch (IOException e) {
-            throw new ConfigurationParseException("Config could not be parsed", e);
+            try (InputStream configStream = this.getConfigStream()) {
+                log.info("Loading configuration for class: " + moduleClass);
+                String configString = StringUtils.replaceEnv(IoUtils.readStreamAsString(configStream));
+                
+                T config = configurationJsonParser.parseJSONConfig(configString, moduleClass);
+                configCache.put(moduleClass, config);
+                return config;
+            } catch (IOException e) {
+                throw new ConfigurationParseException("Config could not be parsed", e);
+            }
         }
     }
 
