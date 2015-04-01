@@ -15,12 +15,10 @@ Check the non-permitted link
 ```
 
 it should resulted in _Failed to connect to repo1.maven.org port 443: Connection refused_
-while on 
+while on
 
 ```
-# docker exec $CID curl http://download.eng.bos.redhat.com/brewroot/repos/jb-wfk-2-rhel-6-build/latest/maven/ant/ant-junit/maven-metadata.xml
+# docker exec $CID curl http://10.16.36.64/brewroot/repos/jb-wfk-2-rhel-6-build/latest/maven/ant/ant-junit/maven-metadata.xml
 ```
 
 should pass with content of the file.
-
-

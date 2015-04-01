@@ -1143,7 +1143,7 @@
     </profile>
 
     <!-- It needs an existed EAP 6.4.0 zip file that can be downloaded from.
-      Use URL schema for the location. mvn -Peap640 -Deap6.zip.url=http://download.devel.redhat.com/devel/candidates/JBEAP/JBEAP-6.4.0.DR12/jboss-eap-6.4.0.DR12.zip -->
+      Use URL schema for the location. mvn -Peap640 -Deap6.zip.url=[file://|http:// .....jboss-eap-6.4.0.zip] -->
     <profile>
       <id>eap640</id>
       <activation>

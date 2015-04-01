@@ -74,7 +74,7 @@ public class DatastoreTest {
 
         Project project = Project.Builder.newBuilder().name("DS_PROJECT_NAME").description("DS_PROJECT_NAME_DESC")
                 .projectUrl("https://github.com/ds-project-ncl/pnc")
-                .issueTrackerUrl("https://projects.engineering.redhat.com/browse/NCL").build();
+                .build();
         project = projectRepository.save(project);
 
         Environment environment = Environment.Builder.defaultEnvironment().build();

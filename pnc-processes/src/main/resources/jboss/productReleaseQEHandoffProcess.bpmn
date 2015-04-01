@@ -852,7 +852,7 @@ versions of RHEL.  The RPM work is normally done partially in parallel with the 
       <bpmn2:conditionExpression xsi:type="bpmn2:tFormalExpression" id="FormalExpression_9" language="http://www.java.com/java">return KieFunctions.isFalse(buildDockerImage);</bpmn2:conditionExpression>
     </bpmn2:sequenceFlow>
     <bpmn2:userTask id="UserTask_18" name="Run patch creation and application tool">
-      <bpmn2:documentation id="Documentation_5">This differs depending on the product/platform/version. See https://mojo.redhat.com/docs/DOC-1018735</bpmn2:documentation>
+      <bpmn2:documentation id="Documentation_5">This differs depending on the product/platform/version. See https://redhatinc.hosted.jivesoftware.com/docs/DOC-1018735</bpmn2:documentation>
       <bpmn2:incoming>SequenceFlow_14</bpmn2:incoming>
       <bpmn2:outgoing>SequenceFlow_19</bpmn2:outgoing>
       <bpmn2:ioSpecification id="InputOutputSpecification_19">
