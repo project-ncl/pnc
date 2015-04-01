@@ -128,7 +128,7 @@ public class DatabaseDataInitializer {
             Project project1 = Project.Builder.newBuilder()
                     .name(PNC_PROJECT_1_NAME).description("Example Project for Newcastle Demo")
                     .projectUrl("https://github.com/project-ncl/pnc")
-                    .issueTrackerUrl("https://projects.engineering.redhat.com/browse/NCL").build();
+                    .build();
             Project project2 = Project.Builder.newBuilder()
                     .name("JBoss Modules").description("JBoss Modules Project")
                     .projectUrl("https://github.com/jboss-modules/jboss-modules")
