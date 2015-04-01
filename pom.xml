@@ -111,7 +111,7 @@
     <failsafe.test.skip>true</failsafe.test.skip>
     <failsafe.test.remote.skip>true</failsafe.test.remote.skip>
     <failsafe.test.container.skip>true</failsafe.test.container.skip>
-    <surefire.test.remote.skip>false</surefire.test.remote.skip>
+    <surefire.test.remote.skip>true</surefire.test.remote.skip>
   </properties>
 
   <dependencyManagement>
