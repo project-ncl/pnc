@@ -8,13 +8,14 @@ import java.util.stream.Collectors;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
+import org.jboss.pnc.common.Identifiable;
 import org.jboss.pnc.model.BuildRecordSet;
 import org.jboss.pnc.model.ProductMilestone;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.ProductVersion;
 
 @XmlRootElement(name = "BuildRecordSet")
-public class BuildRecordSetRest {
+public class BuildRecordSetRest implements Identifiable<Integer> {
 
     private Integer id;
 

@@ -136,7 +136,7 @@ public class BuildConfigurationRestTest {
         final String name = "Bad Request Example Config";
         final String id = String.valueOf(projectId);
 
-        JsonTemplateBuilder configurationTemplate = JsonTemplateBuilder.fromResource("buildConfiguration_update_template");
+        JsonTemplateBuilder configurationTemplate = JsonTemplateBuilder.fromResource("buildConfiguration_with_id_template");
         configurationTemplate.addValue("_id", String.valueOf(configurationId));
         configurationTemplate.addValue("_name", name);
         configurationTemplate.addValue("_buildScript", buildScript);
@@ -148,8 +148,8 @@ public class BuildConfigurationRestTest {
         configurationTemplate.addValue("_projectId", id);
         configurationTemplate.addValue("_environmentId", String.valueOf(environmentId));
 
-        given().body(configurationTemplate.fillTemplate()).contentType(ContentType.JSON).port(getHttpPort()).when().post(CONFIGURATION_REST_ENDPOINT).then()
-        .statusCode(400);
+        given().body(configurationTemplate.fillTemplate()).contentType(ContentType.JSON).port(getHttpPort()).when()
+                .post(CONFIGURATION_REST_ENDPOINT).then().statusCode(400);
 
     }
 
@@ -162,7 +162,6 @@ public class BuildConfigurationRestTest {
         final String updatedProjectId = String.valueOf(projectId);
 
         JsonTemplateBuilder configurationTemplate = JsonTemplateBuilder.fromResource("buildConfiguration_update_template");
-        configurationTemplate.addValue("_id", String.valueOf(configurationId));
         configurationTemplate.addValue("_name", updatedName);
         configurationTemplate.addValue("_buildScript", updatedBuildScript);
         configurationTemplate.addValue("_scmRepoURL", updatedScmUrl);

@@ -6,13 +6,14 @@ import java.sql.Timestamp;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
+import org.jboss.pnc.common.Identifiable;
 import org.jboss.pnc.core.builder.BuildTask;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildDriverStatus;
 import org.jboss.pnc.model.BuildRecord;
 
 @XmlRootElement(name = "BuildRecord")
-public class BuildRecordRest {
+public class BuildRecordRest implements Identifiable<Integer> {
 
     private Integer id;
 

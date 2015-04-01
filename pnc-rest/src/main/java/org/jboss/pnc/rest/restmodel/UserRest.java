@@ -3,10 +3,11 @@ package org.jboss.pnc.rest.restmodel;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 
+import org.jboss.pnc.common.Identifiable;
 import org.jboss.pnc.model.User;
 
 @XmlRootElement(name = "User")
-public class UserRest {
+public class UserRest implements Identifiable<Integer> {
 
     private Integer id;
 

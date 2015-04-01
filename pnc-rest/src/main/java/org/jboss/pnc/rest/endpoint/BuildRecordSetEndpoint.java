@@ -3,14 +3,17 @@ package org.jboss.pnc.rest.endpoint;
 import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
 import com.wordnik.swagger.annotations.ApiParam;
+
 import org.jboss.pnc.rest.provider.BuildRecordSetProvider;
 import org.jboss.pnc.rest.restmodel.BuildRecordSetRest;
+import org.jboss.pnc.rest.validation.WithNullId;
 
 import javax.inject.Inject;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
+
 import java.util.List;
 
 @Api(value = "/recordset", description = "BuildRecordSet collection")
@@ -72,7 +75,7 @@ public class BuildRecordSetEndpoint {
 
     @ApiOperation(value = "Creates a new BuildRecordSet")
     @POST
-    public Response createNew(@NotNull @Valid BuildRecordSetRest buildRecordSetRest, @Context UriInfo uriInfo) {
+    public Response createNew(@NotNull @Valid @WithNullId BuildRecordSetRest buildRecordSetRest, @Context UriInfo uriInfo) {
         UriBuilder uriBuilder = UriBuilder.fromUri(uriInfo.getRequestUri()).path("{id}");
         int id = buildRecordSetProvider.store(buildRecordSetRest);
         return Response.created(uriBuilder.build(id)).entity(buildRecordSetProvider.getSpecific(id)).build();
@@ -82,7 +85,8 @@ public class BuildRecordSetEndpoint {
     @PUT
     @Path("/{id}")
     public Response update(@ApiParam(value = "BuildRecordSet id", required = true) @PathParam("id") Integer id,
-            @NotNull @Valid BuildRecordSetRest buildRecordSetRest, @Context UriInfo uriInfo) {
+            @NotNull @Valid @WithNullId BuildRecordSetRest buildRecordSetRest, @Context UriInfo uriInfo) {
+        buildRecordSetRest.setId(id);
         buildRecordSetProvider.update(buildRecordSetRest);
         return Response.ok().build();
     }

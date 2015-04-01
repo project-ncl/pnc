@@ -3,14 +3,17 @@ package org.jboss.pnc.rest.endpoint;
 import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
 import com.wordnik.swagger.annotations.ApiParam;
+
 import org.jboss.pnc.rest.provider.UserProvider;
 import org.jboss.pnc.rest.restmodel.UserRest;
+import org.jboss.pnc.rest.validation.WithNullId;
 
 import javax.inject.Inject;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
+
 import java.util.List;
 
 @Api(value = "/user", description = "User related information")
@@ -48,7 +51,7 @@ public class UserEndpoint {
 
     @ApiOperation(value = "Creates new User")
     @POST
-    public Response createNew(@NotNull @Valid UserRest userRest, @Context UriInfo uriInfo) {
+    public Response createNew(@NotNull @Valid @WithNullId UserRest userRest, @Context UriInfo uriInfo) {
         int id = userProvider.store(userRest);
         UriBuilder uriBuilder = UriBuilder.fromUri(uriInfo.getRequestUri()).path("{id}");
         return Response.created(uriBuilder.build(id)).entity(userProvider.getSpecific(id)).build();

@@ -1,4 +1,5 @@
 {
+    "id": "${_id}",
     "name": "${_name}",
     "buildScript": "${_buildScript}",
     "scmRepoURL": "${_scmRepoURL}",
