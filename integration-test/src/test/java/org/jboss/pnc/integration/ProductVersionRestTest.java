@@ -107,6 +107,8 @@ public class ProductVersionRestTest {
 
         String rawJson = response.body().jsonPath().prettyPrint();
         rawJson = rawJson.replace("1.0.0.ER5", "1.0.1.ER1");
+        // Remove the "id: {id}," from the json object
+        rawJson = rawJson.replaceFirst("\\s*\"?id\"?\\s*:\\s*\\d+,\\s*", "");
 
         logger.info("### rawJson: " + response.body().jsonPath().prettyPrint());
 

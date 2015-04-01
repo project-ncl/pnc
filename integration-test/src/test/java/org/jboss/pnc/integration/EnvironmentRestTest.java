@@ -77,7 +77,6 @@ public class EnvironmentRestTest {
         EnvironmentRest environmentModified = exampleEnvironment();
         environmentModified.setBuildType(BuildType.JAVA);
         environmentModified.setOperationalSystem(OperationalSystem.OSX);
-        environmentModified.setId(environmentId);
 
         //when
         Response putResponse = given().body(toJson(environmentModified)).contentType(ContentType.JSON).port(getHttpPort()).when()

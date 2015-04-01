@@ -163,6 +163,8 @@ public class RestTest {
 
         String rawJson = response.body().jsonPath().prettyPrint();
         rawJson = rawJson.replace("JBoss Enterprise Application Platform 6", "JBoss Enterprise Application Platform 7");
+        // Remove the "id: {id}," from the json object
+        rawJson = rawJson.replaceFirst("\\s*\"?id\"?\\s*:\\s*\\d+,\\s*", "");
 
         logger.info("### rawJson: " + response.body().jsonPath().prettyPrint());
 
@@ -220,6 +222,8 @@ public class RestTest {
 
         String rawJson = response.body().jsonPath().prettyPrint();
         rawJson = rawJson.replace("New Project", "New Awesome Project");
+        // Remove the "id: {id}," from the json object
+        rawJson = rawJson.replaceFirst("\\s*\"?id\"?\\s*:\\s*\\d+,\\s*", "");
 
         logger.info("### rawJson: " + response.body().jsonPath().prettyPrint());
 

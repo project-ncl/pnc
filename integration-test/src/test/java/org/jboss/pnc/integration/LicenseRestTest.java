@@ -75,7 +75,6 @@ public class LicenseRestTest {
         LicenseRest loremIpsumLicenseModified = loremIpsumLicense();
         loremIpsumLicenseModified.setShortName("No-LI");
         loremIpsumLicenseModified.setFullContent("No Lorem Ipsum");
-        loremIpsumLicenseModified.setId(licenseId);
 
         //when
         Response putResponse = given().body(toJson(loremIpsumLicenseModified)).contentType(ContentType.JSON).port(getHttpPort()).when()
