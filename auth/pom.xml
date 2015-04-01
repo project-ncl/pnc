@@ -14,12 +14,21 @@
   <packaging>jar</packaging>
 
   <dependencies>
-
+    <dependency>
+        <groupId>org.apache.httpcomponents</groupId>
+        <artifactId>httpclient</artifactId>
+        <scope>provided</scope>
+    </dependency>
     <dependency>
       <groupId>javax.enterprise</groupId>
       <artifactId>cdi-api</artifactId>
       <scope>provided</scope>
     </dependency>
+    
+    <dependency>
+        <groupId>org.jboss.logging</groupId>
+        <artifactId>jboss-logging</artifactId>
+    </dependency>    
 
     <dependency>
         <groupId>org.jboss.spec.javax.servlet</groupId>
@@ -32,12 +41,31 @@
         <scope>provided</scope>
     </dependency>
     
-    <!-- dependency>
+    <dependency>
         <groupId>org.keycloak</groupId>
         <artifactId>keycloak-adapter-core</artifactId>
-        <version>${project.version}</version>
         <scope>provided</scope>
-    </dependency-->
+    </dependency>
+    
+    <dependency>
+        <groupId>org.keycloak</groupId>
+        <artifactId>keycloak-installed-adapter</artifactId>
+        <scope>provided</scope>
+    </dependency>
+    
+    <dependency>
+        <groupId>org.codehaus.jackson</groupId>
+        <artifactId>jackson-mapper-asl</artifactId>
+        <version>1.9.13</version>
+        <scope>test</scope>
+    </dependency>
+    
+    <dependency>
+        <groupId>org.codehaus.jackson</groupId>
+        <artifactId>jackson-core-asl</artifactId>
+        <version>1.9.13</version>
+        <scope>test</scope>
+    </dependency>
 
   </dependencies>
 
