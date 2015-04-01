@@ -33,13 +33,6 @@ import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.validation.constraints.NotNull;
 
-/**
- * Defines the relationship between the Product and the Project, for a specific version
- * <p>
- * I.e. Product_1 may be mapped to Project_A and Project_B for version 1.0, but mapped only to Project_B for version 1.1
- *
- * @author avibelli
- */
 @Entity
 public class BuildConfigurationSet implements Serializable {
 
