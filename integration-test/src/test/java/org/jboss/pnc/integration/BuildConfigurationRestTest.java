@@ -148,8 +148,8 @@ public class BuildConfigurationRestTest {
         configurationTemplate.addValue("_projectId", id);
         configurationTemplate.addValue("_environmentId", String.valueOf(environmentId));
 
-        given().body(configurationTemplate.fillTemplate()).contentType(ContentType.JSON).port(getHttpPort()).when().post(CONFIGURATION_REST_ENDPOINT).then()
-        .statusCode(400);
+        given().body(configurationTemplate.fillTemplate()).contentType(ContentType.JSON).port(getHttpPort()).when()
+                .post(CONFIGURATION_REST_ENDPOINT).then().statusCode(400);
 
     }
 

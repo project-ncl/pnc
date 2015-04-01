@@ -1,7 +1,5 @@
 package org.jboss.pnc.rest.endpoint;
 
-import static org.jboss.pnc.rest.validation.RestInputValidation.validateIdIsNull;
-
 import java.lang.invoke.MethodHandles;
 import java.util.List;
 
@@ -29,6 +27,7 @@ import org.jboss.pnc.rest.provider.BuildConfigurationSetProvider;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationRest;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationSetRest;
 import org.jboss.pnc.rest.trigger.BuildTriggerer;
+import org.jboss.pnc.rest.validation.WithNullId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -69,8 +68,7 @@ public class BuildConfigurationSetEndpoint {
 
     @ApiOperation(value = "Creates a new Build Configuration Set")
     @POST
-    public Response createNew(@NotNull @Valid BuildConfigurationSetRest buildConfigurationSetRest, @Context UriInfo uriInfo) {
-        validateIdIsNull(buildConfigurationSetRest);
+    public Response createNew(@NotNull @Valid @WithNullId BuildConfigurationSetRest buildConfigurationSetRest, @Context UriInfo uriInfo) {
         UriBuilder uriBuilder = UriBuilder.fromUri(uriInfo.getRequestUri()).path("{id}");
         int id = buildConfigurationSetProvider.store(buildConfigurationSetRest);
         return Response.created(uriBuilder.build(id)).entity(buildConfigurationSetProvider.getSpecific(id)).build();
@@ -88,8 +86,7 @@ public class BuildConfigurationSetEndpoint {
     @PUT
     @Path("/{id}")
     public Response update(@ApiParam(value = "Build Configuration Set id", required = true) @PathParam("id") Integer id,
-            @NotNull @Valid BuildConfigurationSetRest buildConfigurationSetRest, @Context UriInfo uriInfo) {
-        validateIdIsNull(buildConfigurationSetRest);
+            @NotNull @Valid @WithNullId BuildConfigurationSetRest buildConfigurationSetRest, @Context UriInfo uriInfo) {
         buildConfigurationSetRest.setId(id);
         buildConfigurationSetProvider.update(buildConfigurationSetRest);
         return Response.ok().build();

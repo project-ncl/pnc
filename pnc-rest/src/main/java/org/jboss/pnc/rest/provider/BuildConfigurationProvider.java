@@ -1,6 +1,7 @@
 package org.jboss.pnc.rest.provider;
 
 import com.google.common.base.Preconditions;
+
 import org.jboss.pnc.datastore.limits.RSQLPageLimitAndSortingProducer;
 import org.jboss.pnc.datastore.predicates.RSQLPredicate;
 import org.jboss.pnc.datastore.predicates.RSQLPredicateProducer;
@@ -11,6 +12,7 @@ import org.springframework.data.domain.Pageable;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
+
 import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -88,8 +90,9 @@ public class BuildConfigurationProvider {
         return buildConfiguration.getId();
     }
 
-    public Integer update(BuildConfigurationRest buildConfigurationRest) {
-        BuildConfiguration buildConfiguration = buildConfigurationRepository.findOne(buildConfigurationRest.getId());
+    public Integer update(Integer id, BuildConfigurationRest buildConfigurationRest) {
+        buildConfigurationRest.setId(id);
+        BuildConfiguration buildConfiguration = buildConfigurationRepository.findOne(id);
         Preconditions.checkArgument(buildConfiguration != null, "Couldn't find buildConfiguration with id "
                 + buildConfigurationRest.getId());
         buildConfiguration = buildConfigurationRepository.save(buildConfigurationRest.toBuildConfiguration(buildConfiguration));

@@ -1,13 +1,12 @@
 package org.jboss.pnc.rest.endpoint;
 
-import static org.jboss.pnc.rest.validation.RestInputValidation.validateIdIsNull;
-
 import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
 import com.wordnik.swagger.annotations.ApiParam;
 
 import org.jboss.pnc.rest.provider.ProjectProvider;
 import org.jboss.pnc.rest.restmodel.ProjectRest;
+import org.jboss.pnc.rest.validation.WithNullId;
 
 import javax.inject.Inject;
 import javax.validation.Valid;
@@ -52,8 +51,7 @@ public class ProjectEndpoint {
 
     @ApiOperation(value = "Creates a new Project")
     @POST
-    public Response createNew(@NotNull @Valid ProjectRest projectRest, @Context UriInfo uriInfo) {
-        validateIdIsNull(projectRest);
+    public Response createNew(@NotNull @Valid @WithNullId ProjectRest projectRest, @Context UriInfo uriInfo) {
         int id = projectProvider.store(projectRest);
         UriBuilder uriBuilder = UriBuilder.fromUri(uriInfo.getRequestUri()).path("{id}");
         return Response.created(uriBuilder.build(id)).entity(projectProvider.getSpecific(id)).build();
@@ -63,8 +61,7 @@ public class ProjectEndpoint {
     @PUT
     @Path("/{id}")
     public Response update(@ApiParam(value = "Project id", required = true) @PathParam("id") Integer id,
-            @NotNull @Valid ProjectRest projectRest, @Context UriInfo uriInfo) {
-        validateIdIsNull(projectRest);
+            @NotNull @Valid @WithNullId ProjectRest projectRest, @Context UriInfo uriInfo) {
         projectRest.setId(id);
         projectProvider.update(projectRest);
         return Response.ok().build();
