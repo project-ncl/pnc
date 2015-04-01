@@ -11,42 +11,49 @@ import org.keycloak.representations.AccessToken;
 
 public class AuthenticationProvider {
     
-    private HttpServletRequest request;
+    private AccessToken auth;
     
     
     public AuthenticationProvider(HttpServletRequest req) {
-        this.request = req;
+        KeycloakSecurityContext session = (KeycloakSecurityContext) req.getAttribute(KeycloakSecurityContext.class.getName());
+        this.auth = session.getToken();
     }
     
-    private AccessToken getAuth() {
-        KeycloakSecurityContext session = (KeycloakSecurityContext) this.request.getAttribute(KeycloakSecurityContext.class.getName());
-        return session.getToken();
+    public AuthenticationProvider(AccessToken accessToken) {
+        this.auth = accessToken;
     }
-
+    
     public String getEmail() {
-        return getAuth().getEmail();
+        return this.auth.getEmail();
     }
 
     public String getPrefferedUserName() {
-        return getAuth().getPreferredUsername();
+        return this.auth.getPreferredUsername();
     }
 
     public String getName() {
-        return getAuth().getName();
+        return this.auth.getName();
     }
     
     public Set<String> getRole() {
-        return getAuth().getRealmAccess().getRoles();
+        return this.auth.getRealmAccess().getRoles();
     }
     
     public boolean isUserInRole(String role) {
-        return getAuth().getRealmAccess().isUserInRole(role);
+        return this.auth.getRealmAccess().isUserInRole(role);
     }
     
     public AccessToken getAccessToken() {
-        return this.getAuth();
+        return this.auth;
     }
 
+    @Override
+    public String toString() {
+        return "AuthenticationProvider [getEmail()=" + getEmail() + ", getPrefferedUserName()=" + getPrefferedUserName()
+                + ", getName()=" + getName() + ", getRole()=" + getRole() + "]";
+    }
+
+    
     
 
 }
