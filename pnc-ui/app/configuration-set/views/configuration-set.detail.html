@@ -14,6 +14,28 @@
     </pnc-header-buttons>
   </pnc-header>
 
+  <form editable-form class="form-horizontal">
+    <div class="form-group">
+      <label for="input-version" class="col-sm-1 control-label">Name</label>
+      <div class="col-sm-11">
+        <p id="input-version" e-class="form-control" editable-text="detailCtrl.set.name" e-name="name" e-required>{{ detailCtrl.set.name || 'Empty' }}</p>
+      </div>
+    </div>
+
+  </form>
+
+  <pnc-header>
+      <pnc-header-title><small>Build Configurations</small></pnc-header-title>
+      <pnc-header-buttons>
+        <button type="button" class="btn btn-lg btn-default disabled" data-toggle="tooltip" title="Add an existing Build Configuration">
+            <i class="pficon pficon-add"></i> Add
+        </button>
+        <button type="button" class="btn btn-lg btn-default disabled" data-toggle="tooltip" title="Create a new Build Configuration">
+            <i class="pficon pficon-add"></i> Create
+        </button>
+      </pnc-header-buttons>
+  </pnc-header>
+
   <input ng-model="searchText" placeholder="filter config...">
   <table class="table table-bordered table-striped table-hover">
     <thead>
