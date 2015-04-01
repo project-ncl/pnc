@@ -34,22 +34,27 @@
         <p id="static-description" class="form-control-static">{{ versionCtrl.product.description || 'Empty' }}</p>
       </div>
     </div>
-
-    <pnc-header>
-      <pnc-header-title><small>Build Configuration Sets</small></pnc-header-title>
-    </pnc-header>
-
-    <input ng-model="searchText" placeholder="filter buildconfigsets...">
-    <table class="table table-bordered table-striped">
-      <thead>
-        <th>Name</th>
-      </thead>
-      <tbody>
-        <tr ng-repeat="buildconfigurationset in versionCtrl.buildconfigurationsets | filter:searchText">
-          <td><a href ui-sref="configuration-set.detail({ configurationSetId: buildconfigurationset.id })">{{ buildconfigurationset.name }}</a></td>
-        </tr>
-      </tbody>
-    </table>
-
   </form>
+
+  <pnc-header>
+    <pnc-header-title><small>Build Configuration Sets</small></pnc-header-title>
+    <pnc-header-buttons>
+      <button type="button" class="btn btn-lg btn-default" data-toggle="tooltip" title="Create Build Configuration Set" ui-sref="configuration-set.create">
+          <i class="pficon pficon-add"></i> Create
+      </button>
+    </pnc-header-buttons>
+  </pnc-header>
+
+  <input ng-model="searchText" placeholder="filter buildconfigsets...">
+  <table class="table table-bordered table-striped">
+    <thead>
+      <th>Name</th>
+    </thead>
+    <tbody>
+      <tr ng-repeat="buildconfigurationset in versionCtrl.buildconfigurationsets | filter:searchText">
+        <td><a href ui-sref="configuration-set.detail({ configurationSetId: buildconfigurationset.id })">{{ buildconfigurationset.name }}</a></td>
+      </tr>
+    </tbody>
+  </table>
+
 </div>

@@ -1,6 +1,6 @@
 <div>
   <pnc-header>
-    <pnc-header-title>Build Configuration Details</pnc-header-title>
+    <pnc-header-title>{{ detailCtrl.configuration.name || 'Empty' }}</pnc-header-title>
     <pnc-header-buttons>
       <button type="button" class="btn btn-lg btn-default" data-toggle="tooltip" title="Start Build" ng-click="detailCtrl.build()"><i class="fa fa-play"></i> Build</button>
       <button type="button" class="btn btn-lg btn-default" data-toggle="tooltip" title="Clone Configuration" ng-click="detailCtrl.clone()"><i class="fa fa-files-o"></i> Clone</button>
