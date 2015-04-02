@@ -5,7 +5,6 @@ import com.jayway.restassured.response.Response;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.junit.InSequence;
-import org.jboss.pnc.common.util.IoUtils;
 import org.jboss.pnc.integration.assertions.ResponseAssertion;
 import org.jboss.pnc.integration.deployments.Deployments;
 import org.jboss.pnc.integration.matchers.JsonMatcher;
@@ -50,7 +49,6 @@ public class BuildConfigurationRestTest {
     private static final String CONFIGURATION_SET_SPECIFIC_REST_ENDPOINT = "/pnc-rest/rest/configuration-set/%d";
 
     private static int productId;
-    private static int productVersionId;
     private static int projectId;
     private static int configurationId;
     private static int environmentId;
@@ -83,12 +81,12 @@ public class BuildConfigurationRestTest {
                     .body(JsonMatcher.containsJsonAttribute("[0].id", value -> productId = Integer.valueOf(value)));
 
             given().contentType(ContentType.JSON).port(getHttpPort()).when()
-                    .get(String.format(PRODUCT_VERSION_REST_ENDPOINT, productId)).then().statusCode(200)
-                    .body(JsonMatcher.containsJsonAttribute("[0].id", value -> productVersionId = Integer.valueOf(value)));
-
-            given().contentType(ContentType.JSON).port(getHttpPort()).when()
                     .get(String.format(ENVIRONMENT_REST_ENDPOINT, productId)).then().statusCode(200)
                     .body(JsonMatcher.containsJsonAttribute("[0].id", value -> environmentId = Integer.valueOf(value)));
+
+            given().contentType(ContentType.JSON).port(getHttpPort()).when().get(CONFIGURATION_SET_REST_ENDPOINT).then()
+                    .statusCode(200)
+                    .body(JsonMatcher.containsJsonAttribute("[0].id", value -> configurationSetId = Integer.valueOf(value)));
         }
     }
 
@@ -112,7 +110,8 @@ public class BuildConfigurationRestTest {
         configurationTemplate.addValue("_projectId", String.valueOf(projectId));
         configurationTemplate.addValue("_environmentId", String.valueOf(environmentId));
 
-        given().body(configurationTemplate.fillTemplate()).contentType(ContentType.JSON).port(getHttpPort()).when().post(CONFIGURATION_REST_ENDPOINT).then()
+        given().body(configurationTemplate.fillTemplate()).contentType(ContentType.JSON).port(getHttpPort()).when().post(
+                CONFIGURATION_REST_ENDPOINT).then()
                 .statusCode(201);
     }
 
@@ -126,31 +125,6 @@ public class BuildConfigurationRestTest {
 
         ResponseAssertion.assertThat(response).hasStatus(201);
         ResponseAssertion.assertThat(response).hasJsonValueNotNullOrEmpty("creationTime").hasJsonValueNotNullOrEmpty("lastModificationTime");
-    }
-
-    @Test
-    public void shouldFailToCreateNewBuildConfiguration() throws IOException {
-        // given
-        final String scmUrl = "https://github.com/project-ncl/pnc.git";
-        final String buildScript = "mvn clean deploy -Dmaven.test.skip=true";
-        final String name = "Bad Request Example Config";
-        final String id = String.valueOf(projectId);
-
-        JsonTemplateBuilder configurationTemplate = JsonTemplateBuilder.fromResource("buildConfiguration_with_id_template");
-        configurationTemplate.addValue("_id", String.valueOf(configurationId));
-        configurationTemplate.addValue("_name", name);
-        configurationTemplate.addValue("_buildScript", buildScript);
-        configurationTemplate.addValue("_scmRepoURL", scmUrl);
-        configurationTemplate.addValue("_patchesUrl", "");
-        configurationTemplate.addValue("_creationTime", String.valueOf(1518382545038L));
-        configurationTemplate.addValue("_lastModificationTime", String.valueOf(155382545038L));
-        configurationTemplate.addValue("_repositories", "");
-        configurationTemplate.addValue("_projectId", id);
-        configurationTemplate.addValue("_environmentId", String.valueOf(environmentId));
-
-        given().body(configurationTemplate.fillTemplate()).contentType(ContentType.JSON).port(getHttpPort()).when()
-                .post(CONFIGURATION_REST_ENDPOINT).then().statusCode(400);
-
     }
 
     @Test
@@ -237,29 +211,33 @@ public class BuildConfigurationRestTest {
     }
 
     @Test
+    public void shouldFailToCreateNewBuildConfiguration() throws IOException {
+        // given
+        final String scmUrl = "https://github.com/project-ncl/pnc.git";
+        final String buildScript = "mvn clean deploy -Dmaven.test.skip=true";
+        final String name = "Bad Request Example Config";
+        final String id = String.valueOf(projectId);
+
+        JsonTemplateBuilder configurationTemplate = JsonTemplateBuilder.fromResource("buildConfiguration_with_id_template");
+        configurationTemplate.addValue("_id", String.valueOf(Integer.MAX_VALUE));
+        configurationTemplate.addValue("_name", name);
+        configurationTemplate.addValue("_buildScript", buildScript);
+        configurationTemplate.addValue("_scmRepoURL", scmUrl);
+        configurationTemplate.addValue("_patchesUrl", "");
+        configurationTemplate.addValue("_creationTime", String.valueOf(1518382545038L));
+        configurationTemplate.addValue("_lastModificationTime", String.valueOf(155382545038L));
+        configurationTemplate.addValue("_repositories", "");
+        configurationTemplate.addValue("_projectId", id);
+        configurationTemplate.addValue("_environmentId", String.valueOf(environmentId));
+
+        given().body(configurationTemplate.fillTemplate()).contentType(ContentType.JSON).port(getHttpPort()).when()
+                .post(CONFIGURATION_REST_ENDPOINT).then().statusCode(400);
+    }
+
+    @Test
     @InSequence(999)
     public void shouldDeleteBuildConfiguration() throws Exception {
         given().contentType(ContentType.JSON).port(getHttpPort()).when()
                 .delete(String.format(CONFIGURATION_SPECIFIC_REST_ENDPOINT, configurationId)).then().statusCode(200);
-    }
-
-    @Test
-    @InSequence(-1)
-    public void shouldGetAllBuildConfigurationSets() {
-        given().contentType(ContentType.JSON).port(getHttpPort()).when().get(CONFIGURATION_SET_REST_ENDPOINT).then()
-                .statusCode(200)
-                .body(JsonMatcher.containsJsonAttribute("[0].id", value -> configurationSetId = Integer.valueOf(value)));
-    }
-
-    @Test
-    public void shouldGetSpecificBuildConfigurationSet() {
-        given().contentType(ContentType.JSON).port(getHttpPort()).when()
-                .get(String.format(CONFIGURATION_SET_SPECIFIC_REST_ENDPOINT, configurationSetId)).then().statusCode(200)
-                .body(JsonMatcher.containsJsonAttribute("id"));
-    }
-
-
-    private String loadJsonFromFile(String resource) throws IOException {
-        return IoUtils.readFileOrResource(resource, resource + ".json", getClass().getClassLoader());
     }
 }
