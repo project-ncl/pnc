@@ -160,8 +160,11 @@
       </build>
     </profile>
 
-    <!-- It needs an existed EAP 6.4.0 zip file that can be downloaded from.
-      Use URL schema for the location. mvn -Peap640 -Deap6.zip.url=[file://|http:// .....jboss-eap-6.4.0.zip] -->
+    <!--
+         This needs a valid EAP 6.4.0 zip location that can be downloaded.
+         Use URL schema for the location. mvn -Pcontainer-tests -Deap6.zip.url=[file://|http:// .....jboss-eap-6.4.0.zip]
+         Alternatively define it in pnc.cfg and place that in the top level execution root directory.
+    -->
     <profile>
       <id>container-tests</id>
       <build>
@@ -179,6 +182,7 @@
                 <configuration>
                   <target>
                     <echo>Preparing EAP 6.4 application server</echo>
+                    <echo>EAP URL ${eap6.zip.url}</echo>
                     <fail
                         message="Please specify EAP 6.4 zip file URL via: -Deap6.zip.url="
                         unless="eap6.zip.url" />
