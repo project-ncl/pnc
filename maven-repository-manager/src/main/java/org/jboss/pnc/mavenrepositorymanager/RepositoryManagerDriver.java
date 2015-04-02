@@ -52,7 +52,7 @@ public class RepositoryManagerDriver implements RepositoryManager {
 
     @SuppressWarnings("resource")
     @Inject
-    public RepositoryManagerDriver(Configuration<MavenRepoDriverModuleConfig> configuration) {
+    public RepositoryManagerDriver(Configuration configuration) {
         MavenRepoDriverModuleConfig config;
         try {
             config = configuration.getModuleConfig(MavenRepoDriverModuleConfig.class);

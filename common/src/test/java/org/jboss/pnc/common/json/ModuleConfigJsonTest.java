@@ -1,58 +1,50 @@
 package org.jboss.pnc.common.json;
 
-import java.io.IOException;
+import static org.junit.Assert.*;
 
 import org.jboss.pnc.common.json.moduleconfig.JenkinsBuildDriverModuleConfig;
 import org.jboss.pnc.common.json.moduleconfig.MavenRepoDriverModuleConfig;
-import org.junit.Assert;
+import org.jboss.pnc.common.util.IoUtils;
 import org.junit.Test;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+
+import com.fasterxml.jackson.core.JsonGenerationException;
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class ModuleConfigJsonTest {
 
     @Test
-    public void serialize() {
-        try {
-            ModuleConfigJson moduleConfigJson =  new ModuleConfigJson("pnc-config");
-            JenkinsBuildDriverModuleConfig jenkinsBuildDriverModuleConfig = 
-                    new JenkinsBuildDriverModuleConfig("pavel", "test");
-            MavenRepoDriverModuleConfig mavenRepoDriverModuleConfig = 
-                    new MavenRepoDriverModuleConfig("http://something/base");
-            moduleConfigJson.addConfig(jenkinsBuildDriverModuleConfig);
-            moduleConfigJson.addConfig(mavenRepoDriverModuleConfig);
-            
-            ObjectMapper mapper = new ObjectMapper();
-            mapper.writeValue(System.out, moduleConfigJson);
-            
-            //Assert.assertNotNull(jen_config);
-            //System.out.println(jen_config);
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
+    public void serializationTest() throws JsonGenerationException, JsonMappingException, IOException {
+        ModuleConfigJson moduleConfigJson = new ModuleConfigJson("pnc-config");
+        JenkinsBuildDriverModuleConfig jenkinsBuildDriverModuleConfig =
+                new JenkinsBuildDriverModuleConfig("user", "pass");
+        MavenRepoDriverModuleConfig mavenRepoDriverModuleConfig =
+                new MavenRepoDriverModuleConfig("http://something/base");
+        moduleConfigJson.addConfig(jenkinsBuildDriverModuleConfig);
+        moduleConfigJson.addConfig(mavenRepoDriverModuleConfig);
+
+        ObjectMapper mapper = new ObjectMapper();
+        ByteArrayOutputStream byteOutStream = new ByteArrayOutputStream();
+        mapper.writeValue(byteOutStream, moduleConfigJson);
+
+        assertEquals(loadConfig("testConfigNoSpaces.json"), byteOutStream.toString());
     }
-    
+
     @Test
-    public void deserialize() {
-        try {
-            String json = "{\"@class\":\"ModuleConfigJson\",\"name\":\"pnc-config\",\"configs\""
-                    + ":[{\"@module-config\":\"jenkins-build-driver\""
-                    + ",\"username\":\"pavel\",\"password\":\"test\"},{\"@module-config\":\"maven-repo-driver\""
-                    + ",\"baseUrl\":\"http://something/base\"}]}";    
+    public void deserializationTest() throws JsonParseException, JsonMappingException, IOException {
+        ObjectMapper mapper = new ObjectMapper();
+        ModuleConfigJson config = mapper.readValue(loadConfig("testConfigNoSpaces.json"), ModuleConfigJson.class);
 
-            ObjectMapper mapper = new ObjectMapper();
-            ModuleConfigJson config = mapper.readValue(json, ModuleConfigJson.class);
-            
-            Assert.assertNotNull(config);
-            System.out.println(">>> deserialize");
-            System.out.println(config);
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
+        assertNotNull(config);
+        assertEquals(2, config.getConfigs().size());
     }
-    
 
-    
+    private String loadConfig(String name) throws IOException {
+        return IoUtils.readStreamAsString(getClass().getClassLoader().getResourceAsStream(name));
+    }
+
 }

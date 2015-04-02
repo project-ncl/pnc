@@ -23,7 +23,7 @@ import java.net.URISyntaxException;
 public class JenkinsServerFactory {
 
     @Inject
-    Configuration<JenkinsBuildDriverModuleConfig> configuration;
+    Configuration configuration;
 
     JenkinsServer getJenkinsServer(String url) throws BuildDriverException {
         try {

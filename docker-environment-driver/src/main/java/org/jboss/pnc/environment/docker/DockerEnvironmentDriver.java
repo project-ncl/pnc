@@ -68,7 +68,7 @@ public class DockerEnvironmentDriver implements EnvironmentDriver {
     private ConfigurationBuilder configBuilder;
 
     @Inject
-    private Configuration<DockerEnvironmentDriverModuleConfig> configurationService;
+    private Configuration configurationService;
 
     private ComputeServiceContext dockerContext;
 
@@ -109,7 +109,7 @@ public class DockerEnvironmentDriver implements EnvironmentDriver {
      */
     @PostConstruct
     private void init() throws ConfigurationParseException {
-        DockerEnvironmentDriverModuleConfig config =
+        DockerEnvironmentDriverModuleConfig config = 
                 configurationService.getModuleConfig(DockerEnvironmentDriverModuleConfig.class);
 
         dockerIp = config.getIp();
