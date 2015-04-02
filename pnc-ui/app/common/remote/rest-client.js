@@ -153,6 +153,11 @@
             url: REST_DEFAULTS.BASE_URL + '/configuration-set/:configurationSetId/build',
             isArray: false,
           },
+          removeConfiguration: {
+            method: 'DELETE',
+            url: REST_DEFAULTS.BASE_URL + '/configuration-set/:configurationSetId/configurations/:configurationId',
+            isArray: false,
+          },
         }),
 
         RecordSet: $resource(REST_DEFAULTS.BASE_URL + '/recordset/:recordsetId', {

@@ -60,7 +60,7 @@
         <td class="text-center">
           <span class="btn-group" role="group" aria-label="Action Tools">
             <button class="btn btn-xs btn-default">Edit</button>
-            <button class="btn btn-xs btn-default">Remove</button>
+            <button class="btn btn-xs btn-default" data-toggle="tooltip" title="Remove Build Configuration from Build Configuration Set" pnc-confirm-click="detailCtrl.remove(configuration.id)" pnc-confirm-message="{{ 'Confirm the removal of Build Configuration: ' + configuration.name +  ' from Build Configuration Set: ' + detailCtrl.set.name + ' ?'}}">Remove</button>
             <button class="btn btn-xs btn-danger">Delete</button>
           </span>
         </td>
