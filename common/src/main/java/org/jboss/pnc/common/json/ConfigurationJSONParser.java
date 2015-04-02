@@ -8,7 +8,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  *
  */
 
-public class ConfigurationJSONParser<T extends AbstractModuleConfig> {
+public class ConfigurationJSONParser {
 
     /**
      * Loads JSON configuration to the module configuration object
@@ -18,7 +18,8 @@ public class ConfigurationJSONParser<T extends AbstractModuleConfig> {
      * @return Loaded configuration
      * @throws ConfigurationParseException Thrown if configuration string is malformed
      */
-    public T parseJSONConfig(String configContent, Class<T> classType) throws ConfigurationParseException {
+    public <T extends AbstractModuleConfig> T parseJSONConfig(
+            String configContent, Class<T> classType) throws ConfigurationParseException {
         try {
             ObjectMapper mapper = new ObjectMapper();
             ModuleConfigJson jsonConfig = mapper.readValue(configContent, ModuleConfigJson.class);

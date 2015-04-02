@@ -7,6 +7,7 @@ import org.jboss.pnc.core.BuildDriverFactory;
 import org.jboss.pnc.core.EnvironmentDriverFactory;
 import org.jboss.pnc.core.RepositoryManagerFactory;
 import org.jboss.pnc.core.content.ContentIdentityManager;
+import org.jboss.pnc.core.exception.BuildProcessException;
 import org.jboss.pnc.core.exception.CoreException;
 import org.jboss.pnc.core.exception.CoreExceptionWrapper;
 import org.jboss.pnc.model.BuildConfiguration;
@@ -59,7 +60,7 @@ import java.util.stream.Collectors;
 public class BuildCoordinator {
 
     private Logger log = Logger.getLogger(BuildCoordinator.class);
-    private Queue<BuildTask> buildTasks = new ConcurrentLinkedQueue(); //TODO garbage collector (time-out, error state)
+    private Queue<BuildTask> buildTasks = new ConcurrentLinkedQueue<>(); //TODO garbage collector (time-out, error state)
 
 //    @Resource
 //    private ManagedThreadFactory threadFactory;
@@ -175,16 +176,14 @@ public class BuildCoordinator {
         BuildDriver buildDriver = buildDriverFactory.getBuildDriver(buildTask.getBuildConfiguration().getEnvironment().getBuildType());
         EnvironmentDriver envDriver = environmentDriverFactory.getDriver(buildTask.getBuildConfiguration().getEnvironment());
         
-        ObjectWrapper<RunningEnvironment> backupRunningEnvironment = new ObjectWrapper();
-        
         configureRepository(buildTask, repositoryManager)
-                .thenCompose(repositoryConfiguration -> setUpEnvironment(buildTask, envDriver, repositoryConfiguration, backupRunningEnvironment))
+                .thenCompose(repositoryConfiguration -> setUpEnvironment(buildTask, envDriver, repositoryConfiguration))
                 .thenCompose(runningEnvironment -> buildSetUp(buildTask, buildDriver, runningEnvironment))
                 .thenCompose(runningBuild -> waitBuildToComplete(buildTask, runningBuild))
                 .thenCompose(completedBuild -> retrieveBuildDriverResults(buildTask, completedBuild))
                 .thenCompose(buildDriverResult -> retrieveRepositoryManagerResults(buildTask, buildDriverResult))
                 .thenCompose(buildResults -> destroyEnvironment(buildTask, buildResults))
-                .handle((buildResults, e) -> storeResults(buildTask, buildResults, backupRunningEnvironment, e));
+                .handle((buildResults, e) -> storeResults(buildTask, buildResults, e));
     }
 
     private CompletableFuture<RepositorySession> configureRepository(BuildTask buildTask, RepositoryManager repositoryManager) {
@@ -193,14 +192,13 @@ public class BuildCoordinator {
             try {
                 return repositoryManager.createBuildRepository(buildTask);
             } catch (RepositoryManagerException e) {
-                throw new CoreExceptionWrapper(e);
+                throw new BuildProcessException(e);
             }
         }, executor);
     }
 
     private CompletableFuture<RunningEnvironment> setUpEnvironment(BuildTask buildTask, 
-            EnvironmentDriver envDriver, RepositorySession repositorySession,
-            ObjectWrapper<RunningEnvironment> backupRunningEnvironment) {
+            EnvironmentDriver envDriver, RepositorySession repositorySession) {
             return CompletableFuture.supplyAsync(() -> {
                 buildTask.setStatus(BuildStatus.BUILD_ENV_SETTING_UP);
 
@@ -208,12 +206,11 @@ public class BuildCoordinator {
                     RunningEnvironment runningEnv = envDriver.buildEnvironment(
                             buildTask.getBuildConfiguration().getEnvironment(), repositorySession);
 
-                    backupRunningEnvironment.set(runningEnv);
                     buildTask.setStatus(BuildStatus.BUILD_ENV_SETUP_COMPLETE_SUCCESS);
                     return runningEnv;
                 } catch (EnvironmentDriverException e) {
                     buildTask.setStatus(BuildStatus.BUILD_ENV_SETUP_COMPLETE_WITH_ERROR);
-                    throw new CoreExceptionWrapper(e);
+                    throw new BuildProcessException(e);
                 }
             }, executor);
     }
@@ -224,7 +221,7 @@ public class BuildCoordinator {
             try {
                 return buildDriver.startProjectBuild(buildTask.getBuildConfiguration(), runningEnvironment);
             } catch (BuildDriverException e) {
-                throw new CoreExceptionWrapper(e);
+                throw new BuildProcessException(e, runningEnvironment);
             }
         }, executor);
     }
@@ -260,7 +257,7 @@ public class BuildCoordinator {
                 }
                 return buildResult;
             } catch (BuildDriverException e) {
-                throw new CoreExceptionWrapper(e);
+                throw new BuildProcessException(e, completedBuild.getRunningEnvironment());
             }
         }, executor);
     }
@@ -277,7 +274,7 @@ public class BuildCoordinator {
                     return new DefaultBuildResult(runningEnvironment, buildDriverResult, null);
                 }
             } catch (BuildDriverException | RepositoryManagerException e) {
-                throw new CoreExceptionWrapper(e);
+                throw new BuildProcessException(e, buildDriverResult.getRunningEnvironment());
             }
         }, executor);
     }
@@ -290,13 +287,12 @@ public class BuildCoordinator {
                 buildTask.setStatus(BuildStatus.BUILD_ENV_DESTROYED);
                 return buildResult;
             } catch (EnvironmentDriverException e) {
-                throw new CoreExceptionWrapper(e);
+                throw new BuildProcessException(e);
             }
         }, executor);
     }
     
-    private CompletableFuture<Boolean> storeResults(BuildTask buildTask, BuildResult buildResult,
-            ObjectWrapper<RunningEnvironment> backupRunningEnvironment, Throwable e) {
+    private CompletableFuture<Boolean> storeResults(BuildTask buildTask, BuildResult buildResult, Throwable e) {
         return CompletableFuture.supplyAsync( () -> {
             boolean completedOk = false;
             try {
@@ -306,17 +302,11 @@ public class BuildCoordinator {
                     completedOk = true;
                 } else {
                     datastoreAdapter.storeResult(buildTask, e);
-                    if(backupRunningEnvironment.get() != null) {
-                        backupRunningEnvironment.get().destroyEnvironment();
-                    }
+                    stopRunningEnvironment(e);
                     completedOk = false;
                 }
             } catch (DatastoreException de) {
                 log.errorf(e, "Error storing results of build configuration: %s to datastore.", buildTask.getId());
-            }
-            catch (EnvironmentDriverException envE) {
-                log.warn("Running environment" + backupRunningEnvironment.get()
-                        + " couldn't be destroyed!", envE);
             }
             finally {
                 buildTask.setStatus(BuildStatus.DONE);
@@ -326,7 +316,28 @@ public class BuildCoordinator {
         }, executor);
     }
 
-    
+    /**
+     * Tries to stop running environment if the exception contains information about running environment
+     * 
+     * @param e Exception in build process (To stop the environment it has to be instance of BuildProcessException) 
+     */
+    private void stopRunningEnvironment(Throwable ex) {
+        if(ex instanceof BuildProcessException) {
+            BuildProcessException bpEx = (BuildProcessException) ex;
+            try {
+                if (bpEx.getRunningEnvironment() != null)
+                    bpEx.getRunningEnvironment().destroyEnvironment();
+            } catch (EnvironmentDriverException envE) {
+                log.warn("Running environment" + bpEx.getRunningEnvironment() + " couldn't be destroyed!", envE);
+            }
+        }
+        else {
+            //It shouldn't happen
+            log.warn("Possible leak of running environment! Build process ended with exception, "
+                    + "but the exception didn't contain information about running environment.");
+        }
+    }
+
     public List<BuildTask> getBuildTasks() {
         return Collections.unmodifiableList(buildTasks.stream().collect(Collectors.toList()));
     }

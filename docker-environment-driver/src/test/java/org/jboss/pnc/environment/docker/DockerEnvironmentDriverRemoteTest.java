@@ -59,7 +59,7 @@ public class DockerEnvironmentDriverRemoteTest {
     private DockerEnvironmentDriver dockerEnvDriver;
 
     @Inject
-    private Configuration<DockerEnvironmentDriverModuleConfig> configurationService;
+    private Configuration configurationService;
 
     private String dockerIp;
 
@@ -92,7 +92,7 @@ public class DockerEnvironmentDriverRemoteTest {
     @Before
     public void init() throws ConfigurationParseException {
         if (!isInitialized) {
-            final DockerEnvironmentDriverModuleConfig config =
+            final DockerEnvironmentDriverModuleConfig config = 
                     configurationService.getModuleConfig(DockerEnvironmentDriverModuleConfig.class);
             dockerIp = config.getIp();
             dockerControlEndpoint = "http://" + dockerIp + ":2375";

@@ -1,13 +1,5 @@
 package org.jboss.pnc.common;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-
-import javax.enterprise.context.Dependent;
-
 import org.jboss.logging.Logger;
 import org.jboss.pnc.common.json.AbstractModuleConfig;
 import org.jboss.pnc.common.json.ConfigurationJSONParser;
@@ -15,16 +7,30 @@ import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.util.IoUtils;
 import org.jboss.pnc.common.util.StringUtils;
 
+import javax.enterprise.context.ApplicationScoped;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-12-02.
  * @author Jakub Bartecek <jbartece@redhat.com>
  */
-@Dependent
-public class Configuration<T extends AbstractModuleConfig> {
+@ApplicationScoped
+public class Configuration {
 
     private static final Logger log = Logger.getLogger(Configuration.class);
     
-    public static final String CONFIG_SYSPROP = "pnc-config-file";
+    private static final String CONFIG_SYSPROP = "pnc-config-file";
+    
+    private Map<Class<?>, AbstractModuleConfig> configCache = new HashMap<>();
+    
+    private ConfigurationJSONParser configurationJsonParser = new ConfigurationJSONParser();
     
     /**
      * Reads configuration for module
@@ -33,19 +39,30 @@ public class Configuration<T extends AbstractModuleConfig> {
      * @return Loaded configuration
      * @throws ConfigurationParseException Thrown if configuration file couldn't be loaded or parsed
      */
-    public T getModuleConfig(Class<T> moduleClass) throws ConfigurationParseException {
-        try (InputStream configStream = this.getConfigStream()) {
-            log.info("Loading configuration for class: " + moduleClass);
-            String configString = StringUtils.replaceEnv(IoUtils.readStreamAsString(configStream));
+    @SuppressWarnings("unchecked")
+    public <T extends AbstractModuleConfig> T getModuleConfig(Class<T> moduleClass) throws ConfigurationParseException {
+        if(configCache.containsKey(moduleClass))
+            return (T) configCache.get(moduleClass);
+        
+        synchronized(this) {
+            if(configCache.containsKey(moduleClass))
+                return (T) configCache.get(moduleClass);
             
-            return new ConfigurationJSONParser<T>().parseJSONConfig(configString, moduleClass);
-        } catch (IOException e) {
-            throw new ConfigurationParseException("Config could not be parsed", e);
+            try (InputStream configStream = this.getConfigStream()) {
+                log.info("Loading configuration for class: " + moduleClass);
+                String configString = StringUtils.replaceEnv(IoUtils.readStreamAsString(configStream));
+                
+                T config = configurationJsonParser.parseJSONConfig(configString, moduleClass);
+                configCache.put(moduleClass, config);
+                return config;
+            } catch (IOException e) {
+                throw new ConfigurationParseException("Config could not be parsed", e);
+            }
         }
     }
 
     private InputStream getConfigStream() throws IOException {
-        String configFileName = System.getProperty("pnc-config-file");
+        String configFileName = System.getProperty(CONFIG_SYSPROP);
         if (configFileName == null) 
             configFileName = "pnc-config.json";
         log.info("Loading configuration from file: " + configFileName);

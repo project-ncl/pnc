@@ -1,0 +1,22 @@
+{
+"@class":"ModuleConfigJson","name":"pnc-config",
+        "configs":[
+          {
+            "@module-config":"jenkins-build-driver",
+            "username":"user",
+            "password":"pass"
+          },
+          {
+            "@module-config":"maven-repo-driver",
+            "baseUrl":"1.1.1.1"
+          },
+          {
+            "@module-config":"docker-environment-driver",
+            "ip":"2.2.2.2",
+            "inContainerUser":"contUser",
+            "inContainerUserPassword":"contPass",
+            "dockerImageId":"imageId",
+            "firewallAllowedDestinations":"3.3.3.3:44"
+          }
+        ]
+}
