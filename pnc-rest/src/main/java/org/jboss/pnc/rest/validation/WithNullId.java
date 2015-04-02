@@ -1,19 +1,19 @@
 package org.jboss.pnc.rest.validation;
 
-import static java.lang.annotation.ElementType.*;
-import static java.lang.annotation.RetentionPolicy.*;
-
-import java.io.Serializable;
-import java.lang.annotation.Documented;
-import java.lang.annotation.Retention;
-import java.lang.annotation.Target;
+import org.jboss.pnc.common.Identifiable;
 
 import javax.validation.Constraint;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 import javax.validation.Payload;
+import java.io.Serializable;
+import java.lang.annotation.Documented;
+import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
 
-import org.jboss.pnc.common.Identifiable;
+import static java.lang.annotation.ElementType.FIELD;
+import static java.lang.annotation.ElementType.PARAMETER;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
  * Require that the object has a field "id" and the value of that field is null.
@@ -30,7 +30,7 @@ public @interface WithNullId {
 
     Class<? extends Payload>[] payload() default {};
 
-    public class Validator implements ConstraintValidator<WithNullId, Identifiable<? extends Serializable>> {
+    class Validator implements ConstraintValidator<WithNullId, Identifiable<? extends Serializable>> {
 
         public void initialize(WithNullId annotation) {
         }
