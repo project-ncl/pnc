@@ -28,7 +28,11 @@
           </a>
         </td>
         <td>{{ configuration.description }}</td>
-        <td>{{ configuration.projectId }}</td>
+        <td>
+          <div ng-repeat="project in listCtrl.projects | filter: { id: configuration.projectId }">
+            {{ project.name }}
+          </div>
+        </td>
         <td>{{ configuration.scmRepoURL }}</td>
         <td>{{ configuration.scmRevision }}</td>
         <td>{{ configuration.creationTime | date:'medium'}}</td>
