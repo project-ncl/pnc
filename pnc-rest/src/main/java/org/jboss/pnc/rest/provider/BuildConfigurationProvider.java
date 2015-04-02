@@ -85,12 +85,15 @@ public class BuildConfigurationProvider {
     }
 
     public Integer store(BuildConfigurationRest buildConfigurationRest) {
+        Preconditions.checkArgument(buildConfigurationRest.getId() == null, "Id must be null");
         BuildConfiguration buildConfiguration = buildConfigurationRest.toBuildConfiguration(null);
         buildConfiguration = buildConfigurationRepository.save(buildConfiguration);
         return buildConfiguration.getId();
     }
 
     public Integer update(Integer id, BuildConfigurationRest buildConfigurationRest) {
+        Preconditions.checkArgument(buildConfigurationRest.getId() == null, "Id must be null");
+        Preconditions.checkArgument(id != null, "Id must not be null");
         buildConfigurationRest.setId(id);
         BuildConfiguration buildConfiguration = buildConfigurationRepository.findOne(id);
         Preconditions.checkArgument(buildConfiguration != null, "Couldn't find buildConfiguration with id "

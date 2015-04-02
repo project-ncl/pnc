@@ -184,33 +184,26 @@ public class RestTest {
 
     @Test
     @InSequence(11)
-    public void shouldCreateNewProject() {
+    public void shouldCreateNewProject() throws Exception {
+        String rawJson = IoUtils.readFileOrResource("project", "project.json", getClass().getClassLoader());
+        logger.info(rawJson);
 
-        try {
-            String rawJson = IoUtils.readFileOrResource("project", "project.json", getClass().getClassLoader());
-            logger.info(rawJson);
+        Response response = given().body(rawJson).contentType(ContentType.JSON).port(getHttpPort())
+                .header("Content-Type", "application/json; charset=UTF-8").when().post(PROJECT_REST_ENDPOINT);
+        Assertions.assertThat(response.statusCode()).isEqualTo(201);
 
-            Response response = given().body(rawJson).contentType(ContentType.JSON).port(getHttpPort())
-                    .header("Content-Type", "application/json; charset=UTF-8").when().post(PROJECT_REST_ENDPOINT);
-            Assertions.assertThat(response.statusCode()).isEqualTo(201);
+        String location = response.getHeader("Location");
+        logger.info("Found location in Response header: " + location);
 
-            String location = response.getHeader("Location");
-            logger.info("Found location in Response header: " + location);
+        newProjectId = Integer.valueOf(location.substring(location.lastIndexOf(PROJECT_REST_ENDPOINT)
+                + PROJECT_REST_ENDPOINT.length()));
 
-            newProjectId = Integer.valueOf(location.substring(location.lastIndexOf(PROJECT_REST_ENDPOINT)
-                    + PROJECT_REST_ENDPOINT.length()));
-
-            logger.info("Created id of project: " + newProjectId);
-
-        } catch (IOException e) {
-            Assertions.fail("Could not read project.json file", e);
-        }
+        logger.info("Created id of project: " + newProjectId);
     }
 
     @Test
     @InSequence(12)
     public void shouldUpdateProject() {
-
         logger.info("### newProjectId: " + newProjectId);
 
         Response response = given().contentType(ContentType.JSON).port(getHttpPort()).when()
@@ -225,7 +218,7 @@ public class RestTest {
         // Remove the "id: {id}," from the json object
         rawJson = rawJson.replaceFirst("\\s*\"?id\"?\\s*:\\s*\\d+,\\s*", "");
 
-        logger.info("### rawJson: " + response.body().jsonPath().prettyPrint());
+        logger.info("### rawJson: " + rawJson);
 
         given().body(rawJson).contentType(ContentType.JSON).port(getHttpPort()).when()
                 .put(String.format(PROJECT_REST_ENDPOINT_SPECIFIC, newProjectId)).then().statusCode(200);

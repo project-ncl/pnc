@@ -62,6 +62,7 @@ public class ProductVersionProvider {
     }
 
     public Integer store(Integer productId, ProductVersionRest productVersionRest) {
+        Preconditions.checkArgument(productVersionRest.getId() == null, "Id must be null");
         Product product = productRepository.findOne(productId);
         Preconditions.checkArgument(product != null, "Couldn't find product with id " + productId);
 
@@ -69,7 +70,10 @@ public class ProductVersionProvider {
         return productVersion.getId();
     }
 
-    public void update(Integer productId, ProductVersionRest productVersionRest) {
+    public void update(Integer id, Integer productId, ProductVersionRest productVersionRest) {
+        Preconditions.checkArgument(productVersionRest.getId() == null, "Id must be null");
+        Preconditions.checkArgument(id != null, "Id must not be null");
+        productVersionRest.setId(id);
         Product product = productRepository.findOne(productId);
         ProductVersion productVersion = productVersionRepository.findOne(productVersionRest.getId());
         Preconditions.checkArgument(productVersion != null,

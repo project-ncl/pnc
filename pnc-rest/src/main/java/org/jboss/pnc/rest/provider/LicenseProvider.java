@@ -49,10 +49,14 @@ public class LicenseProvider {
     }
 
     public Integer store(LicenseRest licenseRest) {
+        Preconditions.checkArgument(licenseRest.getId() == null, "Id must be null");
         return licenseRepository.save(licenseRest.toLicense()).getId();
     }
 
-    public void update(LicenseRest licenseRest) {
+    public void update(Integer id, LicenseRest licenseRest) {
+        Preconditions.checkArgument(licenseRest.getId() == null, "Id must be null");
+        Preconditions.checkArgument(id != null, "Id must not be null");
+        licenseRest.setId(id);
         License license = licenseRepository.findOne(licenseRest.getId());
         Preconditions.checkArgument(license != null, "Couldn't find license with id " + licenseRest.getId());
         licenseRepository.saveAndFlush(licenseRest.toLicense());

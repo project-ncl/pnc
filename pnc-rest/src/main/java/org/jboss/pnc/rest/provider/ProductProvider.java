@@ -49,11 +49,15 @@ public class ProductProvider {
     }
 
     public Integer store(ProductRest productRest) {
+        Preconditions.checkArgument(productRest.getId() == null, "Id must be null");
         Product product = productRepository.save(productRest.toProduct());
         return product.getId();
     }
 
-    public Integer update(ProductRest productRest) {
+    public Integer update(Integer id, ProductRest productRest) {
+        Preconditions.checkArgument(productRest.getId() == null, "Id must be null");
+        Preconditions.checkArgument(id != null, "Id must not be null");
+        productRest.setId(id);
         Product product = productRepository.findOne(productRest.getId());
         Preconditions.checkArgument(product != null, "Couldn't find product with id " + productRest.getId());
 

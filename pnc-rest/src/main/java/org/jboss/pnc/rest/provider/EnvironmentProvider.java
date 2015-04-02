@@ -49,10 +49,14 @@ public class EnvironmentProvider {
     }
 
     public Integer store(EnvironmentRest environmentRest) {
+        Preconditions.checkArgument(environmentRest.getId() == null, "Id must be null");
         return environmentRepository.save(environmentRest.toEnvironment()).getId();
     }
 
-    public void update(EnvironmentRest environmentRest) {
+    public void update(Integer id, EnvironmentRest environmentRest) {
+        Preconditions.checkArgument(environmentRest.getId() == null, "Id must be null");
+        Preconditions.checkArgument(id != null, "Id must not be null");
+        environmentRest.setId(id);
         Environment license = environmentRepository.findOne(environmentRest.getId());
         Preconditions.checkArgument(license != null, "Couldn't find environment with id " + environmentRest.getId());
         environmentRepository.saveAndFlush(environmentRest.toEnvironment());
