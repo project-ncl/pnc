@@ -81,47 +81,71 @@
     'Notifications',
     'configurationSetDetail',
     'configurations',
-    function($log, $state, Notifications, configurationSetDetail, configurations) {
-      $log.debug('ConfigurationSetDetailController >> this=%O', this);
-      this.set = configurationSetDetail;
-      this.configurations = configurations;
+    'PncRestClient',
+    function($log, $state, Notifications, configurationSetDetail, configurations, PncRestClient) {
+      var self = this;
 
-      var that = this;
+      $log.debug('ConfigurationSetDetailController >> this=%O', self);
+      self.set = configurationSetDetail;
+      self.configurations = configurations;
 
-      this.build = function() {
-        $log.debug('**Initiating build of SET: %s**', this.set.name);
+      self.build = function() {
+        $log.debug('**Initiating build of SET: %s**', self.set.name);
 
-        this.set.$build().then(
+        self.set.$build().then(
           function(result) {
-            $log.debug('Initiated Build: %O, result: %O', that.set,
+            $log.debug('Initiated Build: %O, result: %O', self.set,
                        result);
             Notifications.success('Initiated build of configurationSet:' +
-                                  that.set.name);
+                                  self.set.name);
           },
           function(response) {
             $log.error('Failed to initiated build: %O, response: %O',
-                       that.set, response);
+                       self.set, response);
             Notifications.error('Action Failed.');
           }
         );
       };
 
-      this.delete = function() {
-        this.set.$delete().then(
+      self.getProductVersions = function(productId) {
+        $log.debug('**Getting productVersions of Product: %0**', productId);
+
+        if (productId) {
+          PncRestClient.Version.query({
+            productId: productId
+          }).$promise.then(
+            function(result) {
+              self.productVersions = result;
+              if (result) {
+                self.data.productVersionId = result[0].id;
+              }
+            }
+          );
+        }
+        else {
+          self.productVersions = [];
+        }
+      };
+
+      self.remove = function(configurationId) {
+        $log.debug('**Removing configurationId: %0 from Build Configuration Set: %0**', configurationId, self.set);
+
+        PncRestClient.ConfigurationSet.removeConfiguration({
+            configurationSetId: self.set.id,
+            configurationId: configurationId
+        }).$promise.then(
           // Success
           function (result) {
-            $log.debug('Delete Config Set: %O success result: %O',
-             that.set, result);
-            Notifications.success('Configuration Set Deleted');
-
-            // TODO: Think of a better place to navigate to
-            $state.go('product.list', {}, { reload: true, inherit: false,
-              notify: true });
+            $log.debug('Removal of Configuration from Configuration Set: %O success result: %O',
+             self.set, result);
+            Notifications.success('Configuration removed from Configuration Set');
+            var params = { configurationSetId: self.set.id };
+            $state.go('configuration-set.detail', params, { reload: true, inherit: false, notify: true });
           },
           // Failure
           function (response) {
-            $log.error('Delete ConfigurationSet: %O failed, response: %O',
-             that.set, response);
+            $log.error('Removal of Configuration from Configuration Set: %O failed, response: %O',
+             self.set, response);
             Notifications.error('Action Failed.');
           }
         );
