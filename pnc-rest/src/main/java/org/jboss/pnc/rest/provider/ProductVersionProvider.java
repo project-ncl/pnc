@@ -71,8 +71,9 @@ public class ProductVersionProvider {
     }
 
     public void update(Integer id, Integer productId, ProductVersionRest productVersionRest) {
-        Preconditions.checkArgument(productVersionRest.getId() == null, "Id must be null");
         Preconditions.checkArgument(id != null, "Id must not be null");
+        Preconditions.checkArgument(productVersionRest.getId() == null || productVersionRest.getId().equals(id),
+                "Entity id does not match the id to update");
         productVersionRest.setId(id);
         Product product = productRepository.findOne(productId);
         ProductVersion productVersion = productVersionRepository.findOne(productVersionRest.getId());

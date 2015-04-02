@@ -81,8 +81,9 @@ public class BuildConfigurationSetProvider {
     }
 
     public Integer update(Integer id, BuildConfigurationSetRest buildConfigurationSetRest) {
-        Preconditions.checkArgument(buildConfigurationSetRest.getId() == null, "Id must be null");
         Preconditions.checkArgument(id != null, "Id must not be null");
+        Preconditions.checkArgument(buildConfigurationSetRest.getId() == null || buildConfigurationSetRest.getId().equals(id),
+                "Entity id does not match the id to update");
         buildConfigurationSetRest.setId(id);
         BuildConfigurationSet buildConfigurationSet = buildConfigurationSetRepository.findOne(buildConfigurationSetRest.getId());
         Preconditions.checkArgument(buildConfigurationSet != null, "Couldn't find buildConfigurationSet with id "

@@ -55,8 +55,9 @@ public class ProductProvider {
     }
 
     public Integer update(Integer id, ProductRest productRest) {
-        Preconditions.checkArgument(productRest.getId() == null, "Id must be null");
         Preconditions.checkArgument(id != null, "Id must not be null");
+        Preconditions.checkArgument(productRest.getId() == null || productRest.getId().equals(id),
+                "Entity id does not match the id to update");
         productRest.setId(id);
         Product product = productRepository.findOne(productRest.getId());
         Preconditions.checkArgument(product != null, "Couldn't find product with id " + productRest.getId());

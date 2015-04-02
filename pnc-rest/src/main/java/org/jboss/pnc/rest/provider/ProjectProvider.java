@@ -59,8 +59,9 @@ public class ProjectProvider {
     }
 
     public Integer update(Integer id, ProjectRest projectRest) {
-        Preconditions.checkArgument(projectRest.getId() == null, "Id must be null");
         Preconditions.checkArgument(id != null, "Id must not be null");
+        Preconditions.checkArgument(projectRest.getId() == null || projectRest.getId().equals(id),
+                "Entity id does not match the id to update");
         projectRest.setId(id);
         Project project = projectRepository.findOne(projectRest.getId());
         Preconditions.checkArgument(project != null, "Couldn't find project with id " + projectRest.getId());

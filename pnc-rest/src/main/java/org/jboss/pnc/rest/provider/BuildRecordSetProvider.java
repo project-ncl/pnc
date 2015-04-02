@@ -78,8 +78,9 @@ public class BuildRecordSetProvider {
     }
 
     public Integer update(Integer id, BuildRecordSetRest buildRecordSetRest) {
-        Preconditions.checkArgument(buildRecordSetRest.getId() == null, "Id must be null");
         Preconditions.checkArgument(id != null, "Id must not be null");
+        Preconditions.checkArgument(buildRecordSetRest.getId() == null || buildRecordSetRest.getId().equals(id),
+                "Entity id does not match the id to update");
         buildRecordSetRest.setId(id);
         BuildRecordSet buildRecordSet = buildRecordSetRepository.findOne(buildRecordSetRest.getId());
         Preconditions.checkArgument(buildRecordSet != null,

@@ -5,6 +5,7 @@ import com.wordnik.swagger.annotations.ApiOperation;
 import com.wordnik.swagger.annotations.ApiParam;
 
 import org.jboss.pnc.rest.provider.UserProvider;
+import org.jboss.pnc.rest.restmodel.ProjectRest;
 import org.jboss.pnc.rest.restmodel.UserRest;
 
 import javax.inject.Inject;
@@ -54,6 +55,15 @@ public class UserEndpoint {
         int id = userProvider.store(userRest);
         UriBuilder uriBuilder = UriBuilder.fromUri(uriInfo.getRequestUri()).path("{id}");
         return Response.created(uriBuilder.build(id)).entity(userProvider.getSpecific(id)).build();
+    }
+
+    @ApiOperation(value = "Updates an existing User")
+    @PUT
+    @Path("/{id}")
+    public Response update(@ApiParam(value = "User id", required = true) @PathParam("id") Integer id,
+            @NotNull @Valid UserRest userRest, @Context UriInfo uriInfo) {
+        userProvider.update(id, userRest);
+        return Response.ok().build();
     }
 
 }

@@ -1,16 +1,20 @@
 package org.jboss.pnc.rest.provider;
 
 import com.google.common.base.Preconditions;
+
 import org.jboss.pnc.datastore.limits.RSQLPageLimitAndSortingProducer;
 import org.jboss.pnc.datastore.predicates.RSQLPredicate;
 import org.jboss.pnc.datastore.predicates.RSQLPredicateProducer;
 import org.jboss.pnc.datastore.repositories.UserRepository;
+import org.jboss.pnc.model.Project;
 import org.jboss.pnc.model.User;
+import org.jboss.pnc.rest.restmodel.ProjectRest;
 import org.jboss.pnc.rest.restmodel.UserRest;
 import org.springframework.data.domain.Pageable;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
+
 import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -51,6 +55,17 @@ public class UserProvider {
         Preconditions.checkArgument(userRest.getId() == null, "Id must be null");
         User user = userRest.toUser();
         user = userRepository.save(user);
+        return user.getId();
+    }
+
+    public Integer update(Integer id, UserRest userRest) {
+        Preconditions.checkArgument(id != null, "Id must not be null");
+        Preconditions.checkArgument(userRest.getId() == null || userRest.getId().equals(id),
+                "Entity id does not match the id to update");
+        userRest.setId(id);
+        User user = userRepository.findOne(id);
+        Preconditions.checkArgument(user != null, "Couldn't find user with id " + id);
+        user = userRepository.save(userRest.toUser());
         return user.getId();
     }
 
