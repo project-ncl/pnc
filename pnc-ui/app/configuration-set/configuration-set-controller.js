@@ -105,14 +105,6 @@
           );
       });
 
-      self.getLastBuildRecord = function(buildConfigurationId) {
-        angular.forEach(self.lastBuildRecords, function(buildRecord){
-          if (buildRecord.buildConfigurationId === buildConfigurationId) {
-            return buildRecord;
-          }
-        });
-      };
-
       self.build = function() {
         $log.debug('**Initiating build of SET: %s**', self.set.name);
 
