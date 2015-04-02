@@ -128,6 +128,11 @@
             url: REST_DEFAULTS.BASE_URL + 'record/project/:projectId',
             isArray: true,
           },
+          getLatestForConfiguration: {
+            method: 'GET',
+            url: REST_DEFAULTS.BASE_URL + '/record/configuration/:configurationId?pageIndex=0&pageSize=1&sort==desc=id',
+            isArray: true,
+          },
         }),
 
         Running: $resource(REST_DEFAULTS.BASE_URL + '/record/running/:recordId', {

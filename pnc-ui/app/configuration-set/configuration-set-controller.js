@@ -82,12 +82,36 @@
     'configurationSetDetail',
     'configurations',
     'PncRestClient',
-    function($log, $state, Notifications, configurationSetDetail, configurations, PncRestClient) {
+    'previousState',
+    function($log, $state, Notifications, configurationSetDetail, configurations, PncRestClient, previousState) {
       var self = this;
 
       $log.debug('ConfigurationSetDetailController >> this=%O', self);
       self.set = configurationSetDetail;
       self.configurations = configurations;
+      self.lastBuildRecords = [];
+
+      // Retrieve all the last builds (based on ID, not date) of all the build configurations
+      angular.forEach(configurations, function(configuration){
+
+          PncRestClient.Record.getLatestForConfiguration({
+              configurationId: configuration.id
+          }).$promise.then(
+            function (result) {
+              if (result[0]) {
+                self.lastBuildRecords.push(result[0]);
+              }
+            }
+          );
+      });
+
+      self.getLastBuildRecord = function(buildConfigurationId) {
+        angular.forEach(self.lastBuildRecords, function(buildRecord){
+          if (buildRecord.buildConfigurationId === buildConfigurationId) {
+            return buildRecord;
+          }
+        });
+      };
 
       self.build = function() {
         $log.debug('**Initiating build of SET: %s**', self.set.name);
@@ -146,6 +170,26 @@
           function (response) {
             $log.error('Removal of Configuration from Configuration Set: %O failed, response: %O',
              self.set, response);
+            Notifications.error('Action Failed.');
+          }
+        );
+      };
+
+      // Deleting a build configuration set
+      self.delete = function() {
+        self.set.$delete().then(
+          // Success
+          function (result) {
+            $log.debug('Delete Configuration Set: %O success result: %O',
+                       self.set, result);
+            Notifications.success('Build Configuration Set Deleted');
+            // Attempt to fo to previous state
+            $state.go(previousState.Name, previousState.Params);
+          },
+          // Failure
+          function (response) {
+            $log.error('Delete configuration set: %O failed, response: %O',
+                       self.set, response);
             Notifications.error('Action Failed.');
           }
         );
