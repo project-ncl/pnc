@@ -29,34 +29,45 @@ import org.keycloak.util.KeycloakUriBuilder;
 
 public class ExternalAuthentication {
     
-    protected Logger log = Logger.getLogger(ExternalAuthentication.class);
+    public final static Logger log = Logger.getLogger(ExternalAuthentication.class);
     private KeycloakDeployment keycloakDeployment;
     protected AuthChallenge challenge;
+    private AccessTokenResponse tokenResponse;
+
+    private String authServerBaseUrl;
+    private String realm;
+    private String resourceName;
     
     
     
     public ExternalAuthentication(InputStream keycloakConfiguration) {
         keycloakDeployment = new KeycloakInstalled(keycloakConfiguration).getDeployment();
+        this.authServerBaseUrl = keycloakDeployment.getAuthServerBaseUrl();
+        this.realm = keycloakDeployment.getRealm();
+        this.resourceName = keycloakDeployment.getResourceName();
     }
     
-    public AccessToken authenticate(String username, String password) throws IOException{
-        return authenticateToken(authenticateUser(username, password).getToken());
+    public AuthenticationProvider authenticate(String username, String password) throws IOException{
+        AuthenticationProvider provider = 
+                new AuthenticationProvider(
+                        authenticateToken(authenticateUser(username, password).getToken()),this.tokenResponse);
+        return provider;
     }
     
     protected AccessTokenResponse authenticateUser(String username, String password) throws IOException{
         HttpClientBuilder clientbuilder = new HttpClientBuilder();
         HttpClient client = clientbuilder.disableTrustManager().build();
         
-        log.info(">>> keycloakDeployment.getAuthServerBaseUrl():" + keycloakDeployment.getAuthServerBaseUrl());
-        log.info(">>> keycloakDeployment.getRealm():" + keycloakDeployment.getRealm());
-        log.info(">>> keycloakDeployment.getResourceName():" + keycloakDeployment.getResourceName());
+        log.debug(">>> keycloakDeployment.getAuthServerBaseUrl():" + this.getAuthServerBaseUrl());
+        log.debug(">>> keycloakDeployment.getRealm():" + this.getRealm());
+        log.debug(">>> keycloakDeployment.getResourceName():" + this.getResourceName());
         
-            HttpPost post = new HttpPost(KeycloakUriBuilder.fromUri(keycloakDeployment.getAuthServerBaseUrl())
-                    .path(ServiceUrlConstants.TOKEN_SERVICE_DIRECT_GRANT_PATH).build(keycloakDeployment.getRealm()));
+            HttpPost post = new HttpPost(KeycloakUriBuilder.fromUri(this.getAuthServerBaseUrl())
+                    .path(ServiceUrlConstants.TOKEN_SERVICE_DIRECT_GRANT_PATH).build(this.getRealm()));
             List <NameValuePair> formparams = new ArrayList <NameValuePair>();
             formparams.add(new BasicNameValuePair("username", username));
             formparams.add(new BasicNameValuePair("password", password));
-            formparams.add(new BasicNameValuePair(OAuth2Constants.CLIENT_ID, keycloakDeployment.getResourceName()));
+            formparams.add(new BasicNameValuePair(OAuth2Constants.CLIENT_ID, this.getResourceName()));
             UrlEncodedFormEntity form = new UrlEncodedFormEntity(formparams, "UTF-8");
             post.setEntity(form);
 
@@ -71,9 +82,9 @@ public class ExternalAuthentication {
                 throw new IOException("No Entity");
             }
             String json = getContent(entity);
-            AccessTokenResponse accessTokenResponse =  JsonSerialization.readValue(json, AccessTokenResponse.class);
-            log.info(">>> accessTokenResponse:" + accessTokenResponse.getToken());
-            return accessTokenResponse;            
+            tokenResponse =  JsonSerialization.readValue(json, AccessTokenResponse.class);
+            log.debug(">>> accessTokenResponse:" + tokenResponse.getToken());
+            return tokenResponse;            
      }
     
     protected AccessToken authenticateToken(String tokenString) {
@@ -106,6 +117,18 @@ public class ExternalAuthentication {
             }
         }
 
+    }
+
+    public String getAuthServerBaseUrl() {
+        return authServerBaseUrl;
+    }
+
+    public String getRealm() {
+        return realm;
+    }
+
+    public String getResourceName() {
+        return resourceName;
     }    
 
 }

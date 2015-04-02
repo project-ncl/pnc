@@ -31,6 +31,25 @@
       <scope>test</scope>
       <classifier>classes</classifier>
     </dependency>
+    
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>auth</artifactId>
+      <scope>test</scope>
+    </dependency>
+    
+    <dependency>
+        <groupId>org.keycloak</groupId>
+        <artifactId>keycloak-core</artifactId>
+        <scope>test</scope>
+    </dependency>
+    
+    <dependency>
+        <groupId>org.keycloak</groupId>
+        <artifactId>keycloak-installed-adapter</artifactId>
+        <scope>test</scope>
+    </dependency>
+    
 
     <dependency>
       <groupId>org.jboss.pnc</groupId>

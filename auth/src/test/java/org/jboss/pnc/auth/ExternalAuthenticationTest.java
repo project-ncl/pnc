@@ -15,8 +15,7 @@ public class ExternalAuthenticationTest {
         try {
             InputStream is = this.getClass().getResourceAsStream("/keycloak.json");
             ExternalAuthentication ea = new ExternalAuthentication(is);
-            AccessToken accessToken = ea.authenticate(System.getenv("PNC_EXT_OAUTH_USERNAME"), System.getenv("PNC_EXT_OAUTH_PASSWORD"));
-            AuthenticationProvider provider = new AuthenticationProvider(accessToken);
+            AuthenticationProvider provider = ea.authenticate(System.getenv("PNC_EXT_OAUTH_USERNAME"), System.getenv("PNC_EXT_OAUTH_PASSWORD"));
             assertNotNull(provider);
             assertNotNull(provider.getPrefferedUserName());
             

@@ -6,12 +6,14 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.keycloak.KeycloakSecurityContext;
 import org.keycloak.representations.AccessToken;
+import org.keycloak.representations.AccessTokenResponse;
 
 
 
 public class AuthenticationProvider {
     
     private AccessToken auth;
+    private AccessTokenResponse atr;
     
     
     public AuthenticationProvider(HttpServletRequest req) {
@@ -19,8 +21,9 @@ public class AuthenticationProvider {
         this.auth = session.getToken();
     }
     
-    public AuthenticationProvider(AccessToken accessToken) {
+    public AuthenticationProvider(AccessToken accessToken, AccessTokenResponse atr) {
         this.auth = accessToken;
+        this.atr = atr;
     }
     
     public String getEmail() {
@@ -46,14 +49,15 @@ public class AuthenticationProvider {
     public AccessToken getAccessToken() {
         return this.auth;
     }
+    
+    public String getTokenString() {
+        return atr.getToken();
+    }
+    
 
     @Override
     public String toString() {
         return "AuthenticationProvider [getEmail()=" + getEmail() + ", getPrefferedUserName()=" + getPrefferedUserName()
-                + ", getName()=" + getName() + ", getRole()=" + getRole() + "]";
+                + ", getName()=" + getName() + ", getRole()=" + getRole() + ", getTokenString()=" + getTokenString() + "]";
     }
-
-    
-    
-
 }
