@@ -112,6 +112,7 @@
     <failsafe.test.remote.skip>true</failsafe.test.remote.skip>
     <failsafe.test.container.skip>true</failsafe.test.container.skip>
     <surefire.test.remote.skip>true</surefire.test.remote.skip>
+    <failsafe.test.integration.skip>true</failsafe.test.integration.skip>
   </properties>
 
   <dependencyManagement>
@@ -990,6 +991,10 @@
               <goal>test</goal>
             </goals>
             <configuration>
+              <!-- To be uncommented when NCL-724 is done -->
+              <!--<parallel>all</parallel>-->
+              <!--<threadCount>2</threadCount>-->
+              <!--<perCoreThreadCount>true</perCoreThreadCount>-->
               <excludedGroups>org.jboss.pnc.test.category.ContainerTest, org.jboss.pnc.test.category.RemoteTest</excludedGroups>
             </configuration>
           </execution>
@@ -1024,18 +1029,21 @@
         </configuration>
         <executions>
           <execution>
+            <!-- Invoked when there is no remote tests -->
             <id>container-tests</id>
             <goals>
               <goal>integration-test</goal>
               <goal>verify</goal>
             </goals>
             <configuration>
+              <skip>${failsafe.test.integration.skip}</skip>
               <groups>org.jboss.pnc.test.category.ContainerTest</groups>
               <excludedGroups>org.jboss.pnc.test.category.RemoteTest</excludedGroups>
             </configuration>
           </execution>
           <execution>
-            <id>container-remote-tests</id>
+            <!-- Invoked for container AND remote tests -->
+            <id>container-and-remote-tests</id>
             <goals>
               <goal>integration-test</goal>
               <goal>verify</goal>
@@ -1067,6 +1075,7 @@
       <properties>
         <failsafe.test.skip>false</failsafe.test.skip>
         <failsafe.test.container.skip>false</failsafe.test.container.skip>
+        <failsafe.test.integration.skip>false</failsafe.test.integration.skip>
       </properties>
     </profile>
 
@@ -1075,6 +1084,8 @@
       <properties>
         <!-- if container tests are disabled, we don't want to prevent container-remote tests from executing -->
         <failsafe.test.remote.skip>${failsafe.test.skip}</failsafe.test.remote.skip>
+        <!-- Container tests are performed in container-and-remote group -->
+        <failsafe.test.integration.skip>true</failsafe.test.integration.skip>
         <surefire.test.remote.skip>false</surefire.test.remote.skip>
       </properties>
     </profile>
