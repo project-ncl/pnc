@@ -8,11 +8,28 @@
     '$log',
     '$state',
     'configurationList',
-    function($log, $state, configurationList) {
+    'PncRestClient',
+    function($log, $state, configurationList, PncRestClient) {
+      var self = this;
       $log.debug('ConfigurationListController >> this=%O, configurationList=%O',
-                 this, configurationList);
+                 self, configurationList);
 
-      this.configurations = configurationList;
+      self.configurations = configurationList;
+      self.projects = [];
+
+      angular.forEach(self.configurations, function(configuration){
+
+          PncRestClient.Project.get({
+              projectId: configuration.projectId
+          }).$promise.then(
+            function (result) {
+              if (result) {
+                self.projects.push(result);
+                //console.log(JSON.stringify(self.projects));
+              }
+            }
+          );
+      });
     }
   ]);
 

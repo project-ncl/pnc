@@ -46,7 +46,7 @@
         displayName: '{{ configurationSetDetail.name }}',
       },
       controller: 'ConfigurationSetDetailController',
-      controllerAs: 'detailCtrl',
+      controllerAs: 'detailSetCtrl',
       resolve: {
         restClient: 'PncRestClient',
         configurationSetDetail: function(restClient, $stateParams) {
@@ -56,7 +56,15 @@
         configurations: function(restClient, $stateParams) {
           return restClient.ConfigurationSet.getConfigurations({
             configurationSetId: $stateParams.configurationSetId }).$promise;
-        }
+        },
+        previousState: ['$state', function ($state) {
+          var currentStateData = {
+            Name: $state.current.name,
+            Params: $state.params,
+            URL: $state.href($state.current.name, $state.params)
+          };
+          return currentStateData;
+        }],
       }
     });
 

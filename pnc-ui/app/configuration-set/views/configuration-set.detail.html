@@ -1,14 +1,14 @@
 <div>
   <pnc-header>
-    <pnc-header-title>{{ detailCtrl.set.name }}</pnc-header-title>
+    <pnc-header-title>{{ detailSetCtrl.set.name }}</pnc-header-title>
     <pnc-header-buttons>
-      <button type="button" class="btn btn-lg btn-default" data-toggle="tooltip" title="Start Build" ng-click="detailCtrl.build()">
+      <button type="button" class="btn btn-lg btn-default" data-toggle="tooltip" title="Start Build" ng-click="detailSetCtrl.build()">
         <i class="fa fa-play"></i> Build
       </button>
       <button type="button" class="btn btn-lg btn-default disabled" data-toggle="tooltip" title="Edit Configuration">
         <i class="pficon pficon-edit"></i> Edit
       </button>
-      <button type="button" class="btn btn-lg btn-danger" data-toggle="tooltip" title="Delete Set" pnc-confirm-click="detailCtrl.delete()" pnc-confirm-message="{{ 'Confirm the deletion of Configuration Set: ' + detailCtrl.set.name + ' ?'}}">
+      <button type="button" class="btn btn-lg btn-danger" data-toggle="tooltip" title="Delete Set" pnc-confirm-click="detailSetCtrl.delete()" pnc-confirm-message="{{ 'Confirm the deletion of Build Configuration Set: ' + detailSetCtrl.set.name + ' ?'}}">
         <i class="pficon pficon-delete"></i> Delete
       </button>
     </pnc-header-buttons>
@@ -18,7 +18,7 @@
     <div class="form-group">
       <label for="input-version" class="col-sm-1 control-label">Name</label>
       <div class="col-sm-11">
-        <p id="input-version" e-class="form-control" editable-text="detailCtrl.set.name" e-name="name" e-required>{{ detailCtrl.set.name || 'Empty' }}</p>
+        <p id="input-version" e-class="form-control" editable-text="detailSetCtrl.set.name" e-name="name" e-required>{{ detailSetCtrl.set.name || 'Empty' }}</p>
       </div>
     </div>
 
@@ -47,7 +47,7 @@
       <th>Actions</th>
     </thead>
     <tbody>
-      <tr ng-repeat="configuration in detailCtrl.configurations | filter:searchText">
+      <tr ng-repeat="configuration in detailSetCtrl.configurations | filter:searchText">
         <td>
           <a ui-sref="configuration.detail.show({configurationId: configuration.id})" href>
             {{ configuration.name }}
@@ -56,12 +56,26 @@
         <td>{{ configuration.creationTime | date:'medium'}}</td>
         <td>{{ configuration.lastModificationTime | date:'medium'}}</td>
         <td>John Doe</td>
-        <td>-</td>
+        <td>
+          <div ng-repeat="buildRecord in detailSetCtrl.lastBuildRecords | filter: { buildConfigurationId: configuration.id }">
+            <span ng-switch on="buildRecord.status">
+              <img ng-switch-when="BUILDING" alt="BUILDING" src='images/blue_anime.gif'>
+              <img ng-switch-when="SUCCESS" alt="SUCCESS" src='images/success_small.png'>
+              <img ng-switch-when="UNSTABLE" alt="UNSTABLE" src='images/red_small.png'>
+              <img ng-switch-when="FAILED" alt="FAILED" src='images/red_small.png'>
+              <img ng-switch-when="ABORTED" alt="ABORTED" src='images/aborted_small.png'>
+              <img ng-switch-when="CANCELLED" alt="CANCELLED" src='images/aborted_small.png'>
+              <img ng-switch-default alt="UNKNOWN" src='images/unknown_small.png'>
+            </span>
+            <span><a href ui-sref="record.detail.info({recordId: buildRecord.id})"> # {{ buildRecord.id }}  </a></span>
+            {{ buildRecord.endTime | date:'medium'}}
+          </div>
+        </td>
         <td class="text-center">
           <span class="btn-group" role="group" aria-label="Action Tools">
-            <button class="btn btn-xs btn-default">Edit</button>
-            <button class="btn btn-xs btn-default" data-toggle="tooltip" title="Remove Build Configuration from Build Configuration Set" pnc-confirm-click="detailCtrl.remove(configuration.id)" pnc-confirm-message="{{ 'Confirm the removal of Build Configuration: ' + configuration.name +  ' from Build Configuration Set: ' + detailCtrl.set.name + ' ?'}}">Remove</button>
-            <button class="btn btn-xs btn-danger">Delete</button>
+            <button class="btn btn-xs btn-default disabled">Edit</button>
+            <button class="btn btn-xs btn-default" data-toggle="tooltip" title="Remove Build Configuration from Build Configuration Set" pnc-confirm-click="detailSetCtrl.remove(configuration.id)" pnc-confirm-message="{{ 'Confirm the removal of Build Configuration: ' + configuration.name +  ' from Build Configuration Set: ' + detailSetCtrl.set.name + ' ?'}}">Remove</button>
+            <button type="button" class="btn btn-xs btn-danger" data-toggle="tooltip" title="Delete Build Configuration" pnc-confirm-click="detailCtrl.delete()" pnc-confirm-message="{{ 'Confirm the deletion of Build Configuration: ' + configuration.name + ' ?'}}"><i class="pficon pficon-delete"></i> Delete</button>
           </span>
         </td>
       </tr>
