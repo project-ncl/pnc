@@ -5,7 +5,8 @@
   var module = angular.module('pnc.record', [
     'ui.router',
     'pnc.remote.restClient',
-    'pnc.util.header'
+    'pnc.util.header',
+    'angularUtils.directives.uiBreadcrumbs'
   ]);
 
   module.config([
@@ -18,8 +19,12 @@
       url: '/record',
       views: {
         'content@': {
-          templateUrl: 'common/templates/single-col-center.tmpl.html'
+          templateUrl: 'common/templates/single-col.tmpl.html'
+          //templateUrl: 'common/templates/single-col-center.tmpl.html'
         }
+      },
+      data: {
+        proxy: 'record.detail',
       }
     });
 
@@ -28,6 +33,9 @@
     $stateProvider.state('record.detail', {
       url: '/{recordId:int}',
       templateUrl: 'record/views/record.detail.html',
+      data: {
+         displayName: '{{ recordDetail.name }}',
+      },
       controller: 'RecordDetailController',
       controllerAs: 'recordCtrl',
       resolve: {
@@ -50,6 +58,9 @@
     $stateProvider.state('record.detail.info', {
       url: '/info',
       templateUrl: 'record/views/record.detail.info.html',
+      data: {
+         displayName: '{{ recordDetail.id }}',
+      },
       controller: 'RecordInfoController',
       controllerAs: 'infoCtrl',
     });
