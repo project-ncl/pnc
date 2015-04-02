@@ -54,8 +54,9 @@ public class LicenseProvider {
     }
 
     public void update(Integer id, LicenseRest licenseRest) {
-        Preconditions.checkArgument(licenseRest.getId() == null, "Id must be null");
         Preconditions.checkArgument(id != null, "Id must not be null");
+        Preconditions.checkArgument(licenseRest.getId() == null || licenseRest.getId().equals(id),
+                "Entity id does not match the id to update");
         licenseRest.setId(id);
         License license = licenseRepository.findOne(licenseRest.getId());
         Preconditions.checkArgument(license != null, "Couldn't find license with id " + licenseRest.getId());

@@ -92,15 +92,16 @@ public class BuildConfigurationProvider {
     }
 
     public Integer update(Integer id, BuildConfigurationRest buildConfigurationRest) {
-        Preconditions.checkArgument(buildConfigurationRest.getId() == null, "Id must be null");
         Preconditions.checkArgument(id != null, "Id must not be null");
+        Preconditions.checkArgument(buildConfigurationRest.getId() == null || buildConfigurationRest.getId().equals(id),
+                "Entity id does not match the id to update");
         buildConfigurationRest.setId(id);
         BuildConfiguration buildConfiguration = buildConfigurationRepository.findOne(id);
         Preconditions.checkArgument(buildConfiguration != null, "Couldn't find buildConfiguration with id "
                 + buildConfigurationRest.getId());
         buildConfiguration = buildConfigurationRepository.save(buildConfigurationRest.toBuildConfiguration(buildConfiguration));
         return buildConfiguration.getId();
-    }
+  }
 
     public Integer clone(Integer buildConfigurationId) {
         BuildConfiguration buildConfiguration = buildConfigurationRepository.findOne(buildConfigurationId);
