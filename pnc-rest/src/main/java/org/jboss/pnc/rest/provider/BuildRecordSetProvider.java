@@ -58,6 +58,7 @@ public class BuildRecordSetProvider {
     }
 
     public Integer store(BuildRecordSetRest buildRecordSetRest) {
+        Preconditions.checkArgument(buildRecordSetRest.getId() == null, "Id must be null");
         BuildRecordSet buildRecordSet = buildRecordSetRest.toBuildRecordSet();
         ProductVersion productVersion = null;
 
@@ -76,7 +77,10 @@ public class BuildRecordSetProvider {
         return buildRecordSet.getId();
     }
 
-    public Integer update(BuildRecordSetRest buildRecordSetRest) {
+    public Integer update(Integer id, BuildRecordSetRest buildRecordSetRest) {
+        Preconditions.checkArgument(buildRecordSetRest.getId() == null, "Id must be null");
+        Preconditions.checkArgument(id != null, "Id must not be null");
+        buildRecordSetRest.setId(id);
         BuildRecordSet buildRecordSet = buildRecordSetRepository.findOne(buildRecordSetRest.getId());
         Preconditions.checkArgument(buildRecordSet != null,
                 "Couldn't find buildRecordSet with id " + buildRecordSetRest.getId());

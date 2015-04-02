@@ -1,5 +1,6 @@
 package org.jboss.pnc.rest.provider;
 
+import com.google.common.base.Preconditions;
 import org.jboss.pnc.datastore.limits.RSQLPageLimitAndSortingProducer;
 import org.jboss.pnc.datastore.predicates.RSQLPredicate;
 import org.jboss.pnc.datastore.predicates.RSQLPredicateProducer;
@@ -7,23 +8,17 @@ import org.jboss.pnc.datastore.repositories.BuildConfigurationRepository;
 import org.jboss.pnc.datastore.repositories.BuildConfigurationSetRepository;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationSet;
-import org.jboss.pnc.model.ProductVersion;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationRest;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationSetRest;
-import org.jboss.pnc.rest.restmodel.BuildRecordSetRest;
 import org.springframework.data.domain.Pageable;
-
-import com.google.common.base.Preconditions;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
-
 import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static org.jboss.pnc.datastore.predicates.BuildConfigurationPredicates.*;
 import static org.jboss.pnc.datastore.predicates.BuildConfigurationSetPredicates.withBuildConfigurationSetId;
 import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
 
@@ -79,12 +74,16 @@ public class BuildConfigurationSetProvider {
     }
 
     public Integer store(BuildConfigurationSetRest buildConfigurationSetRest) {
+        Preconditions.checkArgument(buildConfigurationSetRest.getId() == null, "Id must be null");
         BuildConfigurationSet buildConfigurationSet = buildConfigurationSetRest.toBuildConfigurationSet();
         buildConfigurationSet = buildConfigurationSetRepository.save(buildConfigurationSet);
         return buildConfigurationSet.getId();
     }
 
-    public Integer update(BuildConfigurationSetRest buildConfigurationSetRest) {
+    public Integer update(Integer id, BuildConfigurationSetRest buildConfigurationSetRest) {
+        Preconditions.checkArgument(buildConfigurationSetRest.getId() == null, "Id must be null");
+        Preconditions.checkArgument(id != null, "Id must not be null");
+        buildConfigurationSetRest.setId(id);
         BuildConfigurationSet buildConfigurationSet = buildConfigurationSetRepository.findOne(buildConfigurationSetRest.getId());
         Preconditions.checkArgument(buildConfigurationSet != null, "Couldn't find buildConfigurationSet with id "
                 + buildConfigurationSetRest.getId());

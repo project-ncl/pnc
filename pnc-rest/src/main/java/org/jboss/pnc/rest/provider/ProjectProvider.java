@@ -52,12 +52,16 @@ public class ProjectProvider {
     }
 
     public Integer store(ProjectRest projectRest) {
+        Preconditions.checkArgument(projectRest.getId() == null, "Id must be null");
         Project project = projectRest.toProject();
         project = projectRepository.save(project);
         return project.getId();
     }
 
-    public Integer update(ProjectRest projectRest) {
+    public Integer update(Integer id, ProjectRest projectRest) {
+        Preconditions.checkArgument(projectRest.getId() == null, "Id must be null");
+        Preconditions.checkArgument(id != null, "Id must not be null");
+        projectRest.setId(id);
         Project project = projectRepository.findOne(projectRest.getId());
         Preconditions.checkArgument(project != null, "Couldn't find project with id " + projectRest.getId());
         project = projectRepository.save(projectRest.toProject());

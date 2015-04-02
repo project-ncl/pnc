@@ -22,12 +22,6 @@
 
   <build>
     <finalName>${project.artifactId}</finalName>
-    <resources>
-      <resource>
-        <directory>src/main/resources</directory>
-        <filtering>true</filtering>
-      </resource>
-    </resources>
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -39,6 +33,7 @@
               <directory>src/main/webapp</directory>
               <includes>
                 <include>apidocs/index.html</include>
+                <include>ws/tester.html</include>
               </includes>
               <filtering>true</filtering>
             </resource>

@@ -44,7 +44,7 @@ public class BuildNotifications {
         this.attachedSessions.remove(detachedSession);
     }
 
-    @Schedule(hour = "*", minute = "*", second = "0")
+    @Schedule(hour = "*", minute = "*", second = "0", persistent = false)
     public void sayHelloToEveryone() throws IOException {
         for (Session s : attachedSessions) {
             if(s.isOpen()) {

@@ -3,13 +3,11 @@ package org.jboss.pnc.rest.endpoint;
 import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
 import com.wordnik.swagger.annotations.ApiParam;
-
 import org.jboss.pnc.core.exception.CoreException;
 import org.jboss.pnc.rest.provider.BuildConfigurationProvider;
 import org.jboss.pnc.rest.provider.BuildRecordProvider;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationRest;
 import org.jboss.pnc.rest.trigger.BuildTriggerer;
-import org.jboss.pnc.rest.validation.WithNullId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,7 +16,6 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
-
 import java.lang.invoke.MethodHandles;
 import java.net.URI;
 import java.util.List;
@@ -52,13 +49,12 @@ public class BuildConfigurationEndpoint {
             @ApiParam(value = "Pagination size") @DefaultValue("50") @QueryParam("pageSize") int pageSize,
             @ApiParam(value = "Sorting RSQL") @QueryParam("sort") String sortingRsql,
             @ApiParam(value = "RSQL query", required = false) @QueryParam("q") String rsql) {
-
         return buildConfigurationProvider.getAll(pageIndex, pageSize, sortingRsql, rsql);
     }
 
     @ApiOperation(value = "Creates a new Build Configuration")
     @POST
-    public Response createNew(@NotNull @Valid @WithNullId BuildConfigurationRest buildConfigurationRest, @Context UriInfo uriInfo) {
+    public Response createNew(@NotNull @Valid BuildConfigurationRest buildConfigurationRest, @Context UriInfo uriInfo) {
         int id = buildConfigurationProvider.store(buildConfigurationRest);
         UriBuilder uriBuilder = UriBuilder.fromUri(uriInfo.getRequestUri()).path("{id}");
         return Response.created(uriBuilder.build(id)).entity(buildConfigurationProvider.getSpecific(id)).build();
@@ -76,7 +72,7 @@ public class BuildConfigurationEndpoint {
     @PUT
     @Path("/{id}")
     public Response update(@ApiParam(value = "Build Configuration id", required = true) @PathParam("id") Integer id,
-            @NotNull @Valid @WithNullId BuildConfigurationRest buildConfigurationRest, @Context UriInfo uriInfo) {
+            @NotNull @Valid BuildConfigurationRest buildConfigurationRest, @Context UriInfo uriInfo) {
         buildConfigurationProvider.update(id, buildConfigurationRest);
         return Response.ok().build();
     }

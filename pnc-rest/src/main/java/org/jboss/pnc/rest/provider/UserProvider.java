@@ -1,5 +1,6 @@
 package org.jboss.pnc.rest.provider;
 
+import com.google.common.base.Preconditions;
 import org.jboss.pnc.datastore.limits.RSQLPageLimitAndSortingProducer;
 import org.jboss.pnc.datastore.predicates.RSQLPredicate;
 import org.jboss.pnc.datastore.predicates.RSQLPredicateProducer;
@@ -47,6 +48,7 @@ public class UserProvider {
     }
 
     public Integer store(UserRest userRest) {
+        Preconditions.checkArgument(userRest.getId() == null, "Id must be null");
         User user = userRest.toUser();
         user = userRepository.save(user);
         return user.getId();

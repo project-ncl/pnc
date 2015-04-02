@@ -1,38 +1,22 @@
 package org.jboss.pnc.rest.endpoint;
 
-import java.lang.invoke.MethodHandles;
-import java.util.List;
-
-import javax.inject.Inject;
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.DefaultValue;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriBuilder;
-import javax.ws.rs.core.UriInfo;
-
+import com.wordnik.swagger.annotations.Api;
+import com.wordnik.swagger.annotations.ApiOperation;
+import com.wordnik.swagger.annotations.ApiParam;
 import org.jboss.pnc.rest.provider.BuildConfigurationSetProvider;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationRest;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationSetRest;
 import org.jboss.pnc.rest.trigger.BuildTriggerer;
-import org.jboss.pnc.rest.validation.WithNullId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.wordnik.swagger.annotations.Api;
-import com.wordnik.swagger.annotations.ApiOperation;
-import com.wordnik.swagger.annotations.ApiParam;
+import javax.inject.Inject;
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
+import javax.ws.rs.*;
+import javax.ws.rs.core.*;
+import java.lang.invoke.MethodHandles;
+import java.util.List;
 
 @Api(value = "/configuration-set", description = "Set of related build configurations")
 @Path("/configuration-set")
@@ -67,7 +51,7 @@ public class BuildConfigurationSetEndpoint {
 
     @ApiOperation(value = "Creates a new Build Configuration Set")
     @POST
-    public Response createNew(@NotNull @Valid @WithNullId BuildConfigurationSetRest buildConfigurationSetRest, @Context UriInfo uriInfo) {
+    public Response createNew(@NotNull @Valid BuildConfigurationSetRest buildConfigurationSetRest, @Context UriInfo uriInfo) {
         UriBuilder uriBuilder = UriBuilder.fromUri(uriInfo.getRequestUri()).path("{id}");
         int id = buildConfigurationSetProvider.store(buildConfigurationSetRest);
         return Response.created(uriBuilder.build(id)).entity(buildConfigurationSetProvider.getSpecific(id)).build();
@@ -85,9 +69,8 @@ public class BuildConfigurationSetEndpoint {
     @PUT
     @Path("/{id}")
     public Response update(@ApiParam(value = "Build Configuration Set id", required = true) @PathParam("id") Integer id,
-            @NotNull @Valid @WithNullId BuildConfigurationSetRest buildConfigurationSetRest, @Context UriInfo uriInfo) {
-        buildConfigurationSetRest.setId(id);
-        buildConfigurationSetProvider.update(buildConfigurationSetRest);
+            @NotNull @Valid BuildConfigurationSetRest buildConfigurationSetRest, @Context UriInfo uriInfo) {
+        buildConfigurationSetProvider.update(id, buildConfigurationSetRest);
         return Response.ok().build();
     }
 
