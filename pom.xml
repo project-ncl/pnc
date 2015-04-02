@@ -118,6 +118,18 @@
     <dependencies>
 
     <dependency>
+        <groupId>org.codehaus.jackson</groupId>
+        <artifactId>jackson-mapper-asl</artifactId>
+        <version>1.9.13</version>
+    </dependency>
+    
+    <dependency>
+        <groupId>org.codehaus.jackson</groupId>
+        <artifactId>jackson-core-asl</artifactId>
+        <version>1.9.13</version>
+    </dependency>
+
+    <dependency>
         <groupId>org.keycloak</groupId>
         <artifactId>keycloak-core</artifactId>
         <version>${version.keycloak}</version>
@@ -140,9 +152,8 @@
       <!-- Project modules, to support cross-module dependencies -->
       <dependency>
         <groupId>org.jboss.pnc</groupId>
-        <artifactId>test-common</artifactId>
+        <artifactId>auth</artifactId>
         <version>${project.version}</version>
-        <scope>test</scope>
       </dependency>
 
       <dependency>

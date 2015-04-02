@@ -2,9 +2,12 @@ package org.jboss.pnc.integration;
 
 import com.jayway.restassured.http.ContentType;
 import com.jayway.restassured.response.Response;
+
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.junit.InSequence;
+import org.jboss.pnc.auth.AuthenticationProvider;
+import org.jboss.pnc.auth.ExternalAuthentication;
 import org.jboss.pnc.integration.assertions.ResponseAssertion;
 import org.jboss.pnc.integration.deployments.Deployments;
 import org.jboss.pnc.integration.matchers.JsonMatcher;
@@ -25,6 +28,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.invoke.MethodHandles;
 
 import static com.jayway.restassured.RestAssured.given;
@@ -53,6 +57,8 @@ public class BuildRecordSetRestTest {
     private static int buildRecordId;
     private static int newBuildRecordSetId;
 
+    private static AuthenticationProvider authProvider;
+
     @Deployment(testable = false)
     public static EnterpriseArchive deploy() {
         EnterpriseArchive enterpriseArchive = Deployments.baseEar();
@@ -72,18 +78,30 @@ public class BuildRecordSetRestTest {
     @Test
     @InSequence(-1)
     public void prepareBaseData() {
+        try {
+            InputStream is = this.getClass().getResourceAsStream("/keycloak.json");
+            ExternalAuthentication ea = new ExternalAuthentication(is);
+            authProvider = ea.authenticate(System.getenv("PNC_EXT_OAUTH_USERNAME"), System.getenv("PNC_EXT_OAUTH_PASSWORD"));
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
 
-        given().contentType(ContentType.JSON).port(getHttpPort()).when().get(PRODUCT_REST_ENDPOINT).then().statusCode(200)
+
+        given().header("Accept", "application/json").header("Authorization", "Bearer " + authProvider.getTokenString())
+                    .contentType(ContentType.JSON).port(getHttpPort()).when().get(PRODUCT_REST_ENDPOINT).then().statusCode(200)
                 .body(JsonMatcher.containsJsonAttribute("[0].id", value -> productId = Integer.valueOf(value)));
 
-        Response responseProdVer = given().contentType(ContentType.JSON).port(getHttpPort()).when()
+        Response responseProdVer = given().header("Accept", "application/json").header("Authorization", "Bearer " + authProvider.getTokenString())
+                    .contentType(ContentType.JSON).port(getHttpPort()).when()
                 .get(String.format(PRODUCT_VERSION_REST_ENDPOINT, productId));
 
         ResponseAssertion.assertThat(responseProdVer).hasStatus(200);
         productVersionId = responseProdVer.body().jsonPath().getInt("[0].id");
         productVersionName = responseProdVer.body().jsonPath().getString("[0].version");
 
-        Response responseBuildRec = given().contentType(ContentType.JSON).port(getHttpPort()).when()
+        Response responseBuildRec = given().header("Accept", "application/json").header("Authorization", "Bearer " + authProvider.getTokenString())
+                    .contentType(ContentType.JSON).port(getHttpPort()).when()
                 .get(BUILD_RECORD_REST_ENDPOINT);
         ResponseAssertion.assertThat(responseBuildRec).hasStatus(200);
 
@@ -105,7 +123,8 @@ public class BuildRecordSetRestTest {
         buildRecordSetTemplate.addValue("_productVersionId", String.valueOf(productVersionId));
         buildRecordSetTemplate.addValue("_buildRecordIds", String.valueOf(buildRecordId));
 
-        Response response = given().body(buildRecordSetTemplate.fillTemplate()).contentType(ContentType.JSON)
+        Response response = given().header("Accept", "application/json").header("Authorization", "Bearer " + authProvider.getTokenString())
+                    .body(buildRecordSetTemplate.fillTemplate()).contentType(ContentType.JSON)
                 .port(getHttpPort()).when().post(BUILD_RECORD_SET_REST_ENDPOINT);
 
         ResponseAssertion.assertThat(response).hasStatus(201).hasLocationMatches(".*\\/pnc-rest\\/rest\\/recordset\\/\\d+");
@@ -119,7 +138,8 @@ public class BuildRecordSetRestTest {
     @InSequence(2)
     public void shouldGetBuildRecordSets() {
 
-        Response response = given().contentType(ContentType.JSON).port(getHttpPort()).when()
+        Response response = given().header("Accept", "application/json").header("Authorization", "Bearer " + authProvider.getTokenString())
+                    .contentType(ContentType.JSON).port(getHttpPort()).when()
                 .get(BUILD_RECORD_SET_REST_ENDPOINT);
         ResponseAssertion.assertThat(response).hasStatus(200);
         ResponseAssertion.assertThat(response).hasJsonValueEqual("[0].id", newBuildRecordSetId);
@@ -129,7 +149,8 @@ public class BuildRecordSetRestTest {
     @InSequence(3)
     public void shouldGetSpecificBuildRecordSet() {
 
-        Response response = given().contentType(ContentType.JSON).port(getHttpPort()).when()
+        Response response = given().header("Accept", "application/json").header("Authorization", "Bearer " + authProvider.getTokenString())
+                    .contentType(ContentType.JSON).port(getHttpPort()).when()
                 .get(String.format(BUILD_RECORD_SET_SPECIFIC_REST_ENDPOINT, newBuildRecordSetId));
 
         ResponseAssertion.assertThat(response).hasStatus(200);
@@ -140,7 +161,8 @@ public class BuildRecordSetRestTest {
     @InSequence(4)
     public void shouldGetBuildRecordForProductVersion() {
 
-        Response response = given().contentType(ContentType.JSON).port(getHttpPort()).when()
+        Response response = given().header("Accept", "application/json").header("Authorization", "Bearer " + authProvider.getTokenString())
+                    .contentType(ContentType.JSON).port(getHttpPort()).when()
                 .get(String.format(BUILD_RECORD_SET_PRODUCT_VERSION_REST_ENDPOINT, productVersionId));
 
         ResponseAssertion.assertThat(response).hasStatus(200);
@@ -151,7 +173,8 @@ public class BuildRecordSetRestTest {
     @InSequence(5)
     public void shouldGetBuildRecordForBuildRecord() {
 
-        Response response = given().contentType(ContentType.JSON).port(getHttpPort()).when()
+        Response response = given().header("Accept", "application/json").header("Authorization", "Bearer " + authProvider.getTokenString())
+                    .contentType(ContentType.JSON).port(getHttpPort()).when()
                 .get(String.format(BUILD_RECORD_SET_BUILD_RECORD_REST_ENDPOINT, buildRecordId));
 
         ResponseAssertion.assertThat(response).hasStatus(200);
