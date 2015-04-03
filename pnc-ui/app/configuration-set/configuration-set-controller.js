@@ -75,6 +75,74 @@
     }
   ]);
 
+  module.controller('ConfigurationSetAddConfigurationController', [
+    '$log',
+    '$state',
+    'configurationSetDetail',
+    'projects',
+    'PncRestClient',
+    'Notifications',
+    function($log, $state, configurationSetDetail, projects, PncRestClient, Notifications) {
+      $log.debug('ConfigurationSetAddConfigurationController >> this=%O, products=%O',
+                 this, projects);
+
+      var self = this;
+      self.configurationSetDetail = configurationSetDetail;
+      self.projects = projects;
+      self.configurations = [];
+      self.selectedConfiguration = {};
+
+      self.getBuildConfigurations = function(projectId) {
+        $log.debug('**Getting build configurations of Project: %0**', projectId);
+
+        if (projectId) {
+          PncRestClient.Configuration.getAllForProject({
+            projectId: projectId
+          }).$promise.then(
+            function(result) {
+              self.configurations = result;
+              if (result) {
+                self.data.configurationId = result[0].id;
+              }
+            }
+          );
+        }
+        else {
+          self.configurations = [];
+        }
+      };
+
+      self.submit = function() {
+       // Retrieve all the last builds (based on ID, not date) of all the build configurations
+       angular.forEach(self.configurations, function(configuration){
+
+          if (configuration.id === parseInt(self.data.configurationId)) {
+            self.selectedConfiguration = configuration;
+            return;
+          }
+       });
+
+       if (self.selectedConfiguration) {
+         PncRestClient.ConfigurationSet.addConfiguration({
+            configurationSetId: self.configurationSetDetail.id
+         }, self.selectedConfiguration).$promise.then(
+           function(result) {
+             $log.debug('Configuration added to Configuration Set: %s', result);
+             Notifications.success('Build Configuration added to Build Configuration Set');
+             var params = { configurationSetId: self.configurationSetDetail.id };
+             $state.go('configuration-set.detail', params, { reload: true, inherit: false,
+                      notify: true });
+           },
+           function(response) {
+             $log.error('Build Configuration adding failed: response: %O', response);
+             Notifications.error('Action Failed.');
+           }
+         );
+       }
+      };
+    }
+  ]);
+
   module.controller('ConfigurationSetDetailController', [
     '$log',
     '$state',

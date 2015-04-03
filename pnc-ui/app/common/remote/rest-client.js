@@ -163,6 +163,11 @@
             url: REST_DEFAULTS.BASE_URL + '/configuration-set/:configurationSetId/configurations/:configurationId',
             isArray: false,
           },
+          addConfiguration: {
+            method: 'POST',
+            url: REST_DEFAULTS.BASE_URL + '/configuration-set/:configurationSetId/configurations',
+            isArray: false,
+          },
         }),
 
         RecordSet: $resource(REST_DEFAULTS.BASE_URL + '/recordset/:recordsetId', {

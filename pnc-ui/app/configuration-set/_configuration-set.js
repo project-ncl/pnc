@@ -83,6 +83,26 @@
         },
       },
     });
+
+    $stateProvider.state('configuration-set.add-configuration', {
+      url: '/configuration-set/{configurationSetId:int}/add-configuration',
+      templateUrl: 'configuration-set/views/configuration-set.add.configuration.html',
+      data: {
+        displayName: 'Add Build Configuration'
+      },
+      controller: 'ConfigurationSetAddConfigurationController',
+      controllerAs: 'addConfigurationSetCtrl',
+      resolve: {
+        restClient: 'PncRestClient',
+        configurationSetDetail: function(restClient, $stateParams) {
+          return restClient.ConfigurationSet.get({
+            configurationSetId: $stateParams.configurationSetId }).$promise;
+        },
+        projects: function(restClient) {
+          return restClient.Project.query().$promise;
+        },
+      },
+    });
   }]);
 
 })();
