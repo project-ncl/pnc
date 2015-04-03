@@ -5,6 +5,7 @@ target/
 .project
 .settings
 .classpath
+/eclipse-target
 
 # DB test file
 maven-repository-manager/derby.log
