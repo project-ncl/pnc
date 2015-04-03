@@ -1,7 +1,6 @@
 package org.jboss.pnc.core.builder;
 
 import org.jboss.logging.Logger;
-import org.jboss.pnc.common.util.ObjectWrapper;
 import org.jboss.pnc.common.util.StreamCollectors;
 import org.jboss.pnc.core.BuildDriverFactory;
 import org.jboss.pnc.core.EnvironmentDriverFactory;
@@ -9,26 +8,23 @@ import org.jboss.pnc.core.RepositoryManagerFactory;
 import org.jboss.pnc.core.content.ContentIdentityManager;
 import org.jboss.pnc.core.exception.BuildProcessException;
 import org.jboss.pnc.core.exception.CoreException;
-import org.jboss.pnc.core.exception.CoreExceptionWrapper;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.BuildDriverStatus;
 import org.jboss.pnc.model.RepositoryType;
+import org.jboss.pnc.spi.BuildExecutionType;
 import org.jboss.pnc.spi.BuildResult;
 import org.jboss.pnc.spi.BuildStatus;
-import org.jboss.pnc.spi.BuildExecutionType;
 import org.jboss.pnc.spi.builddriver.BuildDriver;
 import org.jboss.pnc.spi.builddriver.BuildDriverResult;
 import org.jboss.pnc.spi.builddriver.CompletedBuild;
 import org.jboss.pnc.spi.builddriver.RunningBuild;
-import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
 import org.jboss.pnc.spi.datastore.DatastoreException;
 import org.jboss.pnc.spi.environment.EnvironmentDriver;
 import org.jboss.pnc.spi.environment.RunningEnvironment;
 import org.jboss.pnc.spi.environment.exception.EnvironmentDriverException;
 import org.jboss.pnc.spi.events.BuildStatusChangedEvent;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManager;
-import org.jboss.pnc.spi.repositorymanager.RepositoryManagerException;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
 import org.jboss.pnc.spi.repositorymanager.model.RepositorySession;
 import org.jboss.util.graph.Edge;
@@ -191,7 +187,7 @@ public class BuildCoordinator {
             buildTask.setStatus(BuildStatus.REPO_SETTING_UP);
             try {
                 return repositoryManager.createBuildRepository(buildTask);
-            } catch (RepositoryManagerException e) {
+            } catch (Throwable e) {
                 throw new BuildProcessException(e);
             }
         }, executor);
@@ -208,7 +204,7 @@ public class BuildCoordinator {
 
                     buildTask.setStatus(BuildStatus.BUILD_ENV_SETUP_COMPLETE_SUCCESS);
                     return runningEnv;
-                } catch (EnvironmentDriverException e) {
+                } catch (Throwable e) {
                     buildTask.setStatus(BuildStatus.BUILD_ENV_SETUP_COMPLETE_WITH_ERROR);
                     throw new BuildProcessException(e);
                 }
@@ -220,7 +216,7 @@ public class BuildCoordinator {
             buildTask.setStatus(BuildStatus.BUILD_SETTING_UP);
             try {
                 return buildDriver.startProjectBuild(buildTask.getBuildConfiguration(), runningEnvironment);
-            } catch (BuildDriverException e) {
+            } catch (Throwable e) {
                 throw new BuildProcessException(e, runningEnvironment);
             }
         }, executor);
@@ -238,8 +234,9 @@ public class BuildCoordinator {
                 buildTask.setStatus(BuildStatus.BUILD_WAITING);
 
                 runningBuild.monitor(onComplete, onError);
-            } catch (Exception exception) {
-                waitToCompleteFuture.completeExceptionally(exception);
+            } catch (Throwable exception) {
+                waitToCompleteFuture.completeExceptionally(
+                        new BuildProcessException(exception, runningBuild.getRunningEnvironment()));
             }
         return waitToCompleteFuture;
     }
@@ -256,7 +253,7 @@ public class BuildCoordinator {
                     buildTask.setStatus(BuildStatus.BUILD_COMPLETED_WITH_ERROR);
                 }
                 return buildResult;
-            } catch (BuildDriverException e) {
+            } catch (Throwable e) {
                 throw new BuildProcessException(e, completedBuild.getRunningEnvironment());
             }
         }, executor);
@@ -273,7 +270,7 @@ public class BuildCoordinator {
                 } else {
                     return new DefaultBuildResult(runningEnvironment, buildDriverResult, null);
                 }
-            } catch (BuildDriverException | RepositoryManagerException e) {
+            } catch (Throwable e) {
                 throw new BuildProcessException(e, buildDriverResult.getRunningEnvironment());
             }
         }, executor);
@@ -286,7 +283,7 @@ public class BuildCoordinator {
                 buildResult.getRunningEnvironment().destroyEnvironment();
                 buildTask.setStatus(BuildStatus.BUILD_ENV_DESTROYED);
                 return buildResult;
-            } catch (EnvironmentDriverException e) {
+            } catch (Throwable e) {
                 throw new BuildProcessException(e);
             }
         }, executor);
@@ -301,8 +298,8 @@ public class BuildCoordinator {
                     datastoreAdapter.storeResult(buildTask, buildResult);
                     completedOk = true;
                 } else {
-                    datastoreAdapter.storeResult(buildTask, e);
                     stopRunningEnvironment(e);
+                    datastoreAdapter.storeResult(buildTask, e);
                     completedOk = false;
                 }
             } catch (DatastoreException de) {
@@ -332,7 +329,8 @@ public class BuildCoordinator {
             }
         }
         else {
-            //It shouldn't happen
+            //It shouldn't never happen - Throwable should be caught in all steps of build chain
+            //and BuildProcessException should be thrown instead of that
             log.warn("Possible leak of running environment! Build process ended with exception, "
                     + "but the exception didn't contain information about running environment.");
         }
