@@ -52,13 +52,15 @@ public interface RunningEnvironment extends Serializable {
      * @return Port to connect to Jenkins UI
      */
     int getJenkinsPort();
-    
+
     /**
-     * 
      * @return Jenkins URL
      */
     String getJenkinsUrl();
 
+    /**
+     * @return Repository configuration related to the running environment
+     */
     RepositorySession getRepositorySession();
 
 }

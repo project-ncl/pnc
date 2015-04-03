@@ -26,7 +26,6 @@ import org.jclouds.ssh.SshClient;
 import org.jclouds.sshj.SshjSshClient;
 import org.jclouds.sshj.config.SshjSshClientModule;
 
-import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
@@ -67,9 +66,6 @@ public class DockerEnvironmentDriver implements EnvironmentDriver {
     @Inject
     private ConfigurationBuilder configBuilder;
 
-    @Inject
-    private Configuration configurationService;
-
     private ComputeServiceContext dockerContext;
 
     private RemoteApi dockerClient;
@@ -87,7 +83,7 @@ public class DockerEnvironmentDriver implements EnvironmentDriver {
     private String dockerImageId;
 
     private String dockerIp;
-    
+
     private String containerFirewallAllowedDestinations;
 
     /**
@@ -103,14 +99,21 @@ public class DockerEnvironmentDriver implements EnvironmentDriver {
     }
 
     /**
-     * Prepares connection to Docker daemon
+     * Only workaround for CDI constructor parameter injection
+     */
+    @Deprecated
+    public DockerEnvironmentDriver() {
+    }
+
+    /**
+     * Loads configuration, prepares connection to Docker daemon
      * 
      * @throws ConfigurationParseException Thrown if configuration cannot be obtained
      */
-    @PostConstruct
-    private void init() throws ConfigurationParseException {
-        DockerEnvironmentDriverModuleConfig config = 
-                configurationService.getModuleConfig(DockerEnvironmentDriverModuleConfig.class);
+    @Inject
+    public DockerEnvironmentDriver(Configuration configuration) throws ConfigurationParseException {
+        DockerEnvironmentDriverModuleConfig config =
+                configuration.getModuleConfig(DockerEnvironmentDriverModuleConfig.class);
 
         dockerIp = config.getIp();
         dockerEndpoint = "http://" + dockerIp + ":2375";
@@ -166,7 +169,7 @@ public class DockerEnvironmentDriver implements EnvironmentDriver {
                     configBuilder.createMavenConfig(repositorySession.getConnectionInfo()
                             .getDependencyUrl(),
                             repositorySession.getConnectionInfo().getDeployUrl()), null);
-            
+
             // Wait until Jenkins is fully up and running
             waitToInitServices("http://" + dockerIp + ":" + jenkinsPort);
         } catch (Exception e) {
@@ -182,7 +185,6 @@ public class DockerEnvironmentDriver implements EnvironmentDriver {
 
         logger.info("Created and started Docker container. ID: " + containerId
                 + ", SSH port: " + sshPort + ", Jenkins Port: " + jenkinsPort);
-
 
         return new DockerRunningEnvironment(this, repositorySession, containerId, jenkinsPort, sshPort,
                 "http://" + dockerIp);
@@ -308,6 +310,7 @@ public class DockerEnvironmentDriver implements EnvironmentDriver {
     /**
      * Sleeps for specified amount of time. If sleep is interrupted
      * the exception is suppressed
+     * 
      * @param miliSeconds Time to sleep
      */
     private void sleep(int miliSeconds) {
@@ -320,6 +323,7 @@ public class DockerEnvironmentDriver implements EnvironmentDriver {
     /**
      * Prepares configuration of environment variables
      * for creating Docker container
+     * 
      * @return Environment variables configuration
      */
     private List<String> prepareEnvVariables() {
