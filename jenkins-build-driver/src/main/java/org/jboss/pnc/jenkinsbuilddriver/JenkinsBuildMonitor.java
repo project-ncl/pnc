@@ -78,6 +78,7 @@ public class JenkinsBuildMonitor {
                 }
             } catch (Exception e) {
                 onMonitorError.accept(e);
+                futureReference.get().cancel(true);
             }
         };
 
