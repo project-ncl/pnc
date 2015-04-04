@@ -51,11 +51,57 @@
   </dependencies>
 
   <profiles>
+    <!--
+         This needs a valid EAP 6.4.0 zip location that can be downloaded.
+         Use URL schema for the location. mvn -Pcontainer-tests -Deap6.zip.url=[file://|http:// .....jboss-eap-6.4.0.zip]
+         Alternatively define it in pnc.cfg and place that in the top level execution root directory.
+    -->
     <profile>
-      <id>postgresql</id>
+      <id>container-tests</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-antrun-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>prepare-eap-for-jdk8</id>
+                <goals>
+                  <goal>run</goal>
+                </goals>
+                <phase>generate-test-resources</phase>
+                <configuration>
+                  <target>
+                    <echo>Preparing EAP 6.4 application server</echo>
+                    <echo>EAP URL ${eap6.zip.url}</echo>
+                    <fail
+                        message="Please specify EAP 6.4 zip file URL via: -Deap6.zip.url="
+                        unless="eap6.zip.url" />
+                    <get usetimestamp="true" src="${eap6.zip.url}"
+                         skipexisting="true"
+                         dest="${test.server.unpack.dir}/${app.server}-${jboss.version}.zip" />
+                    <unzip
+                        src="${test.server.unpack.dir}/${app.server}-${jboss.version}.zip"
+                        dest="${test.server.unpack.dir}/" overwrite="true" />
+                  </target>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
+    <!-- 
+         For postgresql, the jdbc driver and datasource needs to be configured
+         before running any container tests.
+         This profile must be run after the EAP zip has been downloaded and extracted.
+     -->
+    <profile>
+      <id>postgresql-container-tests</id>
       <activation>
         <property>
-          <name>postgresql</name>
+          <name>postgresql-container-tests</name>
         </property>
       </activation>
       <dependencies>
@@ -67,8 +113,8 @@
       <build>
         <plugins>
           <plugin>
-            <groupId>org.wildfly.plugins</groupId>
-            <artifactId>wildfly-maven-plugin</artifactId>
+            <groupId>org.jboss.as.plugins</groupId>
+            <artifactId>jboss-as-maven-plugin</artifactId>
             <executions>
               <execution>
                 <id>start-server</id>
@@ -77,11 +123,11 @@
                   <goal>start</goal>
                 </goals>
                 <configuration>
-                  <jbossHome>${test.server.build.dir}</jbossHome>
+                  <jbossHome>${project.parent.basedir}/target/${app.server}-${jboss.version}</jbossHome>
                 </configuration>
               </execution>
               <execution>
-                <id>deploy-driver</id>
+                <id>deploy-postgresql-jdbc-driver</id>
                 <phase>generate-test-resources</phase>
                 <goals>
                   <goal>deploy-artifact</goal>
@@ -93,13 +139,14 @@
                 </configuration>
               </execution>
               <execution>
-                <id>add-datasource</id>
+                <id>add-postgresql-datasource</id>
                 <phase>generate-test-resources</phase>
                 <goals>
                   <goal>add-resource</goal>
                 </goals>
                 <configuration>
                   <address>subsystem=datasources</address>
+                  <enable-resource>true</enable-resource>
                   <resources>
                     <resource>
                       <address>xa-data-source=java:jboss/datasources/NewcastleDS</address>
@@ -160,46 +207,6 @@
       </build>
     </profile>
 
-    <!--
-         This needs a valid EAP 6.4.0 zip location that can be downloaded.
-         Use URL schema for the location. mvn -Pcontainer-tests -Deap6.zip.url=[file://|http:// .....jboss-eap-6.4.0.zip]
-         Alternatively define it in pnc.cfg and place that in the top level execution root directory.
-    -->
-    <profile>
-      <id>container-tests</id>
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-antrun-plugin</artifactId>
-            <executions>
-              <execution>
-                <id>prepare-eap-for-jdk8</id>
-                <goals>
-                  <goal>run</goal>
-                </goals>
-                <phase>generate-test-resources</phase>
-                <configuration>
-                  <target>
-                    <echo>Preparing EAP 6.4 application server</echo>
-                    <echo>EAP URL ${eap6.zip.url}</echo>
-                    <fail
-                        message="Please specify EAP 6.4 zip file URL via: -Deap6.zip.url="
-                        unless="eap6.zip.url" />
-                    <get usetimestamp="true" src="${eap6.zip.url}"
-                         skipexisting="true"
-                         dest="${test.server.unpack.dir}/${app.server}-${jboss.version}.zip" />
-                    <unzip
-                        src="${test.server.unpack.dir}/${app.server}-${jboss.version}.zip"
-                        dest="${test.server.unpack.dir}/" overwrite="true" />
-                  </target>
-                </configuration>
-              </execution>
-            </executions>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
   </profiles>
 
 </project>

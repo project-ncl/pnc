@@ -83,3 +83,13 @@ Main Modules
 * `pnc-spi`: Contains all SPI interfaces the orchestrator will use to coordinate its sub-services for provisioning environments and repositories, triggering builds, storing domain objects. It is meant to be used in conjunction with pnc-model
 * `pnc-processes`: Contains jBPM processes for PNC
 * `pnc-web`: Contains Web UI resoures (html + js pages, images etc.)
+
+Building with Postgresql
+-----------------------
+A Maven profile called `postgresql` is provided to configure the appropriate settings to build a deployment file which is compatible with the postgresql database.
+
+    mvn install -Ppostgresql
+
+The container tests can also be run against postgresql by activating the `container-tests` profile, the `postgresql` profile, and the `postgresql-container-tests` profile.
+
+    mvn install -Ppostgresql,container-tests,postgresql-container-tests
