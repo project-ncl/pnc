@@ -53,23 +53,6 @@ The demo instance uses two Docker containers, one for volumes (storage) and the 
 * `aprox-server-old.service` - Controls `aprox-old` container
 * `aprox-volumes-old.service` - Controls 'aprox-volumes-old` container
 
-Currently, updating the aprox-old container requires issuing the following commands:
-
-    #!/bin/bash
-    
-    systemctl stop aprox-server-old
-    docker stop aprox-old
-    docker rm aprox-old
-    
-    #edit /root/aprox-docker-utils.old/init-aprox-server-old to update APROX_VERSION
-    /root/aprox-docker-utils-old/init-aprox-server-old
-    
-    #wait for startup to complete, then CTL-C
-    docker stop aprox-old
-    systemctl start aprox-server-old
-
-At some point in the near future, we will try to capture these commands in a utility script that provides help feedback and other amenities.
-
 ### Installing from Scratch
 
 For obvious reasons, the demo instance of AProx is not automatically updated. Since it was added to the VM after the development instance, it has also required some customization to the files in the `aprox-docker-utils` tarball in order for the two instances to coexist peacefully. Installation is likewise a bit more hackish for now (at least until I can streamline multi-instance deployment a bit more in the scripts). Therefore, the steps below don't really fit nicely into a copy-paste bash script format, but require a bit more thought on the part of the admin.
