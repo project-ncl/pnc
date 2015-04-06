@@ -42,7 +42,7 @@ The script above grabs a copy of the aprox-docker-utils tarball (source [here](h
 
 The currently deployed version is stored in `/root/.autodeploy.last`, so redeployment can be forced by removing that file and letting the cron job run again.
 
- **NOTE:** The volumes container **will not be** redeployed, since it's existence is designed to support persistent storage while allowing the server container code to update.
+Note that the volumes container **will not be** redeployed, since it's existence is designed to support persistent storage while allowing the server container code to update.
 
 ## Demo Instance
 
