@@ -55,7 +55,9 @@ The demo instance uses two Docker containers, one for volumes (storage) and the 
 
 ### Installing from Scratch
 
-For obvious reasons, the demo instance of AProx is not automatically updated. Since it was added to the VM after the development instance, it has also required some customization to the files in the `aprox-docker-utils` tarball in order for the two instances to coexist peacefully. Installation is likewise a bit more hackish for now (at least until I can streamline multi-instance deployment a bit more in the scripts). Therefore, the steps below don't really fit nicely into a copy-paste bash script format, but require a bit more thought on the part of the admin. **NOTE:** The reference in aprox-server.service to aprox-volumes will need to be adjusted appropriately in step 2.
+For obvious reasons, the demo instance of AProx is not automatically updated. Since it was added to the VM after the development instance, it has also required some customization to the files in the `aprox-docker-utils` tarball in order for the two instances to coexist peacefully. Installation is likewise a bit more hackish for now (at least until I can streamline multi-instance deployment a bit more in the scripts). Therefore, the steps below don't really fit nicely into a copy-paste bash script format, but require a bit more thought on the part of the admin.
+
+**NOTE:** The reference in aprox-server.service to aprox-volumes will need to be adjusted appropriately in step 2.
 
 1. Download aprox-docker-utils and unpack to /root/aprox-docker-utils.old:
 
