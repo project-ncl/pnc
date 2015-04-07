@@ -77,8 +77,7 @@
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <illegaltransitivereportonly>false</illegaltransitivereportonly>
 
-    <!--<demo.pnc.ip.address>10.3.10.200:8080</demo.pnc.ip.address>-->
-    <demo.pnc.ip.address>127.0.0.1:8080</demo.pnc.ip.address>
+    <demo.pnc.ip.address>10.3.10.200:8080</demo.pnc.ip.address>
 
     <datasource.jndi.name>java:jboss/datasources/ExampleDS</datasource.jndi.name>
     <datasource.pool.name>as7example</datasource.pool.name>
