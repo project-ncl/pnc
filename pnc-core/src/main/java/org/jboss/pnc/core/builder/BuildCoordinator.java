@@ -22,6 +22,7 @@ import org.jboss.pnc.spi.builddriver.RunningBuild;
 import org.jboss.pnc.spi.datastore.DatastoreException;
 import org.jboss.pnc.spi.environment.EnvironmentDriver;
 import org.jboss.pnc.spi.environment.RunningEnvironment;
+import org.jboss.pnc.spi.environment.StartedEnvironment;
 import org.jboss.pnc.spi.environment.exception.EnvironmentDriverException;
 import org.jboss.pnc.spi.events.BuildStatusChangedEvent;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManager;
@@ -174,6 +175,7 @@ public class BuildCoordinator {
         
         configureRepository(buildTask, repositoryManager)
                 .thenCompose(repositoryConfiguration -> setUpEnvironment(buildTask, envDriver, repositoryConfiguration))
+                .thenCompose(startedEnvironment -> waitForEnvironmentInitialization(buildTask, startedEnvironment))
                 .thenCompose(runningEnvironment -> buildSetUp(buildTask, buildDriver, runningEnvironment))
                 .thenCompose(runningBuild -> waitBuildToComplete(buildTask, runningBuild))
                 .thenCompose(completedBuild -> retrieveBuildDriverResults(buildTask, completedBuild))
@@ -193,22 +195,40 @@ public class BuildCoordinator {
         }, executor);
     }
 
-    private CompletableFuture<RunningEnvironment> setUpEnvironment(BuildTask buildTask, 
+    private CompletableFuture<StartedEnvironment> setUpEnvironment(BuildTask buildTask, 
             EnvironmentDriver envDriver, RepositorySession repositorySession) {
             return CompletableFuture.supplyAsync(() -> {
                 buildTask.setStatus(BuildStatus.BUILD_ENV_SETTING_UP);
 
                 try {
-                    RunningEnvironment runningEnv = envDriver.buildEnvironment(
+                    StartedEnvironment startedEnv = envDriver.buildEnvironment(
                             buildTask.getBuildConfiguration().getEnvironment(), repositorySession);
-
-                    buildTask.setStatus(BuildStatus.BUILD_ENV_SETUP_COMPLETE_SUCCESS);
-                    return runningEnv;
+                    return startedEnv;
                 } catch (Throwable e) {
-                    buildTask.setStatus(BuildStatus.BUILD_ENV_SETUP_COMPLETE_WITH_ERROR);
                     throw new BuildProcessException(e);
                 }
             }, executor);
+    }
+    
+    private CompletableFuture<RunningEnvironment> waitForEnvironmentInitialization(BuildTask buildTask, StartedEnvironment startedEnvironment) {
+        CompletableFuture<RunningEnvironment> waitToCompleteFuture = new CompletableFuture<>();
+            try {
+                Consumer<RunningEnvironment> onComplete = (runningEnvironment) -> {
+                    buildTask.setStatus(BuildStatus.BUILD_ENV_SETUP_COMPLETE_SUCCESS);
+                    waitToCompleteFuture.complete(runningEnvironment);
+                };
+                Consumer<Exception> onError = (e) -> {
+                    buildTask.setStatus(BuildStatus.BUILD_ENV_SETUP_COMPLETE_WITH_ERROR);
+                    waitToCompleteFuture.completeExceptionally(e);
+                };
+                buildTask.setStatus(BuildStatus.BUILD_ENV_WAITING);
+
+                startedEnvironment.monitorInitialization(onComplete, onError);
+            } catch (Throwable e) {
+                waitToCompleteFuture.completeExceptionally(
+                        new BuildProcessException(e, startedEnvironment));  
+            }
+            return waitToCompleteFuture;
     }
 
     private CompletableFuture<RunningBuild> buildSetUp(BuildTask buildTask, BuildDriver buildDriver, RunningEnvironment runningEnvironment) {
@@ -322,16 +342,16 @@ public class BuildCoordinator {
         if(ex instanceof BuildProcessException) {
             BuildProcessException bpEx = (BuildProcessException) ex;
             try {
-                if (bpEx.getRunningEnvironment() != null)
-                    bpEx.getRunningEnvironment().destroyEnvironment();
+                if (bpEx.getDestroyableEnvironmnet() != null)
+                    bpEx.getDestroyableEnvironmnet().destroyEnvironment();
             } catch (EnvironmentDriverException envE) {
-                log.warn("Running environment" + bpEx.getRunningEnvironment() + " couldn't be destroyed!", envE);
+                log.warn("Running environment" + bpEx.getDestroyableEnvironmnet() + " couldn't be destroyed!", envE);
             }
         }
         else {
             //It shouldn't never happen - Throwable should be caught in all steps of build chain
             //and BuildProcessException should be thrown instead of that
-            log.warn("Possible leak of running environment! Build process ended with exception, "
+            log.warn("Possible leak of a running environment! Build process ended with exception, "
                     + "but the exception didn't contain information about running environment.");
         }
     }
