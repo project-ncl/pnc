@@ -17,7 +17,7 @@
     "bootstrap-select": "1.6.3",
     "ui-router": "~0.2.13",
     "angular-xeditable": "~0.1.8",
-    "angular-utils-ui-breadcrumbs": "~0.2.1"
+    "angular-utils-ui-breadcrumbs": "~0.2.1",
     "angular-websocket": "1.0.9",
     "keycloak": "1.1.0"
   },
