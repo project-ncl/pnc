@@ -83,11 +83,39 @@
                     <unzip
                         src="${test.server.unpack.dir}/${app.server}-${jboss.version}.zip"
                         dest="${test.server.unpack.dir}/" overwrite="true" />
+                    <copy file="${project.basedir}/src/test/resources/keycloak-standalone.xml" 
+                            tofile="${test.server.build.dir}/standalone/configuration/standalone.xml" overwrite="true"/>
                   </target>
                 </configuration>
               </execution>
             </executions>
           </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                  <execution>
+                    <id>copy</id>
+                    <phase>package</phase>
+                    <goals>
+                      <goal>unpack</goal>
+                    </goals>
+                    <configuration>
+                      <artifactItems>
+                        <artifactItem>
+                            <groupId>org.keycloak</groupId>
+                            <artifactId>keycloak-eap6-adapter-dist</artifactId>
+                            <version>1.1.0.Final</version>
+                            <type>zip</type>
+                            <overWrite>true</overWrite>
+                            <outputDirectory>${test.server.build.dir}</outputDirectory>
+                        </artifactItem>
+                      </artifactItems>
+                      <!-- other configurations here -->
+                    </configuration>
+                  </execution>
+                </executions>
+              </plugin>          
         </plugins>
       </build>
     </profile>
