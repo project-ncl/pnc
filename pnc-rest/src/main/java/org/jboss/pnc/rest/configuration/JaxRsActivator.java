@@ -1,5 +1,6 @@
 package org.jboss.pnc.rest.configuration;
 
+import org.jboss.pnc.rest.debug.TestEndpoint;
 import org.jboss.pnc.rest.endpoint.*;
 
 import javax.ws.rs.ApplicationPath;
@@ -30,6 +31,7 @@ public class JaxRsActivator extends Application {
         resources.add(UserEndpoint.class);
         resources.add(LicenseEndpoint.class);
         resources.add(EnvironmentEndpoint.class);
+        resources.add(TestEndpoint.class);
         resources.add(IllegalArgumentExceptionMapper.class);
     }
 

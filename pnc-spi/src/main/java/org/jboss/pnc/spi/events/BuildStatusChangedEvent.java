@@ -8,7 +8,6 @@ public interface BuildStatusChangedEvent {
     BuildStatus getOldStatus();
     BuildStatus getNewStatus();
     Integer getBuildConfigurationId();
-
     BuildExecution getBuildExecution();
 
 }

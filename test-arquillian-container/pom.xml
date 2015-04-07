@@ -37,6 +37,10 @@
       <artifactId>arquillian-transaction-jta</artifactId>
     </dependency>
     <dependency>
+      <groupId>org.jboss.spec.javax.websocket</groupId>
+      <artifactId>jboss-websocket-api_1.1_spec</artifactId>
+    </dependency>
+    <dependency>
       <groupId>org.jboss.shrinkwrap</groupId>
       <artifactId>shrinkwrap-api</artifactId>
     </dependency>
@@ -85,6 +89,46 @@
                         dest="${test.server.unpack.dir}/" overwrite="true" />
                   </target>
                 </configuration>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>org.jboss.as.plugins</groupId>
+            <artifactId>jboss-as-maven-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>start-server</id>
+                <phase>generate-test-resources</phase>
+                <goals>
+                  <goal>start</goal>
+                </goals>
+                <configuration>
+                  <jbossHome>${test.server.build.dir}</jbossHome>
+                </configuration>
+              </execution>
+              <execution>
+                <id>add-nio</id>
+                <phase>generate-test-resources</phase>
+                <goals>
+                  <goal>execute-commands</goal>
+                </goals>
+                <configuration>
+                  <execute-commands>
+                    <batch>true</batch>
+                    <commands>
+                      <command>
+                        /subsystem=web/connector=http/:write-attribute(name=protocol,value=org.apache.coyote.http11.Http11NioProtocol)
+                      </command>
+                    </commands>
+                  </execute-commands>
+                </configuration>
+              </execution>
+              <execution>
+                <id>shutdown-server</id>
+                <phase>generate-test-resources</phase>
+                <goals>
+                  <goal>shutdown</goal>
+                </goals>
               </execution>
             </executions>
           </plugin>
@@ -206,7 +250,6 @@
         </plugins>
       </build>
     </profile>
-
   </profiles>
 
 </project>

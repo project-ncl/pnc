@@ -100,9 +100,8 @@
     <jboss.version>6.4</jboss.version>
     <arquillian.container.groupId>org.jboss.as</arquillian.container.groupId>
     <arquillian.container.artifactId>jboss-as-arquillian-container-managed</arquillian.container.artifactId>
-    <arquillian.container.version>${version.jboss.as}</arquillian.container.version>
     <default.management.port>9999</default.management.port>
-    <test.server.unpack.dir>../target/</test.server.unpack.dir>
+    <test.server.unpack.dir>${project.basedir}/../target/</test.server.unpack.dir>
     <test.server.build.dir>${test.server.unpack.dir}/${app.server}-${jboss.version}</test.server.build.dir>
     <arquillian.container.type>managed</arquillian.container.type>
     <jboss.port.offset>0</jboss.port.offset>
@@ -897,7 +896,7 @@
         <plugin>
           <groupId>org.jboss.as.plugins</groupId>
           <artifactId>jboss-as-maven-plugin</artifactId>
-          <version>7.6.Final</version>
+          <version>7.7.Final</version>
         </plugin>
 
         <plugin>
