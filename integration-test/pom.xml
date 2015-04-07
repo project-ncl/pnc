@@ -33,6 +33,13 @@
     </dependency>
 
     <dependency>
+      <groupId>org.jboss.spec</groupId>
+      <artifactId>jboss-javaee-6.0</artifactId>
+      <type>pom</type>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
       <groupId>org.jboss.pnc</groupId>
       <artifactId>test-arquillian-container</artifactId>
       <scope>test</scope>
