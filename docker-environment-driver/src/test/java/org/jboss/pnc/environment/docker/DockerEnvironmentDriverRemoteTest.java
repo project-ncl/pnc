@@ -10,6 +10,7 @@ import org.jboss.pnc.model.BuildType;
 import org.jboss.pnc.model.Environment;
 import org.jboss.pnc.model.OperationalSystem;
 import org.jboss.pnc.model.RepositoryType;
+import org.jboss.pnc.spi.environment.RunningEnvironment;
 import org.jboss.pnc.spi.environment.exception.EnvironmentDriverException;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerException;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
@@ -27,6 +28,7 @@ import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 
 import javax.inject.Inject;
+
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
@@ -34,6 +36,7 @@ import java.io.InputStream;
 import java.net.Socket;
 import java.util.Map;
 import java.util.UUID;
+import java.util.function.Consumer;
 import java.util.logging.Logger;
 
 import static org.junit.Assert.*;
@@ -44,7 +47,7 @@ import static org.junit.Assert.*;
  * @author Jakub Bartecek <jbartece@redhat.com>
  */
 @RunWith(Arquillian.class)
-@Category({RemoteTest.class, ContainerTest.class})
+@Category({ RemoteTest.class, ContainerTest.class })
 public class DockerEnvironmentDriverRemoteTest {
 
     private static final Logger log = Logger.getLogger(DockerEnvironmentDriverRemoteTest.class.getName());
@@ -92,7 +95,7 @@ public class DockerEnvironmentDriverRemoteTest {
     @Before
     public void init() throws ConfigurationParseException {
         if (!isInitialized) {
-            final DockerEnvironmentDriverModuleConfig config = 
+            final DockerEnvironmentDriverModuleConfig config =
                     configurationService.getModuleConfig(DockerEnvironmentDriverModuleConfig.class);
             dockerIp = config.getIp();
             dockerControlEndpoint = "http://" + dockerIp + ":2375";
@@ -122,19 +125,36 @@ public class DockerEnvironmentDriverRemoteTest {
     public void buildDestroyEnvironmentTest() throws EnvironmentDriverException, InterruptedException {
         // Create container
         final Environment environment = new Environment(BuildType.JAVA, OperationalSystem.LINUX);
-        final DockerRunningEnvironment runningEnv = (DockerRunningEnvironment)
+        final DockerStartedEnvironment startedEnv = (DockerStartedEnvironment)
                 dockerEnvDriver.buildEnvironment(environment, DUMMY_REPOSITORY_CONFIGURATION);
 
-        try {
-            testRunningContainer(runningEnv, true, "Environment wasn't successfully built.");
-        } catch (Exception | AssertionError e) {
-            dockerEnvDriver.destroyEnvironment(runningEnv.getId());
-            throw e;
-        }
+        Consumer<RunningEnvironment> onComplete = (runningEnv) -> {
+            try {
+                try {
+                    testRunningContainer((DockerRunningEnvironment) runningEnv, true,
+                            "Environment wasn't successfully built.");
+                } catch (Exception | AssertionError e) {
+                    try {
+                        dockerEnvDriver.destroyEnvironment(runningEnv.getId());
+                    } catch (Exception e1) {
+                    }
+                    throw e;
+                }
 
-        // Destroy container
-        dockerEnvDriver.destroyEnvironment(runningEnv.getId());
-        testRunningContainer(runningEnv, false, "Environment wasn't successfully destroyed.");
+                // Destroy container
+                dockerEnvDriver.destroyEnvironment(runningEnv.getId());
+                testRunningContainer((DockerRunningEnvironment) runningEnv, false,
+                        "Environment wasn't successfully destroyed.");
+            } catch (Throwable e) {
+                fail(e.getMessage());
+            }
+        };
+
+        Consumer<Exception> onError = (e) -> {
+            fail("Failed to init docker container. " + e.getMessage());
+        };
+
+        startedEnv.monitorInitialization(onComplete, onError);
     }
 
     @Test
@@ -147,32 +167,47 @@ public class DockerEnvironmentDriverRemoteTest {
         copyFileToContainerInvariantData(null, new ByteArrayInputStream("TEST CONTENT".getBytes("UTF-8")));
     }
 
-    private void copyFileToContainerInvariantData(final String string, final InputStream stream) throws Exception {
+    private void copyFileToContainerInvariantData(final String string, final InputStream stream)
+            throws Exception {
         final Environment environment = new Environment(BuildType.JAVA, OperationalSystem.LINUX);
 
-        final DockerRunningEnvironment runningEnv = (DockerRunningEnvironment)
+        final DockerStartedEnvironment startedEnv = (DockerStartedEnvironment)
                 dockerEnvDriver.buildEnvironment(environment, DUMMY_REPOSITORY_CONFIGURATION);
 
         final String pathToFile = "/tmp/testFile-" + UUID.randomUUID().toString() + ".txt";
 
-        // Get content of container's file system
-        final String fsContentOld = HttpUtils.processGetRequest(String.class, dockerControlEndpoint + "/containers/"
-                + runningEnv.getId() + "/changes");
-        fsContentOld.contains(pathToFile);
+        Consumer<RunningEnvironment> onComplete = (generalRunningEnv) -> {
+            try {
+                DockerRunningEnvironment runningEnv = (DockerRunningEnvironment) generalRunningEnv;
+                // Get content of container's file system
+                final String fsContentOld = HttpUtils.processGetRequest(String.class, dockerControlEndpoint
+                        + "/containers/" + runningEnv.getId() + "/changes");
+                fsContentOld.contains(pathToFile);
 
-        try {
-            dockerEnvDriver.copyFileToContainer(runningEnv.getSshPort(), pathToFile, string, stream);
-        } catch (Exception | AssertionError e) {
-            dockerEnvDriver.destroyEnvironment(runningEnv.getId());
-            throw e;
-        }
+                try {
+                    dockerEnvDriver.copyFileToContainer(runningEnv.getSshPort(), pathToFile, string, stream);
+                } catch (Exception | AssertionError e) {
+                    dockerEnvDriver.destroyEnvironment(runningEnv.getId());
+                    throw e;
+                }
 
-        // Get content of container's file system
-        final String fsContentNew = HttpUtils.processGetRequest(String.class, dockerControlEndpoint + "/containers/"
-                + runningEnv.getId() + "/changes");
-        assertTrue("File was not coppied to the container.", fsContentNew.contains(pathToFile));
+                // Get content of container's file system
+                final String fsContentNew = HttpUtils.processGetRequest(String.class, dockerControlEndpoint
+                        + "/containers/"
+                        + runningEnv.getId() + "/changes");
+                assertTrue("File was not coppied to the container.", fsContentNew.contains(pathToFile));
 
-        dockerEnvDriver.destroyEnvironment(runningEnv.getId());
+                dockerEnvDriver.destroyEnvironment(runningEnv.getId());
+            } catch (Throwable e) {
+                fail(e.getMessage());
+            }
+        };
+
+        Consumer<Exception> onError = (e) -> {
+            fail("Failed to init docker container. " + e.getMessage());
+        };
+
+        startedEnv.monitorInitialization(onComplete, onError);
     }
 
     /**
@@ -182,14 +217,16 @@ public class DockerEnvironmentDriverRemoteTest {
      * @param shouldBeRunning Indicates, if the environment should be running or should be not available
      * @param baseErrorMsg Prefix of error message, which is printed if the container is not in expected state
      */
-    private void testRunningContainer(final DockerRunningEnvironment runningEnv, final boolean shouldBeRunning,
-            final String baseErrorMsg)  {
+    private void testRunningContainer(final DockerRunningEnvironment runningEnv,
+            final boolean shouldBeRunning,
+            final String baseErrorMsg) {
         final int sshPort = runningEnv.getSshPort();
         final String containerId = runningEnv.getId();
 
         // Test if the container is running
         try {
-            HttpUtils.testResponseHttpCode(200, dockerControlEndpoint + "/containers/" + containerId + "/json");
+            HttpUtils.testResponseHttpCode(200, dockerControlEndpoint + "/containers/" + containerId
+                    + "/json");
             assertEquals(baseErrorMsg + " Container is running", shouldBeRunning, true);
         } catch (final Exception e) {
             assertEquals(baseErrorMsg + " Container is not running", shouldBeRunning, false);
@@ -198,11 +235,11 @@ public class DockerEnvironmentDriverRemoteTest {
         // Test if Jenkins is running
         try {
             HttpUtils.testResponseHttpCode(200, runningEnv.getJenkinsUrl());
-            if(!shouldBeRunning) {
+            if (!shouldBeRunning) {
                 fail("Jenkins is running, but should be down");
             }
         } catch (final Exception e) {
-            if(shouldBeRunning) {
+            if (shouldBeRunning) {
                 fail("Jenkins wasn't started successully");
             }
         }
@@ -225,7 +262,6 @@ public class DockerEnvironmentDriverRemoteTest {
         }
         return true;
     }
-
 
     private static class DummyRepositoryConfiguration implements RepositorySession {
 
