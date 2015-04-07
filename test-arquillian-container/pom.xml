@@ -87,13 +87,37 @@
                     <unzip
                         src="${test.server.unpack.dir}/${app.server}-${jboss.version}.zip"
                         dest="${test.server.unpack.dir}/" overwrite="true" />
-                    <copy file="${project.basedir}/src/test/resources/keycloak-standalone.xml" 
-                            tofile="${test.server.build.dir}/standalone/configuration/standalone.xml" overwrite="true"/>
                   </target>
                 </configuration>
               </execution>
             </executions>
           </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                  <execution>
+                    <id>copy-keycloak-adapter</id>
+                    <phase>generate-test-resources</phase>
+                    <goals>
+                      <goal>unpack</goal>
+                    </goals>
+                    <configuration>
+                      <artifactItems>
+                        <artifactItem>
+                            <groupId>org.keycloak</groupId>
+                            <artifactId>keycloak-eap6-adapter-dist</artifactId>
+                            <version>1.1.0.Final</version>
+                            <type>zip</type>
+                            <overWrite>true</overWrite>
+                            <outputDirectory>${test.server.build.dir}</outputDirectory>
+                        </artifactItem>
+                      </artifactItems>
+                      <!-- other configurations here -->
+                    </configuration>
+                  </execution>
+                </executions>
+              </plugin>          
           <plugin>
             <groupId>org.jboss.as.plugins</groupId>
             <artifactId>jboss-as-maven-plugin</artifactId>
@@ -126,40 +150,42 @@
                 </configuration>
               </execution>
               <execution>
-                <id>shutdown-server</id>
+                <id>add-keycloak</id>
                 <phase>generate-test-resources</phase>
+                <goals>
+                  <goal>execute-commands</goal>
+                </goals>
+                <configuration>
+                  <execute-commands>
+                    <commands>
+                      <command>
+                       /extension=org.keycloak.keycloak-subsystem:add
+                      </command>
+                      <command>
+                        /subsystem=keycloak:add
+                      </command>
+                      <command>
+                        /subsystem=security/security-domain=keycloak:add
+                      </command>
+                      <command>
+                       /subsystem=security/security-domain=keycloak/authentication=classic:add(login-modules=[{"code"=>"org.keycloak.adapters.jboss.KeycloakLoginModule", "flag"=>"required"}])
+                      </command>
+                      <command>
+                        :reload
+                      </command>
+                    </commands>
+                  </execute-commands>
+                </configuration>
+              </execution>
+              <!-- execution>
+                <id>shutdown-server</id>
+                <phase>process-test-resources</phase>
                 <goals>
                   <goal>shutdown</goal>
                 </goals>
-              </execution>
+              </execution-->
             </executions>
           </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-dependency-plugin</artifactId>
-                <executions>
-                  <execution>
-                    <id>copy</id>
-                    <phase>package</phase>
-                    <goals>
-                      <goal>unpack</goal>
-                    </goals>
-                    <configuration>
-                      <artifactItems>
-                        <artifactItem>
-                            <groupId>org.keycloak</groupId>
-                            <artifactId>keycloak-eap6-adapter-dist</artifactId>
-                            <version>1.1.0.Final</version>
-                            <type>zip</type>
-                            <overWrite>true</overWrite>
-                            <outputDirectory>${test.server.build.dir}</outputDirectory>
-                        </artifactItem>
-                      </artifactItems>
-                      <!-- other configurations here -->
-                    </configuration>
-                  </execution>
-                </executions>
-              </plugin>          
         </plugins>
       </build>
     </profile>
