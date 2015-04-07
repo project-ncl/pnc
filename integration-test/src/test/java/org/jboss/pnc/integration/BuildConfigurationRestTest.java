@@ -97,11 +97,13 @@ public class BuildConfigurationRestTest {
                     .contentType(ContentType.JSON).port(getHttpPort()).when().get(PRODUCT_REST_ENDPOINT).then().statusCode(200)
                     .body(JsonMatcher.containsJsonAttribute("[0].id", value -> productId = Integer.valueOf(value)));
 
-            given().contentType(ContentType.JSON).port(getHttpPort()).when()
+            given().header("Accept", "application/json").header("Authorization", "Bearer " + authProvider.getTokenString())
+                    .contentType(ContentType.JSON).port(getHttpPort()).when()
                     .get(String.format(ENVIRONMENT_REST_ENDPOINT, productId)).then().statusCode(200)
                     .body(JsonMatcher.containsJsonAttribute("[0].id", value -> environmentId = Integer.valueOf(value)));
 
-            given().contentType(ContentType.JSON).port(getHttpPort()).when().get(CONFIGURATION_SET_REST_ENDPOINT).then()
+            given().header("Accept", "application/json").header("Authorization", "Bearer " + authProvider.getTokenString())
+                    .contentType(ContentType.JSON).port(getHttpPort()).when().get(CONFIGURATION_SET_REST_ENDPOINT).then()
                     .statusCode(200)
                     .body(JsonMatcher.containsJsonAttribute("[0].id", value -> configurationSetId = Integer.valueOf(value)));
         }
@@ -129,7 +131,8 @@ public class BuildConfigurationRestTest {
         configurationTemplate.addValue("_projectId", String.valueOf(projectId));
         configurationTemplate.addValue("_environmentId", String.valueOf(environmentId));
 
-        given().body(configurationTemplate.fillTemplate()).contentType(ContentType.JSON).port(getHttpPort()).when().post(
+        given().header("Accept", "application/json").header("Authorization", "Bearer " + authProvider.getTokenString())
+                    .body(configurationTemplate.fillTemplate()).contentType(ContentType.JSON).port(getHttpPort()).when().post(
                 CONFIGURATION_REST_ENDPOINT).then()
                 .statusCode(201);
     }
@@ -259,14 +262,16 @@ public class BuildConfigurationRestTest {
         configurationTemplate.addValue("_projectId", id);
         configurationTemplate.addValue("_environmentId", String.valueOf(environmentId));
 
-        given().body(configurationTemplate.fillTemplate()).contentType(ContentType.JSON).port(getHttpPort()).when()
+        given().header("Accept", "application/json").header("Authorization", "Bearer " + authProvider.getTokenString())
+                    .body(configurationTemplate.fillTemplate()).contentType(ContentType.JSON).port(getHttpPort()).when()
                 .post(CONFIGURATION_REST_ENDPOINT).then().statusCode(400);
     }
 
     @Test
     @InSequence(999)
     public void shouldDeleteBuildConfiguration() throws Exception {
-        given().contentType(ContentType.JSON).port(getHttpPort()).when()
+        given().header("Accept", "application/json").header("Authorization", "Bearer " + authProvider.getTokenString())
+                    .contentType(ContentType.JSON).port(getHttpPort()).when()
                 .delete(String.format(CONFIGURATION_SPECIFIC_REST_ENDPOINT, configurationId)).then().statusCode(200);
     }
 }
