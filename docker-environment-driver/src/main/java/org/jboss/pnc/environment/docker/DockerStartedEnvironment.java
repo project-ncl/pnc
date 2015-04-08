@@ -6,8 +6,6 @@ import org.jboss.pnc.spi.environment.StartedEnvironment;
 import org.jboss.pnc.spi.environment.exception.EnvironmentDriverException;
 import org.jboss.pnc.spi.repositorymanager.model.RepositorySession;
 
-import javax.inject.Inject;
-
 import java.lang.invoke.MethodHandles;
 import java.util.function.Consumer;
 
@@ -21,15 +19,15 @@ public class DockerStartedEnvironment implements StartedEnvironment {
 
     private static final Logger logger = Logger.getLogger(MethodHandles.lookup().lookupClass().getName());
 
-    @Inject
-    private DockerInitializationMonitor dockerInitMonitor;
+    private final DockerInitializationMonitor dockerInitMonitor;
     
-    private DockerRunningEnvironment preparedRunningEnvironment;
+    private final DockerRunningEnvironment preparedRunningEnvironment;
 
-    public DockerStartedEnvironment(DockerEnvironmentDriver dockerEnvDriver,
+    public DockerStartedEnvironment(DockerEnvironmentDriver dockerEnvDriver, DockerInitializationMonitor dockerInitMonitor,
             RepositorySession repositorySession, String id, int jenkinsPort, int sshPort, String containerUrl) {
         this.preparedRunningEnvironment = new DockerRunningEnvironment(dockerEnvDriver, repositorySession,
                 id, jenkinsPort, sshPort, containerUrl);
+        this.dockerInitMonitor = dockerInitMonitor;
     }
 
     @Override

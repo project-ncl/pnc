@@ -63,6 +63,9 @@ public class DockerEnvironmentDriver implements EnvironmentDriver {
     @Inject
     private ConfigurationBuilder configBuilder;
 
+    @Inject
+    private DockerInitializationMonitor dockerInitMonitor;
+
     private ComputeServiceContext dockerContext;
 
     private RemoteApi dockerClient;
@@ -181,8 +184,8 @@ public class DockerEnvironmentDriver implements EnvironmentDriver {
         logger.info("Created and started Docker container. ID: " + containerId
                 + ", SSH port: " + sshPort + ", Jenkins Port: " + jenkinsPort);
 
-        return new DockerStartedEnvironment(this, repositorySession, containerId, jenkinsPort, sshPort,
-                "http://" + dockerIp);
+        return new DockerStartedEnvironment(this, dockerInitMonitor, repositorySession,
+                containerId, jenkinsPort, sshPort, "http://" + dockerIp);
     }
 
     @Override
