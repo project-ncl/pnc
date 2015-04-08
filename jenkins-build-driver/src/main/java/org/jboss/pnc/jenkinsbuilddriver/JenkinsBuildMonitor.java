@@ -73,10 +73,11 @@ public class JenkinsBuildMonitor {
                 int duration = jenkinsBuildDetails.getDuration();
                 if (!building && duration > 0 ) {
                     BuildStatusAdapter buildStatusAdapter = new BuildStatusAdapter(jenkinsBuildDetails.getResult());
+                    futureReference.get().cancel(false);
                     onMonitorComplete.accept(buildStatusAdapter.getBuildStatus());
-                    futureReference.get().cancel(true);
                 }
             } catch (Exception e) {
+                futureReference.get().cancel(false);
                 onMonitorError.accept(e);
             }
         };

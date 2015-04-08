@@ -12,14 +12,7 @@ import org.jboss.pnc.spi.repositorymanager.model.RepositorySession;
  * @author Jakub Bartecek <jbartece@redhat.com>
  *
  */
-public interface RunningEnvironment extends Serializable {
-
-    /**
-     * Destroys current running environment
-     * 
-     * @throws EnvironmentDriverException Thrown if any error occurs during destroying running environment
-     */
-    void destroyEnvironment() throws EnvironmentDriverException;
+public interface RunningEnvironment extends Serializable, DestroyableEnvironmnet {
 
     /**
      * Transfers data to the running environment. The data are saved to the file on path specified
@@ -54,7 +47,7 @@ public interface RunningEnvironment extends Serializable {
     int getJenkinsPort();
 
     /**
-     * @return Jenkins URL
+     * @return Jenkins URL in format IP:PORT
      */
     String getJenkinsUrl();
 

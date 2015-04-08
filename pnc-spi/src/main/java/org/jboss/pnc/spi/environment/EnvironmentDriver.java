@@ -19,10 +19,10 @@ public interface EnvironmentDriver {
      * @param environment Specification of requested environment
      * @param repositorySession Configuration of repository to store built artifacts
      * 
-     * @return Identification of a new started environment
+     * @return New started environment in initialization phase
      * @throws EnvironmentDriverException Thrown if any error occurs during starting new environment
      */
-    RunningEnvironment buildEnvironment(Environment buildEnvironment,
+    StartedEnvironment buildEnvironment(Environment buildEnvironment,
             RepositorySession repositorySession) throws EnvironmentDriverException;
 
     /**

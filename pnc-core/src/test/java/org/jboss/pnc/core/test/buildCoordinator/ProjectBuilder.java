@@ -1,7 +1,6 @@
 package org.jboss.pnc.core.test.buildCoordinator;
 
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.pnc.common.Configuration;
@@ -27,14 +26,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
-import java.util.ArrayList;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
-
-import javax.inject.Inject;
 
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2015-01-06.
@@ -51,7 +48,7 @@ public class ProjectBuilder {
     TestCDIBuildStatusChangedReceiver statusChangedReceiver;
 
     private static final Logger log = LoggerFactory.getLogger(ProjectBuilder.class);
-    public static final int N_STATUS_UPDATES = 12;
+    public static final int N_STATUS_UPDATES = 13;
 
     @Deployment
     public static JavaArchive createDeployment() {
@@ -141,6 +138,7 @@ public class ProjectBuilder {
 
     private void assertAllStatusUpdateReceived(List<BuildStatusChangedEvent> receivedStatuses, Integer configurationId) {
         assertStatusUpdateReceived(receivedStatuses, BuildStatus.BUILD_ENV_SETTING_UP, configurationId);
+        assertStatusUpdateReceived(receivedStatuses, BuildStatus.BUILD_ENV_WAITING, configurationId);
         assertStatusUpdateReceived(receivedStatuses, BuildStatus.BUILD_ENV_SETUP_COMPLETE_SUCCESS, configurationId);
         assertStatusUpdateReceived(receivedStatuses, BuildStatus.REPO_SETTING_UP, configurationId);
         assertStatusUpdateReceived(receivedStatuses, BuildStatus.BUILD_SETTING_UP, configurationId);

@@ -8,7 +8,7 @@ import org.jboss.pnc.model.BuildType;
 import org.jboss.pnc.model.Environment;
 import org.jboss.pnc.model.OperationalSystem;
 import org.jboss.pnc.spi.environment.EnvironmentDriver;
-import org.jboss.pnc.spi.environment.RunningEnvironment;
+import org.jboss.pnc.spi.environment.StartedEnvironment;
 import org.jboss.pnc.spi.environment.exception.EnvironmentDriverException;
 import org.jboss.pnc.spi.repositorymanager.model.RepositorySession;
 import org.jclouds.ContextBuilder;
@@ -57,14 +57,14 @@ public class DockerEnvironmentDriver implements EnvironmentDriver {
 
     private static final Logger logger = Logger.getLogger(MethodHandles.lookup().lookupClass().getName());
 
-    /** Time how long the driver waits until all services are fully up and running (in seconds) */
-    private static final int MAX_CONTAINER_LOADING_TIME = 180;
-
     @Inject
     private Generator generator;
 
     @Inject
     private ConfigurationBuilder configBuilder;
+
+    @Inject
+    private DockerInitializationMonitor dockerInitMonitor;
 
     private ComputeServiceContext dockerContext;
 
@@ -132,7 +132,7 @@ public class DockerEnvironmentDriver implements EnvironmentDriver {
     }
 
     @Override
-    public RunningEnvironment buildEnvironment(Environment buildEnvironment,
+    public StartedEnvironment buildEnvironment(Environment buildEnvironment,
             RepositorySession repositorySession) throws EnvironmentDriverException {
         if (!canBuildEnvironment(buildEnvironment))
             throw new UnsupportedOperationException(
@@ -170,8 +170,6 @@ public class DockerEnvironmentDriver implements EnvironmentDriver {
                             .getDependencyUrl(),
                             repositorySession.getConnectionInfo().getDeployUrl()), null);
 
-            // Wait until Jenkins is fully up and running
-            waitToInitServices("http://" + dockerIp + ":" + jenkinsPort);
         } catch (Exception e) {
             // Creating container failed => clean up
             if (buildContainerState != BuildContainerState.NOT_BUILT) {
@@ -186,8 +184,8 @@ public class DockerEnvironmentDriver implements EnvironmentDriver {
         logger.info("Created and started Docker container. ID: " + containerId
                 + ", SSH port: " + sshPort + ", Jenkins Port: " + jenkinsPort);
 
-        return new DockerRunningEnvironment(this, repositorySession, containerId, jenkinsPort, sshPort,
-                "http://" + dockerIp);
+        return new DockerStartedEnvironment(this, dockerInitMonitor, repositorySession,
+                containerId, jenkinsPort, sshPort, "http://" + dockerIp);
     }
 
     @Override
@@ -283,41 +281,6 @@ public class DockerEnvironmentDriver implements EnvironmentDriver {
      */
     private int getSshPort(Map<String, HostPortMapping> ports) {
         return Integer.parseInt(ports.get("22").getHostPort());
-    }
-
-    /**
-     * Wait until Jenkins in container is fully up and running
-     * 
-     * @throws EnvironmentDriverException Thrown if the services are not initialized in time specified by variable
-     *         MAX_CONTAINER_LOADING_TIME
-     */
-    private void waitToInitServices(String jenkinsUrl) throws EnvironmentDriverException {
-        for (int i = 0; i < MAX_CONTAINER_LOADING_TIME; i++) {
-            try {
-                HttpUtils.testResponseHttpCode(200, jenkinsUrl);
-                return;
-            } catch (Exception e1) {
-                // Jenkins is not fully up
-                logger.fine("Container services are not fully up and running. Waiting ...");
-                sleep(1000);
-            }
-        }
-
-        throw new EnvironmentDriverException("Jenkins server in container was not fully up and running in: "
-                + MAX_CONTAINER_LOADING_TIME + " seconds");
-    }
-
-    /**
-     * Sleeps for specified amount of time. If sleep is interrupted
-     * the exception is suppressed
-     * 
-     * @param miliSeconds Time to sleep
-     */
-    private void sleep(int miliSeconds) {
-        try {
-            Thread.sleep(miliSeconds);
-        } catch (InterruptedException e) {
-        }
     }
 
     /**
