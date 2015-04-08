@@ -2,15 +2,19 @@ package org.jboss.pnc.integration;
 
 import com.jayway.restassured.http.ContentType;
 import com.jayway.restassured.response.Response;
+
 import org.assertj.core.api.Assertions;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.junit.InSequence;
+import org.jboss.pnc.auth.AuthenticationProvider;
+import org.jboss.pnc.auth.ExternalAuthentication;
 import org.jboss.pnc.common.util.IoUtils;
 import org.jboss.pnc.integration.matchers.JsonMatcher;
 import org.jboss.pnc.integration.deployments.Deployments;
 import org.jboss.pnc.test.category.ContainerTest;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
@@ -18,6 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.invoke.MethodHandles;
 
 import static com.jayway.restassured.RestAssured.given;
@@ -36,6 +41,9 @@ public class ProductVersionRestTest {
     private static int productId;
     private static int productVersionId;
     private static int newProductVersionId;
+    
+    private static AuthenticationProvider authProvider;
+
 
     @Deployment(testable = false)
     public static EnterpriseArchive deploy() {
@@ -44,17 +52,31 @@ public class ProductVersionRestTest {
         return enterpriseArchive;
     }
 
+    @Before
+    public void prepareData() {
+        try {
+            InputStream is = this.getClass().getResourceAsStream("/keycloak.json");
+            ExternalAuthentication ea = new ExternalAuthentication(is);
+            authProvider = ea.authenticate(System.getenv("PNC_EXT_OAUTH_USERNAME"), System.getenv("PNC_EXT_OAUTH_PASSWORD"));
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+    }
+    
     @Test
     @InSequence(1)
     public void prepareProductId() {
-        given().contentType(ContentType.JSON).port(getHttpPort()).when().get(PRODUCT_REST_ENDPOINT).then().statusCode(200)
+        given().header("Accept", "application/json").header("Authorization", "Bearer " + authProvider.getTokenString())
+                    .contentType(ContentType.JSON).port(getHttpPort()).when().get(PRODUCT_REST_ENDPOINT).then().statusCode(200)
                 .body(JsonMatcher.containsJsonAttribute("[0].id", value -> productId = Integer.valueOf(value)));
     }
 
     @Test
     @InSequence(2)
     public void prepareProductVersionId() {
-        given().contentType(ContentType.JSON).port(getHttpPort()).when()
+        given().header("Accept", "application/json").header("Authorization", "Bearer " + authProvider.getTokenString())
+                    .contentType(ContentType.JSON).port(getHttpPort()).when()
                 .get(String.format(PRODUCT_VERSION_REST_ENDPOINT, productId)).then().statusCode(200)
                 .body(JsonMatcher.containsJsonAttribute("[0].id", value -> productVersionId = Integer.valueOf(value)));
     }
@@ -62,7 +84,8 @@ public class ProductVersionRestTest {
     @Test
     @InSequence(3)
     public void shouldGetSpecificProductVersion() {
-        given().contentType(ContentType.JSON).port(getHttpPort()).when()
+        given().header("Accept", "application/json").header("Authorization", "Bearer " + authProvider.getTokenString())
+                    .contentType(ContentType.JSON).port(getHttpPort()).when()
                 .get(String.format(PRODUCT_VERSION_SPECIFIC_REST_ENDPOINT, productId, productVersionId)).then().statusCode(200)
                 .body(JsonMatcher.containsJsonAttribute("id"));
     }
@@ -72,7 +95,8 @@ public class ProductVersionRestTest {
     public void shouldCreateNewProductVersion() throws IOException {
         String rawJson = loadJsonFromFile("productVersion");
 
-        Response response = given().body(rawJson).contentType(ContentType.JSON).port(getHttpPort()).when()
+        Response response = given().header("Accept", "application/json").header("Authorization", "Bearer " + authProvider.getTokenString())
+                    .body(rawJson).contentType(ContentType.JSON).port(getHttpPort()).when()
                 .post(String.format(PRODUCT_VERSION_REST_ENDPOINT, productId));
         Assertions.assertThat(response.statusCode()).isEqualTo(201);
 
@@ -98,7 +122,8 @@ public class ProductVersionRestTest {
 
         logger.info("### newProductVersionId: " + newProductVersionId);
 
-        Response response = given().contentType(ContentType.JSON).port(getHttpPort()).when()
+        Response response = given().header("Accept", "application/json").header("Authorization", "Bearer " + authProvider.getTokenString())
+                    .contentType(ContentType.JSON).port(getHttpPort()).when()
                 .get(String.format(PRODUCT_VERSION_SPECIFIC_REST_ENDPOINT, productId, newProductVersionId));
 
         Assertions.assertThat(response.statusCode()).isEqualTo(200);
@@ -112,12 +137,14 @@ public class ProductVersionRestTest {
 
         logger.info("### rawJson: " + response.body().jsonPath().prettyPrint());
 
-        given().body(rawJson).contentType(ContentType.JSON).port(getHttpPort()).when()
+        given().header("Accept", "application/json").header("Authorization", "Bearer " + authProvider.getTokenString())
+                    .body(rawJson).contentType(ContentType.JSON).port(getHttpPort()).when()
                 .put(String.format(PRODUCT_VERSION_SPECIFIC_REST_ENDPOINT, productId, newProductVersionId)).then()
                 .statusCode(200);
 
         // Reading updated resource
-        Response updateResponse = given().contentType(ContentType.JSON).port(getHttpPort()).when()
+        Response updateResponse = given().header("Accept", "application/json").header("Authorization", "Bearer " + authProvider.getTokenString())
+                    .contentType(ContentType.JSON).port(getHttpPort()).when()
                 .get(String.format(PRODUCT_VERSION_SPECIFIC_REST_ENDPOINT, productId, newProductVersionId));
 
         Assertions.assertThat(updateResponse.statusCode()).isEqualTo(200);

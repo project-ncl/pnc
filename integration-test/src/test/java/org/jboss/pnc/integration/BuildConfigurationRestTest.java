@@ -2,9 +2,13 @@ package org.jboss.pnc.integration;
 
 import com.jayway.restassured.http.ContentType;
 import com.jayway.restassured.response.Response;
+
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.junit.InSequence;
+import org.jboss.pnc.auth.AuthenticationProvider;
+import org.jboss.pnc.auth.ExternalAuthentication;
+import org.jboss.pnc.common.util.IoUtils;
 import org.jboss.pnc.integration.assertions.ResponseAssertion;
 import org.jboss.pnc.integration.deployments.Deployments;
 import org.jboss.pnc.integration.matchers.JsonMatcher;
@@ -23,6 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.invoke.MethodHandles;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -56,6 +61,8 @@ public class BuildConfigurationRestTest {
     private static AtomicBoolean isInitialized = new AtomicBoolean();
 
     private static int configurationSetId;
+    
+    private static AuthenticationProvider authProvider;
 
     @Deployment(testable = false)
     public static EnterpriseArchive deploy() {
@@ -73,18 +80,30 @@ public class BuildConfigurationRestTest {
     @Before
     public void prepareData() {
         if (!isInitialized.getAndSet(true)) {
-            given().contentType(ContentType.JSON).port(getHttpPort()).when().get(CONFIGURATION_REST_ENDPOINT).then()
+            try {
+                InputStream is = this.getClass().getResourceAsStream("/keycloak.json");
+                ExternalAuthentication ea = new ExternalAuthentication(is);
+                authProvider = ea.authenticate(System.getenv("PNC_EXT_OAUTH_USERNAME"), System.getenv("PNC_EXT_OAUTH_PASSWORD"));
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+            given().header("Accept", "application/json").header("Authorization", "Bearer " + authProvider.getTokenString())
+                    .contentType(ContentType.JSON).port(getHttpPort()).when().get(CONFIGURATION_REST_ENDPOINT).then()
                     .statusCode(200)
                     .body(JsonMatcher.containsJsonAttribute("[0].id", value -> configurationId = Integer.valueOf(value)));
 
-            given().contentType(ContentType.JSON).port(getHttpPort()).when().get(PRODUCT_REST_ENDPOINT).then().statusCode(200)
+            given().header("Accept", "application/json").header("Authorization", "Bearer " + authProvider.getTokenString())
+                    .contentType(ContentType.JSON).port(getHttpPort()).when().get(PRODUCT_REST_ENDPOINT).then().statusCode(200)
                     .body(JsonMatcher.containsJsonAttribute("[0].id", value -> productId = Integer.valueOf(value)));
 
-            given().contentType(ContentType.JSON).port(getHttpPort()).when()
+            given().header("Accept", "application/json").header("Authorization", "Bearer " + authProvider.getTokenString())
+                    .contentType(ContentType.JSON).port(getHttpPort()).when()
                     .get(String.format(ENVIRONMENT_REST_ENDPOINT, productId)).then().statusCode(200)
                     .body(JsonMatcher.containsJsonAttribute("[0].id", value -> environmentId = Integer.valueOf(value)));
 
-            given().contentType(ContentType.JSON).port(getHttpPort()).when().get(CONFIGURATION_SET_REST_ENDPOINT).then()
+            given().header("Accept", "application/json").header("Authorization", "Bearer " + authProvider.getTokenString())
+                    .contentType(ContentType.JSON).port(getHttpPort()).when().get(CONFIGURATION_SET_REST_ENDPOINT).then()
                     .statusCode(200)
                     .body(JsonMatcher.containsJsonAttribute("[0].id", value -> configurationSetId = Integer.valueOf(value)));
         }
@@ -93,13 +112,15 @@ public class BuildConfigurationRestTest {
     @Test
     @InSequence(-2)
     public void prepareProjectId() {
-        given().contentType(ContentType.JSON).port(getHttpPort()).when().get(PROJECT_REST_ENDPOINT).then().statusCode(200)
+        given().header("Accept", "application/json").header("Authorization", "Bearer " + authProvider.getTokenString())
+                    .contentType(ContentType.JSON).port(getHttpPort()).when().get(PROJECT_REST_ENDPOINT).then().statusCode(200)
                 .body(JsonMatcher.containsJsonAttribute("[0].id", value -> projectId = Integer.valueOf(value)));
     }
 
     @Test
     public void shouldGetSpecificBuildConfiguration() {
-        given().contentType(ContentType.JSON).port(getHttpPort()).when()
+        given().header("Accept", "application/json").header("Authorization", "Bearer " + authProvider.getTokenString())
+                    .contentType(ContentType.JSON).port(getHttpPort()).when()
                 .get(String.format(CONFIGURATION_SPECIFIC_REST_ENDPOINT, configurationId)).then().statusCode(200)
                 .body(JsonMatcher.containsJsonAttribute("id"));
     }
@@ -110,7 +131,8 @@ public class BuildConfigurationRestTest {
         configurationTemplate.addValue("_projectId", String.valueOf(projectId));
         configurationTemplate.addValue("_environmentId", String.valueOf(environmentId));
 
-        given().body(configurationTemplate.fillTemplate()).contentType(ContentType.JSON).port(getHttpPort()).when().post(
+        given().header("Accept", "application/json").header("Authorization", "Bearer " + authProvider.getTokenString())
+                    .body(configurationTemplate.fillTemplate()).contentType(ContentType.JSON).port(getHttpPort()).when().post(
                 CONFIGURATION_REST_ENDPOINT).then()
                 .statusCode(201);
     }
@@ -121,7 +143,8 @@ public class BuildConfigurationRestTest {
         configurationTemplate.addValue("_projectId", String.valueOf(projectId));
         configurationTemplate.addValue("_environmentId", String.valueOf(environmentId));
 
-        Response response = given().body(configurationTemplate.fillTemplate()).contentType(ContentType.JSON).port(getHttpPort()).when().post(CONFIGURATION_REST_ENDPOINT);
+        Response response = given().header("Accept", "application/json").header("Authorization", "Bearer " + authProvider.getTokenString())
+                    .body(configurationTemplate.fillTemplate()).contentType(ContentType.JSON).port(getHttpPort()).when().post(CONFIGURATION_REST_ENDPOINT);
 
         ResponseAssertion.assertThat(response).hasStatus(201);
         ResponseAssertion.assertThat(response).hasJsonValueNotNullOrEmpty("creationTime").hasJsonValueNotNullOrEmpty("lastModificationTime");
@@ -146,23 +169,29 @@ public class BuildConfigurationRestTest {
         configurationTemplate.addValue("_projectId", updatedProjectId);
         configurationTemplate.addValue("_environmentId", String.valueOf(environmentId));
 
-        Response projectResponseBeforeTheUpdate = given().contentType(ContentType.JSON).port(getHttpPort()).when()
+        Response projectResponseBeforeTheUpdate = given().header("Accept", "application/json").header("Authorization", "Bearer " + authProvider.getTokenString())
+                    .contentType(ContentType.JSON).port(getHttpPort()).when()
                 .get(String.format(PROJECT_SPECIFIC_REST_ENDPOINT, projectId));
-        Response environmentResponseBeforeTheUpdate = given().contentType(ContentType.JSON).port(getHttpPort()).when()
+        Response environmentResponseBeforeTheUpdate = given().header("Accept", "application/json").header("Authorization", "Bearer " + authProvider.getTokenString())
+                    .contentType(ContentType.JSON).port(getHttpPort()).when()
                 .get(String.format(SPECIFIC_ENVIRONMENT_REST_ENDPOINT, environmentId));
         // when
 
-        given().body(configurationTemplate.fillTemplate()).contentType(ContentType.JSON).port(getHttpPort()).when()
+        given().header("Accept", "application/json").header("Authorization", "Bearer " + authProvider.getTokenString())
+                    .body(configurationTemplate.fillTemplate()).contentType(ContentType.JSON).port(getHttpPort()).when()
                 .put(String.format(CONFIGURATION_SPECIFIC_REST_ENDPOINT, configurationId)).then().statusCode(200);
 
-        Response response = given().contentType(ContentType.JSON).port(getHttpPort()).when()
+        Response response = given().header("Accept", "application/json").header("Authorization", "Bearer " + authProvider.getTokenString())
+                    .contentType(ContentType.JSON).port(getHttpPort()).when()
                 .get(String.format(CONFIGURATION_SPECIFIC_REST_ENDPOINT, configurationId));
 
 
         // then
-        Response projectResponseAfterTheUpdate = given().contentType(ContentType.JSON).port(getHttpPort()).when()
+        Response projectResponseAfterTheUpdate = given().header("Accept", "application/json").header("Authorization", "Bearer " + authProvider.getTokenString())
+                    .contentType(ContentType.JSON).port(getHttpPort()).when()
                 .get(String.format(PROJECT_SPECIFIC_REST_ENDPOINT, projectId));
-        Response environmentResponseAfterTheUpdate = given().contentType(ContentType.JSON).port(getHttpPort()).when()
+        Response environmentResponseAfterTheUpdate = given().header("Accept", "application/json").header("Authorization", "Bearer " + authProvider.getTokenString())
+                    .contentType(ContentType.JSON).port(getHttpPort()).when()
                 .get(String.format(SPECIFIC_ENVIRONMENT_REST_ENDPOINT, environmentId));
 
         ResponseAssertion.assertThat(response).hasStatus(200);
@@ -176,17 +205,20 @@ public class BuildConfigurationRestTest {
     @Test
     public void shouldCloneBuildConfiguration() {
         String buildConfigurationRestURI = String.format(CONFIGURATION_CLONE_REST_ENDPOINT, configurationId);
-        Response response = given().body("").contentType(ContentType.JSON).port(getHttpPort()).when()
+        Response response = given().header("Accept", "application/json").header("Authorization", "Bearer " + authProvider.getTokenString())
+                    .body("").contentType(ContentType.JSON).port(getHttpPort()).when()
                 .post(buildConfigurationRestURI);
 
         String location = response.getHeader("Location");
         Integer clonedBuildConfigurationId = Integer.valueOf(location.substring(location.lastIndexOf("/") + 1));
         logger.info("Cloned id of buildConfiguration: " + clonedBuildConfigurationId);
 
-        Response originalBuildConfiguration = given().contentType(ContentType.JSON).port(getHttpPort()).when()
+        Response originalBuildConfiguration = given().header("Accept", "application/json").header("Authorization", "Bearer " + authProvider.getTokenString())
+                    .contentType(ContentType.JSON).port(getHttpPort()).when()
                 .get(String.format(CONFIGURATION_SPECIFIC_REST_ENDPOINT, configurationId));
 
-        Response clonedBuildConfiguration = given().contentType(ContentType.JSON).port(getHttpPort()).when()
+        Response clonedBuildConfiguration = given().header("Accept", "application/json").header("Authorization", "Bearer " + authProvider.getTokenString())
+                    .contentType(ContentType.JSON).port(getHttpPort()).when()
                 .get(String.format(CONFIGURATION_SPECIFIC_REST_ENDPOINT, clonedBuildConfigurationId));
 
         ResponseAssertion.assertThat(response).hasStatus(201).hasLocationMatches(".*\\/pnc-rest\\/rest\\/configuration\\/\\d+");
@@ -230,14 +262,16 @@ public class BuildConfigurationRestTest {
         configurationTemplate.addValue("_projectId", id);
         configurationTemplate.addValue("_environmentId", String.valueOf(environmentId));
 
-        given().body(configurationTemplate.fillTemplate()).contentType(ContentType.JSON).port(getHttpPort()).when()
+        given().header("Accept", "application/json").header("Authorization", "Bearer " + authProvider.getTokenString())
+                    .body(configurationTemplate.fillTemplate()).contentType(ContentType.JSON).port(getHttpPort()).when()
                 .post(CONFIGURATION_REST_ENDPOINT).then().statusCode(400);
     }
 
     @Test
     @InSequence(999)
     public void shouldDeleteBuildConfiguration() throws Exception {
-        given().contentType(ContentType.JSON).port(getHttpPort()).when()
+        given().header("Accept", "application/json").header("Authorization", "Bearer " + authProvider.getTokenString())
+                    .contentType(ContentType.JSON).port(getHttpPort()).when()
                 .delete(String.format(CONFIGURATION_SPECIFIC_REST_ENDPOINT, configurationId)).then().statusCode(200);
     }
 }

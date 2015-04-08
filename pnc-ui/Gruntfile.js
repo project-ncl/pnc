@@ -415,6 +415,7 @@ module.exports = function (grunt) {
             '!index.html',
             'images/{,*/}*.{webp}',
             'fonts/{,*/}*.*',
+            'keycloak.json'
           ]
         }, {
           expand: true,
