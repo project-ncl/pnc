@@ -9,6 +9,8 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.jboss.logging.Logger;
+import org.jboss.pnc.common.Configuration;
+import org.jboss.pnc.common.json.moduleconfig.AuthenticationModuleConfig;
 import org.keycloak.adapters.HttpClientBuilder;
 
 /**
@@ -23,7 +25,46 @@ public class ExternalAuthFacade {
     private InputStream keycloakConfiguration;
     private String baseRestURL;
     
-    public ExternalAuthFacade(String username, String password, InputStream keycloakConfiguration, String baseRestURL) throws Exception{
+    Configuration configuration = new Configuration();
+    
+    /**
+     * Load configuration from config json file
+     * 
+     * @param keycloakConfiguration
+     * @throws Exception
+     */
+    public ExternalAuthFacade(InputStream keycloakConfiguration) throws Exception{
+        
+        AuthenticationModuleConfig config = configuration.getModuleConfig(AuthenticationModuleConfig.class);
+        this.pnc_ext_oauth_username = config.getUsername();
+        this.pnc_ext_oauth_password = config.getPassword();
+        this.baseRestURL = config.getBaseAuthUrl(); 
+
+        if(this.pnc_ext_oauth_password == null || 
+            this.pnc_ext_oauth_username == null ||
+            this.pnc_ext_oauth_password.equals("") ||
+            this.pnc_ext_oauth_username.equals("") || 
+            this.baseRestURL == null || 
+            this.baseRestURL.equals("")) {
+                throw new Exception("Wrong keycloak configuration");
+        }
+        // check keycloakConfig
+        this.keycloakConfiguration = keycloakConfiguration;
+        if(this.keycloakConfiguration == null) {
+            throw new Exception("Keycloak configuration were not provided");
+        }
+    }
+    
+    /**
+     * Provide configuration properties directly 
+     * 
+     * @param username
+     * @param password
+     * @param keycloakConfiguration
+     * @param baseRestURL
+     * @throws Exception
+     */
+    ExternalAuthFacade(String username, String password, InputStream keycloakConfiguration, String baseRestURL) throws Exception{
         // get credentials as parameter
         this.pnc_ext_oauth_username = username;
         this.pnc_ext_oauth_password = password;
@@ -32,22 +73,10 @@ public class ExternalAuthFacade {
             this.pnc_ext_oauth_username == null ||
             this.pnc_ext_oauth_password.equals("") ||
             this.pnc_ext_oauth_username.equals("")) {
-            
-            // try to get credentials from System env 
-            this.pnc_ext_oauth_username = System.getenv("PNC_EXT_OAUTH_USERNAME");
-            this.pnc_ext_oauth_password = System.getenv("PNC_EXT_OAUTH_PASSWORD");
-            
-            if(this.pnc_ext_oauth_password == null || 
-                    this.pnc_ext_oauth_username == null ||
-                    this.pnc_ext_oauth_password.equals("") ||
-                    this.pnc_ext_oauth_username.equals("")) {
-                     throw new Exception("Credentials were not provided! + \n"
-                             + "Either, provide those passing ExternalAuthFacade(String username, String password,...) + \n"
-                             + "or provide those as System env props + \n +"
-                             + "like export PNC_EXT_OAUTH_USERNAME=your_username + \n +"
-                             + "export PNC_EXT_OAUTH_PASSWORD=your_password");
-                 }
+            throw new Exception("Credentials were not provided! + \n"
+                     + "Provide those passing ExternalAuthFacade(String username, String password,...) + \n");
         }
+        
         // check keycloakConfig
         this.keycloakConfiguration = keycloakConfiguration;
         if(this.keycloakConfiguration == null) {
@@ -56,16 +85,11 @@ public class ExternalAuthFacade {
         //check base REST URL 
         this.baseRestURL = baseRestURL;
         if(this.baseRestURL == null || this.baseRestURL.equals("")) {
-            this.baseRestURL = System.getenv("PNC_EXT_REST_BASE_URL");
-            if(this.baseRestURL == null || this.baseRestURL.equals("")) { 
-                throw new Exception("Basic URL of REST endpoints were not provided + \n" 
-                            + "Either, provide this one passing ExternalAuthFacade(...,String baseRestURL) + \n"
-                            + "or provide those as System env property + \n +"
-                            + "like export PNC_EXT_REST_BASE_URL=basic_rest_endpoint + \n +"
-                            + "Example: export PNC_EXT_REST_BASE_URL=http://localhost:8080/pnc-rest/rest");
-            }
+            throw new Exception("Basic URL of REST endpoints were not provided + \n" 
+                        + "Provide this one passing ExternalAuthFacade(...,String baseRestURL) + \n");
         }
     }
+    
 
     /**
      * @param endpoint Must be in the form of /customer or /product/id

@@ -1,5 +1,6 @@
 package org.jboss.pnc.common.json;
 
+import org.jboss.pnc.common.json.moduleconfig.AuthenticationModuleConfig;
 import org.jboss.pnc.common.json.moduleconfig.DockerEnvironmentDriverModuleConfig;
 import org.jboss.pnc.common.json.moduleconfig.JenkinsBuildDriverModuleConfig;
 import org.jboss.pnc.common.json.moduleconfig.MavenRepoDriverModuleConfig;
@@ -14,5 +15,6 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
     @Type(value = JenkinsBuildDriverModuleConfig.class, name = "jenkins-build-driver"),
     @Type(value = MavenRepoDriverModuleConfig.class, name = "maven-repo-driver"),
     @Type(value = DockerEnvironmentDriverModuleConfig.class, name = "docker-environment-driver"),
+    @Type(value = AuthenticationModuleConfig.class, name = "authentication-config"),
     })
 public abstract class AbstractModuleConfig {}
