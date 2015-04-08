@@ -1,15 +1,6 @@
 package org.jboss.pnc.model;
 
-import java.io.Serializable;
-
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.ManyToOne;
-import javax.persistence.SequenceGenerator;
+import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 
 /**
@@ -35,7 +26,7 @@ import javax.validation.constraints.NotNull;
 // Ordinarily, I'd model this as a common base class and two subclasses to capture the variant info.
 // I'm not sure how it would need to be modeled for efficient storage via JPA.
 @Entity
-public class Artifact implements Serializable {
+public class Artifact implements GenericEntity<Integer> {
 
     private static final long serialVersionUID = -2368833657284575734L;
 

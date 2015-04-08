@@ -2,8 +2,6 @@ package org.jboss.pnc.model;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
-
-import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -15,7 +13,7 @@ import java.util.Set;
  * linked to a list of buildRecords, that contains the result of the build triggered with a BuildConfiguration
  */
 @Entity
-public class Project implements Serializable {
+public class Project implements GenericEntity<Integer> {
 
     private static final long serialVersionUID = -4644857058640271044L;
 

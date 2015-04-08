@@ -1,14 +1,15 @@
 package org.jboss.pnc.model;
 
-import javax.persistence.*;
+import org.hibernate.envers.Audited;
 
-import java.io.Serializable;
+import javax.persistence.*;
 
 /**
  * The Class Environment.
  */
 @Entity
-public class Environment implements Serializable {
+@Audited
+public class Environment implements GenericEntity<Integer> {
 
     public static final String DEFAULT_SORTING_FIELD = "id";
 

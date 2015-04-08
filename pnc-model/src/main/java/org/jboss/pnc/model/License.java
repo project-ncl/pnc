@@ -1,24 +1,17 @@
 package org.jboss.pnc.model;
 
-import java.io.Serializable;
+import org.hibernate.annotations.Type;
+
+import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.OneToMany;
-import javax.persistence.SequenceGenerator;
-import javax.validation.constraints.NotNull;
-
-import org.hibernate.annotations.Type;
 
 /**
  * The Class License maps the different licenses to be linked to the projects, i.e. APACHE 2.0, MIT, GLPL, etc
  */
 @Entity
-public class License implements Serializable {
+public class License implements GenericEntity<Integer> {
 
     private static final long serialVersionUID = 8893552998204511626L;
 

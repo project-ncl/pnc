@@ -1,17 +1,9 @@
 package org.jboss.pnc.model;
 
-import java.io.Serializable;
+import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.OneToMany;
-import javax.persistence.SequenceGenerator;
-import javax.persistence.Table;
-import javax.validation.constraints.NotNull;
 
 /**
  * The Class User maps the user that triggered the builds, and are linked to the BuildRecord
@@ -20,7 +12,7 @@ import javax.validation.constraints.NotNull;
  */
 @Entity
 @Table(name = "Users")
-public class User implements Serializable {
+public class User implements GenericEntity<Integer> {
 
     private static final long serialVersionUID = 8437525005838384722L;
 

@@ -1,21 +1,8 @@
 package org.jboss.pnc.model;
 
-import java.io.Serializable;
+import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
-import javax.persistence.OneToOne;
-import javax.persistence.PreRemove;
-import javax.persistence.SequenceGenerator;
 
 /**
  * The Class BuildRecordSet, that encapsulates the set of buildRecords that compose a specific version of a Product.
@@ -23,7 +10,7 @@ import javax.persistence.SequenceGenerator;
  * @author avibelli
  */
 @Entity
-public class BuildRecordSet implements Serializable {
+public class BuildRecordSet implements GenericEntity<Integer> {
 
     private static final long serialVersionUID = 1633628406382742445L;
 
