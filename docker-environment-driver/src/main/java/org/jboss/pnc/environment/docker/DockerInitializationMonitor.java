@@ -59,8 +59,8 @@ public class DockerInitializationMonitor {
                                         + MAX_CONTAINER_LOADING_TIME + " seconds");
                 }
             } catch (Exception e) {
+                futureReference.get().cancel(false);
                 onMonitorError.accept(e);
-                futureReference.get().cancel(true);
             }
         };
         ScheduledFuture<?> future = executorService.scheduleAtFixedRate(monitor, 0L, CHECK_INTERVAL,
