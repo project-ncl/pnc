@@ -35,11 +35,7 @@ public class ExternalAuthFacadeTest {
                 log.info(">>> testProductEndpoint()");            
                 InputStream is = this.getClass().getResourceAsStream("/keycloak.json");
                 log.info("is is: " + is);
-                ExternalAuthFacade externalAuthFacade = 
-                        new ExternalAuthFacade(System.getenv("PNC_EXT_OAUTH_USERNAME"), 
-                                System.getenv("PNC_EXT_OAUTH_PASSWORD"), 
-                                is, 
-                                System.getenv("PNC_EXT_REST_BASE_URL"));
+                ExternalAuthFacade externalAuthFacade = new ExternalAuthFacade(is);
                 assertNotNull(externalAuthFacade);
                 InputStream restInput = externalAuthFacade.restEndpoint("/product");
                 assertNotNull(restInput);
@@ -58,11 +54,7 @@ public class ExternalAuthFacadeTest {
             if(AuthResource.authEnabled()) {
                 log.info(">>> testConfigEndpointUnauthorized()");            
                 InputStream is = this.getClass().getResourceAsStream("/keycloak.json");
-                ExternalAuthFacade externalAuthFacade = 
-                        new ExternalAuthFacade(System.getenv("PNC_EXT_OAUTH_USERNAME"), 
-                                System.getenv("PNC_EXT_OAUTH_PASSWORD"), 
-                                is, 
-                                System.getenv("PNC_EXT_REST_BASE_URL"));
+                ExternalAuthFacade externalAuthFacade = new ExternalAuthFacade(is);
                 InputStream restInput = externalAuthFacade.restEndpoint("/configuration");
                 ExternalAuthFacade.print(restInput);
                 assertNotNull(externalAuthFacade);
@@ -83,9 +75,7 @@ public class ExternalAuthFacadeTest {
             if(AuthResource.authEnabled()) {
                 InputStream is = this.getClass().getResourceAsStream("/keycloak.json");
                 ExternalAuthFacade externalAuthFacade = 
-                        new ExternalAuthFacade("mr.wrong","mr.wrong", 
-                                is, 
-                                System.getenv("PNC_EXT_REST_BASE_URL"));
+                        new ExternalAuthFacade("mr.wrong","mr.wrong",is,"http://localhost:8080/pnc-rest/rest");
                 assertNotNull(externalAuthFacade);
                 InputStream restInput = externalAuthFacade.restEndpoint("/product");
                 assertNotNull(restInput);

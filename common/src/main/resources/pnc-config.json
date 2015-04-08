@@ -17,6 +17,12 @@
             "inContainerUserPassword":"${env.PNC_DOCKER_CONT_PASSWORD}",
             "dockerImageId":"${env.PNC_DOCKER_IMAGE_ID}",
             "firewallAllowedDestinations":"${env.PNC_DOCKER_IMAGE_FIREWALL_ALLOWED}"
+          },
+          {
+            "@module-config":"authentication-config",
+            "username":"${env.PNC_EXT_OAUTH_USERNAME}",
+            "password":"${env.PNC_EXT_OAUTH_PASSWORD}",
+            "baseAuthUrl":"${env.PNC_EXT_REST_BASE_URL}"
           }
         ]
 }
