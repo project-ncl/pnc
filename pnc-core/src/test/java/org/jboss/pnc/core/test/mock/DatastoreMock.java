@@ -21,7 +21,7 @@ public class DatastoreMock implements Datastore {
 
     @Override
     public void storeCompletedBuild(BuildRecord buildRecord) {
-        log.info("Storing build " + buildRecord.getBuildConfiguration());
+        log.info("Storing build " + buildRecord.getLatestBuildConfiguration());
         buildRecords.add(buildRecord);
     }
 

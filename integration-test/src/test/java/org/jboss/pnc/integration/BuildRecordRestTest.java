@@ -42,13 +42,13 @@ public class BuildRecordRestTest {
     private static final String BUILD_RECORD_REST_ENDPOINT = "/pnc-rest/rest/record/";
     private static final String BUILD_RECORD_SPECIFIC_REST_ENDPOINT = "/pnc-rest/rest/record/%d";
     private static final String CONFIGURATION_SPECIFIC_REST_ENDPOINT = "/pnc-rest/rest/configuration/%d";
-    private static final String BUILD_RECORD_NAME_REST_ENDPOINT = "/pnc-rest/rest/record?q=name==%s";
+    private static final String BUILD_RECORD_NAME_REST_ENDPOINT = "/pnc-rest/rest/record?q=latestBuildConfiguration.name==%s";
     private static final String BUILD_RECORD_PROJECT_REST_ENDPOINT = "/pnc-rest/rest/record/project/%d";
-    private static final String BUILD_RECORD_PROJECT_BR_NAME_REST_ENDPOINT = "/pnc-rest/rest/record/project/%d?q=name==%s";
+    private static final String BUILD_RECORD_PROJECT_BR_NAME_REST_ENDPOINT = "/pnc-rest/rest/record/project/%d?q=latestBuildConfiguration.name==%s";
 
     private static int buildRecordId;
     private static int configurationId;
-    private static String buildRecordName;
+    private static String buildConfigurationName;
     private static int projectId;
     
     private static AuthenticationProvider authProvider;
@@ -82,15 +82,19 @@ public class BuildRecordRestTest {
     public void prepareBaseData() {
         Response response = given().header("Accept", "application/json").header("Authorization", "Bearer " + authProvider.getTokenString())
                     .contentType(ContentType.JSON).port(getHttpPort()).when().get(BUILD_RECORD_REST_ENDPOINT);
-
         ResponseAssertion.assertThat(response).hasStatus(200);
-        buildRecordName = response.body().jsonPath().getString("[0].name");
         buildRecordId = response.body().jsonPath().getInt("[0].id");
         configurationId = response.body().jsonPath().getInt("[0].buildConfigurationId");
 
-        logger.info("buildRecordName: {} ", buildRecordName);
         logger.info("buildRecordId: {} ", buildRecordId);
         logger.info("configurationId: {} ", configurationId);
+
+        response = given().header("Accept", "application/json").header("Authorization", "Bearer " + authProvider.getTokenString())
+                .contentType(ContentType.JSON).port(getHttpPort()).when().get(String.format(CONFIGURATION_SPECIFIC_REST_ENDPOINT, configurationId));
+        ResponseAssertion.assertThat(response).hasStatus(200);
+        buildConfigurationName = response.body().jsonPath().getString("name");
+
+        logger.info("buildConfigurationName: {} ", buildConfigurationName);
     }
 
     @Test
@@ -118,7 +122,7 @@ public class BuildRecordRestTest {
 
         Response response = given().header("Accept", "application/json").header("Authorization", "Bearer " + authProvider.getTokenString())
                     .contentType(ContentType.JSON).port(getHttpPort()).when()
-                .get(String.format(BUILD_RECORD_NAME_REST_ENDPOINT, buildRecordName));
+                .get(String.format(BUILD_RECORD_NAME_REST_ENDPOINT, buildConfigurationName));
 
         ResponseAssertion.assertThat(response).hasStatus(200);
         ResponseAssertion.assertThat(response).hasJsonValueEqual("[0].id", buildRecordId);
@@ -162,7 +166,7 @@ public class BuildRecordRestTest {
 
         Response response2 = given().header("Accept", "application/json").header("Authorization", "Bearer " + authProvider.getTokenString())
                     .contentType(ContentType.JSON).port(getHttpPort()).when()
-                .get(String.format(BUILD_RECORD_PROJECT_BR_NAME_REST_ENDPOINT, projectId, buildRecordName));
+                .get(String.format(BUILD_RECORD_PROJECT_BR_NAME_REST_ENDPOINT, projectId, buildConfigurationName));
 
         ResponseAssertion.assertThat(response2).hasStatus(200);
         ResponseAssertion.assertThat(response2).hasJsonValueEqual("[0].id", buildRecordId);

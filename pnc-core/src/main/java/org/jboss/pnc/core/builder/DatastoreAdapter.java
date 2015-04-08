@@ -34,11 +34,12 @@ public class DatastoreAdapter {
     public void storeResult(BuildTask buildTask, BuildResult buildResult) throws DatastoreException {
         try {
             BuildConfiguration buildConfiguration = buildTask.getBuildConfiguration();
+            
             BuildDriverResult buildDriverResult = buildResult.getBuildDriverResult();
             RepositoryManagerResult repositoryManagerResult = buildResult.getRepositoryManagerResult();
 
             BuildRecord buildRecord = new BuildRecord();
-            buildRecord.setBuildConfiguration(buildConfiguration);
+            buildRecord.setLatestBuildConfiguration(buildConfiguration);
             // Build driver results
             buildRecord.setBuildLog(buildDriverResult.getBuildLog());
             buildRecord.setStatus(buildDriverResult.getBuildDriverStatus().toBuildStatus());
@@ -50,10 +51,7 @@ public class DatastoreAdapter {
                 buildRecord.setDependencies(repositoryManagerResult.getDependencies());
             }
             // Additional information needed for historical purpose
-            buildRecord.setBuildScript(buildConfiguration.getBuildScript());
-            buildRecord.setPatchesUrl(buildConfiguration.getPatchesUrl());
-            buildRecord.setScmRepoURL(buildConfiguration.getScmRepoURL());
-            buildRecord.setScmRevision(buildConfiguration.getScmRevision());
+            //buildRecord.setBuildConfigurationRev(buildConfiguration.getRev());
 
             log.debugf("Storing results of %s to datastore.", buildConfiguration.getName());
             datastore.storeCompletedBuild(buildRecord);
@@ -78,12 +76,9 @@ public class DatastoreAdapter {
         String errorMessage = "Last build status: " + buildTask.getStatus().toString() + "\n";
         errorMessage += "Caught exception: " + stackTraceWriter.toString();
         buildRecord.setBuildLog(errorMessage);
-        buildRecord.setBuildConfiguration(buildConfiguration);
+        buildRecord.setLatestBuildConfiguration(buildConfiguration);
         // Additional information needed for historical purpose
-        buildRecord.setBuildScript(buildConfiguration.getBuildScript());
-        buildRecord.setPatchesUrl(buildConfiguration.getPatchesUrl());
-        buildRecord.setScmRepoURL(buildConfiguration.getScmRepoURL());
-        buildRecord.setScmRevision(buildConfiguration.getScmRevision());
+        //buildRecord.setBuildConfigurationRev(buildConfiguration.getRev());
         log.debugf("Storing ERROR result of %s to datastore. Error: %s", buildConfiguration.getName() + "\n\n\n Exception: " + errorMessage, e);
         datastore.storeCompletedBuild(buildRecord);
     }

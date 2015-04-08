@@ -28,9 +28,10 @@ public class DefaultDatastore implements Datastore {
     }
 
     private void storeBuildConfiguration(BuildRecord buildRecord) {
-        if(buildRecord.getBuildConfiguration() != null) {
-            BuildConfiguration configurationFromDB = buildConfigurationRepository.findOne(buildRecord.getBuildConfiguration().getId());
-            buildRecord.setBuildConfiguration(configurationFromDB);
+        if(buildRecord.getLatestBuildConfiguration() != null) {
+            BuildConfiguration configurationFromDB = buildConfigurationRepository.findOne(buildRecord.getLatestBuildConfiguration().getId());
+            buildRecord.setLatestBuildConfiguration(configurationFromDB);
         }
     }
+    
 }

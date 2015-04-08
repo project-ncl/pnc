@@ -6,9 +6,7 @@ import org.jboss.logging.Logger;
 import org.jboss.pnc.datastore.repositories.*;
 import org.jboss.pnc.model.*;
 
-import javax.annotation.PostConstruct;
 import javax.ejb.Singleton;
-import javax.ejb.Startup;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
 import javax.inject.Inject;
@@ -18,10 +16,11 @@ import java.sql.Timestamp;
 import java.time.Instant;
 
 /**
- * Data for the DEMO.
+ * Data for the DEMO.  Note: The database initialization requires two separate
+ * transactions in order for the build configuration audit record to be created
+ * and then linked to a build record.
  */
 @Singleton
-@Startup
 public class DatabaseDataInitializer {
 
     private static final Logger logger = Logger.getLogger(MethodHandles.lookup().lookupClass());
@@ -41,6 +40,9 @@ public class DatabaseDataInitializer {
 
     @Inject
     BuildConfigurationRepository buildConfigurationRepository;
+
+    @Inject
+    BuildConfigurationAuditedRepository buildConfigurationAuditedRepository;
 
     @Inject
     ProductVersionRepository productVersionRepository;
@@ -63,11 +65,9 @@ public class DatabaseDataInitializer {
     @Inject
     EnvironmentRepository environmentRepository;
 
-    @PostConstruct
-    public void initialize() {
-        initiliazeData();
-        verifyData();
-    }
+    BuildConfiguration buildConfiguration1;
+
+    User demoUser;
 
     public void verifyData() {
         // Check number of entities in DB
@@ -109,11 +109,7 @@ public class DatabaseDataInitializer {
     }
 
     @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
-    public void initiliazeData() {
-        logger.info("Initializing DEMO data");
-
-        long numberOfProjectInDB = projectRepository.count();
-        if (numberOfProjectInDB == 0) {
+    public void initiliazeProjectProductData() {
 
             Environment environment1 = createAndPersistDefultEnvironment();
             Environment environment2 = createAndPersistDefultEnvironment();
@@ -168,7 +164,7 @@ public class DatabaseDataInitializer {
             projectRepository.save(project4);
 
             // Example build configurations
-            BuildConfiguration buildConfiguration1 = BuildConfiguration.Builder.newBuilder()
+            buildConfiguration1 = BuildConfiguration.Builder.newBuilder()
                     .name(PNC_PROJECT_BUILD_CFG_ID)
                     .project(project1)
                     .description("Test build config for project newcastle")
@@ -221,27 +217,35 @@ public class DatabaseDataInitializer {
             BuildConfigurationSet buildConfigurationSet2 = BuildConfigurationSet.Builder.newBuilder().name("Fabric Configuration Set")
                     .buildConfiguration(buildConfiguration4).build();
 
-            User demoUser = User.Builder.newBuilder().username("demo-user").firstName("Demo First Name")
+            demoUser = User.Builder.newBuilder().username("demo-user").firstName("Demo First Name")
                     .lastName("Demo Last Name").email("demo-user@pnc.com").build();
-
-            BuildRecord buildRecord = BuildRecord.Builder.newBuilder().buildScript("mvn clean deploy -Dmaven.test.skip")
-                    .name(buildConfiguration3.getName()).buildConfiguration(buildConfiguration3)
-                    .scmRepoURL(buildConfiguration3.getScmRepoURL()).scmRevision(buildConfiguration3.getScmRevision())
-                    .description("Build record test for jboss java servlet api")
-                    .startTime(Timestamp.from(Instant.now()))
-                    .endTime(Timestamp.from(Instant.now()))
-                    .user(demoUser).build();
 
             buildConfigurationSetRepository.save(buildConfigurationSet1);
             buildConfigurationSetRepository.save(buildConfigurationSet2);
-            userRepository.save(demoUser);
-            buildRecordRepository.save(buildRecord);
+            demoUser = userRepository.save(demoUser);
 
-        } else {
-            logger.info("There are >0 ({}) projects in DB. Skipping initialization." + numberOfProjectInDB);
-        }
+    }
 
-        logger.info("Finished initializing DEMO data");
+    /**
+     * Build record needs to be initialized in a separate transaction
+     * so that the audited build configuration can be set.
+     */
+    @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
+    public void initiliazeBuildRecordDemoData() {
+
+        IdRev buildConfigAuditIdRev = new IdRev(buildConfiguration1.getId(), 1);
+        BuildConfigurationAudited buildConfigAudited1 = buildConfigurationAuditedRepository.findOne(buildConfigAuditIdRev);
+
+        logger.info("Found build config audit: " + buildConfigAudited1);
+        BuildRecord buildRecord = BuildRecord.Builder.newBuilder()
+                .latestBuildConfiguration(buildConfiguration1)
+                .buildConfigurationAudited(buildConfigAudited1)
+                .startTime(Timestamp.from(Instant.now()))
+                .endTime(Timestamp.from(Instant.now()))
+                .user(demoUser).build();
+
+        buildRecordRepository.save(buildRecord);
+
     }
 
     private Environment createAndPersistDefultEnvironment() {

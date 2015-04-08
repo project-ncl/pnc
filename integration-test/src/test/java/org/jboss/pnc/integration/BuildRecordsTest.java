@@ -7,6 +7,7 @@ import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.junit.InSequence;
 import org.jboss.arquillian.transaction.api.annotation.Transactional;
 import org.jboss.pnc.datastore.predicates.RSQLPredicateProducer;
+import org.jboss.pnc.datastore.repositories.BuildConfigurationAuditedRepository;
 import org.jboss.pnc.datastore.repositories.BuildConfigurationRepository;
 import org.jboss.pnc.datastore.repositories.BuildRecordRepository;
 import org.jboss.pnc.datastore.repositories.UserRepository;
@@ -54,11 +55,16 @@ public class BuildRecordsTest {
 
     private static Integer buildRecordId;
 
+    private static String buildConfigName;
+
     @Inject
     private BuildRecordRepository buildRecordRepository;
 
     @Inject
     private BuildConfigurationRepository buildConfigurationRepository;
+
+    @Inject
+    private BuildConfigurationAuditedRepository buildConfigurationAuditedRepository;
 
     @Inject
     private ArtifactProvider artifactProvider;
@@ -84,7 +90,9 @@ public class BuildRecordsTest {
     @Transactional
     public void shouldInsertValuesIntoDB() {
 
-        BuildConfiguration buildConfiguration = buildConfigurationRepository.findAll().iterator().next();
+        BuildConfigurationAudited buildConfigurationAudited = buildConfigurationAuditedRepository.findAll().iterator().next();
+        buildConfigName = buildConfigurationAudited.getName();
+        BuildConfiguration buildConfiguration = buildConfigurationRepository.findOne(buildConfigurationAudited.getId());
 
         Artifact artifact = new Artifact();
         artifact.setIdentifier("test");
@@ -95,10 +103,10 @@ public class BuildRecordsTest {
         User user = users.get(0);
 
         BuildRecord buildRecord = new BuildRecord();
-        buildRecord.setName("java-apns-1.0.0.Beta5");
         buildRecord.setBuildLog("test");
         buildRecord.setStatus(BuildStatus.SUCCESS);
-        buildRecord.setBuildConfiguration(buildConfiguration);
+        buildRecord.setLatestBuildConfiguration(buildConfiguration);
+        buildRecord.setBuildConfigurationAudited(buildConfigurationAudited);
         buildRecord.setStartTime(Timestamp.from(Instant.now()));
         buildRecord.setEndTime(Timestamp.from(Instant.now()));
         logger.info(user.toString());
@@ -123,7 +131,7 @@ public class BuildRecordsTest {
     }
 
     @Test
-    public void shouldGetSpecificBuildResult() {
+    public void shouldGetSpecificBuildRecord() {
         // when
         BuildRecordRest buildRecords = buildRecordProvider.getSpecific(buildRecordId);
 
@@ -132,7 +140,7 @@ public class BuildRecordsTest {
     }
 
     @Test
-    public void shouldGetLogsForSpecificBuildResult() {
+    public void shouldGetLogsForSpecificBuildRecord() {
         // when
         StreamingOutput logs = buildRecordProvider.getLogsForBuildId(buildRecordId);
 
@@ -141,7 +149,7 @@ public class BuildRecordsTest {
     }
 
     @Test
-    public void shouldGetArtifactsForSpecificBuildResult() {
+    public void shouldGetArtifactsForSpecificBuildRecord() {
         // when
         List<ArtifactRest> artifacts = artifactProvider.getAll(0, 999, null, null, buildRecordId);
 
@@ -152,19 +160,19 @@ public class BuildRecordsTest {
     @Test
     public void shouldGetBuildRecordByName() throws RSQLParserException {
         // given
-        String rsqlQuery = "name==java-apns-1.0.0.Beta5";
+        String rsqlQuery = "buildConfigurationAudited.name==" + buildConfigName;
 
         // when
         List<BuildRecord> buildRecords = selectBuildRecords(rsqlQuery);
 
         // then
-        assertThat(buildRecords).hasSize(1);
+        assertThat(buildRecords).hasAtLeastOneElementOfType(BuildRecord.class);
     }
 
     @Test
     public void shouldNotGetBuildRecordByWrongName() throws RSQLParserException {
         // given
-        String rsqlQuery = "name==not-existing-br-name";
+        String rsqlQuery = "buildConfigurationAudited.name==not-existing-br-name";
 
         // when
         List<BuildRecord> buildRecords = selectBuildRecords(rsqlQuery);

@@ -21,21 +21,11 @@ public class BuildRecordRest implements Identifiable<Integer> {
 
     private Timestamp endTime;
 
-    private String buildScript;
-
-    private String name;
-
-    private String description;
-
-    private String scmRepoURL;
-
-    private String scmRevision;
-
-    private String patchesUrl;
-
     private BuildStatus status;
 
     private Integer buildConfigurationId;
+
+    private Integer buildConfigurationRev;
 
     private Integer userId;
 
@@ -48,18 +38,14 @@ public class BuildRecordRest implements Identifiable<Integer> {
 
     public BuildRecordRest(BuildRecord buildRecord) {
         this.id = buildRecord.getId();
-        this.buildScript = buildRecord.getBuildScript();
-        this.name = buildRecord.getName();
-        this.description = buildRecord.getDescription();
         this.startTime = buildRecord.getStartTime();
         this.endTime = buildRecord.getEndTime();
-        performIfNotNull(buildRecord.getBuildConfiguration() != null, () -> buildConfigurationId = buildRecord
-                .getBuildConfiguration().getId());
+        performIfNotNull(buildRecord.getBuildConfigurationAudited() != null, () -> buildConfigurationId = buildRecord
+                .getBuildConfigurationAudited().getId());
+        performIfNotNull(buildRecord.getBuildConfigurationAudited() != null, () -> buildConfigurationRev = buildRecord
+                .getBuildConfigurationAudited().getRev());
         performIfNotNull(buildRecord.getUser() != null, () -> userId = buildRecord.getUser().getId());
         performIfNotNull(buildRecord.getSystemImage() != null, () -> systemImageId = buildRecord.getSystemImage().getId());
-        this.scmRepoURL = buildRecord.getScmRepoURL();
-        this.scmRevision = buildRecord.getScmRevision();
-        this.patchesUrl = buildRecord.getPatchesUrl();
         this.status = buildRecord.getStatus();
         this.buildDriverId = buildRecord.getBuildDriverId();
     }
@@ -67,15 +53,9 @@ public class BuildRecordRest implements Identifiable<Integer> {
     public BuildRecordRest(BuildTask buildTask) {
         this.id = buildTask.getBuildConfiguration().getId();
         BuildConfiguration buildConfiguration = buildTask.getBuildConfiguration();
-        this.buildScript = buildConfiguration.getBuildScript();
-        this.name = buildConfiguration.getName();
-        this.description = buildConfiguration.getDescription();
         this.startTime = buildConfiguration.getCreationTime();
         performIfNotNull(buildTask.getBuildConfiguration() != null && buildConfiguration != null,
                 () -> buildConfigurationId = buildConfiguration.getId());
-        this.scmRepoURL = buildConfiguration.getScmRepoURL();
-        this.scmRevision = buildConfiguration.getScmRevision();
-        this.patchesUrl = buildConfiguration.getPatchesUrl();
         this.status = BuildStatus.BUILDING;
     }
 
@@ -103,54 +83,6 @@ public class BuildRecordRest implements Identifiable<Integer> {
         this.endTime = endTime;
     }
 
-    public String getBuildScript() {
-        return buildScript;
-    }
-
-    public void setBuildScript(String buildScript) {
-        this.buildScript = buildScript;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public String getScmRepoURL() {
-        return scmRepoURL;
-    }
-
-    public void setScmRepoURL(String scmRepoURL) {
-        this.scmRepoURL = scmRepoURL;
-    }
-
-    public String getScmRevision() {
-        return scmRevision;
-    }
-
-    public void setScmRevision(String scmRevision) {
-        this.scmRevision = scmRevision;
-    }
-
-    public String getPatchesUrl() {
-        return patchesUrl;
-    }
-
-    public void setPatchesUrl(String patchesUrl) {
-        this.patchesUrl = patchesUrl;
-    }
-
     public BuildStatus getStatus() {
         return status;
     }
@@ -165,6 +97,14 @@ public class BuildRecordRest implements Identifiable<Integer> {
 
     public void setBuildConfigurationId(Integer buildConfigurationId) {
         this.buildConfigurationId = buildConfigurationId;
+    }
+
+    public Integer getBuildConfigurationRev() {
+        return buildConfigurationRev;
+    }
+
+    public void setBuildConfigurationRev(Integer buildConfigurationRev) {
+        this.buildConfigurationRev = buildConfigurationRev;
     }
 
     public Integer getUserId() {
