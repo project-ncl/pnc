@@ -18,6 +18,7 @@ import org.jboss.pnc.rest.provider.ArtifactProvider;
 import org.jboss.pnc.rest.provider.BuildRecordProvider;
 import org.jboss.pnc.rest.restmodel.ArtifactRest;
 import org.jboss.pnc.rest.restmodel.BuildRecordRest;
+import org.jboss.pnc.spi.builddriver.BuildDriverStatus;
 import org.jboss.pnc.test.category.ContainerTest;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
@@ -96,7 +97,7 @@ public class BuildRecordsTest {
         BuildRecord buildRecord = new BuildRecord();
         buildRecord.setName("java-apns-1.0.0.Beta5");
         buildRecord.setBuildLog("test");
-        buildRecord.setStatus(BuildDriverStatus.SUCCESS);
+        buildRecord.setStatus(BuildStatus.SUCCESS);
         buildRecord.setBuildConfiguration(buildConfiguration);
         buildRecord.setStartTime(Timestamp.from(Instant.now()));
         buildRecord.setEndTime(Timestamp.from(Instant.now()));
