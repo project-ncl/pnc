@@ -1,4 +1,4 @@
-FROM fedora
+FROM fedora:21
 MAINTAINER Marek Novotny <mnovotny@redhat.com>
 
 # install java and zip
