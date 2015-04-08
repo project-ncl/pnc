@@ -19,8 +19,6 @@ package org.jboss.pnc.model;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
-
-import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -29,7 +27,7 @@ import java.util.Set;
  *
  */
 @Entity
-public class Product implements Serializable {
+public class Product implements GenericEntity<Integer> {
 
     private static final long serialVersionUID = -9022966336791211855L;
     

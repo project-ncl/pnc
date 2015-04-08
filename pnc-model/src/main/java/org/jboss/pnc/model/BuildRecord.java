@@ -1,26 +1,11 @@
 package org.jboss.pnc.model;
 
-import java.io.Serializable;
+import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.persistence.CascadeType;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Lob;
-import javax.persistence.ManyToMany;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.PreRemove;
-import javax.persistence.SequenceGenerator;
-import javax.validation.constraints.NotNull;
 
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-11-23.
@@ -32,11 +17,9 @@ import javax.validation.constraints.NotNull;
  * the set of buildRecord that compose a Product
  */
 @Entity
-public class BuildRecord implements Serializable {
+public class BuildRecord implements GenericEntity<Integer> {
 
     private static final long serialVersionUID = -5472083609387609797L;
-
-    public static final String DEFAULT_SORTING_FIELD = "id";
 
     @Id
     @SequenceGenerator(name="build_record_id_seq", sequenceName="build_record_id_seq", allocationSize=1)    

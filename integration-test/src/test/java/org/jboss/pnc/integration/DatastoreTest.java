@@ -2,18 +2,18 @@ package org.jboss.pnc.integration;
 
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
+import org.jboss.arquillian.junit.InSequence;
 import org.jboss.arquillian.transaction.api.annotation.TransactionMode;
 import org.jboss.arquillian.transaction.api.annotation.Transactional;
-import org.jboss.pnc.datastore.repositories.BuildRecordRepository;
-import org.jboss.pnc.datastore.repositories.EnvironmentRepository;
-import org.jboss.pnc.datastore.repositories.ProductRepository;
-import org.jboss.pnc.datastore.repositories.ProductVersionRepository;
-import org.jboss.pnc.datastore.repositories.ProjectRepository;
-import org.jboss.pnc.datastore.repositories.UserRepository;
+import org.jboss.pnc.datastore.audit.AuditRepository;
+import org.jboss.pnc.datastore.audit.Revision;
+import org.jboss.pnc.datastore.configuration.JpaConfiguration;
+import org.jboss.pnc.datastore.repositories.*;
 import org.jboss.pnc.integration.deployments.Deployments;
 import org.jboss.pnc.model.*;
 import org.jboss.pnc.test.category.ContainerTest;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
+import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -22,20 +22,26 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
-
 import java.lang.invoke.MethodHandles;
-import java.sql.Timestamp;
-import java.time.Instant;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+/**
+ * End to end scenario test for auditing entities.
+ * <i>Note that Hibernate Envers works on persisted entities so we need to put each test step in a
+ * separate method and commit the transaction using Arquillian JTA integration</i>
+ */
 @RunWith(Arquillian.class)
-@Transactional(TransactionMode.ROLLBACK)
+@Transactional(TransactionMode.COMMIT)
 @Category(ContainerTest.class)
 public class DatastoreTest {
 
     public static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+
+    public static final String ORIGINAL_NAME = "original name";
+
+    public static final String CHANGED_NAME = "changedName";
 
     @Inject
     ProjectRepository projectRepository;
@@ -55,55 +61,77 @@ public class DatastoreTest {
     @Inject
     UserRepository userRepository;
 
+    @Inject
+    BuildConfigurationRepository buildConfigurationRepository;
+
+    @Inject
+    AuditRepository<BuildConfiguration, Integer> auditedBuildConfigurationRepository;
+
+    private static int testedConfigurationId;
+
     @Deployment
     public static EnterpriseArchive deploy() {
         EnterpriseArchive enterpriseArchive = Deployments.baseEarWithTestDependencies();
         WebArchive restWar = enterpriseArchive.getAsType(WebArchive.class, "/pnc-rest.war");
         restWar.addClass(DatastoreTest.class);
+
+        JavaArchive pncModel = enterpriseArchive.getAsType(JavaArchive.class, "/pnc-model.jar");
+        pncModel.addPackage(BuildConfiguration.class.getPackage());
+
+        JavaArchive datastore = enterpriseArchive.getAsType(JavaArchive.class, "/datastore.jar");
+        datastore.addPackage(BuildConfigurationRepository.class.getPackage());
+        datastore.addPackage(JpaConfiguration.class.getPackage());
+
         logger.info(enterpriseArchive.toString(true));
         return enterpriseArchive;
     }
 
+    /**
+     * At first we need to create testing data and commit it.
+     */
     @Test
-    public void shouldStoreResults() {
-        // given
-        Product product = Product.Builder.newBuilder().name("DS_PRODUCT").description("DS_PRODUCT_DESC").build();
-        ProductVersion productVersion = ProductVersion.Builder.newBuilder().version("DS_PRODUCT_VERSION").product(product)
-                .build();
+    @InSequence(-2)
+    public void prepareDataForAuditTest() throws Exception {
+        Product product = Product.Builder.newBuilder().name("test").build();
+        ProductVersion productVersion = ProductVersion.Builder.newBuilder().version("1").product(product).build();
+        Environment environment = Environment.Builder.defaultEnvironment().build();
+        Project project = Project.Builder.newBuilder().name("test").build();
+        environment = environmentRepository.save(environment);
         productVersion = productVersionRepository.save(productVersion);
-
-        Project project = Project.Builder.newBuilder().name("DS_PROJECT_NAME").description("DS_PROJECT_NAME_DESC")
-                .projectUrl("https://github.com/ds-project-ncl/pnc")
-                .build();
         project = projectRepository.save(project);
 
-        Environment environment = Environment.Builder.defaultEnvironment().build();
-        environment = environmentRepository.save(environment);
+        BuildConfiguration testedConfiguration = BuildConfiguration.Builder.newBuilder()
+                .environment(environment).name(ORIGINAL_NAME).project(project).build();
 
-        BuildConfigurationSet buildConfigurationSet = BuildConfigurationSet.Builder.newBuilder().name("Test build config set")
-                .productVersion(productVersion).build();
+        testedConfigurationId = buildConfigurationRepository.saveAndFlush(testedConfiguration).getId();
+    }
 
-        BuildConfiguration buildConfiguration = BuildConfiguration.Builder.newBuilder()
-                .buildScript("mvn clean deploy -Dmaven.test.skip").environment(environment)
-                .name("DS_PROJECT_BUILD_CFG_ID").buildConfigurationSet(buildConfigurationSet).project(project)
-                .scmRepoURL("https://github.com/ds-project-ncl/pnc.git").scmRevision("*/v0.2")
-                .description("Test build config for project newcastle").build();
+    /**
+     * Secondly we need to modify it.
+     */
+    @Test
+    @InSequence(-1)
+    public void modifyDataForAuditTest() throws Exception {
+        BuildConfiguration testedConfiguration = buildConfigurationRepository.findOne(testedConfigurationId);
 
-        User user = User.Builder.newBuilder().username("test-user").email("test@test.com")
-                .firstName("firstname").lastName("lastname").build();
-        user = userRepository.save(user);
+        testedConfiguration = buildConfigurationRepository.saveAndFlush(testedConfiguration);
+        testedConfiguration.setName(CHANGED_NAME);
+        testedConfiguration = buildConfigurationRepository.saveAndFlush(testedConfiguration);
+    }
 
-        BuildRecord buildRecord = BuildRecord.Builder.newBuilder().buildScript("mvn clean deploy -Dmaven.test.skip").id(1)
-                .name("PNC_PROJECT_BUILD_CFG_ID").buildConfiguration(buildConfiguration)
-                .scmRepoURL("https://github.com/project-ncl/pnc.git").scmRevision("*/v0.2")
-                .description("DataStore Build record test").status(BuildDriverStatus.CANCELLED)
-                .user(user).startTime(Timestamp.from(Instant.now())).endTime(Timestamp.from(Instant.now())).build();
-        buildRecord = buildRecordRepository.saveAndFlush(buildRecord);
+    @Test
+    public void shouldCreateAuditedBuildConfigurationWhenUpdating() throws Exception {
+        //given
+        BuildConfiguration testedConfiguration = buildConfigurationRepository.findOne(testedConfigurationId);
 
-        List<BuildRecord> objectsInDb = buildRecordRepository.findAll();
+        //when
+        List<Revision<BuildConfiguration, Integer>> revisions = auditedBuildConfigurationRepository.getAllRevisions();
+        // -1 is the current entity, -2 is the last modification
+        Revision<BuildConfiguration, Integer> lastModification = revisions.get(revisions.size() - 2);
 
-        // then
-        assertThat(objectsInDb).isNotEmpty().contains(buildRecord);
+        //than
+        assertThat(lastModification.getId()).isEqualTo(testedConfiguration.getId());
+        assertThat(lastModification.getAuditedEntity().getName()).isEqualTo("original name");
     }
 
 }

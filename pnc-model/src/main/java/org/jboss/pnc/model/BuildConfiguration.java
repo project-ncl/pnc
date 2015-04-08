@@ -1,19 +1,11 @@
 package org.jboss.pnc.model;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.ManyToMany;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.PreRemove;
-import javax.persistence.SequenceGenerator;
-import javax.persistence.Version;
-import javax.validation.constraints.NotNull;
+import org.hibernate.envers.Audited;
+import org.hibernate.envers.NotAudited;
+import org.hibernate.envers.RelationTargetAuditMode;
 
-import java.io.Serializable;
+import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.HashSet;
@@ -29,7 +21,8 @@ import java.util.Set;
  * @author avibelli
  */
 @Entity
-public class BuildConfiguration implements Serializable, Cloneable {
+@Audited
+public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
 
     private static final long serialVersionUID = -5890729679489304114L;
 
@@ -53,9 +46,11 @@ public class BuildConfiguration implements Serializable, Cloneable {
 
     private String patchesUrl;
 
+    @NotAudited
     @ManyToOne(cascade = { CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH })
     private ProductVersion productVersion;
 
+    @NotAudited
     @NotNull
     @ManyToOne(cascade = { CascadeType.REFRESH, CascadeType.DETACH })
     private Project project;
@@ -67,9 +62,11 @@ public class BuildConfiguration implements Serializable, Cloneable {
     @ManyToOne(cascade = { CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH })
     private BuildConfiguration parent;
 
+    @NotAudited
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "buildConfiguration")
     private Set<BuildRecord> buildRecords;
 
+    @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
     @ManyToMany(mappedBy = "buildConfigurations")
     private Set<BuildConfigurationSet> buildConfigurationSets;
 
@@ -108,6 +105,7 @@ public class BuildConfiguration implements Serializable, Cloneable {
     /**
      * @return the id
      */
+    @Override
     public Integer getId() {
         return id;
     }
