@@ -16,7 +16,7 @@ import org.keycloak.adapters.HttpClientBuilder;
  *
  */
 public class ExternalAuthFacade {
-    public final static Logger log = Logger.getLogger(ExternalAuthentication.class);
+    public final static Logger log = Logger.getLogger(ExternalAuthFacade.class);
     
     private String pnc_ext_oauth_username;
     private String pnc_ext_oauth_password;
