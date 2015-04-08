@@ -219,13 +219,17 @@ public class DockerEnvironmentDriver implements EnvironmentDriver {
     private void destroyContainer(String containerId, boolean isRunning) throws EnvironmentDriverException {
         logger.info("Trying to destroy Docker container with ID: " + containerId);
         try {
-            if (isRunning)
+            if (isRunning) {
                 dockerClient.stopContainer(containerId);
-            dockerClient.removeContainer(containerId);
+            }
         } catch (RuntimeException e) {
             throw new EnvironmentDriverException("Cannot destroy environment.", e);
         }
-        logger.info("Docker container with ID: " + containerId + " was destroyed.");
+        finally{
+            dockerClient.removeContainer(containerId);
+            logger.info("Docker container with ID: " + containerId + " was destroyed.");    
+        }
+        
     }
 
     /**
