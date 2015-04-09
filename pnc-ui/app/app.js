@@ -36,7 +36,7 @@
 
     // Handle errors with state changes.
     function($rootScope, $log, AuthService) {
-      AuthService.login('keycloak.json');
+      AuthService.login('keycloak.json', true);
 
       $rootScope.$on('$stateChangeError',
         function(event, toState, toParams, fromState, fromParams, error) {

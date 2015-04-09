@@ -31,11 +31,13 @@
       $window.location = keycloakAuth.authServerUrl + redirectUrlSuffix;
     };
 
-    this.login = function(configFileUrl) {
+    this.login = function(configFileUrl, loginRequired) {
       $log.debug('Begin login');
+      var authMode = loginRequired ? 'login-required' : 'check-sso';
+
       keycloakAuth = new Keycloak(configFileUrl);
 
-      keycloakAuth.init({ onLoad: 'login-required' })
+      keycloakAuth.init({ onLoad: authMode })
         .success(function () {
           loggedIn = true;
           // angular.bootstrap(document, ['pnc']);
