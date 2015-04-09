@@ -40,12 +40,6 @@ public class ProductVersion implements GenericEntity<Integer> {
     @NotNull
     private String version;
 
-    private boolean released;
-
-    private boolean supported;
-
-    private String internalDownloadUrl;
-
     @NotNull
     @ManyToOne(cascade = { CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH })
     private Product product;
@@ -53,38 +47,19 @@ public class ProductVersion implements GenericEntity<Integer> {
     @OneToMany(mappedBy = "productVersion")
     private Set<BuildConfigurationSet> buildConfigurationSets;
 
-    @OneToOne(optional = true, cascade = { CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH })
-    @JoinColumn(name = "buildrecordset_id")
-    private BuildRecordSet buildRecordSet;
+    @OneToMany(mappedBy = "productVersion")
+    private Set<ProductRelease> productReleases;
 
-    public ProductVersion() {
+    @OneToMany(mappedBy = "productVersion")
+    private Set<ProductMilestone> productMilestones;
+
+    @OneToOne
+    private ProductMilestone currentProductMilestone;
+
+    public ProductVersion () {
         buildConfigurationSets = new HashSet<>();
-    }
-
-    /**
-     * @param version
-     * @param product
-     */
-    public ProductVersion(String version, Product product) {
-        this();
-        this.version = version;
-        this.product = product;
-    }
-
-    /**
-     * @param version
-     * @param product
-     * @param released
-     * @param supported
-     * @param internalDownloadUrl
-     */
-    public ProductVersion(String version, Product product, boolean released, boolean supported, String internalDownloadUrl) {
-        this();
-        this.version = version;
-        this.product = product;
-        this.released = released;
-        this.supported = supported;
-        this.internalDownloadUrl = internalDownloadUrl;
+        productReleases = new HashSet<ProductRelease>();
+        productMilestones = new HashSet<ProductMilestone>();
     }
 
     /**
@@ -129,56 +104,36 @@ public class ProductVersion implements GenericEntity<Integer> {
         this.product = product;
     }
 
-    /**
-     * Flag to show whether this product version has been released
-     *
-     * @return
-     */
-    public boolean isReleased() {
-        return released;
+    public Set<ProductRelease> getProductReleases() {
+        return productReleases;
     }
 
-    public void setReleased(boolean released) {
-        this.released = released;
+    public void setProductReleases(Set<ProductRelease> productReleases) {
+        this.productReleases = productReleases;
     }
 
-    /**
-     * Flag showing whether this product version is currently supported
-     *
-     * @return
-     */
-    public boolean isSupported() {
-        return supported;
+    public void addProductRelease(ProductRelease productRelease) {
+        this.productReleases.add(productRelease);
     }
 
-    public void setSupported(boolean supported) {
-        this.supported = supported;
+    public Set<ProductMilestone> getProductMilestones() {
+        return productMilestones;
     }
 
-    /**
-     * URL which can be used to download the product distribution
-     *
-     * @return
-     */
-    public String getInternalDownloadUrl() {
-        return internalDownloadUrl;
+    public void setProductMilestones(Set<ProductMilestone> productMilestones) {
+        this.productMilestones = productMilestones;
     }
 
-    public void setInternalDownloadUrl(String internalDownloadUrl) {
-        this.internalDownloadUrl = internalDownloadUrl;
+    public void addProductMilestone(ProductMilestone productMilestone) {
+        this.productMilestones.add(productMilestone);
     }
 
-    /**
-     * Build record set represents the set of completed builds which produced the artifacts included in the product release
-     *
-     * @return The set of build records for this release
-     */
-    public BuildRecordSet getBuildRecordSet() {
-        return buildRecordSet;
+    public ProductMilestone getCurrentProductMilestone() {
+        return this.currentProductMilestone;
     }
 
-    public void setBuildRecordSet(BuildRecordSet buildRecordSet) {
-        this.buildRecordSet = buildRecordSet;
+    public void setCurrentProductMilestone(ProductMilestone currentProductMilestone) {
+        this.currentProductMilestone = currentProductMilestone;
     }
 
     public Set<BuildConfigurationSet> getBuildConfigurationSets() {
@@ -202,13 +157,11 @@ public class ProductVersion implements GenericEntity<Integer> {
 
         private Product product;
 
-        private boolean released;
+        private Set<ProductRelease> productReleases = new HashSet<>();
 
-        private boolean supported;
+        private Set<ProductMilestone> productMilestones = new HashSet<>();
 
-        private String internalDownloadUrl;
-
-        private BuildRecordSet buildRecordSet;
+        private ProductMilestone currentProductMilestone;
 
         private Set<BuildConfigurationSet> buildConfigurationSets = new HashSet<>();
 
@@ -223,21 +176,28 @@ public class ProductVersion implements GenericEntity<Integer> {
             ProductVersion productVersion = new ProductVersion();
             productVersion.setId(id);
             productVersion.setVersion(version);
-            productVersion.setReleased(released);
-            productVersion.setSupported(supported);
-            productVersion.setInternalDownloadUrl(internalDownloadUrl);
-            productVersion.setBuildRecordSet(buildRecordSet);
-
-            // Set the bi-directional mapping
-            for (BuildConfigurationSet buildConfigurationSet : buildConfigurationSets) {
-                buildConfigurationSet.setProductVersion(productVersion);
-            }
-            productVersion.setBuildConfigurationSets(buildConfigurationSets);
+            productVersion.setCurrentProductMilestone(currentProductMilestone);
 
             if (product != null) {
                 product.addVersion(productVersion);
                 productVersion.setProduct(product);
             }
+
+            // Set the bi-directional mappings
+            for (BuildConfigurationSet buildConfigurationSet : buildConfigurationSets) {
+                buildConfigurationSet.setProductVersion(productVersion);
+            }
+            productVersion.setBuildConfigurationSets(buildConfigurationSets);
+
+            for (ProductRelease productRelease : productReleases) {
+                productRelease.setProductVersion(productVersion);
+            }
+            productVersion.setProductReleases(productReleases);
+
+            for (ProductMilestone productMilestone : productMilestones) {
+                productMilestone.setProductVersion(productVersion);
+            }
+            productVersion.setProductMilestones(productMilestones);
 
             return productVersion;
         }
@@ -252,28 +212,23 @@ public class ProductVersion implements GenericEntity<Integer> {
             return this;
         }
 
-        public Builder released(boolean released) {
-            this.released = released;
-            return this;
-        }
-
-        public Builder supported(boolean supported) {
-            this.supported = supported;
-            return this;
-        }
-
-        public Builder internalDownloadUrl(String internalDownloadUrl) {
-            this.internalDownloadUrl = internalDownloadUrl;
-            return this;
-        }
-
         public Builder product(Product product) {
             this.product = product;
             return this;
         }
 
-        public Builder buildRecordSet(BuildRecordSet buildRecordSet) {
-            this.buildRecordSet = buildRecordSet;
+        public Builder productReleases(Set<ProductRelease> productReleases) {
+            this.productReleases = productReleases;
+            return this;
+        }
+
+        public Builder productMilestones(Set<ProductMilestone> productMilestones) {
+            this.productMilestones = productMilestones;
+            return this;
+        }
+
+        public Builder currentProductMilestone(ProductMilestone currentProductMilestone) {
+            this.currentProductMilestone = currentProductMilestone;
             return this;
         }
 

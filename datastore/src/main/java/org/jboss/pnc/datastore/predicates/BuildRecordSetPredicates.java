@@ -8,8 +8,8 @@ import static org.jboss.pnc.datastore.predicates.Utils.createNotNullPredicate;
 
 public class BuildRecordSetPredicates {
 
-    public static BooleanExpression withProductVersionId(Integer productVersionId) {
-        return createNotNullPredicate(productVersionId != null, () -> QBuildRecordSet.buildRecordSet.productVersion.id.eq(productVersionId));
+    public static BooleanExpression withProductMilestoneId(Integer productMilestoneId) {
+        return createNotNullPredicate(productMilestoneId != null, () -> QBuildRecordSet.buildRecordSet.productMilestone.id.eq(productMilestoneId));
     }
     
     public static BooleanExpression withBuildRecordId(Integer buildRecordId) {

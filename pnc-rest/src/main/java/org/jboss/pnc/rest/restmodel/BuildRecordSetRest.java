@@ -9,19 +9,19 @@ import java.util.stream.Collectors;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import org.jboss.pnc.common.Identifiable;
+import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.BuildRecordSet;
 import org.jboss.pnc.model.ProductMilestone;
-import org.jboss.pnc.model.BuildRecord;
-import org.jboss.pnc.model.ProductVersion;
+import org.jboss.pnc.model.ProductRelease;
 
 @XmlRootElement(name = "BuildRecordSet")
 public class BuildRecordSetRest implements Identifiable<Integer> {
 
     private Integer id;
 
-    private ProductMilestone milestone;
+    private Integer productMilestoneId;
 
-    private Integer productVersionId;
+    private Integer productReleaseId;
 
     private List<Integer> buildRecordIds;
 
@@ -30,9 +30,10 @@ public class BuildRecordSetRest implements Identifiable<Integer> {
 
     public BuildRecordSetRest(BuildRecordSet buildRecordSet) {
         this.id = buildRecordSet.getId();
-        this.milestone = buildRecordSet.getMilestone();
-        performIfNotNull(buildRecordSet.getProductVersion() != null, () -> this.productVersionId = buildRecordSet
-                .getProductVersion().getId());
+        performIfNotNull(buildRecordSet.getProductMilestone() != null, () -> this.productMilestoneId = buildRecordSet
+                .getProductMilestone().getId());
+        performIfNotNull(buildRecordSet.getProductRelease() != null, () -> this.productReleaseId = buildRecordSet
+                .getProductRelease().getId());
         this.buildRecordIds = nullableStreamOf(buildRecordSet.getBuildRecord()).map(buildRecord -> buildRecord.getId())
                 .collect(Collectors.toList());
 
@@ -46,20 +47,20 @@ public class BuildRecordSetRest implements Identifiable<Integer> {
         this.id = id;
     }
 
-    public ProductMilestone getMilestone() {
-        return milestone;
+    public Integer getProductMilestoneId() {
+        return productMilestoneId;
     }
 
-    public void setMilestone(ProductMilestone milestone) {
-        this.milestone = milestone;
+    public void setMilestoneId(Integer productMilestoneId) {
+        this.productMilestoneId = productMilestoneId;
     }
 
-    public Integer getProductVersionId() {
-        return productVersionId;
+    public Integer getProductReleaseId() {
+        return productReleaseId;
     }
 
-    public void setProductVersionId(Integer productVersionId) {
-        this.productVersionId = productVersionId;
+    public void setProductReleaseId(Integer productReleaseId) {
+        this.productReleaseId = productReleaseId;
     }
 
     public List<Integer> getBuildRecordIds() {
@@ -73,10 +74,11 @@ public class BuildRecordSetRest implements Identifiable<Integer> {
     public BuildRecordSet toBuildRecordSet() {
         BuildRecordSet.Builder builder = BuildRecordSet.Builder.newBuilder();
         builder.id(id);
-        builder.milestone(milestone);
 
-        performIfNotNull(productVersionId != null,
-                () -> builder.productVersion(ProductVersion.Builder.newBuilder().id(productVersionId).build()));
+        performIfNotNull(productMilestoneId != null,
+                () -> builder.productMilestone(ProductMilestone.Builder.newBuilder().id(productMilestoneId).build()));
+        performIfNotNull(productReleaseId != null,
+                () -> builder.productRelease(ProductRelease.Builder.newBuilder().id(productReleaseId).build()));
 
         nullableStreamOf(buildRecordIds).forEach(buildRecordId -> {
             BuildRecord.Builder buildRecordBuilder = BuildRecord.Builder.newBuilder().id(buildRecordId);

@@ -16,7 +16,6 @@ import javax.inject.Inject;
 import java.lang.invoke.MethodHandles;
 import java.sql.Timestamp;
 import java.time.Instant;
-import java.util.Date;
 
 /**
  * Data for the DEMO.
@@ -28,7 +27,9 @@ public class DatabaseDataInitializer {
     private static final Logger logger = Logger.getLogger(MethodHandles.lookup().lookupClass());
 
     private static final String PNC_PRODUCT_NAME = "Project Newcastle Demo Product";
-    private static final String PNC_PRODUCT_VERSION = "1.0.0.DR1";
+    private static final String PNC_PRODUCT_VERSION = "1.0";
+    private static final String PNC_PRODUCT_RELEASE = "1.0.0.GA";
+    private static final String PNC_PRODUCT_MILESTONE = "1.0.0.Build1";
     private static final String PNC_PROJECT_1_NAME = "Project Newcastle Demo Project 1";
     private static final String PNC_PROJECT_BUILD_CFG_ID = "pnc-1.0.0.DR1";
 
@@ -43,6 +44,12 @@ public class DatabaseDataInitializer {
 
     @Inject
     ProductVersionRepository productVersionRepository;
+
+    @Inject
+    ProductMilestoneRepository productMilestoneRepository;
+
+    @Inject
+    ProductReleaseRepository productReleaseRepository;
 
     @Inject
     BuildConfigurationSetRepository buildConfigurationSetRepository;
@@ -120,8 +127,21 @@ public class DatabaseDataInitializer {
                     .build();
             product = productRepository.save(product);
 
+            // Example product version, release, and milestone of the product
             ProductVersion productVersion = ProductVersion.Builder.newBuilder().version(PNC_PRODUCT_VERSION).product(product)
                     .build();
+            productVersion = productVersionRepository.save(productVersion);
+
+            ProductMilestone productMilestone = ProductMilestone.Builder.newBuilder().version(PNC_PRODUCT_MILESTONE)
+                    .productVersion(productVersion).build();
+            productMilestone = productMilestoneRepository.save(productMilestone);
+
+            ProductRelease productRelease = ProductRelease.Builder.newBuilder().version(PNC_PRODUCT_RELEASE)
+                    .productVersion(productVersion).productMilestone(productMilestone)
+                    .build();
+            productRelease = productReleaseRepository.save(productRelease);
+
+            productVersion.setCurrentProductMilestone(productMilestone);
             productVersion = productVersionRepository.save(productVersion);
 
             // Example projects
