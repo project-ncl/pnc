@@ -71,6 +71,11 @@ public class EnvironmentDriverMock implements EnvironmentDriver {
                             }
                         });
             }
+
+            @Override
+            public String getId() {
+                return null;
+            }
         };
 
     }

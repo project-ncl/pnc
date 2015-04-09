@@ -20,4 +20,10 @@ public interface StartedEnvironment extends DestroyableEnvironmnet {
      */
     void monitorInitialization(Consumer<RunningEnvironment> onComplete, Consumer<Exception> onError);
 
+    /**
+     * 
+     * @return ID of an environment
+     */
+    String getId();
+
 }

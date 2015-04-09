@@ -22,12 +22,15 @@ public class DockerStartedEnvironment implements StartedEnvironment {
     private final DockerInitializationMonitor dockerInitMonitor;
     
     private final DockerRunningEnvironment preparedRunningEnvironment;
+    
+    private final String id;
 
     public DockerStartedEnvironment(DockerEnvironmentDriver dockerEnvDriver, DockerInitializationMonitor dockerInitMonitor,
             RepositorySession repositorySession, String id, int jenkinsPort, int sshPort, String containerUrl) {
         this.preparedRunningEnvironment = new DockerRunningEnvironment(dockerEnvDriver, repositorySession,
                 id, jenkinsPort, sshPort, containerUrl);
         this.dockerInitMonitor = dockerInitMonitor;
+        this.id = id;
     }
 
     @Override
@@ -49,6 +52,11 @@ public class DockerStartedEnvironment implements StartedEnvironment {
         dockerInitMonitor.monitor(onEnvironmentInitComplete, onEnvironmentInitError, preparedRunningEnvironment.getJenkinsUrl());
         
         logger.info("Waiting to init services in docker container. ID: " + preparedRunningEnvironment.getId());
+    }
+
+    @Override
+    public String getId() {
+        return id;
     }
 
 }
