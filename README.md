@@ -43,6 +43,9 @@ Environment variables, which can be used to set up application:
 * `PNC_DOCKER_CONT_PASSWORD` - User's password set up by variable `PNC_DOCKER_CONT_USER`
 * `PNC_DOCKER_IMAGE_ID` - ImageID of image on Docker host
 * `PNC_DOCKER_IMAGE_FIREWALL_ALLOWED` - List of allowed destinations by firewall in Docker container. <br /> Format: \<IPv4>:\<Port>(,\<IPv4>:\<Port>)+
+* `PNC_EXT_REST_BASE_URL` - Base URL of REST endpoint services to be accessed from external resources
+* `PNC_EXT_OAUTH_USERNAME` - Username to be able to authenticate against pnc authentication service provider
+* `PNC_EXT_OAUTH_PASSWORD` -  Password to be able to authenticate against pnc authentication service provider
 
 
 Set up of Docker host
@@ -66,6 +69,10 @@ Steps to set up Docker daemon:
 5. Verify the service: Run `docker -H tcp://127.0.0.1:2375 version`. If you get response in 1-2 seconds without errors, the service is running.
 6. Add image to Docker daemon: The Docker daemon has to have imported image, which is specified by environment variable `PNC_DOCKER_IMAGE_ID` (or is set in pnc-config.json file) You can use `docker pull` to download image from remote repository or `docker build` to create image from Dockerfile. 
 
+
+Authentication:
+---------------
+Use -Dauth=true to enable authentication for PNC.
 
 Possible issues:
 ------------

@@ -12,11 +12,12 @@
 
   <artifactId>pnc-rest</artifactId>
   <packaging>war</packaging>
-
+  
   <description>REST API. This is a series of classes that use JAX-RS to translate HTTP communications to calls into the action controllers in the core, and format any output (such as constructing resource URLs, etc.).</description>
 
     <properties>
         <failOnMissingWebXml>false</failOnMissingWebXml>
+        <auth>false</auth>
     </properties>
 
 
@@ -141,6 +142,7 @@
         <filtering>true</filtering>
       </resource>
     </resources>
+
     <plugins>
       <plugin>
         <artifactId>maven-war-plugin</artifactId>
@@ -160,4 +162,41 @@
     </plugins>
   </build>
 
+  <profiles>    
+     <profile>
+        <id>auth</id>
+        <activation>
+            <property>
+                <name>auth</name>
+                <value>true</value>
+            </property>
+        </activation>
+        <build>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-resources-plugin</artifactId>
+                    <executions>
+                      <execution>
+                        <id>default-copy-resources</id>
+                        <phase>process-resources</phase>
+                        <goals>
+                          <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                          <overwrite>true</overwrite>
+                          <outputDirectory>${project.build.directory}/${project.artifactId}/WEB-INF/</outputDirectory>
+                          <resources>
+                            <resource>
+                              <directory>${project.basedir}/src/main/auth</directory>
+                            </resource>
+                          </resources>
+                        </configuration>
+                      </execution>
+                    </executions>
+                  </plugin>              
+            </plugins>
+         </build>
+     </profile>
+  </profiles>
 </project>
