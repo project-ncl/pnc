@@ -1,40 +1,49 @@
 package org.jboss.pnc.rest.provider;
 
 import com.google.common.base.Preconditions;
+
 import org.jboss.pnc.datastore.limits.RSQLPageLimitAndSortingProducer;
 import org.jboss.pnc.datastore.predicates.RSQLPredicate;
 import org.jboss.pnc.datastore.predicates.RSQLPredicateProducer;
 import org.jboss.pnc.datastore.repositories.BuildRecordSetRepository;
+import org.jboss.pnc.datastore.repositories.ProductMilestoneRepository;
+import org.jboss.pnc.datastore.repositories.ProductReleaseRepository;
 import org.jboss.pnc.datastore.repositories.ProductVersionRepository;
 import org.jboss.pnc.model.BuildRecordSet;
+import org.jboss.pnc.model.ProductMilestone;
+import org.jboss.pnc.model.ProductRelease;
 import org.jboss.pnc.model.ProductVersion;
 import org.jboss.pnc.rest.restmodel.BuildRecordSetRest;
 import org.springframework.data.domain.Pageable;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
+
 import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static org.jboss.pnc.datastore.predicates.BuildRecordSetPredicates.withBuildRecordId;
-import static org.jboss.pnc.datastore.predicates.BuildRecordSetPredicates.withProductVersionId;
+import static org.jboss.pnc.datastore.predicates.BuildRecordSetPredicates.withProductMilestoneId;
 import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
 
 @Stateless
 public class BuildRecordSetProvider {
 
     private BuildRecordSetRepository buildRecordSetRepository;
-    private ProductVersionRepository productVersionRepository;
+    private ProductMilestoneRepository productMilestoneRepository;
+    private ProductReleaseRepository productReleaseRepository;
 
     public BuildRecordSetProvider() {
     }
 
     @Inject
     public BuildRecordSetProvider(BuildRecordSetRepository buildRecordSetRepository,
-            ProductVersionRepository productVersionRepository) {
+            ProductMilestoneRepository productMilestoneRepository,
+            ProductReleaseRepository productReleaseRepository) {
         this.buildRecordSetRepository = buildRecordSetRepository;
-        this.productVersionRepository = productVersionRepository;
+        this.productMilestoneRepository = productMilestoneRepository;
+        this.productReleaseRepository = productReleaseRepository;
     }
 
     private Function<BuildRecordSet, BuildRecordSetRest> toRestModel() {
@@ -60,18 +69,25 @@ public class BuildRecordSetProvider {
     public Integer store(BuildRecordSetRest buildRecordSetRest) {
         Preconditions.checkArgument(buildRecordSetRest.getId() == null, "Id must be null");
         BuildRecordSet buildRecordSet = buildRecordSetRest.toBuildRecordSet();
-        ProductVersion productVersion = null;
+        ProductMilestone productMilestone = null;
+        ProductRelease productRelease = null;
 
-        if (buildRecordSet.getProductVersion() != null) {
-            productVersion = productVersionRepository.findOne(buildRecordSet.getProductVersion().getId());
-            buildRecordSet.setProductVersion(productVersion);
+        if (buildRecordSet.getProductRelease() != null) {
+            productMilestone = productMilestoneRepository.findOne(buildRecordSet.getProductMilestone().getId());
+            productRelease = productReleaseRepository.findOne(buildRecordSet.getProductRelease().getId());
+            buildRecordSet.setProductRelease(productRelease);
         }
 
         buildRecordSet = buildRecordSetRepository.saveAndFlush(buildRecordSet);
 
-        if (productVersion != null) {
-            productVersion.setBuildRecordSet(buildRecordSet);
-            productVersionRepository.saveAndFlush(productVersion);
+        if (productMilestone != null) {
+            productMilestone.setBuildRecordSet(buildRecordSet);
+            productMilestoneRepository.saveAndFlush(productMilestone);
+        }
+
+        if (productRelease != null) {
+            productRelease.setBuildRecordSet(buildRecordSet);
+            productReleaseRepository.saveAndFlush(productRelease);
         }
 
         return buildRecordSet.getId();
@@ -93,14 +109,14 @@ public class BuildRecordSetProvider {
         buildRecordSetRepository.delete(buildRecordSetId);
     }
 
-    public List<BuildRecordSetRest> getAllForProductVersion(int pageIndex, int pageSize, String sortingRsql,
-            String query, Integer versionId) {
+    public List<BuildRecordSetRest> getAllForProductMilestone(int pageIndex, int pageSize, String sortingRsql,
+            String query, Integer milestoneId) {
 
         RSQLPredicate filteringCriteria = RSQLPredicateProducer.fromRSQL(BuildRecordSet.class, query);
         Pageable paging = RSQLPageLimitAndSortingProducer.fromRSQL(pageSize, pageIndex, sortingRsql);
 
         return nullableStreamOf(
-                buildRecordSetRepository.findAll(withProductVersionId(versionId).and(filteringCriteria.get()), paging)).map(
+                buildRecordSetRepository.findAll(withProductMilestoneId(milestoneId).and(filteringCriteria.get()), paging)).map(
                 buildRecordSet -> new BuildRecordSetRest(buildRecordSet)).collect(Collectors.toList());
     }
 

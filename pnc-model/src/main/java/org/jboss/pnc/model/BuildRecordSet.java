@@ -23,11 +23,11 @@ public class BuildRecordSet implements GenericEntity<Integer> {
 
     private String buildSetContentId;
 
-    @Enumerated(EnumType.STRING)
-    private ProductMilestone milestone;
+    @OneToOne(mappedBy = "buildRecordSet")
+    private ProductMilestone productMilestone;
 
     @OneToOne(mappedBy = "buildRecordSet")
-    private ProductVersion productVersion;
+    private ProductRelease productRelease;
 
     @ManyToMany
     @JoinTable(name = "build_record_set_map", joinColumns = {
@@ -40,13 +40,6 @@ public class BuildRecordSet implements GenericEntity<Integer> {
      */
     public BuildRecordSet() {
 
-    }
-
-    @PreRemove
-    private void removeFromProductVersion() {
-        if (productVersion != null) {
-            productVersion.setBuildRecordSet(null);
-        }
     }
 
     /**
@@ -70,29 +63,23 @@ public class BuildRecordSet implements GenericEntity<Integer> {
     /**
      * @return the milestone
      */
-    public ProductMilestone getMilestone() {
-        return milestone;
+    public ProductMilestone getProductMilestone() {
+        return productMilestone;
     }
 
     /**
      * @param milestone the milestone to set
      */
-    public void setMilestone(ProductMilestone milestone) {
-        this.milestone = milestone;
+    public void setProductMilestone(ProductMilestone productMilestone) {
+        this.productMilestone = productMilestone;
     }
 
-    /**
-     * @return the productVersion
-     */
-    public ProductVersion getProductVersion() {
-        return productVersion;
+    public ProductRelease getProductRelease() {
+        return productRelease;
     }
 
-    /**
-     * @param productVersion the productVersion to set
-     */
-    public void setProductVersion(ProductVersion productVersion) {
-        this.productVersion = productVersion;
+    public void setProductRelease(ProductRelease productRelease) {
+        this.productRelease = productRelease;
     }
 
     /**
@@ -123,8 +110,13 @@ public class BuildRecordSet implements GenericEntity<Integer> {
 
     @Override
     public String toString() {
-        return "BuildRecordSet [productName=" + productVersion.getProduct().getName() + ", productVersion=" + productVersion
-                .getVersion() + "]";
+        String version = "none";
+        if ( productRelease != null ) {
+            version = productRelease.getVersion();
+        } else if ( productMilestone != null ) {
+            version = productMilestone.getVersion();
+        }
+        return "BuildRecordSet [id=" + getId() + ", version=" + version + "]";
     }
 
     public static class Builder {
@@ -133,9 +125,9 @@ public class BuildRecordSet implements GenericEntity<Integer> {
 
         private String buildSetContentId;
 
-        private ProductMilestone milestone;
+        private ProductMilestone productMilestone;
 
-        private ProductVersion productVersion;
+        private ProductRelease productRelease;
 
         private List<BuildRecord> buildRecords;
 
@@ -151,18 +143,21 @@ public class BuildRecordSet implements GenericEntity<Integer> {
             BuildRecordSet buildRecordSet = new BuildRecordSet();
             buildRecordSet.setId(id);
             buildRecordSet.setBuildSetContentId(buildSetContentId);
-            buildRecordSet.setMilestone(milestone);
 
-            if (productVersion != null) {
-                productVersion.setBuildRecordSet(buildRecordSet);
+            // Set the bi-directional mappings
+            if (productMilestone != null) {
+                productMilestone.setBuildRecordSet(buildRecordSet);
             }
-            buildRecordSet.setProductVersion(productVersion);
+            buildRecordSet.setProductMilestone(productMilestone);
 
-            // Set the bi-directional mapping
+            if (productRelease != null) {
+                productRelease.setBuildRecordSet(buildRecordSet);
+            }
+            buildRecordSet.setProductRelease(productRelease);
+
             for (BuildRecord buildRecord : buildRecords) {
                 buildRecord.getBuildRecordSets().add(buildRecordSet);
             }
-
             buildRecordSet.setBuildRecord(buildRecords);
 
             return buildRecordSet;
@@ -178,13 +173,13 @@ public class BuildRecordSet implements GenericEntity<Integer> {
             return this;
         }
 
-        public Builder productVersion(ProductVersion productVersion) {
-            this.productVersion = productVersion;
+        public Builder productRelease(ProductRelease productRelease) {
+            this.productRelease = productRelease;
             return this;
         }
 
-        public Builder milestone(ProductMilestone milestone) {
-            this.milestone = milestone;
+        public Builder productMilestone(ProductMilestone productMilestone) {
+            this.productMilestone = productMilestone;
             return this;
         }
 

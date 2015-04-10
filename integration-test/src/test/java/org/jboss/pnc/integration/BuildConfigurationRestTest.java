@@ -20,6 +20,7 @@ import org.jboss.pnc.test.category.ContainerTest;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
@@ -77,17 +78,16 @@ public class BuildConfigurationRestTest {
         return enterpriseArchive;
     }
 
+    @BeforeClass
+    public static void setupAuth() throws IOException {
+        InputStream is = BuildConfigurationRestTest.class.getResourceAsStream("/keycloak.json");
+        ExternalAuthentication ea = new ExternalAuthentication(is);
+        authProvider = ea.authenticate(System.getenv("PNC_EXT_OAUTH_USERNAME"), System.getenv("PNC_EXT_OAUTH_PASSWORD"));
+    }
+
     @Before
     public void prepareData() {
         if (!isInitialized.getAndSet(true)) {
-            try {
-                InputStream is = this.getClass().getResourceAsStream("/keycloak.json");
-                ExternalAuthentication ea = new ExternalAuthentication(is);
-                authProvider = ea.authenticate(System.getenv("PNC_EXT_OAUTH_USERNAME"), System.getenv("PNC_EXT_OAUTH_PASSWORD"));
-            } catch (IOException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
             given().header("Accept", "application/json").header("Authorization", "Bearer " + authProvider.getTokenString())
                     .contentType(ContentType.JSON).port(getHttpPort()).when().get(CONFIGURATION_REST_ENDPOINT).then()
                     .statusCode(200)

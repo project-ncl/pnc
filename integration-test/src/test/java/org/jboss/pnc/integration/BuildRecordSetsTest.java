@@ -7,10 +7,12 @@ import org.jboss.arquillian.transaction.api.annotation.Transactional;
 import org.jboss.pnc.datastore.limits.RSQLPageLimitAndSortingProducer;
 import org.jboss.pnc.datastore.repositories.BuildRecordRepository;
 import org.jboss.pnc.datastore.repositories.BuildRecordSetRepository;
+import org.jboss.pnc.datastore.repositories.ProductMilestoneRepository;
 import org.jboss.pnc.datastore.repositories.ProductVersionRepository;
 import org.jboss.pnc.integration.deployments.Deployments;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.BuildRecordSet;
+import org.jboss.pnc.model.ProductMilestone;
 import org.jboss.pnc.model.ProductVersion;
 import org.jboss.pnc.rest.provider.BuildRecordSetProvider;
 import org.jboss.pnc.rest.restmodel.BuildRecordSetRest;
@@ -24,6 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
+
 import java.lang.invoke.MethodHandles;
 import java.util.List;
 
@@ -37,7 +40,7 @@ public class BuildRecordSetsTest {
 
     private static Integer buildRecordSetId;
     private static Integer buildRecordId;
-    private static Integer productVersionId;
+    private static Integer productMilestoneId;
 
     @Inject
     private BuildRecordRepository buildRecordRepository;
@@ -46,7 +49,7 @@ public class BuildRecordSetsTest {
     private BuildRecordSetRepository buildRecordSetRepository;
 
     @Inject
-    private ProductVersionRepository productVersionRepository;
+    private ProductMilestoneRepository productMilestoneRepository;
 
     @Inject
     private BuildRecordSetProvider buildRecordSetProvider;
@@ -66,13 +69,13 @@ public class BuildRecordSetsTest {
     public void shouldInsertValuesIntoDB() {
 
         BuildRecord buildRecord = buildRecordRepository.findAll().iterator().next();
-        ProductVersion productVersion = productVersionRepository.findAll().iterator().next();
+        ProductMilestone productMilestone = productMilestoneRepository.findAll().iterator().next();
 
         buildRecordId = buildRecord.getId();
-        productVersionId = productVersion.getId();
+        productMilestoneId = productMilestone.getId();
 
         BuildRecordSet.Builder builder = BuildRecordSet.Builder.newBuilder();
-        BuildRecordSet buildRecordSet = builder.buildRecord(buildRecord).productVersion(productVersion).build();
+        BuildRecordSet buildRecordSet = builder.buildRecord(buildRecord).productMilestone(productMilestone).build();
 
         buildRecordSet = buildRecordSetRepository.save(buildRecordSet);
 
@@ -103,11 +106,11 @@ public class BuildRecordSetsTest {
 
     @Test
     @InSequence(3)
-    public void shouldGetBuildRecordSetOfProductVersion() {
+    public void shouldGetBuildRecordSetOfProductMilestone() {
         // when
-        List<BuildRecordSetRest> buildRecordSetRests = buildRecordSetProvider.getAllForProductVersion(
+        List<BuildRecordSetRest> buildRecordSetRests = buildRecordSetProvider.getAllForProductMilestone(
                 RSQLPageLimitAndSortingProducer.DEFAULT_OFFSET, RSQLPageLimitAndSortingProducer.DEFAULT_SIZE, null, null,
-                productVersionId);
+                productMilestoneId);
 
         // then
         assertThat(buildRecordSetRests).hasSize(1);
@@ -130,13 +133,13 @@ public class BuildRecordSetsTest {
     public void shouldNotCascadeDeletionOfBuildRecordSet() {
         // when
         long buildRecordCount = buildRecordRepository.count();
-        long productVersionCount = productVersionRepository.count();
+        long productMilestoneCount = productMilestoneRepository.count();
 
         buildRecordSetProvider.delete(buildRecordSetId);
 
         // then
         assertThat(buildRecordRepository.count()).isEqualTo(buildRecordCount);
-        assertThat(productVersionRepository.count()).isEqualTo(productVersionCount);
+        assertThat(productMilestoneRepository.count()).isEqualTo(productMilestoneCount);
     }
 
 }

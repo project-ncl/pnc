@@ -21,6 +21,7 @@ import org.jboss.pnc.rest.restmodel.BuildRecordSetRest;
 import org.jboss.pnc.test.category.ContainerTest;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
@@ -40,8 +41,7 @@ public class BuildRecordSetRestTest {
 
     public static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-    private static final String PRODUCT_REST_ENDPOINT = "/pnc-rest/rest/product/";
-    private static final String PRODUCT_VERSION_REST_ENDPOINT = "/pnc-rest/rest/product/%d/version/";
+    private static final String PRODUCT_MILESTONE_REST_ENDPOINT = "/pnc-rest/rest/product-milestone/";
     private static final String BUILD_RECORD_REST_ENDPOINT = "/pnc-rest/rest/record/";
 
     private static final String BUILD_RECORD_SET_REST_ENDPOINT = "/pnc-rest/rest/recordset/";
@@ -49,9 +49,8 @@ public class BuildRecordSetRestTest {
     private static final String BUILD_RECORD_SET_PRODUCT_VERSION_REST_ENDPOINT = "/pnc-rest/rest/recordset/productversion/%d";
     private static final String BUILD_RECORD_SET_BUILD_RECORD_REST_ENDPOINT = "/pnc-rest/rest/recordset/record/%d";
 
-    private static int productId;
-    private static String productVersionName;
-    private static int productVersionId;
+    private static int productMilestoneId;
+    private static String productMilestoneVersion;
     private static String buildRecordBuildScript;
     private static String buildRecordName;
     private static int buildRecordId;
@@ -75,30 +74,23 @@ public class BuildRecordSetRestTest {
         return enterpriseArchive;
     }
 
+    @BeforeClass
+    public static void setupAuth() throws IOException {
+        InputStream is = BuildRecordSetRestTest.class.getResourceAsStream("/keycloak.json");
+        ExternalAuthentication ea = new ExternalAuthentication(is);
+        authProvider = ea.authenticate(System.getenv("PNC_EXT_OAUTH_USERNAME"), System.getenv("PNC_EXT_OAUTH_PASSWORD"));
+    }
+
     @Test
     @InSequence(-1)
     public void prepareBaseData() {
-        try {
-            InputStream is = this.getClass().getResourceAsStream("/keycloak.json");
-            ExternalAuthentication ea = new ExternalAuthentication(is);
-            authProvider = ea.authenticate(System.getenv("PNC_EXT_OAUTH_USERNAME"), System.getenv("PNC_EXT_OAUTH_PASSWORD"));
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-
-
-        given().header("Accept", "application/json").header("Authorization", "Bearer " + authProvider.getTokenString())
-                    .contentType(ContentType.JSON).port(getHttpPort()).when().get(PRODUCT_REST_ENDPOINT).then().statusCode(200)
-                .body(JsonMatcher.containsJsonAttribute("[0].id", value -> productId = Integer.valueOf(value)));
-
-        Response responseProdVer = given().header("Accept", "application/json").header("Authorization", "Bearer " + authProvider.getTokenString())
+        Response responseProdMilestone = given().header("Accept", "application/json").header("Authorization", "Bearer " + authProvider.getTokenString())
                     .contentType(ContentType.JSON).port(getHttpPort()).when()
-                .get(String.format(PRODUCT_VERSION_REST_ENDPOINT, productId));
+                .get(PRODUCT_MILESTONE_REST_ENDPOINT);
 
-        ResponseAssertion.assertThat(responseProdVer).hasStatus(200);
-        productVersionId = responseProdVer.body().jsonPath().getInt("[0].id");
-        productVersionName = responseProdVer.body().jsonPath().getString("[0].version");
+        ResponseAssertion.assertThat(responseProdMilestone).hasStatus(200);
+        productMilestoneId = responseProdMilestone.body().jsonPath().getInt("[0].id");
+        productMilestoneVersion = responseProdMilestone.body().jsonPath().getString("[0].version");
 
         Response responseBuildRec = given().header("Accept", "application/json").header("Authorization", "Bearer " + authProvider.getTokenString())
                     .contentType(ContentType.JSON).port(getHttpPort()).when()
@@ -109,8 +101,8 @@ public class BuildRecordSetRestTest {
         buildRecordBuildScript = responseBuildRec.body().jsonPath().getString("[0].buildScript");
         buildRecordName = responseBuildRec.body().jsonPath().getString("[0].name");
 
-        logger.info("productVersionId: {} ", productVersionId);
-        logger.info("productVersionName: {} ", productVersionName);
+        logger.info("productMilestoneId: {} ", productMilestoneId);
+        logger.info("productMilestoneVersion: {} ", productMilestoneVersion);
         logger.info("buildRecordId: {} ", buildRecordId);
         logger.info("buildRecordBuildScript: {} ", buildRecordBuildScript);
         logger.info("buildRecordName: {} ", buildRecordName);
@@ -120,7 +112,7 @@ public class BuildRecordSetRestTest {
     @InSequence(1)
     public void shouldCreateNewBuildRecordSet() throws IOException {
         JsonTemplateBuilder buildRecordSetTemplate = JsonTemplateBuilder.fromResource("buildRecordSet_template");
-        buildRecordSetTemplate.addValue("_productVersionId", String.valueOf(productVersionId));
+        buildRecordSetTemplate.addValue("_productMilestoneId", String.valueOf(productMilestoneId));
         buildRecordSetTemplate.addValue("_buildRecordIds", String.valueOf(buildRecordId));
 
         Response response = given().header("Accept", "application/json").header("Authorization", "Bearer " + authProvider.getTokenString())
@@ -142,7 +134,7 @@ public class BuildRecordSetRestTest {
                     .contentType(ContentType.JSON).port(getHttpPort()).when()
                 .get(BUILD_RECORD_SET_REST_ENDPOINT);
         ResponseAssertion.assertThat(response).hasStatus(200);
-        ResponseAssertion.assertThat(response).hasJsonValueEqual("[0].id", newBuildRecordSetId);
+        ResponseAssertion.assertThat(response).hasJsonValueNotNullOrEmpty("[0].id");
     }
 
     @Test
@@ -155,18 +147,6 @@ public class BuildRecordSetRestTest {
 
         ResponseAssertion.assertThat(response).hasStatus(200);
         ResponseAssertion.assertThat(response).hasJsonValueEqual("id", newBuildRecordSetId);
-    }
-
-    @Test
-    @InSequence(4)
-    public void shouldGetBuildRecordForProductVersion() {
-
-        Response response = given().header("Accept", "application/json").header("Authorization", "Bearer " + authProvider.getTokenString())
-                    .contentType(ContentType.JSON).port(getHttpPort()).when()
-                .get(String.format(BUILD_RECORD_SET_PRODUCT_VERSION_REST_ENDPOINT, productVersionId));
-
-        ResponseAssertion.assertThat(response).hasStatus(200);
-        ResponseAssertion.assertThat(response).hasJsonValueEqual("[0].id", newBuildRecordSetId);
     }
 
     @Test

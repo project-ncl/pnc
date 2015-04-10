@@ -48,14 +48,14 @@ public class BuildRecordSetEndpoint {
 
     @ApiOperation(value = "Gets all BuildRecordSet of a Product Version")
     @GET
-    @Path("/productversion/{versionId}")
-    public List<BuildRecordSetRest> getAllForProductVersion(
+    @Path("/product-milestone/{versionId}")
+    public List<BuildRecordSetRest> getAllForProductMilestone(
             @ApiParam(value = "Page index") @QueryParam("pageIndex") @DefaultValue("0") int pageIndex,
             @ApiParam(value = "Pagination size") @DefaultValue("50") @QueryParam("pageSize") int pageSize,
             @ApiParam(value = "Sorting RSQL") @QueryParam("sort") String sortingRsql,
             @ApiParam(value = "RSQL query", required = false) @QueryParam("q") String rsql,
             @ApiParam(value = "Product Version id", required = true) @PathParam("versionId") Integer versionId) {
-        return buildRecordSetProvider.getAllForProductVersion(pageIndex, pageSize, sortingRsql, rsql, versionId);
+        return buildRecordSetProvider.getAllForProductMilestone(pageIndex, pageSize, sortingRsql, rsql, versionId);
     }
 
     @ApiOperation(value = "Gets all BuildRecordSet of a BuildRecord")

@@ -11,6 +11,7 @@ import org.jboss.pnc.auth.AuthenticationProvider;
 import org.jboss.pnc.auth.ExternalAuthentication;
 import org.jboss.pnc.common.util.IoUtils;
 import org.jboss.pnc.integration.matchers.JsonMatcher;
+import org.jboss.pnc.integration.template.JsonTemplateBuilder;
 import org.jboss.pnc.integration.deployments.Deployments;
 import org.jboss.pnc.test.category.ContainerTest;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
@@ -31,20 +32,21 @@ import static org.jboss.pnc.integration.env.IntegrationTestEnv.getHttpPort;
 
 @RunWith(Arquillian.class)
 @Category(ContainerTest.class)
-public class ProductVersionRestTest {
+public class ProductMilestoneRestTest {
 
     public static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
     private static final String PRODUCT_REST_ENDPOINT = "/pnc-rest/rest/product/";
     private static final String PRODUCT_VERSION_REST_ENDPOINT = "/pnc-rest/rest/product/%d/version/";
-    private static final String PRODUCT_VERSION_SPECIFIC_REST_ENDPOINT = "/pnc-rest/rest/product/%d/version/%d";
+    private static final String PRODUCT_MILESTONE_REST_ENDPOINT = "/pnc-rest/rest/product-milestone/";
+    private static final String PRODUCT_MILESTONE_SPECIFIC_REST_ENDPOINT = PRODUCT_MILESTONE_REST_ENDPOINT + "%d";
 
     private static int productId;
     private static int productVersionId;
-    private static int newProductVersionId;
-    
-    private static AuthenticationProvider authProvider;
+    private static int productMilestoneId;
+    private static int newProductMilestoneId;
 
+    private static AuthenticationProvider authProvider;
 
     @Deployment(testable = false)
     public static EnterpriseArchive deploy() {
@@ -55,79 +57,78 @@ public class ProductVersionRestTest {
 
     @BeforeClass
     public static void setupAuth() throws IOException {
-        InputStream is = ProductVersionRestTest.class.getResourceAsStream("/keycloak.json");
+        InputStream is = ProductMilestoneRestTest.class.getResourceAsStream("/keycloak.json");
         ExternalAuthentication ea = new ExternalAuthentication(is);
         authProvider = ea.authenticate(System.getenv("PNC_EXT_OAUTH_USERNAME"), System.getenv("PNC_EXT_OAUTH_PASSWORD"));
     }
-    
+
     @Test
     @InSequence(1)
-    public void prepareProductId() {
+    public void prepareProductIdAndProductVersionId() {
         given().header("Accept", "application/json").header("Authorization", "Bearer " + authProvider.getTokenString())
-                    .contentType(ContentType.JSON).port(getHttpPort()).when().get(PRODUCT_REST_ENDPOINT).then().statusCode(200)
+                .contentType(ContentType.JSON).port(getHttpPort()).when().get(PRODUCT_REST_ENDPOINT).then().statusCode(200)
                 .body(JsonMatcher.containsJsonAttribute("[0].id", value -> productId = Integer.valueOf(value)));
+        given().header("Accept", "application/json").header("Authorization", "Bearer " + authProvider.getTokenString())
+                .contentType(ContentType.JSON).port(getHttpPort()).when()
+                .get(String.format(PRODUCT_VERSION_REST_ENDPOINT, productId)).then().statusCode(200)
+                 .body(JsonMatcher.containsJsonAttribute("[0].id", value -> productVersionId = Integer.valueOf(value)));
     }
 
     @Test
     @InSequence(2)
-    public void prepareProductVersionId() {
+    public void prepareProductMilestoneId() {
         given().header("Accept", "application/json").header("Authorization", "Bearer " + authProvider.getTokenString())
                     .contentType(ContentType.JSON).port(getHttpPort()).when()
-                .get(String.format(PRODUCT_VERSION_REST_ENDPOINT, productId)).then().statusCode(200)
-                .body(JsonMatcher.containsJsonAttribute("[0].id", value -> productVersionId = Integer.valueOf(value)));
+                .get(String.format(PRODUCT_MILESTONE_REST_ENDPOINT)).then().statusCode(200)
+                .body(JsonMatcher.containsJsonAttribute("[0].id", value -> productMilestoneId = Integer.valueOf(value)));
     }
 
     @Test
     @InSequence(3)
-    public void shouldGetSpecificProductVersion() {
+    public void shouldGetSpecificProductMilestone() {
         given().header("Accept", "application/json").header("Authorization", "Bearer " + authProvider.getTokenString())
-                    .contentType(ContentType.JSON).port(getHttpPort()).when()
-                .get(String.format(PRODUCT_VERSION_SPECIFIC_REST_ENDPOINT, productId, productVersionId)).then().statusCode(200)
+                .contentType(ContentType.JSON).port(getHttpPort()).when()
+                .get(String.format(PRODUCT_MILESTONE_SPECIFIC_REST_ENDPOINT, productMilestoneId)).then().statusCode(200)
                 .body(JsonMatcher.containsJsonAttribute("id"));
     }
 
     @Test
     @InSequence(4)
-    public void shouldCreateNewProductVersion() throws IOException {
-        String rawJson = loadJsonFromFile("productVersion");
+    public void shouldCreateNewProductMilestone() throws IOException {
+        JsonTemplateBuilder productMilestoneTemplate = JsonTemplateBuilder.fromResource("productMilestone_template");
+        productMilestoneTemplate.addValue("_productVersionId", String.valueOf(productVersionId));
 
         Response response = given().header("Accept", "application/json").header("Authorization", "Bearer " + authProvider.getTokenString())
-                    .body(rawJson).contentType(ContentType.JSON).port(getHttpPort()).when()
-                .post(String.format(PRODUCT_VERSION_REST_ENDPOINT, productId));
+                .body(productMilestoneTemplate.fillTemplate()).contentType(ContentType.JSON).port(getHttpPort()).when()
+                .post(PRODUCT_MILESTONE_REST_ENDPOINT);
         Assertions.assertThat(response.statusCode()).isEqualTo(201);
 
         String location = response.getHeader("Location");
         logger.info("Found location in Response header: " + location);
 
-        logger.info("----1" + location.substring(location.lastIndexOf(String.format(PRODUCT_VERSION_REST_ENDPOINT, productId))));
+        newProductMilestoneId = Integer.valueOf(location.substring(location.lastIndexOf(
+                PRODUCT_MILESTONE_REST_ENDPOINT) + PRODUCT_MILESTONE_REST_ENDPOINT.length()));
 
-        logger.info("----2"
-                + location.substring(location.lastIndexOf(String.format(PRODUCT_VERSION_REST_ENDPOINT, productId))
-                        + String.format(PRODUCT_VERSION_REST_ENDPOINT, productId).length()));
-
-        newProductVersionId = Integer.valueOf(location.substring(location.lastIndexOf(String.format(
-                PRODUCT_VERSION_REST_ENDPOINT, productId)) + String.format(PRODUCT_VERSION_REST_ENDPOINT, productId).length()));
-
-        logger.info("Created id of product version: " + newProductVersionId);
+        logger.info("Created id of product version: " + newProductMilestoneId);
 
     }
 
     @Test
     @InSequence(5)
-    public void shouldUpdateProductVersion() {
+    public void shouldUpdateProductMilestone() {
 
-        logger.info("### newProductVersionId: " + newProductVersionId);
+        logger.info("### newProductMilestoneId: " + newProductMilestoneId);
 
         Response response = given().header("Accept", "application/json").header("Authorization", "Bearer " + authProvider.getTokenString())
                     .contentType(ContentType.JSON).port(getHttpPort()).when()
-                .get(String.format(PRODUCT_VERSION_SPECIFIC_REST_ENDPOINT, productId, newProductVersionId));
+                .get(String.format(PRODUCT_MILESTONE_SPECIFIC_REST_ENDPOINT, newProductMilestoneId));
 
         Assertions.assertThat(response.statusCode()).isEqualTo(200);
-        Assertions.assertThat(response.body().jsonPath().getInt("id")).isEqualTo(newProductVersionId);
-        Assertions.assertThat(response.body().jsonPath().getString("version ")).isEqualTo("1.0");
+        Assertions.assertThat(response.body().jsonPath().getInt("id")).isEqualTo(newProductMilestoneId);
+        Assertions.assertThat(response.body().jsonPath().getString("version ")).isEqualTo("1.0.0.ER1");
 
         String rawJson = response.body().jsonPath().prettyPrint();
-        rawJson = rawJson.replace("1.0", "1.1");
+        rawJson = rawJson.replace("1.0.0.ER1", "1.0.1.ER1");
         // Remove the "id: {id}," from the json object
         rawJson = rawJson.replaceFirst("\\s*\"?id\"?\\s*:\\s*\\d+,\\s*", "");
 
@@ -135,17 +136,17 @@ public class ProductVersionRestTest {
 
         given().header("Accept", "application/json").header("Authorization", "Bearer " + authProvider.getTokenString())
                     .body(rawJson).contentType(ContentType.JSON).port(getHttpPort()).when()
-                .put(String.format(PRODUCT_VERSION_SPECIFIC_REST_ENDPOINT, productId, newProductVersionId)).then()
+                .put(String.format(PRODUCT_MILESTONE_SPECIFIC_REST_ENDPOINT, newProductMilestoneId)).then()
                 .statusCode(200);
 
         // Reading updated resource
         Response updateResponse = given().header("Accept", "application/json").header("Authorization", "Bearer " + authProvider.getTokenString())
                     .contentType(ContentType.JSON).port(getHttpPort()).when()
-                .get(String.format(PRODUCT_VERSION_SPECIFIC_REST_ENDPOINT, productId, newProductVersionId));
+                .get(String.format(PRODUCT_MILESTONE_SPECIFIC_REST_ENDPOINT, newProductMilestoneId));
 
         Assertions.assertThat(updateResponse.statusCode()).isEqualTo(200);
-        Assertions.assertThat(updateResponse.body().jsonPath().getInt("id")).isEqualTo(newProductVersionId);
-        Assertions.assertThat(updateResponse.body().jsonPath().getString("version")).isEqualTo("1.1");
+        Assertions.assertThat(updateResponse.body().jsonPath().getInt("id")).isEqualTo(newProductMilestoneId);
+        Assertions.assertThat(updateResponse.body().jsonPath().getString("version")).isEqualTo("1.0.1.ER1");
 
     }
 

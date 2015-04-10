@@ -22,6 +22,8 @@ public class JaxRsActivator extends Application {
     private void addProjectResources(Set<Class<?>> resources) {
         resources.add(ProductEndpoint.class);
         resources.add(ProductVersionEndpoint.class);
+        resources.add(ProductMilestoneEndpoint.class);
+        resources.add(ProductReleaseEndpoint.class);
         resources.add(ProjectEndpoint.class);
         resources.add(BuildConfigurationEndpoint.class);
         resources.add(BuildConfigurationSetEndpoint.class);

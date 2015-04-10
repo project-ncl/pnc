@@ -2,10 +2,13 @@ package org.jboss.pnc.rest.restmodel;
 
 import org.jboss.pnc.common.Identifiable;
 import org.jboss.pnc.model.Product;
+import org.jboss.pnc.model.ProductMilestone;
+import org.jboss.pnc.model.ProductRelease;
 import org.jboss.pnc.model.ProductVersion;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -18,13 +21,11 @@ public class ProductVersionRest implements Identifiable<Integer> {
 
     private String version;
 
-    private boolean released;
-
-    private boolean supported;
-
-    private String internalDownloadUrl;
-
     private Integer productId;
+
+    List<Integer> productMilestoneIds = new ArrayList<Integer>();
+
+    List<Integer> productReleaseIds = new ArrayList<Integer>();
 
     List<Integer> buildConfigurationSetIds;
 
@@ -34,10 +35,15 @@ public class ProductVersionRest implements Identifiable<Integer> {
     public ProductVersionRest(ProductVersion productVersion) {
         this.id = productVersion.getId();
         this.version = productVersion.getVersion();
-        this.released = productVersion.isReleased();
-        this.supported = productVersion.isSupported();
-        this.internalDownloadUrl = productVersion.getInternalDownloadUrl();
         this.productId = productVersion.getProduct().getId();
+        
+        for (ProductMilestone milestone : productVersion.getProductMilestones()) {
+            productMilestoneIds.add(milestone.getId());
+        }
+
+        for (ProductRelease release : productVersion.getProductReleases()) {
+            productReleaseIds.add(release.getId());
+        }
 
     }
 
@@ -57,30 +63,6 @@ public class ProductVersionRest implements Identifiable<Integer> {
         this.version = version;
     }
 
-    public boolean isReleased() {
-        return released;
-    }
-
-    public void setReleased(boolean released) {
-        this.released = released;
-    }
-
-    public boolean isSupported() {
-        return supported;
-    }
-
-    public void setSupported(boolean supported) {
-        this.supported = supported;
-    }
-
-    public String getInternalDownloadUrl() {
-        return internalDownloadUrl;
-    }
-
-    public void setInternalDownloadUrl(String internalDownloadUrl) {
-        this.internalDownloadUrl = internalDownloadUrl;
-    }
-
     public Integer getProductId() {
         return productId;
     }
@@ -97,6 +79,22 @@ public class ProductVersionRest implements Identifiable<Integer> {
         this.buildConfigurationSetIds = buildConfigurationSetIds;
     }
 
+    public List<Integer> getProductMilestones() {
+        return this.productMilestoneIds;
+    }
+
+    public void setProductMilestoneIds(List<Integer> productMilestoneIds) {
+        this.productMilestoneIds = productMilestoneIds;
+    }
+
+    public List<Integer> getProductReleases() {
+        return this.productReleaseIds;
+    }
+
+    public void setProductReleaseIds(List<Integer> productReleaseIds) {
+        this.productReleaseIds = productReleaseIds;
+    }
+
     public ProductVersion toProductVersion(Product product) {
         ProductVersion productVersionToBeUpdated = getProductVersionFromProductOrNewOne(product);
         return toProductVersion(productVersionToBeUpdated);
@@ -104,9 +102,6 @@ public class ProductVersionRest implements Identifiable<Integer> {
 
     public ProductVersion toProductVersion(ProductVersion productVersion) {
         productVersion.setVersion(version);
-        productVersion.setReleased(released);
-        productVersion.setSupported(supported);
-        productVersion.setInternalDownloadUrl(internalDownloadUrl);
         return productVersion;
     }
 
