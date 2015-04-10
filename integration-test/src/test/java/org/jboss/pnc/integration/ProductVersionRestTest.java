@@ -15,6 +15,7 @@ import org.jboss.pnc.integration.deployments.Deployments;
 import org.jboss.pnc.test.category.ContainerTest;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
@@ -52,16 +53,11 @@ public class ProductVersionRestTest {
         return enterpriseArchive;
     }
 
-    @Before
-    public void prepareData() {
-        try {
-            InputStream is = this.getClass().getResourceAsStream("/keycloak.json");
-            ExternalAuthentication ea = new ExternalAuthentication(is);
-            authProvider = ea.authenticate(System.getenv("PNC_EXT_OAUTH_USERNAME"), System.getenv("PNC_EXT_OAUTH_PASSWORD"));
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
+    @BeforeClass
+    public static void setupAuth() throws IOException {
+        InputStream is = ProductVersionRestTest.class.getResourceAsStream("/keycloak.json");
+        ExternalAuthentication ea = new ExternalAuthentication(is);
+        authProvider = ea.authenticate(System.getenv("PNC_EXT_OAUTH_USERNAME"), System.getenv("PNC_EXT_OAUTH_PASSWORD"));
     }
     
     @Test

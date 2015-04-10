@@ -23,6 +23,7 @@ import org.jboss.pnc.test.category.ContainerTest;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.json.JSONObject;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
@@ -81,18 +82,16 @@ public class BuildConfigurationSetRestTest {
         return enterpriseArchive;
     }
 
+    @BeforeClass
+    public static void setupAuth() throws IOException {
+        InputStream is = BuildConfigurationSetRestTest.class.getResourceAsStream("/keycloak.json");
+        ExternalAuthentication ea = new ExternalAuthentication(is);
+        authProvider = ea.authenticate(System.getenv("PNC_EXT_OAUTH_USERNAME"), System.getenv("PNC_EXT_OAUTH_PASSWORD"));
+    }
+
     @Test
     @InSequence(-1)
     public void prepareBaseData() {
-        try {
-            InputStream is = this.getClass().getResourceAsStream("/keycloak.json");
-            ExternalAuthentication ea = new ExternalAuthentication(is);
-            authProvider = ea.authenticate(System.getenv("PNC_EXT_OAUTH_USERNAME"), System.getenv("PNC_EXT_OAUTH_PASSWORD"));
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        
 
         // Need to get a product version and a build configuration from the database
         ValidatableResponse responseProd = given().header("Accept", "application/json").header("Authorization", "Bearer " + authProvider.getTokenString())

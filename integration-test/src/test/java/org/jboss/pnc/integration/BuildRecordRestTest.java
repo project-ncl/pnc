@@ -19,6 +19,7 @@ import org.jboss.pnc.rest.restmodel.BuildRecordRest;
 import org.jboss.pnc.test.category.ContainerTest;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
@@ -69,18 +70,16 @@ public class BuildRecordRestTest {
         return enterpriseArchive;
     }
 
+    @BeforeClass
+    public static void setupAuth() throws IOException {
+        InputStream is = BuildRecordRestTest.class.getResourceAsStream("/keycloak.json");
+        ExternalAuthentication ea = new ExternalAuthentication(is);
+        authProvider = ea.authenticate(System.getenv("PNC_EXT_OAUTH_USERNAME"), System.getenv("PNC_EXT_OAUTH_PASSWORD"));
+    }
+
     @Test
     @InSequence(-1)
     public void prepareBaseData() {
-        try {
-            InputStream is = this.getClass().getResourceAsStream("/keycloak.json");
-            ExternalAuthentication ea = new ExternalAuthentication(is);
-            authProvider = ea.authenticate(System.getenv("PNC_EXT_OAUTH_USERNAME"), System.getenv("PNC_EXT_OAUTH_PASSWORD"));
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        
         Response response = given().header("Accept", "application/json").header("Authorization", "Bearer " + authProvider.getTokenString())
                     .contentType(ContentType.JSON).port(getHttpPort()).when().get(BUILD_RECORD_REST_ENDPOINT);
 
