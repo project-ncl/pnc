@@ -10,10 +10,12 @@ import javax.inject.Inject;
 @ApplicationScoped
 public class AuditedBuildConfigurationRepository extends AbstractAuditRepository<BuildConfiguration, Integer> {
 
+    /**
+     * @deprecated This constructor is provided only for CDI. Please don't use it.
+     */
     @Deprecated
     public AuditedBuildConfigurationRepository() {
         super(null, BuildConfiguration.class);
-        //for CDI
     }
 
     @Inject
