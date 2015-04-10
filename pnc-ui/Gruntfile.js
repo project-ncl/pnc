@@ -154,6 +154,34 @@ module.exports = function (grunt) {
       }
     },
 
+    ngconstant: {
+      options: {
+        space: '  ',
+        wrap: '\'use strict\';\n\n {%= __ngModule %}',
+        name: 'pnc.environment',
+      },
+      dev: {
+        options: {
+          dest: '<%= yeoman.app %>/environment.js'
+        },
+        constants: {
+          ENV: {
+            name: 'dev',
+          }
+        }
+      },
+      prod: {
+        options: {
+          dest: '<%= yeoman.app %>/environment.js'
+        },
+        constants: {
+          ENV: {
+            name: 'prod',
+          }
+        }
+      }
+    },
+
     // Make sure code styles are up to par and there are no obvious mistakes
     jshint: {
       options: {
@@ -193,11 +221,15 @@ module.exports = function (grunt) {
           src: [
             '<%= yeoman.tmp %>',
             '<%= yeoman.dist %>/**/*',
-            '!<%= yeoman.dist %>/.git{,*/}*'
+            '!<%= yeoman.dist %>/.git{,*/}*',
+            '<%= yeoman.app %>/environment.js'
           ]
         }]
       },
-      server: '<%= yeoman.tmp %>'
+      server: [
+        '<%= yeoman.tmp %>',
+        '<%= yeoman.app %>/environment.js'
+      ]
     },
 
     // Wires our own scripts and styles into index.html
@@ -485,6 +517,7 @@ module.exports = function (grunt) {
     grunt.task.run([
       'initRestConfig',
       'clean:server',
+      'ngconstant:dev',
       'wiredep',
       'includeSource:server',
       //'concat',
@@ -514,6 +547,7 @@ module.exports = function (grunt) {
   grunt.registerTask('build', [
     'initRestConfig',
     'clean:dist',
+    'ngconstant:prod',
     'copy:fonts',
     'wiredep',
     'includeSource:dist',
