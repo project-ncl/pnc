@@ -10,7 +10,8 @@
     'pnc.configuration',
     'pnc.record',
     'pnc.configuration-set',
-    'pnc.websockets'
+    'pnc.websockets',
+    'pnc.environment'
     ]);
 
   app.config(['$stateProvider', '$urlRouterProvider', '$locationProvider',
@@ -32,11 +33,13 @@
       }
       ]);
 
-  app.run(['$rootScope', '$log', 'AuthService',
+  app.run(['$rootScope', '$log', 'AuthService', 'ENV',
 
     // Handle errors with state changes.
-    function($rootScope, $log, AuthService) {
-      AuthService.login('keycloak.json', true);
+    function($rootScope, $log, AuthService, ENV) {
+      var needLogin = ENV.name === 'prod';
+
+      AuthService.login('keycloak.json', needLogin);
 
       $rootScope.$on('$stateChangeError',
         function(event, toState, toParams, fromState, fromParams, error) {
