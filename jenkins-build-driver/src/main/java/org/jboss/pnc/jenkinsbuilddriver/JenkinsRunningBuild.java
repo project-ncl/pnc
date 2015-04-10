@@ -1,7 +1,7 @@
 package org.jboss.pnc.jenkinsbuilddriver;
 
 import org.jboss.logging.Logger;
-import org.jboss.pnc.model.BuildDriverStatus;
+import org.jboss.pnc.spi.builddriver.BuildDriverStatus;
 import org.jboss.pnc.spi.builddriver.CompletedBuild;
 import org.jboss.pnc.spi.builddriver.RunningBuild;
 import org.jboss.pnc.spi.environment.RunningEnvironment;

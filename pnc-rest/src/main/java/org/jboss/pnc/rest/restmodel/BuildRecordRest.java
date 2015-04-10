@@ -2,15 +2,15 @@ package org.jboss.pnc.rest.restmodel;
 
 import static org.jboss.pnc.rest.utils.Utility.performIfNotNull;
 
-import java.sql.Timestamp;
-
-import javax.xml.bind.annotation.XmlRootElement;
-
 import org.jboss.pnc.common.Identifiable;
 import org.jboss.pnc.core.builder.BuildTask;
 import org.jboss.pnc.model.BuildConfiguration;
-import org.jboss.pnc.model.BuildDriverStatus;
 import org.jboss.pnc.model.BuildRecord;
+import org.jboss.pnc.model.BuildStatus;
+
+import javax.xml.bind.annotation.XmlRootElement;
+
+import java.sql.Timestamp;
 
 @XmlRootElement(name = "BuildRecord")
 public class BuildRecordRest implements Identifiable<Integer> {
@@ -33,7 +33,7 @@ public class BuildRecordRest implements Identifiable<Integer> {
 
     private String patchesUrl;
 
-    private BuildDriverStatus status;
+    private BuildStatus status;
 
     private Integer buildConfigurationId;
 
@@ -76,7 +76,7 @@ public class BuildRecordRest implements Identifiable<Integer> {
         this.scmRepoURL = buildConfiguration.getScmRepoURL();
         this.scmRevision = buildConfiguration.getScmRevision();
         this.patchesUrl = buildConfiguration.getPatchesUrl();
-        this.status = BuildDriverStatus.BUILDING;
+        this.status = BuildStatus.BUILDING;
     }
 
     public Integer getId() {
@@ -151,11 +151,11 @@ public class BuildRecordRest implements Identifiable<Integer> {
         this.patchesUrl = patchesUrl;
     }
 
-    public BuildDriverStatus getStatus() {
+    public BuildStatus getStatus() {
         return status;
     }
 
-    public void setStatus(BuildDriverStatus status) {
+    public void setStatus(BuildStatus status) {
         this.status = status;
     }
 

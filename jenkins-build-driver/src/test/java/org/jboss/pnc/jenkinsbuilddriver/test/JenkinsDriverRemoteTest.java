@@ -7,6 +7,7 @@ import org.jboss.pnc.common.util.ObjectWrapper;
 import org.jboss.pnc.jenkinsbuilddriver.JenkinsBuildDriver;
 import org.jboss.pnc.model.*;
 import org.jboss.pnc.spi.builddriver.BuildDriverResult;
+import org.jboss.pnc.spi.builddriver.BuildDriverStatus;
 import org.jboss.pnc.spi.builddriver.CompletedBuild;
 import org.jboss.pnc.spi.builddriver.RunningBuild;
 import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
@@ -26,6 +27,7 @@ import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 
 import javax.inject.Inject;
+
 import java.io.InputStream;
 import java.util.Collections;
 import java.util.List;

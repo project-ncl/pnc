@@ -1,7 +1,8 @@
 package org.jboss.pnc.jenkinsbuilddriver;
 
 import com.offbytwo.jenkins.model.BuildResult;
-import org.jboss.pnc.model.BuildDriverStatus;
+
+import org.jboss.pnc.spi.builddriver.BuildDriverStatus;
 
 /**
 * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-12-01.

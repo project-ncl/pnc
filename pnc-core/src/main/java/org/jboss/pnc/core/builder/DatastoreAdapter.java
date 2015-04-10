@@ -3,8 +3,8 @@ package org.jboss.pnc.core.builder;
 import org.jboss.logging.Logger;
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.BuildConfiguration;
-import org.jboss.pnc.model.BuildDriverStatus;
 import org.jboss.pnc.model.BuildRecord;
+import org.jboss.pnc.model.BuildStatus;
 import org.jboss.pnc.spi.BuildResult;
 import org.jboss.pnc.spi.builddriver.BuildDriverResult;
 import org.jboss.pnc.spi.datastore.Datastore;
@@ -12,6 +12,7 @@ import org.jboss.pnc.spi.datastore.DatastoreException;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
 
 import javax.inject.Inject;
+
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.List;
@@ -40,7 +41,7 @@ public class DatastoreAdapter {
             buildRecord.setBuildConfiguration(buildConfiguration);
             // Build driver results
             buildRecord.setBuildLog(buildDriverResult.getBuildLog());
-            buildRecord.setStatus(buildDriverResult.getBuildDriverStatus());
+            buildRecord.setStatus(buildDriverResult.getBuildDriverStatus().toBuildStatus());
             // Repository manager results, it's null in case of failed build
             if (repositoryManagerResult != null) {
                 linkArtifactsWithBuildRecord(repositoryManagerResult.getBuiltArtifacts(), buildRecord);
@@ -72,9 +73,8 @@ public class DatastoreAdapter {
         StringWriter stackTraceWriter = new StringWriter();
         PrintWriter stackTracePrinter = new PrintWriter(stackTraceWriter);
         e.printStackTrace(stackTracePrinter);
-        buildRecord.setStatus(BuildDriverStatus.UNKNOWN); // TODO set error status. Is it ok to store DBS (Jenkins), if we are
-                                                          // storing BSD than UNKNOWN is the right one
-
+        buildRecord.setStatus(BuildStatus.SYSTEM_ERROR); 
+        
         String errorMessage = "Last build status: " + buildTask.getStatus().toString() + "\n";
         errorMessage += "Caught exception: " + stackTraceWriter.toString();
         buildRecord.setBuildLog(errorMessage);

@@ -58,7 +58,7 @@ public class BuildRecord implements GenericEntity<Integer> {
     private String buildLog;
 
     @Enumerated(value = EnumType.STRING)
-    private BuildDriverStatus status;
+    private BuildStatus status;
 
     @OneToMany(mappedBy = "buildRecord", cascade = CascadeType.ALL)
     private List<Artifact> builtArtifacts;
@@ -261,7 +261,7 @@ public class BuildRecord implements GenericEntity<Integer> {
      *
      * @return the status
      */
-    public BuildDriverStatus getStatus() {
+    public BuildStatus getStatus() {
         return status;
     }
 
@@ -270,7 +270,7 @@ public class BuildRecord implements GenericEntity<Integer> {
      *
      * @param status the new status
      */
-    public void setStatus(BuildDriverStatus status) {
+    public void setStatus(BuildStatus status) {
         this.status = status;
     }
 
@@ -447,7 +447,7 @@ public class BuildRecord implements GenericEntity<Integer> {
 
         private String buildLog;
 
-        private BuildDriverStatus status;
+        private BuildStatus status;
 
         private List<Artifact> builtArtifacts;
 
@@ -575,7 +575,7 @@ public class BuildRecord implements GenericEntity<Integer> {
             return this;
         }
 
-        public Builder status(BuildDriverStatus status) {
+        public Builder status(BuildStatus status) {
             this.status = status;
             return this;
         }

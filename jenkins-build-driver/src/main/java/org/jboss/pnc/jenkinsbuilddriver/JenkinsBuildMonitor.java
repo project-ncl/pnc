@@ -4,13 +4,15 @@ import com.offbytwo.jenkins.JenkinsServer;
 import com.offbytwo.jenkins.model.Build;
 import com.offbytwo.jenkins.model.BuildWithDetails;
 import com.offbytwo.jenkins.model.JobWithDetails;
+
 import org.jboss.logging.Logger;
 import org.jboss.pnc.common.util.ObjectWrapper;
-import org.jboss.pnc.model.BuildDriverStatus;
+import org.jboss.pnc.spi.builddriver.BuildDriverStatus;
 import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+
 import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.Executors;
