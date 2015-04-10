@@ -1,20 +1,3 @@
-/*
- * JBoss, Home of Professional Open Source
- * Copyright 2012, Red Hat, Inc., and individual contributors
- * by the @authors tag. See the copyright.txt in the distribution for a
- * full listing of individual contributors.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- * http://www.apache.org/licenses/LICENSE-2.0
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package org.jboss.pnc.model;
 
 import javax.persistence.*;
@@ -26,6 +9,9 @@ import java.util.Date;
  * Represents a released version of a product.  For example, a Beta, GA, or SP release.
  * Each release is associated with a product version (many releases for one version),
  * and each release is associated with a single milestone (one to one).
+ * For example, product version 1.0 could have three milestones (1.0.0.Build1, 1.0.0.Build2,
+ * and 1.0.0.Build3) and two releases (1.0.0.Beta1 which was promoted from 1.0.0.Build1 and 
+ * 1.0.0.GA which was promoted from 1.0.0.Build3).
  */
 @Entity
 public class ProductRelease implements GenericEntity<Integer> {
@@ -64,53 +50,36 @@ public class ProductRelease implements GenericEntity<Integer> {
 
     }
 
-    /**
-     * @param version
-     * @param product
-     */
     public ProductRelease(ProductVersion productVersion, String version) {
         this.productVersion = productVersion;
         this.version = version;
     }
 
-    /**
-     * @return the id
-     */
     public Integer getId() {
         return id;
     }
 
-    /**
-     * @param id the id to set
-     */
     public void setId(Integer id) {
         this.id = id;
     }
 
-    /**
-     * @return the version
-     */
     public String getVersion() {
         return version;
     }
 
-    /**
-     * @param version the version to set
-     */
     public void setVersion(String version) {
         this.version = version;
     }
 
     /**
-     * @return the product
+     * The product version entity associated with this release
+     * 
+     * @return the product version entity
      */
     public ProductVersion getProductVersion() {
         return productVersion;
     }
 
-    /**
-     * @param product the product to set
-     */
     public void setProductVersion(ProductVersion productVersion) {
         this.productVersion = productVersion;
     }
@@ -118,7 +87,7 @@ public class ProductRelease implements GenericEntity<Integer> {
     /**
      * The current support level of this product release.
      *
-     * @return
+     * @return The support level enum
      */
     public SupportLevel getSupportLevel() {
         return supportLevel;
@@ -131,7 +100,7 @@ public class ProductRelease implements GenericEntity<Integer> {
     /**
      * The date of this release
      *
-     * @return
+     * @return The date representing the release date
      */
     public Date getReleaseDate() {
         return releaseDate;
