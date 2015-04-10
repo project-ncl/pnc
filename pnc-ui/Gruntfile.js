@@ -544,26 +544,34 @@ module.exports = function (grunt) {
     'karma'*/
   ]);
 
-  grunt.registerTask('build', [
-    'initRestConfig',
-    'clean:dist',
-    'ngconstant:prod',
-    'copy:fonts',
-    'wiredep',
-    'includeSource:dist',
-    'useminPrepare',
-    'concurrent:dist',
-    'autoprefixer',
-    'concat',
-    'ngAnnotate',
-    'copy:dist',
-    // 'cdnify',
-    'cssmin',
-    'uglify',
-    'filerev',
-    'usemin',
-    'htmlmin'
-  ]);
+  grunt.registerTask('build', function (target) {
+    var environmentProfile = 'ngconstant:dev';
+
+    if (target === 'auth') {
+      environmentProfile = 'ngconstant:prod';
+    }
+
+    grunt.task.run([
+      'initRestConfig',
+      'clean:dist',
+      environmentProfile,
+      'copy:fonts',
+      'wiredep',
+      'includeSource:dist',
+      'useminPrepare',
+      'concurrent:dist',
+      'autoprefixer',
+      'concat',
+      'ngAnnotate',
+      'copy:dist',
+      // 'cdnify',
+      'cssmin',
+      'uglify',
+      'filerev',
+      'usemin',
+      'htmlmin'
+    ]);
+  });
 
   grunt.registerTask('default', [
     'newer:jshint',
@@ -572,9 +580,18 @@ module.exports = function (grunt) {
     'build'
   ]);
 
-  grunt.registerTask('dist', [
-    'bower:install',
-    'default'
-  ]);
+  grunt.registerTask('dist', function (target) {
+    var build = 'build';
+    if (target) {
+      build = 'build:' + target;
+    }
+
+    grunt.task.run([
+    'newer:jshint',
+    'newer:htmlhint',
+    'test',
+    build
+    ]);
+  });
 
 };
