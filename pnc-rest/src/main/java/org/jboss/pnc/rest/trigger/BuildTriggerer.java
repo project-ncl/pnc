@@ -35,7 +35,9 @@ public class BuildTriggerer {
         Preconditions.checkArgument(configuration != null, "Can't find configuration with given id=" + configurationId);
 
         final BuildRecordSet buildRecordSet = new BuildRecordSet();
-        buildRecordSet.setProductMilestone(configuration.getProductVersion().getCurrentProductMilestone());
+        if (configuration.getProductVersion() != null) {
+            buildRecordSet.setProductMilestone(configuration.getProductVersion().getCurrentProductMilestone());
+        }
 
         return buildCoordinator.build(configuration).getBuildConfiguration().getId();
     }
