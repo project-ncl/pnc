@@ -1070,6 +1070,7 @@
               <value>org.jboss.pnc.test.listener.PrintTestNameListener</value>
             </property>
           </properties>
+          <redirectTestOutputToFile>true</redirectTestOutputToFile>
         </configuration>
         <executions>
           <execution>
@@ -1113,6 +1114,7 @@
             </property>
           </properties>
           <skip>${failsafe.test.skip}</skip>
+          <redirectTestOutputToFile>true</redirectTestOutputToFile>
         </configuration>
         <executions>
           <execution>
