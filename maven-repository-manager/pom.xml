@@ -111,11 +111,13 @@
       <plugins>
         <plugin>
           <artifactId>maven-surefire-plugin</artifactId>
+          <!-- 
           <configuration combine.children="append">
             <forkCount>2C</forkCount>
             <reuseForks>false</reuseForks>
             <redirectTestOutputToFile>true</redirectTestOutputToFile>
           </configuration>
+           -->
         </plugin>
       </plugins>
     </pluginManagement>

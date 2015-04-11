@@ -14,7 +14,7 @@ import org.jboss.pnc.spi.BuildExecutionType;
 import org.jboss.pnc.spi.repositorymanager.model.RepositorySession;
 import org.junit.Test;
 
-public class RepositoryManagerDriver06Test extends AbstractRepositoryManagerDriverTest {
+public class BuildGroupIncludesConfSetGroupTest extends AbstractRepositoryManagerDriverTest {
 
     @Test
     public void verifyGroupComposition_ProjectVersion_WithConfSet() throws Exception {

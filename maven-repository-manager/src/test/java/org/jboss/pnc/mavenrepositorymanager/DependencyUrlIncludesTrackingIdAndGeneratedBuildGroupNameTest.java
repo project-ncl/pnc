@@ -10,7 +10,7 @@ import org.jboss.pnc.spi.repositorymanager.model.RepositoryConnectionInfo;
 import org.jboss.pnc.spi.repositorymanager.model.RepositorySession;
 import org.junit.Test;
 
-public class RepositoryManagerDriver01Test 
+public class DependencyUrlIncludesTrackingIdAndGeneratedBuildGroupNameTest 
     extends AbstractRepositoryManagerDriverTest
 {
 

@@ -29,7 +29,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-public class RepositoryManagerDriver03Test 
+public class DownloadTwoThenVerifyExtractedArtifactsContainThemTest 
     extends AbstractRepositoryManagerDriverTest
 {
 

@@ -31,7 +31,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-public class RepositoryManagerDriver04Test 
+public class UploadTwoThenVerifyExtractedArtifactsContainThemTest 
     extends AbstractRepositoryManagerDriverTest
 {
 
