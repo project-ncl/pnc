@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
   <modelVersion>4.0.0</modelVersion>
 
@@ -13,120 +13,137 @@
   <artifactId>pnc-ui</artifactId>
   <packaging>jar</packaging>
 
-    <build>
+  <properties>
+    <grunt.build.arguments>dist</grunt.build.arguments>
+  </properties>
 
-        <resources>
-            <resource>
-                <directory>dist/</directory>
-                <targetPath>META-INF/resources/</targetPath>
-            </resource>
-        </resources>
+  <build>
+
+    <resources>
+      <resource>
+        <directory>dist/</directory>
+        <targetPath>META-INF/resources/</targetPath>
+      </resource>
+    </resources>
+    <plugins>
+
+      <!-- Download node.js and related modules to install 3rd party frontend libraries -->
+      <plugin>
+        <groupId>com.github.eirslett</groupId>
+        <artifactId>frontend-maven-plugin</artifactId>
+        <version>0.0.16</version>
+
+        <configuration>
+          <workingDirectory>./</workingDirectory>
+        </configuration>
+
+        <executions>
+          <execution>
+            <id>install node and npm</id>
+            <goals>
+              <goal>install-node-and-npm</goal>
+            </goals>
+            <phase>generate-resources</phase>
+            <configuration>
+              <nodeVersion>v0.10.31</nodeVersion>
+              <npmVersion>2.2.0</npmVersion>
+            </configuration>
+          </execution>
+
+          <execution>
+            <id>npm install</id>
+            <goals>
+              <goal>npm</goal>
+            </goals>
+            <phase>generate-resources</phase>
+            <configuration>
+              <arguments>install</arguments>
+            </configuration>
+          </execution>
+
+          <execution>
+            <id>grunt build</id>
+            <goals>
+              <goal>grunt</goal>
+            </goals>
+            <phase>generate-resources</phase>
+
+            <configuration>
+              <arguments>${grunt.build.arguments}</arguments>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <artifactId>maven-clean-plugin</artifactId>
+        <version>2.5</version>
+        <configuration>
+          <filesets>
+            <fileset>
+              <directory>./</directory>
+              <includes>
+                <include>dist/**</include>
+                <include>.tmp/**</include>
+              </includes>
+              <followSymlinks>false</followSymlinks>
+            </fileset>
+          </filesets>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+
+  <profiles>
+    <profile>
+      <!--
+          Clears all cached Node/NPM/Bower artifacts makes completely fresh build
+
+          usage: mvn clean install -Dfrontend.clean.force
+      -->
+      <id>frontend-forced-clean</id>
+      <activation>
+        <property>
+          <name>frontend.clean.force</name>
+        </property>
+      </activation>
+      <build>
         <plugins>
-
-            <!-- Download node.js and related modules to install 3rd party frontend libraries -->
-            <plugin>
-                <groupId>com.github.eirslett</groupId>
-                <artifactId>frontend-maven-plugin</artifactId>
-                <version>0.0.16</version>
-
-                <configuration>
-                    <workingDirectory>./</workingDirectory>
-                </configuration>
-
-                <executions>
-                    <execution>
-                        <id>install node and npm</id>
-                        <goals>
-                            <goal>install-node-and-npm</goal>
-                        </goals>
-                        <phase>generate-resources</phase>
-                        <configuration>
-                            <nodeVersion>v0.10.31</nodeVersion>
-                            <npmVersion>2.2.0</npmVersion>
-                        </configuration>
-                    </execution>
-
-                    <execution>
-                        <id>npm install</id>
-                        <goals>
-                            <goal>npm</goal>
-                        </goals>
-                        <phase>generate-resources</phase>
-                        <configuration>
-                            <arguments>install</arguments>
-                        </configuration>
-                    </execution>
-
-                    <execution>
-                        <id>grunt build</id>
-                        <goals>
-                            <goal>grunt</goal>
-                        </goals>
-                        <phase>generate-resources</phase>
-
-                        <configuration>
-                            <arguments>dist</arguments>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-
-            <plugin>
-                <artifactId>maven-clean-plugin</artifactId>
-                <version>2.5</version>
-                <configuration>
-                    <filesets>
-                        <fileset>
-                            <directory>./</directory>
-                            <includes>
-                                <include>dist/**</include>
-                                <include>.tmp/**</include>
-                            </includes>
-                            <followSymlinks>false</followSymlinks>
-                        </fileset>
-                    </filesets>
-                </configuration>
-            </plugin>
+          <plugin>
+            <artifactId>maven-clean-plugin</artifactId>
+            <version>2.5</version>
+            <configuration>
+              <filesets>
+                <fileset>
+                  <directory>./</directory>
+                  <includes>
+                    <include>dist/**</include>
+                    <include>.tmp/**</include>
+                    <include>node/**</include>
+                    <include>node_modules/**</include>
+                    <include>bower_components/**</include>
+                    <include>.build-tmp/**</include>
+                  </includes>
+                  <followSymlinks>false</followSymlinks>
+                </fileset>
+              </filesets>
+            </configuration>
+          </plugin>
         </plugins>
-    </build>
+      </build>
+    </profile>
 
-    <profiles>
-        <profile>
-            <!--
-                Clears all cached Node/NPM/Bower artifacts makes completely fresh build
-
-                usage: mvn clean install -Dfrontend.clean.force
-            -->
-            <id>frontend-forced-clean</id>
-            <activation>
-                <property>
-                    <name>frontend.clean.force</name>
-                </property>
-            </activation>
-            <build>
-                <plugins>
-                    <plugin>
-                        <artifactId>maven-clean-plugin</artifactId>
-                        <version>2.5</version>
-                        <configuration>
-                            <filesets>
-                                <fileset>
-                                    <directory>./</directory>
-                                    <includes>
-                                        <include>dist/**</include>
-                                        <include>.tmp/**</include>
-                                        <include>node/**</include>
-                                        <include>node_modules/**</include>
-                                        <include>bower_components/**</include>
-                                        <include>.build-tmp/**</include>
-                                    </includes>
-                                    <followSymlinks>false</followSymlinks>
-                                </fileset>
-                            </filesets>
-                        </configuration>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-    </profiles>
+    <profile>
+      <id>auth</id>
+      <activation>
+        <property>
+          <name>auth</name>
+          <value>true</value>
+        </property>
+      </activation>
+      <properties>
+        <grunt.build.arguments>dist:auth</grunt.build.arguments>
+      </properties>
+    </profile>
+  </profiles>
 </project>
