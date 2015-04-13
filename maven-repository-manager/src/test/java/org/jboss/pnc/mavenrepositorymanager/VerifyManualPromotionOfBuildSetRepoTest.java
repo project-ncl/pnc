@@ -11,6 +11,7 @@ import org.commonjava.aprox.model.core.StoreType;
 import org.jboss.pnc.mavenrepositorymanager.fixture.TestBuildExecution;
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.BuildRecord;
+import org.jboss.pnc.model.BuildRecordSet;
 import org.jboss.pnc.spi.BuildExecution;
 import org.jboss.pnc.spi.BuildExecutionType;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
@@ -20,21 +21,22 @@ import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.util.Collections;
 import java.util.List;
 
-public class VerifyManualPromotionOfBuildRepoTest extends AbstractRepositoryManagerDriverTest {
+public class VerifyManualPromotionOfBuildSetRepoTest extends AbstractRepositoryManagerDriverTest {
 
     private static final String PUBLIC = "public";
 
     @Test
-    public void manuallyPromoteBuildRepoToChainGroup() throws Exception {
+    public void manuallyPromoteBuildSetRepoToExternalGroup() throws Exception {
         String path = "/org/myproj/myproj/1.0/myproj-1.0.pom";
         String content = "This is a test " + System.currentTimeMillis();
 
         String chainId = "chain";
         String buildId = "build";
 
-        BuildExecution execution = new TestBuildExecution(null, chainId, buildId, BuildExecutionType.STANDALONE_BUILD);
+        BuildExecution execution = new TestBuildExecution(null, chainId, buildId, BuildExecutionType.COMPOSED_BUILD);
         RepositorySession session = driver.createBuildRepository(execution);
 
         // simulate a build deploying a file.
@@ -51,12 +53,16 @@ public class VerifyManualPromotionOfBuildRepoTest extends AbstractRepositoryMana
         Artifact a = deps.get(0);
         assertThat(a.getFilename(), equalTo(new File(path).getName()));
 
-        // construct a dummy BuildRecord for use below
+        // construct a dummy BuildRecordSet for use below
         BuildRecord record = new BuildRecord();
         record.setBuildContentId(buildId);
 
+        BuildRecordSet recordSet = new BuildRecordSet();
+        recordSet.setBuildSetContentId(chainId);
+        recordSet.setBuildRecord(Collections.singletonList(record));
+
         // manually promote the build to the public group (since it's convenient)
-        RunningRepositoryPromotion promotion = driver.promoteBuild(record, PUBLIC);
+        RunningRepositoryPromotion promotion = driver.promoteBuildSet(recordSet, PUBLIC);
         promotion.monitor(completed -> {
             assertThat("Manual promotion failed.", completed.isSuccessful(), equalTo(true));
         }, error -> {
@@ -67,7 +73,7 @@ public class VerifyManualPromotionOfBuildRepoTest extends AbstractRepositoryMana
         // end result: the chain group should contain the build hosted repo.
         Group publicGroup = driver.getAprox().stores().load(StoreType.group, PUBLIC, Group.class);
         System.out.println("public group constituents: " + publicGroup.getConstituents());
-        assertThat(publicGroup.getConstituents().contains(new StoreKey(StoreType.hosted, buildId)), equalTo(true));
+        assertThat(publicGroup.getConstituents().contains(new StoreKey(StoreType.group, chainId)), equalTo(true));
     }
 
 }
