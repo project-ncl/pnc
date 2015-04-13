@@ -72,7 +72,25 @@ Steps to set up Docker daemon:
 
 Authentication:
 ---------------
-Use -Dauth=true to enable authentication for PNC.
+The default build with command `mvn clean install` comes with no authentication. In case you want to enable authentication 
+use -Dauth=true together with your build command.
+Enabling authentication meand following
+1. Your backend REST endpoints will become secured 
+    - inside pnc-rest.war under folder WEB-INF are added files from /pnc-rest/src/main/auth
+    - keycloak.json file is configuration file managing connection to Keycloak server
+    - web.xml file where you define security-constraints & security-roles, which specifies users
+      authrorization's to each REST endpoint
+2. Your pnc web UI gain the SSO ability and authentication via Keycloak login page.
+    - with your first unauthenticated session you will be redirected from pnc web UI into
+      Keycloak login page and asked to provide your credentials. After successful log-in you
+      will be redirected back to pnc web UI.
+      
+Configure your JEE server (EAP) for keycloak
+ Use -Dauth.eap.home=<path to your EAP installation> with you build command, if you want EAP configure for Keycloak.
+ According the http://docs.jboss.org/keycloak/docs/1.1.0.Final/userguide/html/ch08.html#jboss-adapter-installation installation
+ will be performed on server for the given path.                           
+                       
+
 
 Possible issues:
 ------------
