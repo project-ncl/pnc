@@ -587,6 +587,7 @@ module.exports = function (grunt) {
     }
 
     grunt.task.run([
+    'bower:install',
     'newer:jshint',
     'newer:htmlhint',
     'test',
