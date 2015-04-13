@@ -34,13 +34,13 @@
       ]);
 
   app.run(['$rootScope', '$log', 'AuthService', 'ENV',
-
-    // Handle errors with state changes.
     function($rootScope, $log, AuthService, ENV) {
-      var needLogin = ENV.name === 'prod';
 
-      AuthService.login('keycloak.json', needLogin);
+      if (ENV.name === 'prod') {
+        AuthService.login('keycloak.json');
+      }
 
+      // Handle errors with state changes.
       $rootScope.$on('$stateChangeError',
         function(event, toState, toParams, fromState, fromParams, error) {
           $log.debug('Caught $stateChangeError: event=%O, toState=%O, ' +
