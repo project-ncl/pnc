@@ -91,8 +91,7 @@ public class MavenRepositorySession implements RepositorySession
     public RepositoryManagerResult extractBuildArtifacts() throws RepositoryManagerException {
         TrackedContentDTO report;
         try {
-            report = aprox.module(AproxFoloAdminClientModule.class)
-                    .getTrackingReport(buildRepoId, StoreType.group, buildRepoId);
+            report = aprox.module(AproxFoloAdminClientModule.class).getTrackingReport(buildRepoId);
         } catch (AproxClientException e) {
             throw new RepositoryManagerException("Failed to retrieve tracking report for: %s. Reason: %s", e, buildRepoId,
                     e.getMessage());
@@ -100,13 +99,14 @@ public class MavenRepositorySession implements RepositorySession
 
         List<Artifact> uploads = processUploads(report);
         List<Artifact> downloads = processDownloads(report);
+
         promoteToBuildContentSet();
 
         RepositoryManagerResult repositoryManagerResult = new MavenRepositoryManagerResult(uploads, downloads);
 
         // clean up.
         try {
-            aprox.module(AproxFoloAdminClientModule.class).clearTrackingRecord(buildRepoId, StoreType.group, buildRepoId);
+            aprox.module(AproxFoloAdminClientModule.class).clearTrackingRecord(buildRepoId);
         } catch (AproxClientException e) {
             throw new RepositoryManagerException(
                     "Failed to clean up build repositories / tracking information for: %s. Reason: %s", e, buildRepoId,
@@ -167,6 +167,7 @@ public class MavenRepositorySession implements RepositorySession
                         .deployUrl(content.contentUrl(download.getStoreKey(), download.getPath()))
                         .filename(new File(path).getName()).identifier(aref.toString()).repoType(RepositoryType.MAVEN)
                         .status(ArtifactStatus.BINARY_IMPORTED);
+
                 deps.add(artifactBuilder.build());
             }
 
@@ -195,7 +196,6 @@ public class MavenRepositorySession implements RepositorySession
             List<Artifact> builds = new ArrayList<>();
 
             for (TrackedContentEntryDTO upload : uploads) {
-
                 String path = upload.getPath();
                 ArtifactPathInfo pathInfo = ArtifactPathInfo.parse(path);
                 if (pathInfo == null) {

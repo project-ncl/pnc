@@ -5,13 +5,6 @@ import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.ResponseHandler;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClientBuilder;
 import org.commonjava.aprox.client.core.Aprox;
 import org.commonjava.aprox.client.core.util.UrlUtils;
 import org.commonjava.aprox.model.core.StoreType;
@@ -24,45 +17,34 @@ import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
 import org.jboss.pnc.spi.repositorymanager.model.RepositorySession;
 import org.junit.Test;
 
-import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 public class DownloadTwoThenVerifyExtractedArtifactsContainThemTest 
-    extends AbstractRepositoryManagerDriverTest
+ extends AbstractImportTest
 {
 
     @Test
     public void extractBuildArtifacts_ContainsTwoDownloads() throws Exception {
+        String pomPath = "org/commonjava/aprox/aprox-core/0.17.0/aprox-core-0.17.0.pom";
+        String jarPath = "org/commonjava/aprox/aprox-core/0.17.0/aprox-core-0.17.0.jar";
+        String content = "This is a test " + System.currentTimeMillis();
+
+        // setup the expectation that the remote repo pointing at this server will request this file...and define its content.
+        server.expect(server.formatUrl(STORE, pomPath), 200, content);
+        server.expect(server.formatUrl(STORE, jarPath), 200, content);
+
         BuildExecution execution = new TestBuildExecution();
 
         RepositorySession rc = driver.createBuildRepository(execution);
         assertThat(rc, notNullValue());
 
         String baseUrl = rc.getConnectionInfo().getDependencyUrl();
-        String pomPath = "org/commonjava/aprox/aprox-core/0.17.0/aprox-core-0.17.0.pom";
-        String jarPath = "org/commonjava/aprox/aprox-core/0.17.0/aprox-core-0.17.0.jar";
 
-        CloseableHttpClient client = HttpClientBuilder.create().build();
-
-        for (String path : new String[] { pomPath, jarPath }) {
-            final String url = UrlUtils.buildUrl(baseUrl, path);
-            boolean downloaded = client.execute(new HttpGet(url), new ResponseHandler<Boolean>() {
-                @Override
-                public Boolean handleResponse(HttpResponse response) throws ClientProtocolException, IOException {
-                    try {
-                        return response.getStatusLine().getStatusCode() == 200;
-                    } finally {
-                        if (response instanceof CloseableHttpResponse) {
-                            IOUtils.closeQuietly((CloseableHttpResponse) response);
-                        }
-                    }
-                }
-            });
-
-            assertThat("Failed to download: " + url, downloaded, equalTo(true));
-        }
+        assertThat(download(UrlUtils.buildUrl(baseUrl, pomPath)), equalTo(content));
+        assertThat(download(UrlUtils.buildUrl(baseUrl, jarPath)), equalTo(content));
 
         RepositoryManagerResult repositoryManagerResult = rc.extractBuildArtifacts();
 
@@ -85,25 +67,10 @@ public class DownloadTwoThenVerifyExtractedArtifactsContainThemTest
         Aprox aprox = driver.getAprox();
 
         for (String path : new String[] { pomPath, jarPath }) {
-            final String url = aprox.content().contentUrl(StoreType.hosted, RepositoryManagerDriver.SHARED_IMPORTS_ID, path);
-            System.out.println("Verifying availability of: " + url);
-            boolean downloaded = client.execute(new HttpGet(url), new ResponseHandler<Boolean>() {
-                @Override
-                public Boolean handleResponse(HttpResponse response) throws ClientProtocolException, IOException {
-                    try {
-                        return response.getStatusLine().getStatusCode() == 200;
-                    } finally {
-                        if (response instanceof CloseableHttpResponse) {
-                            IOUtils.closeQuietly((CloseableHttpResponse) response);
-                        }
-                    }
-                }
-            });
-
-            assertThat("Failed to download: " + url, downloaded, equalTo(true));
+            InputStream stream = aprox.content().get(StoreType.hosted, SHARED_IMPORTS, path);
+            String downloaded = IOUtils.toString(stream);
+            assertThat(downloaded, equalTo(content));
         }
-
-        client.close();
 
     }
 
