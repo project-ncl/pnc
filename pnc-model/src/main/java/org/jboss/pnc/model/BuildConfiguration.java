@@ -50,7 +50,7 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
     @ManyToOne(cascade = { CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH })
     private ProductVersion productVersion;
 
-    @NotAudited
+    @Audited( targetAuditMode = RelationTargetAuditMode.NOT_AUDITED )
     @NotNull
     @ManyToOne(cascade = { CascadeType.REFRESH, CascadeType.DETACH })
     private Project project;
@@ -63,7 +63,7 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
     private BuildConfiguration parent;
 
     @NotAudited
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "buildConfiguration")
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "latestBuildConfiguration")
     private Set<BuildRecord> buildRecords;
 
     @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
@@ -562,66 +562,6 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
         public Builder repositories(String repositories) {
             this.repositories = repositories;
             return this;
-        }
-
-        public Integer getId() {
-            return id;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public String getBuildScript() {
-            return buildScript;
-        }
-
-        public String getScmRepoURL() {
-            return scmRepoURL;
-        }
-
-        public String getScmRevision() {
-            return scmRevision;
-        }
-
-        public String getPatchesUrl() {
-            return patchesUrl;
-        }
-
-        public String getDescription() {
-            return description;
-        }
-
-        public Project getProject() {
-            return project;
-        }
-
-        public Environment getEnvironment() {
-            return environment;
-        }
-
-        public BuildConfiguration getParent() {
-            return parent;
-        }
-
-        public Set<BuildConfiguration> getDependencies() {
-            return dependencies;
-        }
-
-        public Set<BuildConfigurationSet> getBuildConfigurationSets() {
-            return buildConfigurationSets;
-        }
-
-        public Timestamp getCreationTime() {
-            return creationTime;
-        }
-
-        public Timestamp getLastModificationTime() {
-            return lastModificationTime;
-        }
-
-        public String getRepositories() {
-            return repositories;
         }
 
     }

@@ -27,22 +27,19 @@ public class BuildRecord implements GenericEntity<Integer> {
     private Integer id;
 
     @NotNull
-    @ManyToOne(cascade = { CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH }, fetch = FetchType.LAZY)
-    private BuildConfiguration buildConfiguration;
+    @ManyToOne(cascade = { CascadeType.REFRESH }, fetch = FetchType.LAZY)
+    @JoinColumn(name = "buildconfiguration_id", insertable=false, updatable=false)
+    private BuildConfiguration latestBuildConfiguration;
 
-    private String buildScript;
-
-    private String name;
+    @NotNull
+    @ManyToOne(cascade = { CascadeType.REFRESH })
+    @JoinColumns({
+        @JoinColumn(name="buildconfiguration_id", referencedColumnName= "id"),
+        @JoinColumn(name="buildconfiguration_rev", referencedColumnName= "rev")
+    })
+    private BuildConfigurationAudited buildConfigurationAudited;
 
     private String buildContentId;
-
-    private String description;
-
-    private String scmRepoURL;
-
-    private String scmRevision;
-
-    private String patchesUrl;
 
     @NotNull
     private Timestamp startTime;
@@ -121,24 +118,6 @@ public class BuildRecord implements GenericEntity<Integer> {
     }
 
     /**
-     * Gets the builds the script.
-     *
-     * @return the builds the script
-     */
-    public String getBuildScript() {
-        return buildScript;
-    }
-
-    /**
-     * Sets the builds the script.
-     *
-     * @param buildScript the new builds the script
-     */
-    public void setBuildScript(String buildScript) {
-        this.buildScript = buildScript;
-    }
-
-    /**
      * Gets the start time.
      *
      * @return the start time
@@ -190,52 +169,6 @@ public class BuildRecord implements GenericEntity<Integer> {
      */
     public void setUser(User user) {
         this.user = user;
-    }
-
-    /**
-     * @return the scmRepoURL
-     */
-    public String getScmRepoURL() {
-        return scmRepoURL;
-    }
-
-    /**
-     * @param scmRepoURL the scmRepoURL to set
-     */
-    public void setScmRepoURL(String scmRepoURL) {
-        this.scmRepoURL = scmRepoURL;
-    }
-
-    /**
-     * @return the scmRevision
-     */
-    public String getScmRevision() {
-        return scmRevision;
-    }
-
-    /**
-     * @param scmRevision the scmRevision to set
-     */
-    public void setScmRevision(String scmRevision) {
-        this.scmRevision = scmRevision;
-    }
-
-    /**
-     * Gets the patches url.
-     *
-     * @return the patches url
-     */
-    public String getPatchesUrl() {
-        return patchesUrl;
-    }
-
-    /**
-     * Sets the patches url.
-     *
-     * @param patchesUrl the new patches url
-     */
-    public void setPatchesUrl(String patchesUrl) {
-        this.patchesUrl = patchesUrl;
     }
 
     /**
@@ -347,45 +280,27 @@ public class BuildRecord implements GenericEntity<Integer> {
     }
 
     /**
-     * @return the buildConfiguration
+     * @return The latest version of the build configuration 
+     * used to create this build record
      */
-    public BuildConfiguration getBuildConfiguration() {
-        return buildConfiguration;
+    public BuildConfiguration getLatestBuildConfiguration() {
+        return latestBuildConfiguration;
+    }
+
+    public void setLatestBuildConfiguration(BuildConfiguration latestBuildConfiguration) {
+        this.latestBuildConfiguration = latestBuildConfiguration;
     }
 
     /**
-     * @param buildConfiguration the buildConfiguration to set
+     * @return The audited version of the build configuration 
+     * used to create this build record
      */
-    public void setBuildConfiguration(BuildConfiguration buildConfiguration) {
-        this.buildConfiguration = buildConfiguration;
+    public BuildConfigurationAudited getBuildConfigurationAudited() {
+        return buildConfigurationAudited;
     }
 
-    /**
-     * @return the name
-     */
-    public String getName() {
-        return name;
-    }
-
-    /**
-     * @param name the name to set
-     */
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    /**
-     * @return the description
-     */
-    public String getDescription() {
-        return description;
-    }
-
-    /**
-     * @param description the description to set
-     */
-    public void setDescription(String description) {
-        this.description = description;
+    public void setBuildConfigurationAudited(BuildConfigurationAudited buildConfigurationAudited) {
+        this.buildConfigurationAudited = buildConfigurationAudited;
     }
 
     /**
@@ -415,8 +330,8 @@ public class BuildRecord implements GenericEntity<Integer> {
 
     @Override
     public String toString() {
-        return "BuildRecord [id=" + id + ", project=" + buildConfiguration.getProject().getName() + ", buildConfiguration="
-                + buildConfiguration + "]";
+        return "BuildRecord [id=" + id + ", project=" + buildConfigurationAudited.getProject().getName() + ", buildConfiguration="
+                + buildConfigurationAudited + "]";
     }
 
     public static class Builder {
@@ -425,23 +340,13 @@ public class BuildRecord implements GenericEntity<Integer> {
 
         private String buildContentId;
 
-        private String buildScript;
-
-        private String name;
-
-        private String description;
-
-        private String scmRepoURL;
-
-        private String scmRevision;
-
-        private String patchesUrl;
-
         private Timestamp startTime;
 
         private Timestamp endTime;
 
-        private BuildConfiguration buildConfiguration;
+        private BuildConfiguration latestBuildConfiguration;
+
+        private BuildConfigurationAudited buildConfigurationAudited;
 
         private User user;
 
@@ -474,16 +379,14 @@ public class BuildRecord implements GenericEntity<Integer> {
             BuildRecord buildRecord = new BuildRecord();
             buildRecord.setId(id);
             buildRecord.setBuildContentId(buildContentId);
-            buildRecord.setBuildScript(buildScript);
-            buildRecord.setName(name);
-            buildRecord.setDescription(description);
             buildRecord.setStartTime(startTime);
             buildRecord.setEndTime(endTime);
-            buildRecord.setBuildConfiguration(buildConfiguration);
+            if (latestBuildConfiguration != null) {
+                latestBuildConfiguration.addBuildRecord(buildRecord);
+                buildRecord.setLatestBuildConfiguration(latestBuildConfiguration);
+            }
+            buildRecord.setBuildConfigurationAudited(buildConfigurationAudited);
             buildRecord.setUser(user);
-            buildRecord.setScmRepoURL(scmRepoURL);
-            buildRecord.setScmRevision(scmRevision);
-            buildRecord.setPatchesUrl(patchesUrl);
             buildRecord.setBuildLog(buildLog);
             buildRecord.setStatus(status);
             buildRecord.setBuildDriverId(buildDriverId);
@@ -520,21 +423,6 @@ public class BuildRecord implements GenericEntity<Integer> {
             return this;
         }
 
-        public Builder buildScript(String buildScript) {
-            this.buildScript = buildScript;
-            return this;
-        }
-
-        public Builder name(String name) {
-            this.name = name;
-            return this;
-        }
-
-        public Builder description(String description) {
-            this.description = description;
-            return this;
-        }
-
         public Builder startTime(Timestamp startTime) {
             this.startTime = startTime;
             return this;
@@ -545,28 +433,18 @@ public class BuildRecord implements GenericEntity<Integer> {
             return this;
         }
 
-        public Builder buildConfiguration(BuildConfiguration buildConfiguration) {
-            this.buildConfiguration = buildConfiguration;
+        public Builder latestBuildConfiguration(BuildConfiguration latestBuildConfiguration) {
+            this.latestBuildConfiguration = latestBuildConfiguration;
+            return this;
+        }
+
+        public Builder buildConfigurationAudited(BuildConfigurationAudited buildConfigurationAudited) {
+            this.buildConfigurationAudited = buildConfigurationAudited;
             return this;
         }
 
         public Builder user(User user) {
             this.user = user;
-            return this;
-        }
-
-        public Builder scmRepoURL(String scmRepoURL) {
-            this.scmRepoURL = scmRepoURL;
-            return this;
-        }
-
-        public Builder scmRevision(String scmRevision) {
-            this.scmRevision = scmRevision;
-            return this;
-        }
-
-        public Builder patchesUrl(String patchesUrl) {
-            this.patchesUrl = patchesUrl;
             return this;
         }
 
