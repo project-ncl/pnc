@@ -67,6 +67,19 @@ public class BuildTest {
             .statusCode(200);
     }
 
+    @Test
+    public void shouldTriggerBuildSetAndFinishWithoutProblems() {
+        int configurationId = extractIdFromRest("/pnc-rest/rest/configuration-set");
+
+        given().header("Accept", "application/json").header("Authorization", "Bearer " + authProvider.getTokenString())
+
+            .port(getHttpPort())
+        .when()
+            .post(String.format("/pnc-rest/rest/configuration-set/%d/build", configurationId))
+        .then()
+            .statusCode(200);
+    }
+
     Integer extractIdFromRest(String path) {
         String returnedObject = from(given().header("Accept", "application/json").header("Authorization", "Bearer " + access_token)
                     

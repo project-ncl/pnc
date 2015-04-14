@@ -2,6 +2,7 @@ package org.jboss.pnc.rest.trigger;
 
 import org.jboss.pnc.core.builder.BuildCoordinator;
 import org.jboss.pnc.datastore.repositories.BuildConfigurationRepository;
+import org.jboss.pnc.datastore.repositories.BuildConfigurationSetRepository;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -23,8 +24,10 @@ public class BuildTriggererTest {
         BuildConfigurationRepository repository = mock(BuildConfigurationRepository.class);
         doReturn(exampleConfiguration).when(repository).findOne(6);
 
+        BuildConfigurationSetRepository buildConfigurationSetRepository = mock(BuildConfigurationSetRepository.class);
+
         BuildCoordinator builder = mock(BuildCoordinator.class);
-        BuildTriggerer buildTriggerer = new BuildTriggerer(builder, repository);
+        BuildTriggerer buildTriggerer = new BuildTriggerer(builder, repository, buildConfigurationSetRepository);
 
         //when
         buildTriggerer.triggerBuilds(6);
