@@ -8,6 +8,7 @@ import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.junit.InSequence;
 import org.jboss.pnc.auth.AuthenticationProvider;
 import org.jboss.pnc.auth.ExternalAuthentication;
+import org.jboss.pnc.integration.Utils.AuthResource;
 import org.jboss.pnc.integration.assertions.ResponseAssertion;
 import org.jboss.pnc.integration.deployments.Deployments;
 import org.jboss.pnc.integration.matchers.JsonMatcher;
@@ -57,6 +58,7 @@ public class BuildRecordSetRestTest {
     private static int newBuildRecordSetId;
 
     private static AuthenticationProvider authProvider;
+    private static String access_token =  "no-auth";
 
     @Deployment(testable = false)
     public static EnterpriseArchive deploy() {
@@ -76,15 +78,18 @@ public class BuildRecordSetRestTest {
 
     @BeforeClass
     public static void setupAuth() throws IOException {
-        InputStream is = BuildRecordSetRestTest.class.getResourceAsStream("/keycloak.json");
-        ExternalAuthentication ea = new ExternalAuthentication(is);
-        authProvider = ea.authenticate(System.getenv("PNC_EXT_OAUTH_USERNAME"), System.getenv("PNC_EXT_OAUTH_PASSWORD"));
+        if(AuthResource.authEnabled()) {
+            InputStream is = BuildRecordRestTest.class.getResourceAsStream("/keycloak.json");
+            ExternalAuthentication ea = new ExternalAuthentication(is);
+            authProvider = ea.authenticate(System.getenv("PNC_EXT_OAUTH_USERNAME"), System.getenv("PNC_EXT_OAUTH_PASSWORD"));
+            access_token = authProvider.getTokenString();
+        }
     }
 
     @Test
     @InSequence(-1)
     public void prepareBaseData() {
-        Response responseProdMilestone = given().header("Accept", "application/json").header("Authorization", "Bearer " + authProvider.getTokenString())
+        Response responseProdMilestone = given().header("Accept", "application/json").header("Authorization", "Bearer " + access_token)
                     .contentType(ContentType.JSON).port(getHttpPort()).when()
                 .get(PRODUCT_MILESTONE_REST_ENDPOINT);
 
@@ -92,7 +97,7 @@ public class BuildRecordSetRestTest {
         productMilestoneId = responseProdMilestone.body().jsonPath().getInt("[0].id");
         productMilestoneVersion = responseProdMilestone.body().jsonPath().getString("[0].version");
 
-        Response responseBuildRec = given().header("Accept", "application/json").header("Authorization", "Bearer " + authProvider.getTokenString())
+        Response responseBuildRec = given().header("Accept", "application/json").header("Authorization", "Bearer " + access_token)
                     .contentType(ContentType.JSON).port(getHttpPort()).when()
                 .get(BUILD_RECORD_REST_ENDPOINT);
         ResponseAssertion.assertThat(responseBuildRec).hasStatus(200);
@@ -115,7 +120,7 @@ public class BuildRecordSetRestTest {
         buildRecordSetTemplate.addValue("_productMilestoneId", String.valueOf(productMilestoneId));
         buildRecordSetTemplate.addValue("_buildRecordIds", String.valueOf(buildRecordId));
 
-        Response response = given().header("Accept", "application/json").header("Authorization", "Bearer " + authProvider.getTokenString())
+        Response response = given().header("Accept", "application/json").header("Authorization", "Bearer " + access_token)
                     .body(buildRecordSetTemplate.fillTemplate()).contentType(ContentType.JSON)
                 .port(getHttpPort()).when().post(BUILD_RECORD_SET_REST_ENDPOINT);
 
@@ -130,7 +135,7 @@ public class BuildRecordSetRestTest {
     @InSequence(2)
     public void shouldGetBuildRecordSets() {
 
-        Response response = given().header("Accept", "application/json").header("Authorization", "Bearer " + authProvider.getTokenString())
+        Response response = given().header("Accept", "application/json").header("Authorization", "Bearer " + access_token)
                     .contentType(ContentType.JSON).port(getHttpPort()).when()
                 .get(BUILD_RECORD_SET_REST_ENDPOINT);
         ResponseAssertion.assertThat(response).hasStatus(200);
@@ -141,7 +146,7 @@ public class BuildRecordSetRestTest {
     @InSequence(3)
     public void shouldGetSpecificBuildRecordSet() {
 
-        Response response = given().header("Accept", "application/json").header("Authorization", "Bearer " + authProvider.getTokenString())
+        Response response = given().header("Accept", "application/json").header("Authorization", "Bearer " + access_token)
                     .contentType(ContentType.JSON).port(getHttpPort()).when()
                 .get(String.format(BUILD_RECORD_SET_SPECIFIC_REST_ENDPOINT, newBuildRecordSetId));
 
@@ -153,7 +158,7 @@ public class BuildRecordSetRestTest {
     @InSequence(5)
     public void shouldGetBuildRecordForBuildRecord() {
 
-        Response response = given().header("Accept", "application/json").header("Authorization", "Bearer " + authProvider.getTokenString())
+        Response response = given().header("Accept", "application/json").header("Authorization", "Bearer " + access_token)
                     .contentType(ContentType.JSON).port(getHttpPort()).when()
                 .get(String.format(BUILD_RECORD_SET_BUILD_RECORD_REST_ENDPOINT, buildRecordId));
 

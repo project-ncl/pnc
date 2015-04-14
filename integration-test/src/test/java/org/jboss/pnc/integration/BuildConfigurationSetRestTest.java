@@ -9,6 +9,7 @@ import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.junit.InSequence;
 import org.jboss.pnc.auth.AuthenticationProvider;
 import org.jboss.pnc.auth.ExternalAuthentication;
+import org.jboss.pnc.integration.Utils.AuthResource;
 import org.jboss.pnc.integration.assertions.ResponseAssertion;
 import org.jboss.pnc.integration.deployments.Deployments;
 import org.jboss.pnc.integration.matchers.JsonMatcher;
@@ -64,6 +65,7 @@ public class BuildConfigurationSetRestTest {
     private static int newBuildConfSetId;
     
     private static AuthenticationProvider authProvider;
+    private static String access_token =  "no-auth";
     
 
     @Deployment(testable = false)
@@ -84,9 +86,12 @@ public class BuildConfigurationSetRestTest {
 
     @BeforeClass
     public static void setupAuth() throws IOException {
-        InputStream is = BuildConfigurationSetRestTest.class.getResourceAsStream("/keycloak.json");
-        ExternalAuthentication ea = new ExternalAuthentication(is);
-        authProvider = ea.authenticate(System.getenv("PNC_EXT_OAUTH_USERNAME"), System.getenv("PNC_EXT_OAUTH_PASSWORD"));
+        if(AuthResource.authEnabled()) {
+            InputStream is = BuildRecordRestTest.class.getResourceAsStream("/keycloak.json");
+            ExternalAuthentication ea = new ExternalAuthentication(is);
+            authProvider = ea.authenticate(System.getenv("PNC_EXT_OAUTH_USERNAME"), System.getenv("PNC_EXT_OAUTH_PASSWORD"));
+            access_token = authProvider.getTokenString();
+        }
     }
 
     @Test
@@ -94,18 +99,18 @@ public class BuildConfigurationSetRestTest {
     public void prepareBaseData() {
 
         // Need to get a product version and a build configuration from the database
-        ValidatableResponse responseProd = given().header("Accept", "application/json").header("Authorization", "Bearer " + authProvider.getTokenString())
+        ValidatableResponse responseProd = given().header("Accept", "application/json").header("Authorization", "Bearer " + access_token)
                     .contentType(ContentType.JSON).port(getHttpPort()).when().get(PRODUCT_REST_ENDPOINT).then().statusCode(200)
                 .body(JsonMatcher.containsJsonAttribute("[0].id", value -> productId = Integer.valueOf(value)));
 
-        Response responseProdVer = given().header("Accept", "application/json").header("Authorization", "Bearer " + authProvider.getTokenString())
+        Response responseProdVer = given().header("Accept", "application/json").header("Authorization", "Bearer " + access_token)
                     .contentType(ContentType.JSON).port(getHttpPort()).when()
                 .get(String.format(PRODUCT_VERSION_REST_ENDPOINT, productId));
         ResponseAssertion.assertThat(responseProdVer).hasStatus(200);
         productVersionId = responseProdVer.body().jsonPath().getInt("[0].id");
         productVersionName = responseProdVer.body().jsonPath().getString("[0].version");
 
-        Response responseBuildConf = given().header("Accept", "application/json").header("Authorization", "Bearer " + authProvider.getTokenString())
+        Response responseBuildConf = given().header("Accept", "application/json").header("Authorization", "Bearer " + access_token)
                     .contentType(ContentType.JSON).port(getHttpPort()).when()
                 .get(BUILD_CONFIGURATION_REST_ENDPOINT);
         ResponseAssertion.assertThat(responseBuildConf).hasStatus(200);
@@ -127,7 +132,7 @@ public class BuildConfigurationSetRestTest {
         buildConfSetTemplate.addValue("_productVersionId", String.valueOf(productVersionId));
         buildConfSetTemplate.addValue("_buildRecordIds", String.valueOf(buildConfId));
 
-        Response response = given().header("Accept", "application/json").header("Authorization", "Bearer " + authProvider.getTokenString())
+        Response response = given().header("Accept", "application/json").header("Authorization", "Bearer " + access_token)
                     .body(buildConfSetTemplate.fillTemplate()).contentType(ContentType.JSON)
                 .port(getHttpPort()).when().post(BUILD_CONFIGURATION_SET_REST_ENDPOINT);
 
@@ -147,7 +152,7 @@ public class BuildConfigurationSetRestTest {
         buildConfSetTemplate.addValue("_productVersionId", String.valueOf(productVersionId));
         buildConfSetTemplate.addValue("_buildRecordIds", String.valueOf(buildConfId));
 
-        Response response = given().header("Accept", "application/json").header("Authorization", "Bearer " + authProvider.getTokenString())
+        Response response = given().header("Accept", "application/json").header("Authorization", "Bearer " + access_token)
                     .body(buildConfSetTemplate.fillTemplate()).contentType(ContentType.JSON)
                 .port(getHttpPort()).when().put(String.format(BUILD_CONFIGURATION_SET_SPECIFIC_REST_ENDPOINT, newBuildConfSetId));
 
@@ -158,7 +163,7 @@ public class BuildConfigurationSetRestTest {
     @InSequence(2)
     public void testGetBuildConfigurationSets() {
 
-        Response response = given().header("Accept", "application/json").header("Authorization", "Bearer " + authProvider.getTokenString())
+        Response response = given().header("Accept", "application/json").header("Authorization", "Bearer " + access_token)
                     .contentType(ContentType.JSON).port(getHttpPort()).when()
                 .get(BUILD_CONFIGURATION_SET_REST_ENDPOINT);
         ResponseAssertion.assertThat(response).hasStatus(200);
@@ -169,7 +174,7 @@ public class BuildConfigurationSetRestTest {
     @InSequence(3)
     public void testGetSpecificBuildRecordSet() {
 
-        Response response = given().header("Accept", "application/json").header("Authorization", "Bearer " + authProvider.getTokenString())
+        Response response = given().header("Accept", "application/json").header("Authorization", "Bearer " + access_token)
                     .contentType(ContentType.JSON).port(getHttpPort()).when()
                 .get(String.format(BUILD_CONFIGURATION_SET_SPECIFIC_REST_ENDPOINT, newBuildConfSetId));
 
@@ -181,7 +186,7 @@ public class BuildConfigurationSetRestTest {
     @InSequence(4)
     public void testGetBuildConfigurationsForProductVersion() {
 
-        Response response = given().header("Accept", "application/json").header("Authorization", "Bearer " + authProvider.getTokenString())
+        Response response = given().header("Accept", "application/json").header("Authorization", "Bearer " + access_token)
                     .contentType(ContentType.JSON).port(getHttpPort()).when()
                 .get(String.format(BUILD_CONFIGURATION_SET_PRODUCT_VERSION_REST_ENDPOINT, productId, productVersionId));
 
@@ -196,7 +201,7 @@ public class BuildConfigurationSetRestTest {
         JSONObject buildConfig = new JSONObject();
         buildConfig.put("id", buildConfId2);
 
-        Response response = given().header("Accept", "application/json").header("Authorization", "Bearer " + authProvider.getTokenString())
+        Response response = given().header("Accept", "application/json").header("Authorization", "Bearer " + access_token)
                     .body(buildConfig.toString())
                 .contentType(ContentType.JSON).port(getHttpPort()).when()
                 .post(String.format(BUILD_CONFIGURATION_SET_CONFIGURATIONS_REST_ENDPOINT, newBuildConfSetId));
@@ -208,7 +213,7 @@ public class BuildConfigurationSetRestTest {
     @InSequence(5)
     public void testRemoveBuildConfigurationToBuildConfigurationSet() {
 
-        Response response = given().header("Accept", "application/json").header("Authorization", "Bearer " + authProvider.getTokenString())
+        Response response = given().header("Accept", "application/json").header("Authorization", "Bearer " + access_token)
                     .port(getHttpPort()).when()
                 .delete(String.format(BUILD_CONFIGURATION_SET_CONFIGURATIONS_REST_ENDPOINT + "/%d", newBuildConfSetId, buildConfId2));
 
@@ -219,7 +224,7 @@ public class BuildConfigurationSetRestTest {
     @InSequence(5)
     public void testGetBuildConfigurationsForBuildConfigurationSet() {
 
-        Response response = given().header("Accept", "application/json").header("Authorization", "Bearer " + authProvider.getTokenString())
+        Response response = given().header("Accept", "application/json").header("Authorization", "Bearer " + access_token)
                     .contentType(ContentType.JSON).port(getHttpPort()).when()
                 .get(String.format(BUILD_CONFIGURATION_SET_CONFIGURATIONS_REST_ENDPOINT, newBuildConfSetId));
 
@@ -231,7 +236,7 @@ public class BuildConfigurationSetRestTest {
     @InSequence(6)
     public void testDeleteBuildConfigurationSet() {
 
-        Response response = given().header("Accept", "application/json").header("Authorization", "Bearer " + authProvider.getTokenString())
+        Response response = given().header("Accept", "application/json").header("Authorization", "Bearer " + access_token)
                     .contentType(ContentType.JSON).port(getHttpPort()).when()
                 .delete(String.format(BUILD_CONFIGURATION_SET_SPECIFIC_REST_ENDPOINT, newBuildConfSetId));
 

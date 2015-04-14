@@ -1,8 +1,11 @@
 package org.jboss.pnc.integration;
 
-import com.jayway.restassured.http.ContentType;
-import com.jayway.restassured.response.Response;
-import com.jayway.restassured.response.ValidatableResponse;
+import static com.jayway.restassured.RestAssured.given;
+import static org.jboss.pnc.integration.env.IntegrationTestEnv.getHttpPort;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.lang.invoke.MethodHandles;
 
 import org.assertj.core.api.Assertions;
 import org.jboss.arquillian.container.test.api.Deployment;
@@ -11,12 +14,12 @@ import org.jboss.arquillian.junit.InSequence;
 import org.jboss.pnc.auth.AuthenticationProvider;
 import org.jboss.pnc.auth.ExternalAuthentication;
 import org.jboss.pnc.common.util.IoUtils;
+import org.jboss.pnc.integration.Utils.AuthResource;
+import org.jboss.pnc.integration.deployments.Deployments;
 import org.jboss.pnc.integration.matchers.JsonMatcher;
 import org.jboss.pnc.integration.template.JsonTemplateBuilder;
-import org.jboss.pnc.integration.deployments.Deployments;
 import org.jboss.pnc.test.category.ContainerTest;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -24,12 +27,8 @@ import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.lang.invoke.MethodHandles;
-
-import static com.jayway.restassured.RestAssured.given;
-import static org.jboss.pnc.integration.env.IntegrationTestEnv.getHttpPort;
+import com.jayway.restassured.http.ContentType;
+import com.jayway.restassured.response.Response;
 
 @RunWith(Arquillian.class)
 @Category(ContainerTest.class)
@@ -50,6 +49,7 @@ public class ProductReleaseRestTest {
     private static int newProductReleaseId;
 
     private static AuthenticationProvider authProvider;
+    private static String access_token =  "no-auth";
 
 
     @Deployment(testable = false)
@@ -61,18 +61,21 @@ public class ProductReleaseRestTest {
 
     @BeforeClass
     public static void setupAuth() throws IOException {
-        InputStream is = ProductReleaseRestTest.class.getResourceAsStream("/keycloak.json");
-        ExternalAuthentication ea = new ExternalAuthentication(is);
-        authProvider = ea.authenticate(System.getenv("PNC_EXT_OAUTH_USERNAME"), System.getenv("PNC_EXT_OAUTH_PASSWORD"));
+        if(AuthResource.authEnabled()) {
+            InputStream is = BuildRecordRestTest.class.getResourceAsStream("/keycloak.json");
+            ExternalAuthentication ea = new ExternalAuthentication(is);
+            authProvider = ea.authenticate(System.getenv("PNC_EXT_OAUTH_USERNAME"), System.getenv("PNC_EXT_OAUTH_PASSWORD"));
+            access_token = authProvider.getTokenString();
+        }
     }
 
     @Test
     @InSequence(1)
     public void prepareProductIdAndProductVersionId() throws IOException {
-        given().header("Accept", "application/json").header("Authorization", "Bearer " + authProvider.getTokenString())
+        given().header("Accept", "application/json").header("Authorization", "Bearer " + access_token)
                 .contentType(ContentType.JSON).port(getHttpPort()).when().get(PRODUCT_REST_ENDPOINT).then().statusCode(200)
                 .body(JsonMatcher.containsJsonAttribute("[0].id", value -> productId = Integer.valueOf(value)));
-        given().header("Accept", "application/json").header("Authorization", "Bearer " + authProvider.getTokenString())
+        given().header("Accept", "application/json").header("Authorization", "Bearer " + access_token)
                 .contentType(ContentType.JSON).port(getHttpPort()).when()
                 .get(String.format(PRODUCT_VERSION_REST_ENDPOINT, productId)).then().statusCode(200)
                 .body(JsonMatcher.containsJsonAttribute("[0].id", value -> productVersionId = Integer.valueOf(value)));
@@ -80,7 +83,7 @@ public class ProductReleaseRestTest {
         // Need to create a new product milestone to ensure one to one relation
         JsonTemplateBuilder productMilestoneTemplate = JsonTemplateBuilder.fromResource("productMilestone_template");
         productMilestoneTemplate.addValue("_productVersionId", String.valueOf(productVersionId));
-        Response response = given().header("Accept", "application/json").header("Authorization", "Bearer " + authProvider.getTokenString())
+        Response response = given().header("Accept", "application/json").header("Authorization", "Bearer " + access_token)
                 .body(productMilestoneTemplate.fillTemplate()).contentType(ContentType.JSON).port(getHttpPort()).when()
                 .post(PRODUCT_MILESTONE_REST_ENDPOINT);
         Assertions.assertThat(response.statusCode()).isEqualTo(201);
@@ -92,7 +95,7 @@ public class ProductReleaseRestTest {
     @Test
     @InSequence(2)
     public void prepareProductReleaseId() {
-        given().header("Accept", "application/json").header("Authorization", "Bearer " + authProvider.getTokenString())
+        given().header("Accept", "application/json").header("Authorization", "Bearer " + access_token)
                     .contentType(ContentType.JSON).port(getHttpPort()).when()
                 .get(String.format(PRODUCT_RELEASE_REST_ENDPOINT)).then().statusCode(200)
                 .body(JsonMatcher.containsJsonAttribute("[0].id", value -> productReleaseId = Integer.valueOf(value)));
@@ -101,7 +104,7 @@ public class ProductReleaseRestTest {
     @Test
     @InSequence(3)
     public void shouldGetSpecificProductRelease() {
-        given().header("Accept", "application/json").header("Authorization", "Bearer " + authProvider.getTokenString())
+        given().header("Accept", "application/json").header("Authorization", "Bearer " + access_token)
                 .contentType(ContentType.JSON).port(getHttpPort()).when()
                 .get(String.format(PRODUCT_RELEASE_SPECIFIC_REST_ENDPOINT, productReleaseId)).then().statusCode(200)
                 .body(JsonMatcher.containsJsonAttribute("id"));
@@ -114,7 +117,7 @@ public class ProductReleaseRestTest {
         productReleaseTemplate.addValue("_productVersionId", String.valueOf(productVersionId));
         productReleaseTemplate.addValue("_productMilestoneId", String.valueOf(productMilestoneId));
 
-        Response response = given().header("Accept", "application/json").header("Authorization", "Bearer " + authProvider.getTokenString())
+        Response response = given().header("Accept", "application/json").header("Authorization", "Bearer " + access_token)
                 .body(productReleaseTemplate.fillTemplate()).contentType(ContentType.JSON).port(getHttpPort()).when()
                 .post(PRODUCT_RELEASE_REST_ENDPOINT);
         Assertions.assertThat(response.statusCode()).isEqualTo(201);
@@ -135,7 +138,7 @@ public class ProductReleaseRestTest {
 
         logger.info("### newProductReleaseId: " + newProductReleaseId);
 
-        Response response = given().header("Accept", "application/json").header("Authorization", "Bearer " + authProvider.getTokenString())
+        Response response = given().header("Accept", "application/json").header("Authorization", "Bearer " + access_token)
                     .contentType(ContentType.JSON).port(getHttpPort()).when()
                 .get(String.format(PRODUCT_RELEASE_SPECIFIC_REST_ENDPOINT, newProductReleaseId));
 
@@ -150,13 +153,13 @@ public class ProductReleaseRestTest {
 
         logger.info("### rawJson: " + response.body().jsonPath().prettyPrint());
 
-        given().header("Accept", "application/json").header("Authorization", "Bearer " + authProvider.getTokenString())
+        given().header("Accept", "application/json").header("Authorization", "Bearer " + access_token)
                     .body(rawJson).contentType(ContentType.JSON).port(getHttpPort()).when()
                 .put(String.format(PRODUCT_RELEASE_SPECIFIC_REST_ENDPOINT, newProductReleaseId)).then()
                 .statusCode(200);
 
         // Reading updated resource
-        Response updateResponse = given().header("Accept", "application/json").header("Authorization", "Bearer " + authProvider.getTokenString())
+        Response updateResponse = given().header("Accept", "application/json").header("Authorization", "Bearer " + access_token)
                     .contentType(ContentType.JSON).port(getHttpPort()).when()
                 .get(String.format(PRODUCT_RELEASE_SPECIFIC_REST_ENDPOINT, newProductReleaseId));
 
