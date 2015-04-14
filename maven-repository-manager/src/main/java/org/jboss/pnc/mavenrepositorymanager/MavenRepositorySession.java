@@ -32,6 +32,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * {@link RepositorySession} implementation that works with the Maven {@link RepositoryManagerDriver} (which connects to an
+ * AProx server instance for repository management). This session contains connection information for rendering Maven
+ * settings.xml files and the like, along with the components necessary to extract the artifacts (dependencies, build uploads)
+ * for the associated build.
+ * 
+ * Artifact extraction also implies promotion of imported dependencies to a shared-imports Maven repository for safe keeping. In
+ * the case of composed (chained) builds, it also implies promotion of the build output to the associated build-set repository
+ * group, to expose them for use in successive builds in the chain.
+ */
 public class MavenRepositorySession implements RepositorySession
 {
 
@@ -91,8 +101,7 @@ public class MavenRepositorySession implements RepositorySession
     public RepositoryManagerResult extractBuildArtifacts() throws RepositoryManagerException {
         TrackedContentDTO report;
         try {
-            report = aprox.module(AproxFoloAdminClientModule.class)
-                    .getTrackingReport(buildRepoId, StoreType.group, buildRepoId);
+            report = aprox.module(AproxFoloAdminClientModule.class).getTrackingReport(buildRepoId);
         } catch (AproxClientException e) {
             throw new RepositoryManagerException("Failed to retrieve tracking report for: %s. Reason: %s", e, buildRepoId,
                     e.getMessage());
@@ -100,13 +109,14 @@ public class MavenRepositorySession implements RepositorySession
 
         List<Artifact> uploads = processUploads(report);
         List<Artifact> downloads = processDownloads(report);
+
         promoteToBuildContentSet();
 
         RepositoryManagerResult repositoryManagerResult = new MavenRepositoryManagerResult(uploads, downloads);
 
         // clean up.
         try {
-            aprox.module(AproxFoloAdminClientModule.class).clearTrackingRecord(buildRepoId, StoreType.group, buildRepoId);
+            aprox.module(AproxFoloAdminClientModule.class).clearTrackingRecord(buildRepoId);
         } catch (AproxClientException e) {
             throw new RepositoryManagerException(
                     "Failed to clean up build repositories / tracking information for: %s. Reason: %s", e, buildRepoId,
@@ -167,6 +177,7 @@ public class MavenRepositorySession implements RepositorySession
                         .deployUrl(content.contentUrl(download.getStoreKey(), download.getPath()))
                         .filename(new File(path).getName()).identifier(aref.toString()).repoType(RepositoryType.MAVEN)
                         .status(ArtifactStatus.BINARY_IMPORTED);
+
                 deps.add(artifactBuilder.build());
             }
 
@@ -195,7 +206,6 @@ public class MavenRepositorySession implements RepositorySession
             List<Artifact> builds = new ArrayList<>();
 
             for (TrackedContentEntryDTO upload : uploads) {
-
                 String path = upload.getPath();
                 ArtifactPathInfo pathInfo = ArtifactPathInfo.parse(path);
                 if (pathInfo == null) {

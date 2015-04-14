@@ -10,18 +10,20 @@ import org.jboss.pnc.spi.repositorymanager.model.RepositoryConnectionInfo;
 import org.jboss.pnc.spi.repositorymanager.model.RepositorySession;
 import org.junit.Test;
 
-public class RepositoryManagerDriver01Test 
+public class DependencyUrlIncludesTrackingIdAndGeneratedBuildGroupNameTest 
     extends AbstractRepositoryManagerDriverTest
 {
 
     @Test
     public void formatRepositoryURLForSimpleInfo_CheckDependencyURL() throws Exception {
+        // create a dummy non-chained build execution and repo session based on it
         BuildExecution execution = new TestBuildExecution();
 
         RepositorySession repositoryConfiguration = driver.createBuildRepository(execution);
 
         assertThat(repositoryConfiguration, notNullValue());
 
+        // verify the URLs in the connection info reference this build, and refer to a tracked repository group URL
         RepositoryConnectionInfo connectionInfo = repositoryConfiguration.getConnectionInfo();
         assertThat(connectionInfo, notNullValue());
 

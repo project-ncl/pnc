@@ -25,6 +25,12 @@ public class MavenRunningPromotion implements RunningRepositoryPromotion {
         this.aprox = aprox;
     }
 
+    /**
+     * Trigger the repository promotion configured for this instance, and send the result to the appropriate consumer.
+     * 
+     * @param onComplete The consumer which will handle non-error results
+     * @param onError Handles errors
+     */
     @Override
     public void monitor(Consumer<CompletedRepositoryPromotion> onComplete, Consumer<Exception> onError) {
         try {

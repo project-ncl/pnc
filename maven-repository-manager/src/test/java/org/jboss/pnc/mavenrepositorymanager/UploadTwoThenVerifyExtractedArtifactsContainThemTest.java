@@ -10,6 +10,8 @@ import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPut;
+import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.commonjava.aprox.client.core.Aprox;
@@ -29,30 +31,37 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-public class RepositoryManagerDriver03Test 
+public class UploadTwoThenVerifyExtractedArtifactsContainThemTest 
     extends AbstractRepositoryManagerDriverTest
 {
 
     @Test
-    public void extractBuildArtifacts_ContainsTwoDownloads() throws Exception {
+    public void extractBuildArtifacts_ContainsTwoUploads() throws Exception {
+        // create a dummy non-chained build execution and repo session based on it
         BuildExecution execution = new TestBuildExecution();
-
         RepositorySession rc = driver.createBuildRepository(execution);
+
         assertThat(rc, notNullValue());
 
-        String baseUrl = rc.getConnectionInfo().getDependencyUrl();
+        String baseUrl = rc.getConnectionInfo().getDeployUrl();
         String pomPath = "org/commonjava/aprox/aprox-core/0.17.0/aprox-core-0.17.0.pom";
         String jarPath = "org/commonjava/aprox/aprox-core/0.17.0/aprox-core-0.17.0.jar";
 
         CloseableHttpClient client = HttpClientBuilder.create().build();
 
+        // upload a couple files related to a single GAV using the repo session deployment url
+        // this simulates a build deploying one jar and its associated POM
         for (String path : new String[] { pomPath, jarPath }) {
             final String url = UrlUtils.buildUrl(baseUrl, path);
-            boolean downloaded = client.execute(new HttpGet(url), new ResponseHandler<Boolean>() {
+
+            HttpPut put = new HttpPut(url);
+            put.setEntity(new StringEntity("This is a test"));
+
+            boolean uploaded = client.execute(put, new ResponseHandler<Boolean>() {
                 @Override
                 public Boolean handleResponse(HttpResponse response) throws ClientProtocolException, IOException {
                     try {
-                        return response.getStatusLine().getStatusCode() == 200;
+                        return response.getStatusLine().getStatusCode() == 201;
                     } finally {
                         if (response instanceof CloseableHttpResponse) {
                             IOUtils.closeQuietly((CloseableHttpResponse) response);
@@ -61,32 +70,36 @@ public class RepositoryManagerDriver03Test
                 }
             });
 
-            assertThat("Failed to download: " + url, downloaded, equalTo(true));
+            assertThat("Failed to upload: " + url, uploaded, equalTo(true));
         }
 
+        // extract the "built" artifacts we uploaded above.
         RepositoryManagerResult repositoryManagerResult = rc.extractBuildArtifacts();
 
-        List<Artifact> deps = repositoryManagerResult.getDependencies();
-        System.out.println(deps);
+        // check that both files are present in extracted result
+        List<Artifact> artifacts = repositoryManagerResult.getBuiltArtifacts();
+        System.out.println(artifacts);
 
-        assertThat(deps, notNullValue());
-        assertThat(deps.size(), equalTo(2));
+        assertThat(artifacts, notNullValue());
+        assertThat(artifacts.size(), equalTo(2));
 
         ProjectVersionRef pvr = new ProjectVersionRef("org.commonjava.aprox", "aprox-core", "0.17.0");
         Set<String> refs = new HashSet<>();
         refs.add(new ArtifactRef(pvr, "pom", null, false).toString());
         refs.add(new ArtifactRef(pvr, "jar", null, false).toString());
 
-        for (Artifact artifact : deps) {
-            assertThat(artifact + " is not in the expected list of deps: " + refs, refs.contains(artifact.getIdentifier()),
+        // check that the artifact getIdentifier() stores GAVT[C] information in the standard Maven rendering
+        for (Artifact artifact : artifacts) {
+            assertThat(artifact + " is not in the expected list of built artifacts: " + refs,
+                    refs.contains(artifact.getIdentifier()),
                     equalTo(true));
         }
 
         Aprox aprox = driver.getAprox();
 
+        // check that we can download the two files from the build repository
         for (String path : new String[] { pomPath, jarPath }) {
-            final String url = aprox.content().contentUrl(StoreType.hosted, RepositoryManagerDriver.SHARED_IMPORTS_ID, path);
-            System.out.println("Verifying availability of: " + url);
+            final String url = aprox.content().contentUrl(StoreType.hosted, rc.getBuildRepositoryId(), path);
             boolean downloaded = client.execute(new HttpGet(url), new ResponseHandler<Boolean>() {
                 @Override
                 public Boolean handleResponse(HttpResponse response) throws ClientProtocolException, IOException {
