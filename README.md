@@ -43,6 +43,9 @@ Environment variables, which can be used to set up application:
 * `PNC_DOCKER_CONT_PASSWORD` - User's password set up by variable `PNC_DOCKER_CONT_USER`
 * `PNC_DOCKER_IMAGE_ID` - ImageID of image on Docker host
 * `PNC_DOCKER_IMAGE_FIREWALL_ALLOWED` - List of allowed destinations by firewall in Docker container. <br /> Format: \<IPv4>:\<Port>(,\<IPv4>:\<Port>)+
+* `PNC_EXT_REST_BASE_URL` - Base URL of REST endpoint services to be accessed from external resources
+* `PNC_EXT_OAUTH_USERNAME` - Username to be able to authenticate against pnc authentication service provider
+* `PNC_EXT_OAUTH_PASSWORD` -  Password to be able to authenticate against pnc authentication service provider
 
 
 Set up of Docker host
@@ -65,6 +68,28 @@ Steps to set up Docker daemon:
 4. Start `docker` service: Run `sudo systemctl start docker`
 5. Verify the service: Run `docker -H tcp://127.0.0.1:2375 version`. If you get response in 1-2 seconds without errors, the service is running.
 6. Add image to Docker daemon: The Docker daemon has to have imported image, which is specified by environment variable `PNC_DOCKER_IMAGE_ID` (or is set in pnc-config.json file) You can use `docker pull` to download image from remote repository or `docker build` to create image from Dockerfile. 
+
+
+Authentication:
+---------------
+The default build with command `mvn clean install` comes with no authentication. In case you want to enable authentication 
+use -Dauth=true together with your build command.
+Enabling authentication meand following
+1. Your backend REST endpoints will become secured 
+    - inside pnc-rest.war under folder WEB-INF are added files from /pnc-rest/src/main/auth
+    - keycloak.json file is configuration file managing connection to Keycloak server
+    - web.xml file where you define security-constraints & security-roles, which specifies users
+      authrorization's to each REST endpoint
+2. Your pnc web UI gain the SSO ability and authentication via Keycloak login page.
+    - with your first unauthenticated session you will be redirected from pnc web UI into
+      Keycloak login page and asked to provide your credentials. After successful log-in you
+      will be redirected back to pnc web UI.
+      
+Configure your JEE server (EAP) for keycloak
+ Use -Dauth.eap.home=<path to your EAP installation> with you build command, if you want EAP configure for Keycloak.
+ According the http://docs.jboss.org/keycloak/docs/1.1.0.Final/userguide/html/ch08.html#jboss-adapter-installation installation
+ will be performed on server for the given path.                           
+                       
 
 
 Possible issues:

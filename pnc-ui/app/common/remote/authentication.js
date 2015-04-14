@@ -11,11 +11,15 @@
    * @author Pavel Slegr
    * @author Alex Creasy
    */
-  var module = angular.module('pnc.remote.authentication', []);
+  var module = angular.module('pnc.remote.authentication', [
+    'pnc.environment'
+  ]);
 
-  module.config(function($httpProvider) {
-    $httpProvider.responseInterceptors.push('errorInterceptor');
-    $httpProvider.interceptors.push('authInterceptor');
+  module.config(function($httpProvider, ENV) {
+    if (ENV.name === 'prod') {
+      $httpProvider.responseInterceptors.push('errorInterceptor');
+      $httpProvider.interceptors.push('authInterceptor');
+    }
   });
 
   module.service('AuthService', function($log, $window) {
@@ -37,9 +41,11 @@
 
       keycloakAuth.init({ onLoad: 'login-required' })
         .success(function () {
+          $log.info('Login Successful');
           loggedIn = true;
           // angular.bootstrap(document, ['pnc']);
         }).error(function () {
+          $log.error('Login Failed');
           $window.location.reload();
         }
       );

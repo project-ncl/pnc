@@ -170,20 +170,17 @@
                       <command>
                        /subsystem=security/security-domain=keycloak/authentication=classic:add(login-modules=[{"code"=>"org.keycloak.adapters.jboss.KeycloakLoginModule", "flag"=>"required"}])
                       </command>
-                      <command>
-                        :reload
-                      </command>
                     </commands>
                   </execute-commands>
                 </configuration>
               </execution>
-              <!-- execution>
+              <execution>
                 <id>shutdown-server</id>
                 <phase>process-test-resources</phase>
                 <goals>
                   <goal>shutdown</goal>
                 </goals>
-              </execution-->
+              </execution>
             </executions>
           </plugin>
         </plugins>
