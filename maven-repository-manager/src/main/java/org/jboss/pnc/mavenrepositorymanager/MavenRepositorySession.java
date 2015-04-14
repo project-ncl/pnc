@@ -32,6 +32,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * {@link RepositorySession} implementation that works with the Maven {@link RepositoryManagerDriver} (which connects to an
+ * AProx server instance for repository management). This session contains connection information for rendering Maven
+ * settings.xml files and the like, along with the components necessary to extract the artifacts (dependencies, build uploads)
+ * for the associated build.
+ * 
+ * Artifact extraction also implies promotion of imported dependencies to a shared-imports Maven repository for safe keeping. In
+ * the case of composed (chained) builds, it also implies promotion of the build output to the associated build-set repository
+ * group, to expose them for use in successive builds in the chain.
+ */
 public class MavenRepositorySession implements RepositorySession
 {
 

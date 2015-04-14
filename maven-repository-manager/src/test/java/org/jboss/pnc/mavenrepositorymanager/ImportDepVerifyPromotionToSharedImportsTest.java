@@ -25,6 +25,7 @@ public class ImportDepVerifyPromotionToSharedImportsTest extends AbstractImportT
         // setup the expectation that the remote repo pointing at this server will request this file...and define its content.
         server.expect(server.formatUrl(STORE, path), 200, content);
 
+        // create a dummy non-chained build execution and repo session based on it
         BuildExecution execution = new TestBuildExecution();
         RepositorySession session = driver.createBuildRepository(execution);
 

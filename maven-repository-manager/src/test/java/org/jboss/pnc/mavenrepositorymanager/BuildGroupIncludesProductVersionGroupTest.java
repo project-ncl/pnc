@@ -17,7 +17,8 @@ import org.junit.Test;
 public class BuildGroupIncludesProductVersionGroupTest extends AbstractRepositoryManagerDriverTest {
 
     @Test
-    public void verifyGroupComposition_ProjectVersion_NoConfSet() throws Exception {
+    public void verifyGroupComposition_ProductVersion_NoConfSet() throws Exception {
+        // create a dummy non-chained build execution and repo session based on it
         BuildExecution execution = new TestBuildExecution("product+myproduct+1.0", null, "build+myproject+12345",
                 BuildExecutionType.STANDALONE_BUILD);
         Aprox aprox = driver.getAprox();
@@ -27,6 +28,13 @@ public class BuildGroupIncludesProductVersionGroupTest extends AbstractRepositor
 
         assertThat(repoId, equalTo(execution.getBuildContentId()));
 
+        // check that the build group includes:
+        // - the build's hosted repo
+        // - the product version repo group
+        // - the "shared-releases" repo group
+        // - the "shared-imports" repo
+        // - the public group
+        // ...in that order
         Group buildGroup = aprox.stores().load(StoreType.group, repoId, Group.class);
 
         System.out.printf("Constituents:\n  %s\n", join(buildGroup.getConstituents(), "\n  "));

@@ -36,6 +36,7 @@ public class DownloadTwoThenVerifyExtractedArtifactsContainThemTest
         server.expect(server.formatUrl(STORE, pomPath), 200, content);
         server.expect(server.formatUrl(STORE, jarPath), 200, content);
 
+        // create a dummy non-chained build execution and repo session based on it
         BuildExecution execution = new TestBuildExecution();
 
         RepositorySession rc = driver.createBuildRepository(execution);
@@ -43,9 +44,13 @@ public class DownloadTwoThenVerifyExtractedArtifactsContainThemTest
 
         String baseUrl = rc.getConnectionInfo().getDependencyUrl();
 
+        // download the two files via the repo session's dependency URL, which will proxy the test http server
+        // using the expectations above
         assertThat(download(UrlUtils.buildUrl(baseUrl, pomPath)), equalTo(content));
         assertThat(download(UrlUtils.buildUrl(baseUrl, jarPath)), equalTo(content));
 
+        // extract the build artifacts, which should contain the two imported deps.
+        // This will also trigger promoting imported artifacts into the shared-imports hosted repo
         RepositoryManagerResult repositoryManagerResult = rc.extractBuildArtifacts();
 
         List<Artifact> deps = repositoryManagerResult.getDependencies();
@@ -59,6 +64,7 @@ public class DownloadTwoThenVerifyExtractedArtifactsContainThemTest
         refs.add(new ArtifactRef(pvr, "pom", null, false).toString());
         refs.add(new ArtifactRef(pvr, "jar", null, false).toString());
 
+        // check that both files are in the dep artifacts list using getIdentifier() to match on GAVT[C]
         for (Artifact artifact : deps) {
             assertThat(artifact + " is not in the expected list of deps: " + refs, refs.contains(artifact.getIdentifier()),
                     equalTo(true));
@@ -66,6 +72,7 @@ public class DownloadTwoThenVerifyExtractedArtifactsContainThemTest
 
         Aprox aprox = driver.getAprox();
 
+        // check that the new imports are available from shared-imports
         for (String path : new String[] { pomPath, jarPath }) {
             InputStream stream = aprox.content().get(StoreType.hosted, SHARED_IMPORTS, path);
             String downloaded = IOUtils.toString(stream);

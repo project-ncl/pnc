@@ -37,9 +37,10 @@ public class UploadTwoThenVerifyExtractedArtifactsContainThemTest
 
     @Test
     public void extractBuildArtifacts_ContainsTwoUploads() throws Exception {
+        // create a dummy non-chained build execution and repo session based on it
         BuildExecution execution = new TestBuildExecution();
-
         RepositorySession rc = driver.createBuildRepository(execution);
+
         assertThat(rc, notNullValue());
 
         String baseUrl = rc.getConnectionInfo().getDeployUrl();
@@ -48,6 +49,8 @@ public class UploadTwoThenVerifyExtractedArtifactsContainThemTest
 
         CloseableHttpClient client = HttpClientBuilder.create().build();
 
+        // upload a couple files related to a single GAV using the repo session deployment url
+        // this simulates a build deploying one jar and its associated POM
         for (String path : new String[] { pomPath, jarPath }) {
             final String url = UrlUtils.buildUrl(baseUrl, path);
 
@@ -70,8 +73,10 @@ public class UploadTwoThenVerifyExtractedArtifactsContainThemTest
             assertThat("Failed to upload: " + url, uploaded, equalTo(true));
         }
 
+        // extract the "built" artifacts we uploaded above.
         RepositoryManagerResult repositoryManagerResult = rc.extractBuildArtifacts();
 
+        // check that both files are present in extracted result
         List<Artifact> artifacts = repositoryManagerResult.getBuiltArtifacts();
         System.out.println(artifacts);
 
@@ -83,6 +88,7 @@ public class UploadTwoThenVerifyExtractedArtifactsContainThemTest
         refs.add(new ArtifactRef(pvr, "pom", null, false).toString());
         refs.add(new ArtifactRef(pvr, "jar", null, false).toString());
 
+        // check that the artifact getIdentifier() stores GAVT[C] information in the standard Maven rendering
         for (Artifact artifact : artifacts) {
             assertThat(artifact + " is not in the expected list of built artifacts: " + refs,
                     refs.contains(artifact.getIdentifier()),
@@ -91,6 +97,7 @@ public class UploadTwoThenVerifyExtractedArtifactsContainThemTest
 
         Aprox aprox = driver.getAprox();
 
+        // check that we can download the two files from the build repository
         for (String path : new String[] { pomPath, jarPath }) {
             final String url = aprox.content().contentUrl(StoreType.hosted, rc.getBuildRepositoryId(), path);
             boolean downloaded = client.execute(new HttpGet(url), new ResponseHandler<Boolean>() {

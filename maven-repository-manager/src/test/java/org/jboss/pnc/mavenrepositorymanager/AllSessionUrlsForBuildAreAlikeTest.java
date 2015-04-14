@@ -16,6 +16,7 @@ public class AllSessionUrlsForBuildAreAlikeTest
 
     @Test
     public void formatRepositoryURLForSimpleInfo_AllURLsMatch() throws Exception {
+        // create a dummy non-chained build execution and a repo session based on it
         BuildExecution execution = new TestBuildExecution();
 
         RepositorySession repositoryConfiguration = driver.createBuildRepository(execution);
@@ -24,6 +25,7 @@ public class AllSessionUrlsForBuildAreAlikeTest
         RepositoryConnectionInfo connectionInfo = repositoryConfiguration.getConnectionInfo();
         assertThat(connectionInfo, notNullValue());
 
+        // check that all URLs in the connection info are the same (this might be different in another repo driver)
         String expectedUrl = connectionInfo.getDependencyUrl();
 
         assertThat(connectionInfo.getToolchainUrl(), equalTo(expectedUrl));

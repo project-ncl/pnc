@@ -17,7 +17,8 @@ import org.junit.Test;
 public class BuildGroupIncludesConfSetGroupTest extends AbstractRepositoryManagerDriverTest {
 
     @Test
-    public void verifyGroupComposition_ProjectVersion_WithConfSet() throws Exception {
+    public void verifyGroupComposition_ProductVersion_WithConfSet() throws Exception {
+        // create a dummy composed (chained) build execution and a repo session based on it
         BuildExecution execution = new TestBuildExecution("product+myproduct+1.1", "my-build-conf-set",
                 "build+myproject+67890", BuildExecutionType.COMPOSED_BUILD);
         Aprox aprox = driver.getAprox();
@@ -27,6 +28,14 @@ public class BuildGroupIncludesConfSetGroupTest extends AbstractRepositoryManage
 
         assertThat(repoId, equalTo(execution.getBuildContentId()));
 
+        // check that the build group includes:
+        // - the build's hosted repo
+        // - the build-set's repo group
+        // - the product version repo group
+        // - the "shared-releases" repo group
+        // - the "shared-imports" repo
+        // - the public group
+        // ...in that order
         Group buildGroup = aprox.stores().load(StoreType.group, repoId, Group.class);
 
         System.out.printf("Constituents:\n  %s\n", join(buildGroup.getConstituents(), "\n  "));

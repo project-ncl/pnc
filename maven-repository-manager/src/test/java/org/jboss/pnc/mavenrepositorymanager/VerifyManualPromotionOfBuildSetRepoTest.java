@@ -36,6 +36,7 @@ public class VerifyManualPromotionOfBuildSetRepoTest extends AbstractRepositoryM
         String chainId = "chain";
         String buildId = "build";
 
+        // create a dummy composed (chained) build execution, and create a repo session based on it
         BuildExecution execution = new TestBuildExecution(null, chainId, buildId, BuildExecutionType.COMPOSED_BUILD);
         RepositorySession session = driver.createBuildRepository(execution);
 

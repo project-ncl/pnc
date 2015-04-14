@@ -229,6 +229,14 @@ public class RepositoryManagerDriver implements RepositoryManager {
         }
     }
 
+    /**
+     * Add the constituents that every build repository group should contain:
+     * <ol>
+     * <li>shared-releases (Group)</li>
+     * <li>shared-imports (Hosted Repo)</li>
+     * <li>public (Group)</li>
+     * </ol>
+     */
     private void addGlobalConstituents(Group group) {
         // 1. global shared-releases artifacts
         group.addConstituent(new StoreKey(StoreType.group, SHARED_RELEASES_ID));
@@ -271,12 +279,27 @@ public class RepositoryManagerDriver implements RepositoryManager {
         return aprox;
     }
 
+    /**
+     * Promote the hosted repository associated with a given project build to an arbitrary repository group.
+     * 
+     * @return The promotion instance, which won't actually trigger promotion until its
+     *         {@link RunningRepositoryPromotion#monitor(java.util.function.Consumer, java.util.function.Consumer)} method is
+     *         called.
+     */
     @Override
     public RunningRepositoryPromotion promoteBuild(BuildRecord buildRecord, String toGroup) throws RepositoryManagerException {
 
         return new MavenRunningPromotion(StoreType.hosted, buildRecord.getBuildContentId(), toGroup, aprox);
     }
 
+    /**
+     * Promote the repository group associated with a given set of project builds to an arbitrary repository group. This allows
+     * handling a chain build's output as a single unit.
+     * 
+     * @return The promotion instance, which won't actually trigger promotion until its
+     *         {@link RunningRepositoryPromotion#monitor(java.util.function.Consumer, java.util.function.Consumer)} method is
+     *         called.
+     */
     @Override
     public RunningRepositoryPromotion promoteBuildSet(BuildRecordSet buildRecordSet, String toGroup)
             throws RepositoryManagerException {
