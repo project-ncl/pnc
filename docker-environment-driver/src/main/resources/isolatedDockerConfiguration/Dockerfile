@@ -1,9 +1,11 @@
 FROM fedora:21
 MAINTAINER Marek Novotny <mnovotny@redhat.com>
 
-# install java and zip
-RUN yum -y update && yum clean all
-RUN yum -y install tar gzip java java-devel && yum clean all
+# update or not??
+#RUN yum -y update && yum clean all
+# why SSH? see http://blog.docker.com/2014/06/why-you-dont-need-to-run-sshd-in-docker/
+# install all required packages like git, java and zip
+RUN yum -y install openssh-server git tar gzip java java-devel && yum clean all
 
 # set JAVA_HOME
 ENV JAVA_HOME /usr/lib/jvm/java-openjdk
@@ -49,9 +51,7 @@ RUN /usr/local/bin/plugins.sh /usr/share/jenkins/plugins.txt
 
 
 USER root
-#Install SSHD
-# why? see http://blog.docker.com/2014/06/why-you-dont-need-to-run-sshd-in-docker/
-RUN yum -y install openssh-server git  && yum clean all
+#Configure SSHD
 RUN mkdir /var/run/sshd
 RUN ssh-keygen -b 1024 -t rsa -f /etc/ssh/ssh_host_key
 RUN ssh-keygen -b 1024 -t rsa -f /etc/ssh/ssh_host_rsa_key 
