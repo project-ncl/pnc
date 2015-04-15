@@ -72,7 +72,7 @@ public class ProductVersionEndpoint {
 
     @ApiOperation(value = "Gets build configuration sets associated with a product version")
     @GET
-    @Path("/{id}/configuration-sets")
+    @Path("/{id}/configuration-set")
     public List<BuildConfigurationSetRest> getBuildConfigurationSets(
             @ApiParam(value = "Page index") @QueryParam("pageIndex") @DefaultValue("0") int pageIndex,
             @ApiParam(value = "Pagination size") @DefaultValue("50") @QueryParam("pageSize") int pageSize,

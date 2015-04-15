@@ -48,7 +48,7 @@
           },
           getAllBuildConfigurationSets: {
             method: 'GET',
-            url: REST_DEFAULTS.BASE_URL + '/product/:productId/version/:versionId/configuration-sets',
+            url: REST_DEFAULTS.BASE_URL + '/product/:productId/version/:versionId/configuration-set',
             isArray: true
           },
         }),
@@ -150,7 +150,7 @@
         },{
           getConfigurations: {
             method: 'GET',
-            url: REST_DEFAULTS.BASE_URL + '/configuration-set/:configurationSetId/configurations',
+            url: REST_DEFAULTS.BASE_URL + '/configuration-set/:configurationSetId/configuration',
             isArray: true
           },
           build: {
@@ -160,12 +160,12 @@
           },
           removeConfiguration: {
             method: 'DELETE',
-            url: REST_DEFAULTS.BASE_URL + '/configuration-set/:configurationSetId/configurations/:configurationId',
+            url: REST_DEFAULTS.BASE_URL + '/configuration-set/:configurationSetId/configuration/:configurationId',
             isArray: false,
           },
           addConfiguration: {
             method: 'POST',
-            url: REST_DEFAULTS.BASE_URL + '/configuration-set/:configurationSetId/configurations',
+            url: REST_DEFAULTS.BASE_URL + '/configuration-set/:configurationSetId/configuration',
             isArray: false,
           },
         }),
