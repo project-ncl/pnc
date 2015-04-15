@@ -108,10 +108,8 @@ public class BuildConfigurationSetEndpoint {
     @POST
     @Path("/{id}/build")
     public Response build(
-            @ApiParam(value = "Build Configuration Set id", required = true) @PathParam("id") Integer id,
-            @Context UriInfo uriInfo) {
-        BuildConfigurationSetRest buildConfigSet = buildConfigurationSetProvider.getSpecific(id);
-        logger.info("Executing build configuration set: " + buildConfigSet.getName() );
+            @ApiParam(value = "Build Configuration Set id", required = true) @PathParam("id") Integer id) {
+        logger.info("Executing build configuration set id: " + id );
 
         try {
             Integer runningBuildId = buildTriggerer.triggerBuildConfigurationSet(id);
