@@ -18,7 +18,7 @@ import java.util.logging.Logger;
 /**
  * Checks state of newly created environments and reports, when the environment is fully up
  * 
- * @author Jakub Bartecek <jbartece@redhat.com>
+ * @author Jakub Bartecek &lt;jbartece@redhat.com&gt;
  *
  */
 @ApplicationScoped

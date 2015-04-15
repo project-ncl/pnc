@@ -12,7 +12,7 @@ import org.jboss.logging.Logger;
 import org.keycloak.adapters.HttpClientBuilder;
 
 /**
- * @author pslegr
+ * @author Pavel Slegr
  *
  */
 public class ExternalAuthFacade {
@@ -68,10 +68,11 @@ public class ExternalAuthFacade {
     }
 
     /**
-     * @param endpoint - must be in the form of /customer or /product/id
-     * @param bw - provide BufferedWrritter where the Rest endpoint data out will be written 
+     * @param endpoint Must be in the form of /customer or /product/id
+     * @return InputStream for the endpoint
+     * @throws Exception if an error occurs
      */
-    public InputStream restEndpoint(String endpoint) throws Exception{
+    public InputStream restEndpoint(String endpoint) throws Exception {
         // obtain AccessToken first
         ExternalAuthentication externalAuthentication = new ExternalAuthentication(keycloakConfiguration);
         AuthenticationProvider provider = externalAuthentication.authenticate(this.pnc_ext_oauth_username,this.pnc_ext_oauth_password);

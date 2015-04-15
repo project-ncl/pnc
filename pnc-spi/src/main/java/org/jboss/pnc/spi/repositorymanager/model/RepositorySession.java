@@ -21,7 +21,7 @@ public interface RepositorySession {
      * Process any uncaptured imports of input artifacts (dependencies, etc.) and return the result containing dependencies and
      * build output.
      *
-     * @throws org.jboss.pnc.spi.repositorymanager.RepositoryManagerException
+     * @throws RepositoryManagerException
      */
     RepositoryManagerResult extractBuildArtifacts() throws RepositoryManagerException;
 }

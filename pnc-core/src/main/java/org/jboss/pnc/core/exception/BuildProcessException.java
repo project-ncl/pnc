@@ -6,7 +6,7 @@ import org.jboss.pnc.spi.environment.DestroyableEnvironmnet;
  * Exception in build process, which contains data
  * to clean up after unsuccessful build task 
  * 
- * @author Jakub Bartecek <jbartece@redhat.com>
+ * @author Jakub Bartecek &lt;jbartece@redhat.com&gt;
  *
  */
 public class BuildProcessException extends CoreExceptionWrapper {
@@ -19,7 +19,7 @@ public class BuildProcessException extends CoreExceptionWrapper {
 
     /**
      * @param cause Exception cause
-     * @param runningEnvironment Reference to a started environment  
+     * @param destroyableEnvironment Reference to a started environment
      */
     public BuildProcessException(Throwable cause, DestroyableEnvironmnet destroyableEnvironment) {
         super(cause);

@@ -14,7 +14,7 @@ import java.util.function.Consumer;
 
 /**
  * 
- * @author Jakub Bartecek <jbartece@redhat.com>
+ * @author Jakub Bartecek &lt;jbartece@redhat.com&gt;
  *
  */
 @ApplicationScoped

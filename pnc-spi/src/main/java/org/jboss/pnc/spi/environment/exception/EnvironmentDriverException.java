@@ -3,7 +3,7 @@ package org.jboss.pnc.spi.environment.exception;
 /**
  * Exception, which indicates environment driver error
  * 
- * @author Jakub Bartecek <jbartece@redhat.com>
+ * @author Jakub Bartecek &lt;jbartece@redhat.com&gt;
  *
  */
 public class EnvironmentDriverException extends Exception {

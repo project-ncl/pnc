@@ -9,7 +9,7 @@ import org.jboss.pnc.spi.repositorymanager.model.RepositorySession;
 /**
  * Identification of environment started by environment driver
  * 
- * @author Jakub Bartecek <jbartece@redhat.com>
+ * @author Jakub Bartecek &lt;jbartece@redhat.com&gt;
  *
  */
 public interface RunningEnvironment extends Serializable, DestroyableEnvironmnet {

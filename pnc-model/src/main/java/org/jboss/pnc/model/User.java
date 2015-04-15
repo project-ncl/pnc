@@ -155,7 +155,7 @@ public class User implements GenericEntity<Integer> {
     /**
      * Adds the project build record.
      *
-     * @param buildRecords the project build record
+     * @param buildRecord the project build record
      * @return the project build record
      */
     public BuildRecord addBuildRecord(BuildRecord buildRecord) {

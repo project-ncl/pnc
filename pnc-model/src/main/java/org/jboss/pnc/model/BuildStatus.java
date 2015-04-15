@@ -3,7 +3,7 @@ package org.jboss.pnc.model;
 /**
  * Statuses of build process.
  * 
- * @author Jakub Bartecek <jbartece@redhat.com>
+ * @author Jakub Bartecek &lt;jbartece@redhat.com&gt;
  *
  */
 public enum BuildStatus {

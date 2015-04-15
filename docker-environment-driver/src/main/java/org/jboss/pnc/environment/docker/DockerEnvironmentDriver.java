@@ -49,7 +49,7 @@ import com.jcraft.jsch.agentproxy.Connector;
 /**
  * Implementation of environment driver, which uses Docker to run environments
  * 
- * @author Jakub Bartecek <jbartece@redhat.com>
+ * @author Jakub Bartecek &lt;jbartece@redhat.com&gt;
  *
  */
 @ApplicationScoped
@@ -89,7 +89,7 @@ public class DockerEnvironmentDriver implements EnvironmentDriver {
     /**
      * States of creating Docker container
      * 
-     * @author Jakub Bartecek <jbartece@redhat.com>
+     * @author Jakub Bartecek &lt;jbartece@redhat.com&gt;
      *
      */
     private enum BuildContainerState {

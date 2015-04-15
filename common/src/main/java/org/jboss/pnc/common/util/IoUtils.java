@@ -13,6 +13,12 @@ import java.util.Scanner;
  */
 public class IoUtils {
 
+    /**
+     * @param name Resource name to use.
+     * @param classLoader Classloader to use
+     * @return The configuration string
+     * @throws IOException Thrown if data couldn't be loaded
+     */
     public static String readResource(String name, ClassLoader classLoader) throws IOException {
         String configString;
         InputStream is = classLoader.getResourceAsStream(name);
@@ -26,7 +32,7 @@ public class IoUtils {
 
     /**
      * Reads whole content of file to String
-     * 
+     *
      * @param fileName Existing file
      * @return File content
      * @throws IOException Thrown if data couldn't be loaded
@@ -40,7 +46,7 @@ public class IoUtils {
 
     /**
      * Reads whole content of input stream to String
-     * 
+     *
      * @param stream Opened stream
      * @return Stream content
      * @throws IOException Thrown if data couldn't be loaded
@@ -53,12 +59,13 @@ public class IoUtils {
     }
 
     /**
+     * <p>readFileOrResource.</p>
      *
      * @param systemPropertyName Name of system property to override default file name
-     * @param defaultFileName
-     * @param classLoader
-     * @return
-     * @throws IOException
+     * @param defaultFileName Filename to use if system property doesn't exist.
+     * @param classLoader Classloader to use
+     * @return The configuration string
+     * @throws IOException Thrown if data couldn't be loaded
      */
     public static String readFileOrResource(String systemPropertyName, String defaultFileName,
             ClassLoader classLoader) throws IOException {

@@ -255,7 +255,7 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
     }
 
     /**
-     * @param add to the list of buildConfigurationSets
+     * @param buildConfigurationSet add to the list of buildConfigurationSets
      */
     public void addBuildConfigurationSet(BuildConfigurationSet buildConfigurationSet) {
         if (!this.buildConfigurationSets.contains(buildConfigurationSet)) {
@@ -529,9 +529,6 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
             return this;
         }
 
-        /**
-         * Sets create time and ignores Null values (since they may affect the entity consistency).
-         */
         public Builder buildConfigurationSet(BuildConfigurationSet buildConfigurationSet) {
             this.buildConfigurationSets.add(buildConfigurationSet);
             return this;
@@ -550,7 +547,7 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
         }
 
         /**
-         * Sets last update time and ignores Null values (since they may affect the entity consistency).
+         * @param lastModificationTime Sets last update time and ignores Null values (since they may affect the entity consistency).
          */
         public Builder lastModificationTime(Timestamp lastModificationTime) {
             if (lastModificationTime != null) {

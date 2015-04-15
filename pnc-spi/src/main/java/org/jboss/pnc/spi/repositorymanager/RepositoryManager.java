@@ -16,11 +16,7 @@ public interface RepositoryManager {
      * Create a new repository session tuned to the parameters of that build collection and the build that will use this
      * repository session.
      * 
-     * @param buildConfiguration Used to name the repository configuration, and also for any build-specific variation from the
-     *        product-default config values (which are keyed to the {@link BuildRecordSet}).
-     * 
-     * @param buildRecordSet Used to determine which in-progress product repository should be used.
-     * @throws RepositoryManagerException
+     * @param buildExecution
      */
     RepositorySession createBuildRepository(BuildExecution buildExecution)
             throws RepositoryManagerException;
@@ -33,7 +29,7 @@ public interface RepositoryManager {
      * @param toGroup The ID of the repository group where the build output should be promoted
      * 
      * @return An object representing the running promotion process, with a callback method for the result.
-     * 
+     *
      * @throws RepositoryManagerException
      */
     RunningRepositoryPromotion promoteBuild(BuildRecord buildRecord, String toGroup)

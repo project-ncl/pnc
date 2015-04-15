@@ -19,7 +19,8 @@ import java.util.Map;
 
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-12-02.
- * @author Jakub Bartecek <jbartece@redhat.com>
+ *
+ * @author Jakub Bartecek &lt;jbartece@redhat.com&gt;
  */
 @ApplicationScoped
 public class Configuration {
@@ -34,7 +35,7 @@ public class Configuration {
     
     /**
      * Reads configuration for module
-     * 
+     *
      * @param moduleClass Requested class with configuration
      * @return Loaded configuration
      * @throws ConfigurationParseException Thrown if configuration file couldn't be loaded or parsed

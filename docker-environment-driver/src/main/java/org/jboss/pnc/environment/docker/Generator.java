@@ -8,7 +8,7 @@ import javax.enterprise.context.ApplicationScoped;
 /**
  * Generates unique container IDs
  * 
- * @author Jakub Bartecek <jbartece@redhat.com>
+ * @author Jakub Bartecek &lt;jbartece@redhat.com&gt;
  *
  */
 @ApplicationScoped

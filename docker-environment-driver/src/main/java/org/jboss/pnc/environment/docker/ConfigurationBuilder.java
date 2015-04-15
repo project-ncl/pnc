@@ -12,7 +12,7 @@ import org.jboss.util.StringPropertyReplacer;
 /**
  * Builds needed configuration
  * 
- * @author Jakub Bartecek <jbartece@redhat.com>
+ * @author Jakub Bartecek &lt;jbartece@redhat.com&gt;
  *
  */
 @ApplicationScoped

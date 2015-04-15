@@ -8,7 +8,7 @@ import org.junit.Test;
 
 /**
  * 
- * @author Jakub Bartecek <jbartece@redhat.com>
+ * @author Jakub Bartecek &lt;jbartece@redhat.com&gt;
  *
  */
 public class MavenRepoDriverModuleConfigTest extends AbstractModuleConfigTest {

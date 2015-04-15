@@ -12,7 +12,7 @@ import java.util.function.Consumer;
 /**
  * Represents environments during initialization process
  * 
- * @author Jakub Bartecek <jbartece@redhat.com>
+ * @author Jakub Bartecek &lt;jbartece@redhat.com&gt;
  *
  */
 public class DockerStartedEnvironment implements StartedEnvironment {

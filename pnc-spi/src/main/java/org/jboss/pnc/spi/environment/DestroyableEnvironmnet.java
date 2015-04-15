@@ -5,7 +5,7 @@ import org.jboss.pnc.spi.environment.exception.EnvironmentDriverException;
 /**
  * Environment, which has a single method to destroy it
  * 
- * @author Jakub Bartecek <jbartece@redhat.com>
+ * @author Jakub Bartecek &lt;jbartece@redhat.com&gt;
  *
  */
 public interface DestroyableEnvironmnet {

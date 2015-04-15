@@ -9,7 +9,7 @@ import org.jboss.pnc.spi.repositorymanager.model.RepositorySession;
 /**
  * Implementation of Docker environment used by DockerEnvironmentDriver
  * 
- * @author Jakub Bartecek <jbartece@redhat.com>
+ * @author Jakub Bartecek &lt;jbartece@redhat.com&gt;
  *
  */
 public class DockerRunningEnvironment implements RunningEnvironment {
@@ -22,7 +22,7 @@ public class DockerRunningEnvironment implements RunningEnvironment {
     private final String id;
 
     /**
-     * @return Port to connect to Jenkins UI
+     * Port to connect to Jenkins UI
      */
     private final int jenkinsPort;
 

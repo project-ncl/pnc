@@ -11,7 +11,7 @@ import org.jboss.pnc.spi.environment.EnvironmentDriver;
 /**
  * Creates instances of environment drivers
  * 
- * @author Jakub Bartecek <jbartece@redhat.com>
+ * @author Jakub Bartecek &lt;jbartece@redhat.com&gt;
  *
  */
 @ApplicationScoped

@@ -112,7 +112,7 @@ public class Product implements GenericEntity<Integer> {
     }
 
     /**
-     * Shortened informal name of the product
+     * @return Shortened informal name of the product
      */
     public String getAbbreviation() {
 		return abbreviation;
@@ -123,7 +123,7 @@ public class Product implements GenericEntity<Integer> {
 	}
 
 	/**
-     * Product code in internal systems
+     * @return Product code in internal systems
      */
 	public String getProductCode() {
 		return productCode;
@@ -134,7 +134,7 @@ public class Product implements GenericEntity<Integer> {
 	}
 
     /**
-     * Name of the product used by program management planning system
+     * @return Name of the product used by program management planning system
      */
 	public String getPgmSystemName() {
 		return pgmSystemName;

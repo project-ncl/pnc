@@ -3,16 +3,14 @@ package org.jboss.pnc.common.json;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
- * @author pslegr
- * @author Jakub Bartecek <jbartece@redhat.com>
- *
+ * @author Pavel Slegr
+ * @author Jakub Bartecek &lt;jbartece@redhat.com&gt;
  */
-
 public class ConfigurationJSONParser {
 
     /**
      * Loads JSON configuration to the module configuration object
-     * 
+     *
      * @param configContent Configuration in JSON
      * @param classType Class for the requested configuration
      * @return Loaded configuration

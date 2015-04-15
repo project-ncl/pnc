@@ -72,7 +72,7 @@ public class BuildConfigurationSet implements GenericEntity<Integer> {
     }
 
     /**
-     * @param id the id to set
+     * @param name the name to set
      */
     public void setName(String name) {
         this.name = name;

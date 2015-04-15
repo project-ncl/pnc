@@ -6,7 +6,7 @@ import java.util.function.Consumer;
  * Interface, which represents newly created environment,
  * but the environment is not fully up and running.
  * 
- * @author Jakub Bartecek <jbartece@redhat.com>
+ * @author Jakub Bartecek &lt;jbartece@redhat.com&gt;
  *
  */
 public interface StartedEnvironment extends DestroyableEnvironmnet {

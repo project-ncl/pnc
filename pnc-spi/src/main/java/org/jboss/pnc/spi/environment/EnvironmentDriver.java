@@ -8,7 +8,7 @@ import org.jboss.pnc.spi.repositorymanager.model.RepositorySession;
  * SPI interface for Environment driver, which provides support
  * to control different target environments.
  * 
- * @author Jakub Bartecek <jbartece@redhat.com>
+ * @author Jakub Bartecek &lt;jbartece@redhat.com&gt;
  *
  */
 public interface EnvironmentDriver {
@@ -16,7 +16,7 @@ public interface EnvironmentDriver {
     /**
      * Creates and starts new clean environment.
      * 
-     * @param environment Specification of requested environment
+     * @param buildEnvironment Specification of requested environment
      * @param repositorySession Configuration of repository to store built artifacts
      * 
      * @return New started environment in initialization phase

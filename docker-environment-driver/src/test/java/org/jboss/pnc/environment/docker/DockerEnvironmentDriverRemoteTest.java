@@ -46,7 +46,7 @@ import java.util.logging.Logger;
 /**
  * Unit tests for DockerEnnvironmentDriver
  *
- * @author Jakub Bartecek <jbartece@redhat.com>
+ * @author Jakub Bartecek &lt;jbartece@redhat.com&gt;
  */
 @RunWith(Arquillian.class)
 @Category({ RemoteTest.class, ContainerTest.class })

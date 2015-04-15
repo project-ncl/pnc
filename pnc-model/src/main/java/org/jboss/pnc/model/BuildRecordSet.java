@@ -68,7 +68,7 @@ public class BuildRecordSet implements GenericEntity<Integer> {
     }
 
     /**
-     * @param milestone the milestone to set
+     * @param productMilestone the milestone to set
      */
     public void setProductMilestone(ProductMilestone productMilestone) {
         this.productMilestone = productMilestone;
@@ -90,7 +90,7 @@ public class BuildRecordSet implements GenericEntity<Integer> {
     }
 
     /**
-     * @param buildRecord the buildRecord to set
+     * @param record the BuildRecord(s) to set
      */
     public void setBuildRecord(List<BuildRecord> record) {
         this.buildRecord = record;
