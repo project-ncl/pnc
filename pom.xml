@@ -112,6 +112,7 @@
     <failsafe.test.container.skip>true</failsafe.test.container.skip>
     <surefire.test.remote.skip>true</surefire.test.remote.skip>
     <failsafe.test.integration.skip>true</failsafe.test.integration.skip>
+    <auth>false</auth>
   </properties>
 
   <dependencyManagement>

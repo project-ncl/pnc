@@ -17,7 +17,6 @@
 
     <properties>
         <failOnMissingWebXml>false</failOnMissingWebXml>
-        <auth>false</auth>
     </properties>
 
 

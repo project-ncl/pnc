@@ -4,12 +4,14 @@ import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.pnc.auth.AuthenticationProvider;
 import org.jboss.pnc.auth.ExternalAuthentication;
+import org.jboss.pnc.integration.Utils.AuthResource;
 import org.jboss.pnc.integration.deployments.Deployments;
 import org.jboss.pnc.test.category.ContainerTest;
 import org.jboss.pnc.test.category.RemoteTest;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
@@ -30,6 +32,7 @@ public class BuildTest {
 
     public static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
     private static AuthenticationProvider authProvider;
+    private static String access_token =  "no-auth";
 
 
     @Deployment(testable = false)
@@ -41,15 +44,13 @@ public class BuildTest {
         return enterpriseArchive;
     }
     
-    @Before
-    public void prepareData() {
-        try {
-            InputStream is = this.getClass().getResourceAsStream("/keycloak.json");
+    @BeforeClass
+    public static void setupAuth() throws IOException {
+        if(AuthResource.authEnabled()) {
+            InputStream is = BuildRecordRestTest.class.getResourceAsStream("/keycloak.json");
             ExternalAuthentication ea = new ExternalAuthentication(is);
             authProvider = ea.authenticate(System.getenv("PNC_EXT_OAUTH_USERNAME"), System.getenv("PNC_EXT_OAUTH_PASSWORD"));
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            access_token = authProvider.getTokenString();
         }
     }
 
@@ -57,7 +58,7 @@ public class BuildTest {
     public void shouldTriggerBuildAndFinishWithoutProblems() {
         int configurationId = extractIdFromRest("/pnc-rest/rest/configuration");
 
-        given().header("Accept", "application/json").header("Authorization", "Bearer " + authProvider.getTokenString())
+        given().header("Accept", "application/json").header("Authorization", "Bearer " + access_token)
                     
             .port(getHttpPort())
         .when()
@@ -67,7 +68,7 @@ public class BuildTest {
     }
 
     Integer extractIdFromRest(String path) {
-        String returnedObject = from(given().header("Accept", "application/json").header("Authorization", "Bearer " + authProvider.getTokenString())
+        String returnedObject = from(given().header("Accept", "application/json").header("Authorization", "Bearer " + access_token)
                     
                 .port(getHttpPort()).get(path).asString()).get("[0].id").toString();
         return Integer.valueOf(returnedObject);

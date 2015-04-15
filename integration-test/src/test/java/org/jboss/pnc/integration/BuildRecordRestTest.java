@@ -8,6 +8,7 @@ import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.junit.InSequence;
 import org.jboss.pnc.auth.AuthenticationProvider;
 import org.jboss.pnc.auth.ExternalAuthentication;
+import org.jboss.pnc.integration.Utils.AuthResource;
 import org.jboss.pnc.integration.assertions.ResponseAssertion;
 import org.jboss.pnc.integration.deployments.Deployments;
 import org.jboss.pnc.rest.endpoint.BuildConfigurationEndpoint;
@@ -52,6 +53,7 @@ public class BuildRecordRestTest {
     private static int projectId;
     
     private static AuthenticationProvider authProvider;
+    private static String access_token =  "no-auth";
     
 
     @Deployment(testable = false)
@@ -72,15 +74,18 @@ public class BuildRecordRestTest {
 
     @BeforeClass
     public static void setupAuth() throws IOException {
-        InputStream is = BuildRecordRestTest.class.getResourceAsStream("/keycloak.json");
-        ExternalAuthentication ea = new ExternalAuthentication(is);
-        authProvider = ea.authenticate(System.getenv("PNC_EXT_OAUTH_USERNAME"), System.getenv("PNC_EXT_OAUTH_PASSWORD"));
+        if(AuthResource.authEnabled()) {
+            InputStream is = BuildRecordRestTest.class.getResourceAsStream("/keycloak.json");
+            ExternalAuthentication ea = new ExternalAuthentication(is);
+            authProvider = ea.authenticate(System.getenv("PNC_EXT_OAUTH_USERNAME"), System.getenv("PNC_EXT_OAUTH_PASSWORD"));
+            access_token = authProvider.getTokenString();
+        }
     }
 
     @Test
     @InSequence(-1)
     public void prepareBaseData() {
-        Response response = given().header("Accept", "application/json").header("Authorization", "Bearer " + authProvider.getTokenString())
+        Response response = given().header("Accept", "application/json").header("Authorization", "Bearer " + access_token)
                     .contentType(ContentType.JSON).port(getHttpPort()).when().get(BUILD_RECORD_REST_ENDPOINT);
         ResponseAssertion.assertThat(response).hasStatus(200);
         buildRecordId = response.body().jsonPath().getInt("[0].id");
@@ -89,7 +94,7 @@ public class BuildRecordRestTest {
         logger.info("buildRecordId: {} ", buildRecordId);
         logger.info("configurationId: {} ", configurationId);
 
-        response = given().header("Accept", "application/json").header("Authorization", "Bearer " + authProvider.getTokenString())
+        response = given().header("Accept", "application/json").header("Authorization", "Bearer " + access_token)
                 .contentType(ContentType.JSON).port(getHttpPort()).when().get(String.format(CONFIGURATION_SPECIFIC_REST_ENDPOINT, configurationId));
         ResponseAssertion.assertThat(response).hasStatus(200);
         buildConfigurationName = response.body().jsonPath().getString("name");
@@ -100,7 +105,7 @@ public class BuildRecordRestTest {
     @Test
     public void shouldGetBuildRecords() {
 
-        Response response = given().header("Accept", "application/json").header("Authorization", "Bearer " + authProvider.getTokenString())
+        Response response = given().header("Accept", "application/json").header("Authorization", "Bearer " + access_token)
                     .contentType(ContentType.JSON).port(getHttpPort()).when().get(BUILD_RECORD_REST_ENDPOINT);
         ResponseAssertion.assertThat(response).hasStatus(200);
         ResponseAssertion.assertThat(response).hasJsonValueEqual("[0].id", buildRecordId);
@@ -109,7 +114,7 @@ public class BuildRecordRestTest {
     @Test
     public void shouldGetSpecificBuildRecord() {
 
-        Response response = given().header("Accept", "application/json").header("Authorization", "Bearer " + authProvider.getTokenString())
+        Response response = given().header("Accept", "application/json").header("Authorization", "Bearer " + access_token)
                     .contentType(ContentType.JSON).port(getHttpPort()).when()
                 .get(String.format(BUILD_RECORD_SPECIFIC_REST_ENDPOINT, buildRecordId));
 
@@ -120,7 +125,7 @@ public class BuildRecordRestTest {
     @Test
     public void shouldGetBuildRecordWithName() {
 
-        Response response = given().header("Accept", "application/json").header("Authorization", "Bearer " + authProvider.getTokenString())
+        Response response = given().header("Accept", "application/json").header("Authorization", "Bearer " + access_token)
                     .contentType(ContentType.JSON).port(getHttpPort()).when()
                 .get(String.format(BUILD_RECORD_NAME_REST_ENDPOINT, buildConfigurationName));
 
@@ -131,7 +136,7 @@ public class BuildRecordRestTest {
     @Test
     public void shouldGetBuildRecordForProject() {
 
-        Response response = given().header("Accept", "application/json").header("Authorization", "Bearer " + authProvider.getTokenString())
+        Response response = given().header("Accept", "application/json").header("Authorization", "Bearer " + access_token)
                     .contentType(ContentType.JSON).port(getHttpPort()).when()
                 .get(String.format(CONFIGURATION_SPECIFIC_REST_ENDPOINT, configurationId));
 
@@ -142,7 +147,7 @@ public class BuildRecordRestTest {
 
         logger.info("projectId: {} ", projectId);
 
-        Response response2 = given().header("Accept", "application/json").header("Authorization", "Bearer " + authProvider.getTokenString())
+        Response response2 = given().header("Accept", "application/json").header("Authorization", "Bearer " + access_token)
                     .contentType(ContentType.JSON).port(getHttpPort()).when()
                 .get(String.format(BUILD_RECORD_PROJECT_REST_ENDPOINT, projectId));
 
@@ -153,7 +158,7 @@ public class BuildRecordRestTest {
     @Test
     public void shouldGetBuildRecordForProjectWithName() {
 
-        Response response = given().header("Accept", "application/json").header("Authorization", "Bearer " + authProvider.getTokenString())
+        Response response = given().header("Accept", "application/json").header("Authorization", "Bearer " + access_token)
                     .contentType(ContentType.JSON).port(getHttpPort()).when()
                 .get(String.format(CONFIGURATION_SPECIFIC_REST_ENDPOINT, configurationId));
 
@@ -164,7 +169,7 @@ public class BuildRecordRestTest {
 
         logger.info("projectId: {} ", projectId);
 
-        Response response2 = given().header("Accept", "application/json").header("Authorization", "Bearer " + authProvider.getTokenString())
+        Response response2 = given().header("Accept", "application/json").header("Authorization", "Bearer " + access_token)
                     .contentType(ContentType.JSON).port(getHttpPort()).when()
                 .get(String.format(BUILD_RECORD_PROJECT_BR_NAME_REST_ENDPOINT, projectId, buildConfigurationName));
 
