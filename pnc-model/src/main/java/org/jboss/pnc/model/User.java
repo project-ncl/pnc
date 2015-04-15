@@ -24,6 +24,7 @@ public class User implements GenericEntity<Integer> {
     private Integer id;
 
     @NotNull
+    @Column(unique=true)
     private String email;
 
     private String firstName;
@@ -31,6 +32,7 @@ public class User implements GenericEntity<Integer> {
     private String lastName;
 
     @NotNull
+    @Column(unique=true)
     private String username;
 
     @OneToMany(mappedBy = "user")

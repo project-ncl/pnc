@@ -26,4 +26,18 @@ public class StringUtils {
         }
         return StringPropertyReplacer.replaceProperties(configString, properties);
     }
+
+    /**
+     * Check if the given string is null or contains only whitespace characters.
+     * 
+     * @param string String to check for non-whitespace characters
+     * @return boolean True if the string is null, empty, or contains only whitespace (empty when trimmed).  
+     * Otherwise return false.
+     */
+    public static boolean isEmpty(String string) {
+        if (string == null ) {
+            return true;
+        }
+        return string.trim().isEmpty();
+    }
 }
