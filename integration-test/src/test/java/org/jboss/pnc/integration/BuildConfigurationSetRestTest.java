@@ -49,8 +49,8 @@ public class BuildConfigurationSetRestTest {
 
     private static final String BUILD_CONFIGURATION_SET_REST_ENDPOINT = "/pnc-rest/rest/configuration-set/";
     private static final String BUILD_CONFIGURATION_SET_SPECIFIC_REST_ENDPOINT = "/pnc-rest/rest/configuration-set/%d";
-    private static final String BUILD_CONFIGURATION_SET_PRODUCT_VERSION_REST_ENDPOINT = "/pnc-rest/rest/product/%d/version/%d/configuration-sets";
-    private static final String BUILD_CONFIGURATION_SET_CONFIGURATIONS_REST_ENDPOINT = "/pnc-rest/rest/configuration-set/%d/configurations";
+    private static final String BUILD_CONFIGURATION_SET_PRODUCT_VERSION_REST_ENDPOINT = "/pnc-rest/rest/product/%d/version/%d/configuration-set";
+    private static final String BUILD_CONFIGURATION_SET_CONFIGURATIONS_REST_ENDPOINT = "/pnc-rest/rest/configuration-set/%d/configuration";
 
     private static final String BUILD_CONFIGURATION_SET_NAME = "Rest Test Build Config Set 1";
     private static final String BUILD_CONFIGURATION_SET_NAME_UPDATED = "Rest Test Build Config Set 1 Updated";
