@@ -16,8 +16,8 @@ import org.junit.Test;
  * Test for External REST endpoints AUTH*
  * Special conditions for test to pass:
  * 1. Valid user able to Authenticate for Keycloak
- * 2. User in role authorized for /product endpoint
- * 3. User in role not authorized for /configuration endpoint
+ * 2. User in role authorized for /products endpoint
+ * 3. User in role not authorized for /build-configurations endpoint
  * 
  *  Note: for internal development use user "testone/****" which
  *  is defined to fulfill all above conditions 
@@ -37,7 +37,7 @@ public class ExternalAuthFacadeTest {
                 log.info("is is: " + is);
                 ExternalAuthFacade externalAuthFacade = new ExternalAuthFacade(is);
                 assertNotNull(externalAuthFacade);
-                InputStream restInput = externalAuthFacade.restEndpoint("/product");
+                InputStream restInput = externalAuthFacade.restEndpoint("/products");
                 assertNotNull(restInput);
                 ExternalAuthFacade.print(restInput);
                 log.info("<<< testProductEndpoint()");
@@ -55,7 +55,7 @@ public class ExternalAuthFacadeTest {
                 log.info(">>> testConfigEndpointUnauthorized()");            
                 InputStream is = this.getClass().getResourceAsStream("/keycloak.json");
                 ExternalAuthFacade externalAuthFacade = new ExternalAuthFacade(is);
-                InputStream restInput = externalAuthFacade.restEndpoint("/configuration");
+                InputStream restInput = externalAuthFacade.restEndpoint("/build-configurations");
                 ExternalAuthFacade.print(restInput);
                 assertNotNull(externalAuthFacade);
             }
@@ -77,7 +77,7 @@ public class ExternalAuthFacadeTest {
                 ExternalAuthFacade externalAuthFacade = 
                         new ExternalAuthFacade("mr.wrong","mr.wrong",is,"http://localhost:8080/pnc-rest/rest");
                 assertNotNull(externalAuthFacade);
-                InputStream restInput = externalAuthFacade.restEndpoint("/product");
+                InputStream restInput = externalAuthFacade.restEndpoint("/products");
                 assertNotNull(restInput);
                 ExternalAuthFacade.print(restInput);
             }

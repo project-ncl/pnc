@@ -59,26 +59,26 @@ public class BuildTest {
 
     @Test
     public void shouldTriggerBuildAndFinishWithoutProblems() {
-        int configurationId = extractIdFromRest("/pnc-rest/rest/configuration");
+        int configurationId = extractIdFromRest("/pnc-rest/rest/build-configurations");
 
         given().header("Accept", "application/json").header("Authorization", "Bearer " + access_token)
                     
             .port(getHttpPort())
         .when()
-            .post(String.format("/pnc-rest/rest/configuration/%d/build", configurationId))
+            .post(String.format("/pnc-rest/rest/build-configurations/%d/build", configurationId))
         .then()
             .statusCode(200);
     }
 
     @Test
     public void shouldTriggerBuildSetAndFinishWithoutProblems() {
-        int configurationId = extractIdFromRest("/pnc-rest/rest/configuration-set");
+        int configurationId = extractIdFromRest("/pnc-rest/rest/build-configuration-sets");
 
         given().header("Accept", "application/json").header("Authorization", "Bearer " + access_token)
 
             .port(getHttpPort())
         .when()
-            .post(String.format("/pnc-rest/rest/configuration-set/%d/build", configurationId))
+            .post(String.format("/pnc-rest/rest/build-configuration-sets/%d/build", configurationId))
         .then()
             .statusCode(200);
     }

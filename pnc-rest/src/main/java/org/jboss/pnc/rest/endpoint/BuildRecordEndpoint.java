@@ -12,8 +12,8 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.List;
 
-@Api(value = "/record", description = "Records of building process")
-@Path("/record")
+@Api(value = "/build-records", description = "Records of building process")
+@Path("/build-records")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 public class BuildRecordEndpoint {
@@ -54,7 +54,7 @@ public class BuildRecordEndpoint {
 
     @ApiOperation(value = "Gets the Build Records linked to a specific Build Configuration")
     @GET
-    @Path("/configuration/{configurationId}")
+    @Path("/build-configurations/{configurationId}")
     public List<BuildRecordRest> getAllForBuildConfiguration(
             @ApiParam(value = "Page index") @QueryParam("pageIndex") @DefaultValue("0") int pageIndex,
             @ApiParam(value = "Pagination size") @DefaultValue("50") @QueryParam("pageSize") int pageSize,
@@ -66,7 +66,7 @@ public class BuildRecordEndpoint {
 
     @ApiOperation(value = "Gets the Build Records linked to a specific Project")
     @GET
-    @Path("/project/{projectId}")
+    @Path("/projects/{projectId}")
     public List<BuildRecordRest> getAllForProject(
             @ApiParam(value = "Page index") @QueryParam("pageIndex") @DefaultValue("0") int pageIndex,
             @ApiParam(value = "Pagination size") @DefaultValue("50") @QueryParam("pageSize") int pageSize,

@@ -15,8 +15,8 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 import java.util.List;
 
-@Api(value = "/product/{productId}/version", description = "Product Version related information")
-@Path("/product/{productId}/version")
+@Api(value = "/products/{productId}/product-versions", description = "Product Version related information")
+@Path("/products/{productId}/product-versions")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 public class ProductVersionEndpoint {
@@ -72,7 +72,7 @@ public class ProductVersionEndpoint {
 
     @ApiOperation(value = "Gets build configuration sets associated with a product version")
     @GET
-    @Path("/{id}/configuration-set")
+    @Path("/{id}/build-configuration-sets")
     public List<BuildConfigurationSetRest> getBuildConfigurationSets(
             @ApiParam(value = "Page index") @QueryParam("pageIndex") @DefaultValue("0") int pageIndex,
             @ApiParam(value = "Pagination size") @DefaultValue("50") @QueryParam("pageSize") int pageSize,

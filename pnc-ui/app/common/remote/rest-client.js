@@ -31,7 +31,7 @@
       }
 
       return {
-        Product: $resource(REST_DEFAULTS.BASE_URL + '/product/:productId', {
+        Product: $resource(REST_DEFAULTS.BASE_URL + '/products/:productId', {
           productId: '@id'
         },{
           update: {
@@ -39,7 +39,7 @@
           }
         }),
 
-        Version: $resource(REST_DEFAULTS.BASE_URL + '/product/:productId/version/:versionId', {
+        Version: $resource(REST_DEFAULTS.BASE_URL + '/products/:productId/product-versions/:versionId', {
           versionId: '@id',
           productId: '@productId'
         },{
@@ -48,12 +48,12 @@
           },
           getAllBuildConfigurationSets: {
             method: 'GET',
-            url: REST_DEFAULTS.BASE_URL + '/product/:productId/version/:versionId/configuration-set',
+            url: REST_DEFAULTS.BASE_URL + '/products/:productId/product-versions/:versionId/build-configuration-sets',
             isArray: true
           },
         }),
 
-        Project: $resource(REST_DEFAULTS.BASE_URL + '/project/:projectId', {
+        Project: $resource(REST_DEFAULTS.BASE_URL + '/projects/:projectId', {
           projectId: '@id'
         },{
           update: {
@@ -62,12 +62,12 @@
           getAllForProductVersion: {
             method: 'GET',
             url: REST_DEFAULTS.BASE_URL +
-            '/project/product/:productId/version/:versionId',
+            '/projects/products/:productId/product-versions/:versionId',
             isArray: true,
           }
         }),
 
-        Environment: $resource(REST_DEFAULTS.BASE_URL + '/environment/:environmentId', {
+        Environment: $resource(REST_DEFAULTS.BASE_URL + '/environments/:environmentId', {
           environmentId: '@id'
         },{
           update: {
@@ -75,7 +75,7 @@
           }
         }),
 
-        Configuration: $resource(REST_DEFAULTS.BASE_URL + '/configuration/:configurationId', {
+        Configuration: $resource(REST_DEFAULTS.BASE_URL + '/build-configurations/:configurationId', {
           configurationId: '@id'
         },{
           update: {
@@ -83,104 +83,104 @@
           },
           clone: {
             method: 'POST',
-            url: REST_DEFAULTS.BASE_URL + '/configuration/:configurationId/clone',
+            url: REST_DEFAULTS.BASE_URL + '/build-configurations/:configurationId/clone',
             isArray: false,
           },
           build: {
             method: 'POST',
-            url: REST_DEFAULTS.BASE_URL + '/configuration/:configurationId/build',
+            url: REST_DEFAULTS.BASE_URL + '/build-configurations/:configurationId/build',
             isArray: false,
           },
           getAllForProduct: {
             method: 'GET',
-            url: REST_DEFAULTS.BASE_URL + '/configuration/product/:productId',
+            url: REST_DEFAULTS.BASE_URL + '/build-configurations/products/:productId',
             isArray: true,
           },
           getAllForProductVersion: {
             method: 'GET',
             url: REST_DEFAULTS.BASE_URL +
-            '/configuration/product/:productId/version/:versionId',
+            '/build-configurations/products/:productId/product-versions/:versionId',
             isArray: true,
           },
           getAllForProject: {
            method: 'GET',
-           url: REST_DEFAULTS.BASE_URL + '/configuration/project/:projectId',
+           url: REST_DEFAULTS.BASE_URL + '/build-configurations/projects/:projectId',
            isArray: true,
           },
         }),
 
-        Record: $resource(REST_DEFAULTS.BASE_URL + '/record/:recordId', {
+        Record: $resource(REST_DEFAULTS.BASE_URL + '/build-records/:recordId', {
           recordId: '@id'
         }, {
           getLog: {
             method: 'GET',
-            url: REST_DEFAULTS.BASE_URL + '/record/:recordId/log',
+            url: REST_DEFAULTS.BASE_URL + '/build-records/:recordId/log',
             isArray: false,
             transformResponse: convertStringResponseToJson
           },
           getAllForConfiguration: {
             method: 'GET',
-            url: REST_DEFAULTS.BASE_URL + '/record/configuration/:configurationId',
+            url: REST_DEFAULTS.BASE_URL + '/build-records/build-configurations/:configurationId',
             isArray: true,
           },
           getAllForProject: {
             method: 'GET',
-            url: REST_DEFAULTS.BASE_URL + 'record/project/:projectId',
+            url: REST_DEFAULTS.BASE_URL + 'record/projects/:projectId',
             isArray: true,
           },
           getLatestForConfiguration: {
             method: 'GET',
-            url: REST_DEFAULTS.BASE_URL + '/record/configuration/:configurationId?pageIndex=0&pageSize=1&sort==desc=id',
+            url: REST_DEFAULTS.BASE_URL + '/build-records/build-configurations/:configurationId?pageIndex=0&pageSize=1&sort==desc=id',
             isArray: true,
           },
         }),
 
-        Running: $resource(REST_DEFAULTS.BASE_URL + '/record/running/:recordId', {
+        Running: $resource(REST_DEFAULTS.BASE_URL + '/running-build-records/:recordId', {
           recordId: '@id'
         }, {
           getLog: {
             method: 'GET',
-            url: REST_DEFAULTS.BASE_URL + '/record/running/:recordId/log',
+            url: REST_DEFAULTS.BASE_URL + '/running-build-records/:recordId/log',
             isArray: false,
             transformResponse: convertStringResponseToJson
           },
         }),
-        ConfigurationSet: $resource(REST_DEFAULTS.BASE_URL + '/configuration-set/:configurationSetId', {
+        ConfigurationSet: $resource(REST_DEFAULTS.BASE_URL + '/build-configuration-sets/:configurationSetId', {
           'configurationSetId': '@id'
         },{
           getConfigurations: {
             method: 'GET',
-            url: REST_DEFAULTS.BASE_URL + '/configuration-set/:configurationSetId/configuration',
+            url: REST_DEFAULTS.BASE_URL + '/build-configuration-sets/:configurationSetId/build-configurations',
             isArray: true
           },
           build: {
             method: 'POST',
-            url: REST_DEFAULTS.BASE_URL + '/configuration-set/:configurationSetId/build',
+            url: REST_DEFAULTS.BASE_URL + '/build-configuration-sets/:configurationSetId/build',
             isArray: false,
           },
           removeConfiguration: {
             method: 'DELETE',
-            url: REST_DEFAULTS.BASE_URL + '/configuration-set/:configurationSetId/configuration/:configurationId',
+            url: REST_DEFAULTS.BASE_URL + '/build-configuration-sets/:configurationSetId/build-configurations/:configurationId',
             isArray: false,
           },
           addConfiguration: {
             method: 'POST',
-            url: REST_DEFAULTS.BASE_URL + '/configuration-set/:configurationSetId/configuration',
+            url: REST_DEFAULTS.BASE_URL + '/build-configuration-sets/:configurationSetId/build-configurations',
             isArray: false,
           },
         }),
 
-        RecordSet: $resource(REST_DEFAULTS.BASE_URL + '/recordset/:recordsetId', {
+        RecordSet: $resource(REST_DEFAULTS.BASE_URL + '/build-record-sets/:recordsetId', {
           recordsetId: '@id'
         },{
           getAllForProductVersion: {
             method: 'GET',
-            url: REST_DEFAULTS.BASE_URL + '/recordset/productversion/:versionId',
+            url: REST_DEFAULTS.BASE_URL + '/build-record-sets/product-versions/:versionId',
             isArray: true
           },
           getRecords: {
             method: 'GET',
-            url: REST_DEFAULTS.BASE_URL + '/recordset/record/:recordId',
+            url: REST_DEFAULTS.BASE_URL + '/build-record-sets/build-records/:recordId',
             isArray: true
           }
         })

@@ -32,7 +32,7 @@ import static org.jboss.pnc.integration.env.IntegrationTestEnv.getHttpPort;
 @Category(ContainerTest.class)
 public class LicenseRestTest {
 
-    private static final String LICENSE_REST_ENDPOINT = "/pnc-rest/rest/license/";
+    private static final String LICENSE_REST_ENDPOINT = "/pnc-rest/rest/licenses/";
     private static final String LICENSE_REST_ENDPOINT_SPECIFIC = LICENSE_REST_ENDPOINT + "%d";
 
     public static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
@@ -64,7 +64,7 @@ public class LicenseRestTest {
         licenseId = ResponseUtils.getIdFromLocationHeader(response);
 
         //then
-        ResponseAssertion.assertThat(response).hasStatus(201).hasLocationMatches(".*\\/pnc-rest\\/rest\\/license\\/\\d+");
+        ResponseAssertion.assertThat(response).hasStatus(201).hasLocationMatches(".*\\/pnc-rest\\/rest\\/licenses\\/\\d+");
         assertThat(licenseId).isNotNull();
     }
 

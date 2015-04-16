@@ -34,7 +34,7 @@ import static org.jboss.pnc.integration.env.IntegrationTestEnv.getHttpPort;
 @Category(ContainerTest.class)
 public class EnvironmentRestTest {
 
-    private static final String ENVIRONMENT_REST_ENDPOINT = "/pnc-rest/rest/environment/";
+    private static final String ENVIRONMENT_REST_ENDPOINT = "/pnc-rest/rest/environments/";
     private static final String ENVIRONMENT_REST_ENDPOINT_SPECIFIC = ENVIRONMENT_REST_ENDPOINT + "%d";
 
     public static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
@@ -66,7 +66,7 @@ public class EnvironmentRestTest {
         environmentId = ResponseUtils.getIdFromLocationHeader(response);
 
         //then
-        ResponseAssertion.assertThat(response).hasStatus(201).hasLocationMatches(".*\\/pnc-rest\\/rest\\/environment\\/\\d+");
+        ResponseAssertion.assertThat(response).hasStatus(201).hasLocationMatches(".*\\/pnc-rest\\/rest\\/environments\\/\\d+");
         assertThat(environmentId).isNotNull();
     }
 

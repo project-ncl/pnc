@@ -26,7 +26,7 @@
   }]);
 
   module.factory('MyData', ['$websocket', 'Notifications', function ($websocket, Notifications) {
-    var dataStream = $websocket('ws://localhost:8080/pnc-rest/ws/record/notifications');
+    var dataStream = $websocket('ws://localhost:8080/pnc-rest/ws/build-records/notifications');
     dataStream.onMessage(function(message) {
       Notifications.success('WS response ' + message.data);
     });

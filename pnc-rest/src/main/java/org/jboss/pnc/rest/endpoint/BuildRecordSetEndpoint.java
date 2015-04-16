@@ -13,8 +13,8 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 import java.util.List;
 
-@Api(value = "/recordset", description = "BuildRecordSet collection")
-@Path("/recordset")
+@Api(value = "/build-record-sets", description = "BuildRecordSet collection")
+@Path("/build-record-sets")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 public class BuildRecordSetEndpoint {
@@ -48,7 +48,7 @@ public class BuildRecordSetEndpoint {
 
     @ApiOperation(value = "Gets all BuildRecordSet of a Product Version")
     @GET
-    @Path("/product-milestone/{versionId}")
+    @Path("/product-milestones/{versionId}")
     public List<BuildRecordSetRest> getAllForProductMilestone(
             @ApiParam(value = "Page index") @QueryParam("pageIndex") @DefaultValue("0") int pageIndex,
             @ApiParam(value = "Pagination size") @DefaultValue("50") @QueryParam("pageSize") int pageSize,
@@ -60,7 +60,7 @@ public class BuildRecordSetEndpoint {
 
     @ApiOperation(value = "Gets all BuildRecordSet of a BuildRecord")
     @GET
-    @Path("/record/{recordId}")
+    @Path("/build-records/{recordId}")
     public List<BuildRecordSetRest> getAllForBuildRecord(
             @ApiParam(value = "Page index") @QueryParam("pageIndex") @DefaultValue("0") int pageIndex,
             @ApiParam(value = "Pagination size") @DefaultValue("50") @QueryParam("pageSize") int pageSize,

@@ -13,8 +13,8 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 import java.util.List;
 
-@Api(value = "/project", description = "Project related information")
-@Path("/project")
+@Api(value = "/projects", description = "Project related information")
+@Path("/projects")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 public class ProjectEndpoint {

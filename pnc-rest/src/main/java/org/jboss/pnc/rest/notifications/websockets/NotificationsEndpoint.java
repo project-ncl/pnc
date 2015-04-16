@@ -19,7 +19,7 @@ import javax.websocket.server.ServerEndpoint;
 @ServerEndpoint(NotificationsEndpoint.ENDPOINT_PATH)
 public class NotificationsEndpoint {
 
-    public static final String ENDPOINT_PATH = "/ws/record/notifications";
+    public static final String ENDPOINT_PATH = "/ws/build-records/notifications";
 
     @Inject
     private OutputConverter outputConverter;

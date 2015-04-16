@@ -47,13 +47,13 @@ public class BuildRecordSetRestTest {
 
     public static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-    private static final String PRODUCT_MILESTONE_REST_ENDPOINT = "/pnc-rest/rest/product-milestone/";
-    private static final String BUILD_RECORD_REST_ENDPOINT = "/pnc-rest/rest/record/";
+    private static final String PRODUCT_MILESTONE_REST_ENDPOINT = "/pnc-rest/rest/product-milestones/";
+    private static final String BUILD_RECORD_REST_ENDPOINT = "/pnc-rest/rest/build-records/";
 
-    private static final String BUILD_RECORD_SET_REST_ENDPOINT = "/pnc-rest/rest/recordset/";
-    private static final String BUILD_RECORD_SET_SPECIFIC_REST_ENDPOINT = "/pnc-rest/rest/recordset/%d";
-    private static final String BUILD_RECORD_SET_PRODUCT_VERSION_REST_ENDPOINT = "/pnc-rest/rest/recordset/productversion/%d";
-    private static final String BUILD_RECORD_SET_BUILD_RECORD_REST_ENDPOINT = "/pnc-rest/rest/recordset/record/%d";
+    private static final String BUILD_RECORD_SET_REST_ENDPOINT = "/pnc-rest/rest/build-record-sets/";
+    private static final String BUILD_RECORD_SET_SPECIFIC_REST_ENDPOINT = "/pnc-rest/rest/build-record-sets/%d";
+    private static final String BUILD_RECORD_SET_PRODUCT_VERSION_REST_ENDPOINT = "/pnc-rest/rest/build-record-sets/productversion/%d";
+    private static final String BUILD_RECORD_SET_BUILD_RECORD_REST_ENDPOINT = "/pnc-rest/rest/build-record-sets/build-records/%d";
 
     private static int productMilestoneId;
     private static String productMilestoneVersion;
@@ -131,7 +131,7 @@ public class BuildRecordSetRestTest {
                     .body(buildRecordSetTemplate.fillTemplate()).contentType(ContentType.JSON)
                 .port(getHttpPort()).when().post(BUILD_RECORD_SET_REST_ENDPOINT);
 
-        ResponseAssertion.assertThat(response).hasStatus(201).hasLocationMatches(".*\\/pnc-rest\\/rest\\/recordset\\/\\d+");
+        ResponseAssertion.assertThat(response).hasStatus(201).hasLocationMatches(".*\\/pnc-rest\\/rest\\/build-record-sets\\/\\d+");
 
         String location = response.getHeader("Location");
         newBuildRecordSetId = Integer.valueOf(location.substring(location.lastIndexOf("/") + 1));

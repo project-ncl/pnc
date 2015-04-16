@@ -14,8 +14,8 @@ import javax.ws.rs.core.Response;
 import java.lang.invoke.MethodHandles;
 import java.util.List;
 
-@Api(value = "/record/running", description = "Build Records for running builds")
-@Path("/record/running")
+@Api(value = "/running-build-records", description = "Build Records for running builds")
+@Path("/running-build-records")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 public class RunningBuildRecordEndpoint {

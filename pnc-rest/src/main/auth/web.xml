@@ -8,7 +8,7 @@
     <security-constraint>
         <web-resource-collection>
             <web-resource-name>product-rest-endpoint</web-resource-name>
-            <url-pattern>/rest/product</url-pattern>
+            <url-pattern>/rest/products</url-pattern>
         </web-resource-collection>
         <auth-constraint>
             <role-name>product-manager</role-name>
@@ -18,7 +18,7 @@
     <security-constraint>
         <web-resource-collection>
             <web-resource-name>product-rest-endpoint_all</web-resource-name>
-            <url-pattern>/rest/product/*</url-pattern>
+            <url-pattern>/rest/products/*</url-pattern>
         </web-resource-collection>
         <auth-constraint>
             <role-name>product-manager</role-name>
