@@ -107,8 +107,10 @@ public class BuildConfigurationSetEndpoint {
     @ApiOperation(value = "Builds the Configurations for the Specified Set")
     @POST
     @Path("/{id}/build")
+    @Consumes(MediaType.WILDCARD)
     public Response build(
-            @ApiParam(value = "Build Configuration Set id", required = true) @PathParam("id") Integer id) {
+            @ApiParam(value = "Build Configuration Set id", required = true) @PathParam("id") Integer id,
+            @Context UriInfo uriInfo) {
         logger.info("Executing build configuration set id: " + id );
 
         try {
