@@ -4,6 +4,9 @@ import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.pnc.auth.AuthenticationProvider;
 import org.jboss.pnc.auth.ExternalAuthentication;
+import org.jboss.pnc.common.Configuration;
+import org.jboss.pnc.common.json.ConfigurationParseException;
+import org.jboss.pnc.common.json.moduleconfig.AuthenticationModuleConfig;
 import org.jboss.pnc.integration.Utils.AuthResource;
 import org.jboss.pnc.integration.deployments.Deployments;
 import org.jboss.pnc.test.category.ContainerTest;
@@ -21,6 +24,8 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.invoke.MethodHandles;
+
+import javax.inject.Inject;
 
 import static org.jboss.pnc.integration.env.IntegrationTestEnv.getHttpPort;
 import static com.jayway.restassured.RestAssured.given;
@@ -45,11 +50,13 @@ public class BuildTest {
     }
     
     @BeforeClass
-    public static void setupAuth() throws IOException {
+    public static void setupAuth() throws IOException, ConfigurationParseException {
         if(AuthResource.authEnabled()) {
+            Configuration configuration = new Configuration();
+            AuthenticationModuleConfig config = configuration.getModuleConfig(AuthenticationModuleConfig.class);
             InputStream is = BuildRecordRestTest.class.getResourceAsStream("/keycloak.json");
             ExternalAuthentication ea = new ExternalAuthentication(is);
-            authProvider = ea.authenticate(System.getenv("PNC_EXT_OAUTH_USERNAME"), System.getenv("PNC_EXT_OAUTH_PASSWORD"));
+            authProvider = ea.authenticate(config.getUsername(), config.getPassword());
             access_token = authProvider.getTokenString();
         }
     }

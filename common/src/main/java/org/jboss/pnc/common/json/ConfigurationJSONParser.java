@@ -31,6 +31,7 @@ public class ConfigurationJSONParser {
             }
             throw new ConfigurationParseException("Config could not be parsed");
         } catch (Exception e) {
+            e.printStackTrace();
             throw new ConfigurationParseException("Config could not be parsed", e);
         }
     }
