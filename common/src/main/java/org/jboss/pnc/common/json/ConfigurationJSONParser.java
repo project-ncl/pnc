@@ -1,5 +1,7 @@
 package org.jboss.pnc.common.json;
 
+import org.jboss.logging.Logger;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
@@ -7,6 +9,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  * @author Jakub Bartecek &lt;jbartece@redhat.com&gt;
  */
 public class ConfigurationJSONParser {
+    public final static Logger log = Logger.getLogger(ConfigurationJSONParser.class);
 
     /**
      * Loads JSON configuration to the module configuration object
@@ -29,7 +32,7 @@ public class ConfigurationJSONParser {
             }
             throw new ConfigurationParseException("Config could not be parsed");
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error(e.getMessage());
             throw new ConfigurationParseException("Config could not be parsed", e);
         }
     }
