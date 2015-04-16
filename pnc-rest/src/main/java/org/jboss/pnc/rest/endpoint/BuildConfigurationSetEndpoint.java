@@ -3,6 +3,7 @@ package org.jboss.pnc.rest.endpoint;
 import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
 import com.wordnik.swagger.annotations.ApiParam;
+import org.jboss.pnc.core.exception.CoreException;
 import org.jboss.pnc.rest.provider.BuildConfigurationSetProvider;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationRest;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationSetRest;
@@ -13,8 +14,21 @@ import org.slf4j.LoggerFactory;
 import javax.inject.Inject;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-import javax.ws.rs.*;
-import javax.ws.rs.core.*;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.DefaultValue;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriBuilder;
+import javax.ws.rs.core.UriInfo;
 import java.lang.invoke.MethodHandles;
 import java.util.List;
 
@@ -93,13 +107,22 @@ public class BuildConfigurationSetEndpoint {
     @ApiOperation(value = "Builds the Configurations for the Specified Set")
     @POST
     @Path("/{id}/build")
+    @Consumes(MediaType.WILDCARD)
     public Response build(
-            @ApiParam(value = "Build Configuration Set id", required = true) @PathParam("id") Integer id) {
-        BuildConfigurationSetRest buildConfigSet = buildConfigurationSetProvider.getSpecific(id);
-        logger.info("Executing build configuration set: " + buildConfigSet.getName() );
-        // This is just a place holder until the logic is added for executing a set
-        logger.info("Not currently implemented");
-        return Response.ok().build();
+            @ApiParam(value = "Build Configuration Set id", required = true) @PathParam("id") Integer id,
+            @Context UriInfo uriInfo) {
+        logger.info("Executing build configuration set id: " + id );
+
+        try {
+            Integer runningBuildId = buildTriggerer.triggerBuildConfigurationSet(id);
+            return Response.ok().build();
+        } catch (CoreException e) {
+            logger.error(e.getMessage(), e);
+            return Response.serverError().entity("Core error: " + e.getMessage()).build();
+        } catch (Exception e) {
+            logger.error(e.getMessage(), e);
+            return Response.serverError().entity("Other error: " + e.getMessage()).build();
+        }
     }
 
     @ApiOperation(value = "Adds a configuration to the Specified Set")

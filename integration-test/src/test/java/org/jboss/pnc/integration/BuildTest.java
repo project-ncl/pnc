@@ -10,7 +10,6 @@ import org.jboss.pnc.test.category.ContainerTest;
 import org.jboss.pnc.test.category.RemoteTest;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -22,9 +21,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.invoke.MethodHandles;
 
-import static org.jboss.pnc.integration.env.IntegrationTestEnv.getHttpPort;
 import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.path.json.JsonPath.from;
+import static org.jboss.pnc.integration.env.IntegrationTestEnv.getHttpPort;
 
 @RunWith(Arquillian.class)
 @Category({ContainerTest.class, RemoteTest.class})
@@ -63,6 +62,19 @@ public class BuildTest {
             .port(getHttpPort())
         .when()
             .post(String.format("/pnc-rest/rest/configuration/%d/build", configurationId))
+        .then()
+            .statusCode(200);
+    }
+
+    @Test
+    public void shouldTriggerBuildSetAndFinishWithoutProblems() {
+        int configurationId = extractIdFromRest("/pnc-rest/rest/configuration-set");
+
+        given().header("Accept", "application/json").header("Authorization", "Bearer " + access_token)
+
+            .port(getHttpPort())
+        .when()
+            .post(String.format("/pnc-rest/rest/configuration-set/%d/build", configurationId))
         .then()
             .statusCode(200);
     }
