@@ -4,6 +4,7 @@
 
   var module = angular.module('pnc.configuration-set', [
     'ui.router',
+    'xeditable',
     'pnc.remote.restClient',
     'pnc.util.header',
     'angularUtils.directives.uiBreadcrumbs'

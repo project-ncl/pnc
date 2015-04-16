@@ -5,7 +5,7 @@
       <button type="button" class="btn btn-lg btn-default" data-toggle="tooltip" title="Start Build" ng-click="detailSetCtrl.build()">
         <i class="fa fa-play"></i> Build
       </button>
-      <button type="button" class="btn btn-lg btn-default disabled" data-toggle="tooltip" title="Edit Configuration">
+      <button type="button" class="btn btn-lg btn-default" data-toggle="tooltip" title="Edit Configuration" ng-click="setEditForm.$show()" ng-class="{ 'active': setEditForm.$visible }">
         <i class="pficon pficon-edit"></i> Edit
       </button>
       <button type="button" class="btn btn-lg btn-danger" data-toggle="tooltip" title="Delete Set" pnc-confirm-click="detailSetCtrl.delete()" pnc-confirm-message="{{ 'Confirm the deletion of Build Configuration Set: ' + detailSetCtrl.set.name + ' ?'}}">
@@ -14,14 +14,21 @@
     </pnc-header-buttons>
   </pnc-header>
 
-  <form editable-form class="form-horizontal">
+  <form editable-form class="form-horizontal" name="setEditForm" onbeforesave="detailSetCtrl.update()">
     <div class="form-group">
-      <label for="input-version" class="col-sm-1 control-label">Name</label>
+      <label for="input-name" class="col-sm-1 control-label">Name</label>
       <div class="col-sm-11">
-        <p id="input-version" e-class="form-control" editable-text="detailSetCtrl.set.name" e-name="name" e-required>{{ detailSetCtrl.set.name || 'Empty' }}</p>
+        <p id="input-name" class="form-control-static" e-class="form-control" editable-text="detailSetCtrl.set.name" e-name="name" e-required>{{ detailSetCtrl.set.name || 'Empty' }}</p>
       </div>
     </div>
-
+    <div class="form-group col-sm-12" ng-show="setEditForm.$visible">
+        <button type="submit" class="btn btn-primary" ng-disabled="setEditForm.$waiting">
+          Save
+        </button>
+        <button type="button" class="btn btn-default" ng-disabled="setEditForm.$waiting" ng-click="setEditForm.$cancel()">
+          Cancel
+        </button>
+      </div>
   </form>
 
   <pnc-header>

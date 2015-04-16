@@ -191,6 +191,24 @@
         );
       };
 
+      // Update a build configuration set after editting
+      this.update = function() {
+        $log.debug('Updating configuration-set: %O', this.set);
+
+        this.set.$update().then(
+          function(result) {
+            $log.debug('Update Config: %O, result: %O', self.set,
+                       result);
+            Notifications.success('Configuration updated.');
+          },
+          function(response) {
+            $log.error('Update set: %O failed, response: %O',
+                       self.set, response);
+            Notifications.error('Action Failed.');
+          }
+        );
+      };
+
       self.getProductVersions = function(productId) {
         $log.debug('**Getting productVersions of Product: %0**', productId);
 
