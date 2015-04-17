@@ -78,36 +78,22 @@ Start as usual, but with TCP socket enabled
 # docker -d -H tcp://0.0.0.0:2375 -H unix:///var/run/docker.sock
 ```
 
-Content of prepared socket config _/etc/systemd/system/docker-tcp.socket_:
+Content of prepared socket config _/etc/sysconfig/docker_:
 
 ```
- [Unit]
- Description=Docker Socket for the API
+OPTIONS='--selinux-enabled -H tcp://0.0.0.0:2375 -H unix:///var/run/docker.sock -g /mnt/docker/data'
+INSECURE_REGISTRY='--insecure-registry <your-internal-docker-registry>'```
 
- [Socket]
- ListenStream=2375
- Service=docker.service
-
- [Install]
- WantedBy=sockets.target
-```
-
-Enable docker-tcp:
+Enable docker:
 
 ```
-# sudo systemctl enable docker-tcp.socket
+# sudo systemctl enable docker
 ```
 
-Start docker-tcp:
+Start docker:
 
 ```
- sudo systemctl start docker-tcp.socket
-```
-
-Start docker: 
-
-```
-# sudo systemctl start docker
+ sudo systemctl start docker
 ```
 
 Verify:
