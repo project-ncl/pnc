@@ -15,8 +15,8 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 import java.util.List;
 
-@Api(value = "/product-release", description = "Product Release related information")
-@Path("/product-release")
+@Api(value = "/product-releases", description = "Product Release related information")
+@Path("/product-releases")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 public class ProductReleaseEndpoint {

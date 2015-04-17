@@ -20,8 +20,8 @@ import java.lang.invoke.MethodHandles;
 import java.net.URI;
 import java.util.List;
 
-@Api(value = "/configuration", description = "Build Configuration related information")
-@Path("/configuration")
+@Api(value = "/build-configurations", description = "Build configuration entities")
+@Path("/build-configurations")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 public class BuildConfigurationEndpoint {
@@ -90,7 +90,7 @@ public class BuildConfigurationEndpoint {
     @Path("/{id}/clone")
     public Response clone(@ApiParam(value = "Build Configuration id", required = true) @PathParam("id") Integer id,
             @Context UriInfo uriInfo) {
-        UriBuilder uriBuilder = UriBuilder.fromUri(uriInfo.getBaseUri()).path("/configuration/{id}");
+        UriBuilder uriBuilder = UriBuilder.fromUri(uriInfo.getBaseUri()).path("/build-configurations/{id}");
         int newId = buildConfigurationProvider.clone(id);
         return Response.created(uriBuilder.build(newId)).entity(buildConfigurationProvider.getSpecific(newId)).build();
     }
@@ -117,7 +117,7 @@ public class BuildConfigurationEndpoint {
 
     @ApiOperation(value = "Gets all Build Configurations of a Project")
     @GET
-    @Path("/project/{projectId}")
+    @Path("/projects/{projectId}")
     public List<BuildConfigurationRest> getAllByProjectId(
             @ApiParam(value = "Page index") @QueryParam("pageIndex") @DefaultValue("0") int pageIndex,
             @ApiParam(value = "Pagination size") @DefaultValue("50") @QueryParam("pageSize") int pageSize,
@@ -129,7 +129,7 @@ public class BuildConfigurationEndpoint {
 
     @ApiOperation(value = "Gets all Build Configurations of a Product")
     @GET
-    @Path("/product/{productId}")
+    @Path("/products/{productId}")
     public List<BuildConfigurationRest> getAllByProductId(
             @ApiParam(value = "Page index") @QueryParam("pageIndex") @DefaultValue("0") int pageIndex,
             @ApiParam(value = "Pagination size") @DefaultValue("50") @QueryParam("pageSize") int pageSize,
@@ -141,7 +141,7 @@ public class BuildConfigurationEndpoint {
 
     @ApiOperation(value = "Gets all Build Configurations of the Specified Product Version")
     @GET
-    @Path("/product/{productId}/version/{versionId}")
+    @Path("/products/{productId}/product-versions/{versionId}")
     public List<BuildConfigurationRest> getAllByProductId(
             @ApiParam(value = "Page index") @QueryParam("pageIndex") @DefaultValue("0") int pageIndex,
             @ApiParam(value = "Pagination size") @DefaultValue("50") @QueryParam("pageSize") int pageSize,

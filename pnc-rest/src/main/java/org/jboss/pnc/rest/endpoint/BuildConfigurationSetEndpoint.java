@@ -32,8 +32,8 @@ import javax.ws.rs.core.UriInfo;
 import java.lang.invoke.MethodHandles;
 import java.util.List;
 
-@Api(value = "/configuration-set", description = "Set of related build configurations")
-@Path("/configuration-set")
+@Api(value = "/build-configuration-sets", description = "Set of related build configurations")
+@Path("/build-configuration-sets")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 public class BuildConfigurationSetEndpoint {
@@ -98,7 +98,7 @@ public class BuildConfigurationSetEndpoint {
 
     @ApiOperation(value = "Gets the Configurations for the Specified Set")
     @GET
-    @Path("/{id}/configuration")
+    @Path("/{id}/build-configurations")
     public List<BuildConfigurationRest> getConfigurations(
             @ApiParam(value = "Build Configuration Set id", required = true) @PathParam("id") Integer id) {
         return buildConfigurationSetProvider.getBuildConfigurations(id);
@@ -127,7 +127,7 @@ public class BuildConfigurationSetEndpoint {
 
     @ApiOperation(value = "Adds a configuration to the Specified Set")
     @POST
-    @Path("/{id}/configuration")
+    @Path("/{id}/build-configurations")
     public Response addConfiguration(
             @ApiParam(value = "Build Configuration Set id", required = true) @PathParam("id") Integer id,
             BuildConfigurationRest buildConfig) {
@@ -137,7 +137,7 @@ public class BuildConfigurationSetEndpoint {
 
     @ApiOperation(value = "Removes a configuration from the specified config set")
     @DELETE
-    @Path("/{id}/configuration/{configId}")
+    @Path("/{id}/build-configurations/{configId}")
     public Response addConfiguration(
             @ApiParam(value = "Build configuration set id", required = true) @PathParam("id") Integer id,
             @ApiParam(value = "Build configuration id", required = true) @PathParam("configId") Integer configId) {

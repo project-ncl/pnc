@@ -45,17 +45,17 @@ public class BuildConfigurationRestTest {
 
     public static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-    private static final String PRODUCT_REST_ENDPOINT = "/pnc-rest/rest/product/";
-    private static final String PRODUCT_VERSION_REST_ENDPOINT = "/pnc-rest/rest/product/%d/version";
-    private static final String PROJECT_REST_ENDPOINT = "/pnc-rest/rest/project/";
-    private static final String PROJECT_SPECIFIC_REST_ENDPOINT = "/pnc-rest/rest/project/%d";
-    private static final String CONFIGURATION_REST_ENDPOINT = "/pnc-rest/rest/configuration/";
-    private static final String CONFIGURATION_SPECIFIC_REST_ENDPOINT = "/pnc-rest/rest/configuration/%d";
-    private static final String CONFIGURATION_CLONE_REST_ENDPOINT = "/pnc-rest/rest/configuration/%d/clone";
-    private static final String ENVIRONMENT_REST_ENDPOINT = "/pnc-rest/rest/environment";
-    private static final String SPECIFIC_ENVIRONMENT_REST_ENDPOINT = "/pnc-rest/rest/environment/%d";
-    private static final String CONFIGURATION_SET_REST_ENDPOINT = "/pnc-rest/rest/configuration-set/";
-    private static final String CONFIGURATION_SET_SPECIFIC_REST_ENDPOINT = "/pnc-rest/rest/configuration-set/%d";
+    private static final String PRODUCT_REST_ENDPOINT = "/pnc-rest/rest/products/";
+    private static final String PRODUCT_VERSION_REST_ENDPOINT = "/pnc-rest/rest/products/%d/product-versions";
+    private static final String PROJECT_REST_ENDPOINT = "/pnc-rest/rest/projects/";
+    private static final String PROJECT_SPECIFIC_REST_ENDPOINT = "/pnc-rest/rest/projects/%d";
+    private static final String CONFIGURATION_REST_ENDPOINT = "/pnc-rest/rest/build-configurations/";
+    private static final String CONFIGURATION_SPECIFIC_REST_ENDPOINT = "/pnc-rest/rest/build-configurations/%d";
+    private static final String CONFIGURATION_CLONE_REST_ENDPOINT = "/pnc-rest/rest/build-configurations/%d/clone";
+    private static final String ENVIRONMENT_REST_ENDPOINT = "/pnc-rest/rest/environments";
+    private static final String SPECIFIC_ENVIRONMENT_REST_ENDPOINT = "/pnc-rest/rest/environments/%d";
+    private static final String CONFIGURATION_SET_REST_ENDPOINT = "/pnc-rest/rest/build-configuration-sets/";
+    private static final String CONFIGURATION_SET_SPECIFIC_REST_ENDPOINT = "/pnc-rest/rest/build-configuration-sets/%d";
 
     private static int productId;
     private static int projectId;
@@ -162,7 +162,7 @@ public class BuildConfigurationRestTest {
     @Test
     public void shouldUpdateBuildConfiguration() throws IOException {
         // given
-        final String updatedScmUrl = "https://github.com/project-ncl/pnc.git";
+        final String updatedScmUrl = "https://github.com/projects-ncl/pnc.git";
         final String updatedBuildScript = "mvn clean deploy -Dmaven.test.skip=true";
         final String updatedName = "pnc-1.0.1.ER1";
         final String updatedProjectId = String.valueOf(projectId);
@@ -230,7 +230,7 @@ public class BuildConfigurationRestTest {
                     .contentType(ContentType.JSON).port(getHttpPort()).when()
                 .get(String.format(CONFIGURATION_SPECIFIC_REST_ENDPOINT, clonedBuildConfigurationId));
 
-        ResponseAssertion.assertThat(response).hasStatus(201).hasLocationMatches(".*\\/pnc-rest\\/rest\\/configuration\\/\\d+");
+        ResponseAssertion.assertThat(response).hasStatus(201).hasLocationMatches(".*\\/pnc-rest\\/rest\\/build-configurations\\/\\d+");
 
         assertThat(originalBuildConfiguration.body().jsonPath().getString("creationTime")).isNotEqualTo(
                 clonedBuildConfiguration.body().jsonPath().getString("creationTime"));
@@ -254,7 +254,7 @@ public class BuildConfigurationRestTest {
     @Test
     public void shouldFailToCreateNewBuildConfiguration() throws IOException {
         // given
-        final String scmUrl = "https://github.com/project-ncl/pnc.git";
+        final String scmUrl = "https://github.com/projects-ncl/pnc.git";
         final String buildScript = "mvn clean deploy -Dmaven.test.skip=true";
         final String name = "Bad Request Example Config";
         final String id = String.valueOf(projectId);

@@ -15,8 +15,8 @@ import javax.ws.rs.core.*;
 
 import java.util.List;
 
-@Api(value = "/user", description = "User related information")
-@Path("/user")
+@Api(value = "/users", description = "User related information")
+@Path("/users")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 public class UserEndpoint {

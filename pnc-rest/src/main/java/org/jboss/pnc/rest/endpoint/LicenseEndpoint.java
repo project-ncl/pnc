@@ -17,8 +17,8 @@ import java.util.List;
  * Created by avibelli on Feb 5, 2015
  *
  */
-@Api(value = "/license", description = "License related information")
-@Path("/license")
+@Api(value = "/licenses", description = "License related information")
+@Path("/licenses")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 public class LicenseEndpoint {

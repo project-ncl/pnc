@@ -34,8 +34,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.invoke.MethodHandles;
 
-import javax.inject.Inject;
-
 import static com.jayway.restassured.RestAssured.given;
 import static org.jboss.pnc.integration.env.IntegrationTestEnv.getHttpPort;
 
@@ -45,12 +43,12 @@ public class BuildRecordRestTest {
 
     public static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-    private static final String BUILD_RECORD_REST_ENDPOINT = "/pnc-rest/rest/record/";
-    private static final String BUILD_RECORD_SPECIFIC_REST_ENDPOINT = "/pnc-rest/rest/record/%d";
-    private static final String CONFIGURATION_SPECIFIC_REST_ENDPOINT = "/pnc-rest/rest/configuration/%d";
-    private static final String BUILD_RECORD_NAME_REST_ENDPOINT = "/pnc-rest/rest/record?q=latestBuildConfiguration.name==%s";
-    private static final String BUILD_RECORD_PROJECT_REST_ENDPOINT = "/pnc-rest/rest/record/project/%d";
-    private static final String BUILD_RECORD_PROJECT_BR_NAME_REST_ENDPOINT = "/pnc-rest/rest/record/project/%d?q=latestBuildConfiguration.name==%s";
+    private static final String BUILD_RECORD_REST_ENDPOINT = "/pnc-rest/rest/build-records/";
+    private static final String BUILD_RECORD_SPECIFIC_REST_ENDPOINT = "/pnc-rest/rest/build-records/%d";
+    private static final String CONFIGURATION_SPECIFIC_REST_ENDPOINT = "/pnc-rest/rest/build-configurations/%d";
+    private static final String BUILD_RECORD_NAME_REST_ENDPOINT = "/pnc-rest/rest/build-records?q=latestBuildConfiguration.name==%s";
+    private static final String BUILD_RECORD_PROJECT_REST_ENDPOINT = "/pnc-rest/rest/build-records/projects/%d";
+    private static final String BUILD_RECORD_PROJECT_BR_NAME_REST_ENDPOINT = "/pnc-rest/rest/build-records/projects/%d?q=latestBuildConfiguration.name==%s";
 
     private static int buildRecordId;
     private static int configurationId;

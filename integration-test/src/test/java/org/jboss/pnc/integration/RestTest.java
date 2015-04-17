@@ -48,8 +48,8 @@ public class RestTest {
     private static Integer newProductId;
     private static Integer newProjectId;
 
-    private static final String PRODUCT_REST_ENDPOINT = "/pnc-rest/rest/product/";
-    private static final String PROJECT_REST_ENDPOINT = "/pnc-rest/rest/project/";
+    private static final String PRODUCT_REST_ENDPOINT = "/pnc-rest/rest/products/";
+    private static final String PROJECT_REST_ENDPOINT = "/pnc-rest/rest/projects/";
     private static final String PROJECT_REST_ENDPOINT_SPECIFIC = PROJECT_REST_ENDPOINT + "%d";
     
     private static AuthenticationProvider authProvider;
@@ -79,7 +79,7 @@ public class RestTest {
     @InSequence(0)
     public void shouldGetAllProducts() {
         given().header("Accept", "application/json").header("Authorization", "Bearer " + access_token)
-                    .contentType(ContentType.JSON).port(getHttpPort()).when().get("/pnc-rest/rest/product").then().statusCode(200)
+                    .contentType(ContentType.JSON).port(getHttpPort()).when().get("/pnc-rest/rest/products").then().statusCode(200)
                 .body(JsonMatcher.containsJsonAttribute("[0].id", value -> productId = Integer.valueOf(value)));
     }
 
@@ -88,7 +88,7 @@ public class RestTest {
     public void shouldGetSpecificProduct() {
         given().header("Accept", "application/json").header("Authorization", "Bearer " + access_token)
                     .contentType(ContentType.JSON).port(getHttpPort()).when()
-                .get(String.format("/pnc-rest/rest/product/%d", productId)).then().statusCode(200)
+                .get(String.format("/pnc-rest/rest/products/%d", productId)).then().statusCode(200)
                 .body(JsonMatcher.containsJsonAttribute("id"));
     }
 
@@ -97,7 +97,7 @@ public class RestTest {
     public void shouldGetAllProductsVersions() {
         given().header("Accept", "application/json").header("Authorization", "Bearer " + access_token)
                     .contentType(ContentType.JSON).port(getHttpPort()).when()
-                .get(String.format("/pnc-rest/rest/product/%d/version", productId)).then().statusCode(200)
+                .get(String.format("/pnc-rest/rest/products/%d/product-versions", productId)).then().statusCode(200)
                 .body(JsonMatcher.containsJsonAttribute("[0].id", value -> productVersionId = Integer.valueOf(value)));
     }
 
@@ -106,7 +106,7 @@ public class RestTest {
     public void shouldSpecificProductsVersions() {
         given().header("Accept", "application/json").header("Authorization", "Bearer " + access_token)
                     .contentType(ContentType.JSON).port(getHttpPort()).when()
-                .get(String.format("/pnc-rest/rest/product/%d/version/%d", productId, productVersionId)).then().statusCode(200)
+                .get(String.format("/pnc-rest/rest/products/%d/product-versions/%d", productId, productVersionId)).then().statusCode(200)
                 .body(JsonMatcher.containsJsonAttribute("id"));
     }
 
@@ -115,7 +115,7 @@ public class RestTest {
     public void shouldGetFirstProject() {
         given().header("Accept", "application/json").header("Authorization", "Bearer " + access_token)
                     .contentType(ContentType.JSON).port(getHttpPort()).when()
-                .get("/pnc-rest/rest/project/").then()
+                .get("/pnc-rest/rest/projects/").then()
                 .statusCode(200).body(JsonMatcher.containsJsonAttribute("[0].id", value -> projectId = Integer.valueOf(value)));
     }
 
@@ -124,7 +124,7 @@ public class RestTest {
     public void shouldGetSpecificProject() {
         given().header("Accept", "application/json").header("Authorization", "Bearer " + access_token)
                     .contentType(ContentType.JSON).port(getHttpPort()).when()
-                .get(String.format("/pnc-rest/rest/project/%d", projectId)).then().statusCode(200)
+                .get(String.format("/pnc-rest/rest/projects/%d", projectId)).then().statusCode(200)
                 .body(JsonMatcher.containsJsonAttribute("id"));
     }
 
@@ -132,7 +132,7 @@ public class RestTest {
     @InSequence(6)
     public void shouldGetAllUsers() {
         given().header("Accept", "application/json").header("Authorization", "Bearer " + access_token)
-                    .contentType(ContentType.JSON).port(getHttpPort()).when().get("/pnc-rest/rest/user").then().statusCode(200)
+                    .contentType(ContentType.JSON).port(getHttpPort()).when().get("/pnc-rest/rest/users").then().statusCode(200)
                 .body(JsonMatcher.containsJsonAttribute("[0].id", value -> userId = Integer.valueOf(value)));
     }
 
@@ -140,7 +140,7 @@ public class RestTest {
     @InSequence(7)
     public void shouldGetSpecificUser() {
         given().header("Accept", "application/json").header("Authorization", "Bearer " + access_token)
-                    .contentType(ContentType.JSON).port(getHttpPort()).when().get(String.format("/pnc-rest/rest/user/%d", userId))
+                    .contentType(ContentType.JSON).port(getHttpPort()).when().get(String.format("/pnc-rest/rest/users/%d", userId))
                 .then().statusCode(200).body(JsonMatcher.containsJsonAttribute("id"));
     }
 
@@ -151,7 +151,7 @@ public class RestTest {
             String rawJson = IoUtils.readFileOrResource("user", "user.json", getClass().getClassLoader());
             logger.info(rawJson);
             given().header("Accept", "application/json").header("Authorization", "Bearer " + access_token)
-                    .body(rawJson).contentType(ContentType.JSON).port(getHttpPort()).when().post("/pnc-rest/rest/user/").then()
+                    .body(rawJson).contentType(ContentType.JSON).port(getHttpPort()).when().post("/pnc-rest/rest/users/").then()
                     .statusCode(201);
 
         } catch (IOException e) {
@@ -168,7 +168,7 @@ public class RestTest {
 
             Response response = given().header("Accept", "application/json").header("Authorization", "Bearer " + access_token)
                     .body(rawJson).contentType(ContentType.JSON).port(getHttpPort()).when()
-                    .post("/pnc-rest/rest/product/");
+                    .post("/pnc-rest/rest/products/");
             Assertions.assertThat(response.statusCode()).isEqualTo(201);
 
             String location = response.getHeader("Location");
@@ -192,7 +192,7 @@ public class RestTest {
 
         Response response = given().header("Accept", "application/json").header("Authorization", "Bearer " + access_token)
                     .contentType(ContentType.JSON).port(getHttpPort()).when()
-                .get(String.format("/pnc-rest/rest/product/%d", newProductId));
+                .get(String.format("/pnc-rest/rest/products/%d", newProductId));
 
         Assertions.assertThat(response.statusCode()).isEqualTo(200);
         Assertions.assertThat(response.body().jsonPath().getInt("id")).isEqualTo(newProductId);
@@ -208,12 +208,12 @@ public class RestTest {
 
         given().header("Accept", "application/json").header("Authorization", "Bearer " + access_token)
                     .body(rawJson).contentType(ContentType.JSON).port(getHttpPort()).when()
-                .put(String.format("/pnc-rest/rest/product/%d", newProductId)).then().statusCode(200);
+                .put(String.format("/pnc-rest/rest/products/%d", newProductId)).then().statusCode(200);
 
         // Reading updated resource
         Response updateResponse = given().header("Accept", "application/json").header("Authorization", "Bearer " + access_token)
                     .contentType(ContentType.JSON).port(getHttpPort()).when()
-                .get(String.format("/pnc-rest/rest/product/%d", newProductId));
+                .get(String.format("/pnc-rest/rest/products/%d", newProductId));
 
         Assertions.assertThat(updateResponse.statusCode()).isEqualTo(200);
         Assertions.assertThat(updateResponse.body().jsonPath().getInt("id")).isEqualTo(newProductId);

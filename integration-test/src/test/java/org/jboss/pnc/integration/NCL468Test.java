@@ -36,7 +36,7 @@ public class NCL468Test {
     public void shouldGetAllUsers() {
         final String toMatch = "[{\"id\":1,\"email\":\"demo-user@pnc.com\",\"firstName\":\"Demo First Name\",\"lastName\":\"Demo Last Name\",\"username\":\"demo-user\"}]";
 
-        given().contentType(ContentType.JSON).port(getHttpPort()).when().get("/pnc-rest/rest/user")
+        given().contentType(ContentType.JSON).port(getHttpPort()).when().get("/pnc-rest/rest/users")
             .then().assertThat().body(
                 equalTo(StringEscapeUtils.unescapeJava(toMatch)));
     }

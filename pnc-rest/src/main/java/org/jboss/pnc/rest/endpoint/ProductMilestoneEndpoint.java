@@ -14,8 +14,8 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 import java.util.List;
 
-@Api(value = "/product-milestone", description = "Product Milestone related information")
-@Path("/product-milestone")
+@Api(value = "/product-milestones", description = "Product Milestone related information")
+@Path("/product-milestones")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 public class ProductMilestoneEndpoint {

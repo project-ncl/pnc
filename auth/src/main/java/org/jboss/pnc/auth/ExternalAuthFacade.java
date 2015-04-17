@@ -92,7 +92,7 @@ public class ExternalAuthFacade {
     
 
     /**
-     * @param endpoint Must be in the form of /customer or /product/id
+     * @param endpoint Must be in the form of /customers or /products/id
      * @return InputStream for the endpoint
      * @throws Exception if an error occurs
      */

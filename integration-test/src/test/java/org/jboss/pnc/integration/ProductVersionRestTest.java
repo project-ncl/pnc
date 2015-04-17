@@ -42,9 +42,9 @@ public class ProductVersionRestTest {
 
     public static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-    private static final String PRODUCT_REST_ENDPOINT = "/pnc-rest/rest/product/";
-    private static final String PRODUCT_VERSION_REST_ENDPOINT = "/pnc-rest/rest/product/%d/version/";
-    private static final String PRODUCT_VERSION_SPECIFIC_REST_ENDPOINT = "/pnc-rest/rest/product/%d/version/%d";
+    private static final String PRODUCT_REST_ENDPOINT = "/pnc-rest/rest/products/";
+    private static final String PRODUCT_VERSION_REST_ENDPOINT = "/pnc-rest/rest/products/%d/product-versions/";
+    private static final String PRODUCT_VERSION_SPECIFIC_REST_ENDPOINT = "/pnc-rest/rest/products/%d/product-versions/%d";
 
     private static int productId;
     private static int productVersionId;

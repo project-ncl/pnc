@@ -13,8 +13,8 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 import java.util.List;
 
-@Api(value = "/environment", description = "Environment related information")
-@Path("/environment")
+@Api(value = "/environments", description = "Environment related information")
+@Path("/environments")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 public class EnvironmentEndpoint {
