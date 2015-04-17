@@ -148,6 +148,9 @@
         ConfigurationSet: $resource(REST_DEFAULTS.BASE_URL + '/build-configuration-sets/:configurationSetId', {
           'configurationSetId': '@id'
         },{
+          update: {
+            method: 'PUT'
+          },
           getConfigurations: {
             method: 'GET',
             url: REST_DEFAULTS.BASE_URL + '/build-configuration-sets/:configurationSetId/build-configurations',
