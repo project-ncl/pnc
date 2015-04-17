@@ -1,21 +1,19 @@
 package org.jboss.pnc.rest.restmodel;
 
-import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
-import static org.jboss.pnc.rest.utils.Utility.performIfNotNull;
-
-import java.util.List;
-import java.util.stream.Collectors;
-
-import javax.xml.bind.annotation.XmlRootElement;
-
-import org.jboss.pnc.common.Identifiable;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.BuildRecordSet;
 import org.jboss.pnc.model.ProductMilestone;
 import org.jboss.pnc.model.ProductRelease;
 
+import javax.xml.bind.annotation.XmlRootElement;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
+import static org.jboss.pnc.rest.utils.Utility.performIfNotNull;
+
 @XmlRootElement(name = "BuildRecordSet")
-public class BuildRecordSetRest implements Identifiable<Integer> {
+public class BuildRecordSetRest {
 
     private Integer id;
 

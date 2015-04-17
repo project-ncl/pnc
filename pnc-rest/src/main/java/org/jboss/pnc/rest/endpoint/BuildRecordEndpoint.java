@@ -3,7 +3,9 @@ package org.jboss.pnc.rest.endpoint;
 import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
 import com.wordnik.swagger.annotations.ApiParam;
+import org.jboss.pnc.rest.provider.ArtifactProvider;
 import org.jboss.pnc.rest.provider.BuildRecordProvider;
+import org.jboss.pnc.rest.restmodel.ArtifactRest;
 import org.jboss.pnc.rest.restmodel.BuildRecordRest;
 
 import javax.inject.Inject;
@@ -19,13 +21,15 @@ import java.util.List;
 public class BuildRecordEndpoint {
 
     private BuildRecordProvider buildRecordProvider;
+    private ArtifactProvider artifactProvider;
 
     public BuildRecordEndpoint() {
     }
 
     @Inject
-    public BuildRecordEndpoint(BuildRecordProvider buildRecordProvider) {
+    public BuildRecordEndpoint(BuildRecordProvider buildRecordProvider, ArtifactProvider artifactProvider) {
         this.buildRecordProvider = buildRecordProvider;
+        this.artifactProvider = artifactProvider;
     }
 
     @ApiOperation(value = "Gets all Build Records")
@@ -50,6 +54,18 @@ public class BuildRecordEndpoint {
     @Path("/{id}/log")
     public Response getLogs(@ApiParam(value = "BuildRecord id", required = true) @PathParam("id") Integer id) {
         return Response.ok(buildRecordProvider.getLogsForBuildId(id)).build();
+    }
+
+    @ApiOperation(value = "Gets artifacts for specific Build Record")
+    @GET
+    @Path("/{id}/artifacts")
+    public List<ArtifactRest> getArtifacts(
+            @ApiParam(value = "BuildRecord id", required = true) @PathParam("id") Integer id,
+            @ApiParam(value = "Page index") @QueryParam("pageIndex") @DefaultValue("0") int pageIndex,
+            @ApiParam(value = "Pagination size") @DefaultValue("50") @QueryParam("pageSize") int pageSize,
+            @ApiParam(value = "Sorting RSQL") @QueryParam("sort") String sortingRsql,
+            @ApiParam(value = "RSQL query", required = false) @QueryParam("q") String rsql) {
+        return artifactProvider.getAll(pageIndex, pageSize, sortingRsql, rsql, id);
     }
 
     @ApiOperation(value = "Gets the Build Records linked to a specific Build Configuration")

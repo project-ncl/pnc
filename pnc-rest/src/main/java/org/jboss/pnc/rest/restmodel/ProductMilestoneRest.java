@@ -1,19 +1,17 @@
 package org.jboss.pnc.rest.restmodel;
 
-import org.jboss.pnc.common.Identifiable;
 import org.jboss.pnc.model.BuildRecordSet;
 import org.jboss.pnc.model.ProductMilestone;
 import org.jboss.pnc.model.ProductRelease;
 import org.jboss.pnc.model.ProductVersion;
 
 import javax.xml.bind.annotation.XmlRootElement;
-
 import java.util.Date;
 
 import static org.jboss.pnc.rest.utils.Utility.performIfNotNull;
 
 @XmlRootElement(name = "ProductMilestone")
-public class ProductMilestoneRest implements Identifiable<Integer> {
+public class ProductMilestoneRest {
 
     private Integer id;
 

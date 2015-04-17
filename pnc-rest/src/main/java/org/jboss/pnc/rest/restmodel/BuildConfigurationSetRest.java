@@ -1,13 +1,10 @@
 package org.jboss.pnc.rest.restmodel;
 
-import org.jboss.pnc.common.Identifiable;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationSet;
-import org.jboss.pnc.model.ProductMilestone;
 import org.jboss.pnc.model.ProductVersion;
 
 import javax.xml.bind.annotation.XmlRootElement;
-
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -15,7 +12,7 @@ import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
 import static org.jboss.pnc.rest.utils.Utility.performIfNotNull;
 
 @XmlRootElement(name = "BuildConfigurationSet")
-public class BuildConfigurationSetRest implements Identifiable<Integer> {
+public class BuildConfigurationSetRest {
 
     private Integer id;
 

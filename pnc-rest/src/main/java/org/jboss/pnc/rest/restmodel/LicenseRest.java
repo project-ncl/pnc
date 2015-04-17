@@ -1,22 +1,16 @@
 package org.jboss.pnc.rest.restmodel;
 
-import org.jboss.pnc.common.Identifiable;
 import org.jboss.pnc.model.License;
 import org.jboss.pnc.model.Project;
 
 import javax.xml.bind.annotation.XmlRootElement;
-
 import java.util.List;
 import java.util.stream.Collectors;
 
 import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
 
-/**
- * Created by avibelli on Feb 5, 2015
- *
- */
 @XmlRootElement(name = "License")
-public class LicenseRest implements Identifiable<Integer> {
+public class LicenseRest {
 
     private Integer id;
 

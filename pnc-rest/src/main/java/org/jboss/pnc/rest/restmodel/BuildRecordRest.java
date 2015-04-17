@@ -1,19 +1,17 @@
 package org.jboss.pnc.rest.restmodel;
 
-import static org.jboss.pnc.rest.utils.Utility.performIfNotNull;
-
-import org.jboss.pnc.common.Identifiable;
 import org.jboss.pnc.core.builder.BuildTask;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.BuildStatus;
 
 import javax.xml.bind.annotation.XmlRootElement;
-
 import java.sql.Timestamp;
 
+import static org.jboss.pnc.rest.utils.Utility.performIfNotNull;
+
 @XmlRootElement(name = "BuildRecord")
-public class BuildRecordRest implements Identifiable<Integer> {
+public class BuildRecordRest {
 
     private Integer id;
 

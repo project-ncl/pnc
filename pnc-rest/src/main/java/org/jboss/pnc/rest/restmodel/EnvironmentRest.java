@@ -1,17 +1,10 @@
 package org.jboss.pnc.rest.restmodel;
 
-import org.jboss.pnc.common.Identifiable;
 import org.jboss.pnc.model.BuildType;
 import org.jboss.pnc.model.Environment;
 import org.jboss.pnc.model.OperationalSystem;
 
-/**
- * // TODO: Document this
- *
- * @author slaskawiec
- * @since 4.0
- */
-public class EnvironmentRest implements Identifiable<Integer> {
+public class EnvironmentRest {
 
     private Integer id;
 

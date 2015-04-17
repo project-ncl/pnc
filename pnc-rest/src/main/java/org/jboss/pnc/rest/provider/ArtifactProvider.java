@@ -1,8 +1,8 @@
 package org.jboss.pnc.rest.provider;
 
 
+import com.mysema.query.types.expr.BooleanExpression;
 import org.jboss.pnc.datastore.limits.RSQLPageLimitAndSortingProducer;
-import org.jboss.pnc.datastore.predicates.RSQLPredicate;
 import org.jboss.pnc.datastore.predicates.RSQLPredicateProducer;
 import org.jboss.pnc.datastore.repositories.ArtifactRepository;
 import org.jboss.pnc.model.Artifact;
@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static org.jboss.pnc.datastore.predicates.ArtifactPredicates.withBuildRecordId;
+import static org.jboss.pnc.datastore.predicates.ArtifactPredicates.*;
 import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
 
 @Stateless
@@ -32,12 +32,32 @@ public class ArtifactProvider {
     }
 
     public List<ArtifactRest> getAll(int pageIndex, int pageSize, String sortingRsql, String query, Integer buildRecordId) {
-        RSQLPredicate filteringCriteria = RSQLPredicateProducer.fromRSQL(Artifact.class, query);
+        return performQuery(pageIndex, pageSize, sortingRsql, query, withBuildRecordId(buildRecordId));
+    }
+
+    private List<ArtifactRest> performQuery(int pageIndex, int pageSize, String sortingRsql, String query, BooleanExpression predicates) {
+        BooleanExpression filteringCriteria = getFilteringPredicate(query);
         Pageable paging = RSQLPageLimitAndSortingProducer.fromRSQL(pageSize, pageIndex, sortingRsql);
 
-        return nullableStreamOf(artifactRepository.findAll(withBuildRecordId(buildRecordId).and(filteringCriteria.get()), paging))
-                .map(toRestModel())
-                .collect(Collectors.toList());
+        return nullableStreamOf(artifactRepository.findAll(
+                BooleanExpression.allOf(filteringCriteria, predicates), paging))
+                .map(toRestModel()).collect(Collectors.toList());
+    }
+
+    private BooleanExpression getFilteringPredicate(String query) {
+        //FIXME: Workaround for Enum RSQL queries - they need an extra work in datastore module but on the other hand
+        // we would like to unblock UI work.
+        BooleanExpression statusPredicate = null;
+        if(query != null && !query.isEmpty()) {
+            if(query.contains("status==BINARY_BUILT")) {
+                statusPredicate = built();
+                query = query.replaceAll("status==BINARY_BUILT", "");
+            } else if(query.contains("status==BINARY_IMPORTED")) {
+                statusPredicate = imported();
+                query = query.replaceAll("status==BINARY_IMPORTED", "");
+            }
+        }
+        return BooleanExpression.allOf(RSQLPredicateProducer.fromRSQL(Artifact.class, query).get(), statusPredicate);
     }
 
     private Function<Artifact, ArtifactRest> toRestModel() {

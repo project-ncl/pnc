@@ -1,19 +1,14 @@
 package org.jboss.pnc.rest.restmodel;
 
-import org.jboss.pnc.common.Identifiable;
-import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
-import org.jboss.pnc.model.Environment;
-import org.jboss.pnc.model.Project;
 
 import javax.xml.bind.annotation.XmlRootElement;
-
 import java.sql.Timestamp;
 
 import static org.jboss.pnc.rest.utils.Utility.performIfNotNull;
 
 @XmlRootElement(name = "BuildConfigurationAudited")
-public class BuildConfigurationAuditedRest implements Identifiable<Integer> {
+public class BuildConfigurationAuditedRest {
 
     private Integer id;
 

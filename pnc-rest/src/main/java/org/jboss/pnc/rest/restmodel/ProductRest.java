@@ -1,18 +1,16 @@
 package org.jboss.pnc.rest.restmodel;
 
-import org.jboss.pnc.common.Identifiable;
 import org.jboss.pnc.model.Product;
 import org.jboss.pnc.model.ProductVersion;
 
 import javax.xml.bind.annotation.XmlRootElement;
-
 import java.util.List;
 import java.util.stream.Collectors;
 
 import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
 
 @XmlRootElement(name = "Product")
-public class ProductRest implements Identifiable<Integer> {
+public class ProductRest {
 
     private Integer id;
 
