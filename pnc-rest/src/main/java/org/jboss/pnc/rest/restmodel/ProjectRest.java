@@ -1,12 +1,10 @@
 package org.jboss.pnc.rest.restmodel;
 
-import org.jboss.pnc.common.Identifiable;
+import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.License;
 import org.jboss.pnc.model.Project;
-import org.jboss.pnc.model.BuildConfiguration;
 
 import javax.xml.bind.annotation.XmlRootElement;
-
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -14,7 +12,7 @@ import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
 import static org.jboss.pnc.rest.utils.Utility.performIfNotNull;
 
 @XmlRootElement(name = "Project")
-public class ProjectRest implements Identifiable<Integer> {
+public class ProjectRest {
 
     private Integer id;
 

@@ -1,50 +1,42 @@
 package org.jboss.pnc.integration;
 
 import cz.jirutka.rsql.parser.RSQLParserException;
-
+import org.assertj.core.api.Condition;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.junit.InSequence;
 import org.jboss.arquillian.transaction.api.annotation.Transactional;
+import org.jboss.pnc.datastore.predicates.ArtifactPredicates;
 import org.jboss.pnc.datastore.predicates.RSQLPredicateProducer;
 import org.jboss.pnc.datastore.repositories.BuildConfigurationAuditedRepository;
 import org.jboss.pnc.datastore.repositories.BuildConfigurationRepository;
 import org.jboss.pnc.datastore.repositories.BuildRecordRepository;
 import org.jboss.pnc.datastore.repositories.UserRepository;
-import org.jboss.pnc.integration.assertions.ResponseAssertion;
 import org.jboss.pnc.integration.deployments.Deployments;
-import org.jboss.pnc.integration.matchers.JsonMatcher;
 import org.jboss.pnc.model.*;
 import org.jboss.pnc.rest.provider.ArtifactProvider;
 import org.jboss.pnc.rest.provider.BuildRecordProvider;
 import org.jboss.pnc.rest.restmodel.ArtifactRest;
 import org.jboss.pnc.rest.restmodel.BuildRecordRest;
-import org.jboss.pnc.spi.builddriver.BuildDriverStatus;
 import org.jboss.pnc.test.category.ContainerTest;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
+import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.jayway.restassured.http.ContentType;
-import com.jayway.restassured.response.Response;
-
 import javax.inject.Inject;
 import javax.ws.rs.core.StreamingOutput;
-
 import java.lang.invoke.MethodHandles;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.jayway.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.jboss.pnc.integration.env.IntegrationTestEnv.getHttpPort;
 import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
 
 @RunWith(Arquillian.class)
@@ -80,6 +72,11 @@ public class BuildRecordsTest {
         EnterpriseArchive enterpriseArchive = Deployments.baseEarWithTestDependencies();
         WebArchive war = enterpriseArchive.getAsType(WebArchive.class, "/pnc-rest.war");
         war.addClass(BuildRecordsTest.class);
+        war.addClass(ArtifactProvider.class);
+
+        JavaArchive datastoreJar = enterpriseArchive.getAsType(JavaArchive.class, "/datastore.jar");
+        datastoreJar.addClass(ArtifactPredicates.class);
+
         logger.info(enterpriseArchive.toString(true));
         return enterpriseArchive;
     }
@@ -89,15 +86,18 @@ public class BuildRecordsTest {
     @InSequence(-1)
     @Transactional
     public void shouldInsertValuesIntoDB() {
-
         BuildConfigurationAudited buildConfigurationAudited = buildConfigurationAuditedRepository.findAll().iterator().next();
         buildConfigName = buildConfigurationAudited.getName();
         BuildConfiguration buildConfiguration = buildConfigurationRepository.findOne(buildConfigurationAudited.getId());
 
-        Artifact artifact = new Artifact();
-        artifact.setIdentifier("test");
-        artifact.setStatus(ArtifactStatus.BINARY_BUILT);
-        
+        Artifact builtArtifact = new Artifact();
+        builtArtifact.setIdentifier("test");
+        builtArtifact.setStatus(ArtifactStatus.BINARY_BUILT);
+
+        Artifact importedArtifact = new Artifact();
+        importedArtifact.setIdentifier("test");
+        importedArtifact.setStatus(ArtifactStatus.BINARY_IMPORTED);
+
         List<User> users = userRepository.findAll();
         assertThat(users.size() > 0).isTrue();
         User user = users.get(0);
@@ -112,8 +112,10 @@ public class BuildRecordsTest {
         logger.info(user.toString());
         buildRecord.setUser(user);
 
-        artifact.setBuildRecord(buildRecord);
-        buildRecord.getBuiltArtifacts().add(artifact);
+        builtArtifact.setBuildRecord(buildRecord);
+        importedArtifact.setBuildRecord(buildRecord);
+        buildRecord.getBuiltArtifacts().add(builtArtifact);
+        buildRecord.getBuiltArtifacts().add(importedArtifact);
 
         buildRecord = buildRecordRepository.save(buildRecord);
 
@@ -154,7 +156,33 @@ public class BuildRecordsTest {
         List<ArtifactRest> artifacts = artifactProvider.getAll(0, 999, null, null, buildRecordId);
 
         // then
+        assertThat(artifacts).hasSize(2);
+    }
+
+    @Test
+    public void shouldGetOnlyImportedArtifacts() {
+        //given
+        String rsqlQuery = "status==BINARY_IMPORTED";
+
+        // when
+        List<ArtifactRest> artifacts = artifactProvider.getAll(0, 999, null, rsqlQuery, buildRecordId);
+
+        // then
         assertThat(artifacts).hasSize(1);
+        assertThat(artifacts).are(new IsImported());
+    }
+
+    @Test
+    public void shouldGetOnlyBuiltArtifacts() {
+        //given
+        String rsqlQuery = "status==BINARY_BUILT";
+
+        // when
+        List<ArtifactRest> artifacts = artifactProvider.getAll(0, 999, null, rsqlQuery, buildRecordId);
+
+        // then
+        assertThat(artifacts).hasSize(1);
+        assertThat(artifacts).are(new IsBuilt());
     }
 
     @Test
@@ -186,6 +214,20 @@ public class BuildRecordsTest {
         return nullableStreamOf(
                 buildRecordRepository.findAll(RSQLPredicateProducer.fromRSQL(BuildRecord.class, rsqlQuery).get())).collect(
                 Collectors.toList());
+    }
+
+    class IsImported extends Condition<ArtifactRest> {
+        @Override
+        public boolean matches(ArtifactRest artifactRest) {
+            return artifactRest.getStatus() == ArtifactStatus.BINARY_IMPORTED;
+        }
+    }
+
+    class IsBuilt extends Condition<ArtifactRest> {
+        @Override
+        public boolean matches(ArtifactRest artifactRest) {
+            return artifactRest.getStatus() == ArtifactStatus.BINARY_BUILT;
+        }
     }
 
 }

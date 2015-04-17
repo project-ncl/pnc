@@ -1,7 +1,6 @@
 package org.jboss.pnc.demo.data;
 
 import com.google.common.base.Preconditions;
-
 import org.jboss.logging.Logger;
 import org.jboss.pnc.datastore.repositories.*;
 import org.jboss.pnc.model.*;
@@ -10,7 +9,6 @@ import javax.ejb.Singleton;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
 import javax.inject.Inject;
-
 import java.lang.invoke.MethodHandles;
 import java.sql.Timestamp;
 import java.time.Instant;
@@ -154,7 +152,8 @@ public class DatabaseDataInitializer {
                     .projectUrl("https://github.com/jboss/jboss-servlet-api_spec")
                     .issueTrackerUrl("https://issues.jboss.org/browse/JBEE").build();
             Project project4 = Project.Builder.newBuilder()
-                    .name("Fabric8").description("Integration platform for working with Apache ActiveMQ, Camel, CXF and Karaf in the cloud")
+                    .name("Fabric8").description(
+                            "Integration platform for working with Apache ActiveMQ, Camel, CXF and Karaf in the cloud")
                     .projectUrl("https://github.com/fabric8io/fabric8")
                     .issueTrackerUrl("https://github.com/fabric8io/fabric8/issues").build();
 
@@ -214,7 +213,8 @@ public class DatabaseDataInitializer {
                     .buildConfiguration(buildConfiguration3)
                     .productVersion(productVersion).build();
 
-            BuildConfigurationSet buildConfigurationSet2 = BuildConfigurationSet.Builder.newBuilder().name("Fabric Configuration Set")
+            BuildConfigurationSet buildConfigurationSet2 = BuildConfigurationSet.Builder.newBuilder().name(
+                    "Fabric Configuration Set")
                     .buildConfiguration(buildConfiguration4).build();
 
             demoUser = User.Builder.newBuilder().username("demo-user").firstName("Demo First Name")
@@ -233,6 +233,16 @@ public class DatabaseDataInitializer {
     @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
     public void initiliazeBuildRecordDemoData() {
 
+        Artifact builtArtifact1 = Artifact.Builder.newBuilder().identifier("test").deployUrl("http://google.pl/built1")
+                .status(ArtifactStatus.BINARY_BUILT).build();
+        Artifact builtArtifact2 = Artifact.Builder.newBuilder().identifier("test").deployUrl("http://google.pl/built2")
+                .status(ArtifactStatus.BINARY_BUILT).build();
+
+        Artifact importedArtifact1 = Artifact.Builder.newBuilder().identifier("test").deployUrl("http://google.pl/imported1")
+                .status(ArtifactStatus.BINARY_IMPORTED).build();
+        Artifact importedArtifact2 = Artifact.Builder.newBuilder().identifier("test").deployUrl("http://google.pl/imported2")
+                .status(ArtifactStatus.BINARY_IMPORTED).build();
+
         IdRev buildConfigAuditIdRev = new IdRev(buildConfiguration1.getId(), 1);
         BuildConfigurationAudited buildConfigAudited1 = buildConfigurationAuditedRepository.findOne(buildConfigAuditIdRev);
 
@@ -242,6 +252,10 @@ public class DatabaseDataInitializer {
                 .buildConfigurationAudited(buildConfigAudited1)
                 .startTime(Timestamp.from(Instant.now()))
                 .endTime(Timestamp.from(Instant.now()))
+                .builtArtifact(builtArtifact1)
+                .builtArtifact(builtArtifact2)
+                .builtArtifact(importedArtifact1)
+                .builtArtifact(importedArtifact2)
                 .user(demoUser).build();
 
         buildRecordRepository.save(buildRecord);
