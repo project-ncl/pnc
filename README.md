@@ -60,7 +60,7 @@ Steps to set up Docker daemon:
 
 ```
 OPTIONS='--selinux-enabled -H tcp://0.0.0.0:2375 -H unix:///var/run/docker.sock -g /mnt/docker/data'
-INSECURE_REGISTRY='--insecure-registry <your-internal-docker-registry>'
+INSECURE_REGISTRY='--insecure-registry <your-internal-remote-docker-registry>'
 ```
 
 3. Enable `docker` service: Run `sudo systemctl enable docker`

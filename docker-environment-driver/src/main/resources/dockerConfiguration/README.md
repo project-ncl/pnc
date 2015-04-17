@@ -82,7 +82,8 @@ Content of prepared socket config _/etc/sysconfig/docker_:
 
 ```
 OPTIONS='--selinux-enabled -H tcp://0.0.0.0:2375 -H unix:///var/run/docker.sock -g /mnt/docker/data'
-INSECURE_REGISTRY='--insecure-registry <your-internal-docker-registry>'```
+INSECURE_REGISTRY='--insecure-registry <your-internal-remote-docker-registry>'```
+```
 
 Enable docker:
 
