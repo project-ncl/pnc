@@ -1,10 +1,12 @@
 package org.jboss.pnc.rest.restmodel;
 
 import org.jboss.pnc.model.BuildConfiguration;
+import org.jboss.pnc.model.BuildStatus;
 import org.jboss.pnc.model.Environment;
 import org.jboss.pnc.model.Project;
 
 import javax.xml.bind.annotation.XmlRootElement;
+
 import java.sql.Timestamp;
 
 import static org.jboss.pnc.rest.utils.Utility.performIfNotNull;
@@ -30,6 +32,8 @@ public class BuildConfigurationRest {
 
     private Timestamp lastModificationTime;
 
+    private BuildStatus buildStatus;
+
     private String repositories;
 
     private Integer projectId;
@@ -49,6 +53,7 @@ public class BuildConfigurationRest {
         this.patchesUrl = buildConfiguration.getPatchesUrl();
         this.creationTime = buildConfiguration.getCreationTime();
         this.lastModificationTime = buildConfiguration.getLastModificationTime();
+        this.buildStatus = buildConfiguration.getBuildStatus();
         this.repositories = buildConfiguration.getRepositories();
         performIfNotNull(buildConfiguration.getProject() != null, () -> this.projectId = buildConfiguration.getProject()
                 .getId());
@@ -127,6 +132,14 @@ public class BuildConfigurationRest {
         this.lastModificationTime = lastModificationTime;
     }
 
+    public BuildStatus getBuildStatus() {
+        return buildStatus;
+    }
+
+    public void setBuildStatus(BuildStatus buildStatus) {
+        this.buildStatus = buildStatus;
+    }
+
     public String getRepositories() {
         return repositories;
     }
@@ -162,6 +175,7 @@ public class BuildConfigurationRest {
         builder.patchesUrl(patchesUrl);
         builder.creationTime(creationTime);
         builder.lastModificationTime(lastModificationTime);
+        builder.buildStatus(buildStatus);
         builder.repositories(repositories);
 
         performIfNotNull(projectId != null, () -> builder.project(Project.Builder.newBuilder().id(projectId).build()));

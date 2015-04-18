@@ -6,6 +6,7 @@ import org.hibernate.envers.RelationTargetAuditMode;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.HashSet;
@@ -76,6 +77,12 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
     @NotNull
     @Version
     private Timestamp lastModificationTime;
+
+    /**
+     * Represents the status of the most recent execution of the current configuration.
+     */
+    @Enumerated(value = EnumType.STRING)
+    private BuildStatus buildStatus;
 
     @OneToMany(mappedBy = "parent", cascade = { CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH })
     private Set<BuildConfiguration> dependencies;
@@ -319,6 +326,14 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
         this.lastModificationTime = lastModificationTime;
     }
 
+    public BuildStatus getBuildStatus() {
+        return buildStatus;
+    }
+
+    public void setBuildStatus(BuildStatus buildStatus) {
+        this.buildStatus = buildStatus;
+    }
+
     /**
      * @return the repositories
      */
@@ -427,6 +442,8 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
 
         private Timestamp lastModificationTime;
 
+        private BuildStatus buildStatus;
+
         private String repositories;
 
         private Builder() {
@@ -458,6 +475,7 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
             buildConfiguration.setEnvironment(environment);
             buildConfiguration.setCreationTime(creationTime);
             buildConfiguration.setLastModificationTime(lastModificationTime);
+            buildConfiguration.setBuildStatus(buildStatus);
             buildConfiguration.setRepositories(repositories);
             buildConfiguration.setBuildConfigurationSets(buildConfigurationSets);
             for (BuildConfigurationSet buildConfigurationSet : buildConfigurationSets)
@@ -553,6 +571,11 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
             if (lastModificationTime != null) {
                 this.lastModificationTime = lastModificationTime;
             }
+            return this;
+        }
+
+        public Builder buildStatus(BuildStatus buildStatus) {
+            this.buildStatus = buildStatus;
             return this;
         }
 
