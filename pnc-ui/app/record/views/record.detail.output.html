@@ -1,3 +1,22 @@
-<div class="push-down">
-  <p>Not yet implemented</p>
+<div>
+  <h3>Build Artifacts</h3>
+  <div >
+  <input ng-model="searchText" placeholder="Filter artifacts...">
+  </div>
+  <table class="table table-bordered table-striped">
+    <thead>
+      <th>Identifier</th>
+      <th>File Name</th>
+      <th>Status</th>
+      <th>Actions</th>
+    </thead>
+    <tbody>
+      <tr ng-repeat="artifact in outputCtrl.artifacts | filter:searchText">
+        <td>{{ artifact.identifier }}</td>
+        <td>{{ artifact.filename }}</td>
+        <td>{{ artifact.status }}</td>
+        <td class="text-center"><a ng-href="{{ artifact.deployUrl }}" target="_self" class="btn btn-primary">Download</a></td>
+      </tr>
+    </tbody>
+  </table>
 </div>

@@ -83,7 +83,14 @@
       url: '/output',
       controller: 'RecordOutputController',
       controllerAs: 'outputCtrl',
-      templateUrl: 'record/views/record.detail.output.html'
+      templateUrl: 'record/views/record.detail.output.html',
+      resolve: {
+        restClient: 'PncRestClient',
+        artifacts: function(restClient, recordDetail) {
+          return restClient.Record.getArtifacts({
+            recordId: recordDetail.id}).$promise;
+        }
+      }
     });
 
   }]);

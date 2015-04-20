@@ -26,9 +26,10 @@
     }
   ]);
 
-  module.controller('RecordOutputController', ['$log',
-    function($log) {
-      $log.debug('RecordOutputController');
+  module.controller('RecordOutputController', ['$log', 'artifacts',
+    function($log, artifacts) {
+      $log.debug('RecordOutputController >> artifacts: %O', artifacts);
+      this.artifacts = artifacts;
     }
   ]);
 

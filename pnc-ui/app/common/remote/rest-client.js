@@ -118,6 +118,11 @@
             isArray: false,
             transformResponse: convertStringResponseToJson
           },
+          getArtifacts: {
+            method: 'GET',
+            url: REST_DEFAULTS.BASE_URL + '/build-records/:recordId/artifacts',
+            isArray: true,
+          },
           getAllForConfiguration: {
             method: 'GET',
             url: REST_DEFAULTS.BASE_URL + '/build-records/build-configurations/:configurationId',
