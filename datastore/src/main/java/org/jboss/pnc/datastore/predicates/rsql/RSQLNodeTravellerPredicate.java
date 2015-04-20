@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 
 import java.beans.Introspector;
 import java.lang.invoke.MethodHandles;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -24,13 +25,15 @@ public class RSQLNodeTravellerPredicate<Entity> implements RSQLPredicate {
 
     private final Class<Entity> selectingClass;
 
+    private final QueryDSLTransformer<Entity> queryDSLTransformer = new QueryDSLTransformer<>();
+
     private final Map<Class<? extends ComparisonNode>, Transformer<Entity>> operations = new HashMap<>();
 
     public RSQLNodeTravellerPredicate(Class<Entity> entityClass, String rsql) throws RSQLParserException {
-        operations.put(EqualNode.class, (pathBuilder, operand, arguments) -> pathBuilder.get(operand).eq(arguments.get(0)));
-        operations.put(NotEqualNode.class, (pathBuilder, operand, arguments) -> pathBuilder.get(operand).ne(arguments.get(0)));
-        operations.put(InNode.class, (pathBuilder, operand, arguments) -> pathBuilder.get(operand).in(arguments));
-        operations.put(NotInNode.class, (pathBuilder, operand, arguments) -> pathBuilder.get(operand).notIn(arguments));
+        operations.put(NotEqualNode.class, (pathBuilder, operand, arguments) -> queryDSLTransformer.createNodeTransformer(pathBuilder, operand, Arrays.asList(arguments.get(0)), "ne"));
+        operations.put(InNode.class, (pathBuilder, operand, arguments) -> queryDSLTransformer.createNodeTransformer(pathBuilder, operand, arguments, "in"));
+        operations.put(NotInNode.class, (pathBuilder, operand, arguments) -> queryDSLTransformer.createNodeTransformer(pathBuilder, operand, arguments, "notIn"));
+        operations.put(EqualNode.class, (pathBuilder, operand, arguments) -> queryDSLTransformer.createNodeTransformer(pathBuilder, operand, Arrays.asList(arguments.get(0)), "eq"));
 
         rootNode = new RSQLParser().parse(rsql);
         selectingClass = entityClass;
@@ -76,5 +79,7 @@ public class RSQLNodeTravellerPredicate<Entity> implements RSQLPredicate {
 
         return rootNode.accept(visitor);
     }
+
+
 
 }
