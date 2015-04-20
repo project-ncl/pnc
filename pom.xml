@@ -102,7 +102,7 @@
     <arquillian.container.groupId>org.jboss.as</arquillian.container.groupId>
     <arquillian.container.artifactId>jboss-as-arquillian-container-managed</arquillian.container.artifactId>
     <default.management.port>9999</default.management.port>
-    <test.server.unpack.dir>${project.basedir}/../target/</test.server.unpack.dir>
+    <test.server.unpack.dir>${project.basedir}/../target</test.server.unpack.dir>
     <test.server.build.dir>${test.server.unpack.dir}/${app.server}-${jboss.version}</test.server.build.dir>
     <arquillian.container.type>managed</arquillian.container.type>
     <jboss.port.offset>0</jboss.port.offset>
