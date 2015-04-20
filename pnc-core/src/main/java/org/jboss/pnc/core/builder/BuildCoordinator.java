@@ -11,6 +11,7 @@ import org.jboss.pnc.core.exception.CoreException;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.RepositoryType;
+import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.BuildExecutionType;
 import org.jboss.pnc.spi.BuildResult;
 import org.jboss.pnc.spi.BuildStatus;
@@ -76,10 +77,10 @@ public class BuildCoordinator {
     public BuildCoordinator(){} //workaround for CDI constructor parameter injection
 
     @Inject
-    public BuildCoordinator(BuildDriverFactory buildDriverFactory, RepositoryManagerFactory repositoryManagerFactory, 
-            EnvironmentDriverFactory environmentDriverFactory, DatastoreAdapter datastoreAdapter,
-            Event<BuildStatusChangedEvent> buildStatusChangedEventNotifier,
-            ContentIdentityManager contentIdentityManager) {
+    public BuildCoordinator(BuildDriverFactory buildDriverFactory, RepositoryManagerFactory repositoryManagerFactory,
+                            EnvironmentDriverFactory environmentDriverFactory, DatastoreAdapter datastoreAdapter,
+                            Event<BuildStatusChangedEvent> buildStatusChangedEventNotifier,
+                            ContentIdentityManager contentIdentityManager) {
         this.buildDriverFactory = buildDriverFactory;
         this.repositoryManagerFactory = repositoryManagerFactory;
         this.datastoreAdapter = datastoreAdapter;
@@ -106,7 +107,8 @@ public class BuildCoordinator {
 
     private void build(BuildSetTask buildSetTask) throws CoreException {
 
-        BuildTasksTree buildTasksTree = BuildTasksTree.newInstance(this, buildSetTask);
+        User user = null; //TODO user
+        BuildTasksTree buildTasksTree = BuildTasksTree.newInstance(this, buildSetTask, user);
 
         Predicate<Vertex<BuildTask>> acceptOnlyStatus = (vertex) -> {
             BuildTask build = vertex.getData();

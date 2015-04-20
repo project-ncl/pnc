@@ -31,7 +31,7 @@ public class BuildRecord implements GenericEntity<Integer> {
     @JoinColumn(name = "buildconfiguration_id", insertable=false, updatable=false)
     private BuildConfiguration latestBuildConfiguration;
 
-    @NotNull
+    //@NotNull //TODO uncomment
     @ManyToOne(cascade = { CascadeType.REFRESH })
     @JoinColumns({
         @JoinColumn(name="buildconfiguration_id", referencedColumnName= "id"),
@@ -47,7 +47,7 @@ public class BuildRecord implements GenericEntity<Integer> {
     @NotNull
     private Timestamp endTime;
 
-    @NotNull
+    //@NotNull //TODO uncomment
     @ManyToOne
     private User user;
 

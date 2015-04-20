@@ -3,15 +3,15 @@ package org.jboss.pnc.core.builder;
 import org.jboss.pnc.core.events.DefaultBuildStatusChangedEvent;
 import org.jboss.pnc.core.exception.CoreException;
 import org.jboss.pnc.model.BuildConfiguration;
+import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.BuildExecution;
-import org.jboss.pnc.spi.BuildStatus;
 import org.jboss.pnc.spi.BuildExecutionType;
+import org.jboss.pnc.spi.BuildStatus;
 import org.jboss.pnc.spi.events.BuildStatusChangedEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.enterprise.event.Event;
-
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -42,9 +42,13 @@ public class BuildTask implements BuildExecution {
     private String buildSetContentId;
 
     private String buildContentId;
+    private long startTime;
+
+    //User who created the tasks
+    private User user;
 
     BuildTask(BuildCoordinator buildCoordinator, BuildConfiguration buildConfiguration, String topContentId,
-              String buildSetContentId, String buildContentId, BuildExecutionType buildTaskType) {
+              String buildSetContentId, String buildContentId, BuildExecutionType buildTaskType, User user) {
         this.buildCoordinator = buildCoordinator;
         this.buildConfiguration = buildConfiguration;
         this.buildTaskType = buildTaskType;
@@ -52,6 +56,9 @@ public class BuildTask implements BuildExecution {
         this.topContentId = topContentId;
         this.buildSetContentId = buildSetContentId;
         this.buildContentId = buildContentId;
+        this.user = user;
+
+        this.startTime = System.currentTimeMillis();
         waiting = new HashSet<>();
     }
 
@@ -158,5 +165,13 @@ public class BuildTask implements BuildExecution {
 
     public BuildExecutionType getBuildExecutionType() {
         return buildTaskType;
+    }
+
+    public long getStartTime() {
+        return startTime;
+    }
+
+    public User getUser() {
+        return user;
     }
 }
