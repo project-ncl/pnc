@@ -5,6 +5,7 @@ import org.jboss.pnc.core.builder.BuildSetTask;
 import org.jboss.pnc.core.builder.BuildTasksTree;
 import org.jboss.pnc.core.test.configurationBuilders.TestProjectConfigurationBuilder;
 import org.jboss.pnc.model.BuildConfigurationSet;
+import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.BuildExecutionType;
 import org.junit.Assert;
 import org.junit.Test;
@@ -21,7 +22,8 @@ public class ReadDependenciesTest extends ProjectBuilder {
         TestProjectConfigurationBuilder configurationBuilder = new TestProjectConfigurationBuilder();
         BuildConfigurationSet buildConfigurationSet = configurationBuilder.buildConfigurationSet();
         BuildSetTask buildSetTask = new BuildSetTask(buildConfigurationSet, BuildExecutionType.COMPOSED_BUILD);
-        BuildTasksTree buildTasksTree = BuildTasksTree.newInstance(buildCoordinator, buildSetTask);
+        User user = null; //TODO user
+        BuildTasksTree buildTasksTree = BuildTasksTree.newInstance(buildCoordinator, buildSetTask, user);
 
         Assert.assertEquals("Missing projects in tree structure.", 5, buildTasksTree.getBuildTasks().size());
     }

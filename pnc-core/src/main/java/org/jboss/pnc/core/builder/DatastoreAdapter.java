@@ -12,9 +12,10 @@ import org.jboss.pnc.spi.datastore.DatastoreException;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
 
 import javax.inject.Inject;
-
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.List;
 
 /**
@@ -52,16 +53,13 @@ public class DatastoreAdapter {
             }
             // Additional information needed for historical purpose
             //buildRecord.setBuildConfigurationRev(buildConfiguration.getRev());
+            setAuditDataToBuildRecord(buildRecord, buildTask);
 
             log.debugf("Storing results of %s to datastore.", buildConfiguration.getName());
             datastore.storeCompletedBuild(buildRecord);
         } catch (Exception e) {
             throw new DatastoreException("Error storing the result to datastore.", e);
         }
-    }
-
-    private void linkArtifactsWithBuildRecord(List<Artifact> artifacts, BuildRecord buildRecord) {
-        artifacts.forEach(a -> a.setBuildRecord(buildRecord));
     }
 
     public void storeResult(BuildTask buildTask, Throwable e) throws DatastoreException {
@@ -79,8 +77,21 @@ public class DatastoreAdapter {
         buildRecord.setLatestBuildConfiguration(buildConfiguration);
         // Additional information needed for historical purpose
         //buildRecord.setBuildConfigurationRev(buildConfiguration.getRev());
+        setAuditDataToBuildRecord(buildRecord, buildTask);
+
         log.debugf("Storing ERROR result of %s to datastore. Error: %s", buildConfiguration.getName() + "\n\n\n Exception: " + errorMessage, e);
         datastore.storeCompletedBuild(buildRecord);
+    }
+
+    private void setAuditDataToBuildRecord(BuildRecord buildRecord, BuildTask buildTask) {
+        buildRecord.setBuildConfigurationAudited(null); //TODO add BuildConfigurationAudit
+        buildRecord.setUser(buildTask.getUser());
+        buildRecord.setStartTime(Timestamp.from(Instant.ofEpochMilli(buildTask.getStartTime())));
+        buildRecord.setEndTime(Timestamp.from(Instant.now()));
+    }
+
+    private void linkArtifactsWithBuildRecord(List<Artifact> artifacts, BuildRecord buildRecord) {
+        artifacts.forEach(a -> a.setBuildRecord(buildRecord));
     }
 
     public boolean isBuildConfigurationBuilt() {
