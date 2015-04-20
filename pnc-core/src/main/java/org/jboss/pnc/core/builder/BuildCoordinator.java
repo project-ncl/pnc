@@ -349,7 +349,7 @@ public class BuildCoordinator {
             //It shouldn't never happen - Throwable should be caught in all steps of build chain
             //and BuildProcessException should be thrown instead of that
             log.warn("Possible leak of a running environment! Build process ended with exception, "
-                    + "but the exception didn't contain information about running environment.");
+                    + "but the exception didn't contain information about running environment.", ex);
         }
     }
 
