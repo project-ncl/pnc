@@ -20,6 +20,7 @@ import org.jboss.pnc.spi.builddriver.BuildDriverStatus;
 import org.jboss.pnc.spi.builddriver.CompletedBuild;
 import org.jboss.pnc.spi.builddriver.RunningBuild;
 import org.jboss.pnc.spi.datastore.DatastoreException;
+import org.jboss.pnc.spi.environment.DestroyableEnvironmnet;
 import org.jboss.pnc.spi.environment.EnvironmentDriver;
 import org.jboss.pnc.spi.environment.RunningEnvironment;
 import org.jboss.pnc.spi.environment.StartedEnvironment;
@@ -221,8 +222,7 @@ public class BuildCoordinator {
 
                 startedEnvironment.monitorInitialization(onComplete, onError);
             } catch (Throwable e) {
-                waitToCompleteFuture.completeExceptionally(
-                        new BuildProcessException(e, startedEnvironment));  
+                waitToCompleteFuture.completeExceptionally(new BuildProcessException(e, startedEnvironment));
             }
             return waitToCompleteFuture;
     }
@@ -336,20 +336,25 @@ public class BuildCoordinator {
      * @param ex Exception in build process (To stop the environment it has to be instance of BuildProcessException)
      */
     private void stopRunningEnvironment(Throwable ex) {
+        DestroyableEnvironmnet destroyableEnvironmnet = null;
         if(ex instanceof BuildProcessException) {
             BuildProcessException bpEx = (BuildProcessException) ex;
-            try {
-                if (bpEx.getDestroyableEnvironmnet() != null)
-                    bpEx.getDestroyableEnvironmnet().destroyEnvironment();
-            } catch (EnvironmentDriverException envE) {
-                log.warn("Running environment" + bpEx.getDestroyableEnvironmnet() + " couldn't be destroyed!", envE);
-            }
-        }
-        else {
+            destroyableEnvironmnet = bpEx.getDestroyableEnvironmnet();
+        } else if(ex.getCause() instanceof BuildProcessException) {
+            BuildProcessException bpEx = (BuildProcessException) ex.getCause();
+            destroyableEnvironmnet = bpEx.getDestroyableEnvironmnet();
+        } else {
             //It shouldn't never happen - Throwable should be caught in all steps of build chain
             //and BuildProcessException should be thrown instead of that
             log.warn("Possible leak of a running environment! Build process ended with exception, "
                     + "but the exception didn't contain information about running environment.", ex);
+        }
+        try {
+            if (destroyableEnvironmnet != null) {
+                destroyableEnvironmnet.destroyEnvironment();
+            }
+        } catch (EnvironmentDriverException envE) {
+            log.warn("Running environment" + destroyableEnvironmnet + " couldn't be destroyed!", envE);
         }
     }
 
