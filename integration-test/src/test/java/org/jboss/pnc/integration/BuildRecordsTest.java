@@ -8,6 +8,7 @@ import org.jboss.arquillian.junit.InSequence;
 import org.jboss.arquillian.transaction.api.annotation.Transactional;
 import org.jboss.pnc.datastore.predicates.ArtifactPredicates;
 import org.jboss.pnc.datastore.predicates.RSQLPredicateProducer;
+import org.jboss.pnc.datastore.predicates.rsql.RSQLNodeTravellerPredicate;
 import org.jboss.pnc.datastore.repositories.BuildConfigurationAuditedRepository;
 import org.jboss.pnc.datastore.repositories.BuildConfigurationRepository;
 import org.jboss.pnc.datastore.repositories.BuildRecordRepository;
@@ -76,6 +77,7 @@ public class BuildRecordsTest {
 
         JavaArchive datastoreJar = enterpriseArchive.getAsType(JavaArchive.class, "/datastore.jar");
         datastoreJar.addClass(ArtifactPredicates.class);
+        datastoreJar.addPackage(RSQLNodeTravellerPredicate.class.getPackage());
 
         logger.info(enterpriseArchive.toString(true));
         return enterpriseArchive;
