@@ -89,26 +89,25 @@ public class BuildCoordinator {
         this.contentIdentityManager = contentIdentityManager;
     }
 
-    public BuildTask build(BuildConfiguration buildConfiguration) throws CoreException {
+    public BuildTask build(BuildConfiguration buildConfiguration, User userTriggeredBuild) throws CoreException {
         BuildConfigurationSet buildConfigurationSet = new BuildConfigurationSet();
         buildConfigurationSet.setName(buildConfiguration.getName());
         buildConfigurationSet.addBuildConfiguration(buildConfiguration);
         BuildSetTask buildSetTask = new BuildSetTask(buildConfigurationSet, BuildExecutionType.STANDALONE_BUILD);
-        build(buildSetTask);
+        build(buildSetTask, userTriggeredBuild);
         BuildTask buildTask = buildSetTask.getBuildTasks().stream().collect(StreamCollectors.singletonCollector());
         return buildTask;
     }
 
-    public BuildSetTask build(BuildConfigurationSet buildConfigurationSet) throws CoreException {
+    public BuildSetTask build(BuildConfigurationSet buildConfigurationSet, User userTriggeredBuild) throws CoreException {
         BuildSetTask buildSetTask = new BuildSetTask(buildConfigurationSet, BuildExecutionType.COMPOSED_BUILD);
-        build(buildSetTask);
+        build(buildSetTask, userTriggeredBuild);
         return buildSetTask;
     }
 
-    private void build(BuildSetTask buildSetTask) throws CoreException {
+    private void build(BuildSetTask buildSetTask, User userTriggeredBuild) throws CoreException {
 
-        User user = null; //TODO user
-        BuildTasksTree buildTasksTree = BuildTasksTree.newInstance(this, buildSetTask, user);
+        BuildTasksTree buildTasksTree = BuildTasksTree.newInstance(this, buildSetTask, userTriggeredBuild);
 
         Predicate<Vertex<BuildTask>> acceptOnlyStatus = (vertex) -> {
             BuildTask build = vertex.getData();

@@ -4,6 +4,7 @@ import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
 import com.wordnik.swagger.annotations.ApiParam;
 import org.jboss.pnc.core.exception.CoreException;
+import org.jboss.pnc.model.User;
 import org.jboss.pnc.rest.provider.BuildConfigurationSetProvider;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationRest;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationSetRest;
@@ -114,7 +115,8 @@ public class BuildConfigurationSetEndpoint {
         logger.info("Executing build configuration set id: " + id );
 
         try {
-            Integer runningBuildId = buildTriggerer.triggerBuildConfigurationSet(id);
+            User currentUser = null; //TODO
+            Integer runningBuildId = buildTriggerer.triggerBuildConfigurationSet(id, currentUser);
             return Response.ok().build();
         } catch (CoreException e) {
             logger.error(e.getMessage(), e);

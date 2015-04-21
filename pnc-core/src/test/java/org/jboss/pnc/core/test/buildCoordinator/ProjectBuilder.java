@@ -1,7 +1,5 @@
 package org.jboss.pnc.core.test.buildCoordinator;
 
-import static org.junit.Assert.*;
-
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.core.BuildDriverFactory;
@@ -17,6 +15,7 @@ import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.Environment;
+import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.BuildStatus;
 import org.jboss.pnc.spi.events.BuildStatusChangedEvent;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
@@ -26,12 +25,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
-
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
+
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2015-01-06.
@@ -73,7 +74,8 @@ public class ProjectBuilder {
 
         final Semaphore semaphore = registerReleaseListenersAndAcquireSemaphore(receivedStatuses, N_STATUS_UPDATES);
 
-        BuildTask buildTask = buildCoordinator.build(buildConfiguration);
+        User user = null;
+        BuildTask buildTask = buildCoordinator.build(buildConfiguration, user);
 
         assertBuildStartedSuccessfully(buildTask);
         waitForStatusUpdates(N_STATUS_UPDATES, semaphore);
@@ -89,7 +91,8 @@ public class ProjectBuilder {
 
         final Semaphore semaphore = registerReleaseListenersAndAcquireSemaphore(receivedStatuses, nStatusUpdates);
 
-        BuildSetTask buildSetTask = buildCoordinator.build(buildConfigurationSet);
+        User user = null;
+        BuildSetTask buildSetTask = buildCoordinator.build(buildConfigurationSet, user);
 
         assertBuildStartedSuccessfully(buildSetTask);
 

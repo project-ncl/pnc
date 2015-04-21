@@ -5,6 +5,7 @@ import org.jboss.pnc.datastore.repositories.BuildConfigurationAuditedRepository;
 import org.jboss.pnc.datastore.repositories.BuildConfigurationRepository;
 import org.jboss.pnc.datastore.repositories.BuildConfigurationSetRepository;
 import org.jboss.pnc.model.BuildConfiguration;
+import org.jboss.pnc.model.User;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -32,10 +33,12 @@ public class BuildTriggererTest {
         BuildCoordinator builder = mock(BuildCoordinator.class);
         BuildTriggerer buildTriggerer = new BuildTriggerer(builder, repository, buildConfigAudRepository, buildConfigurationSetRepository);
 
-        //when
-        buildTriggerer.triggerBuilds(6);
+        User user = null;
 
-        verify(builder).build(eq(exampleConfiguration)); //TODO validate return ?
+        //when
+        buildTriggerer.triggerBuilds(6, user);
+
+        verify(builder).build(eq(exampleConfiguration), user); //TODO validate return ?
     }
 
 }
