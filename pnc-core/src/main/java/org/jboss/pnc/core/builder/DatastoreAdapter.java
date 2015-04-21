@@ -40,7 +40,7 @@ public class DatastoreAdapter {
             RepositoryManagerResult repositoryManagerResult = buildResult.getRepositoryManagerResult();
 
             BuildRecord buildRecord = new BuildRecord();
-            buildRecord.setLatestBuildConfiguration(buildConfiguration);
+            buildRecord.setBuildConfigurationAudited(buildConfiguration.getBuildConfigurationAudited());
             // Build driver results
             buildRecord.setBuildLog(buildDriverResult.getBuildLog());
             buildRecord.setStatus(buildDriverResult.getBuildDriverStatus().toBuildStatus());
@@ -84,7 +84,7 @@ public class DatastoreAdapter {
     }
 
     private void setAuditDataToBuildRecord(BuildRecord buildRecord, BuildTask buildTask) {
-        buildRecord.setBuildConfigurationAudited(null); //TODO add BuildConfigurationAudit
+        buildRecord.setBuildConfigurationAudited(buildTask.getBuildConfiguration().getBuildConfigurationAudited()); //TODO add BuildConfigurationAudit
         buildRecord.setUser(buildTask.getUser());
         buildRecord.setStartTime(Timestamp.from(Instant.ofEpochMilli(buildTask.getStartTime())));
         buildRecord.setEndTime(Timestamp.from(Instant.now()));
