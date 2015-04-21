@@ -1,0 +1,21 @@
+{
+  "realm" : "PNC.REDHAT.COM",
+  "resource" : "pnc-web-local",
+  "realm-public-key" : "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCF6WP9SC6i9ulVqAItdu1qhsN9LoIywlJ3Qw7RUIMmPjKToCnDoq8glkJAkS4I3PbpWaFSBRvSObmAm4XvGv69kl1UPUW76Wgyqvr09fNSNds34MV4NuULE1muHHj3x49RqH4J/UPQvICtE77t+lvjd526uqHPyn+mZlN4B0K6hQIDAQAB",
+  "auth-server-url" : "https://keycloak-pncauth.rhcloud.com/auth",
+  "ssl-required" : "none",
+  "use-resource-role-mappings" : false,
+  "enable-cors" : true,
+  "cors-max-age" : 1000,
+  "cors-allowed-methods" : "POST,PUT,DELETE,GET",
+  "bearer-only" : false,
+  "enable-basic-auth" : false,
+  "expose-token" : true,
+  "credentials" : {
+      "secret" : "a9740bec-b9f8-457d-9806-e4740b3e44ce"
+   },
+
+   "connection-pool-size" : 20,
+   "disable-trust-manager": true,
+   "allow-any-hostname" : false
+}

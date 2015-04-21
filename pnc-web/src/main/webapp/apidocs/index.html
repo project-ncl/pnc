@@ -18,10 +18,23 @@
   <script src='lib/swagger.js' type='text/javascript'></script>
   <script src='swagger-ui.js' type='text/javascript'></script>
   <script src='lib/highlight.7.3.pack.js' type='text/javascript'></script>
-
   <!-- enabling this will enable oauth2 implicit scope support -->
   <script src='lib/swagger-oauth.js' type='text/javascript'></script>
 
+   <script src="lib/keycloak.min.js"></script>
+    <script>
+	    var keycloak = Keycloak('keycloak.json');
+	      keycloak.init({ onLoad: 'login-required' })
+	        .success(function (authenticated) {
+	          log('Login Successful');
+	          window.authorizations.add("oauth2", new ApiKeyAuthorization("Authorization", "Bearer " + keycloak.token, "header"));
+	        }).error(function () {
+	          $log.error('Login Failed');
+	          $window.location.reload();
+	        }
+	      );
+   </script>
+    
   <script type="text/javascript">
     $(function () {
       window.swaggerUi = new SwaggerUi({
@@ -30,14 +43,13 @@
       supportedSubmitMethods: ['get', 'post', 'put', 'delete'],
       onComplete: function(swaggerApi, swaggerUi){
         log("Loaded SwaggerUI");
-
-        if(typeof initOAuth == "function") {
-          initOAuth({
-            clientId: "4c991c3f-9da9-406b-a799-3483ce8e6951",
-            realm: "PNC.REDHAT.COM",
-            appName: "pnc-direct-client"
-          });
-        }
+        /*
+        initOAuth({
+          clientId: "your-client-id",
+          realm: "your-realms",
+          appName: "your-app-name"
+        });
+        */
         $('pre code').each(function(i, e) {
           hljs.highlightBlock(e)
         });
