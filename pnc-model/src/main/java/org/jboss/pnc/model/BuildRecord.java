@@ -31,7 +31,7 @@ public class BuildRecord implements GenericEntity<Integer> {
     @JoinColumn(name = "buildconfiguration_id", insertable=false, updatable=false)
     private BuildConfiguration latestBuildConfiguration;
 
-    //@NotNull //TODO uncomment
+    @NotNull
     @ManyToOne(cascade = { CascadeType.REFRESH })
     @JoinColumns({
         @JoinColumn(name="buildconfiguration_id", referencedColumnName= "id"),

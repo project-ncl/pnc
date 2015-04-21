@@ -34,13 +34,10 @@ public class DatastoreAdapter {
 
     public void storeResult(BuildTask buildTask, BuildResult buildResult) throws DatastoreException {
         try {
-            BuildConfiguration buildConfiguration = buildTask.getBuildConfiguration();
-            
             BuildDriverResult buildDriverResult = buildResult.getBuildDriverResult();
             RepositoryManagerResult repositoryManagerResult = buildResult.getRepositoryManagerResult();
 
             BuildRecord buildRecord = new BuildRecord();
-            buildRecord.setLatestBuildConfiguration(buildConfiguration);
             // Build driver results
             buildRecord.setBuildLog(buildDriverResult.getBuildLog());
             buildRecord.setStatus(buildDriverResult.getBuildDriverStatus().toBuildStatus());
@@ -51,11 +48,9 @@ public class DatastoreAdapter {
                 linkArtifactsWithBuildRecord(repositoryManagerResult.getDependencies(), buildRecord);
                 buildRecord.setDependencies(repositoryManagerResult.getDependencies());
             }
-            // Additional information needed for historical purpose
-            //buildRecord.setBuildConfigurationRev(buildConfiguration.getRev());
             setAuditDataToBuildRecord(buildRecord, buildTask);
 
-            log.debugf("Storing results of %s to datastore.", buildConfiguration.getName());
+            log.debugf("Storing results of %s to datastore.", buildTask.getBuildConfiguration().getName());
             datastore.storeCompletedBuild(buildRecord);
         } catch (Exception e) {
             throw new DatastoreException("Error storing the result to datastore.", e);
@@ -63,8 +58,6 @@ public class DatastoreAdapter {
     }
 
     public void storeResult(BuildTask buildTask, Throwable e) throws DatastoreException {
-        BuildConfiguration buildConfiguration = buildTask.getBuildConfiguration();
-
         BuildRecord buildRecord = new BuildRecord();
         StringWriter stackTraceWriter = new StringWriter();
         PrintWriter stackTracePrinter = new PrintWriter(stackTraceWriter);
@@ -74,17 +67,14 @@ public class DatastoreAdapter {
         String errorMessage = "Last build status: " + buildTask.getStatus().toString() + "\n";
         errorMessage += "Caught exception: " + stackTraceWriter.toString();
         buildRecord.setBuildLog(errorMessage);
-        buildRecord.setLatestBuildConfiguration(buildConfiguration);
-        // Additional information needed for historical purpose
-        //buildRecord.setBuildConfigurationRev(buildConfiguration.getRev());
         setAuditDataToBuildRecord(buildRecord, buildTask);
 
-        log.debugf("Storing ERROR result of %s to datastore. Error: %s", buildConfiguration.getName() + "\n\n\n Exception: " + errorMessage, e);
+        log.debugf("Storing ERROR result of %s to datastore. Error: %s", buildTask.getBuildConfiguration().getName() + "\n\n\n Exception: " + errorMessage, e);
         datastore.storeCompletedBuild(buildRecord);
     }
 
     private void setAuditDataToBuildRecord(BuildRecord buildRecord, BuildTask buildTask) {
-        buildRecord.setBuildConfigurationAudited(null); //TODO add BuildConfigurationAudit
+        buildRecord.setBuildConfigurationAudited(buildTask.getBuildConfiguration().getBuildConfigurationAudited()); //TODO add BuildConfigurationAudit
         buildRecord.setUser(buildTask.getUser());
         buildRecord.setStartTime(Timestamp.from(Instant.ofEpochMilli(buildTask.getStartTime())));
         buildRecord.setEndTime(Timestamp.from(Instant.now()));
