@@ -70,10 +70,11 @@
     '$log',
     '$state',
     'Notifications',
+    'PncRestClient',
     'configurationDetail',
     'environmentDetail',
     'projectDetail',
-    function($log, $state, Notifications, configurationDetail,
+    function($log, $state, Notifications, PncRestClient, configurationDetail,
              environmentDetail, projectDetail) {
       $log.debug('ConfigurationDetailController >> arguments=%O', arguments);
 
@@ -87,20 +88,21 @@
       this.build = function() {
         $log.debug('Initiating build of: %O', this.configuration);
 
-        this.configuration.$build().then(
-          function(result) {
-            $log.debug('Initiated Build: %O, result: %O', that.configuration,
-                       result);
-            Notifications.success('Initiated build of configuration:' +
-                                  that.configuration.name);
-          },
-          function(response) {
-            $log.error('Failed to initiated build: %O, response: %O',
-                       that.configuration, response);
-            Notifications.error('Action Failed.');
-          }
 
-        );
+        PncRestClient.Configuration.build({
+          configurationId: that.configuration.id }, {}).$promise.then(
+            function(result) {
+              $log.debug('Initiated Build: %O, result: %O', that.configuration,
+                         result);
+              Notifications.success('Initiated build of configuration:' +
+                                    that.configuration.name);
+            },
+            function(response) {
+              $log.error('Failed to initiated build: %O, response: %O',
+                         that.configuration, response);
+              Notifications.error('Action Failed.');
+            }
+          );
       };
 
       // Update a build configuration after editting
