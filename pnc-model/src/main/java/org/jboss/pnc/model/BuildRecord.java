@@ -29,7 +29,7 @@ public class BuildRecord implements GenericEntity<Integer> {
     @NotNull
     @ManyToOne(cascade = { CascadeType.REFRESH }, fetch = FetchType.LAZY)
     @JoinColumn(name = "buildconfiguration_id", insertable=false, updatable=false)
-    private BuildConfiguration latestBuildConfiguration;
+    private BuildConfiguration latestBuildConfiguration;  //TODO do we need latest and audited build configuration
 
     @NotNull
     @ManyToOne(cascade = { CascadeType.REFRESH })
