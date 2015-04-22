@@ -168,7 +168,7 @@ public class DatabaseDataInitializer {
                     .project(project1)
                     .description("Test build config for project newcastle")
                     .environment(environment1)
-                    .buildScript("mvn clean deploy -Dmaven.test.skip")
+                    .buildScript("mvn clean deploy -DskipTests=true")
                     .scmRepoURL("https://github.com/project-ncl/pnc.git")
                     .scmRevision("*/v0.2")
                     .build();
@@ -179,7 +179,7 @@ public class DatabaseDataInitializer {
                     .project(project2)
                     .description("Test config for JBoss modules build master branch.")
                     .environment(environment2)
-                    .buildScript("mvn clean deploy -Dmaven.test.skip")
+                    .buildScript("mvn clean deploy -DskipTests=true")
                     .scmRepoURL("https://github.com/jboss-modules/jboss-modules.git")
                     .scmRevision("9e7115771a791feaa5be23b1255416197f2cda38")
                     .build();
@@ -190,7 +190,7 @@ public class DatabaseDataInitializer {
                     .project(project3)
                     .description("Test build for jboss java servlet api")
                     .environment(environment1)
-                    .buildScript("mvn clean deploy -Dmaven.test.skip")
+                    .buildScript("mvn clean deploy -DskipTests=true")
                     .scmRepoURL("https://github.com/jboss/jboss-servlet-api_spec.git")
                     .dependency(buildConfiguration2)
                     .build();
@@ -201,7 +201,7 @@ public class DatabaseDataInitializer {
                     .project(project4)
                     .description("Test build for Fabric8")
                     .environment(environment1)
-                    .buildScript("mvn clean deploy -Dmaven.test.skip")
+                    .buildScript("mvn clean deploy -DskipTests=true")
                     .scmRepoURL("https://github.com/fabric8io/fabric8.git")
                     .build();
             buildConfiguration4 = buildConfigurationRepository.save(buildConfiguration4);
