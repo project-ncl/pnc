@@ -2,7 +2,6 @@ package org.jboss.pnc.core.builder;
 
 import org.jboss.logging.Logger;
 import org.jboss.pnc.model.Artifact;
-import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.BuildStatus;
 import org.jboss.pnc.spi.BuildResult;
@@ -74,7 +73,8 @@ public class DatastoreAdapter {
     }
 
     private void setAuditDataToBuildRecord(BuildRecord buildRecord, BuildTask buildTask) {
-        buildRecord.setBuildConfigurationAudited(buildTask.getBuildConfiguration().getBuildConfigurationAudited()); //TODO add BuildConfigurationAudit
+        buildRecord.setBuildConfigurationAudited(buildTask.getBuildConfiguration().getBuildConfigurationAudited());
+        buildRecord.setLatestBuildConfiguration(buildTask.getBuildConfiguration());
         buildRecord.setUser(buildTask.getUser());
         buildRecord.setStartTime(Timestamp.from(Instant.ofEpochMilli(buildTask.getStartTime())));
         buildRecord.setEndTime(Timestamp.from(Instant.now()));
