@@ -256,7 +256,9 @@ public class DatabaseDataInitializer {
                 .builtArtifact(builtArtifact2)
                 .builtArtifact(importedArtifact1)
                 .builtArtifact(importedArtifact2)
-                .user(demoUser).build();
+                .user(demoUser)
+                .buildLog("Very short demo log: The quick brown fox jumps over the lazy dog.")
+                .build();
 
         buildRecordRepository.save(buildRecord);
 
