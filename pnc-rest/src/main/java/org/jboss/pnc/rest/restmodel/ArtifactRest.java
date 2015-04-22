@@ -1,10 +1,12 @@
 package org.jboss.pnc.rest.restmodel;
 
+import static org.jboss.pnc.rest.utils.Utility.performIfNotNull;
+
+import javax.xml.bind.annotation.XmlRootElement;
+
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.ArtifactStatus;
 import org.jboss.pnc.model.RepositoryType;
-
-import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement(name = "Artifact")
 public class ArtifactRest {
@@ -24,6 +26,8 @@ public class ArtifactRest {
 
     private ArtifactStatus status;
 
+    private Integer buildRecordId;
+
     public ArtifactRest() {
     }
 
@@ -35,6 +39,7 @@ public class ArtifactRest {
         this.filename = artifact.getFilename();
         this.deployUrl = artifact.getDeployUrl();
         this.status = artifact.getStatus();
+        performIfNotNull(artifact.getBuildRecord() != null, () -> this.buildRecordId = artifact.getBuildRecord().getId());
     }
 
     public Integer getId() {
@@ -92,4 +97,13 @@ public class ArtifactRest {
     public void setStatus(ArtifactStatus status) {
         this.status = status;
     }
+
+    public Integer getBuildRecordId() {
+        return buildRecordId;
+    }
+
+    public void setBuildRecordId(Integer buildRecordId) {
+        this.buildRecordId = buildRecordId;
+    }
+
 }
