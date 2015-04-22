@@ -1,5 +1,13 @@
 package org.jboss.pnc.environment.docker;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.base.Optional;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.net.HostAndPort;
+import com.google.inject.Module;
+import com.jcraft.jsch.agentproxy.Connector;
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.moduleconfig.DockerEnvironmentDriverModuleConfig;
@@ -28,7 +36,6 @@ import org.jclouds.sshj.config.SshjSshClientModule;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-
 import java.io.InputStream;
 import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
@@ -36,15 +43,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
-
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.base.Optional;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.net.HostAndPort;
-import com.google.inject.Module;
-import com.jcraft.jsch.agentproxy.Connector;
 
 /**
  * Implementation of environment driver, which uses Docker to run environments
@@ -144,12 +142,12 @@ public class DockerEnvironmentDriver implements EnvironmentDriver {
         logger.info("Trying to start Docker container...");
         int sshPort, jenkinsPort;
         try {
-            Container createdContainer = dockerClient.createContainer(
-                    containerId,
-                    Config.builder()
-                            .imageId(dockerImageId)
-                            .env(prepareEnvVariables())
-                            .build());
+            Config config = Config.builder()
+                    .imageId(dockerImageId)
+                    .env(prepareEnvVariables())
+                    .build();
+            logger.fine("Creating docker container with config: " + config);
+            Container createdContainer = dockerClient.createContainer(containerId, config);
             buildContainerState = BuildContainerState.BUILT;
 
             dockerClient.startContainer(containerId,
