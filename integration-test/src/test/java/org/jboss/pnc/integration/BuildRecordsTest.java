@@ -155,7 +155,7 @@ public class BuildRecordsTest {
     @Test
     public void shouldGetArtifactsForSpecificBuildRecord() {
         // when
-        List<ArtifactRest> artifacts = artifactProvider.getAll(0, 999, null, null, buildRecordId);
+        List<ArtifactRest> artifacts = artifactProvider.getAllForBuildRecord(0, 999, null, null, buildRecordId);
 
         // then
         assertThat(artifacts).hasSize(2);
@@ -167,7 +167,7 @@ public class BuildRecordsTest {
         String rsqlQuery = "status==BINARY_IMPORTED";
 
         // when
-        List<ArtifactRest> artifacts = artifactProvider.getAll(0, 999, null, rsqlQuery, buildRecordId);
+        List<ArtifactRest> artifacts = artifactProvider.getAllForBuildRecord(0, 999, null, rsqlQuery, buildRecordId);
 
         // then
         assertThat(artifacts).hasSize(1);
@@ -180,7 +180,7 @@ public class BuildRecordsTest {
         String rsqlQuery = "status==BINARY_BUILT";
 
         // when
-        List<ArtifactRest> artifacts = artifactProvider.getAll(0, 999, null, rsqlQuery, buildRecordId);
+        List<ArtifactRest> artifacts = artifactProvider.getAllForBuildRecord(0, 999, null, rsqlQuery, buildRecordId);
 
         // then
         assertThat(artifacts).hasSize(1);
