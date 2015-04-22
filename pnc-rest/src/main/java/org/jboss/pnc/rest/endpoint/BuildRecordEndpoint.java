@@ -65,7 +65,7 @@ public class BuildRecordEndpoint {
             @ApiParam(value = "Pagination size") @DefaultValue("50") @QueryParam("pageSize") int pageSize,
             @ApiParam(value = "Sorting RSQL") @QueryParam("sort") String sortingRsql,
             @ApiParam(value = "RSQL query", required = false) @QueryParam("q") String rsql) {
-        return artifactProvider.getAll(pageIndex, pageSize, sortingRsql, rsql, id);
+        return artifactProvider.getAllForBuildRecord(pageIndex, pageSize, sortingRsql, rsql, id);
     }
 
     @ApiOperation(value = "Gets the Build Records linked to a specific Build Configuration")

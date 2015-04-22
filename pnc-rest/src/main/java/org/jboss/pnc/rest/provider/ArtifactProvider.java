@@ -31,8 +31,12 @@ public class ArtifactProvider {
         this.artifactRepository = artifactRepository;
     }
 
-    public List<ArtifactRest> getAll(int pageIndex, int pageSize, String sortingRsql, String query, Integer buildRecordId) {
+    public List<ArtifactRest> getAllForBuildRecord(int pageIndex, int pageSize, String sortingRsql, String query, Integer buildRecordId) {
         return performQuery(pageIndex, pageSize, sortingRsql, query, withBuildRecordId(buildRecordId));
+    }
+
+    public List<ArtifactRest> getAllForBuildRecordSet(int pageIndex, int pageSize, String sortingRsql, String query, Integer buildRecordSetId) {
+        return performQuery(pageIndex, pageSize, sortingRsql, query, withBuildRecordSetId(buildRecordSetId));
     }
 
     private List<ArtifactRest> performQuery(int pageIndex, int pageSize, String sortingRsql, String query, BooleanExpression predicates) {

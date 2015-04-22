@@ -20,4 +20,8 @@ public class ArtifactPredicates {
         return QArtifact.artifact.status.in(ArtifactStatus.BINARY_BUILT);
     }
 
+    public static BooleanExpression withBuildRecordSetId(Integer buildRecordSetId) {
+        return createNotNullPredicate(buildRecordSetId != null, () -> QArtifact.artifact.buildRecord.buildRecordSets.any().id.eq(buildRecordSetId));
+    }
+
 }
