@@ -147,11 +147,12 @@
     '$log',
     '$state',
     'Notifications',
+    'PncRestClient',
     'configurationSetDetail',
     'configurations',
-    'PncRestClient',
     'previousState',
-    function($log, $state, Notifications, configurationSetDetail, configurations, PncRestClient, previousState) {
+    function($log, $state, Notifications, PncRestClient, configurationSetDetail,
+             configurations, previousState) {
       var self = this;
 
       $log.debug('ConfigurationSetDetailController >> this=%O', self);
@@ -176,18 +177,19 @@
       self.build = function() {
         $log.debug('**Initiating build of SET: %s**', self.set.name);
 
-        self.set.$build().then(
-          function(result) {
-            $log.debug('Initiated Build: %O, result: %O', self.set,
-                       result);
-            Notifications.success('Initiated build of configurationSet:' +
-                                  self.set.name);
-          },
-          function(response) {
-            $log.error('Failed to initiated build: %O, response: %O',
-                       self.set, response);
-            Notifications.error('Action Failed.');
-          }
+        PncRestClient.ConfigurationSet.build({
+          configurationSetId: self.set.id }, {}).$promise.then(
+            function(result) {
+              $log.debug('Initiated Build: %O, result: %O', self.set,
+                         result);
+              Notifications.success('Initiated build of configurationSet:' +
+                                    self.set.name);
+            },
+            function(response) {
+              $log.error('Failed to initiated build: %O, response: %O',
+                         self.set, response);
+              Notifications.error('Action Failed.');
+            }
         );
       };
 
