@@ -71,6 +71,8 @@
     <version.jbpm>6.2.0.Final</version.jbpm>
     <version.keycloak>1.1.0.Final</version.keycloak>
 
+    <datetime>${timestamp}</datetime>
+
     <!-- maven-compiler-plugin -->
     <maven.compiler.target>1.8</maven.compiler.target>
     <maven.compiler.source>1.8</maven.compiler.source>
@@ -791,8 +793,33 @@
         </plugin>
 
         <plugin>
-          <artifactId>maven-jar-plugin</artifactId>
-          <version>2.5</version>
+            <artifactId>maven-jar-plugin</artifactId>
+            <version>2.5</version>
+            <configuration>
+                <archive>
+                    <index>true</index>
+                    <manifest>
+                        <addDefaultSpecificationEntries>
+                            true
+                        </addDefaultSpecificationEntries>
+                        <addDefaultImplementationEntries>
+                            true
+                        </addDefaultImplementationEntries>
+                    </manifest>
+                    <manifestEntries>
+                        <Implementation-URL>${project.url}</Implementation-URL>
+                        <Java-Version>${java.version}</Java-Version>
+                        <Java-Vendor>${java.vendor}</Java-Vendor>
+                        <Os-Name>${os.name}</Os-Name>
+                        <Os-Arch>${os.arch}</Os-Arch>
+                        <Os-Version>${os.version}</Os-Version>
+                        <Scm-Url>${project.scm.url}</Scm-Url>
+                        <Scm-Connection>${project.scm.connection}</Scm-Connection>
+                        <Scm-Revision>${buildNumber}</Scm-Revision>
+                        <Build-Timestamp>${datetime}</Build-Timestamp>
+                    </manifestEntries>
+                </archive>
+            </configuration>
         </plugin>
 
         <plugin>
@@ -851,7 +878,7 @@
                 <Scm-Url>${project.scm.url}</Scm-Url>
                 <Scm-Connection>${project.scm.connection}</Scm-Connection>
                 <Scm-Revision>${buildNumber}</Scm-Revision>
-                <Build-Timestamp>${build.datetime}</Build-Timestamp>
+                <Build-Timestamp>${datetime}</Build-Timestamp>
               </manifestEntries>
             </archive>
             <version>6</version>
@@ -884,7 +911,7 @@
                 <Scm-Url>${project.scm.url}</Scm-Url>
                 <Scm-Connection>${project.scm.connection}</Scm-Connection>
                 <Scm-Revision>${buildNumber}</Scm-Revision>
-                <Build-Timestamp>${build.datetime}</Build-Timestamp>
+                <Build-Timestamp>${datetime}</Build-Timestamp>
               </manifestEntries>
             </archive>
           </configuration>
@@ -905,6 +932,20 @@
                 <shortRevisionLength>8</shortRevisionLength>
                 <timestampFormat>{0,date,dd MMMM yyyy}</timestampFormat>
               </configuration>
+            </execution>
+          </executions>
+        </plugin>
+
+        <plugin>
+          <groupId>org.codehaus.mojo</groupId>
+          <artifactId>build-helper-maven-plugin</artifactId>
+          <version>1.9.1</version>
+          <executions>
+            <execution>
+              <id>parse-version</id>
+              <goals>
+                <goal>parse-version</goal>
+              </goals>
             </execution>
           </executions>
         </plugin>
@@ -1008,6 +1049,10 @@
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>buildnumber-maven-plugin</artifactId>
+      </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>build-helper-maven-plugin</artifactId>
       </plugin>
       <plugin>
           <groupId>org.commonjava.maven.plugins</groupId>
