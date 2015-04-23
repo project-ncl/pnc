@@ -3,10 +3,12 @@ package org.jboss.pnc.rest.endpoint;
 import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
 import com.wordnik.swagger.annotations.ApiParam;
+
 import org.jboss.pnc.core.exception.CoreException;
 import org.jboss.pnc.rest.provider.BuildConfigurationSetProvider;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationRest;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationSetRest;
+import org.jboss.pnc.rest.restmodel.BuildRecordRest;
 import org.jboss.pnc.rest.trigger.BuildTriggerer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,6 +31,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
+
 import java.lang.invoke.MethodHandles;
 import java.util.List;
 
@@ -143,6 +146,19 @@ public class BuildConfigurationSetEndpoint {
             @ApiParam(value = "Build configuration id", required = true) @PathParam("configId") Integer configId) {
         buildConfigurationSetProvider.removeConfiguration(id, configId);
         return Response.ok().build();
+    }
+
+    @ApiOperation(value = "Gets all build records associated with the contained build configurations")
+    @GET
+    @Path("/{id}/build-records")
+    public List<BuildRecordRest> getBuildRecords(
+            @ApiParam(value = "Build configuration set id", required = true) @PathParam("id") Integer id,
+            @ApiParam(value = "Page index") @QueryParam("pageIndex") @DefaultValue("0") int pageIndex,
+            @ApiParam(value = "Pagination size") @DefaultValue("50") @QueryParam("pageSize") int pageSize,
+            @ApiParam(value = "Sorting RSQL") @QueryParam("sort") String sortingRsql,
+            @ApiParam(value = "RSQL query", required = false) @QueryParam("q") String rsql) {
+
+        return buildConfigurationSetProvider.getBuildRecords(id, pageIndex, pageSize, sortingRsql, rsql);
     }
 
 }
