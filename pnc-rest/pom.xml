@@ -48,6 +48,11 @@
       <scope>provided</scope>
     </dependency>
 
+    <dependency>
+      <groupId>org.jboss.pnc</groupId>
+      <artifactId>auth</artifactId>
+    </dependency>
+
     <!-- Remote dependencies -->
     <dependency>
       <groupId>org.jboss.spec</groupId>

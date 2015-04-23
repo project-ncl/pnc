@@ -4,8 +4,35 @@
       version="3.0">
 
     <module-name>pnc-rest</module-name>
-
+    
     <security-constraint>
+       <web-resource-collection>
+         <web-resource-name>All Access</web-resource-name>
+         <url-pattern>/rest/*</url-pattern>
+         <http-method>GET</http-method>
+       </web-resource-collection>
+    </security-constraint>
+    
+    <security-constraint>
+       <web-resource-collection>
+         <web-resource-name>Admin only Access</web-resource-name>
+         <url-pattern>/rest/*</url-pattern>
+         <http-method>DELETE</http-method>
+         <http-method>PUT</http-method>
+         <http-method>HEAD</http-method>
+         <http-method>OPTIONS</http-method>
+         <http-method>TRACE</http-method>
+         <http-method>POST</http-method>
+       </web-resource-collection>
+        <auth-constraint>
+            <role-name>admin</role-name>
+        </auth-constraint>
+    </security-constraint>
+    
+    
+    <!-- Do NOT delete commented constraints bellow until roles are well defined! -->
+
+    <!-- security-constraint>
         <web-resource-collection>
             <web-resource-name>product-rest-endpoint</web-resource-name>
             <url-pattern>/rest/products</url-pattern>
@@ -45,6 +72,28 @@
             <role-name>config-manager</role-name>
         </auth-constraint>
     </security-constraint>
+    
+    <security-constraint>
+        <web-resource-collection>
+            <web-resource-name>build-configuration-rest-endpoint_all</web-resource-name>
+            <url-pattern>/rest/build-configurations/*</url-pattern>
+        </web-resource-collection>
+        <auth-constraint>
+            <role-name>config-manager</role-name>
+        </auth-constraint>
+    </security-constraint>
+    
+    <security-constraint>
+        <web-resource-collection>
+            <web-resource-name>build-configuration-rest-endpoint</web-resource-name>
+            <url-pattern>/rest/build-configurations</url-pattern>
+        </web-resource-collection>
+        <auth-constraint>
+            <role-name>config-manager</role-name>
+        </auth-constraint>
+    </security-constraint-->
+    
+    
     
     
     

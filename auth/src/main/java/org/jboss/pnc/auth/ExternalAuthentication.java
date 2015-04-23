@@ -47,10 +47,15 @@ public class ExternalAuthentication {
         this.resourceName = keycloakDeployment.getResourceName();
     }
     
-    public AuthenticationProvider authenticate(String username, String password) throws IOException{
-        AuthenticationProvider provider = 
-                new AuthenticationProvider(
-                        authenticateToken(authenticateUser(username, password).getToken()),this.tokenResponse);
+    public AuthenticationProvider authenticate(String username, String password) 
+            throws IOException{
+        AuthenticationProvider provider = null;
+        try {
+            provider = new AuthenticationProvider(
+                    authenticateToken(authenticateUser(username, password).getToken()),this.tokenResponse);
+        } catch (SecurityContextNotAvailable e) {
+            log.error(e.getMessage());
+        }
         return provider;
     }
     
