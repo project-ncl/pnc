@@ -166,14 +166,16 @@
     '$stateParams',
     'PncRestClient',
     'buildRecordList',
-    function($log, $stateParams, PncRestClient, buildRecordList) {
+    'runningBuildRecordList',
+    function($log, $stateParams, PncRestClient, buildRecordList, runningBuildRecordList) {
       $log.debug('ConfigurationSidebarController >> arguments=%O', arguments);
 
       this.buildRecords = buildRecordList;
+      this.runningBuildRecordList = runningBuildRecordList;
 
       var that = this;
 
-      this.refresh = function() {
+      this.refreshRecent = function() {
         PncRestClient.Record.getAllForConfiguration({
             configurationId: $stateParams.configurationId
         }).$promise.then(
@@ -182,6 +184,15 @@
           }
         );
       };
+
+      this.refreshRunning = function() {
+        PncRestClient.Running.query().$promise.then(
+          function(result) {
+            that.runningBuildRecordList = result;
+          }
+        );
+      };
+
     }
   ]);
 

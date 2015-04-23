@@ -111,6 +111,9 @@
         buildRecordList: function(restClient, $stateParams) {
           return restClient.Record.getAllForConfiguration({
             configurationId: $stateParams.configurationId }).$promise;
+        },
+        runningBuildRecordList: function(restClient) {
+          return restClient.Running.query().$promise;
         }
       }
     });

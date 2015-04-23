@@ -150,9 +150,10 @@
     'PncRestClient',
     'configurationSetDetail',
     'configurations',
+    'records',
     'previousState',
     function($log, $state, Notifications, PncRestClient, configurationSetDetail,
-             configurations, previousState) {
+             configurations, records, previousState) {
       var self = this;
 
       $log.debug('ConfigurationSetDetailController >> this=%O', self);
@@ -170,6 +171,45 @@
               if (result[0]) {
                 self.lastBuildRecords.push(result[0]);
               }
+            }
+          );
+      });
+
+      self.records = records;
+
+      // Build a wrapper object that contains all is needed (to avoid 'ng-repeat' in the pages)
+      self.buildRecordArtifactsWO = [];
+
+      // Retrieve all the artifacts of all the build records of the build configurations set
+      angular.forEach(records, function(record){
+
+          PncRestClient.Record.getArtifacts({
+              recordId: record.id
+          }).$promise.then(
+            function (results) {
+
+               var buildRecordArtifactWO = {};
+               var artifacts = [];
+
+               // For each artifact found, add it to a temp list
+               angular.forEach(results, function(result){
+                 artifacts.push(result);
+               });
+
+               // Add the artifacts temp list to the WO
+               buildRecordArtifactWO.artifacts = artifacts;
+
+               // Add the build record to the WO
+               buildRecordArtifactWO.buildRecord = record;
+
+               angular.forEach(configurations, function(configuration){
+                 if (configuration.id === record.buildConfigurationId) {
+                   // Add the build configuration to the WO
+                   buildRecordArtifactWO.buildConfiguration = configuration;
+                 }
+               });
+
+               self.buildRecordArtifactsWO.push(buildRecordArtifactWO);
             }
           );
       });
@@ -194,7 +234,7 @@
       };
 
       // Update a build configuration set after editting
-      this.update = function() {
+      self.update = function() {
         $log.debug('Updating configuration-set: %O', this.set);
 
         this.set.$update().then(

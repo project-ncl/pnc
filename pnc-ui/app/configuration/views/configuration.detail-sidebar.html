@@ -1,30 +1,69 @@
 <div class="push-down">
-<div class="panel panel-default">
-<div class="panel-heading"><span class="pull-right"><a role="button" ng-click="sidebarCtrl.refresh()" href><i class="pficon pficon-refresh"></i></a></span>Recent Builds</div>
-  <table class="table table-striped table-hover">
-    <tbody>
-      <tr ng-repeat="record in sidebarCtrl.buildRecords">
-        <td>
-          <span ng-switch on="record.status">
-            <img ng-switch-when="BUILDING" alt="BUILDING" src='images/blue_anime.gif'>
-            <img ng-switch-when="SUCCESS" alt="SUCCESS" src='images/success_small.png'>
-            <img ng-switch-when="UNSTABLE" alt="UNSTABLE" src='images/red_small.png'>
-            <img ng-switch-when="FAILED" alt="FAILED" src='images/red_small.png'>
-            <img ng-switch-when="ABORTED" alt="ABORTED" src='images/aborted_small.png'>
-            <img ng-switch-when="CANCELLED" alt="CANCELLED" src='images/aborted_small.png'>
-            <img ng-switch-default alt="UNKNOWN" src='images/unknown_small.png'>
-          </span>
-        </td>
-        <td><a href ui-sref="record.detail.info({recordId: record.id})"> # {{ record.id }}</a></td>
-        <td><a href ui-sref="record.detail.info({recordId: record.id})">{{ record.name }}</a></td>
-        <td>{{ record.startTime | date:'medium'}}</td>
-      </tr>
-      <tr ng-hide="sidebarCtrl.buildRecords.length">
-        <td>
-          No builds found
-        </td>
-      </tr>
-    </tbody>
-  </table>
-</div>
+  <div class="panel panel-default">
+    <div class="panel-heading">
+      <span class="pull-right">
+        <a role="button" ng-click="sidebarCtrl.refreshRunning()" href><i class="pficon pficon-refresh"></i></a>
+      </span>
+      Running Builds
+    </div>
+    <table class="table table-striped table-hover">
+      <tbody>
+        <tr ng-repeat="runningRecord in sidebarCtrl.runningBuildRecordList">
+          <td>
+            <span ng-switch on="runningRecord.status">
+              <img ng-switch-when="BUILDING" alt="BUILDING" src='images/blue_anime.gif'>
+              <img ng-switch-when="SUCCESS" alt="SUCCESS" src='images/success_small.png'>
+              <img ng-switch-when="UNSTABLE" alt="UNSTABLE" src='images/red_small.png'>
+              <img ng-switch-when="FAILED" alt="FAILED" src='images/red_small.png'>
+              <img ng-switch-when="ABORTED" alt="ABORTED" src='images/aborted_small.png'>
+              <img ng-switch-when="CANCELLED" alt="CANCELLED" src='images/aborted_small.png'>
+              <img ng-switch-default alt="UNKNOWN" src='images/unknown_small.png'>
+            </span>
+          </td>
+          <td> # {{ runningRecord.id }}</td>
+          <td> {{ runningRecord.name }}</td>
+          <td>{{ runningRecord.startTime | date:'medium'}}</td>
+        </tr>
+        <tr ng-hide="sidebarCtrl.runningBuildRecordList.length">
+          <td>
+            No running builds
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="panel panel-default">
+    <div class="panel-heading">
+      <span class="pull-right">
+        <a role="button" ng-click="sidebarCtrl.refreshRecent()" href><i class="pficon pficon-refresh"></i></a>
+      </span>
+      Recent Builds
+    </div>
+    <table class="table table-striped table-hover">
+      <tbody>
+        <tr ng-repeat="record in sidebarCtrl.buildRecords">
+          <td>
+            <span ng-switch on="record.status">
+              <img ng-switch-when="BUILDING" alt="BUILDING" src='images/blue_anime.gif'>
+              <img ng-switch-when="SUCCESS" alt="SUCCESS" src='images/success_small.png'>
+              <img ng-switch-when="UNSTABLE" alt="UNSTABLE" src='images/red_small.png'>
+              <img ng-switch-when="FAILED" alt="FAILED" src='images/red_small.png'>
+              <img ng-switch-when="ABORTED" alt="ABORTED" src='images/aborted_small.png'>
+              <img ng-switch-when="CANCELLED" alt="CANCELLED" src='images/aborted_small.png'>
+              <img ng-switch-default alt="UNKNOWN" src='images/unknown_small.png'>
+            </span>
+          </td>
+          <td><a href ui-sref="record.detail.info({recordId: record.id})"> # {{ record.id }}</a></td>
+          <td><a href ui-sref="record.detail.info({recordId: record.id})">{{ record.name }}</a></td>
+          <td>{{ record.startTime | date:'medium'}}</td>
+        </tr>
+        <tr ng-hide="sidebarCtrl.buildRecords.length">
+          <td>
+            No recent builds
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
 </div>
