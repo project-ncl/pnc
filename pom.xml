@@ -1130,7 +1130,9 @@
             <autoVersionSubmodules>true</autoVersionSubmodules>
             <mavenExecutorId>forked-path</mavenExecutorId>
             <useReleaseProfile>false</useReleaseProfile>
+            <addSchema>false</addSchema>
             <arguments>-Prelease -DskipTests=${skipTests}</arguments>
+            <completionGoals>scm:add scm:checkin -DpushChanges=${pushChanges}</completionGoals>
           </configuration>
         </plugin>
       <plugin>
@@ -1275,7 +1277,64 @@
     <profile>
       <id>release</id>
       <build>
-        <plugins>
+          <pluginManagement>
+              <plugins>
+                  <plugin>
+                      <artifactId>maven-scm-plugin</artifactId>
+                      <version>1.8.1</version>
+                      <configuration>
+                          <includes>pnc-ui/bower.json,pnc-ui/package.json,pnc-ui/npm-shrinkwrap.json</includes>
+                          <message>Update JSON Versions</message>
+                      </configuration>
+                  </plugin>
+              </plugins>
+          </pluginManagement>
+          <plugins>
+            <plugin>
+              <groupId>org.apache.maven.plugins</groupId>
+              <artifactId>maven-antrun-plugin</artifactId>
+              <executions>
+                <execution>
+                  <id>generate-compiler-sources</id>
+                  <phase>verify</phase>
+                  <goals>
+                    <goal>run</goal>
+                  </goals>
+                  <configuration>
+                    <target>
+                      <loadproperties srcFile="${executionRoot}/release.properties">
+                        <filterchain>
+                          <linecontains>
+                            <contains value="project.rel.org.jboss.pnc\:parent"/>
+                          </linecontains>
+                        </filterchain>
+                      </loadproperties>
+
+                      <property name="newversion" value="${project.rel.org.jboss.pnc:parent}"/>
+
+                      <replaceregexp byline="false"
+                                     flags="m"
+                                     file="${basedir}/bower.json"
+                                     match="pnc-ui&quot;,&#10;  &quot;version&quot;: &quot;[0-9].*&quot;"
+                                     replace="pnc-ui&quot;,&#10;  &quot;version&quot;: &quot;${newversion}&quot;"/>
+                      <replaceregexp byline="false"
+                                     flags="m"
+                                     file="${basedir}/package.json"
+                                     match="pnc-ui&quot;,&#10;  &quot;version&quot;: &quot;[0-9].*&quot;"
+                                     replace="pnc-ui&quot;,&#10;  &quot;version&quot;: &quot;${newversion}&quot;"/>
+
+                      <replaceregexp byline="false"
+                                     flags="m"
+                                     file="${basedir}/npm-shrinkwrap.json"
+                                     match="pnc-ui&quot;,&#10;  &quot;version&quot;: &quot;[0-9].*&quot;"
+                                     replace="pnc-ui&quot;,&#10;  &quot;version&quot;: &quot;${newversion}&quot;"/>
+
+                    </target>
+                  </configuration>
+                </execution>
+              </executions>
+            </plugin>
+
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-source-plugin</artifactId>

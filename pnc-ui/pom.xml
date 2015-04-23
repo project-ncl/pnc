@@ -31,33 +31,20 @@
         <artifactId>maven-resources-plugin</artifactId>
         <executions>
           <execution>
-            <id>generate-json-versions</id>
-            <phase>generate-sources</phase>
-            <goals>
-              <goal>copy-resources</goal>
-            </goals>
-            <configuration>
-              <outputDirectory>${basedir}</outputDirectory>
-              <resources>
-                <resource>
-                  <directory>json</directory>
-                  <filtering>true</filtering>
-                </resource>
-              </resources>
-            </configuration>
-          </execution>
-          <execution>
             <id>generate-html-version</id>
             <phase>generate-sources</phase>
             <goals>
               <goal>copy-resources</goal>
             </goals>
             <configuration>
-              <outputDirectory>app</outputDirectory>
+              <outputDirectory>dist</outputDirectory>
               <resources>
                 <resource>
-                  <directory>html</directory>
+                  <directory>app</directory>
                   <filtering>true</filtering>
+                  <includes>
+                      <include>footer.htm</include>
+                  </includes>
                 </resource>
               </resources>
             </configuration>
