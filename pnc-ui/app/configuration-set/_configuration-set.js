@@ -58,6 +58,10 @@
           return restClient.ConfigurationSet.getConfigurations({
             configurationSetId: $stateParams.configurationSetId }).$promise;
         },
+        records: function(restClient, $stateParams) {
+          return restClient.ConfigurationSet.getRecords({
+            configurationSetId: $stateParams.configurationSetId}).$promise;
+        },
         previousState: ['$state', function ($state) {
           var currentStateData = {
             Name: $state.current.name,
@@ -104,6 +108,7 @@
         },
       },
     });
+
   }]);
 
 })();

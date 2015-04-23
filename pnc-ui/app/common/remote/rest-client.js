@@ -176,6 +176,11 @@
             url: REST_DEFAULTS.BASE_URL + '/build-configuration-sets/:configurationSetId/build-configurations',
             isArray: false,
           },
+          getRecords: {
+            method: 'GET',
+            url: REST_DEFAULTS.BASE_URL + '/build-configuration-sets/:configurationSetId/build-records',
+            isArray: true,
+          },
         }),
 
         RecordSet: $resource(REST_DEFAULTS.BASE_URL + '/build-record-sets/:recordsetId', {

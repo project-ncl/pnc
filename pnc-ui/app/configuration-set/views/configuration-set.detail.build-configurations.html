@@ -1,0 +1,57 @@
+<div>
+  <pnc-header-title><small></small></pnc-header-title>
+  <pnc-header-buttons>
+    <button type="button" class="btn btn-lg btn-default" data-toggle="tooltip" title="Add an existing Build Configuration" ui-sref="configuration-set.add-configuration({ configurationSetId: detailSetCtrl.set.id })">
+      <i class="pficon pficon-add"></i> Add
+    </button>
+    <button type="button" class="btn btn-lg btn-default disabled" data-toggle="tooltip" title="Create a new Build Configuration">
+      <i class="pficon pficon-add"></i> Create
+    </button>
+  </pnc-header-buttons>
+
+  <input ng-model="searchText" placeholder="filter config...">
+  <table class="table table-bordered table-striped table-hover">
+    <thead>
+      <th>Name</th>
+      <th>Created</th>
+      <th>Modified</th>
+      <th>User</th>
+      <th>Last Build</th>
+      <th>Actions</th>
+    </thead>
+    <tbody>
+      <tr ng-repeat="configuration in detailSetCtrl.configurations | filter:searchText">
+        <td>
+          <a ui-sref="configuration.detail.show({configurationId: configuration.id})" href>
+            {{ configuration.name }}
+          </a>
+        </td>
+        <td>{{ configuration.creationTime | date:'medium'}}</td>
+        <td>{{ configuration.lastModificationTime | date:'medium'}}</td>
+        <td>John Doe</td>
+        <td>
+          <div ng-repeat="buildRecord in detailSetCtrl.lastBuildRecords | filter: { buildConfigurationId: configuration.id }">
+            <span ng-switch on="buildRecord.status">
+              <img ng-switch-when="BUILDING" alt="BUILDING" src='images/blue_anime.gif'>
+              <img ng-switch-when="SUCCESS" alt="SUCCESS" src='images/success_small.png'>
+              <img ng-switch-when="UNSTABLE" alt="UNSTABLE" src='images/red_small.png'>
+              <img ng-switch-when="FAILED" alt="FAILED" src='images/red_small.png'>
+              <img ng-switch-when="ABORTED" alt="ABORTED" src='images/aborted_small.png'>
+              <img ng-switch-when="CANCELLED" alt="CANCELLED" src='images/aborted_small.png'>
+              <img ng-switch-default alt="UNKNOWN" src='images/unknown_small.png'>
+            </span>
+            <span><a href ui-sref="record.detail.info({recordId: buildRecord.id})"> # {{ buildRecord.id }}  </a></span>
+              {{ buildRecord.endTime | date:'medium'}}
+          </div>
+        </td>
+        <td class="text-center">
+          <span class="btn-group" role="group" aria-label="Action Tools">
+            <button class="btn btn-xs btn-default disabled">Edit</button>
+            <button class="btn btn-xs btn-default" data-toggle="tooltip" title="Remove Build Configuration from Build Configuration Set" pnc-confirm-click="detailSetCtrl.remove(configuration.id)" pnc-confirm-message="{{ 'Confirm the removal of Build Configuration: ' + configuration.name +  ' from Build Configuration Set: ' + detailSetCtrl.set.name + ' ?'}}">Remove</button>
+            <button type="button" class="btn btn-xs btn-danger" data-toggle="tooltip" title="Delete Build Configuration" pnc-confirm-click="detailCtrl.delete()" pnc-confirm-message="{{ 'Confirm the deletion of Build Configuration: ' + configuration.name + ' ?'}}"><i class="pficon pficon-delete"></i> Delete</button>
+          </span>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>

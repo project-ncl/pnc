@@ -1,0 +1,35 @@
+<div>
+  <br/><br/>
+  <input ng-model="searchText" placeholder="Filter artifacts...">
+  <table class="table table-bordered table-striped">
+    <thead>
+      <th>Identifier</th>
+      <th>File Name</th>
+      <th>Status</th>
+      <th>Actions</th>
+      <th>Build Configuration Name</th>
+      <th>Last Build</th>
+      <th>Build Record</th>
+    </thead>
+    <tbody>
+      <tr ng-repeat-start="buildRecordArtifactWO in detailSetCtrl.buildRecordArtifactsWO | filter:searchText">
+
+        <tr ng-repeat="artifact in buildRecordArtifactWO.artifacts | filter:searchText">
+
+          <td>{{ artifact.identifier }}</td>
+          <td>{{ artifact.filename }}</td>
+          <td>{{ artifact.status }}</td>
+          <td class="text-center"><a ng-href="{{ artifact.deployUrl }}" target="_self" class="btn btn-primary">Download</a></td>
+          <td> {{ buildRecordArtifactWO.buildConfiguration.name }} </td>
+          <td> {{ buildRecordArtifactWO.buildRecord.endTime | date:'medium'}} </td>
+          <td>
+            <span>
+              <a href ui-sref="record.detail.info({recordId: buildRecordArtifactWO.buildRecord.id})"> # {{ buildRecordArtifactWO.buildRecord.id }}  </a>
+            </span>
+          </td>
+        </tr> 
+      </tr>
+      <tr ng-repeat-end></tr>
+    </tbody>
+  </table>
+</div>
