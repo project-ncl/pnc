@@ -72,6 +72,7 @@
     <version.keycloak>1.1.0.Final</version.keycloak>
 
     <datetime>${timestamp}</datetime>
+    <pushChanges>true</pushChanges>
 
     <!-- maven-compiler-plugin -->
     <maven.compiler.target>1.8</maven.compiler.target>
@@ -1131,7 +1132,7 @@
             <mavenExecutorId>forked-path</mavenExecutorId>
             <useReleaseProfile>false</useReleaseProfile>
             <addSchema>false</addSchema>
-            <arguments>-Prelease -DskipTests=${skipTests}</arguments>
+            <arguments>-Prelease -DskipTests=${skipTests} -DpushChanges=${pushChanges}</arguments>
             <completionGoals>scm:add scm:checkin -DpushChanges=${pushChanges}</completionGoals>
           </configuration>
         </plugin>
