@@ -4,18 +4,35 @@
       version="3.0">
 
     <module-name>pnc-rest</module-name>
-    
+
     <security-constraint>
        <web-resource-collection>
-         <web-resource-name>All Access</web-resource-name>
-         <url-pattern>/rest/*</url-pattern>
-         <http-method>GET</http-method>
+         <web-resource-name>All Access for api docs</web-resource-name>
+         <url-pattern>/rest/api-docs/*</url-pattern>
+       </web-resource-collection>
+    </security-constraint>
+
+    <security-constraint>
+       <web-resource-collection>
+         <web-resource-name>All Access for api docs</web-resource-name>
+         <url-pattern>/rest/api-docs</url-pattern>
        </web-resource-collection>
     </security-constraint>
     
     <security-constraint>
        <web-resource-collection>
-         <web-resource-name>Admin only Access</web-resource-name>
+         <web-resource-name>All Access for users on GET</web-resource-name>
+         <url-pattern>/rest/*</url-pattern>
+         <http-method>GET</http-method>
+       </web-resource-collection>
+        <auth-constraint>
+            <role-name>user</role-name>
+        </auth-constraint>
+    </security-constraint>
+    
+    <security-constraint>
+       <web-resource-collection>
+         <web-resource-name>Authorized users Access</web-resource-name>
          <url-pattern>/rest/*</url-pattern>
          <http-method>DELETE</http-method>
          <http-method>PUT</http-method>
