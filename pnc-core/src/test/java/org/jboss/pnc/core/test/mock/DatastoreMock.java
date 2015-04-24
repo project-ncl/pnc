@@ -1,6 +1,7 @@
 package org.jboss.pnc.core.test.mock;
 
 import org.jboss.pnc.model.BuildRecord;
+import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.datastore.Datastore;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -23,6 +24,13 @@ public class DatastoreMock implements Datastore {
     public void storeCompletedBuild(BuildRecord buildRecord) {
         log.info("Storing build " + buildRecord.getLatestBuildConfiguration());
         buildRecords.add(buildRecord);
+    }
+
+    @Override
+    public User retrieveUserByUsername(String username) {
+        User user = new User();
+        user.setUsername("demo-user");
+        return user;
     }
 
     public List<BuildRecord> getBuildRecords() {
