@@ -2,9 +2,16 @@ package org.jboss.pnc.integration;
 
 import com.jayway.restassured.http.ContentType;
 import com.jayway.restassured.response.Response;
+
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.junit.InSequence;
+import org.jboss.pnc.auth.AuthenticationProvider;
+import org.jboss.pnc.auth.ExternalAuthentication;
+import org.jboss.pnc.common.Configuration;
+import org.jboss.pnc.common.json.ConfigurationParseException;
+import org.jboss.pnc.common.json.moduleconfig.AuthenticationModuleConfig;
+import org.jboss.pnc.integration.Utils.AuthResource;
 import org.jboss.pnc.integration.Utils.ResponseUtils;
 import org.jboss.pnc.integration.assertions.ResponseAssertion;
 import org.jboss.pnc.integration.deployments.Deployments;
@@ -14,12 +21,15 @@ import org.jboss.pnc.rest.restmodel.LicenseRest;
 import org.jboss.pnc.test.category.ContainerTest;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.lang.invoke.MethodHandles;
 
 import static com.jayway.restassured.RestAssured.given;
@@ -38,6 +48,8 @@ public class LicenseRestTest {
     public static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
     private static Integer licenseId;
+    private static AuthenticationProvider authProvider;
+    private static String access_token =  "no-auth";
 
     @Deployment(testable = false)
     public static EnterpriseArchive deploy() {
@@ -52,6 +64,18 @@ public class LicenseRestTest {
         return enterpriseArchive;
     }
 
+    @BeforeClass
+    public static void setupAuth() throws IOException, ConfigurationParseException {
+        if(AuthResource.authEnabled()) {
+            Configuration configuration = new Configuration();
+            AuthenticationModuleConfig config = configuration.getModuleConfig(AuthenticationModuleConfig.class);
+            InputStream is = BuildRecordRestTest.class.getResourceAsStream("/keycloak.json");
+            ExternalAuthentication ea = new ExternalAuthentication(is);
+            authProvider = ea.authenticate(config.getUsername(), config.getPassword());
+            access_token = authProvider.getTokenString();
+        }
+    }
+
     @Test
     @InSequence(0)
     public void shouldCreateNewLicense() throws Exception {
@@ -59,7 +83,10 @@ public class LicenseRestTest {
         String loremIpsumLicense = toJson(loremIpsumLicense());
 
         //when
-        Response response = given().body(loremIpsumLicense).contentType(ContentType.JSON).port(getHttpPort())
+        Response response = given()
+                .header("Accept", "application/json")
+                .header("Authorization", "Bearer " + access_token)
+                .body(loremIpsumLicense).contentType(ContentType.JSON).port(getHttpPort())
                 .header("Content-Type", "application/json; charset=UTF-8").when().post(LICENSE_REST_ENDPOINT);
         licenseId = ResponseUtils.getIdFromLocationHeader(response);
 
@@ -77,10 +104,16 @@ public class LicenseRestTest {
         loremIpsumLicenseModified.setFullContent("No Lorem Ipsum");
 
         //when
-        Response putResponse = given().body(toJson(loremIpsumLicenseModified)).contentType(ContentType.JSON).port(getHttpPort()).when()
+        Response putResponse = given()
+                .header("Accept", "application/json")
+                .header("Authorization", "Bearer " + access_token)
+                .body(toJson(loremIpsumLicenseModified)).contentType(ContentType.JSON).port(getHttpPort()).when()
                 .put(String.format(LICENSE_REST_ENDPOINT_SPECIFIC, licenseId));
 
-        Response getResponse = given().contentType(ContentType.JSON).port(getHttpPort()).when()
+        Response getResponse = given()
+                .header("Accept", "application/json")
+                .header("Authorization", "Bearer " + access_token)
+                .contentType(ContentType.JSON).port(getHttpPort()).when()
                 .get(String.format(LICENSE_REST_ENDPOINT_SPECIFIC, licenseId));
 
         LicenseRest noLoremIpsum = fromJson(getResponse.body().asString(), LicenseRest.class);
@@ -96,10 +129,15 @@ public class LicenseRestTest {
     @InSequence(2)
     public void shouldDeleteLicense() throws Exception {
         //when
-        Response deleteResponse = given().port(getHttpPort()).when()
+        Response deleteResponse = given()
+                .header("Accept", "application/json")
+                .header("Authorization", "Bearer " + access_token).port(getHttpPort()).when()
                 .delete(String.format(LICENSE_REST_ENDPOINT_SPECIFIC, licenseId));
 
-        Response getResponse = given().contentType(ContentType.JSON).port(getHttpPort()).when()
+        Response getResponse = given()
+                .header("Accept", "application/json")
+                .header("Authorization", "Bearer " + access_token)
+                .contentType(ContentType.JSON).port(getHttpPort()).when()
                 .get(String.format(LICENSE_REST_ENDPOINT_SPECIFIC, licenseId));
 
         //then
