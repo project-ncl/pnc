@@ -1,20 +1,10 @@
 package org.jboss.pnc.rest.endpoint;
 
-import com.wordnik.swagger.annotations.Api;
-import com.wordnik.swagger.annotations.ApiOperation;
-import com.wordnik.swagger.annotations.ApiParam;
-
-import org.jboss.pnc.core.exception.CoreException;
-import org.jboss.pnc.model.User;
-import org.jboss.pnc.rest.provider.BuildConfigurationSetProvider;
-import org.jboss.pnc.rest.restmodel.BuildConfigurationRest;
-import org.jboss.pnc.rest.restmodel.BuildConfigurationSetRest;
-import org.jboss.pnc.rest.restmodel.BuildRecordRest;
-import org.jboss.pnc.rest.trigger.BuildTriggerer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
+import java.util.List;
 
 import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
@@ -33,8 +23,21 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 
-import java.lang.invoke.MethodHandles;
-import java.util.List;
+import org.jboss.pnc.auth.AuthenticationProvider;
+import org.jboss.pnc.core.exception.CoreException;
+import org.jboss.pnc.model.User;
+import org.jboss.pnc.rest.provider.BuildConfigurationSetProvider;
+import org.jboss.pnc.rest.restmodel.BuildConfigurationRest;
+import org.jboss.pnc.rest.restmodel.BuildConfigurationSetRest;
+import org.jboss.pnc.rest.restmodel.BuildRecordRest;
+import org.jboss.pnc.rest.trigger.BuildTriggerer;
+import org.jboss.pnc.spi.datastore.Datastore;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.wordnik.swagger.annotations.Api;
+import com.wordnik.swagger.annotations.ApiOperation;
+import com.wordnik.swagger.annotations.ApiParam;
 
 @Api(value = "/build-configuration-sets", description = "Set of related build configurations")
 @Path("/build-configuration-sets")
@@ -46,6 +49,13 @@ public class BuildConfigurationSetEndpoint {
 
     private BuildConfigurationSetProvider buildConfigurationSetProvider;
     private BuildTriggerer buildTriggerer;
+    
+    @Context
+    private HttpServletRequest httpServletRequest;
+    
+    @Inject
+    private Datastore datastore;
+    
 
     public BuildConfigurationSetEndpoint() {
     }
@@ -118,7 +128,8 @@ public class BuildConfigurationSetEndpoint {
         logger.info("Executing build configuration set id: " + id );
 
         try {
-            User currentUser = null; //TODO
+            AuthenticationProvider authProvider = new AuthenticationProvider(httpServletRequest);
+            User currentUser = datastore.retrieveUserByUsername(authProvider.getPrefferedUserName());
             Integer runningBuildId = buildTriggerer.triggerBuildConfigurationSet(id, currentUser);
             return Response.ok().build();
         } catch (CoreException e) {

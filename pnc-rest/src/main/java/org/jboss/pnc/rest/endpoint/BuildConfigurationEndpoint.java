@@ -1,18 +1,11 @@
 package org.jboss.pnc.rest.endpoint;
 
-import com.wordnik.swagger.annotations.Api;
-import com.wordnik.swagger.annotations.ApiOperation;
-import com.wordnik.swagger.annotations.ApiParam;
-import org.jboss.pnc.core.exception.CoreException;
-import org.jboss.pnc.model.User;
-import org.jboss.pnc.rest.provider.BuildConfigurationProvider;
-import org.jboss.pnc.rest.provider.BuildRecordProvider;
-import org.jboss.pnc.rest.restmodel.BuildConfigurationRest;
-import org.jboss.pnc.rest.trigger.BuildTriggerer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
+import java.net.URI;
+import java.util.List;
 
 import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
@@ -30,9 +23,21 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
-import java.lang.invoke.MethodHandles;
-import java.net.URI;
-import java.util.List;
+
+import org.jboss.pnc.auth.AuthenticationProvider;
+import org.jboss.pnc.core.exception.CoreException;
+import org.jboss.pnc.model.User;
+import org.jboss.pnc.rest.provider.BuildConfigurationProvider;
+import org.jboss.pnc.rest.provider.BuildRecordProvider;
+import org.jboss.pnc.rest.restmodel.BuildConfigurationRest;
+import org.jboss.pnc.rest.trigger.BuildTriggerer;
+import org.jboss.pnc.spi.datastore.Datastore;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.wordnik.swagger.annotations.Api;
+import com.wordnik.swagger.annotations.ApiOperation;
+import com.wordnik.swagger.annotations.ApiParam;
 
 @Api(value = "/build-configurations", description = "Build configuration entities")
 @Path("/build-configurations")
@@ -45,6 +50,12 @@ public class BuildConfigurationEndpoint {
     private BuildConfigurationProvider buildConfigurationProvider;
     private BuildTriggerer buildTriggerer;
     private BuildRecordProvider buildRecordProvider;
+    
+    @Context
+    private HttpServletRequest httpServletRequest;
+    
+    @Inject
+    private Datastore datastore;
 
     public BuildConfigurationEndpoint() {
     }
@@ -116,7 +127,8 @@ public class BuildConfigurationEndpoint {
     public Response trigger(@ApiParam(value = "Build Configuration id", required = true) @PathParam("id") Integer id,
             @Context UriInfo uriInfo) {
         try {
-            User currentUser = null; //TODO
+            AuthenticationProvider authProvider = new AuthenticationProvider(httpServletRequest);
+            User currentUser = datastore.retrieveUserByUsername(authProvider.getPrefferedUserName());
             Integer runningBuildId = buildTriggerer.triggerBuilds(id, currentUser);
             UriBuilder uriBuilder = UriBuilder.fromUri(uriInfo.getBaseUri()).path("/result/running/{id}");
             URI uri = uriBuilder.build(runningBuildId);
