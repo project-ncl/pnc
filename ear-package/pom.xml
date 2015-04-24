@@ -17,6 +17,10 @@
     <!-- Depend on the modules so that we can package them -->
     <dependency>
       <groupId>org.jboss.pnc</groupId>
+      <artifactId>auth</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.pnc</groupId>
       <artifactId>common</artifactId>
     </dependency>
     <dependency>

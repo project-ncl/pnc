@@ -13,6 +13,7 @@ import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.BuildRecordSet;
+import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerException;
 
@@ -27,7 +28,7 @@ public class BuildTriggerer {
     private BuildConfigurationAuditedRepository buildConfigurationAuditedRepository;
     private BuildConfigurationSetRepository buildConfigurationSetRepository;
 
-    //to make CDI happy
+    @Deprecated //not meant for usage its only to make CDI happy
     public BuildTriggerer() {
     }
 
@@ -42,7 +43,7 @@ public class BuildTriggerer {
         this.buildConfigurationSetRepository= buildConfigurationSetRepository;
     }
 
-    public int triggerBuilds( final Integer configurationId )
+    public int triggerBuilds( final Integer configurationId, User currentUser )
         throws InterruptedException, CoreException, BuildDriverException, RepositoryManagerException
     {
         final BuildConfiguration configuration = buildConfigurationRepository.findOne(configurationId);
@@ -55,10 +56,10 @@ public class BuildTriggerer {
             buildRecordSet.setProductMilestone(configuration.getProductVersion().getCurrentProductMilestone());
         }
 
-        return buildCoordinator.build(configuration).getBuildConfiguration().getId();
+        return buildCoordinator.build(configuration, currentUser).getBuildConfiguration().getId();
     }
 
-    public int triggerBuildConfigurationSet( final Integer buildConfigurationSetId )
+    public int triggerBuildConfigurationSet( final Integer buildConfigurationSetId, User currentUser )
         throws InterruptedException, CoreException, BuildDriverException, RepositoryManagerException
     {
         final BuildConfigurationSet buildConfigurationSet = buildConfigurationSetRepository.findOne(buildConfigurationSetId);
@@ -67,7 +68,7 @@ public class BuildTriggerer {
         for (BuildConfiguration config : buildConfigurationSet.getBuildConfigurations()) {
             config.setBuildConfigurationAudited(this.getLatestAuditedBuildConfiguration(config.getId()));
         }
-        return buildCoordinator.build(buildConfigurationSet).getId();
+        return buildCoordinator.build(buildConfigurationSet, currentUser).getId();
     }
 
     /**

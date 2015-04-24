@@ -228,7 +228,10 @@ public class RestTest {
         String rawJson = IoUtils.readFileOrResource("project", "project.json", getClass().getClassLoader());
         logger.info(rawJson);
 
-        Response response = given().body(rawJson).contentType(ContentType.JSON).port(getHttpPort())
+        Response response = given()
+                .header("Accept", "application/json")
+                .header("Authorization", "Bearer " + access_token)
+                .body(rawJson).contentType(ContentType.JSON).port(getHttpPort())
                 .header("Content-Type", "application/json; charset=UTF-8").when().post(PROJECT_REST_ENDPOINT);
         Assertions.assertThat(response.statusCode()).isEqualTo(201);
 
@@ -246,8 +249,10 @@ public class RestTest {
     public void shouldUpdateProject() {
         logger.info("### newProjectId: " + newProjectId);
 
-        Response response = given().header("Accept", "application/json").header("Authorization", "Bearer " + access_token)
-                    .contentType(ContentType.JSON).port(getHttpPort()).when()
+        Response response = given()
+                .header("Accept", "application/json")
+                .header("Authorization", "Bearer " + access_token)
+                .contentType(ContentType.JSON).port(getHttpPort()).when()
                 .get(String.format(PROJECT_REST_ENDPOINT_SPECIFIC, newProjectId));
 
         Assertions.assertThat(response.statusCode()).isEqualTo(200);
