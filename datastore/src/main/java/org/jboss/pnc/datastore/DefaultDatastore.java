@@ -44,5 +44,11 @@ public class DefaultDatastore implements Datastore {
             buildRecord.setLatestBuildConfiguration(configurationFromDB);
         }
     }
+
+    @Override
+    public void createNewUser(User user) {
+        userRepository.save(user);
+        
+    }
     
 }

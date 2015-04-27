@@ -116,19 +116,27 @@ public class AuthenticationProvider {
        return auth.getEmail();
     }
 
-    public String getPrefferedUserName() {
+    public String getUserName() {
         if(auth == null) {
             return DemoUser.username;
         } 
         return this.auth.getPreferredUsername();
     }
 
-    public String getName() {
+    public String getFirstName() {
         if(auth == null) {
-            return DemoUser.username;
+            return DemoUser.firstname;
         } 
-        return this.auth.getName();
+        return this.auth.getGivenName();
     }
+    
+    public String getLastName() {
+        if(auth == null) {
+            return DemoUser.lastname;
+        } 
+        return this.auth.getFamilyName();
+    }
+
     
     public Set<String> getRole() {
         if(auth == null) {
@@ -170,10 +178,10 @@ public class AuthenticationProvider {
         }
     }
     
-
     @Override
     public String toString() {
-        return "AuthenticationProvider [getEmail()=" + getEmail() + ", getPrefferedUserName()=" + getPrefferedUserName()
-                + ", getName()=" + getName() + ", getRole()=" + getRole() + ", getTokenString()=" + getTokenString() + "]";
+        return "AuthenticationProvider [auth=" + auth + ", atr=" + atr + ", getEmail()=" + getEmail() + ", getUserName()="
+                + getUserName() + ", getFirstName()=" + getFirstName() + ", getLastName()=" + getLastName() + ", getRole()="
+                + getRole() + ", getAccessToken()=" + getAccessToken() + ", getTokenString()=" + getTokenString() + "]";
     }
 }

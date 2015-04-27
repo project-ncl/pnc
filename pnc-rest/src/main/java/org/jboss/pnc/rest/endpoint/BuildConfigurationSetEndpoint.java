@@ -129,7 +129,19 @@ public class BuildConfigurationSetEndpoint {
 
         try {
             AuthenticationProvider authProvider = new AuthenticationProvider(httpServletRequest);
-            User currentUser = datastore.retrieveUserByUsername(authProvider.getPrefferedUserName());
+            String loggedUser = authProvider.getUserName();
+            User currentUser = null;
+            if(loggedUser != null && loggedUser != "") {
+                currentUser = datastore.retrieveUserByUsername(loggedUser);
+            }
+            if(currentUser == null) {
+                currentUser = User.Builder.newBuilder()
+                        .username(loggedUser)
+                        .firstName(authProvider.getFirstName())
+                        .lastName(authProvider.getLastName())
+                        .email(authProvider.getEmail()).build();
+                datastore.createNewUser(currentUser);
+            }
             Integer runningBuildId = buildTriggerer.triggerBuildConfigurationSet(id, currentUser);
             return Response.ok().build();
         } catch (CoreException e) {
