@@ -53,7 +53,7 @@ public class ExternalAuthentication {
         try {
             provider = new AuthenticationProvider(
                     authenticateToken(authenticateUser(username, password).getToken()),this.tokenResponse);
-        } catch (SecurityContextNotAvailable e) {
+        } catch (Exception e) {
             log.error(e.getMessage());
         }
         return provider;
