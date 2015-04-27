@@ -6,9 +6,11 @@ import java.io.InputStream;
 
 import org.jboss.logging.Logger;
 import org.jboss.pnc.integration.Utils.AuthResource;
+import org.jboss.pnc.test.category.ContainerTest;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
 /**
  * @author pslegr
@@ -23,6 +25,7 @@ import org.junit.Test;
  *  is defined to fulfill all above conditions 
  *
  */
+@Category(ContainerTest.class)
 public class ExternalAuthFacadeTest {
     
     protected Logger log = Logger.getLogger(ExternalAuthFacadeTest.class);
@@ -82,8 +85,11 @@ public class ExternalAuthFacadeTest {
                 ExternalAuthFacade.print(restInput);
             }
         } catch (Exception e) {
+            e.printStackTrace();
             String errMsg = e.getMessage();
-            Assert.assertTrue(errMsg.contains("Invalid user credentials"));
+            if(errMsg != null) {
+                Assert.assertTrue(errMsg.contains("Invalid authentication"));
+            }
         }
     }
     

@@ -19,7 +19,7 @@
       <artifactId>pnc-ui</artifactId>
     </dependency>
   </dependencies>
-
+  
   <build>
     <finalName>${project.artifactId}</finalName>
     <plugins>
@@ -42,4 +42,22 @@
       </plugin>
     </plugins>
   </build>
+  
+
+  <profiles>    
+     <profile>
+        <id>auth</id>
+        <activation>
+            <property>
+                <name>auth</name>
+                <value>true</value>
+            </property>
+        </activation>
+        <properties>
+            <enable.security.start>--&gt;</enable.security.start>
+            <enable.security.end>&lt;!--</enable.security.end>
+         </properties>
+     </profile>
+     
+  </profiles>  
 </project>

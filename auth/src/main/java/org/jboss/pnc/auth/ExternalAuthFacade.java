@@ -100,6 +100,9 @@ public class ExternalAuthFacade {
         // obtain AccessToken first
         ExternalAuthentication externalAuthentication = new ExternalAuthentication(keycloakConfiguration);
         AuthenticationProvider provider = externalAuthentication.authenticate(this.pnc_ext_oauth_username,this.pnc_ext_oauth_password);
+        if(provider == null) {
+            throw new Exception("Invalid authentication");
+        }
         
         HttpClient client = new HttpClientBuilder()
         .disableTrustManager().build();        

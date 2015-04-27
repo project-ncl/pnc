@@ -36,4 +36,8 @@ public class DatastoreMock implements Datastore {
     public List<BuildRecord> getBuildRecords() {
         return buildRecords;
     }
+
+    @Override
+    public void createNewUser(User user) {
+    }
 }
