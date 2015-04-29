@@ -217,7 +217,7 @@ public class BuildCoordinator {
                 };
                 Consumer<Exception> onError = (e) -> {
                     buildTask.setStatus(BuildStatus.BUILD_ENV_SETUP_COMPLETE_WITH_ERROR);
-                    waitToCompleteFuture.completeExceptionally(e);
+                    waitToCompleteFuture.completeExceptionally(new BuildProcessException(e, startedEnvironment));
                 };
                 buildTask.setStatus(BuildStatus.BUILD_ENV_WAITING);
 
@@ -239,7 +239,7 @@ public class BuildCoordinator {
             }
         }, executor);
     }
-
+    
     private CompletableFuture<CompletedBuild> waitBuildToComplete(BuildTask buildTask, RunningBuild runningBuild) {
         CompletableFuture<CompletedBuild> waitToCompleteFuture = new CompletableFuture<>();
             try {
@@ -247,13 +247,14 @@ public class BuildCoordinator {
                     waitToCompleteFuture.complete(completedBuild);
                 };
                 Consumer<Exception> onError = (e) -> {
-                    waitToCompleteFuture.completeExceptionally(e);
+                    waitToCompleteFuture.completeExceptionally(new BuildProcessException(e, runningBuild.getRunningEnvironment()));
                 };
+                
                 buildTask.setStatus(BuildStatus.BUILD_WAITING);
 
                 runningBuild.monitor(onComplete, onError);
             } catch (Throwable exception) {
-                waitToCompleteFuture.completeExceptionally(
+                waitToCompleteFuture.completeExceptionally( 
                         new BuildProcessException(exception, runningBuild.getRunningEnvironment()));
             }
         return waitToCompleteFuture;
@@ -350,10 +351,11 @@ public class BuildCoordinator {
             log.warn("Possible leak of a running environment! Build process ended with exception, "
                     + "but the exception didn't contain information about running environment.", ex);
         }
+        
         try {
-            if (destroyableEnvironmnet != null) {
+            if (destroyableEnvironmnet != null) 
                 destroyableEnvironmnet.destroyEnvironment();
-            }
+            
         } catch (EnvironmentDriverException envE) {
             log.warn("Running environment" + destroyableEnvironmnet + " couldn't be destroyed!", envE);
         }
