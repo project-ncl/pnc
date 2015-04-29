@@ -1,13 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
     <artifactId>parent</artifactId>
     <groupId>org.jboss.pnc</groupId>
-    <version>1.0-SNAPSHOT</version>
+    <version>0.4</version>
   </parent>
 
   <artifactId>datastore</artifactId>
@@ -112,12 +111,9 @@
             <configuration>
               <target>
                 <echo message="Configuring datasource" />
-                <replace file="${project.build.outputDirectory}/META-INF/persistence.xml"
-                  token="@persistence.jta-data-source@" value="${persistence.jta-data-source}" />
-                <replace file="${project.build.outputDirectory}/META-INF/persistence.xml"
-                  token="@persistence.hibernate.dialect@" value="${persistence.hibernate.dialect}" />
-                <replace file="${project.build.outputDirectory}/META-INF/persistence.xml"
-                  token="@persistence.hibernate.hbm2ddl.auto@" value="${persistence.hibernate.hbm2ddl.auto}" />
+                <replace file="${project.build.outputDirectory}/META-INF/persistence.xml" token="@persistence.jta-data-source@" value="${persistence.jta-data-source}" />
+                <replace file="${project.build.outputDirectory}/META-INF/persistence.xml" token="@persistence.hibernate.dialect@" value="${persistence.hibernate.dialect}" />
+                <replace file="${project.build.outputDirectory}/META-INF/persistence.xml" token="@persistence.hibernate.hbm2ddl.auto@" value="${persistence.hibernate.hbm2ddl.auto}" />
               </target>
             </configuration>
           </execution>
