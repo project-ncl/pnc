@@ -4,7 +4,7 @@
 
   <groupId>org.jboss.pnc</groupId>
   <artifactId>parent</artifactId>
-  <version>0.4</version>
+  <version>0.5-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <name>pnc</name>
@@ -22,7 +22,7 @@
     <connection>scm:git:https://github.com/project-ncl/pnc.git</connection>
     <developerConnection>scm:git:git@github.com:project-ncl/pnc.git</developerConnection>
     <url>https://github.com/project-ncl/pnc/</url>
-    <tag>ver0.4</tag>
+    <tag>HEAD</tag>
   </scm>
 
 
