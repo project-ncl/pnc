@@ -13,7 +13,7 @@ Building
 The default build is executed by running `mvn clean install`.<br />
 By default the tests that require remote services and integration tests are disabled.<br />
 
-Integration tests are placed in module "integrations-tests" and most of them needs a JEE server (Wildfly or EAP).
+Integration tests are placed in module "integration-test" and most of them needs a JEE server (Wildfly or EAP).
 In order to run them you need to specify `-Pcontainer-tests`.
 
 Remote tests requires turning on additional Maven profile - `-Premote-tests`.
@@ -68,15 +68,15 @@ INSECURE_REGISTRY='--insecure-registry <your-internal-remote-docker-registry>'
 3. Enable `docker` service: Run `sudo systemctl enable docker`
 4. Start `docker` service: Run `sudo systemctl start docker`
 5. Verify the service: Run `docker -H tcp://127.0.0.1:2375 version`. If you get response in 1-2 seconds without errors, the service is running.
-6. Add image to Docker daemon: The Docker daemon has to have imported image, which is specified by environment variable `PNC_DOCKER_IMAGE_ID` (or is set in pnc-config.json file) You can use `docker pull` to download image from remote repository or `docker build` to create image from Dockerfile. 
+6. Add image to Docker daemon: The Docker daemon has to have imported image, which is specified by environment variable `PNC_DOCKER_IMAGE_ID` (or is set in pnc-config.json file) You can use `docker pull` to download image from remote repository or `docker build` to create image from Dockerfile.
 
 
 Authentication:
 ---------------
-The default build with command `mvn clean install` comes with no authentication. In case you want to enable authentication 
+The default build with command `mvn clean install` comes with no authentication. In case you want to enable authentication
 use -Dauth=true together with your build command.
 Enabling authentication meand following
-1. Your backend REST endpoints will become secured 
+1. Your backend REST endpoints will become secured
     - inside pnc-rest.war under folder WEB-INF are added files from /pnc-rest/src/main/auth
     - keycloak.json file is configuration file managing connection to Keycloak server
     - web.xml file where you define security-constraints & security-roles, which specifies users
@@ -85,12 +85,12 @@ Enabling authentication meand following
     - with your first unauthenticated session you will be redirected from pnc web UI into
       Keycloak login page and asked to provide your credentials. After successful log-in you
       will be redirected back to pnc web UI.
-      
+
 Configure your JEE server (EAP) for keycloak
  Use -Dauth.eap.home=<path to your EAP installation> with you build command, if you want EAP configure for Keycloak.
  According the http://docs.jboss.org/keycloak/docs/1.1.0.Final/userguide/html/ch08.html#jboss-adapter-installation installation
- will be performed on server for the given path.                           
-                       
+ will be performed on server for the given path.
+
 
 
 Possible issues:
