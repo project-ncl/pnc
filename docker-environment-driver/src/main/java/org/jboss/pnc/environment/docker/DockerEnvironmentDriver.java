@@ -170,13 +170,15 @@ public class DockerEnvironmentDriver implements EnvironmentDriver {
 
         } catch (Exception e) {
             // Creating container failed => clean up
+            logger.warning("Docker container failed to start. " + e);
+
             if (buildContainerState != BuildContainerState.NOT_BUILT) {
                 if (buildContainerState == BuildContainerState.BUILT)
                     destroyContainer(containerId, false);
                 else
                     destroyContainer(containerId, true);
             }
-            throw new EnvironmentDriverException("Cannot create environment.", e);
+            throw new EnvironmentDriverException("Docker container couldn't be created.", e);
         }
 
         logger.info("Created and started Docker container. ID: " + containerId
