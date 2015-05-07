@@ -31,58 +31,63 @@
     'pnc.environment'
     ]);
 
-  var auth = {};
+  if (pnc.enableAuth) {
+    console.log('** Authentication Enabled **');
+    var auth = {};
 
-  angular.element(document).ready(function () {
-    var keycloak = new Keycloak('keycloak.json');
-    auth.loggedIn = false;
+    angular.element(document).ready(function () {
+      var keycloak = new Keycloak('keycloak.json');
+      auth.loggedIn = false;
 
-    keycloak.init({ onLoad: 'login-required' }).success(function () {
-      auth.loggedIn = true;
-      auth.keycloak = keycloak;
-      auth.logout = function() {
-        auth.loggedIn = false;
-        auth.keycloak = null;
-        window.location = keycloak.authServerUrl + '/realms/PNC.REDHAT.COM/tokens/logout?redirect_uri=/pnc-web/index.html';
-      };
-      angular.bootstrap(document, ['pnc']);
-    }).error(function () {
-      window.location.reload();
+      keycloak.init({ onLoad: 'login-required' }).success(function () {
+        auth.loggedIn = true;
+        auth.keycloak = keycloak;
+        auth.logout = function() {
+          auth.loggedIn = false;
+          auth.keycloak = null;
+          window.location = keycloak.authServerUrl + '/realms/PNC.REDHAT.COM/tokens/logout?redirect_uri=/pnc-web/index.html';
+        };
+        angular.bootstrap(document, ['pnc']);
+      }).error(function () {
+        window.location.reload();
+      });
+
     });
 
-  });
+    app.factory('Auth', function () {
+      return auth;
+    });
 
-  app.factory('Auth', function () {
-    return auth;
-  });
+    app.factory('authInterceptor', function ($q, $log, Auth) {
+      return {
+        request: function (config) {
+          var deferred = $q.defer();
 
-  app.factory('authInterceptor', function ($q, $log, Auth) {
-    return {
-      request: function (config) {
-        var deferred = $q.defer();
+          // if (config.url === 'rest/sender' || config.url === 'rest/registry/device/importer') {
+          //   return config;
+          // }
 
-        // if (config.url === 'rest/sender' || config.url === 'rest/registry/device/importer') {
-        //   return config;
-        // }
+          if (Auth.keycloak && Auth.keycloak.token) {
+            Auth.keycloak.updateToken(5).success(function () {
+              config.headers = config.headers || {};
+              config.headers.Authorization = 'Bearer ' + Auth.keycloak.token;
 
-        if (Auth.keycloak && Auth.keycloak.token) {
-          Auth.keycloak.updateToken(5).success(function () {
-            config.headers = config.headers || {};
-            config.headers.Authorization = 'Bearer ' + Auth.keycloak.token;
-
-            deferred.resolve(config);
-          }).error(function () {
-            deferred.reject('Failed to refresh token');
-          });
+              deferred.resolve(config);
+            }).error(function () {
+              deferred.reject('Failed to refresh token');
+            });
+          }
+          return deferred.promise;
         }
-        return deferred.promise;
-      }
-    };
-  });
+      };
+    });
 
-  app.config(function ($httpProvider) {
-    $httpProvider.interceptors.push('authInterceptor');
-  });
+    app.config(function ($httpProvider) {
+      $httpProvider.interceptors.push('authInterceptor');
+    });
+  } else {
+    angular.bootstrap(document, ['pnc']);
+  }
 
   app.config(function($stateProvider, $urlRouterProvider, $locationProvider) {
     $locationProvider.html5Mode(false).hashPrefix('!');

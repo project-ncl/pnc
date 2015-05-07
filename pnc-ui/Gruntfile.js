@@ -49,7 +49,8 @@ module.exports = function (grunt) {
       var defaultContent = {
         endpointsLocalhost: PROXY_HOST
       };
-      grunt.file.write('./rest-config.json',JSON.stringify(defaultContent,null,'\t'));
+      grunt.file.write('./rest-config.json',
+                       JSON.stringify(defaultContent,null,'\t'));
     }
     var config = grunt.config.getRaw();
     config.local = grunt.file.readJSON('./rest-config.json');
@@ -59,6 +60,18 @@ module.exports = function (grunt) {
       appConfig.proxyHost = config.local.endpointsCIServer;
     }
   });
+
+  grunt.registerTask('initAuth', function() {
+    var enableAuth = grunt.option('enable-auth') || 'false';
+
+    grunt.file.write(appConfig.tmp + '/pnc-props.js', 'pnc = {};\npnc.enableAuth = ' + enableAuth + ';');
+  });
+
+
+// 'function(globals) {
+//   "use strict";
+//   globals.GLOB = {};
+// }(this));'
 
   // Define the configuration for all the tasks
   grunt.initConfig({
@@ -534,6 +547,7 @@ module.exports = function (grunt) {
     grunt.task.run([
       'initRestConfig',
       'clean:server',
+      'initAuth',
       'ngconstant:dev',
       'wiredep',
       'includeSource:server',
@@ -571,6 +585,7 @@ module.exports = function (grunt) {
     grunt.task.run([
       'initRestConfig',
       'clean:dist',
+      'initAuth',
       environmentProfile,
       'copy:fonts',
       'wiredep',

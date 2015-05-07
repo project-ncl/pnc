@@ -19,6 +19,7 @@
   "smarttabs": true,
   "globals": {
     "angular": false,
-    "Keycloak": false
+    "Keycloak": false,
+    "pnc": false
   }
 }
