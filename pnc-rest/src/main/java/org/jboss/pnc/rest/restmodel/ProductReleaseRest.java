@@ -4,8 +4,10 @@ import org.jboss.pnc.model.BuildRecordSet;
 import org.jboss.pnc.model.ProductMilestone;
 import org.jboss.pnc.model.ProductRelease;
 import org.jboss.pnc.model.ProductVersion;
+import org.jboss.pnc.model.ProductRelease.SupportLevel;
 
 import javax.xml.bind.annotation.XmlRootElement;
+
 import java.util.Date;
 
 import static org.jboss.pnc.rest.utils.Utility.performIfNotNull;
@@ -27,6 +29,8 @@ public class ProductReleaseRest {
 
     private Integer productMilestoneId;
 
+    private SupportLevel supportLevel;
+
     public ProductReleaseRest() {
     }
 
@@ -40,6 +44,8 @@ public class ProductReleaseRest {
         if (productRelease.getProductMilestone() != null) {
             this.productMilestoneId = productRelease.getProductMilestone().getId();
         }
+
+        this.supportLevel = productRelease.getSupportLevel();
     }
 
     public Integer getId() {
@@ -98,12 +104,21 @@ public class ProductReleaseRest {
         this.buildRecordSetId = buildRecordSetId;
     }
 
+    public SupportLevel getSupportLevel() {
+        return supportLevel;
+    }
+
+    public void setSupportLevel(SupportLevel supportLevel) {
+        this.supportLevel = supportLevel;
+    }
+
     public ProductRelease toProductRelease() {
         ProductRelease.Builder builder = ProductRelease.Builder.newBuilder();
         builder.id(id);
         builder.version(version);
         builder.releaseDate(releaseDate);
         builder.downloadUrl(downloadUrl);
+        builder.supportLevel(supportLevel);
 
         performIfNotNull(productVersionId != null,
                 () -> builder.productVersion(ProductVersion.Builder.newBuilder().id(productVersionId).build()));

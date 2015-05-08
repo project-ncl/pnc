@@ -19,9 +19,9 @@ public class ProductMilestoneRest {
 
     private Date releaseDate;
 
-    private Date startingDate;
+    private Date plannedStartingDate;
 
-    private Date endingDate;
+    private Date plannedReleaseDate;
 
     private String downloadUrl;
 
@@ -38,8 +38,8 @@ public class ProductMilestoneRest {
         this.id = productMilestone.getId();
         this.version = productMilestone.getVersion();
         this.releaseDate = productMilestone.getReleaseDate();
-        this.startingDate = productMilestone.getStartingDate();
-        this.endingDate = productMilestone.getEndingDate();
+        this.plannedStartingDate = productMilestone.getPlannedStartingDate();
+        this.plannedReleaseDate = productMilestone.getPlannedReleaseDate();
         this.downloadUrl = productMilestone.getDownloadUrl();
         this.productVersionId = productMilestone.getProductVersion().getId();
         if (productMilestone.getProductRelease() != null) {
@@ -71,20 +71,20 @@ public class ProductMilestoneRest {
         this.releaseDate = releaseDate;
     }
 
-    public Date getStartingDate() {
-        return startingDate;
+    public Date getPlannedStartingDate() {
+        return plannedStartingDate;
     }
 
-    public void setStartingDate(Date startingDate) {
-        this.startingDate = startingDate;
+    public void setPlannedStartingDate(Date plannedStartingDate) {
+        this.plannedStartingDate = plannedStartingDate;
     }
 
-    public Date getEndingDate() {
-        return endingDate;
+    public Date getPlannedReleaseDate() {
+        return plannedReleaseDate;
     }
 
-    public void setEndingDate(Date endingDate) {
-        this.endingDate = endingDate;
+    public void setPlannedReleaseDate(Date plannedReleaseDate) {
+        this.plannedReleaseDate = plannedReleaseDate;
     }
 
     public String getDownloadUrl() {
@@ -124,8 +124,8 @@ public class ProductMilestoneRest {
         builder.id(id);
         builder.version(version);
         builder.releaseDate(releaseDate);
-        builder.startingDate(startingDate);
-        builder.endingDate(endingDate);
+        builder.plannedStartingDate(plannedStartingDate);
+        builder.plannedReleaseDate(plannedReleaseDate);
         builder.downloadUrl(downloadUrl);
 
         performIfNotNull(productVersionId != null,
