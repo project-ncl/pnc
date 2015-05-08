@@ -19,6 +19,10 @@ public class ProductMilestoneRest {
 
     private Date releaseDate;
 
+    private Date startingDate;
+
+    private Date endingDate;
+
     private String downloadUrl;
 
     private Integer productVersionId;
@@ -34,6 +38,8 @@ public class ProductMilestoneRest {
         this.id = productMilestone.getId();
         this.version = productMilestone.getVersion();
         this.releaseDate = productMilestone.getReleaseDate();
+        this.startingDate = productMilestone.getStartingDate();
+        this.endingDate = productMilestone.getEndingDate();
         this.downloadUrl = productMilestone.getDownloadUrl();
         this.productVersionId = productMilestone.getProductVersion().getId();
         if (productMilestone.getProductRelease() != null) {
@@ -63,6 +69,22 @@ public class ProductMilestoneRest {
 
     public void setReleaseDate(Date releaseDate) {
         this.releaseDate = releaseDate;
+    }
+
+    public Date getStartingDate() {
+        return startingDate;
+    }
+
+    public void setStartingDate(Date startingDate) {
+        this.startingDate = startingDate;
+    }
+
+    public Date getEndingDate() {
+        return endingDate;
+    }
+
+    public void setEndingDate(Date endingDate) {
+        this.endingDate = endingDate;
     }
 
     public String getDownloadUrl() {
@@ -102,12 +124,17 @@ public class ProductMilestoneRest {
         builder.id(id);
         builder.version(version);
         builder.releaseDate(releaseDate);
+        builder.startingDate(startingDate);
+        builder.endingDate(endingDate);
         builder.downloadUrl(downloadUrl);
 
-        performIfNotNull(productVersionId != null, () -> builder.productVersion(ProductVersion.Builder.newBuilder().id(productVersionId).build()));
-        performIfNotNull(buildRecordSetId != null, () -> builder.buildRecordSet(BuildRecordSet.Builder.newBuilder().id(buildRecordSetId).build()));
-        performIfNotNull(productReleaseId != null, () -> builder.productRelease(ProductRelease.Builder.newBuilder().id(productReleaseId).build()));
-        
+        performIfNotNull(productVersionId != null,
+                () -> builder.productVersion(ProductVersion.Builder.newBuilder().id(productVersionId).build()));
+        performIfNotNull(buildRecordSetId != null,
+                () -> builder.buildRecordSet(BuildRecordSet.Builder.newBuilder().id(buildRecordSetId).build()));
+        performIfNotNull(productReleaseId != null,
+                () -> builder.productRelease(ProductRelease.Builder.newBuilder().id(productReleaseId).build()));
+
         return builder.build();
     }
 

@@ -34,6 +34,7 @@ public class ProductReleaseRest {
         this.id = productRelease.getId();
         this.version = productRelease.getVersion();
         this.releaseDate = productRelease.getReleaseDate();
+
         this.downloadUrl = productRelease.getDownloadUrl();
         this.productVersionId = productRelease.getProductVersion().getId();
         if (productRelease.getProductMilestone() != null) {
@@ -98,17 +99,20 @@ public class ProductReleaseRest {
     }
 
     public ProductRelease toProductRelease() {
-            ProductRelease.Builder builder = ProductRelease.Builder.newBuilder();
-            builder.id(id);
-            builder.version(version);
-            builder.releaseDate(releaseDate);
-            builder.downloadUrl(downloadUrl);
+        ProductRelease.Builder builder = ProductRelease.Builder.newBuilder();
+        builder.id(id);
+        builder.version(version);
+        builder.releaseDate(releaseDate);
+        builder.downloadUrl(downloadUrl);
 
-            performIfNotNull(productVersionId != null, () -> builder.productVersion(ProductVersion.Builder.newBuilder().id(productVersionId).build()));
-            performIfNotNull(buildRecordSetId != null, () -> builder.buildRecordSet(BuildRecordSet.Builder.newBuilder().id(buildRecordSetId).build()));
-            performIfNotNull(productMilestoneId != null, () -> builder.productMilestone(ProductMilestone.Builder.newBuilder().id(productMilestoneId).build()));
-            
-            return builder.build();
+        performIfNotNull(productVersionId != null,
+                () -> builder.productVersion(ProductVersion.Builder.newBuilder().id(productVersionId).build()));
+        performIfNotNull(buildRecordSetId != null,
+                () -> builder.buildRecordSet(BuildRecordSet.Builder.newBuilder().id(buildRecordSetId).build()));
+        performIfNotNull(productMilestoneId != null,
+                () -> builder.productMilestone(ProductMilestone.Builder.newBuilder().id(productMilestoneId).build()));
+
+        return builder.build();
 
     }
 }

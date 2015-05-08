@@ -6,10 +6,9 @@ import javax.validation.constraints.NotNull;
 import java.util.Date;
 
 /**
- * Represents a product milestone.  A single product version, for example "1.0", can be 
- * associated with several product milestones such as "1.0.0.build1", "1.0.0.build2", etc.
- * A milestone represents the set of work (build records) that was performed during 
- * a development cycle from the previous milestone until the end of the current milestone.
+ * Represents a product milestone. A single product version, for example "1.0", can be associated with several product
+ * milestones such as "1.0.0.build1", "1.0.0.build2", etc. A milestone represents the set of work (build records) that was
+ * performed during a development cycle from the previous milestone until the end of the current milestone.
  */
 @Entity
 public class ProductMilestone implements GenericEntity<Integer> {
@@ -17,14 +16,18 @@ public class ProductMilestone implements GenericEntity<Integer> {
     private static final long serialVersionUID = 6314079319551264379L;
 
     @Id
-    @SequenceGenerator(name="product_milestone_id_seq", sequenceName="product_milestone_id_seq", allocationSize=1)    
-    @GeneratedValue(strategy=GenerationType.SEQUENCE, generator="product_milestone_id_seq")
+    @SequenceGenerator(name = "product_milestone_id_seq", sequenceName = "product_milestone_id_seq", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "product_milestone_id_seq")
     private Integer id;
 
     @NotNull
     private String version;
 
     private Date releaseDate;
+
+    private Date startingDate;
+
+    private Date endingDate;
 
     private String downloadUrl;
 
@@ -63,6 +66,32 @@ public class ProductMilestone implements GenericEntity<Integer> {
     }
 
     /**
+     * The scheduled starting date of this milestone
+     *
+     * @return
+     */
+    public Date getStartingDate() {
+        return startingDate;
+    }
+
+    public void setStartingDate(Date startingDate) {
+        this.startingDate = startingDate;
+    }
+
+    /**
+     * The scheduled ending date of this milestone
+     *
+     * @return
+     */
+    public Date getEndingDate() {
+        return endingDate;
+    }
+
+    public void setEndingDate(Date endingDate) {
+        this.endingDate = endingDate;
+    }
+
+    /**
      * The release (or handoff) date of this milestone
      *
      * @return
@@ -89,8 +118,7 @@ public class ProductMilestone implements GenericEntity<Integer> {
     }
 
     /**
-     * Build record set represents the set of builds which were executed
-     * during this milestone build cycle
+     * Build record set represents the set of builds which were executed during this milestone build cycle
      *
      * @return The set of build records for this release
      */
@@ -103,8 +131,7 @@ public class ProductMilestone implements GenericEntity<Integer> {
     }
 
     /**
-     * If this milestone was promoted to a release, this field will be set.
-     * Will be null if the milestone was not relesed.
+     * If this milestone was promoted to a release, this field will be set. Will be null if the milestone was not relesed.
      * 
      * @return the product release or null
      */
@@ -131,6 +158,10 @@ public class ProductMilestone implements GenericEntity<Integer> {
 
         private Date releaseDate;
 
+        private Date startingDate;
+
+        private Date endingDate;
+
         private String downloadUrl;
 
         private BuildRecordSet buildRecordSet;
@@ -149,6 +180,8 @@ public class ProductMilestone implements GenericEntity<Integer> {
             productMilestone.setId(id);
             productMilestone.setVersion(version);
             productMilestone.setReleaseDate(releaseDate);
+            productMilestone.setStartingDate(startingDate);
+            productMilestone.setEndingDate(endingDate);
             productMilestone.setDownloadUrl(downloadUrl);
 
             if (buildRecordSet == null) {
@@ -182,6 +215,16 @@ public class ProductMilestone implements GenericEntity<Integer> {
 
         public Builder releaseDate(Date releaseDate) {
             this.releaseDate = releaseDate;
+            return this;
+        }
+
+        public Builder startingDate(Date startingDate) {
+            this.startingDate = startingDate;
+            return this;
+        }
+
+        public Builder endingDate(Date endingDate) {
+            this.endingDate = endingDate;
             return this;
         }
 
