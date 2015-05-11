@@ -43,9 +43,9 @@ public class ProductReleaseRestTest {
 
     private static final String PRODUCT_REST_ENDPOINT = "/pnc-rest/rest/products/";
     private static final String PRODUCT_VERSION_REST_ENDPOINT = "/pnc-rest/rest/products/%d/product-versions/";
-    private static final String PRODUCT_MILESTONE_PRODUCTVERSION_REST_ENDPOINT = "/pnc-rest/rest/product-milestones/product-versions/{versionId}";
+    private static final String PRODUCT_MILESTONE_PRODUCTVERSION_REST_ENDPOINT = "/pnc-rest/rest/product-milestones/product-versions/%d";
     private static final String PRODUCT_RELEASE_REST_ENDPOINT = "/pnc-rest/rest/product-releases/";
-    private static final String PRODUCT_RELEASE_PRODUCTVERSION_REST_ENDPOINT = "/pnc-rest/rest/product-releases/product-versions/{versionId}";
+    private static final String PRODUCT_RELEASE_PRODUCTVERSION_REST_ENDPOINT = "/pnc-rest/rest/product-releases/product-versions/%d";
     private static final String PRODUCT_RELEASE_SPECIFIC_REST_ENDPOINT = PRODUCT_RELEASE_REST_ENDPOINT + "%d";
 
     private static int productId;
@@ -97,7 +97,7 @@ public class ProductReleaseRestTest {
         String location = response.getHeader("Location");
         productMilestoneId = Integer.valueOf(location.substring(location.lastIndexOf(String.format(
                 PRODUCT_MILESTONE_PRODUCTVERSION_REST_ENDPOINT, productVersionId))
-                + String.format(PRODUCT_MILESTONE_PRODUCTVERSION_REST_ENDPOINT, productVersionId).length()));
+                + String.format(PRODUCT_MILESTONE_PRODUCTVERSION_REST_ENDPOINT, productVersionId).length() + 1));
     }
 
     @Test
@@ -135,9 +135,9 @@ public class ProductReleaseRestTest {
 
         newProductReleaseId = Integer.valueOf(location.substring(location.lastIndexOf(String.format(
                 PRODUCT_RELEASE_PRODUCTVERSION_REST_ENDPOINT, productVersionId))
-                + String.format(PRODUCT_RELEASE_PRODUCTVERSION_REST_ENDPOINT, productVersionId).length()));
+                + String.format(PRODUCT_RELEASE_PRODUCTVERSION_REST_ENDPOINT, productVersionId).length() + 1));
 
-        logger.info("Created id of product version: " + newProductReleaseId);
+        logger.info("Created id of product release: " + newProductReleaseId);
 
     }
 

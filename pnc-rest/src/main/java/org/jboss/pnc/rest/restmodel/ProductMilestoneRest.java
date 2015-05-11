@@ -1,19 +1,17 @@
 package org.jboss.pnc.rest.restmodel;
 
-import org.jboss.pnc.model.BuildRecordSet;
-import org.jboss.pnc.model.Product;
-import org.jboss.pnc.model.ProductMilestone;
-import org.jboss.pnc.model.ProductRelease;
-import org.jboss.pnc.model.ProductVersion;
-
-import javax.xml.bind.annotation.XmlRootElement;
+import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
 
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
-import static org.jboss.pnc.rest.utils.Utility.performIfNotNull;
+import javax.xml.bind.annotation.XmlRootElement;
+
+import org.jboss.pnc.model.BuildRecordSet;
+import org.jboss.pnc.model.ProductMilestone;
+import org.jboss.pnc.model.ProductRelease;
+import org.jboss.pnc.model.ProductVersion;
 
 @XmlRootElement(name = "ProductMilestone")
 public class ProductMilestoneRest {
@@ -24,7 +22,7 @@ public class ProductMilestoneRest {
 
     private Date releaseDate;
 
-    private Date plannedStartingDate;
+    private Date startingDate;
 
     private Date plannedReleaseDate;
 
@@ -43,7 +41,7 @@ public class ProductMilestoneRest {
         this.id = productMilestone.getId();
         this.version = productMilestone.getVersion();
         this.releaseDate = productMilestone.getReleaseDate();
-        this.plannedStartingDate = productMilestone.getPlannedStartingDate();
+        this.startingDate = productMilestone.getStartingDate();
         this.plannedReleaseDate = productMilestone.getPlannedReleaseDate();
         this.downloadUrl = productMilestone.getDownloadUrl();
         this.productVersionId = productMilestone.getProductVersion().getId();
@@ -76,12 +74,12 @@ public class ProductMilestoneRest {
         this.releaseDate = releaseDate;
     }
 
-    public Date getPlannedStartingDate() {
-        return plannedStartingDate;
+    public Date getStartingDate() {
+        return startingDate;
     }
 
-    public void setPlannedStartingDate(Date plannedStartingDate) {
-        this.plannedStartingDate = plannedStartingDate;
+    public void setStartingDate(Date startingDate) {
+        this.startingDate = startingDate;
     }
 
     public Date getPlannedReleaseDate() {
@@ -133,7 +131,7 @@ public class ProductMilestoneRest {
         productMilestone.setId(id);
         productMilestone.setVersion(version);
         productMilestone.setReleaseDate(releaseDate);
-        productMilestone.setPlannedStartingDate(plannedStartingDate);
+        productMilestone.setStartingDate(startingDate);
         productMilestone.setPlannedReleaseDate(plannedReleaseDate);
         productMilestone.setDownloadUrl(downloadUrl);
 
