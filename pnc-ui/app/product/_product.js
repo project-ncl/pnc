@@ -95,6 +95,19 @@
       }
     });
 
+    $stateProvider.state('product.create', {
+      url: '/product/create',
+      templateUrl: 'product/views/product.create.html',
+      data: {
+        displayName: 'Create Product'
+      },
+      controller: 'ProductCreateController',
+      controllerAs: 'productCreateCtrl',
+      resolve: {
+        restClient: 'PncRestClient'
+      },
+    });
+
   }]);
   
 })();

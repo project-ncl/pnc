@@ -84,7 +84,7 @@
             <table class="table table-bordered table-striped">
               <thead>
                 <th>Name</th>
-                <th>Planned starting date</th>
+                <th>Starting date</th>
                 <th>Planned ending date</th>
                 <th>Release date</th>
                 <th>Deliverables</th>
@@ -93,7 +93,7 @@
               <tbody>
                 <tr ng-repeat="productmilestone in versionCtrl.productmilestones">
                   <td>{{ productmilestone.version }}</td>
-                  <td>{{ productmilestone.plannedStartingDate }}</td>
+                  <td>{{ productmilestone.startingDate }}</td>
                   <td>{{ productmilestone.plannedEndingDate }}</td>
                   <td>{{ productmilestone.releaseDate | date:'medium'}}</td>
                   <td class="text-center"><a ng-href="{{ productmilestone.downloadUrl }}" target="_self" class="btn btn-primary">Download</a></td>
@@ -128,3 +128,4 @@
   </table>
 
 </div>
+

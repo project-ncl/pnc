@@ -1,9 +1,16 @@
 package org.jboss.pnc.model;
 
-import javax.persistence.*;
-import javax.validation.constraints.NotNull;
-
 import java.util.Date;
+
+import javax.persistence.CascadeType;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
+import javax.persistence.SequenceGenerator;
+import javax.validation.constraints.NotNull;
 
 /**
  * Represents a product milestone. A single product version, for example "1.0", can be associated with several product
@@ -25,7 +32,7 @@ public class ProductMilestone implements GenericEntity<Integer> {
 
     private Date releaseDate;
 
-    private Date plannedStartingDate;
+    private Date startingDate;
 
     private Date plannedReleaseDate;
 
@@ -70,12 +77,12 @@ public class ProductMilestone implements GenericEntity<Integer> {
      *
      * @return
      */
-    public Date getPlannedReleaseDate() {
-        return plannedReleaseDate;
+    public Date getStartingDate() {
+        return startingDate;
     }
 
-    public Date getPlannedStartingDate() {
-        return plannedStartingDate;
+    public void setStartingDate(Date startingDate) {
+        this.startingDate = startingDate;
     }
 
     /**
@@ -83,9 +90,8 @@ public class ProductMilestone implements GenericEntity<Integer> {
      *
      * @return
      */
-
-    public void setPlannedStartingDate(Date plannedStartingDate) {
-        this.plannedStartingDate = plannedStartingDate;
+    public Date getPlannedReleaseDate() {
+        return plannedReleaseDate;
     }
 
     public void setPlannedReleaseDate(Date plannedReleaseDate) {
@@ -159,7 +165,7 @@ public class ProductMilestone implements GenericEntity<Integer> {
 
         private Date releaseDate;
 
-        private Date plannedStartingDate;
+        private Date startingDate;
 
         private Date plannedReleaseDate;
 
@@ -181,7 +187,7 @@ public class ProductMilestone implements GenericEntity<Integer> {
             productMilestone.setId(id);
             productMilestone.setVersion(version);
             productMilestone.setReleaseDate(releaseDate);
-            productMilestone.setPlannedStartingDate(plannedStartingDate);
+            productMilestone.setStartingDate(startingDate);
             productMilestone.setPlannedReleaseDate(plannedReleaseDate);
             productMilestone.setDownloadUrl(downloadUrl);
 
@@ -219,8 +225,8 @@ public class ProductMilestone implements GenericEntity<Integer> {
             return this;
         }
 
-        public Builder plannedStartingDate(Date plannedStartingDate) {
-            this.plannedStartingDate = plannedStartingDate;
+        public Builder startingDate(Date startingDate) {
+            this.startingDate = startingDate;
             return this;
         }
 

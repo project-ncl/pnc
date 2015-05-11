@@ -2,7 +2,7 @@
   <pnc-header>
     <pnc-header-title>Products</pnc-header-title>
     <pnc-header-buttons>
-      <button type="button" class="btn btn-lg btn-default disabled" data-toggle="tooltip" title="Create Product">
+      <button type="button" class="btn btn-lg btn-default" data-toggle="tooltip" title="Create Product" ui-sref="product.create">
         <i class="pficon pficon-add"></i> Create
       </button>
     </pnc-header-buttons>
@@ -14,12 +14,16 @@
       <th>Name</th>
       <th>Short Name</th>
       <th>Description</th>
+      <th>Product Code</th>
+      <th>System Code</th>
     </thead>
     <tbody>
       <tr ng-repeat="product in listCtrl.products | filter:searchText">
         <td><a href ui-sref="product.detail({ productId: product.id })">{{ product.name }}</a></td>
         <td>{{ product.abbreviation }}</td>
         <td>{{ product.description }}</td>
+        <td>{{ product.productCode }}</td>
+        <td>{{ product.pgmSystemName }}</td>
       </tr>
     </tbody>
   </table>
