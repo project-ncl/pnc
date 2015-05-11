@@ -36,6 +36,76 @@
     </div>
   </form>
 
+  <div class="row">
+    <div class="col-sm-6 col-md-6 col-sm-push-6 col-md-push-6">
+      <div class="row">
+        <div class="col-md-12" ui-view>
+            <pnc-header>
+              <pnc-header-title><small>Releases</small></pnc-header-title>
+              <pnc-header-buttons>
+                <button type="button" class="btn btn-lg btn-default disabled" data-toggle="tooltip" title="Create Release" ui-sref="configuration-set.create">
+                    <i class="pficon pficon-add"></i> Create
+                </button>
+              </pnc-header-buttons>
+            </pnc-header>
+            <table class="table table-bordered table-striped">
+              <thead>
+                <th>Name</th>
+                <th>Release date</th>
+                <th>Deliverables</th>
+                <th>Info</th>
+                <th>Support Level</th>
+              </thead>
+              <tbody>
+                <tr ng-repeat="productrelease in versionCtrl.productreleases">
+                  <td>{{ productrelease.version }}</td>
+                  <td>{{ productrelease.releaseDate | date:'medium'}}</td>
+                  <td class="text-center"><a ng-href="{{ productrelease.downloadUrl }}" target="_self" class="btn btn-primary">Download</a></td>
+                  <td>Released from Milestone {{ productrelease.productMilestoneId }}</td>
+                  <td>{{ productrelease.supportLevel }}</td>
+                </tr>
+              </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-sm-6 col-md-6 col-sm-pull-6 col-md-pull-6">
+      <div class="row">
+        <div class="col-md-12" ui-view="sidebar">
+          <pnc-header>
+            <pnc-header-title><small>Milestones</small></pnc-header-title>
+              <pnc-header-buttons>
+                <button type="button" class="btn btn-lg btn-default disabled" data-toggle="tooltip" title="Create Milestone" ui-sref="configuration-set.create">
+                    <i class="pficon pficon-add"></i> Create
+                </button>
+              </pnc-header-buttons>
+            </pnc-header>
+            <table class="table table-bordered table-striped">
+              <thead>
+                <th>Name</th>
+                <th>Planned starting date</th>
+                <th>Planned ending date</th>
+                <th>Release date</th>
+                <th>Deliverables</th>
+                <th>Build Record Set</th>
+              </thead>
+              <tbody>
+                <tr ng-repeat="productmilestone in versionCtrl.productmilestones">
+                  <td>{{ productmilestone.version }}</td>
+                  <td>{{ productmilestone.plannedStartingDate }}</td>
+                  <td>{{ productmilestone.plannedEndingDate }}</td>
+                  <td>{{ productmilestone.releaseDate | date:'medium'}}</td>
+                  <td class="text-center"><a ng-href="{{ productmilestone.downloadUrl }}" target="_self" class="btn btn-primary">Download</a></td>
+                  <td>{{ productmilestone.buildRecordSetId }}</td>
+                </tr>
+              </tbody>
+            </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <pnc-header>
     <pnc-header-title><small>Build Configuration Sets</small></pnc-header-title>
     <pnc-header-buttons>

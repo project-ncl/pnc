@@ -70,13 +70,12 @@ public class ProductMilestone implements GenericEntity<Integer> {
      *
      * @return
      */
+    public Date getPlannedReleaseDate() {
+        return plannedReleaseDate;
+    }
 
     public Date getPlannedStartingDate() {
         return plannedStartingDate;
-    }
-
-    public void setPlannedStartingDate(Date plannedStartingDate) {
-        this.plannedStartingDate = plannedStartingDate;
     }
 
     /**
@@ -84,8 +83,9 @@ public class ProductMilestone implements GenericEntity<Integer> {
      *
      * @return
      */
-    public Date getPlannedReleaseDate() {
-        return plannedReleaseDate;
+
+    public void setPlannedStartingDate(Date plannedStartingDate) {
+        this.plannedStartingDate = plannedStartingDate;
     }
 
     public void setPlannedReleaseDate(Date plannedReleaseDate) {

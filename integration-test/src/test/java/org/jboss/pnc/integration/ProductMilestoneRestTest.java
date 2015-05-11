@@ -1,7 +1,11 @@
 package org.jboss.pnc.integration;
 
-import com.jayway.restassured.http.ContentType;
-import com.jayway.restassured.response.Response;
+import static com.jayway.restassured.RestAssured.given;
+import static org.jboss.pnc.integration.env.IntegrationTestEnv.getHttpPort;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.lang.invoke.MethodHandles;
 
 import org.assertj.core.api.Assertions;
 import org.jboss.arquillian.container.test.api.Deployment;
@@ -13,13 +17,12 @@ import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.moduleconfig.AuthenticationModuleConfig;
 import org.jboss.pnc.common.util.IoUtils;
-import org.jboss.pnc.integration.matchers.JsonMatcher;
-import org.jboss.pnc.integration.template.JsonTemplateBuilder;
 import org.jboss.pnc.integration.Utils.AuthResource;
 import org.jboss.pnc.integration.deployments.Deployments;
+import org.jboss.pnc.integration.matchers.JsonMatcher;
+import org.jboss.pnc.integration.template.JsonTemplateBuilder;
 import org.jboss.pnc.test.category.ContainerTest;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -27,14 +30,8 @@ import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.lang.invoke.MethodHandles;
-
-import javax.inject.Inject;
-
-import static com.jayway.restassured.RestAssured.given;
-import static org.jboss.pnc.integration.env.IntegrationTestEnv.getHttpPort;
+import com.jayway.restassured.http.ContentType;
+import com.jayway.restassured.response.Response;
 
 @RunWith(Arquillian.class)
 @Category(ContainerTest.class)
@@ -45,6 +42,7 @@ public class ProductMilestoneRestTest {
     private static final String PRODUCT_REST_ENDPOINT = "/pnc-rest/rest/products/";
     private static final String PRODUCT_VERSION_REST_ENDPOINT = "/pnc-rest/rest/products/%d/product-versions/";
     private static final String PRODUCT_MILESTONE_REST_ENDPOINT = "/pnc-rest/rest/product-milestones/";
+    private static final String PRODUCT_MILESTONE_PRODUCTVERSION_REST_ENDPOINT = "/pnc-rest/rest/product-milestones/product-versions/{versionId}";
     private static final String PRODUCT_MILESTONE_SPECIFIC_REST_ENDPOINT = PRODUCT_MILESTONE_REST_ENDPOINT + "%d";
 
     private static int productId;
@@ -53,8 +51,7 @@ public class ProductMilestoneRestTest {
     private static int newProductMilestoneId;
 
     private static AuthenticationProvider authProvider;
-    private static String access_token =  "no-auth";
-    
+    private static String access_token = "no-auth";
 
     @Deployment(testable = false)
     public static EnterpriseArchive deploy() {
@@ -65,7 +62,7 @@ public class ProductMilestoneRestTest {
 
     @BeforeClass
     public static void setupAuth() throws IOException, ConfigurationParseException {
-        if(AuthResource.authEnabled()) {
+        if (AuthResource.authEnabled()) {
             Configuration configuration = new Configuration();
             AuthenticationModuleConfig config = configuration.getModuleConfig(AuthenticationModuleConfig.class);
             InputStream is = BuildRecordRestTest.class.getResourceAsStream("/keycloak.json");
@@ -84,15 +81,15 @@ public class ProductMilestoneRestTest {
         given().header("Accept", "application/json").header("Authorization", "Bearer " + access_token)
                 .contentType(ContentType.JSON).port(getHttpPort()).when()
                 .get(String.format(PRODUCT_VERSION_REST_ENDPOINT, productId)).then().statusCode(200)
-                 .body(JsonMatcher.containsJsonAttribute("[0].id", value -> productVersionId = Integer.valueOf(value)));
+                .body(JsonMatcher.containsJsonAttribute("[0].id", value -> productVersionId = Integer.valueOf(value)));
     }
 
     @Test
     @InSequence(2)
     public void prepareProductMilestoneId() {
         given().header("Accept", "application/json").header("Authorization", "Bearer " + access_token)
-                    .contentType(ContentType.JSON).port(getHttpPort()).when()
-                .get(String.format(PRODUCT_MILESTONE_REST_ENDPOINT)).then().statusCode(200)
+                .contentType(ContentType.JSON).port(getHttpPort()).when().get(String.format(PRODUCT_MILESTONE_REST_ENDPOINT))
+                .then().statusCode(200)
                 .body(JsonMatcher.containsJsonAttribute("[0].id", value -> productMilestoneId = Integer.valueOf(value)));
     }
 
@@ -113,14 +110,14 @@ public class ProductMilestoneRestTest {
 
         Response response = given().header("Accept", "application/json").header("Authorization", "Bearer " + access_token)
                 .body(productMilestoneTemplate.fillTemplate()).contentType(ContentType.JSON).port(getHttpPort()).when()
-                .post(PRODUCT_MILESTONE_REST_ENDPOINT);
+                .post(String.format(PRODUCT_MILESTONE_PRODUCTVERSION_REST_ENDPOINT, productVersionId));
         Assertions.assertThat(response.statusCode()).isEqualTo(201);
 
         String location = response.getHeader("Location");
         logger.info("Found location in Response header: " + location);
 
-        newProductMilestoneId = Integer.valueOf(location.substring(location.lastIndexOf(
-                PRODUCT_MILESTONE_REST_ENDPOINT) + PRODUCT_MILESTONE_REST_ENDPOINT.length()));
+        newProductMilestoneId = Integer.valueOf(location.substring(location.lastIndexOf(PRODUCT_MILESTONE_REST_ENDPOINT)
+                + PRODUCT_MILESTONE_REST_ENDPOINT.length()));
 
         logger.info("Created id of product version: " + newProductMilestoneId);
 
@@ -133,7 +130,7 @@ public class ProductMilestoneRestTest {
         logger.info("### newProductMilestoneId: " + newProductMilestoneId);
 
         Response response = given().header("Accept", "application/json").header("Authorization", "Bearer " + access_token)
-                    .contentType(ContentType.JSON).port(getHttpPort()).when()
+                .contentType(ContentType.JSON).port(getHttpPort()).when()
                 .get(String.format(PRODUCT_MILESTONE_SPECIFIC_REST_ENDPOINT, newProductMilestoneId));
 
         Assertions.assertThat(response.statusCode()).isEqualTo(200);
@@ -147,20 +144,28 @@ public class ProductMilestoneRestTest {
 
         logger.info("### rawJson: " + response.body().jsonPath().prettyPrint());
 
-        given().header("Accept", "application/json").header("Authorization", "Bearer " + access_token)
-                    .body(rawJson).contentType(ContentType.JSON).port(getHttpPort()).when()
-                .put(String.format(PRODUCT_MILESTONE_SPECIFIC_REST_ENDPOINT, newProductMilestoneId)).then()
-                .statusCode(200);
+        given().header("Accept", "application/json").header("Authorization", "Bearer " + access_token).body(rawJson)
+                .contentType(ContentType.JSON).port(getHttpPort()).when()
+                .put(String.format(PRODUCT_MILESTONE_SPECIFIC_REST_ENDPOINT, newProductMilestoneId)).then().statusCode(200);
 
         // Reading updated resource
-        Response updateResponse = given().header("Accept", "application/json").header("Authorization", "Bearer " + access_token)
-                    .contentType(ContentType.JSON).port(getHttpPort()).when()
+        Response updateResponse = given().header("Accept", "application/json")
+                .header("Authorization", "Bearer " + access_token).contentType(ContentType.JSON).port(getHttpPort()).when()
                 .get(String.format(PRODUCT_MILESTONE_SPECIFIC_REST_ENDPOINT, newProductMilestoneId));
 
         Assertions.assertThat(updateResponse.statusCode()).isEqualTo(200);
         Assertions.assertThat(updateResponse.body().jsonPath().getInt("id")).isEqualTo(newProductMilestoneId);
         Assertions.assertThat(updateResponse.body().jsonPath().getString("version")).isEqualTo("1.0.1.ER1");
 
+    }
+
+    @Test
+    @InSequence(6)
+    public void shouldGetAllProductMilestoneOfProductVersion() {
+        given().header("Accept", "application/json").header("Authorization", "Bearer " + access_token)
+                .contentType(ContentType.JSON).port(getHttpPort()).when()
+                .get(String.format(PRODUCT_MILESTONE_PRODUCTVERSION_REST_ENDPOINT, productVersionId)).then().statusCode(200)
+                .body(JsonMatcher.containsJsonAttribute("id"));
     }
 
     private String loadJsonFromFile(String resource) throws IOException {
