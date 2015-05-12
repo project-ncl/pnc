@@ -1,14 +1,18 @@
 package org.jboss.pnc.rest.restmodel;
 
+import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
+
+import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import javax.xml.bind.annotation.XmlRootElement;
+
 import org.jboss.pnc.model.BuildRecordSet;
 import org.jboss.pnc.model.ProductMilestone;
 import org.jboss.pnc.model.ProductRelease;
+import org.jboss.pnc.model.ProductRelease.SupportLevel;
 import org.jboss.pnc.model.ProductVersion;
-
-import javax.xml.bind.annotation.XmlRootElement;
-import java.util.Date;
-
-import static org.jboss.pnc.rest.utils.Utility.performIfNotNull;
 
 @XmlRootElement(name = "ProductRelease")
 public class ProductReleaseRest {
@@ -27,6 +31,8 @@ public class ProductReleaseRest {
 
     private Integer productMilestoneId;
 
+    private SupportLevel supportLevel;
+
     public ProductReleaseRest() {
     }
 
@@ -34,11 +40,14 @@ public class ProductReleaseRest {
         this.id = productRelease.getId();
         this.version = productRelease.getVersion();
         this.releaseDate = productRelease.getReleaseDate();
+
         this.downloadUrl = productRelease.getDownloadUrl();
         this.productVersionId = productRelease.getProductVersion().getId();
         if (productRelease.getProductMilestone() != null) {
             this.productMilestoneId = productRelease.getProductMilestone().getId();
         }
+
+        this.supportLevel = productRelease.getSupportLevel();
     }
 
     public Integer getId() {
@@ -97,18 +106,55 @@ public class ProductReleaseRest {
         this.buildRecordSetId = buildRecordSetId;
     }
 
-    public ProductRelease toProductRelease() {
-            ProductRelease.Builder builder = ProductRelease.Builder.newBuilder();
-            builder.id(id);
-            builder.version(version);
-            builder.releaseDate(releaseDate);
-            builder.downloadUrl(downloadUrl);
-
-            performIfNotNull(productVersionId != null, () -> builder.productVersion(ProductVersion.Builder.newBuilder().id(productVersionId).build()));
-            performIfNotNull(buildRecordSetId != null, () -> builder.buildRecordSet(BuildRecordSet.Builder.newBuilder().id(buildRecordSetId).build()));
-            performIfNotNull(productMilestoneId != null, () -> builder.productMilestone(ProductMilestone.Builder.newBuilder().id(productMilestoneId).build()));
-            
-            return builder.build();
-
+    public SupportLevel getSupportLevel() {
+        return supportLevel;
     }
+
+    public void setSupportLevel(SupportLevel supportLevel) {
+        this.supportLevel = supportLevel;
+    }
+
+    public ProductRelease toProductRelease(ProductVersion productVersion) {
+        ProductRelease productReleaseToBeUpdated = getProductReleaseFromProductVersionOrNewOne(productVersion);
+        return toProductRelease(productReleaseToBeUpdated);
+    }
+
+    public ProductRelease toProductRelease(ProductRelease productRelease) {
+        productRelease.setId(id);
+        productRelease.setVersion(version);
+        productRelease.setReleaseDate(releaseDate);
+        productRelease.setDownloadUrl(downloadUrl);
+        productRelease.setSupportLevel(supportLevel);
+
+        if (buildRecordSetId != null) {
+            BuildRecordSet buildRecordSet = BuildRecordSet.Builder.newBuilder().id(buildRecordSetId).build();
+            productRelease.setBuildRecordSet(buildRecordSet);
+            buildRecordSet.setProductRelease(productRelease);
+        }
+
+        if (productMilestoneId != null) {
+            ProductMilestone productMilestone = ProductMilestone.Builder.newBuilder().id(productMilestoneId).build();
+            productRelease.setProductMilestone(productMilestone);
+            productMilestone.setProductRelease(productRelease);
+        }
+
+        return productRelease;
+    }
+
+    /**
+     * Checks if ProductRelease is present in ProductVersion. If it is true - returns it or creates new one otherwise.
+     */
+    private ProductRelease getProductReleaseFromProductVersionOrNewOne(ProductVersion productVersion) {
+        List<ProductRelease> productReleasesInProductVersion = nullableStreamOf(productVersion.getProductReleases()).filter(
+                productRelease -> productRelease.getId().equals(id)).collect(Collectors.toList());
+
+        if (!productReleasesInProductVersion.isEmpty()) {
+            return productReleasesInProductVersion.get(0);
+        }
+
+        ProductRelease.Builder builder = ProductRelease.Builder.newBuilder();
+        builder.productVersion(productVersion);
+        return builder.build();
+    }
+
 }

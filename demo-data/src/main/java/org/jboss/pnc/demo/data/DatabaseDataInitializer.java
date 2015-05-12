@@ -1,14 +1,17 @@
 package org.jboss.pnc.demo.data;
 
 import com.google.common.base.Preconditions;
+
 import org.jboss.logging.Logger;
 import org.jboss.pnc.datastore.repositories.*;
 import org.jboss.pnc.model.*;
+import org.jboss.pnc.model.ProductRelease.SupportLevel;
 
 import javax.ejb.Singleton;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
 import javax.inject.Inject;
+
 import java.lang.invoke.MethodHandles;
 import java.sql.Timestamp;
 import java.time.Instant;
@@ -131,7 +134,7 @@ public class DatabaseDataInitializer {
             productMilestone = productMilestoneRepository.save(productMilestone);
 
             ProductRelease productRelease = ProductRelease.Builder.newBuilder().version(PNC_PRODUCT_RELEASE)
-                    .productVersion(productVersion).productMilestone(productMilestone)
+                    .productVersion(productVersion).productMilestone(productMilestone).supportLevel(SupportLevel.EARLYACCESS)
                     .build();
             productRelease = productReleaseRepository.save(productRelease);
 

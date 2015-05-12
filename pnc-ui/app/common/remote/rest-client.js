@@ -53,6 +53,32 @@
           },
         }),
 
+        Milestone: $resource(REST_DEFAULTS.BASE_URL + '/product-milestones/:milestoneId', {
+          milestoneId: '@id'
+        },{
+          update: {
+            method: 'PUT',
+          },
+          getAllForProductVersion: {
+            method: 'GET',
+            url: REST_DEFAULTS.BASE_URL + '/product-milestones/product-versions/:versionId',
+            isArray: true
+          },
+        }),
+
+        Release: $resource(REST_DEFAULTS.BASE_URL + '/product-releases/:releaseId', {
+          releaseId: '@id'
+        },{
+          update: {
+            method: 'PUT',
+          },
+          getAllForProductVersion: {
+            method: 'GET',
+            url: REST_DEFAULTS.BASE_URL + '/product-releases/product-versions/:versionId',
+            isArray: true
+          },
+        }),
+
         Project: $resource(REST_DEFAULTS.BASE_URL + '/projects/:projectId', {
           projectId: '@id'
         },{

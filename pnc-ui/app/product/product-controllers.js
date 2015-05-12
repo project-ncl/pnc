@@ -26,14 +26,16 @@
   ]);
 
   module.controller('ProductVersionController', [
-    '$log', 'productDetail', 'versionDetail', 'buildConfigurationSets',
-    function ($log, productDetail, versionDetail, buildConfigurationSets) {
+    '$log', 'productDetail', 'versionDetail', 'buildConfigurationSets', 'productReleases', 'productMilestones',
+    function ($log, productDetail, versionDetail, buildConfigurationSets, productReleases, productMilestones) {
       $log.debug('VersionDetailController >> this=%O, productDetail=%O, ' +
                  'versionDetail=%O, buildConfigurationSets=%0', this, productDetail, versionDetail, buildConfigurationSets);
 
       this.product = productDetail;
       this.version = versionDetail;
       this.buildconfigurationsets = buildConfigurationSets;
+      this.productreleases = productReleases;
+      this.productmilestones = productMilestones;
     }
   ]);
 

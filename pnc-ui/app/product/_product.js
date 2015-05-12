@@ -83,7 +83,15 @@
           return restClient.Version.getAllBuildConfigurationSets({
             productId: $stateParams.productId,
             versionId: $stateParams.versionId }).$promise;
-        }
+        },
+        productReleases: function(restClient, $stateParams) {
+          return restClient.Release.getAllForProductVersion({
+            versionId: $stateParams.versionId }).$promise;
+        },
+        productMilestones: function(restClient, $stateParams) {
+          return restClient.Milestone.getAllForProductVersion({
+            versionId: $stateParams.versionId }).$promise;
+        },
       }
     });
 

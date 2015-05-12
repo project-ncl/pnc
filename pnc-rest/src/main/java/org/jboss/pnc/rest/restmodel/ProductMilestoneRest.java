@@ -1,14 +1,17 @@
 package org.jboss.pnc.rest.restmodel;
 
+import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
+
+import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import javax.xml.bind.annotation.XmlRootElement;
+
 import org.jboss.pnc.model.BuildRecordSet;
 import org.jboss.pnc.model.ProductMilestone;
 import org.jboss.pnc.model.ProductRelease;
 import org.jboss.pnc.model.ProductVersion;
-
-import javax.xml.bind.annotation.XmlRootElement;
-import java.util.Date;
-
-import static org.jboss.pnc.rest.utils.Utility.performIfNotNull;
 
 @XmlRootElement(name = "ProductMilestone")
 public class ProductMilestoneRest {
@@ -18,6 +21,10 @@ public class ProductMilestoneRest {
     private String version;
 
     private Date releaseDate;
+
+    private Date startingDate;
+
+    private Date plannedReleaseDate;
 
     private String downloadUrl;
 
@@ -34,6 +41,8 @@ public class ProductMilestoneRest {
         this.id = productMilestone.getId();
         this.version = productMilestone.getVersion();
         this.releaseDate = productMilestone.getReleaseDate();
+        this.startingDate = productMilestone.getStartingDate();
+        this.plannedReleaseDate = productMilestone.getPlannedReleaseDate();
         this.downloadUrl = productMilestone.getDownloadUrl();
         this.productVersionId = productMilestone.getProductVersion().getId();
         if (productMilestone.getProductRelease() != null) {
@@ -63,6 +72,22 @@ public class ProductMilestoneRest {
 
     public void setReleaseDate(Date releaseDate) {
         this.releaseDate = releaseDate;
+    }
+
+    public Date getStartingDate() {
+        return startingDate;
+    }
+
+    public void setStartingDate(Date startingDate) {
+        this.startingDate = startingDate;
+    }
+
+    public Date getPlannedReleaseDate() {
+        return plannedReleaseDate;
+    }
+
+    public void setPlannedReleaseDate(Date plannedReleaseDate) {
+        this.plannedReleaseDate = plannedReleaseDate;
     }
 
     public String getDownloadUrl() {
@@ -97,17 +122,47 @@ public class ProductMilestoneRest {
         this.buildRecordSetId = buildRecordSetId;
     }
 
-    public ProductMilestone toProductMilestone() {
-        ProductMilestone.Builder builder = ProductMilestone.Builder.newBuilder();
-        builder.id(id);
-        builder.version(version);
-        builder.releaseDate(releaseDate);
-        builder.downloadUrl(downloadUrl);
+    public ProductMilestone toProductMilestone(ProductVersion productVersion) {
+        ProductMilestone productMilestoneToBeUpdated = getProductMilestoneFromProductVersionOrNewOne(productVersion);
+        return toProductMilestone(productMilestoneToBeUpdated);
+    }
 
-        performIfNotNull(productVersionId != null, () -> builder.productVersion(ProductVersion.Builder.newBuilder().id(productVersionId).build()));
-        performIfNotNull(buildRecordSetId != null, () -> builder.buildRecordSet(BuildRecordSet.Builder.newBuilder().id(buildRecordSetId).build()));
-        performIfNotNull(productReleaseId != null, () -> builder.productRelease(ProductRelease.Builder.newBuilder().id(productReleaseId).build()));
-        
+    public ProductMilestone toProductMilestone(ProductMilestone productMilestone) {
+        productMilestone.setId(id);
+        productMilestone.setVersion(version);
+        productMilestone.setReleaseDate(releaseDate);
+        productMilestone.setStartingDate(startingDate);
+        productMilestone.setPlannedReleaseDate(plannedReleaseDate);
+        productMilestone.setDownloadUrl(downloadUrl);
+
+        if (buildRecordSetId != null) {
+            BuildRecordSet buildRecordSet = BuildRecordSet.Builder.newBuilder().id(buildRecordSetId).build();
+            productMilestone.setBuildRecordSet(buildRecordSet);
+            buildRecordSet.setProductMilestone(productMilestone);
+        }
+
+        if (productReleaseId != null) {
+            ProductRelease productRelease = ProductRelease.Builder.newBuilder().id(productReleaseId).build();
+            productMilestone.setProductRelease(productRelease);
+            productRelease.setProductMilestone(productMilestone);
+        }
+
+        return productMilestone;
+    }
+
+    /**
+     * Checks if ProductMilestone is present in ProductVersion. If it is true - returns it or creates new one otherwise.
+     */
+    private ProductMilestone getProductMilestoneFromProductVersionOrNewOne(ProductVersion productVersion) {
+        List<ProductMilestone> productMilestonesInProductVersion = nullableStreamOf(productVersion.getProductMilestones())
+                .filter(productMilestone -> productMilestone.getId().equals(id)).collect(Collectors.toList());
+
+        if (!productMilestonesInProductVersion.isEmpty()) {
+            return productMilestonesInProductVersion.get(0);
+        }
+
+        ProductMilestone.Builder builder = ProductMilestone.Builder.newBuilder();
+        builder.productVersion(productVersion);
         return builder.build();
     }
 
