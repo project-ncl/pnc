@@ -2,8 +2,8 @@
   <pnc-header>
     <pnc-header-title>{{ detailCtrl.product.name || 'Empty' }}</pnc-header-title>
     <pnc-header-buttons>
-      <button type="button" class="btn btn-lg btn-default disabled" data-toggle="tooltip" title="Edit Product">
-        <i class="pficon pficon-edit"></i> Edit
+
+      <button type="button" class="btn btn-lg btn-default" data-toggle="tooltip" title="Edit Product" ng-click="productForm.$show()" ng-class="{ 'active': productForm.$visible }"><i class="pficon pficon-edit"></i> Edit
       </button>
       <button type="button" class="btn btn-lg btn-danger disabled" data-toggle="tooltip" title="Delete Product">
         <i class="pficon pficon-delete"></i> Delete
@@ -11,18 +11,51 @@
     </pnc-header-buttons>
   </pnc-header>
 
-  <form editable-form class="form-horizontal">
+  <form editable-form class="form-horizontal" name="productForm" onbeforesave="detailCtrl.update()">
+
     <div class="form-group">
       <label for="input-name" class="col-sm-1 control-label">Name</label>
       <div class="col-sm-11">
-        <p id="input-name" e-class="form-control" editable-text="detailCtrl.product.name" e-name="name" e-required>{{ detailCtrl.product.name || 'Empty' }}</p>
+        <p id="input-name" class="form-control-static" e-class="form-control" editable-text="detailCtrl.product.name" e-name="name" e-required>{{ detailCtrl.product.name || 'Empty' }}</p>
       </div>
     </div>
 
     <div class="form-group">
-      <label for="static-project" class="col-sm-1 control-label">Description</label>
+      <label for="static-description" class="col-sm-1 control-label">Description</label>
       <div class="col-sm-11">
-        <p id="static-project" class="form-control-static">{{ detailCtrl.product.description || 'Empty' }}</p>
+        <p id="input-description" class="form-control-static" e-class="form-control" editable-textarea="detailCtrl.product.description" e-name="description">{{ detailCtrl.product.description }}</p>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="input-abbreviation" class="col-sm-1 control-label">Short Name</label>
+      <div class="col-sm-11">
+        <p id="input-abbreviation" class="form-control-static" e-class="form-control" editable-text="detailCtrl.product.abbreviation" e-name="abbreviation">{{ detailCtrl.product.abbreviation }}</p>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="input-productCode" class="col-sm-1 control-label">Product Code</label>
+      <div class="col-sm-11">
+        <p id="input-productCode" class="form-control-static" e-class="form-control" editable-text="detailCtrl.product.productCode" e-name="productCode">{{ detailCtrl.product.productCode }}</p>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="input-pgmSystemName" class="col-sm-1 control-label">System Code</label>
+      <div class="col-sm-11">
+        <p id="input-pgmSystemName" class="form-control-static" e-class="form-control" editable-text="detailCtrl.product.pgmSystemName" e-name="pgmSystemName">{{ detailCtrl.product.pgmSystemName }}</p>
+      </div>
+    </div>
+
+    <div class="form-group" ng-show="productForm.$visible">
+      <div class="col-sm-offset-1 col-sm-11">
+        <button type="submit" class="btn btn-primary" ng-disabled="productForm.$waiting">
+          Save
+        </button>
+        <button type="button" class="btn btn-default" ng-disabled="productForm.$waiting" ng-click="productForm.$cancel()">
+          Cancel
+        </button>
       </div>
     </div>
 

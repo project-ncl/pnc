@@ -120,7 +120,7 @@ public class DatabaseDataInitializer {
              */
             // Example product and product version
             Product product = Product.Builder.newBuilder().name(PNC_PRODUCT_NAME).abbreviation("PNC").description(
-                    "Example Product for Project Newcastle Demo")
+                    "Example Product for Project Newcastle Demo").productCode("PNC").pgmSystemName("newcastle")
                     .build();
             product = productRepository.save(product);
 
