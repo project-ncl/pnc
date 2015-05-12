@@ -30,12 +30,12 @@
           function(result) {
             $log.debug('Update Product: %O, result: %O', that.product,
                        result);
-            Notifications.success('Product updated.');
+            Notifications.success('Product updated');
           },
           function(response) {
             $log.error('Update product: %O failed, response: %O',
                        that.product, response);
-            Notifications.error('Action Failed.');
+            Notifications.error('Product update failed');
           }
         );
       };
@@ -69,12 +69,12 @@
           function(result) {
             $log.debug('Update Product Version: %O, result: %O', that.version,
                        result);
-            Notifications.success('Product Version updated.');
+            Notifications.success('Product Version updated');
           },
           function(response) {
             $log.error('Update product version: %O failed, response: %O',
                        that.version, response);
-            Notifications.error('Action Failed.');
+            Notifications.error('Product Version update failed');
           }
         );
       };
@@ -101,7 +101,7 @@
           },
           function(response) {
             $log.error('Create product failed: response: %O', response);
-            Notifications.error('Action Failed.');
+            Notifications.error('Product creation failed');
           }
         );
       };
@@ -133,7 +133,7 @@
           },
           function(response) {
             $log.error('Create product version failed: response: %O', response);
-            Notifications.error('Action Failed.');
+            Notifications.error('Product Version creation failed');
           }
         );
       };
