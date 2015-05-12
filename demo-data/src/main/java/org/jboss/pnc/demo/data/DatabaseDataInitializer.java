@@ -154,7 +154,7 @@ public class DatabaseDataInitializer {
             Project project4 = Project.Builder.newBuilder()
                     .name("Fabric8").description(
                             "Integration platform for working with Apache ActiveMQ, Camel, CXF and Karaf in the cloud")
-                    .projectUrl("https://github.com/fabric8io/fabric8")
+                    .projectUrl("https://gitlab-poc.host.stage.eng.bos.redhat.com/Fabric8/Fabric8.git")
                     .issueTrackerUrl("https://github.com/fabric8io/fabric8/issues").build();
 
             projectRepository.save(project1);
@@ -202,7 +202,7 @@ public class DatabaseDataInitializer {
                     .description("Test build for Fabric8")
                     .environment(environment1)
                     .buildScript("mvn clean deploy -DskipTests=true")
-                    .scmRepoURL("https://github.com/fabric8io/fabric8.git")
+                    .scmRepoURL("https://gitlab-poc.host.stage.eng.bos.redhat.com/Fabric8/Fabric8.git")
                     .build();
             buildConfiguration4 = buildConfigurationRepository.save(buildConfiguration4);
 
