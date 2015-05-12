@@ -108,6 +108,23 @@
       },
     });
 
+    $stateProvider.state('product.createversion', {
+      url: '/product/{productId:int}/createversion',
+      templateUrl: 'product/views/product.version.create.html',
+      data: {
+        displayName: 'Create Product Version'
+      },
+      controller: 'ProductVersionCreateController',
+      controllerAs: 'productVersionCreateCtrl',
+      resolve: {
+        restClient: 'PncRestClient',
+        productDetail: function(restClient, $stateParams) {
+          return restClient.Product.get({ productId: $stateParams.productId })
+          .$promise;
+        },
+      },
+    });
+
   }]);
   
 })();

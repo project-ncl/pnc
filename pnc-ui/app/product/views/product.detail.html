@@ -58,33 +58,33 @@
         </button>
       </div>
     </div>
-
-    <pnc-header>
-      <pnc-header-title><small>Product Versions</small></pnc-header-title>
-      <pnc-header-buttons>
-        <button type="button" class="btn btn-lg btn-default disabled" data-toggle="tooltip" title="Create Product Version">
-            <i class="pficon pficon-add"></i> Create
-        </button>
-      </pnc-header-buttons>
-    </pnc-header>
-
-    <input ng-model="searchText" placeholder="filter versions...">
-    <table class="table table-bordered table-striped">
-      <thead>
-        <th>Version</th>
-        <th>Milestone</th>
-        <th>Phase</th>
-        <th>Description</th>
-      </thead>
-      <tbody>
-        <tr ng-repeat="version in detailCtrl.versions | filter:searchText">
-          <td><a href ui-sref="product.version({ productId: detailCtrl.product.id, versionId: version.id })">{{ version.version }}</a></td>
-          <td> tdb (ER1 | DR7)</td>
-          <td> tbd (Building | Testing | Released)</td>
-          <td>{{ version.description }}</td>
-        </tr>
-      </tbody>
-    </table>
-
   </form>
+
+  <pnc-header>
+    <pnc-header-title><small>Product Versions</small></pnc-header-title>
+    <pnc-header-buttons>
+      <button type="button" class="btn btn-lg btn-default" data-toggle="tooltip" title="Create Product Version" ui-sref="product.createversion({ productId: detailCtrl.product.id })">
+          <i class="pficon pficon-add"></i> Create
+      </button>
+    </pnc-header-buttons>
+  </pnc-header>
+
+  <input ng-model="searchText" placeholder="filter versions...">
+  <table class="table table-bordered table-striped">
+    <thead>
+      <th>Version</th>
+      <th>Milestone</th>
+      <th>Phase</th>
+      <th>Description</th>
+    </thead>
+    <tbody>
+      <tr ng-repeat="version in detailCtrl.versions | filter:searchText">
+        <td><a href ui-sref="product.version({ productId: detailCtrl.product.id, versionId: version.id })">{{ version.version }}</a></td>
+        <td> tdb (ER1 | DR7)</td>
+        <td> tbd (Building | Testing | Released)</td>
+        <td>{{ version.description }}</td>
+      </tr>
+    </tbody>
+  </table>
+
 </div>
