@@ -79,12 +79,18 @@
                 <phase>generate-test-resources</phase>
                 <configuration>
                   <target>
+                    <!-- If JBOSS_HOME is set it causes obscure errors with CLI in -->
+                    <!-- jboss-as-maven-plugin. -->
+                    <property environment="env" />
+                    <fail message="JBOSS_HOME must not be set" if="env.JBOSS_HOME"/>
+
                     <echo>Preparing EAP 6.4 application server</echo>
                     <echo>EAP URL ${eap6.zip.url}</echo>
                     <fail message="Please specify EAP 6.4 zip file URL via: -Deap6.zip.url=" unless="eap6.zip.url" />
                     <mkdir dir="${test.server.unpack.dir}" />
                     <get usetimestamp="true" src="${eap6.zip.url}" skipexisting="true" dest="${test.server.unpack.dir}/${app.server}-${jboss.version}.zip" />
                     <unzip src="${test.server.unpack.dir}/${app.server}-${jboss.version}.zip" dest="${test.server.unpack.dir}/" overwrite="true" />
+
                   </target>
                 </configuration>
               </execution>
@@ -115,7 +121,7 @@
                     </configuration>
                   </execution>
                 </executions>
-              </plugin>          
+              </plugin>
           <plugin>
             <groupId>org.jboss.as.plugins</groupId>
             <artifactId>jboss-as-maven-plugin</artifactId>
@@ -185,7 +191,7 @@
       </build>
     </profile>
 
-    <!-- 
+    <!--
          For postgresql, the jdbc driver and datasource needs to be configured
          before running any container tests.
          This profile must be run after the EAP zip has been downloaded and extracted.
