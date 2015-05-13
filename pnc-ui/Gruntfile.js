@@ -63,15 +63,8 @@ module.exports = function (grunt) {
 
   grunt.registerTask('initAuth', function() {
     var enableAuth = grunt.option('enable-auth') || 'false';
-
-    grunt.file.write(appConfig.tmp + '/pnc-props.js', 'pnc = {};\npnc.enableAuth = ' + enableAuth + ';');
+    grunt.file.write(appConfig.tmp + '/pnc-props.js', 'pnc_globals = {};\npnc_globals.enableAuth = ' + enableAuth + ';');
   });
-
-
-// 'function(globals) {
-//   "use strict";
-//   globals.GLOB = {};
-// }(this));'
 
   // Define the configuration for all the tasks
   grunt.initConfig({
@@ -184,34 +177,6 @@ module.exports = function (grunt) {
       }
     },
 
-    ngconstant: {
-      options: {
-        space: '  ',
-        wrap: '\'use strict\';\n\n {%= __ngModule %}',
-        name: 'pnc.environment',
-      },
-      dev: {
-        options: {
-          dest: '<%= yeoman.app %>/environment.js'
-        },
-        constants: {
-          ENV: {
-            name: 'dev',
-          }
-        }
-      },
-      prod: {
-        options: {
-          dest: '<%= yeoman.app %>/environment.js'
-        },
-        constants: {
-          ENV: {
-            name: 'prod',
-          }
-        }
-      }
-    },
-
     // Make sure code styles are up to par and there are no obvious mistakes
     jshint: {
       options: {
@@ -251,14 +216,14 @@ module.exports = function (grunt) {
           src: [
             '<%= yeoman.tmp %>',
             '<%= yeoman.dist %>/**/*',
-            '!<%= yeoman.dist %>/.git{,*/}*',
-            '<%= yeoman.app %>/environment.js'
+            '!<%= yeoman.dist %>/.git{,*/}*'/*,
+            '<%= yeoman.app %>/environment.js'*/
           ]
         }]
       },
       server: [
-        '<%= yeoman.tmp %>',
-        '<%= yeoman.app %>/environment.js'
+        '<%= yeoman.tmp %>'/*,
+        '<%= yeoman.app %>/environment.js' */
       ]
     },
 
@@ -548,7 +513,6 @@ module.exports = function (grunt) {
       'initRestConfig',
       'clean:server',
       'initAuth',
-      'ngconstant:dev',
       'wiredep',
       'includeSource:server',
       //'concat',
@@ -575,18 +539,10 @@ module.exports = function (grunt) {
     'karma'*/
   ]);
 
-  grunt.registerTask('build', function (target) {
-    var environmentProfile = 'ngconstant:dev';
-
-    if (target === 'auth') {
-      environmentProfile = 'ngconstant:prod';
-    }
-
-    grunt.task.run([
+  grunt.registerTask('build', [
       'initRestConfig',
       'clean:dist',
       'initAuth',
-      environmentProfile,
       'copy:fonts',
       'wiredep',
       'includeSource:dist',
@@ -602,8 +558,7 @@ module.exports = function (grunt) {
       'filerev',
       'usemin',
       'htmlmin'
-    ]);
-  });
+  ]);
 
   grunt.registerTask('default', [
     'newer:jshint',
@@ -612,19 +567,12 @@ module.exports = function (grunt) {
     'build'
   ]);
 
-  grunt.registerTask('dist', function (target) {
-    var build = 'build';
-    if (target) {
-      build = 'build:' + target;
-    }
-
-    grunt.task.run([
+  grunt.registerTask('dist', [
     'bower:install',
     'newer:jshint',
     'newer:htmlhint',
     'test',
-    build
-    ]);
-  });
+    'build'
+  ]);
 
 };

@@ -28,11 +28,10 @@
     'pnc.record',
     'pnc.configuration-set',
     'pnc.websockets',
-    'pnc.environment'
     ]);
 
-  if (pnc.enableAuth) {
-    console.log('** Authentication Enabled **');
+  /*jshint camelcase: false */
+  if (pnc_globals.enableAuth) {
     var auth = {};
 
     angular.element(document).ready(function () {
@@ -62,10 +61,6 @@
       return {
         request: function (config) {
           var deferred = $q.defer();
-
-          // if (config.url === 'rest/sender' || config.url === 'rest/registry/device/importer') {
-          //   return config;
-          // }
 
           if (Auth.keycloak && Auth.keycloak.token) {
             Auth.keycloak.updateToken(5).success(function () {
@@ -106,18 +101,15 @@
     }
   );
 
-  app.run(['$rootScope', '$log', 'ENV',
-    function($rootScope, $log, ENV) {
-      $log.debug('Environment=%O', ENV);
-      // Handle errors with state changes.
-      $rootScope.$on('$stateChangeError',
-        function(event, toState, toParams, fromState, fromParams, error) {
-          $log.debug('Caught $stateChangeError: event=%O, toState=%O, ' +
-            'toParams=%O, fromState=%O, fromParams=%O, error=%O',
-            event, toState, toParams, fromState, fromParams, error);
-        }
-      );
-    }
-  ]);
+  app.run(function($rootScope, $log) {
+    // Handle errors with state changes.
+    $rootScope.$on('$stateChangeError',
+      function(event, toState, toParams, fromState, fromParams, error) {
+        $log.debug('Caught $stateChangeError: event=%O, toState=%O, ' +
+          'toParams=%O, fromState=%O, fromParams=%O, error=%O',
+          event, toState, toParams, fromState, fromParams, error);
+      }
+    );
+  });
 
 })();
