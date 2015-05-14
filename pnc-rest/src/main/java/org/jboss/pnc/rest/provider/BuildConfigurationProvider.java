@@ -23,8 +23,10 @@ import org.jboss.pnc.datastore.limits.RSQLPageLimitAndSortingProducer;
 import org.jboss.pnc.datastore.predicates.RSQLPredicate;
 import org.jboss.pnc.datastore.predicates.RSQLPredicateProducer;
 import org.jboss.pnc.datastore.repositories.BuildConfigurationRepository;
+import org.jboss.pnc.datastore.repositories.ProductVersionRepository;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationSet;
+import org.jboss.pnc.model.ProductVersion;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationRest;
 import org.springframework.data.domain.Pageable;
 
@@ -42,9 +44,11 @@ import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
 public class BuildConfigurationProvider {
 
     private BuildConfigurationRepository buildConfigurationRepository;
+    private ProductVersionRepository productVersionRepository;
 
     @Inject
-    public BuildConfigurationProvider(BuildConfigurationRepository buildConfigurationRepository) {
+    public BuildConfigurationProvider(BuildConfigurationRepository buildConfigurationRepository, 
+            ProductVersionRepository productVersionRepository) {
         this.buildConfigurationRepository = buildConfigurationRepository;
     }
 
@@ -152,6 +156,20 @@ public class BuildConfigurationProvider {
         BuildConfiguration buildConfig = buildConfigurationRepository.findOne(configId);
         BuildConfiguration dependency = buildConfigurationRepository.findOne(dependencyId);
         buildConfig.removeDependency(dependency);
+        buildConfigurationRepository.save(buildConfig);
+    }
+
+    public void addProductVersion(Integer configId, Integer productVersionId) {
+        BuildConfiguration buildConfig = buildConfigurationRepository.findOne(configId);
+        ProductVersion productVersion = productVersionRepository.findOne(productVersionId);
+        buildConfig.addProductVersion(productVersion);
+        buildConfigurationRepository.save(buildConfig);
+    }
+
+    public void removeProductVersion(Integer configId, Integer productVersionId) {
+        BuildConfiguration buildConfig = buildConfigurationRepository.findOne(configId);
+        ProductVersion productVersion = productVersionRepository.findOne(productVersionId);
+        buildConfig.removeProductVersion(productVersion);
         buildConfigurationRepository.save(buildConfig);
     }
 
