@@ -190,4 +190,25 @@ public class BuildConfigurationEndpoint {
             @ApiParam(value = "Product Version id", required = true) @PathParam("versionId") Integer versionId) {
         return buildConfigurationProvider.getAllForProductAndProductVersion(pageIndex, pageSize, sortingRsql, rsql, productId, versionId);
     }
+
+    @ApiOperation(value = "Adds a dependency to the specified config")
+    @POST
+    @Path("/{id}/dependencies")
+    public Response addDependency(
+            @ApiParam(value = "Build Configuration id", required = true) @PathParam("id") Integer id,
+            BuildConfigurationRest dependency) {
+        buildConfigurationProvider.addDependency(id, dependency.getId());
+        return Response.ok().build();
+    }
+
+    @ApiOperation(value = "Removes a configuration from the specified config set")
+    @DELETE
+    @Path("/{id}/dependencies/{dependencyId}")
+    public Response addConfiguration(
+            @ApiParam(value = "Build configuration set id", required = true) @PathParam("id") Integer id,
+            @ApiParam(value = "Build configuration id", required = true) @PathParam("dependencyId") Integer dependencyId) {
+        buildConfigurationProvider.removeDependency(id, dependencyId);
+        return Response.ok().build();
+    }
+
 }

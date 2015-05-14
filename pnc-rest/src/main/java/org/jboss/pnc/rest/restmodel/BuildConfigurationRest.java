@@ -3,12 +3,16 @@ package org.jboss.pnc.rest.restmodel;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildStatus;
 import org.jboss.pnc.model.Environment;
+import org.jboss.pnc.model.ProductVersion;
 import org.jboss.pnc.model.Project;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
 import java.sql.Timestamp;
+import java.util.Set;
+import java.util.stream.Collectors;
 
+import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
 import static org.jboss.pnc.rest.utils.Utility.performIfNotNull;
 
 @XmlRootElement(name = "Configuration")
@@ -40,6 +44,8 @@ public class BuildConfigurationRest {
 
     private Integer environmentId;
 
+    private Set<Integer> dependencyIds;
+
     public BuildConfigurationRest() {
     }
 
@@ -58,6 +64,8 @@ public class BuildConfigurationRest {
         performIfNotNull(buildConfiguration.getProject() != null, () -> this.projectId = buildConfiguration.getProject()
                 .getId());
         performIfNotNull(buildConfiguration.getEnvironment() != null, () -> this.environmentId = buildConfiguration.getEnvironment().getId());
+        this.dependencyIds = nullableStreamOf(buildConfiguration.getDependencies()).map(dependencyConfig -> dependencyConfig.getId())
+                .collect(Collectors.toSet());
     }
 
     public Integer getId() {
@@ -156,6 +164,22 @@ public class BuildConfigurationRest {
         this.projectId = projectId;
     }
 
+    public Set<Integer> getDependencyIds() {
+        return dependencyIds;
+    }
+
+    public void setDependencyIds(Set<Integer> dependencyIds) {
+        this.dependencyIds = dependencyIds;
+    }
+
+    public boolean addDependency(Integer dependencyId) {
+        return dependencyIds.add(dependencyId);
+    }
+
+    public boolean removeDependency(Integer dependencyId) {
+        return dependencyIds.remove(dependencyId);
+    }
+
     public Integer getEnvironmentId() {
         return environmentId;
     }
@@ -180,6 +204,11 @@ public class BuildConfigurationRest {
 
         performIfNotNull(projectId != null, () -> builder.project(Project.Builder.newBuilder().id(projectId).build()));
         performIfNotNull(environmentId != null, () -> builder.environment(Environment.Builder.emptyEnvironment().id(environmentId).build()));
+
+        nullableStreamOf(dependencyIds).forEach(dependencyId -> {
+            BuildConfiguration.Builder buildConfigurationBuilder = BuildConfiguration.Builder.newBuilder().id(dependencyId);
+            builder.dependency(buildConfigurationBuilder.build());
+        });
 
         overrideWithDataFromOriginalConfiguration(buildConfiguration, builder);
         return builder.build();

@@ -7,6 +7,7 @@ import org.jboss.pnc.datastore.predicates.RSQLPredicate;
 import org.jboss.pnc.datastore.predicates.RSQLPredicateProducer;
 import org.jboss.pnc.datastore.repositories.BuildConfigurationRepository;
 import org.jboss.pnc.model.BuildConfiguration;
+import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationRest;
 import org.springframework.data.domain.Pageable;
 
@@ -122,4 +123,19 @@ public class BuildConfigurationProvider {
         return nullableStreamOf(entries).map(projectConfiguration -> new BuildConfigurationRest(projectConfiguration)).collect(
                 Collectors.toList());
     }
+
+    public void addDependency(Integer configId, Integer dependencyId) {
+        BuildConfiguration buildConfig = buildConfigurationRepository.findOne(configId);
+        BuildConfiguration dependency = buildConfigurationRepository.findOne(dependencyId);
+        buildConfig.addDependency(dependency);
+        buildConfigurationRepository.save(buildConfig);
+    }
+
+    public void removeDependency(Integer configId, Integer dependencyId) {
+        BuildConfiguration buildConfig = buildConfigurationRepository.findOne(configId);
+        BuildConfiguration dependency = buildConfigurationRepository.findOne(dependencyId);
+        buildConfig.removeDependency(dependency);
+        buildConfigurationRepository.save(buildConfig);
+    }
+
 }
