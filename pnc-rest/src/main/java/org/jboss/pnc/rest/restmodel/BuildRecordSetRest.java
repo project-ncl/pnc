@@ -49,7 +49,7 @@ public class BuildRecordSetRest {
                 .getProductMilestone().getId());
         performIfNotNull(buildRecordSet.getProductRelease() != null, () -> this.productReleaseId = buildRecordSet
                 .getProductRelease().getId());
-        this.buildRecordIds = nullableStreamOf(buildRecordSet.getBuildRecord()).map(buildRecord -> buildRecord.getId())
+        this.buildRecordIds = nullableStreamOf(buildRecordSet.getBuildRecords()).map(buildRecord -> buildRecord.getId())
                 .collect(Collectors.toList());
 
     }

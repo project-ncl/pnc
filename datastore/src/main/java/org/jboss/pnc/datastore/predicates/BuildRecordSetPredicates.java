@@ -31,6 +31,6 @@ public class BuildRecordSetPredicates {
     
     public static BooleanExpression withBuildRecordId(Integer buildRecordId) {
         return createNotNullPredicate(buildRecordId != null,
-                () -> QBuildRecordSet.buildRecordSet.buildRecord.any().id.eq(buildRecordId));
+                () -> QBuildRecordSet.buildRecordSet.buildRecords.any().id.eq(buildRecordId));
     }
 }

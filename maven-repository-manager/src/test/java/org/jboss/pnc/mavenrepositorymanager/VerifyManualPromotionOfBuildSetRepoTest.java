@@ -77,7 +77,7 @@ public class VerifyManualPromotionOfBuildSetRepoTest extends AbstractRepositoryM
 
         BuildRecordSet recordSet = new BuildRecordSet();
         recordSet.setBuildSetContentId(chainId);
-        recordSet.setBuildRecord(Collections.singletonList(record));
+        recordSet.setBuildRecords(Collections.singletonList(record));
 
         // manually promote the build to the public group (since it's convenient)
         RunningRepositoryPromotion promotion = driver.promoteBuildSet(recordSet, PUBLIC);
