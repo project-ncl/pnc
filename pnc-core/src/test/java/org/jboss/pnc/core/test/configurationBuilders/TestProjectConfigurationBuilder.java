@@ -38,8 +38,10 @@ public class TestProjectConfigurationBuilder {
         BuildConfiguration buildConfiguration5 = build(5, "with-dependencies-5", buildConfigurationSet);
 
         buildConfiguration1.addDependency(buildConfiguration2);
+        buildConfiguration1.addDependency(buildConfiguration3);
         buildConfiguration2.addDependency(buildConfiguration3);
         buildConfiguration2.addDependency(buildConfiguration4);
+        buildConfiguration3.addDependency(buildConfiguration5);
         buildConfiguration4.addDependency(buildConfiguration5);
 
         return buildConfiguration1;

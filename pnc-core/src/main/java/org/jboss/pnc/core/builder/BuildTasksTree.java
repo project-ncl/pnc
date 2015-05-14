@@ -106,18 +106,18 @@ public class BuildTasksTree {
                     .filter(potentialDependency -> potentialDependency.getTo().equals(buildConfiguration))
                     .forEach(potentialDependency -> tree.addEdge(potentialDependency.getFrom(), vertex, 1));
 
-            for (BuildConfiguration childBuildConfiguration : buildConfiguration.getDependencies()) {
-                if (checkIfDependsOnItself(buildTask, childBuildConfiguration)) {
+            for (BuildConfiguration dependencyBuildConf : buildConfiguration.getDependencies()) {
+                if (checkIfDependsOnItself(buildTask, dependencyBuildConf)) {
                     buildTask.setStatus(BuildStatus.REJECTED);
                     buildTask.setStatusDescription("Configuration depends on itself.");
                     break;
                 }
-                Vertex<BuildTask> childVertex = getVertexByBuildConfiguration(childBuildConfiguration);
-                if (childVertex != null) {
+                Vertex<BuildTask> dependencyVertex = getVertexByBuildConfiguration(dependencyBuildConf);
+                if (dependencyVertex != null) {
                     //connect nodes if dependency exists in the tree
-                    tree.addEdge(vertex, childVertex, 1);
+                    tree.addEdge(vertex, dependencyVertex, 1);
                 } else {
-                    potentialDependencies.add(new PotentialDependency(vertex, childBuildConfiguration));
+                    potentialDependencies.add(new PotentialDependency(vertex, dependencyBuildConf));
                 }
             }
             return buildTask;
