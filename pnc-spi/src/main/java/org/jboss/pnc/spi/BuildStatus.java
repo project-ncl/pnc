@@ -38,23 +38,39 @@ public enum BuildStatus {
     BUILD_COMPLETED_WITH_ERROR,
 
     COLLECTING_RESULTS_FROM_BUILD_DRIVER,
+    COLLECTING_RESULTS_FROM_REPOSITORY_NAMAGER,
+
     BUILD_ENV_DESTROYING,
     BUILD_ENV_DESTROYED,
     STORING_RESULTS,
-    RESULTS_STORED,
 
     /** Last build status which is set
      *  after storing to db and
      *  just before dropping from list of running builds.
      *  Used to signal via callback that the build is going to be dropped from queue.
      */
-    DONE,
+    DONE(true),
 
     /**
      * Missing configuration, un-satisfied dependencies, dependencies failed to build.
      * Rejected can be set before adding to the list of running builds or before dropping form list of running builds.
      */
-    REJECTED,
+    REJECTED(true),
 
-    SYSTEM_ERROR, COLLECTING_RESULTS_FROM_REPOSITORY_NAMAGER;
+    SYSTEM_ERROR(true);
+
+    private boolean isFinal;
+
+    BuildStatus() {
+        isFinal = false;
+    }
+
+    BuildStatus(boolean isFinal) {
+        this.isFinal = isFinal;
+    }
+
+    public boolean isCompleted() {
+        return this.isFinal;
+    }
+
 }
