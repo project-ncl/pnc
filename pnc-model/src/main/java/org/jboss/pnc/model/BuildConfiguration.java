@@ -65,8 +65,12 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
     private String patchesUrl;
 
     @NotAudited
-    @ManyToOne(cascade = { CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH })
-    private ProductVersion productVersion;
+    @ManyToMany
+    @JoinTable(
+            name="build_configuration_product_versions_map",
+            joinColumns={@JoinColumn(name="build_configuration_id", referencedColumnName="id")},
+            inverseJoinColumns={@JoinColumn(name="product_version_id", referencedColumnName="id")})
+    private Set<ProductVersion> productVersions;
 
     @Audited( targetAuditMode = RelationTargetAuditMode.NOT_AUDITED )
     @NotNull
@@ -259,17 +263,25 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
     }
 
     /**
-     * @return the productVersion
+     * @return the productVersions associated with this build config
      */
-    public ProductVersion getProductVersion() {
-        return productVersion;
+    public Set<ProductVersion> getProductVersions() {
+        return productVersions;
     }
 
     /**
-     * @param productVersion the productVersion to set
+     * @param productVersions the set of productVersions associated with this build config
      */
-    public void setProductVersion(ProductVersion productVersion) {
-        this.productVersion = productVersion;
+    public void setProductVersions(Set<ProductVersion> productVersions) {
+        this.productVersions = productVersions;
+    }
+
+    public boolean addProductVersion(ProductVersion productVersion) {
+        return this.productVersions.add(productVersion);
+    }
+
+    public boolean removeProductVersion(ProductVersion productVersion) {
+        return this.productVersions.remove(productVersion);
     }
 
     /**
@@ -499,6 +511,8 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
 
         private Environment environment;
 
+        private Set<ProductVersion> productVersions;
+
         private Set<BuildConfiguration> dependencies;
 
         private Set<BuildConfiguration> dependants;
@@ -546,6 +560,8 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
             buildConfiguration.setBuildStatus(buildStatus);
             buildConfiguration.setRepositories(repositories);
             buildConfiguration.setBuildConfigurationSets(buildConfigurationSets);
+            buildConfiguration.setProductVersions(productVersions);
+
             for (BuildConfigurationSet buildConfigurationSet : buildConfigurationSets)
             {
                 buildConfigurationSet.addBuildConfiguration(buildConfiguration);
@@ -610,6 +626,16 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
 
         public Builder environment(Environment environment) {
             this.environment = environment;
+            return this;
+        }
+
+        public Builder productVersions(Set<ProductVersion> productVersions) {
+            this.productVersions = productVersions;
+            return this;
+        }
+
+        public Builder productVersion(ProductVersion productVersion) {
+            this.productVersions.add(productVersion);
             return this;
         }
 

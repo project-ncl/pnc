@@ -96,7 +96,7 @@ public class BuildRecord implements GenericEntity<Integer> {
     /**
      * The build collections.
      */
-    @ManyToMany(mappedBy = "buildRecord")
+    @ManyToMany(mappedBy = "buildRecords")
     private List<BuildRecordSet> buildRecordSets;
 
     /**
@@ -112,7 +112,7 @@ public class BuildRecord implements GenericEntity<Integer> {
     @PreRemove
     private void removeBuildRecordFromSets() {
         for (BuildRecordSet brs : buildRecordSets) {
-            brs.getBuildRecord().remove(this);
+            brs.getBuildRecords().remove(this);
         }
     }
 
@@ -423,7 +423,7 @@ public class BuildRecord implements GenericEntity<Integer> {
 
             // Set the bi-directional mapping
             for (BuildRecordSet buildRecordSet : buildRecordSets) {
-                buildRecordSet.getBuildRecord().add(buildRecord);
+                buildRecordSet.getBuildRecords().add(buildRecord);
             }
             buildRecord.setBuildRecordSets(buildRecordSets);
 

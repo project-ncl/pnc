@@ -50,7 +50,7 @@ public class BuildRecordSet implements GenericEntity<Integer> {
     @JoinTable(name = "build_record_set_map", joinColumns = {
             @JoinColumn(name = "build_record_set_id", referencedColumnName = "id") }, inverseJoinColumns = {
             @JoinColumn(name = "build_record_id", referencedColumnName = "id") })
-    private List<BuildRecord> buildRecord;
+    private List<BuildRecord> buildRecords;
 
     /**
      * Instantiates a new builds the collection.
@@ -102,15 +102,15 @@ public class BuildRecordSet implements GenericEntity<Integer> {
     /**
      * @return the buildRecord
      */
-    public List<BuildRecord> getBuildRecord() {
-        return buildRecord;
+    public List<BuildRecord> getBuildRecords() {
+        return buildRecords;
     }
 
     /**
      * @param record the BuildRecord(s) to set
      */
-    public void setBuildRecord(List<BuildRecord> record) {
-        this.buildRecord = record;
+    public void setBuildRecords(List<BuildRecord> records) {
+        this.buildRecords = records;
     }
 
     public String getBuildSetContentId() {
@@ -175,7 +175,7 @@ public class BuildRecordSet implements GenericEntity<Integer> {
             for (BuildRecord buildRecord : buildRecords) {
                 buildRecord.getBuildRecordSets().add(buildRecordSet);
             }
-            buildRecordSet.setBuildRecord(buildRecords);
+            buildRecordSet.setBuildRecords(buildRecords);
 
             return buildRecordSet;
         }

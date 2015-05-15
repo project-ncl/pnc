@@ -33,11 +33,11 @@ public class BuildConfigurationPredicates {
     }
 
     public static BooleanExpression withProductId(Integer productId) {
-        return createNotNullPredicate(productId != null, () -> QBuildConfiguration.buildConfiguration.productVersion.product.id.eq(productId));
+        return createNotNullPredicate(productId != null, () -> QBuildConfiguration.buildConfiguration.productVersions.any().product.id.eq(productId));
     }
 
     public static BooleanExpression withProductVersionId(Integer productVersionId) {
-        return createNotNullPredicate(productVersionId != null, () -> QBuildConfiguration.buildConfiguration.productVersion.id.eq(productVersionId));
+        return createNotNullPredicate(productVersionId != null, () -> QBuildConfiguration.buildConfiguration.productVersions.any().id.eq(productVersionId));
     }
 
 }

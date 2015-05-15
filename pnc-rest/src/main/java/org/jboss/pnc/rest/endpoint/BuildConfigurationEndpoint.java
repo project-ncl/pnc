@@ -47,6 +47,7 @@ import org.jboss.pnc.model.User;
 import org.jboss.pnc.rest.provider.BuildConfigurationProvider;
 import org.jboss.pnc.rest.provider.BuildRecordProvider;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationRest;
+import org.jboss.pnc.rest.restmodel.ProductVersionRest;
 import org.jboss.pnc.rest.trigger.BuildTriggerer;
 import org.jboss.pnc.spi.datastore.Datastore;
 import org.slf4j.Logger;
@@ -221,10 +222,30 @@ public class BuildConfigurationEndpoint {
     @ApiOperation(value = "Removes a configuration from the specified config set")
     @DELETE
     @Path("/{id}/dependencies/{dependencyId}")
-    public Response addConfiguration(
+    public Response removeDependency(
             @ApiParam(value = "Build configuration set id", required = true) @PathParam("id") Integer id,
             @ApiParam(value = "Build configuration id", required = true) @PathParam("dependencyId") Integer dependencyId) {
         buildConfigurationProvider.removeDependency(id, dependencyId);
+        return Response.ok().build();
+    }
+
+    @ApiOperation(value = "Associates a product version to the specified config")
+    @POST
+    @Path("/{id}/product-versions")
+    public Response addProductVersion(
+            @ApiParam(value = "Build Configuration id", required = true) @PathParam("id") Integer id,
+            ProductVersionRest productVersion) {
+        buildConfigurationProvider.addProductVersion(id, productVersion.getId());
+        return Response.ok().build();
+    }
+
+    @ApiOperation(value = "Removes a product version from the specified config set")
+    @DELETE
+    @Path("/{id}/product-versions/{productVersionId}")
+    public Response removeProductVersion(
+            @ApiParam(value = "Build configuration set id", required = true) @PathParam("id") Integer id,
+            @ApiParam(value = "Product version id", required = true) @PathParam("productVersionId") Integer productVersionId) {
+        buildConfigurationProvider.removeProductVersion(id, productVersionId);
         return Response.ok().build();
     }
 

@@ -30,6 +30,7 @@ import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.BuildRecordSet;
+import org.jboss.pnc.model.ProductVersion;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerException;
@@ -69,8 +70,9 @@ public class BuildTriggerer {
         Preconditions.checkArgument(configuration != null, "Can't find configuration with given id=" + configurationId);
 
         final BuildRecordSet buildRecordSet = new BuildRecordSet();
-        if (configuration.getProductVersion() != null) {
-            buildRecordSet.setProductMilestone(configuration.getProductVersion().getCurrentProductMilestone());
+        if (configuration.getProductVersions() != null  && !configuration.getProductVersions().isEmpty()) {
+            ProductVersion productVersion = configuration.getProductVersions().iterator().next();
+            buildRecordSet.setProductMilestone(productVersion.getCurrentProductMilestone());
         }
 
         return buildCoordinator.build(configuration, currentUser).getBuildConfiguration().getId();

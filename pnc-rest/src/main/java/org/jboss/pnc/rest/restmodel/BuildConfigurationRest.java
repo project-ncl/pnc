@@ -63,6 +63,8 @@ public class BuildConfigurationRest {
 
     private Set<Integer> dependencyIds;
 
+    private Set<Integer> productVersionIds;
+
     public BuildConfigurationRest() {
     }
 
@@ -82,6 +84,8 @@ public class BuildConfigurationRest {
                 .getId());
         performIfNotNull(buildConfiguration.getEnvironment() != null, () -> this.environmentId = buildConfiguration.getEnvironment().getId());
         this.dependencyIds = nullableStreamOf(buildConfiguration.getDependencies()).map(dependencyConfig -> dependencyConfig.getId())
+                .collect(Collectors.toSet());
+        this.productVersionIds = nullableStreamOf(buildConfiguration.getProductVersions()).map(productVersion -> productVersion.getId())
                 .collect(Collectors.toSet());
     }
 
@@ -181,6 +185,22 @@ public class BuildConfigurationRest {
         this.projectId = projectId;
     }
 
+    public Set<Integer> getProductVersionIds() {
+        return productVersionIds;
+    }
+
+    public void setProductVersionIds(Set<Integer> productVersionIds) {
+        this.productVersionIds = productVersionIds;
+    }
+
+    public boolean addProductVersion(Integer productVersionId) {
+        return this.productVersionIds.add(productVersionId);
+    }
+
+    public boolean removeProductVersion(Integer productVersionId) {
+        return this.productVersionIds.remove(productVersionId);
+    }
+
     public Set<Integer> getDependencyIds() {
         return dependencyIds;
     }
@@ -225,6 +245,10 @@ public class BuildConfigurationRest {
         nullableStreamOf(dependencyIds).forEach(dependencyId -> {
             BuildConfiguration.Builder buildConfigurationBuilder = BuildConfiguration.Builder.newBuilder().id(dependencyId);
             builder.dependency(buildConfigurationBuilder.build());
+        });
+        nullableStreamOf(productVersionIds).forEach(productVersionId -> {
+            ProductVersion.Builder productVersionBuilder = ProductVersion.Builder.newBuilder().id(productVersionId);
+            builder.productVersion(productVersionBuilder.build());
         });
 
         overrideWithDataFromOriginalConfiguration(buildConfiguration, builder);
