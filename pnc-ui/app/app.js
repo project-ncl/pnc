@@ -28,7 +28,7 @@
     'pnc.record',
     'pnc.configuration-set',
     'pnc.websockets',
-    ]);
+  ]);
 
   /*jshint camelcase: false */
   if (pnc_globals.enableAuth) {
@@ -81,7 +81,9 @@
       $httpProvider.interceptors.push('authInterceptor');
     });
   } else {
-    angular.bootstrap(document, ['pnc']);
+    angular.element(document).ready(function () {
+      angular.bootstrap(document, ['pnc']);
+    });
   }
 
   app.config(function($stateProvider, $urlRouterProvider, $locationProvider) {
