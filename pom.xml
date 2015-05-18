@@ -1040,6 +1040,19 @@
               <exclude>**/README</exclude>
               <exclude>**/LICENSE.txt</exclude>
               <exclude>.license-header.txt</exclude>
+
+              <!-- Exclude downloaded/generated -->
+              <exclude>**/.tmp/**</exclude>
+              <exclude>**/.build-tmp/**</exclude>
+              <exclude>**/.sass-cache/**</exclude>
+              <exclude>**/bower_components/**</exclude>
+              <exclude>**/dist/**</exclude>
+              <exclude>**/node/**</exclude>
+              <exclude>**/node_modules/**</exclude>
+              <exclude>**/rest-config.json</exclude>
+
+              <!-- Exclude Angular include files as comments break Angular -->
+              <exclude>**/app/common/util/views/**</exclude>
             </excludes>
           </configuration>
           <executions>
@@ -1358,7 +1371,7 @@
               <executions>
                 <execution>
                   <id>check-license</id>
-                  <phase>verify</phase>
+                  <phase>initialize</phase>
                   <goals>
                     <goal>check</goal>
                   </goals>
@@ -1370,8 +1383,8 @@
               <artifactId>maven-antrun-plugin</artifactId>
               <executions>
                 <execution>
-                  <id>generate-compiler-sources</id>
-                  <phase>verify</phase>
+                  <id>patch-json-versions</id>
+                  <phase>generate-sources</phase>
                   <goals>
                     <goal>run</goal>
                   </goals>
