@@ -46,26 +46,19 @@
     <plugins>
 
       <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-resources-plugin</artifactId>
+        <artifactId>maven-antrun-plugin</artifactId>
         <executions>
           <execution>
             <id>generate-html-version</id>
-            <phase>generate-sources</phase>
             <goals>
-              <goal>copy-resources</goal>
+              <goal>run</goal>
             </goals>
+            <phase>prepare-package</phase>
             <configuration>
-              <outputDirectory>dist</outputDirectory>
-              <resources>
-                <resource>
-                  <directory>app</directory>
-                  <filtering>true</filtering>
-                  <includes>
-                      <include>footer.htm</include>
-                  </includes>
-                </resource>
-              </resources>
+              <target>
+                <replace file="${project.build.outputDirectory}/META-INF/resources/common/templates/footer.tmpl.html" token="@project.version@" value="${project.version}" />
+                <replace file="${project.build.outputDirectory}/META-INF/resources/common/templates/footer.tmpl.html" token="@datetime@" value="${datetime}" />
+              </target>
             </configuration>
           </execution>
         </executions>
