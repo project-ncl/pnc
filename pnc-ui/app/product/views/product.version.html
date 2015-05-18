@@ -21,8 +21,8 @@
   <pnc-header>
     <pnc-header-title>{{ versionCtrl.version.version || 'Empty' }}</pnc-header-title>
     <pnc-header-buttons>
-      <button type="button" class="btn btn-lg btn-default disabled" data-toggle="tooltip" title="Edit Version">
-        <i class="pficon pficon-edit"></i> Edit
+
+      <button type="button" class="btn btn-lg btn-default" data-toggle="tooltip" title="Edit Product Version" ng-click="productVersionForm.$show()" ng-class="{ 'active': productVersionForm.$visible }"><i class="pficon pficon-edit"></i> Edit
       </button>
       <button type="button" class="btn btn-lg btn-danger disabled" data-toggle="tooltip" title="Delete Version">
         <i class="pficon pficon-delete"></i> Delete
@@ -30,7 +30,7 @@
     </pnc-header-buttons>
   </pnc-header>
 
-  <form editable-form class="form-horizontal">
+  <form editable-form class="form-horizontal" name="productVersionForm" onbeforesave="versionCtrl.update()">
     <div class="form-group">
       <label for="input-version" class="col-sm-1 control-label">Version</label>
       <div class="col-sm-11">
@@ -41,7 +41,7 @@
     <div class="form-group">
       <label for="input-name" class="col-sm-1 control-label">Product Name</label>
       <div class="col-sm-11">
-        <a id="input-name" e-class="form-control" editable-text="versionCtrl.product.name" e-name="name" e-required href ui-sref="product.detail({ productId: versionCtrl.product.id})">
+        <a id="input-name" href ui-sref="product.detail({ productId: versionCtrl.product.id})">
           {{ versionCtrl.product.name || 'Empty' }}
         </a>
       </div>
@@ -51,6 +51,17 @@
       <label for="static-description" class="col-sm-1 control-label">Product Description</label>
       <div class="col-sm-11">
         <p id="static-description" class="form-control-static">{{ versionCtrl.product.description || 'Empty' }}</p>
+      </div>
+    </div>
+
+    <div class="form-group" ng-show="productVersionForm.$visible">
+      <div class="col-sm-offset-1 col-sm-11">
+        <button type="submit" class="btn btn-primary" ng-disabled="productVersionForm.$waiting">
+          Save
+        </button>
+        <button type="button" class="btn btn-default" ng-disabled="productVersionForm.$waiting" ng-click="productVersionForm.$cancel()">
+          Cancel
+        </button>
       </div>
     </div>
   </form>
