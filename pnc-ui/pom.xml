@@ -186,7 +186,7 @@
         </property>
       </activation>
       <properties>
-        <grunt.build.arguments>dist:auth</grunt.build.arguments>
+        <grunt.build.arguments>dist --enable-auth=true</grunt.build.arguments>
       </properties>
     </profile>
   </profiles>

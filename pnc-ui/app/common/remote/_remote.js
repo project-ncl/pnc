@@ -21,8 +21,7 @@
 (function() {
 
   var module = angular.module('pnc.remote', [
-    'pnc.remote.restClient',
-    'pnc.remote.authentication'
+    'pnc.remote.restClient'
   ]);
 
 })();

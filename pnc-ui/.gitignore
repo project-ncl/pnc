@@ -7,4 +7,3 @@ bower_components
 node
 rest-config.json
 /target/
-app/environment.js

@@ -49,7 +49,8 @@ module.exports = function (grunt) {
       var defaultContent = {
         endpointsLocalhost: PROXY_HOST
       };
-      grunt.file.write('./rest-config.json',JSON.stringify(defaultContent,null,'\t'));
+      grunt.file.write('./rest-config.json',
+                       JSON.stringify(defaultContent,null,'\t'));
     }
     var config = grunt.config.getRaw();
     config.local = grunt.file.readJSON('./rest-config.json');
@@ -58,6 +59,11 @@ module.exports = function (grunt) {
     if (target === 'CIEndpoints') {
       appConfig.proxyHost = config.local.endpointsCIServer;
     }
+  });
+
+  grunt.registerTask('initAuth', function() {
+    var enableAuth = grunt.option('enable-auth') || 'false';
+    grunt.file.write(appConfig.tmp + '/pnc-props.js', 'pnc_globals = {};\npnc_globals.enableAuth = ' + enableAuth + ';');
   });
 
   // Define the configuration for all the tasks
@@ -171,34 +177,6 @@ module.exports = function (grunt) {
       }
     },
 
-    ngconstant: {
-      options: {
-        space: '  ',
-        wrap: '\'use strict\';\n\n {%= __ngModule %}',
-        name: 'pnc.environment',
-      },
-      dev: {
-        options: {
-          dest: '<%= yeoman.app %>/environment.js'
-        },
-        constants: {
-          ENV: {
-            name: 'dev',
-          }
-        }
-      },
-      prod: {
-        options: {
-          dest: '<%= yeoman.app %>/environment.js'
-        },
-        constants: {
-          ENV: {
-            name: 'prod',
-          }
-        }
-      }
-    },
-
     // Make sure code styles are up to par and there are no obvious mistakes
     jshint: {
       options: {
@@ -238,14 +216,12 @@ module.exports = function (grunt) {
           src: [
             '<%= yeoman.tmp %>',
             '<%= yeoman.dist %>/**/*',
-            '!<%= yeoman.dist %>/.git{,*/}*',
-            '<%= yeoman.app %>/environment.js'
+            '!<%= yeoman.dist %>/.git{,*/}*'
           ]
         }]
       },
       server: [
-        '<%= yeoman.tmp %>',
-        '<%= yeoman.app %>/environment.js'
+        '<%= yeoman.tmp %>'
       ]
     },
 
@@ -534,7 +510,7 @@ module.exports = function (grunt) {
     grunt.task.run([
       'initRestConfig',
       'clean:server',
-      'ngconstant:dev',
+      'initAuth',
       'wiredep',
       'includeSource:server',
       //'concat',
@@ -561,17 +537,10 @@ module.exports = function (grunt) {
     'karma'*/
   ]);
 
-  grunt.registerTask('build', function (target) {
-    var environmentProfile = 'ngconstant:dev';
-
-    if (target === 'auth') {
-      environmentProfile = 'ngconstant:prod';
-    }
-
-    grunt.task.run([
+  grunt.registerTask('build', [
       'initRestConfig',
       'clean:dist',
-      environmentProfile,
+      'initAuth',
       'copy:fonts',
       'wiredep',
       'includeSource:dist',
@@ -587,8 +556,7 @@ module.exports = function (grunt) {
       'filerev',
       'usemin',
       'htmlmin'
-    ]);
-  });
+  ]);
 
   grunt.registerTask('default', [
     'newer:jshint',
@@ -597,19 +565,12 @@ module.exports = function (grunt) {
     'build'
   ]);
 
-  grunt.registerTask('dist', function (target) {
-    var build = 'build';
-    if (target) {
-      build = 'build:' + target;
-    }
-
-    grunt.task.run([
+  grunt.registerTask('dist', [
     'bower:install',
     'newer:jshint',
     'newer:htmlhint',
     'test',
-    build
-    ]);
-  });
+    'build'
+  ]);
 
 };

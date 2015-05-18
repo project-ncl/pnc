@@ -20,7 +20,10 @@
 (function() {
 
   var module = angular.module('pnc.Dashboard', [
-    'ui.router', 'patternfly.notification', 'angularUtils.directives.uiBreadcrumbs']);
+    'ui.router',
+    'patternfly.notification',
+    'angularUtils.directives.uiBreadcrumbs'
+  ]);
 
   module.config(['$stateProvider', function($stateProvider) {
     $stateProvider.state('dashboard', {
@@ -36,4 +39,5 @@
       },
     });
   }]);
+
 })();

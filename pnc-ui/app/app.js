@@ -28,44 +28,90 @@
     'pnc.record',
     'pnc.configuration-set',
     'pnc.websockets',
-    'pnc.environment'
-    ]);
+  ]);
 
-  app.config(['$stateProvider', '$urlRouterProvider', '$locationProvider',
-    function($stateProvider, $urlRouterProvider, $locationProvider) {
+  /*jshint camelcase: false */
+  if (pnc_globals.enableAuth) {
+    var auth = {};
 
-      $locationProvider.html5Mode(false).hashPrefix('!');
+    angular.element(document).ready(function () {
+      var keycloak = new Keycloak('keycloak.json');
+      auth.loggedIn = false;
 
-      $stateProvider.state('error', {
-        url: '/error',
-        views: {
-          'content@': {
-            templateUrl: 'error.html'
-          }
-        }
+      keycloak.init({ onLoad: 'login-required' }).success(function () {
+        auth.loggedIn = true;
+        auth.keycloak = keycloak;
+        auth.logout = function() {
+          auth.loggedIn = false;
+          auth.keycloak = null;
+          window.location = keycloak.authServerUrl + '/realms/PNC.REDHAT.COM/tokens/logout?redirect_uri=/pnc-web/index.html';
+        };
+        angular.bootstrap(document, ['pnc']);
+      }).error(function () {
+        window.location.reload();
       });
 
-        // Redirect any unmatched URLs to the error state.
-        $urlRouterProvider.otherwise('/error');
-      }
-      ]);
+    });
 
-  app.run(['$rootScope', '$log', 'AuthService', 'ENV',
-    function($rootScope, $log, AuthService, ENV) {
+    app.factory('Auth', function () {
+      return auth;
+    });
 
-      if (ENV.name === 'prod') {
-        AuthService.login('keycloak.json');
-      }
+    app.factory('authInterceptor', function ($q, $log, Auth) {
+      return {
+        request: function (config) {
+          var deferred = $q.defer();
 
-      // Handle errors with state changes.
-      $rootScope.$on('$stateChangeError',
-        function(event, toState, toParams, fromState, fromParams, error) {
-          $log.debug('Caught $stateChangeError: event=%O, toState=%O, ' +
-            'toParams=%O, fromState=%O, fromParams=%O, error=%O',
-            event, toState, toParams, fromState, fromParams, error);
+          if (Auth.keycloak && Auth.keycloak.token) {
+            Auth.keycloak.updateToken(5).success(function () {
+              config.headers = config.headers || {};
+              config.headers.Authorization = 'Bearer ' + Auth.keycloak.token;
+
+              deferred.resolve(config);
+            }).error(function () {
+              deferred.reject('Failed to refresh token');
+            });
+          }
+          return deferred.promise;
         }
-      );
+      };
+    });
+
+    app.config(function ($httpProvider) {
+      $httpProvider.interceptors.push('authInterceptor');
+    });
+  } else {
+    angular.element(document).ready(function () {
+      angular.bootstrap(document, ['pnc']);
+    });
+  }
+
+  app.config(function($stateProvider, $urlRouterProvider, $locationProvider) {
+    $locationProvider.html5Mode(false).hashPrefix('!');
+
+    $stateProvider.state('error', {
+      url: '/error',
+      views: {
+        'content@': {
+          templateUrl: 'error.html'
+        }
+      }
+    });
+
+      // Redirect any unmatched URLs to the error state.
+      $urlRouterProvider.otherwise('/error');
     }
-  ]);
+  );
+
+  app.run(function($rootScope, $log) {
+    // Handle errors with state changes.
+    $rootScope.$on('$stateChangeError',
+      function(event, toState, toParams, fromState, fromParams, error) {
+        $log.debug('Caught $stateChangeError: event=%O, toState=%O, ' +
+          'toParams=%O, fromState=%O, fromParams=%O, error=%O',
+          event, toState, toParams, fromState, fromParams, error);
+      }
+    );
+  });
 
 })();
