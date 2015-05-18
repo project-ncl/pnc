@@ -22,7 +22,6 @@ import org.jboss.pnc.common.util.StreamCollectors;
 import org.jboss.pnc.core.BuildDriverFactory;
 import org.jboss.pnc.core.EnvironmentDriverFactory;
 import org.jboss.pnc.core.RepositoryManagerFactory;
-import org.jboss.pnc.core.content.ContentIdentityManager;
 import org.jboss.pnc.core.exception.BuildProcessException;
 import org.jboss.pnc.core.exception.CoreException;
 import org.jboss.pnc.model.BuildConfiguration;
@@ -31,6 +30,7 @@ import org.jboss.pnc.model.RepositoryType;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.BuildExecutionType;
 import org.jboss.pnc.spi.BuildResult;
+import org.jboss.pnc.spi.BuildSetStatus;
 import org.jboss.pnc.spi.BuildStatus;
 import org.jboss.pnc.spi.builddriver.BuildDriver;
 import org.jboss.pnc.spi.builddriver.BuildDriverResult;
@@ -53,7 +53,6 @@ import org.jboss.util.graph.Vertex;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -88,7 +87,6 @@ public class BuildCoordinator {
     private EnvironmentDriverFactory environmentDriverFactory;
     private DatastoreAdapter datastoreAdapter;
     private Event<BuildStatusChangedEvent> buildStatusChangedEventNotifier;
-    private ContentIdentityManager contentIdentityManager;
 
     @Deprecated
     public BuildCoordinator(){} //workaround for CDI constructor parameter injection
@@ -96,28 +94,42 @@ public class BuildCoordinator {
     @Inject
     public BuildCoordinator(BuildDriverFactory buildDriverFactory, RepositoryManagerFactory repositoryManagerFactory,
                             EnvironmentDriverFactory environmentDriverFactory, DatastoreAdapter datastoreAdapter,
-                            Event<BuildStatusChangedEvent> buildStatusChangedEventNotifier,
-                            ContentIdentityManager contentIdentityManager) {
+                            Event<BuildStatusChangedEvent> buildStatusChangedEventNotifier) {
         this.buildDriverFactory = buildDriverFactory;
         this.repositoryManagerFactory = repositoryManagerFactory;
         this.datastoreAdapter = datastoreAdapter;
         this.environmentDriverFactory = environmentDriverFactory;
         this.buildStatusChangedEventNotifier = buildStatusChangedEventNotifier;
-        this.contentIdentityManager = contentIdentityManager;
     }
 
-    public BuildTask build(BuildConfiguration buildConfiguration, User userTriggeredBuild) throws CoreException {
+    /**
+     *
+     * @param buildConfiguration
+     * @param userTriggeredBuild
+     * @param onComplete set null if callback is not required
+     * @return
+     * @throws CoreException
+     */
+    public BuildTask build(BuildConfiguration buildConfiguration, User userTriggeredBuild, Consumer<BuildSetStatus> onComplete) throws CoreException {
         BuildConfigurationSet buildConfigurationSet = new BuildConfigurationSet();
         buildConfigurationSet.setName(buildConfiguration.getName());
         buildConfigurationSet.addBuildConfiguration(buildConfiguration);
-        BuildSetTask buildSetTask = new BuildSetTask(buildConfigurationSet, BuildExecutionType.STANDALONE_BUILD);
+        BuildSetTask buildSetTask = new BuildSetTask(buildConfigurationSet, BuildExecutionType.STANDALONE_BUILD, onComplete);
         build(buildSetTask, userTriggeredBuild);
         BuildTask buildTask = buildSetTask.getBuildTasks().stream().collect(StreamCollectors.singletonCollector());
         return buildTask;
     }
 
-    public BuildSetTask build(BuildConfigurationSet buildConfigurationSet, User userTriggeredBuild) throws CoreException {
-        BuildSetTask buildSetTask = new BuildSetTask(buildConfigurationSet, BuildExecutionType.COMPOSED_BUILD);
+    /**
+     *
+     * @param buildConfigurationSet
+     * @param userTriggeredBuild
+     * @param onComplete set null if callback is not required
+     * @return
+     * @throws CoreException
+     */
+    public BuildSetTask build(BuildConfigurationSet buildConfigurationSet, User userTriggeredBuild, Consumer<BuildSetStatus> onComplete) throws CoreException {
+        BuildSetTask buildSetTask = new BuildSetTask(buildConfigurationSet, BuildExecutionType.COMPOSED_BUILD, onComplete);
         build(buildSetTask, userTriggeredBuild);
         return buildSetTask;
     }

@@ -42,6 +42,7 @@ public class BuildTask implements BuildExecution {
 
     public BuildConfiguration buildConfiguration;
     private BuildExecutionType buildTaskType;
+    private BuildSetTask buildSetTask;
     BuildStatus status = BuildStatus.NEW;
     private String statusDescription;
 
@@ -65,10 +66,11 @@ public class BuildTask implements BuildExecution {
     private User user;
 
     BuildTask(BuildCoordinator buildCoordinator, BuildConfiguration buildConfiguration, String topContentId,
-              String buildSetContentId, String buildContentId, BuildExecutionType buildTaskType, User user) {
+              String buildSetContentId, String buildContentId, User user,
+              BuildSetTask buildSetTask) {
         this.buildCoordinator = buildCoordinator;
         this.buildConfiguration = buildConfiguration;
-        this.buildTaskType = buildTaskType;
+        this.buildSetTask = buildSetTask;
         this.buildStatusChangedEvent = buildCoordinator.getBuildStatusChangedEventNotifier();
         this.topContentId = topContentId;
         this.buildSetContentId = buildSetContentId;
@@ -77,16 +79,23 @@ public class BuildTask implements BuildExecution {
 
         this.startTime = System.currentTimeMillis();
         waiting = new HashSet<>();
+
+        this.buildTaskType = buildSetTask.getBuildTaskType();
     }
 
     public void setStatus(BuildStatus status) {
-        BuildStatusChangedEvent buildStatusChanged = new DefaultBuildStatusChangedEvent(this.status, status, buildConfiguration.getId(), this);
-        log.debug("Updating build task {} status to {}", this.getId(), buildStatusChanged);
-        buildStatusChangedEvent.fire(buildStatusChanged);
+        this.status = status;
+        notifyStatusUpdate();
         if (status.equals(BuildStatus.DONE)) {
             waiting.forEach((submittedBuild) -> submittedBuild.requiredBuildCompleted(this));
         }
-        this.status = status;
+    }
+
+    private void notifyStatusUpdate() {
+        BuildStatusChangedEvent buildStatusChanged = new DefaultBuildStatusChangedEvent(this.status, status, buildConfiguration.getId(), this);
+        log.debug("Updating build task {} status to {}", this.getId(), buildStatusChanged);
+        buildSetTask.taskStatusUpdated(this);
+        buildStatusChangedEvent.fire(buildStatusChanged);
     }
 
     void setRequiredBuilds(List<BuildTask> requiredBuilds) {
