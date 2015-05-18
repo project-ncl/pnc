@@ -1,3 +1,20 @@
+/*
+ * JBoss, Home of Professional Open Source.
+ * Copyright 2014 Red Hat, Inc., and individual contributors
+ * as indicated by the @author tags.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 'use strict';
 
 (function() {
@@ -59,7 +76,7 @@
           },
           function(response) {
             $log.error('Create configuration failed: response: %O', response);
-            Notifications.error('Action Failed.');
+            Notifications.error('Configuration creation failed');
           }
         );
       };
@@ -94,13 +111,14 @@
             function(result) {
               $log.debug('Initiated Build: %O, result: %O', that.configuration,
                          result);
-              Notifications.success('Initiated build of configuration:' +
+              Notifications.success('Initiated build of configuration: ' +
                                     that.configuration.name);
             },
             function(response) {
               $log.error('Failed to initiated build: %O, response: %O',
                          that.configuration, response);
-              Notifications.error('Action Failed.');
+              Notifications.error('Could not initiate build of configuration: ' +
+                                    that.configuration.name);
             }
           );
       };
@@ -113,12 +131,12 @@
           function(result) {
             $log.debug('Update Config: %O, result: %O', that.configuration,
                        result);
-            Notifications.success('Configuration updated.');
+            Notifications.success('Configuration updated');
           },
           function(response) {
             $log.error('Update configuration: %O failed, response: %O',
                        that.configuration, response);
-            Notifications.error('Action Failed.');
+            Notifications.error('Configuration update failed');
           }
         );
       };
@@ -130,12 +148,12 @@
                that.configuration, result);
 
           $state.go('configuration.detail.show', { configurationId: result.id });
-          Notifications.success('Configuration cloned.');
+          Notifications.success('Configuration cloned');
         },
         function(response) {
           $log.error('Clone configuration: %O failed, response: %O',
                      that.configuration, response);
-          Notifications.error('Action Failed.');
+          Notifications.error('Configuration clone failed');
         });
       };
 
@@ -146,7 +164,7 @@
           function (result) {
             $log.debug('Delete Config: %O success result: %O',
                        that.configuration, result);
-            Notifications.success('Configuration Deleted');
+            Notifications.success('Configuration deleted');
             $state.go('configuration.list', {}, { reload: true, inherit: false,
                       notify: true });
           },
@@ -154,7 +172,7 @@
           function (response) {
             $log.error('Delete configuration: %O failed, response: %O',
                        that.configuration, response);
-            Notifications.error('Action Failed.');
+            Notifications.error('Configuration deletion failed');
           }
         );
       };

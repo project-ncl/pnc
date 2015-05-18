@@ -1,9 +1,28 @@
+<!--
+
+    JBoss, Home of Professional Open Source.
+    Copyright 2014 Red Hat, Inc., and individual contributors
+    as indicated by the @author tags.
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
 <div>
   <pnc-header>
     <pnc-header-title>{{ versionCtrl.version.version || 'Empty' }}</pnc-header-title>
     <pnc-header-buttons>
-      <button type="button" class="btn btn-lg btn-default disabled" data-toggle="tooltip" title="Edit Version">
-        <i class="pficon pficon-edit"></i> Edit
+
+      <button type="button" class="btn btn-lg btn-default" data-toggle="tooltip" title="Edit Product Version" ng-click="productVersionForm.$show()" ng-class="{ 'active': productVersionForm.$visible }"><i class="pficon pficon-edit"></i> Edit
       </button>
       <button type="button" class="btn btn-lg btn-danger disabled" data-toggle="tooltip" title="Delete Version">
         <i class="pficon pficon-delete"></i> Delete
@@ -11,7 +30,7 @@
     </pnc-header-buttons>
   </pnc-header>
 
-  <form editable-form class="form-horizontal">
+  <form editable-form class="form-horizontal" name="productVersionForm" onbeforesave="versionCtrl.update()">
     <div class="form-group">
       <label for="input-version" class="col-sm-1 control-label">Version</label>
       <div class="col-sm-11">
@@ -22,7 +41,7 @@
     <div class="form-group">
       <label for="input-name" class="col-sm-1 control-label">Product Name</label>
       <div class="col-sm-11">
-        <a id="input-name" e-class="form-control" editable-text="versionCtrl.product.name" e-name="name" e-required href ui-sref="product.detail({ productId: versionCtrl.product.id})">
+        <a id="input-name" href ui-sref="product.detail({ productId: versionCtrl.product.id})">
           {{ versionCtrl.product.name || 'Empty' }}
         </a>
       </div>
@@ -32,6 +51,17 @@
       <label for="static-description" class="col-sm-1 control-label">Product Description</label>
       <div class="col-sm-11">
         <p id="static-description" class="form-control-static">{{ versionCtrl.product.description || 'Empty' }}</p>
+      </div>
+    </div>
+
+    <div class="form-group" ng-show="productVersionForm.$visible">
+      <div class="col-sm-offset-1 col-sm-11">
+        <button type="submit" class="btn btn-primary" ng-disabled="productVersionForm.$waiting">
+          Save
+        </button>
+        <button type="button" class="btn btn-default" ng-disabled="productVersionForm.$waiting" ng-click="productVersionForm.$cancel()">
+          Cancel
+        </button>
       </div>
     </div>
   </form>

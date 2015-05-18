@@ -114,6 +114,12 @@ To lock down version again:
 
 Alternatively, you can remove `npm-shrinkwrap.json` and generate a new one.
 
+### Authentication
+
+The UI can be built with authentication either enabled or disabled, by default it is disabled. Authentication can be enabled at build time, for both the UI and backend, by adding the flag: `-Dauth=true` to your maven build command.
+
+At the UI level authentication can be enabled through grunt by adding the flag `--enable-auth=true` to your grunt command. This will also work when using the grunt live-reload server, for example by using the command `grunt serve --enable-auth=true`.
+
 ### Build errors
 
 The `frontend-maven-plugin` build may suffer from inconsistent downloads when you killed the previous build prematurely. This typically leads to such errors:

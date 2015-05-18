@@ -1,3 +1,20 @@
+/**
+ * JBoss, Home of Professional Open Source.
+ * Copyright 2014 Red Hat, Inc., and individual contributors
+ * as indicated by the @author tags.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.jboss.pnc.model;
 
 import org.hibernate.envers.Audited;
@@ -48,8 +65,12 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
     private String patchesUrl;
 
     @NotAudited
-    @ManyToOne(cascade = { CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH })
-    private ProductVersion productVersion;
+    @ManyToMany
+    @JoinTable(
+            name="build_configuration_product_versions_map",
+            joinColumns={@JoinColumn(name="build_configuration_id", referencedColumnName="id")},
+            inverseJoinColumns={@JoinColumn(name="product_version_id", referencedColumnName="id")})
+    private Set<ProductVersion> productVersions;
 
     @Audited( targetAuditMode = RelationTargetAuditMode.NOT_AUDITED )
     @NotNull
@@ -59,9 +80,6 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
     @NotNull
     @ManyToOne(cascade = { CascadeType.REFRESH, CascadeType.DETACH })
     private Environment environment;
-
-    @ManyToOne(cascade = { CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH })
-    private BuildConfiguration parent;
 
     @NotAudited
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "latestBuildConfiguration")
@@ -84,8 +102,27 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
     @Enumerated(value = EnumType.STRING)
     private BuildStatus buildStatus;
 
-    @OneToMany(mappedBy = "parent", cascade = { CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH })
+    /**
+     * The set of build configs upon which this build depends.  The build configs contained
+     * in dependencies should normally be completed before this build config is executed.
+     * Similar to Maven dependencies.
+     */
+    @NotAudited
+    @ManyToMany(cascade = { CascadeType.REFRESH })
+    @JoinTable(
+            name="build_configuration_dep_map",
+            joinColumns={@JoinColumn(name="dependency_id", referencedColumnName="id")},
+            inverseJoinColumns={@JoinColumn(name="dependant_id", referencedColumnName="id")})
     private Set<BuildConfiguration> dependencies;
+
+    /**
+     * The set of build configs which depend upon this config.  These builds must normally
+     * be built after this build is completed.  This is the reverse relationship as Maven
+     * dependencies.
+     */
+    @NotAudited
+    @ManyToMany(mappedBy = "dependencies")
+    private Set<BuildConfiguration> dependants;
 
     // TODO: What data format does Aprox need?
     // [jdcasey] I'm not sure what this is supposed to do in the repository manager...so hard to say what format is required.
@@ -104,8 +141,9 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
      * Instantiates a new project build configuration.
      */
     public BuildConfiguration() {
-        dependencies = new HashSet<>();
-        buildRecords = new HashSet<>();
+        dependencies = new HashSet<BuildConfiguration>();
+        dependants = new HashSet<BuildConfiguration>();
+        buildRecords = new HashSet<BuildRecord>();
         buildConfigurationSets = new HashSet<BuildConfigurationSet>();
         creationTime = Timestamp.from(Instant.now());
     }
@@ -225,17 +263,25 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
     }
 
     /**
-     * @return the productVersion
+     * @return the productVersions associated with this build config
      */
-    public ProductVersion getProductVersion() {
-        return productVersion;
+    public Set<ProductVersion> getProductVersions() {
+        return productVersions;
     }
 
     /**
-     * @param productVersion the productVersion to set
+     * @param productVersions the set of productVersions associated with this build config
      */
-    public void setProductVersion(ProductVersion productVersion) {
-        this.productVersion = productVersion;
+    public void setProductVersions(Set<ProductVersion> productVersions) {
+        this.productVersions = productVersions;
+    }
+
+    public boolean addProductVersion(ProductVersion productVersion) {
+        return this.productVersions.add(productVersion);
+    }
+
+    public boolean removeProductVersion(ProductVersion productVersion) {
+        return this.productVersions.remove(productVersion);
     }
 
     /**
@@ -279,31 +325,60 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
     }
 
     /**
-     * @return the parent
-     */
-    public BuildConfiguration getParent() {
-        return parent;
-    }
-
-    /**
-     * @param parent the parent to set
-     */
-    public void setParent(BuildConfiguration parent) {
-        this.parent = parent;
-    }
-
-    /**
-     * @return the dependencies
+     * @return the set of build configs upon which this builds depends
      */
     public Set<BuildConfiguration> getDependencies() {
         return dependencies;
     }
 
     /**
-     * @param dependencies the dependencies to set
+     * @param the set of build configs upon which this build depends
      */
     public void setDependencies(Set<BuildConfiguration> dependencies) {
         this.dependencies = dependencies;
+    }
+
+    public boolean addDependency(BuildConfiguration dependency) {
+        boolean result = dependencies.add(dependency);
+        if (!dependency.getDependants().contains(this)) {
+            dependency.addDependant(this);
+        }
+        return result;
+    }
+
+    public boolean removeDependency(BuildConfiguration dependency) {
+        boolean result = dependencies.remove(dependency);
+        if (dependency.getDependants().contains(this)) {
+            dependency.removeDependant(this);
+        }
+        return result;
+    }
+
+    /**
+     * @return the set of build configs which depend on this build
+     */
+    public Set<BuildConfiguration> getDependants() {
+        return dependants;
+    }
+
+    public void setDependants(Set<BuildConfiguration> dependants) {
+        this.dependants = dependants;
+    }
+
+    private boolean addDependant(BuildConfiguration dependant) {
+        boolean result = dependants.add(dependant);
+        if (!dependant.getDependencies().contains(this)) {
+            dependant.addDependency(this);
+        }
+        return result;
+    }
+
+    private boolean removeDependant(BuildConfiguration dependant) {
+        boolean result = dependants.remove(dependant);
+        if (dependant.getDependencies().contains(this)) {
+            dependant.removeDependency(this);
+        }
+        return result;
     }
 
     /**
@@ -362,18 +437,6 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
 
     public void setBuildConfigurationAudited(BuildConfigurationAudited buildConfigurationAudited) {
         this.buildConfigurationAudited = buildConfigurationAudited;
-    }
-
-    public BuildConfiguration addDependency(BuildConfiguration configuration) {
-        configuration.setParent(this);
-        dependencies.add(configuration);
-        return this;
-    }
-
-    public BuildConfiguration removeDependency(BuildConfiguration configuration) {
-        configuration.setParent(null);
-        dependencies.remove(configuration);
-        return this;
     }
 
     public Set<BuildRecord> getBuildRecords() {
@@ -448,9 +511,11 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
 
         private Environment environment;
 
-        private BuildConfiguration parent;
+        private Set<ProductVersion> productVersions;
 
         private Set<BuildConfiguration> dependencies;
+
+        private Set<BuildConfiguration> dependants;
 
         private Set<BuildConfigurationSet> buildConfigurationSets;
 
@@ -463,7 +528,8 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
         private String repositories;
 
         private Builder() {
-            dependencies = new HashSet<>();
+            dependencies = new HashSet<BuildConfiguration>();
+            dependants = new HashSet<BuildConfiguration>();
             buildConfigurationSets = new HashSet<BuildConfigurationSet>();
             creationTime = Timestamp.from(Instant.now());
             lastModificationTime = Timestamp.from(Instant.now());
@@ -494,6 +560,8 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
             buildConfiguration.setBuildStatus(buildStatus);
             buildConfiguration.setRepositories(repositories);
             buildConfiguration.setBuildConfigurationSets(buildConfigurationSets);
+            buildConfiguration.setProductVersions(productVersions);
+
             for (BuildConfigurationSet buildConfigurationSet : buildConfigurationSets)
             {
                 buildConfigurationSet.addBuildConfiguration(buildConfiguration);
@@ -501,9 +569,17 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
 
             // Set the bi-directional mapping
             for (BuildConfiguration dependency : dependencies) {
-                dependency.setParent(buildConfiguration);
+                if (!dependency.getDependants().contains(buildConfiguration)) {
+                    dependency.addDependant(buildConfiguration);
+                }
             }
             buildConfiguration.setDependencies(dependencies);
+            for (BuildConfiguration dependant : dependants) {
+                if (!dependant.getDependencies().contains(buildConfiguration)) {
+                    dependant.addDependant(buildConfiguration);
+                }
+            }
+            buildConfiguration.setDependants(dependants);
 
             return buildConfiguration;
         }
@@ -550,6 +626,16 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
 
         public Builder environment(Environment environment) {
             this.environment = environment;
+            return this;
+        }
+
+        public Builder productVersions(Set<ProductVersion> productVersions) {
+            this.productVersions = productVersions;
+            return this;
+        }
+
+        public Builder productVersion(ProductVersion productVersion) {
+            this.productVersions.add(productVersion);
             return this;
         }
 

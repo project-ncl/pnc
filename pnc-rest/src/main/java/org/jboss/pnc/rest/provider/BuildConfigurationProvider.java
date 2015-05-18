@@ -1,3 +1,20 @@
+/**
+ * JBoss, Home of Professional Open Source.
+ * Copyright 2014 Red Hat, Inc., and individual contributors
+ * as indicated by the @author tags.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.jboss.pnc.rest.provider;
 
 import com.google.common.base.Preconditions;
@@ -6,7 +23,10 @@ import org.jboss.pnc.datastore.limits.RSQLPageLimitAndSortingProducer;
 import org.jboss.pnc.datastore.predicates.RSQLPredicate;
 import org.jboss.pnc.datastore.predicates.RSQLPredicateProducer;
 import org.jboss.pnc.datastore.repositories.BuildConfigurationRepository;
+import org.jboss.pnc.datastore.repositories.ProductVersionRepository;
 import org.jboss.pnc.model.BuildConfiguration;
+import org.jboss.pnc.model.BuildConfigurationSet;
+import org.jboss.pnc.model.ProductVersion;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationRest;
 import org.springframework.data.domain.Pageable;
 
@@ -24,9 +44,11 @@ import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
 public class BuildConfigurationProvider {
 
     private BuildConfigurationRepository buildConfigurationRepository;
+    private ProductVersionRepository productVersionRepository;
 
     @Inject
-    public BuildConfigurationProvider(BuildConfigurationRepository buildConfigurationRepository) {
+    public BuildConfigurationProvider(BuildConfigurationRepository buildConfigurationRepository, 
+            ProductVersionRepository productVersionRepository) {
         this.buildConfigurationRepository = buildConfigurationRepository;
     }
 
@@ -122,4 +144,33 @@ public class BuildConfigurationProvider {
         return nullableStreamOf(entries).map(projectConfiguration -> new BuildConfigurationRest(projectConfiguration)).collect(
                 Collectors.toList());
     }
+
+    public void addDependency(Integer configId, Integer dependencyId) {
+        BuildConfiguration buildConfig = buildConfigurationRepository.findOne(configId);
+        BuildConfiguration dependency = buildConfigurationRepository.findOne(dependencyId);
+        buildConfig.addDependency(dependency);
+        buildConfigurationRepository.save(buildConfig);
+    }
+
+    public void removeDependency(Integer configId, Integer dependencyId) {
+        BuildConfiguration buildConfig = buildConfigurationRepository.findOne(configId);
+        BuildConfiguration dependency = buildConfigurationRepository.findOne(dependencyId);
+        buildConfig.removeDependency(dependency);
+        buildConfigurationRepository.save(buildConfig);
+    }
+
+    public void addProductVersion(Integer configId, Integer productVersionId) {
+        BuildConfiguration buildConfig = buildConfigurationRepository.findOne(configId);
+        ProductVersion productVersion = productVersionRepository.findOne(productVersionId);
+        buildConfig.addProductVersion(productVersion);
+        buildConfigurationRepository.save(buildConfig);
+    }
+
+    public void removeProductVersion(Integer configId, Integer productVersionId) {
+        BuildConfiguration buildConfig = buildConfigurationRepository.findOne(configId);
+        ProductVersion productVersion = productVersionRepository.findOne(productVersionId);
+        buildConfig.removeProductVersion(productVersion);
+        buildConfigurationRepository.save(buildConfig);
+    }
+
 }

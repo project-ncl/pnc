@@ -1,7 +1,25 @@
+/**
+ * JBoss, Home of Professional Open Source.
+ * Copyright 2014 Red Hat, Inc., and individual contributors
+ * as indicated by the @author tags.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.jboss.pnc.core.test.buildCoordinator;
 
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.pnc.common.Configuration;
+import org.jboss.pnc.common.util.ObjectWrapper;
 import org.jboss.pnc.core.BuildDriverFactory;
 import org.jboss.pnc.core.builder.BuildCoordinator;
 import org.jboss.pnc.core.builder.BuildSetTask;
@@ -16,11 +34,13 @@ import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.Environment;
 import org.jboss.pnc.model.User;
+import org.jboss.pnc.spi.BuildSetStatus;
 import org.jboss.pnc.spi.BuildStatus;
 import org.jboss.pnc.spi.events.BuildStatusChangedEvent;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.asset.EmptyAsset;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
+import org.junit.Assert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,6 +50,7 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -75,11 +96,16 @@ public class ProjectBuilder {
         final Semaphore semaphore = registerReleaseListenersAndAcquireSemaphore(receivedStatuses, N_STATUS_UPDATES);
 
         User user = null;
-        BuildTask buildTask = buildCoordinator.build(buildConfiguration, user);
+        ObjectWrapper<Boolean> onCompleteCalled = new ObjectWrapper<>(Boolean.FALSE);
+        Consumer<BuildSetStatus> onComplete = (status) -> {
+            onCompleteCalled.set(Boolean.TRUE);
+        };
+        BuildTask buildTask = buildCoordinator.build(buildConfiguration, user, onComplete);
 
         assertBuildStartedSuccessfully(buildTask);
         waitForStatusUpdates(N_STATUS_UPDATES, semaphore);
         assertAllStatusUpdateReceived(receivedStatuses, buildConfiguration.getId());
+        Assert.assertEquals("OnComplete call-back was not called.", Boolean.TRUE, onCompleteCalled.get());
     }
 
     void buildProjects(BuildConfigurationSet buildConfigurationSet) throws InterruptedException, CoreException {
@@ -92,7 +118,11 @@ public class ProjectBuilder {
         final Semaphore semaphore = registerReleaseListenersAndAcquireSemaphore(receivedStatuses, nStatusUpdates);
 
         User user = null;
-        BuildSetTask buildSetTask = buildCoordinator.build(buildConfigurationSet, user);
+        ObjectWrapper<Boolean> onCompleteCalled = new ObjectWrapper<>(Boolean.FALSE);
+        Consumer<BuildSetStatus> onComplete = (status) -> {
+            onCompleteCalled.set(Boolean.TRUE);
+        };
+        BuildSetTask buildSetTask = buildCoordinator.build(buildConfigurationSet, user, onComplete);
 
         assertBuildStartedSuccessfully(buildSetTask);
 
@@ -101,6 +131,7 @@ public class ProjectBuilder {
 
         log.info("Checking if received all status updates...");
         buildConfigurationSet.getBuildConfigurations().forEach(bc -> assertAllStatusUpdateReceived(receivedStatuses, bc.getId()));
+        Assert.assertEquals("OnComplete call-back was not called.", Boolean.TRUE, onCompleteCalled.get());
     }
 
     private Semaphore registerReleaseListenersAndAcquireSemaphore(List<BuildStatusChangedEvent> receivedStatuses, int nStatusUpdates) throws InterruptedException {

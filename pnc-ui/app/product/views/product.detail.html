@@ -1,3 +1,22 @@
+<!--
+
+    JBoss, Home of Professional Open Source.
+    Copyright 2014 Red Hat, Inc., and individual contributors
+    as indicated by the @author tags.
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
 <div>
   <pnc-header>
     <pnc-header-title>{{ detailCtrl.product.name || 'Empty' }}</pnc-header-title>
@@ -58,33 +77,33 @@
         </button>
       </div>
     </div>
-
-    <pnc-header>
-      <pnc-header-title><small>Product Versions</small></pnc-header-title>
-      <pnc-header-buttons>
-        <button type="button" class="btn btn-lg btn-default disabled" data-toggle="tooltip" title="Create Product Version">
-            <i class="pficon pficon-add"></i> Create
-        </button>
-      </pnc-header-buttons>
-    </pnc-header>
-
-    <input ng-model="searchText" placeholder="filter versions...">
-    <table class="table table-bordered table-striped">
-      <thead>
-        <th>Version</th>
-        <th>Milestone</th>
-        <th>Phase</th>
-        <th>Description</th>
-      </thead>
-      <tbody>
-        <tr ng-repeat="version in detailCtrl.versions | filter:searchText">
-          <td><a href ui-sref="product.version({ productId: detailCtrl.product.id, versionId: version.id })">{{ version.version }}</a></td>
-          <td> tdb (ER1 | DR7)</td>
-          <td> tbd (Building | Testing | Released)</td>
-          <td>{{ version.description }}</td>
-        </tr>
-      </tbody>
-    </table>
-
   </form>
+
+  <pnc-header>
+    <pnc-header-title><small>Product Versions</small></pnc-header-title>
+    <pnc-header-buttons>
+      <button type="button" class="btn btn-lg btn-default" data-toggle="tooltip" title="Create Product Version" ui-sref="product.createversion({ productId: detailCtrl.product.id })">
+          <i class="pficon pficon-add"></i> Create
+      </button>
+    </pnc-header-buttons>
+  </pnc-header>
+
+  <input ng-model="searchText" placeholder="filter versions...">
+  <table class="table table-bordered table-striped">
+    <thead>
+      <th>Version</th>
+      <th>Milestone</th>
+      <th>Phase</th>
+      <th>Description</th>
+    </thead>
+    <tbody>
+      <tr ng-repeat="version in detailCtrl.versions | filter:searchText">
+        <td><a href ui-sref="product.version({ productId: detailCtrl.product.id, versionId: version.id })">{{ version.version }}</a></td>
+        <td> tdb (ER1 | DR7)</td>
+        <td> tbd (Building | Testing | Released)</td>
+        <td>{{ version.description }}</td>
+      </tr>
+    </tbody>
+  </table>
+
 </div>

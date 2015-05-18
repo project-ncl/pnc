@@ -1,14 +1,35 @@
+/**
+ * JBoss, Home of Professional Open Source.
+ * Copyright 2014 Red Hat, Inc., and individual contributors
+ * as indicated by the @author tags.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.jboss.pnc.rest.restmodel;
 
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildStatus;
 import org.jboss.pnc.model.Environment;
+import org.jboss.pnc.model.ProductVersion;
 import org.jboss.pnc.model.Project;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
 import java.sql.Timestamp;
+import java.util.Set;
+import java.util.stream.Collectors;
 
+import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
 import static org.jboss.pnc.rest.utils.Utility.performIfNotNull;
 
 @XmlRootElement(name = "Configuration")
@@ -40,6 +61,10 @@ public class BuildConfigurationRest {
 
     private Integer environmentId;
 
+    private Set<Integer> dependencyIds;
+
+    private Set<Integer> productVersionIds;
+
     public BuildConfigurationRest() {
     }
 
@@ -58,6 +83,10 @@ public class BuildConfigurationRest {
         performIfNotNull(buildConfiguration.getProject() != null, () -> this.projectId = buildConfiguration.getProject()
                 .getId());
         performIfNotNull(buildConfiguration.getEnvironment() != null, () -> this.environmentId = buildConfiguration.getEnvironment().getId());
+        this.dependencyIds = nullableStreamOf(buildConfiguration.getDependencies()).map(dependencyConfig -> dependencyConfig.getId())
+                .collect(Collectors.toSet());
+        this.productVersionIds = nullableStreamOf(buildConfiguration.getProductVersions()).map(productVersion -> productVersion.getId())
+                .collect(Collectors.toSet());
     }
 
     public Integer getId() {
@@ -156,6 +185,38 @@ public class BuildConfigurationRest {
         this.projectId = projectId;
     }
 
+    public Set<Integer> getProductVersionIds() {
+        return productVersionIds;
+    }
+
+    public void setProductVersionIds(Set<Integer> productVersionIds) {
+        this.productVersionIds = productVersionIds;
+    }
+
+    public boolean addProductVersion(Integer productVersionId) {
+        return this.productVersionIds.add(productVersionId);
+    }
+
+    public boolean removeProductVersion(Integer productVersionId) {
+        return this.productVersionIds.remove(productVersionId);
+    }
+
+    public Set<Integer> getDependencyIds() {
+        return dependencyIds;
+    }
+
+    public void setDependencyIds(Set<Integer> dependencyIds) {
+        this.dependencyIds = dependencyIds;
+    }
+
+    public boolean addDependency(Integer dependencyId) {
+        return dependencyIds.add(dependencyId);
+    }
+
+    public boolean removeDependency(Integer dependencyId) {
+        return dependencyIds.remove(dependencyId);
+    }
+
     public Integer getEnvironmentId() {
         return environmentId;
     }
@@ -180,6 +241,15 @@ public class BuildConfigurationRest {
 
         performIfNotNull(projectId != null, () -> builder.project(Project.Builder.newBuilder().id(projectId).build()));
         performIfNotNull(environmentId != null, () -> builder.environment(Environment.Builder.emptyEnvironment().id(environmentId).build()));
+
+        nullableStreamOf(dependencyIds).forEach(dependencyId -> {
+            BuildConfiguration.Builder buildConfigurationBuilder = BuildConfiguration.Builder.newBuilder().id(dependencyId);
+            builder.dependency(buildConfigurationBuilder.build());
+        });
+        nullableStreamOf(productVersionIds).forEach(productVersionId -> {
+            ProductVersion.Builder productVersionBuilder = ProductVersion.Builder.newBuilder().id(productVersionId);
+            builder.productVersion(productVersionBuilder.build());
+        });
 
         overrideWithDataFromOriginalConfiguration(buildConfiguration, builder);
         return builder.build();

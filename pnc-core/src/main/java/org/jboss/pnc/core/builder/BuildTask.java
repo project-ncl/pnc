@@ -1,3 +1,20 @@
+/**
+ * JBoss, Home of Professional Open Source.
+ * Copyright 2014 Red Hat, Inc., and individual contributors
+ * as indicated by the @author tags.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.jboss.pnc.core.builder;
 
 import org.jboss.pnc.core.events.DefaultBuildStatusChangedEvent;
@@ -25,6 +42,7 @@ public class BuildTask implements BuildExecution {
 
     public BuildConfiguration buildConfiguration;
     private BuildExecutionType buildTaskType;
+    private BuildSetTask buildSetTask;
     BuildStatus status = BuildStatus.NEW;
     private String statusDescription;
 
@@ -48,10 +66,11 @@ public class BuildTask implements BuildExecution {
     private User user;
 
     BuildTask(BuildCoordinator buildCoordinator, BuildConfiguration buildConfiguration, String topContentId,
-              String buildSetContentId, String buildContentId, BuildExecutionType buildTaskType, User user) {
+              String buildSetContentId, String buildContentId, User user,
+              BuildSetTask buildSetTask) {
         this.buildCoordinator = buildCoordinator;
         this.buildConfiguration = buildConfiguration;
-        this.buildTaskType = buildTaskType;
+        this.buildSetTask = buildSetTask;
         this.buildStatusChangedEvent = buildCoordinator.getBuildStatusChangedEventNotifier();
         this.topContentId = topContentId;
         this.buildSetContentId = buildSetContentId;
@@ -60,16 +79,23 @@ public class BuildTask implements BuildExecution {
 
         this.startTime = System.currentTimeMillis();
         waiting = new HashSet<>();
+
+        this.buildTaskType = buildSetTask.getBuildTaskType();
     }
 
     public void setStatus(BuildStatus status) {
-        BuildStatusChangedEvent buildStatusChanged = new DefaultBuildStatusChangedEvent(this.status, status, buildConfiguration.getId(), this);
-        log.debug("Updating build task {} status to {}", this.getId(), buildStatusChanged);
-        buildStatusChangedEvent.fire(buildStatusChanged);
+        this.status = status;
+        notifyStatusUpdate();
         if (status.equals(BuildStatus.DONE)) {
             waiting.forEach((submittedBuild) -> submittedBuild.requiredBuildCompleted(this));
         }
-        this.status = status;
+    }
+
+    private void notifyStatusUpdate() {
+        BuildStatusChangedEvent buildStatusChanged = new DefaultBuildStatusChangedEvent(this.status, status, buildConfiguration.getId(), this);
+        log.debug("Updating build task {} status to {}", this.getId(), buildStatusChanged);
+        buildSetTask.taskStatusUpdated(this);
+        buildStatusChangedEvent.fire(buildStatusChanged);
     }
 
     void setRequiredBuilds(List<BuildTask> requiredBuilds) {

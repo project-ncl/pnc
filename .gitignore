@@ -7,10 +7,9 @@ target/
 .classpath
 /eclipse-target
 
-# IDEA
+# IntelliJ
 *.iml
 .idea
 
 # DB test file
 maven-repository-manager/derby.log
-
