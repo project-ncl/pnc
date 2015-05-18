@@ -44,8 +44,8 @@
   ]);
 
   module.controller('ProductVersionController', [
-    '$log', 'productDetail', 'versionDetail', 'buildConfigurationSets', 'productReleases', 'productMilestones',
-    function ($log, productDetail, versionDetail, buildConfigurationSets, productReleases, productMilestones) {
+    '$log', '$state', 'productDetail', 'versionDetail', 'buildConfigurationSets', 'productReleases', 'productMilestones',
+    function ($log, $state, productDetail, versionDetail, buildConfigurationSets, productReleases, productMilestones) {
       $log.debug('VersionDetailController >> this=%O, productDetail=%O, ' +
                  'versionDetail=%O, buildConfigurationSets=%0', this, productDetail, versionDetail, buildConfigurationSets);
 
@@ -54,6 +54,10 @@
       this.buildconfigurationsets = buildConfigurationSets;
       this.productreleases = productReleases;
       this.productmilestones = productMilestones;
+
+      this.createMilestone = function() {
+        $state.go('product.version.milestone.create', { productId: productDetail.id,productVersionId: versionDetail.id });
+      };
     }
   ]);
 

@@ -76,7 +76,7 @@
           <pnc-header>
             <pnc-header-title><small>Milestones</small></pnc-header-title>
               <pnc-header-buttons>
-                <button type="button" class="btn btn-lg btn-default disabled" data-toggle="tooltip" title="Create Milestone" ui-sref="configuration-set.create">
+                <button type="button" class="btn btn-lg btn-default" data-toggle="tooltip" title="Create Milestone" ng-click="versionCtrl.createMilestone()">
                     <i class="pficon pficon-add"></i> Create
                 </button>
               </pnc-header-buttons>
@@ -85,7 +85,7 @@
               <thead>
                 <th>Name</th>
                 <th>Starting date</th>
-                <th>Planned ending date</th>
+                <th>Planned release date</th>
                 <th>Release date</th>
                 <th>Deliverables</th>
                 <th>Build Record Set</th>
@@ -93,9 +93,9 @@
               <tbody>
                 <tr ng-repeat="productmilestone in versionCtrl.productmilestones">
                   <td>{{ productmilestone.version }}</td>
-                  <td>{{ productmilestone.startingDate }}</td>
-                  <td>{{ productmilestone.plannedEndingDate }}</td>
-                  <td>{{ productmilestone.releaseDate | date:'medium'}}</td>
+                  <td>{{ productmilestone.startingDate | date:'yyyy/MM/dd'}}</td>
+                  <td>{{ productmilestone.plannedReleaseDate | date:'yyyy/MM/dd'}}</td>
+                  <td>{{ productmilestone.releaseDate | date:'yyyy/MM/dd'}}</td>
                   <td class="text-center"><a ng-href="{{ productmilestone.downloadUrl }}" target="_self" class="btn btn-primary">Download</a></td>
                   <td>{{ productmilestone.buildRecordSetId }}</td>
                 </tr>

@@ -64,6 +64,10 @@
             url: REST_DEFAULTS.BASE_URL + '/product-milestones/product-versions/:versionId',
             isArray: true
           },
+          saveForProductVersion: {
+            method: 'POST',
+            url: REST_DEFAULTS.BASE_URL + '/product-milestones/product-versions/:versionId'
+          }
         }),
 
         Release: $resource(REST_DEFAULTS.BASE_URL + '/product-releases/:releaseId', {
