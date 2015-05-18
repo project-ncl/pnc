@@ -104,12 +104,7 @@
 
     <demo.pnc.ip.address>10.3.10.200:8080</demo.pnc.ip.address>
 
-    <datasource.jndi.name>java:jboss/datasources/ExampleDS</datasource.jndi.name>
-    <datasource.pool.name>as7example</datasource.pool.name>
-    <datasource.connection.url>jdbc:h2:mem:as7example;DB_CLOSE_ON_EXIT=FALSE;DB_CLOSE_DELAY=-1</datasource.connection.url>
-    <datasource.driver-class>org.h2.Driver</datasource.driver-class>
-    <datasource.security.user-name>sa</datasource.security.user-name>
-    <datasource.security.password>sa</datasource.security.password>
+    <!-- Default DB for NCL is H2 -->
     <persistence.jta-data-source>java:jboss/datasources/ExampleDS</persistence.jta-data-source>
     <persistence.hibernate.dialect>org.jboss.pnc.datastore.H2Dialect</persistence.hibernate.dialect>
     <persistence.hibernate.hbm2ddl.auto>create-drop</persistence.hibernate.hbm2ddl.auto>
@@ -691,6 +686,11 @@
     </testResources>
     <pluginManagement>
       <plugins>
+        <plugin>
+          <groupId>org.codehaus.mojo</groupId>
+          <artifactId>hibernate3-maven-plugin</artifactId>
+          <version>3.0</version>
+        </plugin>
         <plugin>
           <groupId>com.mysema.maven</groupId>
           <artifactId>maven-apt-plugin</artifactId>
@@ -1309,23 +1309,16 @@
     </profile>
 
     <profile>
-      <id>postgresql</id>
+      <id>production</id>
       <activation>
         <property>
-          <name>postgresql</name>
+          <name>production</name>
         </property>
       </activation>
       <properties>
-        <!-- PostgreSQL datasource configuration properties -->
-        <datasource.jndi.name>java:jboss/datasources/NewcastleDS</datasource.jndi.name>
-        <datasource.pool.name>PncDS</datasource.pool.name>
-        <datasource.connection.url>jdbc:postgresql://localhost:5432/newcastle</datasource.connection.url>
-        <datasource.driver-class>org.postgresql.Driver</datasource.driver-class>
-        <datasource.security.user-name>newcastle</datasource.security.user-name>
-        <datasource.security.password>newcastle</datasource.security.password>
         <persistence.jta-data-source>java:jboss/datasources/NewcastleDS</persistence.jta-data-source>
-        <persistence.hibernate.dialect>org.hibernate.dialect.PostgreSQLDialect</persistence.hibernate.dialect>
-        <persistence.hibernate.hbm2ddl.auto>create</persistence.hibernate.hbm2ddl.auto>
+        <persistence.hibernate.dialect>org.hibernate.dialect.PostgreSQL82Dialect</persistence.hibernate.dialect>
+        <persistence.hibernate.hbm2ddl.auto>update</persistence.hibernate.hbm2ddl.auto>
       </properties>
     </profile>
 
