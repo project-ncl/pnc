@@ -85,7 +85,7 @@
           },
           function(response) {
             $log.error('Create Configuration Set failed: response: %O', response);
-            Notifications.error('Action Failed.');
+            Notifications.error('Configuration Set creation failed');
           }
         );
       };
@@ -145,14 +145,14 @@
          }, self.selectedConfiguration).$promise.then(
            function(result) {
              $log.debug('Configuration added to Configuration Set: %s', result);
-             Notifications.success('Build Configuration added to Build Configuration Set');
+             Notifications.success('Configuration added to Configuration Set');
              var params = { configurationSetId: self.configurationSetDetail.id };
              $state.go('configuration-set.detail', params, { reload: true, inherit: false,
                       notify: true });
            },
            function(response) {
              $log.error('Build Configuration adding failed: response: %O', response);
-             Notifications.error('Action Failed.');
+             Notifications.error('Configuration addition to Configuration Set failed');
            }
          );
        }
@@ -239,18 +239,19 @@
             function(result) {
               $log.debug('Initiated Build: %O, result: %O', self.set,
                          result);
-              Notifications.success('Initiated build of configurationSet:' +
+              Notifications.success('Initiated build of Configuration Set: ' +
                                     self.set.name);
             },
             function(response) {
               $log.error('Failed to initiated build: %O, response: %O',
                          self.set, response);
-              Notifications.error('Action Failed.');
+              Notifications.error('Could not initiate build of Configuration Set: ' +
+                                    self.set.name);
             }
         );
       };
 
-      // Update a build configuration set after editting
+      // Update a build configuration set after editing
       self.update = function() {
         $log.debug('Updating configuration-set: %O', this.set);
 
@@ -258,12 +259,12 @@
           function(result) {
             $log.debug('Update Config: %O, result: %O', self.set,
                        result);
-            Notifications.success('Configuration updated.');
+            Notifications.success('Configuration Set updated');
           },
           function(response) {
             $log.error('Update set: %O failed, response: %O',
                        self.set, response);
-            Notifications.error('Action Failed.');
+            Notifications.error('Configuration Set update failed');
           }
         );
       };
@@ -307,7 +308,7 @@
           function (response) {
             $log.error('Removal of Configuration from Configuration Set: %O failed, response: %O',
              self.set, response);
-            Notifications.error('Action Failed.');
+            Notifications.error('Configuration removal from Configuration Set failed');
           }
         );
       };
@@ -319,7 +320,7 @@
           function (result) {
             $log.debug('Delete Configuration Set: %O success result: %O',
                        self.set, result);
-            Notifications.success('Build Configuration Set Deleted');
+            Notifications.success('Configuration Set deleted');
             // Attempt to fo to previous state
             $state.go(previousState.Name, previousState.Params);
           },
@@ -327,7 +328,7 @@
           function (response) {
             $log.error('Delete configuration set: %O failed, response: %O',
                        self.set, response);
-            Notifications.error('Action Failed.');
+            Notifications.error('Configuration Set deletion failed');
           }
         );
       };
