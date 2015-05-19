@@ -25,6 +25,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.net.HostAndPort;
 import com.google.inject.Module;
 import com.jcraft.jsch.agentproxy.Connector;
+
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.moduleconfig.DockerEnvironmentDriverModuleConfig;
@@ -43,6 +44,7 @@ import org.jclouds.docker.domain.Config;
 import org.jclouds.docker.domain.Container;
 import org.jclouds.docker.domain.HostConfig;
 import org.jclouds.docker.features.RemoteApi;
+import org.jclouds.docker.options.RemoveContainerOptions;
 import org.jclouds.domain.LoginCredentials;
 import org.jclouds.http.handlers.BackoffLimitedRetryHandler;
 import org.jclouds.io.Payloads;
@@ -53,6 +55,7 @@ import org.jclouds.sshj.config.SshjSshClientModule;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+
 import java.io.InputStream;
 import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
@@ -236,7 +239,7 @@ public class DockerEnvironmentDriver implements EnvironmentDriver {
         try {
             if (isRunning)
                 dockerClient.stopContainer(containerId);
-            dockerClient.removeContainer(containerId);
+            dockerClient.removeContainer(containerId, new RemoveContainerOptionsExtended());
         } catch (RuntimeException e) {
             logger.warning("Docker container (ID:" + containerId + " )couldn't be removed: " + e);
             throw new EnvironmentDriverException("Cannot destroy environment.", e);
@@ -340,6 +343,20 @@ public class DockerEnvironmentDriver implements EnvironmentDriver {
         }
 
         return resultMap;
+    }
+
+    /**
+     * Extended options for removing container, which forces Docker to remove
+     * volume attached to the container 
+     * 
+     * @author Jakub Bartecek &lt;jbartece@redhat.com&gt;
+     *
+     */
+    private class RemoveContainerOptionsExtended extends RemoveContainerOptions {
+
+        public RemoveContainerOptionsExtended() {
+            this.queryParameters.put("v", "true");
+        }
     }
 
 }
