@@ -102,7 +102,7 @@
           productId: productDetail.id,
           productVersionId: versionDetail.id
         });
-      }
+      };
     }
   ]);
 
