@@ -79,9 +79,6 @@ public class DockerEnvironmentDriver implements EnvironmentDriver {
     private Generator generator;
 
     @Inject
-    private ConfigurationBuilder configBuilder;
-
-    @Inject
     private DockerInitializationMonitor dockerInitMonitor;
 
     private ComputeServiceContext dockerContext;
@@ -164,7 +161,8 @@ public class DockerEnvironmentDriver implements EnvironmentDriver {
         try {
             Config config = Config.builder()
                     .imageId(dockerImageId)
-                    .env(prepareEnvVariables())
+                    .env(prepareEnvVariables(repositorySession.getConnectionInfo()
+                            .getDependencyUrl(), repositorySession.getConnectionInfo().getDeployUrl()))
                     .build();
             logger.fine("Creating docker container with config: " + config);
             Container createdContainer = dockerClient.createContainer(containerId, config);
@@ -182,12 +180,6 @@ public class DockerEnvironmentDriver implements EnvironmentDriver {
             // Find out, which ports are opened for SSH and Jenkins
             sshPort = getSshPort(containerPortMappings);
             jenkinsPort = getJenkinsPort(containerPortMappings);
-
-            copyFileToContainer(sshPort, "/root/.m2/settings.xml",
-                    configBuilder.createMavenConfig(repositorySession.getConnectionInfo()
-                            .getDependencyUrl(),
-                            repositorySession.getConnectionInfo().getDeployUrl()), null);
-
         } catch (Exception e) {
             // Creating container failed => clean up
             logger.warning("Docker container failed to start. " + e);
@@ -308,11 +300,15 @@ public class DockerEnvironmentDriver implements EnvironmentDriver {
      * Prepares configuration of environment variables
      * for creating Docker container
      * 
+     * @param dependencyUrl AProx dependencyUrl
+     * @param deployUrl AProx deployUrl
      * @return Environment variables configuration
      */
-    private List<String> prepareEnvVariables() {
+    private List<String> prepareEnvVariables(String dependencyUrl, String deployUrl) {
         List<String> envVariables = new ArrayList<>();
         envVariables.add("firewallAllowedDestinations=" + containerFirewallAllowedDestinations);
+        envVariables.add("AProxDependencyUrl=" + dependencyUrl);
+        envVariables.add("AProxDeployUrl=" + deployUrl);
         return envVariables;
     }
 
