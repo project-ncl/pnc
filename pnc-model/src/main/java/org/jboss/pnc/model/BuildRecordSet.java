@@ -22,9 +22,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * The Class BuildRecordSet, that encapsulates the set of buildRecords that compose a specific version of a Product.
- *
- * @author avibelli
+ * Represents a set of related build records.  For example, this could be the set of 
+ * builds that were executed during a specific product milestone cycle.
  */
 @Entity
 public class BuildRecordSet implements GenericEntity<Integer> {
