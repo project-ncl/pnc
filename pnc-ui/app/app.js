@@ -20,6 +20,7 @@
 (function() {
   var app = angular.module('pnc', [
     'ui.router',
+    'ui.bootstrap',
     'pnc.Dashboard',
     'pnc.remote',
     'pnc.product',
@@ -28,6 +29,8 @@
     'pnc.record',
     'pnc.configuration-set',
     'pnc.websockets',
+    'pnc.environment',
+    'pnc.milestone'
   ]);
 
   /*jshint camelcase: false */

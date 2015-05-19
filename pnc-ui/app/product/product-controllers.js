@@ -61,13 +61,14 @@
 
   module.controller('ProductVersionController', [
     '$log',
+    '$state',
     'productDetail',
     'versionDetail',
     'buildConfigurationSets',
     'productReleases',
     'productMilestones',
     'Notifications',
-    function ($log, productDetail, versionDetail, buildConfigurationSets, productReleases, productMilestones, Notifications) {
+    function ($log, $state, productDetail, versionDetail, buildConfigurationSets, productReleases, productMilestones, Notifications) {
       $log.debug('VersionDetailController >> this=%O, productDetail=%O, ' +
                  'versionDetail=%O, buildConfigurationSets=%0', this, productDetail, versionDetail, buildConfigurationSets);
 
@@ -94,6 +95,13 @@
             Notifications.error('Product Version update failed');
           }
         );
+      };
+
+      that.createMilestone = function() {
+        $state.go('product.version.milestone.create', {
+          productId: productDetail.id,
+          productVersionId: versionDetail.id
+        });
       };
     }
   ]);

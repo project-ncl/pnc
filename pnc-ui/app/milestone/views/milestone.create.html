@@ -1,0 +1,104 @@
+<div>
+
+  <div class="page-header">
+    <h1>Create milestone for {{ ctrl.product.name }} {{ ctrl.productVersion.version }}</h1>
+  </div>
+
+  <form class="form-horizontal" name="milestoneForm"
+        ng-submit="ctrl.submit()">
+
+    <div class="form-group" ng-class="validation.version.any ? 'has-error' : ''">
+
+
+      <label for="input-version" class="col-sm-2 control-label">
+        Version <span class="pficon pficon-info"
+                      title="Milestone part of the product version, e.g. '0.ER1' for product version '1.0'."></span>
+      </label>
+
+      <div class="col-sm-10">
+        <div class="input-group">
+          <span class="input-group-addon">{{ ctrl.productVersion.version }}.</span>
+          <input id="input-version" class="form-control" name="version"
+                 ng-model="ctrl.data.version">
+
+        </div>
+        <span class="help-block" ng-show="validation.version.required">Required field.</span>
+        <span class="help-block" ng-show="validation.version.format">Version must start with a number.</span>
+      </div>
+
+    </div>
+
+    <div class="form-group" ng-class="validation.startingDate.any ? 'has-error' : ''">
+
+      <label for="input-start-date" class="col-sm-2 control-label">
+        Start date <span class="pficon pficon-info"
+                         title="Start date, e.g. '2035/01/15', time is set to noon UTC."></span>
+      </label>
+
+      <div class="col-sm-10">
+
+        <div class="input-group">
+
+<span class="input-group-btn">
+                <button type="button" class="btn btn-default" ng-click="open($event, 0)">
+                  <i class="glyphicon glyphicon-calendar"></i></button>
+              </span>
+
+          <input id="input-start-date" type="text" class="form-control" datepicker-popup="{{format}}"
+                 ng-model="ctrl.data.startingDate" is-open="opened[0]" close-text="Close"/>
+
+
+        </div>
+        <span class="help-block" ng-show="validation.startingDate.required">Required field.</span>
+      </div>
+    </div>
+
+    <div class="form-group" ng-class="validation.plannedReleaseDate.any ? 'has-error' : ''">
+
+      <label for="input-end-date" class="col-sm-2 control-label">
+        Planned release date <span class="pficon pficon-info"
+                                   title="Planned release date, e.g. '2035/01/15', time is set to noon UTC."></span>
+      </label>
+
+      <div class="col-sm-10">
+
+        <div class="input-group">
+
+<span class="input-group-btn">
+                <button type="button" class="btn btn-default" ng-click="open($event, 1)">
+                  <i class="glyphicon glyphicon-calendar"></i></button>
+              </span>
+
+          <input id="input-end-date" type="text" class="form-control" datepicker-popup="{{format}}"
+                 ng-model="ctrl.data.plannedReleaseDate" is-open="opened[1]" close-text="Close"/>
+
+
+        </div>
+        <span class="help-block" ng-show="validation.plannedReleaseDate.required">Required field.</span>
+        <span class="help-block" ng-show="validation.plannedReleaseDate.afterStartingDate">This date must be after the start date.</span>
+      </div>
+    </div>
+
+    <div class="form-group">
+
+
+      <div class="col-sm-offset-2 col-sm-10">
+        <div class="checkbox">
+          <label>
+            <input type="checkbox" id="input-set-current" name="name" ng-model="ctrl.setCurrentMilestone" disabled>
+            Set as the current milestone for {{ ctrl.product.name }} {{ ctrl.productVersion.version }}
+          </label>
+        </div>
+      </div>
+
+
+    </div>
+
+    <div class="form-group">
+      <div class="col-sm-offset-2 col-sm-10">
+        <input type="submit" class="btn btn-primary" value="Create">
+        <input type="reset" class="btn btn-default" value="Clear">
+      </div>
+    </div>
+  </form>
+</div>
