@@ -17,8 +17,6 @@
  */
 package org.jboss.pnc.environment.docker;
 
-import java.io.InputStream;
-
 import org.jboss.pnc.spi.environment.RunningEnvironment;
 import org.jboss.pnc.spi.environment.exception.EnvironmentDriverException;
 import org.jboss.pnc.spi.repositorymanager.model.RepositorySession;
@@ -47,7 +45,7 @@ public class DockerRunningEnvironment implements RunningEnvironment {
      * Port to SSH to running environment
      */
     private final int sshPort;
-    
+
     private final String containerUrl;
 
     private final RepositorySession repositorySession;
@@ -90,17 +88,6 @@ public class DockerRunningEnvironment implements RunningEnvironment {
      */
     public int getSshPort() {
         return sshPort;
-    }
-
-    @Override
-    public void transferDataToEnvironment(String pathOnHost, InputStream stream)
-            throws EnvironmentDriverException {
-        dockerEnvDriver.copyFileToContainer(this.sshPort, pathOnHost, null, stream);
-    }
-
-    @Override
-    public void transferDataToEnvironment(String pathOnHost, String data) throws EnvironmentDriverException {
-        dockerEnvDriver.copyFileToContainer(this.sshPort, pathOnHost, data, null);
     }
 
     @Override

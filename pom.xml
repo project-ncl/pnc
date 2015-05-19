@@ -496,13 +496,7 @@
         <artifactId>docker</artifactId>
         <version>${version.jclouds}</version>
       </dependency>
-
-      <dependency>
-        <groupId>org.apache.jclouds.driver</groupId>
-        <artifactId>jclouds-sshj</artifactId>
-        <version>${version.jclouds}</version>
-      </dependency>
-
+      
       <dependency>
         <groupId>org.apache.jclouds</groupId>
         <artifactId>jclouds-core</artifactId>

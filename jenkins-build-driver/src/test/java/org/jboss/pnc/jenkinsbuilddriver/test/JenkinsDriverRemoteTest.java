@@ -22,7 +22,10 @@ import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.util.ObjectWrapper;
 import org.jboss.pnc.jenkinsbuilddriver.JenkinsBuildDriver;
-import org.jboss.pnc.model.*;
+import org.jboss.pnc.model.Artifact;
+import org.jboss.pnc.model.BuildConfiguration;
+import org.jboss.pnc.model.Project;
+import org.jboss.pnc.model.RepositoryType;
 import org.jboss.pnc.spi.builddriver.BuildDriverResult;
 import org.jboss.pnc.spi.builddriver.BuildDriverStatus;
 import org.jboss.pnc.spi.builddriver.CompletedBuild;
@@ -45,7 +48,6 @@ import org.junit.runner.RunWith;
 
 import javax.inject.Inject;
 
-import java.io.InputStream;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -140,17 +142,6 @@ public class JenkinsDriverRemoteTest {
     private RunningEnvironment getRunningEnvironment() {
         final RepositorySession repositoryConfiguration = getRepositoryConfiguration();
         return new RunningEnvironment() {
-            
-            @Override
-            public void transferDataToEnvironment(String pathOnHost, String data) throws EnvironmentDriverException {
-                
-            }
-            
-            @Override
-            public void transferDataToEnvironment(String pathOnHost, InputStream stream)
-                    throws EnvironmentDriverException {
-                
-            }
             
             @Override
             public RepositorySession getRepositorySession() {

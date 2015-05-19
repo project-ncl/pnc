@@ -17,11 +17,9 @@
  */
 package org.jboss.pnc.spi.environment;
 
-import java.io.InputStream;
-import java.io.Serializable;
-
-import org.jboss.pnc.spi.environment.exception.EnvironmentDriverException;
 import org.jboss.pnc.spi.repositorymanager.model.RepositorySession;
+
+import java.io.Serializable;
 
 /**
  * Identification of environment started by environment driver
@@ -30,26 +28,6 @@ import org.jboss.pnc.spi.repositorymanager.model.RepositorySession;
  *
  */
 public interface RunningEnvironment extends Serializable, DestroyableEnvironmnet {
-
-    /**
-     * Transfers data to the running environment. The data are saved to the file on path specified
-     * as parameter.
-     * 
-     * @param pathOnHost Path in the target environment, where the data are passed
-     * @param stream Data, which will be transfered to the target container
-     * @throws EnvironmentDriverException Thrown if it the data transfer couldn't be finished.
-     */
-    void transferDataToEnvironment(String pathOnHost, InputStream stream) throws EnvironmentDriverException;
-
-    /**
-     * Transfers data to the running environment. The data are saved to the file on path specified
-     * as parameter.
-     * 
-     * @param pathOnHost Path in the target environment, where the data are passed
-     * @param data Data, which will be transfered to the target container
-     * @throws EnvironmentDriverException Thrown if it the data transfer couldn't be finished.
-     */
-    void transferDataToEnvironment(String pathOnHost, String data) throws EnvironmentDriverException;
 
     /**
      * 

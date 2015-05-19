@@ -48,13 +48,10 @@ import org.junit.runner.RunWith;
 
 import javax.inject.Inject;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.Socket;
 import java.util.Map;
-import java.util.UUID;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
@@ -182,58 +179,6 @@ public class DockerEnvironmentDriverRemoteTest {
         mutex.tryAcquire(MAX_TEST_DURATION, TimeUnit.SECONDS);
     }
 
-    @Test
-    public void copyFileToContainerStringDataTest() throws Exception {
-        copyFileToContainerInvariantData("TEST CONTENT", null);
-    }
-
-    @Test
-    public void copyFileToContainerStreamDataTest() throws Exception {
-        copyFileToContainerInvariantData(null, new ByteArrayInputStream("TEST CONTENT".getBytes("UTF-8")));
-    }
-
-    private void copyFileToContainerInvariantData(final String string, final InputStream stream)
-            throws Exception {
-        final Semaphore mutex = new Semaphore(0);
-        final Environment environment = new Environment(BuildType.JAVA, OperationalSystem.LINUX);
-
-        final DockerStartedEnvironment startedEnv = (DockerStartedEnvironment)
-                dockerEnvDriver.buildEnvironment(environment, DUMMY_REPOSITORY_CONFIGURATION);
-
-        final String pathToFile = "/tmp/testFile-" + UUID.randomUUID().toString() + ".txt";
-
-        Consumer<RunningEnvironment> onComplete = (generalRunningEnv) -> {
-            DockerRunningEnvironment runningEnv = (DockerRunningEnvironment) generalRunningEnv;
-            try {
-
-                // Get content of container's file system
-                final String fsContentOld = HttpUtils.processGetRequest(String.class, dockerControlEndpoint
-                        + "/containers/" + runningEnv.getId() + "/changes");
-                fsContentOld.contains(pathToFile);
-
-                dockerEnvDriver.copyFileToContainer(runningEnv.getSshPort(), pathToFile, string, stream);
-
-                // Get content of container's file system
-                final String fsContentNew = HttpUtils.processGetRequest(String.class, dockerControlEndpoint
-                        + "/containers/"
-                        + runningEnv.getId() + "/changes");
-                assertTrue("File was not coppied to the container.", fsContentNew.contains(pathToFile));
-                mutex.release();
-            } catch (Throwable e) {
-                fail(e.getMessage());
-            } finally {
-                destroyEnvironmentWithReport(runningEnv.getId());
-            }
-        };
-
-        Consumer<Exception> onError = (e) -> {
-            destroyEnvironmentWithReport(startedEnv.getId());
-            fail("Failed to init docker container. " + e.getMessage());
-        };
-
-        startedEnv.monitorInitialization(onComplete, onError);
-        mutex.tryAcquire(MAX_TEST_DURATION, TimeUnit.SECONDS);
-    }
 
     /**
      * Checks if container was started and the services are on.
