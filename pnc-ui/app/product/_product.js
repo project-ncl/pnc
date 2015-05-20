@@ -71,8 +71,8 @@
           .$promise;
         },
         productVersions: function(restClient, productDetail) {
-          return restClient.Version.query({ productId: productDetail.id });
-        }
+          return restClient.Version.query({ productId: productDetail.id }).$promise;
+        },
       }
     });
     

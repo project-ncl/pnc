@@ -32,8 +32,12 @@
   ]);
 
   module.controller('ProductDetailController', [
-    '$log', 'productDetail', 'productVersions', 'Notifications',
-    function ($log, productDetail, productVersions, Notifications) {
+    '$log',
+    'productDetail',
+    'productVersions',
+    'Notifications',
+    'PncRestClient',
+    function ($log, productDetail, productVersions, Notifications, PncRestClient) {
 
       var that = this;
       that.product = productDetail;
@@ -56,6 +60,34 @@
           }
         );
       };
+
+      // Build wrapper objects
+      that.versionMilestones = [];
+      that.versionReleases = [];
+
+      // Retrieve all the artifacts of all the build records of the build configurations set
+      angular.forEach(that.versions, function(version){
+
+          PncRestClient.Milestone.getAllForProductVersion({
+              versionId: version.id
+          }).$promise.then(
+            function (results) {
+               angular.forEach(results, function(result){
+                 that.versionMilestones.push(result);
+               });
+            }
+          );
+
+          PncRestClient.Release.getAllForProductVersion({
+              versionId: version.id
+          }).$promise.then(
+            function (results) {
+               angular.forEach(results, function(result){
+                 that.versionReleases.push(result);
+               });
+            }
+          );
+      });
     }
   ]);
 

@@ -88,22 +88,50 @@
     </pnc-header-buttons>
   </pnc-header>
 
-  <input ng-model="searchText" placeholder="filter versions...">
-  <table class="table table-bordered table-striped">
-    <thead>
-      <th>Version</th>
-      <th>Milestone</th>
-      <th>Phase</th>
-      <th>Description</th>
-    </thead>
-    <tbody>
-      <tr ng-repeat="version in detailCtrl.versions | filter:searchText">
-        <td><a href ui-sref="product.version({ productId: detailCtrl.product.id, versionId: version.id })">{{ version.version }}</a></td>
-        <td> tdb (ER1 | DR7)</td>
-        <td> tbd (Building | Testing | Released)</td>
-        <td>{{ version.description }}</td>
-      </tr>
-    </tbody>
-  </table>
+  <accordion close-others="oneAtATime">
+	<accordion-group ng-repeat="version in detailCtrl.versions">
+	   <accordion-heading>
+           <a href ui-sref="product.version({ productId: detailCtrl.product.id, versionId: version.id })">{{ version.version }}</a>
+       </accordion-heading>
+        <div class="bigger-text"><p><strong>Product Version: </strong><a href ui-sref="product.version({ productId: detailCtrl.product.id, versionId: version.id })">{{ version.version }}</a></p></div>
+          <accordion-group heading="Milestones">
+          <table class="table table-striped">
+              <tbody>
+                <tr ng-repeat="productmilestone in detailCtrl.versionMilestones | filter: { productVersionId: version.id } | orderBy: '-productmilestone.startingDate'">
+                  <td class="table-data-5-column-even-width bigger-text">
+                      <strong>{{ productmilestone.version }}</strong>
+                  </td>
+                  <td class="table-data-5-column-even-width">
+                      <strong>Phase: </strong> &lt;tbd&gt;
+                  </td>
+                  <td class="table-data-5-column-even-width">
+                      <strong>Starting date: <span class="badge">{{ productmilestone.startingDate | date:'yyyy/MM/dd'}}</span></strong>
+                  </td>
+                  <td class="table-data-5-column-even-width">
+                      <strong>Planned release date: <span class="badge">{{ productmilestone.plannedReleaseDate | date:'yyyy/MM/dd'}}</span></strong>
+                  </td>
+                  <td class="table-data-5-column-even-width">
+                      <strong>Release date: <span class="badge">{{ productmilestone.releaseDate | date:'yyyy/MM/dd'}}</span></strong>
+                  </td>
+                </tr>
+              </tbody>
+          </table>
+	    </accordion-group>
+        <accordion-group heading="Releases">
+          <table class="table table-striped">
+              <tbody>
+                <tr ng-repeat="productrelease in detailCtrl.versionReleases | filter: { productVersionId: version.id } | orderBy: '-productmilestone.releaseDate'">
+                  <td class="table-data-5-column-even-width"><div style="font-size: 14px;"><strong>{{ productrelease.version }}</strong></div></td>
+                  <td class="table-data-5-column-even-width"><strong>Phase: </strong> &lt;tbd&gt;</td>
+                  <td class="table-data-5-column-even-width"><strong>Release date: <span class="badge">{{ productrelease.releaseDate | date:'yyyy/MM/dd'}}</span></strong></td>
+                  <td class="table-data-5-column-even-width"><strong>Released from Milestone: </strong>{{ productrelease.productMilestoneId }}</td>
+                  <td class="table-data-5-column-even-width"><strong>Support Level: </strong>{{ productrelease.supportLevel }}</td>
+                </tr>
+              </tbody>
+          </table>
+	    </accordion-group>
+	</accordion-group>
+  </accordion>
+
 
 </div>
