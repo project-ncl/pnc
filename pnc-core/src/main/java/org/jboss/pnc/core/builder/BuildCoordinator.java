@@ -22,7 +22,6 @@ import org.jboss.pnc.common.util.StreamCollectors;
 import org.jboss.pnc.core.BuildDriverFactory;
 import org.jboss.pnc.core.EnvironmentDriverFactory;
 import org.jboss.pnc.core.RepositoryManagerFactory;
-import org.jboss.pnc.core.content.ContentIdentityManager;
 import org.jboss.pnc.core.exception.BuildProcessException;
 import org.jboss.pnc.core.exception.CoreException;
 import org.jboss.pnc.model.BuildConfiguration;
@@ -43,6 +42,7 @@ import org.jboss.pnc.spi.environment.EnvironmentDriver;
 import org.jboss.pnc.spi.environment.RunningEnvironment;
 import org.jboss.pnc.spi.environment.StartedEnvironment;
 import org.jboss.pnc.spi.environment.exception.EnvironmentDriverException;
+import org.jboss.pnc.spi.events.BuildSetStatusChangedEvent;
 import org.jboss.pnc.spi.events.BuildStatusChangedEvent;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManager;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
@@ -53,7 +53,6 @@ import org.jboss.util.graph.Vertex;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -88,7 +87,7 @@ public class BuildCoordinator {
     private EnvironmentDriverFactory environmentDriverFactory;
     private DatastoreAdapter datastoreAdapter;
     private Event<BuildStatusChangedEvent> buildStatusChangedEventNotifier;
-    private ContentIdentityManager contentIdentityManager;
+    private Event<BuildSetStatusChangedEvent> buildSetStatusChangedEventNotifier;
 
     @Deprecated
     public BuildCoordinator(){} //workaround for CDI constructor parameter injection
@@ -97,27 +96,33 @@ public class BuildCoordinator {
     public BuildCoordinator(BuildDriverFactory buildDriverFactory, RepositoryManagerFactory repositoryManagerFactory,
                             EnvironmentDriverFactory environmentDriverFactory, DatastoreAdapter datastoreAdapter,
                             Event<BuildStatusChangedEvent> buildStatusChangedEventNotifier,
-                            ContentIdentityManager contentIdentityManager) {
+                            Event<BuildSetStatusChangedEvent> buildSetStatusChangedEventNotifier) {
         this.buildDriverFactory = buildDriverFactory;
         this.repositoryManagerFactory = repositoryManagerFactory;
         this.datastoreAdapter = datastoreAdapter;
         this.environmentDriverFactory = environmentDriverFactory;
         this.buildStatusChangedEventNotifier = buildStatusChangedEventNotifier;
-        this.contentIdentityManager = contentIdentityManager;
+        this.buildSetStatusChangedEventNotifier = buildSetStatusChangedEventNotifier;
     }
 
     public BuildTask build(BuildConfiguration buildConfiguration, User userTriggeredBuild) throws CoreException {
         BuildConfigurationSet buildConfigurationSet = new BuildConfigurationSet();
         buildConfigurationSet.setName(buildConfiguration.getName());
         buildConfigurationSet.addBuildConfiguration(buildConfiguration);
-        BuildSetTask buildSetTask = new BuildSetTask(buildConfigurationSet, BuildExecutionType.STANDALONE_BUILD);
+        BuildSetTask buildSetTask = new BuildSetTask(
+                this,
+                buildConfigurationSet,
+                BuildExecutionType.STANDALONE_BUILD);
         build(buildSetTask, userTriggeredBuild);
         BuildTask buildTask = buildSetTask.getBuildTasks().stream().collect(StreamCollectors.singletonCollector());
         return buildTask;
     }
 
     public BuildSetTask build(BuildConfigurationSet buildConfigurationSet, User userTriggeredBuild) throws CoreException {
-        BuildSetTask buildSetTask = new BuildSetTask(buildConfigurationSet, BuildExecutionType.COMPOSED_BUILD);
+        BuildSetTask buildSetTask = new BuildSetTask(
+                this,
+                buildConfigurationSet,
+                BuildExecutionType.COMPOSED_BUILD);
         build(buildSetTask, userTriggeredBuild);
         return buildSetTask;
     }
@@ -396,4 +401,7 @@ public class BuildCoordinator {
         return buildStatusChangedEventNotifier;
     }
 
+    Event<BuildSetStatusChangedEvent> getBuildSetStatusChangedEventNotifier() {
+        return buildSetStatusChangedEventNotifier;
+    }
 }

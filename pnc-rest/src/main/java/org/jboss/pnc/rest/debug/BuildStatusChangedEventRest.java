@@ -30,6 +30,7 @@ public class BuildStatusChangedEventRest implements BuildStatusChangedEvent {
     private BuildStatus newStatus;
     private int buildConfigurationId;
     private BuildExecution buildExecution;
+    private Integer buildTaskId;
 
     public void setOldStatus(BuildStatus oldStatus) {
         this.oldStatus = oldStatus;
@@ -45,6 +46,10 @@ public class BuildStatusChangedEventRest implements BuildStatusChangedEvent {
 
     public void setBuildExecution(BuildExecution buildExecution) {
         this.buildExecution = buildExecution;
+    }
+
+    public void setBuildTaskId(Integer buildTaskId) {
+        this.buildTaskId = buildTaskId;
     }
 
     @Override
@@ -65,5 +70,10 @@ public class BuildStatusChangedEventRest implements BuildStatusChangedEvent {
     @Override
     public BuildExecution getBuildExecution() {
         return buildExecution;
+    }
+
+    @Override
+    public Integer getBuildTaskId() {
+        return buildTaskId;
     }
 }

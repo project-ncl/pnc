@@ -17,10 +17,14 @@
  */
 package org.jboss.pnc.core.builder;
 
+import org.jboss.pnc.core.events.DefaultBuildSetStatusChangedEvent;
 import org.jboss.pnc.model.BuildConfigurationSet;
-import org.jboss.pnc.spi.BuildStatus;
 import org.jboss.pnc.spi.BuildExecutionType;
+import org.jboss.pnc.spi.BuildSetStatus;
+import org.jboss.pnc.spi.events.BuildSetStatusChangedEvent;
+import org.jboss.pnc.spi.events.BuildStatusChangedEvent;
 
+import javax.enterprise.event.Event;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -32,26 +36,42 @@ public class BuildSetTask {
     private BuildConfigurationSet buildConfigurationSet;
 
     private final BuildExecutionType buildTaskType;
+    private Event<BuildSetStatusChangedEvent> buildSetStatusChangedEventNotifier;
 
-    private BuildStatus status;
+    private BuildSetStatus status = BuildSetStatus.NEW;
 
     private String statusDescription;
     private Set<BuildTask> buildTasks = new HashSet<>();
 
-    public BuildSetTask(BuildConfigurationSet buildConfigurationSet, BuildExecutionType buildTaskType) {
+    public BuildSetTask(
+            BuildCoordinator buildCoordinator,
+            BuildConfigurationSet buildConfigurationSet,
+            BuildExecutionType buildTaskType) {
         this.buildConfigurationSet = buildConfigurationSet;
         this.buildTaskType = buildTaskType;
+        this.buildSetStatusChangedEventNotifier = buildCoordinator.getBuildSetStatusChangedEventNotifier();
     }
 
     public BuildConfigurationSet getBuildConfigurationSet() {
         return buildConfigurationSet;
     }
 
-    public void setStatus(BuildStatus status) {
+    void setStatus(BuildSetStatus status) {
+        BuildSetStatus oldStatus = this.status;
         this.status = status;
+        BuildSetStatusChangedEvent buildSetStatusChangedEvent = new DefaultBuildSetStatusChangedEvent(oldStatus, status, getId());
+        buildSetStatusChangedEventNotifier.fire(buildSetStatusChangedEvent);
     }
 
-    public BuildStatus getStatus() {
+    void taskStatusUpdated(BuildStatusChangedEvent buildStatusChangedEvent) {
+        Long completedTasksCount = buildTasks.stream().filter(bt -> bt.getStatus().isCompleted()).count();
+        //check if all tasks are completed
+        if (completedTasksCount.intValue() == buildTasks.size()) {
+            setStatus(BuildSetStatus.DONE);
+        }
+    }
+
+    public BuildSetStatus getStatus() {
         return status;
     }
 

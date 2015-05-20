@@ -37,8 +37,8 @@ public class ReadDependenciesTest extends ProjectBuilder {
     @Test
     public void createDependencyTreeTestCase() {
         TestProjectConfigurationBuilder configurationBuilder = new TestProjectConfigurationBuilder();
-        BuildConfigurationSet buildConfigurationSet = configurationBuilder.buildConfigurationSet();
-        BuildSetTask buildSetTask = new BuildSetTask(buildConfigurationSet, BuildExecutionType.COMPOSED_BUILD);
+        BuildConfigurationSet buildConfigurationSet = configurationBuilder.buildConfigurationSet(1);
+        BuildSetTask buildSetTask = new BuildSetTask(buildCoordinator, buildConfigurationSet, BuildExecutionType.COMPOSED_BUILD);
         User user = null; //TODO user
         BuildTasksTree buildTasksTree = BuildTasksTree.newInstance(buildCoordinator, buildSetTask, user);
 

@@ -83,9 +83,10 @@ public class TestProjectConfigurationBuilder {
         return buildConfiguration;
     }
 
-    public BuildConfigurationSet buildConfigurationSet() {
+    public BuildConfigurationSet buildConfigurationSet(Integer configurationSetId) {
         BuildConfigurationSet buildConfigurationSet = new BuildConfigurationSet();
         buildConfigurationSet.setName("test-build-configuration");
+        buildConfigurationSet.setId(configurationSetId);
         buildConfigurationWithDependencies(buildConfigurationSet);
 
         return buildConfigurationSet;

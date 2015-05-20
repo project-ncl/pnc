@@ -64,8 +64,10 @@ public class BuildTask implements BuildExecution {
     //User who created the tasks
     private User user;
 
+    private BuildSetTask buildSetTask;
+
     BuildTask(BuildCoordinator buildCoordinator, BuildConfiguration buildConfiguration, String topContentId,
-              String buildSetContentId, String buildContentId, BuildExecutionType buildTaskType, User user) {
+              String buildSetContentId, String buildContentId, BuildExecutionType buildTaskType, User user, BuildSetTask buildSetTask) {
         this.buildCoordinator = buildCoordinator;
         this.buildConfiguration = buildConfiguration;
         this.buildTaskType = buildTaskType;
@@ -74,19 +76,22 @@ public class BuildTask implements BuildExecution {
         this.buildSetContentId = buildSetContentId;
         this.buildContentId = buildContentId;
         this.user = user;
+        this.buildSetTask = buildSetTask;
 
         this.startTime = System.currentTimeMillis();
         waiting = new HashSet<>();
     }
 
     public void setStatus(BuildStatus status) {
-        BuildStatusChangedEvent buildStatusChanged = new DefaultBuildStatusChangedEvent(this.status, status, buildConfiguration.getId(), this);
+        BuildStatus oldStatus = this.status;
+        this.status = status;
+        BuildStatusChangedEvent buildStatusChanged = new DefaultBuildStatusChangedEvent(oldStatus, status, buildConfiguration.getId(), this);
         log.debug("Updating build task {} status to {}", this.getId(), buildStatusChanged);
+        buildSetTask.taskStatusUpdated(buildStatusChanged);
         buildStatusChangedEvent.fire(buildStatusChanged);
         if (status.equals(BuildStatus.DONE)) {
             waiting.forEach((submittedBuild) -> submittedBuild.requiredBuildCompleted(this));
         }
-        this.status = status;
     }
 
     void setRequiredBuilds(List<BuildTask> requiredBuilds) {
@@ -168,7 +173,7 @@ public class BuildTask implements BuildExecution {
 
 
     public Integer getId() {
-        return buildConfiguration.getId();
+        return buildConfiguration.getId(); //TODO do not use BC
     }
 
     public String getBuildLog() {

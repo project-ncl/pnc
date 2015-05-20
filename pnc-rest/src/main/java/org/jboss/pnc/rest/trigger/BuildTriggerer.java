@@ -29,12 +29,19 @@ import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.BuildRecordSet;
 import org.jboss.pnc.model.ProductVersion;
 import org.jboss.pnc.model.User;
+import org.jboss.pnc.core.notifications.buildSetTask.BuildSetCallBack;
+import org.jboss.pnc.core.notifications.buildSetTask.BuildSetStatusNotifications;
+import org.jboss.pnc.core.notifications.buildTask.BuildCallBack;
+import org.jboss.pnc.core.notifications.buildTask.BuildStatusNotifications;
 import org.jboss.pnc.spi.BuildSetStatus;
 import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
+import org.jboss.pnc.spi.events.BuildSetStatusChangedEvent;
+import org.jboss.pnc.spi.events.BuildStatusChangedEvent;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerException;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
+import java.net.URL;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -45,6 +52,8 @@ public class BuildTriggerer {
     private BuildConfigurationRepository buildConfigurationRepository;
     private BuildConfigurationAuditedRepository buildConfigurationAuditedRepository;
     private BuildConfigurationSetRepository buildConfigurationSetRepository;
+    private BuildSetStatusNotifications buildSetStatusNotifications;
+    private BuildStatusNotifications buildStatusNotifications;
 
     @Deprecated //not meant for usage its only to make CDI happy
     public BuildTriggerer() {
@@ -52,13 +61,28 @@ public class BuildTriggerer {
 
     @Inject
     public BuildTriggerer(final BuildCoordinator buildCoordinator,
-            final BuildConfigurationRepository buildConfigurationRepository,
-            final BuildConfigurationAuditedRepository buildConfigurationAuditedRepository,
-            final BuildConfigurationSetRepository buildConfigurationSetRepository) {
+                          final BuildConfigurationRepository buildConfigurationRepository,
+                          final BuildConfigurationAuditedRepository buildConfigurationAuditedRepository,
+                          final BuildConfigurationSetRepository buildConfigurationSetRepository, BuildSetStatusNotifications buildSetStatusNotifications, BuildStatusNotifications buildStatusNotifications) {
         this.buildCoordinator = buildCoordinator;
         this.buildConfigurationRepository = buildConfigurationRepository;
         this.buildConfigurationAuditedRepository = buildConfigurationAuditedRepository;
         this.buildConfigurationSetRepository= buildConfigurationSetRepository;
+        this.buildSetStatusNotifications = buildSetStatusNotifications;
+        this.buildStatusNotifications = buildStatusNotifications;
+    }
+
+    public int triggerBuilds( final Integer buildConfigurationId, User currentUser, URL callBackUrl)
+            throws InterruptedException, CoreException, BuildDriverException, RepositoryManagerException
+    {
+        Consumer<BuildStatusChangedEvent> onStatusUpdate = (statusChangedEvent) -> {
+            //TODO call-back JBPM engine to notify completion
+            //callBackUrl.toString() + "&newStatus=" + statusEvent.getNewStatus();
+        };
+
+        int buildTaskId = triggerBuilds(buildConfigurationId, currentUser);
+        buildStatusNotifications.subscribe(new BuildCallBack(buildTaskId, onStatusUpdate));
+        return buildTaskId;
     }
 
     public int triggerBuilds( final Integer configurationId, User currentUser )
@@ -75,11 +99,21 @@ public class BuildTriggerer {
             buildRecordSet.setProductMilestone(productVersion.getCurrentProductMilestone());
         }
 
-        Consumer<BuildSetStatus> onComplete = (status) -> {
+        Integer taskId = buildCoordinator.build(configuration, currentUser).getBuildConfiguration().getId();
+        return taskId;
+    }
+
+    public int triggerBuildConfigurationSet( final Integer buildConfigurationSetId, User currentUser, URL callBackUrl)
+        throws InterruptedException, CoreException, BuildDriverException, RepositoryManagerException
+    {
+        Consumer<BuildSetStatusChangedEvent> onStatusUpdate = (statusChangedEvent) -> {
             //TODO call-back JBPM engine to notify completion
+            //callBackUrl.toString() + "&newStatus=" + statusEvent.getNewStatus();
         };
 
-        return buildCoordinator.build(configuration, currentUser).getBuildConfiguration().getId();
+        int buildSetTaskId = triggerBuildConfigurationSet(buildConfigurationSetId, currentUser);
+        buildSetStatusNotifications.subscribe(new BuildSetCallBack(buildSetTaskId, onStatusUpdate));
+        return buildSetTaskId;
     }
 
     public int triggerBuildConfigurationSet( final Integer buildConfigurationSetId, User currentUser )

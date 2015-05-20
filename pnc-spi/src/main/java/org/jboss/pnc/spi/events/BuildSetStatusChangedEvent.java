@@ -17,15 +17,15 @@
  */
 package org.jboss.pnc.spi.events;
 
-import org.jboss.pnc.spi.BuildExecution;
-import org.jboss.pnc.spi.BuildStatus;
+import org.jboss.pnc.spi.BuildSetStatus;
 
-public interface BuildStatusChangedEvent {
+/**
+ * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
+ */
+public interface BuildSetStatusChangedEvent {
 
-    BuildStatus getOldStatus();
-    BuildStatus getNewStatus();
-    Integer getBuildConfigurationId();
-    BuildExecution getBuildExecution();
+    BuildSetStatus getOldStatus();
+    BuildSetStatus getNewStatus();
+    Integer getBuildSetTaskId();
 
-    Integer getBuildTaskId();
 }

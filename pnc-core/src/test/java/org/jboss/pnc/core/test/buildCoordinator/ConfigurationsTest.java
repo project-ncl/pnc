@@ -26,6 +26,7 @@ import org.jboss.pnc.core.test.configurationBuilders.TestProjectConfigurationBui
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.User;
+import org.jboss.pnc.spi.BuildSetStatus;
 import org.jboss.pnc.spi.BuildStatus;
 import org.junit.Assert;
 import org.junit.Test;
@@ -66,7 +67,7 @@ public class ConfigurationsTest extends ProjectBuilder {
         User user = null;
 
         BuildSetTask buildSetTask = buildCoordinator.build(buildConfigurationSet, user);
-        Assert.assertEquals(BuildStatus.REJECTED, buildSetTask.getStatus());
+        Assert.assertEquals(BuildSetStatus.REJECTED, buildSetTask.getStatus());
         Assert.assertTrue("Invalid status description: " + buildSetTask.getStatusDescription(), buildSetTask.getStatusDescription().contains("Cycle dependencies found"));
     }
 

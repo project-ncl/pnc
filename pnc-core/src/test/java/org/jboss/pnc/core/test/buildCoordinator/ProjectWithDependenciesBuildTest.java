@@ -37,7 +37,7 @@ public class ProjectWithDependenciesBuildTest extends ProjectBuilder {
     @InSequence(10)
     public void buildProjectTestCase() throws Exception {
         TestProjectConfigurationBuilder configurationBuilder = new TestProjectConfigurationBuilder();
-        buildProjects(configurationBuilder.buildConfigurationSet());
+        buildProjects(configurationBuilder.buildConfigurationSet(1));
     }
 
     @Test

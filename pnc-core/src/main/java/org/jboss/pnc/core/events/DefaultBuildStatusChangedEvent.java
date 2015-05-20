@@ -37,6 +37,11 @@ public class DefaultBuildStatusChangedEvent implements BuildStatusChangedEvent {
     }
 
     @Override
+    public Integer getBuildTaskId() {
+        return buildConfigurationId; //TODO update to use unique taskId
+    }
+
+    @Override
     public BuildStatus getOldStatus() {
         return oldStatus;
     }
