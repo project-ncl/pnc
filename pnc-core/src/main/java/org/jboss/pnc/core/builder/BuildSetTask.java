@@ -42,14 +42,17 @@ public class BuildSetTask {
 
     private String statusDescription;
     private Set<BuildTask> buildTasks = new HashSet<>();
+    private int buildSetTaskId;
 
     public BuildSetTask(
             BuildCoordinator buildCoordinator,
             BuildConfigurationSet buildConfigurationSet,
-            BuildExecutionType buildTaskType) {
+            BuildExecutionType buildTaskType,
+            BuildTaskSetIdSupplier buildTaskSetIdSupplier) {
         this.buildConfigurationSet = buildConfigurationSet;
         this.buildTaskType = buildTaskType;
         this.buildSetStatusChangedEventNotifier = buildCoordinator.getBuildSetStatusChangedEventNotifier();
+        buildSetTaskId = buildTaskSetIdSupplier.get();
     }
 
     public BuildConfigurationSet getBuildConfigurationSet() {
@@ -92,7 +95,7 @@ public class BuildSetTask {
     }
 
     public Integer getId() {
-        return buildConfigurationSet.getId();
+        return buildSetTaskId;
     }
 
     public BuildExecutionType getBuildTaskType() {

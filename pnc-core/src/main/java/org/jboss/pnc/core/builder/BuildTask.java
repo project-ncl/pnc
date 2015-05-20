@@ -40,6 +40,8 @@ public class BuildTask implements BuildExecution {
 
     public static final Logger log = LoggerFactory.getLogger(BuildTask.class);
 
+    private int buildTaskId;
+
     public BuildConfiguration buildConfiguration;
     private BuildExecutionType buildTaskType;
     BuildStatus status = BuildStatus.NEW;
@@ -67,7 +69,12 @@ public class BuildTask implements BuildExecution {
     private BuildSetTask buildSetTask;
 
     BuildTask(BuildCoordinator buildCoordinator, BuildConfiguration buildConfiguration, String topContentId,
-              String buildSetContentId, String buildContentId, BuildExecutionType buildTaskType, User user, BuildSetTask buildSetTask) {
+              String buildSetContentId,
+              String buildContentId, 
+              BuildExecutionType buildTaskType, 
+              User user, 
+              BuildSetTask buildSetTask,
+              BuildTaskIdSupplier buildTaskIdSupplier) {
         this.buildCoordinator = buildCoordinator;
         this.buildConfiguration = buildConfiguration;
         this.buildTaskType = buildTaskType;
@@ -77,6 +84,7 @@ public class BuildTask implements BuildExecution {
         this.buildContentId = buildContentId;
         this.user = user;
         this.buildSetTask = buildSetTask;
+        this.buildTaskId = buildTaskIdSupplier.get();
 
         this.startTime = System.currentTimeMillis();
         waiting = new HashSet<>();
@@ -173,7 +181,7 @@ public class BuildTask implements BuildExecution {
 
 
     public Integer getId() {
-        return buildConfiguration.getId(); //TODO do not use BC
+        return buildTaskId;
     }
 
     public String getBuildLog() {
@@ -195,5 +203,10 @@ public class BuildTask implements BuildExecution {
 
     public User getUser() {
         return user;
+    }
+
+    @Override
+    public String toString() {
+        return "id :" + buildTaskId + " " + buildConfiguration + " " + status;
     }
 }

@@ -25,6 +25,7 @@ import javax.enterprise.context.ApplicationScoped;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Logger;
 
 /**
@@ -36,6 +37,10 @@ public class DatastoreMock implements Datastore {
     private Logger log = Logger.getLogger(DatastoreMock.class.getName());
 
     private List<BuildRecord> buildRecords = Collections.synchronizedList(new ArrayList<BuildRecord>());
+
+    static AtomicInteger buildRecordSequence = new AtomicInteger(0);
+    static AtomicInteger buildRecordSetSequence = new AtomicInteger(0);
+
 
     @Override
     public void storeCompletedBuild(BuildRecord buildRecord) {
@@ -56,5 +61,15 @@ public class DatastoreMock implements Datastore {
 
     @Override
     public void createNewUser(User user) {
+    }
+
+    @Override
+    public int getNextBuildRecordId() {
+        return buildRecordSequence.incrementAndGet();
+    }
+
+    @Override
+    public int getNextBuildRecordSetId() {
+        return buildRecordSetSequence.incrementAndGet();
     }
 }

@@ -30,4 +30,8 @@ public interface Datastore {
     User retrieveUserByUsername(String username);
     
     void createNewUser(User user);
+
+    int getNextBuildRecordId();
+
+    int getNextBuildRecordSetId();
 }

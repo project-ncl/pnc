@@ -84,7 +84,7 @@ public class ProjectBuilder {
     }
 
     void buildProject(BuildConfiguration buildConfiguration) throws InterruptedException, CoreException {
-        log.info("Building project {}", buildConfiguration.getName());
+        log.debug("Building project {}", buildConfiguration.getName());
         List<BuildStatusChangedEvent> receivedStatuses = new CopyOnWriteArrayList<>();
 
         //Defines a number of callbacks, which are executed after buildStatus update
@@ -93,6 +93,7 @@ public class ProjectBuilder {
 
         User user = null;
         BuildTask buildTask = buildCoordinator.build(buildConfiguration, user);
+        log.info("Started build task {}", buildTask);
 
         assertBuildStartedSuccessfully(buildTask);
         waitForStatusUpdates(N_STATUS_UPDATES, semaphore);
@@ -173,7 +174,7 @@ public class ProjectBuilder {
     private void assertStatusUpdateReceived(List<BuildStatusChangedEvent> receivedStatusEvents, BuildStatus status, Integer configurationId) {
         boolean received = false;
         for (BuildStatusChangedEvent receivedStatusEvent : receivedStatusEvents) {
-            if (receivedStatusEvent.getBuildConfigurationId().equals(configurationId) &&
+            if (receivedStatusEvent.getBuildTaskId().equals(configurationId) &&
                     receivedStatusEvent.getNewStatus().equals(status)) {
                 received = true;
                 break;

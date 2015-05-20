@@ -34,6 +34,7 @@ import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -117,7 +118,6 @@ public class StatusUpdatesTest {
     @InSequence(30)
     public void BuildTaskCallbacksShouldBeCalled() {
         Set<BuildTask> buildTasks = initializeBuildTask().getBuildTasks();
-        buildTasks.forEach((bt) -> bt.setStatus(BuildStatus.DONE));
         Set<Integer> tasksIds = buildTasks.stream().map((buildTask -> buildTask.getId())).collect(Collectors.toSet());
 
         Set<Integer> receivedUpdatesForId = new HashSet<>();
@@ -141,8 +141,6 @@ public class StatusUpdatesTest {
     public void BuildSetTaskCallbacksShouldBeCalled() {
         BuildSetTask buildSetTask = initializeBuildTask();
         Set<BuildTask> buildTasks = buildSetTask.getBuildTasks();
-        buildTasks.forEach((bt) -> bt.setStatus(BuildStatus.DONE));
-        Set<Integer> tasksIds = buildTasks.stream().map((buildTask -> buildTask.getId())).collect(Collectors.toSet());
 
         ObjectWrapper<BuildSetStatusChangedEvent> buildSetStatusChangedEvent = new ObjectWrapper<>();
         Consumer<BuildSetStatusChangedEvent> statusChangeEventConsumer = (statusChangedEvent) -> {
@@ -157,10 +155,18 @@ public class StatusUpdatesTest {
         Assert.assertEquals("Did not receive status update to DONE for task set.", BuildSetStatus.DONE, buildSetStatusChangedEvent.get().getNewStatus());
     }
 
+    AtomicInteger buildTaskSetIdSupplier = new AtomicInteger(0);
+    AtomicInteger buildTaskIdSupplier = new AtomicInteger(0);
+
     private BuildSetTask initializeBuildTask() {
         BuildConfigurationSet buildConfigurationSet = new TestProjectConfigurationBuilder().buildConfigurationSet(1);
-        BuildSetTask buildSetTask = new BuildSetTask(buildCoordinator, buildConfigurationSet, BuildExecutionType.COMPOSED_BUILD);
-        BuildTasksTree.newInstance(buildCoordinator, buildSetTask, null);
+
+        BuildSetTask buildSetTask = new BuildSetTask(
+                buildCoordinator,
+                buildConfigurationSet,
+                BuildExecutionType.COMPOSED_BUILD,
+                () -> buildTaskSetIdSupplier.incrementAndGet());
+        BuildTasksTree.newInstance(buildCoordinator, buildSetTask, null, () -> buildTaskIdSupplier.incrementAndGet());
 
         return buildSetTask;
     }

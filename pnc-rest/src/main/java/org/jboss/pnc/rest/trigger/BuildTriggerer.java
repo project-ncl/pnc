@@ -20,6 +20,10 @@ package org.jboss.pnc.rest.trigger;
 import com.google.common.base.Preconditions;
 import org.jboss.pnc.core.builder.BuildCoordinator;
 import org.jboss.pnc.core.exception.CoreException;
+import org.jboss.pnc.core.notifications.buildSetTask.BuildSetCallBack;
+import org.jboss.pnc.core.notifications.buildSetTask.BuildSetStatusNotifications;
+import org.jboss.pnc.core.notifications.buildTask.BuildCallBack;
+import org.jboss.pnc.core.notifications.buildTask.BuildStatusNotifications;
 import org.jboss.pnc.datastore.repositories.BuildConfigurationAuditedRepository;
 import org.jboss.pnc.datastore.repositories.BuildConfigurationRepository;
 import org.jboss.pnc.datastore.repositories.BuildConfigurationSetRepository;
@@ -29,11 +33,6 @@ import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.BuildRecordSet;
 import org.jboss.pnc.model.ProductVersion;
 import org.jboss.pnc.model.User;
-import org.jboss.pnc.core.notifications.buildSetTask.BuildSetCallBack;
-import org.jboss.pnc.core.notifications.buildSetTask.BuildSetStatusNotifications;
-import org.jboss.pnc.core.notifications.buildTask.BuildCallBack;
-import org.jboss.pnc.core.notifications.buildTask.BuildStatusNotifications;
-import org.jboss.pnc.spi.BuildSetStatus;
 import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
 import org.jboss.pnc.spi.events.BuildSetStatusChangedEvent;
 import org.jboss.pnc.spi.events.BuildStatusChangedEvent;
@@ -63,7 +62,9 @@ public class BuildTriggerer {
     public BuildTriggerer(final BuildCoordinator buildCoordinator,
                           final BuildConfigurationRepository buildConfigurationRepository,
                           final BuildConfigurationAuditedRepository buildConfigurationAuditedRepository,
-                          final BuildConfigurationSetRepository buildConfigurationSetRepository, BuildSetStatusNotifications buildSetStatusNotifications, BuildStatusNotifications buildStatusNotifications) {
+                          final BuildConfigurationSetRepository buildConfigurationSetRepository,
+                          BuildSetStatusNotifications buildSetStatusNotifications,
+                          BuildStatusNotifications buildStatusNotifications) {
         this.buildCoordinator = buildCoordinator;
         this.buildConfigurationRepository = buildConfigurationRepository;
         this.buildConfigurationAuditedRepository = buildConfigurationAuditedRepository;
@@ -103,7 +104,7 @@ public class BuildTriggerer {
         return taskId;
     }
 
-    public int triggerBuildConfigurationSet( final Integer buildConfigurationSetId, User currentUser, URL callBackUrl)
+    public int triggerBuildConfigurationSet( final Integer buildConfigurationSetId, User currentUser, URL callbackUrl)
         throws InterruptedException, CoreException, BuildDriverException, RepositoryManagerException
     {
         Consumer<BuildSetStatusChangedEvent> onStatusUpdate = (statusChangedEvent) -> {
@@ -125,10 +126,6 @@ public class BuildTriggerer {
         for (BuildConfiguration config : buildConfigurationSet.getBuildConfigurations()) {
             config.setBuildConfigurationAudited(this.getLatestAuditedBuildConfiguration(config.getId()));
         }
-
-        Consumer<BuildSetStatus> onComplete = (status) -> {
-            //TODO call-back JBPM engine to notify completion
-        };
 
         return buildCoordinator.build(buildConfigurationSet, currentUser).getId();
     }

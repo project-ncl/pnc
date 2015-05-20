@@ -36,6 +36,7 @@ import org.jboss.pnc.spi.builddriver.BuildDriverResult;
 import org.jboss.pnc.spi.builddriver.BuildDriverStatus;
 import org.jboss.pnc.spi.builddriver.CompletedBuild;
 import org.jboss.pnc.spi.builddriver.RunningBuild;
+import org.jboss.pnc.spi.datastore.Datastore;
 import org.jboss.pnc.spi.datastore.DatastoreException;
 import org.jboss.pnc.spi.environment.DestroyableEnvironmnet;
 import org.jboss.pnc.spi.environment.EnvironmentDriver;
@@ -88,6 +89,7 @@ public class BuildCoordinator {
     private DatastoreAdapter datastoreAdapter;
     private Event<BuildStatusChangedEvent> buildStatusChangedEventNotifier;
     private Event<BuildSetStatusChangedEvent> buildSetStatusChangedEventNotifier;
+    private Datastore datastore;
 
     @Deprecated
     public BuildCoordinator(){} //workaround for CDI constructor parameter injection
@@ -96,13 +98,15 @@ public class BuildCoordinator {
     public BuildCoordinator(BuildDriverFactory buildDriverFactory, RepositoryManagerFactory repositoryManagerFactory,
                             EnvironmentDriverFactory environmentDriverFactory, DatastoreAdapter datastoreAdapter,
                             Event<BuildStatusChangedEvent> buildStatusChangedEventNotifier,
-                            Event<BuildSetStatusChangedEvent> buildSetStatusChangedEventNotifier) {
+                            Event<BuildSetStatusChangedEvent> buildSetStatusChangedEventNotifier,
+                            Datastore datastore) {
         this.buildDriverFactory = buildDriverFactory;
         this.repositoryManagerFactory = repositoryManagerFactory;
         this.datastoreAdapter = datastoreAdapter;
         this.environmentDriverFactory = environmentDriverFactory;
         this.buildStatusChangedEventNotifier = buildStatusChangedEventNotifier;
         this.buildSetStatusChangedEventNotifier = buildSetStatusChangedEventNotifier;
+        this.datastore = datastore;
     }
 
     public BuildTask build(BuildConfiguration buildConfiguration, User userTriggeredBuild) throws CoreException {
@@ -112,7 +116,8 @@ public class BuildCoordinator {
         BuildSetTask buildSetTask = new BuildSetTask(
                 this,
                 buildConfigurationSet,
-                BuildExecutionType.STANDALONE_BUILD);
+                BuildExecutionType.STANDALONE_BUILD,
+                () -> datastore.getNextBuildRecordSetId());
         build(buildSetTask, userTriggeredBuild);
         BuildTask buildTask = buildSetTask.getBuildTasks().stream().collect(StreamCollectors.singletonCollector());
         return buildTask;
@@ -122,14 +127,19 @@ public class BuildCoordinator {
         BuildSetTask buildSetTask = new BuildSetTask(
                 this,
                 buildConfigurationSet,
-                BuildExecutionType.COMPOSED_BUILD);
+                BuildExecutionType.COMPOSED_BUILD,
+                () -> datastore.getNextBuildRecordSetId());
         build(buildSetTask, userTriggeredBuild);
         return buildSetTask;
     }
 
     private void build(BuildSetTask buildSetTask, User userTriggeredBuild) throws CoreException {
 
-        BuildTasksTree buildTasksTree = BuildTasksTree.newInstance(this, buildSetTask, userTriggeredBuild);
+        BuildTasksTree buildTasksTree = BuildTasksTree.newInstance(
+                this,
+                buildSetTask,
+                userTriggeredBuild,
+                () -> datastore.getNextBuildRecordId());
 
         Predicate<Vertex<BuildTask>> acceptOnlyStatus = (vertex) -> {
             BuildTask build = vertex.getData();

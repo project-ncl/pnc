@@ -63,11 +63,6 @@ public class BuildStatusChangedEventRest implements BuildStatusChangedEvent {
     }
 
     @Override
-    public Integer getBuildConfigurationId() {
-        return buildConfigurationId;
-    }
-
-    @Override
     public BuildExecution getBuildExecution() {
         return buildExecution;
     }

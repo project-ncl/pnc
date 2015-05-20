@@ -51,7 +51,11 @@ public class BuildTasksTree {
      * @param buildSetTask
      * @return
      */
-    public static BuildTasksTree newInstance(BuildCoordinator buildCoordinator, BuildSetTask buildSetTask, User user) {
+    public static BuildTasksTree newInstance(
+            BuildCoordinator buildCoordinator,
+            BuildSetTask buildSetTask,
+            User user,
+            BuildTaskIdSupplier buildTaskIdSupplier) {
         ContentIdentityManager contentIdentityManager = new ContentIdentityManager();
 
         BuildConfigurationSet buildConfigurationSet = buildSetTask.getBuildConfigurationSet();
@@ -61,7 +65,7 @@ public class BuildTasksTree {
         String topContentId = contentIdentityManager.getProductContentId(buildConfigurationSet.getProductVersion());
         String buildSetContentId = contentIdentityManager.getBuildSetContentId(buildConfigurationSet);
 
-        instance.buildTree(buildSetTask, buildCoordinator, topContentId, buildSetContentId, user);
+        instance.buildTree(buildSetTask, buildCoordinator, topContentId, buildSetContentId, user, buildTaskIdSupplier);
 
         Edge<BuildTask>[] cycles = instance.tree.findCycles();
         if (cycles.length > 0) {
@@ -76,10 +80,11 @@ public class BuildTasksTree {
     }
 
     private void buildTree(BuildSetTask buildSetTask,
-            BuildCoordinator buildCoordinator,
-            String topContentId,
-            String buildSetContentId,
-            User user) {
+                           BuildCoordinator buildCoordinator,
+                           String topContentId,
+                           String buildSetContentId,
+                           User user,
+                           BuildTaskIdSupplier buildTaskIdSupplier) {
         BuildConfigurationSet buildConfigurationSet = buildSetTask.getBuildConfigurationSet();
 
         Set<PotentialDependency> potentialDependencies = new HashSet<>();
@@ -91,7 +96,9 @@ public class BuildTasksTree {
                     topContentId,
                     buildSetContentId,
                     buildSetTask.getBuildTaskType(),
-                    user, buildSetTask))
+                    user,
+                    buildSetTask,
+                    buildTaskIdSupplier))
             .forEach(buildTask -> buildSetTask.addBuildTask(buildTask));
     }
 
@@ -101,7 +108,9 @@ public class BuildTasksTree {
                                 String topContentId,
                                 String buildSetContentId,
                                 BuildExecutionType buildTaskType,
-                                User user, BuildSetTask buildSetTask) {
+                                User user,
+                                BuildSetTask buildSetTask,
+                                BuildTaskIdSupplier buildTaskIdSupplier) {
 
         ContentIdentityManager contentIdentityManager = new ContentIdentityManager();
         Vertex<BuildTask> buildVertex = getVertexByBuildConfiguration(buildConfiguration);
@@ -114,7 +123,9 @@ public class BuildTasksTree {
                     buildSetContentId,
                     buildContentId,
                     buildTaskType,
-                    user, buildSetTask);
+                    user,
+                    buildSetTask,
+                    buildTaskIdSupplier);
 
             Vertex<BuildTask> vertex = new Vertex(buildTask.getId().toString(), buildTask);
             tree.addVertex(vertex);

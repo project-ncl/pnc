@@ -25,20 +25,20 @@ public class DefaultBuildStatusChangedEvent implements BuildStatusChangedEvent {
 
     private final BuildStatus oldStatus;
     private final BuildStatus newStatus;
-    private final int buildConfigurationId;
+    private final int buildTaskId;
     private final BuildExecution buildExecution;
 
-    public DefaultBuildStatusChangedEvent(BuildStatus oldStatus, BuildStatus newStatus, int buildConfigurationId,
+    public DefaultBuildStatusChangedEvent(BuildStatus oldStatus, BuildStatus newStatus, int buildTaskId,
             BuildExecution execution) {
         this.oldStatus = oldStatus;
         this.newStatus = newStatus;
-        this.buildConfigurationId = buildConfigurationId;
+        this.buildTaskId = buildTaskId;
         this.buildExecution = execution;
     }
 
     @Override
     public Integer getBuildTaskId() {
-        return buildConfigurationId; //TODO update to use unique taskId
+        return buildTaskId;
     }
 
     @Override
@@ -52,11 +52,6 @@ public class DefaultBuildStatusChangedEvent implements BuildStatusChangedEvent {
     }
 
     @Override
-    public Integer getBuildConfigurationId() {
-        return buildConfigurationId;
-    }
-
-    @Override
     public BuildExecution getBuildExecution() {
         return buildExecution;
     }
@@ -65,7 +60,7 @@ public class DefaultBuildStatusChangedEvent implements BuildStatusChangedEvent {
         return "DefaultBuildStatusChangedEvent{" +
                 "oldStatus=" + oldStatus +
                 ", newStatus=" + newStatus +
-                ", buildConfigurationId=" + buildConfigurationId +
+                ", buildTaskId=" + buildTaskId +
                 '}';
     }
 

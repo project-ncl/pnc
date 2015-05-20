@@ -36,7 +36,7 @@ public class TestCDIBuildStatusChangedReceiver {
         listeners.add(listener);
     }
 
-    public void collectEvent(@Observes BuildStatusChangedEvent buildStatusChangedEvent) {
+    synchronized public void collectEvent(@Observes BuildStatusChangedEvent buildStatusChangedEvent) {
         listeners.stream().forEach(listener -> listener.accept(buildStatusChangedEvent));
     }
 
