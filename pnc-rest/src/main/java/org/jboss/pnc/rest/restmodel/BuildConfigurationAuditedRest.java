@@ -41,8 +41,6 @@ public class BuildConfigurationAuditedRest {
 
     private String scmRevision;
 
-    private String patchesUrl;
-
     private Timestamp creationTime;
 
     private Timestamp lastModificationTime;
@@ -64,7 +62,6 @@ public class BuildConfigurationAuditedRest {
         this.buildScript = buildConfigurationAudited.getBuildScript();
         this.scmRepoURL = buildConfigurationAudited.getScmRepoURL();
         this.scmRevision = buildConfigurationAudited.getScmRevision();
-        this.patchesUrl = buildConfigurationAudited.getPatchesUrl();
         performIfNotNull(buildConfigurationAudited.getProject() != null, () -> this.projectId = buildConfigurationAudited.getProject()
                 .getId());
         performIfNotNull(buildConfigurationAudited.getEnvironment() != null, () -> this.environmentId = buildConfigurationAudited.getEnvironment().getId());
@@ -124,14 +121,6 @@ public class BuildConfigurationAuditedRest {
 
     public void setScmRevision(String scmRevision) {
         this.scmRevision = scmRevision;
-    }
-
-    public String getPatchesUrl() {
-        return patchesUrl;
-    }
-
-    public void setPatchesUrl(String patchesUrl) {
-        this.patchesUrl = patchesUrl;
     }
 
     public Timestamp getCreationTime() {
