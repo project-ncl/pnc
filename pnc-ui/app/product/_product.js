@@ -71,8 +71,8 @@
           .$promise;
         },
         productVersions: function(restClient, productDetail) {
-          return restClient.Version.query({ productId: productDetail.id });
-        }
+          return restClient.Version.query({ productId: productDetail.id }).$promise;
+        },
       }
     });
     
@@ -98,6 +98,11 @@
         },
         buildConfigurationSets: function(restClient, $stateParams) {
           return restClient.Version.getAllBuildConfigurationSets({
+            productId: $stateParams.productId,
+            versionId: $stateParams.versionId }).$promise;
+        },
+        buildConfigurations: function(restClient, $stateParams) {
+          return restClient.Configuration.getAllForProductVersion({
             productId: $stateParams.productId,
             versionId: $stateParams.versionId }).$promise;
         },

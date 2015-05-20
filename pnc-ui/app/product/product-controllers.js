@@ -32,8 +32,12 @@
   ]);
 
   module.controller('ProductDetailController', [
-    '$log', 'productDetail', 'productVersions', 'Notifications',
-    function ($log, productDetail, productVersions, Notifications) {
+    '$log',
+    'productDetail',
+    'productVersions',
+    'Notifications',
+    'PncRestClient',
+    function ($log, productDetail, productVersions, Notifications, PncRestClient) {
 
       var that = this;
       that.product = productDetail;
@@ -56,6 +60,68 @@
           }
         );
       };
+
+      // Build wrapper objects
+      that.versionMilestones = [];
+      that.versionReleases = [];
+
+      // Retrieve all the artifacts of all the build records of the build configurations set
+      angular.forEach(that.versions, function(version){
+
+          PncRestClient.Milestone.getAllForProductVersion({
+              versionId: version.id
+          }).$promise.then(
+            function (results) {
+               angular.forEach(results, function(result){
+                 that.versionMilestones.push(result);
+               });
+            }
+          );
+
+          PncRestClient.Release.getAllForProductVersion({
+              versionId: version.id
+          }).$promise.then(
+            function (results) {
+               angular.forEach(results, function(result){
+                 that.versionReleases.push(result);
+               });
+            }
+          );
+      });
+
+      that.getMilestoneTooltip = function(milestone) {
+        var sDate = '';
+        var prDate = '';
+        var rDate = '';
+        if (milestone.startingDate) {
+          sDate = milestone.startingDate;
+        }
+        if (milestone.plannedReleaseDate) {
+          prDate = milestone.plannedReleaseDate;
+        }
+        if (milestone.releaseDate) {
+          rDate = milestone.releaseDate;
+        }
+        var milestoneTooltip = '<strong>'+milestone.version+'</strong>'
+          +'<br><br><strong>Phase: </strong> &lt;tbd&gt; <br>'
+          +'<strong>Starting date: </strong>'+sDate+'<br>'
+          +'<strong>Planned release date: </strong>'+prDate+'<br>'
+          +'<strong>Release date: </strong>'+rDate+'<br>';
+        return milestoneTooltip;
+      };
+
+      that.getReleaseTooltip = function(release) {
+        var rDate = '';
+        if (release.releaseDate) {
+          rDate = release.releaseDate;
+        }
+        var releaseTooltip = '<strong>'+release.version+'</strong>'
+          +'<br><br><strong>Phase: </strong> &lt;tbd&gt; <br>'
+          +'<strong>Release date: </strong>'+rDate+'<br>'
+          +'<strong>Released from Milestone: </strong>'+release.productMilestoneId+'<br>'
+          +'<strong>Support Level: </strong>'+release.supportLevel+'<br>';
+        return releaseTooltip;
+      };
     }
   ]);
 
@@ -65,10 +131,12 @@
     'productDetail',
     'versionDetail',
     'buildConfigurationSets',
+    'buildConfigurations',
     'productReleases',
     'productMilestones',
     'Notifications',
-    function ($log, $state, productDetail, versionDetail, buildConfigurationSets, productReleases, productMilestones, Notifications) {
+    'PncRestClient',
+    function ($log, $state, productDetail, versionDetail, buildConfigurationSets, buildConfigurations, productReleases, productMilestones, Notifications, PncRestClient) {
       $log.debug('VersionDetailController >> this=%O, productDetail=%O, ' +
                  'versionDetail=%O, buildConfigurationSets=%0', this, productDetail, versionDetail, buildConfigurationSets);
 
@@ -76,6 +144,7 @@
       that.product = productDetail;
       that.version = versionDetail;
       that.buildconfigurationsets = buildConfigurationSets;
+      that.buildconfigurations = buildConfigurations;
       that.productreleases = productReleases;
       that.productmilestones = productMilestones;
 
@@ -102,6 +171,48 @@
           productId: productDetail.id,
           productVersionId: versionDetail.id
         });
+      };
+
+      // Executing a build of a configurationSet
+      that.buildConfigSet = function(configSet) {
+        $log.debug('**Initiating build of SET: %s**', configSet.name);
+
+        PncRestClient.ConfigurationSet.build({
+          configurationSetId: configSet.id }, {}).$promise.then(
+            function(result) {
+              $log.debug('Initiated Build: %O, result: %O', configSet,
+                         result);
+              Notifications.success('Initiated build of Configuration Set: ' +
+                                    configSet.name);
+            },
+            function(response) {
+              $log.error('Failed to initiated build: %O, response: %O',
+                         configSet, response);
+              Notifications.error('Could not initiate build of Configuration Set: ' +
+                                    configSet.name);
+            }
+        );
+      };
+
+      // Executing a build of a configuration
+      that.buildConfig = function(config) {
+        $log.debug('**Initiating build of: %O', config.name);
+
+        PncRestClient.Configuration.build({
+          configurationId: config.id }, {}).$promise.then(
+            function(result) {
+              $log.debug('Initiated Build: %O, result: %O', config,
+                         result);
+              Notifications.success('Initiated build of configuration: ' +
+                                    config.name);
+            },
+            function(response) {
+              $log.error('Failed to initiated build: %O, response: %O',
+                         config, response);
+              Notifications.error('Could not initiate build of configuration: ' +
+                                    config.name);
+            }
+          );
       };
     }
   ]);

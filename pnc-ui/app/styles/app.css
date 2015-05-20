@@ -117,3 +117,10 @@ ul.pagination.pull-right {
     padding: 8px 15px;
     margin-bottom: 20px;
 }
+
+.table-data-5-column-even-width {
+   width: 20%;
+}
+.bigger-text {
+  font-size: 14px;
+}
