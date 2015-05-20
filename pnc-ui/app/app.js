@@ -29,7 +29,6 @@
     'pnc.record',
     'pnc.configuration-set',
     'pnc.websockets',
-    'pnc.environment',
     'pnc.milestone'
   ]);
 
