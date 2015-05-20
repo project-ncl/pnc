@@ -216,7 +216,8 @@ module.exports = function (grunt) {
           src: [
             '<%= yeoman.tmp %>',
             '<%= yeoman.dist %>/**/*',
-            '!<%= yeoman.dist %>/.git{,*/}*'
+            '!<%= yeoman.dist %>/.git{,*/}*',
+            '<%= yeoman.app %>/environment.js'
           ]
         }]
       },
