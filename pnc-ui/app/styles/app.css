@@ -124,8 +124,3 @@ ul.pagination.pull-right {
 .bigger-text {
   font-size: 14px;
 }
-
-/* This makes the header of accordions clickable to expand */
-.accordion-toggle { display: block; }
-
-
