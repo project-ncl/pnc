@@ -94,10 +94,17 @@ public class BuildRecord implements GenericEntity<Integer> {
     // bi-directional many-to-many association to buildRecordSet
 
     /**
-     * The build collections.
+     * Sets of related build records in which this build record is included
      */
     @ManyToMany(mappedBy = "buildRecords")
     private List<BuildRecordSet> buildRecordSets;
+
+    /**
+     * If this build was executed as part of a set, this will contain the 
+     * link to the overall results of the set.  Otherwise, this field will be null.
+     */
+    @ManyToOne
+    BuildConfigSetRecord buildConfigSetRecord;
 
     /**
      * Instantiates a new project build result.
@@ -345,6 +352,14 @@ public class BuildRecord implements GenericEntity<Integer> {
         this.buildContentId = buildContentId;
     }
 
+    public BuildConfigSetRecord getBuildConfigSetRecord() {
+        return buildConfigSetRecord;
+    }
+
+    public void setBuildConfigSetRecord(BuildConfigSetRecord buildConfigSetRecord) {
+        this.buildConfigSetRecord = buildConfigSetRecord;
+    }
+
     @Override
     public String toString() {
         return "BuildRecord [id=" + id + ", project=" + buildConfigurationAudited.getProject().getName() + ", buildConfiguration="
@@ -380,6 +395,8 @@ public class BuildRecord implements GenericEntity<Integer> {
         private SystemImage systemImage;
 
         private List<BuildRecordSet> buildRecordSets;
+
+        private BuildConfigSetRecord buildConfigSetRecord;
 
         public Builder() {
             startTime = Timestamp.from(Instant.now());
@@ -510,6 +527,10 @@ public class BuildRecord implements GenericEntity<Integer> {
             return this;
         }
 
+        public Builder buildConfigSetRecord(BuildConfigSetRecord buildConfigSetRecord) {
+            this.buildConfigSetRecord = buildConfigSetRecord;
+            return this;
+        }
     }
 
 }

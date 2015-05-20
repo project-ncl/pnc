@@ -32,6 +32,9 @@ import javax.inject.Inject;
 import java.lang.invoke.MethodHandles;
 import java.sql.Timestamp;
 import java.time.Instant;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Data for the DEMO.  Note: The database initialization requires two separate
@@ -75,6 +78,9 @@ public class DatabaseDataInitializer {
     BuildConfigurationSetRepository buildConfigurationSetRepository;
 
     @Inject
+    BuildConfigSetRecordRepository buildConfigSetRecordRepository;
+
+    @Inject
     UserRepository userRepository;
 
     @Inject
@@ -84,6 +90,10 @@ public class DatabaseDataInitializer {
     EnvironmentRepository environmentRepository;
 
     BuildConfiguration buildConfiguration1;
+
+    BuildConfiguration buildConfiguration2;
+
+    BuildConfigurationSet buildConfigurationSet1;
 
     User demoUser;
 
@@ -194,7 +204,7 @@ public class DatabaseDataInitializer {
                     .build();
             buildConfiguration1 = buildConfigurationRepository.save(buildConfiguration1);
 
-            BuildConfiguration buildConfiguration2 = BuildConfiguration.Builder.newBuilder()
+            buildConfiguration2 = BuildConfiguration.Builder.newBuilder()
                     .name("jboss-modules-1.5.0")
                     .project(project2)
                     .description("Test config for JBoss modules build master branch.")
@@ -227,7 +237,7 @@ public class DatabaseDataInitializer {
             buildConfiguration4 = buildConfigurationRepository.save(buildConfiguration4);
 
             // Build config set containing the three example build configs
-            BuildConfigurationSet buildConfigurationSet1 = BuildConfigurationSet.Builder.newBuilder().name("Build Config Set 1")
+            buildConfigurationSet1 = BuildConfigurationSet.Builder.newBuilder().name("Build Config Set 1")
                     .buildConfiguration(buildConfiguration1)
                     .buildConfiguration(buildConfiguration2)
                     .buildConfiguration(buildConfiguration3)
@@ -263,25 +273,69 @@ public class DatabaseDataInitializer {
         Artifact importedArtifact2 = Artifact.Builder.newBuilder().identifier("test").deployUrl("http://google.pl/imported2")
                 .status(ArtifactStatus.BINARY_IMPORTED).build();
 
-        IdRev buildConfigAuditIdRev = new IdRev(buildConfiguration1.getId(), 1);
-        BuildConfigurationAudited buildConfigAudited1 = buildConfigurationAuditedRepository.findOne(buildConfigAuditIdRev);
+        Set<BuildRecord> buildRecords = new HashSet<BuildRecord> ();
 
-        logger.info("Found build config audit: " + buildConfigAudited1);
-        BuildRecord buildRecord = BuildRecord.Builder.newBuilder()
-                .latestBuildConfiguration(buildConfiguration1)
-                .buildConfigurationAudited(buildConfigAudited1)
-                .startTime(Timestamp.from(Instant.now()))
-                .endTime(Timestamp.from(Instant.now()))
-                .builtArtifact(builtArtifact1)
-                .builtArtifact(builtArtifact2)
-                .builtArtifact(importedArtifact1)
-                .builtArtifact(importedArtifact2)
+        final int INITIAL_REVISION = 1;
+        IdRev buildConfig1AuditIdRev = new IdRev(buildConfiguration1.getId(), INITIAL_REVISION);
+        BuildConfigurationAudited buildConfigAudited1 = buildConfigurationAuditedRepository.findOne(buildConfig1AuditIdRev);
+        if (buildConfigAudited1 != null) {
+            BuildRecord buildRecord = BuildRecord.Builder.newBuilder()
+                    .latestBuildConfiguration(buildConfiguration1)
+                    .buildConfigurationAudited(buildConfigAudited1)
+                    .startTime(Timestamp.from(Instant.now()))
+                    .endTime(Timestamp.from(Instant.now()))
+                    .builtArtifact(builtArtifact1)
+                    .builtArtifact(builtArtifact2)
+                    .builtArtifact(importedArtifact1)
+                    .builtArtifact(importedArtifact2)
+                    .user(demoUser)
+                    .buildLog("Very short demo log: The quick brown fox jumps over the lazy dog.").build();
+
+            buildRecordRepository.save(buildRecord);
+            buildRecords.add(buildRecord);
+        }
+
+        Artifact builtArtifact3 = Artifact.Builder.newBuilder().identifier("test").deployUrl("http://google.pl/built3")
+                .status(ArtifactStatus.BINARY_BUILT).build();
+        Artifact builtArtifact4 = Artifact.Builder.newBuilder().identifier("test").deployUrl("http://google.pl/built4")
+                .status(ArtifactStatus.BINARY_BUILT).build();
+
+        IdRev buildConfig2AuditIdRev = new IdRev(buildConfiguration2.getId(), INITIAL_REVISION);
+        BuildConfigurationAudited buildConfigAudited2 = buildConfigurationAuditedRepository.findOne(buildConfig2AuditIdRev);
+        if (buildConfigAudited2 != null) {
+            BuildRecord buildRecord = BuildRecord.Builder.newBuilder()
+                    .latestBuildConfiguration(buildConfiguration2)
+                    .buildConfigurationAudited(buildConfigAudited2)
+                    .startTime(Timestamp.from(Instant.now()))
+                    .endTime(Timestamp.from(Instant.now()))
+                    .builtArtifact(builtArtifact3)
+                    .builtArtifact(builtArtifact4)
+                    .user(demoUser)
+                    .buildLog("Very short demo log: The quick brown fox jumps over the lazy dog.")
+                    .build();
+
+            buildRecordRepository.save(buildRecord);
+            buildRecords.add(buildRecord);
+        }
+
+        BuildConfigSetRecord buildConfigSetRecord1 = BuildConfigSetRecord.Builder.newBuilder()
+                .buildConfigurationSet(buildConfigurationSet1)
+                .startTime(new Date())
+                .endTime(new Date())
                 .user(demoUser)
-                .buildLog("Very short demo log: The quick brown fox jumps over the lazy dog.")
+                .status(BuildStatus.FAILED)
                 .build();
+        buildConfigSetRecordRepository.save(buildConfigSetRecord1);
 
-        buildRecordRepository.save(buildRecord);
-
+        BuildConfigSetRecord buildConfigSetRecord2 = BuildConfigSetRecord.Builder.newBuilder()
+                .buildConfigurationSet(buildConfigurationSet1)
+                .buildRecords(buildRecords)
+                .startTime(new Date())
+                .endTime(new Date())
+                .user(demoUser)
+                .status(BuildStatus.SUCCESS)
+                .build();
+        buildConfigSetRecordRepository.save(buildConfigSetRecord2);
     }
 
     private Environment createAndPersistDefultEnvironment() {

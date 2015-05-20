@@ -45,7 +45,10 @@ public class BuildConfigurationSet implements GenericEntity<Integer> {
             name="build_configuration_set_map",
             joinColumns={@JoinColumn(name="build_configuration_set_id", referencedColumnName="id")},
             inverseJoinColumns={@JoinColumn(name="build_configuration_id", referencedColumnName="id")})
-    private Set<BuildConfiguration> buildConfigurations = new HashSet<>();
+    private Set<BuildConfiguration> buildConfigurations = new HashSet<BuildConfiguration>();
+
+    @OneToMany( mappedBy = "buildConfigurationSet")
+    private Set<BuildConfigSetRecord> buildConfigSetRecords = new HashSet<BuildConfigSetRecord>();
 
     public BuildConfigurationSet() {
     }
@@ -120,6 +123,22 @@ public class BuildConfigurationSet implements GenericEntity<Integer> {
         this.buildConfigurations.remove(buildConfiguration);
     }
 
+    public Set<BuildConfigSetRecord> getBuildConfigSetRecords() {
+        return buildConfigSetRecords;
+    }
+
+    public void setBuildConfigSetRecords(Set<BuildConfigSetRecord> buildConfigSetRecords) {
+        this.buildConfigSetRecords = buildConfigSetRecords;
+    }
+
+    public boolean addBuildConfigSetRecord(BuildConfigSetRecord buildConfigSetRecord) {
+        return this.buildConfigSetRecords.add(buildConfigSetRecord);
+    }
+ 
+    public boolean removeBuildConfigSetRecord(BuildConfigSetRecord buildConfigSetRecord) {
+        return this.buildConfigSetRecords.remove(buildConfigSetRecord);
+    }
+ 
     public static class Builder {
 
         private Integer id;
@@ -129,6 +148,8 @@ public class BuildConfigurationSet implements GenericEntity<Integer> {
         private ProductVersion productVersion;
 
         private Set<BuildConfiguration> buildConfigurations = new HashSet<BuildConfiguration>();
+
+        private Set<BuildConfigSetRecord> buildConfigSetRecords = new HashSet<BuildConfigSetRecord>();
 
         private Builder() {
 
@@ -142,6 +163,10 @@ public class BuildConfigurationSet implements GenericEntity<Integer> {
             buildConfigurationSet.setBuildConfigurations(buildConfigurations);
             for (BuildConfiguration buildConfiguration : buildConfigurations) {
                 buildConfiguration.addBuildConfigurationSet(buildConfigurationSet);
+            }
+            buildConfigurationSet.setBuildConfigSetRecords(buildConfigSetRecords);
+            for (BuildConfigSetRecord buildConfigSetRecord: buildConfigSetRecords) {
+                buildConfigSetRecord.setBuildConfigurationSet(buildConfigurationSet);
             }
 
             return buildConfigurationSet;
@@ -176,18 +201,10 @@ public class BuildConfigurationSet implements GenericEntity<Integer> {
             return this;
         }
 
-        public Integer getId() {
-            return id;
+        public Builder buildConfigSetRecords(Set<BuildConfigSetRecord> buildConfigSetRecords) {
+            this.buildConfigSetRecords = buildConfigSetRecords;
+            return this;
         }
-
-        public String getName() {
-            return name;
-        }
-
-        public ProductVersion getProductVersion() {
-            return productVersion;
-        }
-
     }
 
 }
