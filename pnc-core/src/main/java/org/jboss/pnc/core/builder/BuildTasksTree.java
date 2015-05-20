@@ -22,7 +22,7 @@ import org.jboss.pnc.core.content.ContentIdentityManager;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.User;
-import org.jboss.pnc.spi.BuildSetStatus;
+import org.jboss.pnc.spi.BuildExecutionType;
 import org.jboss.pnc.spi.BuildStatus;
 import org.jboss.util.graph.Edge;
 import org.jboss.util.graph.Graph;
@@ -64,7 +64,7 @@ public class BuildTasksTree {
 
         Edge<BuildTask>[] cycles = instance.tree.findCycles();
         if (cycles.length > 0) {
-            buildSetTask.setStatus(BuildSetStatus.REJECTED);
+            buildSetTask.setStatus(BuildStatus.REJECTED);
             String configurationsInCycles = Arrays.asList(cycles).stream()
                     .map(e -> e.getFrom().getName() + "->" + e.getTo().getName())
                     .collect(Collectors.joining(", "));
@@ -89,7 +89,7 @@ public class BuildTasksTree {
                     buildCoordinator,
                     topContentId,
                     buildSetContentId,
-                    buildSetTask,
+                    buildSetTask.getBuildTaskType(),
                     user))
             .forEach(buildTask -> buildSetTask.addBuildTask(buildTask));
     }
@@ -99,7 +99,7 @@ public class BuildTasksTree {
             BuildCoordinator buildCoordinator,
             String topContentId,
             String buildSetContentId,
-            BuildSetTask buildSetTask,
+            BuildExecutionType buildTaskType,
             User user) {
 
         ContentIdentityManager contentIdentityManager = new ContentIdentityManager();
@@ -112,7 +112,8 @@ public class BuildTasksTree {
                     topContentId,
                     buildSetContentId,
                     buildContentId,
-                    user, buildSetTask);
+                    buildTaskType,
+                    user);
 
             Vertex<BuildTask> vertex = new Vertex(buildTask.getId().toString(), buildTask);
             tree.addVertex(vertex);

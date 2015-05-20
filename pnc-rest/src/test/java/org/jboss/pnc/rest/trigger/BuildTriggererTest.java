@@ -55,7 +55,7 @@ public class BuildTriggererTest {
         //when
         buildTriggerer.triggerBuilds(6, user);
 
-        verify(builder).build(eq(exampleConfiguration), user, null); //TODO validate return ?
+        verify(builder).build(eq(exampleConfiguration), user); //TODO validate return ?
     }
 
 }

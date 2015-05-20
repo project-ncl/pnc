@@ -18,12 +18,11 @@
 package org.jboss.pnc.core.builder;
 
 import org.jboss.pnc.model.BuildConfigurationSet;
+import org.jboss.pnc.spi.BuildStatus;
 import org.jboss.pnc.spi.BuildExecutionType;
-import org.jboss.pnc.spi.BuildSetStatus;
 
 import java.util.HashSet;
 import java.util.Set;
-import java.util.function.Consumer;
 
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2015-03-26.
@@ -34,43 +33,25 @@ public class BuildSetTask {
 
     private final BuildExecutionType buildTaskType;
 
-    private BuildSetStatus status = BuildSetStatus.NEW;
+    private BuildStatus status;
 
     private String statusDescription;
     private Set<BuildTask> buildTasks = new HashSet<>();
-    private Consumer<BuildSetStatus> onComplete;
 
-    public BuildSetTask(BuildConfigurationSet buildConfigurationSet, BuildExecutionType buildTaskType, Consumer<BuildSetStatus> onComplete) {
+    public BuildSetTask(BuildConfigurationSet buildConfigurationSet, BuildExecutionType buildTaskType) {
         this.buildConfigurationSet = buildConfigurationSet;
         this.buildTaskType = buildTaskType;
-        if (onComplete == null) {
-            this.onComplete = (status) -> {};
-        } else {
-            this.onComplete = onComplete;
-        }
     }
 
     public BuildConfigurationSet getBuildConfigurationSet() {
         return buildConfigurationSet;
     }
 
-    public void setStatus(BuildSetStatus status) {
-        if (status.DONE.equals(BuildSetStatus.DONE)) {
-            onComplete.accept(status);
-        }
+    public void setStatus(BuildStatus status) {
         this.status = status;
     }
 
-
-    void taskStatusUpdated(BuildTask buildTask) {
-        Long completedTasksCount = buildTasks.stream().filter(bt -> bt.getStatus().isCompleted()).count();
-        //check if all tasks are completed
-        if (completedTasksCount.intValue() == buildTasks.size()) {
-            setStatus(BuildSetStatus.DONE);
-        }
-    }
-
-    public BuildSetStatus getStatus() {
+    public BuildStatus getStatus() {
         return status;
     }
 

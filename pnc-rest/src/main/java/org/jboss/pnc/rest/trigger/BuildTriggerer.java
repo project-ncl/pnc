@@ -79,7 +79,7 @@ public class BuildTriggerer {
             //TODO call-back JBPM engine to notify completion
         };
 
-        return buildCoordinator.build(configuration, currentUser, onComplete).getBuildConfiguration().getId();
+        return buildCoordinator.build(configuration, currentUser).getBuildConfiguration().getId();
     }
 
     public int triggerBuildConfigurationSet( final Integer buildConfigurationSetId, User currentUser )
@@ -96,7 +96,7 @@ public class BuildTriggerer {
             //TODO call-back JBPM engine to notify completion
         };
 
-        return buildCoordinator.build(buildConfigurationSet, currentUser, onComplete).getId();
+        return buildCoordinator.build(buildConfigurationSet, currentUser).getId();
     }
 
     /**
