@@ -145,14 +145,43 @@
     </pnc-header-buttons>
   </pnc-header>
 
-  <input ng-model="searchText" placeholder="filter buildconfigsets...">
+  <input ng-model="searchBCSText" placeholder="filter buildconfigsets...">
   <table class="table table-bordered table-striped">
     <thead>
       <th>Name</th>
+      <th>Action</th>
     </thead>
     <tbody>
-      <tr ng-repeat="buildconfigurationset in versionCtrl.buildconfigurationsets | filter:searchText">
+      <tr ng-repeat="buildconfigurationset in versionCtrl.buildconfigurationsets | filter:searchBCSText">
         <td><a href ui-sref="configuration-set.detail({ configurationSetId: buildconfigurationset.id })">{{ buildconfigurationset.name }}</a></td>
+        <td class="table-data-5-column-even-width">
+           <button type="button" class="btn btn-sm btn-default" data-toggle="tooltip" title="Start Build" ng-click="versionCtrl.buildConfigSet(buildconfigurationset)">
+             <i class="fa fa-play"></i> Build
+           </button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <pnc-header>
+    <pnc-header-title><small>Build Configurations</small></pnc-header-title>
+  </pnc-header>
+  <input ng-model="searchBCText" placeholder="filter buildconfigurations...">
+  <table class="table table-bordered table-striped">
+    <thead>
+      <th>Name</th>
+      <th>Action</th>
+    </thead>
+    <tbody>
+      <tr ng-repeat="configuration in versionCtrl.buildconfigurations | filter:searchBCText">
+        <td>
+          <a ui-sref="configuration.detail.show({configurationId: configuration.id})" href>{{ configuration.name }}</a>
+        </td>
+        <td class="table-data-5-column-even-width">
+           <button type="button" class="btn btn-sm btn-default" data-toggle="tooltip" title="Start Build" ng-click="versionCtrl.buildConfig(configuration)">
+             <i class="fa fa-play"></i> Build
+           </button>
+        </td>
       </tr>
     </tbody>
   </table>

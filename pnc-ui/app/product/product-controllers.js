@@ -88,6 +88,8 @@
             }
           );
       });
+
+      that.title = 'AAA<br>I \'m a tooltip!';
     }
   ]);
 
@@ -97,10 +99,12 @@
     'productDetail',
     'versionDetail',
     'buildConfigurationSets',
+    'buildConfigurations',
     'productReleases',
     'productMilestones',
     'Notifications',
-    function ($log, $state, productDetail, versionDetail, buildConfigurationSets, productReleases, productMilestones, Notifications) {
+    'PncRestClient',
+    function ($log, $state, productDetail, versionDetail, buildConfigurationSets, buildConfigurations, productReleases, productMilestones, Notifications, PncRestClient) {
       $log.debug('VersionDetailController >> this=%O, productDetail=%O, ' +
                  'versionDetail=%O, buildConfigurationSets=%0', this, productDetail, versionDetail, buildConfigurationSets);
 
@@ -108,6 +112,7 @@
       that.product = productDetail;
       that.version = versionDetail;
       that.buildconfigurationsets = buildConfigurationSets;
+      that.buildconfigurations = buildConfigurations;
       that.productreleases = productReleases;
       that.productmilestones = productMilestones;
 
@@ -134,6 +139,48 @@
           productId: productDetail.id,
           productVersionId: versionDetail.id
         });
+      };
+
+      // Executing a build of a configurationSet
+      that.buildConfigSet = function(configSet) {
+        $log.debug('**Initiating build of SET: %s**', configSet.name);
+
+        PncRestClient.ConfigurationSet.build({
+          configurationSetId: configSet.id }, {}).$promise.then(
+            function(result) {
+              $log.debug('Initiated Build: %O, result: %O', configSet,
+                         result);
+              Notifications.success('Initiated build of Configuration Set: ' +
+                                    configSet.name);
+            },
+            function(response) {
+              $log.error('Failed to initiated build: %O, response: %O',
+                         configSet, response);
+              Notifications.error('Could not initiate build of Configuration Set: ' +
+                                    configSet.name);
+            }
+        );
+      };
+
+      // Executing a build of a configuration
+      that.buildConfig = function(config) {
+        $log.debug('**Initiating build of: %O', config.name);
+
+        PncRestClient.Configuration.build({
+          configurationId: config.id }, {}).$promise.then(
+            function(result) {
+              $log.debug('Initiated Build: %O, result: %O', config,
+                         result);
+              Notifications.success('Initiated build of configuration: ' +
+                                    config.name);
+            },
+            function(response) {
+              $log.error('Failed to initiated build: %O, response: %O',
+                         config, response);
+              Notifications.error('Could not initiate build of configuration: ' +
+                                    config.name);
+            }
+          );
       };
     }
   ]);

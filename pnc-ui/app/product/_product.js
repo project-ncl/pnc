@@ -101,6 +101,11 @@
             productId: $stateParams.productId,
             versionId: $stateParams.versionId }).$promise;
         },
+        buildConfigurations: function(restClient, $stateParams) {
+          return restClient.Configuration.getAllForProductVersion({
+            productId: $stateParams.productId,
+            versionId: $stateParams.versionId }).$promise;
+        },
         productReleases: function(restClient, $stateParams) {
           return restClient.Release.getAllForProductVersion({
             versionId: $stateParams.versionId }).$promise;
