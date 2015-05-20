@@ -30,6 +30,7 @@ import org.jboss.pnc.model.RepositoryType;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.BuildExecutionType;
 import org.jboss.pnc.spi.BuildResult;
+import org.jboss.pnc.spi.BuildSetStatus;
 import org.jboss.pnc.spi.BuildStatus;
 import org.jboss.pnc.spi.builddriver.BuildDriver;
 import org.jboss.pnc.spi.builddriver.BuildDriverResult;
@@ -135,7 +136,7 @@ public class BuildCoordinator {
 
     private void build(BuildSetTask buildSetTask, User userTriggeredBuild) throws CoreException {
 
-        BuildTasksTree buildTasksTree = BuildTasksTree.newInstance(
+        BuildTasksTree buildTasksTree = new BuildTasksTree(
                 this,
                 buildSetTask,
                 userTriggeredBuild,
@@ -158,7 +159,7 @@ public class BuildCoordinator {
             }
         };
 
-        if (!BuildStatus.REJECTED.equals(buildSetTask.getStatus())) {
+        if (!BuildSetStatus.REJECTED.equals(buildSetTask.getStatus())) {
             buildTasksTree.getBuildTasks().stream()
                     .filter(acceptOnlyStatus)
                     .filter(rejectAlreadySubmitted)

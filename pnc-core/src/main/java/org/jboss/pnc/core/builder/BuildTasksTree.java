@@ -51,7 +51,7 @@ public class BuildTasksTree {
      * @param buildSetTask
      * @return
      */
-    public static BuildTasksTree newInstance(
+    public BuildTasksTree(
             BuildCoordinator buildCoordinator,
             BuildSetTask buildSetTask,
             User user,
@@ -60,14 +60,12 @@ public class BuildTasksTree {
 
         BuildConfigurationSet buildConfigurationSet = buildSetTask.getBuildConfigurationSet();
 
-        BuildTasksTree instance = new BuildTasksTree();
-
         String topContentId = contentIdentityManager.getProductContentId(buildConfigurationSet.getProductVersion());
         String buildSetContentId = contentIdentityManager.getBuildSetContentId(buildConfigurationSet);
 
-        instance.buildTree(buildSetTask, buildCoordinator, topContentId, buildSetContentId, user, buildTaskIdSupplier);
+        buildTree(buildSetTask, buildCoordinator, topContentId, buildSetContentId, user, buildTaskIdSupplier);
 
-        Edge<BuildTask>[] cycles = instance.tree.findCycles();
+        Edge<BuildTask>[] cycles = tree.findCycles();
         if (cycles.length > 0) {
             buildSetTask.setStatus(BuildSetStatus.REJECTED);
             String configurationsInCycles = Arrays.asList(cycles).stream()
@@ -75,8 +73,6 @@ public class BuildTasksTree {
                     .collect(Collectors.joining(", "));
             buildSetTask.setStatusDescription("Cycle dependencies found [" + configurationsInCycles + "]");
         }
-
-        return instance;
     }
 
     private void buildTree(BuildSetTask buildSetTask,

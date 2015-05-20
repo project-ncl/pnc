@@ -33,6 +33,7 @@ import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.Environment;
 import org.jboss.pnc.model.User;
+import org.jboss.pnc.spi.BuildSetStatus;
 import org.jboss.pnc.spi.BuildStatus;
 import org.jboss.pnc.spi.events.BuildStatusChangedEvent;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
@@ -145,7 +146,7 @@ public class ProjectBuilder {
     }
 
     private void assertBuildStartedSuccessfully(BuildSetTask buildSetTask) {
-        List<BuildStatus> errorStates = Arrays.asList(BuildStatus.REJECTED, BuildStatus.SYSTEM_ERROR, BuildStatus.BUILD_ENV_SETUP_COMPLETE_WITH_ERROR);
+        List<BuildSetStatus> errorStates = Arrays.asList(BuildSetStatus.REJECTED);
         if (errorStates.contains(buildSetTask.getStatus())) {
             fail("Build " + buildSetTask.getId() + " has status:" + buildSetTask.getStatus() + " with description: " + buildSetTask.getStatusDescription());
         }

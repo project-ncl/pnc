@@ -166,7 +166,7 @@ public class StatusUpdatesTest {
                 buildConfigurationSet,
                 BuildExecutionType.COMPOSED_BUILD,
                 () -> buildTaskSetIdSupplier.incrementAndGet());
-        BuildTasksTree.newInstance(buildCoordinator, buildSetTask, null, () -> buildTaskIdSupplier.incrementAndGet());
+        new BuildTasksTree(buildCoordinator, buildSetTask, null, () -> buildTaskIdSupplier.incrementAndGet());
 
         return buildSetTask;
     }
