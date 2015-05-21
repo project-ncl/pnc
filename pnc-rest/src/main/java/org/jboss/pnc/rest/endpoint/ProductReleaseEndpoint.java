@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.rest.endpoint;
 
+import java.util.Arrays;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -37,6 +38,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 
+import org.jboss.pnc.model.ProductRelease.SupportLevel;
 import org.jboss.pnc.rest.provider.ProductReleaseProvider;
 import org.jboss.pnc.rest.provider.ProjectProvider;
 import org.jboss.pnc.rest.restmodel.ProductReleaseRest;
@@ -110,6 +112,13 @@ public class ProductReleaseEndpoint {
             @NotNull @Valid ProductReleaseRest productReleaseRest, @Context UriInfo uriInfo) {
         productReleaseProvider.update(id, productReleaseRest);
         return Response.ok().build();
+    }
+
+    @ApiOperation(value = "Gets all Product Releases Support Level")
+    @GET
+    @Path("/support-level")
+    public List<SupportLevel> getAllSupportLevel () {
+        return Arrays.asList(SupportLevel.values());
     }
 
 }

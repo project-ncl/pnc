@@ -86,8 +86,8 @@
             }, {reload:true});
           },
           function (response) {
-            $log.error('Create product failed: response: %O', response);
-            Notifications.error('Action Failed.');
+            $log.error('Creation of milestone failed: response: %O', response);
+            Notifications.error('Creation of milestone failed');
           }
         );
       };
