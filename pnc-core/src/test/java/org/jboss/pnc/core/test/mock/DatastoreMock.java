@@ -38,9 +38,8 @@ public class DatastoreMock implements Datastore {
 
     private List<BuildRecord> buildRecords = Collections.synchronizedList(new ArrayList<BuildRecord>());
 
-    static AtomicInteger buildRecordSequence = new AtomicInteger(0);
-    static AtomicInteger buildRecordSetSequence = new AtomicInteger(0);
-
+    AtomicInteger buildRecordSequence = new AtomicInteger(0);
+    AtomicInteger buildRecordSetSequence = new AtomicInteger(0);
 
     @Override
     public void storeCompletedBuild(BuildRecord buildRecord) {

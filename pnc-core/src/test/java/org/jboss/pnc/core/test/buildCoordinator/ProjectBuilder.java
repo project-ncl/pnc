@@ -67,7 +67,7 @@ public class ProjectBuilder {
     TestCDIBuildStatusChangedReceiver statusChangedReceiver;
 
     private static final Logger log = LoggerFactory.getLogger(ProjectBuilder.class);
-    public static final int N_STATUS_UPDATES = 13;
+    public static final int N_STATUS_UPDATES_PER_TASK = 13;
 
     @Deployment
     public static JavaArchive createDeployment() {
@@ -90,14 +90,14 @@ public class ProjectBuilder {
 
         //Defines a number of callbacks, which are executed after buildStatus update
 
-        final Semaphore semaphore = registerReleaseListenersAndAcquireSemaphore(receivedStatuses, N_STATUS_UPDATES);
+        final Semaphore semaphore = registerReleaseListenersAndAcquireSemaphore(receivedStatuses, N_STATUS_UPDATES_PER_TASK);
 
         User user = null;
         BuildTask buildTask = buildCoordinator.build(buildConfiguration, user);
         log.info("Started build task {}", buildTask);
 
         assertBuildStartedSuccessfully(buildTask);
-        waitForStatusUpdates(N_STATUS_UPDATES, semaphore);
+        waitForStatusUpdates(N_STATUS_UPDATES_PER_TASK, semaphore);
         assertAllStatusUpdateReceived(receivedStatuses, buildConfiguration.getId());
     }
 
@@ -106,7 +106,7 @@ public class ProjectBuilder {
         List<BuildStatusChangedEvent> receivedStatuses = new CopyOnWriteArrayList<>();
 
         //Defines a number of callbacks, which are executed after buildStatus update
-        final int nStatusUpdates = N_STATUS_UPDATES * buildConfigurationSet.getBuildConfigurations().size();
+        final int nStatusUpdates = N_STATUS_UPDATES_PER_TASK * buildConfigurationSet.getBuildConfigurations().size();
 
         final Semaphore semaphore = registerReleaseListenersAndAcquireSemaphore(receivedStatuses, nStatusUpdates);
 

@@ -35,9 +35,9 @@ import java.util.logging.Logger;
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2015-01-06.
  */
 @RunWith(Arquillian.class)
-public class MultipleProjectsBuild extends ProjectBuilder {
+public class MultipleProjectsBuildTest extends ProjectBuilder {
 
-    private static final Logger log = Logger.getLogger(MultipleProjectsBuild.class.getName());
+    private static final Logger log = Logger.getLogger(MultipleProjectsBuildTest.class.getName());
     private final int N_PROJECTS = 100;
 
 
@@ -78,7 +78,7 @@ public class MultipleProjectsBuild extends ProjectBuilder {
 
 //        List<Thread> threads = list.stream().map(runInNewThread).collect(Collectors.toList());
 //        threads.forEach(waitToComplete);
-        list.forEach((r) -> r.run());
+        list.forEach((r) -> r.run()); //TODO re-enable parallel builds
 
         log.info("Completed multiple projects build test in " + (System.currentTimeMillis() - startTime) + "ms.");
     }
@@ -91,7 +91,7 @@ public class MultipleProjectsBuild extends ProjectBuilder {
 
         BuildRecord buildRecord = buildRecords.get(0);
         String buildLog = buildRecord.getBuildLog();
-        Assert.assertTrue("Invalid build log.", buildLog.contains("Finished: SUCCESS"));
+        Assert.assertTrue("Invalid build log: " + buildLog, buildLog.contains("Finished: SUCCESS"));
 
         assertBuildArtifactsPresent(buildRecord.getBuiltArtifacts());
         assertBuildArtifactsPresent(buildRecord.getDependencies());
