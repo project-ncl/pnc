@@ -102,11 +102,11 @@
         if (milestone.releaseDate) {
           rDate = milestone.releaseDate;
         }
-        var milestoneTooltip = '<strong>'+milestone.version+'</strong>'
-          +'<br><br><strong>Phase: </strong> &lt;tbd&gt; <br>'
-          +'<strong>Starting date: </strong>'+sDate+'<br>'
-          +'<strong>Planned release date: </strong>'+prDate+'<br>'
-          +'<strong>Release date: </strong>'+rDate+'<br>';
+        var milestoneTooltip = '<strong>'+milestone.version+'</strong>'+
+          '<br><br><strong>Phase: </strong> &lt;tbd&gt; <br>'+
+          '<strong>Starting date: </strong>'+sDate+'<br>'+
+          '<strong>Planned release date: </strong>'+prDate+'<br>'+
+          '<strong>Release date: </strong>'+rDate+'<br>';
         return milestoneTooltip;
       };
 
@@ -115,11 +115,11 @@
         if (release.releaseDate) {
           rDate = release.releaseDate;
         }
-        var releaseTooltip = '<strong>'+release.version+'</strong>'
-          +'<br><br><strong>Phase: </strong> &lt;tbd&gt; <br>'
-          +'<strong>Release date: </strong>'+rDate+'<br>'
-          +'<strong>Released from Milestone: </strong>'+release.productMilestoneId+'<br>'
-          +'<strong>Support Level: </strong>'+release.supportLevel+'<br>';
+        var releaseTooltip = '<strong>'+release.version+'</strong>'+
+          '<br><br><strong>Phase: </strong> &lt;tbd&gt; <br>'+
+          '<strong>Release date: </strong>'+rDate+'<br>'+
+          '<strong>Released from Milestone: </strong>'+release.productMilestoneId+'<br>'+
+          '<strong>Support Level: </strong>'+release.supportLevel+'<br>';
         return releaseTooltip;
       };
     }
