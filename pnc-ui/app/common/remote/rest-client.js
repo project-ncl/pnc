@@ -98,6 +98,15 @@
             url: REST_DEFAULTS.BASE_URL + '/product-releases/product-versions/:versionId',
             isArray: true
           },
+          saveForProductVersion: {
+            method: 'POST',
+            url: REST_DEFAULTS.BASE_URL + '/product-releases/product-versions/:versionId'
+          },
+          getAllSupportLevel: {
+            method: 'GET',
+            url: REST_DEFAULTS.BASE_URL + '/product-releases/support-level',
+            isArray: true
+          }
         }),
 
         Project: $resource(REST_DEFAULTS.BASE_URL + '/projects/:projectId', {

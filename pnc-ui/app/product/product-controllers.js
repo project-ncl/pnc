@@ -89,18 +89,27 @@
           );
       });
 
+      that.convertFromTimestamp = function (mSec) {
+        var now = new Date();
+        return new Date(mSec + (now.getTimezoneOffset() * 60 * 1000) - (12 * 60 * 60 * 1000));
+      };
+
+      that.formatDate = function (date) {
+        return date.getFullYear() + '/' + date.getMonth() + '/' + date.getDate();
+      };
+
       that.getMilestoneTooltip = function(milestone) {
         var sDate = '';
         var prDate = '';
         var rDate = '';
         if (milestone.startingDate) {
-          sDate = milestone.startingDate;
+          sDate = that.formatDate(that.convertFromTimestamp(milestone.startingDate));
         }
         if (milestone.plannedReleaseDate) {
-          prDate = milestone.plannedReleaseDate;
+          prDate = that.formatDate(that.convertFromTimestamp(milestone.plannedReleaseDate));
         }
         if (milestone.releaseDate) {
-          rDate = milestone.releaseDate;
+          rDate = that.formatDate(that.convertFromTimestamp(milestone.releaseDate));
         }
         var milestoneTooltip = '<strong>'+milestone.version+'</strong>'+
           '<br><br><strong>Phase: </strong> &lt;tbd&gt; <br>'+
@@ -113,12 +122,18 @@
       that.getReleaseTooltip = function(release) {
         var rDate = '';
         if (release.releaseDate) {
-          rDate = release.releaseDate;
+          rDate = that.formatDate(that.convertFromTimestamp(release.releaseDate));
         }
+        var milestoneVersion = '';
+         angular.forEach(that.versionMilestones, function(versionMilestone){
+            if (versionMilestone.id === release.productMilestoneId) {
+               milestoneVersion = versionMilestone.version;
+            }
+        });
         var releaseTooltip = '<strong>'+release.version+'</strong>'+
           '<br><br><strong>Phase: </strong> &lt;tbd&gt; <br>'+
           '<strong>Release date: </strong>'+rDate+'<br>'+
-          '<strong>Released from Milestone: </strong>'+release.productMilestoneId+'<br>'+
+          '<strong>Released from Milestone: </strong>'+milestoneVersion+'<br>'+
           '<strong>Support Level: </strong>'+release.supportLevel+'<br>';
         return releaseTooltip;
       };
@@ -166,13 +181,6 @@
         );
       };
 
-      that.createMilestone = function() {
-        $state.go('product.version.milestone.create', {
-          productId: productDetail.id,
-          productVersionId: versionDetail.id
-        });
-      };
-
       // Executing a build of a configurationSet
       that.buildConfigSet = function(configSet) {
         $log.debug('**Initiating build of SET: %s**', configSet.name);
@@ -213,6 +221,16 @@
                                     config.name);
             }
           );
+      };
+
+      that.getMilestoneVersion = function(milestoneId) {
+         var milestoneVersion = '';
+         angular.forEach(that.productmilestones, function(versionMilestone){
+            if (versionMilestone.id === milestoneId) {
+               milestoneVersion = versionMilestone.version;
+            }
+         });
+         return milestoneVersion;
       };
     }
   ]);

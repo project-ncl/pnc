@@ -73,7 +73,7 @@
             <pnc-header>
               <pnc-header-title><small>Releases</small></pnc-header-title>
               <pnc-header-buttons>
-                <button type="button" class="btn btn-lg btn-default disabled" data-toggle="tooltip" title="Create Release" ui-sref="configuration-set.create">
+                <button type="button" class="btn btn-lg btn-default" data-toggle="tooltip" title="Create Release" ui-sref="product.version.release.create">
                     <i class="pficon pficon-add"></i> Create
                 </button>
               </pnc-header-buttons>
@@ -88,10 +88,10 @@
               </thead>
               <tbody>
                 <tr ng-repeat="productrelease in versionCtrl.productreleases">
-                  <td>{{ productrelease.version }}</td>
-                  <td>{{ productrelease.releaseDate | date:'medium'}}</td>
+                  <td><span class="label label-success">{{ productrelease.version }}</span></td>
+                  <td>{{ productrelease.releaseDate | date:'yyyy/MM/dd'}}</td>
                   <td class="text-center"><a ng-href="{{ productrelease.downloadUrl }}" target="_self" class="btn btn-primary">Download</a></td>
-                  <td>Released from Milestone {{ productrelease.productMilestoneId }}</td>
+                  <td>Released from Milestone <strong>{{ versionCtrl.getMilestoneVersion(productrelease.productMilestoneId) }}</strong></td>
                   <td>{{ productrelease.supportLevel }}</td>
                 </tr>
               </tbody>
@@ -106,7 +106,7 @@
           <pnc-header>
             <pnc-header-title><small>Milestones</small></pnc-header-title>
               <pnc-header-buttons>
-                <button type="button" class="btn btn-lg btn-default" data-toggle="tooltip" title="Create Milestone" ng-click="versionCtrl.createMilestone()">
+                <button type="button" class="btn btn-lg btn-default" data-toggle="tooltip" title="Create Milestone" ui-sref="product.version.milestone.create">
                     <i class="pficon pficon-add"></i> Create
                 </button>
               </pnc-header-buttons>
