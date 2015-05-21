@@ -40,7 +40,7 @@ public class BuildTask implements BuildExecution {
 
     public static final Logger log = LoggerFactory.getLogger(BuildTask.class);
 
-    private int buildTaskId;
+    private Integer buildTaskId;
 
     public BuildConfiguration buildConfiguration;
     private BuildExecutionType buildTaskType;
@@ -166,13 +166,13 @@ public class BuildTask implements BuildExecution {
 
         BuildTask buildTask = (BuildTask) o;
 
-        return buildConfiguration.equals(buildTask.getBuildConfiguration());
+        return buildTaskId.equals(buildTask.getId());
 
     }
 
     @Override
     public int hashCode() {
-        return buildConfiguration.hashCode();
+        return buildTaskId.hashCode();
     }
 
     void setStatusDescription(String statusDescription) {
