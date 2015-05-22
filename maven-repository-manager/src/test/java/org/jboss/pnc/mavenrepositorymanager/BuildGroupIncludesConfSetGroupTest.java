@@ -36,8 +36,8 @@ public class BuildGroupIncludesConfSetGroupTest extends AbstractRepositoryManage
     @Test
     public void verifyGroupComposition_ProductVersion_WithConfSet() throws Exception {
         // create a dummy composed (chained) build execution and a repo session based on it
-        BuildExecution execution = new TestBuildExecution("product+myproduct+1.1", "my-build-conf-set",
-                "build+myproject+67890", BuildExecutionType.COMPOSED_BUILD);
+        BuildExecution execution = new TestBuildExecution("product_myproduct_1.1", "my-build-conf-set",
+                "build_myproject_67890", BuildExecutionType.COMPOSED_BUILD);
         Aprox aprox = driver.getAprox();
 
         RepositorySession repositoryConfiguration = driver.createBuildRepository(execution);

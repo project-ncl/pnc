@@ -36,6 +36,7 @@ import org.jboss.pnc.spi.BuildExecution;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManager;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerException;
 import org.jboss.pnc.spi.repositorymanager.model.RepositorySession;
+import org.jboss.pnc.spi.repositorymanager.model.RunningRepositoryDeletion;
 import org.jboss.pnc.spi.repositorymanager.model.RunningRepositoryPromotion;
 
 import javax.annotation.PreDestroy;
@@ -322,6 +323,11 @@ public class RepositoryManagerDriver implements RepositoryManager {
             throws RepositoryManagerException {
 
         return new MavenRunningPromotion(StoreType.group, buildRecordSet.getBuildSetContentId(), toGroup, aprox);
+    }
+
+    @Override
+    public RunningRepositoryDeletion deleteBuild(BuildRecord buildRecord) throws RepositoryManagerException {
+        return new MavenRunningDeletion(StoreType.hosted, buildRecord.getBuildContentId(), aprox);
     }
 
 }

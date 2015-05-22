@@ -22,6 +22,7 @@ import org.jboss.pnc.model.BuildRecordSet;
 import org.jboss.pnc.model.RepositoryType;
 import org.jboss.pnc.spi.BuildExecution;
 import org.jboss.pnc.spi.repositorymanager.model.RepositorySession;
+import org.jboss.pnc.spi.repositorymanager.model.RunningRepositoryDeletion;
 import org.jboss.pnc.spi.repositorymanager.model.RunningRepositoryPromotion;
 
 /**
@@ -40,17 +41,30 @@ public interface RepositoryManager {
 
     /**
      * Add the repository containing output associated with the specified {@link BuildRecord} to the membership of the
-     * repository group with the given ID.
+     * repository group with the given ID. <br/>
+     * Note that the operation won't start until monitoring starts for the returned {@link RunningRepositoryPromotion} instance.
      * 
      * @param buildRecord The build output to promote
      * @param toGroup The ID of the repository group where the build output should be promoted
      * 
-     * @return An object representing the running promotion process, with a callback method for the result.
+     * @return An object representing the running promotion process, with callbacks for result and error.
      *
      * @throws RepositoryManagerException
      */
     RunningRepositoryPromotion promoteBuild(BuildRecord buildRecord, String toGroup)
             throws RepositoryManagerException;
+
+    /**
+     * Used to purge the artifacts that were output from a given build (including the specific hosted repository which was used
+     * for that build). <br/>
+     * Note that the operation won't start until monitoring starts for the returned {@link RunningRepositoryDeletion} instance.
+     * 
+     * @param buildRecord The build whose artifacts/repositories should be removed
+     * @return An object representing the running deletion, with callbacks for result and error.
+     * 
+     * @throws RepositoryManagerException
+     */
+    RunningRepositoryDeletion deleteBuild(BuildRecord buildRecord) throws RepositoryManagerException;
 
     /**
      * Add the repository group containing output associated with the specified {@link BuildRecordSet} to the membership of the
