@@ -8,5 +8,5 @@ import java.util.concurrent.atomic.AtomicInteger;
 class Sequences {
     static AtomicInteger buildRecordSequence = new AtomicInteger(0);
 
-    static AtomicInteger buildRecordSetSequence = new AtomicInteger(0);;
+    static AtomicInteger buildConfigSetRecordSequence = new AtomicInteger(0);;
 }

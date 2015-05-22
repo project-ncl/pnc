@@ -33,5 +33,5 @@ public interface Datastore {
 
     int getNextBuildRecordId();
 
-    int getNextBuildRecordSetId();
+    int getNextBuildConfigSetRecordId();
 }

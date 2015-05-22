@@ -36,6 +36,7 @@ import org.jboss.pnc.rest.provider.ArtifactProvider;
 import org.jboss.pnc.rest.provider.BuildRecordProvider;
 import org.jboss.pnc.rest.restmodel.ArtifactRest;
 import org.jboss.pnc.rest.restmodel.BuildRecordRest;
+import org.jboss.pnc.spi.datastore.Datastore;
 import org.jboss.pnc.test.category.ContainerTest;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
@@ -85,6 +86,9 @@ public class BuildRecordsTest {
     @Inject
     private UserRepository userRepository;
 
+    @Inject
+    private Datastore datastore;
+
     @Deployment
     public static EnterpriseArchive deploy() {
         EnterpriseArchive enterpriseArchive = Deployments.baseEarWithTestDependencies();
@@ -122,6 +126,7 @@ public class BuildRecordsTest {
         User user = users.get(0);
 
         BuildRecord buildRecord = new BuildRecord();
+        buildRecord.setId(datastore.getNextBuildRecordId());
         buildRecord.setBuildLog("test");
         buildRecord.setStatus(BuildStatus.SUCCESS);
         buildRecord.setLatestBuildConfiguration(buildConfiguration);

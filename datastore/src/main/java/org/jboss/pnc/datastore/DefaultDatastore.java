@@ -75,9 +75,9 @@ public class DefaultDatastore implements Datastore {
     }
 
     @Override
-    public int getNextBuildRecordSetId() {
+    public int getNextBuildConfigSetRecordId() {
         //TODO replace with DB sequence or other cluster-wide unique identifier
-        return Sequences.buildRecordSetSequence.incrementAndGet();
+        return Sequences.buildConfigSetRecordSequence.incrementAndGet();
     }
 
 }

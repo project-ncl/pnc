@@ -325,6 +325,7 @@ public class DatabaseDataInitializer {
         }
 
         BuildConfigSetRecord buildConfigSetRecord1 = BuildConfigSetRecord.Builder.newBuilder()
+                .id(datastore.getNextBuildConfigSetRecordId())
                 .buildConfigurationSet(buildConfigurationSet1)
                 .startTime(new Date())
                 .endTime(new Date())
@@ -334,6 +335,7 @@ public class DatabaseDataInitializer {
         buildConfigSetRecordRepository.save(buildConfigSetRecord1);
 
         BuildConfigSetRecord buildConfigSetRecord2 = BuildConfigSetRecord.Builder.newBuilder()
+                .id(datastore.getNextBuildConfigSetRecordId())
                 .buildConfigurationSet(buildConfigurationSet1)
                 .buildRecords(buildRecords)
                 .startTime(new Date())
