@@ -23,8 +23,10 @@ import org.jboss.pnc.model.RepositoryType;
 import org.jboss.pnc.spi.BuildExecution;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManager;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerException;
+import org.jboss.pnc.spi.repositorymanager.model.CompletedRepositoryDeletion;
 import org.jboss.pnc.spi.repositorymanager.model.CompletedRepositoryPromotion;
 import org.jboss.pnc.spi.repositorymanager.model.RepositorySession;
+import org.jboss.pnc.spi.repositorymanager.model.RunningRepositoryDeletion;
 import org.jboss.pnc.spi.repositorymanager.model.RunningRepositoryPromotion;
 
 import java.util.function.Consumer;
@@ -38,6 +40,10 @@ public class RepositoryManagerMock implements RepositoryManager {
 
     private Exception promotionError;
 
+    private Boolean deletionSuccess;
+
+    private Exception deletionError;
+
     public RepositoryManagerMock expectPromotionSuccess(boolean promotionSuccess) {
         this.promotionSuccess = promotionSuccess;
         return this;
@@ -45,6 +51,16 @@ public class RepositoryManagerMock implements RepositoryManager {
 
     public RepositoryManagerMock expectPromotionError(Exception promotionError) {
         this.promotionError = promotionError;
+        return this;
+    }
+
+    public RepositoryManagerMock expectDeletionSuccess(boolean deletionSuccess) {
+        this.deletionSuccess = deletionSuccess;
+        return this;
+    }
+
+    public RepositoryManagerMock expectDeletionError(Exception deletionError) {
+        this.deletionError = deletionError;
         return this;
     }
 
@@ -72,6 +88,11 @@ public class RepositoryManagerMock implements RepositoryManager {
         return new RunningRepositoryPromotionMock(promotionSuccess, promotionError);
     }
 
+    @Override
+    public RunningRepositoryDeletion deleteBuild(BuildRecord buildRecord) throws RepositoryManagerException {
+        return new RunningRepositoryDeletionMock(deletionSuccess, deletionError);
+    }
+
     public static final class RunningRepositoryPromotionMock implements RunningRepositoryPromotion {
 
         private Boolean status;
@@ -86,6 +107,32 @@ public class RepositoryManagerMock implements RepositoryManager {
         public void monitor(Consumer<CompletedRepositoryPromotion> onComplete, Consumer<Exception> onError) {
             if (status != null) {
                 onComplete.accept(new CompletedRepositoryPromotion() {
+                    @Override
+                    public boolean isSuccessful() {
+                        return status;
+                    }
+                });
+            } else {
+                onError.accept(error);
+            }
+        }
+
+    }
+
+    public static final class RunningRepositoryDeletionMock implements RunningRepositoryDeletion {
+
+        private Boolean status;
+        private Exception error;
+
+        public RunningRepositoryDeletionMock(Boolean status, Exception error) {
+            this.status = status;
+            this.error = error;
+        }
+
+        @Override
+        public void monitor(Consumer<CompletedRepositoryDeletion> onComplete, Consumer<Exception> onError) {
+            if (status != null) {
+                onComplete.accept(new CompletedRepositoryDeletion() {
                     @Override
                     public boolean isSuccessful() {
                         return status;
