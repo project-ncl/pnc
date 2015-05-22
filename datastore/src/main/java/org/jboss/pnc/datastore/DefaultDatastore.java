@@ -67,5 +67,17 @@ public class DefaultDatastore implements Datastore {
         userRepository.save(user);
         
     }
-    
+
+    @Override
+    public int getNextBuildRecordId() {
+        //TODO replace with DB sequence or other cluster-wide unique identifier
+        return Sequences.buildRecordSequence.incrementAndGet();
+    }
+
+    @Override
+    public int getNextBuildRecordSetId() {
+        //TODO replace with DB sequence or other cluster-wide unique identifier
+        return Sequences.buildRecordSetSequence.incrementAndGet();
+    }
+
 }
