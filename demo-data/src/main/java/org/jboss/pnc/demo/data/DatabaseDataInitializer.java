@@ -23,6 +23,7 @@ import org.jboss.logging.Logger;
 import org.jboss.pnc.datastore.repositories.*;
 import org.jboss.pnc.model.*;
 import org.jboss.pnc.model.ProductRelease.SupportLevel;
+import org.jboss.pnc.spi.datastore.Datastore;
 
 import javax.ejb.Singleton;
 import javax.ejb.TransactionAttribute;
@@ -88,6 +89,9 @@ public class DatabaseDataInitializer {
 
     @Inject
     EnvironmentRepository environmentRepository;
+
+    @Inject
+    Datastore datastore;
 
     BuildConfiguration buildConfiguration1;
 
@@ -280,6 +284,7 @@ public class DatabaseDataInitializer {
         BuildConfigurationAudited buildConfigAudited1 = buildConfigurationAuditedRepository.findOne(buildConfig1AuditIdRev);
         if (buildConfigAudited1 != null) {
             BuildRecord buildRecord = BuildRecord.Builder.newBuilder()
+                    .id(datastore.getNextBuildRecordId())
                     .latestBuildConfiguration(buildConfiguration1)
                     .buildConfigurationAudited(buildConfigAudited1)
                     .startTime(Timestamp.from(Instant.now()))
@@ -304,6 +309,7 @@ public class DatabaseDataInitializer {
         BuildConfigurationAudited buildConfigAudited2 = buildConfigurationAuditedRepository.findOne(buildConfig2AuditIdRev);
         if (buildConfigAudited2 != null) {
             BuildRecord buildRecord = BuildRecord.Builder.newBuilder()
+                    .id(datastore.getNextBuildRecordId())
                     .latestBuildConfiguration(buildConfiguration2)
                     .buildConfigurationAudited(buildConfigAudited2)
                     .startTime(Timestamp.from(Instant.now()))
@@ -319,6 +325,7 @@ public class DatabaseDataInitializer {
         }
 
         BuildConfigSetRecord buildConfigSetRecord1 = BuildConfigSetRecord.Builder.newBuilder()
+                .id(datastore.getNextBuildConfigSetRecordId())
                 .buildConfigurationSet(buildConfigurationSet1)
                 .startTime(new Date())
                 .endTime(new Date())
@@ -328,6 +335,7 @@ public class DatabaseDataInitializer {
         buildConfigSetRecordRepository.save(buildConfigSetRecord1);
 
         BuildConfigSetRecord buildConfigSetRecord2 = BuildConfigSetRecord.Builder.newBuilder()
+                .id(datastore.getNextBuildConfigSetRecordId())
                 .buildConfigurationSet(buildConfigurationSet1)
                 .buildRecords(buildRecords)
                 .startTime(new Date())

@@ -17,7 +17,7 @@
  */
 package org.jboss.pnc.core.test.buildCoordinator.event;
 
-import org.jboss.pnc.spi.events.BuildStatusChangedEvent;
+import org.jboss.pnc.spi.events.BuildSetStatusChangedEvent;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
@@ -26,18 +26,18 @@ import java.util.List;
 import java.util.function.Consumer;
 
 @ApplicationScoped
-public class TestCDIBuildStatusChangedReceiver {
+public class TestCDIBuildSetStatusChangedReceiver {
 
-    public static final TestCDIBuildStatusChangedReceiver INSTANCE = new TestCDIBuildStatusChangedReceiver();
+    public static final TestCDIBuildSetStatusChangedReceiver INSTANCE = new TestCDIBuildSetStatusChangedReceiver();
 
-    private List<Consumer<BuildStatusChangedEvent>> listeners = new LinkedList<>();
+    private List<Consumer<BuildSetStatusChangedEvent>> listeners = new LinkedList<>();
 
-    public void addBuildStatusChangedEventListener(Consumer<BuildStatusChangedEvent> listener) {
+    public void addBuildSetStatusChangedEventListener(Consumer<BuildSetStatusChangedEvent> listener) {
         listeners.add(listener);
     }
 
-    synchronized public void collectEvent(@Observes BuildStatusChangedEvent buildStatusChangedEvent) {
-        listeners.stream().forEach(listener -> listener.accept(buildStatusChangedEvent));
+    synchronized public void collectEvent(@Observes BuildSetStatusChangedEvent buildSetStatusChangedEvent) {
+        listeners.stream().forEach(listener -> listener.accept(buildSetStatusChangedEvent));
     }
 
     public void clear() {

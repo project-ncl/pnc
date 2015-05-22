@@ -40,9 +40,10 @@ public class BuildTask implements BuildExecution {
 
     public static final Logger log = LoggerFactory.getLogger(BuildTask.class);
 
+    private Integer buildTaskId;
+
     public BuildConfiguration buildConfiguration;
     private BuildExecutionType buildTaskType;
-    private BuildSetTask buildSetTask;
     BuildStatus status = BuildStatus.NEW;
     private String statusDescription;
 
@@ -65,37 +66,40 @@ public class BuildTask implements BuildExecution {
     //User who created the tasks
     private User user;
 
+    private BuildSetTask buildSetTask;
+
     BuildTask(BuildCoordinator buildCoordinator, BuildConfiguration buildConfiguration, String topContentId,
-              String buildSetContentId, String buildContentId, User user,
-              BuildSetTask buildSetTask) {
+              String buildSetContentId,
+              String buildContentId, 
+              BuildExecutionType buildTaskType, 
+              User user, 
+              BuildSetTask buildSetTask,
+              BuildTaskIdSupplier buildTaskIdSupplier) {
         this.buildCoordinator = buildCoordinator;
         this.buildConfiguration = buildConfiguration;
-        this.buildSetTask = buildSetTask;
+        this.buildTaskType = buildTaskType;
         this.buildStatusChangedEvent = buildCoordinator.getBuildStatusChangedEventNotifier();
         this.topContentId = topContentId;
         this.buildSetContentId = buildSetContentId;
         this.buildContentId = buildContentId;
         this.user = user;
+        this.buildSetTask = buildSetTask;
+        this.buildTaskId = buildTaskIdSupplier.get();
 
         this.startTime = System.currentTimeMillis();
         waiting = new HashSet<>();
-
-        this.buildTaskType = buildSetTask.getBuildTaskType();
     }
 
     public void setStatus(BuildStatus status) {
+        BuildStatus oldStatus = this.status;
         this.status = status;
-        notifyStatusUpdate();
+        BuildStatusChangedEvent buildStatusChanged = new DefaultBuildStatusChangedEvent(oldStatus, status, buildConfiguration.getId(), this);
+        log.debug("Updating build task {} status to {}", this.getId(), buildStatusChanged);
+        buildSetTask.taskStatusUpdated(buildStatusChanged);
+        buildStatusChangedEvent.fire(buildStatusChanged);
         if (status.equals(BuildStatus.DONE)) {
             waiting.forEach((submittedBuild) -> submittedBuild.requiredBuildCompleted(this));
         }
-    }
-
-    private void notifyStatusUpdate() {
-        BuildStatusChangedEvent buildStatusChanged = new DefaultBuildStatusChangedEvent(this.status, status, buildConfiguration.getId(), this);
-        log.debug("Updating build task {} status to {}", this.getId(), buildStatusChanged);
-        buildSetTask.taskStatusUpdated(this);
-        buildStatusChangedEvent.fire(buildStatusChanged);
     }
 
     void setRequiredBuilds(List<BuildTask> requiredBuilds) {
@@ -162,13 +166,13 @@ public class BuildTask implements BuildExecution {
 
         BuildTask buildTask = (BuildTask) o;
 
-        return buildConfiguration.equals(buildTask.getBuildConfiguration());
+        return buildTaskId.equals(buildTask.getId());
 
     }
 
     @Override
     public int hashCode() {
-        return buildConfiguration.hashCode();
+        return buildTaskId.hashCode();
     }
 
     void setStatusDescription(String statusDescription) {
@@ -177,7 +181,7 @@ public class BuildTask implements BuildExecution {
 
 
     public Integer getId() {
-        return buildConfiguration.getId();
+        return buildTaskId;
     }
 
     public String getBuildLog() {
@@ -199,5 +203,10 @@ public class BuildTask implements BuildExecution {
 
     public User getUser() {
         return user;
+    }
+
+    @Override
+    public String toString() {
+        return "id :" + buildTaskId + " " + buildConfiguration + " " + status;
     }
 }

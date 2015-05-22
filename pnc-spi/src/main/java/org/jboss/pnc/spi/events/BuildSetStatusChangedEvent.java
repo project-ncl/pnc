@@ -15,23 +15,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.spi.datastore;
+package org.jboss.pnc.spi.events;
 
-import org.jboss.pnc.model.BuildRecord;
-import org.jboss.pnc.model.User;
+import org.jboss.pnc.spi.BuildSetStatus;
 
 /**
- * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-11-24.
+ * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
-public interface Datastore {
+public interface BuildSetStatusChangedEvent {
 
-    void storeCompletedBuild(BuildRecord buildRecord) throws DatastoreException;
+    BuildSetStatus getOldStatus();
+    BuildSetStatus getNewStatus();
+    Integer getBuildSetTaskId();
 
-    User retrieveUserByUsername(String username);
-    
-    void createNewUser(User user);
-
-    int getNextBuildRecordId();
-
-    int getNextBuildConfigSetRecordId();
 }

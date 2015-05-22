@@ -54,6 +54,7 @@ public class DatastoreAdapter {
             RepositoryManagerResult repositoryManagerResult = buildResult.getRepositoryManagerResult();
 
             BuildRecord buildRecord = new BuildRecord();
+            buildRecord.setId(buildTask.getId());
             // Build driver results
             buildRecord.setBuildLog(buildDriverResult.getBuildLog());
             buildRecord.setStatus(buildDriverResult.getBuildDriverStatus().toBuildStatus());
@@ -75,6 +76,7 @@ public class DatastoreAdapter {
 
     public void storeResult(BuildTask buildTask, Throwable e) throws DatastoreException {
         BuildRecord buildRecord = new BuildRecord();
+        buildRecord.setId(buildTask.getId());
         StringWriter stackTraceWriter = new StringWriter();
         PrintWriter stackTracePrinter = new PrintWriter(stackTraceWriter);
         e.printStackTrace(stackTracePrinter);

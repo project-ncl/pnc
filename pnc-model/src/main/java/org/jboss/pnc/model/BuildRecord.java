@@ -39,8 +39,6 @@ public class BuildRecord implements GenericEntity<Integer> {
     private static final long serialVersionUID = -5472083609387609797L;
 
     @Id
-    @SequenceGenerator(name="build_record_id_seq", sequenceName="build_record_id_seq", allocationSize=1)    
-    @GeneratedValue(strategy=GenerationType.SEQUENCE, generator="build_record_id_seq")
     private Integer id;
 
     @NotNull

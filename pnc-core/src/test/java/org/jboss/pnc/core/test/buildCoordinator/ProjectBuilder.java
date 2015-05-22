@@ -19,7 +19,6 @@ package org.jboss.pnc.core.test.buildCoordinator;
 
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.pnc.common.Configuration;
-import org.jboss.pnc.common.util.ObjectWrapper;
 import org.jboss.pnc.core.BuildDriverFactory;
 import org.jboss.pnc.core.builder.BuildCoordinator;
 import org.jboss.pnc.core.builder.BuildSetTask;
@@ -40,7 +39,6 @@ import org.jboss.pnc.spi.events.BuildStatusChangedEvent;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.asset.EmptyAsset;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
-import org.junit.Assert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,7 +48,6 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Consumer;
 
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -70,7 +67,7 @@ public class ProjectBuilder {
     TestCDIBuildStatusChangedReceiver statusChangedReceiver;
 
     private static final Logger log = LoggerFactory.getLogger(ProjectBuilder.class);
-    public static final int N_STATUS_UPDATES = 13;
+    public static final int N_STATUS_UPDATES_PER_TASK = 13;
 
     @Deployment
     public static JavaArchive createDeployment() {
@@ -88,24 +85,20 @@ public class ProjectBuilder {
     }
 
     void buildProject(BuildConfiguration buildConfiguration) throws InterruptedException, CoreException {
-        log.info("Building project {}", buildConfiguration.getName());
+        log.debug("Building project {}", buildConfiguration.getName());
         List<BuildStatusChangedEvent> receivedStatuses = new CopyOnWriteArrayList<>();
 
         //Defines a number of callbacks, which are executed after buildStatus update
 
-        final Semaphore semaphore = registerReleaseListenersAndAcquireSemaphore(receivedStatuses, N_STATUS_UPDATES);
+        final Semaphore semaphore = registerReleaseListenersAndAcquireSemaphore(receivedStatuses, N_STATUS_UPDATES_PER_TASK);
 
         User user = null;
-        ObjectWrapper<Boolean> onCompleteCalled = new ObjectWrapper<>(Boolean.FALSE);
-        Consumer<BuildSetStatus> onComplete = (status) -> {
-            onCompleteCalled.set(Boolean.TRUE);
-        };
-        BuildTask buildTask = buildCoordinator.build(buildConfiguration, user, onComplete);
+        BuildTask buildTask = buildCoordinator.build(buildConfiguration, user);
+        log.info("Started build task {}", buildTask);
 
         assertBuildStartedSuccessfully(buildTask);
-        waitForStatusUpdates(N_STATUS_UPDATES, semaphore);
+        waitForStatusUpdates(N_STATUS_UPDATES_PER_TASK, semaphore);
         assertAllStatusUpdateReceived(receivedStatuses, buildConfiguration.getId());
-        Assert.assertEquals("OnComplete call-back was not called.", Boolean.TRUE, onCompleteCalled.get());
     }
 
     void buildProjects(BuildConfigurationSet buildConfigurationSet) throws InterruptedException, CoreException {
@@ -113,16 +106,12 @@ public class ProjectBuilder {
         List<BuildStatusChangedEvent> receivedStatuses = new CopyOnWriteArrayList<>();
 
         //Defines a number of callbacks, which are executed after buildStatus update
-        final int nStatusUpdates = N_STATUS_UPDATES * buildConfigurationSet.getBuildConfigurations().size();
+        final int nStatusUpdates = N_STATUS_UPDATES_PER_TASK * buildConfigurationSet.getBuildConfigurations().size();
 
         final Semaphore semaphore = registerReleaseListenersAndAcquireSemaphore(receivedStatuses, nStatusUpdates);
 
         User user = null;
-        ObjectWrapper<Boolean> onCompleteCalled = new ObjectWrapper<>(Boolean.FALSE);
-        Consumer<BuildSetStatus> onComplete = (status) -> {
-            onCompleteCalled.set(Boolean.TRUE);
-        };
-        BuildSetTask buildSetTask = buildCoordinator.build(buildConfigurationSet, user, onComplete);
+        BuildSetTask buildSetTask = buildCoordinator.build(buildConfigurationSet, user);
 
         assertBuildStartedSuccessfully(buildSetTask);
 
@@ -131,7 +120,6 @@ public class ProjectBuilder {
 
         log.info("Checking if received all status updates...");
         buildConfigurationSet.getBuildConfigurations().forEach(bc -> assertAllStatusUpdateReceived(receivedStatuses, bc.getId()));
-        Assert.assertEquals("OnComplete call-back was not called.", Boolean.TRUE, onCompleteCalled.get());
     }
 
     private Semaphore registerReleaseListenersAndAcquireSemaphore(List<BuildStatusChangedEvent> receivedStatuses, int nStatusUpdates) throws InterruptedException {
@@ -158,7 +146,7 @@ public class ProjectBuilder {
     }
 
     private void assertBuildStartedSuccessfully(BuildSetTask buildSetTask) {
-        List<BuildStatus> errorStates = Arrays.asList(BuildStatus.REJECTED, BuildStatus.SYSTEM_ERROR, BuildStatus.BUILD_ENV_SETUP_COMPLETE_WITH_ERROR);
+        List<BuildSetStatus> errorStates = Arrays.asList(BuildSetStatus.REJECTED);
         if (errorStates.contains(buildSetTask.getStatus())) {
             fail("Build " + buildSetTask.getId() + " has status:" + buildSetTask.getStatus() + " with description: " + buildSetTask.getStatusDescription());
         }
@@ -187,7 +175,7 @@ public class ProjectBuilder {
     private void assertStatusUpdateReceived(List<BuildStatusChangedEvent> receivedStatusEvents, BuildStatus status, Integer configurationId) {
         boolean received = false;
         for (BuildStatusChangedEvent receivedStatusEvent : receivedStatusEvents) {
-            if (receivedStatusEvent.getBuildConfigurationId().equals(configurationId) &&
+            if (receivedStatusEvent.getBuildTaskId().equals(configurationId) &&
                     receivedStatusEvent.getNewStatus().equals(status)) {
                 received = true;
                 break;

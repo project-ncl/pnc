@@ -34,8 +34,6 @@ public class BuildConfigSetRecord implements GenericEntity<Integer> {
     private static final long serialVersionUID = 1L;
 
     @Id
-    @SequenceGenerator(name="build_config_set_record_id_seq", sequenceName="build_config_set_record_id_seq", allocationSize=1)    
-    @GeneratedValue(strategy=GenerationType.SEQUENCE, generator="build_config_set_record_id_seq")
     private Integer id;
 
     /**

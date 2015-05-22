@@ -52,7 +52,7 @@ public class ConfigurationsTest extends ProjectBuilder {
 
         User user = null;
 
-        BuildTask buildTask = buildCoordinator.build(buildConfiguration, user, null);
+        BuildTask buildTask = buildCoordinator.build(buildConfiguration, user);
         Assert.assertEquals(BuildStatus.REJECTED, buildTask.getStatus());
         Assert.assertTrue("Invalid status description: " + buildTask.getStatusDescription(), buildTask.getStatusDescription().contains("itself"));
     }
@@ -66,7 +66,7 @@ public class ConfigurationsTest extends ProjectBuilder {
 
         User user = null;
 
-        BuildSetTask buildSetTask = buildCoordinator.build(buildConfigurationSet, user, null);
+        BuildSetTask buildSetTask = buildCoordinator.build(buildConfigurationSet, user);
         Assert.assertEquals(BuildSetStatus.REJECTED, buildSetTask.getStatus());
         Assert.assertTrue("Invalid status description: " + buildSetTask.getStatusDescription(), buildSetTask.getStatusDescription().contains("Cycle dependencies found"));
     }

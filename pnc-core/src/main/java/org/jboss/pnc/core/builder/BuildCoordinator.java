@@ -37,12 +37,14 @@ import org.jboss.pnc.spi.builddriver.BuildDriverResult;
 import org.jboss.pnc.spi.builddriver.BuildDriverStatus;
 import org.jboss.pnc.spi.builddriver.CompletedBuild;
 import org.jboss.pnc.spi.builddriver.RunningBuild;
+import org.jboss.pnc.spi.datastore.Datastore;
 import org.jboss.pnc.spi.datastore.DatastoreException;
 import org.jboss.pnc.spi.environment.DestroyableEnvironmnet;
 import org.jboss.pnc.spi.environment.EnvironmentDriver;
 import org.jboss.pnc.spi.environment.RunningEnvironment;
 import org.jboss.pnc.spi.environment.StartedEnvironment;
 import org.jboss.pnc.spi.environment.exception.EnvironmentDriverException;
+import org.jboss.pnc.spi.events.BuildSetStatusChangedEvent;
 import org.jboss.pnc.spi.events.BuildStatusChangedEvent;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManager;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
@@ -87,6 +89,8 @@ public class BuildCoordinator {
     private EnvironmentDriverFactory environmentDriverFactory;
     private DatastoreAdapter datastoreAdapter;
     private Event<BuildStatusChangedEvent> buildStatusChangedEventNotifier;
+    private Event<BuildSetStatusChangedEvent> buildSetStatusChangedEventNotifier;
+    private Datastore datastore;
 
     @Deprecated
     public BuildCoordinator(){} //workaround for CDI constructor parameter injection
@@ -94,49 +98,49 @@ public class BuildCoordinator {
     @Inject
     public BuildCoordinator(BuildDriverFactory buildDriverFactory, RepositoryManagerFactory repositoryManagerFactory,
                             EnvironmentDriverFactory environmentDriverFactory, DatastoreAdapter datastoreAdapter,
-                            Event<BuildStatusChangedEvent> buildStatusChangedEventNotifier) {
+                            Event<BuildStatusChangedEvent> buildStatusChangedEventNotifier,
+                            Event<BuildSetStatusChangedEvent> buildSetStatusChangedEventNotifier,
+                            Datastore datastore) {
         this.buildDriverFactory = buildDriverFactory;
         this.repositoryManagerFactory = repositoryManagerFactory;
         this.datastoreAdapter = datastoreAdapter;
         this.environmentDriverFactory = environmentDriverFactory;
         this.buildStatusChangedEventNotifier = buildStatusChangedEventNotifier;
+        this.buildSetStatusChangedEventNotifier = buildSetStatusChangedEventNotifier;
+        this.datastore = datastore;
     }
 
-    /**
-     *
-     * @param buildConfiguration
-     * @param userTriggeredBuild
-     * @param onComplete set null if callback is not required
-     * @return
-     * @throws CoreException
-     */
-    public BuildTask build(BuildConfiguration buildConfiguration, User userTriggeredBuild, Consumer<BuildSetStatus> onComplete) throws CoreException {
+    public BuildTask build(BuildConfiguration buildConfiguration, User userTriggeredBuild) throws CoreException {
         BuildConfigurationSet buildConfigurationSet = new BuildConfigurationSet();
         buildConfigurationSet.setName(buildConfiguration.getName());
         buildConfigurationSet.addBuildConfiguration(buildConfiguration);
-        BuildSetTask buildSetTask = new BuildSetTask(buildConfigurationSet, BuildExecutionType.STANDALONE_BUILD, onComplete);
+        BuildSetTask buildSetTask = new BuildSetTask(
+                this,
+                buildConfigurationSet,
+                BuildExecutionType.STANDALONE_BUILD,
+                () -> datastore.getNextBuildConfigSetRecordId());
         build(buildSetTask, userTriggeredBuild);
         BuildTask buildTask = buildSetTask.getBuildTasks().stream().collect(StreamCollectors.singletonCollector());
         return buildTask;
     }
 
-    /**
-     *
-     * @param buildConfigurationSet
-     * @param userTriggeredBuild
-     * @param onComplete set null if callback is not required
-     * @return
-     * @throws CoreException
-     */
-    public BuildSetTask build(BuildConfigurationSet buildConfigurationSet, User userTriggeredBuild, Consumer<BuildSetStatus> onComplete) throws CoreException {
-        BuildSetTask buildSetTask = new BuildSetTask(buildConfigurationSet, BuildExecutionType.COMPOSED_BUILD, onComplete);
+    public BuildSetTask build(BuildConfigurationSet buildConfigurationSet, User userTriggeredBuild) throws CoreException {
+        BuildSetTask buildSetTask = new BuildSetTask(
+                this,
+                buildConfigurationSet,
+                BuildExecutionType.COMPOSED_BUILD,
+                () -> datastore.getNextBuildConfigSetRecordId());
         build(buildSetTask, userTriggeredBuild);
         return buildSetTask;
     }
 
     private void build(BuildSetTask buildSetTask, User userTriggeredBuild) throws CoreException {
 
-        BuildTasksTree buildTasksTree = BuildTasksTree.newInstance(this, buildSetTask, userTriggeredBuild);
+        BuildTasksTree buildTasksTree = new BuildTasksTree(
+                this,
+                buildSetTask,
+                userTriggeredBuild,
+                () -> datastore.getNextBuildRecordId());
 
         Predicate<Vertex<BuildTask>> acceptOnlyStatus = (vertex) -> {
             BuildTask build = vertex.getData();
@@ -155,7 +159,7 @@ public class BuildCoordinator {
             }
         };
 
-        if (!BuildStatus.REJECTED.equals(buildSetTask.getStatus())) {
+        if (!BuildSetStatus.REJECTED.equals(buildSetTask.getStatus())) {
             buildTasksTree.getBuildTasks().stream()
                     .filter(acceptOnlyStatus)
                     .filter(rejectAlreadySubmitted)
@@ -408,4 +412,7 @@ public class BuildCoordinator {
         return buildStatusChangedEventNotifier;
     }
 
+    Event<BuildSetStatusChangedEvent> getBuildSetStatusChangedEventNotifier() {
+        return buildSetStatusChangedEventNotifier;
+    }
 }

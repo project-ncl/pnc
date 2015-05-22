@@ -19,7 +19,6 @@ package org.jboss.pnc.core.test.buildCoordinator;
 
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.junit.InSequence;
-import org.jboss.pnc.core.builder.BuildTask;
 import org.jboss.pnc.core.test.configurationBuilders.TestProjectConfigurationBuilder;
 import org.jboss.pnc.model.BuildRecord;
 import org.junit.Assert;
@@ -31,15 +30,16 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2015-01-06.
  */
 @RunWith(Arquillian.class)
-public class MultipleProjectsBuild extends ProjectBuilder {
+public class MultipleProjectsBuildTest extends ProjectBuilder {
 
-    private static final Logger log = Logger.getLogger(MultipleProjectsBuild.class.getName());
+    private static final Logger log = Logger.getLogger(MultipleProjectsBuildTest.class.getName());
+    private final int N_PROJECTS = 100;
+
 
     @Test
     @InSequence(10)
@@ -50,43 +50,48 @@ public class MultipleProjectsBuild extends ProjectBuilder {
         TestProjectConfigurationBuilder configurationBuilder = new TestProjectConfigurationBuilder();
 
         List<Runnable> list = new ArrayList<>();
-        for (int i = 0; i < 100; i++) { //create 100 project configurations
-            buildProject(configurationBuilder.build(i, "c" + i + "-java"));
+        for (int i = 0; i < N_PROJECTS; i++) { //create N project configurations
+            Integer id = i;
+            list.add(() -> {
+                try {
+                    buildProject(configurationBuilder.build(id, "c" + id + "-java"));
+                } catch (Exception e) {
+                    throw new AssertionError(e);
+                }
+            });
         }
 
         Function<Runnable, Thread> runInNewThread = (r) -> {
-            Thread t = new Thread(r);
+            Thread t = new Thread(r, "test-build");
             t.start();
             return t;
         };
 
         Consumer<Thread> waitToComplete = (t) -> {
             try {
+                log.fine("Waiting thread to complete: " + t);
                 t.join(30000);
             } catch (InterruptedException e) {
                 throw new AssertionError("Interrupted while waiting threads to complete", e);
             }
         };
 
-        List<Thread> threads = list.stream().map(runInNewThread).collect(Collectors.toList());
+//        List<Thread> threads = list.stream().map(runInNewThread).collect(Collectors.toList());
+//        threads.forEach(waitToComplete);
+        list.forEach((r) -> r.run()); //TODO re-enable parallel builds
 
-        Assert.assertTrue("There are no running builds.", buildCoordinator.getBuildTasks().size() > 0);
-        BuildTask buildTask = buildCoordinator.getBuildTasks().iterator().next();
-        Assert.assertTrue("Build has no status.", buildTask.getStatus() != null);
-
-        threads.forEach(waitToComplete);
         log.info("Completed multiple projects build test in " + (System.currentTimeMillis() - startTime) + "ms.");
     }
 
     @Test
     @InSequence(20)
-    public void checkDatabaseForResult() {  //TODO datastore task is waiting all build to complete see BuildCoordinator::startBuilding
+    public void checkDatabaseForResult() {
         List<BuildRecord> buildRecords = datastore.getBuildRecords();
         Assert.assertEquals("Wrong datastore results count.", 100, buildRecords.size());
 
         BuildRecord buildRecord = buildRecords.get(0);
         String buildLog = buildRecord.getBuildLog();
-        Assert.assertTrue("Invalid build log.", buildLog.contains("Finished: SUCCESS"));
+        Assert.assertTrue("Invalid build log: " + buildLog, buildLog.contains("Finished: SUCCESS"));
 
         assertBuildArtifactsPresent(buildRecord.getBuiltArtifacts());
         assertBuildArtifactsPresent(buildRecord.getDependencies());
