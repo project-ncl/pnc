@@ -30,11 +30,11 @@ import java.util.Date;
  */
 public class ContentIdentityManager {
 
-    private static final String PRODUCT_CONTENT_ID_FORMAT = "product+%s+%s";
+    private static final String PRODUCT_CONTENT_ID_FORMAT = "product_%s_%s";
 
-    private static final String BUILD_SET_CONTENT_ID_FORMAT = "set+%s+%s";
+    private static final String BUILD_SET_CONTENT_ID_FORMAT = "set_%s_%s";
 
-    private static final String BUILD_CONTENT_ID_FORMAT = "build+%s+%s";
+    private static final String BUILD_CONTENT_ID_FORMAT = "build_%s_%s";
 
     private static final String TIMESTAMP_FORMAT = "yyyyMMdd.HHmm";
 
