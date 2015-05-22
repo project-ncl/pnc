@@ -85,6 +85,7 @@
                 <th>Deliverables</th>
                 <th>Info</th>
                 <th>Support Level</th>
+                <th>Actions</th>
               </thead>
               <tbody>
                 <tr ng-repeat="productrelease in versionCtrl.productreleases">
@@ -93,6 +94,14 @@
                   <td class="text-center"><a ng-href="{{ productrelease.downloadUrl }}" target="_self" class="btn btn-primary">Download</a></td>
                   <td>Released from Milestone <strong>{{ versionCtrl.getMilestoneVersion(productrelease.productMilestoneId) }}</strong></td>
                   <td>{{ productrelease.supportLevel }}</td>
+                  <td>
+                    <button type="button" class="btn btn-sm btn-default" data-toggle="tooltip" title="Edit Release" ui-sref="product.version.release.update({ releaseId: productrelease.id })">
+                      <i class="pficon pficon-edit"></i>
+                    </button>
+                    <button type="button" class="btn btn-sm btn-danger disabled" data-toggle="tooltip" title="Delete Release">
+                      <i class="pficon pficon-delete"></i>
+                    </button>
+                  </td>
                 </tr>
               </tbody>
           </table>
