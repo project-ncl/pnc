@@ -42,6 +42,7 @@
       <label for="input-milestone" class="col-sm-2 control-label">From Milestone</label>
       <div ng-if="!releaseCreateUpdateCtrl.isUpdating" class="col-sm-10">
         <select ng-model="releaseCreateUpdateCtrl.productMilestoneId" required>
+          <option></option>
           <option ng-repeat="milestone in releaseCreateUpdateCtrl.versionMilestones" value="{{ milestone.id }}">
             {{ milestone.version }}
           </option>
@@ -55,10 +56,9 @@
     <div class="form-group">
       <label for="input-supportlevel" class="col-sm-2 control-label">Support Level</label>
       <div class="col-sm-10">
-        <select ng-model="releaseCreateUpdateCtrl.data.supportLevel" required>
-          <option ng-repeat="supportLevel in releaseCreateUpdateCtrl.supportLevels" value="{{ supportLevel }}">
-            {{ supportLevel }}
-          </option>
+        <select required ng-model="releaseCreateUpdateCtrl.data.supportLevel"
+          ng-options="supportLevel for supportLevel in releaseCreateUpdateCtrl.supportLevels">
+          <option></option>
         </select>
       </div>
     </div>

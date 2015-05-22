@@ -32,7 +32,6 @@
          that.isUpdating = true;
          that.data = releaseDetail;
          that.productMilestoneId = releaseDetail.productMilestoneId;
-         that.data.supportLevel = releaseDetail.supportLevel;
 
          // Remove the prefix
          that.version = that.data.version.substring(versionDetail.version.length+1);
