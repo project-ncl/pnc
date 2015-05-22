@@ -1034,6 +1034,7 @@
               <exclude>**/README</exclude>
               <exclude>**/LICENSE.txt</exclude>
               <exclude>.license-header.txt</exclude>
+              <exclude>plugins.txt</exclude>
 
               <!-- Exclude downloaded/generated -->
               <exclude>**/.tmp/**</exclude>
