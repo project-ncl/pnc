@@ -1,9 +1,10 @@
 <div>
   <div class="page-header">
-    <h1>Create release for {{ releaseCreateCtrl.product.name }} {{ releaseCreateCtrl.productVersion.version }}</h1>
+    <h1 ng-if="!releaseCreateUpdateCtrl.isUpdating">Create release for {{ releaseCreateUpdateCtrl.product.name }} {{ releaseCreateUpdateCtrl.productVersion.version }}</h1>
+    <h1 ng-if="releaseCreateUpdateCtrl.isUpdating">Update release {{ releaseCreateUpdateCtrl.data.version }} of {{ releaseCreateUpdateCtrl.product.name }} {{ releaseCreateUpdateCtrl.productVersion.version }}</h1>
   </div>
 
-  <form class="form-horizontal" name="releaseForm" ng-submit="releaseCreateCtrl.submit()">
+  <form class="form-horizontal" name="releaseForm" ng-submit="releaseCreateUpdateCtrl.submit()">
 
     <div class="form-group" ng-class="validation.version.any ? 'has-error' : ''">
       <label for="input-version" class="col-sm-2 control-label">
@@ -11,8 +12,8 @@
       </label>
       <div class="col-sm-10">
         <div class="input-group">
-          <span class="input-group-addon">{{ releaseCreateCtrl.productVersion.version }}.</span>
-          <input id="input-version" class="form-control" name="version" ng-model="releaseCreateCtrl.data.version">
+          <span class="input-group-addon">{{ releaseCreateUpdateCtrl.productVersion.version }}.</span>
+          <input id="input-version" class="form-control" name="version" ng-model="releaseCreateUpdateCtrl.version">
         </div>
         <span class="help-block" ng-show="validation.version.required">Required field.</span>
         <span class="help-block" ng-show="validation.version.format">Version must start with a number.</span>
@@ -31,7 +32,7 @@
             </button>
           </span>
           <input id="input-end-date" type="text" class="form-control" datepicker-popup="{{format}}"
-                 ng-model="releaseCreateCtrl.data.releaseDate" is-open="opened[1]" close-text="Close" placeholder="yyyy/mm/dd"/>
+                 ng-model="releaseCreateUpdateCtrl.data.releaseDate" is-open="opened[1]" close-text="Close" placeholder="yyyy/mm/dd"/>
         </div>
         <span class="help-block" ng-show="validation.releaseDate.required">Required field.</span>
       </div>
@@ -39,22 +40,23 @@
 
     <div class="form-group">
       <label for="input-milestone" class="col-sm-2 control-label">From Milestone</label>
-      <div class="col-sm-10">
-        <select ng-model="releaseCreateCtrl.productMilestoneId" required>
-          <option value=""></option>
-          <option ng-repeat="milestone in releaseCreateCtrl.versionMilestones" value="{{ milestone.id }}">
+      <div ng-if="!releaseCreateUpdateCtrl.isUpdating" class="col-sm-10">
+        <select ng-model="releaseCreateUpdateCtrl.productMilestoneId" required>
+          <option ng-repeat="milestone in releaseCreateUpdateCtrl.versionMilestones" value="{{ milestone.id }}">
             {{ milestone.version }}
           </option>
         </select>
+      </div>
+      <div ng-if="releaseCreateUpdateCtrl.isUpdating" class="col-sm-10">
+        <label for="input-milestone" class="control-label bigger-text">{{ releaseCreateUpdateCtrl.productMilestoneVersion }}</label>
       </div>
     </div>
 
     <div class="form-group">
       <label for="input-supportlevel" class="col-sm-2 control-label">Support Level</label>
       <div class="col-sm-10">
-        <select ng-model="releaseCreateCtrl.data.supportLevel" required>
-          <option value=""></option>
-          <option ng-repeat="supportLevel in releaseCreateCtrl.supportLevels" value="{{ supportLevel }}">
+        <select ng-model="releaseCreateUpdateCtrl.data.supportLevel" required>
+          <option ng-repeat="supportLevel in releaseCreateUpdateCtrl.supportLevels" value="{{ supportLevel }}">
             {{ supportLevel }}
           </option>
         </select>
@@ -67,7 +69,7 @@
       </label>
       <div class="col-sm-10">
         <div class="input-group">
-          <input id="input-downloadurl" class="form-control" name="downloadUrl" ng-model="releaseCreateCtrl.data.downloadUrl">
+          <input id="input-downloadurl" class="form-control" name="downloadUrl" ng-model="releaseCreateUpdateCtrl.data.downloadUrl">
         </div>
         <span class="help-block" ng-show="validation.downloadUrl.required">Required field.</span>
       </div>
@@ -75,7 +77,8 @@
 
     <div class="form-group">
       <div class="col-sm-offset-2 col-sm-10">
-        <input type="submit" class="btn btn-primary" value="Create">
+        <input ng-if="!releaseCreateUpdateCtrl.isUpdating" type="submit" class="btn btn-primary" value="Create">
+        <input ng-if="releaseCreateUpdateCtrl.isUpdating" type="submit" class="btn btn-primary" value="Update">
         <input type="reset" class="btn btn-default" value="Clear">
       </div>
     </div>

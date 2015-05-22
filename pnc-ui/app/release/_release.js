@@ -13,8 +13,10 @@
 
 
   module.config(['$stateProvider', function ($stateProvider) {
-    $stateProvider.state('product.version.release', {
+    $stateProvider
+    .state('product.version.release', {
       abstract: true,
+      url: '/release',
       views: {
         'content@': {
           templateUrl: 'common/templates/single-col.tmpl.html'
@@ -23,17 +25,37 @@
       data: {
         proxy: 'product.version.release.create'
       }
-    });
-
-
-    $stateProvider.state('product.version.release.create', {
-      url: '/release/create',
-      templateUrl: 'release/views/release.create.html',
+    })
+    .state('product.version.release.create', {
+      url: '/create',
+      templateUrl: 'release/views/release.create-update.html',
       data: {
         displayName: 'Create Release'
       },
-      controller: 'ReleaseCreateController',
-      controllerAs: 'releaseCreateCtrl'
+      controller: 'ReleaseCreateUpdateController',
+      controllerAs: 'releaseCreateUpdateCtrl',
+      resolve: {
+        restClient: 'PncRestClient',
+        releaseDetail: function() {
+          return null;
+        },
+      },
+    })
+    .state('product.version.release.update', {
+      url: '/{releaseId:int}/update',
+      templateUrl: 'release/views/release.create-update.html',
+      data: {
+        displayName: 'Update Release'
+      },
+      controller: 'ReleaseCreateUpdateController',
+      controllerAs: 'releaseCreateUpdateCtrl',
+      resolve: {
+        restClient: 'PncRestClient',
+        releaseDetail: function(restClient, $stateParams) {
+          return restClient.Release.get({ releaseId: $stateParams.releaseId })
+          .$promise;
+        },
+      },
     });
 
   }]);

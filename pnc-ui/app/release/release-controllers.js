@@ -4,7 +4,7 @@
 
   var module = angular.module('pnc.release');
 
-  module.controller('ReleaseCreateController', [
+  module.controller('ReleaseCreateUpdateController', [
     '$scope',
     '$state',
     '$stateParams',
@@ -13,8 +13,9 @@
     'Notifications',
     'productDetail',
     'versionDetail',
+    'releaseDetail',
     function ($scope, $state, $stateParams, $log, PncRestClient, Notifications,
-              productDetail, versionDetail) {
+              productDetail, versionDetail, releaseDetail) {
 
       var that = this;
 
@@ -24,7 +25,24 @@
       that.usedVersionMilestoneIds = [];      
       that.supportLevels = [];
 
+      that.isUpdating = false;
       that.data = new PncRestClient.Release();
+
+      if (releaseDetail !== null) {
+         that.isUpdating = true;
+         that.data = releaseDetail;
+         that.productMilestoneId = releaseDetail.productMilestoneId;
+         that.data.supportLevel = releaseDetail.supportLevel;
+
+         // Remove the prefix
+         that.version = that.data.version.substring(versionDetail.version.length+1);
+
+         // Need to convert from timestamp to date for the datepicker
+         var now = new Date();
+         var newTimestamp = that.data.releaseDate + (now.getTimezoneOffset() * 60 * 1000) - (12 * 60 * 60 * 1000);
+         now.setTime(newTimestamp);
+         that.data.releaseDate = now;
+      }
 
       // I need to gather the existing Releases, as Milestone can be associated with only one Release at the most
       PncRestClient.Release.getAllForProductVersion({
@@ -43,7 +61,10 @@
               angular.forEach(results, function(result){
                 if (that.usedVersionMilestoneIds.indexOf(result.id) === -1) {
                   that.versionMilestones.push(result);
-                } 
+                }
+                if (that.productMilestoneId && result.id === that.productMilestoneId) {
+                  that.productMilestoneVersion = result.version;
+                }
               });
             }
           );
@@ -77,8 +98,8 @@
       };
 
       var validate = function () {
-        $scope.validation.version.required = !that.data.version || !that.data.version.length;
-        $scope.validation.version.format = !/^[0-9]/.test(that.data.version);
+        $scope.validation.version.required = !that.version || !that.version.length;
+        $scope.validation.version.format = !/^[0-9]/.test(that.version);
         $scope.validation.version.any = $scope.validation.version.required || $scope.validation.version.format;
 
         $scope.validation.releaseDate.required = !that.data.releaseDate;
@@ -106,25 +127,45 @@
           return;
         }
 
-        that.data.version = versionDetail.version + '.' + that.data.version; // add the prefix
+        that.data.version = versionDetail.version + '.' + that.version; // add the prefix
         that.data.releaseDate = convertToTimestamp(that.data.releaseDate);
         that.data.productVersionId = versionDetail.id;
         that.data.productMilestoneId = parseInt(that.productMilestoneId);
 
-        that.data.$saveForProductVersion({versionId: versionDetail.id}).then(
-          function (result) {
-            /* jshint unused:false */
-            Notifications.success('Release created');
-            $state.go('product.version', {
-              productId: productDetail.id,
-              versionId: versionDetail.id
-            }, {reload:true});
-          },
-          function (response) {
-            $log.error('Creation of Release: response: %O', response);
-            Notifications.error('Creation of release failed');
-          }
-        );
+        // Distinguish between release creation and update
+        if (!that.isUpdating) {
+          that.data.$saveForProductVersion({versionId: versionDetail.id}).then(
+            function (result) {
+              /* jshint unused:false */
+              Notifications.success('Release created');
+              $state.go('product.version', {
+                productId: productDetail.id,
+                versionId: versionDetail.id
+              }, {reload:true});
+            },
+            function (response) {
+              $log.error('Creation of Release: response: %O', response);
+              Notifications.error('Creation of release failed');
+            }
+          );
+        }
+        else {
+          that.data.$update().then(
+            function(result) {
+              /* jshint unused:false */
+              Notifications.success('Release updated');
+              $state.go('product.version', {
+                productId: productDetail.id,
+                versionId: versionDetail.id
+              }, {reload:true});
+            },
+            function(response) {
+              $log.error('Update release: %O failed, response: %O',
+                       that.data, response);
+              Notifications.error('Release update failed');
+            }
+          );
+        }
       };
 
       $scope.opened = [];
