@@ -188,7 +188,6 @@ public class BuildConfigurationRestTest {
         configurationTemplate.addValue("_name", updatedName);
         configurationTemplate.addValue("_buildScript", updatedBuildScript);
         configurationTemplate.addValue("_scmRepoURL", updatedScmUrl);
-        configurationTemplate.addValue("_patchesUrl", "");
         configurationTemplate.addValue("_creationTime", String.valueOf(1518382545038L));
         configurationTemplate.addValue("_lastModificationTime", String.valueOf(155382545038L));
         configurationTemplate.addValue("_repositories", "");
@@ -260,8 +259,6 @@ public class BuildConfigurationRestTest {
                 clonedBuildConfiguration.body().jsonPath().getString("buildScript"));
         assertThat(originalBuildConfiguration.body().jsonPath().getString("scmRepoURL")).isEqualTo(
                 clonedBuildConfiguration.body().jsonPath().getString("scmRepoURL"));
-        assertThat(originalBuildConfiguration.body().jsonPath().getString("patchesUrl")).isEqualTo(
-                clonedBuildConfiguration.body().jsonPath().getString("patchesUrl"));
         assertThat(originalBuildConfiguration.body().jsonPath().getString("lastModificationTime")).isEqualTo(
                 clonedBuildConfiguration.body().jsonPath().getString("lastModificationTime"));
         assertThat(originalBuildConfiguration.body().jsonPath().getString("repositories")).isEqualTo(
@@ -281,7 +278,6 @@ public class BuildConfigurationRestTest {
         configurationTemplate.addValue("_name", name);
         configurationTemplate.addValue("_buildScript", buildScript);
         configurationTemplate.addValue("_scmRepoURL", scmUrl);
-        configurationTemplate.addValue("_patchesUrl", "");
         configurationTemplate.addValue("_creationTime", String.valueOf(1518382545038L));
         configurationTemplate.addValue("_lastModificationTime", String.valueOf(155382545038L));
         configurationTemplate.addValue("_repositories", "");

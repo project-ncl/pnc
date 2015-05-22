@@ -31,7 +31,7 @@ import java.util.Set;
 
 /**
  * The Class BuildConfiguration cointains the informations needed to trigger the build of a project, i.e. the sources and
- * patches URLs, the build script, the environment needed to run, the project configurations that need to be triggered after a
+ * the build script, the environment needed to run, the project configurations that need to be triggered after a
  * successful build. It contains also creation and last modification time for historical purposes
  * <p>
  * (project + name) should be unique
@@ -61,8 +61,6 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
     private String scmRevision;
 
     private String description;
-
-    private String patchesUrl;
 
     @NotAudited
     @ManyToMany
@@ -224,20 +222,6 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
      */
     public void setScmRevision(String scmRevision) {
         this.scmRevision = scmRevision;
-    }
-
-    /**
-     * @return the patchesUrl
-     */
-    public String getPatchesUrl() {
-        return patchesUrl;
-    }
-
-    /**
-     * @param patchesUrl the patchesUrl to set
-     */
-    public void setPatchesUrl(String patchesUrl) {
-        this.patchesUrl = patchesUrl;
     }
 
     public String getDescription() {
@@ -503,8 +487,6 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
 
         private String scmRevision;
 
-        private String patchesUrl;
-
         private String description;
 
         private Project project;
@@ -606,11 +588,6 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
 
         public Builder scmRevision(String scmRevision) {
             this.scmRevision = scmRevision;
-            return this;
-        }
-
-        public Builder patchesUrl(String patchesUrl) {
-            this.patchesUrl = patchesUrl;
             return this;
         }
 

@@ -61,8 +61,6 @@ public class BuildConfigurationAudited implements GenericEntity<Integer> {
 
     private String description;
 
-    private String patchesUrl;
-
     @NotNull
     @ManyToOne
     private Project project;
@@ -163,20 +161,6 @@ public class BuildConfigurationAudited implements GenericEntity<Integer> {
      */
     public void setScmRevision(String scmRevision) {
         this.scmRevision = scmRevision;
-    }
-
-    /**
-     * @return the patchesUrl
-     */
-    public String getPatchesUrl() {
-        return patchesUrl;
-    }
-
-    /**
-     * @param patchesUrl the patchesUrl to set
-     */
-    public void setPatchesUrl(String patchesUrl) {
-        this.patchesUrl = patchesUrl;
     }
 
     public String getDescription() {
