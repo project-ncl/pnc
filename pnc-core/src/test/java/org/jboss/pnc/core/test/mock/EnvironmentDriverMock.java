@@ -26,7 +26,6 @@ import org.jboss.pnc.spi.repositorymanager.model.RepositorySession;
 
 import javax.enterprise.context.ApplicationScoped;
 
-import java.io.InputStream;
 import java.util.function.Consumer;
 
 /**
@@ -52,16 +51,6 @@ public class EnvironmentDriverMock implements EnvironmentDriver {
                     Consumer<Exception> onError) {
                 onComplete.accept(
                         new RunningEnvironment() {
-
-                            @Override
-                            public void transferDataToEnvironment(String pathOnHost, String data)
-                                    throws EnvironmentDriverException {
-                            }
-
-                            @Override
-                            public void transferDataToEnvironment(String pathOnHost, InputStream stream)
-                                    throws EnvironmentDriverException {
-                            }
 
                             @Override
                             public RepositorySession getRepositorySession() {
