@@ -128,6 +128,7 @@
                 <th>Release date</th>
                 <th>Deliverables</th>
                 <th>Build Record Set</th>
+                <th>Actions</th>
               </thead>
               <tbody>
                 <tr ng-repeat="productmilestone in versionCtrl.productmilestones">
@@ -137,6 +138,7 @@
                   <td>{{ productmilestone.releaseDate | date:'yyyy/MM/dd'}}</td>
                   <td class="text-center"><a ng-href="{{ productmilestone.downloadUrl }}" target="_self" class="btn btn-primary">Download</a></td>
                   <td>{{ productmilestone.buildRecordSetId }}</td>
+                  <td class="text-center"><a ui-sref="product.version.milestone.edit({ milestoneId: productmilestone.id })"  class="btn btn-default"><i class="pficon pficon-edit"></i></a></td>
                 </tr>
               </tbody>
             </table>

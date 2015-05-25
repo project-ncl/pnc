@@ -20,9 +20,9 @@
           templateUrl: 'common/templates/single-col.tmpl.html'
         }
       },
-      data: {
-        proxy: 'product.version.milestone.create'
-      }
+      //data: {
+      //  proxy: 'product.version.milestone.create'
+      //}
     });
 
 
@@ -34,6 +34,23 @@
       },
       controller: 'MilestoneCreateController',
       controllerAs: 'ctrl'
+    });
+
+
+    $stateProvider.state('product.version.milestone.edit', {
+      url: '/milestone/{milestoneId:int}/edit',
+      templateUrl: 'milestone/views/milestone.edit.html',
+      data: {
+        displayName: 'Edit Milestone'
+      },
+      controller: 'MilestoneEditController',
+      controllerAs: 'ctrl',
+      resolve: {
+        milestoneDetail: function (restClient, $stateParams) {
+          return restClient.Milestone.get({milestoneId: $stateParams.milestoneId})
+            .$promise;
+        }
+      }
     });
 
   }]);
