@@ -95,7 +95,6 @@ RUN echo "export M2_HOME=/usr/share/maven" >> /etc/profile
 RUN mkdir /root/.m2
 
 # Could be used for images based on this Docker image to specify default mirrored repository if different from Maven Central below
-ENV mavenRepositoryUrl http://repo.maven.apache.org/maven2
 ADD settings.xml /usr/share/maven/conf/settings.xml
 
 ADD isolate-with-iptables.sh /tmp/isolate-with-iptables.sh
