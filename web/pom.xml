@@ -28,7 +28,7 @@
     <version>0.5-SNAPSHOT</version>
   </parent>
 
-  <artifactId>pnc-web</artifactId>
+  <artifactId>web</artifactId>
   <packaging>war</packaging>
 
   <dependencies>

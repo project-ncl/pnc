@@ -28,7 +28,7 @@
     <version>0.5-SNAPSHOT</version>
   </parent>
 
-  <artifactId>pnc-rest</artifactId>
+  <artifactId>rest</artifactId>
   <packaging>war</packaging>
   
   <description>REST API. This is a series of classes that use JAX-RS to translate HTTP communications to calls into the action controllers in the core, and format any output (such as constructing resource URLs, etc.).</description>

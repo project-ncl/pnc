@@ -28,7 +28,7 @@
     <version>0.5-SNAPSHOT</version>
   </parent>
 
-  <artifactId>pnc-ui</artifactId>
+  <artifactId>ui</artifactId>
   <packaging>jar</packaging>
 
   <properties>
