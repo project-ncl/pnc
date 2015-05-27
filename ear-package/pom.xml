@@ -55,20 +55,20 @@
     </dependency>
     <dependency>
       <groupId>org.jboss.pnc</groupId>
-      <artifactId>pnc-core</artifactId>
+      <artifactId>build-coordinator</artifactId>
     </dependency>
     <dependency>
       <groupId>org.jboss.pnc</groupId>
-      <artifactId>pnc-model</artifactId>
+      <artifactId>model</artifactId>
     </dependency>
     <dependency>
       <groupId>org.jboss.pnc</groupId>
-      <artifactId>pnc-rest</artifactId>
+      <artifactId>rest</artifactId>
       <type>war</type>
     </dependency>
     <dependency>
       <groupId>org.jboss.pnc</groupId>
-      <artifactId>pnc-spi</artifactId>
+      <artifactId>spi</artifactId>
     </dependency>
     <dependency>
       <groupId>org.jboss.pnc</groupId>
@@ -80,7 +80,7 @@
     </dependency>
     <dependency>
       <groupId>org.jboss.pnc</groupId>
-      <artifactId>pnc-web</artifactId>
+      <artifactId>web</artifactId>
       <type>war</type>
     </dependency>
 
@@ -123,19 +123,19 @@
             </jarModule>
             <jarModule>
               <groupId>org.jboss.pnc</groupId>
-              <artifactId>pnc-core</artifactId>
+              <artifactId>build-coordinator</artifactId>
               <includeInApplicationXml>true</includeInApplicationXml>
               <bundleDir>/</bundleDir>
             </jarModule>
             <jarModule>
               <groupId>org.jboss.pnc</groupId>
-              <artifactId>pnc-model</artifactId>
+              <artifactId>model</artifactId>
               <includeInApplicationXml>true</includeInApplicationXml>
               <bundleDir>/</bundleDir>
             </jarModule>
             <jarModule>
               <groupId>org.jboss.pnc</groupId>
-              <artifactId>pnc-spi</artifactId>
+              <artifactId>spi</artifactId>
               <includeInApplicationXml>true</includeInApplicationXml>
               <bundleDir>/</bundleDir>
             </jarModule>
@@ -153,12 +153,12 @@
             </jarModule>
             <webModule>
               <groupId>org.jboss.pnc</groupId>
-              <artifactId>pnc-rest</artifactId>
+              <artifactId>rest</artifactId>
               <bundleDir>/</bundleDir>
             </webModule>
             <webModule>
               <groupId>org.jboss.pnc</groupId>
-              <artifactId>pnc-web</artifactId>
+              <artifactId>web</artifactId>
               <bundleDir>/</bundleDir>
             </webModule>
           </modules>

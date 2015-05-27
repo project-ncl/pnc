@@ -227,20 +227,20 @@
 
       <dependency>
         <groupId>org.jboss.pnc</groupId>
-        <artifactId>pnc-core</artifactId>
+        <artifactId>build-coordinator</artifactId>
         <version>${project.version}</version>
       </dependency>
 
       <dependency>
         <groupId>org.jboss.pnc</groupId>
-        <artifactId>pnc-model</artifactId>
+        <artifactId>model</artifactId>
         <version>${project.version}</version>
       </dependency>
 
       <!-- Use this dependency to attach WAR itself -->
       <dependency>
         <groupId>org.jboss.pnc</groupId>
-        <artifactId>pnc-rest</artifactId>
+        <artifactId>rest</artifactId>
         <version>${project.version}</version>
         <type>war</type>
       </dependency>
@@ -248,7 +248,7 @@
       <!-- Use this dependency to attach transitive dependencies -->
       <dependency>
         <groupId>org.jboss.pnc</groupId>
-        <artifactId>pnc-rest</artifactId>
+        <artifactId>rest</artifactId>
         <version>${project.version}</version>
         <type>pom</type>
       </dependency>
@@ -256,26 +256,26 @@
       <!-- Use this dependency to attach war classes -->
       <dependency>
         <groupId>org.jboss.pnc</groupId>
-        <artifactId>pnc-rest</artifactId>
+        <artifactId>rest</artifactId>
         <version>${project.version}</version>
         <classifier>classes</classifier>
       </dependency>
 
       <dependency>
         <groupId>org.jboss.pnc</groupId>
-        <artifactId>pnc-spi</artifactId>
+        <artifactId>spi</artifactId>
         <version>${project.version}</version>
       </dependency>
 
       <dependency>
         <groupId>org.jboss.pnc</groupId>
-        <artifactId>pnc-ui</artifactId>
+        <artifactId>ui</artifactId>
         <version>${project.version}</version>
       </dependency>
 
       <dependency>
         <groupId>org.jboss.pnc</groupId>
-        <artifactId>pnc-web</artifactId>
+        <artifactId>web</artifactId>
         <version>${project.version}</version>
         <type>war</type>
       </dependency>
@@ -1378,7 +1378,7 @@
                       <artifactId>maven-scm-plugin</artifactId>
                       <version>1.8.1</version>
                       <configuration>
-                          <includes>pnc-ui/bower.json,pnc-ui/package.json,pnc-ui/npm-shrinkwrap.json</includes>
+                          <includes>ui/bower.json,ui/package.json,ui/npm-shrinkwrap.json</includes>
                           <message>Update JSON Versions</message>
                       </configuration>
                   </plugin>
@@ -1423,19 +1423,19 @@
                       <replaceregexp byline="false"
                                      flags="m"
                                      file="${basedir}/bower.json"
-                                     match="pnc-ui&quot;,&#10;  &quot;version&quot;: &quot;[0-9].*&quot;"
-                                     replace="pnc-ui&quot;,&#10;  &quot;version&quot;: &quot;${newversion}&quot;"/>
+                                     match="ui&quot;,&#10;  &quot;version&quot;: &quot;[0-9].*&quot;"
+                                     replace="ui&quot;,&#10;  &quot;version&quot;: &quot;${newversion}&quot;"/>
                       <replaceregexp byline="false"
                                      flags="m"
                                      file="${basedir}/package.json"
-                                     match="pnc-ui&quot;,&#10;  &quot;version&quot;: &quot;[0-9].*&quot;"
-                                     replace="pnc-ui&quot;,&#10;  &quot;version&quot;: &quot;${newversion}&quot;"/>
+                                     match="ui&quot;,&#10;  &quot;version&quot;: &quot;[0-9].*&quot;"
+                                     replace="ui&quot;,&#10;  &quot;version&quot;: &quot;${newversion}&quot;"/>
 
                       <replaceregexp byline="false"
                                      flags="m"
                                      file="${basedir}/npm-shrinkwrap.json"
-                                     match="pnc-ui&quot;,&#10;  &quot;version&quot;: &quot;[0-9].*&quot;"
-                                     replace="pnc-ui&quot;,&#10;  &quot;version&quot;: &quot;${newversion}&quot;"/>
+                                     match="ui&quot;,&#10;  &quot;version&quot;: &quot;[0-9].*&quot;"
+                                     replace="ui&quot;,&#10;  &quot;version&quot;: &quot;${newversion}&quot;"/>
 
                     </target>
                   </configuration>

@@ -47,12 +47,12 @@
     </dependency>
     <dependency>
       <groupId>org.jboss.pnc</groupId>
-      <artifactId>pnc-core</artifactId>
+      <artifactId>build-coordinator</artifactId>
       <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.jboss.pnc</groupId>
-      <artifactId>pnc-model</artifactId>
+      <artifactId>model</artifactId>
       <scope>provided</scope>
     </dependency>
     <dependency>
@@ -62,7 +62,7 @@
     </dependency>
     <dependency>
       <groupId>org.jboss.pnc</groupId>
-      <artifactId>pnc-spi</artifactId>
+      <artifactId>spi</artifactId>
       <scope>provided</scope>
     </dependency>
 
