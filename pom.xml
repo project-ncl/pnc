@@ -55,7 +55,7 @@
     <module>ear-package</module>
     <module>jenkins-build-driver</module>
     <module>maven-repository-manager</module>
-    <module>pnc-core</module>
+    <module>build-coordinator</module>
     <module>pnc-model</module>
     <module>pnc-rest</module>
     <module>pnc-spi</module>
