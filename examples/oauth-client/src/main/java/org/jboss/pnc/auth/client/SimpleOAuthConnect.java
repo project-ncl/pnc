@@ -1,4 +1,4 @@
-package org.jboss.pnc.auth;
+package org.jboss.pnc.auth.client;
 
 import java.io.BufferedReader;
 import java.io.IOException;

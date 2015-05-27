@@ -55,13 +55,13 @@
     <module>ear-package</module>
     <module>jenkins-build-driver</module>
     <module>maven-repository-manager</module>
-    <module>pnc-core</module>
-    <module>pnc-model</module>
-    <module>pnc-rest</module>
-    <module>pnc-spi</module>
-    <module>pnc-ui</module>
-    <module>pnc-web</module>
-    <module>pnc-processes</module>
+    <module>build-coordinator</module>
+    <module>model</module>
+    <module>rest</module>
+    <module>spi</module>
+    <module>ui</module>
+    <module>web</module>
+    <module>processes</module>
     <module>docker-environment-driver</module>
     <module>demo-data</module>
     <module>integration-test</module>
@@ -1308,6 +1308,13 @@
   </repositories>
 
   <profiles>
+    <profile>
+      <id>examples</id>
+      <modules>
+        <module>examples/oauth-client</module>
+      </modules>
+    </profile>
+
     <profile>
       <id>container-tests</id>
       <properties>

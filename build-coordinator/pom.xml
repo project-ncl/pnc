@@ -28,7 +28,7 @@
     <version>0.5-SNAPSHOT</version>
   </parent>
 
-  <artifactId>pnc-core</artifactId>
+  <artifactId>build-coordinator</artifactId>
   <packaging>jar</packaging>
 
   <description>Contains implementations of action-controllers, which include the business logic for orchestrating builds, test runs, etc. Action controllers are used to isolate logic from the REST API, so it can be reused in embedded scenarios.</description>
