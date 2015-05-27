@@ -34,7 +34,7 @@
   <dependencies>
     <dependency>
       <groupId>org.jboss.pnc</groupId>
-      <artifactId>pnc-ui</artifactId>
+      <artifactId>ui</artifactId>
     </dependency>
   </dependencies>
   

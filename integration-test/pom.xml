@@ -45,7 +45,7 @@
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>pnc-rest</artifactId>
+      <artifactId>rest</artifactId>
       <scope>test</scope>
       <classifier>classes</classifier>
     </dependency>
