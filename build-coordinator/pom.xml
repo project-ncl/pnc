@@ -50,11 +50,11 @@
     <!-- Project dependencies -->
     <dependency>
       <groupId>org.jboss.pnc</groupId>
-      <artifactId>pnc-spi</artifactId>
+      <artifactId>spi</artifactId>
     </dependency>
     <dependency>
       <groupId>org.jboss.pnc</groupId>
-      <artifactId>pnc-model</artifactId>
+      <artifactId>model</artifactId>
     </dependency>
     <dependency>
       <groupId>org.jboss.pnc</groupId>
