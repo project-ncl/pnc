@@ -25,7 +25,7 @@
         http://java.sun.com/xml/ns/persistence/persistence_2_0.xsd">
    <persistence-unit name="primary">
        <jta-data-source>@persistence.jta-data-source@</jta-data-source>
-       <jar-file>pnc-model.jar</jar-file>
+       <jar-file>model.jar</jar-file>
        <properties>
          <!-- Properties for Hibernate -->
           <property name="hibernate.dialect" value="@persistence.hibernate.dialect@"/>
