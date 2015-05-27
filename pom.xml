@@ -1309,6 +1309,13 @@
 
   <profiles>
     <profile>
+      <id>examples</id>
+      <modules>
+        <module>examples/oauth-client</module>
+      </modules>
+    </profile>
+
+    <profile>
       <id>container-tests</id>
       <properties>
         <failsafe.test.skip>false</failsafe.test.skip>
