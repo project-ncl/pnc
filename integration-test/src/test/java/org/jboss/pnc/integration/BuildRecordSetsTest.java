@@ -74,7 +74,7 @@ public class BuildRecordSetsTest {
     @Deployment
     public static EnterpriseArchive deploy() {
         EnterpriseArchive enterpriseArchive = Deployments.baseEarWithTestDependencies();
-        WebArchive war = enterpriseArchive.getAsType(WebArchive.class, "/pnc-rest.war");
+        WebArchive war = enterpriseArchive.getAsType(WebArchive.class, "/rest.war");
         war.addClass(BuildRecordSetsTest.class);
         logger.info(enterpriseArchive.toString(true));
         return enterpriseArchive;

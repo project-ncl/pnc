@@ -62,7 +62,7 @@ public class Deployments {
     }
 
     private static void setTestableWar(EnterpriseArchive ear) {
-        WebArchive restWar = ear.getAsType(WebArchive.class, "/pnc-rest.war");
+        WebArchive restWar = ear.getAsType(WebArchive.class, "/rest.war");
         ear.addAsModule(Testable.archiveToTest(restWar));
     }
 

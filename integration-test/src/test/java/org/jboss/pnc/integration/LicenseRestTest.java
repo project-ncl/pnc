@@ -72,7 +72,7 @@ public class LicenseRestTest {
     public static EnterpriseArchive deploy() {
         EnterpriseArchive enterpriseArchive = Deployments.baseEar();
 
-        WebArchive restWar = enterpriseArchive.getAsType(WebArchive.class, "/pnc-rest.war");
+        WebArchive restWar = enterpriseArchive.getAsType(WebArchive.class, "/rest.war");
         restWar.addClass(LicenseProvider.class);
         restWar.addClass(LicenseEndpoint.class);
         restWar.addClass(LicenseRest.class);

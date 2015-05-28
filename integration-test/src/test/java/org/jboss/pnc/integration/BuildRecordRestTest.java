@@ -80,7 +80,7 @@ public class BuildRecordRestTest {
     public static EnterpriseArchive deploy() {
         EnterpriseArchive enterpriseArchive = Deployments.baseEar();
 
-        WebArchive restWar = enterpriseArchive.getAsType(WebArchive.class, "/pnc-rest.war");
+        WebArchive restWar = enterpriseArchive.getAsType(WebArchive.class, "/rest.war");
         restWar.addClass(BuildConfigurationProvider.class);
         restWar.addClass(BuildConfigurationEndpoint.class);
         restWar.addClass(BuildConfigurationRest.class);

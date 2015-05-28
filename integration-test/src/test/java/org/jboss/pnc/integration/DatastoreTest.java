@@ -89,10 +89,10 @@ public class DatastoreTest {
     @Deployment
     public static EnterpriseArchive deploy() {
         EnterpriseArchive enterpriseArchive = Deployments.baseEarWithTestDependencies();
-        WebArchive restWar = enterpriseArchive.getAsType(WebArchive.class, "/pnc-rest.war");
+        WebArchive restWar = enterpriseArchive.getAsType(WebArchive.class, "/rest.war");
         restWar.addClass(DatastoreTest.class);
 
-        JavaArchive pncModel = enterpriseArchive.getAsType(JavaArchive.class, "/pnc-model.jar");
+        JavaArchive pncModel = enterpriseArchive.getAsType(JavaArchive.class, "/model.jar");
         pncModel.addPackage(BuildConfiguration.class.getPackage());
 
         JavaArchive datastore = enterpriseArchive.getAsType(JavaArchive.class, "/datastore.jar");

@@ -66,7 +66,7 @@ public class WebSocketsNotificationTest {
     @Deployment(name="WebSocketsNotificationTest")
     public static EnterpriseArchive deploy() {
         EnterpriseArchive enterpriseArchive = Deployments.baseEarWithTestDependencies();
-        WebArchive restWar = enterpriseArchive.getAsType(WebArchive.class, "/pnc-rest.war");
+        WebArchive restWar = enterpriseArchive.getAsType(WebArchive.class, "/rest.war");
         restWar.addClass(WebSocketsNotificationTest.class);
         restWar.addClass(NotificationCollector.class);
         restWar.addPackage(NotificationsEndpoint.class.getPackage());

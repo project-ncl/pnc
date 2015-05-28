@@ -76,7 +76,7 @@ public class EnvironmentRestTest {
     public static EnterpriseArchive deploy() {
         EnterpriseArchive enterpriseArchive = Deployments.baseEar();
 
-        WebArchive restWar = enterpriseArchive.getAsType(WebArchive.class, "/pnc-rest.war");
+        WebArchive restWar = enterpriseArchive.getAsType(WebArchive.class, "/rest.war");
         restWar.addClass(EnvironmentProvider.class);
         restWar.addClass(EnvironmentEndpoint.class);
         restWar.addClass(EnvironmentRest.class);
