@@ -155,11 +155,13 @@
               <groupId>org.jboss.pnc</groupId>
               <artifactId>rest</artifactId>
               <bundleDir>/</bundleDir>
+	      <contextRoot>/pnc-rest</contextRoot> 
             </webModule>
             <webModule>
               <groupId>org.jboss.pnc</groupId>
               <artifactId>web</artifactId>
               <bundleDir>/</bundleDir>
+	      <contextRoot>/pnc-web</contextRoot> 
             </webModule>
           </modules>
         </configuration>
