@@ -19,6 +19,7 @@ package org.jboss.pnc.rest.endpoint;
 
 import java.lang.invoke.MethodHandles;
 import java.net.URI;
+import java.net.URL;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -50,6 +51,7 @@ import org.jboss.pnc.rest.restmodel.BuildConfigurationRest;
 import org.jboss.pnc.rest.restmodel.ProductVersionRest;
 import org.jboss.pnc.rest.trigger.BuildTriggerer;
 import org.jboss.pnc.spi.datastore.Datastore;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -143,6 +145,7 @@ public class BuildConfigurationEndpoint {
     @Path("/{id}/build")
     @Consumes(MediaType.WILDCARD)
     public Response trigger(@ApiParam(value = "Build Configuration id", required = true) @PathParam("id") Integer id,
+            @ApiParam(value = "Optional Callback URL", required = false) @QueryParam("callbackUrl") String callbackUrl,
             @Context UriInfo uriInfo) {
         try {
             AuthenticationProvider authProvider = new AuthenticationProvider(httpServletRequest);
@@ -159,7 +162,15 @@ public class BuildConfigurationEndpoint {
                         .email(authProvider.getEmail()).build();
                 datastore.createNewUser(currentUser);
             }
-            Integer runningBuildId = buildTriggerer.triggerBuilds(id, currentUser);
+            
+            Integer runningBuildId = null;
+            // if callbackUrl is provided trigger build accordingly
+            if (callbackUrl == null || callbackUrl.isEmpty()) {
+                runningBuildId = buildTriggerer.triggerBuilds(id, currentUser);
+            } else {
+                runningBuildId = buildTriggerer.triggerBuilds(id, currentUser, new URL(callbackUrl));
+            }
+            
             UriBuilder uriBuilder = UriBuilder.fromUri(uriInfo.getBaseUri()).path("/result/running/{id}");
             URI uri = uriBuilder.build(runningBuildId);
             return Response.ok(uri).header("location", uri).entity(buildRecordProvider.getSpecificRunning(runningBuildId)).build();

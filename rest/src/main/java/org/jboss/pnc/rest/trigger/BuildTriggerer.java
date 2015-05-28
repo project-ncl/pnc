@@ -17,7 +17,17 @@
  */
 package org.jboss.pnc.rest.trigger;
 
-import com.google.common.base.Preconditions;
+import org.apache.commons.codec.binary.Base64;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.conn.ssl.AllowAllHostnameVerifier;
+import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
+import org.apache.http.conn.ssl.SSLContextBuilder;
+import org.apache.http.conn.ssl.TrustStrategy;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+
+import org.jboss.logging.Logger;
 import org.jboss.pnc.core.builder.BuildCoordinator;
 import org.jboss.pnc.core.exception.CoreException;
 import org.jboss.pnc.core.notifications.buildSetTask.BuildSetCallBack;
@@ -38,15 +48,26 @@ import org.jboss.pnc.spi.events.BuildSetStatusChangedEvent;
 import org.jboss.pnc.spi.events.BuildStatusChangedEvent;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerException;
 
+import com.google.common.base.Preconditions;
+
 import javax.ejb.Stateless;
 import javax.inject.Inject;
+
+import java.io.IOException;
 import java.net.URL;
+import java.security.KeyManagementException;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 import java.util.List;
 import java.util.function.Consumer;
 
 @Stateless
 public class BuildTriggerer {
 
+    private final Logger log = Logger.getLogger(BuildTriggerer.class);
+    
     private BuildCoordinator buildCoordinator;
     private BuildConfigurationRepository buildConfigurationRepository;
     private BuildConfigurationAuditedRepository buildConfigurationAuditedRepository;
@@ -54,6 +75,10 @@ public class BuildTriggerer {
     private BuildSetStatusNotifications buildSetStatusNotifications;
     private BuildStatusNotifications buildStatusNotifications;
 
+    // TODO use config module
+    private String bpmUser = System.getenv("PNC_BPM_USERNAME");
+    private String bpmPwd = System.getenv("PNC_BPM_PASSWORD");
+    
     @Deprecated //not meant for usage its only to make CDI happy
     public BuildTriggerer() {
     }
@@ -77,8 +102,8 @@ public class BuildTriggerer {
             throws InterruptedException, CoreException, BuildDriverException, RepositoryManagerException
     {
         Consumer<BuildStatusChangedEvent> onStatusUpdate = (statusChangedEvent) -> {
-            //TODO call-back JBPM engine to notify completion
-            //callBackUrl.toString() + "&newStatus=" + statusEvent.getNewStatus();
+            // Expecting URL like: http://host:port/business-central/rest/runtime/org.test:Test1:1.0/process/instance/7/signal?signal=testSig
+            signalBpmEvent(callBackUrl.toString() + "&event=" + statusChangedEvent.getNewStatus());
         };
 
         int buildTaskId = triggerBuilds(buildConfigurationId, currentUser);
@@ -104,12 +129,12 @@ public class BuildTriggerer {
         return taskId;
     }
 
-    public int triggerBuildConfigurationSet( final Integer buildConfigurationSetId, User currentUser, URL callbackUrl)
+    public int triggerBuildConfigurationSet( final Integer buildConfigurationSetId, User currentUser, URL callBackUrl)
         throws InterruptedException, CoreException, BuildDriverException, RepositoryManagerException
     {
         Consumer<BuildSetStatusChangedEvent> onStatusUpdate = (statusChangedEvent) -> {
-            //TODO call-back JBPM engine to notify completion
-            //callBackUrl.toString() + "&newStatus=" + statusEvent.getNewStatus();
+            // Expecting URL like: http://host:port/business-central/rest/runtime/org.test:Test1:1.0/process/instance/7/signal?signal=testSig
+            signalBpmEvent(callBackUrl.toString() + "&event=" + statusChangedEvent.getNewStatus());
         };
 
         int buildSetTaskId = triggerBuildConfigurationSet(buildConfigurationSetId, currentUser);
@@ -143,5 +168,49 @@ public class BuildTriggerer {
             return null;
         }
         return buildConfigRevs.get(0);
+    }
+    
+    /*
+     * TODO: Do not ignore certificates, rather setup servers properly.
+     */
+    private void signalBpmEvent(String uri) {
+        SSLContextBuilder builder = new SSLContextBuilder();
+        try {
+            builder.loadTrustMaterial(null, new TrustStrategy() {
+                @Override
+                public boolean isTrusted(X509Certificate[] chain, String authType) throws CertificateException {
+                    return true;
+                }
+            });
+        } catch (NoSuchAlgorithmException | KeyStoreException e1) {
+            e1.printStackTrace();
+        }
+
+        SSLConnectionSocketFactory sslSF = null;
+        try {
+            sslSF = new SSLConnectionSocketFactory(builder.build(), SSLConnectionSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
+        } catch (KeyManagementException | NoSuchAlgorithmException e1) {
+            e1.printStackTrace();
+        }
+
+        CloseableHttpClient httpclient = HttpClients.custom().setSSLSocketFactory(sslSF)
+                .setHostnameVerifier(new AllowAllHostnameVerifier()).build();
+
+        HttpPost request = new HttpPost(uri);
+        request.addHeader("Authorization", getAuthHeader());
+        log.info("Executing request " + request.getRequestLine());
+
+        try (CloseableHttpResponse response = httpclient.execute(request)) {
+            log.info(response.getStatusLine());
+            response.close();
+            httpclient.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private String getAuthHeader() {
+        byte[] encodedBytes = Base64.encodeBase64((bpmUser + ":" + bpmPwd).getBytes());
+        return "Basic " + new String(encodedBytes);
     }
 }
