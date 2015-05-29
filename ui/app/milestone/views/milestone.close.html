@@ -1,0 +1,56 @@
+<div>
+
+  <div class="page-header">
+    <h1>Release milestone {{ milestoneCloseCtrl.data.version }}</h1>
+  </div>
+
+  <!-- novalidate prevents HTML5 validation since we will be validating ourselves -->
+  <form novalidate class="form-horizontal" name="milestoneForm" ng-submit="milestoneCloseCtrl.submit()">
+
+    <div class="form-group">
+      <label for="input-version" class="col-sm-2 control-label">Version</label>
+      <div class="col-sm-10">
+        <div class="input-group">
+          <label for="input-version" class="control-label bigger-text">{{milestoneCloseCtrl.data.version}}</label>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-group" ng-class="{ 'has-error' : milestoneForm.releaseDate.$invalid && !milestoneForm.releaseDate.$pristine }">
+      <label for="input-end-date" class="col-sm-2 control-label">
+        * Release date <span class="pficon pficon-info" title="Release date, e.g. '2035/01/15', time is set to noon UTC."></span>
+      </label>
+      <div class="col-sm-10">
+        <div class="input-group">
+          <span class="input-group-btn">
+            <button type="button" class="btn btn-default" ng-click="open($event, 1)">
+              <i class="glyphicon glyphicon-calendar"></i>
+            </button>
+          </span>
+          <input name="releaseDate" required id="input-end-date" type="text" class="form-control" datepicker-popup="{{format}}"
+                 ng-model="milestoneCloseCtrl.data.releaseDate" is-open="opened[1]" close-text="Close" placeholder="{{format}}"/>
+        </div>
+        <span class="help-block" ng-show="milestoneForm.releaseDate.$error.required && !milestoneForm.releaseDate.$pristine">Required field.</span>
+      </div>
+    </div>
+
+    <div class="form-group" ng-class="{ 'has-error' : milestoneForm.downloadurl.$invalid && !milestoneForm.downloadurl.$pristine }">
+      <label for="input-downloadurl" class="col-sm-2 control-label">
+        * Download URL <span class="pficon pficon-info" title="Download URL of the milestone"></span>
+      </label>
+      <div class="col-sm-10">
+        <div class="input-group">
+          <input required name="downloadurl" id="input-downloadurl" class="form-control" name="downloadUrl" ng-model="milestoneCloseCtrl.data.downloadUrl">
+        </div>
+        <span class="help-block" ng-show="milestoneForm.downloadurl.$invalid && !milestoneForm.downloadurl.$pristine">Required field.</span>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <div class="col-sm-offset-2 col-sm-10">
+        <input type="submit" class="btn btn-primary" value="Close" ng-disabled="milestoneForm.$invalid">
+        <input type="reset" class="btn btn-default" value="Clear">
+      </div>
+    </div>
+  </form>
+</div>

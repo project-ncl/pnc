@@ -53,6 +53,22 @@
             .$promise;
         }
       }
+    })
+    .state('product.version.milestone.close', {
+      url: '/milestone/{milestoneId:int}/close',
+      templateUrl: 'milestone/views/milestone.close.html',
+      data: {
+        displayName: 'Close Milestone'
+      },
+      controller: 'MilestoneCloseController',
+      controllerAs: 'milestoneCloseCtrl',
+      resolve: {
+        restClient: 'PncRestClient',
+        milestoneDetail: function (restClient, $stateParams) {
+          return restClient.Milestone.get({milestoneId: $stateParams.milestoneId})
+            .$promise;
+        }
+      }
     });
 
   }]);
