@@ -8,6 +8,7 @@
     'pnc.product',
     'pnc.remote.restClient',
     'pnc.util.header',
+    'pnc.util.date_utils',
     'angularUtils.directives.uiBreadcrumbs'
   ]);
 
@@ -22,14 +23,12 @@
           templateUrl: 'common/templates/single-col.tmpl.html'
         }
       },
-      data: {
-        proxy: 'product.version.release.create'
-      }
     })
     .state('product.version.release.create', {
       url: '/create',
       templateUrl: 'release/views/release.create-update.html',
       data: {
+        proxy: 'product.version.release.create',
         displayName: 'Create Release'
       },
       controller: 'ReleaseCreateUpdateController',
@@ -45,6 +44,7 @@
       url: '/{releaseId:int}/update',
       templateUrl: 'release/views/release.create-update.html',
       data: {
+        proxy: 'product.version.release.update',
         displayName: 'Update Release'
       },
       controller: 'ReleaseCreateUpdateController',

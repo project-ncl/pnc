@@ -23,7 +23,8 @@
 
   var module = angular.module('pnc.util', [
   	'pnc.util.confirmClick',
-    'pnc.util.header'
+    'pnc.util.header',
+    'pnc.util.date_utils'
   ]);
 
 })();

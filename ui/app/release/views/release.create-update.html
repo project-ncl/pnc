@@ -4,25 +4,26 @@
     <h1 ng-if="releaseCreateUpdateCtrl.isUpdating">Update release {{ releaseCreateUpdateCtrl.data.version }} of {{ releaseCreateUpdateCtrl.product.name }} {{ releaseCreateUpdateCtrl.productVersion.version }}</h1>
   </div>
 
-  <form class="form-horizontal" name="releaseForm" ng-submit="releaseCreateUpdateCtrl.submit()">
+  <!-- novalidate prevents HTML5 validation since we will be validating ourselves -->
+  <form class="form-horizontal" name="releaseForm" novalidate ng-submit="releaseCreateUpdateCtrl.submit()">
 
-    <div class="form-group" ng-class="validation.version.any ? 'has-error' : ''">
+    <div class="form-group" ng-class="{ 'has-error' : releaseForm.version.$invalid && !releaseForm.version.$pristine }">
       <label for="input-version" class="col-sm-2 control-label">
-        Version <span class="pficon pficon-info" title="Release part of the product version, e.g. '0.GA' for product version '1.0'."></span>
+        * Version <span class="pficon pficon-info" title="Release part of the product version, e.g. '0.GA' for product version '1.0'."></span>
       </label>
       <div class="col-sm-10">
         <div class="input-group">
           <span class="input-group-addon">{{ releaseCreateUpdateCtrl.productVersion.version }}.</span>
-          <input id="input-version" class="form-control" name="version" ng-model="releaseCreateUpdateCtrl.version">
+          <input required id="input-version" class="form-control" name="version" ng-model="releaseCreateUpdateCtrl.version" ng-pattern="/^[0-9]/">
         </div>
-        <span class="help-block" ng-show="validation.version.required">Required field.</span>
-        <span class="help-block" ng-show="validation.version.format">Version must start with a number.</span>
+        <span class="help-block" ng-show="releaseForm.version.$error.required && !releaseForm.version.$pristine">Required field.</span>
+        <span class="help-block" ng-show="releaseForm.version.$error.pattern && !releaseForm.version.$pristine">Version must start with a number.</span>
       </div>
     </div>
 
-    <div class="form-group" ng-class="validation.releaseDate.any ? 'has-error' : ''">
+    <div class="form-group" ng-class="{ 'has-error' : releaseForm.releaseDate.$invalid && !releaseForm.releaseDate.$pristine }">
       <label for="input-end-date" class="col-sm-2 control-label">
-        Release date <span class="pficon pficon-info" title="Release date, e.g. '2035/01/15', time is set to noon UTC."></span>
+        * Release date <span class="pficon pficon-info" title="Release date, e.g. '2035/01/15', time is set to noon UTC."></span>
       </label>
       <div class="col-sm-10">
         <div class="input-group">
@@ -31,54 +32,56 @@
               <i class="glyphicon glyphicon-calendar"></i>
             </button>
           </span>
-          <input id="input-end-date" type="text" class="form-control" datepicker-popup="{{format}}"
-                 ng-model="releaseCreateUpdateCtrl.data.releaseDate" is-open="opened[1]" close-text="Close" placeholder="yyyy/mm/dd"/>
+          <input name="releaseDate" required id="input-end-date" type="text" class="form-control" datepicker-popup="{{format}}"
+                 ng-model="releaseCreateUpdateCtrl.data.releaseDate" is-open="opened[1]" close-text="Close" placeholder="{{format}}"/>
         </div>
-        <span class="help-block" ng-show="validation.releaseDate.required">Required field.</span>
+        <span class="help-block" ng-show="releaseForm.releaseDate.$error.required && !releaseForm.releaseDate.$pristine">Required field.</span>
       </div>
     </div>
 
-    <div class="form-group">
-      <label for="input-milestone" class="col-sm-2 control-label">From Milestone</label>
+    <div class="form-group" ng-class="{ 'has-error' : releaseForm.milestone.$invalid && !releaseForm.milestone.$pristine }">
+      <label for="input-milestone" class="col-sm-2 control-label">* From Milestone </label>
       <div ng-if="!releaseCreateUpdateCtrl.isUpdating" class="col-sm-10">
-        <select ng-model="releaseCreateUpdateCtrl.productMilestoneId" required>
+        <select required name="milestone" ng-model="releaseCreateUpdateCtrl.productMilestoneId" >
           <option></option>
           <option ng-repeat="milestone in releaseCreateUpdateCtrl.versionMilestones" value="{{ milestone.id }}">
             {{ milestone.version }}
           </option>
         </select>
+        <span class="help-block" ng-show="releaseForm.milestone.$invalid && !releaseForm.milestone.$pristine">Required field.</span>
       </div>
       <div ng-if="releaseCreateUpdateCtrl.isUpdating" class="col-sm-10">
         <label for="input-milestone" class="control-label bigger-text">{{ releaseCreateUpdateCtrl.productMilestoneVersion }}</label>
       </div>
     </div>
 
-    <div class="form-group">
-      <label for="input-supportlevel" class="col-sm-2 control-label">Support Level</label>
+    <div class="form-group" ng-class="{ 'has-error' : releaseForm.supportlevel.$invalid && !releaseForm.supportlevel.$pristine }">
+      <label for="input-supportlevel" class="col-sm-2 control-label">* Support Level </label>
       <div class="col-sm-10">
-        <select required ng-model="releaseCreateUpdateCtrl.data.supportLevel"
+        <select required name="supportlevel"  ng-model="releaseCreateUpdateCtrl.data.supportLevel"
           ng-options="supportLevel for supportLevel in releaseCreateUpdateCtrl.supportLevels">
           <option></option>
         </select>
+        <span class="help-block" ng-show="releaseForm.supportlevel.$invalid && !releaseForm.supportlevel.$pristine">Required field.</span>
       </div>
     </div>
 
-    <div class="form-group" ng-class="validation.downloadUrl.any ? 'has-error' : ''">
+    <div class="form-group" ng-class="{ 'has-error' : releaseForm.downloadurl.$invalid && !releaseForm.downloadurl.$pristine }">
       <label for="input-downloadurl" class="col-sm-2 control-label">
-        Download URL <span class="pficon pficon-info" title="Download URL of the release"></span>
+        * Download URL <span class="pficon pficon-info" title="Download URL of the release"></span>
       </label>
       <div class="col-sm-10">
         <div class="input-group">
-          <input id="input-downloadurl" class="form-control" name="downloadUrl" ng-model="releaseCreateUpdateCtrl.data.downloadUrl">
+          <input required name="downloadurl" id="input-downloadurl" class="form-control" name="downloadUrl" ng-model="releaseCreateUpdateCtrl.data.downloadUrl">
         </div>
-        <span class="help-block" ng-show="validation.downloadUrl.required">Required field.</span>
+        <span class="help-block" ng-show="releaseForm.downloadurl.$invalid && !releaseForm.downloadurl.$pristine">Required field.</span>
       </div>
     </div>
 
     <div class="form-group">
       <div class="col-sm-offset-2 col-sm-10">
-        <input ng-if="!releaseCreateUpdateCtrl.isUpdating" type="submit" class="btn btn-primary" value="Create">
-        <input ng-if="releaseCreateUpdateCtrl.isUpdating" type="submit" class="btn btn-primary" value="Update">
+        <input ng-if="!releaseCreateUpdateCtrl.isUpdating" type="submit" class="btn btn-primary" value="Create" ng-disabled="releaseForm.$invalid">
+        <input ng-if="releaseCreateUpdateCtrl.isUpdating" type="submit" class="btn btn-primary" value="Update" ng-disabled="releaseForm.$invalid">
         <input type="reset" class="btn btn-default" value="Clear">
       </div>
     </div>
