@@ -28,6 +28,9 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 
 import org.jboss.logging.Logger;
+import org.jboss.pnc.common.Configuration;
+import org.jboss.pnc.common.json.ConfigurationParseException;
+import org.jboss.pnc.common.json.moduleconfig.BpmModuleConfig;
 import org.jboss.pnc.core.builder.BuildCoordinator;
 import org.jboss.pnc.core.exception.CoreException;
 import org.jboss.pnc.core.notifications.buildSetTask.BuildSetCallBack;
@@ -75,9 +78,7 @@ public class BuildTriggerer {
     private BuildSetStatusNotifications buildSetStatusNotifications;
     private BuildStatusNotifications buildStatusNotifications;
 
-    // TODO use config module
-    private String bpmUser = System.getenv("PNC_BPM_USERNAME");
-    private String bpmPwd = System.getenv("PNC_BPM_PASSWORD");
+    private BpmModuleConfig bpmConfig = null;
     
     @Deprecated //not meant for usage its only to make CDI happy
     public BuildTriggerer() {
@@ -174,6 +175,14 @@ public class BuildTriggerer {
      * TODO: Do not ignore certificates, rather setup servers properly.
      */
     private void signalBpmEvent(String uri) {
+        if (bpmConfig == null) {
+            try {
+                bpmConfig = new Configuration().getModuleConfig(BpmModuleConfig.class);
+            } catch (ConfigurationParseException e) {
+                log.error("Error parsing BPM config.", e);
+            }
+        }
+        
         SSLContextBuilder builder = new SSLContextBuilder();
         try {
             builder.loadTrustMaterial(null, new TrustStrategy() {
@@ -210,7 +219,7 @@ public class BuildTriggerer {
     }
 
     private String getAuthHeader() {
-        byte[] encodedBytes = Base64.encodeBase64((bpmUser + ":" + bpmPwd).getBytes());
+        byte[] encodedBytes = Base64.encodeBase64((bpmConfig.getUsername() + ":" + bpmConfig.getPassword()).getBytes());
         return "Basic " + new String(encodedBytes);
     }
 }
