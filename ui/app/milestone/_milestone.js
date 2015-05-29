@@ -8,44 +8,46 @@
     'pnc.product',
     'pnc.remote.restClient',
     'pnc.util.header',
+    'pnc.util.date_utils',
     'angularUtils.directives.uiBreadcrumbs'
   ]);
 
-
   module.config(['$stateProvider', function ($stateProvider) {
-    $stateProvider.state('product.version.milestone', {
+
+    $stateProvider
+    .state('product.version.milestone', {
       abstract: true,
       views: {
         'content@': {
           templateUrl: 'common/templates/single-col.tmpl.html'
         }
       },
-      //data: {
-      //  proxy: 'product.version.milestone.create'
-      //}
-    });
-
-
-    $stateProvider.state('product.version.milestone.create', {
+    })
+    .state('product.version.milestone.create', {
       url: '/milestone/create',
-      templateUrl: 'milestone/views/milestone.create.html',
+      templateUrl: 'milestone/views/milestone.create-update.html',
       data: {
         displayName: 'Create Milestone'
       },
-      controller: 'MilestoneCreateController',
-      controllerAs: 'ctrl'
-    });
-
-
-    $stateProvider.state('product.version.milestone.edit', {
-      url: '/milestone/{milestoneId:int}/edit',
-      templateUrl: 'milestone/views/milestone.edit.html',
-      data: {
-        displayName: 'Edit Milestone'
-      },
-      controller: 'MilestoneEditController',
-      controllerAs: 'ctrl',
+      controller: 'MilestoneCreateUpdateController',
+      controllerAs: 'milestoneCreateUpdateCtrl',
       resolve: {
+        restClient: 'PncRestClient',
+        milestoneDetail: function() {
+          return null;
+        },
+      },
+    })
+    .state('product.version.milestone.update', {
+      url: '/milestone/{milestoneId:int}/update',
+      templateUrl: 'milestone/views/milestone.create-update.html',
+      data: {
+        displayName: 'Update Milestone'
+      },
+      controller: 'MilestoneCreateUpdateController',
+      controllerAs: 'milestoneCreateUpdateCtrl',
+      resolve: {
+        restClient: 'PncRestClient',
         milestoneDetail: function (restClient, $stateParams) {
           return restClient.Milestone.get({milestoneId: $stateParams.milestoneId})
             .$promise;
