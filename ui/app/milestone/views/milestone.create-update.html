@@ -72,8 +72,8 @@
 
     <div class="form-group">
       <div class="col-sm-offset-2 col-sm-10">
-        <input ng-if="!milestoneCreateUpdateCtrl.isUpdating" type="submit" class="btn btn-primary" value="Create" ng-disabled="milestoneForm.$invalid && milestoneCreateUpdateCtrl.data.startingDate <= milestoneCreateUpdateCtrl.data.plannedReleaseDate">
-        <input ng-if="milestoneCreateUpdateCtrl.isUpdating" type="submit" class="btn btn-primary" value="Update" ng-disabled="milestoneForm.$invalid && milestoneCreateUpdateCtrl.data.startingDate <= milestoneCreateUpdateCtrl.data.plannedReleaseDate">
+        <input ng-if="!milestoneCreateUpdateCtrl.isUpdating" type="submit" class="btn btn-primary" value="Create" ng-disabled="milestoneForm.$invalid || (milestoneForm.plannedReleaseDate.$invalid || milestoneCreateUpdateCtrl.invalidStartingPlannedReleaseDates(milestoneCreateUpdateCtrl.data.startingDate, milestoneCreateUpdateCtrl.data.plannedReleaseDate))">
+        <input ng-if="milestoneCreateUpdateCtrl.isUpdating" type="submit" class="btn btn-primary" value="Update" ng-disabled="milestoneForm.$invalid || (milestoneForm.plannedReleaseDate.$invalid || milestoneCreateUpdateCtrl.invalidStartingPlannedReleaseDates(milestoneCreateUpdateCtrl.data.startingDate, milestoneCreateUpdateCtrl.data.plannedReleaseDate))">
         <input type="reset" class="btn btn-default" value="Clear">
       </div>
     </div>
