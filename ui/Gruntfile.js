@@ -44,21 +44,42 @@ module.exports = function (grunt) {
     proxyHost: PROXY_HOST
   };
 
-  grunt.registerTask( 'initRestConfig', function(){
-    if (!grunt.file.exists('./rest-config.json')){
-      var defaultContent = {
-        endpointsLocalhost: PROXY_HOST
-      };
-      grunt.file.write('./rest-config.json',
-                       JSON.stringify(defaultContent,null,'\t'));
-    }
-    var config = grunt.config.getRaw();
-    config.local = grunt.file.readJSON('./rest-config.json');
+  /**
+   * Task responsible for initializing REST proxy settings, by reading from a config file.
+   * Proxy is needed to avoid 'cross-origin resource sharing' (CORS) restriction.
+   * See README.md for more details.
+   */
+  grunt.registerTask('initRestConfig', function () {
 
-    var target = grunt.option('target') || 'localEndpoints';
-    if (target === 'CIEndpoints') {
-      appConfig.proxyHost = config.local.endpointsCIServer;
+    var DEFAULT_REST_CONFIG = {
+      endpointsLocalhost: PROXY_HOST
+    };
+
+    var REST_CONFIG_FILE_PATH = './rest-config.json';
+
+    var restConfig;
+
+    if (grunt.file.exists(REST_CONFIG_FILE_PATH)) {
+      restConfig = grunt.file.readJSON(REST_CONFIG_FILE_PATH);
+    } else {
+      grunt.file.write(REST_CONFIG_FILE_PATH, JSON.stringify(DEFAULT_REST_CONFIG, null, '\t'));
+      restConfig = DEFAULT_REST_CONFIG;
     }
+
+    var target = grunt.option('target') || 'endpointsLocalhost';
+
+    var restUrl = restConfig[target];
+
+    if (typeof restUrl !== 'string' || restUrl.length === 0) {
+      grunt.fatal('URL of REST endpoint for target \'' + target +
+      '\' is undefined or invalid in \'' + REST_CONFIG_FILE_PATH + '\'.');
+    }
+
+    grunt.config('connect.proxies', [{
+      context: '/pnc-rest/rest',
+      host: restUrl,
+      port: 8080
+    }]);
   });
 
   grunt.registerTask('initAuth', function() {
@@ -128,12 +149,7 @@ module.exports = function (grunt) {
         hostname: 'localhost',
         livereload: LIVERELOAD_PORT
       },
-      proxies: [{
-        // Every request sent to <context> will be proxied to <host>:<port>
-        context: '/pnc-rest/rest',
-        host:  '<%= yeoman.proxyHost %>',
-        port: 8080
-      }],
+      proxies: [/* This value is set by initRestConfig task. */],
       livereload: {
         options: {
           open: true,
