@@ -203,6 +203,28 @@
         );
       };
 
+      // Mark Milestone as current in Product Version
+      that.markCurrentMilestone = function(milestone) {
+        $log.debug('Mark milestone as current: %O', milestone);
+
+        versionDetail.currentProductMilestoneId = milestone.id;
+
+        versionDetail.$update({ productId: productDetail.id, versionId: versionDetail.id})
+        .then(
+          function() {
+            Notifications.success('Milestone updated');
+            $state.go('product.version', {
+              productId: productDetail.id,
+              versionId: versionDetail.id
+            }, {reload:true});
+          },
+          function(response) {
+            $log.error('Update milestone failed, response: %O', response);
+            Notifications.error('Milestone update failed');
+          }
+        );
+      };
+
       // Executing a build of a configurationSet
       that.buildConfigSet = function(configSet) {
         $log.debug('**Initiating build of SET: %s**', configSet.name);

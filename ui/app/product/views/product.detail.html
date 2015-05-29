@@ -100,7 +100,7 @@
         <td class="bigger-text"><a href ui-sref="product.version({ productId: detailCtrl.product.id, versionId: version.id })">{{ version.version }}</a></td>
         <td>
            <span ng-repeat="productmilestone in detailCtrl.versionMilestones | filter: { productVersionId: version.id } | orderBy: '-productmilestone.startingDate'">
-             <span data-tooltip-html-unsafe="{{detailCtrl.getMilestoneTooltip(productmilestone)}}" data-tooltip-placement="right" class="label label-info">{{ productmilestone.version }}</span>
+             <span data-tooltip-html-unsafe="{{detailCtrl.getMilestoneTooltip(productmilestone)}}" data-tooltip-placement="right" class="label label-default" ng-class="{ 'label label-primary' : productmilestone.id == version.currentProductMilestoneId }">{{ productmilestone.version }}</span>
            </span>
         </td>
         <td>
