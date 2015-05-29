@@ -128,7 +128,7 @@
             Notifications.error('Milestone release failed');
           }
         );
-      }
+      };
 
       dateUtilConverter.initDatePicker($scope);
     }
