@@ -1,0 +1,81 @@
+<div>
+
+  <div class="page-header">
+    <h1 ng-if="!milestoneCreateUpdateCtrl.isUpdating">Create milestone for {{ milestoneCreateUpdateCtrl.product.name }} {{ milestoneCreateUpdateCtrl.productVersion.version }}</h1>
+    <h1 ng-if="milestoneCreateUpdateCtrl.isUpdating">Update milestone {{ milestoneCreateUpdateCtrl.data.version }} of {{ milestoneCreateUpdateCtrl.product.name }} {{ milestoneCreateUpdateCtrl.productVersion.version }}</h1>
+  </div>
+
+  <!-- novalidate prevents HTML5 validation since we will be validating ourselves -->
+  <form novalidate class="form-horizontal" name="milestoneForm" ng-submit="milestoneCreateUpdateCtrl.submit()">
+
+    <div class="form-group" ng-class="{ 'has-error' : milestoneForm.version.$invalid && !milestoneForm.version.$pristine }">
+      <label for="input-version" class="col-sm-2 control-label">
+        * Version <span class="pficon pficon-info" title="Release part of the product version, e.g. '0.ER1' for product version '1.0'."></span>
+      </label>
+      <div class="col-sm-10">
+        <div class="input-group">
+          <span class="input-group-addon">{{ milestoneCreateUpdateCtrl.productVersion.version }}.</span>
+          <input required id="input-version" class="form-control" name="version" ng-model="milestoneCreateUpdateCtrl.version" ng-pattern="/^[0-9]/">
+        </div>
+        <span class="help-block" ng-show="milestoneForm.version.$error.required && !milestoneForm.version.$pristine">Required field.</span>
+        <span class="help-block" ng-show="milestoneForm.version.$error.pattern && !milestoneForm.version.$pristine">Version must start with a number.</span>
+      </div>
+    </div>
+
+    <div class="form-group" ng-class="{ 'has-error' : milestoneForm.startingDate.$invalid && !milestoneForm.startingDate.$pristine }">
+      <label for="input-start-date" class="col-sm-2 control-label">
+        * Start date <span class="pficon pficon-info" title="Start date, e.g. '2035/01/15', time is set to noon UTC."></span>
+      </label>
+      <div class="col-sm-10">
+        <div class="input-group">
+          <span class="input-group-btn">
+            <button type="button" class="btn btn-default" ng-click="open($event, 1)">
+              <i class="glyphicon glyphicon-calendar"></i>
+            </button>
+          </span>
+          <input name="startingDate" required id="input-start-date" type="text" class="form-control" datepicker-popup="{{format}}"
+                 ng-model="milestoneCreateUpdateCtrl.data.startingDate" is-open="opened[1]" close-text="Close" placeholder="{{format}}"/>
+        </div>
+        <span class="help-block" ng-show="milestoneForm.startingDate.$error.required && !milestoneForm.startingDate.$pristine">Required field.</span>
+      </div>
+    </div>
+
+    <div class="form-group" ng-class="{ 'has-error' : (milestoneForm.plannedReleaseDate.$invalid || milestoneCreateUpdateCtrl.invalidStartingPlannedReleaseDates(milestoneCreateUpdateCtrl.data.startingDate, milestoneCreateUpdateCtrl.data.plannedReleaseDate)) && !milestoneForm.plannedReleaseDate.$pristine }">
+      <label for="input-end-date" class="col-sm-2 control-label">
+        * Planned release date <span class="pficon pficon-info" title="Planned releaseDate date, e.g. '2035/01/15', time is set to noon UTC."></span>
+      </label>
+      <div class="col-sm-10">
+        <div class="input-group">
+          <span class="input-group-btn">
+            <button type="button" class="btn btn-default" ng-click="open($event, 2)">
+              <i class="glyphicon glyphicon-calendar"></i>
+            </button>
+          </span>
+          <input name="plannedReleaseDate" required id="input-end-date" type="text" class="form-control" datepicker-popup="{{format}}"
+                 ng-model="milestoneCreateUpdateCtrl.data.plannedReleaseDate" is-open="opened[2]" close-text="Close" placeholder="{{format}}"/>
+        </div>
+        <span class="help-block" ng-show="milestoneForm.plannedReleaseDate.$error.required && !milestoneForm.plannedReleaseDate.$pristine">Required field.</span>
+        <span class="help-block" ng-show="milestoneCreateUpdateCtrl.invalidStartingPlannedReleaseDates(milestoneCreateUpdateCtrl.data.startingDate, milestoneCreateUpdateCtrl.data.plannedReleaseDate) && !milestoneForm.plannedReleaseDate.$pristine">Planned release date must be after start date.</span>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <div class="col-sm-offset-2 col-sm-10">
+        <div class="checkbox">
+          <label>
+            <input type="checkbox" id="input-set-current" name="current" ng-model="milestoneCreateUpdateCtrl.setCurrentMilestone" disabled>
+            Set as the current milestone for {{ milestoneCreateUpdateCtrl.product.name }} {{ milestoneCreateUpdateCtrl.productVersion.version }}
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <div class="col-sm-offset-2 col-sm-10">
+        <input ng-if="!milestoneCreateUpdateCtrl.isUpdating" type="submit" class="btn btn-primary" value="Create" ng-disabled="milestoneForm.$invalid && milestoneCreateUpdateCtrl.data.startingDate <= milestoneCreateUpdateCtrl.data.plannedReleaseDate">
+        <input ng-if="milestoneCreateUpdateCtrl.isUpdating" type="submit" class="btn btn-primary" value="Update" ng-disabled="milestoneForm.$invalid && milestoneCreateUpdateCtrl.data.startingDate <= milestoneCreateUpdateCtrl.data.plannedReleaseDate">
+        <input type="reset" class="btn btn-default" value="Clear">
+      </div>
+    </div>
+  </form>
+</div>
