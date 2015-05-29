@@ -59,10 +59,25 @@
           that.data.$saveForProductVersion({versionId: versionDetail.id}).then(
             function () {
               Notifications.success('Milestone created');
-              $state.go('product.version', {
-                productId: productDetail.id,
-                versionId: versionDetail.id
-              }, {reload: true});
+
+              // Mark Milestone as current in Product Version
+              versionDetail.currentProductMilestoneId = that.data.id;
+              versionDetail.$update({ productId: productDetail.id, versionId: versionDetail.id})
+               .then(
+                 function() {
+                   $state.go('product.version', {
+                     productId: productDetail.id,
+                     versionId: versionDetail.id
+                   }, {reload: true});
+                 },
+                 function(response) {
+                   $log.error('Update version failed, response: %O', response);
+                   $state.go('product.version', {
+                     productId: productDetail.id,
+                     versionId: versionDetail.id
+                   }, {reload: true});
+                 }
+               );
             },
             function (response) {
               $log.error('Creation of Milestone: response: %O', response);

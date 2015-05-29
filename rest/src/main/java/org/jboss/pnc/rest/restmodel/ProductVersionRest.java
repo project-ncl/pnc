@@ -38,6 +38,8 @@ public class ProductVersionRest {
 
     private Integer productId;
 
+    private Integer currentProductMilestoneId;
+
     List<Integer> productMilestoneIds = new ArrayList<Integer>();
 
     List<Integer> productReleaseIds = new ArrayList<Integer>();
@@ -51,7 +53,9 @@ public class ProductVersionRest {
         this.id = productVersion.getId();
         this.version = productVersion.getVersion();
         this.productId = productVersion.getProduct().getId();
-        
+        this.currentProductMilestoneId = productVersion.getCurrentProductMilestone() != null ? productVersion
+                .getCurrentProductMilestone().getId() : null;
+
         for (ProductMilestone milestone : productVersion.getProductMilestones()) {
             productMilestoneIds.add(milestone.getId());
         }
@@ -110,6 +114,14 @@ public class ProductVersionRest {
         this.productReleaseIds = productReleaseIds;
     }
 
+    public Integer getCurrentProductMilestoneId() {
+        return currentProductMilestoneId;
+    }
+
+    public void setCurrentProductMilestoneId(Integer currentProductMilestoneId) {
+        this.currentProductMilestoneId = currentProductMilestoneId;
+    }
+
     public ProductVersion toProductVersion(Product product) {
         ProductVersion productVersionToBeUpdated = getProductVersionFromProductOrNewOne(product);
         return toProductVersion(productVersionToBeUpdated);
@@ -124,11 +136,10 @@ public class ProductVersionRest {
      * Checks if ProductVersion is present in Product. If it is true - returns it or creates new one otherwise.
      */
     private ProductVersion getProductVersionFromProductOrNewOne(Product product) {
-        List<ProductVersion> productVersionsInProduct = nullableStreamOf(product.getProductVersions())
-                .filter(productVersion -> productVersion.getId().equals(id))
-                .collect(Collectors.toList());
+        List<ProductVersion> productVersionsInProduct = nullableStreamOf(product.getProductVersions()).filter(
+                productVersion -> productVersion.getId().equals(id)).collect(Collectors.toList());
 
-        if(!productVersionsInProduct.isEmpty()) {
+        if (!productVersionsInProduct.isEmpty()) {
             return productVersionsInProduct.get(0);
         }
 

@@ -91,7 +91,12 @@
                 <tr ng-repeat="productrelease in versionCtrl.productreleases">
                   <td><span class="label label-success">{{ productrelease.version }}</span></td>
                   <td>{{ productrelease.releaseDate | date:'yyyy/MM/dd'}}</td>
-                  <td class="text-center"><a ng-href="{{ productrelease.downloadUrl }}" target="_self" class="btn btn-primary">Download</a></td>
+                  <td class="text-center">
+                     <a ng-show="productrelease.downloadUrl != undefined" ng-href="{{ productrelease.downloadUrl }}" target="_self" 
+                       class="btn btn-default" title="Download Deliverables">
+                       <i class="glyphicon glyphicon-download-alt"></i>
+                     </a>
+                  </td>
                   <td>Released from Milestone <strong>{{ versionCtrl.getMilestoneVersion(productrelease.productMilestoneId) }}</strong></td>
                   <td>{{ productrelease.supportLevel }}</td>
                   <td>
@@ -132,13 +137,21 @@
               </thead>
               <tbody>
                 <tr ng-repeat="productmilestone in versionCtrl.productmilestones">
-                  <td>{{ productmilestone.version }}</td>
+                  <td>
+                    <span class="label label-default" ng-class="{ 'label label-primary' : productmilestone.id == versionCtrl.version.currentProductMilestoneId }">{{ productmilestone.version }}</span>
+                  </td>
                   <td>{{ productmilestone.startingDate | date:'yyyy/MM/dd'}}</td>
                   <td>{{ productmilestone.plannedReleaseDate | date:'yyyy/MM/dd'}}</td>
                   <td>{{ productmilestone.releaseDate | date:'yyyy/MM/dd'}}</td>
-                  <td class="text-center"><a ng-show="productmilestone.downloadUrl != undefined" ng-href="{{ productmilestone.downloadUrl }}" target="_self" class="btn btn-primary">Download</a></td>
+                  <td class="text-center">
+                     <a ng-show="productmilestone.downloadUrl != undefined" ng-href="{{ productmilestone.downloadUrl }}" target="_self" 
+                       class="btn btn-default" title="Download Deliverables">
+                       <i class="glyphicon glyphicon-download-alt"></i>
+                     </a>
+                  </td>
                   <td>{{ productmilestone.buildRecordSetId }}</td>
                   <td class="text-center">
+                    <a ng-show="productmilestone.releaseDate == undefined" pnc-confirm-click="versionCtrl.markCurrentMilestone(productmilestone)" pnc-confirm-message="{{ 'Mark Milestone ' + productmilestone.version + ' as current ?'}}" title="Mark Milestone as current" class="btn btn-default"><i class="fa fa-clock-o"></i></a>
                     <a ng-show="productmilestone.releaseDate == undefined" ui-sref="product.version.milestone.update({ milestoneId: productmilestone.id })" title="Update Milestone" class="btn btn-default"><i class="pficon pficon-edit"></i></a>
                     <a ng-show="productmilestone.releaseDate == undefined" ui-sref="product.version.milestone.close({ milestoneId: productmilestone.id })" title="Release Milestone" class="btn btn-default"><i class="fa fa-lock"></i></a>
                     <a ng-show="productmilestone.releaseDate != undefined" pnc-confirm-click="versionCtrl.unreleaseMilestone(productmilestone)" pnc-confirm-message="{{ 'Confirm the unrelease of Milestone: ' + productmilestone.version + ' ?'}}" title="Unrelease Milestone" class="btn btn-default"><i class="fa fa-unlock-alt"></i></a>

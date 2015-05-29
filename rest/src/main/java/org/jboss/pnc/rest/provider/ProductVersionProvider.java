@@ -24,8 +24,10 @@ import org.jboss.pnc.datastore.predicates.RSQLPredicate;
 import org.jboss.pnc.datastore.predicates.RSQLPredicateProducer;
 import org.jboss.pnc.datastore.repositories.ProductRepository;
 import org.jboss.pnc.datastore.repositories.ProductVersionRepository;
+import org.jboss.pnc.datastore.repositories.ProductMilestoneRepository;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.Product;
+import org.jboss.pnc.model.ProductMilestone;
 import org.jboss.pnc.model.ProductVersion;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationSetRest;
 import org.jboss.pnc.rest.restmodel.ProductVersionRest;
@@ -48,11 +50,13 @@ public class ProductVersionProvider {
 
     private ProductVersionRepository productVersionRepository;
     private ProductRepository productRepository;
+    private ProductMilestoneRepository productMilestoneRepository;
 
     @Inject
-    public ProductVersionProvider(ProductVersionRepository productVersionRepository, ProductRepository productRepository) {
+    public ProductVersionProvider(ProductVersionRepository productVersionRepository, ProductRepository productRepository, ProductMilestoneRepository productMilestoneRepository) {
         this.productVersionRepository = productVersionRepository;
         this.productRepository = productRepository;
+        this.productMilestoneRepository = productMilestoneRepository;
     }
 
     // needed for EJB/CDI
@@ -98,7 +102,14 @@ public class ProductVersionProvider {
                 "Couldn't find Product Version with id " + productVersionRest.getId());
         Preconditions.checkArgument(product != null,
                 "Couldn't find Product with id " + product.getId());
-        productVersionRepository.save(productVersionRest.toProductVersion(productVersion));
+        ProductVersion updatedProductVersion = productVersionRest.toProductVersion(productVersion);
+        if (productVersionRest.getCurrentProductMilestoneId() != null) {
+            ProductMilestone productMilestone = productMilestoneRepository.findOne(productVersionRest.getCurrentProductMilestoneId());
+            Preconditions.checkArgument(productMilestone != null,
+                "Couldn't find ProductMilestone with id " + productVersionRest.getCurrentProductMilestoneId());
+            updatedProductVersion.setCurrentProductMilestone(productMilestone);
+        }
+        productVersionRepository.save(updatedProductVersion);
     }
 
     private Function<ProductVersion, ProductVersionRest> toRestModel() {
