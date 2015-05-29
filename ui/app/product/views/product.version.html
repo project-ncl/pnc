@@ -136,9 +136,13 @@
                   <td>{{ productmilestone.startingDate | date:'yyyy/MM/dd'}}</td>
                   <td>{{ productmilestone.plannedReleaseDate | date:'yyyy/MM/dd'}}</td>
                   <td>{{ productmilestone.releaseDate | date:'yyyy/MM/dd'}}</td>
-                  <td class="text-center"><a ng-href="{{ productmilestone.downloadUrl }}" target="_self" class="btn btn-primary">Download</a></td>
+                  <td class="text-center"><a ng-show="productmilestone.downloadUrl != undefined" ng-href="{{ productmilestone.downloadUrl }}" target="_self" class="btn btn-primary">Download</a></td>
                   <td>{{ productmilestone.buildRecordSetId }}</td>
-                  <td class="text-center"><a ui-sref="product.version.milestone.update({ milestoneId: productmilestone.id })"  class="btn btn-default"><i class="pficon pficon-edit"></i></a></td>
+                  <td class="text-center">
+                    <a ng-show="productmilestone.releaseDate == undefined" ui-sref="product.version.milestone.update({ milestoneId: productmilestone.id })" title="Update Milestone" class="btn btn-default"><i class="pficon pficon-edit"></i></a>
+                    <a ng-show="productmilestone.releaseDate == undefined" ui-sref="product.version.milestone.close({ milestoneId: productmilestone.id })" title="Release Milestone" class="btn btn-default"><img alt="Release Milestone" src='images/0144-lock.png'></a>
+                    <a ng-show="productmilestone.releaseDate != undefined" pnc-confirm-click="versionCtrl.unreleaseMilestone(productmilestone)" pnc-confirm-message="{{ 'Confirm the unrelease of Milestone: ' + productmilestone.version + ' ?'}}" title="Unrelease Milestone" class="btn btn-default"><img alt="Unrelease Milestone" src='images/0145-unlocked.png'></a>
+                  </td>
                 </tr>
               </tbody>
             </table>

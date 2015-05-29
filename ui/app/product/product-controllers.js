@@ -181,6 +181,28 @@
         );
       };
 
+      // Update a product version after editing
+      that.unreleaseMilestone = function(milestone) {
+        $log.debug('Unreleasing milestone: %O', milestone);
+
+        milestone.releaseDate = null;
+        milestone.downloadUrl = null;
+
+        milestone.$update({versionId: versionDetail.id}).then(
+          function() {
+            Notifications.success('Milestone unreleased');
+            $state.go('product.version', {
+              productId: productDetail.id,
+              versionId: versionDetail.id
+            }, {reload:true});
+          },
+          function(response) {
+            $log.error('Unrelease milestone failed, response: %O', response);
+            Notifications.error('Milestone unrelease failed');
+          }
+        );
+      };
+
       // Executing a build of a configurationSet
       that.buildConfigSet = function(configSet) {
         $log.debug('**Initiating build of SET: %s**', configSet.name);

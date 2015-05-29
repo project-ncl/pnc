@@ -88,8 +88,7 @@
         // Distinguish between release creation and update
         if (!that.isUpdating) {
           that.data.$saveForProductVersion({versionId: versionDetail.id}).then(
-            function (result) {
-              /* jshint unused:false */
+            function () {
               Notifications.success('Release created');
               $state.go('product.version', {
                 productId: productDetail.id,
@@ -104,8 +103,7 @@
         }
         else {
           that.data.$update().then(
-            function(result) {
-              /* jshint unused:false */
+            function() {
               Notifications.success('Release updated');
               $state.go('product.version', {
                 productId: productDetail.id,
