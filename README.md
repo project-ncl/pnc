@@ -48,6 +48,8 @@ all network traffic will be dropped
 * `PNC_EXT_REST_BASE_URL` - Base URL of REST endpoint services to be accessed from external resources
 * `PNC_EXT_OAUTH_USERNAME` - Username to be able to authenticate against pnc authentication service provider
 * `PNC_EXT_OAUTH_PASSWORD` -  Password to be able to authenticate against pnc authentication service provider
+* `PNC_BPM_USERNAME` -  Username user to authenticate against remote BPM server for build signal callbacks
+* `PNC_BPM_PASSWORD` -  Password for `PNC_BPM_USERNAME`
 
 
 Set up of Docker host

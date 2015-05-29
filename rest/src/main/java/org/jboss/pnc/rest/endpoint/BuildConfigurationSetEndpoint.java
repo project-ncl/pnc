@@ -18,6 +18,7 @@
 package org.jboss.pnc.rest.endpoint;
 
 import java.lang.invoke.MethodHandles;
+import java.net.URL;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -49,6 +50,7 @@ import org.jboss.pnc.rest.restmodel.BuildConfigurationSetRest;
 import org.jboss.pnc.rest.restmodel.BuildRecordRest;
 import org.jboss.pnc.rest.trigger.BuildTriggerer;
 import org.jboss.pnc.spi.datastore.Datastore;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -141,6 +143,7 @@ public class BuildConfigurationSetEndpoint {
     @Consumes(MediaType.WILDCARD)
     public Response build(
             @ApiParam(value = "Build Configuration Set id", required = true) @PathParam("id") Integer id,
+            @ApiParam(value = "Optional Callback URL", required = false) @QueryParam("callbackUrl") String callbackUrl,
             @Context UriInfo uriInfo) {
         logger.info("Executing build configuration set id: " + id );
 
@@ -159,7 +162,14 @@ public class BuildConfigurationSetEndpoint {
                         .email(authProvider.getEmail()).build();
                 datastore.createNewUser(currentUser);
             }
-            Integer runningBuildId = buildTriggerer.triggerBuildConfigurationSet(id, currentUser);
+            Integer runningBuildId = null; 
+            // if callbackUrl is provided trigger build accordingly
+            if (callbackUrl == null || callbackUrl.isEmpty()) {
+                runningBuildId = buildTriggerer.triggerBuildConfigurationSet(id, currentUser);
+            } else {
+                runningBuildId = buildTriggerer.triggerBuildConfigurationSet(id, currentUser, new URL(callbackUrl));
+            }
+
             return Response.ok().build();
         } catch (CoreException e) {
             logger.error(e.getMessage(), e);
