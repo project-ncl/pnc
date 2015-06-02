@@ -53,18 +53,43 @@
   module.controller('ConfigurationCreateController', [
     '$state',
     '$log',
+    '$filter',
     'PncRestClient',
     'Notifications',
     'environments',
     'projects',
-    function($state, $log, PncRestClient, Notifications, environments,
-             projects) {
+    'products',
+    function($state, $log, $filter, PncRestClient, Notifications, environments,
+             projects, products) {
+
+      var that = this;
 
       this.data = new PncRestClient.Configuration();
       this.environments = environments;
       this.projects = projects;
 
-      var that = this;
+      this.products = {};
+      this.products.all = products;
+      this.products.selected = null;
+
+      this.productVersions = {};
+      this.productVersions.selected = [];
+      this.productVersions.all = [];
+
+      this.productVersions.update = function() {
+        $log.debug('productId = %d', that.products.selected.id);
+        that.productVersions.all = PncRestClient.Product.getVersions({
+          productId: that.products.selected.id
+        });
+        // that.productVersions.all = ({id: that.products.selected.id});
+        // $log.debug('productVersions: %O', that.productVersions.all);
+      };
+
+      this.productVersions.getItems = function($viewValue) {
+        return $filter('filter')(this.productVersions.all, {
+          name: $viewValue
+        });
+      };
 
       this.submit = function() {
         that.data.$save().then(
