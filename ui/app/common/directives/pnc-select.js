@@ -25,7 +25,7 @@
    * @ngdoc directive
    * @name pnc.common.directives:pncSelect
    * @restrict E
-   * @param {array} selected
+   * @param {array} selected-items
    * An array on the in scope controller that will hold the items selected by
    * the user. The array can be pre-populated to show items that are already
    * selected.
@@ -42,15 +42,15 @@
    * The user is given the option to remove items from the list by pressing a
    * cross button next to the selected item.
    * @example
-   * <pnc-select display-property="name" selected="ctrl.selected" query="ctrl.getItems($viewValue)">
+   * <pnc-select display-property="name" selected-items="ctrl.selected" query="ctrl.getItems($viewValue)">
    * </pnc-select>
    * @author Alex Creasy
    */
   module.directive('pncSelect', function() {
 
     var tmpl =
-      '<ul class="list-group" ng-show="selected">' +
-        '<li class="list-group-item" ng-repeat="item in selected">' +
+      '<ul class="list-group" ng-show="shouldShow()">' +
+        '<li class="list-group-item" ng-repeat="item in selectedItems">' +
           '{{ item[displayProperty] }}' +
           '<button type="button" class="close" aria-label="Close" ng-click="removeItem(item)">' +
             '<span aria-hidden="true">×</span>' +
@@ -66,41 +66,46 @@
       '</div>'
     ;
 
-    function ctrl($scope) {
-
-      var findInArray = function(obj, array) {
-        for (var i = 0; i < array.length; i++) {
-          if (angular.equals(obj, array[i])) {
-            return i;
-          }
-        }
-        return -1;
-      };
-
-      $scope.removeItem = function(item) {
-        var i = findInArray(item, $scope.selected);
-        if (i >= 0) {
-          $scope.selected.splice(i, 1);
-        }
-      };
-
-      $scope.onSelect = function($item) {
-        // Check item isn't already selected
-        if (findInArray($item, $scope.selected) < 0) {
-          $scope.selected.push($item);
-        }
-      };
-
-    }
-
     return {
       scope: {
-        selected: '=',
+        selectedItems: '=',
         query: '&',
         displayProperty: '@'
       },
       template: tmpl,
-      controller: ctrl
+      controller: [
+        '$log',
+        '$scope',
+        function($log, $scope) {
+
+          var findInArray = function(obj, array) {
+            for (var i = 0; i < array.length; i++) {
+              if (angular.equals(obj, array[i])) {
+                return i;
+              }
+            }
+            return -1;
+          };
+
+          $scope.removeItem = function(item) {
+            var i = findInArray(item, $scope.selectedItems);
+            if (i >= 0) {
+              $scope.selectedItems.splice(i, 1);
+            }
+          };
+
+          $scope.onSelect = function($item) {
+            // Check item isn't already selectedItems
+            if (findInArray($item, $scope.selectedItems) < 0) {
+              $scope.selectedItems.push($item);
+            }
+          };
+
+          $scope.shouldShow = function() {
+            return ($scope.selectedItems && $scope.selectedItems.length > 0);
+          };
+        }
+      ]
     };
 
   });
