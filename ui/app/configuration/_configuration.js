@@ -78,6 +78,9 @@
         },
         products: function(restClient) {
           return restClient.Product.query().$promise;
+        },
+        configurations: function(restClient) {
+          return restClient.Configuration.query().$promise;
         }
       },
     });
