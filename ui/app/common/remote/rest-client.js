@@ -53,6 +53,11 @@
         },{
           update: {
             method: 'PUT',
+          },
+          getVersions: {
+            method: 'GET',
+            url: REST_DEFAULTS.BASE_URL + '/products/:productId/product-versions',
+            isArray: true
           }
         }),
 
@@ -68,6 +73,11 @@
             url: REST_DEFAULTS.BASE_URL + '/products/:productId/product-versions/:versionId/build-configuration-sets',
             isArray: true
           },
+          getAllForProduct: {
+            method: 'GET',
+            url: REST_DEFAULTS.BASE_URL + '/products/:productId/product-versions',
+            isArray: true
+          }
         }),
 
         Milestone: $resource(REST_DEFAULTS.BASE_URL + '/product-milestones/:milestoneId', {

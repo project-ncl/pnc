@@ -69,6 +69,20 @@
       </div>
     </div>
 
+    <div class="form-group">
+      <label for="input-product" class="col-sm-2 control-label">Product</label>
+      <div class="col-sm-10">
+        <select id="input-product" ng-model="createCtrl.products.selected" ng-options="product.name for product in createCtrl.products.all" ng-change="createCtrl.productVersions.update()"></select>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="input-product-versions" class="col-sm-2 control-label">Product Versions</label>
+      <div class="col-sm-10" ng-show="createCtrl.products.selected">
+        x<pnc-select selected="createCtrl.productVersions.selected" query="createCtrl.productVersions.getItems($viewValue)"></pnc-select>
+      </div>
+    </div>
+
       <!--<div class="form-group">
         <label for="input-repositories" class="col-sm-2 control-label">Repositories</label>
         <div class="col-sm-10">
