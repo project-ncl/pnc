@@ -17,12 +17,20 @@
  */
 package org.jboss.pnc.model;
 
-import javax.persistence.*;
-import javax.validation.constraints.NotNull;
-
-import java.util.Date;
+import java.sql.Timestamp;
 import java.util.HashSet;
 import java.util.Set;
+
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.SequenceGenerator;
+import javax.validation.constraints.NotNull;
 
 /**
  * This class contains a summary of the build results of the execution of a build config set. This includes the start and end
@@ -54,13 +62,13 @@ public class BuildConfigSetRecord implements GenericEntity<Integer> {
      * The time at which the first build in the set was started
      */
     @NotNull
-    private Date startTime;
+    private Timestamp startTime;
 
     /**
      * The time at which the last build in the set was completed
      */
     @NotNull
-    private Date endTime;
+    private Timestamp endTime;
 
     /**
      * The user who executed the set.
@@ -115,7 +123,7 @@ public class BuildConfigSetRecord implements GenericEntity<Integer> {
      *
      * @return the start time
      */
-    public Date getStartTime() {
+    public Timestamp getStartTime() {
         return startTime;
     }
 
@@ -124,7 +132,7 @@ public class BuildConfigSetRecord implements GenericEntity<Integer> {
      *
      * @param startTime the new start time
      */
-    public void setStartTime(Date startTime) {
+    public void setStartTime(Timestamp startTime) {
         this.startTime = startTime;
     }
 
@@ -133,7 +141,7 @@ public class BuildConfigSetRecord implements GenericEntity<Integer> {
      *
      * @return the end time
      */
-    public Date getEndTime() {
+    public Timestamp getEndTime() {
         return endTime;
     }
 
@@ -142,7 +150,7 @@ public class BuildConfigSetRecord implements GenericEntity<Integer> {
      *
      * @param endTime the new end time
      */
-    public void setEndTime(Date endTime) {
+    public void setEndTime(Timestamp endTime) {
         this.endTime = endTime;
     }
 
@@ -219,7 +227,6 @@ public class BuildConfigSetRecord implements GenericEntity<Integer> {
         this.productVersion = productVersion;
     }
 
-
     @Override
     public String toString() {
         return "BuildConfigSetRecord [id=" + id + ", buildConfigurationSet=" + buildConfigurationSet.getName() + "]";
@@ -231,9 +238,9 @@ public class BuildConfigSetRecord implements GenericEntity<Integer> {
 
         private BuildConfigurationSet buildConfigurationSet;
 
-        private Date startTime;
+        private Timestamp startTime;
 
-        private Date endTime;
+        private Timestamp endTime;
 
         private BuildStatus status;
 
@@ -267,7 +274,6 @@ public class BuildConfigSetRecord implements GenericEntity<Integer> {
             }
             buildConfigSetRecord.setBuildRecords(buildRecords);
 
-
             return buildConfigSetRecord;
         }
 
@@ -281,12 +287,12 @@ public class BuildConfigSetRecord implements GenericEntity<Integer> {
             return this;
         }
 
-        public Builder startTime(Date startTime) {
+        public Builder startTime(Timestamp startTime) {
             this.startTime = startTime;
             return this;
         }
 
-        public Builder endTime(Date endTime) {
+        public Builder endTime(Timestamp endTime) {
             this.endTime = endTime;
             return this;
         }
