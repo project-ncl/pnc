@@ -513,6 +513,7 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
             dependencies = new HashSet<BuildConfiguration>();
             dependants = new HashSet<BuildConfiguration>();
             buildConfigurationSets = new HashSet<BuildConfigurationSet>();
+            productVersions = new HashSet<ProductVersion>();
             creationTime = Timestamp.from(Instant.now());
             lastModificationTime = Timestamp.from(Instant.now());
         }
