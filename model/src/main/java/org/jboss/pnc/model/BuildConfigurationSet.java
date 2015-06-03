@@ -17,10 +17,21 @@
  */
 package org.jboss.pnc.model;
 
-import javax.persistence.*;
-import javax.validation.constraints.NotNull;
 import java.util.HashSet;
 import java.util.Set;
+
+import javax.persistence.CascadeType;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.SequenceGenerator;
+import javax.validation.constraints.NotNull;
 
 @Entity
 public class BuildConfigurationSet implements GenericEntity<Integer> {
@@ -28,10 +39,11 @@ public class BuildConfigurationSet implements GenericEntity<Integer> {
     private static final long serialVersionUID = 2596901834161647987L;
 
     public static final String DEFAULT_SORTING_FIELD = "id";
+    public static final String SEQUENCE_NAME = "build_configuration_set_id_seq";
 
     @Id
-    @SequenceGenerator(name="build_configuration_set_id_seq", sequenceName="build_configuration_set_id_seq", allocationSize=1)    
-    @GeneratedValue(strategy=GenerationType.SEQUENCE, generator="build_configuration_set_id_seq")
+    @SequenceGenerator(name = SEQUENCE_NAME, sequenceName = SEQUENCE_NAME, allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = SEQUENCE_NAME)
     private Integer id;
 
     @NotNull
@@ -41,13 +53,10 @@ public class BuildConfigurationSet implements GenericEntity<Integer> {
     private ProductVersion productVersion;
 
     @ManyToMany
-    @JoinTable(
-            name="build_configuration_set_map",
-            joinColumns={@JoinColumn(name="build_configuration_set_id", referencedColumnName="id")},
-            inverseJoinColumns={@JoinColumn(name="build_configuration_id", referencedColumnName="id")})
+    @JoinTable(name = "build_configuration_set_map", joinColumns = { @JoinColumn(name = "build_configuration_set_id", referencedColumnName = "id") }, inverseJoinColumns = { @JoinColumn(name = "build_configuration_id", referencedColumnName = "id") })
     private Set<BuildConfiguration> buildConfigurations = new HashSet<BuildConfiguration>();
 
-    @OneToMany( mappedBy = "buildConfigurationSet")
+    @OneToMany(mappedBy = "buildConfigurationSet")
     private Set<BuildConfigSetRecord> buildConfigSetRecords = new HashSet<BuildConfigSetRecord>();
 
     public BuildConfigurationSet() {
@@ -134,11 +143,11 @@ public class BuildConfigurationSet implements GenericEntity<Integer> {
     public boolean addBuildConfigSetRecord(BuildConfigSetRecord buildConfigSetRecord) {
         return this.buildConfigSetRecords.add(buildConfigSetRecord);
     }
- 
+
     public boolean removeBuildConfigSetRecord(BuildConfigSetRecord buildConfigSetRecord) {
         return this.buildConfigSetRecords.remove(buildConfigSetRecord);
     }
- 
+
     public static class Builder {
 
         private Integer id;
@@ -165,7 +174,7 @@ public class BuildConfigurationSet implements GenericEntity<Integer> {
                 buildConfiguration.addBuildConfigurationSet(buildConfigurationSet);
             }
             buildConfigurationSet.setBuildConfigSetRecords(buildConfigSetRecords);
-            for (BuildConfigSetRecord buildConfigSetRecord: buildConfigSetRecords) {
+            for (BuildConfigSetRecord buildConfigSetRecord : buildConfigSetRecords) {
                 buildConfigSetRecord.setBuildConfigurationSet(buildConfigurationSet);
             }
 

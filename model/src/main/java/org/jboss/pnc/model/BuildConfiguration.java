@@ -30,9 +30,9 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * The Class BuildConfiguration cointains the informations needed to trigger the build of a project, i.e. the sources and
- * the build script, the environment needed to run, the project configurations that need to be triggered after a
- * successful build. It contains also creation and last modification time for historical purposes
+ * The Class BuildConfiguration cointains the informations needed to trigger the build of a project, i.e. the sources and the
+ * build script, the environment needed to run, the project configurations that need to be triggered after a successful build.
+ * It contains also creation and last modification time for historical purposes
  * <p>
  * (project + name) should be unique
  *
@@ -45,10 +45,11 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
     private static final long serialVersionUID = -5890729679489304114L;
 
     public static final String DEFAULT_SORTING_FIELD = "name";
+    public static final String SEQUENCE_NAME = "build_configuration_id_seq";
 
     @Id
-    @SequenceGenerator(name="build_configuration_id_seq", sequenceName="build_configuration_id_seq", allocationSize=1)    
-    @GeneratedValue(strategy=GenerationType.SEQUENCE, generator="build_configuration_id_seq")
+    @SequenceGenerator(name = SEQUENCE_NAME, sequenceName = SEQUENCE_NAME, allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = SEQUENCE_NAME)
     private Integer id;
 
     @NotNull
@@ -64,13 +65,10 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
 
     @NotAudited
     @ManyToMany
-    @JoinTable(
-            name="build_configuration_product_versions_map",
-            joinColumns={@JoinColumn(name="build_configuration_id", referencedColumnName="id")},
-            inverseJoinColumns={@JoinColumn(name="product_version_id", referencedColumnName="id")})
+    @JoinTable(name = "build_configuration_product_versions_map", joinColumns = { @JoinColumn(name = "build_configuration_id", referencedColumnName = "id") }, inverseJoinColumns = { @JoinColumn(name = "product_version_id", referencedColumnName = "id") })
     private Set<ProductVersion> productVersions;
 
-    @Audited( targetAuditMode = RelationTargetAuditMode.NOT_AUDITED )
+    @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
     @NotNull
     @ManyToOne(cascade = { CascadeType.REFRESH, CascadeType.DETACH })
     private Project project;
@@ -101,22 +99,17 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
     private BuildStatus buildStatus;
 
     /**
-     * The set of build configs upon which this build depends.  The build configs contained
-     * in dependencies should normally be completed before this build config is executed.
-     * Similar to Maven dependencies.
+     * The set of build configs upon which this build depends. The build configs contained in dependencies should normally be
+     * completed before this build config is executed. Similar to Maven dependencies.
      */
     @NotAudited
     @ManyToMany(cascade = { CascadeType.REFRESH })
-    @JoinTable(
-            name="build_configuration_dep_map",
-            joinColumns={@JoinColumn(name="dependency_id", referencedColumnName="id")},
-            inverseJoinColumns={@JoinColumn(name="dependant_id", referencedColumnName="id")})
+    @JoinTable(name = "build_configuration_dep_map", joinColumns = { @JoinColumn(name = "dependency_id", referencedColumnName = "id") }, inverseJoinColumns = { @JoinColumn(name = "dependant_id", referencedColumnName = "id") })
     private Set<BuildConfiguration> dependencies;
 
     /**
-     * The set of build configs which depend upon this config.  These builds must normally
-     * be built after this build is completed.  This is the reverse relationship as Maven
-     * dependencies.
+     * The set of build configs which depend upon this config. These builds must normally be built after this build is
+     * completed. This is the reverse relationship as Maven dependencies.
      */
     @NotAudited
     @ManyToMany(mappedBy = "dependencies")
@@ -128,9 +121,8 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
     private String repositories;
 
     /**
-     * This contains the saved information of this specific revision of this entity 
-     * as set by Hibernate envers.
-     * It is only used in certain situations such as during a build execution.
+     * This contains the saved information of this specific revision of this entity as set by Hibernate envers. It is only used
+     * in certain situations such as during a build execution.
      */
     @Transient
     private BuildConfigurationAudited buildConfigurationAudited;
@@ -293,7 +285,7 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
      * @param buildConfigurationSets the list of buildConfigurationSets
      */
     public void setBuildConfigurationSets(Set<BuildConfigurationSet> buildConfigurationSets) {
-        if (buildConfigurationSets == null ){
+        if (buildConfigurationSets == null) {
             this.buildConfigurationSets = new HashSet<BuildConfigurationSet>();
         }
         this.buildConfigurationSets = buildConfigurationSets;
@@ -545,8 +537,7 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
             buildConfiguration.setBuildConfigurationSets(buildConfigurationSets);
             buildConfiguration.setProductVersions(productVersions);
 
-            for (BuildConfigurationSet buildConfigurationSet : buildConfigurationSets)
-            {
+            for (BuildConfigurationSet buildConfigurationSet : buildConfigurationSets) {
                 buildConfigurationSet.addBuildConfiguration(buildConfiguration);
             }
 
@@ -645,7 +636,8 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
         }
 
         /**
-         * @param lastModificationTime Sets last update time and ignores Null values (since they may affect the entity consistency).
+         * @param lastModificationTime Sets last update time and ignores Null values (since they may affect the entity
+         *        consistency).
          */
         public Builder lastModificationTime(Timestamp lastModificationTime) {
             if (lastModificationTime != null) {

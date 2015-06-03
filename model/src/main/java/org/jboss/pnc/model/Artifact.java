@@ -46,10 +46,11 @@ import javax.validation.constraints.NotNull;
 public class Artifact implements GenericEntity<Integer> {
 
     private static final long serialVersionUID = -2368833657284575734L;
+    public static final String SEQUENCE_NAME = "artifact_id_seq";
 
     @Id
-    @SequenceGenerator(name="artifact_id_seq", sequenceName="artifact_id_seq", allocationSize=1)    
-    @GeneratedValue(strategy=GenerationType.SEQUENCE, generator="artifact_id_seq")
+    @SequenceGenerator(name = SEQUENCE_NAME, sequenceName = SEQUENCE_NAME, allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = SEQUENCE_NAME)
     private Integer id;
 
     /**

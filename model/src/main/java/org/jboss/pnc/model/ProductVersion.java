@@ -17,10 +17,19 @@
  */
 package org.jboss.pnc.model;
 
-import javax.persistence.*;
-import javax.validation.constraints.NotNull;
 import java.util.HashSet;
 import java.util.Set;
+
+import javax.persistence.CascadeType;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
+import javax.persistence.SequenceGenerator;
+import javax.validation.constraints.NotNull;
 
 /**
  * Class that contains all the versions for a Product
@@ -31,11 +40,14 @@ import java.util.Set;
 public class ProductVersion implements GenericEntity<Integer> {
 
     private static final long serialVersionUID = 6314079319551264379L;
+    
+    public static final String SEQUENCE_NAME = "product_version_id_seq";
 
     @Id
-    @SequenceGenerator(name="product_version_id_seq", sequenceName="product_version_id_seq", allocationSize=1)    
-    @GeneratedValue(strategy=GenerationType.SEQUENCE, generator="product_version_id_seq")
+    @SequenceGenerator(name = SEQUENCE_NAME, sequenceName = SEQUENCE_NAME, allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = SEQUENCE_NAME)
     private Integer id;
+
 
     @NotNull
     private String version;

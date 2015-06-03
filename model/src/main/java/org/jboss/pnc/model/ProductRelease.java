@@ -17,27 +17,37 @@
  */
 package org.jboss.pnc.model;
 
-import javax.persistence.*;
-import javax.validation.constraints.NotNull;
-
 import java.util.Date;
 
+import javax.persistence.CascadeType;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
+import javax.persistence.SequenceGenerator;
+import javax.validation.constraints.NotNull;
+
 /**
- * Represents a released version of a product.  For example, a Beta, GA, or SP release.
- * Each release is associated with a product version (many releases for one version),
- * and each release is associated with a single milestone (one to one).
- * For example, product version 1.0 could have three milestones (1.0.0.Build1, 1.0.0.Build2,
- * and 1.0.0.Build3) and two releases (1.0.0.Beta1 which was promoted from 1.0.0.Build1 and 
- * 1.0.0.GA which was promoted from 1.0.0.Build3).
+ * Represents a released version of a product. For example, a Beta, GA, or SP release. Each release is associated with a product
+ * version (many releases for one version), and each release is associated with a single milestone (one to one). For example,
+ * product version 1.0 could have three milestones (1.0.0.Build1, 1.0.0.Build2, and 1.0.0.Build3) and two releases (1.0.0.Beta1
+ * which was promoted from 1.0.0.Build1 and 1.0.0.GA which was promoted from 1.0.0.Build3).
  */
 @Entity
 public class ProductRelease implements GenericEntity<Integer> {
 
     private static final long serialVersionUID = 6314079319551264379L;
 
+    public static final String SEQUENCE_NAME = "product_release_id_seq";
+
     @Id
-    @SequenceGenerator(name="product_release_id_seq", sequenceName="product_release_id_seq", allocationSize=1)    
-    @GeneratedValue(strategy=GenerationType.SEQUENCE, generator="product_release_id_seq")
+    @SequenceGenerator(name = SEQUENCE_NAME, sequenceName = SEQUENCE_NAME, allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = SEQUENCE_NAME)
     private Integer id;
 
     @NotNull
@@ -171,11 +181,7 @@ public class ProductRelease implements GenericEntity<Integer> {
      *
      */
     public enum SupportLevel {
-        UNRELEASED,
-        EARLYACCESS,
-        SUPPORTED,
-        EXTENDED_SUPPORT,
-        EOL
+        UNRELEASED, EARLYACCESS, SUPPORTED, EXTENDED_SUPPORT, EOL
     }
 
     public static class Builder {

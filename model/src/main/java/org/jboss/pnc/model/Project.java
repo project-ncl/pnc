@@ -17,10 +17,18 @@
  */
 package org.jboss.pnc.model;
 
-import javax.persistence.*;
-import javax.validation.constraints.NotNull;
 import java.util.HashSet;
 import java.util.Set;
+
+import javax.persistence.CascadeType;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.SequenceGenerator;
+import javax.validation.constraints.NotNull;
 
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-11-23.
@@ -35,10 +43,11 @@ public class Project implements GenericEntity<Integer> {
     private static final long serialVersionUID = -4644857058640271044L;
 
     public static final String DEFAULT_SORTING_FIELD = "name";
+    public static final String SEQUENCE_NAME = "project_id_seq";
 
     @Id
-    @SequenceGenerator(name="project_id_seq", sequenceName="project_id_seq", allocationSize=1)    
-    @GeneratedValue(strategy=GenerationType.SEQUENCE, generator="project_id_seq")
+    @SequenceGenerator(name = SEQUENCE_NAME, sequenceName = SEQUENCE_NAME, allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = SEQUENCE_NAME)
     private Integer id;
 
     @NotNull
@@ -53,7 +62,7 @@ public class Project implements GenericEntity<Integer> {
     @ManyToOne
     private License license;
 
-    @OneToMany(mappedBy = "project", cascade={CascadeType.REFRESH, CascadeType.REMOVE})
+    @OneToMany(mappedBy = "project", cascade = { CascadeType.REFRESH, CascadeType.REMOVE })
     private Set<BuildConfiguration> buildConfigurations;
 
     /**

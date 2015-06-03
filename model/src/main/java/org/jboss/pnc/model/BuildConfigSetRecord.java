@@ -19,21 +19,28 @@ package org.jboss.pnc.model;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
 /**
- * This class contains a summary of the build results of the execution of a build config set.  This includes
- * the start and end time, links to the build records for the executed builds, and the overall
- * status (success/failure) of the set execution.
+ * This class contains a summary of the build results of the execution of a build config set. This includes the start and end
+ * time, links to the build records for the executed builds, and the overall status (success/failure) of the set execution.
  */
 @Entity
 public class BuildConfigSetRecord implements GenericEntity<Integer> {
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 8917142499701376822L;
+
+    public static final String SEQUENCE_NAME = "build_config_set_record_id_seq";
+    public static final String PREPARED_STATEMENT_INSERT = "INSERT INTO buildconfigsetrecord("
+            + "id, endtime, starttime, status, buildconfigurationset_id, " + "productversion_id, user_id) "
+            + "VALUES (?, ?, ?, ?, ?, ?, ?);";
 
     @Id
+    @SequenceGenerator(name = SEQUENCE_NAME, sequenceName = SEQUENCE_NAME, allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = SEQUENCE_NAME)
     private Integer id;
 
     /**
@@ -58,20 +65,18 @@ public class BuildConfigSetRecord implements GenericEntity<Integer> {
     /**
      * The user who executed the set.
      */
-    //@NotNull //TODO uncomment
+    // @NotNull //TODO uncomment
     @ManyToOne
     private User user;
 
     /**
-     * The status (success/failure) of the overall set.  If any builds in the 
-     * set failed, the status of the set is failed.
+     * The status (success/failure) of the overall set. If any builds in the set failed, the status of the set is failed.
      */
     @Enumerated(value = EnumType.STRING)
     private BuildStatus status;
 
     /**
-     * The detailed records of the builds that were executed as part of the
-     * execution of this set
+     * The detailed records of the builds that were executed as part of the execution of this set
      * 
      */
     @OneToMany(mappedBy = "buildConfigSetRecord")
@@ -255,7 +260,7 @@ public class BuildConfigSetRecord implements GenericEntity<Integer> {
             buildConfigSetRecord.setUser(user);
             buildConfigSetRecord.setProductVersion(productVersion);
             buildConfigSetRecord.setStatus(status);
-            
+
             // Set the bi-directional mapping
             for (BuildRecord buildRecord : buildRecords) {
                 buildRecord.setBuildConfigSetRecord(buildConfigSetRecord);
