@@ -1,21 +1,14 @@
 {
-  "realm" : "PNC.REDHAT.COM",
-  "resource" : "pnc-web-local",
-  "realm-public-key" : "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCF6WP9SC6i9ulVqAItdu1qhsN9LoIywlJ3Qw7RUIMmPjKToCnDoq8glkJAkS4I3PbpWaFSBRvSObmAm4XvGv69kl1UPUW76Wgyqvr09fNSNds34MV4NuULE1muHHj3x49RqH4J/UPQvICtE77t+lvjd526uqHPyn+mZlN4B0K6hQIDAQAB",
-  "auth-server-url" : "https://keycloak-pncauth.rhcloud.com/auth",
+  "realm": "pncredhat",
+  "realm-public-key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAot8RhCeExDqOdUsmzrBkLZVdU77MOqbzgUjOKkoVl6yFANOefsrKiMDJFYwjYhmK3nAbL/jQ5Thdkn9cvRR7G1dHp80JPKsm7n/3SwxjWwNfYjx7WCEZqO3uTPHPnA0CQ84PDHdUVDw50fhN8Cy8BAx52Py7UKo682xs8kwDR/U6FdAgyCP5oaJUUNs59YYB8tDyDOb/7RPKGBTC24jeB1aIwCIOtVIFUgHsF4M6HNLWwoa5rPXWySd9crO9UdPBscfPo/Ok+hn/izJYFkiLjYeKEbHf6JBQgDlBZJ4hUIfaHFrpiWUbJQTC0SUwUZCVPGRS5MGv0dglMgE8PjYN/wIDAQAB",
+  "auth-server-url": "https://keycloak2-pncauth.rhcloud.com/auth",
+  "resource": "pncweb",
   "ssl-required" : "none",
   "use-resource-role-mappings" : false,
-  "enable-cors" : true,
-  "cors-max-age" : 1000,
-  "cors-allowed-methods" : "POST,PUT,DELETE,GET",
   "bearer-only" : false,
   "enable-basic-auth" : false,
   "expose-token" : true,
-  "credentials" : {
-      "secret" : "a9740bec-b9f8-457d-9806-e4740b3e44ce"
-   },
-
-   "connection-pool-size" : 20,
-   "disable-trust-manager": true,
-   "allow-any-hostname" : false
+  "credentials": {
+    "secret": "e77cf5f0-043d-476d-85a7-3ad294611fc8"
+  }
 }

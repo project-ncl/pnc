@@ -85,11 +85,12 @@ public class ExternalAuthentication {
         log.debug(">>> keycloakDeployment.getResourceName():" + this.getResourceName());
         
             HttpPost post = new HttpPost(KeycloakUriBuilder.fromUri(this.getAuthServerBaseUrl())
-                    .path(ServiceUrlConstants.TOKEN_SERVICE_DIRECT_GRANT_PATH).build(this.getRealm()));
+                    .path(ServiceUrlConstants.TOKEN_PATH).build(this.getRealm()));
             List <NameValuePair> formparams = new ArrayList <NameValuePair>();
+            formparams.add(new BasicNameValuePair(OAuth2Constants.GRANT_TYPE, OAuth2Constants.PASSWORD));            
+            formparams.add(new BasicNameValuePair(OAuth2Constants.CLIENT_ID, this.getResourceName()));
             formparams.add(new BasicNameValuePair("username", username));
             formparams.add(new BasicNameValuePair("password", password));
-            formparams.add(new BasicNameValuePair(OAuth2Constants.CLIENT_ID, this.getResourceName()));
             UrlEncodedFormEntity form = new UrlEncodedFormEntity(formparams, "UTF-8");
             post.setEntity(form);
 
@@ -111,7 +112,11 @@ public class ExternalAuthentication {
     
     protected AccessToken authenticateToken(String tokenString) {
         try {
-            AccessToken token = RSATokenVerifier.verifyToken(tokenString, keycloakDeployment.getRealmKey(), keycloakDeployment.getRealm());
+            AccessToken token = RSATokenVerifier.verifyToken(
+                    tokenString, 
+                    keycloakDeployment.getRealmKey(), 
+                    keycloakDeployment.getRealmInfoUrl()
+            );
             return token;
         } catch (VerificationException e) {
             log.error("Failed to verify token", e);

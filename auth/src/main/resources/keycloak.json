@@ -1,10 +1,8 @@
 {
-  "realm": "PNC.REDHAT.COM",
-  "realm-public-key": "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCF6WP9SC6i9ulVqAItdu1qhsN9LoIywlJ3Qw7RUIMmPjKToCnDoq8glkJAkS4I3PbpWaFSBRvSObmAm4XvGv69kl1UPUW76Wgyqvr09fNSNds34MV4NuULE1muHHj3x49RqH4J/UPQvICtE77t+lvjd526uqHPyn+mZlN4B0K6hQIDAQAB",
-  "auth-server-url": "https://keycloak-pncauth.rhcloud.com/auth",
-  "ssl-required": "external",
-  "resource": "pnc-direct-client",
-  "credentials": {
-    "secret": "4c991c3f-9da9-406b-a799-3483ce8e6951"
-  }
+  "realm": "pncredhat",
+  "realm-public-key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAot8RhCeExDqOdUsmzrBkLZVdU77MOqbzgUjOKkoVl6yFANOefsrKiMDJFYwjYhmK3nAbL/jQ5Thdkn9cvRR7G1dHp80JPKsm7n/3SwxjWwNfYjx7WCEZqO3uTPHPnA0CQ84PDHdUVDw50fhN8Cy8BAx52Py7UKo682xs8kwDR/U6FdAgyCP5oaJUUNs59YYB8tDyDOb/7RPKGBTC24jeB1aIwCIOtVIFUgHsF4M6HNLWwoa5rPXWySd9crO9UdPBscfPo/Ok+hn/izJYFkiLjYeKEbHf6JBQgDlBZJ4hUIfaHFrpiWUbJQTC0SUwUZCVPGRS5MGv0dglMgE8PjYN/wIDAQAB",
+  "auth-server-url": "https://keycloak2-pncauth.rhcloud.com/auth",
+  "ssl-required": "none",
+  "resource": "pncdirect",
+  "public-client": true
 }
