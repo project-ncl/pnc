@@ -36,6 +36,7 @@ public class SimpleOAuthConnect {
     public static String getAccessToken(String url, String clientId, String username, String password) 
             throws ClientProtocolException, IOException{
         Map<String, String> urlParams = new HashMap<String, String>();
+        urlParams.put("grant_type", "password");
         urlParams.put("client_id", clientId);
         urlParams.put("username", username);
         urlParams.put("password", password);
@@ -45,6 +46,7 @@ public class SimpleOAuthConnect {
     public static String getrefreshToken(String url, String clientId, String username, String password) 
             throws ClientProtocolException, IOException{
         Map<String, String> urlParams = new HashMap<String, String>();
+        urlParams.put("grant_type", "password");
         urlParams.put("client_id", clientId);
         urlParams.put("username", username);
         urlParams.put("password", password);

@@ -130,7 +130,7 @@
                         <artifactItem>
                             <groupId>org.keycloak</groupId>
                             <artifactId>keycloak-eap6-adapter-dist</artifactId>
-                            <version>1.1.0.Final</version>
+                            <version>${version.keycloak}</version>
                             <type>zip</type>
                             <overWrite>true</overWrite>
                             <outputDirectory>${test.server.build.dir}</outputDirectory>
