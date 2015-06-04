@@ -55,10 +55,6 @@ public class BuildRecord implements GenericEntity<Integer> {
     private static final long serialVersionUID = -5472083609387609797L;
 
     public static final String SEQUENCE_NAME = "build_record_id_seq";
-    // public static final String PREPARED_STATEMENT_INSERT = "INSERT INTO buildrecord ("
-    // + "id, buildcontentid, builddriverid, buildlog, endtime, starttime, "
-    // + "status, buildconfiguration_id, buildconfiguration_rev, user_id, systemimage_id, buildconfigsetrecord_id) "
-    // + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
     @Id
     private Integer id;
