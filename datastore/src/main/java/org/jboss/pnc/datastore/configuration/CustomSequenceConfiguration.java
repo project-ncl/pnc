@@ -27,7 +27,9 @@ public class CustomSequenceConfiguration {
 
         String hbm2ddlAutoValue = sequenceHandlerRepository.getEntityManagerFactoryProperty("hibernate.hbm2ddl.auto");
         logger.info("Found hibernate.hbm2ddl.auto {} ...", hbm2ddlAutoValue);
+        // Possible values: validate | update | create | create-drop
 
+        // I need to drop and re-create model
         if ("create".equalsIgnoreCase(hbm2ddlAutoValue) || "create-drop".equalsIgnoreCase(hbm2ddlAutoValue)) {
 
             try {
@@ -56,6 +58,22 @@ public class CustomSequenceConfiguration {
                 sequenceHandlerRepository.createSequence(BuildConfigSetRecord.SEQUENCE_NAME);
             } catch (Exception e) {
                 logger.error(e.getMessage());
+            }
+        }
+
+        // If I need to update the model them I can safely ignore any "sequence already-existing" error
+        if ("update".equalsIgnoreCase(hbm2ddlAutoValue)) {
+
+            try {
+                logger.info("Updating sequence {} ...", BuildRecord.SEQUENCE_NAME);
+                sequenceHandlerRepository.createSequence(BuildRecord.SEQUENCE_NAME);
+            } catch (Exception e) {
+            }
+
+            try {
+                logger.info("Updating sequence {} ...", BuildConfigSetRecord.SEQUENCE_NAME);
+                sequenceHandlerRepository.createSequence(BuildConfigSetRecord.SEQUENCE_NAME);
+            } catch (Exception e) {
             }
         }
     }
