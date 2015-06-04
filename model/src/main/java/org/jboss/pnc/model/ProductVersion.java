@@ -31,6 +31,8 @@ import javax.persistence.OneToOne;
 import javax.persistence.SequenceGenerator;
 import javax.validation.constraints.NotNull;
 
+import org.hibernate.annotations.ForeignKey;
+
 /**
  * Class that contains all the versions for a Product
  *
@@ -40,7 +42,7 @@ import javax.validation.constraints.NotNull;
 public class ProductVersion implements GenericEntity<Integer> {
 
     private static final long serialVersionUID = 6314079319551264379L;
-    
+
     public static final String SEQUENCE_NAME = "product_version_id_seq";
 
     @Id
@@ -48,12 +50,12 @@ public class ProductVersion implements GenericEntity<Integer> {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = SEQUENCE_NAME)
     private Integer id;
 
-
     @NotNull
     private String version;
 
     @NotNull
     @ManyToOne(cascade = { CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH })
+    @ForeignKey(name = "fk_productversion_product")
     private Product product;
 
     @OneToMany(mappedBy = "productVersion")
@@ -66,9 +68,10 @@ public class ProductVersion implements GenericEntity<Integer> {
     private Set<ProductMilestone> productMilestones;
 
     @OneToOne
+    @ForeignKey(name = "fk_productversion_currentmilestone")
     private ProductMilestone currentProductMilestone;
 
-    public ProductVersion () {
+    public ProductVersion() {
         buildConfigurationSets = new HashSet<>();
         productReleases = new HashSet<ProductRelease>();
         productMilestones = new HashSet<ProductMilestone>();

@@ -30,6 +30,8 @@ import javax.persistence.ManyToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.SequenceGenerator;
 
+import org.hibernate.annotations.ForeignKey;
+
 /**
  * Represents a set of related build records. For example, this could be the set of builds that were executed during a specific
  * product milestone cycle.
@@ -57,6 +59,7 @@ public class BuildRecordSet implements GenericEntity<Integer> {
 
     @ManyToMany
     @JoinTable(name = "build_record_set_map", joinColumns = { @JoinColumn(name = "build_record_set_id", referencedColumnName = "id") }, inverseJoinColumns = { @JoinColumn(name = "build_record_id", referencedColumnName = "id") })
+    @ForeignKey(name = "fk_build_record_set_map_buildrecordset", inverseName = "fk_build_record_set_map_buildrecord")
     private List<BuildRecord> buildRecords;
 
     /**

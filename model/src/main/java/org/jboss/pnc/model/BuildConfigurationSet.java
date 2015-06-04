@@ -33,6 +33,8 @@ import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
 import javax.validation.constraints.NotNull;
 
+import org.hibernate.annotations.ForeignKey;
+
 @Entity
 public class BuildConfigurationSet implements GenericEntity<Integer> {
 
@@ -50,10 +52,12 @@ public class BuildConfigurationSet implements GenericEntity<Integer> {
     private String name;
 
     @ManyToOne(cascade = { CascadeType.REFRESH, CascadeType.DETACH })
+    @ForeignKey(name = "fk_buildconfigurationset_productversion")
     private ProductVersion productVersion;
 
     @ManyToMany
     @JoinTable(name = "build_configuration_set_map", joinColumns = { @JoinColumn(name = "build_configuration_set_id", referencedColumnName = "id") }, inverseJoinColumns = { @JoinColumn(name = "build_configuration_id", referencedColumnName = "id") })
+    @ForeignKey(name = "fk_build_configuration_set_map_buildconfigurationset", inverseName = "fk_build_configuration_set_map_buildconfiguration")
     private Set<BuildConfiguration> buildConfigurations = new HashSet<BuildConfiguration>();
 
     @OneToMany(mappedBy = "buildConfigurationSet")

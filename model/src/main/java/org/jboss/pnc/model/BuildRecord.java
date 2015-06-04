@@ -40,6 +40,7 @@ import javax.persistence.PreRemove;
 import javax.persistence.SequenceGenerator;
 import javax.validation.constraints.NotNull;
 
+import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Type;
 
 /**
@@ -70,12 +71,14 @@ public class BuildRecord implements GenericEntity<Integer> {
     @NotNull
     @ManyToOne(cascade = { CascadeType.REFRESH }, fetch = FetchType.LAZY)
     @JoinColumn(name = "buildconfiguration_id", insertable = false, updatable = false)
+    @ForeignKey(name = "fk_buildrecord_buildconfiguration")
     private BuildConfiguration latestBuildConfiguration; // TODO do we need latest and audited build configuration
 
     @NotNull
     @ManyToOne(cascade = { CascadeType.REFRESH })
     @JoinColumns({ @JoinColumn(name = "buildconfiguration_id", referencedColumnName = "id"),
             @JoinColumn(name = "buildconfiguration_rev", referencedColumnName = "rev") })
+    @ForeignKey(name = "fk_buildrecord_buildconfiguration_aud")
     private BuildConfigurationAudited buildConfigurationAudited;
 
     private String buildContentId;
@@ -88,6 +91,7 @@ public class BuildRecord implements GenericEntity<Integer> {
 
     // @NotNull //TODO uncomment
     @ManyToOne
+    @ForeignKey(name = "fk_buildrecord_user")
     private User user;
 
     @Lob
@@ -114,6 +118,7 @@ public class BuildRecord implements GenericEntity<Integer> {
      * Image that was used to instantiate a build server.
      */
     @ManyToOne
+    @ForeignKey(name = "fk_buildrecord_systemimage")
     private SystemImage systemImage;
 
     // bi-directional many-to-many association to buildRecordSet
@@ -129,7 +134,8 @@ public class BuildRecord implements GenericEntity<Integer> {
      * this field will be null.
      */
     @ManyToOne
-    BuildConfigSetRecord buildConfigSetRecord;
+    @ForeignKey(name = "fk_buildrecord_buildconfigsetrecord")
+    private BuildConfigSetRecord buildConfigSetRecord;
 
     /**
      * Instantiates a new project build result.

@@ -30,6 +30,8 @@ import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
 import javax.validation.constraints.NotNull;
 
+import org.hibernate.annotations.ForeignKey;
+
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-11-23.
  * 
@@ -60,6 +62,7 @@ public class Project implements GenericEntity<Integer> {
     private String projectUrl;
 
     @ManyToOne
+    @ForeignKey(name = "fk_project_license")
     private License license;
 
     @OneToMany(mappedBy = "project", cascade = { CascadeType.REFRESH, CascadeType.REMOVE })

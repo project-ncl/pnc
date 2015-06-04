@@ -29,6 +29,8 @@ import javax.persistence.OneToOne;
 import javax.persistence.SequenceGenerator;
 import javax.validation.constraints.NotNull;
 
+import org.hibernate.annotations.ForeignKey;
+
 /**
  * Represents a product milestone. A single product version, for example "1.0", can be associated with several product
  * milestones such as "1.0.0.build1", "1.0.0.build2", etc. A milestone represents the set of work (build records) that was
@@ -59,12 +61,14 @@ public class ProductMilestone implements GenericEntity<Integer> {
 
     @NotNull
     @ManyToOne(cascade = { CascadeType.REFRESH })
+    @ForeignKey(name = "fk_productmilestone_productversion")
     private ProductVersion productVersion;
 
     @OneToOne(mappedBy = "productMilestone")
     private ProductRelease productRelease;
 
     @OneToOne(cascade = { CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH })
+    @ForeignKey(name = "fk_productmilestone_buildrecordset")
     private BuildRecordSet buildRecordSet;
 
     public Integer getId() {

@@ -32,6 +32,8 @@ import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
 import javax.validation.constraints.NotNull;
 
+import org.hibernate.annotations.ForeignKey;
+
 /**
  * This class contains a summary of the build results of the execution of a build config set. This includes the start and end
  * time, links to the build records for the executed builds, and the overall status (success/failure) of the set execution.
@@ -56,6 +58,7 @@ public class BuildConfigSetRecord implements GenericEntity<Integer> {
      */
     @NotNull
     @ManyToOne
+    @ForeignKey(name = "fk_buildconfigsetrecord_buildconfigset")
     private BuildConfigurationSet buildConfigurationSet;
 
     /**
@@ -75,6 +78,7 @@ public class BuildConfigSetRecord implements GenericEntity<Integer> {
      */
     // @NotNull //TODO uncomment
     @ManyToOne
+    @ForeignKey(name = "fk_buildconfigsetrecord_user")
     private User user;
 
     /**
@@ -91,6 +95,7 @@ public class BuildConfigSetRecord implements GenericEntity<Integer> {
     private Set<BuildRecord> buildRecords;
 
     @ManyToOne
+    @ForeignKey(name = "fk_buildconfigsetrecord_productversion")
     private ProductVersion productVersion;
 
     /**

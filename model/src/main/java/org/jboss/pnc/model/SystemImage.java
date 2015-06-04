@@ -25,6 +25,8 @@ import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.validation.constraints.NotNull;
 
+import org.hibernate.annotations.ForeignKey;
+
 /**
  * The Class SystemImage, selected by the Environment Driver to run a build, based on the buildConfiguration requirements
  *
@@ -43,6 +45,7 @@ public class SystemImage implements GenericEntity<Integer> {
     private Integer id;
 
     @ManyToOne
+    @ForeignKey(name = "fk_systemimage_environment")
     private Environment environment;
 
     @NotNull

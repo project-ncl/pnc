@@ -28,6 +28,8 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 
+import org.hibernate.annotations.ForeignKey;
+
 /**
  * The audited record of a build configuration.  Each change to the build configuration
  * table is recorded in the audit table.  This class provides access to a specific version
@@ -68,10 +70,12 @@ public class BuildConfigurationAudited implements GenericEntity<Integer> {
 
     @NotNull
     @ManyToOne
+    @ForeignKey(name = "fk_buildconfiguration_aud_project")
     private Project project;
 
     @NotNull
     @ManyToOne
+    @ForeignKey(name = "fk_buildconfiguration_aud_environment")
     private Environment environment;
 
     @OneToMany(fetch=FetchType.LAZY, mappedBy="buildConfigurationAudited")

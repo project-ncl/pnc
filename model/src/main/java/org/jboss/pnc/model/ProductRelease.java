@@ -32,6 +32,8 @@ import javax.persistence.OneToOne;
 import javax.persistence.SequenceGenerator;
 import javax.validation.constraints.NotNull;
 
+import org.hibernate.annotations.ForeignKey;
+
 /**
  * Represents a released version of a product. For example, a Beta, GA, or SP release. Each release is associated with a product
  * version (many releases for one version), and each release is associated with a single milestone (one to one). For example,
@@ -55,6 +57,7 @@ public class ProductRelease implements GenericEntity<Integer> {
 
     @NotNull
     @ManyToOne(cascade = { CascadeType.REFRESH })
+    @ForeignKey(name = "fk_productrelease_productversion")
     private ProductVersion productVersion;
 
     @Enumerated(EnumType.STRING)
@@ -66,11 +69,13 @@ public class ProductRelease implements GenericEntity<Integer> {
 
     @NotNull
     @OneToOne(cascade = { CascadeType.REFRESH })
+    @ForeignKey(name = "fk_productrelease_milestone")
     private ProductMilestone productMilestone;
 
     @NotNull
     @OneToOne(cascade = { CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH })
     @JoinColumn(name = "build_record_set_id")
+    @ForeignKey(name = "fk_productrelease_buildrecordset")
     private BuildRecordSet buildRecordSet;
 
     public ProductRelease() {

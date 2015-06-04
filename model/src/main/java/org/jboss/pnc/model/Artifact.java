@@ -20,6 +20,8 @@ package org.jboss.pnc.model;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 
+import org.hibernate.annotations.ForeignKey;
+
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-11-23.
  * 
@@ -76,6 +78,7 @@ public class Artifact implements GenericEntity<Integer> {
     // bi-directional many-to-one association to buildRecord
     @NotNull
     @ManyToOne
+    @ForeignKey(name = "fk_artifact_buildrecord")
     private BuildRecord buildRecord;
 
     /**
