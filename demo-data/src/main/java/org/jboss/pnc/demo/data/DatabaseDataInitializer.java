@@ -17,18 +17,17 @@
  */
 package org.jboss.pnc.demo.data;
 
-import java.lang.invoke.MethodHandles;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.logging.Logger;
 
 import javax.ejb.Singleton;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
 import javax.inject.Inject;
 
-import org.jboss.logging.Logger;
 import org.jboss.pnc.datastore.repositories.BuildConfigSetRecordRepository;
 import org.jboss.pnc.datastore.repositories.BuildConfigurationAuditedRepository;
 import org.jboss.pnc.datastore.repositories.BuildConfigurationRepository;
@@ -40,6 +39,7 @@ import org.jboss.pnc.datastore.repositories.ProductReleaseRepository;
 import org.jboss.pnc.datastore.repositories.ProductRepository;
 import org.jboss.pnc.datastore.repositories.ProductVersionRepository;
 import org.jboss.pnc.datastore.repositories.ProjectRepository;
+import org.jboss.pnc.datastore.repositories.SequenceHandlerRepository;
 import org.jboss.pnc.datastore.repositories.UserRepository;
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.ArtifactStatus;
@@ -69,7 +69,7 @@ import com.google.common.base.Preconditions;
 @Singleton
 public class DatabaseDataInitializer {
 
-    private static final Logger logger = Logger.getLogger(MethodHandles.lookup().lookupClass());
+    public static final Logger log = Logger.getLogger(DatabaseDataInitializer.class.getName());
 
     private static final String PNC_PRODUCT_NAME = "Project Newcastle Demo Product";
     private static final String PNC_PRODUCT_VERSION = "1.0";
@@ -113,6 +113,9 @@ public class DatabaseDataInitializer {
 
     @Inject
     EnvironmentRepository environmentRepository;
+
+    @Inject
+    SequenceHandlerRepository sequenceHandlerRepository;
 
     @Inject
     Datastore datastore;
@@ -281,15 +284,20 @@ public class DatabaseDataInitializer {
         IdRev buildConfig1AuditIdRev = new IdRev(buildConfiguration1.getId(), INITIAL_REVISION);
         BuildConfigurationAudited buildConfigAudited1 = buildConfigurationAuditedRepository.findOne(buildConfig1AuditIdRev);
         if (buildConfigAudited1 != null) {
-            BuildRecord buildRecord = BuildRecord.Builder.newBuilder().id(datastore.getNextBuildRecordId())
-                    .latestBuildConfiguration(buildConfiguration1).buildConfigurationAudited(buildConfigAudited1)
-                    .startTime(Timestamp.from(Instant.now())).endTime(Timestamp.from(Instant.now()))
-                    .builtArtifact(builtArtifact1).builtArtifact(builtArtifact2).builtArtifact(importedArtifact1)
-                    .builtArtifact(importedArtifact2).user(demoUser)
-                    .buildLog("Very short demo log: The quick brown fox jumps over the lazy dog.").build();
 
-            buildRecordRepository.save(buildRecord);
+            int nextId = datastore.getNextBuildRecordId();
+            log.info("####nextId: " + nextId);
+
+            BuildRecord buildRecord = BuildRecord.Builder.newBuilder().id(nextId).latestBuildConfiguration(buildConfiguration1)
+                    .buildConfigurationAudited(buildConfigAudited1).startTime(Timestamp.from(Instant.now()))
+                    .endTime(Timestamp.from(Instant.now())).builtArtifact(builtArtifact1).builtArtifact(builtArtifact2)
+                    .builtArtifact(importedArtifact1).builtArtifact(importedArtifact2).user(demoUser)
+                    .buildLog("Very short demo log: The quick brown fox jumps over the lazy dog.").status(BuildStatus.SUCCESS)
+                    .build();
+
+            datastore.storeBuildRecordBypassingSequence(buildRecord);
             buildRecords.add(buildRecord);
+
         }
 
         Artifact builtArtifact3 = Artifact.Builder.newBuilder().identifier("test").deployUrl("http://google.pl/built3")
@@ -300,13 +308,17 @@ public class DatabaseDataInitializer {
         IdRev buildConfig2AuditIdRev = new IdRev(buildConfiguration2.getId(), INITIAL_REVISION);
         BuildConfigurationAudited buildConfigAudited2 = buildConfigurationAuditedRepository.findOne(buildConfig2AuditIdRev);
         if (buildConfigAudited2 != null) {
-            BuildRecord buildRecord = BuildRecord.Builder.newBuilder().id(datastore.getNextBuildRecordId())
-                    .latestBuildConfiguration(buildConfiguration2).buildConfigurationAudited(buildConfigAudited2)
-                    .startTime(Timestamp.from(Instant.now())).endTime(Timestamp.from(Instant.now()))
-                    .builtArtifact(builtArtifact3).builtArtifact(builtArtifact4).user(demoUser)
-                    .buildLog("Very short demo log: The quick brown fox jumps over the lazy dog.").build();
 
-            buildRecordRepository.save(buildRecord);
+            int nextId = datastore.getNextBuildRecordId();
+            log.info("####nextId: " + nextId);
+
+            BuildRecord buildRecord = BuildRecord.Builder.newBuilder().id(nextId).latestBuildConfiguration(buildConfiguration2)
+                    .buildConfigurationAudited(buildConfigAudited2).startTime(Timestamp.from(Instant.now()))
+                    .endTime(Timestamp.from(Instant.now())).builtArtifact(builtArtifact3).builtArtifact(builtArtifact4)
+                    .user(demoUser).buildLog("Very short demo log: The quick brown fox jumps over the lazy dog.")
+                    .status(BuildStatus.SUCCESS).build();
+
+            datastore.storeBuildRecordBypassingSequence(buildRecord);
             buildRecords.add(buildRecord);
         }
 
