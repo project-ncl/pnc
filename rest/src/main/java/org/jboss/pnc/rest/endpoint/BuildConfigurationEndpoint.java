@@ -47,6 +47,7 @@ import org.jboss.pnc.core.exception.CoreException;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.rest.provider.BuildConfigurationProvider;
 import org.jboss.pnc.rest.provider.BuildRecordProvider;
+import org.jboss.pnc.rest.provider.ProductVersionProvider;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationRest;
 import org.jboss.pnc.rest.restmodel.ProductVersionRest;
 import org.jboss.pnc.rest.trigger.BuildTriggerer;
@@ -238,6 +239,13 @@ public class BuildConfigurationEndpoint {
             @ApiParam(value = "Build configuration id", required = true) @PathParam("dependencyId") Integer dependencyId) {
         buildConfigurationProvider.removeDependency(id, dependencyId);
         return Response.ok().build();
+    }
+
+    @ApiOperation(value = "Get associated Product Versions of the specified Configuration")
+    @GET
+    @Path("/{id}/product-versions")
+    public List<ProductVersionRest> getProductVersions(@ApiParam(value = "Build configuration id", required = true) @PathParam("id") Integer id) {
+        return buildConfigurationProvider.getProductVersions(id);
     }
 
     @ApiOperation(value = "Associates a product version to the specified config")
