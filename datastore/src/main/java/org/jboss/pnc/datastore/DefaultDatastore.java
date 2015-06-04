@@ -58,11 +58,7 @@ public class DefaultDatastore implements Datastore {
     @TransactionAttribute(TransactionAttributeType.REQUIRED)
     public void storeCompletedBuild(BuildRecord buildRecord) {
         storeBuildConfiguration(buildRecord);
-        storeBuildRecordBypassingSequence(buildRecord);
-    }
-
-    public void storeBuildRecordBypassingSequence(BuildRecord buildRecord) {
-        sequenceHandlerRepository.insertBuildRecordBypassingSequence(buildRecord);
+        buildRecordRepository.save(buildRecord);
     }
 
     @Override

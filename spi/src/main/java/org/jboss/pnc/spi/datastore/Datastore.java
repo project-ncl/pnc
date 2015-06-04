@@ -27,8 +27,6 @@ public interface Datastore {
 
     void storeCompletedBuild(BuildRecord buildRecord) throws DatastoreException;
 
-    void storeBuildRecordBypassingSequence(BuildRecord buildRecord);
-
     User retrieveUserByUsername(String username);
 
     void createNewUser(User user);

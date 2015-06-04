@@ -31,9 +31,8 @@ import javax.validation.constraints.NotNull;
 import org.hibernate.annotations.ForeignKey;
 
 /**
- * The audited record of a build configuration.  Each change to the build configuration
- * table is recorded in the audit table.  This class provides access to a specific version
- * of a build configuration.
+ * The audited record of a build configuration. Each change to the build configuration table is recorded in the audit table.
+ * This class provides access to a specific version of a build configuration.
  *
  */
 @Entity
@@ -78,7 +77,7 @@ public class BuildConfigurationAudited implements GenericEntity<Integer> {
     @ForeignKey(name = "fk_buildconfiguration_aud_environment")
     private Environment environment;
 
-    @OneToMany(fetch=FetchType.LAZY, mappedBy="buildConfigurationAudited")
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "buildConfigurationAudited")
     private Set<BuildRecord> buildRecords;
 
     /**

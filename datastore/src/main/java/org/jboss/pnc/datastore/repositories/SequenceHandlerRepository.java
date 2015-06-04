@@ -4,7 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Types;
+import java.util.Map;
 
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
@@ -16,10 +16,7 @@ import org.hibernate.jdbc.ReturningWork;
 import org.hibernate.jdbc.Work;
 import org.hibernate.service.jdbc.dialect.internal.StandardDialectResolver;
 import org.hibernate.service.jdbc.dialect.spi.DialectResolver;
-import org.jboss.pnc.model.BuildConfigSetRecord;
-import org.jboss.pnc.model.BuildRecord;
 
-//@ApplicationScoped
 public class SequenceHandlerRepository {
 
     public SequenceHandlerRepository() {
@@ -27,10 +24,21 @@ public class SequenceHandlerRepository {
     }
 
     private EntityManager entityManager;
+    private Map<String, Object> entityManagerFactoryProperties;
 
     @Inject
     public SequenceHandlerRepository(EntityManager entityManager) {
         this.entityManager = entityManager;
+        this.entityManagerFactoryProperties = entityManager.getEntityManagerFactory().getProperties();
+    }
+
+    public String getEntityManagerFactoryProperty(String propertyName) {
+        for (Map.Entry<String, Object> e : entityManagerFactoryProperties.entrySet()) {
+            if (e.getKey().trim().equals(propertyName)) {
+                return e.getValue().toString();
+            }
+        }
+        return null;
     }
 
     public Long getNextID(final String sequenceName) {
@@ -68,55 +76,18 @@ public class SequenceHandlerRepository {
         return maxRecord;
     }
 
-    public void insertBuildRecordBypassingSequence(final BuildRecord br) {
+    public void createSequence(final String sequenceName) {
 
-        Work insertWork = new Work() {
+        Work work = new Work() {
             @Override
             public void execute(Connection connection) throws SQLException {
+                DialectResolver dialectResolver = new StandardDialectResolver();
+                Dialect dialect = dialectResolver.resolveDialect(connection.getMetaData());
                 PreparedStatement preparedStatement = null;
                 ResultSet resultSet = null;
                 try {
-                    preparedStatement = connection.prepareStatement(BuildRecord.PREPARED_STATEMENT_INSERT);
-                    preparedStatement.setInt(1, br.getId());
-                    preparedStatement.setString(2, br.getBuildContentId());
-                    preparedStatement.setString(3, br.getBuildDriverId());
-                    preparedStatement.setString(4, br.getBuildLog());
-                    preparedStatement.setTimestamp(5, br.getEndTime());
-                    preparedStatement.setTimestamp(6, br.getStartTime());
-
-                    if (br.getStatus() != null) {
-                        preparedStatement.setString(7, br.getStatus().toString());
-                    } else {
-                        preparedStatement.setNull(7, Types.VARCHAR);
-                    }
-
-                    if (br.getBuildConfigurationAudited() != null) {
-                        preparedStatement.setInt(8, br.getBuildConfigurationAudited().getId());
-                        preparedStatement.setInt(9, br.getBuildConfigurationAudited().getRev());
-                    } else {
-                        preparedStatement.setNull(8, Types.NULL);
-                        preparedStatement.setNull(9, Types.NULL);
-                    }
-
-                    if (br.getUser() != null) {
-                        preparedStatement.setInt(10, br.getUser().getId());
-                    } else {
-                        preparedStatement.setNull(10, Types.INTEGER);
-                    }
-
-                    if (br.getSystemImage() != null) {
-                        preparedStatement.setInt(11, br.getSystemImage().getId());
-                    } else {
-                        preparedStatement.setNull(11, Types.INTEGER);
-                    }
-
-                    if (br.getBuildConfigSetRecord() != null) {
-                        preparedStatement.setInt(12, br.getBuildConfigSetRecord().getId());
-                    } else {
-                        preparedStatement.setNull(12, Types.INTEGER);
-                    }
-
-                    preparedStatement.executeUpdate();
+                    preparedStatement = connection.prepareStatement(dialect.getCreateSequenceStrings(sequenceName, 1, 1)[0]);
+                    preparedStatement.execute();
                 } catch (SQLException e) {
                     throw e;
                 } finally {
@@ -133,49 +104,21 @@ public class SequenceHandlerRepository {
 
         Session session = (Session) entityManager.getDelegate();
         SessionFactory sessionFactory = session.getSessionFactory();
-
-        sessionFactory.getCurrentSession().doWork(insertWork);
+        sessionFactory.getCurrentSession().doWork(work);
     }
 
-    public void insertBuildConfigSetRecordBypassingSequence(final BuildConfigSetRecord bcsr) {
+    public void dropSequence(final String sequenceName) {
 
-        Work insertWork = new Work() {
+        Work work = new Work() {
             @Override
             public void execute(Connection connection) throws SQLException {
+                DialectResolver dialectResolver = new StandardDialectResolver();
+                Dialect dialect = dialectResolver.resolveDialect(connection.getMetaData());
                 PreparedStatement preparedStatement = null;
                 ResultSet resultSet = null;
-
                 try {
-                    preparedStatement = connection.prepareStatement(BuildConfigSetRecord.PREPARED_STATEMENT_INSERT);
-                    preparedStatement.setInt(1, bcsr.getId());
-                    preparedStatement.setTimestamp(2, bcsr.getEndTime());
-                    preparedStatement.setTimestamp(3, bcsr.getStartTime());
-
-                    if (bcsr.getStatus() != null) {
-                        preparedStatement.setString(4, bcsr.getStatus().toString());
-                    } else {
-                        preparedStatement.setNull(4, Types.VARCHAR);
-                    }
-
-                    if (bcsr.getBuildConfigurationSet() != null) {
-                        preparedStatement.setInt(5, bcsr.getBuildConfigurationSet().getId());
-                    } else {
-                        preparedStatement.setNull(5, Types.INTEGER);
-                    }
-
-                    if (bcsr.getProductVersion() != null) {
-                        preparedStatement.setInt(6, bcsr.getProductVersion().getId());
-                    } else {
-                        preparedStatement.setNull(6, Types.INTEGER);
-                    }
-
-                    if (bcsr.getUser() != null) {
-                        preparedStatement.setInt(7, bcsr.getUser().getId());
-                    } else {
-                        preparedStatement.setNull(7, Types.INTEGER);
-                    }
-
-                    preparedStatement.executeUpdate();
+                    preparedStatement = connection.prepareStatement(dialect.getDropSequenceStrings(sequenceName)[0]);
+                    preparedStatement.execute();
                 } catch (SQLException e) {
                     throw e;
                 } finally {
@@ -192,8 +135,7 @@ public class SequenceHandlerRepository {
 
         Session session = (Session) entityManager.getDelegate();
         SessionFactory sessionFactory = session.getSessionFactory();
-
-        sessionFactory.getCurrentSession().doWork(insertWork);
+        sessionFactory.getCurrentSession().doWork(work);
     }
 
 }

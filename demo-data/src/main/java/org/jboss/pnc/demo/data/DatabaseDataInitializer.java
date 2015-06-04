@@ -295,7 +295,7 @@ public class DatabaseDataInitializer {
                     .buildLog("Very short demo log: The quick brown fox jumps over the lazy dog.").status(BuildStatus.SUCCESS)
                     .build();
 
-            datastore.storeBuildRecordBypassingSequence(buildRecord);
+            buildRecordRepository.save(buildRecord);
             buildRecords.add(buildRecord);
 
         }
@@ -318,7 +318,7 @@ public class DatabaseDataInitializer {
                     .user(demoUser).buildLog("Very short demo log: The quick brown fox jumps over the lazy dog.")
                     .status(BuildStatus.SUCCESS).build();
 
-            datastore.storeBuildRecordBypassingSequence(buildRecord);
+            buildRecordRepository.save(buildRecord);
             buildRecords.add(buildRecord);
         }
 

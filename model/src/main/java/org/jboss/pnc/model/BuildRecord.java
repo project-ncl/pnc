@@ -27,8 +27,6 @@ import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinColumns;
@@ -37,7 +35,6 @@ import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.PreRemove;
-import javax.persistence.SequenceGenerator;
 import javax.validation.constraints.NotNull;
 
 import org.hibernate.annotations.ForeignKey;
@@ -58,14 +55,12 @@ public class BuildRecord implements GenericEntity<Integer> {
     private static final long serialVersionUID = -5472083609387609797L;
 
     public static final String SEQUENCE_NAME = "build_record_id_seq";
-    public static final String PREPARED_STATEMENT_INSERT = "INSERT INTO buildrecord ("
-            + "id, buildcontentid, builddriverid, buildlog, endtime, starttime, "
-            + "status, buildconfiguration_id, buildconfiguration_rev, user_id, systemimage_id, buildconfigsetrecord_id) "
-            + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    // public static final String PREPARED_STATEMENT_INSERT = "INSERT INTO buildrecord ("
+    // + "id, buildcontentid, builddriverid, buildlog, endtime, starttime, "
+    // + "status, buildconfiguration_id, buildconfiguration_rev, user_id, systemimage_id, buildconfigsetrecord_id) "
+    // + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
     @Id
-    @SequenceGenerator(name = SEQUENCE_NAME, sequenceName = SEQUENCE_NAME, allocationSize = 1)
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = SEQUENCE_NAME)
     private Integer id;
 
     @NotNull

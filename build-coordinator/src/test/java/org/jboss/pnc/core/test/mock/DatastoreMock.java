@@ -72,7 +72,4 @@ public class DatastoreMock implements Datastore {
         return buildRecordSetSequence.incrementAndGet();
     }
 
-    @Override
-    public void storeBuildRecordBypassingSequence(BuildRecord buildRecord) {
-    }
 }
