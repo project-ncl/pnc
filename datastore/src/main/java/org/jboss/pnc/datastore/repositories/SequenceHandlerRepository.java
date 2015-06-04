@@ -16,6 +16,7 @@ import org.hibernate.jdbc.ReturningWork;
 import org.hibernate.jdbc.Work;
 import org.hibernate.service.jdbc.dialect.internal.StandardDialectResolver;
 import org.hibernate.service.jdbc.dialect.spi.DialectResolver;
+import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildRecord;
 
 //@ApplicationScoped
@@ -113,6 +114,65 @@ public class SequenceHandlerRepository {
                         preparedStatement.setInt(12, br.getBuildConfigSetRecord().getId());
                     } else {
                         preparedStatement.setNull(12, Types.INTEGER);
+                    }
+
+                    preparedStatement.executeUpdate();
+                } catch (SQLException e) {
+                    throw e;
+                } finally {
+                    if (preparedStatement != null) {
+                        preparedStatement.close();
+                    }
+                    if (resultSet != null) {
+                        resultSet.close();
+                    }
+                }
+
+            }
+        };
+
+        Session session = (Session) entityManager.getDelegate();
+        SessionFactory sessionFactory = session.getSessionFactory();
+
+        sessionFactory.getCurrentSession().doWork(insertWork);
+    }
+
+    public void insertBuildConfigSetRecordBypassingSequence(final BuildConfigSetRecord bcsr) {
+
+        Work insertWork = new Work() {
+            @Override
+            public void execute(Connection connection) throws SQLException {
+                PreparedStatement preparedStatement = null;
+                ResultSet resultSet = null;
+
+                try {
+                    preparedStatement = connection.prepareStatement(BuildConfigSetRecord.PREPARED_STATEMENT_INSERT);
+                    preparedStatement.setInt(1, bcsr.getId());
+                    preparedStatement.setTimestamp(2, bcsr.getEndTime());
+                    preparedStatement.setTimestamp(3, bcsr.getStartTime());
+
+                    if (bcsr.getStatus() != null) {
+                        preparedStatement.setString(4, bcsr.getStatus().toString());
+                    } else {
+                        preparedStatement.setNull(4, Types.VARCHAR);
+                    }
+
+                    if (bcsr.getBuildConfigurationSet() != null) {
+                        preparedStatement.setInt(5, bcsr.getBuildConfigurationSet().getId());
+                    } else {
+                        preparedStatement.setNull(5, Types.INTEGER);
+                    }
+
+                    if (bcsr.getProductVersion() != null) {
+                        preparedStatement.setInt(6, bcsr.getProductVersion().getId());
+                    } else {
+                        preparedStatement.setNull(6, Types.INTEGER);
+                    }
+
+                    if (bcsr.getUser() != null) {
+                        preparedStatement.setInt(7, bcsr.getUser().getId());
+                    } else {
+                        preparedStatement.setNull(7, Types.INTEGER);
                     }
 
                     preparedStatement.executeUpdate();
