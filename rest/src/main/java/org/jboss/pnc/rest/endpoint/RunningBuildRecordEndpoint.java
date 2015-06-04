@@ -17,19 +17,30 @@
  */
 package org.jboss.pnc.rest.endpoint;
 
+import org.jboss.logging.Logger;
+import org.jboss.pnc.rest.provider.BuildRecordProvider;
+import org.jboss.pnc.rest.restmodel.BuildRecordRest;
+
+import javax.inject.Inject;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DefaultValue;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
+
+import java.lang.invoke.MethodHandles;
+import java.util.List;
+
 import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
 import com.wordnik.swagger.annotations.ApiParam;
-import org.jboss.pnc.rest.provider.BuildRecordProvider;
-import org.jboss.pnc.rest.restmodel.BuildRecordRest;
-import org.jboss.logging.Logger;
-
-import javax.inject.Inject;
-import javax.ws.rs.*;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import java.lang.invoke.MethodHandles;
-import java.util.List;
+import com.wordnik.swagger.annotations.ApiResponse;
+import com.wordnik.swagger.annotations.ApiResponses;
 
 @Api(value = "/running-build-records", description = "Build Records for running builds")
 @Path("/running-build-records")
@@ -49,14 +60,22 @@ public class RunningBuildRecordEndpoint {
         this.buildRecordProvider = buildRecordProvider;
     }
 
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Successful retrieval all RunningBuildRecords"),
+            @ApiResponse(code = 204, message = "No RunningBuildRecords available"),
+    })
     @ApiOperation(value = "Gets all running Build Records")
     @GET
-    public List<BuildRecordRest> getAll(
+    public Response getAll(
             @ApiParam(value = "Page index") @QueryParam("pageIndex") @DefaultValue("0") Integer pageIndex,
             @ApiParam(value = "Pagination size") @DefaultValue("50") @QueryParam("pageSize") Integer pageSize,
             @ApiParam(value = "Sorting RSQL") @QueryParam("sort") String sortingRsql,
             @ApiParam(value = "RSQL query", required = false) @QueryParam("q") String rsql) {
-        return buildRecordProvider.getAllRunning(pageIndex, pageSize, sortingRsql, rsql);
+        List<BuildRecordRest> allRecords = buildRecordProvider.getAllRunning(pageIndex, pageSize, sortingRsql, rsql);
+        if (allRecords.isEmpty())
+            return Response.status(Status.NO_CONTENT).build();
+        else
+            return Response.ok(allRecords).build();
     }
 
     @ApiOperation(value = "Gets specific running Build Record")
