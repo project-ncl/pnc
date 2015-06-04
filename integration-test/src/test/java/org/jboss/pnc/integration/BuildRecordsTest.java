@@ -18,6 +18,7 @@
 package org.jboss.pnc.integration;
 
 import cz.jirutka.rsql.parser.RSQLParserException;
+
 import org.assertj.core.api.Condition;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
@@ -49,6 +50,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import javax.ws.rs.core.StreamingOutput;
+
 import java.lang.invoke.MethodHandles;
 import java.sql.Timestamp;
 import java.time.Instant;
@@ -168,7 +170,8 @@ public class BuildRecordsTest {
     @Test
     public void shouldGetLogsForSpecificBuildRecord() {
         // when
-        StreamingOutput logs = buildRecordProvider.getLogsForBuildId(buildRecordId);
+        String buildRecordLog = buildRecordProvider.getBuildRecordLog(buildRecordId);
+        StreamingOutput logs = buildRecordProvider.getLogsForBuild(buildRecordLog);
 
         // then
         assertThat(logs).isNotNull();
