@@ -18,8 +18,12 @@ public class BuildRecordEndpointTest {
 
     @Test
     public void getLogsNoContentTest() {
+        // given
         int logId = 1;
-        BuildRecordEndpoint buildRecordEndpoint = getLogsPrepareEndpoint(logId, "");
+        String logContent = "";
+
+        // when
+        BuildRecordEndpoint buildRecordEndpoint = getLogsPrepareEndpoint(logId, logContent);
 
         // then
         assertEquals(204, buildRecordEndpoint.getLogs(logId).getStatus());
@@ -27,8 +31,11 @@ public class BuildRecordEndpointTest {
 
     @Test
     public void getLogsWithContentTest() {
+        // given
         int logId = 1;
         String logContent = "LOG CONTENT";
+        
+        // when
         BuildRecordEndpoint buildRecordEndpoint = getLogsPrepareEndpoint(logId, logContent);
 
         // then
@@ -36,13 +43,11 @@ public class BuildRecordEndpointTest {
     }
 
     private BuildRecordEndpoint getLogsPrepareEndpoint(int logId, String logContent) {
-        // given
         BuildRecordRepository buildRecordRepository = mock(BuildRecordRepository.class);
         BuildRecordProvider buildRecordProvider = new BuildRecordProvider(buildRecordRepository, null);
         BuildRecordEndpoint buildRecordEndpoint = new BuildRecordEndpoint(buildRecordProvider, null);
         BuildRecord buildRecord = mock(BuildRecord.class);
 
-        // when
         Mockito.when(buildRecord.getBuildLog()).thenReturn(logContent);
         Mockito.when(buildRecordRepository.findOne(logId)).thenReturn(buildRecord);
         return buildRecordEndpoint;
