@@ -161,6 +161,14 @@ public class BuildConfigurationProvider {
         buildConfigurationRepository.save(buildConfig);
     }
 
+    public List<BuildConfigurationRest> getDependencies(Integer configId) {
+        BuildConfiguration buildConfig = buildConfigurationRepository.findOne(configId);
+        Set<BuildConfiguration> buildConfigurations = buildConfig.getDependencies();
+        return nullableStreamOf(buildConfigurations)
+                .map(toRestModel())
+                .collect(Collectors.toList());
+    }
+
     public void addProductVersion(Integer configId, Integer productVersionId) {
         BuildConfiguration buildConfig = buildConfigurationRepository.findOne(configId);
         ProductVersion productVersion = productVersionRepository.findOne(productVersionId);
