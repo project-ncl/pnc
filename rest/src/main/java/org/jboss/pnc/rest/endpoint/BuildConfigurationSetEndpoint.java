@@ -186,6 +186,8 @@ public class BuildConfigurationSetEndpoint {
     public Response addConfiguration(
             @ApiParam(value = "Build Configuration Set id", required = true) @PathParam("id") Integer id,
             BuildConfigurationRest buildConfig) {
+        if (buildConfigurationSetProvider.getSpecific(id).getBuildConfigurationIds().contains(buildConfig.getId()))
+            return Response.status(Response.Status.CONFLICT).build();
         buildConfigurationSetProvider.addConfiguration(id, buildConfig.getId());
         return Response.ok().build();
     }
