@@ -221,6 +221,13 @@ public class BuildConfigurationEndpoint {
         return buildConfigurationProvider.getAllForProductAndProductVersion(pageIndex, pageSize, sortingRsql, rsql, productId, versionId);
     }
 
+    @ApiOperation(value = "Get associated dependencies of the specified Configuration")
+    @GET
+    @Path("/{id}/dependencies")
+    public List<BuildConfigurationRest> getDependencies(@ApiParam(value = "Build configuration id", required = true) @PathParam("id") Integer id) {
+        return buildConfigurationProvider.getDependencies(id);
+    }
+
     @ApiOperation(value = "Adds a dependency to the specified config")
     @POST
     @Path("/{id}/dependencies")
