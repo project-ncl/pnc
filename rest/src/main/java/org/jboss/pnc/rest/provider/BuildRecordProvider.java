@@ -160,20 +160,24 @@ public class BuildRecordProvider {
         return null;
     }
 
-    public StreamingOutput getLogsForRunningBuildId(Integer id) {
+    public String getSubmittedBuildLog(Integer id) {
         BuildTask buildTask = getSubmittedBuild(id);
-        if (buildTask != null) {
-            return outputStream -> {
-                Writer writer = new BufferedWriter(new OutputStreamWriter(outputStream));
-                if (buildTask != null && buildTask.getBuildLog() != null) {
-                    writer.write(buildTask.getBuildLog());
-                }
-                writer.flush();
-            };
-        }
-        return null;
+        if (buildTask != null ) 
+            return buildTask.getBuildLog();
+        else
+            return null;
     }
 
+    public StreamingOutput getStreamingOutputForString(String str) {
+        if(str == null)
+            return null;
+            
+        return outputStream -> {
+            Writer writer = new BufferedWriter(new OutputStreamWriter(outputStream));
+            writer.write(str);
+            writer.flush();
+        };
+    }
     public Function<? super BuildRecord, ? extends BuildRecordRest> toRestModel() {
         return buildRecord -> new BuildRecordRest(buildRecord);
     }
