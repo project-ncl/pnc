@@ -60,14 +60,22 @@ public class RunningBuildRecordEndpoint {
         this.buildRecordProvider = buildRecordProvider;
     }
 
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Successful retrieval all RunningBuildRecords"),
+            @ApiResponse(code = 204, message = "No RunningBuildRecords available"),
+    })
     @ApiOperation(value = "Gets all running Build Records")
     @GET
-    public List<BuildRecordRest> getAll(
+    public Response getAll(
             @ApiParam(value = "Page index") @QueryParam("pageIndex") @DefaultValue("0") Integer pageIndex,
             @ApiParam(value = "Pagination size") @DefaultValue("50") @QueryParam("pageSize") Integer pageSize,
             @ApiParam(value = "Sorting RSQL") @QueryParam("sort") String sortingRsql,
             @ApiParam(value = "RSQL query", required = false) @QueryParam("q") String rsql) {
-        return buildRecordProvider.getAllRunning(pageIndex, pageSize, sortingRsql, rsql);
+        List<BuildRecordRest> allRecords = buildRecordProvider.getAllRunning(pageIndex, pageSize, sortingRsql, rsql);
+        if (allRecords.isEmpty())
+            return Response.status(Status.NO_CONTENT).build();
+        else
+            return Response.ok(allRecords).build();
     }
 
     @ApiOperation(value = "Gets specific running Build Record")
