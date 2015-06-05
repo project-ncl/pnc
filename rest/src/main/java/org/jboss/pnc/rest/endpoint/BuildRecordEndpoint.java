@@ -86,6 +86,7 @@ public class BuildRecordEndpoint {
     @ApiOperation(value = "Gets logs for specific Build Record")
     @GET
     @Path("/{id}/log")
+    @Produces(MediaType.TEXT_PLAIN)
     public Response getLogs(@ApiParam(value = "BuildRecord id", required = true) @PathParam("id") Integer id) {
         String buildRecordLog = buildRecordProvider.getBuildRecordLog(id);
         if (buildRecordLog == null)
