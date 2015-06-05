@@ -28,12 +28,14 @@ import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.ProductVersion;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationRest;
+import org.jboss.pnc.rest.restmodel.ProductVersionRest;
 import org.springframework.data.domain.Pageable;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 
 import java.util.List;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -173,4 +175,15 @@ public class BuildConfigurationProvider {
         buildConfigurationRepository.save(buildConfig);
     }
 
+    public List<ProductVersionRest> getProductVersions(Integer configId) {
+        BuildConfiguration buildConfig = buildConfigurationRepository.findOne(configId);
+        Set<ProductVersion> productVersions = buildConfig.getProductVersions();
+        return nullableStreamOf(productVersions)
+                .map(productVersionToRestModel())
+                .collect(Collectors.toList());
+    }
+
+    private Function<ProductVersion, ProductVersionRest> productVersionToRestModel() {
+        return productVersion -> new ProductVersionRest(productVersion);
+    }
 }
