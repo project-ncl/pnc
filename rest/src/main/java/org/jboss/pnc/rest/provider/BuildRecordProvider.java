@@ -17,7 +17,9 @@
  */
 package org.jboss.pnc.rest.provider;
 
-import com.google.common.base.Strings;
+import static org.jboss.pnc.datastore.predicates.BuildRecordPredicates.*;
+import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
+
 import org.jboss.pnc.core.builder.BuildCoordinator;
 import org.jboss.pnc.core.builder.BuildTask;
 import org.jboss.pnc.datastore.limits.RSQLPageLimitAndSortingProducer;
@@ -33,6 +35,7 @@ import org.springframework.data.domain.Pageable;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.ws.rs.core.StreamingOutput;
+
 import java.io.BufferedWriter;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
@@ -41,8 +44,7 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static org.jboss.pnc.datastore.predicates.BuildRecordPredicates.*;
-import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
+import com.google.common.base.Strings;
 
 @Stateless
 public class BuildRecordProvider {
@@ -119,17 +121,25 @@ public class BuildRecordProvider {
         }
         return null;
     }
+    
 
-    public StreamingOutput getLogsForBuildId(Integer id) {
+    public String getBuildRecordLog(Integer id) {
         BuildRecord buildRecord = buildRecordRepository.findOne(id);
-        if (buildRecord != null && buildRecord.getBuildLog() != null) {
-            return outputStream -> {
-                Writer writer = new BufferedWriter(new OutputStreamWriter(outputStream));
-                writer.write(buildRecord.getBuildLog());
-                writer.flush();
-            };
-        }
-        return null;
+        if(buildRecord != null)
+            return buildRecord.getBuildLog();
+        else 
+            return null;
+    }
+    
+    public StreamingOutput getLogsForBuild(String buildRecordLog) {
+        if(buildRecordLog == null)
+            return null;
+        
+        return outputStream -> {
+            Writer writer = new BufferedWriter(new OutputStreamWriter(outputStream));
+            writer.write(buildRecordLog);
+            writer.flush();
+        };
     }
 
     public BuildRecordRest getSpecificRunning(Integer id) {

@@ -17,19 +17,30 @@
  */
 package org.jboss.pnc.rest.endpoint;
 
-import com.wordnik.swagger.annotations.Api;
-import com.wordnik.swagger.annotations.ApiOperation;
-import com.wordnik.swagger.annotations.ApiParam;
 import org.jboss.pnc.rest.provider.ArtifactProvider;
 import org.jboss.pnc.rest.provider.BuildRecordProvider;
 import org.jboss.pnc.rest.restmodel.ArtifactRest;
 import org.jboss.pnc.rest.restmodel.BuildRecordRest;
 
 import javax.inject.Inject;
-import javax.ws.rs.*;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DefaultValue;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
+
 import java.util.List;
+
+import com.wordnik.swagger.annotations.Api;
+import com.wordnik.swagger.annotations.ApiOperation;
+import com.wordnik.swagger.annotations.ApiParam;
+import com.wordnik.swagger.annotations.ApiResponse;
+import com.wordnik.swagger.annotations.ApiResponses;
 
 @Api(value = "/build-records", description = "Records of build executions")
 @Path("/build-records")
@@ -38,6 +49,7 @@ import java.util.List;
 public class BuildRecordEndpoint {
 
     private BuildRecordProvider buildRecordProvider;
+
     private ArtifactProvider artifactProvider;
 
     public BuildRecordEndpoint() {
@@ -66,11 +78,23 @@ public class BuildRecordEndpoint {
         return buildRecordProvider.getSpecific(id);
     }
 
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Successful retrieval of the log"),
+            @ApiResponse(code = 204, message = "BuildRecord exists, but the content is empty"),
+            @ApiResponse(code = 404, message = "BuildRecord with specified id does not exist"),
+    })
     @ApiOperation(value = "Gets logs for specific Build Record")
     @GET
     @Path("/{id}/log")
     public Response getLogs(@ApiParam(value = "BuildRecord id", required = true) @PathParam("id") Integer id) {
-        return Response.ok(buildRecordProvider.getLogsForBuildId(id)).build();
+        String buildRecordLog = buildRecordProvider.getBuildRecordLog(id);
+        if (buildRecordLog == null)
+            return Response.status(Status.NOT_FOUND).build();
+
+        if (buildRecordLog.isEmpty())
+            return Response.noContent().build();
+        else
+            return Response.ok(buildRecordProvider.getLogsForBuild(buildRecordLog)).build();
     }
 
     @ApiOperation(value = "Gets artifacts for specific Build Record")
