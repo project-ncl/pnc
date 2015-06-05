@@ -157,6 +157,16 @@
             url: REST_DEFAULTS.BASE_URL + '/build-configurations/:configurationId/build',
             isArray: false,
           },
+          getProductVersions: {
+            method: 'GET',
+            url: REST_DEFAULTS.BASE_URL + '/build-configurations/:configurationId/product-versions',
+            isArray: true
+          },
+          getDependencies: {
+            method: 'GET',
+            url: REST_DEFAULTS.BASE_URL + '/build-configurations/:configurationId/dependencies',
+            isArray: true
+          },
           getAllForProduct: {
             method: 'GET',
             url: REST_DEFAULTS.BASE_URL + '/build-configurations/products/:productId',
