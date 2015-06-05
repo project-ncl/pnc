@@ -1,12 +1,12 @@
 {
   "realm": "pncredhat",
-  "realm-public-key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAot8RhCeExDqOdUsmzrBkLZVdU77MOqbzgUjOKkoVl6yFANOefsrKiMDJFYwjYhmK3nAbL/jQ5Thdkn9cvRR7G1dHp80JPKsm7n/3SwxjWwNfYjx7WCEZqO3uTPHPnA0CQ84PDHdUVDw50fhN8Cy8BAx52Py7UKo682xs8kwDR/U6FdAgyCP5oaJUUNs59YYB8tDyDOb/7RPKGBTC24jeB1aIwCIOtVIFUgHsF4M6HNLWwoa5rPXWySd9crO9UdPBscfPo/Ok+hn/izJYFkiLjYeKEbHf6JBQgDlBZJ4hUIfaHFrpiWUbJQTC0SUwUZCVPGRS5MGv0dglMgE8PjYN/wIDAQAB",
-  "auth-server-url": "https://keycloak2-pncauth.rhcloud.com/auth",
+  "realm-public-key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAjG+B9bN0bQNDzpazVrpIG5SLEGmz7iehC/IjKLkFhwetP+nIVQi5hn59osJNrQ/vTGDdEYWLProLzkhJHRQzwZs2ucvyolaL/FcQ+l7UCxrewyhSsIubra14dJwhglKqQS+ZD2nRcQuiMJ97J9D9gqnk8z31mUO1Oq57HSIEwq/VH8YEWsOSnvd1ZDoYiKffnrghq1DTaEgPZm3aKPMmPkAS3n7ClC2Doww8r18EOEh+y8cea0M3fOpFL81137likn1m0phSHmdJ4MLVhUwgFn50UDGTjzB3pFAkUWE7s473C4zxAamLA1740hnUgXoCL36KKaMbZLQ4ZJnQEZQL6wIDAQAB",
+  "auth-server-url": "https://keycloak3-pncauth.rhcloud.com/auth",
   "ssl-required": "none",
   "resource": "pncrest",
   "bearer-only" : true,
+  "public-client": true,
   "credentials": {
-    "secret": "32b0fe2d-14ea-43fb-80a9-fc8d1d2600a2"
-  },
-  "public-client": true
+    "secret": "fd3f348c-d8e8-4204-871b-6e3a5b6e4323"
+  }
 }
