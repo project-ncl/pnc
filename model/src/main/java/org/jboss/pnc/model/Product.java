@@ -17,10 +17,17 @@
  */
 package org.jboss.pnc.model;
 
-import javax.persistence.*;
-import javax.validation.constraints.NotNull;
 import java.util.HashSet;
 import java.util.Set;
+
+import javax.persistence.CascadeType;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.OneToMany;
+import javax.persistence.SequenceGenerator;
+import javax.validation.constraints.NotNull;
 
 /**
  * @author avibelli
@@ -30,12 +37,13 @@ import java.util.Set;
 public class Product implements GenericEntity<Integer> {
 
     private static final long serialVersionUID = -9022966336791211855L;
-    
+
     public static final String DEFAULT_SORTING_FIELD = "name";
+    public static final String SEQUENCE_NAME = "product_id_seq";
 
     @Id
-    @SequenceGenerator(name="product_id_seq", sequenceName="product_id_seq", allocationSize=1)    
-    @GeneratedValue(strategy=GenerationType.SEQUENCE, generator="product_id_seq")
+    @SequenceGenerator(name = SEQUENCE_NAME, sequenceName = SEQUENCE_NAME, allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = SEQUENCE_NAME)
     private Integer id;
 
     @NotNull
@@ -49,7 +57,8 @@ public class Product implements GenericEntity<Integer> {
 
     private String pgmSystemName;
 
-    @OneToMany(mappedBy = "product", cascade = { CascadeType.PERSIST, CascadeType.REFRESH, CascadeType.DETACH, CascadeType.REMOVE })
+    @OneToMany(mappedBy = "product", cascade = { CascadeType.PERSIST, CascadeType.REFRESH, CascadeType.DETACH,
+            CascadeType.REMOVE })
     private Set<ProductVersion> productVersions;
 
     /**
@@ -115,34 +124,34 @@ public class Product implements GenericEntity<Integer> {
      * @return Shortened informal name of the product
      */
     public String getAbbreviation() {
-		return abbreviation;
-	}
+        return abbreviation;
+    }
 
-	public void setAbbreviation(String abbreviation) {
-		this.abbreviation = abbreviation;
-	}
+    public void setAbbreviation(String abbreviation) {
+        this.abbreviation = abbreviation;
+    }
 
-	/**
+    /**
      * @return Product code in internal systems
      */
-	public String getProductCode() {
-		return productCode;
-	}
+    public String getProductCode() {
+        return productCode;
+    }
 
-	public void setProductCode(String productCode) {
-		this.productCode = productCode;
-	}
+    public void setProductCode(String productCode) {
+        this.productCode = productCode;
+    }
 
     /**
      * @return Name of the product used by program management planning system
      */
-	public String getPgmSystemName() {
-		return pgmSystemName;
-	}
+    public String getPgmSystemName() {
+        return pgmSystemName;
+    }
 
-	public void setPgmSystemName(String pgmSystemName) {
-		this.pgmSystemName = pgmSystemName;
-	}
+    public void setPgmSystemName(String pgmSystemName) {
+        this.pgmSystemName = pgmSystemName;
+    }
 
     /**
      * @return the productVersions

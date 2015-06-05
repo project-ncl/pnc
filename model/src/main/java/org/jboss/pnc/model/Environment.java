@@ -17,9 +17,15 @@
  */
 package org.jboss.pnc.model;
 
-import org.hibernate.envers.Audited;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.SequenceGenerator;
 
-import javax.persistence.*;
+import org.hibernate.envers.Audited;
 
 /**
  * The Class Environment.
@@ -28,13 +34,14 @@ import javax.persistence.*;
 @Audited
 public class Environment implements GenericEntity<Integer> {
 
-    public static final String DEFAULT_SORTING_FIELD = "id";
-
     private static final long serialVersionUID = 8213767399060607637L;
 
+    public static final String DEFAULT_SORTING_FIELD = "id";
+    public static final String SEQUENCE_NAME = "environment_id_seq";
+
     @Id
-    @SequenceGenerator(name="environment_id_seq", sequenceName="environment_id_seq", allocationSize=1)    
-    @GeneratedValue(strategy=GenerationType.SEQUENCE, generator="environment_id_seq")
+    @SequenceGenerator(name = SEQUENCE_NAME, sequenceName = SEQUENCE_NAME, allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = SEQUENCE_NAME)
     private Integer id;
 
     @Enumerated(EnumType.STRING)
@@ -161,7 +168,7 @@ public class Environment implements GenericEntity<Integer> {
 
         public Builder id(Integer id) {
             this.id = id;
-            return  this;
+            return this;
         }
 
         private Builder operationalSystem(OperationalSystem operationalSystem) {

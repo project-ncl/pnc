@@ -17,10 +17,18 @@
  */
 package org.jboss.pnc.model;
 
-import javax.persistence.*;
-import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.OneToMany;
+import javax.persistence.SequenceGenerator;
+import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
+import javax.validation.constraints.NotNull;
 
 /**
  * The Class User maps the user that triggered the builds, and are linked to the BuildRecord
@@ -28,20 +36,21 @@ import java.util.List;
  * @author avibelli
  */
 @Entity
-@Table(name = "Users")
+@Table(name = "Users", uniqueConstraints = { @UniqueConstraint(name = "uk_user_email", columnNames = { "email" }),
+        @UniqueConstraint(name = "uk_user_username", columnNames = { "username" }) })
 public class User implements GenericEntity<Integer> {
 
     private static final long serialVersionUID = 8437525005838384722L;
 
     public static final String DEFAULT_SORTING_FIELD = "username";
+    public static final String SEQUENCE_NAME = "user_id_seq";
 
     @Id
-    @SequenceGenerator(name="user_id_seq", sequenceName="user_id_seq", allocationSize=1)    
-    @GeneratedValue(strategy=GenerationType.SEQUENCE, generator="user_id_seq")
+    @SequenceGenerator(name = SEQUENCE_NAME, sequenceName = SEQUENCE_NAME, allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = SEQUENCE_NAME)
     private Integer id;
 
     @NotNull
-    @Column(unique=true)
     private String email;
 
     private String firstName;
@@ -49,7 +58,6 @@ public class User implements GenericEntity<Integer> {
     private String lastName;
 
     @NotNull
-    @Column(unique=true)
     private String username;
 
     @OneToMany(mappedBy = "user")

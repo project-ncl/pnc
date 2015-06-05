@@ -17,22 +17,30 @@
  */
 package org.jboss.pnc.datastore;
 
-import org.jboss.pnc.datastore.predicates.UserPredicates;
-import org.jboss.pnc.datastore.repositories.BuildConfigurationRepository;
-import org.jboss.pnc.datastore.repositories.BuildRecordRepository;
-import org.jboss.pnc.datastore.repositories.UserRepository;
-import org.jboss.pnc.model.BuildConfiguration;
-import org.jboss.pnc.model.BuildRecord;
-import org.jboss.pnc.model.User;
-import org.jboss.pnc.spi.datastore.Datastore;
+import java.lang.invoke.MethodHandles;
 
 import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
 import javax.inject.Inject;
 
+import org.jboss.pnc.datastore.predicates.UserPredicates;
+import org.jboss.pnc.datastore.repositories.BuildConfigurationRepository;
+import org.jboss.pnc.datastore.repositories.BuildRecordRepository;
+import org.jboss.pnc.datastore.repositories.SequenceHandlerRepository;
+import org.jboss.pnc.datastore.repositories.UserRepository;
+import org.jboss.pnc.model.BuildConfigSetRecord;
+import org.jboss.pnc.model.BuildConfiguration;
+import org.jboss.pnc.model.BuildRecord;
+import org.jboss.pnc.model.User;
+import org.jboss.pnc.spi.datastore.Datastore;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 @Stateless
 public class DefaultDatastore implements Datastore {
+
+    public static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
     @Inject
     BuildRecordRepository buildRecordRepository;
@@ -42,6 +50,9 @@ public class DefaultDatastore implements Datastore {
 
     @Inject
     UserRepository userRepository;
+
+    @Inject
+    SequenceHandlerRepository sequenceHandlerRepository;
 
     @Override
     @TransactionAttribute(TransactionAttributeType.REQUIRED)
@@ -56,8 +67,9 @@ public class DefaultDatastore implements Datastore {
     }
 
     private void storeBuildConfiguration(BuildRecord buildRecord) {
-        if(buildRecord.getLatestBuildConfiguration() != null) {
-            BuildConfiguration configurationFromDB = buildConfigurationRepository.findOne(buildRecord.getLatestBuildConfiguration().getId());
+        if (buildRecord.getLatestBuildConfiguration() != null) {
+            BuildConfiguration configurationFromDB = buildConfigurationRepository.findOne(buildRecord
+                    .getLatestBuildConfiguration().getId());
             buildRecord.setLatestBuildConfiguration(configurationFromDB);
         }
     }
@@ -65,19 +77,24 @@ public class DefaultDatastore implements Datastore {
     @Override
     public void createNewUser(User user) {
         userRepository.save(user);
-        
     }
 
     @Override
     public int getNextBuildRecordId() {
-        //TODO replace with DB sequence or other cluster-wide unique identifier
-        return Sequences.buildRecordSequence.incrementAndGet();
+
+        Long nextId = sequenceHandlerRepository.getNextID(BuildRecord.SEQUENCE_NAME);
+        logger.info("Build Record nextId: {}", nextId);
+
+        return nextId.intValue();
     }
 
     @Override
     public int getNextBuildConfigSetRecordId() {
-        //TODO replace with DB sequence or other cluster-wide unique identifier
-        return Sequences.buildConfigSetRecordSequence.incrementAndGet();
+
+        Long nextId = sequenceHandlerRepository.getNextID(BuildConfigSetRecord.SEQUENCE_NAME);
+        logger.info("Build Configuration Set Record nextId: {}", nextId);
+
+        return nextId.intValue();
     }
 
 }

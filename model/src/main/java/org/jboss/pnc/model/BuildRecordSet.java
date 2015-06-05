@@ -17,13 +17,24 @@
  */
 package org.jboss.pnc.model;
 
-import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
+import javax.persistence.OneToOne;
+import javax.persistence.SequenceGenerator;
+
+import org.hibernate.annotations.ForeignKey;
+
 /**
- * Represents a set of related build records.  For example, this could be the set of 
- * builds that were executed during a specific product milestone cycle.
+ * Represents a set of related build records. For example, this could be the set of builds that were executed during a specific
+ * product milestone cycle.
  */
 @Entity
 public class BuildRecordSet implements GenericEntity<Integer> {
@@ -31,10 +42,11 @@ public class BuildRecordSet implements GenericEntity<Integer> {
     private static final long serialVersionUID = 1633628406382742445L;
 
     public static final String DEFAULT_SORTING_FIELD = "id";
+    public static final String SEQUENCE_NAME = "build_record_set_id_seq";
 
     @Id
-    @SequenceGenerator(name="build_record_set_id_seq", sequenceName="build_record_set_id_seq", allocationSize=1)    
-    @GeneratedValue(strategy=GenerationType.SEQUENCE, generator="build_record_set_id_seq")
+    @SequenceGenerator(name = SEQUENCE_NAME, sequenceName = SEQUENCE_NAME, allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = SEQUENCE_NAME)
     private Integer id;
 
     private String buildSetContentId;
@@ -46,9 +58,8 @@ public class BuildRecordSet implements GenericEntity<Integer> {
     private ProductRelease productRelease;
 
     @ManyToMany
-    @JoinTable(name = "build_record_set_map", joinColumns = {
-            @JoinColumn(name = "build_record_set_id", referencedColumnName = "id") }, inverseJoinColumns = {
-            @JoinColumn(name = "build_record_id", referencedColumnName = "id") })
+    @JoinTable(name = "build_record_set_map", joinColumns = { @JoinColumn(name = "build_record_set_id", referencedColumnName = "id") }, inverseJoinColumns = { @JoinColumn(name = "build_record_id", referencedColumnName = "id") })
+    @ForeignKey(name = "fk_build_record_set_map_buildrecordset", inverseName = "fk_build_record_set_map_buildrecord")
     private List<BuildRecord> buildRecords;
 
     /**
@@ -127,9 +138,9 @@ public class BuildRecordSet implements GenericEntity<Integer> {
     @Override
     public String toString() {
         String version = "none";
-        if ( productRelease != null ) {
+        if (productRelease != null) {
             version = productRelease.getVersion();
-        } else if ( productMilestone != null ) {
+        } else if (productMilestone != null) {
             version = productMilestone.getVersion();
         }
         return "BuildRecordSet [id=" + getId() + ", version=" + version + "]";

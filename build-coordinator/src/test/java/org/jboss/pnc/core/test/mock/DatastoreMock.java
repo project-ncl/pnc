@@ -71,4 +71,5 @@ public class DatastoreMock implements Datastore {
     public int getNextBuildConfigSetRecordId() {
         return buildRecordSetSequence.incrementAndGet();
     }
+
 }

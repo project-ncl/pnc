@@ -28,7 +28,7 @@ public interface Datastore {
     void storeCompletedBuild(BuildRecord buildRecord) throws DatastoreException;
 
     User retrieveUserByUsername(String username);
-    
+
     void createNewUser(User user);
 
     int getNextBuildRecordId();

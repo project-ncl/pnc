@@ -17,12 +17,28 @@
  */
 package org.jboss.pnc.model;
 
-import javax.persistence.*;
-import javax.validation.constraints.NotNull;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.persistence.CascadeType;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinColumns;
+import javax.persistence.Lob;
+import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.PreRemove;
+import javax.validation.constraints.NotNull;
+
+import org.hibernate.annotations.ForeignKey;
+import org.hibernate.annotations.Type;
 
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-11-23.
@@ -38,20 +54,22 @@ public class BuildRecord implements GenericEntity<Integer> {
 
     private static final long serialVersionUID = -5472083609387609797L;
 
+    public static final String SEQUENCE_NAME = "build_record_id_seq";
+
     @Id
     private Integer id;
 
     @NotNull
     @ManyToOne(cascade = { CascadeType.REFRESH }, fetch = FetchType.LAZY)
-    @JoinColumn(name = "buildconfiguration_id", insertable=false, updatable=false)
-    private BuildConfiguration latestBuildConfiguration;  //TODO do we need latest and audited build configuration
+    @JoinColumn(name = "buildconfiguration_id", insertable = false, updatable = false)
+    @ForeignKey(name = "fk_buildrecord_buildconfiguration")
+    private BuildConfiguration latestBuildConfiguration; // TODO do we need latest and audited build configuration
 
     @NotNull
     @ManyToOne(cascade = { CascadeType.REFRESH })
-    @JoinColumns({
-        @JoinColumn(name="buildconfiguration_id", referencedColumnName= "id"),
-        @JoinColumn(name="buildconfiguration_rev", referencedColumnName= "rev")
-    })
+    @JoinColumns({ @JoinColumn(name = "buildconfiguration_id", referencedColumnName = "id"),
+            @JoinColumn(name = "buildconfiguration_rev", referencedColumnName = "rev") })
+    @ForeignKey(name = "fk_buildrecord_buildconfiguration_aud")
     private BuildConfigurationAudited buildConfigurationAudited;
 
     private String buildContentId;
@@ -62,11 +80,15 @@ public class BuildRecord implements GenericEntity<Integer> {
     @NotNull
     private Timestamp endTime;
 
-    //@NotNull //TODO uncomment
+    // @NotNull //TODO uncomment
     @ManyToOne
+    @ForeignKey(name = "fk_buildrecord_user")
     private User user;
 
     @Lob
+    // Type below is compatible with Oracle and PostgreSQL ("org.hibernate.type.TextType" not with Oracle)
+    // Use "org.hibernate.type.MaterializedClobType" from Hibernate 4.2.x
+    @Type(type = "org.hibernate.type.StringClobType")
     private String buildLog;
 
     @Enumerated(value = EnumType.STRING)
@@ -87,6 +109,7 @@ public class BuildRecord implements GenericEntity<Integer> {
      * Image that was used to instantiate a build server.
      */
     @ManyToOne
+    @ForeignKey(name = "fk_buildrecord_systemimage")
     private SystemImage systemImage;
 
     // bi-directional many-to-many association to buildRecordSet
@@ -98,11 +121,12 @@ public class BuildRecord implements GenericEntity<Integer> {
     private List<BuildRecordSet> buildRecordSets;
 
     /**
-     * If this build was executed as part of a set, this will contain the 
-     * link to the overall results of the set.  Otherwise, this field will be null.
+     * If this build was executed as part of a set, this will contain the link to the overall results of the set. Otherwise,
+     * this field will be null.
      */
     @ManyToOne
-    BuildConfigSetRecord buildConfigSetRecord;
+    @ForeignKey(name = "fk_buildrecord_buildconfigsetrecord")
+    private BuildConfigSetRecord buildConfigSetRecord;
 
     /**
      * Instantiates a new project build result.
@@ -302,8 +326,7 @@ public class BuildRecord implements GenericEntity<Integer> {
     }
 
     /**
-     * @return The latest version of the build configuration 
-     * used to create this build record
+     * @return The latest version of the build configuration used to create this build record
      */
     public BuildConfiguration getLatestBuildConfiguration() {
         return latestBuildConfiguration;
@@ -314,8 +337,7 @@ public class BuildRecord implements GenericEntity<Integer> {
     }
 
     /**
-     * @return The audited version of the build configuration 
-     * used to create this build record
+     * @return The audited version of the build configuration used to create this build record
      */
     public BuildConfigurationAudited getBuildConfigurationAudited() {
         return buildConfigurationAudited;
@@ -360,8 +382,8 @@ public class BuildRecord implements GenericEntity<Integer> {
 
     @Override
     public String toString() {
-        return "BuildRecord [id=" + id + ", project=" + buildConfigurationAudited.getProject().getName() + ", buildConfiguration="
-                + buildConfigurationAudited + "]";
+        return "BuildRecord [id=" + id + ", project=" + buildConfigurationAudited.getProject().getName()
+                + ", buildConfiguration=" + buildConfigurationAudited + "]";
     }
 
     public static class Builder {

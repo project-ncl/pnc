@@ -17,10 +17,21 @@
  */
 package org.jboss.pnc.model;
 
-import javax.persistence.*;
-import javax.validation.constraints.NotNull;
 import java.util.HashSet;
 import java.util.Set;
+
+import javax.persistence.CascadeType;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
+import javax.persistence.SequenceGenerator;
+import javax.validation.constraints.NotNull;
+
+import org.hibernate.annotations.ForeignKey;
 
 /**
  * Class that contains all the versions for a Product
@@ -32,9 +43,11 @@ public class ProductVersion implements GenericEntity<Integer> {
 
     private static final long serialVersionUID = 6314079319551264379L;
 
+    public static final String SEQUENCE_NAME = "product_version_id_seq";
+
     @Id
-    @SequenceGenerator(name="product_version_id_seq", sequenceName="product_version_id_seq", allocationSize=1)    
-    @GeneratedValue(strategy=GenerationType.SEQUENCE, generator="product_version_id_seq")
+    @SequenceGenerator(name = SEQUENCE_NAME, sequenceName = SEQUENCE_NAME, allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = SEQUENCE_NAME)
     private Integer id;
 
     @NotNull
@@ -42,6 +55,7 @@ public class ProductVersion implements GenericEntity<Integer> {
 
     @NotNull
     @ManyToOne(cascade = { CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH })
+    @ForeignKey(name = "fk_productversion_product")
     private Product product;
 
     @OneToMany(mappedBy = "productVersion")
@@ -54,9 +68,10 @@ public class ProductVersion implements GenericEntity<Integer> {
     private Set<ProductMilestone> productMilestones;
 
     @OneToOne
+    @ForeignKey(name = "fk_productversion_currentmilestone")
     private ProductMilestone currentProductMilestone;
 
-    public ProductVersion () {
+    public ProductVersion() {
         buildConfigurationSets = new HashSet<>();
         productReleases = new HashSet<ProductRelease>();
         productMilestones = new HashSet<ProductMilestone>();
