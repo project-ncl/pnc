@@ -21,11 +21,13 @@
 
   var module = angular.module('pnc.configuration', [
     'ui.router',
+    'ui.bootstrap',
     'xeditable',
     'pnc.remote.restClient',
     'pnc.util.header',
     'pnc.util.confirmClick',
-    'angularUtils.directives.uiBreadcrumbs'
+    'angularUtils.directives.uiBreadcrumbs',
+    'pnc.common.directives'
   ]);
 
   module.config(['$stateProvider', function($stateProvider) {
@@ -73,6 +75,12 @@
         },
         projects: function(restClient) {
           return restClient.Project.query().$promise;
+        },
+        products: function(restClient) {
+          return restClient.Product.query().$promise;
+        },
+        configurations: function(restClient) {
+          return restClient.Configuration.query().$promise;
         }
       },
     });
@@ -115,8 +123,8 @@
             configurationId: $stateParams.configurationId }).$promise;
         },
         environmentDetail: function(restClient, $stateParams,
-                                     configurationDetail) {
-                                     
+                                    configurationDetail) {
+
           return restClient.Environment.get({
             environmentId: configurationDetail.environmentId  }).$promise;
         },
@@ -131,6 +139,20 @@
         },
         runningBuildRecordList: function(restClient) {
           return restClient.Running.query().$promise;
+        },
+        products: function(restClient) {
+          return restClient.Product.query().$promise;
+        },
+        configurations: function(restClient) {
+          return restClient.Configuration.query().$promise;
+        },
+        productVersions: function(restClient, $stateParams) {
+          return restClient.Configuration.getProductVersions({
+            configurationId: $stateParams.configurationId }).$promise;
+        },
+        dependencies: function(restClient, $stateParams) {
+          return restClient.Configuration.getDependencies({
+            configurationId: $stateParams.configurationId }).$promise;
         }
       }
     });

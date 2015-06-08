@@ -53,20 +53,30 @@
   module.controller('ConfigurationCreateController', [
     '$state',
     '$log',
+    '$filter',
     'PncRestClient',
     'Notifications',
     'environments',
     'projects',
-    function($state, $log, PncRestClient, Notifications, environments,
-             projects) {
+    'products',
+    'configurations',
+    function($state, $log, $filter, PncRestClient, Notifications, environments,
+             projects, products, configurations) {
+
+      var that = this;
 
       this.data = new PncRestClient.Configuration();
       this.environments = environments;
       this.projects = projects;
 
-      var that = this;
 
       this.submit = function() {
+        // The REST API takes integer Ids so we need to extract them from
+        // our collection of objects first and attach them to our data object
+        // for sending back to the server.
+        that.data.productVersionIds = gatherIds(that.productVersions.selected);
+        that.data.dependencyIds = gatherIds(that.dependencies.selected);
+
         that.data.$save().then(
           function(result) {
             Notifications.success('Configuration created');
@@ -80,19 +90,61 @@
           }
         );
       };
+
+
+      // Filtering and selection of linked ProductVersions.
+      this.products = {
+        all: products,
+        selected: null
+      };
+
+      this.productVersions = {
+        selected: [],
+        all: [],
+
+        update: function() {
+          that.productVersions.all = PncRestClient.Product.getVersions({
+            productId: that.products.selected.id
+          });
+        },
+        getItems: function($viewValue) {
+          return $filter('filter')(that.productVersions.all, {
+            version: $viewValue
+          });
+        }
+      };
+
+     // Selection of dependencies.
+      this.dependencies = {
+        selected: [],
+
+        getItems: function($viewValue) {
+          return $filter('filter')(configurations, {
+            name: $viewValue
+          });
+        }
+      };
     }
   ]);
+
+
 
   module.controller('ConfigurationDetailController', [
     '$log',
     '$state',
+    '$filter',
     'Notifications',
     'PncRestClient',
     'configurationDetail',
     'environmentDetail',
     'projectDetail',
-    function($log, $state, Notifications, PncRestClient, configurationDetail,
-             environmentDetail, projectDetail) {
+    'productVersions',
+    'dependencies',
+    'products',
+    'configurations',
+    function($log, $state, $filter, Notifications, PncRestClient,
+             configurationDetail, environmentDetail, projectDetail,
+             linkedProductVersions, dependencies, products, configurations) {
       $log.debug('ConfigurationDetailController >> arguments=%O', arguments);
 
       this.configuration = configurationDetail;
@@ -100,6 +152,56 @@
       this.project = projectDetail;
 
       var that = this;
+
+      // Filtering and selection of linked ProductVersions.
+      this.products = {
+        all: [],
+        selected: null
+      };
+
+      this.productVersions = {
+        selected: linkedProductVersions,
+        all: [],
+
+        update: function() {
+          $log.debug('productVersions >> update()');
+          that.productVersions.all = PncRestClient.Product.getVersions({
+            productId: that.products.selected.id
+          });
+        },
+        getItems: function($viewValue) {
+          return $filter('filter')(that.productVersions.all, {
+            version: $viewValue
+          });
+        }
+      };
+
+      // Bootstrap products, depending on whether the BuildConfiguration
+      // already has a ProductVersion attached.
+      if (linkedProductVersions && linkedProductVersions.length > 0) {
+        PncRestClient.Product.get({
+          productId: linkedProductVersions[0].productId
+        }).$promise.then(function(result) {
+          $log.debug('result, %O', result);
+          that.products.selected = result;
+          that.products.all = [that.products.selected];
+          that.productVersions.update();
+        });
+      } else {
+        that.products.all = products;
+      }
+
+
+     // Selection of dependencies.
+      this.dependencies = {
+        selected: dependencies,
+
+        getItems: function($viewValue) {
+          return $filter('filter')(configurations, {
+            name: $viewValue
+          });
+        }
+      };
 
       // Executing a build of a configuration
       this.build = function() {
@@ -126,6 +228,12 @@
       // Update a build configuration after editting
       this.update = function() {
         $log.debug('Updating configuration: %O', this.configuration);
+
+        // The REST API takes integer Ids so we need to extract them from
+        // our collection of objects first and attach them to our data object
+        // for sending back to the server.
+        this.configuration.productVersionIds = gatherIds(this.productVersions.selected);
+        this.configuration.dependencyIds = gatherIds(this.dependencies.selected);
 
         this.configuration.$update().then(
           function(result) {
@@ -213,5 +321,13 @@
 
     }
   ]);
+
+  function gatherIds(array) {
+    var result = [];
+    for (var i = 0; i < array.length; i++) {
+      result.push(array[i].id);
+    }
+    return result;
+  }
 
 })();

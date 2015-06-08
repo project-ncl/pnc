@@ -28,72 +28,101 @@
     </pnc-header-buttons>
   </pnc-header>
 
-<div class="row">
-  <div class="col-md-12">
-    <form editable-form class="form-horizontal" name="configurationForm" onbeforesave="detailCtrl.update()">
+  <div class="row">
+    <div class="col-md-12">
+      <form editable-form class="form-horizontal" name="configurationForm" onbeforesave="detailCtrl.update()">
 
-      <div class="form-group">
-        <label for="input-name" class="col-sm-2 control-label">Name</label>
-        <div class="col-sm-10">
-          <p id="input-name" class="form-control-static" e-class="form-control" editable-text="detailCtrl.configuration.name" e-name="name" e-required>{{ detailCtrl.configuration.name || 'Empty' }}</p>
+        <div class="form-group">
+          <label for="input-name" class="col-sm-2 control-label">Name</label>
+          <div class="col-sm-10">
+            <p id="input-name" class="form-control-static" e-class="form-control" editable-text="detailCtrl.configuration.name" e-name="name" e-required>{{ detailCtrl.configuration.name || 'Empty' }}</p>
+          </div>
         </div>
-      </div>
 
-      <div class="form-group">
-        <label for="static-project" class="col-sm-2 control-label">Project</label>
-        <div class="col-sm-10">
-          <p id="static-project" class="form-control-static">{{ detailCtrl.project.name || 'Empty' }}</p>
+        <div class="form-group">
+          <label for="static-project" class="col-sm-2 control-label">Project</label>
+          <div class="col-sm-10">
+            <p id="static-project" class="form-control-static">{{ detailCtrl.project.name || 'Empty' }}</p>
+          </div>
         </div>
-      </div>
 
-      <div class="form-group">
-        <label for="static-description" class="col-sm-2 control-label">Description</label>
-        <div class="col-sm-10">
-          <p id="input-description" class="form-control-static" e-class="form-control" editable-textarea="detailCtrl.configuration.description" e-name="description">{{ detailCtrl.configuration.description || 'Empty' }}</p>
+        <div class="form-group">
+          <label for="static-description" class="col-sm-2 control-label">Description</label>
+          <div class="col-sm-10">
+            <p id="input-description" class="form-control-static" e-class="form-control" editable-textarea="detailCtrl.configuration.description" e-name="description">{{ detailCtrl.configuration.description || 'Empty' }}</p>
+          </div>
         </div>
-      </div>
 
-      <div class="form-group">
-        <label for="input-scm-repo-url" class="col-sm-2 control-label">SCM Url</label>
-        <div class="col-sm-10">
-          <p id="input-scm-repo-url" class="form-control-static" e-class="form-control" editable-text="detailCtrl.configuration.scmRepoURL" e-name="scmRepoURL">{{ detailCtrl.configuration.scmRepoURL || 'Empty' }}</p>
+        <div class="form-group">
+          <label for="input-scm-repo-url" class="col-sm-2 control-label">SCM Url</label>
+          <div class="col-sm-10">
+            <p id="input-scm-repo-url" class="form-control-static" e-class="form-control" editable-text="detailCtrl.configuration.scmRepoURL" e-name="scmRepoURL">{{ detailCtrl.configuration.scmRepoURL || 'Empty' }}</p>
+          </div>
         </div>
-      </div>
 
-      <div class="form-group">
-        <label for="input-scm-revision" class="col-sm-2 control-label">SCM Revision</label>
-        <div class="col-sm-10">
-          <p id="input-scm-revision" class="form-control-static" e-class="form-control" editable-text="detailCtrl.configuration.scmRevision" e-name="scmRevision">{{ detailCtrl.configuration.scmRevision || 'Empty' }}</p>
+        <div class="form-group">
+          <label for="input-scm-revision" class="col-sm-2 control-label">SCM Revision</label>
+          <div class="col-sm-10">
+            <p id="input-scm-revision" class="form-control-static" e-class="form-control" editable-text="detailCtrl.configuration.scmRevision" e-name="scmRevision">{{ detailCtrl.configuration.scmRevision || 'Empty' }}</p>
+          </div>
         </div>
-      </div>
 
-      <div class="form-group">
-        <label for="input-build-script" class="col-sm-2 control-label">Build Script</label>
-        <div class="col-sm-10">
-          <pre id="input-build-script" e-class="form-control" editable-textarea="detailCtrl.configuration.buildScript" e-name="buildScript">{{ detailCtrl.configuration.buildScript || 'Empty' }}</pre>
+        <div class="form-group">
+          <label for="input-build-script" class="col-sm-2 control-label">Build Script</label>
+          <div class="col-sm-10">
+            <pre id="input-build-script" e-class="form-control" editable-textarea="detailCtrl.configuration.buildScript" e-name="buildScript">{{ detailCtrl.configuration.buildScript || 'Empty' }}</pre>
+          </div>
         </div>
-      </div>
 
-      <div class="form-group">
-        <label for="static-created" class="col-sm-2 control-label">Created</label>
-        <div class="col-sm-10">
-          <p id="static-created" class="form-control-static">{{ detailCtrl.configuration.creationTime | date:'medium'}}</p>
+        <div class="form-group">
+          <label for="static-created" class="col-sm-2 control-label">Created</label>
+          <div class="col-sm-10">
+            <p id="static-created" class="form-control-static">{{ detailCtrl.configuration.creationTime | date:'medium'}}</p>
+          </div>
         </div>
-      </div>
 
-      <div class="form-group">
-        <label for="static-modified" class="col-sm-2 control-label">Modified</label>
-        <div class="col-sm-10">
-          <p id="static-modified" class="form-control-static">{{ detailCtrl.configuration.lastModificationTime | date:'medium'}}</p>
+        <div class="form-group">
+          <label for="static-modified" class="col-sm-2 control-label">Modified</label>
+          <div class="col-sm-10">
+            <p id="static-modified" class="form-control-static">{{ detailCtrl.configuration.lastModificationTime | date:'medium'}}</p>
+          </div>
         </div>
-      </div>
 
-          <!--<div class="form-group">
-            <label for="input-repositories" class="col-sm-2 control-label">Repositories</label>
-            <div class="col-sm-10">
-              <p id="input-repositories" class="form-control-static" e-class="form-control" editable-text="detailCtrl.configuration.repositories" e-name="repositories">{{ detailCtrl.configuration.repositories || 'Empty' }}</p>
-            </div>
-          </div>-->
+            <!--<div class="form-group">
+              <label for="input-repositories" class="col-sm-2 control-label">Repositories</label>
+              <div class="col-sm-10">
+                <p id="input-repositories" class="form-control-static" e-class="form-control" editable-text="detailCtrl.configuration.repositories" e-name="repositories">{{ detailCtrl.configuration.repositories || 'Empty' }}</p>
+              </div>
+            </div>-->
+
+        <div class="form-group" ng-show="configurationForm.$visible">
+          <label for="input-product" class="col-sm-2 control-label">Product</label>
+          <div class="col-sm-10">
+            <select id="input-product" ng-model="detailCtrl.products.selected" ng-options="product.name for product in detailCtrl.products.all" ng-change="detailCtrl.productVersions.update()"></select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="input-product-versions" class="col-sm-2 control-label">Product Versions</label>
+          <div class="col-sm-10">
+            <!-- Show when edit is not selected -->
+            <ul class="list-inline form-control-static" ng-hide="configurationForm.$visible">
+              <li ng-repeat="version in detailCtrl.productVersions.selected"><a href ui-sref="product.version({ productId: version.productId, versionId: version.id })">{{ version.version }}</a></li>
+            </ul>
+
+            <!-- Show when edit is selected -->
+            <pnc-select id="input-product-versions" ng-show="configurationForm.$visible && detailCtrl.products.selected" selected-items="detailCtrl.productVersions.selected" display-property="version" query="detailCtrl.productVersions.getItems($viewValue)" placeholder="Enter product version..."></pnc-select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="input-dependencies" class="col-sm-2 control-label">Dependencies</label>
+          <div class="col-sm-10">
+            <ul class="list-unstyled form-control-static" ng-hide="configurationForm.$visible">
+              <li ng-repeat="dependency in detailCtrl.dependencies.selected"><a href ui-sref="configuration.detail.show({ configurationId: dependency.id })">{{ dependency.name }}</a></li>
+            </ul>
+            <pnc-select id="input-dependencies" ng-show="configurationForm.$visible" selected-items="detailCtrl.dependencies.selected" display-property="name" query="detailCtrl.dependencies.getItems($viewValue)" placeholder="Enter dependency name..."></pnc-select>
+          </div>
+        </div>
 
         <div class="form-group">
           <label for="static-environment" class="col-sm-2 control-label">Environment</label>
