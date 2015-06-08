@@ -35,6 +35,7 @@ import org.springframework.data.domain.Pageable;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
+import javax.ws.rs.core.Response;
 
 import java.util.List;
 import java.util.Set;
@@ -50,8 +51,6 @@ public class BuildConfigurationSetProvider {
 
     private BuildConfigurationSetRepository buildConfigurationSetRepository;
     private BuildRecordRepository buildRecordRepository;
-
-    @Inject
     private BuildConfigurationRepository buildConfigurationRepository;
 
     public BuildConfigurationSetProvider() {
@@ -59,9 +58,11 @@ public class BuildConfigurationSetProvider {
 
     @Inject
     public BuildConfigurationSetProvider(BuildConfigurationSetRepository buildConfigurationSetRepository,
-            BuildRecordRepository buildRecordRepository) {
+            BuildRecordRepository buildRecordRepository,
+            BuildConfigurationRepository buildConfigurationRepository) {
         this.buildConfigurationSetRepository = buildConfigurationSetRepository;
         this.buildRecordRepository = buildRecordRepository;
+        this.buildConfigurationRepository = buildConfigurationRepository;
     }
 
     public Function<? super BuildConfigurationSet, ? extends BuildConfigurationSetRest> toRestModel() {
@@ -149,11 +150,14 @@ public class BuildConfigurationSetProvider {
                 .collect(Collectors.toList());
     }
 
-    public void addConfiguration(Integer configurationSetId, Integer configurationId) {
+    public Response addConfiguration(Integer configurationSetId, Integer configurationId) {
         BuildConfigurationSet buildConfigSet = buildConfigurationSetRepository.findOne(configurationSetId);
         BuildConfiguration buildConfig = buildConfigurationRepository.findOne(configurationId);
+        if (buildConfigSet.getBuildConfigurations().contains(buildConfig))
+            return Response.status(Response.Status.CONFLICT).build();
         buildConfigSet.addBuildConfiguration(buildConfig);
         buildConfigurationSetRepository.save(buildConfigSet);
+        return Response.ok().build();
     }
 
     public void removeConfiguration(Integer configurationSetId, Integer configurationId) {
