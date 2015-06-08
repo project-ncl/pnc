@@ -52,7 +52,6 @@ public class BuildConfigurationSetProvider {
     private BuildConfigurationSetRepository buildConfigurationSetRepository;
     private BuildRecordRepository buildRecordRepository;
 
-    @Inject
     private BuildConfigurationRepository buildConfigurationRepository;
 
     public BuildConfigurationSetProvider() {
@@ -60,16 +59,10 @@ public class BuildConfigurationSetProvider {
 
     @Inject
     public BuildConfigurationSetProvider(BuildConfigurationSetRepository buildConfigurationSetRepository,
-            BuildRecordRepository buildRecordRepository) {
+            BuildRecordRepository buildRecordRepository,
+            BuildConfigurationRepository buildConfigurationRepository) {
         this.buildConfigurationSetRepository = buildConfigurationSetRepository;
         this.buildRecordRepository = buildRecordRepository;
-    }
-
-    @Inject
-    public BuildConfigurationSetProvider(BuildConfigurationSetRepository buildConfigurationSetRepository,
-                                         BuildRecordRepository buildRecordRepository,
-                                         BuildConfigurationRepository buildConfigurationRepository) {
-        this(buildConfigurationSetRepository, buildRecordRepository);
         this.buildConfigurationRepository = buildConfigurationRepository;
     }
 
