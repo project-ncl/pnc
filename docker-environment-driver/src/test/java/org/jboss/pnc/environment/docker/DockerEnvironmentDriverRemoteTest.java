@@ -94,7 +94,6 @@ public class DockerEnvironmentDriverRemoteTest {
         final WebArchive testedEjb = ShrinkWrap
                 .create(WebArchive.class)
                 .addAsWebInfResource(EmptyAsset.INSTANCE, "beans.xml")
-                .addAsResource("jenkins-maven-config.xml")
                 .addAsResource("pnc-config.json")
                 .addPackage(RemoteTest.class.getPackage())
                 .addPackages(true, DockerEnvironmentDriver.class.getPackage());
