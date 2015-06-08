@@ -136,35 +136,35 @@
   <dependencyManagement>
     <dependencies>
 
-    <dependency>
-        <groupId>org.codehaus.jackson</groupId>
-        <artifactId>jackson-mapper-asl</artifactId>
-        <version>1.9.13</version>
-    </dependency>
+      <dependency>
+          <groupId>org.codehaus.jackson</groupId>
+          <artifactId>jackson-mapper-asl</artifactId>
+          <version>1.9.13</version>
+      </dependency>
 
-    <dependency>
-        <groupId>org.codehaus.jackson</groupId>
-        <artifactId>jackson-core-asl</artifactId>
-        <version>1.9.13</version>
-    </dependency>
+      <dependency>
+          <groupId>org.codehaus.jackson</groupId>
+          <artifactId>jackson-core-asl</artifactId>
+          <version>1.9.13</version>
+      </dependency>
 
-    <dependency>
-        <groupId>org.keycloak</groupId>
-        <artifactId>keycloak-core</artifactId>
-        <version>${version.keycloak}</version>
-    </dependency>
+      <dependency>
+          <groupId>org.keycloak</groupId>
+          <artifactId>keycloak-core</artifactId>
+          <version>${version.keycloak}</version>
+      </dependency>
 
-    <dependency>
-        <groupId>org.keycloak</groupId>
-        <artifactId>keycloak-adapter-core</artifactId>
-        <version>${version.keycloak}</version>
-    </dependency>
+      <dependency>
+          <groupId>org.keycloak</groupId>
+          <artifactId>keycloak-adapter-core</artifactId>
+          <version>${version.keycloak}</version>
+      </dependency>
 
-    <dependency>
-        <groupId>org.keycloak</groupId>
-        <artifactId>keycloak-installed-adapter</artifactId>
-        <version>${version.keycloak}</version>
-    </dependency>
+      <dependency>
+          <groupId>org.keycloak</groupId>
+          <artifactId>keycloak-installed-adapter</artifactId>
+          <version>${version.keycloak}</version>
+      </dependency>
 
       <!-- Project modules, to support cross-module dependencies -->
       <dependency>
@@ -622,11 +622,13 @@
         <artifactId>querydsl-core</artifactId>
         <version>${version.querydsl}</version>
       </dependency>
+
       <dependency>
         <groupId>com.mysema.querydsl</groupId>
         <artifactId>querydsl-apt</artifactId>
         <version>${version.querydsl}</version>
       </dependency>
+
       <dependency>
         <groupId>com.mysema.querydsl</groupId>
         <artifactId>querydsl-jpa</artifactId>
@@ -634,33 +636,35 @@
       </dependency>
       <!-- /Query DSL support -->
 
-        <dependency>
-          <groupId>com.fasterxml.jackson.core</groupId>
-          <artifactId>jackson-core</artifactId>
-          <version>${version.jackson}</version>
-        </dependency>
+      <dependency>
+        <groupId>com.fasterxml.jackson.core</groupId>
+        <artifactId>jackson-core</artifactId>
+        <version>${version.jackson}</version>
+      </dependency>
 
-        <dependency>
-          <groupId>com.fasterxml.jackson.core</groupId>
-          <artifactId>jackson-databind</artifactId>
-          <version>${version.jackson}</version>
-        </dependency>
+      <dependency>
+        <groupId>com.fasterxml.jackson.core</groupId>
+        <artifactId>jackson-databind</artifactId>
+        <version>${version.jackson}</version>
+      </dependency>
 
-        <dependency>
-          <groupId>com.fasterxml.jackson.core</groupId>
-          <artifactId>jackson-annotations</artifactId>
-          <version>${version.jackson.annotations}</version>
-        </dependency>
-        <dependency>
-          <groupId>commons-io</groupId>
-          <artifactId>commons-io</artifactId>
-          <version>2.4</version>
-        </dependency>
-        <dependency>
-          <groupId>commons-codec</groupId>
-          <artifactId>commons-codec</artifactId>
-          <version>1.6</version>
-        </dependency>
+      <dependency>
+        <groupId>com.fasterxml.jackson.core</groupId>
+        <artifactId>jackson-annotations</artifactId>
+        <version>${version.jackson.annotations}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>commons-io</groupId>
+        <artifactId>commons-io</artifactId>
+        <version>2.4</version>
+      </dependency>
+
+      <dependency>
+        <groupId>commons-codec</groupId>
+        <artifactId>commons-codec</artifactId>
+        <version>1.6</version>
+      </dependency>
 
       <dependency>
         <groupId>org.json</groupId>
@@ -685,6 +689,7 @@
           <artifactId>hibernate3-maven-plugin</artifactId>
           <version>3.0</version>
         </plugin>
+
         <plugin>
           <groupId>com.mysema.maven</groupId>
           <artifactId>maven-apt-plugin</artifactId>
@@ -1058,6 +1063,7 @@
             </execution>
           </executions>
         </plugin>
+
         <!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself.-->
         <plugin>
           <groupId>org.eclipse.m2e</groupId>
@@ -1397,77 +1403,76 @@
     <profile>
       <id>release</id>
       <build>
-          <pluginManagement>
-              <plugins>
-                  <plugin>
-                      <artifactId>maven-scm-plugin</artifactId>
-                      <version>1.8.1</version>
-                      <configuration>
-                          <includes>ui/bower.json,ui/package.json,ui/npm-shrinkwrap.json</includes>
-                          <message>Update JSON Versions</message>
-                      </configuration>
-                  </plugin>
-              </plugins>
-          </pluginManagement>
+        <pluginManagement>
           <plugins>
             <plugin>
-              <groupId>com.mycila</groupId>
-              <artifactId>license-maven-plugin</artifactId>
-              <executions>
-                <execution>
-                  <id>check-license</id>
-                  <phase>initialize</phase>
-                  <goals>
-                    <goal>check</goal>
-                  </goals>
-                </execution>
-              </executions>
+              <artifactId>maven-scm-plugin</artifactId>
+              <version>1.8.1</version>
+              <configuration>
+                <includes>ui/bower.json,ui/package.json,ui/npm-shrinkwrap.json</includes>
+                <message>Update JSON Versions</message>
+              </configuration>
             </plugin>
-            <plugin>
-              <groupId>org.apache.maven.plugins</groupId>
-              <artifactId>maven-antrun-plugin</artifactId>
-              <executions>
-                <execution>
-                  <id>patch-json-versions</id>
-                  <phase>generate-sources</phase>
-                  <goals>
-                    <goal>run</goal>
-                  </goals>
-                  <configuration>
-                    <target>
-                      <loadproperties srcFile="${executionRoot}/release.properties">
-                        <filterchain>
-                          <linecontains>
-                            <contains value="project.rel.org.jboss.pnc\:parent"/>
-                          </linecontains>
-                        </filterchain>
-                      </loadproperties>
+          </plugins>
+        </pluginManagement>
+        <plugins>
+          <plugin>
+            <groupId>com.mycila</groupId>
+            <artifactId>license-maven-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>check-license</id>
+                <phase>initialize</phase>
+                <goals>
+                  <goal>check</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-antrun-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>patch-json-versions</id>
+                <phase>generate-sources</phase>
+                <goals>
+                  <goal>run</goal>
+                </goals>
+                <configuration>
+                  <target>
+                    <loadproperties srcFile="${executionRoot}/release.properties">
+                      <filterchain>
+                        <linecontains>
+                          <contains value="project.rel.org.jboss.pnc\:parent"/>
+                        </linecontains>
+                      </filterchain>
+                    </loadproperties>
 
-                      <property name="newversion" value="${project.rel.org.jboss.pnc:parent}"/>
+                    <property name="newversion" value="${project.rel.org.jboss.pnc:parent}"/>
 
-                      <replaceregexp byline="false"
-                                     flags="m"
-                                     file="${basedir}/bower.json"
-                                     match="ui&quot;,&#10;  &quot;version&quot;: &quot;[0-9].*&quot;"
-                                     replace="ui&quot;,&#10;  &quot;version&quot;: &quot;${newversion}&quot;"/>
-                      <replaceregexp byline="false"
-                                     flags="m"
-                                     file="${basedir}/package.json"
-                                     match="ui&quot;,&#10;  &quot;version&quot;: &quot;[0-9].*&quot;"
-                                     replace="ui&quot;,&#10;  &quot;version&quot;: &quot;${newversion}&quot;"/>
+                    <replaceregexp byline="false"
+                                   flags="m"
+                                   file="${basedir}/bower.json"
+                                   match="ui&quot;,&#10;  &quot;version&quot;: &quot;[0-9].*&quot;"
+                                   replace="ui&quot;,&#10;  &quot;version&quot;: &quot;${newversion}&quot;"/>
+                    <replaceregexp byline="false"
+                                   flags="m"
+                                   file="${basedir}/package.json"
+                                   match="ui&quot;,&#10;  &quot;version&quot;: &quot;[0-9].*&quot;"
+                                   replace="ui&quot;,&#10;  &quot;version&quot;: &quot;${newversion}&quot;"/>
 
-                      <replaceregexp byline="false"
-                                     flags="m"
-                                     file="${basedir}/npm-shrinkwrap.json"
-                                     match="ui&quot;,&#10;  &quot;version&quot;: &quot;[0-9].*&quot;"
-                                     replace="ui&quot;,&#10;  &quot;version&quot;: &quot;${newversion}&quot;"/>
+                    <replaceregexp byline="false"
+                                   flags="m"
+                                   file="${basedir}/npm-shrinkwrap.json"
+                                   match="ui&quot;,&#10;  &quot;version&quot;: &quot;[0-9].*&quot;"
+                                   replace="ui&quot;,&#10;  &quot;version&quot;: &quot;${newversion}&quot;"/>
 
-                    </target>
-                  </configuration>
-                </execution>
-              </executions>
-            </plugin>
-
+                  </target>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-source-plugin</artifactId>
