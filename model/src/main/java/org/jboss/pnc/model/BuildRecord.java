@@ -59,12 +59,27 @@ public class BuildRecord implements GenericEntity<Integer> {
     @Id
     private Integer id;
 
+    /**
+     * Link to the latest version of the configuration settings for building this project.
+     * These settings may have been updated since this record was created, so this
+     * can not be used to run an exact rebuild, but it is convenient for reference
+     * if a new build of the same project needs to be executed.
+     * The join column "buildconfiguration_id" is the same db field used by
+     * buildConfigurationAudited, thus this is a read-only field which automatically
+     * changes when the buildConfigurationAudited is changed.
+     */
     @NotNull
     @ManyToOne(cascade = { CascadeType.REFRESH }, fetch = FetchType.LAZY)
     @JoinColumn(name = "buildconfiguration_id", insertable = false, updatable = false)
     @ForeignKey(name = "fk_buildrecord_buildconfiguration")
-    private BuildConfiguration latestBuildConfiguration; // TODO do we need latest and audited build configuration
+    private BuildConfiguration latestBuildConfiguration;
 
+    /**
+     * Contains the settings that were used at the time the build was executed.
+     * Hibernate envers identifies each audited record using the "id" of the
+     * original db record along with a revision number.  This can be used to
+     * re-run the build with the exact same settings used previously.
+     */
     @NotNull
     @ManyToOne(cascade = { CascadeType.REFRESH })
     @JoinColumns({ @JoinColumn(name = "buildconfiguration_id", referencedColumnName = "id"),
