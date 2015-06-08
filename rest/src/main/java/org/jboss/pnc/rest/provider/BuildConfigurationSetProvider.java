@@ -65,6 +65,14 @@ public class BuildConfigurationSetProvider {
         this.buildRecordRepository = buildRecordRepository;
     }
 
+    @Inject
+    public BuildConfigurationSetProvider(BuildConfigurationSetRepository buildConfigurationSetRepository,
+                                         BuildRecordRepository buildRecordRepository,
+                                         BuildConfigurationRepository buildConfigurationRepository) {
+        this(buildConfigurationSetRepository, buildRecordRepository);
+        this.buildConfigurationRepository = buildConfigurationRepository;
+    }
+
     public Function<? super BuildConfigurationSet, ? extends BuildConfigurationSetRest> toRestModel() {
         return buildConfigurationSet -> {
             if (buildConfigurationSet != null) {
