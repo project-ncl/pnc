@@ -27,7 +27,7 @@ import java.io.Serializable;
  * @author Jakub Bartecek &lt;jbartece@redhat.com&gt;
  *
  */
-public interface RunningEnvironment extends Serializable, DestroyableEnvironmnet {
+public interface RunningEnvironment extends Serializable, DestroyableEnvironment {
 
     /**
      * 

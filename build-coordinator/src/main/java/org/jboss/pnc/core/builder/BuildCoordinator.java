@@ -39,7 +39,7 @@ import org.jboss.pnc.spi.builddriver.CompletedBuild;
 import org.jboss.pnc.spi.builddriver.RunningBuild;
 import org.jboss.pnc.spi.datastore.Datastore;
 import org.jboss.pnc.spi.datastore.DatastoreException;
-import org.jboss.pnc.spi.environment.DestroyableEnvironmnet;
+import org.jboss.pnc.spi.environment.DestroyableEnvironment;
 import org.jboss.pnc.spi.environment.EnvironmentDriver;
 import org.jboss.pnc.spi.environment.RunningEnvironment;
 import org.jboss.pnc.spi.environment.StartedEnvironment;
@@ -371,13 +371,13 @@ public class BuildCoordinator {
      * @param ex Exception in build process (To stop the environment it has to be instance of BuildProcessException)
      */
     private void stopRunningEnvironment(Throwable ex) {
-        DestroyableEnvironmnet destroyableEnvironmnet = null;
+        DestroyableEnvironment destroyableEnvironment = null;
         if(ex instanceof BuildProcessException) {
             BuildProcessException bpEx = (BuildProcessException) ex;
-            destroyableEnvironmnet = bpEx.getDestroyableEnvironmnet();
+            destroyableEnvironment = bpEx.getDestroyableEnvironmnet();
         } else if(ex.getCause() instanceof BuildProcessException) {
             BuildProcessException bpEx = (BuildProcessException) ex.getCause();
-            destroyableEnvironmnet = bpEx.getDestroyableEnvironmnet();
+            destroyableEnvironment = bpEx.getDestroyableEnvironmnet();
         } else {
             //It shouldn't never happen - Throwable should be caught in all steps of build chain
             //and BuildProcessException should be thrown instead of that
@@ -386,11 +386,11 @@ public class BuildCoordinator {
         }
         
         try {
-            if (destroyableEnvironmnet != null) 
-                destroyableEnvironmnet.destroyEnvironment();
+            if (destroyableEnvironment != null)
+                destroyableEnvironment.destroyEnvironment();
             
         } catch (EnvironmentDriverException envE) {
-            log.warn("Running environment" + destroyableEnvironmnet + " couldn't be destroyed!", envE);
+            log.warn("Running environment" + destroyableEnvironment + " couldn't be destroyed!", envE);
         }
     }
 
