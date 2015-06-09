@@ -72,7 +72,7 @@
     <!-- endbuild -->
   </head>
   <body>
-    <nav class="navbar navbar-default navbar-pf" role="navigation">
+    <nav class="navbar navbar-default navbar-pf" role="navigation" ng-cloak>
       <!-- header -->
       <div class="navbar-header">
         <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse-1">
@@ -129,7 +129,7 @@
     <div class="notification-area"><pf-notification-list></pf-notification-list></div>
     <ui-breadcrumbs displayname-property="data.displayName" abstract-proxy-property="data.proxy" template-url="common/templates/uiBreadcrumbs.tpl.html"></ui-breadcrumbs>
     <div class="container-fluid" ui-view="content"></div>
-    <div class="footer">
+    <div class="footer" ng-cloak>
       <div class="container">
         <div ng-include="'common/templates/footer.tmpl.html'"></div>
       </div><!-- /.container -->
