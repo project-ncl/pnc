@@ -25,7 +25,7 @@ import org.jboss.pnc.spi.environment.exception.EnvironmentDriverException;
  * @author Jakub Bartecek &lt;jbartece@redhat.com&gt;
  *
  */
-public interface DestroyableEnvironmnet {
+public interface DestroyableEnvironment {
 
     /**
      * Destroys current running environment

@@ -26,7 +26,7 @@ import java.util.function.Consumer;
  * @author Jakub Bartecek &lt;jbartece@redhat.com&gt;
  *
  */
-public interface StartedEnvironment extends DestroyableEnvironmnet {
+public interface StartedEnvironment extends DestroyableEnvironment {
 
     /**
      * Monitors initialization of environment and notifies consumers after the initialization process.

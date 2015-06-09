@@ -17,7 +17,7 @@
  */
 package org.jboss.pnc.core.exception;
 
-import org.jboss.pnc.spi.environment.DestroyableEnvironmnet;
+import org.jboss.pnc.spi.environment.DestroyableEnvironment;
 
 /**
  * Exception in build process, which contains data
@@ -28,7 +28,7 @@ import org.jboss.pnc.spi.environment.DestroyableEnvironmnet;
  */
 public class BuildProcessException extends CoreExceptionWrapper {
     
-    private DestroyableEnvironmnet destroyableEnvironment;
+    private DestroyableEnvironment destroyableEnvironment;
     
     public BuildProcessException(Throwable cause) {
         super(cause);
@@ -38,12 +38,12 @@ public class BuildProcessException extends CoreExceptionWrapper {
      * @param cause Exception cause
      * @param destroyableEnvironment Reference to a started environment
      */
-    public BuildProcessException(Throwable cause, DestroyableEnvironmnet destroyableEnvironment) {
+    public BuildProcessException(Throwable cause, DestroyableEnvironment destroyableEnvironment) {
         super(cause);
         this.destroyableEnvironment = destroyableEnvironment;
     }
 
-    public DestroyableEnvironmnet getDestroyableEnvironmnet() {
+    public DestroyableEnvironment getDestroyableEnvironmnet() {
         return destroyableEnvironment;
     }
 
