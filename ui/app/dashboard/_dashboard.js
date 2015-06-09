@@ -27,7 +27,7 @@
 
   module.config(['$stateProvider', function($stateProvider) {
     $stateProvider.state('dashboard', {
-      url: '',
+      url: '/',
       views: {
         'content@': {
           templateUrl: 'dashboard/views/dashboard.html',

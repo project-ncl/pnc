@@ -101,8 +101,10 @@
       }
     });
 
-      // Redirect any unmatched URLs to the error state.
-      $urlRouterProvider.otherwise('/error');
+    $urlRouterProvider.when('', '/');
+
+    // Redirect any unmatched URLs to the error state.
+    $urlRouterProvider.otherwise('/error');
     }
   );
 
