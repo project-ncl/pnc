@@ -64,26 +64,56 @@
     '$q',
     '$log',
     'keycloak',
-    function ($q, $log, keycloak) {
+    'Notifications',
+    function ($q, $log, keycloak, Notifications) {
+
+      function addAuthHeaders(config, token) {
+        config.headers = config.headers || {};
+        config.headers.Authorization = 'Bearer ' + token;
+      }
+
       return {
         request: function (config) {
-          var deferred = $q.defer();
 
           if (keycloak && keycloak.token) {
-            keycloak.updateToken(5).success(function () {
-              config.headers = config.headers || {};
-              config.headers.Authorization = 'Bearer ' + keycloak.token;
 
-              deferred.resolve(config);
-            }).error(function () {
-              deferred.reject('Failed to refresh token');
-            });
+            if (!keycloak.isTokenExpired(5)) {
+
+              addAuthHeaders(config, keycloak.token);
+              return config;
+
+            } else {
+
+              var deferred = $q.defer();
+
+              keycloak.updateToken(0).success(function () {
+                addAuthHeaders(config, keycloak.token);
+                deferred.resolve(config);
+              }).error(function () {
+                deferred.reject('Failed to refresh token');
+              });
+
+              return deferred.promise;
+
+            }
+
           }
-          return deferred.promise;
+        },
+
+        responseError: function(rejection) {
+          switch (rejection.status) {
+            case 401:
+              keycloak.login();
+              break;
+            case 403:
+              Notifications.error('You do not have the required permission to perform this action.');
+              break;
+          }
+          $q.reject(rejection);
         }
       };
     }
-    ]);
+  ]);
 
   function newMockKeycloak() {
 
@@ -95,6 +125,14 @@
       authenticated: false,
 
       logout: nullFunction,
+
+      login: nullFunction,
+
+      token: 'token',
+
+      isTokenExpired: function() {
+        return false;
+      },
 
       idTokenParsed: {
           preferred_username: 'Authentication Disabled' // jshint ignore:line
