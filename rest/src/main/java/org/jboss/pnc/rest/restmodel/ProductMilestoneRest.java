@@ -47,7 +47,9 @@ public class ProductMilestoneRest {
 
     private Integer productVersionId;
 
-    private Integer buildRecordSetId;
+    private Integer performedBuildRecordSetId;
+
+    private Integer distributedBuildRecordSetId;
 
     private Integer productReleaseId;
 
@@ -62,6 +64,12 @@ public class ProductMilestoneRest {
         this.plannedReleaseDate = productMilestone.getPlannedReleaseDate();
         this.downloadUrl = productMilestone.getDownloadUrl();
         this.productVersionId = productMilestone.getProductVersion().getId();
+        if (productMilestone.getPerformedBuildRecordSet() != null) {
+            this.performedBuildRecordSetId = productMilestone.getPerformedBuildRecordSet().getId();
+        }
+        if (productMilestone.getDistributedBuildRecordSet() != null) {
+            this.distributedBuildRecordSetId = productMilestone.getDistributedBuildRecordSet().getId();
+        }
         if (productMilestone.getProductRelease() != null) {
             this.productReleaseId = productMilestone.getProductRelease().getId();
         }
@@ -131,12 +139,20 @@ public class ProductMilestoneRest {
         this.productReleaseId = productReleaseId;
     }
 
-    public Integer getBuildRecordSetId() {
-        return buildRecordSetId;
+    public Integer getPerformedBuildRecordSetId() {
+        return performedBuildRecordSetId;
     }
 
-    public void setBuildRecordSetId(Integer buildRecordSetId) {
-        this.buildRecordSetId = buildRecordSetId;
+    public void setPerformedBuildRecordSetId(Integer performedBuildRecordSetId) {
+        this.performedBuildRecordSetId = performedBuildRecordSetId;
+    }
+
+    public Integer getDistributedBuildRecordSetId() {
+        return distributedBuildRecordSetId;
+    }
+
+    public void setDistributedBuildRecordSetId(Integer distributedBuildRecordSetId) {
+        this.distributedBuildRecordSetId = distributedBuildRecordSetId;
     }
 
     public ProductMilestone toProductMilestone(ProductVersion productVersion) {
@@ -152,10 +168,16 @@ public class ProductMilestoneRest {
         productMilestone.setPlannedReleaseDate(plannedReleaseDate);
         productMilestone.setDownloadUrl(downloadUrl);
 
-        if (buildRecordSetId != null) {
-            BuildRecordSet buildRecordSet = BuildRecordSet.Builder.newBuilder().id(buildRecordSetId).build();
-            productMilestone.setBuildRecordSet(buildRecordSet);
-            buildRecordSet.setProductMilestone(productMilestone);
+        if (performedBuildRecordSetId != null) {
+            BuildRecordSet performedBuildRecordSet = BuildRecordSet.Builder.newBuilder().id(performedBuildRecordSetId).build();
+            productMilestone.setPerformedBuildRecordSet(performedBuildRecordSet);
+            performedBuildRecordSet.setPerformedInProductMilestone(productMilestone);
+        }
+
+        if (distributedBuildRecordSetId != null) {
+            BuildRecordSet distributedBuildRecordSet = BuildRecordSet.Builder.newBuilder().id(distributedBuildRecordSetId).build();
+            productMilestone.setDistributedBuildRecordSet(distributedBuildRecordSet);
+            distributedBuildRecordSet.setDistributedInProductMilestone(productMilestone);
         }
 
         if (productReleaseId != null) {

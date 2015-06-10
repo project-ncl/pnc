@@ -31,10 +31,10 @@ import javax.persistence.criteria.ListJoin;
  */
 public class BuildRecordSetPredicates {
 
-    public static Predicate<BuildRecordSet> withProductMilestoneId(Integer productMilestoneId) {
+    public static Predicate<BuildRecordSet> withPerformedInProductMilestoneId(Integer performedInProductMilestoneId) {
         return (root, query, cb) -> {
-            Join<BuildRecordSet, ProductMilestone> productMilestone = root.join(BuildRecordSet_.productMilestone);
-            return cb.equal(productMilestone.get(org.jboss.pnc.model.ProductMilestone_.id), productMilestoneId);
+            Join<BuildRecordSet, ProductMilestone> performedInProductMilestone = root.join(BuildRecordSet_.performedInProductMilestone);
+            return cb.equal(performedInProductMilestone.get(org.jboss.pnc.model.ProductMilestone_.id), performedInProductMilestoneId);
         };
     }
 

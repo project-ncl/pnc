@@ -25,7 +25,6 @@ import java.util.stream.Collectors;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
-import org.jboss.pnc.model.BuildRecordSet;
 import org.jboss.pnc.model.ProductMilestone;
 import org.jboss.pnc.model.ProductRelease;
 import org.jboss.pnc.model.ProductRelease.SupportLevel;
@@ -43,8 +42,6 @@ public class ProductReleaseRest {
     private String downloadUrl;
 
     private Integer productVersionId;
-
-    private Integer buildRecordSetId;
 
     private Integer productMilestoneId;
 
@@ -115,14 +112,6 @@ public class ProductReleaseRest {
         this.productMilestoneId = productMilestoneId;
     }
 
-    public Integer getBuildRecordSetId() {
-        return buildRecordSetId;
-    }
-
-    public void setBuildRecordSetId(Integer buildRecordSetId) {
-        this.buildRecordSetId = buildRecordSetId;
-    }
-
     public SupportLevel getSupportLevel() {
         return supportLevel;
     }
@@ -142,12 +131,6 @@ public class ProductReleaseRest {
         productRelease.setReleaseDate(releaseDate);
         productRelease.setDownloadUrl(downloadUrl);
         productRelease.setSupportLevel(supportLevel);
-
-        if (buildRecordSetId != null) {
-            BuildRecordSet buildRecordSet = BuildRecordSet.Builder.newBuilder().id(buildRecordSetId).build();
-            productRelease.setBuildRecordSet(buildRecordSet);
-            buildRecordSet.setProductRelease(productRelease);
-        }
 
         if (productMilestoneId != null) {
             ProductMilestone productMilestone = ProductMilestone.Builder.newBuilder().id(productMilestoneId).build();

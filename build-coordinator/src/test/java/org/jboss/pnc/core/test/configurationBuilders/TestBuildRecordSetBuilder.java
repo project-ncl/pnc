@@ -32,9 +32,7 @@ public class TestBuildRecordSetBuilder {
         product.addVersion(productVersion);
         ProductMilestone productMilestone = ProductMilestone.Builder.newBuilder().productVersion(productVersion).build(); 
         BuildRecordSet buildRecordSet = new BuildRecordSet();
-        buildRecordSet.setProductMilestone(productMilestone);
+        buildRecordSet.setPerformedInProductMilestone(productMilestone);
         return buildRecordSet;
     }
-
-
 }

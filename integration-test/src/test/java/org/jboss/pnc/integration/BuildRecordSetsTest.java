@@ -88,7 +88,7 @@ public class BuildRecordSetsTest {
         productMilestoneId = productMilestone.getId();
 
         BuildRecordSet.Builder builder = BuildRecordSet.Builder.newBuilder();
-        BuildRecordSet buildRecordSet = builder.buildRecord(buildRecord).productMilestone(productMilestone).build();
+        BuildRecordSet buildRecordSet = builder.buildRecord(buildRecord).performedInProductMilestone(productMilestone).build();
 
         buildRecordSet = buildRecordSetRepository.save(buildRecordSet);
 
@@ -120,7 +120,7 @@ public class BuildRecordSetsTest {
     @InSequence(3)
     public void shouldGetBuildRecordSetOfProductMilestone() {
         // when
-        List<BuildRecordSetRest> buildRecordSetRests = buildRecordSetProvider.getAllForProductMilestone(0, 50, null, null, productMilestoneId);
+        List<BuildRecordSetRest> buildRecordSetRests = buildRecordSetProvider.getAllForPerformedInProductMilestone(0, 50, null, null, productMilestoneId);
 
         // then
         assertThat(buildRecordSetRests).hasSize(1);
