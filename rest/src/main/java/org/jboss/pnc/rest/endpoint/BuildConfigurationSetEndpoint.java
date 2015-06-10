@@ -186,8 +186,7 @@ public class BuildConfigurationSetEndpoint {
     public Response addConfiguration(
             @ApiParam(value = "Build Configuration Set id", required = true) @PathParam("id") Integer id,
             BuildConfigurationRest buildConfig) {
-        buildConfigurationSetProvider.addConfiguration(id, buildConfig.getId());
-        return Response.ok().build();
+        return buildConfigurationSetProvider.addConfiguration(id, buildConfig.getId());
     }
 
     @ApiOperation(value = "Removes a configuration from the specified config set")
