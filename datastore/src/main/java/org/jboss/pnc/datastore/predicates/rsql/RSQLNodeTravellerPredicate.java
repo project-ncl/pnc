@@ -7,7 +7,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,23 +18,33 @@
 package org.jboss.pnc.datastore.predicates.rsql;
 
 import com.google.common.base.Preconditions;
-import com.mysema.query.types.expr.BooleanExpression;
-import com.mysema.query.types.path.PathBuilder;
 import cz.jirutka.rsql.parser.RSQLParser;
 import cz.jirutka.rsql.parser.RSQLParserException;
-import cz.jirutka.rsql.parser.ast.*;
-import org.jboss.pnc.datastore.predicates.RSQLPredicate;
+import cz.jirutka.rsql.parser.ast.AndNode;
+import cz.jirutka.rsql.parser.ast.ComparisonNode;
+import cz.jirutka.rsql.parser.ast.EqualNode;
+import cz.jirutka.rsql.parser.ast.GreaterThanNode;
+import cz.jirutka.rsql.parser.ast.GreaterThanOrEqualNode;
+import cz.jirutka.rsql.parser.ast.InNode;
+import cz.jirutka.rsql.parser.ast.LessThanNode;
+import cz.jirutka.rsql.parser.ast.LessThanOrEqualNode;
+import cz.jirutka.rsql.parser.ast.LogicalNode;
+import cz.jirutka.rsql.parser.ast.Node;
+import cz.jirutka.rsql.parser.ast.NotEqualNode;
+import cz.jirutka.rsql.parser.ast.NotInNode;
+import cz.jirutka.rsql.parser.ast.OrNode;
+import org.jboss.pnc.model.GenericEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.beans.Introspector;
+import javax.persistence.criteria.*;
 import java.lang.invoke.MethodHandles;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
-public class RSQLNodeTravellerPredicate<Entity> implements RSQLPredicate {
+public class RSQLNodeTravellerPredicate<Entity extends GenericEntity<? extends Number>> implements org.jboss.pnc.spi.datastore.repositories.api.Predicate<Entity> {
 
     private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
@@ -42,52 +52,62 @@ public class RSQLNodeTravellerPredicate<Entity> implements RSQLPredicate {
 
     private final Class<Entity> selectingClass;
 
-    private final QueryDSLTransformer<Entity> queryDSLTransformer = new QueryDSLTransformer<>();
-
     private final Map<Class<? extends ComparisonNode>, Transformer<Entity>> operations = new HashMap<>();
 
     public RSQLNodeTravellerPredicate(Class<Entity> entityClass, String rsql) throws RSQLParserException {
-        operations.put(NotEqualNode.class, (pathBuilder, operand, arguments) -> queryDSLTransformer.createNodeTransformer(pathBuilder, operand, Arrays.asList(arguments.get(0)), "ne"));
-        operations.put(InNode.class, (pathBuilder, operand, arguments) -> queryDSLTransformer.createNodeTransformer(pathBuilder, operand, arguments, "in"));
-        operations.put(NotInNode.class, (pathBuilder, operand, arguments) -> queryDSLTransformer.createNodeTransformer(pathBuilder, operand, arguments, "notIn"));
-        operations.put(EqualNode.class, (pathBuilder, operand, arguments) -> queryDSLTransformer.createNodeTransformer(pathBuilder, operand, Arrays.asList(arguments.get(0)), "eq"));
+        operations.put(EqualNode.class, new AbstractTransformer<Entity>() {
+            @Override
+            Predicate transform(Root<Entity> r, Path<Entity> selectedPath, CriteriaBuilder cb, String operand, List<Object> convertedArguments) {
+                return cb.equal(selectedPath, convertedArguments.get(0));
+            }
+        });
+
+        operations.put(NotEqualNode.class, new AbstractTransformer<Entity>() {
+            @Override
+            Predicate transform(Root<Entity> r, Path<Entity> selectedPath, CriteriaBuilder cb, String operand, List<Object> convertedArguments) {
+                return cb.notEqual(selectedPath, convertedArguments.get(0));
+            }
+        });
+
+        operations.put(GreaterThanNode.class, (r, cb, clazz, operand, arguments) -> cb.greaterThan(r.get(String.valueOf(operand)), arguments.get(0)));
+        operations.put(GreaterThanOrEqualNode.class, (r, cb, clazz, operand, arguments) -> cb.greaterThanOrEqualTo(r.get(String.valueOf(operand)), arguments.get(0)));
+        operations.put(LessThanNode.class, (r, cb, operand, clazz, arguments) -> cb.lessThan(r.get(String.valueOf(operand)), arguments.get(0)));
+        operations.put(LessThanOrEqualNode.class, (r, cb, operand, clazz, arguments) -> cb.lessThanOrEqualTo(r.get(String.valueOf(operand)), arguments.get(0)));
+        operations.put(InNode.class, (r, cb, operand, clazz, arguments) -> r.get(String.valueOf(operand)).in(arguments));
+        operations.put(NotInNode.class, (r, cb, operand, clazz, arguments) -> cb.not(r.get(String.valueOf(operand)).in(arguments)));
 
         rootNode = new RSQLParser().parse(rsql);
         selectingClass = entityClass;
     }
 
     @Override
-    public BooleanExpression get() {
+    public javax.persistence.criteria.Predicate apply(Root root, CriteriaQuery query, CriteriaBuilder cb) {
 
-        // Using lower-cases string variables makes Entities with camelCase names unusable (i.e. BuildRecord)
-        PathBuilder<Entity> pathBuilder = new PathBuilder<>(selectingClass, Introspector.decapitalize(selectingClass
-                .getSimpleName()));
+        RSQLNodeTraveller<Predicate> visitor = new RSQLNodeTraveller<Predicate>() {
 
-        RSQLNodeTraveller<BooleanExpression> visitor = new RSQLNodeTraveller<BooleanExpression>() {
-
-            public BooleanExpression visit(LogicalNode node) {
-                logger.debug("Parsing LogicalNode {}", node);
+            public Predicate visit(LogicalNode node) {
+                logger.info("Parsing LogicalNode {}", node);
                 return proceedEmbeddedNodes(node);
             }
 
-            public BooleanExpression visit(ComparisonNode node) {
-                logger.debug("Parsing ComparisonNode {}", node);
+            public Predicate visit(ComparisonNode node) {
+                logger.info("Parsing ComparisonNode {}", node);
                 return proceedSelection(node);
             }
 
-            private BooleanExpression proceedSelection(ComparisonNode node) {
+            private Predicate proceedSelection(ComparisonNode node) {
                 Transformer<Entity> transformation = operations.get(node.getClass());
                 Preconditions.checkArgument(transformation != null, "Operation not supported");
-                BooleanExpression expression = transformation.transform(pathBuilder, node.getSelector(), node.getArguments());
-                return expression;
+
+                return transformation.transform(root, cb, selectingClass, node.getSelector(), node.getArguments());
             }
 
-            private BooleanExpression proceedEmbeddedNodes(LogicalNode node) {
+            private Predicate proceedEmbeddedNodes(LogicalNode node) {
                 Iterator<Node> iterator = node.iterator();
                 if (node instanceof AndNode) {
-                    return visit(iterator.next()).and(visit(iterator.next()));
+                    return cb.and(visit(iterator.next()), visit(iterator.next()));
                 } else if (node instanceof OrNode) {
-                    return visit(iterator.next()).or(visit(iterator.next()));
+                    return cb.or(visit(iterator.next()), visit(iterator.next()));
                 } else {
                     throw new UnsupportedOperationException("Logical operation not supported");
                 }
@@ -96,7 +116,4 @@ public class RSQLNodeTravellerPredicate<Entity> implements RSQLPredicate {
 
         return rootNode.accept(visitor);
     }
-
-
-
 }

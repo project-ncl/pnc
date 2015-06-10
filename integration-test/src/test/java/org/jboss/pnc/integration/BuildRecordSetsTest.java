@@ -21,16 +21,13 @@ import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.junit.InSequence;
 import org.jboss.arquillian.transaction.api.annotation.Transactional;
-import org.jboss.pnc.datastore.limits.RSQLPageLimitAndSortingProducer;
-import org.jboss.pnc.datastore.repositories.BuildRecordRepository;
-import org.jboss.pnc.datastore.repositories.BuildRecordSetRepository;
-import org.jboss.pnc.datastore.repositories.ProductMilestoneRepository;
-import org.jboss.pnc.datastore.repositories.ProductVersionRepository;
+import org.jboss.pnc.datastore.repositories.internal.BuildRecordSpringRepository;
+import org.jboss.pnc.datastore.repositories.internal.BuildRecordSetSpringRepository;
+import org.jboss.pnc.datastore.repositories.internal.ProductMilestoneSpringRepository;
 import org.jboss.pnc.integration.deployments.Deployments;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.BuildRecordSet;
 import org.jboss.pnc.model.ProductMilestone;
-import org.jboss.pnc.model.ProductVersion;
 import org.jboss.pnc.rest.provider.BuildRecordSetProvider;
 import org.jboss.pnc.rest.restmodel.BuildRecordSetRest;
 import org.jboss.pnc.test.category.ContainerTest;
@@ -60,13 +57,13 @@ public class BuildRecordSetsTest {
     private static Integer productMilestoneId;
 
     @Inject
-    private BuildRecordRepository buildRecordRepository;
+    private BuildRecordSpringRepository buildRecordRepository;
 
     @Inject
-    private BuildRecordSetRepository buildRecordSetRepository;
+    private BuildRecordSetSpringRepository buildRecordSetRepository;
 
     @Inject
-    private ProductMilestoneRepository productMilestoneRepository;
+    private ProductMilestoneSpringRepository productMilestoneRepository;
 
     @Inject
     private BuildRecordSetProvider buildRecordSetProvider;
@@ -103,8 +100,7 @@ public class BuildRecordSetsTest {
     @InSequence(1)
     public void shouldGetAllBuildRecordSets() {
         // when
-        List<BuildRecordSetRest> buildRecordSets = (List<BuildRecordSetRest>) buildRecordSetProvider.getAll(
-                RSQLPageLimitAndSortingProducer.DEFAULT_OFFSET, RSQLPageLimitAndSortingProducer.DEFAULT_SIZE, null, null);
+        List<BuildRecordSetRest> buildRecordSets = buildRecordSetProvider.getAll(0, 50, null, null);
 
         // then
         assertThat(buildRecordSets).isNotNull();
@@ -125,9 +121,7 @@ public class BuildRecordSetsTest {
     @InSequence(3)
     public void shouldGetBuildRecordSetOfProductMilestone() {
         // when
-        List<BuildRecordSetRest> buildRecordSetRests = buildRecordSetProvider.getAllForProductMilestone(
-                RSQLPageLimitAndSortingProducer.DEFAULT_OFFSET, RSQLPageLimitAndSortingProducer.DEFAULT_SIZE, null, null,
-                productMilestoneId);
+        List<BuildRecordSetRest> buildRecordSetRests = buildRecordSetProvider.getAllForProductMilestone(0, 50, null, null, productMilestoneId);
 
         // then
         assertThat(buildRecordSetRests).hasSize(1);
@@ -137,9 +131,7 @@ public class BuildRecordSetsTest {
     @InSequence(4)
     public void shouldGetBuildRecordSetOfBuildRecord() {
         // when
-        List<BuildRecordSetRest> buildRecordSetRests = buildRecordSetProvider.getAllForBuildRecord(
-                RSQLPageLimitAndSortingProducer.DEFAULT_OFFSET, RSQLPageLimitAndSortingProducer.DEFAULT_SIZE, null, null,
-                buildRecordId);
+        List<BuildRecordSetRest> buildRecordSetRests = buildRecordSetProvider.getAllForBuildRecord(0, 50, null, null, buildRecordId);
 
         // then
         assertThat(buildRecordSetRests).hasSize(1);

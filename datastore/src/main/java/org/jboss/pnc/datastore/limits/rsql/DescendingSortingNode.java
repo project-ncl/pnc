@@ -22,7 +22,7 @@ import cz.jirutka.rsql.parser.ast.RSQLVisitor;
 
 import java.util.List;
 
-public class DescendingSortingNode extends ComparisonNode {
+class DescendingSortingNode extends ComparisonNode {
 
     public static final String OPERATOR = "=desc=";
 

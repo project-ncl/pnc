@@ -18,13 +18,15 @@
 package org.jboss.pnc.rest.provider;
 
 import com.google.common.base.Preconditions;
-import org.jboss.pnc.datastore.limits.RSQLPageLimitAndSortingProducer;
-import org.jboss.pnc.datastore.predicates.RSQLPredicate;
-import org.jboss.pnc.datastore.predicates.RSQLPredicateProducer;
-import org.jboss.pnc.datastore.repositories.ProjectRepository;
 import org.jboss.pnc.model.Project;
 import org.jboss.pnc.rest.restmodel.ProjectRest;
-import org.springframework.data.domain.Pageable;
+import org.jboss.pnc.spi.datastore.repositories.PageInfoProducer;
+import org.jboss.pnc.spi.datastore.repositories.ProjectRepository;
+import org.jboss.pnc.spi.datastore.repositories.SortInfoProducer;
+import org.jboss.pnc.spi.datastore.repositories.api.PageInfo;
+import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
+import org.jboss.pnc.spi.datastore.repositories.api.RSQLPredicateProducer;
+import org.jboss.pnc.spi.datastore.repositories.api.SortInfo;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
@@ -39,9 +41,18 @@ public class ProjectProvider {
 
     private ProjectRepository projectRepository;
 
+    private RSQLPredicateProducer rsqlPredicateProducer;
+
+    private SortInfoProducer sortInfoProducer;
+
+    private PageInfoProducer pageInfoProducer;
+
     @Inject
-    public ProjectProvider(ProjectRepository projectRepository) {
+    public ProjectProvider(ProjectRepository projectRepository, RSQLPredicateProducer rsqlPredicateProducer, SortInfoProducer sortInfoProducer, PageInfoProducer pageInfoProducer) {
         this.projectRepository = projectRepository;
+        this.rsqlPredicateProducer = rsqlPredicateProducer;
+        this.sortInfoProducer = sortInfoProducer;
+        this.pageInfoProducer = pageInfoProducer;
     }
 
     // needed for EJB/CDI
@@ -53,15 +64,16 @@ public class ProjectProvider {
     }
 
     public List<ProjectRest> getAll(int pageIndex, int pageSize, String sortingRsql, String query) {
-        RSQLPredicate filteringCriteria = RSQLPredicateProducer.fromRSQL(Project.class, query);
-        Pageable paging = RSQLPageLimitAndSortingProducer.fromRSQL(pageSize, pageIndex, sortingRsql);
-        return nullableStreamOf(projectRepository.findAll(filteringCriteria.get(), paging))
+        Predicate<Project> rsqlPredicate = rsqlPredicateProducer.getPredicate(Project.class, query);
+        PageInfo pageInfo = pageInfoProducer.getPageInfo(pageIndex, pageSize);
+        SortInfo sortInfo = sortInfoProducer.getSortInfo(sortingRsql);
+        return nullableStreamOf(projectRepository.queryWithPredicates(pageInfo, sortInfo, rsqlPredicate))
                 .map(toRestModel())
                 .collect(Collectors.toList());
     }
 
     public ProjectRest getSpecific(Integer id) {
-        Project project = projectRepository.findOne(id);
+        Project project = projectRepository.queryById(id);
         if (project != null) {
             return new ProjectRest(project);
         }
@@ -80,7 +92,7 @@ public class ProjectProvider {
         Preconditions.checkArgument(projectRest.getId() == null || projectRest.getId().equals(id),
                 "Entity id does not match the id to update");
         projectRest.setId(id);
-        Project project = projectRepository.findOne(projectRest.getId());
+        Project project = projectRepository.queryById(id);
         Preconditions.checkArgument(project != null, "Couldn't find project with id " + projectRest.getId());
         project = projectRepository.save(projectRest.toProject());
         return project.getId();

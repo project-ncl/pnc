@@ -55,7 +55,7 @@ public class BuildConfigurationAuditedRest {
     }
 
     public BuildConfigurationAuditedRest(BuildConfigurationAudited buildConfigurationAudited) {
-        this.id = buildConfigurationAudited.getId();
+        this.id = buildConfigurationAudited.getId().getId();
         this.rev = buildConfigurationAudited.getRev();
         this.name = buildConfigurationAudited.getName();
         this.description = buildConfigurationAudited.getDescription();

@@ -23,7 +23,7 @@ import cz.jirutka.rsql.parser.ast.RSQLNodesFactory;
 
 import java.util.List;
 
-public class SortingRSQLNodesFactory extends RSQLNodesFactory {
+class SortingRSQLNodesFactory extends RSQLNodesFactory {
 
     @Override
     public ComparisonNode createComparisonNode(String operator, String selector, List<String> arguments) throws UnknownOperatorException { switch (operator) {

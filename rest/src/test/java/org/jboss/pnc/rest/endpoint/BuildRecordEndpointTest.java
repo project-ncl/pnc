@@ -1,13 +1,13 @@
 package org.jboss.pnc.rest.endpoint;
 
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.mock;
-
-import org.jboss.pnc.datastore.repositories.BuildRecordRepository;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.rest.provider.BuildRecordProvider;
+import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
 import org.junit.Test;
 import org.mockito.Mockito;
+
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.mock;
 
 /**
  * 
@@ -44,12 +44,12 @@ public class BuildRecordEndpointTest {
 
     private BuildRecordEndpoint getLogsPrepareEndpoint(int logId, String logContent) {
         BuildRecordRepository buildRecordRepository = mock(BuildRecordRepository.class);
-        BuildRecordProvider buildRecordProvider = new BuildRecordProvider(buildRecordRepository, null);
+        BuildRecordProvider buildRecordProvider = new BuildRecordProvider(buildRecordRepository, null, null, null, null);
         BuildRecordEndpoint buildRecordEndpoint = new BuildRecordEndpoint(buildRecordProvider, null);
         BuildRecord buildRecord = mock(BuildRecord.class);
 
         Mockito.when(buildRecord.getBuildLog()).thenReturn(logContent);
-        Mockito.when(buildRecordRepository.findOne(logId)).thenReturn(buildRecord);
+        Mockito.when(buildRecordRepository.queryById(logId)).thenReturn(buildRecord);
         return buildRecordEndpoint;
     }
 }

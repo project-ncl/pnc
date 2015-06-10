@@ -18,13 +18,15 @@
 package org.jboss.pnc.rest.provider;
 
 import com.google.common.base.Preconditions;
-import org.jboss.pnc.datastore.limits.RSQLPageLimitAndSortingProducer;
-import org.jboss.pnc.datastore.predicates.RSQLPredicate;
-import org.jboss.pnc.datastore.predicates.RSQLPredicateProducer;
-import org.jboss.pnc.datastore.repositories.ProductRepository;
 import org.jboss.pnc.model.Product;
 import org.jboss.pnc.rest.restmodel.ProductRest;
-import org.springframework.data.domain.Pageable;
+import org.jboss.pnc.spi.datastore.repositories.PageInfoProducer;
+import org.jboss.pnc.spi.datastore.repositories.ProductRepository;
+import org.jboss.pnc.spi.datastore.repositories.SortInfoProducer;
+import org.jboss.pnc.spi.datastore.repositories.api.PageInfo;
+import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
+import org.jboss.pnc.spi.datastore.repositories.api.RSQLPredicateProducer;
+import org.jboss.pnc.spi.datastore.repositories.api.SortInfo;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
@@ -39,9 +41,18 @@ public class ProductProvider {
 
     private ProductRepository productRepository;
 
+    private RSQLPredicateProducer rsqlPredicateProducer;
+
+    private SortInfoProducer sortInfoProducer;
+
+    private PageInfoProducer pageInfoProducer;
+
     @Inject
-    public ProductProvider(ProductRepository productRepository) {
+    public ProductProvider(ProductRepository productRepository, RSQLPredicateProducer rsqlPredicateProducer, SortInfoProducer sortInfoProducer, PageInfoProducer pageInfoProducer) {
         this.productRepository = productRepository;
+        this.rsqlPredicateProducer = rsqlPredicateProducer;
+        this.sortInfoProducer = sortInfoProducer;
+        this.pageInfoProducer = pageInfoProducer;
     }
 
     // needed for EJB/CDI
@@ -49,16 +60,16 @@ public class ProductProvider {
     }
 
     public List<ProductRest> getAll(int pageIndex, int pageSize, String sortingRsql, String query) {
-        RSQLPredicate filteringCriteria = RSQLPredicateProducer.fromRSQL(Product.class, query);
-        Pageable paging = RSQLPageLimitAndSortingProducer.fromRSQL(pageSize, pageIndex, sortingRsql);
-
-        return nullableStreamOf(productRepository.findAll(filteringCriteria.get(), paging))
+        Predicate<Product> rsqlPredicate = rsqlPredicateProducer.getPredicate(Product.class, query);
+        PageInfo pageInfo = pageInfoProducer.getPageInfo(pageIndex, pageSize);
+        SortInfo sortInfo = sortInfoProducer.getSortInfo(sortingRsql);
+        return nullableStreamOf(productRepository.queryWithPredicates(pageInfo, sortInfo, rsqlPredicate))
                 .map(toRestModel())
                 .collect(Collectors.toList());
     }
 
     public ProductRest getSpecific(Integer id) {
-        Product product = productRepository.findOne(id);
+        Product product = productRepository.queryById(id);
         if (product != null) {
             return new ProductRest(product);
         }
@@ -76,10 +87,10 @@ public class ProductProvider {
         Preconditions.checkArgument(productRest.getId() == null || productRest.getId().equals(id),
                 "Entity id does not match the id to update");
         productRest.setId(id);
-        Product product = productRepository.findOne(productRest.getId());
+        Product product = productRepository.queryById(productRest.getId());
         Preconditions.checkArgument(product != null, "Couldn't find product with id " + productRest.getId());
 
-        product = productRepository.saveAndFlush(productRest.toProduct());
+        product = productRepository.save(productRest.toProduct());
         return product.getId();
     }
 

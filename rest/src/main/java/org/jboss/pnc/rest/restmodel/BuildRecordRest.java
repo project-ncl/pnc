@@ -56,7 +56,7 @@ public class BuildRecordRest {
         this.startTime = buildRecord.getStartTime();
         this.endTime = buildRecord.getEndTime();
         performIfNotNull(buildRecord.getBuildConfigurationAudited() != null, () -> buildConfigurationId = buildRecord
-                .getBuildConfigurationAudited().getId());
+                .getBuildConfigurationAudited().getId().getId());
         performIfNotNull(buildRecord.getBuildConfigurationAudited() != null, () -> buildConfigurationRev = buildRecord
                 .getBuildConfigurationAudited().getRev());
         performIfNotNull(buildRecord.getUser() != null, () -> userId = buildRecord.getUser().getId());

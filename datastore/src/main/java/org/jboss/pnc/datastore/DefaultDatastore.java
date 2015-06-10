@@ -17,25 +17,24 @@
  */
 package org.jboss.pnc.datastore;
 
-import java.lang.invoke.MethodHandles;
-
-import javax.ejb.Stateless;
-import javax.ejb.TransactionAttribute;
-import javax.ejb.TransactionAttributeType;
-import javax.inject.Inject;
-
-import org.jboss.pnc.datastore.predicates.UserPredicates;
-import org.jboss.pnc.datastore.repositories.BuildConfigurationRepository;
-import org.jboss.pnc.datastore.repositories.BuildRecordRepository;
 import org.jboss.pnc.datastore.repositories.SequenceHandlerRepository;
-import org.jboss.pnc.datastore.repositories.UserRepository;
+import org.jboss.pnc.datastore.repositories.internal.BuildConfigurationSpringRepository;
 import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.datastore.Datastore;
+import org.jboss.pnc.spi.datastore.predicates.UserPredicates;
+import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
+import org.jboss.pnc.spi.datastore.repositories.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.ejb.Stateless;
+import javax.ejb.TransactionAttribute;
+import javax.ejb.TransactionAttributeType;
+import javax.inject.Inject;
+import java.lang.invoke.MethodHandles;
 
 @Stateless
 public class DefaultDatastore implements Datastore {
@@ -45,8 +44,7 @@ public class DefaultDatastore implements Datastore {
     @Inject
     BuildRecordRepository buildRecordRepository;
 
-    @Inject
-    BuildConfigurationRepository buildConfigurationRepository;
+    @Inject BuildConfigurationSpringRepository buildConfigurationRepository;
 
     @Inject
     UserRepository userRepository;
@@ -63,7 +61,7 @@ public class DefaultDatastore implements Datastore {
 
     @Override
     public User retrieveUserByUsername(String username) {
-        return userRepository.findOne(UserPredicates.withUsername(username));
+        return userRepository.queryByPredicates(UserPredicates.withUserName(username));
     }
 
     private void storeBuildConfiguration(BuildRecord buildRecord) {

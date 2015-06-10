@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.rest.trigger;
 
+import com.google.common.base.Preconditions;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
@@ -26,7 +27,6 @@ import org.apache.http.conn.ssl.SSLContextBuilder;
 import org.apache.http.conn.ssl.TrustStrategy;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
-
 import org.jboss.logging.Logger;
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.ConfigurationParseException;
@@ -37,25 +37,19 @@ import org.jboss.pnc.core.notifications.buildSetTask.BuildSetCallBack;
 import org.jboss.pnc.core.notifications.buildSetTask.BuildSetStatusNotifications;
 import org.jboss.pnc.core.notifications.buildTask.BuildCallBack;
 import org.jboss.pnc.core.notifications.buildTask.BuildStatusNotifications;
-import org.jboss.pnc.datastore.repositories.BuildConfigurationAuditedRepository;
-import org.jboss.pnc.datastore.repositories.BuildConfigurationRepository;
-import org.jboss.pnc.datastore.repositories.BuildConfigurationSetRepository;
-import org.jboss.pnc.model.BuildConfiguration;
-import org.jboss.pnc.model.BuildConfigurationAudited;
-import org.jboss.pnc.model.BuildConfigurationSet;
-import org.jboss.pnc.model.BuildRecordSet;
-import org.jboss.pnc.model.ProductVersion;
-import org.jboss.pnc.model.User;
+import org.jboss.pnc.model.*;
 import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
+import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationAuditedRepository;
+import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationRepository;
+import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationSetRepository;
+import org.jboss.pnc.spi.datastore.repositories.SortInfoProducer;
+import org.jboss.pnc.spi.datastore.repositories.api.SortInfo;
 import org.jboss.pnc.spi.events.BuildSetStatusChangedEvent;
 import org.jboss.pnc.spi.events.BuildStatusChangedEvent;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerException;
 
-import com.google.common.base.Preconditions;
-
 import javax.ejb.Stateless;
 import javax.inject.Inject;
-
 import java.io.IOException;
 import java.net.URL;
 import java.security.KeyManagementException;
@@ -78,6 +72,8 @@ public class BuildTriggerer {
     private BuildSetStatusNotifications buildSetStatusNotifications;
     private BuildStatusNotifications buildStatusNotifications;
 
+    private SortInfoProducer sortInfoProducer;
+
     private BpmModuleConfig bpmConfig = null;
     
     @Deprecated //not meant for usage its only to make CDI happy
@@ -85,18 +81,17 @@ public class BuildTriggerer {
     }
 
     @Inject
-    public BuildTriggerer(final BuildCoordinator buildCoordinator,
-                          final BuildConfigurationRepository buildConfigurationRepository,
-                          final BuildConfigurationAuditedRepository buildConfigurationAuditedRepository,
-                          final BuildConfigurationSetRepository buildConfigurationSetRepository,
-                          BuildSetStatusNotifications buildSetStatusNotifications,
-                          BuildStatusNotifications buildStatusNotifications) {
+    public BuildTriggerer(final BuildCoordinator buildCoordinator, final BuildConfigurationRepository buildConfigurationRepository,
+            final BuildConfigurationAuditedRepository buildConfigurationAuditedRepository, final BuildConfigurationSetRepository buildConfigurationSetRepository,
+            BuildSetStatusNotifications buildSetStatusNotifications, BuildStatusNotifications buildStatusNotifications,
+            SortInfoProducer sortInfoProducer) {
         this.buildCoordinator = buildCoordinator;
         this.buildConfigurationRepository = buildConfigurationRepository;
         this.buildConfigurationAuditedRepository = buildConfigurationAuditedRepository;
         this.buildConfigurationSetRepository= buildConfigurationSetRepository;
         this.buildSetStatusNotifications = buildSetStatusNotifications;
         this.buildStatusNotifications = buildStatusNotifications;
+        this.sortInfoProducer = sortInfoProducer;
     }
 
     public int triggerBuilds( final Integer buildConfigurationId, User currentUser, URL callBackUrl)
@@ -115,7 +110,7 @@ public class BuildTriggerer {
     public int triggerBuilds( final Integer configurationId, User currentUser )
         throws InterruptedException, CoreException, BuildDriverException, RepositoryManagerException
     {
-        final BuildConfiguration configuration = buildConfigurationRepository.findOne(configurationId);
+        final BuildConfiguration configuration = buildConfigurationRepository.queryById(configurationId);
         configuration.setBuildConfigurationAudited(this.getLatestAuditedBuildConfiguration(configurationId));
 
         Preconditions.checkArgument(configuration != null, "Can't find configuration with given id=" + configurationId);
@@ -146,7 +141,7 @@ public class BuildTriggerer {
     public int triggerBuildConfigurationSet( final Integer buildConfigurationSetId, User currentUser )
         throws InterruptedException, CoreException, BuildDriverException, RepositoryManagerException
     {
-        final BuildConfigurationSet buildConfigurationSet = buildConfigurationSetRepository.findOne(buildConfigurationSetId);
+        final BuildConfigurationSet buildConfigurationSet = buildConfigurationSetRepository.queryById(buildConfigurationSetId);
         Preconditions.checkArgument(buildConfigurationSet != null, "Can't find configuration with given id=" + buildConfigurationSetId);
 
         for (BuildConfiguration config : buildConfigurationSet.getBuildConfigurations()) {
@@ -163,6 +158,7 @@ public class BuildTriggerer {
      * @return The latest revision of the given build configuration
      */
     private BuildConfigurationAudited getLatestAuditedBuildConfiguration(Integer buildConfigurationId) {
+        SortInfo sortInfo = sortInfoProducer.getSortInfo(SortInfo.SortingDirection.DESC, "id");
         List<BuildConfigurationAudited> buildConfigRevs = buildConfigurationAuditedRepository.findAllByIdOrderByRevDesc(buildConfigurationId);
         if ( buildConfigRevs.isEmpty() ) {
             // TODO should we throw an exception?  This should never happen.

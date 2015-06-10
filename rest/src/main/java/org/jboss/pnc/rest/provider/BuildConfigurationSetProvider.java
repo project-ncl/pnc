@@ -18,19 +18,17 @@
 package org.jboss.pnc.rest.provider;
 
 import com.google.common.base.Preconditions;
-import org.jboss.pnc.datastore.limits.RSQLPageLimitAndSortingProducer;
-import org.jboss.pnc.datastore.predicates.RSQLPredicate;
-import org.jboss.pnc.datastore.predicates.RSQLPredicateProducer;
-import org.jboss.pnc.datastore.repositories.BuildConfigurationRepository;
-import org.jboss.pnc.datastore.repositories.BuildConfigurationSetRepository;
-import org.jboss.pnc.datastore.repositories.BuildRecordRepository;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationRest;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationSetRest;
 import org.jboss.pnc.rest.restmodel.BuildRecordRest;
-import org.springframework.data.domain.Pageable;
+import org.jboss.pnc.spi.datastore.repositories.*;
+import org.jboss.pnc.spi.datastore.repositories.api.PageInfo;
+import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
+import org.jboss.pnc.spi.datastore.repositories.api.RSQLPredicateProducer;
+import org.jboss.pnc.spi.datastore.repositories.api.SortInfo;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
@@ -39,15 +37,23 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static org.jboss.pnc.datastore.predicates.BuildConfigurationSetPredicates.withBuildConfigurationSetId;
-import static org.jboss.pnc.datastore.predicates.BuildRecordPredicates.withBuildConfigurationIdInSet;
 import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
+import static org.jboss.pnc.spi.datastore.predicates.BuildConfigurationSetPredicates.withBuildConfigurationSetId;
+import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withBuildConfigurationIdInSet;
 
 @Stateless
 public class BuildConfigurationSetProvider {
 
     private BuildConfigurationSetRepository buildConfigurationSetRepository;
+
     private BuildRecordRepository buildRecordRepository;
+    @Inject
+    private RSQLPredicateProducer rsqlPredicateProducer;
+
+    private SortInfoProducer sortInfoProducer;
+
+    private PageInfoProducer pageInfoProducer;
+
     private BuildConfigurationRepository buildConfigurationRepository;
 
     public BuildConfigurationSetProvider() {
@@ -55,11 +61,15 @@ public class BuildConfigurationSetProvider {
 
     @Inject
     public BuildConfigurationSetProvider(BuildConfigurationSetRepository buildConfigurationSetRepository,
-            BuildRecordRepository buildRecordRepository,
-            BuildConfigurationRepository buildConfigurationRepository) {
+            BuildConfigurationRepository buildConfigurationRepository, BuildRecordRepository buildRecordRepository,
+            RSQLPredicateProducer rsqlPredicateProducer, SortInfoProducer sortInfoProducer, PageInfoProducer pageInfoProducer) {
         this.buildConfigurationSetRepository = buildConfigurationSetRepository;
+        this.buildConfigurationRepository = buildConfigurationRepository;
         this.buildRecordRepository = buildRecordRepository;
         this.buildConfigurationRepository = buildConfigurationRepository;
+        this.rsqlPredicateProducer = rsqlPredicateProducer;
+        this.sortInfoProducer = sortInfoProducer;
+        this.pageInfoProducer = pageInfoProducer;
     }
 
     public Function<? super BuildConfigurationSet, ? extends BuildConfigurationSetRest> toRestModel() {
@@ -71,37 +81,30 @@ public class BuildConfigurationSetProvider {
         };
     }
 
-    public String getDefaultSortingField() {
-        return BuildConfigurationSet.DEFAULT_SORTING_FIELD;
-    }
-
-    public List<BuildConfigurationSetRest> getAll() {
-        return buildConfigurationSetRepository.findAll().stream().map(buildConfigurationSet -> new BuildConfigurationSetRest(buildConfigurationSet))
-                .collect(Collectors.toList());
-    }
-
     public List<BuildConfigurationSetRest> getAll(int pageIndex, int pageSize, String sortingRsql, String query) {
-        RSQLPredicate filteringCriteria = RSQLPredicateProducer.fromRSQL(BuildConfiguration.class, query);
-        Pageable paging = RSQLPageLimitAndSortingProducer.fromRSQL(pageSize, pageIndex, sortingRsql);
-
-        return nullableStreamOf(buildConfigurationSetRepository.findAll(filteringCriteria.get(), paging))
+        Predicate<BuildConfigurationSet> rsqlPredicate = rsqlPredicateProducer.getPredicate(BuildConfigurationSet.class, query);
+        PageInfo pageInfo = pageInfoProducer.getPageInfo(pageIndex, pageSize);
+        SortInfo sortInfo = sortInfoProducer.getSortInfo(sortingRsql);
+        return nullableStreamOf(buildConfigurationSetRepository.queryWithPredicates(pageInfo, sortInfo, rsqlPredicate))
                 .map(toRestModel())
                 .collect(Collectors.toList());
     }
 
     public List<BuildRecordRest> getBuildRecords(Integer buildConfigurationSetId,
             int pageIndex, int pageSize, String sortingRsql, String query) {
-        RSQLPredicate filteringCriteria = RSQLPredicateProducer.fromRSQL(BuildConfiguration.class, query);
-        Pageable paging = RSQLPageLimitAndSortingProducer.fromRSQL(pageSize, pageIndex, sortingRsql);
+        Predicate<BuildRecord> rsqlPredicate = rsqlPredicateProducer.getPredicate(BuildRecord.class, query);
+        PageInfo pageInfo = pageInfoProducer.getPageInfo(pageIndex, pageSize);
+        SortInfo sortInfo = sortInfoProducer.getSortInfo(sortingRsql);
 
         BuildConfigurationSetRest buildConfigSetRest = getSpecific(buildConfigurationSetId);
-        return nullableStreamOf(buildRecordRepository.findAll(withBuildConfigurationIdInSet(buildConfigSetRest.getBuildConfigurationIds()).and(filteringCriteria.get()), paging))
+        return nullableStreamOf(buildRecordRepository.queryWithPredicates(pageInfo, sortInfo, rsqlPredicate,
+                withBuildConfigurationIdInSet(buildConfigSetRest.getBuildConfigurationIds())))
                 .map(buildRecordToRestModel())
                 .collect(Collectors.toList());
     }
 
     public BuildConfigurationSetRest getSpecific(Integer id) {
-        BuildConfigurationSet buildConfigurationSet = buildConfigurationSetRepository.findOne(id);
+        BuildConfigurationSet buildConfigurationSet = buildConfigurationSetRepository.queryById(id);
         if (buildConfigurationSet != null) {
             return new BuildConfigurationSetRest(buildConfigurationSet);
         }
@@ -120,7 +123,8 @@ public class BuildConfigurationSetProvider {
         Preconditions.checkArgument(buildConfigurationSetRest.getId() == null || buildConfigurationSetRest.getId().equals(id),
                 "Entity id does not match the id to update");
         buildConfigurationSetRest.setId(id);
-        BuildConfigurationSet buildConfigurationSet = buildConfigurationSetRepository.findOne(buildConfigurationSetRest.getId());
+        BuildConfigurationSet buildConfigurationSet = buildConfigurationSetRepository.queryById(
+                buildConfigurationSetRest.getId());
         Preconditions.checkArgument(buildConfigurationSet != null, "Couldn't find buildConfigurationSet with id "
                 + buildConfigurationSetRest.getId());
         buildConfigurationSet = buildConfigurationSetRepository.save(buildConfigurationSetRest.toBuildConfigurationSet(buildConfigurationSet));
@@ -140,7 +144,8 @@ public class BuildConfigurationSetProvider {
     }
 
     public List<BuildConfigurationRest> getBuildConfigurations(Integer configurationSetId) {
-        BuildConfigurationSet buildConfigSet = buildConfigurationSetRepository.findOne(withBuildConfigurationSetId(configurationSetId));
+        BuildConfigurationSet buildConfigSet = buildConfigurationSetRepository.queryByPredicates(
+                withBuildConfigurationSetId(configurationSetId));
         Set<BuildConfiguration> buildConfigs = buildConfigSet.getBuildConfigurations();
         return nullableStreamOf(buildConfigs)
                 .map(buildConfigToRestModel())
@@ -148,8 +153,8 @@ public class BuildConfigurationSetProvider {
     }
 
     public void addConfiguration(Integer configurationSetId, Integer configurationId) {
-        BuildConfigurationSet buildConfigSet = buildConfigurationSetRepository.findOne(configurationSetId);
-        BuildConfiguration buildConfig = buildConfigurationRepository.findOne(configurationId);
+        BuildConfigurationSet buildConfigSet = buildConfigurationSetRepository.queryById(configurationSetId);
+        BuildConfiguration buildConfig = buildConfigurationRepository.queryById(configurationId);
         if (buildConfigSet.getBuildConfigurations().contains(buildConfig))
             throw new ConflictedEntryException("BuildConfiguration is already in the BuildConfigurationSet");
 
@@ -158,8 +163,8 @@ public class BuildConfigurationSetProvider {
     }
 
     public void removeConfiguration(Integer configurationSetId, Integer configurationId) {
-        BuildConfigurationSet buildConfigSet = buildConfigurationSetRepository.findOne(configurationSetId);
-        BuildConfiguration buildConfig = buildConfigurationRepository.findOne(configurationId);
+        BuildConfigurationSet buildConfigSet = buildConfigurationSetRepository.queryById(configurationSetId);
+        BuildConfiguration buildConfig = buildConfigurationRepository.queryById(configurationId);
         buildConfigSet.removeBuildConfiguration(buildConfig);
         buildConfigurationSetRepository.save(buildConfigSet);
     }

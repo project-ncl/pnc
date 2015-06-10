@@ -17,18 +17,11 @@
  */
 package org.jboss.pnc.model;
 
-import java.util.Set;
-
-import javax.persistence.Column;
-import javax.persistence.EmbeddedId;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
-import javax.validation.constraints.NotNull;
-
 import org.hibernate.annotations.ForeignKey;
+
+import javax.persistence.*;
+import javax.validation.constraints.NotNull;
+import java.util.Set;
 
 /**
  * The audited record of a build configuration. Each change to the build configuration table is recorded in the audit table.
@@ -37,7 +30,7 @@ import org.hibernate.annotations.ForeignKey;
  */
 @Entity
 @Table(name = "buildconfiguration_aud")
-public class BuildConfigurationAudited implements GenericEntity<Integer> {
+public class BuildConfigurationAudited implements GenericEntity<IdRev> {
 
     private static final long serialVersionUID = 0L;
 
@@ -90,8 +83,8 @@ public class BuildConfigurationAudited implements GenericEntity<Integer> {
      * @return the id
      */
     @Override
-    public Integer getId() {
-        return id;
+    public IdRev getId() {
+        return idRev;
     }
 
     /**

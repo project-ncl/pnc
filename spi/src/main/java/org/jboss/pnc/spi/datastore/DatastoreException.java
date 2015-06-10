@@ -18,7 +18,7 @@
 package org.jboss.pnc.spi.datastore;
 
 /**
- * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-12-24.
+ * Thrown when Datastore is unable to process a request.
  */
 public class DatastoreException extends Exception {
     public DatastoreException(String message, Throwable cause) {

@@ -17,50 +17,23 @@
  */
 package org.jboss.pnc.demo.data;
 
-import java.sql.Timestamp;
-import java.time.Instant;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.logging.Logger;
+import com.google.common.base.Preconditions;
+import org.jboss.pnc.datastore.repositories.internal.BuildConfigurationAuditedSpringRepository;
+import org.jboss.pnc.datastore.repositories.SequenceHandlerRepository;
+import org.jboss.pnc.model.*;
+import org.jboss.pnc.model.ProductRelease.SupportLevel;
+import org.jboss.pnc.spi.datastore.Datastore;
+import org.jboss.pnc.spi.datastore.repositories.*;
 
 import javax.ejb.Singleton;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
 import javax.inject.Inject;
-
-import org.jboss.pnc.datastore.repositories.BuildConfigSetRecordRepository;
-import org.jboss.pnc.datastore.repositories.BuildConfigurationAuditedRepository;
-import org.jboss.pnc.datastore.repositories.BuildConfigurationRepository;
-import org.jboss.pnc.datastore.repositories.BuildConfigurationSetRepository;
-import org.jboss.pnc.datastore.repositories.BuildRecordRepository;
-import org.jboss.pnc.datastore.repositories.EnvironmentRepository;
-import org.jboss.pnc.datastore.repositories.ProductMilestoneRepository;
-import org.jboss.pnc.datastore.repositories.ProductReleaseRepository;
-import org.jboss.pnc.datastore.repositories.ProductRepository;
-import org.jboss.pnc.datastore.repositories.ProductVersionRepository;
-import org.jboss.pnc.datastore.repositories.ProjectRepository;
-import org.jboss.pnc.datastore.repositories.SequenceHandlerRepository;
-import org.jboss.pnc.datastore.repositories.UserRepository;
-import org.jboss.pnc.model.Artifact;
-import org.jboss.pnc.model.ArtifactStatus;
-import org.jboss.pnc.model.BuildConfigSetRecord;
-import org.jboss.pnc.model.BuildConfiguration;
-import org.jboss.pnc.model.BuildConfigurationAudited;
-import org.jboss.pnc.model.BuildConfigurationSet;
-import org.jboss.pnc.model.BuildRecord;
-import org.jboss.pnc.model.BuildStatus;
-import org.jboss.pnc.model.Environment;
-import org.jboss.pnc.model.IdRev;
-import org.jboss.pnc.model.Product;
-import org.jboss.pnc.model.ProductMilestone;
-import org.jboss.pnc.model.ProductRelease;
-import org.jboss.pnc.model.ProductRelease.SupportLevel;
-import org.jboss.pnc.model.ProductVersion;
-import org.jboss.pnc.model.Project;
-import org.jboss.pnc.model.User;
-import org.jboss.pnc.spi.datastore.Datastore;
-
-import com.google.common.base.Preconditions;
+import java.sql.Timestamp;
+import java.time.Instant;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.logging.Logger;
 
 /**
  * Data for the DEMO. Note: The database initialization requires two separate transactions in order for the build configuration
@@ -88,7 +61,7 @@ public class DatabaseDataInitializer {
     BuildConfigurationRepository buildConfigurationRepository;
 
     @Inject
-    BuildConfigurationAuditedRepository buildConfigurationAuditedRepository;
+    BuildConfigurationAuditedSpringRepository buildConfigurationAuditedRepository;
 
     @Inject
     ProductVersionRepository productVersionRepository;
@@ -103,13 +76,13 @@ public class DatabaseDataInitializer {
     BuildConfigurationSetRepository buildConfigurationSetRepository;
 
     @Inject
-    BuildConfigSetRecordRepository buildConfigSetRecordRepository;
-
-    @Inject
     UserRepository userRepository;
 
     @Inject
     BuildRecordRepository buildRecordRepository;
+
+    @Inject
+    BuildConfigSetRecordRepository buildConfigSetRecordRepository;
 
     @Inject
     EnvironmentRepository environmentRepository;
@@ -136,14 +109,14 @@ public class DatabaseDataInitializer {
         Preconditions.checkState(productVersionRepository.count() > 0, "Expecting number of ProductVersions > 0");
         Preconditions.checkState(buildConfigurationSetRepository.count() > 0, "Expecting number of BuildRepositorySets > 0");
 
-        BuildConfiguration buildConfigurationDB = buildConfigurationRepository.findAll().get(0);
+        BuildConfiguration buildConfigurationDB = buildConfigurationRepository.queryAll().get(0);
 
         // Check that BuildConfiguration and BuildConfigurationSet have a ProductVersion associated
         Preconditions.checkState(
                 buildConfigurationDB.getBuildConfigurationSets().iterator().next().getProductVersion() != null,
                 "Product version of buildConfiguration must be not null");
 
-        BuildConfigurationSet buildConfigurationSetDB = buildConfigurationSetRepository.findAll().get(0);
+        BuildConfigurationSet buildConfigurationSetDB = buildConfigurationSetRepository.queryAll().get(0);
 
         Preconditions.checkState(buildConfigurationSetDB.getProductVersion() != null,
                 "Product version of buildConfigurationSet must be not null");

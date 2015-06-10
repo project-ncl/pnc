@@ -21,17 +21,43 @@ import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.User;
 
 /**
- * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-11-24.
+ * Topmost datastore interface.
  */
 public interface Datastore {
 
+    /**
+     * Stores a complete build.
+     *
+     * @param buildRecord Completed BuildRecord.
+     * @throws DatastoreException Thrown if database is unable to process the request.
+     */
     void storeCompletedBuild(BuildRecord buildRecord) throws DatastoreException;
 
+    /**
+     * Returns User upon its username.
+     *
+     * @param username Username of the user.
+     * @return User entity.
+     */
     User retrieveUserByUsername(String username);
 
+    /**
+     * Creates new user.
+     *
+     * @param user User entity.
+     */
     void createNewUser(User user);
 
+    /**
+     * Gets next generated Build Record Id.
+     *
+     * @return A generated Build Record Id.
+     */
     int getNextBuildRecordId();
 
+    /**
+     * Gets next generated Build Config Set Record Id.
+     * @return A generated Build Config Set Record Id.
+     */
     int getNextBuildConfigSetRecordId();
 }

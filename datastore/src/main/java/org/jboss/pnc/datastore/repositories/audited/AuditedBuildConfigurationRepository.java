@@ -18,7 +18,7 @@
 package org.jboss.pnc.datastore.repositories.audited;
 
 import org.hibernate.envers.AuditReader;
-import org.jboss.pnc.datastore.audit.impl.AbstractAuditRepository;
+import org.jboss.pnc.datastore.audit.AbstractAuditRepository;
 import org.jboss.pnc.model.BuildConfiguration;
 
 import javax.enterprise.context.ApplicationScoped;

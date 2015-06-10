@@ -17,65 +17,60 @@
  */
 package org.jboss.pnc.rest.provider;
 
-import com.google.common.base.Strings;
-
-import org.jboss.pnc.core.builder.BuildCoordinator;
-import org.jboss.pnc.core.builder.BuildTask;
-import org.jboss.pnc.datastore.limits.RSQLPageLimitAndSortingProducer;
-import org.jboss.pnc.datastore.predicates.RSQLPredicate;
-import org.jboss.pnc.datastore.predicates.RSQLPredicateProducer;
-import org.jboss.pnc.datastore.repositories.BuildConfigSetRecordRepository;
 import org.jboss.pnc.model.BuildConfigSetRecord;
-import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.rest.restmodel.BuildConfigSetRecordRest;
 import org.jboss.pnc.rest.restmodel.BuildRecordRest;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.data.domain.Pageable;
+import org.jboss.pnc.spi.datastore.repositories.BuildConfigSetRecordRepository;
+import org.jboss.pnc.spi.datastore.repositories.PageInfoProducer;
+import org.jboss.pnc.spi.datastore.repositories.SortInfoProducer;
+import org.jboss.pnc.spi.datastore.repositories.api.PageInfo;
+import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
+import org.jboss.pnc.spi.datastore.repositories.api.RSQLPredicateProducer;
+import org.jboss.pnc.spi.datastore.repositories.api.SortInfo;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
-import javax.ws.rs.core.StreamingOutput;
-
-import java.io.BufferedWriter;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
-import java.lang.invoke.MethodHandles;
 import java.util.List;
-import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static org.jboss.pnc.datastore.predicates.BuildConfigSetRecordPredicates.*;
-import static org.jboss.pnc.datastore.predicates.BuildRecordPredicates.withBuildConfigurationId;
 import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
 
 @Stateless
 public class BuildConfigSetRecordProvider {
 
-    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
-
     private BuildConfigSetRecordRepository buildConfigSetRecordRepository;
+
+    private RSQLPredicateProducer rsqlPredicateProducer;
+
+    private SortInfoProducer sortInfoProducer;
+
+    private PageInfoProducer pageInfoProducer;
 
     public BuildConfigSetRecordProvider() {
     }
 
     @Inject
-    public BuildConfigSetRecordProvider(BuildConfigSetRecordRepository buildConfigSetRecordRepository) {
+    public BuildConfigSetRecordProvider(BuildConfigSetRecordRepository buildConfigSetRecordRepository,
+            RSQLPredicateProducer rsqlPredicateProducer, SortInfoProducer sortInfoProducer,
+            PageInfoProducer pageInfoProducer) {
         this.buildConfigSetRecordRepository = buildConfigSetRecordRepository;
+        this.rsqlPredicateProducer = rsqlPredicateProducer;
+        this.sortInfoProducer = sortInfoProducer;
+        this.pageInfoProducer = pageInfoProducer;
     }
 
     public List<BuildConfigSetRecordRest> getAll(int pageIndex, int pageSize, String sortingRsql, String query) {
-        RSQLPredicate filteringCriteria = RSQLPredicateProducer.fromRSQL(BuildConfigSetRecord.class, query);
-        Pageable paging = RSQLPageLimitAndSortingProducer.fromRSQL(pageSize, pageIndex, sortingRsql);
-
-        return nullableStreamOf(buildConfigSetRecordRepository.findAll(filteringCriteria.get(), paging))
+        Predicate<BuildConfigSetRecord> rsqlPredicate = rsqlPredicateProducer.getPredicate(BuildConfigSetRecord.class, query);
+        PageInfo pageInfo = pageInfoProducer.getPageInfo(pageIndex, pageSize);
+        SortInfo sortInfo = sortInfoProducer.getSortInfo(sortingRsql);
+        return nullableStreamOf(buildConfigSetRecordRepository.queryWithPredicates(pageInfo, sortInfo, rsqlPredicate))
                 .map(toRestModel())
                 .collect(Collectors.toList());
     }
 
     public BuildConfigSetRecordRest getSpecific(Integer id) {
-        BuildConfigSetRecord buildConfigSetRecord = buildConfigSetRecordRepository.findOne(id);
+        BuildConfigSetRecord buildConfigSetRecord = buildConfigSetRecordRepository.queryById(id);
         if (buildConfigSetRecord != null) {
             return new BuildConfigSetRecordRest(buildConfigSetRecord);
         }
@@ -83,10 +78,7 @@ public class BuildConfigSetRecordProvider {
     }
 
     public List<BuildRecordRest> getBuildRecords(int pageIndex, int pageSize, String sortingRsql, String query, Integer buildConfigSetId) {
-        RSQLPredicate filteringCriteria = RSQLPredicateProducer.fromRSQL(BuildRecord.class, query);
-        Pageable paging = RSQLPageLimitAndSortingProducer.fromRSQL(pageSize, pageIndex, sortingRsql);
-
-        BuildConfigSetRecord buildConfigSetRecord = buildConfigSetRecordRepository.findOne(buildConfigSetId);
+        BuildConfigSetRecord buildConfigSetRecord = buildConfigSetRecordRepository.queryById(buildConfigSetId);
         return nullableStreamOf(buildConfigSetRecord.getBuildRecords())
                 .map(buildRecord -> new BuildRecordRest(buildRecord))
                 .collect(Collectors.toList());
