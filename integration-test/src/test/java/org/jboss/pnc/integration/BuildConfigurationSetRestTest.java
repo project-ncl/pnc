@@ -20,7 +20,6 @@ package org.jboss.pnc.integration;
 import com.jayway.restassured.http.ContentType;
 import com.jayway.restassured.response.Response;
 import com.jayway.restassured.response.ValidatableResponse;
-
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.junit.InSequence;
@@ -54,8 +53,6 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.invoke.MethodHandles;
-
-import javax.inject.Inject;
 
 import static com.jayway.restassured.RestAssured.given;
 import static org.jboss.pnc.integration.env.IntegrationTestEnv.getHttpPort;
@@ -221,7 +218,6 @@ public class BuildConfigurationSetRestTest {
     @Test
     @InSequence(4)
     public void testAddBuildConfigurationToBuildConfigurationSet() {
-
         JSONObject buildConfig = new JSONObject();
         buildConfig.put("id", buildConfId2);
 

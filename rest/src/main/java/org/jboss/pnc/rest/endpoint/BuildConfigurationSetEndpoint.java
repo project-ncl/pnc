@@ -17,30 +17,9 @@
  */
 package org.jboss.pnc.rest.endpoint;
 
-import java.lang.invoke.MethodHandles;
-import java.net.URL;
-import java.util.List;
-
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.DefaultValue;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriBuilder;
-import javax.ws.rs.core.UriInfo;
-
+import com.wordnik.swagger.annotations.Api;
+import com.wordnik.swagger.annotations.ApiOperation;
+import com.wordnik.swagger.annotations.ApiParam;
 import org.jboss.pnc.auth.AuthenticationProvider;
 import org.jboss.pnc.core.exception.CoreException;
 import org.jboss.pnc.model.User;
@@ -50,13 +29,18 @@ import org.jboss.pnc.rest.restmodel.BuildConfigurationSetRest;
 import org.jboss.pnc.rest.restmodel.BuildRecordRest;
 import org.jboss.pnc.rest.trigger.BuildTriggerer;
 import org.jboss.pnc.spi.datastore.Datastore;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.wordnik.swagger.annotations.Api;
-import com.wordnik.swagger.annotations.ApiOperation;
-import com.wordnik.swagger.annotations.ApiParam;
+import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
+import javax.ws.rs.*;
+import javax.ws.rs.core.*;
+import java.lang.invoke.MethodHandles;
+import java.net.URL;
+import java.util.List;
 
 @Api(value = "/build-configuration-sets", description = "Set of related build configurations")
 @Path("/build-configuration-sets")
@@ -186,7 +170,8 @@ public class BuildConfigurationSetEndpoint {
     public Response addConfiguration(
             @ApiParam(value = "Build Configuration Set id", required = true) @PathParam("id") Integer id,
             BuildConfigurationRest buildConfig) {
-        return buildConfigurationSetProvider.addConfiguration(id, buildConfig.getId());
+        buildConfigurationSetProvider.addConfiguration(id, buildConfig.getId());
+        return Response.ok().build();
     }
 
     @ApiOperation(value = "Removes a configuration from the specified config set")

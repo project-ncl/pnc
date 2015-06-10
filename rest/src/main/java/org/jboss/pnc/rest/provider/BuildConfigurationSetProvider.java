@@ -18,7 +18,6 @@
 package org.jboss.pnc.rest.provider;
 
 import com.google.common.base.Preconditions;
-
 import org.jboss.pnc.datastore.limits.RSQLPageLimitAndSortingProducer;
 import org.jboss.pnc.datastore.predicates.RSQLPredicate;
 import org.jboss.pnc.datastore.predicates.RSQLPredicateProducer;
@@ -35,8 +34,6 @@ import org.springframework.data.domain.Pageable;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
-import javax.ws.rs.core.Response;
-
 import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
@@ -150,14 +147,14 @@ public class BuildConfigurationSetProvider {
                 .collect(Collectors.toList());
     }
 
-    public Response addConfiguration(Integer configurationSetId, Integer configurationId) {
+    public void addConfiguration(Integer configurationSetId, Integer configurationId) {
         BuildConfigurationSet buildConfigSet = buildConfigurationSetRepository.findOne(configurationSetId);
         BuildConfiguration buildConfig = buildConfigurationRepository.findOne(configurationId);
         if (buildConfigSet.getBuildConfigurations().contains(buildConfig))
-            return Response.status(Response.Status.CONFLICT).build();
+            throw new ConflictedEntryException("BuildConfiguration is already in the BuildConfigurationSet");
+
         buildConfigSet.addBuildConfiguration(buildConfig);
         buildConfigurationSetRepository.save(buildConfigSet);
-        return Response.ok().build();
     }
 
     public void removeConfiguration(Integer configurationSetId, Integer configurationId) {
