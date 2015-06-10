@@ -33,63 +33,43 @@
     'pnc.release'
   ]);
 
-  /*jshint camelcase: false */
-  if (pnc_globals.enableAuth) {
-    var auth = {};
+  var authEnabled = pnc_globals.enableAuth; // jshint ignore:line
+  var keycloak;
 
-    angular.element(document).ready(function () {
-      var keycloak = new Keycloak('keycloak.json');
-      auth.loggedIn = false;
 
-      keycloak.init({ onLoad: 'login-required' }).success(function () {
-        auth.loggedIn = true;
-        auth.keycloak = keycloak;
-        auth.logout = function() {
-          auth.loggedIn = false;
-          auth.keycloak = null;
-          window.location = keycloak.authServerUrl + '/realms/PNC.REDHAT.COM/tokens/logout?redirect_uri=/pnc-web/index.html';
-        };
-        angular.bootstrap(document, ['pnc']);
-      }).error(function () {
-        window.location.reload();
-      });
+  (function bootstrapPncUi() {
 
-    });
-
-    app.factory('Auth', function () {
-      return auth;
-    });
-
-    app.factory('authInterceptor', function ($q, $log, Auth) {
-      return {
-        request: function (config) {
-          var deferred = $q.defer();
-
-          if (Auth.keycloak && Auth.keycloak.token) {
-            Auth.keycloak.updateToken(5).success(function () {
-              config.headers = config.headers || {};
-              config.headers.Authorization = 'Bearer ' + Auth.keycloak.token;
-
-              deferred.resolve(config);
-            }).error(function () {
-              deferred.reject('Failed to refresh token');
-            });
-          }
-          return deferred.promise;
-        }
-      };
-    });
-
-    app.config(function ($httpProvider) {
-      $httpProvider.interceptors.push('authInterceptor');
-    });
-  } else {
-    angular.element(document).ready(function () {
+    var startAngular = function() {
       angular.bootstrap(document, ['pnc']);
-    });
-  }
+    };
 
-  app.config(function($stateProvider, $urlRouterProvider, $locationProvider) {
+    angular.element(document).ready(function () {
+
+      if (authEnabled) {
+
+        keycloak = new Keycloak('keycloak.json');
+        keycloak.init({ onLoad: 'login-required' }).success(function () {
+          startAngular();
+        }).error(function () {
+          window.location.reload();
+        });
+
+      } else {
+
+        startAngular();
+
+      }
+
+    });
+  })();
+
+
+  app.constant('PROPERTIES', {
+    AUTH_ENABLED: authEnabled
+  });
+
+  app.config(function($stateProvider, $urlRouterProvider, $locationProvider,
+                      $httpProvider, keycloakProvider, PROPERTIES) {
     $locationProvider.html5Mode(false).hashPrefix('!');
 
     $stateProvider.state('error', {
@@ -105,10 +85,18 @@
 
     // Redirect any unmatched URLs to the error state.
     $urlRouterProvider.otherwise('/error');
-    }
-  );
 
-  app.run(function($rootScope, $log) {
+    if (PROPERTIES.AUTH_ENABLED) {
+      keycloakProvider.setKeycloak(keycloak);
+      $httpProvider.interceptors.push('authInterceptor');
+    } else {
+      keycloakProvider.useMockKeycloak();
+    }
+
+  });
+
+  app.run(function($rootScope, $log, authService) {
+
     // Handle errors with state changes.
     $rootScope.$on('$stateChangeError',
       function(event, toState, toParams, fromState, fromParams, error) {
@@ -117,6 +105,8 @@
           event, toState, toParams, fromState, fromParams, error);
       }
     );
+
+    $rootScope.auth = authService;
   });
 
 })();
