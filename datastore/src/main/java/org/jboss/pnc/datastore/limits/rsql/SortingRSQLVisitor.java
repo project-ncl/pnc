@@ -29,7 +29,7 @@ import cz.jirutka.rsql.parser.ast.NotInNode;
 import cz.jirutka.rsql.parser.ast.OrNode;
 import cz.jirutka.rsql.parser.ast.RSQLVisitor;
 
-public interface SortingRSQLVisitor<R, A> extends RSQLVisitor<R, A> {
+interface SortingRSQLVisitor<R, A> extends RSQLVisitor<R, A> {
 
     R visit(AscendingSortingNode node, A param);
 

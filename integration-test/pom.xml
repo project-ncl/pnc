@@ -42,6 +42,13 @@
       <artifactId>ear-package</artifactId>
       <scope>test</scope>
       <type>pom</type>
+      <exclusions>
+        <!-- Avoid using private apis -->
+        <exclusion>
+          <groupId>org.jboss.pnc</groupId>
+          <artifactId>datastore</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>

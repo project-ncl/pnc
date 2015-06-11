@@ -52,13 +52,10 @@
       <artifactId>validation-api</artifactId>
       <scope>provided</scope>
     </dependency>
+
     <dependency>
-      <groupId>com.mysema.querydsl</groupId>
-      <artifactId>querydsl-core</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>com.mysema.querydsl</groupId>
-      <artifactId>querydsl-jpa</artifactId>
+      <groupId>org.hibernate</groupId>
+      <artifactId>hibernate-jpamodelgen</artifactId>
     </dependency>
 
     <dependency>
@@ -84,14 +81,5 @@
       </dependency>
     </dependencies>
   </dependencyManagement>
-
-  <build>
-    <plugins>
-      <plugin>
-        <groupId>com.mysema.maven</groupId>
-        <artifactId>maven-apt-plugin</artifactId>
-      </plugin>
-    </plugins>
-  </build>
 
 </project>

@@ -100,12 +100,8 @@
       <artifactId>spring-data-commons</artifactId>
     </dependency>
     <dependency>
-      <groupId>com.mysema.querydsl</groupId>
-      <artifactId>querydsl-core</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>com.mysema.querydsl</groupId>
-      <artifactId>querydsl-jpa</artifactId>
+      <groupId>commons-beanutils</groupId>
+      <artifactId>commons-beanutils</artifactId>
     </dependency>
 
     <dependency>

@@ -21,18 +21,15 @@ import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.junit.InSequence;
 import org.jboss.arquillian.transaction.api.annotation.Transactional;
-import org.jboss.pnc.datastore.limits.RSQLPageLimitAndSortingProducer;
-import org.jboss.pnc.datastore.repositories.BuildRecordRepository;
-import org.jboss.pnc.datastore.repositories.BuildRecordSetRepository;
-import org.jboss.pnc.datastore.repositories.ProductMilestoneRepository;
-import org.jboss.pnc.datastore.repositories.ProductVersionRepository;
 import org.jboss.pnc.integration.deployments.Deployments;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.BuildRecordSet;
 import org.jboss.pnc.model.ProductMilestone;
-import org.jboss.pnc.model.ProductVersion;
 import org.jboss.pnc.rest.provider.BuildRecordSetProvider;
 import org.jboss.pnc.rest.restmodel.BuildRecordSetRest;
+import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
+import org.jboss.pnc.spi.datastore.repositories.BuildRecordSetRepository;
+import org.jboss.pnc.spi.datastore.repositories.ProductMilestoneRepository;
 import org.jboss.pnc.test.category.ContainerTest;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
@@ -43,7 +40,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
-
 import java.lang.invoke.MethodHandles;
 import java.util.List;
 
@@ -85,8 +81,8 @@ public class BuildRecordSetsTest {
     @Transactional
     public void shouldInsertValuesIntoDB() {
 
-        BuildRecord buildRecord = buildRecordRepository.findAll().iterator().next();
-        ProductMilestone productMilestone = productMilestoneRepository.findAll().iterator().next();
+        BuildRecord buildRecord = buildRecordRepository.queryAll().iterator().next();
+        ProductMilestone productMilestone = productMilestoneRepository.queryAll().iterator().next();
 
         buildRecordId = buildRecord.getId();
         productMilestoneId = productMilestone.getId();
@@ -103,8 +99,7 @@ public class BuildRecordSetsTest {
     @InSequence(1)
     public void shouldGetAllBuildRecordSets() {
         // when
-        List<BuildRecordSetRest> buildRecordSets = (List<BuildRecordSetRest>) buildRecordSetProvider.getAll(
-                RSQLPageLimitAndSortingProducer.DEFAULT_OFFSET, RSQLPageLimitAndSortingProducer.DEFAULT_SIZE, null, null);
+        List<BuildRecordSetRest> buildRecordSets = buildRecordSetProvider.getAll(0, 50, null, null);
 
         // then
         assertThat(buildRecordSets).isNotNull();
@@ -125,9 +120,7 @@ public class BuildRecordSetsTest {
     @InSequence(3)
     public void shouldGetBuildRecordSetOfProductMilestone() {
         // when
-        List<BuildRecordSetRest> buildRecordSetRests = buildRecordSetProvider.getAllForProductMilestone(
-                RSQLPageLimitAndSortingProducer.DEFAULT_OFFSET, RSQLPageLimitAndSortingProducer.DEFAULT_SIZE, null, null,
-                productMilestoneId);
+        List<BuildRecordSetRest> buildRecordSetRests = buildRecordSetProvider.getAllForProductMilestone(0, 50, null, null, productMilestoneId);
 
         // then
         assertThat(buildRecordSetRests).hasSize(1);
@@ -137,9 +130,7 @@ public class BuildRecordSetsTest {
     @InSequence(4)
     public void shouldGetBuildRecordSetOfBuildRecord() {
         // when
-        List<BuildRecordSetRest> buildRecordSetRests = buildRecordSetProvider.getAllForBuildRecord(
-                RSQLPageLimitAndSortingProducer.DEFAULT_OFFSET, RSQLPageLimitAndSortingProducer.DEFAULT_SIZE, null, null,
-                buildRecordId);
+        List<BuildRecordSetRest> buildRecordSetRests = buildRecordSetProvider.getAllForBuildRecord(0, 50, null, null, buildRecordId);
 
         // then
         assertThat(buildRecordSetRests).hasSize(1);
@@ -149,8 +140,8 @@ public class BuildRecordSetsTest {
     @InSequence(5)
     public void shouldNotCascadeDeletionOfBuildRecordSet() {
         // when
-        long buildRecordCount = buildRecordRepository.count();
-        long productMilestoneCount = productMilestoneRepository.count();
+        int buildRecordCount = buildRecordRepository.count();
+        int productMilestoneCount = productMilestoneRepository.count();
 
         buildRecordSetProvider.delete(buildRecordSetId);
 

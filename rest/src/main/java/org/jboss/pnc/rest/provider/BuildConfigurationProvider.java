@@ -18,40 +18,51 @@
 package org.jboss.pnc.rest.provider;
 
 import com.google.common.base.Preconditions;
-
-import org.jboss.pnc.datastore.limits.RSQLPageLimitAndSortingProducer;
-import org.jboss.pnc.datastore.predicates.RSQLPredicate;
-import org.jboss.pnc.datastore.predicates.RSQLPredicateProducer;
-import org.jboss.pnc.datastore.repositories.BuildConfigurationRepository;
-import org.jboss.pnc.datastore.repositories.ProductVersionRepository;
 import org.jboss.pnc.model.BuildConfiguration;
-import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.ProductVersion;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationRest;
 import org.jboss.pnc.rest.restmodel.ProductVersionRest;
-import org.springframework.data.domain.Pageable;
+import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationRepository;
+import org.jboss.pnc.spi.datastore.repositories.PageInfoProducer;
+import org.jboss.pnc.spi.datastore.repositories.ProductVersionRepository;
+import org.jboss.pnc.spi.datastore.repositories.SortInfoProducer;
+import org.jboss.pnc.spi.datastore.repositories.api.PageInfo;
+import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
+import org.jboss.pnc.spi.datastore.repositories.api.RSQLPredicateProducer;
+import org.jboss.pnc.spi.datastore.repositories.api.SortInfo;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
-
 import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static org.jboss.pnc.datastore.predicates.BuildConfigurationPredicates.*;
 import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
+import static org.jboss.pnc.spi.datastore.predicates.BuildConfigurationPredicates.*;
 
 @Stateless
 public class BuildConfigurationProvider {
 
     private BuildConfigurationRepository buildConfigurationRepository;
+
     private ProductVersionRepository productVersionRepository;
 
+    private RSQLPredicateProducer rsqlPredicateProducer;
+
+    private SortInfoProducer sortInfoProducer;
+
+    private PageInfoProducer pageInfoProducer;
+
     @Inject
-    public BuildConfigurationProvider(BuildConfigurationRepository buildConfigurationRepository, 
-            ProductVersionRepository productVersionRepository) {
+    public BuildConfigurationProvider(BuildConfigurationRepository buildConfigurationRepository,
+            ProductVersionRepository productVersionRepository, RSQLPredicateProducer rsqlPredicateProducer,
+            SortInfoProducer sortInfoProducer, PageInfoProducer pageInfoProducer) {
         this.buildConfigurationRepository = buildConfigurationRepository;
+        this.rsqlPredicateProducer = rsqlPredicateProducer;
+        this.sortInfoProducer = sortInfoProducer;
+        this.pageInfoProducer = pageInfoProducer;
+        this.productVersionRepository = productVersionRepository;
     }
 
     // needed for EJB/CDI
@@ -63,48 +74,53 @@ public class BuildConfigurationProvider {
     }
 
     public List<BuildConfigurationRest> getAll(int pageIndex, int pageSize, String sortingRsql, String query) {
-        RSQLPredicate filteringCriteria = RSQLPredicateProducer.fromRSQL(BuildConfiguration.class, query);
-        Pageable paging = RSQLPageLimitAndSortingProducer.fromRSQL(pageSize, pageIndex, sortingRsql);
+        Predicate<BuildConfiguration> rsqlPredicate = rsqlPredicateProducer.getPredicate(BuildConfiguration.class, query);
+        PageInfo pageInfo = pageInfoProducer.getPageInfo(pageIndex, pageSize);
+        SortInfo sortInfo = sortInfoProducer.getSortInfo(sortingRsql);
 
-        return nullableStreamOf(buildConfigurationRepository.findAll(filteringCriteria.get(), paging))
+        return nullableStreamOf(buildConfigurationRepository.queryWithPredicates(pageInfo, sortInfo, rsqlPredicate))
                 .map(toRestModel())
                 .collect(Collectors.toList());
     }
 
     public List<BuildConfigurationRest> getAllForProject(Integer pageIndex, Integer pageSize, String sortingRsql, String query,
             Integer projectId) {
-        RSQLPredicate filteringCriteria = RSQLPredicateProducer.fromRSQL(BuildConfiguration.class, query);
-        Pageable paging = RSQLPageLimitAndSortingProducer.fromRSQL(pageSize, pageIndex, sortingRsql);
+        Predicate<BuildConfiguration> rsqlPredicate = rsqlPredicateProducer.getPredicate(BuildConfiguration.class, query);
+        PageInfo pageInfo = pageInfoProducer.getPageInfo(pageIndex, pageSize);
+        SortInfo sortInfo = sortInfoProducer.getSortInfo(sortingRsql);
 
-        return mapToListOfBuildConfigurationRest(
-                buildConfigurationRepository.findAll(
-                        withProjectId(projectId)
-                                .and(filteringCriteria.get()), paging));
+        return nullableStreamOf(buildConfigurationRepository.queryWithPredicates(pageInfo, sortInfo, rsqlPredicate,
+                withProjectId(projectId)))
+                .map(toRestModel())
+                .collect(Collectors.toList());
     }
 
     public List<BuildConfigurationRest> getAllForProduct(int pageIndex, int pageSize, String sortingRsql, String query,
             Integer productId) {
-        RSQLPredicate filteringCriteria = RSQLPredicateProducer.fromRSQL(BuildConfiguration.class, query);
-        Pageable paging = RSQLPageLimitAndSortingProducer.fromRSQL(pageSize, pageIndex, sortingRsql);
-        return mapToListOfBuildConfigurationRest(
-                buildConfigurationRepository.findAll(
-                        withProductId(productId)
-                                .and(filteringCriteria.get()), paging));
+        Predicate<BuildConfiguration> rsqlPredicate = rsqlPredicateProducer.getPredicate(BuildConfiguration.class, query);
+        PageInfo pageInfo = pageInfoProducer.getPageInfo(pageIndex, pageSize);
+        SortInfo sortInfo = sortInfoProducer.getSortInfo(sortingRsql);
+
+        return nullableStreamOf(buildConfigurationRepository.queryWithPredicates(pageInfo, sortInfo, rsqlPredicate,
+                withProductId(productId)))
+                .map(toRestModel())
+                .collect(Collectors.toList());
     }
 
     public List<BuildConfigurationRest> getAllForProductAndProductVersion(int pageIndex, int pageSize,
             String sortingRsql, String query, Integer productId, Integer versionId) {
-        RSQLPredicate filteringCriteria = RSQLPredicateProducer.fromRSQL(BuildConfiguration.class, query);
-        Pageable paging = RSQLPageLimitAndSortingProducer.fromRSQL(pageSize, pageIndex, sortingRsql);
+        Predicate<BuildConfiguration> rsqlPredicate = rsqlPredicateProducer.getPredicate(BuildConfiguration.class, query);
+        PageInfo pageInfo = pageInfoProducer.getPageInfo(pageIndex, pageSize);
+        SortInfo sortInfo = sortInfoProducer.getSortInfo(sortingRsql);
 
-        return mapToListOfBuildConfigurationRest(buildConfigurationRepository.findAll(
-                withProductId(productId)
-                        .and(withProductVersionId(versionId))
-                        .and(filteringCriteria.get()), paging));
+        return nullableStreamOf(buildConfigurationRepository.queryWithPredicates(pageInfo, sortInfo, rsqlPredicate,
+                withProductVersionId(versionId), withProductId(productId)))
+                .map(toRestModel())
+                .collect(Collectors.toList());
     }
 
     public BuildConfigurationRest getSpecific(Integer id) {
-        BuildConfiguration projectConfiguration = buildConfigurationRepository.findOne(withConfigurationId(id));
+        BuildConfiguration projectConfiguration = buildConfigurationRepository.queryByPredicates(withConfigurationId(id));
         return toRestModel().apply(projectConfiguration);
     }
 
@@ -120,7 +136,7 @@ public class BuildConfigurationProvider {
         Preconditions.checkArgument(buildConfigurationRest.getId() == null || buildConfigurationRest.getId().equals(id),
                 "Entity id does not match the id to update");
         buildConfigurationRest.setId(id);
-        BuildConfiguration buildConfiguration = buildConfigurationRepository.findOne(id);
+        BuildConfiguration buildConfiguration = buildConfigurationRepository.queryById(id);
         Preconditions.checkArgument(buildConfiguration != null, "Couldn't find buildConfiguration with id "
                 + buildConfigurationRest.getId());
         buildConfiguration = buildConfigurationRepository.save(buildConfigurationRest.toBuildConfiguration(buildConfiguration));
@@ -128,7 +144,7 @@ public class BuildConfigurationProvider {
   }
 
     public Integer clone(Integer buildConfigurationId) {
-        BuildConfiguration buildConfiguration = buildConfigurationRepository.findOne(buildConfigurationId);
+        BuildConfiguration buildConfiguration = buildConfigurationRepository.queryById(buildConfigurationId);
         Preconditions.checkArgument(buildConfiguration != null, "Couldn't find buildConfiguration with id "
                 + buildConfigurationId);
 
@@ -142,27 +158,22 @@ public class BuildConfigurationProvider {
         buildConfigurationRepository.delete(configurationId);
     }
 
-    private List<BuildConfigurationRest> mapToListOfBuildConfigurationRest(Iterable<BuildConfiguration> entries) {
-        return nullableStreamOf(entries).map(projectConfiguration -> new BuildConfigurationRest(projectConfiguration)).collect(
-                Collectors.toList());
-    }
-
     public void addDependency(Integer configId, Integer dependencyId) {
-        BuildConfiguration buildConfig = buildConfigurationRepository.findOne(configId);
-        BuildConfiguration dependency = buildConfigurationRepository.findOne(dependencyId);
+        BuildConfiguration buildConfig = buildConfigurationRepository.queryById(configId);
+        BuildConfiguration dependency = buildConfigurationRepository.queryById(dependencyId);
         buildConfig.addDependency(dependency);
         buildConfigurationRepository.save(buildConfig);
     }
 
     public void removeDependency(Integer configId, Integer dependencyId) {
-        BuildConfiguration buildConfig = buildConfigurationRepository.findOne(configId);
-        BuildConfiguration dependency = buildConfigurationRepository.findOne(dependencyId);
+        BuildConfiguration buildConfig = buildConfigurationRepository.queryById(configId);
+        BuildConfiguration dependency = buildConfigurationRepository.queryById(dependencyId);
         buildConfig.removeDependency(dependency);
         buildConfigurationRepository.save(buildConfig);
     }
 
     public List<BuildConfigurationRest> getDependencies(Integer configId) {
-        BuildConfiguration buildConfig = buildConfigurationRepository.findOne(configId);
+        BuildConfiguration buildConfig = buildConfigurationRepository.queryById(configId);
         Set<BuildConfiguration> buildConfigurations = buildConfig.getDependencies();
         return nullableStreamOf(buildConfigurations)
                 .map(toRestModel())
@@ -170,21 +181,21 @@ public class BuildConfigurationProvider {
     }
 
     public void addProductVersion(Integer configId, Integer productVersionId) {
-        BuildConfiguration buildConfig = buildConfigurationRepository.findOne(configId);
-        ProductVersion productVersion = productVersionRepository.findOne(productVersionId);
+        BuildConfiguration buildConfig = buildConfigurationRepository.queryById(configId);
+        ProductVersion productVersion = productVersionRepository.queryById(productVersionId);
         buildConfig.addProductVersion(productVersion);
         buildConfigurationRepository.save(buildConfig);
     }
 
     public void removeProductVersion(Integer configId, Integer productVersionId) {
-        BuildConfiguration buildConfig = buildConfigurationRepository.findOne(configId);
-        ProductVersion productVersion = productVersionRepository.findOne(productVersionId);
+        BuildConfiguration buildConfig = buildConfigurationRepository.queryById(configId);
+        ProductVersion productVersion = productVersionRepository.queryById(productVersionId);
         buildConfig.removeProductVersion(productVersion);
         buildConfigurationRepository.save(buildConfig);
     }
 
     public List<ProductVersionRest> getProductVersions(Integer configId) {
-        BuildConfiguration buildConfig = buildConfigurationRepository.findOne(configId);
+        BuildConfiguration buildConfig = buildConfigurationRepository.queryById(configId);
         Set<ProductVersion> productVersions = buildConfig.getProductVersions();
         return nullableStreamOf(productVersions)
                 .map(productVersionToRestModel())

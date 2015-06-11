@@ -17,15 +17,14 @@
  */
 package org.jboss.pnc.demo.data;
 
-import java.lang.invoke.MethodHandles;
+import org.jboss.logging.Logger;
+import org.jboss.pnc.spi.datastore.repositories.ProjectRepository;
 
 import javax.annotation.PostConstruct;
 import javax.ejb.Singleton;
 import javax.ejb.Startup;
 import javax.inject.Inject;
-
-import org.jboss.logging.Logger;
-import org.jboss.pnc.datastore.repositories.ProjectRepository;
+import java.lang.invoke.MethodHandles;
 
 /**
  * This class runs at startup to initialize the application data.
@@ -39,8 +38,7 @@ public class DemoDataInitializer {
     @Inject
     DatabaseDataInitializer dbDataInitializer;
 
-    @Inject
-    ProjectRepository projectRepository;
+    @Inject ProjectRepository projectRepository;
 
     @PostConstruct
     public void initialize() {

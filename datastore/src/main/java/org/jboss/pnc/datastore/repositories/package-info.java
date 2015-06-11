@@ -16,13 +16,9 @@
  * limitations under the License.
  */
 /**
- * Spring Data's repositories.
+ * Spring Data's repositories which should be exposed outside of this module.
  *
- * <p>
- *     For creating advanced queries please consider using Query DLS predicates.
- * </p>
- *
- * @see org.jboss.pnc.datastore.repositories
+ * @see org.jboss.pnc.spi.datastore.repositories
  * @author Sebastian Laskawiec
  */
 package org.jboss.pnc.datastore.repositories;

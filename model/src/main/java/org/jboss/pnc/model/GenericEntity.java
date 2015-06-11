@@ -22,6 +22,6 @@ import java.io.Serializable;
 /**
  * Generic Entity interface. All entities should implement it.
  */
-public interface GenericEntity<ID extends Number> extends Serializable {
+public interface GenericEntity<ID extends Serializable> extends Serializable {
     ID getId();
 }

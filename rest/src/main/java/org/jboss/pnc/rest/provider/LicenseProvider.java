@@ -18,13 +18,15 @@
 package org.jboss.pnc.rest.provider;
 
 import com.google.common.base.Preconditions;
-import org.jboss.pnc.datastore.limits.RSQLPageLimitAndSortingProducer;
-import org.jboss.pnc.datastore.predicates.RSQLPredicate;
-import org.jboss.pnc.datastore.predicates.RSQLPredicateProducer;
-import org.jboss.pnc.datastore.repositories.LicenseRepository;
 import org.jboss.pnc.model.License;
 import org.jboss.pnc.rest.restmodel.LicenseRest;
-import org.springframework.data.domain.Pageable;
+import org.jboss.pnc.spi.datastore.repositories.LicenseRepository;
+import org.jboss.pnc.spi.datastore.repositories.PageInfoProducer;
+import org.jboss.pnc.spi.datastore.repositories.SortInfoProducer;
+import org.jboss.pnc.spi.datastore.repositories.api.PageInfo;
+import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
+import org.jboss.pnc.spi.datastore.repositories.api.RSQLPredicateProducer;
+import org.jboss.pnc.spi.datastore.repositories.api.SortInfo;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
@@ -39,26 +41,36 @@ public class LicenseProvider {
 
     private LicenseRepository licenseRepository;
 
+    private RSQLPredicateProducer rsqlPredicateProducer;
+
+    private SortInfoProducer sortInfoProducer;
+
+    private PageInfoProducer pageInfoProducer;
+
     // needed for EJB/CDI
     public LicenseProvider() {
     }
 
     @Inject
-    public LicenseProvider(LicenseRepository licenseRepository) {
+    public LicenseProvider(LicenseRepository licenseRepository, RSQLPredicateProducer rsqlPredicateProducer, SortInfoProducer sortInfoProducer, PageInfoProducer pageInfoProducer) {
         this.licenseRepository = licenseRepository;
+        this.rsqlPredicateProducer = rsqlPredicateProducer;
+        this.sortInfoProducer = sortInfoProducer;
+        this.pageInfoProducer = pageInfoProducer;
     }
 
     public List<LicenseRest> getAll(int pageIndex, int pageSize, String sortingRsql, String query) {
-        RSQLPredicate filteringCriteria = RSQLPredicateProducer.fromRSQL(License.class, query);
-        Pageable paging = RSQLPageLimitAndSortingProducer.fromRSQL(pageSize, pageIndex, sortingRsql);
+        Predicate<License> rsqlPredicate = rsqlPredicateProducer.getPredicate(License.class, query);
+        PageInfo pageInfo = pageInfoProducer.getPageInfo(pageIndex, pageSize);
+        SortInfo sortInfo = sortInfoProducer.getSortInfo(sortingRsql);
 
-        return nullableStreamOf(licenseRepository.findAll(filteringCriteria.get(), paging))
+        return nullableStreamOf(licenseRepository.queryWithPredicates(pageInfo, sortInfo, rsqlPredicate))
                 .map(toRestModel())
                 .collect(Collectors.toList());
     }
 
     public LicenseRest getSpecific(Integer id) {
-        License license = licenseRepository.findOne(id);
+        License license = licenseRepository.queryById(id);
         if (license != null) {
             return new LicenseRest(license);
         }
@@ -75,13 +87,13 @@ public class LicenseProvider {
         Preconditions.checkArgument(licenseRest.getId() == null || licenseRest.getId().equals(id),
                 "Entity id does not match the id to update");
         licenseRest.setId(id);
-        License license = licenseRepository.findOne(licenseRest.getId());
+        License license = licenseRepository.queryById(id);
         Preconditions.checkArgument(license != null, "Couldn't find license with id " + licenseRest.getId());
-        licenseRepository.saveAndFlush(licenseRest.toLicense());
+        licenseRepository.save(licenseRest.toLicense());
     }
 
     public void delete(Integer id) {
-        Preconditions.checkArgument(licenseRepository.exists(id), "Couldn't find license with id " + id);
+        Preconditions.checkArgument(licenseRepository.queryById(id) != null, "Couldn't find license with id " + id);
         licenseRepository.delete(id);
     }
 

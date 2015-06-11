@@ -22,12 +22,11 @@ import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.junit.InSequence;
 import org.jboss.arquillian.transaction.api.annotation.TransactionMode;
 import org.jboss.arquillian.transaction.api.annotation.Transactional;
-import org.jboss.pnc.datastore.audit.AuditRepository;
-import org.jboss.pnc.datastore.audit.Revision;
-import org.jboss.pnc.datastore.configuration.JpaConfiguration;
-import org.jboss.pnc.datastore.repositories.*;
 import org.jboss.pnc.integration.deployments.Deployments;
 import org.jboss.pnc.model.*;
+import org.jboss.pnc.spi.datastore.audit.AuditRepository;
+import org.jboss.pnc.spi.datastore.audit.Revision;
+import org.jboss.pnc.spi.datastore.repositories.*;
 import org.jboss.pnc.test.category.ContainerTest;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
@@ -95,10 +94,6 @@ public class DatastoreTest {
         JavaArchive pncModel = enterpriseArchive.getAsType(JavaArchive.class, "/model.jar");
         pncModel.addPackage(BuildConfiguration.class.getPackage());
 
-        JavaArchive datastore = enterpriseArchive.getAsType(JavaArchive.class, "/datastore.jar");
-        datastore.addPackage(BuildConfigurationRepository.class.getPackage());
-        datastore.addPackage(JpaConfiguration.class.getPackage());
-
         logger.info(enterpriseArchive.toString(true));
         return enterpriseArchive;
     }
@@ -120,7 +115,7 @@ public class DatastoreTest {
         BuildConfiguration testedConfiguration = BuildConfiguration.Builder.newBuilder()
                 .environment(environment).name(ORIGINAL_NAME).project(project).build();
 
-        testedConfigurationId = buildConfigurationRepository.saveAndFlush(testedConfiguration).getId();
+        testedConfigurationId = buildConfigurationRepository.save(testedConfiguration).getId();
     }
 
     /**
@@ -129,17 +124,17 @@ public class DatastoreTest {
     @Test
     @InSequence(-1)
     public void modifyDataForAuditTest() throws Exception {
-        BuildConfiguration testedConfiguration = buildConfigurationRepository.findOne(testedConfigurationId);
+        BuildConfiguration testedConfiguration = buildConfigurationRepository.queryById(testedConfigurationId);
 
-        testedConfiguration = buildConfigurationRepository.saveAndFlush(testedConfiguration);
+        testedConfiguration = buildConfigurationRepository.save(testedConfiguration);
         testedConfiguration.setName(CHANGED_NAME);
-        testedConfiguration = buildConfigurationRepository.saveAndFlush(testedConfiguration);
+        testedConfiguration = buildConfigurationRepository.save(testedConfiguration);
     }
 
     @Test
     public void shouldCreateAuditedBuildConfigurationWhenUpdating() throws Exception {
         //given
-        BuildConfiguration testedConfiguration = buildConfigurationRepository.findOne(testedConfigurationId);
+        BuildConfiguration testedConfiguration = buildConfigurationRepository.queryById(testedConfigurationId);
 
         //when
         List<Revision<BuildConfiguration, Integer>> revisions = auditedBuildConfigurationRepository.getAllRevisions();

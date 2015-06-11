@@ -18,27 +18,24 @@
 package org.jboss.pnc.rest.provider;
 
 import com.google.common.base.Preconditions;
-
-import org.jboss.pnc.datastore.limits.RSQLPageLimitAndSortingProducer;
-import org.jboss.pnc.datastore.predicates.RSQLPredicate;
-import org.jboss.pnc.datastore.predicates.RSQLPredicateProducer;
-import org.jboss.pnc.datastore.repositories.UserRepository;
-import org.jboss.pnc.model.Project;
 import org.jboss.pnc.model.User;
-import org.jboss.pnc.rest.restmodel.ProjectRest;
 import org.jboss.pnc.rest.restmodel.UserRest;
-import org.springframework.data.domain.Pageable;
+import org.jboss.pnc.spi.datastore.predicates.UserPredicates;
+import org.jboss.pnc.spi.datastore.repositories.PageInfoProducer;
+import org.jboss.pnc.spi.datastore.repositories.SortInfoProducer;
+import org.jboss.pnc.spi.datastore.repositories.UserRepository;
+import org.jboss.pnc.spi.datastore.repositories.api.PageInfo;
+import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
+import org.jboss.pnc.spi.datastore.repositories.api.RSQLPredicateProducer;
+import org.jboss.pnc.spi.datastore.repositories.api.SortInfo;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
-
 import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static org.jboss.pnc.common.util.StringUtils.isEmpty;
-import static org.jboss.pnc.datastore.predicates.UserPredicates.withEmail;
-import static org.jboss.pnc.datastore.predicates.UserPredicates.withUsername;
 import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
 
 @Stateless
@@ -46,25 +43,36 @@ public class UserProvider {
 
     private UserRepository userRepository;
 
+    private RSQLPredicateProducer rsqlPredicateProducer;
+
+    private SortInfoProducer sortInfoProducer;
+
+    private PageInfoProducer pageInfoProducer;
+
     // needed for EJB/CDI
     public UserProvider() {
     }
 
     @Inject
-    public UserProvider(UserRepository userRepository) {
+    public UserProvider(UserRepository userRepository, RSQLPredicateProducer rsqlPredicateProducer, SortInfoProducer sortInfoProducer,
+            PageInfoProducer pageInfoProducer) {
         this.userRepository = userRepository;
+        this.rsqlPredicateProducer = rsqlPredicateProducer;
+        this.sortInfoProducer = sortInfoProducer;
+        this.pageInfoProducer = pageInfoProducer;
     }
 
     public List<UserRest> getAll(int pageIndex, int pageSize, String sortingRsql, String query) {
-        RSQLPredicate filteringCriteria = RSQLPredicateProducer.fromRSQL(User.class, query);
-        Pageable paging = RSQLPageLimitAndSortingProducer.fromRSQL(pageSize, pageIndex, sortingRsql);
-        return nullableStreamOf(userRepository.findAll(filteringCriteria.get(), paging))
+        Predicate<User> rsqlPredicate = rsqlPredicateProducer.getPredicate(User.class, query);
+        PageInfo pageInfo = pageInfoProducer.getPageInfo(pageIndex, pageSize);
+        SortInfo sortInfo = sortInfoProducer.getSortInfo(sortingRsql);
+        return nullableStreamOf(userRepository.queryWithPredicates(pageInfo, sortInfo, rsqlPredicate))
                 .map(toRestModel())
                 .collect(Collectors.toList());
     }
 
     public UserRest getSpecific(Integer userId) {
-        User user = userRepository.findOne(userId);
+        User user = userRepository.queryById(userId);
         if (user != null) {
             return new UserRest(user);
         }
@@ -91,7 +99,7 @@ public class UserProvider {
         userRest.setId(id);
         checkForConflictingUser(userRest);
 
-        User user = userRepository.findOne(id);
+        User user = userRepository.queryById(id);
         Preconditions.checkArgument(user != null, "Couldn't find user with id " + id);
         user = userRepository.save(userRest.toUser());
         return user.getId();
@@ -109,7 +117,8 @@ public class UserProvider {
      * @param userRest
      */
     public void checkForConflictingUser(UserRest userRest) {
-        Iterable<User> conflictingUsers = userRepository.findAll(withUsername(userRest.getUsername()).or(withEmail(userRest.getEmail())));
+        List<User> conflictingUsers = userRepository.queryWithPredicates(UserPredicates.withUserName(userRest.getUsername()));
+        conflictingUsers.addAll(userRepository.queryWithPredicates(UserPredicates.withEmail(userRest.getEmail())));
         for (User conflict : conflictingUsers) {
             if ( !conflict.getId().equals(userRest.getId()) ) {
                 if ( userRest.getUsername().equals(conflict.getUsername())) {

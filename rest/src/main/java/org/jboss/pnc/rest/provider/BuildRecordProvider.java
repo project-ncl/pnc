@@ -17,25 +17,24 @@
  */
 package org.jboss.pnc.rest.provider;
 
-import static org.jboss.pnc.datastore.predicates.BuildRecordPredicates.*;
-import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
-
+import com.google.common.base.Strings;
 import org.jboss.pnc.core.builder.BuildCoordinator;
 import org.jboss.pnc.core.builder.BuildTask;
-import org.jboss.pnc.datastore.limits.RSQLPageLimitAndSortingProducer;
-import org.jboss.pnc.datastore.predicates.RSQLPredicate;
-import org.jboss.pnc.datastore.predicates.RSQLPredicateProducer;
-import org.jboss.pnc.datastore.repositories.BuildRecordRepository;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.rest.restmodel.BuildRecordRest;
+import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
+import org.jboss.pnc.spi.datastore.repositories.PageInfoProducer;
+import org.jboss.pnc.spi.datastore.repositories.SortInfoProducer;
+import org.jboss.pnc.spi.datastore.repositories.api.PageInfo;
+import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
+import org.jboss.pnc.spi.datastore.repositories.api.RSQLPredicateProducer;
+import org.jboss.pnc.spi.datastore.repositories.api.SortInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.data.domain.Pageable;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.ws.rs.core.StreamingOutput;
-
 import java.io.BufferedWriter;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
@@ -44,7 +43,8 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import com.google.common.base.Strings;
+import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
+import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.*;
 
 @Stateless
 public class BuildRecordProvider {
@@ -52,22 +52,33 @@ public class BuildRecordProvider {
     private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
     private BuildRecordRepository buildRecordRepository;
+
     private BuildCoordinator buildCoordinator;
+
+    private RSQLPredicateProducer rsqlPredicateProducer;
+
+    private SortInfoProducer sortInfoProducer;
+
+    private PageInfoProducer pageInfoProducer;
 
     public BuildRecordProvider() {
     }
 
     @Inject
-    public BuildRecordProvider(BuildRecordRepository buildRecordRepository, BuildCoordinator buildCoordinator) {
+    public BuildRecordProvider(BuildRecordRepository buildRecordRepository, BuildCoordinator buildCoordinator,
+            PageInfoProducer pageInfoProducer, RSQLPredicateProducer rsqlPredicateProducer, SortInfoProducer sortInfoProducer) {
         this.buildRecordRepository = buildRecordRepository;
         this.buildCoordinator = buildCoordinator;
+        this.rsqlPredicateProducer = rsqlPredicateProducer;
+        this.sortInfoProducer = sortInfoProducer;
+        this.pageInfoProducer = pageInfoProducer;
     }
 
     public List<BuildRecordRest> getAllArchived(int pageIndex, int pageSize, String sortingRsql, String query) {
-        RSQLPredicate filteringCriteria = RSQLPredicateProducer.fromRSQL(BuildRecord.class, query);
-        Pageable paging = RSQLPageLimitAndSortingProducer.fromRSQL(pageSize, pageIndex, sortingRsql);
-
-        return nullableStreamOf(buildRecordRepository.findAll(filteringCriteria.get(), paging))
+        Predicate<BuildRecord> rsqlPredicate = rsqlPredicateProducer.getPredicate(BuildRecord.class, query);
+        PageInfo pageInfo = pageInfoProducer.getPageInfo(pageIndex, pageSize);
+        SortInfo sortInfo = sortInfoProducer.getSortInfo(sortingRsql);
+        return nullableStreamOf(buildRecordRepository.queryWithPredicates(pageInfo, sortInfo, rsqlPredicate))
                 .map(toRestModel())
                 .collect(Collectors.toList());
     }
@@ -88,34 +99,34 @@ public class BuildRecordProvider {
     }
 
     public List<BuildRecordRest> getAllArchivedOfBuildConfiguration(int pageIndex, int pageSize, String sortingRsql, String query, Integer buildRecordId) {
-        RSQLPredicate filteringCriteria = RSQLPredicateProducer.fromRSQL(BuildRecord.class, query);
-        Pageable paging = RSQLPageLimitAndSortingProducer.fromRSQL(pageSize, pageIndex, sortingRsql);
-
-        return nullableStreamOf(buildRecordRepository.findAll(withBuildRecordId(buildRecordId).and(filteringCriteria.get()), paging))
-                .map(buildRecord -> new BuildRecordRest(buildRecord))
+        Predicate<BuildRecord> rsqlPredicate = rsqlPredicateProducer.getPredicate(BuildRecord.class, query);
+        PageInfo pageInfo = pageInfoProducer.getPageInfo(pageIndex, pageSize);
+        SortInfo sortInfo = sortInfoProducer.getSortInfo(sortingRsql);
+        return nullableStreamOf(buildRecordRepository.queryWithPredicates(pageInfo, sortInfo, rsqlPredicate, withBuildRecordId(buildRecordId)))
+                .map(toRestModel())
                 .collect(Collectors.toList());
     }
 
     public List<BuildRecordRest> getAllForBuildConfiguration(int pageIndex, int pageSize, String sortingRsql, String query, Integer configurationId) {
-        RSQLPredicate filteringCriteria = RSQLPredicateProducer.fromRSQL(BuildRecord.class, query);
-        Pageable paging = RSQLPageLimitAndSortingProducer.fromRSQL(pageSize, pageIndex, sortingRsql);
-
-        return nullableStreamOf(buildRecordRepository.findAll(withBuildConfigurationId(configurationId).and(filteringCriteria.get()), paging))
-                .map(buildRecord -> new BuildRecordRest(buildRecord))
+        Predicate<BuildRecord> rsqlPredicate = rsqlPredicateProducer.getPredicate(BuildRecord.class, query);
+        PageInfo pageInfo = pageInfoProducer.getPageInfo(pageIndex, pageSize);
+        SortInfo sortInfo = sortInfoProducer.getSortInfo(sortingRsql);
+        return nullableStreamOf(buildRecordRepository.queryWithPredicates(pageInfo, sortInfo, rsqlPredicate, withBuildConfigurationId(configurationId)))
+                .map(toRestModel())
                 .collect(Collectors.toList());
     }
 
     public List<BuildRecordRest> getAllForProject(int pageIndex, int pageSize, String sortingRsql, String query, Integer projectId) {
-        RSQLPredicate filteringCriteria = RSQLPredicateProducer.fromRSQL(BuildRecord.class, query);
-        Pageable paging = RSQLPageLimitAndSortingProducer.fromRSQL(pageSize, pageIndex, sortingRsql);
-
-        return nullableStreamOf(buildRecordRepository.findAll(withProjectId(projectId).and(filteringCriteria.get()), paging))
-                .map(buildRecord -> new BuildRecordRest(buildRecord))
+        Predicate<BuildRecord> rsqlPredicate = rsqlPredicateProducer.getPredicate(BuildRecord.class, query);
+        PageInfo pageInfo = pageInfoProducer.getPageInfo(pageIndex, pageSize);
+        SortInfo sortInfo = sortInfoProducer.getSortInfo(sortingRsql);
+        return nullableStreamOf(buildRecordRepository.queryWithPredicates(pageInfo, sortInfo, rsqlPredicate, withProjectId(projectId)))
+                .map(toRestModel())
                 .collect(Collectors.toList());
     }
 
     public BuildRecordRest getSpecific(Integer id) {
-        BuildRecord buildRecord = buildRecordRepository.findOne(id);
+        BuildRecord buildRecord = buildRecordRepository.queryById(id);
         if (buildRecord != null) {
             return new BuildRecordRest(buildRecord);
         }
@@ -124,7 +135,7 @@ public class BuildRecordProvider {
     
 
     public String getBuildRecordLog(Integer id) {
-        BuildRecord buildRecord = buildRecordRepository.findOne(id);
+        BuildRecord buildRecord = buildRecordRepository.queryById(id);
         if(buildRecord != null)
             return buildRecord.getBuildLog();
         else 

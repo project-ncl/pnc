@@ -17,30 +17,27 @@
  */
 package org.jboss.pnc.integration;
 
-import cz.jirutka.rsql.parser.RSQLParserException;
-
 import org.assertj.core.api.Condition;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.junit.InSequence;
 import org.jboss.arquillian.transaction.api.annotation.Transactional;
-import org.jboss.pnc.datastore.predicates.ArtifactPredicates;
-import org.jboss.pnc.datastore.predicates.RSQLPredicateProducer;
-import org.jboss.pnc.datastore.predicates.rsql.RSQLNodeTravellerPredicate;
-import org.jboss.pnc.datastore.repositories.BuildConfigurationAuditedRepository;
-import org.jboss.pnc.datastore.repositories.BuildConfigurationRepository;
-import org.jboss.pnc.datastore.repositories.BuildRecordRepository;
-import org.jboss.pnc.datastore.repositories.UserRepository;
 import org.jboss.pnc.integration.deployments.Deployments;
 import org.jboss.pnc.model.*;
 import org.jboss.pnc.rest.provider.ArtifactProvider;
 import org.jboss.pnc.rest.provider.BuildRecordProvider;
 import org.jboss.pnc.rest.restmodel.ArtifactRest;
 import org.jboss.pnc.rest.restmodel.BuildRecordRest;
+import org.jboss.pnc.rest.utils.StreamHelper;
 import org.jboss.pnc.spi.datastore.Datastore;
+import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationAuditedRepository;
+import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationRepository;
+import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
+import org.jboss.pnc.spi.datastore.repositories.UserRepository;
+import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
+import org.jboss.pnc.spi.datastore.repositories.api.RSQLPredicateProducer;
 import org.jboss.pnc.test.category.ContainerTest;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
-import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -50,7 +47,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import javax.ws.rs.core.StreamingOutput;
-
 import java.lang.invoke.MethodHandles;
 import java.sql.Timestamp;
 import java.time.Instant;
@@ -58,7 +54,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
 
 @RunWith(Arquillian.class)
 @Category(ContainerTest.class)
@@ -91,16 +86,15 @@ public class BuildRecordsTest {
     @Inject
     private Datastore datastore;
 
+    @Inject
+    private RSQLPredicateProducer rsqlPredicateProducer;
+
     @Deployment
     public static EnterpriseArchive deploy() {
         EnterpriseArchive enterpriseArchive = Deployments.baseEarWithTestDependencies();
         WebArchive war = enterpriseArchive.getAsType(WebArchive.class, "/rest.war");
         war.addClass(BuildRecordsTest.class);
         war.addClass(ArtifactProvider.class);
-
-        JavaArchive datastoreJar = enterpriseArchive.getAsType(JavaArchive.class, "/datastore.jar");
-        datastoreJar.addClass(ArtifactPredicates.class);
-        datastoreJar.addPackage(RSQLNodeTravellerPredicate.class.getPackage());
 
         logger.info(enterpriseArchive.toString(true));
         return enterpriseArchive;
@@ -111,9 +105,9 @@ public class BuildRecordsTest {
     @InSequence(-1)
     @Transactional
     public void shouldInsertValuesIntoDB() {
-        BuildConfigurationAudited buildConfigurationAudited = buildConfigurationAuditedRepository.findAll().iterator().next();
+        BuildConfigurationAudited buildConfigurationAudited = buildConfigurationAuditedRepository.queryAll().iterator().next();
         buildConfigName = buildConfigurationAudited.getName();
-        BuildConfiguration buildConfiguration = buildConfigurationRepository.findOne(buildConfigurationAudited.getId());
+        BuildConfiguration buildConfiguration = buildConfigurationRepository.queryById(buildConfigurationAudited.getId().getId());
 
         Artifact builtArtifact = new Artifact();
         builtArtifact.setIdentifier("test");
@@ -123,7 +117,7 @@ public class BuildRecordsTest {
         importedArtifact.setIdentifier("test");
         importedArtifact.setStatus(ArtifactStatus.BINARY_IMPORTED);
 
-        List<User> users = userRepository.findAll();
+        List<User> users = userRepository.queryAll();
         assertThat(users.size() > 0).isTrue();
         User user = users.get(0);
 
@@ -151,7 +145,7 @@ public class BuildRecordsTest {
     @Test
     public void shouldGetAllBuildRecords() {
         // when
-        List<BuildRecordRest> buildRecords = (List<BuildRecordRest>) buildRecordProvider.getAllArchived(0, 999, null, null);
+        List<BuildRecordRest> buildRecords = buildRecordProvider.getAllArchived(0, 999, null, null);
 
         // then
         assertThat(buildRecords).isNotNull();
@@ -182,7 +176,7 @@ public class BuildRecordsTest {
         // when
         List<ArtifactRest> artifacts = artifactProvider.getAll(0, 999, null, null, buildRecordId);
 
-        // then
+        //then
         assertThat(artifacts).hasSize(2);
     }
 
@@ -213,7 +207,7 @@ public class BuildRecordsTest {
     }
 
     @Test
-    public void shouldGetBuildRecordByName() throws RSQLParserException {
+    public void shouldGetBuildRecordByName() {
         // given
         String rsqlQuery = "buildConfigurationAudited.name==" + buildConfigName;
 
@@ -225,7 +219,7 @@ public class BuildRecordsTest {
     }
 
     @Test
-    public void shouldNotGetBuildRecordByWrongName() throws RSQLParserException {
+    public void shouldNotGetBuildRecordByWrongName() {
         // given
         String rsqlQuery = "buildConfigurationAudited.name==not-existing-br-name";
 
@@ -236,11 +230,9 @@ public class BuildRecordsTest {
         assertThat(buildRecords).isEmpty();
     }
 
-    private List<BuildRecord> selectBuildRecords(String rsqlQuery) throws RSQLParserException {
-
-        return nullableStreamOf(
-                buildRecordRepository.findAll(RSQLPredicateProducer.fromRSQL(BuildRecord.class, rsqlQuery).get())).collect(
-                Collectors.toList());
+    private List<BuildRecord> selectBuildRecords(String rsqlQuery) {
+        Predicate<BuildRecord> rsqlPredicate = rsqlPredicateProducer.getPredicate(BuildRecord.class, rsqlQuery);
+        return StreamHelper.nullableStreamOf(buildRecordRepository.queryWithPredicates(rsqlPredicate)).collect(Collectors.toList());
     }
 
     class IsImported extends Condition<ArtifactRest> {

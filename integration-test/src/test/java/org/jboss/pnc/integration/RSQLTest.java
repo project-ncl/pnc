@@ -17,15 +17,18 @@
  */
 package org.jboss.pnc.integration;
 
-import cz.jirutka.rsql.parser.RSQLParserException;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.transaction.api.annotation.Transactional;
-import org.jboss.pnc.datastore.limits.RSQLPageLimitAndSortingProducer;
-import org.jboss.pnc.datastore.predicates.RSQLPredicateProducer;
-import org.jboss.pnc.datastore.repositories.UserRepository;
 import org.jboss.pnc.integration.deployments.Deployments;
 import org.jboss.pnc.model.User;
+import org.jboss.pnc.spi.datastore.repositories.PageInfoProducer;
+import org.jboss.pnc.spi.datastore.repositories.SortInfoProducer;
+import org.jboss.pnc.spi.datastore.repositories.UserRepository;
+import org.jboss.pnc.spi.datastore.repositories.api.PageInfo;
+import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
+import org.jboss.pnc.spi.datastore.repositories.api.RSQLPredicateProducer;
+import org.jboss.pnc.spi.datastore.repositories.api.SortInfo;
 import org.jboss.pnc.test.category.ContainerTest;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
@@ -35,7 +38,6 @@ import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.data.domain.Pageable;
 
 import javax.inject.Inject;
 import java.lang.invoke.MethodHandles;
@@ -55,6 +57,15 @@ public class RSQLTest {
 
     @Inject
     private UserRepository userRepository;
+
+    @Inject
+    private RSQLPredicateProducer rsqlPredicateProducer;
+
+    @Inject
+    private SortInfoProducer sortInfoProducer;
+
+    @Inject
+    private PageInfoProducer pageInfoProducer;
 
     private static final AtomicBoolean isInitialized = new AtomicBoolean();
 
@@ -77,7 +88,7 @@ public class RSQLTest {
     }
 
     @Test
-    public void shouldSelectDemoUser() throws RSQLParserException {
+    public void shouldSelectDemoUser() {
         // given
         String rsqlQuery = "username==demo-user";
 
@@ -89,7 +100,7 @@ public class RSQLTest {
     }
 
     @Test
-    public void shouldNotSelectNotExistingUser() throws RSQLParserException {
+    public void shouldNotSelectNotExistingUser() {
         // given
         String rsqlQuery = "username==not-existing";
 
@@ -101,7 +112,7 @@ public class RSQLTest {
     }
 
     @Test
-    public void shouldSelectDemoUserWhenUserNameAndEmailIsProvided() throws RSQLParserException {
+    public void shouldSelectDemoUserWhenUserNameAndEmailIsProvided() {
         // given
         String rsqlQuery = "username==demo-user;email==demo-user@pnc.com";
 
@@ -113,7 +124,7 @@ public class RSQLTest {
     }
 
     @Test
-    public void shouldNotSelectDemoUserWhenUserNameAndBadEmailIsProvided() throws RSQLParserException {
+    public void shouldNotSelectDemoUserWhenUserNameAndBadEmailIsProvided() {
         // given
         String rsqlQuery = "username==demo-user;email==bad-email@pnc.com";
 
@@ -125,7 +136,7 @@ public class RSQLTest {
     }
 
     @Test
-    public void shouldLimitReturnedUsers() throws RSQLParserException {
+    public void shouldLimitReturnedUsers() {
         // given
         int pageSize = 1;
         int pageNumber = 0;
@@ -139,7 +150,7 @@ public class RSQLTest {
     }
 
     @Test
-    public void shouldSortById() throws RSQLParserException {
+    public void shouldSortById() {
         // given
         int pageSize = 999;
         int pageNumber = 0;
@@ -153,12 +164,14 @@ public class RSQLTest {
         assertThat(sortedUsers).containsExactly("demo-user", "Abacki", "Babacki", "Cabacki");
     }
 
-    private List<User> selectUsers(String rsqlQuery) throws RSQLParserException {
-        return nullableStreamOf(userRepository.findAll(RSQLPredicateProducer.fromRSQL(User.class, rsqlQuery).get())).collect(Collectors.toList());
+    private List<User> selectUsers(String rsqlQuery) {
+        Predicate<User> rsqlPredicate = rsqlPredicateProducer.getPredicate(User.class, rsqlQuery);
+        return nullableStreamOf(userRepository.queryWithPredicates(rsqlPredicate)).collect(Collectors.toList());
     }
 
-    private List<User> sortUsers(int pageSize, int offset, String sorting) throws RSQLParserException {
-        Pageable pageable = RSQLPageLimitAndSortingProducer.fromRSQL(pageSize, offset, sorting);
-        return nullableStreamOf(userRepository.findAll(pageable)).collect(Collectors.toList());
+    private List<User> sortUsers(int pageSize, int offset, String sorting) {
+        PageInfo pageInfo = pageInfoProducer.getPageInfo(offset, pageSize);
+        SortInfo sortInfo = sortInfoProducer.getSortInfo(sorting);
+        return nullableStreamOf(userRepository.queryAll(pageInfo, sortInfo)).collect(Collectors.toList());
     }
 }
