@@ -22,8 +22,6 @@ import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.junit.InSequence;
 import org.jboss.arquillian.transaction.api.annotation.TransactionMode;
 import org.jboss.arquillian.transaction.api.annotation.Transactional;
-import org.jboss.pnc.datastore.configuration.JpaConfiguration;
-import org.jboss.pnc.datastore.repositories.internal.BuildConfigurationSpringRepository;
 import org.jboss.pnc.integration.deployments.Deployments;
 import org.jboss.pnc.model.*;
 import org.jboss.pnc.spi.datastore.audit.AuditRepository;
@@ -95,10 +93,6 @@ public class DatastoreTest {
 
         JavaArchive pncModel = enterpriseArchive.getAsType(JavaArchive.class, "/model.jar");
         pncModel.addPackage(BuildConfiguration.class.getPackage());
-
-        JavaArchive datastore = enterpriseArchive.getAsType(JavaArchive.class, "/datastore.jar");
-        datastore.addPackage(BuildConfigurationSpringRepository.class.getPackage());
-        datastore.addPackage(JpaConfiguration.class.getPackage());
 
         logger.info(enterpriseArchive.toString(true));
         return enterpriseArchive;

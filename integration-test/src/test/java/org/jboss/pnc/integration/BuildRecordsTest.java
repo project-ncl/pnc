@@ -17,15 +17,11 @@
  */
 package org.jboss.pnc.integration;
 
-import cz.jirutka.rsql.parser.RSQLParserException;
 import org.assertj.core.api.Condition;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.junit.InSequence;
 import org.jboss.arquillian.transaction.api.annotation.Transactional;
-import org.jboss.pnc.datastore.predicates.rsql.RSQLNodeTravellerPredicate;
-import org.jboss.pnc.datastore.repositories.internal.BuildConfigurationAuditedSpringRepository;
-import org.jboss.pnc.datastore.repositories.internal.BuildConfigurationSpringRepository;
 import org.jboss.pnc.integration.deployments.Deployments;
 import org.jboss.pnc.model.*;
 import org.jboss.pnc.rest.provider.ArtifactProvider;
@@ -34,14 +30,14 @@ import org.jboss.pnc.rest.restmodel.ArtifactRest;
 import org.jboss.pnc.rest.restmodel.BuildRecordRest;
 import org.jboss.pnc.rest.utils.StreamHelper;
 import org.jboss.pnc.spi.datastore.Datastore;
-import org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates;
+import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationAuditedRepository;
+import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
 import org.jboss.pnc.spi.datastore.repositories.UserRepository;
 import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
 import org.jboss.pnc.spi.datastore.repositories.api.RSQLPredicateProducer;
 import org.jboss.pnc.test.category.ContainerTest;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
-import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -73,10 +69,10 @@ public class BuildRecordsTest {
     private BuildRecordRepository buildRecordRepository;
 
     @Inject
-    private BuildConfigurationSpringRepository buildConfigurationRepository;
+    private BuildConfigurationRepository buildConfigurationRepository;
 
     @Inject
-    private BuildConfigurationAuditedSpringRepository buildConfigurationAuditedRepository;
+    private BuildConfigurationAuditedRepository buildConfigurationAuditedRepository;
 
     @Inject
     private ArtifactProvider artifactProvider;
@@ -100,10 +96,6 @@ public class BuildRecordsTest {
         war.addClass(BuildRecordsTest.class);
         war.addClass(ArtifactProvider.class);
 
-        JavaArchive datastoreJar = enterpriseArchive.getAsType(JavaArchive.class, "/datastore.jar");
-        datastoreJar.addClass(ArtifactPredicates.class);
-        datastoreJar.addPackage(RSQLNodeTravellerPredicate.class.getPackage());
-
         logger.info(enterpriseArchive.toString(true));
         return enterpriseArchive;
     }
@@ -113,9 +105,9 @@ public class BuildRecordsTest {
     @InSequence(-1)
     @Transactional
     public void shouldInsertValuesIntoDB() {
-        BuildConfigurationAudited buildConfigurationAudited = buildConfigurationAuditedRepository.findAll().iterator().next();
+        BuildConfigurationAudited buildConfigurationAudited = buildConfigurationAuditedRepository.queryAll().iterator().next();
         buildConfigName = buildConfigurationAudited.getName();
-        BuildConfiguration buildConfiguration = buildConfigurationRepository.findOne(buildConfigurationAudited.getId().getId());
+        BuildConfiguration buildConfiguration = buildConfigurationRepository.queryById(buildConfigurationAudited.getId().getId());
 
         Artifact builtArtifact = new Artifact();
         builtArtifact.setIdentifier("test");
@@ -215,7 +207,7 @@ public class BuildRecordsTest {
     }
 
     @Test
-    public void shouldGetBuildRecordByName() throws RSQLParserException {
+    public void shouldGetBuildRecordByName() {
         // given
         String rsqlQuery = "buildConfigurationAudited.name==" + buildConfigName;
 
@@ -227,7 +219,7 @@ public class BuildRecordsTest {
     }
 
     @Test
-    public void shouldNotGetBuildRecordByWrongName() throws RSQLParserException {
+    public void shouldNotGetBuildRecordByWrongName() {
         // given
         String rsqlQuery = "buildConfigurationAudited.name==not-existing-br-name";
 
@@ -238,7 +230,7 @@ public class BuildRecordsTest {
         assertThat(buildRecords).isEmpty();
     }
 
-    private List<BuildRecord> selectBuildRecords(String rsqlQuery) throws RSQLParserException {
+    private List<BuildRecord> selectBuildRecords(String rsqlQuery) {
         Predicate<BuildRecord> rsqlPredicate = rsqlPredicateProducer.getPredicate(BuildRecord.class, rsqlQuery);
         return StreamHelper.nullableStreamOf(buildRecordRepository.queryWithPredicates(rsqlPredicate)).collect(Collectors.toList());
     }

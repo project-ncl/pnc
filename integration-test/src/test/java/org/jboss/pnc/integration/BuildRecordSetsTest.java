@@ -21,15 +21,15 @@ import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.junit.InSequence;
 import org.jboss.arquillian.transaction.api.annotation.Transactional;
-import org.jboss.pnc.datastore.repositories.internal.BuildRecordSpringRepository;
-import org.jboss.pnc.datastore.repositories.internal.BuildRecordSetSpringRepository;
-import org.jboss.pnc.datastore.repositories.internal.ProductMilestoneSpringRepository;
 import org.jboss.pnc.integration.deployments.Deployments;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.BuildRecordSet;
 import org.jboss.pnc.model.ProductMilestone;
 import org.jboss.pnc.rest.provider.BuildRecordSetProvider;
 import org.jboss.pnc.rest.restmodel.BuildRecordSetRest;
+import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
+import org.jboss.pnc.spi.datastore.repositories.BuildRecordSetRepository;
+import org.jboss.pnc.spi.datastore.repositories.ProductMilestoneRepository;
 import org.jboss.pnc.test.category.ContainerTest;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
@@ -40,7 +40,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
-
 import java.lang.invoke.MethodHandles;
 import java.util.List;
 
@@ -57,13 +56,13 @@ public class BuildRecordSetsTest {
     private static Integer productMilestoneId;
 
     @Inject
-    private BuildRecordSpringRepository buildRecordRepository;
+    private BuildRecordRepository buildRecordRepository;
 
     @Inject
-    private BuildRecordSetSpringRepository buildRecordSetRepository;
+    private BuildRecordSetRepository buildRecordSetRepository;
 
     @Inject
-    private ProductMilestoneSpringRepository productMilestoneRepository;
+    private ProductMilestoneRepository productMilestoneRepository;
 
     @Inject
     private BuildRecordSetProvider buildRecordSetProvider;
@@ -82,8 +81,8 @@ public class BuildRecordSetsTest {
     @Transactional
     public void shouldInsertValuesIntoDB() {
 
-        BuildRecord buildRecord = buildRecordRepository.findAll().iterator().next();
-        ProductMilestone productMilestone = productMilestoneRepository.findAll().iterator().next();
+        BuildRecord buildRecord = buildRecordRepository.queryAll().iterator().next();
+        ProductMilestone productMilestone = productMilestoneRepository.queryAll().iterator().next();
 
         buildRecordId = buildRecord.getId();
         productMilestoneId = productMilestone.getId();
@@ -141,8 +140,8 @@ public class BuildRecordSetsTest {
     @InSequence(5)
     public void shouldNotCascadeDeletionOfBuildRecordSet() {
         // when
-        long buildRecordCount = buildRecordRepository.count();
-        long productMilestoneCount = productMilestoneRepository.count();
+        int buildRecordCount = buildRecordRepository.count();
+        int productMilestoneCount = productMilestoneRepository.count();
 
         buildRecordSetProvider.delete(buildRecordSetId);
 

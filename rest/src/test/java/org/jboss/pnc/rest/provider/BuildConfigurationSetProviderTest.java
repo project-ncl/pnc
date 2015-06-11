@@ -1,10 +1,10 @@
 package org.jboss.pnc.rest.provider;
 
-import org.jboss.pnc.datastore.repositories.BuildConfigurationRepository;
-import org.jboss.pnc.datastore.repositories.BuildConfigurationSetRepository;
-import org.jboss.pnc.datastore.repositories.BuildRecordRepository;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationSet;
+import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationRepository;
+import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationSetRepository;
+import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -23,10 +23,10 @@ public class BuildConfigurationSetProviderTest {
         BuildRecordRepository buildRecordRepository = mock(BuildRecordRepository.class);
 
         BuildConfigurationSet testBCS = createBuildConfigurationSet(1);
-        when(buildConfigurationSetRepository.findOne(1)).thenReturn(testBCS);
-        when(buildConfigurationRepository.findOne(2)).thenReturn(createBuildConfiguration(2));
+        when(buildConfigurationSetRepository.queryById(1)).thenReturn(testBCS);
+        when(buildConfigurationRepository.queryById(2)).thenReturn(createBuildConfiguration(2));
 
-        BuildConfigurationSetProvider buildConfigurationSetProvider = new BuildConfigurationSetProvider(buildConfigurationSetRepository, buildRecordRepository, buildConfigurationRepository);
+        BuildConfigurationSetProvider buildConfigurationSetProvider = new BuildConfigurationSetProvider(buildConfigurationSetRepository, buildConfigurationRepository, buildRecordRepository, null, null, null);
 
         //when
         addConfigsToSet(testBCS, createBuildConfiguration(1), createBuildConfiguration(2));
@@ -46,10 +46,10 @@ public class BuildConfigurationSetProviderTest {
 
         BuildConfigurationSet testBCS = createBuildConfigurationSet(1);
 
-        when(buildConfigurationSetRepository.findOne(1)).thenReturn(testBCS);
-        when(buildConfigurationRepository.findOne(3)).thenReturn(createBuildConfiguration(3));
+        when(buildConfigurationSetRepository.queryById(1)).thenReturn(testBCS);
+        when(buildConfigurationRepository.queryById(3)).thenReturn(createBuildConfiguration(3));
 
-        BuildConfigurationSetProvider buildConfigurationSetProvider = new BuildConfigurationSetProvider(buildConfigurationSetRepository, buildRecordRepository, buildConfigurationRepository);
+        BuildConfigurationSetProvider buildConfigurationSetProvider = new BuildConfigurationSetProvider(buildConfigurationSetRepository, buildConfigurationRepository, buildRecordRepository, null, null, null);
 
         //when
         addConfigsToSet(testBCS, createBuildConfiguration(1), createBuildConfiguration(2));
