@@ -18,7 +18,6 @@
 package org.jboss.pnc.rest.provider;
 
 import com.google.common.base.Preconditions;
-
 import org.jboss.pnc.datastore.limits.RSQLPageLimitAndSortingProducer;
 import org.jboss.pnc.datastore.predicates.RSQLPredicate;
 import org.jboss.pnc.datastore.predicates.RSQLPredicateProducer;
@@ -35,7 +34,6 @@ import org.springframework.data.domain.Pageable;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
-
 import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
@@ -50,8 +48,6 @@ public class BuildConfigurationSetProvider {
 
     private BuildConfigurationSetRepository buildConfigurationSetRepository;
     private BuildRecordRepository buildRecordRepository;
-
-    @Inject
     private BuildConfigurationRepository buildConfigurationRepository;
 
     public BuildConfigurationSetProvider() {
@@ -59,9 +55,11 @@ public class BuildConfigurationSetProvider {
 
     @Inject
     public BuildConfigurationSetProvider(BuildConfigurationSetRepository buildConfigurationSetRepository,
-            BuildRecordRepository buildRecordRepository) {
+            BuildRecordRepository buildRecordRepository,
+            BuildConfigurationRepository buildConfigurationRepository) {
         this.buildConfigurationSetRepository = buildConfigurationSetRepository;
         this.buildRecordRepository = buildRecordRepository;
+        this.buildConfigurationRepository = buildConfigurationRepository;
     }
 
     public Function<? super BuildConfigurationSet, ? extends BuildConfigurationSetRest> toRestModel() {
@@ -152,6 +150,9 @@ public class BuildConfigurationSetProvider {
     public void addConfiguration(Integer configurationSetId, Integer configurationId) {
         BuildConfigurationSet buildConfigSet = buildConfigurationSetRepository.findOne(configurationSetId);
         BuildConfiguration buildConfig = buildConfigurationRepository.findOne(configurationId);
+        if (buildConfigSet.getBuildConfigurations().contains(buildConfig))
+            throw new ConflictedEntryException("BuildConfiguration is already in the BuildConfigurationSet");
+
         buildConfigSet.addBuildConfiguration(buildConfig);
         buildConfigurationSetRepository.save(buildConfigSet);
     }
