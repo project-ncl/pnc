@@ -1,4 +1,4 @@
 {
-    "productMilestoneId": ${_productMilestoneId},
+    "performedInProductMilestoneId": ${_performedInProductMilestoneId},
     "buildRecordIds": [${_buildRecordIds}]
 }
