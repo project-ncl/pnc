@@ -118,7 +118,7 @@ public class BuildTriggerer {
         final BuildRecordSet buildRecordSet = new BuildRecordSet();
         if (configuration.getProductVersions() != null  && !configuration.getProductVersions().isEmpty()) {
             ProductVersion productVersion = configuration.getProductVersions().iterator().next();
-            buildRecordSet.setProductMilestone(productVersion.getCurrentProductMilestone());
+            buildRecordSet.setPerformedInProductMilestone(productVersion.getCurrentProductMilestone());
         }
 
         Integer taskId = buildCoordinator.build(configuration, currentUser).getBuildConfiguration().getId();

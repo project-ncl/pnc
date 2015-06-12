@@ -72,7 +72,7 @@ public class BuildRecordSetEndpoint {
             @ApiParam(value = "Sorting RSQL") @QueryParam("sort") String sortingRsql,
             @ApiParam(value = "RSQL query", required = false) @QueryParam("q") String rsql,
             @ApiParam(value = "Product Version id", required = true) @PathParam("versionId") Integer versionId) {
-        return buildRecordSetProvider.getAllForProductMilestone(pageIndex, pageSize, sortingRsql, rsql, versionId);
+        return buildRecordSetProvider.getAllForPerformedInProductMilestone(pageIndex, pageSize, sortingRsql, rsql, versionId);
     }
 
     @ApiOperation(value = "Gets all BuildRecordSet of a BuildRecord")

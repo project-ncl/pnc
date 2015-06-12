@@ -94,11 +94,11 @@ public class BasicModelTest {
         BuildRecordSet buildRecordSet1 = ModelTestDataFactory.getInstance().getBuildRecordSet();
         ProductMilestone productMilestone1 = ModelTestDataFactory.getInstance().getProductMilestone1version1();
         productMilestone1.setProductVersion(productVersion1);
-        productMilestone1.setBuildRecordSet(buildRecordSet1);
+        productMilestone1.setPerformedBuildRecordSet(buildRecordSet1);
         BuildRecordSet buildRecordSet2 = ModelTestDataFactory.getInstance().getBuildRecordSet();
         ProductRelease productRelease1 = ModelTestDataFactory.getInstance().getProductRelease1();
         productRelease1.setProductVersion(productVersion1);
-        productRelease1.setBuildRecordSet(buildRecordSet2);
+        productRelease1.setProductMilestone(productMilestone1);
 
         EntityManager em = emFactory.createEntityManager();
         EntityTransaction tx = em.getTransaction();

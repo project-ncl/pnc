@@ -72,12 +72,6 @@ public class ProductRelease implements GenericEntity<Integer> {
     @ForeignKey(name = "fk_productrelease_milestone")
     private ProductMilestone productMilestone;
 
-    @NotNull
-    @OneToOne(cascade = { CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH })
-    @JoinColumn(name = "build_record_set_id")
-    @ForeignKey(name = "fk_productrelease_buildrecordset")
-    private BuildRecordSet buildRecordSet;
-
     public ProductRelease() {
 
     }
@@ -155,19 +149,6 @@ public class ProductRelease implements GenericEntity<Integer> {
         this.downloadUrl = downloadUrl;
     }
 
-    /**
-     * Build record set represents the set of completed builds which produced the artifacts included in the product release
-     *
-     * @return The set of build records for this release
-     */
-    public BuildRecordSet getBuildRecordSet() {
-        return buildRecordSet;
-    }
-
-    public void setBuildRecordSet(BuildRecordSet buildRecordSet) {
-        this.buildRecordSet = buildRecordSet;
-    }
-
     public ProductMilestone getProductMilestone() {
         return productMilestone;
     }
@@ -205,8 +186,6 @@ public class ProductRelease implements GenericEntity<Integer> {
 
         private String downloadUrl;
 
-        private BuildRecordSet buildRecordSet;
-
         private Builder() {
         }
 
@@ -221,12 +200,6 @@ public class ProductRelease implements GenericEntity<Integer> {
             productRelease.setSupportLevel(supportLevel);
             productRelease.setReleaseDate(releaseDate);
             productRelease.setDownloadUrl(downloadUrl);
-
-            if (buildRecordSet == null) {
-                buildRecordSet = new BuildRecordSet();
-            }
-            buildRecordSet.setProductRelease(productRelease);
-            productRelease.setBuildRecordSet(buildRecordSet);
 
             if (productVersion != null) {
                 productVersion.addProductRelease(productRelease);
@@ -273,11 +246,6 @@ public class ProductRelease implements GenericEntity<Integer> {
 
         public Builder productMilestone(ProductMilestone productMilestone) {
             this.productMilestone = productMilestone;
-            return this;
-        }
-
-        public Builder buildRecordSet(BuildRecordSet buildRecordSet) {
-            this.buildRecordSet = buildRecordSet;
             return this;
         }
 

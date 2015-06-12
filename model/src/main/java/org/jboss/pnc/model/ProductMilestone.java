@@ -51,12 +51,24 @@ public class ProductMilestone implements GenericEntity<Integer> {
     @NotNull
     private String version;
 
+    /**
+     * The release (or handoff) date of this milestone
+     */
     private Date releaseDate;
 
+    /**
+     * The scheduled starting date of this milestone
+     */
     private Date startingDate;
 
+    /**
+     * The scheduled ending date of this milestone
+     */
     private Date plannedReleaseDate;
 
+    /**
+     * URL which can be used to download the product distribution
+     */
     private String downloadUrl;
 
     @NotNull
@@ -67,9 +79,26 @@ public class ProductMilestone implements GenericEntity<Integer> {
     @OneToOne(mappedBy = "productMilestone")
     private ProductRelease productRelease;
 
+    /**
+     * Set of build records which represents the builds which were executed/performed during 
+     * this milestone build cycle.  This includes failed builds and builds which produced
+     * artifacts which were later replaced by subsequent builds.
+     * The intent of this field is to track total effort of a milestone, so for example, 
+     * failed builds consumed machine and human resources even though they were not delivered 
+     * with the product distribution.
+     */
     @OneToOne(cascade = { CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH })
-    @ForeignKey(name = "fk_productmilestone_buildrecordset")
-    private BuildRecordSet buildRecordSet;
+    private BuildRecordSet performedBuildRecordSet;
+
+    /**
+     * Set of build records which represents the builds which generated artifacts included
+     * in this product distribution.  Should not include builds which were run during
+     * the milestone cycle but then later replaced by subsequent builds.
+     * The intent of this field is to provide a way to lookup a build that produced a 
+     * specific artifact included in a particular product distribution.
+     */
+    @OneToOne(cascade = { CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH })
+    private BuildRecordSet distributedBuildRecordSet;
 
     public Integer getId() {
         return id;
@@ -147,17 +176,20 @@ public class ProductMilestone implements GenericEntity<Integer> {
         this.downloadUrl = downloadUrl;
     }
 
-    /**
-     * Build record set represents the set of builds which were executed during this milestone build cycle
-     *
-     * @return The set of build records for this release
-     */
-    public BuildRecordSet getBuildRecordSet() {
-        return buildRecordSet;
+    public BuildRecordSet getPerformedBuildRecordSet() {
+        return performedBuildRecordSet;
     }
 
-    public void setBuildRecordSet(BuildRecordSet buildRecordSet) {
-        this.buildRecordSet = buildRecordSet;
+    public void setPerformedBuildRecordSet(BuildRecordSet performedBuildRecordSet) {
+        this.performedBuildRecordSet = performedBuildRecordSet;
+    }
+
+    public BuildRecordSet getDistributedBuildRecordSet() {
+        return distributedBuildRecordSet;
+    }
+
+    public void setDistributedBuildRecordSet(BuildRecordSet distributedBuildRecordSet) {
+        this.distributedBuildRecordSet = distributedBuildRecordSet;
     }
 
     /**
@@ -194,7 +226,9 @@ public class ProductMilestone implements GenericEntity<Integer> {
 
         private String downloadUrl;
 
-        private BuildRecordSet buildRecordSet;
+        private BuildRecordSet performedBuildRecordSet;
+
+        private BuildRecordSet distributedBuildRecordSet;
 
         private ProductRelease productRelease;
 
@@ -214,16 +248,26 @@ public class ProductMilestone implements GenericEntity<Integer> {
             productMilestone.setPlannedReleaseDate(plannedReleaseDate);
             productMilestone.setDownloadUrl(downloadUrl);
 
-            if (buildRecordSet == null) {
-                buildRecordSet = new BuildRecordSet();
-            }
-            buildRecordSet.setProductMilestone(productMilestone);
-            productMilestone.setBuildRecordSet(buildRecordSet);
-
             if (productVersion != null) {
                 productVersion.addProductMilestone(productMilestone);
                 productMilestone.setProductVersion(productVersion);
             }
+
+            if (performedBuildRecordSet == null) {
+                performedBuildRecordSet = BuildRecordSet.Builder.newBuilder()
+                        .description("Performed " + productMilestone.getVersion())
+                        .build();
+            }
+            performedBuildRecordSet.setPerformedInProductMilestone(productMilestone);
+            productMilestone.setPerformedBuildRecordSet(performedBuildRecordSet);
+
+            if (distributedBuildRecordSet == null) {
+                distributedBuildRecordSet = BuildRecordSet.Builder.newBuilder()
+                        .description("Distributed " + productMilestone.getVersion())
+                        .build();
+            }
+            distributedBuildRecordSet.setDistributedInProductMilestone(productMilestone);
+            productMilestone.setDistributedBuildRecordSet(distributedBuildRecordSet);
 
             if (productRelease != null) {
                 productRelease.setProductMilestone(productMilestone);
@@ -268,8 +312,13 @@ public class ProductMilestone implements GenericEntity<Integer> {
             return this;
         }
 
-        public Builder buildRecordSet(BuildRecordSet buildRecordSet) {
-            this.buildRecordSet = buildRecordSet;
+        public Builder performedBuildRecordSet(BuildRecordSet performedBuildRecordSet) {
+            this.performedBuildRecordSet = performedBuildRecordSet;
+            return this;
+        }
+
+        public Builder distributedBuildRecordSet(BuildRecordSet distributedBuildRecordSet) {
+            this.distributedBuildRecordSet = distributedBuildRecordSet;
             return this;
         }
 

@@ -72,7 +72,7 @@ public class BuildRecordSetRestTest {
     private static final String BUILD_RECORD_SET_PRODUCT_VERSION_REST_ENDPOINT = "/pnc-rest/rest/build-record-sets/productversion/%d";
     private static final String BUILD_RECORD_SET_BUILD_RECORD_REST_ENDPOINT = "/pnc-rest/rest/build-record-sets/build-records/%d";
 
-    private static int productMilestoneId;
+    private static int performedInProductMilestoneId;
     private static String productMilestoneVersion;
     private static String buildRecordBuildScript;
     private static String buildRecordName;
@@ -118,7 +118,7 @@ public class BuildRecordSetRestTest {
                 .get(PRODUCT_MILESTONE_REST_ENDPOINT);
 
         ResponseAssertion.assertThat(responseProdMilestone).hasStatus(200);
-        productMilestoneId = responseProdMilestone.body().jsonPath().getInt("[0].id");
+        performedInProductMilestoneId = responseProdMilestone.body().jsonPath().getInt("[0].id");
         productMilestoneVersion = responseProdMilestone.body().jsonPath().getString("[0].version");
 
         Response responseBuildRec = given().header("Accept", "application/json").header("Authorization", "Bearer " + access_token)
@@ -130,7 +130,7 @@ public class BuildRecordSetRestTest {
         buildRecordBuildScript = responseBuildRec.body().jsonPath().getString("[0].buildScript");
         buildRecordName = responseBuildRec.body().jsonPath().getString("[0].name");
 
-        logger.info("productMilestoneId: {} ", productMilestoneId);
+        logger.info("performedInProductMilestoneId: {} ", performedInProductMilestoneId);
         logger.info("productMilestoneVersion: {} ", productMilestoneVersion);
         logger.info("buildRecordId: {} ", buildRecordId);
         logger.info("buildRecordBuildScript: {} ", buildRecordBuildScript);
@@ -141,7 +141,7 @@ public class BuildRecordSetRestTest {
     @InSequence(1)
     public void shouldCreateNewBuildRecordSet() throws IOException {
         JsonTemplateBuilder buildRecordSetTemplate = JsonTemplateBuilder.fromResource("buildRecordSet_template");
-        buildRecordSetTemplate.addValue("_productMilestoneId", String.valueOf(productMilestoneId));
+        buildRecordSetTemplate.addValue("_performedInProductMilestoneId", String.valueOf(performedInProductMilestoneId));
         buildRecordSetTemplate.addValue("_buildRecordIds", String.valueOf(buildRecordId));
 
         Response response = given().header("Accept", "application/json").header("Authorization", "Bearer " + access_token)

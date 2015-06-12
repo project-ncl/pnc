@@ -34,9 +34,9 @@ public class BuildRecordSetRest {
 
     private Integer id;
 
-    private Integer productMilestoneId;
+    private Integer performedInProductMilestoneId;
 
-    private Integer productReleaseId;
+    private Integer distributedInProductMilestoneId;
 
     private List<Integer> buildRecordIds;
 
@@ -45,10 +45,10 @@ public class BuildRecordSetRest {
 
     public BuildRecordSetRest(BuildRecordSet buildRecordSet) {
         this.id = buildRecordSet.getId();
-        performIfNotNull(buildRecordSet.getProductMilestone() != null, () -> this.productMilestoneId = buildRecordSet
-                .getProductMilestone().getId());
-        performIfNotNull(buildRecordSet.getProductRelease() != null, () -> this.productReleaseId = buildRecordSet
-                .getProductRelease().getId());
+        performIfNotNull(buildRecordSet.getPerformedInProductMilestone() != null, 
+                () -> this.performedInProductMilestoneId = buildRecordSet.getPerformedInProductMilestone().getId());
+        performIfNotNull(buildRecordSet.getDistributedInProductMilestone() != null, 
+                () -> this.distributedInProductMilestoneId = buildRecordSet.getDistributedInProductMilestone().getId());
         this.buildRecordIds = nullableStreamOf(buildRecordSet.getBuildRecords()).map(buildRecord -> buildRecord.getId())
                 .collect(Collectors.toList());
 
@@ -62,20 +62,20 @@ public class BuildRecordSetRest {
         this.id = id;
     }
 
-    public Integer getProductMilestoneId() {
-        return productMilestoneId;
+    public Integer getPerformedInProductMilestoneId() {
+        return this.performedInProductMilestoneId;
     }
 
-    public void setMilestoneId(Integer productMilestoneId) {
-        this.productMilestoneId = productMilestoneId;
+    public void setPerformedInMilestoneId(Integer performedInProductMilestoneId) {
+        this.performedInProductMilestoneId = performedInProductMilestoneId;
     }
 
-    public Integer getProductReleaseId() {
-        return productReleaseId;
+    public Integer getDistributedInProductMilestoneId() {
+        return this.distributedInProductMilestoneId;
     }
 
-    public void setProductReleaseId(Integer productReleaseId) {
-        this.productReleaseId = productReleaseId;
+    public void setDistributedInProductMilestoneId(Integer distributedInProductMilestoneId) {
+        this.distributedInProductMilestoneId = distributedInProductMilestoneId;
     }
 
     public List<Integer> getBuildRecordIds() {
@@ -90,10 +90,10 @@ public class BuildRecordSetRest {
         BuildRecordSet.Builder builder = BuildRecordSet.Builder.newBuilder();
         builder.id(id);
 
-        performIfNotNull(productMilestoneId != null,
-                () -> builder.productMilestone(ProductMilestone.Builder.newBuilder().id(productMilestoneId).build()));
-        performIfNotNull(productReleaseId != null,
-                () -> builder.productRelease(ProductRelease.Builder.newBuilder().id(productReleaseId).build()));
+        performIfNotNull(performedInProductMilestoneId != null,
+                () -> builder.performedInProductMilestone(ProductMilestone.Builder.newBuilder().id(performedInProductMilestoneId).build()));
+        performIfNotNull(distributedInProductMilestoneId != null,
+                () -> builder.distributedInProductMilestone(ProductMilestone.Builder.newBuilder().id(distributedInProductMilestoneId).build()));
 
         nullableStreamOf(buildRecordIds).forEach(buildRecordId -> {
             BuildRecord.Builder buildRecordBuilder = BuildRecord.Builder.newBuilder().id(buildRecordId);

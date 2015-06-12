@@ -49,13 +49,23 @@ public class BuildRecordSet implements GenericEntity<Integer> {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = SEQUENCE_NAME)
     private Integer id;
 
+    private String description;
+
+    /**
+     * If this field is non-null it means that the current build record set represents
+     * the builds performed for the linked product milestone cycle.
+     */
+    @OneToOne(mappedBy = "performedBuildRecordSet")
+    private ProductMilestone performedInProductMilestone;
+
+    /**
+     * If this field is non-null it means that the current build record set represents
+     * the builds which produced artifacts shipped/distributed with the linked product milestone.
+     */
+    @OneToOne(mappedBy = "distributedBuildRecordSet")
+    private ProductMilestone distributedInProductMilestone;
+
     private String buildSetContentId;
-
-    @OneToOne(mappedBy = "buildRecordSet")
-    private ProductMilestone productMilestone;
-
-    @OneToOne(mappedBy = "buildRecordSet")
-    private ProductRelease productRelease;
 
     @ManyToMany
     @JoinTable(name = "build_record_set_map", joinColumns = { @JoinColumn(name = "build_record_set_id", referencedColumnName = "id") }, inverseJoinColumns = { @JoinColumn(name = "build_record_id", referencedColumnName = "id") })
@@ -69,56 +79,42 @@ public class BuildRecordSet implements GenericEntity<Integer> {
 
     }
 
-    /**
-     * Gets the id.
-     *
-     * @return the id
-     */
     public Integer getId() {
         return id;
     }
 
-    /**
-     * Sets the id.
-     *
-     * @param id the new id
-     */
     public void setId(Integer id) {
         this.id = id;
     }
 
-    /**
-     * @return the milestone
-     */
-    public ProductMilestone getProductMilestone() {
-        return productMilestone;
+    public String getDescription() {
+        return description;
     }
 
-    /**
-     * @param productMilestone the milestone to set
-     */
-    public void setProductMilestone(ProductMilestone productMilestone) {
-        this.productMilestone = productMilestone;
+    public void setDescription(String description) {
+        this.description = description;
     }
 
-    public ProductRelease getProductRelease() {
-        return productRelease;
+    public ProductMilestone getPerformedInProductMilestone() {
+        return performedInProductMilestone;
     }
 
-    public void setProductRelease(ProductRelease productRelease) {
-        this.productRelease = productRelease;
+    public void setPerformedInProductMilestone(ProductMilestone performedInProductMilestone) {
+        this.performedInProductMilestone = performedInProductMilestone;
     }
 
-    /**
-     * @return the buildRecord
-     */
+    public ProductMilestone getDistributedInProductMilestone() {
+        return distributedInProductMilestone;
+    }
+
+    public void setDistributedInProductMilestone(ProductMilestone distributedInProductMilestone) {
+        this.distributedInProductMilestone = distributedInProductMilestone;
+    }
+
     public List<BuildRecord> getBuildRecords() {
         return buildRecords;
     }
 
-    /**
-     * @param record the BuildRecord(s) to set
-     */
     public void setBuildRecords(List<BuildRecord> records) {
         this.buildRecords = records;
     }
@@ -135,26 +131,17 @@ public class BuildRecordSet implements GenericEntity<Integer> {
         this.buildSetContentId = buildSetContentId;
     }
 
-    @Override
-    public String toString() {
-        String version = "none";
-        if (productRelease != null) {
-            version = productRelease.getVersion();
-        } else if (productMilestone != null) {
-            version = productMilestone.getVersion();
-        }
-        return "BuildRecordSet [id=" + getId() + ", version=" + version + "]";
-    }
-
     public static class Builder {
 
         private Integer id;
 
+        private String description;
+
+        private ProductMilestone performedInProductMilestone;
+
+        private ProductMilestone distributedInProductMilestone;
+
         private String buildSetContentId;
-
-        private ProductMilestone productMilestone;
-
-        private ProductRelease productRelease;
 
         private List<BuildRecord> buildRecords;
 
@@ -169,18 +156,19 @@ public class BuildRecordSet implements GenericEntity<Integer> {
         public BuildRecordSet build() {
             BuildRecordSet buildRecordSet = new BuildRecordSet();
             buildRecordSet.setId(id);
+            buildRecordSet.setDescription(description);
             buildRecordSet.setBuildSetContentId(buildSetContentId);
 
             // Set the bi-directional mappings
-            if (productMilestone != null) {
-                productMilestone.setBuildRecordSet(buildRecordSet);
+            if (performedInProductMilestone != null) {
+                performedInProductMilestone.setPerformedBuildRecordSet(buildRecordSet);
             }
-            buildRecordSet.setProductMilestone(productMilestone);
+            buildRecordSet.setPerformedInProductMilestone(performedInProductMilestone);
 
-            if (productRelease != null) {
-                productRelease.setBuildRecordSet(buildRecordSet);
+            if (distributedInProductMilestone != null) {
+                distributedInProductMilestone.setDistributedBuildRecordSet(buildRecordSet);
             }
-            buildRecordSet.setProductRelease(productRelease);
+            buildRecordSet.setDistributedInProductMilestone(distributedInProductMilestone);
 
             for (BuildRecord buildRecord : buildRecords) {
                 buildRecord.getBuildRecordSets().add(buildRecordSet);
@@ -195,18 +183,23 @@ public class BuildRecordSet implements GenericEntity<Integer> {
             return this;
         }
 
+        public Builder description(String description) {
+            this.description = description;
+            return this;
+        }
+
+        public Builder performedInProductMilestone(ProductMilestone performedInProductMilestone) {
+            this.performedInProductMilestone = performedInProductMilestone;
+            return this;
+        }
+
+        public Builder distributedInProductMilestone(ProductMilestone distributedInProductMilestone) {
+            this.distributedInProductMilestone = distributedInProductMilestone;
+            return this;
+        }
+
         public Builder buildSetContentId(String buildSetContentId) {
             this.buildSetContentId = buildSetContentId;
-            return this;
-        }
-
-        public Builder productRelease(ProductRelease productRelease) {
-            this.productRelease = productRelease;
-            return this;
-        }
-
-        public Builder productMilestone(ProductMilestone productMilestone) {
-            this.productMilestone = productMilestone;
             return this;
         }
 

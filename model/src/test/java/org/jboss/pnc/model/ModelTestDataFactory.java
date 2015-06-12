@@ -54,7 +54,7 @@ public class ModelTestDataFactory {
         return ProductMilestone.Builder.newBuilder()
                 .version("1.0.0.ER1")
                 .productVersion(getProductVersion1())
-                .buildRecordSet(getBuildRecordSet())
+                .performedBuildRecordSet(getBuildRecordSet())
                 .build();
     }
 
@@ -62,14 +62,14 @@ public class ModelTestDataFactory {
         return ProductMilestone.Builder.newBuilder()
                 .version("1.0.0.ER2")
                 .productVersion(getProductVersion1())
-                .buildRecordSet(getBuildRecordSet())
+                .performedBuildRecordSet(getBuildRecordSet())
                 .build();
     }
 
     public ProductRelease getProductRelease1() {
         return ProductRelease.Builder.newBuilder()
                 .version("1.0.0.Beta1")
-                .buildRecordSet(getBuildRecordSet())
+                .productMilestone(getProductMilestone1version1())
                 .build();
     }
 
