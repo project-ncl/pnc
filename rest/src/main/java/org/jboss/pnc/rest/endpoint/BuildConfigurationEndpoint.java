@@ -48,11 +48,11 @@ import org.jboss.pnc.model.User;
 import org.jboss.pnc.rest.provider.BuildConfigurationProvider;
 import org.jboss.pnc.rest.provider.BuildRecordProvider;
 import org.jboss.pnc.rest.provider.ProductVersionProvider;
+import org.jboss.pnc.rest.restmodel.BuildConfigurationAuditedRest;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationRest;
 import org.jboss.pnc.rest.restmodel.ProductVersionRest;
 import org.jboss.pnc.rest.trigger.BuildTriggerer;
 import org.jboss.pnc.spi.datastore.Datastore;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -273,6 +273,21 @@ public class BuildConfigurationEndpoint {
             @ApiParam(value = "Product version id", required = true) @PathParam("productVersionId") Integer productVersionId) {
         buildConfigurationProvider.removeProductVersion(id, productVersionId);
         return Response.ok().build();
+    }
+
+    @ApiOperation(value = "Gets audited revisions of this build configuration")
+    @GET
+    @Path("/{id}/revisions")
+    public List<BuildConfigurationAuditedRest> getRevisions(@ApiParam(value = "Build configuration id", required = true) @PathParam("id") Integer id) {
+        return buildConfigurationProvider.getRevisions(id);
+    }
+
+    @ApiOperation(value = "Get specific audited revision of this build configuration")
+    @GET
+    @Path("/{id}/revisions/{rev}")
+    public BuildConfigurationAuditedRest getRevisions(@ApiParam(value = "Build configuration id", required = true) @PathParam("id") Integer id,
+            @ApiParam(value = "Build configuration rev", required = true) @PathParam("rev") Integer rev) {
+        return buildConfigurationProvider.getRevision(id, rev);
     }
 
 }

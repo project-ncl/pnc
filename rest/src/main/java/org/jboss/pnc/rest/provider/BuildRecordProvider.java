@@ -18,9 +18,12 @@
 package org.jboss.pnc.rest.provider;
 
 import com.google.common.base.Strings;
+
 import org.jboss.pnc.core.builder.BuildCoordinator;
 import org.jboss.pnc.core.builder.BuildTask;
+import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildRecord;
+import org.jboss.pnc.rest.restmodel.BuildConfigurationAuditedRest;
 import org.jboss.pnc.rest.restmodel.BuildRecordRest;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
 import org.jboss.pnc.spi.datastore.repositories.PageInfoProducer;
@@ -35,6 +38,7 @@ import org.slf4j.LoggerFactory;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.ws.rs.core.StreamingOutput;
+
 import java.io.BufferedWriter;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
@@ -179,6 +183,15 @@ public class BuildRecordProvider {
             return null;
     }
 
+    public BuildConfigurationAuditedRest getBuildConfigurationAudited(Integer id) {
+        BuildRecord buildRecord = buildRecordRepository.queryById(id);
+        BuildConfigurationAudited buildConfigurationAudited = buildRecord.getBuildConfigurationAudited();
+        if (buildConfigurationAudited != null) {
+            return new BuildConfigurationAuditedRest(buildConfigurationAudited);
+        }
+        return null;
+    }
+    
     public StreamingOutput getStreamingOutputForString(String str) {
         if(str == null)
             return null;
