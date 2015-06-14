@@ -20,14 +20,18 @@ package org.jboss.pnc.rest.endpoint;
 import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
 import com.wordnik.swagger.annotations.ApiParam;
+
 import org.jboss.pnc.rest.provider.EnvironmentProvider;
+import org.jboss.pnc.rest.restmodel.BuildRecordSetRest;
 import org.jboss.pnc.rest.restmodel.EnvironmentRest;
+import org.jboss.pnc.rest.utils.Utility;
 
 import javax.inject.Inject;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
+
 import java.util.List;
 
 @Api(value = "/environments", description = "Environment related information")
@@ -59,8 +63,8 @@ public class EnvironmentEndpoint {
     @ApiOperation(value = "Get specific Environment")
     @GET
     @Path("/{id}")
-    public EnvironmentRest getSpecific(@ApiParam(value = "Environment id", required = true) @PathParam("id") Integer id) {
-        return environmentProvider.getSpecific(id);
+    public Response getSpecific(@ApiParam(value = "Environment id", required = true) @PathParam("id") Integer id) {
+        return Utility.createRestEnityResponse(environmentProvider.getSpecific(id), id);
     }
 
     @ApiOperation(value = "Creates a new Environment")

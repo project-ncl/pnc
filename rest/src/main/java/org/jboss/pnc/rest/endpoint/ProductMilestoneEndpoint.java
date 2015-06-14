@@ -40,6 +40,7 @@ import javax.ws.rs.core.UriInfo;
 import org.jboss.pnc.rest.provider.ProductMilestoneProvider;
 import org.jboss.pnc.rest.provider.ProjectProvider;
 import org.jboss.pnc.rest.restmodel.ProductMilestoneRest;
+import org.jboss.pnc.rest.utils.Utility;
 
 import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
@@ -87,9 +88,9 @@ public class ProductMilestoneEndpoint {
     @ApiOperation(value = "Gets specific Product Milestone")
     @GET
     @Path("/{id}")
-    public ProductMilestoneRest getSpecific(
+    public Response getSpecific(
             @ApiParam(value = "Product Milestone id", required = true) @PathParam("id") Integer id) {
-        return productMilestoneProvider.getSpecific(id);
+        return Utility.createRestEnityResponse(productMilestoneProvider.getSpecific(id), id);
     }
 
     @ApiOperation(value = "Creates a new Product Milestone for the Specified Product Version")

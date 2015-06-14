@@ -21,7 +21,9 @@ import org.jboss.pnc.rest.provider.ArtifactProvider;
 import org.jboss.pnc.rest.provider.BuildRecordProvider;
 import org.jboss.pnc.rest.restmodel.ArtifactRest;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationAuditedRest;
+import org.jboss.pnc.rest.restmodel.BuildConfigurationRest;
 import org.jboss.pnc.rest.restmodel.BuildRecordRest;
+import org.jboss.pnc.rest.utils.Utility;
 
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
@@ -75,8 +77,8 @@ public class BuildRecordEndpoint {
     @ApiOperation(value = "Gets specific Build Record")
     @GET
     @Path("/{id}")
-    public BuildRecordRest getSpecific(@ApiParam(value = "BuildRecord id", required = true) @PathParam("id") Integer id) {
-        return buildRecordProvider.getSpecific(id);
+    public Response getSpecific(@ApiParam(value = "BuildRecord id", required = true) @PathParam("id") Integer id) {
+        return Utility.createRestEnityResponse(buildRecordProvider.getSpecific(id), id);
     }
 
     @ApiResponses(value = {

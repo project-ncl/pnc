@@ -20,14 +20,18 @@ package org.jboss.pnc.rest.endpoint;
 import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
 import com.wordnik.swagger.annotations.ApiParam;
+
 import org.jboss.pnc.rest.provider.BuildRecordSetProvider;
+import org.jboss.pnc.rest.restmodel.BuildRecordRest;
 import org.jboss.pnc.rest.restmodel.BuildRecordSetRest;
+import org.jboss.pnc.rest.utils.Utility;
 
 import javax.inject.Inject;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
+
 import java.util.List;
 
 @Api(value = "/build-record-sets", description = "BuildRecordSet collection")
@@ -59,8 +63,8 @@ public class BuildRecordSetEndpoint {
     @ApiOperation(value = "Gets a specific BuildRecordSet")
     @GET
     @Path("/{id}")
-    public BuildRecordSetRest getSpecific(@ApiParam(value = "BuildRecordSet id", required = true) @PathParam("id") Integer id) {
-        return buildRecordSetProvider.getSpecific(id);
+    public Response getSpecific(@ApiParam(value = "BuildRecordSet id", required = true) @PathParam("id") Integer id) {
+        return Utility.createRestEnityResponse(buildRecordSetProvider.getSpecific(id), id);
     }
 
     @ApiOperation(value = "Gets all BuildRecordSet of a Product Version")

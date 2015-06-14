@@ -23,6 +23,7 @@ import com.wordnik.swagger.annotations.ApiParam;
 
 import org.jboss.pnc.rest.provider.UserProvider;
 import org.jboss.pnc.rest.restmodel.UserRest;
+import org.jboss.pnc.rest.utils.Utility;
 
 import javax.inject.Inject;
 import javax.validation.Valid;
@@ -61,8 +62,8 @@ public class UserEndpoint {
     @ApiOperation(value = "Gets specific User")
     @GET
     @Path("/{id}")
-    public UserRest getSpecific(@ApiParam(value = "User id", required = true) @PathParam("id") Integer id) {
-        return userProvider.getSpecific(id);
+    public Response getSpecific(@ApiParam(value = "User id", required = true) @PathParam("id") Integer id) {
+        return Utility.createRestEnityResponse(userProvider.getSpecific(id), id);
     }
 
     @ApiOperation(value = "Creates new User")

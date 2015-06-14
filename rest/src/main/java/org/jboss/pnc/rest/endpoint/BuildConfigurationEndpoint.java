@@ -49,9 +49,11 @@ import org.jboss.pnc.rest.provider.BuildConfigurationProvider;
 import org.jboss.pnc.rest.provider.BuildRecordProvider;
 import org.jboss.pnc.rest.provider.ProductVersionProvider;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationAuditedRest;
+import org.jboss.pnc.rest.restmodel.BuildConfigSetRecordRest;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationRest;
 import org.jboss.pnc.rest.restmodel.ProductVersionRest;
 import org.jboss.pnc.rest.trigger.BuildTriggerer;
+import org.jboss.pnc.rest.utils.Utility;
 import org.jboss.pnc.spi.datastore.Datastore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -109,9 +111,9 @@ public class BuildConfigurationEndpoint {
     @ApiOperation(value = "Gets a specific Build Configuration")
     @GET
     @Path("/{id}")
-    public BuildConfigurationRest getSpecific(
+    public Response getSpecific(
             @ApiParam(value = "Build Configuration id", required = true) @PathParam("id") Integer id) {
-        return buildConfigurationProvider.getSpecific(id);
+        return Utility.createRestEnityResponse(buildConfigurationProvider.getSpecific(id), id);
     }
 
     @ApiOperation(value = "Updates an existing Build Configuration")

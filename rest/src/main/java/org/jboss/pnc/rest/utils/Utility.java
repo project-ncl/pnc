@@ -17,6 +17,8 @@
  */
 package org.jboss.pnc.rest.utils;
 
+import javax.ws.rs.core.Response;
+
 public class Utility {
 
     @FunctionalInterface
@@ -30,4 +32,18 @@ public class Utility {
         }
     }
 
+    /**
+     * If the rest entity is null, return a 404 not found response.  If the entity is not null,
+     * return a 200 OK response with the rest entity in the body of the response.
+     * @param restEntity
+     * @param id
+     * @return
+     */
+    public static Response createRestEnityResponse(Object restEntity, Integer id) {
+        if(restEntity == null) {
+            return Response.status(Response.Status.NOT_FOUND).entity("Entity not found for id: " + id).build();
+        }
+        return Response.ok(restEntity).build();
+
+    }
 }
