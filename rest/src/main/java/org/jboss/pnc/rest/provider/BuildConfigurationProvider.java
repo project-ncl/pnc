@@ -18,10 +18,15 @@
 package org.jboss.pnc.rest.provider;
 
 import com.google.common.base.Preconditions;
+
 import org.jboss.pnc.model.BuildConfiguration;
+import org.jboss.pnc.model.BuildConfigurationAudited;
+import org.jboss.pnc.model.IdRev;
 import org.jboss.pnc.model.ProductVersion;
+import org.jboss.pnc.rest.restmodel.BuildConfigurationAuditedRest;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationRest;
 import org.jboss.pnc.rest.restmodel.ProductVersionRest;
+import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationAuditedRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationRepository;
 import org.jboss.pnc.spi.datastore.repositories.PageInfoProducer;
 import org.jboss.pnc.spi.datastore.repositories.ProductVersionRepository;
@@ -33,6 +38,7 @@ import org.jboss.pnc.spi.datastore.repositories.api.SortInfo;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
+
 import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
@@ -46,6 +52,8 @@ public class BuildConfigurationProvider {
 
     private BuildConfigurationRepository buildConfigurationRepository;
 
+    private BuildConfigurationAuditedRepository buildConfigurationAuditedRepository;
+
     private ProductVersionRepository productVersionRepository;
 
     private RSQLPredicateProducer rsqlPredicateProducer;
@@ -56,9 +64,11 @@ public class BuildConfigurationProvider {
 
     @Inject
     public BuildConfigurationProvider(BuildConfigurationRepository buildConfigurationRepository,
+            BuildConfigurationAuditedRepository buildConfigurationAuditedRepository,
             ProductVersionRepository productVersionRepository, RSQLPredicateProducer rsqlPredicateProducer,
             SortInfoProducer sortInfoProducer, PageInfoProducer pageInfoProducer) {
         this.buildConfigurationRepository = buildConfigurationRepository;
+        this.buildConfigurationAuditedRepository = buildConfigurationAuditedRepository;
         this.rsqlPredicateProducer = rsqlPredicateProducer;
         this.sortInfoProducer = sortInfoProducer;
         this.pageInfoProducer = pageInfoProducer;
@@ -202,7 +212,24 @@ public class BuildConfigurationProvider {
                 .collect(Collectors.toList());
     }
 
+    public List<BuildConfigurationAuditedRest> getRevisions(Integer id) {
+        List<BuildConfigurationAudited> auditedBuildConfigs = buildConfigurationAuditedRepository.findAllByIdOrderByRevDesc(id);
+        return nullableStreamOf(auditedBuildConfigs)
+                .map(buildConfigurationAuditedToRestModel())
+                .collect(Collectors.toList());
+    }
+
+    public BuildConfigurationAuditedRest getRevision(Integer id, Integer rev) {
+        IdRev idRev = new IdRev(id, rev);
+        BuildConfigurationAudited auditedBuildConfig = buildConfigurationAuditedRepository.queryById(idRev);
+        return new BuildConfigurationAuditedRest (auditedBuildConfig);
+    }
+
     private Function<ProductVersion, ProductVersionRest> productVersionToRestModel() {
         return productVersion -> new ProductVersionRest(productVersion);
+    }
+
+    private Function<BuildConfigurationAudited, BuildConfigurationAuditedRest> buildConfigurationAuditedToRestModel() {
+        return BuildConfigurationAudited -> new BuildConfigurationAuditedRest(BuildConfigurationAudited);
     }
 }

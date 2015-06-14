@@ -20,6 +20,7 @@ package org.jboss.pnc.rest.endpoint;
 import org.jboss.pnc.rest.provider.ArtifactProvider;
 import org.jboss.pnc.rest.provider.BuildRecordProvider;
 import org.jboss.pnc.rest.restmodel.ArtifactRest;
+import org.jboss.pnc.rest.restmodel.BuildConfigurationAuditedRest;
 import org.jboss.pnc.rest.restmodel.BuildRecordRest;
 
 import javax.inject.Inject;
@@ -133,4 +134,12 @@ public class BuildRecordEndpoint {
             @ApiParam(value = "RSQL query", required = false) @QueryParam("q") String rsql) {
         return buildRecordProvider.getAllForProject(pageIndex, pageSize, sortingRsql, rsql, projectId);
     }
+
+    @ApiOperation(value = "Gets the audited build configuration for specific build record")
+    @GET
+    @Path("/{id}/build-configuration-audited")
+    public BuildConfigurationAuditedRest getBuildConfigurationAudited(@ApiParam(value = "BuildRecord id", required = true) @PathParam("id") Integer id) {
+        return buildRecordProvider.getBuildConfigurationAudited(id);
+    }
+
 }

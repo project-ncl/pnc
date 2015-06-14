@@ -19,6 +19,7 @@ package org.jboss.pnc.integration;
 
 import com.jayway.restassured.http.ContentType;
 import com.jayway.restassured.response.Response;
+
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.junit.InSequence;
@@ -50,6 +51,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.invoke.MethodHandles;
 import java.util.concurrent.atomic.AtomicBoolean;
+
+import javax.ws.rs.core.Response.Status;
 
 import static com.jayway.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -286,6 +289,16 @@ public class BuildConfigurationRestTest {
         given().header("Accept", "application/json").header("Authorization", "Bearer " + access_token)
                     .body(configurationTemplate.fillTemplate()).contentType(ContentType.JSON).port(getHttpPort()).when()
                 .post(CONFIGURATION_REST_ENDPOINT).then().statusCode(400);
+    }
+
+    @Test
+    public void shouldGetAuditedBuildConfigurations() throws Exception {
+        Response response = given().header("Accept", "application/json").header("Authorization", "Bearer " + access_token)
+                        .contentType(ContentType.JSON).port(getHttpPort()).when()
+                    .get(String.format(CONFIGURATION_SPECIFIC_REST_ENDPOINT + "/revisions", configurationId));
+
+        ResponseAssertion.assertThat(response).hasStatus(Status.OK.getStatusCode());
+        ResponseAssertion.assertThat(response).hasJsonValueNotNullOrEmpty("[0].id");
     }
 
     @Test

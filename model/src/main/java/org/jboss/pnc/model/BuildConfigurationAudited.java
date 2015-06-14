@@ -79,6 +79,14 @@ public class BuildConfigurationAudited implements GenericEntity<IdRev> {
     public BuildConfigurationAudited() {
     }
 
+    public IdRev getIdRev() {
+        return idRev;
+    }
+
+    public void setIdRev(IdRev idRev) {
+        this.idRev = idRev;
+    }
+
     /**
      * @return the id
      */
