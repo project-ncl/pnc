@@ -130,8 +130,11 @@ public class BuildConfigurationProvider {
     }
 
     public BuildConfigurationRest getSpecific(Integer id) {
-        BuildConfiguration projectConfiguration = buildConfigurationRepository.queryByPredicates(withConfigurationId(id));
-        return toRestModel().apply(projectConfiguration);
+        BuildConfiguration buildConfiguration = buildConfigurationRepository.queryById(id);
+        if (buildConfiguration == null) {
+            return null;
+        }
+        return new BuildConfigurationRest(buildConfiguration);
     }
 
     public Integer store(BuildConfigurationRest buildConfigurationRest) {

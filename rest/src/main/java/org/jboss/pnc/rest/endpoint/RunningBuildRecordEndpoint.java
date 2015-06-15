@@ -20,6 +20,7 @@ package org.jboss.pnc.rest.endpoint;
 import org.jboss.logging.Logger;
 import org.jboss.pnc.rest.provider.BuildRecordProvider;
 import org.jboss.pnc.rest.restmodel.BuildRecordRest;
+import org.jboss.pnc.rest.utils.Utility;
 
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
@@ -81,8 +82,8 @@ public class RunningBuildRecordEndpoint {
     @ApiOperation(value = "Gets specific running Build Record")
     @GET
     @Path("/{id}")
-    public BuildRecordRest getSpecific(@ApiParam(value = "BuildRecord id", required = true) @PathParam("id") Integer id) {
-        return buildRecordProvider.getSpecificRunning(id);
+    public Response getSpecific(@ApiParam(value = "BuildRecord id", required = true) @PathParam("id") Integer id) {
+        return Utility.createRestEnityResponse(buildRecordProvider.getSpecificRunning(id), id);
     }
 
     @ApiResponses(value = {

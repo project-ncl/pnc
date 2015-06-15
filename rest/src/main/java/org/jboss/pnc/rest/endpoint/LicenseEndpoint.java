@@ -20,14 +20,17 @@ package org.jboss.pnc.rest.endpoint;
 import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
 import com.wordnik.swagger.annotations.ApiParam;
+
 import org.jboss.pnc.rest.provider.LicenseProvider;
 import org.jboss.pnc.rest.restmodel.LicenseRest;
+import org.jboss.pnc.rest.utils.Utility;
 
 import javax.inject.Inject;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
+
 import java.util.List;
 
 /**
@@ -63,8 +66,8 @@ public class LicenseEndpoint {
     @ApiOperation(value = "Get specific License")
     @GET
     @Path("/{id}")
-    public LicenseRest getSpecific(@ApiParam(value = "License id", required = true) @PathParam("id") Integer id) {
-        return licenseProvider.getSpecific(id);
+    public Response getSpecific(@ApiParam(value = "License id", required = true) @PathParam("id") Integer id) {
+        return Utility.createRestEnityResponse(licenseProvider.getSpecific(id), id);
     }
 
     @ApiOperation(value = "Creates a new License")

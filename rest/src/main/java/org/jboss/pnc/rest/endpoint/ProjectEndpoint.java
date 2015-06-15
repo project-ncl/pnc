@@ -20,14 +20,17 @@ package org.jboss.pnc.rest.endpoint;
 import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
 import com.wordnik.swagger.annotations.ApiParam;
+
 import org.jboss.pnc.rest.provider.ProjectProvider;
 import org.jboss.pnc.rest.restmodel.ProjectRest;
+import org.jboss.pnc.rest.utils.Utility;
 
 import javax.inject.Inject;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
+
 import java.util.List;
 
 @Api(value = "/projects", description = "Project related information")
@@ -59,8 +62,8 @@ public class ProjectEndpoint {
     @ApiOperation(value = "Gets specific Project")
     @GET
     @Path("/{id}")
-    public ProjectRest getSpecific(@ApiParam(value = "Project id", required = true) @PathParam("id") Integer id) {
-        return projectProvider.getSpecific(id);
+    public Response getSpecific(@ApiParam(value = "Project id", required = true) @PathParam("id") Integer id) {
+        return Utility.createRestEnityResponse(projectProvider.getSpecific(id), id);
     }
 
     @ApiOperation(value = "Creates a new Project")

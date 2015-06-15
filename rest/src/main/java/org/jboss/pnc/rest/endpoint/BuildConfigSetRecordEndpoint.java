@@ -25,10 +25,12 @@ import org.jboss.pnc.rest.provider.BuildConfigSetRecordProvider;
 import org.jboss.pnc.rest.provider.BuildRecordProvider;
 import org.jboss.pnc.rest.restmodel.BuildConfigSetRecordRest;
 import org.jboss.pnc.rest.restmodel.BuildRecordRest;
+import org.jboss.pnc.rest.utils.Utility;
 
 import javax.inject.Inject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 import java.util.List;
 import java.util.Set;
@@ -51,7 +53,7 @@ public class BuildConfigSetRecordEndpoint {
         this.buildRecordProvider = buildRecordProvider;
     }
 
-    @ApiOperation(value = "Gets all Build Records")
+    @ApiOperation(value = "Gets all build config set execution records")
     @GET
     public List<BuildConfigSetRecordRest> getAll(
             @ApiParam(value = "Page index") @QueryParam("pageIndex") @DefaultValue("0") int pageIndex,
@@ -61,11 +63,11 @@ public class BuildConfigSetRecordEndpoint {
         return buildConfigSetRecordProvider.getAll(pageIndex, pageSize, sortingRsql, rsql);
     }
 
-    @ApiOperation(value = "Gets specific Build Record")
+    @ApiOperation(value = "Gets specific build config set execution record")
     @GET
     @Path("/{id}")
-    public BuildConfigSetRecordRest getSpecific(@ApiParam(value = "BuildConfigSetRecord id", required = true) @PathParam("id") Integer id) {
-        return buildConfigSetRecordProvider.getSpecific(id);
+    public Response getSpecific(@ApiParam(value = "BuildConfigSetRecord id", required = true) @PathParam("id") Integer id) {
+        return Utility.createRestEnityResponse(buildConfigSetRecordProvider.getSpecific(id), id);
     }
 
     @ApiOperation(value = "Gets the build records associated with this set")

@@ -159,7 +159,7 @@ public class LicenseRestTest {
 
         //then
         ResponseAssertion.assertThat(deleteResponse).hasStatus(200);
-        ResponseAssertion.assertThat(getResponse).hasStatus(204);
+        ResponseAssertion.assertThat(getResponse).hasStatus(404);
     }
 
     private LicenseRest loremIpsumLicense() {

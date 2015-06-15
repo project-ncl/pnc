@@ -42,6 +42,7 @@ import org.jboss.pnc.model.ProductRelease.SupportLevel;
 import org.jboss.pnc.rest.provider.ProductReleaseProvider;
 import org.jboss.pnc.rest.provider.ProjectProvider;
 import org.jboss.pnc.rest.restmodel.ProductReleaseRest;
+import org.jboss.pnc.rest.utils.Utility;
 
 import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
@@ -89,8 +90,8 @@ public class ProductReleaseEndpoint {
     @ApiOperation(value = "Gets specific Product Release")
     @GET
     @Path("/{id}")
-    public ProductReleaseRest getSpecific(@ApiParam(value = "Product Release id", required = true) @PathParam("id") Integer id) {
-        return productReleaseProvider.getSpecific(id);
+    public Response getSpecific(@ApiParam(value = "Product Release id", required = true) @PathParam("id") Integer id) {
+        return Utility.createRestEnityResponse(productReleaseProvider.getSpecific(id), id);
     }
 
     @ApiOperation(value = "Creates a new Product Release")

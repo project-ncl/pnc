@@ -20,14 +20,17 @@ package org.jboss.pnc.rest.endpoint;
 import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
 import com.wordnik.swagger.annotations.ApiParam;
+
 import org.jboss.pnc.rest.provider.ProductProvider;
 import org.jboss.pnc.rest.restmodel.ProductRest;
+import org.jboss.pnc.rest.utils.Utility;
 
 import javax.inject.Inject;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
+
 import java.util.List;
 
 @Api(value = "/products", description = "Product related information")
@@ -59,8 +62,8 @@ public class ProductEndpoint {
     @ApiOperation(value = "Get specific Product")
     @GET
     @Path("/{id}")
-    public ProductRest getSpecific(@ApiParam(value = "Product id", required = true) @PathParam("id") Integer id) {
-        return productProvider.getSpecific(id);
+    public Response getSpecific(@ApiParam(value = "Product id", required = true) @PathParam("id") Integer id) {
+        return Utility.createRestEnityResponse(productProvider.getSpecific(id), id);
     }
 
     @ApiOperation(value = "Creates a new Product")
