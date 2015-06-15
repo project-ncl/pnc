@@ -17,12 +17,37 @@
  */
 'use strict';
 
-(function() {
+(function () {
 
   var module = angular.module('pnc.websockets');
 
-  module.controller('WebSocketsController', function (MyData) {
-    this.MyData = MyData;
-  });
+  module.factory('BuildRecordNotifications', [
+    '$log',
+    '$websocket',
+    function ($log, $websocket) {
+
+      var socket = $websocket('ws://localhost:8080/pnc-rest/ws/build-records/notifications');
+
+      var callbacks = [];
+
+      socket.onOpen(function () {
+        $log.debug('Socket open.');
+      });
+
+      socket.onMessage(function (m) {
+        var data = JSON.parse(m.data);
+        $log.debug('Socket received ', data);
+        callbacks.forEach(function (callback) {
+          callback(data);
+        });
+      });
+
+      return {
+        listen: function (callback) {
+          callbacks.push(callback);
+        }
+      };
+    }
+  ]);
 
 })();
