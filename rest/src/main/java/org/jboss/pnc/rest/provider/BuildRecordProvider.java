@@ -167,7 +167,7 @@ public class BuildRecordProvider {
 
     private BuildTask getSubmittedBuild(Integer id) {
         List<BuildTask> buildTasks = buildCoordinator.getBuildTasks().stream()
-                .filter(submittedBuild -> id.equals(submittedBuild.getBuildConfiguration().getId()))
+                .filter(submittedBuild -> id.equals(submittedBuild.getId()))
                 .collect(Collectors.toList());
         if (!buildTasks.isEmpty()) {
             return buildTasks.iterator().next();

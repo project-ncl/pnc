@@ -19,6 +19,9 @@ package org.jboss.pnc.rest.notifications.websockets;
 
 import org.jboss.pnc.rest.notifications.Notifier;
 import org.jboss.pnc.rest.notifications.OutputConverter;
+import org.jboss.pnc.rest.provider.BuildRecordProvider;
+import org.jboss.pnc.rest.restmodel.BuildRecordRest;
+import org.jboss.pnc.spi.BuildStatus;
 import org.jboss.pnc.spi.events.BuildStatusChangedEvent;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -44,6 +47,8 @@ public class NotificationsEndpoint {
     @Inject
     private Notifier notifier;
 
+    @Inject
+    private BuildRecordProvider buildRecordProvider;
     @OnOpen
     public void attach(Session attachedSession) {
         notifier.attachClient(new SessionBasedAttachedClient(attachedSession, outputConverter));
@@ -55,6 +60,12 @@ public class NotificationsEndpoint {
     }
 
     public void collectEvent(@Observes BuildStatusChangedEvent buildStatusChangedEvent) {
-        notifier.sendMessage(buildStatusChangedEvent);
+        Integer id = buildStatusChangedEvent.getBuildTaskId();
+
+        if (buildStatusChangedEvent.getNewStatus().isCompleted()) {
+            notifier.sendMessage(buildRecordProvider.getSpecific(id));
+        } else if(buildStatusChangedEvent.getOldStatus() == BuildStatus.NEW) {
+            notifier.sendMessage(buildRecordProvider.getSpecificRunning(id));
+        }
     }
 }

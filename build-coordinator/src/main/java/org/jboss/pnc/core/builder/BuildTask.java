@@ -93,7 +93,7 @@ public class BuildTask implements BuildExecution {
     public void setStatus(BuildStatus status) {
         BuildStatus oldStatus = this.status;
         this.status = status;
-        BuildStatusChangedEvent buildStatusChanged = new DefaultBuildStatusChangedEvent(oldStatus, status, buildConfiguration.getId(), this);
+        BuildStatusChangedEvent buildStatusChanged = new DefaultBuildStatusChangedEvent(oldStatus, status, getId(), this);
         log.debug("Updating build task {} status to {}", this.getId(), buildStatusChanged);
         buildSetTask.taskStatusUpdated(buildStatusChanged);
         buildStatusChangedEvent.fire(buildStatusChanged);
