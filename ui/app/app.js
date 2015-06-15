@@ -31,7 +31,8 @@
     'pnc.websockets',
     'pnc.milestone',
     'pnc.release',
-    'pnc.common.directives'
+    'pnc.common.directives',
+    'pnc.BuildProgressService'
   ]);
 
   var authEnabled = pnc_globals.enableAuth; // jshint ignore:line

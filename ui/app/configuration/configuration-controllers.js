@@ -289,35 +289,31 @@
 
   module.controller('ConfigurationSidebarController', [
     '$log',
+    '$scope',
     '$stateParams',
     'PncRestClient',
     'buildRecordList',
     'runningBuildRecordList',
-    function($log, $stateParams, PncRestClient, buildRecordList, runningBuildRecordList) {
+    'BuildProgressService',
+    function ($log, $scope, $stateParams, PncRestClient, buildRecordList, runningBuildRecordList, BuildProgressService) {
       $log.debug('ConfigurationSidebarController >> arguments=%O', arguments);
 
-      this.buildRecords = buildRecordList;
-      this.runningBuildRecordList = runningBuildRecordList;
+      BuildProgressService.track($scope, 'runningBuildRecordList', function () {
+        return PncRestClient.Running.query().$promise;
+      }, [
+        BuildProgressService.Tester.BUILD_CONFIGURATION($stateParams.configurationId),
+        BuildProgressService.Tester.IN_PROGRESS()
+      ], BuildProgressService.BUILD_RECORD_UPDATER);
 
-      var that = this;
 
-      this.refreshRecent = function() {
-        PncRestClient.Record.getAllForConfiguration({
-            configurationId: $stateParams.configurationId
-        }).$promise.then(
-          function(result) {
-            that.buildRecords = result;
-          }
-        );
-      };
-
-      this.refreshRunning = function() {
-        PncRestClient.Running.query().$promise.then(
-          function(result) {
-            that.runningBuildRecordList = result;
-          }
-        );
-      };
+      BuildProgressService.track($scope, 'buildRecords', function () {
+        return PncRestClient.Record.getAllForConfiguration({
+          configurationId: $stateParams.configurationId
+        }).$promise;
+      }, [
+        BuildProgressService.Tester.BUILD_CONFIGURATION($stateParams.configurationId),
+        BuildProgressService.Tester.FINISHED()
+      ], BuildProgressService.BUILD_RECORD_UPDATER);
 
     }
   ]);
