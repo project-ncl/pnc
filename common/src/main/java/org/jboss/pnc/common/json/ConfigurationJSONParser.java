@@ -17,16 +17,17 @@
  */
 package org.jboss.pnc.common.json;
 
-import org.jboss.logging.Logger;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Pavel Slegr
  * @author Jakub Bartecek &lt;jbartece@redhat.com&gt;
  */
 public class ConfigurationJSONParser {
-    public final static Logger log = Logger.getLogger(ConfigurationJSONParser.class);
+
+    public final static Logger log = LoggerFactory.getLogger(ConfigurationJSONParser.class);
 
     /**
      * Loads JSON configuration to the module configuration object
