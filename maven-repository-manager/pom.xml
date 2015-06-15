@@ -65,10 +65,6 @@
       <groupId>org.jboss.weld.se</groupId>
       <artifactId>weld-se</artifactId>
     </dependency>
-      <dependency>
-          <groupId>org.jboss.logging</groupId>
-          <artifactId>jboss-logging</artifactId>
-      </dependency>
     <dependency>
       <groupId>org.commonjava.aprox</groupId>
       <artifactId>aprox-promote-client-java</artifactId>
