@@ -80,7 +80,7 @@ To be able to turn on whole project on secure side you need 2 parts to fulfill.
 2. **Build & configure security for your PNC installation.**
 
 ###Authentication - prepare Keycloak server<br/>
-**PRE-REQ:** <br/>
+**PRE-REQUIREMENTS:** <br/>
 
 Install your Keycloak server standalone or in Openshift according to 
 * http://keycloak.github.io/docs/userguide/html/server-installation.html.
