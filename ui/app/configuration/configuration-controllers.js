@@ -295,7 +295,10 @@
     'buildRecordList',
     'runningBuildRecordList',
     'BuildProgressService',
-    function ($log, $scope, $stateParams, PncRestClient, buildRecordList, runningBuildRecordList, BuildProgressService) {
+    'BuildRecordNotifications',
+    'Notifications',
+    function ($log, $scope, $stateParams, PncRestClient, buildRecordList, runningBuildRecordList,
+              BuildProgressService, BuildRecordNotifications, Notifications) {
       $log.debug('ConfigurationSidebarController >> arguments=%O', arguments);
 
       BuildProgressService.track($scope, 'runningBuildRecordList', function () {
@@ -315,6 +318,21 @@
         BuildProgressService.Tester.FINISHED()
       ], BuildProgressService.BUILD_RECORD_UPDATER);
 
+
+      BuildRecordNotifications.listen(function (record) {
+        switch (record.status) {
+          case 'SUCCESS':
+            Notifications.success('Build #' + record.id + ' finished successfully.');
+            break;
+          case 'FAILED':
+          case 'UNSTABLE':
+          case 'ABORTED':
+          case 'CANCELLED':
+          case 'SYSTEM_ERROR':
+          case 'UNKNOWN':
+            Notifications.error('Build #' + record.id + ' finished with problems (' + record.status + ').');
+        }
+      });
     }
   ]);
 
