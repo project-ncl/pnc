@@ -73,25 +73,82 @@ INSECURE_REGISTRY='--insecure-registry <your-internal-remote-docker-registry>'
 6. Add image to Docker daemon: The Docker daemon has to have imported image, which is specified by environment variable `PNC_DOCKER_IMAGE_ID` (or is set in pnc-config.json file) You can use `docker pull` to download image from remote repository or `docker build` to create image from Dockerfile.
 
 
-Authentication:
----------------
-The default build with command `mvn clean install` comes with no authentication. In case you want to enable authentication
-use -Dauth=true together with your build command.
-Enabling authentication meand following
-1. Your backend REST endpoints will become secured
-    - inside rest.war under folder WEB-INF are added files from rest/src/main/auth
-    - keycloak.json file is configuration file managing connection to Keycloak server
-    - web.xml file where you define security-constraints & security-roles, which specifies users
-      authrorization's to each REST endpoint
-2. Your pnc web UI gain the SSO ability and authentication via Keycloak login page.
-    - with your first unauthenticated session you will be redirected from pnc web UI into
-      Keycloak login page and asked to provide your credentials. After successful log-in you
-      will be redirected back to pnc web UI.
+##Authentication:
+This project comes with possibility to be secured. Security is delivered via Keycloak project http://keycloak.jboss.org/.
+To be able to turn on whole project on secure side you need 2 parts to fulfill.
+1. **Have running and configured Keycloak server instance.** <br/>
+2. **Build & configure security for your PNC installation.**
 
-Configure your JEE server (EAP) for keycloak
- Use -Dauth.eap.home=<path to your EAP installation> with you build command, if you want EAP configure for Keycloak.
- According the http://docs.jboss.org/keycloak/docs/1.1.0.Final/userguide/html/ch08.html#jboss-adapter-installation installation
- will be performed on server for the given path.
+###Authentication - prepare Keycloak server<br/>
+**PRE-REQUIREMENTS:** <br/>
+
+Install your Keycloak server standalone or in Openshift according to 
+* http://keycloak.github.io/docs/userguide/html/server-installation.html.
+* http://keycloak.github.io/docs/userguide/html/openshift.html
+<br/>
+
+**Configure Keycloak server**<br/>
+
+1. Create your realm 
+By default the Keycloak server comes with "master realm", which is for demo purpose, so please create your own realm.
+<br/>
+2. Put your Direct Grant API on at https://`<your-server>`/auth/admin/master/console/#/realms/`<your-realm>`/login-settings
+<br/>
+3. Add/Create your users via https://`<your-server>`/auth/admin/master/console/#/realms/`<your-realm>`/users
+<br/>
+4. Define roles and assign users to it via https://`<your-server>`/auth/admin/master/console/#/realms/`<your-realm>`/roles
+<br/>
+5. Create 3 client app's at https://`<your-server>`/auth/admin/master/console/#/realms/`<your-realm>`/clients 
+<br/>
+6. First client app for pncweb UI with:
+  * Client Protocol = openid-connect
+  * Access Type = confidental
+  * Valid Redirect URIs = http://localhost:8080/pnc-web/*  (Please add URI's for different host's as you need for your installed pnc Web UI's)
+  * Go to "Installation" tab and select "Keycloak JSON" format and copy&paste or download the installation.
+7. Second client app for pncrest with:
+  * Client Protocol = openid-connect
+  * Access Type = confidental
+  * Valid Redirect URIs = http://localhost:8080/pnc-rest/*  (Please add as much URI's as you need for your installed pnc rest's)
+  * Go to "Installation" tab and select "Keycloak JSON" format and copy&paste or download the installation.
+8. Third client app for pncdirect with:
+  * Client Protocol = openid-connect
+  * Direct Grants Only = ON
+  * Access Type = public
+  * Go to "Installation" tab and select "Keycloak JSON" format and copy&paste or download the installation.
+<br/>
+
+**HINTS** <br/>
+
+1. pncrest keycloak.json additional props -> use these below for skipping ssl & defining rest for accepting only access_token for authentication/authorization.
+  * "ssl-required": "none",
+  * "bearer-only" : true,
+2. pncweb keycloak.json additional props -> look at http://keycloak.github.io/docs/userguide/html/ch08.html#adapter-config to find more about adapter's config.
+  * "ssl-required" : "none",
+  * "use-resource-role-mappings" : false,
+  * "enable-basic-auth" : false,
+  * "enable-cors" : true,
+  * "cors-max-age" : 1000,
+  * "cors-allowed-methods" : "POST,PUT,DELETE,GET",
+  * "bearer-only" : false,
+
+         
+
+###Authentication - build & configure your PNC<br/>
+By default PNC project comes with no security at all, it is up to you to turn it on.
+In case you want to enable authentication use `-Dauth=true` together with your build command.
+Enabling authentication means following<br/>
+
+1. Your backend REST endpoints will become secured
+  * inside rest.war under folder WEB-INF are added files from rest/src/main/auth
+  * keycloak.json file is configuration file managing connection to Keycloak server
+  * web.xml file where you define security-constraints & security-roles, which specifies users authrorization's to each REST endpoint
+2. Your pnc web UI gain the SSO ability and authentication via Keycloak login page.
+  * with your first unauthenticated session you will be redirected from pnc web UI into Keycloak login page.
+  * you will be asked to provide your credentials.
+  * after successful log-in you will be redirected back to pnc web UI.
+3. Configure your JEE server (EAP) for keycloak
+  * Use -Dauth.eap.home=``<path to your EAP installation>`` with you build command, if you want EAP configure for Keycloak.
+  According the http://docs.jboss.org/keycloak/docs/1.1.0.Final/userguide/html/ch08.html#jboss-adapter-installation installation will be performed on server for the given path.
 
 
 
