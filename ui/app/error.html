@@ -16,16 +16,11 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 
--->
-<div class="container-fluid">
-  <br>
-  <div class="row">
-    <div class="col-md-4 col-md-offset-4">
-      <div class="alert alert-info ">
-        <span class="pficon pficon-info"></span>
-        <strong>The requested resource could not be found.</strong>
-        <br><a href ui-sref="dashboard" class="alert-link">Return to Dashboard</a>.
-      </div>
-    </div>
+  -->
+<div class="row">
+  <div class="col-sm-12 col-md-8 col-lg-6">
+    <h1>{{ errorCtrl.title }}</h1>
+    <p>{{ errorCtrl.message }}</p>
+    <p><a href ui-sref="dashboard" class="alert-link">Return to dashboard</a>.</p>
   </div>
 </div>

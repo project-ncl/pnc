@@ -15,9 +15,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-'use strict';
+ 'use strict';
 
-(function() {
+ (function() {
   var app = angular.module('pnc', [
     'ui.router',
     'ui.bootstrap',
@@ -30,8 +30,8 @@
     'pnc.configuration-set',
     'pnc.websockets',
     'pnc.milestone',
-    'pnc.release'
-  ]);
+    'pnc.release',
+    ]);
 
   var authEnabled = pnc_globals.enableAuth; // jshint ignore:line
   var keycloak;
@@ -69,22 +69,35 @@
   });
 
   app.config(function($stateProvider, $urlRouterProvider, $locationProvider,
-                      $httpProvider, keycloakProvider, PROPERTIES) {
+    $httpProvider, keycloakProvider, PROPERTIES) {
+
     $locationProvider.html5Mode(false).hashPrefix('!');
 
-    $stateProvider.state('error', {
-      url: '/error',
-      views: {
-        'content@': {
-          templateUrl: 'error.html'
-        }
-      }
-    });
-
+    // Allows dashboard to be root state.
     $urlRouterProvider.when('', '/');
 
     // Redirect any unmatched URLs to the error state.
     $urlRouterProvider.otherwise('/error');
+
+    // Create error state, the `title` and `message` state params can be
+    // overidden.
+    $stateProvider.state('error', {
+      url: '/error',
+      params: {
+        title: 'Error',
+        message: 'The requested resource could not be found.'
+      },
+      views: {
+        'content@': {
+          templateUrl: 'error.html',
+          controller: ['$stateParams', function($stateParams) {
+            this.title = $stateParams.title;
+            this.message = $stateParams.message;
+          }],
+          controllerAs: 'errorCtrl'
+        },
+      }
+    });
 
     if (PROPERTIES.AUTH_ENABLED) {
       keycloakProvider.setKeycloak(keycloak);
@@ -95,14 +108,27 @@
 
   });
 
-  app.run(function($rootScope, $log, authService) {
+  app.run(function($rootScope, $log, $state, authService, keycloak) {
 
     // Handle errors with state changes.
     $rootScope.$on('$stateChangeError',
       function(event, toState, toParams, fromState, fromParams, error) {
+
         $log.debug('Caught $stateChangeError: event=%O, toState=%O, ' +
-          'toParams=%O, fromState=%O, fromParams=%O, error=%O',
-          event, toState, toParams, fromState, fromParams, error);
+                   'toParams=%O, fromState=%O, fromParams=%O, error=%O',
+                   event, toState, toParams, fromState, fromParams, error);
+        $log.error('Error navigating to "%s": %s %s', toState.url, error.status,
+                   error.statusText);
+
+        switch (error.status) {
+          case 401:
+            keycloak.login();
+            break;
+          case 403:
+            $state.go('error', { message: 'You do not have the required permission to access this resource' });
+            break;
+        }
+
       }
     );
 
