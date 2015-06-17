@@ -20,6 +20,7 @@
  (function() {
   var app = angular.module('pnc');
 
+
   app.provider('keycloak', function() {
     var keycloak;
 
@@ -64,8 +65,7 @@
     '$q',
     '$log',
     'keycloak',
-    'Notifications',
-    function ($q, $log, keycloak, Notifications) {
+    function ($q, $log, keycloak) {
 
       function addAuthHeaders(config, token) {
         config.headers = config.headers || {};
@@ -100,19 +100,35 @@
             return config;
 
           }
-        },
+        }
+      };
+    }
+  ]);
+
+  app.factory('errorInterceptor', [
+    '$log',
+    '$q',
+    'Notifications',
+    'keycloak',
+    function($log, $q, Notifications, keycloak) {
+      return {
 
         responseError: function(rejection) {
-          switch (rejection.status) {
+          switch(rejection.status) {
+            case 0:
+              Notifications.error('Unable to connect to server');
+              break;
             case 401:
               keycloak.login();
               break;
-            case 403:
-              Notifications.error('You do not have the required permission to perform this action.');
+            default:
+              $log.debug('HTTP request rejected: %O', rejection);
+              Notifications.error(rejection.status + ': ' +
+                                  rejection.statusText);
               break;
           }
-          $q.reject(rejection);
         }
+
       };
     }
   ]);
