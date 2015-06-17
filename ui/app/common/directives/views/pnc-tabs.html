@@ -1,0 +1,10 @@
+<div class="row">
+  <div class="col-md-12">
+    <ul class="nav nav-tabs push-down">
+      <li ng-repeat="tabScope in tabs" ng-class="{active: tabScope.selected}">
+        <a href ng-click="select(tabScope)">{{ tabScope.title }}</a>
+      </li>
+    </ul>
+  </div>
+</div>
+<div class="row" ng-transclude></div>

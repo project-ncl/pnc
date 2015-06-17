@@ -23,7 +23,8 @@
     'ui.router',
     'pnc.remote.restClient',
     'pnc.util.header',
-    'angularUtils.directives.uiBreadcrumbs'
+    'angularUtils.directives.uiBreadcrumbs',
+    'pnc.common.directives'
   ]);
 
   module.config(['$stateProvider', function($stateProvider) {
