@@ -27,25 +27,21 @@
     'configurationList',
     'PncRestClient',
     function($log, $state, configurationList, PncRestClient) {
-      var self = this;
-      $log.debug('ConfigurationListController >> this=%O, configurationList=%O',
-                 self, configurationList);
+      var that = this;
 
-      self.configurations = configurationList;
-      self.projects = [];
+      this.configurations = configurationList;
+      this.projects = [];
 
-      angular.forEach(self.configurations, function(configuration){
-
-          PncRestClient.Project.get({
-              projectId: configuration.projectId
-          }).$promise.then(
-            function (result) {
-              if (result) {
-                self.projects.push(result);
-                //console.log(JSON.stringify(self.projects));
-              }
+      angular.forEach(this.configurations, function(configuration) {
+        PncRestClient.Project.get({
+          projectId: configuration.projectId
+        }).$promise.then(
+          function(result) {
+            if (result) {
+              that.projects.push(result);
             }
-          );
+          }
+        );
       });
     }
   ]);
@@ -61,7 +57,7 @@
     'products',
     'configurations',
     function($state, $log, $filter, PncRestClient, Notifications, environments,
-             projects, products, configurations) {
+      projects, products, configurations) {
 
       var that = this;
 
@@ -77,18 +73,11 @@
         that.data.productVersionIds = gatherIds(that.productVersions.selected);
         that.data.dependencyIds = gatherIds(that.dependencies.selected);
 
-        that.data.$save().then(
-          function(result) {
-            Notifications.success('Configuration created');
-            $state.go('configuration.detail.show', {
-              configurationId: result.id
-            });
-          },
-          function(response) {
-            $log.error('Create configuration failed: response: %O', response);
-            Notifications.error('Configuration creation failed');
-          }
-        );
+        that.data.$save().then(function(result) {
+          $state.go('configuration.detail.show', {
+            configurationId: result.id
+          });
+        });
       };
 
 
@@ -114,7 +103,7 @@
         }
       };
 
-     // Selection of dependencies.
+      // Selection of dependencies.
       this.dependencies = {
         selected: [],
 
@@ -143,9 +132,8 @@
     'products',
     'configurations',
     function($log, $state, $filter, Notifications, PncRestClient,
-             configurationDetail, environmentDetail, projectDetail,
-             linkedProductVersions, dependencies, products, configurations) {
-      $log.debug('ConfigurationDetailController >> arguments=%O', arguments);
+      configurationDetail, environmentDetail, projectDetail,
+      linkedProductVersions, dependencies, products, configurations) {
 
       this.configuration = configurationDetail;
       this.environment = environmentDetail;
@@ -164,7 +152,6 @@
         all: [],
 
         update: function() {
-          $log.debug('productVersions >> update()');
           that.productVersions.all = PncRestClient.Product.getVersions({
             productId: that.products.selected.id
           });
@@ -182,7 +169,6 @@
         PncRestClient.Product.get({
           productId: linkedProductVersions[0].productId
         }).$promise.then(function(result) {
-          $log.debug('result, %O', result);
           that.products.selected = result;
           that.products.all = [that.products.selected];
           that.productVersions.update();
@@ -192,7 +178,7 @@
       }
 
 
-     // Selection of dependencies.
+      // Selection of dependencies.
       this.dependencies = {
         selected: dependencies,
 
@@ -206,23 +192,9 @@
       // Executing a build of a configuration
       this.build = function() {
         $log.debug('Initiating build of: %O', this.configuration);
-
-
         PncRestClient.Configuration.build({
-          configurationId: that.configuration.id }, {}).$promise.then(
-            function(result) {
-              $log.debug('Initiated Build: %O, result: %O', that.configuration,
-                         result);
-              Notifications.success('Initiated build of configuration: ' +
-                                    that.configuration.name);
-            },
-            function(response) {
-              $log.error('Failed to initiated build: %O, response: %O',
-                         that.configuration, response);
-              Notifications.error('Could not initiate build of configuration: ' +
-                                    that.configuration.name);
-            }
-          );
+          configurationId: that.configuration.id
+        }, {});
       };
 
       // Update a build configuration after editting
@@ -232,58 +204,29 @@
         // The REST API takes integer Ids so we need to extract them from
         // our collection of objects first and attach them to our data object
         // for sending back to the server.
-        this.configuration.productVersionIds = gatherIds(this.productVersions.selected);
+        this.configuration.productVersionIds =
+          gatherIds(this.productVersions.selected);
         this.configuration.dependencyIds = gatherIds(this.dependencies.selected);
 
-        this.configuration.$update().then(
-          function(result) {
-            $log.debug('Update Config: %O, result: %O', that.configuration,
-                       result);
-            Notifications.success('Configuration updated');
-          },
-          function(response) {
-            $log.error('Update configuration: %O failed, response: %O',
-                       that.configuration, response);
-            Notifications.error('Configuration update failed');
-          }
-        );
+        this.configuration.$update();
       };
 
       // Cloning a build configuration
       this.clone = function() {
-        this.configuration.$clone().then(function(result) {
-          $log.debug('Clone Configuration: %O Successful Result: %O',
-               that.configuration, result);
-
-          $state.go('configuration.detail.show', { configurationId: result.id });
-          Notifications.success('Configuration cloned');
-        },
-        function(response) {
-          $log.error('Clone configuration: %O failed, response: %O',
-                     that.configuration, response);
-          Notifications.error('Configuration clone failed');
-        });
+        this.configuration.$clone();
       };
 
       // Deleting a build configuration
       this.delete = function() {
-        this.configuration.$delete().then(
-          // Success
-          function (result) {
-            $log.debug('Delete Config: %O success result: %O',
-                       that.configuration, result);
-            Notifications.success('Configuration deleted');
-            $state.go('configuration.list', {}, { reload: true, inherit: false,
-                      notify: true });
-          },
-          // Failure
-          function (response) {
-            $log.error('Delete configuration: %O failed, response: %O',
-                       that.configuration, response);
-            Notifications.error('Configuration deletion failed');
-          }
-        );
+        this.configuration.$delete().then(function() {
+          $state.go('configuration.list', {}, {
+            reload: true,
+            inherit: false,
+            notify: true
+          });
+        });
       };
+
     }
   ]);
 

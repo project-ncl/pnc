@@ -24,8 +24,6 @@
   module.controller('ProductListController', [
     '$log', '$state', 'productList',
     function($log, $state, productList) {
-      $log.debug('ProductListController >> this=%O, productList=%O',
-                 this, productList);
 
       this.products = productList;
     }
@@ -35,9 +33,8 @@
     '$log',
     'productDetail',
     'productVersions',
-    'Notifications',
     'PncRestClient',
-    function ($log, productDetail, productVersions, Notifications, PncRestClient) {
+    function($log, productDetail, productVersions, PncRestClient) {
 
       var that = this;
       that.product = productDetail;
@@ -46,19 +43,7 @@
       // Update a product after editing
       that.update = function() {
         $log.debug('Updating product: %O', that.product);
-
-        that.product.$update().then(
-          function(result) {
-            $log.debug('Update Product: %O, result: %O', that.product,
-                       result);
-            Notifications.success('Product updated');
-          },
-          function(response) {
-            $log.error('Update product: %O failed, response: %O',
-                       that.product, response);
-            Notifications.error('Product update failed');
-          }
-        );
+        that.product.$update();
       };
 
       // Build wrapper objects
@@ -66,35 +51,35 @@
       that.versionReleases = [];
 
       // Retrieve all the artifacts of all the build records of the build configurations set
-      angular.forEach(that.versions, function(version){
+      angular.forEach(that.versions, function(version) {
 
-          PncRestClient.Milestone.getAllForProductVersion({
-              versionId: version.id
-          }).$promise.then(
-            function (results) {
-               angular.forEach(results, function(result){
-                 that.versionMilestones.push(result);
-               });
-            }
-          );
+        PncRestClient.Milestone.getAllForProductVersion({
+          versionId: version.id
+        }).$promise.then(
+          function(results) {
+            angular.forEach(results, function(result) {
+              that.versionMilestones.push(result);
+            });
+          }
+        );
 
-          PncRestClient.Release.getAllForProductVersion({
-              versionId: version.id
-          }).$promise.then(
-            function (results) {
-               angular.forEach(results, function(result){
-                 that.versionReleases.push(result);
-               });
-            }
-          );
+        PncRestClient.Release.getAllForProductVersion({
+          versionId: version.id
+        }).$promise.then(
+          function(results) {
+            angular.forEach(results, function(result) {
+              that.versionReleases.push(result);
+            });
+          }
+        );
       });
 
-      that.convertFromTimestamp = function (mSec) {
+      that.convertFromTimestamp = function(mSec) {
         var now = new Date();
         return new Date(mSec + (now.getTimezoneOffset() * 60 * 1000) - (12 * 60 * 60 * 1000));
       };
 
-      that.formatDate = function (date) {
+      that.formatDate = function(date) {
         return date.getFullYear() + '/' + date.getMonth() + '/' + date.getDate();
       };
 
@@ -111,11 +96,11 @@
         if (milestone.releaseDate) {
           rDate = that.formatDate(that.convertFromTimestamp(milestone.releaseDate));
         }
-        var milestoneTooltip = '<strong>'+milestone.version+'</strong>'+
-          '<br><br><strong>Phase: </strong> &lt;tbd&gt; <br>'+
-          '<strong>Starting date: </strong>'+sDate+'<br>'+
-          '<strong>Planned release date: </strong>'+prDate+'<br>'+
-          '<strong>Release date: </strong>'+rDate+'<br>';
+        var milestoneTooltip = '<strong>' + milestone.version + '</strong>' +
+          '<br><br><strong>Phase: </strong> &lt;tbd&gt; <br>' +
+          '<strong>Starting date: </strong>' + sDate + '<br>' +
+          '<strong>Planned release date: </strong>' + prDate + '<br>' +
+          '<strong>Release date: </strong>' + rDate + '<br>';
         return milestoneTooltip;
       };
 
@@ -125,16 +110,16 @@
           rDate = that.formatDate(that.convertFromTimestamp(release.releaseDate));
         }
         var milestoneVersion = '';
-         angular.forEach(that.versionMilestones, function(versionMilestone){
-            if (versionMilestone.id === release.productMilestoneId) {
-               milestoneVersion = versionMilestone.version;
-            }
+        angular.forEach(that.versionMilestones, function(versionMilestone) {
+          if (versionMilestone.id === release.productMilestoneId) {
+            milestoneVersion = versionMilestone.version;
+          }
         });
-        var releaseTooltip = '<strong>'+release.version+'</strong>'+
-          '<br><br><strong>Phase: </strong> &lt;tbd&gt; <br>'+
-          '<strong>Release date: </strong>'+rDate+'<br>'+
-          '<strong>Released from Milestone: </strong>'+milestoneVersion+'<br>'+
-          '<strong>Support Level: </strong>'+release.supportLevel+'<br>';
+        var releaseTooltip = '<strong>' + release.version + '</strong>' +
+          '<br><br><strong>Phase: </strong> &lt;tbd&gt; <br>' +
+          '<strong>Release date: </strong>' + rDate + '<br>' +
+          '<strong>Released from Milestone: </strong>' + milestoneVersion + '<br>' +
+          '<strong>Support Level: </strong>' + release.supportLevel + '<br>';
         return releaseTooltip;
       };
     }
@@ -149,11 +134,9 @@
     'buildConfigurations',
     'productReleases',
     'productMilestones',
-    'Notifications',
     'PncRestClient',
-    function ($log, $state, productDetail, versionDetail, buildConfigurationSets, buildConfigurations, productReleases, productMilestones, Notifications, PncRestClient) {
-      $log.debug('VersionDetailController >> this=%O, productDetail=%O, ' +
-                 'versionDetail=%O, buildConfigurationSets=%0', this, productDetail, versionDetail, buildConfigurationSets);
+    function($log, $state, productDetail, versionDetail, buildConfigurationSets,
+      buildConfigurations, productReleases, productMilestones, PncRestClient) {
 
       var that = this;
       that.product = productDetail;
@@ -166,19 +149,7 @@
       // Update a product version after editing
       that.update = function() {
         $log.debug('Updating product version: %O', that.version);
-
-        that.version.$update().then(
-          function(result) {
-            $log.debug('Update Product Version: %O, result: %O', that.version,
-                       result);
-            Notifications.success('Product Version updated');
-          },
-          function(response) {
-            $log.error('Update product version: %O failed, response: %O',
-                       that.version, response);
-            Notifications.error('Product Version update failed');
-          }
-        );
+        that.version.$update();
       };
 
       // Update a product version after editing
@@ -188,17 +159,16 @@
         milestone.releaseDate = null;
         milestone.downloadUrl = null;
 
-        milestone.$update({versionId: versionDetail.id}).then(
+        milestone.$update({
+          versionId: versionDetail.id
+        }).then(
           function() {
-            Notifications.success('Milestone unreleased');
             $state.go('product.version', {
               productId: productDetail.id,
               versionId: versionDetail.id
-            }, {reload:true});
-          },
-          function(response) {
-            $log.error('Unrelease milestone failed, response: %O', response);
-            Notifications.error('Milestone unrelease failed');
+            }, {
+              reload: true
+            });
           }
         );
       };
@@ -209,41 +179,28 @@
 
         versionDetail.currentProductMilestoneId = milestone.id;
 
-        versionDetail.$update({ productId: productDetail.id, versionId: versionDetail.id})
-        .then(
-          function() {
-            Notifications.success('Milestone updated');
-            $state.go('product.version', {
-              productId: productDetail.id,
-              versionId: versionDetail.id
-            }, {reload:true});
-          },
-          function(response) {
-            $log.error('Update milestone failed, response: %O', response);
-            Notifications.error('Milestone update failed');
-          }
-        );
+        versionDetail.$update({
+            productId: productDetail.id,
+            versionId: versionDetail.id
+          })
+          .then(
+            function() {
+              $state.go('product.version', {
+                productId: productDetail.id,
+                versionId: versionDetail.id
+              }, {
+                reload: true
+              });
+            }
+          );
       };
 
       // Executing a build of a configurationSet
       that.buildConfigSet = function(configSet) {
         $log.debug('**Initiating build of SET: %s**', configSet.name);
-
         PncRestClient.ConfigurationSet.build({
-          configurationSetId: configSet.id }, {}).$promise.then(
-            function(result) {
-              $log.debug('Initiated Build: %O, result: %O', configSet,
-                         result);
-              Notifications.success('Initiated build of Configuration Set: ' +
-                                    configSet.name);
-            },
-            function(response) {
-              $log.error('Failed to initiated build: %O, response: %O',
-                         configSet, response);
-              Notifications.error('Could not initiate build of Configuration Set: ' +
-                                    configSet.name);
-            }
-        );
+          configurationSetId: configSet.id
+        }, {});
       };
 
       // Executing a build of a configuration
@@ -251,30 +208,18 @@
         $log.debug('**Initiating build of: %O', config.name);
 
         PncRestClient.Configuration.build({
-          configurationId: config.id }, {}).$promise.then(
-            function(result) {
-              $log.debug('Initiated Build: %O, result: %O', config,
-                         result);
-              Notifications.success('Initiated build of configuration: ' +
-                                    config.name);
-            },
-            function(response) {
-              $log.error('Failed to initiated build: %O, response: %O',
-                         config, response);
-              Notifications.error('Could not initiate build of configuration: ' +
-                                    config.name);
-            }
-          );
+          configurationId: config.id
+        }, {});
       };
 
       that.getMilestoneVersion = function(milestoneId) {
-         var milestoneVersion = '';
-         angular.forEach(that.productmilestones, function(versionMilestone){
-            if (versionMilestone.id === milestoneId) {
-               milestoneVersion = versionMilestone.version;
-            }
-         });
-         return milestoneVersion;
+        var milestoneVersion = '';
+        angular.forEach(that.productmilestones, function(versionMilestone) {
+          if (versionMilestone.id === milestoneId) {
+            milestoneVersion = versionMilestone.version;
+          }
+        });
+        return milestoneVersion;
       };
     }
   ]);
@@ -283,25 +228,17 @@
     '$state',
     '$log',
     'PncRestClient',
-    'Notifications',
-    function($state, $log, PncRestClient, Notifications) {
+    function($state, $log, PncRestClient) {
 
       this.data = new PncRestClient.Product();
       var that = this;
 
       that.submit = function() {
-        that.data.$save().then(
-          function(result) {
-            Notifications.success('Product created');
-            $state.go('product.detail', {
-              productId: result.id
-            });
-          },
-          function(response) {
-            $log.error('Create product failed: response: %O', response);
-            Notifications.error('Product creation failed');
-          }
-        );
+        that.data.$save().then(function(result) {
+          $state.go('product.detail', {
+            productId: result.id
+          });
+        });
       };
     }
   ]);
@@ -310,28 +247,22 @@
     '$state',
     '$log',
     'PncRestClient',
-    'Notifications',
     'productDetail',
-    function($state, $log, PncRestClient, Notifications, productDetail) {
-
-      $log.debug('ProductVersionCreateController >> this=%O, productDetail=%O, ', this, productDetail);
+    function($state, $log, PncRestClient, productDetail) {
 
       this.data = new PncRestClient.Version();
       this.product = productDetail;
       var that = this;
 
       that.submit = function() {
-        that.data.$save({productId: that.product.id }).then(
+        that.data.$save({
+          productId: that.product.id
+        }).then(
           function(result) {
-            Notifications.success('Product Version created');
             $state.go('product.detail', {
               productId: productDetail.id,
               versionId: result.id
             });
-          },
-          function(response) {
-            $log.error('Create product version failed: response: %O', response);
-            Notifications.error('Product Version creation failed');
           }
         );
       };

@@ -133,7 +133,9 @@
             keycloak.login();
             break;
           case 403:
-            $state.go('error', { message: 'You do not have the required permission to access this resource' });
+            $state.go('error', {
+              message: 'You do not have the required permission to access this resource'
+            });
             break;
         }
 
