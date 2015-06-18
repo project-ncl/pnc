@@ -105,6 +105,7 @@
 
       var self = this;
       self.configurationSetDetail = configurationSetDetail;
+      self.shouldFilter = false;
       self.projects = projects;
       self.configurations = [];
       self.selectedConfiguration = {};
