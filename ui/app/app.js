@@ -105,11 +105,11 @@
     // Configure pop-up notifications
     NotificationsProvider.setDelay(12000);
 
-    $httpProvider.interceptors.push('errorInterceptor');
+    $httpProvider.interceptors.push('httpResponseInterceptor');
 
     if (PROPERTIES.AUTH_ENABLED) {
       keycloakProvider.setKeycloak(keycloak);
-      $httpProvider.interceptors.push('authInterceptor');
+      $httpProvider.interceptors.push('httpAuthenticationInterceptor');
     } else {
       keycloakProvider.useMockKeycloak();
     }
