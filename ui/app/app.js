@@ -132,7 +132,6 @@
       }
     );
 
-    $rootScope.auth = authService;
   });
 
 })();
