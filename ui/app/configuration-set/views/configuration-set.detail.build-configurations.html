@@ -50,15 +50,7 @@
         <td>John Doe</td>
         <td>
           <div ng-repeat="buildRecord in detailSetCtrl.lastBuildRecords | filter: { buildConfigurationId: configuration.id }">
-            <span ng-switch on="buildRecord.status">
-              <img ng-switch-when="BUILDING" alt="BUILDING" src='images/blue_anime.gif'>
-              <img ng-switch-when="SUCCESS" alt="SUCCESS" src='images/success_small.png'>
-              <img ng-switch-when="UNSTABLE" alt="UNSTABLE" src='images/red_small.png'>
-              <img ng-switch-when="FAILED" alt="FAILED" src='images/red_small.png'>
-              <img ng-switch-when="ABORTED" alt="ABORTED" src='images/aborted_small.png'>
-              <img ng-switch-when="CANCELLED" alt="CANCELLED" src='images/aborted_small.png'>
-              <img ng-switch-default alt="UNKNOWN" src='images/unknown_small.png'>
-            </span>
+            <build-status-icon status="buildRecord.status"></build-status-icon>
             <span><a href ui-sref="record.detail.info({recordId: buildRecord.id})"> # {{ buildRecord.id }}  </a></span>
               {{ buildRecord.endTime | date:'medium'}}
           </div>
