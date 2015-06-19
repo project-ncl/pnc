@@ -84,11 +84,11 @@ public class EnvironmentEndpoint {
         return Response.ok().build();
     }
 
-    @ApiOperation(value = "Deletes an existing Product")
+    @ApiOperation(value = "Deletes an existing Environment")
     @DELETE
     @Path("/{id}")
-    public Response delete(@ApiParam(value = "License id", required = true) @PathParam("id") Integer licenseId) {
-        environmentProvider.delete(licenseId);
+    public Response delete(@ApiParam(value = "Environment id", required = true) @PathParam("id") Integer environmentId) {
+        environmentProvider.delete(environmentId);
         return Response.ok().build();
     }
 }

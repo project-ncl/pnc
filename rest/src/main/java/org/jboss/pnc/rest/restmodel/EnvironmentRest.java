@@ -17,16 +17,22 @@
  */
 package org.jboss.pnc.rest.restmodel;
 
+import com.wordnik.swagger.annotations.ApiModelProperty;
 import org.jboss.pnc.model.BuildType;
 import org.jboss.pnc.model.Environment;
 import org.jboss.pnc.model.OperationalSystem;
 
+import javax.xml.bind.annotation.XmlRootElement;
+
+@XmlRootElement(name = "Environment")
 public class EnvironmentRest {
 
     private Integer id;
 
+    @ApiModelProperty(dataType = "string", allowableValues = "JAVA, DOCKER, NATIVE")
     private BuildType buildType;
 
+    @ApiModelProperty(dataType = "string", allowableValues = "LINUX, WINDOWS, OSX")
     private OperationalSystem operationalSystem;
 
     public EnvironmentRest() {
