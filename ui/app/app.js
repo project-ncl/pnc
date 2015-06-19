@@ -28,10 +28,11 @@
     'pnc.configuration',
     'pnc.record',
     'pnc.configuration-set',
-    'pnc.websockets',
     'pnc.milestone',
     'pnc.release',
-    'pnc.common.directives'
+    'pnc.common.directives',
+    'pnc.common.websockets',
+    'pnc.common.buildNotifications'
   ]);
 
   var authEnabled = pnc_globals.enableAuth; // jshint ignore:line

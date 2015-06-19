@@ -98,7 +98,7 @@ public class ProjectBuilder {
 
         assertBuildStartedSuccessfully(buildTask);
         waitForStatusUpdates(N_STATUS_UPDATES_PER_TASK, semaphore);
-        assertAllStatusUpdateReceived(receivedStatuses, buildConfiguration.getId());
+        assertAllStatusUpdateReceived(receivedStatuses, buildTask.getId());
     }
 
     void buildProjects(BuildConfigurationSet buildConfigurationSet) throws InterruptedException, CoreException {
@@ -119,7 +119,7 @@ public class ProjectBuilder {
         waitForStatusUpdates(nStatusUpdates, semaphore);
 
         log.info("Checking if received all status updates...");
-        buildConfigurationSet.getBuildConfigurations().forEach(bc -> assertAllStatusUpdateReceived(receivedStatuses, bc.getId()));
+        buildSetTask.getBuildTasks().forEach(bt -> assertAllStatusUpdateReceived(receivedStatuses, bt.getId()));
     }
 
     private Semaphore registerReleaseListenersAndAcquireSemaphore(List<BuildStatusChangedEvent> receivedStatuses, int nStatusUpdates) throws InterruptedException {
@@ -158,30 +158,30 @@ public class ProjectBuilder {
         }
     }
 
-    private void assertAllStatusUpdateReceived(List<BuildStatusChangedEvent> receivedStatuses, Integer configurationId) {
-        assertStatusUpdateReceived(receivedStatuses, BuildStatus.BUILD_ENV_SETTING_UP, configurationId);
-        assertStatusUpdateReceived(receivedStatuses, BuildStatus.BUILD_ENV_WAITING, configurationId);
-        assertStatusUpdateReceived(receivedStatuses, BuildStatus.BUILD_ENV_SETUP_COMPLETE_SUCCESS, configurationId);
-        assertStatusUpdateReceived(receivedStatuses, BuildStatus.REPO_SETTING_UP, configurationId);
-        assertStatusUpdateReceived(receivedStatuses, BuildStatus.BUILD_SETTING_UP, configurationId);
-        assertStatusUpdateReceived(receivedStatuses, BuildStatus.BUILD_WAITING, configurationId);
-        assertStatusUpdateReceived(receivedStatuses, BuildStatus.BUILD_COMPLETED_SUCCESS, configurationId);
-        assertStatusUpdateReceived(receivedStatuses, BuildStatus.BUILD_ENV_DESTROYING, configurationId);
-        assertStatusUpdateReceived(receivedStatuses, BuildStatus.BUILD_ENV_DESTROYED, configurationId);
-        assertStatusUpdateReceived(receivedStatuses, BuildStatus.STORING_RESULTS, configurationId);
-        assertStatusUpdateReceived(receivedStatuses, BuildStatus.DONE, configurationId);
+    private void assertAllStatusUpdateReceived(List<BuildStatusChangedEvent> receivedStatuses, Integer buildTaskId) {
+        assertStatusUpdateReceived(receivedStatuses, BuildStatus.BUILD_ENV_SETTING_UP, buildTaskId);
+        assertStatusUpdateReceived(receivedStatuses, BuildStatus.BUILD_ENV_WAITING, buildTaskId);
+        assertStatusUpdateReceived(receivedStatuses, BuildStatus.BUILD_ENV_SETUP_COMPLETE_SUCCESS, buildTaskId);
+        assertStatusUpdateReceived(receivedStatuses, BuildStatus.REPO_SETTING_UP, buildTaskId);
+        assertStatusUpdateReceived(receivedStatuses, BuildStatus.BUILD_SETTING_UP, buildTaskId);
+        assertStatusUpdateReceived(receivedStatuses, BuildStatus.BUILD_WAITING, buildTaskId);
+        assertStatusUpdateReceived(receivedStatuses, BuildStatus.BUILD_COMPLETED_SUCCESS, buildTaskId);
+        assertStatusUpdateReceived(receivedStatuses, BuildStatus.BUILD_ENV_DESTROYING, buildTaskId);
+        assertStatusUpdateReceived(receivedStatuses, BuildStatus.BUILD_ENV_DESTROYED, buildTaskId);
+        assertStatusUpdateReceived(receivedStatuses, BuildStatus.STORING_RESULTS, buildTaskId);
+        assertStatusUpdateReceived(receivedStatuses, BuildStatus.DONE, buildTaskId);
     }
 
-    private void assertStatusUpdateReceived(List<BuildStatusChangedEvent> receivedStatusEvents, BuildStatus status, Integer configurationId) {
+    private void assertStatusUpdateReceived(List<BuildStatusChangedEvent> receivedStatusEvents, BuildStatus status, Integer buildTaskId) {
         boolean received = false;
         for (BuildStatusChangedEvent receivedStatusEvent : receivedStatusEvents) {
-            if (receivedStatusEvent.getBuildTaskId().equals(configurationId) &&
+            if (receivedStatusEvent.getBuildTaskId().equals(buildTaskId) &&
                     receivedStatusEvent.getNewStatus().equals(status)) {
                 received = true;
                 break;
             }
         }
-        assertTrue("Did not received update for status: " + status + " for BuildConfiguration: " + configurationId, received);
+        assertTrue("Did not received update for status: " + status + " for BuildTaskId: " + buildTaskId, received);
     }
 
     protected void assertBuildArtifactsPresent(List<Artifact> builtArtifacts) {

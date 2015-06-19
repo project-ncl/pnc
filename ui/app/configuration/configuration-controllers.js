@@ -289,36 +289,50 @@
 
   module.controller('ConfigurationSidebarController', [
     '$log',
+    '$scope',
     '$stateParams',
     'PncRestClient',
     'buildRecordList',
     'runningBuildRecordList',
-    function($log, $stateParams, PncRestClient, buildRecordList, runningBuildRecordList) {
+    'BuildProgressService',
+    'BuildRecordNotifications',
+    'Notifications',
+    function ($log, $scope, $stateParams, PncRestClient, buildRecordList, runningBuildRecordList,
+              BuildProgressService, BuildRecordNotifications, Notifications) {
       $log.debug('ConfigurationSidebarController >> arguments=%O', arguments);
 
-      this.buildRecords = buildRecordList;
-      this.runningBuildRecordList = runningBuildRecordList;
+      BuildProgressService.track($scope, 'runningBuildRecordList', function () {
+        return PncRestClient.Running.query().$promise;
+      }, [
+        BuildProgressService.Tester.BUILD_CONFIGURATION($stateParams.configurationId),
+        BuildProgressService.Tester.IN_PROGRESS()
+      ], BuildProgressService.BUILD_RECORD_UPDATER);
 
-      var that = this;
 
-      this.refreshRecent = function() {
-        PncRestClient.Record.getAllForConfiguration({
-            configurationId: $stateParams.configurationId
-        }).$promise.then(
-          function(result) {
-            that.buildRecords = result;
-          }
-        );
-      };
+      BuildProgressService.track($scope, 'buildRecords', function () {
+        return PncRestClient.Record.getAllForConfiguration({
+          configurationId: $stateParams.configurationId
+        }).$promise;
+      }, [
+        BuildProgressService.Tester.BUILD_CONFIGURATION($stateParams.configurationId),
+        BuildProgressService.Tester.FINISHED()
+      ], BuildProgressService.BUILD_RECORD_UPDATER);
 
-      this.refreshRunning = function() {
-        PncRestClient.Running.query().$promise.then(
-          function(result) {
-            that.runningBuildRecordList = result;
-          }
-        );
-      };
 
+      BuildRecordNotifications.listen(function (record) {
+        switch (record.status) {
+          case 'SUCCESS':
+            Notifications.success('Build #' + record.id + ' finished successfully.');
+            break;
+          case 'FAILED':
+          case 'UNSTABLE':
+          case 'ABORTED':
+          case 'CANCELLED':
+          case 'SYSTEM_ERROR':
+          case 'UNKNOWN':
+            Notifications.error('Build #' + record.id + ' finished with problems (' + record.status + ').');
+        }
+      });
     }
   ]);
 
