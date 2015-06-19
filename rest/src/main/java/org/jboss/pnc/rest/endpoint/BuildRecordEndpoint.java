@@ -140,7 +140,7 @@ public class BuildRecordEndpoint {
     @ApiOperation(value = "Gets the audited build configuration for specific build record")
     @GET
     @Path("/{id}/build-configuration-audited")
-    public BuildConfigurationAuditedRest getBuildConfigurationAudited(@ApiParam(value = "BuildRecord id", required = true) @PathParam("id") Integer id) {
+    public Response getBuildConfigurationAudited(@ApiParam(value = "BuildRecord id", required = true) @PathParam("id") Integer id) {
         return buildRecordProvider.getBuildConfigurationAudited(id);
     }
 
