@@ -66,7 +66,6 @@ public class BuildRecordRest {
     }
 
     public BuildRecordRest(BuildTask buildTask) {
-        this.id = buildTask.getBuildConfiguration().getId();
         this.id = buildTask.getId();
         BuildConfiguration buildConfiguration = buildTask.getBuildConfiguration();
         this.startTime = buildConfiguration.getCreationTime();

@@ -2,7 +2,7 @@
 
 (function () {
 
-  var module = angular.module('pnc.BuildProgressService', []);
+  var module = angular.module('pnc.common.buildNotifications', []);
 
   /**
    * Keeps track of running builds. See the "track" function.
@@ -47,7 +47,7 @@
          * Optionally update the item with new data and return it.
          * If the item cannot be updated, return null.
          * After this, the testers are applied to determine
-         * if the updated item should be kept or deleted for that partical list.
+         * if the updated item should be kept or deleted for that particular list.
          */
         update: function (old, data) {
           if (old.id === data.id) {
@@ -71,24 +71,14 @@
 
 
       function test(testerArray, data) {
-        var res = true;
-        testerArray.forEach(function (tester) {
-          if (!tester.test(data)) {
-            res = false;
+        for(var i = 0; i < testerArray.length; i++) {
+          if (!testerArray[i].test(data)) {
+            return false;
           }
-        });
-        return res;
+        }
+        return true;
       }
 
-      function arrayTest(testerArray, dataArray) {
-        var res = true;
-        dataArray.forEach(function (data) {
-          if (!test(testerArray, data)) {
-            res = false;
-          }
-        });
-        return res;
-      }
 
       function arrayFilter(testerArray, dataArray) {
         var res = [];

@@ -19,7 +19,7 @@
 
 (function () {
 
-  var module = angular.module('pnc.websockets');
+  var module = angular.module('pnc.common.websockets');
 
   module.factory('BuildRecordNotifications', [
     '$log',

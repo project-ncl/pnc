@@ -2,7 +2,7 @@
 
 (function () {
 
-  angular.module('pnc.websockets', [
+  angular.module('pnc.common.websockets', [
     'angular-websocket'
   ]);
 })();
