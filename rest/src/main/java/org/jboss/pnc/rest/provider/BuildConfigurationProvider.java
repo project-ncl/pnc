@@ -225,6 +225,9 @@ public class BuildConfigurationProvider {
     public BuildConfigurationAuditedRest getRevision(Integer id, Integer rev) {
         IdRev idRev = new IdRev(id, rev);
         BuildConfigurationAudited auditedBuildConfig = buildConfigurationAuditedRepository.queryById(idRev);
+        if (auditedBuildConfig == null) {
+            return null;
+        }
         return new BuildConfigurationAuditedRest (auditedBuildConfig);
     }
 

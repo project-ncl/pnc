@@ -44,6 +44,7 @@ import javax.ws.rs.core.UriInfo;
 
 import org.jboss.pnc.auth.AuthenticationProvider;
 import org.jboss.pnc.core.exception.CoreException;
+import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.rest.provider.BuildConfigurationProvider;
 import org.jboss.pnc.rest.provider.BuildRecordProvider;
@@ -287,9 +288,13 @@ public class BuildConfigurationEndpoint {
     @ApiOperation(value = "Get specific audited revision of this build configuration")
     @GET
     @Path("/{id}/revisions/{rev}")
-    public BuildConfigurationAuditedRest getRevisions(@ApiParam(value = "Build configuration id", required = true) @PathParam("id") Integer id,
+    public Response getRevision(@ApiParam(value = "Build configuration id", required = true) @PathParam("id") Integer id,
             @ApiParam(value = "Build configuration rev", required = true) @PathParam("rev") Integer rev) {
-        return buildConfigurationProvider.getRevision(id, rev);
+        BuildConfigurationAuditedRest buildConfigAudited = buildConfigurationProvider.getRevision(id, rev);
+        if(buildConfigAudited == null) {
+            return Response.status(Response.Status.NOT_FOUND).entity("Audited build config not found for id: " + id + ", rev:" + rev).build();
+        }
+        return Response.ok(buildConfigAudited).build();
     }
 
 }

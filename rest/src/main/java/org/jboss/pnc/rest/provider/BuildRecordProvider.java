@@ -37,6 +37,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
+import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 
 import java.io.BufferedWriter;
@@ -183,13 +184,28 @@ public class BuildRecordProvider {
             return null;
     }
 
-    public BuildConfigurationAuditedRest getBuildConfigurationAudited(Integer id) {
+    /**
+     * Get the audited build configuration associated with a build record.
+     * Returns a Response.Status.NOT_FOUND (404) if the build record is not found.
+     * This likely means the caller sent the incorrect ID.
+     * Returns a Response.Status.INTERNAL_SERVER_ERROR (500) if the build record
+     * is found but no associated audited build configuration is found.  This should
+     * not happen because all build records must have an associated build configuration
+     * so it means something is wrong in the application.
+     * 
+     * @param id The id of the build record.
+     * @return A jax-rs response containing the audited build configuration, or an error message.
+     */
+    public Response getBuildConfigurationAudited(Integer id) {
         BuildRecord buildRecord = buildRecordRepository.queryById(id);
-        BuildConfigurationAudited buildConfigurationAudited = buildRecord.getBuildConfigurationAudited();
-        if (buildConfigurationAudited != null) {
-            return new BuildConfigurationAuditedRest(buildConfigurationAudited);
+        if (buildRecord == null) {
+            return Response.status(Response.Status.NOT_FOUND).entity("No build record exists with id: " + id).build();
         }
-        return null;
+        BuildConfigurationAudited buildConfigurationAudited = buildRecord.getBuildConfigurationAudited();
+        if (buildConfigurationAudited == null) {
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("No audited build configuration found for build record: " + id).build();
+        }
+        return Response.ok(new BuildConfigurationAuditedRest(buildConfigurationAudited)).build();
     }
     
     public StreamingOutput getStreamingOutputForString(String str) {
