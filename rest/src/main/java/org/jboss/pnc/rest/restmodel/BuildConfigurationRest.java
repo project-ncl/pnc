@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.rest.restmodel;
 
+import com.wordnik.swagger.annotations.ApiModelProperty;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildStatus;
 import org.jboss.pnc.model.Environment;
@@ -51,6 +52,7 @@ public class BuildConfigurationRest {
 
     private Timestamp lastModificationTime;
 
+    @ApiModelProperty(dataType = "string")
     private BuildStatus buildStatus;
 
     private String repositories;
