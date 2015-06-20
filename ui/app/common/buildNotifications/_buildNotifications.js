@@ -16,37 +16,36 @@
     'BuildRecordNotifications',
     function ($log, $timeout, BuildRecordNotifications) {
       // jshint unused:false
-      var that = this;
 
-      that.Tester = {
-        BUILD_CONFIGURATION: function (id) {
+      this.BUILD_RECORD_FILTER = {
+        WITH_BUILD_CONFIGURATION: function (id) {
           return {
-            test: function (e) {
+            filter: function (e) {
               return e.buildConfigurationId === id;
             }
           };
         },
-        IN_PROGRESS: function () {
+        IS_IN_PROGRESS: function () {
           return {
-            test: function (e) {
+            filter: function (e) {
               return e.status === 'BUILDING';
             }
           };
         },
-        FINISHED: function () {
+        IS_FINISHED: function () {
           return {
-            test: function (e) {
+            filter: function (e) {
               return e.status !== 'BUILDING';
             }
           };
         }
       };
 
-      that.BUILD_RECORD_UPDATER = {
+      this.BUILD_RECORD_UPDATER = {
         /**
          * Optionally update the item with new data and return it.
          * If the item cannot be updated, return null.
-         * After this, the testers are applied to determine
+         * After this, the filters are applied to determine
          * if the updated item should be kept or deleted for that particular list.
          */
         update: function (old, data) {
@@ -59,7 +58,7 @@
         },
         /**
          * Similar to update, but called after none of the existing items were updated
-         * in a given list. If the array testers match, it is inserted at the beginning.
+         * in a given list. If the array filters match, it is inserted at the beginning.
          */
         insert: function (data) {
           return data;
@@ -67,12 +66,12 @@
       };
 
 
-      var trackedArray = {};
+      var trackedItemsArray = {};
 
 
-      function test(testerArray, data) {
-        for(var i = 0; i < testerArray.length; i++) {
-          if (!testerArray[i].test(data)) {
+      function filterData(dataFiltersArray, data) {
+        for(var i = 0; i < dataFiltersArray.length; i++) {
+          if (!dataFiltersArray[i].filter(data)) {
             return false;
           }
         }
@@ -80,10 +79,10 @@
       }
 
 
-      function arrayFilter(testerArray, dataArray) {
+      function filterDataArray(dataFiltersArray, dataArray) {
         var res = [];
         dataArray.forEach(function (data) {
-          if (test(testerArray, data)) {
+          if (filterData(dataFiltersArray, data)) {
             res.push(data);
           }
         });
@@ -91,31 +90,31 @@
       }
 
       /**
-       * Refresh view of the tracked scope.
+       * Refresh view of the trackedItem scope.
        */
-      function refresh(tracked) {
+      function refresh(trackedItem) {
         $timeout(function () {
           // $timeout waits if the $digest is already in progress
-          tracked.scope[tracked.reference] = tracked.data;
+          trackedItem.scope[trackedItem.reference] = trackedItem.data;
         });
       }
 
 
-      function processReplaceDelete(tracked, data, key) {
+      function processReplaceDelete(trackedItem, data, key) {
         var updated = false;
-        for (var i = 0; i < tracked.data.length; i++) {
-          var u = tracked.updater.update(tracked.data[i], data);
+        for (var i = 0; i < trackedItem.data.length; i++) {
+          var updatedData = trackedItem.updater.update(trackedItem.data[i], data);
 
-          if (u) {
-            if (test(tracked.testerArray, u)) {
+          if (updatedData) {
+            if (filterData(trackedItem.dataFiltersArray, updatedData)) {
               // REPLACE!
-              $log.debug('Processed received data ', data, ' and REPLACED ', tracked.data[i], ' with ', u, ' in ', key, '.');
-              tracked.data[i] = u;
+              $log.debug('Processed received data ', data, ' and REPLACED ', trackedItem.data[i], ' with ', updatedData, ' in ', key, '.');
+              trackedItem.data[i] = updatedData;
             }
             else {
               // DELETE!
-              $log.debug('Processed received data ', data, ' and DELETED ', tracked.data[i], ' in ', key, '.');
-              tracked.data.splice(i, 1);
+              $log.debug('Processed received data ', data, ' and DELETED ', trackedItem.data[i], ' in ', key, '.');
+              trackedItem.data.splice(i, 1);
             }
             updated = true;
           }
@@ -124,13 +123,13 @@
       }
 
 
-      function processInsert(tracked, data, key) {
-        var u = tracked.updater.insert(data);
-        if (u !== null) {
-          if (test(tracked.testerArray, u)) {
+      function processInsert(trackedItem, data, key) {
+        var insertedData = trackedItem.updater.insert(data);
+        if (insertedData !== null) {
+          if (filterData(trackedItem.dataFiltersArray, insertedData)) {
             // INSERT!
-            $log.debug('Processed received data ', data, ' and INSERTED ', u, ' in ', key, '.');
-            tracked.data.unshift(u);
+            $log.debug('Processed received data ', data, ' and INSERTED ', insertedData, ' in ', key, '.');
+            trackedItem.data.unshift(insertedData);
           }
           return true;
         }
@@ -139,15 +138,15 @@
 
 
       function process(data) {
-        Object.keys(trackedArray).forEach(function (key) {
-          var tracked = trackedArray[key];
+        Object.keys(trackedItemsArray).forEach(function (key) {
+          var trackedItem = trackedItemsArray[key];
 
-          var updated = processReplaceDelete(tracked, data, key);
+          var updated = processReplaceDelete(trackedItem, data, key);
           if (!updated) {
-            updated = processInsert(tracked, data, key);
+            updated = processInsert(trackedItem, data, key);
           }
           if (updated) {
-            refresh(tracked);
+            refresh(trackedItem);
           }
           else {
             $log.debug('Processed received data ', data, ' and NOTHING changed in ', key, '.');
@@ -157,41 +156,41 @@
 
       /**
        * This function keeps track of a scope variable containing an array of build records
-       * and automatically updates them when the data changes, with the help of testers.
+       * and automatically updates them when the data changes, with the help of filters.
        *
        * @param scope which contains the watched variable
        * @param reference name of the array of build records within the scope
-       * @param loaderFunction function that loads fresh (initial) data,
-       * for example from the REST endpoint. This data may
+       * @param dataLoaderFunction function that loads fresh (initial) data,
+       * for example from the REST endpoints. This data may
        * be more specific than just all build records, for example only records for a
        * specific configuration. Filters are applied.
-       * @param testerArray when new build starts/or is updated with new data,
-       * the service must know in which references should the build be added/replaced.
-       * For example, collection of running builds for build configuration #3 should not be updated
-       * when a new build for configuration #4 starts.
-       * Filters make sure that the correct collection is updated.
+       * @param dataFiltersArray a list of filters to be applied to the data to make sure that 
+       * the correct collection is updated (when new a build starts/or is updated with new data,
+       * the service must know in which references should the build be added/replaced).
+       * For example, the collection of running builds for build configuration #3 should not be updated
+       * when a new build for configuration #4 starts. 
        * @param updater object that transforms the data received from the WS endpoint
        * into data in the tracked variable. Selects data that are updated.
        */
-      that.track = function (scope, reference, loaderFunction, testerArray, updater) {
+      this.track = function (scope, reference, dataLoaderFunction, dataFiltersArray, updater) {
         var key = '' + scope.$id + reference;
 
-        if (trackedArray[key] !== undefined) {
+        if (trackedItemsArray[key] !== undefined) {
           $log.error('Given reference ', key, ' is already tracked.');
           return;
         }
 
-        trackedArray[key] = {
+        trackedItemsArray[key] = {
           scope: scope,
           reference: reference,
-          loaderFunction: loaderFunction,
-          testerArray: testerArray,
+          dataLoaderFunction: dataLoaderFunction,
+          dataFiltersArray: dataFiltersArray,
           updater: updater
         };
 
-        loaderFunction().then(function (data) {
-          trackedArray[key].data = arrayFilter(testerArray, data);
-          refresh(trackedArray[key]);
+        dataLoaderFunction().then(function (dataArray) {
+          trackedItemsArray[key].data = filterDataArray(dataFiltersArray, dataArray);
+          refresh(trackedItemsArray[key]);
         });
       };
 

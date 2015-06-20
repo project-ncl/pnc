@@ -304,8 +304,8 @@
       BuildProgressService.track($scope, 'runningBuildRecordList', function () {
         return PncRestClient.Running.query().$promise;
       }, [
-        BuildProgressService.Tester.BUILD_CONFIGURATION($stateParams.configurationId),
-        BuildProgressService.Tester.IN_PROGRESS()
+        BuildProgressService.BUILD_RECORD_FILTER.WITH_BUILD_CONFIGURATION($stateParams.configurationId),
+        BuildProgressService.BUILD_RECORD_FILTER.IS_IN_PROGRESS()
       ], BuildProgressService.BUILD_RECORD_UPDATER);
 
 
@@ -314,8 +314,8 @@
           configurationId: $stateParams.configurationId
         }).$promise;
       }, [
-        BuildProgressService.Tester.BUILD_CONFIGURATION($stateParams.configurationId),
-        BuildProgressService.Tester.FINISHED()
+        BuildProgressService.BUILD_RECORD_FILTER.WITH_BUILD_CONFIGURATION($stateParams.configurationId),
+        BuildProgressService.BUILD_RECORD_FILTER.IS_FINISHED()
       ], BuildProgressService.BUILD_RECORD_UPDATER);
 
 
