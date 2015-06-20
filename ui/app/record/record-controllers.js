@@ -63,14 +63,14 @@
       BuildProgressService.track($scope, 'runningRecords', function () {
         return PncRestClient.Running.query().$promise;
       }, [
-        BuildProgressService.Tester.IN_PROGRESS()
+        BuildProgressService.BUILD_RECORD_FILTER.IS_IN_PROGRESS()
       ], BuildProgressService.BUILD_RECORD_UPDATER);
 
 
       BuildProgressService.track($scope, 'finishedRecords', function () {
         return PncRestClient.Record.query().$promise;
       }, [
-        BuildProgressService.Tester.FINISHED()
+        BuildProgressService.BUILD_RECORD_FILTER.IS_FINISHED()
       ], BuildProgressService.BUILD_RECORD_UPDATER);
     }
   ]);
