@@ -44,7 +44,7 @@ public class ConfigurationsTest extends ProjectBuilder {
     @Inject
     BuildCoordinator buildCoordinator;
 
-    @Test
+    @Test(expected=PersistenceException.class)
     @InSequence(10)
     public void dependsOnItselfConfigurationTestCase() throws Exception {
         TestProjectConfigurationBuilder configurationBuilder = new TestProjectConfigurationBuilder();

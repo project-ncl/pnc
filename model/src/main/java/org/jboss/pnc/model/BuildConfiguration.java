@@ -322,7 +322,10 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
     }
 
     public boolean addDependency(BuildConfiguration dependency) {
-
+        // Don't allow a build config to depend on itself
+        if (dependency.getId().equals(this.getId())) {
+            throw new PersistenceException("A build configuration cannot depend on itself");
+        }
         // Verify that we are not creating a circular dependency
         if (dependency.getAllDependencies().contains(this)) {
             throw new PersistenceException("Unable to add dependency, build configuration: " + dependency + " has a dependency on " + this);

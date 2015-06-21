@@ -175,9 +175,13 @@ public class BuildConfigurationProvider {
     public Response addDependency(Integer configId, Integer dependencyId) {
         BuildConfiguration buildConfig = buildConfigurationRepository.queryById(configId);
         BuildConfiguration dependency = buildConfigurationRepository.queryById(dependencyId);
+        // Check that the dependency isn't pointing back to the same config
+        if (configId.equals(dependencyId)) {
+            return Response.status(Response.Status.BAD_REQUEST).entity("A build configuration cannot depend on itself").build();
+        }
         // Check that the new dependency will not create a cycle
         if (dependency.getAllDependencies().contains(buildConfig)) {
-            String errorMessage = "Cannot add dependency: " + dependencyId + " because it would introduce a cyclic dependency";
+            String errorMessage = "Cannot add dependency from : " + configId + " to: " + dependencyId + " because it would introduce a cyclic dependency";
             return Response.status(Response.Status.BAD_REQUEST).entity(errorMessage).build();
         }
         buildConfig.addDependency(dependency);

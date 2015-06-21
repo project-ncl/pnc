@@ -154,7 +154,7 @@ public class BuildConfigurationDependencyTest {
     }
 
     @Test(expected=PersistenceException.class)
-    public void testBuildConfigurationAudit() throws Exception {
+    public void testBuildConfigurationDependenciesInDatabase() throws Exception {
 
         License licenseApache20 = ModelTestDataFactory.getInstance().getLicenseApache20();
         Project project1 = ModelTestDataFactory.getInstance().getProject1();
@@ -251,5 +251,13 @@ public class BuildConfigurationDependencyTest {
         // Next, attempt to add a circular dependency this should throw a PersistenceException
         buildConfig8.addDependency(buildConfig1);
     }
+
+    @Test(expected=PersistenceException.class)
+    public void testBuildConfigurationSelfReferenceCheck() throws Exception {
+        BuildConfiguration buildConfig1 = ModelTestDataFactory.getInstance().getGenericBuildConfigurationBuilderGeneric()
+                .id(1).build();
+        buildConfig1.addDependency(buildConfig1);
+    }
+
 
 }
