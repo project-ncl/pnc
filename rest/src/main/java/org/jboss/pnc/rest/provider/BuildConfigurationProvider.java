@@ -38,6 +38,7 @@ import org.jboss.pnc.spi.datastore.repositories.api.SortInfo;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
+import javax.ws.rs.core.Response;
 
 import java.util.List;
 import java.util.Set;
@@ -171,11 +172,21 @@ public class BuildConfigurationProvider {
         buildConfigurationRepository.delete(configurationId);
     }
 
-    public void addDependency(Integer configId, Integer dependencyId) {
+    public Response addDependency(Integer configId, Integer dependencyId) {
         BuildConfiguration buildConfig = buildConfigurationRepository.queryById(configId);
         BuildConfiguration dependency = buildConfigurationRepository.queryById(dependencyId);
+        // Check that the dependency isn't pointing back to the same config
+        if (configId.equals(dependencyId)) {
+            return Response.status(Response.Status.BAD_REQUEST).entity("A build configuration cannot depend on itself").build();
+        }
+        // Check that the new dependency will not create a cycle
+        if (dependency.getAllDependencies().contains(buildConfig)) {
+            String errorMessage = "Cannot add dependency from : " + configId + " to: " + dependencyId + " because it would introduce a cyclic dependency";
+            return Response.status(Response.Status.BAD_REQUEST).entity(errorMessage).build();
+        }
         buildConfig.addDependency(dependency);
         buildConfigurationRepository.save(buildConfig);
+        return Response.ok().build();
     }
 
     public void removeDependency(Integer configId, Integer dependencyId) {
@@ -185,12 +196,25 @@ public class BuildConfigurationProvider {
         buildConfigurationRepository.save(buildConfig);
     }
 
-    public List<BuildConfigurationRest> getDependencies(Integer configId) {
+    public Set<BuildConfigurationRest> getDependencies(Integer configId) {
         BuildConfiguration buildConfig = buildConfigurationRepository.queryById(configId);
         Set<BuildConfiguration> buildConfigurations = buildConfig.getDependencies();
         return nullableStreamOf(buildConfigurations)
                 .map(toRestModel())
-                .collect(Collectors.toList());
+                .collect(Collectors.toSet());
+    }
+
+    /**
+     * Get the full list of both direct and indirect dependencies
+     * @param configId
+     * @return
+     */
+    public Set<BuildConfigurationRest> getAllDependencies(Integer configId) {
+        BuildConfiguration buildConfig = buildConfigurationRepository.queryById(configId);
+        Set<BuildConfiguration> buildConfigurations = buildConfig.getAllDependencies();
+        return nullableStreamOf(buildConfigurations)
+                .map(toRestModel())
+                .collect(Collectors.toSet());
     }
 
     public void addProductVersion(Integer configId, Integer productVersionId) {

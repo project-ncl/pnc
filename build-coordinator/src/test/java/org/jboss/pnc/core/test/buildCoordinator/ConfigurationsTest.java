@@ -33,6 +33,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import javax.inject.Inject;
+import javax.persistence.PersistenceException;
 
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-11-23.
@@ -43,7 +44,7 @@ public class ConfigurationsTest extends ProjectBuilder {
     @Inject
     BuildCoordinator buildCoordinator;
 
-    @Test
+    @Test(expected=PersistenceException.class)
     @InSequence(10)
     public void dependsOnItselfConfigurationTestCase() throws Exception {
         TestProjectConfigurationBuilder configurationBuilder = new TestProjectConfigurationBuilder();
@@ -57,7 +58,7 @@ public class ConfigurationsTest extends ProjectBuilder {
         Assert.assertTrue("Invalid status description: " + buildTask.getStatusDescription(), buildTask.getStatusDescription().contains("itself"));
     }
 
-    @Test
+    @Test(expected=PersistenceException.class)
     @InSequence(15)
     public void cycleConfigurationTestCase() throws Exception {
         TestProjectConfigurationBuilder configurationBuilder = new TestProjectConfigurationBuilder();
