@@ -27,7 +27,9 @@ import javax.validation.constraints.NotNull;
 
 import java.sql.Timestamp;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -320,6 +322,12 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
     }
 
     public boolean addDependency(BuildConfiguration dependency) {
+
+        // Verify that we are not creating a circular dependency
+        if (dependency.getAllDependencies().contains(this)) {
+            throw new PersistenceException("Unable to add dependency, build configuration: " + dependency + " has a dependency on " + this);
+        }
+
         boolean result = dependencies.add(dependency);
         if (!dependency.getDependants().contains(this)) {
             dependency.addDependant(this);
@@ -336,6 +344,44 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
     }
 
     /**
+     * Gets the full set of indirect dependencies (dependencies of dependencies).
+     * In cases where a particular dependency is both a direct dependency and is
+     * an indirect dependency, it will be included in the set.
+     * 
+     * @return The set of indirect dependencies
+     */
+    public Set<BuildConfiguration> getIndirectDependencies() {
+        List<BuildConfiguration> dependenciesToCheck = new ArrayList<BuildConfiguration>();
+        dependenciesToCheck.addAll(getDependencies());
+        Set<BuildConfiguration> visited = new HashSet<BuildConfiguration>();
+        Set<BuildConfiguration> indirectDependencies = new HashSet<BuildConfiguration>();
+        while(!dependenciesToCheck.isEmpty()) {
+            BuildConfiguration currentConfig = dependenciesToCheck.get(0);
+            indirectDependencies.addAll(currentConfig.getDependencies());
+            for (BuildConfiguration configDependency : currentConfig.getDependencies()) {
+                if(!visited.contains(configDependency)) {
+                    dependenciesToCheck.add(configDependency);
+                }
+            }
+            visited.add(currentConfig);
+            dependenciesToCheck.remove(currentConfig);
+        }
+        return indirectDependencies;
+    }
+
+    /**
+     * Get the full set of both the direct and indirect dependencies.
+     * 
+     * @return A set containing both direct and indirect dependencies
+     */
+    public Set<BuildConfiguration> getAllDependencies() {
+        Set<BuildConfiguration> allDependencies = new HashSet<BuildConfiguration>();
+        allDependencies.addAll(getDependencies());
+        allDependencies.addAll(getIndirectDependencies());
+        return allDependencies;
+    }
+
+    /**
      * @return the set of build configs which depend on this build
      */
     public Set<BuildConfiguration> getDependants() {
@@ -346,6 +392,14 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
         this.dependants = dependants;
     }
 
+    /**
+     * This method is private because a dependant should never be added
+     * externally.  Instead the dependency relation should be set up
+     * using the addDependency method
+     * 
+     * @param dependant
+     * @return
+     */
     private boolean addDependant(BuildConfiguration dependant) {
         boolean result = dependants.add(dependant);
         if (!dependant.getDependencies().contains(this)) {
@@ -354,6 +408,14 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
         return result;
     }
 
+    /**
+     * This method is private because a dependant should never be removed
+     * externally.  Instead the dependency relation should be set up
+     * using the removeDependency method
+     * 
+     * @param dependant
+     * @return
+     */
     private boolean removeDependant(BuildConfiguration dependant) {
         boolean result = dependants.remove(dependant);
         if (dependant.getDependencies().contains(this)) {

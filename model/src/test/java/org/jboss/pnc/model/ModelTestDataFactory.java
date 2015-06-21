@@ -115,6 +115,18 @@ public class ModelTestDataFactory {
                 .build();
     }
 
+    /**
+     * Get a generic BuildConfiguration with name, description, scmRepo, and buildScript
+     * @return
+     */
+    public BuildConfiguration.Builder getGenericBuildConfigurationBuilderGeneric() {
+        return BuildConfiguration.Builder.newBuilder()
+                .name("Generic Build Configuration")
+                .description("Generic Build Configuration Description")
+                .scmRepoURL("http://www.github.com")
+                .buildScript("mvn install");
+    }
+
     public BuildConfiguration getBuildConfiguration1() {
         return BuildConfiguration.Builder.newBuilder()
                 .name("Build Configuration 1")

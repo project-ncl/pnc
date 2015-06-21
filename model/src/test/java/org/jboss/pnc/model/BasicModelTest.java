@@ -38,6 +38,7 @@ public class BasicModelTest {
         EntityTransaction tx = em.getTransaction();
         try {
             tx.begin();
+            em.createNativeQuery("SET DATABASE REFERENTIAL INTEGRITY FALSE").executeUpdate();
             em.createNativeQuery("delete from ProductRelease").executeUpdate();
             em.createNativeQuery("delete from ProductMilestone").executeUpdate();
             em.createNativeQuery("delete from ProductVersion").executeUpdate();
@@ -48,8 +49,9 @@ public class BasicModelTest {
             em.createNativeQuery("delete from Project").executeUpdate();
             em.createNativeQuery("delete from Environment").executeUpdate();
             em.createNativeQuery("delete from License").executeUpdate();
+            em.createNativeQuery("SET DATABASE REFERENTIAL INTEGRITY TRUE").executeUpdate();
             tx.commit();
-        
+
         } catch (RuntimeException e) {
             if (tx != null && tx.isActive()) {
                 tx.rollback();
@@ -161,7 +163,7 @@ public class BasicModelTest {
     }
 
     @Test
-    public void testInsertBuildConfigurationAudited() throws Exception {
+    public void testBuildConfigurationAudit() throws Exception {
 
         License licenseApache20 = ModelTestDataFactory.getInstance().getLicenseApache20();
         Project project1 = ModelTestDataFactory.getInstance().getProject1();
