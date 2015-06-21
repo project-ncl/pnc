@@ -21,6 +21,7 @@ import java.lang.invoke.MethodHandles;
 import java.net.URI;
 import java.net.URL;
 import java.util.List;
+import java.util.Set;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
@@ -224,11 +225,18 @@ public class BuildConfigurationEndpoint {
         return buildConfigurationProvider.getAllForProductAndProductVersion(pageIndex, pageSize, sortingRsql, rsql, productId, versionId);
     }
 
-    @ApiOperation(value = "Get associated dependencies of the specified Configuration")
+    @ApiOperation(value = "Get the direct dependencies of the specified configuration")
     @GET
     @Path("/{id}/dependencies")
-    public List<BuildConfigurationRest> getDependencies(@ApiParam(value = "Build configuration id", required = true) @PathParam("id") Integer id) {
+    public Set<BuildConfigurationRest> getDependencies(@ApiParam(value = "Build configuration id", required = true) @PathParam("id") Integer id) {
         return buildConfigurationProvider.getDependencies(id);
+    }
+
+    @ApiOperation(value = "Get the full list of both direct and indirect dependencies of the specified configuration")
+    @GET
+    @Path("/{id}/all-dependencies")
+    public Set<BuildConfigurationRest> getAllDependencies(@ApiParam(value = "Build configuration id", required = true) @PathParam("id") Integer id) {
+        return buildConfigurationProvider.getAllDependencies(id);
     }
 
     @ApiOperation(value = "Adds a dependency to the specified config")
@@ -237,8 +245,7 @@ public class BuildConfigurationEndpoint {
     public Response addDependency(
             @ApiParam(value = "Build Configuration id", required = true) @PathParam("id") Integer id,
             BuildConfigurationRest dependency) {
-        buildConfigurationProvider.addDependency(id, dependency.getId());
-        return Response.ok().build();
+        return buildConfigurationProvider.addDependency(id, dependency.getId());
     }
 
     @ApiOperation(value = "Removes a configuration from the specified config set")
