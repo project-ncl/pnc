@@ -57,9 +57,8 @@ public class ProductVersionEndpoint {
             @ApiParam(value = "Page index") @QueryParam("pageIndex") @DefaultValue("0") int pageIndex,
             @ApiParam(value = "Pagination size") @DefaultValue("50") @QueryParam("pageSize") int pageSize,
             @ApiParam(value = "Sorting RSQL") @QueryParam("sort") String sortingRsql,
-            @ApiParam(value = "RSQL query") @QueryParam("q") String rsql,
-            @ApiParam(value = "Product id", required = true) @PathParam("productId") Integer productId) {
-        return productVersionProvider.getAll(pageIndex, pageSize, sortingRsql, rsql, productId);
+            @ApiParam(value = "RSQL query") @QueryParam("q") String rsql){
+        return productVersionProvider.getAll(pageIndex, pageSize, sortingRsql, rsql);
     }
 
     @ApiOperation(value = "Gets specific Product Version")
