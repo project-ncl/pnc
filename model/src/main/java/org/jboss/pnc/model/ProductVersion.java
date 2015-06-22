@@ -30,6 +30,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.SequenceGenerator;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
 
 import org.hibernate.annotations.ForeignKey;
 
@@ -50,6 +51,11 @@ public class ProductVersion implements GenericEntity<Integer> {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = SEQUENCE_NAME)
     private Integer id;
 
+    /**
+     * The version string that represents this product version.  This should normally
+     * consist of a major and minor version separated by a dot, for example "1.0".
+     */
+    @Pattern(message="The version should consist of two numeric parts separated by a dot" , regexp="^[0-9]+\\.[0-9]+$")
     @NotNull
     private String version;
 

@@ -81,6 +81,7 @@ public class ModelTestDataFactory {
                 .fullName("Apache License Version 2.0")
                 .shortName("Apache 2.0")
                 .refUrl("http://apache.org/licenses/LICENSE-2.0.txt")
+                .fullContent("Just a test")
                 .build();
     }
 
@@ -89,6 +90,7 @@ public class ModelTestDataFactory {
                 .fullName("GNU General Public License Version 3")
                 .shortName("GPLv3")
                 .refUrl("http://www.gnu.org/licenses/gpl.txt")
+                .fullContent("Just a test")
                 .build();
     }
 
