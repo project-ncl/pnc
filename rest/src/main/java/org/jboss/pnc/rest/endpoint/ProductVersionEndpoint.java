@@ -35,8 +35,8 @@ import javax.ws.rs.core.*;
 
 import java.util.List;
 
-@Api(value = "/products/{productId}/product-versions", description = "Product Version related information")
-@Path("/products/{productId}/product-versions")
+@Api(value = "/product-versions", description = "Product Version related information")
+@Path("/product-versions")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 public class ProductVersionEndpoint {
