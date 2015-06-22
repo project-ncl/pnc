@@ -69,7 +69,7 @@ public class BuildRecord implements GenericEntity<Integer> {
      * changes when the buildConfigurationAudited is changed.
      */
     @NotNull
-    @ManyToOne(cascade = { CascadeType.REFRESH }, fetch = FetchType.LAZY)
+    @ManyToOne(cascade = { CascadeType.REFRESH })
     @JoinColumn(name = "buildconfiguration_id", insertable = false, updatable = false)
     @ForeignKey(name = "fk_buildrecord_buildconfiguration")
     private BuildConfiguration latestBuildConfiguration;
