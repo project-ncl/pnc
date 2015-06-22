@@ -17,10 +17,21 @@
  */
 package org.jboss.pnc.datastore.repositories.internal;
 
+import java.util.List;
+
+import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildRecord;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
 public interface BuildRecordSpringRepository extends JpaRepository<BuildRecord, Integer>, JpaSpecificationExecutor<BuildRecord> {
+
+    /**
+     * Get all the revisions of a specific build configuration in order of newest to oldest.
+     * 
+     * @param id of the build configuration
+     * @return The list of revisions of this build config in order of newest to oldest.
+     */
+    List<BuildRecord> findAllByLatestBuildConfigurationOrderByEndTimeDesc(BuildConfiguration buildConfiguration);
 
 }
