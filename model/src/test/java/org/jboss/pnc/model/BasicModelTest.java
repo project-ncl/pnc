@@ -1,11 +1,18 @@
 package org.jboss.pnc.model;
 
+import java.util.Set;
+
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityTransaction;
 import javax.persistence.Persistence;
 import javax.persistence.Query;
 import javax.persistence.RollbackException;
+import javax.validation.ConstraintViolation;
+import javax.validation.ConstraintViolationException;
+import javax.validation.Validation;
+import javax.validation.Validator;
+import javax.validation.ValidatorFactory;
 
 import org.junit.After;
 import org.junit.AfterClass;
@@ -228,5 +235,108 @@ public class BasicModelTest {
 
     }
 
+
+    /**
+     * Test validation of the version string regex
+     * 
+     * @throws Exception
+     */
+    @Test
+    public void testVersionStringValidation() throws Exception {
+        
+        ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
+        Validator validator = factory.getValidator();
+
+        Product product = Product.Builder.newBuilder()
+                .name("Test Product")
+                .build();
+        ProductVersion productVersion = ProductVersion.Builder.newBuilder()
+                .product(product)
+                .version("1.0")
+                .build();
+
+        // Test validation of product version
+        Set<ConstraintViolation<ProductVersion>> productVersionViolations = validator.validate(productVersion);
+        Assert.assertTrue(productVersionViolations.size() == 0);
+
+        productVersion.setVersion("1.0.x");
+        productVersionViolations = validator.validate(productVersion);
+        Assert.assertTrue(productVersionViolations.size() == 1);
+
+        productVersion.setVersion("foo");
+        productVersionViolations = validator.validate(productVersion);
+        Assert.assertTrue(productVersionViolations.size() == 1);
+
+        // Test product milestone versions
+        ProductMilestone milestone = ProductMilestone.Builder.newBuilder()
+                .productVersion(productVersion)
+                .version("1.0.0.ER1")
+                .build();
+        Set<ConstraintViolation<ProductMilestone>> milestoneVersionViolations = validator.validate(milestone);
+        Assert.assertTrue(milestoneVersionViolations.size() == 0);
+
+        milestone.setVersion("1.0");
+        milestoneVersionViolations = validator.validate(milestone);
+        Assert.assertTrue(milestoneVersionViolations.size() == 1);
+
+        milestone.setVersion("1.0.DR1");
+        milestoneVersionViolations = validator.validate(milestone);
+        Assert.assertTrue(milestoneVersionViolations.size() == 1);
+
+        milestone.setVersion("1.0.x");
+        milestoneVersionViolations = validator.validate(milestone);
+        Assert.assertTrue(milestoneVersionViolations.size() == 1);
+
+        // Test product release versions
+        ProductRelease release = ProductRelease.Builder.newBuilder()
+                .productVersion(productVersion)
+                .productMilestone(milestone)
+                .version("1.0.0.GA")
+                .build();
+        Set<ConstraintViolation<ProductRelease>> releaseVersionViolations = validator.validate(release);
+        Assert.assertTrue(releaseVersionViolations.size() == 0);
+
+        release.setVersion("1.0");
+        releaseVersionViolations = validator.validate(release);
+        Assert.assertTrue(releaseVersionViolations.size() == 1);
+
+        release.setVersion("1.0.DR1");
+        releaseVersionViolations = validator.validate(release);
+        Assert.assertTrue(releaseVersionViolations.size() == 1);
+
+        release.setVersion("1.0.x");
+        releaseVersionViolations = validator.validate(release);
+        Assert.assertTrue(releaseVersionViolations.size() == 1);
+
+    }
+
+    @Test
+    public void testBeanValidationFailureOnCommit() throws Exception {
+                
+        Product product1 = ModelTestDataFactory.getInstance().getProduct1();
+        ProductVersion productVersion1 = ProductVersion.Builder.newBuilder()
+                .product(product1)
+                .version("foo") // Invalid version string
+                .build();
+
+        EntityManager em = emFactory.createEntityManager();
+        EntityTransaction tx1 = em.getTransaction();
+
+        try {
+            tx1.begin();
+            em.persist(product1);
+            em.persist(productVersion1);
+            tx1.commit(); // This should throw a Rollback exception caused by the constraint violation
+
+        } catch (RollbackException e) {
+            if (tx1 != null && tx1.isActive()) {
+                tx1.rollback();
+            }
+            Assert.assertTrue(e.getCause() instanceof ConstraintViolationException);
+        } finally {
+            em.close();
+        }
+
+    }
 
 }
