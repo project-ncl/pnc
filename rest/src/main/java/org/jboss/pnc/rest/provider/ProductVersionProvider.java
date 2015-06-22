@@ -71,7 +71,16 @@ public class ProductVersionProvider {
     public ProductVersionProvider() {
     }
 
-    public List<ProductVersionRest> getAll(int pageIndex, int pageSize, String sortingRsql, String query, Integer productId) {
+    public List<ProductVersionRest> getAll(int pageIndex, int pageSize, String sortingRsql, String query) {
+        Predicate<ProductVersion> rsqlPredicate = rsqlPredicateProducer.getPredicate(ProductVersion.class, query);
+        PageInfo pageInfo = pageInfoProducer.getPageInfo(pageIndex, pageSize);
+        SortInfo sortInfo = sortInfoProducer.getSortInfo(sortingRsql);
+        return nullableStreamOf(productVersionRepository.queryWithPredicates(pageInfo, sortInfo, rsqlPredicate))
+                .map(toRestModel())
+                .collect(Collectors.toList());
+    }
+
+    public List<ProductVersionRest> getAllForProduct(int pageIndex, int pageSize, String sortingRsql, String query, Integer productId){
         Predicate<ProductVersion> rsqlPredicate = rsqlPredicateProducer.getPredicate(ProductVersion.class, query);
         PageInfo pageInfo = pageInfoProducer.getPageInfo(pageIndex, pageSize);
         SortInfo sortInfo = sortInfoProducer.getSortInfo(sortingRsql);

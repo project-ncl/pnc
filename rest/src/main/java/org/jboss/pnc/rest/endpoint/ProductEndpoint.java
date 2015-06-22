@@ -22,7 +22,9 @@ import com.wordnik.swagger.annotations.ApiOperation;
 import com.wordnik.swagger.annotations.ApiParam;
 
 import org.jboss.pnc.rest.provider.ProductProvider;
+import org.jboss.pnc.rest.provider.ProductVersionProvider;
 import org.jboss.pnc.rest.restmodel.ProductRest;
+import org.jboss.pnc.rest.restmodel.ProductVersionRest;
 import org.jboss.pnc.rest.utils.Utility;
 
 import javax.inject.Inject;
@@ -41,12 +43,15 @@ public class ProductEndpoint {
 
     private ProductProvider productProvider;
 
+    private ProductVersionProvider productVersionProvider;
+
     public ProductEndpoint() {
     }
 
     @Inject
-    public ProductEndpoint(ProductProvider productProvider) {
+    public ProductEndpoint(ProductProvider productProvider, ProductVersionProvider productVersionProvider) {
         this.productProvider = productProvider;
+        this.productVersionProvider = productVersionProvider;
     }
 
     @ApiOperation(value = "Gets all Products")
@@ -82,6 +87,17 @@ public class ProductEndpoint {
             @NotNull @Valid ProductRest productRest, @Context UriInfo uriInfo) {
         productProvider.update(productId, productRest);
         return Response.ok().build();
+    }
+
+    @ApiOperation(value = "Get all versions for a Product")
+    @GET
+    @Path("/{productId}/product-versions")
+    public List<ProductVersionRest> getAllProductVersions(@ApiParam(value = "Page index") @QueryParam("pageIndex") @DefaultValue("0") int pageIndex,
+                                          @ApiParam(value = "Pagination size") @DefaultValue("50") @QueryParam("pageSize") int pageSize,
+                                          @ApiParam(value = "Sorting RSQL") @QueryParam("sort") String sortingRsql,
+                                          @ApiParam(value = "RSQL query", required = false) @QueryParam("q") String rsql,
+                                          @ApiParam(value = "Product id", required = true) @PathParam("productId") Integer productId) {
+        return productVersionProvider.getAllForProduct(pageIndex, pageSize, sortingRsql, rsql, productId);
     }
 
 }
