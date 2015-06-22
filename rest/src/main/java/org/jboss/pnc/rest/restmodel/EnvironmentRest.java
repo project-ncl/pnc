@@ -29,10 +29,10 @@ public class EnvironmentRest {
 
     private Integer id;
 
-    @ApiModelProperty(dataType = "string", allowableValues = "JAVA, DOCKER, NATIVE")
+    @ApiModelProperty(dataType = "string")
     private BuildType buildType;
 
-    @ApiModelProperty(dataType = "string", allowableValues = "LINUX, WINDOWS, OSX")
+    @ApiModelProperty(dataType = "string")
     private OperationalSystem operationalSystem;
 
     public EnvironmentRest() {
