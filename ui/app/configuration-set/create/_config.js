@@ -17,38 +17,27 @@
  */
 'use strict';
 
-(function () {
+(function() {
 
-  var module = angular.module('pnc.record', [
-    'ui.router',
-    'pnc.remote.restClient',
-    'pnc.util.header',
-    'angularUtils.directives.uiBreadcrumbs'
-  ]);
+  var module = angular.module('pnc.configuration-set');
 
-  module.config([
-    '$stateProvider',
-    '$urlRouterProvider',
-    function ($stateProvider, $urlRouterProvider) {
+  module.config(['$stateProvider', function($stateProvider) {
 
-      $stateProvider.state('record', {
-        abstract: true,
-        url: '/record',
-        views: {
-          'content@': {
-            templateUrl: 'common/templates/single-col.tmpl.html'
-          }
-        },
-        data: {
-          proxy: 'record.list'
-        },
-        resolve: {
-          restClient: 'PncRestClient'
+    $stateProvider.state('configuration-set.create', {
+      url: '/create',
+      templateUrl: 'configuration-set/create/configuration-set.create.html',
+      data: {
+        displayName: 'Create Build Configuration Set'
+      },
+      controller: 'ConfigurationSetCreateController',
+      controllerAs: 'createSetCtrl',
+      resolve: {
+        products: function(restClient) {
+          return restClient.Product.query().$promise;
         }
-      });
+      }
+    });
 
-      $urlRouterProvider.when('/record/:recordId', '/record/:recordId/info');
-
-    }]);
+  }]);
 
 })();
