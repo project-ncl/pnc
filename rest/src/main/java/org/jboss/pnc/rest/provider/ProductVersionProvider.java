@@ -89,9 +89,8 @@ public class ProductVersionProvider {
                 .collect(Collectors.toList());
     }
 
-    public ProductVersionRest getSpecific(Integer productId, Integer productVersionId) {
-        List<ProductVersion> productVersions = productVersionRepository.queryWithPredicates(withProductId(productId),
-                withProductVersionId(productVersionId));
+    public ProductVersionRest getSpecific(Integer productVersionId) {
+        List<ProductVersion> productVersions = productVersionRepository.queryWithPredicates(withProductVersionId(productVersionId));
         if (productVersions.size() > 0) {
             return new ProductVersionRest(productVersions.get(0));
         }

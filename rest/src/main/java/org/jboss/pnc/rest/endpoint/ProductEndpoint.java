@@ -91,13 +91,23 @@ public class ProductEndpoint {
 
     @ApiOperation(value = "Get all versions for a Product")
     @GET
-    @Path("/{productId}/product-versions")
-    public List<ProductVersionRest> getAllProductVersions(@ApiParam(value = "Page index") @QueryParam("pageIndex") @DefaultValue("0") int pageIndex,
+    @Path("/{id}/product-versions")
+    public List<ProductVersionRest> getProductVersions(@ApiParam(value = "Page index") @QueryParam("pageIndex") @DefaultValue("0") int pageIndex,
                                           @ApiParam(value = "Pagination size") @DefaultValue("50") @QueryParam("pageSize") int pageSize,
                                           @ApiParam(value = "Sorting RSQL") @QueryParam("sort") String sortingRsql,
                                           @ApiParam(value = "RSQL query", required = false) @QueryParam("q") String rsql,
-                                          @ApiParam(value = "Product id", required = true) @PathParam("productId") Integer productId) {
+                                          @ApiParam(value = "Product id", required = true) @PathParam("id") Integer productId) {
         return productVersionProvider.getAllForProduct(pageIndex, pageSize, sortingRsql, rsql, productId);
+    }
+
+    @ApiOperation(value = "Create a new ProductVersion for a Product")
+    @POST
+    @Path("/{id}/product-versions")
+    public Response createNewProductVersion(@ApiParam(value = "Product id", required=true) @PathParam("id") Integer productId,
+                                            @NotNull @Valid ProductVersionRest productVersionRest, @Context UriInfo uriInfo){
+        int productVersionId = productVersionProvider.store(productId, productVersionRest);
+        UriBuilder uriBuilder = UriBuilder.fromUri(uriInfo.getRequestUri()).path("{productVersionId}");
+        return Response.created(uriBuilder.build(productVersionId)).entity(productVersionProvider.getSpecific(productVersionId)).build();
     }
 
 }

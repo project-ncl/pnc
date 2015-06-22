@@ -65,18 +65,8 @@ public class ProductVersionEndpoint {
     @GET
     @Path("/{id}")
     public Response getSpecific(
-            @ApiParam(value = "Product id", required = true) @PathParam("productId") Integer productId,
             @ApiParam(value = "Product Version id", required = true) @PathParam("id") Integer id) {
-        return Utility.createRestEnityResponse(productVersionProvider.getSpecific(productId, id), id);
-    }
-
-    @ApiOperation(value = "Creates a new Product Version")
-    @POST
-    public Response createNew(@ApiParam(value = "Product id", required = true) @PathParam("productId") Integer productId,
-            @NotNull @Valid ProductVersionRest productVersionRest, @Context UriInfo uriInfo) {
-        int id = productVersionProvider.store(productId, productVersionRest);
-        UriBuilder uriBuilder = UriBuilder.fromUri(uriInfo.getRequestUri()).path("{id}");
-        return Response.created(uriBuilder.build(id)).entity(productVersionProvider.getSpecific(productId, id)).build();
+        return Utility.createRestEnityResponse(productVersionProvider.getSpecific(id), id);
     }
 
     @ApiOperation(value = "Updates an existing Product Version")
