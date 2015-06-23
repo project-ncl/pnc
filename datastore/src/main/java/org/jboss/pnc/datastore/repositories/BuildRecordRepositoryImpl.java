@@ -16,8 +16,6 @@ import javax.inject.Inject;
 @Stateless
 public class BuildRecordRepositoryImpl extends AbstractRepository<BuildRecord, Integer> implements BuildRecordRepository {
 
-    private BuildRecordSpringRepository repository;
-
     /**
      * @deprecated Created for CDI.
      */
@@ -29,11 +27,6 @@ public class BuildRecordRepositoryImpl extends AbstractRepository<BuildRecord, I
     @Inject
     public BuildRecordRepositoryImpl(BuildRecordSpringRepository buildRecordSpringRepository) {
         super(buildRecordSpringRepository, buildRecordSpringRepository);
-        repository = buildRecordSpringRepository;
     }
 
-    @Override
-    public List<BuildRecord> findAllByLatestBuildConfigurationOrderByEndTimeDesc(BuildConfiguration buildConfiguration) {
-        return repository.findAllByLatestBuildConfigurationOrderByEndTimeDesc(buildConfiguration);
-    }
 }
