@@ -97,6 +97,8 @@
 
             }
 
+            return config;
+
           }
         },
 
