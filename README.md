@@ -42,6 +42,8 @@ Environment variables, which can be used to set up application:
 * `PNC_DOCKER_CONT_USER` - User account in image used in Docker
 * `PNC_DOCKER_CONT_PASSWORD` - User's password set up by variable `PNC_DOCKER_CONT_USER`
 * `PNC_DOCKER_IMAGE_ID` - ImageID of image on Docker host
+* `PNC_DOCKER_PROXY_SERVER` - IP address or hostname of proxy server
+* `PNC_DOCKER_PROXY_PORT` - port of proxy server where it is listening
 * `PNC_DOCKER_IMAGE_FIREWALL_ALLOWED` - List of allowed destinations by firewall in Docker container. <br /> Format: \<IPv4>:\<Port>(,\<IPv4>:\<Port>)+
 You can set it to "all" and network isolation will be skipped, in case of not setting it up at all
 all network traffic will be dropped

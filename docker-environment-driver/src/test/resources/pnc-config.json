@@ -7,6 +7,8 @@
             "inContainerUser":"${env.PNC_DOCKER_CONT_USER}",
             "inContainerUserPassword":"${env.PNC_DOCKER_CONT_PASSWORD}",
             "dockerImageId":"${env.PNC_DOCKER_IMAGE_ID}",
+            "proxyServer":"${env.PNC_DOCKER_PROXY_SERVER}",
+            "proxyPort":"${env.PNC_DOCKER_PROXY_PORT}",
             "firewallAllowedDestinations":"${env.PNC_DOCKER_IMAGE_FIREWALL_ALLOWED}"
           }
         ]

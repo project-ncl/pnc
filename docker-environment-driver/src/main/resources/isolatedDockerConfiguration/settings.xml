@@ -31,7 +31,17 @@
     </mirror>
   </mirrors>
 
-
+  <proxies>
+    <proxy>
+      <id>http-proxy</id>
+      <active>${isHttpActive}</active>
+      <protocol>http</protocol>
+      <host>${proxyIPAddress}</host>
+      <port>${proxyPort}</port>
+    </proxy>
+  </proxies>
+  
+  
   <profiles>
     <profile>
       <id>aprox-deployment</id>

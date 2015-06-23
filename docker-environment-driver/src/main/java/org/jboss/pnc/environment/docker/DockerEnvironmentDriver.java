@@ -17,6 +17,16 @@
  */
 package org.jboss.pnc.environment.docker;
 
+import java.lang.invoke.MethodHandles;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.logging.Logger;
+
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.moduleconfig.DockerEnvironmentDriverModuleConfig;
@@ -37,16 +47,6 @@ import org.jclouds.docker.domain.HostConfig;
 import org.jclouds.docker.features.RemoteApi;
 import org.jclouds.docker.options.RemoveContainerOptions;
 import org.jclouds.logging.slf4j.config.SLF4JLoggingModule;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-
-import java.lang.invoke.MethodHandles;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.logging.Logger;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -90,7 +90,12 @@ public class DockerEnvironmentDriver implements EnvironmentDriver {
     private String dockerIp;
 
     private String containerFirewallAllowedDestinations;
-
+    
+    /** proxy server settings passes as environment variables to docker builder */
+    private String proxyServer;
+    
+    private String proxyPort;
+    
     /**
      * States of creating Docker container
      * 
@@ -126,6 +131,8 @@ public class DockerEnvironmentDriver implements EnvironmentDriver {
         containerUserPsswd = config.getInContainerUserPassword();
         dockerImageId = config.getDockerImageId();
         containerFirewallAllowedDestinations = config.getFirewallAllowedDestinations();
+        proxyServer = config.getProxyServer();
+        proxyPort = config.getProxyPort();
 
         dockerContext = ContextBuilder.newBuilder("docker")
                 .endpoint(dockerEndpoint)
@@ -148,11 +155,13 @@ public class DockerEnvironmentDriver implements EnvironmentDriver {
         logger.info("Trying to start Docker container...");
         int sshPort, jenkinsPort;
         try {
-            Config config = Config.builder()
+            Config config = Config
+                    .builder()
                     .imageId(dockerImageId)
-                    .env(prepareEnvVariables(repositorySession.getConnectionInfo()
-                            .getDependencyUrl(), repositorySession.getConnectionInfo().getDeployUrl()))
-                    .build();
+                    .env(prepareEnvVariables(repositorySession.getConnectionInfo().getDependencyUrl(), 
+                                             repositorySession.getConnectionInfo().getDeployUrl(),
+                                             proxyServer,
+                                             proxyPort)).build();
             logger.fine("Creating docker container with config: " + config);
             Container createdContainer = dockerClient.createContainer(containerId, config);
             buildContainerState = BuildContainerState.BUILT;
@@ -254,15 +263,29 @@ public class DockerEnvironmentDriver implements EnvironmentDriver {
      * 
      * @param dependencyUrl AProx dependencyUrl
      * @param deployUrl AProx deployUrl
+     * @param proxyServer Proxy server IP address or DNS resolvable name
+     * @param proxyProtocol for which proxy server is used (http or https)
+     * @param proxyPort number of proxy server port where is it listening
+     * 
      * @return Environment variables configuration
      */
-    private List<String> prepareEnvVariables(String dependencyUrl, String deployUrl) {
+    private List<String> prepareEnvVariables(String dependencyUrl, String deployUrl, String proxyServer, String proxyPort) {
+        String proxyActive = "false";
+        
+        if ( (proxyServer != null && proxyPort != null) &&
+             (!proxyServer.isEmpty() && !proxyPort.isEmpty()) ) {
+            proxyActive = "true";
+        }
+        
         List<String> envVariables = new ArrayList<>();
         envVariables.add("firewallAllowedDestinations=" + containerFirewallAllowedDestinations);
         envVariables.add("AProxDependencyUrl=" + dependencyUrl);
         envVariables.add("AProxDeployUrl=" + deployUrl);
+        envVariables.add("isHttpActive=" + proxyActive);
+        envVariables.add("proxyIPAddress=" + proxyServer);
+        envVariables.add("proxyPort=" + proxyPort);
         return envVariables;
-    }
+    }   
 
     /**
      * Get container port mapping from Docker daemon REST interface.
