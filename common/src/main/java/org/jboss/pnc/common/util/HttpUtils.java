@@ -46,6 +46,13 @@ public class HttpUtils {
         ClientResponse<T> response = request.get(clazz);
         return response.getEntity();
     }
+    
+    public static String processGetRequest(String url) throws Exception {
+        ClientRequest request = new ClientRequest(url);
+        request.accept(MediaType.APPLICATION_JSON);
+        ClientResponse<String> response = request.get(String.class);
+        return response.getEntity();
+    }    
 
     /**
      * Process HTTP requests and tests if server responds with expected HTTP code.

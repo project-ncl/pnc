@@ -38,16 +38,40 @@ public class DockerEnvironmentDriverModuleConfig extends AbstractModuleConfig {
     private String dockerImageId;
 
     private String firewallAllowedDestinations;
+    
+    private String proxyServer;
+    
+    private String proxyPort;
+
+    public String getProxyServer() {
+        return proxyServer;
+    }
+
+    public void setProxyServer(String proxyServer) {
+        this.proxyServer = proxyServer;
+    }
+
+    public String getProxyPort() {
+        return proxyPort;
+    }
+
+    public void setProxyPort(String proxyPort) {
+        this.proxyPort = proxyPort;
+    }
 
     public DockerEnvironmentDriverModuleConfig(@JsonProperty("ip") String ip,
             @JsonProperty("inContainerUser") String inContainerUser,
             @JsonProperty("inContainerUserPassword") String inContainerUserPassword,
             @JsonProperty("dockerImageId") String dockerImageId,
-            @JsonProperty("firewallAllowedDestinations") String firewallAllowedDestinations) {
+            @JsonProperty("firewallAllowedDestinations") String firewallAllowedDestinations, 
+            @JsonProperty("proxyServer") String proxyServer, 
+            @JsonProperty("proxyPort") String proxyPort) {
         this.ip = ip;
         this.inContainerUser = inContainerUser;
         this.inContainerUserPassword = inContainerUserPassword;
         this.dockerImageId = dockerImageId;
+        this.proxyServer = proxyServer;
+        this.proxyPort = proxyPort;
         this.firewallAllowedDestinations = firewallAllowedDestinations;
     }
 
@@ -91,6 +115,8 @@ public class DockerEnvironmentDriverModuleConfig extends AbstractModuleConfig {
                 + (dockerImageId != null ? "dockerImageId=" + dockerImageId + ", " : "")
                 + (firewallAllowedDestinations != null ? "firewallAllowedDestinations="
                         + firewallAllowedDestinations + ", " : "")
+                + (proxyServer != null ? "proxyServer=" + proxyServer + ", " : "")
+                + (proxyPort != null ? "proxyPort=" + proxyPort + ", " : "")
                 + "inContainerUserPassword=HIDDEN]";
     }
 

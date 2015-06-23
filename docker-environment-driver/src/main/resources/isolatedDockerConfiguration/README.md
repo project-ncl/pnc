@@ -10,7 +10,7 @@ If you will omit the setting of environment variable, every network traffic will
 Example of container launching to allow only http and https connections to 10.16.36.64:
 
 ```
-# CID=$(docker run --privileged -it --env firewallAllowedDestinations=10.16.36.64:80,10.16.36.64:443 --rm -p 22222:44555 -p 8080:8080 --name ssh-jenkins -v /var/jenkins_home mareknovotny/pnc-jenkins)
+# CID=$(docker run --cap-add=NET_ADMIN -d --env firewallAllowedDestinations=10.16.36.64:80,10.16.36.64:443 -P -p 8080:8080 --name ssh-jenkins -v /var/jenkins_home pnc-builder-v0.5)
 
 # docker exec $CID /tmp/isolate-with-iptables.sh
 ```
