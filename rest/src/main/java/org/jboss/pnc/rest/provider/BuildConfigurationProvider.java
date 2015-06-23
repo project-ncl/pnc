@@ -38,6 +38,7 @@ import org.jboss.pnc.spi.datastore.repositories.api.PageInfo;
 import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
 import org.jboss.pnc.spi.datastore.repositories.api.RSQLPredicateProducer;
 import org.jboss.pnc.spi.datastore.repositories.api.SortInfo;
+import org.jboss.pnc.spi.datastore.repositories.api.SortInfo.SortingDirection;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
@@ -269,7 +270,9 @@ public class BuildConfigurationProvider {
         if (buildConfiguration == null) {
             return Response.status(Response.Status.NOT_FOUND).entity("No build configuration exists with id: " + configId).build();
         }
-        List<BuildRecord> buildRecords = buildRecordRepository.findAllByLatestBuildConfigurationOrderByEndTimeDesc(buildConfiguration);
+        PageInfo pageInfo = this.pageInfoProducer.getPageInfo(0, 1);
+        SortInfo sortInfo = this.sortInfoProducer.getSortInfo(SortingDirection.DESC, "endTime");
+        List<BuildRecord> buildRecords = buildRecordRepository.queryWithPredicates(pageInfo, sortInfo, withBuildConfigurationId(configId));
         if (buildRecords.isEmpty()) {
             return Response.status(Response.Status.NO_CONTENT).entity("No build records found for configuration id: " + configId).build();
         }
