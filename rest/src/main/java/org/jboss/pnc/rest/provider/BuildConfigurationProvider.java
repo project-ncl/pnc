@@ -21,13 +21,16 @@ import com.google.common.base.Preconditions;
 
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
+import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.IdRev;
 import org.jboss.pnc.model.ProductVersion;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationAuditedRest;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationRest;
+import org.jboss.pnc.rest.restmodel.BuildRecordRest;
 import org.jboss.pnc.rest.restmodel.ProductVersionRest;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationAuditedRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationRepository;
+import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
 import org.jboss.pnc.spi.datastore.repositories.PageInfoProducer;
 import org.jboss.pnc.spi.datastore.repositories.ProductVersionRepository;
 import org.jboss.pnc.spi.datastore.repositories.SortInfoProducer;
@@ -35,6 +38,7 @@ import org.jboss.pnc.spi.datastore.repositories.api.PageInfo;
 import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
 import org.jboss.pnc.spi.datastore.repositories.api.RSQLPredicateProducer;
 import org.jboss.pnc.spi.datastore.repositories.api.SortInfo;
+import org.jboss.pnc.spi.datastore.repositories.api.SortInfo.SortingDirection;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
@@ -47,6 +51,7 @@ import java.util.stream.Collectors;
 
 import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
 import static org.jboss.pnc.spi.datastore.predicates.BuildConfigurationPredicates.*;
+import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withBuildConfigurationId;
 
 @Stateless
 public class BuildConfigurationProvider {
@@ -54,6 +59,8 @@ public class BuildConfigurationProvider {
     private BuildConfigurationRepository buildConfigurationRepository;
 
     private BuildConfigurationAuditedRepository buildConfigurationAuditedRepository;
+
+    private BuildRecordRepository buildRecordRepository;
 
     private ProductVersionRepository productVersionRepository;
 
@@ -66,10 +73,13 @@ public class BuildConfigurationProvider {
     @Inject
     public BuildConfigurationProvider(BuildConfigurationRepository buildConfigurationRepository,
             BuildConfigurationAuditedRepository buildConfigurationAuditedRepository,
-            ProductVersionRepository productVersionRepository, RSQLPredicateProducer rsqlPredicateProducer,
+            BuildRecordRepository buildRecordRepository,
+            ProductVersionRepository productVersionRepository, 
+            RSQLPredicateProducer rsqlPredicateProducer,
             SortInfoProducer sortInfoProducer, PageInfoProducer pageInfoProducer) {
         this.buildConfigurationRepository = buildConfigurationRepository;
         this.buildConfigurationAuditedRepository = buildConfigurationAuditedRepository;
+        this.buildRecordRepository = buildRecordRepository;
         this.rsqlPredicateProducer = rsqlPredicateProducer;
         this.sortInfoProducer = sortInfoProducer;
         this.pageInfoProducer = pageInfoProducer;
@@ -255,8 +265,41 @@ public class BuildConfigurationProvider {
         return new BuildConfigurationAuditedRest (auditedBuildConfig);
     }
 
+    public Response getLatestBuildRecord(Integer configId) {
+        BuildConfiguration buildConfiguration = buildConfigurationRepository.queryById(configId);
+        if (buildConfiguration == null) {
+            return Response.status(Response.Status.NOT_FOUND).entity("No build configuration exists with id: " + configId).build();
+        }
+        PageInfo pageInfo = this.pageInfoProducer.getPageInfo(0, 1);
+        SortInfo sortInfo = this.sortInfoProducer.getSortInfo(SortingDirection.DESC, "endTime");
+        List<BuildRecord> buildRecords = buildRecordRepository.queryWithPredicates(pageInfo, sortInfo, withBuildConfigurationId(configId));
+        if (buildRecords.isEmpty()) {
+            return Response.status(Response.Status.NO_CONTENT).entity("No build records found for configuration id: " + configId).build();
+        }
+        BuildRecordRest latestBuildRecord = new BuildRecordRest(buildRecords.get(0));
+        return Response.ok(latestBuildRecord).build();
+    }
+
+    public Response getBuildRecords(int pageIndex, int pageSize, String sortingRsql, String query, Integer configurationId) {
+        BuildConfiguration buildConfiguration = buildConfigurationRepository.queryById(configurationId);
+        if (buildConfiguration == null) {
+            return Response.status(Response.Status.NOT_FOUND).entity("No build configuration exists with id: " + configurationId).build();
+        }
+        Predicate<BuildRecord> rsqlPredicate = rsqlPredicateProducer.getPredicate(BuildRecord.class, query);
+        PageInfo pageInfo = pageInfoProducer.getPageInfo(pageIndex, pageSize);
+        SortInfo sortInfo = sortInfoProducer.getSortInfo(sortingRsql);
+        List<BuildRecordRest> buildRecords = nullableStreamOf(buildRecordRepository.queryWithPredicates(pageInfo, sortInfo, rsqlPredicate, withBuildConfigurationId(configurationId)))
+                .map(buildRecordToRestModel())
+                .collect(Collectors.toList());
+        return Response.ok(buildRecords).build();
+    }
+
     private Function<ProductVersion, ProductVersionRest> productVersionToRestModel() {
         return productVersion -> new ProductVersionRest(productVersion);
+    }
+
+    private Function<BuildRecord, BuildRecordRest> buildRecordToRestModel() {
+        return buildRecord -> new BuildRecordRest(buildRecord);
     }
 
     private Function<BuildConfigurationAudited, BuildConfigurationAuditedRest> buildConfigurationAuditedToRestModel() {

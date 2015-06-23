@@ -20,8 +20,6 @@ package org.jboss.pnc.rest.endpoint;
 import org.jboss.pnc.rest.provider.ArtifactProvider;
 import org.jboss.pnc.rest.provider.BuildRecordProvider;
 import org.jboss.pnc.rest.restmodel.ArtifactRest;
-import org.jboss.pnc.rest.restmodel.BuildConfigurationAuditedRest;
-import org.jboss.pnc.rest.restmodel.BuildConfigurationRest;
 import org.jboss.pnc.rest.restmodel.BuildRecordRest;
 import org.jboss.pnc.rest.utils.Utility;
 
@@ -113,6 +111,11 @@ public class BuildRecordEndpoint {
         return artifactProvider.getAll(pageIndex, pageSize, sortingRsql, rsql, id);
     }
 
+    /**
+     * @deprecated 
+     * Use /build-configuration/{id}/build-records
+     */
+    @Deprecated
     @ApiOperation(value = "Gets the Build Records linked to a specific Build Configuration")
     @GET
     @Path("/build-configurations/{configurationId}")
