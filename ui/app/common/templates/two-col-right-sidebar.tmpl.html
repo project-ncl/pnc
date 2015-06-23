@@ -26,16 +26,16 @@ When placed inside a <div class="fluid-container"> the sidebar
 will collapse beneath the main content if the screen gets too narrow.
 -->
 <div class="row">
-  <div class="col-sm-8 col-md-9">
-    <div class="row">
+  <div class="col-sm-8 col-lg-9">
+    <div class="row"><!-- main content -->
       <div class="col-md-12" ui-view>
       </div>
     </div>
-  </div>
-  <div class="col-sm-4 col-md-3 sidebar-pf sidebar-pf-right full-height">
+  </div> <!-- /main content -->
+  <div class="col-sm-4 col-lg-3 sidebar-pf sidebar-pf-right full-height"> <!-- sidebar -->
     <div class="row">
       <div class="col-md-12" ui-view="sidebar">
       </div>
     </div>
-  </div>
+  </div> <!-- /sidebar -->
 </div>

@@ -120,9 +120,16 @@
       </div>
     </nav>
     <div class="notification-area"><pf-notification-list></pf-notification-list></div>
-    <ui-breadcrumbs displayname-property="data.displayName" abstract-proxy-property="data.proxy" template-url="common/templates/uiBreadcrumbs.tpl.html"></ui-breadcrumbs>
-    <div class="container-fluid" ui-view="content"></div>
-    <div class="footer" ng-cloak>
+
+    <div class="container-fluid">
+      <div class="row"> <!-- breadcrumbs -->
+        <ui-breadcrumbs displayname-property="data.displayName" abstract-proxy-property="data.proxy" template-url="common/templates/uiBreadcrumbs.tpl.html"></ui-breadcrumbs>
+      </div> <!-- /breadcrumbs -->
+      <div ui-view="content"></div>
+    </div>
+
+<!--     <div class="container-fluid" ui-view="content"></div>
+ -->    <div class="footer" ng-cloak>
       <div class="container">
         <div ng-include="'common/templates/footer.tmpl.html'"></div>
       </div><!-- /.container -->
