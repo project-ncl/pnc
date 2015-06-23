@@ -26,4 +26,9 @@
         this.logout = authService.logout;
     }]);
 
+
+    app.controller('menuController', ['$state', function($state){
+        this.$state = $state;
+    }]);
+
 })();

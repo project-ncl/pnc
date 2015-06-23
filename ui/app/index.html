@@ -99,17 +99,17 @@
               </ul>
             </li>
           </ul>
-        <ul class="nav navbar-nav navbar-primary">
-          <li>
+        <ul class="nav navbar-nav navbar-primary" ng-controller="menuController as menuCtrl">
+          <li ng-class="{ active: menuCtrl.$state.includes('dashboard') }">
             <a ui-sref="dashboard" href>Dashboard</a>
           </li>
-          <li>
+          <li ng-class="{ active: menuCtrl.$state.includes('product') }">
             <a ui-sref="product.list" href>Products</a>
           </li>
-          <li>
+          <li ng-class="{ active: menuCtrl.$state.includes('project') }">
             <a ui-sref="project.list" href>Projects</a>
           </li>
-          <li class="dropdown">
+          <li class="dropdown" ng-class="{ active: menuCtrl.$state.includes('configuration') || menuCtrl.$state.includes('configuration-set') }">
             <a href class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Configurations<span class="caret"></span></a>
             <ul class="dropdown-menu" role="menu">
               <li><a href ui-sref="configuration.list">Build Configurations</a></li>
