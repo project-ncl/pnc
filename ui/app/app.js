@@ -21,6 +21,7 @@
   var app = angular.module('pnc', [
     'ui.router',
     'ui.bootstrap',
+    'patternfly.notification',
     'pnc.Dashboard',
     'pnc.remote',
     'pnc.product',
@@ -71,7 +72,7 @@
   });
 
   app.config(function($stateProvider, $urlRouterProvider, $locationProvider,
-    $httpProvider, keycloakProvider, PROPERTIES) {
+    $httpProvider, keycloakProvider, NotificationsProvider, PROPERTIES) {
 
     $locationProvider.html5Mode(false).hashPrefix('!');
 
@@ -100,6 +101,9 @@
         },
       }
     });
+
+    // Configure pop-up notifications
+    NotificationsProvider.setDelay(12000);
 
     if (PROPERTIES.AUTH_ENABLED) {
       keycloakProvider.setKeycloak(keycloak);
