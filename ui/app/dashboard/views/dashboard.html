@@ -17,10 +17,25 @@
     limitations under the License.
 
 -->
-<div class="container-fluid">
+<div class="container-fluid dashboard">
   <div class="row">
-    <div id="content" class="col-md-12">
-      <h1>{{ title }}</h1>
+    <div class="col-md-3">
+      <h1>{{ productCount }}</h1>
+      <p><a href ui-sref="product.list">product{{ productCount != 1 ? 's' : '' }}</a></p>
+    </div>
+    <div class="col-md-3">
+      <h1>{{ runningBuilds.length }}</h1>
+      <p>running <a href ui-sref="record.list">build{{ runningBuilds.length != 1 ? 's' : '' }}</a></p>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-3">
+      <h1>{{ projectCount }}</h1>
+      <p><a href ui-sref="project.list">project{{ projectCount != 1 ? 's' : '' }}</a></p>
+    </div>
+    <div class="col-md-3">
+      <h1>{{ finishedBuilds.length }}</h1>
+      <p>finished <a href ui-sref="record.list">build{{ finishedBuilds.length != 1 ? 's' : '' }}</a></p>
     </div>
   </div>
 </div>
