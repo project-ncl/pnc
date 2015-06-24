@@ -19,35 +19,25 @@
 
 (function () {
 
-  var module = angular.module('pnc.record', [
-    'ui.router',
-    'pnc.remote.restClient',
-    'pnc.util.header',
-    'angularUtils.directives.uiBreadcrumbs'
-  ]);
+  var module = angular.module('pnc.record');
 
   module.config([
     '$stateProvider',
-    '$urlRouterProvider',
-    function ($stateProvider, $urlRouterProvider) {
+    function ($stateProvider) {
 
-      $stateProvider.state('record', {
-        abstract: true,
-        url: '/record',
-        views: {
-          'content@': {
-            templateUrl: 'common/templates/single-col.tmpl.html'
-          }
-        },
-        data: {
-          proxy: 'record.list'
-        },
+      $stateProvider.state('record.detail.output', {
+        url: '/output',
+        controller: 'RecordOutputController',
+        controllerAs: 'outputCtrl',
+        templateUrl: 'record/detail/output/record.detail.output.html',
         resolve: {
-          restClient: 'PncRestClient'
+          artifacts: function (restClient, recordDetail) {
+            return restClient.Record.getArtifacts({
+              recordId: recordDetail.id
+            }).$promise;
+          }
         }
       });
-
-      $urlRouterProvider.when('/record/:recordId', '/record/:recordId/info');
 
     }]);
 

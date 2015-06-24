@@ -1,0 +1,115 @@
+<!--
+
+    JBoss, Home of Professional Open Source.
+    Copyright 2014 Red Hat, Inc., and individual contributors
+    as indicated by the @author tags.
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+<div>
+  <pnc-header>
+    <pnc-header-title>{{ detailCtrl.product.name || 'Empty' }}</pnc-header-title>
+    <pnc-header-buttons>
+
+      <button type="button" class="btn btn-lg btn-default" data-toggle="tooltip" title="Edit Product" ng-click="productForm.$show()" ng-class="{ 'active': productForm.$visible }"><i class="pficon pficon-edit"></i> Edit
+      </button>
+      <button type="button" class="btn btn-lg btn-danger disabled" data-toggle="tooltip" title="Delete Product">
+        <i class="pficon pficon-delete"></i> Delete
+      </button>
+    </pnc-header-buttons>
+  </pnc-header>
+
+  <form editable-form class="form-horizontal" name="productForm" onbeforesave="detailCtrl.update()">
+
+    <div class="form-group">
+      <label for="input-name" class="col-sm-1 control-label">Name</label>
+      <div class="col-sm-11">
+        <p id="input-name" class="form-control-static" e-class="form-control" editable-text="detailCtrl.product.name" e-name="name" e-required>{{ detailCtrl.product.name || 'Empty' }}</p>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="static-description" class="col-sm-1 control-label">Description</label>
+      <div class="col-sm-11">
+        <p id="input-description" class="form-control-static" e-class="form-control" editable-textarea="detailCtrl.product.description" e-name="description">{{ detailCtrl.product.description }}</p>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="input-abbreviation" class="col-sm-1 control-label">Short Name</label>
+      <div class="col-sm-11">
+        <p id="input-abbreviation" class="form-control-static" e-class="form-control" editable-text="detailCtrl.product.abbreviation" e-name="abbreviation">{{ detailCtrl.product.abbreviation }}</p>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="input-productCode" class="col-sm-1 control-label">Product Code</label>
+      <div class="col-sm-11">
+        <p id="input-productCode" class="form-control-static" e-class="form-control" editable-text="detailCtrl.product.productCode" e-name="productCode">{{ detailCtrl.product.productCode }}</p>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="input-pgmSystemName" class="col-sm-1 control-label">System Code</label>
+      <div class="col-sm-11">
+        <p id="input-pgmSystemName" class="form-control-static" e-class="form-control" editable-text="detailCtrl.product.pgmSystemName" e-name="pgmSystemName">{{ detailCtrl.product.pgmSystemName }}</p>
+      </div>
+    </div>
+
+    <div class="form-group" ng-show="productForm.$visible">
+      <div class="col-sm-offset-1 col-sm-11">
+        <button type="submit" class="btn btn-primary" ng-disabled="productForm.$waiting">
+          Save
+        </button>
+        <button type="button" class="btn btn-default" ng-disabled="productForm.$waiting" ng-click="productForm.$cancel()">
+          Cancel
+        </button>
+      </div>
+    </div>
+  </form>
+
+  <pnc-header>
+    <pnc-header-title><small>Product Versions</small></pnc-header-title>
+    <pnc-header-buttons>
+      <button type="button" class="btn btn-lg btn-default" data-toggle="tooltip" title="Create Product Version" ui-sref="product.detail.version.create({ productId: detailCtrl.product.id })">
+          <i class="pficon pficon-add"></i> Create
+      </button>
+    </pnc-header-buttons>
+  </pnc-header>
+
+  <input ng-model="searchText" placeholder="filter versions...">
+  <table class="table table-bordered table-striped">
+    <thead>
+      <th>Version</th>
+      <th>Milestones</th>
+      <th>Releases</th>
+    </thead>
+    <tbody>
+      <tr ng-repeat="version in detailCtrl.versions | filter:searchText">
+        <td class="bigger-text"><a href ui-sref="product.detail.version.detail({ productId: detailCtrl.product.id, versionId: version.id })">{{ version.version }}</a></td>
+        <td>
+           <span ng-repeat="productmilestone in detailCtrl.versionMilestones | filter: { productVersionId: version.id } | orderBy: '-productmilestone.startingDate'">
+             <span data-tooltip-html-unsafe="{{detailCtrl.getMilestoneTooltip(productmilestone)}}" data-tooltip-placement="right" class="label label-default" ng-class="{ 'label label-primary' : productmilestone.id == version.currentProductMilestoneId }">{{ productmilestone.version }}</span>
+           </span>
+        </td>
+        <td>
+           <span ng-repeat="productrelease in detailCtrl.versionReleases | filter: { productVersionId: version.id } | orderBy: '-productrelease.releaseDate'">
+             <span data-tooltip-html-unsafe="{{detailCtrl.getReleaseTooltip(productrelease)}}" data-tooltip-placement="right" class="label label-success">{{ productrelease.version }}</span>
+           </span>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+</div>

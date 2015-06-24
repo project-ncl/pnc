@@ -17,38 +17,27 @@
  */
 'use strict';
 
-(function () {
+(function() {
 
-  var module = angular.module('pnc.record', [
+  var module = angular.module('pnc.Dashboard', [
     'ui.router',
-    'pnc.remote.restClient',
-    'pnc.util.header',
+    'patternfly.notification',
     'angularUtils.directives.uiBreadcrumbs'
   ]);
 
-  module.config([
-    '$stateProvider',
-    '$urlRouterProvider',
-    function ($stateProvider, $urlRouterProvider) {
-
-      $stateProvider.state('record', {
-        abstract: true,
-        url: '/record',
-        views: {
-          'content@': {
-            templateUrl: 'common/templates/single-col.tmpl.html'
-          }
-        },
-        data: {
-          proxy: 'record.list'
-        },
-        resolve: {
-          restClient: 'PncRestClient'
+  module.config(['$stateProvider', function($stateProvider) {
+    $stateProvider.state('dashboard', {
+      url: '/',
+      views: {
+        'content@': {
+          templateUrl: 'dashboard/dashboard.html',
+          controller: 'DashboardController'
         }
-      });
-
-      $urlRouterProvider.when('/record/:recordId', '/record/:recordId/info');
-
-    }]);
+      },
+      data: {
+        displayName: 'Dashboard'
+      },
+    });
+  }]);
 
 })();
