@@ -76,7 +76,7 @@
     $locationProvider.html5Mode(false).hashPrefix('!');
 
     // Allows dashboard to be root state.
-    $urlRouterProvider.when('', '/');
+    $urlRouterProvider.when('', '/record');
 
     // Redirect any unmatched URLs to the error state.
     $urlRouterProvider.otherwise('/error');
