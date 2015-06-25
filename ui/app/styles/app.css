@@ -129,3 +129,11 @@ ul.pagination.pull-right {
 .bigger-text {
   font-size: 14px;
 }
+
+.dashboard h1 {
+  font-size: 500%;
+}
+
+.dashboard p {
+  font-size: 150%;
+}

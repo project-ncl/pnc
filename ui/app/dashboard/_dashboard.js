@@ -37,6 +37,15 @@
       data: {
         displayName: 'Dashboard'
       },
+      resolve: {
+        restClient: 'PncRestClient',
+        productList: function(restClient) {
+          return restClient.Product.query().$promise;
+        },
+        projectList: function(restClient) {
+          return restClient.Project.query().$promise;
+        }
+      }
     });
   }]);
 
