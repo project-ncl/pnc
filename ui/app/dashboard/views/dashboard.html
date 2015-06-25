@@ -18,24 +18,67 @@
 
 -->
 <div class="container-fluid dashboard">
-  <div class="row">
-    <div class="col-md-3">
-      <h1>{{ productCount }}</h1>
-      <p><a href ui-sref="product.list">product{{ productCount != 1 ? 's' : '' }}</a></p>
+  <div class="row analytics">
+    <br/>
+    <div class="col-sm-3">
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <h3 class="panel-title">Product{{ productCount != 1 ? 's' : '' }}</h3>
+        </div>
+        <div class="panel-body">
+          <h2><a href ui-sref="product.list">{{ productCount }}</a></h2>
+          <div class="analytics-help" tooltip-placement="bottom"
+               tooltip="Number of Products">
+            <span class="pficon pficon-help"></span>
+          </div>
+        </div>
+      </div>
     </div>
-    <div class="col-md-3">
-      <h1>{{ runningBuilds.length }}</h1>
-      <p>running <a href ui-sref="record.list">build{{ runningBuilds.length != 1 ? 's' : '' }}</a></p>
+
+    <div class="col-sm-3">
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <h3 class="panel-title">Running build{{ runningBuilds.length != 1 ? 's' : '' }}</h3>
+        </div>
+        <div class="panel-body">
+          <h2><a href ui-sref="record.list">{{ runningBuilds.length }}</a></h2>
+          <div class="analytics-help" tooltip-placement="bottom"
+               tooltip="Number of running builds">
+            <span class="pficon pficon-help"></span>
+          </div>
+        </div>
+      </div>
     </div>
-  </div>
-  <div class="row">
-    <div class="col-md-3">
-      <h1>{{ projectCount }}</h1>
-      <p><a href ui-sref="project.list">project{{ projectCount != 1 ? 's' : '' }}</a></p>
+
+
+    <div class="col-sm-3">
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <h3 class="panel-title">Project{{ projectCount != 1 ? 's' : '' }}</h3>
+        </div>
+        <div class="panel-body">
+          <h2><a href ui-sref="project.list">{{ projectCount }}</a></h2>
+          <div class="analytics-help" tooltip-placement="bottom"
+               tooltip="Number of Projects">
+            <span class="pficon pficon-help"></span>
+          </div>
+        </div>
+      </div>
     </div>
-    <div class="col-md-3">
-      <h1>{{ finishedBuilds.length }}</h1>
-      <p>finished <a href ui-sref="record.list">build{{ finishedBuilds.length != 1 ? 's' : '' }}</a></p>
+
+
+    <div class="col-sm-3">
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <h3 class="panel-title">Finished build{{ finishedBuilds.length != 1 ? 's' : '' }}</h3>
+        </div>
+        <div class="panel-body">
+          <h2><a href ui-sref="record.list">{{ finishedBuilds.length }}</a></h2>
+          <div class="analytics-help" tooltip-placement="bottom"
+               tooltip="Number of finished builds">
+            <span class="pficon pficon-help"></span>
+          </div>
+        </div>
+      </div>
     </div>
-  </div>
 </div>

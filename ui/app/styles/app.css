@@ -137,3 +137,26 @@ ul.pagination.pull-right {
 .dashboard p {
   font-size: 150%;
 }
+
+.analytics .panel-body {
+  position: relative;
+}
+.analytics .panel {
+  text-align: center;
+}
+.analytics .panel h2 {
+  margin: 20px 0;
+}
+.analytics .panel h3 {
+  font-size: 1.1em;
+}
+.analytics .tooltip {
+  width: 20em;
+}
+.analytics-help {
+  color: #999999;
+  position: absolute;
+  right: 5px;
+  bottom: 5px;
+  font-size: 14.4px;
+}
