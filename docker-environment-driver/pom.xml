@@ -24,7 +24,7 @@
   <parent>
     <groupId>org.jboss.pnc</groupId>
     <artifactId>parent</artifactId>
-    <version>0.5-SNAPSHOT</version>
+    <version>0.5</version>
   </parent>
 
   <artifactId>docker-environment-driver</artifactId>
