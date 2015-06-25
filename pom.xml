@@ -1413,7 +1413,7 @@
                       </filterchain>
                     </loadproperties>
 
-                    <property name="newversion" value="${project.rel.org.jboss.pnc:parent}"/>
+                    <property name="newversion" value="${project.rel.org.jboss.pnc:parent}.0"/>
 
                     <replaceregexp byline="false"
                                    flags="m"
