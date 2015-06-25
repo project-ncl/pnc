@@ -177,7 +177,7 @@ public class Project implements GenericEntity<Integer> {
      * Add a buildConfiguration to the set of buildConfigurations
      *
      * @param configuration
-     * @return
+     * @return the resulting BuildConfigurations
      */
     public Set<BuildConfiguration> addBuildConfiguration(BuildConfiguration configuration) {
         buildConfigurations.add(configuration);
@@ -189,7 +189,7 @@ public class Project implements GenericEntity<Integer> {
      * Remove a buildConfiguration from the set of buildConfigurations
      *
      * @param configuration
-     * @return
+     * @return the resulting BuildConfigurations
      */
     public Set<BuildConfiguration> removeBuildConfiguration(BuildConfiguration configuration) {
         buildConfigurations.remove(configuration);

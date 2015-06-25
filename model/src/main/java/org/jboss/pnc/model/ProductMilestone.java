@@ -133,7 +133,7 @@ public class ProductMilestone implements GenericEntity<Integer> {
     /**
      * The scheduled starting date of this milestone
      *
-     * @return
+     * @return a Date
      */
     public Date getStartingDate() {
         return startingDate;
@@ -146,7 +146,7 @@ public class ProductMilestone implements GenericEntity<Integer> {
     /**
      * The scheduled ending date of this milestone
      *
-     * @return
+     * @return a Date
      */
     public Date getPlannedReleaseDate() {
         return plannedReleaseDate;
@@ -159,7 +159,7 @@ public class ProductMilestone implements GenericEntity<Integer> {
     /**
      * The release (or handoff) date of this milestone
      *
-     * @return
+     * @return a Date
      */
     public Date getReleaseDate() {
         return releaseDate;
@@ -171,8 +171,6 @@ public class ProductMilestone implements GenericEntity<Integer> {
 
     /**
      * URL which can be used to download the product distribution
-     *
-     * @return
      */
     public String getDownloadUrl() {
         return downloadUrl;

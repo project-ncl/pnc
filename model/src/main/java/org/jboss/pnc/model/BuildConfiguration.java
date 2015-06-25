@@ -315,7 +315,7 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
     }
 
     /**
-     * @param the set of build configs upon which this build depends
+     * @param dependencies the set of build configs upon which this build depends
      */
     public void setDependencies(Set<BuildConfiguration> dependencies) {
         this.dependencies = dependencies;
@@ -708,6 +708,7 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
         /**
          * @param lastModificationTime Sets last update time and ignores Null values (since they may affect the entity
          *        consistency).
+         * @return Builder
          */
         public Builder lastModificationTime(Timestamp lastModificationTime) {
             if (lastModificationTime != null) {

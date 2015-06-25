@@ -33,7 +33,7 @@ public interface RepositoryManager {
     /**
      * Create a new repository session tuned to the parameters of that build collection and the build that will use this
      * repository session.
-     * 
+     *
      * @param buildExecution
      */
     RepositorySession createBuildRepository(BuildExecution buildExecution)
@@ -41,12 +41,12 @@ public interface RepositoryManager {
 
     /**
      * Add the repository containing output associated with the specified {@link BuildRecord} to the membership of the
-     * repository group with the given ID. <br/>
+     * repository group with the given ID.
      * Note that the operation won't start until monitoring starts for the returned {@link RunningRepositoryPromotion} instance.
-     * 
+     *
      * @param buildRecord The build output to promote
      * @param toGroup The ID of the repository group where the build output should be promoted
-     * 
+     *
      * @return An object representing the running promotion process, with callbacks for result and error.
      *
      * @throws RepositoryManagerException
@@ -56,12 +56,12 @@ public interface RepositoryManager {
 
     /**
      * Used to purge the artifacts that were output from a given build (including the specific hosted repository which was used
-     * for that build). <br/>
+     * for that build).
      * Note that the operation won't start until monitoring starts for the returned {@link RunningRepositoryDeletion} instance.
-     * 
+     *
      * @param buildRecord The build whose artifacts/repositories should be removed
      * @return An object representing the running deletion, with callbacks for result and error.
-     * 
+     *
      * @throws RepositoryManagerException
      */
     RunningRepositoryDeletion deleteBuild(BuildRecord buildRecord) throws RepositoryManagerException;
@@ -69,12 +69,12 @@ public interface RepositoryManager {
     /**
      * Add the repository group containing output associated with the specified {@link BuildRecordSet} to the membership of the
      * repository group with the given ID.
-     * 
+     *
      * @param buildRecordSet The record-set that should be promoted
      * @param toGroup The group into which the record-set should be promoted
-     * 
+     *
      * @return An object representing the running promotion process, with a callback method for the result.
-     * 
+     *
      * @throws RepositoryManagerException
      */
     RunningRepositoryPromotion promoteBuildSet(BuildRecordSet buildRecordSet, String toGroup)

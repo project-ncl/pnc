@@ -68,10 +68,6 @@ public class Product implements GenericEntity<Integer> {
         productVersions = new HashSet<>();
     }
 
-    /**
-     * @param name
-     * @param description
-     */
     public Product(String name, String description) {
         this();
         this.name = name;
@@ -169,9 +165,6 @@ public class Product implements GenericEntity<Integer> {
 
     /**
      * Add a version for the Product
-     *
-     * @param version
-     * @return
      */
     public Set<ProductVersion> addVersion(ProductVersion version) {
         productVersions.add(version);
