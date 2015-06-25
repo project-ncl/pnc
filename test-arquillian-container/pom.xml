@@ -24,7 +24,7 @@
   <parent>
     <artifactId>parent</artifactId>
     <groupId>org.jboss.pnc</groupId>
-    <version>0.5-SNAPSHOT</version>
+    <version>0.5</version>
   </parent>
 
   <artifactId>test-arquillian-container</artifactId>
@@ -101,7 +101,7 @@
                     <!-- If JBOSS_HOME is set it causes obscure errors with CLI in -->
                     <!-- jboss-as-maven-plugin. -->
                     <property environment="env" />
-                    <fail message="JBOSS_HOME must not be set" if="env.JBOSS_HOME"/>
+                    <fail message="JBOSS_HOME must not be set" if="env.JBOSS_HOME" />
 
                     <echo>Preparing EAP 6.4 application server</echo>
                     <echo>EAP URL ${eap6.zip.url}</echo>
