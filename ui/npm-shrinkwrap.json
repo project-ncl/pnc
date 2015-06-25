@@ -1,6 +1,6 @@
 {
   "name": "pnc-ui",
-  "version": "0.3.0",
+  "version": "0.5.0",
   "dependencies": {
     "grunt-contrib-copy": {
       "version": "0.5.0",
