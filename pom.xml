@@ -23,7 +23,7 @@
 
   <groupId>org.jboss.pnc</groupId>
   <artifactId>parent</artifactId>
-  <version>0.5</version>
+  <version>0.6-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <name>pnc</name>
@@ -42,7 +42,7 @@
     <connection>scm:git:https://github.com/project-ncl/pnc.git</connection>
     <developerConnection>scm:git:git@github.com:project-ncl/pnc.git</developerConnection>
     <url>https://github.com/project-ncl/pnc/</url>
-    <tag>ver0.5</tag>
+    <tag>HEAD</tag>
   </scm>
 
 
@@ -1415,10 +1415,10 @@
 
                     <property name="newversion" value="${project.rel.org.jboss.pnc:parent}.0" />
 
-                    <replaceregexp byline="false" flags="m" file="${basedir}/bower.json" match="ui&quot;,&#xA;  &quot;version&quot;: &quot;[0-9].*&quot;" replace="ui&quot;,&#xA;  &quot;version&quot;: &quot;${newversion}&quot;" />
-                    <replaceregexp byline="false" flags="m" file="${basedir}/package.json" match="ui&quot;,&#xA;  &quot;version&quot;: &quot;[0-9].*&quot;" replace="ui&quot;,&#xA;  &quot;version&quot;: &quot;${newversion}&quot;" />
+                    <replaceregexp byline="false" flags="m" file="${basedir}/bower.json" match="ui&quot;,&#xA; &quot;version&quot;: &quot;[0-9].*&quot;" replace="ui&quot;,&#xA;  &quot;version&quot;: &quot;${newversion}&quot;" />
+                    <replaceregexp byline="false" flags="m" file="${basedir}/package.json" match="ui&quot;,&#xA; &quot;version&quot;: &quot;[0-9].*&quot;" replace="ui&quot;,&#xA;  &quot;version&quot;: &quot;${newversion}&quot;" />
 
-                    <replaceregexp byline="false" flags="m" file="${basedir}/npm-shrinkwrap.json" match="ui&quot;,&#xA;  &quot;version&quot;: &quot;[0-9].*&quot;" replace="ui&quot;,&#xA;  &quot;version&quot;: &quot;${newversion}&quot;" />
+                    <replaceregexp byline="false" flags="m" file="${basedir}/npm-shrinkwrap.json" match="ui&quot;,&#xA; &quot;version&quot;: &quot;[0-9].*&quot;" replace="ui&quot;,&#xA;  &quot;version&quot;: &quot;${newversion}&quot;" />
 
                   </target>
                 </configuration>
