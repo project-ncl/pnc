@@ -7,7 +7,6 @@
     'ui.bootstrap',
     'pnc.product',
     'pnc.remote.restClient',
-    'pnc.util.header',
     'pnc.util.date_utils',
     'angularUtils.directives.uiBreadcrumbs'
   ]);

@@ -22,7 +22,6 @@
   var module = angular.module('pnc.record', [
     'ui.router',
     'pnc.remote.restClient',
-    'pnc.util.header',
     'angularUtils.directives.uiBreadcrumbs'
   ]);
 

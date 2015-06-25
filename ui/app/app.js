@@ -33,7 +33,7 @@
     'pnc.release',
     'pnc.common.directives',
     'pnc.common.websockets',
-    'pnc.common.buildNotifications'
+    'pnc.common.buildNotifications',
   ]);
 
   var authEnabled = pnc_globals.enableAuth; // jshint ignore:line

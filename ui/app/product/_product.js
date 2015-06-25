@@ -22,7 +22,6 @@
   var module = angular.module('pnc.product', [
     'ui.router',
     'pnc.remote.restClient',
-    'pnc.util.header',
     'angularUtils.directives.uiBreadcrumbs'
   ]);
 
@@ -75,7 +74,7 @@
         },
       }
     });
-    
+
     $stateProvider.state('product.version', {
       //parent: 'product.detail',
       url: '/product/{productId:int}/version/{versionId:int}',
@@ -148,5 +147,5 @@
     });
 
   }]);
-  
+
 })();
