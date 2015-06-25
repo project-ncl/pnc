@@ -46,10 +46,6 @@ public class BuildTasksTree {
 
     /**
      * If there are cycles found in buildSetTask the status is set to BuildStatus.REJECTED;
-     *
-     * @param buildCoordinator
-     * @param buildSetTask
-     * @return
      */
     public BuildTasksTree(
             BuildCoordinator buildCoordinator,

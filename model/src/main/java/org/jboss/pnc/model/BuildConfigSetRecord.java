@@ -218,7 +218,7 @@ public class BuildConfigSetRecord implements GenericEntity<Integer> {
     /**
      * Sets the system image.
      *
-     * @param systemImage the new system image
+     * @param productVersion the new system image
      */
     public void setProductVersion(ProductVersion productVersion) {
         this.productVersion = productVersion;

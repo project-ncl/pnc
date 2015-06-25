@@ -19,7 +19,7 @@ public interface SortInfoProducer {
     /**
      * Gets sort info based RSQL query.
      *
-     * @param RSQL query for sorting, e.g. <code>"=asc=id"</code>.
+     * @param rsql query for sorting, e.g. <code>"=asc=id"</code>.
      * @return Sort Info object.
      */
     SortInfo getSortInfo(String rsql);
