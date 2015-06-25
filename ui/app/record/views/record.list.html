@@ -1,13 +1,11 @@
 <div>
-  <pnc-header>
-    <pnc-header-title>Build Progress</pnc-header-title>
-  </pnc-header>
+  <div class="page-header">
+    <h1>Build Progress</h1>
+  </div>
 
-  <pnc-header>
-    <pnc-header-title>
-      <small>Running builds</small>
-    </pnc-header-title>
-  </pnc-header>
+  <div>
+      <h2>Running builds</h2>
+  </div>
 
   <p ng-hide="runningRecords.length">
     No running builds.
@@ -38,11 +36,9 @@
     </tbody>
   </table>
 
-  <pnc-header>
-    <pnc-header-title>
-      <small>Finished builds</small>
-    </pnc-header-title>
-  </pnc-header>
+  <div>
+    <h2>Finished builds</h2>
+  </div>
 
   <p ng-hide="finishedRecords.length">
     No finished builds.

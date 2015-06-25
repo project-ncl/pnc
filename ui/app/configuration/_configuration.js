@@ -24,7 +24,6 @@
     'ui.bootstrap',
     'xeditable',
     'pnc.remote.restClient',
-    'pnc.util.header',
     'pnc.util.confirmClick',
     'angularUtils.directives.uiBreadcrumbs',
     'pnc.common.directives'
