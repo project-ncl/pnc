@@ -496,7 +496,7 @@
         <artifactId>docker</artifactId>
         <version>${version.jclouds}</version>
       </dependency>
-      
+
       <dependency>
         <groupId>org.apache.jclouds</groupId>
         <artifactId>jclouds-core</artifactId>
@@ -1176,7 +1176,7 @@
             <mavenExecutorId>forked-path</mavenExecutorId>
             <useReleaseProfile>false</useReleaseProfile>
             <addSchema>false</addSchema>
-            <arguments>-Prelease -DskipTests=${skipTests} -DpushChanges=${pushChanges}</arguments>
+            <arguments>-Prelease -Dlicense.skip=${licenseSkip} -DskipTests=${testSkip} -DpushChanges=${pushChanges}</arguments>
             <completionGoals>scm:add scm:checkin -DpushChanges=${pushChanges}</completionGoals>
           </configuration>
         </plugin>
