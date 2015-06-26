@@ -17,7 +17,25 @@
  */
 package org.jboss.pnc.environment.docker;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
+import java.io.File;
+import java.io.IOException;
+import java.net.Socket;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
+import java.util.logging.Logger;
+
+import javax.inject.Inject;
 
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
@@ -46,16 +64,8 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 
-import javax.inject.Inject;
-
-import java.io.File;
-import java.io.IOException;
-import java.net.Socket;
-import java.util.Map;
-import java.util.concurrent.Semaphore;
-import java.util.concurrent.TimeUnit;
-import java.util.function.Consumer;
-import java.util.logging.Logger;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * Unit tests for DockerEnnvironmentDriver
@@ -86,6 +96,10 @@ public class DockerEnvironmentDriverRemoteTest {
     private String dockerIp;
 
     private String dockerControlEndpoint;
+    
+    private String dockerProxyHost;
+    
+    private String dockerProxyPort;
 
     private boolean isInitialized = false;
 
@@ -117,6 +131,8 @@ public class DockerEnvironmentDriverRemoteTest {
                     configurationService.getModuleConfig(DockerEnvironmentDriverModuleConfig.class);
             dockerIp = config.getIp();
             dockerControlEndpoint = "http://" + dockerIp + ":2375";
+            dockerProxyHost = config.getProxyServer();
+            dockerProxyPort = config.getProxyPort();
             isInitialized = true;
         }
     }
@@ -154,6 +170,7 @@ public class DockerEnvironmentDriverRemoteTest {
             try {
                 testRunningContainer(runningEnv, true,
                         "Environment wasn't successfully built.");
+                testRunningEnvContainer(runningEnv, true, "Environment wasn't set up correctly.");
 
                 // Destroy container
                 dockerEnvDriver.destroyEnvironment(runningEnv.getId());
@@ -177,8 +194,7 @@ public class DockerEnvironmentDriverRemoteTest {
         startedEnv.monitorInitialization(onComplete, onError);
         mutex.tryAcquire(MAX_TEST_DURATION, TimeUnit.SECONDS);
     }
-
-
+    
     /**
      * Checks if container was started and the services are on.
      *
@@ -216,6 +232,62 @@ public class DockerEnvironmentDriverRemoteTest {
         // Test it the SSH port is opened
         assertEquals(baseErrorMsg + " Test opened SSH port", shouldBeRunning, testOpenedPort(sshPort));
     }
+    
+    private void testRunningEnvContainer(final DockerRunningEnvironment runningEnv,
+            final boolean shouldBeRunning,
+            final String baseErrorMsg) {
+        final int sshPort = runningEnv.getSshPort();
+        final String containerId = runningEnv.getId();
+
+        // Test if the container is running
+        try {
+            HttpUtils.testResponseHttpCode(200, dockerControlEndpoint + "/containers/" + containerId
+                    + "/json");
+
+            String containerJSON = HttpUtils.processGetRequest(dockerControlEndpoint + "/containers/" + containerId + "/json");
+            Map<String,Object> jsonMap = getJSONFromString(containerJSON);
+            Map<String,Object> envMap = getEnvJSONFromDocker(jsonMap);
+            
+            String proxyIP = (String) envMap.get("proxyIPAddress");
+            String proxyPort = (String) envMap.get("proxyPort");
+            String isHttpActive = (String) envMap.get("isHttpActive");
+                        
+            assertEquals(dockerProxyHost, proxyIP);
+            assertEquals(dockerProxyPort, proxyPort);
+            assertEquals( ((dockerProxyHost == null) || (dockerProxyPort == null)), isHttpActive);
+            
+            assertEquals(baseErrorMsg + " Container is running", shouldBeRunning, true);
+        } catch (final Exception e) {
+            assertEquals(baseErrorMsg + " Container is not running", shouldBeRunning, false);
+        }
+
+        // Test if Jenkins is running
+        try {
+            HttpUtils.testResponseHttpCode(200, runningEnv.getJenkinsUrl());
+            if (!shouldBeRunning) {
+                fail("Jenkins is running, but should be down");
+            }
+        } catch (final Exception e) {
+            if (shouldBeRunning) {
+                fail("Jenkins wasn't started successully");
+            }
+        }
+
+        // Test it the SSH port is opened
+        assertEquals(baseErrorMsg + " Test opened SSH port", shouldBeRunning, testOpenedPort(sshPort));
+    }
+    
+    static private Map<String,Object> getJSONFromString(String str){
+        Map<String,Object> result = new HashMap<String, Object>();
+        try {
+            result = (Map<String,Object>) new ObjectMapper().readValue(str, Map.class);    
+        } catch (JsonMappingException jme){
+            log.severe("Error while converting container JSON to Map - " + jme.getLocalizedMessage());
+        } catch (IOException ioe){
+            log.severe("Error while converting container JSON to Map - " + ioe.getLocalizedMessage());
+        }
+        return result;    
+    }
 
     private void destroyEnvironmentWithReport(String id) {
         try {
@@ -239,6 +311,27 @@ public class DockerEnvironmentDriverRemoteTest {
             return false;
         }
         return true;
+    }
+    /**
+     * Get Environment variables from Map created from JSON
+     * @param map
+     * @return
+     */
+    @SuppressWarnings("unchecked")
+    static private Map<String,Object> getEnvJSONFromDocker(Map<String, Object> map){
+        Map<String,Object> result = new HashMap<String, Object>();
+        Map<String, Object> configMap = ((Map<String, Object>) map.get("Config"));
+        Object envConfig = configMap.get("Env");
+        
+        if (envConfig instanceof ArrayList<?>) {
+          List<?> configEnv = (ArrayList<?>) envConfig;
+          for (Object object : configEnv) {
+            String valuePair = (String) object;
+            String[] splitStrings = valuePair.split("=");
+            result.put(splitStrings[0], splitStrings[1]);
+          }
+        }
+        return result;    
     }
 
     private static class DummyRepositoryConfiguration implements RepositorySession {

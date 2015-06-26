@@ -16,6 +16,8 @@
             "inContainerUser":"contUser",
             "inContainerUserPassword":"contPass",
             "dockerImageId":"imageId",
+            "proxyServer":"1.2.3.4",           
+            "proxyPort":"3128",
             "firewallAllowedDestinations":"3.3.3.3:44"
           }
         ]
