@@ -109,6 +109,7 @@
 
   app.factory('httpResponseInterceptor', [
     '$log',
+    'Notifications',
     'keycloak',
     function($log, Notifications, keycloak) {
       return {

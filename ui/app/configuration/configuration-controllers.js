@@ -213,7 +213,13 @@
 
       // Cloning a build configuration
       this.clone = function() {
-        this.configuration.$clone();
+        this.configuration.$clone().then(function(result) {
+          $state.go('configuration.detail.show', {
+            configurationId: result.id
+          }, {
+            reload: true
+          });
+        });
       };
 
       // Deleting a build configuration
