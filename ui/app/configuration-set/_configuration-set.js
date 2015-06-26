@@ -23,7 +23,6 @@
     'ui.router',
     'xeditable',
     'pnc.remote.restClient',
-    'pnc.util.header',
     'angularUtils.directives.uiBreadcrumbs'
   ]);
 

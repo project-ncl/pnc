@@ -15,7 +15,7 @@
       scope: {
         status: '='
       },
-      templateUrl: 'common/directives/view/build-status-icon-d.html',
+      templateUrl: 'common/directives/views/build-status-icon-d.html',
       controller: [
         '$log',
         '$scope',

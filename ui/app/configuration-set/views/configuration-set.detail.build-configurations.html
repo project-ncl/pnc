@@ -18,15 +18,14 @@
 
 -->
 <div>
-  <pnc-header-title><small></small></pnc-header-title>
-  <pnc-header-buttons>
-    <button type="button" class="btn btn-lg btn-default" data-toggle="tooltip" title="Add an existing Build Configuration" ui-sref="configuration-set.add-configuration({ configurationSetId: detailSetCtrl.set.id })">
-      <i class="pficon pficon-add"></i> Add
-    </button>
-    <button type="button" class="btn btn-lg btn-default disabled" data-toggle="tooltip" title="Create a new Build Configuration">
-      <i class="pficon pficon-add"></i> Create
-    </button>
-  </pnc-header-buttons>
+  <div class="btn-group pull-right">
+      <button type="button" class="btn btn-lg btn-default" data-toggle="tooltip" title="Add an existing Build Configuration" ui-sref="configuration-set.add-configuration({ configurationSetId: detailSetCtrl.set.id })">
+        <i class="pficon pficon-add"></i> Add
+      </button>
+      <button type="button" class="btn btn-lg btn-default disabled" data-toggle="tooltip" title="Create a new Build Configuration">
+        <i class="pficon pficon-add"></i> Create
+      </button>
+  </div>
 
   <input ng-model="searchText" placeholder="filter config...">
   <table class="table table-bordered table-striped table-hover">
