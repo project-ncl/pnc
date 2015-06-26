@@ -35,8 +35,8 @@ import javax.ws.rs.core.*;
 
 import java.util.List;
 
-@Api(value = "/products/{productId}/product-versions", description = "Product Version related information")
-@Path("/products/{productId}/product-versions")
+@Api(value = "/product-versions", description = "Product Version related information")
+@Path("/product-versions")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 public class ProductVersionEndpoint {
@@ -57,27 +57,16 @@ public class ProductVersionEndpoint {
             @ApiParam(value = "Page index") @QueryParam("pageIndex") @DefaultValue("0") int pageIndex,
             @ApiParam(value = "Pagination size") @DefaultValue("50") @QueryParam("pageSize") int pageSize,
             @ApiParam(value = "Sorting RSQL") @QueryParam("sort") String sortingRsql,
-            @ApiParam(value = "RSQL query") @QueryParam("q") String rsql,
-            @ApiParam(value = "Product id", required = true) @PathParam("productId") Integer productId) {
-        return productVersionProvider.getAll(pageIndex, pageSize, sortingRsql, rsql, productId);
+            @ApiParam(value = "RSQL query") @QueryParam("q") String rsql){
+        return productVersionProvider.getAll(pageIndex, pageSize, sortingRsql, rsql);
     }
 
     @ApiOperation(value = "Gets specific Product Version")
     @GET
     @Path("/{id}")
     public Response getSpecific(
-            @ApiParam(value = "Product id", required = true) @PathParam("productId") Integer productId,
             @ApiParam(value = "Product Version id", required = true) @PathParam("id") Integer id) {
-        return Utility.createRestEnityResponse(productVersionProvider.getSpecific(productId, id), id);
-    }
-
-    @ApiOperation(value = "Creates a new Product Version")
-    @POST
-    public Response createNew(@ApiParam(value = "Product id", required = true) @PathParam("productId") Integer productId,
-            @NotNull @Valid ProductVersionRest productVersionRest, @Context UriInfo uriInfo) {
-        int id = productVersionProvider.store(productId, productVersionRest);
-        UriBuilder uriBuilder = UriBuilder.fromUri(uriInfo.getRequestUri()).path("{id}");
-        return Response.created(uriBuilder.build(id)).entity(productVersionProvider.getSpecific(productId, id)).build();
+        return Utility.createRestEnityResponse(productVersionProvider.getSpecific(id), id);
     }
 
     @ApiOperation(value = "Updates an existing Product Version")
