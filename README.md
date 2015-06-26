@@ -59,7 +59,7 @@ Currently is used Docker daemon, which listens on unprotected Docker control soc
 
 Steps to set up Docker daemon:
 
-1. Install docker with `yum install docker-io`
+1. Install docker with `yum install docker-io` (the package on Fedora 22 was renamed to _docker_)
 2. Edit /etc/sysconfig/docker file to enable tcp connection, using external data storage on disk outside root filesystem and you can set up an additional docker image registry to official hub.docker.com:
 
 ```
