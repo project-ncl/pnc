@@ -19,7 +19,7 @@
 
 (function() {
 
-  var module = angular.module('pnc.common.directives', []);
+  var module = angular.module('pnc.common.directives');
 
   /**
    * @ngdoc directive

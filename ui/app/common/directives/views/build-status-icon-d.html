@@ -1,9 +1,10 @@
 <span ng-switch on="status">
-  <img ng-switch-when="BUILDING" tooltip="BUILDING" alt="BUILDING" src="images/blue_anime.gif">
-  <img ng-switch-when="SUCCESS" tooltip="SUCCESS" alt="SUCCESS" src="images/success_small.png">
-  <img ng-switch-when="UNSTABLE" tooltip="UNSTABLE" alt="UNSTABLE" src="images/red_small.png">
-  <img ng-switch-when="FAILED" tooltip="FAILED" alt="FAILED" src="images/red_small.png">
-  <img ng-switch-when="ABORTED" tooltip="ABORTED" alt="ABORTED" src="images/aborted_small.png">
-  <img ng-switch-when="CANCELLED" tooltip="CANCELLED" alt="CANCELLED" src="images/aborted_small.png">
+  <img ng-switch-when="BUILDING" tooltip="Build in progress" alt="Building" src="images/blue_anime.gif">
+  <img ng-switch-when="SUCCESS" tooltip="Build completed successfully" alt="Success" src="images/success_small.png">
+  <img ng-switch-when="UNSTABLE" tooltip="Unstable build" alt="Unstable" src="images/red_small.png">
+  <img ng-switch-when="FAILED" tooltip="Build Failed" alt="Failed" src="images/red_small.png">
+  <img ng-switch-when="ABORTED" tooltip="Build aborted" alt="Aborted" src="images/aborted_small.png">
+  <img ng-switch-when="CANCELLED" tooltip="Build cancelled" alt="Cancelled" src="images/aborted_small.png">
+  <img ng-switch-when="SYSTEM_ERROR" tooltip="A system error occured" alt="System Error" src="images/red_small.png">
   <img ng-switch-default tooltip="UNKNOWN" alt="UNKNOWN" src="images/unknown_small.png">
 </span>
