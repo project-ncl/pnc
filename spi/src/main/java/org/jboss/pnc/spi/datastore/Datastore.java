@@ -31,7 +31,7 @@ public interface Datastore {
      * @param buildRecord Completed BuildRecord.
      * @throws DatastoreException Thrown if database is unable to process the request.
      */
-    void storeCompletedBuild(BuildRecord buildRecord) throws DatastoreException;
+    BuildRecord storeCompletedBuild(BuildRecord buildRecord) throws DatastoreException;
 
     /**
      * Returns User upon its username.

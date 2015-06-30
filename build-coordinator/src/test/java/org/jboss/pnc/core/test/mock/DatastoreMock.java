@@ -42,9 +42,10 @@ public class DatastoreMock implements Datastore {
     AtomicInteger buildRecordSetSequence = new AtomicInteger(0);
 
     @Override
-    public void storeCompletedBuild(BuildRecord buildRecord) {
+    public BuildRecord storeCompletedBuild(BuildRecord buildRecord) {
         log.info("Storing build " + buildRecord.getLatestBuildConfiguration());
         buildRecords.add(buildRecord);
+        return buildRecord;
     }
 
     @Override
