@@ -26,14 +26,11 @@ public class DefaultBuildStatusChangedEvent implements BuildStatusChangedEvent {
     private final BuildStatus oldStatus;
     private final BuildStatus newStatus;
     private final int buildTaskId;
-    private final BuildExecution buildExecution;
 
-    public DefaultBuildStatusChangedEvent(BuildStatus oldStatus, BuildStatus newStatus, int buildTaskId,
-            BuildExecution execution) {
+    public DefaultBuildStatusChangedEvent(BuildStatus oldStatus, BuildStatus newStatus, int buildTaskId) {
         this.oldStatus = oldStatus;
         this.newStatus = newStatus;
         this.buildTaskId = buildTaskId;
-        this.buildExecution = execution;
     }
 
     @Override
@@ -49,11 +46,6 @@ public class DefaultBuildStatusChangedEvent implements BuildStatusChangedEvent {
     @Override
     public BuildStatus getNewStatus() {
         return newStatus;
-    }
-
-    @Override
-    public BuildExecution getBuildExecution() {
-        return buildExecution;
     }
 
     @Override public String toString() {

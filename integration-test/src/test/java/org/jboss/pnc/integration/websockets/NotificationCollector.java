@@ -41,9 +41,4 @@ public class NotificationCollector {
         messages.clear();
     }
 
-    public void awaitForAtLestOneMessage() throws InterruptedException {
-        if(messages.isEmpty()) {
-        }
-    }
-
 }
