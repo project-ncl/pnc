@@ -31,6 +31,7 @@ import org.slf4j.LoggerFactory;
 import javax.enterprise.event.Event;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -40,7 +41,7 @@ public class BuildTask implements BuildExecution {
 
     public static final Logger log = LoggerFactory.getLogger(BuildTask.class);
 
-    private Integer buildTaskId;
+    private final int buildTaskId;
 
     public BuildConfiguration buildConfiguration;
     private BuildExecutionType buildTaskType;
@@ -74,7 +75,7 @@ public class BuildTask implements BuildExecution {
               BuildExecutionType buildTaskType, 
               User user, 
               BuildSetTask buildSetTask,
-              BuildTaskIdSupplier buildTaskIdSupplier) {
+              int buildTaskId) {
         this.buildCoordinator = buildCoordinator;
         this.buildConfiguration = buildConfiguration;
         this.buildTaskType = buildTaskType;
@@ -84,7 +85,7 @@ public class BuildTask implements BuildExecution {
         this.buildContentId = buildContentId;
         this.user = user;
         this.buildSetTask = buildSetTask;
-        this.buildTaskId = buildTaskIdSupplier.get();
+        this.buildTaskId = buildTaskId;
 
         this.startTime = System.currentTimeMillis();
         waiting = new HashSet<>();
@@ -93,7 +94,8 @@ public class BuildTask implements BuildExecution {
     public void setStatus(BuildStatus status) {
         BuildStatus oldStatus = this.status;
         this.status = status;
-        BuildStatusChangedEvent buildStatusChanged = new DefaultBuildStatusChangedEvent(oldStatus, status, getId());
+        Integer userId = Optional.ofNullable(user).map(user -> user.getId()).orElse(null);
+        BuildStatusChangedEvent buildStatusChanged = new DefaultBuildStatusChangedEvent(oldStatus, status, getId(), userId);
         log.debug("Updating build task {} status to {}", this.getId(), buildStatusChanged);
         buildSetTask.taskStatusUpdated(buildStatusChanged);
         buildStatusChangedEvent.fire(buildStatusChanged);
@@ -166,13 +168,13 @@ public class BuildTask implements BuildExecution {
 
         BuildTask buildTask = (BuildTask) o;
 
-        return buildTaskId.equals(buildTask.getId());
+        return buildTaskId == buildTask.getId();
 
     }
 
     @Override
     public int hashCode() {
-        return buildTaskId.hashCode();
+        return buildTaskId;
     }
 
     void setStatusDescription(String statusDescription) {
@@ -180,7 +182,7 @@ public class BuildTask implements BuildExecution {
     }
 
 
-    public Integer getId() {
+    public int getId() {
         return buildTaskId;
     }
 

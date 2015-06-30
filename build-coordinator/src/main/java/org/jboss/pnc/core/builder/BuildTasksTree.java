@@ -90,7 +90,7 @@ public class BuildTasksTree {
                         buildSetTask.getBuildTaskType(),
                         user,
                         buildSetTask,
-                        buildTaskIdSupplier))
+                        buildTaskIdSupplier.get()))
                 .forEach(buildTask -> buildSetTask.addBuildTask(buildTask));
     }
 
@@ -102,7 +102,7 @@ public class BuildTasksTree {
                                 BuildExecutionType buildTaskType,
                                 User user,
                                 BuildSetTask buildSetTask,
-                                BuildTaskIdSupplier buildTaskIdSupplier) {
+                                int buildTaskId) {
 
         ContentIdentityManager contentIdentityManager = new ContentIdentityManager();
         Vertex<BuildTask> buildVertex = getVertexByBuildConfigurationId(buildConfiguration.getId());
@@ -117,7 +117,7 @@ public class BuildTasksTree {
                     buildTaskType,
                     user,
                     buildSetTask,
-                    buildTaskIdSupplier);
+                    buildTaskId);
 
             Vertex<BuildTask> vertex = new Vertex(buildConfiguration.getId().toString(), buildTask);
             tree.addVertex(vertex);

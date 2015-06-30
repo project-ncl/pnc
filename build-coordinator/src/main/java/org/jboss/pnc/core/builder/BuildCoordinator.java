@@ -322,7 +322,7 @@ public class BuildCoordinator {
         try {
             if (buildResult != null) {
                 buildTask.setStatus(BuildStatus.STORING_RESULTS);
-                storedBuildRecord = datastoreAdapter.storeResult(buildTask, buildResult);
+                storedBuildRecord = datastoreAdapter.storeResult(buildTask, buildResult, buildTask.getId());
             } else {
                 stopRunningEnvironment(e);
                 datastoreAdapter.storeResult(buildTask, e);

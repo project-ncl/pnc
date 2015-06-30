@@ -90,9 +90,9 @@ public class WebSocketsNotificationTest {
     @Test
     public void shouldConnectToWebSockets() throws Exception {
         //given
-        BuildStatusChangedEvent buildStatusChangedEvent = new DefaultBuildStatusChangedEvent(BuildStatus.NEW, BuildStatus.BUILD_WAITING, 1);
+        BuildStatusChangedEvent buildStatusChangedEvent = new DefaultBuildStatusChangedEvent(BuildStatus.NEW, BuildStatus.BUILD_COMPLETED_SUCCESS, 1, 1);
         // How to mock BuildRecordProvider?
-        String expectedJsonResponse = "{}";//"{\"oldStatus\":\"NEW\",\"newStatus\":\"BUILD_WAITING\",\"buildTaskId\":1}";
+        String expectedJsonResponse = "{\"payload\":{\"id\":1,\"eventType\":\"BUILD_COMPLETED\",\"userId\":1}}";
 
         //when
         notificationEvent.fire(buildStatusChangedEvent);

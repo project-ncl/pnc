@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.rest.notifications.websockets;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.jboss.pnc.rest.notifications.OutputConverter;
@@ -27,6 +28,10 @@ import javax.enterprise.context.ApplicationScoped;
 public class JSonOutputConverter implements OutputConverter {
 
     private ObjectMapper mapper = new ObjectMapper();
+
+    public JSonOutputConverter() {
+        mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+    }
 
     @Override
     public String apply(Object objectToBeConverted) {

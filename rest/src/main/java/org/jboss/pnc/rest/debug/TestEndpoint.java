@@ -24,6 +24,7 @@ import org.jboss.pnc.spi.events.BuildStatusChangedEvent;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
+import javax.validation.Valid;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -43,7 +44,7 @@ public class TestEndpoint {
     @POST
     @Path("/buildstatus/notify")
     @ApiOperation(value = "Sends BuildStatusChangedEvent just like it was from Core, useful for testing WebSockets")
-    public void sendBuildStatusChangedEvent(BuildStatusChangedEventRest buildStatusChangedEventRest) {
+    public void sendBuildStatusChangedEvent(@Valid BuildStatusChangedEventRest buildStatusChangedEventRest) {
         buildStatusChangedEventEvent.fire(buildStatusChangedEventRest);
     }
 }

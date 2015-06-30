@@ -48,13 +48,13 @@ public class DatastoreAdapter {
         this.datastore = datastore;
     }
 
-    public BuildRecord storeResult(BuildTask buildTask, BuildResult buildResult) throws DatastoreException {
+    public BuildRecord storeResult(BuildTask buildTask, BuildResult buildResult, int buildRecordId) throws DatastoreException {
         try {
             BuildDriverResult buildDriverResult = buildResult.getBuildDriverResult();
             RepositoryManagerResult repositoryManagerResult = buildResult.getRepositoryManagerResult();
 
             BuildRecord buildRecord = new BuildRecord();
-            buildRecord.setId(buildTask.getId());
+            buildRecord.setId(buildRecordId);
             // Build driver results
             buildRecord.setBuildLog(buildDriverResult.getBuildLog());
             buildRecord.setStatus(buildDriverResult.getBuildDriverStatus().toBuildStatus());

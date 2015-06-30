@@ -83,4 +83,40 @@ public class JSonOutputConverterTest {
         //then
         assertThat(convertedString).isEqualTo("{}");
     }
+
+    @Test
+    public void shouldNotRenderNulls() throws Exception {
+        //given
+        class SampleObject {
+
+            String sampleField;
+            String sampleNullField;
+
+            public String getSampleField() {
+                return sampleField;
+            }
+
+            public void setSampleField(String sampleField) {
+                this.sampleField = sampleField;
+            }
+
+            public String getSampleNullField() {
+                return sampleNullField;
+            }
+
+            public void setSampleNullField(String sampleNullField) {
+                this.sampleNullField = sampleNullField;
+            }
+        }
+
+        SampleObject sampleObject = new SampleObject();
+        sampleObject.sampleField = "test";
+        JSonOutputConverter converter = new JSonOutputConverter();
+
+        //when
+        String convertedString = converter.apply(sampleObject);
+
+        //then
+        assertThat(convertedString).isEqualTo("{\"sampleField\":\"test\"}");
+    }
 }
