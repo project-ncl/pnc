@@ -44,7 +44,6 @@
       restrict: 'E',
       templateUrl: 'common/directives/views/header.html',
       transclude: true,
-      replace: true,
       link: function(scope, element, attrs, ctrl, transclude) {
         transclude(scope.$new(), function(clone) {
           element.find('.header-title').append(clone.filter('pnc-header-title'));
