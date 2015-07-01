@@ -1099,7 +1099,7 @@
                   <goals>
                       <goal>highest-basedir</goal>
                   </goals>
-                  <phase>initialize</phase>
+                  <phase>validate</phase>
                   <configuration>
                       <property>executionRoot</property>
                   </configuration>
@@ -1111,7 +1111,7 @@
           <artifactId>properties-maven-plugin</artifactId>
           <executions>
               <execution>
-                  <phase>initialize</phase>
+                  <phase>validate</phase>
                   <goals>
                       <goal>read-project-properties</goal>
                   </goals>
