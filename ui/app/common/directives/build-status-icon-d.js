@@ -15,14 +15,7 @@
       scope: {
         status: '='
       },
-      templateUrl: 'common/directives/views/build-status-icon-d.html',
-      controller: [
-        '$log',
-        '$scope',
-        function ($log, $scope) {
-          $log.debug($scope.status);
-        }
-      ]
+      templateUrl: 'common/directives/views/build-status-icon-d.html'
     };
   });
 
