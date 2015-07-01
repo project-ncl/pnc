@@ -1003,7 +1003,8 @@
               <exclude>**/README</exclude>
               <exclude>**/LICENSE.txt</exclude>
               <exclude>.license-header.txt</exclude>
-              <exclude>plugins.txt</exclude>
+              <exclude>**/plugins.txt</exclude>
+              <exclude>**/Dockerfile</exclude>
 
               <!-- Exclude downloaded/generated -->
               <exclude>**/.tmp/**</exclude>
@@ -1014,18 +1015,8 @@
               <exclude>**/node/**</exclude>
               <exclude>**/node_modules/**</exclude>
               <exclude>**/rest-config.json</exclude>
-
-              <!-- Exclude Angular include files as comments break Angular -->
-              <exclude>**/app/common/util/views/**</exclude>
             </excludes>
           </configuration>
-          <executions>
-            <execution>
-              <goals>
-                <goal>format</goal>
-              </goals>
-            </execution>
-          </executions>
         </plugin>
 
         <!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself.-->
@@ -1360,7 +1351,7 @@
     </profile>
 
     <profile>
-      <id>formatting</id>
+      <id>license-format</id>
       <build>
         <plugins>
           <plugin>
@@ -1371,6 +1362,27 @@
                 <phase>process-sources</phase>
                 <goals>
                   <goal>format</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
+    <profile>
+      <id>license-check</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>com.mycila</groupId>
+            <artifactId>license-maven-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>check-license</id>
+                <phase>initialize</phase>
+                <goals>
+                  <goal>check</goal>
                 </goals>
               </execution>
             </executions>
