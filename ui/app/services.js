@@ -20,6 +20,7 @@
  (function() {
   var app = angular.module('pnc');
 
+
   app.provider('keycloak', function() {
     var keycloak;
 
@@ -60,12 +61,11 @@
     }
     ]);
 
-  app.factory('authInterceptor', [
+  app.factory('httpAuthenticationInterceptor', [
     '$q',
     '$log',
     'keycloak',
-    'Notifications',
-    function ($q, $log, keycloak, Notifications) {
+    function ($q, $log, keycloak) {
 
       function addAuthHeaders(config, token) {
         config.headers = config.headers || {};
@@ -73,10 +73,12 @@
       }
 
       return {
-        request: function (config) {
 
+        request: function (config) {
           if (keycloak && keycloak.token) {
 
+            // Prevents screen flicker by directly returning the config
+            // object if the keycloak token does not need to be refreshed.
             if (!keycloak.isTokenExpired(5)) {
 
               addAuthHeaders(config, keycloak.token);
@@ -94,25 +96,49 @@
               });
 
               return deferred.promise;
-
             }
 
             return config;
 
           }
+        }
+
+      };
+    }
+  ]);
+
+  app.factory('httpResponseInterceptor', [
+    '$log',
+    'Notifications',
+    'keycloak',
+    function($log, Notifications, keycloak) {
+      return {
+
+        response: function(response) {
+          if (response.config.method !== 'GET') {
+            $log.debug('HTTP response: %O', response);
+            Notifications.success(response.status + ': ' + response.statusText);
+          }
+          return response;
         },
 
         responseError: function(rejection) {
-          switch (rejection.status) {
+          switch(rejection.status) {
+            case 0:
+              Notifications.error('Unable to connect to server');
+              break;
             case 401:
               keycloak.login();
               break;
-            case 403:
-              Notifications.error('You do not have the required permission to perform this action.');
+            default:
+              $log.debug('HTTP response: %O', rejection);
+              Notifications.error(rejection.status + ': ' +
+                                  rejection.statusText);
               break;
           }
-          $q.reject(rejection);
+          return rejection;
         }
+
       };
     }
   ]);
@@ -124,12 +150,10 @@
     }
 
     return {
+
       authenticated: false,
-
       logout: nullFunction,
-
       login: nullFunction,
-
       token: 'token',
 
       isTokenExpired: function() {

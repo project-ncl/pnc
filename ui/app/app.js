@@ -105,9 +105,11 @@
     // Configure pop-up notifications
     NotificationsProvider.setDelay(12000);
 
+    $httpProvider.interceptors.push('httpResponseInterceptor');
+
     if (PROPERTIES.AUTH_ENABLED) {
       keycloakProvider.setKeycloak(keycloak);
-      $httpProvider.interceptors.push('authInterceptor');
+      $httpProvider.interceptors.push('httpAuthenticationInterceptor');
     } else {
       keycloakProvider.useMockKeycloak();
     }
@@ -131,7 +133,9 @@
             keycloak.login();
             break;
           case 403:
-            $state.go('error', { message: 'You do not have the required permission to access this resource' });
+            $state.go('error', {
+              message: 'You do not have the required permission to access this resource'
+            });
             break;
         }
 
