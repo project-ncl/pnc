@@ -24,9 +24,10 @@
   module.factory('BuildRecordNotifications', [
     '$log',
     '$websocket',
-    function ($log, $websocket) {
+    'WEBSOCKET_CONFIG',
+    function ($log, $websocket, WEBSOCKET_CONFIG) {
 
-      var socket = $websocket('ws://localhost:8080/pnc-rest/ws/build-records/notifications');
+      var socket = $websocket(WEBSOCKET_CONFIG.DEFAULT_URI);
 
       var callbacks = [];
 
