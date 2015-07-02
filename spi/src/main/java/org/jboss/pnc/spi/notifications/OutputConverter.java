@@ -15,18 +15,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.rest.notifications;
+package org.jboss.pnc.spi.notifications;
 
-/**
- * Notification mechanism for Web Sockets. All implementation details should be placed in AttachedClient.
- */
-public interface Notifier {
+import java.util.function.Function;
 
-    void attachClient(AttachedClient attachedClient);
-
-    void detachClient(AttachedClient attachedClient);
-
-    int getAttachedClientsCount();
-
-    void sendMessage(Object message);
+public interface OutputConverter extends Function<Object, String> {
 }

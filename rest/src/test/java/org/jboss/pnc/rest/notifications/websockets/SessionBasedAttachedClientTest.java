@@ -17,7 +17,7 @@
  */
 package org.jboss.pnc.rest.notifications.websockets;
 
-import org.jboss.pnc.rest.notifications.OutputConverter;
+import org.jboss.pnc.spi.notifications.OutputConverter;
 import org.junit.Test;
 
 import javax.websocket.Session;

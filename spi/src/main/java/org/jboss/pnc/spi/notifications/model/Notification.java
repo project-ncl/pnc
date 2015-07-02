@@ -15,13 +15,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.rest.notifications.websockets;
+package org.jboss.pnc.spi.notifications.model;
 
-/**
- * // TODO: Document this
- *
- * @author slaskawi
- * @since 4.0
- */
-public class NotificationBridge {
+public class Notification {
+
+    private final String exceptionMessage;
+
+    private final NotificationPayload payload;
+
+    public Notification(String exceptionMessage, NotificationPayload payload) {
+        this.exceptionMessage = exceptionMessage;
+        this.payload = payload;
+    }
+
+    public String getExceptionMessage() {
+        return exceptionMessage;
+    }
+
+    public NotificationPayload getPayload() {
+        return payload;
+    }
 }

@@ -15,15 +15,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.spi.events;
+package org.jboss.pnc.spi.notifications.model;
 
-import org.jboss.pnc.spi.BuildStatus;
-
-public interface BuildStatusChangedEvent {
-
-    BuildStatus getOldStatus();
-    BuildStatus getNewStatus();
-    Integer getBuildTaskId();
+public interface NotificationPayload {
+    NotificationEventType getEventType();
+    Integer getId();
     Integer getUserId();
-
 }

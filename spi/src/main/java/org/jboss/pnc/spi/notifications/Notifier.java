@@ -15,15 +15,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.spi.events;
+package org.jboss.pnc.spi.notifications;
 
-import org.jboss.pnc.spi.BuildStatus;
+/**
+ * Notification mechanism for Web Sockets. All implementation details should be placed in AttachedClient.
+ */
+public interface Notifier {
 
-public interface BuildStatusChangedEvent {
+    void attachClient(AttachedClient attachedClient);
 
-    BuildStatus getOldStatus();
-    BuildStatus getNewStatus();
-    Integer getBuildTaskId();
-    Integer getUserId();
+    void detachClient(AttachedClient attachedClient);
 
+    int getAttachedClientsCount();
+
+    void sendMessage(Object message);
 }

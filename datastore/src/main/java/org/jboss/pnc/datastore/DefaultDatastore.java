@@ -54,9 +54,9 @@ public class DefaultDatastore implements Datastore {
 
     @Override
     @TransactionAttribute(TransactionAttributeType.REQUIRED)
-    public void storeCompletedBuild(BuildRecord buildRecord) {
+    public BuildRecord storeCompletedBuild(BuildRecord buildRecord) {
         storeBuildConfiguration(buildRecord);
-        buildRecordRepository.save(buildRecord);
+        return buildRecordRepository.save(buildRecord);
     }
 
     @Override

@@ -15,9 +15,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.rest.notifications;
+package org.jboss.pnc.spi.notifications;
 
-import java.util.function.Function;
+/**
+ * A generic WS client.
+ */
+public interface AttachedClient {
 
-public interface OutputConverter extends Function<Object, String> {
+    /**
+     * Returns <code>true</code> if enabled.
+     */
+    boolean isEnabled();
+
+    /**
+     * Sends a message to the client
+     *
+     * @param messageBody Message body - depends on implementation how to deal with it.
+     */
+    void sendMessage(Object messageBody) throws Exception;
 }

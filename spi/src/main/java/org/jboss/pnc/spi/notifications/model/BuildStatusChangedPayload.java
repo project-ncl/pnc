@@ -15,15 +15,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.spi.events;
+package org.jboss.pnc.spi.notifications.model;
 
-import org.jboss.pnc.spi.BuildStatus;
+public class BuildStatusChangedPayload implements NotificationPayload {
 
-public interface BuildStatusChangedEvent {
+    private final Integer id;
+    private final NotificationEventType eventType;
+    private Integer userId;
 
-    BuildStatus getOldStatus();
-    BuildStatus getNewStatus();
-    Integer getBuildTaskId();
-    Integer getUserId();
+    public BuildStatusChangedPayload(Integer id, NotificationEventType eventType, Integer userId) {
+        this.id = id;
+        this.eventType = eventType;
+        this.userId = userId;
+    }
 
+    @Override
+    public NotificationEventType getEventType() {
+        return eventType;
+    }
+
+    @Override
+    public Integer getId() {
+        return id;
+    }
+
+    @Override
+    public Integer getUserId() {
+        return userId;
+    }
 }

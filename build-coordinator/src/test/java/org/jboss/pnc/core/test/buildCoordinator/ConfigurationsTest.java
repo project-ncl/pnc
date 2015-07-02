@@ -51,7 +51,7 @@ public class ConfigurationsTest extends ProjectBuilder {
 
         BuildConfiguration buildConfiguration = configurationBuilder.buildConfigurationWhichDependsOnItself();
 
-        User user = null;
+        User user = User.Builder.newBuilder().id(1).build();
 
         BuildTask buildTask = buildCoordinator.build(buildConfiguration, user);
         Assert.assertEquals(BuildStatus.REJECTED, buildTask.getStatus());
@@ -65,7 +65,7 @@ public class ConfigurationsTest extends ProjectBuilder {
 
         BuildConfigurationSet buildConfigurationSet = configurationBuilder.buildConfigurationSetWithCycleDependency();
 
-        User user = null;
+        User user = User.Builder.newBuilder().id(1).build();
 
         BuildSetTask buildSetTask = buildCoordinator.build(buildConfigurationSet, user);
         Assert.assertEquals(BuildSetStatus.REJECTED, buildSetTask.getStatus());

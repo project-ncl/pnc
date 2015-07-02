@@ -22,7 +22,7 @@ import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.pnc.core.events.DefaultBuildStatusChangedEvent;
 import org.jboss.pnc.integration.deployments.Deployments;
 import org.jboss.pnc.integration.websockets.NotificationCollector;
-import org.jboss.pnc.rest.notifications.Notifier;
+import org.jboss.pnc.spi.notifications.Notifier;
 import org.jboss.pnc.rest.notifications.websockets.NotificationsEndpoint;
 import org.jboss.pnc.spi.BuildStatus;
 import org.jboss.pnc.spi.events.BuildStatusChangedEvent;
@@ -90,9 +90,9 @@ public class WebSocketsNotificationTest {
     @Test
     public void shouldConnectToWebSockets() throws Exception {
         //given
-        BuildStatusChangedEvent buildStatusChangedEvent = new DefaultBuildStatusChangedEvent(BuildStatus.NEW, BuildStatus.BUILD_WAITING, 1, null);
+        BuildStatusChangedEvent buildStatusChangedEvent = new DefaultBuildStatusChangedEvent(BuildStatus.NEW, BuildStatus.BUILD_COMPLETED_SUCCESS, 1, 1);
         // How to mock BuildRecordProvider?
-        String expectedJsonResponse = "{}";//"{\"oldStatus\":\"NEW\",\"newStatus\":\"BUILD_WAITING\",\"buildTaskId\":1,\"buildExecution\":null}";
+        String expectedJsonResponse = "{\"payload\":{\"id\":1,\"eventType\":\"BUILD_COMPLETED\",\"userId\":1}}";
 
         //when
         notificationEvent.fire(buildStatusChangedEvent);

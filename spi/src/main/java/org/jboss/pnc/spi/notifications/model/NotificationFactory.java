@@ -15,22 +15,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.rest.notifications;
+package org.jboss.pnc.spi.notifications.model;
 
-/**
- * A generic WS client.
- */
-public interface AttachedClient {
+import org.jboss.pnc.spi.BuildStatus;
+import org.jboss.pnc.spi.events.BuildStatusChangedEvent;
 
-    /**
-     * Returns <code>true</code> if enabled.
-     */
-    boolean isEnabled();
-
-    /**
-     * Sends a message to the client
-     *
-     * @param messageBody Message body - depends on implementation how to deal with it.
-     */
-    void sendMessage(Object messageBody) throws Exception;
+public interface NotificationFactory {
+    Notification createNotification(BuildStatusChangedEvent event);
+    boolean isExternal(BuildStatus buildStatus);
 }

@@ -17,7 +17,6 @@
  */
 package org.jboss.pnc.rest.debug;
 
-import org.jboss.pnc.spi.BuildExecution;
 import org.jboss.pnc.spi.BuildStatus;
 import org.jboss.pnc.spi.events.BuildStatusChangedEvent;
 
@@ -28,9 +27,8 @@ public class BuildStatusChangedEventRest implements BuildStatusChangedEvent {
 
     private BuildStatus oldStatus;
     private BuildStatus newStatus;
-    private int buildConfigurationId;
-    private BuildExecution buildExecution;
     private Integer buildTaskId;
+    private Integer userId;
 
     public void setOldStatus(BuildStatus oldStatus) {
         this.oldStatus = oldStatus;
@@ -40,16 +38,17 @@ public class BuildStatusChangedEventRest implements BuildStatusChangedEvent {
         this.newStatus = newStatus;
     }
 
-    public void setBuildConfigurationId(int buildConfigurationId) {
-        this.buildConfigurationId = buildConfigurationId;
-    }
-
-    public void setBuildExecution(BuildExecution buildExecution) {
-        this.buildExecution = buildExecution;
-    }
-
     public void setBuildTaskId(Integer buildTaskId) {
         this.buildTaskId = buildTaskId;
+    }
+
+    public void setUserId(Integer userId) {
+        this.userId = userId;
+    }
+
+    @Override
+    public Integer getUserId() {
+        return userId;
     }
 
     @Override
@@ -60,11 +59,6 @@ public class BuildStatusChangedEventRest implements BuildStatusChangedEvent {
     @Override
     public BuildStatus getNewStatus() {
         return newStatus;
-    }
-
-    @Override
-    public BuildExecution getBuildExecution() {
-        return buildExecution;
     }
 
     @Override

@@ -48,13 +48,13 @@ public class DatastoreAdapter {
         this.datastore = datastore;
     }
 
-    public void storeResult(BuildTask buildTask, BuildResult buildResult) throws DatastoreException {
+    public BuildRecord storeResult(BuildTask buildTask, BuildResult buildResult, int buildRecordId) throws DatastoreException {
         try {
             BuildDriverResult buildDriverResult = buildResult.getBuildDriverResult();
             RepositoryManagerResult repositoryManagerResult = buildResult.getRepositoryManagerResult();
 
             BuildRecord buildRecord = new BuildRecord();
-            buildRecord.setId(buildTask.getId());
+            buildRecord.setId(buildRecordId);
             // Build driver results
             buildRecord.setBuildLog(buildDriverResult.getBuildLog());
             buildRecord.setStatus(buildDriverResult.getBuildDriverStatus().toBuildStatus());
@@ -68,7 +68,7 @@ public class DatastoreAdapter {
             setAuditDataToBuildRecord(buildRecord, buildTask);
 
             log.debugf("Storing results of %s to datastore.", buildTask.getBuildConfiguration().getName());
-            datastore.storeCompletedBuild(buildRecord);
+            return datastore.storeCompletedBuild(buildRecord);
         } catch (Exception e) {
             throw new DatastoreException("Error storing the result to datastore.", e);
         }
