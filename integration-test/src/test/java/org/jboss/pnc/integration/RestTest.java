@@ -114,7 +114,7 @@ public class RestTest {
     public void shouldGetAllProductsVersions() {
         given().header("Accept", "application/json").header("Authorization", "Bearer " + access_token)
                     .contentType(ContentType.JSON).port(getHttpPort()).when()
-                .get(String.format("/pnc-rest/rest/products/%d/product-versions", productId)).then().statusCode(200)
+                .get("/pnc-rest/rest/product-versions/").then().statusCode(200)
                 .body(JsonMatcher.containsJsonAttribute("[0].id", value -> productVersionId = Integer.valueOf(value)));
     }
 
@@ -123,7 +123,7 @@ public class RestTest {
     public void shouldSpecificProductsVersions() {
         given().header("Accept", "application/json").header("Authorization", "Bearer " + access_token)
                     .contentType(ContentType.JSON).port(getHttpPort()).when()
-                .get(String.format("/pnc-rest/rest/products/%d/product-versions/%d", productId, productVersionId)).then().statusCode(200)
+                .get(String.format("/pnc-rest/rest/product-versions/%d", productVersionId)).then().statusCode(200)
                 .body(JsonMatcher.containsJsonAttribute("id"));
     }
 

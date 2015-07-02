@@ -60,8 +60,8 @@ public class ProductVersionRestTest {
     public static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
     private static final String PRODUCT_REST_ENDPOINT = "/pnc-rest/rest/products/";
-    private static final String PRODUCT_VERSION_REST_ENDPOINT = "/pnc-rest/rest/products/%d/product-versions/";
-    private static final String PRODUCT_VERSION_SPECIFIC_REST_ENDPOINT = "/pnc-rest/rest/products/%d/product-versions/%d";
+    private static final String PRODUCT_VERSION_REST_ENDPOINT = "/pnc-rest/rest/product-versions/";
+    private static final String PRODUCT_VERSION_SPECIFIC_REST_ENDPOINT = "/pnc-rest/rest/product-versions/%d";
 
     private static int productId;
     private static int productVersionId;
@@ -112,7 +112,7 @@ public class ProductVersionRestTest {
     public void shouldGetSpecificProductVersion() {
         given().header("Accept", "application/json").header("Authorization", "Bearer " + access_token)
                     .contentType(ContentType.JSON).port(getHttpPort()).when()
-                .get(String.format(PRODUCT_VERSION_SPECIFIC_REST_ENDPOINT, productId, productVersionId)).then().statusCode(200)
+                .get(String.format(PRODUCT_VERSION_SPECIFIC_REST_ENDPOINT, productVersionId)).then().statusCode(200)
                 .body(JsonMatcher.containsJsonAttribute("id"));
     }
 
@@ -150,7 +150,7 @@ public class ProductVersionRestTest {
 
         Response response = given().header("Accept", "application/json").header("Authorization", "Bearer " + access_token)
                     .contentType(ContentType.JSON).port(getHttpPort()).when()
-                .get(String.format(PRODUCT_VERSION_SPECIFIC_REST_ENDPOINT, productId, newProductVersionId));
+                .get(String.format(PRODUCT_VERSION_SPECIFIC_REST_ENDPOINT, newProductVersionId));
 
         Assertions.assertThat(response.statusCode()).isEqualTo(200);
         Assertions.assertThat(response.body().jsonPath().getInt("id")).isEqualTo(newProductVersionId);
@@ -165,13 +165,13 @@ public class ProductVersionRestTest {
 
         given().header("Accept", "application/json").header("Authorization", "Bearer " + access_token)
                     .body(rawJson).contentType(ContentType.JSON).port(getHttpPort()).when()
-                .put(String.format(PRODUCT_VERSION_SPECIFIC_REST_ENDPOINT, productId, newProductVersionId)).then()
+                .put(String.format(PRODUCT_VERSION_SPECIFIC_REST_ENDPOINT, newProductVersionId)).then()
                 .statusCode(200);
 
         // Reading updated resource
         Response updateResponse = given().header("Accept", "application/json").header("Authorization", "Bearer " + access_token)
                     .contentType(ContentType.JSON).port(getHttpPort()).when()
-                .get(String.format(PRODUCT_VERSION_SPECIFIC_REST_ENDPOINT, productId, newProductVersionId));
+                .get(String.format(PRODUCT_VERSION_SPECIFIC_REST_ENDPOINT, newProductVersionId));
 
         Assertions.assertThat(updateResponse.statusCode()).isEqualTo(200);
         Assertions.assertThat(updateResponse.body().jsonPath().getInt("id")).isEqualTo(newProductVersionId);

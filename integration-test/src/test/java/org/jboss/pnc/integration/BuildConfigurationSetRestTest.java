@@ -69,7 +69,7 @@ public class BuildConfigurationSetRestTest {
 
     private static final String BUILD_CONFIGURATION_SET_REST_ENDPOINT = "/pnc-rest/rest/build-configuration-sets/";
     private static final String BUILD_CONFIGURATION_SET_SPECIFIC_REST_ENDPOINT = "/pnc-rest/rest/build-configuration-sets/%d";
-    private static final String BUILD_CONFIGURATION_SET_PRODUCT_VERSION_REST_ENDPOINT = "/pnc-rest/rest/products/%d/product-versions/%d/build-configuration-sets";
+    private static final String BUILD_CONFIGURATION_SET_PRODUCT_VERSION_REST_ENDPOINT = "/pnc-rest/rest/product-versions/%d/build-configuration-sets";
     private static final String BUILD_CONFIGURATION_SET_CONFIGURATIONS_REST_ENDPOINT = "/pnc-rest/rest/build-configuration-sets/%d/build-configurations";
 
     private static final String BUILD_CONFIGURATION_SET_NAME = "Rest Test Build Config Set 1";
@@ -209,7 +209,7 @@ public class BuildConfigurationSetRestTest {
 
         Response response = given().header("Accept", "application/json").header("Authorization", "Bearer " + access_token)
                     .contentType(ContentType.JSON).port(getHttpPort()).when()
-                .get(String.format(BUILD_CONFIGURATION_SET_PRODUCT_VERSION_REST_ENDPOINT, productId, productVersionId));
+                .get(String.format(BUILD_CONFIGURATION_SET_PRODUCT_VERSION_REST_ENDPOINT, productVersionId));
 
         ResponseAssertion.assertThat(response).hasStatus(200);
         ResponseAssertion.assertThat(response).hasJsonValueNotNullOrEmpty("[0].id");
