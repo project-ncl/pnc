@@ -186,11 +186,15 @@ public class DatabaseDataInitializer {
                 .description("Integration platform for working with Apache ActiveMQ, Camel, CXF and Karaf in the cloud")
                 .projectUrl("https://github.com/fabric8io/fabric8")
                 .issueTrackerUrl("https://github.com/fabric8io/fabric8/issues").build();
+        Project project5 = Project.Builder.newBuilder().name("Maven Plugin Test")
+                .description("Sample Maven Project with plugins and external downloads")
+                .projectUrl("https://github.com/rnc/mvn-plugin-test").build();
 
         projectRepository.save(project1);
         projectRepository.save(project2);
         projectRepository.save(project3);
         projectRepository.save(project4);
+        projectRepository.save(project5);
 
         // Example build configurations
         buildConfiguration1 = BuildConfiguration.Builder.newBuilder().name(PNC_PROJECT_BUILD_CFG_ID).project(project1)
@@ -217,6 +221,12 @@ public class DatabaseDataInitializer {
                 .buildScript("mvn clean deploy -DskipTests=true").scmRepoURL("https://github.com/fabric8io/fabric8.git")
                 .build();
         buildConfiguration4 = buildConfigurationRepository.save(buildConfiguration4);
+
+        BuildConfiguration buildConfiguration5 = BuildConfiguration.Builder.newBuilder().name("maven-plugin-test")
+                .project(project4).description("Test build for Plugins with external downloads").environment(environment1)
+                .buildScript("mvn clean deploy").scmRepoURL("https://github.com/rnc/mvn-plugin-test.git")
+                .build();
+        buildConfiguration5 = buildConfigurationRepository.save(buildConfiguration5);
 
         // Build config set containing the three example build configs
         buildConfigurationSet1 = BuildConfigurationSet.Builder.newBuilder().name("Build Config Set 1")
