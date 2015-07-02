@@ -17,8 +17,8 @@
  */
 package org.jboss.pnc.rest.notifications.websockets;
 
-import org.jboss.pnc.rest.notifications.AttachedClient;
-import org.jboss.pnc.rest.notifications.Notifier;
+import org.jboss.pnc.spi.notifications.AttachedClient;
+import org.jboss.pnc.spi.notifications.Notifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

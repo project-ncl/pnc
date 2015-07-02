@@ -17,9 +17,9 @@
  */
 package org.jboss.pnc.rest.notifications.websockets;
 
-import org.jboss.pnc.rest.notifications.Notifier;
-import org.jboss.pnc.rest.notifications.OutputConverter;
-import org.jboss.pnc.rest.notifications.model.NotificationFactory;
+import org.jboss.pnc.spi.notifications.Notifier;
+import org.jboss.pnc.spi.notifications.OutputConverter;
+import org.jboss.pnc.spi.notifications.model.NotificationFactory;
 import org.jboss.pnc.rest.provider.BuildRecordProvider;
 import org.jboss.pnc.spi.events.BuildStatusChangedEvent;
 

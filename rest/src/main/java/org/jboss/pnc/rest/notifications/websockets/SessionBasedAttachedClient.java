@@ -17,8 +17,8 @@
  */
 package org.jboss.pnc.rest.notifications.websockets;
 
-import org.jboss.pnc.rest.notifications.AttachedClient;
-import org.jboss.pnc.rest.notifications.OutputConverter;
+import org.jboss.pnc.spi.notifications.AttachedClient;
+import org.jboss.pnc.spi.notifications.OutputConverter;
 
 import javax.websocket.Session;
 import java.io.IOException;

@@ -20,7 +20,7 @@ package org.jboss.pnc.rest.notifications.websockets;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.jboss.pnc.rest.notifications.OutputConverter;
+import org.jboss.pnc.spi.notifications.OutputConverter;
 
 import javax.enterprise.context.ApplicationScoped;
 

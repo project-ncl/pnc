@@ -15,9 +15,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.rest.notifications;
+package org.jboss.pnc.spi.notifications.model;
 
-import java.util.function.Function;
+public class Notification {
 
-public interface OutputConverter extends Function<Object, String> {
+    private final String exceptionMessage;
+
+    private final NotificationPayload payload;
+
+    public Notification(String exceptionMessage, NotificationPayload payload) {
+        this.exceptionMessage = exceptionMessage;
+        this.payload = payload;
+    }
+
+    public String getExceptionMessage() {
+        return exceptionMessage;
+    }
+
+    public NotificationPayload getPayload() {
+        return payload;
+    }
 }

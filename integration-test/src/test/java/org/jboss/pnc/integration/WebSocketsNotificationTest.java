@@ -22,7 +22,7 @@ import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.pnc.core.events.DefaultBuildStatusChangedEvent;
 import org.jboss.pnc.integration.deployments.Deployments;
 import org.jboss.pnc.integration.websockets.NotificationCollector;
-import org.jboss.pnc.rest.notifications.Notifier;
+import org.jboss.pnc.spi.notifications.Notifier;
 import org.jboss.pnc.rest.notifications.websockets.NotificationsEndpoint;
 import org.jboss.pnc.spi.BuildStatus;
 import org.jboss.pnc.spi.events.BuildStatusChangedEvent;
