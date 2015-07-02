@@ -72,10 +72,9 @@ public class ProductVersionEndpoint {
     @ApiOperation(value = "Updates an existing Product Version")
     @PUT
     @Path("/{id}")
-    public Response update(@ApiParam(value = "Product id", required = true) @PathParam("productId") Integer productId,
-            @ApiParam(value = "Product Version id", required = true) @PathParam("id") Integer id,
+    public Response update(@ApiParam(value = "Product Version id", required = true) @PathParam("id") Integer id,
             @NotNull @Valid ProductVersionRest productVersionRest, @Context UriInfo uriInfo) {
-        productVersionProvider.update(id, productId, productVersionRest);
+        productVersionProvider.update(id, productVersionRest);
         return Response.ok().build();
     }
 
@@ -87,7 +86,6 @@ public class ProductVersionEndpoint {
             @ApiParam(value = "Pagination size") @DefaultValue("50") @QueryParam("pageSize") int pageSize,
             @ApiParam(value = "Sorting RSQL") @QueryParam("sort") String sortingRsql,
             @ApiParam(value = "RSQL query") @QueryParam("q") String rsql,
-            @ApiParam(value = "Product id", required = true) @PathParam("productId") Integer productId,
             @ApiParam(value = "Product Version id", required = true) @PathParam("id") Integer id) {
         return productVersionProvider.getBuildConfigurationSets(id);
     }

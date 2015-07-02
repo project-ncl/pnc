@@ -106,13 +106,13 @@ public class ProductVersionProvider {
         return productVersion.getId();
     }
 
-    public void update(Integer id, Integer productId, ProductVersionRest productVersionRest) {
+    public void update(Integer id, ProductVersionRest productVersionRest) {
         Preconditions.checkArgument(id != null, "Id must not be null");
         Preconditions.checkArgument(productVersionRest.getId() == null || productVersionRest.getId().equals(id),
                 "Entity id does not match the id to update");
         productVersionRest.setId(id);
-        Product product = productRepository.queryById(productId);
         ProductVersion productVersion = productVersionRepository.queryById(productVersionRest.getId());
+        Product product = productVersion.getProduct();
         Preconditions.checkArgument(productVersion != null,
                 "Couldn't find Product Version with id " + productVersionRest.getId());
         Preconditions.checkArgument(product != null,
