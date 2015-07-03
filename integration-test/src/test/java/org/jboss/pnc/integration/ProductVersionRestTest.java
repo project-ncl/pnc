@@ -30,13 +30,11 @@ import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.moduleconfig.AuthenticationModuleConfig;
 import org.jboss.pnc.common.util.IoUtils;
-import org.jboss.pnc.integration.BuildRecordRestTest;
 import org.jboss.pnc.integration.matchers.JsonMatcher;
 import org.jboss.pnc.integration.Utils.AuthResource;
 import org.jboss.pnc.integration.deployments.Deployments;
 import org.jboss.pnc.test.category.ContainerTest;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -48,8 +46,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.invoke.MethodHandles;
 
-import javax.inject.Inject;
-
 import static com.jayway.restassured.RestAssured.given;
 import static org.jboss.pnc.integration.env.IntegrationTestEnv.getHttpPort;
 
@@ -60,6 +56,7 @@ public class ProductVersionRestTest {
     public static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
     private static final String PRODUCT_REST_ENDPOINT = "/pnc-rest/rest/products/";
+    private static final String PRODUCTS_PRODUCT_VERSION_ENDPOINT = "/pnc-rest/rest/products/%d/product-versions/";
     private static final String PRODUCT_VERSION_REST_ENDPOINT = "/pnc-rest/rest/product-versions/";
     private static final String PRODUCT_VERSION_SPECIFIC_REST_ENDPOINT = "/pnc-rest/rest/product-versions/%d";
 
@@ -123,20 +120,20 @@ public class ProductVersionRestTest {
 
         Response response = given().header("Accept", "application/json").header("Authorization", "Bearer " + access_token)
                     .body(rawJson).contentType(ContentType.JSON).port(getHttpPort()).when()
-                .post(String.format(PRODUCT_VERSION_REST_ENDPOINT, productId));
+                .post(String.format(PRODUCTS_PRODUCT_VERSION_ENDPOINT, productId));
         Assertions.assertThat(response.statusCode()).isEqualTo(201);
 
         String location = response.getHeader("Location");
         logger.info("Found location in Response header: " + location);
 
-        logger.info("----1" + location.substring(location.lastIndexOf(String.format(PRODUCT_VERSION_REST_ENDPOINT, productId))));
+        logger.info("----1" + location.substring(location.lastIndexOf(String.format(PRODUCTS_PRODUCT_VERSION_ENDPOINT, productId))));
 
         logger.info("----2"
-                + location.substring(location.lastIndexOf(String.format(PRODUCT_VERSION_REST_ENDPOINT, productId))
-                        + String.format(PRODUCT_VERSION_REST_ENDPOINT, productId).length()));
+                + location.substring(location.lastIndexOf(String.format(PRODUCT_REST_ENDPOINT, productId))
+                        + String.format(PRODUCTS_PRODUCT_VERSION_ENDPOINT, productId).length()));
 
         newProductVersionId = Integer.valueOf(location.substring(location.lastIndexOf(String.format(
-                PRODUCT_VERSION_REST_ENDPOINT, productId)) + String.format(PRODUCT_VERSION_REST_ENDPOINT, productId).length()));
+                PRODUCT_REST_ENDPOINT, productId)) + String.format(PRODUCTS_PRODUCT_VERSION_ENDPOINT, productId).length()));
 
         logger.info("Created id of product version: " + newProductVersionId);
 
