@@ -22,7 +22,9 @@
   var module = angular.module('pnc.record', [
     'ui.router',
     'pnc.remote.restClient',
-    'angularUtils.directives.uiBreadcrumbs'
+    'angularUtils.directives.uiBreadcrumbs',
+    'pnc.common.events',
+    'pnc.common.directives'
   ]);
 
   module.config([
@@ -114,8 +116,6 @@
         }
       });
 
-
-      console.log('record.list');
       $stateProvider.state('record.list', {
         url: '',
         templateUrl: 'record/views/record.list.html',

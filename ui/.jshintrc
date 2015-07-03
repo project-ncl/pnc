@@ -20,6 +20,7 @@
   "globals": {
     "angular": false,
     "Keycloak": false,
-    "pnc_globals": false
+    "pnc_globals": false,
+    "buckets": false
   }
 }

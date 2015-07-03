@@ -59,25 +59,9 @@
 
   module.controller('RecordListController', [
     '$log',
-    '$scope',
-    'BuildProgressService',
-    'PncRestClient',
-    'BuildRecordNotifications',
-    function ($log, $scope, BuildProgressService, PncRestClient, BuildRecordNotifications) {
-      /* jshint unused: false */
+    function ($log) {
 
-      BuildProgressService.track($scope, 'runningRecords', function () {
-        return PncRestClient.Running.query().$promise;
-      }, [
-        BuildProgressService.BUILD_RECORD_FILTER.IS_IN_PROGRESS()
-      ], BuildProgressService.BUILD_RECORD_UPDATER);
-
-
-      BuildProgressService.track($scope, 'finishedRecords', function () {
-        return PncRestClient.Record.query().$promise;
-      }, [
-        BuildProgressService.BUILD_RECORD_FILTER.IS_FINISHED()
-      ], BuildProgressService.BUILD_RECORD_UPDATER);
+      $log.debug('RecordListCtrl');
     }
   ]);
 
