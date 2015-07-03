@@ -46,9 +46,8 @@ public class ReadDependenciesTest extends ProjectBuilder {
         BuildSetTask buildSetTask = new BuildSetTask(
                 buildCoordinator, 
                 buildConfigurationSet, 
-                BuildExecutionType.COMPOSED_BUILD,
-                () -> taskSetIdGenerator.incrementAndGet());
-        User user = null; //TODO user
+                BuildExecutionType.COMPOSED_BUILD, null, taskSetIdGenerator.incrementAndGet());
+        User user = User.Builder.newBuilder().id(1).build();
         BuildTasksTree buildTasksTree = new BuildTasksTree(buildCoordinator, buildSetTask, user,() -> taskIdGenerator.incrementAndGet());
 
         Assert.assertEquals("Missing projects in tree structure.", 5, buildTasksTree.getBuildTasks().size());

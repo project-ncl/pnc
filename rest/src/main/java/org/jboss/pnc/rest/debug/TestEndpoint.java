@@ -19,6 +19,7 @@ package org.jboss.pnc.rest.debug;
 
 import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
+import org.jboss.pnc.spi.events.BuildSetStatusChangedEvent;
 import org.jboss.pnc.spi.events.BuildStatusChangedEvent;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -41,10 +42,20 @@ public class TestEndpoint {
     @Inject
     Event<BuildStatusChangedEvent> buildStatusChangedEventEvent;
 
+    @Inject
+    Event<BuildSetStatusChangedEvent> buildSetStatusChangedEventEvent;
+
     @POST
-    @Path("/buildstatus/notify")
+    @Path("/build-status/notify")
     @ApiOperation(value = "Sends BuildStatusChangedEvent just like it was from Core, useful for testing WebSockets")
     public void sendBuildStatusChangedEvent(@Valid BuildStatusChangedEventRest buildStatusChangedEventRest) {
         buildStatusChangedEventEvent.fire(buildStatusChangedEventRest);
+    }
+
+    @POST
+    @Path("/build-set-status/notify")
+    @ApiOperation(value = "Sends BuildSetStatusChangedEvent just like it was from Core, useful for testing WebSockets")
+    public void sendBuildSetStatusChangedEvent(@Valid BuildSetStatusChangedEvent buildSetStatusChangedEvent) {
+        buildSetStatusChangedEventEvent.fire(buildSetStatusChangedEvent);
     }
 }

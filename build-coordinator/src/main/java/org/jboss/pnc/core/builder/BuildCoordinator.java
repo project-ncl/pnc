@@ -105,8 +105,7 @@ public class BuildCoordinator {
         BuildSetTask buildSetTask = new BuildSetTask(
                 this,
                 buildConfigurationSet,
-                BuildExecutionType.STANDALONE_BUILD,
-                () -> datastore.getNextBuildConfigSetRecordId());
+                BuildExecutionType.STANDALONE_BUILD, userTriggeredBuild, datastore.getNextBuildConfigSetRecordId());
         build(buildSetTask, userTriggeredBuild);
         BuildTask buildTask = buildSetTask.getBuildTasks().stream().collect(StreamCollectors.singletonCollector());
         return buildTask;
@@ -116,8 +115,7 @@ public class BuildCoordinator {
         BuildSetTask buildSetTask = new BuildSetTask(
                 this,
                 buildConfigurationSet,
-                BuildExecutionType.COMPOSED_BUILD,
-                () -> datastore.getNextBuildConfigSetRecordId());
+                BuildExecutionType.COMPOSED_BUILD, userTriggeredBuild, datastore.getNextBuildConfigSetRecordId());
         build(buildSetTask, userTriggeredBuild);
         return buildSetTask;
     }

@@ -17,6 +17,8 @@
  */
 package org.jboss.pnc.rest.notifications.websockets;
 
+import org.jboss.pnc.rest.debug.BuildStatusSetChangedEventRest;
+import org.jboss.pnc.spi.events.BuildSetStatusChangedEvent;
 import org.jboss.pnc.spi.notifications.Notifier;
 import org.jboss.pnc.spi.notifications.OutputConverter;
 import org.jboss.pnc.spi.notifications.model.NotificationFactory;
@@ -62,9 +64,15 @@ public class NotificationsEndpoint {
         notifier.detachClient(new SessionBasedAttachedClient(detachedSession, outputConverter));
     }
 
-    public void collectEvent(@Observes BuildStatusChangedEvent buildStatusChangedEvent) {
+    public void collectBuildStatusChangedEvent(@Observes BuildStatusChangedEvent buildStatusChangedEvent) {
         if(notificationFactory.isExternal(buildStatusChangedEvent.getNewStatus())) {
             notifier.sendMessage(notificationFactory.createNotification(buildStatusChangedEvent));
+        }
+    }
+
+    public void collectBuildSetStatusChangedEvent(@Observes BuildSetStatusChangedEvent buildSetStatusChangedEvent) {
+        if(notificationFactory.isExternal(buildSetStatusChangedEvent.getNewStatus())) {
+            notifier.sendMessage(notificationFactory.createNotification(buildSetStatusChangedEvent));
         }
     }
 }

@@ -22,10 +22,11 @@ import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.pnc.core.events.DefaultBuildStatusChangedEvent;
 import org.jboss.pnc.integration.deployments.Deployments;
 import org.jboss.pnc.integration.websockets.NotificationCollector;
-import org.jboss.pnc.spi.notifications.Notifier;
 import org.jboss.pnc.rest.notifications.websockets.NotificationsEndpoint;
 import org.jboss.pnc.spi.BuildStatus;
+import org.jboss.pnc.spi.events.BuildSetStatusChangedEvent;
 import org.jboss.pnc.spi.events.BuildStatusChangedEvent;
+import org.jboss.pnc.spi.notifications.Notifier;
 import org.jboss.pnc.test.category.ContainerTest;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
@@ -42,7 +43,6 @@ import javax.websocket.ContainerProvider;
 import javax.websocket.WebSocketContainer;
 import java.lang.invoke.MethodHandles;
 import java.net.URI;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -53,12 +53,13 @@ public class WebSocketsNotificationTest {
 
     public static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-    private static final AtomicBoolean initialized = new AtomicBoolean();
-
     NotificationCollector notificationCollector;
 
     @Inject
-    Event<BuildStatusChangedEvent> notificationEvent;
+    Event<BuildStatusChangedEvent> buildStatusNotificationEvent;
+
+    @Inject
+    Event<BuildSetStatusChangedEvent> buildSetStatusNotificationEvent;
 
     @Inject
     Notifier notifier;
@@ -77,29 +78,42 @@ public class WebSocketsNotificationTest {
 
     @Before
     public void before() throws Exception {
-        if(!initialized.getAndSet(true)) {
-            notificationCollector = new NotificationCollector();
-            WebSocketContainer container = ContainerProvider.getWebSocketContainer();
-            String uri = "ws://localhost:8080/pnc-rest/" + NotificationsEndpoint.ENDPOINT_PATH;
-            container.connectToServer(notificationCollector, URI.create(uri));
-            waitForWSClientConnection();
-        }
+        notificationCollector = new NotificationCollector();
+        WebSocketContainer container = ContainerProvider.getWebSocketContainer();
+        String uri = "ws://localhost:8080/pnc-rest/" + NotificationsEndpoint.ENDPOINT_PATH;
+        container.connectToServer(notificationCollector, URI.create(uri));
+        waitForWSClientConnection();
         notificationCollector.clear();
     }
 
     @Test
-    public void shouldConnectToWebSockets() throws Exception {
+    public void shouldReceiveBuildStatusChangeNotification() throws Exception {
         //given
         BuildStatusChangedEvent buildStatusChangedEvent = new DefaultBuildStatusChangedEvent(BuildStatus.NEW, BuildStatus.BUILD_COMPLETED_SUCCESS, 1, 1);
         // How to mock BuildRecordProvider?
         String expectedJsonResponse = "{\"payload\":{\"id\":1,\"eventType\":\"BUILD_COMPLETED\",\"userId\":1}}";
 
         //when
-        notificationEvent.fire(buildStatusChangedEvent);
+        buildStatusNotificationEvent.fire(buildStatusChangedEvent);
         waitForMessages();
 
         //then
         assertThat(notificationCollector.getMessages().get(0)).isEqualTo(expectedJsonResponse);
+    }
+
+    @Test
+    public void shouldReceiveBuildSetStatusChangeNotification() throws Exception {
+//        //given
+//        BuildSetStatusChangedEvent buildStatusChangedEvent = new DefaultBuildSetStatusChangedEvent(BuildSetStatus.NEW, BuildSetStatus.DONE, 1, 1);
+//        // How to mock BuildRecordProvider?
+//        String expectedJsonResponse = "{\"payload\":{\"id\":1,\"eventType\":\"DONE\",\"userId\":1}}";
+//
+//        //when
+//        buildSetStatusNotificationEvent.fire(buildStatusChangedEvent);
+//        waitForMessages();
+//
+//        //then
+//        assertThat(notificationCollector.getMessages().get(0)).isEqualTo(expectedJsonResponse);
     }
 
     private void waitForMessages() {

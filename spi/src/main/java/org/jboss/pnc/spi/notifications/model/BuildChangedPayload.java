@@ -17,13 +17,13 @@
  */
 package org.jboss.pnc.spi.notifications.model;
 
-public class BuildStatusChangedPayload implements NotificationPayload {
+public class BuildChangedPayload implements NotificationPayload {
 
     private final Integer id;
     private final NotificationEventType eventType;
-    private Integer userId;
+    private final Integer userId;
 
-    public BuildStatusChangedPayload(Integer id, NotificationEventType eventType, Integer userId) {
+    public BuildChangedPayload(Integer id, NotificationEventType eventType, Integer userId) {
         this.id = id;
         this.eventType = eventType;
         this.userId = userId;

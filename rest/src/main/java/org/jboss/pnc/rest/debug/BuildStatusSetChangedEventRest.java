@@ -15,36 +15,35 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.core.events;
+package org.jboss.pnc.rest.debug;
 
 import org.jboss.pnc.spi.BuildSetStatus;
 import org.jboss.pnc.spi.events.BuildSetStatusChangedEvent;
 
-/**
- * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
- */
-public class DefaultBuildSetStatusChangedEvent implements BuildSetStatusChangedEvent {
+import javax.xml.bind.annotation.XmlRootElement;
 
-    private final BuildSetStatus oldStatus;
-    private final BuildSetStatus newStatus;
-    private final Integer buildSetTaskId;
-    private final Integer userId;
+@XmlRootElement
+public class BuildStatusSetChangedEventRest implements BuildSetStatusChangedEvent {
 
-    public DefaultBuildSetStatusChangedEvent(BuildSetStatus oldStatus, BuildSetStatus newStatus, Integer buildSetTaskId,
-            Integer userId) {
+    private BuildSetStatus oldStatus;
+    private BuildSetStatus newStatus;
+    private Integer buildSetTaskId;
+    private Integer userId;
+
+    public void setOldStatus(BuildSetStatus oldStatus) {
         this.oldStatus = oldStatus;
-        this.newStatus = newStatus;
-        this.buildSetTaskId = buildSetTaskId;
-        this.userId = userId;
     }
 
-    @Override
-    public String toString() {
-        return "DefaultBuildSetStatusChangedEvent{" +
-                "oldStatus=" + oldStatus +
-                ", newStatus=" + newStatus +
-                ", buildSetTaskId=" + buildSetTaskId +
-                '}';
+    public void setNewStatus(BuildSetStatus newStatus) {
+        this.newStatus = newStatus;
+    }
+
+    public void setBuildSetTaskId(Integer buildSetTaskId) {
+        this.buildSetTaskId = buildSetTaskId;
+    }
+
+    public void setUserId(Integer userId) {
+        this.userId = userId;
     }
 
     @Override
