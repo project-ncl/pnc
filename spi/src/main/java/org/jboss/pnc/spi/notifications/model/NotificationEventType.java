@@ -20,5 +20,9 @@ package org.jboss.pnc.spi.notifications.model;
 public enum NotificationEventType {
     BUILD_STARTED,
     BUILD_COMPLETED,
-    BUILD_FAILED
+    BUILD_FAILED,
+
+    BUILD_SET_STARTED,
+    BUILD_SET_COMPLETED,
+    BUILD_SET_FAILED
 }

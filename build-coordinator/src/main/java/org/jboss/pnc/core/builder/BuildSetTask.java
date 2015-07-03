@@ -19,6 +19,7 @@ package org.jboss.pnc.core.builder;
 
 import org.jboss.pnc.core.events.DefaultBuildSetStatusChangedEvent;
 import org.jboss.pnc.model.BuildConfigurationSet;
+import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.BuildExecutionType;
 import org.jboss.pnc.spi.BuildSetStatus;
 import org.jboss.pnc.spi.events.BuildSetStatusChangedEvent;
@@ -26,6 +27,7 @@ import org.jboss.pnc.spi.events.BuildStatusChangedEvent;
 
 import javax.enterprise.event.Event;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -44,15 +46,15 @@ public class BuildSetTask {
     private Set<BuildTask> buildTasks = new HashSet<>();
     private int buildSetTaskId;
 
-    public BuildSetTask(
-            BuildCoordinator buildCoordinator,
-            BuildConfigurationSet buildConfigurationSet,
-            BuildExecutionType buildTaskType,
-            BuildTaskSetIdSupplier buildTaskSetIdSupplier) {
+    private User user;
+
+    public BuildSetTask(BuildCoordinator buildCoordinator, BuildConfigurationSet buildConfigurationSet,
+            BuildExecutionType buildTaskType, User user, int buildSetTaskId) {
         this.buildConfigurationSet = buildConfigurationSet;
         this.buildTaskType = buildTaskType;
+        this.user = user;
         this.buildSetStatusChangedEventNotifier = buildCoordinator.getBuildSetStatusChangedEventNotifier();
-        buildSetTaskId = buildTaskSetIdSupplier.get();
+        this.buildSetTaskId = buildSetTaskId;
     }
 
     public BuildConfigurationSet getBuildConfigurationSet() {
@@ -62,7 +64,9 @@ public class BuildSetTask {
     void setStatus(BuildSetStatus status) {
         BuildSetStatus oldStatus = this.status;
         this.status = status;
-        BuildSetStatusChangedEvent buildSetStatusChangedEvent = new DefaultBuildSetStatusChangedEvent(oldStatus, status, getId());
+        Integer userId = Optional.ofNullable(user).map(user -> user.getId()).orElse(null);
+        BuildSetStatusChangedEvent buildSetStatusChangedEvent = new DefaultBuildSetStatusChangedEvent(oldStatus, status, getId(),
+                userId);
         buildSetStatusChangedEventNotifier.fire(buildSetStatusChangedEvent);
     }
 

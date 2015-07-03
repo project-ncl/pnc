@@ -181,8 +181,7 @@ public class StatusUpdatesTest {
         BuildSetTask buildSetTask = new BuildSetTask(
                 buildCoordinator,
                 buildConfigurationSet,
-                BuildExecutionType.COMPOSED_BUILD,
-                () -> buildTaskSetIdSupplier.incrementAndGet());
+                BuildExecutionType.COMPOSED_BUILD, null, buildTaskSetIdSupplier.incrementAndGet());
         new BuildTasksTree(buildCoordinator, buildSetTask, null, () -> buildTaskIdSupplier.incrementAndGet());
 
         return buildSetTask;
