@@ -17,10 +17,11 @@
  */
 package org.jboss.pnc.model;
 
-import java.sql.Timestamp;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -57,13 +58,15 @@ public class BuildConfigSetRecord implements GenericEntity<Integer> {
      * The time at which the first build in the set was started
      */
     @NotNull
-    private Timestamp startTime;
+    @Column(columnDefinition="timestamp with time zone")
+    private Date startTime;
 
     /**
      * The time at which the last build in the set was completed
      */
     @NotNull
-    private Timestamp endTime;
+    @Column(columnDefinition="timestamp with time zone")
+    private Date endTime;
 
     /**
      * The user who executed the set.
@@ -120,7 +123,7 @@ public class BuildConfigSetRecord implements GenericEntity<Integer> {
      *
      * @return the start time
      */
-    public Timestamp getStartTime() {
+    public Date getStartTime() {
         return startTime;
     }
 
@@ -129,7 +132,7 @@ public class BuildConfigSetRecord implements GenericEntity<Integer> {
      *
      * @param startTime the new start time
      */
-    public void setStartTime(Timestamp startTime) {
+    public void setStartTime(Date startTime) {
         this.startTime = startTime;
     }
 
@@ -138,7 +141,7 @@ public class BuildConfigSetRecord implements GenericEntity<Integer> {
      *
      * @return the end time
      */
-    public Timestamp getEndTime() {
+    public Date getEndTime() {
         return endTime;
     }
 
@@ -147,7 +150,7 @@ public class BuildConfigSetRecord implements GenericEntity<Integer> {
      *
      * @param endTime the new end time
      */
-    public void setEndTime(Timestamp endTime) {
+    public void setEndTime(Date endTime) {
         this.endTime = endTime;
     }
 
@@ -235,9 +238,9 @@ public class BuildConfigSetRecord implements GenericEntity<Integer> {
 
         private BuildConfigurationSet buildConfigurationSet;
 
-        private Timestamp startTime;
+        private Date startTime;
 
-        private Timestamp endTime;
+        private Date endTime;
 
         private BuildStatus status;
 
@@ -284,12 +287,12 @@ public class BuildConfigSetRecord implements GenericEntity<Integer> {
             return this;
         }
 
-        public Builder startTime(Timestamp startTime) {
+        public Builder startTime(Date startTime) {
             this.startTime = startTime;
             return this;
         }
 
-        public Builder endTime(Timestamp endTime) {
+        public Builder endTime(Date endTime) {
             this.endTime = endTime;
             return this;
         }

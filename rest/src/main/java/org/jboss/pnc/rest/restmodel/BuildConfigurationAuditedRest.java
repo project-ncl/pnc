@@ -17,10 +17,11 @@
  */
 package org.jboss.pnc.rest.restmodel;
 
+import java.util.Date;
+
 import org.jboss.pnc.model.BuildConfigurationAudited;
 
 import javax.xml.bind.annotation.XmlRootElement;
-import java.sql.Timestamp;
 
 import static org.jboss.pnc.rest.utils.Utility.performIfNotNull;
 
@@ -41,9 +42,9 @@ public class BuildConfigurationAuditedRest {
 
     private String scmRevision;
 
-    private Timestamp creationTime;
+    private Date creationTime;
 
-    private Timestamp lastModificationTime;
+    private Date lastModificationTime;
 
     private String repositories;
 
@@ -123,19 +124,19 @@ public class BuildConfigurationAuditedRest {
         this.scmRevision = scmRevision;
     }
 
-    public Timestamp getCreationTime() {
+    public Date getCreationTime() {
         return creationTime;
     }
 
-    public void setCreationTime(Timestamp creationTime) {
+    public void setCreationTime(Date creationTime) {
         this.creationTime = creationTime;
     }
 
-    public Timestamp getLastModificationTime() {
+    public Date getLastModificationTime() {
         return lastModificationTime;
     }
 
-    public void setLastModificationTime(Timestamp lastModificationTime) {
+    public void setLastModificationTime(Date lastModificationTime) {
         this.lastModificationTime = lastModificationTime;
     }
 

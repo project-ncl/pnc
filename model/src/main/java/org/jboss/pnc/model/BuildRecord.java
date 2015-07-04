@@ -17,16 +17,16 @@
  */
 package org.jboss.pnc.model;
 
-import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinColumns;
@@ -90,10 +90,12 @@ public class BuildRecord implements GenericEntity<Integer> {
     private String buildContentId;
 
     @NotNull
-    private Timestamp startTime;
+    @Column(columnDefinition="timestamp with time zone")
+    private Date startTime;
 
     @NotNull
-    private Timestamp endTime;
+    @Column(columnDefinition="timestamp with time zone")
+    private Date endTime;
 
     // @NotNull //TODO uncomment
     @ManyToOne
@@ -152,7 +154,6 @@ public class BuildRecord implements GenericEntity<Integer> {
      * Instantiates a new project build result.
      */
     public BuildRecord() {
-        startTime = Timestamp.from(Instant.now());
         buildRecordSets = new ArrayList<>();
         dependencies = new ArrayList<>();
         builtArtifacts = new ArrayList<>();
@@ -188,7 +189,7 @@ public class BuildRecord implements GenericEntity<Integer> {
      *
      * @return the start time
      */
-    public Timestamp getStartTime() {
+    public Date getStartTime() {
         return startTime;
     }
 
@@ -197,7 +198,7 @@ public class BuildRecord implements GenericEntity<Integer> {
      *
      * @param startTime the new start time
      */
-    public void setStartTime(Timestamp startTime) {
+    public void setStartTime(Date startTime) {
         this.startTime = startTime;
     }
 
@@ -206,7 +207,7 @@ public class BuildRecord implements GenericEntity<Integer> {
      *
      * @return the end time
      */
-    public Timestamp getEndTime() {
+    public Date getEndTime() {
         return endTime;
     }
 
@@ -215,7 +216,7 @@ public class BuildRecord implements GenericEntity<Integer> {
      *
      * @param endTime the new end time
      */
-    public void setEndTime(Timestamp endTime) {
+    public void setEndTime(Date endTime) {
         this.endTime = endTime;
     }
 
@@ -420,9 +421,9 @@ public class BuildRecord implements GenericEntity<Integer> {
 
         private String buildContentId;
 
-        private Timestamp startTime;
+        private Date startTime;
 
-        private Timestamp endTime;
+        private Date endTime;
 
         private BuildConfiguration latestBuildConfiguration;
 
@@ -449,7 +450,6 @@ public class BuildRecord implements GenericEntity<Integer> {
         private Integer externalArchiveId;
 
         public Builder() {
-            startTime = Timestamp.from(Instant.now());
             buildRecordSets = new ArrayList<>();
             dependencies = new ArrayList<>();
             builtArtifacts = new ArrayList<>();
@@ -508,12 +508,12 @@ public class BuildRecord implements GenericEntity<Integer> {
             return this;
         }
 
-        public Builder startTime(Timestamp startTime) {
+        public Builder startTime(Date startTime) {
             this.startTime = startTime;
             return this;
         }
 
-        public Builder endTime(Timestamp endTime) {
+        public Builder endTime(Date endTime) {
             this.endTime = endTime;
             return this;
         }
