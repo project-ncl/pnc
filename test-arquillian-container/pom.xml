@@ -84,6 +84,13 @@
           <name>eap6.zip.url</name>
         </property>
       </activation>
+      <dependencies>
+        <dependency>
+          <groupId>org.hsqldb</groupId>
+          <artifactId>hsqldb</artifactId>
+          <scope>compile</scope>
+        </dependency>
+      </dependencies>
       <build>
         <plugins>
           <plugin>
@@ -115,32 +122,32 @@
               </execution>
             </executions>
           </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-dependency-plugin</artifactId>
-                <executions>
-                  <execution>
-                    <id>copy-keycloak-adapter</id>
-                    <phase>generate-test-resources</phase>
-                    <goals>
-                      <goal>unpack</goal>
-                    </goals>
-                    <configuration>
-                      <artifactItems>
-                        <artifactItem>
-                            <groupId>org.keycloak</groupId>
-                            <artifactId>keycloak-eap6-adapter-dist</artifactId>
-                            <version>${version.keycloak}</version>
-                            <type>zip</type>
-                            <overWrite>true</overWrite>
-                            <outputDirectory>${test.server.build.dir}</outputDirectory>
-                        </artifactItem>
-                      </artifactItems>
-                      <!-- other configurations here -->
-                    </configuration>
-                  </execution>
-                </executions>
-              </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-dependency-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>copy-keycloak-adapter</id>
+                <phase>generate-test-resources</phase>
+                <goals>
+                  <goal>unpack</goal>
+                </goals>
+                <configuration>
+                  <artifactItems>
+                    <artifactItem>
+                      <groupId>org.keycloak</groupId>
+                      <artifactId>keycloak-eap6-adapter-dist</artifactId>
+                      <version>${version.keycloak}</version>
+                      <type>zip</type>
+                      <overWrite>true</overWrite>
+                      <outputDirectory>${test.server.build.dir}</outputDirectory>
+                    </artifactItem>
+                  </artifactItems>
+                  <!-- other configurations here -->
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
           <plugin>
             <groupId>org.jboss.as.plugins</groupId>
             <artifactId>jboss-as-maven-plugin</artifactId>
@@ -195,6 +202,38 @@
                       </command>
                     </commands>
                   </execute-commands>
+                </configuration>
+              </execution>
+              <execution>
+                <id>deploy-hsql-jdbc-driver</id>
+                <phase>generate-test-resources</phase>
+                <goals>
+                  <goal>deploy-artifact</goal>
+                </goals>
+                <configuration>
+                  <groupId>org.hsqldb</groupId>
+                  <artifactId>hsqldb</artifactId>
+                  <name>hsqldb.jar</name>
+                </configuration>
+              </execution>
+              <execution>
+                <id>add-hsql-datasource</id>
+                <phase>generate-test-resources</phase>
+                <goals>
+                  <goal>add-resource</goal>
+                </goals>
+                <configuration>
+                  <address>subsystem=datasources,data-source=java:jboss/datasources/NewcastleTestDS</address>
+                  <resource>
+                    <enable-resource>true</enable-resource>
+                    <properties>
+                      <jndi-name>java:jboss/datasources/NewcastleTestDS</jndi-name>
+                      <enabled>true</enabled>
+                      <connection-url>jdbc:hsqldb:mem:newcastletestmemdb</connection-url>
+                      <driver-class>org.hsqldb.jdbc.JDBCDriver</driver-class>
+                      <driver-name>hsqldb.jar</driver-name>
+                    </properties>
+                  </resource>
                 </configuration>
               </execution>
               <execution>
