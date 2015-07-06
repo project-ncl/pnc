@@ -49,10 +49,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
+import java.util.concurrent.*;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -69,7 +66,7 @@ public class BuildCoordinator {
 
 //    @Resource
 //    private ManagedThreadFactory threadFactory;
-    private Executor executor = Executors.newFixedThreadPool(4); //TODO configurable
+    private ExecutorService executor = Executors.newFixedThreadPool(4); //TODO configurable
     //TODO override executor and implement "protected void afterExecute(Runnable r, Throwable t) { }" to catch possible exceptions
 
     private RepositoryManagerFactory repositoryManagerFactory;
@@ -377,5 +374,9 @@ public class BuildCoordinator {
 
     Event<BuildSetStatusChangedEvent> getBuildSetStatusChangedEventNotifier() {
         return buildSetStatusChangedEventNotifier;
+    }
+
+    public void shutdownCoordinator(){
+        executor.shutdown();
     }
 }
