@@ -20,6 +20,7 @@ package org.jboss.pnc.core.test.buildCoordinator.event;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.junit.InSequence;
+import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.util.ObjectWrapper;
 import org.jboss.pnc.core.BuildDriverFactory;
 import org.jboss.pnc.core.builder.BuildCoordinator;
@@ -81,6 +82,7 @@ public class StatusUpdatesTest {
     public static JavaArchive createDeployment() {
         JavaArchive jar = ShrinkWrap.create(JavaArchive.class)
                 .addPackages(true,
+                        Configuration.class.getPackage(),
                         StatusUpdatesTest.class.getPackage(),
                         BuildDriverMock.class.getPackage(),
                         BuildCoordinator.class.getPackage(),

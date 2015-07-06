@@ -15,19 +15,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.spi.builddriver;
+package org.jboss.pnc.common.json.moduleconfig;
 
-import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
-import org.jboss.pnc.spi.environment.RunningEnvironment;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import org.jboss.pnc.common.json.AbstractModuleConfig;
 
-/**
- * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-12-18.
- */
-public interface BuildDriverResult {
+public class BuildDriverRouterModuleConfig extends AbstractModuleConfig {
 
-    public String getBuildLog() throws BuildDriverException;
+    private String driverId;
 
-    public BuildDriverStatus getBuildDriverStatus();
+    public BuildDriverRouterModuleConfig(@JsonProperty("driverId") String driverId) {
+        this.driverId = driverId;
+    }
 
-    RunningEnvironment getRunningEnvironment();
+    public String getDriverId() {
+        return driverId;
+    }
+
+    public void setDriverId(String driverId) {
+        this.driverId = driverId;
+    }
+
+    @Override
+    public String toString() {
+        return "BuildDriverRouterModuleConfig{" +
+                "driverId='" + driverId + '\'' +
+                '}';
+    }
 }

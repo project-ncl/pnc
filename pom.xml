@@ -54,6 +54,7 @@
     <module>datastore</module>
     <module>ear-package</module>
     <module>jenkins-build-driver</module>
+    <module>termd-build-driver</module>
     <module>maven-repository-manager</module>
     <module>build-coordinator</module>
     <module>model</module>
@@ -283,6 +284,12 @@
       <dependency>
         <groupId>org.jboss.pnc</groupId>
         <artifactId>docker-environment-driver</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jboss.pnc</groupId>
+        <artifactId>termd-build-driver</artifactId>
         <version>${project.version}</version>
       </dependency>
 
@@ -575,6 +582,7 @@
         <version>${version.catch-exception}</version>
         <scope>test</scope>
       </dependency>
+
 
       <dependency>
         <groupId>org.commonjava.aprox</groupId>

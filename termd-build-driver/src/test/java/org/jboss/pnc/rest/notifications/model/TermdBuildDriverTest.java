@@ -15,16 +15,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.spi.builddriver;
+package org.jboss.pnc.rest.notifications.model;
 
-import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
-import org.jboss.pnc.spi.environment.RunningEnvironment;
+import org.junit.Test;
 
-/**
- * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-12-23.
- */
-public interface CompletedBuild {
-    BuildDriverResult getBuildResult() throws BuildDriverException;
+public class TermdBuildDriverTest {
 
-    RunningEnvironment getRunningEnvironment();
+    @Test
+    public void shouldInstantiateWithoutAnyParameters() throws Exception {
+        new TermdBuildDriver();
+    }
+
 }

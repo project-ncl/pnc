@@ -66,7 +66,7 @@ class JenkinsBuildResult implements BuildDriverResult {
     }
 
     @Override
-    public BuildDriverStatus getBuildDriverStatus() throws BuildDriverException {
+    public BuildDriverStatus getBuildDriverStatus() {
         return new BuildStatusAdapter(jenkinsBuildDetails.getResult()).getBuildStatus();
     }
 

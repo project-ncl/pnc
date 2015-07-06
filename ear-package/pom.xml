@@ -51,6 +51,10 @@
     </dependency>
     <dependency>
       <groupId>org.jboss.pnc</groupId>
+      <artifactId>termd-build-driver</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.pnc</groupId>
       <artifactId>maven-repository-manager</artifactId>
     </dependency>
     <dependency>
@@ -112,6 +116,12 @@
             <jarModule>
               <groupId>org.jboss.pnc</groupId>
               <artifactId>jenkins-build-driver</artifactId>
+              <includeInApplicationXml>true</includeInApplicationXml>
+              <bundleDir>/</bundleDir>
+            </jarModule>
+            <jarModule>
+              <groupId>org.jboss.pnc</groupId>
+              <artifactId>termd-build-driver</artifactId>
               <includeInApplicationXml>true</includeInApplicationXml>
               <bundleDir>/</bundleDir>
             </jarModule>

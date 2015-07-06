@@ -55,10 +55,6 @@ public class BuildDriverMock implements BuildDriver {
                 public void monitor(Consumer<CompletedBuild> onComplete, Consumer<Exception> onError) {
                     onComplete.accept(new CompletedBuild() {
                         @Override
-                        public BuildDriverStatus getCompleteStatus() {
-                            return BuildDriverStatus.SUCCESS;
-                        }
-                        @Override
                         public BuildDriverResult getBuildResult() throws BuildDriverException {
                             return getBuildResultMock(runningEnvironment);
                         }
@@ -89,7 +85,7 @@ public class BuildDriverMock implements BuildDriver {
             }
 
             @Override
-            public BuildDriverStatus getBuildDriverStatus() throws BuildDriverException {
+            public BuildDriverStatus getBuildDriverStatus() {
                 return BuildDriverStatus.SUCCESS;
             }
 
