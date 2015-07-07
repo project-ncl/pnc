@@ -41,11 +41,6 @@ class JenkinsCompletedBuild implements CompletedBuild {
     }
 
     @Override
-    public BuildDriverStatus getCompleteStatus() {
-        return buildDriverStatus;
-    }
-
-    @Override
     public BuildDriverResult getBuildResult() throws BuildDriverException {
         return new JenkinsBuildResult(jenkinsServerFactory, buildJob, runningEnvironment);
     }

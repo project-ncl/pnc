@@ -7,6 +7,11 @@
             "password":"${env.PNC_JENKINS_PASSWORD}"
           },
           {
+            "@module-config":"termd-build-driver",
+            "username":"test",
+            "password":"test"
+          },
+          {
             "@module-config":"maven-repo-driver",
             "baseUrl":"${env.PNC_APROX_URL}"
           },

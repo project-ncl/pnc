@@ -17,13 +17,26 @@
  */
 package org.jboss.pnc.core;
 
+import org.jboss.pnc.common.Configuration;
+import org.jboss.pnc.common.json.ConfigurationParseException;
+import org.jboss.pnc.common.json.moduleconfig.BuildDriverRouterModuleConfig;
+import org.jboss.pnc.common.util.StringUtils;
 import org.jboss.pnc.core.exception.CoreException;
 import org.jboss.pnc.model.BuildType;
 import org.jboss.pnc.spi.builddriver.BuildDriver;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
+import java.lang.invoke.MethodHandles;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.function.Predicate;
+import java.util.stream.StreamSupport;
 
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-11-23.
@@ -31,18 +44,56 @@ import javax.inject.Inject;
 @ApplicationScoped
 public class BuildDriverFactory {
 
+    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+
+    private Instance<BuildDriver> availableDrivers;
+    private Configuration configuration;
+    private Predicate<BuildDriver> configurationPredicate = buildDriver -> true;
+
+    /**
+     * @deprecated Only for CDI
+     */
+    @Deprecated
+    public BuildDriverFactory() {
+    }
+
     @Inject
-    Instance<BuildDriver> availableDrivers;
+    public BuildDriverFactory(Instance<BuildDriver> availableDrivers, Configuration configuration) {
+        this.availableDrivers = availableDrivers;
+        this.configuration = configuration;
+    }
 
-    public BuildDriver getBuildDriver(BuildType buildType) throws CoreException {
-
-        for (BuildDriver driver : availableDrivers) {
-            if (driver.canBuild(buildType)) {
-                return driver;
+    @PostConstruct
+    public void initConfiguration() throws ConfigurationParseException {
+        try {
+            String driverId = configuration.getModuleConfig(BuildDriverRouterModuleConfig.class).getDriverId();
+            if (!StringUtils.isEmpty(driverId)) {
+                configurationPredicate = buildDriver -> driverId.equals(buildDriver.getDriverId());
             }
+        } catch (ConfigurationParseException exception) {
+            logger.warn("There is a problem while parsing build agent router configuration. Using defaults.", exception);
         }
 
-        throw new CoreException("No build driver available for " + buildType + " build type."); //TODO create test to make sure exception is properly handled
+    }
+
+    public BuildDriver getBuildDriver(BuildType buildType) throws CoreException {
+        Optional<BuildDriver> match = StreamSupport
+                .stream(availableDrivers.spliterator(), false)
+                .filter(configurationPredicate)
+                .filter(driver -> driver.canBuild(buildType))
+                .findFirst();
+
+        return match.
+                orElseThrow(() -> new CoreException("No build driver available for " + buildType + " build type."
+                        + " Available drivers: " + availableDriverIds()));
+    }
+
+    private String availableDriverIds() {
+        List<String> ids = new ArrayList<>();
+        for(BuildDriver driver : availableDrivers) {
+            ids.add(driver.getDriverId());
+        }
+        return ids.toString();
     }
 
 }
