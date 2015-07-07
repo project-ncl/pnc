@@ -25,9 +25,9 @@ import org.hibernate.envers.RelationTargetAuditMode;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 
-import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -92,11 +92,13 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
     private Set<BuildConfigurationSet> buildConfigurationSets;
 
     @NotNull
-    private Timestamp creationTime;
+    @Column(columnDefinition="timestamp with time zone")
+    private Date creationTime;
 
     @NotNull
     @Version
-    private Timestamp lastModificationTime;
+    @Column(columnDefinition="timestamp with time zone")
+    private Date lastModificationTime;
 
     /**
      * Represents the status of the most recent execution of the current configuration.
@@ -142,7 +144,7 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
         dependants = new HashSet<BuildConfiguration>();
         buildRecords = new HashSet<BuildRecord>();
         buildConfigurationSets = new HashSet<BuildConfigurationSet>();
-        creationTime = Timestamp.from(Instant.now());
+        creationTime = Date.from(Instant.now());
     }
 
     @PreRemove
@@ -430,28 +432,28 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
     /**
      * @return the creationTime
      */
-    public Timestamp getCreationTime() {
+    public Date getCreationTime() {
         return creationTime;
     }
 
     /**
      * @param creationTime the creationTime to set
      */
-    public void setCreationTime(Timestamp creationTime) {
+    public void setCreationTime(Date creationTime) {
         this.creationTime = creationTime;
     }
 
     /**
      * @return the lastModificationTime
      */
-    public Timestamp getLastModificationTime() {
+    public Date getLastModificationTime() {
         return lastModificationTime;
     }
 
     /**
      * @param lastModificationTime the lastModificationTime to set
      */
-    public void setLastModificationTime(Timestamp lastModificationTime) {
+    public void setLastModificationTime(Date lastModificationTime) {
         this.lastModificationTime = lastModificationTime;
     }
 
@@ -529,7 +531,7 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
         try {
             BuildConfiguration clone = (BuildConfiguration) super.clone();
             clone.name = "_" + name;
-            clone.creationTime = Timestamp.from(Instant.now());
+            clone.creationTime = Date.from(Instant.now());
             clone.id = null;
             return clone;
         } catch (CloneNotSupportedException e) {
@@ -563,9 +565,9 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
 
         private Set<BuildConfigurationSet> buildConfigurationSets;
 
-        private Timestamp creationTime;
+        private Date creationTime;
 
-        private Timestamp lastModificationTime;
+        private Date lastModificationTime;
 
         private BuildStatus buildStatus;
 
@@ -576,8 +578,8 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
             dependants = new HashSet<BuildConfiguration>();
             buildConfigurationSets = new HashSet<BuildConfigurationSet>();
             productVersions = new HashSet<ProductVersion>();
-            creationTime = Timestamp.from(Instant.now());
-            lastModificationTime = Timestamp.from(Instant.now());
+            creationTime = Date.from(Instant.now());
+            lastModificationTime = Date.from(Instant.now());
         }
 
         public static Builder newBuilder() {
@@ -698,7 +700,7 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
             return this;
         }
 
-        public Builder creationTime(Timestamp creationTime) {
+        public Builder creationTime(Date creationTime) {
             if (creationTime != null) {
                 this.creationTime = creationTime;
             }
@@ -710,7 +712,7 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
          *        consistency).
          * @return Builder
          */
-        public Builder lastModificationTime(Timestamp lastModificationTime) {
+        public Builder lastModificationTime(Date lastModificationTime) {
             if (lastModificationTime != null) {
                 this.lastModificationTime = lastModificationTime;
             }
