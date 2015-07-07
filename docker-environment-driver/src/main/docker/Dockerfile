@@ -1,5 +1,5 @@
 FROM fedora:21
-MAINTAINER Marek Novotny <mnovotny@redhat.com>
+MAINTAINER Marek Novotny
 
 # update or not??
 #RUN yum -y update && yum clean all
@@ -54,7 +54,7 @@ USER root
 #Configure SSHD
 RUN mkdir /var/run/sshd
 RUN ssh-keygen -b 1024 -t rsa -f /etc/ssh/ssh_host_key
-RUN ssh-keygen -b 1024 -t rsa -f /etc/ssh/ssh_host_rsa_key 
+RUN ssh-keygen -b 1024 -t rsa -f /etc/ssh/ssh_host_rsa_key
 RUN ssh-keygen -b 1024 -t dsa -f /etc/ssh/ssh_host_dsa_key
 
 #!!!! CHANGE ROOT PASSWORD BEFORE REAL USE !!!!
@@ -90,7 +90,7 @@ ENV MAVEN_VERSION 3.2.5
 RUN curl -sSL http://archive.apache.org/dist/maven/maven-3/$MAVEN_VERSION/binaries/apache-maven-$MAVEN_VERSION-bin.tar.gz | tar xzf - -C /usr/share \
 && mv /usr/share/apache-maven-$MAVEN_VERSION /usr/share/maven \
 && ln -s /usr/share/maven/bin/mvn /usr/bin/mvn
- 
+
 RUN echo "export M2_HOME=/usr/share/maven" >> /etc/profile
 RUN mkdir /root/.m2
 
@@ -112,4 +112,3 @@ RUN echo -e "/tmp/setup-proxy-server.sh & \n /tmp/isolate-with-iptables.sh & \n 
 #Expose SSH port
 EXPOSE 22
 ENTRYPOINT ["sh", "/usr/bin/startPrograms.sh"]
-

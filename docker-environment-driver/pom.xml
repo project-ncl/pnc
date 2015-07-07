@@ -145,4 +145,75 @@
     <!-- /Test dependencies -->
   </dependencies>
 
+
+  <profiles>
+    <profile>
+      <id>docker</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.codehaus.gmavenplus</groupId>
+            <artifactId>gmavenplus-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>calculate-docker-version</id>
+                <goals>
+                  <goal>execute</goal>
+                </goals>
+                <phase>initialize</phase>
+                <configuration>
+                  <scripts>
+                    <script>
+                      project.properties['dockerVersion'] = "${project.version}".toLowerCase()
+                      if (project.properties['dockerVersion'].contains ('snapshot'))
+                      {
+                      project.properties['dockerVersion'] = 'latest'
+                      }
+                      log.info ("Using Docker version '" + project.properties['dockerVersion'] + "' from ${project.version}")
+                    </script>
+                  </scripts>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+
+          <plugin>
+            <groupId>org.jolokia</groupId>
+            <artifactId>docker-maven-plugin</artifactId>
+            <configuration>
+              <verbose>true</verbose>
+              <images>
+                <image>
+                  <name>project-ncl/pnc-builder:${dockerVersion}</name>
+                  <registry>${docker.registry}</registry>
+                  <build>
+                    <assembly>
+                      <dockerFileDir>${basedir}/src/main/docker</dockerFileDir>
+                    </assembly>
+                  </build>
+                </image>
+              </images>
+            </configuration>
+            <executions>
+              <execution>
+                <id>build</id>
+                <phase>package</phase>
+                <goals>
+                  <goal>build</goal>
+                </goals>
+              </execution>
+              <execution>
+                <id>push</id>
+                <phase>deploy</phase>
+                <goals>
+                  <goal>push</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
+  </profiles>
 </project>
