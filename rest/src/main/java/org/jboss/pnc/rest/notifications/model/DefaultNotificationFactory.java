@@ -37,6 +37,8 @@ public class DefaultNotificationFactory implements NotificationFactory {
         externalBuildStatusChangedEvents.put(BuildStatus.REPO_SETTING_UP, NotificationEventType.BUILD_STARTED);
         externalBuildStatusChangedEvents.put(BuildStatus.BUILD_COMPLETED_SUCCESS, NotificationEventType.BUILD_COMPLETED);
         externalBuildStatusChangedEvents.put(BuildStatus.BUILD_COMPLETED_WITH_ERROR, NotificationEventType.BUILD_FAILED);
+        externalBuildStatusChangedEvents.put(BuildStatus.SYSTEM_ERROR, NotificationEventType.BUILD_FAILED);
+        externalBuildStatusChangedEvents.put(BuildStatus.REJECTED, NotificationEventType.BUILD_FAILED);
 
         externalBuildSetStatusChangedEvents.put(BuildSetStatus.NEW, NotificationEventType.BUILD_SET_STARTED);
         externalBuildSetStatusChangedEvents.put(BuildSetStatus.DONE, NotificationEventType.BUILD_SET_COMPLETED);
