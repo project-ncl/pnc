@@ -36,7 +36,7 @@ public class NotificationFactoryForBuildTest {
     @Test
     public void shouldHaveProperListOfExternalEvents() throws Exception {
         //given
-        EnumSet<BuildStatus> statuses = EnumSet.of(BuildStatus.REPO_SETTING_UP, BuildStatus.BUILD_COMPLETED_SUCCESS, BuildStatus.BUILD_COMPLETED_WITH_ERROR);
+        EnumSet<BuildStatus> statuses = EnumSet.of(BuildStatus.REPO_SETTING_UP, BuildStatus.BUILD_COMPLETED_SUCCESS, BuildStatus.BUILD_COMPLETED_WITH_ERROR, BuildStatus.SYSTEM_ERROR, BuildStatus.REJECTED);
         NotificationFactory notificationFactory = new DefaultNotificationFactory();
 
         for(BuildStatus status : statuses) {
@@ -51,7 +51,7 @@ public class NotificationFactoryForBuildTest {
     @Test
     public void shouldHaveProperListOfInternalEvents() throws Exception {
         //given
-        EnumSet<BuildStatus> excludedStatuses = EnumSet.of(BuildStatus.REPO_SETTING_UP, BuildStatus.BUILD_COMPLETED_SUCCESS, BuildStatus.BUILD_COMPLETED_WITH_ERROR);
+        EnumSet<BuildStatus> excludedStatuses = EnumSet.of(BuildStatus.REPO_SETTING_UP, BuildStatus.BUILD_COMPLETED_SUCCESS, BuildStatus.BUILD_COMPLETED_WITH_ERROR, BuildStatus.SYSTEM_ERROR, BuildStatus.REJECTED);
         EnumSet<BuildStatus> statuses = EnumSet.complementOf(excludedStatuses);
         NotificationFactory notificationFactory = new DefaultNotificationFactory();
 
