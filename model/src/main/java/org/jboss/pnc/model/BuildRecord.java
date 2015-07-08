@@ -146,6 +146,11 @@ public class BuildRecord implements GenericEntity<Integer> {
     private BuildConfigSetRecord buildConfigSetRecord;
 
     /**
+     * Contains the ID of the matching build record store in an external system.  For example, Koji/Brew build ID.
+     */
+    private Integer externalArchiveId;
+
+    /**
      * Instantiates a new project build result.
      */
     public BuildRecord() {
@@ -402,6 +407,14 @@ public class BuildRecord implements GenericEntity<Integer> {
                 + ", buildConfiguration=" + buildConfigurationAudited + "]";
     }
 
+    public Integer getExternalArchiveId() {
+        return externalArchiveId;
+    }
+
+    public void setExternalArchiveId(Integer externalArchiveId) {
+        this.externalArchiveId = externalArchiveId;
+    }
+
     public static class Builder {
 
         private Integer id;
@@ -434,6 +447,8 @@ public class BuildRecord implements GenericEntity<Integer> {
 
         private BuildConfigSetRecord buildConfigSetRecord;
 
+        private Integer externalArchiveId;
+
         public Builder() {
             buildRecordSets = new ArrayList<>();
             dependencies = new ArrayList<>();
@@ -460,6 +475,7 @@ public class BuildRecord implements GenericEntity<Integer> {
             buildRecord.setStatus(status);
             buildRecord.setBuildDriverId(buildDriverId);
             buildRecord.setSystemImage(systemImage);
+            buildRecord.setExternalArchiveId(externalArchiveId);
 
             // Set the bi-directional mapping
             for (Artifact artifact : builtArtifacts) {
@@ -564,6 +580,11 @@ public class BuildRecord implements GenericEntity<Integer> {
 
         public Builder buildConfigSetRecord(BuildConfigSetRecord buildConfigSetRecord) {
             this.buildConfigSetRecord = buildConfigSetRecord;
+            return this;
+        }
+
+        public Builder externalArchiveId(Integer externalArchiveId) {
+            this.externalArchiveId = externalArchiveId;
             return this;
         }
     }
