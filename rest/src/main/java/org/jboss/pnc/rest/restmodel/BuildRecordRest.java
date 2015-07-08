@@ -48,6 +48,8 @@ public class BuildRecordRest {
 
     private Integer systemImageId;
 
+    private Integer externalArchiveId;
+
     public BuildRecordRest() {
     }
 
@@ -55,6 +57,7 @@ public class BuildRecordRest {
         this.id = buildRecord.getId();
         this.startTime = buildRecord.getStartTime();
         this.endTime = buildRecord.getEndTime();
+        this.externalArchiveId = buildRecord.getExternalArchiveId();
         performIfNotNull(buildRecord.getBuildConfigurationAudited() != null, () -> buildConfigurationId = buildRecord
                 .getBuildConfigurationAudited().getId().getId());
         performIfNotNull(buildRecord.getBuildConfigurationAudited() != null, () -> buildConfigurationRev = buildRecord
@@ -144,6 +147,14 @@ public class BuildRecordRest {
 
     public void setSystemImageId(Integer systemImageId) {
         this.systemImageId = systemImageId;
+    }
+
+    public Integer getExternalArchiveId() {
+        return externalArchiveId;
+    }
+
+    public void setExternalArchiveId(Integer externalArchiveId) {
+        this.externalArchiveId = externalArchiveId;
     }
 
 }
