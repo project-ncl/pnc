@@ -184,11 +184,29 @@
               <verbose>true</verbose>
               <images>
                 <image>
-                  <name>project-ncl/pnc-builder:${dockerVersion}</name>
+                  <name>project-ncl/pnc-common:${dockerVersion}</name>
                   <registry>${docker.registry}</registry>
                   <build>
                     <assembly>
-                      <dockerFileDir>${basedir}/src/main/docker</dockerFileDir>
+                      <dockerFileDir>common</dockerFileDir>
+                    </assembly>
+                  </build>
+                </image>
+                <image>
+                  <name>project-ncl/pnc-builder-build-agent:${dockerVersion}</name>
+                  <registry>${docker.registry}</registry>
+                  <build>
+                    <assembly>
+                      <dockerFileDir>pnc-build-agent</dockerFileDir>
+                    </assembly>
+                  </build>
+                </image>
+                <image>
+                  <name>project-ncl/pnc-builder-jenkins:${dockerVersion}</name>
+                  <registry>${docker.registry}</registry>
+                  <build>
+                    <assembly>
+                      <dockerFileDir>jenkins</dockerFileDir>
                     </assembly>
                   </build>
                 </image>

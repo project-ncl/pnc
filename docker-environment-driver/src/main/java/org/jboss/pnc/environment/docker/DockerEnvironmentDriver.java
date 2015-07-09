@@ -147,7 +147,7 @@ public class DockerEnvironmentDriver implements EnvironmentDriver {
             RepositorySession repositorySession) throws EnvironmentDriverException {
         if (!canBuildEnvironment(buildEnvironment))
             throw new UnsupportedOperationException(
-                    "DockerEnvironmentDriver currently provides support only for Linux enviroments on Docker.");
+                    "DockerEnvironmentDriver currently provides support only for Linux environments on Docker.");
 
         String containerId = generator.generateContainerId();
         BuildContainerState buildContainerState = BuildContainerState.NOT_BUILT;
@@ -264,7 +264,6 @@ public class DockerEnvironmentDriver implements EnvironmentDriver {
      * @param dependencyUrl AProx dependencyUrl
      * @param deployUrl AProx deployUrl
      * @param proxyServer Proxy server IP address or DNS resolvable name
-     * @param proxyProtocol for which proxy server is used (http or https)
      * @param proxyPort number of proxy server port where is it listening
      * 
      * @return Environment variables configuration
