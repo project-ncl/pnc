@@ -1,15 +1,15 @@
-#Project-ncl
+Project-ncl
+===========
+A system for managing, executing, and tracking builds
 
-Building Project
-----------------
+
+Building
+--------
 Requirements:
 
 * JDK 8
 * Maven 3.2
 
-
-Building
---------
 The default build is executed by running `mvn clean install`.<br />
 By default the tests that require remote services and integration tests are disabled.<br />
 
@@ -24,8 +24,21 @@ If you want to use a different (external) config file location you can define a 
 
 Integration and Container tests
 -------------------------------
-There is a slight difference between **integration** and **container** test. By a **container** test we understand a test which needs a JEE server to run.
+There is a slight difference between **integration** and **container** test. By a **container** test we understand a test which needs a JavaEE server to run.
 An **integration** test checks if several modules work correctly together.
+
+
+Module Overview
+---------------
+* `datastore`: Implementation of spi:org.jboss.pnc.spi.datastore
+* `jenkins-build-driver`: Implementation of spi:org.jboss.pnc.spi.builddriver
+* `maven-repository-manager`: Implementation of spi:org.jboss.pnc.spi.repositorymanager
+* `build-coordinator`: Contains implementations of action-controllers, which include the business logic for orchestrating builds, test runs, etc. Action controllers are used to isolate logic from the REST API, so it can be reused in embedded scenarios
+* `model`: Contains domain model for the orchestrator. This is just model classes + serialization helpers, and would also be suitable for writing a java client api to support integration
+* `rest`: REST API. This is a series of classes that use JAX-RS to translate HTTP communications to calls into the action controllers in the core, and format any output (such as constructing resource URLs, etc.)
+* `spi`: Contains all SPI interfaces the orchestrator will use to coordinate its sub-services for provisioning environments and repositories, triggering builds, storing domain objects. It is meant to be used in conjunction with pnc-model
+* `processes`: Contains jBPM processes for PNC
+* `web`: Contains Web UI resoures (html + js pages, images etc.)
 
 
 Environmental variables
@@ -159,20 +172,24 @@ Possible issues:
 * It is not possible to create Docker environment, because the client cannot connect to Docker host using SSH. Solution: You have to  allow using strong ciphers in JCE (http://www.oracle.com/technetwork/java/javase/downloads/jce8-download-2133166.html)
 
 
-Main Modules
-------------
-* `datastore`: Implementation of spi:org.jboss.pnc.spi.datastore
-* `jenkins-build-driver`: Implementation of spi:org.jboss.pnc.spi.builddriver
-* `maven-repository-manager`: Implementation of spi:org.jboss.pnc.spi.repositorymanager
-* `build-coordinator`: Contains implementations of action-controllers, which include the business logic for orchestrating builds, test runs, etc. Action controllers are used to isolate logic from the REST API, so it can be reused in embedded scenarios
-* `model`: Contains domain model for the orchestrator. This is just model classes + serialization helpers, and would also be suitable for writing a java client api to support integration
-* `rest`: REST API. This is a series of classes that use JAX-RS to translate HTTP communications to calls into the action controllers in the core, and format any output (such as constructing resource URLs, etc.)
-* `spi`: Contains all SPI interfaces the orchestrator will use to coordinate its sub-services for provisioning environments and repositories, triggering builds, storing domain objects. It is meant to be used in conjunction with pnc-model
-* `processes`: Contains jBPM processes for PNC
-* `web`: Contains Web UI resoures (html + js pages, images etc.)
+Configuring the Datasource for HSQL DB
+--------------------------------------
+You will need to download the [hsqldb jar file](http://repo1.maven.org/maven2/org/hsqldb/hsqldb/2.3.3/hsqldb-2.3.3.jar) and copy the jar file into the standalone/deployments directory of your JBoss server.  Check the server log to see that the driver deployed successfully.
+
+From the EAP/Wildfly admin console, select Configuration-->Connector-->Datasources.
+Click the "Add" button to add a new datasource and set the required fields.
+
+    Name: NewcastleTestDS
+    JNDI Name: java:jboss/datasources/NewcastleTestDS
+    JDBC Driver: hsqldb-2.3.3.jar
+    Connection URL: jdbc:hsqldb:mem:newcastletestmemdb
+
+You can test the connection before saving the datasource settings.  Finally, enable the datasource, and it is ready to be used by the newcastle application.
+
+
 
 Building with Postgresql
------------------------
+------------------------
 A Maven profile called `postgresql` is provided to configure the appropriate settings to build a deployment file which is compatible with the postgresql database.
 
     mvn install -Ppostgresql
@@ -180,3 +197,4 @@ A Maven profile called `postgresql` is provided to configure the appropriate set
 The container tests can also be run against postgresql by activating the `container-tests` profile, the `postgresql` profile, and the `postgresql-container-tests` profile.
 
     mvn install -Ppostgresql,container-tests,postgresql-container-tests
+

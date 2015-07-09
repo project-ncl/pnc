@@ -26,7 +26,7 @@ import org.jboss.pnc.model.Project;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
-import java.sql.Timestamp;
+import java.util.Date;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -48,9 +48,9 @@ public class BuildConfigurationRest {
 
     private String scmRevision;
 
-    private Timestamp creationTime;
+    private Date creationTime;
 
-    private Timestamp lastModificationTime;
+    private Date lastModificationTime;
 
     @ApiModelProperty(dataType = "string")
     private BuildStatus buildStatus;
@@ -136,19 +136,19 @@ public class BuildConfigurationRest {
         this.scmRevision = scmRevision;
     }
 
-    public Timestamp getCreationTime() {
+    public Date getCreationTime() {
         return creationTime;
     }
 
-    public void setCreationTime(Timestamp creationTime) {
+    public void setCreationTime(Date creationTime) {
         this.creationTime = creationTime;
     }
 
-    public Timestamp getLastModificationTime() {
+    public Date getLastModificationTime() {
         return lastModificationTime;
     }
 
-    public void setLastModificationTime(Timestamp lastModificationTime) {
+    public void setLastModificationTime(Date lastModificationTime) {
         this.lastModificationTime = lastModificationTime;
     }
 
