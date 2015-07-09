@@ -23,7 +23,7 @@ import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.BuildStatus;
 
 import javax.xml.bind.annotation.XmlRootElement;
-import java.util.Date;
+import java.sql.Timestamp;
 
 import static org.jboss.pnc.rest.utils.Utility.performIfNotNull;
 
@@ -32,9 +32,9 @@ public class BuildRecordRest {
 
     private Integer id;
 
-    private Date startTime;
+    private Timestamp startTime;
 
-    private Date endTime;
+    private Timestamp endTime;
 
     private BuildStatus status;
 
@@ -85,19 +85,19 @@ public class BuildRecordRest {
         this.id = id;
     }
 
-    public Date getStartTime() {
+    public Timestamp getStartTime() {
         return startTime;
     }
 
-    public void setStartTime(Date startTime) {
+    public void setStartTime(Timestamp startTime) {
         this.startTime = startTime;
     }
 
-    public Date getEndTime() {
+    public Timestamp getEndTime() {
         return endTime;
     }
 
-    public void setEndTime(Date endTime) {
+    public void setEndTime(Timestamp endTime) {
         this.endTime = endTime;
     }
 

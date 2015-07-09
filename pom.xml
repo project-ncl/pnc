@@ -106,8 +106,8 @@
     <demo.pnc.ip.address>10.3.10.200:8080</demo.pnc.ip.address>
 
     <!-- Default DB for NCL is H2 -->
-    <persistence.jta-data-source>java:jboss/datasources/NewcastleTestDS</persistence.jta-data-source>
-    <persistence.hibernate.dialect>org.hibernate.dialect.HSQLDialect</persistence.hibernate.dialect>
+    <persistence.jta-data-source>java:jboss/datasources/ExampleDS</persistence.jta-data-source>
+    <persistence.hibernate.dialect>org.jboss.pnc.datastore.H2Dialect</persistence.hibernate.dialect>
     <persistence.hibernate.hbm2ddl.auto>create-drop</persistence.hibernate.hbm2ddl.auto>
 
     <!-- Jacoco & Sonar -->
@@ -664,13 +664,6 @@
         <groupId>org.json</groupId>
         <artifactId>json</artifactId>
         <version>${version.org.json}</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.hsqldb</groupId>
-        <artifactId>hsqldb</artifactId>
-        <version>2.3.2</version>
-        <scope>test</scope>
       </dependency>
 
     </dependencies>
