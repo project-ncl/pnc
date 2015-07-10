@@ -67,6 +67,17 @@ all network traffic will be dropped
 * `PNC_BPM_PASSWORD` -  Password for `PNC_BPM_USERNAME`
 
 
+Building for Production (Postgresql DB)
+---------------------------------------
+A Maven profile called `production` is provided to configure the appropriate settings to build a deployment file which is compatible with the postgresql database.
+
+    mvn install -Pproduction
+
+The container tests can also be run against postgresql by activating the `container-tests` profile, and the `production` profile.
+
+    mvn install -Pproduction,container-tests
+
+
 Set up of Docker host
 ------------
 This part describes an expected way how to set up host with running Docker daemon with systemd.
@@ -172,7 +183,19 @@ Possible issues:
 * It is not possible to create Docker environment, because the client cannot connect to Docker host using SSH. Solution: You have to  allow using strong ciphers in JCE (http://www.oracle.com/technetwork/java/javase/downloads/jce8-download-2133166.html)
 
 
-Configuring the Datasource for HSQL DB
+Using an alternate JBoss server location
+----------------------------------------
+By default, the Maven build will download JBoss EAP and extract it to a local directory such as `target/jboss-eap-6.4`.  However, you can also configure and run tests in an alternate JBoss EAP location.  The first step is to install the necessary HSQL and Postgresql JDBC drivers and datasources.
+
+    $ cd test-arquillian-container
+    $ mvn clean install -Pconfigure-test-container -Dtest.server.build.dir=/path/to/eap/server
+
+The container-tests can be run against this JBoss server using similar command line options.
+
+    $ mvn clean install -Pcontainer-tests -Dtest.server.build.dir=/path/to/eap/server
+
+
+Manually Configuring the Datasource for HSQL DB
 --------------------------------------
 You will need to download the [hsqldb jar file](http://repo1.maven.org/maven2/org/hsqldb/hsqldb/2.3.3/hsqldb-2.3.3.jar) and copy the jar file into the standalone/deployments directory of your JBoss server.  Check the server log to see that the driver deployed successfully.
 
@@ -187,14 +210,47 @@ Click the "Add" button to add a new datasource and set the required fields.
 You can test the connection before saving the datasource settings.  Finally, enable the datasource, and it is ready to be used by the newcastle application.
 
 
+Installing Postgres for Development
+------------------------------------
 
-Building with Postgresql
-------------------------
-A Maven profile called `postgresql` is provided to configure the appropriate settings to build a deployment file which is compatible with the postgresql database.
+Basic installation instructions for Postgres on recent versions of Fedora can be found on the Fedora wiki: https://fedoraproject.org/wiki/PostgreSQL
 
-    mvn install -Ppostgresql
+(Optional) In addition to the postgresql server, it's useful to install the gui admin tool pgadmin3 (yum install pgadmin3).
 
-The container tests can also be run against postgresql by activating the `container-tests` profile, the `postgresql` profile, and the `postgresql-container-tests` profile.
+Once postgresql is installed and started, you can create and modify the databases using the psql command.
 
-    mvn install -Ppostgresql,container-tests,postgresql-container-tests
+Connect to postgres
+
+    $ psql -h localhost newcastle -U <ROOT_USERNAME>
+
+Create the user "newcastle
+Create user
+
+    postgres=# CREATE USER newcastle WITH PASSWORD newcastle;
+
+Create the newcastle database
+Create newcastle database
+
+    postgres=# CREATE DATABASE newcastle OWNER newcastle;
+
+Once the database is created, the schema can be built using the SQL files included with the newcastle source code, or it can be created automatically if it doesn't exist.
+
+
+Configuring the Datasource
+--------------------------
+You will need to download and install the PostgreSQL JDBC driver into Wildfly (https://jdbc.postgresql.org/download.html).  Copy the postgresql jdbc driver jar into the standalone/deployments directory of your JBoss server.  Check the server log to see whether the driver deployed successfully.
+
+From the EAP/Wildfly admin console, select Configuration-->Connector-->Datasources.
+Click the "Add" button to add a new datasource and set the required fields.
+
+    Name: NewcastleDS
+    JNDI Name: java:jboss/datasources/NewcastleDS
+    JDBC Driver: postgresql-9.3.jar
+    Connection URL: jdbc:postgresql://localhost:5432/newcastle
+    Username: newcastle
+    Password: newcastle
+
+You can test the connection before saving the datasource settings.
+
+
 

@@ -105,7 +105,7 @@
 
     <demo.pnc.ip.address>10.3.10.200:8080</demo.pnc.ip.address>
 
-    <!-- Default DB for NCL is H2 -->
+    <!-- Default DB for NCL is HSQLDB -->
     <persistence.jta-data-source>java:jboss/datasources/NewcastleTestDS</persistence.jta-data-source>
     <persistence.hibernate.dialect>org.hibernate.dialect.HSQLDialect</persistence.hibernate.dialect>
     <persistence.hibernate.hbm2ddl.auto>create-drop</persistence.hibernate.hbm2ddl.auto>

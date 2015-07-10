@@ -78,19 +78,12 @@
          Alternatively define it in pnc.cfg and place that in the top level execution root directory.
     -->
     <profile>
-      <id>build-container</id>
+      <id>download-server</id>
       <activation>
         <property>
           <name>eap6.zip.url</name>
         </property>
       </activation>
-      <dependencies>
-        <dependency>
-          <groupId>org.hsqldb</groupId>
-          <artifactId>hsqldb</artifactId>
-          <scope>compile</scope>
-        </dependency>
-      </dependencies>
       <build>
         <plugins>
           <plugin>
@@ -122,6 +115,36 @@
               </execution>
             </executions>
           </plugin>
+        </plugins>
+      </build>
+    </profile>
+
+    <profile>
+      <id>configure-test-container</id>
+      <activation>
+        <property>
+          <name>eap6.zip.url</name>
+        </property>
+      </activation>
+      <properties>
+        <postgresql.server.address>localhost</postgresql.server.address>
+        <postgresql.server.username>newcastle</postgresql.server.username>
+        <postgresql.server.password>newcastle</postgresql.server.password>
+      </properties>
+      <dependencies>
+        <dependency>
+          <groupId>org.hsqldb</groupId>
+          <artifactId>hsqldb</artifactId>
+          <scope>compile</scope>
+        </dependency>
+        <dependency>
+          <groupId>org.postgresql</groupId>
+          <artifactId>postgresql</artifactId>
+          <scope>compile</scope>
+        </dependency>
+      </dependencies>
+      <build>
+        <plugins>
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-dependency-plugin</artifactId>
@@ -204,6 +227,7 @@
                   </execute-commands>
                 </configuration>
               </execution>
+              <!-- HSQLDB JDBC driver installation and datasource configuration -->
               <execution>
                 <id>deploy-hsql-jdbc-driver</id>
                 <phase>generate-test-resources</phase>
@@ -236,53 +260,8 @@
                   </resource>
                 </configuration>
               </execution>
-              <execution>
-                <id>shutdown-server</id>
-                <phase>process-test-resources</phase>
-                <goals>
-                  <goal>shutdown</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-
-    <!--
-         For postgresql, the jdbc driver and datasource needs to be configured
-         before running any container tests.
-         This profile must be run after the EAP zip has been downloaded and extracted.
-     -->
-    <profile>
-      <id>postgresql-container-tests</id>
-      <activation>
-        <property>
-          <name>postgresql-container-tests</name>
-        </property>
-      </activation>
-      <dependencies>
-        <dependency>
-          <groupId>org.postgresql</groupId>
-          <artifactId>postgresql</artifactId>
-        </dependency>
-      </dependencies>
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>org.jboss.as.plugins</groupId>
-            <artifactId>jboss-as-maven-plugin</artifactId>
-            <executions>
-              <execution>
-                <id>start-server</id>
-                <phase>generate-test-resources</phase>
-                <goals>
-                  <goal>start</goal>
-                </goals>
-                <configuration>
-                  <jbossHome>${project.parent.basedir}/target/${app.server}-${jboss.version}</jbossHome>
-                </configuration>
-              </execution>
+              <!-- End HSQLDB configuraiton -->
+              <!-- Postgresql JDBC driver installation and datasource configuration -->
               <execution>
                 <id>deploy-postgresql-jdbc-driver</id>
                 <phase>generate-test-resources</phase>
@@ -327,7 +306,7 @@
                             xa-datasource-properties=ServerName
                           </address>
                           <properties>
-                            <value>localhost</value>
+                            <value>${postgresql.server.address}</value>
                           </properties>
                         </resource>
                         <resource>
@@ -335,7 +314,7 @@
                             xa-datasource-properties=User
                           </address>
                           <properties>
-                            <value>newcastle</value>
+                            <value>${postgresql.server.username}</value>
                           </properties>
                         </resource>
                         <resource>
@@ -343,7 +322,7 @@
                             xa-datasource-properties=Password
                           </address>
                           <properties>
-                            <value>newcastle</value>
+                            <value>${postgresql.server.password}</value>
                           </properties>
                         </resource>
                       </resources>
@@ -351,9 +330,10 @@
                   </resources>
                 </configuration>
               </execution>
+              <!-- End PostgreSQL configuration -->
               <execution>
                 <id>shutdown-server</id>
-                <phase>generate-test-resources</phase>
+                <phase>process-test-resources</phase>
                 <goals>
                   <goal>shutdown</goal>
                 </goals>
@@ -363,6 +343,7 @@
         </plugins>
       </build>
     </profile>
+
   </profiles>
 
 </project>
