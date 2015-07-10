@@ -234,7 +234,8 @@ public class DatabaseDataInitializer {
                 .buildConfiguration(buildConfiguration3).productVersion(productVersion).build();
 
         BuildConfigurationSet buildConfigurationSet2 = BuildConfigurationSet.Builder.newBuilder()
-                .name("Fabric Configuration Set").buildConfiguration(buildConfiguration4).build();
+                .name("Fabric Configuration Set").buildConfiguration(buildConfiguration4).
+                        productVersion(productVersion).build();
 
         demoUser = User.Builder.newBuilder().username("demo-user").firstName("Demo First Name").lastName("Demo Last Name")
                 .email("demo-user@pnc.com").build();
