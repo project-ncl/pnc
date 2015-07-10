@@ -177,12 +177,6 @@ Enabling authentication means following<br/>
   According the http://docs.jboss.org/keycloak/docs/1.1.0.Final/userguide/html/ch08.html#jboss-adapter-installation installation will be performed on server for the given path.
 
 
-
-Possible issues:
-------------
-* It is not possible to create Docker environment, because the client cannot connect to Docker host using SSH. Solution: You have to  allow using strong ciphers in JCE (http://www.oracle.com/technetwork/java/javase/downloads/jce8-download-2133166.html)
-
-
 Using an alternate JBoss server location
 ----------------------------------------
 By default, the Maven build will download JBoss EAP and extract it to a local directory such as `target/jboss-eap-6.4`.  However, you can also configure and run tests in an alternate JBoss EAP location.  The first step is to install the necessary HSQL and Postgresql JDBC drivers and datasources.
