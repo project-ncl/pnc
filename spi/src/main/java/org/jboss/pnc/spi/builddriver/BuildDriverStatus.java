@@ -25,7 +25,21 @@ import org.jboss.pnc.model.BuildStatus;
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-11-23.
  */
 public enum BuildDriverStatus {
-    SUCCESS, FAILED, UNSTABLE, BUILDING, ABORTED, CANCELLED, UNKNOWN;
+    SUCCESS(true), FAILED, UNSTABLE(true), BUILDING, ABORTED, CANCELLED, UNKNOWN;
+
+    private boolean completedSuccessfully;
+
+    private BuildDriverStatus(boolean completedSuccessfully){
+        this.completedSuccessfully = completedSuccessfully;
+    }
+
+    private BuildDriverStatus(){
+        this.completedSuccessfully = false;
+    }
+
+    public boolean completedSuccessfully(){
+        return this.completedSuccessfully;
+    }
 
     /**
      * Converts BuildDriverStatus to BuildStatus
