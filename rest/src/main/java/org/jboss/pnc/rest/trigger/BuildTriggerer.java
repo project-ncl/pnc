@@ -18,8 +18,11 @@
 package org.jboss.pnc.rest.trigger;
 
 import com.google.common.base.Preconditions;
+
 import org.apache.commons.codec.binary.Base64;
+import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.conn.ssl.AllowAllHostnameVerifier;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
@@ -27,10 +30,12 @@ import org.apache.http.conn.ssl.SSLContextBuilder;
 import org.apache.http.conn.ssl.TrustStrategy;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
+
 import org.jboss.logging.Logger;
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.moduleconfig.BpmModuleConfig;
+import org.jboss.pnc.common.util.HttpUtils;
 import org.jboss.pnc.core.builder.BuildCoordinator;
 import org.jboss.pnc.core.exception.CoreException;
 import org.jboss.pnc.core.notifications.buildSetTask.BuildSetCallBack;
@@ -50,6 +55,7 @@ import org.jboss.pnc.spi.repositorymanager.RepositoryManagerException;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
+
 import java.io.IOException;
 import java.net.URL;
 import java.security.KeyManagementException;
@@ -166,10 +172,7 @@ public class BuildTriggerer {
         }
         return buildConfigRevs.get(0);
     }
-    
-    /*
-     * TODO: Do not ignore certificates, rather setup servers properly.
-     */
+
     private void signalBpmEvent(String uri) {
         if (bpmConfig == null) {
             try {
@@ -178,39 +181,22 @@ public class BuildTriggerer {
                 log.error("Error parsing BPM config.", e);
             }
         }
-        
-        SSLContextBuilder builder = new SSLContextBuilder();
-        try {
-            builder.loadTrustMaterial(null, new TrustStrategy() {
-                @Override
-                public boolean isTrusted(X509Certificate[] chain, String authType) throws CertificateException {
-                    return true;
-                }
-            });
-        } catch (NoSuchAlgorithmException | KeyStoreException e1) {
-            e1.printStackTrace();
-        }
 
-        SSLConnectionSocketFactory sslSF = null;
-        try {
-            sslSF = new SSLConnectionSocketFactory(builder.build(), SSLConnectionSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
-        } catch (KeyManagementException | NoSuchAlgorithmException e1) {
-            e1.printStackTrace();
-        }
-
-        CloseableHttpClient httpclient = HttpClients.custom().setSSLSocketFactory(sslSF)
-                .setHostnameVerifier(new AllowAllHostnameVerifier()).build();
+        /*
+         * TODO: Do not ignore certificates, rather setup servers properly.
+         */
+        CloseableHttpClient httpClient = HttpUtils.getPermissiveHttpClient();
 
         HttpPost request = new HttpPost(uri);
         request.addHeader("Authorization", getAuthHeader());
         log.info("Executing request " + request.getRequestLine());
 
-        try (CloseableHttpResponse response = httpclient.execute(request)) {
+        try (CloseableHttpResponse response = httpClient.execute(request)) {
             log.info(response.getStatusLine());
             response.close();
-            httpclient.close();
+            httpClient.close();
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("Error occured executing the callback.", e);
         }
     }
 
