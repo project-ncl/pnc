@@ -12,14 +12,8 @@ RUN mv /usr/share/maven/conf/settings.xml.backup /usr/share/maven/conf/settings.
 
 EXPOSE 8080
 
-# Fix maven settings location
-
-
 # Prepare script to start BuildAgent, SSH daemon and ip-tables
-RUN echo -e "/usr/bin/setup-proxy-server.sh & \n /usr/bin/isolate-with-iptables.sh & \n /usr/sbin/sshd -D & \n java -jar /usr/local/build-agent-0.1-SNAPSHOT-jar-with-dependencies.jar" > /usr/bin/startPrograms.sh
-
-# Expose Agent port
-EXPOSE 22
+RUN echo -e "/usr/bin/setup-proxy-server.sh & \n /usr/bin/isolate-with-iptables.sh & \n /usr/bin/addSSHServer.sh & \n java -jar /usr/local/build-agent-0.1-SNAPSHOT-jar-with-dependencies.jar -b 0.0.0.0 -l /tmp" > /usr/bin/startPrograms.sh
 
 # Start
 ENTRYPOINT ["sh", "/usr/bin/startPrograms.sh"]

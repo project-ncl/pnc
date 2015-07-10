@@ -5,10 +5,10 @@ MAINTAINER Project NCL Team
 ENV JENKINS_HOME /var/jenkins_home
 
 # Jenkins is ran with user `jenkins`, uid = 1000
-# If you bind mount a volume from host/vloume from a data container,
+# If you bind mount a volume from host/volume from a data container,
 # ensure you use same uid
 RUN useradd -d "$JENKINS_HOME" -u 1000 -m -s /bin/bash jenkins
-# Jenkins home directoy is a volume, so configuration and build history
+# Jenkins home directory is a volume, so configuration and build history
 # can be persisted and survive image upgrades
 VOLUME /var/jenkins_home
 # `/usr/share/jenkins/ref/` contains all reference configuration we want
@@ -37,14 +37,10 @@ COPY jenkins-config/* /var/jenkins_home/
 RUN /usr/local/bin/plugins.sh /usr/share/jenkins/plugins.txt
 ## end of jenkins installation
 
-
 USER root
 
 #Prepare script to start Jenkins, SSH daemon and ip-tables
-RUN echo -e "/usr/bin/setup-proxy-server.sh & \n /usr/bin/isolate-with-iptables.sh & \n /usr/sbin/sshd -D & \n /usr/local/bin/jenkins.sh" > /usr/bin/startPrograms.sh
-
-# Expose SSH port
-EXPOSE 22
+RUN echo -e "/usr/bin/setup-proxy-server.sh & \n /usr/bin/isolate-with-iptables.sh & \n /usr/bin/addSSHServer.sh & \n /usr/local/bin/jenkins.sh" > /usr/bin/startPrograms.sh
 
 # Entry
 ENTRYPOINT ["sh", "/usr/bin/startPrograms.sh"]

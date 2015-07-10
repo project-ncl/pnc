@@ -50,3 +50,8 @@ ADD settings.xml /usr/share/maven/conf/settings.xml
 ADD setup-proxy-server.sh /usr/bin/setup-proxy-server.sh
 
 ADD isolate-with-iptables.sh /usr/bin/isolate-with-iptables.sh
+
+ADD addSSHServer.sh /usr/bin/addSSHServer.sh
+
+# Expose Agent port
+EXPOSE 22
