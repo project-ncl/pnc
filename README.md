@@ -73,6 +73,7 @@ A Maven profile called `production` is provided to configure the appropriate set
 
     mvn install -Pproduction
 
+TODO: this is not working currently, integration tests are always run against HSQLDB
 The container tests can also be run against postgresql by activating the `container-tests` profile, and the `production` profile.
 
     mvn install -Pproduction,container-tests
