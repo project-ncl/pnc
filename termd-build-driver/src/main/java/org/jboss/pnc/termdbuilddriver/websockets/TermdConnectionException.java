@@ -15,15 +15,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.rest.notifications.model;
+package org.jboss.pnc.termdbuilddriver.websockets;
 
-import org.junit.Test;
+import org.jboss.pnc.termdbuilddriver.TermdException;
 
-public class TermdBuildDriverTest {
+public class TermdConnectionException extends TermdException {
 
-    @Test
-    public void shouldInstantiateWithoutAnyParameters() throws Exception {
-        new TermdBuildDriver();
+    public TermdConnectionException(String message, Exception cause) {
+        super(message, cause);
     }
 
+    public TermdConnectionException(String message) {
+        super(message);
+    }
 }

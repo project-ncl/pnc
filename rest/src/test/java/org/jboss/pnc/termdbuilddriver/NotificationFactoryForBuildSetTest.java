@@ -15,11 +15,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.rest.notifications.model;
+package org.jboss.pnc.termdbuilddriver;
 
-import org.jboss.pnc.core.events.DefaultBuildStatusChangedEvent;
-import org.jboss.pnc.spi.BuildStatus;
-import org.jboss.pnc.spi.events.BuildStatusChangedEvent;
+import org.jboss.pnc.core.events.DefaultBuildSetStatusChangedEvent;
+import org.jboss.pnc.spi.BuildSetStatus;
 import org.jboss.pnc.spi.notifications.model.Notification;
 import org.jboss.pnc.spi.notifications.model.NotificationEventType;
 import org.jboss.pnc.spi.notifications.model.NotificationFactory;
@@ -28,18 +27,17 @@ import org.junit.Test;
 import java.util.EnumSet;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-public class NotificationFactoryForBuildTest {
+public class NotificationFactoryForBuildSetTest {
 
     @Test
     public void shouldHaveProperListOfExternalEvents() throws Exception {
         //given
-        EnumSet<BuildStatus> statuses = EnumSet.of(BuildStatus.REPO_SETTING_UP, BuildStatus.BUILD_COMPLETED_SUCCESS, BuildStatus.BUILD_COMPLETED_WITH_ERROR, BuildStatus.SYSTEM_ERROR, BuildStatus.REJECTED);
+        EnumSet<BuildSetStatus> statuses = EnumSet.of(BuildSetStatus.NEW, BuildSetStatus.DONE, BuildSetStatus.REJECTED);
         NotificationFactory notificationFactory = new DefaultNotificationFactory();
 
-        for(BuildStatus status : statuses) {
+        for(BuildSetStatus status : statuses) {
             //when
             boolean isExternal = notificationFactory.isExternal(status);
 
@@ -49,25 +47,9 @@ public class NotificationFactoryForBuildTest {
     }
 
     @Test
-    public void shouldHaveProperListOfInternalEvents() throws Exception {
-        //given
-        EnumSet<BuildStatus> excludedStatuses = EnumSet.of(BuildStatus.REPO_SETTING_UP, BuildStatus.BUILD_COMPLETED_SUCCESS, BuildStatus.BUILD_COMPLETED_WITH_ERROR, BuildStatus.SYSTEM_ERROR, BuildStatus.REJECTED);
-        EnumSet<BuildStatus> statuses = EnumSet.complementOf(excludedStatuses);
-        NotificationFactory notificationFactory = new DefaultNotificationFactory();
-
-        for(BuildStatus status : statuses) {
-            //when
-            boolean isExternal = notificationFactory.isExternal(status);
-
-            //then
-            assertFalse(isExternal);
-        }
-    }
-
-    @Test
     public void shouldConvertSuccessfulNotificationEvent() throws Exception {
         //given
-        BuildStatusChangedEvent event = new DefaultBuildStatusChangedEvent(BuildStatus.NEW, BuildStatus.BUILD_COMPLETED_SUCCESS, 1, 1);
+        DefaultBuildSetStatusChangedEvent event = new DefaultBuildSetStatusChangedEvent(BuildSetStatus.NEW, BuildSetStatus.DONE, 1, 1);
         NotificationFactory notificationFactory = new DefaultNotificationFactory();
 
         //when
@@ -76,7 +58,7 @@ public class NotificationFactoryForBuildTest {
         //then
         assertThat(notification.getExceptionMessage()).isNull();
         assertThat(notification.getPayload()).isNotNull();
-        assertThat(notification.getPayload().getEventType()).isEqualTo(NotificationEventType.BUILD_COMPLETED);
+        assertThat(notification.getPayload().getEventType()).isEqualTo(NotificationEventType.BUILD_SET_COMPLETED);
         assertThat(notification.getPayload().getId()).isEqualTo(1);
         assertThat(notification.getPayload().getUserId()).isEqualTo(1);
     }
