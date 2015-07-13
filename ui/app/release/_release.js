@@ -23,7 +23,7 @@
     'ui.router',
     'ui.bootstrap',
     'pnc.product',
-    'pnc.remote.restClient',
+    'pnc.common.restclient',
     'pnc.util.date_utils',
     'angularUtils.directives.uiBreadcrumbs'
   ]);

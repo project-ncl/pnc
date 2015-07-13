@@ -23,7 +23,6 @@
     'ui.bootstrap',
     'patternfly.notification',
     'pnc.Dashboard',
-    'pnc.remote',
     'pnc.product',
     'pnc.project',
     'pnc.configuration',
