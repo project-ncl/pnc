@@ -100,6 +100,7 @@
             if (findInArray($item, $scope.selectedItems) < 0) {
               $scope.selectedItems.push($item);
             }
+            $scope.selectedItem = null;
           };
 
           $scope.shouldShow = function() {
