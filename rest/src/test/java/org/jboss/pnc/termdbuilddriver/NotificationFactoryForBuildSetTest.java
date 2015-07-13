@@ -20,31 +20,12 @@ package org.jboss.pnc.termdbuilddriver;
 import org.jboss.pnc.core.events.DefaultBuildSetStatusChangedEvent;
 import org.jboss.pnc.spi.BuildSetStatus;
 import org.jboss.pnc.spi.notifications.model.Notification;
-import org.jboss.pnc.spi.notifications.model.NotificationEventType;
 import org.jboss.pnc.spi.notifications.model.NotificationFactory;
 import org.junit.Test;
 
-import java.util.EnumSet;
-
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertTrue;
 
 public class NotificationFactoryForBuildSetTest {
-
-    @Test
-    public void shouldHaveProperListOfExternalEvents() throws Exception {
-        //given
-        EnumSet<BuildSetStatus> statuses = EnumSet.of(BuildSetStatus.NEW, BuildSetStatus.DONE, BuildSetStatus.REJECTED);
-        NotificationFactory notificationFactory = new DefaultNotificationFactory();
-
-        for(BuildSetStatus status : statuses) {
-            //when
-            boolean isExternal = notificationFactory.isExternal(status);
-
-            //then
-            assertTrue(isExternal);
-        }
-    }
 
     @Test
     public void shouldConvertSuccessfulNotificationEvent() throws Exception {
@@ -58,7 +39,7 @@ public class NotificationFactoryForBuildSetTest {
         //then
         assertThat(notification.getExceptionMessage()).isNull();
         assertThat(notification.getPayload()).isNotNull();
-        assertThat(notification.getPayload().getEventType()).isEqualTo(NotificationEventType.BUILD_SET_COMPLETED);
+        assertThat(notification.getPayload().getBuildStatus()).isEqualTo(BuildSetStatus.DONE.toString());
         assertThat(notification.getPayload().getId()).isEqualTo(1);
         assertThat(notification.getPayload().getUserId()).isEqualTo(1);
     }

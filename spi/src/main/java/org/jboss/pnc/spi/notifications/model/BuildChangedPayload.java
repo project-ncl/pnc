@@ -17,21 +17,30 @@
  */
 package org.jboss.pnc.spi.notifications.model;
 
+import org.jboss.pnc.spi.BuildSetStatus;
+import org.jboss.pnc.spi.BuildStatus;
+
 public class BuildChangedPayload implements NotificationPayload {
 
     private final Integer id;
-    private final NotificationEventType eventType;
+    private final String buildStatus;
     private final Integer userId;
 
-    public BuildChangedPayload(Integer id, NotificationEventType eventType, Integer userId) {
+    public BuildChangedPayload(Integer id, BuildStatus eventType, Integer userId) {
         this.id = id;
-        this.eventType = eventType;
+        this.buildStatus = eventType.toString();
+        this.userId = userId;
+    }
+
+    public BuildChangedPayload(Integer id, BuildSetStatus newStatus, Integer userId) {
+        this.id = id;
+        this.buildStatus = newStatus.toString();
         this.userId = userId;
     }
 
     @Override
-    public NotificationEventType getEventType() {
-        return eventType;
+    public String getBuildStatus() {
+        return buildStatus;
     }
 
     @Override

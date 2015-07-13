@@ -19,10 +19,12 @@ package org.jboss.pnc.integration;
 
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
+import org.jboss.pnc.core.events.DefaultBuildSetStatusChangedEvent;
 import org.jboss.pnc.core.events.DefaultBuildStatusChangedEvent;
 import org.jboss.pnc.integration.deployments.Deployments;
 import org.jboss.pnc.integration.websockets.NotificationCollector;
 import org.jboss.pnc.rest.notifications.websockets.NotificationsEndpoint;
+import org.jboss.pnc.spi.BuildSetStatus;
 import org.jboss.pnc.spi.BuildStatus;
 import org.jboss.pnc.spi.events.BuildSetStatusChangedEvent;
 import org.jboss.pnc.spi.events.BuildStatusChangedEvent;
@@ -90,8 +92,7 @@ public class WebSocketsNotificationTest {
     public void shouldReceiveBuildStatusChangeNotification() throws Exception {
         //given
         BuildStatusChangedEvent buildStatusChangedEvent = new DefaultBuildStatusChangedEvent(BuildStatus.NEW, BuildStatus.BUILD_COMPLETED_SUCCESS, 1, 1);
-        // How to mock BuildRecordProvider?
-        String expectedJsonResponse = "{\"payload\":{\"id\":1,\"eventType\":\"BUILD_COMPLETED\",\"userId\":1}}";
+        String expectedJsonResponse = "{\"payload\":{\"id\":1,\"buildStatus\":\"BUILD_COMPLETED_SUCCESS\",\"userId\":1}}";
 
         //when
         buildStatusNotificationEvent.fire(buildStatusChangedEvent);
@@ -103,17 +104,16 @@ public class WebSocketsNotificationTest {
 
     @Test
     public void shouldReceiveBuildSetStatusChangeNotification() throws Exception {
-//        //given
-//        BuildSetStatusChangedEvent buildStatusChangedEvent = new DefaultBuildSetStatusChangedEvent(BuildSetStatus.NEW, BuildSetStatus.DONE, 1, 1);
-//        // How to mock BuildRecordProvider?
-//        String expectedJsonResponse = "{\"payload\":{\"id\":1,\"eventType\":\"DONE\",\"userId\":1}}";
-//
-//        //when
-//        buildSetStatusNotificationEvent.fire(buildStatusChangedEvent);
-//        waitForMessages();
-//
-//        //then
-//        assertThat(notificationCollector.getMessages().get(0)).isEqualTo(expectedJsonResponse);
+        //given
+        BuildSetStatusChangedEvent buildStatusChangedEvent = new DefaultBuildSetStatusChangedEvent(BuildSetStatus.NEW, BuildSetStatus.DONE, 1, 1);
+        String expectedJsonResponse = "{\"payload\":{\"id\":1,\"buildStatus\":\"DONE\",\"userId\":1}}";
+
+        //when
+        buildSetStatusNotificationEvent.fire(buildStatusChangedEvent);
+        waitForMessages();
+
+        //then
+        assertThat(notificationCollector.getMessages().get(0)).isEqualTo(expectedJsonResponse);
     }
 
     private void waitForMessages() {
