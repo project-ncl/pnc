@@ -15,17 +15,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-// Generated on 2015-01-07 using generator-angular 0.10.0
 'use strict';
 
 var LIVERELOAD_PORT = 35729;
 var PROXY_HOST = 'localhost';
-
-// # Globbing
-// for performance reasons we're only matching one level down:
-// 'test/spec/{,*/}*.js'
-// use this if you want to recursively match all subfolders:
-// 'test/spec/**/*.js'
 
 module.exports = function (grunt) {
 
@@ -82,6 +75,7 @@ module.exports = function (grunt) {
     }]);
   });
 
+  // Signals to the UI whether authentication should be enabled or not.
   grunt.registerTask('initAuth', function() {
     var enableAuth = grunt.option('enable-auth') || 'false';
     grunt.file.write(appConfig.tmp + '/pnc-props.js', 'pnc_globals = {};\npnc_globals.enableAuth = ' + enableAuth + ';');
@@ -232,8 +226,7 @@ module.exports = function (grunt) {
           src: [
             '<%= yeoman.tmp %>',
             '<%= yeoman.dist %>/**/*',
-            '!<%= yeoman.dist %>/.git{,*/}*',
-            '<%= yeoman.app %>/environment.js'
+            '!<%= yeoman.dist %>/.git{,*/}*'
           ]
         }]
       },
@@ -325,40 +318,6 @@ module.exports = function (grunt) {
       }
     },
 
-    // The following *-min tasks will produce minified files in the dist folder
-    // By default, your `index.html`'s <!-- Usemin block --> will take care of
-    // minification. These next options are pre-configured if you do not wish
-    // to use the Usemin blocks.
-    // cssmin: {
-    //   options: {
-    //     report: 'min'
-    //   },
-    //   dist: {
-    //     files: {
-    //       '<%= yeoman.dist %>/styles/main.css': [
-    //         '.tmp/styles/{,*/}*.css'
-    //       ]
-    //     }
-    //   }
-    // },
-    // uglify: {
-    //   options: {
-    //     mangle: false,
-    //     compress: true,
-    //     report: true
-    //   },
-    //   dist: {
-    //     files: {
-    //       '<%= yeoman.dist %>/scripts/scripts.js': [
-    //         '<%= yeoman.dist %>/scripts/scripts.js'
-    //       ]
-    //     }
-    //   }
-    // },
-    // concat: {
-    //   dist: {}
-    // },
-
     imagemin: {
       dist: {
         files: [{
@@ -413,13 +372,6 @@ module.exports = function (grunt) {
           src: ['*.js', '!oldieshim.js'],
           dest: '.tmp/concat/scripts'
         }]
-      }
-    },
-
-    // Replace Google CDN references
-    cdnify: {
-      dist: {
-        html: ['<%= yeoman.dist %>/**/*.html']
       }
     },
 
@@ -495,7 +447,6 @@ module.exports = function (grunt) {
         'copy:styles'
       ],
       dist: [
-        // 'copy:styles',
         'imagemin',
         'svgmin'
       ]
@@ -518,7 +469,6 @@ module.exports = function (grunt) {
     }
   });
 
-
   grunt.registerTask('serve', 'Compile then start a connect web server', function (target) {
     if (target === 'dist') {
       return grunt.task.run(['build', 'connect:dist:keepalive']);
@@ -530,7 +480,6 @@ module.exports = function (grunt) {
       'initAuth',
       'wiredep',
       'includeSource:server',
-      //'concat',
       'concurrent:server',
       'copy:fonts',
       'autoprefixer',
@@ -567,7 +516,6 @@ module.exports = function (grunt) {
       'concat',
       'ngAnnotate',
       'copy:dist',
-      // 'cdnify',
       'cssmin',
       'uglify',
       'filerev',

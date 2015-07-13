@@ -28,7 +28,6 @@
     <!-- bower:css -->
     <link rel="stylesheet" href="bower_components/patternfly/dist/css/patternfly.css" />
     <link rel="stylesheet" href="bower_components/font-awesome/css/font-awesome.css" />
-    <link rel="stylesheet" href="bower_components/bootstrap-select/dist/css/bootstrap-select.css" />
     <link rel="stylesheet" href="bower_components/angular-xeditable/dist/css/xeditable.css" />
     <!-- endbower -->
     <!-- endbuild -->
@@ -52,11 +51,8 @@
     <script src="bower_components/angular-patternfly/dist/angular-patternfly.js"></script>
     <script src="bower_components/angular-patternfly/dist/angular-patternfly.min.js"></script>
     <script src="bower_components/angular-resource/angular-resource.js"></script>
-    <script src="bower_components/angular-cookies/angular-cookies.js"></script>
-    <script src="bower_components/angular-sanitize/angular-sanitize.js"></script>
     <script src="bower_components/angular-bootstrap/ui-bootstrap-tpls.js"></script>
     <script src="bower_components/bootstrap/dist/js/bootstrap.js"></script>
-    <script src="bower_components/bootstrap-select/dist/js/bootstrap-select.js"></script>
     <script src="bower_components/ui-router/release/angular-ui-router.js"></script>
     <script src="bower_components/angular-xeditable/dist/js/xeditable.js"></script>
     <script src="bower_components/angular-utils-ui-breadcrumbs/uiBreadcrumbs.js"></script>
@@ -67,8 +63,7 @@
 
     <!-- build:js({app,.tmp}) scripts/pnc.js -->
     <script src="pnc-props.js"></script>
-    <script src="app.js"></script>
-    <!-- include: "type": "js", "files": ["**/*.js", "!app.js"] -->
+    <!-- include: "type": "js", "files": ["**/_*.js", "**/*.js"] -->
     <!-- endbuild -->
   </head>
   <body>
