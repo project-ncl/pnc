@@ -24,6 +24,7 @@ import org.jboss.pnc.spi.environment.exception.EnvironmentDriverException;
 import org.jboss.pnc.spi.repositorymanager.model.RepositorySession;
 
 import java.lang.invoke.MethodHandles;
+import java.nio.file.Path;
 import java.util.function.Consumer;
 
 /**
@@ -42,12 +43,16 @@ public class DockerStartedEnvironment implements StartedEnvironment {
     
     private final String id;
 
+    private final Path workingDirectory;
+
     public DockerStartedEnvironment(DockerEnvironmentDriver dockerEnvDriver, DockerInitializationMonitor dockerInitMonitor,
-            RepositorySession repositorySession, String id, int jenkinsPort, int sshPort, String containerUrl) {
+            RepositorySession repositorySession, String id, int jenkinsPort, int sshPort, String containerUrl,
+            Path workingDirectory) {
         this.preparedRunningEnvironment = new DockerRunningEnvironment(dockerEnvDriver, repositorySession,
-                id, jenkinsPort, sshPort, containerUrl);
+                id, jenkinsPort, sshPort, containerUrl, workingDirectory);
         this.dockerInitMonitor = dockerInitMonitor;
         this.id = id;
+        this.workingDirectory = workingDirectory;
     }
 
     @Override

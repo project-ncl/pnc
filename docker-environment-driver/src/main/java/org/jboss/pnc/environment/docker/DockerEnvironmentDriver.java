@@ -17,16 +17,11 @@
  */
 package org.jboss.pnc.environment.docker;
 
-import java.lang.invoke.MethodHandles;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.logging.Logger;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.ImmutableSet;
+import com.google.inject.Module;
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.moduleconfig.DockerEnvironmentDriverModuleConfig;
@@ -48,11 +43,16 @@ import org.jclouds.docker.features.RemoteApi;
 import org.jclouds.docker.options.RemoveContainerOptions;
 import org.jclouds.logging.slf4j.config.SLF4JLoggingModule;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.ImmutableSet;
-import com.google.inject.Module;
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+import java.lang.invoke.MethodHandles;
+import java.nio.file.FileSystems;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.logging.Logger;
 
 /**
  * Implementation of environment driver, which uses Docker to run environments
@@ -64,6 +64,8 @@ import com.google.inject.Module;
 public class DockerEnvironmentDriver implements EnvironmentDriver {
 
     private static final Logger logger = Logger.getLogger(MethodHandles.lookup().lookupClass().getName());
+
+    private static final Path workingDirectory = FileSystems.getDefault().getPath("/tmp");
 
     @Inject
     private Generator generator;
@@ -192,10 +194,10 @@ public class DockerEnvironmentDriver implements EnvironmentDriver {
         }
 
         logger.info("Created and started Docker container. ID: " + containerId
-                + ", SSH port: " + sshPort + ", Jenkins Port: " + jenkinsPort);
+                + ", SSH port: " + sshPort + ", Jenkins Port: " + jenkinsPort + ", Working directory: " + workingDirectory);
 
         return new DockerStartedEnvironment(this, dockerInitMonitor, repositorySession,
-                containerId, jenkinsPort, sshPort, "http://" + dockerIp);
+                containerId, jenkinsPort, sshPort, "http://" + dockerIp, workingDirectory);
     }
 
     @Override

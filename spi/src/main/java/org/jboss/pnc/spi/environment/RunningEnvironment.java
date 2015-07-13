@@ -20,6 +20,7 @@ package org.jboss.pnc.spi.environment;
 import org.jboss.pnc.spi.repositorymanager.model.RepositorySession;
 
 import java.io.Serializable;
+import java.nio.file.Path;
 
 /**
  * Identification of environment started by environment driver
@@ -50,5 +51,10 @@ public interface RunningEnvironment extends Serializable, DestroyableEnvironment
      * @return Repository configuration related to the running environment
      */
     RepositorySession getRepositorySession();
+
+    /**
+     * @return Returns a build directory.
+     */
+    Path getWorkingDirectory();
 
 }

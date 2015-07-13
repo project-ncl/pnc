@@ -26,6 +26,9 @@ import org.jboss.pnc.spi.repositorymanager.model.RepositorySession;
 
 import javax.enterprise.context.ApplicationScoped;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.function.Consumer;
 
 /**
@@ -55,6 +58,17 @@ public class EnvironmentDriverMock implements EnvironmentDriver {
                             @Override
                             public RepositorySession getRepositorySession() {
                                 return repositoryConfiguration;
+                            }
+
+                            @Override
+                            public Path getWorkingDirectory() {
+                                try {
+                                    Path tempDirectory = Files.createTempDirectory("EnvironmentDriverMock");
+                                    tempDirectory.toFile().deleteOnExit();
+                                    return tempDirectory;
+                                } catch (IOException e) {
+                                    throw new RuntimeException(e);
+                                }
                             }
 
                             @Override

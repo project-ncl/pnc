@@ -48,6 +48,9 @@ import org.junit.runner.RunWith;
 
 import javax.inject.Inject;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -147,7 +150,18 @@ public class JenkinsDriverRemoteTest {
             public RepositorySession getRepositorySession() {
                 return repositoryConfiguration;
             }
-            
+
+            @Override
+            public Path getWorkingDirectory() {
+                try {
+                    Path tempDirectory = Files.createTempDirectory("JenkinsDriverRemoteTest");
+                    tempDirectory.toFile().deleteOnExit();
+                    return tempDirectory;
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+
             @Override
             public String getJenkinsUrl() {
                 return System.getenv("PNC_JENKINS_URL") + ":" + getJenkinsPort();
