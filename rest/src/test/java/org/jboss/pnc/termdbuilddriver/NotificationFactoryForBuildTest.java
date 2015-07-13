@@ -21,48 +21,12 @@ import org.jboss.pnc.core.events.DefaultBuildStatusChangedEvent;
 import org.jboss.pnc.spi.BuildStatus;
 import org.jboss.pnc.spi.events.BuildStatusChangedEvent;
 import org.jboss.pnc.spi.notifications.model.Notification;
-import org.jboss.pnc.spi.notifications.model.NotificationEventType;
 import org.jboss.pnc.spi.notifications.model.NotificationFactory;
 import org.junit.Test;
 
-import java.util.EnumSet;
-
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 
 public class NotificationFactoryForBuildTest {
-
-    @Test
-    public void shouldHaveProperListOfExternalEvents() throws Exception {
-        //given
-        EnumSet<BuildStatus> statuses = EnumSet.of(BuildStatus.REPO_SETTING_UP, BuildStatus.BUILD_COMPLETED_SUCCESS, BuildStatus.BUILD_COMPLETED_WITH_ERROR, BuildStatus.SYSTEM_ERROR, BuildStatus.REJECTED);
-        NotificationFactory notificationFactory = new DefaultNotificationFactory();
-
-        for(BuildStatus status : statuses) {
-            //when
-            boolean isExternal = notificationFactory.isExternal(status);
-
-            //then
-            assertTrue(isExternal);
-        }
-    }
-
-    @Test
-    public void shouldHaveProperListOfInternalEvents() throws Exception {
-        //given
-        EnumSet<BuildStatus> excludedStatuses = EnumSet.of(BuildStatus.REPO_SETTING_UP, BuildStatus.BUILD_COMPLETED_SUCCESS, BuildStatus.BUILD_COMPLETED_WITH_ERROR, BuildStatus.SYSTEM_ERROR, BuildStatus.REJECTED);
-        EnumSet<BuildStatus> statuses = EnumSet.complementOf(excludedStatuses);
-        NotificationFactory notificationFactory = new DefaultNotificationFactory();
-
-        for(BuildStatus status : statuses) {
-            //when
-            boolean isExternal = notificationFactory.isExternal(status);
-
-            //then
-            assertFalse(isExternal);
-        }
-    }
 
     @Test
     public void shouldConvertSuccessfulNotificationEvent() throws Exception {
@@ -76,7 +40,7 @@ public class NotificationFactoryForBuildTest {
         //then
         assertThat(notification.getExceptionMessage()).isNull();
         assertThat(notification.getPayload()).isNotNull();
-        assertThat(notification.getPayload().getEventType()).isEqualTo(NotificationEventType.BUILD_COMPLETED);
+        assertThat(notification.getPayload().getBuildStatus()).isEqualTo(BuildStatus.BUILD_COMPLETED_SUCCESS.toString());
         assertThat(notification.getPayload().getId()).isEqualTo(1);
         assertThat(notification.getPayload().getUserId()).isEqualTo(1);
     }

@@ -17,13 +17,12 @@
  */
 package org.jboss.pnc.rest.notifications.websockets;
 
-import org.jboss.pnc.rest.debug.BuildStatusSetChangedEventRest;
+import org.jboss.pnc.rest.provider.BuildRecordProvider;
 import org.jboss.pnc.spi.events.BuildSetStatusChangedEvent;
+import org.jboss.pnc.spi.events.BuildStatusChangedEvent;
 import org.jboss.pnc.spi.notifications.Notifier;
 import org.jboss.pnc.spi.notifications.OutputConverter;
 import org.jboss.pnc.spi.notifications.model.NotificationFactory;
-import org.jboss.pnc.rest.provider.BuildRecordProvider;
-import org.jboss.pnc.spi.events.BuildStatusChangedEvent;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
@@ -65,14 +64,10 @@ public class NotificationsEndpoint {
     }
 
     public void collectBuildStatusChangedEvent(@Observes BuildStatusChangedEvent buildStatusChangedEvent) {
-        if(notificationFactory.isExternal(buildStatusChangedEvent.getNewStatus())) {
-            notifier.sendMessage(notificationFactory.createNotification(buildStatusChangedEvent));
-        }
+        notifier.sendMessage(notificationFactory.createNotification(buildStatusChangedEvent));
     }
 
     public void collectBuildSetStatusChangedEvent(@Observes BuildSetStatusChangedEvent buildSetStatusChangedEvent) {
-        if(notificationFactory.isExternal(buildSetStatusChangedEvent.getNewStatus())) {
-            notifier.sendMessage(notificationFactory.createNotification(buildSetStatusChangedEvent));
-        }
+        notifier.sendMessage(notificationFactory.createNotification(buildSetStatusChangedEvent));
     }
 }
