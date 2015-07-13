@@ -184,8 +184,7 @@
               <verbose>true</verbose>
               <images>
                 <image>
-                  <name>project-ncl/pnc-common:${dockerVersion}</name>
-                  <registry>${docker.registry}</registry>
+                  <name>${docker.registry}/project-ncl/pnc-common:${dockerVersion}</name>
                   <build>
                     <assembly>
                       <dockerFileDir>common</dockerFileDir>
@@ -193,8 +192,7 @@
                   </build>
                 </image>
                 <image>
-                  <name>project-ncl/pnc-builder-build-agent:${dockerVersion}</name>
-                  <registry>${docker.registry}</registry>
+                  <name>${docker.registry}/project-ncl/pnc-builder-build-agent:${dockerVersion}</name>
                   <build>
                     <assembly>
                       <dockerFileDir>pnc-build-agent</dockerFileDir>
@@ -202,8 +200,7 @@
                   </build>
                 </image>
                 <image>
-                  <name>project-ncl/pnc-builder-jenkins:${dockerVersion}</name>
-                  <registry>${docker.registry}</registry>
+                  <name>${docker.registry}/project-ncl/pnc-builder-jenkins:${dockerVersion}</name>
                   <build>
                     <assembly>
                       <dockerFileDir>jenkins</dockerFileDir>
