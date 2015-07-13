@@ -25,5 +25,6 @@ public interface BuildStatusChangedEvent {
     BuildStatus getNewStatus();
     Integer getBuildTaskId();
     Integer getUserId();
+    Integer getBuildConfigurationId();
 
 }

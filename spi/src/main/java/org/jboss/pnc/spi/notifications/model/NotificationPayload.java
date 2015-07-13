@@ -18,7 +18,6 @@
 package org.jboss.pnc.spi.notifications.model;
 
 public interface NotificationPayload {
-    String getBuildStatus();
     Integer getId();
     Integer getUserId();
 }

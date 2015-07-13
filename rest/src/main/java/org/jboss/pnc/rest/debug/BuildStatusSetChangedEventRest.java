@@ -29,6 +29,7 @@ public class BuildStatusSetChangedEventRest implements BuildSetStatusChangedEven
     private BuildSetStatus newStatus;
     private Integer buildSetTaskId;
     private Integer userId;
+    private Integer buildSetConfigurationId;
 
     public void setOldStatus(BuildSetStatus oldStatus) {
         this.oldStatus = oldStatus;
@@ -44,6 +45,10 @@ public class BuildStatusSetChangedEventRest implements BuildSetStatusChangedEven
 
     public void setUserId(Integer userId) {
         this.userId = userId;
+    }
+
+    public void setBuildSetConfigurationId(Integer buildSetConfigurationId) {
+        this.buildSetConfigurationId = buildSetConfigurationId;
     }
 
     @Override
@@ -64,5 +69,10 @@ public class BuildStatusSetChangedEventRest implements BuildSetStatusChangedEven
     @Override
     public Integer getUserId() {
         return userId;
+    }
+
+    @Override
+    public Integer getBuildSetConfigurationId() {
+        return buildSetConfigurationId;
     }
 }

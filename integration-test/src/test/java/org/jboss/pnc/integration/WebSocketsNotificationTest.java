@@ -91,8 +91,9 @@ public class WebSocketsNotificationTest {
     @Test
     public void shouldReceiveBuildStatusChangeNotification() throws Exception {
         //given
-        BuildStatusChangedEvent buildStatusChangedEvent = new DefaultBuildStatusChangedEvent(BuildStatus.NEW, BuildStatus.BUILD_COMPLETED_SUCCESS, 1, 1);
-        String expectedJsonResponse = "{\"payload\":{\"id\":1,\"buildStatus\":\"BUILD_COMPLETED_SUCCESS\",\"userId\":1}}";
+        BuildStatusChangedEvent buildStatusChangedEvent = new DefaultBuildStatusChangedEvent(BuildStatus.NEW, BuildStatus.BUILD_COMPLETED_SUCCESS, 1,
+                1, 1);
+        String expectedJsonResponse = "{\"eventType\":\"BUILD_STATUS_CHANGED\",\"payload\":{\"id\":1,\"buildStatus\":\"BUILD_COMPLETED_SUCCESS\",\"userId\":1,\"buildConfigurationId\":1}}";
 
         //when
         buildStatusNotificationEvent.fire(buildStatusChangedEvent);
@@ -105,8 +106,9 @@ public class WebSocketsNotificationTest {
     @Test
     public void shouldReceiveBuildSetStatusChangeNotification() throws Exception {
         //given
-        BuildSetStatusChangedEvent buildStatusChangedEvent = new DefaultBuildSetStatusChangedEvent(BuildSetStatus.NEW, BuildSetStatus.DONE, 1, 1);
-        String expectedJsonResponse = "{\"payload\":{\"id\":1,\"buildStatus\":\"DONE\",\"userId\":1}}";
+        BuildSetStatusChangedEvent buildStatusChangedEvent = new DefaultBuildSetStatusChangedEvent(BuildSetStatus.NEW, BuildSetStatus.DONE, 1,
+                1, 1);
+        String expectedJsonResponse = "{\"eventType\":\"BUILD_SET_STATUS_CHANGED\",\"payload\":{\"id\":1,\"buildStatus\":\"DONE\",\"userId\":1,\"buildSetConfigurationId\":1}}";
 
         //when
         buildSetStatusNotificationEvent.fire(buildStatusChangedEvent);

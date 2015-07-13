@@ -35,7 +35,7 @@ import java.util.concurrent.CompletableFuture;
 @ApplicationScoped
 public class TermdBuildDriver implements BuildDriver {
 
-    public static final String DRIVER_ID = "TermdBuildDriver";
+    public static final String DRIVER_ID = "termd-build-driver";
 
     private static final Logger logger = Logger.getLogger(TermdBuildDriver.class);
 
