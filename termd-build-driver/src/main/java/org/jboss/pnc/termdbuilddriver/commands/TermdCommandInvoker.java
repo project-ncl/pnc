@@ -21,7 +21,10 @@ import org.jboss.pnc.termdbuilddriver.statusupdates.TermdStatusUpdatesConnection
 import org.jboss.pnc.termdbuilddriver.statusupdates.event.Status;
 import org.jboss.pnc.termdbuilddriver.statusupdates.event.UpdateEvent;
 import org.jboss.pnc.termdbuilddriver.websockets.TermdTerminalConnection;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.lang.invoke.MethodHandles;
 import java.net.URI;
 import java.nio.ByteBuffer;
 import java.nio.file.Path;
@@ -32,6 +35,8 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.LinkedBlockingQueue;
 
 public class TermdCommandInvoker {
+
+    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
     private TermdTerminalConnection termdTerminalConnection;
     private TermdStatusUpdatesConnection termdStatusUpdatesConnection;
@@ -59,10 +64,12 @@ public class TermdCommandInvoker {
      */
     public CompletableFuture<InvocatedCommandResult> performCommand(String command) {
         return CompletableFuture.supplyAsync(() -> {
+            logger.debug("Performing command {}", command);
             try {
                 String data = "{\"action\":\"read\",\"data\":\"" + command + "\\r\\n\"}";
                 termdTerminalConnection.sendAsBinary(ByteBuffer.wrap(data.getBytes()));
                 InvocatedCommandResult invocatedCommandResult = new InvocatedCommandResult(eventQueue.take(), baseServerUri, getLogsDirectory());
+                logger.debug("Received command result {}", invocatedCommandResult);
                 invokedCommands.add(invocatedCommandResult);
                 return invocatedCommandResult;
             } catch (Exception e) {
@@ -76,6 +83,7 @@ public class TermdCommandInvoker {
     }
 
     public void startSession() {
+        logger.debug("Starting command session");
         termdTerminalConnection.connect();
         termdStatusUpdatesConnection.connect();
 
@@ -91,6 +99,7 @@ public class TermdCommandInvoker {
     }
 
     public TermdCommandBatchExecutionResult closeSession() {
+        logger.debug("Closing command session");
         termdTerminalConnection.disconnect();
         termdStatusUpdatesConnection.clearConsumers();
         termdStatusUpdatesConnection.disconnect();

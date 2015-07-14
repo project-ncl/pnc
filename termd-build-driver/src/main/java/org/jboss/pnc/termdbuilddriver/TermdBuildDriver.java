@@ -17,7 +17,6 @@
  */
 package org.jboss.pnc.termdbuilddriver;
 
-import org.jboss.logging.Logger;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildType;
 import org.jboss.pnc.spi.builddriver.*;
@@ -26,6 +25,8 @@ import org.jboss.pnc.spi.environment.RunningEnvironment;
 import org.jboss.pnc.termdbuilddriver.commands.TermdCommandBatchExecutionResult;
 import org.jboss.pnc.termdbuilddriver.commands.TermdCommandInvoker;
 import org.jboss.pnc.termdbuilddriver.transfer.TermdFileTranser;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
 import java.net.URI;
@@ -37,7 +38,7 @@ public class TermdBuildDriver implements BuildDriver {
 
     public static final String DRIVER_ID = "termd-build-driver";
 
-    private static final Logger logger = Logger.getLogger(TermdBuildDriver.class);
+    private static final Logger logger = LoggerFactory.getLogger(TermdBuildDriver.class);
 
     public TermdBuildDriver() {
     }
@@ -56,9 +57,11 @@ public class TermdBuildDriver implements BuildDriver {
     public RunningBuild startProjectBuild(final BuildConfiguration buildConfiguration, final RunningEnvironment runningEnvironment)
             throws BuildDriverException {
 
+        logger.info("[{}] Starting build for Build Configuration {}", runningEnvironment.getId(), buildConfiguration.getId());
+
         TermdRunningBuild termdRunningBuild = new TermdRunningBuild(runningEnvironment, buildConfiguration);
 
-        addScriptDebugOption()
+        addScriptDebugOption(termdRunningBuild)
                 .thenCompose(returnedBuildScript -> changeToWorkingDirectory(termdRunningBuild, returnedBuildScript))
                 .thenCompose(returnedBuildScript -> checkoutSources(termdRunningBuild, returnedBuildScript))
                 .thenCompose(returnedBuildScript -> build(termdRunningBuild, returnedBuildScript))
@@ -69,19 +72,10 @@ public class TermdBuildDriver implements BuildDriver {
         return termdRunningBuild;
     }
 
-    protected CompletableFuture<String> uploadScript(TermdRunningBuild termdRunningBuild, StringBuilder commandAppender) {
+    protected CompletableFuture<StringBuilder> addScriptDebugOption(TermdRunningBuild termdRunningBuild) {
         return CompletableFuture.supplyAsync(() -> {
+            logger.debug("[{}] Adding debug option", termdRunningBuild.getRunningEnvironment().getId());
 
-            new TermdFileTranser(URI.create(termdRunningBuild.getRunningEnvironment().getJenkinsUrl()))
-                    .uploadScript(commandAppender,
-                            Paths.get(termdRunningBuild.getRunningEnvironment().getWorkingDirectory().toAbsolutePath().toString(), "run.sh"));
-
-            return termdRunningBuild.getRunningEnvironment().getWorkingDirectory().toAbsolutePath().toString() + "/run.sh";
-        });
-    }
-
-    protected CompletableFuture<StringBuilder> addScriptDebugOption() {
-        return CompletableFuture.supplyAsync(() -> {
             StringBuilder commandAppender = new StringBuilder();
             String debugOption = "set -x";
             commandAppender.append(debugOption).append("\n");
@@ -91,18 +85,18 @@ public class TermdBuildDriver implements BuildDriver {
 
     protected CompletableFuture<StringBuilder> changeToWorkingDirectory(TermdRunningBuild termdRunningBuild, StringBuilder commandAppender) {
         return CompletableFuture.supplyAsync(() -> {
+            logger.debug("[{}] Changing current directory", termdRunningBuild.getRunningEnvironment().getId());
+
             String cdCommand = "cd " + termdRunningBuild.getRunningEnvironment().getWorkingDirectory().toAbsolutePath().toString();
             commandAppender.append(cdCommand).append("\n");
-
-            String currentDir = "echo $PWD";
-            commandAppender.append(currentDir).append("\n");
-
             return commandAppender;
         });
     }
 
     protected CompletableFuture<StringBuilder> checkoutSources(TermdRunningBuild termdRunningBuild, StringBuilder commandAppender) {
         return CompletableFuture.supplyAsync(() -> {
+            logger.debug("[{}] Checking out sources", termdRunningBuild.getRunningEnvironment().getId());
+
             String cloneCommand = "git clone " + termdRunningBuild.getBuildConfiguration().getScmRepoURL() + " " + termdRunningBuild .getBuildConfiguration().getName();
             commandAppender.append(cloneCommand).append("\n");
 
@@ -118,14 +112,31 @@ public class TermdBuildDriver implements BuildDriver {
 
     protected CompletableFuture<StringBuilder> build(TermdRunningBuild termdRunningBuild, StringBuilder commandAppender) {
         return CompletableFuture.supplyAsync(() -> {
+            logger.debug("[{}] Building", termdRunningBuild.getRunningEnvironment().getId());
+
             String buildCommand = termdRunningBuild.getBuildConfiguration().getBuildScript();
             commandAppender.append(buildCommand).append("\n");
             return commandAppender;
         });
     }
 
+    protected CompletableFuture<String> uploadScript(TermdRunningBuild termdRunningBuild, StringBuilder commandAppender) {
+        return CompletableFuture.supplyAsync(() -> {
+            logger.debug("[{}] Uploading script", termdRunningBuild.getRunningEnvironment().getId());
+            logger.debug("[{}] Full script:\n {}", termdRunningBuild.getRunningEnvironment().getId(), commandAppender.toString());
+
+            new TermdFileTranser(URI.create(termdRunningBuild.getRunningEnvironment().getJenkinsUrl()))
+                    .uploadScript(commandAppender,
+                            Paths.get(termdRunningBuild.getRunningEnvironment().getWorkingDirectory().toAbsolutePath().toString(), "run.sh"));
+
+            return termdRunningBuild.getRunningEnvironment().getWorkingDirectory().toAbsolutePath().toString() + "/run.sh";
+        });
+    }
+
     protected CompletableFuture<TermdCommandBatchExecutionResult> invokeRemoteScript(TermdRunningBuild termdRunningBuild, String scriptPath) {
         return CompletableFuture.supplyAsync(() -> {
+            logger.debug("[{}] Invoking script from path {}", termdRunningBuild.getRunningEnvironment().getId(), scriptPath);
+
             TermdCommandInvoker termdCommandInvoker = new TermdCommandInvoker(URI.create(termdRunningBuild.getRunningEnvironment().getJenkinsUrl()), termdRunningBuild.getRunningEnvironment().getWorkingDirectory());
             termdCommandInvoker.startSession();
 
@@ -136,6 +147,10 @@ public class TermdBuildDriver implements BuildDriver {
     }
 
     protected TermdRunningBuild updateStatus(TermdRunningBuild termdRunningBuild, TermdCommandBatchExecutionResult commandBatchResult, Throwable throwable) {
+        logger.debug("[{}] Updating status", termdRunningBuild.getRunningEnvironment().getId());
+        logger.debug("[{}] Command result {}", termdRunningBuild.getRunningEnvironment().getId(), commandBatchResult);
+        logger.debug("[{}] Exception {}", termdRunningBuild.getRunningEnvironment().getId(), throwable);
+
         if(throwable != null) {
             termdRunningBuild.setBuildPromiseError((Exception) throwable);
         } else {
@@ -146,7 +161,7 @@ public class TermdBuildDriver implements BuildDriver {
                         @Override
                         public String getBuildLog() throws BuildDriverException {
                             try {
-                                return aggregateLogs(commandBatchResult).get().toString();
+                                return aggregateLogs(termdRunningBuild, commandBatchResult).get().toString();
                             } catch (Exception e) {
                                 throw new BuildDriverException("Could not aggregate logs", e);
                             }
@@ -172,7 +187,9 @@ public class TermdBuildDriver implements BuildDriver {
         return termdRunningBuild;
     }
 
-    protected CompletableFuture<StringBuilder> aggregateLogs(TermdCommandBatchExecutionResult allInvokedCommands) {
+    protected CompletableFuture<StringBuilder> aggregateLogs(TermdRunningBuild termdRunningBuild, TermdCommandBatchExecutionResult allInvokedCommands) {
+        logger.debug("[{}] Aggregating logs", termdRunningBuild.getRunningEnvironment().getId());
+
         TermdFileTranser transer = new TermdFileTranser();
         return CompletableFuture.supplyAsync(() -> allInvokedCommands.getCommandResults().stream()
                 .map(invocationResult -> invocationResult.getLogsUri())

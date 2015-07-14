@@ -47,4 +47,14 @@ public class InvocatedCommandResult {
     public URI getLogsUri() {
         return baseServerUri.resolve("/servlet/download" + logsDirectory + "/console-" + taskId + ".log");
     }
+
+    @Override
+    public String toString() {
+        return "InvocatedCommandResult{" +
+                "succeed=" + succeed +
+                ", taskId=" + taskId +
+                ", baseServerUri=" + baseServerUri +
+                ", logsDirectory='" + logsDirectory + '\'' +
+                '}';
+    }
 }

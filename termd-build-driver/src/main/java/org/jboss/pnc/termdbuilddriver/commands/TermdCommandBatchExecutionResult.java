@@ -40,4 +40,12 @@ public class TermdCommandBatchExecutionResult {
     public boolean isSuccessful() {
         return isSuccessful;
     }
+
+    @Override
+    public String toString() {
+        return "TermdCommandBatchExecutionResult{" +
+                "commandResults=" + commandResults +
+                ", isSuccessful=" + isSuccessful +
+                '}';
+    }
 }

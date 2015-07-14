@@ -18,15 +18,20 @@
 package org.jboss.pnc.termdbuilddriver.transfer;
 
 import org.jboss.pnc.termdbuilddriver.websockets.TermdConnectionException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.lang.invoke.MethodHandles;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.nio.file.Path;
 
 public class TermdFileTranser {
+
+    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
     private static final String UPLOAD_PATH = "/servlet/upload";
 
@@ -42,6 +47,8 @@ public class TermdFileTranser {
 
     public StringBuilder downloadFileToStringBuilder(StringBuilder logsAggregate, URI uri) {
         try {
+            logger.debug("Downloading file to String Buffer from {}", uri);
+
             HttpURLConnection connection = (HttpURLConnection) uri.toURL().openConnection();
             connection.setRequestMethod("GET");
 
@@ -56,7 +63,10 @@ public class TermdFileTranser {
             }
 
             logsAggregate.append("==== ").append(uri.toString()).append(" ====\n");
-            logsAggregate.append(new String(receivedBytes));
+            String downloadedText = new String(receivedBytes);
+            logsAggregate.append(downloadedText);
+
+            logger.debug("Downloaded {}", new String(receivedBytes));
             return logsAggregate;
         } catch (IOException e) {
             throw new TermdTransferException("Could not obtain log file: " + uri.toString(), e);
@@ -64,6 +74,8 @@ public class TermdFileTranser {
     }
 
     public void uploadScript(StringBuilder script, Path remoteFilePath) {
+        logger.debug("Uploading build script to remote path {}, build script {}", remoteFilePath, script.toString());
+
         URI uploadUri = baseServerUri.resolve(UPLOAD_PATH + remoteFilePath.toAbsolutePath().toString());
         try {
             HttpURLConnection connection = (HttpURLConnection) uploadUri.toURL().openConnection();
@@ -83,6 +95,7 @@ public class TermdFileTranser {
             if(200 != connection.getResponseCode()) {
                 throw new TermdConnectionException("Could not upload script to Build Agent. Returned status code " + connection.getResponseCode());
             }
+            logger.debug("Uploaded successfully");
         } catch (IOException e) {
             throw new TermdConnectionException("Could not upload build script: " + uploadUri.toString(), e);
         }
