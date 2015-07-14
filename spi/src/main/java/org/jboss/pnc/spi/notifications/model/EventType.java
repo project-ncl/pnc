@@ -17,29 +17,6 @@
  */
 package org.jboss.pnc.spi.notifications.model;
 
-public class Notification {
-
-    private final String exceptionMessage;
-
-    private final EventType eventType;
-
-    private final NotificationPayload payload;
-
-    public Notification(EventType eventType, String exceptionMessage, NotificationPayload payload) {
-        this.exceptionMessage = exceptionMessage;
-        this.payload = payload;
-        this.eventType = eventType;
-    }
-
-    public String getExceptionMessage() {
-        return exceptionMessage;
-    }
-
-    public NotificationPayload getPayload() {
-        return payload;
-    }
-
-    public EventType getEventType() {
-        return eventType;
-    }
+public enum EventType {
+    BUILD_STATUS_CHANGED, BUILD_SET_STATUS_CHANGED
 }

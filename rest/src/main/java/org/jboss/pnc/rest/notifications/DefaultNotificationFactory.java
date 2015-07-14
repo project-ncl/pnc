@@ -15,13 +15,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.termdbuilddriver;
+package org.jboss.pnc.rest.notifications;
 
 import org.jboss.pnc.spi.events.BuildSetStatusChangedEvent;
 import org.jboss.pnc.spi.events.BuildStatusChangedEvent;
-import org.jboss.pnc.spi.notifications.model.BuildChangedPayload;
-import org.jboss.pnc.spi.notifications.model.Notification;
-import org.jboss.pnc.spi.notifications.model.NotificationFactory;
+import org.jboss.pnc.spi.notifications.model.*;
 
 import javax.enterprise.context.ApplicationScoped;
 
@@ -33,16 +31,16 @@ public class DefaultNotificationFactory implements NotificationFactory {
 
     @Override
     public Notification createNotification(BuildStatusChangedEvent event) {
-        BuildChangedPayload payload = new BuildChangedPayload(event.getBuildTaskId(), event.getNewStatus(), event.getUserId());
+        BuildChangedPayload payload = new BuildChangedPayload(event.getBuildTaskId(), event.getNewStatus(), event.getBuildConfigurationId(), event.getUserId());
 
-        return new Notification(null, payload);
+        return new Notification(EventType.BUILD_STATUS_CHANGED, null, payload);
     }
 
     @Override
     public Notification createNotification(BuildSetStatusChangedEvent event) {
-        BuildChangedPayload payload = new BuildChangedPayload(event.getBuildSetTaskId(), event.getNewStatus(), event.getUserId());
+        BuildSetChangedPayload payload = new BuildSetChangedPayload(event.getBuildSetTaskId(), event.getNewStatus(), event.getBuildSetConfigurationId(), event.getUserId());
 
-        return new Notification(null, payload);
+        return new Notification(EventType.BUILD_SET_STATUS_CHANGED, null, payload);
     }
 
 }

@@ -66,7 +66,7 @@ public class BuildSetTask {
         this.status = status;
         Integer userId = Optional.ofNullable(user).map(user -> user.getId()).orElse(null);
         BuildSetStatusChangedEvent buildSetStatusChangedEvent = new DefaultBuildSetStatusChangedEvent(oldStatus, status, getId(),
-                userId);
+                buildConfigurationSet.getId(), userId);
         buildSetStatusChangedEventNotifier.fire(buildSetStatusChangedEvent);
     }
 

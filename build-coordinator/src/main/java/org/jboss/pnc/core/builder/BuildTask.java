@@ -95,7 +95,8 @@ public class BuildTask implements BuildExecution {
         BuildStatus oldStatus = this.status;
         this.status = status;
         Integer userId = Optional.ofNullable(user).map(user -> user.getId()).orElse(null);
-        BuildStatusChangedEvent buildStatusChanged = new DefaultBuildStatusChangedEvent(oldStatus, status, getId(), userId);
+        BuildStatusChangedEvent buildStatusChanged = new DefaultBuildStatusChangedEvent(oldStatus, status, getId(),
+                buildConfiguration.getId(), userId);
         log.debug("Updating build task {} status to {}", this.getId(), buildStatusChanged);
         buildSetTask.taskStatusUpdated(buildStatusChanged);
         buildStatusChangedEvent.fire(buildStatusChanged);
