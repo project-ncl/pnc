@@ -41,6 +41,7 @@ public class AbstractWebSocketsConnection implements AutoCloseable {
 
     public void connect() {
         try {
+            logger.debug("Connecting to Web Sockets URI {}", uri);
             this.session = Optional.of(ContainerProvider.getWebSocketContainer().connectToServer(this, uri));
         } catch (DeploymentException | IOException e) {
             throw new TermdConnectionException("Could not connect to Web Sockets " + uri, e);
@@ -48,6 +49,7 @@ public class AbstractWebSocketsConnection implements AutoCloseable {
     }
 
     public void disconnect() {
+        logger.debug("Disconnecting from Web Sockets URI {}", uri);
         if (session.isPresent()) {
             try {
                 session.get().close();

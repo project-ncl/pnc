@@ -21,7 +21,10 @@ import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.spi.builddriver.CompletedBuild;
 import org.jboss.pnc.spi.builddriver.RunningBuild;
 import org.jboss.pnc.spi.environment.RunningEnvironment;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.lang.invoke.MethodHandles;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -29,6 +32,8 @@ import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
 
 public class TermdRunningBuild implements RunningBuild {
+
+    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
     private static final long MAX_TIMEOUT = 2;
     private static final TimeUnit MAX_TIMEOUT_UNIT = TimeUnit.HOURS;
@@ -47,6 +52,7 @@ public class TermdRunningBuild implements RunningBuild {
     @Override
     public void monitor(Consumer<CompletedBuild> onComplete, Consumer<Exception> onError) {
         try {
+            logger.debug("[{}] The client started monitoring the build", runningEnvironment.getId());
             onComplete.accept(buildPromise.get(MAX_TIMEOUT, MAX_TIMEOUT_UNIT));
         } catch (InterruptedException | TimeoutException e) {
             onError.accept(e);
@@ -56,6 +62,7 @@ public class TermdRunningBuild implements RunningBuild {
     }
 
     public void setCompletedBuild(CompletedBuild completedBuild) {
+        logger.debug("[{}] Setting completed build {}", runningEnvironment.getId(), completedBuild);
         buildPromise.complete(completedBuild);
     }
 
