@@ -26,7 +26,8 @@
     'pnc.remote.restClient',
     'pnc.util.confirmClick',
     'angularUtils.directives.uiBreadcrumbs',
-    'pnc.common.directives'
+    'pnc.common.directives',
+    'pnc.record'
   ]);
 
   module.config(['$stateProvider', function($stateProvider) {

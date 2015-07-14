@@ -19,36 +19,28 @@
 
 (function () {
 
-  var module = angular.module('pnc.common.websockets');
+  var module = angular.module('pnc.common.events', [
+    'pnc.common.websockets'
+  ]);
 
-  module.factory('BuildRecordNotifications', [
-    '$log',
-    '$websocket',
-    'WEBSOCKET_CONFIG',
-    function ($log, $websocket, WEBSOCKET_CONFIG) {
+  module.config([
+    'webSocketBusProvider',
+    function(webSocketBusProvider) {
 
-      var socket = $websocket(WEBSOCKET_CONFIG.DEFAULT_URI);
-
-      var callbacks = [];
-
-      socket.onOpen(function () {
-        $log.debug('Socket open.');
-      });
-
-      socket.onMessage(function (m) {
-        var data = JSON.parse(m.data);
-        $log.debug('Socket received ', data);
-        callbacks.forEach(function (callback) {
-          callback(data);
-        });
-      });
-
-      return {
-        listen: function (callback) {
-          callbacks.push(callback);
-        }
-      };
+      webSocketBusProvider.newEndpoint(
+        'ws://localhost:8080/pnc-rest/ws/build-records/notifications',
+        'eventBroadcastingWebSocketListener'
+      );
     }
   ]);
+
+  module.run(function($log, $rootScope, webSocketBus, eventTypes, eventNotifier) {
+
+    var scope = $rootScope.$new();
+
+    scope.$on(eventTypes.BUILD_STATUS, function(event, payload) {
+      eventNotifier.notify(event, payload);
+    });
+  });
 
 })();

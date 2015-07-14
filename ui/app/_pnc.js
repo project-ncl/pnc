@@ -33,6 +33,7 @@
     'pnc.release',
     'pnc.common.directives',
     'pnc.common.websockets',
+    'pnc.common.events',
     'pnc.common.buildNotifications',
   ]);
 

@@ -21,54 +21,6 @@
   <div class="page-header">
     <h1>Build Progress</h1>
   </div>
-
-  <div>
-      <h2>Running builds</h2>
-  </div>
-
-  <p ng-hide="runningRecords.length">
-    No running builds.
-  </p>
-
-  <table ng-hide="!runningRecords.length" class="table table-bordered table-striped table-hover">
-    <tbody>
-    <th>ID</th>
-    <th>Start time</th>
-    <th>Status</th>
-    <tr ng-repeat="record in runningRecords">
-
-      <td><a href ui-sref="record.detail.info({recordId: record.id})"> # {{ record.id }}</a></td>
-      <td>{{ record.startTime | date:'medium' }}</td>
-      <td>
-        <build-status-icon status="record.status"></build-status-icon>
-        {{ record.status }}
-      </td>
-    </tr>
-    </tbody>
-  </table>
-
-  <div>
-    <h2>Finished builds</h2>
-  </div>
-
-  <p ng-hide="finishedRecords.length">
-    No finished builds.
-  </p>
-
-  <table ng-hide="!finishedRecords.length" class="table table-bordered table-striped table-hover">
-    <tbody>
-    <th>ID</th>
-    <th>Start time</th>
-    <th>Status</th>
-    <tr ng-repeat="record in finishedRecords">
-      <td><a href ui-sref="record.detail.info({recordId: record.id})"> # {{ record.id }}</a></td>
-      <td>{{ record.startTime | date:'medium'}}</td>
-      <td>
-        <build-status-icon status="record.status"></build-status-icon>
-        {{ record.status }}
-      </td>
-    </tr>
-    </tbody>
-  </table>
-
+  <pnc-running-builds></pnc-running-builds>
+  <pnc-recent-builds></pnc-recent-builds>
 </div>

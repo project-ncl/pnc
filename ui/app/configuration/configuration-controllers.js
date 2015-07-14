@@ -238,52 +238,16 @@
 
   module.controller('ConfigurationSidebarController', [
     '$log',
-    '$scope',
     '$stateParams',
-    'PncRestClient',
-    'buildRecordList',
-    'runningBuildRecordList',
-    'BuildProgressService',
-    'BuildRecordNotifications',
-    'Notifications',
-    function ($log, $scope, $stateParams, PncRestClient, buildRecordList, runningBuildRecordList,
-              BuildProgressService, BuildRecordNotifications, Notifications) {
-      $log.debug('ConfigurationSidebarController >> arguments=%O', arguments);
+    function($log, $stateParams) {
 
-      BuildProgressService.track($scope, 'runningBuildRecordList', function () {
-        return PncRestClient.Running.query().$promise;
-      }, [
-        BuildProgressService.BUILD_RECORD_FILTER.WITH_BUILD_CONFIGURATION($stateParams.configurationId),
-        BuildProgressService.BUILD_RECORD_FILTER.IS_IN_PROGRESS()
-      ], BuildProgressService.BUILD_RECORD_UPDATER);
+      this.filterBy = {
+        buildConfigurationId: $stateParams.configurationId
+      };
 
-
-      BuildProgressService.track($scope, 'buildRecords', function () {
-        return PncRestClient.Record.getAllForConfiguration({
-          configurationId: $stateParams.configurationId
-        }).$promise;
-      }, [
-        BuildProgressService.BUILD_RECORD_FILTER.WITH_BUILD_CONFIGURATION($stateParams.configurationId),
-        BuildProgressService.BUILD_RECORD_FILTER.IS_FINISHED()
-      ], BuildProgressService.BUILD_RECORD_UPDATER);
-
-
-      BuildRecordNotifications.listen(function (record) {
-        switch (record.status) {
-          case 'SUCCESS':
-            Notifications.success('Build #' + record.id + ' finished successfully.');
-            break;
-          case 'FAILED':
-          case 'UNSTABLE':
-          case 'ABORTED':
-          case 'CANCELLED':
-          case 'SYSTEM_ERROR':
-          case 'UNKNOWN':
-            Notifications.error('Build #' + record.id + ' finished with problems (' + record.status + ').');
-        }
-      });
     }
   ]);
+
 
   function gatherIds(array) {
     var result = [];

@@ -20,7 +20,6 @@
  (function() {
   var app = angular.module('pnc');
 
-
   app.provider('keycloak', function() {
     var keycloak;
 
@@ -33,9 +32,10 @@
         keycloak = newMockKeycloak();
       },
 
-      $get: function() {
+      $get: ['$log', function($log) {
+        $log.debug('keycloak=%O', keycloak);
         return keycloak;
-      }
+      }]
     };
   });
 
@@ -132,8 +132,7 @@
               break;
             default:
               $log.debug('HTTP response: %O', rejection);
-              Notifications.error(rejection.status + ': ' +
-                                  rejection.statusText);
+              Notifications.httpError('HTTP Error', rejection);
               break;
           }
           return rejection;
@@ -161,7 +160,7 @@
       },
 
       idTokenParsed: {
-          preferred_username: 'Authentication Disabled' // jshint ignore:line
+        preferred_username: 'Authentication Disabled' // jshint ignore:line
       },
 
     };
