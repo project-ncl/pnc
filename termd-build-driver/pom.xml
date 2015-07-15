@@ -28,20 +28,28 @@
   </parent>
 
   <artifactId>termd-build-driver</artifactId>
+  <packaging>war</packaging>
+
+  <properties>
+    <failOnMissingWebXml>false</failOnMissingWebXml>
+  </properties>
 
   <dependencies>
     <!-- Project dependencies -->
     <dependency>
       <groupId>org.jboss.pnc</groupId>
       <artifactId>model</artifactId>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.jboss.pnc</groupId>
       <artifactId>common</artifactId>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.jboss.pnc</groupId>
       <artifactId>spi</artifactId>
+      <scope>provided</scope>
     </dependency>
 
     <!-- Remote dependencies -->
@@ -54,18 +62,20 @@
 
     <dependency>
       <groupId>org.jboss.spec.javax.websocket</groupId>
-      <artifactId>jboss-websocket-api_1.1_spec</artifactId>
+      <artifactId>jboss-websocket-api_1.0_spec</artifactId>
       <scope>provided</scope>
     </dependency>
 
     <dependency>
       <groupId>com.google.guava</groupId>
       <artifactId>guava</artifactId>
+      <scope>provided</scope>
     </dependency>
 
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-core</artifactId>
+      <scope>provided</scope>
     </dependency>
 
     <dependency>

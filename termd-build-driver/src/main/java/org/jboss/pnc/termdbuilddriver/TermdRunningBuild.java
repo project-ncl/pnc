@@ -50,14 +50,14 @@ public class TermdRunningBuild implements RunningBuild {
     }
 
     @Override
-    public void monitor(Consumer<CompletedBuild> onComplete, Consumer<Exception> onError) {
+    public void monitor(Consumer<CompletedBuild> onComplete, Consumer<Throwable> onError) {
         try {
             logger.debug("[{}] The client started monitoring the build", runningEnvironment.getId());
             onComplete.accept(buildPromise.get(MAX_TIMEOUT, MAX_TIMEOUT_UNIT));
         } catch (InterruptedException | TimeoutException e) {
             onError.accept(e);
         } catch (ExecutionException e) {
-            onError.accept((Exception) e.getCause());
+            onError.accept(e.getCause());
         }
     }
 

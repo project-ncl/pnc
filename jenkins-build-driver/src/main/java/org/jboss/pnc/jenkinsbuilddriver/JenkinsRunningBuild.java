@@ -45,11 +45,11 @@ class JenkinsRunningBuild implements RunningBuild {
     }
 
     @Override
-    public void monitor(Consumer<CompletedBuild> onComplete, Consumer<Exception> onError) {
+    public void monitor(Consumer<CompletedBuild> onComplete, Consumer<Throwable> onError) {
         Consumer<BuildDriverStatus> onBuildComplete = (buildDriverStatus) -> {
             onComplete.accept(new JenkinsCompletedBuild(jenkinsServerFactory, buildJob, runningEnvironment, buildDriverStatus));
         };
-        Consumer<Exception> onBuildError = (e) -> {
+        Consumer<Throwable> onBuildError = (e) -> {
             onError.accept(e);
         };
         jenkinsBuildMonitor.monitor(buildJob.getJobName(), buildJob.getBuildNumber(), 

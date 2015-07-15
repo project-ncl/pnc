@@ -23,6 +23,9 @@ import org.jboss.pnc.termdbuilddriver.websockets.AbstractWebSocketsConnection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.websocket.ClientEndpoint;
+import javax.websocket.OnClose;
+import javax.websocket.OnMessage;
 import java.io.IOException;
 import java.lang.invoke.MethodHandles;
 import java.net.URI;
@@ -30,6 +33,7 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Consumer;
 
+@ClientEndpoint
 public class TermdStatusUpdatesConnection extends AbstractWebSocketsConnection {
 
     private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
@@ -44,7 +48,7 @@ public class TermdStatusUpdatesConnection extends AbstractWebSocketsConnection {
         super(serverBaseUri.resolve(WEB_SOCKET_TERMINAL_PATH));
     }
 
-    @Override
+    @OnMessage
     public void onTextData(String data) {
         try {
             logger.debug("Received status update notification {} ", data);
@@ -53,6 +57,11 @@ public class TermdStatusUpdatesConnection extends AbstractWebSocketsConnection {
         } catch (IOException e) {
             new TermdMarshallingException("Could not map '" + data + "' to Object", e);
         }
+    }
+
+    @OnClose
+    public void onClose() {
+        super.onClose();
     }
 
     public void clearConsumers() {

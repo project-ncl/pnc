@@ -32,6 +32,7 @@ import javax.enterprise.context.ApplicationScoped;
 import java.net.URI;
 import java.nio.file.Paths;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.atomic.AtomicReference;
 
 @ApplicationScoped
 public class TermdBuildDriver implements BuildDriver {
@@ -103,7 +104,7 @@ public class TermdBuildDriver implements BuildDriver {
             String cdCommand = "cd " + termdRunningBuild.getBuildConfiguration().getName();
             commandAppender.append(cdCommand).append("\n");
 
-            String resetCommand = "git reset " + termdRunningBuild.getBuildConfiguration().getScmRevision();
+            String resetCommand = "git reset --hard " + termdRunningBuild.getBuildConfiguration().getScmRevision();
             commandAppender.append(resetCommand).append("\n");
 
             return commandAppender;
@@ -147,24 +148,28 @@ public class TermdBuildDriver implements BuildDriver {
     }
 
     protected TermdRunningBuild updateStatus(TermdRunningBuild termdRunningBuild, TermdCommandBatchExecutionResult commandBatchResult, Throwable throwable) {
-        logger.debug("[{}] Updating status", termdRunningBuild.getRunningEnvironment().getId());
         logger.debug("[{}] Command result {}", termdRunningBuild.getRunningEnvironment().getId(), commandBatchResult);
         logger.debug("[{}] Exception {}", termdRunningBuild.getRunningEnvironment().getId(), throwable);
+
 
         if(throwable != null) {
             termdRunningBuild.setBuildPromiseError((Exception) throwable);
         } else {
+            AtomicReference<String> aggregatedLogs = new AtomicReference<>();
+            try {
+                aggregatedLogs.set(aggregateLogs(termdRunningBuild, commandBatchResult).get().toString());
+            } catch (Exception e) {
+                termdRunningBuild.setBuildPromiseError(e);
+                return termdRunningBuild;
+            }
+
             termdRunningBuild.setCompletedBuild(new CompletedBuild() {
                 @Override
                 public BuildDriverResult getBuildResult() throws BuildDriverException {
                     return new BuildDriverResult() {
                         @Override
-                        public String getBuildLog() throws BuildDriverException {
-                            try {
-                                return aggregateLogs(termdRunningBuild, commandBatchResult).get().toString();
-                            } catch (Exception e) {
-                                throw new BuildDriverException("Could not aggregate logs", e);
-                            }
+                        public String getBuildLog() {
+                            return aggregatedLogs.get();
                         }
 
                         @Override

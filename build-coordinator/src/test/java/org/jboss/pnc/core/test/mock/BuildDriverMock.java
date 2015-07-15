@@ -52,7 +52,7 @@ public class BuildDriverMock implements BuildDriver {
             return new RunningBuild() {
 
                 @Override
-                public void monitor(Consumer<CompletedBuild> onComplete, Consumer<Exception> onError) {
+                public void monitor(Consumer<CompletedBuild> onComplete, Consumer<Throwable> onError) {
                     onComplete.accept(new CompletedBuild() {
                         @Override
                         public BuildDriverResult getBuildResult() throws BuildDriverException {

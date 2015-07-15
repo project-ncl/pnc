@@ -21,6 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.websocket.*;
+import javax.ws.rs.core.UriBuilder;
 import java.io.IOException;
 import java.lang.invoke.MethodHandles;
 import java.net.URI;
@@ -36,14 +37,16 @@ public class AbstractWebSocketsConnection implements AutoCloseable {
     protected volatile Optional<Session> session = Optional.empty();
 
     public AbstractWebSocketsConnection(URI uri) {
-        this.uri = uri;
+        UriBuilder uriBuilder = UriBuilder.fromUri(uri);
+        uriBuilder.scheme("ws");
+        this.uri = uriBuilder.build();
     }
 
     public void connect() {
         try {
             logger.debug("Connecting to Web Sockets URI {}", uri);
             this.session = Optional.of(ContainerProvider.getWebSocketContainer().connectToServer(this, uri));
-        } catch (DeploymentException | IOException e) {
+        } catch (Exception e) {
             throw new TermdConnectionException("Could not connect to Web Sockets " + uri, e);
         }
     }
@@ -63,16 +66,6 @@ public class AbstractWebSocketsConnection implements AutoCloseable {
     public void sendAsBinary(ByteBuffer data) throws IOException {
         Session currentSession = session.orElseThrow(() -> new TermdConnectionException("Not connected"));
         currentSession.getBasicRemote().sendBinary(data);
-    }
-
-    @OnMessage
-    public void onBinaryData(byte[] data) {
-
-    }
-
-    @OnMessage
-    public void onTextData(String data) {
-
     }
 
     @OnClose
