@@ -192,14 +192,14 @@ public class TermdBuildDriver implements BuildDriver {
         return termdRunningBuild;
     }
 
-    protected CompletableFuture<StringBuilder> aggregateLogs(TermdRunningBuild termdRunningBuild, TermdCommandBatchExecutionResult allInvokedCommands) {
+    protected CompletableFuture<StringBuffer> aggregateLogs(TermdRunningBuild termdRunningBuild, TermdCommandBatchExecutionResult allInvokedCommands) {
         logger.debug("[{}] Aggregating logs", termdRunningBuild.getRunningEnvironment().getId());
 
         TermdFileTranser transer = new TermdFileTranser();
         return CompletableFuture.supplyAsync(() -> allInvokedCommands.getCommandResults().stream()
                 .map(invocationResult -> invocationResult.getLogsUri())
-                .reduce(new StringBuilder(),
-                        (stringBuilder, uri) -> transer.downloadFileToStringBuilder(stringBuilder, uri),
+                .reduce(new StringBuffer(),
+                        (stringBuffer, uri) -> transer.downloadFileToStringBuilder(stringBuffer, uri),
                         (builder1, builder2) -> builder1.append(builder2)));
     }
 

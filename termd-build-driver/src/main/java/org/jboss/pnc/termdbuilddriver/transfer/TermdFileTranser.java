@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.termdbuilddriver.transfer;
 
+import org.apache.commons.io.IOUtils;
 import org.jboss.pnc.termdbuilddriver.websockets.TermdConnectionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,6 +25,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.StringWriter;
 import java.lang.invoke.MethodHandles;
 import java.net.HttpURLConnection;
 import java.net.URI;
@@ -33,6 +35,7 @@ public class TermdFileTranser {
 
     private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
+    public static final String ENCODING = "UTF-8";
     private static final String UPLOAD_PATH = "/servlet/upload";
 
     private final URI baseServerUri;
@@ -45,28 +48,25 @@ public class TermdFileTranser {
         this.baseServerUri = null;
     }
 
-    public StringBuilder downloadFileToStringBuilder(StringBuilder logsAggregate, URI uri) {
+    public StringBuffer downloadFileToStringBuilder(StringBuffer logsAggregate, URI uri) {
         try {
             logger.debug("Downloading file to String Buffer from {}", uri);
 
+            StringWriter writer = new StringWriter();
             HttpURLConnection connection = (HttpURLConnection) uri.toURL().openConnection();
             connection.setRequestMethod("GET");
 
             connection.setDoOutput(true);
             connection.setDoInput(true);
 
-            int contentLength = connection.getContentLength();
-
-            byte[] receivedBytes = new byte[contentLength];
             try (InputStream inputStream = connection.getInputStream()) {
-                inputStream.read(receivedBytes);
+                IOUtils.copy(inputStream, writer, ENCODING);
             }
 
             logsAggregate.append("==== ").append(uri.toString()).append(" ====\n");
-            String downloadedText = new String(receivedBytes);
-            logsAggregate.append(downloadedText);
+            logsAggregate.append(writer.getBuffer());
 
-            logger.debug("Downloaded {}", new String(receivedBytes));
+            logger.debug("Downloaded {}", writer.getBuffer().toString());
             return logsAggregate;
         } catch (IOException e) {
             throw new TermdTransferException("Could not obtain log file: " + uri.toString(), e);

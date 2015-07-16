@@ -90,8 +90,8 @@ public class TermdBuildDriverTest extends AbstractLocalBuildAgentTest {
             }
 
             @Override
-            protected CompletableFuture<StringBuilder> aggregateLogs(TermdRunningBuild termdRunningBuild, TermdCommandBatchExecutionResult allInvokedCommands) {
-                return CompletableFuture.completedFuture(new StringBuilder("Ignoring logs"));
+            protected CompletableFuture<StringBuffer> aggregateLogs(TermdRunningBuild termdRunningBuild, TermdCommandBatchExecutionResult allInvokedCommands) {
+                return CompletableFuture.completedFuture(new StringBuffer("Ignoring logs"));
             }
         };
 
