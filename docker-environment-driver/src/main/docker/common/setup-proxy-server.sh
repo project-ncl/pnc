@@ -24,10 +24,14 @@
 
 file=/usr/share/maven/conf/settings.xml
 
-if [[ ! -z "$proxyIPAddress" ]]; then
-   if [[ ! -z "$proxyPort" ]]; then
-      sed -i "s/\${proxyIPAddress}/${proxyIPAddress}/" $file
-      sed -i "s/\${proxyPort}/${proxyPort}/" $file
-      sed -i "s/\${isHttpActive}/true/" $file
-   fi
+if [[ ! -z "$proxyServer" ]]; then
+    echo "Configuring Maven proxy"
+    sed -i "s/\${proxyServer}/${proxyServer}/" $file
+    sed -i "s/\${proxyPort}/${proxyPort}/" $file
+    sed -i "s/\${isHttpActive}/${isHttpActive}/" $file
+else
+    echo "Disabling Maven proxy"
+    sed -i "s/\${isHttpActive}/false/" $file
+    # Dummy port to stop maven complaining
+    sed -i "s/\${proxyPort}/80/" $file
 fi
