@@ -47,7 +47,6 @@
         onMessage: function(message) {
           $log.debug('Received WebSocket event: %O', message);
           var event = pncEventAdaptor.convert(message);
-          $log.debug('convertedEvent: %O', event);
           $rootScope.$broadcast(event.eventType, event.payload);
         },
 
