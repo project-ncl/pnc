@@ -36,12 +36,12 @@
       <id>http-proxy</id>
       <active>${isHttpActive}</active>
       <protocol>http</protocol>
-      <host>${proxyIPAddress}</host>
+      <host>${proxyServer}</host>
       <port>${proxyPort}</port>
     </proxy>
   </proxies>
-  
-  
+
+
   <profiles>
     <profile>
       <id>aprox-deployment</id>

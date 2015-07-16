@@ -17,10 +17,9 @@ VOLUME /var/jenkins_home
 RUN mkdir -p /usr/share/jenkins/ref/init.groovy.d
 COPY init.groovy /usr/share/jenkins/ref/init.groovy.d/tcp-slave-angent-port.groovy
 COPY plugins.sh /usr/local/bin/plugins.sh
-ENV JENKINS_VERSION 1.554.1
 # could use ADD but this one does not check Last-Modified header
 # see https://github.com/docker/docker/issues/8331
-RUN curl -sL http://mirrors.jenkins-ci.org/war-stable/$JENKINS_VERSION/jenkins.war -o /usr/share/jenkins/jenkins.war
+RUN curl -L http://mirrors.jenkins-ci.org/war-stable/1.554.1/jenkins.war -o /usr/share/jenkins/jenkins.war
 ENV JENKINS_UC https://updates.jenkins-ci.org
 RUN chown -R jenkins "$JENKINS_HOME" /usr/share/jenkins/ref
 # for main web interface:
