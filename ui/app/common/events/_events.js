@@ -28,7 +28,7 @@
     function(webSocketBusProvider) {
 
       webSocketBusProvider.newEndpoint(
-        'ws://localhost:8080/pnc-rest/ws/build-records/notifications',
+        'ws://' + window.location.host + '/pnc-rest/ws/build-records/notifications',
         'eventBroadcastingWebSocketListener'
       );
     }
