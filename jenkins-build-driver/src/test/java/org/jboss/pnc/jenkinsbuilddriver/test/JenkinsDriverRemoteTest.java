@@ -116,7 +116,7 @@ public class JenkinsDriverRemoteTest {
             mutex.release();
         };
 
-        Consumer<Exception> onError = (e) -> {
+        Consumer<Throwable> onError = (e) -> {
             throw new AssertionError(e);
         };
 

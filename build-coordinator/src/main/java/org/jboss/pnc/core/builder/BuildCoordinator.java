@@ -17,7 +17,6 @@
  */
 package org.jboss.pnc.core.builder;
 
-import org.jboss.logging.Logger;
 import org.jboss.pnc.common.util.StreamCollectors;
 import org.jboss.pnc.core.BuildDriverFactory;
 import org.jboss.pnc.core.EnvironmentDriverFactory;
@@ -44,12 +43,17 @@ import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
 import org.jboss.pnc.spi.repositorymanager.model.RepositorySession;
 import org.jboss.util.graph.Edge;
 import org.jboss.util.graph.Vertex;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import java.util.*;
-import java.util.concurrent.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -61,7 +65,7 @@ import java.util.stream.Collectors;
 @ApplicationScoped
 public class BuildCoordinator {
 
-    private Logger log = Logger.getLogger(BuildCoordinator.class);
+    private Logger log = LoggerFactory.getLogger(BuildCoordinator.class);
     private Queue<BuildTask> buildTasks = new ConcurrentLinkedQueue<>(); //TODO garbage collector (time-out, error state)
 
 //    @Resource
@@ -256,7 +260,7 @@ public class BuildCoordinator {
                 Consumer<CompletedBuild> onComplete = (completedBuild) -> {
                     waitToCompleteFuture.complete(completedBuild);
                 };
-                Consumer<Exception> onError = (e) -> {
+                Consumer<Throwable> onError = (e) -> {
                     waitToCompleteFuture.completeExceptionally(new BuildProcessException(e, runningBuild.getRunningEnvironment()));
                 };
                 
@@ -323,7 +327,7 @@ public class BuildCoordinator {
                 datastoreAdapter.storeResult(buildTask, e);
             }
         } catch (DatastoreException de) {
-            log.errorf(e, "Error storing results of build configuration: %s to datastore.", buildTask.getId());
+            log.error("Error storing results of build configuration: " + buildTask.getId()  + " to datastore.", de);
         }
 
         buildTask.setStatus(BuildStatus.DONE);

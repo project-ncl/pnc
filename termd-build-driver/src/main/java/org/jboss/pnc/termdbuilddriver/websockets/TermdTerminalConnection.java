@@ -17,8 +17,11 @@
  */
 package org.jboss.pnc.termdbuilddriver.websockets;
 
+import javax.websocket.ClientEndpoint;
+import javax.websocket.OnClose;
 import java.net.URI;
 
+@ClientEndpoint
 public class TermdTerminalConnection extends AbstractWebSocketsConnection {
 
     private static final String WEB_SOCKET_TERMINAL_PATH = "/socket/term";
@@ -26,4 +29,11 @@ public class TermdTerminalConnection extends AbstractWebSocketsConnection {
     public TermdTerminalConnection(URI serverBaseUri) {
         super(serverBaseUri.resolve(WEB_SOCKET_TERMINAL_PATH));
     }
+
+    @OnClose
+    @Override
+    public void onClose() {
+        super.onClose();
+    }
+
 }

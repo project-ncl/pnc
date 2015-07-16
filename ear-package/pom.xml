@@ -52,6 +52,7 @@
     <dependency>
       <groupId>org.jboss.pnc</groupId>
       <artifactId>termd-build-driver</artifactId>
+      <type>war</type>
     </dependency>
     <dependency>
       <groupId>org.jboss.pnc</groupId>
@@ -121,12 +122,6 @@
             </jarModule>
             <jarModule>
               <groupId>org.jboss.pnc</groupId>
-              <artifactId>termd-build-driver</artifactId>
-              <includeInApplicationXml>true</includeInApplicationXml>
-              <bundleDir>/</bundleDir>
-            </jarModule>
-            <jarModule>
-              <groupId>org.jboss.pnc</groupId>
               <artifactId>maven-repository-manager</artifactId>
               <includeInApplicationXml>true</includeInApplicationXml>
               <bundleDir>/</bundleDir>
@@ -163,15 +158,21 @@
             </jarModule>
             <webModule>
               <groupId>org.jboss.pnc</groupId>
+              <artifactId>termd-build-driver</artifactId>
+              <bundleDir>/</bundleDir>
+              <contextRoot>/pnc-build-driver</contextRoot>
+            </webModule>
+            <webModule>
+              <groupId>org.jboss.pnc</groupId>
               <artifactId>rest</artifactId>
               <bundleDir>/</bundleDir>
-	      <contextRoot>/pnc-rest</contextRoot> 
+              <contextRoot>/pnc-rest</contextRoot>
             </webModule>
             <webModule>
               <groupId>org.jboss.pnc</groupId>
               <artifactId>web</artifactId>
               <bundleDir>/</bundleDir>
-	      <contextRoot>/pnc-web</contextRoot> 
+              <contextRoot>/pnc-web</contextRoot>
             </webModule>
           </modules>
         </configuration>

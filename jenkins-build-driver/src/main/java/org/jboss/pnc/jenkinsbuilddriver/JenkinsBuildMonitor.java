@@ -63,7 +63,7 @@ public class JenkinsBuildMonitor {
     }
 
     public void monitor(String jobName, int buildNumber, Consumer<BuildDriverStatus> onMonitorComplete, 
-            Consumer<Exception> onMonitorError, String jenkinsUrl) {
+            Consumer<Throwable> onMonitorError, String jenkinsUrl) {
 
 //        ObjectWrapper<Integer> statusRetrieveFailed = 0;
         AtomicInteger statusRetrieveFailed = new AtomicInteger(0);
