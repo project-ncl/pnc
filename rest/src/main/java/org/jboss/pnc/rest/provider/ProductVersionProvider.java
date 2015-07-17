@@ -71,7 +71,16 @@ public class ProductVersionProvider {
     public ProductVersionProvider() {
     }
 
-    public List<ProductVersionRest> getAll(int pageIndex, int pageSize, String sortingRsql, String query, Integer productId) {
+    public List<ProductVersionRest> getAll(int pageIndex, int pageSize, String sortingRsql, String query) {
+        Predicate<ProductVersion> rsqlPredicate = rsqlPredicateProducer.getPredicate(ProductVersion.class, query);
+        PageInfo pageInfo = pageInfoProducer.getPageInfo(pageIndex, pageSize);
+        SortInfo sortInfo = sortInfoProducer.getSortInfo(sortingRsql);
+        return nullableStreamOf(productVersionRepository.queryWithPredicates(pageInfo, sortInfo, rsqlPredicate))
+                .map(toRestModel())
+                .collect(Collectors.toList());
+    }
+
+    public List<ProductVersionRest> getAllForProduct(int pageIndex, int pageSize, String sortingRsql, String query, Integer productId){
         Predicate<ProductVersion> rsqlPredicate = rsqlPredicateProducer.getPredicate(ProductVersion.class, query);
         PageInfo pageInfo = pageInfoProducer.getPageInfo(pageIndex, pageSize);
         SortInfo sortInfo = sortInfoProducer.getSortInfo(sortingRsql);
@@ -80,9 +89,8 @@ public class ProductVersionProvider {
                 .collect(Collectors.toList());
     }
 
-    public ProductVersionRest getSpecific(Integer productId, Integer productVersionId) {
-        List<ProductVersion> productVersions = productVersionRepository.queryWithPredicates(withProductId(productId),
-                withProductVersionId(productVersionId));
+    public ProductVersionRest getSpecific(Integer productVersionId) {
+        List<ProductVersion> productVersions = productVersionRepository.queryWithPredicates(withProductVersionId(productVersionId));
         if (productVersions.size() > 0) {
             return new ProductVersionRest(productVersions.get(0));
         }
@@ -98,13 +106,13 @@ public class ProductVersionProvider {
         return productVersion.getId();
     }
 
-    public void update(Integer id, Integer productId, ProductVersionRest productVersionRest) {
+    public void update(Integer id, ProductVersionRest productVersionRest) {
         Preconditions.checkArgument(id != null, "Id must not be null");
         Preconditions.checkArgument(productVersionRest.getId() == null || productVersionRest.getId().equals(id),
                 "Entity id does not match the id to update");
         productVersionRest.setId(id);
-        Product product = productRepository.queryById(productId);
         ProductVersion productVersion = productVersionRepository.queryById(productVersionRest.getId());
+        Product product = productVersion.getProduct();
         Preconditions.checkArgument(productVersion != null,
                 "Couldn't find Product Version with id " + productVersionRest.getId());
         Preconditions.checkArgument(product != null,
