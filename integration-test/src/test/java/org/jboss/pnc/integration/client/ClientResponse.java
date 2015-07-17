@@ -15,26 +15,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.rest.provider;
+package org.jboss.pnc.integration.client;
 
-import org.jboss.pnc.model.GenericEntity;
+import java.util.Optional;
 
-public class ConflictedEntryException extends Exception {
+public class ClientResponse {
 
-    private final Integer conflictedRecordId;
-    private final Class<? extends GenericEntity<?>> conflictedEntity;
+    private final Optional<Integer> id;
+    private final int httpCode;
+    private final AbstractRestClient parentCaller;
 
-    public ConflictedEntryException(String message, Class<? extends GenericEntity<?>> conflictedEntity, Integer conflictedId) {
-        super(message);
-        this.conflictedRecordId = conflictedId;
-        this.conflictedEntity = conflictedEntity;
+    ClientResponse(AbstractRestClient parentCaller, int httpCode, Integer id) {
+        this.httpCode = httpCode;
+        this.parentCaller = parentCaller;
+        this.id = Optional.ofNullable(id);
     }
 
-    public Integer getConflictedRecordId() {
-        return conflictedRecordId;
+    ClientResponse(ProjectRestClient parentCaller, int httpCode) {
+        this.httpCode = httpCode;
+        this.parentCaller = parentCaller;
+        this.id = Optional.empty();
     }
 
-    public Class<? extends GenericEntity<?>> getConflictedEntity() {
-        return conflictedEntity;
+    public int getHttpCode() {
+        return httpCode;
+    }
+
+    public Optional<Integer> getId() {
+        return id;
     }
 }

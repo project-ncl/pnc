@@ -39,6 +39,7 @@ import java.util.stream.Collectors;
 
 import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
 import static org.jboss.pnc.spi.datastore.predicates.BuildConfigurationSetPredicates.withBuildConfigurationSetId;
+import static org.jboss.pnc.spi.datastore.predicates.BuildConfigurationSetPredicates.withName;
 import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withBuildConfigurationIdInSet;
 
 @Stateless
@@ -111,17 +112,19 @@ public class BuildConfigurationSetProvider {
         return null;
     }
 
-    public Integer store(BuildConfigurationSetRest buildConfigurationSetRest) {
+    public Integer store(BuildConfigurationSetRest buildConfigurationSetRest) throws ConflictedEntryException {
         Preconditions.checkArgument(buildConfigurationSetRest.getId() == null, "Id must be null");
+        validateBeforeSaving(buildConfigurationSetRest);
         BuildConfigurationSet buildConfigurationSet = buildConfigurationSetRest.toBuildConfigurationSet();
         buildConfigurationSet = buildConfigurationSetRepository.save(buildConfigurationSet);
         return buildConfigurationSet.getId();
     }
 
-    public Integer update(Integer id, BuildConfigurationSetRest buildConfigurationSetRest) {
+    public Integer update(Integer id, BuildConfigurationSetRest buildConfigurationSetRest) throws ConflictedEntryException {
         Preconditions.checkArgument(id != null, "Id must not be null");
         Preconditions.checkArgument(buildConfigurationSetRest.getId() == null || buildConfigurationSetRest.getId().equals(id),
                 "Entity id does not match the id to update");
+        validateBeforeSaving(buildConfigurationSetRest);
         buildConfigurationSetRest.setId(id);
         BuildConfigurationSet buildConfigurationSet = buildConfigurationSetRepository.queryById(
                 buildConfigurationSetRest.getId());
@@ -152,14 +155,23 @@ public class BuildConfigurationSetProvider {
                 .collect(Collectors.toList());
     }
 
-    public void addConfiguration(Integer configurationSetId, Integer configurationId) {
+    public void addConfiguration(Integer configurationSetId, Integer configurationId) throws ConflictedEntryException {
         BuildConfigurationSet buildConfigSet = buildConfigurationSetRepository.queryById(configurationSetId);
         BuildConfiguration buildConfig = buildConfigurationRepository.queryById(configurationId);
-        if (buildConfigSet.getBuildConfigurations().contains(buildConfig))
-            throw new ConflictedEntryException("BuildConfiguration is already in the BuildConfigurationSet");
+        if (buildConfigSet.getBuildConfigurations().contains(buildConfig)) {
+            throw new ConflictedEntryException("BuildConfiguration is already in the BuildConfigurationSet", BuildConfigurationSet.class, configurationSetId);
+        }
 
         buildConfigSet.addBuildConfiguration(buildConfig);
         buildConfigurationSetRepository.save(buildConfigSet);
+    }
+
+    public void validateBeforeSaving(BuildConfigurationSetRest buildConfigurationSetRest) throws ConflictedEntryException {
+            BuildConfigurationSet buildConfigurationSetFromDB = buildConfigurationSetRepository
+                    .queryByPredicates(withName(buildConfigurationSetRest.getName()));
+            if(buildConfigurationSetFromDB != null) {
+                throw new ConflictedEntryException("BuildConfiguration with this name already exists", BuildConfigurationSet.class, buildConfigurationSetFromDB.getId());
+            }
     }
 
     public void removeConfiguration(Integer configurationSetId, Integer configurationId) {

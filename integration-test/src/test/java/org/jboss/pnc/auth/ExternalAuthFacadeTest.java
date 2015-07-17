@@ -22,7 +22,7 @@ import static org.junit.Assert.assertNotNull;
 import java.io.InputStream;
 
 import org.jboss.logging.Logger;
-import org.jboss.pnc.integration.Utils.AuthResource;
+import org.jboss.pnc.integration.utils.AuthResource;
 import org.jboss.pnc.test.category.ContainerTest;
 import org.junit.Assert;
 import org.junit.Ignore;

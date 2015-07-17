@@ -15,23 +15,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.spi.datastore.predicates;
+package org.jboss.pnc.integration.utils;
 
-import org.jboss.pnc.model.Project;
-import org.jboss.pnc.model.Project_;
-import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Properties;
 
-/**
- * Predicates for {@link org.jboss.pnc.model.Project} entity.
- */
-public class ProjectPredicates {
+public class AuthResource {
 
-    public static Predicate<Project> withProjectId(Integer projectId) {
-        return (root, query, cb) -> cb.equal(root.get(Project_.id), projectId);
-    }
-
-    public static Predicate<Project> withProjectName(String name) {
-        return (root, query, cb) -> cb.equal(root.get(Project_.name), name);
-    }
+    public static boolean authEnabled() throws IOException {
+        ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+        InputStream stream = classLoader.getResourceAsStream("auth.properties");
+        Properties properties = new Properties();
+        properties.load(stream);
+        String value = properties.getProperty("authentication.test.enabled");
+        return value.equals("true") ? true : false;
+       }
 
 }

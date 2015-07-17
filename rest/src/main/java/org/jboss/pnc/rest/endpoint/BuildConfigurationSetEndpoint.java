@@ -25,6 +25,7 @@ import org.jboss.pnc.auth.AuthenticationProvider;
 import org.jboss.pnc.core.exception.CoreException;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.rest.provider.BuildConfigurationSetProvider;
+import org.jboss.pnc.rest.provider.ConflictedEntryException;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationRest;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationSetRest;
 import org.jboss.pnc.rest.restmodel.BuildRecordRest;
@@ -85,7 +86,8 @@ public class BuildConfigurationSetEndpoint {
 
     @ApiOperation(value = "Creates a new Build Configuration Set")
     @POST
-    public Response createNew(@NotNull @Valid BuildConfigurationSetRest buildConfigurationSetRest, @Context UriInfo uriInfo) {
+    public Response createNew(@NotNull @Valid BuildConfigurationSetRest buildConfigurationSetRest, @Context UriInfo uriInfo)
+            throws ConflictedEntryException {
         UriBuilder uriBuilder = UriBuilder.fromUri(uriInfo.getRequestUri()).path("{id}");
         int id = buildConfigurationSetProvider.store(buildConfigurationSetRest);
         return Response.created(uriBuilder.build(id)).entity(buildConfigurationSetProvider.getSpecific(id)).build();
@@ -103,7 +105,8 @@ public class BuildConfigurationSetEndpoint {
     @PUT
     @Path("/{id}")
     public Response update(@ApiParam(value = "Build Configuration Set id", required = true) @PathParam("id") Integer id,
-            @NotNull @Valid BuildConfigurationSetRest buildConfigurationSetRest, @Context UriInfo uriInfo) {
+            @NotNull @Valid BuildConfigurationSetRest buildConfigurationSetRest, @Context UriInfo uriInfo)
+            throws ConflictedEntryException {
         buildConfigurationSetProvider.update(id, buildConfigurationSetRest);
         return Response.ok().build();
     }
@@ -172,7 +175,7 @@ public class BuildConfigurationSetEndpoint {
     @Path("/{id}/build-configurations")
     public Response addConfiguration(
             @ApiParam(value = "Build Configuration Set id", required = true) @PathParam("id") Integer id,
-            BuildConfigurationRest buildConfig) {
+            BuildConfigurationRest buildConfig) throws ConflictedEntryException {
         buildConfigurationSetProvider.addConfiguration(id, buildConfig.getId());
         return Response.ok().build();
     }

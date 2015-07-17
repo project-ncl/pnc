@@ -15,21 +15,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.integration.Utils;
+package org.jboss.pnc.rest.restmodel;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Properties;
+import org.jboss.pnc.rest.provider.ConflictedEntryException;
 
-public class AuthResource {
-    
-    public static boolean authEnabled() throws IOException {
-        ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-        InputStream stream = classLoader.getResourceAsStream("auth.properties");
-        Properties properties = new Properties();
-        properties.load(stream);
-        String value = properties.getProperty("authentication.test.enabled");
-        return value.equals("true") ? true : false;
-       }
+import javax.xml.bind.annotation.XmlRootElement;
 
+@XmlRootElement
+public class ErrorResponseRest {
+
+    private String errorType;
+    private ErrorResponseDetailsRest details;
+
+    public ErrorResponseRest() {
+    }
+
+    public ErrorResponseRest(ConflictedEntryException e) {
+        this.errorType = e.getClass().getSimpleName();
+        this.details = new ErrorResponseDetailsRest(e);
+    }
+
+    public String getErrorType() {
+        return errorType;
+    }
+
+    public ErrorResponseDetailsRest getDetails() {
+        return details;
+    }
 }

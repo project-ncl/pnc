@@ -29,4 +29,8 @@ public class BuildConfigurationSetPredicates {
     public static Predicate<BuildConfigurationSet> withBuildConfigurationSetId(Integer configurationSetId) {
         return (root, query, cb) -> cb.equal(root.get(BuildConfigurationSet_.id), configurationSetId);
     }
+
+    public static Predicate<BuildConfigurationSet> withName(String name) {
+        return (root, query, cb) -> cb.equal(root.get(BuildConfigurationSet_.name), name);
+    }
 }
