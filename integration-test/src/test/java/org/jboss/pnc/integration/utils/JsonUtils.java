@@ -15,14 +15,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.integration.Utils;
+package org.jboss.pnc.integration.utils;
 
-import com.jayway.restassured.response.Response;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
-public class ResponseUtils {
+import java.io.IOException;
 
-    public static Integer getIdFromLocationHeader(Response response) {
-        String location = response.getHeader("Location");
-        return Integer.valueOf(location.substring(location.lastIndexOf("/") + 1));
+public class JsonUtils {
+
+    public static <T> T fromJson(String json, Class<T> aClass) throws IOException {
+        return new ObjectMapper().readValue(json, aClass);
     }
+
+    public static String toJson(Object objectToBeMapped) throws JsonProcessingException {
+        return new ObjectMapper().writer().withDefaultPrettyPrinter().writeValueAsString(objectToBeMapped);
+    }
+
 }

@@ -28,11 +28,13 @@ import org.jboss.pnc.auth.ExternalAuthentication;
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.moduleconfig.AuthenticationModuleConfig;
-import org.jboss.pnc.integration.Utils.AuthResource;
 import org.jboss.pnc.integration.assertions.ResponseAssertion;
+import org.jboss.pnc.integration.client.BuildConfigurationSetRestClient;
+import org.jboss.pnc.integration.client.ClientResponse;
 import org.jboss.pnc.integration.deployments.Deployments;
 import org.jboss.pnc.integration.matchers.JsonMatcher;
 import org.jboss.pnc.integration.template.JsonTemplateBuilder;
+import org.jboss.pnc.integration.utils.AuthResource;
 import org.jboss.pnc.rest.endpoint.BuildConfigurationEndpoint;
 import org.jboss.pnc.rest.endpoint.BuildConfigurationSetEndpoint;
 import org.jboss.pnc.rest.provider.BuildConfigurationProvider;
@@ -53,8 +55,10 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.invoke.MethodHandles;
+import java.util.UUID;
 
 import static com.jayway.restassured.RestAssured.given;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.jboss.pnc.integration.env.IntegrationTestEnv.getHttpPort;
 
 @RunWith(Arquillian.class)
@@ -261,6 +265,23 @@ public class BuildConfigurationSetRestTest {
                 .delete(String.format(BUILD_CONFIGURATION_SET_SPECIFIC_REST_ENDPOINT, newBuildConfSetId));
 
         ResponseAssertion.assertThat(response).hasStatus(200);
+    }
+
+    @Test
+    public void testIfCreatingNewBuildConfigurationSetFailsBecauseTheNameAlreadyExists() throws Exception {
+        //given
+        BuildConfigurationSetRestClient client = BuildConfigurationSetRestClient.empty();
+
+        BuildConfigurationSetRest project = new BuildConfigurationSetRest();
+        project.setName(UUID.randomUUID().toString());
+
+        //when
+        ClientResponse firstResponse = client.createNew(project);
+        ClientResponse secondResponse = client.createNew(project);
+
+        //than
+        assertThat(firstResponse.getHttpCode()).isEqualTo(201);
+        assertThat(secondResponse.getHttpCode()).isEqualTo(409);
     }
 
 }

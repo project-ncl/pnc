@@ -24,7 +24,7 @@ import org.jboss.pnc.auth.ExternalAuthentication;
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.moduleconfig.AuthenticationModuleConfig;
-import org.jboss.pnc.integration.Utils.AuthResource;
+import org.jboss.pnc.integration.utils.AuthResource;
 import org.jboss.pnc.integration.deployments.Deployments;
 import org.jboss.pnc.test.category.ContainerTest;
 import org.jboss.pnc.test.category.RemoteTest;

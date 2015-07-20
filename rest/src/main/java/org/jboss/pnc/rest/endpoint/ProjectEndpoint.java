@@ -21,6 +21,7 @@ import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
 import com.wordnik.swagger.annotations.ApiParam;
 
+import org.jboss.pnc.rest.provider.ConflictedEntryException;
 import org.jboss.pnc.rest.provider.ProjectProvider;
 import org.jboss.pnc.rest.restmodel.ProjectRest;
 import org.jboss.pnc.rest.utils.Utility;
@@ -68,7 +69,8 @@ public class ProjectEndpoint {
 
     @ApiOperation(value = "Creates a new Project")
     @POST
-    public Response createNew(@NotNull @Valid ProjectRest projectRest, @Context UriInfo uriInfo) {
+    public Response createNew(@NotNull @Valid ProjectRest projectRest, @Context UriInfo uriInfo)
+            throws ConflictedEntryException {
         int id = projectProvider.store(projectRest);
         UriBuilder uriBuilder = UriBuilder.fromUri(uriInfo.getRequestUri()).path("{id}");
         return Response.created(uriBuilder.build(id)).entity(projectProvider.getSpecific(id)).build();
@@ -78,7 +80,7 @@ public class ProjectEndpoint {
     @PUT
     @Path("/{id}")
     public Response update(@ApiParam(value = "Project id", required = true) @PathParam("id") Integer id,
-            @NotNull @Valid ProjectRest projectRest, @Context UriInfo uriInfo) {
+            @NotNull @Valid ProjectRest projectRest, @Context UriInfo uriInfo) throws ConflictedEntryException {
         projectProvider.update(id, projectRest);
         return Response.ok().build();
     }

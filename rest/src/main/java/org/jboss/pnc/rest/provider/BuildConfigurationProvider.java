@@ -148,17 +148,17 @@ public class BuildConfigurationProvider {
         return new BuildConfigurationRest(buildConfiguration);
     }
 
-    public Integer store(BuildConfigurationRest buildConfigurationRest) {
+    public Integer store(BuildConfigurationRest buildConfigurationRest) throws ConflictedEntryException {
         Preconditions.checkArgument(buildConfigurationRest.getId() == null, "Id must be null");
+        validateBeforeSaving(buildConfigurationRest);
         BuildConfiguration buildConfiguration = buildConfigurationRest.toBuildConfiguration(null);
         buildConfiguration = buildConfigurationRepository.save(buildConfiguration);
         return buildConfiguration.getId();
     }
 
-    public Integer update(Integer id, BuildConfigurationRest buildConfigurationRest) {
+    public Integer update(Integer id, BuildConfigurationRest buildConfigurationRest) throws ConflictedEntryException {
+        validateBeforeSaving(buildConfigurationRest);
         Preconditions.checkArgument(id != null, "Id must not be null");
-        Preconditions.checkArgument(buildConfigurationRest.getId() == null || buildConfigurationRest.getId().equals(id),
-                "Entity id does not match the id to update");
         buildConfigurationRest.setId(id);
         BuildConfiguration buildConfiguration = buildConfigurationRepository.queryById(id);
         Preconditions.checkArgument(buildConfiguration != null, "Couldn't find buildConfiguration with id "
@@ -166,6 +166,15 @@ public class BuildConfigurationProvider {
         buildConfiguration = buildConfigurationRepository.save(buildConfigurationRest.toBuildConfiguration(buildConfiguration));
         return buildConfiguration.getId();
   }
+
+    private void validateBeforeSaving(BuildConfigurationRest buildConfigurationRest) throws ConflictedEntryException, IllegalArgumentException {
+        Preconditions.checkArgument(buildConfigurationRest.getName() != null, "Name must not be null");
+        Preconditions.checkArgument(buildConfigurationRest.getProjectId() != null, "Project Id must not be null");
+        if(buildConfigurationRepository
+                .count(withProjectId(buildConfigurationRest.getProjectId()), withName(buildConfigurationRest.getName())) > 0) {
+            throw new  ConflictedEntryException("Configuration with the same name already exists within project", BuildConfiguration.class, buildConfigurationRest.getProjectId());
+        }
+    }
 
     public Integer clone(Integer buildConfigurationId) {
         BuildConfiguration buildConfiguration = buildConfigurationRepository.queryById(buildConfigurationId);
@@ -214,11 +223,6 @@ public class BuildConfigurationProvider {
                 .collect(Collectors.toSet());
     }
 
-    /**
-     * Get the full list of both direct and indirect dependencies
-     * @param configId
-     * @return
-     */
     public Set<BuildConfigurationRest> getAllDependencies(Integer configId) {
         BuildConfiguration buildConfig = buildConfigurationRepository.queryById(configId);
         Set<BuildConfiguration> buildConfigurations = buildConfig.getAllDependencies();

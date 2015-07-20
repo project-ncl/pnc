@@ -28,10 +28,9 @@ import org.jboss.pnc.auth.ExternalAuthentication;
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.moduleconfig.AuthenticationModuleConfig;
-import org.jboss.pnc.integration.Utils.AuthResource;
+import org.jboss.pnc.integration.utils.AuthResource;
 import org.jboss.pnc.integration.assertions.ResponseAssertion;
 import org.jboss.pnc.integration.deployments.Deployments;
-import org.jboss.pnc.integration.matchers.JsonMatcher;
 import org.jboss.pnc.integration.template.JsonTemplateBuilder;
 import org.jboss.pnc.rest.endpoint.BuildRecordEndpoint;
 import org.jboss.pnc.rest.endpoint.BuildRecordSetEndpoint;
@@ -52,8 +51,6 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.invoke.MethodHandles;
-
-import javax.inject.Inject;
 
 import static com.jayway.restassured.RestAssured.given;
 import static org.jboss.pnc.integration.env.IntegrationTestEnv.getHttpPort;

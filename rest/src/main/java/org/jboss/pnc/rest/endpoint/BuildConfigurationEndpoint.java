@@ -17,41 +17,16 @@
  */
 package org.jboss.pnc.rest.endpoint;
 
-import java.lang.invoke.MethodHandles;
-import java.net.URI;
-import java.net.URL;
-import java.util.List;
-import java.util.Set;
-
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.DefaultValue;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriBuilder;
-import javax.ws.rs.core.UriInfo;
-
+import com.wordnik.swagger.annotations.Api;
+import com.wordnik.swagger.annotations.ApiOperation;
+import com.wordnik.swagger.annotations.ApiParam;
 import org.jboss.pnc.auth.AuthenticationProvider;
 import org.jboss.pnc.core.exception.CoreException;
-import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.rest.provider.BuildConfigurationProvider;
 import org.jboss.pnc.rest.provider.BuildRecordProvider;
-import org.jboss.pnc.rest.provider.ProductVersionProvider;
+import org.jboss.pnc.rest.provider.ConflictedEntryException;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationAuditedRest;
-import org.jboss.pnc.rest.restmodel.BuildConfigSetRecordRest;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationRest;
 import org.jboss.pnc.rest.restmodel.ProductVersionRest;
 import org.jboss.pnc.rest.trigger.BuildTriggerer;
@@ -60,9 +35,17 @@ import org.jboss.pnc.spi.datastore.Datastore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.wordnik.swagger.annotations.Api;
-import com.wordnik.swagger.annotations.ApiOperation;
-import com.wordnik.swagger.annotations.ApiParam;
+import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
+import javax.ws.rs.*;
+import javax.ws.rs.core.*;
+import java.lang.invoke.MethodHandles;
+import java.net.URI;
+import java.net.URL;
+import java.util.List;
+import java.util.Set;
 
 @Api(value = "/build-configurations", description = "Build configuration entities")
 @Path("/build-configurations")
@@ -104,7 +87,7 @@ public class BuildConfigurationEndpoint {
 
     @ApiOperation(value = "Creates a new Build Configuration")
     @POST
-    public Response createNew(@NotNull @Valid BuildConfigurationRest buildConfigurationRest, @Context UriInfo uriInfo) {
+    public Response createNew(@NotNull @Valid BuildConfigurationRest buildConfigurationRest, @Context UriInfo uriInfo) throws ConflictedEntryException {
         int id = buildConfigurationProvider.store(buildConfigurationRest);
         UriBuilder uriBuilder = UriBuilder.fromUri(uriInfo.getRequestUri()).path("{id}");
         return Response.created(uriBuilder.build(id)).entity(buildConfigurationProvider.getSpecific(id)).build();
@@ -122,8 +105,7 @@ public class BuildConfigurationEndpoint {
     @PUT
     @Path("/{id}")
     public Response update(@ApiParam(value = "Build Configuration id", required = true) @PathParam("id") Integer id,
-            @NotNull @Valid BuildConfigurationRest buildConfigurationRest, @Context UriInfo uriInfo) {
-        buildConfigurationProvider.update(id, buildConfigurationRest);
+            @NotNull @Valid BuildConfigurationRest buildConfigurationRest, @Context UriInfo uriInfo) throws ConflictedEntryException { buildConfigurationProvider.update(id, buildConfigurationRest);
         return Response.ok().build();
     }
 

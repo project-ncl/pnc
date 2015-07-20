@@ -35,6 +35,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
+import static org.jboss.pnc.spi.datastore.predicates.ProjectPredicates.withProjectName;
 
 @Stateless
 public class ProjectProvider {
@@ -80,22 +81,31 @@ public class ProjectProvider {
         return null;
     }
 
-    public Integer store(ProjectRest projectRest) {
+    public Integer store(ProjectRest projectRest) throws ConflictedEntryException {
         Preconditions.checkArgument(projectRest.getId() == null, "Id must be null");
+        validateBeforeSaving(projectRest);
         Project project = projectRest.toProject();
         project = projectRepository.save(project);
         return project.getId();
     }
 
-    public Integer update(Integer id, ProjectRest projectRest) {
+    public Integer update(Integer id, ProjectRest projectRest) throws ConflictedEntryException {
         Preconditions.checkArgument(id != null, "Id must not be null");
         Preconditions.checkArgument(projectRest.getId() == null || projectRest.getId().equals(id),
                 "Entity id does not match the id to update");
+        validateBeforeSaving(projectRest);
         projectRest.setId(id);
         Project project = projectRepository.queryById(id);
         Preconditions.checkArgument(project != null, "Couldn't find project with id " + projectRest.getId());
         project = projectRepository.save(projectRest.toProject());
         return project.getId();
+    }
+
+    private void validateBeforeSaving(ProjectRest projectRest) throws ConflictedEntryException {
+        Project project = projectRepository.queryByPredicates(withProjectName(projectRest.getName()));
+        if(project != null) {
+            throw new ConflictedEntryException("Project of that name already exists", Project.class, project.getId());
+        }
     }
 
     public void delete(Integer projectId) {

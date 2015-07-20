@@ -35,15 +35,15 @@ import javax.persistence.criteria.SetJoin;
  */
 public class BuildConfigurationPredicates {
 
-    public static Predicate<BuildConfiguration> withConfigurationId(Integer buildConfigurationId) {
-        return (root, query, cb) -> cb.equal(root.get(BuildConfiguration_.id), buildConfigurationId);
-    }
-
     public static Predicate<BuildConfiguration> withProjectId(Integer projectId) {
         return (root, query, cb) -> {
             Join<BuildConfiguration, Project> project = root.join(BuildConfiguration_.project);
             return cb.equal(project.get(Project_.id), projectId);
         };
+    }
+
+    public static Predicate<BuildConfiguration> withName(String name) {
+        return (root, query, cb) -> cb.equal(root.get(BuildConfiguration_.name), name);
     }
 
     public static Predicate<BuildConfiguration> withProductId(Integer productId) {

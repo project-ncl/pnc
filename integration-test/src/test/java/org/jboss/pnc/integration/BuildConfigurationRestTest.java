@@ -19,7 +19,6 @@ package org.jboss.pnc.integration;
 
 import com.jayway.restassured.http.ContentType;
 import com.jayway.restassured.response.Response;
-
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.junit.InSequence;
@@ -28,7 +27,7 @@ import org.jboss.pnc.auth.ExternalAuthentication;
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.moduleconfig.AuthenticationModuleConfig;
-import org.jboss.pnc.integration.Utils.AuthResource;
+import org.jboss.pnc.integration.utils.AuthResource;
 import org.jboss.pnc.integration.assertions.ResponseAssertion;
 import org.jboss.pnc.integration.deployments.Deployments;
 import org.jboss.pnc.integration.matchers.JsonMatcher;
@@ -47,12 +46,12 @@ import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.ws.rs.core.Response.Status;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.invoke.MethodHandles;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
-
-import javax.ws.rs.core.Response.Status;
 
 import static com.jayway.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -65,7 +64,6 @@ public class BuildConfigurationRestTest {
     public static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
     private static final String PRODUCT_REST_ENDPOINT = "/pnc-rest/rest/products/";
-    private static final String PRODUCT_VERSION_REST_ENDPOINT = "/pnc-rest/rest/products/%d/product-versions";
     private static final String PROJECT_REST_ENDPOINT = "/pnc-rest/rest/projects/";
     private static final String PROJECT_SPECIFIC_REST_ENDPOINT = "/pnc-rest/rest/projects/%d";
     private static final String CONFIGURATION_REST_ENDPOINT = "/pnc-rest/rest/build-configurations/";
@@ -73,8 +71,6 @@ public class BuildConfigurationRestTest {
     private static final String CONFIGURATION_CLONE_REST_ENDPOINT = "/pnc-rest/rest/build-configurations/%d/clone";
     private static final String ENVIRONMENT_REST_ENDPOINT = "/pnc-rest/rest/environments";
     private static final String SPECIFIC_ENVIRONMENT_REST_ENDPOINT = "/pnc-rest/rest/environments/%d";
-    private static final String CONFIGURATION_SET_REST_ENDPOINT = "/pnc-rest/rest/build-configuration-sets/";
-    private static final String CONFIGURATION_SET_SPECIFIC_REST_ENDPOINT = "/pnc-rest/rest/build-configuration-sets/%d";
 
     private static int productId;
     private static int projectId;
@@ -83,8 +79,6 @@ public class BuildConfigurationRestTest {
 
     private static AtomicBoolean isInitialized = new AtomicBoolean();
 
-    private static int configurationSetId;
-    
     private static AuthenticationProvider authProvider;
     private static String access_token =  "no-auth";
 
@@ -131,18 +125,9 @@ public class BuildConfigurationRestTest {
                     .body(JsonMatcher.containsJsonAttribute("[0].id", value -> environmentId = Integer.valueOf(value)));
 
             given().header("Accept", "application/json").header("Authorization", "Bearer " + access_token)
-                    .contentType(ContentType.JSON).port(getHttpPort()).when().get(CONFIGURATION_SET_REST_ENDPOINT).then()
-                    .statusCode(200)
-                    .body(JsonMatcher.containsJsonAttribute("[0].id", value -> configurationSetId = Integer.valueOf(value)));
-        }
-    }
-
-    @Test
-    @InSequence(-2)
-    public void prepareProjectId() {
-        given().header("Accept", "application/json").header("Authorization", "Bearer " + access_token)
                     .contentType(ContentType.JSON).port(getHttpPort()).when().get(PROJECT_REST_ENDPOINT).then().statusCode(200)
-                .body(JsonMatcher.containsJsonAttribute("[0].id", value -> projectId = Integer.valueOf(value)));
+                    .body(JsonMatcher.containsJsonAttribute("[0].id", value -> projectId = Integer.valueOf(value)));
+        }
     }
 
     @Test
@@ -158,6 +143,7 @@ public class BuildConfigurationRestTest {
         JsonTemplateBuilder configurationTemplate = JsonTemplateBuilder.fromResource("buildConfiguration_create_template");
         configurationTemplate.addValue("_projectId", String.valueOf(projectId));
         configurationTemplate.addValue("_environmentId", String.valueOf(environmentId));
+        configurationTemplate.addValue("_name", UUID.randomUUID().toString());
 
         given().header("Accept", "application/json").header("Authorization", "Bearer " + access_token)
                     .body(configurationTemplate.fillTemplate()).contentType(ContentType.JSON).port(getHttpPort()).when().post(
@@ -170,6 +156,7 @@ public class BuildConfigurationRestTest {
         JsonTemplateBuilder configurationTemplate = JsonTemplateBuilder.fromResource("buildConfiguration_WithEmptyCreateDate_template");
         configurationTemplate.addValue("_projectId", String.valueOf(projectId));
         configurationTemplate.addValue("_environmentId", String.valueOf(environmentId));
+        configurationTemplate.addValue("_name", UUID.randomUUID().toString());
 
         Response response = given().header("Accept", "application/json").header("Authorization", "Bearer " + access_token)
                     .body(configurationTemplate.fillTemplate()).contentType(ContentType.JSON).port(getHttpPort()).when().post(CONFIGURATION_REST_ENDPOINT);
@@ -183,7 +170,7 @@ public class BuildConfigurationRestTest {
         // given
         final String updatedScmUrl = "https://github.com/projects-ncl/pnc.git";
         final String updatedBuildScript = "mvn clean deploy -Dmaven.test.skip=true";
-        final String updatedName = "pnc-1.0.1.ER1";
+        final String updatedName = UUID.randomUUID().toString();
         final String updatedProjectId = String.valueOf(projectId);
 
         JsonTemplateBuilder configurationTemplate = JsonTemplateBuilder.fromResource("buildConfiguration_update_template");
@@ -202,8 +189,8 @@ public class BuildConfigurationRestTest {
         Response environmentResponseBeforeTheUpdate = given().header("Accept", "application/json").header("Authorization", "Bearer " + access_token)
                     .contentType(ContentType.JSON).port(getHttpPort()).when()
                 .get(String.format(SPECIFIC_ENVIRONMENT_REST_ENDPOINT, environmentId));
-        // when
 
+        // when
         given().header("Accept", "application/json").header("Authorization", "Bearer " + access_token)
                     .body(configurationTemplate.fillTemplate()).contentType(ContentType.JSON).port(getHttpPort()).when()
                 .put(String.format(CONFIGURATION_SPECIFIC_REST_ENDPOINT, configurationId)).then().statusCode(200);
@@ -268,27 +255,37 @@ public class BuildConfigurationRestTest {
     }
 
     @Test
-    public void shouldFailToCreateNewBuildConfiguration() throws IOException {
+    public void shouldFailToCreateNewBuildConfigurationBecauseIdIsNotNull() throws IOException {
         // given
-        final String scmUrl = "https://github.com/projects-ncl/pnc.git";
-        final String buildScript = "mvn clean deploy -Dmaven.test.skip=true";
-        final String name = "Bad Request Example Config";
-        final String id = String.valueOf(projectId);
-
         JsonTemplateBuilder configurationTemplate = JsonTemplateBuilder.fromResource("buildConfiguration_with_id_template");
         configurationTemplate.addValue("_id", String.valueOf(Integer.MAX_VALUE));
-        configurationTemplate.addValue("_name", name);
-        configurationTemplate.addValue("_buildScript", buildScript);
-        configurationTemplate.addValue("_scmRepoURL", scmUrl);
+        configurationTemplate.addValue("_name", UUID.randomUUID().toString());
+        configurationTemplate.addValue("_projectId", String.valueOf(projectId));
+        configurationTemplate.addValue("_environmentId", String.valueOf(environmentId));
         configurationTemplate.addValue("_creationTime", String.valueOf(1518382545038L));
         configurationTemplate.addValue("_lastModificationTime", String.valueOf(155382545038L));
         configurationTemplate.addValue("_repositories", "");
-        configurationTemplate.addValue("_projectId", id);
-        configurationTemplate.addValue("_environmentId", String.valueOf(environmentId));
 
         given().header("Accept", "application/json").header("Authorization", "Bearer " + access_token)
                     .body(configurationTemplate.fillTemplate()).contentType(ContentType.JSON).port(getHttpPort()).when()
                 .post(CONFIGURATION_REST_ENDPOINT).then().statusCode(400);
+    }
+
+    @Test
+    public void shouldGetConflictWhenCreatingNewBuildConfigurationWithTheSameNameAndProjectId() throws IOException {
+        JsonTemplateBuilder configurationTemplate = JsonTemplateBuilder.fromResource("buildConfiguration_WithEmptyCreateDate_template");
+        configurationTemplate.addValue("_projectId", String.valueOf(projectId));
+        configurationTemplate.addValue("_environmentId", String.valueOf(environmentId));
+        configurationTemplate.addValue("_name", UUID.randomUUID().toString());
+
+        Response firstAttempt = given().header("Accept", "application/json").header("Authorization", "Bearer " + access_token)
+                .body(configurationTemplate.fillTemplate()).contentType(ContentType.JSON).port(getHttpPort()).when().post(CONFIGURATION_REST_ENDPOINT);
+
+        Response secondAttempt = given().header("Accept", "application/json").header("Authorization", "Bearer " + access_token)
+                .body(configurationTemplate.fillTemplate()).contentType(ContentType.JSON).port(getHttpPort()).when().post(CONFIGURATION_REST_ENDPOINT);
+
+        ResponseAssertion.assertThat(firstAttempt).hasStatus(201);
+        ResponseAssertion.assertThat(secondAttempt).hasStatus(409);
     }
 
     @Test

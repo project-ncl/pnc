@@ -18,6 +18,7 @@
 package org.jboss.pnc.rest.configuration;
 
 import org.jboss.pnc.rest.provider.ConflictedEntryException;
+import org.jboss.pnc.rest.restmodel.ErrorResponseRest;
 
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
@@ -28,6 +29,6 @@ public class ConflictedEntryExceptionMapper implements ExceptionMapper<Conflicte
 
     @Override
     public Response toResponse(ConflictedEntryException e) {
-        return Response.status(Response.Status.CONFLICT).entity(e.getMessage()).build();
+        return Response.status(Response.Status.CONFLICT).entity(new ErrorResponseRest(e)).build();
     }
 }

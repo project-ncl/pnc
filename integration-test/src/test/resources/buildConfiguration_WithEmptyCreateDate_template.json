@@ -1,5 +1,5 @@
 {
-  "name": "Empty create and modify date test",
+  "name": "${_name}",
   "projectId": "${_projectId}",
   "environmentId": "${_environmentId}"
 }

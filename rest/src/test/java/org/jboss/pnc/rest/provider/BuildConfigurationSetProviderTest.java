@@ -33,7 +33,7 @@ import static org.mockito.Mockito.when;
 public class BuildConfigurationSetProviderTest {
 
     @Test
-    public void shouldThrowConflictedEntryExceptionWhenAddingDuplicatedConfiguration(){
+    public void shouldThrowConflictedEntryExceptionWhenAddingDuplicatedConfiguration() {
         //given
         BuildConfigurationSetRepository buildConfigurationSetRepository = mock(BuildConfigurationSetRepository.class);
         BuildConfigurationRepository buildConfigurationRepository = mock(BuildConfigurationRepository.class);
@@ -56,7 +56,7 @@ public class BuildConfigurationSetProviderTest {
     }
 
     @Test
-    public void shouldAddNewBuildConfigurationToSet(){
+    public void shouldAddNewBuildConfigurationToSet() throws Exception {
         BuildConfigurationSetRepository buildConfigurationSetRepository = mock(BuildConfigurationSetRepository.class);
         BuildConfigurationRepository buildConfigurationRepository = mock(BuildConfigurationRepository.class);
         BuildRecordRepository buildRecordRepository = mock(BuildRecordRepository.class);

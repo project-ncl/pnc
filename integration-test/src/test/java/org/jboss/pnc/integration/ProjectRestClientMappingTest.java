@@ -48,7 +48,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @RunWith(Arquillian.class)
 @Transactional(TransactionMode.ROLLBACK)
 @Category(ContainerTest.class)
-public class ProjectMappingTest {
+public class ProjectRestClientMappingTest {
 
     public static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
@@ -64,7 +64,7 @@ public class ProjectMappingTest {
     public static EnterpriseArchive deploy() {
         EnterpriseArchive enterpriseArchive = Deployments.baseEarWithTestDependencies();
         WebArchive war = enterpriseArchive.getAsType(WebArchive.class, "/rest.war");
-        war.addClass(ProjectMappingTest.class);
+        war.addClass(ProjectRestClientMappingTest.class);
         logger.info(enterpriseArchive.toString(true));
         return enterpriseArchive;
     }
@@ -100,23 +100,6 @@ public class ProjectMappingTest {
         assertThat(project.getName()).isEqualTo("name");
         assertThat(project.getProjectUrl()).isEqualTo("projectUrl");
         assertThat(buildConfigurationIds).containsExactly(2);
-    }
-
-    @Test
-    public void shouldRemappedProjectBePersistable() {
-        //given
-        ProjectRest projectRest = new ProjectRest();
-        projectRest.setConfigurationIds(Arrays.asList(configurationId));
-        projectRest.setDescription("description");
-        projectRest.setIssueTrackerUrl("issueTracker");
-        projectRest.setName("name");
-        projectRest.setProjectUrl("projectUrl");
-
-        //when
-        Project savedProject = projectRepository.save(projectRest.toProject());
-
-        //then
-        assertThat(savedProject.getId()).isNotNull().isPositive();
     }
 
 }
