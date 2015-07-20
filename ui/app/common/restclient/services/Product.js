@@ -15,13 +15,42 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-/* jshint unused: false */
 'use strict';
 
 (function() {
 
-  var module = angular.module('pnc.remote', [
-    'pnc.remote.restClient'
+  var module = angular.module('pnc.common.restclient');
+
+  module.value('PRODUCT_ENDPOINT', '/products/:productId');
+  
+  /**
+   * @ngdoc service
+   * @name pnc.common.restclient:Product
+   * @description
+   *
+   */
+  module.factory('Product', [
+    '$resource',
+    'REST_BASE_URL',
+    'PRODUCT_ENDPOINT',
+    function($resource, REST_BASE_URL, PRODUCT_ENDPOINT) {
+      var ENDPOINT = REST_BASE_URL + PRODUCT_ENDPOINT;
+
+      var Product = $resource(ENDPOINT, {
+        productId: '@id'
+      }, {
+        update: {
+          method: 'PUT',
+        },
+        getVersions: {
+          method: 'GET',
+          url:  ENDPOINT + '/product-versions',
+          isArray: true
+        }
+      });
+
+      return Product;
+    }
   ]);
 
 })();

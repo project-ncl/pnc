@@ -21,10 +21,10 @@
 
   var module = angular.module('pnc.record', [
     'ui.router',
-    'pnc.remote.restClient',
     'angularUtils.directives.uiBreadcrumbs',
     'pnc.common.events',
-    'pnc.common.directives'
+    'pnc.common.directives',
+    'pnc.common.restclient',
   ]);
 
   module.config([

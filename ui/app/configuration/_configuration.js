@@ -23,7 +23,7 @@
     'ui.router',
     'ui.bootstrap',
     'xeditable',
-    'pnc.remote.restClient',
+    'pnc.common.restclient',
     'pnc.util.confirmClick',
     'angularUtils.directives.uiBreadcrumbs',
     'pnc.common.directives',

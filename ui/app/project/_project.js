@@ -21,7 +21,7 @@
 
   var module = angular.module('pnc.project', [
     'ui.router',
-    'pnc.remote.restClient',
+    'pnc.common.restclient',
     'angularUtils.directives.uiBreadcrumbs'
   ]);
 

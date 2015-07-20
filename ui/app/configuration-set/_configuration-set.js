@@ -22,7 +22,7 @@
   var module = angular.module('pnc.configuration-set', [
     'ui.router',
     'xeditable',
-    'pnc.remote.restClient',
+    'pnc.common.restclient',
     'angularUtils.directives.uiBreadcrumbs'
   ]);
 
