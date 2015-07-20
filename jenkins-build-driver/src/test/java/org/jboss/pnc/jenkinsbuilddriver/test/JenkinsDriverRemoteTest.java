@@ -42,6 +42,7 @@ import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.asset.EmptyAsset;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
@@ -64,6 +65,7 @@ import java.util.logging.Logger;
  */
 @RunWith(Arquillian.class)
 @Category(RemoteTest.class)
+@Ignore("Needs to connect to non existing Jenkins server")
 public class JenkinsDriverRemoteTest {
 
     private static final Logger log = Logger.getLogger(JenkinsDriverRemoteTest.class.getName());
