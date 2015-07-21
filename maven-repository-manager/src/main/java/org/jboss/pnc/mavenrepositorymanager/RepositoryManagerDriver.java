@@ -38,6 +38,8 @@ import org.jboss.pnc.spi.repositorymanager.RepositoryManagerException;
 import org.jboss.pnc.spi.repositorymanager.model.RepositorySession;
 import org.jboss.pnc.spi.repositorymanager.model.RunningRepositoryDeletion;
 import org.jboss.pnc.spi.repositorymanager.model.RunningRepositoryPromotion;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.PreDestroy;
 import javax.enterprise.context.ApplicationScoped;
@@ -53,6 +55,8 @@ import javax.inject.Inject;
  */
 @ApplicationScoped
 public class RepositoryManagerDriver implements RepositoryManager {
+
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
     public static final String DRIVER_ID = "maven-repo-driver";
 
@@ -152,6 +156,7 @@ public class RepositoryManagerDriver implements RepositoryManager {
 
         try {
             url = aprox.module(AproxFoloContentClientModule.class).trackingUrl(buildId, StoreType.group, buildId);
+            logger.info("Using '{}' for Maven repository access in build: {}", url, buildId);
         } catch (AproxClientException e) {
             throw new RepositoryManagerException("Failed to retrieve AProx client module for the artifact tracker: %s", e,
                     e.getMessage());
