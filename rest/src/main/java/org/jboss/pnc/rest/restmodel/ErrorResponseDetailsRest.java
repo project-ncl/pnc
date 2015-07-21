@@ -26,13 +26,11 @@ public class ErrorResponseDetailsRest {
 
     private String conflictedRecordId;
     private String conflictedEntity;
-    private String message;
 
     public ErrorResponseDetailsRest() {
     }
 
     public ErrorResponseDetailsRest(ConflictedEntryException conflictedEntryException) {
-        this.message = conflictedEntryException.getMessage();
         this.conflictedEntity = conflictedEntryException.getConflictedEntity().getSimpleName();
         this.conflictedRecordId = conflictedEntryException.getConflictedRecordId().toString();
     }
@@ -43,9 +41,5 @@ public class ErrorResponseDetailsRest {
 
     public String getConflictedEntity() {
         return conflictedEntity;
-    }
-
-    public String getMessage() {
-        return message;
     }
 }
