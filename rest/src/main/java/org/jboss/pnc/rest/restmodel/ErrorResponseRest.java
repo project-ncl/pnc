@@ -25,6 +25,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 public class ErrorResponseRest {
 
     private String errorType;
+    private String errorMessage;
     private ErrorResponseDetailsRest details;
 
     public ErrorResponseRest() {
@@ -32,6 +33,7 @@ public class ErrorResponseRest {
 
     public ErrorResponseRest(ConflictedEntryException e) {
         this.errorType = e.getClass().getSimpleName();
+        this.errorMessage = e.getMessage();
         this.details = new ErrorResponseDetailsRest(e);
     }
 
@@ -41,5 +43,9 @@ public class ErrorResponseRest {
 
     public ErrorResponseDetailsRest getDetails() {
         return details;
+    }
+
+    public String getErrorMessage() {
+        return errorMessage;
     }
 }
