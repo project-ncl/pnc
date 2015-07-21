@@ -103,15 +103,6 @@ public class BuildRecordProvider {
                 .collect(Collectors.toList());
     }
 
-    public List<BuildRecordRest> getAllArchivedOfBuildConfiguration(int pageIndex, int pageSize, String sortingRsql, String query, Integer buildRecordId) {
-        Predicate<BuildRecord> rsqlPredicate = rsqlPredicateProducer.getPredicate(BuildRecord.class, query);
-        PageInfo pageInfo = pageInfoProducer.getPageInfo(pageIndex, pageSize);
-        SortInfo sortInfo = sortInfoProducer.getSortInfo(sortingRsql);
-        return nullableStreamOf(buildRecordRepository.queryWithPredicates(pageInfo, sortInfo, rsqlPredicate, withBuildRecordId(buildRecordId)))
-                .map(toRestModel())
-                .collect(Collectors.toList());
-    }
-
     public List<BuildRecordRest> getAllForBuildConfiguration(int pageIndex, int pageSize, String sortingRsql, String query, Integer configurationId) {
         Predicate<BuildRecord> rsqlPredicate = rsqlPredicateProducer.getPredicate(BuildRecord.class, query);
         PageInfo pageInfo = pageInfoProducer.getPageInfo(pageIndex, pageSize);
@@ -174,14 +165,6 @@ public class BuildRecordProvider {
             return buildTasks.iterator().next();
         }
         return null;
-    }
-
-    public String getSubmittedBuildLog(Integer id) {
-        BuildTask buildTask = getSubmittedBuild(id);
-        if (buildTask != null ) 
-            return buildTask.getBuildLog();
-        else
-            return null;
     }
 
     /**

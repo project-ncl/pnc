@@ -22,6 +22,8 @@ import org.jboss.pnc.termdbuilddriver.commands.InvocatedCommandResult;
 import org.jboss.pnc.termdbuilddriver.commands.TermdCommandInvoker;
 import org.junit.Test;
 
+import java.net.URI;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class TermdCommandInvokerTest extends AbstractLocalBuildAgentTest {
@@ -39,6 +41,20 @@ public class TermdCommandInvokerTest extends AbstractLocalBuildAgentTest {
         //then
         assertThat(invocationData.getTaskId()).isNotEqualTo(-1);
         assertThat(invocationData.isSucceed()).isEqualTo(true);
+    }
+
+    @Test(timeout = 60_000)
+    public void shouldExposeLogsURI() throws Exception {
+        //given
+        TermdCommandInvoker termdCommandInvoker = new TermdCommandInvoker(baseBuildAgentUri, localEnvironmentPointer.getWorkingDirectory());
+
+        //when
+        termdCommandInvoker.startSession();
+        URI logsUri = termdCommandInvoker.getLogsURI();
+        termdCommandInvoker.closeSession();
+
+        //then
+        assertThat(logsUri.toString()).matches("ws://127.0.0.1:\\d+/socket/term\\?sessionId=reconnect");
     }
 
 }

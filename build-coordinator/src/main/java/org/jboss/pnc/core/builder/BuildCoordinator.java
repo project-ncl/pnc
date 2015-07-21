@@ -24,9 +24,7 @@ import org.jboss.pnc.core.RepositoryManagerFactory;
 import org.jboss.pnc.core.exception.BuildProcessException;
 import org.jboss.pnc.core.exception.CoreException;
 import org.jboss.pnc.model.*;
-import org.jboss.pnc.spi.BuildExecutionType;
-import org.jboss.pnc.spi.BuildResult;
-import org.jboss.pnc.spi.BuildSetStatus;
+import org.jboss.pnc.spi.*;
 import org.jboss.pnc.spi.BuildStatus;
 import org.jboss.pnc.spi.builddriver.*;
 import org.jboss.pnc.spi.datastore.Datastore;
@@ -179,7 +177,7 @@ public class BuildCoordinator {
         for (Edge<BuildTask> outgoingEdge : outgoingEdges) {
             Vertex<BuildTask> dependentVertex = outgoingEdge.getTo();
             BuildTask dependentBuildTask = dependentVertex.getData();
-            if (!isConfigurationBuilt(dependentBuildTask.buildConfiguration)) {
+            if (!isConfigurationBuilt(dependentBuildTask.getBuildConfiguration())) {
                 missingDependencies.add(dependentBuildTask);
             }
         }
@@ -248,7 +246,7 @@ public class BuildCoordinator {
         buildTask.setStatus(BuildStatus.BUILD_SETTING_UP);
         try {
             BuildDriver buildDriver = buildDriverFactory.getBuildDriver(buildTask.getBuildConfiguration().getEnvironment().getBuildType());
-            return buildDriver.startProjectBuild(buildTask.getBuildConfiguration(), runningEnvironment);
+            return buildDriver.startProjectBuild(buildTask, buildTask.getBuildConfiguration(), runningEnvironment);
         } catch (Throwable e) {
             throw new BuildProcessException(e, runningEnvironment);
         }

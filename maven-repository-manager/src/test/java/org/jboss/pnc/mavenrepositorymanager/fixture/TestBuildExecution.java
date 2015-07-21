@@ -20,6 +20,9 @@ package org.jboss.pnc.mavenrepositorymanager.fixture;
 import org.jboss.pnc.spi.BuildExecution;
 import org.jboss.pnc.spi.BuildExecutionType;
 
+import java.net.URI;
+import java.util.Optional;
+
 public class TestBuildExecution implements BuildExecution {
 
     private String topContentId;
@@ -31,6 +34,8 @@ public class TestBuildExecution implements BuildExecution {
     private String projectName = "my project";
 
     private BuildExecutionType buildExecutionType;
+
+    private URI logsWebSocketLink;
 
     public TestBuildExecution(String topId, String setId, String buildId, BuildExecutionType type) {
         this.topContentId = topId;
@@ -82,6 +87,21 @@ public class TestBuildExecution implements BuildExecution {
     @Override
     public BuildExecutionType getBuildExecutionType() {
         return buildExecutionType;
+    }
+
+    @Override
+    public void setLogsWebSocketLink(URI link) {
+        logsWebSocketLink = link;
+    }
+
+    @Override
+    public void clearLogsWebSocketLink() {
+        logsWebSocketLink = null;
+    }
+
+    @Override
+    public Optional<URI> getLogsWebSocketLink() {
+        return Optional.ofNullable(logsWebSocketLink);
     }
 
 }

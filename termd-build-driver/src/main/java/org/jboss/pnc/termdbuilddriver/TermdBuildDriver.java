@@ -19,6 +19,7 @@ package org.jboss.pnc.termdbuilddriver;
 
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildType;
+import org.jboss.pnc.spi.BuildExecution;
 import org.jboss.pnc.spi.builddriver.*;
 import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
 import org.jboss.pnc.spi.environment.RunningEnvironment;
@@ -55,7 +56,8 @@ public class TermdBuildDriver implements BuildDriver {
     }
 
     @Override
-    public RunningBuild startProjectBuild(final BuildConfiguration buildConfiguration, final RunningEnvironment runningEnvironment)
+    public RunningBuild startProjectBuild(BuildExecution currentBuildExecution, final BuildConfiguration buildConfiguration,
+            final RunningEnvironment runningEnvironment)
             throws BuildDriverException {
 
         logger.info("[{}] Starting build for Build Configuration {}", runningEnvironment.getId(), buildConfiguration.getId());
@@ -67,7 +69,7 @@ public class TermdBuildDriver implements BuildDriver {
                 .thenCompose(returnedBuildScript -> checkoutSources(termdRunningBuild, returnedBuildScript))
                 .thenCompose(returnedBuildScript -> build(termdRunningBuild, returnedBuildScript))
                 .thenCompose(returnedBuildScript -> uploadScript(termdRunningBuild, returnedBuildScript))
-                .thenCompose(scriptPath -> invokeRemoteScript(termdRunningBuild, scriptPath))
+                .thenCompose(scriptPath -> invokeRemoteScript(termdRunningBuild, scriptPath, currentBuildExecution))
                 .handle((results, exception) -> updateStatus(termdRunningBuild, results, exception));
 
         return termdRunningBuild;
@@ -134,15 +136,18 @@ public class TermdBuildDriver implements BuildDriver {
         });
     }
 
-    protected CompletableFuture<TermdCommandBatchExecutionResult> invokeRemoteScript(TermdRunningBuild termdRunningBuild, String scriptPath) {
+    protected CompletableFuture<TermdCommandBatchExecutionResult> invokeRemoteScript(TermdRunningBuild termdRunningBuild,
+            String scriptPath, BuildExecution currentBuildExecution) {
         return CompletableFuture.supplyAsync(() -> {
             logger.debug("[{}] Invoking script from path {}", termdRunningBuild.getRunningEnvironment().getId(), scriptPath);
 
             TermdCommandInvoker termdCommandInvoker = new TermdCommandInvoker(URI.create(termdRunningBuild.getRunningEnvironment().getJenkinsUrl()), termdRunningBuild.getRunningEnvironment().getWorkingDirectory());
             termdCommandInvoker.startSession();
 
+            currentBuildExecution.setLogsWebSocketLink(termdCommandInvoker.getLogsURI());
             termdCommandInvoker.performCommand("sh " + scriptPath).join();
 
+            currentBuildExecution.clearLogsWebSocketLink();
             return termdCommandInvoker.closeSession();
         });
     }

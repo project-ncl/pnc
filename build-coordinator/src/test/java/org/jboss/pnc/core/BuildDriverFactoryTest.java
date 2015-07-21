@@ -22,6 +22,7 @@ import org.jboss.pnc.common.json.moduleconfig.BuildDriverRouterModuleConfig;
 import org.jboss.pnc.core.exception.CoreException;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildType;
+import org.jboss.pnc.spi.BuildExecution;
 import org.jboss.pnc.spi.builddriver.BuildDriver;
 import org.jboss.pnc.spi.builddriver.RunningBuild;
 import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
@@ -93,7 +94,8 @@ public class BuildDriverFactoryTest {
         }
 
         @Override
-        public RunningBuild startProjectBuild(BuildConfiguration buildConfiguration, RunningEnvironment runningEnvironment)
+        public RunningBuild startProjectBuild(BuildExecution currentBuildExecution, BuildConfiguration buildConfiguration,
+                RunningEnvironment runningEnvironment)
                 throws BuildDriverException {
             return null;
         }
@@ -112,7 +114,8 @@ public class BuildDriverFactoryTest {
         }
 
         @Override
-        public RunningBuild startProjectBuild(BuildConfiguration buildConfiguration, RunningEnvironment runningEnvironment)
+        public RunningBuild startProjectBuild(BuildExecution currentBuildExecution, BuildConfiguration buildConfiguration,
+                RunningEnvironment runningEnvironment)
                 throws BuildDriverException {
             return null;
         }

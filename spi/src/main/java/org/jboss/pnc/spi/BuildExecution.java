@@ -17,6 +17,9 @@
  */
 package org.jboss.pnc.spi;
 
+import java.net.URI;
+import java.util.Optional;
+
 public interface BuildExecution {
 
     String getTopContentId();
@@ -28,4 +31,23 @@ public interface BuildExecution {
     String getProjectName();
 
     BuildExecutionType getBuildExecutionType();
+
+    /**
+     * Sets a Web Socket link for streaming logs.
+     *
+     * @param link link to web socket. <code>ws://1.2.3.4:3311/foo/bar</code>.
+     */
+    void setLogsWebSocketLink(URI link);
+
+    /**
+     * Since link is associated with a running container, it needs to be cleared as soon as the container is removed.
+     */
+    void clearLogsWebSocketLink();
+
+    /**
+     * Returns an optional link to live logs.
+     *
+     * @return Optional link to live logs.
+     */
+    Optional<URI> getLogsWebSocketLink();
 }

@@ -26,6 +26,7 @@ import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.Project;
 import org.jboss.pnc.model.RepositoryType;
+import org.jboss.pnc.spi.BuildExecution;
 import org.jboss.pnc.spi.builddriver.BuildDriverResult;
 import org.jboss.pnc.spi.builddriver.BuildDriverStatus;
 import org.jboss.pnc.spi.builddriver.CompletedBuild;
@@ -59,6 +60,8 @@ import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.logging.Logger;
+
+import static org.mockito.Mockito.mock;
 
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-11-23.
@@ -123,7 +126,7 @@ public class JenkinsDriverRemoteTest {
         };
 
         mutex.acquire();
-        RunningBuild runningBuild = jenkinsBuildDriver.startProjectBuild(pbc, runningEnvironment);
+        RunningBuild runningBuild = jenkinsBuildDriver.startProjectBuild(mock(BuildExecution.class), pbc, runningEnvironment);
         buildStarted.set(System.currentTimeMillis());
         runningBuild.monitor(onComplete, onError);
         mutex.tryAcquire(60, TimeUnit.SECONDS); // wait for callback to release
