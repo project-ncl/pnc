@@ -17,15 +17,34 @@
  */
 package org.jboss.pnc.common.util;
 
+import org.apache.http.conn.ssl.AllowAllHostnameVerifier;
+import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
+import org.apache.http.conn.ssl.SSLContextBuilder;
+import org.apache.http.conn.ssl.TrustStrategy;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.DefaultHttpRequestRetryHandler;
+import org.apache.http.impl.client.HttpClients;
+
 import javax.ws.rs.core.MediaType;
+
+import java.security.KeyManagementException;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 
 import org.jboss.resteasy.client.ClientRequest;
 import org.jboss.resteasy.client.ClientResponse;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Jakub Bartecek &lt;jbartece@redhat.com&gt;
  */
 public class HttpUtils {
+
+    private static final Logger LOG = LoggerFactory.getLogger(HttpUtils.class);
 
     private HttpUtils() {
     }
@@ -69,5 +88,47 @@ public class HttpUtils {
         ClientResponse<String> response = request.get(String.class);
         if (response.getStatus() != ecode)
             throw new Exception("Server returned unexpected HTTP code! Returned code:" + response.getStatus());
+    }
+
+    /**
+     *
+     * NOTE: Be sure to close the HTTP connection after every request!
+     * @param retries - int number of retries to execute request in case of failure
+     * @return Closeable "permissive" HttpClient instance, ignoring invalid SSL certificates.
+     */
+    public static CloseableHttpClient getPermissiveHttpClient(int retries) {
+        SSLContextBuilder builder = new SSLContextBuilder();
+        try {
+            builder.loadTrustMaterial(null, new TrustStrategy() {
+                @Override
+                public boolean isTrusted(X509Certificate[] chain, String authType) throws CertificateException {
+                    return true;
+                }
+            });
+        } catch (NoSuchAlgorithmException | KeyStoreException e1) {
+            LOG.error("Error creating SSL Context Builder with trusted certificates.", e1);
+        }
+
+        SSLConnectionSocketFactory sslSF = null;
+        try {
+            sslSF = new SSLConnectionSocketFactory(builder.build(), SSLConnectionSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
+        } catch (KeyManagementException | NoSuchAlgorithmException e1) {
+            LOG.error("Error creating SSL Connection Factory.", e1);
+        }
+
+        CloseableHttpClient httpclient = HttpClients.custom()
+                .setRetryHandler(new DefaultHttpRequestRetryHandler(retries, false))
+                .setSSLSocketFactory(sslSF)
+                .setHostnameVerifier(new AllowAllHostnameVerifier()).build();
+
+        return httpclient;
+    }
+
+    /**
+     * @return Closeable "permissive" HttpClient instance, ignoring invalid SSL certificates, using 3 attempts to retry failed request 
+     * @see getPermissiveHttpClient(int retries)
+     */
+    public static CloseableHttpClient getPermissiveHttpClient() {
+        return getPermissiveHttpClient(3);
     }
 }
