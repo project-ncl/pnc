@@ -21,9 +21,33 @@
 
   var module = angular.module('pnc.Dashboard');
 
-  module.controller('DashboardController', ['$scope',
-    function ($scope) {
-      $scope.title = 'Dashboard';
+  module.controller('DashboardController', [
+    '$scope',
+    'productList',
+    'projectList',
+    'BuildProgressService',
+    'PncRestClient',
+    function ($scope, productList, projectList, BuildProgressService, PncRestClient) {
+
+      $scope.productCount = productList.length;
+
+      $scope.projectCount = projectList.length;
+
+      BuildProgressService.track($scope, 'finishedBuilds',
+        function () {
+          return PncRestClient.Record.query().$promise;
+        },
+        [ BuildProgressService.BUILD_RECORD_FILTER.IS_FINISHED() ],
+        BuildProgressService.BUILD_RECORD_UPDATER
+      );
+
+      BuildProgressService.track($scope, 'runningBuilds',
+        function () {
+          return PncRestClient.Running.query().$promise;
+        },
+        [ BuildProgressService.BUILD_RECORD_FILTER.IS_IN_PROGRESS() ],
+        BuildProgressService.BUILD_RECORD_UPDATER
+      );
   }]);
 
 })();
