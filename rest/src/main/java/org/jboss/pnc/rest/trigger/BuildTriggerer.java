@@ -182,19 +182,14 @@ public class BuildTriggerer {
             }
         }
 
-        /*
-         * TODO: Do not ignore certificates, rather setup servers properly.
-         */
-        CloseableHttpClient httpClient = HttpUtils.getPermissiveHttpClient();
-
         HttpPost request = new HttpPost(uri);
         request.addHeader("Authorization", getAuthHeader());
         log.info("Executing request " + request.getRequestLine());
 
-        try (CloseableHttpResponse response = httpClient.execute(request)) {
-            log.info(response.getStatusLine());
-            response.close();
-            httpClient.close();
+        try (CloseableHttpClient httpClient = HttpUtils.getPermissiveHttpClient()) {
+            try (CloseableHttpResponse response = httpClient.execute(request)) {
+                log.info(response.getStatusLine());
+            }
         } catch (IOException e) {
             log.error("Error occured executing the callback.", e);
         }
