@@ -19,6 +19,7 @@ package org.jboss.pnc.termdbuilddriver;
 
 import org.assertj.core.api.Assertions;
 import org.jboss.pnc.model.BuildConfiguration;
+import org.jboss.pnc.spi.BuildExecution;
 import org.jboss.pnc.spi.builddriver.BuildDriverStatus;
 import org.jboss.pnc.spi.builddriver.CompletedBuild;
 import org.jboss.pnc.spi.builddriver.RunningBuild;
@@ -28,18 +29,19 @@ import org.jboss.pnc.termdbuilddriver.commands.TermdCommandExecutionException;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.net.URI;
 import java.util.Arrays;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.*;
 
 public class TermdBuildDriverTest extends AbstractLocalBuildAgentTest {
 
     BuildConfiguration jsr107BuildConfig;
+    BuildExecution buildExecutionMock;
 
     @Before
     public void before() {
@@ -48,6 +50,8 @@ public class TermdBuildDriverTest extends AbstractLocalBuildAgentTest {
         doReturn("master").when(jsr107BuildConfig).getScmRevision();
         doReturn("mvn validate").when(jsr107BuildConfig).getBuildScript();
         doReturn("jsr107-test").when(jsr107BuildConfig).getName();
+
+        buildExecutionMock = mock(BuildExecution.class);
     }
 
     @Test(timeout = 60_000)
@@ -56,7 +60,7 @@ public class TermdBuildDriverTest extends AbstractLocalBuildAgentTest {
         TermdBuildDriver driver = new TermdBuildDriver() {
             @Override
             protected CompletableFuture<TermdCommandBatchExecutionResult> invokeRemoteScript(TermdRunningBuild termdRunningBuild,
-                    String scriptPath) {
+                    String scriptPath, BuildExecution currentBuildExecution) {
                 return CompletableFuture.supplyAsync(() -> {
                     throw new TermdCommandExecutionException("let's check it!", new NullPointerException());
                 });
@@ -64,7 +68,7 @@ public class TermdBuildDriverTest extends AbstractLocalBuildAgentTest {
         };
 
         //when
-        RunningBuild runningBuild = driver.startProjectBuild(jsr107BuildConfig, localEnvironmentPointer);
+        RunningBuild runningBuild = driver.startProjectBuild(buildExecutionMock, jsr107BuildConfig, localEnvironmentPointer);
 
         //then
         runningBuild.monitor(completedBuild -> fail("this execution should fail"), exception -> System.out.println("OK"));
@@ -81,7 +85,7 @@ public class TermdBuildDriverTest extends AbstractLocalBuildAgentTest {
 
             @Override
             protected CompletableFuture<TermdCommandBatchExecutionResult> invokeRemoteScript(TermdRunningBuild termdRunningBuild,
-                    String scriptPath) {
+                    String scriptPath, BuildExecution currentBuildExecution) {
                 return CompletableFuture.supplyAsync(() -> {
                     InvocatedCommandResult result = mock(InvocatedCommandResult.class);
                     doReturn(false).when(result).isSucceed();
@@ -98,10 +102,35 @@ public class TermdBuildDriverTest extends AbstractLocalBuildAgentTest {
         AtomicReference<CompletedBuild> buildResult = new AtomicReference<>();
 
         //when
-        RunningBuild runningBuild = driver.startProjectBuild(jsr107BuildConfig, localEnvironmentPointer);
+        RunningBuild runningBuild = driver.startProjectBuild(buildExecutionMock, jsr107BuildConfig, localEnvironmentPointer);
         runningBuild.monitor(completedBuild -> buildResult.set(completedBuild), exception -> Assertions.fail("Unexpected error", exception));
 
         //then
         assertThat(buildResult.get().getBuildResult().getBuildDriverStatus()).isEqualTo(BuildDriverStatus.FAILED);
     }
+
+    @Test(timeout = 60_000)
+    public void shouldSetLogsInBuildExecution() throws Exception {
+        //given
+        TermdBuildDriver driver = new TermdBuildDriver() {
+            @Override
+            protected CompletableFuture<String> uploadScript(TermdRunningBuild termdRunningBuild, StringBuilder commandAppender) {
+                return CompletableFuture.completedFuture("run.sh");
+            }
+
+            @Override
+            protected CompletableFuture<StringBuffer> aggregateLogs(TermdRunningBuild termdRunningBuild, TermdCommandBatchExecutionResult allInvokedCommands) {
+                return CompletableFuture.completedFuture(new StringBuffer("Ignoring logs"));
+            }
+        };
+
+        //when
+        RunningBuild runningBuild = driver.startProjectBuild(buildExecutionMock, jsr107BuildConfig, localEnvironmentPointer);
+        runningBuild.monitor(completedBuild -> {}, exception -> Assertions.fail("Unexpected error", exception));
+
+        //then
+        verify(buildExecutionMock, times(1)).setLogsWebSocketLink(any(URI.class));
+        verify(buildExecutionMock, times(1)).clearLogsWebSocketLink();
+    }
+
 }

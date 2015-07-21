@@ -109,4 +109,8 @@ public class TermdCommandInvoker {
         return returnedResults;
     }
 
+    public URI getLogsURI() {
+        return termdTerminalConnection.getLogsURI();
+    }
+
 }

@@ -29,10 +29,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.enterprise.event.Event;
+import java.net.URI;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
 * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-12-23.
@@ -43,12 +45,12 @@ public class BuildTask implements BuildExecution {
 
     private final int buildTaskId;
 
-    public BuildConfiguration buildConfiguration;
+    private BuildConfiguration buildConfiguration;
     private BuildExecutionType buildTaskType;
-    BuildStatus status = BuildStatus.NEW;
+    private BuildStatus status = BuildStatus.NEW;
     private String statusDescription;
 
-    Event<BuildStatusChangedEvent> buildStatusChangedEvent;
+    private Event<BuildStatusChangedEvent> buildStatusChangedEvent;
 
     /**
      * A list of builds waiting for this build to complete.
@@ -68,6 +70,8 @@ public class BuildTask implements BuildExecution {
     private User user;
 
     private BuildSetTask buildSetTask;
+
+    private final AtomicReference<URI> logsWebSocketLink = new AtomicReference<>();
 
     BuildTask(BuildCoordinator buildCoordinator, BuildConfiguration buildConfiguration, String topContentId,
               String buildSetContentId,
@@ -187,10 +191,6 @@ public class BuildTask implements BuildExecution {
         return buildTaskId;
     }
 
-    public String getBuildLog() {
-        return null;//TODO reference to progressive log
-    }
-
     @Override
     public String getProjectName() {
         return buildConfiguration.getProject().getName();
@@ -206,6 +206,21 @@ public class BuildTask implements BuildExecution {
 
     public User getUser() {
         return user;
+    }
+
+    @Override
+    public void setLogsWebSocketLink(URI link) {
+        this.logsWebSocketLink.set(link);
+    }
+
+    @Override
+    public void clearLogsWebSocketLink() {
+        this.logsWebSocketLink.set(null);
+    }
+
+    @Override
+    public Optional<URI> getLogsWebSocketLink() {
+        return Optional.ofNullable(logsWebSocketLink.get());
     }
 
     @Override

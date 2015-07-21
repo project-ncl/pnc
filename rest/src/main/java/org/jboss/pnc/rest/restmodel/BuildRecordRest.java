@@ -50,6 +50,8 @@ public class BuildRecordRest {
 
     private Integer externalArchiveId;
 
+    private String liveLogsUri;
+
     public BuildRecordRest() {
     }
 
@@ -75,6 +77,7 @@ public class BuildRecordRest {
         performIfNotNull(buildTask.getBuildConfiguration() != null && buildConfiguration != null,
                 () -> buildConfigurationId = buildConfiguration.getId());
         this.status = BuildStatus.BUILDING;
+        buildTask.getLogsWebSocketLink().ifPresent(logsUri -> this.liveLogsUri = logsUri.toString());
     }
 
     public Integer getId() {
@@ -155,6 +158,14 @@ public class BuildRecordRest {
 
     public void setExternalArchiveId(Integer externalArchiveId) {
         this.externalArchiveId = externalArchiveId;
+    }
+
+    public String getLiveLogsUri() {
+        return liveLogsUri;
+    }
+
+    public void setLiveLogsUri(String liveLogsUri) {
+        this.liveLogsUri = liveLogsUri;
     }
 
 }

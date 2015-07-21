@@ -21,11 +21,8 @@ import org.jboss.logging.Logger;
 import org.jboss.pnc.common.util.RandomUtils;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildType;
-import org.jboss.pnc.spi.builddriver.BuildDriver;
-import org.jboss.pnc.spi.builddriver.BuildDriverResult;
-import org.jboss.pnc.spi.builddriver.BuildDriverStatus;
-import org.jboss.pnc.spi.builddriver.CompletedBuild;
-import org.jboss.pnc.spi.builddriver.RunningBuild;
+import org.jboss.pnc.spi.BuildExecution;
+import org.jboss.pnc.spi.builddriver.*;
 import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
 import org.jboss.pnc.spi.environment.RunningEnvironment;
 
@@ -45,7 +42,7 @@ public class BuildDriverMock implements BuildDriver {
 
 
     @Override
-    public RunningBuild startProjectBuild(BuildConfiguration buildConfiguration, final RunningEnvironment runningEnvironment) throws BuildDriverException {
+    public RunningBuild startProjectBuild(BuildExecution currentBuildExecution, BuildConfiguration buildConfiguration, final RunningEnvironment runningEnvironment) throws BuildDriverException {
         try {
             log.debug("Building " + buildConfiguration);
             Thread.sleep(RandomUtils.randInt(100, 300));

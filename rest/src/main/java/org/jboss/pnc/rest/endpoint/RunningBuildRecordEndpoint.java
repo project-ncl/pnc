@@ -17,31 +17,18 @@
  */
 package org.jboss.pnc.rest.endpoint;
 
+import com.wordnik.swagger.annotations.*;
 import org.jboss.logging.Logger;
 import org.jboss.pnc.rest.provider.BuildRecordProvider;
 import org.jboss.pnc.rest.restmodel.BuildRecordRest;
 import org.jboss.pnc.rest.utils.Utility;
 
 import javax.inject.Inject;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.DefaultValue;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status;
-
 import java.lang.invoke.MethodHandles;
 import java.util.List;
-
-import com.wordnik.swagger.annotations.Api;
-import com.wordnik.swagger.annotations.ApiOperation;
-import com.wordnik.swagger.annotations.ApiParam;
-import com.wordnik.swagger.annotations.ApiResponse;
-import com.wordnik.swagger.annotations.ApiResponses;
 
 @Api(value = "/running-build-records", description = "Build Records for running builds")
 @Path("/running-build-records")
@@ -80,25 +67,5 @@ public class RunningBuildRecordEndpoint {
     @Path("/{id}")
     public Response getSpecific(@ApiParam(value = "BuildRecord id", required = true) @PathParam("id") Integer id) {
         return Utility.createRestEnityResponse(buildRecordProvider.getSpecificRunning(id), id);
-    }
-
-    @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Successful retrieval of the log"),
-            @ApiResponse(code = 204, message = "RunningBuild exists, but the log content is empty"),
-            @ApiResponse(code = 404, message = "RunningBuild with specified id does not exist"),
-    })
-    @ApiOperation(value = "Gets specific log of a Running Build Record")
-    @GET
-    @Path("/{id}/log")
-    @Produces(MediaType.TEXT_PLAIN)
-    public Response getLogs(@ApiParam(value = "RunningBuild id", required = true) @PathParam("id") Integer id) {
-        String buildLog = buildRecordProvider.getSubmittedBuildLog(id);
-        if (buildLog == null)
-            return Response.status(Status.NOT_FOUND).build();
-
-        if (buildLog.isEmpty())
-            return Response.noContent().build();
-        else
-            return Response.ok(buildRecordProvider.getStreamingOutputForString(buildLog)).build();
     }
 }

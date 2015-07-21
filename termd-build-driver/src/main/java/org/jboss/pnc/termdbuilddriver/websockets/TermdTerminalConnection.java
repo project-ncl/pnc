@@ -36,4 +36,8 @@ public class TermdTerminalConnection extends AbstractWebSocketsConnection {
         super.onClose();
     }
 
+    public URI getLogsURI() {
+        return URI.create(uri.toString() + "?sessionId=reconnect");
+    }
+
 }
