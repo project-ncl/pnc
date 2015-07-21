@@ -98,8 +98,10 @@ public class BuildTriggerer {
             throws InterruptedException, CoreException, BuildDriverException, RepositoryManagerException
     {
         Consumer<BuildStatusChangedEvent> onStatusUpdate = (statusChangedEvent) -> {
-            // Expecting URL like: http://host:port/business-central/rest/runtime/org.test:Test1:1.0/process/instance/7/signal?signal=testSig
-            signalBpmEvent(callBackUrl.toString() + "&event=" + statusChangedEvent.getNewStatus());
+            if(statusChangedEvent.getNewStatus().isCompleted()) {
+                // Expecting URL like: http://host:port/business-central/rest/runtime/org.test:Test1:1.0/process/instance/7/signal?signal=testSig
+                signalBpmEvent(callBackUrl.toString() + "&event=" + statusChangedEvent.getNewStatus());
+            }
         };
 
         int buildTaskId = triggerBuilds(buildConfigurationId, currentUser);
@@ -129,8 +131,10 @@ public class BuildTriggerer {
         throws InterruptedException, CoreException, BuildDriverException, RepositoryManagerException
     {
         Consumer<BuildSetStatusChangedEvent> onStatusUpdate = (statusChangedEvent) -> {
-            // Expecting URL like: http://host:port/business-central/rest/runtime/org.test:Test1:1.0/process/instance/7/signal?signal=testSig
-            signalBpmEvent(callBackUrl.toString() + "&event=" + statusChangedEvent.getNewStatus());
+            if(statusChangedEvent.getNewStatus().isCompleted()) {
+                // Expecting URL like: http://host:port/business-central/rest/runtime/org.test:Test1:1.0/process/instance/7/signal?signal=testSig
+                signalBpmEvent(callBackUrl.toString() + "&event=" + statusChangedEvent.getNewStatus());
+            }
         };
 
         int buildSetTaskId = triggerBuildConfigurationSet(buildConfigurationSetId, currentUser);
