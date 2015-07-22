@@ -30,12 +30,12 @@ public enum BuildStatus {
     BUILD_ENV_SETTING_UP,
     BUILD_ENV_WAITING,
     BUILD_ENV_SETUP_COMPLETE_SUCCESS,
-    BUILD_ENV_SETUP_COMPLETE_WITH_ERROR,
+    BUILD_ENV_SETUP_COMPLETE_WITH_ERROR(false, true),
 
     BUILD_SETTING_UP,
     BUILD_WAITING,
     BUILD_COMPLETED_SUCCESS,
-    BUILD_COMPLETED_WITH_ERROR,
+    BUILD_COMPLETED_WITH_ERROR(false, true),
 
     COLLECTING_RESULTS_FROM_BUILD_DRIVER,
     COLLECTING_RESULTS_FROM_REPOSITORY_NAMAGER,
@@ -55,11 +55,15 @@ public enum BuildStatus {
      * Missing configuration, un-satisfied dependencies, dependencies failed to build.
      * Rejected can be set before adding to the list of running builds or before dropping form list of running builds.
      */
-    REJECTED(true),
+    REJECTED(true, true),
 
-    SYSTEM_ERROR(true);
+    SYSTEM_ERROR(true, true),
+
+    DONE_WITH_ERRORS(true, true);
 
     private boolean isFinal;
+
+    private boolean hasFailed = false;
 
     BuildStatus() {
         isFinal = false;
@@ -69,8 +73,17 @@ public enum BuildStatus {
         this.isFinal = isFinal;
     }
 
+    BuildStatus(boolean isFinal, boolean hasFailed) {
+        this.isFinal = isFinal;
+        this.hasFailed = hasFailed;
+    }
+
     public boolean isCompleted() {
         return this.isFinal;
+    }
+
+    public boolean hasFailed() {
+        return this.hasFailed;
     }
 
 }

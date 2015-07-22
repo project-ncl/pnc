@@ -277,7 +277,7 @@ public class BuildCoordinator {
         try {
             BuildDriverResult buildResult = completedBuild.getBuildResult();
             BuildDriverStatus buildDriverStatus = buildResult.getBuildDriverStatus();
-            if (buildDriverStatus == BuildDriverStatus.SUCCESS) {
+            if (buildDriverStatus.completedSuccessfully()) {
                 buildTask.setStatus(BuildStatus.BUILD_COMPLETED_SUCCESS);
             } else {
                 buildTask.setStatus(BuildStatus.BUILD_COMPLETED_WITH_ERROR);
@@ -328,7 +328,11 @@ public class BuildCoordinator {
             log.error("Error storing results of build configuration: " + buildTask.getId()  + " to datastore.", de);
         }
 
-        buildTask.setStatus(BuildStatus.DONE);
+        if (buildTask.hasFailed())
+            buildTask.setStatus(BuildStatus.DONE_WITH_ERRORS);
+        else
+            buildTask.setStatus(BuildStatus.DONE);
+
         buildTasks.remove(buildTask);
         return storedBuildRecord;
     }

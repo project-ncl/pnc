@@ -17,15 +17,15 @@
  */
 package org.jboss.pnc.core.test.configurationBuilders;
 
-import org.jboss.pnc.model.BuildConfigurationSet;
-import org.jboss.pnc.model.Environment;
-import org.jboss.pnc.model.Project;
-import org.jboss.pnc.model.BuildConfiguration;
+import org.jboss.pnc.model.*;
 
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-12-10.
  */
 public class TestProjectConfigurationBuilder {
+
+    public static final String FAIL = "Fail";
+    public static final String PASS = "Pass";
 
     Environment javaEnvironment = Environment.Builder.defaultEnvironment().build();
 
@@ -63,6 +63,15 @@ public class TestProjectConfigurationBuilder {
 
         return buildConfiguration1;
     }
+
+    public BuildConfiguration buildConfigurationWithDependenciesThatFail(BuildConfigurationSet buildConfigurationSet) {
+        BuildConfiguration buildConfiguration1 = build(1, "with-dependencies-1", buildConfigurationSet);
+        BuildConfiguration buildConfiguration2 = buildFailingConfiguration(2, "with-dependencies-2", buildConfigurationSet);
+
+        buildConfiguration1.addDependency(buildConfiguration2);
+        return buildConfiguration1;
+    }
+
     public BuildConfiguration build(int id, String name) {
         return build(id, name, null);
     }
@@ -73,6 +82,7 @@ public class TestProjectConfigurationBuilder {
         project.setName(name);
         BuildConfiguration buildConfiguration = new BuildConfiguration();
         buildConfiguration.setId(id);
+        buildConfiguration.setDescription(PASS);
         buildConfiguration.setName(id + "");
         buildConfiguration.setEnvironment(javaEnvironment);
         buildConfiguration.setProject(project);
@@ -83,11 +93,26 @@ public class TestProjectConfigurationBuilder {
         return buildConfiguration;
     }
 
+    public BuildConfiguration buildFailingConfiguration(int id, String name, BuildConfigurationSet buildConfigurationSet) {
+        BuildConfiguration buildConfiguration =  build(id, name, buildConfigurationSet);
+        buildConfiguration.setDescription(FAIL);
+        return buildConfiguration;
+    }
+
     public BuildConfigurationSet buildConfigurationSet(Integer configurationSetId) {
         BuildConfigurationSet buildConfigurationSet = new BuildConfigurationSet();
         buildConfigurationSet.setName("test-build-configuration");
         buildConfigurationSet.setId(configurationSetId);
         buildConfigurationWithDependencies(buildConfigurationSet);
+
+        return buildConfigurationSet;
+    }
+
+    public BuildConfigurationSet buildConfigurationSetWithFailedDependencies(Integer configurationSetId){
+        BuildConfigurationSet buildConfigurationSet = new BuildConfigurationSet();
+        buildConfigurationSet.setName("test-build-configuration-failed-deps");
+        buildConfigurationSet.setId(configurationSetId);
+        buildConfigurationWithDependenciesThatFail(buildConfigurationSet);
 
         return buildConfigurationSet;
     }

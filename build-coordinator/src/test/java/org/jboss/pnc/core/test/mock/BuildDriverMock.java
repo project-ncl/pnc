@@ -19,6 +19,7 @@ package org.jboss.pnc.core.test.mock;
 
 import org.jboss.logging.Logger;
 import org.jboss.pnc.common.util.RandomUtils;
+import org.jboss.pnc.core.test.configurationBuilders.TestProjectConfigurationBuilder;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildType;
 import org.jboss.pnc.spi.BuildExecution;
@@ -35,6 +36,8 @@ public class BuildDriverMock implements BuildDriver {
 
     public static final Logger log = Logger.getLogger(BuildDriverMock.class);
 
+    private BuildDriverStatus buildDriverStatus;
+
     @Override
     public String getDriverId() {
         return null;
@@ -46,6 +49,7 @@ public class BuildDriverMock implements BuildDriver {
         try {
             log.debug("Building " + buildConfiguration);
             Thread.sleep(RandomUtils.randInt(100, 300));
+            setBuildDriverStatus(buildConfiguration.getDescription());
             return new RunningBuild() {
 
                 @Override
@@ -74,6 +78,14 @@ public class BuildDriverMock implements BuildDriver {
         }
     }
 
+    private void setBuildDriverStatus(String description){
+        if (description.equals(TestProjectConfigurationBuilder.FAIL))
+            buildDriverStatus = BuildDriverStatus.FAILED;
+        else
+            buildDriverStatus = BuildDriverStatus.SUCCESS;
+
+    }
+
     private BuildDriverResult getBuildResultMock(final RunningEnvironment runningEnvironment) {
         return new BuildDriverResult() {
             @Override
@@ -83,7 +95,7 @@ public class BuildDriverMock implements BuildDriver {
 
             @Override
             public BuildDriverStatus getBuildDriverStatus() {
-                return BuildDriverStatus.SUCCESS;
+                return buildDriverStatus;
             }
 
             @Override
