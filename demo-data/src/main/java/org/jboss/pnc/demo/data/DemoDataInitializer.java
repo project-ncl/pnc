@@ -49,9 +49,9 @@ public class DemoDataInitializer {
             logger.info("Initializing DEMO data");
             dbDataInitializer.initiliazeProjectProductData();
             dbDataInitializer.initiliazeBuildRecordDemoData();
+            dbDataInitializer.verifyData();
             logger.info("Finished initializing DEMO data");
         }
-        dbDataInitializer.verifyData();
     }
 
 }
