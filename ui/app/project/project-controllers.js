@@ -37,4 +37,29 @@
     }
   ]);
 
+  module.controller('ProjectCreateController', [
+    '$scope',
+    '$state',
+    '$log',
+    'Project',
+    function($scope, $state, $log, Project) {
+
+      this.create = function(project) {
+
+        new Project(angular.copy(project)).$save().then(function(result) {
+          $state.go('project.detail', {
+            projectId: result.id
+          });
+        });
+      };
+
+      this.reset = function(form) {
+        if (form) {
+          form.$setPristine();
+          form.$setUntouched();
+        }
+      };
+    }
+  ]);
+
 })();
