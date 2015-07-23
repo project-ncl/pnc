@@ -129,3 +129,23 @@ ul.pagination.pull-right {
 .bigger-text {
   font-size: 14px;
 }
+
+button.debutton {
+  -webkit-appearance: none;
+  padding: 0;
+  cursor: pointer;
+  background: transparent;
+  border: 0;
+}
+
+@media (max-width: 600px) {
+  .semi-responsive-well {
+    width: 100%;
+  }
+}
+
+@media (min-width: 600px) {
+  .semi-responsive-well {
+    width: 560px;
+  }
+}
