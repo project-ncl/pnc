@@ -17,7 +17,9 @@
  */
 package org.jboss.pnc.integration.client;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.jayway.restassured.http.ContentType;
+import com.jayway.restassured.response.Response;
+import com.jayway.restassured.specification.RequestSpecification;
 import org.jboss.pnc.auth.AuthenticationProvider;
 import org.jboss.pnc.auth.ExternalAuthentication;
 import org.jboss.pnc.common.Configuration;
@@ -25,18 +27,24 @@ import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.moduleconfig.AuthenticationModuleConfig;
 import org.jboss.pnc.integration.BuildRecordRestTest;
 import org.jboss.pnc.integration.utils.AuthResource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.invoke.MethodHandles;
+
+import static com.jayway.restassured.RestAssured.given;
+import static org.jboss.pnc.integration.env.IntegrationTestEnv.getHttpPort;
 
 public abstract class AbstractRestClient {
 
-    protected static AuthenticationProvider authProvider;
-    protected static String access_token = "no-auth";
+    protected Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-    protected static boolean authInitialized = false;
+    protected AuthenticationProvider authProvider;
+    protected String access_token = "no-auth";
 
-    protected ObjectMapper jsonMapper = new ObjectMapper();
+    protected boolean authInitialized = false;
 
     protected AbstractRestClient() {
 
@@ -51,6 +59,36 @@ public abstract class AbstractRestClient {
             access_token = authProvider.getTokenString();
             authInitialized = true;
         }
+    }
+
+    protected Response post(String path, Object body) {
+        return request().when().body(body).post(path);
+    }
+
+    protected Response put(String path, Object body) {
+        return request().when().body(body).put(path);
+    }
+
+    protected Response get(String path) {
+        return request().when().get(path);
+    }
+
+    protected RequestSpecification request() {
+        return given()
+                .log().everything()
+                .header("Accept", "application/json")
+                .header("Authorization", "Bearer " + access_token)
+                .contentType(ContentType.JSON)
+                .port(getHttpPort());
+    }
+
+    protected Integer getLocationFromHeader(Response post) {
+        String location = post.getHeader("Location");
+        Integer idFromLocation = null;
+        if(location != null) {
+            idFromLocation = Integer.valueOf(location.substring(location.lastIndexOf("/") + 1));
+        }
+        return idFromLocation;
     }
 
 }

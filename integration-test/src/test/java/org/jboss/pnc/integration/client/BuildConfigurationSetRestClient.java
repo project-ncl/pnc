@@ -41,9 +41,9 @@ public class BuildConfigurationSetRestClient extends AbstractRestClient {
         return ret;
     }
 
-    public ClientResponse createNew(BuildConfigurationSetRest projectRest) {
+    public ClientResponse createNew(BuildConfigurationSetRest buildConfigurationSet) {
         Response post = given().header("Accept", "application/json").header("Authorization", "Bearer " + access_token)
-                .contentType(ContentType.JSON).port(getHttpPort()).body(projectRest).when().post(BUILD_CONFIGURATION_SET_REST_ENDPOINT);
+                .contentType(ContentType.JSON).port(getHttpPort()).body(buildConfigurationSet).when().post(BUILD_CONFIGURATION_SET_REST_ENDPOINT);
 
         String location = post.getHeader("Location");
         Integer idFromLocation = null;

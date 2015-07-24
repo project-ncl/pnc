@@ -27,11 +27,15 @@ import org.jboss.pnc.auth.ExternalAuthentication;
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.moduleconfig.AuthenticationModuleConfig;
-import org.jboss.pnc.integration.utils.AuthResource;
 import org.jboss.pnc.integration.assertions.ResponseAssertion;
+import org.jboss.pnc.integration.client.BuildConfigurationRestClient;
+import org.jboss.pnc.integration.client.ClientResponse;
+import org.jboss.pnc.integration.client.EnvironmentRestClient;
+import org.jboss.pnc.integration.client.ProjectRestClient;
 import org.jboss.pnc.integration.deployments.Deployments;
 import org.jboss.pnc.integration.matchers.JsonMatcher;
 import org.jboss.pnc.integration.template.JsonTemplateBuilder;
+import org.jboss.pnc.integration.utils.AuthResource;
 import org.jboss.pnc.rest.endpoint.BuildConfigurationEndpoint;
 import org.jboss.pnc.rest.provider.BuildConfigurationProvider;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationRest;
@@ -50,6 +54,8 @@ import javax.ws.rs.core.Response.Status;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.invoke.MethodHandles;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -296,6 +302,41 @@ public class BuildConfigurationRestTest {
 
         ResponseAssertion.assertThat(response).hasStatus(Status.OK.getStatusCode());
         ResponseAssertion.assertThat(response).hasJsonValueNotNullOrEmpty("[0].id");
+    }
+
+    @Test
+    public void shouldAddChildBuildConfiguration() throws Exception {
+        //given
+        BuildConfigurationRestClient buildConfigurationRest = BuildConfigurationRestClient.empty();
+
+        ProjectRestClient projectRestClient = ProjectRestClient.firstNotNull();
+        EnvironmentRestClient environmentRestClient = EnvironmentRestClient.firstNotNull();
+
+        BuildConfigurationRest parentBuildConfiguration = new BuildConfigurationRest();
+        parentBuildConfiguration.setName(UUID.randomUUID().toString());
+        parentBuildConfiguration.setProjectId(projectRestClient.getProjectId());
+        parentBuildConfiguration.setEnvironmentId(environmentRestClient.getEnvironmentId());
+
+        BuildConfigurationRest childBuildConfiguration = new BuildConfigurationRest();
+        childBuildConfiguration.setName(UUID.randomUUID().toString());
+        childBuildConfiguration.setProjectId(projectRestClient.getProjectId());
+        childBuildConfiguration.setEnvironmentId(environmentRestClient.getEnvironmentId());
+
+        //when
+        ClientResponse parentCreatedRestResponse = buildConfigurationRest.createNew(parentBuildConfiguration);
+        ClientResponse childCreatedRestResponse = buildConfigurationRest.createNew(childBuildConfiguration);
+
+        Integer parentCreatedBuildConfigurationId = parentCreatedRestResponse.getId().get();
+        Integer childCreatedBuildConfigurationId = childCreatedRestResponse.getId().get();
+
+        parentBuildConfiguration.setDependencyIds(new HashSet<>(Arrays.asList(childCreatedBuildConfigurationId)));
+
+        ClientResponse addedChildRestResponse = buildConfigurationRest.update(parentCreatedBuildConfigurationId, parentBuildConfiguration);
+
+        //then
+        assertThat(parentCreatedRestResponse.getHttpCode()).isEqualTo(201);
+        assertThat(childCreatedRestResponse.getHttpCode()).isEqualTo(201);
+        assertThat(addedChildRestResponse.getHttpCode()).isEqualTo(200);
     }
 
     @Test

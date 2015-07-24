@@ -72,6 +72,7 @@ public class BuildTask implements BuildExecution {
     private BuildSetTask buildSetTask;
 
     private final AtomicReference<URI> logsWebSocketLink = new AtomicReference<>();
+    private boolean hasFailed = false;
 
     BuildTask(BuildCoordinator buildCoordinator, BuildConfiguration buildConfiguration, String topContentId,
               String buildSetContentId,
@@ -98,13 +99,16 @@ public class BuildTask implements BuildExecution {
     public void setStatus(BuildStatus status) {
         BuildStatus oldStatus = this.status;
         this.status = status;
+        if (status.hasFailed()){
+            setHasFailed(true);
+        }
         Integer userId = Optional.ofNullable(user).map(user -> user.getId()).orElse(null);
         BuildStatusChangedEvent buildStatusChanged = new DefaultBuildStatusChangedEvent(oldStatus, status, getId(),
                 buildConfiguration.getId(), userId);
         log.debug("Updating build task {} status to {}", this.getId(), buildStatusChanged);
         buildSetTask.taskStatusUpdated(buildStatusChanged);
         buildStatusChangedEvent.fire(buildStatusChanged);
-        if (status.equals(BuildStatus.DONE)) {
+        if (status.isCompleted()) {
             waiting.forEach((submittedBuild) -> submittedBuild.requiredBuildCompleted(this));
         }
     }
@@ -114,13 +118,18 @@ public class BuildTask implements BuildExecution {
     }
 
     private void requiredBuildCompleted(BuildTask completed) {
-        requiredBuilds.remove(completed);
-        if (requiredBuilds.size() == 0) {
-            try {
-                buildCoordinator.startBuilding(this);
-            } catch (CoreException e) {
-                setStatus(BuildStatus.SYSTEM_ERROR);
-                setStatusDescription(e.getMessage());
+        if (requiredBuilds.contains(completed) && completed.hasFailed()){
+            this.setStatus(BuildStatus.REJECTED);
+        }
+        else {
+            requiredBuilds.remove(completed);
+            if (requiredBuilds.size() == 0) {
+                try {
+                    buildCoordinator.startBuilding(this);
+                } catch (CoreException e) {
+                    setStatus(BuildStatus.SYSTEM_ERROR);
+                    setStatusDescription(e.getMessage());
+                }
             }
         }
     }
@@ -186,6 +195,13 @@ public class BuildTask implements BuildExecution {
         this.statusDescription = statusDescription;
     }
 
+    public boolean hasFailed(){
+        return this.hasFailed;
+    }
+
+    public void setHasFailed(boolean hasFailed){
+       this.hasFailed = hasFailed;
+    }
 
     public int getId() {
         return buildTaskId;

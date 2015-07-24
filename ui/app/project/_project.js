@@ -22,6 +22,7 @@
   var module = angular.module('pnc.project', [
     'ui.router',
     'pnc.common.restclient',
+    'pnc.common.directives',
     'angularUtils.directives.uiBreadcrumbs'
   ]);
 
@@ -40,7 +41,7 @@
       }
     });
 
-   $stateProvider.state('project.list', {
+    $stateProvider.state('project.list', {
       url: '/project',
       templateUrl: 'project/views/project.list.html',
       data: {
@@ -56,26 +57,33 @@
       },
     });
 
-  $stateProvider.state('project.detail', {
-    url: '/project/{projectId:int}',
-    templateUrl: 'project/views/project.detail.html',
-    data: {
-       displayName: '{{ projectDetail.name }}',
-    },
-    controller: 'ProjectDetailController',
-    controllerAs: 'detailCtrl',
-    resolve: {
-      restClient: 'PncRestClient',
-      projectDetail: function(restClient, $stateParams) {
-        return restClient.Project.get({
-          projectId: $stateParams.projectId}).$promise;
+    $stateProvider.state('project.detail', {
+      url: '/project/{projectId:int}',
+      templateUrl: 'project/views/project.detail.html',
+      data: {
+         displayName: '{{ projectDetail.name }}',
       },
-      projectConfigurationList: function(restClient, $stateParams) {
-        return restClient.Configuration.getAllForProject({
-          projectId: $stateParams.projectId}).$promise;
-      },
-    }
-  });
+      controller: 'ProjectDetailController',
+      controllerAs: 'detailCtrl',
+      resolve: {
+        restClient: 'PncRestClient',
+        projectDetail: function(restClient, $stateParams) {
+          return restClient.Project.get({
+            projectId: $stateParams.projectId}).$promise;
+        },
+        projectConfigurationList: function(restClient, $stateParams) {
+          return restClient.Configuration.getAllForProject({
+            projectId: $stateParams.projectId}).$promise;
+        },
+      }
+    });
+
+    $stateProvider.state('project.create', {
+      url: '/project/create',
+      templateUrl: 'project/views/project.create.html',
+      controller: 'ProjectCreateController',
+      controllerAs: 'createCtrl'
+    });
 
   }]);
 

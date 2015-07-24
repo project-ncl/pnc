@@ -19,6 +19,7 @@ package org.jboss.pnc.integration;
 
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
+import org.jboss.pnc.integration.client.BuildConfigurationRestClient;
 import org.jboss.pnc.integration.client.ClientResponse;
 import org.jboss.pnc.integration.client.ProjectRestClient;
 import org.jboss.pnc.integration.deployments.Deployments;
@@ -36,6 +37,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.invoke.MethodHandles;
+import java.util.Arrays;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -95,6 +97,27 @@ public class ProjectRestTest {
         //than
         assertThat(firstResponse.getHttpCode()).isEqualTo(201);
         assertThat(secondResponse.getHttpCode()).isEqualTo(409);
+    }
+
+    @Test
+    public void shouldAllowToAddConfiguration() throws Exception {
+        //given
+        BuildConfigurationRestClient configuration = BuildConfigurationRestClient.firstNotNull();
+
+        ProjectRest project = new ProjectRest();
+        project.setName(UUID.randomUUID().toString());
+
+        //when
+        ClientResponse createdProject = projectRest.createNew(project);
+
+        int projectId = createdProject.getId().get();
+        project.setConfigurationIds(Arrays.asList(configuration.getBuildConfigurationId()));
+
+        ClientResponse updatedProject = projectRest.update(projectId, project);
+
+        //than
+        assertThat(createdProject.getHttpCode()).isEqualTo(201);
+        assertThat(updatedProject.getHttpCode()).isEqualTo(200);
     }
 
 
