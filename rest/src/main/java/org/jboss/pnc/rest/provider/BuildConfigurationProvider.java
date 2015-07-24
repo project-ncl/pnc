@@ -157,9 +157,9 @@ public class BuildConfigurationProvider {
     }
 
     public Integer update(Integer id, BuildConfigurationRest buildConfigurationRest) throws ConflictedEntryException {
-        validateBeforeSaving(buildConfigurationRest);
         Preconditions.checkArgument(id != null, "Id must not be null");
         buildConfigurationRest.setId(id);
+        validateBeforeSaving(buildConfigurationRest);
         BuildConfiguration buildConfiguration = buildConfigurationRepository.queryById(id);
         Preconditions.checkArgument(buildConfiguration != null, "Couldn't find buildConfiguration with id "
                 + buildConfigurationRest.getId());
@@ -170,8 +170,13 @@ public class BuildConfigurationProvider {
     private void validateBeforeSaving(BuildConfigurationRest buildConfigurationRest) throws ConflictedEntryException, IllegalArgumentException {
         Preconditions.checkArgument(buildConfigurationRest.getName() != null, "Name must not be null");
         Preconditions.checkArgument(buildConfigurationRest.getProjectId() != null, "Project Id must not be null");
-        if(buildConfigurationRepository
-                .count(withProjectId(buildConfigurationRest.getProjectId()), withName(buildConfigurationRest.getName())) > 0) {
+
+        BuildConfiguration buildConfigurationFromDB = buildConfigurationRepository
+                .queryByPredicates(withProjectId(buildConfigurationRest.getProjectId()),
+                        withName(buildConfigurationRest.getName()));
+
+        //don't validate against myself
+        if(buildConfigurationFromDB != null && !buildConfigurationFromDB.getId().equals(buildConfigurationRest.getId())) {
             throw new  ConflictedEntryException("Configuration with the same name already exists within project", BuildConfiguration.class, buildConfigurationRest.getProjectId());
         }
     }

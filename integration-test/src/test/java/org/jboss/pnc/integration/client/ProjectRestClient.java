@@ -43,9 +43,10 @@ public class ProjectRestClient extends AbstractRestClient {
         ProjectRestClient ret = new ProjectRestClient();
         ret.initAuth();
 
-        given().header("Accept", "application/json").header("Authorization", "Bearer " + access_token)
+        given().header("Accept", "application/json").header("Authorization", "Bearer " + ret.access_token)
                 .contentType(ContentType.JSON).port(getHttpPort()).when().get(PROJECT_REST_ENDPOINT).then().statusCode(200)
                 .body(JsonMatcher.containsJsonAttribute("[0].id", value -> ret.projectId = Integer.valueOf(value)));
+
         return ret;
     }
 
@@ -61,4 +62,7 @@ public class ProjectRestClient extends AbstractRestClient {
         return new ClientResponse(this, post.getStatusCode(), idFromLocation);
     }
 
+    public int getProjectId() {
+        return projectId;
+    }
 }
