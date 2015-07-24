@@ -103,8 +103,6 @@
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <illegaltransitivereportonly>false</illegaltransitivereportonly>
 
-    <demo.pnc.ip.address>10.3.10.200:8080</demo.pnc.ip.address>
-
     <!-- Default DB for NCL is HSQLDB -->
     <persistence.jta-data-source>java:jboss/datasources/NewcastleTestDS</persistence.jta-data-source>
     <persistence.hibernate.dialect>org.hibernate.dialect.HSQLDialect</persistence.hibernate.dialect>
