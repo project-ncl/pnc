@@ -17,7 +17,6 @@
  */
 package org.jboss.pnc.integration.client;
 
-import com.jayway.restassured.http.ContentType;
 import com.jayway.restassured.response.Response;
 import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.integration.matchers.JsonMatcher;
@@ -25,13 +24,9 @@ import org.jboss.pnc.rest.restmodel.ProjectRest;
 
 import java.io.IOException;
 
-import static com.jayway.restassured.RestAssured.given;
-import static org.jboss.pnc.integration.env.IntegrationTestEnv.getHttpPort;
-
 public class ProjectRestClient extends AbstractRestClient {
 
     private static final String PROJECT_REST_ENDPOINT = "/pnc-rest/rest/projects/";
-    private static final String PROJECT_SPECIFIC_REST_ENDPOINT = "/pnc-rest/rest/projects/%d";
 
     private int projectId;
 
@@ -43,23 +38,24 @@ public class ProjectRestClient extends AbstractRestClient {
         ProjectRestClient ret = new ProjectRestClient();
         ret.initAuth();
 
-        given().header("Accept", "application/json").header("Authorization", "Bearer " + ret.access_token)
-                .contentType(ContentType.JSON).port(getHttpPort()).when().get(PROJECT_REST_ENDPOINT).then().statusCode(200)
-                .body(JsonMatcher.containsJsonAttribute("[0].id", value -> ret.projectId = Integer.valueOf(value)));
+        ret.get(PROJECT_REST_ENDPOINT)
+                .then()
+                    .statusCode(200)
+                    .body(JsonMatcher.containsJsonAttribute("[0].id", value -> ret.projectId = Integer.valueOf(value)));
 
         return ret;
     }
 
     public ClientResponse createNew(ProjectRest projectRest) {
-        Response post = given().header("Accept", "application/json").header("Authorization", "Bearer " + access_token)
-                .contentType(ContentType.JSON).port(getHttpPort()).body(projectRest).when().post(PROJECT_REST_ENDPOINT);
+        Response response = post(PROJECT_REST_ENDPOINT, projectRest);
 
-        String location = post.getHeader("Location");
-        Integer idFromLocation = null;
-        if(location != null) {
-            idFromLocation = Integer.valueOf(location.substring(location.lastIndexOf("/") + 1));
-        }
-        return new ClientResponse(this, post.getStatusCode(), idFromLocation);
+        return new ClientResponse(this, response.getStatusCode(), getLocationFromHeader(response));
+    }
+
+    public ClientResponse update(Integer id, ProjectRest projectRest) {
+        Response response = put(PROJECT_REST_ENDPOINT + id, projectRest);
+
+        return new ClientResponse(this, response.getStatusCode(), null);
     }
 
     public int getProjectId() {

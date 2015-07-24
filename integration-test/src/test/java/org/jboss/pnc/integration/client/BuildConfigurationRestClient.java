@@ -27,8 +27,19 @@ public class BuildConfigurationRestClient extends AbstractRestClient {
 
     private static final String BUILD_CONFIGURATION_REST_ENDPOINT = "/pnc-rest/rest/build-configurations/";
 
+    private Integer buildConfigurationId;
+
     private BuildConfigurationRestClient() {
 
+    }
+
+    public static BuildConfigurationRestClient firstNotNull() throws IOException, ConfigurationParseException {
+        BuildConfigurationRestClient ret = new BuildConfigurationRestClient();
+        ret.initAuth();
+
+        ret.buildConfigurationId = ret.getLocationFromHeader(ret.get(BUILD_CONFIGURATION_REST_ENDPOINT));
+
+        return ret;
     }
 
     public static BuildConfigurationRestClient empty() throws IOException, ConfigurationParseException {
@@ -48,4 +59,7 @@ public class BuildConfigurationRestClient extends AbstractRestClient {
         return new ClientResponse(this, post.getStatusCode(), null);
     }
 
+    public Integer getBuildConfigurationId() {
+        return buildConfigurationId;
+    }
 }

@@ -93,8 +93,8 @@ public class ProjectProvider {
         Preconditions.checkArgument(id != null, "Id must not be null");
         Preconditions.checkArgument(projectRest.getId() == null || projectRest.getId().equals(id),
                 "Entity id does not match the id to update");
-        validateBeforeSaving(projectRest);
         projectRest.setId(id);
+        validateBeforeSaving(projectRest);
         Project project = projectRepository.queryById(id);
         Preconditions.checkArgument(project != null, "Couldn't find project with id " + projectRest.getId());
         project = projectRepository.save(projectRest.toProject());
@@ -103,7 +103,8 @@ public class ProjectProvider {
 
     private void validateBeforeSaving(ProjectRest projectRest) throws ConflictedEntryException {
         Project project = projectRepository.queryByPredicates(withProjectName(projectRest.getName()));
-        if(project != null) {
+        //don't validate against myself
+        if(project != null && !project.getId().equals(projectRest.getId())) {
             throw new ConflictedEntryException("Project of that name already exists", Project.class, project.getId());
         }
     }
