@@ -71,9 +71,8 @@ public class BuildSetTask {
     }
 
     void taskStatusUpdated(BuildStatusChangedEvent buildStatusChangedEvent) {
-        Long completedTasksCount = buildTasks.stream().filter(bt -> bt.getStatus().isCompleted()).count();
-        //check if all tasks are completed
-        if (completedTasksCount.intValue() == buildTasks.size()) {
+        // If all build tasks are complete, then the build set is done
+        if (buildTasks.stream().allMatch(bt -> bt.getStatus().isCompleted())) {
             setStatus(BuildSetStatus.DONE);
         }
     }
