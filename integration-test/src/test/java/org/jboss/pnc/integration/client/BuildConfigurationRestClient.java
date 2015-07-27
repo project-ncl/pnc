@@ -19,6 +19,7 @@ package org.jboss.pnc.integration.client;
 
 import com.jayway.restassured.response.Response;
 import org.jboss.pnc.common.json.ConfigurationParseException;
+import org.jboss.pnc.integration.matchers.JsonMatcher;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationRest;
 
 import java.io.IOException;
@@ -33,19 +34,26 @@ public class BuildConfigurationRestClient extends AbstractRestClient {
 
     }
 
-    public static BuildConfigurationRestClient firstNotNull() throws IOException, ConfigurationParseException {
-        BuildConfigurationRestClient ret = new BuildConfigurationRestClient();
-        ret.initAuth();
-
-        ret.buildConfigurationId = ret.getLocationFromHeader(ret.get(BUILD_CONFIGURATION_REST_ENDPOINT));
-
-        return ret;
-    }
-
     public static BuildConfigurationRestClient empty() throws IOException, ConfigurationParseException {
         BuildConfigurationRestClient ret = new BuildConfigurationRestClient();
         ret.initAuth();
         return ret;
+    }
+
+    public static BuildConfigurationRestClient firstNotNull() throws IOException, ConfigurationParseException {
+        BuildConfigurationRestClient ret = empty();
+
+        ret.get(BUILD_CONFIGURATION_REST_ENDPOINT)
+                .then()
+                    .statusCode(200)
+                    .body(JsonMatcher.containsJsonAttribute("[0].id", value -> ret.buildConfigurationId = Integer.valueOf(value)));
+
+        return ret;
+    }
+
+    public ClientResponse get(int id) throws IOException, ConfigurationParseException {
+        Response response = get(BUILD_CONFIGURATION_REST_ENDPOINT + id);
+        return new ClientResponse(this, response.getStatusCode(), null);
     }
 
     public ClientResponse createNew(BuildConfigurationRest buildConfiguration) {
