@@ -34,6 +34,11 @@
     function(projectDetail, projectConfigurationList) {
       this.project = projectDetail;
       this.projectConfigurationList = projectConfigurationList;
+
+      this.update = function() {
+        this.project.$update();
+      };
+
     }
   ]);
 

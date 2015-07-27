@@ -21,7 +21,7 @@
   <pnc-header>
     <pnc-header-title>{{ detailCtrl.project.name || 'Empty' }}</pnc-header-title>
     <pnc-header-buttons>
-      <button type="button" class="btn btn-lg btn-default disabled" data-toggle="tooltip" title="Edit Project">
+      <button type="button" class="btn btn-lg btn-default" data-toggle="tooltip" title="Edit Project" ng-click="projectForm.$show()">
         <i class="pficon pficon-edit"></i> Edit
       </button>
       <button type="button" class="btn btn-lg btn-danger disabled" data-toggle="tooltip" title="Delete Project">
@@ -30,7 +30,7 @@
     </pnc-header-buttons>
   </pnc-header>
 
-  <form editable-form name="projectForm" class="form-horizontal">
+  <form editable-form name="projectForm" class="form-horizontal" onbeforesave="detailCtrl.update()">
 
     <div class="form-group">
       <label for="input-name" class="col-sm-1 control-label">Name</label>
@@ -47,13 +47,24 @@
     <div class="form-group">
       <label for="input-url" class="col-sm-1 control-label">URL</label>
       <div class="col-sm-11">
-        <p id="input-url" e-class="form-control" editable-text="detailCtrl.project.projectUrl" e-name="projectUrl" e-required>{{ detailCtrl.project.projectUrl || 'Empty' }}</p>
+        <p id="input-url" e-class="form-control" editable-text="detailCtrl.project.projectUrl" e-name="projectUrl">{{ detailCtrl.project.projectUrl || 'Empty' }}</p>
       </div>
     </div>
     <div class="form-group">
       <label for="input-issue-tracker" class="col-sm-1 control-label">Issue tracker</label>
       <div class="col-sm-11">
-        <p id="input-issue-tracker" e-class="form-control" editable-text="detailCtrl.project.issueTrackerUrl" e-name="issueTrackerUrl" e-required>{{ detailCtrl.project.issueTrackerUrl || 'Empty' }}</p>
+        <p id="input-issue-tracker" e-class="form-control" editable-text="detailCtrl.project.issueTrackerUrl" e-name="issueTrackerUrl">{{ detailCtrl.project.issueTrackerUrl || 'Empty' }}</p>
+      </div>
+    </div>
+
+    <div class="form-group" ng-show="projectForm.$visible">
+      <div class="col-sm-offset-1 col-sm-11">
+        <button type="submit" class="btn btn-primary" ng-disabled="projectForm.$waiting">
+          Save
+        </button>
+        <button type="button" class="btn btn-default" ng-disabled="projectForm.$waiting" ng-click="projectForm.$cancel()">
+          Cancel
+        </button>
       </div>
     </div>
 
