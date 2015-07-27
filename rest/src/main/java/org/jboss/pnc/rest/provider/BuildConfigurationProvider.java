@@ -177,7 +177,7 @@ public class BuildConfigurationProvider {
 
         //don't validate against myself
         if(buildConfigurationFromDB != null && !buildConfigurationFromDB.getId().equals(buildConfigurationRest.getId())) {
-            throw new  ConflictedEntryException("Configuration with the same name already exists within project", BuildConfiguration.class, buildConfigurationRest.getProjectId());
+            throw new  ConflictedEntryException("Configuration with the same name already exists within project", BuildConfiguration.class, buildConfigurationFromDB.getId());
         }
     }
 
