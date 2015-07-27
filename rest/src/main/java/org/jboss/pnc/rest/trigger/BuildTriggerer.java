@@ -44,6 +44,7 @@ import org.jboss.pnc.core.notifications.buildTask.BuildCallBack;
 import org.jboss.pnc.core.notifications.buildTask.BuildStatusNotifications;
 import org.jboss.pnc.model.*;
 import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
+import org.jboss.pnc.spi.datastore.DatastoreException;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationAuditedRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationSetRepository;
@@ -101,7 +102,7 @@ public class BuildTriggerer {
     }
 
     public int triggerBuilds( final Integer buildConfigurationId, User currentUser, URL callBackUrl)
-            throws InterruptedException, CoreException, BuildDriverException, RepositoryManagerException
+            throws InterruptedException, CoreException, BuildDriverException, RepositoryManagerException, DatastoreException
     {
         Consumer<BuildStatusChangedEvent> onStatusUpdate = (statusChangedEvent) -> {
             if(statusChangedEvent.getNewStatus().isCompleted()) {
@@ -116,7 +117,7 @@ public class BuildTriggerer {
     }
 
     public int triggerBuilds( final Integer configurationId, User currentUser )
-        throws InterruptedException, CoreException, BuildDriverException, RepositoryManagerException
+        throws InterruptedException, CoreException, BuildDriverException, RepositoryManagerException, DatastoreException
     {
         final BuildConfiguration configuration = buildConfigurationRepository.queryById(configurationId);
         configuration.setBuildConfigurationAudited(this.getLatestAuditedBuildConfiguration(configurationId));
@@ -134,7 +135,7 @@ public class BuildTriggerer {
     }
 
     public int triggerBuildConfigurationSet( final Integer buildConfigurationSetId, User currentUser, URL callBackUrl)
-        throws InterruptedException, CoreException, BuildDriverException, RepositoryManagerException
+        throws InterruptedException, CoreException, BuildDriverException, RepositoryManagerException, DatastoreException
     {
         Consumer<BuildSetStatusChangedEvent> onStatusUpdate = (statusChangedEvent) -> {
             if(statusChangedEvent.getNewStatus().isCompleted()) {
@@ -149,7 +150,7 @@ public class BuildTriggerer {
     }
 
     public int triggerBuildConfigurationSet( final Integer buildConfigurationSetId, User currentUser )
-        throws InterruptedException, CoreException, BuildDriverException, RepositoryManagerException
+        throws InterruptedException, CoreException, BuildDriverException, RepositoryManagerException, DatastoreException
     {
         final BuildConfigurationSet buildConfigurationSet = buildConfigurationSetRepository.queryById(buildConfigurationSetId);
         Preconditions.checkArgument(buildConfigurationSet != null, "Can't find configuration with given id=" + buildConfigurationSetId);

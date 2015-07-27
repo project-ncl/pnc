@@ -25,6 +25,7 @@ import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.datastore.Datastore;
 import org.jboss.pnc.spi.datastore.predicates.UserPredicates;
+import org.jboss.pnc.spi.datastore.repositories.BuildConfigSetRecordRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
 import org.jboss.pnc.spi.datastore.repositories.UserRepository;
 import org.slf4j.Logger;
@@ -45,6 +46,9 @@ public class DefaultDatastore implements Datastore {
     BuildRecordRepository buildRecordRepository;
 
     @Inject BuildConfigurationSpringRepository buildConfigurationRepository;
+
+    @Inject
+    BuildConfigSetRecordRepository buildConfigSetRecordRepository;
 
     @Inject
     UserRepository userRepository;
@@ -86,13 +90,15 @@ public class DefaultDatastore implements Datastore {
         return nextId.intValue();
     }
 
+    /**
+     * Save a build config set record to the db.  This requires a new transaction to ensure that
+     * the record is immediately committed to the database and available to use by the foreign
+     * keys in individual build records.
+     */
     @Override
-    public int getNextBuildConfigSetRecordId() {
-
-        Long nextId = sequenceHandlerRepository.getNextID(BuildConfigSetRecord.SEQUENCE_NAME);
-        logger.info("Build Configuration Set Record nextId: {}", nextId);
-
-        return nextId.intValue();
+    @TransactionAttribute(TransactionAttributeType.REQUIRED)
+    public BuildConfigSetRecord saveBuildConfigSetRecord(BuildConfigSetRecord buildConfigSetRecord) {
+        return buildConfigSetRecordRepository.save(buildConfigSetRecord);
     }
 
 }

@@ -307,13 +307,13 @@ public class DatabaseDataInitializer {
         }
 
         BuildConfigSetRecord buildConfigSetRecord1 = BuildConfigSetRecord.Builder.newBuilder()
-                .id(datastore.getNextBuildConfigSetRecordId()).buildConfigurationSet(buildConfigurationSet1)
+                .buildConfigurationSet(buildConfigurationSet1)
                 .startTime(Timestamp.from(Instant.now())).endTime(Timestamp.from(Instant.now())).user(demoUser)
                 .status(BuildStatus.FAILED).build();
         buildConfigSetRecordRepository.save(buildConfigSetRecord1);
 
         BuildConfigSetRecord buildConfigSetRecord2 = BuildConfigSetRecord.Builder.newBuilder()
-                .id(datastore.getNextBuildConfigSetRecordId()).buildConfigurationSet(buildConfigurationSet1)
+                .buildConfigurationSet(buildConfigurationSet1)
                 .buildRecords(buildRecords).startTime(Timestamp.from(Instant.now())).endTime(Timestamp.from(Instant.now()))
                 .user(demoUser).status(BuildStatus.SUCCESS).build();
         buildConfigSetRecordRepository.save(buildConfigSetRecord2);

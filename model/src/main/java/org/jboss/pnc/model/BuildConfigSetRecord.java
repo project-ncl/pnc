@@ -25,9 +25,12 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.SequenceGenerator;
 import javax.validation.constraints.NotNull;
 
 import org.hibernate.annotations.ForeignKey;
@@ -39,11 +42,13 @@ import org.hibernate.annotations.ForeignKey;
 @Entity
 public class BuildConfigSetRecord implements GenericEntity<Integer> {
 
-    private static final long serialVersionUID = 8917142499701376822L;
+    private static final long serialVersionUID = 1L;
 
     public static final String SEQUENCE_NAME = "build_config_set_record_id_seq";
 
     @Id
+    @SequenceGenerator(name = SEQUENCE_NAME, sequenceName = SEQUENCE_NAME, allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = SEQUENCE_NAME)
     private Integer id;
 
     /**
@@ -63,8 +68,8 @@ public class BuildConfigSetRecord implements GenericEntity<Integer> {
 
     /**
      * The time at which the last build in the set was completed
+     * Temporarily set to null while the set is executing
      */
-    @NotNull
     @Column(columnDefinition="timestamp with time zone")
     private Date endTime;
 
