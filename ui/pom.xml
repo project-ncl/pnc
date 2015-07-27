@@ -56,8 +56,8 @@
             <phase>prepare-package</phase>
             <configuration>
               <target>
-                <replace file="${project.build.outputDirectory}/META-INF/resources/common/templates/footer.tmpl.html" token="@project.version@" value="${project.version}" />
-                <replace file="${project.build.outputDirectory}/META-INF/resources/common/templates/footer.tmpl.html" token="@datetime@" value="${datetime}" />
+                <replace dir="${project.build.outputDirectory}/META-INF/resources/scripts/" includes="pnc*.js" token="@project.version@" value="${project.version}" />
+                <replace dir="${project.build.outputDirectory}/META-INF/resources/scripts/" includes="pnc*.js" token="@datetime@" value="${datetime}" />
               </target>
             </configuration>
           </execution>
