@@ -90,4 +90,12 @@ public class ProductVersionEndpoint {
         return productVersionProvider.getBuildConfigurationSets(id);
     }
 
+    @ApiOperation(value = "Create a new ProductVersion for a Product")
+    @POST
+    public Response createNewProductVersion(@NotNull @Valid ProductVersionRest productVersionRest, @Context UriInfo uriInfo){
+        int productVersionId = productVersionProvider.store(productVersionRest);
+        UriBuilder uriBuilder = UriBuilder.fromUri(uriInfo.getRequestUri()).path("{productVersionId}");
+        return Response.created(uriBuilder.build(productVersionId)).entity(productVersionProvider.getSpecific(productVersionId)).build();
+    }
+
 }

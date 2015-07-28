@@ -97,10 +97,10 @@ public class ProductVersionProvider {
         return null;
     }
 
-    public Integer store(Integer productId, ProductVersionRest productVersionRest) {
+    public Integer store(ProductVersionRest productVersionRest) {
         Preconditions.checkArgument(productVersionRest.getId() == null, "Id must be null");
-        Product product = productRepository.queryById(productId);
-        Preconditions.checkArgument(product != null, "Couldn't find product with id " + productId);
+        Product product = productRepository.queryById(productVersionRest.getProductId());
+        Preconditions.checkArgument(product != null, "Couldn't find product with id " + productVersionRest.getProductId());
 
         ProductVersion productVersion = productVersionRepository.save(productVersionRest.toProductVersion(product));
         return productVersion.getId();
