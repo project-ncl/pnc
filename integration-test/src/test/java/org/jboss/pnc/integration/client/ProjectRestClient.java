@@ -61,4 +61,10 @@ public class ProjectRestClient extends AbstractRestClient {
     public int getProjectId() {
         return projectId;
     }
+
+    public ClientResponse delete(int id) {
+        Response response = delete(PROJECT_REST_ENDPOINT + id);
+
+        return new ClientResponse(this, response.getStatusCode(), null);
+    }
 }
