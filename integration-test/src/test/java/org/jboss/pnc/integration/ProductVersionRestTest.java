@@ -31,6 +31,7 @@ import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.moduleconfig.AuthenticationModuleConfig;
 import org.jboss.pnc.common.util.IoUtils;
 import org.jboss.pnc.integration.matchers.JsonMatcher;
+import org.jboss.pnc.integration.template.JsonTemplateBuilder;
 import org.jboss.pnc.integration.utils.AuthResource;
 import org.jboss.pnc.integration.deployments.Deployments;
 import org.jboss.pnc.test.category.ContainerTest;
@@ -56,7 +57,6 @@ public class ProductVersionRestTest {
     public static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
     private static final String PRODUCT_REST_ENDPOINT = "/pnc-rest/rest/products/";
-    private static final String PRODUCTS_PRODUCT_VERSION_ENDPOINT = "/pnc-rest/rest/products/%d/product-versions/";
     private static final String PRODUCT_VERSION_REST_ENDPOINT = "/pnc-rest/rest/product-versions/";
     private static final String PRODUCT_VERSION_SPECIFIC_REST_ENDPOINT = "/pnc-rest/rest/product-versions/%d";
 
@@ -116,24 +116,25 @@ public class ProductVersionRestTest {
     @Test
     @InSequence(4)
     public void shouldCreateNewProductVersion() throws IOException {
-        String rawJson = loadJsonFromFile("productVersion");
+        JsonTemplateBuilder jsonTemplateBuilder = JsonTemplateBuilder.fromResource("productVersion_template");
+        jsonTemplateBuilder.addValue("_productId", String.valueOf(productId));
 
         Response response = given().header("Accept", "application/json").header("Authorization", "Bearer " + access_token)
-                    .body(rawJson).contentType(ContentType.JSON).port(getHttpPort()).when()
-                .post(String.format(PRODUCTS_PRODUCT_VERSION_ENDPOINT, productId));
+                    .body(jsonTemplateBuilder.fillTemplate()).contentType(ContentType.JSON).port(getHttpPort()).when()
+                .post(PRODUCT_VERSION_REST_ENDPOINT);
         Assertions.assertThat(response.statusCode()).isEqualTo(201);
 
         String location = response.getHeader("Location");
         logger.info("Found location in Response header: " + location);
 
-        logger.info("----1" + location.substring(location.lastIndexOf(String.format(PRODUCTS_PRODUCT_VERSION_ENDPOINT, productId))));
+        logger.info("----1" + location.substring(location.lastIndexOf(PRODUCT_VERSION_REST_ENDPOINT)));
 
         logger.info("----2"
-                + location.substring(location.lastIndexOf(String.format(PRODUCT_REST_ENDPOINT, productId))
-                        + String.format(PRODUCTS_PRODUCT_VERSION_ENDPOINT, productId).length()));
+                + location.substring(location.lastIndexOf(PRODUCT_VERSION_REST_ENDPOINT)
+                        + PRODUCT_VERSION_REST_ENDPOINT.length()));
 
-        newProductVersionId = Integer.valueOf(location.substring(location.lastIndexOf(String.format(
-                PRODUCT_REST_ENDPOINT, productId)) + String.format(PRODUCTS_PRODUCT_VERSION_ENDPOINT, productId).length()));
+        newProductVersionId = Integer.valueOf(location.substring(location.lastIndexOf(
+                PRODUCT_VERSION_REST_ENDPOINT) + PRODUCT_VERSION_REST_ENDPOINT.length()));
 
         logger.info("Created id of product version: " + newProductVersionId);
 
@@ -146,7 +147,7 @@ public class ProductVersionRestTest {
         logger.info("### newProductVersionId: " + newProductVersionId);
 
         Response response = given().header("Accept", "application/json").header("Authorization", "Bearer " + access_token)
-                    .contentType(ContentType.JSON).port(getHttpPort()).when()
+                .contentType(ContentType.JSON).port(getHttpPort()).when()
                 .get(String.format(PRODUCT_VERSION_SPECIFIC_REST_ENDPOINT, newProductVersionId));
 
         Assertions.assertThat(response.statusCode()).isEqualTo(200);
@@ -161,22 +162,18 @@ public class ProductVersionRestTest {
         logger.info("### rawJson: " + response.body().jsonPath().prettyPrint());
 
         given().header("Accept", "application/json").header("Authorization", "Bearer " + access_token)
-                    .body(rawJson).contentType(ContentType.JSON).port(getHttpPort()).when()
+                .body(rawJson).contentType(ContentType.JSON).port(getHttpPort()).when()
                 .put(String.format(PRODUCT_VERSION_SPECIFIC_REST_ENDPOINT, newProductVersionId)).then()
                 .statusCode(200);
 
         // Reading updated resource
         Response updateResponse = given().header("Accept", "application/json").header("Authorization", "Bearer " + access_token)
-                    .contentType(ContentType.JSON).port(getHttpPort()).when()
+                .contentType(ContentType.JSON).port(getHttpPort()).when()
                 .get(String.format(PRODUCT_VERSION_SPECIFIC_REST_ENDPOINT, newProductVersionId));
 
         Assertions.assertThat(updateResponse.statusCode()).isEqualTo(200);
         Assertions.assertThat(updateResponse.body().jsonPath().getInt("id")).isEqualTo(newProductVersionId);
         Assertions.assertThat(updateResponse.body().jsonPath().getString("version")).isEqualTo("1.1");
 
-    }
-
-    private String loadJsonFromFile(String resource) throws IOException {
-        return IoUtils.readFileOrResource(resource, resource + ".json", getClass().getClassLoader());
     }
 }
