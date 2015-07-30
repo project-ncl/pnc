@@ -83,9 +83,9 @@ public class BuildConfigurationSetProvider {
     }
 
     public List<BuildConfigurationSetRest> getAll(int pageIndex, int pageSize, String sortingRsql, String query) {
-        Predicate<BuildConfigurationSet> rsqlPredicate = rsqlPredicateProducer.getPredicate(BuildConfigurationSet.class, query);
         PageInfo pageInfo = pageInfoProducer.getPageInfo(pageIndex, pageSize);
         SortInfo sortInfo = sortInfoProducer.getSortInfo(sortingRsql);
+        Predicate<BuildConfigurationSet> rsqlPredicate = rsqlPredicateProducer.getPredicate(BuildConfigurationSet.class, query);
         return nullableStreamOf(buildConfigurationSetRepository.queryWithPredicates(pageInfo, sortInfo, rsqlPredicate))
                 .map(toRestModel())
                 .collect(Collectors.toList());
@@ -93,9 +93,9 @@ public class BuildConfigurationSetProvider {
 
     public List<BuildRecordRest> getBuildRecords(Integer buildConfigurationSetId,
             int pageIndex, int pageSize, String sortingRsql, String query) {
-        Predicate<BuildRecord> rsqlPredicate = rsqlPredicateProducer.getPredicate(BuildRecord.class, query);
         PageInfo pageInfo = pageInfoProducer.getPageInfo(pageIndex, pageSize);
         SortInfo sortInfo = sortInfoProducer.getSortInfo(sortingRsql);
+        Predicate<BuildRecord> rsqlPredicate = rsqlPredicateProducer.getPredicate(BuildRecord.class, query);
 
         BuildConfigurationSetRest buildConfigSetRest = getSpecific(buildConfigurationSetId);
         return nullableStreamOf(buildRecordRepository.queryWithPredicates(pageInfo, sortInfo, rsqlPredicate,
