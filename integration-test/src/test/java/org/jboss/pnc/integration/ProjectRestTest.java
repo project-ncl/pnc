@@ -19,6 +19,7 @@ package org.jboss.pnc.integration;
 
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
+import org.jboss.arquillian.junit.InSequence;
 import org.jboss.pnc.integration.client.BuildConfigurationRestClient;
 import org.jboss.pnc.integration.client.ClientResponse;
 import org.jboss.pnc.integration.client.ProjectRestClient;
@@ -41,6 +42,7 @@ import java.util.Arrays;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertNotNull;
 
 @RunWith(Arquillian.class)
 @Category(ContainerTest.class)
@@ -120,5 +122,47 @@ public class ProjectRestTest {
         assertThat(updatedProject.getHttpCode()).isEqualTo(200);
     }
 
+    @Test
+    public void shouldDeleteProject() throws Exception {
+        //given
+        ProjectRest project = new ProjectRest();
+        project.setName(UUID.randomUUID().toString());
+
+        //when
+        ClientResponse createdProject = projectRest.createNew(project);
+        int projectId = createdProject.getId().get();
+
+        ClientResponse deletedProject = projectRest.delete(projectId);
+
+        //than
+        assertThat(deletedProject.getHttpCode()).isEqualTo(200);
+    }
+
+    @Test
+    @InSequence(999)
+    public void shouldDeleteProjectWithConfiguration() throws Exception {
+        //given
+        BuildConfigurationRestClient configuration = BuildConfigurationRestClient.firstNotNull();
+        assertNotNull(configuration.getBuildConfigurationId());
+
+        ProjectRest project = new ProjectRest();
+        project.setName(UUID.randomUUID().toString());
+        project.setConfigurationIds(Arrays.asList(configuration.getBuildConfigurationId()));
+
+        //when
+        ClientResponse createdProject = projectRest.createNew(project);
+        int projectId = createdProject.getId().get();
+
+        ClientResponse deletedProject = projectRest.delete(projectId);
+
+        assertNotNull(configuration);
+        assertNotNull(configuration.getBuildConfigurationId());
+
+        ClientResponse configurationAfterDeletingTheProject = configuration.get(configuration.getBuildConfigurationId());
+
+        //then
+        assertThat(deletedProject.getHttpCode()).isEqualTo(200);
+        assertThat(configurationAfterDeletingTheProject.getHttpCode()).isEqualTo(200);
+    }
 
 }

@@ -38,7 +38,8 @@ Module Overview
 * `rest`: REST API. This is a series of classes that use JAX-RS to translate HTTP communications to calls into the action controllers in the core, and format any output (such as constructing resource URLs, etc.)
 * `spi`: Contains all SPI interfaces the orchestrator will use to coordinate its sub-services for provisioning environments and repositories, triggering builds, storing domain objects. It is meant to be used in conjunction with pnc-model
 * `processes`: Contains jBPM processes for PNC
-* `web`: Contains Web UI resoures (html + js pages, images etc.)
+* `ui`: Contains the source code for the angular ui.
+* `web`: Contains resources to be served via the web, this module sucks in the ui jar and holds the swagger REST API documentation.
 
 
 Environmental variables
@@ -247,5 +248,6 @@ Click the "Add" button to add a new datasource and set the required fields.
 
 You can test the connection before saving the datasource settings.
 
-
-
+UI Module Compilation Errors
+----------------------------
+Due to the need to integrate a modern frontend workflow into a maven project there can occasionally be some complications in a build. Some data is cached by the UI that is not completely cleaned by running `maven clean`. In case of strange build failures with the UI module please try running: `maven clean -Dfrontend.clean.force` and this will completely clean out all data. NOTE: with this profile enabled build times will increase by a few minutes as the ui build system will have to retrieve a large amount of previously cached data.

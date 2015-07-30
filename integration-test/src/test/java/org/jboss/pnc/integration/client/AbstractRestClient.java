@@ -69,6 +69,10 @@ public abstract class AbstractRestClient {
         return request().when().body(body).put(path);
     }
 
+    protected Response delete(String path) {
+        return request().when().delete(path);
+    }
+
     protected Response get(String path) {
         return request().when().get(path);
     }

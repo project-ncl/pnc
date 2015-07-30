@@ -255,13 +255,11 @@
       var that = this;
 
       that.submit = function() {
-        that.data.$save({
-          productId: that.product.id
-        }).then(
-          function(result) {
+        that.data.productId = that.product.id;
+        that.data.version = that.data.version;
+        that.data.$save().then(function(result) {
             $state.go('product.detail', {
-              productId: productDetail.id,
-              versionId: result.id
+              productId: result.productId,
             });
           }
         );

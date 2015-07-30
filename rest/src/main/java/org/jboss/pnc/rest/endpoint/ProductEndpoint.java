@@ -100,14 +100,4 @@ public class ProductEndpoint {
         return productVersionProvider.getAllForProduct(pageIndex, pageSize, sortingRsql, rsql, productId);
     }
 
-    @ApiOperation(value = "Create a new ProductVersion for a Product")
-    @POST
-    @Path("/{id}/product-versions")
-    public Response createNewProductVersion(@ApiParam(value = "Product id", required=true) @PathParam("id") Integer productId,
-                                            @NotNull @Valid ProductVersionRest productVersionRest, @Context UriInfo uriInfo){
-        int productVersionId = productVersionProvider.store(productId, productVersionRest);
-        UriBuilder uriBuilder = UriBuilder.fromUri(uriInfo.getRequestUri()).path("{productVersionId}");
-        return Response.created(uriBuilder.build(productVersionId)).entity(productVersionProvider.getSpecific(productVersionId)).build();
-    }
-
 }
