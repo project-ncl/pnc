@@ -20,7 +20,9 @@ package org.jboss.pnc.core.test.buildCoordinator;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.junit.InSequence;
 import org.jboss.pnc.core.test.configurationBuilders.TestProjectConfigurationBuilder;
+import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildRecord;
+import org.jboss.pnc.model.BuildStatus;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -52,5 +54,10 @@ public class ProjectWithDependenciesBuildTest extends ProjectBuilder {
 
         assertBuildArtifactsPresent(buildRecord.getBuiltArtifacts());
         assertBuildArtifactsPresent(buildRecord.getDependencies());
+        
+        BuildConfigSetRecord buildConfigSetRecord = datastore.getBuildConfigSetRecords().get(0);
+        Assert.assertNotNull(buildConfigSetRecord.getEndTime());
+        Assert.assertTrue(buildConfigSetRecord.getEndTime().getTime() > buildConfigSetRecord.getStartTime().getTime());
+        Assert.assertEquals(BuildStatus.SUCCESS, buildConfigSetRecord.getStatus());
     }
 }

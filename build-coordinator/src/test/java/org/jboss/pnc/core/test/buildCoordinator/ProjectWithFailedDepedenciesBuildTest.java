@@ -20,6 +20,7 @@ package org.jboss.pnc.core.test.buildCoordinator;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.junit.InSequence;
 import org.jboss.pnc.core.test.configurationBuilders.TestProjectConfigurationBuilder;
+import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.BuildStatus;
 import org.junit.Assert;
@@ -33,7 +34,7 @@ import java.util.List;
  */
 
 @RunWith(Arquillian.class)
-public class ProjectWithFailedDepedencies extends ProjectBuilder {
+public class ProjectWithFailedDepedenciesBuildTest extends ProjectBuilder {
 
     @Test
     @InSequence(10)
@@ -47,8 +48,13 @@ public class ProjectWithFailedDepedencies extends ProjectBuilder {
     public void checkDatabaseForResult() {
         List<BuildRecord> buildRecords = datastore.getBuildRecords();
         Assert.assertEquals("Wrong datastore results count.", 1, buildRecords.size());
-        Assert.assertEquals(buildRecords.get(0).getStatus(), BuildStatus.FAILED);
+        Assert.assertEquals(BuildStatus.FAILED, buildRecords.get(0).getStatus());
 
+        BuildConfigSetRecord buildConfigSetRecord = datastore.getBuildConfigSetRecords().get(0);
+        System.out.println("status of failed buildconfigset: " + buildConfigSetRecord.getStatus());
+        Assert.assertNotNull(buildConfigSetRecord.getEndTime());
+        Assert.assertTrue(buildConfigSetRecord.getEndTime().getTime() > buildConfigSetRecord.getStartTime().getTime());
+        Assert.assertEquals(BuildStatus.FAILED, buildConfigSetRecord.getStatus());
     }
 
 }
