@@ -155,6 +155,9 @@ public class RepositoryManagerDriver implements RepositoryManager {
         String url;
 
         try {
+            // manually initialize the tracking record, just in case (somehow) nothing gets downloaded/uploaded.
+            aprox.module(AproxFoloAdminClientModule.class).initReport(buildId);
+
             url = aprox.module(AproxFoloContentClientModule.class).trackingUrl(buildId, StoreType.group, buildId);
             logger.info("Using '{}' for Maven repository access in build: {}", url, buildId);
         } catch (AproxClientException e) {
