@@ -123,6 +123,10 @@ public class MavenRepositorySession implements RepositorySession
             throw new RepositoryManagerException("Failed to retrieve tracking report for: %s. Reason: %s", e, buildRepoId,
                     e.getMessage());
         }
+        if ( report == null)
+        {
+            throw new RepositoryManagerException("Failed to retrieve tracking report for: %s.", buildRepoId);
+        }
 
         List<Artifact> uploads = processUploads(report);
         List<Artifact> downloads = processDownloads(report);
