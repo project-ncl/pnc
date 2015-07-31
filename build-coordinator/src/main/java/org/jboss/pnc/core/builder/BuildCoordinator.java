@@ -27,7 +27,6 @@ import org.jboss.pnc.model.*;
 import org.jboss.pnc.spi.*;
 import org.jboss.pnc.spi.BuildStatus;
 import org.jboss.pnc.spi.builddriver.*;
-import org.jboss.pnc.spi.datastore.Datastore;
 import org.jboss.pnc.spi.datastore.DatastoreException;
 import org.jboss.pnc.spi.environment.DestroyableEnvironment;
 import org.jboss.pnc.spi.environment.EnvironmentDriver;
@@ -77,7 +76,6 @@ public class BuildCoordinator {
     private DatastoreAdapter datastoreAdapter;
     private Event<BuildStatusChangedEvent> buildStatusChangedEventNotifier;
     private Event<BuildSetStatusChangedEvent> buildSetStatusChangedEventNotifier;
-    private Datastore datastore;
 
     @Deprecated
     public BuildCoordinator(){} //workaround for CDI constructor parameter injection
@@ -86,15 +84,13 @@ public class BuildCoordinator {
     public BuildCoordinator(BuildDriverFactory buildDriverFactory, RepositoryManagerFactory repositoryManagerFactory,
                             EnvironmentDriverFactory environmentDriverFactory, DatastoreAdapter datastoreAdapter,
                             Event<BuildStatusChangedEvent> buildStatusChangedEventNotifier,
-                            Event<BuildSetStatusChangedEvent> buildSetStatusChangedEventNotifier,
-                            Datastore datastore) {
+                            Event<BuildSetStatusChangedEvent> buildSetStatusChangedEventNotifier) {
         this.buildDriverFactory = buildDriverFactory;
         this.repositoryManagerFactory = repositoryManagerFactory;
         this.datastoreAdapter = datastoreAdapter;
         this.environmentDriverFactory = environmentDriverFactory;
         this.buildStatusChangedEventNotifier = buildStatusChangedEventNotifier;
         this.buildSetStatusChangedEventNotifier = buildSetStatusChangedEventNotifier;
-        this.datastore = datastore;
     }
 
     public BuildTask build(BuildConfiguration buildConfiguration, User userTriggeredBuild) throws CoreException {
@@ -125,7 +121,7 @@ public class BuildCoordinator {
                 this,
                 buildSetTask,
                 userTriggeredBuild,
-                () -> datastore.getNextBuildRecordId());
+                () -> datastoreAdapter.getNextBuildRecordId());
 
         Predicate<Vertex<BuildTask>> acceptOnlyStatus = (vertex) -> {
             BuildTask build = vertex.getData();

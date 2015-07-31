@@ -91,6 +91,10 @@ public class DatastoreAdapter {
         datastore.storeCompletedBuild(buildRecord);
     }
 
+    public Integer getNextBuildRecordId() {
+        return datastore.getNextBuildRecordId();
+    }
+
     private void setAuditDataToBuildRecord(BuildRecord buildRecord, BuildTask buildTask) {
         buildRecord.setBuildConfigurationAudited(buildTask.getBuildConfiguration().getBuildConfigurationAudited());
         buildRecord.setLatestBuildConfiguration(buildTask.getBuildConfiguration());
