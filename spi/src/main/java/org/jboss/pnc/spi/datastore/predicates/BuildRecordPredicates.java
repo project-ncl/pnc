@@ -23,6 +23,8 @@ import org.jboss.pnc.model.BuildRecord_;
 import org.jboss.pnc.model.Project;
 import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
 
+import com.google.common.base.Predicates;
+
 import javax.persistence.criteria.Join;
 import java.util.Collection;
 
@@ -43,11 +45,19 @@ public class BuildRecordPredicates {
     }
 
     public static Predicate<BuildRecord> withBuildConfigurationIdInSet(Collection<Integer> buildConfigurationIds) {
-        return (root, query, cb) -> {
-            Join<BuildRecord, BuildConfigurationAudited> buildConfigurationAudited = root.join(BuildRecord_.buildConfigurationAudited);
-            return buildConfigurationAudited.get(org.jboss.pnc.model.BuildConfigurationAudited_.id).in(buildConfigurationIds);
-        };
+        if (buildConfigurationIds.isEmpty()) {
+            // return an always false predicate if there are no build config ids
+            return (root, query, cb) -> cb.disjunction();
+        } else {
+            return (root, query, cb) -> {
+                Join<BuildRecord, BuildConfigurationAudited> buildConfigurationAudited = root
+                        .join(BuildRecord_.buildConfigurationAudited);
+                return buildConfigurationAudited.get(org.jboss.pnc.model.BuildConfigurationAudited_.id)
+                        .in(buildConfigurationIds);
+            };
+        }
     }
+
 
     public static Predicate<BuildRecord> withProjectId(Integer projectId) {
         return (root, query, cb) -> {
