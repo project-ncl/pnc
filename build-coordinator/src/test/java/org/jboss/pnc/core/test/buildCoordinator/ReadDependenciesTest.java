@@ -21,9 +21,11 @@ import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.pnc.core.builder.BuildSetTask;
 import org.jboss.pnc.core.builder.BuildTasksTree;
 import org.jboss.pnc.core.test.configurationBuilders.TestProjectConfigurationBuilder;
+import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.BuildExecutionType;
+import org.jboss.pnc.spi.datastore.DatastoreException;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -40,13 +42,16 @@ public class ReadDependenciesTest extends ProjectBuilder {
     AtomicInteger taskSetIdGenerator = new AtomicInteger(0);
 
     @Test
-    public void createDependencyTreeTestCase() {
+    public void createDependencyTreeTestCase() throws DatastoreException {
         TestProjectConfigurationBuilder configurationBuilder = new TestProjectConfigurationBuilder();
         BuildConfigurationSet buildConfigurationSet = configurationBuilder.buildConfigurationSet(1);
+        BuildConfigSetRecord buildConfigSetRecord = BuildConfigSetRecord.Builder.newBuilder()
+                .buildConfigurationSet(buildConfigurationSet)
+                .build();
         BuildSetTask buildSetTask = new BuildSetTask(
                 buildCoordinator, 
-                buildConfigurationSet, 
-                BuildExecutionType.COMPOSED_BUILD, null, taskSetIdGenerator.incrementAndGet());
+                buildConfigSetRecord, 
+                BuildExecutionType.COMPOSED_BUILD);
         User user = User.Builder.newBuilder().id(1).build();
         BuildTasksTree buildTasksTree = new BuildTasksTree(buildCoordinator, buildSetTask, user,() -> taskIdGenerator.incrementAndGet());
 

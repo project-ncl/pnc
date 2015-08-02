@@ -19,8 +19,10 @@ package org.jboss.pnc.core.builder;
 
 import org.jboss.logging.Logger;
 import org.jboss.pnc.model.Artifact;
+import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.BuildStatus;
+import org.jboss.pnc.spi.BuildExecutionType;
 import org.jboss.pnc.spi.BuildResult;
 import org.jboss.pnc.spi.builddriver.BuildDriverResult;
 import org.jboss.pnc.spi.datastore.Datastore;
@@ -48,6 +50,10 @@ public class DatastoreAdapter {
         this.datastore = datastore;
     }
 
+    public BuildConfigSetRecord saveBuildConfigSetRecord(BuildConfigSetRecord buildConfigSetRecord) throws DatastoreException {
+        return datastore.saveBuildConfigSetRecord(buildConfigSetRecord);
+    }
+
     public BuildRecord storeResult(BuildTask buildTask, BuildResult buildResult, int buildRecordId) throws DatastoreException {
         try {
             BuildDriverResult buildDriverResult = buildResult.getBuildDriverResult();
@@ -64,6 +70,9 @@ public class DatastoreAdapter {
                 buildRecord.setBuiltArtifacts(repositoryManagerResult.getBuiltArtifacts());
                 linkArtifactsWithBuildRecord(repositoryManagerResult.getDependencies(), buildRecord);
                 buildRecord.setDependencies(repositoryManagerResult.getDependencies());
+            }
+            if (buildTask.getBuildExecutionType().equals(BuildExecutionType.COMPOSED_BUILD)) {
+                buildRecord.setBuildConfigSetRecord(buildTask.getBuildSetTask().getBuildConfigSetRecord());
             }
             setAuditDataToBuildRecord(buildRecord, buildTask);
 
@@ -89,6 +98,10 @@ public class DatastoreAdapter {
 
         log.debugf("Storing ERROR result of %s to datastore. Error: %s", buildTask.getBuildConfiguration().getName() + "\n\n\n Exception: " + errorMessage, e);
         datastore.storeCompletedBuild(buildRecord);
+    }
+
+    public Integer getNextBuildRecordId() {
+        return datastore.getNextBuildRecordId();
     }
 
     private void setAuditDataToBuildRecord(BuildRecord buildRecord, BuildTask buildTask) {

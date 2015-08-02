@@ -25,7 +25,6 @@ import javax.ejb.Startup;
 import javax.inject.Inject;
 
 import org.jboss.pnc.datastore.repositories.SequenceHandlerRepository;
-import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,25 +56,12 @@ public class CustomSequenceConfiguration {
             }
 
             try {
-                logger.info("Dropping sequence {} ...", BuildConfigSetRecord.SEQUENCE_NAME);
-                sequenceHandlerRepository.dropSequence(BuildConfigSetRecord.SEQUENCE_NAME);
-            } catch (Exception e) {
-                logger.error(e.getMessage());
-            }
-
-            try {
                 logger.info("Creating sequence {} ...", BuildRecord.SEQUENCE_NAME);
                 sequenceHandlerRepository.createSequence(BuildRecord.SEQUENCE_NAME);
             } catch (Exception e) {
                 logger.error(e.getMessage());
             }
 
-            try {
-                logger.info("Creating sequence {} ...", BuildConfigSetRecord.SEQUENCE_NAME);
-                sequenceHandlerRepository.createSequence(BuildConfigSetRecord.SEQUENCE_NAME);
-            } catch (Exception e) {
-                logger.error(e.getMessage());
-            }
         }
 
         // If I need to update the model them I can safely ignore any "sequence already-existing" error
@@ -87,11 +73,6 @@ public class CustomSequenceConfiguration {
             } catch (Exception e) {
             }
 
-            try {
-                logger.info("Updating sequence {} ...", BuildConfigSetRecord.SEQUENCE_NAME);
-                sequenceHandlerRepository.createSequence(BuildConfigSetRecord.SEQUENCE_NAME);
-            } catch (Exception e) {
-            }
         }
     }
 

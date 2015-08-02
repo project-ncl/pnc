@@ -35,6 +35,7 @@ import org.jboss.pnc.model.Environment;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.BuildSetStatus;
 import org.jboss.pnc.spi.BuildStatus;
+import org.jboss.pnc.spi.datastore.DatastoreException;
 import org.jboss.pnc.spi.events.BuildStatusChangedEvent;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.asset.EmptyAsset;
@@ -85,7 +86,7 @@ public class ProjectBuilder {
         return jar;
     }
 
-    void buildProject(BuildConfiguration buildConfiguration) throws InterruptedException, CoreException {
+    void buildProject(BuildConfiguration buildConfiguration) throws InterruptedException, CoreException, DatastoreException {
         log.debug("Building project {}", buildConfiguration.getName());
         List<BuildStatusChangedEvent> receivedStatuses = new CopyOnWriteArrayList<>();
 
@@ -102,7 +103,7 @@ public class ProjectBuilder {
         assertAllStatusUpdateReceived(receivedStatuses, buildTask.getId());
     }
 
-    void buildProjects(BuildConfigurationSet buildConfigurationSet) throws InterruptedException, CoreException {
+    void buildProjects(BuildConfigurationSet buildConfigurationSet) throws InterruptedException, CoreException, DatastoreException {
         log.info("Building configuration set {}", buildConfigurationSet.getName());
         List<BuildStatusChangedEvent> receivedStatuses = new CopyOnWriteArrayList<>();
 
@@ -123,7 +124,7 @@ public class ProjectBuilder {
         buildSetTask.getBuildTasks().forEach(bt -> assertAllStatusUpdateReceived(receivedStatuses, bt.getId()));
     }
 
-    void buildFailingProject(BuildConfigurationSet buildConfigurationSet, int numCompletedBuilds, int numLackingDependecies) throws InterruptedException, CoreException {
+    void buildFailingProject(BuildConfigurationSet buildConfigurationSet, int numCompletedBuilds, int numLackingDependecies) throws InterruptedException, CoreException, DatastoreException {
         log.info("Building configuration set {}", buildConfigurationSet.getName());
         List<BuildStatusChangedEvent> receivedStatuses = new CopyOnWriteArrayList<>();
 

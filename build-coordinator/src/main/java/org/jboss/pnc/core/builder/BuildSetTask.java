@@ -18,24 +18,35 @@
 package org.jboss.pnc.core.builder;
 
 import org.jboss.pnc.core.events.DefaultBuildSetStatusChangedEvent;
+import org.jboss.pnc.core.exception.CoreException;
+import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildConfigurationSet;
-import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.BuildExecutionType;
 import org.jboss.pnc.spi.BuildSetStatus;
+import org.jboss.pnc.spi.datastore.DatastoreException;
 import org.jboss.pnc.spi.events.BuildSetStatusChangedEvent;
 import org.jboss.pnc.spi.events.BuildStatusChangedEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.enterprise.event.Event;
+
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
 
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2015-03-26.
  */
 public class BuildSetTask {
 
-    private BuildConfigurationSet buildConfigurationSet;
+    private Logger log = LoggerFactory.getLogger(BuildCoordinator.class);
+
+    private BuildConfigSetRecord buildConfigSetRecord;
+
+    private BuildCoordinator buildCoordinator;
 
     private final BuildExecutionType buildTaskType;
     private Event<BuildSetStatusChangedEvent> buildSetStatusChangedEventNotifier;
@@ -44,37 +55,51 @@ public class BuildSetTask {
 
     private String statusDescription;
     private Set<BuildTask> buildTasks = new HashSet<>();
-    private int buildSetTaskId;
 
-    private User user;
-
-    public BuildSetTask(BuildCoordinator buildCoordinator, BuildConfigurationSet buildConfigurationSet,
-            BuildExecutionType buildTaskType, User user, int buildSetTaskId) {
-        this.buildConfigurationSet = buildConfigurationSet;
+    /**
+     * Create build set task for running a single build or set of builds
+     */
+    public BuildSetTask(BuildCoordinator buildCoordinator, BuildConfigSetRecord buildConfigSetRecord,
+            BuildExecutionType buildTaskType) {
+        this.buildCoordinator = buildCoordinator;
+        this.buildConfigSetRecord = buildConfigSetRecord;
         this.buildTaskType = buildTaskType;
-        this.user = user;
         this.buildSetStatusChangedEventNotifier = buildCoordinator.getBuildSetStatusChangedEventNotifier();
-        this.buildSetTaskId = buildSetTaskId;
     }
 
     public BuildConfigurationSet getBuildConfigurationSet() {
-        return buildConfigurationSet;
+        return buildConfigSetRecord.getBuildConfigurationSet();
     }
 
     void setStatus(BuildSetStatus status) {
         BuildSetStatus oldStatus = this.status;
         this.status = status;
-        Integer userId = Optional.ofNullable(user).map(user -> user.getId()).orElse(null);
+        Integer userId = Optional.ofNullable(buildConfigSetRecord.getUser()).map(user -> user.getId()).orElse(null);
         BuildSetStatusChangedEvent buildSetStatusChangedEvent = new DefaultBuildSetStatusChangedEvent(oldStatus, status, getId(),
-                buildConfigurationSet.getId(), userId);
+                buildConfigSetRecord.getBuildConfigurationSet().getId(), userId);
         buildSetStatusChangedEventNotifier.fire(buildSetStatusChangedEvent);
     }
 
     void taskStatusUpdated(BuildStatusChangedEvent buildStatusChangedEvent) {
-        Long completedTasksCount = buildTasks.stream().filter(bt -> bt.getStatus().isCompleted()).count();
-        //check if all tasks are completed
-        if (completedTasksCount.intValue() == buildTasks.size()) {
-            setStatus(BuildSetStatus.DONE);
+        // If all build tasks are complete, then the build set is done
+        if(buildTasks.stream().anyMatch(bt -> bt.getStatus().hasFailed())) {
+            buildConfigSetRecord.setStatus(org.jboss.pnc.model.BuildStatus.FAILED);
+            finishBuildSetTask();
+        } else if (buildTasks.stream().allMatch(bt -> bt.getStatus().isCompleted())) {
+            buildConfigSetRecord.setStatus(org.jboss.pnc.model.BuildStatus.SUCCESS);
+            finishBuildSetTask();
+        }
+    }
+
+    private void finishBuildSetTask() {
+        buildConfigSetRecord.setEndTime(new Date());
+        setStatus(BuildSetStatus.DONE);
+        if (getBuildTaskType().equals(BuildExecutionType.COMPOSED_BUILD)) {
+            try {
+                buildCoordinator.saveBuildConfigSetRecord(buildConfigSetRecord);
+            } catch (CoreException e) {
+                log.error("Unable to save build config set record", e);
+            }
         }
     }
 
@@ -99,10 +124,14 @@ public class BuildSetTask {
     }
 
     public Integer getId() {
-        return buildSetTaskId;
+        return buildConfigSetRecord.getId();
     }
 
     public BuildExecutionType getBuildTaskType() {
         return buildTaskType;
+    }
+
+    public BuildConfigSetRecord getBuildConfigSetRecord() {
+        return buildConfigSetRecord;
     }
 }

@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.spi.datastore;
 
+import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.User;
 
@@ -56,8 +57,12 @@ public interface Datastore {
     int getNextBuildRecordId();
 
     /**
-     * Gets next generated Build Config Set Record Id.
-     * @return A generated Build Config Set Record Id.
+     * Save build config set record to db
+     * 
+     * @param buildConfigSetRecord
+     * @return
+     * @throws DatastoreException
      */
-    int getNextBuildConfigSetRecordId();
+    BuildConfigSetRecord saveBuildConfigSetRecord(BuildConfigSetRecord buildConfigSetRecord) throws DatastoreException;
+
 }

@@ -87,7 +87,7 @@ public class MultipleProjectsBuildTest extends ProjectBuilder {
     @InSequence(20)
     public void checkDatabaseForResult() {
         List<BuildRecord> buildRecords = datastore.getBuildRecords();
-        Assert.assertEquals("Wrong datastore results count.", 100, buildRecords.size());
+        Assert.assertEquals("Wrong datastore results count.", N_PROJECTS, buildRecords.size());
 
         BuildRecord buildRecord = buildRecords.get(0);
         String buildLog = buildRecord.getBuildLog();

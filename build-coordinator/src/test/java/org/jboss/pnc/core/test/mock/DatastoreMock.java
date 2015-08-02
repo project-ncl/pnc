@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.core.test.mock;
 
+import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.datastore.Datastore;
@@ -37,6 +38,8 @@ public class DatastoreMock implements Datastore {
     private Logger log = Logger.getLogger(DatastoreMock.class.getName());
 
     private List<BuildRecord> buildRecords = Collections.synchronizedList(new ArrayList<BuildRecord>());
+
+    private List<BuildConfigSetRecord> buildConfigSetRecords = Collections.synchronizedList(new ArrayList<BuildConfigSetRecord>());
 
     AtomicInteger buildRecordSequence = new AtomicInteger(0);
     AtomicInteger buildRecordSetSequence = new AtomicInteger(0);
@@ -59,6 +62,10 @@ public class DatastoreMock implements Datastore {
         return buildRecords;
     }
 
+    public List<BuildConfigSetRecord> getBuildConfigSetRecords() {
+        return buildConfigSetRecords;
+    }
+
     @Override
     public void createNewUser(User user) {
     }
@@ -69,8 +76,9 @@ public class DatastoreMock implements Datastore {
     }
 
     @Override
-    public int getNextBuildConfigSetRecordId() {
-        return buildRecordSetSequence.incrementAndGet();
+    public BuildConfigSetRecord saveBuildConfigSetRecord(BuildConfigSetRecord buildConfigSetRecord) {
+        log.info("Storing build config set record " + buildConfigSetRecord.getId());
+        buildConfigSetRecords.add(buildConfigSetRecord);
+        return buildConfigSetRecord;
     }
-
 }

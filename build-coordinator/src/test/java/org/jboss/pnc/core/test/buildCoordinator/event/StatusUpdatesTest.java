@@ -33,10 +33,12 @@ import org.jboss.pnc.core.notifications.buildTask.BuildCallBack;
 import org.jboss.pnc.core.notifications.buildTask.BuildStatusNotifications;
 import org.jboss.pnc.core.test.configurationBuilders.TestProjectConfigurationBuilder;
 import org.jboss.pnc.core.test.mock.BuildDriverMock;
+import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.spi.BuildExecutionType;
 import org.jboss.pnc.spi.BuildSetStatus;
 import org.jboss.pnc.spi.BuildStatus;
+import org.jboss.pnc.spi.datastore.DatastoreException;
 import org.jboss.pnc.spi.events.BuildSetStatusChangedEvent;
 import org.jboss.pnc.spi.events.BuildStatusChangedEvent;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
@@ -97,7 +99,7 @@ public class StatusUpdatesTest {
 
     @Test
     @InSequence(10)
-    public void buildSetStatusShouldUpdateWhenAllBuildStatusChangeToCompletedState() {
+    public void buildSetStatusShouldUpdateWhenAllBuildStatusChangeToCompletedState() throws DatastoreException {
         ObjectWrapper<BuildSetStatusChangedEvent> receivedBuildSetStatusChangedEvent = new ObjectWrapper<>();
         Consumer<BuildSetStatusChangedEvent> statusUpdateListener = (event) -> {
             receivedBuildSetStatusChangedEvent.set(event);
@@ -112,7 +114,7 @@ public class StatusUpdatesTest {
 
     @Test
     @InSequence(20)
-    public void buildSetStatusShouldNotUpdateWhenAllBuildStatusChangeToNonCompletedState() {
+    public void buildSetStatusShouldNotUpdateWhenAllBuildStatusChangeToNonCompletedState() throws DatastoreException {
         ObjectWrapper<BuildSetStatusChangedEvent> receivedBuildSetStatusChangedEvent = new ObjectWrapper<>();
         Consumer<BuildSetStatusChangedEvent> statusUpdateListener = (event) -> {
             receivedBuildSetStatusChangedEvent.set(event);
@@ -135,7 +137,7 @@ public class StatusUpdatesTest {
 
     @Test
     @InSequence(30)
-    public void BuildTaskCallbacksShouldBeCalled() {
+    public void BuildTaskCallbacksShouldBeCalled() throws DatastoreException {
         Set<BuildTask> buildTasks = initializeBuildTask().getBuildTasks();
         Set<Integer> tasksIds = buildTasks.stream().map((buildTask -> buildTask.getId())).collect(Collectors.toSet());
 
@@ -157,7 +159,7 @@ public class StatusUpdatesTest {
 
     @Test
     @InSequence(40)
-    public void BuildSetTaskCallbacksShouldBeCalled() {
+    public void BuildSetTaskCallbacksShouldBeCalled() throws DatastoreException {
         BuildSetTask buildSetTask = initializeBuildTask();
         Set<BuildTask> buildTasks = buildSetTask.getBuildTasks();
 
@@ -177,13 +179,17 @@ public class StatusUpdatesTest {
     AtomicInteger buildTaskSetIdSupplier = new AtomicInteger(0);
     AtomicInteger buildTaskIdSupplier = new AtomicInteger(0);
 
-    private BuildSetTask initializeBuildTask() {
+    private BuildSetTask initializeBuildTask() throws DatastoreException {
         BuildConfigurationSet buildConfigurationSet = new TestProjectConfigurationBuilder().buildConfigurationSet(1);
 
+        BuildConfigSetRecord buildConfigSetRecord = BuildConfigSetRecord.Builder.newBuilder()
+                .id(buildConfigurationSet.getId())
+                .buildConfigurationSet(buildConfigurationSet)
+                .build();
         BuildSetTask buildSetTask = new BuildSetTask(
                 buildCoordinator,
-                buildConfigurationSet,
-                BuildExecutionType.COMPOSED_BUILD, null, buildTaskSetIdSupplier.incrementAndGet());
+                buildConfigSetRecord,
+                BuildExecutionType.COMPOSED_BUILD);
         new BuildTasksTree(buildCoordinator, buildSetTask, null, () -> buildTaskIdSupplier.incrementAndGet());
 
         return buildSetTask;

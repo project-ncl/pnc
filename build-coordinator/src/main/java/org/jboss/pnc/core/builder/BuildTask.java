@@ -224,6 +224,10 @@ public class BuildTask implements BuildExecution {
         return user;
     }
 
+    public BuildSetTask getBuildSetTask() {
+        return buildSetTask;
+    }
+
     @Override
     public void setLogsWebSocketLink(URI link) {
         this.logsWebSocketLink.set(link);
