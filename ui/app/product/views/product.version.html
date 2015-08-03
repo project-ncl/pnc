@@ -19,7 +19,7 @@
 -->
 <div>
   <pnc-header>
-    <pnc-header-title>{{ versionCtrl.version.version || 'Empty' }}</pnc-header-title>
+    <pnc-header-title>{{ versionCtrl.product.name + ' ' + versionCtrl.version.version || 'Empty' }}</pnc-header-title>
     <pnc-header-buttons>
 
       <button type="button" class="btn btn-lg btn-default" data-toggle="tooltip" title="Edit Product Version" ng-click="productVersionForm.$show()" ng-class="{ 'active': productVersionForm.$visible }"><i class="pficon pficon-edit"></i> Edit
