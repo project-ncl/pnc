@@ -22,10 +22,10 @@
 
 # Check if we would like to create network isolation
 if [[ -z "$firewallAllowedDestinations" ]]; then
-  echo "\$firewallAllowedDestinations not defined, no ip address will be allowed to connect!"	
+  echo "\$firewallAllowedDestinations not defined, no ip address will be allowed to connect!"
 elif [[ "$firewallAllowedDestinations" == "all" ]]; then
   echo "\$firewallAllowedDestinations is set to all ";
-  exit;	
+  exit;
 else
   echo "iptables for network isolation will be set"
 fi
@@ -39,15 +39,20 @@ iptables -I OUTPUT 1 -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
 # it should be in format IPAddress:port,[IPAddress:port, [ ... ]]
 OIFS=$IFS
 IFS=','
-for address in $firewallAllowedDestinations 
-do 
+for address in $firewallAllowedDestinations
+do
  IFS=':'
  destination=($address)
- iptables -A OUTPUT -p tcp --dport ${destination[1]} -d ${destination[0]} -j ACCEPT
-done   
+ if [ -n "${destination[1]}" ]
+ then
+     iptables -A OUTPUT -p tcp --dport ${destination[1]} -d ${destination[0]} -j ACCEPT
+ else
+     iptables -A OUTPUT -p tcp -d ${destination[0]} -j ACCEPT
+ fi
+done
 IFS=$OIFS
 
 iptables -A OUTPUT -j REJECT
 
-# print out set the rules 
+# print out set the rules
 iptables -L OUTPUT
