@@ -70,7 +70,7 @@
           .$promise;
         },
         productVersions: function(restClient, productDetail) {
-          return restClient.Version.query({ productId: productDetail.id }).$promise;
+          return restClient.Product.getVersions({ productId: productDetail.id }).$promise;
         },
       }
     });
