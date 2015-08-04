@@ -223,7 +223,7 @@ public class DatabaseDataInitializer {
         buildConfiguration4 = buildConfigurationRepository.save(buildConfiguration4);
 
         BuildConfiguration buildConfiguration5 = BuildConfiguration.Builder.newBuilder().name("maven-plugin-test")
-                .project(project4).description("Test build for Plugins with external downloads").environment(environment1)
+                .project(project5).description("Test build for Plugins with external downloads").environment(environment1)
                 .buildScript("mvn clean deploy").scmRepoURL("https://github.com/rnc/mvn-plugin-test.git")
                 .build();
         buildConfiguration5 = buildConfigurationRepository.save(buildConfiguration5);
