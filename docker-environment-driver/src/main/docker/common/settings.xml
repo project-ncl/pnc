@@ -38,6 +38,7 @@
       <protocol>http</protocol>
       <host>${proxyServer}</host>
       <port>${proxyPort}</port>
+      <username>${proxyUsername}</username>
     </proxy>
   </proxies>
 

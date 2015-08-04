@@ -163,7 +163,8 @@ public class DockerEnvironmentDriver implements EnvironmentDriver {
                     .env(prepareEnvVariables(repositorySession.getConnectionInfo().getDependencyUrl(), 
                                              repositorySession.getConnectionInfo().getDeployUrl(),
                                              proxyServer,
-                                             proxyPort)).build();
+                                             proxyPort,
+                                             repositorySession.getBuildRepositoryId())).build();
             logger.fine("Creating docker container with config: " + config);
             Container createdContainer = dockerClient.createContainer(containerId, config);
             buildContainerState = BuildContainerState.BUILT;
@@ -267,10 +268,10 @@ public class DockerEnvironmentDriver implements EnvironmentDriver {
      * @param deployUrl AProx deployUrl
      * @param proxyServer Proxy server IP address or DNS resolvable name
      * @param proxyPort number of proxy server port where is it listening
-     * 
+     * @param proxyUsername the getBuildRepositoryId for tracking
      * @return Environment variables configuration
      */
-    private List<String> prepareEnvVariables(String dependencyUrl, String deployUrl, String proxyServer, String proxyPort) {
+    private List<String> prepareEnvVariables(String dependencyUrl, String deployUrl, String proxyServer, String proxyPort, String proxyUsername) {
         String proxyActive = "false";
         
         if ( (proxyServer != null && proxyPort != null) &&
@@ -285,6 +286,7 @@ public class DockerEnvironmentDriver implements EnvironmentDriver {
         envVariables.add("isHttpActive=" + proxyActive);
         envVariables.add("proxyIPAddress=" + proxyServer);
         envVariables.add("proxyPort=" + proxyPort);
+        envVariables.add("proxyUsername=" + proxyUsername);
         return envVariables;
     }   
 
