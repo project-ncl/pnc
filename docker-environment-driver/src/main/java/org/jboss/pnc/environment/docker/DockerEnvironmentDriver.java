@@ -42,6 +42,8 @@ import org.jclouds.docker.domain.HostConfig;
 import org.jclouds.docker.features.RemoteApi;
 import org.jclouds.docker.options.RemoveContainerOptions;
 import org.jclouds.logging.slf4j.config.SLF4JLoggingModule;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -52,7 +54,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Logger;
+
 
 /**
  * Implementation of environment driver, which uses Docker to run environments
@@ -63,7 +65,7 @@ import java.util.logging.Logger;
 @ApplicationScoped
 public class DockerEnvironmentDriver implements EnvironmentDriver {
 
-    private static final Logger logger = Logger.getLogger(MethodHandles.lookup().lookupClass().getName());
+    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass().getName());
 
     private static final Path workingDirectory = FileSystems.getDefault().getPath("/tmp");
 
@@ -165,7 +167,7 @@ public class DockerEnvironmentDriver implements EnvironmentDriver {
                                              proxyServer,
                                              proxyPort,
                                              repositorySession.getBuildRepositoryId())).build();
-            logger.fine("Creating docker container with config: " + config);
+            logger.debug("Creating docker container with config: " + config);
             Container createdContainer = dockerClient.createContainer(containerId, config);
             buildContainerState = BuildContainerState.BUILT;
 
@@ -183,7 +185,7 @@ public class DockerEnvironmentDriver implements EnvironmentDriver {
             jenkinsPort = getJenkinsPort(containerPortMappings);
         } catch (Exception e) {
             // Creating container failed => clean up
-            logger.warning("Docker container failed to start. " + e);
+            logger.warn("Docker container failed to start. " + e);
 
             if (buildContainerState != BuildContainerState.NOT_BUILT) {
                 if (buildContainerState == BuildContainerState.BUILT)
@@ -234,7 +236,7 @@ public class DockerEnvironmentDriver implements EnvironmentDriver {
                 dockerClient.stopContainer(containerId);
             dockerClient.removeContainer(containerId, new RemoveContainerOptionsExtended().force(true));
         } catch (RuntimeException e) {
-            logger.warning("Docker container (ID:" + containerId + " )couldn't be removed: " + e);
+            logger.warn("Docker container (ID:" + containerId + " )couldn't be removed: " + e);
             throw new EnvironmentDriverException("Cannot destroy environment.", e);
         }
         logger.info("Docker container with ID: " + containerId + " was destroyed.");
@@ -287,6 +289,11 @@ public class DockerEnvironmentDriver implements EnvironmentDriver {
         envVariables.add("proxyIPAddress=" + proxyServer);
         envVariables.add("proxyPort=" + proxyPort);
         envVariables.add("proxyUsername=" + proxyUsername);
+
+        if (logger.isDebugEnabled())
+        {
+            logger.debug("Setting environment variables for docker container " + envVariables.toString());
+        }
         return envVariables;
     }   
 

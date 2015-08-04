@@ -124,6 +124,10 @@
     </dependency>
     <!-- /JClouds -->
 
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+    </dependency>
 
     <!-- Test dependencies -->
     <dependency>

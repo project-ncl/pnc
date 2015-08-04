@@ -17,11 +17,12 @@
  */
 package org.jboss.pnc.environment.docker;
 
-import org.jboss.logging.Logger;
 import org.jboss.pnc.spi.environment.RunningEnvironment;
 import org.jboss.pnc.spi.environment.StartedEnvironment;
 import org.jboss.pnc.spi.environment.exception.EnvironmentDriverException;
 import org.jboss.pnc.spi.repositorymanager.model.RepositorySession;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.invoke.MethodHandles;
 import java.nio.file.Path;
@@ -35,7 +36,7 @@ import java.util.function.Consumer;
  */
 public class DockerStartedEnvironment implements StartedEnvironment {
 
-    private static final Logger logger = Logger.getLogger(MethodHandles.lookup().lookupClass().getName());
+    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass().getName());
 
     private final DockerInitializationMonitor dockerInitMonitor;
     
