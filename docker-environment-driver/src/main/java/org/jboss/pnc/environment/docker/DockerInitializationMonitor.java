@@ -20,6 +20,8 @@ package org.jboss.pnc.environment.docker;
 import org.jboss.pnc.common.util.HttpUtils;
 import org.jboss.pnc.common.util.ObjectWrapper;
 import org.jboss.pnc.spi.environment.exception.EnvironmentDriverException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
 
@@ -30,7 +32,6 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
-import java.util.logging.Logger;
 
 /**
  * Checks state of newly created environments and reports, when the environment is fully up
@@ -41,7 +42,7 @@ import java.util.logging.Logger;
 @ApplicationScoped
 public class DockerInitializationMonitor {
 
-    private static final Logger logger = Logger.getLogger(MethodHandles.lookup().lookupClass().getName());
+    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass().getName());
 
     /** Time how long the driver waits until all services are fully up and running (in seconds) */
     private static final int MAX_CONTAINER_LOADING_TIME = 180;
@@ -88,7 +89,7 @@ public class DockerInitializationMonitor {
     /**
      * Wait until all services in container are fully up and running
      * 
-     * @param URL to jenkins server in container
+     * @param jenkinsUrl to jenkins server in container
      * @throws EnvironmentDriverException Thrown if the services are not initialized in time specified by variable
      *         MAX_CONTAINER_LOADING_TIME
      * @return True if all services are fully up and running otherwise false
@@ -99,7 +100,7 @@ public class DockerInitializationMonitor {
             return true;
         } catch (Exception e) {
             // Jenkins is not fully up
-            logger.fine("Container services are not fully up and running. Waiting ...");
+            logger.debug("Container services are not fully up and running. Waiting ...");
             return false;
         }
     }
