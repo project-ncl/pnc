@@ -442,5 +442,6 @@ public class BuildCoordinator {
 
     public void shutdownCoordinator(){
         executor.shutdown();
+        dbexecutorSingleThread.shutdown();
     }
 }
