@@ -24,18 +24,12 @@ Provides a template for a responsive two column view:
 
 When placed inside a <div class="fluid-container"> the sidebar
 will collapse beneath the main content if the screen gets too narrow.
+
+sidebar-pf sidebar-pf-right
 -->
 <div class="row">
-  <div class="col-sm-8 col-lg-9">
-    <div class="row"><!-- main content -->
-      <div class="col-md-12" ui-view>
-      </div>
-    </div>
-  </div> <!-- /main content -->
-  <div class="col-sm-4 col-lg-3 full-height"> <!-- sidebar -->
-    <div class="row">
-      <div class="col-md-12" ui-view="sidebar">
-      </div>
-    </div>
-  </div> <!-- /sidebar -->
+  <div class="col-sm-8 col-lg-9" ui-view>
+  </div>
+  <div class="col-sm-4 col-lg-3 sidebar sidebar-right" ui-view="sidebar">
+  </div> 
 </div>

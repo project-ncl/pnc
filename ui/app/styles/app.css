@@ -32,10 +32,6 @@ body {
  z-index:9000;
 }
 
-.full-height {
-// TODO: fix for full height sidebar
-}
-
 .footer {
   position: absolute;
   bottom: 0;
