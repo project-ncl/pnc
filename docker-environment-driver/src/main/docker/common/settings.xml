@@ -39,6 +39,7 @@
       <host>${proxyServer}</host>
       <port>${proxyPort}</port>
       <username>${proxyUsername}</username>
+      <password></password>
     </proxy>
   </proxies>
 
