@@ -46,9 +46,8 @@
           url: REST_BASE_URL + '/product-releases/product-versions/:versionId',
           isArray: true
         },
-        saveForProductVersion: {
-          method: 'POST',
-          url: REST_BASE_URL + '/product-releases/product-versions/:versionId'
+        save: {
+          method: 'POST'
         },
         getAllSupportLevel: {
           method: 'GET',

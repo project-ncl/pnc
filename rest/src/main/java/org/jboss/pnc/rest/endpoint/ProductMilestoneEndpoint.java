@@ -95,12 +95,9 @@ public class ProductMilestoneEndpoint {
 
     @ApiOperation(value = "Creates a new Product Milestone for the Specified Product Version")
     @POST
-    @Path("/product-versions/{versionId}")
-    public Response createNew(
-            @ApiParam(value = "Product Version id", required = true) @PathParam("versionId") Integer versionId,
-            @NotNull @Valid ProductMilestoneRest productMilestoneRest, @Context UriInfo uriInfo) {
+    public Response createNew(@NotNull @Valid ProductMilestoneRest productMilestoneRest, @Context UriInfo uriInfo) {
 
-        int id = productMilestoneProvider.store(versionId, productMilestoneRest);
+        int id = productMilestoneProvider.store(productMilestoneRest.getProductVersionId(), productMilestoneRest);
         UriBuilder uriBuilder = UriBuilder.fromUri(uriInfo.getRequestUri()).path("{id}");
         return Response.created(uriBuilder.build(id)).entity(productMilestoneProvider.getSpecific(id)).build();
     }

@@ -69,12 +69,10 @@
         that.data.plannedReleaseDate = dateUtilConverter.convertToTimestampNoonUTC(that.data.plannedReleaseDate);
         that.data.productVersionId = versionDetail.id;
 
-        // Distinguish between release creation and update
+        // Distinguish between milestone creation and update
         if (!that.isUpdating) {
 
-          that.data.$saveForProductVersion({
-            versionId: versionDetail.id
-          }).then(
+          that.data.$save().then(
             function() {
 
               if (that.setCurrentMilestone) {
@@ -113,9 +111,7 @@
             }
           );
         } else {
-          that.data.$update({
-            versionId: versionDetail.id
-          }).then(
+          that.data.$update().then(
             function() {
               $state.go('product.version', {
                 productId: productDetail.id,
@@ -155,9 +151,7 @@
       that.submit = function() {
 
         that.data.releaseDate = dateUtilConverter.convertToTimestampNoonUTC(that.data.releaseDate);
-        that.data.$update({
-          versionId: versionDetail.id
-        }).then(
+        that.data.$update().then(
           function() {
             $state.go('product.version', {
               productId: productDetail.id,

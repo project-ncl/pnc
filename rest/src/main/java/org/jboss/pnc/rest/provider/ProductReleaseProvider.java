@@ -115,6 +115,7 @@ public class ProductReleaseProvider {
 
     public Integer store(Integer productVersionId, ProductReleaseRest productReleaseRest) {
         Preconditions.checkArgument(productReleaseRest.getId() == null, "Id must be null");
+        Preconditions.checkArgument(productReleaseRest.getProductVersionId() != null, "productVersionId must not be null");
         ProductVersion productVersion = productVersionRepository.queryById(productVersionId);
         Preconditions.checkArgument(productVersion != null, "Couldn't find product version with id " + productVersionId);
 
