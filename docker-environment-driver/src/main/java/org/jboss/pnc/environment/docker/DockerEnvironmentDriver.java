@@ -286,7 +286,7 @@ public class DockerEnvironmentDriver implements EnvironmentDriver {
         envVariables.add("AProxDependencyUrl=" + dependencyUrl);
         envVariables.add("AProxDeployUrl=" + deployUrl);
         envVariables.add("isHttpActive=" + proxyActive);
-        envVariables.add("proxyIPAddress=" + proxyServer);
+        envVariables.add("proxyServer=" + proxyServer);
         envVariables.add("proxyPort=" + proxyPort);
         envVariables.add("proxyUsername=" + proxyUsername);
 
