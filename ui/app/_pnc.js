@@ -74,7 +74,16 @@
   app.config(function($stateProvider, $urlRouterProvider, $locationProvider,
     $httpProvider, keycloakProvider, NotificationsProvider, PROPERTIES) {
 
-    $locationProvider.html5Mode(false).hashPrefix('!');
+    $locationProvider.html5Mode(false);
+
+    // Redirects URLS with the old '#!' URL prefix to the newer
+    // format without the !. This should be removed after 0.7.
+    $urlRouterProvider.rule(function ($injector, $location) {
+        var path = $location.path();
+        if (path.indexOf('!') > -1) {
+          return path.replace(/\/!/, '');
+        }
+    });
 
     // Allows dashboard to be root state.
     $urlRouterProvider.when('', '/record');
