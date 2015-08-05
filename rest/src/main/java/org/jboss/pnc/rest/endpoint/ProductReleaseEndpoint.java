@@ -96,12 +96,10 @@ public class ProductReleaseEndpoint {
 
     @ApiOperation(value = "Creates a new Product Release")
     @POST
-    @Path("/product-versions/{versionId}")
     public Response createNew(
-            @ApiParam(value = "Product Version id", required = true) @PathParam("versionId") Integer versionId,
             @NotNull @Valid ProductReleaseRest productReleaseRest, @Context UriInfo uriInfo) {
 
-        int id = productReleaseProvider.store(versionId, productReleaseRest);
+        int id = productReleaseProvider.store(productReleaseRest.getProductVersionId(), productReleaseRest);
         UriBuilder uriBuilder = UriBuilder.fromUri(uriInfo.getRequestUri()).path("{id}");
         return Response.created(uriBuilder.build(id)).entity(productReleaseProvider.getSpecific(id)).build();
     }

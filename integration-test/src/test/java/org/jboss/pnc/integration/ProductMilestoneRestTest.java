@@ -127,16 +127,14 @@ public class ProductMilestoneRestTest {
 
         Response response = given().header("Accept", "application/json").header("Authorization", "Bearer " + access_token)
                 .body(productMilestoneTemplate.fillTemplate()).contentType(ContentType.JSON).port(getHttpPort()).when()
-                .post(String.format(PRODUCT_MILESTONE_PRODUCTVERSION_REST_ENDPOINT, productVersionId));
+                .post(PRODUCT_MILESTONE_REST_ENDPOINT);
         Assertions.assertThat(response.statusCode()).isEqualTo(201);
 
         String location = response.getHeader("Location");
         logger.info("Found location in Response header: " + location);
 
-        newProductMilestoneId = Integer.valueOf(location.substring(location.lastIndexOf(String.format(
-                PRODUCT_MILESTONE_PRODUCTVERSION_REST_ENDPOINT, productVersionId))
-                + String.format(PRODUCT_MILESTONE_PRODUCTVERSION_REST_ENDPOINT, productVersionId).length() + 1));
-
+        newProductMilestoneId = Integer.valueOf(location.substring(location.lastIndexOf(PRODUCT_MILESTONE_REST_ENDPOINT)
+                + PRODUCT_MILESTONE_REST_ENDPOINT.length()));
         logger.info("Created id of product milestone: " + newProductMilestoneId);
 
     }

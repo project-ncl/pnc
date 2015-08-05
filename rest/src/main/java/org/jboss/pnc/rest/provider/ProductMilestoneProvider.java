@@ -98,15 +98,11 @@ public class ProductMilestoneProvider {
         Preconditions.checkArgument(id != null, "Id must not be null");
         Preconditions.checkArgument(productMilestoneRest.getId() == null || productMilestoneRest.getId().equals(id),
                 "Entity id does not match the id to update");
-        Preconditions.checkArgument(productMilestoneRest.getProductVersionId() != null, "ProductVersion must not be null");
         productMilestoneRest.setId(id);
-        ProductVersion productVersion = productVersionRepository.queryById(productMilestoneRest.getProductVersionId());
         ProductMilestone productMilestone = productMilestoneRepository.queryById(productMilestoneRest.getId());
         Preconditions.checkArgument(productMilestone != null,
                 "Couldn't find Product Milestone with id " + productMilestoneRest.getId());
-        Preconditions.checkArgument(productVersion != null,
-                "Couldn't find Product Version with id " + productMilestoneRest.getProductVersionId());
-        productMilestoneRepository.save(productMilestoneRest.toProductMilestone(productVersion));
+        productMilestoneRepository.save(productMilestoneRest.mergeProductMilestone(productMilestone));
     }
 
     private Function<ProductMilestone, ProductMilestoneRest> toRestModel() {
@@ -115,6 +111,7 @@ public class ProductMilestoneProvider {
 
     public Integer store(Integer productVersionId, ProductMilestoneRest productMilestoneRest) {
         Preconditions.checkArgument(productMilestoneRest.getId() == null, "Id must be null");
+        Preconditions.checkArgument(productMilestoneRest.getProductVersionId() != null, "productVersionId must not be null");
         ProductVersion productVersion = productVersionRepository.queryById(productVersionId);
         Preconditions.checkArgument(productVersion != null, "Couldn't find product version with id " + productVersionId);
 

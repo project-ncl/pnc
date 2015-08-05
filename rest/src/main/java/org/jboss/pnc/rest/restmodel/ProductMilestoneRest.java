@@ -155,13 +155,33 @@ public class ProductMilestoneRest {
         this.distributedBuildRecordSetId = distributedBuildRecordSetId;
     }
 
+    /**
+     * Create a new ProductMilestone object based on this ProductMilestoneRest
+     * 
+     * @param productVersion The product version associated with this product milestone
+     * @return The new product milestone
+     */
     public ProductMilestone toProductMilestone(ProductVersion productVersion) {
-        ProductMilestone productMilestoneToBeUpdated = getProductMilestoneFromProductVersionOrNewOne(productVersion);
-        return toProductMilestone(productMilestoneToBeUpdated);
+        return ProductMilestone.Builder.newBuilder()
+                .productVersion(productVersion)
+                .version(version)
+                .releaseDate(releaseDate)
+                .startingDate(startingDate)
+                .plannedReleaseDate(plannedReleaseDate)
+                .downloadUrl(downloadUrl)
+                .build();
     }
 
-    public ProductMilestone toProductMilestone(ProductMilestone productMilestone) {
-        productMilestone.setId(id);
+    /**
+     * Merge the fields of this product milestone rest with the given product milestone
+     * Note: Changing the product version of a product milestone is not allowed.  If the 
+     * product version of the given milestone is different than the current milestone, the 
+     * change will be ignored.
+     * 
+     * @param productMilestone
+     * @return The product milestone with updated attributes to match this ProductMilestoneRest
+     */
+    public ProductMilestone mergeProductMilestone(ProductMilestone productMilestone) {
         productMilestone.setVersion(version);
         productMilestone.setReleaseDate(releaseDate);
         productMilestone.setStartingDate(startingDate);
@@ -169,40 +189,24 @@ public class ProductMilestoneRest {
         productMilestone.setDownloadUrl(downloadUrl);
 
         if (performedBuildRecordSetId != null) {
-            BuildRecordSet performedBuildRecordSet = BuildRecordSet.Builder.newBuilder().id(performedBuildRecordSetId).build();
+            BuildRecordSet performedBuildRecordSet = BuildRecordSet.Builder.newBuilder().id(performedBuildRecordSetId)
+                    .performedInProductMilestone(productMilestone).build();
             productMilestone.setPerformedBuildRecordSet(performedBuildRecordSet);
-            performedBuildRecordSet.setPerformedInProductMilestone(productMilestone);
         }
 
         if (distributedBuildRecordSetId != null) {
-            BuildRecordSet distributedBuildRecordSet = BuildRecordSet.Builder.newBuilder().id(distributedBuildRecordSetId).build();
+            BuildRecordSet distributedBuildRecordSet = BuildRecordSet.Builder.newBuilder().id(distributedBuildRecordSetId)
+                    .distributedInProductMilestone(productMilestone).build();
             productMilestone.setDistributedBuildRecordSet(distributedBuildRecordSet);
-            distributedBuildRecordSet.setDistributedInProductMilestone(productMilestone);
         }
 
         if (productReleaseId != null) {
-            ProductRelease productRelease = ProductRelease.Builder.newBuilder().id(productReleaseId).build();
+            ProductRelease productRelease = ProductRelease.Builder.newBuilder().id(productReleaseId)
+                    .productMilestone(productMilestone).build();
             productMilestone.setProductRelease(productRelease);
-            productRelease.setProductMilestone(productMilestone);
         }
 
         return productMilestone;
-    }
-
-    /**
-     * Checks if ProductMilestone is present in ProductVersion. If it is true - returns it or creates new one otherwise.
-     */
-    private ProductMilestone getProductMilestoneFromProductVersionOrNewOne(ProductVersion productVersion) {
-        List<ProductMilestone> productMilestonesInProductVersion = nullableStreamOf(productVersion.getProductMilestones())
-                .filter(productMilestone -> productMilestone.getId().equals(id)).collect(Collectors.toList());
-
-        if (!productMilestonesInProductVersion.isEmpty()) {
-            return productMilestonesInProductVersion.get(0);
-        }
-
-        ProductMilestone.Builder builder = ProductMilestone.Builder.newBuilder();
-        builder.productVersion(productVersion);
-        return builder.build();
     }
 
 }

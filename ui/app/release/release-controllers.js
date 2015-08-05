@@ -103,9 +103,7 @@
 
         // Distinguish between release creation and update
         if (!that.isUpdating) {
-          that.data.$saveForProductVersion({
-            versionId: versionDetail.id
-          }).then(
+          that.data.$save().then(
             function() {
               $state.go('product.version', {
                 productId: productDetail.id,

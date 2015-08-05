@@ -259,7 +259,7 @@ public class ProductMilestone implements GenericEntity<Integer> {
 
             if (performedBuildRecordSet == null) {
                 performedBuildRecordSet = BuildRecordSet.Builder.newBuilder()
-                        .description("Performed " + productMilestone.getVersion())
+                        .description("Performed in " + getProductName() + " " + productMilestone.getVersion())
                         .build();
             }
             performedBuildRecordSet.setPerformedInProductMilestone(productMilestone);
@@ -267,7 +267,7 @@ public class ProductMilestone implements GenericEntity<Integer> {
 
             if (distributedBuildRecordSet == null) {
                 distributedBuildRecordSet = BuildRecordSet.Builder.newBuilder()
-                        .description("Distributed " + productMilestone.getVersion())
+                        .description("Distributed in " + getProductName() + " " + productMilestone.getVersion())
                         .build();
             }
             distributedBuildRecordSet.setDistributedInProductMilestone(productMilestone);
@@ -329,6 +329,18 @@ public class ProductMilestone implements GenericEntity<Integer> {
         public Builder productRelease(ProductRelease productRelease) {
             this.productRelease = productRelease;
             return this;
+        }
+
+        /**
+         * Safe way to try to get the associated product name without worrying about null pointers
+         * 
+         * @return The associated product name, or an empty string
+         */
+        public String getProductName() {
+            if (productVersion != null && productVersion.getProduct() != null) {
+                return productVersion.getProduct().getName();
+            }
+            return "";
         }
     }
 }
