@@ -130,7 +130,7 @@ public class BuildTriggerer {
             buildRecordSet.setPerformedInProductMilestone(productVersion.getCurrentProductMilestone());
         }
 
-        Integer taskId = buildCoordinator.build(configuration, currentUser).getBuildConfiguration().getId();
+        Integer taskId = buildCoordinator.build(configuration, currentUser).getId();
         return taskId;
     }
 
