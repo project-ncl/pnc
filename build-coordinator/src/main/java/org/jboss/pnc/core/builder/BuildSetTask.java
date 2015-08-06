@@ -21,6 +21,7 @@ import org.jboss.pnc.core.events.DefaultBuildSetStatusChangedEvent;
 import org.jboss.pnc.core.exception.CoreException;
 import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildConfigurationSet;
+import org.jboss.pnc.model.ProductMilestone;
 import org.jboss.pnc.spi.BuildExecutionType;
 import org.jboss.pnc.spi.BuildSetStatus;
 import org.jboss.pnc.spi.datastore.DatastoreException;
@@ -45,6 +46,7 @@ public class BuildSetTask {
     private Logger log = LoggerFactory.getLogger(BuildCoordinator.class);
 
     private BuildConfigSetRecord buildConfigSetRecord;
+    private ProductMilestone productMilestone;
 
     private BuildCoordinator buildCoordinator;
 
@@ -60,10 +62,11 @@ public class BuildSetTask {
      * Create build set task for running a single build or set of builds
      */
     public BuildSetTask(BuildCoordinator buildCoordinator, BuildConfigSetRecord buildConfigSetRecord,
-            BuildExecutionType buildTaskType) {
+            BuildExecutionType buildTaskType, ProductMilestone productMilestone) {
         this.buildCoordinator = buildCoordinator;
         this.buildConfigSetRecord = buildConfigSetRecord;
         this.buildTaskType = buildTaskType;
+        this.productMilestone = productMilestone;
         this.buildSetStatusChangedEventNotifier = buildCoordinator.getBuildSetStatusChangedEventNotifier();
     }
 
@@ -133,5 +136,13 @@ public class BuildSetTask {
 
     public BuildConfigSetRecord getBuildConfigSetRecord() {
         return buildConfigSetRecord;
+    }
+
+    /**
+     * The product milestone during which this set of builds is executed.
+     * Will be null if this build set is not associated with any milestone.
+     */
+    public ProductMilestone getProductMilestone() {
+        return productMilestone;
     }
 }

@@ -51,7 +51,8 @@ public class ReadDependenciesTest extends ProjectBuilder {
         BuildSetTask buildSetTask = new BuildSetTask(
                 buildCoordinator, 
                 buildConfigSetRecord, 
-                BuildExecutionType.COMPOSED_BUILD);
+                BuildExecutionType.COMPOSED_BUILD,
+                null);
         User user = User.Builder.newBuilder().id(1).build();
         BuildTasksTree buildTasksTree = new BuildTasksTree(buildCoordinator, buildSetTask, user,() -> taskIdGenerator.incrementAndGet());
 

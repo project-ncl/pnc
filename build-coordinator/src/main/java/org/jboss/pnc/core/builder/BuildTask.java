@@ -20,6 +20,8 @@ package org.jboss.pnc.core.builder;
 import org.jboss.pnc.core.events.DefaultBuildStatusChangedEvent;
 import org.jboss.pnc.core.exception.CoreException;
 import org.jboss.pnc.model.BuildConfiguration;
+import org.jboss.pnc.model.ProductMilestone;
+import org.jboss.pnc.model.ProductVersion;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.BuildExecution;
 import org.jboss.pnc.spi.BuildExecutionType;
@@ -30,6 +32,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.enterprise.event.Event;
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -66,15 +69,21 @@ public class BuildTask implements BuildExecution {
     private String buildContentId;
     private long startTime;
 
-    //User who created the tasks
+    /**
+     * The user who triggered this build.
+     */
     private User user;
+
+    private List<ProductMilestone> productMilestones = new ArrayList<ProductMilestone>();
 
     private BuildSetTask buildSetTask;
 
     private final AtomicReference<URI> logsWebSocketLink = new AtomicReference<>();
     private boolean hasFailed = false;
 
-    BuildTask(BuildCoordinator buildCoordinator, BuildConfiguration buildConfiguration, String topContentId,
+    BuildTask(BuildCoordinator buildCoordinator, 
+            BuildConfiguration buildConfiguration, 
+            String topContentId,
               String buildSetContentId,
               String buildContentId, 
               BuildExecutionType buildTaskType, 
@@ -91,6 +100,17 @@ public class BuildTask implements BuildExecution {
         this.user = user;
         this.buildSetTask = buildSetTask;
         this.buildTaskId = buildTaskId;
+
+        if (buildSetTask.getProductMilestone() != null) {
+            this.productMilestones.add(buildSetTask.getProductMilestone());
+        }
+        if (buildConfiguration.getProductVersions() != null) {
+            for (ProductVersion productVersion : buildConfiguration.getProductVersions()) {
+                if (productVersion.getCurrentProductMilestone() != null) {
+                    this.productMilestones.add(productVersion.getCurrentProductMilestone());
+                }
+            }
+        }
 
         this.startTime = System.currentTimeMillis();
         waiting = new HashSet<>();
@@ -222,6 +242,10 @@ public class BuildTask implements BuildExecution {
 
     public User getUser() {
         return user;
+    }
+
+    public List<ProductMilestone> getProductMilestones() {
+        return productMilestones;
     }
 
     public BuildSetTask getBuildSetTask() {

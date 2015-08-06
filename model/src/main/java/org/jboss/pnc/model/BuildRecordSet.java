@@ -18,7 +18,9 @@
 package org.jboss.pnc.model;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -70,13 +72,13 @@ public class BuildRecordSet implements GenericEntity<Integer> {
     @ManyToMany
     @JoinTable(name = "build_record_set_map", joinColumns = { @JoinColumn(name = "build_record_set_id", referencedColumnName = "id") }, inverseJoinColumns = { @JoinColumn(name = "build_record_id", referencedColumnName = "id") })
     @ForeignKey(name = "fk_build_record_set_map_buildrecordset", inverseName = "fk_build_record_set_map_buildrecord")
-    private List<BuildRecord> buildRecords;
+    private Set<BuildRecord> buildRecords;
 
     /**
      * Instantiates a new builds the collection.
      */
     public BuildRecordSet() {
-
+        buildRecords = new HashSet<BuildRecord>();
     }
 
     public Integer getId() {
@@ -111,12 +113,23 @@ public class BuildRecordSet implements GenericEntity<Integer> {
         this.distributedInProductMilestone = distributedInProductMilestone;
     }
 
-    public List<BuildRecord> getBuildRecords() {
+    public Set<BuildRecord> getBuildRecords() {
         return buildRecords;
     }
 
-    public void setBuildRecords(List<BuildRecord> records) {
-        this.buildRecords = records;
+    public void setBuildRecords(Set<BuildRecord> records) {
+        if (records == null) {
+            this.buildRecords = new HashSet<>();
+        } else {
+            this.buildRecords = records;
+        }
+    }
+
+    public boolean addBuildRecord(BuildRecord buildRecord) {
+        if (!buildRecord.getBuildRecordSets().contains(this)) {
+            buildRecord.addBuildRecordSet(this);
+        }
+        return this.buildRecords.add(buildRecord);
     }
 
     public String getBuildSetContentId() {
@@ -143,10 +156,10 @@ public class BuildRecordSet implements GenericEntity<Integer> {
 
         private String buildSetContentId;
 
-        private List<BuildRecord> buildRecords;
+        private Set<BuildRecord> buildRecords;
 
         private Builder() {
-            buildRecords = new ArrayList<>();
+            buildRecords = new HashSet<>();
         }
 
         public static Builder newBuilder() {
@@ -208,7 +221,7 @@ public class BuildRecordSet implements GenericEntity<Integer> {
             return this;
         }
 
-        public Builder buildRecords(List<BuildRecord> buildRecords) {
+        public Builder buildRecords(Set<BuildRecord> buildRecords) {
             this.buildRecords = buildRecords;
             return this;
         }
