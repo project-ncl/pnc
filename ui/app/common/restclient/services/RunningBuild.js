@@ -32,6 +32,7 @@
    */
   module.factory('RunningBuild', [
     '$resource',
+    'cachedGetter',
     'REST_BASE_URL',
     'RUNNING_BUILD_ENDPOINT',
     'cachedGetter',

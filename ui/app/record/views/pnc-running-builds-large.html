@@ -21,15 +21,17 @@
   <div class="panel-heading">
     Running Builds
   </div>
+
   <div class="spinner spinner-sm" ng-hide="isLoaded()"></div>
 
   <table class="table table-striped table-hover" ng-show="isLoaded()">
     <tbody>
-      <tr ng-repeat="record in getRecords() | orderBy: 'startTime':true">
+      <tr ng-repeat="record in getRecords() | orderBy: 'startTime'">
         <td>
           <build-status-icon status="record.status"></build-status-icon>
         </td>
         <td> # {{ record.id }}</td>
+        <td><a href ui-sref="configuration.detail.show({configurationId: record.buildConfigurationId})">{{ record.getBuildConfiguration().name }}</a></td>
         <td>{{ record.startTime | date:'medium'}}</td>
       </tr>
       <tr ng-hide="getRecords().length">

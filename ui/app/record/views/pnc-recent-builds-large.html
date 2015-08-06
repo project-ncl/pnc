@@ -19,22 +19,25 @@
 -->
 <div class="panel panel-default">
   <div class="panel-heading">
-    Running Builds
+    Recent Builds
   </div>
+
   <div class="spinner spinner-sm" ng-hide="isLoaded()"></div>
 
   <table class="table table-striped table-hover" ng-show="isLoaded()">
     <tbody>
-      <tr ng-repeat="record in getRecords() | orderBy: 'startTime':true">
+      <tr ng-repeat="record in getRecords() | orderBy: 'endTime':true">
         <td>
           <build-status-icon status="record.status"></build-status-icon>
         </td>
-        <td> # {{ record.id }}</td>
-        <td>{{ record.startTime | date:'medium'}}</td>
+        <td>{{ record.status }}</td>
+        <td><a href ui-sref="record.detail.info({recordId: record.id})"># {{ record.id }}</a></td>
+        <td><a href ui-sref="configuration.detail.show({configurationId: record.buildConfigurationId})">{{ record.getBuildConfiguration().name }}</a></td>
+        <td>{{ record.endTime | date:'medium' }}</td>
       </tr>
       <tr ng-hide="getRecords().length">
         <td>
-          No running builds
+          No recent builds
         </td>
       </tr>
     </tbody>
