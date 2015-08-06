@@ -20,7 +20,9 @@ package org.jboss.pnc.model;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -135,7 +137,7 @@ public class BuildRecord implements GenericEntity<Integer> {
      * Sets of related build records in which this build record is included
      */
     @ManyToMany(mappedBy = "buildRecords")
-    private List<BuildRecordSet> buildRecordSets;
+    private Set<BuildRecordSet> buildRecordSets;
 
     /**
      * If this build was executed as part of a set, this will contain the link to the overall results of the set. Otherwise,
@@ -154,7 +156,7 @@ public class BuildRecord implements GenericEntity<Integer> {
      * Instantiates a new project build result.
      */
     public BuildRecord() {
-        buildRecordSets = new ArrayList<>();
+        buildRecordSets = new HashSet<>();
         dependencies = new ArrayList<>();
         builtArtifacts = new ArrayList<>();
     }
@@ -371,15 +373,32 @@ public class BuildRecord implements GenericEntity<Integer> {
     /**
      * @return the buildRecordSets
      */
-    public List<BuildRecordSet> getBuildRecordSets() {
+    public Set<BuildRecordSet> getBuildRecordSets() {
         return buildRecordSets;
     }
 
     /**
      * @param buildRecordSets the buildRecordSets to set
      */
-    public void setBuildRecordSets(List<BuildRecordSet> buildRecordSets) {
-        this.buildRecordSets = buildRecordSets;
+    public void setBuildRecordSets(Set<BuildRecordSet> buildRecordSets) {
+        if (buildRecordSets == null) {
+            this.buildRecordSets = new HashSet<>();
+        } else {
+            this.buildRecordSets = buildRecordSets;
+        }
+    }
+
+    /**
+     * Add this build record to a build record set.
+     * 
+     * @param buildRecordSet
+     * @return
+     */
+    public boolean addBuildRecordSet(BuildRecordSet buildRecordSet) {
+        if (!buildRecordSet.getBuildRecords().contains(this)) {
+            buildRecordSet.getBuildRecords().add(this);
+        }
+        return this.buildRecordSets.add(buildRecordSet);
     }
 
     public String getBuildContentId() {
@@ -443,14 +462,14 @@ public class BuildRecord implements GenericEntity<Integer> {
 
         private SystemImage systemImage;
 
-        private List<BuildRecordSet> buildRecordSets;
+        private Set<BuildRecordSet> buildRecordSets;
 
         private BuildConfigSetRecord buildConfigSetRecord;
 
         private Integer externalArchiveId;
 
         public Builder() {
-            buildRecordSets = new ArrayList<>();
+            buildRecordSets = new HashSet<>();
             dependencies = new ArrayList<>();
             builtArtifacts = new ArrayList<>();
         }
@@ -573,7 +592,7 @@ public class BuildRecord implements GenericEntity<Integer> {
             return this;
         }
 
-        public Builder buildRecordSets(List<BuildRecordSet> buildRecordSets) {
+        public Builder buildRecordSets(Set<BuildRecordSet> buildRecordSets) {
             this.buildRecordSets = buildRecordSets;
             return this;
         }

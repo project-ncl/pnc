@@ -17,8 +17,11 @@
  */
 package org.jboss.pnc.spi.datastore;
 
+import java.util.List;
+
 import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildRecord;
+import org.jboss.pnc.model.ProductMilestone;
 import org.jboss.pnc.model.User;
 
 /**
@@ -64,5 +67,14 @@ public interface Datastore {
      * @throws DatastoreException
      */
     BuildConfigSetRecord saveBuildConfigSetRecord(BuildConfigSetRecord buildConfigSetRecord) throws DatastoreException;
+
+    /**
+     * Stores a build record and links to the performed build record sets of the provided productMilestones
+     * 
+     * @param buildRecord
+     * @param productMilestones
+     * @return The updated build record
+     */
+    BuildRecord storeBuildRecord(BuildRecord buildRecord, List<ProductMilestone> productMilestones);
 
 }

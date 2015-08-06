@@ -22,11 +22,14 @@ import org.jboss.pnc.datastore.repositories.internal.BuildConfigurationSpringRep
 import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildRecord;
+import org.jboss.pnc.model.BuildRecordSet;
+import org.jboss.pnc.model.ProductMilestone;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.datastore.Datastore;
 import org.jboss.pnc.spi.datastore.predicates.UserPredicates;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigSetRecordRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
+import org.jboss.pnc.spi.datastore.repositories.BuildRecordSetRepository;
 import org.jboss.pnc.spi.datastore.repositories.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,6 +39,7 @@ import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
 import javax.inject.Inject;
 import java.lang.invoke.MethodHandles;
+import java.util.List;
 
 @Stateless
 public class DefaultDatastore implements Datastore {
@@ -51,10 +55,26 @@ public class DefaultDatastore implements Datastore {
     BuildConfigSetRecordRepository buildConfigSetRecordRepository;
 
     @Inject
+    BuildRecordSetRepository buildRecordSetRepository;
+
+    @Inject
     UserRepository userRepository;
 
     @Inject
     SequenceHandlerRepository sequenceHandlerRepository;
+
+    @Override
+    @TransactionAttribute(TransactionAttributeType.REQUIRED)
+    public BuildRecord storeBuildRecord(BuildRecord buildRecord, List<ProductMilestone> productMilestones) {
+        buildRecord = storeCompletedBuild(buildRecord);
+        for (ProductMilestone productMilestone : productMilestones) {
+            // We need to query the record set first to make sure it's initialized
+            BuildRecordSet milestoneRecordSet = buildRecordSetRepository.queryById(productMilestone.getPerformedBuildRecordSet().getId());
+            milestoneRecordSet.addBuildRecord(buildRecord);
+            buildRecordSetRepository.save(milestoneRecordSet);
+        }
+        return buildRecord;
+    }
 
     @Override
     @TransactionAttribute(TransactionAttributeType.REQUIRED)

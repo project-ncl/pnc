@@ -40,7 +40,7 @@ public class BuildRecordSetPredicates {
 
     public static Predicate<BuildRecordSet> withBuildRecordId(Integer buildRecordId) {
         return (root, query, cb) -> {
-            ListJoin<BuildRecordSet, BuildRecord> buildRecords = root.join(BuildRecordSet_.buildRecords);
+            Join<BuildRecordSet, BuildRecord> buildRecords = root.join(BuildRecordSet_.buildRecords);
             return cb.equal(buildRecords.get(org.jboss.pnc.model.BuildRecord_.id), buildRecordId);
         };
     }

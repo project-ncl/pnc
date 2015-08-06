@@ -22,6 +22,7 @@ import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.BuildStatus;
+import org.jboss.pnc.model.ProductMilestone;
 import org.jboss.pnc.spi.BuildExecutionType;
 import org.jboss.pnc.spi.BuildResult;
 import org.jboss.pnc.spi.builddriver.BuildDriverResult;
@@ -29,6 +30,8 @@ import org.jboss.pnc.spi.datastore.Datastore;
 import org.jboss.pnc.spi.datastore.DatastoreException;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
 
+import javax.ejb.TransactionAttribute;
+import javax.ejb.TransactionAttributeType;
 import javax.inject.Inject;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -77,7 +80,7 @@ public class DatastoreAdapter {
             setAuditDataToBuildRecord(buildRecord, buildTask);
 
             log.debugf("Storing results of %s to datastore.", buildTask.getBuildConfiguration().getName());
-            return datastore.storeCompletedBuild(buildRecord);
+            return datastore.storeBuildRecord(buildRecord, buildTask.getProductMilestones());
         } catch (Exception e) {
             throw new DatastoreException("Error storing the result to datastore.", e);
         }
@@ -97,7 +100,7 @@ public class DatastoreAdapter {
         setAuditDataToBuildRecord(buildRecord, buildTask);
 
         log.debugf("Storing ERROR result of %s to datastore. Error: %s", buildTask.getBuildConfiguration().getName() + "\n\n\n Exception: " + errorMessage, e);
-        datastore.storeCompletedBuild(buildRecord);
+        datastore.storeBuildRecord(buildRecord, buildTask.getProductMilestones());
     }
 
     public Integer getNextBuildRecordId() {

@@ -114,7 +114,8 @@ public class BuildCoordinator {
         BuildSetTask buildSetTask = new BuildSetTask(
                 this,
                 buildConfigSetRecord,
-                BuildExecutionType.STANDALONE_BUILD);
+                BuildExecutionType.STANDALONE_BUILD,
+                getProductMilestone(buildConfigurationSet));
 
         build(buildSetTask, userTriggeredBuild);
         BuildTask buildTask = buildSetTask.getBuildTasks().stream().collect(StreamCollectors.singletonCollector());
@@ -134,9 +135,22 @@ public class BuildCoordinator {
         BuildSetTask buildSetTask = new BuildSetTask(
                 this,
                 buildConfigSetRecord,
-                BuildExecutionType.COMPOSED_BUILD);
+                BuildExecutionType.COMPOSED_BUILD,
+                getProductMilestone(buildConfigurationSet));
         build(buildSetTask, userTriggeredBuild);
         return buildSetTask;
+    }
+
+    /**
+     * Get the product milestone (if any) associated with this build config set.
+     * @param buildConfigSet
+     * @return The product milestone, or null if there is none
+     */
+    private ProductMilestone getProductMilestone(BuildConfigurationSet buildConfigSet) {
+        if(buildConfigSet.getProductVersion() == null || buildConfigSet.getProductVersion().getCurrentProductMilestone() == null) {
+            return null;
+        }
+        return buildConfigSet.getProductVersion().getCurrentProductMilestone();
     }
 
     private void build(BuildSetTask buildSetTask, User userTriggeredBuild) throws CoreException {

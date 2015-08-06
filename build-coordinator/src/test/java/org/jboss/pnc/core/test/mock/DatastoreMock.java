@@ -19,6 +19,8 @@ package org.jboss.pnc.core.test.mock;
 
 import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildRecord;
+import org.jboss.pnc.model.BuildRecordSet;
+import org.jboss.pnc.model.ProductMilestone;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.datastore.Datastore;
 
@@ -80,5 +82,15 @@ public class DatastoreMock implements Datastore {
         log.info("Storing build config set record " + buildConfigSetRecord.getId());
         buildConfigSetRecords.add(buildConfigSetRecord);
         return buildConfigSetRecord;
+    }
+
+    @Override
+    public BuildRecord storeBuildRecord(BuildRecord buildRecord, List<ProductMilestone> productMilestones) {
+        buildRecord = storeCompletedBuild(buildRecord);
+        for (ProductMilestone productMilestone : productMilestones) {
+            BuildRecordSet milestoneRecordSet = productMilestone.getPerformedBuildRecordSet();
+            milestoneRecordSet.addBuildRecord(buildRecord);
+        }
+        return buildRecord;
     }
 }
