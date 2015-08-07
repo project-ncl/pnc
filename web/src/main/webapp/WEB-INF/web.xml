@@ -18,4 +18,37 @@
     limitations under the License.
 
 -->
-<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://java.sun.com/xml/ns/javaee" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd" version="3.0"/>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://java.sun.com/xml/ns/javaee" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd" version="3.0">
+  <filter>
+   <filter-name>ExpiresFilter</filter-name>
+   <filter-class>org.apache.catalina.filters.ExpiresFilter</filter-class>
+   <init-param>
+      <param-name>ExpiresByType image</param-name>
+      <param-value>access plus 10 years</param-value>
+   </init-param>
+   <init-param>
+      <param-name>ExpiresByType text/css</param-name>
+      <param-value>access plus 10 years</param-value>
+   </init-param>
+   <init-param>
+      <param-name>ExpiresByType text/javascript</param-name>
+      <param-value>access plus 10 years</param-value>
+   </init-param>
+   <init-param>
+      <param-name>ExpiresByType application/font-woff</param-name>
+      <param-value>access plus 30 days</param-value>
+   </init-param>
+   <init-param>
+      <param-name>ExpiresByType application/font-sfnt</param-name>
+      <param-value>access plus 30 days</param-value>
+   </init-param>
+  </filter>
+  <filter-mapping>
+   <filter-name>ExpiresFilter</filter-name>
+     <url-pattern>/scripts/*</url-pattern>
+     <url-pattern>/styles/*</url-pattern>
+     <url-pattern>/images/*</url-pattern>
+     <url-pattern>/fonts/*</url-pattern>
+   <dispatcher>REQUEST</dispatcher>
+  </filter-mapping>
+</web-app>
