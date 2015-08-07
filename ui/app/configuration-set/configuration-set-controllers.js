@@ -46,7 +46,7 @@
         $log.debug('**Getting productVersions of Product: %0**', productId);
 
         if (productId) {
-          PncRestClient.Version.query({
+          PncRestClient.Version.getAllForProduct({
             productId: productId
           }).$promise.then(
             function(result) {
@@ -233,7 +233,7 @@
 
       self.getProductVersions = function(productId) {
         if (productId) {
-          PncRestClient.Version.query({
+          PncRestClient.Version.getAllForProduct({
             productId: productId
           }).$promise.then(
             function(result) {
