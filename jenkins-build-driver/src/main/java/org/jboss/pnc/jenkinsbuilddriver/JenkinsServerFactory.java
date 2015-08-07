@@ -23,6 +23,7 @@ import com.offbytwo.jenkins.client.JenkinsHttpClient;
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.moduleconfig.JenkinsBuildDriverModuleConfig;
+import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
 import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
 
 import javax.inject.Inject;
@@ -44,7 +45,8 @@ public class JenkinsServerFactory {
 
     JenkinsServer getJenkinsServer(String url) throws BuildDriverException {
         try {
-            JenkinsBuildDriverModuleConfig config = configuration.getModuleConfig(JenkinsBuildDriverModuleConfig.class);
+            JenkinsBuildDriverModuleConfig config = configuration
+                    .getModuleConfig(new PncConfigProvider<JenkinsBuildDriverModuleConfig>(JenkinsBuildDriverModuleConfig.class));
             String username = config.getUsername();
             String password = config.getPassword();
 
@@ -72,7 +74,8 @@ public class JenkinsServerFactory {
      */
     boolean isJenkinsServerSecuredWithCSRF(String url) throws BuildDriverException {
         try {
-            JenkinsBuildDriverModuleConfig config = configuration.getModuleConfig(JenkinsBuildDriverModuleConfig.class);
+            JenkinsBuildDriverModuleConfig config = configuration
+                    .getModuleConfig(new PncConfigProvider<JenkinsBuildDriverModuleConfig>(JenkinsBuildDriverModuleConfig.class));
             String username = config.getUsername();
             String password = config.getPassword();
 

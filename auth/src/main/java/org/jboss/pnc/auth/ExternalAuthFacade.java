@@ -28,6 +28,7 @@ import org.apache.http.client.methods.HttpGet;
 import org.jboss.logging.Logger;
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.moduleconfig.AuthenticationModuleConfig;
+import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
 import org.keycloak.adapters.HttpClientBuilder;
 
 /**
@@ -52,7 +53,8 @@ public class ExternalAuthFacade {
      */
     public ExternalAuthFacade(InputStream keycloakConfiguration) throws Exception{
         
-        AuthenticationModuleConfig config = configuration.getModuleConfig(AuthenticationModuleConfig.class);
+        AuthenticationModuleConfig config = configuration
+                .getModuleConfig(new PncConfigProvider<AuthenticationModuleConfig>(AuthenticationModuleConfig.class));
         this.pnc_ext_oauth_username = config.getUsername();
         this.pnc_ext_oauth_password = config.getPassword();
         this.baseRestURL = config.getBaseAuthUrl(); 

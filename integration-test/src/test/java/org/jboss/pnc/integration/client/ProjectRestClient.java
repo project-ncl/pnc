@@ -17,12 +17,13 @@
  */
 package org.jboss.pnc.integration.client;
 
-import com.jayway.restassured.response.Response;
+import java.io.IOException;
+
 import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.integration.matchers.JsonMatcher;
 import org.jboss.pnc.rest.restmodel.ProjectRest;
 
-import java.io.IOException;
+import com.jayway.restassured.response.Response;
 
 public class ProjectRestClient extends AbstractRestClient {
 

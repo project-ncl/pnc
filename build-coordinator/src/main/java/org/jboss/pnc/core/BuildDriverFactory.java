@@ -20,6 +20,7 @@ package org.jboss.pnc.core;
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.moduleconfig.BuildDriverRouterModuleConfig;
+import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
 import org.jboss.pnc.common.util.StringUtils;
 import org.jboss.pnc.core.exception.CoreException;
 import org.jboss.pnc.model.BuildType;
@@ -66,7 +67,8 @@ public class BuildDriverFactory {
     @PostConstruct
     public void initConfiguration() throws ConfigurationParseException {
         try {
-            String driverId = configuration.getModuleConfig(BuildDriverRouterModuleConfig.class).getDriverId();
+            String driverId = configuration
+                    .getModuleConfig(new PncConfigProvider<BuildDriverRouterModuleConfig>(BuildDriverRouterModuleConfig.class)).getDriverId();
             if (!StringUtils.isEmpty(driverId)) {
                 configurationPredicate = buildDriver -> driverId.equals(buildDriver.getDriverId());
             }

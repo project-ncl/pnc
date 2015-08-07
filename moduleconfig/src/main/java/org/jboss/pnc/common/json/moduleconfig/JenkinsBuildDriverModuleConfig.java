@@ -22,17 +22,17 @@ import org.jboss.pnc.common.json.AbstractModuleConfig;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 
-public class AuthenticationModuleConfig extends AbstractModuleConfig{
+public class JenkinsBuildDriverModuleConfig extends AbstractModuleConfig{
+    
+    public static String MODULE_NAME = "jenkins-build-driver";
+    
     private String username;
     private String password;
-    private String baseAuthUrl;
 
-    public AuthenticationModuleConfig(@JsonProperty("username") String username, 
-            @JsonProperty("password")String password, @JsonProperty("baseAuthUrl")String baseAuthUrl) {
+    public JenkinsBuildDriverModuleConfig(@JsonProperty("username") String username, @JsonProperty("password")String password) {
         super();
         this.username = username;
         this.password = password;
-        this.baseAuthUrl = baseAuthUrl;
     }
     
     public String getUsername() {
@@ -47,18 +47,8 @@ public class AuthenticationModuleConfig extends AbstractModuleConfig{
     public void setPassword(String password) {
         this.password = password;
     }
-
-    public String getBaseAuthUrl() {
-        return baseAuthUrl;
-    }
-
-    public void setBaseAuthUrl(String baseAuthUrl) {
-        this.baseAuthUrl = baseAuthUrl;
-    }
-    
     @Override
     public String toString() {
-        return "AuthenticationModuleConfig [username=HIDDEN, password=" + password + ", baseAuthUrl=" + baseAuthUrl +"]";
+        return "JenkinsBuildDriverModuleConfig [username=HIDDEN, password=" + password + "]";
     }
-    
 }

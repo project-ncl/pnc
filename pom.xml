@@ -50,6 +50,7 @@
     <module>test-common</module>
     <module>test-arquillian-container</module>
     <module>common</module>
+    <module>moduleconfig</module>
     <module>auth</module>
     <module>datastore</module>
     <module>ear-package</module>
@@ -189,6 +190,12 @@
       <dependency>
         <groupId>org.jboss.pnc</groupId>
         <artifactId>common</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      
+      <dependency>
+        <groupId>org.jboss.pnc</groupId>
+        <artifactId>moduleconfig</artifactId>
         <version>${project.version}</version>
       </dependency>
 

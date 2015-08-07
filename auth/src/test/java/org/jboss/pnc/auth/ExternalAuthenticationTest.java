@@ -22,6 +22,7 @@ import java.io.InputStream;
 import org.jboss.logging.Logger;
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.moduleconfig.AuthenticationModuleConfig;
+import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
 import org.jboss.pnc.test.category.ContainerTest;
 import org.junit.Assert;
 import org.junit.Test;
@@ -41,7 +42,8 @@ public class ExternalAuthenticationTest {
     public void testAccesTokenPropertiesReturned() {
         try {
             Configuration configuration = new Configuration();
-            AuthenticationModuleConfig config = configuration.getModuleConfig(AuthenticationModuleConfig.class);
+            AuthenticationModuleConfig config = configuration.getModuleConfig(
+                    new PncConfigProvider<AuthenticationModuleConfig>(AuthenticationModuleConfig.class));
             InputStream is = ExternalAuthenticationTest.class.getResourceAsStream("/keycloak.json");
             ExternalAuthentication ea = new ExternalAuthentication(is);
             AuthenticationProvider authProvider = ea.authenticate(config.getUsername(), config.getPassword());

@@ -17,6 +17,17 @@
  */
 package org.jboss.pnc.integration;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
+import java.lang.invoke.MethodHandles;
+import java.net.URI;
+import java.util.function.Supplier;
+
+import javax.enterprise.event.Event;
+import javax.inject.Inject;
+import javax.websocket.ContainerProvider;
+import javax.websocket.WebSocketContainer;
+
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.pnc.core.events.DefaultBuildSetStatusChangedEvent;
@@ -38,16 +49,6 @@ import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.enterprise.event.Event;
-import javax.inject.Inject;
-import javax.websocket.ContainerProvider;
-import javax.websocket.WebSocketContainer;
-import java.lang.invoke.MethodHandles;
-import java.net.URI;
-import java.util.function.Supplier;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(Arquillian.class)
 @Category(ContainerTest.class)

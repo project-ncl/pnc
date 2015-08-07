@@ -25,6 +25,7 @@ import com.google.inject.Module;
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.moduleconfig.DockerEnvironmentDriverModuleConfig;
+import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
 import org.jboss.pnc.common.util.HttpUtils;
 import org.jboss.pnc.model.BuildType;
 import org.jboss.pnc.model.Environment;
@@ -126,8 +127,8 @@ public class DockerEnvironmentDriver implements EnvironmentDriver {
      */
     @Inject
     public DockerEnvironmentDriver(Configuration configuration) throws ConfigurationParseException {
-        DockerEnvironmentDriverModuleConfig config =
-                configuration.getModuleConfig(DockerEnvironmentDriverModuleConfig.class);
+        DockerEnvironmentDriverModuleConfig config = configuration
+                .getModuleConfig(new PncConfigProvider<DockerEnvironmentDriverModuleConfig>(DockerEnvironmentDriverModuleConfig.class));
 
         dockerIp = config.getIp();
         dockerEndpoint = "http://" + dockerIp + ":2375";

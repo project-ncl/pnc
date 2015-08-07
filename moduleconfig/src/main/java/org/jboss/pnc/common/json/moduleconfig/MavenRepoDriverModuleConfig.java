@@ -17,28 +17,32 @@
  */
 package org.jboss.pnc.common.json.moduleconfig;
 
-import static org.junit.Assert.*;
+import org.jboss.pnc.common.json.AbstractModuleConfig;
 
-import org.jboss.pnc.common.Configuration;
-import org.jboss.pnc.common.json.ConfigurationParseException;
-import org.junit.Test;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
-/**
- * 
- * @author Jakub Bartecek &lt;jbartece@redhat.com&gt;
- *
- */
-public class MavenRepoDriverModuleConfigTest extends AbstractModuleConfigTest {
+
+public class MavenRepoDriverModuleConfig extends AbstractModuleConfig{
     
-    @Test
-    public void loadMavenRepoDriverConfigTest() throws ConfigurationParseException {
-            Configuration configuration = new Configuration();
-            
-            MavenRepoDriverModuleConfig mavenConfig = 
-                    configuration.getModuleConfig(MavenRepoDriverModuleConfig.class);
-            
-            assertNotNull(mavenConfig);
-            assertEquals("1.1.1.1", mavenConfig.getBaseUrl());
+    public static String MODULE_NAME = "maven-repo-driver";
+    
+    public MavenRepoDriverModuleConfig(@JsonProperty("base-url") String baseUrl) {
+        super();
+        this.baseUrl = baseUrl;
+    }
+
+    private String baseUrl;
+
+    public String getBaseUrl() {
+        return baseUrl;
+    }
+
+    public void setBaseUrl(String baseUrl) {
+        this.baseUrl = baseUrl;
     }
     
+    @Override
+    public String toString() {
+        return "MavenRepoDriverModuleConfig [baseUrl=" + baseUrl + "]";
+    }
 }

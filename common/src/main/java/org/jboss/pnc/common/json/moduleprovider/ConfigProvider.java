@@ -15,31 +15,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.common.json.moduleconfig;
+package org.jboss.pnc.common.json.moduleprovider;
+
+import java.util.List;
 
 import org.jboss.pnc.common.json.AbstractModuleConfig;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
+public interface ConfigProvider<T extends AbstractModuleConfig> {
 
-public class MavenRepoDriverModuleConfig extends AbstractModuleConfig{
-    public MavenRepoDriverModuleConfig(@JsonProperty("base-url") String baseUrl) {
-        super();
-        this.baseUrl = baseUrl;
-    }
+    void registerProvider(ObjectMapper mapper);
 
-    private String baseUrl;
+    List<ProviderNameType<T>> getModuleConfigs();
 
-    public String getBaseUrl() {
-        return baseUrl;
-    }
-
-    public void setBaseUrl(String baseUrl) {
-        this.baseUrl = baseUrl;
-    }
+    void addModuleConfig(ProviderNameType<T> providerNameType);
     
-    @Override
-    public String toString() {
-        return "MavenRepoDriverModuleConfig [baseUrl=" + baseUrl + "]";
-    }
+    public Class<T> getType();
+
 }

@@ -28,6 +28,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  *
  */
 public class DockerEnvironmentDriverModuleConfig extends AbstractModuleConfig {
+    
+    public static String MODULE_NAME = "docker-environment-driver";
 
     private String ip;
 

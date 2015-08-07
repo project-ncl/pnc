@@ -20,6 +20,7 @@ package org.jboss.pnc.common;
 import org.jboss.pnc.common.json.AbstractModuleConfig;
 import org.jboss.pnc.common.json.ConfigurationJSONParser;
 import org.jboss.pnc.common.json.ConfigurationParseException;
+import org.jboss.pnc.common.json.moduleprovider.ConfigProvider;
 import org.jboss.pnc.common.util.IoUtils;
 import org.jboss.pnc.common.util.StringUtils;
 import org.slf4j.Logger;
@@ -49,12 +50,13 @@ public class Configuration {
     /**
      * Reads configuration for module
      *
-     * @param moduleClass Requested class with configuration
+     * @param provider configuration provider of given module config type
      * @return Loaded configuration
      * @throws ConfigurationParseException Thrown if configuration file couldn't be loaded or parsed
      */
     @SuppressWarnings("unchecked")
-    public <T extends AbstractModuleConfig> T getModuleConfig(Class<T> moduleClass) throws ConfigurationParseException {
+    public <T extends AbstractModuleConfig> T getModuleConfig(ConfigProvider<T> provider) throws ConfigurationParseException {
+        Class<T> moduleClass = provider.getType();
         if(configCache.containsKey(moduleClass))
             return (T) configCache.get(moduleClass);
         
@@ -66,7 +68,7 @@ public class Configuration {
                 log.info("Loading configuration for class: " + moduleClass);
                 String configString = StringUtils.replaceEnv(IoUtils.readStreamAsString(configStream));
                 
-                T config = configurationJsonParser.parseJSONConfig(configString, moduleClass);
+                T config = configurationJsonParser.parseJSONConfig(configString,  provider);
                 configCache.put(moduleClass, config);
                 return config;
             } catch (IOException e) {

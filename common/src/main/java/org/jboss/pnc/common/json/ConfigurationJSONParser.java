@@ -17,9 +17,11 @@
  */
 package org.jboss.pnc.common.json;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import org.jboss.pnc.common.json.moduleprovider.ConfigProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * @author Pavel Slegr
@@ -33,18 +35,20 @@ public class ConfigurationJSONParser {
      * Loads JSON configuration to the module configuration object
      *
      * @param configContent Configuration in JSON
-     * @param classType Class for the requested configuration
+     * @param provider configuration provider of given module config type
      * @return Loaded configuration
      * @throws ConfigurationParseException Thrown if configuration string is malformed
      */
     public <T extends AbstractModuleConfig> T parseJSONConfig(
-            String configContent, Class<T> classType) throws ConfigurationParseException {
+            String configContent, ConfigProvider<T> provider) throws ConfigurationParseException {
         try {
             ObjectMapper mapper = new ObjectMapper();
+            provider.registerProvider(mapper);
+            
             ModuleConfigJson jsonConfig = mapper.readValue(configContent, ModuleConfigJson.class);
 
             for (AbstractModuleConfig config : jsonConfig.getConfigs()) {
-                if (config.getClass().isAssignableFrom(classType)) {
+                if (config.getClass().isAssignableFrom(provider.getType())) {
                     return (T) config;
                 }
             }

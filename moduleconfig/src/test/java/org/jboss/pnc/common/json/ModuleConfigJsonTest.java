@@ -19,8 +19,11 @@ package org.jboss.pnc.common.json;
 
 import static org.junit.Assert.*;
 
+import org.jboss.pnc.common.json.moduleconfig.AuthenticationModuleConfig;
 import org.jboss.pnc.common.json.moduleconfig.JenkinsBuildDriverModuleConfig;
 import org.jboss.pnc.common.json.moduleconfig.MavenRepoDriverModuleConfig;
+import org.jboss.pnc.common.json.moduleprovider.ConfigProvider;
+import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
 import org.jboss.pnc.common.util.IoUtils;
 import org.junit.Test;
 
@@ -45,6 +48,8 @@ public class ModuleConfigJsonTest {
         moduleConfigJson.addConfig(mavenRepoDriverModuleConfig);
 
         ObjectMapper mapper = new ObjectMapper();
+        PncConfigProvider<AuthenticationModuleConfig> pncProvider = new PncConfigProvider<AuthenticationModuleConfig>(AuthenticationModuleConfig.class);
+        pncProvider.registerProvider(mapper);
         ByteArrayOutputStream byteOutStream = new ByteArrayOutputStream();
         mapper.writeValue(byteOutStream, moduleConfigJson);
 
@@ -54,6 +59,8 @@ public class ModuleConfigJsonTest {
     @Test
     public void deserializationTest() throws JsonParseException, JsonMappingException, IOException {
         ObjectMapper mapper = new ObjectMapper();
+        PncConfigProvider<AuthenticationModuleConfig> pncProvider = new PncConfigProvider<AuthenticationModuleConfig>(AuthenticationModuleConfig.class);
+        pncProvider.registerProvider(mapper);
         ModuleConfigJson config = mapper.readValue(loadConfig("testConfigNoSpaces.json"), ModuleConfigJson.class);
 
         assertNotNull(config);
