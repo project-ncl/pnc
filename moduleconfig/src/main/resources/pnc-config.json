@@ -1,0 +1,40 @@
+{
+"@class":"ModuleConfigJson","name":"pnc-config",
+        "configs":[
+          {
+            "@module-config":"jenkins-build-driver",
+            "username":"${env.PNC_JENKINS_USERNAME}",
+            "password":"${env.PNC_JENKINS_PASSWORD}"
+          },
+          {
+            "@module-config":"termd-build-driver",
+            "username":"test",
+            "password":"test"
+          },
+          {
+            "@module-config":"maven-repo-driver",
+            "baseUrl":"${env.PNC_APROX_URL}"
+          },
+          {
+            "@module-config":"docker-environment-driver",
+            "ip":"${env.PNC_DOCKER_IP}",
+            "inContainerUser":"${env.PNC_DOCKER_CONT_USER}",
+            "inContainerUserPassword":"${env.PNC_DOCKER_CONT_PASSWORD}",
+            "dockerImageId":"${env.PNC_DOCKER_IMAGE_ID}",
+            "proxyServer":"${env.PNC_DOCKER_PROXY_SERVER}",
+            "proxyPort":"${env.PNC_DOCKER_PROXY_PORT}",            
+            "firewallAllowedDestinations":"${env.PNC_DOCKER_IMAGE_FIREWALL_ALLOWED}"
+          },
+          {
+            "@module-config":"authentication-config",
+            "username":"${env.PNC_EXT_OAUTH_USERNAME}",
+            "password":"${env.PNC_EXT_OAUTH_PASSWORD}",
+            "baseAuthUrl":"${env.PNC_EXT_REST_BASE_URL}"
+          },
+          {
+            "@module-config":"bpm-config",
+            "username":"${env.PNC_BPM_USERNAME}",
+            "password":"${env.PNC_BPM_PASSWORD}"
+          }
+        ]
+}

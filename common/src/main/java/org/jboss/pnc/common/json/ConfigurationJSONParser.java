@@ -17,12 +17,11 @@
  */
 package org.jboss.pnc.common.json;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.jsontype.NamedType;
-
 import org.jboss.pnc.common.json.moduleprovider.ConfigProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * @author Pavel Slegr

@@ -17,21 +17,8 @@
  */
 package org.jboss.pnc.common.json;
 
-import org.jboss.pnc.common.json.moduleconfig.*;
-
-import com.fasterxml.jackson.annotation.JsonSubTypes;
-import com.fasterxml.jackson.annotation.JsonSubTypes.Type;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
  
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = As.PROPERTY, property = "@module-config")
-//@JsonSubTypes({ 
-//    @Type(value = JenkinsBuildDriverModuleConfig.class, name = "jenkins-build-driver"),
-//    @Type(value = TermdBuildDriverModuleConfig.class, name = "termd-build-driver"),
-//    @Type(value = BuildDriverRouterModuleConfig.class, name = "build-driver-router"),
-//    @Type(value = MavenRepoDriverModuleConfig.class, name = "maven-repo-driver"),
-//    @Type(value = DockerEnvironmentDriverModuleConfig.class, name = "docker-environment-driver"),
-//    @Type(value = AuthenticationModuleConfig.class, name = "authentication-config"),
-//    @Type(value = BpmModuleConfig.class, name = "bpm-config"),
-//    })
 public abstract class AbstractModuleConfig {}
