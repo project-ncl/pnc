@@ -20,15 +20,13 @@ package org.jboss.pnc.integration;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.lang.invoke.MethodHandles;
-import java.lang.invoke.MethodHandles;
 import java.util.Optional;
 
 import org.jboss.arquillian.container.test.api.Deployment;
-import org.jboss.arquillian.container.test.api.Deployment;
-import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.pnc.integration.client.ClientResponse;
-import org.jboss.pnc.integration.deployments.Deployments;
+import org.jboss.pnc.integration.client.ProductRestClient;
+import org.jboss.pnc.integration.client.ProductVersionRestClient;
 import org.jboss.pnc.integration.deployments.Deployments;
 import org.jboss.pnc.rest.restmodel.ProductVersionRest;
 import org.jboss.pnc.test.category.ContainerTest;
