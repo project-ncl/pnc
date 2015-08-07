@@ -33,10 +33,11 @@ import org.jboss.pnc.auth.ExternalAuthentication;
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.moduleconfig.AuthenticationModuleConfig;
+import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
 import org.jboss.pnc.common.util.IoUtils;
-import org.jboss.pnc.integration.utils.AuthResource;
 import org.jboss.pnc.integration.deployments.Deployments;
 import org.jboss.pnc.integration.matchers.JsonMatcher;
+import org.jboss.pnc.integration.utils.AuthResource;
 import org.jboss.pnc.test.category.ContainerTest;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
 import org.junit.BeforeClass;
@@ -82,7 +83,7 @@ public class RestTest {
     public static void setupAuth() throws IOException, ConfigurationParseException {
         if(AuthResource.authEnabled()) {
             Configuration configuration = new Configuration();
-            AuthenticationModuleConfig config = configuration.getModuleConfig(AuthenticationModuleConfig.class);
+            AuthenticationModuleConfig config = configuration.getModuleConfig(new PncConfigProvider<AuthenticationModuleConfig>(AuthenticationModuleConfig.class));
             InputStream is = BuildRecordRestTest.class.getResourceAsStream("/keycloak.json");
             ExternalAuthentication ea = new ExternalAuthentication(is);
             authProvider = ea.authenticate(config.getUsername(), config.getPassword());

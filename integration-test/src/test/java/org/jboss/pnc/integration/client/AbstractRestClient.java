@@ -17,25 +17,27 @@
  */
 package org.jboss.pnc.integration.client;
 
-import com.jayway.restassured.http.ContentType;
-import com.jayway.restassured.response.Response;
-import com.jayway.restassured.specification.RequestSpecification;
-import org.jboss.pnc.auth.AuthenticationProvider;
-import org.jboss.pnc.auth.ExternalAuthentication;
-import org.jboss.pnc.common.Configuration;
-import org.jboss.pnc.common.json.ConfigurationParseException;
-import org.jboss.pnc.common.json.moduleconfig.AuthenticationModuleConfig;
-import org.jboss.pnc.integration.BuildRecordRestTest;
-import org.jboss.pnc.integration.utils.AuthResource;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static com.jayway.restassured.RestAssured.given;
+import static org.jboss.pnc.integration.env.IntegrationTestEnv.getHttpPort;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.invoke.MethodHandles;
 
-import static com.jayway.restassured.RestAssured.given;
-import static org.jboss.pnc.integration.env.IntegrationTestEnv.getHttpPort;
+import org.jboss.pnc.auth.AuthenticationProvider;
+import org.jboss.pnc.auth.ExternalAuthentication;
+import org.jboss.pnc.common.Configuration;
+import org.jboss.pnc.common.json.ConfigurationParseException;
+import org.jboss.pnc.common.json.moduleconfig.AuthenticationModuleConfig;
+import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
+import org.jboss.pnc.integration.BuildRecordRestTest;
+import org.jboss.pnc.integration.utils.AuthResource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.jayway.restassured.http.ContentType;
+import com.jayway.restassured.response.Response;
+import com.jayway.restassured.specification.RequestSpecification;
 
 public abstract class AbstractRestClient {
 
@@ -52,7 +54,7 @@ public abstract class AbstractRestClient {
 
     protected void initAuth() throws IOException, ConfigurationParseException {
         if (AuthResource.authEnabled() && !authInitialized) {
-            AuthenticationModuleConfig config = new Configuration().getModuleConfig(AuthenticationModuleConfig.class);
+            AuthenticationModuleConfig config = new Configuration().getModuleConfig(new PncConfigProvider<AuthenticationModuleConfig>(AuthenticationModuleConfig.class));
             InputStream is = BuildRecordRestTest.class.getResourceAsStream("/keycloak.json");
             ExternalAuthentication ea = new ExternalAuthentication(is);
             authProvider = ea.authenticate(config.getUsername(), config.getPassword());

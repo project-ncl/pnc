@@ -23,6 +23,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 
 public class AuthenticationModuleConfig extends AbstractModuleConfig{
+    
+    public static String MODULE_NAME = "authentication-config";
+    
     private String username;
     private String password;
     private String baseAuthUrl;
@@ -60,5 +63,4 @@ public class AuthenticationModuleConfig extends AbstractModuleConfig{
     public String toString() {
         return "AuthenticationModuleConfig [username=HIDDEN, password=" + password + ", baseAuthUrl=" + baseAuthUrl +"]";
     }
-    
 }

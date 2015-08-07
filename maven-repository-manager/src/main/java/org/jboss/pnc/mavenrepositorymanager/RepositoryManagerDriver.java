@@ -29,6 +29,7 @@ import org.commonjava.aprox.promote.client.AproxPromoteClientModule;
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.moduleconfig.MavenRepoDriverModuleConfig;
+import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.BuildRecordSet;
 import org.jboss.pnc.model.RepositoryType;
@@ -77,7 +78,8 @@ public class RepositoryManagerDriver implements RepositoryManager {
     public RepositoryManagerDriver(Configuration configuration) {
         MavenRepoDriverModuleConfig config;
         try {
-            config = configuration.getModuleConfig(MavenRepoDriverModuleConfig.class);
+            config = configuration
+                    .getModuleConfig(new PncConfigProvider<MavenRepoDriverModuleConfig>(MavenRepoDriverModuleConfig.class));
             String baseUrl = config.getBaseUrl();
             if (baseUrl.endsWith("/")) {
                 baseUrl = baseUrl.substring(0, baseUrl.length() - 1);

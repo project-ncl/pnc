@@ -21,6 +21,7 @@ import static org.junit.Assert.*;
 
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.ConfigurationParseException;
+import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
 import org.junit.Test;
 
 /**
@@ -33,8 +34,8 @@ public class DockerEnvironmentDriverModuleConfigTest extends AbstractModuleConfi
     @Test
     public void loadDockerEnvironmentDriverConfigTest() throws ConfigurationParseException {
             Configuration configuration = new Configuration();
-            DockerEnvironmentDriverModuleConfig dockerConfig = 
-                    configuration.getModuleConfig(DockerEnvironmentDriverModuleConfig.class);
+            DockerEnvironmentDriverModuleConfig dockerConfig = configuration
+                    .getModuleConfig(new PncConfigProvider< DockerEnvironmentDriverModuleConfig> (DockerEnvironmentDriverModuleConfig.class));
             
             assertNotNull(dockerConfig);
             assertEquals("2.2.2.2", dockerConfig.getIp());

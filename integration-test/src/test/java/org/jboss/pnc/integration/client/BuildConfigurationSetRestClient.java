@@ -17,15 +17,16 @@
  */
 package org.jboss.pnc.integration.client;
 
-import com.jayway.restassured.http.ContentType;
-import com.jayway.restassured.response.Response;
-import org.jboss.pnc.common.json.ConfigurationParseException;
-import org.jboss.pnc.rest.restmodel.BuildConfigurationSetRest;
+import static com.jayway.restassured.RestAssured.given;
+import static org.jboss.pnc.integration.env.IntegrationTestEnv.getHttpPort;
 
 import java.io.IOException;
 
-import static com.jayway.restassured.RestAssured.given;
-import static org.jboss.pnc.integration.env.IntegrationTestEnv.getHttpPort;
+import org.jboss.pnc.common.json.ConfigurationParseException;
+import org.jboss.pnc.rest.restmodel.BuildConfigurationSetRest;
+
+import com.jayway.restassured.http.ContentType;
+import com.jayway.restassured.response.Response;
 
 public class BuildConfigurationSetRestClient extends AbstractRestClient {
 

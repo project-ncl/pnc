@@ -42,6 +42,7 @@ import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.moduleconfig.DockerEnvironmentDriverModuleConfig;
+import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
 import org.jboss.pnc.common.util.HttpUtils;
 import org.jboss.pnc.model.BuildType;
 import org.jboss.pnc.model.Environment;
@@ -127,8 +128,8 @@ public class DockerEnvironmentDriverRemoteTest {
     @Before
     public void init() throws ConfigurationParseException {
         if (!isInitialized) {
-            final DockerEnvironmentDriverModuleConfig config =
-                    configurationService.getModuleConfig(DockerEnvironmentDriverModuleConfig.class);
+            final DockerEnvironmentDriverModuleConfig config = configurationService
+                    .getModuleConfig(new PncConfigProvider<DockerEnvironmentDriverModuleConfig>(DockerEnvironmentDriverModuleConfig.class));
             dockerIp = config.getIp();
             dockerControlEndpoint = "http://" + dockerIp + ":2375";
             dockerProxyHost = config.getProxyServer();

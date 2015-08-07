@@ -35,6 +35,7 @@ import org.jboss.logging.Logger;
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.moduleconfig.BpmModuleConfig;
+import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
 import org.jboss.pnc.common.util.HttpUtils;
 import org.jboss.pnc.core.builder.BuildCoordinator;
 import org.jboss.pnc.core.exception.CoreException;
@@ -181,7 +182,8 @@ public class BuildTriggerer {
     private void signalBpmEvent(String uri) {
         if (bpmConfig == null) {
             try {
-                bpmConfig = new Configuration().getModuleConfig(BpmModuleConfig.class);
+                bpmConfig = new Configuration()
+                        .getModuleConfig(new PncConfigProvider<BpmModuleConfig>(BpmModuleConfig.class));
             } catch (ConfigurationParseException e) {
                 log.error("Error parsing BPM config.", e);
             }

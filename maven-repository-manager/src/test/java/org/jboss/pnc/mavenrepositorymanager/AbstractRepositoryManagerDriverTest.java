@@ -26,7 +26,9 @@ import org.commonjava.aprox.model.core.StoreKey;
 import org.commonjava.aprox.test.fixture.core.CoreServerFixture;
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.ModuleConfigJson;
+import org.jboss.pnc.common.json.moduleconfig.AuthenticationModuleConfig;
 import org.jboss.pnc.common.json.moduleconfig.MavenRepoDriverModuleConfig;
+import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -65,6 +67,9 @@ public class AbstractRepositoryManagerDriverTest {
         moduleConfigJson.addConfig(mavenRepoDriverModuleConfig);
 
         ObjectMapper mapper = new ObjectMapper();
+        PncConfigProvider<MavenRepoDriverModuleConfig> pncProvider = 
+                new PncConfigProvider<MavenRepoDriverModuleConfig>(MavenRepoDriverModuleConfig.class);
+        pncProvider.registerProvider(mapper);
         mapper.writeValue(configFile, moduleConfigJson);
 
         sysprops.setProperty(CONFIG_SYSPROP, configFile.getAbsolutePath());
