@@ -19,7 +19,8 @@ package org.jboss.pnc.core.test.buildCoordinator;
 
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.pnc.core.builder.BuildSetTask;
-import org.jboss.pnc.core.builder.BuildTasksTree;
+import org.jboss.pnc.core.builder.BuildTask;
+import org.jboss.pnc.core.exception.CoreException;
 import org.jboss.pnc.core.test.configurationBuilders.TestProjectConfigurationBuilder;
 import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildConfigurationSet;
@@ -42,20 +43,21 @@ public class ReadDependenciesTest extends ProjectBuilder {
     AtomicInteger taskSetIdGenerator = new AtomicInteger(0);
 
     @Test
-    public void createDependencyTreeTestCase() throws DatastoreException {
+    public void createDependenciesTestCase() throws DatastoreException {
         TestProjectConfigurationBuilder configurationBuilder = new TestProjectConfigurationBuilder();
         BuildConfigurationSet buildConfigurationSet = configurationBuilder.buildConfigurationSet(1);
-        BuildConfigSetRecord buildConfigSetRecord = BuildConfigSetRecord.Builder.newBuilder()
-                .buildConfigurationSet(buildConfigurationSet)
-                .build();
-        BuildSetTask buildSetTask = new BuildSetTask(
-                buildCoordinator, 
-                buildConfigSetRecord, 
-                BuildExecutionType.COMPOSED_BUILD,
-                null);
-        User user = User.Builder.newBuilder().id(1).build();
-        BuildTasksTree buildTasksTree = new BuildTasksTree(buildCoordinator, buildSetTask, user,() -> taskIdGenerator.incrementAndGet());
+        User user = User.Builder.newBuilder().id(1).username("test-user").build();
+        BuildSetTask buildSetTask = null;
+        try {
+            buildSetTask = buildCoordinator.createBuildSetTask(buildConfigurationSet, user, BuildExecutionType.COMPOSED_BUILD);
+        } catch (CoreException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        //BuildTasksTree buildTasksTree = new BuildTasksTree(buildCoordinator, buildSetTask, user,() -> taskIdGenerator.incrementAndGet());
 
-        Assert.assertEquals("Missing projects in tree structure.", 5, buildTasksTree.getBuildTasks().size());
+        Assert.assertEquals("Missing build tasks in set.", 5, buildSetTask.getBuildTasks().size());
+        BuildTask buildTask2 = buildSetTask.getBuildTasks().stream().filter(task -> task.getBuildConfiguration().getId().equals(2)).findFirst().get();
+        Assert.assertEquals("Wrong number of dependencies.", 2, buildTask2.getDependencies().size());
     }
 }

@@ -79,7 +79,10 @@ public class DatastoreMock implements Datastore {
 
     @Override
     public BuildConfigSetRecord saveBuildConfigSetRecord(BuildConfigSetRecord buildConfigSetRecord) {
-        log.info("Storing build config set record " + buildConfigSetRecord.getId());
+        if (buildConfigSetRecord.getId() == null) {
+            buildConfigSetRecord.setId(buildRecordSetSequence.incrementAndGet());
+        }
+        log.info("Storing build config set record with id: " + buildConfigSetRecord.getId());
         buildConfigSetRecords.add(buildConfigSetRecord);
         return buildConfigSetRecord;
     }

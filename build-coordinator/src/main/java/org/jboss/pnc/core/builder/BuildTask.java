@@ -58,8 +58,12 @@ public class BuildTask implements BuildExecution {
     /**
      * A list of builds waiting for this build to complete.
      */
-    private Set<BuildTask> waiting;
-    private List<BuildTask> requiredBuilds;
+    private Set<BuildTask> dependants;
+
+    /**
+     * The builds which must be completed before this build can start
+     */
+    private Set<BuildTask> dependencies;
     private BuildCoordinator buildCoordinator;
 
     private String topContentId;
@@ -113,13 +117,14 @@ public class BuildTask implements BuildExecution {
         }
 
         this.startTime = System.currentTimeMillis();
-        waiting = new HashSet<>();
+        dependants = new HashSet<>();
+        dependencies = new HashSet<>();
     }
 
     public void setStatus(BuildStatus status) {
         BuildStatus oldStatus = this.status;
         this.status = status;
-        if (status.hasFailed()){
+        if (status.hasFailed()) {
             setHasFailed(true);
         }
         Integer userId = Optional.ofNullable(user).map(user -> user.getId()).orElse(null);
@@ -129,27 +134,38 @@ public class BuildTask implements BuildExecution {
         buildSetTask.taskStatusUpdated(buildStatusChanged);
         buildStatusChangedEvent.fire(buildStatusChanged);
         if (status.isCompleted()) {
-            waiting.forEach((submittedBuild) -> submittedBuild.requiredBuildCompleted(this));
+            dependants.forEach((dep) -> dep.requiredBuildCompleted(this));
         }
     }
 
-    void setRequiredBuilds(List<BuildTask> requiredBuilds) {
-        this.requiredBuilds = requiredBuilds;
+    public Set<BuildTask> getDependencies() {
+        return dependencies;
+    }
+
+    public void addDependency(BuildTask buildTask) {
+        if (!dependencies.contains(buildTask)) {
+            dependencies.add(buildTask);
+            buildTask.addDependant(this);
+        }
+    }
+
+    void setRequiredBuilds(List<BuildTask> dependencies) {
+        this.dependencies.addAll(dependencies);
+    }
+
+    void setRequiredBuilds(Set<BuildTask> dependencies) {
+        this.dependencies = dependencies;
     }
 
     private void requiredBuildCompleted(BuildTask completed) {
-        if (requiredBuilds.contains(completed) && completed.hasFailed()){
+        if (dependencies.contains(completed) && completed.hasFailed()) {
             this.setStatus(BuildStatus.REJECTED);
-        }
-        else {
-            requiredBuilds.remove(completed);
-            if (requiredBuilds.size() == 0) {
-                try {
-                    buildCoordinator.startBuilding(this);
-                } catch (CoreException e) {
-                    setStatus(BuildStatus.SYSTEM_ERROR);
-                    setStatusDescription(e.getMessage());
-                }
+        } else if (dependencies.stream().allMatch(dep -> dep.getStatus().isCompleted())) {
+            try {
+                buildCoordinator.startBuilding(this);
+            } catch (CoreException e) {
+                setStatus(BuildStatus.SYSTEM_ERROR);
+                setStatusDescription(e.getMessage());
             }
         }
     }
@@ -188,7 +204,14 @@ public class BuildTask implements BuildExecution {
     }
 
     void addWaiting(BuildTask buildTask) {
-        waiting.add(buildTask);
+        addDependant(buildTask);
+    }
+
+    public void addDependant(BuildTask buildTask) {
+        if (!dependants.contains(buildTask)) {
+            dependants.add(buildTask);
+            buildTask.addDependency(this);
+        }
     }
 
     @Override
@@ -250,6 +273,21 @@ public class BuildTask implements BuildExecution {
 
     public BuildSetTask getBuildSetTask() {
         return buildSetTask;
+    }
+
+    /**
+     * Check if this build is ready to build, for example if all dependency builds
+     * are complete.
+     * 
+     * @return
+     */
+    public boolean readyToBuild() {
+        for (BuildTask buildTask : dependencies) {
+            if(!buildTask.getStatus().isCompleted()) {
+                return false;
+            }
+        }
+        return true;
     }
 
     @Override

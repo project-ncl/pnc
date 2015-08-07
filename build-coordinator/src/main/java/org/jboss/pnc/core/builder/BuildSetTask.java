@@ -20,11 +20,11 @@ package org.jboss.pnc.core.builder;
 import org.jboss.pnc.core.events.DefaultBuildSetStatusChangedEvent;
 import org.jboss.pnc.core.exception.CoreException;
 import org.jboss.pnc.model.BuildConfigSetRecord;
+import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.ProductMilestone;
 import org.jboss.pnc.spi.BuildExecutionType;
 import org.jboss.pnc.spi.BuildSetStatus;
-import org.jboss.pnc.spi.datastore.DatastoreException;
 import org.jboss.pnc.spi.events.BuildSetStatusChangedEvent;
 import org.jboss.pnc.spi.events.BuildStatusChangedEvent;
 import org.slf4j.Logger;
@@ -36,7 +36,6 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.ExecutionException;
 
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2015-03-26.
@@ -68,6 +67,7 @@ public class BuildSetTask {
         this.buildTaskType = buildTaskType;
         this.productMilestone = productMilestone;
         this.buildSetStatusChangedEventNotifier = buildCoordinator.getBuildSetStatusChangedEventNotifier();
+
     }
 
     public BuildConfigurationSet getBuildConfigurationSet() {
@@ -124,6 +124,21 @@ public class BuildSetTask {
 
     public void addBuildTask(BuildTask buildTask) {
         buildTasks.add(buildTask);
+    }
+
+    /**
+     * Get the build task which contains the given build configuration
+     * 
+     * @param buildConfig
+     * @return The build task with the matching configuration, or null if there is none
+     */
+    public BuildTask getBuildTask(BuildConfiguration buildConfig) {
+        for (BuildTask buildTask : buildTasks) {
+            if(buildTask.getBuildConfiguration().equals(buildConfig)) {
+                return buildTask;
+            }
+        }
+        return null;
     }
 
     public Integer getId() {
