@@ -31,6 +31,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * The Class BuildConfiguration cointains the informations needed to trigger the build of a project, i.e. the sources and the
@@ -330,7 +331,10 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
         }
         // Verify that we are not creating a circular dependency
         if (dependency.getAllDependencies().contains(this)) {
-            throw new PersistenceException("Unable to add dependency, build configuration: " + dependency + " has a dependency on " + this);
+            List<BuildConfiguration> depPath = dependency.dependencyDepthFirstSearch(this);
+            String depPathString = depPath.stream().map(dep -> dep.getName()).collect(Collectors.joining(" -> "));
+            throw new PersistenceException(
+                    "Unable to add dependency, would create a circular reference: " + depPathString);
         }
 
         boolean result = dependencies.add(dependency);
@@ -372,6 +376,35 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
             dependenciesToCheck.remove(currentConfig);
         }
         return indirectDependencies;
+    }
+
+    /**
+     * Perform a depth first search of the dependencies to find a match of the given build config.
+     * Returns a list with a single build config (this), if no match is found.
+     * 
+     * @param buildConfig
+     * @return A list of the build configurations in the path between this config and the given config.
+     */
+    public List<BuildConfiguration> dependencyDepthFirstSearch(BuildConfiguration buildConfig) {
+        List<BuildConfiguration> path = new ArrayList<>();
+        path.add(this);
+        return this.dependencyDepthFirstSearch(buildConfig, path);
+    }
+
+    private List<BuildConfiguration> dependencyDepthFirstSearch(BuildConfiguration buildConfig, List<BuildConfiguration> path) {
+        for (BuildConfiguration dep : getDependencies()) {
+            path.add(dep);
+            if (dep.equals(buildConfig)) {
+                return path;
+            } else {
+                path = dep.dependencyDepthFirstSearch(buildConfig, path);
+                if (path.get(path.size() - 1).equals(buildConfig)) {
+                    return path;
+                }
+            }
+            path.remove(path.size() - 1);
+        }
+        return path;
     }
 
     /**
