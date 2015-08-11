@@ -144,6 +144,8 @@ public class ProductRelease implements GenericEntity<Integer> {
 
     /**
      * URL which can be used to download the product distribution
+     * 
+     * @return The url to download this release
      */
     public String getDownloadUrl() {
         return downloadUrl;

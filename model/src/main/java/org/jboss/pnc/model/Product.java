@@ -165,10 +165,12 @@ public class Product implements GenericEntity<Integer> {
 
     /**
      * Add a version for the Product
+     * 
+     * @param version Associate a new version with this product
+     * @return True if the product did not already contain this version
      */
-    public Set<ProductVersion> addVersion(ProductVersion version) {
-        productVersions.add(version);
-        return productVersions;
+    public boolean addVersion(ProductVersion version) {
+        return productVersions.add(version);
     }
 
     public static class Builder {

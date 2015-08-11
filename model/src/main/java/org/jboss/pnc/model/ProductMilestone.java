@@ -171,6 +171,8 @@ public class ProductMilestone implements GenericEntity<Integer> {
 
     /**
      * URL which can be used to download the product distribution
+     * 
+     * @return The url where this milestone distribution can be downloaded
      */
     public String getDownloadUrl() {
         return downloadUrl;

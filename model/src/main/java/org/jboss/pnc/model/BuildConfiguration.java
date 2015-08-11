@@ -380,7 +380,7 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
      * Perform a depth first search of the dependencies to find a match of the given build config.
      * Returns a list with a single build config (this), if no match is found.
      * 
-     * @param buildConfig
+     * @param buildConfig The build config to search for
      * @return A list of the build configurations in the path between this config and the given config.
      */
     public List<BuildConfiguration> dependencyDepthFirstSearch(BuildConfiguration buildConfig) {
