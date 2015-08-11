@@ -114,52 +114,7 @@ public class BuildConfigurationDependencyTest {
         Assert.assertEquals(2, buildConfig1.getIndirectDependencies().size());
         Assert.assertEquals(4, buildConfig1.getAllDependencies().size());
 
-        // Add two more indirect dependencies onto config 4
-        buildConfig4.addDependency(buildConfig6);
-        buildConfig4.addDependency(buildConfig7);
-        buildConfig3.addDependency(buildConfig8);
-        Assert.assertEquals(5, buildConfig1.getIndirectDependencies().size());
-        Assert.assertEquals(7, buildConfig1.getAllDependencies().size());
-
-        // Add an indirect dependency which is also a direct dependency
-        buildConfig7.addDependency(buildConfig3);
-        Assert.assertEquals(6, buildConfig1.getIndirectDependencies().size());
-        Assert.assertEquals(7, buildConfig1.getAllDependencies().size());
-    }
-
-    @Test
-    public void testBuildConfigurationDependencyChecks() throws Exception {
-
-        // Set up sample build configurations, the id needs to be set manually
-        // because the configs are not stored to the database.
-        BuildConfiguration buildConfig1 = ModelTestDataFactory.getInstance().getGenericBuildConfigurationBuilderGeneric()
-                .id(1).build();
-        BuildConfiguration buildConfig2 = ModelTestDataFactory.getInstance().getGenericBuildConfigurationBuilderGeneric()
-                .id(2).build();
-        BuildConfiguration buildConfig3 = ModelTestDataFactory.getInstance().getGenericBuildConfigurationBuilderGeneric()
-                .id(3).build();
-        BuildConfiguration buildConfig4 = ModelTestDataFactory.getInstance().getGenericBuildConfigurationBuilderGeneric()
-                .id(4).build();
-        BuildConfiguration buildConfig5 = ModelTestDataFactory.getInstance().getGenericBuildConfigurationBuilderGeneric()
-                .id(5).build();
-        BuildConfiguration buildConfig6 = ModelTestDataFactory.getInstance().getGenericBuildConfigurationBuilderGeneric()
-                .id(6).build();
-        BuildConfiguration buildConfig7 = ModelTestDataFactory.getInstance().getGenericBuildConfigurationBuilderGeneric()
-                .id(7).build();
-        BuildConfiguration buildConfig8 = ModelTestDataFactory.getInstance().getGenericBuildConfigurationBuilderGeneric()
-                .id(8).build();
-
-        // Set up the dependency relationships
-        buildConfig1.addDependency(buildConfig2);
-        buildConfig1.addDependency(buildConfig3);
-        buildConfig2.addDependency(buildConfig4);
-        buildConfig2.addDependency(buildConfig5);
-
-        // Verify that at this point buildConfig1 has 2 indirect dependencies, and 4 total dependencies
-        Assert.assertEquals(2, buildConfig1.getIndirectDependencies().size());
-        Assert.assertEquals(4, buildConfig1.getAllDependencies().size());
-
-        // Add two more indirect dependencies onto config 4
+        // Add more indirect dependencies onto config 3 and 4
         buildConfig4.addDependency(buildConfig6);
         buildConfig4.addDependency(buildConfig7);
         buildConfig3.addDependency(buildConfig8);
@@ -329,5 +284,4 @@ public class BuildConfigurationDependencyTest {
         Assert.assertEquals(4, depPath.size());
         
     }
-
 }

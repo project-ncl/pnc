@@ -360,20 +360,18 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
      * @return The set of indirect dependencies
      */
     public Set<BuildConfiguration> getIndirectDependencies() {
-        List<BuildConfiguration> dependenciesToCheck = new ArrayList<BuildConfiguration>();
-        dependenciesToCheck.addAll(getDependencies());
-        Set<BuildConfiguration> visited = new HashSet<BuildConfiguration>();
         Set<BuildConfiguration> indirectDependencies = new HashSet<BuildConfiguration>();
-        while(!dependenciesToCheck.isEmpty()) {
-            BuildConfiguration currentConfig = dependenciesToCheck.get(0);
-            indirectDependencies.addAll(currentConfig.getDependencies());
-            for (BuildConfiguration configDependency : currentConfig.getDependencies()) {
-                if(!visited.contains(configDependency)) {
-                    dependenciesToCheck.add(configDependency);
+        List<BuildConfiguration> configsToCheck = new ArrayList<BuildConfiguration>();
+        configsToCheck.addAll(getDependencies());
+        while(!configsToCheck.isEmpty()) {
+            BuildConfiguration nextConfig = configsToCheck.get(0);
+            for (BuildConfiguration nextDep : nextConfig.getDependencies()) {
+                if(!indirectDependencies.contains(nextDep)) {
+                    indirectDependencies.add(nextDep);
+                    configsToCheck.add(nextDep);
                 }
             }
-            visited.add(currentConfig);
-            dependenciesToCheck.remove(currentConfig);
+            configsToCheck.remove(nextConfig);
         }
         return indirectDependencies;
     }
@@ -531,7 +529,7 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
 
     @Override
     public String toString() {
-        return "BuildConfiguration [project=" + project + ", name=" + name + "]";
+        return "BuildConfiguration " + getId() + " [project=" + getProject() + ", name=" + getName() + "]";
     }
 
     @Override
