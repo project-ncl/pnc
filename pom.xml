@@ -86,8 +86,8 @@
     <version.org.apache.httpcomponents.httpcore>4.3.3</version.org.apache.httpcomponents.httpcore>
     <version.org.postgresql>9.3-1102-jdbc41</version.org.postgresql>
     <version.org.json>20141113</version.org.json>
-    <version.jackson>2.5.4</version.jackson>
-    <version.jackson.annotations>2.5.4</version.jackson.annotations>
+    <version.jackson>2.4.4</version.jackson>
+    <version.jackson.annotations>2.4.1</version.jackson.annotations>
     <version.jclouds>1.8.1</version.jclouds>
     <version.jbpm>6.2.0.Final</version.jbpm>
     <version.keycloak>1.2.0.Final</version.keycloak>
