@@ -39,8 +39,6 @@
     function($resource, cachedGetter, REST_BASE_URL, BUILD_RECORD_ENDPOINT, BuildConfiguration, User) {
       var ENDPOINT = REST_BASE_URL + BUILD_RECORD_ENDPOINT;
 
-      $resource.constructor.testProperty = 'HELLOWORLD';
-
       var BuildRecord = $resource(ENDPOINT, {
         recordId: '@id'
       }, {

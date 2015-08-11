@@ -162,6 +162,8 @@
   * object will be compared against the properties of the same name on
   * any records received from HTTP queries. Unless all properties match, the
   * record will be ignored.
+  * @param {string=} pnc-template Optional: the URL of a display template to
+  * use.
   * @description
   * Displays a table of running builds.
   * @example

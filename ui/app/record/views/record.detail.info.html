@@ -19,17 +19,17 @@
 -->
 <div class="push-down">
   <dl class="dl-horizontal">
-      <dt>Project:</dt>
-      <dd>{{ recordCtrl.project.name }}</dd>
-      <dt>SCM url:</dt>
-      <dd>{{ recordCtrl.record.scmRepoURL }}</dd>
-      <dt>SCM revision:</dt>
-      <dd>{{ recordCtrl.record.scmRevision }}</dd>
-      <dt>Build Script:</dt>
-      <dd><pre>{{ recordCtrl.record.buildScript }}</pre></dd>
-      <dt>User:</dt>
-      <dd>&mdash;</dd>
-      <dt>Environment:</dt>
-      <dd>&mdash;</dd>
+    <dt>Build of:</dt>
+    <dd><a href ui-sref="configuration.detail.show({ configurationId: recordCtrl.configuration.id })">{{ recordCtrl.configuration.name }}</a></dd>
+    <dt>Project:</dt>
+    <dd><a href ui-sref="project.detail({ projectId: recordCtrl.project.id })">{{ recordCtrl.project.name }}</a></dd>
+    <dt>Started at:</dt>
+    <dd>{{ recordCtrl.record.startTime | date : 'medium' }}</dd>
+    <span ng-show="recordCtrl.record.endTime">
+      <dt>Finshed at:</dt>
+      <dd>{{ recordCtrl.record.endTime | date : 'medium' }}</dd>
+    </span>
+    <dt>Status:</dt>
+    <dd ng-class="recordCtrl.record.status === 'SUCCESS' ? 'text-success' : 'text-danger'">{{ recordCtrl.record.status }}</dd>
   </dl>
 </div>

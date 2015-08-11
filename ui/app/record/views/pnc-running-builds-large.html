@@ -30,7 +30,7 @@
         <td>
           <build-status-icon status="record.status"></build-status-icon>
         </td>
-        <td> # {{ record.id }}</td>
+        <td><a href ui-sref="record.detail.info({recordId: record.id})"># {{ record.id }}</a></td>
         <td><a href ui-sref="configuration.detail.show({configurationId: record.buildConfigurationId})">{{ record.getBuildConfiguration().name }}</a></td>
         <td>{{ record.startTime | date:'medium'}}</td>
       </tr>

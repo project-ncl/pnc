@@ -58,10 +58,11 @@
         controllerAs: 'recordCtrl',
         resolve: {
           restClient: 'PncRestClient',
-          recordDetail: function (restClient, $stateParams) {
-            return restClient.Record.get({
+          build: 'Build',
+          recordDetail: function (restClient, build, $stateParams) {
+            return build.get({
               recordId: $stateParams.recordId
-            }).$promise;
+            });
           },
           configurationDetail: function (restClient, recordDetail) {
             return restClient.Configuration.get({
