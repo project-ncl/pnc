@@ -31,7 +31,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.enterprise.event.Event;
-
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Optional;
@@ -52,7 +51,7 @@ public class BuildSetTask {
     private final BuildExecutionType buildTaskType;
     private Event<BuildSetStatusChangedEvent> buildSetStatusChangedEventNotifier;
 
-    private BuildSetStatus status = BuildSetStatus.NEW;
+    private BuildSetStatus status;
 
     private String statusDescription;
     private Set<BuildTask> buildTasks = new HashSet<>();
@@ -67,7 +66,7 @@ public class BuildSetTask {
         this.buildTaskType = buildTaskType;
         this.productMilestone = productMilestone;
         this.buildSetStatusChangedEventNotifier = buildCoordinator.getBuildSetStatusChangedEventNotifier();
-
+        setStatus(BuildSetStatus.NEW);
     }
 
     public BuildConfigurationSet getBuildConfigurationSet() {

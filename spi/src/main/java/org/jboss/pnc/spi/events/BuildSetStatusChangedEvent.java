@@ -24,6 +24,9 @@ import org.jboss.pnc.spi.BuildSetStatus;
  */
 public interface BuildSetStatusChangedEvent {
 
+    /**
+     * May return null if this is the first status change.
+     */
     BuildSetStatus getOldStatus();
     BuildSetStatus getNewStatus();
     Integer getBuildSetTaskId();

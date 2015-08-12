@@ -52,6 +52,8 @@ public class BuildRecordRest {
 
     private String liveLogsUri;
 
+    private Integer buildConfigSetRecordId;
+
     public BuildRecordRest() {
     }
 
@@ -68,6 +70,8 @@ public class BuildRecordRest {
         performIfNotNull(buildRecord.getSystemImage() != null, () -> systemImageId = buildRecord.getSystemImage().getId());
         this.status = buildRecord.getStatus();
         this.buildDriverId = buildRecord.getBuildDriverId();
+        if(buildRecord.getBuildConfigSetRecord() != null)
+            this.buildConfigSetRecordId = buildRecord.getBuildConfigSetRecord().getId();
     }
 
     public BuildRecordRest(BuildTask buildTask) {
@@ -78,6 +82,9 @@ public class BuildRecordRest {
                 () -> buildConfigurationId = buildConfiguration.getId());
         this.status = BuildStatus.BUILDING;
         buildTask.getLogsWebSocketLink().ifPresent(logsUri -> this.liveLogsUri = logsUri.toString());
+        this.buildConfigSetRecordId = buildTask.getBuildSetTask().getId();
+        if(buildTask.getUser() != null)
+            this.userId = buildTask.getUser().getId();
     }
 
     public Integer getId() {
@@ -168,4 +175,7 @@ public class BuildRecordRest {
         this.liveLogsUri = liveLogsUri;
     }
 
+    public Integer getBuildConfigSetRecordId() {
+        return buildConfigSetRecordId;
+    }
 }

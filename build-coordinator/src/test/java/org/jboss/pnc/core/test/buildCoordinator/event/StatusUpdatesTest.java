@@ -136,7 +136,7 @@ public class StatusUpdatesTest {
                 buildTask.setStatus(BuildStatus.DONE);
             }
         }
-        Assert.assertNull("Received unexpected status update.", receivedBuildSetStatusChangedEvent.get());
+        Assert.assertEquals(BuildSetStatus.NEW, receivedBuildSetStatusChangedEvent.get().getNewStatus());
     }
 
     @Test
