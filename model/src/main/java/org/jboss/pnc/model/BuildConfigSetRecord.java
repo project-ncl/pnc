@@ -270,8 +270,12 @@ public class BuildConfigSetRecord implements GenericEntity<Integer> {
             buildConfigSetRecord.setStartTime(startTime);
             buildConfigSetRecord.setEndTime(endTime);
             buildConfigSetRecord.setUser(user);
-            buildConfigSetRecord.setProductVersion(productVersion);
             buildConfigSetRecord.setStatus(status);
+
+            if (productVersion == null && buildConfigurationSet != null) {
+                productVersion = buildConfigurationSet.getProductVersion();
+            }
+            buildConfigSetRecord.setProductVersion(productVersion);
 
             // Set the bi-directional mapping
             for (BuildRecord buildRecord : buildRecords) {
