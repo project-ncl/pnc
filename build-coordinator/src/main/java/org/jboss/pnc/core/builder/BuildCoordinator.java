@@ -135,6 +135,17 @@ public class BuildCoordinator {
                 buildType,
                 getProductMilestone(buildConfigurationSet));
 
+        initializeBuildTasksInSet(buildSetTask);
+        return buildSetTask;
+    }
+
+    /**
+     * Creates build tasks and sets up the appropriate dependency relations
+     * 
+     * @param buildSetTask The build set task which will contain the build tasks.  This must already have
+     * initialized the BuildConfigSet, BuildConfigSetRecord, Milestone, etc.
+     */
+    private void initializeBuildTasksInSet(BuildSetTask buildSetTask) {
         ContentIdentityManager contentIdentityManager = new ContentIdentityManager();
         String topContentId = contentIdentityManager.getProductContentId(buildSetTask.getBuildConfigurationSet().getProductVersion());
         String buildSetContentId = contentIdentityManager.getBuildSetContentId(buildSetTask.getBuildConfigurationSet());
@@ -149,7 +160,7 @@ public class BuildCoordinator {
                     buildSetContentId,
                     buildContentId,
                     BuildExecutionType.COMPOSED_BUILD,
-                    user,
+                    buildSetTask.getBuildConfigSetRecord().getUser(),
                     buildSetTask,
                     datastoreAdapter.getNextBuildRecordId());
             buildSetTask.addBuildTask(buildTask);
@@ -165,7 +176,6 @@ public class BuildCoordinator {
                 }
             }
         }
-        return buildSetTask;
     }
 
     /**

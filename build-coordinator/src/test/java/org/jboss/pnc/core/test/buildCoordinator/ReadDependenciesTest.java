@@ -51,10 +51,8 @@ public class ReadDependenciesTest extends ProjectBuilder {
         try {
             buildSetTask = buildCoordinator.createBuildSetTask(buildConfigurationSet, user, BuildExecutionType.COMPOSED_BUILD);
         } catch (CoreException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            Assert.fail(e.getMessage());
         }
-        //BuildTasksTree buildTasksTree = new BuildTasksTree(buildCoordinator, buildSetTask, user,() -> taskIdGenerator.incrementAndGet());
 
         Assert.assertEquals("Missing build tasks in set.", 5, buildSetTask.getBuildTasks().size());
         BuildTask buildTask2 = buildSetTask.getBuildTasks().stream().filter(task -> task.getBuildConfiguration().getId().equals(2)).findFirst().get();

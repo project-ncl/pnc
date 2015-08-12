@@ -190,8 +190,7 @@ public class StatusUpdatesTest {
         try {
             buildSetTask = buildCoordinator.createBuildSetTask(buildConfigurationSet, user, BuildExecutionType.COMPOSED_BUILD);
         } catch (CoreException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            Assert.fail(e.getMessage());
         }
 
         return buildSetTask;

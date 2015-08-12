@@ -203,10 +203,6 @@ public class BuildTask implements BuildExecution {
         return buildContentId;
     }
 
-    void addWaiting(BuildTask buildTask) {
-        addDependant(buildTask);
-    }
-
     public void addDependant(BuildTask buildTask) {
         if (!dependants.contains(buildTask)) {
             dependants.add(buildTask);
