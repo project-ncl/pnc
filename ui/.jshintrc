@@ -21,6 +21,7 @@
     "angular": false,
     "Keycloak": false,
     "pnc_globals": false,
-    "buckets": false
+    "buckets": false,
+    "_": false
   }
 }
