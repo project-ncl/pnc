@@ -42,6 +42,7 @@
     'Product',
     'ProductVersion',
     'BuildRecord',
+    'ConfigurationSetRecord',
     'BuildConfiguration',
     'Milestone',
     'Release',
@@ -50,9 +51,10 @@
     'RunningBuild',
     'BuildConfigurationSet',
     'BuildRecordSet',
+    'User',
     function($resource, REST_BASE_URL, Product, ProductVersion, BuildRecord,
-      BuildConfiguration, Milestone, Release, Project, Environment, RunningBuild,
-      BuildConfigurationSet, BuildRecordSet) {
+      ConfigurationSetRecord, BuildConfiguration, Milestone, Release, Project, Environment, RunningBuild,
+      BuildConfigurationSet, BuildRecordSet, User) {
 
       return {
 
@@ -72,12 +74,15 @@
 
         Record: BuildRecord,
 
+        ConfigurationSetRecord: ConfigurationSetRecord,
+
         Running: RunningBuild,
 
         ConfigurationSet: BuildConfigurationSet,
 
-        RecordSet: BuildRecordSet
+        RecordSet: BuildRecordSet,
 
+        User: User
       };
     }
   ]);

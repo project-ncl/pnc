@@ -34,7 +34,10 @@
     '$resource',
     'REST_BASE_URL',
     'RUNNING_BUILD_ENDPOINT',
-    function($resource, REST_BASE_URL, RUNNING_BUILD_ENDPOINT) {
+    'cachedGetter',
+    'BuildConfiguration',
+    'User',
+    function($resource, REST_BASE_URL, RUNNING_BUILD_ENDPOINT, cachedGetter, BuildConfiguration, User) {
       var ENDPOINT = REST_BASE_URL + RUNNING_BUILD_ENDPOINT;
 
       var RunningBuild = $resource(ENDPOINT, {
@@ -47,6 +50,18 @@
           transformResponse: function(data) { return { payload: data }; }
         },
       });
+
+      RunningBuild.prototype.getBuildConfiguration = cachedGetter(
+        function(buildRecord) {
+          return BuildConfiguration.get({ configurationId: buildRecord.buildConfigurationId });
+        }
+      );
+
+      RunningBuild.prototype.getUser = cachedGetter(
+        function(record) {
+          return User.get({ userId: record.userId });
+        }
+      );
 
       return RunningBuild;
     }

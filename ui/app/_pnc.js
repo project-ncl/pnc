@@ -34,6 +34,8 @@
     'pnc.common.websockets',
     'pnc.common.events',
     'pnc.common.buildNotifications',
+    'pnc.configuration-set-record',
+    'pnc.common.restclient'
   ]);
 
   var authEnabled = pnc_globals.enableAuth; // jshint ignore:line
