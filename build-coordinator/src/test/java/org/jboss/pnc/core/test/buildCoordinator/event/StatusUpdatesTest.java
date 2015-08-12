@@ -26,15 +26,15 @@ import org.jboss.pnc.core.BuildDriverFactory;
 import org.jboss.pnc.core.builder.BuildCoordinator;
 import org.jboss.pnc.core.builder.BuildSetTask;
 import org.jboss.pnc.core.builder.BuildTask;
-import org.jboss.pnc.core.builder.BuildTasksTree;
+import org.jboss.pnc.core.exception.CoreException;
 import org.jboss.pnc.core.notifications.buildSetTask.BuildSetCallBack;
 import org.jboss.pnc.core.notifications.buildSetTask.BuildSetStatusNotifications;
 import org.jboss.pnc.core.notifications.buildTask.BuildCallBack;
 import org.jboss.pnc.core.notifications.buildTask.BuildStatusNotifications;
 import org.jboss.pnc.core.test.configurationBuilders.TestProjectConfigurationBuilder;
 import org.jboss.pnc.core.test.mock.BuildDriverMock;
-import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildConfigurationSet;
+import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.BuildExecutionType;
 import org.jboss.pnc.spi.BuildSetStatus;
 import org.jboss.pnc.spi.BuildStatus;
@@ -54,8 +54,10 @@ import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 /**
@@ -99,7 +101,7 @@ public class StatusUpdatesTest {
 
     @Test
     @InSequence(10)
-    public void buildSetStatusShouldUpdateWhenAllBuildStatusChangeToCompletedState() throws DatastoreException {
+    public void buildSetStatusShouldUpdateWhenAllBuildStatusChangeToCompletedState() throws DatastoreException, InterruptedException {
         ObjectWrapper<BuildSetStatusChangedEvent> receivedBuildSetStatusChangedEvent = new ObjectWrapper<>();
         Consumer<BuildSetStatusChangedEvent> statusUpdateListener = (event) -> {
             receivedBuildSetStatusChangedEvent.set(event);
@@ -108,6 +110,8 @@ public class StatusUpdatesTest {
 
         Set<BuildTask> buildTasks = initializeBuildTask().getBuildTasks();
         buildTasks.forEach((bt) -> bt.setStatus(BuildStatus.DONE));
+        this.waitForConditionWithTimeout(() -> buildTasks.stream().allMatch(task -> task.getStatus().isCompleted()), 4);
+
         Assert.assertNotNull("Did not receive status update.", receivedBuildSetStatusChangedEvent.get());
         Assert.assertEquals(BuildSetStatus.DONE, receivedBuildSetStatusChangedEvent.get().getNewStatus());
     }
@@ -132,7 +136,7 @@ public class StatusUpdatesTest {
                 buildTask.setStatus(BuildStatus.DONE);
             }
         }
-        Assert.assertNull("Received unexpected status update.", receivedBuildSetStatusChangedEvent.get());
+        Assert.assertEquals(BuildSetStatus.NEW, receivedBuildSetStatusChangedEvent.get().getNewStatus());
     }
 
     @Test
@@ -181,18 +185,28 @@ public class StatusUpdatesTest {
 
     private BuildSetTask initializeBuildTask() throws DatastoreException {
         BuildConfigurationSet buildConfigurationSet = new TestProjectConfigurationBuilder().buildConfigurationSet(1);
-
-        BuildConfigSetRecord buildConfigSetRecord = BuildConfigSetRecord.Builder.newBuilder()
-                .id(buildConfigurationSet.getId())
-                .buildConfigurationSet(buildConfigurationSet)
-                .build();
-        BuildSetTask buildSetTask = new BuildSetTask(
-                buildCoordinator,
-                buildConfigSetRecord,
-                BuildExecutionType.COMPOSED_BUILD,
-                null);
-        new BuildTasksTree(buildCoordinator, buildSetTask, null, () -> buildTaskIdSupplier.incrementAndGet());
+        User user = User.Builder.newBuilder().id(1).username("test-user").build();
+        BuildSetTask buildSetTask = null;
+        try {
+            buildSetTask = buildCoordinator.createBuildSetTask(buildConfigurationSet, user, BuildExecutionType.COMPOSED_BUILD);
+        } catch (CoreException e) {
+            Assert.fail(e.getMessage());
+        }
 
         return buildSetTask;
+    }
+
+    /**
+     * Wait until the give boolean condition becomes true, or the given number of seconds passes
+     * 
+     * @param sup
+     * @param timeoutSeconds
+     */
+    private void waitForConditionWithTimeout(Supplier<Boolean> sup, int timeoutSeconds) throws InterruptedException {
+        int secondsPassed = 0;
+        while (!sup.get() && secondsPassed < timeoutSeconds) {
+            Thread.sleep(1000);
+            secondsPassed++;
+        }
     }
 }

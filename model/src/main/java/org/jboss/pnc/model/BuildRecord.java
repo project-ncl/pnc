@@ -391,8 +391,8 @@ public class BuildRecord implements GenericEntity<Integer> {
     /**
      * Add this build record to a build record set.
      * 
-     * @param buildRecordSet
-     * @return
+     * @param buildRecordSet The set to which this record will be added
+     * @return True if the build record was successfully added to the given set
      */
     public boolean addBuildRecordSet(BuildRecordSet buildRecordSet) {
         if (!buildRecordSet.getBuildRecords().contains(this)) {

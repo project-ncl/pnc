@@ -26,6 +26,10 @@ import java.util.stream.Collector;
  */
 public class StreamCollectors {
 
+    /**
+     * Collect element(s) into a list and then return the single element of this list.
+     * If there is not exactly one element, throw an exception.
+     */
     public static <T> Collector<T, List<T>, T> singletonCollector() {
         return Collector.of(
                 ArrayList::new,

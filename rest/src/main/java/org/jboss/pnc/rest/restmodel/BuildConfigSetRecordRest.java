@@ -17,14 +17,16 @@
  */
 package org.jboss.pnc.rest.restmodel;
 
-import org.jboss.pnc.core.builder.BuildTask;
-import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigSetRecord;
+import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.BuildStatus;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.Date;
+import java.util.Set;
+import java.util.stream.Collectors;
 
+import static java.util.Objects.requireNonNull;
 import static org.jboss.pnc.rest.utils.Utility.performIfNotNull;
 
 @XmlRootElement(name = "BuildRecord")
@@ -44,10 +46,13 @@ public class BuildConfigSetRecordRest {
 
     private Integer productVersionId;
 
+    private Set<Integer> buildRecordIds;
+
     public BuildConfigSetRecordRest() {
     }
 
     public BuildConfigSetRecordRest(BuildConfigSetRecord buildConfigSetRecord) {
+        requireNonNull(buildConfigSetRecord);
         this.id = buildConfigSetRecord.getId();
         this.startTime = buildConfigSetRecord.getStartTime();
         this.endTime = buildConfigSetRecord.getEndTime();
@@ -56,6 +61,10 @@ public class BuildConfigSetRecordRest {
         performIfNotNull(buildConfigSetRecord.getUser() != null, () -> userId = buildConfigSetRecord.getUser().getId());
         performIfNotNull(buildConfigSetRecord.getProductVersion() != null, () -> productVersionId = buildConfigSetRecord.getProductVersion().getId());
         this.status = buildConfigSetRecord.getStatus();
+        requireNonNull(buildConfigSetRecord.getBuildRecords());
+        this.buildRecordIds = buildConfigSetRecord.getBuildRecords().stream()
+                .map(BuildRecord::getId)
+                .collect(Collectors.toSet());
     }
 
     public Integer getId() {
@@ -114,4 +123,7 @@ public class BuildConfigSetRecordRest {
         this.productVersionId = productVersionId;
     }
 
+    public Set<Integer> getBuildRecordIds() {
+        return buildRecordIds;
+    }
 }

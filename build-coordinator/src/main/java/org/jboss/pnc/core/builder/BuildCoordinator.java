@@ -22,10 +22,13 @@ import org.jboss.pnc.common.util.StreamCollectors;
 import org.jboss.pnc.core.BuildDriverFactory;
 import org.jboss.pnc.core.EnvironmentDriverFactory;
 import org.jboss.pnc.core.RepositoryManagerFactory;
+import org.jboss.pnc.core.content.ContentIdentityManager;
 import org.jboss.pnc.core.exception.BuildProcessException;
 import org.jboss.pnc.core.exception.CoreException;
 import org.jboss.pnc.model.*;
-import org.jboss.pnc.spi.*;
+import org.jboss.pnc.spi.BuildExecutionType;
+import org.jboss.pnc.spi.BuildResult;
+import org.jboss.pnc.spi.BuildSetStatus;
 import org.jboss.pnc.spi.BuildStatus;
 import org.jboss.pnc.spi.builddriver.*;
 import org.jboss.pnc.spi.datastore.DatastoreException;
@@ -39,8 +42,6 @@ import org.jboss.pnc.spi.events.BuildStatusChangedEvent;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManager;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
 import org.jboss.pnc.spi.repositorymanager.model.RepositorySession;
-import org.jboss.util.graph.Edge;
-import org.jboss.util.graph.Vertex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,7 +54,6 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -104,41 +104,80 @@ public class BuildCoordinator {
                 .buildConfiguration(buildConfiguration)
                 .build();
 
-        BuildConfigSetRecord buildConfigSetRecord = BuildConfigSetRecord.Builder.newBuilder()
-                .buildConfigurationSet(buildConfigurationSet)
-                .user(userTriggeredBuild)
-                .startTime(new Date())
-                .status(org.jboss.pnc.model.BuildStatus.BUILDING)
-                .build();
+        BuildSetTask buildSetTask = createBuildSetTask(buildConfigurationSet, userTriggeredBuild, BuildExecutionType.STANDALONE_BUILD);
 
-        BuildSetTask buildSetTask = new BuildSetTask(
-                this,
-                buildConfigSetRecord,
-                BuildExecutionType.STANDALONE_BUILD,
-                getProductMilestone(buildConfigurationSet));
-
-        build(buildSetTask, userTriggeredBuild);
+        build(buildSetTask);
         BuildTask buildTask = buildSetTask.getBuildTasks().stream().collect(StreamCollectors.singletonCollector());
         return buildTask;
     }
 
     public BuildSetTask build(BuildConfigurationSet buildConfigurationSet, User userTriggeredBuild) throws CoreException, DatastoreException {
+
+        BuildSetTask buildSetTask = createBuildSetTask(buildConfigurationSet, userTriggeredBuild, BuildExecutionType.COMPOSED_BUILD);
+
+        build(buildSetTask);
+        return buildSetTask;
+    }
+
+    public BuildSetTask createBuildSetTask(BuildConfigurationSet buildConfigurationSet, User user, BuildExecutionType buildType) throws CoreException {
         BuildConfigSetRecord buildConfigSetRecord = BuildConfigSetRecord.Builder.newBuilder()
                 .buildConfigurationSet(buildConfigurationSet)
-                .user(userTriggeredBuild)
+                .user(user)
                 .startTime(new Date())
                 .status(org.jboss.pnc.model.BuildStatus.BUILDING)
                 .build();
 
-        buildConfigSetRecord = this.saveBuildConfigSetRecord(buildConfigSetRecord);
+        if (BuildExecutionType.COMPOSED_BUILD.equals(buildType)) {
+            buildConfigSetRecord = this.saveBuildConfigSetRecord(buildConfigSetRecord);
+        }
 
         BuildSetTask buildSetTask = new BuildSetTask(
                 this,
                 buildConfigSetRecord,
-                BuildExecutionType.COMPOSED_BUILD,
+                buildType,
                 getProductMilestone(buildConfigurationSet));
-        build(buildSetTask, userTriggeredBuild);
+
+        initializeBuildTasksInSet(buildSetTask);
         return buildSetTask;
+    }
+
+    /**
+     * Creates build tasks and sets up the appropriate dependency relations
+     * 
+     * @param buildSetTask The build set task which will contain the build tasks.  This must already have
+     * initialized the BuildConfigSet, BuildConfigSetRecord, Milestone, etc.
+     */
+    private void initializeBuildTasksInSet(BuildSetTask buildSetTask) {
+        ContentIdentityManager contentIdentityManager = new ContentIdentityManager();
+        String topContentId = contentIdentityManager.getProductContentId(buildSetTask.getBuildConfigurationSet().getProductVersion());
+        String buildSetContentId = contentIdentityManager.getBuildSetContentId(buildSetTask.getBuildConfigurationSet());
+
+        // Loop to create the build tasks
+        for(BuildConfiguration buildConfig : buildSetTask.getBuildConfigurationSet().getBuildConfigurations()) {
+            String buildContentId = contentIdentityManager.getBuildContentId(buildConfig);
+            BuildTask buildTask = new BuildTask(
+                    this,
+                    buildConfig,
+                    topContentId,
+                    buildSetContentId,
+                    buildContentId,
+                    BuildExecutionType.COMPOSED_BUILD,
+                    buildSetTask.getBuildConfigSetRecord().getUser(),
+                    buildSetTask,
+                    datastoreAdapter.getNextBuildRecordId());
+            buildSetTask.addBuildTask(buildTask);
+        }
+        // Loop again to set dependencies
+        for (BuildTask buildTask : buildSetTask.getBuildTasks()) {
+            for (BuildConfiguration dep : buildTask.getBuildConfiguration().getDependencies()) {
+                if (buildSetTask.getBuildConfigurationSet().getBuildConfigurations().contains(dep)) {
+                    BuildTask depTask = buildSetTask.getBuildTask(dep);
+                    if (depTask != null) {
+                        buildTask.addDependency(depTask);
+                    }
+                }
+            }
+        }
     }
 
     /**
@@ -153,25 +192,17 @@ public class BuildCoordinator {
         return buildConfigSet.getProductVersion().getCurrentProductMilestone();
     }
 
-    private void build(BuildSetTask buildSetTask, User userTriggeredBuild) throws CoreException {
+    private void build(BuildSetTask buildSetTask) throws CoreException {
 
-        BuildTasksTree buildTasksTree = new BuildTasksTree(
-                this,
-                buildSetTask,
-                userTriggeredBuild,
-                () -> datastoreAdapter.getNextBuildRecordId());
 
-        Predicate<Vertex<BuildTask>> acceptOnlyStatus = (vertex) -> {
-            BuildTask build = vertex.getData();
-            List<BuildStatus> buildStatuses = Arrays.asList(BuildStatus.NEW, BuildStatus.WAITING_FOR_DEPENDENCIES);
-            return buildStatuses.contains(build.getStatus());
+        Predicate<BuildTask> readyToBuild = (buildTask) -> {
+            return buildTask.readyToBuild();
         };
 
-        Predicate<Vertex<BuildTask>> rejectAlreadySubmitted = (vertex) -> {
-            BuildTask build = vertex.getData();
-            if (isBuildAlreadySubmitted(build)) {
-                build.setStatus(BuildStatus.REJECTED);
-                build.setStatusDescription("The configuration is already in the build queue.");
+        Predicate<BuildTask> rejectAlreadySubmitted = (buildTask) -> {
+            if (isBuildAlreadySubmitted(buildTask)) {
+                buildTask.setStatus(BuildStatus.REJECTED);
+                buildTask.setStatusDescription("The configuration is already in the build queue.");
                 return false;
             } else {
                 return true;
@@ -179,43 +210,22 @@ public class BuildCoordinator {
         };
 
         if (!BuildSetStatus.REJECTED.equals(buildSetTask.getStatus())) {
-            buildTasksTree.getBuildTasks().stream()
-                    .filter(acceptOnlyStatus)
+            buildSetTask.getBuildTasks().stream()
+                    .filter(readyToBuild)
                     .filter(rejectAlreadySubmitted)
                     .forEach(v -> processBuildTask(v));
         }
+
     }
 
-    private void processBuildTask(Vertex<BuildTask> vertex) {
-        BuildTask buildTask = vertex.getData();
-        List<BuildTask> missingDependencies = findDirectMissingDependencies(vertex);
-        missingDependencies.forEach((missingDependency) -> missingDependency.addWaiting(buildTask));
-        if (missingDependencies.size() == 0) {
-            try {
-                startBuilding(buildTask);
-                buildTasks.add(buildTask);
-            } catch (CoreException e) {
-                buildTask.setStatus(BuildStatus.SYSTEM_ERROR);
-                buildTask.setStatusDescription(e.getMessage());
-            }
-        } else {
-            buildTask.setStatus(BuildStatus.WAITING_FOR_DEPENDENCIES);
-            buildTask.setRequiredBuilds(missingDependencies);
+    private void processBuildTask(BuildTask buildTask) {
+        try {
+            startBuilding(buildTask);
             buildTasks.add(buildTask);
+        } catch (CoreException e) {
+            buildTask.setStatus(BuildStatus.SYSTEM_ERROR);
+            buildTask.setStatusDescription(e.getMessage());
         }
-    }
-
-    private List<BuildTask> findDirectMissingDependencies(Vertex<BuildTask> vertex) {
-        List<BuildTask> missingDependencies = new ArrayList<>();
-        List<Edge<BuildTask>> outgoingEdges = vertex.getOutgoingEdges();
-        for (Edge<BuildTask> outgoingEdge : outgoingEdges) {
-            Vertex<BuildTask> dependentVertex = outgoingEdge.getTo();
-            BuildTask dependentBuildTask = dependentVertex.getData();
-            if (!isConfigurationBuilt(dependentBuildTask.getBuildConfiguration())) {
-                missingDependencies.add(dependentBuildTask);
-            }
-        }
-        return missingDependencies;
     }
 
     private boolean isConfigurationBuilt(BuildConfiguration buildConfiguration) {
