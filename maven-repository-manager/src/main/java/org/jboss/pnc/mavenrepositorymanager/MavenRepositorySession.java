@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.mavenrepositorymanager;
 
+import org.apache.commons.lang.StringUtils;
 import org.commonjava.aprox.client.core.Aprox;
 import org.commonjava.aprox.client.core.AproxClientException;
 import org.commonjava.aprox.client.core.module.AproxContentClientModule;
@@ -43,26 +44,23 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * {@link RepositorySession} implementation that works with the Maven {@link RepositoryManagerDriver} (which connects to an
  * AProx server instance for repository management). This session contains connection information for rendering Maven
  * settings.xml files and the like, along with the components necessary to extract the artifacts (dependencies, build uploads)
  * for the associated build.
- * 
+ *
  * Artifact extraction also implies promotion of imported dependencies to a shared-imports Maven repository for safe keeping. In
  * the case of composed (chained) builds, it also implies promotion of the build output to the associated build-set repository
  * group, to expose them for use in successive builds in the chain.
  */
 public class MavenRepositorySession implements RepositorySession
 {
+
+    private static Set<String> IGNORED_PATH_SUFFIXES =
+                    Collections.unmodifiableSet( new HashSet<>( Arrays.asList( "maven-metadata.xml", ".sha1", ".md5", ".asc" ) ) );
 
     private Aprox aprox;
     private final String buildRepoId;
@@ -130,8 +128,17 @@ public class MavenRepositorySession implements RepositorySession
             throw new RepositoryManagerException("Failed to retrieve tracking report for: %s.", buildRepoId);
         }
 
-        List<Artifact> uploads = processUploads(report);
-        List<Artifact> downloads = processDownloads(report);
+        Comparator<Artifact> comp = ( one, two ) -> one.getIdentifier().compareTo( two.getIdentifier() );
+
+        List<Artifact> uploads = processUploads( report );
+        Collections.sort( uploads, comp );
+
+        List<Artifact> downloads = processDownloads( report );
+        Collections.sort( downloads, comp );
+
+        Logger logger = LoggerFactory.getLogger( getClass() );
+        logger.info( "Returning built artifacts / dependencies:\nUploads:\n  {}\n\nDownloads:\n  {}\n\n",
+                     StringUtils.join( uploads, "\n  " ), StringUtils.join( downloads, "\n  " ) );
 
         promoteToBuildContentSet();
 
@@ -174,9 +181,15 @@ public class MavenRepositorySession implements RepositorySession
             Map<StoreKey, Set<String>> toPromote = new HashMap<>();
 
             StoreKey sharedImports = new StoreKey(StoreType.hosted, RepositoryManagerDriver.SHARED_IMPORTS_ID);
-            StoreKey sharedReleases = new StoreKey(StoreType.hosted, RepositoryManagerDriver.SHARED_RELEASES_ID);
+//            StoreKey sharedReleases = new StoreKey(StoreType.hosted, RepositoryManagerDriver.SHARED_RELEASES_ID);
 
             for (TrackedContentEntryDTO download : downloads) {
+                if ( ignoreContent( download.getPath() ) )
+                {
+                    logger.debug( "Ignoring download (matched in ignored-suffixes): {} (From: {})", download.getPath(), download.getStoreKey() );
+                    continue;
+                }
+
                 StoreKey sk = download.getStoreKey();
 
                 // If the entry is from a hosted repository, it shouldn't be auto-promoted.
@@ -205,10 +218,11 @@ public class MavenRepositorySession implements RepositorySession
                 ArtifactRef aref = new ArtifactRef(pathInfo.getProjectId(), pathInfo.getType(), pathInfo.getClassifier(), false);
                 logger.info( "Recording download: {}", aref );
 
-                Artifact.Builder artifactBuilder = Artifact.Builder.newBuilder().checksum(download.getSha256())
-                        .deployUrl(content.contentUrl(download.getStoreKey(), download.getPath()))
-                        .filename(new File(path).getName()).identifier(aref.toString()).repoType(RepositoryType.MAVEN)
-                        .status(ArtifactStatus.BINARY_IMPORTED);
+                Artifact.Builder artifactBuilder = Artifact.Builder.newBuilder().checksum( download.getSha256() )
+                        .deployUrl( content.contentUrl( download.getStoreKey(), download.getPath() ) )
+                        .filename( new File( path ).getName() ).identifier( aref.toString() ).repoType(
+                                                RepositoryType.MAVEN )
+                        .status( ArtifactStatus.BINARY_IMPORTED );
 
                 deps.add(artifactBuilder.build());
             }
@@ -239,6 +253,12 @@ public class MavenRepositorySession implements RepositorySession
 
             for (TrackedContentEntryDTO upload : uploads) {
                 String path = upload.getPath();
+                if ( ignoreContent( path ) )
+                {
+                    logger.debug( "Ignoring upload (matched in ignored-suffixes): {} (From: {})", path, upload.getStoreKey() );
+                    continue;
+                }
+
                 ArtifactPathInfo pathInfo = ArtifactPathInfo.parse(path);
                 if (pathInfo == null) {
                     // metadata file. Ignore.
@@ -249,11 +269,12 @@ public class MavenRepositorySession implements RepositorySession
                 ArtifactRef aref = new ArtifactRef(pathInfo.getProjectId(), pathInfo.getType(), pathInfo.getClassifier(), false);
                 logger.info( "Recording upload: {}", aref );
 
-                Artifact.Builder artifactBuilder = Artifact.Builder.newBuilder().checksum(upload.getSha256())
-                        .deployUrl(upload.getLocalUrl()).filename(new File(path).getName()).identifier(aref.toString())
-                        .repoType(RepositoryType.MAVEN).status(ArtifactStatus.BINARY_BUILT);
+                Artifact.Builder artifactBuilder = Artifact.Builder.newBuilder().checksum( upload.getSha256() )
+                        .deployUrl( upload.getLocalUrl() ).filename( new File( path ).getName() ).identifier(
+                                                aref.toString() )
+                        .repoType( RepositoryType.MAVEN ).status( ArtifactStatus.BINARY_BUILT );
 
-                builds.add(artifactBuilder.build());
+                builds.add( artifactBuilder.build() );
             }
 
             return builds;
@@ -325,6 +346,17 @@ public class MavenRepositorySession implements RepositorySession
                         buildSetId, e.getMessage());
             }
         }
+    }
+
+    private boolean ignoreContent( String path )
+    {
+        for( String suffix: IGNORED_PATH_SUFFIXES )
+        {
+            if ( path.endsWith( suffix ) )
+                return true;
+        }
+
+        return false;
     }
 
 }
