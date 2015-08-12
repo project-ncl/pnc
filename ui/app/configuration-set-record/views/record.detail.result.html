@@ -1,0 +1,8 @@
+<h3>Logs for build records in this set</h3>
+<div class="panel panel-default" ng-repeat="record in ctrl.recordsLog">
+  <div class="panel-heading">Record # {{ record.id }}</div>
+  <pre>
+    {{ record.log.payload || 'Zero length log returned.' }}
+  </pre>
+</div>
+<p ng-hide="ctrl.recordsLog.length">No logs available. There are probably no finished builds yet.</p>

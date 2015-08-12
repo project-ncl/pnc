@@ -1,0 +1,29 @@
+<div>
+  <h3>Build Artifacts for build records in this set</h3>
+  <div ng-hide="!ctrl.recordsArtifacts.length">
+    <input ng-model="searchText" placeholder="Filter artifacts...">
+    <table class="table table-bordered table-striped">
+      <thead>
+      <th>Identifier</th>
+      <th>File Name</th>
+      <th>Status</th>
+      <th>Actions</th>
+      <th>Build Configuration Name</th>
+      <th>Build Record</th>
+      </thead>
+      <tbody ng-repeat="record in ctrl.recordsArtifacts">
+      <tr ng-repeat="artifact in record.artifacts | filter:searchText">
+        <td>{{ artifact.identifier }}</td>
+        <td>{{ artifact.filename }}</td>
+        <td>{{ artifact.status }}</td>
+        <td class="text-center"><a ng-href="{{ artifact.deployUrl }}" target="_self"
+                                   class="btn btn-primary">Download</a></td>
+        <td>{{ record.getBuildConfiguration().name }}</td>
+        <td><a href ui-sref="record.detail.info({recordId: record.id})"># {{ record.id }}</a></td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+  <p ng-hide="ctrl.recordsArtifacts.length">No build artifacts available. There are probably no successfully
+    finished builds yet.</p>
+</div>

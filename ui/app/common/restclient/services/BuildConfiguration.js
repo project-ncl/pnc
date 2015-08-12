@@ -34,7 +34,9 @@
     '$resource',
     'REST_BASE_URL',
     'BUILD_CONFIGURATION_ENDPOINT',
-    function($resource, REST_BASE_URL, BUILD_CONFIGURATION_ENDPOINT) {
+    'Project',
+    'cachedGetter',
+    function($resource, REST_BASE_URL, BUILD_CONFIGURATION_ENDPOINT, Project, cachedGetter) {
       var ENDPOINT = REST_BASE_URL + BUILD_CONFIGURATION_ENDPOINT;
 
       var BuildConfiguration = $resource(ENDPOINT, {
@@ -80,6 +82,12 @@
          isArray: true,
         },
       });
+
+      BuildConfiguration.prototype.getProject = cachedGetter(
+        function(configuration) {
+          return Project.get({ projectId: configuration.projectId });
+        }
+      );
 
       return BuildConfiguration;
     }

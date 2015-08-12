@@ -107,8 +107,12 @@
               <li><a href ui-sref="configuration-set.list">Build Configuration Sets</a></li>
             </ul>
           </li>
-          <li ui-sref-active="active">
-            <a ui-sref="record.list" href>Builds</a>
+          <li class="dropdown" ui-sref-active="active">
+            <a href class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Builds<span class="caret"></span></a>
+            <ul class="dropdown-menu" role="menu">
+              <li><a href ui-sref="record.list">Builds Records</a></li>
+              <li><a href ui-sref="configuration-set-record.list">Configuration Set Build Records</a></li>
+            </ul>
           </li>
         </ul>
       </div>

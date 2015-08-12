@@ -35,7 +35,8 @@
     'REST_BASE_URL',
     'BUILD_RECORD_ENDPOINT',
     'BuildConfiguration',
-    function($resource, cachedGetter, REST_BASE_URL, BUILD_RECORD_ENDPOINT, BuildConfiguration) {
+    'User',
+    function($resource, cachedGetter, REST_BASE_URL, BUILD_RECORD_ENDPOINT, BuildConfiguration, User) {
       var ENDPOINT = REST_BASE_URL + BUILD_RECORD_ENDPOINT;
 
       $resource.constructor.testProperty = 'HELLOWORLD';
@@ -80,6 +81,12 @@
       BuildRecord.prototype.getBuildConfiguration = cachedGetter(
         function(buildRecord) {
           return BuildConfiguration.get({ configurationId: buildRecord.buildConfigurationId });
+        }
+      );
+
+      BuildRecord.prototype.getUser = cachedGetter(
+        function(record) {
+          return User.get({ userId: record.userId });
         }
       );
 

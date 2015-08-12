@@ -1,0 +1,21 @@
+<div class="panel panel-default">
+  <div class="panel-heading">
+    Recent Builds
+  </div>
+  <table class="table table-striped table-hover">
+    <tbody>
+    <tr ng-repeat="record in getRecords()">
+      <td>
+        <build-status-icon status="record.status"></build-status-icon>
+      </td>
+      <td><a href ui-sref="configuration-set-record.detail.info({recordId: record.id})"># {{ record.id }} &mdash; {{ record.getConfigurationSet().name }}</a></td>
+      <td>{{ record.startTime | date:'medium'}} &mdash; {{ record.endTime | date:'medium'}}</td>
+    </tr>
+    <tr ng-hide="getRecords().length">
+      <td>
+        No recent builds
+      </td>
+    </tr>
+    </tbody>
+  </table>
+</div>
