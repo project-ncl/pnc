@@ -39,6 +39,8 @@ import org.jboss.pnc.spi.repositorymanager.RepositoryManagerException;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
 import org.jboss.pnc.spi.repositorymanager.model.RepositoryConnectionInfo;
 import org.jboss.pnc.spi.repositorymanager.model.RepositorySession;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -155,6 +157,7 @@ public class MavenRepositorySession implements RepositorySession
      * @throws RepositoryManagerException In case of a client API transport error or an error during promotion of artifacts
      */
     private List<Artifact> processDownloads(TrackedContentDTO report) throws RepositoryManagerException {
+        Logger logger = LoggerFactory.getLogger( getClass() );
 
         AproxContentClientModule content;
         try {
@@ -163,9 +166,10 @@ public class MavenRepositorySession implements RepositorySession
             throw new RepositoryManagerException("Failed to retrieve AProx client module. Reason: %s", e, e.getMessage());
         }
 
+        List<Artifact> deps = new ArrayList<>();
+
         Set<TrackedContentEntryDTO> downloads = report.getDownloads();
         if (downloads != null) {
-            List<Artifact> deps = new ArrayList<>();
 
             Map<StoreKey, Set<String>> toPromote = new HashMap<>();
 
@@ -174,9 +178,14 @@ public class MavenRepositorySession implements RepositorySession
 
             for (TrackedContentEntryDTO download : downloads) {
                 StoreKey sk = download.getStoreKey();
-                if (!sharedImports.equals(sk) && !sharedReleases.equals(sk)) {
+
+                // If the entry is from a hosted repository, it shouldn't be auto-promoted.
+                // If the entry is already in shared-imports, it shouldn't be auto-promoted to there.
+                // New binary imports will be coming from a remote repository...
+                // TODO: Enterprise maven repository (product repo) handling...
+                if (!sharedImports.equals(sk) && StoreType.hosted != sk.getType()) {
                     // this has not been captured, so promote it.
-                    Set<String> paths = toPromote.get(sk);
+                    Set<String> paths = toPromote.get( sk );
                     if (paths == null) {
                         paths = new HashSet<>();
                         toPromote.put(sk, paths);
@@ -186,13 +195,15 @@ public class MavenRepositorySession implements RepositorySession
                 }
 
                 String path = download.getPath();
-                ArtifactPathInfo pathInfo = ArtifactPathInfo.parse(path);
+                ArtifactPathInfo pathInfo = ArtifactPathInfo.parse( path );
                 if (pathInfo == null) {
                     // metadata file. Ignore.
+                    logger.info( "NOT logging file download: {}. It does not appear to be an artifact. (From: {})", path, sk );
                     continue;
                 }
 
                 ArtifactRef aref = new ArtifactRef(pathInfo.getProjectId(), pathInfo.getType(), pathInfo.getClassifier(), false);
+                logger.info( "Recording download: {}", aref );
 
                 Artifact.Builder artifactBuilder = Artifact.Builder.newBuilder().checksum(download.getSha256())
                         .deployUrl(content.contentUrl(download.getStoreKey(), download.getPath()))
@@ -206,10 +217,9 @@ public class MavenRepositorySession implements RepositorySession
                 PromoteRequest req = new PromoteRequest(entry.getKey(), sharedImports, entry.getValue()).setPurgeSource(false);
                 doPromote(req);
             }
-
-            return deps;
         }
-        return Collections.emptyList();
+
+        return deps;
     }
 
     /**
@@ -221,6 +231,7 @@ public class MavenRepositorySession implements RepositorySession
      */
     private List<Artifact> processUploads(TrackedContentDTO report)
             throws RepositoryManagerException {
+        Logger logger = LoggerFactory.getLogger( getClass() );
 
         Set<TrackedContentEntryDTO> uploads = report.getUploads();
         if (uploads != null) {
@@ -231,10 +242,12 @@ public class MavenRepositorySession implements RepositorySession
                 ArtifactPathInfo pathInfo = ArtifactPathInfo.parse(path);
                 if (pathInfo == null) {
                     // metadata file. Ignore.
+                    logger.info( "NOT logging file upload: {}. It does not appear to be an artifact. (From: {})", path, upload.getStoreKey() );
                     continue;
                 }
 
                 ArtifactRef aref = new ArtifactRef(pathInfo.getProjectId(), pathInfo.getType(), pathInfo.getClassifier(), false);
+                logger.info( "Recording upload: {}", aref );
 
                 Artifact.Builder artifactBuilder = Artifact.Builder.newBuilder().checksum(upload.getSha256())
                         .deployUrl(upload.getLocalUrl()).filename(new File(path).getName()).identifier(aref.toString())

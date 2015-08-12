@@ -179,7 +179,8 @@ public class RepositoryManagerDriver implements RepositoryManager {
      * 
      * @param buildRepoId
      * @param productRepoId
-     * @param string
+     * @param productRepoId
+     * @param projectName
      * @throws AproxClientException
      */
     private void setupBuildRepos(String buildRepoId, String buildSetRepoId, String productRepoId, String projectName)
