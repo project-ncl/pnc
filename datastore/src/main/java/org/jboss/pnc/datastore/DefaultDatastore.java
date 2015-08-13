@@ -18,7 +18,6 @@
 package org.jboss.pnc.datastore;
 
 import org.jboss.pnc.datastore.repositories.SequenceHandlerRepository;
-import org.jboss.pnc.datastore.repositories.internal.BuildConfigurationSpringRepository;
 import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildRecord;
@@ -28,6 +27,7 @@ import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.datastore.Datastore;
 import org.jboss.pnc.spi.datastore.predicates.UserPredicates;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigSetRecordRepository;
+import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordSetRepository;
 import org.jboss.pnc.spi.datastore.repositories.UserRepository;
@@ -49,7 +49,7 @@ public class DefaultDatastore implements Datastore {
     @Inject
     BuildRecordRepository buildRecordRepository;
 
-    @Inject BuildConfigurationSpringRepository buildConfigurationRepository;
+    @Inject BuildConfigurationRepository buildConfigurationRepository;
 
     @Inject
     BuildConfigSetRecordRepository buildConfigSetRecordRepository;
@@ -90,7 +90,7 @@ public class DefaultDatastore implements Datastore {
 
     private void storeBuildConfiguration(BuildRecord buildRecord) {
         if (buildRecord.getLatestBuildConfiguration() != null) {
-            BuildConfiguration configurationFromDB = buildConfigurationRepository.findOne(buildRecord
+            BuildConfiguration configurationFromDB = buildConfigurationRepository.queryById(buildRecord
                     .getLatestBuildConfiguration().getId());
             buildRecord.setLatestBuildConfiguration(configurationFromDB);
         }
