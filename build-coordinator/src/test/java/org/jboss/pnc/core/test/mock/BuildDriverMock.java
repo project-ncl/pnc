@@ -20,7 +20,7 @@ package org.jboss.pnc.core.test.mock;
 import org.jboss.logging.Logger;
 import org.jboss.pnc.common.util.RandomUtils;
 import org.jboss.pnc.core.test.configurationBuilders.TestProjectConfigurationBuilder;
-import org.jboss.pnc.model.BuildConfiguration;
+import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildType;
 import org.jboss.pnc.spi.BuildExecution;
 import org.jboss.pnc.spi.builddriver.*;
@@ -45,7 +45,7 @@ public class BuildDriverMock implements BuildDriver {
 
 
     @Override
-    public RunningBuild startProjectBuild(BuildExecution currentBuildExecution, BuildConfiguration buildConfiguration, final RunningEnvironment runningEnvironment) throws BuildDriverException {
+    public RunningBuild startProjectBuild(BuildExecution currentBuildExecution, BuildConfigurationAudited buildConfiguration, final RunningEnvironment runningEnvironment) throws BuildDriverException {
         try {
             log.debug("Building " + buildConfiguration);
             Thread.sleep(RandomUtils.randInt(100, 300));

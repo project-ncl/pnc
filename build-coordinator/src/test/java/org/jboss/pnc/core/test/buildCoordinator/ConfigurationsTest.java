@@ -22,7 +22,6 @@ import org.jboss.arquillian.junit.InSequence;
 import org.jboss.pnc.core.builder.BuildCoordinator;
 import org.jboss.pnc.core.builder.BuildSetTask;
 import org.jboss.pnc.core.builder.BuildTask;
-import org.jboss.pnc.core.test.configurationBuilders.TestProjectConfigurationBuilder;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.User;
@@ -47,7 +46,6 @@ public class ConfigurationsTest extends ProjectBuilder {
     @Test(expected=PersistenceException.class)
     @InSequence(10)
     public void dependsOnItselfConfigurationTestCase() throws Exception {
-        TestProjectConfigurationBuilder configurationBuilder = new TestProjectConfigurationBuilder();
 
         BuildConfiguration buildConfiguration = configurationBuilder.buildConfigurationWhichDependsOnItself();
 
@@ -61,8 +59,7 @@ public class ConfigurationsTest extends ProjectBuilder {
     @Test(expected=PersistenceException.class)
     @InSequence(15)
     public void cycleConfigurationTestCase() throws Exception {
-        TestProjectConfigurationBuilder configurationBuilder = new TestProjectConfigurationBuilder();
-
+ 
         BuildConfigurationSet buildConfigurationSet = configurationBuilder.buildConfigurationSetWithCycleDependency();
 
         User user = User.Builder.newBuilder().id(1).build();

@@ -26,6 +26,7 @@ import org.jboss.pnc.core.builder.BuildTask;
 import org.jboss.pnc.core.content.ContentIdentityManager;
 import org.jboss.pnc.core.exception.CoreException;
 import org.jboss.pnc.core.test.buildCoordinator.event.TestCDIBuildStatusChangedReceiver;
+import org.jboss.pnc.core.test.configurationBuilders.TestProjectConfigurationBuilder;
 import org.jboss.pnc.core.test.mock.BuildDriverMock;
 import org.jboss.pnc.core.test.mock.DatastoreMock;
 import org.jboss.pnc.model.Artifact;
@@ -63,6 +64,9 @@ public class ProjectBuilder {
 
     @Inject
     DatastoreMock datastore;
+
+    @Inject
+    TestProjectConfigurationBuilder configurationBuilder;
 
     @Inject
     TestCDIBuildStatusChangedReceiver statusChangedReceiver;

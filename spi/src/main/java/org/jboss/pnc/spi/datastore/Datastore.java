@@ -17,11 +17,9 @@
  */
 package org.jboss.pnc.spi.datastore;
 
-import java.util.List;
-
 import org.jboss.pnc.model.BuildConfigSetRecord;
+import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildRecord;
-import org.jboss.pnc.model.ProductMilestone;
 import org.jboss.pnc.model.User;
 
 /**
@@ -69,12 +67,10 @@ public interface Datastore {
     BuildConfigSetRecord saveBuildConfigSetRecord(BuildConfigSetRecord buildConfigSetRecord) throws DatastoreException;
 
     /**
-     * Stores a build record and links to the performed build record sets of the provided productMilestones
+     * Get the latest audited version of the given build configuration.
      * 
-     * @param buildRecord
-     * @param productMilestones
-     * @return The updated build record
+     * @param buildConfigId The id of the config to check
+     * @return The latest audited version of the build configuration
      */
-    BuildRecord storeBuildRecord(BuildRecord buildRecord, List<ProductMilestone> productMilestones);
-
+    BuildConfigurationAudited getLatestBuildConfigurationAudited(Integer buildConfigId);
 }

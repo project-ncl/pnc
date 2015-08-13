@@ -18,7 +18,7 @@
 package org.jboss.pnc.jenkinsbuilddriver;
 
 import org.jboss.logging.Logger;
-import org.jboss.pnc.model.BuildConfiguration;
+import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildType;
 import org.jboss.pnc.spi.BuildExecution;
 import org.jboss.pnc.spi.builddriver.BuildDriver;
@@ -72,7 +72,7 @@ public class JenkinsBuildDriver implements BuildDriver {
     }
 
     @Override
-    public RunningBuild startProjectBuild(BuildExecution currentBuildExecution, BuildConfiguration buildConfiguration,
+    public RunningBuild startProjectBuild(BuildExecution currentBuildExecution, BuildConfigurationAudited buildConfiguration,
             RunningEnvironment runningEnvironment) throws BuildDriverException {
         
         init(runningEnvironment);

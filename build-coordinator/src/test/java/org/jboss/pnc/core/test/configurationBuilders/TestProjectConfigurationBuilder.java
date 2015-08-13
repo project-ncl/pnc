@@ -17,6 +17,9 @@
  */
 package org.jboss.pnc.core.test.configurationBuilders;
 
+import javax.inject.Inject;
+
+import org.jboss.pnc.core.test.mock.DatastoreMock;
 import org.jboss.pnc.model.*;
 
 /**
@@ -28,6 +31,9 @@ public class TestProjectConfigurationBuilder {
     public static final String PASS = "Pass";
 
     Environment javaEnvironment = Environment.Builder.defaultEnvironment().build();
+
+    @Inject
+    DatastoreMock datastore;
 
     public BuildConfiguration buildConfigurationWhichDependsOnItself() {
         BuildConfiguration buildConfiguration = build(1, "depends-on-itself");
@@ -90,6 +96,8 @@ public class TestProjectConfigurationBuilder {
         if (buildConfigurationSet != null) {
             buildConfigurationSet.addBuildConfiguration(buildConfiguration);
         }
+        datastore.save(buildConfiguration);
+        
         return buildConfiguration;
     }
 

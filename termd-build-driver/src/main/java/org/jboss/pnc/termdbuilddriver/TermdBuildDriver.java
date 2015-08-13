@@ -18,6 +18,7 @@
 package org.jboss.pnc.termdbuilddriver;
 
 import org.jboss.pnc.model.BuildConfiguration;
+import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildType;
 import org.jboss.pnc.spi.BuildExecution;
 import org.jboss.pnc.spi.builddriver.*;
@@ -56,7 +57,7 @@ public class TermdBuildDriver implements BuildDriver {
     }
 
     @Override
-    public RunningBuild startProjectBuild(BuildExecution currentBuildExecution, final BuildConfiguration buildConfiguration,
+    public RunningBuild startProjectBuild(BuildExecution currentBuildExecution, final BuildConfigurationAudited buildConfiguration,
             final RunningEnvironment runningEnvironment)
             throws BuildDriverException {
 

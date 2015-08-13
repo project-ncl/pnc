@@ -17,7 +17,7 @@
  */
 package org.jboss.pnc.spi.builddriver;
 
-import org.jboss.pnc.model.BuildConfiguration;
+import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildType;
 import org.jboss.pnc.spi.BuildExecution;
 import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
@@ -32,7 +32,7 @@ public interface BuildDriver {
 
     boolean canBuild(BuildType buildType);
 
-    public RunningBuild startProjectBuild(BuildExecution currentBuildExecution, BuildConfiguration buildConfiguration,
+    public RunningBuild startProjectBuild(BuildExecution currentBuildExecution, BuildConfigurationAudited buildConfiguration,
             RunningEnvironment runningEnvironment) throws BuildDriverException;
 
 }

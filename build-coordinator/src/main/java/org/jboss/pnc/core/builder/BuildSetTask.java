@@ -21,6 +21,7 @@ import org.jboss.pnc.core.events.DefaultBuildSetStatusChangedEvent;
 import org.jboss.pnc.core.exception.CoreException;
 import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildConfiguration;
+import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.ProductMilestone;
 import org.jboss.pnc.spi.BuildExecutionType;
@@ -82,8 +83,13 @@ public class BuildSetTask {
         buildSetStatusChangedEventNotifier.fire(buildSetStatusChangedEvent);
     }
 
+    /**
+     * Notify the set that the state of one of it's tasks has changed.
+     * 
+     * @param buildStatusChangedEvent Event with information about the state change of the task
+     */
     void taskStatusUpdated(BuildStatusChangedEvent buildStatusChangedEvent) {
-        // If all build tasks are complete, then the build set is done
+        // If any of the build tasks have failed or all are complete, then the build set is done
         if(buildTasks.stream().anyMatch(bt -> bt.getStatus().hasFailed())) {
             buildConfigSetRecord.setStatus(org.jboss.pnc.model.BuildStatus.FAILED);
             finishBuildSetTask();
@@ -126,18 +132,13 @@ public class BuildSetTask {
     }
 
     /**
-     * Get the build task which contains the given build configuration
+     * Get the build task which contains the given audited build configuration
      * 
      * @param buildConfig
      * @return The build task with the matching configuration, or null if there is none
      */
     public BuildTask getBuildTask(BuildConfiguration buildConfig) {
-        for (BuildTask buildTask : buildTasks) {
-            if(buildTask.getBuildConfiguration().equals(buildConfig)) {
-                return buildTask;
-            }
-        }
-        return null;
+        return buildTasks.stream().filter((bt) -> bt.getBuildRecord().getLatestBuildConfiguration().equals(buildConfig)).findFirst().orElse(null);
     }
 
     public Integer getId() {

@@ -20,7 +20,7 @@ package org.jboss.pnc.jenkinsbuilddriver;
 import java.io.IOException;
 import java.util.logging.Logger;
 
-import org.jboss.pnc.model.BuildConfiguration;
+import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
 import org.jboss.pnc.spi.environment.RunningEnvironment;
 
@@ -32,7 +32,7 @@ import com.offbytwo.jenkins.model.JobWithDetails;
  */
 class BuildJob {
     private JenkinsServer jenkinsServer;
-    private BuildConfiguration buildConfiguration;
+    private BuildConfigurationAudited buildConfiguration;
     private BuildJobConfig buildJobConfig;
     private JobWithDetails job;
     private int buildNumber;
@@ -41,7 +41,7 @@ class BuildJob {
     
     private static final Logger log = Logger.getLogger(BuildJob.class.getName());
 
-    public BuildJob(JenkinsServer jenkinsServer, BuildConfiguration buildConfiguration) {
+    public BuildJob(JenkinsServer jenkinsServer, BuildConfigurationAudited buildConfiguration) {
         this.jenkinsServer = jenkinsServer;
         this.buildConfiguration = buildConfiguration;
     }
