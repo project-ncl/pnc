@@ -54,7 +54,6 @@ import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -81,6 +80,9 @@ public class StatusUpdatesTest {
 
     @Inject
     BuildSetStatusNotifications buildSetStatusNotifications;
+
+    @Inject
+    TestProjectConfigurationBuilder configurationBuilder;
 
     @Deployment
     public static JavaArchive createDeployment() {
@@ -184,7 +186,7 @@ public class StatusUpdatesTest {
     AtomicInteger buildTaskIdSupplier = new AtomicInteger(0);
 
     private BuildSetTask initializeBuildTask() throws DatastoreException {
-        BuildConfigurationSet buildConfigurationSet = new TestProjectConfigurationBuilder().buildConfigurationSet(1);
+        BuildConfigurationSet buildConfigurationSet = configurationBuilder.buildConfigurationSet(1);
         User user = User.Builder.newBuilder().id(1).username("test-user").build();
         BuildSetTask buildSetTask = null;
         try {

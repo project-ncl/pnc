@@ -18,9 +18,9 @@
 package org.jboss.pnc.datastore;
 
 import org.jboss.pnc.datastore.repositories.SequenceHandlerRepository;
-import org.jboss.pnc.datastore.repositories.internal.BuildConfigurationSpringRepository;
 import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildConfiguration;
+import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.BuildRecordSet;
 import org.jboss.pnc.model.ProductMilestone;
@@ -28,6 +28,8 @@ import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.datastore.Datastore;
 import org.jboss.pnc.spi.datastore.predicates.UserPredicates;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigSetRecordRepository;
+import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationAuditedRepository;
+import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordSetRepository;
 import org.jboss.pnc.spi.datastore.repositories.UserRepository;
@@ -49,7 +51,9 @@ public class DefaultDatastore implements Datastore {
     @Inject
     BuildRecordRepository buildRecordRepository;
 
-    @Inject BuildConfigurationSpringRepository buildConfigurationRepository;
+    @Inject BuildConfigurationRepository buildConfigurationRepository;
+
+    @Inject BuildConfigurationAuditedRepository buildConfigurationAuditedRepository;
 
     @Inject
     BuildConfigSetRecordRepository buildConfigSetRecordRepository;
@@ -65,19 +69,6 @@ public class DefaultDatastore implements Datastore {
 
     @Override
     @TransactionAttribute(TransactionAttributeType.REQUIRED)
-    public BuildRecord storeBuildRecord(BuildRecord buildRecord, List<ProductMilestone> productMilestones) {
-        buildRecord = storeCompletedBuild(buildRecord);
-        for (ProductMilestone productMilestone : productMilestones) {
-            // We need to query the record set first to make sure it's initialized
-            BuildRecordSet milestoneRecordSet = buildRecordSetRepository.queryById(productMilestone.getPerformedBuildRecordSet().getId());
-            milestoneRecordSet.addBuildRecord(buildRecord);
-            buildRecordSetRepository.save(milestoneRecordSet);
-        }
-        return buildRecord;
-    }
-
-    @Override
-    @TransactionAttribute(TransactionAttributeType.REQUIRED)
     public BuildRecord storeCompletedBuild(BuildRecord buildRecord) {
         storeBuildConfiguration(buildRecord);
         return buildRecordRepository.save(buildRecord);
@@ -90,7 +81,7 @@ public class DefaultDatastore implements Datastore {
 
     private void storeBuildConfiguration(BuildRecord buildRecord) {
         if (buildRecord.getLatestBuildConfiguration() != null) {
-            BuildConfiguration configurationFromDB = buildConfigurationRepository.findOne(buildRecord
+            BuildConfiguration configurationFromDB = buildConfigurationRepository.queryById(buildRecord
                     .getLatestBuildConfiguration().getId());
             buildRecord.setLatestBuildConfiguration(configurationFromDB);
         }
@@ -120,5 +111,22 @@ public class DefaultDatastore implements Datastore {
     public BuildConfigSetRecord saveBuildConfigSetRecord(BuildConfigSetRecord buildConfigSetRecord) {
         return buildConfigSetRecordRepository.save(buildConfigSetRecord);
     }
+
+    /**
+     * Get the latest audited revision for the given build configuration ID
+     * 
+     * @param buildConfigurationId
+     * @return The latest revision of the given build configuration
+     */
+    @Override
+    public BuildConfigurationAudited getLatestBuildConfigurationAudited(Integer buildConfigurationId) {
+        List<BuildConfigurationAudited> buildConfigRevs = buildConfigurationAuditedRepository.findAllByIdOrderByRevDesc(buildConfigurationId);
+        if ( buildConfigRevs.isEmpty() ) {
+            // TODO should we throw an exception?  In theory, this should never happen.
+            return null;
+        }
+        return buildConfigRevs.get(0);
+    }
+
 
 }

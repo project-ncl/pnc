@@ -218,7 +218,7 @@ public class BuildConfigurationAudited implements GenericEntity<IdRev> {
 
     @Override
     public String toString() {
-        return "BuildConfigurationAudit [project=" + project + ", name=" + name + ", rev=" + rev + "]";
+        return "BuildConfigurationAudit [project=" + project + ", name=" + name + ", id=" + id + ", rev=" + rev + "]";
     }
 
     @Override
@@ -230,15 +230,12 @@ public class BuildConfigurationAudited implements GenericEntity<IdRev> {
 
         BuildConfigurationAudited that = (BuildConfigurationAudited) o;
 
-        if (id != null ? !id.equals(that.id) : that.id != null)
-            return false;
-
-        return true;
+        return (idRev != null ? idRev.equals(that.idRev) : false);
     }
 
     @Override
     public int hashCode() {
-        return id != null ? id.hashCode() : 0;
+        return idRev != null ? idRev.hashCode() : 0;
     }
 
 }

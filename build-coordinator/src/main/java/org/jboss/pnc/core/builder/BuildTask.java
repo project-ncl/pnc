@@ -20,7 +20,8 @@ package org.jboss.pnc.core.builder;
 import org.jboss.pnc.core.events.DefaultBuildStatusChangedEvent;
 import org.jboss.pnc.core.exception.CoreException;
 import org.jboss.pnc.model.BuildConfiguration;
-import org.jboss.pnc.model.ProductMilestone;
+import org.jboss.pnc.model.BuildConfigurationAudited;
+import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.ProductVersion;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.BuildExecution;
@@ -32,7 +33,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.enterprise.event.Event;
 import java.net.URI;
-import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -46,9 +47,8 @@ public class BuildTask implements BuildExecution {
 
     public static final Logger log = LoggerFactory.getLogger(BuildTask.class);
 
-    private final int buildTaskId;
+    private BuildRecord buildRecord;
 
-    private BuildConfiguration buildConfiguration;
     private BuildExecutionType buildTaskType;
     private BuildStatus status = BuildStatus.NEW;
     private String statusDescription;
@@ -64,6 +64,7 @@ public class BuildTask implements BuildExecution {
      * The builds which must be completed before this build can start
      */
     private Set<BuildTask> dependencies;
+
     private BuildCoordinator buildCoordinator;
 
     private String topContentId;
@@ -71,14 +72,6 @@ public class BuildTask implements BuildExecution {
     private String buildSetContentId;
 
     private String buildContentId;
-    private long startTime;
-
-    /**
-     * The user who triggered this build.
-     */
-    private User user;
-
-    private List<ProductMilestone> productMilestones = new ArrayList<ProductMilestone>();
 
     private BuildSetTask buildSetTask;
 
@@ -87,6 +80,7 @@ public class BuildTask implements BuildExecution {
 
     BuildTask(BuildCoordinator buildCoordinator, 
             BuildConfiguration buildConfiguration, 
+            BuildConfigurationAudited buildConfigurationAudited,
             String topContentId,
               String buildSetContentId,
               String buildContentId, 
@@ -94,31 +88,44 @@ public class BuildTask implements BuildExecution {
               User user, 
               BuildSetTask buildSetTask,
               int buildTaskId) {
+
         this.buildCoordinator = buildCoordinator;
-        this.buildConfiguration = buildConfiguration;
         this.buildTaskType = buildTaskType;
         this.buildStatusChangedEvent = buildCoordinator.getBuildStatusChangedEventNotifier();
         this.topContentId = topContentId;
         this.buildSetContentId = buildSetContentId;
         this.buildContentId = buildContentId;
-        this.user = user;
         this.buildSetTask = buildSetTask;
-        this.buildTaskId = buildTaskId;
 
+        this.buildRecord = BuildRecord.Builder.newBuilder().id(buildTaskId)
+                .latestBuildConfiguration(buildConfiguration)
+                .buildConfigurationAudited(buildConfigurationAudited)
+                .user(user)
+                .startTime(new Date())
+                .build();
+
+        // The the buildconfigsetrecord has a non-null ID, then this is a build set and not a single build
+        if (buildSetTask.getBuildConfigSetRecord().getId() != null) {
+            buildRecord.setBuildConfigSetRecord(buildSetTask.getBuildConfigSetRecord());
+        }
         if (buildSetTask.getProductMilestone() != null) {
-            this.productMilestones.add(buildSetTask.getProductMilestone());
+            this.buildRecord.addBuildRecordSet(buildSetTask.getProductMilestone().getPerformedBuildRecordSet());
         }
         if (buildConfiguration.getProductVersions() != null) {
             for (ProductVersion productVersion : buildConfiguration.getProductVersions()) {
                 if (productVersion.getCurrentProductMilestone() != null) {
-                    this.productMilestones.add(productVersion.getCurrentProductMilestone());
+                    this.buildRecord
+                            .addBuildRecordSet(productVersion.getCurrentProductMilestone().getPerformedBuildRecordSet());
                 }
             }
         }
 
-        this.startTime = System.currentTimeMillis();
         dependants = new HashSet<>();
         dependencies = new HashSet<>();
+    }
+
+    public BuildRecord getBuildRecord() {
+        return this.buildRecord;
     }
 
     public void setStatus(BuildStatus status) {
@@ -127,9 +134,9 @@ public class BuildTask implements BuildExecution {
         if (status.hasFailed()) {
             setHasFailed(true);
         }
-        Integer userId = Optional.ofNullable(user).map(user -> user.getId()).orElse(null);
+        Integer userId = Optional.ofNullable(getUser()).map(user -> user.getId()).orElse(null);
         BuildStatusChangedEvent buildStatusChanged = new DefaultBuildStatusChangedEvent(oldStatus, status, getId(),
-                buildConfiguration.getId(), userId);
+                buildRecord.getBuildConfigurationAudited().getId().getId(), userId);
         log.debug("Updating build task {} status to {}", this.getId(), buildStatusChanged);
         buildSetTask.taskStatusUpdated(buildStatusChanged);
         buildStatusChangedEvent.fire(buildStatusChanged);
@@ -184,8 +191,12 @@ public class BuildTask implements BuildExecution {
         return statusDescription;
     }
 
-    public BuildConfiguration getBuildConfiguration() {
-        return buildConfiguration;
+    public BuildConfigurationAudited getBuildConfigurationAudited() {
+        return buildRecord.getBuildConfigurationAudited();
+    }
+
+    public Set<BuildConfiguration> getBuildConfigurationDependencies() {
+        return buildRecord.getLatestBuildConfiguration().getDependencies();
     }
 
     @Override
@@ -221,13 +232,13 @@ public class BuildTask implements BuildExecution {
 
         BuildTask buildTask = (BuildTask) o;
 
-        return buildTaskId == buildTask.getId();
+        return buildRecord.getBuildConfigurationAudited().equals(buildTask.buildRecord.getBuildConfigurationAudited());
 
     }
 
     @Override
     public int hashCode() {
-        return buildTaskId;
+        return buildRecord.hashCode();
     }
 
     void setStatusDescription(String statusDescription) {
@@ -243,28 +254,32 @@ public class BuildTask implements BuildExecution {
     }
 
     public int getId() {
-        return buildTaskId;
+        return buildRecord.getId();
     }
 
     @Override
     public String getProjectName() {
-        return buildConfiguration.getProject().getName();
+        return buildRecord.getBuildConfigurationAudited().getProject().getName();
     }
 
     public BuildExecutionType getBuildExecutionType() {
         return buildTaskType;
     }
 
-    public long getStartTime() {
-        return startTime;
+    public Date getStartTime() {
+        return buildRecord.getStartTime();
+    }
+
+    public Date getEndTime() {
+        return buildRecord.getEndTime();
+    }
+
+    public void setEndTime(Date endTime) {
+        buildRecord.setEndTime(endTime);
     }
 
     public User getUser() {
-        return user;
-    }
-
-    public List<ProductMilestone> getProductMilestones() {
-        return productMilestones;
+        return buildRecord.getUser();
     }
 
     public BuildSetTask getBuildSetTask() {
@@ -303,6 +318,6 @@ public class BuildTask implements BuildExecution {
 
     @Override
     public String toString() {
-        return "id :" + buildTaskId + " " + buildConfiguration + " " + status;
+        return "id :" + buildRecord.getBuildConfigurationAudited() + " " + status;
     }
 }

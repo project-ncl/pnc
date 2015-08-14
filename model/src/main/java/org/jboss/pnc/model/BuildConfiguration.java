@@ -131,13 +131,6 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
     private String repositories;
 
     /**
-     * This contains the saved information of this specific revision of this entity as set by Hibernate envers. It is only used
-     * in certain situations such as during a build execution.
-     */
-    @Transient
-    private BuildConfigurationAudited buildConfigurationAudited;
-
-    /**
      * Instantiates a new project build configuration.
      */
     public BuildConfiguration() {
@@ -508,14 +501,6 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
      */
     public void setRepositories(String repositories) {
         this.repositories = repositories;
-    }
-
-    public BuildConfigurationAudited getBuildConfigurationAudited() {
-        return buildConfigurationAudited;
-    }
-
-    public void setBuildConfigurationAudited(BuildConfigurationAudited buildConfigurationAudited) {
-        this.buildConfigurationAudited = buildConfigurationAudited;
     }
 
     public Set<BuildRecord> getBuildRecords() {

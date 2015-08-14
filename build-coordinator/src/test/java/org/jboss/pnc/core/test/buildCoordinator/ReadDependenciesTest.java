@@ -21,8 +21,6 @@ import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.pnc.core.builder.BuildSetTask;
 import org.jboss.pnc.core.builder.BuildTask;
 import org.jboss.pnc.core.exception.CoreException;
-import org.jboss.pnc.core.test.configurationBuilders.TestProjectConfigurationBuilder;
-import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.BuildExecutionType;
@@ -44,7 +42,6 @@ public class ReadDependenciesTest extends ProjectBuilder {
 
     @Test
     public void createDependenciesTestCase() throws DatastoreException {
-        TestProjectConfigurationBuilder configurationBuilder = new TestProjectConfigurationBuilder();
         BuildConfigurationSet buildConfigurationSet = configurationBuilder.buildConfigurationSet(1);
         User user = User.Builder.newBuilder().id(1).username("test-user").build();
         BuildSetTask buildSetTask = null;
@@ -55,7 +52,7 @@ public class ReadDependenciesTest extends ProjectBuilder {
         }
 
         Assert.assertEquals("Missing build tasks in set.", 5, buildSetTask.getBuildTasks().size());
-        BuildTask buildTask2 = buildSetTask.getBuildTasks().stream().filter(task -> task.getBuildConfiguration().getId().equals(2)).findFirst().get();
+        BuildTask buildTask2 = buildSetTask.getBuildTasks().stream().filter(task -> task.getBuildRecord().getLatestBuildConfiguration().getId().equals(2)).findFirst().get();
         Assert.assertEquals("Wrong number of dependencies.", 2, buildTask2.getDependencies().size());
     }
 }

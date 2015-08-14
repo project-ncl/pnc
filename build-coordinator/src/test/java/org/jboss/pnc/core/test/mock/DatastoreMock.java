@@ -18,16 +18,20 @@
 package org.jboss.pnc.core.test.mock;
 
 import org.jboss.pnc.model.BuildConfigSetRecord;
+import org.jboss.pnc.model.BuildConfiguration;
+import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildRecord;
-import org.jboss.pnc.model.BuildRecordSet;
-import org.jboss.pnc.model.ProductMilestone;
+import org.jboss.pnc.model.Environment;
+import org.jboss.pnc.model.IdRev;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.datastore.Datastore;
 
 import javax.enterprise.context.ApplicationScoped;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Logger;
 
@@ -42,9 +46,12 @@ public class DatastoreMock implements Datastore {
     private List<BuildRecord> buildRecords = Collections.synchronizedList(new ArrayList<BuildRecord>());
 
     private List<BuildConfigSetRecord> buildConfigSetRecords = Collections.synchronizedList(new ArrayList<BuildConfigSetRecord>());
+    
+    private Map<Integer, BuildConfiguration> buildConfigurations = Collections.synchronizedMap(new HashMap<Integer, BuildConfiguration>());
 
     AtomicInteger buildRecordSequence = new AtomicInteger(0);
     AtomicInteger buildRecordSetSequence = new AtomicInteger(0);
+    AtomicInteger buildConfigAuditedRevSequence = new AtomicInteger(0);
 
     @Override
     public BuildRecord storeCompletedBuild(BuildRecord buildRecord) {
@@ -88,12 +95,24 @@ public class DatastoreMock implements Datastore {
     }
 
     @Override
-    public BuildRecord storeBuildRecord(BuildRecord buildRecord, List<ProductMilestone> productMilestones) {
-        buildRecord = storeCompletedBuild(buildRecord);
-        for (ProductMilestone productMilestone : productMilestones) {
-            BuildRecordSet milestoneRecordSet = productMilestone.getPerformedBuildRecordSet();
-            milestoneRecordSet.addBuildRecord(buildRecord);
-        }
-        return buildRecord;
+    public BuildConfigurationAudited getLatestBuildConfigurationAudited(Integer buildConfigId) {
+        IdRev idRev = new IdRev();
+        idRev.setId(buildConfigId);
+        idRev.setRev(buildConfigAuditedRevSequence.incrementAndGet());
+        BuildConfigurationAudited buildConfigAudited = new BuildConfigurationAudited();
+        buildConfigAudited.setIdRev(idRev);
+        buildConfigAudited.setId(idRev.getId());
+        buildConfigAudited.setRev(idRev.getRev());
+        
+        BuildConfiguration buildConfig = buildConfigurations.get(buildConfigId);
+        buildConfigAudited.setProject(buildConfig.getProject());
+        buildConfigAudited.setEnvironment(buildConfig.getEnvironment());
+        buildConfigAudited.setDescription(buildConfig.getDescription());
+
+        return buildConfigAudited;
+    }
+
+    public BuildConfiguration save(BuildConfiguration buildConfig) {
+        return buildConfigurations.put(buildConfig.getId(), buildConfig);
     }
 }

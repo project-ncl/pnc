@@ -19,7 +19,6 @@ package org.jboss.pnc.core.test.buildCoordinator;
 
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.junit.InSequence;
-import org.jboss.pnc.core.test.configurationBuilders.TestProjectConfigurationBuilder;
 import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.BuildStatus;
@@ -38,7 +37,6 @@ public class ProjectWithDependenciesBuildTest extends ProjectBuilder {
     @Test
     @InSequence(10)
     public void buildProjectTestCase() throws Exception {
-        TestProjectConfigurationBuilder configurationBuilder = new TestProjectConfigurationBuilder();
         buildProjects(configurationBuilder.buildConfigurationSet(1));
     }
 

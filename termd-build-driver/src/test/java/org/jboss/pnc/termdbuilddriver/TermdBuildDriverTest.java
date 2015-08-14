@@ -18,7 +18,7 @@
 package org.jboss.pnc.termdbuilddriver;
 
 import org.assertj.core.api.Assertions;
-import org.jboss.pnc.model.BuildConfiguration;
+import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.spi.BuildExecution;
 import org.jboss.pnc.spi.builddriver.BuildDriverStatus;
 import org.jboss.pnc.spi.builddriver.CompletedBuild;
@@ -40,12 +40,12 @@ import static org.mockito.Mockito.*;
 
 public class TermdBuildDriverTest extends AbstractLocalBuildAgentTest {
 
-    BuildConfiguration jsr107BuildConfig;
+    BuildConfigurationAudited jsr107BuildConfig;
     BuildExecution buildExecutionMock;
 
     @Before
     public void before() {
-        jsr107BuildConfig = mock(BuildConfiguration.class);
+        jsr107BuildConfig = mock(BuildConfigurationAudited.class);
         doReturn("https://github.com/jsr107/jsr107spec.git").when(jsr107BuildConfig).getScmRepoURL();
         doReturn("master").when(jsr107BuildConfig).getScmRevision();
         doReturn("mvn validate").when(jsr107BuildConfig).getBuildScript();

@@ -121,8 +121,6 @@ public class BuildTriggerer {
         throws InterruptedException, CoreException, BuildDriverException, RepositoryManagerException, DatastoreException
     {
         final BuildConfiguration configuration = buildConfigurationRepository.queryById(configurationId);
-        configuration.setBuildConfigurationAudited(this.getLatestAuditedBuildConfiguration(configurationId));
-
         Preconditions.checkArgument(configuration != null, "Can't find configuration with given id=" + configurationId);
 
         final BuildRecordSet buildRecordSet = new BuildRecordSet();
@@ -156,27 +154,7 @@ public class BuildTriggerer {
         final BuildConfigurationSet buildConfigurationSet = buildConfigurationSetRepository.queryById(buildConfigurationSetId);
         Preconditions.checkArgument(buildConfigurationSet != null, "Can't find configuration with given id=" + buildConfigurationSetId);
 
-        for (BuildConfiguration config : buildConfigurationSet.getBuildConfigurations()) {
-            config.setBuildConfigurationAudited(this.getLatestAuditedBuildConfiguration(config.getId()));
-        }
-
         return buildCoordinator.build(buildConfigurationSet, currentUser).getId();
-    }
-
-    /**
-     * Get the latest audited revision for the given build configuration ID
-     * 
-     * @param buildConfigurationId
-     * @return The latest revision of the given build configuration
-     */
-    private BuildConfigurationAudited getLatestAuditedBuildConfiguration(Integer buildConfigurationId) {
-        SortInfo sortInfo = sortInfoProducer.getSortInfo(SortInfo.SortingDirection.DESC, "id");
-        List<BuildConfigurationAudited> buildConfigRevs = buildConfigurationAuditedRepository.findAllByIdOrderByRevDesc(buildConfigurationId);
-        if ( buildConfigRevs.isEmpty() ) {
-            // TODO should we throw an exception?  This should never happen.
-            return null;
-        }
-        return buildConfigRevs.get(0);
     }
 
     private void signalBpmEvent(String uri) {

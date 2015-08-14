@@ -19,7 +19,6 @@ package org.jboss.pnc.core.test.buildCoordinator;
 
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.junit.InSequence;
-import org.jboss.pnc.core.test.configurationBuilders.TestProjectConfigurationBuilder;
 import org.jboss.pnc.model.BuildRecord;
 import org.junit.Assert;
 import org.junit.Test;
@@ -46,8 +45,6 @@ public class MultipleProjectsBuildTest extends ProjectBuilder {
     public void buildMultipleProjectsTestCase() throws Exception {
         log.info("Start multiple projects build test.");
         long startTime = System.currentTimeMillis();
-
-        TestProjectConfigurationBuilder configurationBuilder = new TestProjectConfigurationBuilder();
 
         List<Runnable> list = new ArrayList<>();
         for (int i = 0; i < N_PROJECTS; i++) { //create N project configurations

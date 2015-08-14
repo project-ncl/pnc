@@ -158,6 +158,7 @@ public class BuildCoordinator {
             BuildTask buildTask = new BuildTask(
                     this,
                     buildConfig,
+                    datastoreAdapter.getLatestBuildConfigurationAudited(buildConfig.getId()),
                     topContentId,
                     buildSetContentId,
                     buildContentId,
@@ -169,7 +170,7 @@ public class BuildCoordinator {
         }
         // Loop again to set dependencies
         for (BuildTask buildTask : buildSetTask.getBuildTasks()) {
-            for (BuildConfiguration dep : buildTask.getBuildConfiguration().getDependencies()) {
+            for (BuildConfiguration dep : buildTask.getBuildConfigurationDependencies()) {
                 if (buildSetTask.getBuildConfigurationSet().getBuildConfigurations().contains(dep)) {
                     BuildTask depTask = buildSetTask.getBuildTask(dep);
                     if (depTask != null) {
@@ -257,9 +258,9 @@ public class BuildCoordinator {
     private StartedEnvironment setUpEnvironment(BuildTask buildTask, RepositorySession repositorySession) {
             buildTask.setStatus(BuildStatus.BUILD_ENV_SETTING_UP);
             try {
-                EnvironmentDriver envDriver = environmentDriverFactory.getDriver(buildTask.getBuildConfiguration().getEnvironment());
+                EnvironmentDriver envDriver = environmentDriverFactory.getDriver(buildTask.getBuildConfigurationAudited().getEnvironment());
                 StartedEnvironment startedEnv = envDriver.buildEnvironment(
-                        buildTask.getBuildConfiguration().getEnvironment(), repositorySession);
+                        buildTask.getBuildConfigurationAudited().getEnvironment(), repositorySession);
                 return startedEnv;
             } catch (Throwable e) {
                 throw new BuildProcessException(e);
@@ -289,13 +290,13 @@ public class BuildCoordinator {
     private RunningBuild buildSetUp(BuildTask buildTask, RunningEnvironment runningEnvironment) {
         buildTask.setStatus(BuildStatus.BUILD_SETTING_UP);
         try {
-            BuildDriver buildDriver = buildDriverFactory.getBuildDriver(buildTask.getBuildConfiguration().getEnvironment().getBuildType());
-            return buildDriver.startProjectBuild(buildTask, buildTask.getBuildConfiguration(), runningEnvironment);
+            BuildDriver buildDriver = buildDriverFactory.getBuildDriver(buildTask.getBuildConfigurationAudited().getEnvironment().getBuildType());
+            return buildDriver.startProjectBuild(buildTask, buildTask.getBuildConfigurationAudited(), runningEnvironment);
         } catch (Throwable e) {
             throw new BuildProcessException(e, runningEnvironment);
         }
     }
-    
+
     private CompletableFuture<CompletedBuild> waitBuildToComplete(BuildTask buildTask, RunningBuild runningBuild) {
         CompletableFuture<CompletedBuild> waitToCompleteFuture = new CompletableFuture<>();
             try {

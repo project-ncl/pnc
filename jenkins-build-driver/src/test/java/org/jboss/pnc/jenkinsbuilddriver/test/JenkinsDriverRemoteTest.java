@@ -23,7 +23,7 @@ import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.util.ObjectWrapper;
 import org.jboss.pnc.jenkinsbuilddriver.JenkinsBuildDriver;
 import org.jboss.pnc.model.Artifact;
-import org.jboss.pnc.model.BuildConfiguration;
+import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.Project;
 import org.jboss.pnc.model.RepositoryType;
 import org.jboss.pnc.spi.BuildExecution;
@@ -90,7 +90,7 @@ public class JenkinsDriverRemoteTest {
     @Test
     //@Ignore("To be fixed by NCL-554")
     public void startJenkinsJobTestCase() throws Exception {
-        BuildConfiguration pbc = getBuildConfiguration();
+        BuildConfigurationAudited pbc = getBuildConfiguration();
 
         RunningEnvironment runningEnvironment = getRunningEnvironment();
 
@@ -260,8 +260,8 @@ public class JenkinsDriverRemoteTest {
         };
     }
 
-    private BuildConfiguration getBuildConfiguration() {
-        BuildConfiguration pbc = new BuildConfiguration();
+    private BuildConfigurationAudited getBuildConfiguration() {
+        BuildConfigurationAudited pbc = new BuildConfigurationAudited();
         pbc.setScmRepoURL("https://github.com/project-ncl/pnc.git");
         pbc.setScmRevision("*/master"); // this is default
         pbc.setBuildScript("mvn validate");

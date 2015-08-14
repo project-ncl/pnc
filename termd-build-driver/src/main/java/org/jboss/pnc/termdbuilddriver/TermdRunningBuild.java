@@ -18,6 +18,7 @@
 package org.jboss.pnc.termdbuilddriver;
 
 import org.jboss.pnc.model.BuildConfiguration;
+import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.spi.builddriver.CompletedBuild;
 import org.jboss.pnc.spi.builddriver.RunningBuild;
 import org.jboss.pnc.spi.environment.RunningEnvironment;
@@ -40,11 +41,11 @@ public class TermdRunningBuild implements RunningBuild {
 
     private final RunningEnvironment runningEnvironment;
 
-    private final BuildConfiguration buildConfiguration;
+    private final BuildConfigurationAudited buildConfiguration;
 
     private CompletableFuture<CompletedBuild> buildPromise = new CompletableFuture<>();
 
-    public TermdRunningBuild(RunningEnvironment runningEnvironment, BuildConfiguration buildConfiguration) {
+    public TermdRunningBuild(RunningEnvironment runningEnvironment, BuildConfigurationAudited buildConfiguration) {
         this.runningEnvironment = runningEnvironment;
         this.buildConfiguration = buildConfiguration;
     }
@@ -75,7 +76,7 @@ public class TermdRunningBuild implements RunningBuild {
         return runningEnvironment;
     }
 
-    public BuildConfiguration getBuildConfiguration() {
+    public BuildConfigurationAudited getBuildConfiguration() {
         return buildConfiguration;
     }
 

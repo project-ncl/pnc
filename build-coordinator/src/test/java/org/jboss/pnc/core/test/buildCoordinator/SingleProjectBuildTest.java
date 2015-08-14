@@ -19,7 +19,6 @@ package org.jboss.pnc.core.test.buildCoordinator;
 
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.junit.InSequence;
-import org.jboss.pnc.core.test.configurationBuilders.TestProjectConfigurationBuilder;
 import org.jboss.pnc.model.BuildRecord;
 import org.junit.Assert;
 import org.junit.Test;
@@ -36,7 +35,6 @@ public class SingleProjectBuildTest extends ProjectBuilder {
     @Test
     @InSequence(10)
     public void buildSingleProjectTestCase() throws Exception {
-        TestProjectConfigurationBuilder configurationBuilder = new TestProjectConfigurationBuilder();
         buildProject(configurationBuilder.build(1, "c1-java"));
     }
 
