@@ -15,33 +15,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.integration.client;
+
+package org.jboss.pnc.integration.client.util;
+
+import com.jayway.restassured.response.Response;
 
 import java.util.Optional;
 
-public class ClientResponse {
+public class RestResponse<T> {
 
-    private final Optional<Integer> id;
-    private final int httpCode;
-    private final AbstractRestClient parentCaller;
+    private final Response restCallResponse;
+    private final Optional<T> returnedValue;
 
-    ClientResponse(AbstractRestClient parentCaller, int httpCode, Integer id) {
-        this.httpCode = httpCode;
-        this.parentCaller = parentCaller;
-        this.id = Optional.ofNullable(id);
+    public RestResponse(Response restCallResponse, T returnedValue) {
+        this.restCallResponse = restCallResponse;
+        this.returnedValue = Optional.ofNullable(returnedValue);
     }
 
-    ClientResponse(ProjectRestClient parentCaller, int httpCode) {
-        this.httpCode = httpCode;
-        this.parentCaller = parentCaller;
-        this.id = Optional.empty();
+    public boolean hasValue() {
+        return this.returnedValue.isPresent();
     }
 
-    public int getHttpCode() {
-        return httpCode;
+    public T getValue() {
+        return this.returnedValue.get();
     }
 
-    public Optional<Integer> getId() {
-        return id;
+    public Response getRestCallResponse() {
+        return this.restCallResponse;
     }
 }

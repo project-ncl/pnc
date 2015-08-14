@@ -17,16 +17,10 @@
  */
 package org.jboss.pnc.integration;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
-import java.lang.invoke.MethodHandles;
-import java.util.Optional;
-
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
-import org.jboss.pnc.integration.client.ClientResponse;
-import org.jboss.pnc.integration.client.ProductRestClient;
 import org.jboss.pnc.integration.client.ProductVersionRestClient;
+import org.jboss.pnc.integration.client.util.RestResponse;
 import org.jboss.pnc.integration.deployments.Deployments;
 import org.jboss.pnc.rest.restmodel.ProductVersionRest;
 import org.jboss.pnc.test.category.ContainerTest;
@@ -38,13 +32,17 @@ import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.invoke.MethodHandles;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
 @RunWith(Arquillian.class)
 @Category(ContainerTest.class)
 public class ProductVersionRestTest {
 
     public static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-    private ProductVersionRestClient productVersionRestClient;
+    private static ProductVersionRestClient productVersionRestClient;
 
     @Deployment(testable = false)
     public static EnterpriseArchive deploy() {
@@ -54,49 +52,51 @@ public class ProductVersionRestTest {
     }
 
     @Before
-    public void before() throws Exception {
-        productVersionRestClient = ProductVersionRestClient.instance();
+    public void before() {
+        if(productVersionRestClient == null) {
+            productVersionRestClient = new ProductVersionRestClient();
+        }
     }
 
     @Test
     public void shouldGetSpecificProductVersion() throws Exception {
         //when
-        int productVersionId = productVersionRestClient.firstNotNull().get().getId();
-        Optional<ProductVersionRest> clientResponse = productVersionRestClient.get(productVersionId);
+        int productVersionId = productVersionRestClient.firstNotNull().getValue().getId();
+        RestResponse<ProductVersionRest> clientResponse = productVersionRestClient.get(productVersionId);
 
         //then
-        assertThat(clientResponse.isPresent()).isEqualTo(true);
+        assertThat(clientResponse.hasValue()).isEqualTo(true);
     }
 
     @Test
     public void shouldCreateNewProductVersion() throws Exception {
         //given
-        int productId = ProductRestClient.instance().firstNotNull().get().getId();
+        int productId = productVersionRestClient.firstNotNull().getValue().getId();
 
         ProductVersionRest productVersion = new ProductVersionRest();
         productVersion.setProductId(productId);
         productVersion.setVersion("1.0");
 
         //when
-        Optional<ProductVersionRest> clientResponse = productVersionRestClient.createNew(productVersion);
+        RestResponse<ProductVersionRest> clientResponse = productVersionRestClient.createNew(productVersion);
 
         //then
-        assertThat(clientResponse.isPresent()).isEqualTo(true);
-        assertThat(clientResponse.get().getId()).isNotNegative();
+        assertThat(clientResponse.hasValue()).isEqualTo(true);
+        assertThat(clientResponse.getValue().getId()).isNotNegative();
     }
 
     @Test
     public void shouldUpdateProductVersion() throws Exception {
         //given
-        ProductVersionRest productVersionRest = productVersionRestClient.firstNotNull().get();
+        ProductVersionRest productVersionRest = productVersionRestClient.firstNotNull().getValue();
         productVersionRest.setVersion("2.0");
 
         //when
-        ClientResponse updateResponse = productVersionRestClient.update(productVersionRest.getId(), productVersionRest);
-        Optional<ProductVersionRest> returnedProductVersion = productVersionRestClient.get(productVersionRest.getId());
+        RestResponse<ProductVersionRest> updateResponse = productVersionRestClient.update(productVersionRest.getId(),
+                productVersionRest);
 
         //then
-        assertThat(updateResponse.getHttpCode()).isEqualTo(200);
-        assertThat(returnedProductVersion.get().getVersion()).isEqualTo("2.0");
+        assertThat(updateResponse.hasValue()).isEqualTo(true);
+        assertThat(updateResponse.getValue().getVersion()).isEqualTo("2.0");
     }
 }

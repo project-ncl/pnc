@@ -17,41 +17,13 @@
  */
 package org.jboss.pnc.integration.client;
 
-import static com.jayway.restassured.RestAssured.given;
-import static org.jboss.pnc.integration.env.IntegrationTestEnv.getHttpPort;
-
-import java.io.IOException;
-
-import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationSetRest;
 
-import com.jayway.restassured.http.ContentType;
-import com.jayway.restassured.response.Response;
-
-public class BuildConfigurationSetRestClient extends AbstractRestClient {
+public class BuildConfigurationSetRestClient extends AbstractRestClient<BuildConfigurationSetRest> {
 
     private static final String BUILD_CONFIGURATION_SET_REST_ENDPOINT = "/pnc-rest/rest/build-configuration-sets/";
 
-    private BuildConfigurationSetRestClient() {
-
+    public BuildConfigurationSetRestClient() {
+        super(BUILD_CONFIGURATION_SET_REST_ENDPOINT, BuildConfigurationSetRest.class);
     }
-
-    public static BuildConfigurationSetRestClient empty() throws IOException, ConfigurationParseException {
-        BuildConfigurationSetRestClient ret = new BuildConfigurationSetRestClient();
-        ret.initAuth();
-        return ret;
-    }
-
-    public ClientResponse createNew(BuildConfigurationSetRest buildConfigurationSet) {
-        Response post = given().header("Accept", "application/json").header("Authorization", "Bearer " + access_token)
-                .contentType(ContentType.JSON).port(getHttpPort()).body(buildConfigurationSet).when().post(BUILD_CONFIGURATION_SET_REST_ENDPOINT);
-
-        String location = post.getHeader("Location");
-        Integer idFromLocation = null;
-        if(location != null) {
-            idFromLocation = Integer.valueOf(location.substring(location.lastIndexOf("/") + 1));
-        }
-        return new ClientResponse(this, post.getStatusCode(), idFromLocation);
-    }
-
 }

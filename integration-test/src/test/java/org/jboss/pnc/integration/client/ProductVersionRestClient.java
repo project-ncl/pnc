@@ -17,50 +17,13 @@
  */
 package org.jboss.pnc.integration.client;
 
-import com.jayway.restassured.response.Response;
-import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.rest.restmodel.ProductVersionRest;
 
-import java.io.IOException;
-import java.util.Optional;
-
-public class ProductVersionRestClient extends AbstractRestClient {
+public class ProductVersionRestClient extends AbstractRestClient<ProductVersionRest> {
 
     private static final String PRODUCT_VERSION_REST_ENDPOINT = "/pnc-rest/rest/product-versions/";
 
-    private ProductVersionRestClient() {
-
-    }
-
-    public static ProductVersionRestClient instance() throws IOException, ConfigurationParseException {
-        ProductVersionRestClient ret = new ProductVersionRestClient();
-        ret.initAuth();
-        return ret;
-    }
-
-    public Optional<ProductVersionRest> firstNotNull() {
-        return Optional.ofNullable(get(PRODUCT_VERSION_REST_ENDPOINT)
-                .then()
-                .statusCode(200)
-                .extract().body().as(ProductVersionRest[].class)[0]);
-    }
-
-    public Optional<ProductVersionRest> get(int id) throws IOException, ConfigurationParseException {
-        return Optional.ofNullable(
-                get(PRODUCT_VERSION_REST_ENDPOINT + id).then().statusCode(200).extract().body().as(ProductVersionRest.class));
-    }
-
-    public Optional<ProductVersionRest> createNew(ProductVersionRest productVersion) {
-        return Optional.ofNullable(
-                post(PRODUCT_VERSION_REST_ENDPOINT, productVersion)
-                        .then()
-                        .statusCode(201)
-                        .extract().body().as(ProductVersionRest.class));
-    }
-
-
-    public ClientResponse update(Integer buildConfigurationId, ProductVersionRest productVersion) {
-        Response post = put(PRODUCT_VERSION_REST_ENDPOINT + buildConfigurationId, productVersion);
-        return new ClientResponse(this, post.getStatusCode(), null);
+    public ProductVersionRestClient() {
+        super(PRODUCT_VERSION_REST_ENDPOINT, ProductVersionRest.class);
     }
 }

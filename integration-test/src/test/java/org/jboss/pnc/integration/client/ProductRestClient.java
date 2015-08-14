@@ -17,31 +17,13 @@
  */
 package org.jboss.pnc.integration.client;
 
-import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.rest.restmodel.ProductRest;
 
-import java.io.IOException;
-import java.util.Optional;
-
-public class ProductRestClient extends AbstractRestClient {
+public class ProductRestClient extends AbstractRestClient<ProductRest> {
 
     private static final String PROJECT_REST_ENDPOINT = "/pnc-rest/rest/products/";
 
-    private ProductRestClient() {
-
+    public ProductRestClient() {
+        super(PROJECT_REST_ENDPOINT, ProductRest.class);
     }
-
-    public static ProductRestClient instance() throws IOException, ConfigurationParseException {
-        ProductRestClient ret = new ProductRestClient();
-        ret.initAuth();
-        return ret;
-    }
-
-    public Optional<ProductRest> firstNotNull() {
-        return Optional.ofNullable(get(PROJECT_REST_ENDPOINT)
-                .then()
-                .statusCode(200)
-                .extract().body().as(ProductRest[].class)[0]);
-    }
-
 }

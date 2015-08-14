@@ -17,37 +17,13 @@
  */
 package org.jboss.pnc.integration.client;
 
-import static com.jayway.restassured.RestAssured.given;
-import static org.jboss.pnc.integration.env.IntegrationTestEnv.getHttpPort;
+import org.jboss.pnc.rest.restmodel.EnvironmentRest;
 
-import java.io.IOException;
-
-import org.jboss.pnc.common.json.ConfigurationParseException;
-import org.jboss.pnc.integration.matchers.JsonMatcher;
-
-import com.jayway.restassured.http.ContentType;
-
-public class EnvironmentRestClient extends AbstractRestClient {
+public class EnvironmentRestClient extends AbstractRestClient<EnvironmentRest> {
 
     private static final String ENVIRONMENT_REST_ENDPOINT = "/pnc-rest/rest/environments/";
 
-    private int environmentId;
-
-    private EnvironmentRestClient() {
-
-    }
-
-    public static EnvironmentRestClient firstNotNull() throws IOException, ConfigurationParseException {
-        EnvironmentRestClient ret = new EnvironmentRestClient();
-        ret.initAuth();
-
-        given().header("Accept", "application/json").header("Authorization", "Bearer " + ret.access_token)
-                .contentType(ContentType.JSON).port(getHttpPort()).when().get(ENVIRONMENT_REST_ENDPOINT).then().statusCode(200)
-                .body(JsonMatcher.containsJsonAttribute("[0].id", value -> ret.environmentId = Integer.valueOf(value)));
-        return ret;
-    }
-
-    public int getEnvironmentId() {
-        return environmentId;
+    public EnvironmentRestClient() {
+        super(ENVIRONMENT_REST_ENDPOINT, EnvironmentRest.class);
     }
 }
