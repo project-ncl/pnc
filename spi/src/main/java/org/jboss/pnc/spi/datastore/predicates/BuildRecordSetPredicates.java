@@ -23,6 +23,8 @@ import org.jboss.pnc.model.BuildRecordSet_;
 import org.jboss.pnc.model.ProductMilestone;
 import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
 
+import java.util.Set;
+
 import javax.persistence.criteria.Join;
 import javax.persistence.criteria.ListJoin;
 
@@ -43,5 +45,19 @@ public class BuildRecordSetPredicates {
             Join<BuildRecordSet, BuildRecord> buildRecords = root.join(BuildRecordSet_.buildRecords);
             return cb.equal(buildRecords.get(org.jboss.pnc.model.BuildRecord_.id), buildRecordId);
         };
+    }
+
+    /**
+     * Find the BuildRecordSets with an ID contained in the given set.
+     * @param buildRecordSetIds The set of IDs to search
+     * @return The collection of matching BuildRecordSets
+     */
+    public static Predicate<BuildRecordSet> withBuildRecordSetIdInSet(Set<Integer> buildRecordSetIds) {
+        if (buildRecordSetIds.isEmpty()) {
+            // return an always false predicate if there are no build config ids
+            return (root, query, cb) -> cb.disjunction();
+        } else {
+            return (root, query, cb) -> root.get(BuildRecordSet_.id).in(buildRecordSetIds);
+        }
     }
 }

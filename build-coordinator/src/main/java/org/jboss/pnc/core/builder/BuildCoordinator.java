@@ -162,7 +162,7 @@ public class BuildCoordinator {
                     topContentId,
                     buildSetContentId,
                     buildContentId,
-                    BuildExecutionType.COMPOSED_BUILD,
+                    buildSetTask.getBuildTaskType(),
                     buildSetTask.getBuildConfigSetRecord().getUser(),
                     buildSetTask,
                     datastoreAdapter.getNextBuildRecordId());
@@ -290,6 +290,7 @@ public class BuildCoordinator {
     private RunningBuild buildSetUp(BuildTask buildTask, RunningEnvironment runningEnvironment) {
         buildTask.setStatus(BuildStatus.BUILD_SETTING_UP);
         try {
+            buildTask.setStartTime(new Date());
             BuildDriver buildDriver = buildDriverFactory.getBuildDriver(buildTask.getBuildConfigurationAudited().getEnvironment().getBuildType());
             return buildDriver.startProjectBuild(buildTask, buildTask.getBuildConfigurationAudited(), runningEnvironment);
         } catch (Throwable e) {
@@ -318,6 +319,7 @@ public class BuildCoordinator {
     }
 
     private BuildDriverResult retrieveBuildDriverResults(BuildTask buildTask, CompletedBuild completedBuild) {
+        buildTask.setEndTime(new Date());
         buildTask.setStatus(BuildStatus.COLLECTING_RESULTS_FROM_BUILD_DRIVER);
         try {
             BuildDriverResult buildResult = completedBuild.getBuildResult();

@@ -23,7 +23,6 @@ import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.BuildRecordSet;
-import org.jboss.pnc.model.ProductMilestone;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.datastore.Datastore;
 import org.jboss.pnc.spi.datastore.predicates.UserPredicates;
@@ -40,8 +39,13 @@ import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
 import javax.inject.Inject;
+
+import static org.jboss.pnc.spi.datastore.predicates.BuildRecordSetPredicates.withBuildRecordSetIdInSet;
+
 import java.lang.invoke.MethodHandles;
+import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 @Stateless
 public class DefaultDatastore implements Datastore {
@@ -69,9 +73,15 @@ public class DefaultDatastore implements Datastore {
 
     @Override
     @TransactionAttribute(TransactionAttributeType.REQUIRED)
-    public BuildRecord storeCompletedBuild(BuildRecord buildRecord) {
-        storeBuildConfiguration(buildRecord);
-        return buildRecordRepository.save(buildRecord);
+    public BuildRecord storeCompletedBuild(BuildRecord buildRecord, Set<Integer> buildRecordSetIds) {
+        refreshBuildConfiguration(buildRecord);
+        buildRecord = buildRecordRepository.save(buildRecord);
+        for(BuildRecordSet buildRecordSet : buildRecordSetRepository.queryWithPredicates(withBuildRecordSetIdInSet(buildRecordSetIds))) {
+            buildRecordSet.addBuildRecord(buildRecord);
+            buildRecordSetRepository.save(buildRecordSet);
+        }
+        
+        return buildRecord;
     }
 
     @Override
@@ -79,7 +89,7 @@ public class DefaultDatastore implements Datastore {
         return userRepository.queryByPredicates(UserPredicates.withUserName(username));
     }
 
-    private void storeBuildConfiguration(BuildRecord buildRecord) {
+    private void refreshBuildConfiguration(BuildRecord buildRecord) {
         if (buildRecord.getLatestBuildConfiguration() != null) {
             BuildConfiguration configurationFromDB = buildConfigurationRepository.queryById(buildRecord
                     .getLatestBuildConfiguration().getId());
