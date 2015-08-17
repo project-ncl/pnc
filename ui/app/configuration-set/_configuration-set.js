@@ -49,9 +49,8 @@
       controller: 'ConfigurationSetListController',
       controllerAs: 'setlistCtrl',
       resolve: {
-        restClient: 'PncRestClient',
-        configurationSetList: function(restClient) {
-          return restClient.ConfigurationSet.query().$promise;
+        configurationSetList: function(BuildConfigurationSetDAO) {
+          return BuildConfigurationSetDAO.query().$promise;
         }
       }
     });
@@ -65,17 +64,16 @@
       controller: 'ConfigurationSetDetailController',
       controllerAs: 'detailSetCtrl',
       resolve: {
-        restClient: 'PncRestClient',
-        configurationSetDetail: function(restClient, $stateParams) {
-          return restClient.ConfigurationSet.get({
+        configurationSetDetail: function(BuildConfigurationSetDAO, $stateParams) {
+          return BuildConfigurationSetDAO.get({
             configurationSetId: $stateParams.configurationSetId }).$promise;
         },
-        configurations: function(restClient, $stateParams) {
-          return restClient.ConfigurationSet.getConfigurations({
+        configurations: function(BuildConfigurationSetDAO, $stateParams) {
+          return BuildConfigurationSetDAO.getConfigurations({
             configurationSetId: $stateParams.configurationSetId }).$promise;
         },
-        records: function(restClient, $stateParams) {
-          return restClient.ConfigurationSet.getRecords({
+        records: function(BuildConfigurationSetDAO, $stateParams) {
+          return BuildConfigurationSetDAO.getRecords({
             configurationSetId: $stateParams.configurationSetId}).$promise;
         },
         previousState: ['$state', function ($state) {
@@ -98,9 +96,8 @@
       controller: 'ConfigurationSetCreateController',
       controllerAs: 'createSetCtrl',
       resolve: {
-        restClient: 'PncRestClient',
-        products: function(restClient) {
-          return restClient.Product.query().$promise;
+        products: function(ProductDAO) {
+          return ProductDAO.query().$promise;
         },
       },
     });
@@ -114,13 +111,12 @@
       controller: 'ConfigurationSetAddConfigurationController',
       controllerAs: 'addConfigurationSetCtrl',
       resolve: {
-        restClient: 'PncRestClient',
-        configurationSetDetail: function(restClient, $stateParams) {
-          return restClient.ConfigurationSet.get({
+        configurationSetDetail: function(BuildConfigurationSetDAO, $stateParams) {
+          return BuildConfigurationSetDAO.get({
             configurationSetId: $stateParams.configurationSetId }).$promise;
         },
-        projects: function(restClient) {
-          return restClient.Project.query().$promise;
+        projects: function(ProjectDAO) {
+          return ProjectDAO.query().$promise;
         },
       },
     });

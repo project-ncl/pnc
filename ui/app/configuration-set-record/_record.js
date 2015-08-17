@@ -41,9 +41,6 @@
         },
         data: {
           proxy: 'configuration-set-record.list'
-        },
-        resolve: {
-          restClient: 'PncRestClient'
         }
       });
 

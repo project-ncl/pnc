@@ -25,15 +25,15 @@
     '$log',
     '$state',
     'configurationList',
-    'PncRestClient',
-    function($log, $state, configurationList, PncRestClient) {
+    'ProjectDAO',
+    function($log, $state, configurationList, ProjectDAO) {
       var that = this;
 
       this.configurations = configurationList;
       this.projects = [];
 
       angular.forEach(this.configurations, function(configuration) {
-        PncRestClient.Project.get({
+        ProjectDAO.get({
           projectId: configuration.projectId
         }).$promise.then(
           function(result) {
@@ -50,18 +50,19 @@
     '$state',
     '$log',
     '$filter',
-    'PncRestClient',
+    'BuildConfigurationDAO',
+    'ProductDAO',
     'Notifications',
     'environments',
     'projects',
     'products',
     'configurations',
-    function($state, $log, $filter, PncRestClient, Notifications, environments,
+    function($state, $log, $filter, BuildConfigurationDAO, ProductDAO, Notifications, environments,
       projects, products, configurations) {
 
       var that = this;
 
-      this.data = new PncRestClient.Configuration();
+      this.data = new BuildConfigurationDAO(); // TODO is this correct?
       this.environments = environments;
       this.projects = projects;
 
@@ -92,7 +93,7 @@
         all: [],
 
         update: function() {
-          that.productVersions.all = PncRestClient.Product.getVersions({
+          that.productVersions.all = ProductDAO.getVersions({
             productId: that.products.selected.id
           });
         },
@@ -123,7 +124,8 @@
     '$state',
     '$filter',
     'Notifications',
-    'PncRestClient',
+    'ProductDAO',
+    'BuildConfigurationDAO',
     'configurationDetail',
     'environmentDetail',
     'projectDetail',
@@ -131,7 +133,7 @@
     'dependencies',
     'products',
     'configurations',
-    function($log, $state, $filter, Notifications, PncRestClient,
+    function($log, $state, $filter, Notifications, ProductDAO, BuildConfigurationDAO,
       configurationDetail, environmentDetail, projectDetail,
       linkedProductVersions, dependencies, products, configurations) {
 
@@ -152,7 +154,7 @@
         all: [],
 
         update: function() {
-          that.productVersions.all = PncRestClient.Product.getVersions({
+          that.productVersions.all = ProductDAO.getVersions({
             productId: that.products.selected.id
           });
         },
@@ -166,7 +168,7 @@
       // Bootstrap products, depending on whether the BuildConfiguration
       // already has a ProductVersion attached.
       if (linkedProductVersions && linkedProductVersions.length > 0) {
-        PncRestClient.Product.get({
+        ProductDAO.get({
           productId: linkedProductVersions[0].productId
         }).$promise.then(function(result) {
           that.products.selected = result;
@@ -192,7 +194,7 @@
       // Executing a build of a configuration
       this.build = function() {
         $log.debug('Initiating build of: %O', this.configuration);
-        PncRestClient.Configuration.build({
+        BuildConfigurationDAO.build({
           configurationId: that.configuration.id
         }, {});
       };

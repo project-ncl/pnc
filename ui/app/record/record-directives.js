@@ -81,9 +81,9 @@
   module.directive('pncRecentBuilds', [
     '$log',
     '$timeout',
-    'PncRestClient',
+    'BuildRecordDAO',
     'eventTypes',
-    function($log, $timeout, PncRestClient, eventTypes) {
+    function($log, $timeout, BuildRecordDAO, eventTypes) {
 
       var DEFAULT_TEMPLATE = 'record/views/pnc-recent-builds.html';
 
@@ -115,7 +115,7 @@
               return;
             }
 
-            PncRestClient.Record.get({ recordId: payload.id }).$promise.then(
+            BuildRecordDAO.get({ recordId: payload.id }).$promise.then(
               function(result) {
                 if (filtersMatch(result, filterSpec)) {
                   recordMap.set(result.id, result);
@@ -129,11 +129,11 @@
             var results;
 
             function getAllRecords() {
-              return PncRestClient.Record.query({ sort: '=desc=id'}).$promise;
+              return BuildRecordDAO.query({ sort: '=desc=id'}).$promise;
             }
 
             function getForConfiguration(id) {
-              return PncRestClient.Record.getAllForConfiguration({
+              return BuildRecordDAO.getAllForConfiguration({
                 configurationId: id,
                 sort: '=desc=id'
               }).$promise;
@@ -208,9 +208,9 @@
    */
   module.directive('pncRunningBuilds', [
     '$log',
-    'PncRestClient',
+    'RunningBuildRecordDAO',
     'eventTypes',
-    function($log, PncRestClient, eventTypes) {
+    function($log, RunningBuildRecordDAO, eventTypes) {
 
       var DEFAULT_TEMPLATE = 'record/views/pnc-running-builds.html';
 
@@ -243,7 +243,7 @@
               return;
             }
 
-            PncRestClient.Running.get({ recordId: payload.id }).$promise.then(
+            RunningBuildRecordDAO.get({ recordId: payload.id }).$promise.then(
               function(result) {
                 recordMap.set(result.id, result);
               }
@@ -259,11 +259,11 @@
             var results;
 
             function getAllRecords() {
-              return PncRestClient.Running.query({ sort: '=desc=id'}).$promise;
+              return RunningBuildRecordDAO.query({ sort: '=desc=id'}).$promise;
             }
 
             function getForConfiguration(id) {
-              return PncRestClient.Running.getAllForConfiguration({
+              return RunningBuildRecordDAO.getAllForConfiguration({
                 configurationId: id,
                 sort: '=desc=id'
               }).$promise;

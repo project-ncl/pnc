@@ -37,7 +37,7 @@
         'content@': {
           templateUrl: 'common/templates/single-col.tmpl.html'
         }
-      },
+      }
     })
     .state('product.version.milestone.create', {
       url: '/milestone/create',
@@ -47,12 +47,6 @@
       },
       controller: 'MilestoneCreateUpdateController',
       controllerAs: 'milestoneCreateUpdateCtrl',
-      resolve: {
-        restClient: 'PncRestClient',
-        milestoneDetail: function() {
-          return null;
-        },
-      },
     })
     .state('product.version.milestone.update', {
       url: '/milestone/{milestoneId:int}/update',
@@ -63,9 +57,8 @@
       controller: 'MilestoneCreateUpdateController',
       controllerAs: 'milestoneCreateUpdateCtrl',
       resolve: {
-        restClient: 'PncRestClient',
-        milestoneDetail: function (restClient, $stateParams) {
-          return restClient.Milestone.get({milestoneId: $stateParams.milestoneId})
+        milestoneDetail: function (ProductMilestoneDAO, $stateParams) {
+          return ProductMilestoneDAO.get({milestoneId: $stateParams.milestoneId})
             .$promise;
         }
       }
@@ -79,9 +72,8 @@
       controller: 'MilestoneCloseController',
       controllerAs: 'milestoneCloseCtrl',
       resolve: {
-        restClient: 'PncRestClient',
-        milestoneDetail: function (restClient, $stateParams) {
-          return restClient.Milestone.get({milestoneId: $stateParams.milestoneId})
+        milestoneDetail: function (ProductMilestoneDAO, $stateParams) {
+          return ProductMilestoneDAO.get({milestoneId: $stateParams.milestoneId})
             .$promise;
         }
       }

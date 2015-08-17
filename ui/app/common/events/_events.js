@@ -38,9 +38,9 @@
     '$rootScope',
     'webSocketBus',
     'eventTypes',
-    'PncRestClient',
+    'BuildRecordDAO',
     'Notifications',
-    function($rootScope, webSocketBus, eventTypes, PncRestClient, Notifications) {
+    function($rootScope, webSocketBus, eventTypes, BuildRecordDAO, Notifications) {
       var scope = $rootScope.$new();
 
       //TODO: When backend functionality is available these notifications
@@ -54,7 +54,7 @@
       // Notify user when builds finish.
       scope.$on(eventTypes.BUILD_FINISHED, function(event, payload) {
 
-        PncRestClient.Record.get({ recordId: payload.id }).$promise.then(
+        BuildRecordDAO.get({ recordId: payload.id }).$promise.then(
           function(result) {
             if (result.status === 'SUCCESS') {
               Notifications.success('Build #' + payload.id + ' completed');

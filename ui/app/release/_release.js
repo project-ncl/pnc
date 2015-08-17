@@ -48,13 +48,7 @@
         displayName: 'Create Release'
       },
       controller: 'ReleaseCreateUpdateController',
-      controllerAs: 'releaseCreateUpdateCtrl',
-      resolve: {
-        restClient: 'PncRestClient',
-        releaseDetail: function() {
-          return null;
-        },
-      },
+      controllerAs: 'releaseCreateUpdateCtrl'
     })
     .state('product.version.release.update', {
       url: '/{releaseId:int}/update',
@@ -66,9 +60,8 @@
       controller: 'ReleaseCreateUpdateController',
       controllerAs: 'releaseCreateUpdateCtrl',
       resolve: {
-        restClient: 'PncRestClient',
-        releaseDetail: function(restClient, $stateParams) {
-          return restClient.Release.get({ releaseId: $stateParams.releaseId })
+        releaseDetail: function(ProductReleaseDAO, $stateParams) {
+          return ProductReleaseDAO.get({ releaseId: $stateParams.releaseId })
           .$promise;
         },
       },

@@ -26,12 +26,13 @@
     '$state',
     '$stateParams',
     '$log',
-    'PncRestClient',
+    'ProductReleaseDAO',
+    'ProductMilestoneDAO',
     'productDetail',
     'versionDetail',
     'releaseDetail',
     'dateUtilConverter',
-    function($scope, $state, $stateParams, $log, PncRestClient,
+    function($scope, $state, $stateParams, $log, ProductReleaseDAO, ProductMilestoneDAO,
       productDetail, versionDetail, releaseDetail, dateUtilConverter) {
 
       var that = this;
@@ -43,7 +44,7 @@
       that.supportLevels = [];
 
       that.isUpdating = false;
-      that.data = new PncRestClient.Release();
+      that.data = new ProductReleaseDAO();
 
       if (releaseDetail !== null) {
         that.isUpdating = true;
@@ -58,7 +59,7 @@
       }
 
       // I need to gather the existing Releases, as Milestone can be associated with only one Release at the most
-      PncRestClient.Release.getAllForProductVersion({
+      ProductReleaseDAO.getAllForProductVersion({
         versionId: that.productVersion.id
       }, {}).$promise.then(
         function(results) {
@@ -67,7 +68,7 @@
           });
 
           // Only Milestones that are not yet used in this Product Version will be listed
-          PncRestClient.Milestone.getAllForProductVersion({
+          ProductMilestoneDAO.getAllForProductVersion({
             versionId: that.productVersion.id
           }, {}).$promise.then(
             function(results) {
@@ -84,7 +85,7 @@
         }
       );
 
-      PncRestClient.Release.getAllSupportLevel({
+      ProductReleaseDAO.getAllSupportLevel({
         versionId: that.productVersion.id
       }, {}).$promise.then(
         function(results) {

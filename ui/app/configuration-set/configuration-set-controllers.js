@@ -34,11 +34,12 @@
     '$log',
     '$state',
     'products',
-    'PncRestClient',
-    function($log, $state, products, PncRestClient) {
+    'BuildConfigurationSetDAO',
+    'ProductVersionDAO',
+    function($log, $state, products, BuildConfigurationSetDAO, ProductVersionDAO) {
       var self = this;
 
-      this.data = new PncRestClient.ConfigurationSet();
+      this.data = new BuildConfigurationSetDAO();
       self.products = products;
       self.productVersions = [];
 
@@ -46,7 +47,7 @@
         $log.debug('**Getting productVersions of Product: %0**', productId);
 
         if (productId) {
-          PncRestClient.Version.getAllForProduct({
+          ProductVersionDAO.getAllForProduct({
             productId: productId
           }).$promise.then(
             function(result) {
@@ -88,8 +89,10 @@
     '$state',
     'configurationSetDetail',
     'projects',
-    'PncRestClient',
-    function($log, $state, configurationSetDetail, projects, PncRestClient) {
+    'BuildConfigurationDAO',
+    'BuildConfigurationSetDAO',
+    function($log, $state, configurationSetDetail, projects,
+             BuildConfigurationDAO, BuildConfigurationSetDAO) {
 
       var self = this;
       self.configurationSetDetail = configurationSetDetail;
@@ -102,7 +105,7 @@
         $log.debug('**Getting build configurations of Project: %0**', projectId);
 
         if (projectId) {
-          PncRestClient.Configuration.getAllForProject({
+          BuildConfigurationDAO.getAllForProject({
             projectId: projectId
           }).$promise.then(
             function(result) {
@@ -128,7 +131,7 @@
         });
 
         if (self.selectedConfiguration) {
-          PncRestClient.ConfigurationSet.addConfiguration({
+          BuildConfigurationSetDAO.addConfiguration({
             configurationSetId: self.configurationSetDetail.id
           }, self.selectedConfiguration).$promise.then(
             function() {
@@ -150,13 +153,15 @@
   module.controller('ConfigurationSetDetailController', [
     '$log',
     '$state',
-    'PncRestClient',
+    'BuildRecordDAO',
+    'BuildConfigurationSetDAO',
+    'ProductVersionDAO',
     'configurationSetDetail',
     'configurations',
     'records',
     'previousState',
-    function($log, $state, PncRestClient, configurationSetDetail,
-      configurations, records, previousState) {
+    function($log, $state, BuildRecordDAO, BuildConfigurationSetDAO, ProductVersionDAO,
+             configurationSetDetail, configurations, records, previousState) {
       var self = this;
 
       $log.debug('ConfigurationSetDetailController >> this=%O', self);
@@ -167,7 +172,7 @@
       // Retrieve all the last builds (based on ID, not date) of all the build configurations
       angular.forEach(configurations, function(configuration) {
 
-        PncRestClient.Record.getLatestForConfiguration({
+        BuildRecordDAO.getLatestForConfiguration({
           configurationId: configuration.id
         }).$promise.then(
           function(result) {
@@ -186,7 +191,7 @@
       // Retrieve all the artifacts of all the build records of the build configurations set
       angular.forEach(records, function(record) {
 
-        PncRestClient.Record.getArtifacts({
+        BuildRecordDAO.getArtifacts({
           recordId: record.id
         }).$promise.then(
           function(results) {
@@ -220,7 +225,7 @@
       self.build = function() {
         $log.debug('**Initiating build of SET: %s**', self.set.name);
 
-        PncRestClient.ConfigurationSet.build({
+        BuildConfigurationSetDAO.build({
           configurationSetId: self.set.id
         }, {});
       };
@@ -233,7 +238,7 @@
 
       self.getProductVersions = function(productId) {
         if (productId) {
-          PncRestClient.Version.getAllForProduct({
+          ProductVersionDAO.getAllForProduct({
             productId: productId
           }).$promise.then(
             function(result) {
@@ -251,7 +256,7 @@
       self.remove = function(configurationId) {
         $log.debug('**Removing configurationId: %0 from Build Configuration Set: %0**', configurationId, self.set);
 
-        PncRestClient.ConfigurationSet.removeConfiguration({
+        BuildConfigurationSetDAO.removeConfiguration({
           configurationSetId: self.set.id,
           configurationId: configurationId
         }).$promise.then(

@@ -48,9 +48,8 @@
       controller: 'ProductListController',
       controllerAs: 'listCtrl',
       resolve: {
-        restClient: 'PncRestClient',
-        productList: function(restClient) {
-          return restClient.Product.query().$promise;
+        productList: function(ProductDAO) {
+          return ProductDAO.query().$promise;
         }
       },
     });
@@ -64,13 +63,12 @@
       controller: 'ProductDetailController',
       controllerAs: 'detailCtrl',
       resolve: {
-        restClient: 'PncRestClient',
-        productDetail: function(restClient, $stateParams) {
-          return restClient.Product.get({ productId: $stateParams.productId })
+        productDetail: function(ProductDAO, $stateParams) {
+          return ProductDAO.get({ productId: $stateParams.productId })
           .$promise;
         },
-        productVersions: function(restClient, productDetail) {
-          return restClient.Product.getVersions({ productId: productDetail.id }).$promise;
+        productVersions: function(ProductDAO, productDetail) {
+          return ProductDAO.getVersions({ productId: productDetail.id }).$promise;
         },
       }
     });
@@ -85,32 +83,31 @@
       controller: 'ProductVersionController',
       controllerAs: 'versionCtrl',
       resolve: {
-        restClient: 'PncRestClient',
-        productDetail: function(restClient, $stateParams) {
-          return restClient.Product.get({ productId: $stateParams.productId })
+        productDetail: function(ProductDAO, $stateParams) {
+          return ProductDAO.get({ productId: $stateParams.productId })
           .$promise;
         },
-        versionDetail: function(restClient, $stateParams) {
-          return restClient.Version.get({
+        versionDetail: function(ProductVersionDAO, $stateParams) {
+          return ProductVersionDAO.get({
             productId: $stateParams.productId,
             versionId: $stateParams.versionId }).$promise;
         },
-        buildConfigurationSets: function(restClient, $stateParams) {
-          return restClient.Version.getAllBuildConfigurationSets({
+        buildConfigurationSets: function(ProductVersionDAO, $stateParams) {
+          return ProductVersionDAO.getAllBuildConfigurationSets({
             productId: $stateParams.productId,
             versionId: $stateParams.versionId }).$promise;
         },
-        buildConfigurations: function(restClient, $stateParams) {
-          return restClient.Configuration.getAllForProductVersion({
+        buildConfigurations: function(BuildConfigurationDAO, $stateParams) {
+          return BuildConfigurationDAO.getAllForProductVersion({
             productId: $stateParams.productId,
             versionId: $stateParams.versionId }).$promise;
         },
-        productReleases: function(restClient, $stateParams) {
-          return restClient.Release.getAllForProductVersion({
+        productReleases: function(ProductReleaseDAO, $stateParams) {
+          return ProductReleaseDAO.getAllForProductVersion({
             versionId: $stateParams.versionId }).$promise;
         },
-        productMilestones: function(restClient, $stateParams) {
-          return restClient.Milestone.getAllForProductVersion({
+        productMilestones: function(ProductMilestoneDAO, $stateParams) {
+          return ProductMilestoneDAO.getAllForProductVersion({
             versionId: $stateParams.versionId }).$promise;
         },
       }
@@ -123,10 +120,7 @@
         displayName: 'Create Product'
       },
       controller: 'ProductCreateController',
-      controllerAs: 'productCreateCtrl',
-      resolve: {
-        restClient: 'PncRestClient'
-      },
+      controllerAs: 'productCreateCtrl'
     });
 
     $stateProvider.state('product.createversion', {
@@ -138,9 +132,8 @@
       controller: 'ProductVersionCreateController',
       controllerAs: 'productVersionCreateCtrl',
       resolve: {
-        restClient: 'PncRestClient',
-        productDetail: function(restClient, $stateParams) {
-          return restClient.Product.get({ productId: $stateParams.productId })
+        productDetail: function(ProductDAO, $stateParams) {
+          return ProductDAO.get({ productId: $stateParams.productId })
           .$promise;
         },
       },

@@ -30,8 +30,8 @@
   module.directive('pncRecentCsBuilds', [
     '$log',
     '$timeout',
-    'PncRestClient',
-    function ($log, $timeout, PncRestClient) {
+    'BuildConfigurationSetRecordDAO',
+    function ($log, $timeout, BuildConfigurationSetRecordDAO) {
 
       return {
         restrict: 'E',
@@ -50,7 +50,7 @@
           };
 
           var loadInitialData = function () {
-            return PncRestClient.ConfigurationSetRecord.query().$promise;
+            return BuildConfigurationSetRecordDAO.query().$promise;
           };
 
           loadInitialData().then(function (result) {
@@ -77,8 +77,8 @@
   module.directive('pncRunningCsBuilds', [
     '$log',
     '$timeout',
-    'PncRestClient',
-    function ($log, $timeout, PncRestClient) {
+    'BuildConfigurationSetRecordDAO',
+    function ($log, $timeout, BuildConfigurationSetRecordDAO) {
 
       return {
         restrict: 'E',
@@ -97,7 +97,7 @@
           };
 
           var loadInitialData = function () {
-            return PncRestClient.ConfigurationSetRecord.query().$promise;
+            return BuildConfigurationSetRecordDAO.query().$promise;
           };
 
           loadInitialData().then(function (result) {
