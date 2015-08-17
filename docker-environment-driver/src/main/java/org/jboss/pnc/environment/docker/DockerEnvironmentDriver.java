@@ -100,6 +100,8 @@ public class DockerEnvironmentDriver implements EnvironmentDriver {
     private String proxyServer;
     
     private String proxyPort;
+
+    private String nonProxyHosts;
     
     /**
      * States of creating Docker container
@@ -138,6 +140,7 @@ public class DockerEnvironmentDriver implements EnvironmentDriver {
         containerFirewallAllowedDestinations = config.getFirewallAllowedDestinations();
         proxyServer = config.getProxyServer();
         proxyPort = config.getProxyPort();
+        nonProxyHosts = config.getNonProxyHosts();
 
         dockerContext = ContextBuilder.newBuilder("docker")
                 .endpoint(dockerEndpoint)
@@ -167,7 +170,7 @@ public class DockerEnvironmentDriver implements EnvironmentDriver {
                                              repositorySession.getConnectionInfo().getDeployUrl(),
                                              proxyServer,
                                              proxyPort,
-                                             repositorySession.getBuildRepositoryId())).build();
+                                             repositorySession.getBuildRepositoryId(), nonProxyHosts )).build();
             logger.debug("Creating docker container with config: " + config);
             Container createdContainer = dockerClient.createContainer(containerId, config);
             buildContainerState = BuildContainerState.BUILT;
@@ -272,9 +275,11 @@ public class DockerEnvironmentDriver implements EnvironmentDriver {
      * @param proxyServer Proxy server IP address or DNS resolvable name
      * @param proxyPort number of proxy server port where is it listening
      * @param proxyUsername the getBuildRepositoryId for tracking
+     * @param nonProxyHosts the list of '|' delimited addresses/names ('*' wildcards allowed) which should NOT be proxied
      * @return Environment variables configuration
      */
-    private List<String> prepareEnvVariables(String dependencyUrl, String deployUrl, String proxyServer, String proxyPort, String proxyUsername) {
+    private List<String> prepareEnvVariables( String dependencyUrl, String deployUrl, String proxyServer, String proxyPort, String proxyUsername,
+                                              String nonProxyHosts ) {
         String proxyActive = "false";
         
         if ( (proxyServer != null && proxyPort != null) &&
@@ -290,6 +295,7 @@ public class DockerEnvironmentDriver implements EnvironmentDriver {
         envVariables.add("proxyServer=" + proxyServer);
         envVariables.add("proxyPort=" + proxyPort);
         envVariables.add("proxyUsername=" + proxyUsername);
+        envVariables.add("nonProxyHosts=" + nonProxyHosts);
 
         if (logger.isDebugEnabled())
         {

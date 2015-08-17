@@ -43,6 +43,7 @@ RUN mkdir /root/.m2
 #ENV isHttpActive true # false value deactivates the proxy for maven
 #ENV proxyServer 10.40.3.134 # IP address of proxy server or DNS resolvable hostname
 #ENV proxyPort 3128 # port on which proxy server listens
+#ENV nonProxyHosts 10.40.3.124|repo-manager.host.com # IP Address (and host, just to be sure) hosting the repository manager
 
 # Could be used for images based on this Docker image to specify default mirrored repository if different from Maven Central below
 ADD settings.xml /usr/share/maven/conf/settings.xml

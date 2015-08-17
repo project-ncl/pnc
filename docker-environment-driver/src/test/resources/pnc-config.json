@@ -9,6 +9,7 @@
             "dockerImageId":"${env.PNC_DOCKER_IMAGE_ID}",
             "proxyServer":"${env.PNC_DOCKER_PROXY_SERVER}",
             "proxyPort":"${env.PNC_DOCKER_PROXY_PORT}",
+            "nonProxyHosts":"${env.PNC_DOCKER_NON_PROXY_HOSTS}",
             "firewallAllowedDestinations":"${env.PNC_DOCKER_IMAGE_FIREWALL_ALLOWED}"
           }
         ]

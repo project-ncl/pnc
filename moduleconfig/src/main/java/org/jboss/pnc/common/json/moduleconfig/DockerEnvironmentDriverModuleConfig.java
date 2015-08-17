@@ -45,6 +45,8 @@ public class DockerEnvironmentDriverModuleConfig extends AbstractModuleConfig {
     
     private String proxyPort;
 
+    private String nonProxyHosts;
+
     public String getProxyServer() {
         return proxyServer;
     }
@@ -61,19 +63,29 @@ public class DockerEnvironmentDriverModuleConfig extends AbstractModuleConfig {
         this.proxyPort = proxyPort;
     }
 
+    public String getNonProxyHosts() {
+        return nonProxyHosts;
+    }
+
+    public void setNonProxyHosts(String nonProxyHosts) {
+        this.nonProxyHosts = nonProxyHosts;
+    }
+
     public DockerEnvironmentDriverModuleConfig(@JsonProperty("ip") String ip,
             @JsonProperty("inContainerUser") String inContainerUser,
             @JsonProperty("inContainerUserPassword") String inContainerUserPassword,
             @JsonProperty("dockerImageId") String dockerImageId,
             @JsonProperty("firewallAllowedDestinations") String firewallAllowedDestinations, 
             @JsonProperty("proxyServer") String proxyServer, 
-            @JsonProperty("proxyPort") String proxyPort) {
+            @JsonProperty("proxyPort") String proxyPort,
+            @JsonProperty("nonProxyHosts") String nonProxyHosts) {
         this.ip = ip;
         this.inContainerUser = inContainerUser;
         this.inContainerUserPassword = inContainerUserPassword;
         this.dockerImageId = dockerImageId;
         this.proxyServer = proxyServer;
         this.proxyPort = proxyPort;
+        this.nonProxyHosts = nonProxyHosts;
         this.firewallAllowedDestinations = firewallAllowedDestinations;
     }
 
@@ -119,6 +131,7 @@ public class DockerEnvironmentDriverModuleConfig extends AbstractModuleConfig {
                         + firewallAllowedDestinations + ", " : "")
                 + (proxyServer != null ? "proxyServer=" + proxyServer + ", " : "")
                 + (proxyPort != null ? "proxyPort=" + proxyPort + ", " : "")
+                + (proxyPort != null ? "nonProxyHosts=" + nonProxyHosts + ", " : "")
                 + "inContainerUserPassword=HIDDEN]";
     }
 
