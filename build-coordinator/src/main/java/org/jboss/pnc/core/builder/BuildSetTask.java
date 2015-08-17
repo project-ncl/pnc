@@ -21,7 +21,6 @@ import org.jboss.pnc.core.events.DefaultBuildSetStatusChangedEvent;
 import org.jboss.pnc.core.exception.CoreException;
 import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildConfiguration;
-import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.ProductMilestone;
 import org.jboss.pnc.spi.BuildExecutionType;
@@ -65,6 +64,7 @@ public class BuildSetTask {
         this.buildCoordinator = buildCoordinator;
         this.buildConfigSetRecord = buildConfigSetRecord;
         this.buildTaskType = buildTaskType;
+        System.out.println("setting product milestone: " + productMilestone);
         this.productMilestone = productMilestone;
         this.buildSetStatusChangedEventNotifier = buildCoordinator.getBuildSetStatusChangedEventNotifier();
         setStatus(BuildSetStatus.NEW);
@@ -138,7 +138,7 @@ public class BuildSetTask {
      * @return The build task with the matching configuration, or null if there is none
      */
     public BuildTask getBuildTask(BuildConfiguration buildConfig) {
-        return buildTasks.stream().filter((bt) -> bt.getBuildRecord().getLatestBuildConfiguration().equals(buildConfig)).findFirst().orElse(null);
+        return buildTasks.stream().filter((bt) -> bt.getBuildConfiguration().equals(buildConfig)).findFirst().orElse(null);
     }
 
     public Integer getId() {

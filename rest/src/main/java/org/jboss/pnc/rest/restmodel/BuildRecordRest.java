@@ -76,9 +76,9 @@ public class BuildRecordRest {
 
     public BuildRecordRest(BuildTask buildTask) {
         this.id = buildTask.getId();
-        BuildConfiguration buildConfiguration = buildTask.getBuildRecord().getLatestBuildConfiguration();
+        BuildConfiguration buildConfiguration = buildTask.getBuildConfiguration();
         this.startTime = buildConfiguration.getCreationTime();
-        performIfNotNull(buildTask.getBuildRecord().getLatestBuildConfiguration() != null && buildConfiguration != null,
+        performIfNotNull(buildTask.getBuildConfiguration() != null && buildConfiguration != null,
                 () -> buildConfigurationId = buildConfiguration.getId());
         this.status = BuildStatus.BUILDING;
         buildTask.getLogsWebSocketLink().ifPresent(logsUri -> this.liveLogsUri = logsUri.toString());

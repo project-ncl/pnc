@@ -30,10 +30,9 @@ import org.jboss.pnc.spi.datastore.DatastoreException;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
 
 import javax.inject.Inject;
+
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.time.Instant;
-import java.util.Date;
 import java.util.List;
 
 import static org.jboss.pnc.model.BuildStatus.SYSTEM_ERROR;
@@ -46,6 +45,10 @@ public class DatastoreAdapter {
     private Datastore datastore;
 
     private static final Logger log = Logger.getLogger(DatastoreAdapter.class);
+
+    // needed for EJB/CDI
+    public DatastoreAdapter() {
+    }
 
     @Inject
     public DatastoreAdapter(Datastore datastore) {
@@ -71,7 +74,8 @@ public class DatastoreAdapter {
             BuildDriverResult buildDriverResult = buildResult.getBuildDriverResult();
             RepositoryManagerResult repositoryManagerResult = buildResult.getRepositoryManagerResult();
 
-            BuildRecord buildRecord = buildTask.getBuildRecord();
+            BuildRecord buildRecord = createBuildRecord(buildTask);
+
             // Build driver results
             buildRecord.setBuildLog(buildDriverResult.getBuildLog());
             buildRecord.setStatus(buildDriverResult.getBuildDriverStatus().toBuildStatus());
@@ -83,20 +87,16 @@ public class DatastoreAdapter {
                 linkArtifactsWithBuildRecord(repositoryManagerResult.getDependencies(), buildRecord);
                 buildRecord.setDependencies(repositoryManagerResult.getDependencies());
             }
-            if (buildTask.getBuildExecutionType().equals(BuildExecutionType.COMPOSED_BUILD)) {
-                buildRecord.setBuildConfigSetRecord(buildTask.getBuildSetTask().getBuildConfigSetRecord());
-            }
-            buildRecord.setEndTime(Date.from(Instant.now()));
 
             log.debugf("Storing results of %s to datastore.", buildTask.getBuildConfigurationAudited().getName());
-            return datastore.storeCompletedBuild(buildRecord);
+            return datastore.storeCompletedBuild(buildRecord, buildTask.getBuildRecordSetIds());
         } catch (Exception e) {
             throw new DatastoreException("Error storing the result to datastore.", e);
         }
     }
 
     public void storeResult(BuildTask buildTask, Throwable e) throws DatastoreException {
-        BuildRecord buildRecord = buildTask.getBuildRecord();
+        BuildRecord buildRecord = createBuildRecord(buildTask);
         StringWriter stackTraceWriter = new StringWriter();
         PrintWriter stackTracePrinter = new PrintWriter(stackTraceWriter);
         e.printStackTrace(stackTracePrinter);
@@ -105,10 +105,33 @@ public class DatastoreAdapter {
         String errorMessage = "Last build status: " + buildTask.getStatus().toString() + "\n";
         errorMessage += "Caught exception: " + stackTraceWriter.toString();
         buildRecord.setBuildLog(errorMessage);
-        buildRecord.setEndTime(Date.from(Instant.now()));
 
         log.debugf("Storing ERROR result of %s to datastore. Error: %s", buildTask.getBuildConfigurationAudited().getName() + "\n\n\n Exception: " + errorMessage, e);
-        datastore.storeCompletedBuild(buildRecord);
+        datastore.storeCompletedBuild(buildRecord, buildTask.getBuildRecordSetIds());
+    }
+
+    /**
+     * Initialize a new BuildRecord based on the data contained in the BuildTask.
+     * Note, this must be done inside a transaction because it fetches the BuildRecordSet entities from 
+     * the database.
+     * 
+     * @param buildTask The build task
+     * @return The new (unsaved) build record
+     */
+    private BuildRecord createBuildRecord(BuildTask buildTask) {
+        BuildRecord buildRecord = BuildRecord.Builder.newBuilder().id(buildTask.getId())
+                .buildConfigurationAudited(buildTask.getBuildConfigurationAudited())
+                .user(buildTask.getUser())
+                .startTime(buildTask.getStartTime())
+                .endTime(buildTask.getEndTime())
+                .build();
+
+        buildRecord.setLatestBuildConfiguration(buildTask.getBuildConfiguration());
+        if (buildTask.getBuildExecutionType().equals(BuildExecutionType.COMPOSED_BUILD)) {
+            buildRecord.setBuildConfigSetRecord(buildTask.getBuildSetTask().getBuildConfigSetRecord());
+        }
+
+        return buildRecord;
     }
 
     public Integer getNextBuildRecordId() {

@@ -21,7 +21,6 @@ import org.jboss.pnc.core.events.DefaultBuildStatusChangedEvent;
 import org.jboss.pnc.core.exception.CoreException;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
-import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.ProductVersion;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.BuildExecution;
@@ -47,7 +46,12 @@ public class BuildTask implements BuildExecution {
 
     public static final Logger log = LoggerFactory.getLogger(BuildTask.class);
 
-    private BuildRecord buildRecord;
+    private Integer id;
+    private BuildConfiguration buildConfiguration;
+    private BuildConfigurationAudited buildConfigurationAudited;
+    private User user;
+    private Date startTime;
+    private Date endTime;
 
     private BuildExecutionType buildTaskType;
     private BuildStatus status = BuildStatus.NEW;
@@ -58,12 +62,12 @@ public class BuildTask implements BuildExecution {
     /**
      * A list of builds waiting for this build to complete.
      */
-    private Set<BuildTask> dependants;
+    private Set<BuildTask> dependants = new HashSet<>();
 
     /**
      * The builds which must be completed before this build can start
      */
-    private Set<BuildTask> dependencies;
+    private Set<BuildTask> dependencies = new HashSet<>();
 
     private BuildCoordinator buildCoordinator;
 
@@ -74,6 +78,8 @@ public class BuildTask implements BuildExecution {
     private String buildContentId;
 
     private BuildSetTask buildSetTask;
+
+    private Set<Integer> buildRecordSetIds = new HashSet<>();
 
     private final AtomicReference<URI> logsWebSocketLink = new AtomicReference<>();
     private boolean hasFailed = false;
@@ -87,9 +93,14 @@ public class BuildTask implements BuildExecution {
               BuildExecutionType buildTaskType, 
               User user, 
               BuildSetTask buildSetTask,
-              int buildTaskId) {
+              int id) {
 
         this.buildCoordinator = buildCoordinator;
+        this.id = id;
+        this.buildConfiguration = buildConfiguration;
+        this.buildConfigurationAudited = buildConfigurationAudited;
+        this.user = user;
+
         this.buildTaskType = buildTaskType;
         this.buildStatusChangedEvent = buildCoordinator.getBuildStatusChangedEventNotifier();
         this.topContentId = topContentId;
@@ -97,35 +108,17 @@ public class BuildTask implements BuildExecution {
         this.buildContentId = buildContentId;
         this.buildSetTask = buildSetTask;
 
-        this.buildRecord = BuildRecord.Builder.newBuilder().id(buildTaskId)
-                .latestBuildConfiguration(buildConfiguration)
-                .buildConfigurationAudited(buildConfigurationAudited)
-                .user(user)
-                .startTime(new Date())
-                .build();
-
-        // The the buildconfigsetrecord has a non-null ID, then this is a build set and not a single build
-        if (buildSetTask.getBuildConfigSetRecord().getId() != null) {
-            buildRecord.setBuildConfigSetRecord(buildSetTask.getBuildConfigSetRecord());
-        }
         if (buildSetTask.getProductMilestone() != null) {
-            this.buildRecord.addBuildRecordSet(buildSetTask.getProductMilestone().getPerformedBuildRecordSet());
+            buildRecordSetIds.add(buildSetTask.getProductMilestone().getPerformedBuildRecordSet().getId());
         }
         if (buildConfiguration.getProductVersions() != null) {
             for (ProductVersion productVersion : buildConfiguration.getProductVersions()) {
                 if (productVersion.getCurrentProductMilestone() != null) {
-                    this.buildRecord
-                            .addBuildRecordSet(productVersion.getCurrentProductMilestone().getPerformedBuildRecordSet());
+                    buildRecordSetIds.add(productVersion.getCurrentProductMilestone().getPerformedBuildRecordSet().getId());
                 }
             }
         }
 
-        dependants = new HashSet<>();
-        dependencies = new HashSet<>();
-    }
-
-    public BuildRecord getBuildRecord() {
-        return this.buildRecord;
     }
 
     public void setStatus(BuildStatus status) {
@@ -136,13 +129,17 @@ public class BuildTask implements BuildExecution {
         }
         Integer userId = Optional.ofNullable(getUser()).map(user -> user.getId()).orElse(null);
         BuildStatusChangedEvent buildStatusChanged = new DefaultBuildStatusChangedEvent(oldStatus, status, getId(),
-                buildRecord.getBuildConfigurationAudited().getId().getId(), userId);
+                buildConfigurationAudited.getId().getId(), userId);
         log.debug("Updating build task {} status to {}", this.getId(), buildStatusChanged);
         buildSetTask.taskStatusUpdated(buildStatusChanged);
         buildStatusChangedEvent.fire(buildStatusChanged);
         if (status.isCompleted()) {
             dependants.forEach((dep) -> dep.requiredBuildCompleted(this));
         }
+    }
+
+    public Set<Integer> getBuildRecordSetIds() {
+        return buildRecordSetIds;
     }
 
     public Set<BuildTask> getDependencies() {
@@ -191,12 +188,16 @@ public class BuildTask implements BuildExecution {
         return statusDescription;
     }
 
+    public BuildConfiguration getBuildConfiguration() {
+        return buildConfiguration;
+    }
+
     public BuildConfigurationAudited getBuildConfigurationAudited() {
-        return buildRecord.getBuildConfigurationAudited();
+        return buildConfigurationAudited;
     }
 
     public Set<BuildConfiguration> getBuildConfigurationDependencies() {
-        return buildRecord.getLatestBuildConfiguration().getDependencies();
+        return buildConfiguration.getDependencies();
     }
 
     @Override
@@ -232,13 +233,13 @@ public class BuildTask implements BuildExecution {
 
         BuildTask buildTask = (BuildTask) o;
 
-        return buildRecord.getBuildConfigurationAudited().equals(buildTask.buildRecord.getBuildConfigurationAudited());
+        return buildConfigurationAudited.equals(buildTask.getBuildConfigurationAudited());
 
     }
 
     @Override
     public int hashCode() {
-        return buildRecord.hashCode();
+        return buildConfigurationAudited.hashCode();
     }
 
     void setStatusDescription(String statusDescription) {
@@ -254,12 +255,12 @@ public class BuildTask implements BuildExecution {
     }
 
     public int getId() {
-        return buildRecord.getId();
+        return id;
     }
 
     @Override
     public String getProjectName() {
-        return buildRecord.getBuildConfigurationAudited().getProject().getName();
+        return buildConfigurationAudited.getProject().getName();
     }
 
     public BuildExecutionType getBuildExecutionType() {
@@ -267,19 +268,23 @@ public class BuildTask implements BuildExecution {
     }
 
     public Date getStartTime() {
-        return buildRecord.getStartTime();
+        return startTime;
+    }
+
+    public void setStartTime(Date startTime) {
+        this.startTime = startTime;
     }
 
     public Date getEndTime() {
-        return buildRecord.getEndTime();
+        return endTime;
     }
 
     public void setEndTime(Date endTime) {
-        buildRecord.setEndTime(endTime);
+        this.endTime = endTime;
     }
 
     public User getUser() {
-        return buildRecord.getUser();
+        return user;
     }
 
     public BuildSetTask getBuildSetTask() {
@@ -318,6 +323,6 @@ public class BuildTask implements BuildExecution {
 
     @Override
     public String toString() {
-        return "id :" + buildRecord.getBuildConfigurationAudited() + " " + status;
+        return "Build Task id:" + id + ", name: " + buildConfigurationAudited.getName() + ", status: " + status;
     }
 }
