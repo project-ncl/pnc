@@ -17,26 +17,17 @@
  */
 package org.jboss.pnc.integration;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertNotNull;
-
-import java.lang.invoke.MethodHandles;
-import java.util.Arrays;
-import java.util.UUID;
-
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.junit.InSequence;
 import org.jboss.pnc.integration.client.BuildConfigurationRestClient;
-import org.jboss.pnc.integration.client.ClientResponse;
 import org.jboss.pnc.integration.client.ProjectRestClient;
+import org.jboss.pnc.integration.client.util.RestResponse;
 import org.jboss.pnc.integration.deployments.Deployments;
-import org.jboss.pnc.rest.endpoint.ProjectEndpoint;
-import org.jboss.pnc.rest.provider.ProjectProvider;
+import org.jboss.pnc.rest.restmodel.BuildConfigurationRest;
 import org.jboss.pnc.rest.restmodel.ProjectRest;
 import org.jboss.pnc.test.category.ContainerTest;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
-import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -44,31 +35,36 @@ import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.invoke.MethodHandles;
+import java.util.Arrays;
+import java.util.UUID;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertNotNull;
+
 @RunWith(Arquillian.class)
 @Category(ContainerTest.class)
 public class ProjectRestTest {
 
     public static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-    private static ProjectRestClient projectRest;
+    private static ProjectRestClient projectRestClient;
+    private static BuildConfigurationRestClient buildConfigurationRestClient;
 
     @Deployment(testable = false)
     public static EnterpriseArchive deploy() {
         EnterpriseArchive enterpriseArchive = Deployments.baseEar();
-
-        WebArchive restWar = enterpriseArchive.getAsType(WebArchive.class, "/rest.war");
-        restWar.addClass(ProjectProvider.class);
-        restWar.addClass(ProjectEndpoint.class);
-        restWar.addClass(ProjectRest.class);
-
         logger.info(enterpriseArchive.toString(true));
         return enterpriseArchive;
     }
 
     @Before
-    public void initializeClient() throws Exception {
-        if(projectRest == null) {
-            projectRest = ProjectRestClient.firstNotNull();
+    public void before() {
+        if(projectRestClient == null) {
+            projectRestClient = new ProjectRestClient();
+        }
+        if(buildConfigurationRestClient == null) {
+            buildConfigurationRestClient = new BuildConfigurationRestClient();
         }
     }
 
@@ -79,11 +75,10 @@ public class ProjectRestTest {
         project.setName(UUID.randomUUID().toString());
 
         //when
-        ClientResponse response = projectRest.createNew(project);
+        RestResponse<ProjectRest> response = projectRestClient.createNew(project);
 
         //than
-        assertThat(response.getHttpCode()).isEqualTo(201);
-        assertThat(response.getId().isPresent()).isEqualTo(true);
+        assertThat(response.hasValue()).isEqualTo(true);
     }
 
     @Test
@@ -93,33 +88,30 @@ public class ProjectRestTest {
         project.setName(UUID.randomUUID().toString());
 
         //when
-        ClientResponse firstResponse = projectRest.createNew(project);
-        ClientResponse secondResponse = projectRest.createNew(project);
+        RestResponse<ProjectRest> firstResponse = projectRestClient.createNew(project);
+        RestResponse<ProjectRest> secondResponse = projectRestClient.createNew(project, false);
 
         //than
-        assertThat(firstResponse.getHttpCode()).isEqualTo(201);
-        assertThat(secondResponse.getHttpCode()).isEqualTo(409);
+        assertThat(firstResponse.hasValue()).isEqualTo(true);
+        assertThat(secondResponse.hasValue()).isEqualTo(false);
     }
 
     @Test
-    public void shouldAllowToAddConfiguration() throws Exception {
+    public void shouldNotAllowChangingTheListOfConfigurationFromProject() throws Exception {
         //given
-        BuildConfigurationRestClient configuration = BuildConfigurationRestClient.firstNotNull();
+        RestResponse<BuildConfigurationRest> configuration = buildConfigurationRestClient.firstNotNull();
 
         ProjectRest project = new ProjectRest();
         project.setName(UUID.randomUUID().toString());
 
         //when
-        ClientResponse createdProject = projectRest.createNew(project);
+        project = projectRestClient.createNew(project).getValue();
+        project.setConfigurationIds(Arrays.asList(configuration.getValue().getId()));
 
-        int projectId = createdProject.getId().get();
-        project.setConfigurationIds(Arrays.asList(configuration.getBuildConfigurationId()));
-
-        ClientResponse updatedProject = projectRest.update(projectId, project);
+        ProjectRest updatedProject = projectRestClient.update(project.getId(), project).getValue();
 
         //than
-        assertThat(createdProject.getHttpCode()).isEqualTo(201);
-        assertThat(updatedProject.getHttpCode()).isEqualTo(200);
+        assertThat(updatedProject.getConfigurationIds()).isEmpty();
     }
 
     @Test
@@ -128,41 +120,38 @@ public class ProjectRestTest {
         ProjectRest project = new ProjectRest();
         project.setName(UUID.randomUUID().toString());
 
-        //when
-        ClientResponse createdProject = projectRest.createNew(project);
-        int projectId = createdProject.getId().get();
+        RestResponse<ProjectRest> createdProject = projectRestClient.createNew(project);
 
-        ClientResponse deletedProject = projectRest.delete(projectId);
+        //when
+        projectRestClient.delete(createdProject.getValue().getId());
+        RestResponse<ProjectRest> returnedProject = projectRestClient.get(createdProject.getValue().getId(), false);
 
         //than
-        assertThat(deletedProject.getHttpCode()).isEqualTo(200);
+        assertThat(returnedProject.hasValue()).isEqualTo(false);
     }
 
     @Test
     @InSequence(999)
     public void shouldDeleteProjectWithConfiguration() throws Exception {
         //given
-        BuildConfigurationRestClient configuration = BuildConfigurationRestClient.firstNotNull();
-        assertNotNull(configuration.getBuildConfigurationId());
+        BuildConfigurationRest configuration = buildConfigurationRestClient.firstNotNull().getValue();
+        assertNotNull(configuration.getId());
 
         ProjectRest project = new ProjectRest();
         project.setName(UUID.randomUUID().toString());
-        project.setConfigurationIds(Arrays.asList(configuration.getBuildConfigurationId()));
+        project.setConfigurationIds(Arrays.asList(configuration.getId()));
 
         //when
-        ClientResponse createdProject = projectRest.createNew(project);
-        int projectId = createdProject.getId().get();
+        RestResponse<ProjectRest> createdProject = projectRestClient.createNew(project);
+        projectRestClient.delete(createdProject.getValue().getId());
+        RestResponse<ProjectRest> returnedProject = projectRestClient.get(createdProject.getValue().getId(), false);
 
-        ClientResponse deletedProject = projectRest.delete(projectId);
-
-        assertNotNull(configuration);
-        assertNotNull(configuration.getBuildConfigurationId());
-
-        ClientResponse configurationAfterDeletingTheProject = configuration.get(configuration.getBuildConfigurationId());
+        RestResponse<BuildConfigurationRest> configurationAfterDeletingTheProject = buildConfigurationRestClient
+                .get(configuration.getId());
 
         //then
-        assertThat(deletedProject.getHttpCode()).isEqualTo(200);
-        assertThat(configurationAfterDeletingTheProject.getHttpCode()).isEqualTo(200);
+        assertThat(returnedProject.hasValue()).isEqualTo(false);
+        assertThat(configurationAfterDeletingTheProject.hasValue()).isEqualTo(true);
     }
 
 }

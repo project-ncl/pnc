@@ -17,15 +17,9 @@
  */
 package org.jboss.pnc.integration;
 
-import static com.jayway.restassured.RestAssured.given;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.jboss.pnc.integration.env.IntegrationTestEnv.getHttpPort;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.lang.invoke.MethodHandles;
-import java.util.UUID;
-
+import com.jayway.restassured.http.ContentType;
+import com.jayway.restassured.response.Response;
+import com.jayway.restassured.response.ValidatableResponse;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.junit.InSequence;
@@ -37,7 +31,7 @@ import org.jboss.pnc.common.json.moduleconfig.AuthenticationModuleConfig;
 import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
 import org.jboss.pnc.integration.assertions.ResponseAssertion;
 import org.jboss.pnc.integration.client.BuildConfigurationSetRestClient;
-import org.jboss.pnc.integration.client.ClientResponse;
+import org.jboss.pnc.integration.client.util.RestResponse;
 import org.jboss.pnc.integration.deployments.Deployments;
 import org.jboss.pnc.integration.matchers.JsonMatcher;
 import org.jboss.pnc.integration.template.JsonTemplateBuilder;
@@ -52,6 +46,7 @@ import org.jboss.pnc.test.category.ContainerTest;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.json.JSONObject;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -59,9 +54,14 @@ import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.jayway.restassured.http.ContentType;
-import com.jayway.restassured.response.Response;
-import com.jayway.restassured.response.ValidatableResponse;
+import java.io.IOException;
+import java.io.InputStream;
+import java.lang.invoke.MethodHandles;
+import java.util.UUID;
+
+import static com.jayway.restassured.RestAssured.given;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.jboss.pnc.integration.env.IntegrationTestEnv.getHttpPort;
 
 @RunWith(Arquillian.class)
 @Category(ContainerTest.class)
@@ -91,6 +91,8 @@ public class BuildConfigurationSetRestTest {
     
     private static AuthenticationProvider authProvider;
     private static String access_token =  "no-auth";
+
+    private static BuildConfigurationSetRestClient buildConfigurationSetRestClient;
     
 
     @Deployment(testable = false)
@@ -118,6 +120,13 @@ public class BuildConfigurationSetRestTest {
             ExternalAuthentication ea = new ExternalAuthentication(is);
             authProvider = ea.authenticate(config.getUsername(), config.getPassword());
             access_token = authProvider.getTokenString();
+        }
+    }
+
+    @Before
+    public void before() {
+        if(buildConfigurationSetRestClient == null) {
+            buildConfigurationSetRestClient = new BuildConfigurationSetRestClient();
         }
     }
 
@@ -272,18 +281,16 @@ public class BuildConfigurationSetRestTest {
     @Test
     public void testIfCreatingNewBuildConfigurationSetFailsBecauseTheNameAlreadyExists() throws Exception {
         //given
-        BuildConfigurationSetRestClient client = BuildConfigurationSetRestClient.empty();
-
         BuildConfigurationSetRest project = new BuildConfigurationSetRest();
         project.setName(UUID.randomUUID().toString());
 
         //when
-        ClientResponse firstResponse = client.createNew(project);
-        ClientResponse secondResponse = client.createNew(project);
+        RestResponse<BuildConfigurationSetRest> firstResponse = buildConfigurationSetRestClient.createNew(project);
+        RestResponse<BuildConfigurationSetRest> secondResponse = buildConfigurationSetRestClient.createNew(project, false);
 
         //than
-        assertThat(firstResponse.getHttpCode()).isEqualTo(201);
-        assertThat(secondResponse.getHttpCode()).isEqualTo(409);
+        assertThat(firstResponse.hasValue()).isEqualTo(true);
+        assertThat(secondResponse.getRestCallResponse().getStatusCode()).isEqualTo(409);
     }
 
 }

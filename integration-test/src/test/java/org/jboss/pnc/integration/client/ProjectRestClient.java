@@ -17,55 +17,13 @@
  */
 package org.jboss.pnc.integration.client;
 
-import java.io.IOException;
-
-import org.jboss.pnc.common.json.ConfigurationParseException;
-import org.jboss.pnc.integration.matchers.JsonMatcher;
 import org.jboss.pnc.rest.restmodel.ProjectRest;
 
-import com.jayway.restassured.response.Response;
-
-public class ProjectRestClient extends AbstractRestClient {
+public class ProjectRestClient extends AbstractRestClient<ProjectRest> {
 
     private static final String PROJECT_REST_ENDPOINT = "/pnc-rest/rest/projects/";
 
-    private int projectId;
-
-    private ProjectRestClient() {
-
-    }
-
-    public static ProjectRestClient firstNotNull() throws IOException, ConfigurationParseException {
-        ProjectRestClient ret = new ProjectRestClient();
-        ret.initAuth();
-
-        ret.get(PROJECT_REST_ENDPOINT)
-                .then()
-                    .statusCode(200)
-                    .body(JsonMatcher.containsJsonAttribute("[0].id", value -> ret.projectId = Integer.valueOf(value)));
-
-        return ret;
-    }
-
-    public ClientResponse createNew(ProjectRest projectRest) {
-        Response response = post(PROJECT_REST_ENDPOINT, projectRest);
-
-        return new ClientResponse(this, response.getStatusCode(), getLocationFromHeader(response));
-    }
-
-    public ClientResponse update(Integer id, ProjectRest projectRest) {
-        Response response = put(PROJECT_REST_ENDPOINT + id, projectRest);
-
-        return new ClientResponse(this, response.getStatusCode(), null);
-    }
-
-    public int getProjectId() {
-        return projectId;
-    }
-
-    public ClientResponse delete(int id) {
-        Response response = delete(PROJECT_REST_ENDPOINT + id);
-
-        return new ClientResponse(this, response.getStatusCode(), null);
+    public ProjectRestClient() {
+        super(PROJECT_REST_ENDPOINT, ProjectRest.class);
     }
 }

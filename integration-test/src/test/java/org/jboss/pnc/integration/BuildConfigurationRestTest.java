@@ -17,20 +17,8 @@
  */
 package org.jboss.pnc.integration;
 
-import static com.jayway.restassured.RestAssured.given;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.jboss.pnc.integration.env.IntegrationTestEnv.getHttpPort;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.lang.invoke.MethodHandles;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.UUID;
-import java.util.concurrent.atomic.AtomicBoolean;
-
-import javax.ws.rs.core.Response.Status;
-
+import com.jayway.restassured.http.ContentType;
+import com.jayway.restassured.response.Response;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.junit.InSequence;
@@ -42,9 +30,9 @@ import org.jboss.pnc.common.json.moduleconfig.AuthenticationModuleConfig;
 import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
 import org.jboss.pnc.integration.assertions.ResponseAssertion;
 import org.jboss.pnc.integration.client.BuildConfigurationRestClient;
-import org.jboss.pnc.integration.client.ClientResponse;
 import org.jboss.pnc.integration.client.EnvironmentRestClient;
 import org.jboss.pnc.integration.client.ProjectRestClient;
+import org.jboss.pnc.integration.client.util.RestResponse;
 import org.jboss.pnc.integration.deployments.Deployments;
 import org.jboss.pnc.integration.matchers.JsonMatcher;
 import org.jboss.pnc.integration.template.JsonTemplateBuilder;
@@ -52,6 +40,8 @@ import org.jboss.pnc.integration.utils.AuthResource;
 import org.jboss.pnc.rest.endpoint.BuildConfigurationEndpoint;
 import org.jboss.pnc.rest.provider.BuildConfigurationProvider;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationRest;
+import org.jboss.pnc.rest.restmodel.EnvironmentRest;
+import org.jboss.pnc.rest.restmodel.ProjectRest;
 import org.jboss.pnc.test.category.ContainerTest;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
@@ -63,8 +53,18 @@ import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.jayway.restassured.http.ContentType;
-import com.jayway.restassured.response.Response;
+import javax.ws.rs.core.Response.Status;
+import java.io.IOException;
+import java.io.InputStream;
+import java.lang.invoke.MethodHandles;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.UUID;
+import java.util.concurrent.atomic.AtomicBoolean;
+
+import static com.jayway.restassured.RestAssured.given;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.jboss.pnc.integration.env.IntegrationTestEnv.getHttpPort;
 
 @RunWith(Arquillian.class)
 @Category(ContainerTest.class)
@@ -91,6 +91,11 @@ public class BuildConfigurationRestTest {
     private static AuthenticationProvider authProvider;
     private static String access_token =  "no-auth";
 
+    private static ProjectRestClient projectRestClient;
+    private static EnvironmentRestClient environmentRestClient;
+    private static BuildConfigurationRestClient buildConfigurationRestClient;
+
+
     @Deployment(testable = false)
     public static EnterpriseArchive deploy() {
         EnterpriseArchive enterpriseArchive = Deployments.baseEar();
@@ -109,7 +114,7 @@ public class BuildConfigurationRestTest {
         if(AuthResource.authEnabled()) {
             Configuration configuration = new Configuration();
             AuthenticationModuleConfig config = configuration.
-                    getModuleConfig(new PncConfigProvider<AuthenticationModuleConfig>(AuthenticationModuleConfig.class));
+                    getModuleConfig(new PncConfigProvider<>(AuthenticationModuleConfig.class));
             InputStream is = BuildRecordRestTest.class.getResourceAsStream("/keycloak.json");
             ExternalAuthentication ea = new ExternalAuthentication(is);
             authProvider = ea.authenticate(config.getUsername(), config.getPassword());
@@ -118,7 +123,7 @@ public class BuildConfigurationRestTest {
     }
 
     @Before
-    public void prepareData() {
+    public void prepareData() throws Exception {
         if (!isInitialized.getAndSet(true)) {
             given().header("Accept", "application/json").header("Authorization", "Bearer " + access_token)
                     .contentType(ContentType.JSON).port(getHttpPort()).when().get(CONFIGURATION_REST_ENDPOINT).then()
@@ -137,6 +142,16 @@ public class BuildConfigurationRestTest {
             given().header("Accept", "application/json").header("Authorization", "Bearer " + access_token)
                     .contentType(ContentType.JSON).port(getHttpPort()).when().get(PROJECT_REST_ENDPOINT).then().statusCode(200)
                     .body(JsonMatcher.containsJsonAttribute("[0].id", value -> projectId = Integer.valueOf(value)));
+        }
+
+        if(projectRestClient == null) {
+            projectRestClient = new ProjectRestClient();
+        }
+        if(environmentRestClient == null) {
+            environmentRestClient = new EnvironmentRestClient();
+        }
+        if(buildConfigurationRestClient == null) {
+            buildConfigurationRestClient = new BuildConfigurationRestClient();
         }
     }
 
@@ -311,43 +326,47 @@ public class BuildConfigurationRestTest {
     @Test
     public void shouldAddChildBuildConfiguration() throws Exception {
         //given
-        BuildConfigurationRestClient buildConfigurationRest = BuildConfigurationRestClient.empty();
-
-        ProjectRestClient projectRestClient = ProjectRestClient.firstNotNull();
-        EnvironmentRestClient environmentRestClient = EnvironmentRestClient.firstNotNull();
+        RestResponse<ProjectRest> projectRestClient = this.projectRestClient.firstNotNull();
+        RestResponse<EnvironmentRest> environmentRestClient = this.environmentRestClient.firstNotNull();
 
         BuildConfigurationRest parentBuildConfiguration = new BuildConfigurationRest();
         parentBuildConfiguration.setName(UUID.randomUUID().toString());
-        parentBuildConfiguration.setProjectId(projectRestClient.getProjectId());
-        parentBuildConfiguration.setEnvironmentId(environmentRestClient.getEnvironmentId());
+        parentBuildConfiguration.setProjectId(projectRestClient.getValue().getId());
+        parentBuildConfiguration.setEnvironmentId(environmentRestClient.getValue().getId());
 
         BuildConfigurationRest childBuildConfiguration = new BuildConfigurationRest();
         childBuildConfiguration.setName(UUID.randomUUID().toString());
-        childBuildConfiguration.setProjectId(projectRestClient.getProjectId());
-        childBuildConfiguration.setEnvironmentId(environmentRestClient.getEnvironmentId());
+        childBuildConfiguration.setProjectId(projectRestClient.getValue().getId());
+        childBuildConfiguration.setEnvironmentId(environmentRestClient.getValue().getId());
 
         //when
-        ClientResponse parentCreatedRestResponse = buildConfigurationRest.createNew(parentBuildConfiguration);
-        ClientResponse childCreatedRestResponse = buildConfigurationRest.createNew(childBuildConfiguration);
+        RestResponse<BuildConfigurationRest> parentConfiguration = this.buildConfigurationRestClient.createNew(parentBuildConfiguration);
+        RestResponse<BuildConfigurationRest> childConfiguration = this.buildConfigurationRestClient.createNew(childBuildConfiguration);
 
-        Integer parentCreatedBuildConfigurationId = parentCreatedRestResponse.getId().get();
-        Integer childCreatedBuildConfigurationId = childCreatedRestResponse.getId().get();
+        Integer parentCreatedBuildConfigurationId = parentConfiguration.getValue().getId();
+        Integer childCreatedBuildConfigurationId = childConfiguration.getValue().getId();
 
         parentBuildConfiguration.setDependencyIds(new HashSet<>(Arrays.asList(childCreatedBuildConfigurationId)));
 
-        ClientResponse addedChildRestResponse = buildConfigurationRest.update(parentCreatedBuildConfigurationId, parentBuildConfiguration);
+        RestResponse<BuildConfigurationRest> addedChildRestResponse = this.buildConfigurationRestClient.update(
+                parentCreatedBuildConfigurationId, parentBuildConfiguration);
 
         //then
-        assertThat(parentCreatedRestResponse.getHttpCode()).isEqualTo(201);
-        assertThat(childCreatedRestResponse.getHttpCode()).isEqualTo(201);
-        assertThat(addedChildRestResponse.getHttpCode()).isEqualTo(200);
+        assertThat(addedChildRestResponse.getValue().getDependencyIds()).containsExactly(childCreatedBuildConfigurationId);
     }
 
     @Test
     @InSequence(999)
     public void shouldDeleteBuildConfiguration() throws Exception {
-        given().header("Accept", "application/json").header("Authorization", "Bearer " + access_token)
-                    .contentType(ContentType.JSON).port(getHttpPort()).when()
-                .delete(String.format(CONFIGURATION_SPECIFIC_REST_ENDPOINT, configurationId)).then().statusCode(200);
+        //given
+        RestResponse<BuildConfigurationRest> configuration = this.buildConfigurationRestClient.firstNotNull();
+
+        //when
+        buildConfigurationRestClient.delete(configuration.getValue().getId());
+        RestResponse<BuildConfigurationRest> returnedConfiguration = this.buildConfigurationRestClient.get(configuration
+                .getValue().getId(), false);
+
+        //then
+        assertThat(returnedConfiguration.hasValue()).isEqualTo(false);
     }
 }

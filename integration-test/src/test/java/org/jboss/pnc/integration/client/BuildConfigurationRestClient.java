@@ -17,58 +17,13 @@
  */
 package org.jboss.pnc.integration.client;
 
-import java.io.IOException;
-
-import org.jboss.pnc.common.json.ConfigurationParseException;
-import org.jboss.pnc.integration.matchers.JsonMatcher;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationRest;
 
-import com.jayway.restassured.response.Response;
-
-public class BuildConfigurationRestClient extends AbstractRestClient {
+public class BuildConfigurationRestClient extends AbstractRestClient<BuildConfigurationRest> {
 
     private static final String BUILD_CONFIGURATION_REST_ENDPOINT = "/pnc-rest/rest/build-configurations/";
 
-    private Integer buildConfigurationId;
-
-    private BuildConfigurationRestClient() {
-
-    }
-
-    public static BuildConfigurationRestClient empty() throws IOException, ConfigurationParseException {
-        BuildConfigurationRestClient ret = new BuildConfigurationRestClient();
-        ret.initAuth();
-        return ret;
-    }
-
-    public static BuildConfigurationRestClient firstNotNull() throws IOException, ConfigurationParseException {
-        BuildConfigurationRestClient ret = empty();
-
-        ret.get(BUILD_CONFIGURATION_REST_ENDPOINT)
-                .then()
-                    .statusCode(200)
-                    .body(JsonMatcher.containsJsonAttribute("[0].id", value -> ret.buildConfigurationId = Integer.valueOf(value)));
-
-        return ret;
-    }
-
-    public ClientResponse get(int id) throws IOException, ConfigurationParseException {
-        Response response = get(BUILD_CONFIGURATION_REST_ENDPOINT + id);
-        return new ClientResponse(this, response.getStatusCode(), null);
-    }
-
-    public ClientResponse createNew(BuildConfigurationRest buildConfiguration) {
-        Response post = post(BUILD_CONFIGURATION_REST_ENDPOINT, buildConfiguration);
-        return new ClientResponse(this, post.getStatusCode(), getLocationFromHeader(post));
-    }
-
-
-    public ClientResponse update(Integer buildConfigurationId, BuildConfigurationRest buildConfiguration) {
-        Response post = put(BUILD_CONFIGURATION_REST_ENDPOINT + buildConfigurationId, buildConfiguration);
-        return new ClientResponse(this, post.getStatusCode(), null);
-    }
-
-    public Integer getBuildConfigurationId() {
-        return buildConfigurationId;
+    public BuildConfigurationRestClient() {
+        super(BUILD_CONFIGURATION_REST_ENDPOINT, BuildConfigurationRest.class);
     }
 }
