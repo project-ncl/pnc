@@ -30,13 +30,13 @@
    * @description
    *
    */
-  module.factory('BuildConfiguration', [
+  module.factory('BuildConfigurationDAO', [
     '$resource',
     'REST_BASE_URL',
     'BUILD_CONFIGURATION_ENDPOINT',
-    'Project',
+    'ProjectDAO',
     'cachedGetter',
-    function($resource, REST_BASE_URL, BUILD_CONFIGURATION_ENDPOINT, Project, cachedGetter) {
+    function($resource, REST_BASE_URL, BUILD_CONFIGURATION_ENDPOINT, ProjectDAO, cachedGetter) {
       var ENDPOINT = REST_BASE_URL + BUILD_CONFIGURATION_ENDPOINT;
 
       var BuildConfiguration = $resource(ENDPOINT, {
@@ -90,7 +90,7 @@
 
       BuildConfiguration.prototype.getProject = cachedGetter(
         function(configuration) {
-          return Project.get({ projectId: configuration.projectId });
+          return ProjectDAO.get({ projectId: configuration.projectId });
         }
       );
 

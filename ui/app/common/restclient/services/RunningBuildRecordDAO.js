@@ -25,19 +25,19 @@
 
   /**
    * @ngdoc service
-   * @name pnc.common.restclient:RunningBuild
+   * @name // TODO
    * @description
    *
    * @author Alex Creasy
    */
-  module.factory('RunningBuild', [
+  module.factory('RunningBuildRecordDAO', [
     '$resource',
     'REST_BASE_URL',
     'RUNNING_BUILD_ENDPOINT',
     'cachedGetter',
-    'BuildConfiguration',
-    'User',
-    function($resource, REST_BASE_URL, RUNNING_BUILD_ENDPOINT, cachedGetter, BuildConfiguration, User) {
+    'BuildConfigurationDAO',
+    'UserDAO',
+    function($resource, REST_BASE_URL, RUNNING_BUILD_ENDPOINT, cachedGetter, BuildConfigurationDAO, UserDAO) {
       var ENDPOINT = REST_BASE_URL + RUNNING_BUILD_ENDPOINT;
 
       var RunningBuild = $resource(ENDPOINT, {
@@ -58,13 +58,13 @@
 
       RunningBuild.prototype.getBuildConfiguration = cachedGetter(
         function(buildRecord) {
-          return BuildConfiguration.get({ configurationId: buildRecord.buildConfigurationId });
+          return BuildConfigurationDAO.get({ configurationId: buildRecord.buildConfigurationId });
         }
       );
 
       RunningBuild.prototype.getUser = cachedGetter(
         function(record) {
-          return User.get({ userId: record.userId });
+          return UserDAO.get({ userId: record.userId });
         }
       );
 

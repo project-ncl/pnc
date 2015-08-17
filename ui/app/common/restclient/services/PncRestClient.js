@@ -39,50 +39,51 @@
   module.factory('PncRestClient', [
     '$resource',
     'REST_BASE_URL',
-    'Product',
-    'ProductVersion',
-    'BuildRecord',
-    'ConfigurationSetRecord',
-    'BuildConfiguration',
-    'Milestone',
-    'Release',
-    'Project',
-    'Environment',
-    'RunningBuild',
-    'BuildConfigurationSet',
-    'BuildRecordSet',
-    'User',
-    function($resource, REST_BASE_URL, Product, ProductVersion, BuildRecord,
-      ConfigurationSetRecord, BuildConfiguration, Milestone, Release, Project, Environment, RunningBuild,
-      BuildConfigurationSet, BuildRecordSet, User) {
+    'ProductDAO',
+    'ProductVersionDAO',
+    'BuildRecordDAO',
+    'BuildConfigurationSetRecordDAO',
+    'BuildConfigurationDAO',
+    'ProductMilestoneDAO',
+    'ProductReleaseDAO',
+    'ProjectDAO',
+    'EnvironmentDAO',
+    'RunningBuildRecordDAO',
+    'BuildConfigurationSetDAO',
+    'BuildRecordSetDAO',
+    'UserDAO',
+    function($resource, REST_BASE_URL, ProductDAO, ProductVersionDAO, BuildRecordDAO,
+      BuildConfigurationSetRecordDAO, BuildConfigurationDAO, ProductMilestoneDAO, ProductReleaseDAO,
+      ProjectDAO, EnvironmentDAO, RunningBuildRecordDAO,
+      BuildConfigurationSetDAO, BuildRecordSetDAO, UserDAO) {
 
       return {
 
-        Product: Product,
+        Product: ProductDAO,
 
-        Version: ProductVersion,
+        Version: ProductVersionDAO,
 
-        Milestone: Milestone,
+        Milestone: ProductMilestoneDAO,
 
-        Release: Release,
+        Release: ProductReleaseDAO,
 
-        Project: Project,
+        Project: ProjectDAO,
 
-        Environment: Environment,
+        Environment: EnvironmentDAO,
 
-        Configuration: BuildConfiguration,
+        Configuration: BuildConfigurationDAO,
 
-        Record: BuildRecord,
+        Record: BuildRecordDAO,
 
-        ConfigurationSetRecord: ConfigurationSetRecord,
+        ConfigurationSetRecord: BuildConfigurationSetRecordDAO,
 
-        Running: RunningBuild,
+        Running: RunningBuildRecordDAO,
 
-        ConfigurationSet: BuildConfigurationSet,
+        ConfigurationSet: BuildConfigurationSetDAO,
 
-        RecordSet: BuildRecordSet,
+        RecordSet: BuildRecordSetDAO,
 
-        User: User
+        User: UserDAO
       };
     }
   ]);

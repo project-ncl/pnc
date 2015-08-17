@@ -72,12 +72,12 @@
         controller: 'CsRecordDetailController',
         controllerAs: 'ctrl',
         resolve: {
-          // we cannot use csRecord.getConfigurationSet() from ConfigurationSetRecord
+          // we cannot use csRecord.getConfigurationSet() from BuildConfigurationSetRecordDAO
           // we have to load it immediately for displayName to work
-          csRecordDetail: function (ConfigurationSetRecord, BuildConfigurationSet, $stateParams) {
-            return ConfigurationSetRecord.get({recordId: $stateParams.recordId}).$promise
+          csRecordDetail: function (BuildConfigurationSetRecordDAO, BuildConfigurationSetDAO, $stateParams) {
+            return BuildConfigurationSetRecordDAO.get({recordId: $stateParams.recordId}).$promise
               .then(function (csRecord) {
-                return BuildConfigurationSet.get({configurationSetId: csRecord.buildConfigurationSetId}).$promise
+                return BuildConfigurationSetDAO.get({configurationSetId: csRecord.buildConfigurationSetId}).$promise
                   .then(function (configurationSet) {
                     csRecord.configurationSet = configurationSet;
                     return csRecord;
@@ -85,14 +85,14 @@
               });
           },
           // only records that belong to the current csRecord
-          records: function ($q, csRecordDetail, BuildRecord) {
-            return BuildRecord.query().$promise.then(function (r) {
+          records: function ($q, csRecordDetail, BuildRecordDAO) {
+            return BuildRecordDAO.query().$promise.then(function (r) {
               return _(r).where({buildConfigSetRecordId: csRecordDetail.id});
             });
           },
           // only running records that belong to the current csRecord
-          runningRecords: function (csRecordDetail, RunningBuild) {
-            return RunningBuild.query().$promise.then(function (r) {
+          runningRecords: function (csRecordDetail, RunningBuildRecordDAO) {
+            return RunningBuildRecordDAO.query().$promise.then(function (r) {
               return _(r).where({buildConfigSetRecordId: csRecordDetail.id});
             });
           }
@@ -121,9 +121,9 @@
         },
         resolve: {
           // load log for each record
-          recordsLog: function ($q, BuildRecord, records) {
+          recordsLog: function ($q, BuildRecordDAO, records) {
             var promises = _(records).map(function (record) {
-              return BuildRecord.getLog({recordId: record.id}).$promise
+              return BuildRecordDAO.getLog({recordId: record.id}).$promise
                 .then(function (log) {
                   var recordCopy = _.clone(record);
                   recordCopy.log = log;
@@ -146,9 +146,9 @@
         },
         resolve: {
           // load artifacts for each record
-          recordsArtifacts: function ($q, BuildRecord, records) {
+          recordsArtifacts: function ($q, BuildRecordDAO, records) {
             var promises = _(records).map(function (record) {
-              return BuildRecord.getArtifacts({recordId: record.id}).$promise
+              return BuildRecordDAO.getArtifacts({recordId: record.id}).$promise
                 .then(function (artifacts) {
                   var recordCopy = _.clone(record);
                   recordCopy.artifacts = artifacts;

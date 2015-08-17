@@ -26,14 +26,14 @@
   /**
    * @ngdoc service
    */
-  module.factory('ConfigurationSetRecord', [
+  module.factory('BuildConfigurationSetRecordDAO', [
     '$resource',
-    'BuildConfigurationSet',
-    'User',
+    'BuildConfigurationSetDAO',
+    'UserDAO',
     'cachedGetter',
     'REST_BASE_URL',
     'BUILD_CONFIG_SET_RECORD_ENDPOINT',
-    function ($resource, BuildConfigurationSet, User, cachedGetter, REST_BASE_URL, BUILD_CONFIG_SET_RECORD_ENDPOINT) {
+    function ($resource, BuildConfigurationSetDAO, UserDAO, cachedGetter, REST_BASE_URL, BUILD_CONFIG_SET_RECORD_ENDPOINT) {
 
       var ENDPOINT = REST_BASE_URL + BUILD_CONFIG_SET_RECORD_ENDPOINT;
 
@@ -43,13 +43,13 @@
 
       resource.prototype.getConfigurationSet = cachedGetter(
         function (record) {
-          return BuildConfigurationSet.get({ configurationSetId: record.buildConfigurationSetId });
+          return BuildConfigurationSetDAO.get({ configurationSetId: record.buildConfigurationSetId });
         }
       );
 
       resource.prototype.getUser = cachedGetter(
         function (record) {
-          return User.get({ userId: record.userId });
+          return UserDAO.get({ userId: record.userId });
         }
       );
 

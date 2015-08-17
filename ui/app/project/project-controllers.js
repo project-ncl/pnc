@@ -46,12 +46,12 @@
     '$scope',
     '$state',
     '$log',
-    'Project',
-    function($scope, $state, $log, Project) {
+    'ProjectDAO',
+    function($scope, $state, $log, ProjectDAO) {
 
       this.create = function(project) {
 
-        new Project(angular.copy(project)).$save().then(function(result) {
+        new ProjectDAO(angular.copy(project)).$save().then(function(result) {
           $state.go('project.detail', {
             projectId: result.id
           });

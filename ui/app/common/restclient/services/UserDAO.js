@@ -17,35 +17,27 @@
  */
 'use strict';
 
-(function() {
+(function () {
 
   var module = angular.module('pnc.common.restclient');
 
-  module.value('ENVIRONMENT_ENDPOINT', '/environments/:environmentId');
+  module.value('USER_ENDPOINT', '/users/:userId');
 
   /**
    * @ngdoc service
-   * @name pnc.common.restclient:Environment
-   * @description
-   *
-   * @author Alex Creasy
    */
-  module.factory('Environment', [
+  module.factory('UserDAO', [
     '$resource',
     'REST_BASE_URL',
-    'ENVIRONMENT_ENDPOINT',
-    function($resource, REST_BASE_URL, ENVIRONMENT_ENDPOINT) {
-      var ENDPOINT = REST_BASE_URL + ENVIRONMENT_ENDPOINT;
+    'USER_ENDPOINT',
+    function ($resource, REST_BASE_URL, USER_ENDPOINT) {
+      var ENDPOINT = REST_BASE_URL + USER_ENDPOINT;
 
-      var Environment = $resource(ENDPOINT, {
-        environmentId: '@id'
-      },{
-        update: {
-          method: 'PUT',
-        }
-      });
+      var resource = $resource(ENDPOINT, {
+        userId: '@id'
+      }, {});
 
-      return Environment;
+      return resource;
     }
   ]);
 

@@ -22,14 +22,14 @@
   var module = angular.module('pnc.common.restclient');
 
   module.value('PRODUCT_ENDPOINT', '/products/:productId');
-  
+
   /**
    * @ngdoc service
-   * @name pnc.common.restclient:Product
+   * @name // TODO
    * @description
    *
    */
-  module.factory('Product', [
+  module.factory('ProductDAO', [
     '$resource',
     'REST_BASE_URL',
     'PRODUCT_ENDPOINT',

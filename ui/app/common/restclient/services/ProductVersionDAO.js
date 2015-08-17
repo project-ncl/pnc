@@ -21,37 +21,39 @@
 
   var module = angular.module('pnc.common.restclient');
 
-  module.value('BUILD_RECORD_SET_ENDPOINT', '/build-record-sets/:recordsetId');
+  module.value('PRODUCT_VERSION_ENDPOINT', '/product-versions/:versionId');
 
   /**
    * @ngdoc service
-   * @name pnc.common.restclient:BuildRecordSet
+   * @name // TODO
    * @description
-   *
    */
-  module.factory('BuildRecordSet', [
+  module.factory('ProductVersionDAO', [
     '$resource',
     'REST_BASE_URL',
-    'BUILD_RECORD_SET_ENDPOINT',
-    function($resource, REST_BASE_URL, BUILD_RECORD_SET_ENDPOINT) {
-      var ENDPOINT = REST_BASE_URL + BUILD_RECORD_SET_ENDPOINT;
+    'PRODUCT_VERSION_ENDPOINT',
+    function($resource, REST_BASE_URL, PRODUCT_VERSION_ENDPOINT) {
+      var ENDPOINT = REST_BASE_URL + PRODUCT_VERSION_ENDPOINT;
 
-      var BuildRecordSet = $resource(ENDPOINT, {
-        recordsetId: '@id'
+      var ProductVersion = $resource(ENDPOINT, {
+        versionId: '@id',
       },{
-        getAllForProductVersion: {
+        update: {
+          method: 'PUT',
+        },
+        getAllBuildConfigurationSets: {
           method: 'GET',
-          url: REST_BASE_URL + '/build-record-sets/product-versions/:versionId',
+          url: ENDPOINT + '/build-configuration-sets',
           isArray: true
         },
-        getRecords: {
+        getAllForProduct: {
           method: 'GET',
-          url: REST_BASE_URL + '/build-record-sets/build-records/:recordId',
+          url: REST_BASE_URL + '/products/:productId/product-versions',
           isArray: true
         }
       });
 
-      return BuildRecordSet;
+      return ProductVersion;
     }
   ]);
 

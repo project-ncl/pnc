@@ -21,38 +21,42 @@
 
   var module = angular.module('pnc.common.restclient');
 
-  module.value('MILESTONE_ENDPOINT', '/product-milestones/:milestoneId');
-  
+  module.value('RELEASE_ENDPOINT', '/product-releases/:releaseId');
   /**
    * @ngdoc service
-   * @name pnc.common.restclient:Milestone
+   * @name // TODO
    * @description
    *
    */
-  module.factory('Milestone', [
+  module.factory('ProductReleaseDAO', [
     '$resource',
     'REST_BASE_URL',
-    'MILESTONE_ENDPOINT',
-    function($resource, REST_BASE_URL, MILESTONE_ENDPOINT) {
-      var ENDPOINT = REST_BASE_URL + MILESTONE_ENDPOINT;
+    'RELEASE_ENDPOINT',
+    function($resource, REST_BASE_URL, RELEASE_ENDPOINT) {
+      var ENDPOINT = REST_BASE_URL + RELEASE_ENDPOINT;
 
-      var Milestone = $resource(ENDPOINT, {
-        milestoneId: '@id'
+      var Release = $resource(ENDPOINT, {
+        releaseId: '@id'
       },{
         update: {
           method: 'PUT',
         },
         getAllForProductVersion: {
           method: 'GET',
-          url: REST_BASE_URL + '/product-milestones/product-versions/:versionId',
+          url: REST_BASE_URL + '/product-releases/product-versions/:versionId',
           isArray: true
         },
         save: {
           method: 'POST'
+        },
+        getAllSupportLevel: {
+          method: 'GET',
+          url: REST_BASE_URL + '/product-releases/support-level',
+          isArray: true
         }
       });
 
-      return Milestone;
+      return Release;
     }
   ]);
 
