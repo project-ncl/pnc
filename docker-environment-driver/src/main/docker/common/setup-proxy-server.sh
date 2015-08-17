@@ -29,6 +29,7 @@ if [[ ! -z "$proxyServer" ]]; then
     sed -i "s/\${proxyServer}/${proxyServer}/" $file
     sed -i "s/\${proxyPort}/${proxyPort}/" $file
     sed -i "s/\${proxyUsername}/${proxyUsername}/" $file
+    sed -i "s/\${nonProxyHosts}/${nonProxyHosts}/" $file
     sed -i "s/\${isHttpActive}/${isHttpActive}/" $file
 else
     echo "Disabling Maven proxy"
