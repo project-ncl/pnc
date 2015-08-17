@@ -17,19 +17,33 @@
     limitations under the License.
 
 -->
-<div class="push-down">
-  <dl class="dl-horizontal">
-    <dt>Build of:</dt>
-    <dd><a href ui-sref="configuration.detail.show({ configurationId: recordCtrl.configuration.id })">{{ recordCtrl.configuration.name }}</a></dd>
-    <dt>Project:</dt>
-    <dd><a href ui-sref="project.detail({ projectId: recordCtrl.project.id })">{{ recordCtrl.project.name }}</a></dd>
-    <dt>Started at:</dt>
-    <dd>{{ recordCtrl.record.startTime | date : 'medium' }}</dd>
-    <span ng-show="recordCtrl.record.endTime">
-      <dt>Finshed at:</dt>
-      <dd>{{ recordCtrl.record.endTime | date : 'medium' }}</dd>
-    </span>
-    <dt>Status:</dt>
-    <dd ng-class="recordCtrl.record.status === 'SUCCESS' ? 'text-success' : 'text-danger'">{{ recordCtrl.record.status }}</dd>
-  </dl>
+<div class="row push-down">
+  <div class="col-sm-12 col-md-10 col-lg-8">
+    <dl class="dl-horizontal">
+      <!-- <dt>Build of:</dt>
+      <dd><a href ui-sref="configuration.detail.show({ configurationId: recordCtrl.configuration.id })">{{ recordCtrl.configuration.name }}</a></dd> -->
+      <dt>Description:</dt>
+      <dd>{{ recordCtrl.configuration.description }}</dd>
+      <dt>Project:</dt>
+      <dd><a href ui-sref="project.detail({ projectId: recordCtrl.project.id })">{{ recordCtrl.project.name }}</a></dd>
+      <dt>User:</dt>
+      <dd>{{ recordCtrl.record.getUser().username }}</dd>
+      <dt>Started:</dt>
+      <dd>{{ recordCtrl.record.startTime | date : 'medium' }}</dd>
+      <span ng-show="recordCtrl.record.endTime">
+        <dt>Finshed:</dt>
+        <dd>{{ recordCtrl.record.endTime | date : 'medium' }}</dd>
+      </span>
+      <dt>Result:</dt>
+      <dd ng-class="recordCtrl.record.status === 'SUCCESS' ? 'text-success' : 'text-danger'">{{ recordCtrl.record.status }}</dd>
+      <dt>SCM Repo:</dt>
+      <dd><a ng-href="{{ recordCtrl.configuration.scmRepoURL }}">{{ recordCtrl.configuration.scmRepoURL }}</a></dd>
+      <dt>SCM Revision:</dt>
+      <dd>{{ recordCtrl.configuration.scmRevision }}</dd>
+      <dt>Environment:</dt>
+      <dd>{{ recordCtrl.environment.buildType }} / {{recordCtrl.environment.operationalSystem }}</dd>
+      <dt>Script:</dt>
+      <dd><pre class="pre-scrollable">{{ recordCtrl.configuration.buildScript }}</pre></dd>
+    </dl>
+  </div>
 </div>

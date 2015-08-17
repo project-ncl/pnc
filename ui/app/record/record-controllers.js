@@ -25,24 +25,23 @@
     'recordDetail',
     'configurationDetail',
     'projectDetail',
-    function(recordDetail, configurationDetail, projectDetail) {
+    'environmentDetail',
+    function(recordDetail, configurationDetail, projectDetail, environmentDetail) {
       this.record = recordDetail;
       this.configuration = configurationDetail;
       this.project = projectDetail;
+      this.environment = environmentDetail;
     }
   ]);
 
-  module.controller('RecordInfoController', ['$log',
-    function ($log) {
-      $log.debug('RecordInfoController');
+  module.controller('RecordInfoController', [
+    function () {
     }
   ]);
 
   module.controller('RecordResultController', [
-    '$log',
     'buildLog',
-    function($log, buildLog) {
-      $log.debug('RecordResultController >> buildLog: %O', buildLog);
+    function(buildLog) {
       this.log = buildLog.payload;
     }
   ]);

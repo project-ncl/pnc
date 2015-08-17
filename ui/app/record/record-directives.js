@@ -44,6 +44,8 @@
   * @ngdoc directive
   * @name pnc.common.eventbus:pncRecentBuilds
   * @restrict E
+  * @param {number=} pnc-build-configuration-id: Will only display builds
+  * of that BuildConfiguration.
   * @param {object=} pnc-filter-by Optional: Each property of the provided
   * object will be compared against the properties of the same name on
   * any records received from HTTP queries. Unless all properties match, the
@@ -87,20 +89,18 @@
 
       return {
         restrict: 'E',
-        template: function(elem, attrs) {
-          var tmplUrl = DEFAULT_TEMPLATE;
-          if (attrs.pncTemplate) {
-            tmplUrl = attrs.pncTemplate;
-          }
-          return '<div ng-include="\'' + tmplUrl + '\'"></div>';
+        templateUrl: function(elem, attrs) {
+          return attrs.pncTemplate ? attrs.pncTemplate : DEFAULT_TEMPLATE;
         },
         scope: {
           pncFilterBy: '=',
+          pncBcId: '=',
         },
         link: function(scope) {
           var loaded;
           var recordMap = new buckets.Dictionary();
-          var filterSpec = scope.pncFilterBy;
+          var filterSpec = scope.pncFilterBy || {};
+          var buildConfigId = scope.pncBcId;
 
           scope.isLoaded = function() {
             return loaded;
@@ -109,10 +109,6 @@
           scope.getRecords = function() {
             return recordMap.values();
           };
-
-          // scope.getBuildConfiguration(buildRecord) {
-          //   buildRecord.getBuildConfiguration().$promise
-          // }
 
           function onBuildFinished(event, payload) {
             if (!filtersMatch(payload, filterSpec)) {
@@ -130,8 +126,28 @@
 
           function init() {
             loaded = false;
+            var results;
+
+            function getAllRecords() {
+              return PncRestClient.Record.query({ sort: '=desc=id'}).$promise;
+            }
+
+            function getForConfiguration(id) {
+              return PncRestClient.Record.getAllForConfiguration({
+                configurationId: id,
+                sort: '=desc=id'
+              }).$promise;
+            }
+
+            if (buildConfigId) {
+              filterSpec.buildConfigurationId = buildConfigId;
+              results = getForConfiguration(buildConfigId);
+            } else {
+              results = getAllRecords();
+            }
+
             // Initialise recordMap with id => record entries.
-            PncRestClient.Record.query().$promise.then(
+            results.then(
               function success(result) {
                 $log.debug('pnc-recent-builds: initial fetch: %O', result);
                 result.forEach(function(record) {

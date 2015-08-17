@@ -40,7 +40,8 @@
       var ENDPOINT = REST_BASE_URL + BUILD_RECORD_ENDPOINT;
 
       var BuildRecord = $resource(ENDPOINT, {
-        recordId: '@id'
+        recordId: '@id',
+        q: '@q'
       }, {
 
         getLog: {
@@ -73,6 +74,12 @@
           url: REST_BASE_URL + '/build-records/build-configurations/:configurationId?pageIndex=0&pageSize=1&sort==desc=id',
           isArray: true,
         },
+
+        getAuditedBuildConfiguration: {
+          method: 'GET',
+          url: ENDPOINT + '/build-configuration-audited',
+          isArray: false
+        }
 
       });
 
