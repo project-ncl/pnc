@@ -1,4 +1,4 @@
-FROM project-ncl/pnc-common:latest
+FROM project-ncl/pnc-common:0.6.2
 MAINTAINER Project NCL Team
 
 USER root
