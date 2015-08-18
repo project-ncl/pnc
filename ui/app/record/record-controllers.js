@@ -22,11 +22,18 @@
   var module = angular.module('pnc.record');
 
   module.controller('RecordDetailController', [
+    '$scope',
+    '$state',
+    'eventTypes',
     'recordDetail',
     'configurationDetail',
-    function(recordDetail, configurationDetail) {
+    function($scope, $state, eventTypes, recordDetail, configurationDetail) {
       this.record = recordDetail;
       this.configuration = configurationDetail;
+
+      $scope.$on(eventTypes.BUILD_FINISHED, function() {
+        $state.go($state.current, {}, {reload: true});
+      });
     }
   ]);
 

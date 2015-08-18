@@ -1,20 +1,20 @@
 /*
-* JBoss, Home of Professional Open Source.
-* Copyright 2014 Red Hat, Inc., and individual contributors
-* as indicated by the @author tags.
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-* http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*/
+ * JBoss, Home of Professional Open Source.
+ * Copyright 2014 Red Hat, Inc., and individual contributors
+ * as indicated by the @author tags.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 'use strict';
 
 (function() {
@@ -22,10 +22,10 @@
   var module = angular.module('pnc.record');
 
   /**
-  * Compares each of the properties of filterSpec to the same named
-  * properties of entity and returns true only if they are ALL strictly
-  * equal.
-  */
+   * Compares each of the properties of filterSpec to the same named
+   * properties of entity and returns true only if they are ALL strictly
+   * equal.
+   */
   function filtersMatch(entity, filterSpec) {
     if (angular.isUndefined(filterSpec)) {
       return true;
@@ -41,264 +41,264 @@
   }
 
   /**
-  * @ngdoc directive
-  * @name pnc.common.eventbus:pncRecentBuilds
-  * @restrict E
-  * @param {number=} pnc-build-configuration-id: Will only display builds
-  * of that BuildConfiguration.
-  * @param {object=} pnc-filter-by Optional: Each property of the provided
-  * object will be compared against the properties of the same name on
-  * any records received from HTTP queries. Unless all properties match, the
-  * record will be ignored.
-  * @param {string=} pnc-template Optional: the URL of a display template to
-  * use.
-  * @description
-  * Displays a table of recently completed builds.
-  * @example
-  * # Without filtering
-  * ```html
-  <pnc-recent-builds></pnc-recent-builds>
-  * ```
-  *
-  * # Filter for builds of BuildConfiguration where id=7 and for user with id=23.
-  * ```html
-  <div ng-controller="myController as ctrl">
-  <pnc-recent-builds pnc-filter-by="ctrl.filterSpec"></pnc-recent-builds>
-  </div>
-  * ```
-  *
-  * ```js
-  angular.module('myModule')
-  .controller('myController', function() {
-  this.filterSpec = {
-  buildConfigurationId: 7,
-  userId: 23
-}
-});
-* ```
-* @author Alex Creasy
-*/
-module.directive('pncRecentBuilds', [
-  '$log',
-  '$timeout',
-  'PncRestClient',
-  'eventTypes',
-  function($log, $timeout, PncRestClient, eventTypes) {
+   * @ngdoc directive
+   * @name pnc.common.eventbus:pncRecentBuilds
+   * @restrict E
+   * @param {number=} pnc-build-configuration-id: Will only display builds
+   * of that BuildConfiguration.
+   * @param {object=} pnc-filter-by Optional: Each property of the provided
+   * object will be compared against the properties of the same name on
+   * any records received from HTTP queries. Unless all properties match, the
+   * record will be ignored.
+   * @param {string=} pnc-template Optional: the URL of a display template to
+   * use.
+   * @description
+   * Displays a table of recently completed builds.
+   * @example
+   * # Without filtering
+   * ```html
+      <pnc-recent-builds></pnc-recent-builds>
+   * ```
+   *
+   * # Filter for builds of BuildConfiguration where id=7 and for user with id=23.
+   * ```html
+      <div ng-controller="myController as ctrl">
+        <pnc-recent-builds pnc-filter-by="ctrl.filterSpec"></pnc-recent-builds>
+      </div>
+   * ```
+   *
+   * ```js
+    angular.module('myModule')
+      .controller('myController', function() {
+        this.filterSpec = {
+          buildConfigurationId: 7,
+          userId: 23
+        }
+      });
+   * ```
+   * @author Alex Creasy
+   */
+  module.directive('pncRecentBuilds', [
+    '$log',
+    '$timeout',
+    'PncRestClient',
+    'eventTypes',
+    function($log, $timeout, PncRestClient, eventTypes) {
 
-    var DEFAULT_TEMPLATE = 'record/views/pnc-recent-builds.html';
+      var DEFAULT_TEMPLATE = 'record/views/pnc-recent-builds.html';
 
-    return {
-      restrict: 'E',
-      templateUrl: function(elem, attrs) {
-        return attrs.pncTemplate || DEFAULT_TEMPLATE;
-      },
-      scope: {
-        pncFilterBy: '=',
-        pncBcId: '=',
-      },
-      link: function(scope) {
-        var loaded;
-        var recordMap = new buckets.Dictionary();
-        var filterSpec = scope.pncFilterBy || {};
-        var buildConfigId = scope.pncBcId;
+      return {
+        restrict: 'E',
+        templateUrl: function(elem, attrs) {
+          return attrs.pncTemplate || DEFAULT_TEMPLATE;
+        },
+        scope: {
+          pncFilterBy: '=',
+          pncBcId: '=',
+        },
+        link: function(scope) {
+          var loaded;
+          var recordMap = new buckets.Dictionary();
+          var filterSpec = scope.pncFilterBy || {};
+          var buildConfigId = scope.pncBcId;
 
-        scope.isLoaded = function() {
-          return loaded;
-        };
+          scope.isLoaded = function() {
+            return loaded;
+          };
 
-        scope.getRecords = function() {
-          return recordMap.values();
-        };
+          scope.getRecords = function() {
+            return recordMap.values();
+          };
 
-        function onBuildFinished(event, payload) {
-          if (!filtersMatch(payload, filterSpec)) {
-            return;
+          function onBuildFinished(event, payload) {
+            if (!filtersMatch(payload, filterSpec)) {
+              return;
+            }
+
+            PncRestClient.Record.get({ recordId: payload.id }).$promise.then(
+              function(result) {
+                if (filtersMatch(result, filterSpec)) {
+                  recordMap.set(result.id, result);
+                }
+              }
+            );
           }
 
-          PncRestClient.Record.get({ recordId: payload.id }).$promise.then(
-            function(result) {
-              if (filtersMatch(result, filterSpec)) {
+          function init() {
+            loaded = false;
+            var results;
+
+            function getAllRecords() {
+              return PncRestClient.Record.query({ sort: '=desc=id'}).$promise;
+            }
+
+            function getForConfiguration(id) {
+              return PncRestClient.Record.getAllForConfiguration({
+                configurationId: id,
+                sort: '=desc=id'
+              }).$promise;
+            }
+
+            if (buildConfigId) {
+              filterSpec.buildConfigurationId = buildConfigId;
+              results = getForConfiguration(buildConfigId);
+            } else {
+              results = getAllRecords();
+            }
+
+            // Initialise recordMap with id => record entries.
+            results.then(
+              function success(result) {
+                $log.debug('pnc-recent-builds: initial fetch: %O', result);
+                result.forEach(function(record) {
+                  if (filtersMatch(record, filterSpec)) {
+                    recordMap.set(record.id, record);
+                  }
+                });
+                // Listen after initial fetch of records to prevent duplicates.
+                scope.$on(eventTypes.BUILD_FINISHED, onBuildFinished);
+              }
+            ).finally(function() {
+              loaded = true;
+            });
+          }
+
+          init();
+        }
+      };
+    }
+  ]);
+
+
+  /**
+   * @ngdoc directive
+   * @name pnc.common.eventbus:pncRunningBuilds
+   * @restrict E
+   * @param {object=} pnc-filter-by Optional: Each property of the provided
+   * object will be compared against the properties of the same name on
+   * any records received from HTTP queries. Unless all properties match, the
+   * record will be ignored.
+   * @param {string=} pnc-template Optional: the URL of a display template to
+   * use.
+   * @description
+   * Displays a table of running builds.
+   * @example
+   * # Without filtering
+   * ```html
+    <pnc-running-builds></pnc-running-builds>
+   * ```
+   *
+   * # Filter for builds of BuildConfiguration where id=7 and for user with id=23.
+   * ```html
+    <div ng-controller="myController as ctrl">
+      <pnc-running-builds pnc-filter-by="ctrl.filterSpec"></pnc-running-builds>
+    </div>
+   * ```
+   *
+   * ```js
+    angular.module('myModule')
+      .controller('myController', function() {
+        this.filterSpec = {
+          buildConfigurationId: 7,
+          userId: 23
+        }
+      });
+   * ```
+   * @author Alex Creasy
+   */
+  module.directive('pncRunningBuilds', [
+    '$log',
+    'PncRestClient',
+    'eventTypes',
+    function($log, PncRestClient, eventTypes) {
+
+      var DEFAULT_TEMPLATE = 'record/views/pnc-running-builds.html';
+
+      return {
+        restrict: 'E',
+        templateUrl: function(elem, attrs) {
+          return attrs.pncTemplate || DEFAULT_TEMPLATE;
+        },
+        scope: {
+          pncFilterBy: '=',
+          pncBcId: '=',
+        },
+        link: function(scope) {
+          var loaded;
+          var recordMap = new buckets.Dictionary();
+          var filterSpec = scope.pncFilterBy || {};
+          var buildConfigId = scope.pncBcId;
+
+          scope.isLoaded = function() {
+            return loaded;
+          };
+
+          scope.getRecords = function() {
+            return recordMap.values();
+          };
+
+          function onBuildStarted(event, payload) {
+
+            if(!filtersMatch(payload, filterSpec)) {
+              return;
+            }
+
+            PncRestClient.Running.get({ recordId: payload.id }).$promise.then(
+              function(result) {
                 recordMap.set(result.id, result);
               }
+            );
+          }
+
+          function onBuildFinished(event, payload) {
+            recordMap.remove(payload.id);
+          }
+
+          function init() {
+            loaded = false;
+            var results;
+
+            function getAllRecords() {
+              return PncRestClient.Running.query({ sort: '=desc=id'}).$promise;
             }
-          );
-        }
 
-        function init() {
-          loaded = false;
-          var results;
-
-          function getAllRecords() {
-            return PncRestClient.Record.query({ sort: '=desc=id'}).$promise;
-          }
-
-          function getForConfiguration(id) {
-            return PncRestClient.Record.getAllForConfiguration({
-              configurationId: id,
-              sort: '=desc=id'
-            }).$promise;
-          }
-
-          if (buildConfigId) {
-            filterSpec.buildConfigurationId = buildConfigId;
-            results = getForConfiguration(buildConfigId);
-          } else {
-            results = getAllRecords();
-          }
-
-          // Initialise recordMap with id => record entries.
-          results.then(
-            function success(result) {
-              $log.debug('pnc-recent-builds: initial fetch: %O', result);
-              result.forEach(function(record) {
-                if (filtersMatch(record, filterSpec)) {
-                  recordMap.set(record.id, record);
-                }
-              });
-              // Listen after initial fetch of records to prevent duplicates.
-              scope.$on(eventTypes.BUILD_FINISHED, onBuildFinished);
+            function getForConfiguration(id) {
+              return PncRestClient.Running.getAllForConfiguration({
+                configurationId: id,
+                sort: '=desc=id'
+              }).$promise;
             }
-          ).finally(function() {
-            loaded = true;
-          });
-        }
 
-        init();
-      }
-    };
-  }
-]);
-
-
-/**
-* @ngdoc directive
-* @name pnc.common.eventbus:pncRunningBuilds
-* @restrict E
-* @param {object=} pnc-filter-by Optional: Each property of the provided
-* object will be compared against the properties of the same name on
-* any records received from HTTP queries. Unless all properties match, the
-* record will be ignored.
-* @param {string=} pnc-template Optional: the URL of a display template to
-* use.
-* @description
-* Displays a table of running builds.
-* @example
-* # Without filtering
-* ```html
-<pnc-running-builds></pnc-running-builds>
-* ```
-*
-* # Filter for builds of BuildConfiguration where id=7 and for user with id=23.
-* ```html
-<div ng-controller="myController as ctrl">
-<pnc-running-builds pnc-filter-by="ctrl.filterSpec"></pnc-running-builds>
-</div>
-* ```
-*
-* ```js
-angular.module('myModule')
-.controller('myController', function() {
-this.filterSpec = {
-buildConfigurationId: 7,
-userId: 23
-}
-});
-* ```
-* @author Alex Creasy
-*/
-module.directive('pncRunningBuilds', [
-  '$log',
-  'PncRestClient',
-  'eventTypes',
-  function($log, PncRestClient, eventTypes) {
-
-    var DEFAULT_TEMPLATE = 'record/views/pnc-running-builds.html';
-
-    return {
-      restrict: 'E',
-      templateUrl: function(elem, attrs) {
-        return attrs.pncTemplate || DEFAULT_TEMPLATE;
-      },
-      scope: {
-        pncFilterBy: '=',
-        pncBcId: '=',
-      },
-      link: function(scope) {
-        var loaded;
-        var recordMap = new buckets.Dictionary();
-        var filterSpec = scope.pncFilterBy || {};
-        var buildConfigId = scope.pncBcId;
-
-        scope.isLoaded = function() {
-          return loaded;
-        };
-
-        scope.getRecords = function() {
-          return recordMap.values();
-        };
-
-        function onBuildStarted(event, payload) {
-
-          if(!filtersMatch(payload, filterSpec)) {
-            return;
-          }
-
-          PncRestClient.Running.get({ recordId: payload.id }).$promise.then(
-            function(result) {
-              recordMap.set(result.id, result);
+            if (buildConfigId) {
+              filterSpec.buildConfigurationId = buildConfigId;
+              results = getForConfiguration(buildConfigId);
+            } else {
+              results = getAllRecords();
             }
-          );
-        }
 
-        function onBuildFinished(event, payload) {
-          recordMap.remove(payload.id);
-        }
-
-        function init() {
-          loaded = false;
-          var results;
-
-          function getAllRecords() {
-            return PncRestClient.Running.query({ sort: '=desc=id'}).$promise;
+            // Initialise recordMap with id => record entries.
+            results.then(
+              function success(result) {
+                $log.debug('pnc-running-builds: initial fetch: %O', result);
+                result.forEach(function(record) {
+                  if(filtersMatch(record, filterSpec)) {
+                    recordMap.set(record.id, record);
+                  }
+                });
+                // Listen after initial fetch of records to prevent duplicates.
+                scope.$on(eventTypes.BUILD_STARTED, onBuildStarted);
+                scope.$on(eventTypes.BUILD_FINISHED, onBuildFinished);
+              }
+            ).finally(function() {
+              loaded = true;
+            });
           }
 
-          function getForConfiguration(id) {
-            return PncRestClient.Running.getAllForConfiguration({
-              configurationId: id,
-              sort: '=desc=id'
-            }).$promise;
-          }
-
-          if (buildConfigId) {
-            filterSpec.buildConfigurationId = buildConfigId;
-            results = getForConfiguration(buildConfigId);
-          } else {
-            results = getAllRecords();
-          }
-
-          // Initialise recordMap with id => record entries.
-          results.then(
-            function success(result) {
-              $log.debug('pnc-running-builds: initial fetch: %O', result);
-              result.forEach(function(record) {
-                if(filtersMatch(record, filterSpec)) {
-                  recordMap.set(record.id, record);
-                }
-              });
-              // Listen after initial fetch of records to prevent duplicates.
-              scope.$on(eventTypes.BUILD_STARTED, onBuildStarted);
-              scope.$on(eventTypes.BUILD_FINISHED, onBuildFinished);
-            }
-          ).finally(function() {
-            loaded = true;
-          });
+          init();
         }
-
-        init();
-      }
-    };
-  }
-]);
+      };
+    }
+  ]);
 
   /**
    * @ngdoc directive
@@ -312,8 +312,8 @@ module.directive('pncRunningBuilds', [
 
     var DEFAULT_TEMPLATE = 'record/views/pnc-build-details.html';
 
-    function Controller($q, Build, BuildRecord, BuildConfiguration, Project,
-        Environment, User) {
+    function Controller($scope, $q, eventTypes, Build, BuildRecord,
+        BuildConfiguration, Project, Environment, User) {
       var self = this;
       var loaded;
 
@@ -386,7 +386,6 @@ module.directive('pncRunningBuilds', [
       }
 
       function init() {
-        loaded = false;
         fetchData(self.pncRecordId).then(
           function(response) {
             self.record = response.buildRecord;
@@ -394,13 +393,17 @@ module.directive('pncRunningBuilds', [
             self.project = response.project;
             self.environment = response.environment;
             self.user = response.user;
+
           }
         ).finally(function() {
           loaded = true;
         });
       }
-      console.log('IDDDDD ==== ', self.pncRecordId);
+
+      loaded = false;
       init();
+      // Listen for websocket
+      $scope.$on(eventTypes.BUILD_FINISHED, init);
     }
 
     return {
@@ -414,7 +417,9 @@ module.directive('pncRunningBuilds', [
       bindToController: true,
       controllerAs: 'ctrl',
       controller: [
+        '$scope',
         '$q',
+        'eventTypes',
         'Build',
         'BuildRecord',
         'BuildConfiguration',

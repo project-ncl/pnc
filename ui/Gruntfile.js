@@ -71,7 +71,8 @@ module.exports = function (grunt) {
     grunt.config('connect.proxies', [{
       context: '/pnc-rest/rest',
       host: restUrl,
-      port: 8080
+      port: 8080,
+      ws: true
     }]);
   });
 
