@@ -53,7 +53,7 @@ public class LicenseEndpoint {
         this.licenseProvider = licenseProvider;
     }
 
-    @ApiOperation(value = "Gets all Licenses")
+    @ApiOperation(value = "Gets all Licenses", responseContainer = "List", response = LicenseRest.class)
     @GET
     public List<LicenseRest> getAll(
             @ApiParam(value = "Page index") @QueryParam("pageIndex") @DefaultValue("0") int pageIndex,
@@ -63,14 +63,14 @@ public class LicenseEndpoint {
         return licenseProvider.getAll(pageIndex, pageSize, sortingRsql, rsql);
     }
 
-    @ApiOperation(value = "Get specific License")
+    @ApiOperation(value = "Get specific License", response = LicenseRest.class)
     @GET
     @Path("/{id}")
     public Response getSpecific(@ApiParam(value = "License id", required = true) @PathParam("id") Integer id) {
         return Utility.createRestEnityResponse(licenseProvider.getSpecific(id), id);
     }
 
-    @ApiOperation(value = "Creates a new License")
+    @ApiOperation(value = "Creates a new License", response = LicenseRest.class)
     @POST
     public Response createNew(@NotNull @Valid LicenseRest licenseRest, @Context UriInfo uriInfo) {
         int id = licenseProvider.store(licenseRest);

@@ -53,7 +53,8 @@ public class BuildConfigSetRecordEndpoint {
         this.buildRecordProvider = buildRecordProvider;
     }
 
-    @ApiOperation(value = "Gets all build config set execution records")
+    @ApiOperation(value = "Gets all build config set execution records", responseContainer = "List",
+            response = BuildConfigSetRecordRest.class)
     @GET
     public List<BuildConfigSetRecordRest> getAll(
             @ApiParam(value = "Page index") @QueryParam("pageIndex") @DefaultValue("0") int pageIndex,
@@ -63,14 +64,15 @@ public class BuildConfigSetRecordEndpoint {
         return buildConfigSetRecordProvider.getAll(pageIndex, pageSize, sortingRsql, rsql);
     }
 
-    @ApiOperation(value = "Gets specific build config set execution record")
+    @ApiOperation(value = "Gets specific build config set execution record", response = BuildConfigSetRecordRest.class)
     @GET
     @Path("/{id}")
     public Response getSpecific(@ApiParam(value = "BuildConfigSetRecord id", required = true) @PathParam("id") Integer id) {
         return Utility.createRestEnityResponse(buildConfigSetRecordProvider.getSpecific(id), id);
     }
 
-    @ApiOperation(value = "Gets the build records associated with this set")
+    @ApiOperation(value = "Gets the build records associated with this set",
+            responseContainer = "List", response = BuildRecordRest.class)
     @GET
     @Path("/{id}/build-records")
     public List<BuildRecordRest> getBuildRecords(

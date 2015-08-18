@@ -64,7 +64,7 @@ public class ProductReleaseEndpoint {
         this.productReleaseProvider = productReleaseProvider;
     }
 
-    @ApiOperation(value = "Gets all Product Releases")
+    @ApiOperation(value = "Gets all Product Releases", responseContainer = "List", response = ProductReleaseRest.class)
     @GET
     public List<ProductReleaseRest> getAll(
             @ApiParam(value = "Page index") @QueryParam("pageIndex") @DefaultValue("0") int pageIndex,
@@ -74,7 +74,8 @@ public class ProductReleaseEndpoint {
         return productReleaseProvider.getAll(pageIndex, pageSize, sortingRsql, rsql);
     }
 
-    @ApiOperation(value = "Gets all Product Releases of the Specified Product Version")
+    @ApiOperation(value = "Gets all Product Releases of the Specified Product Version",
+            responseContainer = "List", response = ProductReleaseRest.class)
     @GET
     @Path("/product-versions/{versionId}")
     public List<ProductReleaseRest> getAllByProductVersionId(
@@ -87,14 +88,14 @@ public class ProductReleaseEndpoint {
         return productReleaseProvider.getAllForProductVersion(pageIndex, pageSize, sortingRsql, rsql, versionId);
     }
 
-    @ApiOperation(value = "Gets specific Product Release")
+    @ApiOperation(value = "Gets specific Product Release", response = ProductReleaseRest.class)
     @GET
     @Path("/{id}")
     public Response getSpecific(@ApiParam(value = "Product Release id", required = true) @PathParam("id") Integer id) {
         return Utility.createRestEnityResponse(productReleaseProvider.getSpecific(id), id);
     }
 
-    @ApiOperation(value = "Creates a new Product Release")
+    @ApiOperation(value = "Creates a new Product Release", response = ProductReleaseRest.class)
     @POST
     public Response createNew(
             @NotNull @Valid ProductReleaseRest productReleaseRest, @Context UriInfo uriInfo) {
@@ -113,7 +114,8 @@ public class ProductReleaseEndpoint {
         return Response.ok().build();
     }
 
-    @ApiOperation(value = "Gets all Product Releases Support Level")
+    @ApiOperation(value = "Gets all Product Releases Support Level",
+            responseContainer = "List", response = SupportLevel.class)
     @GET
     @Path("/support-level")
     public List<SupportLevel> getAllSupportLevel () {

@@ -50,7 +50,8 @@ public class BuildRecordSetEndpoint {
         this.buildRecordSetProvider = buildRecordSetProvider;
     }
 
-    @ApiOperation(value = "Gets all BuildRecordSets")
+    @ApiOperation(value = "Gets all BuildRecordSets",
+            responseContainer = "List", response = BuildRecordSetRest.class)
     @GET
     public List<BuildRecordSetRest> getAll(
             @ApiParam(value = "Page index") @QueryParam("pageIndex") @DefaultValue("0") int pageIndex,
@@ -60,14 +61,15 @@ public class BuildRecordSetEndpoint {
         return buildRecordSetProvider.getAll(pageIndex, pageSize, sortingRsql, rsql);
     }
 
-    @ApiOperation(value = "Gets a specific BuildRecordSet")
+    @ApiOperation(value = "Gets a specific BuildRecordSet", response = BuildRecordSetRest.class)
     @GET
     @Path("/{id}")
     public Response getSpecific(@ApiParam(value = "BuildRecordSet id", required = true) @PathParam("id") Integer id) {
         return Utility.createRestEnityResponse(buildRecordSetProvider.getSpecific(id), id);
     }
 
-    @ApiOperation(value = "Gets all BuildRecordSet of a Product Version")
+    @ApiOperation(value = "Gets all BuildRecordSet of a Product Version",
+            responseContainer = "List", response = BuildRecordSetRest.class)
     @GET
     @Path("/product-milestones/{versionId}")
     public List<BuildRecordSetRest> getAllForProductMilestone(
@@ -79,7 +81,8 @@ public class BuildRecordSetEndpoint {
         return buildRecordSetProvider.getAllForPerformedInProductMilestone(pageIndex, pageSize, sortingRsql, rsql, versionId);
     }
 
-    @ApiOperation(value = "Gets all BuildRecordSet of a BuildRecord")
+    @ApiOperation(value = "Gets all BuildRecordSet of a BuildRecord",
+            responseContainer = "List", response = BuildRecordSetRest.class)
     @GET
     @Path("/build-records/{recordId}")
     public List<BuildRecordSetRest> getAllForBuildRecord(
@@ -91,7 +94,7 @@ public class BuildRecordSetEndpoint {
         return buildRecordSetProvider.getAllForBuildRecord(pageIndex, pageSize, sortingRsql, rsql, recordId);
     }
 
-    @ApiOperation(value = "Creates a new BuildRecordSet")
+    @ApiOperation(value = "Creates a new BuildRecordSet", response = BuildRecordSetRest.class)
     @POST
     public Response createNew(@NotNull @Valid BuildRecordSetRest buildRecordSetRest, @Context UriInfo uriInfo) {
         UriBuilder uriBuilder = UriBuilder.fromUri(uriInfo.getRequestUri()).path("{id}");

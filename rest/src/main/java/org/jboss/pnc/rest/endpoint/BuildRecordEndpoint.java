@@ -20,6 +20,7 @@ package org.jboss.pnc.rest.endpoint;
 import org.jboss.pnc.rest.provider.ArtifactProvider;
 import org.jboss.pnc.rest.provider.BuildRecordProvider;
 import org.jboss.pnc.rest.restmodel.ArtifactRest;
+import org.jboss.pnc.rest.restmodel.BuildConfigurationAuditedRest;
 import org.jboss.pnc.rest.restmodel.BuildRecordRest;
 import org.jboss.pnc.rest.utils.Utility;
 
@@ -62,7 +63,7 @@ public class BuildRecordEndpoint {
         this.artifactProvider = artifactProvider;
     }
 
-    @ApiOperation(value = "Gets all Build Records")
+    @ApiOperation(value = "Gets all Build Records", responseContainer = "List", response = BuildRecordRest.class)
     @GET
     public List<BuildRecordRest> getAll(
             @ApiParam(value = "Page index") @QueryParam("pageIndex") @DefaultValue("0") int pageIndex,
@@ -72,7 +73,7 @@ public class BuildRecordEndpoint {
         return buildRecordProvider.getAllArchived(pageIndex, pageSize, sortingRsql, rsql);
     }
 
-    @ApiOperation(value = "Gets specific Build Record")
+    @ApiOperation(value = "Gets specific Build Record", response = BuildRecordRest.class)
     @GET
     @Path("/{id}")
     public Response getSpecific(@ApiParam(value = "BuildRecord id", required = true) @PathParam("id") Integer id) {
@@ -84,7 +85,7 @@ public class BuildRecordEndpoint {
             @ApiResponse(code = 204, message = "BuildRecord exists, but the content is empty"),
             @ApiResponse(code = 404, message = "BuildRecord with specified id does not exist"),
     })
-    @ApiOperation(value = "Gets logs for specific Build Record")
+    @ApiOperation(value = "Gets logs for specific Build Record", response = String.class)
     @GET
     @Path("/{id}/log")
     @Produces(MediaType.TEXT_PLAIN)
@@ -99,7 +100,8 @@ public class BuildRecordEndpoint {
             return Response.ok(buildRecordProvider.getLogsForBuild(buildRecordLog)).build();
     }
 
-    @ApiOperation(value = "Gets artifacts for specific Build Record")
+    @ApiOperation(value = "Gets artifacts for specific Build Record",
+            responseContainer = "List", response = ArtifactRest.class)
     @GET
     @Path("/{id}/artifacts")
     public List<ArtifactRest> getArtifacts(
@@ -116,7 +118,8 @@ public class BuildRecordEndpoint {
      * Use /build-configuration/{id}/build-records
      */
     @Deprecated
-    @ApiOperation(value = "Gets the Build Records linked to a specific Build Configuration")
+    @ApiOperation(value = "Gets the Build Records linked to a specific Build Configuration",
+            responseContainer = "List", response = BuildRecordRest.class)
     @GET
     @Path("/build-configurations/{configurationId}")
     public List<BuildRecordRest> getAllForBuildConfiguration(
@@ -128,7 +131,8 @@ public class BuildRecordEndpoint {
         return buildRecordProvider.getAllForBuildConfiguration(pageIndex, pageSize, sortingRsql, rsql, configurationId);
     }
 
-    @ApiOperation(value = "Gets the Build Records linked to a specific Project")
+    @ApiOperation(value = "Gets the Build Records linked to a specific Project",
+            responseContainer = "List", response = BuildRecordRest.class)
     @GET
     @Path("/projects/{projectId}")
     public List<BuildRecordRest> getAllForProject(
@@ -140,7 +144,8 @@ public class BuildRecordEndpoint {
         return buildRecordProvider.getAllForProject(pageIndex, pageSize, sortingRsql, rsql, projectId);
     }
 
-    @ApiOperation(value = "Gets the audited build configuration for specific build record")
+    @ApiOperation(value = "Gets the audited build configuration for specific build record",
+            response = BuildConfigurationAuditedRest.class)
     @GET
     @Path("/{id}/build-configuration-audited")
     public Response getBuildConfigurationAudited(@ApiParam(value = "BuildRecord id", required = true) @PathParam("id") Integer id) {
