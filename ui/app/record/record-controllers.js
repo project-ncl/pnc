@@ -24,13 +24,9 @@
   module.controller('RecordDetailController', [
     'recordDetail',
     'configurationDetail',
-    'projectDetail',
-    'environmentDetail',
-    function(recordDetail, configurationDetail, projectDetail, environmentDetail) {
+    function(recordDetail, configurationDetail) {
       this.record = recordDetail;
       this.configuration = configurationDetail;
-      this.project = projectDetail;
-      this.environment = environmentDetail;
     }
   ]);
 

@@ -26,7 +26,7 @@
 
   <table class="table table-striped table-hover" ng-show="isLoaded()">
     <tbody>
-      <tr ng-repeat="record in getRecords() | limitTo: 10 | orderBy: 'endTime':true">
+      <tr ng-repeat="record in getRecords() | limitTo: 10">
         <td>
           <build-status-icon status="record.status"></build-status-icon>
         </td>

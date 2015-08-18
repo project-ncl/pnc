@@ -1,0 +1,25 @@
+<div class="spinner spinner-sm" ng-hide="ctrl.isLoaded()"></div>
+<dl class="dl-horizontal" ng-show="ctrl.isLoaded()">
+  <dt>Description:</dt>
+  <dd>{{ ctrl.configuration.description }}</dd>
+  <dt>Project:</dt>
+  <dd><a href ui-sref="project.detail({ projectId: ctrl.project.id })">{{ ctrl.project.name }}</a></dd>
+  <dt>User:</dt>
+  <dd>{{ ctrl.user.username }}</dd>
+  <dt>Started:</dt>
+  <dd>{{ ctrl.record.startTime | date : 'medium' }}</dd>
+  <span ng-show="ctrl.record.endTime">
+    <dt>Finshed:</dt>
+    <dd>{{ ctrl.record.endTime | date : 'medium' }}</dd>
+  </span>
+  <dt>Result:</dt>
+  <dd ng-class="ctrl.record.status === 'SUCCESS' ? 'text-success' : 'text-danger'">{{ ctrl.record.status }}</dd>
+  <dt>SCM Repo:</dt>
+  <dd><a ng-href="{{ ctrl.configuration.scmRepoURL }}">{{ ctrl.configuration.scmRepoURL }}</a></dd>
+  <dt>SCM Revision:</dt>
+  <dd>{{ ctrl.configuration.scmRevision }}</dd>
+  <dt>Environment:</dt>
+  <dd>{{ ctrl.environment.buildType }} / {{ctrl.environment.operationalSystem }}</dd>
+  <dt>Script:</dt>
+  <dd><pre class="pre-scrollable">{{ ctrl.configuration.buildScript }}</pre></dd>
+</dl>

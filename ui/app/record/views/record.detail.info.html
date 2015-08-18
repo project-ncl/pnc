@@ -19,10 +19,8 @@
 -->
 <div class="row push-down">
   <div class="col-sm-12 col-md-10 col-lg-8">
-    <dl class="dl-horizontal">
-      <!-- <dt>Build of:</dt>
-      <dd><a href ui-sref="configuration.detail.show({ configurationId: recordCtrl.configuration.id })">{{ recordCtrl.configuration.name }}</a></dd> -->
-      <dt>Description:</dt>
+    <!-- <dl class="dl-horizontal">
+    <dt>Description:</dt>
       <dd>{{ recordCtrl.configuration.description }}</dd>
       <dt>Project:</dt>
       <dd><a href ui-sref="project.detail({ projectId: recordCtrl.project.id })">{{ recordCtrl.project.name }}</a></dd>
@@ -44,6 +42,7 @@
       <dd>{{ recordCtrl.environment.buildType }} / {{recordCtrl.environment.operationalSystem }}</dd>
       <dt>Script:</dt>
       <dd><pre class="pre-scrollable">{{ recordCtrl.configuration.buildScript }}</pre></dd>
-    </dl>
+    </dl> -->
+    <pnc-build-details pnc-record-id="recordCtrl.record.id"></pnc-build-details>
   </div>
 </div>

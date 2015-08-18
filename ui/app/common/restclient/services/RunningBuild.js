@@ -43,6 +43,11 @@
       var RunningBuild = $resource(ENDPOINT, {
         recordId: '@id'
       }, {
+        getAllForConfiguration: {
+          method: 'GET',
+          url: REST_BASE_URL + '/running-build-records?q=latestBuildConfiguration.id==:configurationId',
+          isArray: true,
+        },
         getLog: {
           method: 'GET',
           url: ENDPOINT + '/log',

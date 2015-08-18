@@ -57,31 +57,19 @@
         controller: 'RecordDetailController',
         controllerAs: 'recordCtrl',
         resolve: {
-          restClient: 'PncRestClient',
-          BuildRecord: 'BuildRecord',
-          Environment: 'Environment',
+          BuildConfiguration: 'BuildConfiguration',
           build: 'Build',
-          recordDetail: function (restClient, build, $stateParams) {
+          recordDetail: function (build, $stateParams) {
             return build.get({
               recordId: $stateParams.recordId
             });
           },
-          configurationDetail: function (BuildRecord, recordDetail) {
-            return BuildRecord.getAuditedBuildConfiguration({
-              recordId: recordDetail.id,
-            }).$promise;
-          },
-          projectDetail: function (restClient, configurationDetail) {
-            return restClient.Project.get({
-              projectId: configurationDetail.projectId
-            }).$promise;
-          },
-          environmentDetail: function (Environment, configurationDetail) {
-            return Environment.get({
-              environmentId: configurationDetail.environmentId
+          configurationDetail: function (BuildConfiguration, recordDetail) {
+            return BuildConfiguration.get({
+              configurationId: recordDetail.buildConfigurationId
             }).$promise;
           }
-        },
+        }
       });
 
       $stateProvider.state('record.detail.info', {
