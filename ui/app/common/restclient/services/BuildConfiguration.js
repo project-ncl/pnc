@@ -55,6 +55,11 @@
           url: ENDPOINT + '/build',
           isArray: false,
         },
+        getBuildRecords: {
+          method: 'GET',
+          url: REST_BASE_URL + '/build-records?q=latestBuildConfiguration.id==:configurationId',
+          isArray: true,
+        },
         getProductVersions: {
           method: 'GET',
           url: ENDPOINT + '/product-versions',

@@ -22,7 +22,7 @@
     <div class="page-header">
       <h1>
         <build-status-icon status="recordCtrl.record.status"></build-status-icon>
-         # {{ recordCtrl.record.id }} &mdash; {{ recordCtrl.configuration.name }} {{ recordCtrl.record.startTime | date:'medium'}}
+        Build #{{ recordCtrl.record.id }} of {{ recordCtrl.configuration.name }}
       </h1>
     </div>
   </div>
@@ -30,9 +30,13 @@
 <div class="row">
   <div class="col-md-12">
     <ul class="nav nav-tabs push-down">
-      <li role="presentation" ui-sref-active="active"><a href ui-sref="record.detail.info">Build Info</a></li>
-      <li role="presentation" ui-sref-active="active"><a href ui-sref="record.detail.result">Build Result</a></li>
-      <li role="presentation" ui-sref-active="active"><a href ui-sref="record.detail.output">Build Output</a></li>
+      <li role="presentation" ui-sref-active="active"><a href ui-sref="record.detail.info">Details</a></li>
+      <li role="presentation" ui-sref-active="active" ng-hide="recordCtrl.record.status === 'BUILDING'">
+        <a href ui-sref="record.detail.result">Log</a>
+      </li>
+      <li role="presentation" ui-sref-active="active" ng-hide="recordCtrl.record.status === 'BUILDING'">
+        <a href ui-sref="record.detail.output">Output</a>
+      </li>
     </ul>
   </div>
 </div>
