@@ -20,6 +20,7 @@ package org.jboss.pnc.model;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -50,6 +51,7 @@ public class User implements GenericEntity<Integer> {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = SEQUENCE_NAME)
     private Integer id;
 
+    @Column(unique = true)
     @NotNull
     private String email;
 
@@ -57,6 +59,7 @@ public class User implements GenericEntity<Integer> {
 
     private String lastName;
 
+    @Column(unique = true)
     @NotNull
     private String username;
 

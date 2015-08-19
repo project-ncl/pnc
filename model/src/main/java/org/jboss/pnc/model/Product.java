@@ -21,6 +21,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -46,15 +47,19 @@ public class Product implements GenericEntity<Integer> {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = SEQUENCE_NAME)
     private Integer id;
 
+    @Column(unique = true)
     @NotNull
     private String name;
 
     private String description;
 
+    @Column(unique = true)
     private String abbreviation;
 
+    @Column(unique = true)
     private String productCode;
 
+    @Column(unique = true)
     private String pgmSystemName;
 
     @OneToMany(mappedBy = "product", cascade = { CascadeType.PERSIST, CascadeType.REFRESH, CascadeType.DETACH,
