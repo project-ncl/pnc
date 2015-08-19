@@ -54,7 +54,7 @@ public class ProductEndpoint {
         this.productVersionProvider = productVersionProvider;
     }
 
-    @ApiOperation(value = "Gets all Products")
+    @ApiOperation(value = "Gets all Products", responseContainer = "List", response = ProductRest.class)
     @GET
     public List<ProductRest> getAll(
             @ApiParam(value = "Page index") @QueryParam("pageIndex") @DefaultValue("0") int pageIndex,
@@ -64,14 +64,14 @@ public class ProductEndpoint {
         return productProvider.getAll(pageIndex, pageSize, sortingRsql, rsql);
     }
 
-    @ApiOperation(value = "Get specific Product")
+    @ApiOperation(value = "Get specific Product", response = ProductRest.class)
     @GET
     @Path("/{id}")
     public Response getSpecific(@ApiParam(value = "Product id", required = true) @PathParam("id") Integer id) {
         return Utility.createRestEnityResponse(productProvider.getSpecific(id), id);
     }
 
-    @ApiOperation(value = "Creates a new Product")
+    @ApiOperation(value = "Creates a new Product", response = ProductRest.class)
     @POST
     public Response createNew(@NotNull @Valid ProductRest productRest,
             @Context UriInfo uriInfo) {
@@ -89,7 +89,8 @@ public class ProductEndpoint {
         return Response.ok().build();
     }
 
-    @ApiOperation(value = "Get all versions for a Product")
+    @ApiOperation(value = "Get all versions for a Product",
+            responseContainer = "List", response = ProductVersionRest.class)
     @GET
     @Path("/{id}/product-versions")
     public List<ProductVersionRest> getProductVersions(@ApiParam(value = "Page index") @QueryParam("pageIndex") @DefaultValue("0") int pageIndex,

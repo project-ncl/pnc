@@ -73,7 +73,8 @@ public class BuildConfigurationSetEndpoint {
         this.buildTriggerer = buildTriggerer;
     }
 
-    @ApiOperation(value = "Gets all Build Configuration Sets")
+    @ApiOperation(value = "Gets all Build Configuration Sets",
+            responseContainer = "List", response = BuildConfigurationSetRest.class)
     @GET
     public List<BuildConfigurationSetRest> getAll(
             @ApiParam(value = "Page index") @QueryParam("pageIndex") @DefaultValue("0") int pageIndex,
@@ -84,7 +85,7 @@ public class BuildConfigurationSetEndpoint {
         return buildConfigurationSetProvider.getAll(pageIndex, pageSize, sortingRsql, rsql);
     }
 
-    @ApiOperation(value = "Creates a new Build Configuration Set")
+    @ApiOperation(value = "Creates a new Build Configuration Set", response = BuildConfigurationSetRest.class)
     @POST
     public Response createNew(@NotNull @Valid BuildConfigurationSetRest buildConfigurationSetRest, @Context UriInfo uriInfo)
             throws ConflictedEntryException {
@@ -93,7 +94,7 @@ public class BuildConfigurationSetEndpoint {
         return Response.created(uriBuilder.build(id)).entity(buildConfigurationSetProvider.getSpecific(id)).build();
     }
 
-    @ApiOperation(value = "Gets a specific Build Configuration Set")
+    @ApiOperation(value = "Gets a specific Build Configuration Set", response = BuildConfigurationSetRest.class)
     @GET
     @Path("/{id}")
     public Response getSpecific(
@@ -119,7 +120,8 @@ public class BuildConfigurationSetEndpoint {
         return Response.ok().build();
     }
 
-    @ApiOperation(value = "Gets the Configurations for the Specified Set")
+    @ApiOperation(value = "Gets the Configurations for the Specified Set",
+            responseContainer = "List", response = BuildConfigurationRest.class)
     @GET
     @Path("/{id}/build-configurations")
     public List<BuildConfigurationRest> getConfigurations(
@@ -190,7 +192,8 @@ public class BuildConfigurationSetEndpoint {
         return Response.ok().build();
     }
 
-    @ApiOperation(value = "Gets all build records associated with the contained build configurations")
+    @ApiOperation(value = "Gets all build records associated with the contained build configurations",
+            responseContainer = "List", response = BuildRecordRest.class)
     @GET
     @Path("/{id}/build-records")
     public List<BuildRecordRest> getBuildRecords(

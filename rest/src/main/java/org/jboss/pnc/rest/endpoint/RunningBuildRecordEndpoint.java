@@ -52,7 +52,7 @@ public class RunningBuildRecordEndpoint {
             @ApiResponse(code = 200, message = "Successful retrieval all RunningBuildRecords"),
             @ApiResponse(code = 204, message = "No RunningBuildRecords available"),
     })
-    @ApiOperation(value = "Gets all running Build Records")
+    @ApiOperation(value = "Gets all running Build Records", responseContainer = "List", response = BuildRecordRest.class)
     @GET
     public List<BuildRecordRest> getAll(
             @ApiParam(value = "Page index") @QueryParam("pageIndex") @DefaultValue("0") Integer pageIndex,
@@ -62,7 +62,7 @@ public class RunningBuildRecordEndpoint {
         return buildRecordProvider.getAllRunning(pageIndex, pageSize, sortingRsql, rsql);
     }
 
-    @ApiOperation(value = "Gets specific running Build Record")
+    @ApiOperation(value = "Gets specific running Build Record", response = BuildRecordRest.class)
     @GET
     @Path("/{id}")
     public Response getSpecific(@ApiParam(value = "BuildRecord id", required = true) @PathParam("id") Integer id) {

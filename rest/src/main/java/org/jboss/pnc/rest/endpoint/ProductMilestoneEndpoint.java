@@ -62,7 +62,8 @@ public class ProductMilestoneEndpoint {
         this.productMilestoneProvider = productMilestoneProvider;
     }
 
-    @ApiOperation(value = "Gets all Product Milestones")
+    @ApiOperation(value = "Gets all Product Milestones",
+            responseContainer = "List", response = ProductMilestoneRest.class)
     @GET
     public List<ProductMilestoneRest> getAll(
             @ApiParam(value = "Page index") @QueryParam("pageIndex") @DefaultValue("0") int pageIndex,
@@ -72,7 +73,8 @@ public class ProductMilestoneEndpoint {
         return productMilestoneProvider.getAll(pageIndex, pageSize, sortingRsql, rsql);
     }
 
-    @ApiOperation(value = "Gets all Product Milestones of the Specified Product Version")
+    @ApiOperation(value = "Gets all Product Milestones of the Specified Product Version",
+            responseContainer = "List", response = ProductMilestoneRest.class)
     @GET
     @Path("/product-versions/{versionId}")
     public List<ProductMilestoneRest> getAllByProductVersionId(
@@ -85,7 +87,7 @@ public class ProductMilestoneEndpoint {
         return productMilestoneProvider.getAllForProductVersion(pageIndex, pageSize, sortingRsql, rsql, versionId);
     }
 
-    @ApiOperation(value = "Gets specific Product Milestone")
+    @ApiOperation(value = "Gets specific Product Milestone", response = ProductMilestoneRest.class)
     @GET
     @Path("/{id}")
     public Response getSpecific(
@@ -93,7 +95,8 @@ public class ProductMilestoneEndpoint {
         return Utility.createRestEnityResponse(productMilestoneProvider.getSpecific(id), id);
     }
 
-    @ApiOperation(value = "Creates a new Product Milestone for the Specified Product Version")
+    @ApiOperation(value = "Creates a new Product Milestone for the Specified Product Version",
+            response = ProductMilestoneRest.class)
     @POST
     public Response createNew(@NotNull @Valid ProductMilestoneRest productMilestoneRest, @Context UriInfo uriInfo) {
 

@@ -22,12 +22,14 @@ import com.wordnik.swagger.annotations.ApiOperation;
 import com.wordnik.swagger.annotations.ApiParam;
 import org.jboss.pnc.auth.AuthenticationProvider;
 import org.jboss.pnc.core.exception.CoreException;
+import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.rest.provider.BuildConfigurationProvider;
 import org.jboss.pnc.rest.provider.BuildRecordProvider;
 import org.jboss.pnc.rest.provider.ConflictedEntryException;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationAuditedRest;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationRest;
+import org.jboss.pnc.rest.restmodel.BuildRecordRest;
 import org.jboss.pnc.rest.restmodel.ProductVersionRest;
 import org.jboss.pnc.rest.trigger.BuildTriggerer;
 import org.jboss.pnc.rest.utils.Utility;
@@ -75,7 +77,8 @@ public class BuildConfigurationEndpoint {
         this.buildRecordProvider = buildRecordProvider;
     }
 
-    @ApiOperation(value = "Gets all Build Configurations")
+    @ApiOperation(value = "Gets all Build Configurations",
+            responseContainer = "List", response = BuildConfigurationRest.class)
     @GET
     public List<BuildConfigurationRest> getAll(
             @ApiParam(value = "Page index") @QueryParam("pageIndex") @DefaultValue("0") int pageIndex,
@@ -85,7 +88,7 @@ public class BuildConfigurationEndpoint {
         return buildConfigurationProvider.getAll(pageIndex, pageSize, sortingRsql, rsql);
     }
 
-    @ApiOperation(value = "Creates a new Build Configuration")
+    @ApiOperation(value = "Creates a new Build Configuration", response = BuildConfigurationRest.class)
     @POST
     public Response createNew(@NotNull @Valid BuildConfigurationRest buildConfigurationRest, @Context UriInfo uriInfo) throws ConflictedEntryException {
         int id = buildConfigurationProvider.store(buildConfigurationRest);
@@ -93,7 +96,7 @@ public class BuildConfigurationEndpoint {
         return Response.created(uriBuilder.build(id)).entity(buildConfigurationProvider.getSpecific(id)).build();
     }
 
-    @ApiOperation(value = "Gets a specific Build Configuration")
+    @ApiOperation(value = "Gets a specific Build Configuration", response = BuildConfigurationRest.class)
     @GET
     @Path("/{id}")
     public Response getSpecific(
@@ -117,7 +120,7 @@ public class BuildConfigurationEndpoint {
         return Response.ok().build();
     }
 
-    @ApiOperation(value = "Clones an existing Build Configuration")
+    @ApiOperation(value = "Clones an existing Build Configuration", response = BuildConfigurationRest.class)
     @POST
     @Path("/{id}/clone")
     public Response clone(@ApiParam(value = "Build Configuration id", required = true) @PathParam("id") Integer id,
@@ -170,7 +173,8 @@ public class BuildConfigurationEndpoint {
         }
     }
 
-    @ApiOperation(value = "Gets all Build Configurations of a Project")
+    @ApiOperation(value = "Gets all Build Configurations of a Project",
+            responseContainer = "List", response = BuildConfigurationRest.class)
     @GET
     @Path("/projects/{projectId}")
     public List<BuildConfigurationRest> getAllByProjectId(
@@ -182,7 +186,8 @@ public class BuildConfigurationEndpoint {
         return buildConfigurationProvider.getAllForProject(pageIndex, pageSize, sortingRsql, rsql, projectId);
     }
 
-    @ApiOperation(value = "Gets all Build Configurations of a Product")
+    @ApiOperation(value = "Gets all Build Configurations of a Product",
+            responseContainer = "List", response = BuildConfigurationRest.class)
     @GET
     @Path("/products/{productId}")
     public List<BuildConfigurationRest> getAllByProductId(
@@ -194,7 +199,8 @@ public class BuildConfigurationEndpoint {
         return buildConfigurationProvider.getAllForProduct(pageIndex, pageSize, sortingRsql, rsql, productId);
     }
 
-    @ApiOperation(value = "Gets all Build Configurations of the Specified Product Version")
+    @ApiOperation(value = "Gets all Build Configurations of the Specified Product Version",
+            responseContainer = "List", response = BuildConfigurationRest.class)
     @GET
     @Path("/products/{productId}/product-versions/{versionId}")
     public List<BuildConfigurationRest> getAllByProductId(
@@ -207,14 +213,16 @@ public class BuildConfigurationEndpoint {
         return buildConfigurationProvider.getAllForProductAndProductVersion(pageIndex, pageSize, sortingRsql, rsql, productId, versionId);
     }
 
-    @ApiOperation(value = "Get the direct dependencies of the specified configuration")
+    @ApiOperation(value = "Get the direct dependencies of the specified configuration",
+            responseContainer = "List", response = BuildConfigurationRest.class)
     @GET
     @Path("/{id}/dependencies")
     public Set<BuildConfigurationRest> getDependencies(@ApiParam(value = "Build configuration id", required = true) @PathParam("id") Integer id) {
         return buildConfigurationProvider.getDependencies(id);
     }
 
-    @ApiOperation(value = "Get the full list of both direct and indirect dependencies of the specified configuration")
+    @ApiOperation(value = "Get the full list of both direct and indirect dependencies of the specified configuration",
+            responseContainer = "List", response = BuildConfigurationRest.class)
     @GET
     @Path("/{id}/all-dependencies")
     public Set<BuildConfigurationRest> getAllDependencies(@ApiParam(value = "Build configuration id", required = true) @PathParam("id") Integer id) {
@@ -240,7 +248,8 @@ public class BuildConfigurationEndpoint {
         return Response.ok().build();
     }
 
-    @ApiOperation(value = "Get associated Product Versions of the specified Configuration")
+    @ApiOperation(value = "Get associated Product Versions of the specified Configuration",
+            responseContainer = "List", response = ProductVersionRest.class)
     @GET
     @Path("/{id}/product-versions")
     public List<ProductVersionRest> getProductVersions(@ApiParam(value = "Build configuration id", required = true) @PathParam("id") Integer id) {
@@ -267,14 +276,16 @@ public class BuildConfigurationEndpoint {
         return Response.ok().build();
     }
 
-    @ApiOperation(value = "Gets audited revisions of this build configuration")
+    @ApiOperation(value = "Gets audited revisions of this build configuration",
+            responseContainer = "List", response = BuildConfigurationAuditedRest.class)
     @GET
     @Path("/{id}/revisions")
     public List<BuildConfigurationAuditedRest> getRevisions(@ApiParam(value = "Build configuration id", required = true) @PathParam("id") Integer id) {
         return buildConfigurationProvider.getRevisions(id);
     }
 
-    @ApiOperation(value = "Get specific audited revision of this build configuration")
+    @ApiOperation(value = "Get specific audited revision of this build configuration",
+            response = BuildConfigurationAuditedRest.class)
     @GET
     @Path("/{id}/revisions/{rev}")
     public Response getRevision(@ApiParam(value = "Build configuration id", required = true) @PathParam("id") Integer id,
@@ -286,7 +297,8 @@ public class BuildConfigurationEndpoint {
         return Response.ok(buildConfigAudited).build();
     }
 
-    @ApiOperation(value = "Get all build record associated with this build configuration, returns empty list if no build records are found")
+    @ApiOperation(value = "Get all build record associated with this build configuration, returns empty list if no build records are found",
+            responseContainer = "List", response = BuildRecordRest.class)
     @GET
     @Path("/{id}/build-records")
     public Response getBuildRecords(
@@ -298,7 +310,8 @@ public class BuildConfigurationEndpoint {
         return buildConfigurationProvider.getBuildRecords(pageIndex, pageSize, sortingRsql, rsql, id);
     }
 
-    @ApiOperation(value = "Get latest build record associated with this build configuration, returns no content if no build records are found")
+    @ApiOperation(value = "Get latest build record associated with this build configuration, returns no content if no build records are found",
+            response = BuildRecordRest.class)
     @GET
     @Path("/{id}/build-records/latest")
     public Response getLatestBuildRecord(@ApiParam(value = "Build configuration id", required = true) @PathParam("id") Integer id) {

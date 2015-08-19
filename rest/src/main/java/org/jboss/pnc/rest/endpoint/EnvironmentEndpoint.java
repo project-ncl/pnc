@@ -50,7 +50,7 @@ public class EnvironmentEndpoint {
         this.environmentProvider = environmentProvider;
     }
 
-    @ApiOperation(value = "Gets all Environments")
+    @ApiOperation(value = "Gets all Environments", responseContainer = "List", response = EnvironmentRest.class)
     @GET
     public List<EnvironmentRest> getAll(
             @ApiParam(value = "Page index") @QueryParam("pageIndex") @DefaultValue("0") int pageIndex,
@@ -60,14 +60,14 @@ public class EnvironmentEndpoint {
         return environmentProvider.getAll(pageIndex, pageSize, sortingRsql, rsql);
     }
 
-    @ApiOperation(value = "Get specific Environment")
+    @ApiOperation(value = "Get specific Environment", response = EnvironmentRest.class)
     @GET
     @Path("/{id}")
     public Response getSpecific(@ApiParam(value = "Environment id", required = true) @PathParam("id") Integer id) {
         return Utility.createRestEnityResponse(environmentProvider.getSpecific(id), id);
     }
 
-    @ApiOperation(value = "Creates a new Environment")
+    @ApiOperation(value = "Creates a new Environment", response = EnvironmentRest.class)
     @POST
     public Response createNew(@NotNull @Valid EnvironmentRest environmentRest, @Context UriInfo uriInfo) {
         int id = environmentProvider.store(environmentRest);

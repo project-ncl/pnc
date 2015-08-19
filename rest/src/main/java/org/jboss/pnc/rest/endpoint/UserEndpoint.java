@@ -49,7 +49,7 @@ public class UserEndpoint {
         this.userProvider = userProvider;
     }
 
-    @ApiOperation(value = "Gets all Users")
+    @ApiOperation(value = "Gets all Users", responseContainer = "List", response = UserRest.class)
     @GET
     public List<UserRest> getAll(
             @ApiParam(value = "Page index") @QueryParam("pageIndex") @DefaultValue("0") int pageIndex,
@@ -59,14 +59,14 @@ public class UserEndpoint {
         return userProvider.getAll(pageIndex, pageSize, sortingRsql, rsql);
     }
 
-    @ApiOperation(value = "Gets specific User")
+    @ApiOperation(value = "Gets specific User", response = UserRest.class)
     @GET
     @Path("/{id}")
     public Response getSpecific(@ApiParam(value = "User id", required = true) @PathParam("id") Integer id) {
         return Utility.createRestEnityResponse(userProvider.getSpecific(id), id);
     }
 
-    @ApiOperation(value = "Creates new User")
+    @ApiOperation(value = "Creates new User", response = UserRest.class)
     @POST
     public Response createNew(@NotNull @Valid UserRest userRest, @Context UriInfo uriInfo) {
         int id = userProvider.store(userRest);

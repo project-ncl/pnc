@@ -51,7 +51,7 @@ public class ProductVersionEndpoint {
         this.productVersionProvider = productVersionProvider;
     }
 
-    @ApiOperation(value = "Gets all Product Versions")
+    @ApiOperation(value = "Gets all Product Versions", responseContainer = "List", response = ProductVersionRest.class)
     @GET
     public List<ProductVersionRest> getAll(
             @ApiParam(value = "Page index") @QueryParam("pageIndex") @DefaultValue("0") int pageIndex,
@@ -61,7 +61,7 @@ public class ProductVersionEndpoint {
         return productVersionProvider.getAll(pageIndex, pageSize, sortingRsql, rsql);
     }
 
-    @ApiOperation(value = "Gets specific Product Version")
+    @ApiOperation(value = "Gets specific Product Version", response = ProductVersionRest.class)
     @GET
     @Path("/{id}")
     public Response getSpecific(
@@ -78,7 +78,8 @@ public class ProductVersionEndpoint {
         return Response.ok().build();
     }
 
-    @ApiOperation(value = "Gets build configuration sets associated with a product version")
+    @ApiOperation(value = "Gets build configuration sets associated with a product version",
+            responseContainer = "List", response = BuildConfigurationSetRest.class)
     @GET
     @Path("/{id}/build-configuration-sets")
     public List<BuildConfigurationSetRest> getBuildConfigurationSets(
@@ -90,7 +91,7 @@ public class ProductVersionEndpoint {
         return productVersionProvider.getBuildConfigurationSets(id);
     }
 
-    @ApiOperation(value = "Create a new ProductVersion for a Product")
+    @ApiOperation(value = "Create a new ProductVersion for a Product", response = ProductVersionRest.class)
     @POST
     public Response createNewProductVersion(@NotNull @Valid ProductVersionRest productVersionRest, @Context UriInfo uriInfo){
         int productVersionId = productVersionProvider.store(productVersionRest);

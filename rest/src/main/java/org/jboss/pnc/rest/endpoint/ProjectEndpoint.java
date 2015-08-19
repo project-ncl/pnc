@@ -50,7 +50,7 @@ public class ProjectEndpoint {
         this.projectProvider = projectProvider;
     }
 
-    @ApiOperation(value = "Gets all Projects")
+    @ApiOperation(value = "Gets all Projects", responseContainer = "List", response = ProjectRest.class)
     @GET
     public List<ProjectRest> getAll(
             @ApiParam(value = "Page index") @QueryParam("pageIndex") @DefaultValue("0") int pageIndex,
@@ -60,14 +60,14 @@ public class ProjectEndpoint {
         return projectProvider.getAll(pageIndex, pageSize, sortingRsql, rsql);
     }
 
-    @ApiOperation(value = "Gets specific Project")
+    @ApiOperation(value = "Gets specific Project", response = ProjectRest.class)
     @GET
     @Path("/{id}")
     public Response getSpecific(@ApiParam(value = "Project id", required = true) @PathParam("id") Integer id) {
         return Utility.createRestEnityResponse(projectProvider.getSpecific(id), id);
     }
 
-    @ApiOperation(value = "Creates a new Project")
+    @ApiOperation(value = "Creates a new Project", response = ProjectRest.class)
     @POST
     public Response createNew(@NotNull @Valid ProjectRest projectRest, @Context UriInfo uriInfo)
             throws ConflictedEntryException {
