@@ -48,7 +48,7 @@
         </td>
         <td>{{ configuration.description }}</td>
         <td>
-          <div ng-repeat="project in listCtrl.projects | filter: { id: configuration.projectId }">
+          <div ng-repeat="project in listCtrl.projects | filter: { id: configuration.projectId } | limitTo: 1">
             {{ project.name }}
           </div>
         </td>
