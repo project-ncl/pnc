@@ -25,7 +25,7 @@
   <parent>
     <artifactId>parent</artifactId>
     <groupId>org.jboss.pnc</groupId>
-    <version>0.6</version>
+    <version>0.7-SNAPSHOT</version>
   </parent>
 
   <artifactId>ui</artifactId>
