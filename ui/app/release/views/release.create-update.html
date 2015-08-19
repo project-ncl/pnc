@@ -33,10 +33,10 @@
       <div class="col-sm-10">
         <div class="input-group">
           <span class="input-group-addon">{{ releaseCreateUpdateCtrl.productVersion.version }}.</span>
-          <input required id="input-version" class="form-control" name="version" ng-model="releaseCreateUpdateCtrl.version" ng-pattern="/^[0-9]/">
+          <input required id="input-version" class="form-control" name="version" ng-model="releaseCreateUpdateCtrl.version" pattern="^[0-9]+\.[\w]+$">
         </div>
         <span class="help-block" ng-show="releaseForm.version.$error.required && !releaseForm.version.$pristine">Required field.</span>
-        <span class="help-block" ng-show="releaseForm.version.$error.pattern && !releaseForm.version.$pristine">Version must start with a number.</span>
+        <span class="help-block" ng-show="releaseForm.version.$error.pattern && !releaseForm.version.$pristine">Version must start with a number, followed by a dot and then a qualifier (e.g GA)</span>
       </div>
     </div>
 

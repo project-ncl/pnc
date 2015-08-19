@@ -33,8 +33,9 @@
     <div class="form-group">
       <label for="input-project" class="col-sm-2 control-label">Project</label>
       <div class="col-sm-10">
-      <select ng-model="createCtrl.data.projectId">
-      <option ng-repeat="project in createCtrl.projects" value="{{ project.id }}">
+      <select ng-model="createCtrl.data.projectId" required>
+          <option value="">Select a Project</option>
+          <option ng-repeat="project in createCtrl.projects" value="{{ project.id }}">
             {{ project.name }}
           </option>
         </select>
@@ -72,7 +73,9 @@
     <div class="form-group">
       <label for="input-product" class="col-sm-2 control-label">Product</label>
       <div class="col-sm-10">
-        <select id="input-product" ng-model="createCtrl.products.selected" ng-options="product.name for product in createCtrl.products.all" ng-change="createCtrl.productVersions.update()"></select>
+        <select id="input-product" ng-model="createCtrl.products.selected" ng-options="product.name for product in createCtrl.products.all" ng-change="createCtrl.productVersions.update()">
+          <option value="">Select a Product</option>
+        </select>
       </div>
     </div>
 
@@ -100,8 +103,9 @@
       <div class="form-group">
         <label for="input-environment" class="col-sm-2 control-label">Environment</label>
         <div class="col-sm-10">
-        <select ng-model="createCtrl.data.environmentId">
-        <option ng-repeat="environment in createCtrl.environments" value="{{ environment.id }}">
+        <select ng-model="createCtrl.data.environmentId" required>
+          <option value="">Select an Environment</option>
+            <option ng-repeat="environment in createCtrl.environments" value="{{ environment.id }}">
               {{ environment.operationalSystem + ' / ' + environment.buildType }}
             </option>
           </select>
