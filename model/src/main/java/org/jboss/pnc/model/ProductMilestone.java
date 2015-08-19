@@ -27,6 +27,8 @@ import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.SequenceGenerator;
+import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 
@@ -38,6 +40,9 @@ import org.hibernate.annotations.ForeignKey;
  * performed during a development cycle from the previous milestone until the end of the current milestone.
  */
 @Entity
+@Table(uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"version", "productVersion_id"})
+})
 public class ProductMilestone implements GenericEntity<Integer> {
 
     private static final long serialVersionUID = 6314079319551264379L;
