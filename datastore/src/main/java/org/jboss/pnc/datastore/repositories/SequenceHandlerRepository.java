@@ -95,6 +95,9 @@ public class SequenceHandlerRepository {
 
     public void createSequence(final String sequenceName) {
 
+        if (sequenceExists(sequenceName)) {
+            return;
+        }
         Work work = new Work() {
             @Override
             public void execute(Connection connection) throws SQLException {
@@ -122,6 +125,42 @@ public class SequenceHandlerRepository {
         Session session = (Session) entityManager.getDelegate();
         SessionFactory sessionFactory = session.getSessionFactory();
         sessionFactory.getCurrentSession().doWork(work);
+    }
+
+    public boolean sequenceExists(final String sequenceName) {
+        ReturningWork<Boolean> work = new ReturningWork<Boolean>() {
+            @Override
+            public Boolean execute(Connection connection) throws SQLException {
+                DialectResolver dialectResolver = new StandardDialectResolver();
+                Dialect dialect = dialectResolver.resolveDialect(connection.getMetaData());
+                PreparedStatement preparedStatement = null;
+                ResultSet resultSet = null;
+                try {
+                    preparedStatement = connection.prepareStatement(dialect.getQuerySequencesString());
+                    resultSet = preparedStatement.executeQuery();
+                    while(resultSet.next()) {
+                        if(sequenceName.equals(resultSet.getString(1))) {
+                            return true;
+                        }
+                    }
+                } catch (SQLException e) {
+                    throw e;
+                } finally {
+                    if (preparedStatement != null) {
+                        preparedStatement.close();
+                    }
+                    if (resultSet != null) {
+                        resultSet.close();
+                    }
+                }
+                return false;
+
+            }
+        };
+
+        Session session = (Session) entityManager.getDelegate();
+        SessionFactory sessionFactory = session.getSessionFactory();
+        return sessionFactory.getCurrentSession().doReturningWork(work);
     }
 
     public void dropSequence(final String sequenceName) {
