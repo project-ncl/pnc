@@ -25,7 +25,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.jsontype.NamedType;
 
 /**
- * @author pslegr <pslegr@redhat.com>
+ * @author <a href="mailto:pslegr@redhat.com">pslegr</a> on Aug 21, 2015
+ *
+ * @param <T> module config
  */
 public abstract class AbstractConfigProvider <T extends AbstractModuleConfig> implements ConfigProvider<T>{
     

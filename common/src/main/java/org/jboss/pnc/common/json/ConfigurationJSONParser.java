@@ -34,6 +34,7 @@ public class ConfigurationJSONParser {
     /**
      * Loads JSON configuration to the module configuration object
      *
+     * @param <T> module config
      * @param configContent Configuration in JSON
      * @param provider configuration provider of given module config type
      * @return Loaded configuration

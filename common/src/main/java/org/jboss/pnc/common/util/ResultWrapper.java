@@ -41,6 +41,9 @@ public class ResultWrapper<R, E extends Exception> {
     }
 
     /** Returns null if no exception was thrown */
+    /**
+     * @return
+     */
     public E getException() {
         return exception;
     }
