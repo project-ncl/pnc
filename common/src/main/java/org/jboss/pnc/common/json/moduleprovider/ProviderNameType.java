@@ -19,6 +19,11 @@ package org.jboss.pnc.common.json.moduleprovider;
 
 import org.jboss.pnc.common.json.AbstractModuleConfig;
 
+/**
+ * @author pslegr <pslegr@redhat.com>
+ *
+ * @param <T>
+ */
 public class ProviderNameType<T extends AbstractModuleConfig> {
     
     private Class<T> type;

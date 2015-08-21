@@ -28,6 +28,11 @@ import org.jboss.pnc.common.json.moduleconfig.JenkinsBuildDriverModuleConfig;
 import org.jboss.pnc.common.json.moduleconfig.MavenRepoDriverModuleConfig;
 import org.jboss.pnc.common.json.moduleconfig.TermdBuildDriverModuleConfig;
 
+/**
+ * @author pslegr <pslegr@redhat.com>
+ *
+ * @param <T>
+ */
 public class PncConfigProvider <T extends AbstractModuleConfig> 
             extends AbstractConfigProvider<T> implements ConfigProvider<T> {
     

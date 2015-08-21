@@ -23,6 +23,11 @@ import org.jboss.pnc.common.json.AbstractModuleConfig;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+/**
+ * @author pslegr <pslegr@redhat.com>
+ *
+ * @param <T>
+ */
 public interface ConfigProvider<T extends AbstractModuleConfig> {
 
     void registerProvider(ObjectMapper mapper);
