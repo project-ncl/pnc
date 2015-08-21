@@ -17,38 +17,40 @@
  */
 package org.jboss.pnc.common.json.moduleprovider;
 
+import java.util.List;
+
 import org.jboss.pnc.common.json.AbstractModuleConfig;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.jsontype.NamedType;
 
 /**
  * @author <a href="mailto:pslegr@redhat.com">pslegr</a> on Aug 21, 2015
  *
  * @param <T> module config
  */
-public class ProviderNameType<T extends AbstractModuleConfig> {
+public abstract class AbstractConfigProvider <T extends AbstractModuleConfig> implements ConfigProvider<T>{
     
-    private Class<T> type;
-    private String typeName;
+    List<ProviderNameType<T>> moduleConfigs;
+    Class<T> ctype;
+
+    public void registerProvider(ObjectMapper mapper) {
+        for (ProviderNameType<T> providerNameType : moduleConfigs) {
+            mapper.registerSubtypes(new NamedType(providerNameType.getType(), providerNameType.getTypeName()));
+        }
+    }
+
+    public List<ProviderNameType<T>> getModuleConfigs() {
+        return moduleConfigs;
+    }
     
-    public ProviderNameType(Class<T> type, String typeName) {
-        super();
-        this.type = type;
-        this.typeName = typeName;
+    public void addModuleConfig(ProviderNameType<T> providerNameType) {
+        this.moduleConfigs.add(providerNameType);
     }
 
     public Class<T> getType() {
-        return type;
+        return ctype;
     }
-
-    public void setType(Class<T> type) {
-        this.type = type;
-    }
-
-    public String getTypeName() {
-        return typeName;
-    }
-
-    public void setTypeName(String typeName) {
-        this.typeName = typeName;
-    }
-
+    
+    
 }

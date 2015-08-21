@@ -51,6 +51,7 @@ public class Configuration {
      * Reads configuration for module
      *
      * @param provider configuration provider of given module config type
+     * @param <T> module config
      * @return Loaded configuration
      * @throws ConfigurationParseException Thrown if configuration file couldn't be loaded or parsed
      */

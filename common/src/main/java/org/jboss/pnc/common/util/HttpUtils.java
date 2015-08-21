@@ -54,6 +54,7 @@ public class HttpUtils {
      * Client accepts application/json MIME type.
      *
      * @param clazz Class to which the data are unmarshalled
+     * @param <T> module config
      * @param url Request URL
      * @throws Exception Thrown if some error occurs in communication with server
      * @return Unmarshalled entity data
