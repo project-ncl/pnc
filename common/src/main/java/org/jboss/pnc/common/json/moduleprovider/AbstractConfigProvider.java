@@ -26,8 +26,6 @@ import com.fasterxml.jackson.databind.jsontype.NamedType;
 
 /**
  * @author pslegr <pslegr@redhat.com>
- *
- * @param <T>
  */
 public abstract class AbstractConfigProvider <T extends AbstractModuleConfig> implements ConfigProvider<T>{
     

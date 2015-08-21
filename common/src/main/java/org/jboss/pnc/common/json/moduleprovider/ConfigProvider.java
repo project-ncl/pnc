@@ -25,8 +25,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * @author pslegr <pslegr@redhat.com>
- *
- * @param <T>
  */
 public interface ConfigProvider<T extends AbstractModuleConfig> {
 
