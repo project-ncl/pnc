@@ -22,10 +22,11 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 
 import org.jboss.pnc.common.Configuration;
+import org.jboss.pnc.common.json.ModuleConfigJson;
+import org.jboss.pnc.common.json.moduleconfig.AuthenticationModuleConfig;
 import org.jboss.pnc.common.json.moduleconfig.BuildDriverRouterModuleConfig;
 import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
 import org.jboss.pnc.core.exception.CoreException;
-import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildType;
 import org.jboss.pnc.spi.BuildExecution;
@@ -33,10 +34,30 @@ import org.jboss.pnc.spi.builddriver.BuildDriver;
 import org.jboss.pnc.spi.builddriver.RunningBuild;
 import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
 import org.jboss.pnc.spi.environment.RunningEnvironment;
-import org.junit.Ignore;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 public class BuildDriverFactoryTest {
+    
+    private static String backupConfigPath;
+    
+    @BeforeClass
+    public static void setUpTestConfigPath() {
+        backupConfigPath = System.getProperty("pnc-config-file");
+        System.setProperty("pnc-config-file", "testConfig.json");
+    }
+    
+    @AfterClass
+    public static void restoreConfigPath() {
+        if (backupConfigPath != null)
+            System.setProperty("pnc-config-file", backupConfigPath);
+        else
+            System.getProperties().remove("pnc-config-file");
+    }
+    
 
     @Test(expected = CoreException.class)
     public void shouldSkipDriversWhichCanNotBuild() throws Exception {
@@ -50,17 +71,13 @@ public class BuildDriverFactoryTest {
         factory.getBuildDriver(BuildType.JAVA);
     }
 
-    @Ignore
     @Test(expected = CoreException.class)
     public void shouldSkipDriversWhichAreNotMentionedInConfiguration() throws Exception {
         //given
         ProperDriver testedBuildDriver = new ProperDriver();
         TestInstance<BuildDriver> allDrivers = new TestInstance<>(testedBuildDriver);
 
-        Configuration configuration = mock(Configuration.class);
-        doReturn(new BuildDriverRouterModuleConfig("not me")).when(configuration)
-            .getModuleConfig(new PncConfigProvider<BuildDriverRouterModuleConfig>(BuildDriverRouterModuleConfig.class));
-
+        Configuration configuration = new Configuration();
         BuildDriverFactory factory = new BuildDriverFactory(allDrivers, configuration);
         factory.initConfiguration();
 

@@ -1,0 +1,9 @@
+{
+"@class":"ModuleConfigJson","name":"pnc-config",
+        "configs":[
+          {
+            "@module-config":"build-driver-router",
+            "driverId":"not me"
+          }
+        ]
+}
