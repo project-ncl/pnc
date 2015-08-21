@@ -163,7 +163,7 @@
           versionId: versionDetail.id
         }).then(
           function() {
-            $state.go('product.version', {
+            $state.go('product.detail.version', {
               productId: productDetail.id,
               versionId: versionDetail.id
             }, {
@@ -185,7 +185,7 @@
           })
           .then(
             function() {
-              $state.go('product.version', {
+              $state.go('product.detail.version', {
                 productId: productDetail.id,
                 versionId: versionDetail.id
               }, {
@@ -260,6 +260,8 @@
         that.data.$save().then(function(result) {
             $state.go('product.detail', {
               productId: result.productId,
+            }, {
+              reload: true
             });
           }
         );
