@@ -105,7 +105,7 @@
         if (!that.isUpdating) {
           that.data.$save().then(
             function() {
-              $state.go('product.version', {
+              $state.go('product.detail.version', {
                 productId: productDetail.id,
                 versionId: versionDetail.id
               }, {
@@ -116,7 +116,7 @@
         } else {
           that.data.$update().then(
             function() {
-              $state.go('product.version', {
+              $state.go('product.detail.version', {
                 productId: productDetail.id,
                 versionId: versionDetail.id
               }, {
