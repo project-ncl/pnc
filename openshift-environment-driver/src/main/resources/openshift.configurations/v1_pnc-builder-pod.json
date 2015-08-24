@@ -1,0 +1,66 @@
+{
+    "kind": "Pod",
+    "apiVersion": "v1",
+    "metadata": {
+        "generateName": "pnc-builder-"
+//        "labels": {
+//            "openshift.io/deployer-pod-for.name": "builder-1"
+//        },
+//        "annotations": {
+//            "openshift.io/deployment.name": "builder-1"
+//        }
+    },
+    "spec": {
+        "containers": [
+            {
+                "name": "pnc-builder",
+                "image": "${image}", // eg.: pnc/pnc-builder:v0.6
+                "ports": [
+                  {
+                    "name" : "http",
+                    "containerPort": "${containerPort}", //eg.: 8080
+                    "protocol": "TCP"
+                  }
+                ],
+                "env": [
+                    {
+                        "name": "firewallAllowedDestinations",
+                        "value": "${firewallAllowedDestinations}"
+                    },
+                    {
+                        "name": "isHttpActive",
+                        "value": "${isHttpActive}"
+                    },
+                    {
+                        "name": "proxyServer",
+                        "value": "${proxyServer}"
+                    },
+                    {
+                        "name": "proxyPort",
+                        "value": "${proxyPort}"
+                    },
+                    {
+                        "name": "AProxDependencyUrl",
+                        "value": "${AProxDependencyUrl}"
+                    },
+                    {
+                        "name": "AProxDeployUrl",
+                        "value": "${AProxDeployUrl}"
+                    }
+                ],
+                "resources": {},
+                "terminationMessagePath": "/dev/termination-log",
+                "imagePullPolicy": "IfNotPresent"
+            }
+        ],
+        "restartPolicy": "Never",
+        "activeDeadlineSeconds": 30,
+        "dnsPolicy": "ClusterFirst", //TODO right dnsPolicy
+        "serviceAccount": "default",
+        "imagePullSecrets": [
+            {
+                "name": "default-dockercfg-at06w"
+            }
+        ]
+    }
+}

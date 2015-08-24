@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.spi.environment;
 
+import org.jboss.pnc.spi.environment.exception.EnvironmentDriverException;
 import org.jboss.pnc.spi.repositorymanager.model.RepositorySession;
 
 import java.io.Serializable;
@@ -40,12 +41,12 @@ public interface RunningEnvironment extends Serializable, DestroyableEnvironment
      * 
      * @return Port to connect to Jenkins UI
      */
-    int getJenkinsPort();
+    int getJenkinsPort(); //TODO rename to getBuildAgent*
 
     /**
      * @return Jenkins URL in format IP:PORT
      */
-    String getJenkinsUrl();
+    String getJenkinsUrl(); //TODO rename to getBuildAgent*
 
     /**
      * @return Repository configuration related to the running environment
@@ -56,5 +57,46 @@ public interface RunningEnvironment extends Serializable, DestroyableEnvironment
      * @return Returns a build directory.
      */
     Path getWorkingDirectory();
+
+    public static RunningEnvironment createInstance(
+            String id,
+            int port,
+            String url,
+            RepositorySession repositorySession,
+            Path workingDirectory,
+            Runnable destroyer) {
+
+        return new RunningEnvironment() {
+            @Override
+            public String getId() {
+                return id;
+            }
+
+            @Override
+            public int getJenkinsPort() {
+                return port;
+            }
+
+            @Override
+            public String getJenkinsUrl() {
+                return url;
+            }
+
+            @Override
+            public RepositorySession getRepositorySession() {
+                return repositorySession;
+            }
+
+            @Override
+            public Path getWorkingDirectory() {
+                return workingDirectory;
+            }
+
+            @Override
+            public void destroyEnvironment() throws EnvironmentDriverException {
+                destroyer.run();
+            }
+        };
+    }
 
 }

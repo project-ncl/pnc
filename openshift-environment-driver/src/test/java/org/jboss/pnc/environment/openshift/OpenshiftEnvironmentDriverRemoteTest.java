@@ -1,0 +1,254 @@
+/*
+ * JBoss, Home of Professional Open Source.
+ * Copyright 2015 Red Hat, Inc., and individual contributors
+ * as indicated by the @author tags.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.jboss.pnc.environment.openshift;
+
+import org.jboss.arquillian.container.test.api.Deployment;
+import org.jboss.arquillian.junit.Arquillian;
+import org.jboss.pnc.common.Configuration;
+import org.jboss.pnc.common.json.ConfigurationParseException;
+import org.jboss.pnc.common.json.moduleconfig.OpenshiftEnvironmentDriverModuleConfig;
+import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
+import org.jboss.pnc.model.BuildType;
+import org.jboss.pnc.model.Environment;
+import org.jboss.pnc.model.OperationalSystem;
+import org.jboss.pnc.model.RepositoryType;
+import org.jboss.pnc.spi.environment.EnvironmentDriver;
+import org.jboss.pnc.spi.environment.RunningEnvironment;
+import org.jboss.pnc.spi.environment.StartedEnvironment;
+import org.jboss.pnc.spi.environment.exception.EnvironmentDriverException;
+import org.jboss.pnc.spi.repositorymanager.RepositoryManagerException;
+import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
+import org.jboss.pnc.spi.repositorymanager.model.RepositoryConnectionInfo;
+import org.jboss.pnc.spi.repositorymanager.model.RepositorySession;
+import org.jboss.pnc.test.category.ContainerTest;
+import org.jboss.pnc.test.category.RemoteTest;
+import org.jboss.shrinkwrap.api.ShrinkWrap;
+import org.jboss.shrinkwrap.api.asset.EmptyAsset;
+import org.jboss.shrinkwrap.api.spec.WebArchive;
+import org.jboss.shrinkwrap.resolver.api.maven.Maven;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.experimental.categories.Category;
+import org.junit.runner.RunWith;
+import org.slf4j.LoggerFactory;
+
+import javax.inject.Inject;
+import java.io.File;
+import java.io.IOException;
+import java.lang.invoke.MethodHandles;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.Map;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
+/**
+ * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
+ */
+@RunWith(Arquillian.class)
+@Category({ RemoteTest.class, ContainerTest.class })
+public class OpenshiftEnvironmentDriverRemoteTest {
+
+    private static final org.slf4j.Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass().getName());
+
+    private static final RepositorySession DUMMY_REPOSITORY_CONFIGURATION = new DummyRepositoryConfiguration();
+
+    private static final int TEST_EXECUTION_TIMEOUT = 100;
+
+    @Inject
+    private EnvironmentDriver environmentDriver;
+
+    @Inject
+    private Configuration configurationService;
+
+    private boolean isInitialized = false;
+    private String pingUrl = "/";
+
+    @Deployment
+    public static WebArchive createDeployment() {
+        final WebArchive archive = ShrinkWrap
+                .create(WebArchive.class)
+                .addAsWebInfResource(EmptyAsset.INSTANCE, "beans.xml")
+                .addAsResource("pnc-config.json")
+                .addPackage(RemoteTest.class.getPackage())
+                .addPackages(true, OpenshiftEnvironmentDriver.class.getPackage());
+
+        File[] libs = Maven.resolver()
+                .loadPomFromFile("pom.xml")
+                .importRuntimeDependencies()
+                .resolve()
+                .withTransitivity().asFile();
+
+        archive.addAsLibraries(libs);
+
+        logger.info("Deployment: " + archive.toString(true));
+        return archive;
+    }
+
+    @Before
+    public void init() throws ConfigurationParseException {
+        final OpenshiftEnvironmentDriverModuleConfig config = configurationService
+            .getModuleConfig(new PncConfigProvider<OpenshiftEnvironmentDriverModuleConfig>(OpenshiftEnvironmentDriverModuleConfig.class));
+    }
+
+    @Test
+    public void canBuildEnvironmentTest() {
+        final Environment goodEnv = new Environment(BuildType.JAVA, OperationalSystem.LINUX);
+        final Environment badEnv1 = new Environment(null, null);
+        final Environment badEnv2 = new Environment(BuildType.DOCKER, OperationalSystem.LINUX);
+        final Environment badEnv3 = new Environment(BuildType.JAVA, OperationalSystem.WINDOWS);
+
+        assertTrue(environmentDriver.canBuildEnvironment(goodEnv));
+        assertFalse(environmentDriver.canBuildEnvironment(badEnv1));
+        assertFalse(environmentDriver.canBuildEnvironment(badEnv2));
+        assertFalse(environmentDriver.canBuildEnvironment(badEnv3));
+    }
+
+    @Test
+    public void createAndDestroyEnvironment() throws EnvironmentDriverException, InterruptedException {
+        final Semaphore mutex = new Semaphore(0);
+
+        // Create container
+        final Environment environment = new Environment(BuildType.JAVA, OperationalSystem.LINUX);
+        final StartedEnvironment startedEnv = environmentDriver.buildEnvironment(environment, DUMMY_REPOSITORY_CONFIGURATION);
+
+        Consumer<RunningEnvironment> onEnvironmentStarted = (runningEnvironment) -> {
+            boolean containerDestroyed = false;
+            try {
+                assertThatContainerIsRunning(runningEnvironment);
+
+                // Destroy container
+                runningEnvironment.destroyEnvironment();
+                containerDestroyed = true;
+                assertThatContainerIsNotRunning(runningEnvironment);
+                mutex.release();
+            } catch (Throwable e) {
+                fail(e.getMessage());
+            } finally {
+                if (!containerDestroyed) {
+                    destroyEnvironmentWithReport(runningEnvironment);
+                }
+            }
+        };
+
+        Consumer<Exception> onError = (e) -> {
+            try {
+                startedEnv.destroyEnvironment();
+            } catch (EnvironmentDriverException e1) {
+                logger.error("Environment LEAK! The running environment was not destroyed. ID: " + startedEnv.getId(), e1);
+            }
+            fail("Failed to init builder container. " + e.getMessage());
+        };
+
+        startedEnv.monitorInitialization(onEnvironmentStarted, onError);
+        boolean completed = mutex.tryAcquire(TEST_EXECUTION_TIMEOUT, TimeUnit.SECONDS);
+        assertTrue("timeout reached, test has not complete.", completed);
+
+    }
+
+    private void assertThatContainerIsRunning(final RunningEnvironment runningEnvironment) throws Exception {
+        HttpURLConnection connection = connectToPingUrl(runningEnvironment);
+        assertEquals("Environment wasn't successfully started.", 200, connection.getResponseCode());
+    }
+
+    private void assertThatContainerIsNotRunning(RunningEnvironment runningEnvironment) throws IOException {
+        boolean timeoutReached = false;
+        try {
+            HttpURLConnection connection = connectToPingUrl(runningEnvironment);
+        } catch (java.net.SocketTimeoutException e) {
+            timeoutReached = true;
+        }
+        assertTrue("Environment [" + runningEnvironment.getId() + "] should be destroyed.", timeoutReached);
+    }
+
+    private HttpURLConnection connectToPingUrl(RunningEnvironment runningEnvironment) throws IOException {
+        URL url = new URL(runningEnvironment.getJenkinsUrl() + ":" + runningEnvironment.getJenkinsPort() + pingUrl);
+        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+        connection.setConnectTimeout(3000);
+        connection.setRequestMethod("GET");
+        connection.setDoOutput(true);
+        connection.setDoInput(true);
+        connection.connect();
+        return connection;
+    }
+
+    private void destroyEnvironmentWithReport(RunningEnvironment runningEnvironment) {
+        try {
+            runningEnvironment.destroyEnvironment();
+        } catch (Exception e) {
+            logger.error("Environment LEAK! The running environment was not removed stopped. ID: " + runningEnvironment.getId());
+        }
+    }
+
+    private static class DummyRepositoryConfiguration implements RepositorySession {
+
+        @Override
+        public RepositoryType getType() {
+            return null;
+        }
+
+        @Override
+        public String getBuildRepositoryId() {
+            return null;
+        }
+
+        @Override
+        public RepositoryConnectionInfo getConnectionInfo() {
+            return new RepositoryConnectionInfo() {
+
+                @Override
+                public String getToolchainUrl() {
+                    return null;
+                }
+
+                @Override
+                public Map<String, String> getProperties() {
+                    return null;
+                }
+
+                @Override
+                public String getDeployUrl() {
+                    return "approx/deploy/url";
+                }
+
+                @Override
+                public String getDependencyUrl() {
+                    return "approx/dependencies/url";
+                }
+            };
+        }
+
+        @Override
+        public RepositoryManagerResult extractBuildArtifacts() throws RepositoryManagerException {
+            return null;
+        }
+
+        @Override
+        public String getBuildSetRepositoryId() {
+            return null;
+        }
+
+    }
+
+}

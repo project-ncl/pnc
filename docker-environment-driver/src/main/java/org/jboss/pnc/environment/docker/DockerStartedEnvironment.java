@@ -17,6 +17,9 @@
  */
 package org.jboss.pnc.environment.docker;
 
+import org.jboss.pnc.common.monitor.PullingMonitor;
+import org.jboss.pnc.common.util.HttpUtils;
+import org.jboss.pnc.common.util.ObjectWrapper;
 import org.jboss.pnc.spi.environment.RunningEnvironment;
 import org.jboss.pnc.spi.environment.StartedEnvironment;
 import org.jboss.pnc.spi.environment.exception.EnvironmentDriverException;
@@ -26,6 +29,9 @@ import org.slf4j.LoggerFactory;
 
 import java.lang.invoke.MethodHandles;
 import java.nio.file.Path;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
 /**
@@ -38,22 +44,25 @@ public class DockerStartedEnvironment implements StartedEnvironment {
 
     private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass().getName());
 
-    private final DockerInitializationMonitor dockerInitMonitor;
-    
+
+    /** Time how long the driver waits until all services are fully up and running (in seconds) */
+    private static final int MAX_CONTAINER_LOADING_TIME = 180;
+
+    /** Interval between two checks if the services are fully up and running (in second) */
+    private static final int CHECK_INTERVAL = 5;
+
     private final DockerRunningEnvironment preparedRunningEnvironment;
     
     private final String id;
+    private final PullingMonitor pullingMonitor;
 
-    private final Path workingDirectory;
-
-    public DockerStartedEnvironment(DockerEnvironmentDriver dockerEnvDriver, DockerInitializationMonitor dockerInitMonitor,
+    public DockerStartedEnvironment(DockerEnvironmentDriver dockerEnvDriver, PullingMonitor pullingMonitor,
             RepositorySession repositorySession, String id, int jenkinsPort, int sshPort, String containerUrl,
             Path workingDirectory) {
+        this.pullingMonitor = pullingMonitor;
         this.preparedRunningEnvironment = new DockerRunningEnvironment(dockerEnvDriver, repositorySession,
                 id, jenkinsPort, sshPort, containerUrl, workingDirectory);
-        this.dockerInitMonitor = dockerInitMonitor;
         this.id = id;
-        this.workingDirectory = workingDirectory;
     }
 
     @Override
@@ -71,8 +80,12 @@ public class DockerStartedEnvironment implements StartedEnvironment {
         Consumer<Exception> onEnvironmentInitError = (e) -> {
             onError.accept(e);
         };
-        
-        dockerInitMonitor.monitor(onEnvironmentInitComplete, onEnvironmentInitError, preparedRunningEnvironment.getJenkinsUrl());
+
+        pullingMonitor.monitor(
+                onEnvironmentInitComplete,
+                onEnvironmentInitError,
+                () -> checkServices(preparedRunningEnvironment.getJenkinsUrl()),
+                CHECK_INTERVAL, MAX_CONTAINER_LOADING_TIME);
         
         logger.info("Waiting to init services in docker container. ID: " + preparedRunningEnvironment.getId());
     }
@@ -81,5 +94,25 @@ public class DockerStartedEnvironment implements StartedEnvironment {
     public String getId() {
         return id;
     }
+
+    /**
+     * Wait until all services in container are fully up and running
+     *
+     * @param jenkinsUrl to jenkins server in container
+     * @throws EnvironmentDriverException Thrown if the services are not initialized in time specified by variable
+     *         MAX_CONTAINER_LOADING_TIME
+     * @return True if all services are fully up and running otherwise false
+     */
+    private boolean checkServices(String jenkinsUrl) {
+        try {
+            HttpUtils.testResponseHttpCode(200, jenkinsUrl);
+            return true;
+        } catch (Exception e) {
+            // Jenkins is not fully up
+            logger.debug("Container services are not fully up and running. Waiting ...");
+            return false;
+        }
+    }
+
 
 }

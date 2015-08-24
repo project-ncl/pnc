@@ -17,9 +17,10 @@
  */
 package org.jboss.pnc.common.json.moduleconfig;
 
-import org.jboss.pnc.common.json.AbstractModuleConfig;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
+
+import java.nio.file.FileSystems;
+import java.nio.file.Path;
 
 /**
  * Configuration for DockerEnvironmentDriver
@@ -27,7 +28,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * @author Jakub Bartecek &lt;jbartece@redhat.com&gt;
  *
  */
-public class DockerEnvironmentDriverModuleConfig extends AbstractModuleConfig {
+public class DockerEnvironmentDriverModuleConfig extends EnvironmentDriverModuleConfigBase {
     
     public static String MODULE_NAME = "docker-environment-driver";
 
@@ -37,7 +38,7 @@ public class DockerEnvironmentDriverModuleConfig extends AbstractModuleConfig {
 
     private String inContainerUserPassword;
 
-    private String dockerImageId;
+    private static final Path workingDirectory = FileSystems.getDefault().getPath("/tmp");
 
     private String firewallAllowedDestinations;
     
@@ -79,10 +80,13 @@ public class DockerEnvironmentDriverModuleConfig extends AbstractModuleConfig {
             @JsonProperty("proxyServer") String proxyServer, 
             @JsonProperty("proxyPort") String proxyPort,
             @JsonProperty("nonProxyHosts") String nonProxyHosts) {
+
+        super(dockerImageId, firewallAllowedDestinations, proxyServer, proxyPort, workingDirectory.toString());
+
         this.ip = ip;
         this.inContainerUser = inContainerUser;
         this.inContainerUserPassword = inContainerUserPassword;
-        this.dockerImageId = dockerImageId;
+        this.imageId = dockerImageId;
         this.proxyServer = proxyServer;
         this.proxyPort = proxyPort;
         this.nonProxyHosts = nonProxyHosts;
@@ -101,24 +105,8 @@ public class DockerEnvironmentDriverModuleConfig extends AbstractModuleConfig {
         return inContainerUser;
     }
 
-    public void setInContainerUser(String inContainerUser) {
-        this.inContainerUser = inContainerUser;
-    }
-
     public String getInContainerUserPassword() {
         return inContainerUserPassword;
-    }
-
-    public void setInContainerUserPassword(String inContainerUserPassword) {
-        this.inContainerUserPassword = inContainerUserPassword;
-    }
-
-    public String getDockerImageId() {
-        return dockerImageId;
-    }
-
-    public void setDockerImageId(String dockerImageId) {
-        this.dockerImageId = dockerImageId;
     }
 
     @Override
@@ -126,21 +114,13 @@ public class DockerEnvironmentDriverModuleConfig extends AbstractModuleConfig {
         return "DockerEnvironmentDriverModuleConfig ["
                 + (ip != null ? "ip=" + ip + ", " : "")
                 + (inContainerUser != null ? "inContainerUser=" + inContainerUser + ", " : "")
-                + (dockerImageId != null ? "dockerImageId=" + dockerImageId + ", " : "")
+                + (imageId != null ? "dockerImageId=" + imageId + ", " : "")
                 + (firewallAllowedDestinations != null ? "firewallAllowedDestinations="
                         + firewallAllowedDestinations + ", " : "")
                 + (proxyServer != null ? "proxyServer=" + proxyServer + ", " : "")
                 + (proxyPort != null ? "proxyPort=" + proxyPort + ", " : "")
                 + (proxyPort != null ? "nonProxyHosts=" + nonProxyHosts + ", " : "")
                 + "inContainerUserPassword=HIDDEN]";
-    }
-
-    public String getFirewallAllowedDestinations() {
-        return firewallAllowedDestinations;
-    }
-
-    public void setFirewallAllowedDestinations(String firewallAllowedDestinations) {
-        this.firewallAllowedDestinations = firewallAllowedDestinations;
     }
 
 }

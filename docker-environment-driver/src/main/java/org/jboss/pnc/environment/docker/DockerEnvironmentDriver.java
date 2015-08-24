@@ -26,6 +26,7 @@ import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.moduleconfig.DockerEnvironmentDriverModuleConfig;
 import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
+import org.jboss.pnc.common.monitor.PullingMonitor;
 import org.jboss.pnc.common.util.HttpUtils;
 import org.jboss.pnc.model.BuildType;
 import org.jboss.pnc.model.Environment;
@@ -51,6 +52,7 @@ import javax.inject.Inject;
 import java.lang.invoke.MethodHandles;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -68,13 +70,11 @@ public class DockerEnvironmentDriver implements EnvironmentDriver {
 
     private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass().getName());
 
-    private static final Path workingDirectory = FileSystems.getDefault().getPath("/tmp");
+    // A path in the remote container
+    private static final Path workingDirectory = Paths.get("/tmp");
 
     @Inject
     private Generator generator;
-
-    @Inject
-    private DockerInitializationMonitor dockerInitMonitor;
 
     private ComputeServiceContext dockerContext;
 
@@ -103,6 +103,8 @@ public class DockerEnvironmentDriver implements EnvironmentDriver {
 
     private String nonProxyHosts;
     
+    private PullingMonitor pullingMonitor;
+
     /**
      * States of creating Docker container
      * 
@@ -128,7 +130,8 @@ public class DockerEnvironmentDriver implements EnvironmentDriver {
      * @throws ConfigurationParseException Thrown if configuration cannot be obtained
      */
     @Inject
-    public DockerEnvironmentDriver(Configuration configuration) throws ConfigurationParseException {
+    public DockerEnvironmentDriver(Configuration configuration, PullingMonitor pullingMonitor) throws ConfigurationParseException {
+        this.pullingMonitor = pullingMonitor;
         DockerEnvironmentDriverModuleConfig config = configuration
                 .getModuleConfig(new PncConfigProvider<DockerEnvironmentDriverModuleConfig>(DockerEnvironmentDriverModuleConfig.class));
 
@@ -136,7 +139,7 @@ public class DockerEnvironmentDriver implements EnvironmentDriver {
         dockerEndpoint = "http://" + dockerIp + ":2375";
         containerUser = config.getInContainerUser();
         containerUserPsswd = config.getInContainerUserPassword();
-        dockerImageId = config.getDockerImageId();
+        dockerImageId = config.getImageId();
         containerFirewallAllowedDestinations = config.getFirewallAllowedDestinations();
         proxyServer = config.getProxyServer();
         proxyPort = config.getProxyPort();
@@ -203,7 +206,7 @@ public class DockerEnvironmentDriver implements EnvironmentDriver {
         logger.info("Created and started Docker container. ID: " + containerId
                 + ", SSH port: " + sshPort + ", Jenkins Port: " + jenkinsPort + ", Working directory: " + workingDirectory);
 
-        return new DockerStartedEnvironment(this, dockerInitMonitor, repositorySession,
+        return new DockerStartedEnvironment(this, pullingMonitor, repositorySession,
                 containerId, jenkinsPort, sshPort, "http://" + dockerIp, workingDirectory);
     }
 
