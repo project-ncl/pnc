@@ -84,7 +84,7 @@
                   })
                   .then(
                     function() {
-                      $state.go('product.version', {
+                      $state.go('product.detail.version', {
                         productId: productDetail.id,
                         versionId: versionDetail.id
                       }, {
@@ -92,7 +92,7 @@
                       });
                     },
                     function() {
-                      $state.go('product.version', {
+                      $state.go('product.detail.version', {
                         productId: productDetail.id,
                         versionId: versionDetail.id
                       }, {
@@ -101,7 +101,7 @@
                     }
                   );
               } else {
-                $state.go('product.version', {
+                $state.go('product.detail.version', {
                   productId: productDetail.id,
                   versionId: versionDetail.id
                 }, {
@@ -113,7 +113,7 @@
         } else {
           that.data.$update().then(
             function() {
-              $state.go('product.version', {
+              $state.go('product.detail.version', {
                 productId: productDetail.id,
                 versionId: versionDetail.id
               }, {
@@ -151,7 +151,7 @@
         that.data.releaseDate = dateUtilConverter.convertToTimestampNoonUTC(that.data.releaseDate);
         that.data.$update().then(
           function() {
-            $state.go('product.version', {
+            $state.go('product.detail.version', {
               productId: productDetail.id,
               versionId: versionDetail.id
             }, {

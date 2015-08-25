@@ -31,34 +31,31 @@
 
   module.config(['$stateProvider', function ($stateProvider) {
     $stateProvider
-    .state('product.version.release', {
-      abstract: true,
-      url: '/release',
+    .state('product.detail.version.releaseCreate', {
+      url: '/release/create',
       views: {
         'content@': {
-          templateUrl: 'common/templates/single-col.tmpl.html'
+          templateUrl: 'release/views/release.create-update.html',
+          controller: 'ReleaseCreateUpdateController',
+          controllerAs: 'releaseCreateUpdateCtrl',
         }
       },
-    })
-    .state('product.version.release.create', {
-      url: '/create',
-      templateUrl: 'release/views/release.create-update.html',
       data: {
-        proxy: 'product.version.release.create',
         displayName: 'Create Release'
       },
-      controller: 'ReleaseCreateUpdateController',
-      controllerAs: 'releaseCreateUpdateCtrl'
     })
-    .state('product.version.release.update', {
-      url: '/{releaseId:int}/update',
-      templateUrl: 'release/views/release.create-update.html',
+    .state('product.detail.version.releaseUpdate', {
+      url: '/release/{releaseId:int}/update',
+      views: {
+        'content@': {
+          templateUrl: 'release/views/release.create-update.html',
+          controller: 'ReleaseCreateUpdateController',
+          controllerAs: 'releaseCreateUpdateCtrl',
+        }
+      },
       data: {
-        proxy: 'product.version.release.update',
         displayName: 'Update Release'
       },
-      controller: 'ReleaseCreateUpdateController',
-      controllerAs: 'releaseCreateUpdateCtrl',
       resolve: {
         releaseDetail: function(ProductReleaseDAO, $stateParams) {
           return ProductReleaseDAO.get({ releaseId: $stateParams.releaseId })
