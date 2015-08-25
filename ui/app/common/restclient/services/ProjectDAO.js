@@ -25,12 +25,12 @@
 
   /**
    * @ngdoc service
-   * @name pnc.common.restclient:Project
+   * @name // TODO
    * @description
    *
    * @author Alex Creasy
    */
-  module.factory('Project', [
+  module.factory('ProjectDAO', [
     '$resource',
     'REST_BASE_URL',
     'PROJECT_ENDPOINT',

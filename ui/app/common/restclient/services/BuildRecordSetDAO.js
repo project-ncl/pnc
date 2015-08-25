@@ -17,27 +17,41 @@
  */
 'use strict';
 
-(function () {
+(function() {
 
   var module = angular.module('pnc.common.restclient');
 
-  module.value('USER_ENDPOINT', '/users/:userId');
+  module.value('BUILD_RECORD_SET_ENDPOINT', '/build-record-sets/:recordsetId');
 
   /**
    * @ngdoc service
+   * @name // TODO
+   * @description
+   *
    */
-  module.factory('User', [
+  module.factory('BuildRecordSetDAO', [
     '$resource',
     'REST_BASE_URL',
-    'USER_ENDPOINT',
-    function ($resource, REST_BASE_URL, USER_ENDPOINT) {
-      var ENDPOINT = REST_BASE_URL + USER_ENDPOINT;
+    'BUILD_RECORD_SET_ENDPOINT',
+    function($resource, REST_BASE_URL, BUILD_RECORD_SET_ENDPOINT) {
+      var ENDPOINT = REST_BASE_URL + BUILD_RECORD_SET_ENDPOINT;
 
-      var resource = $resource(ENDPOINT, {
-        userId: '@id'
-      }, {});
+      var BuildRecordSet = $resource(ENDPOINT, {
+        recordsetId: '@id'
+      },{
+        getAllForProductVersion: {
+          method: 'GET',
+          url: REST_BASE_URL + '/build-record-sets/product-versions/:versionId',
+          isArray: true
+        },
+        getRecords: {
+          method: 'GET',
+          url: REST_BASE_URL + '/build-record-sets/build-records/:recordId',
+          isArray: true
+        }
+      });
 
-      return resource;
+      return BuildRecordSet;
     }
   ]);
 

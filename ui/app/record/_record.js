@@ -57,15 +57,13 @@
         controller: 'RecordDetailController',
         controllerAs: 'recordCtrl',
         resolve: {
-          BuildConfiguration: 'BuildConfiguration',
-          build: 'Build',
-          recordDetail: function (build, $stateParams) {
-            return build.get({
+          recordDetail: function (BuildRecordDAO, $stateParams) {
+            return BuildRecordDAO.get({
               recordId: $stateParams.recordId
             });
           },
-          configurationDetail: function (BuildConfiguration, recordDetail) {
-            return BuildConfiguration.get({
+          configurationDetail: function (BuildConfigurationDAO, recordDetail) {
+            return BuildConfigurationDAO.get({
               configurationId: recordDetail.buildConfigurationId
             }).$promise;
           }
@@ -88,9 +86,8 @@
         controllerAs: 'resultCtrl',
         templateUrl: 'record/views/record.detail.result.html',
         resolve: {
-          restClient: 'PncRestClient',
-          buildLog: function (restClient, recordDetail) {
-            return restClient.Record.getLog({
+          buildLog: function (BuildRecordDAO, recordDetail) {
+            return BuildRecordDAO.getLog({
               recordId: recordDetail.id
             }).$promise;
           }
@@ -103,9 +100,8 @@
         controllerAs: 'outputCtrl',
         templateUrl: 'record/views/record.detail.output.html',
         resolve: {
-          restClient: 'PncRestClient',
-          artifacts: function (restClient, recordDetail) {
-            return restClient.Record.getArtifacts({
+          artifacts: function (BuildRecordDAO, recordDetail) {
+            return BuildRecordDAO.getArtifacts({
               recordId: recordDetail.id
             }).$promise;
           }
@@ -119,10 +115,7 @@
           displayName: 'Records'
         },
         controller: 'RecordListController',
-        controllerAs: 'ctrl',
-        resolve: {
-          restClient: 'PncRestClient'
-        }
+        controllerAs: 'ctrl'
       });
 
     }]);

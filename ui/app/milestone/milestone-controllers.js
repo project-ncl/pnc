@@ -26,12 +26,12 @@
     '$state',
     '$stateParams',
     '$log',
-    'PncRestClient',
+    'ProductMilestoneDAO',
     'productDetail',
     'versionDetail',
     'milestoneDetail',
     'dateUtilConverter',
-    function($scope, $state, $stateParams, $log, PncRestClient, productDetail,
+    function($scope, $state, $stateParams, $log, ProductMilestoneDAO, productDetail,
       versionDetail, milestoneDetail, dateUtilConverter) {
 
       var that = this;
@@ -41,7 +41,7 @@
       that.setCurrentMilestone = false;
       that.isUpdating = false;
 
-      that.data = new PncRestClient.Milestone();
+      that.data = new ProductMilestoneDAO();
 
       if (milestoneDetail !== null) {
         that.isUpdating = true;
@@ -132,13 +132,11 @@
     '$scope',
     '$state',
     '$stateParams',
-    '$log',
-    'PncRestClient',
     'productDetail',
     'versionDetail',
     'milestoneDetail',
     'dateUtilConverter',
-    function($scope, $state, $stateParams, $log, PncRestClient, productDetail,
+    function($scope, $state, $stateParams, productDetail,
       versionDetail, milestoneDetail, dateUtilConverter) {
 
       var that = this;

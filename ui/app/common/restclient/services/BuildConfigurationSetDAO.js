@@ -25,12 +25,12 @@
 
   /**
    * @ngdoc service
-   * @name pnc.common.restclient:BuildConfigurationSet
+   * @name // TODO
    * @description
    *
    * @author Alex Creasy
    */
-  module.factory('BuildConfigurationSet', [
+  module.factory('BuildConfigurationSetDAO', [
     '$resource',
     'REST_BASE_URL',
     'BUILD_CONFIGURATION_SET_ENDPOINT',

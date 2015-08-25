@@ -50,9 +50,8 @@
       controller: 'ProjectListController',
       controllerAs: 'listCtrl',
       resolve: {
-        restClient: 'PncRestClient',
-        projectList: function(restClient) {
-          return restClient.Project.query().$promise;
+        projectList: function(ProjectDAO) {
+          return ProjectDAO.query().$promise;
         }
       },
     });
@@ -66,13 +65,12 @@
       controller: 'ProjectDetailController',
       controllerAs: 'detailCtrl',
       resolve: {
-        restClient: 'PncRestClient',
-        projectDetail: function(restClient, $stateParams) {
-          return restClient.Project.get({
+        projectDetail: function(ProjectDAO, $stateParams) {
+          return ProjectDAO.get({
             projectId: $stateParams.projectId}).$promise;
         },
-        projectConfigurationList: function(restClient, $stateParams) {
-          return restClient.Configuration.getAllForProject({
+        projectConfigurationList: function(BuildConfigurationDAO, $stateParams) {
+          return BuildConfigurationDAO.getAllForProject({
             projectId: $stateParams.projectId}).$promise;
         },
       }

@@ -21,39 +21,38 @@
 
   var module = angular.module('pnc.common.restclient');
 
-  module.value('PRODUCT_VERSION_ENDPOINT', '/product-versions/:versionId');
+  module.value('MILESTONE_ENDPOINT', '/product-milestones/:milestoneId');
 
   /**
    * @ngdoc service
-   * @name pnc.common.restclient:ProductVersion
+   * @name // TODO
    * @description
+   *
    */
-  module.factory('ProductVersion', [
+  module.factory('ProductMilestoneDAO', [
     '$resource',
     'REST_BASE_URL',
-    'PRODUCT_VERSION_ENDPOINT',
-    function($resource, REST_BASE_URL, PRODUCT_VERSION_ENDPOINT) {
-      var ENDPOINT = REST_BASE_URL + PRODUCT_VERSION_ENDPOINT;
+    'MILESTONE_ENDPOINT',
+    function($resource, REST_BASE_URL, MILESTONE_ENDPOINT) {
+      var ENDPOINT = REST_BASE_URL + MILESTONE_ENDPOINT;
 
-      var ProductVersion = $resource(ENDPOINT, {
-        versionId: '@id',
+      var Milestone = $resource(ENDPOINT, {
+        milestoneId: '@id'
       },{
         update: {
           method: 'PUT',
         },
-        getAllBuildConfigurationSets: {
+        getAllForProductVersion: {
           method: 'GET',
-          url: ENDPOINT + '/build-configuration-sets',
+          url: REST_BASE_URL + '/product-milestones/product-versions/:versionId',
           isArray: true
         },
-        getAllForProduct: {
-          method: 'GET',
-          url: REST_BASE_URL + '/products/:productId/product-versions',
-          isArray: true
+        save: {
+          method: 'POST'
         }
       });
 
-      return ProductVersion;
+      return Milestone;
     }
   ]);
 

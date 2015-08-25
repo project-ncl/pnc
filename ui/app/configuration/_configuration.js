@@ -53,9 +53,8 @@
       controller: 'ConfigurationListController',
       controllerAs: 'listCtrl',
       resolve: {
-        restClient: 'PncRestClient',
-        configurationList: function(restClient) {
-          return restClient.Configuration.query().$promise;
+        configurationList: function(BuildConfigurationDAO) {
+          return BuildConfigurationDAO.query().$promise;
         }
       }
     });
@@ -69,18 +68,17 @@
       controller: 'ConfigurationCreateController',
       controllerAs: 'createCtrl',
       resolve: {
-        restClient: 'PncRestClient',
-        environments: function(restClient) {
-          return restClient.Environment.query().$promise;
+        environments: function(EnvironmentDAO) {
+          return EnvironmentDAO.query().$promise;
         },
-        projects: function(restClient) {
-          return restClient.Project.query().$promise;
+        projects: function(ProjectDAO) {
+          return ProjectDAO.query().$promise;
         },
-        products: function(restClient) {
-          return restClient.Product.query().$promise;
+        products: function(ProductDAO) {
+          return ProductDAO.query().$promise;
         },
-        configurations: function(restClient) {
-          return restClient.Configuration.query().$promise;
+        configurations: function(BuildConfigurationDAO) {
+          return BuildConfigurationDAO.query().$promise;
         }
       },
     });
@@ -117,41 +115,39 @@
         },
       },
       resolve: {
-        restClient: 'PncRestClient',
-        configurationDetail: function(restClient, $stateParams) {
-          return restClient.Configuration.get({
+        configurationDetail: function(BuildConfigurationDAO, $stateParams) {
+          return BuildConfigurationDAO.get({
             configurationId: $stateParams.configurationId }).$promise;
         },
-        environmentDetail: function(restClient, $stateParams,
+        environmentDetail: function(EnvironmentDAO, $stateParams,
                                     configurationDetail) {
-
-          return restClient.Environment.get({
+          return EnvironmentDAO.get({
             environmentId: configurationDetail.environmentId  }).$promise;
         },
-        projectDetail: function(restClient, $stateParams,
+        projectDetail: function(ProjectDAO, $stateParams,
                                  configurationDetail) {
-          return restClient.Project.get({
+          return ProjectDAO.get({
             projectId: configurationDetail.projectId }).$promise;
         },
-        buildRecordList: function(restClient, $stateParams) {
-          return restClient.Record.getAllForConfiguration({
+        buildRecordList: function(BuildRecordDAO, $stateParams) {
+          return BuildRecordDAO.getAllForConfiguration({
             configurationId: $stateParams.configurationId }).$promise;
         },
-        runningBuildRecordList: function(restClient) {
-          return restClient.Running.query().$promise;
+        runningBuildRecordList: function(RunningBuildRecordDAO) {
+          return RunningBuildRecordDAO.query().$promise;
         },
-        products: function(restClient) {
-          return restClient.Product.query().$promise;
+        products: function(ProductDAO) {
+          return ProductDAO.query().$promise;
         },
-        configurations: function(restClient) {
-          return restClient.Configuration.query().$promise;
+        configurations: function(BuildConfigurationDAO) {
+          return BuildConfigurationDAO.query().$promise;
         },
-        productVersions: function(restClient, $stateParams) {
-          return restClient.Configuration.getProductVersions({
+        productVersions: function(BuildConfigurationDAO, $stateParams) {
+          return BuildConfigurationDAO.getProductVersions({
             configurationId: $stateParams.configurationId }).$promise;
         },
-        dependencies: function(restClient, $stateParams) {
-          return restClient.Configuration.getDependencies({
+        dependencies: function(BuildConfigurationDAO, $stateParams) {
+          return BuildConfigurationDAO.getDependencies({
             configurationId: $stateParams.configurationId }).$promise;
         }
       }

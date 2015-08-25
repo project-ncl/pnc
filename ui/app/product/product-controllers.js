@@ -33,8 +33,9 @@
     '$log',
     'productDetail',
     'productVersions',
-    'PncRestClient',
-    function($log, productDetail, productVersions, PncRestClient) {
+    'ProductMilestoneDAO',
+    'ProductReleaseDAO',
+    function($log, productDetail, productVersions, ProductMilestoneDAO, ProductReleaseDAO) {
 
       var that = this;
       that.product = productDetail;
@@ -53,7 +54,7 @@
       // Retrieve all the artifacts of all the build records of the build configurations set
       angular.forEach(that.versions, function(version) {
 
-        PncRestClient.Milestone.getAllForProductVersion({
+        ProductMilestoneDAO.getAllForProductVersion({
           versionId: version.id
         }).$promise.then(
           function(results) {
@@ -63,7 +64,7 @@
           }
         );
 
-        PncRestClient.Release.getAllForProductVersion({
+        ProductReleaseDAO.getAllForProductVersion({
           versionId: version.id
         }).$promise.then(
           function(results) {
@@ -134,9 +135,11 @@
     'buildConfigurations',
     'productReleases',
     'productMilestones',
-    'PncRestClient',
+    'BuildConfigurationSetDAO',
+    'BuildConfigurationDAO',
     function($log, $state, productDetail, versionDetail, buildConfigurationSets,
-      buildConfigurations, productReleases, productMilestones, PncRestClient) {
+      buildConfigurations, productReleases, productMilestones, BuildConfigurationSetDAO,
+      BuildConfigurationDAO) {
 
       var that = this;
       that.product = productDetail;
@@ -198,7 +201,7 @@
       // Executing a build of a configurationSet
       that.buildConfigSet = function(configSet) {
         $log.debug('**Initiating build of SET: %s**', configSet.name);
-        PncRestClient.ConfigurationSet.build({
+        BuildConfigurationSetDAO.build({
           configurationSetId: configSet.id
         }, {});
       };
@@ -207,7 +210,7 @@
       that.buildConfig = function(config) {
         $log.debug('**Initiating build of: %O', config.name);
 
-        PncRestClient.Configuration.build({
+        BuildConfigurationDAO.build({
           configurationId: config.id
         }, {});
       };
@@ -227,10 +230,10 @@
   module.controller('ProductCreateController', [
     '$state',
     '$log',
-    'PncRestClient',
-    function($state, $log, PncRestClient) {
+    'ProductDAO',
+    function($state, $log, ProductDAO) {
 
-      this.data = new PncRestClient.Product();
+      this.data = new ProductDAO();
       var that = this;
 
       that.submit = function() {
@@ -246,11 +249,11 @@
   module.controller('ProductVersionCreateController', [
     '$state',
     '$log',
-    'PncRestClient',
+    'ProductVersionDAO',
     'productDetail',
-    function($state, $log, PncRestClient, productDetail) {
+    function($state, $log, ProductVersionDAO, productDetail) {
 
-      this.data = new PncRestClient.Version();
+      this.data = new ProductVersionDAO();
       this.product = productDetail;
       var that = this;
 
