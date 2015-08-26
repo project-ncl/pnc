@@ -30,9 +30,9 @@
    */
   module.factory('Build', [
     'BuildRecordDAO',
-    'RunningBuildDAO',
+    'RunningBuildRecordDAO',
     '$q',
-    function(BuildRecordDAO, RunningBuildDAO, $q) {
+    function(BuildRecordDAO, RunningBuildRecordDAO, $q) {
       return {
         get: function(spec) {
           var deffered = $q.defer();
@@ -53,7 +53,7 @@
            */
           $q.all([
             BuildRecordDAO.get(spec).$promise.catch(overrideRejection),
-            RunningBuildDAO.get(spec).$promise.catch(overrideRejection)
+            RunningBuildRecordDAO.get(spec).$promise.catch(overrideRejection)
           ]).then(
             function(results) {
               // Success - return whichever record we successfully pulled down.

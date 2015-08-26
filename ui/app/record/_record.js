@@ -60,7 +60,7 @@
           recordDetail: function (BuildRecordDAO, $stateParams) {
             return BuildRecordDAO.get({
               recordId: $stateParams.recordId
-            });
+            }).$promise;
           },
           configurationDetail: function (BuildConfigurationDAO, recordDetail) {
             return BuildConfigurationDAO.get({
