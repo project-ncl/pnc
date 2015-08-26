@@ -368,7 +368,16 @@ public class BuildCoordinator {
                 buildTask.setStatus(BuildStatus.STORING_RESULTS);
                 storedBuildRecord = datastoreAdapter.storeResult(buildTask, buildResult, buildTask.getId());
             } else {
+                // If there are no build results, then there was a system failure 
+                // which means the build may not have started.
+                if (buildTask.getStartTime() == null) {
+                    buildTask.setStartTime(new Date());
+                }
                 stopRunningEnvironment(e);
+                if (buildTask.getEndTime() == null) {
+                    buildTask.setEndTime(new Date());
+                }
+
                 datastoreAdapter.storeResult(buildTask, e);
             }
         } catch (DatastoreException de) {
