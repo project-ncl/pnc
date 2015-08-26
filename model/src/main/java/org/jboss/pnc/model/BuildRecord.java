@@ -17,7 +17,6 @@
  */
 package org.jboss.pnc.model;
 
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
@@ -91,11 +90,9 @@ public class BuildRecord implements GenericEntity<Integer> {
 
     private String buildContentId;
 
-    @NotNull
     @Column(columnDefinition="timestamp with time zone")
     private Date startTime;
 
-    @NotNull
     @Column(columnDefinition="timestamp with time zone")
     private Date endTime;
 
