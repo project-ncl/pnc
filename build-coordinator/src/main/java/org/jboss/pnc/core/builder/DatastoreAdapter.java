@@ -33,9 +33,7 @@ import javax.inject.Inject;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.util.Date;
 import java.util.List;
-import java.util.Optional;
 
 import static org.jboss.pnc.model.BuildStatus.SYSTEM_ERROR;
 
@@ -121,13 +119,11 @@ public class DatastoreAdapter {
      * @return The new (unsaved) build record
      */
     private BuildRecord createBuildRecord(BuildTask buildTask) {
-        Date startTime = Optional.ofNullable(buildTask.getStartTime()).orElse(new Date());
-        Date endTime = Optional.ofNullable(buildTask.getEndTime()).orElse(new Date());
         BuildRecord buildRecord = BuildRecord.Builder.newBuilder().id(buildTask.getId())
                 .buildConfigurationAudited(buildTask.getBuildConfigurationAudited())
                 .user(buildTask.getUser())
-                .startTime(startTime)
-                .endTime(endTime)
+                .startTime(buildTask.getStartTime())
+                .endTime(buildTask.getEndTime())
                 .build();
 
         buildRecord.setLatestBuildConfiguration(buildTask.getBuildConfiguration());
