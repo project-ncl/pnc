@@ -43,6 +43,9 @@
       data: {
         displayName: 'Create Release'
       },
+      resolve: {
+        releaseDetail: function() { return null; }
+      },
     })
     .state('product.detail.version.releaseUpdate', {
       url: '/release/{releaseId:int}/update',
