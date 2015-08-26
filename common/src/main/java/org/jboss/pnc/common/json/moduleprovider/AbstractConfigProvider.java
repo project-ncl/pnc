@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.common.json.moduleprovider;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.jboss.pnc.common.json.AbstractModuleConfig;
@@ -31,8 +32,8 @@ import com.fasterxml.jackson.databind.jsontype.NamedType;
  */
 public abstract class AbstractConfigProvider <T extends AbstractModuleConfig> implements ConfigProvider<T>{
     
-    List<ProviderNameType<T>> moduleConfigs;
-    Class<T> ctype;
+    private List<ProviderNameType<T>> moduleConfigs = new ArrayList<>();
+    private Class<T> ctype;
 
     public void registerProvider(ObjectMapper mapper) {
         for (ProviderNameType<T> providerNameType : moduleConfigs) {
@@ -52,5 +53,7 @@ public abstract class AbstractConfigProvider <T extends AbstractModuleConfig> im
         return ctype;
     }
     
-    
+    protected void setType(Class<T> ctype) {
+        this.ctype = ctype;
+    }
 }
