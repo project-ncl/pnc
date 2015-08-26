@@ -45,6 +45,9 @@
       data: {
         displayName: 'Create Milestone'
       },
+      resolve: {
+        milestoneDetail: function() { return null; }
+      },
       controller: 'MilestoneCreateUpdateController',
       controllerAs: 'milestoneCreateUpdateCtrl',
     })
