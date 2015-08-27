@@ -312,8 +312,8 @@
 
     var DEFAULT_TEMPLATE = 'record/views/pnc-build-details.html';
 
-    function Controller($scope, $q, eventTypes, Build, BuildRecord,
-        BuildConfiguration, Project, Environment, User) {
+    function Controller($scope, $q, eventTypes, Build, BuildRecordDAO,
+        BuildConfigurationDAO, ProjectDAO, EnvironmentDAO, UserDAO) {
       var self = this;
       var loaded;
 
@@ -335,11 +335,11 @@
         // if the build has completed.
         function fetchConfiguration(record) {
           if(record.status === 'BUILDING') {
-            return BuildConfiguration.get({
+            return BuildConfigurationDAO.get({
               configurationId: record.buildConfigurationId
             }).$promise;
           } else {
-            return BuildRecord.getAuditedBuildConfiguration({
+            return BuildRecordDAO.getAuditedBuildConfiguration({
               recordId: record.id
             }).$promise;
           }
@@ -354,7 +354,7 @@
             // Get the BuildRecord's related entities in parallel.
             return $q.all([
               fetchConfiguration(response),
-              User.get({
+              UserDAO.get({
                 userId: response.userId
               }).$promise
             ]);
@@ -366,11 +366,11 @@
 
             // Get the BuildConfiguration's related entities in parallel.
             return $q.all([
-              Project.get({
+              ProjectDAO.get({
                 projectId: responses[0].projectId
               }).$promise,
 
-              Environment.get({
+              EnvironmentDAO.get({
                 environmentId: responses[0].environmentId
               }).$promise
 
@@ -421,11 +421,11 @@
         '$q',
         'eventTypes',
         'Build',
-        'BuildRecord',
-        'BuildConfiguration',
-        'Project',
-        'Environment',
-        'User',
+        'BuildRecordDAO',
+        'BuildConfigurationDAO',
+        'ProjectDAO',
+        'EnvironmentDAO',
+        'UserDAO',
         Controller
       ]
     };

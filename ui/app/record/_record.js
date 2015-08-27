@@ -61,7 +61,7 @@
           recordDetail: function (BuildRecordDAO, $stateParams) {
             return BuildRecordDAO.get({
               recordId: $stateParams.recordId
-            });
+            }).$promise;
           },
           configurationDetail: function (BuildConfigurationDAO, recordDetail) {
             return BuildConfigurationDAO.get({
@@ -86,6 +86,9 @@
         controller: 'RecordResultController',
         controllerAs: 'resultCtrl',
         templateUrl: 'record/views/record.detail.result.html',
+        data: {
+          displayName: '{{ recordDetail.id }}',
+        },
         resolve: {
           buildLog: function (BuildRecordDAO, recordDetail) {
             return BuildRecordDAO.getLog({
@@ -100,6 +103,9 @@
         controller: 'RecordOutputController',
         controllerAs: 'outputCtrl',
         templateUrl: 'record/views/record.detail.output.html',
+        data: {
+          displayName: '{{ recordDetail.id }}',
+        },
         resolve: {
           artifacts: function (BuildRecordDAO, recordDetail) {
             return BuildRecordDAO.getArtifacts({
