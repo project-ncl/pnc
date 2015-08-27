@@ -17,11 +17,7 @@
  */
 package org.jboss.pnc.rest.restmodel;
 
-import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
-
 import java.util.Date;
-import java.util.List;
-import java.util.stream.Collectors;
 
 import javax.xml.bind.annotation.XmlRootElement;
 

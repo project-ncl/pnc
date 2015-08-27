@@ -20,7 +20,6 @@ package org.jboss.pnc.auth;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.annotation.security.RolesAllowed;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.SecurityContext;
 

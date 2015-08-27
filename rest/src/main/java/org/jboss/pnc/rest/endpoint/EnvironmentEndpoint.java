@@ -22,7 +22,6 @@ import com.wordnik.swagger.annotations.ApiOperation;
 import com.wordnik.swagger.annotations.ApiParam;
 
 import org.jboss.pnc.rest.provider.EnvironmentProvider;
-import org.jboss.pnc.rest.restmodel.BuildRecordSetRest;
 import org.jboss.pnc.rest.restmodel.EnvironmentRest;
 import org.jboss.pnc.rest.utils.Utility;
 

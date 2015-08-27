@@ -33,7 +33,6 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import java.util.List;
-import java.util.Set;
 
 @Api(value = "/build-config-set-records", description = "Records of the build config set executions")
 @Path("/build-config-set-records")

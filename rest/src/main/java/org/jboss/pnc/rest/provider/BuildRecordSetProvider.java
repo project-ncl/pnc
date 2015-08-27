@@ -19,8 +19,6 @@ package org.jboss.pnc.rest.provider;
 
 import com.google.common.base.Preconditions;
 import org.jboss.pnc.model.BuildRecordSet;
-import org.jboss.pnc.model.ProductMilestone;
-import org.jboss.pnc.model.ProductRelease;
 import org.jboss.pnc.rest.restmodel.BuildRecordSetRest;
 import org.jboss.pnc.spi.datastore.repositories.*;
 import org.jboss.pnc.spi.datastore.repositories.api.PageInfo;
