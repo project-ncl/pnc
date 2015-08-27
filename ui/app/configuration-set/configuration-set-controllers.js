@@ -70,7 +70,7 @@
                 productId: parseInt(self.selectedProductId),
                 versionId: self.data.productVersionId
               };
-              $state.go('product.version', params, {
+              $state.go('product.detail.version', params, {
                 reload: true,
                 inherit: false,
                 notify: true

@@ -106,7 +106,7 @@
           <div class="col-sm-10">
             <!-- Show when edit is not selected -->
             <ul class="list-inline form-control-static" ng-hide="configurationForm.$visible">
-              <li ng-repeat="version in detailCtrl.productVersions.selected"><a href ui-sref="product.version({ productId: version.productId, versionId: version.id })">{{ version.version }}</a></li>
+              <li ng-repeat="version in detailCtrl.productVersions.selected"><a href ui-sref="product.detail.version({ productId: version.productId, versionId: version.id })">{{ version.version }}</a></li>
             </ul>
 
             <!-- Show when edit is selected -->

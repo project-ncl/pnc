@@ -27,6 +27,7 @@
 
   module.config(['$stateProvider', function($stateProvider) {
     $stateProvider.state('product', {
+      url: '/product',
       abstract: true,
       views: {
         'content@': {
@@ -40,7 +41,7 @@
     });
 
     $stateProvider.state('product.list', {
-      url: '/product',
+      url: '',
       templateUrl: 'product/views/product.list.html',
       data: {
         displayName: 'Products'
@@ -55,7 +56,7 @@
     });
 
     $stateProvider.state('product.detail', {
-      url: '/product/{productId:int}',
+      url: '/{productId:int}',
       templateUrl: 'product/views/product.detail.html',
       data: {
          displayName: '{{ productDetail.name }}',
@@ -73,15 +74,19 @@
       }
     });
 
-    $stateProvider.state('product.version', {
+    $stateProvider.state('product.detail.version', {
       //parent: 'product.detail',
-      url: '/product/{productId:int}/version/{versionId:int}',
-      templateUrl: 'product/views/product.version.html',
+      url: '/version/{versionId:int}',
+      views: {
+        'content@': {
+          templateUrl: 'product/views/product.version.html',
+          controller: 'ProductVersionController',
+          controllerAs: 'versionCtrl',
+        }
+      },
       data: {
          displayName: '{{ versionDetail.version }}'
       },
-      controller: 'ProductVersionController',
-      controllerAs: 'versionCtrl',
       resolve: {
         productDetail: function(ProductDAO, $stateParams) {
           return ProductDAO.get({ productId: $stateParams.productId })
@@ -114,7 +119,7 @@
     });
 
     $stateProvider.state('product.create', {
-      url: '/product/create',
+      url: '/create',
       templateUrl: 'product/views/product.create.html',
       data: {
         displayName: 'Create Product'
@@ -123,14 +128,18 @@
       controllerAs: 'productCreateCtrl'
     });
 
-    $stateProvider.state('product.createversion', {
-      url: '/product/{productId:int}/createversion',
-      templateUrl: 'product/views/product.version.create.html',
+    $stateProvider.state('product.detail.createVersion', {
+      url: '/createversion',
+      views: {
+        'content@': {
+          templateUrl: 'product/views/product.version.create.html',
+          controller: 'ProductVersionCreateController',
+          controllerAs: 'productVersionCreateCtrl',
+        }
+      },
       data: {
         displayName: 'Create Product Version'
       },
-      controller: 'ProductVersionCreateController',
-      controllerAs: 'productVersionCreateCtrl',
       resolve: {
         productDetail: function(ProductDAO, $stateParams) {
           return ProductDAO.get({ productId: $stateParams.productId })

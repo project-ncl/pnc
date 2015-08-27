@@ -49,6 +49,7 @@
       $urlRouterProvider.when('/record/:recordId', '/record/:recordId/info');
 
       $stateProvider.state('record.detail', {
+        abstract: true,
         url: '/{recordId:int}',
         templateUrl: 'record/views/record.detail.html',
         data: {

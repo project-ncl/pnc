@@ -31,34 +31,34 @@
   module.config(['$stateProvider', function ($stateProvider) {
 
     $stateProvider
-    .state('product.version.milestone', {
-      abstract: true,
+    .state('product.detail.version.milestoneCreate', {
+      url: '/milestone/create',
       views: {
         'content@': {
-          templateUrl: 'common/templates/single-col.tmpl.html'
+          templateUrl: 'milestone/views/milestone.create-update.html',
+          controller: 'MilestoneCreateUpdateController',
+          controllerAs: 'milestoneCreateUpdateCtrl',
         }
-      }
-    })
-    .state('product.version.milestone.create', {
-      url: '/milestone/create',
-      templateUrl: 'milestone/views/milestone.create-update.html',
+      },
       data: {
         displayName: 'Create Milestone'
       },
       resolve: {
         milestoneDetail: function() { return null; }
       },
-      controller: 'MilestoneCreateUpdateController',
-      controllerAs: 'milestoneCreateUpdateCtrl',
     })
-    .state('product.version.milestone.update', {
+    .state('product.detail.version.milestoneUpdate', {
       url: '/milestone/{milestoneId:int}/update',
-      templateUrl: 'milestone/views/milestone.create-update.html',
+      views: {
+        'content@': {
+          templateUrl: 'milestone/views/milestone.create-update.html',
+          controller: 'MilestoneCreateUpdateController',
+          controllerAs: 'milestoneCreateUpdateCtrl',
+        }
+      },
       data: {
         displayName: 'Update Milestone'
       },
-      controller: 'MilestoneCreateUpdateController',
-      controllerAs: 'milestoneCreateUpdateCtrl',
       resolve: {
         milestoneDetail: function (ProductMilestoneDAO, $stateParams) {
           return ProductMilestoneDAO.get({milestoneId: $stateParams.milestoneId})
@@ -66,14 +66,18 @@
         }
       }
     })
-    .state('product.version.milestone.close', {
+    .state('product.detail.version.milestoneClose', {
       url: '/milestone/{milestoneId:int}/close',
-      templateUrl: 'milestone/views/milestone.close.html',
+      views: {
+        'content@': {
+          templateUrl: 'milestone/views/milestone.close.html',
+          controller: 'MilestoneCloseController',
+          controllerAs: 'milestoneCloseCtrl',
+        }
+      },
       data: {
         displayName: 'Close Milestone'
       },
-      controller: 'MilestoneCloseController',
-      controllerAs: 'milestoneCloseCtrl',
       resolve: {
         milestoneDetail: function (ProductMilestoneDAO, $stateParams) {
           return ProductMilestoneDAO.get({milestoneId: $stateParams.milestoneId})
