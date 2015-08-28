@@ -15,5 +15,7 @@ EXPOSE 8080
 # Prepare script to start BuildAgent, SSH daemon and ip-tables
 RUN echo -e "/usr/bin/setup-proxy-server.sh & \n /usr/bin/isolate-with-iptables.sh & \n /usr/bin/addSSHServer.sh & \n java -jar /usr/local/build-agent-0.1-SNAPSHOT-jar-with-dependencies.jar -b 0.0.0.0 -l /tmp" > /usr/bin/startPrograms.sh
 
+RUN chmod -R 0777 /usr/share/maven/conf/
+
 # Start
 ENTRYPOINT ["sh", "/usr/bin/startPrograms.sh"]

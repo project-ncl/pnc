@@ -25,7 +25,6 @@ import com.openshift.restclient.NoopSSLCertificateCallback;
 import com.openshift.restclient.ResourceKind;
 import com.openshift.restclient.authorization.TokenAuthorizationStrategy;
 import org.jboss.dmr.ModelNode;
-import org.jboss.pnc.common.json.moduleconfig.EnvironmentDriverModuleConfigBase;
 import org.jboss.pnc.common.json.moduleconfig.OpenshiftEnvironmentDriverModuleConfig;
 import org.jboss.pnc.common.monitor.PullingMonitor;
 import org.jboss.pnc.common.util.StringUtils;
@@ -37,8 +36,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.invoke.MethodHandles;
-import java.nio.file.FileSystems;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Properties;
 import java.util.function.Consumer;
@@ -53,10 +50,10 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
 
     private static final String OSE_API_VERSION = "1";
     private final IClient client;
-    private Pod pod;
-    private RepositorySession repositorySession;
-    private OpenshiftEnvironmentDriverModuleConfig environmentConfiguration;
-    private PullingMonitor pullingMonitor;
+    private final Pod pod;
+    private final RepositorySession repositorySession;
+    private final OpenshiftEnvironmentDriverModuleConfig environmentConfiguration;
+    private final PullingMonitor pullingMonitor;
 
     public OpenshiftStartedEnvironment(
             OpenshiftEnvironmentDriverModuleConfig environmentConfiguration,
@@ -88,17 +85,13 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
                     pod.getHost() + environmentConfiguration.getBuildAgentBindPath(),
                     repositorySession,
                     Paths.get(environmentConfiguration.getWorkingDirectory()),
-                    () -> destroyEnvironment()
+                    this::destroyEnvironment
             );
 
             onComplete.accept(runningEnvironment);
         };
 
-        Consumer<Exception> onEnvironmentInitError = (e) -> {
-            onError.accept(e);
-        };
-
-        pullingMonitor.monitor(onEnvironmentInitComplete, onEnvironmentInitError, () -> "Running".equals(pod.getStatus()));
+        pullingMonitor.monitor(onEnvironmentInitComplete, onError::accept, () -> "Running".equals(pod.getStatus()));
 
         logger.info("Waiting to init services in a pod. Name: " + pod.getName());
     }

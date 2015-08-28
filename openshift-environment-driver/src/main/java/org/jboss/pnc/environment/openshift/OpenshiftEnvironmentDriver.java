@@ -48,7 +48,7 @@ public class OpenshiftEnvironmentDriver implements EnvironmentDriver {
     @Inject
     public OpenshiftEnvironmentDriver(Configuration configuration, PullingMonitor pullingMonitor) throws ConfigurationParseException {
         this.pullingMonitor = pullingMonitor;
-        config = configuration.getModuleConfig(new PncConfigProvider<OpenshiftEnvironmentDriverModuleConfig>(OpenshiftEnvironmentDriverModuleConfig.class));
+        config = configuration.getModuleConfig(new PncConfigProvider<>(OpenshiftEnvironmentDriverModuleConfig.class));
     }
 
     @Override

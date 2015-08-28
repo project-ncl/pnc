@@ -59,7 +59,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -76,14 +75,17 @@ public class OpenshiftEnvironmentDriverRemoteTest {
 
     private static final int TEST_EXECUTION_TIMEOUT = 100;
 
-    @Inject
-    private EnvironmentDriver environmentDriver;
+    private final EnvironmentDriver environmentDriver;
+
+    private final Configuration configurationService;
+
+    private final String pingUrl = "/";
 
     @Inject
-    private Configuration configurationService;
-
-    private boolean isInitialized = false;
-    private String pingUrl = "/";
+    public OpenshiftEnvironmentDriverRemoteTest(EnvironmentDriver environmentDriver, Configuration configurationService) {
+        this.environmentDriver = environmentDriver;
+        this.configurationService = configurationService;
+    }
 
     @Deployment
     public static WebArchive createDeployment() {
@@ -104,25 +106,6 @@ public class OpenshiftEnvironmentDriverRemoteTest {
 
         logger.info("Deployment: " + archive.toString(true));
         return archive;
-    }
-
-    @Before
-    public void init() throws ConfigurationParseException {
-        final OpenshiftEnvironmentDriverModuleConfig config = configurationService
-            .getModuleConfig(new PncConfigProvider<OpenshiftEnvironmentDriverModuleConfig>(OpenshiftEnvironmentDriverModuleConfig.class));
-    }
-
-    @Test
-    public void canBuildEnvironmentTest() {
-        final Environment goodEnv = new Environment(BuildType.JAVA, OperationalSystem.LINUX);
-        final Environment badEnv1 = new Environment(null, null);
-        final Environment badEnv2 = new Environment(BuildType.DOCKER, OperationalSystem.LINUX);
-        final Environment badEnv3 = new Environment(BuildType.JAVA, OperationalSystem.WINDOWS);
-
-        assertTrue(environmentDriver.canBuildEnvironment(goodEnv));
-        assertFalse(environmentDriver.canBuildEnvironment(badEnv1));
-        assertFalse(environmentDriver.canBuildEnvironment(badEnv2));
-        assertFalse(environmentDriver.canBuildEnvironment(badEnv3));
     }
 
     @Test

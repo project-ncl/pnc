@@ -18,13 +18,11 @@
 
 package org.jboss.pnc.environment.openshift;
 
-import org.apache.commons.io.IOUtils;
 import org.jboss.pnc.common.util.IoUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.lang.invoke.MethodHandles;
 
 /**
@@ -38,14 +36,14 @@ public enum Configurations {
 
     private static final String CONFIGURATIONS_FOLDER = "/openshift.configurations/";
 
-    private String filePath;
+    private final String filePath;
 
     Configurations(String fileName) {
         this.filePath = CONFIGURATIONS_FOLDER + fileName;
     }
 
     public String getContentAsString() {
-        String content = null;
+        String content;
         try {
             content = IoUtils.readResource(filePath, Configurations.class.getClassLoader());
         } catch (IOException e) {
