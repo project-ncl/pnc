@@ -98,22 +98,40 @@ public class BuildCoordinator {
         this.buildSetStatusChangedEventNotifier = buildSetStatusChangedEventNotifier;
     }
 
-    public BuildTask build(BuildConfiguration buildConfiguration, User userTriggeredBuild) throws CoreException {
+    /**
+     * Run a single build.
+     * 
+     * @param buildConfiguration The build configuration which will be used.  The latest version of this
+     * build config will be built.
+     * @param user The user who triggered the build.
+     * @return
+     * @throws CoreException Thrown if there is a problem initializing the build
+     */
+    public BuildTask build(BuildConfiguration buildConfiguration, User user) throws CoreException {
         BuildConfigurationSet buildConfigurationSet = BuildConfigurationSet.Builder.newBuilder()
                 .name(buildConfiguration.getName())
                 .buildConfiguration(buildConfiguration)
                 .build();
 
-        BuildSetTask buildSetTask = createBuildSetTask(buildConfigurationSet, userTriggeredBuild, BuildExecutionType.STANDALONE_BUILD);
+        BuildSetTask buildSetTask = createBuildSetTask(buildConfigurationSet, user, BuildExecutionType.STANDALONE_BUILD);
 
         build(buildSetTask);
         BuildTask buildTask = buildSetTask.getBuildTasks().stream().collect(StreamCollectors.singletonCollector());
         return buildTask;
     }
 
-    public BuildSetTask build(BuildConfigurationSet buildConfigurationSet, User userTriggeredBuild) throws CoreException, DatastoreException {
+    /**
+     * Run a set of builds.  Only the current/latest version of builds in the given set will be executed.  The
+     * order of execution is determined by the dependency relations between the build configurations. 
+     * 
+     * @param buildConfigurationSet The set of builds to be executed.
+     * @param user The user who triggered the build.
+     * @return
+     * @throws CoreException Thrown if there is a problem initializing the build
+     */
+    public BuildSetTask build(BuildConfigurationSet buildConfigurationSet, User user) throws CoreException {
 
-        BuildSetTask buildSetTask = createBuildSetTask(buildConfigurationSet, userTriggeredBuild, BuildExecutionType.COMPOSED_BUILD);
+        BuildSetTask buildSetTask = createBuildSetTask(buildConfigurationSet, user, BuildExecutionType.COMPOSED_BUILD);
 
         build(buildSetTask);
         return buildSetTask;
@@ -401,7 +419,7 @@ public class BuildCoordinator {
      * @param buildConfigSetRecord
      * @return
      */
-    public BuildConfigSetRecord saveBuildConfigSetRecord(BuildConfigSetRecord buildConfigSetRecord) throws CoreException {
+    protected BuildConfigSetRecord saveBuildConfigSetRecord(BuildConfigSetRecord buildConfigSetRecord) throws CoreException {
         ResultWrapper<BuildConfigSetRecord, DatastoreException> result = null;
         try {
             result = CompletableFuture.supplyAsync(() -> this.saveBuildConfigSetRecordInternal(buildConfigSetRecord), dbexecutorSingleThread).get();
