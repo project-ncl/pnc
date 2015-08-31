@@ -17,23 +17,13 @@
  */
 package org.jboss.pnc.model;
 
+import org.hibernate.annotations.ForeignKey;
+
+import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
-
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.SequenceGenerator;
-import javax.validation.constraints.NotNull;
-
-import org.hibernate.annotations.ForeignKey;
 
 /**
  * This class contains a summary of the build results of the execution of a build config set. This includes the start and end
@@ -119,6 +109,7 @@ public class BuildConfigSetRecord implements GenericEntity<Integer> {
      *
      * @param id the new id
      */
+    @Override
     public void setId(Integer id) {
         this.id = id;
     }

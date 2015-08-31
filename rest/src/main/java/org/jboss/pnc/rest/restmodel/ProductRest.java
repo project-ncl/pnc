@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
 import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
 
 @XmlRootElement(name = "Product")
-public class ProductRest {
+public class ProductRest implements GenericRestEntity<Integer> {
 
     private Integer id;
 
@@ -57,10 +57,12 @@ public class ProductRest {
                 .collect(Collectors.toList());
     }
 
+    @Override
     public Integer getId() {
         return id;
     }
 
+    @Override
     public void setId(Integer id) {
         this.id = id;
     }

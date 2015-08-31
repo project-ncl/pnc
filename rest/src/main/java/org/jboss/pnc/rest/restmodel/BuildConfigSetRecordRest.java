@@ -30,7 +30,7 @@ import static java.util.Objects.requireNonNull;
 import static org.jboss.pnc.rest.utils.Utility.performIfNotNull;
 
 @XmlRootElement(name = "BuildRecord")
-public class BuildConfigSetRecordRest {
+public class BuildConfigSetRecordRest implements GenericRestEntity<Integer> {
 
     private Integer id;
 
@@ -67,10 +67,12 @@ public class BuildConfigSetRecordRest {
                 .collect(Collectors.toSet());
     }
 
+    @Override
     public Integer getId() {
         return id;
     }
 
+    @Override
     public void setId(Integer id) {
         this.id = id;
     }

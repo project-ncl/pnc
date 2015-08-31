@@ -20,67 +20,62 @@ package org.jboss.pnc.rest.endpoint;
 import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
 import com.wordnik.swagger.annotations.ApiParam;
-
+import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.rest.provider.BuildConfigSetRecordProvider;
 import org.jboss.pnc.rest.provider.BuildRecordProvider;
 import org.jboss.pnc.rest.restmodel.BuildConfigSetRecordRest;
 import org.jboss.pnc.rest.restmodel.BuildRecordRest;
-import org.jboss.pnc.rest.utils.Utility;
 
 import javax.inject.Inject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import java.util.List;
-
 @Api(value = "/build-config-set-records", description = "Records of the build config set executions")
 @Path("/build-config-set-records")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
-public class BuildConfigSetRecordEndpoint {
+public class BuildConfigSetRecordEndpoint extends AbstractEndpoint<BuildConfigSetRecord, BuildConfigSetRecordRest> {
 
-    private BuildConfigSetRecordProvider buildConfigSetRecordProvider;
     private BuildRecordProvider buildRecordProvider;
 
     public BuildConfigSetRecordEndpoint() {
     }
 
     @Inject
-    public BuildConfigSetRecordEndpoint(BuildConfigSetRecordProvider buildConfigSetRecordProvider, BuildRecordProvider buildRecordProvider) {
-        this.buildConfigSetRecordProvider = buildConfigSetRecordProvider;
+    public BuildConfigSetRecordEndpoint(BuildConfigSetRecordProvider buildConfigSetRecordProvider,
+            BuildRecordProvider buildRecordProvider) {
+        super(buildConfigSetRecordProvider);
         this.buildRecordProvider = buildRecordProvider;
     }
 
     @ApiOperation(value = "Gets all build config set execution records", responseContainer = "List",
             response = BuildConfigSetRecordRest.class)
     @GET
-    public List<BuildConfigSetRecordRest> getAll(
-            @ApiParam(value = "Page index") @QueryParam("pageIndex") @DefaultValue("0") int pageIndex,
+    public Response getAll(@ApiParam(value = "Page index") @QueryParam("pageIndex") @DefaultValue("0") int pageIndex,
             @ApiParam(value = "Pagination size") @DefaultValue("50") @QueryParam("pageSize") int pageSize,
             @ApiParam(value = "Sorting RSQL") @QueryParam("sort") String sortingRsql,
             @ApiParam(value = "RSQL query", required = false) @QueryParam("q") String rsql) {
-        return buildConfigSetRecordProvider.getAll(pageIndex, pageSize, sortingRsql, rsql);
+        return super.getAll(pageIndex, pageSize, sortingRsql, rsql);
     }
 
     @ApiOperation(value = "Gets specific build config set execution record", response = BuildConfigSetRecordRest.class)
     @GET
     @Path("/{id}")
     public Response getSpecific(@ApiParam(value = "BuildConfigSetRecord id", required = true) @PathParam("id") Integer id) {
-        return Utility.createRestEnityResponse(buildConfigSetRecordProvider.getSpecific(id), id);
+        return super.getSpecific(id);
     }
 
     @ApiOperation(value = "Gets the build records associated with this set",
             responseContainer = "List", response = BuildRecordRest.class)
     @GET
     @Path("/{id}/build-records")
-    public List<BuildRecordRest> getBuildRecords(
-            @ApiParam(value = "Page index") @QueryParam("pageIndex") @DefaultValue("0") int pageIndex,
+    public Response getBuildRecords(@ApiParam(value = "Page index") @QueryParam("pageIndex") @DefaultValue("0") int pageIndex,
             @ApiParam(value = "Pagination size") @DefaultValue("50") @QueryParam("pageSize") int pageSize,
             @ApiParam(value = "Sorting RSQL") @QueryParam("sort") String sortingRsql,
             @ApiParam(value = "RSQL query", required = false) @QueryParam("q") String rsql,
             @ApiParam(value = "Build Config set record id", required = true) @PathParam("id") Integer id) {
-        return buildConfigSetRecordProvider.getBuildRecords(pageIndex, pageSize, sortingRsql, rsql, id);
+        return fromCollection(buildRecordProvider.getAllForBuildConfigSetRecord(pageIndex, pageSize, sortingRsql, rsql, id));
     }
 
 }

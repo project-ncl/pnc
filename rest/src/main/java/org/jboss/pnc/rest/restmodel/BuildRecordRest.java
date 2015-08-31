@@ -28,7 +28,7 @@ import java.util.Date;
 import static org.jboss.pnc.rest.utils.Utility.performIfNotNull;
 
 @XmlRootElement(name = "BuildRecord")
-public class BuildRecordRest {
+public class BuildRecordRest implements GenericRestEntity<Integer> {
 
     private Integer id;
 
@@ -87,10 +87,12 @@ public class BuildRecordRest {
             this.userId = buildTask.getUser().getId();
     }
 
+    @Override
     public Integer getId() {
         return id;
     }
 
+    @Override
     public void setId(Integer id) {
         this.id = id;
     }

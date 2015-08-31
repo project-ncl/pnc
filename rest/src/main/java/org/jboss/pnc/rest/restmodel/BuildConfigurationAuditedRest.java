@@ -17,16 +17,15 @@
  */
 package org.jboss.pnc.rest.restmodel;
 
-import java.util.Date;
-
 import org.jboss.pnc.model.BuildConfigurationAudited;
 
 import javax.xml.bind.annotation.XmlRootElement;
+import java.util.Date;
 
 import static org.jboss.pnc.rest.utils.Utility.performIfNotNull;
 
 @XmlRootElement(name = "BuildConfigurationAudited")
-public class BuildConfigurationAuditedRest {
+public class BuildConfigurationAuditedRest implements GenericRestEntity<Integer> {
 
     private Integer id;
 
@@ -68,10 +67,12 @@ public class BuildConfigurationAuditedRest {
         performIfNotNull(buildConfigurationAudited.getEnvironment() != null, () -> this.environmentId = buildConfigurationAudited.getEnvironment().getId());
     }
 
+    @Override
     public Integer getId() {
         return id;
     }
 
+    @Override
     public void setId(Integer id) {
         this.id = id;
     }

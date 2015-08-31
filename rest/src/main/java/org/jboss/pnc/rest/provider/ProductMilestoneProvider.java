@@ -17,7 +17,6 @@
  */
 package org.jboss.pnc.rest.provider;
 
-import com.google.common.base.Preconditions;
 import org.jboss.pnc.model.ProductMilestone;
 import org.jboss.pnc.model.ProductVersion;
 import org.jboss.pnc.rest.restmodel.ProductMilestoneRest;
@@ -25,99 +24,53 @@ import org.jboss.pnc.spi.datastore.repositories.PageInfoProducer;
 import org.jboss.pnc.spi.datastore.repositories.ProductMilestoneRepository;
 import org.jboss.pnc.spi.datastore.repositories.ProductVersionRepository;
 import org.jboss.pnc.spi.datastore.repositories.SortInfoProducer;
-import org.jboss.pnc.spi.datastore.repositories.api.PageInfo;
-import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
 import org.jboss.pnc.spi.datastore.repositories.api.RSQLPredicateProducer;
-import org.jboss.pnc.spi.datastore.repositories.api.SortInfo;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import java.util.List;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
-import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
 import static org.jboss.pnc.spi.datastore.predicates.ProductMilestonePredicates.withProductVersionId;
 
 @Stateless
-public class ProductMilestoneProvider {
-
-    private ProductMilestoneRepository productMilestoneRepository;
+public class ProductMilestoneProvider extends AbstractProvider<ProductMilestone, ProductMilestoneRest> {
 
     private ProductVersionRepository productVersionRepository;
-
-    private RSQLPredicateProducer rsqlPredicateProducer;
-
-    private SortInfoProducer sortInfoProducer;
-
-    private PageInfoProducer pageInfoProducer;
 
     @Inject
     public ProductMilestoneProvider(ProductMilestoneRepository productMilestoneRepository,
             ProductVersionRepository productVersionRepository, RSQLPredicateProducer rsqlPredicateProducer,
             SortInfoProducer sortInfoProducer, PageInfoProducer pageInfoProducer) {
-        this.productMilestoneRepository = productMilestoneRepository;
+        super(productMilestoneRepository, rsqlPredicateProducer, sortInfoProducer, pageInfoProducer);
         this.productVersionRepository = productVersionRepository;
-        this.rsqlPredicateProducer = rsqlPredicateProducer;
-        this.sortInfoProducer = sortInfoProducer;
-        this.pageInfoProducer = pageInfoProducer;
     }
 
     // needed for EJB/CDI
     public ProductMilestoneProvider() {
     }
 
-    public List<ProductMilestoneRest> getAll(int pageIndex, int pageSize, String sortingRsql, String query) {
-        Predicate<ProductMilestone> rsqlPredicate = rsqlPredicateProducer.getPredicate(ProductMilestone.class, query);
-        PageInfo pageInfo = pageInfoProducer.getPageInfo(pageIndex, pageSize);
-        SortInfo sortInfo = sortInfoProducer.getSortInfo(sortingRsql);
-        return nullableStreamOf(productMilestoneRepository.queryWithPredicates(pageInfo, sortInfo, rsqlPredicate))
-                .map(toRestModel())
-                .collect(Collectors.toList());
-    }
-
     public List<ProductMilestoneRest> getAllForProductVersion(int pageIndex, int pageSize, String sortingRsql, String query,
             Integer versionId) {
-        Predicate<ProductMilestone> rsqlPredicate = rsqlPredicateProducer.getPredicate(ProductMilestone.class, query);
-        PageInfo pageInfo = pageInfoProducer.getPageInfo(pageIndex, pageSize);
-        SortInfo sortInfo = sortInfoProducer.getSortInfo(sortingRsql);
-        return nullableStreamOf(productMilestoneRepository.queryWithPredicates(pageInfo, sortInfo, rsqlPredicate, withProductVersionId(versionId)))
-                .map(toRestModel())
-                .collect(Collectors.toList());
+        return super.queryForCollection(pageIndex, pageSize,sortingRsql, query, withProductVersionId(versionId));
     }
 
-    public ProductMilestoneRest getSpecific(Integer productMilestoneId) {
-        ProductMilestone productMilestone = productMilestoneRepository.queryById(productMilestoneId);
-        if (productMilestone != null) {
-            return new ProductMilestoneRest(productMilestone);
-        }
-        return null;
-    }
-
-    public void update(Integer id, ProductMilestoneRest productMilestoneRest) {
-        Preconditions.checkArgument(id != null, "Id must not be null");
-        Preconditions.checkArgument(productMilestoneRest.getId() == null || productMilestoneRest.getId().equals(id),
-                "Entity id does not match the id to update");
-        productMilestoneRest.setId(id);
-        ProductMilestone productMilestone = productMilestoneRepository.queryById(productMilestoneRest.getId());
-        Preconditions.checkArgument(productMilestone != null,
-                "Couldn't find Product Milestone with id " + productMilestoneRest.getId());
-        productMilestoneRepository.save(productMilestoneRest.mergeProductMilestone(productMilestone));
-    }
-
-    private Function<ProductMilestone, ProductMilestoneRest> toRestModel() {
+    @Override
+    protected Function<? super ProductMilestone, ? extends ProductMilestoneRest> toRESTModel() {
         return productMilestone -> new ProductMilestoneRest(productMilestone);
     }
 
-    public Integer store(Integer productVersionId, ProductMilestoneRest productMilestoneRest) {
-        Preconditions.checkArgument(productMilestoneRest.getId() == null, "Id must be null");
-        Preconditions.checkArgument(productMilestoneRest.getProductVersionId() != null, "productVersionId must not be null");
-        ProductVersion productVersion = productVersionRepository.queryById(productVersionId);
-        Preconditions.checkArgument(productVersion != null, "Couldn't find product version with id " + productVersionId);
+    @Override
+    protected Function<? super ProductMilestoneRest, ? extends ProductMilestone> toDBModelModel() {
+        return productMilestone -> {
+            if(productMilestone.getProductVersionId() != null) {
+                ProductVersion productVersionFromDB = productVersionRepository.queryById(productMilestone.getProductVersionId());
+                return productMilestone.toProductMilestone(productVersionFromDB);
+            }
 
-        ProductMilestone productMilestone = productMilestoneRepository.save(productMilestoneRest
-                .toProductMilestone(productVersion));
-        return productMilestone.getId();
+            ProductMilestone productMilestoneFromDB = repository.queryById(productMilestone.getId());
+            return productMilestone.toProductMilestone(productMilestoneFromDB);
+        };
     }
 
 }

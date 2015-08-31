@@ -17,10 +17,10 @@
  */
 package org.jboss.pnc.model;
 
+import org.hibernate.annotations.ForeignKey;
+
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
-
-import org.hibernate.annotations.ForeignKey;
 
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-11-23.
@@ -101,6 +101,7 @@ public class Artifact implements GenericEntity<Integer> {
      *
      * @param id the new id
      */
+    @Override
     public void setId(Integer id) {
         this.id = id;
     }

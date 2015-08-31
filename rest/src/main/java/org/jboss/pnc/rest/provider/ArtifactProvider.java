@@ -23,56 +23,37 @@ import org.jboss.pnc.rest.restmodel.ArtifactRest;
 import org.jboss.pnc.spi.datastore.repositories.ArtifactRepository;
 import org.jboss.pnc.spi.datastore.repositories.PageInfoProducer;
 import org.jboss.pnc.spi.datastore.repositories.SortInfoProducer;
-import org.jboss.pnc.spi.datastore.repositories.api.PageInfo;
-import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
 import org.jboss.pnc.spi.datastore.repositories.api.RSQLPredicateProducer;
-import org.jboss.pnc.spi.datastore.repositories.api.SortInfo;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import java.util.List;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
-import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
 import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withBuildRecordId;
 
 @Stateless
-public class ArtifactProvider {
-
-    private ArtifactRepository artifactRepository;
-
-    private RSQLPredicateProducer rsqlPredicateProducer;
-
-    private SortInfoProducer sortInfoProducer;
-
-    private PageInfoProducer pageInfoProducer;
+public class ArtifactProvider extends AbstractProvider<Artifact, ArtifactRest> {
 
     public ArtifactProvider() {
     }
 
     @Inject
     public ArtifactProvider(ArtifactRepository artifactRepository, RSQLPredicateProducer rsqlPredicateProducer, SortInfoProducer sortInfoProducer, PageInfoProducer pageInfoProducer) {
-        this.artifactRepository = artifactRepository;
-        this.rsqlPredicateProducer = rsqlPredicateProducer;
-        this.sortInfoProducer = sortInfoProducer;
-        this.pageInfoProducer = pageInfoProducer;
+        super(artifactRepository, rsqlPredicateProducer, sortInfoProducer, pageInfoProducer);
     }
 
-    public List<ArtifactRest> getAll(int pageIndex, int pageSize, String sortingRsql, String query, Integer buildRecordId) {
-        return performQuery(pageIndex, pageSize, sortingRsql, query, withBuildRecordId(buildRecordId));
+    public List<ArtifactRest> getAllForBuildRecord(int pageIndex, int pageSize, String sortingRsql, String query, int buildRecordId) {
+        return queryForCollection(pageIndex, pageSize, sortingRsql, query, withBuildRecordId(buildRecordId));
     }
 
-    private List<ArtifactRest> performQuery(int pageIndex, int pageSize, String sortingRsql, String query, Predicate<Artifact> predicate) {
-        Predicate<Artifact> rsqlPredicate = rsqlPredicateProducer.getPredicate(Artifact.class, query);
-        PageInfo pageInfo = pageInfoProducer.getPageInfo(pageIndex, pageSize);
-        SortInfo sortInfo = sortInfoProducer.getSortInfo(sortingRsql);
-        return nullableStreamOf(artifactRepository.queryWithPredicates(pageInfo, sortInfo, rsqlPredicate, predicate))
-                .map(toRestModel())
-                .collect(Collectors.toList());
-    }
-
-    private Function<Artifact, ArtifactRest> toRestModel() {
+    @Override
+    protected Function<? super Artifact, ? extends ArtifactRest> toRESTModel() {
         return artifact -> new ArtifactRest(artifact);
+    }
+
+    @Override
+    protected Function<? super ArtifactRest, ? extends Artifact> toDBModelModel() {
+        throw new UnsupportedOperationException();
     }
 }

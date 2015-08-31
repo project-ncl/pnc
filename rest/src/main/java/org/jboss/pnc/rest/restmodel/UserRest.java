@@ -23,7 +23,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 
 @XmlRootElement(name = "User")
-public class UserRest {
+public class UserRest implements GenericRestEntity<Integer> {
 
     private Integer id;
 
@@ -46,10 +46,12 @@ public class UserRest {
         this.username = user.getUsername();
     }
 
+    @Override
     public Integer getId() {
         return id;
     }
 
+    @Override
     public void setId(Integer id) {
         this.id = id;
     }

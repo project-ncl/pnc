@@ -17,21 +17,13 @@
  */
 package org.jboss.pnc.model;
 
+import org.hibernate.annotations.ForeignKey;
+
+import javax.persistence.*;
+import javax.persistence.Column;
+import javax.validation.constraints.NotNull;
 import java.util.HashSet;
 import java.util.Set;
-
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.SequenceGenerator;
-import javax.validation.constraints.NotNull;
-
-import org.hibernate.annotations.ForeignKey;
 
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-11-23.
@@ -80,6 +72,7 @@ public class Project implements GenericEntity<Integer> {
     /**
      * @return the id
      */
+    @Override
     public Integer getId() {
         return id;
     }
@@ -87,6 +80,7 @@ public class Project implements GenericEntity<Integer> {
     /**
      * @param id the id to set
      */
+    @Override
     public void setId(Integer id) {
         this.id = id;
     }

@@ -17,20 +17,12 @@
  */
 package org.jboss.pnc.model;
 
+import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.OneToMany;
-import javax.persistence.SequenceGenerator;
-import javax.persistence.Table;
-import javax.persistence.UniqueConstraint;
-import javax.validation.constraints.NotNull;
-
 /**
  * The Class User maps the user that triggered the builds, and are linked to the BuildRecord
  *
@@ -77,6 +69,7 @@ public class User implements GenericEntity<Integer> {
      *
      * @return the id
      */
+    @Override
     public Integer getId() {
         return this.id;
     }
@@ -86,6 +79,7 @@ public class User implements GenericEntity<Integer> {
      *
      * @param id the new id
      */
+    @Override
     public void setId(Integer id) {
         this.id = id;
     }

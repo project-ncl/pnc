@@ -29,7 +29,7 @@ import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
 import static org.jboss.pnc.rest.utils.Utility.performIfNotNull;
 
 @XmlRootElement(name = "BuildRecordSet")
-public class BuildRecordSetRest {
+public class BuildRecordSetRest implements GenericRestEntity<Integer> {
 
     private Integer id;
 
@@ -53,10 +53,12 @@ public class BuildRecordSetRest {
 
     }
 
+    @Override
     public Integer getId() {
         return id;
     }
 
+    @Override
     public void setId(Integer id) {
         this.id = id;
     }

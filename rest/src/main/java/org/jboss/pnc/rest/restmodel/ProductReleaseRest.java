@@ -17,21 +17,20 @@
  */
 package org.jboss.pnc.rest.restmodel;
 
-import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
-
-import java.util.Date;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import javax.xml.bind.annotation.XmlRootElement;
-
 import org.jboss.pnc.model.ProductMilestone;
 import org.jboss.pnc.model.ProductRelease;
 import org.jboss.pnc.model.ProductRelease.SupportLevel;
 import org.jboss.pnc.model.ProductVersion;
 
+import javax.xml.bind.annotation.XmlRootElement;
+import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
+
 @XmlRootElement(name = "ProductRelease")
-public class ProductReleaseRest {
+public class ProductReleaseRest implements GenericRestEntity<Integer> {
 
     private Integer id;
 
@@ -64,10 +63,12 @@ public class ProductReleaseRest {
         this.supportLevel = productRelease.getSupportLevel();
     }
 
+    @Override
     public Integer getId() {
         return id;
     }
 
+    @Override
     public void setId(Integer id) {
         this.id = id;
     }

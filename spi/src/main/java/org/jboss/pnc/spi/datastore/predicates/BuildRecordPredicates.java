@@ -17,13 +17,8 @@
  */
 package org.jboss.pnc.spi.datastore.predicates;
 
-import org.jboss.pnc.model.BuildConfigurationAudited;
-import org.jboss.pnc.model.BuildRecord;
-import org.jboss.pnc.model.BuildRecord_;
-import org.jboss.pnc.model.Project;
+import org.jboss.pnc.model.*;
 import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
-
-import com.google.common.base.Predicates;
 
 import javax.persistence.criteria.Join;
 import java.util.Collection;
@@ -41,6 +36,13 @@ public class BuildRecordPredicates {
         return (root, query, cb) -> {
             Join<BuildRecord, BuildConfigurationAudited> buildConfigurationAudited = root.join(BuildRecord_.buildConfigurationAudited);
             return cb.equal(buildConfigurationAudited.get(org.jboss.pnc.model.BuildConfigurationAudited_.id), configurationId);
+        };
+    }
+
+    public static Predicate<BuildRecord> withBuildConfigSetId(Integer buildConfigSetId) {
+        return (root, query, cb) -> {
+            Join<BuildRecord, BuildConfigSetRecord> joinedConfiguSet = root.join(BuildRecord_.buildConfigSetRecord);
+            return cb.equal(joinedConfiguSet.get(org.jboss.pnc.model.BuildConfigSetRecord_.id), buildConfigSetId);
         };
     }
 

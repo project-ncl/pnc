@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
 import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
 
 @XmlRootElement(name = "ProductVersion")
-public class ProductVersionRest {
+public class ProductVersionRest implements GenericRestEntity<Integer> {
 
     private Integer id;
 
@@ -66,10 +66,12 @@ public class ProductVersionRest {
 
     }
 
+    @Override
     public Integer getId() {
         return id;
     }
 
+    @Override
     public void setId(Integer id) {
         this.id = id;
     }

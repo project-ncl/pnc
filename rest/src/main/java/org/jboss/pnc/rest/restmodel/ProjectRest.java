@@ -29,7 +29,7 @@ import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
 import static org.jboss.pnc.rest.utils.Utility.performIfNotNull;
 
 @XmlRootElement(name = "Project")
-public class ProjectRest {
+public class ProjectRest implements GenericRestEntity<Integer> {
 
     private Integer id;
 
@@ -72,6 +72,7 @@ public class ProjectRest {
      *
      * @return the id
      */
+    @Override
     public Integer getId() {
         return id;
     }
@@ -81,6 +82,7 @@ public class ProjectRest {
      *
      * @param id the new id
      */
+    @Override
     public void setId(Integer id) {
         this.id = id;
     }

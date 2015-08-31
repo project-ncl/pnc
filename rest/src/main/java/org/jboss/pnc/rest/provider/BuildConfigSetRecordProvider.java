@@ -19,72 +19,34 @@ package org.jboss.pnc.rest.provider;
 
 import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.rest.restmodel.BuildConfigSetRecordRest;
-import org.jboss.pnc.rest.restmodel.BuildRecordRest;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigSetRecordRepository;
 import org.jboss.pnc.spi.datastore.repositories.PageInfoProducer;
 import org.jboss.pnc.spi.datastore.repositories.SortInfoProducer;
-import org.jboss.pnc.spi.datastore.repositories.api.PageInfo;
-import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
 import org.jboss.pnc.spi.datastore.repositories.api.RSQLPredicateProducer;
-import org.jboss.pnc.spi.datastore.repositories.api.SortInfo;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
-import java.util.List;
 import java.util.function.Function;
-import java.util.stream.Collectors;
-
-import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
 
 @Stateless
-public class BuildConfigSetRecordProvider {
-
-    private BuildConfigSetRecordRepository buildConfigSetRecordRepository;
-
-    private RSQLPredicateProducer rsqlPredicateProducer;
-
-    private SortInfoProducer sortInfoProducer;
-
-    private PageInfoProducer pageInfoProducer;
+public class BuildConfigSetRecordProvider extends AbstractProvider<BuildConfigSetRecord, BuildConfigSetRecordRest> {
 
     public BuildConfigSetRecordProvider() {
     }
 
     @Inject
     public BuildConfigSetRecordProvider(BuildConfigSetRecordRepository buildConfigSetRecordRepository,
-            RSQLPredicateProducer rsqlPredicateProducer, SortInfoProducer sortInfoProducer,
-            PageInfoProducer pageInfoProducer) {
-        this.buildConfigSetRecordRepository = buildConfigSetRecordRepository;
-        this.rsqlPredicateProducer = rsqlPredicateProducer;
-        this.sortInfoProducer = sortInfoProducer;
-        this.pageInfoProducer = pageInfoProducer;
+            RSQLPredicateProducer rsqlPredicateProducer, SortInfoProducer sortInfoProducer, PageInfoProducer pageInfoProducer) {
+        super(buildConfigSetRecordRepository, rsqlPredicateProducer, sortInfoProducer, pageInfoProducer);
     }
 
-    public List<BuildConfigSetRecordRest> getAll(int pageIndex, int pageSize, String sortingRsql, String query) {
-        Predicate<BuildConfigSetRecord> rsqlPredicate = rsqlPredicateProducer.getPredicate(BuildConfigSetRecord.class, query);
-        PageInfo pageInfo = pageInfoProducer.getPageInfo(pageIndex, pageSize);
-        SortInfo sortInfo = sortInfoProducer.getSortInfo(sortingRsql);
-        return nullableStreamOf(buildConfigSetRecordRepository.queryWithPredicates(pageInfo, sortInfo, rsqlPredicate))
-                .map(toRestModel())
-                .collect(Collectors.toList());
-    }
-
-    public BuildConfigSetRecordRest getSpecific(Integer id) {
-        BuildConfigSetRecord buildConfigSetRecord = buildConfigSetRecordRepository.queryById(id);
-        if (buildConfigSetRecord != null) {
-            return new BuildConfigSetRecordRest(buildConfigSetRecord);
-        }
-        return null;
-    }
-
-    public List<BuildRecordRest> getBuildRecords(int pageIndex, int pageSize, String sortingRsql, String query, Integer buildConfigSetId) {
-        BuildConfigSetRecord buildConfigSetRecord = buildConfigSetRecordRepository.queryById(buildConfigSetId);
-        return nullableStreamOf(buildConfigSetRecord.getBuildRecords())
-                .map(buildRecord -> new BuildRecordRest(buildRecord))
-                .collect(Collectors.toList());
-    }
-
-    public Function<? super BuildConfigSetRecord, ? extends BuildConfigSetRecordRest> toRestModel() {
+    @Override
+    protected Function<? super BuildConfigSetRecord, ? extends BuildConfigSetRecordRest> toRESTModel() {
         return buildConfigSetRecord -> new BuildConfigSetRecordRest(buildConfigSetRecord);
+    }
+
+    @Override
+    protected Function<? super BuildConfigSetRecordRest, ? extends BuildConfigSetRecord> toDBModelModel() {
+        throw new UnsupportedOperationException("Not supported by this provider");
     }
 }

@@ -17,22 +17,14 @@
  */
 package org.jboss.pnc.model;
 
-import java.util.Date;
+import org.hibernate.annotations.ForeignKey;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToOne;
-import javax.persistence.SequenceGenerator;
+import javax.persistence.*;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
-
-import org.hibernate.annotations.ForeignKey;
+import java.util.Date;
 
 /**
  * Represents a product milestone. A single product version, for example "1.0", can be associated with several product
@@ -111,10 +103,12 @@ public class ProductMilestone implements GenericEntity<Integer> {
     @OneToOne(cascade = { CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH })
     private BuildRecordSet distributedBuildRecordSet;
 
+    @Override
     public Integer getId() {
         return id;
     }
 
+    @Override
     public void setId(Integer id) {
         this.id = id;
     }

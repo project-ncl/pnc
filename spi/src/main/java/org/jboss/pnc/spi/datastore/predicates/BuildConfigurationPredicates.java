@@ -17,14 +17,7 @@
  */
 package org.jboss.pnc.spi.datastore.predicates;
 
-import org.jboss.pnc.model.BuildConfiguration;
-import org.jboss.pnc.model.BuildConfiguration_;
-import org.jboss.pnc.model.Product;
-import org.jboss.pnc.model.ProductVersion;
-import org.jboss.pnc.model.ProductVersion_;
-import org.jboss.pnc.model.Product_;
-import org.jboss.pnc.model.Project;
-import org.jboss.pnc.model.Project_;
+import org.jboss.pnc.model.*;
 import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
 
 import javax.persistence.criteria.Join;
@@ -62,6 +55,13 @@ public class BuildConfigurationPredicates {
         return (root, query, cb) -> {
             SetJoin<BuildConfiguration, ProductVersion> productVersions = root.join(BuildConfiguration_.productVersions);
             return cb.equal(productVersions.get(ProductVersion_.id), productVersionId);
+        };
+    }
+
+    public static Predicate<BuildConfiguration> withBuildConfigurationSetId(Integer buildConfigurationSetId) {
+        return (root, query, cb) -> {
+            SetJoin<BuildConfiguration, BuildConfigurationSet> configurationBuildConfigurationSetSetJoin = root.join(BuildConfiguration_.buildConfigurationSets);
+            return cb.equal(configurationBuildConfigurationSetSetJoin.get(BuildConfigurationSet_.id), buildConfigurationSetId);
         };
     }
 }

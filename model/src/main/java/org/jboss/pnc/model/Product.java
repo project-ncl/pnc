@@ -89,6 +89,7 @@ public class Product implements GenericEntity<Integer> {
     /**
      * @param id the id to set
      */
+    @Override
     public void setId(Integer id) {
         this.id = id;
     }

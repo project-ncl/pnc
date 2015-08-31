@@ -20,67 +20,62 @@ package org.jboss.pnc.rest.endpoint;
 import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
 import com.wordnik.swagger.annotations.ApiParam;
-
+import org.jboss.pnc.model.User;
+import org.jboss.pnc.rest.provider.ConflictedEntryException;
 import org.jboss.pnc.rest.provider.UserProvider;
 import org.jboss.pnc.rest.restmodel.UserRest;
-import org.jboss.pnc.rest.utils.Utility;
 
 import javax.inject.Inject;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.*;
-import javax.ws.rs.core.*;
-
-import java.util.List;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
 
 @Api(value = "/users", description = "User related information")
 @Path("/users")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
-public class UserEndpoint {
-
-    private UserProvider userProvider;
+public class UserEndpoint extends AbstractEndpoint<User, UserRest> {
 
     public UserEndpoint() {
     }
 
     @Inject
     public UserEndpoint(UserProvider userProvider) {
-        this.userProvider = userProvider;
+        super(userProvider);
     }
 
     @ApiOperation(value = "Gets all Users", responseContainer = "List", response = UserRest.class)
     @GET
-    public List<UserRest> getAll(
-            @ApiParam(value = "Page index") @QueryParam("pageIndex") @DefaultValue("0") int pageIndex,
+    public Response getAll(@ApiParam(value = "Page index") @QueryParam("pageIndex") @DefaultValue("0") int pageIndex,
             @ApiParam(value = "Pagination size") @DefaultValue("50") @QueryParam("pageSize") int pageSize,
             @ApiParam(value = "Sorting RSQL") @QueryParam("sort") String sortingRsql,
             @ApiParam(value = "RSQL query") @QueryParam("q") String rsql) {
-        return userProvider.getAll(pageIndex, pageSize, sortingRsql, rsql);
+        return super.getAll(pageIndex, pageSize, sortingRsql, rsql);
     }
 
     @ApiOperation(value = "Gets specific User", response = UserRest.class)
     @GET
     @Path("/{id}")
     public Response getSpecific(@ApiParam(value = "User id", required = true) @PathParam("id") Integer id) {
-        return Utility.createRestEnityResponse(userProvider.getSpecific(id), id);
+        return super.getSpecific(id);
     }
 
     @ApiOperation(value = "Creates new User", response = UserRest.class)
     @POST
-    public Response createNew(@NotNull @Valid UserRest userRest, @Context UriInfo uriInfo) {
-        int id = userProvider.store(userRest);
-        UriBuilder uriBuilder = UriBuilder.fromUri(uriInfo.getRequestUri()).path("{id}");
-        return Response.created(uriBuilder.build(id)).entity(userProvider.getSpecific(id)).build();
+    public Response createNew(@NotNull @Valid UserRest userRest, @Context UriInfo uriInfo) throws ConflictedEntryException {
+        return super.createNew(userRest, uriInfo);
     }
 
     @ApiOperation(value = "Updates an existing User")
     @PUT
     @Path("/{id}")
     public Response update(@ApiParam(value = "User id", required = true) @PathParam("id") Integer id,
-            @NotNull @Valid UserRest userRest, @Context UriInfo uriInfo) {
-        userProvider.update(id, userRest);
-        return Response.ok().build();
+            @NotNull @Valid UserRest userRest) throws ConflictedEntryException {
+       return super.update(id, userRest);
     }
 
 }

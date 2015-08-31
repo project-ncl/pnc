@@ -20,28 +20,27 @@ package org.jboss.pnc.rest.endpoint;
 import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
 import com.wordnik.swagger.annotations.ApiParam;
-
+import org.jboss.pnc.model.Product;
+import org.jboss.pnc.rest.provider.ConflictedEntryException;
 import org.jboss.pnc.rest.provider.ProductProvider;
 import org.jboss.pnc.rest.provider.ProductVersionProvider;
 import org.jboss.pnc.rest.restmodel.ProductRest;
 import org.jboss.pnc.rest.restmodel.ProductVersionRest;
-import org.jboss.pnc.rest.utils.Utility;
 
 import javax.inject.Inject;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.*;
-import javax.ws.rs.core.*;
-
-import java.util.List;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
 
 @Api(value = "/products", description = "Product related information")
 @Path("/products")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
-public class ProductEndpoint {
-
-    private ProductProvider productProvider;
+public class ProductEndpoint extends AbstractEndpoint<Product, ProductRest> {
 
     private ProductVersionProvider productVersionProvider;
 
@@ -50,55 +49,51 @@ public class ProductEndpoint {
 
     @Inject
     public ProductEndpoint(ProductProvider productProvider, ProductVersionProvider productVersionProvider) {
-        this.productProvider = productProvider;
+        super(productProvider);
         this.productVersionProvider = productVersionProvider;
     }
 
     @ApiOperation(value = "Gets all Products", responseContainer = "List", response = ProductRest.class)
     @GET
-    public List<ProductRest> getAll(
-            @ApiParam(value = "Page index") @QueryParam("pageIndex") @DefaultValue("0") int pageIndex,
+    public Response getAll(@ApiParam(value = "Page index") @QueryParam("pageIndex") @DefaultValue("0") int pageIndex,
             @ApiParam(value = "Pagination size") @DefaultValue("50") @QueryParam("pageSize") int pageSize,
             @ApiParam(value = "Sorting RSQL") @QueryParam("sort") String sortingRsql,
             @ApiParam(value = "RSQL query", required = false) @QueryParam("q") String rsql) {
-        return productProvider.getAll(pageIndex, pageSize, sortingRsql, rsql);
+        return super.getAll(pageIndex, pageSize, sortingRsql, rsql);
     }
 
     @ApiOperation(value = "Get specific Product", response = ProductRest.class)
     @GET
     @Path("/{id}")
     public Response getSpecific(@ApiParam(value = "Product id", required = true) @PathParam("id") Integer id) {
-        return Utility.createRestEnityResponse(productProvider.getSpecific(id), id);
+        return super.getSpecific(id);
     }
 
     @ApiOperation(value = "Creates a new Product", response = ProductRest.class)
     @POST
-    public Response createNew(@NotNull @Valid ProductRest productRest,
-            @Context UriInfo uriInfo) {
-        int id = productProvider.store(productRest);
-        UriBuilder uriBuilder = UriBuilder.fromUri(uriInfo.getRequestUri()).path("{id}");
-        return Response.created(uriBuilder.build(id)).entity(productProvider.getSpecific(id)).build();
+    public Response createNew(@NotNull @Valid ProductRest productRest, @Context UriInfo uriInfo) throws ConflictedEntryException {
+        return super.createNew(productRest, uriInfo);
     }
 
     @ApiOperation(value = "Updates an existing Product")
     @PUT
     @Path("/{id}")
     public Response update(@ApiParam(value = "Product id", required = true) @PathParam("id") Integer productId,
-            @NotNull @Valid ProductRest productRest, @Context UriInfo uriInfo) {
-        productProvider.update(productId, productRest);
-        return Response.ok().build();
+            @NotNull @Valid ProductRest productRest, @Context UriInfo uriInfo) throws ConflictedEntryException {
+        return super.update(productId, productRest);
     }
 
     @ApiOperation(value = "Get all versions for a Product",
             responseContainer = "List", response = ProductVersionRest.class)
     @GET
     @Path("/{id}/product-versions")
-    public List<ProductVersionRest> getProductVersions(@ApiParam(value = "Page index") @QueryParam("pageIndex") @DefaultValue("0") int pageIndex,
-                                          @ApiParam(value = "Pagination size") @DefaultValue("50") @QueryParam("pageSize") int pageSize,
-                                          @ApiParam(value = "Sorting RSQL") @QueryParam("sort") String sortingRsql,
-                                          @ApiParam(value = "RSQL query", required = false) @QueryParam("q") String rsql,
-                                          @ApiParam(value = "Product id", required = true) @PathParam("id") Integer productId) {
-        return productVersionProvider.getAllForProduct(pageIndex, pageSize, sortingRsql, rsql, productId);
+    public Response getProductVersions(
+            @ApiParam(value = "Page index") @QueryParam("pageIndex") @DefaultValue("0") int pageIndex,
+            @ApiParam(value = "Pagination size") @DefaultValue("50") @QueryParam("pageSize") int pageSize,
+            @ApiParam(value = "Sorting RSQL") @QueryParam("sort") String sortingRsql,
+            @ApiParam(value = "RSQL query", required = false) @QueryParam("q") String rsql,
+            @ApiParam(value = "Product id", required = true) @PathParam("id") Integer productId) {
+        return fromCollection(productVersionProvider.getAllForProduct(pageIndex, pageSize, sortingRsql, rsql, productId));
     }
 
 }
