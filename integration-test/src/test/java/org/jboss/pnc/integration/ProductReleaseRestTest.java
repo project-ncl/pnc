@@ -69,6 +69,8 @@ public class ProductReleaseRestTest {
     private static int productMilestoneId;
     private static int productReleaseId;
     private static int newProductReleaseId;
+    private static final String newProductReleaseVersion = "1.0.1.Beta1";
+    private static final String updatedProductReleaseVersion = "1.0.1.GA";
 
     private static AuthenticationProvider authProvider;
     private static String access_token = "no-auth";
@@ -137,6 +139,7 @@ public class ProductReleaseRestTest {
     @InSequence(4)
     public void shouldCreateNewProductRelease() throws IOException {
         JsonTemplateBuilder productReleaseTemplate = JsonTemplateBuilder.fromResource("productRelease_template");
+        productReleaseTemplate.addValue("_productReleaseVersion", String.valueOf(newProductReleaseVersion));
         productReleaseTemplate.addValue("_productVersionId", String.valueOf(productVersionId));
         productReleaseTemplate.addValue("_productMilestoneId", String.valueOf(productMilestoneId));
 
@@ -166,10 +169,10 @@ public class ProductReleaseRestTest {
 
         Assertions.assertThat(response.statusCode()).isEqualTo(200);
         Assertions.assertThat(response.body().jsonPath().getInt("id")).isEqualTo(newProductReleaseId);
-        Assertions.assertThat(response.body().jsonPath().getString("version ")).isEqualTo("1.0.0.GA");
+        Assertions.assertThat(response.body().jsonPath().getString("version ")).isEqualTo(newProductReleaseVersion);
 
         String rawJson = response.body().jsonPath().prettyPrint();
-        rawJson = rawJson.replace("1.0.0.GA", "1.0.1.GA");
+        rawJson = rawJson.replace(newProductReleaseVersion, updatedProductReleaseVersion);
         // Remove the "id: {id}," from the json object
         rawJson = rawJson.replaceFirst("\\s*\"?id\"?\\s*:\\s*\\d+,\\s*", "");
 
@@ -186,7 +189,7 @@ public class ProductReleaseRestTest {
 
         Assertions.assertThat(updateResponse.statusCode()).isEqualTo(200);
         Assertions.assertThat(updateResponse.body().jsonPath().getInt("id")).isEqualTo(newProductReleaseId);
-        Assertions.assertThat(updateResponse.body().jsonPath().getString("version")).isEqualTo("1.0.1.GA");
+        Assertions.assertThat(updateResponse.body().jsonPath().getString("version")).isEqualTo(updatedProductReleaseVersion);
 
     }
 
