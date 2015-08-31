@@ -56,6 +56,7 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = SEQUENCE_NAME)
     private Integer id;
 
+    @Column(unique = true)
     @NotNull
     private String name;
 
