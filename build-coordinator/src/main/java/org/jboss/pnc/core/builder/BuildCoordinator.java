@@ -17,7 +17,6 @@
  */
 package org.jboss.pnc.core.builder;
 
-import org.jboss.pnc.common.util.ResultWrapper;
 import org.jboss.pnc.common.util.StreamCollectors;
 import org.jboss.pnc.core.BuildDriverFactory;
 import org.jboss.pnc.core.EnvironmentDriverFactory;
@@ -51,7 +50,6 @@ import javax.inject.Inject;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.Consumer;
@@ -72,8 +70,6 @@ public class BuildCoordinator {
 //    private ManagedThreadFactory threadFactory;
     private ExecutorService executor = Executors.newFixedThreadPool(4); //TODO configurable
     //TODO override executor and implement "protected void afterExecute(Runnable r, Throwable t) { }" to catch possible exceptions
-
-    private ExecutorService dbexecutorSingleThread = Executors.newFixedThreadPool(1);
 
     private RepositoryManagerFactory repositoryManagerFactory;
     private BuildDriverFactory buildDriverFactory;
@@ -98,22 +94,40 @@ public class BuildCoordinator {
         this.buildSetStatusChangedEventNotifier = buildSetStatusChangedEventNotifier;
     }
 
-    public BuildTask build(BuildConfiguration buildConfiguration, User userTriggeredBuild) throws CoreException {
+    /**
+     * Run a single build.
+     * 
+     * @param buildConfiguration The build configuration which will be used.  The latest version of this
+     * build config will be built.
+     * @param user The user who triggered the build.
+     * @return
+     * @throws CoreException Thrown if there is a problem initializing the build
+     */
+    public BuildTask build(BuildConfiguration buildConfiguration, User user) throws CoreException {
         BuildConfigurationSet buildConfigurationSet = BuildConfigurationSet.Builder.newBuilder()
                 .name(buildConfiguration.getName())
                 .buildConfiguration(buildConfiguration)
                 .build();
 
-        BuildSetTask buildSetTask = createBuildSetTask(buildConfigurationSet, userTriggeredBuild, BuildExecutionType.STANDALONE_BUILD);
+        BuildSetTask buildSetTask = createBuildSetTask(buildConfigurationSet, user, BuildExecutionType.STANDALONE_BUILD);
 
         build(buildSetTask);
         BuildTask buildTask = buildSetTask.getBuildTasks().stream().collect(StreamCollectors.singletonCollector());
         return buildTask;
     }
 
-    public BuildSetTask build(BuildConfigurationSet buildConfigurationSet, User userTriggeredBuild) throws CoreException, DatastoreException {
+    /**
+     * Run a set of builds.  Only the current/latest version of builds in the given set will be executed.  The
+     * order of execution is determined by the dependency relations between the build configurations. 
+     * 
+     * @param buildConfigurationSet The set of builds to be executed.
+     * @param user The user who triggered the build.
+     * @return
+     * @throws CoreException Thrown if there is a problem initializing the build
+     */
+    public BuildSetTask build(BuildConfigurationSet buildConfigurationSet, User user) throws CoreException {
 
-        BuildSetTask buildSetTask = createBuildSetTask(buildConfigurationSet, userTriggeredBuild, BuildExecutionType.COMPOSED_BUILD);
+        BuildSetTask buildSetTask = createBuildSetTask(buildConfigurationSet, user, BuildExecutionType.COMPOSED_BUILD);
 
         build(buildSetTask);
         return buildSetTask;
@@ -128,7 +142,12 @@ public class BuildCoordinator {
                 .build();
 
         if (BuildExecutionType.COMPOSED_BUILD.equals(buildType)) {
-            buildConfigSetRecord = this.saveBuildConfigSetRecord(buildConfigSetRecord);
+            try {
+                buildConfigSetRecord = this.saveBuildConfigSetRecord(buildConfigSetRecord);
+            } catch (DatastoreException e) {
+                log.error("Failed to store build config set record: " + e);
+                throw new CoreException(e);
+            }
         }
 
         BuildSetTask buildSetTask = new BuildSetTask(
@@ -401,34 +420,8 @@ public class BuildCoordinator {
      * @param buildConfigSetRecord
      * @return
      */
-    public BuildConfigSetRecord saveBuildConfigSetRecord(BuildConfigSetRecord buildConfigSetRecord) throws CoreException {
-        ResultWrapper<BuildConfigSetRecord, DatastoreException> result = null;
-        try {
-            result = CompletableFuture.supplyAsync(() -> this.saveBuildConfigSetRecordInternal(buildConfigSetRecord), dbexecutorSingleThread).get();
-        } catch (InterruptedException | ExecutionException e) {
-            throw new CoreException(e);
-        }
-        if (result.getException() != null) {
-            throw new CoreException(result.getException());
-        } else {
-            return result.getResult();
-        }
-    }
-
-    /**
-     * Save the build config set record to the database.  The result wrapper will contain an exception
-     * if there is a problem while saving.
-     */
-    private ResultWrapper<BuildConfigSetRecord, DatastoreException> saveBuildConfigSetRecordInternal(
-            BuildConfigSetRecord buildConfigSetRecord) {
-
-        try {
-            buildConfigSetRecord = datastoreAdapter.saveBuildConfigSetRecord(buildConfigSetRecord);
-            return new ResultWrapper<>(buildConfigSetRecord);
-        } catch (DatastoreException e) {
-            log.error("Unable to save build config set record", e);
-            return new ResultWrapper<>(buildConfigSetRecord, e);
-        }
+    protected BuildConfigSetRecord saveBuildConfigSetRecord(BuildConfigSetRecord buildConfigSetRecord) throws DatastoreException {
+        return datastoreAdapter.saveBuildConfigSetRecord(buildConfigSetRecord);
     }
 
     /**
@@ -478,6 +471,5 @@ public class BuildCoordinator {
 
     public void shutdownCoordinator(){
         executor.shutdown();
-        dbexecutorSingleThread.shutdown();
     }
 }

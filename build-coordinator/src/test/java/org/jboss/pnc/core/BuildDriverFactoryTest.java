@@ -22,8 +22,6 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 
 import org.jboss.pnc.common.Configuration;
-import org.jboss.pnc.common.json.ModuleConfigJson;
-import org.jboss.pnc.common.json.moduleconfig.AuthenticationModuleConfig;
 import org.jboss.pnc.common.json.moduleconfig.BuildDriverRouterModuleConfig;
 import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
 import org.jboss.pnc.core.exception.CoreException;
@@ -37,8 +35,6 @@ import org.jboss.pnc.spi.environment.RunningEnvironment;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class BuildDriverFactoryTest {
     

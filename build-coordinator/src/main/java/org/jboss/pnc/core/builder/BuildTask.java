@@ -222,6 +222,10 @@ public class BuildTask implements BuildExecution {
         }
     }
 
+    /**
+     * A build task is equal to another build task if they are using the same
+     * build configuration ID and version.
+     */
     @Override
     public boolean equals(Object o) {
         if (this == o) {

@@ -17,13 +17,8 @@
  */
 package org.jboss.pnc.datastore.repositories;
 
-import java.util.List;
-
 import org.jboss.pnc.datastore.repositories.internal.AbstractRepository;
-import org.jboss.pnc.datastore.repositories.internal.BuildConfigurationAuditedSpringRepository;
 import org.jboss.pnc.datastore.repositories.internal.BuildRecordSpringRepository;
-import org.jboss.pnc.model.BuildConfiguration;
-import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
 
