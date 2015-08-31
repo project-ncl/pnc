@@ -112,11 +112,11 @@ public class DefaultDatastore implements Datastore {
 
     /**
      * Save a build config set record to the db.  This requires a new transaction to ensure that
-     * the record is immediately committed to the database and available to use by the foreign
-     * keys in individual build records.
+     * the record is immediately committed to the database so that it's available to use by the 
+     * foreign keys set in the individual build records.
      */
     @Override
-    @TransactionAttribute(TransactionAttributeType.REQUIRED)
+    @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
     public BuildConfigSetRecord saveBuildConfigSetRecord(BuildConfigSetRecord buildConfigSetRecord) {
         return buildConfigSetRecordRepository.save(buildConfigSetRecord);
     }

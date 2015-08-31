@@ -18,13 +18,13 @@
 package org.jboss.pnc.core.builder;
 
 import org.jboss.pnc.core.events.DefaultBuildSetStatusChangedEvent;
-import org.jboss.pnc.core.exception.CoreException;
 import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.ProductMilestone;
 import org.jboss.pnc.spi.BuildExecutionType;
 import org.jboss.pnc.spi.BuildSetStatus;
+import org.jboss.pnc.spi.datastore.DatastoreException;
 import org.jboss.pnc.spi.events.BuildSetStatusChangedEvent;
 import org.jboss.pnc.spi.events.BuildStatusChangedEvent;
 import org.slf4j.Logger;
@@ -105,7 +105,7 @@ public class BuildSetTask {
         if (getBuildTaskType().equals(BuildExecutionType.COMPOSED_BUILD)) {
             try {
                 buildCoordinator.saveBuildConfigSetRecord(buildConfigSetRecord);
-            } catch (CoreException e) {
+            } catch (DatastoreException e) {
                 log.error("Unable to save build config set record", e);
             }
         }

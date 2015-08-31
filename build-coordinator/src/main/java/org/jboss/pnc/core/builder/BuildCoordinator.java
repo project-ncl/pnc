@@ -17,7 +17,6 @@
  */
 package org.jboss.pnc.core.builder;
 
-import org.jboss.pnc.common.util.ResultWrapper;
 import org.jboss.pnc.common.util.StreamCollectors;
 import org.jboss.pnc.core.BuildDriverFactory;
 import org.jboss.pnc.core.EnvironmentDriverFactory;
@@ -51,7 +50,6 @@ import javax.inject.Inject;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.Consumer;
@@ -72,8 +70,6 @@ public class BuildCoordinator {
 //    private ManagedThreadFactory threadFactory;
     private ExecutorService executor = Executors.newFixedThreadPool(4); //TODO configurable
     //TODO override executor and implement "protected void afterExecute(Runnable r, Throwable t) { }" to catch possible exceptions
-
-    private ExecutorService dbexecutorSingleThread = Executors.newFixedThreadPool(1);
 
     private RepositoryManagerFactory repositoryManagerFactory;
     private BuildDriverFactory buildDriverFactory;
@@ -146,7 +142,12 @@ public class BuildCoordinator {
                 .build();
 
         if (BuildExecutionType.COMPOSED_BUILD.equals(buildType)) {
-            buildConfigSetRecord = this.saveBuildConfigSetRecord(buildConfigSetRecord);
+            try {
+                buildConfigSetRecord = this.saveBuildConfigSetRecord(buildConfigSetRecord);
+            } catch (DatastoreException e) {
+                log.error("Failed to store build config set record: " + e);
+                throw new CoreException(e);
+            }
         }
 
         BuildSetTask buildSetTask = new BuildSetTask(
@@ -419,34 +420,8 @@ public class BuildCoordinator {
      * @param buildConfigSetRecord
      * @return
      */
-    protected BuildConfigSetRecord saveBuildConfigSetRecord(BuildConfigSetRecord buildConfigSetRecord) throws CoreException {
-        ResultWrapper<BuildConfigSetRecord, DatastoreException> result = null;
-        try {
-            result = CompletableFuture.supplyAsync(() -> this.saveBuildConfigSetRecordInternal(buildConfigSetRecord), dbexecutorSingleThread).get();
-        } catch (InterruptedException | ExecutionException e) {
-            throw new CoreException(e);
-        }
-        if (result.getException() != null) {
-            throw new CoreException(result.getException());
-        } else {
-            return result.getResult();
-        }
-    }
-
-    /**
-     * Save the build config set record to the database.  The result wrapper will contain an exception
-     * if there is a problem while saving.
-     */
-    private ResultWrapper<BuildConfigSetRecord, DatastoreException> saveBuildConfigSetRecordInternal(
-            BuildConfigSetRecord buildConfigSetRecord) {
-
-        try {
-            buildConfigSetRecord = datastoreAdapter.saveBuildConfigSetRecord(buildConfigSetRecord);
-            return new ResultWrapper<>(buildConfigSetRecord);
-        } catch (DatastoreException e) {
-            log.error("Unable to save build config set record", e);
-            return new ResultWrapper<>(buildConfigSetRecord, e);
-        }
+    protected BuildConfigSetRecord saveBuildConfigSetRecord(BuildConfigSetRecord buildConfigSetRecord) throws DatastoreException {
+        return datastoreAdapter.saveBuildConfigSetRecord(buildConfigSetRecord);
     }
 
     /**
@@ -496,6 +471,5 @@ public class BuildCoordinator {
 
     public void shutdownCoordinator(){
         executor.shutdown();
-        dbexecutorSingleThread.shutdown();
     }
 }
