@@ -95,6 +95,11 @@ public class BuildConfigurationAudited implements GenericEntity<IdRev> {
         return idRev;
     }
 
+    @Override
+    public void setId(IdRev idRev) {
+        throw new UnsupportedOperationException("Not supported in audited entity");
+    }
+
     /**
      * @param id the id to set
      */

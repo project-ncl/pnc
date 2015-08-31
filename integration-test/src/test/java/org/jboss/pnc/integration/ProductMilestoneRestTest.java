@@ -17,13 +17,8 @@
  */
 package org.jboss.pnc.integration;
 
-import static com.jayway.restassured.RestAssured.given;
-import static org.jboss.pnc.integration.env.IntegrationTestEnv.getHttpPort;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.lang.invoke.MethodHandles;
-
+import com.jayway.restassured.http.ContentType;
+import com.jayway.restassured.response.Response;
 import org.assertj.core.api.Assertions;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
@@ -34,7 +29,6 @@ import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.moduleconfig.AuthenticationModuleConfig;
 import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
-import org.jboss.pnc.common.util.IoUtils;
 import org.jboss.pnc.integration.deployments.Deployments;
 import org.jboss.pnc.integration.matchers.JsonMatcher;
 import org.jboss.pnc.integration.template.JsonTemplateBuilder;
@@ -48,8 +42,12 @@ import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.jayway.restassured.http.ContentType;
-import com.jayway.restassured.response.Response;
+import java.io.IOException;
+import java.io.InputStream;
+import java.lang.invoke.MethodHandles;
+
+import static com.jayway.restassured.RestAssured.given;
+import static org.jboss.pnc.integration.env.IntegrationTestEnv.getHttpPort;
 
 @RunWith(Arquillian.class)
 @Category(ContainerTest.class)
@@ -155,11 +153,13 @@ public class ProductMilestoneRestTest {
         Assertions.assertThat(response.body().jsonPath().getString("version ")).isEqualTo("1.0.0.ER1");
 
         String rawJson = response.body().jsonPath().prettyPrint();
+
+        logger.info("### rawJson (before transformation): " + response.body().jsonPath().prettyPrint());
         rawJson = rawJson.replace("1.0.0.ER1", "1.0.1.ER1");
         // Remove the "id: {id}," from the json object
         rawJson = rawJson.replaceFirst("\\s*\"?id\"?\\s*:\\s*\\d+,\\s*", "");
 
-        logger.info("### rawJson: " + response.body().jsonPath().prettyPrint());
+        logger.info("### rawJson (after transformation): " + response.body().jsonPath().prettyPrint());
 
         given().header("Accept", "application/json").header("Authorization", "Bearer " + access_token).body(rawJson)
                 .contentType(ContentType.JSON).port(getHttpPort()).when()
@@ -185,7 +185,4 @@ public class ProductMilestoneRestTest {
                 .body(JsonMatcher.containsJsonAttribute("id"));
     }
 
-    private String loadJsonFromFile(String resource) throws IOException {
-        return IoUtils.readFileOrResource(resource, resource + ".json", getClass().getClassLoader());
-    }
 }

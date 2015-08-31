@@ -17,41 +17,27 @@
  */
 package org.jboss.pnc.rest.endpoint;
 
+import com.wordnik.swagger.annotations.*;
+import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.rest.provider.ArtifactProvider;
 import org.jboss.pnc.rest.provider.BuildRecordProvider;
 import org.jboss.pnc.rest.restmodel.ArtifactRest;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationAuditedRest;
 import org.jboss.pnc.rest.restmodel.BuildRecordRest;
-import org.jboss.pnc.rest.utils.Utility;
 
 import javax.inject.Inject;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.DefaultValue;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
-
-import java.util.List;
-
-import com.wordnik.swagger.annotations.Api;
-import com.wordnik.swagger.annotations.ApiOperation;
-import com.wordnik.swagger.annotations.ApiParam;
-import com.wordnik.swagger.annotations.ApiResponse;
-import com.wordnik.swagger.annotations.ApiResponses;
 
 @Api(value = "/build-records", description = "Records of build executions")
 @Path("/build-records")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
-public class BuildRecordEndpoint {
+public class BuildRecordEndpoint extends AbstractEndpoint<BuildRecord, BuildRecordRest> {
 
     private BuildRecordProvider buildRecordProvider;
-
     private ArtifactProvider artifactProvider;
 
     public BuildRecordEndpoint() {
@@ -59,25 +45,27 @@ public class BuildRecordEndpoint {
 
     @Inject
     public BuildRecordEndpoint(BuildRecordProvider buildRecordProvider, ArtifactProvider artifactProvider) {
+        super(buildRecordProvider);
         this.buildRecordProvider = buildRecordProvider;
         this.artifactProvider = artifactProvider;
     }
 
     @ApiOperation(value = "Gets all Build Records", responseContainer = "List", response = BuildRecordRest.class)
     @GET
-    public List<BuildRecordRest> getAll(
+    @Override
+    public Response getAll(
             @ApiParam(value = "Page index") @QueryParam("pageIndex") @DefaultValue("0") int pageIndex,
             @ApiParam(value = "Pagination size") @DefaultValue("50") @QueryParam("pageSize") int pageSize,
             @ApiParam(value = "Sorting RSQL") @QueryParam("sort") String sortingRsql,
             @ApiParam(value = "RSQL query", required = false) @QueryParam("q") String rsql) {
-        return buildRecordProvider.getAllArchived(pageIndex, pageSize, sortingRsql, rsql);
+        return super.getAll(pageIndex, pageSize, sortingRsql, rsql);
     }
 
     @ApiOperation(value = "Gets specific Build Record", response = BuildRecordRest.class)
     @GET
     @Path("/{id}")
     public Response getSpecific(@ApiParam(value = "BuildRecord id", required = true) @PathParam("id") Integer id) {
-        return Utility.createRestEnityResponse(buildRecordProvider.getSpecific(id), id);
+        return super.getSpecific(id);
     }
 
     @ApiResponses(value = {
@@ -104,13 +92,12 @@ public class BuildRecordEndpoint {
             responseContainer = "List", response = ArtifactRest.class)
     @GET
     @Path("/{id}/artifacts")
-    public List<ArtifactRest> getArtifacts(
-            @ApiParam(value = "BuildRecord id", required = true) @PathParam("id") Integer id,
+    public Response getArtifacts(@ApiParam(value = "BuildRecord id", required = true) @PathParam("id") Integer id,
             @ApiParam(value = "Page index") @QueryParam("pageIndex") @DefaultValue("0") int pageIndex,
             @ApiParam(value = "Pagination size") @DefaultValue("50") @QueryParam("pageSize") int pageSize,
             @ApiParam(value = "Sorting RSQL") @QueryParam("sort") String sortingRsql,
             @ApiParam(value = "RSQL query", required = false) @QueryParam("q") String rsql) {
-        return artifactProvider.getAll(pageIndex, pageSize, sortingRsql, rsql, id);
+        return fromCollection(artifactProvider.getAllForBuildRecord(pageIndex, pageSize, sortingRsql, rsql, id));
     }
 
     /**
@@ -122,26 +109,25 @@ public class BuildRecordEndpoint {
             responseContainer = "List", response = BuildRecordRest.class)
     @GET
     @Path("/build-configurations/{configurationId}")
-    public List<BuildRecordRest> getAllForBuildConfiguration(
+    public Response getAllForBuildConfiguration(
             @ApiParam(value = "Page index") @QueryParam("pageIndex") @DefaultValue("0") int pageIndex,
             @ApiParam(value = "Pagination size") @DefaultValue("50") @QueryParam("pageSize") int pageSize,
             @ApiParam(value = "Sorting RSQL") @QueryParam("sort") String sortingRsql,
             @ApiParam(value = "RSQL query", required = false) @QueryParam("q") String rsql,
             @ApiParam(value = "Build Configuration id", required = true) @PathParam("configurationId") Integer configurationId) {
-        return buildRecordProvider.getAllForBuildConfiguration(pageIndex, pageSize, sortingRsql, rsql, configurationId);
+        return fromCollection(
+                buildRecordProvider.getAllForBuildConfiguration(pageIndex, pageSize, sortingRsql, rsql, configurationId));
     }
 
-    @ApiOperation(value = "Gets the Build Records linked to a specific Project",
-            responseContainer = "List", response = BuildRecordRest.class)
+    @ApiOperation(value = "Gets the Build Records linked to a specific Project", responseContainer = "List", response = BuildRecordRest.class)
     @GET
     @Path("/projects/{projectId}")
-    public List<BuildRecordRest> getAllForProject(
-            @ApiParam(value = "Page index") @QueryParam("pageIndex") @DefaultValue("0") int pageIndex,
+    public Response getAllForProject(@ApiParam(value = "Page index") @QueryParam("pageIndex") @DefaultValue("0") int pageIndex,
             @ApiParam(value = "Pagination size") @DefaultValue("50") @QueryParam("pageSize") int pageSize,
             @ApiParam(value = "Sorting RSQL") @QueryParam("sort") String sortingRsql,
             @ApiParam(value = "Project id", required = true) @PathParam("projectId") Integer projectId,
             @ApiParam(value = "RSQL query", required = false) @QueryParam("q") String rsql) {
-        return buildRecordProvider.getAllForProject(pageIndex, pageSize, sortingRsql, rsql, projectId);
+        return fromCollection(buildRecordProvider.getAllForProject(pageIndex, pageSize, sortingRsql, rsql, projectId));
     }
 
     @ApiOperation(value = "Gets the audited build configuration for specific build record",
@@ -149,7 +135,7 @@ public class BuildRecordEndpoint {
     @GET
     @Path("/{id}/build-configuration-audited")
     public Response getBuildConfigurationAudited(@ApiParam(value = "BuildRecord id", required = true) @PathParam("id") Integer id) {
-        return buildRecordProvider.getBuildConfigurationAudited(id);
+        return fromSingleton(id, buildRecordProvider.getBuildConfigurationAudited(id));
     }
 
 }

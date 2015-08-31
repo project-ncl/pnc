@@ -160,6 +160,7 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
     /**
      * @param id the id to set
      */
+    @Override
     public void setId(Integer id) {
         this.id = id;
     }

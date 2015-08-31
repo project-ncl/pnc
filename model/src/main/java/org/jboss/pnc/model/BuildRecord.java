@@ -17,29 +17,12 @@
  */
 package org.jboss.pnc.model;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinColumns;
-import javax.persistence.Lob;
-import javax.persistence.ManyToMany;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.PreRemove;
-import javax.validation.constraints.NotNull;
-
 import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Type;
+
+import javax.persistence.*;
+import javax.validation.constraints.NotNull;
+import java.util.*;
 
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-11-23.
@@ -179,6 +162,7 @@ public class BuildRecord implements GenericEntity<Integer> {
      *
      * @param id the new id
      */
+    @Override
     public void setId(Integer id) {
         this.id = id;
     }

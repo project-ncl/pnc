@@ -17,15 +17,10 @@
  */
 package org.jboss.pnc.model;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.ManyToOne;
-import javax.persistence.SequenceGenerator;
-import javax.validation.constraints.NotNull;
-
 import org.hibernate.annotations.ForeignKey;
+
+import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 
 /**
  * The Class SystemImage, selected by the Environment Driver to run a build, based on the buildConfiguration requirements
@@ -66,6 +61,7 @@ public class SystemImage implements GenericEntity<Integer> {
      *
      * @return the id
      */
+    @Override
     public Integer getId() {
         return id;
     }
@@ -75,6 +71,7 @@ public class SystemImage implements GenericEntity<Integer> {
      *
      * @param id the new id
      */
+    @Override
     public void setId(Integer id) {
         this.id = id;
     }

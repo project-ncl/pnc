@@ -17,16 +17,16 @@
  */
 package org.jboss.pnc.rest.restmodel;
 
-import static org.jboss.pnc.rest.utils.Utility.performIfNotNull;
-
-import javax.xml.bind.annotation.XmlRootElement;
-
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.ArtifactStatus;
 import org.jboss.pnc.model.RepositoryType;
 
+import javax.xml.bind.annotation.XmlRootElement;
+
+import static org.jboss.pnc.rest.utils.Utility.performIfNotNull;
+
 @XmlRootElement(name = "Artifact")
-public class ArtifactRest {
+public class ArtifactRest implements GenericRestEntity<Integer> {
 
     private Integer id;
 
@@ -59,10 +59,12 @@ public class ArtifactRest {
         performIfNotNull(artifact.getBuildRecord() != null, () -> this.buildRecordId = artifact.getBuildRecord().getId());
     }
 
+    @Override
     public Integer getId() {
         return id;
     }
 
+    @Override
     public void setId(Integer id) {
         this.id = id;
     }

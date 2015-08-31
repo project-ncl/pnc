@@ -25,7 +25,7 @@ import org.jboss.pnc.model.OperationalSystem;
 import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement(name = "Environment")
-public class EnvironmentRest {
+public class EnvironmentRest implements GenericRestEntity<Integer> {
 
     private Integer id;
 
@@ -44,10 +44,12 @@ public class EnvironmentRest {
         this.operationalSystem = environment.getOperationalSystem();
     }
 
+    @Override
     public Integer getId() {
         return id;
     }
 
+    @Override
     public void setId(Integer id) {
         this.id = id;
     }

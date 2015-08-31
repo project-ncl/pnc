@@ -17,17 +17,16 @@
  */
 package org.jboss.pnc.rest.restmodel;
 
-import java.util.Date;
-
-import javax.xml.bind.annotation.XmlRootElement;
-
 import org.jboss.pnc.model.BuildRecordSet;
 import org.jboss.pnc.model.ProductMilestone;
 import org.jboss.pnc.model.ProductRelease;
 import org.jboss.pnc.model.ProductVersion;
 
+import javax.xml.bind.annotation.XmlRootElement;
+import java.util.Date;
+
 @XmlRootElement(name = "ProductMilestone")
-public class ProductMilestoneRest {
+public class ProductMilestoneRest implements GenericRestEntity<Integer> {
 
     private Integer id;
 
@@ -71,10 +70,12 @@ public class ProductMilestoneRest {
         }
     }
 
+    @Override
     public Integer getId() {
         return id;
     }
 
+    @Override
     public void setId(Integer id) {
         this.id = id;
     }
@@ -160,6 +161,7 @@ public class ProductMilestoneRest {
     public ProductMilestone toProductMilestone(ProductVersion productVersion) {
         return ProductMilestone.Builder.newBuilder()
                 .productVersion(productVersion)
+                .id(id)
                 .version(version)
                 .releaseDate(releaseDate)
                 .startingDate(startingDate)
@@ -177,8 +179,9 @@ public class ProductMilestoneRest {
      * @param productMilestone
      * @return The product milestone with updated attributes to match this ProductMilestoneRest
      */
-    public ProductMilestone mergeProductMilestone(ProductMilestone productMilestone) {
+    public ProductMilestone toProductMilestone(ProductMilestone productMilestone) {
         productMilestone.setVersion(version);
+        productMilestone.setId(id);
         productMilestone.setReleaseDate(releaseDate);
         productMilestone.setStartingDate(startingDate);
         productMilestone.setPlannedReleaseDate(plannedReleaseDate);

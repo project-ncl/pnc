@@ -18,25 +18,20 @@
 package org.jboss.pnc.rest.endpoint;
 
 import com.wordnik.swagger.annotations.*;
-import org.jboss.logging.Logger;
+import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.rest.provider.BuildRecordProvider;
 import org.jboss.pnc.rest.restmodel.BuildRecordRest;
-import org.jboss.pnc.rest.utils.Utility;
 
 import javax.inject.Inject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.lang.invoke.MethodHandles;
-import java.util.List;
 
 @Api(value = "/running-build-records", description = "Build Records for running builds")
 @Path("/running-build-records")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
-public class RunningBuildRecordEndpoint {
-
-    private static final Logger logger = Logger.getLogger(MethodHandles.lookup().lookupClass());
+public class RunningBuildRecordEndpoint extends AbstractEndpoint<BuildRecord, BuildRecordRest> {
 
     private BuildRecordProvider buildRecordProvider;
 
@@ -45,6 +40,7 @@ public class RunningBuildRecordEndpoint {
 
     @Inject
     public RunningBuildRecordEndpoint(BuildRecordProvider buildRecordProvider) {
+        super(buildRecordProvider);
         this.buildRecordProvider = buildRecordProvider;
     }
 
@@ -54,18 +50,17 @@ public class RunningBuildRecordEndpoint {
     })
     @ApiOperation(value = "Gets all running Build Records", responseContainer = "List", response = BuildRecordRest.class)
     @GET
-    public List<BuildRecordRest> getAll(
-            @ApiParam(value = "Page index") @QueryParam("pageIndex") @DefaultValue("0") Integer pageIndex,
+    public Response getAll(@ApiParam(value = "Page index") @QueryParam("pageIndex") @DefaultValue("0") Integer pageIndex,
             @ApiParam(value = "Pagination size") @DefaultValue("50") @QueryParam("pageSize") Integer pageSize,
             @ApiParam(value = "Sorting RSQL") @QueryParam("sort") String sortingRsql,
             @ApiParam(value = "RSQL query", required = false) @QueryParam("q") String rsql) {
-        return buildRecordProvider.getAllRunning(pageIndex, pageSize, sortingRsql, rsql);
+        return fromCollection(buildRecordProvider.getAllRunning(pageIndex, pageSize, sortingRsql, rsql));
     }
 
     @ApiOperation(value = "Gets specific running Build Record", response = BuildRecordRest.class)
     @GET
     @Path("/{id}")
     public Response getSpecific(@ApiParam(value = "BuildRecord id", required = true) @PathParam("id") Integer id) {
-        return Utility.createRestEnityResponse(buildRecordProvider.getSpecificRunning(id), id);
+        return fromSingleton(id, buildRecordProvider.getSpecificRunning(id));
     }
 }

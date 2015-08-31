@@ -17,104 +17,47 @@
  */
 package org.jboss.pnc.rest.provider;
 
-import com.google.common.base.Preconditions;
 import org.jboss.pnc.model.Project;
 import org.jboss.pnc.rest.restmodel.ProjectRest;
 import org.jboss.pnc.spi.datastore.repositories.PageInfoProducer;
 import org.jboss.pnc.spi.datastore.repositories.ProjectRepository;
 import org.jboss.pnc.spi.datastore.repositories.SortInfoProducer;
-import org.jboss.pnc.spi.datastore.repositories.api.PageInfo;
-import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
 import org.jboss.pnc.spi.datastore.repositories.api.RSQLPredicateProducer;
-import org.jboss.pnc.spi.datastore.repositories.api.SortInfo;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
-import java.util.List;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
-import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
 import static org.jboss.pnc.spi.datastore.predicates.ProjectPredicates.withProjectName;
 
 @Stateless
-public class ProjectProvider {
-
-    private ProjectRepository projectRepository;
-
-    private RSQLPredicateProducer rsqlPredicateProducer;
-
-    private SortInfoProducer sortInfoProducer;
-
-    private PageInfoProducer pageInfoProducer;
+public class ProjectProvider extends AbstractProvider<Project, ProjectRest> {
 
     @Inject
     public ProjectProvider(ProjectRepository projectRepository, RSQLPredicateProducer rsqlPredicateProducer, SortInfoProducer sortInfoProducer, PageInfoProducer pageInfoProducer) {
-        this.projectRepository = projectRepository;
-        this.rsqlPredicateProducer = rsqlPredicateProducer;
-        this.sortInfoProducer = sortInfoProducer;
-        this.pageInfoProducer = pageInfoProducer;
+        super(projectRepository, rsqlPredicateProducer, sortInfoProducer, pageInfoProducer);
     }
 
     // needed for EJB/CDI
     public ProjectProvider() {
     }
 
-    public String getDefaultSortingField() {
-        return Project.DEFAULT_SORTING_FIELD;
-    }
-
-    public List<ProjectRest> getAll(int pageIndex, int pageSize, String sortingRsql, String query) {
-        Predicate<Project> rsqlPredicate = rsqlPredicateProducer.getPredicate(Project.class, query);
-        PageInfo pageInfo = pageInfoProducer.getPageInfo(pageIndex, pageSize);
-        SortInfo sortInfo = sortInfoProducer.getSortInfo(sortingRsql);
-        return nullableStreamOf(projectRepository.queryWithPredicates(pageInfo, sortInfo, rsqlPredicate))
-                .map(toRestModel())
-                .collect(Collectors.toList());
-    }
-
-    public ProjectRest getSpecific(Integer id) {
-        Project project = projectRepository.queryById(id);
-        if (project != null) {
-            return new ProjectRest(project);
-        }
-        return null;
-    }
-
-    public Integer store(ProjectRest projectRest) throws ConflictedEntryException {
-        Preconditions.checkArgument(projectRest.getId() == null, "Id must be null");
-        validateBeforeSaving(projectRest);
-        Project project = projectRest.toProject();
-        project = projectRepository.save(project);
-        return project.getId();
-    }
-
-    public Integer update(Integer id, ProjectRest projectRest) throws ConflictedEntryException {
-        Preconditions.checkArgument(id != null, "Id must not be null");
-        Preconditions.checkArgument(projectRest.getId() == null || projectRest.getId().equals(id),
-                "Entity id does not match the id to update");
-        projectRest.setId(id);
-        validateBeforeSaving(projectRest);
-        Project project = projectRepository.queryById(id);
-        Preconditions.checkArgument(project != null, "Couldn't find project with id " + projectRest.getId());
-        project = projectRepository.save(projectRest.toProject());
-        return project.getId();
-    }
-
-    private void validateBeforeSaving(ProjectRest projectRest) throws ConflictedEntryException {
-        Project project = projectRepository.queryByPredicates(withProjectName(projectRest.getName()));
+    @Override
+    protected void validateBeforeSaving(ProjectRest projectRest) throws ConflictedEntryException {
+        Project project = repository.queryByPredicates(withProjectName(projectRest.getName()));
         //don't validate against myself
         if(project != null && !project.getId().equals(projectRest.getId())) {
             throw new ConflictedEntryException("Project of that name already exists", Project.class, project.getId());
         }
     }
 
-    public void delete(Integer projectId) {
-        projectRepository.delete(projectId);
-    }
-
-    public Function<? super Project, ? extends ProjectRest> toRestModel() {
+    @Override
+    protected Function<? super Project, ? extends ProjectRest> toRESTModel() {
         return project -> new ProjectRest(project);
     }
 
+    @Override
+    protected Function<? super ProjectRest, ? extends Project> toDBModelModel() {
+        return project -> project.toProject();
+    }
 }

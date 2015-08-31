@@ -18,18 +18,15 @@
 package org.jboss.pnc.rest.provider;
 
 import com.google.common.base.Strings;
-
 import org.jboss.pnc.core.builder.BuildCoordinator;
 import org.jboss.pnc.core.builder.BuildTask;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildRecord;
-import org.jboss.pnc.rest.restmodel.BuildConfigurationAuditedRest;
 import org.jboss.pnc.rest.restmodel.BuildRecordRest;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
 import org.jboss.pnc.spi.datastore.repositories.PageInfoProducer;
 import org.jboss.pnc.spi.datastore.repositories.SortInfoProducer;
 import org.jboss.pnc.spi.datastore.repositories.api.PageInfo;
-import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
 import org.jboss.pnc.spi.datastore.repositories.api.RSQLPredicateProducer;
 import org.jboss.pnc.spi.datastore.repositories.api.SortInfo;
 import org.slf4j.Logger;
@@ -37,9 +34,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
-import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
-
 import java.io.BufferedWriter;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
@@ -52,19 +47,11 @@ import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
 import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.*;
 
 @Stateless
-public class BuildRecordProvider {
+public class BuildRecordProvider extends AbstractProvider<BuildRecord, BuildRecordRest> {
 
     private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-    private BuildRecordRepository buildRecordRepository;
-
     private BuildCoordinator buildCoordinator;
-
-    private RSQLPredicateProducer rsqlPredicateProducer;
-
-    private SortInfoProducer sortInfoProducer;
-
-    private PageInfoProducer pageInfoProducer;
 
     public BuildRecordProvider() {
     }
@@ -72,20 +59,8 @@ public class BuildRecordProvider {
     @Inject
     public BuildRecordProvider(BuildRecordRepository buildRecordRepository, BuildCoordinator buildCoordinator,
             PageInfoProducer pageInfoProducer, RSQLPredicateProducer rsqlPredicateProducer, SortInfoProducer sortInfoProducer) {
-        this.buildRecordRepository = buildRecordRepository;
+        super(buildRecordRepository, rsqlPredicateProducer, sortInfoProducer, pageInfoProducer);
         this.buildCoordinator = buildCoordinator;
-        this.rsqlPredicateProducer = rsqlPredicateProducer;
-        this.sortInfoProducer = sortInfoProducer;
-        this.pageInfoProducer = pageInfoProducer;
-    }
-
-    public List<BuildRecordRest> getAllArchived(int pageIndex, int pageSize, String sortingRsql, String query) {
-        Predicate<BuildRecord> rsqlPredicate = rsqlPredicateProducer.getPredicate(BuildRecord.class, query);
-        PageInfo pageInfo = pageInfoProducer.getPageInfo(pageIndex, pageSize);
-        SortInfo sortInfo = sortInfoProducer.getSortInfo(sortingRsql);
-        return nullableStreamOf(buildRecordRepository.queryWithPredicates(pageInfo, sortInfo, rsqlPredicate))
-                .map(toRestModel())
-                .collect(Collectors.toList());
     }
 
     public List<BuildRecordRest> getAllRunning(Integer pageIndex, Integer pageSize, String sortingRsql, String rsql) {
@@ -104,44 +79,40 @@ public class BuildRecordProvider {
     }
 
     public List<BuildRecordRest> getAllForBuildConfiguration(int pageIndex, int pageSize, String sortingRsql, String query, Integer configurationId) {
-        Predicate<BuildRecord> rsqlPredicate = rsqlPredicateProducer.getPredicate(BuildRecord.class, query);
-        PageInfo pageInfo = pageInfoProducer.getPageInfo(pageIndex, pageSize);
-        SortInfo sortInfo = sortInfoProducer.getSortInfo(sortingRsql);
-        return nullableStreamOf(buildRecordRepository.queryWithPredicates(pageInfo, sortInfo, rsqlPredicate, withBuildConfigurationId(configurationId)))
-                .map(toRestModel())
-                .collect(Collectors.toList());
+        return queryForCollection(pageIndex, pageSize, sortingRsql, query, withBuildConfigurationId(configurationId));
     }
 
     public List<BuildRecordRest> getAllForProject(int pageIndex, int pageSize, String sortingRsql, String query, Integer projectId) {
-        Predicate<BuildRecord> rsqlPredicate = rsqlPredicateProducer.getPredicate(BuildRecord.class, query);
-        PageInfo pageInfo = pageInfoProducer.getPageInfo(pageIndex, pageSize);
-        SortInfo sortInfo = sortInfoProducer.getSortInfo(sortingRsql);
-        return nullableStreamOf(buildRecordRepository.queryWithPredicates(pageInfo, sortInfo, rsqlPredicate, withProjectId(projectId)))
-                .map(toRestModel())
-                .collect(Collectors.toList());
+        return queryForCollection(pageIndex, pageSize, sortingRsql, query, withProjectId(projectId));
     }
 
-    public BuildRecordRest getSpecific(Integer id) {
-        BuildRecord buildRecord = buildRecordRepository.queryById(id);
-        if (buildRecord != null) {
-            return new BuildRecordRest(buildRecord);
-        }
-        return null;
+    public List<BuildRecordRest> getAllForBuildConfigSetRecord(int pageIndex, int pageSize, String sortingRsql, String rsql,
+            Integer buildConfigurationSetId) {
+        return queryForCollection(pageIndex, pageSize, sortingRsql, rsql, withBuildConfigSetId(buildConfigurationSetId));
     }
-    
+
+    @Override
+    protected Function<? super BuildRecord, ? extends BuildRecordRest> toRESTModel() {
+        return buildRecord -> new BuildRecordRest(buildRecord);
+    }
+
+    @Override
+    protected Function<? super BuildRecordRest, ? extends BuildRecord> toDBModelModel() {
+        throw new UnsupportedOperationException("Not supported by BuildRecordProvider");
+    }
 
     public String getBuildRecordLog(Integer id) {
-        BuildRecord buildRecord = buildRecordRepository.queryById(id);
+        BuildRecord buildRecord = repository.queryById(id);
         if(buildRecord != null)
             return buildRecord.getBuildLog();
-        else 
+        else
             return null;
     }
-    
+
     public StreamingOutput getLogsForBuild(String buildRecordLog) {
         if(buildRecordLog == null)
             return null;
-        
+
         return outputStream -> {
             Writer writer = new BufferedWriter(new OutputStreamWriter(outputStream));
             writer.write(buildRecordLog);
@@ -167,41 +138,22 @@ public class BuildRecordProvider {
         return null;
     }
 
-    /**
-     * Get the audited build configuration associated with a build record.
-     * Returns a Response.Status.NOT_FOUND (404) if the build record is not found.
-     * This likely means the caller sent the incorrect ID.
-     * Returns a Response.Status.INTERNAL_SERVER_ERROR (500) if the build record
-     * is found but no associated audited build configuration is found.  This should
-     * not happen because all build records must have an associated build configuration
-     * so it means something is wrong in the application.
-     * 
-     * @param id The id of the build record.
-     * @return A jax-rs response containing the audited build configuration, or an error message.
-     */
-    public Response getBuildConfigurationAudited(Integer id) {
-        BuildRecord buildRecord = buildRecordRepository.queryById(id);
+    public BuildConfigurationAudited getBuildConfigurationAudited(Integer id) {
+        BuildRecord buildRecord = repository.queryById(id);
         if (buildRecord == null) {
-            return Response.status(Response.Status.NOT_FOUND).entity("No build record exists with id: " + id).build();
-        }
-        BuildConfigurationAudited buildConfigurationAudited = buildRecord.getBuildConfigurationAudited();
-        if (buildConfigurationAudited == null) {
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("No audited build configuration found for build record: " + id).build();
-        }
-        return Response.ok(new BuildConfigurationAuditedRest(buildConfigurationAudited)).build();
-    }
-    
-    public StreamingOutput getStreamingOutputForString(String str) {
-        if(str == null)
             return null;
-            
-        return outputStream -> {
-            Writer writer = new BufferedWriter(new OutputStreamWriter(outputStream));
-            writer.write(str);
-            writer.flush();
-        };
+        }
+        return buildRecord.getBuildConfigurationAudited();
     }
-    public Function<? super BuildRecord, ? extends BuildRecordRest> toRestModel() {
-        return buildRecord -> new BuildRecordRest(buildRecord);
+
+    public BuildRecordRest getLatestBuildRecord(Integer configId) {
+        PageInfo pageInfo = this.pageInfoProducer.getPageInfo(0, 1);
+        SortInfo sortInfo = this.sortInfoProducer.getSortInfo(SortInfo.SortingDirection.DESC, "endTime");
+        List<BuildRecord> buildRecords = repository.queryWithPredicates(pageInfo, sortInfo, withBuildConfigurationId(configId));
+        if (buildRecords.isEmpty()) {
+            return null;
+        }
+        return toRESTModel().apply(buildRecords.get(0));
+
     }
 }

@@ -17,117 +17,51 @@
  */
 package org.jboss.pnc.rest.provider;
 
-import com.google.common.base.Preconditions;
 import org.jboss.pnc.model.BuildRecordSet;
 import org.jboss.pnc.rest.restmodel.BuildRecordSetRest;
-import org.jboss.pnc.spi.datastore.repositories.*;
-import org.jboss.pnc.spi.datastore.repositories.api.PageInfo;
-import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
+import org.jboss.pnc.spi.datastore.repositories.BuildRecordSetRepository;
+import org.jboss.pnc.spi.datastore.repositories.PageInfoProducer;
+import org.jboss.pnc.spi.datastore.repositories.SortInfoProducer;
 import org.jboss.pnc.spi.datastore.repositories.api.RSQLPredicateProducer;
-import org.jboss.pnc.spi.datastore.repositories.api.SortInfo;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import java.util.List;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
-import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
 import static org.jboss.pnc.spi.datastore.predicates.BuildRecordSetPredicates.withBuildRecordId;
 import static org.jboss.pnc.spi.datastore.predicates.BuildRecordSetPredicates.withPerformedInProductMilestoneId;
 
 @Stateless
-public class BuildRecordSetProvider {
-
-    private BuildRecordSetRepository buildRecordSetRepository;
-
-    private ProductMilestoneRepository productMilestoneRepository;
-
-    private RSQLPredicateProducer rsqlPredicateProducer;
-
-    private SortInfoProducer sortInfoProducer;
-
-    private PageInfoProducer pageInfoProducer;
+public class BuildRecordSetProvider extends AbstractProvider<BuildRecordSet, BuildRecordSetRest> {
 
     public BuildRecordSetProvider() {
     }
 
     @Inject
     public BuildRecordSetProvider(BuildRecordSetRepository buildRecordSetRepository,
-            ProductMilestoneRepository productMilestoneRepository,
             RSQLPredicateProducer rsqlPredicateProducer, SortInfoProducer sortInfoProducer, PageInfoProducer pageInfoProducer) {
-        this.buildRecordSetRepository = buildRecordSetRepository;
-        this.productMilestoneRepository = productMilestoneRepository;
-        this.rsqlPredicateProducer = rsqlPredicateProducer;
-        this.sortInfoProducer = sortInfoProducer;
-        this.pageInfoProducer = pageInfoProducer;
+        super(buildRecordSetRepository, rsqlPredicateProducer, sortInfoProducer, pageInfoProducer);
     }
 
-    private Function<BuildRecordSet, BuildRecordSetRest> toRestModel() {
+    @Override
+    protected Function<? super BuildRecordSet, ? extends BuildRecordSetRest> toRESTModel() {
         return buildRecordSet -> new BuildRecordSetRest(buildRecordSet);
     }
 
-    public List<BuildRecordSetRest> getAll(int pageIndex, int pageSize, String sortingRsql, String query) {
-        Predicate<BuildRecordSet> rsqlPredicate = rsqlPredicateProducer.getPredicate(BuildRecordSet.class, query);
-        PageInfo pageInfo = pageInfoProducer.getPageInfo(pageIndex, pageSize);
-        SortInfo sortInfo = sortInfoProducer.getSortInfo(sortingRsql);
-        return nullableStreamOf(buildRecordSetRepository.queryWithPredicates(pageInfo, sortInfo, rsqlPredicate))
-                .map(toRestModel())
-                .collect(Collectors.toList());
-    }
-
-    public BuildRecordSetRest getSpecific(Integer id) {
-        BuildRecordSet buildRecordSet = buildRecordSetRepository.queryById(id);
-        if (buildRecordSet != null) {
-            return new BuildRecordSetRest(buildRecordSet);
-        }
-        return null;
-    }
-
-    public Integer store(BuildRecordSetRest buildRecordSetRest) {
-        Preconditions.checkArgument(buildRecordSetRest.getId() == null, "Id must be null");
-        BuildRecordSet buildRecordSet = buildRecordSetRest.toBuildRecordSet();
-
-        buildRecordSet = buildRecordSetRepository.save(buildRecordSet);
-
-        return buildRecordSet.getId();
-    }
-
-    public Integer update(Integer id, BuildRecordSetRest buildRecordSetRest) {
-        Preconditions.checkArgument(id != null, "Id must not be null");
-        Preconditions.checkArgument(buildRecordSetRest.getId() == null || buildRecordSetRest.getId().equals(id),
-                "Entity id does not match the id to update");
-        buildRecordSetRest.setId(id);
-        BuildRecordSet buildRecordSet = buildRecordSetRepository.queryById(buildRecordSetRest.getId());
-        Preconditions.checkArgument(buildRecordSet != null,
-                "Couldn't find buildRecordSet with id " + buildRecordSetRest.getId());
-        buildRecordSet = buildRecordSetRepository.save(buildRecordSetRest.toBuildRecordSet());
-        return buildRecordSet.getId();
-    }
-
-    public void delete(Integer buildRecordSetId) {
-        buildRecordSetRepository.delete(buildRecordSetId);
+    @Override
+    protected Function<? super BuildRecordSetRest, ? extends BuildRecordSet> toDBModelModel() {
+        return buildRecordSet -> buildRecordSet.toBuildRecordSet();
     }
 
     public List<BuildRecordSetRest> getAllForPerformedInProductMilestone(int pageIndex, int pageSize, String sortingRsql,
             String query, Integer milestoneId) {
-        Predicate<BuildRecordSet> rsqlPredicate = rsqlPredicateProducer.getPredicate(BuildRecordSet.class, query);
-        PageInfo pageInfo = pageInfoProducer.getPageInfo(pageIndex, pageSize);
-        SortInfo sortInfo = sortInfoProducer.getSortInfo(sortingRsql);
-        return nullableStreamOf(buildRecordSetRepository.queryWithPredicates(pageInfo, sortInfo, rsqlPredicate, withPerformedInProductMilestoneId(milestoneId)))
-                .map(toRestModel())
-                .collect(Collectors.toList());
+        return queryForCollection(pageIndex, pageSize, sortingRsql, query, withPerformedInProductMilestoneId(milestoneId));
     }
 
     public List<BuildRecordSetRest> getAllForBuildRecord(int pageIndex, int pageSize, String sortingRsql, String query,
             Integer recordId) {
-        Predicate<BuildRecordSet> rsqlPredicate = rsqlPredicateProducer.getPredicate(BuildRecordSet.class, query);
-        PageInfo pageInfo = pageInfoProducer.getPageInfo(pageIndex, pageSize);
-        SortInfo sortInfo = sortInfoProducer.getSortInfo(sortingRsql);
-        return nullableStreamOf(buildRecordSetRepository.queryWithPredicates(pageInfo, sortInfo, rsqlPredicate, withBuildRecordId(recordId)))
-                .map(toRestModel())
-                .collect(Collectors.toList());
-
+        return queryForCollection(pageIndex, pageSize, sortingRsql, query, withBuildRecordId(recordId));
     }
 
 }

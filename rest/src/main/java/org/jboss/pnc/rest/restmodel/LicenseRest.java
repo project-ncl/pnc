@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
 import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
 
 @XmlRootElement(name = "License")
-public class LicenseRest {
+public class LicenseRest implements GenericRestEntity<Integer> {
 
     private Integer id;
 
@@ -57,6 +57,7 @@ public class LicenseRest {
     /**
      * @return the id
      */
+    @Override
     public Integer getId() {
         return id;
     }
@@ -64,6 +65,7 @@ public class LicenseRest {
     /**
      * @param id the id to set
      */
+    @Override
     public void setId(Integer id) {
         this.id = id;
     }

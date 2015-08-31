@@ -17,20 +17,12 @@
  */
 package org.jboss.pnc.model;
 
-import java.util.HashSet;
-import java.util.Set;
-
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
-import javax.persistence.OneToOne;
-import javax.persistence.SequenceGenerator;
 
 import org.hibernate.annotations.ForeignKey;
+
+import javax.persistence.*;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Represents a set of related build records. For example, this could be the set of builds that were executed during a specific
@@ -79,10 +71,12 @@ public class BuildRecordSet implements GenericEntity<Integer> {
         buildRecords = new HashSet<BuildRecord>();
     }
 
+    @Override
     public Integer getId() {
         return id;
     }
 
+    @Override
     public void setId(Integer id) {
         this.id = id;
     }

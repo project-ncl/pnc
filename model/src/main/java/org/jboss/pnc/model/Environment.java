@@ -17,15 +17,9 @@
  */
 package org.jboss.pnc.model;
 
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.SequenceGenerator;
-
 import org.hibernate.envers.Audited;
+
+import javax.persistence.*;
 
 /**
  * The Class Environment.
@@ -72,6 +66,7 @@ public class Environment implements GenericEntity<Integer> {
      *
      * @return the id
      */
+    @Override
     public Integer getId() {
         return id;
     }
@@ -81,6 +76,7 @@ public class Environment implements GenericEntity<Integer> {
      *
      * @param id the new id
      */
+    @Override
     public void setId(Integer id) {
         this.id = id;
     }

@@ -15,14 +15,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.model;
 
-import java.io.Serializable;
+package org.jboss.pnc.rest.restmodel;
 
 /**
- * Generic Entity interface. All entities should implement it.
+ * A Generified interface for all REST Entities.
+ *
+ * @param <ID> ID type
  */
-public interface GenericEntity<ID extends Serializable> extends Serializable {
+public interface GenericRestEntity<ID extends Integer> {
+
+    /**
+     * Gets Id.
+     *
+     * @return Id.
+     */
     ID getId();
+
+    /**
+     * Sets id.
+     *
+     * @param id id.
+     */
     void setId(ID id);
 }

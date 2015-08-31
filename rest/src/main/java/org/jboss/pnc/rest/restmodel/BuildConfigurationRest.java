@@ -34,7 +34,7 @@ import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
 import static org.jboss.pnc.rest.utils.Utility.performIfNotNull;
 
 @XmlRootElement(name = "Configuration")
-public class BuildConfigurationRest {
+public class BuildConfigurationRest implements GenericRestEntity<Integer> {
 
     private Integer id;
 
@@ -88,10 +88,12 @@ public class BuildConfigurationRest {
                 .collect(Collectors.toSet());
     }
 
+    @Override
     public Integer getId() {
         return id;
     }
 
+    @Override
     public void setId(Integer id) {
         this.id = id;
     }

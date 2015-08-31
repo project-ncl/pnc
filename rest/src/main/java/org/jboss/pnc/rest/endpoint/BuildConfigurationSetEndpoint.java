@@ -20,9 +20,9 @@ package org.jboss.pnc.rest.endpoint;
 import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
 import com.wordnik.swagger.annotations.ApiParam;
-
 import org.jboss.pnc.auth.AuthenticationProvider;
 import org.jboss.pnc.core.exception.CoreException;
+import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.rest.provider.BuildConfigurationSetProvider;
 import org.jboss.pnc.rest.provider.ConflictedEntryException;
@@ -30,7 +30,6 @@ import org.jboss.pnc.rest.restmodel.BuildConfigurationRest;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationSetRest;
 import org.jboss.pnc.rest.restmodel.BuildRecordRest;
 import org.jboss.pnc.rest.trigger.BuildTriggerer;
-import org.jboss.pnc.rest.utils.Utility;
 import org.jboss.pnc.spi.datastore.Datastore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,21 +39,21 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.*;
-import javax.ws.rs.core.*;
-
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
 import java.lang.invoke.MethodHandles;
 import java.net.URL;
-import java.util.List;
 
 @Api(value = "/build-configuration-sets", description = "Set of related build configurations")
 @Path("/build-configuration-sets")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
-public class BuildConfigurationSetEndpoint {
+public class BuildConfigurationSetEndpoint extends AbstractEndpoint<BuildConfigurationSet, BuildConfigurationSetRest> {
 
     private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-    private BuildConfigurationSetProvider buildConfigurationSetProvider;
     private BuildTriggerer buildTriggerer;
     
     @Context
@@ -62,13 +61,16 @@ public class BuildConfigurationSetEndpoint {
     
     @Inject
     private Datastore datastore;
-    
+
+    private BuildConfigurationSetProvider buildConfigurationSetProvider;
 
     public BuildConfigurationSetEndpoint() {
+
     }
 
     @Inject
     public BuildConfigurationSetEndpoint(BuildConfigurationSetProvider buildConfigurationSetProvider, BuildTriggerer buildTriggerer) {
+        super(buildConfigurationSetProvider);
         this.buildConfigurationSetProvider = buildConfigurationSetProvider;
         this.buildTriggerer = buildTriggerer;
     }
@@ -76,22 +78,18 @@ public class BuildConfigurationSetEndpoint {
     @ApiOperation(value = "Gets all Build Configuration Sets",
             responseContainer = "List", response = BuildConfigurationSetRest.class)
     @GET
-    public List<BuildConfigurationSetRest> getAll(
-            @ApiParam(value = "Page index") @QueryParam("pageIndex") @DefaultValue("0") int pageIndex,
+    public Response getAll(@ApiParam(value = "Page index") @QueryParam("pageIndex") @DefaultValue("0") int pageIndex,
             @ApiParam(value = "Pagination size") @DefaultValue("50") @QueryParam("pageSize") int pageSize,
             @ApiParam(value = "Sorting RSQL") @QueryParam("sort") String sortingRsql,
             @ApiParam(value = "RSQL query", required = false) @QueryParam("q") String rsql) {
-
-        return buildConfigurationSetProvider.getAll(pageIndex, pageSize, sortingRsql, rsql);
+        return super.getAll(pageIndex, pageSize, sortingRsql, rsql);
     }
 
     @ApiOperation(value = "Creates a new Build Configuration Set", response = BuildConfigurationSetRest.class)
     @POST
     public Response createNew(@NotNull @Valid BuildConfigurationSetRest buildConfigurationSetRest, @Context UriInfo uriInfo)
             throws ConflictedEntryException {
-        UriBuilder uriBuilder = UriBuilder.fromUri(uriInfo.getRequestUri()).path("{id}");
-        int id = buildConfigurationSetProvider.store(buildConfigurationSetRest);
-        return Response.created(uriBuilder.build(id)).entity(buildConfigurationSetProvider.getSpecific(id)).build();
+        return super.createNew(buildConfigurationSetRest, uriInfo);
     }
 
     @ApiOperation(value = "Gets a specific Build Configuration Set", response = BuildConfigurationSetRest.class)
@@ -99,34 +97,68 @@ public class BuildConfigurationSetEndpoint {
     @Path("/{id}")
     public Response getSpecific(
             @ApiParam(value = "Build Configuration Set id", required = true) @PathParam("id") Integer id) {
-        return Utility.createRestEnityResponse(buildConfigurationSetProvider.getSpecific(id), id);
+        return super.getSpecific(id);
     }
 
     @ApiOperation(value = "Updates an existing Build Configuration Set")
     @PUT
     @Path("/{id}")
     public Response update(@ApiParam(value = "Build Configuration Set id", required = true) @PathParam("id") Integer id,
-            @NotNull @Valid BuildConfigurationSetRest buildConfigurationSetRest, @Context UriInfo uriInfo)
+            @NotNull @Valid BuildConfigurationSetRest buildConfigurationSetRest)
             throws ConflictedEntryException {
-        buildConfigurationSetProvider.update(id, buildConfigurationSetRest);
-        return Response.ok().build();
+        return super.update(id, buildConfigurationSetRest);
     }
 
     @ApiOperation(value = "Removes a specific Build Configuration Set")
     @DELETE
     @Path("/{id}")
     public Response deleteSpecific(@ApiParam(value = "Build Configuration Set id", required = true) @PathParam("id") Integer id) {
-        buildConfigurationSetProvider.delete(id);
-        return Response.ok().build();
+        return super.delete(id);
     }
 
     @ApiOperation(value = "Gets the Configurations for the Specified Set",
             responseContainer = "List", response = BuildConfigurationRest.class)
     @GET
     @Path("/{id}/build-configurations")
-    public List<BuildConfigurationRest> getConfigurations(
+    public Response getConfigurations(@ApiParam(value = "Page index") @QueryParam("pageIndex") @DefaultValue("0") int pageIndex,
+            @ApiParam(value = "Pagination size") @DefaultValue("50") @QueryParam("pageSize") int pageSize,
+            @ApiParam(value = "Sorting RSQL") @QueryParam("sort") String sortingRsql,
+            @ApiParam(value = "RSQL query", required = false) @QueryParam("q") String rsql,
             @ApiParam(value = "Build Configuration Set id", required = true) @PathParam("id") Integer id) {
-        return buildConfigurationSetProvider.getBuildConfigurations(id);
+        return fromCollection(buildConfigurationSetProvider.getBuildConfigurations(pageIndex, pageSize, sortingRsql, rsql, id));
+    }
+
+    @ApiOperation(value = "Adds a configuration to the Specified Set")
+    @POST
+    @Path("/{id}/build-configurations")
+    public Response addConfiguration(
+            @ApiParam(value = "Build Configuration Set id", required = true) @PathParam("id") Integer id,
+            BuildConfigurationRest buildConfig) throws ConflictedEntryException {
+        buildConfigurationSetProvider.addConfiguration(id, buildConfig.getId());
+        return fromEmpty();
+    }
+
+    @ApiOperation(value = "Removes a configuration from the specified config set")
+    @DELETE
+    @Path("/{id}/build-configurations/{configId}")
+    public Response removeConfiguration(
+            @ApiParam(value = "Build configuration set id", required = true) @PathParam("id") Integer id,
+            @ApiParam(value = "Build configuration id", required = true) @PathParam("configId") Integer configId) {
+        buildConfigurationSetProvider.removeConfiguration(id, configId);
+        return fromEmpty();
+    }
+
+    @ApiOperation(value = "Gets all build records associated with the contained build configurations",
+            responseContainer = "List", response = BuildRecordRest.class)
+    @GET
+    @Path("/{id}/build-records")
+    public Response getBuildRecords(
+            @ApiParam(value = "Build configuration set id", required = true) @PathParam("id") Integer id,
+            @ApiParam(value = "Page index") @QueryParam("pageIndex") @DefaultValue("0") int pageIndex,
+            @ApiParam(value = "Pagination size") @DefaultValue("50") @QueryParam("pageSize") int pageSize,
+            @ApiParam(value = "Sorting RSQL") @QueryParam("sort") String sortingRsql,
+            @ApiParam(value = "RSQL query", required = false) @QueryParam("q") String rsql) {
+        return fromCollection(buildConfigurationSetProvider.getBuildRecords(pageIndex, pageSize, sortingRsql, rsql, id));
     }
 
     @ApiOperation(value = "Builds the Configurations for the Specified Set")
@@ -154,7 +186,7 @@ public class BuildConfigurationSetEndpoint {
                         .email(authProvider.getEmail()).build();
                 datastore.createNewUser(currentUser);
             }
-            Integer runningBuildId = null; 
+            Integer runningBuildId = null;
             // if callbackUrl is provided trigger build accordingly
             if (callbackUrl == null || callbackUrl.isEmpty()) {
                 runningBuildId = buildTriggerer.triggerBuildConfigurationSet(id, currentUser);
@@ -170,40 +202,6 @@ public class BuildConfigurationSetEndpoint {
             logger.error(e.getMessage(), e);
             return Response.serverError().entity("Other error: " + e.getMessage()).build();
         }
-    }
-
-    @ApiOperation(value = "Adds a configuration to the Specified Set")
-    @POST
-    @Path("/{id}/build-configurations")
-    public Response addConfiguration(
-            @ApiParam(value = "Build Configuration Set id", required = true) @PathParam("id") Integer id,
-            BuildConfigurationRest buildConfig) throws ConflictedEntryException {
-        buildConfigurationSetProvider.addConfiguration(id, buildConfig.getId());
-        return Response.ok().build();
-    }
-
-    @ApiOperation(value = "Removes a configuration from the specified config set")
-    @DELETE
-    @Path("/{id}/build-configurations/{configId}")
-    public Response addConfiguration(
-            @ApiParam(value = "Build configuration set id", required = true) @PathParam("id") Integer id,
-            @ApiParam(value = "Build configuration id", required = true) @PathParam("configId") Integer configId) {
-        buildConfigurationSetProvider.removeConfiguration(id, configId);
-        return Response.ok().build();
-    }
-
-    @ApiOperation(value = "Gets all build records associated with the contained build configurations",
-            responseContainer = "List", response = BuildRecordRest.class)
-    @GET
-    @Path("/{id}/build-records")
-    public List<BuildRecordRest> getBuildRecords(
-            @ApiParam(value = "Build configuration set id", required = true) @PathParam("id") Integer id,
-            @ApiParam(value = "Page index") @QueryParam("pageIndex") @DefaultValue("0") int pageIndex,
-            @ApiParam(value = "Pagination size") @DefaultValue("50") @QueryParam("pageSize") int pageSize,
-            @ApiParam(value = "Sorting RSQL") @QueryParam("sort") String sortingRsql,
-            @ApiParam(value = "RSQL query", required = false) @QueryParam("q") String rsql) {
-
-        return buildConfigurationSetProvider.getBuildRecords(id, pageIndex, pageSize, sortingRsql, rsql);
     }
 
 }

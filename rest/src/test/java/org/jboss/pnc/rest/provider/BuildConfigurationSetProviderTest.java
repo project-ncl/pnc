@@ -21,7 +21,6 @@ import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationSetRepository;
-import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -35,15 +34,17 @@ public class BuildConfigurationSetProviderTest {
     @Test
     public void shouldThrowConflictedEntryExceptionWhenAddingDuplicatedConfiguration() {
         //given
+        BuildRecordProvider buildRecordProvider = mock(BuildRecordProvider.class);
         BuildConfigurationSetRepository buildConfigurationSetRepository = mock(BuildConfigurationSetRepository.class);
         BuildConfigurationRepository buildConfigurationRepository = mock(BuildConfigurationRepository.class);
-        BuildRecordRepository buildRecordRepository = mock(BuildRecordRepository.class);
+        BuildConfigurationProvider buildConfigurationProvider = mock(BuildConfigurationProvider.class);
 
         BuildConfigurationSet testBCS = createBuildConfigurationSet(1);
         when(buildConfigurationSetRepository.queryById(1)).thenReturn(testBCS);
         when(buildConfigurationRepository.queryById(2)).thenReturn(createBuildConfiguration(2));
 
-        BuildConfigurationSetProvider buildConfigurationSetProvider = new BuildConfigurationSetProvider(buildConfigurationSetRepository, buildConfigurationRepository, buildRecordRepository, null, null, null);
+        BuildConfigurationSetProvider buildConfigurationSetProvider = new BuildConfigurationSetProvider(buildConfigurationSetRepository, buildConfigurationRepository, null, null, null,
+                buildRecordProvider, buildConfigurationProvider);
 
         //when
         addConfigsToSet(testBCS, createBuildConfiguration(1), createBuildConfiguration(2));
@@ -57,16 +58,18 @@ public class BuildConfigurationSetProviderTest {
 
     @Test
     public void shouldAddNewBuildConfigurationToSet() throws Exception {
+        BuildRecordProvider buildRecordProvider = mock(BuildRecordProvider.class);
         BuildConfigurationSetRepository buildConfigurationSetRepository = mock(BuildConfigurationSetRepository.class);
         BuildConfigurationRepository buildConfigurationRepository = mock(BuildConfigurationRepository.class);
-        BuildRecordRepository buildRecordRepository = mock(BuildRecordRepository.class);
+        BuildConfigurationProvider buildConfigurationProvider = mock(BuildConfigurationProvider.class);
 
         BuildConfigurationSet testBCS = createBuildConfigurationSet(1);
 
         when(buildConfigurationSetRepository.queryById(1)).thenReturn(testBCS);
         when(buildConfigurationRepository.queryById(3)).thenReturn(createBuildConfiguration(3));
 
-        BuildConfigurationSetProvider buildConfigurationSetProvider = new BuildConfigurationSetProvider(buildConfigurationSetRepository, buildConfigurationRepository, buildRecordRepository, null, null, null);
+        BuildConfigurationSetProvider buildConfigurationSetProvider = new BuildConfigurationSetProvider(buildConfigurationSetRepository, buildConfigurationRepository, null, null, null,
+                buildRecordProvider, buildConfigurationProvider);
 
         //when
         addConfigsToSet(testBCS, createBuildConfiguration(1), createBuildConfiguration(2));
