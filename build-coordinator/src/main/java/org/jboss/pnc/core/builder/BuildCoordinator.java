@@ -150,11 +150,13 @@ public class BuildCoordinator {
             }
         }
 
+        Date buildSubmitTime = new Date();
         BuildSetTask buildSetTask = new BuildSetTask(
                 this,
                 buildConfigSetRecord,
                 buildType,
-                getProductMilestone(buildConfigurationSet));
+                getProductMilestone(buildConfigurationSet),
+                buildSubmitTime);
 
         initializeBuildTasksInSet(buildSetTask);
         return buildSetTask;
@@ -183,6 +185,7 @@ public class BuildCoordinator {
                     buildContentId,
                     buildSetTask.getBuildTaskType(),
                     buildSetTask.getBuildConfigSetRecord().getUser(),
+                    buildSetTask.getSubmitTime(),
                     buildSetTask,
                     datastoreAdapter.getNextBuildRecordId());
             buildSetTask.addBuildTask(buildTask);

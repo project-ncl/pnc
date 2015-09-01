@@ -32,6 +32,8 @@ public class BuildRecordRest implements GenericRestEntity<Integer> {
 
     private Integer id;
 
+    private Date submitTime;
+
     private Date startTime;
 
     private Date endTime;
@@ -59,6 +61,7 @@ public class BuildRecordRest implements GenericRestEntity<Integer> {
 
     public BuildRecordRest(BuildRecord buildRecord) {
         this.id = buildRecord.getId();
+        this.submitTime = buildRecord.getSubmitTime();
         this.startTime = buildRecord.getStartTime();
         this.endTime = buildRecord.getEndTime();
         this.externalArchiveId = buildRecord.getExternalArchiveId();
@@ -76,10 +79,10 @@ public class BuildRecordRest implements GenericRestEntity<Integer> {
 
     public BuildRecordRest(BuildTask buildTask) {
         this.id = buildTask.getId();
-        BuildConfiguration buildConfiguration = buildTask.getBuildConfiguration();
-        this.startTime = buildConfiguration.getCreationTime();
-        performIfNotNull(buildTask.getBuildConfiguration() != null && buildConfiguration != null,
-                () -> buildConfigurationId = buildConfiguration.getId());
+        this.submitTime = buildTask.getSubmitTime();
+        this.startTime = buildTask.getStartTime();
+        performIfNotNull(buildTask.getBuildConfiguration() != null,
+                () -> buildConfigurationId = buildTask.getBuildConfiguration().getId());
         this.status = BuildStatus.BUILDING;
         buildTask.getLogsWebSocketLink().ifPresent(logsUri -> this.liveLogsUri = logsUri.toString());
         this.buildConfigSetRecordId = buildTask.getBuildSetTask().getId();
