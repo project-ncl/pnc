@@ -61,6 +61,6 @@ public class RunningBuildRecordEndpoint extends AbstractEndpoint<BuildRecord, Bu
     @GET
     @Path("/{id}")
     public Response getSpecific(@ApiParam(value = "BuildRecord id", required = true) @PathParam("id") Integer id) {
-        return fromSingleton(id, buildRecordProvider.getSpecificRunning(id));
+        return fromSingleton(buildRecordProvider.getSpecificRunning(id));
     }
 }

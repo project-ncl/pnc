@@ -17,13 +17,8 @@
  */
 package org.jboss.pnc.integration;
 
-import static com.jayway.restassured.RestAssured.given;
-import static org.jboss.pnc.integration.env.IntegrationTestEnv.getHttpPort;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.lang.invoke.MethodHandles;
-
+import com.jayway.restassured.http.ContentType;
+import com.jayway.restassured.response.Response;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.junit.InSequence;
@@ -52,8 +47,12 @@ import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.jayway.restassured.http.ContentType;
-import com.jayway.restassured.response.Response;
+import java.io.IOException;
+import java.io.InputStream;
+import java.lang.invoke.MethodHandles;
+
+import static com.jayway.restassured.RestAssured.given;
+import static org.jboss.pnc.integration.env.IntegrationTestEnv.getHttpPort;
 
 @RunWith(Arquillian.class)
 @Category(ContainerTest.class)
@@ -111,8 +110,8 @@ public class BuildRecordRestTest {
         Response response = given().header("Accept", "application/json").header("Authorization", "Bearer " + access_token)
                     .contentType(ContentType.JSON).port(getHttpPort()).when().get(BUILD_RECORD_REST_ENDPOINT);
         ResponseAssertion.assertThat(response).hasStatus(200);
-        buildRecordId = response.body().jsonPath().getInt("[0].id");
-        configurationId = response.body().jsonPath().getInt("[0].buildConfigurationId");
+        buildRecordId = response.body().jsonPath().getInt("content[0].id");
+        configurationId = response.body().jsonPath().getInt("content[0].buildConfigurationId");
 
         logger.info("buildRecordId: {} ", buildRecordId);
         logger.info("configurationId: {} ", configurationId);
@@ -120,7 +119,7 @@ public class BuildRecordRestTest {
         response = given().header("Accept", "application/json").header("Authorization", "Bearer " + access_token)
                 .contentType(ContentType.JSON).port(getHttpPort()).when().get(String.format(CONFIGURATION_SPECIFIC_REST_ENDPOINT, configurationId));
         ResponseAssertion.assertThat(response).hasStatus(200);
-        buildConfigurationName = response.body().jsonPath().getString("name");
+        buildConfigurationName = response.body().jsonPath().getString("content.name");
 
         logger.info("buildConfigurationName: {} ", buildConfigurationName);
     }
@@ -131,7 +130,7 @@ public class BuildRecordRestTest {
         Response response = given().header("Accept", "application/json").header("Authorization", "Bearer " + access_token)
                     .contentType(ContentType.JSON).port(getHttpPort()).when().get(BUILD_RECORD_REST_ENDPOINT);
         ResponseAssertion.assertThat(response).hasStatus(200);
-        ResponseAssertion.assertThat(response).hasJsonValueEqual("[0].id", buildRecordId);
+        ResponseAssertion.assertThat(response).hasJsonValueEqual("content[0].id", buildRecordId);
     }
 
     @Test
@@ -142,7 +141,7 @@ public class BuildRecordRestTest {
                 .get(String.format(BUILD_RECORD_SPECIFIC_REST_ENDPOINT, buildRecordId));
 
         ResponseAssertion.assertThat(response).hasStatus(200);
-        ResponseAssertion.assertThat(response).hasJsonValueEqual("id", buildRecordId);
+        ResponseAssertion.assertThat(response).hasJsonValueEqual("content.id", buildRecordId);
     }
 
     @Test
@@ -153,7 +152,7 @@ public class BuildRecordRestTest {
                 .get(String.format(BUILD_RECORD_NAME_REST_ENDPOINT, buildConfigurationName));
 
         ResponseAssertion.assertThat(response).hasStatus(200);
-        ResponseAssertion.assertThat(response).hasJsonValueEqual("[0].id", buildRecordId);
+        ResponseAssertion.assertThat(response).hasJsonValueEqual("content[0].id", buildRecordId);
     }
 
     @Test
@@ -164,9 +163,9 @@ public class BuildRecordRestTest {
                 .get(String.format(CONFIGURATION_SPECIFIC_REST_ENDPOINT, configurationId));
 
         ResponseAssertion.assertThat(response).hasStatus(200);
-        ResponseAssertion.assertThat(response).hasJsonValueEqual("id", configurationId);
+        ResponseAssertion.assertThat(response).hasJsonValueEqual("content.id", configurationId);
 
-        projectId = response.body().jsonPath().getInt("projectId");
+        projectId = response.body().jsonPath().getInt("content.projectId");
 
         logger.info("projectId: {} ", projectId);
 
@@ -175,7 +174,7 @@ public class BuildRecordRestTest {
                 .get(String.format(BUILD_RECORD_PROJECT_REST_ENDPOINT, projectId));
 
         ResponseAssertion.assertThat(response2).hasStatus(200);
-        ResponseAssertion.assertThat(response2).hasJsonValueEqual("[0].id", buildRecordId);
+        ResponseAssertion.assertThat(response2).hasJsonValueEqual("content[0].id", buildRecordId);
     }
 
     @Test
@@ -186,9 +185,9 @@ public class BuildRecordRestTest {
                 .get(String.format(CONFIGURATION_SPECIFIC_REST_ENDPOINT, configurationId));
 
         ResponseAssertion.assertThat(response).hasStatus(200);
-        ResponseAssertion.assertThat(response).hasJsonValueEqual("id", configurationId);
+        ResponseAssertion.assertThat(response).hasJsonValueEqual("content.id", configurationId);
 
-        projectId = response.body().jsonPath().getInt("projectId");
+        projectId = response.body().jsonPath().getInt("content.projectId");
 
         logger.info("projectId: {} ", projectId);
 
@@ -197,7 +196,7 @@ public class BuildRecordRestTest {
                 .get(String.format(BUILD_RECORD_PROJECT_BR_NAME_REST_ENDPOINT, projectId, buildConfigurationName));
 
         ResponseAssertion.assertThat(response2).hasStatus(200);
-        ResponseAssertion.assertThat(response2).hasJsonValueEqual("[0].id", buildRecordId);
+        ResponseAssertion.assertThat(response2).hasJsonValueEqual("content[0].id", buildRecordId);
     }
 
 }

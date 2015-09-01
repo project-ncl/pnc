@@ -17,13 +17,8 @@
  */
 package org.jboss.pnc.integration;
 
-import static com.jayway.restassured.RestAssured.given;
-import static org.jboss.pnc.integration.env.IntegrationTestEnv.getHttpPort;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.lang.invoke.MethodHandles;
-
+import com.jayway.restassured.http.ContentType;
+import com.jayway.restassured.response.Response;
 import org.assertj.core.api.Assertions;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
@@ -39,6 +34,8 @@ import org.jboss.pnc.integration.deployments.Deployments;
 import org.jboss.pnc.integration.matchers.JsonMatcher;
 import org.jboss.pnc.integration.template.JsonTemplateBuilder;
 import org.jboss.pnc.integration.utils.AuthResource;
+import org.jboss.pnc.integration.utils.JsonUtils;
+import org.jboss.pnc.rest.restmodel.ProductReleaseRest;
 import org.jboss.pnc.test.category.ContainerTest;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
 import org.junit.BeforeClass;
@@ -48,8 +45,12 @@ import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.jayway.restassured.http.ContentType;
-import com.jayway.restassured.response.Response;
+import java.io.IOException;
+import java.io.InputStream;
+import java.lang.invoke.MethodHandles;
+
+import static com.jayway.restassured.RestAssured.given;
+import static org.jboss.pnc.integration.env.IntegrationTestEnv.getHttpPort;
 
 @RunWith(Arquillian.class)
 @Category(ContainerTest.class)
@@ -99,11 +100,11 @@ public class ProductReleaseRestTest {
     public void prepareProductIdAndProductVersionId() throws IOException {
         given().header("Accept", "application/json").header("Authorization", "Bearer " + access_token)
                 .contentType(ContentType.JSON).port(getHttpPort()).when().get(PRODUCT_REST_ENDPOINT).then().statusCode(200)
-                .body(JsonMatcher.containsJsonAttribute("[0].id", value -> productId = Integer.valueOf(value)));
+                .body(JsonMatcher.containsJsonAttribute("content[0].id", value -> productId = Integer.valueOf(value)));
         given().header("Accept", "application/json").header("Authorization", "Bearer " + access_token)
                 .contentType(ContentType.JSON).port(getHttpPort()).when()
                 .get(String.format(PRODUCT_VERSION_REST_ENDPOINT, productId)).then().statusCode(200)
-                .body(JsonMatcher.containsJsonAttribute("[0].id", value -> productVersionId = Integer.valueOf(value)));
+                .body(JsonMatcher.containsJsonAttribute("content[0].id", value -> productVersionId = Integer.valueOf(value)));
 
         // Need to create a new product milestone to ensure one to one relation
         JsonTemplateBuilder productMilestoneTemplate = JsonTemplateBuilder.fromResource("productMilestone_template");
@@ -123,7 +124,7 @@ public class ProductReleaseRestTest {
         given().header("Accept", "application/json").header("Authorization", "Bearer " + access_token)
                 .contentType(ContentType.JSON).port(getHttpPort()).when().get(String.format(PRODUCT_RELEASE_REST_ENDPOINT))
                 .then().statusCode(200)
-                .body(JsonMatcher.containsJsonAttribute("[0].id", value -> productReleaseId = Integer.valueOf(value)));
+                .body(JsonMatcher.containsJsonAttribute("content[0].id", value -> productReleaseId = Integer.valueOf(value)));
     }
 
     @Test
@@ -132,7 +133,7 @@ public class ProductReleaseRestTest {
         given().header("Accept", "application/json").header("Authorization", "Bearer " + access_token)
                 .contentType(ContentType.JSON).port(getHttpPort()).when()
                 .get(String.format(PRODUCT_RELEASE_SPECIFIC_REST_ENDPOINT, productReleaseId)).then().statusCode(200)
-                .body(JsonMatcher.containsJsonAttribute("id"));
+                .body(JsonMatcher.containsJsonAttribute("content.id"));
     }
 
     @Test
@@ -159,7 +160,7 @@ public class ProductReleaseRestTest {
 
     @Test
     @InSequence(5)
-    public void shouldUpdateProductRelease() {
+    public void shouldUpdateProductRelease() throws Exception {
 
         logger.info("### newProductReleaseId: " + newProductReleaseId);
 
@@ -167,18 +168,15 @@ public class ProductReleaseRestTest {
                 .contentType(ContentType.JSON).port(getHttpPort()).when()
                 .get(String.format(PRODUCT_RELEASE_SPECIFIC_REST_ENDPOINT, newProductReleaseId));
 
+        ProductReleaseRest productReleaseRest = response.body().jsonPath().getObject("content", ProductReleaseRest.class);
+
         Assertions.assertThat(response.statusCode()).isEqualTo(200);
-        Assertions.assertThat(response.body().jsonPath().getInt("id")).isEqualTo(newProductReleaseId);
-        Assertions.assertThat(response.body().jsonPath().getString("version ")).isEqualTo(newProductReleaseVersion);
+        Assertions.assertThat(productReleaseRest.getId()).isEqualTo(newProductReleaseId);
+        Assertions.assertThat(productReleaseRest.getVersion()).isEqualTo(newProductReleaseVersion);
 
-        String rawJson = response.body().jsonPath().prettyPrint();
-        rawJson = rawJson.replace(newProductReleaseVersion, updatedProductReleaseVersion);
-        // Remove the "id: {id}," from the json object
-        rawJson = rawJson.replaceFirst("\\s*\"?id\"?\\s*:\\s*\\d+,\\s*", "");
+        productReleaseRest.setVersion(updatedProductReleaseVersion);
 
-        logger.info("### rawJson: " + response.body().jsonPath().prettyPrint());
-
-        given().header("Accept", "application/json").header("Authorization", "Bearer " + access_token).body(rawJson)
+        given().header("Accept", "application/json").header("Authorization", "Bearer " + access_token).body(JsonUtils.toJson(productReleaseRest))
                 .contentType(ContentType.JSON).port(getHttpPort()).when()
                 .put(String.format(PRODUCT_RELEASE_SPECIFIC_REST_ENDPOINT, newProductReleaseId)).then().statusCode(200);
 
@@ -188,8 +186,8 @@ public class ProductReleaseRestTest {
                 .get(String.format(PRODUCT_RELEASE_SPECIFIC_REST_ENDPOINT, newProductReleaseId));
 
         Assertions.assertThat(updateResponse.statusCode()).isEqualTo(200);
-        Assertions.assertThat(updateResponse.body().jsonPath().getInt("id")).isEqualTo(newProductReleaseId);
-        Assertions.assertThat(updateResponse.body().jsonPath().getString("version")).isEqualTo(updatedProductReleaseVersion);
+        Assertions.assertThat(updateResponse.body().jsonPath().getInt("content.id")).isEqualTo(newProductReleaseId);
+        Assertions.assertThat(updateResponse.body().jsonPath().getString("content.version")).isEqualTo(updatedProductReleaseVersion);
 
     }
 
@@ -199,7 +197,7 @@ public class ProductReleaseRestTest {
         given().header("Accept", "application/json").header("Authorization", "Bearer " + access_token)
                 .contentType(ContentType.JSON).port(getHttpPort()).when()
                 .get(String.format(PRODUCT_RELEASE_PRODUCTVERSION_REST_ENDPOINT, productVersionId)).then().statusCode(200)
-                .body(JsonMatcher.containsJsonAttribute("id"));
+                .body(JsonMatcher.containsJsonAttribute("content.id"));
     }
 
     private String loadJsonFromFile(String resource) throws IOException {

@@ -24,6 +24,7 @@ import org.jboss.pnc.model.ProductRelease;
 import org.jboss.pnc.model.ProductRelease.SupportLevel;
 import org.jboss.pnc.rest.provider.ConflictedEntryException;
 import org.jboss.pnc.rest.provider.ProductReleaseProvider;
+import org.jboss.pnc.rest.provider.collection.CollectionInfo;
 import org.jboss.pnc.rest.restmodel.ProductReleaseRest;
 
 import javax.inject.Inject;
@@ -35,6 +36,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import java.util.Arrays;
+import java.util.List;
 
 @Api(value = "/product-releases", description = "Product Release related information")
 @Path("/product-releases")
@@ -102,7 +104,8 @@ public class ProductReleaseEndpoint extends AbstractEndpoint<ProductRelease, Pro
     @GET
     @Path("/support-level")
     public Response getAllSupportLevel() {
-        return fromCollection(Arrays.asList(SupportLevel.values()));
+        List<SupportLevel> supportLevels = Arrays.asList(SupportLevel.values());
+        return fromCollection(new CollectionInfo<>(0, supportLevels.size(), 1, supportLevels));
     }
 
 }

@@ -21,6 +21,7 @@ import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
 import com.wordnik.swagger.annotations.ApiParam;
 import org.jboss.pnc.model.ProductVersion;
+import org.jboss.pnc.rest.provider.BuildConfigurationSetProvider;
 import org.jboss.pnc.rest.provider.ConflictedEntryException;
 import org.jboss.pnc.rest.provider.ProductVersionProvider;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationSetRest;
@@ -42,14 +43,17 @@ import javax.ws.rs.core.UriInfo;
 public class ProductVersionEndpoint extends AbstractEndpoint<ProductVersion, ProductVersionRest> {
 
     private ProductVersionProvider productVersionProvider;
+    private BuildConfigurationSetProvider buildConfigurationSetProvider;
 
     public ProductVersionEndpoint() {
     }
 
     @Inject
-    public ProductVersionEndpoint(ProductVersionProvider productVersionProvider) {
+    public ProductVersionEndpoint(ProductVersionProvider productVersionProvider,
+            BuildConfigurationSetProvider buildConfigurationSetProvider) {
         super(productVersionProvider);
         this.productVersionProvider = productVersionProvider;
+        this.buildConfigurationSetProvider = buildConfigurationSetProvider;
     }
 
     @ApiOperation(value = "Gets all Product Versions", responseContainer = "List", response = ProductVersionRest.class)
@@ -87,7 +91,8 @@ public class ProductVersionEndpoint extends AbstractEndpoint<ProductVersion, Pro
             @ApiParam(value = "Sorting RSQL") @QueryParam("sort") String sortingRsql,
             @ApiParam(value = "RSQL query") @QueryParam("q") String rsql,
             @ApiParam(value = "Product Version id", required = true) @PathParam("id") Integer id) {
-        return Response.ok().entity(productVersionProvider.getBuildConfigurationSets(pageIndex, pageSize, sortingRsql, rsql, id)).build();
+        return Response.ok().entity(buildConfigurationSetProvider.getAllForProductVersion(pageIndex, pageSize, sortingRsql,
+                rsql, id)).build();
     }
 
     @ApiOperation(value = "Create a new ProductVersion for a Product", response = ProductVersionRest.class)

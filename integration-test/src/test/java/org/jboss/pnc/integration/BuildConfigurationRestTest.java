@@ -128,20 +128,20 @@ public class BuildConfigurationRestTest {
             given().header("Accept", "application/json").header("Authorization", "Bearer " + access_token)
                     .contentType(ContentType.JSON).port(getHttpPort()).when().get(CONFIGURATION_REST_ENDPOINT).then()
                     .statusCode(200)
-                    .body(JsonMatcher.containsJsonAttribute("[0].id", value -> configurationId = Integer.valueOf(value)));
+                    .body(JsonMatcher.containsJsonAttribute("content[0].id", value -> configurationId = Integer.valueOf(value)));
 
             given().header("Accept", "application/json").header("Authorization", "Bearer " + access_token)
                     .contentType(ContentType.JSON).port(getHttpPort()).when().get(PRODUCT_REST_ENDPOINT).then().statusCode(200)
-                    .body(JsonMatcher.containsJsonAttribute("[0].id", value -> productId = Integer.valueOf(value)));
+                    .body(JsonMatcher.containsJsonAttribute("content[0].id", value -> productId = Integer.valueOf(value)));
 
             given().header("Accept", "application/json").header("Authorization", "Bearer " + access_token)
                     .contentType(ContentType.JSON).port(getHttpPort()).when()
                     .get(String.format(ENVIRONMENT_REST_ENDPOINT, productId)).then().statusCode(200)
-                    .body(JsonMatcher.containsJsonAttribute("[0].id", value -> environmentId = Integer.valueOf(value)));
+                    .body(JsonMatcher.containsJsonAttribute("content[0].id", value -> environmentId = Integer.valueOf(value)));
 
             given().header("Accept", "application/json").header("Authorization", "Bearer " + access_token)
                     .contentType(ContentType.JSON).port(getHttpPort()).when().get(PROJECT_REST_ENDPOINT).then().statusCode(200)
-                    .body(JsonMatcher.containsJsonAttribute("[0].id", value -> projectId = Integer.valueOf(value)));
+                    .body(JsonMatcher.containsJsonAttribute("content[0].id", value -> projectId = Integer.valueOf(value)));
         }
 
         if(projectRestClient == null) {
@@ -160,7 +160,7 @@ public class BuildConfigurationRestTest {
         given().header("Accept", "application/json").header("Authorization", "Bearer " + access_token)
                     .contentType(ContentType.JSON).port(getHttpPort()).when()
                 .get(String.format(CONFIGURATION_SPECIFIC_REST_ENDPOINT, configurationId)).then().statusCode(200)
-                .body(JsonMatcher.containsJsonAttribute("id"));
+                .body(JsonMatcher.containsJsonAttribute("content.id"));
     }
 
     @Test
@@ -234,9 +234,9 @@ public class BuildConfigurationRestTest {
                 .get(String.format(SPECIFIC_ENVIRONMENT_REST_ENDPOINT, environmentId));
 
         ResponseAssertion.assertThat(response).hasStatus(200);
-        ResponseAssertion.assertThat(response).hasJsonValueEqual("id", configurationId).hasJsonValueEqual("name", updatedName)
-                .hasJsonValueEqual("buildScript", updatedBuildScript).hasJsonValueEqual("scmRepoURL", updatedScmUrl)
-                .hasJsonValueEqual("projectId", updatedProjectId).hasJsonValueEqual("environmentId", environmentId);
+        ResponseAssertion.assertThat(response).hasJsonValueEqual("content.id", configurationId).hasJsonValueEqual("content.name", updatedName)
+                .hasJsonValueEqual("content.buildScript", updatedBuildScript).hasJsonValueEqual("content.scmRepoURL", updatedScmUrl)
+                .hasJsonValueEqual("content.projectId", updatedProjectId).hasJsonValueEqual("content.environmentId", environmentId);
         assertThat(projectResponseBeforeTheUpdate.getBody().print()).isEqualTo(projectResponseAfterTheUpdate.getBody().print());
         assertThat(environmentResponseBeforeTheUpdate.getBody().print()).isEqualTo(environmentResponseAfterTheUpdate.getBody().print());
     }
@@ -262,21 +262,21 @@ public class BuildConfigurationRestTest {
 
         ResponseAssertion.assertThat(response).hasStatus(201).hasLocationMatches(".*\\/pnc-rest\\/rest\\/build-configurations\\/\\d+");
 
-        assertThat(originalBuildConfiguration.body().jsonPath().getString("creationTime")).isNotEqualTo(
-                clonedBuildConfiguration.body().jsonPath().getString("creationTime"));
-        assertThat(originalBuildConfiguration.body().jsonPath().getInt("id")).isNotEqualTo(
-                "_" + clonedBuildConfiguration.body().jsonPath().getInt("id"));
+        assertThat(originalBuildConfiguration.body().jsonPath().getString("content.creationTime")).isNotEqualTo(
+                clonedBuildConfiguration.body().jsonPath().getString("content.creationTime"));
+        assertThat(originalBuildConfiguration.body().jsonPath().getInt("content.id")).isNotEqualTo(
+                "_" + clonedBuildConfiguration.body().jsonPath().getInt("content.id"));
 
-        assertThat("_" + originalBuildConfiguration.body().jsonPath().getString("name")).isEqualTo(
-                clonedBuildConfiguration.body().jsonPath().getString("name"));
-        assertThat(originalBuildConfiguration.body().jsonPath().getString("buildScript")).isEqualTo(
-                clonedBuildConfiguration.body().jsonPath().getString("buildScript"));
-        assertThat(originalBuildConfiguration.body().jsonPath().getString("scmRepoURL")).isEqualTo(
-                clonedBuildConfiguration.body().jsonPath().getString("scmRepoURL"));
-        assertThat(originalBuildConfiguration.body().jsonPath().getString("lastModificationTime")).isEqualTo(
-                clonedBuildConfiguration.body().jsonPath().getString("lastModificationTime"));
-        assertThat(originalBuildConfiguration.body().jsonPath().getString("repositories")).isEqualTo(
-                clonedBuildConfiguration.body().jsonPath().getString("repositories"));
+        assertThat("_" + originalBuildConfiguration.body().jsonPath().getString("content.name")).isEqualTo(
+                clonedBuildConfiguration.body().jsonPath().getString("content.name"));
+        assertThat(originalBuildConfiguration.body().jsonPath().getString("content.buildScript")).isEqualTo(
+                clonedBuildConfiguration.body().jsonPath().getString("content.buildScript"));
+        assertThat(originalBuildConfiguration.body().jsonPath().getString("content.scmRepoURL")).isEqualTo(
+                clonedBuildConfiguration.body().jsonPath().getString("content.scmRepoURL"));
+        assertThat(originalBuildConfiguration.body().jsonPath().getString("content.lastModificationTime")).isEqualTo(
+                clonedBuildConfiguration.body().jsonPath().getString("content.lastModificationTime"));
+        assertThat(originalBuildConfiguration.body().jsonPath().getString("content.repositories")).isEqualTo(
+                clonedBuildConfiguration.body().jsonPath().getString("content.repositories"));
     }
 
     @Test
@@ -320,7 +320,7 @@ public class BuildConfigurationRestTest {
                     .get(String.format(CONFIGURATION_SPECIFIC_REST_ENDPOINT + "/revisions", configurationId));
 
         ResponseAssertion.assertThat(response).hasStatus(Status.OK.getStatusCode());
-        ResponseAssertion.assertThat(response).hasJsonValueNotNullOrEmpty("[0].id");
+        ResponseAssertion.assertThat(response).hasJsonValueNotNullOrEmpty("content[0].id");
     }
 
     @Test

@@ -50,6 +50,7 @@ import javax.ws.rs.core.StreamingOutput;
 import java.lang.invoke.MethodHandles;
 import java.sql.Timestamp;
 import java.time.Instant;
+import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -145,7 +146,7 @@ public class BuildRecordsTest {
     @Test
     public void shouldGetAllBuildRecords() {
         // when
-        List<BuildRecordRest> buildRecords = buildRecordProvider.getAll(0, 999, null, null);
+        Collection<BuildRecordRest> buildRecords = buildRecordProvider.getAll(0, 999, null, null).getContent();
 
         // then
         assertThat(buildRecords).isNotNull();
@@ -174,7 +175,7 @@ public class BuildRecordsTest {
     @Test
     public void shouldGetArtifactsForSpecificBuildRecord() {
         // when
-        List<ArtifactRest> artifacts = artifactProvider.getAllForBuildRecord(0, 999, null, null, buildRecordId);
+        Collection<ArtifactRest> artifacts = artifactProvider.getAllForBuildRecord(0, 999, null, null, buildRecordId).getContent();
 
         //then
         assertThat(artifacts).hasSize(2);
@@ -186,7 +187,7 @@ public class BuildRecordsTest {
         String rsqlQuery = "status==BINARY_IMPORTED";
 
         // when
-        List<ArtifactRest> artifacts = artifactProvider.getAllForBuildRecord(0, 999, null, rsqlQuery, buildRecordId);
+        Collection<ArtifactRest> artifacts = artifactProvider.getAllForBuildRecord(0, 999, null, rsqlQuery, buildRecordId).getContent();
 
         // then
         assertThat(artifacts).hasSize(1);
@@ -199,7 +200,7 @@ public class BuildRecordsTest {
         String rsqlQuery = "status==BINARY_BUILT";
 
         // when
-        List<ArtifactRest> artifacts = artifactProvider.getAllForBuildRecord(0, 999, null, rsqlQuery, buildRecordId);
+        Collection<ArtifactRest> artifacts = artifactProvider.getAllForBuildRecord(0, 999, null, rsqlQuery, buildRecordId).getContent();
 
         // then
         assertThat(artifacts).hasSize(1);

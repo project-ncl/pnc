@@ -33,6 +33,8 @@ import org.jboss.pnc.integration.deployments.Deployments;
 import org.jboss.pnc.integration.matchers.JsonMatcher;
 import org.jboss.pnc.integration.template.JsonTemplateBuilder;
 import org.jboss.pnc.integration.utils.AuthResource;
+import org.jboss.pnc.integration.utils.JsonUtils;
+import org.jboss.pnc.rest.restmodel.ProductMilestoneRest;
 import org.jboss.pnc.test.category.ContainerTest;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
 import org.junit.BeforeClass;
@@ -93,11 +95,11 @@ public class ProductMilestoneRestTest {
     public void prepareProductIdAndProductVersionId() {
         given().header("Accept", "application/json").header("Authorization", "Bearer " + access_token)
                 .contentType(ContentType.JSON).port(getHttpPort()).when().get(PRODUCT_REST_ENDPOINT).then().statusCode(200)
-                .body(JsonMatcher.containsJsonAttribute("[0].id", value -> productId = Integer.valueOf(value)));
+                .body(JsonMatcher.containsJsonAttribute("content[0].id", value -> productId = Integer.valueOf(value)));
         given().header("Accept", "application/json").header("Authorization", "Bearer " + access_token)
                 .contentType(ContentType.JSON).port(getHttpPort()).when()
                 .get(String.format(PRODUCT_VERSION_REST_ENDPOINT, productId)).then().statusCode(200)
-                .body(JsonMatcher.containsJsonAttribute("[0].id", value -> productVersionId = Integer.valueOf(value)));
+                .body(JsonMatcher.containsJsonAttribute("content[0].id", value -> productVersionId = Integer.valueOf(value)));
     }
 
     @Test
@@ -106,7 +108,7 @@ public class ProductMilestoneRestTest {
         given().header("Accept", "application/json").header("Authorization", "Bearer " + access_token)
                 .contentType(ContentType.JSON).port(getHttpPort()).when().get(String.format(PRODUCT_MILESTONE_REST_ENDPOINT))
                 .then().statusCode(200)
-                .body(JsonMatcher.containsJsonAttribute("[0].id", value -> productMilestoneId = Integer.valueOf(value)));
+                .body(JsonMatcher.containsJsonAttribute("content[0].id", value -> productMilestoneId = Integer.valueOf(value)));
     }
 
     @Test
@@ -115,7 +117,7 @@ public class ProductMilestoneRestTest {
         given().header("Accept", "application/json").header("Authorization", "Bearer " + access_token)
                 .contentType(ContentType.JSON).port(getHttpPort()).when()
                 .get(String.format(PRODUCT_MILESTONE_SPECIFIC_REST_ENDPOINT, productMilestoneId)).then().statusCode(200)
-                .body(JsonMatcher.containsJsonAttribute("id"));
+                .body(JsonMatcher.containsJsonAttribute("content.id"));
     }
 
     @Test
@@ -140,7 +142,7 @@ public class ProductMilestoneRestTest {
 
     @Test
     @InSequence(5)
-    public void shouldUpdateProductMilestone() {
+    public void shouldUpdateProductMilestone() throws Exception {
 
         logger.info("### newProductMilestoneId: " + newProductMilestoneId);
 
@@ -149,19 +151,16 @@ public class ProductMilestoneRestTest {
                 .get(String.format(PRODUCT_MILESTONE_SPECIFIC_REST_ENDPOINT, newProductMilestoneId));
 
         Assertions.assertThat(response.statusCode()).isEqualTo(200);
-        Assertions.assertThat(response.body().jsonPath().getInt("id")).isEqualTo(newProductMilestoneId);
-        Assertions.assertThat(response.body().jsonPath().getString("version ")).isEqualTo("1.0.0.ER1");
+        Assertions.assertThat(response.body().jsonPath().getInt("content.id")).isEqualTo(newProductMilestoneId);
+        Assertions.assertThat(response.body().jsonPath().getString("content.version ")).isEqualTo("1.0.0.ER1");
 
-        String rawJson = response.body().jsonPath().prettyPrint();
+        ProductMilestoneRest content = response.body().jsonPath().getObject("content", ProductMilestoneRest.class);
 
-        logger.info("### rawJson (before transformation): " + response.body().jsonPath().prettyPrint());
-        rawJson = rawJson.replace("1.0.0.ER1", "1.0.1.ER1");
-        // Remove the "id: {id}," from the json object
-        rawJson = rawJson.replaceFirst("\\s*\"?id\"?\\s*:\\s*\\d+,\\s*", "");
+        logger.info("### rawJson (before transformation): " + content);
+        content.setVersion("1.0.1.ER1");
+        logger.info("### rawJson (after transformation): " + content);
 
-        logger.info("### rawJson (after transformation): " + response.body().jsonPath().prettyPrint());
-
-        given().header("Accept", "application/json").header("Authorization", "Bearer " + access_token).body(rawJson)
+        given().header("Accept", "application/json").header("Authorization", "Bearer " + access_token).body(JsonUtils.toJson(content))
                 .contentType(ContentType.JSON).port(getHttpPort()).when()
                 .put(String.format(PRODUCT_MILESTONE_SPECIFIC_REST_ENDPOINT, newProductMilestoneId)).then().statusCode(200);
 
@@ -171,8 +170,8 @@ public class ProductMilestoneRestTest {
                 .get(String.format(PRODUCT_MILESTONE_SPECIFIC_REST_ENDPOINT, newProductMilestoneId));
 
         Assertions.assertThat(updateResponse.statusCode()).isEqualTo(200);
-        Assertions.assertThat(updateResponse.body().jsonPath().getInt("id")).isEqualTo(newProductMilestoneId);
-        Assertions.assertThat(updateResponse.body().jsonPath().getString("version")).isEqualTo("1.0.1.ER1");
+        Assertions.assertThat(updateResponse.body().jsonPath().getInt("content.id")).isEqualTo(newProductMilestoneId);
+        Assertions.assertThat(updateResponse.body().jsonPath().getString("content.version")).isEqualTo("1.0.1.ER1");
 
     }
 
@@ -182,7 +181,7 @@ public class ProductMilestoneRestTest {
         given().header("Accept", "application/json").header("Authorization", "Bearer " + access_token)
                 .contentType(ContentType.JSON).port(getHttpPort()).when()
                 .get(String.format(PRODUCT_MILESTONE_PRODUCTVERSION_REST_ENDPOINT, productVersionId)).then().statusCode(200)
-                .body(JsonMatcher.containsJsonAttribute("id"));
+                .body(JsonMatcher.containsJsonAttribute("content.id"));
     }
 
 }

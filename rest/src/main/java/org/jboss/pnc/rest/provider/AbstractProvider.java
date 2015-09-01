@@ -21,15 +21,20 @@ package org.jboss.pnc.rest.provider;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ObjectArrays;
 import org.jboss.pnc.model.GenericEntity;
+import org.jboss.pnc.rest.provider.collection.CollectionInfo;
+import org.jboss.pnc.rest.provider.collection.CollectionInfoCollector;
 import org.jboss.pnc.rest.restmodel.GenericRestEntity;
 import org.jboss.pnc.spi.datastore.repositories.PageInfoProducer;
 import org.jboss.pnc.spi.datastore.repositories.SortInfoProducer;
-import org.jboss.pnc.spi.datastore.repositories.api.*;
+import org.jboss.pnc.spi.datastore.repositories.api.PageInfo;
+import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
+import org.jboss.pnc.spi.datastore.repositories.api.RSQLPredicateProducer;
+import org.jboss.pnc.spi.datastore.repositories.api.Repository;
+import org.jboss.pnc.spi.datastore.repositories.api.SortInfo;
 
 import java.lang.reflect.ParameterizedType;
 import java.util.List;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
 
@@ -60,26 +65,29 @@ public abstract class AbstractProvider<DBEntity extends GenericEntity<Integer>, 
         this.pageInfoProducer = pageInfoProducer;
     }
 
-    public List<RESTEntity> getAll(int pageIndex, int pageSize, String sortingRsql, String query) {
+    public CollectionInfo<RESTEntity> getAll(int pageIndex, int pageSize, String sortingRsql, String query) {
         return queryForCollection(pageIndex, pageSize, sortingRsql, query, null);
     }
 
-    public List<RESTEntity> queryForCollection(int pageIndex, int pageSize, String sortingRsql, String query,
+    public CollectionInfo<RESTEntity> queryForCollection(int pageIndex, int pageSize, String sortingRsql, String query,
             Predicate<DBEntity>... predicates) {
         Predicate<DBEntity> rsqlPredicate = rsqlPredicateProducer.getPredicate(getDBEntityClass(), query);
         PageInfo pageInfo = pageInfoProducer.getPageInfo(pageIndex, pageSize);
         SortInfo sortInfo = sortInfoProducer.getSortInfo(sortingRsql);
 
         List<DBEntity> collection;
+        int totalPages = 1;
         if(predicates == null) {
             collection = repository.queryWithPredicates(pageInfo, sortInfo, rsqlPredicate);
+            totalPages = (repository.count(rsqlPredicate) + pageSize - 1) / pageSize;
         } else {
             collection = repository.queryWithPredicates(pageInfo, sortInfo, ObjectArrays.concat(rsqlPredicate, predicates));
+            totalPages = (repository.count(ObjectArrays.concat(rsqlPredicate, predicates)) + pageSize - 1) / pageSize;
         }
 
         return nullableStreamOf(collection)
                 .map(toRESTModel())
-                .collect(Collectors.toList());
+                .collect(new CollectionInfoCollector<>(pageIndex, pageSize, totalPages));
     }
 
     public RESTEntity getSpecific(Integer id) {

@@ -22,63 +22,66 @@ import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.IdRev;
 import org.jboss.pnc.model.ProductVersion;
+import org.jboss.pnc.rest.provider.collection.CollectionInfo;
+import org.jboss.pnc.rest.provider.collection.CollectionInfoCollector;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationAuditedRest;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationRest;
-import org.jboss.pnc.rest.restmodel.BuildRecordRest;
-import org.jboss.pnc.rest.restmodel.ProductVersionRest;
-import org.jboss.pnc.spi.datastore.repositories.*;
+import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationAuditedRepository;
+import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationRepository;
+import org.jboss.pnc.spi.datastore.repositories.PageInfoProducer;
+import org.jboss.pnc.spi.datastore.repositories.ProductVersionRepository;
+import org.jboss.pnc.spi.datastore.repositories.SortInfoProducer;
 import org.jboss.pnc.spi.datastore.repositories.api.RSQLPredicateProducer;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import java.util.List;
-import java.util.Set;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
-import static org.jboss.pnc.spi.datastore.predicates.BuildConfigurationPredicates.*;
+import static org.jboss.pnc.spi.datastore.predicates.BuildConfigurationPredicates.withBuildConfigurationSetId;
+import static org.jboss.pnc.spi.datastore.predicates.BuildConfigurationPredicates.withDependantConfiguration;
+import static org.jboss.pnc.spi.datastore.predicates.BuildConfigurationPredicates.withName;
+import static org.jboss.pnc.spi.datastore.predicates.BuildConfigurationPredicates.withProductId;
+import static org.jboss.pnc.spi.datastore.predicates.BuildConfigurationPredicates.withProductVersionId;
+import static org.jboss.pnc.spi.datastore.predicates.BuildConfigurationPredicates.withProjectId;
 
 @Stateless
 public class BuildConfigurationProvider extends AbstractProvider<BuildConfiguration, BuildConfigurationRest> {
 
     private BuildConfigurationAuditedRepository buildConfigurationAuditedRepository;
 
-    private BuildRecordProvider buildRecordProvider;
-
     private ProductVersionRepository productVersionRepository;
 
     @Inject
     public BuildConfigurationProvider(BuildConfigurationRepository buildConfigurationRepository,
             BuildConfigurationAuditedRepository buildConfigurationAuditedRepository, RSQLPredicateProducer rsqlPredicateProducer,
-            SortInfoProducer sortInfoProducer, PageInfoProducer pageInfoProducer, BuildRecordProvider buildRecordProvider,
-            ProductVersionRepository productVersionRepository) {
+            SortInfoProducer sortInfoProducer, PageInfoProducer pageInfoProducer, ProductVersionRepository productVersionRepository) {
         super(buildConfigurationRepository, rsqlPredicateProducer, sortInfoProducer, pageInfoProducer);
         this.buildConfigurationAuditedRepository = buildConfigurationAuditedRepository;
         this.productVersionRepository = productVersionRepository;
-        this.buildRecordProvider = buildRecordProvider;
     }
 
     // needed for EJB/CDI
     public BuildConfigurationProvider() {
     }
 
-    public List<BuildConfigurationRest> getAllForProject(Integer pageIndex, Integer pageSize, String sortingRsql, String query,
-            Integer projectId) {
+    public CollectionInfo<BuildConfigurationRest> getAllForProject(Integer pageIndex, Integer pageSize, String sortingRsql,
+            String query, Integer projectId) {
         return queryForCollection(pageIndex, pageSize, sortingRsql, query, withProjectId(projectId));
     }
 
-    public List<BuildConfigurationRest> getAllForProduct(int pageIndex, int pageSize, String sortingRsql, String query,
-            Integer productId) {
+    public CollectionInfo<BuildConfigurationRest> getAllForProduct(int pageIndex, int pageSize, String sortingRsql,
+            String query, Integer productId) {
         return queryForCollection(pageIndex, pageSize, sortingRsql, query, withProductId(productId));
     }
 
-    public List<BuildConfigurationRest> getAllForProductAndProductVersion(int pageIndex, int pageSize,
+    public CollectionInfo<BuildConfigurationRest> getAllForProductAndProductVersion(int pageIndex, int pageSize,
             String sortingRsql, String query, Integer productId, Integer versionId) {
         return queryForCollection(pageIndex, pageSize, sortingRsql, query, withProductVersionId(versionId), withProductId(productId));
     }
 
-    public List<BuildConfigurationRest> getAllForBuildConfigurationSet(int pageIndex, int pageSize,
+    public CollectionInfo<BuildConfigurationRest> getAllForBuildConfigurationSet(int pageIndex, int pageSize,
             String sortingRsql, String query, Integer buildConfigurationSetId) {
         return queryForCollection(pageIndex, pageSize, sortingRsql, query, withBuildConfigurationSetId(buildConfigurationSetId));
     }
@@ -148,20 +151,8 @@ public class BuildConfigurationProvider extends AbstractProvider<BuildConfigurat
         repository.save(buildConfig);
     }
 
-    public Set<BuildConfigurationRest> getDependencies(Integer configId) {
-        BuildConfiguration buildConfig = repository.queryById(configId);
-        Set<BuildConfiguration> buildConfigurations = buildConfig.getDependencies();
-        return nullableStreamOf(buildConfigurations)
-                .map(toRESTModel())
-                .collect(Collectors.toSet());
-    }
-
-    public Set<BuildConfigurationRest> getAllDependencies(Integer configId) {
-        BuildConfiguration buildConfig = repository.queryById(configId);
-        Set<BuildConfiguration> buildConfigurations = buildConfig.getAllDependencies();
-        return nullableStreamOf(buildConfigurations)
-                .map(toRESTModel())
-                .collect(Collectors.toSet());
+    public CollectionInfo<BuildConfigurationRest> getDependencies(int pageIndex, int pageSize, String sortingRsql, String query, Integer configId) {
+        return queryForCollection(pageIndex, pageSize, sortingRsql, query, withDependantConfiguration(configId));
     }
 
     public void addProductVersion(Integer configId, Integer productVersionId) {
@@ -178,19 +169,13 @@ public class BuildConfigurationProvider extends AbstractProvider<BuildConfigurat
         repository.save(buildConfig);
     }
 
-    public List<ProductVersionRest> getProductVersions(Integer configId) {
-        BuildConfiguration buildConfig = repository.queryById(configId);
-        Set<ProductVersion> productVersions = buildConfig.getProductVersions();
-        return nullableStreamOf(productVersions)
-                .map(productVersionToRestModel())
-                .collect(Collectors.toList());
-    }
-
-    public List<BuildConfigurationAuditedRest> getRevisions(Integer id) {
+    public CollectionInfo<BuildConfigurationAuditedRest> getRevisions(int pageIndex, int pageSize, Integer id) {
         List<BuildConfigurationAudited> auditedBuildConfigs = buildConfigurationAuditedRepository.findAllByIdOrderByRevDesc(id);
         return nullableStreamOf(auditedBuildConfigs)
                 .map(buildConfigurationAuditedToRestModel())
-                .collect(Collectors.toList());
+                .skip(pageIndex * pageSize)
+                .limit(pageSize)
+                .collect(new CollectionInfoCollector<>(pageIndex, pageSize, auditedBuildConfigs.size()));
     }
 
     public BuildConfigurationAuditedRest getRevision(Integer id, Integer rev) {
@@ -200,19 +185,6 @@ public class BuildConfigurationProvider extends AbstractProvider<BuildConfigurat
             return null;
         }
         return new BuildConfigurationAuditedRest (auditedBuildConfig);
-    }
-
-    public BuildRecordRest getLatestBuildRecord(Integer configId) {
-        return buildRecordProvider.getLatestBuildRecord(configId);
-    }
-
-    public List<BuildRecordRest> getBuildRecords(int pageIndex, int pageSize, String sortingRsql, String query,
-            Integer configurationId) {
-        return buildRecordProvider.getAllForBuildConfiguration(pageIndex, pageSize, sortingRsql, query, configurationId);
-    }
-
-    private Function<ProductVersion, ProductVersionRest> productVersionToRestModel() {
-        return productVersion -> new ProductVersionRest(productVersion);
     }
 
     private Function<BuildConfigurationAudited, BuildConfigurationAuditedRest> buildConfigurationAuditedToRestModel() {

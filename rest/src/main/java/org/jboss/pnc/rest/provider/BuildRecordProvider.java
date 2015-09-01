@@ -22,6 +22,8 @@ import org.jboss.pnc.core.builder.BuildCoordinator;
 import org.jboss.pnc.core.builder.BuildTask;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildRecord;
+import org.jboss.pnc.rest.provider.collection.CollectionInfo;
+import org.jboss.pnc.rest.provider.collection.CollectionInfoCollector;
 import org.jboss.pnc.rest.restmodel.BuildRecordRest;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
 import org.jboss.pnc.spi.datastore.repositories.PageInfoProducer;
@@ -63,7 +65,7 @@ public class BuildRecordProvider extends AbstractProvider<BuildRecord, BuildReco
         this.buildCoordinator = buildCoordinator;
     }
 
-    public List<BuildRecordRest> getAllRunning(Integer pageIndex, Integer pageSize, String sortingRsql, String rsql) {
+    public CollectionInfo<BuildRecordRest> getAllRunning(Integer pageIndex, Integer pageSize, String sortingRsql, String rsql) {
         if(!Strings.isNullOrEmpty(sortingRsql)) {
             logger.warn("Sorting RSQL is not supported, ignoring");
         }
@@ -75,19 +77,21 @@ public class BuildRecordProvider extends AbstractProvider<BuildRecord, BuildReco
         return nullableStreamOf(buildCoordinator.getBuildTasks()).map(submittedBuild -> new BuildRecordRest(submittedBuild))
                 .skip(pageIndex * pageSize)
                 .limit(pageSize)
-                .collect(Collectors.toList());
+                .collect(new CollectionInfoCollector<>(pageIndex, pageSize, buildCoordinator.getBuildTasks().size()));
     }
 
-    public List<BuildRecordRest> getAllForBuildConfiguration(int pageIndex, int pageSize, String sortingRsql, String query, Integer configurationId) {
+    public CollectionInfo<BuildRecordRest> getAllForBuildConfiguration(int pageIndex, int pageSize, String sortingRsql,
+            String query, Integer configurationId) {
         return queryForCollection(pageIndex, pageSize, sortingRsql, query, withBuildConfigurationId(configurationId));
     }
 
-    public List<BuildRecordRest> getAllForProject(int pageIndex, int pageSize, String sortingRsql, String query, Integer projectId) {
+    public CollectionInfo<BuildRecordRest> getAllForProject(int pageIndex, int pageSize, String sortingRsql, String query,
+            Integer projectId) {
         return queryForCollection(pageIndex, pageSize, sortingRsql, query, withProjectId(projectId));
     }
 
-    public List<BuildRecordRest> getAllForBuildConfigSetRecord(int pageIndex, int pageSize, String sortingRsql, String rsql,
-            Integer buildConfigurationSetId) {
+    public CollectionInfo<BuildRecordRest> getAllForBuildConfigSetRecord(int pageIndex, int pageSize, String sortingRsql,
+            String rsql, Integer buildConfigurationSetId) {
         return queryForCollection(pageIndex, pageSize, sortingRsql, rsql, withBuildConfigSetId(buildConfigurationSetId));
     }
 

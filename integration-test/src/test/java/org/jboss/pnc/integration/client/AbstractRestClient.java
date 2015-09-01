@@ -122,7 +122,7 @@ public abstract class AbstractRestClient<T> {
 
         T object = null;
         try {
-            object = response.then().extract().body().jsonPath().getObject("[0]", entityClass);
+            object = response.then().extract().body().jsonPath().getObject("content[0]", entityClass);
         } catch (Exception e) {
             if(withValidation) {
                 throw new AssertionError("JSON unmarshalling error", e);
@@ -145,7 +145,7 @@ public abstract class AbstractRestClient<T> {
 
         T object = null;
         try {
-            object = response.then().extract().body().as(entityClass);
+            object = response.jsonPath().getObject("content", entityClass);
         } catch (Exception e) {
             if(withValidation) {
                 throw new AssertionError("JSON unmarshalling error", e);
