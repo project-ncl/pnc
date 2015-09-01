@@ -44,9 +44,9 @@ public class BuildRecordSetRest implements GenericRestEntity<Integer> {
 
     public BuildRecordSetRest(BuildRecordSet buildRecordSet) {
         this.id = buildRecordSet.getId();
-        performIfNotNull(buildRecordSet.getPerformedInProductMilestone() != null, 
+        performIfNotNull(buildRecordSet.getPerformedInProductMilestone(),
                 () -> this.performedInProductMilestoneId = buildRecordSet.getPerformedInProductMilestone().getId());
-        performIfNotNull(buildRecordSet.getDistributedInProductMilestone() != null, 
+        performIfNotNull(buildRecordSet.getDistributedInProductMilestone(),
                 () -> this.distributedInProductMilestoneId = buildRecordSet.getDistributedInProductMilestone().getId());
         this.buildRecordIds = nullableStreamOf(buildRecordSet.getBuildRecords()).map(buildRecord -> buildRecord.getId())
                 .collect(Collectors.toList());
@@ -91,9 +91,9 @@ public class BuildRecordSetRest implements GenericRestEntity<Integer> {
         BuildRecordSet.Builder builder = BuildRecordSet.Builder.newBuilder();
         builder.id(id);
 
-        performIfNotNull(performedInProductMilestoneId != null,
+        performIfNotNull(performedInProductMilestoneId,
                 () -> builder.performedInProductMilestone(ProductMilestone.Builder.newBuilder().id(performedInProductMilestoneId).build()));
-        performIfNotNull(distributedInProductMilestoneId != null,
+        performIfNotNull(distributedInProductMilestoneId,
                 () -> builder.distributedInProductMilestone(ProductMilestone.Builder.newBuilder().id(distributedInProductMilestoneId).build()));
 
         nullableStreamOf(buildRecordIds).forEach(buildRecordId -> {

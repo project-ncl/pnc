@@ -62,9 +62,9 @@ public class BuildConfigurationAuditedRest implements GenericRestEntity<Integer>
         this.buildScript = buildConfigurationAudited.getBuildScript();
         this.scmRepoURL = buildConfigurationAudited.getScmRepoURL();
         this.scmRevision = buildConfigurationAudited.getScmRevision();
-        performIfNotNull(buildConfigurationAudited.getProject() != null, () -> this.projectId = buildConfigurationAudited.getProject()
+        performIfNotNull(buildConfigurationAudited.getProject(), () -> this.projectId = buildConfigurationAudited.getProject()
                 .getId());
-        performIfNotNull(buildConfigurationAudited.getEnvironment() != null, () -> this.environmentId = buildConfigurationAudited.getEnvironment().getId());
+        performIfNotNull(buildConfigurationAudited.getEnvironment(), () -> this.environmentId = buildConfigurationAudited.getEnvironment().getId());
     }
 
     @Override

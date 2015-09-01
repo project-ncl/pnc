@@ -56,7 +56,7 @@ public class ArtifactRest implements GenericRestEntity<Integer> {
         this.filename = artifact.getFilename();
         this.deployUrl = artifact.getDeployUrl();
         this.status = artifact.getStatus();
-        performIfNotNull(artifact.getBuildRecord() != null, () -> this.buildRecordId = artifact.getBuildRecord().getId());
+        performIfNotNull(artifact.getBuildRecord(), () -> this.buildRecordId = artifact.getBuildRecord().getId());
     }
 
     @Override

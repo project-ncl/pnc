@@ -56,10 +56,10 @@ public class BuildConfigSetRecordRest implements GenericRestEntity<Integer> {
         this.id = buildConfigSetRecord.getId();
         this.startTime = buildConfigSetRecord.getStartTime();
         this.endTime = buildConfigSetRecord.getEndTime();
-        performIfNotNull(buildConfigSetRecord.getBuildConfigurationSet() != null, () -> buildConfigurationSetId = buildConfigSetRecord
+        performIfNotNull(buildConfigSetRecord.getBuildConfigurationSet(), () -> buildConfigurationSetId = buildConfigSetRecord
                 .getBuildConfigurationSet().getId());
-        performIfNotNull(buildConfigSetRecord.getUser() != null, () -> userId = buildConfigSetRecord.getUser().getId());
-        performIfNotNull(buildConfigSetRecord.getProductVersion() != null, () -> productVersionId = buildConfigSetRecord.getProductVersion().getId());
+        performIfNotNull(buildConfigSetRecord.getUser(), () -> userId = buildConfigSetRecord.getUser().getId());
+        performIfNotNull(buildConfigSetRecord.getProductVersion(), () -> productVersionId = buildConfigSetRecord.getProductVersion().getId());
         this.status = buildConfigSetRecord.getStatus();
         requireNonNull(buildConfigSetRecord.getBuildRecords());
         this.buildRecordIds = buildConfigSetRecord.getBuildRecords().stream()

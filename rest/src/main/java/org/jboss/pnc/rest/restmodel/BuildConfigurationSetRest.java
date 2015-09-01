@@ -45,7 +45,7 @@ public class BuildConfigurationSetRest implements GenericRestEntity<Integer> {
     public BuildConfigurationSetRest(BuildConfigurationSet buildConfigurationSet) {
         this.id = buildConfigurationSet.getId();
         this.name = buildConfigurationSet.getName();
-        performIfNotNull(buildConfigurationSet.getProductVersion() != null, () ->this.productVersionId = buildConfigurationSet.getProductVersion().getId());
+        performIfNotNull(buildConfigurationSet.getProductVersion(), () ->this.productVersionId = buildConfigurationSet.getProductVersion().getId());
         this.buildConfigurationIds = nullableStreamOf(buildConfigurationSet.getBuildConfigurations())
                 .map(buildConfiguration -> buildConfiguration.getId())
                 .collect(Collectors.toList());
@@ -89,7 +89,7 @@ public class BuildConfigurationSetRest implements GenericRestEntity<Integer> {
     public BuildConfigurationSet toBuildConfigurationSet() {
         BuildConfigurationSet.Builder builder = BuildConfigurationSet.Builder.newBuilder();
         builder.name(name);
-        performIfNotNull(productVersionId != null, () -> builder.productVersion(ProductVersion.Builder.newBuilder().id(productVersionId).build()));
+        performIfNotNull(productVersionId, () -> builder.productVersion(ProductVersion.Builder.newBuilder().id(productVersionId).build()));
 
         nullableStreamOf(buildConfigurationIds).forEach(buildConfigurationId -> {
             BuildConfiguration.Builder buildConfigurationBuilder = BuildConfiguration.Builder.newBuilder().id(buildConfigurationId);
@@ -100,7 +100,7 @@ public class BuildConfigurationSetRest implements GenericRestEntity<Integer> {
 
     public BuildConfigurationSet toBuildConfigurationSet(BuildConfigurationSet buildConfigurationSet) {
         buildConfigurationSet.setName(name);
-        performIfNotNull(productVersionId != null, () -> buildConfigurationSet.setProductVersion(ProductVersion.Builder.newBuilder().id(productVersionId).build()));
+        performIfNotNull(productVersionId, () -> buildConfigurationSet.setProductVersion(ProductVersion.Builder.newBuilder().id(productVersionId).build()));
 
         nullableStreamOf(buildConfigurationIds).forEach(buildConfigurationId -> {
             BuildConfiguration.Builder buildConfigurationBuilder = BuildConfiguration.Builder.newBuilder().id(buildConfigurationId);
