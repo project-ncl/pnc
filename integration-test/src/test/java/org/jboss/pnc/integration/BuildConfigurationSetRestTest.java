@@ -137,22 +137,22 @@ public class BuildConfigurationSetRestTest {
         // Need to get a product version and a build configuration from the database
         ValidatableResponse responseProd = given().header("Accept", "application/json").header("Authorization", "Bearer " + access_token)
                     .contentType(ContentType.JSON).port(getHttpPort()).when().get(PRODUCT_REST_ENDPOINT).then().statusCode(200)
-                .body(JsonMatcher.containsJsonAttribute("[0].id", value -> productId = Integer.valueOf(value)));
+                .body(JsonMatcher.containsJsonAttribute("content[0].id", value -> productId = Integer.valueOf(value)));
 
         Response responseProdVer = given().header("Accept", "application/json").header("Authorization", "Bearer " + access_token)
                     .contentType(ContentType.JSON).port(getHttpPort()).when()
                 .get(String.format(PRODUCT_VERSION_REST_ENDPOINT, productId));
         ResponseAssertion.assertThat(responseProdVer).hasStatus(200);
-        productVersionId = responseProdVer.body().jsonPath().getInt("[0].id");
-        productVersionName = responseProdVer.body().jsonPath().getString("[0].version");
+        productVersionId = responseProdVer.body().jsonPath().getInt("content[0].id");
+        productVersionName = responseProdVer.body().jsonPath().getString("content[0].version");
 
         Response responseBuildConf = given().header("Accept", "application/json").header("Authorization", "Bearer " + access_token)
                     .contentType(ContentType.JSON).port(getHttpPort()).when()
                 .get(BUILD_CONFIGURATION_REST_ENDPOINT);
         ResponseAssertion.assertThat(responseBuildConf).hasStatus(200);
-        buildConfId = responseBuildConf.body().jsonPath().getInt("[0].id");
-        buildConfId2 = responseBuildConf.body().jsonPath().getInt("[1].id");
-        buildConfName = responseBuildConf.body().jsonPath().getString("[0].name");
+        buildConfId = responseBuildConf.body().jsonPath().getInt("content[0].id");
+        buildConfId2 = responseBuildConf.body().jsonPath().getInt("content[1].id");
+        buildConfName = responseBuildConf.body().jsonPath().getString("content[0].name");
 
         logger.info("productVersionId: {} ", productVersionId);
         logger.info("productVersionName: {} ", productVersionName);
@@ -203,7 +203,7 @@ public class BuildConfigurationSetRestTest {
                     .contentType(ContentType.JSON).port(getHttpPort()).when()
                 .get(BUILD_CONFIGURATION_SET_REST_ENDPOINT);
         ResponseAssertion.assertThat(response).hasStatus(200);
-        ResponseAssertion.assertThat(response).hasJsonValueNotNullOrEmpty("[0].id");
+        ResponseAssertion.assertThat(response).hasJsonValueNotNullOrEmpty("content[0]");
     }
 
     @Test
@@ -215,7 +215,7 @@ public class BuildConfigurationSetRestTest {
                 .get(String.format(BUILD_CONFIGURATION_SET_SPECIFIC_REST_ENDPOINT, newBuildConfSetId));
 
         ResponseAssertion.assertThat(response).hasStatus(200);
-        ResponseAssertion.assertThat(response).hasJsonValueEqual("name", BUILD_CONFIGURATION_SET_NAME_UPDATED);
+        ResponseAssertion.assertThat(response).hasJsonValueEqual("content.name", BUILD_CONFIGURATION_SET_NAME_UPDATED);
     }
 
     @Test
@@ -227,7 +227,7 @@ public class BuildConfigurationSetRestTest {
                 .get(String.format(BUILD_CONFIGURATION_SET_PRODUCT_VERSION_REST_ENDPOINT, productVersionId));
 
         ResponseAssertion.assertThat(response).hasStatus(200);
-        ResponseAssertion.assertThat(response).hasJsonValueNotNullOrEmpty("[0].id");
+        ResponseAssertion.assertThat(response).hasJsonValueNotNullOrEmpty("content[0].id");
     }
 
     @Test
@@ -264,7 +264,7 @@ public class BuildConfigurationSetRestTest {
                 .get(String.format(BUILD_CONFIGURATION_SET_CONFIGURATIONS_REST_ENDPOINT, newBuildConfSetId));
 
         ResponseAssertion.assertThat(response).hasStatus(200);
-        ResponseAssertion.assertThat(response).hasJsonValueEqual("[0].id", buildConfId);
+        ResponseAssertion.assertThat(response).hasJsonValueEqual("content[0].id", buildConfId);
     }
 
     @Test

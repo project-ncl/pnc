@@ -24,7 +24,9 @@ import org.jboss.pnc.auth.AuthenticationProvider;
 import org.jboss.pnc.core.exception.CoreException;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.User;
+import org.jboss.pnc.rest.provider.BuildConfigurationProvider;
 import org.jboss.pnc.rest.provider.BuildConfigurationSetProvider;
+import org.jboss.pnc.rest.provider.BuildRecordProvider;
 import org.jboss.pnc.rest.provider.ConflictedEntryException;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationRest;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationSetRest;
@@ -63,16 +65,22 @@ public class BuildConfigurationSetEndpoint extends AbstractEndpoint<BuildConfigu
     private Datastore datastore;
 
     private BuildConfigurationSetProvider buildConfigurationSetProvider;
+    private BuildConfigurationProvider buildConfigurationProvider;
+    private BuildRecordProvider buildRecordProvider;
 
     public BuildConfigurationSetEndpoint() {
 
     }
 
     @Inject
-    public BuildConfigurationSetEndpoint(BuildConfigurationSetProvider buildConfigurationSetProvider, BuildTriggerer buildTriggerer) {
+    public BuildConfigurationSetEndpoint(BuildConfigurationSetProvider buildConfigurationSetProvider,
+            BuildTriggerer buildTriggerer, BuildConfigurationProvider buildConfigurationProvider,
+            BuildRecordProvider buildRecordProvider) {
         super(buildConfigurationSetProvider);
         this.buildConfigurationSetProvider = buildConfigurationSetProvider;
         this.buildTriggerer = buildTriggerer;
+        this.buildConfigurationProvider = buildConfigurationProvider;
+        this.buildRecordProvider = buildRecordProvider;
     }
 
     @ApiOperation(value = "Gets all Build Configuration Sets",
@@ -125,7 +133,8 @@ public class BuildConfigurationSetEndpoint extends AbstractEndpoint<BuildConfigu
             @ApiParam(value = "Sorting RSQL") @QueryParam("sort") String sortingRsql,
             @ApiParam(value = "RSQL query", required = false) @QueryParam("q") String rsql,
             @ApiParam(value = "Build Configuration Set id", required = true) @PathParam("id") Integer id) {
-        return fromCollection(buildConfigurationSetProvider.getBuildConfigurations(pageIndex, pageSize, sortingRsql, rsql, id));
+        return fromCollection(buildConfigurationProvider.getAllForBuildConfigurationSet(pageIndex, pageSize, sortingRsql, rsql,
+                id));
     }
 
     @ApiOperation(value = "Adds a configuration to the Specified Set")
@@ -158,7 +167,7 @@ public class BuildConfigurationSetEndpoint extends AbstractEndpoint<BuildConfigu
             @ApiParam(value = "Pagination size") @DefaultValue("50") @QueryParam("pageSize") int pageSize,
             @ApiParam(value = "Sorting RSQL") @QueryParam("sort") String sortingRsql,
             @ApiParam(value = "RSQL query", required = false) @QueryParam("q") String rsql) {
-        return fromCollection(buildConfigurationSetProvider.getBuildRecords(pageIndex, pageSize, sortingRsql, rsql, id));
+        return fromCollection(buildRecordProvider.getAllForBuildConfigSetRecord(pageIndex, pageSize, sortingRsql, rsql, id));
     }
 
     @ApiOperation(value = "Builds the Configurations for the Specified Set")

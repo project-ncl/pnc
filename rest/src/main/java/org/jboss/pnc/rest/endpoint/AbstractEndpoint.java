@@ -21,12 +21,14 @@ package org.jboss.pnc.rest.endpoint;
 import org.jboss.pnc.model.GenericEntity;
 import org.jboss.pnc.rest.provider.AbstractProvider;
 import org.jboss.pnc.rest.provider.ConflictedEntryException;
+import org.jboss.pnc.rest.provider.collection.CollectionInfo;
 import org.jboss.pnc.rest.restmodel.GenericRestEntity;
+import org.jboss.pnc.rest.restmodel.response.Page;
+import org.jboss.pnc.rest.restmodel.response.Singleton;
 
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
-import java.util.Collection;
 
 /**
  * Abstract endpoint class providing common functionality
@@ -50,7 +52,7 @@ public class AbstractEndpoint<DBEntity extends GenericEntity<Integer>, RESTEntit
     }
 
     public Response getSpecific(Integer id) {
-        return fromSingleton(id, basicProvider.getSpecific(id));
+        return fromSingleton(basicProvider.getSpecific(id));
     }
 
     public Response createNew(RESTEntity restEntity, UriInfo uriInfo) throws ConflictedEntryException {
@@ -69,18 +71,19 @@ public class AbstractEndpoint<DBEntity extends GenericEntity<Integer>, RESTEntit
         return Response.ok().build();
     }
 
-    protected Response fromCollection(Collection<?> collection) {
-        if(collection == null || collection.isEmpty()) {
-            return Response.noContent().build();
+    protected <T> Response fromCollection(CollectionInfo<T> collection) {
+        Page<T> pageForResponse = new Page<>(collection);
+        if(collection == null || collection.getContent().size() == 0) {
+            return Response.noContent().entity(pageForResponse).build();
         }
-        return Response.ok(collection).build();
+        return Response.ok().entity(pageForResponse).build();
     }
 
-    protected Response fromSingleton(Integer id, Object singleton) {
+    protected Response fromSingleton(Object singleton) {
         if(singleton == null) {
-            return Response.status(Response.Status.NOT_FOUND).entity("Entity not found for id: " + id).build();
+            return Response.status(Response.Status.NOT_FOUND).entity(new Singleton(null)).build();
         }
-        return Response.ok(singleton).build();
+        return Response.ok().entity(new Singleton(singleton)).build();
     }
 
     protected Response fromEmpty() {

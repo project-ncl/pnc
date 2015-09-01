@@ -19,9 +19,9 @@ package org.jboss.pnc.rest.provider;
 
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationSet;
-import org.jboss.pnc.rest.restmodel.BuildConfigurationRest;
+import org.jboss.pnc.rest.provider.collection.CollectionInfo;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationSetRest;
-import org.jboss.pnc.rest.restmodel.BuildRecordRest;
+import org.jboss.pnc.spi.datastore.predicates.BuildConfigurationSetPredicates;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationSetRepository;
 import org.jboss.pnc.spi.datastore.repositories.PageInfoProducer;
@@ -30,7 +30,6 @@ import org.jboss.pnc.spi.datastore.repositories.api.RSQLPredicateProducer;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
-import java.util.List;
 import java.util.function.Function;
 
 import static org.jboss.pnc.spi.datastore.predicates.BuildConfigurationSetPredicates.withName;
@@ -38,11 +37,7 @@ import static org.jboss.pnc.spi.datastore.predicates.BuildConfigurationSetPredic
 @Stateless
 public class BuildConfigurationSetProvider extends AbstractProvider<BuildConfigurationSet, BuildConfigurationSetRest> {
 
-    private BuildRecordProvider buildRecordProvider;
-
     private BuildConfigurationRepository buildConfigurationRepository;
-
-    private BuildConfigurationProvider buildConfigurationProvider;
 
     public BuildConfigurationSetProvider() {
     }
@@ -50,13 +45,10 @@ public class BuildConfigurationSetProvider extends AbstractProvider<BuildConfigu
     @Inject
     public BuildConfigurationSetProvider(BuildConfigurationSetRepository buildConfigurationSetRepository,
             BuildConfigurationRepository buildConfigurationRepository, RSQLPredicateProducer rsqlPredicateProducer,
-            SortInfoProducer sortInfoProducer, PageInfoProducer pageInfoProducer, BuildRecordProvider buildRecordProvider,
-            BuildConfigurationProvider buildConfigurationProvider) {
+            SortInfoProducer sortInfoProducer, PageInfoProducer pageInfoProducer) {
         super(buildConfigurationSetRepository, rsqlPredicateProducer, sortInfoProducer, pageInfoProducer);
         this.buildConfigurationRepository = buildConfigurationRepository;
         this.buildConfigurationRepository = buildConfigurationRepository;
-        this.buildRecordProvider = buildRecordProvider;
-        this.buildConfigurationProvider = buildConfigurationProvider;
     }
 
     @Override
@@ -85,12 +77,6 @@ public class BuildConfigurationSetProvider extends AbstractProvider<BuildConfigu
         };
     }
 
-    public List<BuildRecordRest> getBuildRecords(int pageIndex, int pageSize, String sortingRsql, String query,
-            Integer buildConfigurationSetId) {
-        return buildRecordProvider
-                .getAllForBuildConfigSetRecord(pageIndex, pageSize, sortingRsql, query, buildConfigurationSetId);
-    }
-
     public void addConfiguration(Integer configurationSetId, Integer configurationId) throws ConflictedEntryException {
         BuildConfigurationSet buildConfigSet = repository.queryById(configurationSetId);
         BuildConfiguration buildConfig = buildConfigurationRepository.queryById(configurationId);
@@ -110,7 +96,10 @@ public class BuildConfigurationSetProvider extends AbstractProvider<BuildConfigu
         repository.save(buildConfigSet);
     }
 
-    public List<BuildConfigurationRest> getBuildConfigurations(int pageIndex, int pageSize, String sortingRsql, String query, Integer buildConfigurationId) {
-        return buildConfigurationProvider.getAllForBuildConfigurationSet(pageIndex, pageSize, sortingRsql, query,buildConfigurationId);
+    public CollectionInfo<BuildConfigurationSetRest> getAllForProductVersion(int pageIndex, int pageSize, String sortingRsql,
+            String rsql, Integer productVersionId) {
+        return queryForCollection(pageIndex, pageSize, sortingRsql, rsql, BuildConfigurationSetPredicates
+                .withProductVersionId(productVersionId));
     }
+
 }

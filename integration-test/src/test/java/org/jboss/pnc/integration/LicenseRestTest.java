@@ -17,16 +17,8 @@
  */
 package org.jboss.pnc.integration;
 
-import static com.jayway.restassured.RestAssured.given;
-import static org.fest.assertions.Assertions.assertThat;
-import static org.jboss.pnc.integration.env.IntegrationTestEnv.getHttpPort;
-import static org.jboss.pnc.integration.utils.JsonUtils.fromJson;
-import static org.jboss.pnc.integration.utils.JsonUtils.toJson;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.lang.invoke.MethodHandles;
-
+import com.jayway.restassured.http.ContentType;
+import com.jayway.restassured.response.Response;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.junit.InSequence;
@@ -53,8 +45,14 @@ import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.jayway.restassured.http.ContentType;
-import com.jayway.restassured.response.Response;
+import java.io.IOException;
+import java.io.InputStream;
+import java.lang.invoke.MethodHandles;
+
+import static com.jayway.restassured.RestAssured.given;
+import static org.fest.assertions.Assertions.assertThat;
+import static org.jboss.pnc.integration.env.IntegrationTestEnv.getHttpPort;
+import static org.jboss.pnc.integration.utils.JsonUtils.toJson;
 
 @RunWith(Arquillian.class)
 @Category(ContainerTest.class)
@@ -134,7 +132,7 @@ public class LicenseRestTest {
                 .contentType(ContentType.JSON).port(getHttpPort()).when()
                 .get(String.format(LICENSE_REST_ENDPOINT_SPECIFIC, licenseId));
 
-        LicenseRest noLoremIpsum = fromJson(getResponse.body().asString(), LicenseRest.class);
+        LicenseRest noLoremIpsum = getResponse.jsonPath().getObject("content", LicenseRest.class);
 
         //then
         ResponseAssertion.assertThat(putResponse).hasStatus(200);

@@ -19,6 +19,7 @@ package org.jboss.pnc.rest.provider;
 
 
 import org.jboss.pnc.model.Artifact;
+import org.jboss.pnc.rest.provider.collection.CollectionInfo;
 import org.jboss.pnc.rest.restmodel.ArtifactRest;
 import org.jboss.pnc.spi.datastore.repositories.ArtifactRepository;
 import org.jboss.pnc.spi.datastore.repositories.PageInfoProducer;
@@ -27,7 +28,6 @@ import org.jboss.pnc.spi.datastore.repositories.api.RSQLPredicateProducer;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
-import java.util.List;
 import java.util.function.Function;
 
 import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withBuildRecordId;
@@ -43,7 +43,8 @@ public class ArtifactProvider extends AbstractProvider<Artifact, ArtifactRest> {
         super(artifactRepository, rsqlPredicateProducer, sortInfoProducer, pageInfoProducer);
     }
 
-    public List<ArtifactRest> getAllForBuildRecord(int pageIndex, int pageSize, String sortingRsql, String query, int buildRecordId) {
+    public CollectionInfo<ArtifactRest> getAllForBuildRecord(int pageIndex, int pageSize, String sortingRsql, String query,
+            int buildRecordId) {
         return queryForCollection(pageIndex, pageSize, sortingRsql, query, withBuildRecordId(buildRecordId));
     }
 

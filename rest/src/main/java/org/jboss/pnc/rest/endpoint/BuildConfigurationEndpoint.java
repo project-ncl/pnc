@@ -27,6 +27,7 @@ import org.jboss.pnc.model.User;
 import org.jboss.pnc.rest.provider.BuildConfigurationProvider;
 import org.jboss.pnc.rest.provider.BuildRecordProvider;
 import org.jboss.pnc.rest.provider.ConflictedEntryException;
+import org.jboss.pnc.rest.provider.ProductVersionProvider;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationAuditedRest;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationRest;
 import org.jboss.pnc.rest.restmodel.BuildRecordRest;
@@ -57,6 +58,7 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
     private BuildConfigurationProvider buildConfigurationProvider;
     private BuildTriggerer buildTriggerer;
     private BuildRecordProvider buildRecordProvider;
+    private ProductVersionProvider productVersionProvider;
     
     @Context
     private HttpServletRequest httpServletRequest;
@@ -68,11 +70,13 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
     }
 
     @Inject
-    public BuildConfigurationEndpoint(BuildConfigurationProvider buildConfigurationProvider, BuildTriggerer buildTriggerer, BuildRecordProvider buildRecordProvider) {
+    public BuildConfigurationEndpoint(BuildConfigurationProvider buildConfigurationProvider, BuildTriggerer buildTriggerer,
+            BuildRecordProvider buildRecordProvider, ProductVersionProvider productVersionProvider) {
         super(buildConfigurationProvider);
         this.buildConfigurationProvider = buildConfigurationProvider;
         this.buildTriggerer = buildTriggerer;
         this.buildRecordProvider = buildRecordProvider;
+        this.productVersionProvider = productVersionProvider;
     }
 
     @ApiOperation(value = "Gets all Build Configurations",
@@ -209,16 +213,12 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
             responseContainer = "List", response = BuildConfigurationRest.class)
     @GET
     @Path("/{id}/dependencies")
-    public Response getDependencies(@ApiParam(value = "Build configuration id", required = true) @PathParam("id") Integer id) {
-        return fromCollection(buildConfigurationProvider.getDependencies(id));
-    }
-
-    @ApiOperation(value = "Get the full list of both direct and indirect dependencies of the specified configuration",
-            responseContainer = "List", response = BuildConfigurationRest.class)
-    @GET
-    @Path("/{id}/all-dependencies")
-    public Response getAllDependencies(@ApiParam(value = "Build configuration id", required = true) @PathParam("id") Integer id) {
-        return fromCollection(buildConfigurationProvider.getAllDependencies(id));
+    public Response getDependencies(@ApiParam(value = "Page index") @QueryParam("pageIndex") @DefaultValue("0") int pageIndex,
+            @ApiParam(value = "Pagination size") @DefaultValue("50") @QueryParam("pageSize") int pageSize,
+            @ApiParam(value = "Sorting RSQL") @QueryParam("sort") String sortingRsql,
+            @ApiParam(value = "RSQL query", required = false) @QueryParam("q") String rsql,
+            @ApiParam(value = "Build configuration id", required = true) @PathParam("id") Integer id) {
+        return fromCollection(buildConfigurationProvider.getDependencies(pageIndex, pageSize, sortingRsql, rsql, id));
     }
 
     @ApiOperation(value = "Adds a dependency to the specified config")
@@ -244,8 +244,12 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
             responseContainer = "List", response = ProductVersionRest.class)
     @GET
     @Path("/{id}/product-versions")
-    public Response getProductVersions(@ApiParam(value = "Build configuration id", required = true) @PathParam("id") Integer id) {
-        return fromCollection(buildConfigurationProvider.getProductVersions(id));
+    public Response getProductVersions(@ApiParam(value = "Page index") @QueryParam("pageIndex") @DefaultValue("0") int pageIndex,
+            @ApiParam(value = "Pagination size") @DefaultValue("50") @QueryParam("pageSize") int pageSize,
+            @ApiParam(value = "Sorting RSQL") @QueryParam("sort") String sortingRsql,
+            @ApiParam(value = "RSQL query", required = false) @QueryParam("q") String rsql,
+            @ApiParam(value = "Build configuration id", required = true) @PathParam("id") Integer id) {
+        return fromCollection(productVersionProvider.getAllForBuildConfiguration(pageIndex, pageSize, sortingRsql, rsql, id));
     }
 
     @ApiOperation(value = "Associates a product version to the specified config")
@@ -272,8 +276,10 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
             responseContainer = "List", response = BuildConfigurationAuditedRest.class)
     @GET
     @Path("/{id}/revisions")
-    public Response getRevisions(@ApiParam(value = "Build configuration id", required = true) @PathParam("id") Integer id) {
-        return fromCollection(buildConfigurationProvider.getRevisions(id));
+    public Response getRevisions(@ApiParam(value = "Page index") @QueryParam("pageIndex") @DefaultValue("0") int pageIndex,
+            @ApiParam(value = "Pagination size") @DefaultValue("50") @QueryParam("pageSize") int pageSize,
+            @ApiParam(value = "Build configuration id", required = true) @PathParam("id") Integer id) {
+        return fromCollection(buildConfigurationProvider.getRevisions(pageIndex, pageSize, id));
     }
 
     @ApiOperation(value = "Get specific audited revision of this build configuration",
@@ -282,7 +288,7 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
     @Path("/{id}/revisions/{rev}")
     public Response getRevision(@ApiParam(value = "Build configuration id", required = true) @PathParam("id") Integer id,
             @ApiParam(value = "Build configuration rev", required = true) @PathParam("rev") Integer rev) {
-        return fromSingleton(id, buildConfigurationProvider.getRevision(id, rev));
+        return fromSingleton(buildConfigurationProvider.getRevision(id, rev));
     }
 
     @ApiOperation(value = "Get all build record associated with this build configuration, returns empty list if no build records are found",
@@ -295,7 +301,7 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
             @ApiParam(value = "Sorting RSQL") @QueryParam("sort") String sortingRsql,
             @ApiParam(value = "RSQL query", required = false) @QueryParam("q") String rsql,
             @ApiParam(value = "Build configuration id", required = true) @PathParam("id") Integer id) {
-        return fromCollection(buildConfigurationProvider.getBuildRecords(pageIndex, pageSize, sortingRsql, rsql, id));
+        return fromCollection(buildRecordProvider.getAllForBuildConfiguration(pageIndex, pageSize, sortingRsql, rsql, id));
     }
 
     @ApiOperation(value = "Get latest build record associated with this build configuration, returns no content if no build records are found",
@@ -303,7 +309,7 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
     @GET
     @Path("/{id}/build-records/latest")
     public Response getLatestBuildRecord(@ApiParam(value = "Build configuration id", required = true) @PathParam("id") Integer id) {
-        return fromSingleton(id, buildConfigurationProvider.getLatestBuildRecord(id));
+        return fromSingleton(buildRecordProvider.getLatestBuildRecord(id));
     }
 
 }

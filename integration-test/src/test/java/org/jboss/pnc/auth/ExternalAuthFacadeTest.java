@@ -17,17 +17,18 @@
  */
 package org.jboss.pnc.auth;
 
-import static org.junit.Assert.assertNotNull;
-
-import java.io.InputStream;
-
 import org.jboss.logging.Logger;
 import org.jboss.pnc.integration.utils.AuthResource;
 import org.jboss.pnc.test.category.ContainerTest;
+import org.jboss.pnc.test.category.RemoteTest;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
+
+import java.io.InputStream;
+
+import static org.junit.Assert.assertNotNull;
 
 /**
  * @author pslegr
@@ -42,7 +43,7 @@ import org.junit.experimental.categories.Category;
  *  is defined to fulfill all above conditions 
  *
  */
-@Category(ContainerTest.class)
+@Category({ContainerTest.class, RemoteTest.class})
 public class ExternalAuthFacadeTest {
     
     protected Logger log = Logger.getLogger(ExternalAuthFacadeTest.class);

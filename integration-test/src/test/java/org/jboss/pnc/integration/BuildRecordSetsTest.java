@@ -17,13 +17,6 @@
  */
 package org.jboss.pnc.integration;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
-import java.lang.invoke.MethodHandles;
-import java.util.List;
-
-import javax.inject.Inject;
-
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.junit.InSequence;
@@ -45,6 +38,12 @@ import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.inject.Inject;
+import java.lang.invoke.MethodHandles;
+import java.util.Collection;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(Arquillian.class)
 @Category(ContainerTest.class)
@@ -100,7 +99,7 @@ public class BuildRecordSetsTest {
     @InSequence(1)
     public void shouldGetAllBuildRecordSets() {
         // when
-        List<BuildRecordSetRest> buildRecordSets = buildRecordSetProvider.getAll(0, 50, null, null);
+        Collection<BuildRecordSetRest> buildRecordSets = buildRecordSetProvider.getAll(0, 50, null, null).getContent();
 
         // then
         assertThat(buildRecordSets).isNotNull();
@@ -121,7 +120,7 @@ public class BuildRecordSetsTest {
     @InSequence(3)
     public void shouldGetBuildRecordSetOfProductMilestone() {
         // when
-        List<BuildRecordSetRest> buildRecordSetRests = buildRecordSetProvider.getAllForPerformedInProductMilestone(0, 50, null, null, productMilestoneId);
+        Collection<BuildRecordSetRest> buildRecordSetRests = buildRecordSetProvider.getAllForPerformedInProductMilestone(0, 50, null, null, productMilestoneId).getContent();
 
         // then
         assertThat(buildRecordSetRests).hasSize(1);
@@ -131,7 +130,7 @@ public class BuildRecordSetsTest {
     @InSequence(4)
     public void shouldGetBuildRecordSetOfBuildRecord() {
         // when
-        List<BuildRecordSetRest> buildRecordSetRests = buildRecordSetProvider.getAllForBuildRecord(0, 50, null, null, buildRecordId);
+        Collection<BuildRecordSetRest> buildRecordSetRests = buildRecordSetProvider.getAllForBuildRecord(0, 50, null, null, buildRecordId).getContent();
 
         // then
         assertThat(buildRecordSetRests).hasSize(1);

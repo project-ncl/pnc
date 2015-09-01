@@ -35,8 +35,11 @@ public class BuildConfigurationPredicates {
         };
     }
 
-    public static Predicate<BuildConfiguration> withDifferentId(Integer buildConfigurationId) {
-        return (root, query, cb) -> cb.notEqual(root.get(BuildConfiguration_.id), buildConfigurationId);
+    public static Predicate<BuildConfiguration> withDependantConfiguration(Integer parentBuildConfigurationId) {
+        return (root, query, cb) -> {
+            SetJoin<BuildConfiguration, BuildConfiguration> dependantBuildConfigurationsJoin = root.join(BuildConfiguration_.dependants);
+            return cb.equal(dependantBuildConfigurationsJoin.get(BuildConfiguration_.id), parentBuildConfigurationId);
+        };
     }
 
     public static Predicate<BuildConfiguration> withName(String name) {

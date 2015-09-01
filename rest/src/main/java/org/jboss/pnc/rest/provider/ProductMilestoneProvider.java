@@ -19,6 +19,7 @@ package org.jboss.pnc.rest.provider;
 
 import org.jboss.pnc.model.ProductMilestone;
 import org.jboss.pnc.model.ProductVersion;
+import org.jboss.pnc.rest.provider.collection.CollectionInfo;
 import org.jboss.pnc.rest.restmodel.ProductMilestoneRest;
 import org.jboss.pnc.spi.datastore.repositories.PageInfoProducer;
 import org.jboss.pnc.spi.datastore.repositories.ProductMilestoneRepository;
@@ -28,7 +29,6 @@ import org.jboss.pnc.spi.datastore.repositories.api.RSQLPredicateProducer;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
-import java.util.List;
 import java.util.function.Function;
 
 import static org.jboss.pnc.spi.datastore.predicates.ProductMilestonePredicates.withProductVersionId;
@@ -50,8 +50,8 @@ public class ProductMilestoneProvider extends AbstractProvider<ProductMilestone,
     public ProductMilestoneProvider() {
     }
 
-    public List<ProductMilestoneRest> getAllForProductVersion(int pageIndex, int pageSize, String sortingRsql, String query,
-            Integer versionId) {
+    public CollectionInfo<ProductMilestoneRest> getAllForProductVersion(int pageIndex, int pageSize, String sortingRsql,
+            String query, Integer versionId) {
         return super.queryForCollection(pageIndex, pageSize,sortingRsql, query, withProductVersionId(versionId));
     }
 

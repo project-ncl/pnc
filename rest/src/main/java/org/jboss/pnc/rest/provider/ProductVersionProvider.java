@@ -19,9 +19,8 @@ package org.jboss.pnc.rest.provider;
 
 import org.jboss.pnc.model.Product;
 import org.jboss.pnc.model.ProductVersion;
-import org.jboss.pnc.rest.restmodel.BuildConfigurationSetRest;
+import org.jboss.pnc.rest.provider.collection.CollectionInfo;
 import org.jboss.pnc.rest.restmodel.ProductVersionRest;
-import org.jboss.pnc.spi.datastore.predicates.BuildConfigurationSetPredicates;
 import org.jboss.pnc.spi.datastore.repositories.PageInfoProducer;
 import org.jboss.pnc.spi.datastore.repositories.ProductRepository;
 import org.jboss.pnc.spi.datastore.repositories.ProductVersionRepository;
@@ -30,24 +29,21 @@ import org.jboss.pnc.spi.datastore.repositories.api.RSQLPredicateProducer;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
-import java.util.List;
 import java.util.function.Function;
 
+import static org.jboss.pnc.spi.datastore.predicates.ProductVersionPredicates.withBuildConfigurationId;
 import static org.jboss.pnc.spi.datastore.predicates.ProductVersionPredicates.withProductId;
 
 @Stateless
 public class ProductVersionProvider extends AbstractProvider<ProductVersion, ProductVersionRest> {
-
-    private BuildConfigurationSetProvider buildConfigurationSetProvider;
 
     private ProductRepository productRepository;
 
     @Inject
     public ProductVersionProvider(ProductVersionRepository productVersionRepository,
             RSQLPredicateProducer rsqlPredicateProducer, SortInfoProducer sortInfoProducer, PageInfoProducer pageInfoProducer,
-            BuildConfigurationSetProvider buildConfigurationSetProvider, ProductRepository productRepository) {
+            ProductRepository productRepository) {
         super(productVersionRepository, rsqlPredicateProducer, sortInfoProducer, pageInfoProducer);
-        this.buildConfigurationSetProvider = buildConfigurationSetProvider;
         this.productRepository = productRepository;
     }
 
@@ -55,8 +51,14 @@ public class ProductVersionProvider extends AbstractProvider<ProductVersion, Pro
     public ProductVersionProvider() {
     }
 
-    public List<ProductVersionRest> getAllForProduct(int pageIndex, int pageSize, String sortingRsql, String query, Integer productId){
+    public CollectionInfo<ProductVersionRest> getAllForProduct(int pageIndex, int pageSize, String sortingRsql, String query,
+            Integer productId){
         return queryForCollection(pageIndex, pageSize, sortingRsql, query, withProductId(productId));
+    }
+
+    public CollectionInfo<ProductVersionRest> getAllForBuildConfiguration(int pageIndex, int pageSize, String sortingRsql, String query,
+            Integer buildConfigurationId){
+        return queryForCollection(pageIndex, pageSize, sortingRsql, query, withBuildConfigurationId(buildConfigurationId));
     }
 
     @Override
@@ -74,12 +76,6 @@ public class ProductVersionProvider extends AbstractProvider<ProductVersion, Pro
             Product productFromDB = productRepository.queryById(productVersion.getProductId());
             return productVersion.toProductVersion(productFromDB);
         };
-    }
-
-    public List<BuildConfigurationSetRest> getBuildConfigurationSets(int pageIndex, int pageSize, String sortingRsql,
-            String rsql, Integer productVersionId) {
-        return buildConfigurationSetProvider.queryForCollection(pageIndex, pageSize, sortingRsql, rsql, BuildConfigurationSetPredicates
-                .withProductVersionId(productVersionId));
     }
 
 }

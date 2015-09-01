@@ -19,6 +19,7 @@ package org.jboss.pnc.rest.provider;
 
 import org.jboss.pnc.model.ProductRelease;
 import org.jboss.pnc.model.ProductVersion;
+import org.jboss.pnc.rest.provider.collection.CollectionInfo;
 import org.jboss.pnc.rest.restmodel.ProductReleaseRest;
 import org.jboss.pnc.spi.datastore.repositories.PageInfoProducer;
 import org.jboss.pnc.spi.datastore.repositories.ProductReleaseRepository;
@@ -28,7 +29,6 @@ import org.jboss.pnc.spi.datastore.repositories.api.RSQLPredicateProducer;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
-import java.util.List;
 import java.util.function.Function;
 
 import static org.jboss.pnc.spi.datastore.predicates.ProductReleasePredicates.withProductVersionId;
@@ -68,8 +68,8 @@ public class ProductReleaseProvider extends AbstractProvider<ProductRelease, Pro
         };
     }
 
-    public List<ProductReleaseRest> getAllForProductVersion(int pageIndex, int pageSize, String sortingRsql, String query,
-            Integer versionId) {
+    public CollectionInfo<ProductReleaseRest> getAllForProductVersion(int pageIndex, int pageSize, String sortingRsql,
+            String query, Integer versionId) {
         return queryForCollection(pageIndex, pageSize, sortingRsql, query, withProductVersionId(versionId));
     }
 

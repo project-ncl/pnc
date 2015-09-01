@@ -18,6 +18,7 @@
 package org.jboss.pnc.rest.provider;
 
 import org.jboss.pnc.model.BuildRecordSet;
+import org.jboss.pnc.rest.provider.collection.CollectionInfo;
 import org.jboss.pnc.rest.restmodel.BuildRecordSetRest;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordSetRepository;
 import org.jboss.pnc.spi.datastore.repositories.PageInfoProducer;
@@ -26,7 +27,6 @@ import org.jboss.pnc.spi.datastore.repositories.api.RSQLPredicateProducer;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
-import java.util.List;
 import java.util.function.Function;
 
 import static org.jboss.pnc.spi.datastore.predicates.BuildRecordSetPredicates.withBuildRecordId;
@@ -54,13 +54,13 @@ public class BuildRecordSetProvider extends AbstractProvider<BuildRecordSet, Bui
         return buildRecordSet -> buildRecordSet.toBuildRecordSet();
     }
 
-    public List<BuildRecordSetRest> getAllForPerformedInProductMilestone(int pageIndex, int pageSize, String sortingRsql,
-            String query, Integer milestoneId) {
+    public CollectionInfo<BuildRecordSetRest> getAllForPerformedInProductMilestone(int pageIndex, int pageSize,
+            String sortingRsql, String query, Integer milestoneId) {
         return queryForCollection(pageIndex, pageSize, sortingRsql, query, withPerformedInProductMilestoneId(milestoneId));
     }
 
-    public List<BuildRecordSetRest> getAllForBuildRecord(int pageIndex, int pageSize, String sortingRsql, String query,
-            Integer recordId) {
+    public CollectionInfo<BuildRecordSetRest> getAllForBuildRecord(int pageIndex, int pageSize, String sortingRsql,
+            String query, Integer recordId) {
         return queryForCollection(pageIndex, pageSize, sortingRsql, query, withBuildRecordId(recordId));
     }
 

@@ -17,13 +17,8 @@
  */
 package org.jboss.pnc.integration;
 
-import static com.jayway.restassured.RestAssured.given;
-import static org.jboss.pnc.integration.env.IntegrationTestEnv.getHttpPort;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.lang.invoke.MethodHandles;
-
+import com.jayway.restassured.http.ContentType;
+import com.jayway.restassured.response.Response;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.junit.InSequence;
@@ -53,8 +48,12 @@ import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.jayway.restassured.http.ContentType;
-import com.jayway.restassured.response.Response;
+import java.io.IOException;
+import java.io.InputStream;
+import java.lang.invoke.MethodHandles;
+
+import static com.jayway.restassured.RestAssured.given;
+import static org.jboss.pnc.integration.env.IntegrationTestEnv.getHttpPort;
 
 @RunWith(Arquillian.class)
 @Category(ContainerTest.class)
@@ -116,17 +115,17 @@ public class BuildRecordSetRestTest {
                 .get(PRODUCT_MILESTONE_REST_ENDPOINT);
 
         ResponseAssertion.assertThat(responseProdMilestone).hasStatus(200);
-        performedInProductMilestoneId = responseProdMilestone.body().jsonPath().getInt("[0].id");
-        productMilestoneVersion = responseProdMilestone.body().jsonPath().getString("[0].version");
+        performedInProductMilestoneId = responseProdMilestone.body().jsonPath().getInt("content[0].id");
+        productMilestoneVersion = responseProdMilestone.body().jsonPath().getString("content[0].version");
 
         Response responseBuildRec = given().header("Accept", "application/json").header("Authorization", "Bearer " + access_token)
                     .contentType(ContentType.JSON).port(getHttpPort()).when()
                 .get(BUILD_RECORD_REST_ENDPOINT);
         ResponseAssertion.assertThat(responseBuildRec).hasStatus(200);
 
-        buildRecordId = responseBuildRec.body().jsonPath().getInt("[0].id");
-        buildRecordBuildScript = responseBuildRec.body().jsonPath().getString("[0].buildScript");
-        buildRecordName = responseBuildRec.body().jsonPath().getString("[0].name");
+        buildRecordId = responseBuildRec.body().jsonPath().getInt("content[0].id");
+        buildRecordBuildScript = responseBuildRec.body().jsonPath().getString("content[0].buildScript");
+        buildRecordName = responseBuildRec.body().jsonPath().getString("content[0].name");
 
         logger.info("performedInProductMilestoneId: {} ", performedInProductMilestoneId);
         logger.info("productMilestoneVersion: {} ", productMilestoneVersion);
@@ -161,7 +160,7 @@ public class BuildRecordSetRestTest {
                     .contentType(ContentType.JSON).port(getHttpPort()).when()
                 .get(BUILD_RECORD_SET_REST_ENDPOINT);
         ResponseAssertion.assertThat(response).hasStatus(200);
-        ResponseAssertion.assertThat(response).hasJsonValueNotNullOrEmpty("[0].id");
+        ResponseAssertion.assertThat(response).hasJsonValueNotNullOrEmpty("content[0].id");
     }
 
     @Test
@@ -173,7 +172,7 @@ public class BuildRecordSetRestTest {
                 .get(String.format(BUILD_RECORD_SET_SPECIFIC_REST_ENDPOINT, newBuildRecordSetId));
 
         ResponseAssertion.assertThat(response).hasStatus(200);
-        ResponseAssertion.assertThat(response).hasJsonValueEqual("id", newBuildRecordSetId);
+        ResponseAssertion.assertThat(response).hasJsonValueEqual("content.id", newBuildRecordSetId);
     }
 
     @Test
@@ -185,7 +184,7 @@ public class BuildRecordSetRestTest {
                 .get(String.format(BUILD_RECORD_SET_BUILD_RECORD_REST_ENDPOINT, buildRecordId));
 
         ResponseAssertion.assertThat(response).hasStatus(200);
-        ResponseAssertion.assertThat(response).hasJsonValueEqual("[0].id", newBuildRecordSetId);
+        ResponseAssertion.assertThat(response).hasJsonValueEqual("content[0].id", newBuildRecordSetId);
     }
 
 }

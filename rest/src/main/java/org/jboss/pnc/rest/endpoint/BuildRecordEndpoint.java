@@ -135,7 +135,7 @@ public class BuildRecordEndpoint extends AbstractEndpoint<BuildRecord, BuildReco
     @GET
     @Path("/{id}/build-configuration-audited")
     public Response getBuildConfigurationAudited(@ApiParam(value = "BuildRecord id", required = true) @PathParam("id") Integer id) {
-        return fromSingleton(id, buildRecordProvider.getBuildConfigurationAudited(id));
+        return fromSingleton(buildRecordProvider.getBuildConfigurationAudited(id));
     }
 
 }
