@@ -107,6 +107,17 @@
     }
   ]);
 
+   app.factory('unwrapPageResponseInterceptor', function() {
+     return {
+       'response': function(response) {
+         if(response.data.content) {
+           response.data = response.data.content;
+         }
+         return response;
+       }
+     };
+   });
+
   app.factory('httpResponseInterceptor', [
     '$log',
     'Notifications',

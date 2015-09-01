@@ -117,6 +117,7 @@
     NotificationsProvider.setDelay(12000);
 
     $httpProvider.interceptors.push('httpResponseInterceptor');
+    $httpProvider.interceptors.push('unwrapPageResponseInterceptor');
 
     if (PROPERTIES.AUTH_ENABLED) {
       keycloakProvider.setKeycloak(keycloak);
