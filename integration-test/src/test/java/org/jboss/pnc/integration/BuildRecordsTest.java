@@ -128,6 +128,7 @@ public class BuildRecordsTest {
         buildRecord.setStatus(BuildStatus.SUCCESS);
         buildRecord.setLatestBuildConfiguration(buildConfiguration);
         buildRecord.setBuildConfigurationAudited(buildConfigurationAudited);
+        buildRecord.setSubmitTime(Timestamp.from(Instant.now()));
         buildRecord.setStartTime(Timestamp.from(Instant.now()));
         buildRecord.setEndTime(Timestamp.from(Instant.now()));
         logger.info(user.toString());

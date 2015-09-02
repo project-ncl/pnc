@@ -50,6 +50,7 @@ public class BuildTask implements BuildExecution {
     private BuildConfiguration buildConfiguration;
     private BuildConfigurationAudited buildConfigurationAudited;
     private User user;
+    private Date submitTime;
     private Date startTime;
     private Date endTime;
 
@@ -92,6 +93,7 @@ public class BuildTask implements BuildExecution {
               String buildContentId, 
               BuildExecutionType buildTaskType, 
               User user, 
+              Date submitTime,
               BuildSetTask buildSetTask,
               int id) {
 
@@ -100,6 +102,7 @@ public class BuildTask implements BuildExecution {
         this.buildConfiguration = buildConfiguration;
         this.buildConfigurationAudited = buildConfigurationAudited;
         this.user = user;
+        this.submitTime = submitTime;
 
         this.buildTaskType = buildTaskType;
         this.buildStatusChangedEvent = buildCoordinator.getBuildStatusChangedEventNotifier();
@@ -269,6 +272,14 @@ public class BuildTask implements BuildExecution {
 
     public BuildExecutionType getBuildExecutionType() {
         return buildTaskType;
+    }
+
+    public Date getSubmitTime() {
+        return submitTime;
+    }
+
+    public void setSubmitTime(Date submitTime) {
+        this.submitTime = submitTime;
     }
 
     public Date getStartTime() {

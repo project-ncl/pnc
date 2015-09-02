@@ -122,6 +122,7 @@ public class DatastoreAdapter {
         BuildRecord buildRecord = BuildRecord.Builder.newBuilder().id(buildTask.getId())
                 .buildConfigurationAudited(buildTask.getBuildConfigurationAudited())
                 .user(buildTask.getUser())
+                .submitTime(buildTask.getSubmitTime())
                 .startTime(buildTask.getStartTime())
                 .endTime(buildTask.getEndTime())
                 .build();

@@ -79,9 +79,9 @@ public class BuildConfigurationRest implements GenericRestEntity<Integer> {
         this.lastModificationTime = buildConfiguration.getLastModificationTime();
         this.buildStatus = buildConfiguration.getBuildStatus();
         this.repositories = buildConfiguration.getRepositories();
-        performIfNotNull(buildConfiguration.getProject() != null, () -> this.projectId = buildConfiguration.getProject()
+        performIfNotNull(buildConfiguration.getProject(), () -> this.projectId = buildConfiguration.getProject()
                 .getId());
-        performIfNotNull(buildConfiguration.getEnvironment() != null, () -> this.environmentId = buildConfiguration.getEnvironment().getId());
+        performIfNotNull(buildConfiguration.getEnvironment(), () -> this.environmentId = buildConfiguration.getEnvironment().getId());
         this.dependencyIds = nullableStreamOf(buildConfiguration.getDependencies()).map(dependencyConfig -> dependencyConfig.getId())
                 .collect(Collectors.toSet());
         this.productVersionIds = nullableStreamOf(buildConfiguration.getProductVersions()).map(productVersion -> productVersion.getId())
@@ -231,8 +231,8 @@ public class BuildConfigurationRest implements GenericRestEntity<Integer> {
         builder.buildStatus(buildStatus);
         builder.repositories(repositories);
 
-        performIfNotNull(projectId != null, () -> builder.project(Project.Builder.newBuilder().id(projectId).build()));
-        performIfNotNull(environmentId != null, () -> builder.environment(Environment.Builder.emptyEnvironment().id(environmentId).build()));
+        performIfNotNull(projectId, () -> builder.project(Project.Builder.newBuilder().id(projectId).build()));
+        performIfNotNull(environmentId, () -> builder.environment(Environment.Builder.emptyEnvironment().id(environmentId).build()));
 
         nullableStreamOf(dependencyIds).forEach(dependencyId -> {
             BuildConfiguration.Builder buildConfigurationBuilder = BuildConfiguration.Builder.newBuilder().id(dependencyId);
@@ -248,7 +248,7 @@ public class BuildConfigurationRest implements GenericRestEntity<Integer> {
     }
 
     private void overrideWithDataFromOriginalConfiguration(BuildConfiguration buildConfiguration, BuildConfiguration.Builder builder) {
-        performIfNotNull(buildConfiguration != null, () -> {
+        performIfNotNull(buildConfiguration, () -> {
             builder.lastModificationTime(buildConfiguration.getLastModificationTime());
             builder.creationTime(buildConfiguration.getCreationTime());
         });

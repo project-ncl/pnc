@@ -32,6 +32,8 @@ public class BuildRecordRest implements GenericRestEntity<Integer> {
 
     private Integer id;
 
+    private Date submitTime;
+
     private Date startTime;
 
     private Date endTime;
@@ -59,15 +61,16 @@ public class BuildRecordRest implements GenericRestEntity<Integer> {
 
     public BuildRecordRest(BuildRecord buildRecord) {
         this.id = buildRecord.getId();
+        this.submitTime = buildRecord.getSubmitTime();
         this.startTime = buildRecord.getStartTime();
         this.endTime = buildRecord.getEndTime();
         this.externalArchiveId = buildRecord.getExternalArchiveId();
-        performIfNotNull(buildRecord.getBuildConfigurationAudited() != null, () -> buildConfigurationId = buildRecord
+        performIfNotNull(buildRecord.getBuildConfigurationAudited(), () -> buildConfigurationId = buildRecord
                 .getBuildConfigurationAudited().getId().getId());
-        performIfNotNull(buildRecord.getBuildConfigurationAudited() != null, () -> buildConfigurationRev = buildRecord
+        performIfNotNull(buildRecord.getBuildConfigurationAudited(), () -> buildConfigurationRev = buildRecord
                 .getBuildConfigurationAudited().getRev());
-        performIfNotNull(buildRecord.getUser() != null, () -> userId = buildRecord.getUser().getId());
-        performIfNotNull(buildRecord.getSystemImage() != null, () -> systemImageId = buildRecord.getSystemImage().getId());
+        performIfNotNull(buildRecord.getUser(), () -> userId = buildRecord.getUser().getId());
+        performIfNotNull(buildRecord.getSystemImage(), () -> systemImageId = buildRecord.getSystemImage().getId());
         this.status = buildRecord.getStatus();
         this.buildDriverId = buildRecord.getBuildDriverId();
         if(buildRecord.getBuildConfigSetRecord() != null)
@@ -76,10 +79,10 @@ public class BuildRecordRest implements GenericRestEntity<Integer> {
 
     public BuildRecordRest(BuildTask buildTask) {
         this.id = buildTask.getId();
-        BuildConfiguration buildConfiguration = buildTask.getBuildConfiguration();
-        this.startTime = buildConfiguration.getCreationTime();
-        performIfNotNull(buildTask.getBuildConfiguration() != null && buildConfiguration != null,
-                () -> buildConfigurationId = buildConfiguration.getId());
+        this.submitTime = buildTask.getSubmitTime();
+        this.startTime = buildTask.getStartTime();
+        performIfNotNull(buildTask.getBuildConfiguration(),
+                () -> buildConfigurationId = buildTask.getBuildConfiguration().getId());
         this.status = BuildStatus.BUILDING;
         buildTask.getLogsWebSocketLink().ifPresent(logsUri -> this.liveLogsUri = logsUri.toString());
         this.buildConfigSetRecordId = buildTask.getBuildSetTask().getId();

@@ -52,15 +52,20 @@ public class BuildSetTask {
     private Event<BuildSetStatusChangedEvent> buildSetStatusChangedEventNotifier;
 
     private BuildSetStatus status;
-
     private String statusDescription;
+
+    /**
+     * The time at which the build config set was triggered.
+     */
+    private Date submitTime;
+
     private Set<BuildTask> buildTasks = new HashSet<>();
 
     /**
      * Create build set task for running a single build or set of builds
      */
     public BuildSetTask(BuildCoordinator buildCoordinator, BuildConfigSetRecord buildConfigSetRecord,
-            BuildExecutionType buildTaskType, ProductMilestone productMilestone) {
+            BuildExecutionType buildTaskType, ProductMilestone productMilestone, Date submitTime) {
         this.buildCoordinator = buildCoordinator;
         this.buildConfigSetRecord = buildConfigSetRecord;
         this.buildTaskType = buildTaskType;
@@ -68,6 +73,7 @@ public class BuildSetTask {
         this.productMilestone = productMilestone;
         this.buildSetStatusChangedEventNotifier = buildCoordinator.getBuildSetStatusChangedEventNotifier();
         setStatus(BuildSetStatus.NEW);
+        this.submitTime = submitTime;
     }
 
     public BuildConfigurationSet getBuildConfigurationSet() {
@@ -121,6 +127,10 @@ public class BuildSetTask {
 
     public String getStatusDescription() {
         return statusDescription;
+    }
+
+    public Date getSubmitTime() {
+        return this.submitTime;
     }
 
     public Set<BuildTask> getBuildTasks() {

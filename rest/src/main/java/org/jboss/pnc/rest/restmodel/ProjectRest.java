@@ -64,7 +64,7 @@ public class ProjectRest implements GenericRestEntity<Integer> {
         this.projectUrl = project.getProjectUrl();
         this.configurationIds = nullableStreamOf(project.getBuildConfigurations()).map(
                 buildConfiguration -> buildConfiguration.getId()).collect(Collectors.toList());
-        performIfNotNull(project.getLicense() != null, () -> this.licenseId = project.getLicense().getId());
+        performIfNotNull(project.getLicense(), () -> this.licenseId = project.getLicense().getId());
     }
 
     /**
@@ -198,7 +198,7 @@ public class ProjectRest implements GenericRestEntity<Integer> {
         builder.issueTrackerUrl(issueTrackerUrl);
         builder.projectUrl(projectUrl);
 
-        performIfNotNull(this.licenseId != null, () -> builder.license(License.Builder.newBuilder().id(licenseId).build()));
+        performIfNotNull(this.licenseId, () -> builder.license(License.Builder.newBuilder().id(licenseId).build()));
 
         nullableStreamOf(configurationIds).forEach(configurationId ->
                 builder.buildConfiguration(BuildConfiguration.Builder.newBuilder().id(configurationId).build()));

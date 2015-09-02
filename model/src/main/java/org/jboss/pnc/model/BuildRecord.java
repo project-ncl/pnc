@@ -73,9 +73,24 @@ public class BuildRecord implements GenericEntity<Integer> {
 
     private String buildContentId;
 
+    /**
+     * The time which the build was submitted to the system.
+     */
+    @NotNull
+    @Column(columnDefinition="timestamp with time zone")
+    private Date submitTime;
+
+    /**
+     * The time when the build execution started.  Note that it's possible for this to
+     * be null in the case of a system error before the build is started.
+     */
     @Column(columnDefinition="timestamp with time zone")
     private Date startTime;
 
+    /**
+     * The time when the build completed.  Note that it's possible for this to be null
+     * if the build never finished.
+     */
     @Column(columnDefinition="timestamp with time zone")
     private Date endTime;
 
@@ -168,7 +183,22 @@ public class BuildRecord implements GenericEntity<Integer> {
     }
 
     /**
-     * Gets the start time.
+     * The time when the build was submitted.
+     *
+     * @return the submit time
+     */
+    public Date getSubmitTime() {
+        return submitTime;
+    }
+
+    public void setSubmitTime(Date submitTime) {
+        this.submitTime = submitTime;
+    }
+
+    /**
+     * The time when the build execution was started.
+     * The build task wait time can be determined by the difference
+     * between the startTime and the submitTime.
      *
      * @return the start time
      */
@@ -176,17 +206,14 @@ public class BuildRecord implements GenericEntity<Integer> {
         return startTime;
     }
 
-    /**
-     * Sets the start time.
-     *
-     * @param startTime the new start time
-     */
     public void setStartTime(Date startTime) {
         this.startTime = startTime;
     }
 
     /**
-     * Gets the end time.
+     * Get the time when the build finished.
+     * The build duration can be determined by the difference
+     * between the endTime and the startTime.
      *
      * @return the end time
      */
@@ -194,11 +221,6 @@ public class BuildRecord implements GenericEntity<Integer> {
         return endTime;
     }
 
-    /**
-     * Sets the end time.
-     *
-     * @param endTime the new end time
-     */
     public void setEndTime(Date endTime) {
         this.endTime = endTime;
     }
@@ -421,6 +443,8 @@ public class BuildRecord implements GenericEntity<Integer> {
 
         private String buildContentId;
 
+        private Date submitTime;
+
         private Date startTime;
 
         private Date endTime;
@@ -445,9 +469,9 @@ public class BuildRecord implements GenericEntity<Integer> {
 
         private Set<BuildRecordSet> buildRecordSets;
 
-        private BuildConfigSetRecord buildConfigSetRecord;
-
         private Integer externalArchiveId;
+
+        private BuildConfigSetRecord buildConfigSetRecord;
 
         public Builder() {
             buildRecordSets = new HashSet<>();
@@ -463,6 +487,7 @@ public class BuildRecord implements GenericEntity<Integer> {
             BuildRecord buildRecord = new BuildRecord();
             buildRecord.setId(id);
             buildRecord.setBuildContentId(buildContentId);
+            buildRecord.setSubmitTime(submitTime);
             buildRecord.setStartTime(startTime);
             buildRecord.setEndTime(endTime);
             if (latestBuildConfiguration != null) {
@@ -505,6 +530,11 @@ public class BuildRecord implements GenericEntity<Integer> {
 
         public Builder buildContentId(String buildContentId) {
             this.buildContentId = buildContentId;
+            return this;
+        }
+
+        public Builder submitTime(Date submitTime) {
+            this.submitTime = submitTime;
             return this;
         }
 

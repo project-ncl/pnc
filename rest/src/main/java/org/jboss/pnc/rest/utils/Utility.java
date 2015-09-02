@@ -26,8 +26,14 @@ public class Utility {
         void doIt();
     }
 
-    public static void performIfNotNull(boolean expression, Action action) {
-        if(expression) {
+    /**
+     * Perform the given action if the object is not null
+     * 
+     * @param obj The object to check for null
+     * @param action The action to perform if object is not null
+     */
+    public static void performIfNotNull(Object obj, Action action) {
+        if(obj != null) {
             action.doIt();
         }
     }

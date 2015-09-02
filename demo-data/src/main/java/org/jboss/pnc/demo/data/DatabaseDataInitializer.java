@@ -144,8 +144,7 @@ public class DatabaseDataInitializer {
     @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
     public void initiliazeProjectProductData() {
 
-        Environment environment1 = createAndPersistDefultEnvironment();
-        Environment environment2 = createAndPersistDefultEnvironment();
+        Environment defaultEnvironment = createAndPersistDefaultEnvironment();
 
         /*
          * All the bi-directional mapping settings are managed inside the Builders
@@ -198,32 +197,32 @@ public class DatabaseDataInitializer {
 
         // Example build configurations
         buildConfiguration1 = BuildConfiguration.Builder.newBuilder().name(PNC_PROJECT_BUILD_CFG_ID).project(project1)
-                .description("Test build config for project newcastle").environment(environment1)
+                .description("Test build config for project newcastle").environment(defaultEnvironment)
                 .buildScript("mvn clean deploy -DskipTests=true").scmRepoURL("https://github.com/project-ncl/pnc.git")
                 .scmRevision("*/v0.2").build();
         buildConfiguration1 = buildConfigurationRepository.save(buildConfiguration1);
 
         buildConfiguration2 = BuildConfiguration.Builder.newBuilder().name("jboss-modules-1.5.0").project(project2)
-                .description("Test config for JBoss modules build master branch.").environment(environment2)
+                .description("Test config for JBoss modules build master branch.").environment(defaultEnvironment)
                 .buildScript("mvn clean deploy -DskipTests=true")
                 .scmRepoURL("https://github.com/jboss-modules/jboss-modules.git")
                 .scmRevision("9e7115771a791feaa5be23b1255416197f2cda38").build();
         buildConfiguration2 = buildConfigurationRepository.save(buildConfiguration2);
 
         BuildConfiguration buildConfiguration3 = BuildConfiguration.Builder.newBuilder().name("jboss-servlet-spec-api-1.0.1")
-                .project(project3).description("Test build for jboss java servlet api").environment(environment1)
+                .project(project3).description("Test build for jboss java servlet api").environment(defaultEnvironment)
                 .buildScript("mvn clean deploy -DskipTests=true")
                 .scmRepoURL("https://github.com/jboss/jboss-servlet-api_spec.git").dependency(buildConfiguration2).build();
         buildConfiguration3 = buildConfigurationRepository.save(buildConfiguration3);
 
         BuildConfiguration buildConfiguration4 = BuildConfiguration.Builder.newBuilder().name("io-fabric8-2.2-SNAPSHOT")
-                .project(project4).description("Test build for Fabric8").environment(environment1)
+                .project(project4).description("Test build for Fabric8").environment(defaultEnvironment)
                 .buildScript("mvn clean deploy -DskipTests=true").scmRepoURL("https://github.com/fabric8io/fabric8.git")
                 .build();
         buildConfiguration4 = buildConfigurationRepository.save(buildConfiguration4);
 
         BuildConfiguration buildConfiguration5 = BuildConfiguration.Builder.newBuilder().name("maven-plugin-test")
-                .project(project5).description("Test build for Plugins with external downloads").environment(environment1)
+                .project(project5).description("Test build for Plugins with external downloads").environment(defaultEnvironment)
                 .buildScript("mvn clean deploy").scmRepoURL("https://github.com/rnc/mvn-plugin-test.git")
                 .build();
         buildConfiguration5 = buildConfigurationRepository.save(buildConfiguration5);
@@ -272,11 +271,17 @@ public class DatabaseDataInitializer {
             int nextId = datastore.getNextBuildRecordId();
             log.info("####nextId: " + nextId);
 
-            BuildRecord buildRecord = BuildRecord.Builder.newBuilder().id(nextId).latestBuildConfiguration(buildConfiguration1)
-                    .buildConfigurationAudited(buildConfigAudited1).startTime(Timestamp.from(Instant.now()))
-                    .endTime(Timestamp.from(Instant.now())).builtArtifact(builtArtifact1).builtArtifact(builtArtifact2)
-                    .builtArtifact(importedArtifact1).builtArtifact(importedArtifact2).user(demoUser)
-                    .buildLog("Very short demo log: The quick brown fox jumps over the lazy dog.").status(BuildStatus.SUCCESS)
+            BuildRecord buildRecord = BuildRecord.Builder.newBuilder().id(nextId)
+                    .latestBuildConfiguration(buildConfiguration1)
+                    .buildConfigurationAudited(buildConfigAudited1)
+                    .submitTime(Timestamp.from(Instant.now()))
+                    .startTime(Timestamp.from(Instant.now()))
+                    .endTime(Timestamp.from(Instant.now()))
+                    .builtArtifact(builtArtifact1).builtArtifact(builtArtifact2)
+                    .builtArtifact(importedArtifact1).builtArtifact(importedArtifact2)
+                    .user(demoUser)
+                    .buildLog("Very short demo log: The quick brown fox jumps over the lazy dog.")
+                    .status(BuildStatus.SUCCESS)
                     .build();
 
             buildRecordRepository.save(buildRecord);
@@ -296,11 +301,18 @@ public class DatabaseDataInitializer {
             int nextId = datastore.getNextBuildRecordId();
             log.info("####nextId: " + nextId);
 
-            BuildRecord buildRecord = BuildRecord.Builder.newBuilder().id(nextId).latestBuildConfiguration(buildConfiguration2)
-                    .buildConfigurationAudited(buildConfigAudited2).startTime(Timestamp.from(Instant.now()))
-                    .endTime(Timestamp.from(Instant.now())).builtArtifact(builtArtifact3).builtArtifact(builtArtifact4)
-                    .user(demoUser).buildLog("Very short demo log: The quick brown fox jumps over the lazy dog.")
-                    .status(BuildStatus.SUCCESS).build();
+            BuildRecord buildRecord = BuildRecord.Builder.newBuilder().id(nextId)
+                    .latestBuildConfiguration(buildConfiguration2)
+                    .buildConfigurationAudited(buildConfigAudited2)
+                    .submitTime(Timestamp.from(Instant.now()))
+                    .startTime(Timestamp.from(Instant.now()))
+                    .endTime(Timestamp.from(Instant.now()))
+                    .builtArtifact(builtArtifact3)
+                    .builtArtifact(builtArtifact4)
+                    .user(demoUser)
+                    .buildLog("Very short demo log: The quick brown fox jumps over the lazy dog.")
+                    .status(BuildStatus.SUCCESS)
+                    .build();
 
             buildRecordRepository.save(buildRecord);
             buildRecords.add(buildRecord);
@@ -319,7 +331,7 @@ public class DatabaseDataInitializer {
         buildConfigSetRecordRepository.save(buildConfigSetRecord2);
     }
 
-    private Environment createAndPersistDefultEnvironment() {
+    private Environment createAndPersistDefaultEnvironment() {
         Environment environment = Environment.Builder.defaultEnvironment().build();
         return environmentRepository.save(environment);
     }
