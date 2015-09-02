@@ -23,7 +23,11 @@ import org.jboss.pnc.model.BuildStatus;
 import org.jboss.pnc.model.Environment;
 import org.jboss.pnc.model.ProductVersion;
 import org.jboss.pnc.model.Project;
+import org.jboss.pnc.rest.validation.groups.WhenCreatingNew;
+import org.jboss.pnc.rest.validation.groups.WhenUpdating;
 
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Null;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import java.util.Date;
@@ -36,8 +40,11 @@ import static org.jboss.pnc.rest.utils.Utility.performIfNotNull;
 @XmlRootElement(name = "Configuration")
 public class BuildConfigurationRest implements GenericRestEntity<Integer> {
 
+    @NotNull(groups = WhenUpdating.class)
+    @Null(groups = WhenCreatingNew.class)
     private Integer id;
 
+    @NotNull(groups = WhenCreatingNew.class)
     private String name;
 
     private String description;
@@ -57,6 +64,7 @@ public class BuildConfigurationRest implements GenericRestEntity<Integer> {
 
     private String repositories;
 
+    @NotNull(groups = WhenCreatingNew.class)
     private Integer projectId;
 
     private Integer environmentId;

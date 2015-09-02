@@ -20,7 +20,11 @@ package org.jboss.pnc.rest.restmodel;
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.ArtifactStatus;
 import org.jboss.pnc.model.RepositoryType;
+import org.jboss.pnc.rest.validation.groups.WhenCreatingNew;
+import org.jboss.pnc.rest.validation.groups.WhenUpdating;
 
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Null;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import static org.jboss.pnc.rest.utils.Utility.performIfNotNull;
@@ -28,6 +32,8 @@ import static org.jboss.pnc.rest.utils.Utility.performIfNotNull;
 @XmlRootElement(name = "Artifact")
 public class ArtifactRest implements GenericRestEntity<Integer> {
 
+    @NotNull(groups = WhenUpdating.class)
+    @Null(groups = WhenCreatingNew.class)
     private Integer id;
 
     private String identifier;

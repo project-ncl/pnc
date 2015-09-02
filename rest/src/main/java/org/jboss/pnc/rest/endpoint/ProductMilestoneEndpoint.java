@@ -21,15 +21,23 @@ import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
 import com.wordnik.swagger.annotations.ApiParam;
 import org.jboss.pnc.model.ProductMilestone;
-import org.jboss.pnc.rest.provider.ConflictedEntryException;
 import org.jboss.pnc.rest.provider.ProductMilestoneProvider;
 import org.jboss.pnc.rest.provider.ProjectProvider;
 import org.jboss.pnc.rest.restmodel.ProductMilestoneRest;
+import org.jboss.pnc.rest.validation.exceptions.ValidationException;
 
 import javax.inject.Inject;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-import javax.ws.rs.*;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DefaultValue;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -87,7 +95,7 @@ public class ProductMilestoneEndpoint extends AbstractEndpoint<ProductMilestone,
             response = ProductMilestoneRest.class)
     @POST
     public Response createNew(@NotNull @Valid ProductMilestoneRest productMilestoneRest, @Context UriInfo uriInfo)
-            throws ConflictedEntryException {
+            throws ValidationException {
         return super.createNew(productMilestoneRest, uriInfo);
     }
 
@@ -95,8 +103,7 @@ public class ProductMilestoneEndpoint extends AbstractEndpoint<ProductMilestone,
     @PUT
     @Path("/{id}")
     public Response update(@ApiParam(value = "Product Milestone id", required = true) @PathParam("id") Integer id,
-            @NotNull @Valid ProductMilestoneRest productMilestoneRest, @Context UriInfo uriInfo)
-            throws ConflictedEntryException {
+            @NotNull @Valid ProductMilestoneRest productMilestoneRest, @Context UriInfo uriInfo) throws ValidationException {
         return super.update(id, productMilestoneRest);
     }
 

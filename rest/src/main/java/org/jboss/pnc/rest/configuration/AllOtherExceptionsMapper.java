@@ -17,15 +17,24 @@
  */
 package org.jboss.pnc.rest.configuration;
 
+import org.jboss.pnc.rest.restmodel.response.error.ErrorResponseRest;
+import org.jboss.pnc.rest.restmodel.response.error.GenericResponseDetails;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
+import java.lang.invoke.MethodHandles;
 
 @Provider
-public class IllegalArgumentExceptionMapper implements ExceptionMapper<IllegalArgumentException> {
+public class AllOtherExceptionsMapper implements ExceptionMapper<Exception> {
+
+    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
     @Override
-    public Response toResponse(IllegalArgumentException e) {
-        return Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build();
+    public Response toResponse(Exception e) {
+        logger.error("An exception occurred when processing REST response", e);
+        return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponseRest(new GenericResponseDetails(e))).build();
     }
 }

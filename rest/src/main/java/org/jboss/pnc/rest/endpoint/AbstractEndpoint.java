@@ -20,11 +20,11 @@ package org.jboss.pnc.rest.endpoint;
 
 import org.jboss.pnc.model.GenericEntity;
 import org.jboss.pnc.rest.provider.AbstractProvider;
-import org.jboss.pnc.rest.provider.ConflictedEntryException;
 import org.jboss.pnc.rest.provider.collection.CollectionInfo;
 import org.jboss.pnc.rest.restmodel.GenericRestEntity;
 import org.jboss.pnc.rest.restmodel.response.Page;
 import org.jboss.pnc.rest.restmodel.response.Singleton;
+import org.jboss.pnc.rest.validation.exceptions.ValidationException;
 
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
@@ -55,18 +55,18 @@ public class AbstractEndpoint<DBEntity extends GenericEntity<Integer>, RESTEntit
         return fromSingleton(basicProvider.getSpecific(id));
     }
 
-    public Response createNew(RESTEntity restEntity, UriInfo uriInfo) throws ConflictedEntryException {
+    public Response createNew(RESTEntity restEntity, UriInfo uriInfo) throws ValidationException {
         int id = basicProvider.store(restEntity);
         UriBuilder uriBuilder = UriBuilder.fromUri(uriInfo.getRequestUri()).path("{id}");
         return Response.created(uriBuilder.build(id)).entity(basicProvider.getSpecific(id)).build();
     }
 
-    public Response update(Integer id, RESTEntity restEntity) throws ConflictedEntryException {
+    public Response update(Integer id, RESTEntity restEntity) throws ValidationException {
         basicProvider.update(id, restEntity);
         return Response.ok().build();
     }
 
-    protected Response delete(Integer id) {
+    protected Response delete(Integer id) throws ValidationException {
         basicProvider.delete(id);
         return Response.ok().build();
     }

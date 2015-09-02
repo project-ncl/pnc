@@ -18,12 +18,16 @@
 
 package org.jboss.pnc.rest.provider;
 
-import com.google.common.base.Preconditions;
 import com.google.common.collect.ObjectArrays;
 import org.jboss.pnc.model.GenericEntity;
 import org.jboss.pnc.rest.provider.collection.CollectionInfo;
 import org.jboss.pnc.rest.provider.collection.CollectionInfoCollector;
 import org.jboss.pnc.rest.restmodel.GenericRestEntity;
+import org.jboss.pnc.rest.validation.ValidationBuilder;
+import org.jboss.pnc.rest.validation.exceptions.ValidationException;
+import org.jboss.pnc.rest.validation.groups.WhenCreatingNew;
+import org.jboss.pnc.rest.validation.groups.WhenDeleting;
+import org.jboss.pnc.rest.validation.groups.WhenUpdating;
 import org.jboss.pnc.spi.datastore.repositories.PageInfoProducer;
 import org.jboss.pnc.spi.datastore.repositories.SortInfoProducer;
 import org.jboss.pnc.spi.datastore.repositories.api.PageInfo;
@@ -76,7 +80,7 @@ public abstract class AbstractProvider<DBEntity extends GenericEntity<Integer>, 
         SortInfo sortInfo = sortInfoProducer.getSortInfo(sortingRsql);
 
         List<DBEntity> collection;
-        int totalPages = 1;
+        int totalPages;
         if(predicates == null) {
             collection = repository.queryWithPredicates(pageInfo, sortInfo, rsqlPredicate);
             totalPages = (repository.count(rsqlPredicate) + pageSize - 1) / pageSize;
@@ -98,36 +102,37 @@ public abstract class AbstractProvider<DBEntity extends GenericEntity<Integer>, 
         return null;
     }
 
-    public Integer store(RESTEntity licenseRest) throws ConflictedEntryException {
+    public Integer store(RESTEntity licenseRest) throws ValidationException {
         validateBeforeSaving(licenseRest);
         return repository.save(toDBModelModel().apply(licenseRest)).getId();
     }
 
-    public void update(Integer id, RESTEntity licenseRest) throws ConflictedEntryException {
-        validateBeforeUpdating(id, licenseRest);
-        DBEntity license = repository.queryById(id);
-        Preconditions.checkArgument(license != null, "Couldn't find entity with id " + id);
+    public void update(Integer id, RESTEntity licenseRest) throws ValidationException {
         licenseRest.setId(id);
+        validateBeforeUpdating(id, licenseRest);
         repository.save(toDBModelModel().apply(licenseRest));
     }
 
-    public void delete(Integer id) {
+    public void delete(Integer id) throws ValidationException {
         validateBeforeDeleting(id);
         repository.delete(id);
     }
 
-    protected void validateBeforeUpdating(Integer id, RESTEntity restEntity) throws ConflictedEntryException {
-        Preconditions.checkArgument(id != null, "Id must not be null");
-        Preconditions.checkArgument(restEntity.getId() == null || restEntity.getId().equals(id),
-                "Entity id does not match the id to update");
+    protected void validateBeforeUpdating(Integer id, RESTEntity restEntity) throws ValidationException {
+        ValidationBuilder.validateObject(restEntity, WhenUpdating.class)
+                .validateAnnotations()
+                .validateAgainstRepository(repository, id, true);
     }
 
-    protected void validateBeforeSaving(RESTEntity restEntity) throws ConflictedEntryException {
-        Preconditions.checkArgument(restEntity.getId() == null, "Id must be null");
+    protected void validateBeforeSaving(RESTEntity restEntity) throws ValidationException {
+        ValidationBuilder.validateObject(restEntity, WhenCreatingNew.class)
+                .validateAnnotations();
     }
 
-    protected void validateBeforeDeleting(Integer id) {
-        Preconditions.checkArgument(repository.queryById(id) != null, "Couldn't find entity with id " + id);
+    protected void validateBeforeDeleting(Integer id) throws ValidationException {
+        ValidationBuilder.validateObject(WhenDeleting.class)
+                .validateAgainstRepository(repository, id, true)
+                .validateAnnotations();
     }
 
     protected abstract Function<? super DBEntity, ? extends RESTEntity> toRESTModel();

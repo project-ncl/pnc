@@ -138,7 +138,7 @@ public class BuildRecordSetsTest {
 
     @Test
     @InSequence(5)
-    public void shouldNotCascadeDeletionOfBuildRecordSet() {
+    public void shouldNotCascadeDeletionOfBuildRecordSet() throws Exception {
         // when
         int buildRecordCount = buildRecordRepository.count();
         int productMilestoneCount = productMilestoneRepository.count();

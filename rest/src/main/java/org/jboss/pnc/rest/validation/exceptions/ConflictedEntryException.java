@@ -15,11 +15,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.rest.provider;
+package org.jboss.pnc.rest.validation.exceptions;
 
 import org.jboss.pnc.model.GenericEntity;
+import org.jboss.pnc.rest.validation.exceptions.model.ConflictedEntryDetailsRest;
 
-public class ConflictedEntryException extends Exception {
+public class ConflictedEntryException extends ValidationException {
 
     private final Integer conflictedRecordId;
     private final Class<? extends GenericEntity<?>> conflictedEntity;
@@ -36,5 +37,10 @@ public class ConflictedEntryException extends Exception {
 
     public Class<? extends GenericEntity<?>> getConflictedEntity() {
         return conflictedEntity;
+    }
+
+    @Override
+    public ConflictedEntryDetailsRest getRestModelForException() {
+        return new ConflictedEntryDetailsRest(this);
     }
 }
