@@ -2,12 +2,14 @@
     "kind": "Pod",
     "apiVersion": "v1",
     "metadata": {
-        "generateName": "pnc-build-agent-"
+        "name" : "${pod-name}",
+        "labels" :
+            {"pnc-build-agent-pod" : "${pod-name}"}
     },
     "spec": {
         "containers": [
             {
-                "name": "pnc-build-agent",
+                "name": "pnc-build-agent-container",
                 "image": "${image}",
                 "ports": [
                   {
@@ -48,7 +50,7 @@
             }
         ],
         "restartPolicy": "Never",
-        "activeDeadlineSeconds": 90,
+        "activeDeadlineSeconds": 10800,
         "dnsPolicy": "Default"
     }
 }

@@ -59,7 +59,7 @@ public class OpenshiftEnvironmentDriverModuleConfig extends EnvironmentDriverMod
         return restEndpointUrl;
     }
 
-    public String getPodNamespace() {
+    public String getPncNamespace() {
         return podNamespace;
     }
 

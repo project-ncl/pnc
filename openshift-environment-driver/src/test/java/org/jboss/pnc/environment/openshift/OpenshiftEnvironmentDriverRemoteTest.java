@@ -25,6 +25,7 @@ import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.moduleconfig.OpenshiftEnvironmentDriverModuleConfig;
 import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
 import org.jboss.pnc.common.monitor.PullingMonitor;
+import org.jboss.pnc.common.util.ObjectWrapper;
 import org.jboss.pnc.model.BuildType;
 import org.jboss.pnc.model.Environment;
 import org.jboss.pnc.model.OperationalSystem;
@@ -56,6 +57,7 @@ import java.lang.invoke.MethodHandles;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
@@ -75,7 +77,7 @@ public class OpenshiftEnvironmentDriverRemoteTest {
 
     private static final RepositorySession DUMMY_REPOSITORY_CONFIGURATION = new DummyRepositoryConfiguration();
 
-    private static final int TEST_EXECUTION_TIMEOUT = 100;
+    private static final int TEST_EXECUTION_TIMEOUT = 30;
 
     private final String pingUrl = "/";
 
@@ -93,14 +95,10 @@ public class OpenshiftEnvironmentDriverRemoteTest {
         environmentDriver = new OpenshiftEnvironmentDriver(configurationService, new PullingMonitor());
     }
 
-//    @Before
-//    public void bootstrap() throws Exception {
-//
-//    }
-
     @Test
     public void createAndDestroyEnvironment() throws EnvironmentDriverException, InterruptedException {
         final Semaphore mutex = new Semaphore(0);
+        ObjectWrapper<Throwable> exceptionWrapper = new ObjectWrapper<>();
 
         // Create container
         final Environment environment = new Environment(BuildType.JAVA, OperationalSystem.LINUX);
@@ -112,30 +110,41 @@ public class OpenshiftEnvironmentDriverRemoteTest {
                 assertThatContainerIsRunning(runningEnvironment);
 
                 // Destroy container
+                logger.info("Trying to destroy environment.");
                 runningEnvironment.destroyEnvironment();
                 containerDestroyed = true;
                 assertThatContainerIsNotRunning(runningEnvironment);
                 mutex.release();
             } catch (Throwable e) {
-                fail(e.getMessage());
+                exceptionWrapper.set(e);
             } finally {
                 if (!containerDestroyed) {
                     destroyEnvironmentWithReport(runningEnvironment);
                 }
             }
+            mutex.release();
         };
 
         Consumer<Exception> onError = (e) -> {
             try {
+                logger.info("Trying to destroy environment due to an error.", e);
                 startedEnv.destroyEnvironment();
+                mutex.release();
             } catch (EnvironmentDriverException e1) {
                 logger.error("Environment LEAK! The running environment was not destroyed. ID: " + startedEnv.getId(), e1);
             }
-            fail("Failed to init builder container. " + e.getMessage());
+            fail("Failed to init builder. " + e.getMessage());
         };
 
         startedEnv.monitorInitialization(onEnvironmentStarted, onError);
         boolean completed = mutex.tryAcquire(TEST_EXECUTION_TIMEOUT, TimeUnit.SECONDS);
+
+        Throwable exception = exceptionWrapper.get();
+        if (exception != null) {
+            logger.error("", exception);
+            fail(exception.getMessage());
+        }
+
         assertTrue("timeout reached, test has not complete.", completed);
 
     }
@@ -158,7 +167,7 @@ public class OpenshiftEnvironmentDriverRemoteTest {
     private HttpURLConnection connectToPingUrl(RunningEnvironment runningEnvironment) throws IOException {
         URL url = new URL(runningEnvironment.getJenkinsUrl() + ":" + runningEnvironment.getJenkinsPort() + pingUrl);
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-        connection.setConnectTimeout(3000);
+        connection.setConnectTimeout(1000);
         connection.setRequestMethod("GET");
         connection.setDoOutput(true);
         connection.setDoInput(true);
@@ -168,6 +177,7 @@ public class OpenshiftEnvironmentDriverRemoteTest {
 
     private void destroyEnvironmentWithReport(RunningEnvironment runningEnvironment) {
         try {
+            logger.info("Trying to destroy environment!");
             runningEnvironment.destroyEnvironment();
         } catch (Exception e) {
             logger.error("Environment LEAK! The running environment was not removed stopped. ID: " + runningEnvironment.getId());

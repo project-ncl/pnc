@@ -18,6 +18,7 @@
 package org.jboss.pnc.common.util;
 
 import java.util.Random;
+import java.util.UUID;
 
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2015-01-06.
@@ -45,5 +46,20 @@ public class RandomUtils {
         int randomNum = rand.nextInt((max - min) + 1) + min;
 
         return randomNum;
+    }
+
+    public static String randString(int len) {
+        if (len < 1) {
+            return "";
+        }
+        String uuid = UUID.randomUUID().toString();
+        if (len > uuid.length()) {
+            int newLen = len - uuid.length();
+            if (newLen < 0) {
+                newLen = 0;
+            }
+            uuid += randString(newLen);
+        }
+        return uuid.substring(0, len);
     }
 }
