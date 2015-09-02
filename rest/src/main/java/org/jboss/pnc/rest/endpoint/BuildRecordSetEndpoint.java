@@ -22,13 +22,22 @@ import com.wordnik.swagger.annotations.ApiOperation;
 import com.wordnik.swagger.annotations.ApiParam;
 import org.jboss.pnc.model.BuildRecordSet;
 import org.jboss.pnc.rest.provider.BuildRecordSetProvider;
-import org.jboss.pnc.rest.provider.ConflictedEntryException;
 import org.jboss.pnc.rest.restmodel.BuildRecordSetRest;
+import org.jboss.pnc.rest.validation.exceptions.ValidationException;
 
 import javax.inject.Inject;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-import javax.ws.rs.*;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.DefaultValue;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -98,7 +107,7 @@ public class BuildRecordSetEndpoint extends AbstractEndpoint<BuildRecordSet, Bui
     @ApiOperation(value = "Creates a new BuildRecordSet", response = BuildRecordSetRest.class)
     @POST
     public Response createNew(@NotNull @Valid BuildRecordSetRest buildRecordSetRest, @Context UriInfo uriInfo)
-            throws ConflictedEntryException {
+            throws ValidationException {
         return super.createNew(buildRecordSetRest, uriInfo);
     }
 
@@ -106,14 +115,15 @@ public class BuildRecordSetEndpoint extends AbstractEndpoint<BuildRecordSet, Bui
     @PUT
     @Path("/{id}")
     public Response update(@ApiParam(value = "BuildRecordSet id", required = true) @PathParam("id") Integer id,
-            @NotNull @Valid BuildRecordSetRest buildRecordSetRest) throws ConflictedEntryException {
+            @NotNull @Valid BuildRecordSetRest buildRecordSetRest) throws ValidationException {
         return super.update(id, buildRecordSetRest);
     }
 
     @ApiOperation(value = "Deletes a specific BuildRecordSet")
     @DELETE
     @Path("/{id}")
-    public Response deleteSpecific(@ApiParam(value = "BuildRecordSet id", required = true) @PathParam("id") Integer id) {
+    public Response deleteSpecific(@ApiParam(value = "BuildRecordSet id", required = true) @PathParam("id") Integer id)
+            throws ValidationException {
         return super.delete(id);
     }
 

@@ -22,15 +22,23 @@ import com.wordnik.swagger.annotations.ApiOperation;
 import com.wordnik.swagger.annotations.ApiParam;
 import org.jboss.pnc.model.ProductVersion;
 import org.jboss.pnc.rest.provider.BuildConfigurationSetProvider;
-import org.jboss.pnc.rest.provider.ConflictedEntryException;
 import org.jboss.pnc.rest.provider.ProductVersionProvider;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationSetRest;
 import org.jboss.pnc.rest.restmodel.ProductVersionRest;
+import org.jboss.pnc.rest.validation.exceptions.ValidationException;
 
 import javax.inject.Inject;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-import javax.ws.rs.*;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DefaultValue;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -77,7 +85,7 @@ public class ProductVersionEndpoint extends AbstractEndpoint<ProductVersion, Pro
     @PUT
     @Path("/{id}")
     public Response update(@ApiParam(value = "Product Version id", required = true) @PathParam("id") Integer id,
-            @NotNull @Valid ProductVersionRest productVersionRest) throws ConflictedEntryException {
+            @NotNull @Valid ProductVersionRest productVersionRest) throws ValidationException {
         return super.update(id, productVersionRest);
     }
 
@@ -98,7 +106,7 @@ public class ProductVersionEndpoint extends AbstractEndpoint<ProductVersion, Pro
     @ApiOperation(value = "Create a new ProductVersion for a Product", response = ProductVersionRest.class)
     @POST
     public Response createNewProductVersion(@NotNull @Valid ProductVersionRest productVersionRest, @Context UriInfo uriInfo)
-            throws ConflictedEntryException {
+            throws ValidationException {
         return super.createNew(productVersionRest, uriInfo);
     }
 

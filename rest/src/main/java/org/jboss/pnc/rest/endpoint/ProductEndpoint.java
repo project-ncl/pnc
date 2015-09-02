@@ -21,16 +21,24 @@ import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
 import com.wordnik.swagger.annotations.ApiParam;
 import org.jboss.pnc.model.Product;
-import org.jboss.pnc.rest.provider.ConflictedEntryException;
 import org.jboss.pnc.rest.provider.ProductProvider;
 import org.jboss.pnc.rest.provider.ProductVersionProvider;
 import org.jboss.pnc.rest.restmodel.ProductRest;
 import org.jboss.pnc.rest.restmodel.ProductVersionRest;
+import org.jboss.pnc.rest.validation.exceptions.ValidationException;
 
 import javax.inject.Inject;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-import javax.ws.rs.*;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DefaultValue;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -71,7 +79,7 @@ public class ProductEndpoint extends AbstractEndpoint<Product, ProductRest> {
 
     @ApiOperation(value = "Creates a new Product", response = ProductRest.class)
     @POST
-    public Response createNew(@NotNull @Valid ProductRest productRest, @Context UriInfo uriInfo) throws ConflictedEntryException {
+    public Response createNew(@NotNull @Valid ProductRest productRest, @Context UriInfo uriInfo) throws ValidationException {
         return super.createNew(productRest, uriInfo);
     }
 
@@ -79,7 +87,7 @@ public class ProductEndpoint extends AbstractEndpoint<Product, ProductRest> {
     @PUT
     @Path("/{id}")
     public Response update(@ApiParam(value = "Product id", required = true) @PathParam("id") Integer productId,
-            @NotNull @Valid ProductRest productRest, @Context UriInfo uriInfo) throws ConflictedEntryException {
+            @NotNull @Valid ProductRest productRest, @Context UriInfo uriInfo) throws ValidationException {
         return super.update(productId, productRest);
     }
 

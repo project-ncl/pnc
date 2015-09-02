@@ -21,15 +21,27 @@ import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
 import com.wordnik.swagger.annotations.ApiParam;
 import org.jboss.pnc.model.Project;
-import org.jboss.pnc.rest.provider.ConflictedEntryException;
 import org.jboss.pnc.rest.provider.ProjectProvider;
 import org.jboss.pnc.rest.restmodel.ProjectRest;
+import org.jboss.pnc.rest.validation.exceptions.ValidationException;
 
 import javax.inject.Inject;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-import javax.ws.rs.*;
-import javax.ws.rs.core.*;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.DefaultValue;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
 
 @Api(value = "/projects", description = "Project related information")
 @Path("/projects")
@@ -63,8 +75,7 @@ public class ProjectEndpoint extends AbstractEndpoint<Project, ProjectRest> {
 
     @ApiOperation(value = "Creates a new Project", response = ProjectRest.class)
     @POST
-    public Response createNew(@NotNull @Valid ProjectRest projectRest, @Context UriInfo uriInfo)
-            throws ConflictedEntryException {
+    public Response createNew(@NotNull @Valid ProjectRest projectRest, @Context UriInfo uriInfo) throws ValidationException {
         return super.createNew(projectRest, uriInfo);
     }
 
@@ -72,14 +83,15 @@ public class ProjectEndpoint extends AbstractEndpoint<Project, ProjectRest> {
     @PUT
     @Path("/{id}")
     public Response update(@ApiParam(value = "Project id", required = true) @PathParam("id") Integer id,
-            @NotNull @Valid ProjectRest projectRest, @Context UriInfo uriInfo) throws ConflictedEntryException {
+            @NotNull @Valid ProjectRest projectRest, @Context UriInfo uriInfo) throws ValidationException {
         return super.update(id, projectRest);
     }
 
     @ApiOperation(value = "Removes a specific project and associated build configurations")
     @DELETE
     @Path("/{id}")
-    public Response deleteSpecific(@ApiParam(value = "Project id", required = true) @PathParam("id") Integer id) {
+    public Response deleteSpecific(@ApiParam(value = "Project id", required = true) @PathParam("id") Integer id)
+            throws ValidationException {
         return super.delete(id);
     }
 

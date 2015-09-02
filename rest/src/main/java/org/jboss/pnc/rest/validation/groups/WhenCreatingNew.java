@@ -15,20 +15,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.rest.configuration;
 
-import org.jboss.pnc.rest.provider.ConflictedEntryException;
-import org.jboss.pnc.rest.restmodel.ErrorResponseRest;
+package org.jboss.pnc.rest.validation.groups;
 
-import javax.ws.rs.core.Response;
-import javax.ws.rs.ext.ExceptionMapper;
-import javax.ws.rs.ext.Provider;
-
-@Provider
-public class ConflictedEntryExceptionMapper implements ExceptionMapper<ConflictedEntryException> {
-
-    @Override
-    public Response toResponse(ConflictedEntryException e) {
-        return Response.status(Response.Status.CONFLICT).entity(new ErrorResponseRest(e)).build();
-    }
+/**
+ * Marker interface for creating new entity.
+ *
+ * @author Sebastian Laskawiec
+ */
+public interface WhenCreatingNew extends ValidationGroup {
 }

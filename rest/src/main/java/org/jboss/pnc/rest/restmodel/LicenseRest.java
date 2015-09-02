@@ -19,7 +19,11 @@ package org.jboss.pnc.rest.restmodel;
 
 import org.jboss.pnc.model.License;
 import org.jboss.pnc.model.Project;
+import org.jboss.pnc.rest.validation.groups.WhenCreatingNew;
+import org.jboss.pnc.rest.validation.groups.WhenUpdating;
 
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Null;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -29,6 +33,8 @@ import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
 @XmlRootElement(name = "License")
 public class LicenseRest implements GenericRestEntity<Integer> {
 
+    @NotNull(groups = WhenUpdating.class)
+    @Null(groups = WhenCreatingNew.class)
     private Integer id;
 
     private String fullName;

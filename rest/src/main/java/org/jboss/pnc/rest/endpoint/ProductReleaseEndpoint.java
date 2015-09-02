@@ -22,15 +22,23 @@ import com.wordnik.swagger.annotations.ApiOperation;
 import com.wordnik.swagger.annotations.ApiParam;
 import org.jboss.pnc.model.ProductRelease;
 import org.jboss.pnc.model.ProductRelease.SupportLevel;
-import org.jboss.pnc.rest.provider.ConflictedEntryException;
 import org.jboss.pnc.rest.provider.ProductReleaseProvider;
 import org.jboss.pnc.rest.provider.collection.CollectionInfo;
 import org.jboss.pnc.rest.restmodel.ProductReleaseRest;
+import org.jboss.pnc.rest.validation.exceptions.ValidationException;
 
 import javax.inject.Inject;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-import javax.ws.rs.*;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DefaultValue;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -87,7 +95,7 @@ public class ProductReleaseEndpoint extends AbstractEndpoint<ProductRelease, Pro
     @ApiOperation(value = "Creates a new Product Release", response = ProductReleaseRest.class)
     @POST
     public Response createNew(
-            @NotNull @Valid ProductReleaseRest productReleaseRest, @Context UriInfo uriInfo) throws ConflictedEntryException {
+            @NotNull @Valid ProductReleaseRest productReleaseRest, @Context UriInfo uriInfo) throws ValidationException {
         return super.createNew(productReleaseRest, uriInfo);
     }
 
@@ -95,7 +103,7 @@ public class ProductReleaseEndpoint extends AbstractEndpoint<ProductRelease, Pro
     @PUT
     @Path("/{id}")
     public Response update(@ApiParam(value = "Product Release id", required = true) @PathParam("id") Integer id,
-            @NotNull @Valid ProductReleaseRest productReleaseRest, @Context UriInfo uriInfo) throws ConflictedEntryException {
+            @NotNull @Valid ProductReleaseRest productReleaseRest, @Context UriInfo uriInfo) throws ValidationException {
         return super.update(id, productReleaseRest);
     }
 

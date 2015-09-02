@@ -21,14 +21,23 @@ import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
 import com.wordnik.swagger.annotations.ApiParam;
 import org.jboss.pnc.model.License;
-import org.jboss.pnc.rest.provider.ConflictedEntryException;
 import org.jboss.pnc.rest.provider.LicenseProvider;
 import org.jboss.pnc.rest.restmodel.LicenseRest;
+import org.jboss.pnc.rest.validation.exceptions.ValidationException;
 
 import javax.inject.Inject;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-import javax.ws.rs.*;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.DefaultValue;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -66,8 +75,7 @@ public class LicenseEndpoint extends AbstractEndpoint<License, LicenseRest> {
 
     @ApiOperation(value = "Creates a new License", response = LicenseRest.class)
     @POST
-    public Response createNew(@NotNull @Valid LicenseRest licenseRest, @Context UriInfo uriInfo)
-            throws ConflictedEntryException {
+    public Response createNew(@NotNull @Valid LicenseRest licenseRest, @Context UriInfo uriInfo) throws ValidationException {
         return super.createNew(licenseRest, uriInfo);
     }
 
@@ -75,14 +83,15 @@ public class LicenseEndpoint extends AbstractEndpoint<License, LicenseRest> {
     @PUT
     @Path("/{id}")
     public Response update(@ApiParam(value = "License id", required = true) @PathParam("id") Integer licenseId,
-            @NotNull @Valid LicenseRest licenseRest) throws ConflictedEntryException {
+            @NotNull @Valid LicenseRest licenseRest) throws ValidationException {
         return super.update(licenseId, licenseRest);
     }
 
     @ApiOperation(value = "Deletes an existing License")
     @DELETE
     @Path("/{id}")
-    public Response delete(@ApiParam(value = "License id", required = true) @PathParam("id") Integer id) {
+    public Response delete(@ApiParam(value = "License id", required = true) @PathParam("id") Integer id)
+            throws ValidationException {
         return super.delete(id);
     }
 }

@@ -26,13 +26,13 @@ import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.rest.provider.BuildConfigurationProvider;
 import org.jboss.pnc.rest.provider.BuildRecordProvider;
-import org.jboss.pnc.rest.provider.ConflictedEntryException;
 import org.jboss.pnc.rest.provider.ProductVersionProvider;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationAuditedRest;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationRest;
 import org.jboss.pnc.rest.restmodel.BuildRecordRest;
 import org.jboss.pnc.rest.restmodel.ProductVersionRest;
 import org.jboss.pnc.rest.trigger.BuildTriggerer;
+import org.jboss.pnc.rest.validation.exceptions.ValidationException;
 import org.jboss.pnc.spi.datastore.Datastore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,8 +41,21 @@ import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-import javax.ws.rs.*;
-import javax.ws.rs.core.*;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.DefaultValue;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriBuilder;
+import javax.ws.rs.core.UriInfo;
 import java.lang.invoke.MethodHandles;
 import java.net.URI;
 import java.net.URL;
@@ -91,7 +104,8 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
 
     @ApiOperation(value = "Creates a new Build Configuration", response = BuildConfigurationRest.class)
     @POST
-    public Response createNew(@NotNull @Valid BuildConfigurationRest buildConfigurationRest, @Context UriInfo uriInfo) throws ConflictedEntryException {
+    public Response createNew(@NotNull @Valid BuildConfigurationRest buildConfigurationRest, @Context UriInfo uriInfo)
+            throws ValidationException {
         return super.createNew(buildConfigurationRest, uriInfo);
     }
 
@@ -107,14 +121,15 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
     @PUT
     @Path("/{id}")
     public Response update(@ApiParam(value = "Build Configuration id", required = true) @PathParam("id") Integer id,
-            @NotNull @Valid BuildConfigurationRest buildConfigurationRest) throws ConflictedEntryException {
+            @NotNull @Valid BuildConfigurationRest buildConfigurationRest) throws ValidationException {
         return super.update(id, buildConfigurationRest);
     }
 
     @ApiOperation(value = "Removes a specific Build Configuration")
     @DELETE
     @Path("/{id}")
-    public Response deleteSpecific(@ApiParam(value = "Build Configuration id", required = true) @PathParam("id") Integer id) {
+    public Response deleteSpecific(@ApiParam(value = "Build Configuration id", required = true) @PathParam("id") Integer id)
+            throws ValidationException {
         return super.delete(id);
     }
 
@@ -122,7 +137,7 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
     @POST
     @Path("/{id}/clone")
     public Response clone(@ApiParam(value = "Build Configuration id", required = true) @PathParam("id") Integer id,
-            @Context UriInfo uriInfo) {
+            @Context UriInfo uriInfo) throws ValidationException {
         UriBuilder uriBuilder = UriBuilder.fromUri(uriInfo.getBaseUri()).path("/build-configurations/{id}");
         int newId = buildConfigurationProvider.clone(id);
         return Response.created(uriBuilder.build(newId)).entity(buildConfigurationProvider.getSpecific(newId)).build();
@@ -225,7 +240,7 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
     @POST
     @Path("/{id}/dependencies")
     public Response addDependency(@ApiParam(value = "Build Configuration id", required = true) @PathParam("id") Integer id,
-            BuildConfigurationRest dependency) {
+            BuildConfigurationRest dependency) throws ValidationException {
         buildConfigurationProvider.addDependency(id, dependency.getId());
         return fromEmpty();
     }

@@ -15,31 +15,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.rest.restmodel;
 
-import org.jboss.pnc.rest.provider.ConflictedEntryException;
+package org.jboss.pnc.rest.restmodel.response.error;
 
 import javax.xml.bind.annotation.XmlType;
 
 @XmlType
-public class ErrorResponseDetailsRest {
+public class GenericResponseDetails implements ErrorResponseDetails {
 
-    private String conflictedRecordId;
-    private String conflictedEntity;
+    private Exception exception;
 
-    public ErrorResponseDetailsRest() {
+    public GenericResponseDetails() {
     }
 
-    public ErrorResponseDetailsRest(ConflictedEntryException conflictedEntryException) {
-        this.conflictedEntity = conflictedEntryException.getConflictedEntity().getSimpleName();
-        this.conflictedRecordId = conflictedEntryException.getConflictedRecordId().toString();
+    public GenericResponseDetails(Exception e) {
+        this.exception = e;
     }
 
-    public String getConflictedRecordId() {
-        return conflictedRecordId;
+    @Override
+    public String getErrorType() {
+        return exception.getClass().getSimpleName();
     }
 
-    public String getConflictedEntity() {
-        return conflictedEntity;
+    @Override
+    public String getMessage() {
+        return exception.getMessage();
     }
 }

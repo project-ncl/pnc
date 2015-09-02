@@ -21,14 +21,23 @@ import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
 import com.wordnik.swagger.annotations.ApiParam;
 import org.jboss.pnc.model.Environment;
-import org.jboss.pnc.rest.provider.ConflictedEntryException;
 import org.jboss.pnc.rest.provider.EnvironmentProvider;
 import org.jboss.pnc.rest.restmodel.EnvironmentRest;
+import org.jboss.pnc.rest.validation.exceptions.ValidationException;
 
 import javax.inject.Inject;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-import javax.ws.rs.*;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.DefaultValue;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -67,7 +76,7 @@ public class EnvironmentEndpoint extends AbstractEndpoint<Environment, Environme
     @ApiOperation(value = "Creates a new Environment", response = EnvironmentRest.class)
     @POST
     public Response createNew(@NotNull @Valid EnvironmentRest environmentRest, @Context UriInfo uriInfo)
-            throws ConflictedEntryException {
+            throws ValidationException {
         return super.createNew(environmentRest, uriInfo);
     }
 
@@ -75,14 +84,15 @@ public class EnvironmentEndpoint extends AbstractEndpoint<Environment, Environme
     @PUT
     @Path("/{id}")
     public Response update(@ApiParam(value = "Environment id", required = true) @PathParam("id") Integer environmentId,
-            @NotNull @Valid EnvironmentRest environmentRest, @Context UriInfo uriInfo) throws ConflictedEntryException {
+            @NotNull @Valid EnvironmentRest environmentRest, @Context UriInfo uriInfo) throws ValidationException {
         return super.update(environmentId, environmentRest);
     }
 
     @ApiOperation(value = "Deletes an existing Environment")
     @DELETE
     @Path("/{id}")
-    public Response delete(@ApiParam(value = "Environment id", required = true) @PathParam("id") Integer id) {
+    public Response delete(@ApiParam(value = "Environment id", required = true) @PathParam("id") Integer id)
+            throws ValidationException {
         return super.delete(id);
     }
 }

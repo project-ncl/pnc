@@ -15,9 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.rest.restmodel;
-
-import org.jboss.pnc.rest.provider.ConflictedEntryException;
+package org.jboss.pnc.rest.restmodel.response.error;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
@@ -26,22 +24,22 @@ public class ErrorResponseRest {
 
     private String errorType;
     private String errorMessage;
-    private ErrorResponseDetailsRest details;
+    private ErrorResponseDetails details;
 
     public ErrorResponseRest() {
     }
 
-    public ErrorResponseRest(ConflictedEntryException e) {
-        this.errorType = e.getClass().getSimpleName();
+    public ErrorResponseRest(ErrorResponseDetails e) {
+        this.errorType = e.getErrorType();
         this.errorMessage = e.getMessage();
-        this.details = new ErrorResponseDetailsRest(e);
+        this.details = e;
     }
 
     public String getErrorType() {
         return errorType;
     }
 
-    public ErrorResponseDetailsRest getDetails() {
+    public ErrorResponseDetails getDetails() {
         return details;
     }
 

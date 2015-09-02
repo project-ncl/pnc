@@ -21,6 +21,8 @@ import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.rest.provider.collection.CollectionInfo;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationSetRest;
+import org.jboss.pnc.rest.validation.exceptions.ConflictedEntryException;
+import org.jboss.pnc.rest.validation.exceptions.ValidationException;
 import org.jboss.pnc.spi.datastore.predicates.BuildConfigurationSetPredicates;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationSetRepository;
@@ -52,7 +54,7 @@ public class BuildConfigurationSetProvider extends AbstractProvider<BuildConfigu
     }
 
     @Override
-    protected void validateBeforeSaving(BuildConfigurationSetRest buildConfigurationSetRest) throws ConflictedEntryException {
+    protected void validateBeforeSaving(BuildConfigurationSetRest buildConfigurationSetRest) throws ValidationException {
         BuildConfigurationSet buildConfigurationSetFromDB = repository
                 .queryByPredicates(withName(buildConfigurationSetRest.getName()));
         if (buildConfigurationSetFromDB != null) {
@@ -98,8 +100,8 @@ public class BuildConfigurationSetProvider extends AbstractProvider<BuildConfigu
 
     public CollectionInfo<BuildConfigurationSetRest> getAllForProductVersion(int pageIndex, int pageSize, String sortingRsql,
             String rsql, Integer productVersionId) {
-        return queryForCollection(pageIndex, pageSize, sortingRsql, rsql, BuildConfigurationSetPredicates
-                .withProductVersionId(productVersionId));
+        return queryForCollection(pageIndex, pageSize, sortingRsql, rsql,
+                BuildConfigurationSetPredicates.withProductVersionId(productVersionId));
     }
 
 }

@@ -17,7 +17,6 @@
  */
 package org.jboss.pnc.rest.provider;
 
-import com.google.common.base.Preconditions;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.IdRev;
@@ -26,6 +25,11 @@ import org.jboss.pnc.rest.provider.collection.CollectionInfo;
 import org.jboss.pnc.rest.provider.collection.CollectionInfoCollector;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationAuditedRest;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationRest;
+import org.jboss.pnc.rest.validation.ConflictedEntryValidator;
+import org.jboss.pnc.rest.validation.ValidationBuilder;
+import org.jboss.pnc.rest.validation.exceptions.ValidationException;
+import org.jboss.pnc.rest.validation.groups.WhenCreatingNew;
+import org.jboss.pnc.rest.validation.groups.WhenUpdating;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationAuditedRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationRepository;
 import org.jboss.pnc.spi.datastore.repositories.PageInfoProducer;
@@ -78,7 +82,8 @@ public class BuildConfigurationProvider extends AbstractProvider<BuildConfigurat
 
     public CollectionInfo<BuildConfigurationRest> getAllForProductAndProductVersion(int pageIndex, int pageSize,
             String sortingRsql, String query, Integer productId, Integer versionId) {
-        return queryForCollection(pageIndex, pageSize, sortingRsql, query, withProductVersionId(versionId), withProductId(productId));
+        return queryForCollection(pageIndex, pageSize, sortingRsql, query, withProductVersionId(versionId), withProductId(
+                productId));
     }
 
     public CollectionInfo<BuildConfigurationRest> getAllForBuildConfigurationSet(int pageIndex, int pageSize,
@@ -87,19 +92,31 @@ public class BuildConfigurationProvider extends AbstractProvider<BuildConfigurat
     }
 
     @Override
-    protected void validateBeforeSaving(BuildConfigurationRest buildConfigurationRest) throws ConflictedEntryException, IllegalArgumentException {
+    protected void validateBeforeSaving(BuildConfigurationRest buildConfigurationRest) throws ValidationException {
         super.validateBeforeSaving(buildConfigurationRest);
-        Preconditions.checkArgument(buildConfigurationRest.getName() != null, "Name must not be null");
-        Preconditions.checkArgument(buildConfigurationRest.getProjectId() != null, "Project Id must not be null");
+        validateIfItsNotConflicted(buildConfigurationRest);
+    }
 
-        BuildConfiguration buildConfigurationFromDB = repository
-                .queryByPredicates(withProjectId(buildConfigurationRest.getProjectId()),
-                        withName(buildConfigurationRest.getName()));
+    @Override
+    protected void validateBeforeUpdating(Integer id, BuildConfigurationRest buildConfigurationRest) throws ValidationException {
+        super.validateBeforeUpdating(id, buildConfigurationRest);
+        validateIfItsNotConflicted(buildConfigurationRest);
+    }
 
-        //don't validate against myself
-        if(buildConfigurationFromDB != null && !buildConfigurationFromDB.getId().equals(buildConfigurationRest.getId())) {
-            throw new  ConflictedEntryException("Configuration with the same name already exists within project", BuildConfiguration.class, buildConfigurationFromDB.getId());
-        }
+    private void validateIfItsNotConflicted(BuildConfigurationRest buildConfigurationRest)
+            throws org.jboss.pnc.rest.validation.exceptions.ConflictedEntryException {
+        ValidationBuilder.validateObject(buildConfigurationRest, WhenUpdating.class)
+                .validateConflict(() -> {
+                    BuildConfiguration buildConfigurationFromDB = repository
+                            .queryByPredicates(withProjectId(buildConfigurationRest.getProjectId()),
+                                    withName(buildConfigurationRest.getName()));
+
+                    //don't validate against myself
+                    if(buildConfigurationFromDB != null && !buildConfigurationFromDB.getId().equals(buildConfigurationRest.getId())) {
+                        return new ConflictedEntryValidator.ConflictedEntryValidationError(buildConfigurationFromDB.getId(), BuildConfiguration.class, "Configuration with the same name already exists within project");
+                    }
+                    return null;
+                });
     }
 
     @Override
@@ -118,10 +135,11 @@ public class BuildConfigurationProvider extends AbstractProvider<BuildConfigurat
         };
     }
 
-    public Integer clone(Integer buildConfigurationId) {
+    public Integer clone(Integer buildConfigurationId) throws ValidationException {
+        ValidationBuilder.validateObject(WhenCreatingNew.class)
+                .validateAgainstRepository(repository, buildConfigurationId, true);
+
         BuildConfiguration buildConfiguration = repository.queryById(buildConfigurationId);
-        Preconditions.checkArgument(buildConfiguration != null, "Couldn't find buildConfiguration with id "
-                + buildConfigurationId);
 
         BuildConfiguration clonedBuildConfiguration = buildConfiguration.clone();
 
@@ -129,17 +147,14 @@ public class BuildConfigurationProvider extends AbstractProvider<BuildConfigurat
         return clonedBuildConfiguration.getId();
     }
 
-    public void addDependency(Integer configId, Integer dependencyId) {
+    public void addDependency(Integer configId, Integer dependencyId) throws ValidationException {
         BuildConfiguration buildConfig = repository.queryById(configId);
         BuildConfiguration dependency = repository.queryById(dependencyId);
-        // Check that the dependency isn't pointing back to the same config
-        if (configId.equals(dependencyId)) {
-            throw new IllegalArgumentException("A build configuration cannot depend on itself");
-        }
-        // Check that the new dependency will not create a cycle
-        if (dependency.getAllDependencies().contains(buildConfig)) {
-            throw new IllegalArgumentException("Cannot add dependency from : " + configId + " to: " + dependencyId + " because it would introduce a cyclic dependency");
-        }
+
+        ValidationBuilder.validateObject(buildConfig, WhenCreatingNew.class)
+                .validateCondition(configId.equals(dependencyId), "A build configuration cannot depend on itself")
+                .validateCondition(dependency.getAllDependencies().contains(buildConfig), "Cannot add dependency from : " + configId + " to: " + dependencyId + " because it would introduce a cyclic dependency");
+
         buildConfig.addDependency(dependency);
         repository.save(buildConfig);
     }

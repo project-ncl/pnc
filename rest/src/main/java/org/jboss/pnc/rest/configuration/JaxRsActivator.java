@@ -52,8 +52,8 @@ public class JaxRsActivator extends Application {
         resources.add(LicenseEndpoint.class);
         resources.add(EnvironmentEndpoint.class);
         resources.add(TestEndpoint.class);
-        resources.add(IllegalArgumentExceptionMapper.class);
-        resources.add(ConflictedEntryExceptionMapper.class);
+        resources.add(ValidationExceptionExceptionMapper.class);
+        resources.add(AllOtherExceptionsMapper.class);
     }
 
     private void addSwaggerResources(Set<Class<?>> resources) {

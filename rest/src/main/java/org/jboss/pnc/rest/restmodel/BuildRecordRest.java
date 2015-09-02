@@ -18,10 +18,13 @@
 package org.jboss.pnc.rest.restmodel;
 
 import org.jboss.pnc.core.builder.BuildTask;
-import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.BuildStatus;
+import org.jboss.pnc.rest.validation.groups.WhenCreatingNew;
+import org.jboss.pnc.rest.validation.groups.WhenUpdating;
 
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Null;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.Date;
 
@@ -30,6 +33,8 @@ import static org.jboss.pnc.rest.utils.Utility.performIfNotNull;
 @XmlRootElement(name = "BuildRecord")
 public class BuildRecordRest implements GenericRestEntity<Integer> {
 
+    @NotNull(groups = WhenUpdating.class)
+    @Null(groups = WhenCreatingNew.class)
     private Integer id;
 
     private Date submitTime;

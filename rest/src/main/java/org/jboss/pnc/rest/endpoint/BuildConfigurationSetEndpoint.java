@@ -27,11 +27,12 @@ import org.jboss.pnc.model.User;
 import org.jboss.pnc.rest.provider.BuildConfigurationProvider;
 import org.jboss.pnc.rest.provider.BuildConfigurationSetProvider;
 import org.jboss.pnc.rest.provider.BuildRecordProvider;
-import org.jboss.pnc.rest.provider.ConflictedEntryException;
+import org.jboss.pnc.rest.validation.exceptions.ConflictedEntryException;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationRest;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationSetRest;
 import org.jboss.pnc.rest.restmodel.BuildRecordRest;
 import org.jboss.pnc.rest.trigger.BuildTriggerer;
+import org.jboss.pnc.rest.validation.exceptions.ValidationException;
 import org.jboss.pnc.spi.datastore.Datastore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -96,7 +97,7 @@ public class BuildConfigurationSetEndpoint extends AbstractEndpoint<BuildConfigu
     @ApiOperation(value = "Creates a new Build Configuration Set", response = BuildConfigurationSetRest.class)
     @POST
     public Response createNew(@NotNull @Valid BuildConfigurationSetRest buildConfigurationSetRest, @Context UriInfo uriInfo)
-            throws ConflictedEntryException {
+            throws ValidationException {
         return super.createNew(buildConfigurationSetRest, uriInfo);
     }
 
@@ -112,15 +113,15 @@ public class BuildConfigurationSetEndpoint extends AbstractEndpoint<BuildConfigu
     @PUT
     @Path("/{id}")
     public Response update(@ApiParam(value = "Build Configuration Set id", required = true) @PathParam("id") Integer id,
-            @NotNull @Valid BuildConfigurationSetRest buildConfigurationSetRest)
-            throws ConflictedEntryException {
+            @NotNull @Valid BuildConfigurationSetRest buildConfigurationSetRest) throws ValidationException {
         return super.update(id, buildConfigurationSetRest);
     }
 
     @ApiOperation(value = "Removes a specific Build Configuration Set")
     @DELETE
     @Path("/{id}")
-    public Response deleteSpecific(@ApiParam(value = "Build Configuration Set id", required = true) @PathParam("id") Integer id) {
+    public Response deleteSpecific(@ApiParam(value = "Build Configuration Set id", required = true) @PathParam("id") Integer id)
+            throws ValidationException {
         return super.delete(id);
     }
 
