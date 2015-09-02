@@ -17,9 +17,13 @@
  */
 package org.jboss.pnc.common.util;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.invoke.MethodHandles;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -30,6 +34,9 @@ import java.util.Scanner;
  */
 public class IoUtils {
 
+    private static final Logger logger = LoggerFactory.getLogger(IoUtils.class);
+
+
     /**
      * @param name Resource name to use.
      * @param classLoader Classloader to use
@@ -37,8 +44,11 @@ public class IoUtils {
      * @throws IOException Thrown if data couldn't be loaded
      */
     public static String readResource(String name, ClassLoader classLoader) throws IOException {
-        String configString;
+        String configString = "";
         InputStream is = classLoader.getResourceAsStream(name);
+        if (is == null) {
+            throw new RuntimeException("Cannot read resource: " + name);
+        }
         try {
             configString = new Scanner(is, Charset.defaultCharset().name()).useDelimiter("\\A").next();
         } finally {

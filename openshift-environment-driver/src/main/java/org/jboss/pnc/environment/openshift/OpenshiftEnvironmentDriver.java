@@ -31,11 +31,13 @@ import org.jboss.pnc.spi.environment.StartedEnvironment;
 import org.jboss.pnc.spi.environment.exception.EnvironmentDriverException;
 import org.jboss.pnc.spi.repositorymanager.model.RepositorySession;
 
+import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
+@ApplicationScoped
 public class OpenshiftEnvironmentDriver implements EnvironmentDriver {
 
     private OpenshiftEnvironmentDriverModuleConfig config;

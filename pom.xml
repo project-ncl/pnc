@@ -316,6 +316,12 @@
 
       <dependency>
         <groupId>org.jboss.pnc</groupId>
+        <artifactId>openshift-environment-driver</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jboss.pnc</groupId>
         <artifactId>integration-test</artifactId>
         <version>${project.version}</version>
       </dependency>

@@ -34,7 +34,7 @@ public enum Configurations {
 
     private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass().getName());
 
-    private static final String CONFIGURATIONS_FOLDER = "/openshift.configurations/";
+    private static final String CONFIGURATIONS_FOLDER = "openshift.configurations/";
 
     private final String filePath;
 

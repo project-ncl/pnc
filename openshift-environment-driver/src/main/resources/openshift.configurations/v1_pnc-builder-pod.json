@@ -2,17 +2,17 @@
     "kind": "Pod",
     "apiVersion": "v1",
     "metadata": {
-        "generateName": "pnc-builder-"
+        "generateName": "pnc-build-agent-"
     },
     "spec": {
         "containers": [
             {
-                "name": "pnc-builder",
-                "image": "${image}", // eg.: pnc/pnc-builder:v0.6
+                "name": "pnc-build-agent",
+                "image": "${image}",
                 "ports": [
                   {
                     "name" : "http",
-                    "containerPort": "${containerPort}", //eg.: 8080
+                    "containerPort": ${containerPort},
                     "protocol": "TCP"
                   }
                 ],
@@ -48,13 +48,7 @@
             }
         ],
         "restartPolicy": "Never",
-        "activeDeadlineSeconds": 30,
-        "dnsPolicy": "ClusterFirst", //TODO right dnsPolicy
-        "serviceAccount": "default",
-        "imagePullSecrets": [
-            {
-                "name": "default-dockercfg-at06w"
-            }
-        ]
+        "activeDeadlineSeconds": 90,
+        "dnsPolicy": "Default"
     }
 }

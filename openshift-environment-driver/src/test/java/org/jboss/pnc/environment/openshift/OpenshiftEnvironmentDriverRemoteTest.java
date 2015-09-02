@@ -17,12 +17,14 @@
  */
 package org.jboss.pnc.environment.openshift;
 
+import com.openshift.internal.restclient.DefaultClient;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.moduleconfig.OpenshiftEnvironmentDriverModuleConfig;
 import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
+import org.jboss.pnc.common.monitor.PullingMonitor;
 import org.jboss.pnc.model.BuildType;
 import org.jboss.pnc.model.Environment;
 import org.jboss.pnc.model.OperationalSystem;
@@ -65,8 +67,8 @@ import static org.junit.Assert.fail;
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
-@RunWith(Arquillian.class)
-@Category({ RemoteTest.class, ContainerTest.class })
+//@RunWith(Arquillian.class)
+@Category({ RemoteTest.class })
 public class OpenshiftEnvironmentDriverRemoteTest {
 
     private static final org.slf4j.Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass().getName());
@@ -75,38 +77,26 @@ public class OpenshiftEnvironmentDriverRemoteTest {
 
     private static final int TEST_EXECUTION_TIMEOUT = 100;
 
+    private final String pingUrl = "/";
+
     private final EnvironmentDriver environmentDriver;
 
     private final Configuration configurationService;
 
-    private final String pingUrl = "/";
+    public OpenshiftEnvironmentDriverRemoteTest() throws Exception {
+        //workaround for protected root rest endpoint from where version should be read
+        System.setProperty(DefaultClient.SYSTEM_PROP_OPENSHIFT_API_VERSION, "v1");
 
-    @Inject
-    public OpenshiftEnvironmentDriverRemoteTest(EnvironmentDriver environmentDriver, Configuration configurationService) {
-        this.environmentDriver = environmentDriver;
-        this.configurationService = configurationService;
+        configurationService = new Configuration();
+
+        final Environment environment = new Environment(BuildType.JAVA, OperationalSystem.LINUX);
+        environmentDriver = new OpenshiftEnvironmentDriver(configurationService, new PullingMonitor());
     }
 
-    @Deployment
-    public static WebArchive createDeployment() {
-        final WebArchive archive = ShrinkWrap
-                .create(WebArchive.class)
-                .addAsWebInfResource(EmptyAsset.INSTANCE, "beans.xml")
-                .addAsResource("pnc-config.json")
-                .addPackage(RemoteTest.class.getPackage())
-                .addPackages(true, OpenshiftEnvironmentDriver.class.getPackage());
-
-        File[] libs = Maven.resolver()
-                .loadPomFromFile("pom.xml")
-                .importRuntimeDependencies()
-                .resolve()
-                .withTransitivity().asFile();
-
-        archive.addAsLibraries(libs);
-
-        logger.info("Deployment: " + archive.toString(true));
-        return archive;
-    }
+//    @Before
+//    public void bootstrap() throws Exception {
+//
+//    }
 
     @Test
     public void createAndDestroyEnvironment() throws EnvironmentDriverException, InterruptedException {

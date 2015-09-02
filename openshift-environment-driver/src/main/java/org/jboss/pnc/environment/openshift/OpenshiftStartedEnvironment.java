@@ -46,7 +46,7 @@ import java.util.function.Supplier;
  */
 public class OpenshiftStartedEnvironment implements StartedEnvironment {
 
-    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass().getName());
+    private static final Logger logger = LoggerFactory.getLogger(OpenshiftStartedEnvironment.class);
 
     private static final String OSE_API_VERSION = "1";
     private final IClient client;
@@ -59,6 +59,7 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
             OpenshiftEnvironmentDriverModuleConfig environmentConfiguration,
             PullingMonitor pullingMonitor,
             RepositorySession repositorySession) {
+        logger.info("Creating new build environment using image id: " + environmentConfiguration.getImageId());
         this.environmentConfiguration = environmentConfiguration;
         this.pullingMonitor = pullingMonitor;
         this.repositorySession = repositorySession;
@@ -67,9 +68,10 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
         client.setAuthorizationStrategy(new TokenAuthorizationStrategy(environmentConfiguration.getRestAuthToken()));
 
         String podConfiguration = replaceConfigurationVariables(Configurations.V1_PNC_BUILDER_POD.getContentAsString(), environmentConfiguration);
+        logger.info("Using Pod definition: " + podConfiguration);
 
         ModelNode podConfigurationNode = ModelNode.fromJSONString(podConfiguration);
-        pod = new Pod(podConfigurationNode, client, ResourcePropertiesRegistry.getInstance().get(OSE_API_VERSION, ResourceKind.POD));
+        pod = new Pod(podConfigurationNode, client, ResourcePropertiesRegistry.getInstance().get("v1", ResourceKind.POD, true));
         client.create(pod, environmentConfiguration.getPodNamespace());
     }
 
