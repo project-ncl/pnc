@@ -54,7 +54,6 @@ public class BuildTask implements BuildExecution {
     private Date startTime;
     private Date endTime;
 
-    private BuildExecutionType buildTaskType;
     private BuildStatus status = BuildStatus.NEW;
     private String statusDescription;
 
@@ -91,7 +90,6 @@ public class BuildTask implements BuildExecution {
             String topContentId,
               String buildSetContentId,
               String buildContentId, 
-              BuildExecutionType buildTaskType, 
               User user, 
               Date submitTime,
               BuildSetTask buildSetTask,
@@ -104,14 +102,13 @@ public class BuildTask implements BuildExecution {
         this.user = user;
         this.submitTime = submitTime;
 
-        this.buildTaskType = buildTaskType;
         this.buildStatusChangedEvent = buildCoordinator.getBuildStatusChangedEventNotifier();
         this.topContentId = topContentId;
         this.buildSetContentId = buildSetContentId;
         this.buildContentId = buildContentId;
         this.buildSetTask = buildSetTask;
 
-        if (buildSetTask.getProductMilestone() != null) {
+        if (buildSetTask != null && buildSetTask.getProductMilestone() != null) {
             buildRecordSetIds.add(buildSetTask.getProductMilestone().getPerformedBuildRecordSet().getId());
         }
         if (buildConfiguration.getProductVersions() != null) {
@@ -134,7 +131,9 @@ public class BuildTask implements BuildExecution {
         BuildStatusChangedEvent buildStatusChanged = new DefaultBuildStatusChangedEvent(oldStatus, status, getId(),
                 buildConfigurationAudited.getId().getId(), userId);
         log.debug("Updating build task {} status to {}", this.getId(), buildStatusChanged);
-        buildSetTask.taskStatusUpdated(buildStatusChanged);
+        if (buildSetTask != null) {
+            buildSetTask.taskStatusUpdated(buildStatusChanged);
+        }
         buildStatusChangedEvent.fire(buildStatusChanged);
         if (status.isCompleted()) {
             dependants.forEach((dep) -> dep.requiredBuildCompleted(this));
@@ -271,7 +270,11 @@ public class BuildTask implements BuildExecution {
     }
 
     public BuildExecutionType getBuildExecutionType() {
-        return buildTaskType;
+        if (buildSetTask == null) {
+            return BuildExecutionType.STANDALONE_BUILD;
+        } else {
+            return BuildExecutionType.COMPOSED_BUILD;
+        }
     }
 
     public Date getSubmitTime() {

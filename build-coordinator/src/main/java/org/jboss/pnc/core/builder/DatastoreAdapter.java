@@ -128,7 +128,7 @@ public class DatastoreAdapter {
                 .build();
 
         buildRecord.setLatestBuildConfiguration(buildTask.getBuildConfiguration());
-        if (buildTask.getBuildExecutionType().equals(BuildExecutionType.COMPOSED_BUILD)) {
+        if (buildTask.getBuildSetTask() != null) {
             buildRecord.setBuildConfigSetRecord(buildTask.getBuildSetTask().getBuildConfigSetRecord());
         }
 

@@ -90,7 +90,7 @@ public class BuildRecordRest implements GenericRestEntity<Integer> {
                 () -> buildConfigurationId = buildTask.getBuildConfiguration().getId());
         this.status = BuildStatus.BUILDING;
         buildTask.getLogsWebSocketLink().ifPresent(logsUri -> this.liveLogsUri = logsUri.toString());
-        this.buildConfigSetRecordId = buildTask.getBuildSetTask().getId();
+        performIfNotNull(buildTask.getBuildSetTask(), () -> this.buildConfigSetRecordId = buildTask.getBuildSetTask().getId());
         if(buildTask.getUser() != null)
             this.userId = buildTask.getUser().getId();
     }

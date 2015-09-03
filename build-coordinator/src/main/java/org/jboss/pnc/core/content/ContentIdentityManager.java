@@ -18,7 +18,6 @@
 package org.jboss.pnc.core.content;
 
 import org.jboss.pnc.model.BuildConfiguration;
-import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.ProductVersion;
 
 import java.text.SimpleDateFormat;
@@ -47,9 +46,9 @@ public class ContentIdentityManager {
                 safeIdPart(productVersion.getVersion()));
     }
 
-    public String getBuildSetContentId(BuildConfigurationSet buildConfigurationSet) {
+    public String getBuildSetContentId(String name) {
         String timestamp = generateTimestamp();
-        return String.format(BUILD_SET_CONTENT_ID_FORMAT, safeIdPart(buildConfigurationSet.getName()), timestamp);
+        return String.format(BUILD_SET_CONTENT_ID_FORMAT, safeIdPart(name), timestamp);
     }
 
     public String getBuildContentId(BuildConfiguration buildConfiguration) {
