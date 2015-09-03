@@ -36,17 +36,16 @@
 
 package org.jboss.pnc.rest.validation.exceptions;
 
-import org.jboss.pnc.rest.validation.exceptions.model.RepositoryViolationDetailsRest;
+import org.jboss.pnc.rest.restmodel.response.error.GenericResponseDetails;
 
-public class RepositoryViolationException extends ValidationException {
+public class EmptyEntityException extends ValidationException {
 
-    public RepositoryViolationException(String message) {
+    public EmptyEntityException(String message) {
         super(message);
     }
 
     @Override
-    public RepositoryViolationDetailsRest getRestModelForException() {
-        return new RepositoryViolationDetailsRest(this);
+    public GenericResponseDetails getRestModelForException() {
+        return new GenericResponseDetails(this);
     }
-
 }

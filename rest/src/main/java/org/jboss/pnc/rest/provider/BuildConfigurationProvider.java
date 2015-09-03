@@ -27,6 +27,8 @@ import org.jboss.pnc.rest.restmodel.BuildConfigurationAuditedRest;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationRest;
 import org.jboss.pnc.rest.validation.ConflictedEntryValidator;
 import org.jboss.pnc.rest.validation.ValidationBuilder;
+import org.jboss.pnc.rest.validation.exceptions.ConflictedEntryException;
+import org.jboss.pnc.rest.validation.exceptions.InvalidEntityException;
 import org.jboss.pnc.rest.validation.exceptions.ValidationException;
 import org.jboss.pnc.rest.validation.groups.WhenCreatingNew;
 import org.jboss.pnc.rest.validation.groups.WhenUpdating;
@@ -104,7 +106,7 @@ public class BuildConfigurationProvider extends AbstractProvider<BuildConfigurat
     }
 
     private void validateIfItsNotConflicted(BuildConfigurationRest buildConfigurationRest)
-            throws org.jboss.pnc.rest.validation.exceptions.ConflictedEntryException {
+            throws ConflictedEntryException, InvalidEntityException {
         ValidationBuilder.validateObject(buildConfigurationRest, WhenUpdating.class)
                 .validateConflict(() -> {
                     BuildConfiguration buildConfigurationFromDB = repository

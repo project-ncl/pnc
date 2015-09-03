@@ -120,13 +120,14 @@ public abstract class AbstractProvider<DBEntity extends GenericEntity<Integer>, 
 
     protected void validateBeforeUpdating(Integer id, RESTEntity restEntity) throws ValidationException {
         ValidationBuilder.validateObject(restEntity, WhenUpdating.class)
+                .validateNotEmptyArgument()
                 .validateAnnotations()
                 .validateAgainstRepository(repository, id, true);
     }
 
     protected void validateBeforeSaving(RESTEntity restEntity) throws ValidationException {
         ValidationBuilder.validateObject(restEntity, WhenCreatingNew.class)
-                .validateAnnotations();
+                .validateNotEmptyArgument().validateAnnotations();
     }
 
     protected void validateBeforeDeleting(Integer id) throws ValidationException {
