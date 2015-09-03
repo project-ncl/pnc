@@ -37,7 +37,7 @@ public class ContentIdentityManager {
 
     private static final String TIMESTAMP_FORMAT = "yyyyMMdd.HHmm";
 
-    public String getProductContentId(ProductVersion productVersion) {
+    public static String getProductContentId(ProductVersion productVersion) {
         if (productVersion == null) {
             return null;
         }
@@ -46,17 +46,17 @@ public class ContentIdentityManager {
                 safeIdPart(productVersion.getVersion()));
     }
 
-    public String getBuildSetContentId(String name) {
+    public static String getBuildSetContentId(String name) {
         String timestamp = generateTimestamp();
         return String.format(BUILD_SET_CONTENT_ID_FORMAT, safeIdPart(name), timestamp);
     }
 
-    public String getBuildContentId(BuildConfiguration buildConfiguration) {
+    public static String getBuildContentId(BuildConfiguration buildConfiguration) {
         String timestamp = generateTimestamp();
         return String.format(BUILD_CONTENT_ID_FORMAT, safeIdPart(buildConfiguration.getName()), timestamp);
     }
 
-    private String generateTimestamp() {
+    private static String generateTimestamp() {
         return new SimpleDateFormat(TIMESTAMP_FORMAT).format(new Date());
     }
 
@@ -64,7 +64,7 @@ public class ContentIdentityManager {
      * Sift out spaces, pipe characters and colons (things that don't play well in URLs) from the project name, and convert them
      * to dashes. This is only for naming repositories, so an approximate match to the project in question is fine.
      */
-    private String safeIdPart(String name) {
+    private static String safeIdPart(String name) {
         return name.replaceAll("\\W+", "-").replaceAll("[|:]+", "-");
     }
 

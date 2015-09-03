@@ -103,10 +103,9 @@ public class BuildCoordinator {
      */
     public BuildTask build(BuildConfiguration buildConfiguration, User user) throws CoreException {
 
-        ContentIdentityManager contentIdentityManager = new ContentIdentityManager();
-        String topContentId = contentIdentityManager.getProductContentId(this.getFirstProductVersion(buildConfiguration));
-        String buildSetContentId = contentIdentityManager.getBuildSetContentId(buildConfiguration.getName());
-        String buildContentId = contentIdentityManager.getBuildContentId(buildConfiguration);
+        String topContentId = ContentIdentityManager.getProductContentId(this.getFirstProductVersion(buildConfiguration));
+        String buildSetContentId = ContentIdentityManager.getBuildSetContentId(buildConfiguration.getName());
+        String buildContentId = ContentIdentityManager.getBuildContentId(buildConfiguration);
 
         Date submitTime = new Date();
         BuildTask buildTask = new BuildTask(
@@ -174,13 +173,12 @@ public class BuildCoordinator {
      * initialized the BuildConfigSet, BuildConfigSetRecord, Milestone, etc.
      */
     private void initializeBuildTasksInSet(BuildSetTask buildSetTask) {
-        ContentIdentityManager contentIdentityManager = new ContentIdentityManager();
-        String topContentId = contentIdentityManager.getProductContentId(buildSetTask.getBuildConfigurationSet().getProductVersion());
-        String buildSetContentId = contentIdentityManager.getBuildSetContentId(buildSetTask.getBuildConfigurationSet().getName());
+        String topContentId = ContentIdentityManager.getProductContentId(buildSetTask.getBuildConfigurationSet().getProductVersion());
+        String buildSetContentId = ContentIdentityManager.getBuildSetContentId(buildSetTask.getBuildConfigurationSet().getName());
 
         // Loop to create the build tasks
         for(BuildConfiguration buildConfig : buildSetTask.getBuildConfigurationSet().getBuildConfigurations()) {
-            String buildContentId = contentIdentityManager.getBuildContentId(buildConfig);
+            String buildContentId = ContentIdentityManager.getBuildContentId(buildConfig);
             BuildTask buildTask = new BuildTask(
                     this,
                     buildConfig,
