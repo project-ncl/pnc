@@ -24,7 +24,6 @@ import org.jboss.pnc.rest.validation.exceptions.EmptyEntityException;
 import org.jboss.pnc.rest.validation.exceptions.InvalidEntityException;
 import org.jboss.pnc.rest.validation.exceptions.RepositoryViolationException;
 import org.jboss.pnc.rest.validation.groups.ValidationGroup;
-import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
 import org.jboss.pnc.spi.datastore.repositories.api.Repository;
 
 import javax.validation.ConstraintViolation;
@@ -32,7 +31,6 @@ import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
 import java.lang.reflect.Field;
-import java.util.Map;
 import java.util.Set;
 
 public class ValidationBuilder<T> {
@@ -104,17 +102,6 @@ public class ValidationBuilder<T> {
     public ValidationBuilder validateNotEmptyArgument() throws EmptyEntityException {
         if(objectToBeValidated == null) {
             throw new EmptyEntityException("Input object is null");
-        }
-        return this;
-    }
-
-    public <DBEntity extends GenericEntity<ID>, ID extends Number> ValidationBuilder validateAgainstRepository(Repository<DBEntity, ID> repository, Map<String, Predicate<DBEntity>> predicates, boolean shouldExist)
-            throws RepositoryViolationException {
-        for(Map.Entry<String, Predicate<DBEntity>> entry : predicates.entrySet()) {
-            int count = repository.count(entry.getValue());
-            if((!shouldExist && count != 0) || (shouldExist && count == 0)) {
-                throw new RepositoryViolationException(entry.getKey());
-            }
         }
         return this;
     }
