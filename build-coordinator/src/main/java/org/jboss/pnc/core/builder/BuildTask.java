@@ -24,7 +24,6 @@ import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.ProductVersion;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.BuildExecution;
-import org.jboss.pnc.spi.BuildExecutionType;
 import org.jboss.pnc.spi.BuildStatus;
 import org.jboss.pnc.spi.events.BuildStatusChangedEvent;
 import org.slf4j.Logger;
@@ -269,12 +268,11 @@ public class BuildTask implements BuildExecution {
         return buildConfigurationAudited.getProject().getName();
     }
 
-    public BuildExecutionType getBuildExecutionType() {
-        if (buildSetTask == null) {
-            return BuildExecutionType.STANDALONE_BUILD;
-        } else {
-            return BuildExecutionType.COMPOSED_BUILD;
+    public boolean isPartOfBuildSet() {
+        if (buildSetTask != null) {
+            return true;
         }
+        return false;
     }
 
     public Date getSubmitTime() {

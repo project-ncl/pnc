@@ -23,7 +23,6 @@ import org.jboss.pnc.core.builder.BuildTask;
 import org.jboss.pnc.core.exception.CoreException;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.User;
-import org.jboss.pnc.spi.BuildExecutionType;
 import org.jboss.pnc.spi.datastore.DatastoreException;
 import org.junit.Assert;
 import org.junit.Test;
@@ -46,7 +45,7 @@ public class ReadDependenciesTest extends ProjectBuilder {
         User user = User.Builder.newBuilder().id(1).username("test-user").build();
         BuildSetTask buildSetTask = null;
         try {
-            buildSetTask = buildCoordinator.createBuildSetTask(buildConfigurationSet, user, BuildExecutionType.COMPOSED_BUILD);
+            buildSetTask = buildCoordinator.createBuildSetTask(buildConfigurationSet, user);
         } catch (CoreException e) {
             Assert.fail(e.getMessage());
         }

@@ -27,7 +27,6 @@ import org.commonjava.aprox.model.core.StoreKey;
 import org.commonjava.aprox.model.core.StoreType;
 import org.jboss.pnc.mavenrepositorymanager.fixture.TestBuildExecution;
 import org.jboss.pnc.spi.BuildExecution;
-import org.jboss.pnc.spi.BuildExecutionType;
 import org.jboss.pnc.spi.repositorymanager.model.RepositorySession;
 import org.junit.Test;
 
@@ -37,7 +36,7 @@ public class BuildGroupIncludesConfSetGroupTest extends AbstractRepositoryManage
     public void verifyGroupComposition_ProductVersion_WithConfSet() throws Exception {
         // create a dummy composed (chained) build execution and a repo session based on it
         BuildExecution execution = new TestBuildExecution("product_myproduct_1.1", "my-build-conf-set",
-                "build_myproject_67890", BuildExecutionType.COMPOSED_BUILD);
+                "build_myproject_67890", true);
         Aprox aprox = driver.getAprox();
 
         RepositorySession repositoryConfiguration = driver.createBuildRepository(execution);

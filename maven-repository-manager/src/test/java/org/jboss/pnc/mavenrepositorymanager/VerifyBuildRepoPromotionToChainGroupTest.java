@@ -27,7 +27,6 @@ import org.commonjava.aprox.model.core.StoreType;
 import org.jboss.pnc.mavenrepositorymanager.fixture.TestBuildExecution;
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.spi.BuildExecution;
-import org.jboss.pnc.spi.BuildExecutionType;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
 import org.jboss.pnc.spi.repositorymanager.model.RepositorySession;
 import org.junit.Test;
@@ -47,7 +46,7 @@ public class VerifyBuildRepoPromotionToChainGroupTest extends AbstractRepository
         String buildId = "build";
 
         // create a dummy composed (chained) build execution, and a repo session based on it
-        BuildExecution execution = new TestBuildExecution(null, chainId, buildId, BuildExecutionType.COMPOSED_BUILD);
+        BuildExecution execution = new TestBuildExecution(null, chainId, buildId, true);
         RepositorySession session = driver.createBuildRepository(execution);
 
         // simulate a build deploying a file.

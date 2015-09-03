@@ -24,7 +24,6 @@ import org.jboss.pnc.core.content.ContentIdentityManager;
 import org.jboss.pnc.core.exception.BuildProcessException;
 import org.jboss.pnc.core.exception.CoreException;
 import org.jboss.pnc.model.*;
-import org.jboss.pnc.spi.BuildExecutionType;
 import org.jboss.pnc.spi.BuildResult;
 import org.jboss.pnc.spi.BuildSetStatus;
 import org.jboss.pnc.spi.BuildStatus;
@@ -136,13 +135,13 @@ public class BuildCoordinator {
      */
     public BuildSetTask build(BuildConfigurationSet buildConfigurationSet, User user) throws CoreException {
 
-        BuildSetTask buildSetTask = createBuildSetTask(buildConfigurationSet, user, BuildExecutionType.COMPOSED_BUILD);
+        BuildSetTask buildSetTask = createBuildSetTask(buildConfigurationSet, user);
 
         build(buildSetTask);
         return buildSetTask;
     }
 
-    public BuildSetTask createBuildSetTask(BuildConfigurationSet buildConfigurationSet, User user, BuildExecutionType buildType) throws CoreException {
+    public BuildSetTask createBuildSetTask(BuildConfigurationSet buildConfigurationSet, User user) throws CoreException {
         BuildConfigSetRecord buildConfigSetRecord = BuildConfigSetRecord.Builder.newBuilder()
                 .buildConfigurationSet(buildConfigurationSet)
                 .user(user)

@@ -35,7 +35,6 @@ import org.jboss.pnc.core.test.configurationBuilders.TestProjectConfigurationBui
 import org.jboss.pnc.core.test.mock.BuildDriverMock;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.User;
-import org.jboss.pnc.spi.BuildExecutionType;
 import org.jboss.pnc.spi.BuildSetStatus;
 import org.jboss.pnc.spi.BuildStatus;
 import org.jboss.pnc.spi.datastore.DatastoreException;
@@ -190,7 +189,7 @@ public class StatusUpdatesTest {
         User user = User.Builder.newBuilder().id(1).username("test-user").build();
         BuildSetTask buildSetTask = null;
         try {
-            buildSetTask = buildCoordinator.createBuildSetTask(buildConfigurationSet, user, BuildExecutionType.COMPOSED_BUILD);
+            buildSetTask = buildCoordinator.createBuildSetTask(buildConfigurationSet, user);
         } catch (CoreException e) {
             Assert.fail(e.getMessage());
         }
