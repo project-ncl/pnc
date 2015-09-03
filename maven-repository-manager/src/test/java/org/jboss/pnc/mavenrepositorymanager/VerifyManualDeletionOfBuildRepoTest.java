@@ -27,7 +27,6 @@ import org.jboss.pnc.mavenrepositorymanager.fixture.TestBuildExecution;
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.spi.BuildExecution;
-import org.jboss.pnc.spi.BuildExecutionType;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
 import org.jboss.pnc.spi.repositorymanager.model.RepositorySession;
 import org.jboss.pnc.spi.repositorymanager.model.RunningRepositoryDeletion;
@@ -48,7 +47,7 @@ public class VerifyManualDeletionOfBuildRepoTest extends AbstractRepositoryManag
         String buildId = "build";
 
         // create a dummy non-chained build execution and a repo session based on it
-        BuildExecution execution = new TestBuildExecution(null, chainId, buildId, BuildExecutionType.STANDALONE_BUILD);
+        BuildExecution execution = new TestBuildExecution(null, chainId, buildId, false);
         RepositorySession session = driver.createBuildRepository(execution);
 
         // simulate a build deploying a file.

@@ -30,7 +30,12 @@ public interface BuildExecution {
 
     String getProjectName();
 
-    BuildExecutionType getBuildExecutionType();
+    /**
+     * Is this a single build or a set of builds.
+     * 
+     * @return true if this execution represents a set of builds, false if it represents a single build
+     */
+    boolean isPartOfBuildSet();
 
     /**
      * Sets a Web Socket link for streaming logs.

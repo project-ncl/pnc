@@ -167,7 +167,7 @@ public class RepositoryManagerDriver implements RepositoryManager {
                     e.getMessage());
         }
 
-        return new MavenRepositorySession(aprox, buildId, setId, buildExecution.getBuildExecutionType(),
+        return new MavenRepositorySession(aprox, buildId, setId, buildExecution.isPartOfBuildSet(),
                 new MavenRepositoryConnectionInfo(url));
     }
 

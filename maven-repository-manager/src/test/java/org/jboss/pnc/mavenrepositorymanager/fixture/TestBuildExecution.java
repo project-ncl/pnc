@@ -18,7 +18,6 @@
 package org.jboss.pnc.mavenrepositorymanager.fixture;
 
 import org.jboss.pnc.spi.BuildExecution;
-import org.jboss.pnc.spi.BuildExecutionType;
 
 import java.net.URI;
 import java.util.Optional;
@@ -33,19 +32,19 @@ public class TestBuildExecution implements BuildExecution {
 
     private String projectName = "my project";
 
-    private BuildExecutionType buildExecutionType;
+    private boolean isSetBuild;
 
     private URI logsWebSocketLink;
 
-    public TestBuildExecution(String topId, String setId, String buildId, BuildExecutionType type) {
+    public TestBuildExecution(String topId, String setId, String buildId, boolean isSetBuild) {
         this.topContentId = topId;
         this.buildSetContentId = setId;
         this.buildContentId = buildId;
-        this.buildExecutionType = type;
+        this.isSetBuild = isSetBuild;
     }
 
     public TestBuildExecution() {
-        this("product+myproduct+1-0", null, "build+myproject+12345", BuildExecutionType.STANDALONE_BUILD);
+        this("product+myproduct+1-0", null, "build+myproject+12345", false);
     }
 
     @Override
@@ -85,8 +84,8 @@ public class TestBuildExecution implements BuildExecution {
     }
 
     @Override
-    public BuildExecutionType getBuildExecutionType() {
-        return buildExecutionType;
+    public boolean isPartOfBuildSet() {
+        return isSetBuild;
     }
 
     @Override

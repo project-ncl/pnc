@@ -22,7 +22,6 @@ import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.ProductMilestone;
-import org.jboss.pnc.spi.BuildExecutionType;
 import org.jboss.pnc.spi.BuildSetStatus;
 import org.jboss.pnc.spi.datastore.DatastoreException;
 import org.jboss.pnc.spi.events.BuildSetStatusChangedEvent;
@@ -48,7 +47,6 @@ public class BuildSetTask {
 
     private BuildCoordinator buildCoordinator;
 
-    private final BuildExecutionType buildTaskType;
     private Event<BuildSetStatusChangedEvent> buildSetStatusChangedEventNotifier;
 
     private BuildSetStatus status;
@@ -65,10 +63,9 @@ public class BuildSetTask {
      * Create build set task for running a single build or set of builds
      */
     public BuildSetTask(BuildCoordinator buildCoordinator, BuildConfigSetRecord buildConfigSetRecord,
-            BuildExecutionType buildTaskType, ProductMilestone productMilestone, Date submitTime) {
+            ProductMilestone productMilestone, Date submitTime) {
         this.buildCoordinator = buildCoordinator;
         this.buildConfigSetRecord = buildConfigSetRecord;
-        this.buildTaskType = buildTaskType;
         System.out.println("setting product milestone: " + productMilestone);
         this.productMilestone = productMilestone;
         this.buildSetStatusChangedEventNotifier = buildCoordinator.getBuildSetStatusChangedEventNotifier();
@@ -108,12 +105,10 @@ public class BuildSetTask {
     private void finishBuildSetTask() {
         buildConfigSetRecord.setEndTime(new Date());
         setStatus(BuildSetStatus.DONE);
-        if (getBuildTaskType().equals(BuildExecutionType.COMPOSED_BUILD)) {
-            try {
-                buildCoordinator.saveBuildConfigSetRecord(buildConfigSetRecord);
-            } catch (DatastoreException e) {
-                log.error("Unable to save build config set record", e);
-            }
+        try {
+            buildCoordinator.saveBuildConfigSetRecord(buildConfigSetRecord);
+        } catch (DatastoreException e) {
+            log.error("Unable to save build config set record", e);
         }
     }
 
@@ -153,10 +148,6 @@ public class BuildSetTask {
 
     public Integer getId() {
         return buildConfigSetRecord.getId();
-    }
-
-    public BuildExecutionType getBuildTaskType() {
-        return buildTaskType;
     }
 
     public BuildConfigSetRecord getBuildConfigSetRecord() {

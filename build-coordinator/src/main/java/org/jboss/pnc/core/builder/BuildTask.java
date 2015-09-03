@@ -24,7 +24,6 @@ import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.ProductVersion;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.BuildExecution;
-import org.jboss.pnc.spi.BuildExecutionType;
 import org.jboss.pnc.spi.BuildStatus;
 import org.jboss.pnc.spi.events.BuildStatusChangedEvent;
 import org.slf4j.Logger;
@@ -54,7 +53,6 @@ public class BuildTask implements BuildExecution {
     private Date startTime;
     private Date endTime;
 
-    private BuildExecutionType buildTaskType;
     private BuildStatus status = BuildStatus.NEW;
     private String statusDescription;
 
@@ -91,7 +89,6 @@ public class BuildTask implements BuildExecution {
             String topContentId,
               String buildSetContentId,
               String buildContentId, 
-              BuildExecutionType buildTaskType, 
               User user, 
               Date submitTime,
               BuildSetTask buildSetTask,
@@ -104,14 +101,13 @@ public class BuildTask implements BuildExecution {
         this.user = user;
         this.submitTime = submitTime;
 
-        this.buildTaskType = buildTaskType;
         this.buildStatusChangedEvent = buildCoordinator.getBuildStatusChangedEventNotifier();
         this.topContentId = topContentId;
         this.buildSetContentId = buildSetContentId;
         this.buildContentId = buildContentId;
         this.buildSetTask = buildSetTask;
 
-        if (buildSetTask.getProductMilestone() != null) {
+        if (buildSetTask != null && buildSetTask.getProductMilestone() != null) {
             buildRecordSetIds.add(buildSetTask.getProductMilestone().getPerformedBuildRecordSet().getId());
         }
         if (buildConfiguration.getProductVersions() != null) {
@@ -134,7 +130,9 @@ public class BuildTask implements BuildExecution {
         BuildStatusChangedEvent buildStatusChanged = new DefaultBuildStatusChangedEvent(oldStatus, status, getId(),
                 buildConfigurationAudited.getId().getId(), userId);
         log.debug("Updating build task {} status to {}", this.getId(), buildStatusChanged);
-        buildSetTask.taskStatusUpdated(buildStatusChanged);
+        if (buildSetTask != null) {
+            buildSetTask.taskStatusUpdated(buildStatusChanged);
+        }
         buildStatusChangedEvent.fire(buildStatusChanged);
         if (status.isCompleted()) {
             dependants.forEach((dep) -> dep.requiredBuildCompleted(this));
@@ -270,8 +268,11 @@ public class BuildTask implements BuildExecution {
         return buildConfigurationAudited.getProject().getName();
     }
 
-    public BuildExecutionType getBuildExecutionType() {
-        return buildTaskType;
+    public boolean isPartOfBuildSet() {
+        if (buildSetTask != null) {
+            return true;
+        }
+        return false;
     }
 
     public Date getSubmitTime() {

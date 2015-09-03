@@ -17,7 +17,6 @@
  */
 package org.jboss.pnc.core.builder;
 
-import org.jboss.pnc.common.util.StreamCollectors;
 import org.jboss.pnc.core.BuildDriverFactory;
 import org.jboss.pnc.core.EnvironmentDriverFactory;
 import org.jboss.pnc.core.RepositoryManagerFactory;
@@ -25,7 +24,6 @@ import org.jboss.pnc.core.content.ContentIdentityManager;
 import org.jboss.pnc.core.exception.BuildProcessException;
 import org.jboss.pnc.core.exception.CoreException;
 import org.jboss.pnc.model.*;
-import org.jboss.pnc.spi.BuildExecutionType;
 import org.jboss.pnc.spi.BuildResult;
 import org.jboss.pnc.spi.BuildSetStatus;
 import org.jboss.pnc.spi.BuildStatus;
@@ -104,15 +102,24 @@ public class BuildCoordinator {
      * @throws CoreException Thrown if there is a problem initializing the build
      */
     public BuildTask build(BuildConfiguration buildConfiguration, User user) throws CoreException {
-        BuildConfigurationSet buildConfigurationSet = BuildConfigurationSet.Builder.newBuilder()
-                .name(buildConfiguration.getName())
-                .buildConfiguration(buildConfiguration)
-                .build();
 
-        BuildSetTask buildSetTask = createBuildSetTask(buildConfigurationSet, user, BuildExecutionType.STANDALONE_BUILD);
+        String topContentId = ContentIdentityManager.getProductContentId(this.getFirstProductVersion(buildConfiguration));
+        String buildSetContentId = ContentIdentityManager.getBuildSetContentId(buildConfiguration.getName());
+        String buildContentId = ContentIdentityManager.getBuildContentId(buildConfiguration);
 
-        build(buildSetTask);
-        BuildTask buildTask = buildSetTask.getBuildTasks().stream().collect(StreamCollectors.singletonCollector());
+        Date submitTime = new Date();
+        BuildTask buildTask = new BuildTask(
+                this,
+                buildConfiguration,
+                datastoreAdapter.getLatestBuildConfigurationAudited(buildConfiguration.getId()),
+                topContentId,
+                buildSetContentId,
+                buildContentId,
+                user,
+                submitTime,
+                null,
+                datastoreAdapter.getNextBuildRecordId());
+        processBuildTask(buildTask);
         return buildTask;
     }
 
@@ -127,13 +134,13 @@ public class BuildCoordinator {
      */
     public BuildSetTask build(BuildConfigurationSet buildConfigurationSet, User user) throws CoreException {
 
-        BuildSetTask buildSetTask = createBuildSetTask(buildConfigurationSet, user, BuildExecutionType.COMPOSED_BUILD);
+        BuildSetTask buildSetTask = createBuildSetTask(buildConfigurationSet, user);
 
         build(buildSetTask);
         return buildSetTask;
     }
 
-    public BuildSetTask createBuildSetTask(BuildConfigurationSet buildConfigurationSet, User user, BuildExecutionType buildType) throws CoreException {
+    public BuildSetTask createBuildSetTask(BuildConfigurationSet buildConfigurationSet, User user) throws CoreException {
         BuildConfigSetRecord buildConfigSetRecord = BuildConfigSetRecord.Builder.newBuilder()
                 .buildConfigurationSet(buildConfigurationSet)
                 .user(user)
@@ -141,20 +148,17 @@ public class BuildCoordinator {
                 .status(org.jboss.pnc.model.BuildStatus.BUILDING)
                 .build();
 
-        if (BuildExecutionType.COMPOSED_BUILD.equals(buildType)) {
-            try {
-                buildConfigSetRecord = this.saveBuildConfigSetRecord(buildConfigSetRecord);
-            } catch (DatastoreException e) {
-                log.error("Failed to store build config set record: " + e);
-                throw new CoreException(e);
-            }
+        try {
+            buildConfigSetRecord = this.saveBuildConfigSetRecord(buildConfigSetRecord);
+        } catch (DatastoreException e) {
+            log.error("Failed to store build config set record: " + e);
+            throw new CoreException(e);
         }
 
         Date buildSubmitTime = new Date();
         BuildSetTask buildSetTask = new BuildSetTask(
                 this,
                 buildConfigSetRecord,
-                buildType,
                 getProductMilestone(buildConfigurationSet),
                 buildSubmitTime);
 
@@ -169,13 +173,12 @@ public class BuildCoordinator {
      * initialized the BuildConfigSet, BuildConfigSetRecord, Milestone, etc.
      */
     private void initializeBuildTasksInSet(BuildSetTask buildSetTask) {
-        ContentIdentityManager contentIdentityManager = new ContentIdentityManager();
-        String topContentId = contentIdentityManager.getProductContentId(buildSetTask.getBuildConfigurationSet().getProductVersion());
-        String buildSetContentId = contentIdentityManager.getBuildSetContentId(buildSetTask.getBuildConfigurationSet());
+        String topContentId = ContentIdentityManager.getProductContentId(buildSetTask.getBuildConfigurationSet().getProductVersion());
+        String buildSetContentId = ContentIdentityManager.getBuildSetContentId(buildSetTask.getBuildConfigurationSet().getName());
 
         // Loop to create the build tasks
         for(BuildConfiguration buildConfig : buildSetTask.getBuildConfigurationSet().getBuildConfigurations()) {
-            String buildContentId = contentIdentityManager.getBuildContentId(buildConfig);
+            String buildContentId = ContentIdentityManager.getBuildContentId(buildConfig);
             BuildTask buildTask = new BuildTask(
                     this,
                     buildConfig,
@@ -183,7 +186,6 @@ public class BuildCoordinator {
                     topContentId,
                     buildSetContentId,
                     buildContentId,
-                    buildSetTask.getBuildTaskType(),
                     buildSetTask.getBuildConfigSetRecord().getUser(),
                     buildSetTask.getSubmitTime(),
                     buildSetTask,
@@ -201,6 +203,18 @@ public class BuildCoordinator {
                 }
             }
         }
+    }
+
+    /**
+     * Get the first product version (if any) associated with this build config.
+     * @param buildConfig The build configuration to check
+     * @return The firstproduct version, or null if there is none
+     */
+    private ProductVersion getFirstProductVersion(BuildConfiguration buildConfig) {
+        if(buildConfig.getProductVersions() == null) {
+            return null;
+        }
+        return buildConfig.getProductVersions().stream().findFirst().orElse(null);
     }
 
     /**
