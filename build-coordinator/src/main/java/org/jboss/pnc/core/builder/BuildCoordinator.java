@@ -62,7 +62,13 @@ import java.util.stream.Collectors;
 public class BuildCoordinator {
 
     private Logger log = LoggerFactory.getLogger(BuildCoordinator.class);
-    private Queue<BuildTask> buildTasks = new ConcurrentLinkedQueue<>(); //TODO garbage collector (time-out, error state)
+
+    /**
+     * Build tasks which are either waiting to be run or currently running.
+     * The task is removed from the queue when the build is complete and the results
+     * are stored to the database.
+     */
+    private Queue<BuildTask> activeBuildTasks = new ConcurrentLinkedQueue<>(); //TODO garbage collector (time-out, error state)
 
 //    @Resource
 //    private ManagedThreadFactory threadFactory;
@@ -258,7 +264,7 @@ public class BuildCoordinator {
     private void processBuildTask(BuildTask buildTask) {
         try {
             startBuilding(buildTask);
-            buildTasks.add(buildTask);
+            activeBuildTasks.add(buildTask);
         } catch (CoreException e) {
             buildTask.setStatus(BuildStatus.SYSTEM_ERROR);
             buildTask.setStatusDescription(e.getMessage());
@@ -425,7 +431,7 @@ public class BuildCoordinator {
         else
             buildTask.setStatus(BuildStatus.DONE);
 
-        buildTasks.remove(buildTask);
+        activeBuildTasks.remove(buildTask);
         return storedBuildRecord;
     }
 
@@ -470,12 +476,12 @@ public class BuildCoordinator {
         }
     }
 
-    public List<BuildTask> getBuildTasks() {
-        return Collections.unmodifiableList(buildTasks.stream().collect(Collectors.toList()));
+    public List<BuildTask> getActiveBuildTasks() {
+        return Collections.unmodifiableList(activeBuildTasks.stream().collect(Collectors.toList()));
     }
 
     private boolean isBuildAlreadySubmitted(BuildTask buildTask) {
-        return buildTasks.contains(buildTask);
+        return activeBuildTasks.contains(buildTask);
     }
 
     Event<BuildStatusChangedEvent> getBuildStatusChangedEventNotifier() {

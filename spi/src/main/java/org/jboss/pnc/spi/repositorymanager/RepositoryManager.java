@@ -34,7 +34,9 @@ public interface RepositoryManager {
      * Create a new repository session tuned to the parameters of that build collection and the build that will use this
      * repository session.
      *
-     * @param buildExecution
+     * @param buildExecution The build execution currently running
+     * @return The new repository session
+     * @throws RepositoryManagerException If there is a problem creating the repository
      */
     RepositorySession createBuildRepository(BuildExecution buildExecution)
             throws RepositoryManagerException;
@@ -49,7 +51,7 @@ public interface RepositoryManager {
      *
      * @return An object representing the running promotion process, with callbacks for result and error.
      *
-     * @throws RepositoryManagerException
+     * @throws RepositoryManagerException If there is a problem promoting the build
      */
     RunningRepositoryPromotion promoteBuild(BuildRecord buildRecord, String toGroup)
             throws RepositoryManagerException;
@@ -62,7 +64,7 @@ public interface RepositoryManager {
      * @param buildRecord The build whose artifacts/repositories should be removed
      * @return An object representing the running deletion, with callbacks for result and error.
      *
-     * @throws RepositoryManagerException
+     * @throws RepositoryManagerException If there is a problem deleting the build
      */
     RunningRepositoryDeletion deleteBuild(BuildRecord buildRecord) throws RepositoryManagerException;
 
@@ -75,7 +77,7 @@ public interface RepositoryManager {
      *
      * @return An object representing the running promotion process, with a callback method for the result.
      *
-     * @throws RepositoryManagerException
+     * @throws RepositoryManagerException If there is a problem promoting the build set
      */
     RunningRepositoryPromotion promoteBuildSet(BuildRecordSet buildRecordSet, String toGroup)
             throws RepositoryManagerException;

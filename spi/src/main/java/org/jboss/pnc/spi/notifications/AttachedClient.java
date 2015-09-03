@@ -23,7 +23,7 @@ package org.jboss.pnc.spi.notifications;
 public interface AttachedClient {
 
     /**
-     * Returns <code>true</code> if enabled.
+     * @return Returns <code>true</code> if enabled.
      */
     boolean isEnabled();
 
@@ -31,6 +31,7 @@ public interface AttachedClient {
      * Sends a message to the client
      *
      * @param messageBody Message body - depends on implementation how to deal with it.
+     * @throws Exception if there is a problem sending the message
      */
     void sendMessage(Object messageBody) throws Exception;
 }

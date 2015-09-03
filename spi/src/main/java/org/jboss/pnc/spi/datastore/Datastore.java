@@ -30,9 +30,11 @@ import org.jboss.pnc.model.User;
 public interface Datastore {
 
     /**
-     * Stores a complete build.
+     * Stores a completed build.
      *
      * @param buildRecord Completed BuildRecord.
+     * @param buildRecordSetIds The IDs of the build record sets to which this BuildRecord will be added.
+     * @return The updated BuildRecord
      * @throws DatastoreException Thrown if database is unable to process the request.
      */
     BuildRecord storeCompletedBuild(BuildRecord buildRecord, Set<Integer> buildRecordSetIds) throws DatastoreException;
@@ -62,9 +64,9 @@ public interface Datastore {
     /**
      * Save build config set record to db
      * 
-     * @param buildConfigSetRecord
-     * @return
-     * @throws DatastoreException
+     * @param buildConfigSetRecord The record to save
+     * @return The updated BuildConfigSetRecord
+     * @throws DatastoreException If there is a problem saving to the datastore
      */
     BuildConfigSetRecord saveBuildConfigSetRecord(BuildConfigSetRecord buildConfigSetRecord) throws DatastoreException;
 

@@ -26,6 +26,8 @@ public interface BuildSetStatusChangedEvent {
 
     /**
      * May return null if this is the first status change.
+     * 
+     * @return The status of the build set before the change
      */
     BuildSetStatus getOldStatus();
     BuildSetStatus getNewStatus();
