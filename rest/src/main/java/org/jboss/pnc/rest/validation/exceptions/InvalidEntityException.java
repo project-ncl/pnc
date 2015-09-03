@@ -22,6 +22,7 @@ import org.jboss.pnc.rest.validation.exceptions.model.InvalidEntityDetailsRest;
 
 import javax.validation.ConstraintViolation;
 import java.lang.reflect.Field;
+import java.util.Optional;
 
 public class InvalidEntityException extends ValidationException {
 
@@ -47,7 +48,8 @@ public class InvalidEntityException extends ValidationException {
     }
 
     @Override
-    public InvalidEntityDetailsRest getRestModelForException() {
-        return new InvalidEntityDetailsRest(this);
+    public Optional<Object> getRestModelForException() {
+        return Optional.of(new InvalidEntityDetailsRest(this));
     }
+
 }

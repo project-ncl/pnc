@@ -36,7 +36,7 @@
 
 package org.jboss.pnc.rest.validation.exceptions;
 
-import org.jboss.pnc.rest.restmodel.response.error.GenericResponseDetails;
+import java.util.Optional;
 
 public class EmptyEntityException extends ValidationException {
 
@@ -45,7 +45,8 @@ public class EmptyEntityException extends ValidationException {
     }
 
     @Override
-    public GenericResponseDetails getRestModelForException() {
-        return new GenericResponseDetails(this);
+    public Optional<Object> getRestModelForException() {
+        return Optional.empty();
     }
+
 }

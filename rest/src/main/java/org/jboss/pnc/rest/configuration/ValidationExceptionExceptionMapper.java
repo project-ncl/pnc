@@ -58,6 +58,6 @@ public class ValidationExceptionExceptionMapper implements ExceptionMapper<Valid
         if(e instanceof ConflictedEntryException) {
             status = Response.Status.CONFLICT;
         }
-        return Response.status(status).entity(new ErrorResponseRest(e.getRestModelForException())).build();
+        return Response.status(status).entity(new ErrorResponseRest(e)).build();
     }
 }

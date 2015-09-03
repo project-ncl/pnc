@@ -17,6 +17,8 @@
  */
 package org.jboss.pnc.rest.restmodel.response.error;
 
+import org.jboss.pnc.rest.validation.exceptions.ValidationException;
+
 import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement
@@ -24,22 +26,28 @@ public class ErrorResponseRest {
 
     private String errorType;
     private String errorMessage;
-    private ErrorResponseDetails details;
+    private Object details;
 
     public ErrorResponseRest() {
     }
 
-    public ErrorResponseRest(ErrorResponseDetails e) {
-        this.errorType = e.getErrorType();
+    public ErrorResponseRest(Exception e) {
+        this.errorType = e.getClass().getSimpleName();
         this.errorMessage = e.getMessage();
-        this.details = e;
+        this.details = null;
+    }
+
+    public ErrorResponseRest(ValidationException e) {
+        this.errorType = e.getClass().getSimpleName();
+        this.errorMessage = e.getMessage();
+        this.details = e.getRestModelForException().orElse(null);
     }
 
     public String getErrorType() {
         return errorType;
     }
 
-    public ErrorResponseDetails getDetails() {
+    public Object getDetails() {
         return details;
     }
 

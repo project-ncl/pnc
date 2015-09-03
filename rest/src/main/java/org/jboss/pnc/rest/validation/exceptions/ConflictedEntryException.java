@@ -20,6 +20,8 @@ package org.jboss.pnc.rest.validation.exceptions;
 import org.jboss.pnc.model.GenericEntity;
 import org.jboss.pnc.rest.validation.exceptions.model.ConflictedEntryDetailsRest;
 
+import java.util.Optional;
+
 public class ConflictedEntryException extends ValidationException {
 
     private final Integer conflictedRecordId;
@@ -40,7 +42,7 @@ public class ConflictedEntryException extends ValidationException {
     }
 
     @Override
-    public ConflictedEntryDetailsRest getRestModelForException() {
-        return new ConflictedEntryDetailsRest(this);
+    public Optional<Object> getRestModelForException() {
+        return Optional.of(new ConflictedEntryDetailsRest(this));
     }
 }

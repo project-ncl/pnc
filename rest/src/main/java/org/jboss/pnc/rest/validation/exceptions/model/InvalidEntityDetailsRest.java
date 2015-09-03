@@ -35,33 +35,20 @@
  */
 package org.jboss.pnc.rest.validation.exceptions.model;
 
-import org.jboss.pnc.rest.restmodel.response.error.ErrorResponseDetails;
 import org.jboss.pnc.rest.validation.exceptions.InvalidEntityException;
 
 import javax.xml.bind.annotation.XmlType;
 
 @XmlType
-public class InvalidEntityDetailsRest implements ErrorResponseDetails {
+public class InvalidEntityDetailsRest {
 
-    private InvalidEntityException invalidEntityException;
     private String field;
 
     public InvalidEntityDetailsRest() {
     }
 
     public InvalidEntityDetailsRest(InvalidEntityException invalidEntityException) {
-        this.invalidEntityException = invalidEntityException;
         this.field = invalidEntityException.getField();
-    }
-
-    @Override
-    public String getErrorType() {
-        return invalidEntityException.getClass().getSimpleName();
-    }
-
-    @Override
-    public String getMessage() {
-        return invalidEntityException.getMessage();
     }
 
     public String getField() {
