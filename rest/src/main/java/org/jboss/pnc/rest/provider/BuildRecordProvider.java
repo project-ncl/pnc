@@ -74,10 +74,10 @@ public class BuildRecordProvider extends AbstractProvider<BuildRecord, BuildReco
             logger.warn("Querying RSQL is not supported, ignoring");
         }
 
-        return nullableStreamOf(buildCoordinator.getBuildTasks()).map(submittedBuild -> new BuildRecordRest(submittedBuild))
+        return nullableStreamOf(buildCoordinator.getActiveBuildTasks()).map(submittedBuild -> new BuildRecordRest(submittedBuild))
                 .skip(pageIndex * pageSize)
                 .limit(pageSize)
-                .collect(new CollectionInfoCollector<>(pageIndex, pageSize, buildCoordinator.getBuildTasks().size()));
+                .collect(new CollectionInfoCollector<>(pageIndex, pageSize, buildCoordinator.getActiveBuildTasks().size()));
     }
 
     public CollectionInfo<BuildRecordRest> getAllForBuildConfiguration(int pageIndex, int pageSize, String sortingRsql,
@@ -133,7 +133,7 @@ public class BuildRecordProvider extends AbstractProvider<BuildRecord, BuildReco
     }
 
     private BuildTask getSubmittedBuild(Integer id) {
-        List<BuildTask> buildTasks = buildCoordinator.getBuildTasks().stream()
+        List<BuildTask> buildTasks = buildCoordinator.getActiveBuildTasks().stream()
                 .filter(submittedBuild -> id.equals(submittedBuild.getId()))
                 .collect(Collectors.toList());
         if (!buildTasks.isEmpty()) {
