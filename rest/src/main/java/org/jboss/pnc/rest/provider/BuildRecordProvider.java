@@ -43,7 +43,6 @@ import java.io.Writer;
 import java.lang.invoke.MethodHandles;
 import java.util.List;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
 import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.*;
@@ -133,13 +132,9 @@ public class BuildRecordProvider extends AbstractProvider<BuildRecord, BuildReco
     }
 
     private BuildTask getSubmittedBuild(Integer id) {
-        List<BuildTask> buildTasks = buildCoordinator.getActiveBuildTasks().stream()
+        return buildCoordinator.getActiveBuildTasks().stream()
                 .filter(submittedBuild -> id.equals(submittedBuild.getId()))
-                .collect(Collectors.toList());
-        if (!buildTasks.isEmpty()) {
-            return buildTasks.iterator().next();
-        }
-        return null;
+                .findFirst().orElse(null);
     }
 
     public BuildConfigurationAudited getBuildConfigurationAudited(Integer id) {
