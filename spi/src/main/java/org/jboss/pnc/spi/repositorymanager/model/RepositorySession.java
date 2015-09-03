@@ -38,7 +38,8 @@ public interface RepositorySession {
      * Process any uncaptured imports of input artifacts (dependencies, etc.) and return the result containing dependencies and
      * build output.
      *
-     * @throws RepositoryManagerException
+     * @return The result of extracting the build artifacts
+     * @throws RepositoryManagerException if there is a problem extracting build artifacts
      */
     RepositoryManagerResult extractBuildArtifacts() throws RepositoryManagerException;
 }

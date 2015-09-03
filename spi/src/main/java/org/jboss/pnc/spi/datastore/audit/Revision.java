@@ -29,11 +29,13 @@ public interface Revision<Entity extends GenericEntity<ID>, ID extends Number> {
 
     /**
      * Returns entity's id value.
+     * @return The entity ID
      */
     ID getId();
 
     /**
      * Returns audited entity.
+     * @return The audited entity
      */
     Entity getAuditedEntity();
 
