@@ -18,7 +18,6 @@
 package org.jboss.pnc.rest.configuration;
 
 import org.jboss.pnc.rest.restmodel.response.error.ErrorResponseRest;
-import org.jboss.pnc.rest.restmodel.response.error.GenericResponseDetails;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,6 +34,6 @@ public class AllOtherExceptionsMapper implements ExceptionMapper<Exception> {
     @Override
     public Response toResponse(Exception e) {
         logger.error("An exception occurred when processing REST response", e);
-        return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponseRest(new GenericResponseDetails(e))).build();
+        return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponseRest(e)).build();
     }
 }

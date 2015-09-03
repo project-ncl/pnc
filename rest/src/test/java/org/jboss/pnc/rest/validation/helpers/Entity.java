@@ -16,29 +16,21 @@
  * limitations under the License.
  */
 
-package org.jboss.pnc.rest.restmodel.response.error;
+package org.jboss.pnc.rest.validation.helpers;
 
-import javax.xml.bind.annotation.XmlType;
+import org.jboss.pnc.model.GenericEntity;
 
-@XmlType
-public class GenericResponseDetails implements ErrorResponseDetails {
+public class Entity implements GenericEntity<Integer> {
 
-    private Exception exception;
+    private Integer id;
 
-    public GenericResponseDetails() {
-    }
-
-    public GenericResponseDetails(Exception e) {
-        this.exception = e;
+    @Override
+    public Integer getId() {
+        return id;
     }
 
     @Override
-    public String getErrorType() {
-        return exception.getClass().getSimpleName();
-    }
-
-    @Override
-    public String getMessage() {
-        return exception.getMessage();
+    public void setId(Integer id) {
+        this.id = id;
     }
 }

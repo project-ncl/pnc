@@ -20,15 +20,17 @@ package org.jboss.pnc.rest.endpoint;
 import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
 import com.wordnik.swagger.annotations.ApiParam;
+import com.wordnik.swagger.annotations.ApiResponse;
+import com.wordnik.swagger.annotations.ApiResponses;
 import org.jboss.pnc.model.ProductMilestone;
 import org.jboss.pnc.rest.provider.ProductMilestoneProvider;
 import org.jboss.pnc.rest.provider.ProjectProvider;
 import org.jboss.pnc.rest.restmodel.ProductMilestoneRest;
+import org.jboss.pnc.rest.restmodel.response.Page;
+import org.jboss.pnc.rest.restmodel.response.Singleton;
 import org.jboss.pnc.rest.validation.exceptions.ValidationException;
 
 import javax.inject.Inject;
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
@@ -42,6 +44,29 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
+
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.CONFLICTED_CODE;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.CONFLICTED_DESCRIPTION;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.INVALID_DESCRIPTION;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.INVLID_CODE;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.NOT_FOUND_CODE;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.NOT_FOUND_DESCRIPTION;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.NO_CONTENT_CODE;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.NO_CONTENT_DESCRIPTION;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.PAGE_INDEX_DEFAULT_VALUE;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.PAGE_INDEX_DESCRIPTION;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.PAGE_INDEX_QUERY_PARAM;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.PAGE_SIZE_DEFAULT_VALUE;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.PAGE_SIZE_DESCRIPTION;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.PAGE_SIZE_QUERY_PARAM;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.QUERY_DESCRIPTION;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.QUERY_QUERY_PARAM;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.SERVER_ERROR_CODE;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.SERVER_ERROR_DESCRIPTION;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.SORTING_DESCRIPTION;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.SORTING_QUERY_PARAM;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_CODE;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_DESCRIPTION;
 
 @Api(value = "/product-milestones", description = "Product Milestone related information")
 @Path("/product-milestones")
@@ -60,30 +85,46 @@ public class ProductMilestoneEndpoint extends AbstractEndpoint<ProductMilestone,
         this.productMilestoneProvider = productMilestoneProvider;
     }
 
-    @ApiOperation(value = "Gets all Product Milestones",
-            responseContainer = "List", response = ProductMilestoneRest.class)
+    @ApiOperation(value = "Gets all Product Milestones", response = Page.class)
+    @ApiResponses(value = {
+            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION),
+            @ApiResponse(code = NO_CONTENT_CODE, message = NO_CONTENT_DESCRIPTION),
+            @ApiResponse(code = INVLID_CODE, message = INVALID_DESCRIPTION),
+            @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION)
+    })
     @GET
-    public Response getAll(@ApiParam(value = "Page index") @QueryParam("pageIndex") @DefaultValue("0") int pageIndex,
-            @ApiParam(value = "Pagination size") @DefaultValue("50") @QueryParam("pageSize") int pageSize,
-            @ApiParam(value = "Sorting RSQL") @QueryParam("sort") String sortingRsql,
-            @ApiParam(value = "RSQL query") @QueryParam("q") String rsql) {
-        return super.getAll(pageIndex, pageSize, sortingRsql, rsql);
+    public Response getAll(@ApiParam(value = PAGE_INDEX_DESCRIPTION) @QueryParam(PAGE_INDEX_QUERY_PARAM) @DefaultValue(PAGE_INDEX_DEFAULT_VALUE) int pageIndex,
+            @ApiParam(value = PAGE_SIZE_DESCRIPTION) @QueryParam(PAGE_SIZE_QUERY_PARAM) @DefaultValue(PAGE_SIZE_DEFAULT_VALUE) int pageSize,
+            @ApiParam(value = SORTING_DESCRIPTION) @QueryParam(SORTING_QUERY_PARAM) String sort,
+            @ApiParam(value = QUERY_DESCRIPTION, required = false) @QueryParam(QUERY_QUERY_PARAM) String q) {
+        return super.getAll(pageIndex, pageSize, sort, q);
     }
 
-    @ApiOperation(value = "Gets all Product Milestones of the Specified Product Version",
-            responseContainer = "List", response = ProductMilestoneRest.class)
+    @ApiOperation(value = "Gets all Product Milestones of the Specified Product Version", response = Page.class)
+    @ApiResponses(value = {
+            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION),
+            @ApiResponse(code = NO_CONTENT_CODE, message = NO_CONTENT_DESCRIPTION),
+            @ApiResponse(code = INVLID_CODE, message = INVALID_DESCRIPTION),
+            @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION)
+    })
     @GET
     @Path("/product-versions/{versionId}")
     public Response getAllByProductVersionId(
-            @ApiParam(value = "Page index") @QueryParam("pageIndex") @DefaultValue("0") int pageIndex,
-            @ApiParam(value = "Pagination size") @DefaultValue("50") @QueryParam("pageSize") int pageSize,
-            @ApiParam(value = "Sorting RSQL") @QueryParam("sort") String sortingRsql,
-            @ApiParam(value = "RSQL query", required = false) @QueryParam("q") String rsql,
+            @ApiParam(value = PAGE_INDEX_DESCRIPTION) @QueryParam(PAGE_INDEX_QUERY_PARAM) @DefaultValue(PAGE_INDEX_DEFAULT_VALUE) int pageIndex,
+            @ApiParam(value = PAGE_SIZE_DESCRIPTION) @QueryParam(PAGE_SIZE_QUERY_PARAM) @DefaultValue(PAGE_SIZE_DEFAULT_VALUE) int pageSize,
+            @ApiParam(value = SORTING_DESCRIPTION) @QueryParam(SORTING_QUERY_PARAM) String sort,
+            @ApiParam(value = QUERY_DESCRIPTION, required = false) @QueryParam(QUERY_QUERY_PARAM) String q,
             @ApiParam(value = "Product Version id", required = true) @PathParam("versionId") Integer versionId) {
-        return Response.ok().entity(productMilestoneProvider.getAllForProductVersion(pageIndex, pageSize, sortingRsql, rsql, versionId)).build();
+        return fromCollection(productMilestoneProvider.getAllForProductVersion(pageIndex, pageSize, sort, q, versionId));
     }
 
-    @ApiOperation(value = "Gets specific Product Milestone", response = ProductMilestoneRest.class)
+    @ApiOperation(value = "Gets specific Product Milestone", response = Singleton.class)
+    @ApiResponses(value = {
+            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION),
+            @ApiResponse(code = INVLID_CODE, message = INVALID_DESCRIPTION),
+            @ApiResponse(code = NOT_FOUND_CODE, message = NOT_FOUND_DESCRIPTION),
+            @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION)
+    })
     @GET
     @Path("/{id}")
     public Response getSpecific(
@@ -91,19 +132,30 @@ public class ProductMilestoneEndpoint extends AbstractEndpoint<ProductMilestone,
         return super.getSpecific(id);
     }
 
-    @ApiOperation(value = "Creates a new Product Milestone for the Specified Product Version",
-            response = ProductMilestoneRest.class)
+    @ApiOperation(value = "Creates a new Product Milestone for the Specified Product Version", response = Singleton.class)
+    @ApiResponses(value = {
+            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION),
+            @ApiResponse(code = INVLID_CODE, message = INVALID_DESCRIPTION),
+            @ApiResponse(code = CONFLICTED_CODE, message = CONFLICTED_DESCRIPTION),
+            @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION)
+    })
     @POST
-    public Response createNew(@NotNull @Valid ProductMilestoneRest productMilestoneRest, @Context UriInfo uriInfo)
+    public Response createNew(ProductMilestoneRest productMilestoneRest, @Context UriInfo uriInfo)
             throws ValidationException {
         return super.createNew(productMilestoneRest, uriInfo);
     }
 
     @ApiOperation(value = "Updates an existing Product Milestone")
+    @ApiResponses(value = {
+            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION),
+            @ApiResponse(code = INVLID_CODE, message = INVALID_DESCRIPTION),
+            @ApiResponse(code = CONFLICTED_CODE, message = CONFLICTED_DESCRIPTION),
+            @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION)
+    })
     @PUT
     @Path("/{id}")
     public Response update(@ApiParam(value = "Product Milestone id", required = true) @PathParam("id") Integer id,
-            @NotNull @Valid ProductMilestoneRest productMilestoneRest, @Context UriInfo uriInfo) throws ValidationException {
+            ProductMilestoneRest productMilestoneRest, @Context UriInfo uriInfo) throws ValidationException {
         return super.update(id, productMilestoneRest);
     }
 

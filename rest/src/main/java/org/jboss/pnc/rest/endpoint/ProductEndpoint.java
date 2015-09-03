@@ -20,11 +20,14 @@ package org.jboss.pnc.rest.endpoint;
 import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
 import com.wordnik.swagger.annotations.ApiParam;
+import com.wordnik.swagger.annotations.ApiResponse;
+import com.wordnik.swagger.annotations.ApiResponses;
 import org.jboss.pnc.model.Product;
 import org.jboss.pnc.rest.provider.ProductProvider;
 import org.jboss.pnc.rest.provider.ProductVersionProvider;
 import org.jboss.pnc.rest.restmodel.ProductRest;
-import org.jboss.pnc.rest.restmodel.ProductVersionRest;
+import org.jboss.pnc.rest.restmodel.response.Page;
+import org.jboss.pnc.rest.restmodel.response.Singleton;
 import org.jboss.pnc.rest.validation.exceptions.ValidationException;
 
 import javax.inject.Inject;
@@ -44,6 +47,29 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.CONFLICTED_CODE;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.CONFLICTED_DESCRIPTION;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.INVALID_DESCRIPTION;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.INVLID_CODE;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.NOT_FOUND_CODE;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.NOT_FOUND_DESCRIPTION;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.NO_CONTENT_CODE;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.NO_CONTENT_DESCRIPTION;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.PAGE_INDEX_DEFAULT_VALUE;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.PAGE_INDEX_DESCRIPTION;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.PAGE_INDEX_QUERY_PARAM;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.PAGE_SIZE_DEFAULT_VALUE;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.PAGE_SIZE_DESCRIPTION;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.PAGE_SIZE_QUERY_PARAM;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.QUERY_DESCRIPTION;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.QUERY_QUERY_PARAM;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.SERVER_ERROR_CODE;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.SERVER_ERROR_DESCRIPTION;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.SORTING_DESCRIPTION;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.SORTING_QUERY_PARAM;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_CODE;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_DESCRIPTION;
+
 @Api(value = "/products", description = "Product related information")
 @Path("/products")
 @Produces(MediaType.APPLICATION_JSON)
@@ -61,16 +87,28 @@ public class ProductEndpoint extends AbstractEndpoint<Product, ProductRest> {
         this.productVersionProvider = productVersionProvider;
     }
 
-    @ApiOperation(value = "Gets all Products", responseContainer = "List", response = ProductRest.class)
+    @ApiOperation(value = "Gets all Products", response = Page.class)
+    @ApiResponses(value = {
+            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION),
+            @ApiResponse(code = NO_CONTENT_CODE, message = NO_CONTENT_DESCRIPTION),
+            @ApiResponse(code = INVLID_CODE, message = INVALID_DESCRIPTION),
+            @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION)
+    })
     @GET
-    public Response getAll(@ApiParam(value = "Page index") @QueryParam("pageIndex") @DefaultValue("0") int pageIndex,
-            @ApiParam(value = "Pagination size") @DefaultValue("50") @QueryParam("pageSize") int pageSize,
-            @ApiParam(value = "Sorting RSQL") @QueryParam("sort") String sortingRsql,
-            @ApiParam(value = "RSQL query", required = false) @QueryParam("q") String rsql) {
-        return super.getAll(pageIndex, pageSize, sortingRsql, rsql);
+    public Response getAll(@ApiParam(value = PAGE_INDEX_DESCRIPTION) @QueryParam(PAGE_INDEX_QUERY_PARAM) @DefaultValue(PAGE_INDEX_DEFAULT_VALUE) int pageIndex,
+            @ApiParam(value = PAGE_SIZE_DESCRIPTION) @QueryParam(PAGE_SIZE_QUERY_PARAM) @DefaultValue(PAGE_SIZE_DEFAULT_VALUE) int pageSize,
+            @ApiParam(value = SORTING_DESCRIPTION) @QueryParam(SORTING_QUERY_PARAM) String sort,
+            @ApiParam(value = QUERY_DESCRIPTION, required = false) @QueryParam(QUERY_QUERY_PARAM) String q) {
+        return super.getAll(pageIndex, pageSize, sort, q);
     }
 
-    @ApiOperation(value = "Get specific Product", response = ProductRest.class)
+    @ApiOperation(value = "Get specific Product", response = Singleton.class)
+    @ApiResponses(value = {
+            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION),
+            @ApiResponse(code = INVLID_CODE, message = INVALID_DESCRIPTION),
+            @ApiResponse(code = NOT_FOUND_CODE, message = NOT_FOUND_DESCRIPTION),
+            @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION)
+    })
     @GET
     @Path("/{id}")
     public Response getSpecific(@ApiParam(value = "Product id", required = true) @PathParam("id") Integer id) {
@@ -78,12 +116,24 @@ public class ProductEndpoint extends AbstractEndpoint<Product, ProductRest> {
     }
 
     @ApiOperation(value = "Creates a new Product", response = ProductRest.class)
+    @ApiResponses(value = {
+            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION),
+            @ApiResponse(code = INVLID_CODE, message = INVALID_DESCRIPTION),
+            @ApiResponse(code = CONFLICTED_CODE, message = CONFLICTED_DESCRIPTION),
+            @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION)
+    })
     @POST
-    public Response createNew(@NotNull @Valid ProductRest productRest, @Context UriInfo uriInfo) throws ValidationException {
+    public Response createNew(ProductRest productRest, @Context UriInfo uriInfo) throws ValidationException {
         return super.createNew(productRest, uriInfo);
     }
 
     @ApiOperation(value = "Updates an existing Product")
+    @ApiResponses(value = {
+            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION),
+            @ApiResponse(code = INVLID_CODE, message = INVALID_DESCRIPTION),
+            @ApiResponse(code = CONFLICTED_CODE, message = CONFLICTED_DESCRIPTION),
+            @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION)
+    })
     @PUT
     @Path("/{id}")
     public Response update(@ApiParam(value = "Product id", required = true) @PathParam("id") Integer productId,
@@ -91,17 +141,22 @@ public class ProductEndpoint extends AbstractEndpoint<Product, ProductRest> {
         return super.update(productId, productRest);
     }
 
-    @ApiOperation(value = "Get all versions for a Product",
-            responseContainer = "List", response = ProductVersionRest.class)
+    @ApiOperation(value = "Get all versions for a Product", response = Page.class)
+    @ApiResponses(value = {
+            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION),
+            @ApiResponse(code = NO_CONTENT_CODE, message = NO_CONTENT_DESCRIPTION),
+            @ApiResponse(code = INVLID_CODE, message = INVALID_DESCRIPTION),
+            @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION)
+    })
     @GET
     @Path("/{id}/product-versions")
     public Response getProductVersions(
-            @ApiParam(value = "Page index") @QueryParam("pageIndex") @DefaultValue("0") int pageIndex,
-            @ApiParam(value = "Pagination size") @DefaultValue("50") @QueryParam("pageSize") int pageSize,
-            @ApiParam(value = "Sorting RSQL") @QueryParam("sort") String sortingRsql,
-            @ApiParam(value = "RSQL query", required = false) @QueryParam("q") String rsql,
+            @ApiParam(value = PAGE_INDEX_DESCRIPTION) @QueryParam(PAGE_INDEX_QUERY_PARAM) @DefaultValue(PAGE_INDEX_DEFAULT_VALUE) int pageIndex,
+            @ApiParam(value = PAGE_SIZE_DESCRIPTION) @QueryParam(PAGE_SIZE_QUERY_PARAM) @DefaultValue(PAGE_SIZE_DEFAULT_VALUE) int pageSize,
+            @ApiParam(value = SORTING_DESCRIPTION) @QueryParam(SORTING_QUERY_PARAM) String sort,
+            @ApiParam(value = QUERY_DESCRIPTION, required = false) @QueryParam(QUERY_QUERY_PARAM) String q,
             @ApiParam(value = "Product id", required = true) @PathParam("id") Integer productId) {
-        return fromCollection(productVersionProvider.getAllForProduct(pageIndex, pageSize, sortingRsql, rsql, productId));
+        return fromCollection(productVersionProvider.getAllForProduct(pageIndex, pageSize, sort, q, productId));
     }
 
 }

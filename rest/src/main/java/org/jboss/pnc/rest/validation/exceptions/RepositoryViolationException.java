@@ -36,8 +36,7 @@
 
 package org.jboss.pnc.rest.validation.exceptions;
 
-import org.jboss.pnc.rest.restmodel.response.error.ErrorResponseDetails;
-import org.jboss.pnc.rest.validation.exceptions.model.RepositoryViolationDetailsRest;
+import java.util.Optional;
 
 public class RepositoryViolationException extends ValidationException {
 
@@ -46,8 +45,8 @@ public class RepositoryViolationException extends ValidationException {
     }
 
     @Override
-    public ErrorResponseDetails getRestModelForException() {
-        return new RepositoryViolationDetailsRest(this);
+    public Optional<Object> getRestModelForException() {
+        return Optional.empty();
     }
 
 }

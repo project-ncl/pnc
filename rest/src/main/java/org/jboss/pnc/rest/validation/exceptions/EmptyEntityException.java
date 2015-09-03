@@ -33,25 +33,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.rest.validation.exceptions.model;
 
-import org.jboss.pnc.rest.validation.exceptions.InvalidEntityException;
+package org.jboss.pnc.rest.validation.exceptions;
 
-import javax.xml.bind.annotation.XmlType;
+import java.util.Optional;
 
-@XmlType
-public class InvalidEntityDetailsRest {
+public class EmptyEntityException extends ValidationException {
 
-    private String field;
-
-    public InvalidEntityDetailsRest() {
+    public EmptyEntityException(String message) {
+        super(message);
     }
 
-    public InvalidEntityDetailsRest(InvalidEntityException invalidEntityException) {
-        this.field = invalidEntityException.getField();
+    @Override
+    public Optional<Object> getRestModelForException() {
+        return Optional.empty();
     }
 
-    public String getField() {
-        return field;
-    }
 }
