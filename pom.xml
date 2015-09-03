@@ -1315,10 +1315,11 @@
             <id>attach-javadocs</id>
             <goals>
               <goal>jar</goal>
-                </goals>
-                <configuration>
-                  <detectOfflineLinks>false</detectOfflineLinks>
-                </configuration>
+            </goals>
+            <configuration>
+              <detectOfflineLinks>false</detectOfflineLinks>
+              <quiet>true</quiet>
+            </configuration>
           </execution>
         </executions>
       </plugin>
