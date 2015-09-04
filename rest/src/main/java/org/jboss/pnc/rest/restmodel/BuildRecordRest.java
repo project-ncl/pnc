@@ -86,8 +86,11 @@ public class BuildRecordRest implements GenericRestEntity<Integer> {
         this.id = buildTask.getId();
         this.submitTime = buildTask.getSubmitTime();
         this.startTime = buildTask.getStartTime();
-        performIfNotNull(buildTask.getBuildConfiguration(),
-                () -> buildConfigurationId = buildTask.getBuildConfiguration().getId());
+        this.endTime = buildTask.getEndTime();
+        if (buildTask.getBuildConfigurationAudited() != null) {
+            this.buildConfigurationId = buildTask.getBuildConfigurationAudited().getId().getId();
+            this.buildConfigurationRev = buildTask.getBuildConfigurationAudited().getRev();
+        }
         this.status = BuildStatus.BUILDING;
         buildTask.getLogsWebSocketLink().ifPresent(logsUri -> this.liveLogsUri = logsUri.toString());
         performIfNotNull(buildTask.getBuildSetTask(), () -> this.buildConfigSetRecordId = buildTask.getBuildSetTask().getId());
@@ -103,6 +106,14 @@ public class BuildRecordRest implements GenericRestEntity<Integer> {
     @Override
     public void setId(Integer id) {
         this.id = id;
+    }
+
+    public Date getSubmitTime() {
+        return submitTime;
+    }
+
+    public void setSubmitTime(Date submitTime) {
+        this.submitTime = submitTime;
     }
 
     public Date getStartTime() {
