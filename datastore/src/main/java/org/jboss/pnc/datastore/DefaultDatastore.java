@@ -105,7 +105,7 @@ public class DefaultDatastore implements Datastore {
     public int getNextBuildRecordId() {
 
         Long nextId = sequenceHandlerRepository.getNextID(BuildRecord.SEQUENCE_NAME);
-        logger.info("Build Record nextId: {}", nextId);
+        logger.debug("Build Record nextId: {}", nextId);
 
         return nextId.intValue();
     }

@@ -141,6 +141,9 @@
             case 401:
               keycloak.login();
               break;
+            case 409:
+              Notifications.httpError('Build rejected because the same build configuration is already running', rejection);
+              break;
             default:
               $log.debug('HTTP response: %O', rejection);
               Notifications.httpError('HTTP Error', rejection);

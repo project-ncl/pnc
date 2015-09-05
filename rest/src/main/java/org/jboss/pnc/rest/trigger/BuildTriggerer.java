@@ -39,12 +39,12 @@ import org.jboss.pnc.core.notifications.buildTask.BuildStatusNotifications;
 import org.jboss.pnc.model.*;
 import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
 import org.jboss.pnc.spi.datastore.DatastoreException;
-import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationAuditedRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationSetRepository;
 import org.jboss.pnc.spi.datastore.repositories.SortInfoProducer;
 import org.jboss.pnc.spi.events.BuildSetStatusChangedEvent;
 import org.jboss.pnc.spi.events.BuildStatusChangedEvent;
+import org.jboss.pnc.spi.exception.BuildConflictException;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerException;
 
 import javax.ejb.Stateless;
@@ -61,7 +61,6 @@ public class BuildTriggerer {
     
     private BuildCoordinator buildCoordinator;
     private BuildConfigurationRepository buildConfigurationRepository;
-    private BuildConfigurationAuditedRepository buildConfigurationAuditedRepository;
     private BuildConfigurationSetRepository buildConfigurationSetRepository;
     private BuildSetStatusNotifications buildSetStatusNotifications;
     private BuildStatusNotifications buildStatusNotifications;
@@ -76,20 +75,19 @@ public class BuildTriggerer {
 
     @Inject
     public BuildTriggerer(final BuildCoordinator buildCoordinator, final BuildConfigurationRepository buildConfigurationRepository,
-            final BuildConfigurationAuditedRepository buildConfigurationAuditedRepository, final BuildConfigurationSetRepository buildConfigurationSetRepository,
+            final BuildConfigurationSetRepository buildConfigurationSetRepository,
             BuildSetStatusNotifications buildSetStatusNotifications, BuildStatusNotifications buildStatusNotifications,
             SortInfoProducer sortInfoProducer) {
         this.buildCoordinator = buildCoordinator;
         this.buildConfigurationRepository = buildConfigurationRepository;
-        this.buildConfigurationAuditedRepository = buildConfigurationAuditedRepository;
         this.buildConfigurationSetRepository= buildConfigurationSetRepository;
         this.buildSetStatusNotifications = buildSetStatusNotifications;
         this.buildStatusNotifications = buildStatusNotifications;
         this.sortInfoProducer = sortInfoProducer;
     }
 
-    public int triggerBuilds( final Integer buildConfigurationId, User currentUser, URL callBackUrl)
-            throws InterruptedException, CoreException, BuildDriverException, RepositoryManagerException, DatastoreException
+    public int triggerBuild( final Integer buildConfigurationId, User currentUser, URL callBackUrl)
+            throws BuildConflictException
     {
         Consumer<BuildStatusChangedEvent> onStatusUpdate = (statusChangedEvent) -> {
             if(statusChangedEvent.getNewStatus().isCompleted()) {
@@ -98,13 +96,12 @@ public class BuildTriggerer {
             }
         };
 
-        int buildTaskId = triggerBuilds(buildConfigurationId, currentUser);
+        int buildTaskId = triggerBuild(buildConfigurationId, currentUser);
         buildStatusNotifications.subscribe(new BuildCallBack(buildTaskId, onStatusUpdate));
         return buildTaskId;
     }
 
-    public int triggerBuilds( final Integer configurationId, User currentUser )
-        throws InterruptedException, CoreException, BuildDriverException, RepositoryManagerException, DatastoreException
+    public int triggerBuild( final Integer configurationId, User currentUser ) throws BuildConflictException
     {
         final BuildConfiguration configuration = buildConfigurationRepository.queryById(configurationId);
         Preconditions.checkArgument(configuration != null, "Can't find configuration with given id=" + configurationId);
@@ -115,7 +112,7 @@ public class BuildTriggerer {
             buildRecordSet.setPerformedInProductMilestone(productVersion.getCurrentProductMilestone());
         }
 
-        Integer taskId = buildCoordinator.build(configuration, currentUser).getId();
+        Integer taskId = buildCoordinator.build(configuration, currentUser, false).getId();
         return taskId;
     }
 

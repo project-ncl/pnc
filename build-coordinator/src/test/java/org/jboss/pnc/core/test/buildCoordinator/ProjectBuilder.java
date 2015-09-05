@@ -38,6 +38,7 @@ import org.jboss.pnc.spi.BuildSetStatus;
 import org.jboss.pnc.spi.BuildStatus;
 import org.jboss.pnc.spi.datastore.DatastoreException;
 import org.jboss.pnc.spi.events.BuildStatusChangedEvent;
+import org.jboss.pnc.spi.exception.BuildConflictException;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.asset.EmptyAsset;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
@@ -90,7 +91,7 @@ public class ProjectBuilder {
         return jar;
     }
 
-    void buildProject(BuildConfiguration buildConfiguration) throws InterruptedException, CoreException, DatastoreException {
+    void buildProject(BuildConfiguration buildConfiguration) throws BuildConflictException, InterruptedException {
         log.debug("Building project {}", buildConfiguration.getName());
         List<BuildStatusChangedEvent> receivedStatuses = new CopyOnWriteArrayList<>();
 
@@ -99,7 +100,7 @@ public class ProjectBuilder {
         final Semaphore semaphore = registerReleaseListenersAndAcquireSemaphore(receivedStatuses, N_STATUS_UPDATES_PER_TASK);
 
         User user = null;
-        BuildTask buildTask = buildCoordinator.build(buildConfiguration, user);
+        BuildTask buildTask = buildCoordinator.build(buildConfiguration, user, false);
         log.info("Started build task {}", buildTask);
 
         assertBuildStartedSuccessfully(buildTask);

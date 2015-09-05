@@ -23,7 +23,6 @@ import com.wordnik.swagger.annotations.ApiParam;
 import com.wordnik.swagger.annotations.ApiResponse;
 import com.wordnik.swagger.annotations.ApiResponses;
 import org.jboss.pnc.auth.AuthenticationProvider;
-import org.jboss.pnc.core.exception.CoreException;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.rest.provider.BuildConfigurationProvider;
@@ -36,6 +35,7 @@ import org.jboss.pnc.rest.restmodel.response.Singleton;
 import org.jboss.pnc.rest.trigger.BuildTriggerer;
 import org.jboss.pnc.rest.validation.exceptions.ValidationException;
 import org.jboss.pnc.spi.datastore.Datastore;
+import org.jboss.pnc.spi.exception.BuildConflictException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -203,6 +203,7 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
     @ApiOperation(value = "Triggers the build of a specific Build Configuration", response = Singleton.class)
     @ApiResponses(value = {
             @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION),
+            @ApiResponse(code = CONFLICTED_CODE, message = CONFLICTED_DESCRIPTION),
             @ApiResponse(code = INVLID_CODE, message = INVALID_DESCRIPTION),
             @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION)
     })
@@ -231,17 +232,16 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
             Integer runningBuildId = null;
             // if callbackUrl is provided trigger build accordingly
             if (callbackUrl == null || callbackUrl.isEmpty()) {
-                runningBuildId = buildTriggerer.triggerBuilds(id, currentUser);
+                runningBuildId = buildTriggerer.triggerBuild(id, currentUser);
             } else {
-                runningBuildId = buildTriggerer.triggerBuilds(id, currentUser, new URL(callbackUrl));
+                runningBuildId = buildTriggerer.triggerBuild(id, currentUser, new URL(callbackUrl));
             }
             
             UriBuilder uriBuilder = UriBuilder.fromUri(uriInfo.getBaseUri()).path("/result/running/{id}");
             URI uri = uriBuilder.build(runningBuildId);
             return Response.ok(uri).header("location", uri).entity(buildRecordProvider.getSpecificRunning(runningBuildId)).build();
-        } catch (CoreException e) {
-            logger.error(e.getMessage(), e);
-            return Response.serverError().entity("Core error: " + e.getMessage()).build();
+        } catch (BuildConflictException e) {
+            return Response.status(Response.Status.CONFLICT).entity(buildRecordProvider.getSpecificRunning(e.getBuildTaskId())).build();
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
             return Response.serverError().entity("Other error: " + e.getMessage()).build();
