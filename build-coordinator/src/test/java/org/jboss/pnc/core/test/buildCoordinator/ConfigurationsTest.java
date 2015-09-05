@@ -51,7 +51,7 @@ public class ConfigurationsTest extends ProjectBuilder {
 
         User user = User.Builder.newBuilder().id(1).build();
 
-        BuildTask buildTask = buildCoordinator.build(buildConfiguration, user);
+        BuildTask buildTask = buildCoordinator.build(buildConfiguration, user, false);
         Assert.assertEquals(BuildStatus.REJECTED, buildTask.getStatus());
         Assert.assertTrue("Invalid status description: " + buildTask.getStatusDescription(), buildTask.getStatusDescription().contains("itself"));
     }

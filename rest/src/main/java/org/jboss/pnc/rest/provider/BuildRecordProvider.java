@@ -124,6 +124,9 @@ public class BuildRecordProvider extends AbstractProvider<BuildRecord, BuildReco
     }
 
     public BuildRecordRest getSpecificRunning(Integer id) {
+        if (id == null) {
+            return null;
+        }
         BuildTask buildTask = getSubmittedBuild(id);
         if (buildTask != null) {
             return new BuildRecordRest(buildTask);

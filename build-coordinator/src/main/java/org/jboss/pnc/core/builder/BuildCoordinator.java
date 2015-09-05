@@ -36,6 +36,7 @@ import org.jboss.pnc.spi.environment.StartedEnvironment;
 import org.jboss.pnc.spi.environment.exception.EnvironmentDriverException;
 import org.jboss.pnc.spi.events.BuildSetStatusChangedEvent;
 import org.jboss.pnc.spi.events.BuildStatusChangedEvent;
+import org.jboss.pnc.spi.exception.BuildConflictException;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManager;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
 import org.jboss.pnc.spi.repositorymanager.model.RepositorySession;
@@ -99,25 +100,32 @@ public class BuildCoordinator {
     }
 
     /**
-     * Run a single build.
-     * 
+     * Run a single build.  Uses the settings from the latest saved/audited build configuration.
+     *
      * @param buildConfiguration The build configuration which will be used.  The latest version of this
      * build config will be built.
      * @param user The user who triggered the build.
-     * @return
-     * @throws CoreException Thrown if there is a problem initializing the build
+     * @param force Run the build even if there is already another build which uses the same audited build config
+     *
+     * @return The new build task
+     * @throws BuildConflictException If there is already a build running with the same build configuration Id and version
      */
-    public BuildTask build(BuildConfiguration buildConfiguration, User user) throws CoreException {
+    public BuildTask build(BuildConfiguration buildConfiguration, User user, boolean force) throws BuildConflictException {
 
         String topContentId = ContentIdentityManager.getProductContentId(this.getFirstProductVersion(buildConfiguration));
         String buildSetContentId = ContentIdentityManager.getBuildSetContentId(buildConfiguration.getName());
         String buildContentId = ContentIdentityManager.getBuildContentId(buildConfiguration);
 
+        BuildConfigurationAudited buildConfigAudited = datastoreAdapter.getLatestBuildConfigurationAudited(buildConfiguration.getId());
+        Optional<BuildTask> alreadyActiveBuildTask = this.getActiveBuildTask(buildConfigAudited);
+        if (alreadyActiveBuildTask.isPresent()) {
+            throw new BuildConflictException("Active build task found using the same configuration", alreadyActiveBuildTask.get().getId());
+        }
         Date submitTime = new Date();
         BuildTask buildTask = new BuildTask(
                 this,
                 buildConfiguration,
-                datastoreAdapter.getLatestBuildConfigurationAudited(buildConfiguration.getId()),
+                buildConfigAudited,
                 topContentId,
                 buildSetContentId,
                 buildContentId,
@@ -135,7 +143,7 @@ public class BuildCoordinator {
      * 
      * @param buildConfigurationSet The set of builds to be executed.
      * @param user The user who triggered the build.
-     * @return
+     * @return The new build set task
      * @throws CoreException Thrown if there is a problem initializing the build
      */
     public BuildSetTask build(BuildConfigurationSet buildConfigurationSet, User user) throws CoreException {
@@ -209,6 +217,17 @@ public class BuildCoordinator {
                 }
             }
         }
+    }
+
+    /**
+     * Searches the active build tasks to see if there is already one running the give audited
+     * build config.  If yes, returns the associated build task.  If none are found, returns null.
+     * 
+     * @param buildConfigAudited The build config to look for in the active build tasks
+     * @return An Optional containing the matching build task if there is one.
+     */
+    private Optional<BuildTask> getActiveBuildTask(BuildConfigurationAudited buildConfigAudited) {
+        return activeBuildTasks.stream().filter(bt -> bt.getBuildConfigurationAudited().equals(buildConfigAudited)).findFirst();
     }
 
     /**
@@ -441,7 +460,8 @@ public class BuildCoordinator {
      * in the case of a build config set.
      *
      * @param buildConfigSetRecord
-     * @return
+     * @return The build config set record which has been saved to the db
+     * @throws DatastoreException if there is a db problem which prevents this record being stored
      */
     protected BuildConfigSetRecord saveBuildConfigSetRecord(BuildConfigSetRecord buildConfigSetRecord) throws DatastoreException {
         return datastoreAdapter.saveBuildConfigSetRecord(buildConfigSetRecord);
