@@ -27,21 +27,14 @@
     'csRecordDetail',
     function ($state, csRecordDetail) {
       this.csRecordDetail = csRecordDetail;
-      this.reload = function () {
-        $state.go($state.current, {}, {reload: true});
-      };
     }
   ]);
 
 
   module.controller('CsRecordInfoController', [
     'csRecordDetail',
-    'records',
-    'runningRecords',
-    function (csRecordDetail, records, runningRecords) {
-      this.records = records;
+    function (csRecordDetail) {
       this.csRecordDetail = csRecordDetail;
-      this.runningRecords = runningRecords;
     }
   ]);
 
@@ -63,12 +56,7 @@
 
 
   module.controller('CsRecordListController', [
-    '$state',
-    function ($state) {
-      this.reload = function () {
-        $state.go($state.current, {}, {reload: true});
-      };
-    }
+    _.noop
   ]);
 
 })();

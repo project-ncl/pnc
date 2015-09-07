@@ -25,61 +25,15 @@
 
       <input ng-model="searchText" placeholder="filter config...">
 
-      <div class="panel panel-default" ng-hide="!ctrl.runningRecords.length">
-        <div class="panel-heading">
-          Running Builds
-        </div>
-        <table class="table table-bordered table-striped table-hover">
-          <thead>
-          <th>Project</th>
-          <th>Build Configuration Name</th>
-          <th>User</th>
-          <th>Status</th>
-          </thead>
-          <tbody>
-          <tr ng-repeat="record in ctrl.runningRecords | filter:searchText">
-            <td>{{ record.getBuildConfiguration().getProject().name }}</td>
-            <td><a href ui-sref="configuration.detail.show({configurationId: record.getBuildConfiguration().id})">{{ record.getBuildConfiguration().name }}</a></td>
-            <td>{{ record.getUser().username }}</td>
-            <td>
-              <build-status-icon status="record.status"></build-status-icon>
-                <a href ui-sref="record.detail.info({recordId: record.id})"># {{ record.id }}</a>
-            </td>
-          </tr>
-          </tbody>
-        </table>
-      </div>
+      <pnc-running-builds2 count="runningBuildsCount" build-config-set-record-id="{{ ctrl.csRecordDetail.id }}"
+                           search-text="searchText"></pnc-running-builds2>
+      <pnc-recent-builds2 count="recentBuildsCount" build-config-set-record-id="{{ ctrl.csRecordDetail.id }}"
+                          search-text="searchText"></pnc-recent-builds2>
 
-      <div class="panel panel-default" ng-hide="!ctrl.records.length">
-        <div class="panel-heading">
-          Finished Builds
-        </div>
-        <table class="table table-bordered table-striped table-hover">
-          <thead>
-          <th>Project</th>
-          <th>Build Configuration Name</th>
-          <th>User</th>
-          <th>Status</th>
-          </thead>
-          <tbody>
-          <tr ng-repeat="record in ctrl.records | filter:searchText">
-            <td>{{ record.getBuildConfiguration().getProject().name }}</td>
-            <td><a href ui-sref="configuration.detail.show({configurationId: record.getBuildConfiguration().id})">{{ record.getBuildConfiguration().name }}</a></td>
-            <td>{{ record.getUser().username }}</td>
-            <td>
-              <build-status-icon status="record.status"></build-status-icon>
-                <a href ui-sref="record.detail.info({recordId: record.id})"># {{ record.id }}</a>
-            </td>
-          </tr>
-          </tbody>
-        </table>
-      </div>
-
-      <div class="panel panel-default" ng-hide="ctrl.runningRecords.length || ctrl.records.length">
+      <div class="panel panel-default" ng-hide="runningBuildsCount || recentBuildsCount">
         No build records for this set.
       </div>
 
     </div>
-
   </dl>
 </div>
