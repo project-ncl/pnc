@@ -17,11 +17,26 @@
     limitations under the License.
 
 -->
-<div>
-  <div class="page-header">
-    <h1>Configuration Set Build Progress</h1>
+<div class="panel panel-default">
+  <div class="panel-heading">
+    Running Builds
   </div>
+  <div class="spinner spinner-sm" ng-hide="tracker.isLoaded"></div>
 
-  <pnc-running-cs-builds></pnc-running-cs-builds>
-  <pnc-recent-cs-builds></pnc-recent-cs-builds>
+  <table class="table table-striped table-hover" ng-show="tracker.isLoaded">
+    <tbody>
+    <tr ng-repeat="record in tracker.data">
+      <td>
+        <build-status-icon status="record.status"></build-status-icon>
+      </td>
+      <td><a href ui-sref="configuration-set-record.detail.info({recordId: record.id})"># {{ record.id }} &mdash; {{ record.getConfigurationSet().name }}</a></td>
+      <td>{{ record.startTime | date:'medium'}}</td>
+    </tr>
+    <tr ng-hide="tracker.data.length">
+      <td>
+        No running builds
+      </td>
+    </tr>
+    </tbody>
+  </table>
 </div>

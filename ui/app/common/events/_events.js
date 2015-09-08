@@ -26,9 +26,9 @@
   module.config([
     'webSocketBusProvider',
     function(webSocketBusProvider) {
-
+      var host = window.location.host; // 'localhost:8080'
       webSocketBusProvider.newEndpoint(
-        'ws://' + window.location.host + '/pnc-rest/ws/build-records/notifications',
+        'ws://' + host + '/pnc-rest/ws/build-records/notifications',
         'eventBroadcastingWebSocketListener'
       );
     }
@@ -53,17 +53,19 @@
 
       // Notify user when builds finish.
       scope.$on(eventTypes.BUILD_FINISHED, function(event, payload) {
-
-        BuildRecordDAO.get({ recordId: payload.id }).$promise.then(
-          function(result) {
-            if (result.status === 'SUCCESS') {
-              Notifications.success('Build #' + payload.id + ' completed');
-            } else {
-              Notifications.warn('Build #' + payload.id + ' failed');
+        if(payload.buildStatus === 'REJECTED') {
+          Notifications.warn('Build #' + payload.id + ' rejected.');
+        } else {
+          BuildRecordDAO.get({recordId: payload.id}).$promise.then(
+            function (result) {
+              if (result.status === 'SUCCESS') {
+                Notifications.success('Build #' + payload.id + ' completed');
+              } else {
+                Notifications.warn('Build #' + payload.id + ' failed');
+              }
             }
-          }
-        );
-
+          );
+        }
       });
 
     }

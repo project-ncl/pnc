@@ -32,33 +32,36 @@
 
     BUILD_STARTED: 'BUILD_STARTED',
 
-    BUILD_FINISHED: 'BUILD_FINISHED'
+    BUILD_FINISHED: 'BUILD_FINISHED',
 
+    BUILD_SET_STARTED: 'BUILD_SET_STARTED',
+
+    BUILD_SET_FINISHED: 'BUILD_SET_FINISHED'
   }));
 
   module.factory('eventBroadcastingWebSocketListener', [
     '$log',
     '$rootScope',
     'pncEventAdaptor',
-    function($log, $rootScope, pncEventAdaptor) {
+    function ($log, $rootScope, pncEventAdaptor) {
 
       return {
 
-        onMessage: function(message) {
+        onMessage: function (message) {
           $log.debug('Received WebSocket event: %O', message);
           var event = pncEventAdaptor.convert(message);
           $rootScope.$broadcast(event.eventType, event.payload);
         },
 
-        onOpen: function() {
+        onOpen: function () {
           $log.info('WebSocket opened successfully');
         },
 
-        onClose: function() {
+        onClose: function () {
           $log.info('WebSocket closed');
         },
 
-        onError: function() {
+        onError: function () {
           $log.error('WebSocket Error: ', arguments);
         }
 
@@ -72,30 +75,68 @@
    */
   module.factory('pncEventAdaptor', [
     'eventTypes',
-    function(eventTypes) {
+    function (eventTypes) {
       return {
-        convert: function(event) {
-          var result = {
-            payload: event.payload
-          };
+        convert: function (event) {
 
-          //TODO: handle multiple PNC eventTypes gracefully.
-          if(event.eventType !== 'BUILD_STATUS_CHANGED') {
-            return event;
+          var adaptors = [];
+
+          adaptors.push({
+            supports: function (event) {
+              return event.eventType === 'BUILD_STATUS_CHANGED';
+            },
+            convert: function (event) {
+              var result = {
+                payload: event.payload
+              };
+
+              switch (event.payload.buildStatus) {
+                case 'REPO_SETTING_UP':
+                  result.eventType = eventTypes.BUILD_STARTED;
+                  break;
+                case 'DONE':
+                case 'REJECTED':
+                case 'SYSTEM_ERROR':
+                  result.eventType = eventTypes.BUILD_FINISHED;
+                  break;
+              }
+              return result;
+            }
+          });
+
+
+          adaptors.push({
+            supports: function (event) {
+              return event.eventType === 'BUILD_SET_STATUS_CHANGED' &&
+                _(['id', 'buildStatus', 'userId', 'buildSetConfigurationId'])
+                  .every(function(e) { return _.has(event.payload, e); });
+            },
+            convert: function (event) {
+              var result = {
+                payload: event.payload
+              };
+              switch (event.payload.buildStatus) {
+                case 'NEW':
+                  result.eventType = eventTypes.BUILD_SET_STARTED;
+                  break;
+                case 'DONE':
+                case 'REJECTED':
+                  result.eventType = eventTypes.BUILD_SET_FINISHED;
+                  break;
+              }
+              return result;
+            }
+          });
+
+          var adaptor = _(adaptors).find(function (e) {
+            return e.supports(event);
+          });
+
+          if(!_.isUndefined(adaptor)) {
+            return adaptor.convert(event);
+          } else {
+            throw 'Invalid event format: ' + JSON.stringify(event);
           }
-
-          switch(event.payload.buildStatus) {
-            case 'REPO_SETTING_UP':
-              result.eventType = eventTypes.BUILD_STARTED;
-              break;
-            case 'DONE':
-            case 'REJECTED':
-            case 'SYSTEM_ERROR':
-              result.eventType = eventTypes.BUILD_FINISHED;
-              break;
-          }
-
-          return result;
         }
       };
     }

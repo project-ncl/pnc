@@ -17,26 +17,24 @@
     limitations under the License.
 
 -->
-<div class="panel panel-default" ng-show="tracker.data.length">
+<div class="panel panel-default">
   <div class="panel-heading">
-    Running Builds
+    Recent Builds
   </div>
-  <table class="table table-bordered table-striped table-hover">
-    <thead>
-    <th>Project</th>
-    <th>Build Configuration Name</th>
-    <th>User</th>
-    <th>Status</th>
-    </thead>
+  <div class="spinner spinner-sm" ng-hide="tracker.isLoaded"></div>
+
+  <table class="table table-striped table-hover" ng-show="tracker.isLoaded">
     <tbody>
-    <tr ng-repeat="record in tracker.data | filter:searchText">
-      <td>{{ record.getBuildConfiguration().getProject().name }}</td>
-      <td><a href ui-sref="configuration.detail.show({configurationId: record.getBuildConfiguration().id})">{{
-        record.getBuildConfiguration().name }}</a></td>
-      <td>{{ record.getUser().username }}</td>
+    <tr ng-repeat="record in tracker.data">
       <td>
         <build-status-icon status="record.status"></build-status-icon>
-        <a href ui-sref="record.detail.info({recordId: record.id})"># {{ record.id }}</a>
+      </td>
+      <td><a href ui-sref="configuration-set-record.detail.info({recordId: record.id})"># {{ record.id }} &mdash; {{ record.getConfigurationSet().name }}</a></td>
+      <td>{{ record.startTime | date:'medium'}} &mdash; {{ record.endTime | date:'medium'}}</td>
+    </tr>
+    <tr ng-hide="tracker.data.length">
+      <td>
+        No recent builds
       </td>
     </tr>
     </tbody>

@@ -86,12 +86,6 @@
             return BuildRecordDAO.query().$promise.then(function (r) {
               return _(r).where({buildConfigSetRecordId: csRecordDetail.id});
             });
-          },
-          // only running records that belong to the current csRecord
-          runningRecords: function (csRecordDetail, RunningBuildRecordDAO) {
-            return RunningBuildRecordDAO.query().$promise.then(function (r) {
-              return _(r).where({buildConfigSetRecordId: csRecordDetail.id});
-            });
           }
         }
       });
