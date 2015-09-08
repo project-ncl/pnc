@@ -71,12 +71,13 @@ public class RSQLNodeTravellerPredicate<Entity extends GenericEntity<? extends N
 
         operations.put(GreaterThanNode.class, (r, cb, clazz, operand, arguments) -> cb.greaterThan(r.get(String.valueOf(operand)), arguments.get(0)));
         operations.put(GreaterThanOrEqualNode.class, (r, cb, clazz, operand, arguments) -> cb.greaterThanOrEqualTo(r.get(String.valueOf(operand)), arguments.get(0)));
-        operations.put(LessThanNode.class, (r, cb, operand, clazz, arguments) -> cb.lessThan(r.get(String.valueOf(operand)), arguments.get(0)));
-        operations.put(LessThanOrEqualNode.class, (r, cb, operand, clazz, arguments) -> cb.lessThanOrEqualTo(r.get(String.valueOf(operand)), arguments.get(0)));
-        operations.put(InNode.class, (r, cb, operand, clazz, arguments) -> r.get(String.valueOf(operand)).in(arguments));
-        operations.put(NotInNode.class, (r, cb, operand, clazz, arguments) -> cb.not(r.get(String.valueOf(operand)).in(arguments)));
+        operations.put(LessThanNode.class, (r, cb, clazz, operand, arguments) -> cb.lessThan(r.get(String.valueOf(operand)), arguments.get(0)));
+        operations.put(LessThanOrEqualNode.class, (r, cb, clazz, operand, arguments) -> cb.lessThanOrEqualTo(r.get(String.valueOf(operand)), arguments.get(0)));
+        operations.put(InNode.class, (r, cb, clazz, operand, arguments) -> r.get(String.valueOf(operand)).in(arguments));
+        operations.put(NotInNode.class, (r, cb, clazz, operand, arguments) -> cb.not(r.get(String.valueOf(operand)).in(arguments)));
+        operations.put(LikeNode.class, (r, cb, clazz, operand, arguments) -> cb.like(r.get(String.valueOf(operand)), arguments.get(0)));
 
-        rootNode = new RSQLParser().parse(rsql);
+        rootNode = new RSQLParser(new ExtendedRSQLNodesFactory()).parse(rsql);
         selectingClass = entityClass;
     }
 
