@@ -43,6 +43,7 @@ public interface RunningEnvironment extends Serializable, DestroyableEnvironment
      */
     int getJenkinsPort(); //TODO rename to getBuildAgent*
 
+    //TODO add external and internal URL (service and route)
     /**
      * @return Jenkins URL in format IP:PORT
      */

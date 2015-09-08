@@ -18,12 +18,7 @@
 package org.jboss.pnc.environment.openshift;
 
 import com.openshift.internal.restclient.DefaultClient;
-import org.jboss.arquillian.container.test.api.Deployment;
-import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.pnc.common.Configuration;
-import org.jboss.pnc.common.json.ConfigurationParseException;
-import org.jboss.pnc.common.json.moduleconfig.OpenshiftEnvironmentDriverModuleConfig;
-import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
 import org.jboss.pnc.common.monitor.PullingMonitor;
 import org.jboss.pnc.common.util.ObjectWrapper;
 import org.jboss.pnc.model.BuildType;
@@ -38,31 +33,23 @@ import org.jboss.pnc.spi.repositorymanager.RepositoryManagerException;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
 import org.jboss.pnc.spi.repositorymanager.model.RepositoryConnectionInfo;
 import org.jboss.pnc.spi.repositorymanager.model.RepositorySession;
-import org.jboss.pnc.test.category.ContainerTest;
 import org.jboss.pnc.test.category.RemoteTest;
-import org.jboss.shrinkwrap.api.ShrinkWrap;
-import org.jboss.shrinkwrap.api.asset.EmptyAsset;
-import org.jboss.shrinkwrap.api.spec.WebArchive;
-import org.jboss.shrinkwrap.resolver.api.maven.Maven;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
-import org.junit.runner.RunWith;
 import org.slf4j.LoggerFactory;
 
-import javax.inject.Inject;
-import java.io.File;
 import java.io.IOException;
 import java.lang.invoke.MethodHandles;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -78,8 +65,6 @@ public class OpenshiftEnvironmentDriverRemoteTest {
     private static final RepositorySession DUMMY_REPOSITORY_CONFIGURATION = new DummyRepositoryConfiguration();
 
     private static final int TEST_EXECUTION_TIMEOUT = 30;
-
-    private final String pingUrl = "/";
 
     private final EnvironmentDriver environmentDriver;
 
@@ -110,8 +95,7 @@ public class OpenshiftEnvironmentDriverRemoteTest {
                 assertThatContainerIsRunning(runningEnvironment);
 
                 // Destroy container
-                logger.info("Trying to destroy environment.");
-                runningEnvironment.destroyEnvironment();
+                destroyEnvironment(runningEnvironment);
                 containerDestroyed = true;
                 assertThatContainerIsNotRunning(runningEnvironment);
                 mutex.release();
@@ -149,36 +133,51 @@ public class OpenshiftEnvironmentDriverRemoteTest {
 
     }
 
+    private void destroyEnvironment(RunningEnvironment runningEnvironment) throws EnvironmentDriverException {
+        logger.info("Destroying environment...");
+        runningEnvironment.destroyEnvironment();
+    }
+
     private void assertThatContainerIsRunning(final RunningEnvironment runningEnvironment) throws Exception {
-        HttpURLConnection connection = connectToPingUrl(runningEnvironment);
-        assertEquals("Environment wasn't successfully started.", 200, connection.getResponseCode());
+        boolean connected = connectToPingUrl(runningEnvironment, 20);
+        assertTrue("Environment wasn't successfully started.", connected);
     }
 
     private void assertThatContainerIsNotRunning(RunningEnvironment runningEnvironment) throws IOException {
         boolean timeoutReached = false;
-        try {
-            HttpURLConnection connection = connectToPingUrl(runningEnvironment);
-        } catch (java.net.SocketTimeoutException e) {
-            timeoutReached = true;
-        }
-        assertTrue("Environment [" + runningEnvironment.getId() + "] should be destroyed.", timeoutReached);
+        boolean connected = connectToPingUrl(runningEnvironment, 0);
+        assertFalse("Environment [" + runningEnvironment.getId() + "] should be destroyed.", connected);
     }
 
-    private HttpURLConnection connectToPingUrl(RunningEnvironment runningEnvironment) throws IOException {
-        URL url = new URL(runningEnvironment.getJenkinsUrl() + ":" + runningEnvironment.getJenkinsPort() + pingUrl);
+    private boolean connectToPingUrl(RunningEnvironment runningEnvironment, int maxRepeats) throws IOException {
+        URL url = new URL(runningEnvironment.getJenkinsUrl());
+        logger.info("Left {} attempts to connect to {}", maxRepeats, url);
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-        connection.setConnectTimeout(1000);
+        connection.setConnectTimeout(250);
         connection.setRequestMethod("GET");
         connection.setDoOutput(true);
         connection.setDoInput(true);
         connection.connect();
-        return connection;
+
+        int responseCode = connection.getResponseCode();
+        connection.disconnect();
+
+        logger.info("Got {} from {}.", responseCode, url);
+        if (responseCode == 200) {
+            return true;
+        } else {
+            if (maxRepeats > 0) {
+                return connectToPingUrl(runningEnvironment, maxRepeats - 1);
+            } else {
+                return false;
+            }
+        }
     }
 
     private void destroyEnvironmentWithReport(RunningEnvironment runningEnvironment) {
         try {
             logger.info("Trying to destroy environment!");
-            runningEnvironment.destroyEnvironment();
+            destroyEnvironment(runningEnvironment);
         } catch (Exception e) {
             logger.error("Environment LEAK! The running environment was not removed stopped. ID: " + runningEnvironment.getId());
         }

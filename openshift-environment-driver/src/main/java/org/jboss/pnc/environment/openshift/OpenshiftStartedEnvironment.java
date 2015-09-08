@@ -18,6 +18,7 @@
 package org.jboss.pnc.environment.openshift;
 
 import com.openshift.internal.restclient.model.Pod;
+import com.openshift.internal.restclient.model.Route;
 import com.openshift.internal.restclient.model.Service;
 import com.openshift.internal.restclient.model.properties.ResourcePropertiesRegistry;
 import com.openshift.restclient.ClientFactory;
@@ -37,6 +38,10 @@ import org.jboss.util.StringPropertyReplacer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -61,6 +66,7 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
     private final PullingMonitor pullingMonitor;
     private Pod pod;
     private Service service;
+    private Route route;
     private final Set<Selector> initialized = new HashSet<>();
 
 
@@ -78,22 +84,35 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
 
         Map<String, String> runtimeProperties = new HashMap<>();
         String randString = RandomUtils.randString(4);//TODO increment length, not the 24 char limit
+        String routePath = "pnc-ba-" + randString;
+
         runtimeProperties.put("pod-name", "pnc-ba-pod-" + randString);
         runtimeProperties.put("service-name", "pnc-ba-service-" + randString);
+        runtimeProperties.put("route-name", "pnc-ba-route-" + randString);
+        runtimeProperties.put("route-path", routePath);
+        runtimeProperties.put("buildAgentContextPath", "/" + routePath);
 
-        String podConfiguration = replaceConfigurationVariables(Configurations.V1_PNC_BUILDER_POD.getContentAsString(), environmentConfiguration, runtimeProperties);
-        logger.info("Using Pod definition: " + podConfiguration);
-        ModelNode podConfigurationNode = ModelNode.fromJSONString(podConfiguration);
+
+        ModelNode podConfigurationNode = createModelNode(Configurations.V1_PNC_BUILDER_POD.getContentAsString(), runtimeProperties);
         pod = new Pod(podConfigurationNode, client, ResourcePropertiesRegistry.getInstance().get("v1", ResourceKind.POD, true));
         pod.setNamespace(environmentConfiguration.getPncNamespace());
         client.create(pod, environmentConfiguration.getPncNamespace()); //TODO non-blocking
 
-        String serviceConfiguration = replaceConfigurationVariables(Configurations.V1_PNC_BUILDER_SERVICE.getContentAsString(), environmentConfiguration, runtimeProperties);
-        logger.info("Using Service definition: " + serviceConfiguration);
-        ModelNode serviceConfigurationNode = ModelNode.fromJSONString(serviceConfiguration);
+        ModelNode serviceConfigurationNode = createModelNode(Configurations.V1_PNC_BUILDER_SERVICE.getContentAsString(), runtimeProperties);
         service = new Service(serviceConfigurationNode, client, ResourcePropertiesRegistry.getInstance().get("v1", ResourceKind.SERVICE, true));
         service.setNamespace(environmentConfiguration.getPncNamespace());
         client.create(service, environmentConfiguration.getPncNamespace()); //TODO non-blocking
+
+        ModelNode routeConfigurationNode = createModelNode(Configurations.V1_PNC_BUILDER_ROUTE.getContentAsString(), runtimeProperties);
+        route = new Route(routeConfigurationNode, client, ResourcePropertiesRegistry.getInstance().get("v1", ResourceKind.ROUTE, true));
+        route.setNamespace(environmentConfiguration.getPncNamespace());
+        client.create(route, environmentConfiguration.getPncNamespace()); //TODO non-blocking
+    }
+
+    private ModelNode createModelNode(String resourceDefinition, Map<String, String> runtimeProperties) {
+        String definition = replaceConfigurationVariables(resourceDefinition, runtimeProperties);
+        logger.info("Node definition: " + definition);
+        return ModelNode.fromJSONString(definition);
     }
 
     @Override
@@ -101,6 +120,7 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
 
         pullingMonitor.monitor(onEnvironmentInitComplete(onComplete, Selector.POD), onError, () -> isPodRunning());
         pullingMonitor.monitor(onEnvironmentInitComplete(onComplete, Selector.SERVICE), onError, () -> isServiceRunning());
+        pullingMonitor.monitor(onEnvironmentInitComplete(onComplete, Selector.ROUTE), onError, () -> isRouteRunning());
 
         logger.info("Waiting to start a pod [{}] and service [{}].", pod.getName(), service.getName());
     }
@@ -120,7 +140,8 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
             RunningEnvironment runningEnvironment = RunningEnvironment.createInstance(
                     pod.getName(),
                     pod.getContainerPorts().stream().findFirst().orElseThrow(exceptionSupplier).getContainerPort(),
-                    "http://" + service.getPortalIP() + environmentConfiguration.getBuildAgentBindPath(),
+                    //TODO use service for internal communication
+                    getEndpointUrl(), //TODO configurable port and protocol
                     repositorySession,
                     Paths.get(environmentConfiguration.getWorkingDirectory()),
                     this::destroyEnvironment
@@ -128,6 +149,10 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
 
             onComplete.accept(runningEnvironment);
         };
+    }
+
+    private String getEndpointUrl() {
+        return "http://" + route.getHost() + route.getPath() + environmentConfiguration.getBuildAgentBindPath();
     }
 
     private boolean isPodRunning() {
@@ -140,6 +165,20 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
         return service.getPods().size() > 0;
     }
 
+    private boolean isRouteRunning() {
+        try {
+            if (connectToPingUrl(new URL(getEndpointUrl()))) {
+                route = client.get(this.route.getKind(), this.route.getName(), environmentConfiguration.getPncNamespace());
+                return true;
+            } else {
+                return false;
+            }
+        } catch (IOException e) {
+            logger.error("Cannot open URL " + getEndpointUrl(), e);
+            return false;
+        }
+    }
+
     @Override
     public String getId() {
         return pod.getName();
@@ -147,11 +186,12 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
 
     @Override
     public void destroyEnvironment() {
+        client.delete(route);
         client.delete(service);
         client.delete(pod);
     }
 
-    private String replaceConfigurationVariables(String podConfiguration, OpenshiftEnvironmentDriverModuleConfig environmentConfiguration, Map runtimeProperties) {
+    private String replaceConfigurationVariables(String podConfiguration, Map runtimeProperties) {
         Boolean proxyActive = !StringUtils.isEmpty(environmentConfiguration.getProxyServer())
                 && !StringUtils.isEmpty(environmentConfiguration.getProxyPort());
 
@@ -172,6 +212,21 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
     }
 
     private enum Selector {
-        POD, SERVICE;
+        POD, SERVICE, ROUTE;
+    }
+
+    private boolean connectToPingUrl(URL url) throws IOException {
+        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+        connection.setConnectTimeout(250);
+        connection.setRequestMethod("GET");
+        connection.setDoOutput(true);
+        connection.setDoInput(true);
+        connection.connect();
+
+        int responseCode = connection.getResponseCode();
+        connection.disconnect();
+
+        logger.debug("Got {} from {}.", responseCode, url);
+        return responseCode == 200;
     }
 }

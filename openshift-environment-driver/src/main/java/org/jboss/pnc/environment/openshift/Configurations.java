@@ -31,7 +31,8 @@ import java.lang.invoke.MethodHandles;
 public enum Configurations {
 
     V1_PNC_BUILDER_POD("v1_pnc-builder-pod.json"),
-    V1_PNC_BUILDER_SERVICE("v1_pnc-builder-service.json");
+    V1_PNC_BUILDER_SERVICE("v1_pnc-builder-service.json"),
+    V1_PNC_BUILDER_ROUTE("v1_pnc-builder-route.json");
 
     private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass().getName());
 

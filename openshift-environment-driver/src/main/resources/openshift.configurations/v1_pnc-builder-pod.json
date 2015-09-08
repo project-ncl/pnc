@@ -45,6 +45,10 @@
                     {
                         "name": "AProxDeployUrl",
                         "value": "${AProxDeployUrl}"
+                    },
+                    {
+                        "name": "buildAgentContextPath",
+                        "value": "${buildAgentContextPath}"
                     }
                 ],
                 "resources": {},
