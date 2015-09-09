@@ -46,7 +46,7 @@ public class AbstractLocalBuildAgentTest {
         workingDirectory.toFile().deleteOnExit();
 
         localBuildAgent = new BuildAgent();
-        localBuildAgent.start("127.0.0.1", 0, Optional.of(workingDirectory), null);
+        localBuildAgent.start("127.0.0.1", 0, "", Optional.of(workingDirectory), null);
     }
 
     @AfterClass
