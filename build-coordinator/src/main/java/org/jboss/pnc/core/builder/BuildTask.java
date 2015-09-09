@@ -166,12 +166,7 @@ public class BuildTask implements BuildExecution {
         if (dependencies.contains(completed) && completed.hasFailed()) {
             this.setStatus(BuildStatus.REJECTED);
         } else if (dependencies.stream().allMatch(dep -> dep.getStatus().isCompleted())) {
-            try {
-                buildCoordinator.startBuilding(this);
-            } catch (CoreException e) {
-                setStatus(BuildStatus.SYSTEM_ERROR);
-                setStatusDescription(e.getMessage());
-            }
+            buildCoordinator.processBuildTask(this);
         }
     }
 

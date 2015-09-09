@@ -71,32 +71,24 @@ public class BuildCoordinator {
      */
     private Queue<BuildTask> activeBuildTasks = new ConcurrentLinkedQueue<>(); //TODO garbage collector (time-out, error state)
 
-//    @Resource
-//    private ManagedThreadFactory threadFactory;
-    private ExecutorService executor = Executors.newFixedThreadPool(4); //TODO configurable
-    //TODO override executor and implement "protected void afterExecute(Runnable r, Throwable t) { }" to catch possible exceptions
-
-    private RepositoryManagerFactory repositoryManagerFactory;
-    private BuildDriverFactory buildDriverFactory;
-    private EnvironmentDriverFactory environmentDriverFactory;
     private DatastoreAdapter datastoreAdapter;
     private Event<BuildStatusChangedEvent> buildStatusChangedEventNotifier;
     private Event<BuildSetStatusChangedEvent> buildSetStatusChangedEventNotifier;
+
+    BuildExecutor buildExecutor;
 
     @Deprecated
     public BuildCoordinator(){} //workaround for CDI constructor parameter injection
 
     @Inject
-    public BuildCoordinator(BuildDriverFactory buildDriverFactory, RepositoryManagerFactory repositoryManagerFactory,
-                            EnvironmentDriverFactory environmentDriverFactory, DatastoreAdapter datastoreAdapter,
+    public BuildCoordinator(DatastoreAdapter datastoreAdapter,
                             Event<BuildStatusChangedEvent> buildStatusChangedEventNotifier,
-                            Event<BuildSetStatusChangedEvent> buildSetStatusChangedEventNotifier) {
-        this.buildDriverFactory = buildDriverFactory;
-        this.repositoryManagerFactory = repositoryManagerFactory;
+                            Event<BuildSetStatusChangedEvent> buildSetStatusChangedEventNotifier,
+                            BuildExecutor buildExecutor) {
         this.datastoreAdapter = datastoreAdapter;
-        this.environmentDriverFactory = environmentDriverFactory;
         this.buildStatusChangedEventNotifier = buildStatusChangedEventNotifier;
         this.buildSetStatusChangedEventNotifier = buildSetStatusChangedEventNotifier;
+        this.buildExecutor = buildExecutor;
     }
 
     /**
@@ -277,12 +269,18 @@ public class BuildCoordinator {
                     .filter(rejectAlreadySubmitted)
                     .forEach(v -> processBuildTask(v));
         }
-
     }
 
-    private void processBuildTask(BuildTask buildTask) {
+    void processBuildTask(BuildTask buildTask) {
+        Runnable onComplete = () -> {
+            activeBuildTasks.remove(buildTask);
+        };
         try {
-            startBuilding(buildTask);
+            if (true) { //TODO if using BPM
+                buildExecutor.startBuilding(buildTask, onComplete);
+            } else {
+                //start remote bpm process
+            }
             activeBuildTasks.add(buildTask);
         } catch (CoreException e) {
             buildTask.setStatus(BuildStatus.SYSTEM_ERROR);
@@ -294,165 +292,6 @@ public class BuildCoordinator {
         return datastoreAdapter.isBuildConfigurationBuilt();
     }
 
-    void startBuilding(BuildTask buildTask) throws CoreException {
-        CompletableFuture.supplyAsync(() -> configureRepository(buildTask), executor)
-            .thenApplyAsync(repositoryConfiguration -> setUpEnvironment(buildTask, repositoryConfiguration), executor)
-            .thenComposeAsync(startedEnvironment -> waitForEnvironmentInitialization(buildTask, startedEnvironment), executor)
-            .thenApplyAsync(runningEnvironment -> buildSetUp(buildTask, runningEnvironment), executor)
-            .thenComposeAsync(runningBuild -> waitBuildToComplete(buildTask, runningBuild), executor)
-            .thenApplyAsync(completedBuild -> retrieveBuildDriverResults(buildTask, completedBuild), executor)
-            .thenApplyAsync(buildDriverResult -> retrieveRepositoryManagerResults(buildTask, buildDriverResult), executor)
-            .thenApplyAsync(buildResults -> destroyEnvironment(buildTask, buildResults), executor)
-            .handleAsync((buildResults, e) -> storeResults(buildTask, buildResults, e), executor);
-    }
-
-    private RepositorySession configureRepository(BuildTask buildTask) {
-        buildTask.setStatus(BuildStatus.REPO_SETTING_UP);
-        try {
-            RepositoryManager repositoryManager = repositoryManagerFactory.getRepositoryManager(RepositoryType.MAVEN);
-            return repositoryManager.createBuildRepository(buildTask);
-        } catch (Throwable e) {
-            throw new BuildProcessException(e);
-        }
-    }
-
-    private StartedEnvironment setUpEnvironment(BuildTask buildTask, RepositorySession repositorySession) {
-            buildTask.setStatus(BuildStatus.BUILD_ENV_SETTING_UP);
-            try {
-                EnvironmentDriver envDriver = environmentDriverFactory.getDriver(buildTask.getBuildConfigurationAudited().getEnvironment());
-                StartedEnvironment startedEnv = envDriver.buildEnvironment(
-                        buildTask.getBuildConfigurationAudited().getEnvironment(), repositorySession);
-                return startedEnv;
-            } catch (Throwable e) {
-                throw new BuildProcessException(e);
-            }
-    }
-    
-    private CompletableFuture<RunningEnvironment> waitForEnvironmentInitialization(BuildTask buildTask, StartedEnvironment startedEnvironment) {
-        CompletableFuture<RunningEnvironment> waitToCompleteFuture = new CompletableFuture<>();
-            try {
-                Consumer<RunningEnvironment> onComplete = (runningEnvironment) -> {
-                    buildTask.setStatus(BuildStatus.BUILD_ENV_SETUP_COMPLETE_SUCCESS);
-                    waitToCompleteFuture.complete(runningEnvironment);
-                };
-                Consumer<Exception> onError = (e) -> {
-                    buildTask.setStatus(BuildStatus.BUILD_ENV_SETUP_COMPLETE_WITH_ERROR);
-                    waitToCompleteFuture.completeExceptionally(new BuildProcessException(e, startedEnvironment));
-                };
-                buildTask.setStatus(BuildStatus.BUILD_ENV_WAITING);
-
-                startedEnvironment.monitorInitialization(onComplete, onError);
-            } catch (Throwable e) {
-                waitToCompleteFuture.completeExceptionally(new BuildProcessException(e, startedEnvironment));
-            }
-            return waitToCompleteFuture;
-    }
-
-    private RunningBuild buildSetUp(BuildTask buildTask, RunningEnvironment runningEnvironment) {
-        buildTask.setStatus(BuildStatus.BUILD_SETTING_UP);
-        try {
-            buildTask.setStartTime(new Date());
-            BuildDriver buildDriver = buildDriverFactory.getBuildDriver(buildTask.getBuildConfigurationAudited().getEnvironment().getBuildType());
-            return buildDriver.startProjectBuild(buildTask, buildTask.getBuildConfigurationAudited(), runningEnvironment);
-        } catch (Throwable e) {
-            throw new BuildProcessException(e, runningEnvironment);
-        }
-    }
-
-    private CompletableFuture<CompletedBuild> waitBuildToComplete(BuildTask buildTask, RunningBuild runningBuild) {
-        CompletableFuture<CompletedBuild> waitToCompleteFuture = new CompletableFuture<>();
-            try {
-                Consumer<CompletedBuild> onComplete = (completedBuild) -> {
-                    waitToCompleteFuture.complete(completedBuild);
-                };
-                Consumer<Throwable> onError = (e) -> {
-                    waitToCompleteFuture.completeExceptionally(new BuildProcessException(e, runningBuild.getRunningEnvironment()));
-                };
-                
-                buildTask.setStatus(BuildStatus.BUILD_WAITING);
-
-                runningBuild.monitor(onComplete, onError);
-            } catch (Throwable exception) {
-                waitToCompleteFuture.completeExceptionally( 
-                        new BuildProcessException(exception, runningBuild.getRunningEnvironment()));
-            }
-        return waitToCompleteFuture;
-    }
-
-    private BuildDriverResult retrieveBuildDriverResults(BuildTask buildTask, CompletedBuild completedBuild) {
-        buildTask.setEndTime(new Date());
-        buildTask.setStatus(BuildStatus.COLLECTING_RESULTS_FROM_BUILD_DRIVER);
-        try {
-            BuildDriverResult buildResult = completedBuild.getBuildResult();
-            BuildDriverStatus buildDriverStatus = buildResult.getBuildDriverStatus();
-            if (buildDriverStatus.completedSuccessfully()) {
-                buildTask.setStatus(BuildStatus.BUILD_COMPLETED_SUCCESS);
-            } else {
-                buildTask.setStatus(BuildStatus.BUILD_COMPLETED_WITH_ERROR);
-            }
-            return buildResult;
-        } catch (Throwable e) {
-            throw new BuildProcessException(e, completedBuild.getRunningEnvironment());
-        }
-    }
-
-    private BuildResult retrieveRepositoryManagerResults(BuildTask buildTask, BuildDriverResult buildDriverResult) {
-        try {
-            buildTask.setStatus(BuildStatus.COLLECTING_RESULTS_FROM_REPOSITORY_NAMAGER);
-            RunningEnvironment runningEnvironment  = buildDriverResult.getRunningEnvironment();
-            if (BuildDriverStatus.SUCCESS.equals(buildDriverResult.getBuildDriverStatus())) {
-                RepositoryManagerResult repositoryManagerResult = runningEnvironment.getRepositorySession().extractBuildArtifacts();
-                return new DefaultBuildResult(runningEnvironment, buildDriverResult, repositoryManagerResult);
-            } else {
-                return new DefaultBuildResult(runningEnvironment, buildDriverResult, null);
-            }
-        } catch (Throwable e) {
-            throw new BuildProcessException(e, buildDriverResult.getRunningEnvironment());
-        }
-    }
-
-    private BuildResult destroyEnvironment(BuildTask buildTask, BuildResult buildResult ) {
-        try {
-            buildTask.setStatus(BuildStatus.BUILD_ENV_DESTROYING);
-            buildResult.getRunningEnvironment().destroyEnvironment();
-            buildTask.setStatus(BuildStatus.BUILD_ENV_DESTROYED);
-            return buildResult;
-        } catch (Throwable e) {
-            throw new BuildProcessException(e);
-        }
-    }
-    
-    private BuildRecord storeResults(BuildTask buildTask, BuildResult buildResult, Throwable e) {
-        BuildRecord storedBuildRecord = null;
-        try {
-            if (buildResult != null) {
-                buildTask.setStatus(BuildStatus.STORING_RESULTS);
-                storedBuildRecord = datastoreAdapter.storeResult(buildTask, buildResult, buildTask.getId());
-            } else {
-                // If there are no build results, then there was a system failure 
-                // which means the build may not have started.
-                if (buildTask.getStartTime() == null) {
-                    buildTask.setStartTime(new Date());
-                }
-                stopRunningEnvironment(e);
-                if (buildTask.getEndTime() == null) {
-                    buildTask.setEndTime(new Date());
-                }
-
-                datastoreAdapter.storeResult(buildTask, e);
-            }
-        } catch (DatastoreException de) {
-            log.error("Error storing results of build configuration: " + buildTask.getId()  + " to datastore.", de);
-        }
-
-        if (buildTask.hasFailed())
-            buildTask.setStatus(BuildStatus.DONE_WITH_ERRORS);
-        else
-            buildTask.setStatus(BuildStatus.DONE);
-
-        activeBuildTasks.remove(buildTask);
-        return storedBuildRecord;
-    }
 
     /**
      * Save the build config set record using a single thread for all db operations.
@@ -465,35 +304,6 @@ public class BuildCoordinator {
      */
     protected BuildConfigSetRecord saveBuildConfigSetRecord(BuildConfigSetRecord buildConfigSetRecord) throws DatastoreException {
         return datastoreAdapter.saveBuildConfigSetRecord(buildConfigSetRecord);
-    }
-
-    /**
-     * Tries to stop running environment if the exception contains information about running environment
-     * 
-     * @param ex Exception in build process (To stop the environment it has to be instance of BuildProcessException)
-     */
-    private void stopRunningEnvironment(Throwable ex) {
-        DestroyableEnvironment destroyableEnvironment = null;
-        if(ex instanceof BuildProcessException) {
-            BuildProcessException bpEx = (BuildProcessException) ex;
-            destroyableEnvironment = bpEx.getDestroyableEnvironmnet();
-        } else if(ex.getCause() instanceof BuildProcessException) {
-            BuildProcessException bpEx = (BuildProcessException) ex.getCause();
-            destroyableEnvironment = bpEx.getDestroyableEnvironmnet();
-        } else {
-            //It shouldn't never happen - Throwable should be caught in all steps of build chain
-            //and BuildProcessException should be thrown instead of that
-            log.warn("Possible leak of a running environment! Build process ended with exception, "
-                    + "but the exception didn't contain information about running environment.", ex);
-        }
-        
-        try {
-            if (destroyableEnvironment != null)
-                destroyableEnvironment.destroyEnvironment();
-            
-        } catch (EnvironmentDriverException envE) {
-            log.warn("Running environment" + destroyableEnvironment + " couldn't be destroyed!", envE);
-        }
     }
 
     public List<BuildTask> getActiveBuildTasks() {
@@ -513,6 +323,6 @@ public class BuildCoordinator {
     }
 
     public void shutdownCoordinator(){
-        executor.shutdown();
+        buildExecutor.shutdown();
     }
 }
