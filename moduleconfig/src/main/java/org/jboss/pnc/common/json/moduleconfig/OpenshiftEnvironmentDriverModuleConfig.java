@@ -45,8 +45,9 @@ public class OpenshiftEnvironmentDriverModuleConfig extends EnvironmentDriverMod
                                                   @JsonProperty("buildAgentBindPath") String buildAgentBindPath,
                                                   @JsonProperty("restAuthToken") String restAuthToken,
                                                   @JsonProperty("containerPort") String containerPort,
-                                                  @JsonProperty("workingDirectory") String workingDirectory) {
-        super(imageId, firewallAllowedDestinations, proxyServer, proxyPort, workingDirectory);
+                                                  @JsonProperty("workingDirectory") String workingDirectory,
+                                                  @JsonProperty("disabled") Boolean disabled) {
+        super(imageId, firewallAllowedDestinations, proxyServer, proxyPort, workingDirectory, disabled);
 
         this.restEndpointUrl = restEndpointUrl;
         this.buildAgentBindPath = buildAgentBindPath;
@@ -87,7 +88,7 @@ public class OpenshiftEnvironmentDriverModuleConfig extends EnvironmentDriverMod
                 ", buildAgentBindPath='" + buildAgentBindPath + '\'' +
                 ", restAuthToken= HIDDEN " +
                 ", containerPort='" + containerPort + '\'' +
+                ", disabled='" + disabled + '\'' +
                 '}';
     }
-
 }

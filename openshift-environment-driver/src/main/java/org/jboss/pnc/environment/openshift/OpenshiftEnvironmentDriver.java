@@ -31,14 +31,19 @@ import org.jboss.pnc.spi.environment.StartedEnvironment;
 import org.jboss.pnc.spi.environment.exception.EnvironmentDriverException;
 import org.jboss.pnc.spi.repositorymanager.model.RepositorySession;
 
+import javax.annotation.PreDestroy;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
 @ApplicationScoped
 public class OpenshiftEnvironmentDriver implements EnvironmentDriver {
+
+    private ExecutorService executor = Executors.newFixedThreadPool(4); //TODO configurable
 
     private OpenshiftEnvironmentDriverModuleConfig config;
     private PullingMonitor pullingMonitor;
@@ -58,12 +63,20 @@ public class OpenshiftEnvironmentDriver implements EnvironmentDriver {
         if (!canBuildEnvironment(buildEnvironment))
             throw new UnsupportedOperationException("OpenshiftEnvironmentDriver currently provides support only for Linux and JAVA builds.");
 
-        return new OpenshiftStartedEnvironment(config, pullingMonitor, repositorySession);
+        return new OpenshiftStartedEnvironment(executor, config, pullingMonitor, repositorySession);
     }
 
     @Override
     public boolean canBuildEnvironment(Environment environment) {
+        if (config.isDisabled()) {
+            return false;
+        }
         return environment.getBuildType() == BuildType.JAVA &&
                 environment.getOperationalSystem() == OperationalSystem.LINUX;
+    }
+
+    @PreDestroy
+    public void destroy() {
+        executor.shutdownNow();
     }
 }

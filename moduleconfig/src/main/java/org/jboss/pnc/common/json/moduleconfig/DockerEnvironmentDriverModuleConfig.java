@@ -79,9 +79,10 @@ public class DockerEnvironmentDriverModuleConfig extends EnvironmentDriverModule
             @JsonProperty("firewallAllowedDestinations") String firewallAllowedDestinations, 
             @JsonProperty("proxyServer") String proxyServer, 
             @JsonProperty("proxyPort") String proxyPort,
-            @JsonProperty("nonProxyHosts") String nonProxyHosts) {
+            @JsonProperty("nonProxyHosts") String nonProxyHosts,
+            @JsonProperty("disabled") boolean disabled) {
 
-        super(dockerImageId, firewallAllowedDestinations, proxyServer, proxyPort, workingDirectory.toString());
+        super(dockerImageId, firewallAllowedDestinations, proxyServer, proxyPort, workingDirectory.toString(), disabled);
 
         this.ip = ip;
         this.inContainerUser = inContainerUser;

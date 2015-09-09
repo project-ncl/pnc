@@ -11,7 +11,8 @@
               "buildAgentBindPath":"${env.PNC_BUILD_AGENT_BIND_PATH}",
               "podNamespace":"${env.PNC_POD_NAMESPACE}",
               "containerPort":"${env.PNC_CONTAINER_PORT}",
-              "imageId":"${env.PNC_BUILDER_IMAGE_ID}"
+              "imageId":"${env.PNC_BUILDER_IMAGE_ID}",
+              "disabled":"false"
           }
         ]
 }

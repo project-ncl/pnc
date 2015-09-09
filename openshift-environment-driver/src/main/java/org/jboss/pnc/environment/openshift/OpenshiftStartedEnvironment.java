@@ -49,6 +49,8 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -58,8 +60,11 @@ import java.util.function.Supplier;
 public class OpenshiftStartedEnvironment implements StartedEnvironment {
 
     private static final Logger logger = LoggerFactory.getLogger(OpenshiftStartedEnvironment.class);
+    private boolean serviceCreated = false;
+    private boolean podCreated = false;
+    private boolean routeCreated = false;
 
-    private static final String OSE_API_VERSION = "1";
+    private static final String OSE_API_VERSION = "v1";
     private final IClient client;
     private final RepositorySession repositorySession;
     private final OpenshiftEnvironmentDriverModuleConfig environmentConfiguration;
@@ -71,16 +76,20 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
 
 
     public OpenshiftStartedEnvironment(
+            ExecutorService executor,
             OpenshiftEnvironmentDriverModuleConfig environmentConfiguration,
             PullingMonitor pullingMonitor,
             RepositorySession repositorySession) {
+
         logger.info("Creating new build environment using image id: " + environmentConfiguration.getImageId());
+
         this.environmentConfiguration = environmentConfiguration;
         this.pullingMonitor = pullingMonitor;
         this.repositorySession = repositorySession;
 
         client = new ClientFactory().create(environmentConfiguration.getRestEndpointUrl(), new NoopSSLCertificateCallback());
         client.setAuthorizationStrategy(new TokenAuthorizationStrategy(environmentConfiguration.getRestAuthToken()));
+        client.getCurrentUser(); //make sure client is connected
 
         Map<String, String> runtimeProperties = new HashMap<>();
         String randString = RandomUtils.randString(4);//TODO increment length, not the 24 char limit
@@ -92,21 +101,44 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
         runtimeProperties.put("route-path", routePath);
         runtimeProperties.put("buildAgentContextPath", "/" + routePath);
 
-
         ModelNode podConfigurationNode = createModelNode(Configurations.V1_PNC_BUILDER_POD.getContentAsString(), runtimeProperties);
-        pod = new Pod(podConfigurationNode, client, ResourcePropertiesRegistry.getInstance().get("v1", ResourceKind.POD, true));
+        pod = new Pod(podConfigurationNode, client, ResourcePropertiesRegistry.getInstance().get(OSE_API_VERSION, ResourceKind.POD, true));
         pod.setNamespace(environmentConfiguration.getPncNamespace());
-        client.create(pod, environmentConfiguration.getPncNamespace()); //TODO non-blocking
+        Runnable createPod = () -> {
+            try {
+                client.create(pod, pod.getNamespace());
+                podCreated = true;
+            } catch (Throwable e) {
+                logger.error("Cannot create pod.", e);
+            }
+        };
+        executor.submit(createPod);
 
         ModelNode serviceConfigurationNode = createModelNode(Configurations.V1_PNC_BUILDER_SERVICE.getContentAsString(), runtimeProperties);
-        service = new Service(serviceConfigurationNode, client, ResourcePropertiesRegistry.getInstance().get("v1", ResourceKind.SERVICE, true));
+        service = new Service(serviceConfigurationNode, client, ResourcePropertiesRegistry.getInstance().get(OSE_API_VERSION, ResourceKind.SERVICE, true));
         service.setNamespace(environmentConfiguration.getPncNamespace());
-        client.create(service, environmentConfiguration.getPncNamespace()); //TODO non-blocking
+        Runnable createService = () -> {
+            try {
+                client.create(service, service.getNamespace());
+                serviceCreated = true;
+            } catch (Throwable e) {
+                logger.error("Cannot create service.", e);
+            }
+        };
+        executor.submit(createService);
 
         ModelNode routeConfigurationNode = createModelNode(Configurations.V1_PNC_BUILDER_ROUTE.getContentAsString(), runtimeProperties);
-        route = new Route(routeConfigurationNode, client, ResourcePropertiesRegistry.getInstance().get("v1", ResourceKind.ROUTE, true));
+        route = new Route(routeConfigurationNode, client, ResourcePropertiesRegistry.getInstance().get(OSE_API_VERSION, ResourceKind.ROUTE, true));
         route.setNamespace(environmentConfiguration.getPncNamespace());
-        client.create(route, environmentConfiguration.getPncNamespace()); //TODO non-blocking
+        Runnable createRoute = () -> {
+            try {
+                client.create(route, route.getNamespace());
+                routeCreated = true;
+            } catch (Throwable e) {
+                logger.error("Cannot create route.", e);
+            }
+        };
+        executor.submit(createRoute);
     }
 
     private ModelNode createModelNode(String resourceDefinition, Map<String, String> runtimeProperties) {
@@ -122,7 +154,7 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
         pullingMonitor.monitor(onEnvironmentInitComplete(onComplete, Selector.SERVICE), onError, () -> isServiceRunning());
         pullingMonitor.monitor(onEnvironmentInitComplete(onComplete, Selector.ROUTE), onError, () -> isRouteRunning());
 
-        logger.info("Waiting to start a pod [{}] and service [{}].", pod.getName(), service.getName());
+        logger.info("Waiting to start a pod [{}], service [{}] and route [{}].", pod.getName(), service.getName(), route.getName());
     }
 
     private Runnable onEnvironmentInitComplete(Consumer<RunningEnvironment> onComplete, Selector selector) {
@@ -156,19 +188,28 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
     }
 
     private boolean isPodRunning() {
-        pod = client.get(this.pod.getKind(), this.pod.getName(), environmentConfiguration.getPncNamespace());
+        if (!podCreated) { //avoid Caused by: java.io.FileNotFoundException: https://<host>:8443/api/v1/namespaces/project-ncl/services/pnc-ba-pod-552c
+            return false;
+        }
+        pod = client.get(pod.getKind(), pod.getName(), environmentConfiguration.getPncNamespace());
         return "Running".equals(pod.getStatus());
     }
 
     private boolean isServiceRunning() {
-        service = client.get(this.service.getKind(), this.service.getName(), environmentConfiguration.getPncNamespace());
+        if (!serviceCreated) { //avoid Caused by: java.io.FileNotFoundException: https://<host>:8443/api/v1/namespaces/project-ncl/services/pnc-ba-service-552c
+            return false;
+        }
+        service = client.get(service.getKind(), service.getName(), environmentConfiguration.getPncNamespace());
         return service.getPods().size() > 0;
     }
 
     private boolean isRouteRunning() {
+        if (!routeCreated) {
+            return false;
+        }
         try {
             if (connectToPingUrl(new URL(getEndpointUrl()))) {
-                route = client.get(this.route.getKind(), this.route.getName(), environmentConfiguration.getPncNamespace());
+                route = client.get(route.getKind(), route.getName(), environmentConfiguration.getPncNamespace());
                 return true;
             } else {
                 return false;
@@ -217,7 +258,7 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
 
     private boolean connectToPingUrl(URL url) throws IOException {
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-        connection.setConnectTimeout(250);
+        connection.setConnectTimeout(500);
         connection.setRequestMethod("GET");
         connection.setDoOutput(true);
         connection.setDoInput(true);

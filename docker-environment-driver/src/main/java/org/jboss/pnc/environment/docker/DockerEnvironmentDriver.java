@@ -72,6 +72,7 @@ public class DockerEnvironmentDriver implements EnvironmentDriver {
 
     // A path in the remote container
     private static final Path workingDirectory = Paths.get("/tmp");
+    private boolean disabled;
 
     @Inject
     private Generator generator;
@@ -144,6 +145,7 @@ public class DockerEnvironmentDriver implements EnvironmentDriver {
         proxyServer = config.getProxyServer();
         proxyPort = config.getProxyPort();
         nonProxyHosts = config.getNonProxyHosts();
+        disabled = config.isDisabled();
 
         dockerContext = ContextBuilder.newBuilder("docker")
                 .endpoint(dockerEndpoint)
@@ -212,6 +214,10 @@ public class DockerEnvironmentDriver implements EnvironmentDriver {
 
     @Override
     public boolean canBuildEnvironment(Environment environment) {
+        if (disabled) {
+            return false;
+        }
+
         if (environment.getBuildType() == BuildType.JAVA &&
                 environment.getOperationalSystem() == OperationalSystem.LINUX)
             return true;

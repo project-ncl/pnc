@@ -110,7 +110,7 @@ public class OpenshiftEnvironmentDriverRemoteTest {
 
         Consumer<Exception> onError = (e) -> {
             try {
-                logger.info("Trying to destroy environment due to an error.", e);
+                logger.info("Trying to destroy environment due to an error:", e);
                 startedEnv.destroyEnvironment();
                 mutex.release();
             } catch (EnvironmentDriverException e1) {
@@ -152,7 +152,7 @@ public class OpenshiftEnvironmentDriverRemoteTest {
         URL url = new URL(runningEnvironment.getJenkinsUrl());
         logger.info("Left {} attempts to connect to {}", maxRepeats, url);
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-        connection.setConnectTimeout(250);
+        connection.setConnectTimeout(500);
         connection.setRequestMethod("GET");
         connection.setDoOutput(true);
         connection.setDoInput(true);

@@ -32,19 +32,22 @@ public class EnvironmentDriverModuleConfigBase extends AbstractModuleConfig {
     protected String proxyServer;
     protected String proxyPort;
     private String workingDirectory;
+    protected boolean disabled;
 
     public EnvironmentDriverModuleConfigBase(
             String imageId,
             String firewallAllowedDestinations,
             String proxyServer,
             String proxyPort,
-            String workingDirectory) {
+            String workingDirectory,
+            boolean disabled) {
 
         this.imageId = imageId;
         this.firewallAllowedDestinations = firewallAllowedDestinations;
         this.proxyServer = proxyServer;
         this.proxyPort = proxyPort;
         this.workingDirectory = workingDirectory;
+        this.disabled = disabled;
     }
 
     public String getImageId() {
@@ -66,4 +69,9 @@ public class EnvironmentDriverModuleConfigBase extends AbstractModuleConfig {
     public String getWorkingDirectory() {
         return workingDirectory;
     }
+
+    public boolean isDisabled() {
+        return disabled;
+    }
+
 }
