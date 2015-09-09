@@ -1,6 +1,6 @@
 /*
  * JBoss, Home of Professional Open Source.
- * Copyright 2015 Red Hat, Inc., and individual contributors
+ * Copyright 2014 Red Hat, Inc., and individual contributors
  * as indicated by the @author tags.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -56,7 +56,6 @@ import static org.junit.Assert.fail;
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
-//@RunWith(Arquillian.class)
 @Category({ RemoteTest.class })
 public class OpenshiftEnvironmentDriverRemoteTest {
 
