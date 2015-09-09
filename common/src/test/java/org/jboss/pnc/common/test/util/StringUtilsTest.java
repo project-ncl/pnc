@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.common.test.util;
 
+import org.jboss.pnc.common.util.RandomUtils;
 import org.jboss.pnc.common.util.StringUtils;
 import org.junit.Assert;
 import org.junit.Test;
@@ -31,6 +32,23 @@ public class StringUtilsTest {
         String src = "JAVA_HOME:${env.JAVA_HOME}";
         String replaced = StringUtils.replaceEnv(src);
         Assert.assertEquals("JAVA_HOME:" + System.getenv("JAVA_HOME"), replaced);
-
     }
+
+    @Test
+    public void randomString() {
+        assertRandomLengthMatch(0);
+        assertRandomLengthMatch(10);
+        assertRandomLengthMatch(35);
+        assertRandomLengthMatch(36);
+        assertRandomLengthMatch(71);
+        assertRandomLengthMatch(72);
+        assertRandomLengthMatch(100);
+        assertRandomLengthMatch(1000);
+    }
+
+    private void assertRandomLengthMatch(int len) {
+        String randString = RandomUtils.randString(len);
+        Assert.assertEquals("Wrong sting length. String:" + randString, len, randString.length());
+    }
+
 }

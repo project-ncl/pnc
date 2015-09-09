@@ -1,0 +1,63 @@
+{
+    "kind": "Pod",
+    "apiVersion": "v1",
+    "metadata": {
+        "name" : "${pod-name}",
+        "labels" :
+            {"pnc-build-agent-pod" : "${pod-name}"}
+    },
+    "spec": {
+        "nodeSelector":
+            { "nodename" : "os03" }
+        ,
+        "containers": [
+            {
+                "name": "pnc-build-agent-container",
+                "image": "${image}",
+                "ports": [
+                  {
+                    "name" : "http",
+                    "containerPort": ${containerPort},
+                    "protocol": "TCP"
+                  }
+                ],
+                "env": [
+                    {
+                        "name": "firewallAllowedDestinations",
+                        "value": "${firewallAllowedDestinations}"
+                    },
+                    {
+                        "name": "isHttpActive",
+                        "value": "${isHttpActive}"
+                    },
+                    {
+                        "name": "proxyServer",
+                        "value": "${proxyServer}"
+                    },
+                    {
+                        "name": "proxyPort",
+                        "value": "${proxyPort}"
+                    },
+                    {
+                        "name": "AProxDependencyUrl",
+                        "value": "${AProxDependencyUrl}"
+                    },
+                    {
+                        "name": "AProxDeployUrl",
+                        "value": "${AProxDeployUrl}"
+                    },
+                    {
+                        "name": "buildAgentContextPath",
+                        "value": "${buildAgentContextPath}"
+                    }
+                ],
+                "resources": {},
+                "terminationMessagePath": "/dev/termination-log",
+                "imagePullPolicy": "IfNotPresent"
+            }
+        ],
+        "restartPolicy": "Never",
+        "activeDeadlineSeconds": 10800,
+        "dnsPolicy": "Default"
+    }
+}

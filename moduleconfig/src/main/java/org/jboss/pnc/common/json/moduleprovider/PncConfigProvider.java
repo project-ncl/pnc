@@ -24,6 +24,7 @@ import org.jboss.pnc.common.json.moduleconfig.BuildDriverRouterModuleConfig;
 import org.jboss.pnc.common.json.moduleconfig.DockerEnvironmentDriverModuleConfig;
 import org.jboss.pnc.common.json.moduleconfig.JenkinsBuildDriverModuleConfig;
 import org.jboss.pnc.common.json.moduleconfig.MavenRepoDriverModuleConfig;
+import org.jboss.pnc.common.json.moduleconfig.OpenshiftEnvironmentDriverModuleConfig;
 import org.jboss.pnc.common.json.moduleconfig.TermdBuildDriverModuleConfig;
 
 /**
@@ -36,12 +37,13 @@ public class PncConfigProvider <T extends AbstractModuleConfig>
     
     public PncConfigProvider(Class<T> type) {
       setType(type); 
-      addModuleConfig(new ProviderNameType(JenkinsBuildDriverModuleConfig.class,"jenkins-build-driver"));
-      addModuleConfig(new ProviderNameType(TermdBuildDriverModuleConfig.class,"termd-build-driver"));
-      addModuleConfig(new ProviderNameType(BuildDriverRouterModuleConfig.class,"build-driver-router"));
-      addModuleConfig(new ProviderNameType(MavenRepoDriverModuleConfig.class,"maven-repo-driver"));
-      addModuleConfig(new ProviderNameType(DockerEnvironmentDriverModuleConfig.class,"docker-environment-driver"));
-      addModuleConfig(new ProviderNameType(AuthenticationModuleConfig.class,"authentication-config"));
-      addModuleConfig(new ProviderNameType(BpmModuleConfig.class,"bpm-config"));
+      addModuleConfig(new ProviderNameType(JenkinsBuildDriverModuleConfig.class, "jenkins-build-driver"));
+      addModuleConfig(new ProviderNameType(TermdBuildDriverModuleConfig.class, "termd-build-driver"));
+      addModuleConfig(new ProviderNameType(BuildDriverRouterModuleConfig.class, "build-driver-router"));
+      addModuleConfig(new ProviderNameType(MavenRepoDriverModuleConfig.class, "maven-repo-driver"));
+      addModuleConfig(new ProviderNameType(DockerEnvironmentDriverModuleConfig.class, DockerEnvironmentDriverModuleConfig.MODULE_NAME));
+      addModuleConfig(new ProviderNameType(AuthenticationModuleConfig.class, "authentication-config"));
+      addModuleConfig(new ProviderNameType(BpmModuleConfig.class, "bpm-config"));
+      addModuleConfig(new ProviderNameType(OpenshiftEnvironmentDriverModuleConfig.class, OpenshiftEnvironmentDriverModuleConfig.MODULE_NAME));
     }
 }

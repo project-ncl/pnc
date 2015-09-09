@@ -41,7 +41,7 @@ public class DockerEnvironmentDriverModuleConfigTest extends AbstractModuleConfi
             assertEquals("2.2.2.2", dockerConfig.getIp());
             assertEquals("contUser", dockerConfig.getInContainerUser());
             assertEquals("contPass", dockerConfig.getInContainerUserPassword());
-            assertEquals("imageId", dockerConfig.getDockerImageId());
+            assertEquals("imageId", dockerConfig.getImageId());
             assertEquals("1.2.3.4", dockerConfig.getProxyServer());
             assertEquals("3128", dockerConfig.getProxyPort());
             assertEquals("3.3.3.3:44", dockerConfig.getFirewallAllowedDestinations());

@@ -25,6 +25,7 @@ import static org.junit.Assert.fail;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.invoke.MethodHandles;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -67,6 +68,7 @@ import org.junit.runner.RunWith;
 
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.slf4j.LoggerFactory;
 
 /**
  * Unit tests for DockerEnnvironmentDriver
@@ -77,7 +79,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @Category({ RemoteTest.class, ContainerTest.class })
 public class DockerEnvironmentDriverRemoteTest {
 
-    private static final Logger log = Logger.getLogger(DockerEnvironmentDriverRemoteTest.class.getName());
+    private static final org.slf4j.Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass().getName());
 
     private static final String APROX_DEPENDENCY_URL = "AProx dependency URL";
 
@@ -121,7 +123,7 @@ public class DockerEnvironmentDriverRemoteTest {
 
         testedEjb.addAsLibraries(libs);
 
-        log.info("Deployment: " + testedEjb.toString(true));
+        logger.info("Deployment: " + testedEjb.toString(true));
         return testedEjb;
     }
 
@@ -283,9 +285,9 @@ public class DockerEnvironmentDriverRemoteTest {
         try {
             result = (Map<String,Object>) new ObjectMapper().readValue(str, Map.class);    
         } catch (JsonMappingException jme){
-            log.severe("Error while converting container JSON to Map - " + jme.getLocalizedMessage());
+            logger.error("Error while converting container JSON to Map - " + jme.getLocalizedMessage());
         } catch (IOException ioe){
-            log.severe("Error while converting container JSON to Map - " + ioe.getLocalizedMessage());
+            logger.error("Error while converting container JSON to Map - " + ioe.getLocalizedMessage());
         }
         return result;    
     }
@@ -294,16 +296,10 @@ public class DockerEnvironmentDriverRemoteTest {
         try {
             dockerEnvDriver.destroyEnvironment(id);
         } catch (Exception e1) {
-            log.warning("Environment LEAK! The running environment couldn't be removed. ID: "
-                    + id + "\n" + e1);
+            logger.warn("Environment LEAK! The running environment couldn't be removed. ID: " + id + "\n" + e1);
         }
     }
 
-    /**
-     * Checks if the specified port is opened on Docker host
-     *
-     * @param generatedSshPort Port to test
-     */
     private boolean testOpenedPort(final int port) {
         try {
             final Socket echoSocket = new Socket(dockerIp, port);

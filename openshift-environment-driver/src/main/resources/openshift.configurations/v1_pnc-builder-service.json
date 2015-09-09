@@ -1,0 +1,27 @@
+{
+    "kind": "Service",
+    "apiVersion": "v1",
+    "metadata": {
+        "name": "${service-name}",
+        "labels": {
+            "pnc-build-agent-service": "${service-name}"
+        }
+    },
+    "spec": {
+        "ports": [
+            {
+                "name": "8080-tcp",
+                "protocol": "TCP",
+                "port": 80,
+                "targetPort": 8080,
+                "nodePort": 0
+            }
+        ],
+        "selector": {
+            "pnc-build-agent-pod" : "${pod-name}"
+        }
+    },
+    "status": {
+        "loadBalancer": {}
+    }
+}

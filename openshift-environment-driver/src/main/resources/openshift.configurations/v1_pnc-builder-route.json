@@ -1,0 +1,15 @@
+{
+    "kind": "Route",
+    "apiVersion": "v1",
+    "metadata": {
+        "name": "${route-name}"
+    },
+    "spec": {
+        "host" : "ncl-test-os-01.host.prod.eng.bos.redhat.com",
+        "path" : "/${route-path}",
+        "to" : {
+            "kind" : "Service",
+            "name" : "${service-name}"
+        }
+    }
+}
