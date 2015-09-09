@@ -102,7 +102,7 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
         runtimeProperties.put("buildAgentContextPath", "/" + routePath);
 
         ModelNode podConfigurationNode = createModelNode(Configurations.V1_PNC_BUILDER_POD.getContentAsString(), runtimeProperties);
-        pod = new Pod(podConfigurationNode, client, ResourcePropertiesRegistry.getInstance().get(OSE_API_VERSION, ResourceKind.POD, true));
+        pod = new Pod(podConfigurationNode, client, ResourcePropertiesRegistry.getInstance().get(OSE_API_VERSION, ResourceKind.POD));
         pod.setNamespace(environmentConfiguration.getPncNamespace());
         Runnable createPod = () -> {
             try {
@@ -115,7 +115,7 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
         executor.submit(createPod);
 
         ModelNode serviceConfigurationNode = createModelNode(Configurations.V1_PNC_BUILDER_SERVICE.getContentAsString(), runtimeProperties);
-        service = new Service(serviceConfigurationNode, client, ResourcePropertiesRegistry.getInstance().get(OSE_API_VERSION, ResourceKind.SERVICE, true));
+        service = new Service(serviceConfigurationNode, client, ResourcePropertiesRegistry.getInstance().get(OSE_API_VERSION, ResourceKind.SERVICE));
         service.setNamespace(environmentConfiguration.getPncNamespace());
         Runnable createService = () -> {
             try {
@@ -128,7 +128,7 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
         executor.submit(createService);
 
         ModelNode routeConfigurationNode = createModelNode(Configurations.V1_PNC_BUILDER_ROUTE.getContentAsString(), runtimeProperties);
-        route = new Route(routeConfigurationNode, client, ResourcePropertiesRegistry.getInstance().get(OSE_API_VERSION, ResourceKind.ROUTE, true));
+        route = new Route(routeConfigurationNode, client, ResourcePropertiesRegistry.getInstance().get(OSE_API_VERSION, ResourceKind.ROUTE));
         route.setNamespace(environmentConfiguration.getPncNamespace());
         Runnable createRoute = () -> {
             try {
