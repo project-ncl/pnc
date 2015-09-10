@@ -34,6 +34,7 @@ import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -98,7 +99,6 @@ public class BuildCoordinator {
         }
         Date submitTime = new Date();
         BuildTask buildTask = new BuildTask(
-                this,
                 buildConfiguration,
                 buildConfigAudited,
                 topContentId,
@@ -107,7 +107,9 @@ public class BuildCoordinator {
                 user,
                 submitTime,
                 null,
-                datastoreAdapter.getNextBuildRecordId());
+                datastoreAdapter.getNextBuildRecordId(),
+                getBuildStatusChangedEventNotifier(),
+                (bt) -> processBuildTask(bt));
 
         processBuildTask(buildTask);
 
@@ -171,7 +173,6 @@ public class BuildCoordinator {
         for(BuildConfiguration buildConfig : buildSetTask.getBuildConfigurationSet().getBuildConfigurations()) {
             String buildContentId = ContentIdentityManager.getBuildContentId(buildConfig);
             BuildTask buildTask = new BuildTask(
-                    this,
                     buildConfig,
                     datastoreAdapter.getLatestBuildConfigurationAudited(buildConfig.getId()),
                     topContentId,
@@ -180,7 +181,9 @@ public class BuildCoordinator {
                     buildSetTask.getBuildConfigSetRecord().getUser(),
                     buildSetTask.getSubmitTime(),
                     buildSetTask,
-                    datastoreAdapter.getNextBuildRecordId());
+                    datastoreAdapter.getNextBuildRecordId(),
+                    getBuildStatusChangedEventNotifier(),
+                    (bt) -> processBuildTask(bt));
             buildSetTask.addBuildTask(buildTask);
         }
         // Loop again to set dependencies

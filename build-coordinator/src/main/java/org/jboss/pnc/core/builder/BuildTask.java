@@ -17,9 +17,7 @@
  */
 package org.jboss.pnc.core.builder;
 
-import org.jboss.pnc.core.content.ContentIdentityManager;
 import org.jboss.pnc.core.events.DefaultBuildStatusChangedEvent;
-import org.jboss.pnc.core.exception.CoreException;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.ProductVersion;
@@ -27,7 +25,6 @@ import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.BuildExecution;
 import org.jboss.pnc.spi.BuildStatus;
 import org.jboss.pnc.spi.events.BuildStatusChangedEvent;
-import org.jboss.pnc.spi.exception.BuildConflictException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,6 +36,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
 
 /**
 * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-12-23.
@@ -58,7 +56,7 @@ public class BuildTask implements BuildExecution {
     private BuildStatus status = BuildStatus.NEW;
     private String statusDescription;
 
-    private Event<BuildStatusChangedEvent> buildStatusChangedEvent;
+    private Event<BuildStatusChangedEvent> buildStatusChangedEventNotifier;
 
     /**
      * A list of builds waiting for this build to complete.
@@ -69,8 +67,6 @@ public class BuildTask implements BuildExecution {
      * The builds which must be completed before this build can start
      */
     private Set<BuildTask> dependencies = new HashSet<>();
-
-    private BuildCoordinator buildCoordinator;
 
     private String topContentId;
 
@@ -85,29 +81,33 @@ public class BuildTask implements BuildExecution {
     private final AtomicReference<URI> logsWebSocketLink = new AtomicReference<>();
     private boolean hasFailed = false;
 
-    BuildTask(BuildCoordinator buildCoordinator, 
-            BuildConfiguration buildConfiguration, 
-            BuildConfigurationAudited buildConfigurationAudited,
-            String topContentId,
+    //called when all dependencies are built
+    private Consumer<BuildTask> onAllDependenciesCompleted;
+
+    BuildTask(BuildConfiguration buildConfiguration,
+              BuildConfigurationAudited buildConfigurationAudited,
+              String topContentId,
               String buildSetContentId,
-              String buildContentId, 
-              User user, 
+              String buildContentId,
+              User user,
               Date submitTime,
               BuildSetTask buildSetTask,
-              int id) {
+              int id,
+              Event<BuildStatusChangedEvent> buildStatusChangedEventNotifier,
+              Consumer<BuildTask> onAllDependenciesCompleted) {
 
-        this.buildCoordinator = buildCoordinator;
         this.id = id;
         this.buildConfiguration = buildConfiguration;
         this.buildConfigurationAudited = buildConfigurationAudited;
         this.user = user;
         this.submitTime = submitTime;
 
-        this.buildStatusChangedEvent = buildCoordinator.getBuildStatusChangedEventNotifier();
+        this.buildStatusChangedEventNotifier = buildStatusChangedEventNotifier;
         this.topContentId = topContentId;
         this.buildSetContentId = buildSetContentId;
         this.buildContentId = buildContentId;
         this.buildSetTask = buildSetTask;
+        this.onAllDependenciesCompleted = onAllDependenciesCompleted;
 
         if (buildSetTask != null && buildSetTask.getProductMilestone() != null) {
             buildRecordSetIds.add(buildSetTask.getProductMilestone().getPerformedBuildRecordSet().getId());
@@ -135,7 +135,7 @@ public class BuildTask implements BuildExecution {
         if (buildSetTask != null) {
             buildSetTask.taskStatusUpdated(buildStatusChanged);
         }
-        buildStatusChangedEvent.fire(buildStatusChanged);
+        buildStatusChangedEventNotifier.fire(buildStatusChanged);
         if (status.isCompleted()) {
             dependants.forEach((dep) -> dep.requiredBuildCompleted(this));
         }
@@ -168,7 +168,7 @@ public class BuildTask implements BuildExecution {
         if (dependencies.contains(completed) && completed.hasFailed()) {
             this.setStatus(BuildStatus.REJECTED);
         } else if (dependencies.stream().allMatch(dep -> dep.getStatus().isCompleted())) {
-            buildCoordinator.processBuildTask(this);
+            onAllDependenciesCompleted.accept(this);
         }
     }
 
