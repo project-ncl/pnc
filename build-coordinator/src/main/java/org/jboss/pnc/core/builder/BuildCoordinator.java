@@ -17,29 +17,15 @@
  */
 package org.jboss.pnc.core.builder;
 
-import org.jboss.pnc.core.BuildDriverFactory;
-import org.jboss.pnc.core.EnvironmentDriverFactory;
-import org.jboss.pnc.core.RepositoryManagerFactory;
 import org.jboss.pnc.core.content.ContentIdentityManager;
-import org.jboss.pnc.core.exception.BuildProcessException;
 import org.jboss.pnc.core.exception.CoreException;
 import org.jboss.pnc.model.*;
-import org.jboss.pnc.spi.BuildResult;
 import org.jboss.pnc.spi.BuildSetStatus;
 import org.jboss.pnc.spi.BuildStatus;
-import org.jboss.pnc.spi.builddriver.*;
 import org.jboss.pnc.spi.datastore.DatastoreException;
-import org.jboss.pnc.spi.environment.DestroyableEnvironment;
-import org.jboss.pnc.spi.environment.EnvironmentDriver;
-import org.jboss.pnc.spi.environment.RunningEnvironment;
-import org.jboss.pnc.spi.environment.StartedEnvironment;
-import org.jboss.pnc.spi.environment.exception.EnvironmentDriverException;
 import org.jboss.pnc.spi.events.BuildSetStatusChangedEvent;
 import org.jboss.pnc.spi.events.BuildStatusChangedEvent;
 import org.jboss.pnc.spi.exception.BuildConflictException;
-import org.jboss.pnc.spi.repositorymanager.RepositoryManager;
-import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
-import org.jboss.pnc.spi.repositorymanager.model.RepositorySession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,11 +33,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -75,7 +57,8 @@ public class BuildCoordinator {
     private Event<BuildStatusChangedEvent> buildStatusChangedEventNotifier;
     private Event<BuildSetStatusChangedEvent> buildSetStatusChangedEventNotifier;
 
-    BuildExecutor buildExecutor;
+    private BuildScheduler buildScheduler;
+
 
     @Deprecated
     public BuildCoordinator(){} //workaround for CDI constructor parameter injection
@@ -84,11 +67,11 @@ public class BuildCoordinator {
     public BuildCoordinator(DatastoreAdapter datastoreAdapter,
                             Event<BuildStatusChangedEvent> buildStatusChangedEventNotifier,
                             Event<BuildSetStatusChangedEvent> buildSetStatusChangedEventNotifier,
-                            BuildExecutor buildExecutor) {
+                            BuildScheduler buildScheduler) {
         this.datastoreAdapter = datastoreAdapter;
         this.buildStatusChangedEventNotifier = buildStatusChangedEventNotifier;
         this.buildSetStatusChangedEventNotifier = buildSetStatusChangedEventNotifier;
-        this.buildExecutor = buildExecutor;
+        this.buildScheduler = buildScheduler;
     }
 
     /**
@@ -125,7 +108,9 @@ public class BuildCoordinator {
                 submitTime,
                 null,
                 datastoreAdapter.getNextBuildRecordId());
+
         processBuildTask(buildTask);
+
         return buildTask;
     }
 
@@ -276,11 +261,7 @@ public class BuildCoordinator {
             activeBuildTasks.remove(buildTask);
         };
         try {
-            if (true) { //TODO if using BPM
-                buildExecutor.startBuilding(buildTask, onComplete);
-            } else {
-                //start remote bpm process
-            }
+            buildScheduler.startBuilding(buildTask, onComplete);
             activeBuildTasks.add(buildTask);
         } catch (CoreException e) {
             buildTask.setStatus(BuildStatus.SYSTEM_ERROR);
@@ -320,9 +301,5 @@ public class BuildCoordinator {
 
     Event<BuildSetStatusChangedEvent> getBuildSetStatusChangedEventNotifier() {
         return buildSetStatusChangedEventNotifier;
-    }
-
-    public void shutdownCoordinator(){
-        buildExecutor.shutdown();
     }
 }
