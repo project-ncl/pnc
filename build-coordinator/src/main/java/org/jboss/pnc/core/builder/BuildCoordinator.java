@@ -88,28 +88,21 @@ public class BuildCoordinator {
      */
     public BuildTask build(BuildConfiguration buildConfiguration, User user, boolean force) throws BuildConflictException {
 
-        String topContentId = ContentIdentityManager.getProductContentId(this.getFirstProductVersion(buildConfiguration));
-        String buildSetContentId = ContentIdentityManager.getBuildSetContentId(buildConfiguration.getName());
-        String buildContentId = ContentIdentityManager.getBuildContentId(buildConfiguration);
-
         BuildConfigurationAudited buildConfigAudited = datastoreAdapter.getLatestBuildConfigurationAudited(buildConfiguration.getId());
         Optional<BuildTask> alreadyActiveBuildTask = this.getActiveBuildTask(buildConfigAudited);
         if (alreadyActiveBuildTask.isPresent()) {
             throw new BuildConflictException("Active build task found using the same configuration", alreadyActiveBuildTask.get().getId());
         }
-        Date submitTime = new Date();
-        BuildTask buildTask = new BuildTask(
+
+        BuildTask buildTask = BuildTask.build(
                 buildConfiguration,
                 buildConfigAudited,
-                topContentId,
-                buildSetContentId,
-                buildContentId,
                 user,
-                submitTime,
-                null,
-                datastoreAdapter.getNextBuildRecordId(),
                 getBuildStatusChangedEventNotifier(),
-                (bt) -> processBuildTask(bt));
+                (bt) -> processBuildTask(bt),
+                datastoreAdapter.getNextBuildRecordId(), //TODO in bpm case we are not storing this task ?
+                null,
+                new Date());
 
         processBuildTask(buildTask);
 
@@ -171,19 +164,18 @@ public class BuildCoordinator {
 
         // Loop to create the build tasks
         for(BuildConfiguration buildConfig : buildSetTask.getBuildConfigurationSet().getBuildConfigurations()) {
-            String buildContentId = ContentIdentityManager.getBuildContentId(buildConfig);
-            BuildTask buildTask = new BuildTask(
+            BuildConfigurationAudited buildConfigAudited = datastoreAdapter.getLatestBuildConfigurationAudited(buildConfig.getId());
+
+            BuildTask buildTask = BuildTask.build(
                     buildConfig,
-                    datastoreAdapter.getLatestBuildConfigurationAudited(buildConfig.getId()),
-                    topContentId,
-                    buildSetContentId,
-                    buildContentId,
+                    buildConfigAudited,
                     buildSetTask.getBuildConfigSetRecord().getUser(),
-                    buildSetTask.getSubmitTime(),
-                    buildSetTask,
-                    datastoreAdapter.getNextBuildRecordId(),
                     getBuildStatusChangedEventNotifier(),
-                    (bt) -> processBuildTask(bt));
+                    (bt) -> processBuildTask(bt),
+                    datastoreAdapter.getNextBuildRecordId(), //TODO in bpm case we are not storing this task ?
+                    buildSetTask,
+                    buildSetTask.getSubmitTime());
+
             buildSetTask.addBuildTask(buildTask);
         }
         // Loop again to set dependencies
@@ -208,18 +200,6 @@ public class BuildCoordinator {
      */
     private Optional<BuildTask> getActiveBuildTask(BuildConfigurationAudited buildConfigAudited) {
         return activeBuildTasks.stream().filter(bt -> bt.getBuildConfigurationAudited().equals(buildConfigAudited)).findFirst();
-    }
-
-    /**
-     * Get the first product version (if any) associated with this build config.
-     * @param buildConfig The build configuration to check
-     * @return The firstproduct version, or null if there is none
-     */
-    private ProductVersion getFirstProductVersion(BuildConfiguration buildConfig) {
-        if(buildConfig.getProductVersions() == null) {
-            return null;
-        }
-        return buildConfig.getProductVersions().stream().findFirst().orElse(null);
     }
 
     /**

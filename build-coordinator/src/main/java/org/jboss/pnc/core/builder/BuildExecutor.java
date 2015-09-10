@@ -80,7 +80,7 @@ public class BuildExecutor {
         this.environmentDriverFactory = environmentDriverFactory;
     }
 
-    public void startBuilding(BuildTask buildTask, Runnable onComplete) throws CoreException {
+    void startBuilding(BuildTask buildTask, Runnable onComplete) throws CoreException {
         CompletableFuture.supplyAsync(() -> configureRepository(buildTask), executor)
                 .thenApplyAsync(repositoryConfiguration -> setUpEnvironment(buildTask, repositoryConfiguration), executor)
                 .thenComposeAsync(startedEnvironment -> waitForEnvironmentInitialization(buildTask, startedEnvironment), executor)

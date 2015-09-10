@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.core.builder;
 
+import org.jboss.pnc.core.content.ContentIdentityManager;
 import org.jboss.pnc.core.events.DefaultBuildStatusChangedEvent;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
@@ -84,7 +85,7 @@ public class BuildTask implements BuildExecution {
     //called when all dependencies are built
     private Consumer<BuildTask> onAllDependenciesCompleted;
 
-    BuildTask(BuildConfiguration buildConfiguration,
+    private BuildTask(BuildConfiguration buildConfiguration,
               BuildConfigurationAudited buildConfigurationAudited,
               String topContentId,
               String buildSetContentId,
@@ -337,5 +338,45 @@ public class BuildTask implements BuildExecution {
     @Override
     public String toString() {
         return "Build Task id:" + id + ", name: " + buildConfigurationAudited.getName() + ", status: " + status;
+    }
+
+
+    static BuildTask build(BuildConfiguration buildConfiguration,
+                                  BuildConfigurationAudited buildConfigAudited,
+                                  User user,
+                                  Event<BuildStatusChangedEvent> buildStatusChangedEventNotifier,
+                                  Consumer<BuildTask> onAllDependenciesCompleted,
+                                  int buildTaskId,
+                                  BuildSetTask buildSetTask,
+                                  Date submitTime) {
+        String topContentId = ContentIdentityManager.getProductContentId(getFirstProductVersion(buildConfiguration));
+        String buildSetContentId = ContentIdentityManager.getBuildSetContentId(buildConfiguration.getName());
+        String buildContentId = ContentIdentityManager.getBuildContentId(buildConfiguration);
+
+        return new BuildTask(
+                buildConfiguration,
+                buildConfigAudited,
+                topContentId,
+                buildSetContentId,
+                buildContentId,
+                user,
+                submitTime,
+                buildSetTask,
+                buildTaskId,
+                buildStatusChangedEventNotifier,
+                onAllDependenciesCompleted);
+    }
+
+
+    /**
+     * Get the first product version (if any) associated with this build config.
+     * @param buildConfig The build configuration to check
+     * @return The firstproduct version, or null if there is none
+     */
+    private static ProductVersion getFirstProductVersion(BuildConfiguration buildConfig) {
+        if(buildConfig.getProductVersions() == null) {
+            return null;
+        }
+        return buildConfig.getProductVersions().stream().findFirst().orElse(null);
     }
 }
