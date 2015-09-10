@@ -61,6 +61,8 @@ public class BuildRecordRest implements GenericRestEntity<Integer> {
 
     private Integer buildConfigSetRecordId;
 
+    private String buildContentId;
+
     public BuildRecordRest() {
     }
 
@@ -80,6 +82,8 @@ public class BuildRecordRest implements GenericRestEntity<Integer> {
         this.buildDriverId = buildRecord.getBuildDriverId();
         if(buildRecord.getBuildConfigSetRecord() != null)
             this.buildConfigSetRecordId = buildRecord.getBuildConfigSetRecord().getId();
+
+        this.buildContentId = buildRecord.getBuildContentId();
     }
 
     public BuildRecordRest(BuildTask buildTask) {
@@ -96,6 +100,8 @@ public class BuildRecordRest implements GenericRestEntity<Integer> {
         performIfNotNull(buildTask.getBuildSetTask(), () -> this.buildConfigSetRecordId = buildTask.getBuildSetTask().getId());
         if(buildTask.getUser() != null)
             this.userId = buildTask.getUser().getId();
+
+        this.buildContentId = buildTask.getBuildContentId();
     }
 
     @Override
@@ -198,5 +204,13 @@ public class BuildRecordRest implements GenericRestEntity<Integer> {
 
     public Integer getBuildConfigSetRecordId() {
         return buildConfigSetRecordId;
+    }
+
+    public String getBuildContentId() {
+        return buildContentId;
+    }
+
+    public void setBuildContentId(String buildContentId) {
+        this.buildContentId = buildContentId;
     }
 }
