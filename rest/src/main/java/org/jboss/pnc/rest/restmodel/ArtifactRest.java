@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.rest.restmodel;
 
+import com.wordnik.swagger.annotations.ApiModelProperty;
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.ArtifactStatus;
 import org.jboss.pnc.model.RepositoryType;
@@ -38,6 +39,7 @@ public class ArtifactRest implements GenericRestEntity<Integer> {
 
     private String identifier;
 
+    @ApiModelProperty(dataType = "string")
     private RepositoryType repoType;
 
     private String checksum;
@@ -47,6 +49,7 @@ public class ArtifactRest implements GenericRestEntity<Integer> {
     // What is this used for?
     private String deployUrl;
 
+    @ApiModelProperty(dataType = "string")
     private ArtifactStatus status;
 
     private Integer buildRecordId;
