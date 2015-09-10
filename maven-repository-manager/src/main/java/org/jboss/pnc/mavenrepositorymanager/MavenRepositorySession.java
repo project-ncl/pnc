@@ -141,17 +141,7 @@ public class MavenRepositorySession implements RepositorySession
 
         promoteToBuildContentSet();
 
-        RepositoryManagerResult repositoryManagerResult = new MavenRepositoryManagerResult(uploads, downloads);
-
-        // clean up.
-        try {
-            aprox.module(AproxFoloAdminClientModule.class).clearTrackingRecord(buildRepoId);
-        } catch (AproxClientException e) {
-            throw new RepositoryManagerException(
-                    "Failed to clean up build repositories / tracking information for: %s. Reason: %s", e, buildRepoId,
-                    e.getMessage());
-        }
-        return repositoryManagerResult;
+        return new MavenRepositoryManagerResult(uploads, downloads);
     }
 
     /**
