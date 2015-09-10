@@ -23,7 +23,6 @@ import org.jboss.pnc.core.EnvironmentDriverFactory;
 import org.jboss.pnc.core.RepositoryManagerFactory;
 import org.jboss.pnc.core.exception.BuildProcessException;
 import org.jboss.pnc.core.exception.CoreException;
-import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.RepositoryType;
 import org.jboss.pnc.spi.BuildResult;
 import org.jboss.pnc.spi.BuildStatus;
@@ -44,6 +43,7 @@ import org.jboss.pnc.spi.repositorymanager.model.RepositorySession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import java.util.Date;
 import java.util.concurrent.CompletableFuture;
@@ -80,7 +80,7 @@ public class BuildExecutor {
         this.environmentDriverFactory = environmentDriverFactory;
     }
 
-    public void startBuilding(BuildTask buildTask, Runnable onComplete) throws CoreException {
+    void startBuilding(BuildTask buildTask, Runnable onComplete) throws CoreException {
         CompletableFuture.supplyAsync(() -> configureRepository(buildTask), executor)
                 .thenApplyAsync(repositoryConfiguration -> setUpEnvironment(buildTask, repositoryConfiguration), executor)
                 .thenComposeAsync(startedEnvironment -> waitForEnvironmentInitialization(buildTask, startedEnvironment), executor)
@@ -268,6 +268,7 @@ public class BuildExecutor {
         }
     }
 
+    @PreDestroy
     public void shutdown() {
         executor.shutdown();
     }

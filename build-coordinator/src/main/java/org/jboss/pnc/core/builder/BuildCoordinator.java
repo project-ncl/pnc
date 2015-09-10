@@ -17,29 +17,15 @@
  */
 package org.jboss.pnc.core.builder;
 
-import org.jboss.pnc.core.BuildDriverFactory;
-import org.jboss.pnc.core.EnvironmentDriverFactory;
-import org.jboss.pnc.core.RepositoryManagerFactory;
 import org.jboss.pnc.core.content.ContentIdentityManager;
-import org.jboss.pnc.core.exception.BuildProcessException;
 import org.jboss.pnc.core.exception.CoreException;
 import org.jboss.pnc.model.*;
-import org.jboss.pnc.spi.BuildResult;
 import org.jboss.pnc.spi.BuildSetStatus;
 import org.jboss.pnc.spi.BuildStatus;
-import org.jboss.pnc.spi.builddriver.*;
 import org.jboss.pnc.spi.datastore.DatastoreException;
-import org.jboss.pnc.spi.environment.DestroyableEnvironment;
-import org.jboss.pnc.spi.environment.EnvironmentDriver;
-import org.jboss.pnc.spi.environment.RunningEnvironment;
-import org.jboss.pnc.spi.environment.StartedEnvironment;
-import org.jboss.pnc.spi.environment.exception.EnvironmentDriverException;
 import org.jboss.pnc.spi.events.BuildSetStatusChangedEvent;
 import org.jboss.pnc.spi.events.BuildStatusChangedEvent;
 import org.jboss.pnc.spi.exception.BuildConflictException;
-import org.jboss.pnc.spi.repositorymanager.RepositoryManager;
-import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
-import org.jboss.pnc.spi.repositorymanager.model.RepositorySession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,10 +33,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -75,7 +58,8 @@ public class BuildCoordinator {
     private Event<BuildStatusChangedEvent> buildStatusChangedEventNotifier;
     private Event<BuildSetStatusChangedEvent> buildSetStatusChangedEventNotifier;
 
-    BuildExecutor buildExecutor;
+    private BuildScheduler buildScheduler;
+
 
     @Deprecated
     public BuildCoordinator(){} //workaround for CDI constructor parameter injection
@@ -84,11 +68,11 @@ public class BuildCoordinator {
     public BuildCoordinator(DatastoreAdapter datastoreAdapter,
                             Event<BuildStatusChangedEvent> buildStatusChangedEventNotifier,
                             Event<BuildSetStatusChangedEvent> buildSetStatusChangedEventNotifier,
-                            BuildExecutor buildExecutor) {
+                            BuildScheduler buildScheduler) {
         this.datastoreAdapter = datastoreAdapter;
         this.buildStatusChangedEventNotifier = buildStatusChangedEventNotifier;
         this.buildSetStatusChangedEventNotifier = buildSetStatusChangedEventNotifier;
-        this.buildExecutor = buildExecutor;
+        this.buildScheduler = buildScheduler;
     }
 
     /**
@@ -104,28 +88,24 @@ public class BuildCoordinator {
      */
     public BuildTask build(BuildConfiguration buildConfiguration, User user, boolean force) throws BuildConflictException {
 
-        String topContentId = ContentIdentityManager.getProductContentId(this.getFirstProductVersion(buildConfiguration));
-        String buildSetContentId = ContentIdentityManager.getBuildSetContentId(buildConfiguration.getName());
-        String buildContentId = ContentIdentityManager.getBuildContentId(buildConfiguration);
-
         BuildConfigurationAudited buildConfigAudited = datastoreAdapter.getLatestBuildConfigurationAudited(buildConfiguration.getId());
         Optional<BuildTask> alreadyActiveBuildTask = this.getActiveBuildTask(buildConfigAudited);
         if (alreadyActiveBuildTask.isPresent()) {
             throw new BuildConflictException("Active build task found using the same configuration", alreadyActiveBuildTask.get().getId());
         }
-        Date submitTime = new Date();
-        BuildTask buildTask = new BuildTask(
-                this,
+
+        BuildTask buildTask = BuildTask.build(
                 buildConfiguration,
                 buildConfigAudited,
-                topContentId,
-                buildSetContentId,
-                buildContentId,
                 user,
-                submitTime,
+                getBuildStatusChangedEventNotifier(),
+                (bt) -> processBuildTask(bt),
+                datastoreAdapter.getNextBuildRecordId(), //TODO in bpm case we are not storing this task ?
                 null,
-                datastoreAdapter.getNextBuildRecordId());
+                new Date());
+
         processBuildTask(buildTask);
+
         return buildTask;
     }
 
@@ -184,18 +164,18 @@ public class BuildCoordinator {
 
         // Loop to create the build tasks
         for(BuildConfiguration buildConfig : buildSetTask.getBuildConfigurationSet().getBuildConfigurations()) {
-            String buildContentId = ContentIdentityManager.getBuildContentId(buildConfig);
-            BuildTask buildTask = new BuildTask(
-                    this,
+            BuildConfigurationAudited buildConfigAudited = datastoreAdapter.getLatestBuildConfigurationAudited(buildConfig.getId());
+
+            BuildTask buildTask = BuildTask.build(
                     buildConfig,
-                    datastoreAdapter.getLatestBuildConfigurationAudited(buildConfig.getId()),
-                    topContentId,
-                    buildSetContentId,
-                    buildContentId,
+                    buildConfigAudited,
                     buildSetTask.getBuildConfigSetRecord().getUser(),
-                    buildSetTask.getSubmitTime(),
+                    getBuildStatusChangedEventNotifier(),
+                    (bt) -> processBuildTask(bt),
+                    datastoreAdapter.getNextBuildRecordId(), //TODO in bpm case we are not storing this task ?
                     buildSetTask,
-                    datastoreAdapter.getNextBuildRecordId());
+                    buildSetTask.getSubmitTime());
+
             buildSetTask.addBuildTask(buildTask);
         }
         // Loop again to set dependencies
@@ -220,18 +200,6 @@ public class BuildCoordinator {
      */
     private Optional<BuildTask> getActiveBuildTask(BuildConfigurationAudited buildConfigAudited) {
         return activeBuildTasks.stream().filter(bt -> bt.getBuildConfigurationAudited().equals(buildConfigAudited)).findFirst();
-    }
-
-    /**
-     * Get the first product version (if any) associated with this build config.
-     * @param buildConfig The build configuration to check
-     * @return The firstproduct version, or null if there is none
-     */
-    private ProductVersion getFirstProductVersion(BuildConfiguration buildConfig) {
-        if(buildConfig.getProductVersions() == null) {
-            return null;
-        }
-        return buildConfig.getProductVersions().stream().findFirst().orElse(null);
     }
 
     /**
@@ -276,11 +244,7 @@ public class BuildCoordinator {
             activeBuildTasks.remove(buildTask);
         };
         try {
-            if (true) { //TODO if using BPM
-                buildExecutor.startBuilding(buildTask, onComplete);
-            } else {
-                //start remote bpm process
-            }
+            buildScheduler.startBuilding(buildTask, onComplete);
             activeBuildTasks.add(buildTask);
         } catch (CoreException e) {
             buildTask.setStatus(BuildStatus.SYSTEM_ERROR);
@@ -320,9 +284,5 @@ public class BuildCoordinator {
 
     Event<BuildSetStatusChangedEvent> getBuildSetStatusChangedEventNotifier() {
         return buildSetStatusChangedEventNotifier;
-    }
-
-    public void shutdownCoordinator(){
-        buildExecutor.shutdown();
     }
 }
