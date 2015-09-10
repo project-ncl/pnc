@@ -231,7 +231,7 @@ public class ProjectBuilder {
         assertTrue("Did not received update for status: " + status + " for BuildTaskId: " + buildTaskId, received);
     }
 
-    protected void assertBuildArtifactsPresent(List<Artifact> builtArtifacts) {
+    public static void assertBuildArtifactsPresent(List<Artifact> builtArtifacts) {
         assertTrue("Missing built artifacts.", builtArtifacts.size() > 0);
         Artifact artifact = builtArtifacts.get(0);
         assertTrue("Invalid built artifact in result.", artifact.getIdentifier().startsWith("test"));
