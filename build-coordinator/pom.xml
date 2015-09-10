@@ -93,6 +93,12 @@
     </dependency>
     
     <dependency>
+      <groupId>org.jboss.pnc</groupId>
+      <artifactId>test-common</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
       <groupId>com.google.guava</groupId>
       <artifactId>guava</artifactId>
       <scope>test</scope>
@@ -140,11 +146,6 @@
     </dependency>
     <!-- /Test coverage -->
 
-    <dependency>
-      <groupId>org.jboss.pnc</groupId>
-      <artifactId>test-common</artifactId>
-      <scope>test</scope>
-    </dependency>
   </dependencies>
 
 </project>
