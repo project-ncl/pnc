@@ -18,6 +18,8 @@
 
 package org.jboss.pnc.core.builder;
 
+import org.jboss.pnc.spi.BuildStatus;
+
 import javax.enterprise.context.ApplicationScoped;
 import java.util.HashMap;
 import java.util.Map;
@@ -34,8 +36,8 @@ public class BpmCompleteListener {
         listeners.put(bpmListener.getTaskId(), bpmListener);
     }
 
-    public void notifyCompleted(long processId) {
+    public void notifyCompleted(long processId, BuildStatus buildStatus) {
         listeners.remove(processId);
-        listeners.get(processId).onComplete();
+        listeners.get(processId).onComplete(buildStatus);
     }
 }

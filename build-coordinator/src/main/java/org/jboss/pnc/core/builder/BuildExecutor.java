@@ -80,7 +80,7 @@ public class BuildExecutor {
         this.environmentDriverFactory = environmentDriverFactory;
     }
 
-    void startBuilding(BuildTask buildTask, Runnable onComplete) throws CoreException {
+    void startBuilding(BuildTask buildTask, Consumer<BuildStatus> onComplete) throws CoreException {
         CompletableFuture.supplyAsync(() -> configureRepository(buildTask), executor)
                 .thenApplyAsync(repositoryConfiguration -> setUpEnvironment(buildTask, repositoryConfiguration), executor)
                 .thenComposeAsync(startedEnvironment -> waitForEnvironmentInitialization(buildTask, startedEnvironment), executor)
@@ -208,7 +208,7 @@ public class BuildExecutor {
         }
     }
 
-    private Void storeResults(BuildTask buildTask, BuildResult buildResult, Runnable onComplete, Throwable e) {
+    private Void storeResults(BuildTask buildTask, BuildResult buildResult, Consumer<BuildStatus> onComplete, Throwable e) {
         try {
             if (buildResult != null) {
                 buildTask.setStatus(BuildStatus.STORING_RESULTS);
@@ -235,7 +235,7 @@ public class BuildExecutor {
         } else {
             buildTask.setStatus(BuildStatus.DONE);
         }
-        onComplete.run();
+        onComplete.accept(buildTask.getStatus());
         return null;
     }
 

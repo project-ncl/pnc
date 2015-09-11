@@ -22,12 +22,14 @@ import org.jboss.pnc.core.exception.CoreException;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.User;
+import org.jboss.pnc.spi.BuildStatus;
 import org.jboss.pnc.spi.events.BuildStatusChangedEvent;
 import org.jboss.pnc.spi.exception.BuildConflictException;
 
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import java.util.Date;
+import java.util.function.Consumer;
 
 /**
  * Builder triggers individuals builds without dependency coordination.
@@ -51,7 +53,7 @@ public class Builder {
         this.buildExecutor = buildExecutor;
     }
 
-    public BuildTask build(BuildConfiguration buildConfiguration, User user, int buildTaskId, Runnable onComplete) throws BuildConflictException, CoreException {
+    public BuildTask build(BuildConfiguration buildConfiguration, User user, int buildTaskId, Consumer<BuildStatus> onComplete) throws BuildConflictException, CoreException {
 
         BuildConfigurationAudited buildConfigAudited = datastoreAdapter.getLatestBuildConfigurationAudited(buildConfiguration.getId());
 

@@ -25,6 +25,7 @@ import org.jboss.pnc.common.json.moduleconfig.OpenshiftEnvironmentDriverModuleCo
 import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
 import org.jboss.pnc.core.exception.CoreException;
 import org.jboss.pnc.model.User;
+import org.jboss.pnc.spi.BuildStatus;
 import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.process.ProcessInstance;
 import org.kie.services.client.api.RemoteRestRuntimeEngineFactory;
@@ -39,6 +40,7 @@ import javax.enterprise.inject.Alternative;
 import javax.inject.Inject;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.function.Consumer;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
@@ -84,13 +86,13 @@ public class BpmBuildScheduler implements BuildScheduler {
     }
 
     @Override
-    public void startBuilding(BuildTask buildTask, Runnable onComplete) throws CoreException {
+    public void startBuilding(BuildTask buildTask, Consumer<BuildStatus> onComplete) throws CoreException {
         ProcessInstance processInstance = startProcess();
         logger.info("New component build process started with process instance id {}.", processInstance.getId());
         registerCompleteListener(buildTask.getId(), onComplete);
     }
 
-    private void registerCompleteListener(int taskId, Runnable onComplete) {
+    private void registerCompleteListener(int taskId, Consumer<BuildStatus> onComplete) {
         BpmListener bpmListener = new BpmListener(taskId, onComplete);
         bpmCompleteListener.subscribe(bpmListener);
     }

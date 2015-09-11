@@ -37,6 +37,7 @@ import org.jboss.pnc.core.test.mock.DatastoreMock;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.Environment;
 import org.jboss.pnc.model.User;
+import org.jboss.pnc.spi.BuildStatus;
 import org.jboss.pnc.spi.datastore.Datastore;
 import org.jboss.pnc.spi.environment.RunningEnvironment;
 import org.jboss.pnc.spi.events.BuildStatusChangedEvent;
@@ -63,6 +64,7 @@ import java.time.temporal.TemporalUnit;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.function.Consumer;
 
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Mockito.doAnswer;
@@ -108,7 +110,7 @@ public class BuilderTest {
     @InSequence(10)
     public void testSingleBuild() throws BuildConflictException, CoreException, TimeoutException, InterruptedException {
         ObjectWrapper<Boolean> completed = new ObjectWrapper<>(false);
-        Runnable onComplete = () -> {
+        Consumer<BuildStatus> onComplete = (buildStatus) -> {
             completed.set(true);
         };
         builder.build(configurationBuilder.build(1, "c1-java"), (User)null, 1, onComplete);

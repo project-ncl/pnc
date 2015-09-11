@@ -19,9 +19,11 @@
 package org.jboss.pnc.core.builder;
 
 import org.jboss.pnc.core.exception.CoreException;
+import org.jboss.pnc.spi.BuildStatus;
 
 import javax.enterprise.inject.Alternative;
 import javax.inject.Inject;
+import java.util.function.Consumer;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
@@ -39,7 +41,7 @@ public class LocalBuildScheduler implements BuildScheduler {
     }
 
     @Override
-    public void startBuilding(BuildTask buildTask, Runnable onComplete) throws CoreException {
+    public void startBuilding(BuildTask buildTask, Consumer<BuildStatus> onComplete) throws CoreException {
         buildExecutor.startBuilding(buildTask, onComplete);
     }
 }

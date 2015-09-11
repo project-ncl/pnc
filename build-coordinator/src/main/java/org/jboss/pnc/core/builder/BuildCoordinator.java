@@ -240,7 +240,7 @@ public class BuildCoordinator {
     }
 
     void processBuildTask(BuildTask buildTask) {
-        Runnable onComplete = () -> {
+        Consumer<BuildStatus> onComplete = (buildStatus) -> {
             activeBuildTasks.remove(buildTask);
         };
         try {

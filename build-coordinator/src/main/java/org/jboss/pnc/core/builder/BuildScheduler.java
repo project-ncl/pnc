@@ -19,6 +19,9 @@
 package org.jboss.pnc.core.builder;
 
 import org.jboss.pnc.core.exception.CoreException;
+import org.jboss.pnc.spi.BuildStatus;
+
+import java.util.function.Consumer;
 
 /**
  * BuildScheduler is used to direct the build to by scheduler defined execution engine.
@@ -29,5 +32,5 @@ import org.jboss.pnc.core.exception.CoreException;
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
 public interface BuildScheduler {
-    void startBuilding(BuildTask buildTask, Runnable onComplete) throws CoreException;
+    void startBuilding(BuildTask buildTask, Consumer<BuildStatus> onComplete) throws CoreException;
 }
