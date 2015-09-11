@@ -18,18 +18,90 @@
 
 package org.jboss.pnc.core.builder;
 
+import org.jboss.pnc.common.Configuration;
+import org.jboss.pnc.common.json.ConfigurationParseException;
+import org.jboss.pnc.common.json.moduleconfig.BpmModuleConfig;
+import org.jboss.pnc.common.json.moduleconfig.OpenshiftEnvironmentDriverModuleConfig;
+import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
 import org.jboss.pnc.core.exception.CoreException;
+import org.jboss.pnc.model.User;
+import org.kie.api.runtime.KieSession;
+import org.kie.api.runtime.process.ProcessInstance;
+import org.kie.services.client.api.RemoteRestRuntimeEngineFactory;
+import org.kie.services.client.api.RemoteRestRuntimeFactory;
+import org.kie.services.client.api.RemoteRuntimeEngineFactory;
+import org.kie.services.client.api.command.RemoteRuntimeEngine;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Alternative;
+import javax.inject.Inject;
+import java.net.MalformedURLException;
+import java.net.URL;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
 @Alternative
+@ApplicationScoped
 public class BpmBuildScheduler implements BuildScheduler {
+
+    private static final Logger logger = LoggerFactory.getLogger(BpmBuildScheduler.class);
+
+    private BpmModuleConfig config;
+
+    private BpmCompleteListener bpmCompleteListener;
+
+    private final URL instanceUrl;
+    private final String deploymentId;
+    private final String processId;
+
+    private final String user;
+    private final String password;
+
+    @Deprecated
+    public BpmBuildScheduler() { //CDI workaround
+        instanceUrl = null;
+        deploymentId = null;
+        processId = null;
+        user = null;
+        password = null;
+    }
+
+    @Inject
+    public BpmBuildScheduler(Configuration configuration, BpmCompleteListener bpmCompleteListener) throws MalformedURLException, ConfigurationParseException {
+        config = configuration.getModuleConfig(new PncConfigProvider<>(BpmModuleConfig.class));
+
+        this.bpmCompleteListener = bpmCompleteListener;
+
+        instanceUrl = new URL("https://maitai-bpms-01.app.test.eng.nay.redhat.com/business-central/"); //TODO configurable
+        deploymentId = "com.redhat.maitai.ncl:ComponentBuild";  //TODO configurable
+        processId = "ComponentBuild.componentbuild";  //TODO configurable
+
+        user = config.getUsername();
+        password = config.getPassword();
+    }
 
     @Override
     public void startBuilding(BuildTask buildTask, Runnable onComplete) throws CoreException {
-        //TODO implement me
+        ProcessInstance processInstance = startProcess();
+        logger.info("New component build process started with process instance id {}.", processInstance.getId());
+        registerCompleteListener(buildTask.getId(), onComplete);
     }
+
+    private void registerCompleteListener(int taskId, Runnable onComplete) {
+        BpmListener bpmListener = new BpmListener(taskId, onComplete);
+        bpmCompleteListener.subscribe(bpmListener);
+    }
+
+    private ProcessInstance startProcess() {
+        RemoteRestRuntimeEngineFactory restSessionFactory = new RemoteRestRuntimeEngineFactory(deploymentId, instanceUrl, user, password);
+
+        RemoteRuntimeEngine engine = restSessionFactory.newRuntimeEngine();
+        KieSession kieSession = engine.getKieSession();
+
+        return kieSession.startProcess(processId);
+    }
+
 }
