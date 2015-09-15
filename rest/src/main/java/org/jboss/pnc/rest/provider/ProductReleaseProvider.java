@@ -17,13 +17,13 @@
  */
 package org.jboss.pnc.rest.provider;
 
+import org.jboss.pnc.model.ProductMilestone;
 import org.jboss.pnc.model.ProductRelease;
-import org.jboss.pnc.model.ProductVersion;
 import org.jboss.pnc.rest.provider.collection.CollectionInfo;
 import org.jboss.pnc.rest.restmodel.ProductReleaseRest;
 import org.jboss.pnc.spi.datastore.repositories.PageInfoProducer;
+import org.jboss.pnc.spi.datastore.repositories.ProductMilestoneRepository;
 import org.jboss.pnc.spi.datastore.repositories.ProductReleaseRepository;
-import org.jboss.pnc.spi.datastore.repositories.ProductVersionRepository;
 import org.jboss.pnc.spi.datastore.repositories.SortInfoProducer;
 import org.jboss.pnc.spi.datastore.repositories.api.RSQLPredicateProducer;
 
@@ -36,14 +36,14 @@ import static org.jboss.pnc.spi.datastore.predicates.ProductReleasePredicates.wi
 @Stateless
 public class ProductReleaseProvider extends AbstractProvider<ProductRelease, ProductReleaseRest> {
 
-    private ProductVersionRepository productVersionRepository;
+    private ProductMilestoneRepository productMilestoneRepository;
 
     @Inject
     public ProductReleaseProvider(ProductReleaseRepository productReleaseRepository, RSQLPredicateProducer rsqlPredicateProducer,
             SortInfoProducer sortInfoProducer, PageInfoProducer pageInfoProducer,
-            ProductVersionRepository productVersionRepository) {
+            ProductMilestoneRepository productMilestoneRepository) {
         super(productReleaseRepository, rsqlPredicateProducer, sortInfoProducer, pageInfoProducer);
-        this.productVersionRepository = productVersionRepository;
+        this.productMilestoneRepository = productMilestoneRepository;
     }
 
     // needed for EJB/CDI
@@ -57,14 +57,23 @@ public class ProductReleaseProvider extends AbstractProvider<ProductRelease, Pro
 
     @Override
     protected Function<? super ProductReleaseRest, ? extends ProductRelease> toDBModelModel() {
-        return productRelease -> {
-            if(productRelease.getProductVersionId() != null) {
-                ProductVersion productVersionFromDB = productVersionRepository.queryById(productRelease.getProductVersionId());
-                return productRelease.toProductRelease(productVersionFromDB);
+        return productReleaseRest -> {
+            ProductRelease productRelease = null;
+            if (productReleaseRest.getId() != null) {
+                productRelease = repository.queryById(productReleaseRest.getId());
+            } else {
+                productRelease = ProductRelease.Builder.newBuilder().build();
             }
 
-            ProductRelease productReleaseFromDB = repository.queryById(productRelease.getId());
-            return productRelease.toProductRelease(productReleaseFromDB);
+            // Merge the product release db entity with attributes from the product release rest
+            productRelease = productReleaseRest.toProductRelease(productRelease);
+            if (productReleaseRest.getProductMilestoneId() != null) {
+                ProductMilestone productMilestone = productMilestoneRepository.queryById(productReleaseRest.getProductMilestoneId());
+                productRelease.setProductMilestone(productMilestone);
+                productMilestone.setProductRelease(productRelease);
+            }
+
+            return productRelease;
         };
     }
 

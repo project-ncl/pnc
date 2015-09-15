@@ -64,9 +64,6 @@ public class ProductVersion implements GenericEntity<Integer> {
     private Set<BuildConfigurationSet> buildConfigurationSets;
 
     @OneToMany(mappedBy = "productVersion")
-    private Set<ProductRelease> productReleases;
-
-    @OneToMany(mappedBy = "productVersion")
     private Set<ProductMilestone> productMilestones;
 
     @OneToOne
@@ -75,7 +72,6 @@ public class ProductVersion implements GenericEntity<Integer> {
 
     public ProductVersion() {
         buildConfigurationSets = new HashSet<>();
-        productReleases = new HashSet<ProductRelease>();
         productMilestones = new HashSet<ProductMilestone>();
     }
 
@@ -124,15 +120,13 @@ public class ProductVersion implements GenericEntity<Integer> {
     }
 
     public Set<ProductRelease> getProductReleases() {
+        Set<ProductRelease> productReleases = new HashSet<ProductRelease>();
+        for (ProductMilestone milestone : productMilestones) {
+            if (milestone.getProductRelease() != null) {
+                productReleases.add(milestone.getProductRelease());
+            }
+        }
         return productReleases;
-    }
-
-    public void setProductReleases(Set<ProductRelease> productReleases) {
-        this.productReleases = productReleases;
-    }
-
-    public void addProductRelease(ProductRelease productRelease) {
-        this.productReleases.add(productRelease);
     }
 
     public Set<ProductMilestone> getProductMilestones() {
@@ -176,8 +170,6 @@ public class ProductVersion implements GenericEntity<Integer> {
 
         private Product product;
 
-        private Set<ProductRelease> productReleases = new HashSet<>();
-
         private Set<ProductMilestone> productMilestones = new HashSet<>();
 
         private ProductMilestone currentProductMilestone;
@@ -208,11 +200,6 @@ public class ProductVersion implements GenericEntity<Integer> {
             }
             productVersion.setBuildConfigurationSets(buildConfigurationSets);
 
-            for (ProductRelease productRelease : productReleases) {
-                productRelease.setProductVersion(productVersion);
-            }
-            productVersion.setProductReleases(productReleases);
-
             for (ProductMilestone productMilestone : productMilestones) {
                 productMilestone.setProductVersion(productVersion);
             }
@@ -233,11 +220,6 @@ public class ProductVersion implements GenericEntity<Integer> {
 
         public Builder product(Product product) {
             this.product = product;
-            return this;
-        }
-
-        public Builder productReleases(Set<ProductRelease> productReleases) {
-            this.productReleases = productReleases;
             return this;
         }
 

@@ -122,7 +122,6 @@ public class BasicModelTest {
         productMilestone1.setPerformedBuildRecordSet(buildRecordSet1);
         BuildRecordSet buildRecordSet2 = ModelTestDataFactory.getInstance().getBuildRecordSet();
         ProductRelease productRelease1 = ModelTestDataFactory.getInstance().getProductRelease1();
-        productRelease1.setProductVersion(productVersion1);
         productRelease1.setProductMilestone(productMilestone1);
 
         EntityManager em = emFactory.createEntityManager();
@@ -305,7 +304,6 @@ public class BasicModelTest {
 
         // Test product release versions
         ProductRelease release = ProductRelease.Builder.newBuilder()
-                .productVersion(productVersion)
                 .productMilestone(milestone)
                 .version("1.0.0.GA")
                 .build();

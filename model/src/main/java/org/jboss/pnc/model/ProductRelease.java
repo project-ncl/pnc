@@ -33,9 +33,6 @@ import java.util.Date;
  * which was promoted from 1.0.0.Build1 and 1.0.0.GA which was promoted from 1.0.0.Build3).
  */
 @Entity
-@Table(uniqueConstraints = {
-        @UniqueConstraint(columnNames = {"version", "productVersion_id"})
-})
 public class ProductRelease implements GenericEntity<Integer> {
 
     private static final long serialVersionUID = 6314079319551264379L;
@@ -55,11 +52,6 @@ public class ProductRelease implements GenericEntity<Integer> {
     @NotNull
     private String version;
 
-    @NotNull
-    @ManyToOne(cascade = { CascadeType.REFRESH })
-    @ForeignKey(name = "fk_productrelease_productversion")
-    private ProductVersion productVersion;
-
     @Enumerated(EnumType.STRING)
     private SupportLevel supportLevel;
 
@@ -74,11 +66,6 @@ public class ProductRelease implements GenericEntity<Integer> {
 
     public ProductRelease() {
 
-    }
-
-    public ProductRelease(ProductVersion productVersion, String version) {
-        this.productVersion = productVersion;
-        this.version = version;
     }
 
     @Override
@@ -100,16 +87,16 @@ public class ProductRelease implements GenericEntity<Integer> {
     }
 
     /**
-     * The product version entity associated with this release
+     * The product version entity associated with this release.  The association is via
+     * the product milestone.
      * 
-     * @return the product version entity
+     * @return the product version entity associated with the linked product milestone.
      */
     public ProductVersion getProductVersion() {
-        return productVersion;
-    }
-
-    public void setProductVersion(ProductVersion productVersion) {
-        this.productVersion = productVersion;
+        if (productMilestone != null) {
+            return productMilestone.getProductVersion();
+        }
+        return null;
     }
 
     /**
@@ -178,8 +165,6 @@ public class ProductRelease implements GenericEntity<Integer> {
 
         private String version;
 
-        private ProductVersion productVersion;
-
         private ProductMilestone productMilestone;
 
         private SupportLevel supportLevel;
@@ -202,11 +187,6 @@ public class ProductRelease implements GenericEntity<Integer> {
             productRelease.setSupportLevel(supportLevel);
             productRelease.setReleaseDate(releaseDate);
             productRelease.setDownloadUrl(downloadUrl);
-
-            if (productVersion != null) {
-                productVersion.addProductRelease(productRelease);
-            }
-            productRelease.setProductVersion(productVersion);
 
             if (productMilestone != null) {
                 productMilestone.setProductRelease(productRelease);
@@ -238,11 +218,6 @@ public class ProductRelease implements GenericEntity<Integer> {
 
         public Builder downloadUrl(String downloadUrl) {
             this.downloadUrl = downloadUrl;
-            return this;
-        }
-
-        public Builder productVersion(ProductVersion productVersion) {
-            this.productVersion = productVersion;
             return this;
         }
 
