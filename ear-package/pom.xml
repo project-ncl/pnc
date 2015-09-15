@@ -81,6 +81,10 @@
     </dependency>
     <dependency>
       <groupId>org.jboss.pnc</groupId>
+      <artifactId>docker-environment-driver</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.pnc</groupId>
       <artifactId>openshift-environment-driver</artifactId>
     </dependency>
     <dependency>
@@ -157,6 +161,12 @@
             <jarModule>
               <groupId>org.jboss.pnc</groupId>
               <artifactId>openshift-environment-driver</artifactId>
+              <includeInApplicationXml>true</includeInApplicationXml>
+              <bundleDir>/</bundleDir>
+            </jarModule>
+            <jarModule>
+              <groupId>org.jboss.pnc</groupId>
+              <artifactId>docker-environment-driver</artifactId>
               <includeInApplicationXml>true</includeInApplicationXml>
               <bundleDir>/</bundleDir>
             </jarModule>
