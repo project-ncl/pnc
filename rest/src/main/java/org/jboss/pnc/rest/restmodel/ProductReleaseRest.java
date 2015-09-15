@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.rest.restmodel;
 
+import com.wordnik.swagger.annotations.ApiModelProperty;
 import org.jboss.pnc.model.ProductMilestone;
 import org.jboss.pnc.model.ProductRelease;
 import org.jboss.pnc.model.ProductRelease.SupportLevel;
@@ -50,6 +51,7 @@ public class ProductReleaseRest implements GenericRestEntity<Integer> {
 
     private Integer productMilestoneId;
 
+    @ApiModelProperty(dataType = "string")
     private SupportLevel supportLevel;
 
     public ProductReleaseRest() {
