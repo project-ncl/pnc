@@ -38,11 +38,11 @@ public class ProductMilestoneRest implements GenericRestEntity<Integer> {
 
     private String version;
 
-    private Date releaseDate;
+    private Date endDate;
 
     private Date startingDate;
 
-    private Date plannedReleaseDate;
+    private Date plannedEndDate;
 
     private String downloadUrl;
 
@@ -60,9 +60,9 @@ public class ProductMilestoneRest implements GenericRestEntity<Integer> {
     public ProductMilestoneRest(ProductMilestone productMilestone) {
         this.id = productMilestone.getId();
         this.version = productMilestone.getVersion();
-        this.releaseDate = productMilestone.getReleaseDate();
+        this.endDate = productMilestone.getEndDate();
         this.startingDate = productMilestone.getStartingDate();
-        this.plannedReleaseDate = productMilestone.getPlannedReleaseDate();
+        this.plannedEndDate = productMilestone.getPlannedEndDate();
         this.downloadUrl = productMilestone.getDownloadUrl();
         this.productVersionId = productMilestone.getProductVersion().getId();
         if (productMilestone.getPerformedBuildRecordSet() != null) {
@@ -94,12 +94,12 @@ public class ProductMilestoneRest implements GenericRestEntity<Integer> {
         this.version = version;
     }
 
-    public Date getReleaseDate() {
-        return releaseDate;
+    public Date getEndDate() {
+        return endDate;
     }
 
-    public void setReleaseDate(Date releaseDate) {
-        this.releaseDate = releaseDate;
+    public void setEndDate(Date endDate) {
+        this.endDate = endDate;
     }
 
     public Date getStartingDate() {
@@ -110,12 +110,12 @@ public class ProductMilestoneRest implements GenericRestEntity<Integer> {
         this.startingDate = startingDate;
     }
 
-    public Date getPlannedReleaseDate() {
-        return plannedReleaseDate;
+    public Date getPlannedEndDate() {
+        return plannedEndDate;
     }
 
-    public void setPlannedReleaseDate(Date plannedReleaseDate) {
-        this.plannedReleaseDate = plannedReleaseDate;
+    public void setPlannedEndDate(Date plannedEndDate) {
+        this.plannedEndDate = plannedEndDate;
     }
 
     public String getDownloadUrl() {
@@ -169,9 +169,9 @@ public class ProductMilestoneRest implements GenericRestEntity<Integer> {
                 .productVersion(productVersion)
                 .id(id)
                 .version(version)
-                .releaseDate(releaseDate)
+                .endDate(endDate)
                 .startingDate(startingDate)
-                .plannedReleaseDate(plannedReleaseDate)
+                .plannedEndDate(plannedEndDate)
                 .downloadUrl(downloadUrl)
                 .build();
     }
@@ -188,9 +188,9 @@ public class ProductMilestoneRest implements GenericRestEntity<Integer> {
     public ProductMilestone toProductMilestone(ProductMilestone productMilestone) {
         productMilestone.setVersion(version);
         productMilestone.setId(id);
-        productMilestone.setReleaseDate(releaseDate);
+        productMilestone.setEndDate(endDate);
         productMilestone.setStartingDate(startingDate);
-        productMilestone.setPlannedReleaseDate(plannedReleaseDate);
+        productMilestone.setPlannedEndDate(plannedEndDate);
         productMilestone.setDownloadUrl(downloadUrl);
 
         if (performedBuildRecordSetId != null) {
