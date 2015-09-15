@@ -19,9 +19,9 @@ package org.jboss.pnc.core.test.buildCoordinator;
 
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.junit.InSequence;
-import org.jboss.pnc.core.builder.BuildCoordinator;
-import org.jboss.pnc.core.builder.BuildSetTask;
-import org.jboss.pnc.core.builder.BuildTask;
+import org.jboss.pnc.core.builder.coordinator.BuildCoordinator;
+import org.jboss.pnc.core.builder.coordinator.BuildSetTask;
+import org.jboss.pnc.core.builder.coordinator.BuildTask;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.User;

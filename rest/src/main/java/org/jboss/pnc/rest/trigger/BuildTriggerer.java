@@ -19,18 +19,8 @@ package org.jboss.pnc.rest.trigger;
 
 import com.google.common.base.Preconditions;
 
-import org.apache.commons.codec.binary.Base64;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.impl.client.CloseableHttpClient;
-
 import org.jboss.logging.Logger;
-import org.jboss.pnc.common.Configuration;
-import org.jboss.pnc.common.json.ConfigurationParseException;
-import org.jboss.pnc.common.json.moduleconfig.BpmModuleConfig;
-import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
-import org.jboss.pnc.common.util.HttpUtils;
-import org.jboss.pnc.core.builder.BuildCoordinator;
+import org.jboss.pnc.core.builder.coordinator.BuildCoordinator;
 import org.jboss.pnc.core.exception.CoreException;
 import org.jboss.pnc.core.notifications.buildSetTask.BuildSetCallBack;
 import org.jboss.pnc.core.notifications.buildSetTask.BuildSetStatusNotifications;
@@ -51,7 +41,6 @@ import org.jboss.pnc.spi.repositorymanager.RepositoryManagerException;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 
-import java.io.IOException;
 import java.net.URL;
 import java.util.function.Consumer;
 

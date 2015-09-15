@@ -20,9 +20,9 @@ package org.jboss.pnc.core.test.buildCoordinator;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.core.BuildDriverFactory;
-import org.jboss.pnc.core.builder.BuildCoordinator;
-import org.jboss.pnc.core.builder.BuildSetTask;
-import org.jboss.pnc.core.builder.BuildTask;
+import org.jboss.pnc.core.builder.coordinator.BuildCoordinator;
+import org.jboss.pnc.core.builder.coordinator.BuildSetTask;
+import org.jboss.pnc.core.builder.coordinator.BuildTask;
 import org.jboss.pnc.core.content.ContentIdentityManager;
 import org.jboss.pnc.core.exception.CoreException;
 import org.jboss.pnc.core.test.buildCoordinator.event.TestCDIBuildStatusChangedReceiver;
@@ -37,6 +37,7 @@ import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.BuildSetStatus;
 import org.jboss.pnc.spi.BuildStatus;
 import org.jboss.pnc.spi.datastore.DatastoreException;
+import org.jboss.pnc.spi.datastore.repositories.BuildConfigSetRecordRepository;
 import org.jboss.pnc.spi.events.BuildStatusChangedEvent;
 import org.jboss.pnc.spi.exception.BuildConflictException;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
@@ -73,7 +74,7 @@ public class ProjectBuilder {
     TestCDIBuildStatusChangedReceiver statusChangedReceiver;
 
     private static final Logger log = LoggerFactory.getLogger(ProjectBuilder.class);
-    public static final int N_STATUS_UPDATES_PER_TASK = 13;
+    public static final int N_STATUS_UPDATES_PER_TASK = 14;
     public static final int N_STATUS_UPDATES_PER_TASK_WAITING_FOR_FAILED_DEPS = 1;
 
     @Deployment
@@ -82,8 +83,11 @@ public class ProjectBuilder {
                 .addClass(Configuration.class)
                 .addClass(Environment.Builder.class)
                 .addClass(TestCDIBuildStatusChangedReceiver.class)
-                .addPackages(true, BuildDriverFactory.class.getPackage(), BuildDriverMock.class.getPackage(),
-                        ContentIdentityManager.class.getPackage())
+                .addPackages(true,
+                        BuildDriverFactory.class.getPackage(),
+                        BuildDriverMock.class.getPackage(),
+                        ContentIdentityManager.class.getPackage(),
+                        BuildConfigSetRecordRepository.class.getPackage())
                 .addAsManifestResource(EmptyAsset.INSTANCE, "beans.xml")
                 .addAsResource("META-INF/logging.properties");
 
@@ -99,8 +103,8 @@ public class ProjectBuilder {
 
         final Semaphore semaphore = registerReleaseListenersAndAcquireSemaphore(receivedStatuses, N_STATUS_UPDATES_PER_TASK);
 
-        User user = null;
-        BuildTask buildTask = buildCoordinator.build(buildConfiguration, user, false);
+
+        BuildTask buildTask = buildCoordinator.build(buildConfiguration, newUser(), false);
         log.info("Started build task {}", buildTask);
 
         assertBuildStartedSuccessfully(buildTask);
@@ -117,13 +121,13 @@ public class ProjectBuilder {
 
         final Semaphore semaphore = registerReleaseListenersAndAcquireSemaphore(receivedStatuses, nStatusUpdates);
 
-        User user = null;
-        BuildSetTask buildSetTask = buildCoordinator.build(buildConfigurationSet, user);
+        BuildSetTask buildSetTask = buildCoordinator.build(buildConfigurationSet, newUser());
 
         assertBuildStartedSuccessfully(buildSetTask);
 
         log.info("Waiting to receive all {} status updates...", nStatusUpdates);
         waitForStatusUpdates(nStatusUpdates, semaphore);
+        log.debug("All status updates should be received. Semaphore has {} free entries.", semaphore.availablePermits());
 
         log.info("Checking if received all status updates...");
         buildSetTask.getBuildTasks().forEach(bt -> assertAllStatusUpdateReceived(receivedStatuses, bt.getId()));
@@ -138,8 +142,7 @@ public class ProjectBuilder {
 
         final Semaphore semaphore = registerReleaseListenersAndAcquireSemaphore(receivedStatuses, nStatusUpdates);
 
-        User user = null;
-        BuildSetTask buildSetTask = buildCoordinator.build(buildConfigurationSet, user);
+        BuildSetTask buildSetTask = buildCoordinator.build(buildConfigurationSet, newUser());
 
         assertBuildStartedSuccessfully(buildSetTask);
         log.info("Waiting to receive all {} status updates...", nStatusUpdates);
@@ -147,9 +150,7 @@ public class ProjectBuilder {
         log.info("Checking if received all status updates...");
         buildSetTask.getBuildTasks().stream().filter(b -> BuildStatus.DONE_WITH_ERRORS.equals(b.getStatus())).forEach(bt -> assertAllStatusUpdateReceivedForFailedBuild(receivedStatuses, bt.getId()));
         buildSetTask.getBuildTasks().stream().filter(b -> BuildStatus.REJECTED.equals(b.getStatus())).forEach(bt -> assertAllStatusUpdateReceivedForFailedWaitingForDeps(receivedStatuses, bt.getId()));
-
     }
-
 
     private Semaphore registerReleaseListenersAndAcquireSemaphore(List<BuildStatusChangedEvent> receivedStatuses, int nStatusUpdates) throws InterruptedException {
         final Semaphore semaphore = new Semaphore(nStatusUpdates);
@@ -237,4 +238,11 @@ public class ProjectBuilder {
         assertTrue("Invalid built artifact in result.", artifact.getIdentifier().startsWith("test"));
     }
 
+    private User newUser() {
+        User user = new User();
+        user.setId(1);
+        user.setFirstName("Poseidon");
+        user.setLastName("Neptune");
+        return user;
+    }
 }

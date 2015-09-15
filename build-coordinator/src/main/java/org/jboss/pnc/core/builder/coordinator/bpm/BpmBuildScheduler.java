@@ -16,21 +16,19 @@
  * limitations under the License.
  */
 
-package org.jboss.pnc.core.builder;
+package org.jboss.pnc.core.builder.coordinator.bpm;
 
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.moduleconfig.BpmModuleConfig;
-import org.jboss.pnc.common.json.moduleconfig.OpenshiftEnvironmentDriverModuleConfig;
 import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
+import org.jboss.pnc.core.builder.coordinator.BuildScheduler;
+import org.jboss.pnc.core.builder.coordinator.BuildTask;
 import org.jboss.pnc.core.exception.CoreException;
-import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.BuildStatus;
 import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.process.ProcessInstance;
 import org.kie.services.client.api.RemoteRestRuntimeEngineFactory;
-import org.kie.services.client.api.RemoteRestRuntimeFactory;
-import org.kie.services.client.api.RemoteRuntimeEngineFactory;
 import org.kie.services.client.api.command.RemoteRuntimeEngine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,6 +38,8 @@ import javax.enterprise.inject.Alternative;
 import javax.inject.Inject;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.function.Consumer;
 
 /**
@@ -87,7 +87,8 @@ public class BpmBuildScheduler implements BuildScheduler {
 
     @Override
     public void startBuilding(BuildTask buildTask, Consumer<BuildStatus> onComplete) throws CoreException {
-        ProcessInstance processInstance = startProcess();
+
+        ProcessInstance processInstance = startProcess(buildTask.getBuildSetTask().getId());
         logger.info("New component build process started with process instance id {}.", processInstance.getId());
         registerCompleteListener(buildTask.getId(), onComplete);
     }
@@ -97,13 +98,15 @@ public class BpmBuildScheduler implements BuildScheduler {
         bpmCompleteListener.subscribe(bpmListener);
     }
 
-    private ProcessInstance startProcess() {
+    private ProcessInstance startProcess(Integer buildTaskSetId) {
         RemoteRestRuntimeEngineFactory restSessionFactory = new RemoteRestRuntimeEngineFactory(deploymentId, instanceUrl, user, password);
 
         RemoteRuntimeEngine engine = restSessionFactory.newRuntimeEngine();
         KieSession kieSession = engine.getKieSession();
 
-        return kieSession.startProcess(processId);
+        Map<String, Object> parameters = new HashMap<>();
+        parameters.put("build-task-set-id", buildTaskSetId);
+        return kieSession.startProcess(processId, parameters);
     }
 
 }

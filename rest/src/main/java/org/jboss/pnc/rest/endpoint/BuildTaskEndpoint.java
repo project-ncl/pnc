@@ -20,7 +20,7 @@ package org.jboss.pnc.rest.endpoint;
 
 import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiParam;
-import org.jboss.pnc.core.builder.BpmCompleteListener;
+import org.jboss.pnc.core.builder.coordinator.bpm.BpmCompleteListener;
 import org.jboss.pnc.spi.BuildStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

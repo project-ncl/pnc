@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package org.jboss.pnc.core.builder;
+package org.jboss.pnc.core.builder.coordinator.bpm;
 
 import org.jboss.pnc.spi.BuildStatus;
 

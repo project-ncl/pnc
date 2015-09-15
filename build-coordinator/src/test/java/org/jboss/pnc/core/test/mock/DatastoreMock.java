@@ -100,6 +100,7 @@ public class DatastoreMock implements Datastore {
         idRev.setId(buildConfigId);
         idRev.setRev(buildConfigAuditedRevSequence.incrementAndGet());
         BuildConfigurationAudited buildConfigAudited = new BuildConfigurationAudited();
+        buildConfigAudited.setName("Audited config id: " + buildConfigId + " rev: " + idRev.getId());
         buildConfigAudited.setIdRev(idRev);
         buildConfigAudited.setId(idRev.getId());
         buildConfigAudited.setRev(idRev.getRev());
@@ -110,6 +111,11 @@ public class DatastoreMock implements Datastore {
         buildConfigAudited.setDescription(buildConfig.getDescription());
 
         return buildConfigAudited;
+    }
+
+    @Override
+    public BuildConfigSetRecord getBuildConfigSetRecordById(Integer buildConfigSetRecordId) {
+        return buildConfigSetRecords.stream().filter(bcsr -> bcsr.getId().equals(buildConfigSetRecordId)).findFirst().orElse(null);
     }
 
     public BuildConfiguration save(BuildConfiguration buildConfig) {

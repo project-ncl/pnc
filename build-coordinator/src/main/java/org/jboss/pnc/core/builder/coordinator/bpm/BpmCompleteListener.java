@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package org.jboss.pnc.core.builder;
+package org.jboss.pnc.core.builder.coordinator.bpm;
 
 import org.jboss.pnc.spi.BuildStatus;
 
@@ -36,8 +36,8 @@ public class BpmCompleteListener {
         listeners.put(bpmListener.getTaskId(), bpmListener);
     }
 
-    public void notifyCompleted(long processId, BuildStatus buildStatus) {
-        listeners.remove(processId);
-        listeners.get(processId).onComplete(buildStatus);
+    public void notifyCompleted(long taskId, BuildStatus buildStatus) {
+        listeners.remove(taskId);
+        listeners.get(taskId).onComplete(buildStatus);
     }
 }

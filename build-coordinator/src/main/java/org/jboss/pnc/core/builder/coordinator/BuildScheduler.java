@@ -16,8 +16,9 @@
  * limitations under the License.
  */
 
-package org.jboss.pnc.core.builder;
+package org.jboss.pnc.core.builder.coordinator;
 
+import org.jboss.pnc.core.builder.coordinator.BuildTask;
 import org.jboss.pnc.core.exception.CoreException;
 import org.jboss.pnc.spi.BuildStatus;
 

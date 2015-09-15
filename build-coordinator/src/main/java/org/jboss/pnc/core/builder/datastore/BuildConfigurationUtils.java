@@ -16,32 +16,27 @@
  * limitations under the License.
  */
 
-package org.jboss.pnc.core.builder;
+package org.jboss.pnc.core.builder.datastore;
 
-import org.jboss.pnc.core.exception.CoreException;
-import org.jboss.pnc.spi.BuildStatus;
-
-import javax.enterprise.inject.Alternative;
-import javax.inject.Inject;
-import java.util.function.Consumer;
+import org.jboss.pnc.model.BuildConfiguration;
+import org.jboss.pnc.model.ProductVersion;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
-public class LocalBuildScheduler implements BuildScheduler {
+public class BuildConfigurationUtils {
 
-    BuildExecutor buildExecutor;
+    private BuildConfigurationUtils() {};
 
-    @Deprecated
-    public LocalBuildScheduler() {} //CDI workaround
-
-    @Inject
-    public LocalBuildScheduler(BuildExecutor buildExecutor) {
-        this.buildExecutor = buildExecutor;
-    }
-
-    @Override
-    public void startBuilding(BuildTask buildTask, Consumer<BuildStatus> onComplete) throws CoreException {
-        buildExecutor.startBuilding(buildTask, onComplete);
+    /**
+     * Get the first product version (if any) associated with this build config.
+     * @param buildConfig The build configuration to check
+     * @return The firstproduct version, or null if there is none
+     */
+    public static ProductVersion getFirstProductVersion(BuildConfiguration buildConfig) {
+        if(buildConfig.getProductVersions() == null) {
+            return null;
+        }
+        return buildConfig.getProductVersions().stream().findFirst().orElse(null);
     }
 }

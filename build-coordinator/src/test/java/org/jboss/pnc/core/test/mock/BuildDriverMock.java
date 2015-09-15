@@ -40,7 +40,7 @@ public class BuildDriverMock implements BuildDriver {
 
     @Override
     public String getDriverId() {
-        return null;
+        return "termd-build-driver";
     }
 
 
