@@ -165,7 +165,7 @@ public class DatabaseDataInitializer {
         productMilestone = productMilestoneRepository.save(productMilestone);
 
         ProductRelease productRelease = ProductRelease.Builder.newBuilder().version(PNC_PRODUCT_RELEASE)
-                .productVersion(productVersion).productMilestone(productMilestone).supportLevel(SupportLevel.EARLYACCESS)
+                .productMilestone(productMilestone).supportLevel(SupportLevel.EARLYACCESS)
                 .build();
         productRelease = productReleaseRepository.save(productRelease);
 

@@ -57,7 +57,7 @@ public class ProductMilestone implements GenericEntity<Integer> {
     /**
      * The release (or handoff) date of this milestone
      */
-    private Date releaseDate;
+    private Date endDate;
 
     /**
      * The scheduled starting date of this milestone
@@ -67,7 +67,7 @@ public class ProductMilestone implements GenericEntity<Integer> {
     /**
      * The scheduled ending date of this milestone
      */
-    private Date plannedReleaseDate;
+    private Date plannedEndDate;
 
     /**
      * URL which can be used to download the product distribution
@@ -147,12 +147,12 @@ public class ProductMilestone implements GenericEntity<Integer> {
      *
      * @return a Date
      */
-    public Date getPlannedReleaseDate() {
-        return plannedReleaseDate;
+    public Date getPlannedEndDate() {
+        return plannedEndDate;
     }
 
-    public void setPlannedReleaseDate(Date plannedReleaseDate) {
-        this.plannedReleaseDate = plannedReleaseDate;
+    public void setPlannedEndDate(Date plannedEndDate) {
+        this.plannedEndDate = plannedEndDate;
     }
 
     /**
@@ -160,12 +160,12 @@ public class ProductMilestone implements GenericEntity<Integer> {
      *
      * @return a Date
      */
-    public Date getReleaseDate() {
-        return releaseDate;
+    public Date getEndDate() {
+        return endDate;
     }
 
-    public void setReleaseDate(Date releaseDate) {
-        this.releaseDate = releaseDate;
+    public void setEndDate(Date endDate) {
+        this.endDate = endDate;
     }
 
     /**
@@ -223,11 +223,11 @@ public class ProductMilestone implements GenericEntity<Integer> {
 
         private ProductVersion productVersion;
 
-        private Date releaseDate;
+        private Date endDate;
 
         private Date startingDate;
 
-        private Date plannedReleaseDate;
+        private Date plannedEndDate;
 
         private String downloadUrl;
 
@@ -248,9 +248,9 @@ public class ProductMilestone implements GenericEntity<Integer> {
             ProductMilestone productMilestone = new ProductMilestone();
             productMilestone.setId(id);
             productMilestone.setVersion(version);
-            productMilestone.setReleaseDate(releaseDate);
+            productMilestone.setEndDate(endDate);
             productMilestone.setStartingDate(startingDate);
-            productMilestone.setPlannedReleaseDate(plannedReleaseDate);
+            productMilestone.setPlannedEndDate(plannedEndDate);
             productMilestone.setDownloadUrl(downloadUrl);
 
             if (productVersion != null) {
@@ -292,8 +292,8 @@ public class ProductMilestone implements GenericEntity<Integer> {
             return this;
         }
 
-        public Builder releaseDate(Date releaseDate) {
-            this.releaseDate = releaseDate;
+        public Builder endDate(Date endDate) {
+            this.endDate = endDate;
             return this;
         }
 
@@ -302,8 +302,8 @@ public class ProductMilestone implements GenericEntity<Integer> {
             return this;
         }
 
-        public Builder plannedReleaseDate(Date plannedReleaseDate) {
-            this.plannedReleaseDate = plannedReleaseDate;
+        public Builder plannedEndDate(Date plannedEndDate) {
+            this.plannedEndDate = plannedEndDate;
             return this;
         }
 

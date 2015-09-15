@@ -43,7 +43,7 @@
 
     <div class="form-group" ng-class="{ 'has-error' : milestoneForm.startingDate.$invalid && !milestoneForm.startingDate.$pristine }">
       <label for="input-start-date" class="col-sm-2 control-label">
-        * Start date <span class="pficon pficon-info" title="Start date, e.g. '2035/01/15', time is set to noon UTC."></span>
+        * Start Date <span class="pficon pficon-info" title="Start date, e.g. '2035/01/15', time is set to noon UTC."></span>
       </label>
       <div class="col-sm-10">
         <div class="input-group">
@@ -59,9 +59,9 @@
       </div>
     </div>
 
-    <div class="form-group" ng-class="{ 'has-error' : (milestoneForm.plannedReleaseDate.$invalid || milestoneCreateUpdateCtrl.invalidStartingPlannedReleaseDates(milestoneCreateUpdateCtrl.data.startingDate, milestoneCreateUpdateCtrl.data.plannedReleaseDate)) && !milestoneForm.plannedReleaseDate.$pristine }">
+    <div class="form-group" ng-class="{ 'has-error' : (milestoneForm.plannedEndDate.$invalid || milestoneCreateUpdateCtrl.invalidStartingPlannedEndDates(milestoneCreateUpdateCtrl.data.startingDate, milestoneCreateUpdateCtrl.data.plannedEndDate)) && !milestoneForm.plannedEndDate.$pristine }">
       <label for="input-end-date" class="col-sm-2 control-label">
-        * Planned release date <span class="pficon pficon-info" title="Planned releaseDate date, e.g. '2035/01/15', time is set to noon UTC."></span>
+        * Planned End Date <span class="pficon pficon-info" title="Planned endDate date, e.g. '2035/01/15', time is set to noon UTC."></span>
       </label>
       <div class="col-sm-10">
         <div class="input-group">
@@ -70,11 +70,11 @@
               <i class="glyphicon glyphicon-calendar"></i>
             </button>
           </span>
-          <input name="plannedReleaseDate" required id="input-end-date" type="text" class="form-control" datepicker-popup="{{format}}"
-                 ng-model="milestoneCreateUpdateCtrl.data.plannedReleaseDate" is-open="opened[2]" close-text="Close" placeholder="{{format}}"/>
+          <input name="plannedEndDate" required id="input-end-date" type="text" class="form-control" datepicker-popup="{{format}}"
+                 ng-model="milestoneCreateUpdateCtrl.data.plannedEndDate" is-open="opened[2]" close-text="Close" placeholder="{{format}}"/>
         </div>
-        <span class="help-block" ng-show="milestoneForm.plannedReleaseDate.$error.required && !milestoneForm.plannedReleaseDate.$pristine">Required field.</span>
-        <span class="help-block" ng-show="milestoneCreateUpdateCtrl.invalidStartingPlannedReleaseDates(milestoneCreateUpdateCtrl.data.startingDate, milestoneCreateUpdateCtrl.data.plannedReleaseDate) && !milestoneForm.plannedReleaseDate.$pristine">Planned release date must be after start date.</span>
+        <span class="help-block" ng-show="milestoneForm.plannedEndDate.$error.required && !milestoneForm.plannedEndDate.$pristine">Required field.</span>
+        <span class="help-block" ng-show="milestoneCreateUpdateCtrl.invalidStartingPlannedEndDates(milestoneCreateUpdateCtrl.data.startingDate, milestoneCreateUpdateCtrl.data.plannedEndDate) && !milestoneForm.plannedEndDate.$pristine">Planned release date must be after start date.</span>
       </div>
     </div>
 
@@ -91,8 +91,8 @@
 
     <div class="form-group">
       <div class="col-sm-offset-2 col-sm-10">
-        <input ng-if="!milestoneCreateUpdateCtrl.isUpdating" type="submit" class="btn btn-primary" value="Create" ng-disabled="milestoneForm.$invalid || (milestoneForm.plannedReleaseDate.$invalid || milestoneCreateUpdateCtrl.invalidStartingPlannedReleaseDates(milestoneCreateUpdateCtrl.data.startingDate, milestoneCreateUpdateCtrl.data.plannedReleaseDate))">
-        <input ng-if="milestoneCreateUpdateCtrl.isUpdating" type="submit" class="btn btn-primary" value="Update" ng-disabled="milestoneForm.$invalid || (milestoneForm.plannedReleaseDate.$invalid || milestoneCreateUpdateCtrl.invalidStartingPlannedReleaseDates(milestoneCreateUpdateCtrl.data.startingDate, milestoneCreateUpdateCtrl.data.plannedReleaseDate))">
+        <input ng-if="!milestoneCreateUpdateCtrl.isUpdating" type="submit" class="btn btn-primary" value="Create" ng-disabled="milestoneForm.$invalid || (milestoneForm.plannedEndDate.$invalid || milestoneCreateUpdateCtrl.invalidStartingPlannedEndDates(milestoneCreateUpdateCtrl.data.startingDate, milestoneCreateUpdateCtrl.data.plannedEndDate))">
+        <input ng-if="milestoneCreateUpdateCtrl.isUpdating" type="submit" class="btn btn-primary" value="Update" ng-disabled="milestoneForm.$invalid || (milestoneForm.plannedEndDate.$invalid || milestoneCreateUpdateCtrl.invalidStartingPlannedEndDates(milestoneCreateUpdateCtrl.data.startingDate, milestoneCreateUpdateCtrl.data.plannedEndDate))">
         <input type="reset" class="btn btn-default" value="Clear">
       </div>
     </div>

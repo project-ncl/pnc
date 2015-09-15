@@ -81,7 +81,7 @@
             <table class="table table-bordered table-striped">
               <thead>
                 <th>Name</th>
-                <th>Release date</th>
+                <th>Release Date</th>
                 <th>Deliverables</th>
                 <th>Info</th>
                 <th>Support Level</th>
@@ -128,9 +128,9 @@
             <table class="table table-bordered table-striped">
               <thead>
                 <th>Name</th>
-                <th>Starting date</th>
-                <th>Planned release date</th>
-                <th>Release date</th>
+                <th>Start Date</th>
+                <th>Planned End Date</th>
+                <th>Actual End Date</th>
                 <th>Deliverables</th>
                 <th>Build Record Set</th>
                 <th>Actions</th>
@@ -141,8 +141,8 @@
                     <span class="label label-default" ng-class="{ 'label label-primary' : productmilestone.id == versionCtrl.version.currentProductMilestoneId }">{{ productmilestone.version }}</span>
                   </td>
                   <td>{{ productmilestone.startingDate | date:'yyyy/MM/dd'}}</td>
-                  <td>{{ productmilestone.plannedReleaseDate | date:'yyyy/MM/dd'}}</td>
-                  <td>{{ productmilestone.releaseDate | date:'yyyy/MM/dd'}}</td>
+                  <td>{{ productmilestone.plannedEndDate | date:'yyyy/MM/dd'}}</td>
+                  <td>{{ productmilestone.endDate | date:'yyyy/MM/dd'}}</td>
                   <td class="text-center">
                      <a ng-show="productmilestone.downloadUrl != undefined" ng-href="{{ productmilestone.downloadUrl }}" target="_self"
                        class="btn btn-default" title="Download Deliverables">
@@ -151,10 +151,10 @@
                   </td>
                   <td>{{ productmilestone.buildRecordSetId }}</td>
                   <td class="text-center">
-                    <a ng-show="productmilestone.releaseDate == undefined" pnc-confirm-click="versionCtrl.markCurrentMilestone(productmilestone)" pnc-confirm-message="{{ 'Mark Milestone ' + productmilestone.version + ' as current ?'}}" title="Mark Milestone as current" class="btn btn-default"><i class="fa fa-clock-o"></i></a>
-                    <a ng-show="productmilestone.releaseDate == undefined" ui-sref="product.detail.version.milestoneUpdate({ milestoneId: productmilestone.id })" title="Update Milestone" class="btn btn-default"><i class="pficon pficon-edit"></i></a>
-                    <a ng-show="productmilestone.releaseDate == undefined" ui-sref="product.detail.version.milestoneClose({ milestoneId: productmilestone.id })" title="Release Milestone" class="btn btn-default"><i class="fa fa-lock"></i></a>
-                    <a ng-show="productmilestone.releaseDate != undefined" pnc-confirm-click="versionCtrl.unreleaseMilestone(productmilestone)" pnc-confirm-message="{{ 'Confirm the unrelease of Milestone: ' + productmilestone.version + ' ?'}}" title="Unrelease Milestone" class="btn btn-default"><i class="fa fa-unlock-alt"></i></a>
+                    <a ng-show="productmilestone.endDate == undefined" pnc-confirm-click="versionCtrl.markCurrentMilestone(productmilestone)" pnc-confirm-message="{{ 'Mark Milestone ' + productmilestone.version + ' as current ?'}}" title="Mark Milestone as current" class="btn btn-default"><i class="fa fa-clock-o"></i></a>
+                    <a ng-show="productmilestone.endDate == undefined" ui-sref="product.detail.version.milestoneUpdate({ milestoneId: productmilestone.id })" title="Update Milestone" class="btn btn-default"><i class="pficon pficon-edit"></i></a>
+                    <a ng-show="productmilestone.endDate == undefined" ui-sref="product.detail.version.milestoneClose({ milestoneId: productmilestone.id })" title="Release Milestone" class="btn btn-default"><i class="fa fa-lock"></i></a>
+                    <a ng-show="productmilestone.endDate != undefined" pnc-confirm-click="versionCtrl.unreleaseMilestone(productmilestone)" pnc-confirm-message="{{ 'Confirm the unrelease of Milestone: ' + productmilestone.version + ' ?'}}" title="Unrelease Milestone" class="btn btn-default"><i class="fa fa-unlock-alt"></i></a>
                   </td>
                 </tr>
               </tbody>

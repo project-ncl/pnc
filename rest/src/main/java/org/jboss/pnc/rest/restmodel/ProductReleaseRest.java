@@ -129,11 +129,6 @@ public class ProductReleaseRest implements GenericRestEntity<Integer> {
         this.supportLevel = supportLevel;
     }
 
-    public ProductRelease toProductRelease(ProductVersion productVersion) {
-        ProductRelease productReleaseToBeUpdated = getProductReleaseFromProductVersionOrNewOne(productVersion);
-        return toProductRelease(productReleaseToBeUpdated);
-    }
-
     public ProductRelease toProductRelease(ProductRelease productRelease) {
         productRelease.setId(id);
         productRelease.setVersion(version);
@@ -141,29 +136,7 @@ public class ProductReleaseRest implements GenericRestEntity<Integer> {
         productRelease.setDownloadUrl(downloadUrl);
         productRelease.setSupportLevel(supportLevel);
 
-        if (productMilestoneId != null) {
-            ProductMilestone productMilestone = ProductMilestone.Builder.newBuilder().id(productMilestoneId).build();
-            productRelease.setProductMilestone(productMilestone);
-            productMilestone.setProductRelease(productRelease);
-        }
-
         return productRelease;
-    }
-
-    /**
-     * Checks if ProductRelease is present in ProductVersion. If it is true - returns it or creates new one otherwise.
-     */
-    private ProductRelease getProductReleaseFromProductVersionOrNewOne(ProductVersion productVersion) {
-        List<ProductRelease> productReleasesInProductVersion = nullableStreamOf(productVersion.getProductReleases()).filter(
-                productRelease -> productRelease.getId().equals(id)).collect(Collectors.toList());
-
-        if (!productReleasesInProductVersion.isEmpty()) {
-            return productReleasesInProductVersion.get(0);
-        }
-
-        ProductRelease.Builder builder = ProductRelease.Builder.newBuilder();
-        builder.productVersion(productVersion);
-        return builder.build();
     }
 
 }

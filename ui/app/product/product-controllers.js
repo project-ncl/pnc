@@ -91,11 +91,11 @@
         if (milestone.startingDate) {
           sDate = that.formatDate(that.convertFromTimestamp(milestone.startingDate));
         }
-        if (milestone.plannedReleaseDate) {
-          prDate = that.formatDate(that.convertFromTimestamp(milestone.plannedReleaseDate));
+        if (milestone.plannedEndDate) {
+          prDate = that.formatDate(that.convertFromTimestamp(milestone.plannedEndDate));
         }
-        if (milestone.releaseDate) {
-          rDate = that.formatDate(that.convertFromTimestamp(milestone.releaseDate));
+        if (milestone.endDate) {
+          rDate = that.formatDate(that.convertFromTimestamp(milestone.endDate));
         }
         var milestoneTooltip = '<strong>' + milestone.version + '</strong>' +
           '<br><br><strong>Phase: </strong> &lt;tbd&gt; <br>' +
@@ -159,7 +159,7 @@
       that.unreleaseMilestone = function(milestone) {
         $log.debug('Unreleasing milestone: %O', milestone);
 
-        milestone.releaseDate = null;
+        milestone.endDate = null;
         milestone.downloadUrl = null;
 
         milestone.$update({

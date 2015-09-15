@@ -52,10 +52,10 @@
 
         // Need to convert from timestamp to date for the datepicker
         that.data.startingDate = dateUtilConverter.convertFromTimestampNoonUTC(that.data.startingDate);
-        that.data.plannedReleaseDate = dateUtilConverter.convertFromTimestampNoonUTC(that.data.plannedReleaseDate);
+        that.data.plannedEndDate = dateUtilConverter.convertFromTimestampNoonUTC(that.data.plannedEndDate);
       }
 
-      that.invalidStartingPlannedReleaseDates = function(sDate, prDate) {
+      that.invalidStartingPlannedEndDates = function(sDate, prDate) {
         if (sDate === undefined || prDate === undefined) {
           return false;
         }
@@ -66,7 +66,7 @@
 
         that.data.version = versionDetail.version + '.' + that.version; // add the prefix
         that.data.startingDate = dateUtilConverter.convertToTimestampNoonUTC(that.data.startingDate);
-        that.data.plannedReleaseDate = dateUtilConverter.convertToTimestampNoonUTC(that.data.plannedReleaseDate);
+        that.data.plannedEndDate = dateUtilConverter.convertToTimestampNoonUTC(that.data.plannedEndDate);
         that.data.productVersionId = versionDetail.id;
 
         // Distinguish between milestone creation and update
@@ -148,7 +148,7 @@
 
       that.submit = function() {
 
-        that.data.releaseDate = dateUtilConverter.convertToTimestampNoonUTC(that.data.releaseDate);
+        that.data.endDate = dateUtilConverter.convertToTimestampNoonUTC(that.data.endDate);
         that.data.$update().then(
           function() {
             $state.go('product.detail.version', {
