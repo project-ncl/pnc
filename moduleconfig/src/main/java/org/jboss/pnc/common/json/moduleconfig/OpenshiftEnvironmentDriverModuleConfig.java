@@ -18,6 +18,8 @@
 package org.jboss.pnc.common.json.moduleconfig;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Configuration for DockerEnvironmentDriver
@@ -26,7 +28,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  *
  */
 public class OpenshiftEnvironmentDriverModuleConfig extends EnvironmentDriverModuleConfigBase {
-    
+
+    private static final Logger log = LoggerFactory.getLogger(OpenshiftEnvironmentDriverModuleConfig.class);
+
     public static String MODULE_NAME = "openshift-environment-driver";
 
     private String restEndpointUrl;
@@ -54,6 +58,8 @@ public class OpenshiftEnvironmentDriverModuleConfig extends EnvironmentDriverMod
         this.podNamespace = podNamespace;
         this.restAuthToken = restAuthToken;
         this.containerPort = containerPort;
+
+        log.debug("Created new instance {}", toString());
     }
 
     public String getRestEndpointUrl() {
