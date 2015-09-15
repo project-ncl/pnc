@@ -30,10 +30,13 @@ import org.jboss.pnc.spi.environment.EnvironmentDriver;
 import org.jboss.pnc.spi.environment.StartedEnvironment;
 import org.jboss.pnc.spi.environment.exception.EnvironmentDriverException;
 import org.jboss.pnc.spi.repositorymanager.model.RepositorySession;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.PreDestroy;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import java.lang.invoke.MethodHandles;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -42,6 +45,8 @@ import java.util.concurrent.Executors;
  */
 @ApplicationScoped
 public class OpenshiftEnvironmentDriver implements EnvironmentDriver {
+
+    private static final Logger logger = LoggerFactory.getLogger(OpenshiftEnvironmentDriver.class);
 
     private ExecutorService executor = Executors.newFixedThreadPool(4); //TODO configurable
 
@@ -56,6 +61,8 @@ public class OpenshiftEnvironmentDriver implements EnvironmentDriver {
     public OpenshiftEnvironmentDriver(Configuration configuration, PullingMonitor pullingMonitor) throws ConfigurationParseException {
         this.pullingMonitor = pullingMonitor;
         config = configuration.getModuleConfig(new PncConfigProvider<>(OpenshiftEnvironmentDriverModuleConfig.class));
+
+        logger.info("Is OpenShift environment driver disabled: {}", config.isDisabled());
     }
 
     @Override
@@ -69,6 +76,7 @@ public class OpenshiftEnvironmentDriver implements EnvironmentDriver {
     @Override
     public boolean canBuildEnvironment(Environment environment) {
         if (config.isDisabled()) {
+            logger.info("Skipping driver as it is disabled by config.");
             return false;
         }
         return environment.getBuildType() == BuildType.JAVA &&

@@ -146,6 +146,7 @@ public class DockerEnvironmentDriver implements EnvironmentDriver {
         proxyPort = config.getProxyPort();
         nonProxyHosts = config.getNonProxyHosts();
         disabled = config.isDisabled();
+        logger.info("Is Docker environment driver disabled: {}", disabled);
 
         dockerContext = ContextBuilder.newBuilder("docker")
                 .endpoint(dockerEndpoint)
@@ -215,6 +216,7 @@ public class DockerEnvironmentDriver implements EnvironmentDriver {
     @Override
     public boolean canBuildEnvironment(Environment environment) {
         if (disabled) {
+            logger.info("Skipping driver as it is disabled by config.");
             return false;
         }
 
