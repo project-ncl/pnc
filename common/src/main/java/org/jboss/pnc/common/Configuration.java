@@ -68,6 +68,7 @@ public class Configuration {
             try (InputStream configStream = this.getConfigStream()) {
                 log.info("Loading configuration for class: " + moduleClass);
                 String configString = StringUtils.replaceEnv(IoUtils.readStreamAsString(configStream));
+                log.debug("Config string: {}", configString);
                 
                 T config = configurationJsonParser.parseJSONConfig(configString,  provider);
                 configCache.put(moduleClass, config);

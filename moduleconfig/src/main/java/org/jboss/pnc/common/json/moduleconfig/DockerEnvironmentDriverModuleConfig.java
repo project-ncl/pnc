@@ -18,6 +18,8 @@
 package org.jboss.pnc.common.json.moduleconfig;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
@@ -29,7 +31,9 @@ import java.nio.file.Path;
  *
  */
 public class DockerEnvironmentDriverModuleConfig extends EnvironmentDriverModuleConfigBase {
-    
+
+    private static final Logger log = LoggerFactory.getLogger(DockerEnvironmentDriverModuleConfig.class);
+
     public static String MODULE_NAME = "docker-environment-driver";
 
     private String ip;
@@ -92,6 +96,8 @@ public class DockerEnvironmentDriverModuleConfig extends EnvironmentDriverModule
         this.proxyPort = proxyPort;
         this.nonProxyHosts = nonProxyHosts;
         this.firewallAllowedDestinations = firewallAllowedDestinations;
+
+        log.debug("Created new instance {}", toString());
     }
 
     public String getIp() {
