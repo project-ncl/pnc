@@ -104,15 +104,6 @@ public abstract class AbstractRestClient<T> {
                 .request();
     }
 
-    protected Integer getLocationFromHeader(Response post) {
-        String location = post.getHeader("Location");
-        Integer idFromLocation = null;
-        if(location != null) {
-            idFromLocation = Integer.valueOf(location.substring(location.lastIndexOf("/") + 1));
-        }
-        return idFromLocation;
-    }
-
     public RestResponse<T> firstNotNull(boolean withValidation) {
         Response response = get(collectionUrl);
 

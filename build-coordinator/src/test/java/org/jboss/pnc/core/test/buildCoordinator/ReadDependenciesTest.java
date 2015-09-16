@@ -45,7 +45,7 @@ public class ReadDependenciesTest extends ProjectBuilder {
         User user = User.Builder.newBuilder().id(1).username("test-user").build();
         BuildSetTask buildSetTask = null;
         try {
-            buildSetTask = buildCoordinator.createBuildSetTask(buildConfigurationSet, user);
+            buildSetTask = buildCoordinator.createBuildSetTask(buildConfigurationSet, user, true);
         } catch (CoreException e) {
             Assert.fail(e.getMessage());
         }

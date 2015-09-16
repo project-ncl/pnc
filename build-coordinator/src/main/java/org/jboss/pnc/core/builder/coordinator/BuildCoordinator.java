@@ -20,7 +20,12 @@ package org.jboss.pnc.core.builder.coordinator;
 import org.jboss.pnc.core.builder.datastore.DatastoreAdapter;
 import org.jboss.pnc.core.content.ContentIdentityManager;
 import org.jboss.pnc.core.exception.CoreException;
-import org.jboss.pnc.model.*;
+import org.jboss.pnc.model.BuildConfigSetRecord;
+import org.jboss.pnc.model.BuildConfiguration;
+import org.jboss.pnc.model.BuildConfigurationAudited;
+import org.jboss.pnc.model.BuildConfigurationSet;
+import org.jboss.pnc.model.ProductMilestone;
+import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.BuildSetStatus;
 import org.jboss.pnc.spi.BuildStatus;
 import org.jboss.pnc.spi.datastore.DatastoreException;
@@ -33,9 +38,12 @@ import org.slf4j.LoggerFactory;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
-import java.util.*;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.Optional;
+import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -82,12 +90,12 @@ public class BuildCoordinator {
      * @param buildConfiguration The build configuration which will be used.  The latest version of this
      * build config will be built.
      * @param user The user who triggered the build.
-     * @param force Run the build even if there is already another build which uses the same audited build config
+     * @param rebuildAll Run the build even if it has been already built
      *
      * @return The new build task
      * @throws BuildConflictException If there is already a build running with the same build configuration Id and version
      */
-    public BuildTask build(BuildConfiguration buildConfiguration, User user, boolean force) throws BuildConflictException {
+    public BuildTask build(BuildConfiguration buildConfiguration, User user, boolean rebuildAll) throws BuildConflictException {
 
         BuildConfigurationAudited buildConfigAudited = datastoreAdapter.getLatestBuildConfigurationAudited(buildConfiguration.getId());
         Optional<BuildTask> alreadyActiveBuildTask = this.getActiveBuildTask(buildConfigAudited);
@@ -103,7 +111,8 @@ public class BuildCoordinator {
                 (bt) -> processBuildTask(bt),
                 datastoreAdapter.getNextBuildRecordId(), //TODO in bpm case we are not storing this task ?
                 null,
-                new Date());
+                new Date(),
+                rebuildAll);
 
         processBuildTask(buildTask);
 
@@ -119,15 +128,15 @@ public class BuildCoordinator {
      * @return The new build set task
      * @throws CoreException Thrown if there is a problem initializing the build
      */
-    public BuildSetTask build(BuildConfigurationSet buildConfigurationSet, User user) throws CoreException {
+    public BuildSetTask build(BuildConfigurationSet buildConfigurationSet, User user, boolean rebuildAll) throws CoreException {
 
-        BuildSetTask buildSetTask = createBuildSetTask(buildConfigurationSet, user);
+        BuildSetTask buildSetTask = createBuildSetTask(buildConfigurationSet, user, rebuildAll);
 
         build(buildSetTask);
         return buildSetTask;
     }
 
-    public BuildSetTask createBuildSetTask(BuildConfigurationSet buildConfigurationSet, User user) throws CoreException {
+    public BuildSetTask createBuildSetTask(BuildConfigurationSet buildConfigurationSet, User user, boolean rebuildAll) throws CoreException {
         BuildConfigSetRecord buildConfigSetRecord = BuildConfigSetRecord.Builder.newBuilder()
                 .buildConfigurationSet(buildConfigurationSet)
                 .user(user)
@@ -147,9 +156,10 @@ public class BuildCoordinator {
                 this,
                 buildConfigSetRecord,
                 getProductMilestone(buildConfigurationSet),
-                buildSubmitTime);
+                buildSubmitTime,
+                rebuildAll);
 
-        initializeBuildTasksInSet(buildSetTask);
+        initializeBuildTasksInSet(buildSetTask, rebuildAll);
         return buildSetTask;
     }
 
@@ -159,7 +169,7 @@ public class BuildCoordinator {
      * @param buildSetTask The build set task which will contain the build tasks.  This must already have
      * initialized the BuildConfigSet, BuildConfigSetRecord, Milestone, etc.
      */
-    private void initializeBuildTasksInSet(BuildSetTask buildSetTask) {
+    private void initializeBuildTasksInSet(BuildSetTask buildSetTask, boolean rebuildAll) {
         String topContentId = ContentIdentityManager.getProductContentId(buildSetTask.getBuildConfigurationSet().getProductVersion());
         String buildSetContentId = ContentIdentityManager.getBuildSetContentId(buildSetTask.getBuildConfigurationSet().getName());
 
@@ -175,7 +185,7 @@ public class BuildCoordinator {
                     (bt) -> processBuildTask(bt),
                     datastoreAdapter.getNextBuildRecordId(), //TODO in bpm case we are not storing this task ?
                     buildSetTask,
-                    buildSetTask.getSubmitTime());
+                    buildSetTask.getSubmitTime(), rebuildAll);
 
             buildSetTask.addBuildTask(buildTask);
         }

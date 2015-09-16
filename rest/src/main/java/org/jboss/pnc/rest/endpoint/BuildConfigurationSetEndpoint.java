@@ -269,6 +269,7 @@ public class BuildConfigurationSetEndpoint extends AbstractEndpoint<BuildConfigu
     public Response build(
             @ApiParam(value = "Build Configuration Set id", required = true) @PathParam("id") Integer id,
             @ApiParam(value = "Optional Callback URL", required = false) @QueryParam("callbackUrl") String callbackUrl,
+            @ApiParam(value = "Rebuild all dependencies") @QueryParam("rebuildAll") boolean rebuildAll,
             @Context UriInfo uriInfo) {
         logger.info("Executing build configuration set id: " + id );
 
@@ -290,9 +291,9 @@ public class BuildConfigurationSetEndpoint extends AbstractEndpoint<BuildConfigu
             Integer runningBuildId = null;
             // if callbackUrl is provided trigger build accordingly
             if (callbackUrl == null || callbackUrl.isEmpty()) {
-                runningBuildId = buildTriggerer.triggerBuildConfigurationSet(id, currentUser);
+                runningBuildId = buildTriggerer.triggerBuildConfigurationSet(id, currentUser, rebuildAll);
             } else {
-                runningBuildId = buildTriggerer.triggerBuildConfigurationSet(id, currentUser, new URL(callbackUrl));
+                runningBuildId = buildTriggerer.triggerBuildConfigurationSet(id, currentUser, rebuildAll, new URL(callbackUrl));
             }
 
             return fromEmpty();

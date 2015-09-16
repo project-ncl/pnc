@@ -51,22 +51,23 @@
         build: {
           method: 'POST',
           url: ENDPOINT + '/build',
-          isArray: false,
+          rebuildAll: 'true',
+          isArray: false
         },
         removeConfiguration: {
           method: 'DELETE',
           url: ENDPOINT + '/build-configurations/:configurationId',
-          isArray: false,
+          isArray: false
         },
         addConfiguration: {
           method: 'POST',
           url: ENDPOINT + '/build-configurations',
-          isArray: false,
+          isArray: false
         },
         getRecords: {
           method: 'GET',
           url: ENDPOINT + '/build-records',
-          isArray: true,
+          isArray: true
         },
       });
 

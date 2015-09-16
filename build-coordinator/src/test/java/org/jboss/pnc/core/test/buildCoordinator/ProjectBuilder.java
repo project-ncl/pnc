@@ -121,7 +121,7 @@ public class ProjectBuilder {
 
         final Semaphore semaphore = registerReleaseListenersAndAcquireSemaphore(receivedStatuses, nStatusUpdates);
 
-        BuildSetTask buildSetTask = buildCoordinator.build(buildConfigurationSet, newUser());
+        BuildSetTask buildSetTask = buildCoordinator.build(buildConfigurationSet, newUser(), true);
 
         assertBuildStartedSuccessfully(buildSetTask);
 
@@ -142,7 +142,7 @@ public class ProjectBuilder {
 
         final Semaphore semaphore = registerReleaseListenersAndAcquireSemaphore(receivedStatuses, nStatusUpdates);
 
-        BuildSetTask buildSetTask = buildCoordinator.build(buildConfigurationSet, newUser());
+        BuildSetTask buildSetTask = buildCoordinator.build(buildConfigurationSet, newUser(), true);
 
         assertBuildStartedSuccessfully(buildSetTask);
         log.info("Waiting to receive all {} status updates...", nStatusUpdates);

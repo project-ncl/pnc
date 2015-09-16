@@ -43,6 +43,7 @@ public class BuildSetTask {
     private Logger log = LoggerFactory.getLogger(BuildCoordinator.class);
 
     private BuildConfigSetRecord buildConfigSetRecord;
+    private final boolean rebuildAll;
     private ProductMilestone productMilestone;
 
     private BuildCoordinator buildCoordinator;
@@ -63,9 +64,10 @@ public class BuildSetTask {
      * Create build set task for running a single build or set of builds
      */
     public BuildSetTask(BuildCoordinator buildCoordinator, BuildConfigSetRecord buildConfigSetRecord,
-            ProductMilestone productMilestone, Date submitTime) {
+            ProductMilestone productMilestone, Date submitTime, boolean rebuildAll) {
         this.buildCoordinator = buildCoordinator;
         this.buildConfigSetRecord = buildConfigSetRecord;
+        this.rebuildAll = rebuildAll;
         System.out.println("setting product milestone: " + productMilestone);
         this.productMilestone = productMilestone;
         this.buildSetStatusChangedEventNotifier = buildCoordinator.getBuildSetStatusChangedEventNotifier();
