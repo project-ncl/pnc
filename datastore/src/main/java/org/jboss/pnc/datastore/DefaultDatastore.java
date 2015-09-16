@@ -23,6 +23,7 @@ import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.BuildRecordSet;
+import org.jboss.pnc.model.ProductVersion;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.datastore.Datastore;
 import org.jboss.pnc.spi.datastore.predicates.UserPredicates;
@@ -135,6 +136,11 @@ public class DefaultDatastore implements Datastore {
             return null;
         }
         return buildConfigRevs.get(0);
+    }
+
+    @Override
+    public BuildConfigSetRecord getBuildConfigSetRecordById(Integer buildConfigSetRecordId) {
+        return buildConfigSetRecordRepository.queryById(buildConfigSetRecordId);
     }
 
 

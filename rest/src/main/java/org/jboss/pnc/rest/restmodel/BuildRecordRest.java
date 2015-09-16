@@ -18,7 +18,8 @@
 package org.jboss.pnc.rest.restmodel;
 
 import com.wordnik.swagger.annotations.ApiModelProperty;
-import org.jboss.pnc.core.builder.BuildTask;
+import org.jboss.pnc.core.builder.coordinator.BuildTask;
+import org.jboss.pnc.core.builder.executor.BuildExecutionTask;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.BuildStatus;
 import org.jboss.pnc.rest.validation.groups.WhenCreatingNew;
@@ -88,22 +89,22 @@ public class BuildRecordRest implements GenericRestEntity<Integer> {
         this.buildContentId = buildRecord.getBuildContentId();
     }
 
-    public BuildRecordRest(BuildTask buildTask) {
-        this.id = buildTask.getId();
-        this.submitTime = buildTask.getSubmitTime();
-        this.startTime = buildTask.getStartTime();
-        this.endTime = buildTask.getEndTime();
-        if (buildTask.getBuildConfigurationAudited() != null) {
-            this.buildConfigurationId = buildTask.getBuildConfigurationAudited().getId().getId();
-            this.buildConfigurationRev = buildTask.getBuildConfigurationAudited().getRev();
+    public BuildRecordRest(BuildExecutionTask buildExecutionTask, Date submitTime) {
+        this.id = buildExecutionTask.getId();
+        this.submitTime = submitTime;
+        this.startTime = buildExecutionTask.getStartTime();
+        this.endTime = buildExecutionTask.getEndTime();
+        if (buildExecutionTask.getBuildConfigurationAudited() != null) {
+            this.buildConfigurationId = buildExecutionTask.getBuildConfigurationAudited().getId().getId();
+            this.buildConfigurationRev = buildExecutionTask.getBuildConfigurationAudited().getRev();
         }
         this.status = BuildStatus.BUILDING;
-        buildTask.getLogsWebSocketLink().ifPresent(logsUri -> this.liveLogsUri = logsUri.toString());
-        performIfNotNull(buildTask.getBuildSetTask(), () -> this.buildConfigSetRecordId = buildTask.getBuildSetTask().getId());
-        if(buildTask.getUser() != null)
-            this.userId = buildTask.getUser().getId();
-
-        this.buildContentId = buildTask.getBuildContentId();
+        buildExecutionTask.getLogsWebSocketLink().ifPresent(logsUri -> this.liveLogsUri = logsUri.toString());
+        performIfNotNull(buildExecutionTask.getBuildConfigSetRecordId(), () -> this.buildConfigSetRecordId = buildExecutionTask.getBuildConfigSetRecordId());
+        if(buildExecutionTask.getUser() != null) {
+            this.userId = buildExecutionTask.getUser().getId();
+        }
+        this.buildContentId = buildExecutionTask.getBuildContentId();
     }
 
     @Override

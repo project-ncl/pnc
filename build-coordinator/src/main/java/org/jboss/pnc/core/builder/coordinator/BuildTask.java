@@ -15,15 +15,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.core.builder;
+package org.jboss.pnc.core.builder.coordinator;
 
+import org.jboss.pnc.core.builder.datastore.BuildConfigurationUtils;
 import org.jboss.pnc.core.content.ContentIdentityManager;
 import org.jboss.pnc.core.events.DefaultBuildStatusChangedEvent;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.ProductVersion;
 import org.jboss.pnc.model.User;
-import org.jboss.pnc.spi.BuildExecution;
 import org.jboss.pnc.spi.BuildStatus;
 import org.jboss.pnc.spi.events.BuildStatusChangedEvent;
 import org.slf4j.Logger;
@@ -42,7 +42,7 @@ import java.util.function.Consumer;
 /**
 * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-12-23.
 */
-public class BuildTask implements BuildExecution {
+public class BuildTask {
 
     public static final Logger log = LoggerFactory.getLogger(BuildTask.class);
 
@@ -69,12 +69,6 @@ public class BuildTask implements BuildExecution {
      */
     private Set<BuildTask> dependencies = new HashSet<>();
 
-    private String topContentId;
-
-    private String buildSetContentId;
-
-    private String buildContentId;
-
     private BuildSetTask buildSetTask;
 
     private Set<Integer> buildRecordSetIds = new HashSet<>();
@@ -84,18 +78,20 @@ public class BuildTask implements BuildExecution {
 
     //called when all dependencies are built
     private Consumer<BuildTask> onAllDependenciesCompleted;
+    private Integer buildConfigSetRecordId;
 
     private BuildTask(BuildConfiguration buildConfiguration,
-              BuildConfigurationAudited buildConfigurationAudited,
-              String topContentId,
-              String buildSetContentId,
-              String buildContentId,
-              User user,
-              Date submitTime,
-              BuildSetTask buildSetTask,
-              int id,
-              Event<BuildStatusChangedEvent> buildStatusChangedEventNotifier,
-              Consumer<BuildTask> onAllDependenciesCompleted) {
+                      BuildConfigurationAudited buildConfigurationAudited,
+                      String topContentId,
+                      String buildSetContentId,
+                      String buildContentId,
+                      User user,
+                      Date submitTime,
+                      BuildSetTask buildSetTask,
+                      int id,
+                      Event<BuildStatusChangedEvent> buildStatusChangedEventNotifier,
+                      Consumer<BuildTask> onAllDependenciesCompleted,
+                      Integer buildConfigSetRecordId) {
 
         this.id = id;
         this.buildConfiguration = buildConfiguration;
@@ -104,11 +100,9 @@ public class BuildTask implements BuildExecution {
         this.submitTime = submitTime;
 
         this.buildStatusChangedEventNotifier = buildStatusChangedEventNotifier;
-        this.topContentId = topContentId;
-        this.buildSetContentId = buildSetContentId;
-        this.buildContentId = buildContentId;
         this.buildSetTask = buildSetTask;
         this.onAllDependenciesCompleted = onAllDependenciesCompleted;
+        this.buildConfigSetRecordId = buildConfigSetRecordId;
 
         if (buildSetTask != null && buildSetTask.getProductMilestone() != null) {
             buildRecordSetIds.add(buildSetTask.getProductMilestone().getPerformedBuildRecordSet().getId());
@@ -199,21 +193,6 @@ public class BuildTask implements BuildExecution {
         return buildConfiguration.getDependencies();
     }
 
-    @Override
-    public String getTopContentId() {
-        return topContentId;
-    }
-
-    @Override
-    public String getBuildSetContentId() {
-        return buildSetContentId;
-    }
-
-    @Override
-    public String getBuildContentId() {
-        return buildContentId;
-    }
-
     public void addDependant(BuildTask buildTask) {
         if (!dependants.contains(buildTask)) {
             dependants.add(buildTask);
@@ -233,11 +212,8 @@ public class BuildTask implements BuildExecution {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-
         BuildTask buildTask = (BuildTask) o;
-
         return buildConfigurationAudited.equals(buildTask.getBuildConfigurationAudited());
-
     }
 
     @Override
@@ -261,40 +237,16 @@ public class BuildTask implements BuildExecution {
         return id;
     }
 
-    @Override
-    public String getProjectName() {
-        return buildConfigurationAudited.getProject().getName();
-    }
-
-    public boolean isPartOfBuildSet() {
-        if (buildSetTask != null) {
-            return true;
-        }
-        return false;
-    }
-
     public Date getSubmitTime() {
         return submitTime;
-    }
-
-    public void setSubmitTime(Date submitTime) {
-        this.submitTime = submitTime;
     }
 
     public Date getStartTime() {
         return startTime;
     }
 
-    public void setStartTime(Date startTime) {
-        this.startTime = startTime;
-    }
-
     public Date getEndTime() {
         return endTime;
-    }
-
-    public void setEndTime(Date endTime) {
-        this.endTime = endTime;
     }
 
     public User getUser() {
@@ -321,26 +273,11 @@ public class BuildTask implements BuildExecution {
     }
 
     @Override
-    public void setLogsWebSocketLink(URI link) {
-        this.logsWebSocketLink.set(link);
-    }
-
-    @Override
-    public void clearLogsWebSocketLink() {
-        this.logsWebSocketLink.set(null);
-    }
-
-    @Override
-    public Optional<URI> getLogsWebSocketLink() {
-        return Optional.ofNullable(logsWebSocketLink.get());
-    }
-
-    @Override
     public String toString() {
         return "Build Task id:" + id + ", name: " + buildConfigurationAudited.getName() + ", status: " + status;
     }
 
-
+    @Deprecated //can we remove this ?
     static BuildTask build(BuildConfiguration buildConfiguration,
                                   BuildConfigurationAudited buildConfigAudited,
                                   User user,
@@ -349,9 +286,14 @@ public class BuildTask implements BuildExecution {
                                   int buildTaskId,
                                   BuildSetTask buildSetTask,
                                   Date submitTime) {
-        String topContentId = ContentIdentityManager.getProductContentId(getFirstProductVersion(buildConfiguration));
+        String topContentId = ContentIdentityManager.getProductContentId(BuildConfigurationUtils.getFirstProductVersion(buildConfiguration));
         String buildSetContentId = ContentIdentityManager.getBuildSetContentId(buildConfiguration.getName());
         String buildContentId = ContentIdentityManager.getBuildContentId(buildConfiguration);
+
+        Integer buildConfigSetRecordId = null;
+        if (buildSetTask != null && buildSetTask.getBuildConfigSetRecord() != null) {
+            buildConfigSetRecordId = buildSetTask.getBuildConfigSetRecord().getId();
+        }
 
         return new BuildTask(
                 buildConfiguration,
@@ -364,19 +306,12 @@ public class BuildTask implements BuildExecution {
                 buildSetTask,
                 buildTaskId,
                 buildStatusChangedEventNotifier,
-                onAllDependenciesCompleted);
+                onAllDependenciesCompleted,
+                buildConfigSetRecordId);
     }
 
 
-    /**
-     * Get the first product version (if any) associated with this build config.
-     * @param buildConfig The build configuration to check
-     * @return The firstproduct version, or null if there is none
-     */
-    private static ProductVersion getFirstProductVersion(BuildConfiguration buildConfig) {
-        if(buildConfig.getProductVersions() == null) {
-            return null;
-        }
-        return buildConfig.getProductVersions().stream().findFirst().orElse(null);
+    public Integer getBuildConfigSetRecordId() {
+        return buildConfigSetRecordId;
     }
 }

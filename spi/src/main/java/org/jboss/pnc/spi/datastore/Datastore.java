@@ -20,8 +20,10 @@ package org.jboss.pnc.spi.datastore;
 import java.util.Set;
 
 import org.jboss.pnc.model.BuildConfigSetRecord;
+import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildRecord;
+import org.jboss.pnc.model.ProductVersion;
 import org.jboss.pnc.model.User;
 
 /**
@@ -77,4 +79,6 @@ public interface Datastore {
      * @return The latest audited version of the build configuration
      */
     BuildConfigurationAudited getLatestBuildConfigurationAudited(Integer buildConfigId);
+
+    BuildConfigSetRecord getBuildConfigSetRecordById(Integer buildConfigSetRecordId);
 }

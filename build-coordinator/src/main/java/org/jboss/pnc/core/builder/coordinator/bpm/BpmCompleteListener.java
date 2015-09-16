@@ -16,30 +16,28 @@
  * limitations under the License.
  */
 
-package org.jboss.pnc.core.builder;
+package org.jboss.pnc.core.builder.coordinator.bpm;
 
-import org.jboss.pnc.core.exception.CoreException;
+import org.jboss.pnc.spi.BuildStatus;
 
-import javax.enterprise.inject.Alternative;
-import javax.inject.Inject;
+import javax.enterprise.context.ApplicationScoped;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
-public class LocalBuildScheduler implements BuildScheduler {
+@ApplicationScoped
+public class BpmCompleteListener {
 
-    BuildExecutor buildExecutor;
+    Map<Long, BpmListener> listeners = new HashMap<>(); //TODO garbage collector after time-out
 
-    @Deprecated
-    public LocalBuildScheduler() {} //CDI workaround
-
-    @Inject
-    public LocalBuildScheduler(BuildExecutor buildExecutor) {
-        this.buildExecutor = buildExecutor;
+    public void subscribe(BpmListener bpmListener) {
+        listeners.put(bpmListener.getTaskId(), bpmListener);
     }
 
-    @Override
-    public void startBuilding(BuildTask buildTask, Runnable onComplete) throws CoreException {
-        buildExecutor.startBuilding(buildTask, onComplete);
+    public void notifyCompleted(long taskId, BuildStatus buildStatus) {
+        listeners.remove(taskId);
+        listeners.get(taskId).onComplete(buildStatus);
     }
 }

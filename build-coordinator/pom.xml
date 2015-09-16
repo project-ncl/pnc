@@ -80,9 +80,8 @@
     </dependency>
 
     <dependency>
-      <groupId>org.jboss.spec.javax.ejb</groupId>
-      <artifactId>jboss-ejb-api_3.1_spec</artifactId>
-      <scope>provided</scope>
+      <groupId>org.kie.remote</groupId>
+      <artifactId>kie-services-client</artifactId>
     </dependency>
 
     <!-- Test dependencies -->

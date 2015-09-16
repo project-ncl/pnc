@@ -18,8 +18,9 @@
 package org.jboss.pnc.rest.provider;
 
 import com.google.common.base.Strings;
-import org.jboss.pnc.core.builder.BuildCoordinator;
-import org.jboss.pnc.core.builder.BuildTask;
+import org.jboss.pnc.core.builder.coordinator.BuildCoordinator;
+import org.jboss.pnc.core.builder.coordinator.BuildTask;
+import org.jboss.pnc.core.builder.executor.BuildExecutor;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.rest.provider.collection.CollectionInfo;
@@ -53,15 +54,18 @@ public class BuildRecordProvider extends AbstractProvider<BuildRecord, BuildReco
     private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
     private BuildCoordinator buildCoordinator;
+    private BuildExecutor buildExecutor;
 
     public BuildRecordProvider() {
     }
 
     @Inject
     public BuildRecordProvider(BuildRecordRepository buildRecordRepository, BuildCoordinator buildCoordinator,
-            PageInfoProducer pageInfoProducer, RSQLPredicateProducer rsqlPredicateProducer, SortInfoProducer sortInfoProducer) {
+            PageInfoProducer pageInfoProducer, RSQLPredicateProducer rsqlPredicateProducer, SortInfoProducer sortInfoProducer,
+            BuildExecutor buildExecutor) {
         super(buildRecordRepository, rsqlPredicateProducer, sortInfoProducer, pageInfoProducer);
         this.buildCoordinator = buildCoordinator;
+        this.buildExecutor = buildExecutor;
     }
 
     public CollectionInfo<BuildRecordRest> getAllRunning(Integer pageIndex, Integer pageSize, String sortingRsql, String rsql) {
@@ -73,10 +77,14 @@ public class BuildRecordProvider extends AbstractProvider<BuildRecord, BuildReco
             logger.warn("Querying RSQL is not supported, ignoring");
         }
 
-        return nullableStreamOf(buildCoordinator.getActiveBuildTasks()).map(submittedBuild -> new BuildRecordRest(submittedBuild))
+        return nullableStreamOf(buildCoordinator.getActiveBuildTasks()).map(submittedBuild -> createNewBuildRecordRest(submittedBuild))
                 .skip(pageIndex * pageSize)
                 .limit(pageSize)
                 .collect(new CollectionInfoCollector<>(pageIndex, pageSize, buildCoordinator.getActiveBuildTasks().size()));
+    }
+
+    private BuildRecordRest createNewBuildRecordRest(BuildTask submittedBuild) {
+        return new BuildRecordRest(buildExecutor.getRunningExecution(submittedBuild.getId()), submittedBuild.getSubmitTime());
     }
 
     public CollectionInfo<BuildRecordRest> getAllForBuildConfiguration(int pageIndex, int pageSize, String sortingRsql,
@@ -129,7 +137,7 @@ public class BuildRecordProvider extends AbstractProvider<BuildRecord, BuildReco
         }
         BuildTask buildTask = getSubmittedBuild(id);
         if (buildTask != null) {
-            return new BuildRecordRest(buildTask);
+            return createNewBuildRecordRest(buildTask);
         }
         return null;
     }

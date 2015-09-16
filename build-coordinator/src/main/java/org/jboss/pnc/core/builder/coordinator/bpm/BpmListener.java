@@ -16,20 +16,29 @@
  * limitations under the License.
  */
 
-package org.jboss.pnc.core.builder;
+package org.jboss.pnc.core.builder.coordinator.bpm;
 
-import org.jboss.pnc.core.exception.CoreException;
+import org.jboss.pnc.spi.BuildStatus;
 
-import javax.enterprise.inject.Alternative;
+import java.util.function.Consumer;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
-@Alternative
-public class BpmBuildScheduler implements BuildScheduler {
+public class BpmListener {
+    private final long taskId;
+    private final Consumer<BuildStatus> onComplete;
 
-    @Override
-    public void startBuilding(BuildTask buildTask, Runnable onComplete) throws CoreException {
-        //TODO implement me
+    public BpmListener(long taskId, Consumer<BuildStatus> onComplete) {
+        this.taskId = taskId;
+        this.onComplete = onComplete;
+    }
+
+    public long getTaskId() {
+        return taskId;
+    }
+
+    public void onComplete(BuildStatus buildStatus) {
+        onComplete.accept(buildStatus);
     }
 }

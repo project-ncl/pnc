@@ -15,8 +15,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.core.builder;
+package org.jboss.pnc.core.builder.coordinator;
 
+import org.jboss.pnc.core.builder.datastore.DatastoreAdapter;
 import org.jboss.pnc.core.content.ContentIdentityManager;
 import org.jboss.pnc.core.exception.CoreException;
 import org.jboss.pnc.model.*;
@@ -240,8 +241,9 @@ public class BuildCoordinator {
     }
 
     void processBuildTask(BuildTask buildTask) {
-        Runnable onComplete = () -> {
+        Consumer<BuildStatus> onComplete = (buildStatus) -> {
             activeBuildTasks.remove(buildTask);
+            buildTask.setStatus(buildStatus);
         };
         try {
             buildScheduler.startBuilding(buildTask, onComplete);

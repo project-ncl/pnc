@@ -24,9 +24,7 @@ import org.jboss.arquillian.junit.InSequence;
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.util.ObjectWrapper;
 import org.jboss.pnc.core.BuildDriverFactory;
-import org.jboss.pnc.core.builder.BuildExecutor;
-import org.jboss.pnc.core.builder.Builder;
-import org.jboss.pnc.core.builder.DatastoreAdapter;
+import org.jboss.pnc.core.builder.executor.BuildExecutor;
 import org.jboss.pnc.core.content.ContentIdentityManager;
 import org.jboss.pnc.core.exception.CoreException;
 import org.jboss.pnc.core.test.buildCoordinator.ProjectBuilder;
@@ -34,12 +32,12 @@ import org.jboss.pnc.core.test.buildCoordinator.event.TestCDIBuildStatusChangedR
 import org.jboss.pnc.core.test.configurationBuilders.TestProjectConfigurationBuilder;
 import org.jboss.pnc.core.test.mock.BuildDriverMock;
 import org.jboss.pnc.core.test.mock.DatastoreMock;
+import org.jboss.pnc.model.BuildConfiguration;
+import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.Environment;
 import org.jboss.pnc.model.User;
-import org.jboss.pnc.spi.datastore.Datastore;
-import org.jboss.pnc.spi.environment.RunningEnvironment;
-import org.jboss.pnc.spi.events.BuildStatusChangedEvent;
+import org.jboss.pnc.spi.BuildStatus;
 import org.jboss.pnc.spi.exception.BuildConflictException;
 import org.jboss.pnc.test.util.Wait;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
@@ -48,37 +46,22 @@ import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.internal.stubbing.defaultanswers.ForwardsInvocations;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.enterprise.event.Event;
 import javax.inject.Inject;
-
 import java.time.temporal.ChronoUnit;
-import java.time.temporal.TemporalUnit;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-
-import static org.mockito.Matchers.anyObject;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.stub;
-import static org.mockito.Mockito.stubVoid;
-import static org.mockito.Mockito.when;
+import java.util.function.Consumer;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
 @RunWith(Arquillian.class)
-public class BuilderTest {
+public class BuildExecution {
 
-    private static final Logger log = LoggerFactory.getLogger(BuilderTest.class);
+    private static final Logger log = LoggerFactory.getLogger(BuildExecution.class);
 
     @Inject
     TestProjectConfigurationBuilder configurationBuilder;
@@ -99,7 +82,7 @@ public class BuilderTest {
     }
 
     @Inject
-    Builder builder;
+    BuildExecutor buildExecutor;
 
     @Inject
     DatastoreMock datastore;
@@ -108,10 +91,13 @@ public class BuilderTest {
     @InSequence(10)
     public void testSingleBuild() throws BuildConflictException, CoreException, TimeoutException, InterruptedException {
         ObjectWrapper<Boolean> completed = new ObjectWrapper<>(false);
-        Runnable onComplete = () -> {
+        Consumer<BuildStatus> onComplete = (buildStatus) -> {
             completed.set(true);
         };
-        builder.build(configurationBuilder.build(1, "c1-java"), (User)null, 1, onComplete);
+        BuildConfiguration buildConfiguration = configurationBuilder.build(1, "c1-java");
+        BuildConfigurationAudited configurationAudited = configurationBuilder.buildAudited(buildConfiguration, 1);
+
+        buildExecutor.build(buildConfiguration, configurationAudited, newUser(), onComplete, null, null, 1);
 
         Wait.forCondition(() -> completed.get(), 1, ChronoUnit.SECONDS, "Did not received build complete.");
     }
@@ -128,6 +114,14 @@ public class BuilderTest {
 
         ProjectBuilder.assertBuildArtifactsPresent(buildRecord.getBuiltArtifacts());
         ProjectBuilder.assertBuildArtifactsPresent(buildRecord.getDependencies());
+    }
+
+    private User newUser() {
+        User user = new User();
+        user.setId(1);
+        user.setFirstName("Poseidon");
+        user.setLastName("Neptune");
+        return user;
     }
 
 }

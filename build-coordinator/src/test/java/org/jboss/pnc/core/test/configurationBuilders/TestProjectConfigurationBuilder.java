@@ -132,4 +132,19 @@ public class TestProjectConfigurationBuilder {
 
         return buildConfigurationSet;
     }
+
+    public BuildConfigurationAudited buildAudited(BuildConfiguration buildConfiguration, int rev) {
+        BuildConfigurationAudited configurationAudited = new BuildConfigurationAudited();
+        configurationAudited.setId(buildConfiguration.getId());
+        configurationAudited.setBuildRecords(buildConfiguration.getBuildRecords());
+        configurationAudited.setBuildScript(buildConfiguration.getBuildScript());
+        configurationAudited.setDescription(buildConfiguration.getDescription());
+        configurationAudited.setEnvironment(buildConfiguration.getEnvironment());
+        configurationAudited.setName(buildConfiguration.getName());
+        configurationAudited.setDescription(buildConfiguration.getDescription());
+        configurationAudited.setScmRepoURL(buildConfiguration.getScmRepoURL());
+        configurationAudited.setScmRevision(buildConfiguration.getScmRevision());
+        configurationAudited.setRev(rev);
+        return configurationAudited;
+    }
 }

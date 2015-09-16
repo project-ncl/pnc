@@ -41,4 +41,6 @@ public class BuildConfigurationRepositoryImpl extends AbstractRepository<BuildCo
     public BuildConfigurationRepositoryImpl(BuildConfigurationSpringRepository buildConfigurationSpringRepository) {
         super(buildConfigurationSpringRepository, buildConfigurationSpringRepository);
     }
+
+
 }

@@ -17,14 +17,21 @@
  */
 package org.jboss.pnc.rest.endpoint;
 
+import org.jboss.pnc.core.builder.executor.BuildExecutionTask;
+import org.jboss.pnc.core.builder.executor.BuildExecutor;
+import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildRecord;
+import org.jboss.pnc.model.User;
 import org.jboss.pnc.rest.provider.BuildRecordProvider;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import java.util.Optional;
+
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * 
@@ -61,12 +68,36 @@ public class BuildRecordEndpointTest {
 
     private BuildRecordEndpoint getLogsPrepareEndpoint(int logId, String logContent) {
         BuildRecordRepository buildRecordRepository = mock(BuildRecordRepository.class);
-        BuildRecordProvider buildRecordProvider = new BuildRecordProvider(buildRecordRepository, null, null, null, null);
+        BuildExecutor buildExecutor = mockBuildExecutor(5684, 4538);
+        BuildRecordProvider buildRecordProvider = new BuildRecordProvider(buildRecordRepository, null, null, null, null, buildExecutor);
         BuildRecordEndpoint buildRecordEndpoint = new BuildRecordEndpoint(buildRecordProvider, null);
         BuildRecord buildRecord = mock(BuildRecord.class);
 
         Mockito.when(buildRecord.getBuildLog()).thenReturn(logContent);
         Mockito.when(buildRecordRepository.queryById(logId)).thenReturn(buildRecord);
         return buildRecordEndpoint;
+    }
+
+    private BuildExecutor mockBuildExecutor(int buildExecutionTaskId, int buildTaskId) {
+        BuildExecutor buildExecutor = mock(BuildExecutor.class);
+        User user = newUser();
+        BuildConfiguration buildConfiguration = newBuildConfiguration();
+        BuildExecutionTask buildExecutionTask = BuildExecutionTask.build(buildExecutionTaskId, buildConfiguration, null, user, null, null, Optional.ofNullable(null), buildTaskId);
+        when(buildExecutor.getRunningExecution(buildExecutionTaskId)).thenReturn(buildExecutionTask);
+        return buildExecutor;
+    }
+
+    private BuildConfiguration newBuildConfiguration() {
+        BuildConfiguration buildConfiguration = new BuildConfiguration();
+        buildConfiguration.setName("build-1");
+        return buildConfiguration;
+    }
+
+    private User newUser() {
+        User user = new User();
+        user.setId(1);
+        user.setFirstName("Poseidon");
+        user.setLastName("Neptune");
+        return user;
     }
 }
