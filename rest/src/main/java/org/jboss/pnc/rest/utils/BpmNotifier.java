@@ -37,17 +37,17 @@ import java.io.IOException;
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
 @ApplicationScoped
-public class BpmCallback {
+public class BpmNotifier {
 
-    private final Logger log = Logger.getLogger(BpmCallback.class);
+    private final Logger log = Logger.getLogger(BpmNotifier.class);
     private BpmModuleConfig bpmConfig;
 
     @Deprecated
-    public BpmCallback() { //CDI workaround
+    public BpmNotifier() { //CDI workaround
     }
 
     @Inject
-    public BpmCallback(Configuration configuration) throws ConfigurationParseException {
+    public BpmNotifier(Configuration configuration) throws ConfigurationParseException {
         bpmConfig = configuration.getModuleConfig(new PncConfigProvider<BpmModuleConfig>(BpmModuleConfig.class));
     }
 

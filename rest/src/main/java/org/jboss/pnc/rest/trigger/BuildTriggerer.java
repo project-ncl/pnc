@@ -27,7 +27,7 @@ import org.jboss.pnc.core.notifications.buildSetTask.BuildSetStatusNotifications
 import org.jboss.pnc.core.notifications.buildTask.BuildCallBack;
 import org.jboss.pnc.core.notifications.buildTask.BuildStatusNotifications;
 import org.jboss.pnc.model.*;
-import org.jboss.pnc.rest.utils.BpmCallback;
+import org.jboss.pnc.rest.utils.BpmNotifier;
 import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
 import org.jboss.pnc.spi.datastore.DatastoreException;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationRepository;
@@ -54,7 +54,7 @@ public class BuildTriggerer {
     private BuildConfigurationSetRepository buildConfigurationSetRepository;
     private BuildSetStatusNotifications buildSetStatusNotifications;
     private BuildStatusNotifications buildStatusNotifications;
-    private BpmCallback bpmCallback;
+    private BpmNotifier bpmNotifier;
 
     private SortInfoProducer sortInfoProducer;
 
@@ -66,13 +66,13 @@ public class BuildTriggerer {
     public BuildTriggerer(final BuildCoordinator buildCoordinator, final BuildConfigurationRepository buildConfigurationRepository,
                           final BuildConfigurationSetRepository buildConfigurationSetRepository,
                           BuildSetStatusNotifications buildSetStatusNotifications, BuildStatusNotifications buildStatusNotifications,
-                          BpmCallback bpmCallback, SortInfoProducer sortInfoProducer) {
+                          BpmNotifier bpmNotifier, SortInfoProducer sortInfoProducer) {
         this.buildCoordinator = buildCoordinator;
         this.buildConfigurationRepository = buildConfigurationRepository;
         this.buildConfigurationSetRepository= buildConfigurationSetRepository;
         this.buildSetStatusNotifications = buildSetStatusNotifications;
         this.buildStatusNotifications = buildStatusNotifications;
-        this.bpmCallback = bpmCallback;
+        this.bpmNotifier = bpmNotifier;
         this.sortInfoProducer = sortInfoProducer;
     }
 
@@ -82,7 +82,7 @@ public class BuildTriggerer {
         Consumer<BuildStatusChangedEvent> onStatusUpdate = (statusChangedEvent) -> {
             if(statusChangedEvent.getNewStatus().isCompleted()) {
                 // Expecting URL like: http://host:port/business-central/rest/runtime/org.test:Test1:1.0/process/instance/7/signal?signal=testSig
-                bpmCallback.signalBpmEvent(callBackUrl.toString() + "&event=" + statusChangedEvent.getNewStatus());
+                bpmNotifier.signalBpmEvent(callBackUrl.toString() + "&event=" + statusChangedEvent.getNewStatus());
             }
         };
 
@@ -112,7 +112,7 @@ public class BuildTriggerer {
         Consumer<BuildSetStatusChangedEvent> onStatusUpdate = (statusChangedEvent) -> {
             if(statusChangedEvent.getNewStatus().isCompleted()) {
                 // Expecting URL like: http://host:port/business-central/rest/runtime/org.test:Test1:1.0/process/instance/7/signal?signal=testSig
-                bpmCallback.signalBpmEvent(callBackUrl.toString() + "&event=" + statusChangedEvent.getNewStatus());
+                bpmNotifier.signalBpmEvent(callBackUrl.toString() + "&event=" + statusChangedEvent.getNewStatus());
             }
         };
 

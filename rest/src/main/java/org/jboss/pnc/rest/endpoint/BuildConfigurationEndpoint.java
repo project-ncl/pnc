@@ -37,7 +37,7 @@ import org.jboss.pnc.rest.restmodel.ProductVersionRest;
 import org.jboss.pnc.rest.restmodel.response.Page;
 import org.jboss.pnc.rest.restmodel.response.Singleton;
 import org.jboss.pnc.rest.trigger.BuildTriggerer;
-import org.jboss.pnc.rest.utils.BpmCallback;
+import org.jboss.pnc.rest.utils.BpmNotifier;
 import org.jboss.pnc.rest.validation.exceptions.ValidationException;
 import org.jboss.pnc.spi.BuildStatus;
 import org.jboss.pnc.spi.datastore.Datastore;
@@ -113,7 +113,7 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
     private Datastore datastore;
     private BuildConfigurationRepository buildConfigurationRepository;
     private BuildConfigurationAuditedRepository buildConfigurationAuditedRepository;
-    private BpmCallback bpmCallback;
+    private BpmNotifier bpmNotifier;
 
     @Context
     private HttpServletRequest httpServletRequest;
@@ -130,7 +130,7 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
             BuildRecordProvider buildRecordProvider,
             ProductVersionProvider productVersionProvider,
             Datastore datastore,
-            BpmCallback bpmCallback) {
+            BpmNotifier bpmNotifier) {
         super(buildConfigurationProvider);
         this.buildConfigurationProvider = buildConfigurationProvider;
         this.buildTriggerer = buildTriggerer;
@@ -138,7 +138,7 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
         this.buildRecordProvider = buildRecordProvider;
         this.productVersionProvider = productVersionProvider;
         this.datastore = datastore;
-        this.bpmCallback = bpmCallback;
+        this.bpmNotifier = bpmNotifier;
     }
 
     @ApiOperation(value = "Gets all Build Configurations", response = Page.class)
@@ -310,7 +310,7 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
             Consumer<BuildStatus> onComplete = (buildStatus) -> {
                 if (callbackUrl != null && !callbackUrl.isEmpty()) {
                     // Expecting URL like: http://host:port/business-central/rest/runtime/org.test:Test1:1.0/process/instance/7/signal?signal=testSig
-                    bpmCallback.signalBpmEvent(callbackUrl.toString() + "&event=" + buildStatus);
+                    bpmNotifier.signalBpmEvent(callbackUrl.toString() + "&event=" + buildStatus);
                 }
             };
 
