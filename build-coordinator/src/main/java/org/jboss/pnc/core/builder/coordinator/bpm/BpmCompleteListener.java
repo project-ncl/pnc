@@ -30,7 +30,7 @@ import java.util.Map;
 @ApplicationScoped
 public class BpmCompleteListener {
 
-    Map<Long, BpmListener> listeners = new HashMap<>(); //TODO garbage collector after time-out
+    Map<Long, BpmListener> listeners = new HashMap<>(); //TODO evict from map if there is no response from BPM server in specified time-out
 
     public void subscribe(BpmListener bpmListener) {
         listeners.put(bpmListener.getTaskId(), bpmListener);

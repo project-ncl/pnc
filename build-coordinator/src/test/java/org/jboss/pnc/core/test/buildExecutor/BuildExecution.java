@@ -95,7 +95,10 @@ public class BuildExecution {
             completed.set(true);
         };
         BuildConfiguration buildConfiguration = configurationBuilder.build(1, "c1-java");
-        BuildConfigurationAudited configurationAudited = configurationBuilder.buildAudited(buildConfiguration, 1);
+        BuildConfigurationAudited configurationAudited = BuildConfigurationAudited.Builder.newBuilder()
+                .buildConfiguration(buildConfiguration)
+                .rev(1)
+                .build();
 
         buildExecutor.build(buildConfiguration, configurationAudited, newUser(), onComplete, null, null, 1);
 
