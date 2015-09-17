@@ -2,8 +2,9 @@
 "@class":"ModuleConfigJson","name":"pnc-config",
         "configs":[
           {
-            "@module-config":"build-driver-router",
-            "driverId":"not me"
+            "@module-config":"system-config",
+            "buildDriverId":"not me",
+            "buildSchedulerId":"not me"
           }
         ]
 }

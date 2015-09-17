@@ -2,6 +2,11 @@
 "@class":"ModuleConfigJson","name":"pnc-config",
         "configs":[
           {
+            "@module-config":"system-config",
+            "buildDriverId":"termd-build-driver",
+            "buildSchedulerId":"local-build-scheduler"
+          },
+          {
             "@module-config":"jenkins-build-driver",
             "username":"${env.PNC_JENKINS_USERNAME}",
             "password":"${env.PNC_JENKINS_PASSWORD}"

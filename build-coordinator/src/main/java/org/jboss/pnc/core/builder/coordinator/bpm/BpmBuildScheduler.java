@@ -48,7 +48,6 @@ import java.util.function.Consumer;
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
-@Alternative
 @ApplicationScoped
 public class BpmBuildScheduler implements BuildScheduler {
 
@@ -58,12 +57,17 @@ public class BpmBuildScheduler implements BuildScheduler {
 
     private BpmCompleteListener bpmCompleteListener;
 
-    private final URL instanceUrl;
+    private final String instanceUrl;
     private final String deploymentId;
     private final String processId;
 
     private final String user;
     private final String password;
+
+    @Override
+    public String getId() {
+        return "bpm-build-scheduler";
+    }
 
     @Deprecated
     public BpmBuildScheduler() { //CDI workaround
@@ -80,7 +84,7 @@ public class BpmBuildScheduler implements BuildScheduler {
 
         this.bpmCompleteListener = bpmCompleteListener;
 
-        instanceUrl = new URL(config.getBpmInstanceUrl());
+        instanceUrl = config.getBpmInstanceUrl();
         deploymentId = config.getDeploymentId();
         processId = config.getProcessId();
 
@@ -101,8 +105,13 @@ public class BpmBuildScheduler implements BuildScheduler {
         bpmCompleteListener.subscribe(bpmListener);
     }
 
-    private ProcessInstance startProcess(BuildTask buildTask, Integer buildTaskSetId) {
-        RemoteRestRuntimeEngineFactory restSessionFactory = new RemoteRestRuntimeEngineFactory(deploymentId, instanceUrl, user, password);
+    private ProcessInstance startProcess(BuildTask buildTask, Integer buildTaskSetId) throws CoreException {
+        RemoteRestRuntimeEngineFactory restSessionFactory;
+        try {
+            restSessionFactory = new RemoteRestRuntimeEngineFactory(deploymentId, new URL(instanceUrl), user, password);
+        } catch (MalformedURLException e) {
+            throw new CoreException("Invalid bpm server url.", e);
+        }
 
         RemoteRuntimeEngine engine = restSessionFactory.newRuntimeEngine();
         KieSession kieSession = engine.getKieSession();

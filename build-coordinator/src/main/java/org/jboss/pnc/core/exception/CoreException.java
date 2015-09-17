@@ -28,4 +28,8 @@ public class CoreException extends Exception {
     public CoreException(Exception e) {
         super(e);
     }
+
+    public CoreException(String message, Exception e) {
+        super(message, e);
+    }
 }

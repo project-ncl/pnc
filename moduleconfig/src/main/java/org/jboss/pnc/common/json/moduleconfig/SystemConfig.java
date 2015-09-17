@@ -20,26 +20,30 @@ package org.jboss.pnc.common.json.moduleconfig;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.jboss.pnc.common.json.AbstractModuleConfig;
 
-public class BuildDriverRouterModuleConfig extends AbstractModuleConfig {
+public class SystemConfig extends AbstractModuleConfig {
 
-    private String driverId;
+    private String buildDriverId;
+    private String buildSchedulerId;
 
-    public BuildDriverRouterModuleConfig(@JsonProperty("driverId") String driverId) {
-        this.driverId = driverId;
+    public SystemConfig(
+            @JsonProperty("buildDriverId") String buildDriverId,
+            @JsonProperty("buildSchedulerId") String buildSchedulerId) {
+        this.buildDriverId = buildDriverId;
+        this.buildSchedulerId = buildSchedulerId;
     }
 
-    public String getDriverId() {
-        return driverId;
+    public String getBuildDriverId() {
+        return buildDriverId;
     }
 
-    public void setDriverId(String driverId) {
-        this.driverId = driverId;
+    public String getBuildSchedulerId() {
+        return buildSchedulerId;
     }
-
     @Override
     public String toString() {
-        return "BuildDriverRouterModuleConfig{" +
-                "driverId='" + driverId + '\'' +
+        return "SystemConfig{" +
+                "buildDriverId='" + buildDriverId + '\'' +
+                "SchedulerId='" + buildSchedulerId + '\'' +
                 '}';
     }
 }
