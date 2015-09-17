@@ -21,6 +21,8 @@ import org.jboss.util.StringPropertyReplacer;
 
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
+import java.util.StringJoiner;
 
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2015-01-01.
@@ -56,5 +58,11 @@ public class StringUtils {
             return true;
         }
         return string.trim().isEmpty();
+    }
+
+    public static String toCVS(Set<Integer> buildRecordSetIds) {
+        StringJoiner joiner = new StringJoiner(",");
+        buildRecordSetIds.forEach(el -> joiner.add(el.toString()));
+        return joiner.toString();
     }
 }
