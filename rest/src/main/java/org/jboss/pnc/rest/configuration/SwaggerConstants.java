@@ -43,6 +43,9 @@ public interface SwaggerConstants {
     public static final String SERVER_ERROR_DESCRIPTION = "Server error";
     public static final int SERVER_ERROR_CODE = 500;
 
+    public static final String FORBIDDEN_DESCRIPTION = "User must be logged in.";
+    public static final int FORBIDDEN_CODE = 403;
+
     public static final String NOT_FOUND_DESCRIPTION = "Can not find specified result";
     public static final int NOT_FOUND_CODE = 404;
 

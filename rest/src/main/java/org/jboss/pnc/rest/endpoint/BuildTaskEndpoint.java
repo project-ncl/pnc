@@ -19,8 +19,12 @@
 package org.jboss.pnc.rest.endpoint;
 
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import org.jboss.pnc.core.builder.coordinator.bpm.BpmCompleteListener;
+import org.jboss.pnc.rest.restmodel.response.Singleton;
 import org.jboss.pnc.spi.BuildStatus;
 
 import javax.inject.Inject;
@@ -35,6 +39,9 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_CODE;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_DESCRIPTION;
+
 @Api(value = "/build-tasks", description = "Build tasks.")
 @Path("/build-tasks")
 @Produces(MediaType.APPLICATION_JSON)
@@ -44,16 +51,16 @@ public class BuildTaskEndpoint {
     @Context
     private HttpServletRequest httpServletRequest;
 
+    @Inject
     private BpmCompleteListener bpmCompleteListener;
 
     @Deprecated
     public BuildTaskEndpoint() {} // CDI workaround
 
-    @Inject
-    public BuildTaskEndpoint(BpmCompleteListener bpmCompleteListener) {
-        this.bpmCompleteListener = bpmCompleteListener;
-    }
-
+    @ApiOperation(value = "Notifies the completion of externally managed build task process.", response = Singleton.class)
+    @ApiResponses(value = {
+            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION)
+    })
     @GET
     @Path("/{taskId}/completed")
     public Response buildTaskCompleted(

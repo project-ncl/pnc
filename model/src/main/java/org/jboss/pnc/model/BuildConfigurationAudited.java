@@ -243,4 +243,39 @@ public class BuildConfigurationAudited implements GenericEntity<IdRev> {
         return idRev != null ? idRev.hashCode() : 0;
     }
 
+    public static class Builder {
+        private BuildConfiguration buildConfiguration;
+        private Integer id;
+        private Integer rev;
+
+        public static Builder newBuilder() {
+            return new Builder();
+        }
+
+        public BuildConfigurationAudited build() {
+            BuildConfigurationAudited configurationAudited = new BuildConfigurationAudited();
+            configurationAudited.setBuildRecords(buildConfiguration.getBuildRecords());
+            configurationAudited.setBuildScript(buildConfiguration.getBuildScript());
+            configurationAudited.setDescription(buildConfiguration.getDescription());
+            configurationAudited.setEnvironment(buildConfiguration.getEnvironment());
+            configurationAudited.setName(buildConfiguration.getName());
+            configurationAudited.setDescription(buildConfiguration.getDescription());
+            configurationAudited.setScmRepoURL(buildConfiguration.getScmRepoURL());
+            configurationAudited.setScmRevision(buildConfiguration.getScmRevision());
+            configurationAudited.setRev(rev);
+            configurationAudited.setIdRev(new IdRev(id, rev));
+            return configurationAudited;
+        }
+
+        public Builder buildConfiguration(BuildConfiguration buildConfiguration) {
+            this.buildConfiguration = buildConfiguration;
+            return this;
+        }
+
+        public Builder rev(Integer rev) {
+            this.rev = rev;
+            return this;
+        }
+
+    }
 }

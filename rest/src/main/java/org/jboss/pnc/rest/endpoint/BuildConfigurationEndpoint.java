@@ -23,7 +23,11 @@ import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.jboss.pnc.auth.AuthenticationProvider;
+import org.jboss.pnc.core.builder.executor.BuildExecutionTask;
+import org.jboss.pnc.core.builder.executor.BuildExecutor;
 import org.jboss.pnc.model.BuildConfiguration;
+import org.jboss.pnc.model.BuildConfigurationAudited;
+import org.jboss.pnc.model.IdRev;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.rest.provider.BuildConfigurationProvider;
 import org.jboss.pnc.rest.provider.BuildRecordProvider;
@@ -39,8 +43,12 @@ import org.jboss.pnc.rest.swagger.response.BuildRecordPage;
 import org.jboss.pnc.rest.swagger.response.BuildRecordSingleton;
 import org.jboss.pnc.rest.swagger.response.ProductVersionPage;
 import org.jboss.pnc.rest.trigger.BuildTriggerer;
+import org.jboss.pnc.rest.utils.BpmNotifier;
 import org.jboss.pnc.rest.validation.exceptions.ValidationException;
+import org.jboss.pnc.spi.BuildStatus;
 import org.jboss.pnc.spi.datastore.Datastore;
+import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationAuditedRepository;
+import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationRepository;
 import org.jboss.pnc.spi.exception.BuildConflictException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,9 +73,15 @@ import javax.ws.rs.core.UriInfo;
 import java.lang.invoke.MethodHandles;
 import java.net.URI;
 import java.net.URL;
+import java.util.Arrays;
+import java.util.Set;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.CONFLICTED_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.CONFLICTED_DESCRIPTION;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.FORBIDDEN_CODE;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.FORBIDDEN_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.INVALID_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.INVLID_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.NOT_FOUND_CODE;
@@ -99,26 +113,38 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
 
     private BuildConfigurationProvider buildConfigurationProvider;
     private BuildTriggerer buildTriggerer;
+    private BuildExecutor buildExecutor;
     private BuildRecordProvider buildRecordProvider;
     private ProductVersionProvider productVersionProvider;
-    
+    private Datastore datastore;
+    private BuildConfigurationRepository buildConfigurationRepository;
+    private BuildConfigurationAuditedRepository buildConfigurationAuditedRepository;
+    private BpmNotifier bpmNotifier;
+
     @Context
     private HttpServletRequest httpServletRequest;
     
-    @Inject
-    private Datastore datastore;
 
     public BuildConfigurationEndpoint() {
     }
 
     @Inject
-    public BuildConfigurationEndpoint(BuildConfigurationProvider buildConfigurationProvider, BuildTriggerer buildTriggerer,
-            BuildRecordProvider buildRecordProvider, ProductVersionProvider productVersionProvider) {
+    public BuildConfigurationEndpoint(
+            BuildConfigurationProvider buildConfigurationProvider,
+            BuildTriggerer buildTriggerer,
+            BuildExecutor buildExecutor,
+            BuildRecordProvider buildRecordProvider,
+            ProductVersionProvider productVersionProvider,
+            Datastore datastore,
+            BpmNotifier bpmNotifier) {
         super(buildConfigurationProvider);
         this.buildConfigurationProvider = buildConfigurationProvider;
         this.buildTriggerer = buildTriggerer;
+        this.buildExecutor = buildExecutor;
         this.buildRecordProvider = buildRecordProvider;
         this.productVersionProvider = productVersionProvider;
+        this.datastore = datastore;
+        this.bpmNotifier = bpmNotifier;
     }
 
     @ApiOperation(value = "Gets all Build Configurations")
@@ -227,7 +253,7 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
             if(loggedUser != null && loggedUser != "") {
                 currentUser = datastore.retrieveUserByUsername(loggedUser);
             }
-            if(currentUser == null) {
+            if(currentUser == null) { //TODO remove user creation
                 currentUser = User.Builder.newBuilder()
                         .username(loggedUser)
                         .firstName(authProvider.getFirstName())
@@ -253,6 +279,79 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
             return Response.serverError().entity("Other error: " + e.getMessage()).build();
+        }
+    }
+
+    @ApiOperation(value = "Triggers the build execution only for a specific Build Configuration", response = Singleton.class)
+    @ApiResponses(value = {
+            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION),
+            @ApiResponse(code = INVLID_CODE, message = INVALID_DESCRIPTION),
+            @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION),
+            @ApiResponse(code = FORBIDDEN_CODE, message = FORBIDDEN_DESCRIPTION),
+    })
+    @POST
+    @Path("/{id}/execute-build")
+    @Consumes(MediaType.WILDCARD)
+    public Response build(@ApiParam(value = "Build Configuration id", required = true) @PathParam("id") Integer buildConfigurationId,
+                          @ApiParam(value = "Build Configuration revision", required = true) @QueryParam("buildConfigurationRevision") Integer buildConfigurationRevision,
+                          @ApiParam(value = "Build task id", required = true) @QueryParam("buildTaskId") int buildTaskId,
+                          @ApiParam(value = "Build set task id", required = true) @QueryParam("buildSetTaskId") int buildSetTaskId,
+                          @ApiParam(value = "Optional Callback URL", required = false) @QueryParam("callbackUrl") String callbackUrl,
+                          @ApiParam(value = "A CSV list of build record set ids.", required = false) @QueryParam("buildRecordSetIdsCSV") String buildRecordSetIdsCSV,
+                          @ApiParam(value = "Build configuration set record id.", required = false) @QueryParam("buildConfigSetRecordId") String buildConfigSetRecordId,
+                          @Context UriInfo uriInfo) {
+        try {
+            AuthenticationProvider authProvider = new AuthenticationProvider(httpServletRequest);
+            String loggedUser = authProvider.getUserName();
+            User currentUser = null;
+            if(loggedUser != null && loggedUser != "") {
+                currentUser = datastore.retrieveUserByUsername(loggedUser);
+            } else {
+                return Response.status(Response.Status.FORBIDDEN).build();
+            }
+
+            final BuildConfiguration configuration = buildConfigurationRepository.queryById(buildConfigurationId);
+            IdRev idRev = new IdRev(buildConfigurationId, buildConfigurationRevision);
+            final BuildConfigurationAudited configurationAudited = buildConfigurationAuditedRepository.queryById(idRev);
+
+            Consumer<BuildStatus> onComplete = (buildStatus) -> {
+                if (callbackUrl != null && !callbackUrl.isEmpty()) {
+                    // Expecting URL like: http://host:port/business-central/rest/runtime/org.test:Test1:1.0/process/instance/7/signal?signal=testSig
+                    bpmNotifier.signalBpmEvent(callbackUrl.toString() + "&event=" + buildStatus);
+                }
+            };
+
+            Set<Integer> buildRecordSetIds = parseIntegers(buildRecordSetIdsCSV);
+
+            Integer buildConfigSetRecordIdInt = null;
+            if (buildConfigSetRecordId != null) {
+                buildConfigSetRecordIdInt = Integer.parseInt(buildConfigSetRecordId);
+            }
+
+            BuildExecutionTask buildExecutionTask = buildExecutor.build(
+                    configuration,
+                    configurationAudited,
+                    currentUser,
+                    onComplete,
+                    buildRecordSetIds,
+                    buildConfigSetRecordIdInt,
+                    buildTaskId);
+
+            UriBuilder uriBuilder = UriBuilder.fromUri(uriInfo.getBaseUri()).path("/result/running/{id}");
+            int runningBuildId = buildExecutionTask.getId();
+            URI uri = uriBuilder.build(runningBuildId);
+            return Response.ok(uri).header("location", uri).entity(buildRecordProvider.getSpecificRunning(runningBuildId)).build();
+        } catch (Exception e) {
+            logger.error(e.getMessage(), e);
+            return Response.serverError().entity("Other error: " + e.getMessage()).build();
+        }
+    }
+
+    private Set<Integer> parseIntegers(String buildRecordSetIdsCSV) {
+        if (buildRecordSetIdsCSV != null) {
+            return Arrays.asList(buildRecordSetIdsCSV.split(",")).stream().map((s) -> Integer.parseInt(s)).collect(Collectors.toSet());
+        } else {
+            return null;
         }
     }
 

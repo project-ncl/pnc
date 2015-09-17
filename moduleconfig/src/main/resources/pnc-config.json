@@ -27,6 +27,19 @@
             "firewallAllowedDestinations":"${env.PNC_DOCKER_IMAGE_FIREWALL_ALLOWED}"
           },
           {
+            "@module-config":"openshift-environment-driver",
+            "proxyServer":"${env.PNC_DOCKER_PROXY_SERVER}",
+            "proxyPort":"${env.PNC_DOCKER_PROXY_PORT}",
+            "firewallAllowedDestinations":"${env.PNC_FIREWALL_ALLOWED_DESTINATIONS}",
+            "restEndpointUrl":"${env.PNC_REST_ENDPOINT_URL}",
+            "restAuthToken":"${env.PNC_REST_AUTH_TOKEN}",
+            "buildAgentBindPath":"${env.PNC_BUILD_AGENT_BIND_PATH}",
+            "podNamespace":"${env.PNC_POD_NAMESPACE}",
+            "containerPort":"${env.PNC_CONTAINER_PORT}",
+            "imageId":"${env.PNC_BUILDER_IMAGE_ID}",
+            "disabled":"true"
+          },
+          {
             "@module-config":"authentication-config",
             "username":"${env.PNC_EXT_OAUTH_USERNAME}",
             "password":"${env.PNC_EXT_OAUTH_PASSWORD}",
@@ -35,7 +48,10 @@
           {
             "@module-config":"bpm-config",
             "username":"${env.PNC_BPM_USERNAME}",
-            "password":"${env.PNC_BPM_PASSWORD}"
+            "password":"${env.PNC_BPM_PASSWORD}",
+            "bpmInstanceUrl":"${env.BPM_INSTANCE_URL}",
+            "deploymentId":"${env.BPM_DEPLOYMENT_ID}",
+            "processId":"${env.BPM_PROCESS_ID}"
           }
         ]
 }

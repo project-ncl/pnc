@@ -77,9 +77,9 @@ public class BpmBuildScheduler implements BuildScheduler {
 
         this.bpmCompleteListener = bpmCompleteListener;
 
-        instanceUrl = new URL("https://maitai-bpms-01.app.test.eng.nay.redhat.com/business-central/"); //TODO configurable
-        deploymentId = "com.redhat.maitai.ncl:ComponentBuild";  //TODO configurable
-        processId = "ComponentBuild.componentbuild";  //TODO configurable
+        instanceUrl = new URL(config.getBpmInstanceUrl());
+        deploymentId = config.getDeploymentId();
+        processId = config.getProcessId();
 
         user = config.getUsername();
         password = config.getPassword();

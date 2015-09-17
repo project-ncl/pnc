@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package org.jboss.pnc.core.test.builder;
+package org.jboss.pnc.core.test.buildExecutor;
 
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
@@ -36,7 +36,7 @@ import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.Environment;
-import org.jboss.pnc.model.User;
+import org.jboss.pnc.model.mock.MockUser;
 import org.jboss.pnc.spi.BuildStatus;
 import org.jboss.pnc.spi.exception.BuildConflictException;
 import org.jboss.pnc.test.util.Wait;
@@ -95,9 +95,12 @@ public class BuildExecution {
             completed.set(true);
         };
         BuildConfiguration buildConfiguration = configurationBuilder.build(1, "c1-java");
-        BuildConfigurationAudited configurationAudited = configurationBuilder.buildAudited(buildConfiguration, 1);
+        BuildConfigurationAudited configurationAudited = BuildConfigurationAudited.Builder.newBuilder()
+                .buildConfiguration(buildConfiguration)
+                .rev(1)
+                .build();
 
-        buildExecutor.build(buildConfiguration, configurationAudited, newUser(), onComplete, null, null, 1);
+        buildExecutor.build(buildConfiguration, configurationAudited, MockUser.newTestUser(1), onComplete, null, null, 1);
 
         Wait.forCondition(() -> completed.get(), 1, ChronoUnit.SECONDS, "Did not received build complete.");
     }
@@ -114,14 +117,6 @@ public class BuildExecution {
 
         ProjectBuilder.assertBuildArtifactsPresent(buildRecord.getBuiltArtifacts());
         ProjectBuilder.assertBuildArtifactsPresent(buildRecord.getDependencies());
-    }
-
-    private User newUser() {
-        User user = new User();
-        user.setId(1);
-        user.setFirstName("Poseidon");
-        user.setLastName("Neptune");
-        return user;
     }
 
 }
