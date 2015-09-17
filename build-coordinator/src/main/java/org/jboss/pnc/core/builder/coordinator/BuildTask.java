@@ -79,6 +79,7 @@ public class BuildTask {
     //called when all dependencies are built
     private Consumer<BuildTask> onAllDependenciesCompleted;
     private Integer buildConfigSetRecordId;
+    private final boolean rebuildAll;
 
     private BuildTask(BuildConfiguration buildConfiguration,
                       BuildConfigurationAudited buildConfigurationAudited,
@@ -91,7 +92,8 @@ public class BuildTask {
                       int id,
                       Event<BuildStatusChangedEvent> buildStatusChangedEventNotifier,
                       Consumer<BuildTask> onAllDependenciesCompleted,
-                      Integer buildConfigSetRecordId) {
+                      Integer buildConfigSetRecordId,
+                      boolean rebuildAll) {
 
         this.id = id;
         this.buildConfiguration = buildConfiguration;
@@ -103,6 +105,7 @@ public class BuildTask {
         this.buildSetTask = buildSetTask;
         this.onAllDependenciesCompleted = onAllDependenciesCompleted;
         this.buildConfigSetRecordId = buildConfigSetRecordId;
+        this.rebuildAll = rebuildAll;
 
         if (buildSetTask != null && buildSetTask.getProductMilestone() != null) {
             buildRecordSetIds.add(buildSetTask.getProductMilestone().getPerformedBuildRecordSet().getId());
@@ -279,13 +282,14 @@ public class BuildTask {
 
     @Deprecated //can we remove this ?
     static BuildTask build(BuildConfiguration buildConfiguration,
-                                  BuildConfigurationAudited buildConfigAudited,
-                                  User user,
-                                  Event<BuildStatusChangedEvent> buildStatusChangedEventNotifier,
-                                  Consumer<BuildTask> onAllDependenciesCompleted,
-                                  int buildTaskId,
-                                  BuildSetTask buildSetTask,
-                                  Date submitTime) {
+            BuildConfigurationAudited buildConfigAudited,
+            User user,
+            Event<BuildStatusChangedEvent> buildStatusChangedEventNotifier,
+            Consumer<BuildTask> onAllDependenciesCompleted,
+            int buildTaskId,
+            BuildSetTask buildSetTask,
+            Date submitTime,
+            boolean rebuildAll) {
         String topContentId = ContentIdentityManager.getProductContentId(BuildConfigurationUtils.getFirstProductVersion(buildConfiguration));
         String buildSetContentId = ContentIdentityManager.getBuildSetContentId(buildConfiguration.getName());
         String buildContentId = ContentIdentityManager.getBuildContentId(buildConfiguration);
@@ -307,11 +311,16 @@ public class BuildTask {
                 buildTaskId,
                 buildStatusChangedEventNotifier,
                 onAllDependenciesCompleted,
-                buildConfigSetRecordId);
+                buildConfigSetRecordId,
+                rebuildAll);
     }
 
 
     public Integer getBuildConfigSetRecordId() {
         return buildConfigSetRecordId;
+    }
+
+    public boolean getRebuildAll() {
+        return rebuildAll;
     }
 }

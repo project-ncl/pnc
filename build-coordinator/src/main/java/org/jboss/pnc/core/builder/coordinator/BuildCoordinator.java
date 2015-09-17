@@ -17,10 +17,16 @@
  */
 package org.jboss.pnc.core.builder.coordinator;
 
+import org.jboss.pnc.core.builder.coordinator.filtering.BuildTaskFilter;
 import org.jboss.pnc.core.builder.datastore.DatastoreAdapter;
 import org.jboss.pnc.core.content.ContentIdentityManager;
 import org.jboss.pnc.core.exception.CoreException;
-import org.jboss.pnc.model.*;
+import org.jboss.pnc.model.BuildConfigSetRecord;
+import org.jboss.pnc.model.BuildConfiguration;
+import org.jboss.pnc.model.BuildConfigurationAudited;
+import org.jboss.pnc.model.BuildConfigurationSet;
+import org.jboss.pnc.model.ProductMilestone;
+import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.BuildSetStatus;
 import org.jboss.pnc.spi.BuildStatus;
 import org.jboss.pnc.spi.datastore.DatastoreException;
@@ -32,8 +38,14 @@ import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
+import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
-import java.util.*;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
@@ -61,19 +73,20 @@ public class BuildCoordinator {
 
     private BuildScheduler buildScheduler;
 
+    private Instance<BuildTaskFilter> taskFilters;
 
     @Deprecated
     public BuildCoordinator(){} //workaround for CDI constructor parameter injection
 
     @Inject
-    public BuildCoordinator(DatastoreAdapter datastoreAdapter,
-                            Event<BuildStatusChangedEvent> buildStatusChangedEventNotifier,
-                            Event<BuildSetStatusChangedEvent> buildSetStatusChangedEventNotifier,
-                            BuildScheduler buildScheduler) {
+    public BuildCoordinator(DatastoreAdapter datastoreAdapter, Event<BuildStatusChangedEvent> buildStatusChangedEventNotifier,
+            Event<BuildSetStatusChangedEvent> buildSetStatusChangedEventNotifier, BuildScheduler buildScheduler,
+            Instance<BuildTaskFilter> taskFilters) {
         this.datastoreAdapter = datastoreAdapter;
         this.buildStatusChangedEventNotifier = buildStatusChangedEventNotifier;
         this.buildSetStatusChangedEventNotifier = buildSetStatusChangedEventNotifier;
         this.buildScheduler = buildScheduler;
+        this.taskFilters = taskFilters;
     }
 
     /**
@@ -82,12 +95,12 @@ public class BuildCoordinator {
      * @param buildConfiguration The build configuration which will be used.  The latest version of this
      * build config will be built.
      * @param user The user who triggered the build.
-     * @param force Run the build even if there is already another build which uses the same audited build config
+     * @param rebuildAll Run the build even if it has been already built
      *
      * @return The new build task
      * @throws BuildConflictException If there is already a build running with the same build configuration Id and version
      */
-    public BuildTask build(BuildConfiguration buildConfiguration, User user, boolean force) throws BuildConflictException {
+    public BuildTask build(BuildConfiguration buildConfiguration, User user, boolean rebuildAll) throws BuildConflictException {
 
         BuildConfigurationAudited buildConfigAudited = datastoreAdapter.getLatestBuildConfigurationAudited(buildConfiguration.getId());
         Optional<BuildTask> alreadyActiveBuildTask = this.getActiveBuildTask(buildConfigAudited);
@@ -103,7 +116,8 @@ public class BuildCoordinator {
                 (bt) -> processBuildTask(bt),
                 datastoreAdapter.getNextBuildRecordId(), //TODO in bpm case we are not storing this task ?
                 null,
-                new Date());
+                new Date(),
+                rebuildAll);
 
         processBuildTask(buildTask);
 
@@ -119,15 +133,15 @@ public class BuildCoordinator {
      * @return The new build set task
      * @throws CoreException Thrown if there is a problem initializing the build
      */
-    public BuildSetTask build(BuildConfigurationSet buildConfigurationSet, User user) throws CoreException {
+    public BuildSetTask build(BuildConfigurationSet buildConfigurationSet, User user, boolean rebuildAll) throws CoreException {
 
-        BuildSetTask buildSetTask = createBuildSetTask(buildConfigurationSet, user);
+        BuildSetTask buildSetTask = createBuildSetTask(buildConfigurationSet, user, rebuildAll);
 
         build(buildSetTask);
         return buildSetTask;
     }
 
-    public BuildSetTask createBuildSetTask(BuildConfigurationSet buildConfigurationSet, User user) throws CoreException {
+    public BuildSetTask createBuildSetTask(BuildConfigurationSet buildConfigurationSet, User user, boolean rebuildAll) throws CoreException {
         BuildConfigSetRecord buildConfigSetRecord = BuildConfigSetRecord.Builder.newBuilder()
                 .buildConfigurationSet(buildConfigurationSet)
                 .user(user)
@@ -147,9 +161,10 @@ public class BuildCoordinator {
                 this,
                 buildConfigSetRecord,
                 getProductMilestone(buildConfigurationSet),
-                buildSubmitTime);
+                buildSubmitTime,
+                rebuildAll);
 
-        initializeBuildTasksInSet(buildSetTask);
+        initializeBuildTasksInSet(buildSetTask, rebuildAll);
         return buildSetTask;
     }
 
@@ -159,7 +174,7 @@ public class BuildCoordinator {
      * @param buildSetTask The build set task which will contain the build tasks.  This must already have
      * initialized the BuildConfigSet, BuildConfigSetRecord, Milestone, etc.
      */
-    private void initializeBuildTasksInSet(BuildSetTask buildSetTask) {
+    private void initializeBuildTasksInSet(BuildSetTask buildSetTask, boolean rebuildAll) {
         String topContentId = ContentIdentityManager.getProductContentId(buildSetTask.getBuildConfigurationSet().getProductVersion());
         String buildSetContentId = ContentIdentityManager.getBuildSetContentId(buildSetTask.getBuildConfigurationSet().getName());
 
@@ -175,7 +190,8 @@ public class BuildCoordinator {
                     (bt) -> processBuildTask(bt),
                     datastoreAdapter.getNextBuildRecordId(), //TODO in bpm case we are not storing this task ?
                     buildSetTask,
-                    buildSetTask.getSubmitTime());
+                    buildSetTask.getSubmitTime(),
+                    rebuildAll);
 
             buildSetTask.addBuildTask(buildTask);
         }
@@ -216,8 +232,6 @@ public class BuildCoordinator {
     }
 
     private void build(BuildSetTask buildSetTask) throws CoreException {
-
-
         Predicate<BuildTask> readyToBuild = (buildTask) -> {
             return buildTask.readyToBuild();
         };
@@ -240,12 +254,28 @@ public class BuildCoordinator {
         }
     }
 
+    private Predicate<BuildTask> prepareBuildTaskFilterPredicate() {
+        Predicate<BuildTask> filteringPredicate = Objects::nonNull;
+        if(!taskFilters.isUnsatisfied()) {
+            for(BuildTaskFilter filter : taskFilters) {
+                filteringPredicate = filteringPredicate.and(filter.filter());
+            }
+        }
+        return filteringPredicate;
+    }
+
     void processBuildTask(BuildTask buildTask) {
         Consumer<BuildStatus> onComplete = (buildStatus) -> {
             activeBuildTasks.remove(buildTask);
             buildTask.setStatus(buildStatus);
         };
         try {
+            if(!buildTask.getRebuildAll() && prepareBuildTaskFilterPredicate().test(buildTask)) {
+                buildTask.setStatus(BuildStatus.DONE);
+                buildTask.setStatusDescription("The configuration has already been built.");
+                return;
+            }
+
             buildScheduler.startBuilding(buildTask, onComplete);
             activeBuildTasks.add(buildTask);
         } catch (CoreException e) {
@@ -253,11 +283,6 @@ public class BuildCoordinator {
             buildTask.setStatusDescription(e.getMessage());
         }
     }
-
-    private boolean isConfigurationBuilt(BuildConfiguration buildConfiguration) {
-        return datastoreAdapter.isBuildConfigurationBuilt();
-    }
-
 
     /**
      * Save the build config set record using a single thread for all db operations.

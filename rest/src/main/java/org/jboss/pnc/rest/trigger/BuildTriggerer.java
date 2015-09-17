@@ -18,7 +18,6 @@
 package org.jboss.pnc.rest.trigger;
 
 import com.google.common.base.Preconditions;
-
 import org.jboss.logging.Logger;
 import org.jboss.pnc.core.builder.coordinator.BuildCoordinator;
 import org.jboss.pnc.core.exception.CoreException;
@@ -26,8 +25,12 @@ import org.jboss.pnc.core.notifications.buildSetTask.BuildSetCallBack;
 import org.jboss.pnc.core.notifications.buildSetTask.BuildSetStatusNotifications;
 import org.jboss.pnc.core.notifications.buildTask.BuildCallBack;
 import org.jboss.pnc.core.notifications.buildTask.BuildStatusNotifications;
-import org.jboss.pnc.model.*;
+import org.jboss.pnc.model.BuildConfiguration;
+import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.rest.utils.BpmCallback;
+import org.jboss.pnc.model.BuildRecordSet;
+import org.jboss.pnc.model.ProductVersion;
+import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
 import org.jboss.pnc.spi.datastore.DatastoreException;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationRepository;
@@ -40,7 +43,6 @@ import org.jboss.pnc.spi.repositorymanager.RepositoryManagerException;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
-
 import java.net.URL;
 import java.util.function.Consumer;
 
@@ -48,7 +50,7 @@ import java.util.function.Consumer;
 public class BuildTriggerer {
 
     private final Logger log = Logger.getLogger(BuildTriggerer.class);
-    
+
     private BuildCoordinator buildCoordinator;
     private BuildConfigurationRepository buildConfigurationRepository;
     private BuildConfigurationSetRepository buildConfigurationSetRepository;
@@ -63,71 +65,69 @@ public class BuildTriggerer {
     }
 
     @Inject
-    public BuildTriggerer(final BuildCoordinator buildCoordinator, final BuildConfigurationRepository buildConfigurationRepository,
+    public BuildTriggerer(final BuildCoordinator buildCoordinator,
+            final BuildConfigurationRepository buildConfigurationRepository,
                           final BuildConfigurationSetRepository buildConfigurationSetRepository,
                           BuildSetStatusNotifications buildSetStatusNotifications, BuildStatusNotifications buildStatusNotifications,
                           BpmCallback bpmCallback, SortInfoProducer sortInfoProducer) {
         this.buildCoordinator = buildCoordinator;
         this.buildConfigurationRepository = buildConfigurationRepository;
-        this.buildConfigurationSetRepository= buildConfigurationSetRepository;
+        this.buildConfigurationSetRepository = buildConfigurationSetRepository;
         this.buildSetStatusNotifications = buildSetStatusNotifications;
         this.buildStatusNotifications = buildStatusNotifications;
         this.bpmCallback = bpmCallback;
         this.sortInfoProducer = sortInfoProducer;
     }
 
-    public int triggerBuild( final Integer buildConfigurationId, User currentUser, URL callBackUrl)
-            throws BuildConflictException
-    {
+    public int triggerBuild(final Integer buildConfigurationId, User currentUser, boolean rebuildAll, URL callBackUrl)
+            throws BuildConflictException {
         Consumer<BuildStatusChangedEvent> onStatusUpdate = (statusChangedEvent) -> {
-            if(statusChangedEvent.getNewStatus().isCompleted()) {
+            if (statusChangedEvent.getNewStatus().isCompleted()) {
                 // Expecting URL like: http://host:port/business-central/rest/runtime/org.test:Test1:1.0/process/instance/7/signal?signal=testSig
                 bpmCallback.signalBpmEvent(callBackUrl.toString() + "&event=" + statusChangedEvent.getNewStatus());
             }
         };
 
-        int buildTaskId = triggerBuild(buildConfigurationId, currentUser);
+        int buildTaskId = triggerBuild(buildConfigurationId, currentUser, rebuildAll);
         buildStatusNotifications.subscribe(new BuildCallBack(buildTaskId, onStatusUpdate));
         return buildTaskId;
     }
 
-    public int triggerBuild( final Integer configurationId, User currentUser ) throws BuildConflictException
-    {
+    public int triggerBuild(final Integer configurationId, User currentUser, boolean rebuildAll) throws BuildConflictException {
         final BuildConfiguration configuration = buildConfigurationRepository.queryById(configurationId);
         Preconditions.checkArgument(configuration != null, "Can't find configuration with given id=" + configurationId);
 
         final BuildRecordSet buildRecordSet = new BuildRecordSet();
-        if (configuration.getProductVersions() != null  && !configuration.getProductVersions().isEmpty()) {
+        if (configuration.getProductVersions() != null && !configuration.getProductVersions().isEmpty()) {
             ProductVersion productVersion = configuration.getProductVersions().iterator().next();
             buildRecordSet.setPerformedInProductMilestone(productVersion.getCurrentProductMilestone());
         }
 
-        Integer taskId = buildCoordinator.build(configuration, currentUser, false).getId();
+        Integer taskId = buildCoordinator.build(configuration, currentUser, rebuildAll).getId();
         return taskId;
     }
 
-    public int triggerBuildConfigurationSet( final Integer buildConfigurationSetId, User currentUser, URL callBackUrl)
-        throws InterruptedException, CoreException, BuildDriverException, RepositoryManagerException, DatastoreException
-    {
+    public int triggerBuildConfigurationSet(final Integer buildConfigurationSetId, User currentUser, boolean rebuildAll, URL callBackUrl)
+            throws InterruptedException, CoreException, BuildDriverException, RepositoryManagerException, DatastoreException {
         Consumer<BuildSetStatusChangedEvent> onStatusUpdate = (statusChangedEvent) -> {
-            if(statusChangedEvent.getNewStatus().isCompleted()) {
+            if (statusChangedEvent.getNewStatus().isCompleted()) {
                 // Expecting URL like: http://host:port/business-central/rest/runtime/org.test:Test1:1.0/process/instance/7/signal?signal=testSig
                 bpmCallback.signalBpmEvent(callBackUrl.toString() + "&event=" + statusChangedEvent.getNewStatus());
             }
         };
 
-        int buildSetTaskId = triggerBuildConfigurationSet(buildConfigurationSetId, currentUser);
+        int buildSetTaskId = triggerBuildConfigurationSet(buildConfigurationSetId, currentUser, rebuildAll);
         buildSetStatusNotifications.subscribe(new BuildSetCallBack(buildSetTaskId, onStatusUpdate));
         return buildSetTaskId;
     }
 
-    public int triggerBuildConfigurationSet( final Integer buildConfigurationSetId, User currentUser )
-        throws InterruptedException, CoreException, BuildDriverException, RepositoryManagerException, DatastoreException
-    {
+    public int triggerBuildConfigurationSet(final Integer buildConfigurationSetId, User currentUser, boolean rebuildAll)
+            throws InterruptedException, CoreException, BuildDriverException, RepositoryManagerException, DatastoreException {
         final BuildConfigurationSet buildConfigurationSet = buildConfigurationSetRepository.queryById(buildConfigurationSetId);
-        Preconditions.checkArgument(buildConfigurationSet != null, "Can't find configuration with given id=" + buildConfigurationSetId);
+        Preconditions.checkArgument(buildConfigurationSet != null,
+                "Can't find configuration with given id=" + buildConfigurationSetId);
 
-        return buildCoordinator.build(buildConfigurationSet, currentUser).getId();
+        return buildCoordinator.build(buildConfigurationSet, currentUser, rebuildAll).getId();
     }
 
 

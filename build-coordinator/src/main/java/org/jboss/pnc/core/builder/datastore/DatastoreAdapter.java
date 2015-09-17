@@ -21,6 +21,7 @@ import org.jboss.logging.Logger;
 import org.jboss.pnc.core.builder.executor.BuildExecutionTask;
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.BuildConfigSetRecord;
+import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.spi.BuildResult;
@@ -144,7 +145,7 @@ public class DatastoreAdapter {
         artifacts.forEach(a -> a.setBuildRecord(buildRecord));
     }
 
-    public boolean isBuildConfigurationBuilt() {
-        return false; // TODO
+    public boolean hasSuccessfulBuildRecord(BuildConfiguration buildConfiguration) {
+        return datastore.hasSuccessfulBuildRecord(buildConfiguration);
     }
 }

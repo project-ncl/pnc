@@ -23,6 +23,7 @@ import org.jboss.pnc.core.BuildDriverFactory;
 import org.jboss.pnc.core.builder.coordinator.BuildCoordinator;
 import org.jboss.pnc.core.builder.coordinator.BuildSetTask;
 import org.jboss.pnc.core.builder.coordinator.BuildTask;
+import org.jboss.pnc.core.builder.coordinator.filtering.BuildTaskFilter;
 import org.jboss.pnc.core.content.ContentIdentityManager;
 import org.jboss.pnc.core.exception.CoreException;
 import org.jboss.pnc.core.test.buildCoordinator.event.TestCDIBuildStatusChangedReceiver;
@@ -87,7 +88,8 @@ public class ProjectBuilder {
                         BuildDriverFactory.class.getPackage(),
                         BuildDriverMock.class.getPackage(),
                         ContentIdentityManager.class.getPackage(),
-                        BuildConfigSetRecordRepository.class.getPackage())
+                        BuildConfigSetRecordRepository.class.getPackage(),
+                        BuildTaskFilter.class.getPackage())
                 .addAsManifestResource(EmptyAsset.INSTANCE, "beans.xml")
                 .addAsResource("META-INF/logging.properties");
 
@@ -121,7 +123,7 @@ public class ProjectBuilder {
 
         final Semaphore semaphore = registerReleaseListenersAndAcquireSemaphore(receivedStatuses, nStatusUpdates);
 
-        BuildSetTask buildSetTask = buildCoordinator.build(buildConfigurationSet, newUser());
+        BuildSetTask buildSetTask = buildCoordinator.build(buildConfigurationSet, newUser(), true);
 
         assertBuildStartedSuccessfully(buildSetTask);
 
@@ -142,7 +144,7 @@ public class ProjectBuilder {
 
         final Semaphore semaphore = registerReleaseListenersAndAcquireSemaphore(receivedStatuses, nStatusUpdates);
 
-        BuildSetTask buildSetTask = buildCoordinator.build(buildConfigurationSet, newUser());
+        BuildSetTask buildSetTask = buildCoordinator.build(buildConfigurationSet, newUser(), true);
 
         assertBuildStartedSuccessfully(buildSetTask);
         log.info("Waiting to receive all {} status updates...", nStatusUpdates);
@@ -238,7 +240,7 @@ public class ProjectBuilder {
         assertTrue("Invalid built artifact in result.", artifact.getIdentifier().startsWith("test"));
     }
 
-    private User newUser() {
+    protected User newUser() {
         User user = new User();
         user.setId(1);
         user.setFirstName("Poseidon");

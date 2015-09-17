@@ -19,10 +19,27 @@ package org.jboss.pnc.integration.utils;
 
 import com.jayway.restassured.response.Response;
 
+import java.util.concurrent.TimeUnit;
+import java.util.function.Supplier;
+
 public class ResponseUtils {
 
     public static Integer getIdFromLocationHeader(Response response) {
         String location = response.getHeader("Location");
         return Integer.valueOf(location.substring(location.lastIndexOf("/") + 1));
+    }
+
+    public static void waitSynchronouslyFor(Supplier<Boolean> condition, long timeout, TimeUnit timeUnit) {
+        long stopTime = System.currentTimeMillis() + TimeUnit.MILLISECONDS.convert(timeout, timeUnit);
+        do {
+            try {
+                TimeUnit.MILLISECONDS.sleep(10);
+            } catch (InterruptedException e) {
+                throw new AssertionError("Unexpected interruption", e);
+            }
+            if(System.currentTimeMillis() > stopTime) {
+                throw new AssertionError("Timeout while waiting for condition");
+            }
+        } while(condition.get());
     }
 }
