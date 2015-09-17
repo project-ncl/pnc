@@ -81,7 +81,7 @@ public class BuildTask {
     private Integer buildConfigSetRecordId;
     private final boolean rebuildAll;
 
-    private BuildTask(BuildConfiguration buildConfiguration, BuildConfigurationAudited buildConfigurationAudited, String topContentId,
+    private BuildTask(BuildConfiguration buildConfiguration,
                       BuildConfigurationAudited buildConfigurationAudited,
                       String topContentId,
                       String buildSetContentId,
@@ -92,8 +92,7 @@ public class BuildTask {
                       int id,
                       Event<BuildStatusChangedEvent> buildStatusChangedEventNotifier,
                       Consumer<BuildTask> onAllDependenciesCompleted,
-              Consumer<BuildTask> onAllDependenciesCompleted) {
-                      Integer buildConfigSetRecordId
+                      Integer buildConfigSetRecordId,
                       boolean rebuildAll) {
 
         this.id = id;
@@ -282,8 +281,14 @@ public class BuildTask {
     }
 
     @Deprecated //can we remove this ?
-    static BuildTask build(BuildConfiguration buildConfiguration, BuildConfigurationAudited buildConfigAudited, User user, Event<BuildStatusChangedEvent> buildStatusChangedEventNotifier,
-            Consumer<BuildTask> onAllDependenciesCompleted, int buildTaskId, BuildSetTask buildSetTask, Date submitTime,
+    static BuildTask build(BuildConfiguration buildConfiguration,
+            BuildConfigurationAudited buildConfigAudited,
+            User user,
+            Event<BuildStatusChangedEvent> buildStatusChangedEventNotifier,
+            Consumer<BuildTask> onAllDependenciesCompleted,
+            int buildTaskId,
+            BuildSetTask buildSetTask,
+            Date submitTime,
             boolean rebuildAll) {
         String topContentId = ContentIdentityManager.getProductContentId(BuildConfigurationUtils.getFirstProductVersion(buildConfiguration));
         String buildSetContentId = ContentIdentityManager.getBuildSetContentId(buildConfiguration.getName());
@@ -313,5 +318,9 @@ public class BuildTask {
 
     public Integer getBuildConfigSetRecordId() {
         return buildConfigSetRecordId;
+    }
+
+    public boolean getRebuildAll() {
+        return rebuildAll;
     }
 }

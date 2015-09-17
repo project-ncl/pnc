@@ -21,6 +21,7 @@ import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildRecord;
+import org.jboss.pnc.model.BuildStatus;
 import org.jboss.pnc.model.IdRev;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.datastore.Datastore;
@@ -118,7 +119,25 @@ public class DatastoreMock implements Datastore {
         return buildConfigSetRecords.stream().filter(bcsr -> bcsr.getId().equals(buildConfigSetRecordId)).findFirst().orElse(null);
     }
 
+    @Override
+    public boolean hasSuccessfulBuildRecord(BuildConfiguration buildConfiguration) {
+        return buildRecords.stream()
+                .filter(br -> br.getLatestBuildConfiguration().getId().equals(buildConfiguration.getId()))
+                .map(br -> br.getStatus())
+                .filter(status -> status == BuildStatus.SUCCESS)
+                .count() > 0;
+    }
+
     public BuildConfiguration save(BuildConfiguration buildConfig) {
         return buildConfigurations.put(buildConfig.getId(), buildConfig);
+    }
+
+    public void clear() {
+        buildRecords.clear();
+        buildConfigSetRecords.clear();
+        buildConfigurations.clear();
+        buildRecordSequence = new AtomicInteger(0);
+        buildRecordSetSequence = new AtomicInteger(0);
+        buildConfigAuditedRevSequence = new AtomicInteger(0);
     }
 }

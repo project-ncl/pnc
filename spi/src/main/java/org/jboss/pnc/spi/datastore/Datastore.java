@@ -17,14 +17,14 @@
  */
 package org.jboss.pnc.spi.datastore;
 
-import java.util.Set;
-
 import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.ProductVersion;
 import org.jboss.pnc.model.User;
+
+import java.util.Set;
 
 /**
  * Topmost datastore interface.
@@ -81,4 +81,12 @@ public interface Datastore {
     BuildConfigurationAudited getLatestBuildConfigurationAudited(Integer buildConfigId);
 
     BuildConfigSetRecord getBuildConfigSetRecordById(Integer buildConfigSetRecordId);
+    
+    /**
+     * Checks if there is a successful BuildRecord based on BuildConfiguration
+     *
+     * @param buildConfiguration Build Configuration to be checked
+     * @return True if there is a successful BuildRecord
+     */
+    boolean hasSuccessfulBuildRecord(BuildConfiguration buildConfiguration);
 }

@@ -26,6 +26,7 @@ import org.jboss.pnc.model.BuildRecordSet;
 import org.jboss.pnc.model.ProductVersion;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.datastore.Datastore;
+import org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates;
 import org.jboss.pnc.spi.datastore.predicates.UserPredicates;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigSetRecordRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationAuditedRepository;
@@ -40,12 +41,11 @@ import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
 import javax.inject.Inject;
-
-import static org.jboss.pnc.spi.datastore.predicates.BuildRecordSetPredicates.withBuildRecordSetIdInSet;
-
 import java.lang.invoke.MethodHandles;
 import java.util.List;
 import java.util.Set;
+
+import static org.jboss.pnc.spi.datastore.predicates.BuildRecordSetPredicates.withBuildRecordSetIdInSet;
 
 @Stateless
 public class DefaultDatastore implements Datastore {
@@ -143,5 +143,10 @@ public class DefaultDatastore implements Datastore {
         return buildConfigSetRecordRepository.queryById(buildConfigSetRecordId);
     }
 
+    @Override
+    public boolean hasSuccessfulBuildRecord(BuildConfiguration buildConfiguration) {
+        return buildRecordRepository.count(BuildRecordPredicates.withBuildConfigurationId(buildConfiguration.getId()),
+                BuildRecordPredicates.withSuccess()) > 0;
+    }
 
 }

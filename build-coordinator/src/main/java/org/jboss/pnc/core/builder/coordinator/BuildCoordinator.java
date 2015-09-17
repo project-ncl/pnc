@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.core.builder.coordinator;
 
+import org.jboss.pnc.core.builder.coordinator.filtering.BuildTaskFilter;
 import org.jboss.pnc.core.builder.datastore.DatastoreAdapter;
 import org.jboss.pnc.core.content.ContentIdentityManager;
 import org.jboss.pnc.core.exception.CoreException;
@@ -37,13 +38,16 @@ import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
+import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -69,19 +73,20 @@ public class BuildCoordinator {
 
     private BuildScheduler buildScheduler;
 
+    private Instance<BuildTaskFilter> taskFilters;
 
     @Deprecated
     public BuildCoordinator(){} //workaround for CDI constructor parameter injection
 
     @Inject
-    public BuildCoordinator(DatastoreAdapter datastoreAdapter,
-                            Event<BuildStatusChangedEvent> buildStatusChangedEventNotifier,
-                            Event<BuildSetStatusChangedEvent> buildSetStatusChangedEventNotifier,
-                            BuildScheduler buildScheduler) {
+    public BuildCoordinator(DatastoreAdapter datastoreAdapter, Event<BuildStatusChangedEvent> buildStatusChangedEventNotifier,
+            Event<BuildSetStatusChangedEvent> buildSetStatusChangedEventNotifier, BuildScheduler buildScheduler,
+            Instance<BuildTaskFilter> taskFilters) {
         this.datastoreAdapter = datastoreAdapter;
         this.buildStatusChangedEventNotifier = buildStatusChangedEventNotifier;
         this.buildSetStatusChangedEventNotifier = buildSetStatusChangedEventNotifier;
         this.buildScheduler = buildScheduler;
+        this.taskFilters = taskFilters;
     }
 
     /**
@@ -185,7 +190,8 @@ public class BuildCoordinator {
                     (bt) -> processBuildTask(bt),
                     datastoreAdapter.getNextBuildRecordId(), //TODO in bpm case we are not storing this task ?
                     buildSetTask,
-                    buildSetTask.getSubmitTime(), rebuildAll);
+                    buildSetTask.getSubmitTime(),
+                    rebuildAll);
 
             buildSetTask.addBuildTask(buildTask);
         }
@@ -226,8 +232,6 @@ public class BuildCoordinator {
     }
 
     private void build(BuildSetTask buildSetTask) throws CoreException {
-
-
         Predicate<BuildTask> readyToBuild = (buildTask) -> {
             return buildTask.readyToBuild();
         };
@@ -250,12 +254,28 @@ public class BuildCoordinator {
         }
     }
 
+    private Predicate<BuildTask> prepareBuildTaskFilterPredicate() {
+        Predicate<BuildTask> filteringPredicate = Objects::nonNull;
+        if(!taskFilters.isUnsatisfied()) {
+            for(BuildTaskFilter filter : taskFilters) {
+                filteringPredicate = filteringPredicate.and(filter.filter());
+            }
+        }
+        return filteringPredicate;
+    }
+
     void processBuildTask(BuildTask buildTask) {
         Consumer<BuildStatus> onComplete = (buildStatus) -> {
             activeBuildTasks.remove(buildTask);
             buildTask.setStatus(buildStatus);
         };
         try {
+            if(!buildTask.getRebuildAll() && prepareBuildTaskFilterPredicate().test(buildTask)) {
+                buildTask.setStatus(BuildStatus.DONE);
+                buildTask.setStatusDescription("The configuration has already been built.");
+                return;
+            }
+
             buildScheduler.startBuilding(buildTask, onComplete);
             activeBuildTasks.add(buildTask);
         } catch (CoreException e) {
@@ -263,11 +283,6 @@ public class BuildCoordinator {
             buildTask.setStatusDescription(e.getMessage());
         }
     }
-
-    private boolean isConfigurationBuilt(BuildConfiguration buildConfiguration) {
-        return datastoreAdapter.isBuildConfigurationBuilt();
-    }
-
 
     /**
      * Save the build config set record using a single thread for all db operations.

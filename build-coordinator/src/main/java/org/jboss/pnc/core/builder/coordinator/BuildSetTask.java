@@ -163,4 +163,8 @@ public class BuildSetTask {
     public ProductMilestone getProductMilestone() {
         return productMilestone;
     }
+
+    public boolean getRebuildAll() {
+        return rebuildAll;
+    }
 }

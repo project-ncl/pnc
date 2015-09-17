@@ -39,6 +39,10 @@ public class BuildRecordPredicates {
         };
     }
 
+    public static Predicate<BuildRecord> withSuccess() {
+        return (root, query, cb) -> cb.equal(root.get(BuildRecord_.status), BuildStatus.SUCCESS);
+    }
+
     public static Predicate<BuildRecord> withBuildConfigSetId(Integer buildConfigSetId) {
         return (root, query, cb) -> {
             Join<BuildRecord, BuildConfigSetRecord> joinedConfiguSet = root.join(BuildRecord_.buildConfigSetRecord);
