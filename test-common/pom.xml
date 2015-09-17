@@ -31,13 +31,6 @@
   <description>Group of common test dependencies and JUnit Categories for tests</description>
 
   <dependencies>
-    <!-- Project dependencies -->
-    <dependency>
-      <groupId>org.jboss.pnc</groupId>
-      <artifactId>model</artifactId>
-    </dependency>
-    <!-- END of Project dependencies -->
-
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
