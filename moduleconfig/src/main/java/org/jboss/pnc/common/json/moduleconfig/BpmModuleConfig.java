@@ -28,7 +28,7 @@ import java.net.URL;
 public class BpmModuleConfig extends AbstractModuleConfig{
     private String username;
     private String password;
-    private URL bpmInstanceUrl;
+    private String bpmInstanceUrl;
     private String deploymentId;
     private String processId;
 
@@ -42,7 +42,7 @@ public class BpmModuleConfig extends AbstractModuleConfig{
         this.password = password;
         this.deploymentId = deploymentId;
         this.processId = processId;
-        this.bpmInstanceUrl = new URL(bpmInstanceUrl);
+        this.bpmInstanceUrl = bpmInstanceUrl;
     }
     
     public String getUsername() {
@@ -58,7 +58,7 @@ public class BpmModuleConfig extends AbstractModuleConfig{
         this.password = password;
     }
 
-    public URL getBpmInstanceUrl() {
+    public String getBpmInstanceUrl() {
         return bpmInstanceUrl;
     }
 

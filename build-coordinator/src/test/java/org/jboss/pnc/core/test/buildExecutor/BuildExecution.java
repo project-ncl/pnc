@@ -32,11 +32,11 @@ import org.jboss.pnc.core.test.buildCoordinator.event.TestCDIBuildStatusChangedR
 import org.jboss.pnc.core.test.configurationBuilders.TestProjectConfigurationBuilder;
 import org.jboss.pnc.core.test.mock.BuildDriverMock;
 import org.jboss.pnc.core.test.mock.DatastoreMock;
-import org.jboss.pnc.test.mock.UserMock;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.Environment;
+import org.jboss.pnc.model.mock.MockUser;
 import org.jboss.pnc.spi.BuildStatus;
 import org.jboss.pnc.spi.exception.BuildConflictException;
 import org.jboss.pnc.test.util.Wait;
@@ -100,7 +100,7 @@ public class BuildExecution {
                 .rev(1)
                 .build();
 
-        buildExecutor.build(buildConfiguration, configurationAudited, UserMock.newTestUser(1), onComplete, null, null, 1);
+        buildExecutor.build(buildConfiguration, configurationAudited, MockUser.newTestUser(1), onComplete, null, null, 1);
 
         Wait.forCondition(() -> completed.get(), 1, ChronoUnit.SECONDS, "Did not received build complete.");
     }

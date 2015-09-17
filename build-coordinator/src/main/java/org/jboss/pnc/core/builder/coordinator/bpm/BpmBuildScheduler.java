@@ -77,7 +77,7 @@ public class BpmBuildScheduler implements BuildScheduler {
 
         this.bpmCompleteListener = bpmCompleteListener;
 
-        instanceUrl = config.getBpmInstanceUrl();
+        instanceUrl = new URL(config.getBpmInstanceUrl());
         deploymentId = config.getDeploymentId();
         processId = config.getProcessId();
 

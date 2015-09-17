@@ -22,9 +22,9 @@ import org.jboss.pnc.core.builder.executor.BuildExecutor;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.User;
+import org.jboss.pnc.model.mock.MockUser;
 import org.jboss.pnc.rest.provider.BuildRecordProvider;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
-import org.jboss.pnc.test.mock.UserMock;
 import org.junit.Test;
 import org.mockito.Mockito;
 
@@ -81,7 +81,7 @@ public class BuildRecordEndpointTest {
 
     private BuildExecutor mockBuildExecutor(int buildExecutionTaskId, int buildTaskId) {
         BuildExecutor buildExecutor = mock(BuildExecutor.class);
-        User user = UserMock.newTestUser(1);
+        User user = MockUser.newTestUser(1);
         BuildConfiguration buildConfiguration = newBuildConfiguration();
         BuildExecutionTask buildExecutionTask = BuildExecutionTask.build(buildExecutionTaskId, buildConfiguration, null, user, null, null, Optional.ofNullable(null), buildTaskId);
         when(buildExecutor.getRunningExecution(buildExecutionTaskId)).thenReturn(buildExecutionTask);
