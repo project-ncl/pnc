@@ -89,8 +89,9 @@ public class BuildRecordEndpointTest {
     }
 
     private BuildConfiguration newBuildConfiguration() {
-        BuildConfiguration buildConfiguration = new BuildConfiguration();
-        buildConfiguration.setName("build-1");
+        BuildConfiguration buildConfiguration = BuildConfiguration.Builder.newBuilder()
+            .name("build-1")
+            .build();
         return buildConfiguration;
     }
 }
