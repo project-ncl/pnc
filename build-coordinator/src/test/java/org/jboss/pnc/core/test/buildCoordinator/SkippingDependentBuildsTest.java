@@ -41,6 +41,7 @@ import org.jboss.pnc.core.test.mock.DatastoreMock;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.User;
+import org.jboss.pnc.model.mock.MockUser;
 import org.jboss.pnc.test.util.Wait;
 import org.junit.Before;
 import org.junit.Test;
@@ -69,7 +70,7 @@ public class SkippingDependentBuildsTest extends ProjectBuilder {
     public void before() {
         datastoreMock.clear();
         testConfiguration = configurationBuilder.build(1, "test");
-        testUser = newUser();
+        testUser = MockUser.newTestUser(1);
         testConfigurationSet = configurationBuilder.buildConfigurationSet(1);
     }
 

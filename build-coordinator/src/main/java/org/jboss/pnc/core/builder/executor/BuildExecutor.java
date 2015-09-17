@@ -106,7 +106,7 @@ public class BuildExecutor {
             Consumer<BuildStatus> onComplete,
             Set<Integer> buildRecordSetIds,
             Integer buildConfigSetRecordId,
-            Integer buildTaskId) throws BuildConflictException, CoreException {
+            Integer buildTaskId) throws CoreException {
 
         Integer nextBuildRecordId = datastoreAdapter.getNextBuildRecordId();
 

@@ -280,7 +280,6 @@ public class BuildTask {
         return "Build Task id:" + id + ", name: " + buildConfigurationAudited.getName() + ", status: " + status;
     }
 
-    @Deprecated //can we remove this ?
     static BuildTask build(BuildConfiguration buildConfiguration,
             BuildConfigurationAudited buildConfigAudited,
             User user,

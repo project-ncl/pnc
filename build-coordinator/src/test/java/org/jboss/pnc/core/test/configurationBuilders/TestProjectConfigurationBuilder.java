@@ -19,7 +19,6 @@ package org.jboss.pnc.core.test.configurationBuilders;
 
 import org.jboss.pnc.core.test.mock.DatastoreMock;
 import org.jboss.pnc.model.BuildConfiguration;
-import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.Environment;
 import org.jboss.pnc.model.Project;
@@ -135,20 +134,5 @@ public class TestProjectConfigurationBuilder {
         buildConfigurationWithCycleDependency(buildConfigurationSet);
 
         return buildConfigurationSet;
-    }
-
-    public BuildConfigurationAudited buildAudited(BuildConfiguration buildConfiguration, int rev) {
-        BuildConfigurationAudited configurationAudited = new BuildConfigurationAudited();
-        configurationAudited.setBuildRecordId(buildConfiguration.getId());
-        configurationAudited.setBuildRecords(buildConfiguration.getBuildRecords());
-        configurationAudited.setBuildScript(buildConfiguration.getBuildScript());
-        configurationAudited.setDescription(buildConfiguration.getDescription());
-        configurationAudited.setEnvironment(buildConfiguration.getEnvironment());
-        configurationAudited.setName(buildConfiguration.getName());
-        configurationAudited.setDescription(buildConfiguration.getDescription());
-        configurationAudited.setScmRepoURL(buildConfiguration.getScmRepoURL());
-        configurationAudited.setScmRevision(buildConfiguration.getScmRevision());
-        configurationAudited.setRev(rev);
-        return configurationAudited;
     }
 }

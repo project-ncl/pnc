@@ -50,7 +50,10 @@
           {
             "@module-config":"bpm-config",
             "username":"${env.PNC_BPM_USERNAME}",
-            "password":"${env.PNC_BPM_PASSWORD}"
+            "password":"${env.PNC_BPM_PASSWORD}",
+            "bpmInstanceUrl":"${env.BPM_INSTANCE_URL}",
+            "deploymentId":"${env.BPM_DEPLOYMENT_ID}",
+            "processId":"${env.BPM_PROCESS_ID}"
           }
         ]
 }

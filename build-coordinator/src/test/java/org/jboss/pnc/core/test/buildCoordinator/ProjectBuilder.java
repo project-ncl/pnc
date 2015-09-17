@@ -34,7 +34,7 @@ import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.Environment;
-import org.jboss.pnc.model.User;
+import org.jboss.pnc.model.mock.MockUser;
 import org.jboss.pnc.spi.BuildSetStatus;
 import org.jboss.pnc.spi.BuildStatus;
 import org.jboss.pnc.spi.datastore.DatastoreException;
@@ -106,7 +106,7 @@ public class ProjectBuilder {
         final Semaphore semaphore = registerReleaseListenersAndAcquireSemaphore(receivedStatuses, N_STATUS_UPDATES_PER_TASK);
 
 
-        BuildTask buildTask = buildCoordinator.build(buildConfiguration, newUser(), false);
+        BuildTask buildTask = buildCoordinator.build(buildConfiguration, MockUser.newTestUser(1), false);
         log.info("Started build task {}", buildTask);
 
         assertBuildStartedSuccessfully(buildTask);
@@ -123,7 +123,7 @@ public class ProjectBuilder {
 
         final Semaphore semaphore = registerReleaseListenersAndAcquireSemaphore(receivedStatuses, nStatusUpdates);
 
-        BuildSetTask buildSetTask = buildCoordinator.build(buildConfigurationSet, newUser(), true);
+        BuildSetTask buildSetTask = buildCoordinator.build(buildConfigurationSet, MockUser.newTestUser(1), true);
 
         assertBuildStartedSuccessfully(buildSetTask);
 
@@ -144,7 +144,7 @@ public class ProjectBuilder {
 
         final Semaphore semaphore = registerReleaseListenersAndAcquireSemaphore(receivedStatuses, nStatusUpdates);
 
-        BuildSetTask buildSetTask = buildCoordinator.build(buildConfigurationSet, newUser(), true);
+        BuildSetTask buildSetTask = buildCoordinator.build(buildConfigurationSet, MockUser.newTestUser(1), true);
 
         assertBuildStartedSuccessfully(buildSetTask);
         log.info("Waiting to receive all {} status updates...", nStatusUpdates);
@@ -238,13 +238,5 @@ public class ProjectBuilder {
         assertTrue("Missing built artifacts.", builtArtifacts.size() > 0);
         Artifact artifact = builtArtifacts.get(0);
         assertTrue("Invalid built artifact in result.", artifact.getIdentifier().startsWith("test"));
-    }
-
-    protected User newUser() {
-        User user = new User();
-        user.setId(1);
-        user.setFirstName("Poseidon");
-        user.setLastName("Neptune");
-        return user;
     }
 }

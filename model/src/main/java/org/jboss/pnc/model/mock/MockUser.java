@@ -16,28 +16,22 @@
  * limitations under the License.
  */
 
-package org.jboss.pnc.core.builder.coordinator.bpm;
+package org.jboss.pnc.model.mock;
 
-import org.jboss.pnc.spi.BuildStatus;
-
-import javax.enterprise.context.ApplicationScoped;
-import java.util.HashMap;
-import java.util.Map;
+import org.jboss.pnc.model.User;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
-@ApplicationScoped
-public class BpmCompleteListener {
+public class MockUser {
 
-    Map<Long, BpmListener> listeners = new HashMap<>(); //TODO evict from map if there is no response from BPM server in specified time-out
-
-    public void subscribe(BpmListener bpmListener) {
-        listeners.put(bpmListener.getTaskId(), bpmListener);
+    public static User newTestUser(Integer id) {
+        User user = User.Builder.newBuilder()
+            .id(id)
+            .firstName("Poseidon")
+            .lastName("Neptune")
+            .build();
+        return user;
     }
 
-    public void notifyCompleted(long taskId, BuildStatus buildStatus) {
-        listeners.remove(taskId);
-        listeners.get(taskId).onComplete(buildStatus);
-    }
 }

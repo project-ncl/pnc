@@ -22,6 +22,7 @@ import org.jboss.pnc.core.builder.executor.BuildExecutor;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.User;
+import org.jboss.pnc.model.mock.MockUser;
 import org.jboss.pnc.rest.provider.BuildRecordProvider;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
 import org.junit.Test;
@@ -80,7 +81,7 @@ public class BuildRecordEndpointTest {
 
     private BuildExecutor mockBuildExecutor(int buildExecutionTaskId, int buildTaskId) {
         BuildExecutor buildExecutor = mock(BuildExecutor.class);
-        User user = newUser();
+        User user = MockUser.newTestUser(1);
         BuildConfiguration buildConfiguration = newBuildConfiguration();
         BuildExecutionTask buildExecutionTask = BuildExecutionTask.build(buildExecutionTaskId, buildConfiguration, null, user, null, null, Optional.ofNullable(null), buildTaskId);
         when(buildExecutor.getRunningExecution(buildExecutionTaskId)).thenReturn(buildExecutionTask);
@@ -88,16 +89,9 @@ public class BuildRecordEndpointTest {
     }
 
     private BuildConfiguration newBuildConfiguration() {
-        BuildConfiguration buildConfiguration = new BuildConfiguration();
-        buildConfiguration.setName("build-1");
+        BuildConfiguration buildConfiguration = BuildConfiguration.Builder.newBuilder()
+            .name("build-1")
+            .build();
         return buildConfiguration;
-    }
-
-    private User newUser() {
-        User user = new User();
-        user.setId(1);
-        user.setFirstName("Poseidon");
-        user.setLastName("Neptune");
-        return user;
     }
 }
