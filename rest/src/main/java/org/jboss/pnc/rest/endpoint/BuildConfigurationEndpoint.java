@@ -38,6 +38,7 @@ import org.jboss.pnc.rest.restmodel.response.Page;
 import org.jboss.pnc.rest.restmodel.response.Singleton;
 import org.jboss.pnc.rest.trigger.BuildTriggerer;
 import org.jboss.pnc.rest.utils.BpmNotifier;
+import org.jboss.pnc.rest.validation.exceptions.ConflictedEntryException;
 import org.jboss.pnc.rest.validation.exceptions.ValidationException;
 import org.jboss.pnc.spi.BuildStatus;
 import org.jboss.pnc.spi.datastore.Datastore;
@@ -277,7 +278,6 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
     @ApiOperation(value = "Triggers the build execution only for a specific Build Configuration", response = Singleton.class)
     @ApiResponses(value = {
             @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION),
-            @ApiResponse(code = CONFLICTED_CODE, message = CONFLICTED_DESCRIPTION),
             @ApiResponse(code = INVLID_CODE, message = INVALID_DESCRIPTION),
             @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION),
             @ApiResponse(code = FORBIDDEN_CODE, message = FORBIDDEN_DESCRIPTION),
@@ -334,8 +334,6 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
             int runningBuildId = buildExecutionTask.getId();
             URI uri = uriBuilder.build(runningBuildId);
             return Response.ok(uri).header("location", uri).entity(buildRecordProvider.getSpecificRunning(runningBuildId)).build();
-        } catch (BuildConflictException e) {
-            return Response.status(Response.Status.CONFLICT).entity(buildRecordProvider.getSpecificRunning(e.getBuildTaskId())).build();
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
             return Response.serverError().entity("Other error: " + e.getMessage()).build();
