@@ -21,16 +21,28 @@ import org.jboss.pnc.common.json.AbstractModuleConfig;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.net.MalformedURLException;
+import java.net.URL;
+
 
 public class BpmModuleConfig extends AbstractModuleConfig{
     private String username;
     private String password;
+    private URL bpmInstanceUrl;
+    private String deploymentId;
+    private String processId;
 
-    public BpmModuleConfig(@JsonProperty("username") String username, 
-                           @JsonProperty("password")String password) {
+    public BpmModuleConfig(@JsonProperty("username") String username,
+                           @JsonProperty("password") String password,
+                           @JsonProperty("bpmInstanceUrl") String bpmInstanceUrl,
+                           @JsonProperty("deploymentId") String deploymentId,
+                           @JsonProperty("processId") String processId) throws MalformedURLException {
         super();
         this.username = username;
         this.password = password;
+        this.deploymentId = deploymentId;
+        this.processId = processId;
+        this.bpmInstanceUrl = new URL(bpmInstanceUrl);
     }
     
     public String getUsername() {
@@ -46,9 +58,20 @@ public class BpmModuleConfig extends AbstractModuleConfig{
         this.password = password;
     }
 
+    public URL getBpmInstanceUrl() {
+        return bpmInstanceUrl;
+    }
+
+    public String getDeploymentId() {
+        return deploymentId;
+    }
+
+    public String getProcessId() {
+        return processId;
+    }
+
     @Override
     public String toString() {
         return "BpmModuleConfig [username=" + username+ ", password=HIDDEN]";
     }
-    
 }
