@@ -17,17 +17,18 @@
  */
 package org.jboss.pnc.rest.endpoint;
 
-import com.wordnik.swagger.annotations.Api;
-import com.wordnik.swagger.annotations.ApiOperation;
-import com.wordnik.swagger.annotations.ApiParam;
-import com.wordnik.swagger.annotations.ApiResponse;
-import com.wordnik.swagger.annotations.ApiResponses;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import org.jboss.pnc.model.ProductVersion;
 import org.jboss.pnc.rest.provider.BuildConfigurationSetProvider;
 import org.jboss.pnc.rest.provider.ProductVersionProvider;
 import org.jboss.pnc.rest.restmodel.ProductVersionRest;
-import org.jboss.pnc.rest.restmodel.response.Page;
-import org.jboss.pnc.rest.restmodel.response.Singleton;
+import org.jboss.pnc.rest.swagger.response.BuildConfigurationSetPage;
+import org.jboss.pnc.rest.swagger.response.ProductVersionPage;
+import org.jboss.pnc.rest.swagger.response.ProductVersionSingleton;
 import org.jboss.pnc.rest.validation.exceptions.ValidationException;
 
 import javax.inject.Inject;
@@ -88,7 +89,7 @@ public class ProductVersionEndpoint extends AbstractEndpoint<ProductVersion, Pro
         this.buildConfigurationSetProvider = buildConfigurationSetProvider;
     }
 
-    @ApiOperation(value = "Gets all Product Versions", response = Page.class)
+    @ApiOperation(value = "Gets all Product Versions", response = ProductVersionPage.class)
     @ApiResponses(value = {
             @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION),
             @ApiResponse(code = NO_CONTENT_CODE, message = NO_CONTENT_DESCRIPTION),
@@ -103,7 +104,7 @@ public class ProductVersionEndpoint extends AbstractEndpoint<ProductVersion, Pro
         return super.getAll(pageIndex, pageSize, sort, q);
     }
 
-    @ApiOperation(value = "Gets specific Product Version", response = Singleton.class)
+    @ApiOperation(value = "Gets specific Product Version", response = ProductVersionSingleton.class)
     @ApiResponses(value = {
             @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION),
             @ApiResponse(code = INVLID_CODE, message = INVALID_DESCRIPTION),
@@ -131,7 +132,7 @@ public class ProductVersionEndpoint extends AbstractEndpoint<ProductVersion, Pro
         return super.update(id, productVersionRest);
     }
 
-    @ApiOperation(value = "Gets build configuration sets associated with a product version", response = Page.class)
+    @ApiOperation(value = "Gets build configuration sets associated with a product version", response = BuildConfigurationSetPage.class)
     @ApiResponses(value = {
             @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION),
             @ApiResponse(code = NO_CONTENT_CODE, message = NO_CONTENT_DESCRIPTION),
@@ -150,7 +151,7 @@ public class ProductVersionEndpoint extends AbstractEndpoint<ProductVersion, Pro
                 q, id)).build();
     }
 
-    @ApiOperation(value = "Create a new ProductVersion for a Product", response = ProductVersionRest.class)
+    @ApiOperation(value = "Create a new ProductVersion for a Product", response = ProductVersionSingleton.class)
     @ApiResponses(value = {
             @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION),
             @ApiResponse(code = INVLID_CODE, message = INVALID_DESCRIPTION),

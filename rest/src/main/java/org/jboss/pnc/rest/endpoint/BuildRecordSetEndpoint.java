@@ -17,16 +17,16 @@
  */
 package org.jboss.pnc.rest.endpoint;
 
-import com.wordnik.swagger.annotations.Api;
-import com.wordnik.swagger.annotations.ApiOperation;
-import com.wordnik.swagger.annotations.ApiParam;
-import com.wordnik.swagger.annotations.ApiResponse;
-import com.wordnik.swagger.annotations.ApiResponses;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import org.jboss.pnc.model.BuildRecordSet;
 import org.jboss.pnc.rest.provider.BuildRecordSetProvider;
 import org.jboss.pnc.rest.restmodel.BuildRecordSetRest;
-import org.jboss.pnc.rest.restmodel.response.Page;
-import org.jboss.pnc.rest.restmodel.response.Singleton;
+import org.jboss.pnc.rest.swagger.response.BuildRecordSetPage;
+import org.jboss.pnc.rest.swagger.response.BuildRecordSetSingleton;
 import org.jboss.pnc.rest.validation.exceptions.ValidationException;
 
 import javax.inject.Inject;
@@ -85,7 +85,7 @@ public class BuildRecordSetEndpoint extends AbstractEndpoint<BuildRecordSet, Bui
         this.buildRecordSetProvider = buildRecordSetProvider;
     }
 
-    @ApiOperation(value = "Gets all BuildRecordSets", response = Page.class)
+    @ApiOperation(value = "Gets all BuildRecordSets", response = BuildRecordSetPage.class)
     @ApiResponses(value = {
             @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION),
             @ApiResponse(code = NO_CONTENT_CODE, message = NO_CONTENT_DESCRIPTION),
@@ -100,7 +100,7 @@ public class BuildRecordSetEndpoint extends AbstractEndpoint<BuildRecordSet, Bui
         return super.getAll(pageIndex, pageSize, sort, q);
     }
 
-    @ApiOperation(value = "Gets a specific BuildRecordSet", response = Singleton.class)
+    @ApiOperation(value = "Gets a specific BuildRecordSet", response = BuildRecordSetSingleton.class)
     @ApiResponses(value = {
             @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION),
             @ApiResponse(code = INVLID_CODE, message = INVALID_DESCRIPTION),
@@ -113,7 +113,7 @@ public class BuildRecordSetEndpoint extends AbstractEndpoint<BuildRecordSet, Bui
         return super.getSpecific(id);
     }
 
-    @ApiOperation(value = "Gets all BuildRecordSet of a Product Version", response = Page.class)
+    @ApiOperation(value = "Gets all BuildRecordSet of a Product Version", response = BuildRecordSetPage.class)
     @ApiResponses(value = {
             @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION),
             @ApiResponse(code = NO_CONTENT_CODE, message = NO_CONTENT_DESCRIPTION),
@@ -132,7 +132,7 @@ public class BuildRecordSetEndpoint extends AbstractEndpoint<BuildRecordSet, Bui
                 buildRecordSetProvider.getAllForPerformedInProductMilestone(pageIndex, pageSize, sort, q, versionId));
     }
 
-    @ApiOperation(value = "Gets all BuildRecordSet of a BuildRecord", response = Page.class)
+    @ApiOperation(value = "Gets all BuildRecordSet of a BuildRecord", response = BuildRecordSetPage.class)
     @ApiResponses(value = {
             @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION),
             @ApiResponse(code = NO_CONTENT_CODE, message = NO_CONTENT_DESCRIPTION),
@@ -150,7 +150,7 @@ public class BuildRecordSetEndpoint extends AbstractEndpoint<BuildRecordSet, Bui
         return fromCollection(buildRecordSetProvider.getAllForBuildRecord(pageIndex, pageSize, sort, q, recordId));
     }
 
-    @ApiOperation(value = "Creates a new BuildRecordSet", response = BuildRecordSetRest.class)
+    @ApiOperation(value = "Creates a new BuildRecordSet", response = BuildRecordSetSingleton.class)
     @ApiResponses(value = {
             @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION),
             @ApiResponse(code = INVLID_CODE, message = INVALID_DESCRIPTION),

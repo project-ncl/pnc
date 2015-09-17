@@ -102,7 +102,7 @@ public class DatastoreMock implements Datastore {
         BuildConfigurationAudited buildConfigAudited = new BuildConfigurationAudited();
         buildConfigAudited.setName("Audited config id: " + buildConfigId + " rev: " + idRev.getId());
         buildConfigAudited.setIdRev(idRev);
-        buildConfigAudited.setId(idRev.getId());
+        buildConfigAudited.setBuildRecordId(idRev.getId());
         buildConfigAudited.setRev(idRev.getRev());
         
         BuildConfiguration buildConfig = buildConfigurations.get(buildConfigId);

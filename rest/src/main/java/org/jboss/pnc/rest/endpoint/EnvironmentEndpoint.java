@@ -17,16 +17,16 @@
  */
 package org.jboss.pnc.rest.endpoint;
 
-import com.wordnik.swagger.annotations.Api;
-import com.wordnik.swagger.annotations.ApiOperation;
-import com.wordnik.swagger.annotations.ApiParam;
-import com.wordnik.swagger.annotations.ApiResponse;
-import com.wordnik.swagger.annotations.ApiResponses;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import org.jboss.pnc.model.Environment;
 import org.jboss.pnc.rest.provider.EnvironmentProvider;
 import org.jboss.pnc.rest.restmodel.EnvironmentRest;
-import org.jboss.pnc.rest.restmodel.response.Page;
-import org.jboss.pnc.rest.restmodel.response.Singleton;
+import org.jboss.pnc.rest.swagger.response.EnvironmentPage;
+import org.jboss.pnc.rest.swagger.response.EnvironmentSingleton;
 import org.jboss.pnc.rest.validation.exceptions.ValidationException;
 
 import javax.inject.Inject;
@@ -82,7 +82,7 @@ public class EnvironmentEndpoint extends AbstractEndpoint<Environment, Environme
         super(environmentProvider);
     }
 
-    @ApiOperation(value = "Gets all Environments", response = Page.class)
+    @ApiOperation(value = "Gets all Environments", response = EnvironmentPage.class)
     @ApiResponses(value = {
             @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION),
             @ApiResponse(code = NO_CONTENT_CODE, message = NO_CONTENT_DESCRIPTION),
@@ -97,7 +97,7 @@ public class EnvironmentEndpoint extends AbstractEndpoint<Environment, Environme
         return super.getAll(pageIndex, pageSize, sort, q);
     }
 
-    @ApiOperation(value = "Get specific Environment", response = Singleton.class)
+    @ApiOperation(value = "Get specific Environment", response = EnvironmentSingleton.class)
     @ApiResponses(value = {
             @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION),
             @ApiResponse(code = INVLID_CODE, message = INVALID_DESCRIPTION),
@@ -110,7 +110,7 @@ public class EnvironmentEndpoint extends AbstractEndpoint<Environment, Environme
         return super.getSpecific(id);
     }
 
-    @ApiOperation(value = "Creates a new Environment", response = Singleton.class)
+    @ApiOperation(value = "Creates a new Environment", response = EnvironmentSingleton.class)
     @ApiResponses(value = {
             @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION),
             @ApiResponse(code = INVLID_CODE, message = INVALID_DESCRIPTION),

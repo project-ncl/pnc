@@ -17,17 +17,18 @@
  */
 package org.jboss.pnc.rest.endpoint;
 
-import com.wordnik.swagger.annotations.Api;
-import com.wordnik.swagger.annotations.ApiOperation;
-import com.wordnik.swagger.annotations.ApiParam;
-import com.wordnik.swagger.annotations.ApiResponse;
-import com.wordnik.swagger.annotations.ApiResponses;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.rest.provider.ArtifactProvider;
 import org.jboss.pnc.rest.provider.BuildRecordProvider;
 import org.jboss.pnc.rest.restmodel.BuildRecordRest;
-import org.jboss.pnc.rest.restmodel.response.Page;
 import org.jboss.pnc.rest.restmodel.response.Singleton;
+import org.jboss.pnc.rest.swagger.response.BuildConfigurationAuditedSingleton;
+import org.jboss.pnc.rest.swagger.response.BuildRecordPage;
 
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
@@ -81,7 +82,7 @@ public class BuildRecordEndpoint extends AbstractEndpoint<BuildRecord, BuildReco
         this.artifactProvider = artifactProvider;
     }
 
-    @ApiOperation(value = "Gets all Build Records", response = Page.class)
+    @ApiOperation(value = "Gets all Build Records", response = BuildRecordPage.class)
     @ApiResponses(value = {
             @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION),
             @ApiResponse(code = NO_CONTENT_CODE, message = NO_CONTENT_DESCRIPTION),
@@ -133,7 +134,7 @@ public class BuildRecordEndpoint extends AbstractEndpoint<BuildRecord, BuildReco
             return Response.ok(buildRecordProvider.getLogsForBuild(buildRecordLog)).build();
     }
 
-    @ApiOperation(value = "Gets artifacts for specific Build Record", response = Page.class)
+    @ApiOperation(value = "Gets artifacts for specific Build Record", response = BuildRecordPage.class)
     @ApiResponses(value = {
             @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION),
             @ApiResponse(code = NO_CONTENT_CODE, message = NO_CONTENT_DESCRIPTION),
@@ -155,7 +156,7 @@ public class BuildRecordEndpoint extends AbstractEndpoint<BuildRecord, BuildReco
      * Use /build-configuration/{id}/build-records
      */
     @Deprecated
-    @ApiOperation(value = "Gets the Build Records linked to a specific Build Configuration", response = Page.class)
+    @ApiOperation(value = "Gets the Build Records linked to a specific Build Configuration", response = BuildRecordPage.class)
     @ApiResponses(value = {
             @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION),
             @ApiResponse(code = NO_CONTENT_CODE, message = NO_CONTENT_DESCRIPTION),
@@ -174,7 +175,7 @@ public class BuildRecordEndpoint extends AbstractEndpoint<BuildRecord, BuildReco
                 buildRecordProvider.getAllForBuildConfiguration(pageIndex, pageSize, sort, q, configurationId));
     }
 
-    @ApiOperation(value = "Gets the Build Records linked to a specific Project", response = Page.class)
+    @ApiOperation(value = "Gets the Build Records linked to a specific Project", response = BuildRecordPage.class)
     @ApiResponses(value = {
             @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION),
             @ApiResponse(code = NO_CONTENT_CODE, message = NO_CONTENT_DESCRIPTION),
@@ -191,7 +192,7 @@ public class BuildRecordEndpoint extends AbstractEndpoint<BuildRecord, BuildReco
         return fromCollection(buildRecordProvider.getAllForProject(pageIndex, pageSize, sortingRsql, rsql, projectId));
     }
 
-    @ApiOperation(value = "Gets the audited build configuration for specific build record", response = Singleton.class)
+    @ApiOperation(value = "Gets the audited build configuration for specific build record", response = BuildConfigurationAuditedSingleton.class)
     @ApiResponses(value = {
             @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION),
             @ApiResponse(code = INVLID_CODE, message = INVALID_DESCRIPTION),

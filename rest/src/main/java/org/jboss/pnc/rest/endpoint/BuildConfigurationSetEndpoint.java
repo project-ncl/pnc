@@ -17,11 +17,11 @@
  */
 package org.jboss.pnc.rest.endpoint;
 
-import com.wordnik.swagger.annotations.Api;
-import com.wordnik.swagger.annotations.ApiOperation;
-import com.wordnik.swagger.annotations.ApiParam;
-import com.wordnik.swagger.annotations.ApiResponse;
-import com.wordnik.swagger.annotations.ApiResponses;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import org.jboss.pnc.auth.AuthenticationProvider;
 import org.jboss.pnc.core.exception.CoreException;
 import org.jboss.pnc.model.BuildConfigurationSet;
@@ -31,8 +31,10 @@ import org.jboss.pnc.rest.provider.BuildConfigurationSetProvider;
 import org.jboss.pnc.rest.provider.BuildRecordProvider;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationRest;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationSetRest;
-import org.jboss.pnc.rest.restmodel.response.Page;
-import org.jboss.pnc.rest.restmodel.response.Singleton;
+import org.jboss.pnc.rest.swagger.response.BuildConfigurationPage;
+import org.jboss.pnc.rest.swagger.response.BuildConfigurationSetPage;
+import org.jboss.pnc.rest.swagger.response.BuildConfigurationSetSingleton;
+import org.jboss.pnc.rest.swagger.response.BuildRecordPage;
 import org.jboss.pnc.rest.trigger.BuildTriggerer;
 import org.jboss.pnc.rest.validation.exceptions.ConflictedEntryException;
 import org.jboss.pnc.rest.validation.exceptions.ValidationException;
@@ -119,7 +121,7 @@ public class BuildConfigurationSetEndpoint extends AbstractEndpoint<BuildConfigu
         this.buildRecordProvider = buildRecordProvider;
     }
 
-    @ApiOperation(value = "Gets all Build Configuration Sets", response = Page.class)
+    @ApiOperation(value = "Gets all Build Configuration Sets", response = BuildConfigurationSetPage.class)
     @ApiResponses(value = {
             @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION),
             @ApiResponse(code = NO_CONTENT_CODE, message = NO_CONTENT_DESCRIPTION),
@@ -134,7 +136,7 @@ public class BuildConfigurationSetEndpoint extends AbstractEndpoint<BuildConfigu
         return super.getAll(pageIndex, pageSize, sort, q);
     }
 
-    @ApiOperation(value = "Creates a new Build Configuration Set", response = Singleton.class)
+    @ApiOperation(value = "Creates a new Build Configuration Set", response = BuildConfigurationSetSingleton.class)
     @ApiResponses(value = {
             @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION),
             @ApiResponse(code = INVLID_CODE, message = INVALID_DESCRIPTION),
@@ -147,7 +149,7 @@ public class BuildConfigurationSetEndpoint extends AbstractEndpoint<BuildConfigu
         return super.createNew(buildConfigurationSetRest, uriInfo);
     }
 
-    @ApiOperation(value = "Gets a specific Build Configuration Set", response = Singleton.class)
+    @ApiOperation(value = "Gets a specific Build Configuration Set", response = BuildConfigurationSetSingleton.class)
     @ApiResponses(value = {
             @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION),
             @ApiResponse(code = INVLID_CODE, message = INVALID_DESCRIPTION),
@@ -188,7 +190,7 @@ public class BuildConfigurationSetEndpoint extends AbstractEndpoint<BuildConfigu
         return super.delete(id);
     }
 
-    @ApiOperation(value = "Gets the Configurations for the Specified Set", response = Page.class)
+    @ApiOperation(value = "Gets the Configurations for the Specified Set", response = BuildConfigurationPage.class)
     @ApiResponses(value = {
             @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION),
             @ApiResponse(code = NO_CONTENT_CODE, message = NO_CONTENT_DESCRIPTION),
@@ -236,7 +238,7 @@ public class BuildConfigurationSetEndpoint extends AbstractEndpoint<BuildConfigu
         return fromEmpty();
     }
 
-    @ApiOperation(value = "Gets all build records associated with the contained build configurations", response = Page.class)
+    @ApiOperation(value = "Gets all build records associated with the contained build configurations", response = BuildRecordPage.class)
     @ApiResponses(value = {
             @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION),
             @ApiResponse(code = NO_CONTENT_CODE, message = NO_CONTENT_DESCRIPTION),

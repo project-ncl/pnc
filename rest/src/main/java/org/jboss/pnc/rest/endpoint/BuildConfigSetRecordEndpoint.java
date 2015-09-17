@@ -17,17 +17,17 @@
  */
 package org.jboss.pnc.rest.endpoint;
 
-import com.wordnik.swagger.annotations.Api;
-import com.wordnik.swagger.annotations.ApiOperation;
-import com.wordnik.swagger.annotations.ApiParam;
-import com.wordnik.swagger.annotations.ApiResponse;
-import com.wordnik.swagger.annotations.ApiResponses;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.rest.provider.BuildConfigSetRecordProvider;
 import org.jboss.pnc.rest.provider.BuildRecordProvider;
 import org.jboss.pnc.rest.restmodel.BuildConfigSetRecordRest;
-import org.jboss.pnc.rest.restmodel.response.Page;
-import org.jboss.pnc.rest.restmodel.response.Singleton;
+import org.jboss.pnc.rest.swagger.response.BuildConfigSetRecordSingleton;
+import org.jboss.pnc.rest.swagger.response.BuildConfigurationSetRecordPage;
 
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
@@ -80,7 +80,7 @@ public class BuildConfigSetRecordEndpoint extends AbstractEndpoint<BuildConfigSe
         this.buildRecordProvider = buildRecordProvider;
     }
 
-    @ApiOperation(value = "Gets all build config set execution records", response = Page.class)
+    @ApiOperation(value = "Gets all build config set execution records", response = BuildConfigurationSetRecordPage.class)
     @ApiResponses(value = {
             @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION),
             @ApiResponse(code = NO_CONTENT_CODE, message = NO_CONTENT_DESCRIPTION),
@@ -95,7 +95,7 @@ public class BuildConfigSetRecordEndpoint extends AbstractEndpoint<BuildConfigSe
         return super.getAll(pageIndex, pageSize, sort, q);
     }
 
-    @ApiOperation(value = "Gets specific build config set execution record", response = Singleton.class)
+    @ApiOperation(value = "Gets specific build config set execution record", response = BuildConfigSetRecordSingleton.class)
     @ApiResponses(value = {
             @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION),
             @ApiResponse(code = NOT_FOUND_CODE, message = NOT_FOUND_DESCRIPTION),
@@ -108,7 +108,7 @@ public class BuildConfigSetRecordEndpoint extends AbstractEndpoint<BuildConfigSe
         return super.getSpecific(id);
     }
 
-    @ApiOperation(value = "Gets the build records associated with this set", response = Page.class)
+    @ApiOperation(value = "Gets the build records associated with this set", response = BuildConfigurationSetRecordPage.class)
     @ApiResponses(value = {
             @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION),
             @ApiResponse(code = NO_CONTENT_CODE, message = NO_CONTENT_DESCRIPTION),

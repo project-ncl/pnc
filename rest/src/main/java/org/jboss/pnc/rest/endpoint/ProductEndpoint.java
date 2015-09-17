@@ -17,17 +17,18 @@
  */
 package org.jboss.pnc.rest.endpoint;
 
-import com.wordnik.swagger.annotations.Api;
-import com.wordnik.swagger.annotations.ApiOperation;
-import com.wordnik.swagger.annotations.ApiParam;
-import com.wordnik.swagger.annotations.ApiResponse;
-import com.wordnik.swagger.annotations.ApiResponses;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import org.jboss.pnc.model.Product;
 import org.jboss.pnc.rest.provider.ProductProvider;
 import org.jboss.pnc.rest.provider.ProductVersionProvider;
 import org.jboss.pnc.rest.restmodel.ProductRest;
-import org.jboss.pnc.rest.restmodel.response.Page;
-import org.jboss.pnc.rest.restmodel.response.Singleton;
+import org.jboss.pnc.rest.restmodel.ProductVersionRest;
+import org.jboss.pnc.rest.swagger.response.ProductPage;
+import org.jboss.pnc.rest.swagger.response.ProductSingleton;
 import org.jboss.pnc.rest.validation.exceptions.ValidationException;
 
 import javax.inject.Inject;
@@ -87,7 +88,7 @@ public class ProductEndpoint extends AbstractEndpoint<Product, ProductRest> {
         this.productVersionProvider = productVersionProvider;
     }
 
-    @ApiOperation(value = "Gets all Products", response = Page.class)
+    @ApiOperation(value = "Gets all Products", response = ProductPage.class)
     @ApiResponses(value = {
             @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION),
             @ApiResponse(code = NO_CONTENT_CODE, message = NO_CONTENT_DESCRIPTION),
@@ -102,7 +103,7 @@ public class ProductEndpoint extends AbstractEndpoint<Product, ProductRest> {
         return super.getAll(pageIndex, pageSize, sort, q);
     }
 
-    @ApiOperation(value = "Get specific Product", response = Singleton.class)
+    @ApiOperation(value = "Get specific Product", response = ProductSingleton.class)
     @ApiResponses(value = {
             @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION),
             @ApiResponse(code = INVLID_CODE, message = INVALID_DESCRIPTION),
@@ -115,7 +116,7 @@ public class ProductEndpoint extends AbstractEndpoint<Product, ProductRest> {
         return super.getSpecific(id);
     }
 
-    @ApiOperation(value = "Creates a new Product", response = ProductRest.class)
+    @ApiOperation(value = "Creates a new Product", response = ProductSingleton.class)
     @ApiResponses(value = {
             @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION),
             @ApiResponse(code = INVLID_CODE, message = INVALID_DESCRIPTION),
@@ -141,7 +142,7 @@ public class ProductEndpoint extends AbstractEndpoint<Product, ProductRest> {
         return super.update(productId, productRest);
     }
 
-    @ApiOperation(value = "Get all versions for a Product", response = Page.class)
+    @ApiOperation(value = "Get all versions for a Product", response = ProductVersionRest.class)
     @ApiResponses(value = {
             @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION),
             @ApiResponse(code = NO_CONTENT_CODE, message = NO_CONTENT_DESCRIPTION),

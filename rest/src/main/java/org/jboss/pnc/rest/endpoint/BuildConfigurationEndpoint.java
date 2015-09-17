@@ -17,11 +17,11 @@
  */
 package org.jboss.pnc.rest.endpoint;
 
-import com.wordnik.swagger.annotations.Api;
-import com.wordnik.swagger.annotations.ApiOperation;
-import com.wordnik.swagger.annotations.ApiParam;
-import com.wordnik.swagger.annotations.ApiResponse;
-import com.wordnik.swagger.annotations.ApiResponses;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import org.jboss.pnc.auth.AuthenticationProvider;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.User;
@@ -30,8 +30,12 @@ import org.jboss.pnc.rest.provider.BuildRecordProvider;
 import org.jboss.pnc.rest.provider.ProductVersionProvider;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationRest;
 import org.jboss.pnc.rest.restmodel.ProductVersionRest;
-import org.jboss.pnc.rest.restmodel.response.Page;
-import org.jboss.pnc.rest.restmodel.response.Singleton;
+import org.jboss.pnc.rest.swagger.response.BuildConfigurationAuditedSingleton;
+import org.jboss.pnc.rest.swagger.response.BuildConfigurationPage;
+import org.jboss.pnc.rest.swagger.response.BuildConfigurationSingleton;
+import org.jboss.pnc.rest.swagger.response.BuildRecordPage;
+import org.jboss.pnc.rest.swagger.response.BuildRecordSingleton;
+import org.jboss.pnc.rest.swagger.response.ProductVersionPage;
 import org.jboss.pnc.rest.trigger.BuildTriggerer;
 import org.jboss.pnc.rest.validation.exceptions.ValidationException;
 import org.jboss.pnc.spi.datastore.Datastore;
@@ -115,7 +119,7 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
         this.productVersionProvider = productVersionProvider;
     }
 
-    @ApiOperation(value = "Gets all Build Configurations", response = Page.class)
+    @ApiOperation(value = "Gets all Build Configurations", response = BuildConfigurationPage.class)
     @ApiResponses(value = {
             @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION),
             @ApiResponse(code = NO_CONTENT_CODE, message = NO_CONTENT_DESCRIPTION),
@@ -130,7 +134,7 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
         return super.getAll(pageIndex, pageSize, sort, q);
     }
 
-    @ApiOperation(value = "Creates a new Build Configuration", response = Singleton.class)
+    @ApiOperation(value = "Creates a new Build Configuration", response = BuildConfigurationSingleton.class)
     @ApiResponses(value = {
             @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION),
             @ApiResponse(code = INVLID_CODE, message = INVALID_DESCRIPTION),
@@ -143,7 +147,7 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
         return super.createNew(buildConfigurationRest, uriInfo);
     }
 
-    @ApiOperation(value = "Gets a specific Build Configuration", response = Singleton.class)
+    @ApiOperation(value = "Gets a specific Build Configuration", response = BuildConfigurationSingleton.class)
     @ApiResponses(value = {
             @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION),
             @ApiResponse(code = INVLID_CODE, message = INVALID_DESCRIPTION),
@@ -157,7 +161,7 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
         return super.getSpecific(id);
     }
 
-    @ApiOperation(value = "Updates an existing Build Configuration", response = Singleton.class)
+    @ApiOperation(value = "Updates an existing Build Configuration")
     @ApiResponses(value = {
             @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION),
             @ApiResponse(code = INVLID_CODE, message = INVALID_DESCRIPTION),
@@ -184,7 +188,7 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
         return super.delete(id);
     }
 
-    @ApiOperation(value = "Clones an existing Build Configuration", response = Singleton.class)
+    @ApiOperation(value = "Clones an existing Build Configuration", response = BuildConfigurationSingleton.class)
     @ApiResponses(value = {
             @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION),
             @ApiResponse(code = INVLID_CODE, message = INVALID_DESCRIPTION),
@@ -200,7 +204,7 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
         return Response.created(uriBuilder.build(newId)).entity(buildConfigurationProvider.getSpecific(newId)).build();
     }
 
-    @ApiOperation(value = "Triggers the build of a specific Build Configuration", response = Singleton.class)
+    @ApiOperation(value = "Triggers the build of a specific Build Configuration", response = BuildRecordSingleton.class)
     @ApiResponses(value = {
             @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION),
             @ApiResponse(code = CONFLICTED_CODE, message = CONFLICTED_DESCRIPTION),
@@ -248,7 +252,7 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
         }
     }
 
-    @ApiOperation(value = "Gets all Build Configurations of a Project", response = Page.class)
+    @ApiOperation(value = "Gets all Build Configurations of a Project", response = BuildConfigurationPage.class)
     @ApiResponses(value = {
             @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION),
             @ApiResponse(code = NO_CONTENT_CODE, message = NO_CONTENT_DESCRIPTION),
@@ -265,7 +269,7 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
         return fromCollection(buildConfigurationProvider.getAllForProject(pageIndex, pageSize, sort, q, projectId));
     }
 
-    @ApiOperation(value = "Gets all Build Configurations of a Product", response = Page.class)
+    @ApiOperation(value = "Gets all Build Configurations of a Product", response = BuildConfigurationPage.class)
     @ApiResponses(value = {
             @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION),
             @ApiResponse(code = NO_CONTENT_CODE, message = NO_CONTENT_DESCRIPTION),
@@ -282,7 +286,7 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
         return fromCollection(buildConfigurationProvider.getAllForProduct(pageIndex, pageSize, sort, q, productId));
     }
 
-    @ApiOperation(value = "Gets all Build Configurations of the Specified Product Version", response = Page.class)
+    @ApiOperation(value = "Gets all Build Configurations of the Specified Product Version", response = BuildConfigurationPage.class)
     @ApiResponses(value = {
             @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION),
             @ApiResponse(code = NO_CONTENT_CODE, message = NO_CONTENT_DESCRIPTION),
@@ -301,7 +305,7 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
                 .getAllForProductAndProductVersion(pageIndex, pageSize, sort, q, productId, versionId));
     }
 
-    @ApiOperation(value = "Get the direct dependencies of the specified configuration", response = Page.class)
+    @ApiOperation(value = "Get the direct dependencies of the specified configuration", response = BuildConfigurationPage.class)
     @ApiResponses(value = {
             @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION),
             @ApiResponse(code = NO_CONTENT_CODE, message = NO_CONTENT_DESCRIPTION),
@@ -347,7 +351,7 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
         return fromEmpty();
     }
 
-    @ApiOperation(value = "Get associated Product Versions of the specified Configuration", response = Page.class)
+    @ApiOperation(value = "Get associated Product Versions of the specified Configuration", response = ProductVersionPage.class)
     @ApiResponses(value = {
             @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION),
             @ApiResponse(code = NO_CONTENT_CODE, message = NO_CONTENT_DESCRIPTION),
@@ -394,7 +398,7 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
         return fromEmpty();
     }
 
-    @ApiOperation(value = "Gets audited revisions of this build configuration", response = Page.class)
+    @ApiOperation(value = "Gets audited revisions of this build configuration", response = BuildConfigurationPage.class)
     @ApiResponses(value = {
             @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION),
             @ApiResponse(code = NO_CONTENT_CODE, message = NO_CONTENT_DESCRIPTION),
@@ -410,7 +414,7 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
         return fromCollection(buildConfigurationProvider.getRevisions(pageIndex, pageSize, id));
     }
 
-    @ApiOperation(value = "Get specific audited revision of this build configuration", response = Singleton.class)
+    @ApiOperation(value = "Get specific audited revision of this build configuration", response = BuildConfigurationAuditedSingleton.class)
     @ApiResponses(value = {
             @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION),
             @ApiResponse(code = INVLID_CODE, message = INVALID_DESCRIPTION),
@@ -425,7 +429,7 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
     }
 
     @ApiOperation(value = "Get all build record associated with this build configuration, returns empty list if no build records are found",
-            response = Page.class)
+            response = BuildRecordPage.class)
     @ApiResponses(value = {
             @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION),
             @ApiResponse(code = NO_CONTENT_CODE, message = NO_CONTENT_DESCRIPTION),
@@ -444,7 +448,7 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
     }
 
     @ApiOperation(value = "Get latest build record associated with this build configuration, returns no content if no build records are found",
-            response = Singleton.class)
+            response = BuildRecordPage.class)
     @ApiResponses(value = {
             @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION),
             @ApiResponse(code = INVLID_CODE, message = INVALID_DESCRIPTION),
@@ -454,7 +458,7 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
     @GET
     @Path("/{id}/build-records/latest")
     public Response getLatestBuildRecord(@ApiParam(value = "Build configuration id", required = true) @PathParam("id") Integer id) {
-        return fromSingleton(buildRecordProvider.getLatestBuildRecord(id));
+        return this.fromSingleton(buildRecordProvider.getLatestBuildRecord(id));
     }
 
 }

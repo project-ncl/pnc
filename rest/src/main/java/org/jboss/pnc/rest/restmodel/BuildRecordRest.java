@@ -17,7 +17,7 @@
  */
 package org.jboss.pnc.rest.restmodel;
 
-import com.wordnik.swagger.annotations.ApiModelProperty;
+import io.swagger.annotations.ApiModelProperty;
 import org.jboss.pnc.core.builder.coordinator.BuildTask;
 import org.jboss.pnc.core.builder.executor.BuildExecutionTask;
 import org.jboss.pnc.model.BuildRecord;

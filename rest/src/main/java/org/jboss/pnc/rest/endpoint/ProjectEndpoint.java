@@ -17,16 +17,16 @@
  */
 package org.jboss.pnc.rest.endpoint;
 
-import com.wordnik.swagger.annotations.Api;
-import com.wordnik.swagger.annotations.ApiOperation;
-import com.wordnik.swagger.annotations.ApiParam;
-import com.wordnik.swagger.annotations.ApiResponse;
-import com.wordnik.swagger.annotations.ApiResponses;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import org.jboss.pnc.model.Project;
 import org.jboss.pnc.rest.provider.ProjectProvider;
 import org.jboss.pnc.rest.restmodel.ProjectRest;
-import org.jboss.pnc.rest.restmodel.response.Page;
-import org.jboss.pnc.rest.restmodel.response.Singleton;
+import org.jboss.pnc.rest.swagger.response.ProjectPage;
+import org.jboss.pnc.rest.swagger.response.ProjectSingleton;
 import org.jboss.pnc.rest.validation.exceptions.ValidationException;
 
 import javax.inject.Inject;
@@ -82,7 +82,7 @@ public class ProjectEndpoint extends AbstractEndpoint<Project, ProjectRest> {
         super(projectProvider);
     }
 
-    @ApiOperation(value = "Gets all Projects", response = Page.class)
+    @ApiOperation(value = "Gets all Projects", response = ProjectPage.class)
     @ApiResponses(value = {
             @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION),
             @ApiResponse(code = NO_CONTENT_CODE, message = NO_CONTENT_DESCRIPTION),
@@ -97,7 +97,7 @@ public class ProjectEndpoint extends AbstractEndpoint<Project, ProjectRest> {
         return super.getAll(pageIndex, pageSize, sort, q);
     }
 
-    @ApiOperation(value = "Gets specific Project", response = Singleton.class)
+    @ApiOperation(value = "Gets specific Project", response = ProjectSingleton.class)
     @ApiResponses(value = {
             @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION),
             @ApiResponse(code = INVLID_CODE, message = INVALID_DESCRIPTION),
@@ -110,7 +110,7 @@ public class ProjectEndpoint extends AbstractEndpoint<Project, ProjectRest> {
         return super.getSpecific(id);
     }
 
-    @ApiOperation(value = "Creates a new Project", response = Singleton.class)
+    @ApiOperation(value = "Creates a new Project", response = ProjectSingleton.class)
     @ApiResponses(value = {
             @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION),
             @ApiResponse(code = INVLID_CODE, message = INVALID_DESCRIPTION),

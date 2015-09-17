@@ -17,18 +17,19 @@
  */
 package org.jboss.pnc.rest.endpoint;
 
-import com.wordnik.swagger.annotations.Api;
-import com.wordnik.swagger.annotations.ApiOperation;
-import com.wordnik.swagger.annotations.ApiParam;
-import com.wordnik.swagger.annotations.ApiResponse;
-import com.wordnik.swagger.annotations.ApiResponses;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import org.jboss.pnc.model.ProductRelease;
 import org.jboss.pnc.model.ProductRelease.SupportLevel;
 import org.jboss.pnc.rest.provider.ProductReleaseProvider;
 import org.jboss.pnc.rest.provider.collection.CollectionInfo;
 import org.jboss.pnc.rest.restmodel.ProductReleaseRest;
-import org.jboss.pnc.rest.restmodel.response.Page;
-import org.jboss.pnc.rest.restmodel.response.Singleton;
+import org.jboss.pnc.rest.swagger.response.ProductReleasePage;
+import org.jboss.pnc.rest.swagger.response.ProductReleaseSingleton;
+import org.jboss.pnc.rest.swagger.response.SupportLevelPage;
 import org.jboss.pnc.rest.validation.exceptions.ValidationException;
 
 import javax.inject.Inject;
@@ -88,7 +89,7 @@ public class ProductReleaseEndpoint extends AbstractEndpoint<ProductRelease, Pro
         this.productReleaseProvider = productReleaseProvider;
     }
 
-    @ApiOperation(value = "Gets all Product Releases", response = Page.class)
+    @ApiOperation(value = "Gets all Product Releases", response = ProductReleasePage.class)
     @ApiResponses(value = {
             @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION),
             @ApiResponse(code = NO_CONTENT_CODE, message = NO_CONTENT_DESCRIPTION),
@@ -103,7 +104,7 @@ public class ProductReleaseEndpoint extends AbstractEndpoint<ProductRelease, Pro
         return super.getAll(pageIndex, pageSize, sort, q);
     }
 
-    @ApiOperation(value = "Gets all Product Releases of the Specified Product Version", response = Page.class)
+    @ApiOperation(value = "Gets all Product Releases of the Specified Product Version", response = ProductReleaseSingleton.class)
     @ApiResponses(value = {
             @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION),
             @ApiResponse(code = NO_CONTENT_CODE, message = NO_CONTENT_DESCRIPTION),
@@ -121,7 +122,7 @@ public class ProductReleaseEndpoint extends AbstractEndpoint<ProductRelease, Pro
         return fromCollection(productReleaseProvider.getAllForProductVersion(pageIndex, pageSize, sort, q, versionId));
     }
 
-    @ApiOperation(value = "Gets specific Product Release", response = Singleton.class)
+    @ApiOperation(value = "Gets specific Product Release", response = ProductReleaseSingleton.class)
     @ApiResponses(value = {
             @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION),
             @ApiResponse(code = INVLID_CODE, message = INVALID_DESCRIPTION),
@@ -134,7 +135,7 @@ public class ProductReleaseEndpoint extends AbstractEndpoint<ProductRelease, Pro
         return super.getSpecific(id);
     }
 
-    @ApiOperation(value = "Creates a new Product Release", response = Singleton.class)
+    @ApiOperation(value = "Creates a new Product Release", response = ProductReleaseSingleton.class)
     @ApiResponses(value = {
             @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION),
             @ApiResponse(code = INVLID_CODE, message = INVALID_DESCRIPTION),
@@ -160,7 +161,7 @@ public class ProductReleaseEndpoint extends AbstractEndpoint<ProductRelease, Pro
         return super.update(id, productReleaseRest);
     }
 
-    @ApiOperation(value = "Gets all Product Releases Support Level", response = Page.class)
+    @ApiOperation(value = "Gets all Product Releases Support Level", response = SupportLevelPage.class)
     @ApiResponses(value = {
             @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION),
             @ApiResponse(code = NO_CONTENT_CODE, message = NO_CONTENT_DESCRIPTION),
