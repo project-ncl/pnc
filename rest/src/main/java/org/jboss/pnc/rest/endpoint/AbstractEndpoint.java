@@ -58,7 +58,7 @@ public class AbstractEndpoint<DBEntity extends GenericEntity<Integer>, RESTEntit
     public Response createNew(RESTEntity restEntity, UriInfo uriInfo) throws ValidationException {
         int id = basicProvider.store(restEntity);
         UriBuilder uriBuilder = UriBuilder.fromUri(uriInfo.getRequestUri()).path("{id}");
-        return Response.created(uriBuilder.build(id)).entity(basicProvider.getSpecific(id)).build();
+        return Response.created(uriBuilder.build(id)).entity(new Singleton(basicProvider.getSpecific(id))).build();
     }
 
     public Response update(Integer id, RESTEntity restEntity) throws ValidationException {
@@ -79,7 +79,7 @@ public class AbstractEndpoint<DBEntity extends GenericEntity<Integer>, RESTEntit
         return Response.ok().entity(pageForResponse).build();
     }
 
-    protected Response fromSingleton(Object singleton) {
+    protected <T> Response fromSingleton(T singleton) {
         if(singleton == null) {
             return Response.status(Response.Status.NOT_FOUND).entity(new Singleton(null)).build();
         }

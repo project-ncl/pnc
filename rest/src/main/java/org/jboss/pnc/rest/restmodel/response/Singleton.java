@@ -36,8 +36,8 @@
 
 package org.jboss.pnc.rest.restmodel.response;
 
-import com.wordnik.swagger.annotations.ApiModel;
-import com.wordnik.swagger.annotations.ApiModelProperty;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
@@ -48,23 +48,23 @@ import javax.xml.bind.annotation.XmlRootElement;
  */
 @XmlRootElement
 @ApiModel(description = "Wrapped results")
-public class Singleton {
+public class Singleton<T> {
 
     @ApiModelProperty("Content of the response")
-    private Object content;
+    private T content;
 
     public Singleton() {
     }
 
-    public Singleton(Object content) {
+    public Singleton(T content) {
         this.content = content;
     }
 
-    public Object getContent() {
+    public T getContent() {
         return content;
     }
 
-    public void setContent(Object content) {
+    public void setContent(T content) {
         this.content = content;
     }
 }

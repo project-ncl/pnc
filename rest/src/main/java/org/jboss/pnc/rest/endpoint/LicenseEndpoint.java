@@ -17,16 +17,17 @@
  */
 package org.jboss.pnc.rest.endpoint;
 
-import com.wordnik.swagger.annotations.Api;
-import com.wordnik.swagger.annotations.ApiOperation;
-import com.wordnik.swagger.annotations.ApiParam;
-import com.wordnik.swagger.annotations.ApiResponse;
-import com.wordnik.swagger.annotations.ApiResponses;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import org.jboss.pnc.model.License;
 import org.jboss.pnc.rest.provider.LicenseProvider;
 import org.jboss.pnc.rest.restmodel.LicenseRest;
-import org.jboss.pnc.rest.restmodel.response.Page;
-import org.jboss.pnc.rest.restmodel.response.Singleton;
+import org.jboss.pnc.rest.restmodel.response.error.ErrorResponseRest;
+import org.jboss.pnc.rest.swagger.response.LicensePage;
+import org.jboss.pnc.rest.swagger.response.LicenseSingleton;
 import org.jboss.pnc.rest.validation.exceptions.ValidationException;
 
 import javax.inject.Inject;
@@ -82,12 +83,12 @@ public class LicenseEndpoint extends AbstractEndpoint<License, LicenseRest> {
         super(licenseProvider);
     }
 
-    @ApiOperation(value = "Gets all Licenses", response = Page.class)
+    @ApiOperation(value = "Gets all Licenses")
     @ApiResponses(value = {
-            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION),
-            @ApiResponse(code = NO_CONTENT_CODE, message = NO_CONTENT_DESCRIPTION),
-            @ApiResponse(code = INVLID_CODE, message = INVALID_DESCRIPTION),
-            @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION)
+            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION, response = LicensePage.class),
+            @ApiResponse(code = NO_CONTENT_CODE, message = NO_CONTENT_DESCRIPTION, response = LicensePage.class),
+            @ApiResponse(code = INVLID_CODE, message = INVALID_DESCRIPTION, response = ErrorResponseRest.class),
+            @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION, response = ErrorResponseRest.class)
     })
     @GET
     public Response getAll(@ApiParam(value = PAGE_INDEX_DESCRIPTION) @QueryParam(PAGE_INDEX_QUERY_PARAM) @DefaultValue(PAGE_INDEX_DEFAULT_VALUE) int pageIndex,
@@ -97,12 +98,12 @@ public class LicenseEndpoint extends AbstractEndpoint<License, LicenseRest> {
         return super.getAll(pageIndex, pageSize, sort, q);
     }
 
-    @ApiOperation(value = "Get specific License", response = Singleton.class)
+    @ApiOperation(value = "Get specific License")
     @ApiResponses(value = {
-            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION),
-            @ApiResponse(code = INVLID_CODE, message = INVALID_DESCRIPTION),
+            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION, response = LicenseSingleton.class),
+            @ApiResponse(code = INVLID_CODE, message = INVALID_DESCRIPTION, response = ErrorResponseRest.class),
             @ApiResponse(code = NOT_FOUND_CODE, message = NOT_FOUND_DESCRIPTION),
-            @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION)
+            @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION, response = ErrorResponseRest.class)
     })
     @GET
     @Path("/{id}")
@@ -110,12 +111,12 @@ public class LicenseEndpoint extends AbstractEndpoint<License, LicenseRest> {
         return super.getSpecific(id);
     }
 
-    @ApiOperation(value = "Creates a new License", response = Singleton.class)
+    @ApiOperation(value = "Creates a new License")
     @ApiResponses(value = {
-            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION),
-            @ApiResponse(code = INVLID_CODE, message = INVALID_DESCRIPTION),
-            @ApiResponse(code = CONFLICTED_CODE, message = CONFLICTED_DESCRIPTION),
-            @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION)
+            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION, response = LicenseSingleton.class),
+            @ApiResponse(code = INVLID_CODE, message = INVALID_DESCRIPTION, response = ErrorResponseRest.class),
+            @ApiResponse(code = CONFLICTED_CODE, message = CONFLICTED_DESCRIPTION, response = ErrorResponseRest.class),
+            @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION, response = ErrorResponseRest.class)
     })
     @POST
     public Response createNew(LicenseRest licenseRest, @Context UriInfo uriInfo) throws ValidationException {
@@ -125,9 +126,9 @@ public class LicenseEndpoint extends AbstractEndpoint<License, LicenseRest> {
     @ApiOperation(value = "Updates an existing License")
     @ApiResponses(value = {
             @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION),
-            @ApiResponse(code = INVLID_CODE, message = INVALID_DESCRIPTION),
-            @ApiResponse(code = CONFLICTED_CODE, message = CONFLICTED_DESCRIPTION),
-            @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION)
+            @ApiResponse(code = INVLID_CODE, message = INVALID_DESCRIPTION, response = ErrorResponseRest.class),
+            @ApiResponse(code = CONFLICTED_CODE, message = CONFLICTED_DESCRIPTION, response = ErrorResponseRest.class),
+            @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION, response = ErrorResponseRest.class)
     })
     @PUT
     @Path("/{id}")
@@ -139,8 +140,8 @@ public class LicenseEndpoint extends AbstractEndpoint<License, LicenseRest> {
     @ApiOperation(value = "Deletes an existing License")
     @ApiResponses(value = {
             @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION),
-            @ApiResponse(code = INVLID_CODE, message = INVALID_DESCRIPTION),
-            @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION)
+            @ApiResponse(code = INVLID_CODE, message = INVALID_DESCRIPTION, response = ErrorResponseRest.class),
+            @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION, response = ErrorResponseRest.class)
     })
     @DELETE
     @Path("/{id}")

@@ -17,10 +17,14 @@
  */
 package org.jboss.pnc.core.test.configurationBuilders;
 
-import javax.inject.Inject;
-
 import org.jboss.pnc.core.test.mock.DatastoreMock;
-import org.jboss.pnc.model.*;
+import org.jboss.pnc.model.BuildConfiguration;
+import org.jboss.pnc.model.BuildConfigurationAudited;
+import org.jboss.pnc.model.BuildConfigurationSet;
+import org.jboss.pnc.model.Environment;
+import org.jboss.pnc.model.Project;
+
+import javax.inject.Inject;
 
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-12-10.
@@ -135,7 +139,7 @@ public class TestProjectConfigurationBuilder {
 
     public BuildConfigurationAudited buildAudited(BuildConfiguration buildConfiguration, int rev) {
         BuildConfigurationAudited configurationAudited = new BuildConfigurationAudited();
-        configurationAudited.setId(buildConfiguration.getId());
+        configurationAudited.setBuildRecordId(buildConfiguration.getId());
         configurationAudited.setBuildRecords(buildConfiguration.getBuildRecords());
         configurationAudited.setBuildScript(buildConfiguration.getBuildScript());
         configurationAudited.setDescription(buildConfiguration.getDescription());

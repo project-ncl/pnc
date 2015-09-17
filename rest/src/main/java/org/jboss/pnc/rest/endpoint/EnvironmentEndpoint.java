@@ -17,16 +17,17 @@
  */
 package org.jboss.pnc.rest.endpoint;
 
-import com.wordnik.swagger.annotations.Api;
-import com.wordnik.swagger.annotations.ApiOperation;
-import com.wordnik.swagger.annotations.ApiParam;
-import com.wordnik.swagger.annotations.ApiResponse;
-import com.wordnik.swagger.annotations.ApiResponses;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import org.jboss.pnc.model.Environment;
 import org.jboss.pnc.rest.provider.EnvironmentProvider;
 import org.jboss.pnc.rest.restmodel.EnvironmentRest;
-import org.jboss.pnc.rest.restmodel.response.Page;
-import org.jboss.pnc.rest.restmodel.response.Singleton;
+import org.jboss.pnc.rest.restmodel.response.error.ErrorResponseRest;
+import org.jboss.pnc.rest.swagger.response.EnvironmentPage;
+import org.jboss.pnc.rest.swagger.response.EnvironmentSingleton;
 import org.jboss.pnc.rest.validation.exceptions.ValidationException;
 
 import javax.inject.Inject;
@@ -82,12 +83,12 @@ public class EnvironmentEndpoint extends AbstractEndpoint<Environment, Environme
         super(environmentProvider);
     }
 
-    @ApiOperation(value = "Gets all Environments", response = Page.class)
+    @ApiOperation(value = "Gets all Environments")
     @ApiResponses(value = {
-            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION),
-            @ApiResponse(code = NO_CONTENT_CODE, message = NO_CONTENT_DESCRIPTION),
-            @ApiResponse(code = INVLID_CODE, message = INVALID_DESCRIPTION),
-            @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION)
+            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION, response = EnvironmentPage.class),
+            @ApiResponse(code = NO_CONTENT_CODE, message = NO_CONTENT_DESCRIPTION, response = EnvironmentPage.class),
+            @ApiResponse(code = INVLID_CODE, message = INVALID_DESCRIPTION, response = ErrorResponseRest.class),
+            @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION, response = ErrorResponseRest.class)
     })
     @GET
     public Response getAll(@ApiParam(value = PAGE_INDEX_DESCRIPTION) @QueryParam(PAGE_INDEX_QUERY_PARAM) @DefaultValue(PAGE_INDEX_DEFAULT_VALUE) int pageIndex,
@@ -97,12 +98,12 @@ public class EnvironmentEndpoint extends AbstractEndpoint<Environment, Environme
         return super.getAll(pageIndex, pageSize, sort, q);
     }
 
-    @ApiOperation(value = "Get specific Environment", response = Singleton.class)
+    @ApiOperation(value = "Get specific Environment")
     @ApiResponses(value = {
-            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION),
-            @ApiResponse(code = INVLID_CODE, message = INVALID_DESCRIPTION),
-            @ApiResponse(code = NOT_FOUND_CODE, message = NOT_FOUND_DESCRIPTION),
-            @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION)
+            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION, response = EnvironmentSingleton.class),
+            @ApiResponse(code = NOT_FOUND_CODE, message = NOT_FOUND_DESCRIPTION, response = EnvironmentSingleton.class),
+            @ApiResponse(code = INVLID_CODE, message = INVALID_DESCRIPTION, response = ErrorResponseRest.class),
+            @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION, response = ErrorResponseRest.class)
     })
     @GET
     @Path("/{id}")
@@ -110,12 +111,12 @@ public class EnvironmentEndpoint extends AbstractEndpoint<Environment, Environme
         return super.getSpecific(id);
     }
 
-    @ApiOperation(value = "Creates a new Environment", response = Singleton.class)
+    @ApiOperation(value = "Creates a new Environment")
     @ApiResponses(value = {
-            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION),
-            @ApiResponse(code = INVLID_CODE, message = INVALID_DESCRIPTION),
-            @ApiResponse(code = CONFLICTED_CODE, message = CONFLICTED_DESCRIPTION),
-            @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION)
+            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION, response = EnvironmentSingleton.class),
+            @ApiResponse(code = INVLID_CODE, message = INVALID_DESCRIPTION, response = ErrorResponseRest.class),
+            @ApiResponse(code = CONFLICTED_CODE, message = CONFLICTED_DESCRIPTION, response = ErrorResponseRest.class),
+            @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION, response = ErrorResponseRest.class)
     })
     @POST
     public Response createNew(EnvironmentRest environmentRest, @Context UriInfo uriInfo)
@@ -126,9 +127,9 @@ public class EnvironmentEndpoint extends AbstractEndpoint<Environment, Environme
     @ApiOperation(value = "Updates an existing Environment")
     @ApiResponses(value = {
             @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION),
-            @ApiResponse(code = INVLID_CODE, message = INVALID_DESCRIPTION),
-            @ApiResponse(code = CONFLICTED_CODE, message = CONFLICTED_DESCRIPTION),
-            @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION)
+            @ApiResponse(code = INVLID_CODE, message = INVALID_DESCRIPTION, response = ErrorResponseRest.class),
+            @ApiResponse(code = CONFLICTED_CODE, message = CONFLICTED_DESCRIPTION, response = ErrorResponseRest.class),
+            @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION, response = ErrorResponseRest.class)
     })
     @PUT
     @Path("/{id}")
@@ -140,8 +141,8 @@ public class EnvironmentEndpoint extends AbstractEndpoint<Environment, Environme
     @ApiOperation(value = "Deletes an existing Environment")
     @ApiResponses(value = {
             @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION),
-            @ApiResponse(code = INVLID_CODE, message = INVALID_DESCRIPTION),
-            @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION)
+            @ApiResponse(code = INVLID_CODE, message = INVALID_DESCRIPTION, response = ErrorResponseRest.class),
+            @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION, response = ErrorResponseRest.class)
     })
     @DELETE
     @Path("/{id}")

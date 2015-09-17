@@ -18,8 +18,8 @@
 
 package org.jboss.pnc.rest.restmodel.response;
 
-import com.wordnik.swagger.annotations.ApiModel;
-import com.wordnik.swagger.annotations.ApiModelProperty;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import org.jboss.pnc.rest.provider.collection.CollectionInfo;
 
 import javax.xml.bind.annotation.XmlRootElement;

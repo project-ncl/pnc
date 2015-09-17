@@ -17,16 +17,17 @@
  */
 package org.jboss.pnc.rest.endpoint;
 
-import com.wordnik.swagger.annotations.Api;
-import com.wordnik.swagger.annotations.ApiOperation;
-import com.wordnik.swagger.annotations.ApiParam;
-import com.wordnik.swagger.annotations.ApiResponse;
-import com.wordnik.swagger.annotations.ApiResponses;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.rest.provider.UserProvider;
 import org.jboss.pnc.rest.restmodel.UserRest;
-import org.jboss.pnc.rest.restmodel.response.Page;
-import org.jboss.pnc.rest.restmodel.response.Singleton;
+import org.jboss.pnc.rest.restmodel.response.error.ErrorResponseRest;
+import org.jboss.pnc.rest.swagger.response.UserPage;
+import org.jboss.pnc.rest.swagger.response.UserSingleton;
 import org.jboss.pnc.rest.validation.exceptions.ValidationException;
 
 import javax.inject.Inject;
@@ -82,12 +83,12 @@ public class UserEndpoint extends AbstractEndpoint<User, UserRest> {
         super(userProvider);
     }
 
-    @ApiOperation(value = "Gets all Users", response = Page.class)
+    @ApiOperation(value = "Gets all Users")
     @ApiResponses(value = {
-            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION),
-            @ApiResponse(code = NO_CONTENT_CODE, message = NO_CONTENT_DESCRIPTION),
-            @ApiResponse(code = INVLID_CODE, message = INVALID_DESCRIPTION),
-            @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION)
+            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION, response = UserPage.class),
+            @ApiResponse(code = NO_CONTENT_CODE, message = NO_CONTENT_DESCRIPTION, response = UserPage.class),
+            @ApiResponse(code = INVLID_CODE, message = INVALID_DESCRIPTION, response = ErrorResponseRest.class),
+            @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION, response = ErrorResponseRest.class)
     })
     @GET
     public Response getAll(@ApiParam(value = PAGE_INDEX_DESCRIPTION) @QueryParam(PAGE_INDEX_QUERY_PARAM) @DefaultValue(PAGE_INDEX_DEFAULT_VALUE) int pageIndex,
@@ -97,12 +98,12 @@ public class UserEndpoint extends AbstractEndpoint<User, UserRest> {
         return super.getAll(pageIndex, pageSize, sort, q);
     }
 
-    @ApiOperation(value = "Gets specific User", response = Singleton.class)
+    @ApiOperation(value = "Gets specific User")
     @ApiResponses(value = {
-            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION),
-            @ApiResponse(code = INVLID_CODE, message = INVALID_DESCRIPTION),
-            @ApiResponse(code = NOT_FOUND_CODE, message = NOT_FOUND_DESCRIPTION),
-            @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION)
+            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION, response = UserSingleton.class),
+            @ApiResponse(code = NOT_FOUND_CODE, message = NOT_FOUND_DESCRIPTION, response = UserSingleton.class),
+            @ApiResponse(code = INVLID_CODE, message = INVALID_DESCRIPTION, response = ErrorResponseRest.class),
+            @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION, response = ErrorResponseRest.class)
     })
     @GET
     @Path("/{id}")
@@ -110,12 +111,12 @@ public class UserEndpoint extends AbstractEndpoint<User, UserRest> {
         return super.getSpecific(id);
     }
 
-    @ApiOperation(value = "Creates new User", response = Singleton.class)
+    @ApiOperation(value = "Creates new User")
     @ApiResponses(value = {
-            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION),
-            @ApiResponse(code = INVLID_CODE, message = INVALID_DESCRIPTION),
-            @ApiResponse(code = CONFLICTED_CODE, message = CONFLICTED_DESCRIPTION),
-            @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION)
+            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION, response = UserSingleton.class),
+            @ApiResponse(code = INVLID_CODE, message = INVALID_DESCRIPTION, response = ErrorResponseRest.class),
+            @ApiResponse(code = CONFLICTED_CODE, message = CONFLICTED_DESCRIPTION, response = ErrorResponseRest.class),
+            @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION, response = ErrorResponseRest.class)
     })
     @POST
     public Response createNew(UserRest userRest, @Context UriInfo uriInfo) throws ValidationException {
@@ -125,9 +126,9 @@ public class UserEndpoint extends AbstractEndpoint<User, UserRest> {
     @ApiOperation(value = "Updates an existing User")
     @ApiResponses(value = {
             @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION),
-            @ApiResponse(code = INVLID_CODE, message = INVALID_DESCRIPTION),
-            @ApiResponse(code = CONFLICTED_CODE, message = CONFLICTED_DESCRIPTION),
-            @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION)
+            @ApiResponse(code = INVLID_CODE, message = INVALID_DESCRIPTION, response = ErrorResponseRest.class),
+            @ApiResponse(code = CONFLICTED_CODE, message = CONFLICTED_DESCRIPTION, response = ErrorResponseRest.class),
+            @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION, response = ErrorResponseRest.class)
     })
     @PUT
     @Path("/{id}")

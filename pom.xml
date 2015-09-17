@@ -369,21 +369,21 @@
       </dependency>
 
       <dependency>
-        <groupId>com.wordnik</groupId>
-        <artifactId>swagger-jaxrs_2.10</artifactId>
-        <version>1.3.11</version>
+        <groupId>io.swagger</groupId>
+        <artifactId>swagger-jaxrs</artifactId>
+        <version>1.5.3</version>
       </dependency>
 
       <dependency>
-        <groupId>com.wordnik</groupId>
-        <artifactId>swagger-core_2.10</artifactId>
-        <version>1.3.11</version>
+        <groupId>io.swagger</groupId>
+        <artifactId>swagger-core</artifactId>
+        <version>1.5.3</version>
       </dependency>
 
       <dependency>
-        <groupId>com.wordnik</groupId>
+        <groupId>io.swagger</groupId>
         <artifactId>swagger-annotations</artifactId>
-        <version>1.3.11</version>
+        <version>1.5.3</version>
       </dependency>
 
       <dependency>
@@ -1078,6 +1078,7 @@
               <exclude>.license-header.txt</exclude>
               <exclude>**/plugins.txt</exclude>
               <exclude>**/Dockerfile</exclude>
+              <exclude>**/apidocs/**</exclude>
 
               <!-- Exclude downloaded/generated -->
               <exclude>**/.tmp/**</exclude>

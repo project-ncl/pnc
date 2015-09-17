@@ -17,17 +17,19 @@
  */
 package org.jboss.pnc.rest.endpoint;
 
-import com.wordnik.swagger.annotations.Api;
-import com.wordnik.swagger.annotations.ApiOperation;
-import com.wordnik.swagger.annotations.ApiParam;
-import com.wordnik.swagger.annotations.ApiResponse;
-import com.wordnik.swagger.annotations.ApiResponses;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.rest.provider.ArtifactProvider;
 import org.jboss.pnc.rest.provider.BuildRecordProvider;
 import org.jboss.pnc.rest.restmodel.BuildRecordRest;
-import org.jboss.pnc.rest.restmodel.response.Page;
-import org.jboss.pnc.rest.restmodel.response.Singleton;
+import org.jboss.pnc.rest.restmodel.response.error.ErrorResponseRest;
+import org.jboss.pnc.rest.swagger.response.BuildConfigurationAuditedSingleton;
+import org.jboss.pnc.rest.swagger.response.BuildRecordPage;
+import org.jboss.pnc.rest.swagger.response.BuildRecordSingleton;
 
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
@@ -81,12 +83,12 @@ public class BuildRecordEndpoint extends AbstractEndpoint<BuildRecord, BuildReco
         this.artifactProvider = artifactProvider;
     }
 
-    @ApiOperation(value = "Gets all Build Records", response = Page.class)
+    @ApiOperation(value = "Gets all Build Records")
     @ApiResponses(value = {
-            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION),
-            @ApiResponse(code = NO_CONTENT_CODE, message = NO_CONTENT_DESCRIPTION),
-            @ApiResponse(code = INVLID_CODE, message = INVALID_DESCRIPTION),
-            @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION)
+            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION, response = BuildRecordPage.class),
+            @ApiResponse(code = NO_CONTENT_CODE, message = NO_CONTENT_DESCRIPTION, response = BuildRecordPage.class),
+            @ApiResponse(code = INVLID_CODE, message = INVALID_DESCRIPTION, response = ErrorResponseRest.class),
+            @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION, response = ErrorResponseRest.class)
     })
     @GET
     @Override
@@ -98,12 +100,12 @@ public class BuildRecordEndpoint extends AbstractEndpoint<BuildRecord, BuildReco
         return super.getAll(pageIndex, pageSize, sort, q);
     }
 
-    @ApiOperation(value = "Gets specific Build Record", response = Singleton.class)
+    @ApiOperation(value = "Gets specific Build Record")
     @ApiResponses(value = {
-            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION),
-            @ApiResponse(code = INVLID_CODE, message = INVALID_DESCRIPTION),
-            @ApiResponse(code = NOT_FOUND_CODE, message = NOT_FOUND_DESCRIPTION),
-            @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION)
+            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION, response = BuildRecordSingleton.class),
+            @ApiResponse(code = NOT_FOUND_CODE, message = NOT_FOUND_DESCRIPTION, response = BuildRecordSingleton.class),
+            @ApiResponse(code = INVLID_CODE, message = INVALID_DESCRIPTION, response = ErrorResponseRest.class),
+            @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION, response = ErrorResponseRest.class)
     })
     @GET
     @Path("/{id}")
@@ -111,13 +113,13 @@ public class BuildRecordEndpoint extends AbstractEndpoint<BuildRecord, BuildReco
         return super.getSpecific(id);
     }
 
-    @ApiOperation(value = "Gets logs for specific Build Record", response = String.class)
+    @ApiOperation(value = "Gets logs for specific Build Record")
     @ApiResponses(value = {
-            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION),
-            @ApiResponse(code = INVLID_CODE, message = INVALID_DESCRIPTION),
+            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION, response = String.class),
+            @ApiResponse(code = INVLID_CODE, message = INVALID_DESCRIPTION, response = ErrorResponseRest.class),
             @ApiResponse(code = NOT_FOUND_CODE, message = NOT_FOUND_DESCRIPTION),
             @ApiResponse(code = NO_CONTENT_CODE, message = NO_CONTENT_DESCRIPTION),
-            @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION)
+            @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION, response = ErrorResponseRest.class)
     })
     @GET
     @Path("/{id}/log")
@@ -133,12 +135,12 @@ public class BuildRecordEndpoint extends AbstractEndpoint<BuildRecord, BuildReco
             return Response.ok(buildRecordProvider.getLogsForBuild(buildRecordLog)).build();
     }
 
-    @ApiOperation(value = "Gets artifacts for specific Build Record", response = Page.class)
+    @ApiOperation(value = "Gets artifacts for specific Build Record")
     @ApiResponses(value = {
-            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION),
-            @ApiResponse(code = NO_CONTENT_CODE, message = NO_CONTENT_DESCRIPTION),
-            @ApiResponse(code = INVLID_CODE, message = INVALID_DESCRIPTION),
-            @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION)
+            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION, response = BuildRecordPage.class),
+            @ApiResponse(code = NO_CONTENT_CODE, message = NO_CONTENT_DESCRIPTION, response = BuildRecordPage.class),
+            @ApiResponse(code = INVLID_CODE, message = INVALID_DESCRIPTION, response = ErrorResponseRest.class),
+            @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION, response = ErrorResponseRest.class)
     })
     @GET
     @Path("/{id}/artifacts")
@@ -155,12 +157,12 @@ public class BuildRecordEndpoint extends AbstractEndpoint<BuildRecord, BuildReco
      * Use /build-configuration/{id}/build-records
      */
     @Deprecated
-    @ApiOperation(value = "Gets the Build Records linked to a specific Build Configuration", response = Page.class)
+    @ApiOperation(value = "Gets the Build Records linked to a specific Build Configuration")
     @ApiResponses(value = {
-            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION),
-            @ApiResponse(code = NO_CONTENT_CODE, message = NO_CONTENT_DESCRIPTION),
-            @ApiResponse(code = INVLID_CODE, message = INVALID_DESCRIPTION),
-            @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION)
+            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION, response = BuildRecordPage.class),
+            @ApiResponse(code = NO_CONTENT_CODE, message = NO_CONTENT_DESCRIPTION, response = BuildRecordPage.class),
+            @ApiResponse(code = INVLID_CODE, message = INVALID_DESCRIPTION, response = ErrorResponseRest.class),
+            @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION, response = ErrorResponseRest.class)
     })
     @GET
     @Path("/build-configurations/{configurationId}")
@@ -174,12 +176,12 @@ public class BuildRecordEndpoint extends AbstractEndpoint<BuildRecord, BuildReco
                 buildRecordProvider.getAllForBuildConfiguration(pageIndex, pageSize, sort, q, configurationId));
     }
 
-    @ApiOperation(value = "Gets the Build Records linked to a specific Project", response = Page.class)
+    @ApiOperation(value = "Gets the Build Records linked to a specific Project")
     @ApiResponses(value = {
-            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION),
-            @ApiResponse(code = NO_CONTENT_CODE, message = NO_CONTENT_DESCRIPTION),
-            @ApiResponse(code = INVLID_CODE, message = INVALID_DESCRIPTION),
-            @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION)
+            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION, response = BuildRecordPage.class),
+            @ApiResponse(code = NO_CONTENT_CODE, message = NO_CONTENT_DESCRIPTION, response = BuildRecordPage.class),
+            @ApiResponse(code = INVLID_CODE, message = INVALID_DESCRIPTION, response = ErrorResponseRest.class),
+            @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION, response = ErrorResponseRest.class)
     })
     @GET
     @Path("/projects/{projectId}")
@@ -191,12 +193,12 @@ public class BuildRecordEndpoint extends AbstractEndpoint<BuildRecord, BuildReco
         return fromCollection(buildRecordProvider.getAllForProject(pageIndex, pageSize, sortingRsql, rsql, projectId));
     }
 
-    @ApiOperation(value = "Gets the audited build configuration for specific build record", response = Singleton.class)
+    @ApiOperation(value = "Gets the audited build configuration for specific build record")
     @ApiResponses(value = {
-            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION),
-            @ApiResponse(code = INVLID_CODE, message = INVALID_DESCRIPTION),
-            @ApiResponse(code = NOT_FOUND_CODE, message = NOT_FOUND_DESCRIPTION),
-            @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION)
+            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION, response = BuildConfigurationAuditedSingleton.class),
+            @ApiResponse(code = NOT_FOUND_CODE, message = NOT_FOUND_DESCRIPTION, response = BuildConfigurationAuditedSingleton.class),
+            @ApiResponse(code = INVLID_CODE, message = INVALID_DESCRIPTION, response = ErrorResponseRest.class),
+            @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION, response = ErrorResponseRest.class)
     })
     @GET
     @Path("/{id}/build-configuration-audited")

@@ -103,7 +103,7 @@ public class BuildConfigurationAudited implements GenericEntity<IdRev> {
     /**
      * @param id the id to set
      */
-    public void setId(Integer id) {
+    public void setBuildRecordId(Integer id) {
         this.id = id;
     }
 

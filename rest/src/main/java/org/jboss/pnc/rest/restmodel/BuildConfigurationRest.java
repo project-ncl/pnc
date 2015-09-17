@@ -17,7 +17,7 @@
  */
 package org.jboss.pnc.rest.restmodel;
 
-import com.wordnik.swagger.annotations.ApiModelProperty;
+import io.swagger.annotations.ApiModelProperty;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildStatus;
 import org.jboss.pnc.model.Environment;
@@ -29,7 +29,6 @@ import org.jboss.pnc.rest.validation.groups.WhenUpdating;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
 import javax.xml.bind.annotation.XmlRootElement;
-
 import java.util.Date;
 import java.util.Set;
 import java.util.stream.Collectors;

@@ -17,18 +17,20 @@
  */
 package org.jboss.pnc.rest.endpoint;
 
-import com.wordnik.swagger.annotations.Api;
-import com.wordnik.swagger.annotations.ApiOperation;
-import com.wordnik.swagger.annotations.ApiParam;
-import com.wordnik.swagger.annotations.ApiResponse;
-import com.wordnik.swagger.annotations.ApiResponses;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import org.jboss.pnc.model.ProductRelease;
 import org.jboss.pnc.model.ProductRelease.SupportLevel;
 import org.jboss.pnc.rest.provider.ProductReleaseProvider;
 import org.jboss.pnc.rest.provider.collection.CollectionInfo;
 import org.jboss.pnc.rest.restmodel.ProductReleaseRest;
-import org.jboss.pnc.rest.restmodel.response.Page;
-import org.jboss.pnc.rest.restmodel.response.Singleton;
+import org.jboss.pnc.rest.restmodel.response.error.ErrorResponseRest;
+import org.jboss.pnc.rest.swagger.response.ProductReleasePage;
+import org.jboss.pnc.rest.swagger.response.ProductReleaseSingleton;
+import org.jboss.pnc.rest.swagger.response.SupportLevelPage;
 import org.jboss.pnc.rest.validation.exceptions.ValidationException;
 
 import javax.inject.Inject;
@@ -88,12 +90,12 @@ public class ProductReleaseEndpoint extends AbstractEndpoint<ProductRelease, Pro
         this.productReleaseProvider = productReleaseProvider;
     }
 
-    @ApiOperation(value = "Gets all Product Releases", response = Page.class)
+    @ApiOperation(value = "Gets all Product Releases")
     @ApiResponses(value = {
-            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION),
-            @ApiResponse(code = NO_CONTENT_CODE, message = NO_CONTENT_DESCRIPTION),
-            @ApiResponse(code = INVLID_CODE, message = INVALID_DESCRIPTION),
-            @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION)
+            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION, response = ProductReleasePage.class),
+            @ApiResponse(code = NO_CONTENT_CODE, message = NO_CONTENT_DESCRIPTION, response = ProductReleasePage.class),
+            @ApiResponse(code = INVLID_CODE, message = INVALID_DESCRIPTION, response = ErrorResponseRest.class),
+            @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION, response = ErrorResponseRest.class)
     })
     @GET
     public Response getAll(@ApiParam(value = PAGE_INDEX_DESCRIPTION) @QueryParam(PAGE_INDEX_QUERY_PARAM) @DefaultValue(PAGE_INDEX_DEFAULT_VALUE) int pageIndex,
@@ -103,12 +105,12 @@ public class ProductReleaseEndpoint extends AbstractEndpoint<ProductRelease, Pro
         return super.getAll(pageIndex, pageSize, sort, q);
     }
 
-    @ApiOperation(value = "Gets all Product Releases of the Specified Product Version", response = Page.class)
+    @ApiOperation(value = "Gets all Product Releases of the Specified Product Version")
     @ApiResponses(value = {
-            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION),
-            @ApiResponse(code = NO_CONTENT_CODE, message = NO_CONTENT_DESCRIPTION),
-            @ApiResponse(code = INVLID_CODE, message = INVALID_DESCRIPTION),
-            @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION)
+            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION, response = ProductReleaseSingleton.class),
+            @ApiResponse(code = NO_CONTENT_CODE, message = NO_CONTENT_DESCRIPTION, response = ProductReleaseSingleton.class),
+            @ApiResponse(code = INVLID_CODE, message = INVALID_DESCRIPTION, response = ErrorResponseRest.class),
+            @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION, response = ErrorResponseRest.class)
     })
     @GET
     @Path("/product-versions/{versionId}")
@@ -121,12 +123,12 @@ public class ProductReleaseEndpoint extends AbstractEndpoint<ProductRelease, Pro
         return fromCollection(productReleaseProvider.getAllForProductVersion(pageIndex, pageSize, sort, q, versionId));
     }
 
-    @ApiOperation(value = "Gets specific Product Release", response = Singleton.class)
+    @ApiOperation(value = "Gets specific Product Release")
     @ApiResponses(value = {
-            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION),
-            @ApiResponse(code = INVLID_CODE, message = INVALID_DESCRIPTION),
-            @ApiResponse(code = NOT_FOUND_CODE, message = NOT_FOUND_DESCRIPTION),
-            @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION)
+            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION, response = ProductReleaseSingleton.class),
+            @ApiResponse(code = INVLID_CODE, message = INVALID_DESCRIPTION, response = ErrorResponseRest.class),
+            @ApiResponse(code = NOT_FOUND_CODE, message = NOT_FOUND_DESCRIPTION, response = ProductReleaseSingleton.class),
+            @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION, response = ErrorResponseRest.class)
     })
     @GET
     @Path("/{id}")
@@ -134,12 +136,12 @@ public class ProductReleaseEndpoint extends AbstractEndpoint<ProductRelease, Pro
         return super.getSpecific(id);
     }
 
-    @ApiOperation(value = "Creates a new Product Release", response = Singleton.class)
+    @ApiOperation(value = "Creates a new Product Release")
     @ApiResponses(value = {
-            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION),
-            @ApiResponse(code = INVLID_CODE, message = INVALID_DESCRIPTION),
-            @ApiResponse(code = CONFLICTED_CODE, message = CONFLICTED_DESCRIPTION),
-            @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION)
+            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION, response = ProductReleaseSingleton.class),
+            @ApiResponse(code = INVLID_CODE, message = INVALID_DESCRIPTION, response = ErrorResponseRest.class),
+            @ApiResponse(code = CONFLICTED_CODE, message = CONFLICTED_DESCRIPTION, response = ErrorResponseRest.class),
+            @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION, response = ErrorResponseRest.class)
     })
     @POST
     public Response createNew(ProductReleaseRest productReleaseRest, @Context UriInfo uriInfo) throws ValidationException {
@@ -149,9 +151,9 @@ public class ProductReleaseEndpoint extends AbstractEndpoint<ProductRelease, Pro
     @ApiOperation(value = "Updates an existing Product Release")
     @ApiResponses(value = {
             @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION),
-            @ApiResponse(code = INVLID_CODE, message = INVALID_DESCRIPTION),
-            @ApiResponse(code = CONFLICTED_CODE, message = CONFLICTED_DESCRIPTION),
-            @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION)
+            @ApiResponse(code = INVLID_CODE, message = INVALID_DESCRIPTION, response = ErrorResponseRest.class),
+            @ApiResponse(code = CONFLICTED_CODE, message = CONFLICTED_DESCRIPTION, response = ErrorResponseRest.class),
+            @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION, response = ErrorResponseRest.class)
     })
     @PUT
     @Path("/{id}")
@@ -160,12 +162,12 @@ public class ProductReleaseEndpoint extends AbstractEndpoint<ProductRelease, Pro
         return super.update(id, productReleaseRest);
     }
 
-    @ApiOperation(value = "Gets all Product Releases Support Level", response = Page.class)
+    @ApiOperation(value = "Gets all Product Releases Support Level")
     @ApiResponses(value = {
-            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION),
-            @ApiResponse(code = NO_CONTENT_CODE, message = NO_CONTENT_DESCRIPTION),
-            @ApiResponse(code = INVLID_CODE, message = INVALID_DESCRIPTION),
-            @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION)
+            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION, response = SupportLevelPage.class),
+            @ApiResponse(code = NO_CONTENT_CODE, message = NO_CONTENT_DESCRIPTION, response = SupportLevelPage.class),
+            @ApiResponse(code = INVLID_CODE, message = INVALID_DESCRIPTION, response = ErrorResponseRest.class),
+            @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION, response = ErrorResponseRest.class)
     })
     @GET
     @Path("/support-level")

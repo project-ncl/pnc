@@ -18,7 +18,20 @@
 package org.jboss.pnc.rest.configuration;
 
 import org.jboss.pnc.rest.debug.TestEndpoint;
-import org.jboss.pnc.rest.endpoint.*;
+import org.jboss.pnc.rest.endpoint.BuildConfigSetRecordEndpoint;
+import org.jboss.pnc.rest.endpoint.BuildConfigurationEndpoint;
+import org.jboss.pnc.rest.endpoint.BuildConfigurationSetEndpoint;
+import org.jboss.pnc.rest.endpoint.BuildRecordEndpoint;
+import org.jboss.pnc.rest.endpoint.BuildRecordSetEndpoint;
+import org.jboss.pnc.rest.endpoint.EnvironmentEndpoint;
+import org.jboss.pnc.rest.endpoint.LicenseEndpoint;
+import org.jboss.pnc.rest.endpoint.ProductEndpoint;
+import org.jboss.pnc.rest.endpoint.ProductMilestoneEndpoint;
+import org.jboss.pnc.rest.endpoint.ProductReleaseEndpoint;
+import org.jboss.pnc.rest.endpoint.ProductVersionEndpoint;
+import org.jboss.pnc.rest.endpoint.ProjectEndpoint;
+import org.jboss.pnc.rest.endpoint.RunningBuildRecordEndpoint;
+import org.jboss.pnc.rest.endpoint.UserEndpoint;
 
 import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.core.Application;
@@ -57,10 +70,8 @@ public class JaxRsActivator extends Application {
     }
 
     private void addSwaggerResources(Set<Class<?>> resources) {
-        resources.add(com.wordnik.swagger.jaxrs.listing.ApiListingResource.class);
-        resources.add(com.wordnik.swagger.jaxrs.listing.ApiDeclarationProvider.class);
-        resources.add(com.wordnik.swagger.jaxrs.listing.ApiListingResourceJSON.class);
-        resources.add(com.wordnik.swagger.jaxrs.listing.ResourceListingProvider.class);
+        resources.add(io.swagger.jaxrs.listing.ApiListingResource.class);
+        resources.add(io.swagger.jaxrs.listing.SwaggerSerializers.class);
     }
 
 }

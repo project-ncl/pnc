@@ -18,13 +18,12 @@
 
 package org.jboss.pnc.rest.endpoint;
 
-import com.wordnik.swagger.annotations.Api;
-import com.wordnik.swagger.annotations.ApiParam;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiParam;
 import org.jboss.pnc.core.builder.coordinator.bpm.BpmCompleteListener;
 import org.jboss.pnc.spi.BuildStatus;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -42,8 +41,6 @@ import javax.ws.rs.core.Response;
 @Consumes(MediaType.APPLICATION_JSON)
 public class BuildTaskEndpoint {
 
-    private static final Logger logger = LoggerFactory.getLogger(BuildTaskEndpoint.class);
-
     @Context
     private HttpServletRequest httpServletRequest;
 
@@ -51,6 +48,11 @@ public class BuildTaskEndpoint {
 
     @Deprecated
     public BuildTaskEndpoint() {} // CDI workaround
+
+    @Inject
+    public BuildTaskEndpoint(BpmCompleteListener bpmCompleteListener) {
+        this.bpmCompleteListener = bpmCompleteListener;
+    }
 
     @GET
     @Path("/{taskId}/completed")

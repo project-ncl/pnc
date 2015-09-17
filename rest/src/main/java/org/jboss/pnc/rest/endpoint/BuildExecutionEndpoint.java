@@ -18,8 +18,8 @@
 
 package org.jboss.pnc.rest.endpoint;
 
-import com.wordnik.swagger.annotations.Api;
-import com.wordnik.swagger.annotations.ApiParam;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiParam;
 import org.jboss.pnc.auth.AuthenticationProvider;
 import org.jboss.pnc.core.builder.executor.BuildExecutionTask;
 import org.jboss.pnc.core.builder.executor.BuildExecutor;
@@ -75,10 +75,13 @@ public class BuildExecutionEndpoint {
     private BuildRecordProvider buildRecordProvider;
 
     @Inject
-    public BuildExecutionEndpoint(BuildExecutor buildExecutor, Datastore datastore, BuildConfigurationRepository buildConfigurationRepository, BpmCallback bpmCallback, BuildRecordProvider buildRecordProvider) {
+    public BuildExecutionEndpoint(BuildExecutor buildExecutor, Datastore datastore, BuildConfigurationRepository buildConfigurationRepository,
+            BuildConfigurationAuditedRepository buildConfigurationAuditedRepository, BpmCallback bpmCallback,
+            BuildRecordProvider buildRecordProvider) {
         this.buildExecutor = buildExecutor;
         this.datastore = datastore;
         this.buildConfigurationRepository = buildConfigurationRepository;
+        this.buildConfigurationAuditedRepository = buildConfigurationAuditedRepository;
         this.bpmCallback = bpmCallback;
         this.buildRecordProvider = buildRecordProvider;
     }

@@ -187,7 +187,7 @@ public class BuildConfigurationRestTest {
                     .body(configurationTemplate.fillTemplate()).contentType(ContentType.JSON).port(getHttpPort()).when().post(CONFIGURATION_REST_ENDPOINT);
 
         ResponseAssertion.assertThat(response).hasStatus(201);
-        ResponseAssertion.assertThat(response).hasJsonValueNotNullOrEmpty("creationTime").hasJsonValueNotNullOrEmpty("lastModificationTime");
+        ResponseAssertion.assertThat(response).hasJsonValueNotNullOrEmpty("content.creationTime").hasJsonValueNotNullOrEmpty("content.lastModificationTime");
     }
 
     @Test

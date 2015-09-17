@@ -168,8 +168,7 @@ public abstract class AbstractRestClient<T> {
 
         T object = null;
         try {
-            object = response.then().extract().body().as(entityClass);
-            System.out.println("#### JEST " + object);
+            object = response.thenReturn().jsonPath().getObject("content", entityClass);
         } catch (Exception e) {
             if(withValidation) {
                 throw new AssertionError("JSON unmarshalling error", e);
