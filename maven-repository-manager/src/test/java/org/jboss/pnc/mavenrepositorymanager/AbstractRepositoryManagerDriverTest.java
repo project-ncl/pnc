@@ -17,31 +17,33 @@
  */
 package org.jboss.pnc.mavenrepositorymanager;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.Assert.assertThat;
-
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.commonjava.aprox.boot.BootStatus;
 import org.commonjava.aprox.model.core.Group;
 import org.commonjava.aprox.model.core.StoreKey;
 import org.commonjava.aprox.test.fixture.core.CoreServerFixture;
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.ModuleConfigJson;
-import org.jboss.pnc.common.json.moduleconfig.AuthenticationModuleConfig;
 import org.jboss.pnc.common.json.moduleconfig.MavenRepoDriverModuleConfig;
 import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
 import org.jboss.pnc.test.category.ContainerTest;
-import org.jboss.pnc.test.category.RemoteTest;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.experimental.categories.Category;
 import org.junit.rules.TemporaryFolder;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.List;
 import java.util.Properties;
+
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.junit.Assert.assertThat;
 
 @Category({ ContainerTest.class })
 public class AbstractRepositoryManagerDriverTest {
@@ -56,10 +58,12 @@ public class AbstractRepositoryManagerDriverTest {
     protected String url;
 
     private String oldIni;
+    private File etcDir;
+    private File dataDir;
 
     @Before
     public void setup() throws Exception {
-        fixture = new CoreServerFixture(temp);
+        fixture = newServerFixture();
 
         Properties sysprops = System.getProperties();
         oldIni = sysprops.getProperty(CONFIG_SYSPROP);
@@ -78,6 +82,8 @@ public class AbstractRepositoryManagerDriverTest {
 
         sysprops.setProperty(CONFIG_SYSPROP, configFile.getAbsolutePath());
         System.setProperties(sysprops);
+
+
 
         fixture.start();
 
@@ -110,6 +116,66 @@ public class AbstractRepositoryManagerDriverTest {
         }
     }
 
+    protected final CoreServerFixture newServerFixture()
+            throws Exception
+    {
+        final CoreServerFixture fixture = new CoreServerFixture( temp );
+
+        etcDir = new File( fixture.getBootOptions().getAproxHome(), "etc/aprox" );
+        dataDir = new File( fixture.getBootOptions().getAproxHome(), "var/lib/aprox/data" );
+
+        initBaseTestConfig( fixture );
+        initTestConfig( fixture );
+        initTestData( fixture );
+
+        return fixture;
+    }
+
+    protected void initTestConfig( CoreServerFixture fixture )
+            throws IOException
+    {
+    }
+
+    protected void initTestData( CoreServerFixture fixture )
+            throws IOException
+    {
+    }
+
+    protected final void initBaseTestConfig( CoreServerFixture fixture )
+            throws IOException
+    {
+        writeConfigFile( "conf.d/scheduler.conf", "[scheduler]\nenabled=false" );
+    }
+
+    protected String readTestResource( String resource )
+            throws IOException
+    {
+        return IOUtils.toString(Thread.currentThread().getContextClassLoader().getResourceAsStream(resource));
+    }
+
+    protected void writeConfigFile( String confPath, String contents )
+            throws IOException
+    {
+        File confFile = new File( etcDir, confPath );
+        Logger logger = LoggerFactory.getLogger(getClass());
+        logger.info( "Writing configuration to: {}\n\n{}\n\n", confFile, contents );
+
+        confFile.getParentFile().mkdirs();
+
+        FileUtils.write( confFile, contents );
+    }
+
+    protected void writeDataFile( String path, String contents )
+            throws IOException
+    {
+        File confFile = new File( dataDir, path );
+
+        Logger logger = LoggerFactory.getLogger(getClass());
+        logger.info( "Writing data file to: {}\n\n{}\n\n", confFile, contents );
+        confFile.getParentFile().mkdirs();
+
+        FileUtils.write(confFile, contents);
+    }
     protected void assertGroupConstituents(Group buildGroup, StoreKey... constituents) {
         List<StoreKey> groupConstituents = buildGroup.getConstituents();
         for (int i = 0; i < constituents.length; i++) {

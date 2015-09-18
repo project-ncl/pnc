@@ -30,8 +30,6 @@ public interface RepositorySession {
 
     String getBuildRepositoryId();
 
-    String getBuildSetRepositoryId();
-
     RepositoryConnectionInfo getConnectionInfo();
 
     /**

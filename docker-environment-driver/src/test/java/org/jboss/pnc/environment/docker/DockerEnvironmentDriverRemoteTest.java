@@ -374,11 +374,6 @@ public class DockerEnvironmentDriverRemoteTest {
             return null;
         }
 
-        @Override
-        public String getBuildSetRepositoryId() {
-            return null;
-        }
-
     }
 
 }

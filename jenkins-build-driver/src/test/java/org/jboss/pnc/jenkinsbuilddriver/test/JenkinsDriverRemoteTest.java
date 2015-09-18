@@ -252,11 +252,6 @@ public class JenkinsDriverRemoteTest {
                 return artifact;
             }
 
-            @Override
-            public String getBuildSetRepositoryId() {
-                return null;
-            }
-
         };
     }
 

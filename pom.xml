@@ -74,8 +74,8 @@
     <!-- minimum jdk and maven versions -->
     <jdk.min.version>1.8</jdk.min.version>
     <maven.min.version>3.2</maven.min.version>
-    <atlasVersion>0.13.6</atlasVersion>
-    <aproxVersion>0.23.1</aproxVersion>
+    <atlasVersion>0.15.0</atlasVersion>
+    <aproxVersion>0.24.0</aproxVersion>
     <version.jboss.maven.plugin>7.5.Final</version.jboss.maven.plugin>
     <version.jboss.bom>1.0.7.Final</version.jboss.bom>
     <version.junit>4.11</version.junit>

@@ -17,16 +17,13 @@
  */
 package org.jboss.pnc.mavenrepositorymanager;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.junit.Assert.assertThat;
-
 import org.apache.commons.io.IOUtils;
 import org.commonjava.aprox.client.core.Aprox;
 import org.commonjava.aprox.client.core.util.UrlUtils;
 import org.commonjava.aprox.model.core.StoreType;
-import org.commonjava.maven.atlas.ident.ref.ArtifactRef;
 import org.commonjava.maven.atlas.ident.ref.ProjectVersionRef;
+import org.commonjava.maven.atlas.ident.ref.SimpleArtifactRef;
+import org.commonjava.maven.atlas.ident.ref.SimpleProjectVersionRef;
 import org.jboss.pnc.mavenrepositorymanager.fixture.TestBuildExecution;
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.spi.BuildExecution;
@@ -38,6 +35,10 @@ import java.io.InputStream;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.junit.Assert.assertThat;
 
 public class DownloadTwoThenVerifyExtractedArtifactsContainThemTest 
  extends AbstractImportTest
@@ -76,10 +77,10 @@ public class DownloadTwoThenVerifyExtractedArtifactsContainThemTest
         assertThat(deps, notNullValue());
         assertThat(deps.size(), equalTo(2));
 
-        ProjectVersionRef pvr = new ProjectVersionRef("org.commonjava.aprox", "aprox-core", "0.17.0");
+        ProjectVersionRef pvr = new SimpleProjectVersionRef("org.commonjava.aprox", "aprox-core", "0.17.0");
         Set<String> refs = new HashSet<>();
-        refs.add(new ArtifactRef(pvr, "pom", null, false).toString());
-        refs.add(new ArtifactRef(pvr, "jar", null, false).toString());
+        refs.add(new SimpleArtifactRef(pvr, "pom", null, false).toString());
+        refs.add(new SimpleArtifactRef(pvr, "jar", null, false).toString());
 
         // check that both files are in the dep artifacts list using getIdentifier() to match on GAVT[C]
         for (Artifact artifact : deps) {

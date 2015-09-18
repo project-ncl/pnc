@@ -17,10 +17,6 @@
  */
 package org.jboss.pnc.mavenrepositorymanager;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.junit.Assert.assertThat;
-
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
@@ -34,8 +30,9 @@ import org.apache.http.impl.client.HttpClientBuilder;
 import org.commonjava.aprox.client.core.Aprox;
 import org.commonjava.aprox.client.core.util.UrlUtils;
 import org.commonjava.aprox.model.core.StoreType;
-import org.commonjava.maven.atlas.ident.ref.ArtifactRef;
 import org.commonjava.maven.atlas.ident.ref.ProjectVersionRef;
+import org.commonjava.maven.atlas.ident.ref.SimpleArtifactRef;
+import org.commonjava.maven.atlas.ident.ref.SimpleProjectVersionRef;
 import org.jboss.pnc.mavenrepositorymanager.fixture.TestBuildExecution;
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.spi.BuildExecution;
@@ -47,6 +44,10 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.junit.Assert.assertThat;
 
 public class UploadTwoThenVerifyExtractedArtifactsContainThemTest 
     extends AbstractRepositoryManagerDriverTest
@@ -100,10 +101,10 @@ public class UploadTwoThenVerifyExtractedArtifactsContainThemTest
         assertThat(artifacts, notNullValue());
         assertThat(artifacts.size(), equalTo(2));
 
-        ProjectVersionRef pvr = new ProjectVersionRef("org.commonjava.aprox", "aprox-core", "0.17.0");
+        ProjectVersionRef pvr = new SimpleProjectVersionRef("org.commonjava.aprox", "aprox-core", "0.17.0");
         Set<String> refs = new HashSet<>();
-        refs.add(new ArtifactRef(pvr, "pom", null, false).toString());
-        refs.add(new ArtifactRef(pvr, "jar", null, false).toString());
+        refs.add(new SimpleArtifactRef(pvr, "pom", null, false).toString());
+        refs.add(new SimpleArtifactRef(pvr, "jar", null, false).toString());
 
         // check that the artifact getIdentifier() stores GAVT[C] information in the standard Maven rendering
         for (Artifact artifact : artifacts) {

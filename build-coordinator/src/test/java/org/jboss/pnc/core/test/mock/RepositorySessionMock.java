@@ -100,8 +100,4 @@ public class RepositorySessionMock implements RepositorySession {
         return artifact;
     }
 
-    @Override
-    public String getBuildSetRepositoryId() {
-        return null;
-    }
 }
