@@ -51,6 +51,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import java.time.temporal.ChronoUnit;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
@@ -100,7 +101,7 @@ public class BuildExecution {
                 .rev(1)
                 .build();
 
-        buildExecutor.build(buildConfiguration, configurationAudited, MockUser.newTestUser(1), onComplete, null, null, 1);
+        buildExecutor.build(buildConfiguration, configurationAudited, MockUser.newTestUser(1), onComplete, null, null, 1, new Date());
 
         Wait.forCondition(() -> completed.get(), 1, ChronoUnit.SECONDS, "Did not received build complete.");
     }

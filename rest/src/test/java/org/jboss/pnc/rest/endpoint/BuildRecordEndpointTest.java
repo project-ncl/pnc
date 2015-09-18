@@ -28,6 +28,7 @@ import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import java.util.Date;
 import java.util.Optional;
 
 import static org.junit.Assert.assertEquals;
@@ -83,7 +84,7 @@ public class BuildRecordEndpointTest {
         BuildExecutor buildExecutor = mock(BuildExecutor.class);
         User user = MockUser.newTestUser(1);
         BuildConfiguration buildConfiguration = newBuildConfiguration();
-        BuildExecutionTask buildExecutionTask = BuildExecutionTask.build(buildExecutionTaskId, buildConfiguration, null, user, null, null, Optional.ofNullable(null), buildTaskId);
+        BuildExecutionTask buildExecutionTask = BuildExecutionTask.build(buildExecutionTaskId, buildConfiguration, null, user, null, null, Optional.ofNullable(null), buildTaskId, new Date());
         when(buildExecutor.getRunningExecution(buildExecutionTaskId)).thenReturn(buildExecutionTask);
         return buildExecutor;
     }

@@ -65,7 +65,8 @@ public class LocalBuildScheduler implements BuildScheduler {
                 buildTask.getBuildRecordSetIds(),
                 buildTask.getBuildConfigSetRecordId(),
                 Optional.of(buildStatusChangedEventNotifier),
-                buildTask.getId()
+                buildTask.getId(),
+                buildTask.getSubmitTime()
         );
         buildExecutor.startBuilding(buildExecutionTask, onComplete);
     }

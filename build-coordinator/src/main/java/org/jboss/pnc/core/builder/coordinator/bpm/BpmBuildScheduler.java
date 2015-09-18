@@ -125,6 +125,7 @@ public class BpmBuildScheduler implements BuildScheduler {
         parameters.put("buildRecordSetIdsCSV", StringUtils.toCVS(buildTask.getBuildRecordSetIds()));
         parameters.put("buildConfigSetRecordId", buildTask.getBuildConfigSetRecordId());
         parameters.put("buildContentId", ContentIdentityManager.getBuildContentId(buildTask.getBuildConfiguration()));
+        parameters.put("submitTimeMillis", buildTask.getSubmitTime().getTime());
 
         return kieSession.startProcess(processId, parameters);
     }

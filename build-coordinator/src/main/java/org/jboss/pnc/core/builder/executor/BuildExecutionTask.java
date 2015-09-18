@@ -59,8 +59,10 @@ public class BuildExecutionTask implements BuildExecution {
     private Optional<Event<BuildStatusChangedEvent>> buildStatusChangedEventNotifier; //TODO decouple event notifications
     private Integer buildTaskId;
     private boolean failed = false;
+    //BuildTask.submitTime
+    private Date submitTime;
 
-    public BuildExecutionTask(int id, BuildConfiguration buildConfiguration, BuildConfigurationAudited buildConfigurationAudited, String topContentId, String buildContentId, User user, Set<Integer> buildRecordSetIds, Integer buildConfigSetRecordId, Optional<Event<BuildStatusChangedEvent>> buildStatusChangedEventNotifier, Integer buildTaskId) {
+    public BuildExecutionTask(int id, BuildConfiguration buildConfiguration, BuildConfigurationAudited buildConfigurationAudited, String topContentId, String buildContentId, User user, Set<Integer> buildRecordSetIds, Integer buildConfigSetRecordId, Optional<Event<BuildStatusChangedEvent>> buildStatusChangedEventNotifier, Integer buildTaskId, Date submitTime) {
         this.id = id;
         this.buildConfiguration = buildConfiguration;
         this.buildConfigurationAudited = buildConfigurationAudited;
@@ -71,6 +73,7 @@ public class BuildExecutionTask implements BuildExecution {
         this.buildConfigSetRecordId = buildConfigSetRecordId;
         this.buildStatusChangedEventNotifier = buildStatusChangedEventNotifier;
         this.buildTaskId = buildTaskId;
+        this.submitTime = submitTime;
     }
 
     public void setStatus(BuildStatus status) {
@@ -181,7 +184,8 @@ public class BuildExecutionTask implements BuildExecution {
             Set<Integer> buildRecordSetIds,
             Integer buildConfigSetRecordId,
             Optional<Event<BuildStatusChangedEvent>> buildStatusChangedEventNotifier,
-            Integer buildTaskId) {
+            Integer buildTaskId,
+            Date submitTime) {
         String topContentId = ContentIdentityManager.getProductContentId(BuildConfigurationUtils.getFirstProductVersion(buildConfiguration));
         String buildContentId = ContentIdentityManager.getBuildContentId(buildConfiguration);
 
@@ -195,10 +199,15 @@ public class BuildExecutionTask implements BuildExecution {
                 buildRecordSetIds,
                 buildConfigSetRecordId,
                 buildStatusChangedEventNotifier,
-                buildTaskId);
+                buildTaskId,
+                submitTime);
     }
 
     public Integer getBuildConfigSetRecordId() {
         return buildConfigSetRecordId;
+    }
+
+    public Date getSubmitTime() {
+        return submitTime;
     }
 }
