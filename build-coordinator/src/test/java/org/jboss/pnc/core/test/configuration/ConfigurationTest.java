@@ -29,7 +29,6 @@ import org.jboss.pnc.core.BuildDriverFactory;
 import org.jboss.pnc.core.EnvironmentDriverFactory;
 import org.jboss.pnc.core.exception.CoreException;
 import org.jboss.pnc.model.BuildType;
-import org.jboss.pnc.model.Environment;
 import org.jboss.pnc.model.OperationalSystem;
 import org.jboss.pnc.spi.environment.EnvironmentDriver;
 import org.jboss.shrinkwrap.api.ShrinkWrap;

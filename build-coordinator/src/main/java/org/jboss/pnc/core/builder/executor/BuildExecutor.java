@@ -165,9 +165,9 @@ public class BuildExecutor {
     private StartedEnvironment setUpEnvironment(BuildExecutionTask buildExecutionTask, RepositorySession repositorySession) {
         buildExecutionTask.setStatus(BuildStatus.BUILD_ENV_SETTING_UP);
         try {
-            EnvironmentDriver envDriver = environmentDriverFactory.getDriver(buildExecutionTask.getBuildConfigurationAudited().getEnvironment());
+            EnvironmentDriver envDriver = environmentDriverFactory.getDriver(buildExecutionTask.getBuildConfigurationAudited().getBuildEnvironment());
             StartedEnvironment startedEnv = envDriver.buildEnvironment(
-                    buildExecutionTask.getBuildConfigurationAudited().getEnvironment(), repositorySession);
+                    buildExecutionTask.getBuildConfigurationAudited().getBuildEnvironment(), repositorySession);
             return startedEnv;
         } catch (Throwable e) {
             throw new BuildProcessException(e);
@@ -198,7 +198,7 @@ public class BuildExecutor {
         buildExecutionTask.setStatus(BuildStatus.BUILD_SETTING_UP);
         try {
             buildExecutionTask.setStartTime(new Date());
-            BuildDriver buildDriver = buildDriverFactory.getBuildDriver(buildExecutionTask.getBuildConfigurationAudited().getEnvironment().getBuildType());
+            BuildDriver buildDriver = buildDriverFactory.getBuildDriver(buildExecutionTask.getBuildConfigurationAudited().getBuildEnvironment().getBuildType());
             return buildDriver.startProjectBuild(buildExecutionTask, buildExecutionTask.getBuildConfigurationAudited(), runningEnvironment);
         } catch (Throwable e) {
             throw new BuildProcessException(e, runningEnvironment);

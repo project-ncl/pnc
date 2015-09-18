@@ -35,7 +35,7 @@ import java.util.stream.Collectors;
 
 /**
  * The Class BuildConfiguration cointains the informations needed to trigger the build of a project, i.e. the sources and the
- * build script, the environment needed to run, the project configurations that need to be triggered after a successful build.
+ * build script, the build system image needed to run, the project configurations that need to be triggered after a successful build.
  * It contains also creation and last modification time for historical purposes
  * <p>
  * (project + name) should be unique
@@ -80,10 +80,10 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
     @ForeignKey(name = "fk_buildconfiguration_project")
     private Project project;
 
-    @NotNull
+    @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
     @ManyToOne(cascade = { CascadeType.REFRESH, CascadeType.DETACH })
-    @ForeignKey(name = "fk_buildconfiguration_environment")
-    private Environment environment;
+    @ForeignKey(name = "fk_buildconfiguration_buildenvironment")
+    private BuildEnvironment buildEnvironment;
 
     @NotAudited
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "latestBuildConfiguration")
@@ -265,18 +265,12 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
         return this.productVersions.remove(productVersion);
     }
 
-    /**
-     * @return the environment
-     */
-    public Environment getEnvironment() {
-        return environment;
+    public BuildEnvironment getBuildEnvironment() {
+        return buildEnvironment;
     }
 
-    /**
-     * @param environment the environment to set
-     */
-    public void setEnvironment(Environment environment) {
-        this.environment = environment;
+    public void setBuildEnvironment(BuildEnvironment buildEnvironment) {
+        this.buildEnvironment = buildEnvironment;
     }
 
     /**
@@ -573,7 +567,7 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
 
         private Project project;
 
-        private Environment environment;
+        private BuildEnvironment buildEnvironment;
 
         private Set<ProductVersion> productVersions;
 
@@ -619,7 +613,7 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
             }
             buildConfiguration.setProject(project);
 
-            buildConfiguration.setEnvironment(environment);
+            buildConfiguration.setBuildEnvironment(buildEnvironment);
             buildConfiguration.setCreationTime(creationTime);
             buildConfiguration.setLastModificationTime(lastModificationTime);
             buildConfiguration.setBuildStatus(buildStatus);
@@ -683,8 +677,8 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
             return this;
         }
 
-        public Builder environment(Environment environment) {
-            this.environment = environment;
+        public Builder buildEnvironment(BuildEnvironment buildEnvironment) {
+            this.buildEnvironment = buildEnvironment;
             return this;
         }
 

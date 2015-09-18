@@ -22,12 +22,12 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-import org.jboss.pnc.model.Environment;
-import org.jboss.pnc.rest.provider.EnvironmentProvider;
-import org.jboss.pnc.rest.restmodel.EnvironmentRest;
+import org.jboss.pnc.model.BuildEnvironment;
+import org.jboss.pnc.rest.provider.BuildEnvironmentProvider;
+import org.jboss.pnc.rest.restmodel.BuildEnvironmentRest;
 import org.jboss.pnc.rest.restmodel.response.error.ErrorResponseRest;
-import org.jboss.pnc.rest.swagger.response.EnvironmentPage;
-import org.jboss.pnc.rest.swagger.response.EnvironmentSingleton;
+import org.jboss.pnc.rest.swagger.response.BuildEnvironmentPage;
+import org.jboss.pnc.rest.swagger.response.BuildEnvironmentSingleton;
 import org.jboss.pnc.rest.validation.exceptions.ValidationException;
 
 import javax.inject.Inject;
@@ -73,20 +73,20 @@ import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_DESCRIPT
 @Path("/environments")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
-public class EnvironmentEndpoint extends AbstractEndpoint<Environment, EnvironmentRest> {
+public class BuildEnvironmentEndpoint extends AbstractEndpoint<BuildEnvironment, BuildEnvironmentRest> {
 
-    public EnvironmentEndpoint() {
+    public BuildEnvironmentEndpoint() {
     }
 
     @Inject
-    public EnvironmentEndpoint(EnvironmentProvider environmentProvider) {
+    public BuildEnvironmentEndpoint(BuildEnvironmentProvider environmentProvider) {
         super(environmentProvider);
     }
 
     @ApiOperation(value = "Gets all Environments")
     @ApiResponses(value = {
-            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION, response = EnvironmentPage.class),
-            @ApiResponse(code = NO_CONTENT_CODE, message = NO_CONTENT_DESCRIPTION, response = EnvironmentPage.class),
+            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION, response = BuildEnvironmentPage.class),
+            @ApiResponse(code = NO_CONTENT_CODE, message = NO_CONTENT_DESCRIPTION, response = BuildEnvironmentPage.class),
             @ApiResponse(code = INVLID_CODE, message = INVALID_DESCRIPTION, response = ErrorResponseRest.class),
             @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION, response = ErrorResponseRest.class)
     })
@@ -100,8 +100,8 @@ public class EnvironmentEndpoint extends AbstractEndpoint<Environment, Environme
 
     @ApiOperation(value = "Get specific Environment")
     @ApiResponses(value = {
-            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION, response = EnvironmentSingleton.class),
-            @ApiResponse(code = NOT_FOUND_CODE, message = NOT_FOUND_DESCRIPTION, response = EnvironmentSingleton.class),
+            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION, response = BuildEnvironmentSingleton.class),
+            @ApiResponse(code = NOT_FOUND_CODE, message = NOT_FOUND_DESCRIPTION, response = BuildEnvironmentSingleton.class),
             @ApiResponse(code = INVLID_CODE, message = INVALID_DESCRIPTION, response = ErrorResponseRest.class),
             @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION, response = ErrorResponseRest.class)
     })
@@ -113,13 +113,13 @@ public class EnvironmentEndpoint extends AbstractEndpoint<Environment, Environme
 
     @ApiOperation(value = "Creates a new Environment")
     @ApiResponses(value = {
-            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION, response = EnvironmentSingleton.class),
+            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION, response = BuildEnvironmentSingleton.class),
             @ApiResponse(code = INVLID_CODE, message = INVALID_DESCRIPTION, response = ErrorResponseRest.class),
             @ApiResponse(code = CONFLICTED_CODE, message = CONFLICTED_DESCRIPTION, response = ErrorResponseRest.class),
             @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION, response = ErrorResponseRest.class)
     })
     @POST
-    public Response createNew(EnvironmentRest environmentRest, @Context UriInfo uriInfo)
+    public Response createNew(BuildEnvironmentRest environmentRest, @Context UriInfo uriInfo)
             throws ValidationException {
         return super.createNew(environmentRest, uriInfo);
     }
@@ -134,7 +134,7 @@ public class EnvironmentEndpoint extends AbstractEndpoint<Environment, Environme
     @PUT
     @Path("/{id}")
     public Response update(@ApiParam(value = "Environment id", required = true) @PathParam("id") Integer environmentId,
-            EnvironmentRest environmentRest, @Context UriInfo uriInfo) throws ValidationException {
+            BuildEnvironmentRest environmentRest, @Context UriInfo uriInfo) throws ValidationException {
         return super.update(environmentId, environmentRest);
     }
 

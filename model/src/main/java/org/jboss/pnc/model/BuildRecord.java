@@ -124,7 +124,7 @@ public class BuildRecord implements GenericEntity<Integer> {
      */
     @ManyToOne
     @ForeignKey(name = "fk_buildrecord_systemimage")
-    private SystemImage systemImage;
+    private BuildEnvironment systemImage;
 
     // bi-directional many-to-many association to buildRecordSet
 
@@ -338,7 +338,7 @@ public class BuildRecord implements GenericEntity<Integer> {
      *
      * @return the system image
      */
-    public SystemImage getSystemImage() {
+    public BuildEnvironment getSystemImage() {
         return systemImage;
     }
 
@@ -347,7 +347,7 @@ public class BuildRecord implements GenericEntity<Integer> {
      *
      * @param systemImage the new system image
      */
-    public void setSystemImage(SystemImage systemImage) {
+    public void setSystemImage(BuildEnvironment systemImage) {
         this.systemImage = systemImage;
     }
 
@@ -465,7 +465,7 @@ public class BuildRecord implements GenericEntity<Integer> {
 
         private String buildDriverId;
 
-        private SystemImage systemImage;
+        private BuildEnvironment systemImage;
 
         private Set<BuildRecordSet> buildRecordSets;
 
@@ -598,7 +598,7 @@ public class BuildRecord implements GenericEntity<Integer> {
             return this;
         }
 
-        public Builder systemImage(SystemImage systemImage) {
+        public Builder systemImage(BuildEnvironment systemImage) {
             this.systemImage = systemImage;
             return this;
         }

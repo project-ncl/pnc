@@ -67,8 +67,8 @@ public class BuildConfigurationAudited implements GenericEntity<IdRev> {
 
     @NotNull
     @ManyToOne
-    @ForeignKey(name = "fk_buildconfiguration_aud_environment")
-    private Environment environment;
+    @ForeignKey(name = "fk_buildconfiguration_aud_buildenvironment")
+    private BuildEnvironment buildEnvironment;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "buildConfigurationAudited")
     private Set<BuildRecord> buildRecords;
@@ -199,18 +199,12 @@ public class BuildConfigurationAudited implements GenericEntity<IdRev> {
         this.project = project;
     }
 
-    /**
-     * @return the environment
-     */
-    public Environment getEnvironment() {
-        return environment;
+    public BuildEnvironment getBuildEnvironment() {
+        return buildEnvironment;
     }
 
-    /**
-     * @param environment the environment to set
-     */
-    public void setEnvironment(Environment environment) {
-        this.environment = environment;
+    public void setBuildEnvironment(BuildEnvironment buildEnvironment) {
+        this.buildEnvironment = buildEnvironment;
     }
 
     public Set<BuildRecord> getBuildRecords() {
@@ -257,7 +251,7 @@ public class BuildConfigurationAudited implements GenericEntity<IdRev> {
             configurationAudited.setBuildRecords(buildConfiguration.getBuildRecords());
             configurationAudited.setBuildScript(buildConfiguration.getBuildScript());
             configurationAudited.setDescription(buildConfiguration.getDescription());
-            configurationAudited.setEnvironment(buildConfiguration.getEnvironment());
+            configurationAudited.setBuildEnvironment(buildConfiguration.getBuildEnvironment());
             configurationAudited.setName(buildConfiguration.getName());
             configurationAudited.setDescription(buildConfiguration.getDescription());
             configurationAudited.setScmRepoURL(buildConfiguration.getScmRepoURL());

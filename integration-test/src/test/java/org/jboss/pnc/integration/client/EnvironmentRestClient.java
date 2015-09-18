@@ -17,13 +17,13 @@
  */
 package org.jboss.pnc.integration.client;
 
-import org.jboss.pnc.rest.restmodel.EnvironmentRest;
+import org.jboss.pnc.rest.restmodel.BuildEnvironmentRest;
 
-public class EnvironmentRestClient extends AbstractRestClient<EnvironmentRest> {
+public class EnvironmentRestClient extends AbstractRestClient<BuildEnvironmentRest> {
 
     private static final String ENVIRONMENT_REST_ENDPOINT = "/pnc-rest/rest/environments/";
 
     public EnvironmentRestClient() {
-        super(ENVIRONMENT_REST_ENDPOINT, EnvironmentRest.class);
+        super(ENVIRONMENT_REST_ENDPOINT, BuildEnvironmentRest.class);
     }
 }

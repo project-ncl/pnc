@@ -22,7 +22,7 @@ import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 
 import org.jboss.pnc.core.exception.CoreException;
-import org.jboss.pnc.model.Environment;
+import org.jboss.pnc.model.BuildEnvironment;
 import org.jboss.pnc.spi.environment.EnvironmentDriver;
 
 /**
@@ -39,16 +39,16 @@ public class EnvironmentDriverFactory {
     
     /**
      * Gets environment driver, which can manage requested environment
-     * @param environment Requested environment specification
+     * @param buildSystemImage Requested build system specification
      * @return Available driver for given environment
      * @throws CoreException Throw if no suitable driver for selected environment was found
      */
-    public EnvironmentDriver getDriver(Environment environment) throws CoreException {
+    public EnvironmentDriver getDriver(BuildEnvironment buildSystemImage) throws CoreException {
         for (EnvironmentDriver driver : availableDrivers) {
-            if (driver.canBuildEnvironment(environment))
+            if (driver.canBuildEnvironment(buildSystemImage))
                 return driver;
         }
 
-        throw new CoreException("No environment driver available for " + environment + " environment type.");
+        throw new CoreException("No environment driver available for " + buildSystemImage + " environment type.");
     }
 }
