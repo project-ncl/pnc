@@ -227,11 +227,6 @@ public class OpenshiftEnvironmentDriverRemoteTest {
             return null;
         }
 
-        @Override
-        public String getBuildSetRepositoryId() {
-            return null;
-        }
-
     }
 
 }

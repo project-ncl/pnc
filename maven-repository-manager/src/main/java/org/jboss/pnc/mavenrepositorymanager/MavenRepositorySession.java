@@ -24,13 +24,15 @@ import org.commonjava.aprox.client.core.module.AproxContentClientModule;
 import org.commonjava.aprox.folo.client.AproxFoloAdminClientModule;
 import org.commonjava.aprox.folo.dto.TrackedContentDTO;
 import org.commonjava.aprox.folo.dto.TrackedContentEntryDTO;
-import org.commonjava.aprox.model.core.Group;
 import org.commonjava.aprox.model.core.StoreKey;
 import org.commonjava.aprox.model.core.StoreType;
 import org.commonjava.aprox.promote.client.AproxPromoteClientModule;
-import org.commonjava.aprox.promote.model.PromoteRequest;
-import org.commonjava.aprox.promote.model.PromoteResult;
+import org.commonjava.aprox.promote.model.GroupPromoteRequest;
+import org.commonjava.aprox.promote.model.GroupPromoteResult;
+import org.commonjava.aprox.promote.model.PathsPromoteRequest;
+import org.commonjava.aprox.promote.model.PathsPromoteResult;
 import org.commonjava.maven.atlas.ident.ref.ArtifactRef;
+import org.commonjava.maven.atlas.ident.ref.SimpleArtifactRef;
 import org.commonjava.maven.atlas.ident.util.ArtifactPathInfo;
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.ArtifactStatus;
@@ -63,19 +65,17 @@ public class MavenRepositorySession implements RepositorySession
 
     private Aprox aprox;
     private final String buildRepoId;
-    private String buildSetId;
 
     private final RepositoryConnectionInfo connectionInfo;
     private boolean isSetBuild;
 
     // TODO: Create and pass in suitable parameters to Aprox to create the
     //       proxy repository.
-    public MavenRepositorySession(Aprox aprox, String buildRepoId, String buildSetId, boolean isSetBuild,
+    public MavenRepositorySession(Aprox aprox, String buildRepoId, boolean isSetBuild,
             MavenRepositoryConnectionInfo info)
     {
         this.aprox = aprox;
         this.buildRepoId = buildRepoId;
-        this.buildSetId = buildSetId;
         this.isSetBuild = isSetBuild;
         this.connectionInfo = info;
     }
@@ -96,11 +96,6 @@ public class MavenRepositorySession implements RepositorySession
     @Override
     public String getBuildRepositoryId() {
         return buildRepoId;
-    }
-
-    @Override
-    public String getBuildSetRepositoryId() {
-        return buildSetId;
     }
 
     @Override
@@ -169,7 +164,7 @@ public class MavenRepositorySession implements RepositorySession
 
             Map<StoreKey, Set<String>> toPromote = new HashMap<>();
 
-            StoreKey sharedImports = new StoreKey(StoreType.hosted, RepositoryManagerDriver.SHARED_IMPORTS_ID);
+            StoreKey sharedImports = new StoreKey(StoreType.hosted, MavenRepositoryConstants.SHARED_IMPORTS_ID);
 //            StoreKey sharedReleases = new StoreKey(StoreType.hosted, RepositoryManagerDriver.SHARED_RELEASES_ID);
 
             for (TrackedContentEntryDTO download : downloads) {
@@ -204,7 +199,7 @@ public class MavenRepositorySession implements RepositorySession
                     continue;
                 }
 
-                ArtifactRef aref = new ArtifactRef(pathInfo.getProjectId(), pathInfo.getType(), pathInfo.getClassifier(), false);
+                ArtifactRef aref = new SimpleArtifactRef(pathInfo.getProjectId(), pathInfo.getType(), pathInfo.getClassifier(), false);
                 logger.info( "Recording download: {}", aref );
 
                 Artifact.Builder artifactBuilder = Artifact.Builder.newBuilder().checksum( download.getSha256() )
@@ -217,8 +212,8 @@ public class MavenRepositorySession implements RepositorySession
             }
 
             for (Map.Entry<StoreKey, Set<String>> entry : toPromote.entrySet()) {
-                PromoteRequest req = new PromoteRequest(entry.getKey(), sharedImports, entry.getValue()).setPurgeSource(false);
-                doPromote(req);
+                PathsPromoteRequest req = new PathsPromoteRequest(entry.getKey(), sharedImports, entry.getValue()).setPurgeSource(false);
+                doPromoteByPath(req);
             }
         }
 
@@ -255,7 +250,7 @@ public class MavenRepositorySession implements RepositorySession
                     continue;
                 }
 
-                ArtifactRef aref = new ArtifactRef(pathInfo.getProjectId(), pathInfo.getType(), pathInfo.getClassifier(), false);
+                ArtifactRef aref = new SimpleArtifactRef(pathInfo.getProjectId(), pathInfo.getType(), pathInfo.getClassifier(), false);
                 logger.info( "Recording upload: {}", aref );
 
                 Artifact.Builder artifactBuilder = Artifact.Builder.newBuilder().checksum( upload.getSha256() )
@@ -281,7 +276,7 @@ public class MavenRepositorySession implements RepositorySession
      * @throws RepositoryManagerException When either the client API throws an exception due to something unexpected in
      *         transport, or if the promotion process results in an error.
      */
-    private void doPromote(PromoteRequest req) throws RepositoryManagerException {
+    private void doPromoteByPath(PathsPromoteRequest req) throws RepositoryManagerException {
         AproxPromoteClientModule promoter;
         try {
             promoter = aprox.module(AproxPromoteClientModule.class);
@@ -290,11 +285,11 @@ public class MavenRepositorySession implements RepositorySession
         }
 
         try {
-            PromoteResult result = promoter.promote(req);
+            PathsPromoteResult result = promoter.promoteByPath(req);
             if (result.getError() != null) {
                 String addendum = "";
                 try {
-                    PromoteResult rollback = promoter.rollback(result);
+                    PathsPromoteResult rollback = promoter.rollbackPathPromote(result);
                     if (rollback.getError() != null) {
                         addendum = "\nROLLBACK WARNING: Promotion rollback also failed! Reason given: " + result.getError();
                     }
@@ -314,26 +309,38 @@ public class MavenRepositorySession implements RepositorySession
 
 
     /**
-     * If the build is part of a set and build-set repository ID is set, add the build
-     * repository (hosted component) containing the build output as a member of the group corresponding to that build-set ID. If
-     * the build-set group doesn't exist, try to create it.
+     * Promote the build output to shared-releases (using group promotion, where the build repo is added to the group's
+     * membership).
      */
     public void promoteToBuildContentSet() throws RepositoryManagerException {
-        if (isSetBuild && buildSetId != null) {
-            try {
-                Group setGroup = aprox.stores().load(StoreType.group, buildSetId, Group.class);
-                if (setGroup == null) {
-                    setGroup = new Group(buildSetId, new StoreKey(StoreType.hosted, buildRepoId));
-                    aprox.stores().create(setGroup, "Adding build-set group: " + buildSetId, Group.class);
-                } else {
-                    setGroup.addConstituent(new StoreKey(StoreType.hosted, buildRepoId));
-                    aprox.stores().update(setGroup, "Adding build: " + buildRepoId + " to build-set: " + buildSetId);
+        AproxPromoteClientModule promoter;
+        try {
+            promoter = aprox.module(AproxPromoteClientModule.class);
+        } catch (AproxClientException e) {
+            throw new RepositoryManagerException("Failed to retrieve AProx client module. Reason: %s", e, e.getMessage());
+        }
+
+        GroupPromoteRequest request = new GroupPromoteRequest(new StoreKey(StoreType.hosted, buildRepoId), MavenRepositoryConstants.SHARED_RELEASES_ID);
+        try {
+            GroupPromoteResult result = promoter.promoteToGroup(request);
+            if (result.getError() != null) {
+                String addendum = "";
+                try {
+                    GroupPromoteResult rollback = promoter.rollbackGroupPromote(result);
+                    if (rollback.getError() != null) {
+                        addendum = "\nROLLBACK WARNING: Promotion rollback also failed! Reason given: " + result.getError();
+                    }
+
+                } catch (AproxClientException e) {
+                    throw new RepositoryManagerException("Rollback failed for promotion of: %s. Reason: %s", e, request,
+                            e.getMessage());
                 }
-            } catch (AproxClientException e) {
-                throw new RepositoryManagerException(
-                        "Failed to promote build repository: %s to build-set group: %s. Reason: %s", e, buildRepoId,
-                        buildSetId, e.getMessage());
+
+                throw new RepositoryManagerException("Failed to promote: %s. Reason given was: %s%s", request, result.getError(),
+                        addendum);
             }
+        } catch (AproxClientException e) {
+            throw new RepositoryManagerException("Failed to promote: %s. Reason: %s", e, request, e.getMessage());
         }
     }
 

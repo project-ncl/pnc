@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.mavenrepositorymanager;
 
+import static org.jboss.pnc.mavenrepositorymanager.MavenRepositoryConstants.*;
 import org.commonjava.aprox.client.core.Aprox;
 import org.commonjava.aprox.client.core.AproxClientException;
 import org.commonjava.aprox.folo.client.AproxFoloAdminClientModule;
@@ -59,14 +60,6 @@ public class RepositoryManagerDriver implements RepositoryManager {
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
-    public static final String DRIVER_ID = "maven-repo-driver";
-
-    public static final String PUBLIC_GROUP_ID = "public";
-
-    public static final String SHARED_RELEASES_ID = "shared-releases";
-
-    public static final String SHARED_IMPORTS_ID = "shared-imports";
-
     private Aprox aprox;
 
     @Deprecated
@@ -95,7 +88,7 @@ public class RepositoryManagerDriver implements RepositoryManager {
             setupGlobalRepos();
 
         } catch (ConfigurationParseException e) {
-            throw new IllegalStateException("Cannot read configuration for " + RepositoryManagerDriver.DRIVER_ID + ".", e);
+            throw new IllegalStateException("Cannot read configuration for " + DRIVER_ID + ".", e);
         } catch (AproxClientException e) {
             throw new IllegalStateException("Failed to setup shared-releases or shared-imports hosted repository: "
                     + e.getMessage(), e);
@@ -126,28 +119,9 @@ public class RepositoryManagerDriver implements RepositoryManager {
     @Override
     public RepositorySession createBuildRepository(BuildExecution buildExecution) throws RepositoryManagerException {
 
-        String topId = buildExecution.getTopContentId();
-        if (topId != null) {
-            try {
-                setupProductRepos(topId);
-            } catch (AproxClientException e) {
-                throw new RepositoryManagerException("Failed to setup product-level repository group: %s", e, e.getMessage());
-            }
-        }
-
-        String setId = buildExecution.getBuildSetContentId();
-        if (setId != null) {
-            try {
-                setupBuildSetRepos(setId);
-            } catch (AproxClientException e) {
-                throw new RepositoryManagerException("Failed to setup repository group for build configuration set: %s", e,
-                        e.getMessage());
-            }
-        }
-
         String buildId = buildExecution.getBuildContentId();
         try {
-            setupBuildRepos(buildId, setId, topId, buildExecution.getProjectName());
+            setupBuildRepos(buildId, buildExecution.getProjectName());
         } catch (AproxClientException e) {
             throw new RepositoryManagerException("Failed to setup repository or repository group for this build: %s", e,
                     e.getMessage());
@@ -167,7 +141,7 @@ public class RepositoryManagerDriver implements RepositoryManager {
                     e.getMessage());
         }
 
-        return new MavenRepositorySession(aprox, buildId, setId, buildExecution.isPartOfBuildSet(),
+        return new MavenRepositorySession(aprox, buildId, buildExecution.isPartOfBuildSet(),
                 new MavenRepositoryConnectionInfo(url));
     }
 
@@ -177,84 +151,35 @@ public class RepositoryManagerDriver implements RepositoryManager {
      * product-level content group with which this build is associated. The group also provides a tracking target, so the
      * repository manager can keep track of downloads and uploads for the build.
      * 
-     * @param buildRepoId
-     * @param productRepoId
-     * @param productRepoId
+     * @param buildContentId
      * @param projectName
      * @throws AproxClientException
      */
-    private void setupBuildRepos(String buildRepoId, String buildSetRepoId, String productRepoId, String projectName)
+    private void setupBuildRepos(String buildContentId, String projectName)
             throws AproxClientException {
         // if the build-level group doesn't exist, create it.
-        if (!aprox.stores().exists(StoreType.group, buildRepoId)) {
+        if (!aprox.stores().exists(StoreType.group, buildContentId)) {
             // if the product-level storage repo (for in-progress product builds) doesn't exist, create it.
-            if (!aprox.stores().exists(StoreType.hosted, buildRepoId)) {
-                HostedRepository buildArtifacts = new HostedRepository(buildRepoId);
+            if (!aprox.stores().exists(StoreType.hosted, buildContentId)) {
+                HostedRepository buildArtifacts = new HostedRepository(buildContentId);
                 buildArtifacts.setAllowSnapshots(true);
                 buildArtifacts.setAllowReleases(true);
 
                 aprox.stores().create(buildArtifacts,
-                        "Creating hosted repository for build: " + buildRepoId + " of: " + projectName, HostedRepository.class);
+                        "Creating hosted repository for build: " + buildContentId + " of: " + projectName, HostedRepository.class);
             }
 
-            Group buildGroup = new Group(buildRepoId);
+            Group buildGroup = new Group(buildContentId);
 
             // build-local artifacts
-            buildGroup.addConstituent(new StoreKey(StoreType.hosted, buildRepoId));
-
-            if (buildSetRepoId != null) {
-                // build-set-level group
-                buildGroup.addConstituent(new StoreKey(StoreType.group, buildSetRepoId));
-            }
-
-            if (productRepoId != null) {
-                // product-level group
-                buildGroup.addConstituent(new StoreKey(StoreType.group, productRepoId));
-            }
+            buildGroup.addConstituent(new StoreKey(StoreType.hosted, buildContentId));
 
             // Global-level repos, for captured/shared artifacts and access to the outside world
             addGlobalConstituents(buildGroup);
 
             aprox.stores().create(buildGroup,
-                    "Creating repository group for resolving artifacts in build: " + buildRepoId + " of: " + projectName,
+                    "Creating repository group for resolving artifacts in build: " + buildContentId + " of: " + projectName,
                     Group.class);
-        }
-    }
-
-    /**
-     * Lazily create group related to a build set if it doesn't exist. The group will contain repositories for any builds that
-     * have been promoted to it, to allow other related builds to access their artifacts.
-     * 
-     * @param setId
-     * @throws AproxClientException
-     */
-    private void setupBuildSetRepos(String setId) throws AproxClientException {
-
-        // if the product-level group doesn't exist, create it.
-        if (!aprox.stores().exists(StoreType.group, setId)) {
-            Group setGroup = new Group(setId);
-
-            aprox.stores().create(setGroup,
-                    "Creating group: " + setId + " for access to repos of builds related to build configuration set.",
-                    Group.class);
-        }
-    }
-
-    /**
-     * Lazily create group related to a build set if it doesn't exist. The group will contain repositories for any builds that
-     * have been promoted to it, to allow other related builds to access their artifacts.
-     * 
-     * @param setId
-     * @throws AproxClientException
-     */
-    private void setupProductRepos(String productId) throws AproxClientException {
-
-        // if the product-level group doesn't exist, create it.
-        if (!aprox.stores().exists(StoreType.group, productId)) {
-            Group productGroup = new Group(productId);
-
-            aprox.stores().create(productGroup,
-                    "Creating group: " + productId + " for access to repos of builds related to that product.", Group.class);
         }
     }
 

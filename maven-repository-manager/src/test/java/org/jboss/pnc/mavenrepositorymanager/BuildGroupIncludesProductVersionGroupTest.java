@@ -56,9 +56,9 @@ public class BuildGroupIncludesProductVersionGroupTest extends AbstractRepositor
         System.out.printf("Constituents:\n  %s\n", join(buildGroup.getConstituents(), "\n  "));
         assertGroupConstituents(buildGroup, new StoreKey(StoreType.hosted, execution.getBuildContentId()),
                 new StoreKey(StoreType.group, execution.getTopContentId()), new StoreKey(StoreType.group,
-                        RepositoryManagerDriver.SHARED_RELEASES_ID), new StoreKey(StoreType.hosted,
-                        RepositoryManagerDriver.SHARED_IMPORTS_ID), new StoreKey(StoreType.group,
-                        RepositoryManagerDriver.PUBLIC_GROUP_ID));
+                        MavenRepositoryConstants.SHARED_RELEASES_ID), new StoreKey(StoreType.hosted,
+                        MavenRepositoryConstants.SHARED_IMPORTS_ID), new StoreKey(StoreType.group,
+                        MavenRepositoryConstants.PUBLIC_GROUP_ID));
     }
 
 }
