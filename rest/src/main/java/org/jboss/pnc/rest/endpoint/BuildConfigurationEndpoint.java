@@ -74,6 +74,7 @@ import java.lang.invoke.MethodHandles;
 import java.net.URI;
 import java.net.URL;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -299,6 +300,7 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
                           @ApiParam(value = "Optional Callback URL", required = false) @QueryParam("callbackUrl") String callbackUrl,
                           @ApiParam(value = "A CSV list of build record set ids.", required = false) @QueryParam("buildRecordSetIdsCSV") String buildRecordSetIdsCSV,
                           @ApiParam(value = "Build configuration set record id.", required = false) @QueryParam("buildConfigSetRecordId") String buildConfigSetRecordId,
+                          @ApiParam(value = "BuildTask submit time in number of millis since epoch.", required = true) @QueryParam("submitTimeMillis") long submitTimeMillis,
                           @Context UriInfo uriInfo) {
         try {
             AuthenticationProvider authProvider = new AuthenticationProvider(httpServletRequest);
@@ -328,6 +330,7 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
                 buildConfigSetRecordIdInt = Integer.parseInt(buildConfigSetRecordId);
             }
 
+            Date submitTime = new Date(submitTimeMillis);
             BuildExecutionTask buildExecutionTask = buildExecutor.build(
                     configuration,
                     configurationAudited,
@@ -335,7 +338,8 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
                     onComplete,
                     buildRecordSetIds,
                     buildConfigSetRecordIdInt,
-                    buildTaskId);
+                    buildTaskId,
+                    submitTime);
 
             UriBuilder uriBuilder = UriBuilder.fromUri(uriInfo.getBaseUri()).path("/result/running/{id}");
             int runningBuildId = buildExecutionTask.getId();

@@ -41,6 +41,11 @@ public class LocalBuildScheduler implements BuildScheduler {
     private BuildExecutor buildExecutor;
     private Event<BuildStatusChangedEvent> buildStatusChangedEventNotifier;
 
+    @Override
+    public String getId() {
+        return "local-build-scheduler";
+    }
+
     @Deprecated
     public LocalBuildScheduler() {} //CDI workaround
 
@@ -60,7 +65,8 @@ public class LocalBuildScheduler implements BuildScheduler {
                 buildTask.getBuildRecordSetIds(),
                 buildTask.getBuildConfigSetRecordId(),
                 Optional.of(buildStatusChangedEventNotifier),
-                buildTask.getId()
+                buildTask.getId(),
+                buildTask.getSubmitTime()
         );
         buildExecutor.startBuilding(buildExecutionTask, onComplete);
     }

@@ -106,7 +106,8 @@ public class BuildExecutor {
             Consumer<BuildStatus> onComplete,
             Set<Integer> buildRecordSetIds,
             Integer buildConfigSetRecordId,
-            Integer buildTaskId) throws CoreException {
+            Integer buildTaskId,
+            Date submitTime) throws CoreException {
 
         Integer nextBuildRecordId = datastoreAdapter.getNextBuildRecordId();
 
@@ -118,7 +119,8 @@ public class BuildExecutor {
                 buildRecordSetIds,
                 buildConfigSetRecordId,
                 Optional.of(buildStatusChangedEventNotifier),
-                buildTaskId
+                buildTaskId,
+                submitTime
         );
 
         //TODO recollect to running instances in case of system failure

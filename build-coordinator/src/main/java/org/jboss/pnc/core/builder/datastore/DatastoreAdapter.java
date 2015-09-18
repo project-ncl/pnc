@@ -123,7 +123,7 @@ public class DatastoreAdapter {
         BuildRecord buildRecord = BuildRecord.Builder.newBuilder().id(buildExecutionTask.getId())
                 .buildConfigurationAudited(buildExecutionTask.getBuildConfigurationAudited())
                 .user(buildExecutionTask.getUser())
-                //.submitTime(buildExecutionTask.getSubmitTime()) //TODO pass BuildTask or BTSet start time
+                .submitTime(buildExecutionTask.getSubmitTime())
                 .startTime(buildExecutionTask.getStartTime())
                 .endTime(buildExecutionTask.getEndTime())
                 .build();

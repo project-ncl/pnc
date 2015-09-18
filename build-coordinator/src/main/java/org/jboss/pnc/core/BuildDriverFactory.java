@@ -19,7 +19,7 @@ package org.jboss.pnc.core;
 
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.ConfigurationParseException;
-import org.jboss.pnc.common.json.moduleconfig.BuildDriverRouterModuleConfig;
+import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
 import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
 import org.jboss.pnc.common.util.StringUtils;
 import org.jboss.pnc.core.exception.CoreException;
@@ -68,12 +68,12 @@ public class BuildDriverFactory {
     public void initConfiguration() throws ConfigurationParseException {
         try {
             String driverId = configuration
-                    .getModuleConfig(new PncConfigProvider<BuildDriverRouterModuleConfig>(BuildDriverRouterModuleConfig.class)).getDriverId();
+                    .getModuleConfig(new PncConfigProvider<SystemConfig>(SystemConfig.class)).getBuildDriverId();
             if (!StringUtils.isEmpty(driverId)) {
                 configurationPredicate = buildDriver -> driverId.equals(buildDriver.getDriverId());
             }
         } catch (ConfigurationParseException exception) {
-            logger.warn("There is a problem while parsing build agent router configuration. Using defaults.", exception);
+            logger.warn("There is a problem while parsing system configuration. Using defaults.", exception);
         }
 
     }

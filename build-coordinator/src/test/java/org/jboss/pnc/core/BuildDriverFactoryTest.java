@@ -22,7 +22,7 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 
 import org.jboss.pnc.common.Configuration;
-import org.jboss.pnc.common.json.moduleconfig.BuildDriverRouterModuleConfig;
+import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
 import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
 import org.jboss.pnc.core.exception.CoreException;
 import org.jboss.pnc.model.BuildConfigurationAudited;
@@ -88,8 +88,8 @@ public class BuildDriverFactoryTest {
         TestInstance<BuildDriver> allDrivers = new TestInstance<>(testedBuildDriver);
 
         Configuration configuration = mock(Configuration.class);
-        doReturn(new BuildDriverRouterModuleConfig("ProperDriver")).when(configuration)
-            .getModuleConfig(new PncConfigProvider<BuildDriverRouterModuleConfig>(BuildDriverRouterModuleConfig.class));
+        doReturn(new SystemConfig("ProperDriver", "local-build-scheduler")).when(configuration)
+            .getModuleConfig(new PncConfigProvider<SystemConfig>(SystemConfig.class));
 
         BuildDriverFactory factory = new BuildDriverFactory(allDrivers, configuration);
 

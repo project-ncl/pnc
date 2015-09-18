@@ -34,4 +34,6 @@ import java.util.function.Consumer;
  */
 public interface BuildScheduler {
     void startBuilding(BuildTask buildTask, Consumer<BuildStatus> onComplete) throws CoreException;
+
+    String getId();
 }

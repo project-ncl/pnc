@@ -20,7 +20,7 @@ package org.jboss.pnc.common.json.moduleprovider;
 import org.jboss.pnc.common.json.AbstractModuleConfig;
 import org.jboss.pnc.common.json.moduleconfig.AuthenticationModuleConfig;
 import org.jboss.pnc.common.json.moduleconfig.BpmModuleConfig;
-import org.jboss.pnc.common.json.moduleconfig.BuildDriverRouterModuleConfig;
+import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
 import org.jboss.pnc.common.json.moduleconfig.DockerEnvironmentDriverModuleConfig;
 import org.jboss.pnc.common.json.moduleconfig.JenkinsBuildDriverModuleConfig;
 import org.jboss.pnc.common.json.moduleconfig.MavenRepoDriverModuleConfig;
@@ -39,7 +39,7 @@ public class PncConfigProvider <T extends AbstractModuleConfig>
       setType(type); 
       addModuleConfig(new ProviderNameType(JenkinsBuildDriverModuleConfig.class, "jenkins-build-driver"));
       addModuleConfig(new ProviderNameType(TermdBuildDriverModuleConfig.class, "termd-build-driver"));
-      addModuleConfig(new ProviderNameType(BuildDriverRouterModuleConfig.class, "build-driver-router"));
+      addModuleConfig(new ProviderNameType(SystemConfig.class, "system-config"));
       addModuleConfig(new ProviderNameType(MavenRepoDriverModuleConfig.class, "maven-repo-driver"));
       addModuleConfig(new ProviderNameType(DockerEnvironmentDriverModuleConfig.class, DockerEnvironmentDriverModuleConfig.MODULE_NAME));
       addModuleConfig(new ProviderNameType(AuthenticationModuleConfig.class, "authentication-config"));

@@ -80,12 +80,12 @@ public class BuildCoordinator {
 
     @Inject
     public BuildCoordinator(DatastoreAdapter datastoreAdapter, Event<BuildStatusChangedEvent> buildStatusChangedEventNotifier,
-            Event<BuildSetStatusChangedEvent> buildSetStatusChangedEventNotifier, BuildScheduler buildScheduler,
+            Event<BuildSetStatusChangedEvent> buildSetStatusChangedEventNotifier, BuildSchedulerFactory buildSchedulerFactory,
             Instance<BuildTaskFilter> taskFilters) {
         this.datastoreAdapter = datastoreAdapter;
         this.buildStatusChangedEventNotifier = buildStatusChangedEventNotifier;
         this.buildSetStatusChangedEventNotifier = buildSetStatusChangedEventNotifier;
-        this.buildScheduler = buildScheduler;
+        this.buildScheduler = buildSchedulerFactory.getBuildScheduler();
         this.taskFilters = taskFilters;
     }
 
