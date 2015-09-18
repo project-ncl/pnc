@@ -132,6 +132,7 @@
     <failsafe.test.container.skip>true</failsafe.test.container.skip>
     <surefire.test.remote.skip>true</surefire.test.remote.skip>
     <failsafe.test.integration.skip>true</failsafe.test.integration.skip>
+    <failsafe.test.settings>${user.home}/.m2/settings.xml</failsafe.test.settings>
     <auth>false</auth>
   </properties>
 
@@ -1299,6 +1300,9 @@
           </properties>
           <skip>${failsafe.test.skip}</skip>
           <redirectTestOutputToFile>true</redirectTestOutputToFile>
+          <systemPropertyVariables>
+            <org.apache.maven.user-settings>${failsafe.test.settings}</org.apache.maven.user-settings>
+          </systemPropertyVariables>
         </configuration>
         <executions>
           <execution>
