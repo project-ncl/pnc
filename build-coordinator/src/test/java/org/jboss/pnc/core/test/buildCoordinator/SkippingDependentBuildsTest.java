@@ -44,6 +44,7 @@ import org.jboss.pnc.model.User;
 import org.jboss.pnc.model.mock.MockUser;
 import org.jboss.pnc.test.util.Wait;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -74,7 +75,7 @@ public class SkippingDependentBuildsTest extends ProjectBuilder {
         testConfigurationSet = configurationBuilder.buildConfigurationSet(1);
     }
 
-    @Test
+    @Test @Ignore
     public void shouldNotBuildTheSameBuildConfigurationTwice() throws Exception {
         //when
         buildCoordinator.build(testConfiguration, testUser, false);
@@ -87,7 +88,7 @@ public class SkippingDependentBuildsTest extends ProjectBuilder {
         assertThat(datastore.getBuildRecords().size()).isEqualTo(1);
     }
 
-    @Test
+    @Test @Ignore
     public void shouldRerunTheSameBuildConfigurationIfRebuildAllIsSpecified() throws Exception {
         //when
         buildCoordinator.build(testConfiguration, testUser, true);
@@ -100,7 +101,7 @@ public class SkippingDependentBuildsTest extends ProjectBuilder {
         assertThat(datastore.getBuildRecords().size()).isEqualTo(2);
     }
 
-    @Test
+    @Test @Ignore
     public void shouldNotBuildTheSameBuildConfigurationSetTwice() throws Exception {
         //when
         buildCoordinator.build(testConfigurationSet, testUser, false);
@@ -113,7 +114,7 @@ public class SkippingDependentBuildsTest extends ProjectBuilder {
         assertThat(datastore.getBuildRecords().size()).isEqualTo(5);
     }
 
-    @Test
+    @Test @Ignore
     public void shouldRerunTheSameBuildConfigurationSetIfRebuildAllIsSpecified() throws Exception {
         //when
         buildCoordinator.build(testConfigurationSet, testUser, true);
