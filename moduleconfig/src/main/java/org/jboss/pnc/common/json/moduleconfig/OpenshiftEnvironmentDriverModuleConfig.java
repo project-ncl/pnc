@@ -39,6 +39,7 @@ public class OpenshiftEnvironmentDriverModuleConfig extends EnvironmentDriverMod
     private String podNamespace;
     private String restAuthToken;
     private String containerPort;
+    private boolean keepBuildAgentInstance;
 
     public OpenshiftEnvironmentDriverModuleConfig(@JsonProperty("restEndpointUrl") String restEndpointUrl,
                                                   @JsonProperty("imageId") String imageId,
@@ -50,7 +51,8 @@ public class OpenshiftEnvironmentDriverModuleConfig extends EnvironmentDriverMod
                                                   @JsonProperty("restAuthToken") String restAuthToken,
                                                   @JsonProperty("containerPort") String containerPort,
                                                   @JsonProperty("workingDirectory") String workingDirectory,
-                                                  @JsonProperty("disabled") Boolean disabled) {
+                                                  @JsonProperty("disabled") Boolean disabled,
+                                                  @JsonProperty("keepBuildAgentInstance") Boolean keepBuildAgentInstance) {
         super(imageId, firewallAllowedDestinations, proxyServer, proxyPort, workingDirectory, disabled);
 
         this.restEndpointUrl = restEndpointUrl;
@@ -58,6 +60,7 @@ public class OpenshiftEnvironmentDriverModuleConfig extends EnvironmentDriverMod
         this.podNamespace = podNamespace;
         this.restAuthToken = restAuthToken;
         this.containerPort = containerPort;
+        this.keepBuildAgentInstance = keepBuildAgentInstance;
 
         log.debug("Created new instance {}", toString());
     }
@@ -82,6 +85,10 @@ public class OpenshiftEnvironmentDriverModuleConfig extends EnvironmentDriverMod
         return buildAgentBindPath;
     }
 
+    public boolean getKeepBuildAgentInstance() {
+        return keepBuildAgentInstance;
+    }
+
     @Override
     public String toString() {
         return "OpenshiftEnvironmentDriverModuleConfig{" +
@@ -95,6 +102,8 @@ public class OpenshiftEnvironmentDriverModuleConfig extends EnvironmentDriverMod
                 ", restAuthToken= HIDDEN " +
                 ", containerPort='" + containerPort + '\'' +
                 ", disabled='" + disabled + '\'' +
+                ", keepBuildAgentInstance='" + keepBuildAgentInstance + '\'' +
                 '}';
     }
+
 }

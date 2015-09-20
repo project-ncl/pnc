@@ -240,7 +240,9 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
     public void destroyEnvironment() {
         client.delete(route);
         client.delete(service);
-        client.delete(pod);
+        if (!environmentConfiguration.getKeepBuildAgentInstance()) {
+            client.delete(pod);
+        }
     }
 
     private String replaceConfigurationVariables(String podConfiguration, Map runtimeProperties) {

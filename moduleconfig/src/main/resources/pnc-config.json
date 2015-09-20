@@ -42,7 +42,8 @@
             "podNamespace":"${env.PNC_POD_NAMESPACE}",
             "containerPort":"${env.PNC_CONTAINER_PORT}",
             "imageId":"${env.PNC_BUILDER_IMAGE_ID}",
-            "disabled":"true"
+            "disabled":"true",
+            "keepBuildAgentInstance" : true
           },
           {
             "@module-config":"authentication-config",
