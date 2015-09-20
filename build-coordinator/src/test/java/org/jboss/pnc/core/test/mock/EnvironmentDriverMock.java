@@ -77,6 +77,11 @@ public class EnvironmentDriverMock implements EnvironmentDriver {
                             }
 
                             @Override
+                            public String getInternalBuildAgentUrl() {
+                                return getJenkinsUrl();
+                            }
+
+                            @Override
                             public int getJenkinsPort() {
                                 return 0;
                             }

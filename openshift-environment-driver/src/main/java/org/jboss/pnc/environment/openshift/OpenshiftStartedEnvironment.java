@@ -40,7 +40,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Paths;
 import java.util.Arrays;
@@ -50,7 +49,6 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -74,6 +72,7 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
     private Route route;
     private final Set<Selector> initialized = new HashSet<>();
 
+    private final String buildAgentContextPath;
 
     public OpenshiftStartedEnvironment(
             ExecutorService executor,
@@ -89,17 +88,18 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
 
         client = new ClientFactory().create(environmentConfiguration.getRestEndpointUrl(), new NoopSSLCertificateCallback());
         client.setAuthorizationStrategy(new TokenAuthorizationStrategy(environmentConfiguration.getRestAuthToken()));
+        //TODO use something else as system uer don't have permissions and causes 403 - Unauthorized exception
         client.getCurrentUser(); //make sure client is connected
 
         Map<String, String> runtimeProperties = new HashMap<>();
         String randString = RandomUtils.randString(4);//TODO increment length, not the 24 char limit
-        String routePath = "pnc-ba-" + randString;
+        buildAgentContextPath = "pnc-ba-" + randString;
 
         runtimeProperties.put("pod-name", "pnc-ba-pod-" + randString);
         runtimeProperties.put("service-name", "pnc-ba-service-" + randString);
         runtimeProperties.put("route-name", "pnc-ba-route-" + randString);
-        runtimeProperties.put("route-path", routePath);
-        runtimeProperties.put("buildAgentContextPath", "/" + routePath);
+        runtimeProperties.put("route-path", buildAgentContextPath);
+        runtimeProperties.put("buildAgentContextPath", "/" + buildAgentContextPath);
 
         ModelNode podConfigurationNode = createModelNode(Configurations.V1_PNC_BUILDER_POD.getContentAsString(), runtimeProperties);
         pod = new Pod(podConfigurationNode, client, ResourcePropertiesRegistry.getInstance().get(OSE_API_VERSION, ResourceKind.POD));
@@ -150,11 +150,17 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
     @Override
     public void monitorInitialization(Consumer<RunningEnvironment> onComplete, Consumer<Exception> onError) {
 
-        pullingMonitor.monitor(onEnvironmentInitComplete(onComplete, Selector.POD), onError, () -> isPodRunning());
-        pullingMonitor.monitor(onEnvironmentInitComplete(onComplete, Selector.SERVICE), onError, () -> isServiceRunning());
-        pullingMonitor.monitor(onEnvironmentInitComplete(onComplete, Selector.ROUTE), onError, () -> isRouteRunning());
+        Consumer<RunningEnvironment> onCompleteInternal = (runningEnvironment) -> {
+            logger.info("New build environment available on internal url: {}", getInternalEndpointUrl());
+            onComplete.accept(runningEnvironment);
+        };
 
-        logger.info("Waiting to start a pod [{}], service [{}] and route [{}].", pod.getName(), service.getName(), route.getName());
+        pullingMonitor.monitor(onEnvironmentInitComplete(onCompleteInternal, Selector.POD), onError, () -> isPodRunning());
+        pullingMonitor.monitor(onEnvironmentInitComplete(onCompleteInternal, Selector.SERVICE), onError, () -> isServiceRunning());
+        //pullingMonitor.monitor(onEnvironmentInitComplete(onComplete, Selector.ROUTE), onError, () -> isRouteRunning());
+        //logger.info("Waiting to start a pod [{}], service [{}] and route [{}].", pod.getName(), service.getName(), route.getName());
+
+        logger.info("Waiting to start a pod [{}], service [{}].", pod.getName(), service.getName());
     }
 
     private Runnable onEnvironmentInitComplete(Consumer<RunningEnvironment> onComplete, Selector selector) {
@@ -173,7 +179,8 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
                     pod.getName(),
                     pod.getContainerPorts().stream().findFirst().orElseThrow(exceptionSupplier).getContainerPort(),
                     //TODO use service for internal communication
-                    getEndpointUrl(), //TODO configurable port and protocol
+                    getPublicEndpointUrl(), //TODO configurable port and protocol
+                    getInternalEndpointUrl(), //TODO configurable port and protocol
                     repositorySession,
                     Paths.get(environmentConfiguration.getWorkingDirectory()),
                     this::destroyEnvironment
@@ -183,8 +190,12 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
         };
     }
 
-    private String getEndpointUrl() {
+    private String getPublicEndpointUrl() {
         return "http://" + route.getHost() + route.getPath() + environmentConfiguration.getBuildAgentBindPath();
+    }
+
+    private String getInternalEndpointUrl() {
+        return "http://" + service.getPortalIP() + "/" + buildAgentContextPath + environmentConfiguration.getBuildAgentBindPath();
     }
 
     private boolean isPodRunning() {
@@ -208,14 +219,14 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
             return false;
         }
         try {
-            if (connectToPingUrl(new URL(getEndpointUrl()))) {
+            if (connectToPingUrl(new URL(getPublicEndpointUrl()))) {
                 route = client.get(route.getKind(), route.getName(), environmentConfiguration.getPncNamespace());
                 return true;
             } else {
                 return false;
             }
         } catch (IOException e) {
-            logger.error("Cannot open URL " + getEndpointUrl(), e);
+            logger.error("Cannot open URL " + getPublicEndpointUrl(), e);
             return false;
         }
     }
@@ -253,7 +264,9 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
     }
 
     private enum Selector {
-        POD, SERVICE, ROUTE;
+        POD,
+        SERVICE;
+//        ROUTE;
     }
 
     private boolean connectToPingUrl(URL url) throws IOException {

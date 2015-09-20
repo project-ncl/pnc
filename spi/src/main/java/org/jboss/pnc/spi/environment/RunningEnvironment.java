@@ -49,6 +49,8 @@ public interface RunningEnvironment extends Serializable, DestroyableEnvironment
      */
     String getJenkinsUrl(); //TODO rename to getBuildAgent*
 
+    String getInternalBuildAgentUrl();
+
     /**
      * @return Repository configuration related to the running environment
      */
@@ -63,6 +65,7 @@ public interface RunningEnvironment extends Serializable, DestroyableEnvironment
             String id,
             int port,
             String url,
+            String internalBuildAgentUrl,
             RepositorySession repositorySession,
             Path workingDirectory,
             Runnable destroyer) {
@@ -81,6 +84,11 @@ public interface RunningEnvironment extends Serializable, DestroyableEnvironment
             @Override
             public String getJenkinsUrl() {
                 return url;
+            }
+
+            @Override
+            public String getInternalBuildAgentUrl() {
+                return internalBuildAgentUrl;
             }
 
             @Override
