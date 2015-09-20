@@ -25,6 +25,7 @@ import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.rest.provider.collection.CollectionInfo;
 import org.jboss.pnc.rest.provider.collection.CollectionInfoCollector;
+import org.jboss.pnc.rest.restmodel.BuildConfigurationAuditedRest;
 import org.jboss.pnc.rest.restmodel.BuildRecordRest;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
 import org.jboss.pnc.spi.datastore.repositories.PageInfoProducer;
@@ -148,12 +149,15 @@ public class BuildRecordProvider extends AbstractProvider<BuildRecord, BuildReco
                 .findFirst().orElse(null);
     }
 
-    public BuildConfigurationAudited getBuildConfigurationAudited(Integer id) {
+    public BuildConfigurationAuditedRest getBuildConfigurationAudited(Integer id) {
         BuildRecord buildRecord = repository.queryById(id);
         if (buildRecord == null) {
             return null;
         }
-        return buildRecord.getBuildConfigurationAudited();
+        if (buildRecord.getBuildConfigurationAudited() == null) {
+            return null;
+        }
+        return new BuildConfigurationAuditedRest(buildRecord.getBuildConfigurationAudited());
     }
 
     public BuildRecordRest getLatestBuildRecord(Integer configId) {
