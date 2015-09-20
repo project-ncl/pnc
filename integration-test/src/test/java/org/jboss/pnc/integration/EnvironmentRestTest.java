@@ -34,9 +34,9 @@ import org.jboss.pnc.integration.utils.AuthResource;
 import org.jboss.pnc.integration.utils.ResponseUtils;
 import org.jboss.pnc.model.BuildType;
 import org.jboss.pnc.model.OperationalSystem;
-import org.jboss.pnc.rest.endpoint.EnvironmentEndpoint;
-import org.jboss.pnc.rest.provider.EnvironmentProvider;
-import org.jboss.pnc.rest.restmodel.EnvironmentRest;
+import org.jboss.pnc.rest.endpoint.BuildEnvironmentEndpoint;
+import org.jboss.pnc.rest.provider.BuildEnvironmentProvider;
+import org.jboss.pnc.rest.restmodel.BuildEnvironmentRest;
 import org.jboss.pnc.test.category.ContainerTest;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
@@ -76,9 +76,9 @@ public class EnvironmentRestTest {
         EnterpriseArchive enterpriseArchive = Deployments.baseEar();
 
         WebArchive restWar = enterpriseArchive.getAsType(WebArchive.class, "/rest.war");
-        restWar.addClass(EnvironmentProvider.class);
-        restWar.addClass(EnvironmentEndpoint.class);
-        restWar.addClass(EnvironmentRest.class);
+        restWar.addClass(BuildEnvironmentProvider.class);
+        restWar.addClass(BuildEnvironmentEndpoint.class);
+        restWar.addClass(BuildEnvironmentRest.class);
 
         logger.info(enterpriseArchive.toString(true));
         return enterpriseArchive;
@@ -118,9 +118,8 @@ public class EnvironmentRestTest {
     @InSequence(1)
     public void shouldUpdateEnvironment() throws Exception {
         //given
-        EnvironmentRest environmentModified = exampleEnvironment();
+        BuildEnvironmentRest environmentModified = exampleEnvironment();
         environmentModified.setBuildType(BuildType.JAVA);
-        environmentModified.setOperationalSystem(OperationalSystem.OSX);
 
         //when
         Response putResponse = given()
@@ -135,13 +134,12 @@ public class EnvironmentRestTest {
                 .contentType(ContentType.JSON).port(getHttpPort()).when()
                 .get(String.format(ENVIRONMENT_REST_ENDPOINT_SPECIFIC, environmentId));
 
-        EnvironmentRest noLoremIpsum = getResponse.jsonPath().getObject("content", EnvironmentRest.class);
+        BuildEnvironmentRest noLoremIpsum = getResponse.jsonPath().getObject("content", BuildEnvironmentRest.class);
 
         //then
         ResponseAssertion.assertThat(putResponse).hasStatus(200);
         ResponseAssertion.assertThat(getResponse).hasStatus(200);
         assertThat(noLoremIpsum.getBuildType()).isEqualTo(BuildType.JAVA);
-        assertThat(noLoremIpsum.getOperationalSystem()).isEqualTo(OperationalSystem.OSX);
     }
 
     @Test
@@ -164,10 +162,10 @@ public class EnvironmentRestTest {
         ResponseAssertion.assertThat(getResponse).hasStatus(404);
     }
 
-    private EnvironmentRest exampleEnvironment() {
-        EnvironmentRest environmentRest = new EnvironmentRest();
+    private BuildEnvironmentRest exampleEnvironment() {
+        BuildEnvironmentRest environmentRest = new BuildEnvironmentRest();
+        environmentRest.setName("Test Environment");
         environmentRest.setBuildType(BuildType.NATIVE);
-        environmentRest.setOperationalSystem(OperationalSystem.LINUX);
         return environmentRest;
     }
 }

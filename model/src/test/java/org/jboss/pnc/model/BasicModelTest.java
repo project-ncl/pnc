@@ -70,7 +70,7 @@ public class BasicModelTest {
             em.createNativeQuery("delete from BuildConfiguration_aud").executeUpdate();
             em.createNativeQuery("delete from BuildConfiguration").executeUpdate();
             em.createNativeQuery("delete from Project").executeUpdate();
-            em.createNativeQuery("delete from Environment").executeUpdate();
+            em.createNativeQuery("delete from BuildEnvironment").executeUpdate();
             em.createNativeQuery("delete from License").executeUpdate();
             em.createNativeQuery("SET DATABASE REFERENTIAL INTEGRITY TRUE").executeUpdate();
             tx.commit();
@@ -190,10 +190,10 @@ public class BasicModelTest {
         License licenseApache20 = ModelTestDataFactory.getInstance().getLicenseApache20();
         Project project1 = ModelTestDataFactory.getInstance().getProject1();
         project1.setLicense(licenseApache20);
-        Environment environmentDefault = ModelTestDataFactory.getInstance().getEnvironmentDefault();
+        BuildEnvironment defaultBuildEnvironment = ModelTestDataFactory.getInstance().getBuildEnvironmentDefault();
         BuildConfiguration buildConfiguration1 = ModelTestDataFactory.getInstance().getBuildConfiguration1();
         buildConfiguration1.setProject(project1);
-        buildConfiguration1.setEnvironment(environmentDefault);
+        buildConfiguration1.setBuildEnvironment(defaultBuildEnvironment);
 
         EntityManager em = emFactory.createEntityManager();
         EntityTransaction tx1 = em.getTransaction();
@@ -202,7 +202,7 @@ public class BasicModelTest {
         try {
             tx1.begin();
             em.persist(licenseApache20);
-            em.persist(environmentDefault);
+            em.persist(defaultBuildEnvironment);
             em.persist(project1);
             em.persist(buildConfiguration1);
             tx1.commit();

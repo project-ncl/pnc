@@ -33,8 +33,9 @@ import org.jboss.pnc.core.test.mock.DatastoreMock;
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationSet;
-import org.jboss.pnc.model.Environment;
 import org.jboss.pnc.model.mock.MockUser;
+import org.jboss.pnc.model.BuildEnvironment;
+import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.BuildSetStatus;
 import org.jboss.pnc.spi.BuildStatus;
 import org.jboss.pnc.spi.datastore.DatastoreException;
@@ -82,7 +83,7 @@ public class ProjectBuilder {
     public static JavaArchive createDeployment() {
         JavaArchive jar = ShrinkWrap.create(JavaArchive.class)
                 .addClass(Configuration.class)
-                .addClass(Environment.Builder.class)
+                .addClass(BuildEnvironment.Builder.class)
                 .addClass(TestCDIBuildStatusChangedReceiver.class)
                 .addPackages(true,
                         BuildDriverFactory.class.getPackage(),

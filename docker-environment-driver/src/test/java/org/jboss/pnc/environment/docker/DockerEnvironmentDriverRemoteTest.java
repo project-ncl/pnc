@@ -45,8 +45,8 @@ import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.moduleconfig.DockerEnvironmentDriverModuleConfig;
 import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
 import org.jboss.pnc.common.util.HttpUtils;
+import org.jboss.pnc.model.BuildEnvironment;
 import org.jboss.pnc.model.BuildType;
-import org.jboss.pnc.model.Environment;
 import org.jboss.pnc.model.OperationalSystem;
 import org.jboss.pnc.model.RepositoryType;
 import org.jboss.pnc.spi.environment.RunningEnvironment;
@@ -147,15 +147,13 @@ public class DockerEnvironmentDriverRemoteTest {
 
     @Test
     public void canBuildEnvironmentTest() {
-        final Environment goodEnv = new Environment(BuildType.JAVA, OperationalSystem.LINUX);
-        final Environment badEnv1 = new Environment(null, null);
-        final Environment badEnv2 = new Environment(BuildType.DOCKER, OperationalSystem.LINUX);
-        final Environment badEnv3 = new Environment(BuildType.JAVA, OperationalSystem.WINDOWS);
+        final BuildEnvironment goodEnv = BuildEnvironment.Builder.newBuilder().buildType(BuildType.JAVA).build();
+        final BuildEnvironment badEnv1 = BuildEnvironment.Builder.newBuilder().buildType(null).build();
+        final BuildEnvironment badEnv2 = BuildEnvironment.Builder.newBuilder().buildType(BuildType.DOCKER).build();
 
         assertTrue(dockerEnvDriver.canBuildEnvironment(goodEnv));
         assertFalse(dockerEnvDriver.canBuildEnvironment(badEnv1));
         assertFalse(dockerEnvDriver.canBuildEnvironment(badEnv2));
-        assertFalse(dockerEnvDriver.canBuildEnvironment(badEnv3));
     }
 
     @Test
@@ -163,7 +161,7 @@ public class DockerEnvironmentDriverRemoteTest {
         final Semaphore mutex = new Semaphore(0);
 
         // Create container
-        final Environment environment = new Environment(BuildType.JAVA, OperationalSystem.LINUX);
+        final BuildEnvironment environment = BuildEnvironment.Builder.newBuilder().buildType(BuildType.JAVA).build();
         final DockerStartedEnvironment startedEnv = (DockerStartedEnvironment)
                 dockerEnvDriver.buildEnvironment(environment, DUMMY_REPOSITORY_CONFIGURATION);
 

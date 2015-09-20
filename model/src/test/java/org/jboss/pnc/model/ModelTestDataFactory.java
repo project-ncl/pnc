@@ -111,8 +111,10 @@ public class ModelTestDataFactory {
                 .build();
     }
 
-    public Environment getEnvironmentDefault() {
-        return Environment.Builder.defaultEnvironment()
+    public BuildEnvironment getBuildEnvironmentDefault() {
+        return BuildEnvironment.Builder.newBuilder()
+                .name("Fake test build system")
+                .description("Fake build system to use for testing")
                 .build();
     }
 
@@ -153,7 +155,7 @@ public class ModelTestDataFactory {
                 .project(getProject1())
                 .scmRepoURL("http://www.github.com")
                 .buildScript("mvn install")
-                .environment(getEnvironmentDefault())
+                .buildEnvironment(getBuildEnvironmentDefault())
                 .build();
     }
 
@@ -164,7 +166,7 @@ public class ModelTestDataFactory {
                 .project(getProject2())
                 .scmRepoURL("http://www.github.com")
                 .buildScript("mvn install")
-                .environment(getEnvironmentDefault())
+                .buildEnvironment(getBuildEnvironmentDefault())
                 .build();
     }
 

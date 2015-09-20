@@ -19,8 +19,9 @@ package org.jboss.pnc.core.test.configurationBuilders;
 
 import org.jboss.pnc.core.test.mock.DatastoreMock;
 import org.jboss.pnc.model.BuildConfiguration;
+import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildConfigurationSet;
-import org.jboss.pnc.model.Environment;
+import org.jboss.pnc.model.BuildEnvironment;
 import org.jboss.pnc.model.Project;
 
 import javax.inject.Inject;
@@ -33,7 +34,7 @@ public class TestProjectConfigurationBuilder {
     public static final String FAIL = "Fail";
     public static final String PASS = "Pass";
 
-    Environment javaEnvironment = Environment.Builder.defaultEnvironment().build();
+    BuildEnvironment javaBuildEnvironment = BuildEnvironment.Builder.newBuilder().build();
 
     @Inject
     DatastoreMock datastore;
@@ -93,7 +94,7 @@ public class TestProjectConfigurationBuilder {
         buildConfiguration.setId(id);
         buildConfiguration.setDescription(PASS);
         buildConfiguration.setName(id + "");
-        buildConfiguration.setEnvironment(javaEnvironment);
+        buildConfiguration.setBuildEnvironment(javaBuildEnvironment);
         buildConfiguration.setProject(project);
         project.addBuildConfiguration(buildConfiguration);
         if (buildConfigurationSet != null) {

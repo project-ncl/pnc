@@ -62,6 +62,11 @@ public class BuildSetTask {
 
     /**
      * Create build set task for running a single build or set of builds
+     * 
+     * @param buildCoordinator The build coordinator which is managing this set of tasks
+     * @param buildConfigSetRecord The config set record which will be stored to the db
+     * @param productMilestone The milestone, if any, for which these builds will be executed
+     * @param submitTime The time at which the user submitted the request to run the builds
      */
     public BuildSetTask(BuildCoordinator buildCoordinator, BuildConfigSetRecord buildConfigSetRecord,
             ProductMilestone productMilestone, Date submitTime, boolean rebuildAll) {

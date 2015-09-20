@@ -31,16 +31,15 @@
     <class>org.jboss.pnc.model.BuildConfiguration</class>
     <class>org.jboss.pnc.model.BuildConfigurationAudited</class>
     <class>org.jboss.pnc.model.BuildConfigurationSet</class>
+    <class>org.jboss.pnc.model.BuildEnvironment</class>
     <class>org.jboss.pnc.model.BuildRecord</class>
     <class>org.jboss.pnc.model.BuildRecordSet</class>
-    <class>org.jboss.pnc.model.Environment</class>
     <class>org.jboss.pnc.model.License</class>
     <class>org.jboss.pnc.model.Product</class>
     <class>org.jboss.pnc.model.ProductMilestone</class>
     <class>org.jboss.pnc.model.ProductRelease</class>
     <class>org.jboss.pnc.model.ProductVersion</class>
     <class>org.jboss.pnc.model.Project</class>
-    <class>org.jboss.pnc.model.SystemImage</class>
     <class>org.jboss.pnc.model.User</class>
 
     <properties>

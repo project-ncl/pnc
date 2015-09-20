@@ -31,7 +31,7 @@ import org.jboss.arquillian.transaction.api.annotation.TransactionMode;
 import org.jboss.arquillian.transaction.api.annotation.Transactional;
 import org.jboss.pnc.integration.deployments.Deployments;
 import org.jboss.pnc.model.BuildConfiguration;
-import org.jboss.pnc.model.Environment;
+import org.jboss.pnc.model.BuildEnvironment;
 import org.jboss.pnc.model.Product;
 import org.jboss.pnc.model.ProductVersion;
 import org.jboss.pnc.model.Project;
@@ -39,7 +39,7 @@ import org.jboss.pnc.spi.datastore.audit.AuditRepository;
 import org.jboss.pnc.spi.datastore.audit.Revision;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
-import org.jboss.pnc.spi.datastore.repositories.EnvironmentRepository;
+import org.jboss.pnc.spi.datastore.repositories.BuildSystemImageRepository;
 import org.jboss.pnc.spi.datastore.repositories.ProductRepository;
 import org.jboss.pnc.spi.datastore.repositories.ProductVersionRepository;
 import org.jboss.pnc.spi.datastore.repositories.ProjectRepository;
@@ -83,7 +83,7 @@ public class DatastoreTest {
     BuildRecordRepository buildRecordRepository;
 
     @Inject
-    EnvironmentRepository environmentRepository;
+    BuildSystemImageRepository environmentRepository;
 
     @Inject
     UserRepository userRepository;
@@ -117,14 +117,14 @@ public class DatastoreTest {
     public void prepareDataForAuditTest() throws Exception {
         Product product = Product.Builder.newBuilder().name("test").build();
         ProductVersion productVersion = ProductVersion.Builder.newBuilder().version("1.0").product(product).build();
-        Environment environment = Environment.Builder.defaultEnvironment().build();
+        BuildEnvironment environment = BuildEnvironment.Builder.newBuilder().name("Test Environment").build();
         Project project = Project.Builder.newBuilder().name("test").build();
         environment = environmentRepository.save(environment);
         productVersion = productVersionRepository.save(productVersion);
         project = projectRepository.save(project);
 
         BuildConfiguration testedConfiguration = BuildConfiguration.Builder.newBuilder()
-                .environment(environment).name(ORIGINAL_NAME).project(project).build();
+                .buildEnvironment(environment).name(ORIGINAL_NAME).project(project).build();
 
         testedConfigurationId = buildConfigurationRepository.save(testedConfiguration).getId();
     }

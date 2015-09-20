@@ -108,7 +108,7 @@ public class DatastoreMock implements Datastore {
         
         BuildConfiguration buildConfig = buildConfigurations.get(buildConfigId);
         buildConfigAudited.setProject(buildConfig.getProject());
-        buildConfigAudited.setEnvironment(buildConfig.getEnvironment());
+        buildConfigAudited.setBuildEnvironment(buildConfig.getBuildEnvironment());
         buildConfigAudited.setDescription(buildConfig.getDescription());
 
         return buildConfigAudited;

@@ -40,7 +40,7 @@ import org.jboss.pnc.integration.utils.AuthResource;
 import org.jboss.pnc.rest.endpoint.BuildConfigurationEndpoint;
 import org.jboss.pnc.rest.provider.BuildConfigurationProvider;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationRest;
-import org.jboss.pnc.rest.restmodel.EnvironmentRest;
+import org.jboss.pnc.rest.restmodel.BuildEnvironmentRest;
 import org.jboss.pnc.rest.restmodel.ProjectRest;
 import org.jboss.pnc.test.category.ContainerTest;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
@@ -327,7 +327,7 @@ public class BuildConfigurationRestTest {
     public void shouldAddChildBuildConfiguration() throws Exception {
         //given
         RestResponse<ProjectRest> projectRestClient = this.projectRestClient.firstNotNull();
-        RestResponse<EnvironmentRest> environmentRestClient = this.environmentRestClient.firstNotNull();
+        RestResponse<BuildEnvironmentRest> environmentRestClient = this.environmentRestClient.firstNotNull();
 
         BuildConfigurationRest parentBuildConfiguration = new BuildConfigurationRest();
         parentBuildConfiguration.setName(UUID.randomUUID().toString());

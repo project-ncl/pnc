@@ -18,26 +18,26 @@
 package org.jboss.pnc.datastore.repositories;
 
 import org.jboss.pnc.datastore.repositories.internal.AbstractRepository;
-import org.jboss.pnc.datastore.repositories.internal.EnvironmentSpringRepository;
-import org.jboss.pnc.model.Environment;
-import org.jboss.pnc.spi.datastore.repositories.EnvironmentRepository;
+import org.jboss.pnc.datastore.repositories.internal.BuildSystemImageSpringRepository;
+import org.jboss.pnc.model.BuildEnvironment;
+import org.jboss.pnc.spi.datastore.repositories.BuildSystemImageRepository;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 
 @Stateless
-public class EnvironmentImpl extends AbstractRepository<Environment, Integer> implements EnvironmentRepository {
+public class BuildSystemImageImpl extends AbstractRepository<BuildEnvironment, Integer> implements BuildSystemImageRepository {
 
     /**
      * @deprecated Created for CDI.
      */
     @Deprecated
-    public EnvironmentImpl() {
+    public BuildSystemImageImpl() {
         super(null, null);
     }
 
     @Inject
-    public EnvironmentImpl(EnvironmentSpringRepository environmentSpringRepository) {
-        super(environmentSpringRepository, environmentSpringRepository);
+    public BuildSystemImageImpl(BuildSystemImageSpringRepository buildSystemImageSpringRepository) {
+        super(buildSystemImageSpringRepository, buildSystemImageSpringRepository);
     }
 }

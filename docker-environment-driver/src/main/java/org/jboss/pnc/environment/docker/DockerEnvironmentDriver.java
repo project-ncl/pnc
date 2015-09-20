@@ -29,7 +29,7 @@ import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
 import org.jboss.pnc.common.monitor.PullingMonitor;
 import org.jboss.pnc.common.util.HttpUtils;
 import org.jboss.pnc.model.BuildType;
-import org.jboss.pnc.model.Environment;
+import org.jboss.pnc.model.BuildEnvironment;
 import org.jboss.pnc.model.OperationalSystem;
 import org.jboss.pnc.spi.environment.EnvironmentDriver;
 import org.jboss.pnc.spi.environment.StartedEnvironment;
@@ -157,7 +157,7 @@ public class DockerEnvironmentDriver implements EnvironmentDriver {
     }
 
     @Override
-    public StartedEnvironment buildEnvironment(Environment buildEnvironment,
+    public StartedEnvironment buildEnvironment(BuildEnvironment buildEnvironment,
             RepositorySession repositorySession) throws EnvironmentDriverException {
         if (!canBuildEnvironment(buildEnvironment))
             throw new UnsupportedOperationException(
@@ -214,14 +214,13 @@ public class DockerEnvironmentDriver implements EnvironmentDriver {
     }
 
     @Override
-    public boolean canBuildEnvironment(Environment environment) {
+    public boolean canBuildEnvironment(BuildEnvironment environment) {
         if (disabled) {
             logger.info("Skipping driver as it is disabled by config.");
             return false;
         }
 
-        if (environment.getBuildType() == BuildType.JAVA &&
-                environment.getOperationalSystem() == OperationalSystem.LINUX)
+        if (environment.getBuildType() == BuildType.JAVA)
             return true;
         else
             return false;

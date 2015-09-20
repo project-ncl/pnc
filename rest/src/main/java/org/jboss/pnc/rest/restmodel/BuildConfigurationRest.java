@@ -20,7 +20,7 @@ package org.jboss.pnc.rest.restmodel;
 import io.swagger.annotations.ApiModelProperty;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildStatus;
-import org.jboss.pnc.model.Environment;
+import org.jboss.pnc.model.BuildEnvironment;
 import org.jboss.pnc.model.ProductVersion;
 import org.jboss.pnc.model.Project;
 import org.jboss.pnc.rest.validation.groups.WhenCreatingNew;
@@ -88,7 +88,7 @@ public class BuildConfigurationRest implements GenericRestEntity<Integer> {
         this.repositories = buildConfiguration.getRepositories();
         performIfNotNull(buildConfiguration.getProject(), () -> this.projectId = buildConfiguration.getProject()
                 .getId());
-        performIfNotNull(buildConfiguration.getEnvironment(), () -> this.environmentId = buildConfiguration.getEnvironment().getId());
+        performIfNotNull(buildConfiguration.getBuildEnvironment(), () -> this.environmentId = buildConfiguration.getBuildEnvironment().getId());
         this.dependencyIds = nullableStreamOf(buildConfiguration.getDependencies()).map(dependencyConfig -> dependencyConfig.getId())
                 .collect(Collectors.toSet());
         this.productVersionIds = nullableStreamOf(buildConfiguration.getProductVersions()).map(productVersion -> productVersion.getId())
@@ -239,7 +239,7 @@ public class BuildConfigurationRest implements GenericRestEntity<Integer> {
         builder.repositories(repositories);
 
         performIfNotNull(projectId, () -> builder.project(Project.Builder.newBuilder().id(projectId).build()));
-        performIfNotNull(environmentId, () -> builder.environment(Environment.Builder.emptyEnvironment().id(environmentId).build()));
+        performIfNotNull(environmentId, () -> builder.buildEnvironment(BuildEnvironment.Builder.newBuilder().id(environmentId).build()));
 
         nullableStreamOf(dependencyIds).forEach(dependencyId -> {
             BuildConfiguration.Builder buildConfigurationBuilder = BuildConfiguration.Builder.newBuilder().id(dependencyId);

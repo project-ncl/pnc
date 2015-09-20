@@ -106,7 +106,7 @@
         <select ng-model="createCtrl.data.environmentId" required>
           <option value="">Select an Environment</option>
             <option ng-repeat="environment in createCtrl.environments" value="{{ environment.id }}">
-              {{ environment.operationalSystem + ' / ' + environment.buildType }}
+              {{ environment.name }}
             </option>
           </select>
         </div>

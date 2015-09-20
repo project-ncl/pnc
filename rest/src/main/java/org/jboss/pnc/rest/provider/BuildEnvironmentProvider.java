@@ -17,9 +17,9 @@
  */
 package org.jboss.pnc.rest.provider;
 
-import org.jboss.pnc.model.Environment;
-import org.jboss.pnc.rest.restmodel.EnvironmentRest;
-import org.jboss.pnc.spi.datastore.repositories.EnvironmentRepository;
+import org.jboss.pnc.model.BuildEnvironment;
+import org.jboss.pnc.rest.restmodel.BuildEnvironmentRest;
+import org.jboss.pnc.spi.datastore.repositories.BuildSystemImageRepository;
 import org.jboss.pnc.spi.datastore.repositories.PageInfoProducer;
 import org.jboss.pnc.spi.datastore.repositories.SortInfoProducer;
 import org.jboss.pnc.spi.datastore.repositories.api.RSQLPredicateProducer;
@@ -29,25 +29,25 @@ import javax.inject.Inject;
 import java.util.function.Function;
 
 @Stateless
-public class EnvironmentProvider extends AbstractProvider<Environment, EnvironmentRest> {
+public class BuildEnvironmentProvider extends AbstractProvider<BuildEnvironment, BuildEnvironmentRest> {
 
     // needed for EJB/CDI
-    public EnvironmentProvider() {
+    public BuildEnvironmentProvider() {
     }
 
     @Inject
-    public EnvironmentProvider(EnvironmentRepository environmentRepository, RSQLPredicateProducer rsqlPredicateProducer,
+    public BuildEnvironmentProvider(BuildSystemImageRepository environmentRepository, RSQLPredicateProducer rsqlPredicateProducer,
             SortInfoProducer sortInfoProducer, PageInfoProducer pageInfoProducer) {
         super(environmentRepository, rsqlPredicateProducer, sortInfoProducer, pageInfoProducer);
     }
 
     @Override
-    protected Function<? super Environment, ? extends EnvironmentRest> toRESTModel() {
-        return environment -> new EnvironmentRest(environment);
+    protected Function<? super BuildEnvironment, ? extends BuildEnvironmentRest> toRESTModel() {
+        return buildSystemImage -> new BuildEnvironmentRest(buildSystemImage);
     }
 
     @Override
-    protected Function<? super EnvironmentRest, ? extends Environment> toDBModelModel() {
-        return environment -> environment.toEnvironment();
+    protected Function<? super BuildEnvironmentRest, ? extends BuildEnvironment> toDBModelModel() {
+        return buildSystemImageRest -> buildSystemImageRest.toBuildSystemImage();
     }
 }
