@@ -178,9 +178,8 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
             RunningEnvironment runningEnvironment = RunningEnvironment.createInstance(
                     pod.getName(),
                     pod.getContainerPorts().stream().findFirst().orElseThrow(exceptionSupplier).getContainerPort(),
-                    //TODO use service for internal communication
                     getPublicEndpointUrl(), //TODO configurable port and protocol
-                    getInternalEndpointUrl(), //TODO configurable port and protocol
+                    getInternalEndpointUrl(),
                     repositorySession,
                     Paths.get(environmentConfiguration.getWorkingDirectory()),
                     this::destroyEnvironment
@@ -195,7 +194,7 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
     }
 
     private String getInternalEndpointUrl() {
-        return "http://" + service.getPortalIP() + "/" + buildAgentContextPath + environmentConfiguration.getBuildAgentBindPath();
+        return "http://" + service.getPortalIP() + "/" + buildAgentContextPath + "/" + environmentConfiguration.getBuildAgentBindPath();
     }
 
     private boolean isPodRunning() {

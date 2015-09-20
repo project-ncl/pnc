@@ -36,7 +36,7 @@ public class TermdFileTranser {
     private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
     public static final String ENCODING = "UTF-8";
-    private static final String UPLOAD_PATH = "/servlet/upload";
+    private static final String UPLOAD_PATH = "servlet/upload";
 
     private final URI baseServerUri;
 
@@ -75,8 +75,9 @@ public class TermdFileTranser {
 
     public void uploadScript(StringBuilder script, Path remoteFilePath) {
         logger.debug("Uploading build script to remote path {}, build script {}", remoteFilePath, script.toString());
-
-        URI uploadUri = baseServerUri.resolve(UPLOAD_PATH + remoteFilePath.toAbsolutePath().toString());
+        String scriptPath = UPLOAD_PATH + remoteFilePath.toAbsolutePath().toString();
+        logger.debug("Resolving script path {} to base uri {}", scriptPath, baseServerUri);
+        URI uploadUri = baseServerUri.resolve(scriptPath);
         try {
             HttpURLConnection connection = (HttpURLConnection) uploadUri.toURL().openConnection();
             connection.setRequestMethod("PUT");
