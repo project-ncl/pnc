@@ -56,7 +56,7 @@ public class AbstractLocalBuildAgentTest {
 
     @Before
     public void beforeAbstract() throws Exception {
-        baseBuildAgentUri = new URI("http://" + localBuildAgent.getHost() + ":" + localBuildAgent.getPort());
+        baseBuildAgentUri = new URI("http://" + localBuildAgent.getHost() + ":" + localBuildAgent.getPort() + "/");
 
         localEnvironmentPointer = mock(RunningEnvironment.class);
         when(localEnvironmentPointer.getId()).thenReturn("test");
