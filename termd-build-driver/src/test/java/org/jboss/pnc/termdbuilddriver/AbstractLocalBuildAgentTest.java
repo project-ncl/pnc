@@ -62,6 +62,7 @@ public class AbstractLocalBuildAgentTest {
         when(localEnvironmentPointer.getId()).thenReturn("test");
         when(localEnvironmentPointer.getJenkinsPort()).thenReturn(localBuildAgent.getPort());
         when(localEnvironmentPointer.getJenkinsUrl()).thenReturn(baseBuildAgentUri.toString());
+        when(localEnvironmentPointer.getInternalBuildAgentUrl()).thenReturn(baseBuildAgentUri.toString());
         when(localEnvironmentPointer.getWorkingDirectory()).thenReturn(workingDirectory);
     }
 
