@@ -171,7 +171,12 @@ public class JenkinsDriverRemoteTest {
             public String getJenkinsUrl() {
                 return System.getenv("PNC_JENKINS_URL") + ":" + getJenkinsPort();
             }
-            
+
+            @Override
+            public String getInternalBuildAgentUrl() {
+                return getJenkinsUrl();
+            }
+
             @Override
             public int getJenkinsPort() {
                 return Integer.parseInt(System.getenv("PNC_JENKINS_PORT"));

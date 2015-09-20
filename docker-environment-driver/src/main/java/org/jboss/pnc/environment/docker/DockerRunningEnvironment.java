@@ -81,6 +81,11 @@ public class DockerRunningEnvironment implements RunningEnvironment {
     }
 
     @Override
+    public String getInternalBuildAgentUrl() {
+        return getJenkinsUrl();
+    }
+
+    @Override
     public RepositorySession getRepositorySession() {
         return repositorySession;
     }

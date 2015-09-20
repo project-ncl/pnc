@@ -128,7 +128,7 @@ public class TermdBuildDriver implements BuildDriver {
             logger.debug("[{}] Uploading script", termdRunningBuild.getRunningEnvironment().getId());
             logger.debug("[{}] Full script:\n {}", termdRunningBuild.getRunningEnvironment().getId(), commandAppender.toString());
 
-            new TermdFileTranser(URI.create(termdRunningBuild.getRunningEnvironment().getJenkinsUrl()))
+            new TermdFileTranser(URI.create(termdRunningBuild.getRunningEnvironment().getInternalBuildAgentUrl()))
                     .uploadScript(commandAppender,
                             Paths.get(termdRunningBuild.getRunningEnvironment().getWorkingDirectory().toAbsolutePath().toString(), "run.sh"));
 
@@ -141,7 +141,7 @@ public class TermdBuildDriver implements BuildDriver {
         return CompletableFuture.supplyAsync(() -> {
             logger.debug("[{}] Invoking script from path {}", termdRunningBuild.getRunningEnvironment().getId(), scriptPath);
 
-            TermdCommandInvoker termdCommandInvoker = new TermdCommandInvoker(URI.create(termdRunningBuild.getRunningEnvironment().getJenkinsUrl()), termdRunningBuild.getRunningEnvironment().getWorkingDirectory());
+            TermdCommandInvoker termdCommandInvoker = new TermdCommandInvoker(URI.create(termdRunningBuild.getRunningEnvironment().getInternalBuildAgentUrl()), termdRunningBuild.getRunningEnvironment().getWorkingDirectory());
             termdCommandInvoker.startSession();
 
             currentBuildExecution.setLogsWebSocketLink(termdCommandInvoker.getLogsURI());
