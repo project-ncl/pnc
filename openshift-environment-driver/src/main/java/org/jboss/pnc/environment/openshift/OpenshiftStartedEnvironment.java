@@ -152,7 +152,17 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
 
         Consumer<RunningEnvironment> onCompleteInternal = (runningEnvironment) -> {
             logger.info("New build environment available on internal url: {}", getInternalEndpointUrl());
-            onComplete.accept(runningEnvironment);
+
+            try {
+                Runnable onUrlAvailable = () -> {
+                    onComplete.accept(runningEnvironment);
+                };
+
+                URL url = new URL(getInternalEndpointUrl());
+                pullingMonitor.monitor(onUrlAvailable, onError, () -> isServletAvailable(url));
+            } catch (IOException e) {
+                onError.accept(e);
+            }
         };
 
         pullingMonitor.monitor(onEnvironmentInitComplete(onCompleteInternal, Selector.POD), onError, () -> isPodRunning());
@@ -161,6 +171,14 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
         //logger.info("Waiting to start a pod [{}], service [{}] and route [{}].", pod.getName(), service.getName(), route.getName());
 
         logger.info("Waiting to start a pod [{}], service [{}].", pod.getName(), service.getName());
+    }
+
+    private boolean isServletAvailable(URL servletUrl) {
+        try {
+            return connectToPingUrl(servletUrl);
+        } catch (IOException e) {
+            return false;
+        }
     }
 
     private Runnable onEnvironmentInitComplete(Consumer<RunningEnvironment> onComplete, Selector selector) {
