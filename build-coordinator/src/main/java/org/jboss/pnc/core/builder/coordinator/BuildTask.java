@@ -84,7 +84,6 @@ public class BuildTask {
     private BuildTask(BuildConfiguration buildConfiguration,
                       BuildConfigurationAudited buildConfigurationAudited,
                       String topContentId,
-                      String buildSetContentId,
                       String buildContentId,
                       User user,
                       Date submitTime,
@@ -290,7 +289,6 @@ public class BuildTask {
             Date submitTime,
             boolean rebuildAll) {
         String topContentId = ContentIdentityManager.getProductContentId(BuildConfigurationUtils.getFirstProductVersion(buildConfiguration));
-        String buildSetContentId = ContentIdentityManager.getBuildSetContentId(buildConfiguration.getName());
         String buildContentId = ContentIdentityManager.getBuildContentId(buildConfiguration);
 
         Integer buildConfigSetRecordId = null;
@@ -302,7 +300,6 @@ public class BuildTask {
                 buildConfiguration,
                 buildConfigAudited,
                 topContentId,
-                buildSetContentId,
                 buildContentId,
                 user,
                 submitTime,

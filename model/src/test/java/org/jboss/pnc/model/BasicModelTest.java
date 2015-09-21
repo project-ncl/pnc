@@ -116,11 +116,11 @@ public class BasicModelTest {
         Product product1 = ModelTestDataFactory.getInstance().getProduct1();
         ProductVersion productVersion1 = ModelTestDataFactory.getInstance().getProductVersion1();
         productVersion1.setProduct(product1);
-        BuildRecordSet buildRecordSet1 = ModelTestDataFactory.getInstance().getBuildRecordSet();
+        BuildRecordSet buildRecordSet1 = ModelTestDataFactory.getInstance().getBuildRecordSet("Set 1");
         ProductMilestone productMilestone1 = ModelTestDataFactory.getInstance().getProductMilestone1version1();
         productMilestone1.setProductVersion(productVersion1);
         productMilestone1.setPerformedBuildRecordSet(buildRecordSet1);
-        BuildRecordSet buildRecordSet2 = ModelTestDataFactory.getInstance().getBuildRecordSet();
+        BuildRecordSet buildRecordSet2 = ModelTestDataFactory.getInstance().getBuildRecordSet("Set 2");
         ProductRelease productRelease1 = ModelTestDataFactory.getInstance().getProductRelease1();
         productRelease1.setProductMilestone(productMilestone1);
 

@@ -57,8 +57,6 @@ public class BuildRecordSet implements GenericEntity<Integer> {
     @OneToOne(mappedBy = "distributedBuildRecordSet")
     private ProductMilestone distributedInProductMilestone;
 
-    private String buildSetContentId;
-
     @ManyToMany
     @JoinTable(name = "build_record_set_map", joinColumns = { @JoinColumn(name = "build_record_set_id", referencedColumnName = "id") }, inverseJoinColumns = { @JoinColumn(name = "build_record_id", referencedColumnName = "id") })
     @ForeignKey(name = "fk_build_record_set_map_buildrecordset", inverseName = "fk_build_record_set_map_buildrecord")
@@ -124,18 +122,6 @@ public class BuildRecordSet implements GenericEntity<Integer> {
         return this.buildRecords.add(buildRecord);
     }
 
-    public String getBuildSetContentId() {
-        return this.buildSetContentId;
-    }
-
-    /**
-     * @param buildSetContentId The identifier to use when aggregating and retrieving content related to this record set which
-     *        is stored via external services.
-     */
-    public void setBuildSetContentId(String buildSetContentId) {
-        this.buildSetContentId = buildSetContentId;
-    }
-
     public static class Builder {
 
         private Integer id;
@@ -145,8 +131,6 @@ public class BuildRecordSet implements GenericEntity<Integer> {
         private ProductMilestone performedInProductMilestone;
 
         private ProductMilestone distributedInProductMilestone;
-
-        private String buildSetContentId;
 
         private Set<BuildRecord> buildRecords;
 
@@ -162,7 +146,6 @@ public class BuildRecordSet implements GenericEntity<Integer> {
             BuildRecordSet buildRecordSet = new BuildRecordSet();
             buildRecordSet.setId(id);
             buildRecordSet.setDescription(description);
-            buildRecordSet.setBuildSetContentId(buildSetContentId);
 
             // Set the bi-directional mappings
             if (performedInProductMilestone != null) {
@@ -200,11 +183,6 @@ public class BuildRecordSet implements GenericEntity<Integer> {
 
         public Builder distributedInProductMilestone(ProductMilestone distributedInProductMilestone) {
             this.distributedInProductMilestone = distributedInProductMilestone;
-            return this;
-        }
-
-        public Builder buildSetContentId(String buildSetContentId) {
-            this.buildSetContentId = buildSetContentId;
             return this;
         }
 

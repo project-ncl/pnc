@@ -19,7 +19,6 @@ package org.jboss.pnc.core.builder.coordinator;
 
 import org.jboss.pnc.core.builder.coordinator.filtering.BuildTaskFilter;
 import org.jboss.pnc.core.builder.datastore.DatastoreAdapter;
-import org.jboss.pnc.core.content.ContentIdentityManager;
 import org.jboss.pnc.core.exception.CoreException;
 import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildConfiguration;
@@ -175,8 +174,6 @@ public class BuildCoordinator {
      * initialized the BuildConfigSet, BuildConfigSetRecord, Milestone, etc.
      */
     private void initializeBuildTasksInSet(BuildSetTask buildSetTask, boolean rebuildAll) {
-        String topContentId = ContentIdentityManager.getProductContentId(buildSetTask.getBuildConfigurationSet().getProductVersion());
-        String buildSetContentId = ContentIdentityManager.getBuildSetContentId(buildSetTask.getBuildConfigurationSet().getName());
 
         // Loop to create the build tasks
         for(BuildConfiguration buildConfig : buildSetTask.getBuildConfigurationSet().getBuildConfigurations()) {
