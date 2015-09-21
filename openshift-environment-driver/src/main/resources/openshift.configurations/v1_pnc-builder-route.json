@@ -6,7 +6,7 @@
     },
     "spec": {
         "host" : "ncl-test-os-01.host.prod.eng.bos.redhat.com",
-        "path" : "/${route-path}",
+        "path" : "${route-path}",
         "to" : {
             "kind" : "Service",
             "name" : "${service-name}"

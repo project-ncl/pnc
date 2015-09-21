@@ -98,7 +98,7 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
         runtimeProperties.put("pod-name", "pnc-ba-pod-" + randString);
         runtimeProperties.put("service-name", "pnc-ba-service-" + randString);
         runtimeProperties.put("route-name", "pnc-ba-route-" + randString);
-        runtimeProperties.put("route-path", buildAgentContextPath);
+        runtimeProperties.put("route-path", "/" + buildAgentContextPath);
         runtimeProperties.put("buildAgentContextPath", "/" + buildAgentContextPath);
 
         ModelNode podConfigurationNode = createModelNode(Configurations.V1_PNC_BUILDER_POD.getContentAsString(), runtimeProperties);
@@ -190,7 +190,7 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
     }
 
     private String getPublicEndpointUrl() {
-        return "http://" + route.getHost() + route.getPath() + environmentConfiguration.getBuildAgentBindPath();
+        return "http://" + route.getHost() + "/" + route.getPath() + "/" + environmentConfiguration.getBuildAgentBindPath();
     }
 
     private String getInternalEndpointUrl() {
