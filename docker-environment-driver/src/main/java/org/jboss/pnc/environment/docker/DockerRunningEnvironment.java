@@ -77,7 +77,7 @@ public class DockerRunningEnvironment implements RunningEnvironment {
 
     @Override
     public String getJenkinsUrl() {
-        return containerUrl + ":" + jenkinsPort;
+        return containerUrl + ":" + jenkinsPort + "/";
     }
 
     @Override
