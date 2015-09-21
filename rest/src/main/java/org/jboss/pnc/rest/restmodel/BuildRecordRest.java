@@ -18,7 +18,6 @@
 package org.jboss.pnc.rest.restmodel;
 
 import io.swagger.annotations.ApiModelProperty;
-import org.jboss.pnc.core.builder.coordinator.BuildTask;
 import org.jboss.pnc.core.builder.executor.BuildExecutionTask;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.BuildStatus;
@@ -29,7 +28,10 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.Date;
+import java.util.Set;
+import java.util.stream.Collectors;
 
+import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
 import static org.jboss.pnc.rest.utils.Utility.performIfNotNull;
 
 @XmlRootElement(name = "BuildRecord")
@@ -66,6 +68,23 @@ public class BuildRecordRest implements GenericRestEntity<Integer> {
 
     private String buildContentId;
 
+    /**
+     * The IDs of all the build record sets to which this build record belongs
+     */
+    private Set<Integer> buildRecordSetIds;
+
+    /**
+     * The IDs of the build record sets which represent the builds performed for a milestone
+     * to which this build record belongs
+     */
+    private Set<Integer> performedMilestoneBuildRecordSetIds;
+
+    /**
+     * The IDs of the build record sets which represent the builds distributed for a milestone
+     * to which this build record belongs
+     */
+    private Set<Integer> distributedMilestoneBuildRecordSetIds;
+
     public BuildRecordRest() {
     }
 
@@ -87,6 +106,14 @@ public class BuildRecordRest implements GenericRestEntity<Integer> {
             this.buildConfigSetRecordId = buildRecord.getBuildConfigSetRecord().getId();
 
         this.buildContentId = buildRecord.getBuildContentId();
+        this.buildRecordSetIds = nullableStreamOf(buildRecord.getBuildRecordSets()).map(buildRecordSet -> buildRecordSet.getId())
+                .collect(Collectors.toSet());
+        this.performedMilestoneBuildRecordSetIds = nullableStreamOf(buildRecord.getBuildRecordSets()).filter(buildRecordSet -> buildRecordSet.getPerformedInProductMilestone() != null)
+                .map(buildRecordSet -> buildRecordSet.getId())
+                .collect(Collectors.toSet());
+        this.distributedMilestoneBuildRecordSetIds = nullableStreamOf(buildRecord.getBuildRecordSets()).filter(buildRecordSet -> buildRecordSet.getDistributedInProductMilestone() != null)
+                .map(buildRecordSet -> buildRecordSet.getId())
+                .collect(Collectors.toSet());
     }
 
     public BuildRecordRest(BuildExecutionTask buildExecutionTask, Date submitTime) {
@@ -215,5 +242,17 @@ public class BuildRecordRest implements GenericRestEntity<Integer> {
 
     public void setBuildContentId(String buildContentId) {
         this.buildContentId = buildContentId;
+    }
+
+    public Set<Integer> getBuildRecordSetIds() {
+        return buildRecordSetIds;
+    }
+
+    public Set<Integer> getPerformedMilestoneBuildRecordSetIds() {
+        return performedMilestoneBuildRecordSetIds;
+    }
+
+    public Set<Integer> getDistributedMilestoneBuildRecordSetIds() {
+        return distributedMilestoneBuildRecordSetIds;
     }
 }
