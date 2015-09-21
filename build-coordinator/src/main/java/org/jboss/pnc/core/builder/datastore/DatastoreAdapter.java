@@ -126,6 +126,7 @@ public class DatastoreAdapter {
                 .submitTime(buildExecutionTask.getSubmitTime())
                 .startTime(buildExecutionTask.getStartTime())
                 .endTime(buildExecutionTask.getEndTime())
+                .buildContentId(buildExecutionTask.getBuildContentId())
                 .build();
 
         buildRecord.setLatestBuildConfiguration(buildExecutionTask.getBuildConfiguration());
