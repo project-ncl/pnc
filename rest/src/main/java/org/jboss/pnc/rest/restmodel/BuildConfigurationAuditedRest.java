@@ -55,7 +55,7 @@ public class BuildConfigurationAuditedRest implements GenericRestEntity<Integer>
 
     private Integer projectId;
 
-    private Integer buildEnvironmentId;
+    private Integer environmentId;
 
     public BuildConfigurationAuditedRest() {
     }
@@ -70,7 +70,7 @@ public class BuildConfigurationAuditedRest implements GenericRestEntity<Integer>
         this.scmRevision = buildConfigurationAudited.getScmRevision();
         performIfNotNull(buildConfigurationAudited.getProject(), () -> this.projectId = buildConfigurationAudited.getProject()
                 .getId());
-        performIfNotNull(buildConfigurationAudited.getBuildEnvironment(), () -> this.buildEnvironmentId = buildConfigurationAudited.getBuildEnvironment().getId());
+        performIfNotNull(buildConfigurationAudited.getBuildEnvironment(), () -> this.environmentId = buildConfigurationAudited.getBuildEnvironment().getId());
     }
 
     @Override
@@ -163,12 +163,12 @@ public class BuildConfigurationAuditedRest implements GenericRestEntity<Integer>
         this.projectId = projectId;
     }
 
-    public Integer getBuildEnvironmentId() {
-        return buildEnvironmentId;
+    public Integer getEnvironmentId() {
+        return environmentId;
     }
 
-    public void setBuildEnvironmentId(Integer buildEnvironmentId) {
-        this.buildEnvironmentId = buildEnvironmentId;
+    public void setEnvironmentId(Integer environmentId) {
+        this.environmentId = environmentId;
     }
 
 }
