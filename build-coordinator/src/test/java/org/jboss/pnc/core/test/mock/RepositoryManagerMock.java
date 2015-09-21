@@ -83,12 +83,6 @@ public class RepositoryManagerMock implements RepositoryManager {
     }
 
     @Override
-    public RunningRepositoryPromotion promoteBuildSet(BuildRecordSet buildRecordSet, String toGroup)
-            throws RepositoryManagerException {
-        return new RunningRepositoryPromotionMock(promotionSuccess, promotionError);
-    }
-
-    @Override
     public RunningRepositoryDeletion deleteBuild(BuildRecord buildRecord) throws RepositoryManagerException {
         return new RunningRepositoryDeletionMock(deletionSuccess, deletionError);
     }

@@ -68,20 +68,6 @@ public interface RepositoryManager {
      */
     RunningRepositoryDeletion deleteBuild(BuildRecord buildRecord) throws RepositoryManagerException;
 
-    /**
-     * Add the repository group containing output associated with the specified {@link BuildRecordSet} to the membership of the
-     * repository group with the given ID.
-     *
-     * @param buildRecordSet The record-set that should be promoted
-     * @param toGroup The group into which the record-set should be promoted
-     *
-     * @return An object representing the running promotion process, with a callback method for the result.
-     *
-     * @throws RepositoryManagerException If there is a problem promoting the build set
-     */
-    RunningRepositoryPromotion promoteBuildSet(BuildRecordSet buildRecordSet, String toGroup)
-            throws RepositoryManagerException;
-
     boolean canManage(RepositoryType managerType);
 
 }

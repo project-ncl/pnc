@@ -246,21 +246,6 @@ public class RepositoryManagerDriver implements RepositoryManager {
         return new MavenRunningPromotion(StoreType.hosted, buildRecord.getBuildContentId(), toGroup, aprox);
     }
 
-    /**
-     * Promote the repository group associated with a given set of project builds to an arbitrary repository group. This allows
-     * handling a chain build's output as a single unit.
-     * 
-     * @return The promotion instance, which won't actually trigger promotion until its
-     *         {@link RunningRepositoryPromotion#monitor(java.util.function.Consumer, java.util.function.Consumer)} method is
-     *         called.
-     */
-    @Override
-    public RunningRepositoryPromotion promoteBuildSet(BuildRecordSet buildRecordSet, String toGroup)
-            throws RepositoryManagerException {
-
-        return new MavenRunningPromotion(StoreType.group, buildRecordSet.getBuildSetContentId(), toGroup, aprox);
-    }
-
     @Override
     public RunningRepositoryDeletion deleteBuild(BuildRecord buildRecord) throws RepositoryManagerException {
         return new MavenRunningDeletion(StoreType.hosted, buildRecord.getBuildContentId(), aprox);
