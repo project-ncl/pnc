@@ -82,6 +82,9 @@ public class DatabaseDataInitializer {
     BuildRecordRepository buildRecordRepository;
 
     @Inject
+    BuildRecordSetRepository buildRecordSetRepository;
+
+    @Inject
     BuildConfigSetRecordRepository buildConfigSetRecordRepository;
 
     @Inject
@@ -98,6 +101,8 @@ public class DatabaseDataInitializer {
     BuildConfiguration buildConfiguration2;
 
     BuildConfigurationSet buildConfigurationSet1;
+
+    ProductMilestone demoProductMilestone;
 
     User demoUser;
 
@@ -163,16 +168,16 @@ public class DatabaseDataInitializer {
                 .build();
         productVersion = productVersionRepository.save(productVersion);
 
-        ProductMilestone productMilestone = ProductMilestone.Builder.newBuilder().version(PNC_PRODUCT_MILESTONE)
+        demoProductMilestone = ProductMilestone.Builder.newBuilder().version(PNC_PRODUCT_MILESTONE)
                 .productVersion(productVersion).build();
-        productMilestone = productMilestoneRepository.save(productMilestone);
+        demoProductMilestone = productMilestoneRepository.save(demoProductMilestone);
 
         ProductRelease productRelease = ProductRelease.Builder.newBuilder().version(PNC_PRODUCT_RELEASE)
-                .productMilestone(productMilestone).supportLevel(SupportLevel.EARLYACCESS)
+                .productMilestone(demoProductMilestone).supportLevel(SupportLevel.EARLYACCESS)
                 .build();
         productRelease = productReleaseRepository.save(productRelease);
 
-        productVersion.setCurrentProductMilestone(productMilestone);
+        productVersion.setCurrentProductMilestone(demoProductMilestone);
         productVersion = productVersionRepository.save(productVersion);
 
         // Example projects
@@ -274,7 +279,7 @@ public class DatabaseDataInitializer {
             int nextId = datastore.getNextBuildRecordId();
             log.info("####nextId: " + nextId);
 
-            BuildRecord buildRecord = BuildRecord.Builder.newBuilder().id(nextId)
+            BuildRecord buildRecord1 = BuildRecord.Builder.newBuilder().id(nextId)
                     .latestBuildConfiguration(buildConfiguration1)
                     .buildConfigurationAudited(buildConfigAudited1)
                     .submitTime(Timestamp.from(Instant.now()))
@@ -287,9 +292,15 @@ public class DatabaseDataInitializer {
                     .status(BuildStatus.SUCCESS)
                     .build();
 
-            buildRecordRepository.save(buildRecord);
-            buildRecords.add(buildRecord);
+            buildRecordRepository.save(buildRecord1);
+            buildRecords.add(buildRecord1);
 
+            BuildRecordSet performedBuildRecordSet = demoProductMilestone.getPerformedBuildRecordSet();
+            performedBuildRecordSet.addBuildRecord(buildRecord1);
+            buildRecordSetRepository.save(performedBuildRecordSet);
+            BuildRecordSet distributedBuildRecordSet = demoProductMilestone.getDistributedBuildRecordSet();
+            distributedBuildRecordSet.addBuildRecord(buildRecord1);
+            buildRecordSetRepository.save(distributedBuildRecordSet);
         }
 
         Artifact builtArtifact3 = Artifact.Builder.newBuilder().identifier("test").deployUrl("http://google.pl/built3")
@@ -304,7 +315,7 @@ public class DatabaseDataInitializer {
             int nextId = datastore.getNextBuildRecordId();
             log.info("####nextId: " + nextId);
 
-            BuildRecord buildRecord = BuildRecord.Builder.newBuilder().id(nextId)
+            BuildRecord buildRecord2 = BuildRecord.Builder.newBuilder().id(nextId)
                     .latestBuildConfiguration(buildConfiguration2)
                     .buildConfigurationAudited(buildConfigAudited2)
                     .submitTime(Timestamp.from(Instant.now()))
@@ -317,8 +328,8 @@ public class DatabaseDataInitializer {
                     .status(BuildStatus.SUCCESS)
                     .build();
 
-            buildRecordRepository.save(buildRecord);
-            buildRecords.add(buildRecord);
+            buildRecordRepository.save(buildRecord2);
+            buildRecords.add(buildRecord2);
         }
 
         BuildConfigSetRecord buildConfigSetRecord1 = BuildConfigSetRecord.Builder.newBuilder()
