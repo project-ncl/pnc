@@ -51,8 +51,10 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.invoke.MethodHandles;
+import java.util.List;
 
 import static com.jayway.restassured.RestAssured.given;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.jboss.pnc.integration.env.IntegrationTestEnv.getHttpPort;
 
 @RunWith(Arquillian.class)
@@ -66,7 +68,6 @@ public class BuildRecordSetRestTest {
 
     private static final String BUILD_RECORD_SET_REST_ENDPOINT = "/pnc-rest/rest/build-record-sets/";
     private static final String BUILD_RECORD_SET_SPECIFIC_REST_ENDPOINT = "/pnc-rest/rest/build-record-sets/%d";
-    private static final String BUILD_RECORD_SET_PRODUCT_VERSION_REST_ENDPOINT = "/pnc-rest/rest/build-record-sets/productversion/%d";
     private static final String BUILD_RECORD_SET_BUILD_RECORD_REST_ENDPOINT = "/pnc-rest/rest/build-record-sets/build-records/%d";
 
     private static int performedInProductMilestoneId;
@@ -177,14 +178,15 @@ public class BuildRecordSetRestTest {
 
     @Test
     @InSequence(5)
-    public void shouldGetBuildRecordForBuildRecord() {
+    public void shouldGetBuildRecordSetForBuildRecord() {
 
         Response response = given().header("Accept", "application/json").header("Authorization", "Bearer " + access_token)
                     .contentType(ContentType.JSON).port(getHttpPort()).when()
                 .get(String.format(BUILD_RECORD_SET_BUILD_RECORD_REST_ENDPOINT, buildRecordId));
 
         ResponseAssertion.assertThat(response).hasStatus(200);
-        ResponseAssertion.assertThat(response).hasJsonValueEqual("content[0].id", newBuildRecordSetId);
+        List<Integer> buildRecordSetIds = response.getBody().jsonPath().getList("content.id");
+        assertThat(buildRecordSetIds.contains(newBuildRecordSetId));
     }
 
 }
