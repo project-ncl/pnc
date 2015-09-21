@@ -17,13 +17,14 @@
  */
 package org.jboss.pnc.rest.configuration;
 
+import io.swagger.jaxrs.config.BeanConfig;
 import org.jboss.pnc.rest.debug.TestEndpoint;
 import org.jboss.pnc.rest.endpoint.BuildConfigSetRecordEndpoint;
 import org.jboss.pnc.rest.endpoint.BuildConfigurationEndpoint;
 import org.jboss.pnc.rest.endpoint.BuildConfigurationSetEndpoint;
+import org.jboss.pnc.rest.endpoint.BuildEnvironmentEndpoint;
 import org.jboss.pnc.rest.endpoint.BuildRecordEndpoint;
 import org.jboss.pnc.rest.endpoint.BuildRecordSetEndpoint;
-import org.jboss.pnc.rest.endpoint.BuildEnvironmentEndpoint;
 import org.jboss.pnc.rest.endpoint.LicenseEndpoint;
 import org.jboss.pnc.rest.endpoint.ProductEndpoint;
 import org.jboss.pnc.rest.endpoint.ProductMilestoneEndpoint;
@@ -35,11 +36,19 @@ import org.jboss.pnc.rest.endpoint.UserEndpoint;
 
 import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.core.Application;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
 import java.util.HashSet;
+import java.util.Properties;
 import java.util.Set;
 
 @ApplicationPath("/rest")
 public class JaxRsActivator extends Application {
+
+    public JaxRsActivator() throws IOException {
+        configureSwagger();
+    }
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -47,6 +56,15 @@ public class JaxRsActivator extends Application {
         addSwaggerResources(resources);
         addProjectResources(resources);
         return resources;
+    }
+
+    private final void configureSwagger() throws IOException {
+        BeanConfig swaggerConfig = new BeanConfig();
+        swaggerConfig.setVersion("1.0.0");
+        swaggerConfig.setBasePath(getRestBasePath());
+        swaggerConfig.setPrettyPrint(true);
+        swaggerConfig.setResourcePackage("org.jboss.pnc.rest");
+        swaggerConfig.setScan(true);
     }
 
     private void addProjectResources(Set<Class<?>> resources) {
@@ -72,6 +90,15 @@ public class JaxRsActivator extends Application {
     private void addSwaggerResources(Set<Class<?>> resources) {
         resources.add(io.swagger.jaxrs.listing.ApiListingResource.class);
         resources.add(io.swagger.jaxrs.listing.SwaggerSerializers.class);
+    }
+
+    private String getRestBasePath() throws IOException {
+        URL resource = Thread.currentThread().getContextClassLoader().getResource("/swagger.properties");
+        Properties properties = new Properties();
+        try (InputStream inStream = resource.openStream()) {
+            properties.load(inStream);
+        }
+        return properties.getProperty("baseUrl");
     }
 
 }
