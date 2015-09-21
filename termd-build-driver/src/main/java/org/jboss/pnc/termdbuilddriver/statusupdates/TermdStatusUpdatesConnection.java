@@ -38,7 +38,7 @@ public class TermdStatusUpdatesConnection extends AbstractWebSocketsConnection {
 
     private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-    private static final String WEB_SOCKET_TERMINAL_PATH = "/socket/process-status-updates";
+    private static final String WEB_SOCKET_TERMINAL_PATH = "socket/process-status-updates";
 
     private final ObjectMapper mapper = new ObjectMapper();
 

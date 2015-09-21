@@ -24,7 +24,7 @@ import java.net.URI;
 @ClientEndpoint
 public class TermdTerminalConnection extends AbstractWebSocketsConnection {
 
-    private static final String WEB_SOCKET_TERMINAL_PATH = "/socket/term";
+    private static final String WEB_SOCKET_TERMINAL_PATH = "socket/term";
 
     public TermdTerminalConnection(URI serverBaseUri) {
         super(serverBaseUri.resolve(WEB_SOCKET_TERMINAL_PATH));
