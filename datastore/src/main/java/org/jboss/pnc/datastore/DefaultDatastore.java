@@ -23,10 +23,9 @@ import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.BuildRecordSet;
-import org.jboss.pnc.model.ProductVersion;
+import org.jboss.pnc.model.BuildStatus;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.datastore.Datastore;
-import org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates;
 import org.jboss.pnc.spi.datastore.predicates.UserPredicates;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigSetRecordRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationAuditedRepository;
@@ -145,8 +144,14 @@ public class DefaultDatastore implements Datastore {
 
     @Override
     public boolean hasSuccessfulBuildRecord(BuildConfiguration buildConfiguration) {
-        return buildRecordRepository.count(BuildRecordPredicates.withBuildConfigurationId(buildConfiguration.getId()),
-                BuildRecordPredicates.withSuccess()) > 0;
+        BuildConfigurationAudited auditedConfiguration = getLatestBuildConfigurationAudited(buildConfiguration.getId());
+        if(auditedConfiguration != null) {
+            return auditedConfiguration.getBuildRecords().stream()
+                    .map(br -> br.getStatus())
+                    .filter(status -> status == BuildStatus.SUCCESS)
+                    .count() > 0;
+        }
+        return false;
     }
 
 }

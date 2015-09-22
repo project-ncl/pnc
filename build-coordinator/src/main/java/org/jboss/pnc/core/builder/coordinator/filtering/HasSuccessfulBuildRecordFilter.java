@@ -20,9 +20,12 @@ package org.jboss.pnc.core.builder.coordinator.filtering;
 
 import org.jboss.pnc.core.builder.coordinator.BuildTask;
 import org.jboss.pnc.core.builder.datastore.DatastoreAdapter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import java.lang.invoke.MethodHandles;
 import java.util.function.Predicate;
 
 /**
@@ -33,11 +36,17 @@ import java.util.function.Predicate;
 @ApplicationScoped
 public class HasSuccessfulBuildRecordFilter implements BuildTaskFilter {
 
+    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+
     @Inject
     DatastoreAdapter adapter;
 
     @Override
     public Predicate<BuildTask> filter() {
-        return task -> adapter.hasSuccessfulBuildRecord(task.getBuildConfiguration());
+        return task -> {
+            boolean hasASuccessfulBuildRecord = adapter.hasSuccessfulBuildRecord(task.getBuildConfiguration());
+            logger.debug("[{}] has a successful BuildRecord: {}", task.getBuildConfiguration().getId(), hasASuccessfulBuildRecord);
+            return hasASuccessfulBuildRecord;
+        };
     }
 }

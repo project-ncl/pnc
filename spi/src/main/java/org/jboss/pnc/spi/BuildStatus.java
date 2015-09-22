@@ -57,6 +57,11 @@ public enum BuildStatus {
      */
     REJECTED(true, true),
 
+    /**
+     * Rejected because given {@link org.jboss.pnc.model.BuildConfiguration} has been already built.
+     */
+    REJECTED_ALREADY_BUILT(true, false),
+
     SYSTEM_ERROR(true, true),
 
     DONE_WITH_ERRORS(true, true);
