@@ -267,8 +267,10 @@ public class BuildCoordinator {
             buildTask.setStatus(buildStatus);
         };
         try {
+            log.info("[{}] Checking if task should be skipped(rebuildAll: {}, predicateResult: {})", buildTask.getId(), buildTask.getRebuildAll(), prepareBuildTaskFilterPredicate().test(buildTask));
             if(!buildTask.getRebuildAll() && prepareBuildTaskFilterPredicate().test(buildTask)) {
-                buildTask.setStatus(BuildStatus.DONE);
+                log.info("[{}] Marking task as REJECTED_ALREADY_BUILT, because it has been already built", buildTask.getId());
+                buildTask.setStatus(BuildStatus.REJECTED_ALREADY_BUILT);
                 buildTask.setStatusDescription("The configuration has already been built.");
                 return;
             }
