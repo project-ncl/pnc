@@ -279,8 +279,9 @@ public class BuildConfigurationSetEndpoint extends AbstractEndpoint<BuildConfigu
             User currentUser = null;
             if(loggedUser != null && loggedUser != "") {
                 currentUser = datastore.retrieveUserByUsername(loggedUser);
+                currentUser.setLoginToken(authProvider.getTokenString());
             }
-            if(currentUser == null) {
+            if(currentUser == null) { //TODO remove user creation
                 currentUser = User.Builder.newBuilder()
                         .username(loggedUser)
                         .firstName(authProvider.getFirstName())
