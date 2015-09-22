@@ -267,11 +267,11 @@ public class BuildCoordinator {
             buildTask.setStatus(buildStatus);
         };
         try {
-//            if(!buildTask.getRebuildAll() && prepareBuildTaskFilterPredicate().test(buildTask)) {
-//                buildTask.setStatus(BuildStatus.DONE);
-//                buildTask.setStatusDescription("The configuration has already been built.");
-//                return;
-//            }
+            if(!buildTask.getRebuildAll() && prepareBuildTaskFilterPredicate().test(buildTask)) {
+                buildTask.setStatus(BuildStatus.DONE);
+                buildTask.setStatusDescription("The configuration has already been built.");
+                return;
+            }
 
             buildScheduler.startBuilding(buildTask, onComplete);
             activeBuildTasks.add(buildTask);
