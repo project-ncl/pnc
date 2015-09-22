@@ -28,6 +28,7 @@ import org.jboss.pnc.core.builder.coordinator.BuildTask;
 import org.jboss.pnc.core.content.ContentIdentityManager;
 import org.jboss.pnc.core.exception.CoreException;
 import org.jboss.pnc.model.BuildConfigurationAudited;
+import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.BuildStatus;
 import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.process.ProcessInstance;
@@ -37,7 +38,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.inject.Alternative;
 import javax.inject.Inject;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -61,8 +61,8 @@ public class BpmBuildScheduler implements BuildScheduler {
     private final String deploymentId;
     private final String processId;
 
-    private final String user;
-    private final String password;
+    private final String bpmEndpointUser;
+    private final String bpmEndpointPassword;
 
     @Override
     public String getId() {
@@ -74,8 +74,8 @@ public class BpmBuildScheduler implements BuildScheduler {
         instanceUrl = null;
         deploymentId = null;
         processId = null;
-        user = null;
-        password = null;
+        bpmEndpointUser = null;
+        bpmEndpointPassword = null;
     }
 
     @Inject
@@ -88,8 +88,8 @@ public class BpmBuildScheduler implements BuildScheduler {
         deploymentId = config.getDeploymentId();
         processId = config.getProcessId();
 
-        user = config.getUsername();
-        password = config.getPassword();
+        bpmEndpointUser = config.getUsername();
+        bpmEndpointPassword = config.getPassword();
     }
 
     @Override
@@ -108,7 +108,7 @@ public class BpmBuildScheduler implements BuildScheduler {
     private ProcessInstance startProcess(BuildTask buildTask, Integer buildTaskSetId) throws CoreException {
         RemoteRestRuntimeEngineFactory restSessionFactory;
         try {
-            restSessionFactory = new RemoteRestRuntimeEngineFactory(deploymentId, new URL(instanceUrl), user, password);
+            restSessionFactory = new RemoteRestRuntimeEngineFactory(deploymentId, new URL(instanceUrl), bpmEndpointUser, bpmEndpointPassword);
         } catch (MalformedURLException e) {
             throw new CoreException("Invalid bpm server url.", e);
         }
@@ -126,6 +126,10 @@ public class BpmBuildScheduler implements BuildScheduler {
         parameters.put("buildConfigSetRecordId", buildTask.getBuildConfigSetRecordId());
         parameters.put("buildContentId", ContentIdentityManager.getBuildContentId(buildTask.getBuildConfiguration()));
         parameters.put("submitTimeMillis", buildTask.getSubmitTime().getTime());
+        User user = buildTask.getUser();
+        parameters.put("pncUsername", user.getUsername());
+        parameters.put("pncUserLoginToken", user.getLoginToken());
+        parameters.put("pncUserEmail", user.getEmail());
 
         return kieSession.startProcess(processId, parameters);
     }

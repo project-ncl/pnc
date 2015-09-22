@@ -51,6 +51,13 @@ public class User implements GenericEntity<Integer> {
 
     private String lastName;
 
+    /**
+     * OAUTH token, used to pass around. Property is set once user is authenticated,
+     * note that having a token doesn't necessary mean user is logged-in a token needs to be validated.
+     */
+    @Transient
+    private String loginToken;
+
     @Column(unique = true)
     @NotNull
     private String username;
@@ -225,6 +232,14 @@ public class User implements GenericEntity<Integer> {
             return false;
         }
         return true;
+    }
+
+    public String getLoginToken() {
+        return loginToken;
+    }
+
+    public void setLoginToken(String loginToken) {
+        this.loginToken = loginToken;
     }
 
     public static class Builder {
