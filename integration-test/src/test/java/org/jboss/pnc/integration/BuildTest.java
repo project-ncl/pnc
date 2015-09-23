@@ -32,7 +32,6 @@ import org.jboss.pnc.test.category.RemoteTest;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
@@ -43,7 +42,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(Arquillian.class)
 @Category({ContainerTest.class, RemoteTest.class})
-@Ignore("To be fixed in NCL-1259")
 public class BuildTest {
 
     private static BuildConfigurationRestClient buildConfigurationRestClient;
@@ -72,7 +70,7 @@ public class BuildTest {
     }
 
     @Test
-    public void shouldTriggerBuildAndFinishWithoutProblems() {
+    public void shouldTriggerBuildAndFinishWithoutProblems() throws Exception {
         //given
         BuildConfigurationRest buildConfiguration = buildConfigurationRestClient.firstNotNull().getValue();
 
@@ -82,12 +80,11 @@ public class BuildTest {
 
         //then
         assertThat(triggeredConfiguration.getRestCallResponse().getStatusCode()).isEqualTo(200);
-        ResponseUtils.waitSynchronouslyFor(() -> buildRecordRestClient.get(buildRecordId, false).hasValue() == true, 200,
-                TimeUnit.MILLISECONDS);
+        ResponseUtils.waitSynchronouslyFor(() -> buildRecordRestClient.get(buildRecordId, false).hasValue() == true, 10, TimeUnit.SECONDS);
     }
 
     @Test
-    public void shouldTriggerBuildSetAndFinishWithoutProblems() {
+    public void shouldTriggerBuildSetAndFinishWithoutProblems() throws Exception {
         //given
         BuildConfigurationSetRest buildConfigurationSet = buildConfigurationSetRestClient.firstNotNull().getValue();
 
