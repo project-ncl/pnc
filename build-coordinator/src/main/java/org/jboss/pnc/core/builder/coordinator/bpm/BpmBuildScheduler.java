@@ -53,16 +53,14 @@ public class BpmBuildScheduler implements BuildScheduler {
 
     private static final Logger logger = LoggerFactory.getLogger(BpmBuildScheduler.class);
 
-    private BpmModuleConfig config;
-
     private BpmCompleteListener bpmCompleteListener;
 
-    private final String instanceUrl;
-    private final String deploymentId;
-    private final String processId;
+    private String instanceUrl;
+    private String deploymentId;
+    private String processId;
 
-    private final String bpmEndpointUser;
-    private final String bpmEndpointPassword;
+    private String bpmEndpointUser;
+    private String bpmEndpointPassword;
 
     @Override
     public String getId() {
@@ -79,22 +77,23 @@ public class BpmBuildScheduler implements BuildScheduler {
     }
 
     @Inject
-    public BpmBuildScheduler(Configuration configuration, BpmCompleteListener bpmCompleteListener) throws MalformedURLException, ConfigurationParseException {
-        config = configuration.getModuleConfig(new PncConfigProvider<>(BpmModuleConfig.class));
-
+    public BpmBuildScheduler(Configuration configuration, BpmCompleteListener bpmCompleteListener) throws MalformedURLException {
         this.bpmCompleteListener = bpmCompleteListener;
+        try {
+            BpmModuleConfig config = configuration.getModuleConfig(new PncConfigProvider<>(BpmModuleConfig.class));
+            instanceUrl = config.getBpmInstanceUrl();
+            deploymentId = config.getDeploymentId();
+            processId = config.getProcessId();
 
-        instanceUrl = config.getBpmInstanceUrl();
-        deploymentId = config.getDeploymentId();
-        processId = config.getProcessId();
-
-        bpmEndpointUser = config.getUsername();
-        bpmEndpointPassword = config.getPassword();
+            bpmEndpointUser = config.getUsername();
+            bpmEndpointPassword = config.getPassword();
+        } catch (ConfigurationParseException e) {
+            logger.warn("Unable to initialize configuration. BPM Scheduler may not work correctly", e);
+        }
     }
 
     @Override
     public void startBuilding(BuildTask buildTask, Consumer<BuildStatus> onComplete) throws CoreException {
-
         ProcessInstance processInstance = startProcess(buildTask, buildTask.getBuildSetTask().getId());
         logger.info("New component build process started with process instance id {}.", processInstance.getId());
         registerCompleteListener(buildTask.getId(), onComplete);

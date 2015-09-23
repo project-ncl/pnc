@@ -33,13 +33,13 @@ public class ResponseUtils {
         long stopTime = System.currentTimeMillis() + TimeUnit.MILLISECONDS.convert(timeout, timeUnit);
         do {
             try {
-                TimeUnit.MILLISECONDS.sleep(10);
+                TimeUnit.SECONDS.sleep(1);
             } catch (InterruptedException e) {
                 throw new AssertionError("Unexpected interruption", e);
             }
             if(System.currentTimeMillis() > stopTime) {
                 throw new AssertionError("Timeout while waiting for condition");
             }
-        } while(condition.get());
+        } while(!condition.get());
     }
 }

@@ -38,12 +38,14 @@ import java.util.function.Consumer;
 @ApplicationScoped
 public class LocalBuildScheduler implements BuildScheduler {
 
+    public static final String ID = "local-build-scheduler";
+
     private BuildExecutor buildExecutor;
     private Event<BuildStatusChangedEvent> buildStatusChangedEventNotifier;
 
     @Override
     public String getId() {
-        return "local-build-scheduler";
+        return ID;
     }
 
     @Deprecated
