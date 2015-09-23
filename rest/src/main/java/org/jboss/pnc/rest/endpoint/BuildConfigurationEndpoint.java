@@ -242,7 +242,6 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
     })
     @POST
     @Path("/{id}/build")
-    @Consumes(MediaType.WILDCARD)
     public Response trigger(@ApiParam(value = "Build Configuration id", required = true) @PathParam("id") Integer id,
             @ApiParam(value = "Optional Callback URL") @QueryParam("callbackUrl") String callbackUrl,
             @ApiParam(value = "Rebuild all dependencies") @QueryParam("rebuildAll") boolean rebuildAll,
@@ -293,7 +292,6 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
     })
     @POST
     @Path("/{id}/execute-build")
-    @Consumes(MediaType.WILDCARD)
     public Response build(@ApiParam(value = "Build Configuration id", required = true) @PathParam("id") Integer buildConfigurationId,
                           @ApiParam(value = "Build Configuration revision", required = true) @QueryParam("buildConfigurationRevision") Integer buildConfigurationRevision,
                           @ApiParam(value = "Build task id", required = true) @QueryParam("buildTaskId") int buildTaskId,
@@ -403,7 +401,7 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
     })
     @GET
     @Path("/products/{productId}/product-versions/{versionId}")
-    public Response getAllByProductId(@ApiParam(value = PAGE_INDEX_DESCRIPTION) @QueryParam(PAGE_INDEX_QUERY_PARAM) @DefaultValue(PAGE_INDEX_DEFAULT_VALUE) int pageIndex,
+    public Response getAllByProductVersionId(@ApiParam(value = PAGE_INDEX_DESCRIPTION) @QueryParam(PAGE_INDEX_QUERY_PARAM) @DefaultValue(PAGE_INDEX_DEFAULT_VALUE) int pageIndex,
             @ApiParam(value = PAGE_SIZE_DESCRIPTION) @QueryParam(PAGE_SIZE_QUERY_PARAM) @DefaultValue(PAGE_SIZE_DEFAULT_VALUE) int pageSize,
             @ApiParam(value = SORTING_DESCRIPTION) @QueryParam(SORTING_QUERY_PARAM) String sort,
             @ApiParam(value = QUERY_DESCRIPTION, required = false) @QueryParam(QUERY_QUERY_PARAM) String q,
