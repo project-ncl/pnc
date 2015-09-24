@@ -22,15 +22,23 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+
+import org.jboss.pnc.auth.AuthenticationProvider;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.rest.provider.UserProvider;
 import org.jboss.pnc.rest.restmodel.UserRest;
+import org.jboss.pnc.rest.restmodel.response.Singleton;
 import org.jboss.pnc.rest.restmodel.response.error.ErrorResponseRest;
 import org.jboss.pnc.rest.swagger.response.UserPage;
 import org.jboss.pnc.rest.swagger.response.UserSingleton;
 import org.jboss.pnc.rest.validation.exceptions.ValidationException;
+import org.jboss.pnc.spi.datastore.Datastore;
+import org.jboss.pnc.spi.exception.BuildConflictException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DefaultValue;
@@ -44,6 +52,7 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.CONFLICTED_CODE;
@@ -69,18 +78,29 @@ import static org.jboss.pnc.rest.configuration.SwaggerConstants.SORTING_QUERY_PA
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_DESCRIPTION;
 
+import java.lang.invoke.MethodHandles;
+import java.net.URI;
+import java.net.URL;
+
 @Api(value = "/users", description = "User related information")
 @Path("/users")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 public class UserEndpoint extends AbstractEndpoint<User, UserRest> {
 
+    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+    
+    @Context
+    private HttpServletRequest httpServletRequest;
+    private Datastore datastore;
+    
     public UserEndpoint() {
     }
 
     @Inject
-    public UserEndpoint(UserProvider userProvider) {
+    public UserEndpoint(UserProvider userProvider, Datastore datastore) {
         super(userProvider);
+        this.datastore = datastore;
     }
 
     @ApiOperation(value = "Gets all Users")
@@ -122,6 +142,42 @@ public class UserEndpoint extends AbstractEndpoint<User, UserRest> {
     public Response createNew(UserRest userRest, @Context UriInfo uriInfo) throws ValidationException {
         return super.createNew(userRest, uriInfo);
     }
+    
+    @ApiOperation(value = "Gets logged user and in case not existing creates a new one")
+    @ApiResponses(value = {
+            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION, response = UserSingleton.class),
+            @ApiResponse(code = INVLID_CODE, message = INVALID_DESCRIPTION, response = ErrorResponseRest.class),
+            @ApiResponse(code = CONFLICTED_CODE, message = CONFLICTED_DESCRIPTION, response = ErrorResponseRest.class),
+            @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION, response = ErrorResponseRest.class)
+    })
+    @POST
+    @Path("/loggedUser")
+    public Response getLoggedUser(@Context UriInfo uriInfo) throws ValidationException {
+        try {
+            AuthenticationProvider authProvider = new AuthenticationProvider(httpServletRequest);
+            String loggedUser = authProvider.getUserName();
+            User currentUser = null;
+            if(loggedUser != null && loggedUser != "") {
+                currentUser = datastore.retrieveUserByUsername(loggedUser);
+            }
+            if(currentUser != null) {
+                return super.getSpecific(currentUser.getId());
+            } 
+            if(currentUser == null) { 
+                currentUser = User.Builder.newBuilder()
+                        .username(loggedUser)
+                        .firstName(authProvider.getFirstName())
+                        .lastName(authProvider.getLastName())
+                        .email(authProvider.getEmail()).build();
+            }
+            return super.createNew(new UserRest(currentUser), uriInfo);
+        } catch (Exception e) {
+            logger.error(e.getMessage(), e);
+            return Response.serverError().entity("Other error: " + e.getMessage()).build();
+        }
+        
+    }
+    
 
     @ApiOperation(value = "Updates an existing User")
     @ApiResponses(value = {

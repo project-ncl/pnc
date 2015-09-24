@@ -256,14 +256,6 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
                     currentUser.setLoginToken(authProvider.getTokenString());
                 }
             }
-            if(currentUser == null) { //TODO remove user creation
-                currentUser = User.Builder.newBuilder()
-                        .username(loggedUser)
-                        .firstName(authProvider.getFirstName())
-                        .lastName(authProvider.getLastName())
-                        .email(authProvider.getEmail()).build();
-                datastore.createNewUser(currentUser);
-            }
             
             Integer runningBuildId = null;
             // if callbackUrl is provided trigger build accordingly
