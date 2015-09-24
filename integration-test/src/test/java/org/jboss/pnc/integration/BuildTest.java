@@ -80,7 +80,7 @@ public class BuildTest {
 
         //then
         assertThat(triggeredConfiguration.getRestCallResponse().getStatusCode()).isEqualTo(200);
-        ResponseUtils.waitSynchronouslyFor(() -> buildRecordRestClient.get(buildRecordId, false).hasValue() == true, 10, TimeUnit.SECONDS);
+        ResponseUtils.waitSynchronouslyFor(() -> buildRecordRestClient.get(buildRecordId, false).hasValue() == true, 60, TimeUnit.SECONDS);
     }
 
     @Test
