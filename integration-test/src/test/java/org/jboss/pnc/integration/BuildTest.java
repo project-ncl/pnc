@@ -80,7 +80,8 @@ public class BuildTest {
 
         //then
         assertThat(triggeredConfiguration.getRestCallResponse().getStatusCode()).isEqualTo(200);
-        ResponseUtils.waitSynchronouslyFor(() -> buildRecordRestClient.get(buildRecordId, false).hasValue() == true, 60, TimeUnit.SECONDS);
+        //I'm not sure why it needs that much time on Jenkins...
+        ResponseUtils.waitSynchronouslyFor(() -> buildRecordRestClient.get(buildRecordId, false).hasValue(), 5, TimeUnit.MINUTES);
     }
 
     @Test
