@@ -263,8 +263,8 @@ public class BuildCoordinator {
 
     void processBuildTask(BuildTask buildTask) {
         Consumer<BuildStatus> onComplete = (buildStatus) -> {
-            activeBuildTasks.remove(buildTask);
             buildTask.setStatus(buildStatus);
+            activeBuildTasks.remove(buildTask);
         };
         try {
             log.info("[{}] Checking if task should be skipped(rebuildAll: {}, predicateResult: {})", buildTask.getId(), buildTask.getRebuildAll(), prepareBuildTaskFilterPredicate().test(buildTask));
@@ -275,8 +275,8 @@ public class BuildCoordinator {
                 return;
             }
 
-            buildScheduler.startBuilding(buildTask, onComplete);
             activeBuildTasks.add(buildTask);
+            buildScheduler.startBuilding(buildTask, onComplete);
         } catch (CoreException e) {
             buildTask.setStatus(BuildStatus.SYSTEM_ERROR);
             buildTask.setStatusDescription(e.getMessage());
@@ -298,6 +298,10 @@ public class BuildCoordinator {
 
     public List<BuildTask> getActiveBuildTasks() {
         return Collections.unmodifiableList(activeBuildTasks.stream().collect(Collectors.toList()));
+    }
+
+    public boolean hasActiveTasks() {
+        return activeBuildTasks.peek() != null;
     }
 
     private boolean isBuildAlreadySubmitted(BuildTask buildTask) {
