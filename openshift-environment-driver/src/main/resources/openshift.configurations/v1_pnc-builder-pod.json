@@ -56,7 +56,7 @@
                 "imagePullPolicy": "IfNotPresent",
                 "securityContext": {
                     "capabilities": {
-                        "add": ["CAP_NET_ADMIN"]
+                        "add": ["NET_ADMIN"]
                     }
                 }
             }
