@@ -53,7 +53,12 @@
                 ],
                 "resources": {},
                 "terminationMessagePath": "/dev/termination-log",
-                "imagePullPolicy": "IfNotPresent"
+                "imagePullPolicy": "IfNotPresent",
+                "securityContext": {
+                    "capabilities": {
+                        "add": ["CAP_NET_ADMIN"]
+                    }
+                }
             }
         ],
         "restartPolicy": "Never",
