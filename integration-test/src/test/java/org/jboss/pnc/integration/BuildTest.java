@@ -32,7 +32,6 @@ import org.jboss.pnc.test.category.RemoteTest;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
@@ -43,7 +42,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(Arquillian.class)
 @Category({ContainerTest.class, RemoteTest.class})
-@Ignore
 public class BuildTest {
 
     private static BuildConfigurationRestClient buildConfigurationRestClient;
@@ -82,8 +80,8 @@ public class BuildTest {
 
         //then
         assertThat(triggeredConfiguration.getRestCallResponse().getStatusCode()).isEqualTo(200);
-        //I'm not sure why it needs that much time on Jenkins...
-        ResponseUtils.waitSynchronouslyFor(() -> buildRecordRestClient.get(buildRecordId, false).hasValue(), 5, TimeUnit.MINUTES);
+        ResponseUtils.waitSynchronouslyFor(() -> buildRecordRestClient.get(buildRecordId, false).hasValue(), 2,
+                TimeUnit.MINUTES);
     }
 
     @Test

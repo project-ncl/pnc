@@ -17,16 +17,6 @@
  */
 package org.jboss.pnc.integration;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
-
-import java.lang.invoke.MethodHandles;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.stream.Collectors;
-
-import javax.inject.Inject;
-
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.transaction.api.annotation.Transactional;
@@ -48,6 +38,15 @@ import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.inject.Inject;
+import java.lang.invoke.MethodHandles;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
 
 @RunWith(Arquillian.class)
 @Transactional
@@ -162,7 +161,7 @@ public class RSQLTest {
         List<String> sortedUsers = nullableStreamOf(users).map(user -> user.getUsername()).collect(Collectors.toList());
 
         //then
-        assertThat(sortedUsers).containsExactly("demo-user", "Abacki", "Babacki", "Cabacki");
+        assertThat(sortedUsers).containsExactly("demo-user", "pnc-admin", "Abacki", "Babacki", "Cabacki");
     }
 
     private List<User> selectUsers(String rsqlQuery) {
