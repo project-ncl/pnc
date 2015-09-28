@@ -151,14 +151,12 @@ public class RestTest {
     @Test
     @InSequence(5)
     public void shouldGetAllUsers() {
-        final String toMatch = "{\"pageIndex\":0,\"pageSize\":50,\"totalPages\":1,\"content\":[{\"id\":1,\"email\":\"demo-user@pnc.com\",\"firstName\":\"Demo First Name\",\"lastName\":\"Demo Last Name\",\"username\":\"demo-user\"}]}";
+        final String toMatch = "{\"pageIndex\":0,\"pageSize\":50,\"totalPages\":1,\"content\":[{\"id\":1,\"email\":\"demo-user@pnc.com\",\"firstName\":\"Demo First Name\",\"lastName\":\"Demo Last Name\",\"username\":\"demo-user\"},{\"id\":2,\"email\":\"pnc-admin@pnc.com\",\"firstName\":\"pnc-admin\",\"lastName\":\"pnc-admin\",\"username\":\"pnc-admin\"}]}";
 
         given()
             .header("Accept", "application/json")
             .header("Authorization", "Bearer " + access_token)
-            .contentType(ContentType.JSON).port(getHttpPort()).when().get("/pnc-rest/rest/users")
-        .then()
-        .assertThat()
+            .contentType(ContentType.JSON).port(getHttpPort()).when().get("/pnc-rest/rest/users").then().assertThat()
             .body(equalTo(StringEscapeUtils.unescapeJava(toMatch)))
             .body(JsonMatcher.containsJsonAttribute("content[0].id", value -> userId = Integer.valueOf(value)));
 

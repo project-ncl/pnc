@@ -105,6 +105,7 @@ public class DatabaseDataInitializer {
     ProductMilestone demoProductMilestone;
 
     User demoUser;
+    User pncAdminUser;
 
     public void verifyData() {
         // Check number of entities in DB
@@ -247,9 +248,13 @@ public class DatabaseDataInitializer {
         demoUser = User.Builder.newBuilder().username("demo-user").firstName("Demo First Name").lastName("Demo Last Name")
                 .email("demo-user@pnc.com").build();
 
+        pncAdminUser = User.Builder.newBuilder().username("pnc-admin").firstName("pnc-admin").lastName("pnc-admin")
+                .email("pnc-admin@pnc.com").build();
+
         buildConfigurationSetRepository.save(buildConfigurationSet1);
         buildConfigurationSetRepository.save(buildConfigurationSet2);
         demoUser = userRepository.save(demoUser);
+        pncAdminUser = userRepository.save(pncAdminUser);
 
     }
 
