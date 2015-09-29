@@ -61,7 +61,7 @@
       // I need to gather the existing Releases, as Milestone can be associated with only one Release at the most
       ProductReleaseDAO.getAllForProductVersion({
         versionId: that.productVersion.id
-      }, {}).$promise.then(
+      }, {}).then(
         function(results) {
           angular.forEach(results, function(result) {
             that.usedVersionMilestoneIds.push(result.productMilestoneId);
@@ -70,7 +70,7 @@
           // Only Milestones that are not yet used in this Product Version will be listed
           ProductMilestoneDAO.getAllForProductVersion({
             versionId: that.productVersion.id
-          }, {}).$promise.then(
+          }, {}).then(
             function(results) {
               angular.forEach(results, function(result) {
                 if (that.usedVersionMilestoneIds.indexOf(result.id) === -1) {
@@ -87,11 +87,9 @@
 
       ProductReleaseDAO.getAllSupportLevel({
         versionId: that.productVersion.id
-      }, {}).$promise.then(
+      }, {}).then(
         function(results) {
-          angular.forEach(results, function(result) {
-            that.supportLevels.push(result);
-          });
+          that.supportLevels = results;
         }
       );
 
