@@ -83,7 +83,7 @@
           },
           // only records that belong to the current csRecord
           records: function ($q, csRecordDetail, BuildRecordDAO) {
-            return BuildRecordDAO.query().$promise.then(function (r) {
+            return BuildRecordDAO.query().then(function (r) {
               return _(r).where({buildConfigSetRecordId: csRecordDetail.id});
             });
           }
@@ -139,7 +139,7 @@
           // load artifacts for each record
           recordsArtifacts: function ($q, BuildRecordDAO, records) {
             var promises = _(records).map(function (record) {
-              return BuildRecordDAO.getArtifacts({recordId: record.id}).$promise
+              return BuildRecordDAO.getArtifacts({recordId: record.id})
                 .then(function (artifacts) {
                   var recordCopy = _.clone(record);
                   recordCopy.artifacts = artifacts;
