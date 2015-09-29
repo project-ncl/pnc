@@ -17,29 +17,34 @@
     limitations under the License.
 
 -->
-<div>
-  <pnc-header>
-    <pnc-header-title>Projects</pnc-header-title>
-    <pnc-header-buttons>
-      <button type="button" ui-sref="project.create" class="btn btn-lg btn-default" data-toggle="tooltip" title="Create Project">
-        <i class="pficon pficon-add"></i> Create
-      </button>
-    </pnc-header-buttons>
-  </pnc-header>
 
-  <input ng-model="searchText" placeholder="filter projects...">
-  <table class="table table-bordered table-striped">
-    <thead>
+<pnc-header>
+  <pnc-header-title>Projects</pnc-header-title>
+  <pnc-header-buttons>
+    <button type="button" ui-sref="project.create" class="btn btn-lg btn-default" data-toggle="tooltip"
+            title="Create Project">
+      <i class="pficon pficon-add"></i> Create
+    </button>
+  </pnc-header-buttons>
+</pnc-header>
+
+
+<div class="row">
+  <div class="col-md-12">
+    <pnc-search-field page="listCtrl.projects" text="projects"></pnc-search-field>
+    <table class="table table-bordered table-striped">
+      <thead>
       <th>Name</th>
       <th>Description</th>
-    </thead>
-    <tbody>
+      </thead>
+      <tbody>
 
-      <tr ng-repeat="project in listCtrl.projects | filter:searchText">
+      <tr ng-repeat="project in listCtrl.projects.data">
         <td><a href ui-sref="project.detail({ projectId: project.id })">{{ project.name }}</a></td>
         <td>{{ project.description }}</td>
       </tr>
-    </tbody>
-  </table>
-
+      </tbody>
+    </table>
+    <pnc-pager class="pull-right" page="listCtrl.projects"></pnc-pager>
+  </div>
 </div>

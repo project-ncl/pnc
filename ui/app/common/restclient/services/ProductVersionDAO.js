@@ -24,36 +24,68 @@
   module.value('PRODUCT_VERSION_ENDPOINT', '/product-versions/:versionId');
 
   /**
-   * @ngdoc service
-   * @name // TODO
-   * @description
+   * @author Alex Creasy
+   * @author Jakub Senko
    */
   module.factory('ProductVersionDAO', [
     '$resource',
     'REST_BASE_URL',
     'PRODUCT_VERSION_ENDPOINT',
-    function($resource, REST_BASE_URL, PRODUCT_VERSION_ENDPOINT) {
+    'PageFactory',
+    'ProductDAO',
+    'ProductMilestoneDAO',
+    'cachedGetter',
+    'ProductReleaseDAO',
+    'QueryHelper',
+    function($resource, REST_BASE_URL, PRODUCT_VERSION_ENDPOINT,
+             PageFactory, ProductDAO, ProductMilestoneDAO, cachedGetter, ProductReleaseDAO, qh) {
       var ENDPOINT = REST_BASE_URL + PRODUCT_VERSION_ENDPOINT;
 
-      var ProductVersion = $resource(ENDPOINT, {
-        versionId: '@id',
+      var resource = $resource(ENDPOINT, {
+        versionId: '@id'
       },{
+        _getAll: {
+          method: 'GET'
+        },
         update: {
-          method: 'PUT',
+          method: 'PUT'
         },
-        getAllBuildConfigurationSets: {
+        _getBCSets: {
           method: 'GET',
-          url: ENDPOINT + '/build-configuration-sets',
-          isArray: true
+          url: ENDPOINT + '/build-configuration-sets' + qh.searchOnly(['name'])
         },
-        getAllForProduct: {
+        _getByProduct: {
           method: 'GET',
-          url: REST_BASE_URL + '/products/:productId/product-versions',
-          isArray: true
+          url: REST_BASE_URL + '/products/:productId/product-versions' + qh.searchOnly(['version'])
         }
       });
 
-      return ProductVersion;
+      PageFactory.decorateNonPaged(resource, '_getAll', 'query');
+      PageFactory.decorateNonPaged(resource, '_getBCSets', 'getAllBuildConfigurationSets');
+      PageFactory.decorateNonPaged(resource, '_getByProduct', 'getAllForProduct');
+
+      PageFactory.decorate(resource, '_getBCSets', 'getPagedBCSets');
+      PageFactory.decorate(resource, '_getByProduct', 'getPagedByProduct');
+
+      resource.prototype.getProduct = cachedGetter(
+        function (version) {
+          return ProductDAO.get({productId: version.productId}).$promise;
+        }
+      );
+
+      resource.prototype.getMilestones = cachedGetter(
+        function (version) {
+          return ProductMilestoneDAO.getAllForProductVersion({versionId: version.id});
+        }
+      );
+
+      resource.prototype.getReleases = cachedGetter(
+        function (version) {
+          return ProductReleaseDAO.getAllForProductVersion({versionId: version.id});
+        }
+      );
+
+      return resource;
     }
   ]);
 

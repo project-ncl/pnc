@@ -33,23 +33,45 @@
     'cachedGetter',
     'REST_BASE_URL',
     'BUILD_CONFIG_SET_RECORD_ENDPOINT',
-    function ($resource, BuildConfigurationSetDAO, UserDAO, cachedGetter, REST_BASE_URL, BUILD_CONFIG_SET_RECORD_ENDPOINT) {
+    'PageFactory',
+    'QueryHelper',
+    function ($resource, BuildConfigurationSetDAO, UserDAO, cachedGetter,
+              REST_BASE_URL, BUILD_CONFIG_SET_RECORD_ENDPOINT, PageFactory, qh) {
 
       var ENDPOINT = REST_BASE_URL + BUILD_CONFIG_SET_RECORD_ENDPOINT;
 
       var resource = $resource(ENDPOINT, {
         recordId: '@id'
-      }, {});
+      }, {
+        _getAll: {
+          method: 'GET'
+        },
+        _getRunning: {
+          method: 'GET',
+          url: REST_BASE_URL + '/build-config-set-records?' +
+            'q=' + qh.search(['buildConfigurationSet.name']) + ';status==\'BUILDING\''
+        },
+        _getFinished: {
+          method: 'GET',
+          url: REST_BASE_URL + '/build-config-set-records?' +
+            'q=' + qh.search(['buildConfigurationSet.name']) + ';status!=\'BUILDING\''
+        }
+      });
+
+      PageFactory.decorateNonPaged(resource, '_getAll', 'query');
+
+      PageFactory.decorate(resource, '_getRunning', 'getPagedRunning');
+      PageFactory.decorate(resource, '_getFinished', 'getPagedFinished');
 
       resource.prototype.getConfigurationSet = cachedGetter(
         function (record) {
-          return BuildConfigurationSetDAO.get({ configurationSetId: record.buildConfigurationSetId });
+          return BuildConfigurationSetDAO.get({configurationSetId: record.buildConfigurationSetId});
         }
       );
 
       resource.prototype.getUser = cachedGetter(
         function (record) {
-          return UserDAO.get({ userId: record.userId });
+          return UserDAO.get({userId: record.userId});
         }
       );
 

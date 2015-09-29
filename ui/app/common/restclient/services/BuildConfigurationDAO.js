@@ -17,7 +17,7 @@
  */
 'use strict';
 
-(function() {
+(function () {
 
   var module = angular.module('pnc.common.restclient');
 
@@ -25,9 +25,6 @@
     '/build-configurations/:configurationId');
 
   /**
-   * @ngdoc service
-   * @name pnc.common.restclient:BuildConfiguration
-   * @description
    *
    */
   module.factory('BuildConfigurationDAO', [
@@ -36,66 +33,78 @@
     'BUILD_CONFIGURATION_ENDPOINT',
     'ProjectDAO',
     'cachedGetter',
-    function($resource, REST_BASE_URL, BUILD_CONFIGURATION_ENDPOINT, ProjectDAO, cachedGetter) {
+    'PageFactory',
+    'QueryHelper',
+    function ($resource, REST_BASE_URL, BUILD_CONFIGURATION_ENDPOINT, ProjectDAO, cachedGetter, PageFactory, qh) {
       var ENDPOINT = REST_BASE_URL + BUILD_CONFIGURATION_ENDPOINT;
 
-      var BuildConfiguration = $resource(ENDPOINT, {
+      var resource = $resource(ENDPOINT, {
         configurationId: '@id'
-      },{
+      }, {
+        _getAll: {
+          method: 'GET',
+          url: ENDPOINT + qh.searchOnly(['name', 'description', 'project.name'])
+        },
         update: {
           method: 'PUT'
         },
         clone: {
           method: 'POST',
-          url: ENDPOINT + '/clone',
-          isArray: false
+          url: ENDPOINT + '/clone'
         },
         build: {
           method: 'POST',
           url: ENDPOINT + '/build',
-          rebuildAll: 'true',
-          isArray: false
+          params: {
+            rebuildAll: true
+          }
         },
-        getBuildRecords: {
+        _getBuildRecords: {
           method: 'GET',
-          url: REST_BASE_URL + '/build-records?q=latestBuildConfiguration.id==:configurationId',
-          isArray: true
+          url: REST_BASE_URL + '/build-records?q=latestBuildConfiguration.id==:configurationId'
         },
-        getProductVersions: {
+        _getProductVersions: {
           method: 'GET',
-          url: ENDPOINT + '/product-versions',
-          isArray: true
+          url: ENDPOINT + '/product-versions'
         },
-        getDependencies: {
+        _getDependencies: {
           method: 'GET',
-          url: ENDPOINT + '/dependencies',
-          isArray: true
+          url: ENDPOINT + '/dependencies'
         },
-        getAllForProduct: {
+        _getAllForProduct: {
           method: 'GET',
-          url: REST_BASE_URL + '/build-configurations/products/:productId',
-          isArray: true
+          url: REST_BASE_URL + '/build-configurations/products/:productId'
         },
-        getAllForProductVersion: {
+        _getByProductVersion: {
           method: 'GET',
-          url: REST_BASE_URL +
-          '/build-configurations/products/:productId/product-versions/:versionId',
-          isArray: true
+          url: REST_BASE_URL + '/build-configurations/products/:productId/product-versions/:versionId' +
+            qh.searchOnly(['name'])
         },
-        getAllForProject: {
-         method: 'GET',
-         url: REST_BASE_URL + '/build-configurations/projects/:projectId',
-         isArray: true
+        _getByProject: {
+          method: 'GET',
+          url: REST_BASE_URL + '/build-configurations/projects/:projectId'
         }
       });
 
-      BuildConfiguration.prototype.getProject = cachedGetter(
-        function(configuration) {
-          return ProjectDAO.get({ projectId: configuration.projectId });
+      PageFactory.decorateNonPaged(resource, '_getAll', 'query');
+      PageFactory.decorateNonPaged(resource, '_getBuildRecords', 'getBuildRecords');
+      PageFactory.decorateNonPaged(resource, '_getProductVersions', 'getProductVersions');
+      PageFactory.decorateNonPaged(resource, '_getDependencies', 'getDependencies');
+      PageFactory.decorateNonPaged(resource, '_getAllForProduct', 'getAllForProduct');
+      PageFactory.decorateNonPaged(resource, '_getByProductVersion', 'getAllForProductVersion');
+      PageFactory.decorateNonPaged(resource, '_getByProject', 'getAllForProject');
+
+      PageFactory.decorate(resource, '_getAll', 'getAll');
+      PageFactory.decorate(resource, '_getByProductVersion', 'getPagedByProductVersion');
+      PageFactory.decorate(resource, '_getByProject', 'getPagedByProject');
+
+      resource.prototype.getProject = cachedGetter(
+        function (configuration) {
+          return ProjectDAO.get({projectId: configuration.projectId});
         }
       );
 
-      return BuildConfiguration;
+      return resource;
     }
   ]);
 

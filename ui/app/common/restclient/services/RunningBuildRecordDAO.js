@@ -24,11 +24,8 @@
   module.value('RUNNING_BUILD_ENDPOINT', '/running-build-records/:recordId');
 
   /**
-   * @ngdoc service
-   * @name // TODO
-   * @description
-   *
    * @author Alex Creasy
+   * @author Jakub Senko
    */
   module.factory('RunningBuildRecordDAO', [
     '$resource',
@@ -37,16 +34,21 @@
     'cachedGetter',
     'BuildConfigurationDAO',
     'UserDAO',
-    function($resource, REST_BASE_URL, RUNNING_BUILD_ENDPOINT, cachedGetter, BuildConfigurationDAO, UserDAO) {
+    'PageFactory',
+    function($resource, REST_BASE_URL, RUNNING_BUILD_ENDPOINT, cachedGetter, BuildConfigurationDAO, UserDAO, PageFactory) {
       var ENDPOINT = REST_BASE_URL + RUNNING_BUILD_ENDPOINT;
 
-      var RunningBuild = $resource(ENDPOINT, {
+      var resource = $resource(ENDPOINT, {
         recordId: '@id'
       }, {
-        getAllForConfiguration: {
+        _getAll: {
           method: 'GET',
-          url: REST_BASE_URL + '/running-build-records?q=latestBuildConfiguration.id==:configurationId',
-          isArray: true,
+          isArray: false
+        },
+        _getByConfiguration: {
+          method: 'GET',
+          url: REST_BASE_URL + '/running-build-records/build-configurations/:configurationId',
+          isArray: false
         },
         getLog: {
           method: 'GET',
@@ -54,21 +56,33 @@
           isArray: false,
           transformResponse: function(data) { return { payload: data }; }
         },
+        _getByBCSetRecord: {
+          method: 'GET',
+          url: REST_BASE_URL + '/running-build-records/build-config-set-records/:bcSetRecordId',
+          isArray: false
+        }
       });
 
-      RunningBuild.prototype.getBuildConfiguration = cachedGetter(
+      PageFactory.decorateNonPaged(resource, '_getAll', 'query');
+      PageFactory.decorateNonPaged(resource, '_getByConfiguration', 'getByConfiguration');
+
+      PageFactory.decorate(resource, '_getAll', 'getAll');
+      PageFactory.decorate(resource, '_getByConfiguration', 'getPagedByConfiguration');
+      PageFactory.decorate(resource, '_getByBCSetRecord', 'getPagedByBCSetRecord');
+
+      resource.prototype.getBuildConfiguration = cachedGetter(
         function(buildRecord) {
           return BuildConfigurationDAO.get({ configurationId: buildRecord.buildConfigurationId });
         }
       );
 
-      RunningBuild.prototype.getUser = cachedGetter(
+      resource.prototype.getUser = cachedGetter(
         function(record) {
           return UserDAO.get({ userId: record.userId });
         }
       );
 
-      return RunningBuild;
+      return resource;
     }
   ]);
 

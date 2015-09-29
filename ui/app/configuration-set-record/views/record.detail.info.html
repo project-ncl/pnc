@@ -22,18 +22,8 @@
     <dt>Built by:</dt>
     <dd>{{ ctrl.csRecordDetail.getUser().username }}</dd>
     <div>
-
-      <input ng-model="searchText" placeholder="filter config...">
-
-      <pnc-running-builds2 count="runningBuildsCount" build-config-set-record-id="{{ ctrl.csRecordDetail.id }}"
-                           search-text="searchText"></pnc-running-builds2>
-      <pnc-recent-builds2 count="recentBuildsCount" build-config-set-record-id="{{ ctrl.csRecordDetail.id }}"
-                          search-text="searchText"></pnc-recent-builds2>
-
-      <div class="panel panel-default" ng-hide="runningBuildsCount || recentBuildsCount">
-        No build records for this set.
-      </div>
-
+      <pnc-running-builds-for-c-s-set bc-set-record-id="ctrl.csRecordDetail.id"></pnc-running-builds-for-c-s-set>
+      <pnc-recent-builds-for-c-s-set bc-set-record-id="ctrl.csRecordDetail.id"></pnc-recent-builds-for-c-s-set>
     </div>
   </dl>
 </div>

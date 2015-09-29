@@ -17,7 +17,7 @@
     limitations under the License.
 
 -->
-<div class="panel panel-default" ng-show="tracker.data.length">
+<div class="panel panel-default" ng-show="page.data.length">
   <div class="panel-heading">
     Finished Builds
   </div>
@@ -29,7 +29,7 @@
     <th>Status</th>
     </thead>
     <tbody>
-    <tr ng-repeat="record in tracker.data | filter:searchText">
+    <tr ng-repeat="record in page.data">
       <td>{{ record.getBuildConfiguration().getProject().name }}</td>
       <td><a href ui-sref="configuration.detail.show({configurationId: record.getBuildConfiguration().id})">{{
         record.getBuildConfiguration().name }}</a></td>

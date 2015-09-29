@@ -27,7 +27,7 @@
     </pnc-header-buttons>
   </pnc-header>
 
-  <input ng-model="searchText" placeholder="filter config...">
+  <pnc-search-field page="listCtrl.configurations" text="build configurations"></pnc-search-field>
   <table class="table table-bordered table-striped table-hover">
     <thead>
       <th>Name</th>
@@ -40,18 +40,14 @@
       <th>User</th>
     </thead>
     <tbody>
-      <tr ng-repeat="configuration in listCtrl.configurations | filter:searchText">
+      <tr ng-repeat="configuration in listCtrl.configurations.data">
         <td>
           <a ui-sref="configuration.detail.show({configurationId: configuration.id})" href>
             {{ configuration.name }}
           </a>
         </td>
         <td>{{ configuration.description }}</td>
-        <td>
-          <div ng-repeat="project in listCtrl.projects | filter: { id: configuration.projectId } | limitTo: 1">
-            {{ project.name }}
-          </div>
-        </td>
+        <td>{{ configuration.getProject().name }}</td>
         <td>{{ configuration.scmRepoURL }}</td>
         <td>{{ configuration.scmRevision }}</td>
         <td>{{ configuration.creationTime | date:'medium'}}</td>
@@ -60,4 +56,5 @@
       </tr>
     </tbody>
   </table>
+  <pnc-pager class="pull-right" page="listCtrl.configurations"></pnc-pager>
 </div>

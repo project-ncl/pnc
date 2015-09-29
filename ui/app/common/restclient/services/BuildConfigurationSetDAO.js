@@ -24,54 +24,61 @@
   module.value('BUILD_CONFIGURATION_SET_ENDPOINT', '/build-configuration-sets/:configurationSetId');
 
   /**
-   * @ngdoc service
-   * @name // TODO
-   * @description
-   *
    * @author Alex Creasy
+   * @author Jakub Senko
    */
   module.factory('BuildConfigurationSetDAO', [
     '$resource',
     'REST_BASE_URL',
     'BUILD_CONFIGURATION_SET_ENDPOINT',
-    function($resource, REST_BASE_URL, BUILD_CONFIGURATION_SET_ENDPOINT) {
+    'PageFactory',
+    'QueryHelper',
+    function($resource, REST_BASE_URL, BUILD_CONFIGURATION_SET_ENDPOINT, PageFactory, qh) {
       var ENDPOINT = REST_BASE_URL + BUILD_CONFIGURATION_SET_ENDPOINT;
 
-      var BuildConfigurationSet = $resource(ENDPOINT, {
+      var resource = $resource(ENDPOINT, {
         'configurationSetId': '@id'
       },{
+        _getAll: {
+          method: 'GET',
+          url: ENDPOINT + qh.searchOnly(['name'])
+        },
         update: {
           method: 'PUT'
         },
-        getConfigurations: {
+        _getConfigurations: {
           method: 'GET',
-          url: ENDPOINT + '/build-configurations',
-          isArray: true
+          url: ENDPOINT + '/build-configurations' + qh.searchOnly(['name'])
         },
         build: {
           method: 'POST',
           url: ENDPOINT + '/build',
-          rebuildAll: 'true',
-          isArray: false
+          params: {
+            rebuildAll: true
+          }
         },
         removeConfiguration: {
           method: 'DELETE',
-          url: ENDPOINT + '/build-configurations/:configurationId',
-          isArray: false
+          url: ENDPOINT + '/build-configurations/:configurationId'
         },
         addConfiguration: {
           method: 'POST',
-          url: ENDPOINT + '/build-configurations',
-          isArray: false
+          url: ENDPOINT + '/build-configurations'
         },
-        getRecords: {
+        _getRecords: {
           method: 'GET',
-          url: ENDPOINT + '/build-records',
-          isArray: true
-        },
+          url: ENDPOINT + '/build-records'
+        }
       });
 
-      return BuildConfigurationSet;
+      PageFactory.decorateNonPaged(resource, '_getAll', 'query');
+      PageFactory.decorateNonPaged(resource, '_getConfigurations', 'getConfigurations');
+      PageFactory.decorateNonPaged(resource, '_getRecords', 'getRecords');
+
+      PageFactory.decorate(resource, '_getAll', 'getAll');
+      PageFactory.decorate(resource, '_getConfigurations', 'getPagedConfigurations');
+
+      return resource;
     }
   ]);
 

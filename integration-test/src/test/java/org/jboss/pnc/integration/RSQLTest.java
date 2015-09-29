@@ -44,8 +44,11 @@ import java.lang.invoke.MethodHandles;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
 
 @RunWith(Arquillian.class)
@@ -162,6 +165,33 @@ public class RSQLTest {
 
         //then
         assertThat(sortedUsers).containsExactly("demo-user", "pnc-admin", "Abacki", "Babacki", "Cabacki");
+    }
+
+    @Test
+    public void shouldFilterUsersBasedOnLikeOperator() {
+        String[] queries = new String[] {
+                "username=like=%aba%",
+                "username=like=%Aba%",
+                "username=like=aba%",
+                "username=like=%babac%",
+                "username=like=%cab%",
+                "username=like=_abacki"
+        };
+        String[][] results = new String[][] { // must be sorted lexicographically
+                {"Abacki", "Babacki", "Cabacki"},
+                {"Abacki", "Babacki", "Cabacki"},
+                {"Abacki"},
+                {"Babacki"},
+                {"Cabacki"},
+                {"Babacki", "Cabacki"},
+        };
+        IntStream.range(0, queries.length)
+                .forEach(i -> assertThat(
+                        selectUsers(queries[i]).stream()
+                                .map(User::getUsername)
+                                .sorted(String::compareTo)
+                                .collect(Collectors.toList())
+                ).containsExactly(results[i]));
     }
 
     private List<User> selectUsers(String rsqlQuery) {

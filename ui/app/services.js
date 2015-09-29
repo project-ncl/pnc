@@ -109,9 +109,9 @@
 
    app.factory('unwrapPageResponseInterceptor', function() {
      return {
-       'response': function(response) {
-         if(response.data.content) {
-           response.data = response.data.content;
+       response: function(response) {
+         if(response.data.content && !_.isArray(response.data.content)) {
+            response.data = response.data.content;
          }
          return response;
        }

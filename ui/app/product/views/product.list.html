@@ -27,7 +27,7 @@
     </pnc-header-buttons>
   </pnc-header>
 
-  <input ng-model="searchText" placeholder="filter products...">
+  <pnc-search-field page="listCtrl.products" text="products"></pnc-search-field>
   <table class="table table-bordered table-striped">
     <thead>
       <th>Name</th>
@@ -37,7 +37,7 @@
       <th>System Code</th>
     </thead>
     <tbody>
-      <tr ng-repeat="product in listCtrl.products | filter:searchText">
+      <tr ng-repeat="product in listCtrl.products.data | filter:searchText">
         <td><a href ui-sref="product.detail({ productId: product.id })">{{ product.name }}</a></td>
         <td>{{ product.abbreviation }}</td>
         <td>{{ product.description }}</td>
@@ -46,5 +46,5 @@
       </tr>
     </tbody>
   </table>
-
+  <pnc-pager class="pull-right" page="listCtrl.products"></pnc-pager>
 </div>

@@ -21,9 +21,9 @@
 (function() {
 
   var module = angular.module('pnc.common.restclient', [
-    'ngResource'
+    'ngResource',
+    'pnc.util'
   ]);
 
   module.value('REST_BASE_URL', '/pnc-rest/rest');
-
 })();

@@ -70,46 +70,7 @@
     <div class="col-sm-6 col-md-6 col-sm-push-6 col-md-push-6">
       <div class="row">
         <div class="col-md-12" ui-view>
-            <pnc-header>
-              <pnc-header-title><small>Releases</small></pnc-header-title>
-              <pnc-header-buttons>
-                <button type="button" class="btn btn-lg btn-default" data-toggle="tooltip" title="Create Release" ui-sref="product.detail.version.releaseCreate">
-                    <i class="pficon pficon-add"></i> Create
-                </button>
-              </pnc-header-buttons>
-            </pnc-header>
-            <table class="table table-bordered table-striped">
-              <thead>
-                <th>Name</th>
-                <th>Release Date</th>
-                <th>Deliverables</th>
-                <th>Info</th>
-                <th>Support Level</th>
-                <th>Actions</th>
-              </thead>
-              <tbody>
-                <tr ng-repeat="productrelease in versionCtrl.productreleases">
-                  <td><span class="label label-success">{{ productrelease.version }}</span></td>
-                  <td>{{ productrelease.releaseDate | date:'yyyy/MM/dd'}}</td>
-                  <td class="text-center">
-                     <a ng-show="productrelease.downloadUrl != undefined" ng-href="{{ productrelease.downloadUrl }}" target="_self"
-                       class="btn btn-default" title="Download Deliverables">
-                       <i class="glyphicon glyphicon-download-alt"></i>
-                     </a>
-                  </td>
-                  <td>Released from Milestone <strong>{{ versionCtrl.getMilestoneVersion(productrelease.productMilestoneId) }}</strong></td>
-                  <td>{{ productrelease.supportLevel }}</td>
-                  <td>
-                    <button type="button" class="btn btn-sm btn-default" data-toggle="tooltip" title="Edit Release" ui-sref="product.detail.version.releaseUpdate({ releaseId: productrelease.id })">
-                      <i class="pficon pficon-edit"></i>
-                    </button>
-                    <button type="button" class="btn btn-sm btn-danger disabled" data-toggle="tooltip" title="Delete Release">
-                      <i class="pficon pficon-delete"></i>
-                    </button>
-                  </td>
-                </tr>
-              </tbody>
-          </table>
+          <pnc-product-version-releases version="versionCtrl.version"></pnc-product-version-releases>
         </div>
       </div>
     </div>
@@ -117,102 +78,15 @@
     <div class="col-sm-6 col-md-6 col-sm-pull-6 col-md-pull-6">
       <div class="row">
         <div class="col-md-12" ui-view="sidebar">
-          <pnc-header>
-            <pnc-header-title><small>Milestones</small></pnc-header-title>
-              <pnc-header-buttons>
-                <button type="button" class="btn btn-lg btn-default" data-toggle="tooltip" title="Create Milestone" ui-sref="product.detail.version.milestoneCreate">
-                    <i class="pficon pficon-add"></i> Create
-                </button>
-              </pnc-header-buttons>
-            </pnc-header>
-            <table class="table table-bordered table-striped">
-              <thead>
-                <th>Name</th>
-                <th>Start Date</th>
-                <th>Planned End Date</th>
-                <th>Actual End Date</th>
-                <th>Deliverables</th>
-                <th>Build Record Set</th>
-                <th>Actions</th>
-              </thead>
-              <tbody>
-                <tr ng-repeat="productmilestone in versionCtrl.productmilestones">
-                  <td>
-                    <span class="label label-default" ng-class="{ 'label label-primary' : productmilestone.id == versionCtrl.version.currentProductMilestoneId }">{{ productmilestone.version }}</span>
-                  </td>
-                  <td>{{ productmilestone.startingDate | date:'yyyy/MM/dd'}}</td>
-                  <td>{{ productmilestone.plannedEndDate | date:'yyyy/MM/dd'}}</td>
-                  <td>{{ productmilestone.endDate | date:'yyyy/MM/dd'}}</td>
-                  <td class="text-center">
-                     <a ng-show="productmilestone.downloadUrl != undefined" ng-href="{{ productmilestone.downloadUrl }}" target="_self"
-                       class="btn btn-default" title="Download Deliverables">
-                       <i class="glyphicon glyphicon-download-alt"></i>
-                     </a>
-                  </td>
-                  <td>{{ productmilestone.buildRecordSetId }}</td>
-                  <td class="text-center">
-                    <a ng-show="productmilestone.endDate == undefined" pnc-confirm-click="versionCtrl.markCurrentMilestone(productmilestone)" pnc-confirm-message="{{ 'Mark Milestone ' + productmilestone.version + ' as current ?'}}" title="Mark Milestone as current" class="btn btn-default"><i class="fa fa-clock-o"></i></a>
-                    <a ng-show="productmilestone.endDate == undefined" ui-sref="product.detail.version.milestoneUpdate({ milestoneId: productmilestone.id })" title="Update Milestone" class="btn btn-default"><i class="pficon pficon-edit"></i></a>
-                    <a ng-show="productmilestone.endDate == undefined" ui-sref="product.detail.version.milestoneClose({ milestoneId: productmilestone.id })" title="Release Milestone" class="btn btn-default"><i class="fa fa-lock"></i></a>
-                    <a ng-show="productmilestone.endDate != undefined" pnc-confirm-click="versionCtrl.unreleaseMilestone(productmilestone)" pnc-confirm-message="{{ 'Confirm the unrelease of Milestone: ' + productmilestone.version + ' ?'}}" title="Unrelease Milestone" class="btn btn-default"><i class="fa fa-unlock-alt"></i></a>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+          <pnc-product-version-milestones version="versionCtrl.version"></pnc-product-version-milestones>
         </div>
       </div>
     </div>
   </div>
 
-  <pnc-header>
-    <pnc-header-title><small>Build Configuration Sets</small></pnc-header-title>
-    <pnc-header-buttons>
-      <button type="button" class="btn btn-lg btn-default" data-toggle="tooltip" title="Create Build Configuration Set" ui-sref="configuration-set.create({ productId: versionCtrl.product.id, versionId: versionCtrl.version.id })">
-          <i class="pficon pficon-add"></i> Create
-      </button>
-    </pnc-header-buttons>
-  </pnc-header>
+  <pnc-product-version-b-c-sets version="versionCtrl.version"></pnc-product-version-b-c-sets>
 
-  <input ng-model="searchBCSText" placeholder="filter buildconfigsets...">
-  <table class="table table-bordered table-striped">
-    <thead>
-      <th>Name</th>
-      <th>Action</th>
-    </thead>
-    <tbody>
-      <tr ng-repeat="buildconfigurationset in versionCtrl.buildconfigurationsets | filter:searchBCSText">
-        <td><a href ui-sref="configuration-set.detail({ configurationSetId: buildconfigurationset.id })">{{ buildconfigurationset.name }}</a></td>
-        <td class="table-data-5-column-even-width">
-           <button type="button" class="btn btn-sm btn-default" data-toggle="tooltip" title="Start Build" ng-click="versionCtrl.buildConfigSet(buildconfigurationset)">
-             <i class="fa fa-play"></i> Build
-           </button>
-        </td>
-      </tr>
-    </tbody>
-  </table>
-
-  <pnc-header>
-    <pnc-header-title><small>Build Configurations</small></pnc-header-title>
-  </pnc-header>
-  <input ng-model="searchBCText" placeholder="filter buildconfigurations...">
-  <table class="table table-bordered table-striped">
-    <thead>
-      <th>Name</th>
-      <th>Action</th>
-    </thead>
-    <tbody>
-      <tr ng-repeat="configuration in versionCtrl.buildconfigurations | filter:searchBCText">
-        <td>
-          <a ui-sref="configuration.detail.show({configurationId: configuration.id})" href>{{ configuration.name }}</a>
-        </td>
-        <td class="table-data-5-column-even-width">
-           <button type="button" class="btn btn-sm btn-default" data-toggle="tooltip" title="Start Build" ng-click="versionCtrl.buildConfig(configuration)">
-             <i class="fa fa-play"></i> Build
-           </button>
-        </td>
-      </tr>
-    </tbody>
-  </table>
+  <pnc-product-version-b-cs version="versionCtrl.version"></pnc-product-version-b-cs>
 
 </div>
 

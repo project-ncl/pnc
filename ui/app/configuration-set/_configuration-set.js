@@ -50,7 +50,7 @@
       controllerAs: 'setlistCtrl',
       resolve: {
         configurationSetList: function(BuildConfigurationSetDAO) {
-          return BuildConfigurationSetDAO.query().$promise;
+          return BuildConfigurationSetDAO.getAll();
         }
       }
     });
@@ -70,11 +70,11 @@
         },
         configurations: function(BuildConfigurationSetDAO, $stateParams) {
           return BuildConfigurationSetDAO.getConfigurations({
-            configurationSetId: $stateParams.configurationSetId }).$promise;
+            configurationSetId: $stateParams.configurationSetId });
         },
         records: function(BuildConfigurationSetDAO, $stateParams) {
           return BuildConfigurationSetDAO.getRecords({
-            configurationSetId: $stateParams.configurationSetId}).$promise;
+            configurationSetId: $stateParams.configurationSetId});
         },
         previousState: ['$state', function ($state) {
           var currentStateData = {
@@ -97,7 +97,7 @@
       controllerAs: 'createSetCtrl',
       resolve: {
         products: function(ProductDAO) {
-          return ProductDAO.query().$promise;
+          return ProductDAO.query();
         },
       },
     });
@@ -116,9 +116,9 @@
             configurationSetId: $stateParams.configurationSetId }).$promise;
         },
         projects: function(ProjectDAO) {
-          return ProjectDAO.query().$promise;
-        },
-      },
+          return ProjectDAO.query();
+        }
+      }
     });
 
   }]);

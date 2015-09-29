@@ -17,41 +17,44 @@
  */
 'use strict';
 
-(function() {
+(function () {
 
   var module = angular.module('pnc.common.restclient');
 
   module.value('BUILD_RECORD_SET_ENDPOINT', '/build-record-sets/:recordsetId');
 
   /**
-   * @ngdoc service
-   * @name // TODO
-   * @description
    *
    */
   module.factory('BuildRecordSetDAO', [
     '$resource',
     'REST_BASE_URL',
     'BUILD_RECORD_SET_ENDPOINT',
-    function($resource, REST_BASE_URL, BUILD_RECORD_SET_ENDPOINT) {
+    'PageFactory',
+    function ($resource, REST_BASE_URL, BUILD_RECORD_SET_ENDPOINT, PageFactory) {
       var ENDPOINT = REST_BASE_URL + BUILD_RECORD_SET_ENDPOINT;
 
-      var BuildRecordSet = $resource(ENDPOINT, {
+      var resource = $resource(ENDPOINT, {
         recordsetId: '@id'
-      },{
-        getAllForProductVersion: {
-          method: 'GET',
-          url: REST_BASE_URL + '/build-record-sets/product-versions/:versionId',
-          isArray: true
+      }, {
+        _getAll: {
+          method: 'GET'
         },
-        getRecords: {
+        _getAllForProductVersion: {
           method: 'GET',
-          url: REST_BASE_URL + '/build-record-sets/build-records/:recordId',
-          isArray: true
+          url: REST_BASE_URL + '/build-record-sets/product-versions/:versionId'
+        },
+        _getRecords: {
+          method: 'GET',
+          url: REST_BASE_URL + '/build-record-sets/build-records/:recordId'
         }
       });
 
-      return BuildRecordSet;
+      PageFactory.decorateNonPaged(resource, '_getAll', 'query');
+      PageFactory.decorateNonPaged(resource, '_getAllForProductVersion', 'getAllForProductVersion');
+      PageFactory.decorateNonPaged(resource, '_getRecords', 'getRecords');
+
+      return resource;
     }
   ]);
 

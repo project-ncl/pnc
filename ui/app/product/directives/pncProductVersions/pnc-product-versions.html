@@ -1,0 +1,60 @@
+<!--
+
+    JBoss, Home of Professional Open Source.
+    Copyright 2014 Red Hat, Inc., and individual contributors
+    as indicated by the @author tags.
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+<div class="spinner spinner-sm" ng-hide="page.isLoaded"></div>
+
+<pnc-search-field page="page" text="product versions"></pnc-search-field>
+
+<table class="table table-bordered table-striped" ng-show="page.isLoaded">
+  <thead>
+  <th>Version</th>
+  <th>Milestones</th>
+  <th>Releases</th>
+  </thead>
+  <tbody>
+  <tr ng-repeat="version in page.data">
+    <td class="bigger-text">
+      <a href ui-sref="product.detail.version({ productId: productId, versionId: version.id })">
+        {{ version.version }}
+      </a>
+    </td>
+    <td> {{ getVersionMilestones(version.id) }}
+       <span
+         ng-repeat="productmilestone in versionMilestones[version.id] | orderBy: '-productmilestone.startingDate'">
+             <span data-tooltip-html-unsafe="{{ getMilestoneTooltip(productmilestone) }}"
+                   data-tooltip-placement="right"
+                   class="label label-default"
+                   ng-class="{ 'label label-primary' : productmilestone.id == version.currentProductMilestoneId }">
+               {{ productmilestone.version }}
+             </span>
+       </span>
+    </td>
+    <td>
+           <span ng-repeat="productrelease in versionReleases[version.id] | orderBy: '-productrelease.releaseDate'">
+             <span data-tooltip-html-unsafe="{{ getReleaseTooltip(productrelease) }}"
+                   data-tooltip-placement="right"
+                   class="label label-success">
+               {{ productrelease.version }}
+             </span>
+           </span>
+    </td>
+  </tr>
+  </tbody>
+</table>
+<pnc-pager class="pull-right" page="page"></pnc-pager>

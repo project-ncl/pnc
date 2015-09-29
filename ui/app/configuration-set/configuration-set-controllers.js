@@ -61,7 +61,7 @@
         if (productId) {
           ProductVersionDAO.getAllForProduct({
             productId: productId
-          }).$promise.then(
+          }).then(
             function(result) {
               self.productVersions = result;
               if (result) {
@@ -119,7 +119,7 @@
         if (projectId) {
           BuildConfigurationDAO.getAllForProject({
             projectId: projectId
-          }).$promise.then(
+          }).then(
             function(result) {
               self.configurations = result;
               if (result) {
@@ -186,7 +186,7 @@
 
         BuildRecordDAO.getLatestForConfiguration({
           configurationId: configuration.id
-        }).$promise.then(
+        }).then(
           function(result) {
             if (result[0]) {
               self.lastBuildRecords.push(result[0]);
@@ -205,7 +205,7 @@
 
         BuildRecordDAO.getArtifacts({
           recordId: record.id
-        }).$promise.then(
+        }).then(
           function(results) {
 
             var buildRecordArtifactWO = {};
@@ -263,27 +263,6 @@
         } else {
           self.productVersions = [];
         }
-      };
-
-      self.remove = function(configurationId) {
-        $log.debug('**Removing configurationId: %0 from Build Configuration Set: %0**', configurationId, self.set);
-
-        BuildConfigurationSetDAO.removeConfiguration({
-          configurationSetId: self.set.id,
-          configurationId: configurationId
-        }).$promise.then(
-          // Success
-          function() {
-            var params = {
-              configurationSetId: self.set.id
-            };
-            $state.go('configuration-set.detail', params, {
-              reload: true,
-              inherit: false,
-              notify: true
-            });
-          }
-        );
       };
 
       // Deleting a build configuration set
