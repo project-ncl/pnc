@@ -38,10 +38,22 @@
     'ProductVersionDAO',
     function($log, $state, products, BuildConfigurationSetDAO, ProductVersionDAO) {
       var self = this;
-
       this.data = new BuildConfigurationSetDAO();
       self.products = products;
       self.productVersions = [];
+
+      if (parseInt($state.params.productId) !== -1) {
+        self.selectedProductId = parseInt($state.params.productId);
+
+        ProductVersionDAO.getAllForProduct({
+            productId: self.selectedProductId
+          }).$promise.then(
+            function(result) {
+              self.productVersions = result;
+              self.data.productVersionId = parseInt($state.params.versionId);
+            }
+          );
+      }
 
       self.getProductVersions = function(productId) {
         $log.debug('**Getting productVersions of Product: %0**', productId);

@@ -88,7 +88,7 @@
     });
 
     $stateProvider.state('configuration-set.create', {
-      url: '/configuration-set/create',
+      url: '/configuration-set/create/:productId/:versionId',
       templateUrl: 'configuration-set/views/configuration-set.create.html',
       data: {
         displayName: 'Create Build Configuration Set'

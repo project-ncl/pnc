@@ -35,7 +35,7 @@
       <div class="col-sm-10">
         <select ng-model="createSetCtrl.selectedProductId" ng-change="createSetCtrl.getProductVersions(createSetCtrl.selectedProductId)">
           <option value=""></option>
-          <option ng-repeat="product in createSetCtrl.products" value="{{ product.id }}">
+          <option ng-repeat="product in createSetCtrl.products" value="{{ product.id }}" ng-selected="{{ createSetCtrl.selectedProductId == product.id }}">
             {{ product.name }}
           </option>
         </select>
@@ -46,7 +46,8 @@
       <label for="input-project" class="col-sm-2 control-label">Product Version</label>
       <div class="col-sm-10">
       <select ng-model="createSetCtrl.data.productVersionId">
-      <option ng-repeat="productVersion in createSetCtrl.productVersions" value="{{ productVersion.id }}">
+      <option ng-repeat="productVersion in createSetCtrl.productVersions"
+         value="{{ productVersion.id }}" ng-selected="{{ createSetCtrl.data.productVersionId == productVersion.id }}">
             {{ productVersion.version }}
           </option>
         </select>
