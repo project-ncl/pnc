@@ -51,9 +51,9 @@
       controllerAs: 'listCtrl',
       resolve: {
         projectList: function(ProjectDAO) {
-          return ProjectDAO.query().$promise;
+          return ProjectDAO.getAll();
         }
-      },
+      }
     });
 
     $stateProvider.state('project.detail', {
@@ -71,7 +71,7 @@
         },
         projectConfigurationList: function(BuildConfigurationDAO, $stateParams) {
           return BuildConfigurationDAO.getAllForProject({
-            projectId: $stateParams.projectId}).$promise;
+            projectId: $stateParams.projectId});
         },
       }
     });
