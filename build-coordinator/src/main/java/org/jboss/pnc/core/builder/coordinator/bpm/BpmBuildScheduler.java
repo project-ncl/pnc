@@ -18,6 +18,8 @@
 
 package org.jboss.pnc.core.builder.coordinator.bpm;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.moduleconfig.BpmModuleConfig;
@@ -27,13 +29,15 @@ import org.jboss.pnc.core.builder.coordinator.BuildScheduler;
 import org.jboss.pnc.core.builder.coordinator.BuildTask;
 import org.jboss.pnc.core.content.ContentIdentityManager;
 import org.jboss.pnc.core.exception.CoreException;
+import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
+import org.jboss.pnc.model.BuildEnvironment;
+import org.jboss.pnc.model.Project;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.BuildStatus;
 import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.process.ProcessInstance;
 import org.kie.services.client.api.RemoteRestRuntimeEngineFactory;
-import org.kie.services.client.api.command.RemoteRuntimeEngine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,7 +47,9 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
@@ -51,16 +57,13 @@ import java.util.function.Consumer;
 @ApplicationScoped
 public class BpmBuildScheduler implements BuildScheduler {
 
+    private static final ObjectMapper objectMapper = new ObjectMapper();
+
     private static final Logger logger = LoggerFactory.getLogger(BpmBuildScheduler.class);
 
     private BpmCompleteListener bpmCompleteListener;
 
-    private String instanceUrl;
-    private String deploymentId;
-    private String processId;
-
-    private String bpmEndpointUser;
-    private String bpmEndpointPassword;
+    private Configuration configuration;
 
     @Override
     public String getId() {
@@ -69,27 +72,12 @@ public class BpmBuildScheduler implements BuildScheduler {
 
     @Deprecated
     public BpmBuildScheduler() { //CDI workaround
-        instanceUrl = null;
-        deploymentId = null;
-        processId = null;
-        bpmEndpointUser = null;
-        bpmEndpointPassword = null;
     }
 
     @Inject
     public BpmBuildScheduler(Configuration configuration, BpmCompleteListener bpmCompleteListener) throws MalformedURLException {
         this.bpmCompleteListener = bpmCompleteListener;
-        try {
-            BpmModuleConfig config = configuration.getModuleConfig(new PncConfigProvider<>(BpmModuleConfig.class));
-            instanceUrl = config.getBpmInstanceUrl();
-            deploymentId = config.getDeploymentId();
-            processId = config.getProcessId();
-
-            bpmEndpointUser = config.getUsername();
-            bpmEndpointPassword = config.getPassword();
-        } catch (ConfigurationParseException e) {
-            logger.warn("Unable to initialize configuration. BPM Scheduler may not work correctly", e);
-        }
+        this.configuration = configuration;
     }
 
     @Override
@@ -104,32 +92,126 @@ public class BpmBuildScheduler implements BuildScheduler {
         bpmCompleteListener.subscribe(bpmListener);
     }
 
-    private ProcessInstance startProcess(BuildTask buildTask, Integer buildTaskSetId) throws CoreException {
-        RemoteRestRuntimeEngineFactory restSessionFactory;
+    ProcessInstance startProcess(BuildTask buildTask, Integer buildTaskSetId) throws CoreException {
         try {
-            restSessionFactory = new RemoteRestRuntimeEngineFactory(deploymentId, new URL(instanceUrl), bpmEndpointUser, bpmEndpointPassword);
+            KieSession kieSession = createSession(buildTask);
+            return kieSession.startProcess(getProcessId(buildTask), createParameters(buildTask, buildTaskSetId));
+        } catch (ConfigurationParseException e) {
+            throw new CoreException("Could not parse configuration", e);
+        } catch (JsonProcessingException e) {
+            throw new CoreException("Could not write JSON", e);
         } catch (MalformedURLException e) {
-            throw new CoreException("Invalid bpm server url.", e);
+            throw new CoreException("InstanceURL is malformed", e);
         }
+    }
 
-        RemoteRuntimeEngine engine = restSessionFactory.newRuntimeEngine();
-        KieSession kieSession = engine.getKieSession();
-
-        BuildConfigurationAudited configurationAudited = buildTask.getBuildConfigurationAudited();
-
+    Map<String, Object> createParameters(BuildTask buildTask, Integer buildTaskSetId) throws JsonProcessingException, ConfigurationParseException {
+        logger.debug("[{}] Creating parameters", buildTask.getId());
         Map<String, Object> parameters = new HashMap<>();
-        parameters.put("buildTaskId",buildTask.getId() );
-        parameters.put("buildTaskSetId", buildTaskSetId);
-        parameters.put("buildConfigurationRevision", configurationAudited.getRev());
-        parameters.put("buildRecordSetIdsCSV", StringUtils.toCVS(buildTask.getBuildRecordSetIds()));
-        parameters.put("buildConfigSetRecordId", buildTask.getBuildConfigSetRecordId());
-        parameters.put("buildContentId", ContentIdentityManager.getBuildContentId(buildTask.getBuildConfiguration()));
-        parameters.put("submitTimeMillis", buildTask.getSubmitTime().getTime());
-        User user = buildTask.getUser();
-        parameters.put("pncUsername", user.getUsername());
-        parameters.put("pncUserLoginToken", user.getLoginToken());
-        parameters.put("pncUserEmail", user.getEmail());
+        fillBuildRequest(parameters, buildTask, buildTaskSetId);
+        fillUrls(parameters);
+        fillComponentParameters(parameters, buildTask);
+        logger.debug("[{}] Created parameters", parameters);
+        return parameters;
+    }
 
-        return kieSession.startProcess(processId, parameters);
+    void fillComponentParameters(Map<String, Object> parameters, BuildTask buildTask) throws JsonProcessingException {
+        /*
+        "GAV" : "org.artificer:artificer:1.0.0.Beta1",
+        "Description" : "a test",
+        "SCM" : "https://github.com/ArtificerRepo/artificer.git",
+        "Tag" : "artificer-1.0.0.Beta1-IDP-1",
+        "JavaVersion" : "1.7.0_55",
+        "MavenVersion" : "3.1.1",
+        "BuildCommand" : "mvn -Pgenerate-docs",
+        "CommandLineParams" : "-Xmx950m -XX:MaxPermSize=256m -Dmaven.artifact.threads=5",
+        "BuildArtifactsRequired" : "JBoss EAP 6.4",
+        "CommunityBuild" : "false",
+        "PatchBuild" : "false",
+        "ProjectId" : 1,
+        "EnvironmentId" : 1
+         */
+        Map<String, Object> params = new HashMap<>();
+        params.put("GAV", "org.jboss.pnc:test:1.0.0-SNAPSHOT");// hardcoded for now....changes will be proposed later
+        params.put("Description", buildTask.getBuildConfiguration().getDescription());
+        params.put("SCM", buildTask.getBuildConfiguration().getScmRepoURL());
+        params.put("Tag", buildTask.getBuildConfiguration().getScmRevision());//no such field in PNC, we have only revision
+        params.put("JavaVersion", null);//no such field in PNC - We use Environment id...
+        params.put("MavenVersion", null);//no such field in PNC
+        params.put("BuildCommand", buildTask.getBuildConfiguration().getBuildScript());
+        params.put("CommandLineParams", null);//no such field in PNC
+        params.put("BuildArtifactsRequired", buildTask.getBuildConfiguration().getAllDependencies().stream()
+                .map(bc -> bc.getName())
+                .collect(Collectors.toList()));//Is it correct?
+        params.put("CommunityBuild", "false");//hardcoded?
+        params.put("EnvironmentId", Optional.of(buildTask.getBuildConfiguration())
+                .map(BuildConfiguration::getBuildEnvironment)
+                .map(BuildEnvironment::getId)
+                .orElse(null));
+        params.put("PatchBuild", "false");//hardcoded?
+        params.put("ProjectId", Optional.of(buildTask.getBuildConfiguration())
+                .map(BuildConfiguration::getProject)
+                .map(Project::getId)
+                .orElse(null));
+        parameters.put("paramsJSON", objectMapper.writeValueAsString(params));
+    }
+
+    void fillUrls(Map<String, Object> parameters) throws ConfigurationParseException {
+        BpmModuleConfig moduleConfig = configuration.getModuleConfig(new PncConfigProvider<>(BpmModuleConfig.class));
+        parameters.put("pncBaseUrl", moduleConfig.getPncBaseUrl());
+        parameters.put("jenkinsBaseUrl", moduleConfig.getJenkinsBaseUrl());
+        parameters.put("aproxBaseUrl", moduleConfig.getAproxBaseUrl());
+        parameters.put("repourBaseUrl", moduleConfig.getRepourBaseUrl());
+        parameters.put("daBaseUrl", moduleConfig.getDaBaseUrl());
+    }
+
+    void fillBuildRequest(Map<String, Object> parameters, BuildTask buildTask, Integer buildTaskSetId)
+            throws JsonProcessingException {
+        Map<String, Object> buildRequest = new HashMap<>();
+        buildRequest.put("buildTaskId", buildTask.getId());
+        buildRequest.put("buildTaskSetId", buildTaskSetId);
+        buildRequest.put("buildConfigurationRevision",
+                Optional.of(buildTask).map(BuildTask::getBuildConfigurationAudited).map(BuildConfigurationAudited::getIdRev)
+                        .orElse(null));
+        buildRequest.put("buildRecordSetIdsCSV", StringUtils.toCVS(buildTask.getBuildRecordSetIds()));
+        buildRequest.put("buildConfigSetRecordId", buildTask.getBuildConfigSetRecordId());
+        buildRequest.put("buildContentId", ContentIdentityManager.getBuildContentId(buildTask.getBuildConfiguration()));
+        buildRequest.put("submitTimeMillis", buildTask.getSubmitTime().getTime());
+        buildRequest.put("pncUsername", Optional.of(buildTask)
+                .map(BuildTask::getUser)
+                .map(User::getUsername)
+                .orElse(null));
+        buildRequest.put("pncUserLoginToken", Optional.of(buildTask)
+                .map(BuildTask::getUser)
+                .map(User::getLoginToken)
+                .orElse(null));
+        buildRequest.put("pncUserEmail", Optional.of(buildTask)
+                .map(BuildTask::getUser)
+                .map(User::getEmail)
+                .orElse(null));
+
+        parameters.put("buildRequestJSON", objectMapper.writeValueAsString(buildRequest));
+    }
+
+    KieSession createSession(BuildTask buildTask) throws ConfigurationParseException, MalformedURLException {
+        logger.debug("[{}] creating KIE session", buildTask.getId());
+        BpmModuleConfig config = configuration.getModuleConfig(new PncConfigProvider<>(BpmModuleConfig.class));
+        String instanceUrl = config.getBpmInstanceUrl();
+        String deploymentId = config.getDeploymentId();
+        String bpmEndpointUser = config.getUsername();
+        String bpmEndpointPassword = config.getPassword();
+
+        logger.debug("[{}] Session parameters InstanceURL: {} deploymentId: {} User: {}", buildTask.getId(), instanceUrl, deploymentId, bpmEndpointUser);
+
+        RemoteRestRuntimeEngineFactory restSessionFactory = new RemoteRestRuntimeEngineFactory(deploymentId, new URL(instanceUrl), bpmEndpointUser, bpmEndpointPassword);
+
+        return restSessionFactory.newRuntimeEngine().getKieSession();
+    }
+
+    String getProcessId(BuildTask buildTask) throws ConfigurationParseException {
+        BpmModuleConfig config = configuration.getModuleConfig(new PncConfigProvider<>(BpmModuleConfig.class));
+        String processId = config.getProcessId();
+        logger.debug("[{}] Getting processId: {} ", buildTask.getId(), processId);
+        return processId;
     }
 }
