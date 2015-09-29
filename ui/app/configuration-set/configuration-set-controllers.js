@@ -47,7 +47,7 @@
 
         ProductVersionDAO.getAllForProduct({
             productId: self.selectedProductId
-          }).$promise.then(
+          }).then(
             function(result) {
               self.productVersions = result;
               self.data.productVersionId = parseInt($state.params.versionId);
