@@ -110,7 +110,7 @@
           artifacts: function (BuildRecordDAO, recordDetail) {
             return BuildRecordDAO.getArtifacts({
               recordId: recordDetail.id
-            }).$promise;
+            });
           }
         }
       });
