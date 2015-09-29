@@ -39,7 +39,7 @@
       <label for="input-project" class="col-sm-2 control-label">Build Configuration</label>
       <div class="col-sm-10">
       <select ng-model="addConfigurationSetCtrl.data.configurationId">
-      <option ng-repeat="configuration in addConfigurationSetCtrl.configurations | filter:(!addConfigurationSetCtrl.shouldFilter || '') && {productVersionIds:addConfigurationSetCtrl.configurationSetDetail.productVersionId}" value="{{ configuration.id }}">
+      <option ng-repeat="configuration in addConfigurationSetCtrl.configurations" value="{{ configuration.id }}">
             {{ configuration.name }}
           </option>
         </select>
