@@ -61,6 +61,7 @@ public class BpmBuildScheduler implements BuildScheduler {
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
     private static final Logger logger = LoggerFactory.getLogger(BpmBuildScheduler.class);
+    private final int AUTHENTICATION_TIMEOUT_S = 20;
 
     private BpmCompleteListener bpmCompleteListener;
 
@@ -207,7 +208,14 @@ public class BpmBuildScheduler implements BuildScheduler {
 
         logger.debug("[{}] Session parameters InstanceURL: {} deploymentId: {} User: {}", buildTask.getId(), instanceUrl, deploymentId, bpmEndpointUser);
 
-        RemoteRestRuntimeEngineFactory restSessionFactory = new RemoteRestRuntimeEngineFactory(deploymentId, new URL(instanceUrl), bpmEndpointUser, bpmEndpointPassword);
+        RemoteRestRuntimeEngineFactory restSessionFactory = RemoteRestRuntimeEngineFactory.newBuilder()
+                .addDeploymentId(deploymentId)
+                .addUrl(new URL(instanceUrl))
+                .addUserName(bpmEndpointUser)
+                .addPassword(bpmEndpointPassword)
+                .useFormBasedAuth(true)
+                .addTimeout(AUTHENTICATION_TIMEOUT_S)
+                .build();
 
         return restSessionFactory.newRuntimeEngine().getKieSession();
     }
