@@ -26,6 +26,7 @@ import org.jboss.pnc.common.json.moduleconfig.BpmModuleConfig;
 import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
 import org.jboss.pnc.common.util.StringUtils;
 import org.jboss.pnc.core.builder.coordinator.BuildScheduler;
+import org.jboss.pnc.core.builder.coordinator.BuildSetTask;
 import org.jboss.pnc.core.builder.coordinator.BuildTask;
 import org.jboss.pnc.core.content.ContentIdentityManager;
 import org.jboss.pnc.core.exception.CoreException;
@@ -82,7 +83,10 @@ public class BpmBuildScheduler implements BuildScheduler {
 
     @Override
     public void startBuilding(BuildTask buildTask, Consumer<BuildStatus> onComplete) throws CoreException {
-        ProcessInstance processInstance = startProcess(buildTask, buildTask.getBuildSetTask().getId());
+        ProcessInstance processInstance = startProcess(buildTask, Optional.of(buildTask)
+                .map(BuildTask::getBuildSetTask)
+                .map(BuildSetTask::getId)
+                .orElse(null));
         logger.info("New component build process started with process instance id {}.", processInstance.getId());
         registerCompleteListener(buildTask.getId(), onComplete);
     }
