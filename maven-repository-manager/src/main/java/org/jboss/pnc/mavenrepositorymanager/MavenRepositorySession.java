@@ -202,7 +202,7 @@ public class MavenRepositorySession implements RepositorySession
                 ArtifactRef aref = new SimpleArtifactRef(pathInfo.getProjectId(), pathInfo.getType(), pathInfo.getClassifier(), false);
                 logger.info( "Recording download: {}", aref );
 
-                Artifact.Builder artifactBuilder = Artifact.Builder.newBuilder().checksum( download.getSha256() )
+                Artifact.Builder artifactBuilder = Artifact.Builder.newBuilder().checksum( download.getMd5() )
                         .deployUrl( content.contentUrl( download.getStoreKey(), download.getPath() ) )
                         .filename( new File( path ).getName() ).identifier( aref.toString() ).repoType(
                                                 RepositoryType.MAVEN )
