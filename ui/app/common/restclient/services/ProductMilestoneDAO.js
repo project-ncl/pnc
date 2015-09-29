@@ -24,35 +24,42 @@
   module.value('MILESTONE_ENDPOINT', '/product-milestones/:milestoneId');
 
   /**
-   * @ngdoc service
-   * @name // TODO
-   * @description
-   *
+   * @author Alex Creasy
+   * @author Jakub Senko
    */
   module.factory('ProductMilestoneDAO', [
     '$resource',
     'REST_BASE_URL',
     'MILESTONE_ENDPOINT',
-    function($resource, REST_BASE_URL, MILESTONE_ENDPOINT) {
+    'PageFactory',
+    function($resource, REST_BASE_URL, MILESTONE_ENDPOINT, PageFactory) {
       var ENDPOINT = REST_BASE_URL + MILESTONE_ENDPOINT;
 
-      var Milestone = $resource(ENDPOINT, {
+      var resource = $resource(ENDPOINT, {
         milestoneId: '@id'
       },{
-        update: {
-          method: 'PUT',
-        },
-        getAllForProductVersion: {
+        _getAll: {
           method: 'GET',
-          url: REST_BASE_URL + '/product-milestones/product-versions/:versionId',
-          isArray: true
+          isArray: false
+        },
+        update: {
+          method: 'PUT'
+        },
+        _getByProductVersion: {
+          method: 'GET',
+          url: REST_BASE_URL + '/product-milestones/product-versions/:versionId'
         },
         save: {
           method: 'POST'
         }
       });
 
-      return Milestone;
+      PageFactory.decorateNonPaged(resource, '_getAll', 'query');
+      PageFactory.decorateNonPaged(resource, '_getByProductVersion', 'getAllForProductVersion');
+
+      PageFactory.decorate(resource, '_getByProductVersion', 'getPagedByProductVersion');
+
+      return resource;
     }
   ]);
 

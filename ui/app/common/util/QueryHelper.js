@@ -15,15 +15,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-/* jshint unused: false */
 'use strict';
 
-(function() {
+(function () {
 
-  var module = angular.module('pnc.common.restclient', [
-    'ngResource',
-    'pnc.util'
-  ]);
+  var module = angular.module('pnc.util', []);
 
-  module.value('REST_BASE_URL', '/pnc-rest/rest');
+
+  module.factory('QueryHelper', function () {
+
+    var helper = {};
+
+    helper.search = function (searchFields) {
+      return '(' + _(searchFields)
+        .reduce(function (memo, searchField, index) {
+          return memo + (index !== 0 ? ' or ' : '') + searchField + '=like=%25:search%25';
+        }, '') + ')';
+    };
+
+    helper.searchOnly = function(searchFields) {
+      return '?q=' + helper.search(searchFields);
+    };
+
+    return helper;
+  });
+
 })();

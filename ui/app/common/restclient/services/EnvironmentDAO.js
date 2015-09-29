@@ -24,28 +24,31 @@
   module.value('ENVIRONMENT_ENDPOINT', '/environments/:environmentId');
 
   /**
-   * @ngdoc service
-   * @name // TODO
-   * @description
-   *
    * @author Alex Creasy
+   * @author Jakub Senko
    */
   module.factory('EnvironmentDAO', [
     '$resource',
     'REST_BASE_URL',
     'ENVIRONMENT_ENDPOINT',
-    function($resource, REST_BASE_URL, ENVIRONMENT_ENDPOINT) {
+    'PageFactory',
+    function($resource, REST_BASE_URL, ENVIRONMENT_ENDPOINT, PageFactory) {
       var ENDPOINT = REST_BASE_URL + ENVIRONMENT_ENDPOINT;
 
-      var Environment = $resource(ENDPOINT, {
+      var resource = $resource(ENDPOINT, {
         environmentId: '@id'
       },{
+        _getAll: {
+          method: 'GET'
+        },
         update: {
-          method: 'PUT',
+          method: 'PUT'
         }
       });
 
-      return Environment;
+      PageFactory.decorateNonPaged(resource, '_getAll', 'query');
+
+      return resource;
     }
   ]);
 

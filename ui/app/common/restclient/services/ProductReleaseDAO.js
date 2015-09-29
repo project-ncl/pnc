@@ -23,40 +23,48 @@
 
   module.value('RELEASE_ENDPOINT', '/product-releases/:releaseId');
   /**
-   * @ngdoc service
-   * @name // TODO
-   * @description
-   *
+   * @author Alex Creasy
+   * @author Jakub Senko
    */
   module.factory('ProductReleaseDAO', [
     '$resource',
     'REST_BASE_URL',
     'RELEASE_ENDPOINT',
-    function($resource, REST_BASE_URL, RELEASE_ENDPOINT) {
+    'PageFactory',
+    function($resource, REST_BASE_URL, RELEASE_ENDPOINT, PageFactory) {
       var ENDPOINT = REST_BASE_URL + RELEASE_ENDPOINT;
 
-      var Release = $resource(ENDPOINT, {
+      var resource = $resource(ENDPOINT, {
         releaseId: '@id'
       },{
-        update: {
-          method: 'PUT',
+        _getAll: {
+          method: 'GET',
+          isArray: false
         },
-        getAllForProductVersion: {
+        update: {
+          method: 'PUT'
+        },
+        _getByProductVersion: {
           method: 'GET',
           url: REST_BASE_URL + '/product-releases/product-versions/:versionId',
-          isArray: true
+          isArray: false
         },
         save: {
           method: 'POST'
         },
-        getAllSupportLevel: {
+        _getAllSupportLevel: {
           method: 'GET',
-          url: REST_BASE_URL + '/product-releases/support-level',
-          isArray: true
+          url: REST_BASE_URL + '/product-releases/support-level'
         }
       });
 
-      return Release;
+      PageFactory.decorateNonPaged(resource, '_getAll', 'query');
+      PageFactory.decorateNonPaged(resource, '_getByProductVersion', 'getAllForProductVersion');
+      PageFactory.decorateNonPaged(resource, '_getAllSupportLevel', 'getAllSupportLevel');
+
+      PageFactory.decorate(resource, '_getByProductVersion', 'getPagedByProductVersion');
+
+      return resource;
     }
   ]);
 

@@ -24,34 +24,41 @@
   module.value('PROJECT_ENDPOINT', '/projects/:projectId');
 
   /**
-   * @ngdoc service
-   * @name // TODO
-   * @description
-   *
    * @author Alex Creasy
+   * @author Jakub Senko
    */
   module.factory('ProjectDAO', [
     '$resource',
     'REST_BASE_URL',
     'PROJECT_ENDPOINT',
-    function($resource, REST_BASE_URL, PROJECT_ENDPOINT) {
+    'PageFactory',
+    'QueryHelper',
+    function($resource, REST_BASE_URL, PROJECT_ENDPOINT, PageFactory, qh) {
       var ENDPOINT = REST_BASE_URL + PROJECT_ENDPOINT;
 
-      var Project = $resource(ENDPOINT, {
+      var resource = $resource(ENDPOINT, {
         projectId: '@id'
       },{
         update: {
-          method: 'PUT',
+          method: 'PUT'
         },
-        getAllForProductVersion: {
+        _getAllForProductVersion: {
           method: 'GET',
           url: REST_BASE_URL +
-          '/projects/products/:productId/product-versions/:versionId',
-          isArray: true,
+          '/projects/products/:productId/product-versions/:versionId'
+        },
+        _getAll: {
+          method: 'GET',
+          url: ENDPOINT + qh.searchOnly(['name', 'description'])
         }
       });
 
-      return Project;
+      PageFactory.decorateNonPaged(resource, '_getAll', 'query');
+      PageFactory.decorateNonPaged(resource, '_getAllForProductVersion', 'getAllForProductVersion');
+
+      PageFactory.decorate(resource, '_getAll', 'getAll');
+
+      return resource;
     }
   ]);
 

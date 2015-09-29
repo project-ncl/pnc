@@ -24,9 +24,6 @@
   module.value('BUILD_RECORD_ENDPOINT', '/build-records/:recordId');
 
   /**
-   * @ngdoc service
-   * @name // TODO
-   * @description
    *
    */
   module.factory('BuildRecordDAO', [
@@ -36,66 +33,77 @@
     'BUILD_RECORD_ENDPOINT',
     'BuildConfigurationDAO',
     'UserDAO',
-    function($resource, cachedGetter, REST_BASE_URL, BUILD_RECORD_ENDPOINT, BuildConfigurationDAO, UserDAO) {
+    'PageFactory',
+    'QueryHelper',
+    function($resource, cachedGetter, REST_BASE_URL, BUILD_RECORD_ENDPOINT,
+             BuildConfigurationDAO, UserDAO, PageFactory, qh) {
       var ENDPOINT = REST_BASE_URL + BUILD_RECORD_ENDPOINT;
 
-      var BuildRecord = $resource(ENDPOINT, {
+      var resource = $resource(ENDPOINT, {
         recordId: '@id',
         q: '@q'
       }, {
-
+        _getAll: {
+          method: 'GET',
+          url: ENDPOINT + qh.searchOnly(['buildConfigurationAudited.name', 'buildConfigurationAudited.project.name'])
+        },
         getLog: {
           method: 'GET',
           url: ENDPOINT + '/log',
-          isArray: false,
           transformResponse: function(data) { return { payload: data }; }
         },
-
-        getArtifacts: {
+        _getArtifacts: {
           method: 'GET',
-          url: ENDPOINT + '/artifacts',
-          isArray: true,
+          url: ENDPOINT + '/artifacts'
         },
-
-        getAllForConfiguration: {
+        _getByConfiguration: {
           method: 'GET',
-          url: REST_BASE_URL + '/build-records/build-configurations/:configurationId',
-          isArray: true,
+          url: REST_BASE_URL + '/build-records/build-configurations/:configurationId' +
+            qh.searchOnly(['buildConfigurationAudited.name'])
         },
-
-        getAllForProject: {
+        _getAllForProject: {
           method: 'GET',
-          url: REST_BASE_URL + 'record/projects/:projectId',
-          isArray: true,
+          url: REST_BASE_URL + 'record/projects/:projectId'
         },
-
-        getLatestForConfiguration: {
+        _getLatestForConfiguration: {
           method: 'GET',
-          url: REST_BASE_URL + '/build-records/build-configurations/:configurationId?pageIndex=0&pageSize=1&sort==desc=id',
-          isArray: true,
+          url: REST_BASE_URL + '/build-records/build-configurations/:configurationId?pageIndex=0&pageSize=1&sort==desc=id'
         },
-
         getAuditedBuildConfiguration: {
           method: 'GET',
-          url: ENDPOINT + '/build-configuration-audited',
-          isArray: false
+          url: ENDPOINT + '/build-configuration-audited'
+        },
+        _getByBCSetRecord: {
+          method: 'GET',
+          url: REST_BASE_URL + '/build-records' +
+          '?q=' + qh.search(['buildConfigSetRecord.buildConfigurationSet.name']) +
+          ';buildConfigSetRecord.id==:bcSetRecordId'
         }
-
       });
 
-      BuildRecord.prototype.getBuildConfiguration = cachedGetter(
+      PageFactory.decorateNonPaged(resource, '_getAll', 'query');
+      PageFactory.decorateNonPaged(resource, '_getArtifacts', 'getArtifacts');
+      PageFactory.decorateNonPaged(resource, '_getByConfiguration', 'getByConfiguration');
+      PageFactory.decorateNonPaged(resource, '_getAllForProject', 'getAllForProject');
+      PageFactory.decorateNonPaged(resource, '_getLatestForConfiguration', 'getLatestForConfiguration');
+
+      PageFactory.decorate(resource, '_getAll', 'getPaged');
+      PageFactory.decorate(resource, '_getByConfiguration', 'getPagedByConfiguration');
+      PageFactory.decorate(resource, '_getByBCSetRecord', 'getPagedByBCSetRecord');
+
+      resource.prototype.getBuildConfiguration = cachedGetter(
         function(buildRecord) {
           return BuildConfigurationDAO.get({ configurationId: buildRecord.buildConfigurationId });
         }
       );
 
-      BuildRecord.prototype.getUser = cachedGetter(
+      resource.prototype.getUser = cachedGetter(
         function(record) {
           return UserDAO.get({ userId: record.userId });
         }
       );
 
-      return BuildRecord;
+      return resource;
     }
 
   ]);

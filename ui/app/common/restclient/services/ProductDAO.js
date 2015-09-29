@@ -17,39 +17,46 @@
  */
 'use strict';
 
-(function() {
+(function () {
 
   var module = angular.module('pnc.common.restclient');
 
   module.value('PRODUCT_ENDPOINT', '/products/:productId');
 
   /**
-   * @ngdoc service
-   * @name // TODO
-   * @description
    *
    */
   module.factory('ProductDAO', [
     '$resource',
     'REST_BASE_URL',
     'PRODUCT_ENDPOINT',
-    function($resource, REST_BASE_URL, PRODUCT_ENDPOINT) {
+    'PageFactory',
+    'QueryHelper',
+    function ($resource, REST_BASE_URL, PRODUCT_ENDPOINT, PageFactory, qh) {
       var ENDPOINT = REST_BASE_URL + PRODUCT_ENDPOINT;
 
-      var Product = $resource(ENDPOINT, {
+      var resource = $resource(ENDPOINT, {
         productId: '@id'
       }, {
-        update: {
-          method: 'PUT',
-        },
-        getVersions: {
+        _getAll: {
           method: 'GET',
-          url:  ENDPOINT + '/product-versions',
-          isArray: true
+          url: ENDPOINT + qh.searchOnly(['name', 'description', 'abbreviation', 'productCode', 'pgmSystemName'])
+        },
+        update: {
+          method: 'PUT'
+        },
+        _getVersions: {
+          method: 'GET',
+          url: ENDPOINT + '/product-versions'
         }
       });
 
-      return Product;
+      PageFactory.decorateNonPaged(resource, '_getAll', 'query');
+      PageFactory.decorateNonPaged(resource, '_getVersions', 'getVersions');
+
+      PageFactory.decorate(resource, '_getAll', 'getAll');
+
+      return resource;
     }
   ]);
 

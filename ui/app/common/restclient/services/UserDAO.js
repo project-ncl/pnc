@@ -24,18 +24,26 @@
   module.value('USER_ENDPOINT', '/users/:userId');
 
   /**
-   * @ngdoc service
+   * @author Alex Creasy
+   * @author Jakub Senko
    */
   module.factory('UserDAO', [
     '$resource',
     'REST_BASE_URL',
     'USER_ENDPOINT',
-    function ($resource, REST_BASE_URL, USER_ENDPOINT) {
+    'PageFactory',
+    function ($resource, REST_BASE_URL, USER_ENDPOINT, PageFactory) {
       var ENDPOINT = REST_BASE_URL + USER_ENDPOINT;
 
       var resource = $resource(ENDPOINT, {
         userId: '@id'
-      }, {});
+      }, {
+        _getAll: {
+          method: 'GET'
+        }
+      });
+
+      PageFactory.decorateNonPaged(resource, '_getAll', 'query');
 
       return resource;
     }
