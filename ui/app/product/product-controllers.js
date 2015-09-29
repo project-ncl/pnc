@@ -152,7 +152,17 @@
       // Update a product version after editing
       that.update = function() {
         $log.debug('Updating product version: %O', that.version);
-        that.version.$update();
+        that.version.$update(
+        ).then(
+          function() {
+            $state.go('product.detail.version', {
+              productId: productDetail.id,
+              versionId: versionDetail.id
+            }, {
+              reload: true
+            });
+          }
+        );
       };
 
       // Update a product version after editing
