@@ -23,14 +23,18 @@ import org.jboss.pnc.spi.events.BuildStatusChangedEvent;
 import org.jboss.pnc.spi.notifications.Notifier;
 import org.jboss.pnc.spi.notifications.OutputConverter;
 import org.jboss.pnc.spi.notifications.model.NotificationFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 import javax.websocket.OnClose;
+import javax.websocket.OnError;
 import javax.websocket.OnOpen;
 import javax.websocket.Session;
 import javax.websocket.server.ServerEndpoint;
+import java.lang.invoke.MethodHandles;
 
 /**
  * Web Sockets notification implementation.
@@ -38,6 +42,8 @@ import javax.websocket.server.ServerEndpoint;
 @ApplicationScoped
 @ServerEndpoint(NotificationsEndpoint.ENDPOINT_PATH)
 public class NotificationsEndpoint {
+
+    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
     public static final String ENDPOINT_PATH = "/ws/build-records/notifications";
 
@@ -61,6 +67,12 @@ public class NotificationsEndpoint {
     @OnClose
     public void detach(Session detachedSession) {
         notifier.detachClient(new SessionBasedAttachedClient(detachedSession, outputConverter));
+    }
+
+    @OnError
+    public void onError(Session session, Throwable t) {
+        logger.warn("An error occurred in client: " + session + ". Removing it", t);
+        notifier.detachClient(new SessionBasedAttachedClient(session, outputConverter));
     }
 
     public void collectBuildStatusChangedEvent(@Observes BuildStatusChangedEvent buildStatusChangedEvent) {
