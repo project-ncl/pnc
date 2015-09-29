@@ -252,9 +252,13 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
             User currentUser = null;
             if(loggedUser != null && loggedUser != "") {
                 currentUser = datastore.retrieveUserByUsername(loggedUser);
-                if(currentUser != null) {
-                    currentUser.setLoginToken(authProvider.getTokenString());
-                }
+            }
+            if(currentUser != null) {
+                currentUser.setLoginToken(authProvider.getTokenString());
+            }
+            else{
+                throw new Exception("No such user exists to trigger builds. Before triggering builds"
+                        + " user must be initialized through /users/getLoggedUser"); 
             }
             
             Integer runningBuildId = null;
