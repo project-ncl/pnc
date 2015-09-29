@@ -17,11 +17,9 @@
  */
 package org.jboss.pnc.rest.provider;
 
-import com.google.common.base.Strings;
 import org.jboss.pnc.core.builder.coordinator.BuildCoordinator;
 import org.jboss.pnc.core.builder.coordinator.BuildTask;
 import org.jboss.pnc.core.builder.executor.BuildExecutor;
-import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.rest.provider.collection.CollectionInfo;
 import org.jboss.pnc.rest.provider.collection.CollectionInfoCollector;
@@ -45,6 +43,7 @@ import java.io.Writer;
 import java.lang.invoke.MethodHandles;
 import java.util.List;
 import java.util.function.Function;
+import java.util.function.Predicate;
 
 import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
 import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.*;
@@ -69,24 +68,68 @@ public class BuildRecordProvider extends AbstractProvider<BuildRecord, BuildReco
         this.buildExecutor = buildExecutor;
     }
 
-    public CollectionInfo<BuildRecordRest> getAllRunning(Integer pageIndex, Integer pageSize, String sortingRsql, String rsql) {
-        if(!Strings.isNullOrEmpty(sortingRsql)) {
-            logger.warn("Sorting RSQL is not supported, ignoring");
-        }
-
-        if(!Strings.isNullOrEmpty(rsql)) {
-            logger.warn("Querying RSQL is not supported, ignoring");
-        }
-
-        return nullableStreamOf(buildCoordinator.getActiveBuildTasks()).map(submittedBuild -> createNewBuildRecordRest(submittedBuild))
+    public CollectionInfo<BuildRecordRest> getAllRunning(Integer pageIndex, Integer pageSize, String search) {
+        List<BuildTask> x = buildCoordinator.getActiveBuildTasks();
+        return nullableStreamOf(x)
+                .filter(t -> t != null)
+                .filter(task -> search == null
+                        || "".equals(search)
+                        || String.valueOf(task.getId()).contains(search)
+                        || (task.getBuildConfigurationAudited() != null
+                        && task.getBuildConfigurationAudited().getName() != null
+                        && task.getBuildConfigurationAudited().getName().contains(search)))
+                .sorted((t1, t2) -> t1.getId() - t2.getId())
+                .map(submittedBuild -> createNewBuildRecordRest(submittedBuild))
                 .skip(pageIndex * pageSize)
                 .limit(pageSize)
-                .collect(new CollectionInfoCollector<>(pageIndex, pageSize, buildCoordinator.getActiveBuildTasks().size()));
+                .collect(new CollectionInfoCollector<>(pageIndex, pageSize,
+                        (int) Math.ceil((double) buildCoordinator.getActiveBuildTasks().size() / pageSize)));
+    }
+
+
+    public CollectionInfo<BuildRecordRest> getAllRunningForBC(int pageIndex, int pageSize, String search, Integer bcId) {
+        List<BuildTask> x = buildCoordinator.getActiveBuildTasks();
+        return nullableStreamOf(x)
+                .filter(t -> t != null)
+                .filter(t -> t.getBuildConfigurationAudited() != null
+                        && bcId.equals(t.getBuildConfigurationAudited().getId().getId()))
+                .filter(task -> search == null
+                        || "".equals(search)
+                        || String.valueOf(task.getId()).contains(search)
+                        || (task.getBuildConfigurationAudited() != null
+                        && task.getBuildConfigurationAudited().getName() != null
+                        && task.getBuildConfigurationAudited().getName().contains(search)))
+                .sorted((t1, t2) -> t1.getId() - t2.getId())
+                .map(submittedBuild -> createNewBuildRecordRest(submittedBuild))
+                .skip(pageIndex * pageSize)
+                .limit(pageSize)
+                .collect(new CollectionInfoCollector<>(pageIndex, pageSize,
+                        (int) Math.ceil((double) buildCoordinator.getActiveBuildTasks().size() / pageSize)));
     }
 
     private BuildRecordRest createNewBuildRecordRest(BuildTask submittedBuild) {
         return new BuildRecordRest(buildExecutor.getRunningExecution(submittedBuild.getId()), submittedBuild.getSubmitTime());
     }
+
+    public CollectionInfo<Object> getAllRunningForBCSetRecord(int pageIndex, int pageSize, String search, Integer bcSetRecordId) {
+        return nullableStreamOf(buildCoordinator.getActiveBuildTasks())
+                .filter(t -> t != null)
+                .filter(t -> t.getBuildSetTask() != null
+                        && bcSetRecordId.equals(t.getBuildSetTask().getId()))
+                .filter(task -> search == null
+                        || "".equals(search)
+                        || String.valueOf(task.getId()).contains(search)
+                        || (task.getBuildConfigurationAudited() != null
+                        && task.getBuildConfigurationAudited().getName() != null
+                        && task.getBuildConfigurationAudited().getName().contains(search)))
+                .sorted((t1, t2) -> t1.getId() - t2.getId())
+                .map(submittedBuild -> createNewBuildRecordRest(submittedBuild))
+                .skip(pageIndex * pageSize)
+                .limit(pageSize)
+                .collect(new CollectionInfoCollector<>(pageIndex, pageSize,
+                        (int) Math.ceil((double) buildCoordinator.getActiveBuildTasks().size() / pageSize)));
+    }
+
 
     public CollectionInfo<BuildRecordRest> getAllForBuildConfiguration(int pageIndex, int pageSize, String sortingRsql,
             String query, Integer configurationId) {
