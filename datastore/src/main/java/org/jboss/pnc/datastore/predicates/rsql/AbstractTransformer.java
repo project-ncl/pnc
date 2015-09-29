@@ -31,14 +31,17 @@ abstract class AbstractTransformer<Entity extends GenericEntity<? extends Number
         return transform(r, selectWithOperand(r, operand), cb, operand, argumentHelper.getConvertedType(selectingClass, operand, arguments));
     }
 
-    public Path<Entity> selectWithOperand(Root<Entity> r, String operand) {
-        String [] splittedFields = operand.split("\\.");
-        Path<Entity> currentPath = r;
-        for(int i = 0; i < splittedFields.length - 1; ++i) {
-            currentPath = r.join(splittedFields[i]);
+    public static Path<?> selectWithOperand(Root<?> root, String operand) {
+        String [] fields = operand.split("\\.");
+        Path<?> path = root;
+        for(int i = 0; i < fields.length - 1; i++) {
+            if(i == 0)
+                path = ((Root<?>)path).join(fields[i]);
+            else
+                path = ((Join<?, ?>)path).join(fields[i]);
         }
-        return currentPath.get(splittedFields[splittedFields.length - 1]);
+        return path.get(fields[fields.length - 1]);
     }
 
-    abstract Predicate transform(Root<Entity> r, Path<Entity> selectedPath, CriteriaBuilder cb, String operand, List<Object> convertedArguments);
+    abstract Predicate transform(Root<Entity> r, Path<?> selectedPath, CriteriaBuilder cb, String operand, List<Object> convertedArguments);
 }
