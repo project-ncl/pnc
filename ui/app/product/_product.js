@@ -50,9 +50,9 @@
       controllerAs: 'listCtrl',
       resolve: {
         productList: function(ProductDAO) {
-          return ProductDAO.query().$promise;
+          return ProductDAO.getAll();
         }
-      },
+      }
     });
 
     $stateProvider.state('product.detail', {
@@ -69,8 +69,8 @@
           .$promise;
         },
         productVersions: function(ProductDAO, productDetail) {
-          return ProductDAO.getVersions({ productId: productDetail.id }).$promise;
-        },
+          return ProductDAO.getVersions({ productId: productDetail.id });
+        }
       }
     });
 
@@ -105,16 +105,8 @@
         buildConfigurations: function(BuildConfigurationDAO, $stateParams) {
           return BuildConfigurationDAO.getAllForProductVersion({
             productId: $stateParams.productId,
-            versionId: $stateParams.versionId }).$promise;
-        },
-        productReleases: function(ProductReleaseDAO, $stateParams) {
-          return ProductReleaseDAO.getAllForProductVersion({
-            versionId: $stateParams.versionId }).$promise;
-        },
-        productMilestones: function(ProductMilestoneDAO, $stateParams) {
-          return ProductMilestoneDAO.getAllForProductVersion({
-            versionId: $stateParams.versionId }).$promise;
-        },
+            versionId: $stateParams.versionId });
+        }
       }
     });
 

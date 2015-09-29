@@ -1,0 +1,76 @@
+<!--
+
+    JBoss, Home of Professional Open Source.
+    Copyright 2014 Red Hat, Inc., and individual contributors
+    as indicated by the @author tags.
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+<pnc-header>
+  <pnc-header-title>
+    <small>Milestones</small>
+  </pnc-header-title>
+  <pnc-header-buttons>
+    <button type="button" class="btn btn-lg btn-default" data-toggle="tooltip" title="Create Milestone"
+            ui-sref="product.detail.version.milestoneCreate">
+      <i class="pficon pficon-add"></i> Create
+    </button>
+  </pnc-header-buttons>
+</pnc-header>
+<table class="table table-bordered table-striped">
+  <thead>
+  <th>Name</th>
+  <th>Starting date</th>
+  <th>Planned release date</th>
+  <th>Release date</th>
+  <th>Deliverables</th>
+  <th>Build Record Set</th>
+  <th>Actions</th>
+  </thead>
+  <tbody>
+  <tr ng-repeat="productmilestone in page.data">
+    <td>
+      <span class="label label-default"
+            ng-class="{ 'label label-primary' : productmilestone.id == version.currentProductMilestoneId }">{{ productmilestone.version }}</span>
+    </td>
+    <td>{{ productmilestone.startingDate | date:'yyyy/MM/dd'}}</td>
+    <td>{{ productmilestone.plannedReleaseDate | date:'yyyy/MM/dd'}}</td>
+    <td>{{ productmilestone.releaseDate | date:'yyyy/MM/dd'}}</td>
+    <td class="text-center">
+      <a ng-show="productmilestone.downloadUrl != undefined" ng-href="{{ productmilestone.downloadUrl }}" target="_self"
+         class="btn btn-default" title="Download Deliverables">
+        <i class="glyphicon glyphicon-download-alt"></i>
+      </a>
+    </td>
+    <td>{{ productmilestone.buildRecordSetId }}</td>
+    <td class="text-center">
+      <a ng-show="productmilestone.releaseDate == undefined"
+         pnc-confirm-click="markCurrentMilestone(productmilestone)"
+         pnc-confirm-message="{{ 'Mark Milestone ' + productmilestone.version + ' as current ?'}}"
+         title="Mark Milestone as current" class="btn btn-default"><i class="fa fa-clock-o"></i></a>
+      <a ng-show="productmilestone.releaseDate == undefined"
+         ui-sref="product.detail.version.milestoneUpdate({ milestoneId: productmilestone.id })" title="Update Milestone"
+         class="btn btn-default"><i class="pficon pficon-edit"></i></a>
+      <a ng-show="productmilestone.releaseDate == undefined"
+         ui-sref="product.detail.version.milestoneClose({ milestoneId: productmilestone.id })" title="Release Milestone"
+         class="btn btn-default"><i class="fa fa-lock"></i></a>
+      <a ng-show="productmilestone.releaseDate != undefined"
+         pnc-confirm-click="unreleaseMilestone(productmilestone)"
+         pnc-confirm-message="{{ 'Confirm the unrelease of Milestone: ' + productmilestone.version + ' ?'}}"
+         title="Unrelease Milestone" class="btn btn-default"><i class="fa fa-unlock-alt"></i></a>
+    </td>
+  </tr>
+  </tbody>
+</table>
+<pnc-pager class="pull-right" page="page"></pnc-pager>
