@@ -35,7 +35,8 @@
         restrict: 'E',
         templateUrl: 'product/directives/pncProductVersionBCSets/pnc-product-version-bcsets.html',
         scope: {
-          version: '='
+          version: '=',
+          product: '='
         },
         link: function (scope) {
 
