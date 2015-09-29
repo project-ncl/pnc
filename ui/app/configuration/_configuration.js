@@ -54,7 +54,7 @@
       controllerAs: 'listCtrl',
       resolve: {
         configurationList: function(BuildConfigurationDAO) {
-          return BuildConfigurationDAO.query().$promise;
+          return BuildConfigurationDAO.getAll();
         }
       }
     });
@@ -69,16 +69,16 @@
       controllerAs: 'createCtrl',
       resolve: {
         environments: function(EnvironmentDAO) {
-          return EnvironmentDAO.query().$promise;
+          return EnvironmentDAO.query();
         },
         projects: function(ProjectDAO) {
-          return ProjectDAO.query().$promise;
+          return ProjectDAO.query();
         },
         products: function(ProductDAO) {
-          return ProductDAO.query().$promise;
+          return ProductDAO.query();
         },
         configurations: function(BuildConfigurationDAO) {
-          return BuildConfigurationDAO.query().$promise;
+          return BuildConfigurationDAO.query();
         }
       },
     });
@@ -130,25 +130,25 @@
             projectId: configurationDetail.projectId }).$promise;
         },
         buildRecordList: function(BuildRecordDAO, $stateParams) {
-          return BuildRecordDAO.getAllForConfiguration({
-            configurationId: $stateParams.configurationId }).$promise;
+          return BuildRecordDAO.getByConfiguration({
+            configurationId: $stateParams.configurationId });
         },
         runningBuildRecordList: function(RunningBuildRecordDAO) {
-          return RunningBuildRecordDAO.query().$promise;
+          return RunningBuildRecordDAO.query();
         },
         products: function(ProductDAO) {
-          return ProductDAO.query().$promise;
+          return ProductDAO.query();
         },
         configurations: function(BuildConfigurationDAO) {
-          return BuildConfigurationDAO.query().$promise;
+          return BuildConfigurationDAO.query();
         },
         productVersions: function(BuildConfigurationDAO, $stateParams) {
           return BuildConfigurationDAO.getProductVersions({
-            configurationId: $stateParams.configurationId }).$promise;
+            configurationId: $stateParams.configurationId });
         },
         dependencies: function(BuildConfigurationDAO, $stateParams) {
           return BuildConfigurationDAO.getDependencies({
-            configurationId: $stateParams.configurationId }).$promise;
+            configurationId: $stateParams.configurationId });
         }
       }
     });

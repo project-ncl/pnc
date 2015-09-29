@@ -32,7 +32,7 @@
       this.configurations = configurationList;
       this.projects = [];
 
-      angular.forEach(this.configurations, function(configuration) {
+      angular.forEach(this.configurations.data, function(configuration) {
         ProjectDAO.get({
           projectId: configuration.projectId
         }).$promise.then(
@@ -93,8 +93,10 @@
         all: [],
 
         update: function() {
-          that.productVersions.all = ProductDAO.getVersions({
+          ProductDAO.getVersions({
             productId: that.products.selected.id
+          }).then(function(data) {
+            that.productVersions.all = data;
           });
         },
         getItems: function($viewValue) {
@@ -154,8 +156,10 @@
         all: [],
 
         update: function() {
-          that.productVersions.all = ProductDAO.getVersions({
+          ProductDAO.getVersions({
             productId: that.products.selected.id
+          }).then(function(data) {
+            that.productVersions.all = data;
           });
         },
         getItems: function($viewValue) {
