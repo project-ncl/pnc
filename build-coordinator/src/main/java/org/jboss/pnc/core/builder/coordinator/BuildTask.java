@@ -279,7 +279,7 @@ public class BuildTask {
         return "Build Task id:" + id + ", name: " + buildConfigurationAudited.getName() + ", status: " + status;
     }
 
-    static BuildTask build(BuildConfiguration buildConfiguration,
+    public static BuildTask build(BuildConfiguration buildConfiguration,
             BuildConfigurationAudited buildConfigAudited,
             User user,
             Event<BuildStatusChangedEvent> buildStatusChangedEventNotifier,
