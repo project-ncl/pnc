@@ -79,15 +79,18 @@
       <div class="collapse navbar-collapse navbar-collapse-1">
         <!-- user menu -->
           <ul class="nav navbar-nav navbar-utility" ng-controller="authenticationController as authCtrl">
-            <li class="dropdown">
+            <li class="dropdown" ng-show="authCtrl.isAuthenticated()">
               <a href class="dropdown-toggle" data-toggle="dropdown">
                 <span class="pficon pficon-user"></span>{{ authCtrl.username }}<b class="caret"></b>
               </a>
               <ul class="dropdown-menu">
-                <li ng-class="{ 'disabled': !authCtrl.isAuthenticated }">
+                <li>
                   <a href ng-click="authCtrl.logout()">Logout</a>
                 </li>
               </ul>
+            </li>
+            <li ng-hide="authCtrl.isAuthenticated()">
+              <a href ng-click="authCtrl.login()">Login</a>
             </li>
           </ul>
         <ul class="nav navbar-nav navbar-primary">

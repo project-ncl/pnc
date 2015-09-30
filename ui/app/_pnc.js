@@ -53,7 +53,7 @@
       if (authEnabled) {
 
         keycloak = new Keycloak('keycloak.json');
-        keycloak.init({ onLoad: 'login-required' }).success(function () {
+        keycloak.init({ onLoad: 'check-sso' }).success(function () {
           startAngular();
         }).error(function () {
           window.location.reload();

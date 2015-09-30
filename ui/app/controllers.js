@@ -22,8 +22,9 @@
 
     app.controller('authenticationController', ['authService', function(authService) {
         this.username = authService.getPrinciple();
-        this.isAuthenticated = authService.isAuthenticated();
+        this.isAuthenticated = authService.isAuthenticated;
         this.logout = authService.logout;
+        this.login = authService.login;
     }]);
 
 })();

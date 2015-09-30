@@ -51,11 +51,19 @@
         },
 
         getPrinciple: function() {
-          return keycloak.idTokenParsed.preferred_username; // jshint ignore:line
+          if (keycloak.authenticated) {
+            return keycloak.idTokenParsed.preferred_username; // jshint ignore:line
+          } else {
+            return null;
+          }
         },
 
         logout: function() {
           keycloak.logout({ redirectUri: $window.location.href });
+        },
+
+        login: function() {
+          keycloak.login({ redirectUri: $window.location.href });
         }
       };
     }
@@ -97,10 +105,8 @@
 
               return deferred.promise;
             }
-
-            return config;
-
           }
+          return config;
         }
 
       };
