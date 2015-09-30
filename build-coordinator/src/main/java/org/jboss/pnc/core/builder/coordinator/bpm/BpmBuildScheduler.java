@@ -37,6 +37,7 @@ import org.jboss.pnc.model.Project;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.BuildStatus;
 import org.kie.api.runtime.KieSession;
+import org.kie.api.runtime.manager.RuntimeEngine;
 import org.kie.api.runtime.process.ProcessInstance;
 import org.kie.services.client.api.RemoteRestRuntimeEngineFactory;
 import org.slf4j.Logger;
@@ -208,16 +209,16 @@ public class BpmBuildScheduler implements BuildScheduler {
 
         logger.debug("[{}] Session parameters InstanceURL: {} deploymentId: {} User: {}", buildTask.getId(), instanceUrl, deploymentId, bpmEndpointUser);
 
-        RemoteRestRuntimeEngineFactory restSessionFactory = RemoteRestRuntimeEngineFactory.newBuilder()
+
+        RuntimeEngine restSessionFactory = RemoteRestRuntimeEngineFactory.newBuilder()
                 .addDeploymentId(deploymentId)
                 .addUrl(new URL(instanceUrl))
                 .addUserName(bpmEndpointUser)
                 .addPassword(bpmEndpointPassword)
-                .useFormBasedAuth(true)
                 .addTimeout(AUTHENTICATION_TIMEOUT_S)
                 .build();
 
-        return restSessionFactory.newRuntimeEngine().getKieSession();
+        return restSessionFactory.getKieSession();
     }
 
     String getProcessId(BuildTask buildTask) throws ConfigurationParseException {
