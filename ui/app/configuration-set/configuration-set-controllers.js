@@ -234,6 +234,14 @@
         );
       });
 
+      self.forceBuild = function() {
+        $log.debug('**Initiating FORCED build of SET: %s**', self.set.name);
+
+        BuildConfigurationSetDAO.forceBuild({
+          configurationSetId: self.set.id
+        }, {});
+      };
+
       self.build = function() {
         $log.debug('**Initiating build of SET: %s**', self.set.name);
 

@@ -37,9 +37,21 @@
   <tr ng-repeat="buildconfigurationset in page.data">
     <td><a href ui-sref="configuration-set.detail({ configurationSetId: buildconfigurationset.id })">{{ buildconfigurationset.name }}</a></td>
     <td class="table-data-5-column-even-width">
-      <button type="button" class="btn btn-sm btn-default" data-toggle="tooltip" title="Start Build" ng-click="buildConfigSet(buildconfigurationset)">
-        <i class="fa fa-play"></i> Build
-      </button>
+      <div class="btn-group">
+        <button class="btn btn-default ng-scope" tooltip="Start Build" tooltip-placement="bottom" ng-click="buildConfigSet(buildconfigurationset)">
+          <i class="fa fa-play"></i>
+          <span class="shrink">Build</span>
+        </button>
+        <ul class="dropdown-menu"></ul>
+          <button class="btn btn-default dropdown-toggle ng-scope" tooltip="Start Build forcing rebuilds" tooltip-placement="bottom" data-toggle="dropdown">
+            <span class="caret"></span>
+          </button>
+          <ul class="dropdown-menu">
+            <li>
+              <a href ng-click="forceBuildConfigSet(buildconfigurationset)"><span><i class="fa fa-play fa-color-red"></i>   Build forcing all rebuilds</span></a>
+            </li>
+          </ul>
+      </div>
     </td>
   </tr>
   </tbody>
