@@ -40,6 +40,7 @@
           </a>
         </td>
         <td>{{ record.endTime | date:'medium' }}</td>
+        <td class="text-bold">{{ record.getUser().username }}</td>
       </tr>
       <tr ng-hide="page.data.length">
         <td>

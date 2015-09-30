@@ -38,7 +38,6 @@
     <th>Name</th>
     <th>Created</th>
     <th>Modified</th>
-    <th>User</th>
     <th>Last Executed Build</th>
     <th>Actions</th>
     </thead>
@@ -51,12 +50,12 @@
       </td>
       <td>{{ configuration.creationTime | date:'medium'}}</td>
       <td>{{ configuration.lastModificationTime | date:'medium'}}</td>
-      <td>John Doe</td>
       <td>
         <div ng-repeat="buildRecord in latestBuildRecords[configuration.id]">
           <build-status-icon status="buildRecord.status"></build-status-icon>
           <span><a href ui-sref="record.detail.info({recordId: buildRecord.id})"> # {{ buildRecord.id }}  </a></span>
-          {{ buildRecord.endTime | date:'medium'}}
+          {{ buildRecord.endTime | date:'medium'}},
+          <span class="text-bold">   {{ buildRecord.getUser().username }}</span>
         </div>
         <em ng-hide="latestBuildRecords[configuration.id].length">none</em>
       </td>
