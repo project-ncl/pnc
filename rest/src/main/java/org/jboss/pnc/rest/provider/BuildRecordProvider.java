@@ -19,6 +19,7 @@ package org.jboss.pnc.rest.provider;
 
 import org.jboss.pnc.core.builder.coordinator.BuildCoordinator;
 import org.jboss.pnc.core.builder.coordinator.BuildTask;
+import org.jboss.pnc.core.builder.executor.BuildExecutionTask;
 import org.jboss.pnc.core.builder.executor.BuildExecutor;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.rest.provider.collection.CollectionInfo;
@@ -43,10 +44,11 @@ import java.io.Writer;
 import java.lang.invoke.MethodHandles;
 import java.util.List;
 import java.util.function.Function;
-import java.util.function.Predicate;
 
 import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
-import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.*;
+import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withBuildConfigSetId;
+import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withBuildConfigurationId;
+import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withProjectId;
 
 @Stateless
 public class BuildRecordProvider extends AbstractProvider<BuildRecord, BuildRecordRest> {
@@ -181,7 +183,10 @@ public class BuildRecordProvider extends AbstractProvider<BuildRecord, BuildReco
         }
         BuildTask buildTask = getSubmittedBuild(id);
         if (buildTask != null) {
-            return createNewBuildRecordRest(buildTask);
+            BuildExecutionTask runningExecution = buildExecutor.getRunningExecution(buildTask.getId());
+            if(runningExecution != null) {
+                return createNewBuildRecordRest(buildTask);
+            }
         }
         return null;
     }
