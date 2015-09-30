@@ -130,6 +130,10 @@ ul.pagination.pull-right {
   color: red;
 }
 
+.text-bold {
+  font-weight: bold;
+}
+
 button.debutton {
   -webkit-appearance: none;
   padding: 0;
