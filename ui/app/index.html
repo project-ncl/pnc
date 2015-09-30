@@ -90,7 +90,7 @@
               </ul>
             </li>
             <li ng-hide="authCtrl.isAuthenticated()">
-              <a href ng-click="authCtrl.login()">Login</a>
+              <a href ng-click="authCtrl.login()"><span class="pficon pficon-user"></span>Login</a>
             </li>
           </ul>
         <ul class="nav navbar-nav navbar-primary">
@@ -129,8 +129,7 @@
       <div ui-view="content"></div>
     </div>
 
-<!--     <div class="container-fluid" ui-view="content"></div>
- -->    <div class="footer" ng-cloak>
+    <div class="footer" ng-cloak>
       <div class="container">
         <div ng-include="'common/templates/footer.tmpl.html'"></div>
       </div><!-- /.container -->

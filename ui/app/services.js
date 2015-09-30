@@ -28,10 +28,6 @@
         keycloak = kc;
       },
 
-      useMockKeycloak: function() {
-        keycloak = newMockKeycloak();
-      },
-
       $get: ['$log', function($log) {
         $log.debug('keycloak=%O', keycloak);
         return keycloak;
@@ -161,29 +157,5 @@
       };
     }
   ]);
-
-  function newMockKeycloak() {
-
-    function nullFunction() {
-      return null;
-    }
-
-    return {
-
-      authenticated: false,
-      logout: nullFunction,
-      login: nullFunction,
-      token: 'token',
-
-      isTokenExpired: function() {
-        return false;
-      },
-
-      idTokenParsed: {
-        preferred_username: 'Authentication Disabled' // jshint ignore:line
-      },
-
-    };
-  }
 
 })();

@@ -38,43 +38,21 @@
     'pnc.common.restclient'
   ]);
 
-  var authEnabled = pnc_globals.enableAuth; // jshint ignore:line
   var keycloak;
 
+  // Bootstrap UI.
+  angular.element(document).ready(function () {
+    keycloak = new Keycloak('keycloak.json');
 
-  (function bootstrapPncUi() {
-
-    var startAngular = function() {
+    keycloak.init({ onLoad: 'check-sso' }).success(function () {
       angular.bootstrap(document, ['pnc']);
-    };
-
-    angular.element(document).ready(function () {
-
-      if (authEnabled) {
-
-        keycloak = new Keycloak('keycloak.json');
-        keycloak.init({ onLoad: 'check-sso' }).success(function () {
-          startAngular();
-        }).error(function () {
-          window.location.reload();
-        });
-
-      } else {
-
-        startAngular();
-
-      }
-
+    }).error(function () {
+      window.location.reload();
     });
-  })();
-
-
-  app.constant('PROPERTIES', {
-    AUTH_ENABLED: authEnabled
   });
 
   app.config(function($stateProvider, $urlRouterProvider, $locationProvider,
-    $httpProvider, keycloakProvider, NotificationsProvider, PROPERTIES) {
+    $httpProvider, keycloakProvider, NotificationsProvider) {
 
     $locationProvider.html5Mode(false);
 
@@ -119,13 +97,8 @@
     $httpProvider.interceptors.push('httpResponseInterceptor');
     $httpProvider.interceptors.push('unwrapPageResponseInterceptor');
 
-    if (PROPERTIES.AUTH_ENABLED) {
-      keycloakProvider.setKeycloak(keycloak);
-      $httpProvider.interceptors.push('httpAuthenticationInterceptor');
-    } else {
-      keycloakProvider.useMockKeycloak();
-    }
-
+    keycloakProvider.setKeycloak(keycloak);
+    $httpProvider.interceptors.push('httpAuthenticationInterceptor');
   });
 
   app.run(function($rootScope, $log, $state, authService, keycloak) {
