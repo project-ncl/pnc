@@ -67,24 +67,29 @@ public class DefaultNotifier implements Notifier {
 
     @Override
     public void sendMessage(Object message) {
-        for(Iterator<AttachedClient> attachedClientIterator = attachedClients.iterator(); attachedClientIterator.hasNext();) {
-            AttachedClient client = attachedClientIterator.next();
-            if(client.isEnabled()) {
-                try {
-                     client.sendMessage(message);
-                } catch (Exception e) {
-                    logger.error("Notification client threw an error, removing it", e);
-                    attachedClientIterator.remove();
+        // See http://docs.oracle.com/javase/6/docs/api/java/util/Collections.html#synchronizedSet%28java.util.Set%29
+        synchronized(attachedClients) {
+            for(Iterator<AttachedClient> attachedClientIterator = attachedClients.iterator(); attachedClientIterator.hasNext();) {
+                AttachedClient client = attachedClientIterator.next();
+                if (client.isEnabled()) {
+                    try {
+                        client.sendMessage(message);
+                    } catch (Exception e) {
+                        logger.error("Notification client threw an error, removing it", e);
+                        attachedClientIterator.remove();
+                    }
                 }
             }
         }
     }
 
     public void cleanUp() {
-        for(Iterator<AttachedClient> attachedClientIterator = attachedClients.iterator(); attachedClientIterator.hasNext();) {
-            AttachedClient client = attachedClientIterator.next();
-            if(!client.isEnabled()) {
-                attachedClientIterator.remove();
+        synchronized(attachedClients) {
+            for(Iterator<AttachedClient> attachedClientIterator = attachedClients.iterator(); attachedClientIterator.hasNext();) {
+                AttachedClient client = attachedClientIterator.next();
+                if (!client.isEnabled()) {
+                    attachedClientIterator.remove();
+                }
             }
         }
     }
