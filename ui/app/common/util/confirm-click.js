@@ -19,7 +19,7 @@
 
 (function() {
 
-  var module = angular.module('pnc.util.confirmClick', []);
+  var module = angular.module('pnc.util.confirmClick', ['pnc.util.sweetalert']);
 
   /**
    * @ngdoc directive
@@ -40,7 +40,7 @@
    * <button pnc-confirm-click="deleteAllTheThings()" pnc-confirm-message="Are
    * you sure you want to delete all the things?">Delete All The Things</button>
    */
-  module.directive('pncConfirmClick', function () {
+  module.directive('pncConfirmClick', function (sweetalert) {
     var DEFAULT_MESSAGE = 'Are you sure?';
 
     return {
@@ -48,9 +48,23 @@
       link: function(scope, element, attrs) {
         element.bind('click', function() {
           var message = attrs.pncConfirmMessage || DEFAULT_MESSAGE;
-          if (confirm(message)) { // jshint ignore:line
-            scope.$apply(attrs.pncConfirmClick);
-          }
+
+          sweetalert({
+            title: message,
+            type: 'warning',
+
+            showCancelButton: true,
+            confirmButtonColor: '#DD6B55',
+            confirmButtonText: 'Confirm!',
+
+            closeOnConfirm: false},
+
+            function(isConfirm) {
+               if (isConfirm) {
+                  scope.$apply(attrs.pncConfirmClick);
+                  sweetalert('Done!', '', 'success'); // jshint ignore:line
+               }
+            });
         });
       }
     };
