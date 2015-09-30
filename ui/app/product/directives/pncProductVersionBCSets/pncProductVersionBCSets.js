@@ -42,13 +42,22 @@
 
           scope.page = ProductVersionDAO.getPagedBCSets({versionId: scope.version.id });
 
-          // Executing a build of a configurationSet
+          // Executing a build of a configurationSet forcing all the rebuilds
+          scope.forceBuildConfigSet = function(configSet) {
+            $log.debug('**Initiating FORCED build of SET: %s**', configSet.name);
+            BuildConfigurationSetDAO.forceBuild({
+              configurationSetId: configSet.id
+            }, {});
+          };
+
+          // Executing a build of a configurationSet NOT forcing all the rebuilds
           scope.buildConfigSet = function(configSet) {
             $log.debug('**Initiating build of SET: %s**', configSet.name);
             BuildConfigurationSetDAO.build({
               configurationSetId: configSet.id
             }, {});
           };
+
         }
       };
     }

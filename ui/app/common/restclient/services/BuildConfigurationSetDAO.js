@@ -50,12 +50,16 @@
           method: 'GET',
           url: ENDPOINT + '/build-configurations' + qh.searchOnly(['name'])
         },
-        build: {
+        forceBuild: {
           method: 'POST',
           url: ENDPOINT + '/build',
           params: {
             rebuildAll: true
           }
+        },
+        build: {
+          method: 'POST',
+          url: ENDPOINT + '/build'
         },
         removeConfiguration: {
           method: 'DELETE',

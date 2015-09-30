@@ -21,9 +21,21 @@
   <pnc-header>
     <pnc-header-title>{{ detailSetCtrl.set.name }}</pnc-header-title>
     <pnc-header-buttons>
-      <button type="button" class="btn btn-lg btn-default" data-toggle="tooltip" title="Start Build" ng-click="detailSetCtrl.build()">
-        <i class="fa fa-play"></i> Build
-      </button>
+      <div class="btn-group">
+        <button class="btn btn-lg btn-default ng-scope" tooltip="Start Build" tooltip-placement="bottom" ng-click="detailSetCtrl.build()">
+          <i class="fa fa-play"></i>
+          <span class="shrink">Build</span>
+        </button>
+        <ul class="dropdown-menu"></ul>
+          <button class="btn btn-lg btn-default dropdown-toggle ng-scope" tooltip="Start Build forcing rebuilds" tooltip-placement="bottom" data-toggle="dropdown">
+            <span class="caret"></span>
+          </button>
+          <ul class="dropdown-menu">
+            <li>
+              <a href ng-click="detailSetCtrl.forceBuild()"><span><i class="fa fa-play fa-color-red"></i>   Build forcing all rebuilds</span></a>
+            </li>
+          </ul>
+      </div>
       <button type="button" class="btn btn-lg btn-default" data-toggle="tooltip" title="Edit Configuration" ng-click="setEditForm.$show()" ng-class="{ 'active': setEditForm.$visible }">
         <i class="pficon pficon-edit"></i> Edit
       </button>
