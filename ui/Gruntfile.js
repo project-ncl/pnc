@@ -76,12 +76,6 @@ module.exports = function (grunt) {
     }]);
   });
 
-  // Signals to the UI whether authentication should be enabled or not.
-  grunt.registerTask('initAuth', function() {
-    var enableAuth = grunt.option('enable-auth') || 'false';
-    grunt.file.write(appConfig.tmp + '/pnc-props.js', 'pnc_globals = {};\npnc_globals.enableAuth = ' + enableAuth + ';');
-  });
-
   // Define the configuration for all the tasks
   grunt.initConfig({
 
@@ -513,7 +507,6 @@ module.exports = function (grunt) {
     grunt.task.run([
       'initRestConfig',
       'clean:server',
-      'initAuth',
       'wiredep',
       'includeSource:server',
       'concurrent:server',
@@ -542,7 +535,6 @@ module.exports = function (grunt) {
   grunt.registerTask('build', [
     'initRestConfig',
     'clean:dist',
-    'initAuth',
     'copy:fonts',
     'wiredep',
     'includeSource:dist',

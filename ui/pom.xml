@@ -169,18 +169,5 @@
         </plugins>
       </build>
     </profile>
-
-    <profile>
-      <id>auth</id>
-      <activation>
-        <property>
-          <name>auth</name>
-          <value>true</value>
-        </property>
-      </activation>
-      <properties>
-        <grunt.build.arguments>dist --enable-auth=true</grunt.build.arguments>
-      </properties>
-    </profile>
   </profiles>
 </project>
