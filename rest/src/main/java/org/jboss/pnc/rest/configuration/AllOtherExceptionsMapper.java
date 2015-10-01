@@ -34,6 +34,6 @@ public class AllOtherExceptionsMapper implements ExceptionMapper<Exception> {
     @Override
     public Response toResponse(Exception e) {
         logger.error("An exception occurred when processing REST response", e);
-        return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponseRest(e)).build();
+        return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(new ErrorResponseRest(e)).build();
     }
 }

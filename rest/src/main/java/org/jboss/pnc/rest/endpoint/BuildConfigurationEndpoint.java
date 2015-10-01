@@ -44,6 +44,7 @@ import org.jboss.pnc.rest.swagger.response.BuildRecordSingleton;
 import org.jboss.pnc.rest.swagger.response.ProductVersionPage;
 import org.jboss.pnc.rest.trigger.BuildTriggerer;
 import org.jboss.pnc.rest.utils.BpmNotifier;
+import org.jboss.pnc.rest.validation.exceptions.InvalidEntityException;
 import org.jboss.pnc.rest.validation.exceptions.ValidationException;
 import org.jboss.pnc.spi.BuildStatus;
 import org.jboss.pnc.spi.datastore.Datastore;
@@ -71,6 +72,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 import java.lang.invoke.MethodHandles;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.util.Arrays;
@@ -245,7 +247,7 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
     public Response trigger(@ApiParam(value = "Build Configuration id", required = true) @PathParam("id") Integer id,
             @ApiParam(value = "Optional Callback URL") @QueryParam("callbackUrl") String callbackUrl,
             @ApiParam(value = "Rebuild all dependencies") @QueryParam("rebuildAll") boolean rebuildAll,
-            @Context UriInfo uriInfo) {
+            @Context UriInfo uriInfo) throws InvalidEntityException, MalformedURLException {
         try {
             AuthenticationProvider authProvider = new AuthenticationProvider(httpServletRequest);
             String loggedUser = authProvider.getUserName();
@@ -257,7 +259,7 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
                 currentUser.setLoginToken(authProvider.getTokenString());
             }
             else{
-                throw new Exception("No such user exists to trigger builds. Before triggering builds"
+                throw new InvalidEntityException("No such user exists to trigger builds. Before triggering builds"
                         + " user must be initialized through /users/getLoggedUser"); 
             }
             
@@ -269,15 +271,12 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
                 runningBuildId = buildTriggerer.triggerBuild(id, currentUser, rebuildAll, new URL(callbackUrl));
             }
             
-            UriBuilder uriBuilder = UriBuilder.fromUri(uriInfo.getBaseUri()).path("/result/running/{id}");
+            UriBuilder uriBuilder = UriBuilder.fromUri(uriInfo.getBaseUri()).path("/build-config-set-records/{id}");
             URI uri = uriBuilder.build(runningBuildId);
             return Response.ok(uri).header("location", uri).entity(new Singleton(buildRecordProvider.getSpecificRunning(runningBuildId))).build();
         } catch (BuildConflictException e) {
             return Response.status(Response.Status.CONFLICT).entity(
                     new Singleton(buildRecordProvider.getSpecificRunning(e.getBuildTaskId()))).build();
-        } catch (Exception e) {
-            logger.error(e.getMessage(), e);
-            return Response.serverError().entity("Other error: " + e.getMessage()).build();
         }
     }
 

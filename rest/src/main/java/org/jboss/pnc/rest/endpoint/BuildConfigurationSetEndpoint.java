@@ -29,8 +29,11 @@ import org.jboss.pnc.model.User;
 import org.jboss.pnc.rest.provider.BuildConfigurationProvider;
 import org.jboss.pnc.rest.provider.BuildConfigurationSetProvider;
 import org.jboss.pnc.rest.provider.BuildRecordProvider;
+import org.jboss.pnc.rest.provider.collection.CollectionInfo;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationRest;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationSetRest;
+import org.jboss.pnc.rest.restmodel.BuildRecordRest;
+import org.jboss.pnc.rest.restmodel.response.Page;
 import org.jboss.pnc.rest.restmodel.response.error.ErrorResponseRest;
 import org.jboss.pnc.rest.swagger.response.BuildConfigurationPage;
 import org.jboss.pnc.rest.swagger.response.BuildConfigurationSetPage;
@@ -39,7 +42,10 @@ import org.jboss.pnc.rest.swagger.response.BuildRecordPage;
 import org.jboss.pnc.rest.trigger.BuildTriggerer;
 import org.jboss.pnc.rest.validation.exceptions.ConflictedEntryException;
 import org.jboss.pnc.rest.validation.exceptions.ValidationException;
+import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
 import org.jboss.pnc.spi.datastore.Datastore;
+import org.jboss.pnc.spi.datastore.DatastoreException;
+import org.jboss.pnc.spi.repositorymanager.RepositoryManagerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,9 +66,14 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 import java.lang.invoke.MethodHandles;
+import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.CONFLICTED_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.CONFLICTED_DESCRIPTION;
@@ -259,7 +270,7 @@ public class BuildConfigurationSetEndpoint extends AbstractEndpoint<BuildConfigu
 
     @ApiOperation(value = "Builds the Configurations for the Specified Set")
     @ApiResponses(value = {
-            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION),
+            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION, response = BuildRecordPage.class),
             @ApiResponse(code = INVLID_CODE, message = INVALID_DESCRIPTION, response = ErrorResponseRest.class),
             @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION, response = ErrorResponseRest.class)
     })
@@ -270,43 +281,48 @@ public class BuildConfigurationSetEndpoint extends AbstractEndpoint<BuildConfigu
             @ApiParam(value = "Build Configuration Set id", required = true) @PathParam("id") Integer id,
             @ApiParam(value = "Optional Callback URL", required = false) @QueryParam("callbackUrl") String callbackUrl,
             @ApiParam(value = "Rebuild all dependencies") @QueryParam("rebuildAll") boolean rebuildAll,
-            @Context UriInfo uriInfo) {
+            @Context UriInfo uriInfo)
+            throws InterruptedException, CoreException, DatastoreException, BuildDriverException, RepositoryManagerException,
+            MalformedURLException {
         logger.info("Executing build configuration set id: " + id );
 
-        try {
-            AuthenticationProvider authProvider = new AuthenticationProvider(httpServletRequest);
-            String loggedUser = authProvider.getUserName();
-            User currentUser = null;
-            if(loggedUser != null && loggedUser != "") {
-                currentUser = datastore.retrieveUserByUsername(loggedUser);
-                if(currentUser != null) {
-                    currentUser.setLoginToken(authProvider.getTokenString());
-                }
+        AuthenticationProvider authProvider = new AuthenticationProvider(httpServletRequest);
+        String loggedUser = authProvider.getUserName();
+        User currentUser = null;
+        if(loggedUser != null && loggedUser != "") {
+            currentUser = datastore.retrieveUserByUsername(loggedUser);
+            if(currentUser != null) {
+                currentUser.setLoginToken(authProvider.getTokenString());
             }
-            if(currentUser == null) { //TODO remove user creation
-                currentUser = User.Builder.newBuilder()
-                        .username(loggedUser)
-                        .firstName(authProvider.getFirstName())
-                        .lastName(authProvider.getLastName())
-                        .email(authProvider.getEmail()).build();
-                datastore.createNewUser(currentUser);
-            }
-            Integer runningBuildId = null;
-            // if callbackUrl is provided trigger build accordingly
-            if (callbackUrl == null || callbackUrl.isEmpty()) {
-                runningBuildId = buildTriggerer.triggerBuildConfigurationSet(id, currentUser, rebuildAll);
-            } else {
-                runningBuildId = buildTriggerer.triggerBuildConfigurationSet(id, currentUser, rebuildAll, new URL(callbackUrl));
-            }
-
-            return fromEmpty();
-        } catch (CoreException e) {
-            logger.error(e.getMessage(), e);
-            return Response.serverError().entity("Core error: " + e.getMessage()).build();
-        } catch (Exception e) {
-            logger.error(e.getMessage(), e);
-            return Response.serverError().entity("Other error: " + e.getMessage()).build();
         }
+        if(currentUser == null) { //TODO remove user creation
+            currentUser = User.Builder.newBuilder()
+                    .username(loggedUser)
+                    .firstName(authProvider.getFirstName())
+                    .lastName(authProvider.getLastName())
+                    .email(authProvider.getEmail()).build();
+            datastore.createNewUser(currentUser);
+        }
+        BuildTriggerer.BuildConfigurationSetTriggerResult result = null;
+        // if callbackUrl is provided trigger build accordingly
+        if (callbackUrl == null || callbackUrl.isEmpty()) {
+            result = buildTriggerer.triggerBuildConfigurationSet(id, currentUser, rebuildAll);
+        } else {
+            result = buildTriggerer.triggerBuildConfigurationSet(id, currentUser, rebuildAll, new URL(callbackUrl));
+        }
+
+        UriBuilder uriBuilder = UriBuilder.fromUri(uriInfo.getBaseUri()).path("/build-config-set-records/{id}");
+        URI uri = uriBuilder.build(result.getBuildRecordSetId());
+
+        Page<BuildRecordRest> resultsToBeReturned = new Page<>(new CollectionInfo<>(0,
+                result.getBuildRecordsIds().size(),
+                1,
+                result.getBuildRecordsIds().stream()
+                    .map(runningBuildRecordId -> buildRecordProvider.getSpecificRunning(runningBuildRecordId))
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toList())));
+
+        return Response.ok(uri).header("location", uri).entity(resultsToBeReturned).build();
     }
 
 }
