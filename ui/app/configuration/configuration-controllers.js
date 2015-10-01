@@ -195,6 +195,14 @@
         }
       };
 
+      // Executing a build of a configuration forcing a rebuild
+      this.forceBuild = function() {
+        $log.debug('Initiating FORCED build of: %O', this.configuration);
+        BuildConfigurationDAO.forceBuild({
+          configurationId: that.configuration.id
+        }, {});
+      };
+
       // Executing a build of a configuration
       this.build = function() {
         $log.debug('Initiating build of: %O', this.configuration);

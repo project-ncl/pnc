@@ -52,12 +52,16 @@
           method: 'POST',
           url: ENDPOINT + '/clone'
         },
-        build: {
+        forceBuild: {
           method: 'POST',
           url: ENDPOINT + '/build',
           params: {
             rebuildAll: true
           }
+        },
+        build: {
+          method: 'POST',
+          url: ENDPOINT + '/build'
         },
         _getBuildRecords: {
           method: 'GET',
