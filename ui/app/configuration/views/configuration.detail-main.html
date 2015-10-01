@@ -21,7 +21,21 @@
   <pnc-header>
     <pnc-header-title>{{ detailCtrl.configuration.name || 'Empty' }}</pnc-header-title>
     <pnc-header-buttons>
-      <button type="button" class="btn btn-lg btn-default" data-toggle="tooltip" title="Start Build" ng-click="detailCtrl.build()"><i class="fa fa-play"></i> Build</button>
+      <div class="btn-group">
+        <button class="btn btn-lg btn-default ng-scope" tooltip="Start Build" tooltip-placement="bottom" ng-click="detailCtrl.build()">
+          <i class="fa fa-play"></i>
+          <span class="shrink">Build</span>
+        </button>
+        <ul class="dropdown-menu"></ul>
+          <button class="btn btn-lg btn-default dropdown-toggle ng-scope" tooltip="Start Build forcing rebuilds" tooltip-placement="bottom" data-toggle="dropdown">
+            <span class="caret"></span>
+          </button>
+          <ul class="dropdown-menu">
+            <li>
+              <a href ng-click="detailCtrl.forceBuild()"><span><i class="fa fa-play fa-color-red"></i>   Build forcing all rebuilds</span></a>
+            </li>
+          </ul>
+      </div>
       <button type="button" class="btn btn-lg btn-default" data-toggle="tooltip" title="Clone Configuration" ng-click="detailCtrl.clone()"><i class="fa fa-files-o"></i> Clone</button>
       <button type="button" class="btn btn-lg btn-default" data-toggle="tooltip" title="Edit Configuration" ng-click="configurationForm.$show()" ng-class="{ 'active': configurationForm.$visible }"><i class="pficon pficon-edit"></i> Edit</button>
       <button type="button" class="btn btn-lg btn-danger" data-toggle="tooltip" title="Delete Configuration" pnc-confirm-click="detailCtrl.delete()" pnc-confirm-message="{{ 'Confirm the deletion of Build Configuration: ' + detailCtrl.configuration.name + ' ?'}}"><i class="pficon pficon-delete"></i> Delete</button>
