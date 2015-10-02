@@ -40,6 +40,12 @@
       }, {
         _getAll: {
           method: 'GET'
+        },
+        getAuthenticatedUser: {
+          method: 'POST',
+          url: REST_BASE_URL + '/users/loggedUser',
+          isArray: false,
+          cache: true
         }
       });
 

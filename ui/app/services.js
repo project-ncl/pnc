@@ -38,8 +38,10 @@
   app.factory('authService', [
     '$window',
     'keycloak',
-    function($window, kc) {
+    'UserDAO',
+    function($window, kc, UserDAO) {
       var keycloak = kc;
+      var pncUser = null;
 
       return {
         isAuthenticated: function() {
@@ -47,11 +49,23 @@
         },
 
         getPrinciple: function() {
-          if (keycloak.authenticated) {
-            return keycloak.idTokenParsed.preferred_username; // jshint ignore:line
-          } else {
+          if (!keycloak.authenticated) {
             return null;
           }
+
+          return keycloak.idTokenParsed.preferred_username; // jshint ignore:line
+        },
+
+        getPncUser: function() {
+          if (!keycloak.authenticated) {
+            return null;
+          }
+
+          if (!pncUser) {
+            pncUser = UserDAO.getAuthenticatedUser();
+          }
+
+          return pncUser;
         },
 
         logout: function() {

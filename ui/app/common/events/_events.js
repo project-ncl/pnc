@@ -35,12 +35,15 @@
   ]);
 
   module.run([
+    '$log',
     '$rootScope',
     'webSocketBus',
     'eventTypes',
     'BuildRecordDAO',
+    'authService',
     'Notifications',
-    function($rootScope, webSocketBus, eventTypes, BuildRecordDAO, Notifications) {
+    function($log, $rootScope, webSocketBus, eventTypes, BuildRecordDAO,
+             authService, Notifications) {
       var scope = $rootScope.$new();
 
       //TODO: When backend functionality is available these notifications
@@ -48,23 +51,28 @@
       // current logged in user.
 
       scope.$on(eventTypes.BUILD_STARTED, function(event, payload) {
-        Notifications.info('Build #' + payload.id + ' in progress');
+        $log.debug('BUILD_STARTED_EVENT: payload=%O, authService.getPncUser=%O, payload.userId=%O', payload, authService.getPncUser(), payload.userId);
+        if (authService.getPncUser().id === payload.userId) {
+          Notifications.info('Build #' + payload.id + ' in progress');
+        }
       });
 
       // Notify user when builds finish.
       scope.$on(eventTypes.BUILD_FINISHED, function(event, payload) {
-        if(payload.buildStatus === 'REJECTED') {
-          Notifications.warn('Build #' + payload.id + ' rejected.');
-        } else {
-          BuildRecordDAO.get({recordId: payload.id}).$promise.then(
-            function (result) {
-              if (result.status === 'SUCCESS') {
-                Notifications.success('Build #' + payload.id + ' completed');
-              } else {
-                Notifications.warn('Build #' + payload.id + ' failed');
+        if (authService.getPncUser().id === payload.userId) {
+          if(payload.buildStatus === 'REJECTED') {
+            Notifications.warn('Build #' + payload.id + ' rejected.');
+          } else {
+            BuildRecordDAO.get({recordId: payload.id}).$promise.then(
+              function (result) {
+                if (result.status === 'SUCCESS') {
+                  Notifications.success('Build #' + payload.id + ' completed');
+                } else {
+                  Notifications.warn('Build #' + payload.id + ' failed');
+                }
               }
-            }
-          );
+            );
+          }
         }
       });
 
