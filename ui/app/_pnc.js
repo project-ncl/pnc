@@ -103,6 +103,12 @@
 
   app.run(function($rootScope, $log, $state, authService, keycloak) {
 
+    if (authService.isAuthenticated()) {
+      authService.getPncUser().$promise.then(function(result) {
+        $log.info('Authenticated with PNC as: %O', result);
+      });
+    }
+
     // Handle errors with state changes.
     $rootScope.$on('$stateChangeError',
       function(event, toState, toParams, fromState, fromParams, error) {
