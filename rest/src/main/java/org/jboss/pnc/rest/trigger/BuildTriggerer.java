@@ -20,6 +20,7 @@ package org.jboss.pnc.rest.trigger;
 import com.google.common.base.Preconditions;
 import org.jboss.logging.Logger;
 import org.jboss.pnc.core.builder.coordinator.BuildCoordinator;
+import org.jboss.pnc.core.builder.coordinator.BuildSetTask;
 import org.jboss.pnc.core.exception.CoreException;
 import org.jboss.pnc.core.notifications.buildSetTask.BuildSetCallBack;
 import org.jboss.pnc.core.notifications.buildSetTask.BuildSetStatusNotifications;
@@ -44,10 +45,17 @@ import org.jboss.pnc.spi.repositorymanager.RepositoryManagerException;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import java.net.URL;
+import java.util.List;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 @Stateless
 public class BuildTriggerer {
+
+    public static interface BuildConfigurationSetTriggerResult {
+        int getBuildRecordSetId();
+        List<Integer> getBuildRecordsIds();
+    }
 
     private final Logger log = Logger.getLogger(BuildTriggerer.class);
 
@@ -107,7 +115,8 @@ public class BuildTriggerer {
         return taskId;
     }
 
-    public int triggerBuildConfigurationSet(final Integer buildConfigurationSetId, User currentUser, boolean rebuildAll, URL callBackUrl)
+    public BuildConfigurationSetTriggerResult triggerBuildConfigurationSet(final Integer buildConfigurationSetId,
+            User currentUser, boolean rebuildAll, URL callBackUrl)
             throws InterruptedException, CoreException, BuildDriverException, RepositoryManagerException, DatastoreException {
         Consumer<BuildSetStatusChangedEvent> onStatusUpdate = (statusChangedEvent) -> {
             if (statusChangedEvent.getNewStatus().isCompleted()) {
@@ -116,18 +125,35 @@ public class BuildTriggerer {
             }
         };
 
-        int buildSetTaskId = triggerBuildConfigurationSet(buildConfigurationSetId, currentUser, rebuildAll);
-        buildSetStatusNotifications.subscribe(new BuildSetCallBack(buildSetTaskId, onStatusUpdate));
-        return buildSetTaskId;
+        BuildConfigurationSetTriggerResult result = triggerBuildConfigurationSet(buildConfigurationSetId, currentUser,
+                rebuildAll);
+        buildSetStatusNotifications.subscribe(new BuildSetCallBack(result.getBuildRecordSetId(), onStatusUpdate));
+        return result;
     }
 
-    public int triggerBuildConfigurationSet(final Integer buildConfigurationSetId, User currentUser, boolean rebuildAll)
+    public BuildConfigurationSetTriggerResult triggerBuildConfigurationSet(final Integer buildConfigurationSetId,
+            User currentUser, boolean rebuildAll)
             throws InterruptedException, CoreException, BuildDriverException, RepositoryManagerException, DatastoreException {
         final BuildConfigurationSet buildConfigurationSet = buildConfigurationSetRepository.queryById(buildConfigurationSetId);
         Preconditions.checkArgument(buildConfigurationSet != null,
                 "Can't find configuration with given id=" + buildConfigurationSetId);
 
-        return buildCoordinator.build(buildConfigurationSet, currentUser, rebuildAll).getId();
+        BuildSetTask buildSetTask = buildCoordinator.build(buildConfigurationSet, currentUser, rebuildAll);
+
+        return new BuildConfigurationSetTriggerResult() {
+
+            @Override
+            public int getBuildRecordSetId() {
+                return buildSetTask.getId();
+            }
+
+            @Override
+            public List<Integer> getBuildRecordsIds() {
+                return buildSetTask.getBuildTasks().stream()
+                        .map(buildTask -> buildTask.getId())
+                        .collect(Collectors.toList());
+            }
+        };
     }
 
 

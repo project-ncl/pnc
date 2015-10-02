@@ -91,8 +91,10 @@ public class BuildTest {
 
         //when
         RestResponse<BuildConfigurationSetRest> response = buildConfigurationSetRestClient.trigger(buildConfigurationSet.getId(), true);
+        Integer buildRecordSetId = ResponseUtils.getIdFromLocationHeader(response.getRestCallResponse());
 
         //then
         assertThat(response.getRestCallResponse().getStatusCode()).isEqualTo(200);
+        assertThat(buildRecordSetId).isNotNull();
     }
 }
