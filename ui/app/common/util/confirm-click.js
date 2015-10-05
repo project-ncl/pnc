@@ -19,7 +19,7 @@
 
 (function() {
 
-  var module = angular.module('pnc.util.confirmClick', []);
+  var module = angular.module('pnc.util.confirmClick', ['ui.bootstrap']);
 
   /**
    * @ngdoc directive
@@ -40,17 +40,27 @@
    * <button pnc-confirm-click="deleteAllTheThings()" pnc-confirm-message="Are
    * you sure you want to delete all the things?">Delete All The Things</button>
    */
-  module.directive('pncConfirmClick', function () {
+  module.directive('pncConfirmClick', function ($modal) {
     var DEFAULT_MESSAGE = 'Are you sure?';
+    var message = attrs.pncConfirmMessage || DEFAULT_MESSAGE;
 
     return {
       restrict: 'A',
       link: function(scope, element, attrs) {
         element.bind('click', function() {
           var message = attrs.pncConfirmMessage || DEFAULT_MESSAGE;
-          if (confirm(message)) { // jshint ignore:line
-            scope.$apply(attrs.pncConfirmClick);
-          }
+
+          var modalInstance = $modal.open({
+            animation: $scope.animationsEnabled,
+            templateUrl: 'util/views/confirm-click.html',
+            controller: 'ModalInstanceCtrl',
+            resolve: {
+              message: function () {
+                return message;
+              }
+            }
+          });
+          // scope.$apply(attrs.pncConfirmClick);
         });
       }
     };
