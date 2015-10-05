@@ -112,7 +112,7 @@ public class BpmBuildSchedulerTest {
         assertThat(paramsJSON.at("/BuildCommand").asText()).isEqualTo("mvn clean install");
         assertThat(paramsJSON.at("/CommandLineParams").asText()).isEqualTo("null");
         assertThat(paramsJSON.at("/BuildArtifactsRequired").asText()).isEqualTo("");
-        assertThat(paramsJSON.at("/CommunityBuild").asText()).isEqualTo("false");
+        assertThat(paramsJSON.at("/CommunityBuild").asText()).isEqualTo("true");
         assertThat(paramsJSON.at("/EnvironmentId").asText()).isEqualTo("1");
         assertThat(paramsJSON.at("/PatchBuild").asText()).isEqualTo("false");
         assertThat(paramsJSON.at("/ProjectId").asText()).isEqualTo("1");

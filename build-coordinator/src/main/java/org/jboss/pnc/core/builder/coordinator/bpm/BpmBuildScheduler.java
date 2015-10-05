@@ -149,7 +149,7 @@ public class BpmBuildScheduler implements BuildScheduler {
         params.put("BuildArtifactsRequired", buildTask.getBuildConfiguration().getAllDependencies().stream()
                 .map(bc -> bc.getName())
                 .collect(Collectors.toList()));//Is it correct?
-        params.put("CommunityBuild", "false");//hardcoded?
+        params.put("CommunityBuild", "true");//hardcoded?
         params.put("EnvironmentId", Optional.of(buildTask.getBuildConfiguration())
                 .map(BuildConfiguration::getBuildEnvironment)
                 .map(BuildEnvironment::getId)
