@@ -19,7 +19,7 @@
 
 (function() {
 
-  var module = angular.module('pnc.util.confirmClick', ['pnc.util.sweetalert']);
+  var module = angular.module('pnc.util.confirmClick', ['ui.bootstrap']);
 
   /**
    * @ngdoc directive
@@ -40,8 +40,9 @@
    * <button pnc-confirm-click="deleteAllTheThings()" pnc-confirm-message="Are
    * you sure you want to delete all the things?">Delete All The Things</button>
    */
-  module.directive('pncConfirmClick', function (sweetalert) {
+  module.directive('pncConfirmClick', function ($modal) {
     var DEFAULT_MESSAGE = 'Are you sure?';
+    var message = attrs.pncConfirmMessage || DEFAULT_MESSAGE;
 
     return {
       restrict: 'A',
@@ -49,22 +50,17 @@
         element.bind('click', function() {
           var message = attrs.pncConfirmMessage || DEFAULT_MESSAGE;
 
-          sweetalert({
-            title: message,
-            type: 'warning',
-
-            showCancelButton: true,
-            confirmButtonColor: '#DD6B55',
-            confirmButtonText: 'Confirm!',
-
-            closeOnConfirm: false},
-
-            function(isConfirm) {
-               if (isConfirm) {
-                  scope.$apply(attrs.pncConfirmClick);
-                  sweetalert('Done!', '', 'success'); // jshint ignore:line
-               }
-            });
+          var modalInstance = $modal.open({
+            animation: $scope.animationsEnabled,
+            templateUrl: 'util/views/confirm-click.html',
+            controller: 'ModalInstanceCtrl',
+            resolve: {
+              message: function () {
+                return message;
+              }
+            }
+          });
+          // scope.$apply(attrs.pncConfirmClick);
         });
       }
     };
