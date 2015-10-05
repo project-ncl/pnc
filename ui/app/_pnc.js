@@ -46,8 +46,10 @@
 
     keycloak.init({ onLoad: 'check-sso' }).success(function () {
       angular.bootstrap(document, ['pnc']);
-    }).error(function () {
-      window.location.reload();
+    }).error(function (response) {
+      $(document.body).append('<div class="page-header"><h1>Error in authentication bootstrap process</h1></div>');
+      $(document.body).append('<p>Please report this error to the system administrator.</p>');
+      $(document.body).append('<pre>' + response + '</pre>');
     });
   });
 
