@@ -19,11 +19,20 @@
 
 (function() {
 
-  var module = angular.module('pnc.Dashboard');
+  var module = angular.module('pnc.dashboard');
 
-  module.controller('DashboardController', ['$scope',
-    function ($scope) {
-      $scope.title = 'Dashboard';
-  }]);
+  module.controller('DashboardController', [
+    '$log',
+    'UserDAO',
+    function ($log, UserDAO) {
+      var self = this;
+
+      self.userId = null;
+
+      UserDAO.getAuthenticatedUser().$promise.then(function(result) {
+        self.userId = result.userId;
+      });
+    }
+  ]);
 
 })();

@@ -22,7 +22,7 @@
     'ui.router',
     'ui.bootstrap',
     'patternfly.notification',
-    'pnc.Dashboard',
+    'pnc.dashboard',
     'pnc.product',
     'pnc.project',
     'pnc.configuration',
@@ -44,7 +44,7 @@
   angular.element(document).ready(function () {
     keycloak = new Keycloak('keycloak.json');
 
-    keycloak.init().success(function () {
+    keycloak.init({ onLoad: 'check-sso' }).success(function () {
       angular.bootstrap(document, ['pnc']);
     }).error(function () {
       $(document.body).append('<div class="page-header"><h1>Error in authentication bootstrap process</h1></div>');
@@ -105,7 +105,7 @@
   app.run(function($rootScope, $log, $state, authService, keycloak) {
 
     if (authService.isAuthenticated()) {
-      authService.getPncUser().$promise.then(function(result) {
+      authService.getPncUser().then(function(result) {
         $log.info('Authenticated with PNC as: %O', result);
       });
     }
