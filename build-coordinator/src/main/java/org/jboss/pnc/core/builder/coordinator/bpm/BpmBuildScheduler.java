@@ -33,6 +33,7 @@ import org.jboss.pnc.core.exception.CoreException;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildEnvironment;
+import org.jboss.pnc.model.IdRev;
 import org.jboss.pnc.model.Project;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.BuildStatus;
@@ -177,7 +178,10 @@ public class BpmBuildScheduler implements BuildScheduler {
         buildRequest.put("buildTaskId", buildTask.getId());
         buildRequest.put("buildTaskSetId", buildTaskSetId);
         buildRequest.put("buildConfigurationRevision",
-                Optional.of(buildTask).map(BuildTask::getBuildConfigurationAudited).map(BuildConfigurationAudited::getIdRev)
+                Optional.of(buildTask)
+                        .map(BuildTask::getBuildConfigurationAudited)
+                        .map(BuildConfigurationAudited::getIdRev)
+                        .map(IdRev::getId)
                         .orElse(null));
         buildRequest.put("buildRecordSetIdsCSV", StringUtils.toCVS(buildTask.getBuildRecordSetIds()));
         buildRequest.put("buildConfigSetRecordId", buildTask.getBuildConfigSetRecordId());
@@ -190,6 +194,7 @@ public class BpmBuildScheduler implements BuildScheduler {
         buildRequest.put("pncUserLoginToken", Optional.of(buildTask)
                 .map(BuildTask::getUser)
                 .map(User::getLoginToken)
+                .filter(token -> !"no-token".equals(token))
                 .orElse(null));
         buildRequest.put("pncUserEmail", Optional.of(buildTask)
                 .map(BuildTask::getUser)
