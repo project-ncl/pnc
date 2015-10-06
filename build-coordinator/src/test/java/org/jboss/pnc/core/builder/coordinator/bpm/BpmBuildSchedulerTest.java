@@ -26,8 +26,11 @@ import org.jboss.pnc.common.json.moduleconfig.BpmModuleConfig;
 import org.jboss.pnc.core.builder.coordinator.BuildSetTask;
 import org.jboss.pnc.core.builder.coordinator.BuildTask;
 import org.jboss.pnc.model.BuildConfiguration;
+import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildEnvironment;
+import org.jboss.pnc.model.IdRev;
 import org.jboss.pnc.model.Project;
+import org.jboss.pnc.model.User;
 import org.junit.Test;
 import org.kie.api.runtime.KieSession;
 import org.mockito.ArgumentCaptor;
@@ -59,7 +62,25 @@ public class BpmBuildSchedulerTest {
                 .description("test")
                 .build();
 
-        BuildTask buildTask = BuildTask.build(buildConfiguration, null, null, null, null, 1, mock(BuildSetTask.class), new Date(), true);
+        BuildConfigurationAudited buildConfigurationAudited = new BuildConfigurationAudited() {
+            private IdRev idRev;
+
+            @Override
+            public void setId(IdRev idRev) {
+                this.idRev = idRev;
+            }
+
+            @Override
+            public IdRev getIdRev() {
+                return idRev;
+            }
+        };
+        buildConfigurationAudited.setId(new IdRev(1, 1));
+
+        User user = User.Builder.newBuilder().username("demo").id(1).build();
+        user.setLoginToken("no-token");
+
+        BuildTask buildTask = BuildTask.build(buildConfiguration, buildConfigurationAudited, user, null, null, 1, mock(BuildSetTask.class), new Date(), true);
 
         BpmModuleConfig bpmConfiguration = mock(BpmModuleConfig.class);
         doReturn("http://localhost/aprox").when(bpmConfiguration).getAproxBaseUrl();
@@ -119,12 +140,12 @@ public class BpmBuildSchedulerTest {
 
         assertThat(buildRequestJSON.at("/buildTaskId").asText()).isEqualTo("1");
         assertThat(buildRequestJSON.at("/buildTaskSetId").asText()).isEqualTo("1");
-        assertThat(buildRequestJSON.at("/buildConfigurationRevision").asText()).isEqualTo("null");
+        assertThat(buildRequestJSON.at("/buildConfigurationRevision").asText()).isEqualTo("1");
         assertThat(buildRequestJSON.at("/buildRecordSetIdsCSV").asText()).isEqualTo("");
         assertThat(buildRequestJSON.at("/buildConfigSetRecordId").asText()).isEqualTo("null");
         assertThat(buildRequestJSON.at("/buildContentId").asText()).isNotEmpty();
         assertThat(buildRequestJSON.at("/submitTimeMillis").asText()).isNotEmpty();
-        assertThat(buildRequestJSON.at("/pncUsername").asText()).isEqualTo("null");
+        assertThat(buildRequestJSON.at("/pncUsername").asText()).isEqualTo("demo");
         assertThat(buildRequestJSON.at("/pncUserLoginToken").asText()).isEqualTo("null");
     }
 
