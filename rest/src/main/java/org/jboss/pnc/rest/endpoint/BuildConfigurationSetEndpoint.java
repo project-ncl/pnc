@@ -280,7 +280,7 @@ public class BuildConfigurationSetEndpoint extends AbstractEndpoint<BuildConfigu
     public Response build(
             @ApiParam(value = "Build Configuration Set id", required = true) @PathParam("id") Integer id,
             @ApiParam(value = "Optional Callback URL", required = false) @QueryParam("callbackUrl") String callbackUrl,
-            @ApiParam(value = "Rebuild all dependencies") @QueryParam("rebuildAll") boolean rebuildAll,
+            @ApiParam(value = "Rebuild all dependencies") @QueryParam("rebuildAll") @DefaultValue("false") boolean rebuildAll,
             @Context UriInfo uriInfo)
             throws InterruptedException, CoreException, DatastoreException, BuildDriverException, RepositoryManagerException,
             MalformedURLException {

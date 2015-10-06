@@ -246,7 +246,7 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
     @Path("/{id}/build")
     public Response trigger(@ApiParam(value = "Build Configuration id", required = true) @PathParam("id") Integer id,
             @ApiParam(value = "Optional Callback URL") @QueryParam("callbackUrl") String callbackUrl,
-            @ApiParam(value = "Rebuild all dependencies") @QueryParam("rebuildAll") boolean rebuildAll,
+            @ApiParam(value = "Rebuild all dependencies") @QueryParam("rebuildAll") @DefaultValue("false") boolean rebuildAll,
             @Context UriInfo uriInfo) throws InvalidEntityException, MalformedURLException {
         try {
             AuthenticationProvider authProvider = new AuthenticationProvider(httpServletRequest);
@@ -291,8 +291,8 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
     @Path("/{id}/execute-build")
     public Response build(@ApiParam(value = "Build Configuration id", required = true) @PathParam("id") Integer buildConfigurationId,
                           @ApiParam(value = "Build Configuration revision", required = true) @QueryParam("buildConfigurationRevision") Integer buildConfigurationRevision,
-                          @ApiParam(value = "Build task id", required = true) @QueryParam("buildTaskId") int buildTaskId,
-                          @ApiParam(value = "Build set task id", required = true) @QueryParam("buildSetTaskId") int buildSetTaskId,
+                          @ApiParam(value = "Build task id", required = true) @QueryParam("buildTaskId") Integer buildTaskId,
+                          @ApiParam(value = "Build set task id", required = true) @QueryParam("buildSetTaskId") Integer buildSetTaskId,
                           @ApiParam(value = "Optional Callback URL", required = false) @QueryParam("callbackUrl") String callbackUrl,
                           @ApiParam(value = "A CSV list of build record set ids.", required = false) @QueryParam("buildRecordSetIdsCSV") String buildRecordSetIdsCSV,
                           @ApiParam(value = "Build configuration set record id.", required = false) @QueryParam("buildConfigSetRecordId") String buildConfigSetRecordId,
