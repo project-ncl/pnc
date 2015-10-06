@@ -351,7 +351,7 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
             Set<Integer> buildRecordSetIds = parseIntegers(buildRecordSetIdsCSV);
 
             Integer buildConfigSetRecordIdInt = null;
-            if (buildConfigSetRecordId != null) {
+            if (buildConfigSetRecordId != null && !buildConfigSetRecordId.equals("") && !buildConfigSetRecordId.equals("null") ) {
                 buildConfigSetRecordIdInt = Integer.parseInt(buildConfigSetRecordId);
             }
 
