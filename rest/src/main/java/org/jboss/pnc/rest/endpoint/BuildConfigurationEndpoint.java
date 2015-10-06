@@ -290,15 +290,40 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
     @POST
     @Path("/{id}/execute-build")
     public Response build(@ApiParam(value = "Build Configuration id", required = true) @PathParam("id") Integer buildConfigurationId,
-                          @ApiParam(value = "Build Configuration revision", required = true) @QueryParam("buildConfigurationRevision") Integer buildConfigurationRevision,
-                          @ApiParam(value = "Build task id", required = true) @QueryParam("buildTaskId") Integer buildTaskId,
-                          @ApiParam(value = "Build set task id", required = true) @QueryParam("buildSetTaskId") Integer buildSetTaskId,
+                          @ApiParam(value = "Build Configuration revision", required = true) @QueryParam("buildConfigurationRevision") String buildConfigurationRevisionParam,
+                          @ApiParam(value = "Build task id", required = true) @QueryParam("buildTaskId") String buildTaskIdParam,
+                          @ApiParam(value = "Build set task id", required = false) @QueryParam("buildSetTaskId") String buildSetTaskId, //TODO redundant
                           @ApiParam(value = "Optional Callback URL", required = false) @QueryParam("callbackUrl") String callbackUrl,
                           @ApiParam(value = "A CSV list of build record set ids.", required = false) @QueryParam("buildRecordSetIdsCSV") String buildRecordSetIdsCSV,
                           @ApiParam(value = "Build configuration set record id.", required = false) @QueryParam("buildConfigSetRecordId") String buildConfigSetRecordId,
-                          @ApiParam(value = "BuildTask submit time in number of millis since epoch.", required = true) @QueryParam("submitTimeMillis") long submitTimeMillis,
+                          @ApiParam(value = "BuildTask submit time in number of millis since epoch.", required = true) @QueryParam("submitTimeMillis") String submitTimeMillisParam,
                           @Context UriInfo uriInfo) {
         try {
+
+            Integer buildTaskId;
+            Response errorResponse = validateRequiredField(buildTaskIdParam, "buildTaskId");
+            if (errorResponse != null) {
+                return errorResponse;
+            } else {
+                buildTaskId = Integer.parseInt(buildTaskIdParam);
+            }
+
+            Integer buildConfigurationRevision;
+            errorResponse = validateRequiredField(buildConfigurationRevisionParam, "buildConfigurationRevision");
+            if (errorResponse != null) {
+                return errorResponse;
+            } else {
+                buildConfigurationRevision = Integer.parseInt(buildConfigurationRevisionParam);
+            }
+
+            Long submitTimeMillis;
+            if (submitTimeMillisParam == null || submitTimeMillisParam.equals("")) {
+                logger.warn("Missing required submitTimeMillis parameter. Using 'now' instead.");
+                submitTimeMillis = System.currentTimeMillis();
+            } else {
+                submitTimeMillis = Long.parseLong(submitTimeMillisParam);
+            }
+
             AuthenticationProvider authProvider = new AuthenticationProvider(httpServletRequest);
             String loggedUser = authProvider.getUserName();
             User currentUser = null;
@@ -344,6 +369,16 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
             return Response.serverError().entity("Other error: " + e.getMessage()).build();
+        }
+    }
+
+    private Response validateRequiredField(String parameter, String parameterName) {
+        if (parameter == null || parameter.equals("")) {
+            String msg = "Missing required " + parameterName + " parameter.";
+            logger.error(msg);
+            return Response.status(Response.Status.BAD_REQUEST).entity(msg).build();
+        } else {
+            return null;
         }
     }
 
