@@ -19,12 +19,14 @@ package org.jboss.pnc.rest.provider;
 
 import org.jboss.pnc.core.builder.coordinator.BuildCoordinator;
 import org.jboss.pnc.core.builder.coordinator.BuildTask;
+import org.jboss.pnc.core.builder.executor.BuildExecutionTask;
 import org.jboss.pnc.core.builder.executor.BuildExecutor;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.rest.provider.collection.CollectionInfo;
 import org.jboss.pnc.rest.provider.collection.CollectionInfoCollector;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationAuditedRest;
 import org.jboss.pnc.rest.restmodel.BuildRecordRest;
+import org.jboss.pnc.spi.BuildStatus;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
 import org.jboss.pnc.spi.datastore.repositories.PageInfoProducer;
 import org.jboss.pnc.spi.datastore.repositories.SortInfoProducer;
@@ -42,6 +44,7 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.lang.invoke.MethodHandles;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
@@ -108,7 +111,24 @@ public class BuildRecordProvider extends AbstractProvider<BuildRecord, BuildReco
     }
 
     private BuildRecordRest createNewBuildRecordRest(BuildTask submittedBuild) {
-        return new BuildRecordRest(buildExecutor.getRunningExecution(submittedBuild.getId()), submittedBuild.getSubmitTime());
+        BuildExecutionTask runningExecution = buildExecutor.getRunningExecution(submittedBuild.getId());
+        if (runningExecution != null) {
+            return new BuildRecordRest(runningExecution, submittedBuild.getSubmitTime());
+        } else {
+            BuildExecutionTask waitingExecution = BuildExecutionTask.build(
+                    submittedBuild.getId(),
+                    submittedBuild.getBuildConfiguration(),
+                    submittedBuild.getBuildConfigurationAudited(),
+                    submittedBuild.getUser(),
+                    submittedBuild.getBuildRecordSetIds(),
+                    submittedBuild.getBuildConfigSetRecordId(),
+                    Optional.empty(),
+                    submittedBuild.getId(),
+                    submittedBuild.getSubmitTime()
+            );
+            waitingExecution.setStatus(BuildStatus.BUILD_WAITING);
+            return new BuildRecordRest(waitingExecution, submittedBuild.getSubmitTime());
+        }
     }
 
     public CollectionInfo<Object> getAllRunningForBCSetRecord(int pageIndex, int pageSize, String search, Integer bcSetRecordId) {
