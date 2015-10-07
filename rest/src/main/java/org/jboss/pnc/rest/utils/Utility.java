@@ -17,9 +17,6 @@
  */
 package org.jboss.pnc.rest.utils;
 
-import org.jboss.pnc.model.BuildConfiguration;
-import org.jboss.pnc.model.BuildConfigurationSet;
-
 public class Utility {
 
     @FunctionalInterface
@@ -37,21 +34,6 @@ public class Utility {
         if(obj != null) {
             action.doIt();
         }
-    }
-
-    public static BuildConfiguration initializeBuildConfigurationBeforeTriggeringIt(BuildConfiguration bc) {
-        bc.getProductVersions().size();
-        bc.getProductVersions().stream()
-                .forEach(pv -> {
-                    pv.getProduct();
-                });
-        return bc;
-    }
-
-    public static BuildConfigurationSet initializeBuildConfigurationSetBeforeTriggeringIt(BuildConfigurationSet bcs) {
-        bcs.getBuildConfigurations().stream()
-                .forEach(bc -> initializeBuildConfigurationBeforeTriggeringIt(bc));
-        return bcs;
     }
 
 }

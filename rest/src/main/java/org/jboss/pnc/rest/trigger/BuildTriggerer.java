@@ -32,7 +32,7 @@ import org.jboss.pnc.model.BuildRecordSet;
 import org.jboss.pnc.model.ProductVersion;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.rest.utils.BpmNotifier;
-import org.jboss.pnc.rest.utils.Utility;
+import org.jboss.pnc.rest.utils.HibernateLazyInitializer;
 import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
 import org.jboss.pnc.spi.datastore.DatastoreException;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationRepository;
@@ -53,7 +53,7 @@ import java.util.stream.Collectors;
 @Stateless
 public class BuildTriggerer {
 
-    public static interface BuildConfigurationSetTriggerResult {
+    public interface BuildConfigurationSetTriggerResult {
         int getBuildRecordSetId();
         List<Integer> getBuildRecordsIds();
     }
@@ -66,6 +66,7 @@ public class BuildTriggerer {
     private BuildSetStatusNotifications buildSetStatusNotifications;
     private BuildStatusNotifications buildStatusNotifications;
     private BpmNotifier bpmNotifier;
+    private HibernateLazyInitializer hibernateLazyInitializer;
 
     private SortInfoProducer sortInfoProducer;
 
@@ -75,16 +76,16 @@ public class BuildTriggerer {
 
     @Inject
     public BuildTriggerer(final BuildCoordinator buildCoordinator,
-            final BuildConfigurationRepository buildConfigurationRepository,
-                          final BuildConfigurationSetRepository buildConfigurationSetRepository,
-                          BuildSetStatusNotifications buildSetStatusNotifications, BuildStatusNotifications buildStatusNotifications,
-                          BpmNotifier bpmNotifier, SortInfoProducer sortInfoProducer) {
+            final BuildConfigurationRepository buildConfigurationRepository, final BuildConfigurationSetRepository buildConfigurationSetRepository,
+            BuildSetStatusNotifications buildSetStatusNotifications, BuildStatusNotifications buildStatusNotifications,
+            BpmNotifier bpmNotifier, HibernateLazyInitializer hibernateLazyInitializer, SortInfoProducer sortInfoProducer) {
         this.buildCoordinator = buildCoordinator;
         this.buildConfigurationRepository = buildConfigurationRepository;
         this.buildConfigurationSetRepository = buildConfigurationSetRepository;
         this.buildSetStatusNotifications = buildSetStatusNotifications;
         this.buildStatusNotifications = buildStatusNotifications;
         this.bpmNotifier = bpmNotifier;
+        this.hibernateLazyInitializer = hibernateLazyInitializer;
         this.sortInfoProducer = sortInfoProducer;
     }
 
@@ -113,7 +114,7 @@ public class BuildTriggerer {
         }
 
         Integer taskId = buildCoordinator.build(
-                Utility.initializeBuildConfigurationBeforeTriggeringIt(configuration),
+                hibernateLazyInitializer.initializeBuildConfigurationBeforeTriggeringIt(configuration),
                 currentUser,
                 rebuildAll).getId();
         return taskId;
@@ -143,7 +144,7 @@ public class BuildTriggerer {
                 "Can't find configuration with given id=" + buildConfigurationSetId);
 
         BuildSetTask buildSetTask = buildCoordinator.build(
-                Utility.initializeBuildConfigurationSetBeforeTriggeringIt(buildConfigurationSet),
+                hibernateLazyInitializer.initializeBuildConfigurationSetBeforeTriggeringIt(buildConfigurationSet),
                 currentUser,
                 rebuildAll);
 

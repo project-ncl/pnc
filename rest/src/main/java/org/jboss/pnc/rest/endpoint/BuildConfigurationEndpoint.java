@@ -44,7 +44,7 @@ import org.jboss.pnc.rest.swagger.response.BuildRecordSingleton;
 import org.jboss.pnc.rest.swagger.response.ProductVersionPage;
 import org.jboss.pnc.rest.trigger.BuildTriggerer;
 import org.jboss.pnc.rest.utils.BpmNotifier;
-import org.jboss.pnc.rest.utils.Utility;
+import org.jboss.pnc.rest.utils.HibernateLazyInitializer;
 import org.jboss.pnc.rest.validation.exceptions.InvalidEntityException;
 import org.jboss.pnc.rest.validation.exceptions.ValidationException;
 import org.jboss.pnc.spi.BuildStatus;
@@ -124,6 +124,7 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
     private BuildConfigurationRepository buildConfigurationRepository;
     private BuildConfigurationAuditedRepository buildConfigurationAuditedRepository;
     private BpmNotifier bpmNotifier;
+    private HibernateLazyInitializer hibernateLazyInitializer;
 
     @Context
     private HttpServletRequest httpServletRequest;
@@ -136,7 +137,8 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
     public BuildConfigurationEndpoint(BuildConfigurationProvider buildConfigurationProvider, BuildTriggerer buildTriggerer,
             BuildExecutor buildExecutor, BuildRecordProvider buildRecordProvider, ProductVersionProvider productVersionProvider,
             Datastore datastore, BuildConfigurationRepository buildConfigurationRepository,
-            BuildConfigurationAuditedRepository buildConfigurationAuditedRepository, BpmNotifier bpmNotifier) {
+            BuildConfigurationAuditedRepository buildConfigurationAuditedRepository, BpmNotifier bpmNotifier,
+            HibernateLazyInitializer hibernateLazyInitializer) {
         super(buildConfigurationProvider);
         this.buildConfigurationProvider = buildConfigurationProvider;
         this.buildTriggerer = buildTriggerer;
@@ -147,6 +149,7 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
         this.buildConfigurationRepository = buildConfigurationRepository;
         this.buildConfigurationAuditedRepository = buildConfigurationAuditedRepository;
         this.bpmNotifier = bpmNotifier;
+        this.hibernateLazyInitializer = hibernateLazyInitializer;
     }
 
     @ApiOperation(value = "Gets all Build Configurations")
@@ -352,7 +355,7 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
 
             Date submitTime = new Date(submitTimeMillis);
             BuildExecutionTask buildExecutionTask = buildExecutor.build(
-                    Utility.initializeBuildConfigurationBeforeTriggeringIt(configuration),
+                    hibernateLazyInitializer.initializeBuildConfigurationBeforeTriggeringIt(configuration),
                     configurationAudited,
                     currentUser,
                     onComplete,
