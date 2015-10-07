@@ -139,6 +139,8 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
             BuildRecordProvider buildRecordProvider,
             ProductVersionProvider productVersionProvider,
             Datastore datastore,
+            BuildConfigurationRepository buildConfigurationRepository,
+            BuildConfigurationAuditedRepository buildConfigurationAuditedRepository,
             BpmNotifier bpmNotifier) {
         super(buildConfigurationProvider);
         this.buildConfigurationProvider = buildConfigurationProvider;
@@ -147,6 +149,8 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
         this.buildRecordProvider = buildRecordProvider;
         this.productVersionProvider = productVersionProvider;
         this.datastore = datastore;
+        this.buildConfigurationRepository = buildConfigurationRepository;
+        this.buildConfigurationAuditedRepository = buildConfigurationAuditedRepository;
         this.bpmNotifier = bpmNotifier;
     }
 
@@ -347,7 +351,7 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
             Set<Integer> buildRecordSetIds = parseIntegers(buildRecordSetIdsCSV);
 
             Integer buildConfigSetRecordIdInt = null;
-            if (buildConfigSetRecordId != null) {
+            if (buildConfigSetRecordId != null && !buildConfigSetRecordId.equals("") && !buildConfigSetRecordId.equals("null") ) {
                 buildConfigSetRecordIdInt = Integer.parseInt(buildConfigSetRecordId);
             }
 
