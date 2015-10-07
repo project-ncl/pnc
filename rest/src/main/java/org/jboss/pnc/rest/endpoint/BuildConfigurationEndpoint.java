@@ -117,12 +117,9 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
 
     private BuildConfigurationProvider buildConfigurationProvider;
     private BuildTriggerer buildTriggerer;
-    private BuildExecutor buildExecutor;
     private BuildRecordProvider buildRecordProvider;
     private ProductVersionProvider productVersionProvider;
     private Datastore datastore;
-    private BuildConfigurationRepository buildConfigurationRepository;
-    private BuildConfigurationAuditedRepository buildConfigurationAuditedRepository;
     private BpmNotifier bpmNotifier;
     private HibernateLazyInitializer hibernateLazyInitializer;
 
@@ -134,20 +131,20 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
     }
 
     @Inject
-    public BuildConfigurationEndpoint(BuildConfigurationProvider buildConfigurationProvider, BuildTriggerer buildTriggerer,
-            BuildExecutor buildExecutor, BuildRecordProvider buildRecordProvider, ProductVersionProvider productVersionProvider,
-            Datastore datastore, BuildConfigurationRepository buildConfigurationRepository,
-            BuildConfigurationAuditedRepository buildConfigurationAuditedRepository, BpmNotifier bpmNotifier,
+    public BuildConfigurationEndpoint(
+            BuildConfigurationProvider buildConfigurationProvider,
+            BuildTriggerer buildTriggerer,
+            BuildRecordProvider buildRecordProvider,
+            ProductVersionProvider productVersionProvider,
+            Datastore datastore,
+            BpmNotifier bpmNotifier,
             HibernateLazyInitializer hibernateLazyInitializer) {
         super(buildConfigurationProvider);
         this.buildConfigurationProvider = buildConfigurationProvider;
         this.buildTriggerer = buildTriggerer;
-        this.buildExecutor = buildExecutor;
         this.buildRecordProvider = buildRecordProvider;
         this.productVersionProvider = productVersionProvider;
         this.datastore = datastore;
-        this.buildConfigurationRepository = buildConfigurationRepository;
-        this.buildConfigurationAuditedRepository = buildConfigurationAuditedRepository;
         this.bpmNotifier = bpmNotifier;
         this.hibernateLazyInitializer = hibernateLazyInitializer;
     }
@@ -328,41 +325,22 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
 
             AuthenticationProvider authProvider = new AuthenticationProvider(httpServletRequest);
             String loggedUser = authProvider.getUserName();
-            User currentUser = null;
+            User currentUser;
             if(loggedUser != null && loggedUser != "") {
                 currentUser = datastore.retrieveUserByUsername(loggedUser);
             } else {
                 return Response.status(Response.Status.FORBIDDEN).build();
             }
 
-            final BuildConfiguration configuration = buildConfigurationRepository.queryById(buildConfigurationId);
-            IdRev idRev = new IdRev(buildConfigurationId, buildConfigurationRevision);
-            final BuildConfigurationAudited configurationAudited = buildConfigurationAuditedRepository.queryById(idRev);
-
-            Consumer<BuildStatus> onComplete = (buildStatus) -> {
-                if (callbackUrl != null && !callbackUrl.isEmpty()) {
-                    // Expecting URL like: http://host:port/business-central/rest/runtime/org.test:Test1:1.0/process/instance/7/signal?signal=testSig
-                    bpmNotifier.signalBpmEvent(callbackUrl.toString() + "&event=" + buildStatus);
-                }
-            };
-
-            Set<Integer> buildRecordSetIds = parseIntegers(buildRecordSetIdsCSV);
-
-            Integer buildConfigSetRecordIdInt = null;
-            if (buildConfigSetRecordId != null && !buildConfigSetRecordId.equals("") && !buildConfigSetRecordId.equals("null") ) {
-                buildConfigSetRecordIdInt = Integer.parseInt(buildConfigSetRecordId);
-            }
-
-            Date submitTime = new Date(submitTimeMillis);
-            BuildExecutionTask buildExecutionTask = buildExecutor.build(
-                    hibernateLazyInitializer.initializeBuildConfigurationBeforeTriggeringIt(configuration),
-                    configurationAudited,
-                    currentUser,
-                    onComplete,
-                    buildRecordSetIds,
-                    buildConfigSetRecordIdInt,
+            BuildExecutionTask buildExecutionTask = buildTriggerer.executeBuild(
                     buildTaskId,
-                    submitTime);
+                    buildConfigurationId,
+                    buildConfigurationRevision,
+                    buildRecordSetIdsCSV,
+                    buildConfigSetRecordId,
+                    currentUser,
+                    submitTimeMillis,
+                    callbackUrl);
 
             UriBuilder uriBuilder = UriBuilder.fromUri(uriInfo.getBaseUri()).path("/result/running/{id}");
             int runningBuildId = buildExecutionTask.getId();
@@ -384,13 +362,6 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
         }
     }
 
-    private Set<Integer> parseIntegers(String buildRecordSetIdsCSV) {
-        if (buildRecordSetIdsCSV != null) {
-            return Arrays.asList(buildRecordSetIdsCSV.split(",")).stream().map((s) -> Integer.parseInt(s)).collect(Collectors.toSet());
-        } else {
-            return null;
-        }
-    }
 
     @ApiOperation(value = "Gets all Build Configurations of a Project")
     @ApiResponses(value = {
