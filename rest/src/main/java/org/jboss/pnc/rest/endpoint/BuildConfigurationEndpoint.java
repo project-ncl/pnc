@@ -246,8 +246,12 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
     public Response trigger(@ApiParam(value = "Build Configuration id", required = true) @PathParam("id") Integer id,
             @ApiParam(value = "Optional Callback URL") @QueryParam("callbackUrl") String callbackUrl,
             @ApiParam(value = "Rebuild all dependencies") @QueryParam("rebuildAll") @DefaultValue("false") boolean rebuildAll,
-            @Context UriInfo uriInfo) throws InvalidEntityException, MalformedURLException {
+            @Context UriInfo uriInfo,
+            @Context HttpServletRequest request) throws InvalidEntityException, MalformedURLException {
         try {
+
+            logger.debug("Endpoint /build requested for buildConfigurationId [{}], by [{}]", id, request.getRemoteAddr());
+
             AuthenticationProvider authProvider = new AuthenticationProvider(httpServletRequest);
             String loggedUser = authProvider.getUserName();
             User currentUser = null;
@@ -296,10 +300,11 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
                           @ApiParam(value = "A CSV list of build record set ids.", required = false) @QueryParam("buildRecordSetIdsCSV") String buildRecordSetIdsCSV,
                           @ApiParam(value = "Build configuration set record id.", required = false) @QueryParam("buildConfigSetRecordId") String buildConfigSetRecordId,
                           @ApiParam(value = "BuildTask submit time in number of millis since epoch.", required = true) @QueryParam("submitTimeMillis") String submitTimeMillisParam,
-                          @Context UriInfo uriInfo) {
+                          @Context UriInfo uriInfo,
+                          @Context HttpServletRequest request) {
         try {
 
-            logger.debug("Endpoint execute-build requested for buildTaskId [{}]", buildTaskIdParam);
+            logger.debug("Endpoint /execute-build requested for buildTaskId [{}], by [{}]", buildTaskIdParam, request.getRemoteAddr());
 
             Integer buildTaskId;
             Response errorResponse = validateRequiredField(buildTaskIdParam, "buildTaskId");
