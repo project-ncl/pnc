@@ -179,6 +179,7 @@ public class BpmBuildScheduler implements BuildScheduler {
         Map<String, Object> buildRequest = new HashMap<>();
         buildRequest.put("buildTaskId", buildTask.getId());
         buildRequest.put("buildTaskSetId", buildTaskSetId);
+        buildRequest.put("buildConfiguration",buildTask.getBuildConfiguration().getId());
         buildRequest.put("buildConfigurationRevision",
                 Optional.of(buildTask)
                         .map(BuildTask::getBuildConfigurationAudited)
