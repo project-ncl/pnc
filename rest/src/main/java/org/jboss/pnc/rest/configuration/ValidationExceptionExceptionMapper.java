@@ -53,10 +53,12 @@ public class ValidationExceptionExceptionMapper implements ExceptionMapper<Valid
 
     @Override
     public Response toResponse(ValidationException e) {
-        logger.warn("A validation error occurred when processing REST call", e);
         Response.Status status = Response.Status.BAD_REQUEST;
         if(e instanceof ConflictedEntryException) {
             status = Response.Status.CONFLICT;
+            logger.debug("A ConflictedEntry error occurred when processing REST call", e);
+        } else {
+            logger.warn("A validation error occurred when processing REST call", e);
         }
         return Response.status(status).entity(new ErrorResponseRest(e)).build();
     }
