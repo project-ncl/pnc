@@ -299,6 +299,8 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
                           @Context UriInfo uriInfo) {
         try {
 
+            logger.debug("Endpoint execute-build requested for buildTaskId [{}]", buildTaskIdParam);
+
             Integer buildTaskId;
             Response errorResponse = validateRequiredField(buildTaskIdParam, "buildTaskId");
             if (errorResponse != null) {
