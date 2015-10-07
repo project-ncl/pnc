@@ -32,6 +32,7 @@ import org.jboss.pnc.model.BuildRecordSet;
 import org.jboss.pnc.model.ProductVersion;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.rest.utils.BpmNotifier;
+import org.jboss.pnc.rest.utils.Utility;
 import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
 import org.jboss.pnc.spi.datastore.DatastoreException;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationRepository;
@@ -111,7 +112,10 @@ public class BuildTriggerer {
             buildRecordSet.setPerformedInProductMilestone(productVersion.getCurrentProductMilestone());
         }
 
-        Integer taskId = buildCoordinator.build(configuration, currentUser, rebuildAll).getId();
+        Integer taskId = buildCoordinator.build(
+                Utility.initializeBuildConfigurationBeforeTriggeringIt(configuration),
+                currentUser,
+                rebuildAll).getId();
         return taskId;
     }
 
@@ -138,7 +142,10 @@ public class BuildTriggerer {
         Preconditions.checkArgument(buildConfigurationSet != null,
                 "Can't find configuration with given id=" + buildConfigurationSetId);
 
-        BuildSetTask buildSetTask = buildCoordinator.build(buildConfigurationSet, currentUser, rebuildAll);
+        BuildSetTask buildSetTask = buildCoordinator.build(
+                Utility.initializeBuildConfigurationSetBeforeTriggeringIt(buildConfigurationSet),
+                currentUser,
+                rebuildAll);
 
         return new BuildConfigurationSetTriggerResult() {
 
