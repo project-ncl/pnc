@@ -44,12 +44,11 @@
   angular.element(document).ready(function () {
     keycloak = new Keycloak('keycloak.json');
 
-    keycloak.init({ onLoad: 'check-sso' }).success(function () {
+    keycloak.init().success(function () {
       angular.bootstrap(document, ['pnc']);
-    }).error(function (response) {
+    }).error(function () {
       $(document.body).append('<div class="page-header"><h1>Error in authentication bootstrap process</h1></div>');
       $(document.body).append('<p>Please report this error to the system administrator.</p>');
-      $(document.body).append('<pre>' + response + '</pre>');
     });
   });
 
