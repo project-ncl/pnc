@@ -28,6 +28,7 @@ import org.jboss.pnc.rest.validation.groups.WhenUpdating;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
+import javax.validation.constraints.Pattern;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.Date;
 import java.util.Set;
@@ -72,6 +73,10 @@ public class BuildConfigurationRest implements GenericRestEntity<Integer> {
 
     private Set<Integer> productVersionIds;
 
+    @NotNull
+    @Pattern(regexp = "[a-zA-Z_0-9-\\.]:[a-zA-Z_0-9-\\.]")
+    private String ga;
+
     public BuildConfigurationRest() {
     }
 
@@ -86,6 +91,7 @@ public class BuildConfigurationRest implements GenericRestEntity<Integer> {
         this.lastModificationTime = buildConfiguration.getLastModificationTime();
         this.buildStatus = buildConfiguration.getBuildStatus();
         this.repositories = buildConfiguration.getRepositories();
+        this.ga = buildConfiguration.getGa().toString();
         performIfNotNull(buildConfiguration.getProject(), () -> this.projectId = buildConfiguration.getProject()
                 .getId());
         performIfNotNull(buildConfiguration.getBuildEnvironment(), () -> this.environmentId = buildConfiguration.getBuildEnvironment().getId());
@@ -225,6 +231,14 @@ public class BuildConfigurationRest implements GenericRestEntity<Integer> {
         this.environmentId = environmentId;
     }
 
+    public String getGa() {
+        return ga;
+    }
+
+    public void setGa(String ga) {
+        this.ga = ga;
+    }
+
     public BuildConfiguration toBuildConfiguration(BuildConfiguration buildConfiguration) {
         BuildConfiguration.Builder builder = BuildConfiguration.Builder.newBuilder();
         builder.id(id);
@@ -237,6 +251,7 @@ public class BuildConfigurationRest implements GenericRestEntity<Integer> {
         builder.lastModificationTime(lastModificationTime);
         builder.buildStatus(buildStatus);
         builder.repositories(repositories);
+        builder.ga(ga);
 
         performIfNotNull(projectId, () -> builder.project(Project.Builder.newBuilder().id(projectId).build()));
         performIfNotNull(environmentId, () -> builder.buildEnvironment(BuildEnvironment.Builder.newBuilder().id(environmentId).build()));

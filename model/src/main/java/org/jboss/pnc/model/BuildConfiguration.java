@@ -48,7 +48,6 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
 
     private static final long serialVersionUID = -5890729679489304114L;
 
-    public static final String DEFAULT_SORTING_FIELD = "name";
     public static final String SEQUENCE_NAME = "build_configuration_id_seq";
 
     @Id
@@ -59,6 +58,10 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
     @Column(unique = true)
     @NotNull
     private String name;
+
+    @Column(unique = true)
+    @NotNull
+    private GA ga;
 
     private String buildScript;
 
@@ -551,6 +554,18 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
         }
     }
 
+    public GA getGa() {
+        return ga;
+    }
+
+    public void setGa(GA ga) {
+        this.ga = ga;
+    }
+
+    public void setGaFromString(String gaAsString) {
+        this.ga = new GA(gaAsString);
+    }
+
     public static class Builder {
 
         private Integer id;
@@ -585,6 +600,8 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
 
         private String repositories;
 
+        private GA ga;
+
         private Builder() {
             dependencies = new HashSet<BuildConfiguration>();
             dependants = new HashSet<BuildConfiguration>();
@@ -602,6 +619,7 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
             BuildConfiguration buildConfiguration = new BuildConfiguration();
             buildConfiguration.setId(id);
             buildConfiguration.setName(name);
+            buildConfiguration.setGa(ga);
             buildConfiguration.setBuildScript(buildScript);
             buildConfiguration.setScmRepoURL(scmRepoURL);
             buildConfiguration.setScmRevision(scmRevision);
@@ -644,6 +662,16 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
 
         public Builder id(Integer id) {
             this.id = id;
+            return this;
+        }
+
+        public Builder ga(String groupId, String artifactId) {
+            this.ga = new GA(groupId, artifactId);
+            return this;
+        }
+
+        public Builder ga(String ga) {
+            this.ga = new GA(ga);
             return this;
         }
 

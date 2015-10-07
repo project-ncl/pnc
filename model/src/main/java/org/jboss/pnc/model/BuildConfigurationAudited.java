@@ -52,6 +52,10 @@ public class BuildConfigurationAudited implements GenericEntity<IdRev> {
     @NotNull
     private String name;
 
+    @Column(unique = true)
+    @NotNull
+    private GA ga;
+
     private String buildScript;
 
     private String scmRepoURL;
@@ -215,6 +219,14 @@ public class BuildConfigurationAudited implements GenericEntity<IdRev> {
         this.buildRecords = buildRecords;
     }
 
+    public GA getGa() {
+        return ga;
+    }
+
+    public void setGa(GA ga) {
+        this.ga = ga;
+    }
+
     @Override
     public String toString() {
         return "BuildConfigurationAudit [project=" + project + ", name=" + name + ", id=" + id + ", rev=" + rev + "]";
@@ -253,6 +265,7 @@ public class BuildConfigurationAudited implements GenericEntity<IdRev> {
             configurationAudited.setDescription(buildConfiguration.getDescription());
             configurationAudited.setBuildEnvironment(buildConfiguration.getBuildEnvironment());
             configurationAudited.setName(buildConfiguration.getName());
+            configurationAudited.setGa(buildConfiguration.getGa());
             configurationAudited.setDescription(buildConfiguration.getDescription());
             configurationAudited.setScmRepoURL(buildConfiguration.getScmRepoURL());
             configurationAudited.setScmRevision(buildConfiguration.getScmRevision());

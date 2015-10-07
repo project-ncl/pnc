@@ -6,5 +6,6 @@
     "lastModificationTime": ${_lastModificationTime},
     "repositories": "${_repositories}",
     "projectId": "${_projectId}",
-    "environmentId": "${_environmentId}"
+    "environmentId": "${_environmentId}",
+    "ga": "test:test"
 }

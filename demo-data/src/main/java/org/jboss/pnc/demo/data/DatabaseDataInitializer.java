@@ -208,32 +208,33 @@ public class DatabaseDataInitializer {
         buildConfiguration1 = BuildConfiguration.Builder.newBuilder().name(PNC_PROJECT_BUILD_CFG_ID).project(project1)
                 .description("Test build config for project newcastle").buildEnvironment(environment1)
                 .buildScript("mvn clean deploy -DskipTests=true").scmRepoURL("https://github.com/project-ncl/pnc.git")
-                .scmRevision("*/v0.2").build();
+                .scmRevision("*/v0.2").ga("org.jboss.pnc:parent").build();
         buildConfiguration1 = buildConfigurationRepository.save(buildConfiguration1);
 
         buildConfiguration2 = BuildConfiguration.Builder.newBuilder().name("jboss-modules-1.5.0").project(project2)
                 .description("Test config for JBoss modules build master branch.").buildEnvironment(environment1)
                 .buildScript("mvn clean deploy -DskipTests=true")
                 .scmRepoURL("https://github.com/jboss-modules/jboss-modules.git")
-                .scmRevision("9e7115771a791feaa5be23b1255416197f2cda38").build();
+                .scmRevision("9e7115771a791feaa5be23b1255416197f2cda38").ga("org.jboss.modules:jboss-modules").build();
         buildConfiguration2 = buildConfigurationRepository.save(buildConfiguration2);
 
         BuildConfiguration buildConfiguration3 = BuildConfiguration.Builder.newBuilder().name("jboss-servlet-spec-api-1.0.1")
                 .project(project3).description("Test build for jboss java servlet api").buildEnvironment(environment1)
                 .buildScript("mvn clean deploy -DskipTests=true")
-                .scmRepoURL("https://github.com/jboss/jboss-servlet-api_spec.git").dependency(buildConfiguration2).build();
+                .scmRepoURL("https://github.com/jboss/jboss-servlet-api_spec.git").dependency(buildConfiguration2)
+                .ga("org.jboss.spec.javax.servlet:jboss-servlet-api_3.1_spec").build();
         buildConfiguration3 = buildConfigurationRepository.save(buildConfiguration3);
 
         BuildConfiguration buildConfiguration4 = BuildConfiguration.Builder.newBuilder().name("io-fabric8-2.2-SNAPSHOT")
                 .project(project4).description("Test build for Fabric8").buildEnvironment(environment1)
                 .buildScript("mvn clean deploy -DskipTests=true").scmRepoURL("https://github.com/fabric8io/fabric8.git")
-                .build();
+                .ga("io.fabric8:fabric8-project").build();
         buildConfiguration4 = buildConfigurationRepository.save(buildConfiguration4);
 
         BuildConfiguration buildConfiguration5 = BuildConfiguration.Builder.newBuilder().name("maven-plugin-test")
                 .project(project5).description("Test build for Plugins with external downloads").buildEnvironment(environment1)
                 .buildScript("mvn clean deploy").scmRepoURL("https://github.com/rnc/mvn-plugin-test.git")
-                .build();
+                .ga("org.goots:maven-plugin-test").build();
         buildConfiguration5 = buildConfigurationRepository.save(buildConfiguration5);
 
         // Build config set containing the three example build configs

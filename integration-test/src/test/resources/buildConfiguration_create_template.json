@@ -6,5 +6,6 @@
     "lastModificationTime":1418382545038,
     "repositories":null,
     "projectId": "${_projectId}",
-    "environmentId": "${_environmentId}"
+    "environmentId": "${_environmentId}",
+    "ga": "test:test"
 }

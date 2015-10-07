@@ -17,13 +17,6 @@
  */
 package org.jboss.pnc.integration;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
-import java.lang.invoke.MethodHandles;
-import java.util.List;
-
-import javax.inject.Inject;
-
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.junit.InSequence;
@@ -53,6 +46,12 @@ import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.inject.Inject;
+import java.lang.invoke.MethodHandles;
+import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * End to end scenario test for auditing entities.
@@ -124,7 +123,7 @@ public class DatastoreTest {
         project = projectRepository.save(project);
 
         BuildConfiguration testedConfiguration = BuildConfiguration.Builder.newBuilder()
-                .buildEnvironment(environment).name(ORIGINAL_NAME).project(project).build();
+                .buildEnvironment(environment).name(ORIGINAL_NAME).ga("test:test").project(project).build();
 
         testedConfigurationId = buildConfigurationRepository.save(testedConfiguration).getId();
     }

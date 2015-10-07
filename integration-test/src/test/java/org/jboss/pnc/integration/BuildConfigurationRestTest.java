@@ -177,7 +177,7 @@ public class BuildConfigurationRestTest {
     }
 
     @Test
-    public void shouldCreateNewBuildConfigurationWithCreateAndModifiedTime() throws IOException {
+    public void shouldCreateNewBuildConfigurationWithCreateModifiedTimeAndGA() throws IOException {
         JsonTemplateBuilder configurationTemplate = JsonTemplateBuilder.fromResource("buildConfiguration_WithEmptyCreateDate_template");
         configurationTemplate.addValue("_projectId", String.valueOf(projectId));
         configurationTemplate.addValue("_environmentId", String.valueOf(environmentId));
@@ -187,7 +187,9 @@ public class BuildConfigurationRestTest {
                     .body(configurationTemplate.fillTemplate()).contentType(ContentType.JSON).port(getHttpPort()).when().post(CONFIGURATION_REST_ENDPOINT);
 
         ResponseAssertion.assertThat(response).hasStatus(201);
-        ResponseAssertion.assertThat(response).hasJsonValueNotNullOrEmpty("content.creationTime").hasJsonValueNotNullOrEmpty("content.lastModificationTime");
+        ResponseAssertion.assertThat(response).hasJsonValueNotNullOrEmpty("content.creationTime");
+        ResponseAssertion.assertThat(response).hasJsonValueNotNullOrEmpty("content.lastModificationTime");
+        ResponseAssertion.assertThat(response).hasJsonValueNotNullOrEmpty("content.ga");
     }
 
     @Test
@@ -277,6 +279,8 @@ public class BuildConfigurationRestTest {
                 clonedBuildConfiguration.body().jsonPath().getString("content.lastModificationTime"));
         assertThat(originalBuildConfiguration.body().jsonPath().getString("content.repositories")).isEqualTo(
                 clonedBuildConfiguration.body().jsonPath().getString("content.repositories"));
+        assertThat(originalBuildConfiguration.body().jsonPath().getString("content.ga")).isEqualTo(
+                clonedBuildConfiguration.body().jsonPath().getString("content.ga"));
     }
 
     @Test
@@ -333,11 +337,13 @@ public class BuildConfigurationRestTest {
         parentBuildConfiguration.setName(UUID.randomUUID().toString());
         parentBuildConfiguration.setProjectId(projectRestClient.getValue().getId());
         parentBuildConfiguration.setEnvironmentId(environmentRestClient.getValue().getId());
+        parentBuildConfiguration.setGa("test:test1");
 
         BuildConfigurationRest childBuildConfiguration = new BuildConfigurationRest();
         childBuildConfiguration.setName(UUID.randomUUID().toString());
         childBuildConfiguration.setProjectId(projectRestClient.getValue().getId());
         childBuildConfiguration.setEnvironmentId(environmentRestClient.getValue().getId());
+        childBuildConfiguration.setGa("test:test2");
 
         //when
         RestResponse<BuildConfigurationRest> parentConfiguration = this.buildConfigurationRestClient.createNew(parentBuildConfiguration);
