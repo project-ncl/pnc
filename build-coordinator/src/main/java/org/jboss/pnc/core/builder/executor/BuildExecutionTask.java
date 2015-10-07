@@ -23,6 +23,7 @@ import org.jboss.pnc.core.content.ContentIdentityManager;
 import org.jboss.pnc.core.events.DefaultBuildStatusChangedEvent;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
+import org.jboss.pnc.model.IdRev;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.BuildExecution;
 import org.jboss.pnc.spi.BuildStatus;
@@ -77,9 +78,10 @@ public class BuildExecutionTask implements BuildExecution {
     }
 
     public void setStatus(BuildStatus status) {
-
+        IdRev idRev = buildConfigurationAudited.getId();
         BuildStatusChangedEvent buildStatusChanged = new DefaultBuildStatusChangedEvent(this.status, status, buildTaskId,
-                buildConfigurationAudited.getId().getId(), user.getId());
+                idRev.getId(),
+                user.getId());
         log.debug("Updating build task {} status to {}", buildTaskId, buildStatusChanged);
         this.status = status;
         if (status.hasFailed()) {

@@ -195,7 +195,10 @@ public class BuildTriggerer {
             Long submitTimeMillis, String callbackUrl) throws CoreException {
         final BuildConfiguration configuration = buildConfigurationRepository.queryById(buildConfigurationId);
         IdRev idRev = new IdRev(buildConfigurationId, buildConfigurationRevision);
+        log.debug("Querying for configurationAudited by idRev: " + idRev.toString());
         final BuildConfigurationAudited configurationAudited = buildConfigurationAuditedRepository.queryById(idRev);
+        log.debug("Building configurationAudited " + configurationAudited.toString());
+        log.debug("Current user " + currentUser.getUsername());
 
         Consumer<BuildStatus> onComplete = (buildStatus) -> {
             if (callbackUrl != null && !callbackUrl.isEmpty()) {

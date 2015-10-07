@@ -102,7 +102,9 @@ public class BpmBuildScheduler implements BuildScheduler {
     ProcessInstance startProcess(BuildTask buildTask, Integer buildTaskSetId) throws CoreException {
         try {
             KieSession kieSession = createSession(buildTask);
-            return kieSession.startProcess(getProcessId(buildTask), createParameters(buildTask, buildTaskSetId));
+            ProcessInstance processInstance = kieSession.startProcess(getProcessId(buildTask), createParameters(buildTask, buildTaskSetId));
+            logger.debug("Crated new process instance with id [{}]", processInstance.getId());
+            return processInstance;
         } catch (ConfigurationParseException e) {
             throw new CoreException("Could not parse configuration", e);
         } catch (JsonProcessingException e) {
@@ -181,7 +183,7 @@ public class BpmBuildScheduler implements BuildScheduler {
                 Optional.of(buildTask)
                         .map(BuildTask::getBuildConfigurationAudited)
                         .map(BuildConfigurationAudited::getIdRev)
-                        .map(IdRev::getId)
+                        .map(IdRev::getRev)
                         .orElse(null));
         buildRequest.put("buildRecordSetIdsCSV", StringUtils.toCVS(buildTask.getBuildRecordSetIds()));
         buildRequest.put("buildConfigSetRecordId", buildTask.getBuildConfigSetRecordId());
