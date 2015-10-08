@@ -33,6 +33,7 @@ import org.jboss.pnc.rest.provider.BuildConfigurationProvider;
 import org.jboss.pnc.rest.provider.BuildRecordProvider;
 import org.jboss.pnc.rest.provider.ProductVersionProvider;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationRest;
+import org.jboss.pnc.rest.restmodel.BuildRecordRest;
 import org.jboss.pnc.rest.restmodel.ProductVersionRest;
 import org.jboss.pnc.rest.restmodel.response.Singleton;
 import org.jboss.pnc.rest.restmodel.response.error.ErrorResponseRest;
@@ -350,9 +351,10 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
                     callbackUrl);
 
             UriBuilder uriBuilder = UriBuilder.fromUri(uriInfo.getBaseUri()).path("/result/running/{id}");
-            int runningBuildId = buildExecutionTask.getId();
-            URI uri = uriBuilder.build(runningBuildId);
-            return Response.ok(uri).header("location", uri).entity(buildRecordProvider.getSpecificRunning(runningBuildId)).build();
+            URI uri = uriBuilder.build(buildTaskId);
+            BuildRecordRest buildRecordRest = new BuildRecordRest(buildExecutionTask, new Date(submitTimeMillis));
+            Response response = Response.ok(uri).header("location", uri).entity(new Singleton(buildRecordRest)).build();
+            return response;
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
             return Response.serverError().entity("Other error: " + e.getMessage()).build();

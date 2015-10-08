@@ -26,11 +26,14 @@ import io.swagger.annotations.ApiResponses;
 import org.jboss.pnc.core.builder.coordinator.bpm.BpmCompleteListener;
 import org.jboss.pnc.rest.restmodel.response.Singleton;
 import org.jboss.pnc.spi.BuildStatus;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -38,6 +41,8 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+
+import java.lang.invoke.MethodHandles;
 
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_DESCRIPTION;
@@ -54,6 +59,8 @@ public class BuildTaskEndpoint {
     @Inject
     private BpmCompleteListener bpmCompleteListener;
 
+    private static final Logger logger = LoggerFactory.getLogger(BuildTaskEndpoint.class);
+
     @Deprecated
     public BuildTaskEndpoint() {} // CDI workaround
 
@@ -61,12 +68,14 @@ public class BuildTaskEndpoint {
     @ApiResponses(value = {
             @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION)
     })
-    @GET
+    @POST
     @Path("/{taskId}/completed")
     public Response buildTaskCompleted(
-            @ApiParam(value = "Build task id", required = true) @PathParam("taskId") int taskId,
-            @ApiParam(value = "Build status", required = true) @QueryParam("buildStatus") BuildStatus buildStatus) {
-        bpmCompleteListener.notifyCompleted(taskId, buildStatus);
+            @ApiParam(value = "Build task id", required = true) @PathParam("taskId") Integer taskId,
+            @ApiParam(value = "Build status", required = true) @QueryParam("buildStatus") String buildStatusParam) {
+        logger.debug("Received task completed notification for coordinating task id [{}]. Status received [{}]", taskId, buildStatusParam);
+
+        bpmCompleteListener.notifyCompleted(taskId, BuildStatus.valueOf(buildStatusParam));
         return Response.ok().build();
     }
 
