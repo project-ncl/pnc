@@ -71,10 +71,13 @@ public class BuildTaskEndpoint {
     @POST
     @Path("/{taskId}/completed")
     public Response buildTaskCompleted(
-            @ApiParam(value = "Build task id", required = true) @PathParam("taskId") int taskId,
-            @ApiParam(value = "Build status", required = true) @QueryParam("buildStatus") BuildStatus buildStatus) {
-        logger.debug("Received task completed notification for task id [{}}]. Status received [{}]", taskId, buildStatus);
-        bpmCompleteListener.notifyCompleted(taskId, buildStatus);
+            @ApiParam(value = "Build task id", required = true) @PathParam("taskId") String taskIdParam,
+            @ApiParam(value = "Build status", required = true) @QueryParam("buildStatus") String buildStatusParam) {
+        logger.debug("Received task completed notification for task id [{}}]. Status received [{}]", taskIdParam, buildStatusParam);
+
+        int taskId = Integer.parseInt(taskIdParam);
+
+        bpmCompleteListener.notifyCompleted(taskId, BuildStatus.valueOf(buildStatusParam));
         return Response.ok().build();
     }
 
