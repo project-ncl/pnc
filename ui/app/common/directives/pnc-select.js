@@ -51,6 +51,7 @@
     var tmpl =
       '<ul class="list-group" ng-show="shouldShow()">' +
         '<li class="list-group-item" ng-repeat="item in selectedItems">' +
+          '{{ additionalDisplayItemsById[item.id] }} ' +
           '{{ item[displayProperty] }}' +
           '<button type="button" class="close" aria-label="Close" ng-click="removeItem(item)">' +
             '<span aria-hidden="true">×</span>' +
@@ -71,6 +72,7 @@
         selectedItems: '=',
         query: '&',
         displayProperty: '@',
+        additionalDisplayItemsById: '=',
         placeholder: '@'
       },
       template: tmpl,

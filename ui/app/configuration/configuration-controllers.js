@@ -81,12 +81,18 @@
         });
       };
 
-
       // Filtering and selection of linked ProductVersions.
       this.products = {
         all: products,
         selected: null
       };
+
+      // Could not make it work in a nicer way (i.e. via cachedGetter) - avibelli
+      this.allProductsMaps = {};
+      this.allProductNamesMaps = {};
+      this.products.all.forEach(function ( prod ) {
+          that.allProductsMaps[ prod.id ] = prod;
+      });
 
       this.productVersions = {
         selected: [],
@@ -97,6 +103,11 @@
             productId: that.products.selected.id
           }).then(function(data) {
             that.productVersions.all = data;
+
+            // TOFIX - Ugly but quick - avibelli
+            data.forEach(function ( prodVers ) {
+                that.allProductNamesMaps[ prodVers.id ] = that.allProductsMaps[ prodVers.productId ].name + ' - ';
+            });
           });
         },
         getItems: function($viewValue) {
@@ -161,7 +172,7 @@
       // TOFIX - Ugly but quick - avibelli
       that.allProductNamesMaps = {};
       linkedProductVersions.forEach(function ( prodVers ) {
-          that.allProductNamesMaps[ prodVers.id ] = that.allProductsMaps[ prodVers.productId ].name;
+          that.allProductNamesMaps[ prodVers.id ] = that.allProductsMaps[ prodVers.productId ].name + ' - ';
       });
 
       this.productVersions = {
