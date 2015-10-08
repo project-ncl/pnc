@@ -133,6 +133,7 @@ public class BuildExecutor {
 
         runningExecutions.put(buildExecutionTask.getId(), buildExecutionTask);
         Consumer<BuildStatus> onCompleteInternal = (buildStatus) -> {
+            log.debug("Removing buildExecutionTask [" + buildExecutionTask.getId() + "] form list of running tasks.");
             runningExecutions.remove(buildExecutionTask.getId());
             onComplete.accept(buildStatus);
         };
