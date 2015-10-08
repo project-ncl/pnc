@@ -102,7 +102,13 @@ public class BpmBuildScheduler implements BuildScheduler {
     ProcessInstance startProcess(BuildTask buildTask, Integer buildTaskSetId) throws CoreException {
         try {
             KieSession kieSession = createSession(buildTask);
-            return kieSession.startProcess(getProcessId(buildTask), createParameters(buildTask, buildTaskSetId));
+            ProcessInstance processInstance = kieSession.startProcess(getProcessId(buildTask), createParameters(buildTask, buildTaskSetId));
+            if (processInstance == null) {
+                logger.warn("Failed to create new process instance.");
+            } else {
+                logger.debug("Created new process instance with id [{}]", processInstance.getId());
+            }
+            return processInstance;
         } catch (ConfigurationParseException e) {
             throw new CoreException("Could not parse configuration", e);
         } catch (JsonProcessingException e) {
@@ -139,7 +145,7 @@ public class BpmBuildScheduler implements BuildScheduler {
         "EnvironmentId" : 1
          */
         Map<String, Object> params = new HashMap<>();
-        params.put("GAV", "org.jboss.pnc:test:1.0.0-SNAPSHOT");// hardcoded for now....changes will be proposed later
+        params.put("GAV", buildTask.getBuildConfiguration().getName());
         params.put("Description", buildTask.getBuildConfiguration().getDescription());
         params.put("SCM", buildTask.getBuildConfiguration().getScmRepoURL());
         params.put("Tag", buildTask.getBuildConfiguration().getScmRevision());//no such field in PNC, we have only revision
@@ -177,11 +183,12 @@ public class BpmBuildScheduler implements BuildScheduler {
         Map<String, Object> buildRequest = new HashMap<>();
         buildRequest.put("buildTaskId", buildTask.getId());
         buildRequest.put("buildTaskSetId", buildTaskSetId);
+        buildRequest.put("buildConfiguration",buildTask.getBuildConfiguration().getId());
         buildRequest.put("buildConfigurationRevision",
                 Optional.of(buildTask)
                         .map(BuildTask::getBuildConfigurationAudited)
                         .map(BuildConfigurationAudited::getIdRev)
-                        .map(IdRev::getId)
+                        .map(IdRev::getRev)
                         .orElse(null));
         buildRequest.put("buildRecordSetIdsCSV", StringUtils.toCVS(buildTask.getBuildRecordSetIds()));
         buildRequest.put("buildConfigSetRecordId", buildTask.getBuildConfigSetRecordId());
