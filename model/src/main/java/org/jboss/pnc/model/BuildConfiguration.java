@@ -77,7 +77,6 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
         uniqueConstraints = @UniqueConstraint(name = "UK_build_configuration_id_product_version_id",
           columnNames = {"build_configuration_id", "product_version_id"}))
     @ForeignKey(name = "fk_build_configuration_product_versions_map_buildconfiguration", inverseName = "fk_build_configuration_product_versions_map_productversion")
-    
     private Set<ProductVersion> productVersions;
 
     @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
@@ -293,7 +292,9 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
         if (buildConfigurationSets == null) {
             this.buildConfigurationSets = new HashSet<BuildConfigurationSet>();
         }
-        this.buildConfigurationSets = buildConfigurationSets;
+        else {
+            this.buildConfigurationSets = buildConfigurationSets;
+        }
     }
 
     /**
