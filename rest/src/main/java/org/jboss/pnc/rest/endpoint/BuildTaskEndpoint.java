@@ -26,6 +26,8 @@ import io.swagger.annotations.ApiResponses;
 import org.jboss.pnc.core.builder.coordinator.bpm.BpmCompleteListener;
 import org.jboss.pnc.rest.restmodel.response.Singleton;
 import org.jboss.pnc.spi.BuildStatus;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
@@ -38,6 +40,8 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+
+import java.lang.invoke.MethodHandles;
 
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_DESCRIPTION;
@@ -54,6 +58,8 @@ public class BuildTaskEndpoint {
     @Inject
     private BpmCompleteListener bpmCompleteListener;
 
+    private static final Logger logger = LoggerFactory.getLogger(BuildTaskEndpoint.class);
+
     @Deprecated
     public BuildTaskEndpoint() {} // CDI workaround
 
@@ -66,6 +72,7 @@ public class BuildTaskEndpoint {
     public Response buildTaskCompleted(
             @ApiParam(value = "Build task id", required = true) @PathParam("taskId") int taskId,
             @ApiParam(value = "Build status", required = true) @QueryParam("buildStatus") BuildStatus buildStatus) {
+        logger.debug("Received task completed notification for task id [{}}]. Status received [{}]", taskId, buildStatus);
         bpmCompleteListener.notifyCompleted(taskId, buildStatus);
         return Response.ok().build();
     }
