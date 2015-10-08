@@ -146,17 +146,23 @@
 
       var that = this;
 
+      // Filtering and selection of linked ProductVersions.
+      this.products = {
+        all: allProducts,
+        selected: null
+      };
+
       // Could not make it work in a nicer way (i.e. via cachedGetter) - avibelli
       that.allProductsMaps = {};
       that.allProducts.forEach(function ( prod ) {
           that.allProductsMaps[ prod.id ] = prod;
       });
 
-      // Filtering and selection of linked ProductVersions.
-      this.products = {
-        all: [],
-        selected: null
-      };
+      // TOFIX - Ugly but quick - avibelli
+      that.allProductNamesMaps = {};
+      linkedProductVersions.forEach(function ( prodVers ) {
+          that.allProductNamesMaps[ prodVers.id ] = that.allProductsMaps[ prodVers.productId ].name;
+      });
 
       this.productVersions = {
         selected: linkedProductVersions,
@@ -184,11 +190,8 @@
           productId: linkedProductVersions[0].productId
         }).$promise.then(function(result) {
           that.products.selected = result;
-          that.products.all = [that.products.selected];
           that.productVersions.update();
         });
-      } else {
-        that.products.all = allProducts;
       }
 
       // Selection of dependencies.
