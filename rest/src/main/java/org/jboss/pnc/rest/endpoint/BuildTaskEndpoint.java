@@ -71,11 +71,9 @@ public class BuildTaskEndpoint {
     @POST
     @Path("/{taskId}/completed")
     public Response buildTaskCompleted(
-            @ApiParam(value = "Build task id", required = true) @PathParam("taskId") String taskIdParam,
+            @ApiParam(value = "Build task id", required = true) @PathParam("taskId") Integer taskId,
             @ApiParam(value = "Build status", required = true) @QueryParam("buildStatus") String buildStatusParam) {
-        logger.debug("Received task completed notification for task id [{}}]. Status received [{}]", taskIdParam, buildStatusParam);
-
-        int taskId = Integer.parseInt(taskIdParam);
+        logger.debug("Received task completed notification for coordinating task id [{}]. Status received [{}]", taskId, buildStatusParam);
 
         bpmCompleteListener.notifyCompleted(taskId, BuildStatus.valueOf(buildStatusParam));
         return Response.ok().build();
