@@ -21,6 +21,9 @@ import org.jboss.pnc.model.Product;
 import org.jboss.pnc.model.ProductMilestone;
 import org.jboss.pnc.model.ProductRelease;
 import org.jboss.pnc.model.ProductVersion;
+import org.jboss.pnc.model.BuildConfiguration;
+import org.jboss.pnc.model.BuildConfigurationSet;
+
 import org.jboss.pnc.rest.validation.groups.WhenCreatingNew;
 import org.jboss.pnc.rest.validation.groups.WhenUpdating;
 
@@ -50,7 +53,9 @@ public class ProductVersionRest implements GenericRestEntity<Integer> {
 
     List<Integer> productReleaseIds = new ArrayList<Integer>();
 
-    List<Integer> buildConfigurationSetIds;
+    List<Integer> buildConfigurationSetIds = new ArrayList<Integer>();
+
+    List<Integer> buildConfigurationIds = new ArrayList<Integer>();
 
     public ProductVersionRest() {
     }
@@ -68,6 +73,14 @@ public class ProductVersionRest implements GenericRestEntity<Integer> {
 
         for (ProductRelease release : productVersion.getProductReleases()) {
             productReleaseIds.add(release.getId());
+        }
+
+        for (BuildConfiguration buildConfiguration : productVersion.getBuildConfigurations()) {
+            buildConfigurationIds.add(buildConfiguration.getId());
+        }
+
+        for (BuildConfigurationSet buildConfigurationSet : productVersion.getBuildConfigurationSets()) {
+            buildConfigurationSetIds.add(buildConfigurationSet.getId());
         }
 
     }
@@ -104,6 +117,14 @@ public class ProductVersionRest implements GenericRestEntity<Integer> {
 
     public void setBuildConfigurationSetIds(List<Integer> buildConfigurationSetIds) {
         this.buildConfigurationSetIds = buildConfigurationSetIds;
+    }
+
+    public List<Integer> getBuildConfigurationIds() {
+        return buildConfigurationIds;
+    }
+
+    public void setBuildConfigurationIds(List<Integer> buildConfigurationIds) {
+        this.buildConfigurationIds = buildConfigurationIds;
     }
 
     public List<Integer> getProductMilestones() {
