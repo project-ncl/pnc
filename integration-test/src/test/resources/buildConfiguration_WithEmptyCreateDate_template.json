@@ -1,5 +1,6 @@
 {
   "name": "${_name}",
   "projectId": "${_projectId}",
-  "environmentId": "${_environmentId}"
+  "environmentId": "${_environmentId}",
+  "ga": "test:test"
 }

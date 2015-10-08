@@ -73,6 +73,8 @@ public class AbstractProviderTest {
     public void shouldReturnCollectionWithPagingInfo() throws Exception {
         //given
         BuildConfiguration exampleConfiguration = new BuildConfiguration();
+        exampleConfiguration.setId(1);
+        exampleConfiguration.setGaFromString("test:test");
 
         TestedAbstractProvider testedAbstractProvider = new TestedAbstractProvider();
         doReturn(Arrays.asList(exampleConfiguration)).when(repository).queryWithPredicates(any(), any(), any());
@@ -93,6 +95,7 @@ public class AbstractProviderTest {
         //given
         BuildConfiguration exampleConfiguration = new BuildConfiguration();
         exampleConfiguration.setId(1);
+        exampleConfiguration.setGaFromString("test:test");
 
         TestedAbstractProvider testedAbstractProvider = new TestedAbstractProvider();
         doReturn(exampleConfiguration).when(repository).queryById(1);
@@ -109,6 +112,7 @@ public class AbstractProviderTest {
         //given
         BuildConfiguration exampleConfiguration = new BuildConfiguration();
         exampleConfiguration.setId(1);
+        exampleConfiguration.setGaFromString("test:test");
 
         BuildConfigurationRest exampleConfigurationRest = new BuildConfigurationRest(exampleConfiguration);
 

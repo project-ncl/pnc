@@ -155,6 +155,7 @@ public class ModelTestDataFactory {
                 .project(getProject1())
                 .scmRepoURL("http://www.github.com")
                 .buildScript("mvn install")
+                .ga("test:test")
                 .buildEnvironment(getBuildEnvironmentDefault())
                 .build();
     }
