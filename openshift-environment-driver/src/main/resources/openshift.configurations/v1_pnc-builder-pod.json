@@ -56,7 +56,7 @@
                 "imagePullPolicy": "IfNotPresent",
                 "securityContext": {
                     "capabilities": {
-                        "add": ["all"]
+                        "add": ["ALL"]
                     }
                 }
             }
