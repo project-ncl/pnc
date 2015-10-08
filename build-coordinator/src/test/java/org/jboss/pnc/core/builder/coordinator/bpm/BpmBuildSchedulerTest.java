@@ -124,7 +124,7 @@ public class BpmBuildSchedulerTest {
         JsonNode paramsJSON = objectMapper.readTree(parameters.getValue().get("paramsJSON").toString());
         JsonNode buildRequestJSON = objectMapper.readTree(parameters.getValue().get("buildRequestJSON").toString());
 
-        assertThat(paramsJSON.at("/GAV").asText()).isEqualTo("org.jboss.pnc:test:1.0.0-SNAPSHOT");
+        assertThat(paramsJSON.at("/GAV").asText()).isEqualTo("name");
         assertThat(paramsJSON.at("/Description").asText()).isEqualTo("test");
         assertThat(paramsJSON.at("/SCM").asText()).isEqualTo("http://github.com/test/me");
         assertThat(paramsJSON.at("/Tag").asText()).isEqualTo("master");
