@@ -131,19 +131,26 @@
     'configurationDetail',
     'environmentDetail',
     'projectDetail',
-    'productVersions',
+    'linkedProductVersions',
     'dependencies',
-    'products',
+    'allProducts',
     'configurations',
     function($log, $state, $filter, Notifications, ProductDAO, BuildConfigurationDAO,
       configurationDetail, environmentDetail, projectDetail,
-      linkedProductVersions, dependencies, products, configurations) {
+      linkedProductVersions, dependencies, allProducts, configurations) {
 
       this.configuration = configurationDetail;
       this.environment = environmentDetail;
       this.project = projectDetail;
+      this.allProducts = allProducts;
 
       var that = this;
+
+      // Could not make it work in a nicer way (i.e. via cachedGetter) - avibelli
+      that.allProductsMaps = {};
+      that.allProducts.forEach(function ( prod ) {
+          that.allProductsMaps[ prod.id ] = prod;
+      });
 
       // Filtering and selection of linked ProductVersions.
       this.products = {
@@ -172,6 +179,7 @@
       // Bootstrap products, depending on whether the BuildConfiguration
       // already has a ProductVersion attached.
       if (linkedProductVersions && linkedProductVersions.length > 0) {
+
         ProductDAO.get({
           productId: linkedProductVersions[0].productId
         }).$promise.then(function(result) {
@@ -180,9 +188,8 @@
           that.productVersions.update();
         });
       } else {
-        that.products.all = products;
+        that.products.all = allProducts;
       }
-
 
       // Selection of dependencies.
       this.dependencies = {
