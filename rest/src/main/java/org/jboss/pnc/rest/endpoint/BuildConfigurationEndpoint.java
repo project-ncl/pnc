@@ -351,10 +351,9 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
                     callbackUrl);
 
             UriBuilder uriBuilder = UriBuilder.fromUri(uriInfo.getBaseUri()).path("/result/running/{id}");
-//            int runningBuildId = buildExecutionTask.getId();
             URI uri = uriBuilder.build(buildTaskId);
-            BuildRecordRest specificRunning = buildRecordProvider.getSpecificRunning(buildTaskId); //TODO decouple reference to build coordinator, BPM requires buildContentId for aprox promotion
-            Response response = Response.ok(uri).header("location", uri).entity(new Singleton(specificRunning)).build();
+            BuildRecordRest buildRecordRest = new BuildRecordRest(buildExecutionTask, new Date(submitTimeMillis));
+            Response response = Response.ok(uri).header("location", uri).entity(new Singleton(buildRecordRest)).build();
             return response;
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
