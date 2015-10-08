@@ -103,7 +103,11 @@ public class BpmBuildScheduler implements BuildScheduler {
         try {
             KieSession kieSession = createSession(buildTask);
             ProcessInstance processInstance = kieSession.startProcess(getProcessId(buildTask), createParameters(buildTask, buildTaskSetId));
-            logger.debug("Crated new process instance with id [{}]", processInstance.getId());
+            if (processInstance == null) {
+                logger.warn("Failed to create new process instance.");
+            } else {
+                logger.debug("Created new process instance with id [{}]", processInstance.getId());
+            }
             return processInstance;
         } catch (ConfigurationParseException e) {
             throw new CoreException("Could not parse configuration", e);
