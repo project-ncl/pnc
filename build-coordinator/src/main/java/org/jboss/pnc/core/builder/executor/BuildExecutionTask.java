@@ -82,7 +82,7 @@ public class BuildExecutionTask implements BuildExecution {
         BuildStatusChangedEvent buildStatusChanged = new DefaultBuildStatusChangedEvent(this.status, status, buildTaskId,
                 idRev.getId(),
                 user.getId());
-        log.debug("Updating build task {} status to {}", buildTaskId, buildStatusChanged);
+        log.debug("Updating build execution task {} status to {}. Task is linked to coordination task {}.", id, buildStatusChanged, buildTaskId);
         this.status = status;
         if (status.hasFailed()) {
             failed = true;
