@@ -145,7 +145,7 @@ public class BpmBuildScheduler implements BuildScheduler {
         "EnvironmentId" : 1
          */
         Map<String, Object> params = new HashMap<>();
-        params.put("GAV", buildTask.getBuildConfiguration().getName());
+        params.put("BuildConfigName", buildTask.getBuildConfiguration().getName());
         params.put("Description", buildTask.getBuildConfiguration().getDescription());
         params.put("SCM", buildTask.getBuildConfiguration().getScmRepoURL());
         params.put("Tag", buildTask.getBuildConfiguration().getScmRevision());//no such field in PNC, we have only revision
