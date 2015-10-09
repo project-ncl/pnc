@@ -51,7 +51,9 @@ public class ProductVersionPredicates {
         };
     }*/
 
-    // THIS PREDICATE GIVES ALL THE PRODUCTVERSIONS LINKED TO A CERTAIN BUILDCONFIGURATION
+    /**
+     * This predicate returns all the ProductVersions linked to a specified BuildConfiguration
+     */
     public static Predicate<ProductVersion> withBuildConfigurationId(Integer buildConfigurationId) {
         return (root, query, cb) -> {
             SetJoin<ProductVersion, BuildConfiguration> buildConfigurationJoin = root.join(ProductVersion_.buildConfigurations);

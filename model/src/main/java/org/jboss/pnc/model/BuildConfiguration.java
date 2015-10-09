@@ -290,7 +290,7 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
      */
     public void setBuildConfigurationSets(Set<BuildConfigurationSet> buildConfigurationSets) {
         if (buildConfigurationSets == null) {
-            this.buildConfigurationSets = new HashSet<BuildConfigurationSet>();
+            this.buildConfigurationSets.clear();
         }
         else {
             this.buildConfigurationSets = buildConfigurationSets;
