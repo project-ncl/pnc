@@ -70,8 +70,12 @@ public class ProductVersion implements GenericEntity<Integer> {
     @ForeignKey(name = "fk_productversion_currentmilestone")
     private ProductMilestone currentProductMilestone;
 
+    @ManyToMany(mappedBy = "productVersions")
+    private Set<BuildConfiguration> buildConfigurations;
+
     public ProductVersion() {
         buildConfigurationSets = new HashSet<>();
+        buildConfigurations = new HashSet<BuildConfiguration>();
         productMilestones = new HashSet<ProductMilestone>();
     }
 
@@ -157,6 +161,19 @@ public class ProductVersion implements GenericEntity<Integer> {
         this.buildConfigurationSets = buildConfigurationSets;
     }
 
+    public Set<BuildConfiguration> getBuildConfigurations() {
+        return buildConfigurations;
+    }
+
+    public void setBuildConfigurations(Set<BuildConfiguration> buildConfigurations) {
+        if (buildConfigurations == null) {
+            this.buildConfigurations = new HashSet<BuildConfiguration>();
+        }
+        else {
+            this.buildConfigurations = buildConfigurations;
+        }
+    }
+
     @Override
     public String toString() {
         return "ProductVersion [id=" + id + ", version=" + version + "]";
@@ -175,6 +192,8 @@ public class ProductVersion implements GenericEntity<Integer> {
         private ProductMilestone currentProductMilestone;
 
         private Set<BuildConfigurationSet> buildConfigurationSets = new HashSet<>();
+
+        private Set<BuildConfiguration> buildConfigurations = new HashSet<>();
 
         private Builder() {
         }
@@ -199,6 +218,13 @@ public class ProductVersion implements GenericEntity<Integer> {
                 buildConfigurationSet.setProductVersion(productVersion);
             }
             productVersion.setBuildConfigurationSets(buildConfigurationSets);
+
+            for (BuildConfiguration buildConfiguration : buildConfigurations) {
+                if (!buildConfiguration.getProductVersions().contains(productVersion)) {
+                    buildConfiguration.addProductVersion(productVersion);
+                }
+            }
+            productVersion.setBuildConfigurations(buildConfigurations);
 
             for (ProductMilestone productMilestone : productMilestones) {
                 productMilestone.setProductVersion(productVersion);

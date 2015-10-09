@@ -136,13 +136,13 @@
         runningBuildRecordList: function(RunningBuildRecordDAO) {
           return RunningBuildRecordDAO.query();
         },
-        products: function(ProductDAO) {
+        allProducts: function(ProductDAO) {
           return ProductDAO.query();
         },
         configurations: function(BuildConfigurationDAO) {
           return BuildConfigurationDAO.query();
         },
-        productVersions: function(BuildConfigurationDAO, $stateParams) {
+        linkedProductVersions: function(BuildConfigurationDAO, $stateParams) {
           return BuildConfigurationDAO.getProductVersions({
             configurationId: $stateParams.configurationId });
         },

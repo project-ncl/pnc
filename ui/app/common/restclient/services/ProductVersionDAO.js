@@ -69,7 +69,7 @@
 
       resource.prototype.getProduct = cachedGetter(
         function (version) {
-          return ProductDAO.get({productId: version.productId}).$promise;
+          return ProductDAO.get({productId: version.productId});
         }
       );
 
@@ -84,7 +84,6 @@
           return ProductReleaseDAO.getAllForProductVersion({versionId: version.id});
         }
       );
-
       return resource;
     }
   ]);

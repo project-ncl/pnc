@@ -81,12 +81,18 @@
         });
       };
 
-
       // Filtering and selection of linked ProductVersions.
       this.products = {
         all: products,
         selected: null
       };
+
+      // Could not make it work in a nicer way (i.e. via cachedGetter) - avibelli
+      this.allProductsMaps = {};
+      this.allProductNamesMaps = {};
+      this.products.all.forEach(function ( prod ) {
+          that.allProductsMaps[ prod.id ] = prod;
+      });
 
       this.productVersions = {
         selected: [],
@@ -97,6 +103,11 @@
             productId: that.products.selected.id
           }).then(function(data) {
             that.productVersions.all = data;
+
+            // TOFIX - Ugly but quick - avibelli
+            data.forEach(function ( prodVers ) {
+                that.allProductNamesMaps[ prodVers.id ] = that.allProductsMaps[ prodVers.productId ].name + ' - ';
+            });
           });
         },
         getItems: function($viewValue) {
@@ -131,25 +142,38 @@
     'configurationDetail',
     'environmentDetail',
     'projectDetail',
-    'productVersions',
+    'linkedProductVersions',
     'dependencies',
-    'products',
+    'allProducts',
     'configurations',
     function($log, $state, $filter, Notifications, ProductDAO, BuildConfigurationDAO,
       configurationDetail, environmentDetail, projectDetail,
-      linkedProductVersions, dependencies, products, configurations) {
+      linkedProductVersions, dependencies, allProducts, configurations) {
 
       this.configuration = configurationDetail;
       this.environment = environmentDetail;
       this.project = projectDetail;
+      this.allProducts = allProducts;
 
       var that = this;
 
       // Filtering and selection of linked ProductVersions.
       this.products = {
-        all: [],
+        all: allProducts,
         selected: null
       };
+
+      // Could not make it work in a nicer way (i.e. via cachedGetter) - avibelli
+      that.allProductsMaps = {};
+      that.allProducts.forEach(function ( prod ) {
+          that.allProductsMaps[ prod.id ] = prod;
+      });
+
+      // TOFIX - Ugly but quick - avibelli
+      that.allProductNamesMaps = {};
+      linkedProductVersions.forEach(function ( prodVers ) {
+          that.allProductNamesMaps[ prodVers.id ] = that.allProductsMaps[ prodVers.productId ].name + ' - ';
+      });
 
       this.productVersions = {
         selected: linkedProductVersions,
@@ -172,17 +196,14 @@
       // Bootstrap products, depending on whether the BuildConfiguration
       // already has a ProductVersion attached.
       if (linkedProductVersions && linkedProductVersions.length > 0) {
+
         ProductDAO.get({
           productId: linkedProductVersions[0].productId
         }).$promise.then(function(result) {
           that.products.selected = result;
-          that.products.all = [that.products.selected];
           that.productVersions.update();
         });
-      } else {
-        that.products.all = products;
       }
-
 
       // Selection of dependencies.
       this.dependencies = {

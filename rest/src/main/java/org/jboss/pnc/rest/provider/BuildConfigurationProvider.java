@@ -84,8 +84,7 @@ public class BuildConfigurationProvider extends AbstractProvider<BuildConfigurat
 
     public CollectionInfo<BuildConfigurationRest> getAllForProductAndProductVersion(int pageIndex, int pageSize,
             String sortingRsql, String query, Integer productId, Integer versionId) {
-        return queryForCollection(pageIndex, pageSize, sortingRsql, query, withProductVersionId(versionId), withProductId(
-                productId));
+        return queryForCollection(pageIndex, pageSize, sortingRsql, query, withProductVersionId(versionId));
     }
 
     public CollectionInfo<BuildConfigurationRest> getAllForBuildConfigurationSet(int pageIndex, int pageSize,
