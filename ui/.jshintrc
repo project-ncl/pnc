@@ -23,6 +23,7 @@
     "Keycloak": false,
     "pnc_globals": false,
     "buckets": false,
-    "_": false
+    "_": false,
+    "$": false
   }
 }
