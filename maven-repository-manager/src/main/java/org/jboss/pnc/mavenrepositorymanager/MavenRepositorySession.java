@@ -2,13 +2,13 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2014 Red Hat, Inc., and individual contributors
  * as indicated by the @author tags.
- *
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
+ * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -27,10 +27,7 @@ import org.commonjava.aprox.folo.dto.TrackedContentEntryDTO;
 import org.commonjava.aprox.model.core.StoreKey;
 import org.commonjava.aprox.model.core.StoreType;
 import org.commonjava.aprox.promote.client.AproxPromoteClientModule;
-import org.commonjava.aprox.promote.model.GroupPromoteRequest;
-import org.commonjava.aprox.promote.model.GroupPromoteResult;
-import org.commonjava.aprox.promote.model.PathsPromoteRequest;
-import org.commonjava.aprox.promote.model.PathsPromoteResult;
+import org.commonjava.aprox.promote.model.*;
 import org.commonjava.maven.atlas.ident.ref.ArtifactRef;
 import org.commonjava.maven.atlas.ident.ref.SimpleArtifactRef;
 import org.commonjava.maven.atlas.ident.util.ArtifactPathInfo;
@@ -57,11 +54,10 @@ import java.util.*;
  * the case of composed (chained) builds, it also implies promotion of the build output to the associated build-set repository
  * group, to expose them for use in successive builds in the chain.
  */
-public class MavenRepositorySession implements RepositorySession
-{
+public class MavenRepositorySession implements RepositorySession {
 
     private static Set<String> IGNORED_PATH_SUFFIXES =
-                    Collections.unmodifiableSet( new HashSet<>( Arrays.asList( "maven-metadata.xml", ".sha1", ".md5", ".asc" ) ) );
+            Collections.unmodifiableSet(new HashSet<>(Arrays.asList("maven-metadata.xml", ".sha1", ".md5", ".asc")));
 
     private Aprox aprox;
     private final String buildRepoId;
@@ -72,8 +68,7 @@ public class MavenRepositorySession implements RepositorySession
     // TODO: Create and pass in suitable parameters to Aprox to create the
     //       proxy repository.
     public MavenRepositorySession(Aprox aprox, String buildRepoId, boolean isSetBuild,
-            MavenRepositoryConnectionInfo info)
-    {
+                                  MavenRepositoryConnectionInfo info) {
         this.aprox = aprox;
         this.buildRepoId = buildRepoId;
         this.isSetBuild = isSetBuild;
@@ -117,22 +112,21 @@ public class MavenRepositorySession implements RepositorySession
             throw new RepositoryManagerException("Failed to retrieve tracking report for: %s. Reason: %s", e, buildRepoId,
                     e.getMessage());
         }
-        if ( report == null)
-        {
+        if (report == null) {
             throw new RepositoryManagerException("Failed to retrieve tracking report for: %s.", buildRepoId);
         }
 
-        Comparator<Artifact> comp = ( one, two ) -> one.getIdentifier().compareTo( two.getIdentifier() );
+        Comparator<Artifact> comp = (one, two) -> one.getIdentifier().compareTo(two.getIdentifier());
 
-        List<Artifact> uploads = processUploads( report );
-        Collections.sort( uploads, comp );
+        List<Artifact> uploads = processUploads(report);
+        Collections.sort(uploads, comp);
 
-        List<Artifact> downloads = processDownloads( report );
-        Collections.sort( downloads, comp );
+        List<Artifact> downloads = processDownloads(report);
+        Collections.sort(downloads, comp);
 
-        Logger logger = LoggerFactory.getLogger( getClass() );
-        logger.info( "Returning built artifacts / dependencies:\nUploads:\n  {}\n\nDownloads:\n  {}\n\n",
-                     StringUtils.join( uploads, "\n  " ), StringUtils.join( downloads, "\n  " ) );
+        Logger logger = LoggerFactory.getLogger(getClass());
+        logger.info("Returning built artifacts / dependencies:\nUploads:\n  {}\n\nDownloads:\n  {}\n\n",
+                StringUtils.join(uploads, "\n  "), StringUtils.join(downloads, "\n  "));
 
         promoteToBuildContentSet();
 
@@ -148,7 +142,7 @@ public class MavenRepositorySession implements RepositorySession
      * @throws RepositoryManagerException In case of a client API transport error or an error during promotion of artifacts
      */
     private List<Artifact> processDownloads(TrackedContentDTO report) throws RepositoryManagerException {
-        Logger logger = LoggerFactory.getLogger( getClass() );
+        Logger logger = LoggerFactory.getLogger(getClass());
 
         AproxContentClientModule content;
         try {
@@ -168,9 +162,8 @@ public class MavenRepositorySession implements RepositorySession
 //            StoreKey sharedReleases = new StoreKey(StoreType.hosted, RepositoryManagerDriver.SHARED_RELEASES_ID);
 
             for (TrackedContentEntryDTO download : downloads) {
-                if ( ignoreContent( download.getPath() ) )
-                {
-                    logger.debug( "Ignoring download (matched in ignored-suffixes): {} (From: {})", download.getPath(), download.getStoreKey() );
+                if (ignoreContent(download.getPath())) {
+                    logger.debug("Ignoring download (matched in ignored-suffixes): {} (From: {})", download.getPath(), download.getStoreKey());
                     continue;
                 }
 
@@ -182,7 +175,7 @@ public class MavenRepositorySession implements RepositorySession
                 // TODO: Enterprise maven repository (product repo) handling...
                 if (!sharedImports.equals(sk) && StoreType.hosted != sk.getType()) {
                     // this has not been captured, so promote it.
-                    Set<String> paths = toPromote.get( sk );
+                    Set<String> paths = toPromote.get(sk);
                     if (paths == null) {
                         paths = new HashSet<>();
                         toPromote.put(sk, paths);
@@ -192,21 +185,21 @@ public class MavenRepositorySession implements RepositorySession
                 }
 
                 String path = download.getPath();
-                ArtifactPathInfo pathInfo = ArtifactPathInfo.parse( path );
+                ArtifactPathInfo pathInfo = ArtifactPathInfo.parse(path);
                 if (pathInfo == null) {
                     // metadata file. Ignore.
-                    logger.info( "NOT logging file download: {}. It does not appear to be an artifact. (From: {})", path, sk );
+                    logger.info("NOT logging file download: {}. It does not appear to be an artifact. (From: {})", path, sk);
                     continue;
                 }
 
                 ArtifactRef aref = new SimpleArtifactRef(pathInfo.getProjectId(), pathInfo.getType(), pathInfo.getClassifier(), false);
-                logger.info( "Recording download: {}", aref );
+                logger.info("Recording download: {}", aref);
 
-                Artifact.Builder artifactBuilder = Artifact.Builder.newBuilder().checksum( download.getMd5() )
-                        .deployUrl( content.contentUrl( download.getStoreKey(), download.getPath() ) )
-                        .filename( new File( path ).getName() ).identifier( aref.toString() ).repoType(
-                                                RepositoryType.MAVEN )
-                        .status( ArtifactStatus.BINARY_IMPORTED );
+                Artifact.Builder artifactBuilder = Artifact.Builder.newBuilder().checksum(download.getMd5())
+                        .deployUrl(content.contentUrl(download.getStoreKey(), download.getPath()))
+                        .filename(new File(path).getName()).identifier(aref.toString()).repoType(
+                                RepositoryType.MAVEN)
+                        .status(ArtifactStatus.BINARY_IMPORTED);
 
                 deps.add(artifactBuilder.build());
             }
@@ -229,7 +222,7 @@ public class MavenRepositorySession implements RepositorySession
      */
     private List<Artifact> processUploads(TrackedContentDTO report)
             throws RepositoryManagerException {
-        Logger logger = LoggerFactory.getLogger( getClass() );
+        Logger logger = LoggerFactory.getLogger(getClass());
 
         Set<TrackedContentEntryDTO> uploads = report.getUploads();
         if (uploads != null) {
@@ -237,28 +230,27 @@ public class MavenRepositorySession implements RepositorySession
 
             for (TrackedContentEntryDTO upload : uploads) {
                 String path = upload.getPath();
-                if ( ignoreContent( path ) )
-                {
-                    logger.debug( "Ignoring upload (matched in ignored-suffixes): {} (From: {})", path, upload.getStoreKey() );
+                if (ignoreContent(path)) {
+                    logger.debug("Ignoring upload (matched in ignored-suffixes): {} (From: {})", path, upload.getStoreKey());
                     continue;
                 }
 
                 ArtifactPathInfo pathInfo = ArtifactPathInfo.parse(path);
                 if (pathInfo == null) {
                     // metadata file. Ignore.
-                    logger.info( "NOT logging file upload: {}. It does not appear to be an artifact. (From: {})", path, upload.getStoreKey() );
+                    logger.info("NOT logging file upload: {}. It does not appear to be an artifact. (From: {})", path, upload.getStoreKey());
                     continue;
                 }
 
                 ArtifactRef aref = new SimpleArtifactRef(pathInfo.getProjectId(), pathInfo.getType(), pathInfo.getClassifier(), false);
-                logger.info( "Recording upload: {}", aref );
+                logger.info("Recording upload: {}", aref);
 
-                Artifact.Builder artifactBuilder = Artifact.Builder.newBuilder().checksum( upload.getSha256() )
-                        .deployUrl( upload.getLocalUrl() ).filename( new File( path ).getName() ).identifier(
-                                                aref.toString() )
-                        .repoType( RepositoryType.MAVEN ).status( ArtifactStatus.BINARY_BUILT );
+                Artifact.Builder artifactBuilder = Artifact.Builder.newBuilder().checksum(upload.getSha256())
+                        .deployUrl(upload.getLocalUrl()).filename(new File(path).getName()).identifier(
+                                aref.toString())
+                        .repoType(RepositoryType.MAVEN).status(ArtifactStatus.BINARY_BUILT);
 
-                builds.add( artifactBuilder.build() );
+                builds.add(artifactBuilder.build());
             }
 
             return builds;
@@ -320,35 +312,35 @@ public class MavenRepositorySession implements RepositorySession
             throw new RepositoryManagerException("Failed to retrieve AProx client module. Reason: %s", e, e.getMessage());
         }
 
-        GroupPromoteRequest request = new GroupPromoteRequest(new StoreKey(StoreType.hosted, buildRepoId), MavenRepositoryConstants.SHARED_RELEASES_ID);
+        GroupPromoteRequest request = new GroupPromoteRequest(new StoreKey(StoreType.hosted, buildRepoId), MavenRepositoryConstants.UNTESTED_BUILDS_GROUP);
         try {
             GroupPromoteResult result = promoter.promoteToGroup(request);
-            if (result.getError() != null) {
-                String addendum = "";
-                try {
-                    GroupPromoteResult rollback = promoter.rollbackGroupPromote(result);
-                    if (rollback.getError() != null) {
-                        addendum = "\nROLLBACK WARNING: Promotion rollback also failed! Reason given: " + result.getError();
-                    }
+            if (!result.succeeded()) {
+                String reason = result.getError();
+                if (reason == null) {
+                    ValidationResult validations = result.getValidations();
+                    if (validations != null) {
+                        StringBuilder sb = new StringBuilder();
+                        sb.append("One or more validation rules failed in rule-set: ").append(validations.getRuleSet());
 
-                } catch (AproxClientException e) {
-                    throw new RepositoryManagerException("Rollback failed for promotion of: %s. Reason: %s", e, request,
-                            e.getMessage());
+                        validations.getValidatorErrors().forEach((rule, error) -> {
+                            sb.append(rule).append(":\n  ").append(error).append("\n\n");
+                        });
+
+                        reason = sb.toString();
+                    }
                 }
 
-                throw new RepositoryManagerException("Failed to promote: %s. Reason given was: %s%s", request, result.getError(),
-                        addendum);
+                throw new RepositoryManagerException("Failed to promote: %s to group: %s. Reason given was: %s", request.getSource(), request.getTargetGroup(), reason);
             }
         } catch (AproxClientException e) {
             throw new RepositoryManagerException("Failed to promote: %s. Reason: %s", e, request, e.getMessage());
         }
     }
 
-    private boolean ignoreContent( String path )
-    {
-        for( String suffix: IGNORED_PATH_SUFFIXES )
-        {
-            if ( path.endsWith( suffix ) )
+    private boolean ignoreContent(String path) {
+        for (String suffix : IGNORED_PATH_SUFFIXES) {
+            if (path.endsWith(suffix))
                 return true;
         }
 
