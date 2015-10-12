@@ -30,6 +30,8 @@
    */
   module.constant('eventTypes', Object.freeze({
 
+    USER_AUTHENTICATED: 'USER_AUTHENTICATED',
+
     BUILD_STARTED: 'BUILD_STARTED',
 
     BUILD_FINISHED: 'BUILD_FINISHED',

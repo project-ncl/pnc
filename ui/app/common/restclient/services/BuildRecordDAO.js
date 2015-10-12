@@ -61,6 +61,10 @@
           url: REST_BASE_URL + '/build-records/build-configurations/:configurationId' +
             qh.searchOnly(['buildConfigurationAudited.name'])
         },
+        _getByUser: {
+          method: 'GET',
+          url: ENDPOINT + '/?q=user.id==:userId'
+        },
         _getAllForProject: {
           method: 'GET',
           url: REST_BASE_URL + 'record/projects/:projectId'
@@ -90,6 +94,7 @@
       PageFactory.decorate(resource, '_getAll', 'getPaged');
       PageFactory.decorate(resource, '_getByConfiguration', 'getPagedByConfiguration');
       PageFactory.decorate(resource, '_getByBCSetRecord', 'getPagedByBCSetRecord');
+      PageFactory.decorate(resource, '_getByUser', 'getPagedByUser');
 
       resource.prototype.getBuildConfiguration = cachedGetter(
         function(buildRecord) {
