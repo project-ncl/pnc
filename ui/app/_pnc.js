@@ -67,7 +67,7 @@
     });
 
     // Allows dashboard to be root state.
-    $urlRouterProvider.when('', '/record');
+    $urlRouterProvider.when('', '/');
 
     // Redirect any unmatched URLs to the error state.
     $urlRouterProvider.otherwise('/error');
