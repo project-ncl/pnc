@@ -17,7 +17,6 @@
  */
 package org.jboss.pnc.mavenrepositorymanager;
 
-import static org.jboss.pnc.mavenrepositorymanager.MavenRepositoryConstants.*;
 import org.commonjava.aprox.client.core.Aprox;
 import org.commonjava.aprox.client.core.AproxClientException;
 import org.commonjava.aprox.folo.client.AproxFoloAdminClientModule;
@@ -32,7 +31,6 @@ import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.moduleconfig.MavenRepoDriverModuleConfig;
 import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
 import org.jboss.pnc.model.BuildRecord;
-import org.jboss.pnc.model.BuildRecordSet;
 import org.jboss.pnc.model.RepositoryType;
 import org.jboss.pnc.spi.BuildExecution;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManager;
@@ -46,6 +44,8 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.PreDestroy;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+
+import static org.jboss.pnc.mavenrepositorymanager.MavenRepositoryConstants.*;
 
 /**
  * Implementation of {@link RepositoryManager} that manages an <a href="https://github.com/jdcasey/aprox">AProx</a> instance to
@@ -193,7 +193,7 @@ public class RepositoryManagerDriver implements RepositoryManager {
      */
     private void addGlobalConstituents(Group group) {
         // 1. global shared-releases artifacts
-        group.addConstituent(new StoreKey(StoreType.group, SHARED_RELEASES_ID));
+        group.addConstituent(new StoreKey(StoreType.group, UNTESTED_BUILDS_GROUP));
 
         // 2. global shared-imports artifacts
         group.addConstituent(new StoreKey(StoreType.hosted, SHARED_IMPORTS_ID));
@@ -209,8 +209,8 @@ public class RepositoryManagerDriver implements RepositoryManager {
      */
     private void setupGlobalRepos() throws AproxClientException {
         // if the global shared-releases repository doesn't exist, create it.
-        if (!aprox.stores().exists(StoreType.group, SHARED_RELEASES_ID)) {
-            Group sharedArtifacts = new Group(SHARED_RELEASES_ID);
+        if (!aprox.stores().exists(StoreType.group, UNTESTED_BUILDS_GROUP)) {
+            Group sharedArtifacts = new Group(UNTESTED_BUILDS_GROUP);
 
             aprox.stores().create(sharedArtifacts, "Creating global shared-builds repository group.", Group.class);
         }
