@@ -19,7 +19,7 @@
 
 (function() {
 
-  var module = angular.module('pnc.Dashboard', [
+  var module = angular.module('pnc.dashboard', [
     'ui.router',
     'patternfly.notification',
     'angularUtils.directives.uiBreadcrumbs'
@@ -31,7 +31,8 @@
       views: {
         'content@': {
           templateUrl: 'dashboard/views/dashboard.html',
-          controller: 'DashboardController'
+          controller: 'DashboardController',
+          controllerAs: 'ctrl'
         }
       },
       data: {
