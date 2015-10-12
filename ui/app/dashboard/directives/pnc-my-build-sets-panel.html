@@ -19,7 +19,7 @@
 -->
 <div class="panel panel-default" ng-if="show()">
   <div class="panel-heading">
-    <h3 class="panel-title">My Builds</h3>
+    <h3 class="panel-title">My Build Sets</h3>
   </div>
 
   <div class="spinner spinner-sm" ng-hide="page.isLoaded"></div>
@@ -33,10 +33,12 @@
     </thead>
     <tbody>
       <tr ng-repeat="record in page.data">
-        <td><build-status-icon status="record.status"></build-status-icon> {{ record.status }}</td>
-        <td><a href ui-sref="record.detail.info({ recordId: record.id })">{{ record.getBuildConfiguration().name }}</a></td>
-        <td>{{ record.startTime | date:'medium' }}</td>
-        <td>{{ record.endTime | date:'medium' }}</td>
+        <td>
+          <build-status-icon status="record.status"></build-status-icon> {{ record.status }}
+        </td>
+        <td><a href ui-sref="configuration-set-record.detail.info({recordId: record.id})">{{ record.getConfigurationSet().name }}</a></td>
+        <td>{{ record.startTime | date:'medium'}}</td>
+        <td>{{ record.endTime | date:'medium'}}</td>
       </tr>
       <tr ng-hide="page.data.length">
         <td>

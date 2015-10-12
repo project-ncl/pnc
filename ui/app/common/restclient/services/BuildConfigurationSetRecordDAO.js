@@ -55,13 +55,18 @@
           method: 'GET',
           url: REST_BASE_URL + '/build-config-set-records?' +
             'q=' + qh.search(['buildConfigurationSet.name']) + ';status!=\'BUILDING\''
-        }
+        },
+        _getByUser: {
+          method: 'GET',
+          url: ENDPOINT + '/?q=user.id==:userId'
+        },
       });
 
       PageFactory.decorateNonPaged(resource, '_getAll', 'query');
 
       PageFactory.decorate(resource, '_getRunning', 'getPagedRunning');
       PageFactory.decorate(resource, '_getFinished', 'getPagedFinished');
+      PageFactory.decorate(resource, '_getByUser', 'getPagedByUser');
 
       resource.prototype.getConfigurationSet = cachedGetter(
         function (record) {
