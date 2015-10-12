@@ -41,6 +41,7 @@
         }
       },
       data: {
+        displayName: 'Product Import',
         proxy: 'import.product'
       },
       resolve: {
