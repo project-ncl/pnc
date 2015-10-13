@@ -86,12 +86,16 @@ public class BpmBuildScheduler implements BuildScheduler {
 
     @Override
     public void startBuilding(BuildTask buildTask, Consumer<BuildStatus> onComplete) throws CoreException {
-        ProcessInstance processInstance = startProcess(buildTask, Optional.of(buildTask)
-                .map(BuildTask::getBuildSetTask)
-                .map(BuildSetTask::getId)
-                .orElse(null));
-        logger.info("New component build process started with process instance id {}.", processInstance.getId());
-        registerCompleteListener(buildTask.getId(), onComplete);
+        try {
+            ProcessInstance processInstance = startProcess(buildTask, Optional.of(buildTask)
+                    .map(BuildTask::getBuildSetTask)
+                    .map(BuildSetTask::getId)
+                    .orElse(null));
+            logger.info("New component build process started with process instance id {}.", processInstance.getId());
+            registerCompleteListener(buildTask.getId(), onComplete);
+        } catch (Exception e) {
+            throw new CoreException("Error while trying to startBuilding with BpmBuildScheduler.", e);
+        }
     }
 
     private void registerCompleteListener(int taskId, Consumer<BuildStatus> onComplete) {
