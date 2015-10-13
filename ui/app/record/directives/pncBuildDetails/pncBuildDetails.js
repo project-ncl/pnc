@@ -20,7 +20,6 @@
 (function() {
 
   var module = angular.module('pnc.record');
-
   /**
    * @ngdoc directive
    * @name pnc.common.eventbus:pncBuildDetail
@@ -29,12 +28,14 @@
    * @example
    * @author Alex Creasy
   */
-  module.directive('pncBuildDetails', function() {
+  module.directive('pncBuildDetails', [
+    function() {
 
     var DEFAULT_TEMPLATE = 'record/directives/pncBuildDetails/pnc-build-details.html';
 
     function Controller($scope, $q, eventTypes, Build, BuildRecordDAO,
         BuildConfigurationDAO, ProjectDAO, EnvironmentDAO, UserDAO) {
+
       var self = this;
       var loaded;
 
@@ -55,6 +56,7 @@
         // if the build is in progress, or the AuditedBuildConfiguration
         // if the build has completed.
         function fetchConfiguration(record) {
+
           if(record.status === 'BUILDING') {
             return BuildConfigurationDAO.get({
               configurationId: record.buildConfigurationId
@@ -66,9 +68,9 @@
           }
         }
 
-        return Build.get({
+        return BuildRecordDAO.getCompletedOrRunning({
           recordId: recordId
-        }).then(
+        }).$promise.then(
           function(response) {
             result.buildRecord = response;
 
@@ -114,7 +116,6 @@
             self.project = response.project;
             self.environment = response.environment;
             self.user = response.user;
-
           }
         ).finally(function() {
           loaded = true;
@@ -133,7 +134,7 @@
         return attrs.pncTemplate || DEFAULT_TEMPLATE;
       },
       scope: {
-        pncRecordId: '='
+        'pncRecordId': '='
       },
       bindToController: true,
       controllerAs: 'ctrl',
@@ -150,6 +151,6 @@
         Controller
       ]
     };
-  });
+  }]);
 
 })();

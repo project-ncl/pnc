@@ -153,7 +153,7 @@ public class BuildRecordEndpoint extends AbstractEndpoint<BuildRecord, BuildReco
     }
 
     /**
-     * @deprecated 
+     * @deprecated
      * Use /build-configuration/{id}/build-records
      */
     @Deprecated
@@ -204,6 +204,24 @@ public class BuildRecordEndpoint extends AbstractEndpoint<BuildRecord, BuildReco
     @Path("/{id}/build-configuration-audited")
     public Response getBuildConfigurationAudited(@ApiParam(value = "BuildRecord id", required = true) @PathParam("id") Integer id) {
         return fromSingleton(buildRecordProvider.getBuildConfigurationAudited(id));
+    }
+
+    @ApiOperation(value = "Gets a BuildRecord which is completed or in running state")
+    @ApiResponses(value = {
+            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION, response = BuildRecordSingleton.class),
+            @ApiResponse(code = NOT_FOUND_CODE, message = NOT_FOUND_DESCRIPTION, response = BuildRecordSingleton.class),
+            @ApiResponse(code = INVLID_CODE, message = INVALID_DESCRIPTION, response = ErrorResponseRest.class),
+            @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION, response = ErrorResponseRest.class)
+    })
+    @GET
+    @Path("/{id}/completed-or-running")
+    public Response getCompletedOrRunnning(@ApiParam(value = "BuildRecord id", required = true) @PathParam("id") Integer id) {
+
+        Response resp = super.getSpecific(id);
+        if (resp.getStatus() == Response.Status.NOT_FOUND.getStatusCode()) {
+          resp = fromSingleton(buildRecordProvider.getSpecificRunning(id));
+        }
+        return resp;
     }
 
 }

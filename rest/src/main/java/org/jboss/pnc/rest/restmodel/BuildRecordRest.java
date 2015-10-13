@@ -125,6 +125,7 @@ public class BuildRecordRest implements GenericRestEntity<Integer> {
             this.buildConfigurationId = buildExecutionTask.getBuildConfigurationAudited().getId().getId();
             this.buildConfigurationRev = buildExecutionTask.getBuildConfigurationAudited().getRev();
         }
+        // FIXME Why masking i.e. BUILD_WAITING status with BUILDING ?
         this.status = BuildStatus.BUILDING;
         buildExecutionTask.getLogsWebSocketLink().ifPresent(logsUri -> this.liveLogsUri = logsUri.toString());
         performIfNotNull(buildExecutionTask.getBuildConfigSetRecordId(), () -> this.buildConfigSetRecordId = buildExecutionTask.getBuildConfigSetRecordId());
