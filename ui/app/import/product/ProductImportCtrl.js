@@ -155,7 +155,7 @@
        * in the resulting JSON data.
        */
       var parseTree0 = function (tree, update) {
-        var res = _.chain(scope.startData).clone().omit('scmUrl', 'scmRevision').value();
+        var res = _.chain(data).clone().omit('scmUrl', 'scmRevision', 'topLevelBc').value();
         var recursiveParse = function (node) {
           var n = update(node);
           n.dependencies = _(node.nodes).map(function (e) {
