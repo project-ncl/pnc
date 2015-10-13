@@ -56,6 +56,10 @@ public class BuildRecordRest implements GenericRestEntity<Integer> {
 
     private Integer userId;
 
+    private String scmRepoURL;
+
+    private String scmRevision;
+
     private String buildDriverId;
 
     private Integer systemImageId;
@@ -93,6 +97,8 @@ public class BuildRecordRest implements GenericRestEntity<Integer> {
         this.submitTime = buildRecord.getSubmitTime();
         this.startTime = buildRecord.getStartTime();
         this.endTime = buildRecord.getEndTime();
+        this.scmRepoURL = buildRecord.getScmRepoURL();
+        this.scmRevision = buildRecord.getScmRevision();
         this.externalArchiveId = buildRecord.getExternalArchiveId();
         performIfNotNull(buildRecord.getBuildConfigurationAudited(), () -> buildConfigurationId = buildRecord
                 .getBuildConfigurationAudited().getId().getId());
@@ -199,6 +205,22 @@ public class BuildRecordRest implements GenericRestEntity<Integer> {
 
     public void setUserId(Integer userId) {
         this.userId = userId;
+    }
+
+    public String getScmRepoURL() {
+        return scmRepoURL;
+    }
+
+    public void setScmRepoURL(String scmRepoURL) {
+        this.scmRepoURL = scmRepoURL;
+    }
+
+    public String getScmRevision() {
+        return scmRevision;
+    }
+
+    public void setScmRevision(String scmRevision) {
+        this.scmRevision = scmRevision;
     }
 
     public String getBuildDriverId() {

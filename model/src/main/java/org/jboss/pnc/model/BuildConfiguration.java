@@ -62,9 +62,27 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
 
     private String buildScript;
 
+    /**
+     * The upstream/community scm repo URL submitted by the user.
+     */
     private String scmRepoURL;
 
+    /**
+     * The upstream/community scm revision (commit ID/tag/branch) submitted by the user.
+     */
     private String scmRevision;
+
+    /**
+     * The URL of the internal mirror of the upstream repository.  For builds which 
+     * require the sources to be mirrored to a secured location before building.
+     */
+    private String scmMirrorRepoURL;
+
+    /**
+     * The SCM revision of the internal mirror of the upstream repository.  Contains the 
+     * revision after any automated source changes have been made by the build system.
+     */
+    private String scmMirrorRevision;
 
     private String description;
 
@@ -154,76 +172,62 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
         }
     }
 
-    /**
-     * @return the id
-     */
     @Override
     public Integer getId() {
         return id;
     }
 
-    /**
-     * @param id the id to set
-     */
     @Override
     public void setId(Integer id) {
         this.id = id;
     }
 
-    /**
-     * @return the name
-     */
     public String getName() {
         return name;
     }
 
-    /**
-     * @param name the name to set
-     */
     public void setName(String name) {
         this.name = name;
     }
 
-    /**
-     * @return the buildScript
-     */
     public String getBuildScript() {
         return buildScript;
     }
 
-    /**
-     * @param buildScript the buildScript to set
-     */
     public void setBuildScript(String buildScript) {
         this.buildScript = buildScript;
     }
 
-    /**
-     * @return the scmRepoURL
-     */
     public String getScmRepoURL() {
         return scmRepoURL;
     }
 
-    /**
-     * @param scmRepoURL the scmRepoURL to set
-     */
     public void setScmRepoURL(String scmRepoURL) {
         this.scmRepoURL = scmRepoURL;
     }
 
-    /**
-     * @return the scmRevision
-     */
     public String getScmRevision() {
         return scmRevision;
     }
 
-    /**
-     * @param scmRevision the scmRevision to set
-     */
     public void setScmRevision(String scmRevision) {
         this.scmRevision = scmRevision;
+    }
+
+    public String getScmMirrorRepoURL() {
+        return scmMirrorRepoURL;
+    }
+
+    public void setScmMirrorRepoURL(String scmMirrorRepoURL) {
+        this.scmMirrorRepoURL = scmMirrorRepoURL;
+    }
+
+    public String getScmMirrorRevision() {
+        return scmMirrorRevision;
+    }
+
+    public void setScmMirrorRevision(String scmMirrorRevision) {
+        this.scmMirrorRevision = scmMirrorRevision;
     }
 
     public String getDescription() {
@@ -234,16 +238,10 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
         this.description = description;
     }
 
-    /**
-     * @return the project
-     */
     public Project getProject() {
         return project;
     }
 
-    /**
-     * @param project the project to set
-     */
     public void setProject(Project project) {
         this.project = project;
     }
@@ -570,6 +568,10 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
 
         private String scmRevision;
 
+        private String scmMirrorRepoURL;
+
+        private String scmMirrorRevision;
+
         private String description;
 
         private Project project;
@@ -612,6 +614,8 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
             buildConfiguration.setBuildScript(buildScript);
             buildConfiguration.setScmRepoURL(scmRepoURL);
             buildConfiguration.setScmRevision(scmRevision);
+            buildConfiguration.setScmMirrorRepoURL(scmMirrorRepoURL);
+            buildConfiguration.setScmMirrorRevision(scmMirrorRevision);
             buildConfiguration.setDescription(description);
 
             // Set the bi-directional mapping
@@ -671,6 +675,16 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
 
         public Builder scmRevision(String scmRevision) {
             this.scmRevision = scmRevision;
+            return this;
+        }
+
+        public Builder scmMirrorRepoURL(String scmMirrorRepoURL) {
+            this.scmMirrorRepoURL = scmMirrorRepoURL;
+            return this;
+        }
+
+        public Builder scmMirrorRevision(String scmMirrorRevision) {
+            this.scmMirrorRevision = scmMirrorRevision;
             return this;
         }
 
