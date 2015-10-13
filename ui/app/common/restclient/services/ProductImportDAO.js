@@ -21,7 +21,7 @@
 
   var module = angular.module('pnc.common.restclient');
 
-  module.value('PRODUCT_IMPORT_ENDPOINT', 'da-bcg/rest/v-0.3/build-configuration/generate/product');
+  module.value('PRODUCT_IMPORT_ENDPOINT', '/da-bcg/rest/v-0.3/build-configuration/generate/product');
 
   /**
    * @author Jakub Senko
