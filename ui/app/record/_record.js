@@ -38,7 +38,6 @@
         views: {
           'content@': {
             templateUrl: 'common/templates/single-col.tmpl.html'
-            //templateUrl: 'common/templates/single-col-center.tmpl.html'
           }
         },
         data: {
