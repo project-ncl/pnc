@@ -1,0 +1,123 @@
+<!--
+
+    JBoss, Home of Professional Open Source.
+    Copyright 2014 Red Hat, Inc., and individual contributors
+    as indicated by the @author tags.
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+
+<form class="form-horizontal" name="startForm" ng-submit="submit()" novalidate>
+
+
+  <div class="panel panel-default">
+    <div class="panel-body">
+
+      <div class="form-group"
+           ng-class="startForm.input1.$dirty && startForm.input1.$invalid ? 'has-error' : ''">
+        <label for="input1" class="col-sm-2 control-label">Product Name
+          &nbsp;<span class="pficon pficon-info" title="Name of the Product you are importing."></span>
+        </label>
+
+        <div class="col-sm-10">
+          <input id="input1" name="input1" class="form-control" ng-model="data.name" required>
+
+          <div ng-show="startForm.input1.$dirty && startForm.input1.$error.required" class="help-block">
+            <p class="text-danger">Required field.</p>
+          </div>
+        </div>
+      </div>
+
+
+      <div class="form-group"
+           ng-class="startForm.input11.$dirty && startForm.input11.$invalid ? 'has-error' : ''">
+        <label for="input11" class="col-sm-2 control-label">Product version
+          &nbsp;<span class="pficon pficon-info" title="Major.minor version of a product, i.e. 7.0"></span>
+        </label>
+
+        <div class="col-sm-10">
+          <input id="input11" name="input11" class="form-control" ng-model="data.productVersion"
+                 pattern="^[0-9]+\.[0-9]+$"
+                 required>
+
+          <div ng-show="startForm.input11.$dirty && startForm.input11.$error.required"
+               class="help-block">
+            <p class="text-danger">Required field.</p>
+          </div>
+          <div ng-show="startForm.input11.$dirty && startForm.input11.$error.pattern"
+               class="help-block">
+            <p class="text-danger">Product version must consist of two integers joined by a dot.</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+
+  <div class="panel panel-default">
+    <div class="panel-body">
+
+      <div class="form-group"
+           ng-class="startForm.input2.$dirty && startForm.input2.$invalid ? 'has-error' : ''">
+        <label for="input2" class="col-sm-2 control-label">Git URL
+          &nbsp;<span class="pficon pficon-info" title="URL of the product code repository."></span>
+        </label>
+
+        <div class="col-sm-10">
+          <input type="url" id="input2" name="input2" class="form-control" ng-model="data.scmUrl" required>
+
+          <div ng-show="startForm.input2.$dirty && startForm.input2.$error.required" class="help-block">
+            <p class="text-danger">Required field.</p>
+          </div>
+          <div ng-show="startForm.input2.$dirty && startForm.input2.$error.url" class="help-block">
+            <p class="text-danger">Invalid URL.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="input3" class="col-sm-2 control-label">Revision
+          &nbsp;<span class="pficon pficon-info" title="SCM revision to use."></span>
+        </label>
+
+        <div class="col-sm-10">
+          <input placeholder="master" id="input3" name="input3" class="form-control" ng-model="data.scmRevision">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="input4" class="col-sm-2 control-label">Path to root POM
+          &nbsp;<span class="pficon pficon-info"
+                      title="Location of the product's root POM file within the repository."></span>
+        </label>
+
+        <div class="col-sm-10">
+          <input placeholder="./pom.xml" id="input4" name="input4" class="form-control" ng-model="data.pomPath">
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+
+  <div class="form-group pull-right">
+    <div class="col-sm-offset-2 col-sm-10">
+      <input type="submit" class="btn btn-primary" value="Start process">
+      <input type="reset" class="btn btn-default" value="Clear">
+    </div>
+  </div>
+
+
+</form>

@@ -1,0 +1,251 @@
+/*
+ * JBoss, Home of Professional Open Source.
+ * Copyright 2014 Red Hat, Inc., and individual contributors
+ * as indicated by the @author tags.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+'use strict';
+
+(function () {
+
+  var module = angular.module('pnc.project');
+
+  module.controller('ProductImportCtrl', [
+    'ProductImportDAO',
+    'TreeFactory',
+    '$scope',
+    '$timeout',
+    'Notifications',
+    function (ProductImportDAO, TreeFactory, scope, $timeout, Notifications) {
+
+      scope.started = false;
+      scope.display = 'start';
+      var data = {}; // data loaded from analyzer endpoints
+      scope.startData = {};
+      scope.bcData = {}; // data for the left-side form
+      var tree = TreeFactory.build();
+      scope.tree = tree;
+
+
+      /**
+       * Given node, return string label to use in the tree.
+       */
+      var getNodeText = function (node) {
+        return node.nodeData.gav.groupId + ':' +
+          node.nodeData.gav.artifactId + ':' +
+          node.nodeData.gav.version;
+      };
+
+
+      /**
+       * Handle clicking on a BC in the tree.
+       */
+      var nodeSelect = function (node) {
+        $timeout(function () {
+          scope.bcData = node;
+        });
+      };
+
+
+      /**
+       * Handle toggling a checkbox in the tree.
+       * Also check the parent boxes.
+       */
+      var nodeToggle = function (node) {
+        $timeout(function () {
+          if (_.isUndefined(node.state)) {
+            node.state = {};
+          }
+          node.state.checked = node.state.checked !== true;
+          if (node.state.checked) {
+            var n = node.getParent();
+            while (n !== null) {
+              if (_.isUndefined(n.state)) {
+                n.state = {};
+              }
+              n.state.checked = true;
+              n = n.getParent();
+            }
+          }
+          tree._refresh();
+        });
+      };
+
+
+      /**
+       * Handle clicking on the arrow for expanding/collapsing a subtree.
+       */
+      var nodeExpand = function (node) {
+        $timeout(function () {
+          if (_.isUndefined(node.state)) {
+            node.state = {};
+          }
+          node.state.expanded = node.state.expanded !== true;
+          tree._refresh();
+        });
+      };
+
+
+      /**
+       * Stick the above handlers on each tree node
+       * when it is being parsed from received data.
+       */
+      var processNode = function (node) {
+        node.select = _.partial(nodeSelect, node);
+        node.text = getNodeText(node);
+        node.toggle = _.partial(nodeToggle, node);
+        node.analyze = _.partial(analyzeNextLevel, node);
+        node.expand = _.partial(nodeExpand, node);
+      };
+
+
+      /**
+       * Given a tree and the JSON data structure from the analyzer REST endpoint,
+       * parse the structure to add nodes on the tree as needed.
+       */
+      var parseData = function (tree, data) {
+        /**
+         * Check if the node contains child representing the given dependency,
+         * so there are no duplicates in the tree.
+         */
+        var find = function (node, dependency) {
+          return _(node.nodes).find(function (e) {
+            return _.isEqual(e.nodeData.gav, dependency.gav);
+          });
+        };
+
+        var recursiveParse = function (node, dataNode) {
+          var subNode = find(node, dataNode);
+          if (_.isUndefined(subNode)) {
+            var subNodeData = _.omit(dataNode, 'dependencies');
+            subNode = node.append(subNodeData);
+            processNode(subNode);
+          }
+          if (_.isArray(dataNode.dependencies)) {
+            _(dataNode.dependencies).each(function (dependency) {
+              recursiveParse(subNode, dependency);
+            });
+          } else {
+            Notifications.warn('Could not analyze \'' + dataNode.gav.groupId +
+              ':' + dataNode.gav.artifactId + ':' + dataNode.gav.version + '\'');
+          }
+        };
+
+        recursiveParse(tree, data.topLevelBc);
+      };
+
+
+      /**
+       * Parse the tree to get the required JSON data structure,
+       * basically the reverse of {@link parseData}.
+       * @param tree
+       * @param update function that allows to use this function in a more general way.
+       * Is called for each node parsed and returns 'BC object' for that node, which is the included
+       * in the resulting JSON data.
+       */
+      var parseTree0 = function (tree, update) {
+        var res = _.chain(scope.startData).clone().omit('scmUrl', 'scmRevision').value();
+
+        var recursiveParse = function (node) {
+          var n = update(node);
+          n.dependencies = _(node.nodes).map(function (e) {
+            return recursiveParse(e);
+          });
+          return n;
+        };
+
+        res.topLevelBc = recursiveParse(tree.nodes[0]);
+        return res;
+      };
+
+
+      /**
+       * Parse tree for analyzing next level.
+       */
+      var parseTree = function (tree) {
+        return parseTree0(tree, function (node) {
+          return _.clone(node.nodeData);
+        });
+      };
+
+      /**
+       * Parse tree for finishing process.
+       * Takes checkboxes into account.
+       */
+      var parseTreeFinish = function (tree) {
+        return parseTree0(tree, function (node) {
+          var n = _.clone(node.nodeData);
+          n.selected = !_.isUndefined(node.state) && node.state.checked;
+          return n;
+        });
+      };
+
+
+      scope.startProcess = function () {
+        Notifications.success('Preparing analysis. This may take a minute.');
+        ProductImportDAO.startProcess(scope.startData).then(function (r) {
+          if (_(r).has('name')) {
+            data = r;
+            scope.productName = data.name;
+            scope.bcSetName = data.bcSetName;
+            parseData(tree, data);
+            tree.nodes[0].select();
+            scope.display = 'bc';
+            tree._refresh();
+          } else {
+            Notifications.error('Something went wrong. Make sure that you entered correct data.');
+          }
+        });
+      };
+
+
+      var analyzeNextLevel = function (node) {
+        node.nodeData.selected = true;
+        data = parseTree(tree);
+        Notifications.success('Analyzing \'' + node.text + '\'. This may take a minute.');
+        ProductImportDAO.analyzeNextLevel(data).then(function (r) {
+          if (_(r).has('name')) {
+            data = r;
+            parseData(tree, data);
+            node.select();
+            node.expand();
+            Notifications.success('Successfully analyzed ' + (_.isUndefined(node.nodes) ? 0 : node.nodes.length) + ' dependencies for \'' + node.text + '\'.');
+            //scope.display = 'bc';
+          } else {
+            Notifications.error('Could not analyze \'' + node.text + '\'. Check that the information in the form is correct.');
+          }
+        });
+      };
+
+
+      scope.finishProcess = function () {
+        data = parseTreeFinish(tree);
+        ProductImportDAO.finishProcess(data).then(function () {
+          Notifications.success('Product is being imported. This process takes time and is asynchronous' +
+            ' - if an error occures it cannot be displayed.');
+          scope.reset();
+        });
+      };
+
+
+      scope.reset = function () {
+        data = {};
+        tree.clear();
+        scope.display = 'start';
+      };
+    }
+  ]);
+
+})
+();

@@ -1,0 +1,65 @@
+<!--
+
+    JBoss, Home of Professional Open Source.
+    Copyright 2014 Red Hat, Inc., and individual contributors
+    as indicated by the @author tags.
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+<div class="row">
+  <div class="col-md-12">
+    <pnc-header>
+      <pnc-header-title ng-show="display === 'start'">Import a product</pnc-header-title>
+      <pnc-header-title ng-show="display === 'bc'">Import <em>{{ productName }}</em></pnc-header-title>
+
+      <pnc-header-buttons>
+        <product-import-help help-text="Easily import build configuration set for a product.
+        <ul>
+          <li>Fill in the starting form so analyzer can access project's POM. This may take a few minutes.</li>
+          <li>After loading the root configuration, browse the tree on the right side
+              to display or edit each dependent BC.</li>
+          <li>You can load additional level of dependencies using the button in the given BC form.
+              This may also take some time.</li>
+          <li>After loading and editing required build configurations, use checkboxes to select configuration
+              to be included in the final set.</li>
+          <li>Submit using the 'Finish process' button.</li>
+          </ul>">
+        </product-import-help>
+      </pnc-header-buttons>
+    </pnc-header>
+  </div>
+</div>
+<div class="row">
+  <div class="col-md-8">
+    <div ng-switch="display">
+
+      <product-import-start-form ng-switch-when="start" data="startData"
+                                 on-submit="startProcess()"></product-import-start-form>
+
+      <product-import-b-c-form ng-switch-when="bc" node="bcData"
+                               on-submit="analyzeNextLevel(node)"></product-import-b-c-form>
+
+    </div>
+
+  </div>
+  <div class="col-md-4">
+
+    <product-import-tree bc-set-name="bcSetName" tree="tree" on-finish="finishProcess()"
+                         on-reset="reset()"
+                         ng-hide="display === 'start'"></product-import-tree>
+
+  </div>
+</div>
+
+

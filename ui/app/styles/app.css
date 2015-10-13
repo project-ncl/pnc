@@ -153,3 +153,12 @@ button.debutton {
     width: 560px;
   }
 }
+
+.modal-backdrop {
+  z-index: 0;
+}
+
+.popover{
+  display: block;
+  max-width: 50%; /* Max Width of the popover (depending on the container!) */
+}

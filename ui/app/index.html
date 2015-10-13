@@ -29,6 +29,7 @@
     <link rel="stylesheet" href="bower_components/patternfly/dist/css/patternfly.css" />
     <link rel="stylesheet" href="bower_components/font-awesome/css/font-awesome.css" />
     <link rel="stylesheet" href="bower_components/angular-xeditable/dist/css/xeditable.css" />
+    <link rel="stylesheet" href="bower_components/bootstrap-treeview/dist/bootstrap-treeview.min.css" />
     <!-- endbower -->
     <!-- endbuild -->
 
@@ -54,6 +55,7 @@
     <script src="bower_components/bucketsjs/buckets.js"></script>
     <script src="bower_components/bucketsjs/buckets.min.js"></script>
     <script src="bower_components/underscore/underscore.js"></script>
+    <script src="bower_components/bootstrap-treeview/dist/bootstrap-treeview.min.js"></script>
     <!-- endbower -->
     <!-- endbuild -->
 
@@ -114,6 +116,12 @@
             <ul class="dropdown-menu" role="menu">
               <li><a href ui-sref="record.list">Builds Records</a></li>
               <li><a href ui-sref="configuration-set-record.list">Build Configuration Set Records</a></li>
+            </ul>
+          </li>
+          <li class="dropdown" ui-sref-active="active">
+            <a href class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Import<span class="caret"></span></a>
+            <ul class="dropdown-menu" role="menu">
+              <li><a href ui-sref="import.product">Product</a></li>
             </ul>
           </li>
         </ul>

@@ -1,0 +1,173 @@
+<!--
+
+    JBoss, Home of Professional Open Source.
+    Copyright 2014 Red Hat, Inc., and individual contributors
+    as indicated by the @author tags.
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+
+<form class="form-horizontal" name="bcForm" ng-submit="submit()" novalidate>
+
+
+  <div class="panel panel-default">
+    <div class="panel-body">
+
+      <div class="form-group">
+        <div class="col-sm-10 col-sm-offset-2">
+          <h3>{{ data.gav.groupId }} : {{ data.gav.artifactId }} : {{ data.gav.version }}</h3>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="col-sm-2 control-label">Internally built</label>
+
+        <div class="col-sm-10">{{ data.internallyBuilt ? 'Yes' : 'No' }}</div>
+      </div>
+
+      <div class="form-group">
+        <label class="col-sm-2 control-label">BC already exists</label>
+
+        <div class="col-sm-10">{{ data.bcExists ? 'Yes' : 'No' }}</div>
+      </div>
+
+      <div class="form-group" ng-show="data.bcExists">
+        <div class="col-sm-offset-2 col-sm-10">
+          <div class="checkbox">
+            <input type="checkbox" ng-model="data.useExistingBc"> Use existing BC
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+
+  <div class="panel panel-default" ng-hide="data.useExistingBc">
+    <div class="panel-body">
+
+      <div class="form-group" ng-class="bcForm.input1.$dirty && bcForm.input1.$invalid ? 'has-error' : ''">
+        <label for="input1" class="col-sm-2 control-label">BC Name
+          &nbsp;<span class="pficon pficon-info" title="Name for the build configuration."></span>
+        </label>
+
+        <div class="col-sm-10">
+          <input id="input1" name="input1" class="form-control" ng-model="data.name" required>
+
+          <div ng-show="bcForm.input1.$dirty && bcForm.input1.$error.required" class="help-block">
+            <p class="text-danger">Required field.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="input2" class="col-sm-2 control-label">Description</label>
+
+        <div class="col-sm-10">
+          <input id="input2" name="input2" class="form-control" ng-model="data.description">
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+
+  <div class="panel panel-default" ng-hide="data.useExistingBc">
+    <div class="panel-body">
+
+      <div class="form-group" ng-class="bcForm.input3.$dirty && bcForm.input3.$invalid ? 'has-error' : ''">
+        <label for="input3" class="col-sm-2 control-label">Git URL</label>
+
+        <div class="col-sm-10">
+          <input type="url" id="input3" name="input3" class="form-control" ng-model="data.scmUrl">
+          <div ng-show="bcForm.input3.$dirty && bcForm.input3.$error.url" class="help-block">
+            <p class="text-danger">Invalid URL.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <div class="col-sm-offset-2 col-sm-10">
+          <div class="checkbox">
+            <input type="checkbox" name="input4" ng-model="data.cloneRepo"> Clone repo (Temporary limitation: Doesn't
+            work with revisions identified by hash.)
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="input5" class="col-sm-2 control-label">Revision</label>
+
+        <div class="col-sm-10">
+          <input id="input5" class="form-control" name="input5" ng-model="data.scmRevision">
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+
+  <div class="panel panel-default" ng-hide="data.useExistingBc">
+    <div class="panel-body">
+
+      <div class="form-group">
+        <label for="input6" class="col-sm-2 control-label">Build script</label>
+
+        <div class="col-sm-10">
+          <textarea id="input6" name="input6" rows="3" class="form-control" ng-model="data.buildScript"></textarea>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="col-sm-2 control-label">Environment</label>
+
+        <div class="col-sm-10">
+          <environment-dropdown selected-id="data.environmentId"></environment-dropdown>
+          <div ng-show="bcForm.$submitted && data.environmentId === null" class="help-block">
+            <p class="text-danger">Required field.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="col-sm-2 control-label">Project</label>
+
+        <div class="col-sm-10">
+          <project-dropdown selected-id="data.projectId" refresh="refresh"></project-dropdown>
+          <div ng-show="bcForm.$submitted && data.projectId === null" class="help-block">
+            <p class="text-danger">Required field.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <div class="col-sm-offset-2 col-sm-10">
+          <modal-button button-text="Create project"></modal-button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+
+  <div class="form-group pull-right">
+    <div class="col-sm-12">
+      <input type="submit" class="btn btn-primary" value="Analyze next level dependencies">
+      <input type="reset" class="btn btn-default" value="Clear">
+    </div>
+  </div>
+
+</form>
+
+<create-project-modal on-submit="refresh"></create-project-modal>
