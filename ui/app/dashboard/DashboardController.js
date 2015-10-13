@@ -22,16 +22,12 @@
   var module = angular.module('pnc.dashboard');
 
   module.controller('DashboardController', [
-    '$log',
-    'UserDAO',
-    function ($log, UserDAO) {
+    'authService',
+    function (authService) {
       var self = this;
 
-      self.userId = null;
-
-      UserDAO.getAuthenticatedUser().$promise.then(function(result) {
-        self.userId = result.userId;
-      });
+      self.isAuthenticated = authService.isAuthenticated;
+      self.login = authService.login;
     }
   ]);
 
