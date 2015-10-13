@@ -31,6 +31,7 @@ public class EnvironmentDriverModuleConfigBase extends AbstractModuleConfig {
     protected String firewallAllowedDestinations;
     protected String proxyServer;
     protected String proxyPort;
+    protected String nonProxyHosts;
     private String workingDirectory;
     protected boolean disabled;
 
@@ -39,6 +40,7 @@ public class EnvironmentDriverModuleConfigBase extends AbstractModuleConfig {
             String firewallAllowedDestinations,
             String proxyServer,
             String proxyPort,
+            String nonProxyHosts,
             String workingDirectory,
             boolean disabled) {
 
@@ -46,6 +48,7 @@ public class EnvironmentDriverModuleConfigBase extends AbstractModuleConfig {
         this.firewallAllowedDestinations = firewallAllowedDestinations;
         this.proxyServer = proxyServer;
         this.proxyPort = proxyPort;
+        this.nonProxyHosts = nonProxyHosts;
         this.workingDirectory = workingDirectory;
         this.disabled = disabled;
     }
@@ -62,6 +65,9 @@ public class EnvironmentDriverModuleConfigBase extends AbstractModuleConfig {
         return proxyPort;
     }
 
+    public String getNonProxyHosts() {
+        return nonProxyHosts;
+    }
     public String getFirewallAllowedDestinations() {
         return firewallAllowedDestinations;
     }

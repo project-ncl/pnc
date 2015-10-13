@@ -45,12 +45,6 @@ public class DockerEnvironmentDriverModuleConfig extends EnvironmentDriverModule
     private static final Path workingDirectory = FileSystems.getDefault().getPath("/tmp");
 
     private String firewallAllowedDestinations;
-    
-    private String proxyServer;
-    
-    private String proxyPort;
-
-    private String nonProxyHosts;
 
     public String getProxyServer() {
         return proxyServer;
@@ -68,14 +62,6 @@ public class DockerEnvironmentDriverModuleConfig extends EnvironmentDriverModule
         this.proxyPort = proxyPort;
     }
 
-    public String getNonProxyHosts() {
-        return nonProxyHosts;
-    }
-
-    public void setNonProxyHosts(String nonProxyHosts) {
-        this.nonProxyHosts = nonProxyHosts;
-    }
-
     public DockerEnvironmentDriverModuleConfig(@JsonProperty("ip") String ip,
             @JsonProperty("inContainerUser") String inContainerUser,
             @JsonProperty("inContainerUserPassword") String inContainerUserPassword,
@@ -86,7 +72,7 @@ public class DockerEnvironmentDriverModuleConfig extends EnvironmentDriverModule
             @JsonProperty("nonProxyHosts") String nonProxyHosts,
             @JsonProperty("disabled") boolean disabled) {
 
-        super(dockerImageId, firewallAllowedDestinations, proxyServer, proxyPort, workingDirectory.toString(), disabled);
+        super(dockerImageId, firewallAllowedDestinations, proxyServer, proxyPort, nonProxyHosts, workingDirectory.toString(), disabled);
 
         this.ip = ip;
         this.inContainerUser = inContainerUser;
