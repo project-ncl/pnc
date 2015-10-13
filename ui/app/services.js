@@ -41,6 +41,7 @@
     'UserDAO',
     function($window, kc, UserDAO) {
       var keycloak = kc;
+      var pncUser = null;
 
       return {
         isAuthenticated: function() {
@@ -56,11 +57,12 @@
         },
 
         getPncUser: function() {
-          if (!keycloak.authenticated) {
-            return null;
+          if (!pncUser) {
+            return UserDAO.getAuthenticatedUser().$promise.then(function(result) {
+              pncUser = result;
+            });
           }
-
-          return UserDAO.getAuthenticatedUser().$promise;
+          return pncUser;
         },
 
         logout: function() {
@@ -134,13 +136,27 @@
     'Notifications',
     'keycloak',
     function($log, Notifications, keycloak) {
+
+      function defaultSuccessNotification(response) {
+        if (response.config.method !== 'GET') {
+          $log.debug('HTTP response: %O', response);
+          Notifications.success('Request successful');
+        }
+      }
+
       return {
 
         response: function(response) {
-          if (response.config.method !== 'GET') {
-            $log.debug('HTTP response: %O', response);
-            Notifications.success(response.status + ': ' + response.statusText);
+          var notify = response.config.successNotification;
+
+          if (angular.isUndefined(notify)) {
+            defaultSuccessNotification(response);
+          } else if (angular.isFunction(notify)) {
+            notify(response);
+          } else if (angular.isString(notify)) {
+            Notifications.success(notify);
           }
+
           return response;
         },
 
