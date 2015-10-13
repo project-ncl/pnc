@@ -28,4 +28,7 @@
   <div class="col-md-12 col-lg-6">
     <pnc-my-build-sets-panel></pnc-my-build-sets-panel>
   </div>
+  <div class="col-md-12" ng-hide="ctrl.isAuthenticated()">
+    <p><a href ng-click="ctrl.login()">Log in</a> to see your recent builds.</p>
+  </div>
 </div>
