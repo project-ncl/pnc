@@ -53,13 +53,15 @@
         forceBuild: {
           method: 'POST',
           url: ENDPOINT + '/build',
+          successNotification: false,
           params: {
             rebuildAll: true
           }
         },
         build: {
           method: 'POST',
-          url: ENDPOINT + '/build'
+          url: ENDPOINT + '/build',
+          successNotification: false
         },
         removeConfiguration: {
           method: 'DELETE',
