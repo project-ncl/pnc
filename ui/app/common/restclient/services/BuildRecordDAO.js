@@ -77,6 +77,10 @@
           method: 'GET',
           url: ENDPOINT + '/build-configuration-audited'
         },
+        getCompletedOrRunning: {
+          method: 'GET',
+          url: ENDPOINT + '/completed-or-running'
+        },
         _getByBCSetRecord: {
           method: 'GET',
           url: REST_BASE_URL + '/build-records' +
