@@ -46,6 +46,7 @@ public class OpenshiftEnvironmentDriverModuleConfig extends EnvironmentDriverMod
                                                   @JsonProperty("firewallAllowedDestinations") String firewallAllowedDestinations,
                                                   @JsonProperty("proxyServer") String proxyServer,
                                                   @JsonProperty("proxyPort") String proxyPort,
+                                                  @JsonProperty("nonProxyHosts") String nonProxyHosts,
                                                   @JsonProperty("podNamespace") String podNamespace,
                                                   @JsonProperty("buildAgentBindPath") String buildAgentBindPath,
                                                   @JsonProperty("restAuthToken") String restAuthToken,
@@ -53,7 +54,7 @@ public class OpenshiftEnvironmentDriverModuleConfig extends EnvironmentDriverMod
                                                   @JsonProperty("workingDirectory") String workingDirectory,
                                                   @JsonProperty("disabled") Boolean disabled,
                                                   @JsonProperty("keepBuildAgentInstance") Boolean keepBuildAgentInstance) {
-        super(imageId, firewallAllowedDestinations, proxyServer, proxyPort, workingDirectory, disabled);
+        super(imageId, firewallAllowedDestinations, proxyServer, proxyPort, nonProxyHosts,workingDirectory, disabled);
 
         this.restEndpointUrl = restEndpointUrl;
         this.buildAgentBindPath = buildAgentBindPath;
@@ -97,6 +98,7 @@ public class OpenshiftEnvironmentDriverModuleConfig extends EnvironmentDriverMod
                 ", firewallAllowedDestinations='" + firewallAllowedDestinations + '\'' +
                 ", proxyServer='" + proxyServer + '\'' +
                 ", proxyPort='" + proxyPort + '\'' +
+                ", nonProxyHosts='" + nonProxyHosts + '\'' +
                 ", podNamespace='" + podNamespace + '\'' +
                 ", buildAgentBindPath='" + buildAgentBindPath + '\'' +
                 ", restAuthToken= HIDDEN " +
