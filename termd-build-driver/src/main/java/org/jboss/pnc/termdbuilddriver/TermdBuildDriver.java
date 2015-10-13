@@ -100,13 +100,13 @@ public class TermdBuildDriver implements BuildDriver {
         return CompletableFuture.supplyAsync(() -> {
             logger.debug("[{}] Checking out sources", termdRunningBuild.getRunningEnvironment().getId());
 
-            String cloneCommand = "git clone " + termdRunningBuild.getBuildConfiguration().getScmRepoURL() + " " + termdRunningBuild .getBuildConfiguration().getName();
+            String cloneCommand = "git clone " + termdRunningBuild.getScmRepoURL() + " " + termdRunningBuild.getName();
             commandAppender.append(cloneCommand).append("\n");
 
-            String cdCommand = "cd " + termdRunningBuild.getBuildConfiguration().getName();
+            String cdCommand = "cd " + termdRunningBuild.getName();
             commandAppender.append(cdCommand).append("\n");
 
-            String resetCommand = "git reset --hard " + termdRunningBuild.getBuildConfiguration().getScmRevision();
+            String resetCommand = "git reset --hard " + termdRunningBuild.getScmRevision();
             commandAppender.append(resetCommand).append("\n");
 
             return commandAppender;
@@ -117,7 +117,7 @@ public class TermdBuildDriver implements BuildDriver {
         return CompletableFuture.supplyAsync(() -> {
             logger.debug("[{}] Building", termdRunningBuild.getRunningEnvironment().getId());
 
-            String buildCommand = termdRunningBuild.getBuildConfiguration().getBuildScript();
+            String buildCommand = termdRunningBuild.getBuildScript();
             commandAppender.append(buildCommand).append("\n");
             return commandAppender;
         });
