@@ -23,27 +23,27 @@
 
   /**
    * @ngdoc directive
-   * @name pnc.dashboard:pncMyBuildsPanel
+   * @name pnc.dashboard:pncMyBuildSetsPanel
    * @restrict E
    * @description
-   * If the user is authenticated displays a panel of the user's builds.
    * @example
-   * <pnc-my-builds-panel></pnc-my-builds-panel>
    * @author Alex Creasy
    */
-  module.directive('pncMyBuildsPanel', [
+  module.directive('pncMyBuildSetsPanel', [
     '$log',
     'authService',
     'PageFactory',
-    'BuildConfigurationDAO',
+    'BuildConfigurationSetRecordDAO',
     'BuildRecordDAO',
     'UserDAO',
     'eventTypes',
-    function ($log, authService, PageFactory, BuildConfigurationDAO, BuildRecordDAO, UserDAO, eventTypes) {
+    function ($log, authService, PageFactory, BuildConfigurationSetRecordDAO,
+              BuildRecordDAO, UserDAO, eventTypes) {
       return {
         restrict: 'E',
-        templateUrl: 'dashboard/directives/pnc-my-builds-panel.html',
+        templateUrl: 'dashboard/directives/pnc-my-build-sets-panel.html',
         scope: {},
+        //template: '<div></div>',
         link: function (scope) {
 
           scope.update = function() {
@@ -55,9 +55,9 @@
           };
 
           function init() {
-            scope.page = PageFactory.build(BuildRecordDAO, function (pageIndex, pageSize, searchText) {
+            scope.page = PageFactory.build(BuildConfigurationSetRecordDAO, function (pageIndex, pageSize, searchText) {
               return UserDAO.getAuthenticatedUser().$promise.then(function(result) {
-                return BuildRecordDAO._getByUser({
+                return BuildConfigurationSetRecordDAO._getByUser({
                    userId: result.id,
                    pageIndex: pageIndex,
                    pageSize: pageSize,
@@ -67,8 +67,8 @@
               });
             });
 
-            scope.$on(eventTypes.BUILD_STARTED, scope.update);
-            scope.$on(eventTypes.BUILD_FINISHED, scope.update);
+            scope.$on(eventTypes.BUILD_SET_STARTED, scope.update);
+            scope.$on(eventTypes.BUILD_SET_FINISHED, scope.update);
           }
 
           if (authService.isAuthenticated()) {
