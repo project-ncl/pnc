@@ -34,6 +34,7 @@ import org.slf4j.LoggerFactory;
 import javax.enterprise.event.Event;
 import java.net.URI;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
@@ -70,7 +71,7 @@ public class BuildExecutionTask implements BuildExecution {
         this.topContentId = topContentId;
         this.buildContentId = buildContentId;
         this.user = user;
-        this.buildRecordSetIds = buildRecordSetIds;
+        this.buildRecordSetIds = Optional.ofNullable(buildRecordSetIds).orElse(new HashSet<>());
         this.buildConfigSetRecordId = buildConfigSetRecordId;
         this.buildStatusChangedEventNotifier = buildStatusChangedEventNotifier;
         this.buildTaskId = buildTaskId;
