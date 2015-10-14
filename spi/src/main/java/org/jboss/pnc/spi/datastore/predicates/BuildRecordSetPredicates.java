@@ -53,7 +53,7 @@ public class BuildRecordSetPredicates {
      * @return The collection of matching BuildRecordSets
      */
     public static Predicate<BuildRecordSet> withBuildRecordSetIdInSet(Set<Integer> buildRecordSetIds) {
-        if (buildRecordSetIds.isEmpty()) {
+        if (buildRecordSetIds == null || buildRecordSetIds.isEmpty()) {
             // return an always false predicate if there are no build config ids
             return (root, query, cb) -> cb.disjunction();
         } else {
