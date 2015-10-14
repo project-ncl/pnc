@@ -67,6 +67,8 @@
               data: tree.nodes,
               collapseIcon: 'fa fa-angle-down',
               expandIcon: 'fa fa-angle-right',
+              checkedIcon: 'fa fa-check-square-o',
+              uncheckedIcon: 'fa fa-square-o',
               showIcon: false,
               showCheckbox: true,
               onNodeSelected: function (event, node) {
