@@ -156,7 +156,6 @@
        */
       var parseTree0 = function (tree, update) {
         var res = _.chain(scope.startData).clone().omit('scmUrl', 'scmRevision').value();
-
         var recursiveParse = function (node) {
           var n = update(node);
           n.dependencies = _(node.nodes).map(function (e) {
@@ -175,6 +174,7 @@
        */
       var parseTree = function (tree) {
         return parseTree0(tree, function (node) {
+          node.nodeData.cloneRepo = false;
           return _.clone(node.nodeData);
         });
       };
@@ -185,6 +185,7 @@
        */
       var parseTreeFinish = function (tree) {
         return parseTree0(tree, function (node) {
+          node.nodeData.cloneRepo = false;
           var n = _.clone(node.nodeData);
           n.selected = !_.isUndefined(node.state) && node.state.checked;
           return n;

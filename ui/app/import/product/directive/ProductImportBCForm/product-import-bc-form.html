@@ -91,26 +91,23 @@
 
         <div class="col-sm-10">
           <input type="url" id="input3" name="input3" class="form-control" ng-model="data.scmUrl">
+
           <div ng-show="bcForm.input3.$dirty && bcForm.input3.$error.url" class="help-block">
             <p class="text-danger">Invalid URL.</p>
           </div>
         </div>
+
       </div>
 
-      <div class="form-group">
-        <div class="col-sm-offset-2 col-sm-10">
-          <div class="checkbox">
-            <input type="checkbox" name="input4" ng-model="data.cloneRepo"> Clone repo (Temporary limitation: Doesn't
-            work with revisions identified by hash.)
-          </div>
-        </div>
-      </div>
 
       <div class="form-group">
         <label for="input5" class="col-sm-2 control-label">Revision</label>
 
         <div class="col-sm-10">
           <input id="input5" class="form-control" name="input5" ng-model="data.scmRevision">
+          <div class="help-block">
+            <p>Use branch or tag name only, not hash.</p>
+          </div>
         </div>
       </div>
 
