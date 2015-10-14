@@ -39,6 +39,14 @@
                         "value": "${proxyPort}"
                     },
                     {
+                        "name": "nonProxyHosts",
+                        "value": "${nonProxyHosts}"
+                    },
+                    {
+                        "name": "proxyUsername",
+                        "value": "${proxyUsername}"
+                    },
+                    {
                         "name": "AProxDependencyUrl",
                         "value": "${AProxDependencyUrl}"
                     },
