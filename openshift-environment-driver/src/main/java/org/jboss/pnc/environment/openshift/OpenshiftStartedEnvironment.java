@@ -273,6 +273,7 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
         properties.put("isHttpActive", proxyActive.toString().toLowerCase());
         properties.put("proxyServer", environmentConfiguration.getProxyServer());
         properties.put("proxyPort", environmentConfiguration.getProxyPort());
+        properties.put("proxyUsername", repositorySession.getBuildRepositoryId());
         properties.put("nonProxyHosts", environmentConfiguration.getNonProxyHosts());
 
         properties.put("AProxDependencyUrl", repositorySession.getConnectionInfo().getDependencyUrl());
