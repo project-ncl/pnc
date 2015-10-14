@@ -57,11 +57,15 @@
         }
       });
 
-      // Notify user when builds finish.
+      // Notify user when builds finish
+      // (see events-services.js for the conversion
+      // between server and client BuildStatus)
       scope.$on(eventTypes.BUILD_FINISHED, function(event, payload) {
         if (authService.getPncUser().id === payload.userId) {
-          if(payload.buildStatus === 'REJECTED') {
+          if (payload.buildStatus === 'REJECTED') {
             Notifications.warn('Build #' + payload.id + ' rejected.');
+          } else if (payload.buildStatus === 'SYSTEM_ERROR') {
+            Notifications.error('A system error prevented the Build #' + payload.id + ' from starting.');
           } else {
             BuildRecordDAO.get({recordId: payload.id}).$promise.then(
               function (result) {
