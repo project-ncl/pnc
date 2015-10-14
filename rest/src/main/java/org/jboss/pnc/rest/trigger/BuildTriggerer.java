@@ -229,7 +229,7 @@ public class BuildTriggerer {
     }
 
     private Set<Integer> parseIntegers(String buildRecordSetIdsCSV) {
-        if (buildRecordSetIdsCSV != null) {
+        if (buildRecordSetIdsCSV != null && !buildRecordSetIdsCSV.equals("") && !buildRecordSetIdsCSV.equals("null") ) {
             return Arrays.asList(buildRecordSetIdsCSV.split(",")).stream().map((s) -> Integer.parseInt(s)).collect(Collectors.toSet());
         } else {
             return null;
