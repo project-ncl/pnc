@@ -99,6 +99,21 @@ public class BuildRecord implements GenericEntity<Integer> {
     @ForeignKey(name = "fk_buildrecord_user")
     private User user;
 
+    /**
+     * The scm repository URL used for executing the build.  Note, this can be different
+     * than the repository URL contained in the linked build configuration due to pre-build 
+     * processing tasks such as repository mirroring and automated build changes.
+     */
+    private String scmRepoURL;
+
+    /**
+     * The scm revision used for build execution.  Note, this can be different than the
+     * revision submitted by the user due to automated build processing steps which modify
+     * the sources before executing the build.  This should always be an unmodifiable commit ID
+     * and should never be a tag or branch.
+     */
+    private String scmRevision;
+
     @Lob
     // Type below is compatible with Oracle and PostgreSQL ("org.hibernate.type.TextType" not with Oracle)
     // Use "org.hibernate.type.MaterializedClobType" from Hibernate 4.2.x
@@ -241,6 +256,22 @@ public class BuildRecord implements GenericEntity<Integer> {
      */
     public void setUser(User user) {
         this.user = user;
+    }
+
+    public String getScmRepoURL() {
+        return scmRepoURL;
+    }
+
+    public void setScmRepoURL(String scmRepoURL) {
+        this.scmRepoURL = scmRepoURL;
+    }
+
+    public String getScmRevision() {
+        return scmRevision;
+    }
+
+    public void setScmRevision(String scmRevision) {
+        this.scmRevision = scmRevision;
     }
 
     /**
@@ -455,6 +486,10 @@ public class BuildRecord implements GenericEntity<Integer> {
 
         private User user;
 
+        private String scmRepoURL;
+
+        private String scmRevision;
+
         private String buildLog;
 
         private BuildStatus status;
@@ -496,6 +531,8 @@ public class BuildRecord implements GenericEntity<Integer> {
             }
             buildRecord.setBuildConfigurationAudited(buildConfigurationAudited);
             buildRecord.setUser(user);
+            buildRecord.setScmRepoURL(scmRepoURL);
+            buildRecord.setScmRevision(scmRevision);
             buildRecord.setBuildLog(buildLog);
             buildRecord.setStatus(status);
             buildRecord.setBuildDriverId(buildDriverId);
@@ -560,6 +597,16 @@ public class BuildRecord implements GenericEntity<Integer> {
 
         public Builder user(User user) {
             this.user = user;
+            return this;
+        }
+
+        public Builder scmRepoURL(String scmRepoURL) {
+            this.scmRepoURL = scmRepoURL;
+            return this;
+        }
+
+        public Builder scmRevision(String scmRevision) {
+            this.scmRevision = scmRevision;
             return this;
         }
 

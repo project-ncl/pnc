@@ -40,13 +40,13 @@ public class TermdRunningBuild implements RunningBuild {
 
     private final RunningEnvironment runningEnvironment;
 
-    private final BuildConfigurationAudited buildConfiguration;
+    private final BuildConfigurationAudited buildConfigAudited;
 
     private CompletableFuture<CompletedBuild> buildPromise = new CompletableFuture<>();
 
-    public TermdRunningBuild(RunningEnvironment runningEnvironment, BuildConfigurationAudited buildConfiguration) {
+    public TermdRunningBuild(RunningEnvironment runningEnvironment, BuildConfigurationAudited buildConfigAudited) {
         this.runningEnvironment = runningEnvironment;
-        this.buildConfiguration = buildConfiguration;
+        this.buildConfigAudited = buildConfigAudited;
     }
 
     @Override
@@ -75,8 +75,28 @@ public class TermdRunningBuild implements RunningBuild {
         return runningEnvironment;
     }
 
-    public BuildConfigurationAudited getBuildConfiguration() {
-        return buildConfiguration;
+    public String getBuildScript() {
+        return buildConfigAudited.getBuildScript();
+    }
+
+    public String getName() {
+        return buildConfigAudited.getName();
+    }
+
+    public String getScmRepoURL() {
+        if (buildConfigAudited.getScmMirrorRepoURL() != null) {
+            return buildConfigAudited.getScmMirrorRepoURL();
+        } else {
+            return buildConfigAudited.getScmRepoURL();
+        }
+    }
+
+    public String getScmRevision() {
+        if (buildConfigAudited.getScmMirrorRevision() != null) {
+            return buildConfigAudited.getScmMirrorRevision();
+        } else {
+            return buildConfigAudited.getScmRevision();
+        }
     }
 
 }

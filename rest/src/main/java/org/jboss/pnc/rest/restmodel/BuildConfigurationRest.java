@@ -54,6 +54,10 @@ public class BuildConfigurationRest implements GenericRestEntity<Integer> {
 
     private String scmRevision;
 
+    private String scmMirrorRepoURL;
+
+    private String scmMirrorRevision;
+
     private Date creationTime;
 
     private Date lastModificationTime;
@@ -82,6 +86,8 @@ public class BuildConfigurationRest implements GenericRestEntity<Integer> {
         this.buildScript = buildConfiguration.getBuildScript();
         this.scmRepoURL = buildConfiguration.getScmRepoURL();
         this.scmRevision = buildConfiguration.getScmRevision();
+        this.scmMirrorRepoURL = buildConfiguration.getScmMirrorRepoURL();
+        this.scmMirrorRevision = buildConfiguration.getScmMirrorRevision();
         this.creationTime = buildConfiguration.getCreationTime();
         this.lastModificationTime = buildConfiguration.getLastModificationTime();
         this.buildStatus = buildConfiguration.getBuildStatus();
@@ -143,6 +149,22 @@ public class BuildConfigurationRest implements GenericRestEntity<Integer> {
 
     public void setScmRevision(String scmRevision) {
         this.scmRevision = scmRevision;
+    }
+
+    public String getScmMirrorRepoURL() {
+        return scmMirrorRepoURL;
+    }
+
+    public void setScmMirrorRepoURL(String scmMirrorRepoURL) {
+        this.scmMirrorRepoURL = scmMirrorRepoURL;
+    }
+
+    public String getScmMirrorRevision() {
+        return scmMirrorRevision;
+    }
+
+    public void setScmMirrorRevision(String scmMirrorRevision) {
+        this.scmMirrorRevision = scmMirrorRevision;
     }
 
     public Date getCreationTime() {
@@ -233,6 +255,8 @@ public class BuildConfigurationRest implements GenericRestEntity<Integer> {
         builder.buildScript(buildScript);
         builder.scmRepoURL(scmRepoURL);
         builder.scmRevision(scmRevision);
+        builder.scmMirrorRepoURL(scmMirrorRepoURL);
+        builder.scmMirrorRevision(scmMirrorRevision);
         builder.creationTime(creationTime);
         builder.lastModificationTime(lastModificationTime);
         builder.buildStatus(buildStatus);

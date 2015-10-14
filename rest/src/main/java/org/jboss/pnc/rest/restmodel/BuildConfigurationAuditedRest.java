@@ -47,6 +47,10 @@ public class BuildConfigurationAuditedRest implements GenericRestEntity<Integer>
 
     private String scmRevision;
 
+    private String scmMirrorRepoURL;
+
+    private String scmMirrorRevision;
+
     private Date creationTime;
 
     private Date lastModificationTime;
@@ -68,6 +72,8 @@ public class BuildConfigurationAuditedRest implements GenericRestEntity<Integer>
         this.buildScript = buildConfigurationAudited.getBuildScript();
         this.scmRepoURL = buildConfigurationAudited.getScmRepoURL();
         this.scmRevision = buildConfigurationAudited.getScmRevision();
+        this.scmMirrorRepoURL = buildConfigurationAudited.getScmMirrorRepoURL();
+        this.scmMirrorRevision = buildConfigurationAudited.getScmMirrorRevision();
         performIfNotNull(buildConfigurationAudited.getProject(), () -> this.projectId = buildConfigurationAudited.getProject()
                 .getId());
         performIfNotNull(buildConfigurationAudited.getBuildEnvironment(), () -> this.environmentId = buildConfigurationAudited.getBuildEnvironment().getId());
@@ -129,6 +135,22 @@ public class BuildConfigurationAuditedRest implements GenericRestEntity<Integer>
 
     public void setScmRevision(String scmRevision) {
         this.scmRevision = scmRevision;
+    }
+
+    public String getScmMirrorRepoURL() {
+        return scmMirrorRepoURL;
+    }
+
+    public void setScmMirrorRepoURL(String scmMirrorRepoURL) {
+        this.scmMirrorRepoURL = scmMirrorRepoURL;
+    }
+
+    public String getScmMirrorRevision() {
+        return scmMirrorRevision;
+    }
+
+    public void setScmMirrorRevision(String scmMirrorRevision) {
+        this.scmMirrorRevision = scmMirrorRevision;
     }
 
     public Date getCreationTime() {

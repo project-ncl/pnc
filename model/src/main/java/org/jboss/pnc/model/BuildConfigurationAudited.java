@@ -58,6 +58,10 @@ public class BuildConfigurationAudited implements GenericEntity<IdRev> {
 
     private String scmRevision;
 
+    private String scmMirrorRepoURL;
+
+    private String scmMirrorRevision;
+
     private String description;
 
     @NotNull
@@ -177,6 +181,22 @@ public class BuildConfigurationAudited implements GenericEntity<IdRev> {
         this.scmRevision = scmRevision;
     }
 
+    public String getScmMirrorRepoURL() {
+        return scmMirrorRepoURL;
+    }
+
+    public void setScmMirrorRepoURL(String scmMirrorRepoURL) {
+        this.scmMirrorRepoURL = scmMirrorRepoURL;
+    }
+
+    public String getScmMirrorRevision() {
+        return scmMirrorRevision;
+    }
+
+    public void setScmMirrorRevision(String scmMirrorRevision) {
+        this.scmMirrorRevision = scmMirrorRevision;
+    }
+
     public String getDescription() {
         return description;
     }
@@ -256,6 +276,8 @@ public class BuildConfigurationAudited implements GenericEntity<IdRev> {
             configurationAudited.setDescription(buildConfiguration.getDescription());
             configurationAudited.setScmRepoURL(buildConfiguration.getScmRepoURL());
             configurationAudited.setScmRevision(buildConfiguration.getScmRevision());
+            configurationAudited.setScmMirrorRepoURL(buildConfiguration.getScmMirrorRepoURL());
+            configurationAudited.setScmMirrorRevision(buildConfiguration.getScmMirrorRevision());
             configurationAudited.setRev(rev);
             configurationAudited.setIdRev(new IdRev(id, rev));
             return configurationAudited;
