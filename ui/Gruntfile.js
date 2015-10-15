@@ -73,11 +73,6 @@ module.exports = function (grunt) {
       host: restUrl,
       port: 8080,
       ws: true
-    }, {
-      context: '/da-bcg/rest/v-0.3/build-configuration/generate/product',
-      host: 'ncl-test-vm-01.host.prod.eng.bos.redhat.com',
-      port: 8080,
-      ws: false
     }]);
   });
 
@@ -438,7 +433,8 @@ module.exports = function (grunt) {
             '*.{ico,png,txt}',
             'images/{,*/}*.{webp}',
             'fonts/{,*/}*.*',
-            'keycloak.json'
+            'keycloak.json',
+            'config.json'
           ]
         }, {
           expand: true,
