@@ -27,24 +27,46 @@
     '$scope',
     '$timeout',
     'Notifications',
-    function (ProductImportDAO, TreeFactory, scope, $timeout, Notifications) {
+    '$state',
+    'ProductVersionDAO',
+    function (ProductImportDAO, TreeFactory, scope, $timeout, Notifications, $state, ProductVersionDAO) {
 
       scope.started = false;
       scope.display = 'start';
+      scope.$watch('display', function(newval) {
+        scope.$root.importProductState = newval;
+      });
       var data = {}; // data loaded from analyzer endpoints
       scope.startData = {};
+      scope.startSubmitDisabled = false;
+      scope.finishSubmitDisabled = false;
       scope.bcData = {}; // data for the left-side form
       var tree = TreeFactory.build();
       scope.tree = tree;
-
+      scope.validateFormCaller = {call: _.noop()};
 
       /**
        * Given node, return string label to use in the tree.
        */
       var getNodeText = function (node) {
+        return node.nodeData.gav.groupId + ':<strong>' +
+          node.nodeData.gav.artifactId + '</strong>:' +
+          node.nodeData.gav.version + (nodeIsValid(node) ? '' : '<span class="fa fa-exclamation-triangle" style="color: #ec7a08;"></span>');
+      };
+
+
+      var getNodeGavString = function (node) {
         return node.nodeData.gav.groupId + ':' +
           node.nodeData.gav.artifactId + ':' +
           node.nodeData.gav.version;
+      };
+
+
+      var nodeIsValid = function (node) {
+        if (!_(node).has('valid')) {
+          node.valid = true;
+        }
+        return node.valid;
       };
 
 
@@ -77,6 +99,17 @@
               n.state.checked = true;
               n = n.getParent();
             }
+          } else {
+            var recursiveUncheck = function (n) {
+              if (_.isUndefined(n.state)) {
+                n.state = {};
+              }
+              n.state.checked = false;
+              _(n.nodes).each(function (e) {
+                recursiveUncheck(e);
+              });
+            };
+            recursiveUncheck(node);
           }
           tree._refresh();
         });
@@ -97,6 +130,23 @@
       };
 
 
+      var isStrNonEmpty = function (str) {
+        return _.isString(str) && str.length > 0;
+      };
+
+      var isValidURL = function (url) {
+        var URL_REGEXP = /^(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@\-\/]))?$/;
+        return URL_REGEXP.test(url);
+      };
+
+      var nodeValidate = function (node) {
+        node.valid = isStrNonEmpty(node.nodeData.name) &&
+          (!isStrNonEmpty(node.nodeData.scmUrl) || isValidURL(node.nodeData.scmUrl)) &&
+          (node.nodeData.environmentId !== null) &&
+          (node.nodeData.projectId !== null);
+        return node.valid;
+      };
+
       /**
        * Stick the above handlers on each tree node
        * when it is being parsed from received data.
@@ -104,15 +154,18 @@
       var processNode = function (node) {
         node.select = _.partial(nodeSelect, node);
         node.text = getNodeText(node);
+        node.gavString = getNodeGavString(node);
         node.toggle = _.partial(nodeToggle, node);
         node.analyze = _.partial(analyzeNextLevel, node);
         node.expand = _.partial(nodeExpand, node);
+        node.validate = _.partial(nodeValidate, node);
       };
 
 
       /**
        * Given a tree and the JSON data structure from the analyzer REST endpoint,
        * parse the structure to add nodes on the tree as needed.
+       * @return true on success
        */
       var parseData = function (tree, data) {
         /**
@@ -133,16 +186,16 @@
             processNode(subNode);
           }
           if (_.isArray(dataNode.dependencies)) {
+            var res = true;
             _(dataNode.dependencies).each(function (dependency) {
-              recursiveParse(subNode, dependency);
+              res = recursiveParse(subNode, dependency) && res;
             });
+            return res;
           } else {
-            Notifications.warn('Could not analyze \'' + dataNode.gav.groupId +
-              ':' + dataNode.gav.artifactId + ':' + dataNode.gav.version + '\'');
+            return false;
           }
         };
-
-        recursiveParse(tree, data.topLevelBc);
+        return recursiveParse(tree, data.topLevelBc);
       };
 
 
@@ -156,6 +209,7 @@
        */
       var parseTree0 = function (tree, update) {
         var res = _.chain(data).clone().omit('scmUrl', 'scmRevision', 'topLevelBc').value();
+        res.bcSetName = scope.bcSetName;
         var recursiveParse = function (node) {
           var n = update(node);
           n.dependencies = _(node.nodes).map(function (e) {
@@ -193,14 +247,37 @@
       };
 
 
+      var validateTree = function (tree) {
+        var recursiveParse = function (node) {
+          var valid = true;
+          node.selected = !_.isUndefined(node.state) && node.state.checked;
+          //var isValid = node.validate();
+          if (node.selected) {
+            valid = node.validate();//isValid;
+          }
+          if (_(node).has('nodes')) {
+            _(node.nodes).each(function (n) {
+              valid = recursiveParse(n) && valid;
+            });
+          }
+          node.text = getNodeText(node);
+          return valid;
+        };
+        return recursiveParse(tree.nodes[0]);
+      };
+
+
       scope.startProcess = function () {
-        Notifications.success('Preparing analysis. This may take a minute.');
+        scope.startSubmitDisabled = true;
+        Notifications.info('Preparing analysis. This may take a minute, please be patient.');
         ProductImportDAO.startProcess(scope.startData).then(function (r) {
+          scope.startSubmitDisabled = true;
           if (_(r).has('name')) {
             data = r;
             scope.productName = data.name;
             scope.bcSetName = data.bcSetName;
             parseData(tree, data);
+            tree.nodes[0].nlaSuccessful = true;
             tree.nodes[0].select();
             scope.display = 'bc';
             tree._refresh();
@@ -212,31 +289,62 @@
 
 
       var analyzeNextLevel = function (node) {
+        node.nlaSuccessful = true;
+        tree.nodes[0].select();
+        node.select();
         node.nodeData.selected = true;
         data = parseTree(tree);
-        Notifications.success('Analyzing \'' + node.text + '\'. This may take a minute.');
+        Notifications.info('Analyzing \'' + node.gavString + '\'. This may take a minute, please be patient.');
         ProductImportDAO.analyzeNextLevel(data).then(function (r) {
           if (_(r).has('name')) {
             data = r;
-            parseData(tree, data);
-            node.select();
-            node.expand();
-            Notifications.success('Successfully analyzed ' + (_.isUndefined(node.nodes) ? 0 : node.nodes.length) + ' dependencies for \'' + node.text + '\'.');
-            //scope.display = 'bc';
+            if (parseData(tree, data)) {
+              node.nlaSuccessful = true;
+              tree.nodes[0].select();
+              node.select();
+              node.expand();
+              Notifications.success('Successfully analyzed ' + (_.isUndefined(node.nodes) ? 0 : node.nodes.length) + ' dependencies for \'' + node.gavString + '\'.');
+            } else {
+              Notifications.warn('Could not find dependencies of \'' + node.gavString + '\' in a repository.');
+            }
           } else {
-            Notifications.error('Could not analyze \'' + node.text + '\'. Check that the information in the form is correct.');
+            node.nlaSuccessful = false;
+            tree.nodes[0].select();
+            node.select();
+            Notifications.error('Could not analyze \'' + node.gavString + '\'. Check that the information in the form is correct.');
           }
+        });
+      };
+
+      var goToProductVersion = function(id) { // TODO unnecessary rest call
+        ProductVersionDAO.get({versionId:id}).$promise.then(function(r) {
+          $state.go('product.detail.version', {productId: r.productId,versionId: r.id});
         });
       };
 
 
       scope.finishProcess = function () {
+        if(_.isUndefined(tree.nodes[0].state) || tree.nodes[0].state.checked !== true) {
+          Notifications.warn('You have to select at least one BC.');
+          return;
+        }
         data = parseTreeFinish(tree);
-        ProductImportDAO.finishProcess(data).then(function () {
-          Notifications.success('Product is being imported. This process takes time and is asynchronous' +
-            ' - if an error occures it cannot be displayed.');
-          scope.reset();
-        });
+        if (validateTree(tree)) {
+          scope.finishSubmitDisabled = true;
+          Notifications.info('Product is being imported. This may take a minute, please be patient.');
+          ProductImportDAO.finishProcess(data).then(function (r) {
+            if(r.success) {
+              Notifications.success('Product import completed!');
+              goToProductVersion(r.productVersionId);
+            } else {
+              Notifications.error('Product import failed. ' + r.message);
+            }
+            scope.finishSubmitDisabled = false;
+          });
+        } else {
+          tree._refresh();
+          Notifications.warn('Some data are invalid or missing. Verify  all checked BCs.');
+        }
       };
 
 
