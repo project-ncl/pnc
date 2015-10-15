@@ -252,7 +252,7 @@
           var valid = true;
           node.selected = !_.isUndefined(node.state) && node.state.checked;
           //var isValid = node.validate();
-          if (node.selected) {
+          if (node.selected && !node.nodeData.useExistingBc) {
             valid = node.validate();//isValid;
           }
           if (_(node).has('nodes')) {
