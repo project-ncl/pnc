@@ -167,6 +167,26 @@ public class BuildConfigurationRest implements GenericRestEntity<Integer> {
         this.scmMirrorRevision = scmMirrorRevision;
     }
 
+    @Deprecated
+    public String getInternalScm() {
+        return scmMirrorRepoURL;
+    }
+
+    @Deprecated
+    public void setInternalScm(String scmMirrorRepoURL) {
+        this.scmMirrorRepoURL = scmMirrorRepoURL;
+    }
+
+    @Deprecated
+    public String getInternalScmRevison() {
+        return scmMirrorRevision;
+    }
+
+    @Deprecated
+    public void setInternalScmRevison(String scmMirrorRevision) {
+        this.scmMirrorRevision = scmMirrorRevision;
+    }
+
     public Date getCreationTime() {
         return creationTime;
     }
