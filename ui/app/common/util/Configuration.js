@@ -21,23 +21,15 @@
 
   var module = angular.module('pnc.util');
 
+  module.value('CONFIG_FILE_PATH', './config.json');
 
-  module.factory('QueryHelper', function () {
-
-    var helper = {};
-
-    helper.search = function (searchFields) {
-      return '(' + _(searchFields)
-        .reduce(function (memo, searchField, index) {
-          return memo + (index !== 0 ? ' or ' : '') + searchField + '=like=%25:search%25';
-        }, '') + ')';
-    };
-
-    helper.searchOnly = function(searchFields) {
-      return '?q=' + helper.search(searchFields);
-    };
-
-    return helper;
-  });
-
+  module.factory('Configuration', [
+      'CONFIG_FILE_PATH',
+      '$http',
+      function (CONFIG_FILE_PATH, $http) {
+        return $http.get(CONFIG_FILE_PATH).then(function (r) {
+          return r.data;
+        });
+      }]
+  );
 })();
