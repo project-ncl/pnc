@@ -92,7 +92,7 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
         client.getCurrentUser(); //make sure client is connected
 
         Map<String, String> runtimeProperties = new HashMap<>();
-        String randString = RandomUtils.randString(4);//TODO increment length, not the 24 char limit
+        String randString = RandomUtils.randString(6);//note the 24 char limit
         buildAgentContextPath = "pnc-ba-" + randString;
 
         runtimeProperties.put("pod-name", "pnc-ba-pod-" + randString);
