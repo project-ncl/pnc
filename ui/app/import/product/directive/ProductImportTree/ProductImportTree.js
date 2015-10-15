@@ -32,6 +32,7 @@
         scope: {
           tree: '=',
           bcSetName: '=',
+          submitDisabled: '=',
           onFinish: '&',
           onReset: '&'
         },

@@ -48,26 +48,31 @@
       link: function(scopeAction, element, attrs) {
         element.bind('click', function() {
           var message = attrs.pncConfirmMessage || DEFAULT_MESSAGE;
-
-          $modal.open({
-            templateUrl: 'common/util/views/confirm-click.html',
-            controller: ['$scope', 'message', function($scope, message) {
+          var skip = attrs.pncConfirmSkip || 'false';
+          if(scopeAction.$eval(skip)) {
+            scopeAction.$evalAsync(attrs.pncConfirmClick);
+          } else {
+            $modal.open({
+              templateUrl: 'common/util/views/confirm-click.html',
+              controller: ['$scope', 'message', function ($scope, message) {
                 $scope.message = message;
                 $scope.confirm = function () {
                   $scope.$close();
                   scopeAction.$evalAsync(attrs.pncConfirmClick);
                 };
 
-                $scope.cancel = function() {
+                $scope.cancel = function () {
                   $scope.$dismiss();
+                  scopeAction.$evalAsync(attrs.pncCancelClick);
                 };
               }],
-            resolve: {
-              message: function() {
-                return message;
+              resolve: {
+                message: function () {
+                  return message;
+                }
               }
-            }
-          });
+            });
+          }
         });
       }
     };

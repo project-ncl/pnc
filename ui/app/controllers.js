@@ -27,4 +27,8 @@
         this.login = authService.login;
     }]);
 
+    app.controller('menuController', ['$state', '$scope', function($state, $scope) {
+      $scope.state = $state;
+    }]);
+
 })();

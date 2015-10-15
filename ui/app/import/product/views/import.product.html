@@ -44,11 +44,11 @@
   <div class="col-md-8">
     <div ng-switch="display">
 
-      <product-import-start-form ng-switch-when="start" data="startData"
+      <product-import-start-form ng-switch-when="start" data="startData" submit-disabled="startSubmitDisabled"
                                  on-submit="startProcess()"></product-import-start-form>
 
       <product-import-b-c-form ng-switch-when="bc" node="bcData"
-                               on-submit="analyzeNextLevel(node)"></product-import-b-c-form>
+                               on-submit="analyzeNextLevel(node)" validate-form-caller="validateFormCaller"></product-import-b-c-form>
 
     </div>
 
@@ -56,7 +56,7 @@
   <div class="col-md-4">
 
     <product-import-tree bc-set-name="bcSetName" tree="tree" on-finish="finishProcess()"
-                         on-reset="reset()"
+                         on-reset="reset()" submit-disabled="finishSubmitDisabled"
                          ng-hide="display === 'start'"></product-import-tree>
 
   </div>
