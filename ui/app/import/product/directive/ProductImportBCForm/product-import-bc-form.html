@@ -131,7 +131,7 @@
 
         <div class="col-sm-10">
           <environment-dropdown selected-id="data.environmentId"></environment-dropdown>
-          <div ng-show="bcForm.$submitted && data.environmentId === null" class="help-block">
+          <div ng-show="data.environmentId === null" class="help-block">
             <p class="text-danger">Required field.</p>
           </div>
         </div>
@@ -142,7 +142,7 @@
 
         <div class="col-sm-10">
           <project-dropdown selected-id="data.projectId" refresh="refresh"></project-dropdown>
-          <div ng-show="bcForm.$submitted && data.projectId === null" class="help-block">
+          <div ng-show="data.projectId === null" class="help-block">
             <p class="text-danger">Required field.</p>
           </div>
         </div>
@@ -160,7 +160,7 @@
 
   <div class="form-group pull-right">
     <div class="col-sm-12">
-      <input type="submit" class="btn btn-primary" value="Analyze next level dependencies">
+      <input type="submit" class="btn btn-primary" value="Analyze next level dependencies" ng-disabled="analyzeNextLevelDisabled">
       <input type="reset" class="btn btn-default" value="Clear">
     </div>
   </div>

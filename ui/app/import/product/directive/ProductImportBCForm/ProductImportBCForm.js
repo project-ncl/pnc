@@ -25,30 +25,54 @@
    * @author Jakub Senko
    */
   module.directive('productImportBCForm', [
-    function () {
+    'Notifications',
+    function (Notifications) {
 
       return {
         restrict: 'E',
         templateUrl: 'import/product/directive/ProductImportBCForm/product-import-bc-form.html',
         scope: {
-          node: '='
+          node: '=',
+          validateFormCaller: '='
         },
         link: function (scope) {
           scope.refresh = _.noop;
           scope.$watch('node', function () {
             scope.data = scope.node.nodeData;
+            scope.analyzeNextLevelDisabled = scope.node.nlaSuccessful;
+            dirtyForm();
           });
-          scope.submit = function () {
+
+
+          var dirtyForm = function() {
+            _(scope.bcForm).each(function (field) {
+              if (_(field).has('$dirty') && field.$pristine) {
+                field.$dirty = true;
+              }
+            });
+          };
+
+
+          var validate = function () {
             if (scope.bcForm.$valid && scope.data.environmentId !== null && scope.data.projectId !== null) {
-              scope.node.analyze();
+              return true;
             } else {
-              _(scope.bcForm).each(function (field) {
-                if (_(field).has('$dirty') && field.$pristine) {
-                  field.$dirty = true;
-                }
-              });
+              dirtyForm();
+              Notifications.warn('Some data are invalid or missing. Verify that form for ' +
+                scope.node.gavString + ' is correctly filled in.');
+              return false;
             }
           };
+
+
+          scope.submit = function () {
+            if (validate()) {
+              scope.node.analyze();
+            }
+          };
+
+
+          scope.validateFormCaller.call = validate;
         }
       };
     }
