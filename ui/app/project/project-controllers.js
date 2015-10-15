@@ -67,4 +67,119 @@
     }
   ]);
 
+  module.controller('ConfigurationListController', [
+    '$log',
+    '$state',
+    'configurationList',
+    'ProjectDAO',
+    function($log, $state, configurationList, ProjectDAO) {
+      var that = this;
+
+      this.configurations = configurationList;
+      this.projects = [];
+
+      angular.forEach(this.configurations.data, function(configuration) {
+        ProjectDAO.get({
+          projectId: configuration.projectId
+        }).$promise.then(
+          function(result) {
+            if (result) {
+              that.projects.push(result);
+            }
+          }
+        );
+      });
+    }
+  ]);
+
+  module.controller('CreateBCController', [
+    '$state',
+    '$stateParams',
+    '$log',
+    '$filter',
+    'BuildConfigurationDAO',
+    'ProductDAO',
+    'Notifications',
+    'environments',
+    'products',
+    function($state, $stateParams, $log, $filter, BuildConfigurationDAO, ProductDAO,
+             Notifications, environments, products) {
+
+      var that = this;
+
+      this.data = new BuildConfigurationDAO({ projectId: $stateParams.projectId }); // TODO is this correct?
+      this.environments = environments;
+
+
+      this.submit = function() {
+        // The REST API takes integer Ids so we need to extract them from
+        // our collection of objects first and attach them to our data object
+        // for sending back to the server.
+        that.data.productVersionIds = gatherIds(that.productVersions.selected);
+        that.data.dependencyIds = gatherIds(that.dependencies.selected);
+
+        that.data.$save().then(function() {
+          $state.go('project.detail', {
+            projectId: $stateParams.projectId
+          });
+        });
+      };
+
+      // Filtering and selection of linked ProductVersions.
+      this.products = {
+        all: products,
+        selected: null
+      };
+
+      // Could not make it work in a nicer way (i.e. via cachedGetter) - avibelli
+      this.allProductsMaps = {};
+      this.allProductNamesMaps = {};
+      this.products.all.forEach(function ( prod ) {
+          that.allProductsMaps[ prod.id ] = prod;
+      });
+
+      this.productVersions = {
+        selected: [],
+        all: [],
+
+        update: function() {
+          ProductDAO.getVersions({
+            productId: that.products.selected.id
+          }).then(function(data) {
+            that.productVersions.all = data;
+
+            // TOFIX - Ugly but quick - avibelli
+            data.forEach(function ( prodVers ) {
+                that.allProductNamesMaps[ prodVers.id ] = that.allProductsMaps[ prodVers.productId ].name + ' - ';
+            });
+          });
+        },
+        getItems: function($viewValue) {
+          return $filter('filter')(that.productVersions.all, {
+            version: $viewValue
+          });
+        }
+      };
+
+      // Selection of dependencies.
+      this.dependencies = {
+        selected: [],
+
+        getItems: function($viewValue) {
+          return BuildConfigurationDAO.querySearch({ name: $viewValue }).$promise.then(function(result) {
+            return result.content;
+          });
+        }
+      };
+    }
+  ]);
+
+  function gatherIds(array) {
+    var result = [];
+    for (var i = 0; i < array.length; i++) {
+      result.push(array[i].id);
+    }
+    return result;
+  }
+
 })();

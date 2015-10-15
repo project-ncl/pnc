@@ -45,6 +45,10 @@
           method: 'GET',
           url: ENDPOINT + qh.searchOnly(['name', 'description', 'project.name'])
         },
+        querySearch: {
+          method: 'GET',
+          url: ENDPOINT + '/?q=name=like=%25:name%25'
+        },
         update: {
           method: 'PUT'
         },

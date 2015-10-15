@@ -22,7 +22,14 @@
   var module = angular.module('pnc.record');
 
   /**
+   * @ngdoc directive
+   * @name pnc.project:pncBuildConfigurations
+   * @restrict E
+   * @description
+   * Displays a searchable, paged table of Build Configurations for a given project.
+   * @example
    * @author Jakub Senko
+   * @author Alex Creasy
    */
   module.directive('pncBuildConfigurations', [
     'BuildConfigurationDAO',
@@ -30,13 +37,12 @@
 
       return {
         restrict: 'E',
-        templateUrl: 'project/directives/pncBuildConfigurations/pnc-build-configurations.html',
+        templateUrl: 'project/directives/pnc-build-configurations/pnc-build-configurations.html',
         scope: {
-          project: '='
+          pncProject: '='
         },
         link: function (scope) {
-
-          scope.page = BuildConfigurationDAO.getPagedByProject({projectId: scope.project.id});
+          scope.page = BuildConfigurationDAO.getPagedByProject({ projectId: scope.pncProject.id });
         }
       };
     }
