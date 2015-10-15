@@ -281,6 +281,7 @@ public class BuildCoordinator {
             log.warn("[" + buildTask.getId() + "] Build coordination task failed. Setting it as SYSTEM_ERROR.", e);
             buildTask.setStatus(BuildStatus.SYSTEM_ERROR);
             buildTask.setStatusDescription(e.getMessage());
+            activeBuildTasks.remove(buildTask);
         }
     }
 
