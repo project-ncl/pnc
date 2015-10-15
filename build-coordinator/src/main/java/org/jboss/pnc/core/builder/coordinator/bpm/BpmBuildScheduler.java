@@ -132,7 +132,8 @@ public class BpmBuildScheduler implements BuildScheduler {
         return parameters;
     }
 
-    void fillComponentParameters(Map<String, Object> parameters, BuildTask buildTask) throws JsonProcessingException {
+    void fillComponentParameters(Map<String, Object> parameters, BuildTask buildTask)
+            throws JsonProcessingException, ConfigurationParseException {
         /*
         "GAV" : "org.artificer:artificer:1.0.0.Beta1",
         "Description" : "a test",
@@ -148,6 +149,7 @@ public class BpmBuildScheduler implements BuildScheduler {
         "ProjectId" : 1,
         "EnvironmentId" : 1
          */
+        BpmModuleConfig moduleConfig = configuration.getModuleConfig(new PncConfigProvider<>(BpmModuleConfig.class));
         Map<String, Object> params = new HashMap<>();
         params.put("BuildConfigName", buildTask.getBuildConfiguration().getName());
         params.put("Description", buildTask.getBuildConfiguration().getDescription());
@@ -160,7 +162,7 @@ public class BpmBuildScheduler implements BuildScheduler {
         params.put("BuildArtifactsRequired", buildTask.getBuildConfiguration().getAllDependencies().stream()
                 .map(bc -> bc.getName())
                 .collect(Collectors.toList()));//Is it correct?
-        params.put("CommunityBuild", "true");//hardcoded?
+        params.put("CommunityBuild", Optional.ofNullable(moduleConfig.getCommunityBuild()).orElse("true"));
         params.put("EnvironmentId", Optional.of(buildTask.getBuildConfiguration())
                 .map(BuildConfiguration::getBuildEnvironment)
                 .map(BuildEnvironment::getId)

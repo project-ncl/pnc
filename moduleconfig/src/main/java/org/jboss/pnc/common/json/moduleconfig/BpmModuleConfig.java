@@ -33,6 +33,7 @@ public class BpmModuleConfig extends AbstractModuleConfig {
     private final String daBaseUrl;
     private String deploymentId;
     private String processId;
+    private String communityBuild;
 
     public BpmModuleConfig(@JsonProperty("username") String username,
             @JsonProperty("password") String password,
@@ -43,7 +44,8 @@ public class BpmModuleConfig extends AbstractModuleConfig {
             @JsonProperty("jenkinsBaseUrl") String jenkinsBaseUrl,
             @JsonProperty("aproxBaseUrl") String aproxBaseUrl,
             @JsonProperty("repourBaseUrl") String repourBaseUrl,
-            @JsonProperty("daBaseUrl") String daBaseUrl)
+            @JsonProperty("daBaseUrl") String daBaseUrl,
+            @JsonProperty("communityBuild") String communityBuild)
             throws MalformedURLException {
         this.username = username;
         this.password = password;
@@ -55,6 +57,7 @@ public class BpmModuleConfig extends AbstractModuleConfig {
         this.aproxBaseUrl = aproxBaseUrl;
         this.repourBaseUrl = repourBaseUrl;
         this.daBaseUrl = daBaseUrl;
+        this.communityBuild = communityBuild;
     }
 
     public String getUsername() {
@@ -105,18 +108,23 @@ public class BpmModuleConfig extends AbstractModuleConfig {
         return daBaseUrl;
     }
 
+    public String getCommunityBuild() {
+        return communityBuild;
+    }
+
     @Override
     public String toString() {
         return "BpmModuleConfig{" +
-                "deploymentId='" + deploymentId + '\'' +
-                ", username='" + username + '\'' +
+                "username='" + username + '\'' +
                 ", bpmInstanceUrl='" + bpmInstanceUrl + '\'' +
                 ", pncBaseUrl='" + pncBaseUrl + '\'' +
                 ", jenkinsBaseUrl='" + jenkinsBaseUrl + '\'' +
                 ", aproxBaseUrl='" + aproxBaseUrl + '\'' +
                 ", repourBaseUrl='" + repourBaseUrl + '\'' +
                 ", daBaseUrl='" + daBaseUrl + '\'' +
+                ", deploymentId='" + deploymentId + '\'' +
                 ", processId='" + processId + '\'' +
+                ", communityBuild='" + communityBuild + '\'' +
                 '}';
     }
 }
