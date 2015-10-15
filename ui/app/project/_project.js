@@ -76,6 +76,21 @@
       }
     });
 
+    $stateProvider.state('project.detail.create-bc', {
+      url: '/create-bc',
+      templateUrl: 'project/views/project.detail.create-bc.html',
+      controller: 'CreateBCController',
+      controllerAs: 'ctrl',
+      resolve: {
+        environments: function(EnvironmentDAO) {
+          return EnvironmentDAO.query();
+        },
+        products: function(ProductDAO) {
+          return ProductDAO.query();
+        }
+      }
+    });
+
     $stateProvider.state('project.create', {
       url: '/project/create',
       templateUrl: 'project/views/project.create.html',

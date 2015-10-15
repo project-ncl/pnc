@@ -17,7 +17,7 @@
     limitations under the License.
 
 -->
-<div>
+<div ui-view>
   <pnc-header>
     <pnc-header-title>{{ detailCtrl.project.name || 'Empty' }}</pnc-header-title>
     <pnc-header-buttons>
@@ -70,5 +70,14 @@
 
   </form>
 
-  <pnc-build-configurations project="detailCtrl.project"></pnc-build-configurations>
+  <pnc-header>
+    <pnc-header-title><small>Build Configurations</small></pnc-header-title>
+    <pnc-header-buttons>
+      <button type="button" class="btn btn-lg btn-default" data-toggle="tooltip" title="Create Build Configuration" ui-sref="project.detail.create-bc">
+        <i class="pficon pficon-add"></i> Create
+      </button>
+    </pnc-header-buttons>
+  </pnc-header>
+
+  <pnc-build-configurations pnc-project="detailCtrl.project"></pnc-build-configurations>
 </div>

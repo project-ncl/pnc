@@ -1,0 +1,119 @@
+<!--
+
+    JBoss, Home of Professional Open Source.
+    Copyright 2014 Red Hat, Inc., and individual contributors
+    as indicated by the @author tags.
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+<div>
+  <div class="page-header">
+    <h1>Create Build Configuration</h1>
+  </div>
+  <div class="row">
+    <div class="col-md-8 col-lg-6">
+      <form class="form-horizontal" name="configurationForm" ng-submit="ctrl.submit()">
+        <div class="panel panel-default">
+          <div class="panel-body">
+            <div class="form-group">
+              <label for="input-name" class="col-sm-2 control-label">Name</label>
+              <div class="col-sm-10">
+                <input id="input-name" class="form-control" name="name" ng-model="ctrl.data.name" required>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="input-description" class="col-sm-2 control-label">Description</label>
+              <div class="col-sm-10">
+              <textarea id="input-description" class="form-control" name="description" ng-model="ctrl.data.description"></textarea>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="input-scm-repo-url" class="col-sm-2 control-label">SCM Url</label>
+              <div class="col-sm-10">
+              <input id="input-scm-repo-url" class="form-control" name="scmRepoURL" ng-model="ctrl.data.scmRepoURL">
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="input-scm-revision" class="col-sm-2 control-label">SCM Revision</label>
+              <div class="col-sm-10">
+              <input id="input-scm-revision" class="form-control" name="scmRevision" ng-model="ctrl.data.scmRevision">
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="input-build-script" class="col-sm-2 control-label">Build Script</label>
+              <div class="col-sm-10">
+              <textarea id="input-build-script" class="form-control" name="buildScript" spellcheck="false" ng-model="ctrl.data.buildScript"></textarea>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="input-environment" class="col-sm-2 control-label">Environment</label>
+              <div class="col-sm-10">
+              <select ng-model="ctrl.data.environmentId" required>
+                <option value="">Select an Environment</option>
+                  <option ng-repeat="environment in ctrl.environments" value="{{ environment.id }}">
+                    {{ environment.name }}
+                  </option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel panel-default">
+          <div class="panel-body">
+            <div class="form-group">
+              <label for="input-product" class="col-sm-2 control-label">Product</label>
+              <div class="col-sm-10">
+                <select id="input-product" ng-model="ctrl.products.selected" ng-options="product.name for product in ctrl.products.all" ng-change="ctrl.productVersions.update()">
+                  <option value="">Select a Product</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="input-product-versions" class="col-sm-2 control-label">Product Versions</label>
+              <div class="col-sm-10 col-md-4" ng-show="ctrl.products.selected">
+                <pnc-select selected-items="ctrl.productVersions.selected" additional-display-items-by-id="ctrl.allProductNamesMaps" display-property="version" query="ctrl.productVersions.getItems($viewValue)" placeholder="Enter product version..."></pnc-select>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel panel-default">
+          <div class="panel-body">
+            <div class="form-group">
+              <label for="input-dependencies" class="col-sm-2 control-label">Dependencies</label>
+              <div class="col-sm-10 col-md-4">
+                <pnc-select selected-items="ctrl.dependencies.selected" display-property="name" query="ctrl.dependencies.getItems($viewValue)" placeholder="Enter dependency name..."></pnc-select>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <div class="col-sm-offset-2 col-sm-10">
+            <input type="submit" class="btn btn-primary" value="Create">
+            <input type="reset" class="btn btn-default" value="Clear">
+          </div>
+        </div>
+
+      </form>
+    </div>
+  </div>
+</div>
