@@ -94,7 +94,7 @@
               <a href ng-click="authCtrl.login()"><span class="pficon pficon-user"></span>Login</a>
             </li>
           </ul>
-        <ul class="nav navbar-nav navbar-primary">
+        <ul class="nav navbar-nav navbar-primary" ng-controller="menuController as ctr">
           <li ui-sref-active="active">
             <a ui-sref="dashboard" href>Dashboard</a>
           </li>
@@ -121,7 +121,9 @@
           <li class="dropdown" ui-sref-active="active">
             <a href class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Import<span class="caret"></span></a>
             <ul class="dropdown-menu" role="menu">
-              <li><a href ui-sref="import.product">Product</a></li>
+              <li><a href pnc-confirm-skip="$root.importProductState !== 'bc'"
+                     pnc-confirm-click="state.go('import.product', {}, {reload: true});"
+                     pnc-confirm-message="Reset the entire import process and start over?">Product</a></li>
             </ul>
           </li>
         </ul>

@@ -17,18 +17,19 @@
  */
 'use strict';
 
-(function() {
-    var app = angular.module('pnc');
+(function () {
 
-    app.controller('authenticationController', ['authService', function(authService) {
-        this.username = authService.getPrinciple();
-        this.isAuthenticated = authService.isAuthenticated;
-        this.logout = authService.logout;
-        this.login = authService.login;
-    }]);
+  var module = angular.module('pnc.util');
 
-    app.controller('menuController', ['$state', '$scope', function($state, $scope) {
-      $scope.state = $state;
-    }]);
+  module.value('CONFIG_FILE_PATH', './config.json');
 
+  module.factory('Configuration', [
+      'CONFIG_FILE_PATH',
+      '$http',
+      function (CONFIG_FILE_PATH, $http) {
+        return $http.get(CONFIG_FILE_PATH).then(function (r) {
+          return r.data;
+        });
+      }]
+  );
 })();

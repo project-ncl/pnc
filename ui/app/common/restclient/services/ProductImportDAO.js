@@ -28,25 +28,32 @@
    */
   module.factory('ProductImportDAO', [
     '$http',
-    'PRODUCT_IMPORT_ENDPOINT',
-    function ($http, PRODUCT_IMPORT_ENDPOINT) {
+    'Configuration',
+    function ($http, Configuration) {
 
       var resource = {};
 
       resource.startProcess = function (data) {
-        return $http.post(PRODUCT_IMPORT_ENDPOINT + '/start-process', data).then(function (r) {
+        return Configuration.then(function (config) {
+          console.log(config.dependencyAnalyzerURL + '/start-process');
+          return $http.post(config.dependencyAnalyzerURL + '/start-process', data);
+        }).then(function (r) {
           return r.data;
         });
       };
 
       resource.analyzeNextLevel = function (data) {
-        return $http.post(PRODUCT_IMPORT_ENDPOINT + '/analyse-next-level', data).then(function (r) {
+        return Configuration.then(function (config) {
+          return $http.post(config.dependencyAnalyzerURL + '/analyse-next-level', data);
+        }).then(function (r) {
           return r.data;
         });
       };
 
       resource.finishProcess = function (data) {
-        return $http.post(PRODUCT_IMPORT_ENDPOINT + '/finish-process', data).then(function (r) {
+        return Configuration.then(function (config) {
+          return $http.post(config.dependencyAnalyzerURL + '/finish-process', data);
+        }).then(function (r) {
           return r.data;
         });
       };

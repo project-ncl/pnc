@@ -19,7 +19,7 @@
 
 (function () {
 
-  var module = angular.module('pnc.util', []);
+  var module = angular.module('pnc.util');
 
 
   module.factory('QueryHelper', function () {
