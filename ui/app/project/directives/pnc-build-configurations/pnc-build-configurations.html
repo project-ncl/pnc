@@ -17,20 +17,9 @@
     limitations under the License.
 
 -->
-<pnc-header>
-  <pnc-header-title><small>Build Configurations</small></pnc-header-title>
-  <pnc-header-buttons>
-    <button type="button" class="btn btn-lg btn-default disabled" data-toggle="tooltip" title="Create Build Configuration">
-      <i class="pficon pficon-add"></i> Create
-    </button>
-  </pnc-header-buttons>
-</pnc-header>
-
 <pnc-search-field page="page" text="build versions"></pnc-search-field>
 
-<br><br>
-
-<table class="table table-bordered table-striped table-hover">
+<table class="table table-bordered table-striped table-hover push-down">
   <thead>
   <th>Name</th>
   <th>Description</th>
@@ -38,7 +27,6 @@
   <th>SCM Revision</th>
   <th>Created</th>
   <th>Modified</th>
-  <th>User</th>
   </thead>
   <tbody>
   <tr ng-repeat="configuration in page.data">
@@ -52,7 +40,6 @@
     <td>{{ configuration.scmRevision }}</td>
     <td>{{ configuration.creationTime | date:'medium'}}</td>
     <td>{{ configuration.lastModificationTime | date:'medium'}}</td>
-    <td></td>
   </tr>
   </tbody>
 </table>
