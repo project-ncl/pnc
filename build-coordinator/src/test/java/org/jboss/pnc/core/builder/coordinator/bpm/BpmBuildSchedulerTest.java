@@ -93,6 +93,7 @@ public class BpmBuildSchedulerTest {
         doReturn("processId").when(bpmConfiguration).getProcessId();
         doReturn("password").when(bpmConfiguration).getPassword();
         doReturn("username").when(bpmConfiguration).getUsername();
+        doReturn("false").when(bpmConfiguration).getCommunityBuild();
 
         Configuration configurationStub = mock(Configuration.class);
         doReturn(bpmConfiguration).when(configurationStub).getModuleConfig(any());
@@ -133,7 +134,7 @@ public class BpmBuildSchedulerTest {
         assertThat(paramsJSON.at("/BuildCommand").asText()).isEqualTo("mvn clean install");
         assertThat(paramsJSON.at("/CommandLineParams").asText()).isEqualTo("null");
         assertThat(paramsJSON.at("/BuildArtifactsRequired").asText()).isEqualTo("");
-        assertThat(paramsJSON.at("/CommunityBuild").asText()).isEqualTo("true");
+        assertThat(paramsJSON.at("/CommunityBuild").asText()).isEqualTo("false");
         assertThat(paramsJSON.at("/EnvironmentId").asText()).isEqualTo("1");
         assertThat(paramsJSON.at("/PatchBuild").asText()).isEqualTo("false");
         assertThat(paramsJSON.at("/ProjectId").asText()).isEqualTo("1");
