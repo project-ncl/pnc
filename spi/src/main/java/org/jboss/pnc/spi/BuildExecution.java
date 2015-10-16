@@ -22,6 +22,8 @@ import java.util.Optional;
 
 public interface BuildExecution {
 
+    int getId();
+
     String getTopContentId();
 
     String getBuildSetContentId();

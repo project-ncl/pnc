@@ -35,25 +35,24 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.util.List;
 
-public class VerifyBuildRepoPromotionToChainGroupTest extends AbstractRepositoryManagerDriverTest {
+public class VerifyBuildRepoPromotionToUntestedBuildsGroupTest extends AbstractRepositoryManagerDriverTest {
 
     @Test
     public void extractBuildArtifactsTriggersBuildRepoPromotionToChainGroup() throws Exception {
         String path = "/org/myproj/myproj/1.0/myproj-1.0.pom";
         String content = "This is a test " + System.currentTimeMillis();
 
-        String chainId = "chain";
         String buildId = "build";
 
-        // create a dummy composed (chained) build execution, and a repo session based on it
-        BuildExecution execution = new TestBuildExecution(null, chainId, buildId, true);
+        // create a dummy build execution, and a repo session based on it
+        BuildExecution execution = new TestBuildExecution(null, null, buildId, true);
         RepositorySession session = driver.createBuildRepository(execution);
 
         // simulate a build deploying a file.
         driver.getAprox().module(AproxFoloContentClientModule.class)
                 .store(buildId, StoreType.hosted, buildId, path, new ByteArrayInputStream(content.getBytes()));
 
-        // now, extract the build artifacts. This will trigger promotion of the build hosted repo to the chain group.
+        // now, extract the build artifacts. This will trigger promotion of the build hosted repo to the untested-builds group.
         RepositoryManagerResult result = session.extractBuildArtifacts();
 
         // do some sanity checks while we're here
@@ -63,9 +62,9 @@ public class VerifyBuildRepoPromotionToChainGroupTest extends AbstractRepository
         Artifact a = deps.get(0);
         assertThat(a.getFilename(), equalTo(new File(path).getName()));
 
-        // end result: the chain group should contain the build hosted repo.
-        Group chainGroup = driver.getAprox().stores().load(StoreType.group, chainId, Group.class);
-        assertThat(chainGroup.getConstituents().contains(new StoreKey(StoreType.hosted, buildId)), equalTo(true));
+        // end result: the untested-builds group should contain the build hosted repo.
+        Group untestedBuildsGroup = driver.getAprox().stores().load(StoreType.group, MavenRepositoryConstants.UNTESTED_BUILDS_GROUP, Group.class);
+        assertThat(untestedBuildsGroup.getConstituents().contains(new StoreKey(StoreType.hosted, buildId)), equalTo(true));
     }
 
 }
