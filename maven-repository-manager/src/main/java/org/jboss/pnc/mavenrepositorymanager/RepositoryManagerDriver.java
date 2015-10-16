@@ -2,13 +2,13 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2014 Red Hat, Inc., and individual contributors
  * as indicated by the @author tags.
- *
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
+ * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -50,9 +50,9 @@ import static org.jboss.pnc.mavenrepositorymanager.MavenRepositoryConstants.*;
 /**
  * Implementation of {@link RepositoryManager} that manages an <a href="https://github.com/jdcasey/aprox">AProx</a> instance to
  * support repositories for Maven-ish builds.
- *
+ * <p>
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-11-25.
- * 
+ *
  * @author <a href="mailto:jdcasey@commonjava.org">John Casey</a>
  */
 @ApplicationScoped
@@ -112,16 +112,16 @@ public class RepositoryManagerDriver implements RepositoryManager {
      * Use the AProx client API to setup global and build-set level repos and groups, then setup the repo/group needed for this
      * build. Calculate the URL to use for resolving artifacts using the AProx Folo API (Folo is an artifact activity-tracker).
      * Return a new session ({@link MavenRepositorySession}) containing this information.
-     * 
+     *
      * @throws RepositoryManagerException In the event one or more repositories or groups can't be created to support the build
-     *         (or product, or shared-releases).
+     *                                    (or product, or shared-releases).
      */
     @Override
     public RepositorySession createBuildRepository(BuildExecution buildExecution) throws RepositoryManagerException {
 
         String buildId = buildExecution.getBuildContentId();
         try {
-            setupBuildRepos(buildId, buildExecution.getProjectName());
+            setupBuildRepos(buildExecution);
         } catch (AproxClientException e) {
             throw new RepositoryManagerException("Failed to setup repository or repository group for this build: %s", e,
                     e.getMessage());
@@ -150,13 +150,17 @@ public class RepositoryManagerDriver implements RepositoryManager {
      * uploaded from the build, and the group coordinates access to this hosted repository, along with content from the
      * product-level content group with which this build is associated. The group also provides a tracking target, so the
      * repository manager can keep track of downloads and uploads for the build.
-     * 
-     * @param buildContentId
-     * @param projectName
+     *
+     * @param execution The execution object, which contains the content id for creating the repo, and the build id.
      * @throws AproxClientException
      */
-    private void setupBuildRepos(String buildContentId, String projectName)
+    private void setupBuildRepos(BuildExecution execution)
             throws AproxClientException {
+
+        String buildContentId = execution.getBuildContentId();
+        String projectName = execution.getProjectName();
+        int id = execution.getId();
+
         // if the build-level group doesn't exist, create it.
         if (!aprox.stores().exists(StoreType.group, buildContentId)) {
             // if the product-level storage repo (for in-progress product builds) doesn't exist, create it.
@@ -165,11 +169,14 @@ public class RepositoryManagerDriver implements RepositoryManager {
                 buildArtifacts.setAllowSnapshots(true);
                 buildArtifacts.setAllowReleases(true);
 
+                buildArtifacts.setDescription(String.format("Build output for PNC build #%s (project: %s)", id, projectName));
+
                 aprox.stores().create(buildArtifacts,
-                        "Creating hosted repository for build: " + buildContentId + " of: " + projectName, HostedRepository.class);
+                        "Creating hosted repository for build: " + id + " (repo: " + buildContentId + ") of: " + projectName, HostedRepository.class);
             }
 
             Group buildGroup = new Group(buildContentId);
+            buildGroup.setDescription(String.format("Aggregation group for PNC build #%s (project: %s)", id, projectName));
 
             // build-local artifacts
             buildGroup.addConstituent(new StoreKey(StoreType.hosted, buildContentId));
@@ -178,7 +185,7 @@ public class RepositoryManagerDriver implements RepositoryManager {
             addGlobalConstituents(buildGroup);
 
             aprox.stores().create(buildGroup,
-                    "Creating repository group for resolving artifacts in build: " + buildContentId + " of: " + projectName,
+                    "Creating repository group for resolving artifacts in build: " + id + " (repo: " + buildContentId + ") of: " + projectName,
                     Group.class);
         }
     }
@@ -204,7 +211,7 @@ public class RepositoryManagerDriver implements RepositoryManager {
 
     /**
      * Lazily create the shared-releases and shared-imports global hosted repositories if they don't already exist.
-     * 
+     *
      * @throws AproxClientException
      */
     private void setupGlobalRepos() throws AproxClientException {
@@ -235,10 +242,10 @@ public class RepositoryManagerDriver implements RepositoryManager {
 
     /**
      * Promote the hosted repository associated with a given project build to an arbitrary repository group.
-     * 
+     *
      * @return The promotion instance, which won't actually trigger promotion until its
-     *         {@link RunningRepositoryPromotion#monitor(java.util.function.Consumer, java.util.function.Consumer)} method is
-     *         called.
+     * {@link RunningRepositoryPromotion#monitor(java.util.function.Consumer, java.util.function.Consumer)} method is
+     * called.
      */
     @Override
     public RunningRepositoryPromotion promoteBuild(BuildRecord buildRecord, String toGroup) throws RepositoryManagerException {

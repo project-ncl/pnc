@@ -23,6 +23,8 @@ import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.jboss.pnc.auth.AuthenticationProvider;
+import org.jboss.pnc.core.builder.coordinator.BuildCoordinator;
+import org.jboss.pnc.core.builder.coordinator.BuildTask;
 import org.jboss.pnc.core.builder.executor.BuildExecutionTask;
 import org.jboss.pnc.core.builder.executor.BuildExecutor;
 import org.jboss.pnc.model.BuildConfiguration;
@@ -79,6 +81,7 @@ import java.net.URI;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -123,6 +126,7 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
     private Datastore datastore;
     private BpmNotifier bpmNotifier;
     private HibernateLazyInitializer hibernateLazyInitializer;
+    private BuildCoordinator buildCoordinator;
 
     @Context
     private HttpServletRequest httpServletRequest;
@@ -139,7 +143,8 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
             ProductVersionProvider productVersionProvider,
             Datastore datastore,
             BpmNotifier bpmNotifier,
-            HibernateLazyInitializer hibernateLazyInitializer) {
+            HibernateLazyInitializer hibernateLazyInitializer,
+            BuildCoordinator buildCoordinator) {
         super(buildConfigurationProvider);
         this.buildConfigurationProvider = buildConfigurationProvider;
         this.buildTriggerer = buildTriggerer;
@@ -148,6 +153,7 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
         this.datastore = datastore;
         this.bpmNotifier = bpmNotifier;
         this.hibernateLazyInitializer = hibernateLazyInitializer;
+        this.buildCoordinator = buildCoordinator;
     }
 
     @ApiOperation(value = "Gets all Build Configurations")
@@ -301,6 +307,7 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
                           @ApiParam(value = "A CSV list of build record set ids.", required = false) @QueryParam("buildRecordSetIdsCSV") String buildRecordSetIdsCSV,
                           @ApiParam(value = "Build configuration set record id.", required = false) @QueryParam("buildConfigSetRecordId") String buildConfigSetRecordId,
                           @ApiParam(value = "BuildTask submit time in number of millis since epoch.", required = true) @QueryParam("submitTimeMillis") String submitTimeMillisParam,
+                          @ApiParam(value = "Username who triggered the build. If empty current user is used.", required = false) @QueryParam("usernameTriggered") String usernameTriggered,
                           @Context UriInfo uriInfo,
                           @Context HttpServletRequest request) {
         try {
@@ -334,10 +341,23 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
             AuthenticationProvider authProvider = new AuthenticationProvider(httpServletRequest);
             String loggedUser = authProvider.getUserName();
             User currentUser;
-            if(loggedUser != null && loggedUser != "") {
-                currentUser = datastore.retrieveUserByUsername(loggedUser);
-            } else {
+            if(loggedUser == null || loggedUser == "") {
                 return Response.status(Response.Status.FORBIDDEN).build();
+            } else {
+                currentUser = datastore.retrieveUserByUsername(loggedUser);
+            }
+
+            User userTriggered;
+            if (usernameTriggered != null && !usernameTriggered.equals("") && !usernameTriggered.equals("null")) {
+                userTriggered = datastore.retrieveUserByUsername(usernameTriggered);
+            } else {
+                //TODO remove dependency on buildCoordinator as buildExecutor must be decoupled from buildCoordinator (different deployment). The dependency was introduced to workaround the missing user parameter which should be passed to restEndpoint.
+                Optional<BuildTask> taskOptional = buildCoordinator.getActiveBuildTasks().stream().filter(buildTask -> buildTask.getId() == buildTaskId.intValue()).findFirst();
+                if (taskOptional.isPresent()) {
+                    userTriggered = taskOptional.get().getUser();
+                } else {
+                    userTriggered = currentUser;
+                }
             }
 
             BuildExecutionTask buildExecutionTask = buildTriggerer.executeBuild(
@@ -346,7 +366,7 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
                     buildConfigurationRevision,
                     buildRecordSetIdsCSV,
                     buildConfigSetRecordId,
-                    currentUser,
+                    userTriggered,
                     submitTimeMillis,
                     callbackUrl);
 

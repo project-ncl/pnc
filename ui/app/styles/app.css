@@ -30,6 +30,7 @@ body {
  right: 1rem;
  width: 30rem;
  z-index:9000;
+ overflow: hidden;
 }
 
 .footer {

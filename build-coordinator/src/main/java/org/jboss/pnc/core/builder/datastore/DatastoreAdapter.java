@@ -18,6 +18,7 @@
 package org.jboss.pnc.core.builder.datastore;
 
 import org.jboss.logging.Logger;
+import org.jboss.pnc.core.builder.coordinator.BuildTask;
 import org.jboss.pnc.core.builder.executor.BuildExecutionTask;
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.BuildConfigSetRecord;
@@ -110,6 +111,21 @@ public class DatastoreAdapter {
         datastore.storeCompletedBuild(buildRecord, buildExecutionTask.getBuildRecordSetIds());
     }
 
+    public void storeResult(BuildTask buildTask, Throwable e) throws DatastoreException {
+        BuildRecord buildRecord = createBuildRecord(buildTask);
+        StringWriter stackTraceWriter = new StringWriter();
+        PrintWriter stackTracePrinter = new PrintWriter(stackTraceWriter);
+        e.printStackTrace(stackTracePrinter);
+        buildRecord.setStatus(SYSTEM_ERROR);
+
+        String errorMessage = "Last build status: " + buildTask.getStatus().toString() + "\n";
+        errorMessage += "Caught exception: " + stackTraceWriter.toString();
+        buildRecord.setBuildLog(errorMessage);
+
+        log.debugf("Storing ERROR result of %s to datastore. Error: %s", buildTask.getBuildConfigurationAudited().getName() + "\n\n\n Exception: " + errorMessage, e);
+        datastore.storeCompletedBuild(buildRecord, buildTask.getBuildRecordSetIds());
+    }
+
     /**
      * Initialize a new BuildRecord based on the data contained in the BuildTask.
      * Note, this must be done inside a transaction because it fetches the BuildRecordSet entities from 
@@ -131,6 +147,24 @@ public class DatastoreAdapter {
         buildRecord.setLatestBuildConfiguration(buildExecutionTask.getBuildConfiguration());
         if (buildExecutionTask.getBuildConfigSetRecordId() != null) {
             BuildConfigSetRecord buildConfigSetRecord = datastore.getBuildConfigSetRecordById(buildExecutionTask.getBuildConfigSetRecordId());
+            buildRecord.setBuildConfigSetRecord(buildConfigSetRecord);
+        }
+
+        return buildRecord;
+    }
+
+    private BuildRecord createBuildRecord(BuildTask buildTask) {
+        BuildRecord buildRecord = BuildRecord.Builder.newBuilder().id(buildTask.getId())
+                .buildConfigurationAudited(buildTask.getBuildConfigurationAudited())
+                .user(buildTask.getUser())
+                .submitTime(buildTask.getSubmitTime())
+                .startTime(buildTask.getStartTime())
+                .endTime(buildTask.getEndTime())
+                .build();
+
+        buildRecord.setLatestBuildConfiguration(buildTask.getBuildConfiguration());
+        if (buildTask.getBuildConfigSetRecordId() != null) {
+            BuildConfigSetRecord buildConfigSetRecord = datastore.getBuildConfigSetRecordById(buildTask.getBuildConfigSetRecordId());
             buildRecord.setBuildConfigSetRecord(buildConfigSetRecord);
         }
 
