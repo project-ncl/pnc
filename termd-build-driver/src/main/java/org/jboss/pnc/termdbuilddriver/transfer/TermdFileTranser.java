@@ -66,7 +66,7 @@ public class TermdFileTranser {
             logsAggregate.append("==== ").append(uri.toString()).append(" ====\n");
             logsAggregate.append(writer.getBuffer());
 
-            logger.debug("Downloaded {}", writer.getBuffer().toString());
+            logger.trace("Downloaded {}", writer.getBuffer().toString());
             return logsAggregate;
         } catch (IOException e) {
             throw new TermdTransferException("Could not obtain log file: " + uri.toString(), e);
