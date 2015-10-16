@@ -72,7 +72,12 @@
           return EnvironmentDAO.query();
         },
         projects: function(ProjectDAO) {
-          return ProjectDAO.query();
+          return ProjectDAO._getAll({
+            pageSize: 10000,
+            sort: '=asc=name'
+          }).$promise.then(function(result) {
+            return result.content;
+          });
         },
         products: function(ProductDAO) {
           return ProductDAO.query();
