@@ -124,6 +124,12 @@ public class MavenRepositorySession implements RepositorySession {
         List<Artifact> downloads = processDownloads(report);
         Collections.sort(downloads, comp);
 
+        try {
+            aprox.stores().delete(StoreType.group, buildRepoId, "[Post-Build] Removing build aggregation group: " + buildRepoId );
+        } catch (AproxClientException e) {
+            throw new RepositoryManagerException("Failed to retrieve AProx stores module. Reason: %s", e, e.getMessage());
+        }
+
         Logger logger = LoggerFactory.getLogger(getClass());
         logger.info("Returning built artifacts / dependencies:\nUploads:\n  {}\n\nDownloads:\n  {}\n\n",
                 StringUtils.join(uploads, "\n  "), StringUtils.join(downloads, "\n  "));
