@@ -113,7 +113,7 @@ public class BuildCoordinator {
                 user,
                 getBuildStatusChangedEventNotifier(),
                 (bt) -> processBuildTask(bt),
-                datastoreAdapter.getNextBuildRecordId(), //TODO in bpm case we are not storing this task ?
+                datastoreAdapter.getNextBuildRecordId(),
                 null,
                 new Date(),
                 rebuildAll);
@@ -185,7 +185,7 @@ public class BuildCoordinator {
                     buildSetTask.getBuildConfigSetRecord().getUser(),
                     getBuildStatusChangedEventNotifier(),
                     (bt) -> processBuildTask(bt),
-                    datastoreAdapter.getNextBuildRecordId(), //TODO in bpm case we are not storing this task ?
+                    datastoreAdapter.getNextBuildRecordId(),
                     buildSetTask,
                     buildSetTask.getSubmitTime(),
                     rebuildAll);
