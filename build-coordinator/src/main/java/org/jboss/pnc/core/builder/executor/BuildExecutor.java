@@ -106,10 +106,8 @@ public class BuildExecutor {
             Integer buildTaskId,
             Date submitTime) throws CoreException {
 
-        Integer nextBuildRecordId = datastoreAdapter.getNextBuildRecordId();
-
         BuildExecutionTask buildExecutionTask = BuildExecutionTask.build(
-                nextBuildRecordId,
+                buildTaskId,
                 buildConfiguration,
                 buildConfigAudited,
                 user,
