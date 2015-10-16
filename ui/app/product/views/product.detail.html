@@ -24,7 +24,7 @@
 
       <button type="button" class="btn btn-lg btn-default" data-toggle="tooltip" title="Edit Product" ng-click="productForm.$show()" ng-class="{ 'active': productForm.$visible }"><i class="pficon pficon-edit"></i> Edit
       </button>
-      <button type="button" class="btn btn-lg btn-danger disabled" data-toggle="tooltip" title="Delete Product">
+      <button ng-hide="true" type="button" class="btn btn-lg btn-danger disabled" data-toggle="tooltip" title="Delete Product">
         <i class="pficon pficon-delete"></i> Delete
       </button>
     </pnc-header-buttons>

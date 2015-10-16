@@ -24,7 +24,7 @@
 
       <button type="button" class="btn btn-lg btn-default" data-toggle="tooltip" title="Edit Product Version" ng-click="productVersionForm.$show()" ng-class="{ 'active': productVersionForm.$visible }"><i class="pficon pficon-edit"></i> Edit
       </button>
-      <button type="button" class="btn btn-lg btn-danger disabled" data-toggle="tooltip" title="Delete Version">
+      <button ng-hide="true" type="button" class="btn btn-lg btn-danger disabled" data-toggle="tooltip" title="Delete Version">
         <i class="pficon pficon-delete"></i> Delete
       </button>
     </pnc-header-buttons>
@@ -89,4 +89,3 @@
   <pnc-product-version-b-cs version="versionCtrl.version"></pnc-product-version-b-cs>
 
 </div>
-

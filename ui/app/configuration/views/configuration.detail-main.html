@@ -38,7 +38,7 @@
       </div>
       <button type="button" class="btn btn-lg btn-default" data-toggle="tooltip" title="Clone Configuration" ng-click="detailCtrl.clone()"><i class="fa fa-files-o"></i> Clone</button>
       <button type="button" class="btn btn-lg btn-default" data-toggle="tooltip" title="Edit Configuration" ng-click="configurationForm.$show()" ng-class="{ 'active': configurationForm.$visible }"><i class="pficon pficon-edit"></i> Edit</button>
-      <button type="button" class="btn btn-lg btn-danger" data-toggle="tooltip" title="Delete Configuration" pnc-confirm-click="detailCtrl.delete()" pnc-confirm-message="{{ 'Confirm the deletion of Build Configuration: ' + detailCtrl.configuration.name + ' ?'}}"><i class="pficon pficon-delete"></i> Delete</button>
+      <button ng-hide="true" type="button" class="btn btn-lg btn-danger" data-toggle="tooltip" title="Delete Configuration" pnc-confirm-click="detailCtrl.delete()" pnc-confirm-message="{{ 'Confirm the deletion of Build Configuration: ' + detailCtrl.configuration.name + ' ?'}}"><i class="pficon pficon-delete"></i> Delete</button>
     </pnc-header-buttons>
   </pnc-header>
 
