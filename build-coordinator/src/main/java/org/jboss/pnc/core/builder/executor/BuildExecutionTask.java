@@ -189,7 +189,7 @@ public class BuildExecutionTask implements BuildExecution {
             Optional<Event<BuildStatusChangedEvent>> buildStatusChangedEventNotifier,
             Integer buildTaskId,
             Date submitTime) {
-        String topContentId = ContentIdentityManager.getProductContentId(BuildConfigurationUtils.getFirstProductVersion(buildConfiguration));
+        String topContentId = ContentIdentityManager.getProductContentId(BuildConfigurationUtils.getFirstProductVersion(buildConfiguration)); //TODO is first always the correct one ?
         String buildContentId = ContentIdentityManager.getBuildContentId(buildConfiguration);
 
         return new BuildExecutionTask(
