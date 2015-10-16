@@ -278,10 +278,15 @@ public class BuildCoordinator {
             activeBuildTasks.add(buildTask);
             buildScheduler.startBuilding(buildTask, onComplete);
         } catch (CoreException e) {
-            log.warn("[" + buildTask.getId() + "] Build coordination task failed. Setting it as SYSTEM_ERROR.", e);
+            log.debug(" Build coordination task failed. Setting it as SYSTEM_ERROR.", e);
             buildTask.setStatus(BuildStatus.SYSTEM_ERROR);
             buildTask.setStatusDescription(e.getMessage());
             activeBuildTasks.remove(buildTask);
+            try {
+                datastoreAdapter.storeResult(buildTask, e);
+            } catch (DatastoreException e1) {
+                log.error("Unable to store error [" + e.getMessage() + "] of build coordination task [" + buildTask.getId() + "].", e1);
+            }
         }
     }
 
