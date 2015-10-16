@@ -21,6 +21,7 @@ import com.google.common.base.Preconditions;
 import org.jboss.logging.Logger;
 import org.jboss.pnc.core.builder.coordinator.BuildCoordinator;
 import org.jboss.pnc.core.builder.coordinator.BuildSetTask;
+import org.jboss.pnc.core.builder.coordinator.BuildTask;
 import org.jboss.pnc.core.builder.executor.BuildExecutionTask;
 import org.jboss.pnc.core.builder.executor.BuildExecutor;
 import org.jboss.pnc.core.exception.CoreException;
@@ -55,6 +56,7 @@ import java.net.URL;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -191,14 +193,14 @@ public class BuildTriggerer {
             Integer buildConfigurationRevision,
             String buildRecordSetIdsCSV,
             String buildConfigSetRecordId,
-            User currentUser,
+            User userTriggered,
             Long submitTimeMillis, String callbackUrl) throws CoreException {
         final BuildConfiguration configuration = buildConfigurationRepository.queryById(buildConfigurationId);
         IdRev idRev = new IdRev(buildConfigurationId, buildConfigurationRevision);
         log.debug("Querying for configurationAudited by idRev: " + idRev.toString());
         final BuildConfigurationAudited configurationAudited = buildConfigurationAuditedRepository.queryById(idRev);
         log.debug("Building configurationAudited " + configurationAudited.toString());
-        log.debug("Current user " + currentUser.getUsername());
+        log.debug("User triggered the process " + userTriggered.getUsername());
 
         Consumer<BuildStatus> onComplete = (buildStatus) -> {
             if (callbackUrl != null && !callbackUrl.isEmpty()) {
@@ -218,7 +220,7 @@ public class BuildTriggerer {
         BuildExecutionTask buildExecutionTask = buildExecutor.build(
                 hibernateLazyInitializer.initializeBuildConfigurationBeforeTriggeringIt(configuration),
                 configurationAudited,
-                currentUser,
+                userTriggered,
                 onComplete,
                 buildRecordSetIds,
                 buildConfigSetRecordIdInt,
