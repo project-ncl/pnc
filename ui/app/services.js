@@ -144,6 +144,28 @@
         }
       }
 
+      function handleError(rejection) {
+        var MAX_NOTIFICATION_LENGTH = 120;
+
+        var error;
+
+        if (rejection && rejection.data && rejection.data.errorMessage) {
+          error = rejection.data;
+        } else {
+          $log.error('PNC REST Api returned an error in an invalid format: response: %O', rejection);
+          return rejection;
+        }
+
+        if (error.errorMessage.length > MAX_NOTIFICATION_LENGTH) {
+          error.errorMessage = error.errorMessage.substring(0, MAX_NOTIFICATION_LENGTH -1) + ' ...';
+        }
+
+        Notifications.error(error.errorMessage);
+        $log.error('PNC REST API returned the following error: type: "%s", message: "%s", details: "%s"',
+            error.errorType, error.errorMessage, error.errorDetails);
+
+      }
+
       return {
 
         response: function(response) {
@@ -169,11 +191,10 @@
               keycloak.login();
               break;
             case 409:
-              Notifications.httpError('Build rejected because the same build configuration is already running', rejection);
+              Notifications.error('Build rejected because the same build configuration is already running', rejection);
               break;
             default:
-              $log.debug('HTTP response: %O', rejection);
-              Notifications.httpError('HTTP Error', rejection);
+              handleError(rejection);
               break;
           }
           return rejection;
