@@ -165,7 +165,14 @@
           return RunningBuildRecordDAO.query();
         },
         allProducts: function(ProductDAO) {
-          return ProductDAO.query();
+          // TODO temporary hack for 0.7 release. The correct implementation
+          // will use paged scrolling.
+          return ProductDAO._getAll({
+            pageSize: 10000,
+            sort: '=asc=name'
+          }).$promise.then(function(result) {
+            return result.content;
+          });
         },
         configurations: function(BuildConfigurationDAO) {
           return BuildConfigurationDAO.query();
