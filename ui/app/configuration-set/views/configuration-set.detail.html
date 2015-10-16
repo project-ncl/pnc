@@ -39,7 +39,7 @@
       <button type="button" class="btn btn-lg btn-default" data-toggle="tooltip" title="Edit Configuration" ng-click="setEditForm.$show()" ng-class="{ 'active': setEditForm.$visible }">
         <i class="pficon pficon-edit"></i> Edit
       </button>
-      <button type="button" class="btn btn-lg btn-danger" data-toggle="tooltip" title="Delete Set" pnc-confirm-click="detailSetCtrl.delete()" pnc-confirm-message="{{ 'Confirm the deletion of Build Configuration Set: ' + detailSetCtrl.set.name + ' ?'}}">
+      <button ng-hide="true" type="button" class="btn btn-lg btn-danger" data-toggle="tooltip" title="Delete Set" pnc-confirm-click="detailSetCtrl.delete()" pnc-confirm-message="{{ 'Confirm the deletion of Build Configuration Set: ' + detailSetCtrl.set.name + ' ?'}}">
         <i class="pficon pficon-delete"></i> Delete
       </button>
     </pnc-header-buttons>
