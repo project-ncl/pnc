@@ -23,14 +23,17 @@
   </div>
   <div class="row">
     <div class="col-md-8 col-lg-6">
-      <form class="form-horizontal" name="productForm" ng-submit="productCreateCtrl.submit()">
+      <form class="form-horizontal" name="productForm" ng-submit="productCreateCtrl.submit()" novalidate>
 
         <div class="panel panel-default">
           <div class="panel-body">
-            <div class="form-group">
-              <label for="input-name" class="col-sm-2 control-label">Name     <span class="pficon pficon-info" title="The extended name of the Product, i.e. JBoss® Enterprise Application Platform"></span></label>
+            <div class="form-group" ng-class="{ 'has-error' : productForm.name.$invalid && !productForm.name.$pristine, 'has-success': productForm.name.$valid && productForm.name.$touched }">
+              <label for="input-name" class="col-sm-2 control-label">
+                * Name <span class="pficon pficon-info" title="The extended name of the Product, i.e. JBoss® Enterprise Application Platform"></span>
+              </label>
               <div class="col-sm-10">
                 <input id="input-name" class="form-control" name="name" ng-model="productCreateCtrl.data.name" required>
+                <span class="help-block" ng-show="productForm.name.$error.required && !productForm.name.$pristine">Required field.</span>
               </div>
             </div>
 
@@ -70,7 +73,7 @@
 
         <div class="form-group">
           <div class="col-sm-offset-2 col-sm-10">
-            <input type="submit" class="btn btn-primary" value="Create">
+            <input type="submit" class="btn btn-primary" value="Create" ng-disabled="productForm.$invalid">
             <input type="reset" class="btn btn-default" value="Clear">
           </div>
         </div>
