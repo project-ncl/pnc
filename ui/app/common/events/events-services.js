@@ -98,6 +98,7 @@
                   break;
                 case 'DONE':
                 case 'REJECTED':
+                case 'REJECTED_ALREADY_BUILT':
                 case 'SYSTEM_ERROR':
                   result.eventType = eventTypes.BUILD_FINISHED;
                   break;
@@ -123,6 +124,7 @@
                   break;
                 case 'DONE':
                 case 'REJECTED':
+                case 'REJECTED_ALREADY_BUILT':
                   result.eventType = eventTypes.BUILD_SET_FINISHED;
                   break;
               }

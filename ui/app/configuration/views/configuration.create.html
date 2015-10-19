@@ -23,19 +23,22 @@
   </div>
   <div class="row">
     <div class="col-md-8 col-lg-6">
-      <form class="form-horizontal" name="configurationForm" ng-submit="createCtrl.submit()">
+      <form class="form-horizontal" name="configurationForm" ng-submit="createCtrl.submit()" novalidate>
 
         <div class="panel panel-default">
           <div class="panel-body">
-            <div class="form-group">
-              <label for="input-project" class="col-sm-2 control-label">Project</label>
+            <div class="form-group" ng-class="{ 'has-error' : configurationForm.projectId.$invalid && !configurationForm.projectId.$pristine, 'has-success': configurationForm.projectId.$valid && configurationForm.projectId.$touched }">
+              <label for="input-project" class="col-sm-2 control-label">
+                * Project
+              </label>
               <div class="col-sm-10">
-                <select ng-model="createCtrl.data.projectId" required>
+                <select name="projectId" ng-model="createCtrl.data.projectId" required>
                   <option value="">Select a Project</option>
                   <option ng-repeat="project in createCtrl.projects" value="{{ project.id }}">
                     {{ project.name }}
                   </option>
                 </select>
+                <span class="help-block" ng-show="configurationForm.projectId.$error.required && !configurationForm.projectId.$pristine">Required field.</span>
               </div>
             </div>
           </div>
@@ -43,10 +46,14 @@
 
         <div class="panel panel-default">
           <div class="panel-body">
-            <div class="form-group">
-              <label for="input-name" class="col-sm-2 control-label">Name</label>
+            <div class="form-group" ng-class="{ 'has-error' : configurationForm.name.$invalid && !configurationForm.name.$pristine, 'has-success': configurationForm.name.$valid && configurationForm.name.$touched }">
+              <label for="input-name" class="col-sm-2 control-label">
+                * Name
+              </label>
               <div class="col-sm-10">
-                <input id="input-name" class="form-control" name="name" ng-model="createCtrl.data.name" required>
+                <input id="input-name" class="form-control" name="name" ng-model="createCtrl.data.name" required pattern="^[a-zA-Z0-9_.][a-zA-Z0-9_.-]*(?!\.git)+$">
+                <span class="help-block" ng-show="configurationForm.name.$error.required && !configurationForm.name.$pristine">Required field.</span>
+                <span class="help-block" ng-show="configurationForm.name.$error.pattern && !configurationForm.name.$pristine">The name contains not allowed characters (e.g spaces, commas, semicolons, apex, quotes) </span>
               </div>
             </div>
 
@@ -78,15 +85,18 @@
               </div>
             </div>
 
-            <div class="form-group">
-              <label for="input-environment" class="col-sm-2 control-label">Environment</label>
+            <div class="form-group" ng-class="{ 'has-error' : configurationForm.environmentId.$invalid && !configurationForm.environmentId.$pristine, 'has-success': configurationForm.environmentId.$valid && configurationForm.environmentId.$touched }">
+              <label for="input-environment" class="col-sm-2 control-label">
+                * Environment
+              </label>
               <div class="col-sm-10">
-                <select ng-model="createCtrl.data.environmentId" required>
+                <select name="environmentId" ng-model="createCtrl.data.environmentId" required>
                   <option value="">Select an Environment</option>
                   <option ng-repeat="environment in createCtrl.environments" value="{{ environment.id }}">
                     {{ environment.name }}
                   </option>
                 </select>
+                <span class="help-block" ng-show="configurationForm.environmentId.$error.required && !configurationForm.environmentId.$pristine">Required field.</span>
               </div>
             </div>
           </div>
@@ -128,7 +138,7 @@
 
         <div class="form-group">
           <div class="col-sm-offset-2 col-sm-10">
-            <input type="submit" class="btn btn-primary" value="Create">
+            <input type="submit" class="btn btn-primary" value="Create" ng-disabled="configurationForm.$invalid">
             <input type="reset" class="btn btn-default" value="Clear">
           </div>
         </div>

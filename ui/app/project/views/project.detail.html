@@ -30,12 +30,13 @@
     </pnc-header-buttons>
   </pnc-header>
 
-  <form editable-form name="projectForm" class="form-horizontal" onbeforesave="detailCtrl.update()">
+  <form editable-form name="projectForm" class="form-horizontal" onbeforesave="detailCtrl.update()" novalidate>
 
-    <div class="form-group">
+    <div class="form-group" ng-class="{ 'has-error': projectForm.name.$invalid && !projectForm.name.$pristine, 'has-success': projectForm.name.$valid && projectForm.name.$touched }">
       <label for="input-name" class="col-sm-1 control-label">Name</label>
       <div class="col-sm-11">
         <p id="input-name" e-class="form-control" editable-text="detailCtrl.project.name" e-name="name" e-required>{{ detailCtrl.project.name || 'Empty' }}</p>
+        <span class="help-block" ng-show="projectForm.name.$error.required && !projectForm.name.$pristine">Required field.</span>
       </div>
     </div>
     <div class="form-group">
@@ -59,7 +60,7 @@
 
     <div class="form-group" ng-show="projectForm.$visible">
       <div class="col-sm-offset-1 col-sm-11">
-        <button type="submit" class="btn btn-primary" ng-disabled="projectForm.$waiting">
+        <button type="submit" class="btn btn-primary" ng-disabled="projectForm.$waiting || projectForm.$invalid">
           Save
         </button>
         <button type="button" class="btn btn-default" ng-disabled="projectForm.$waiting" ng-click="projectForm.$cancel()">
