@@ -23,16 +23,20 @@
   </div>
   <div class="row">
     <div class="col-md-8 col-lg-6">
-      <form name="projectForm" novalidate  class="form-horizontal">
+      <form name="projectForm" class="form-horizontal" novalidate>
         <div class="panel panel-default">
           <div class="panel-body">
             <!-- Validation: This field is mandatory and must not be empty -->
-            <div class="form-group" ng-class="{ 'has-error': projectForm.name.$invalid && projectForm.name.$touched, 'has-success': projectForm.name.$valid && projectForm.name.$touched }">
-              <label for="input-name" class="col-sm-2 control-label">Name <span class="text-danger">*</span></label>
+            <div class="form-group" ng-class="{ 'has-error': projectForm.name.$invalid && !projectForm.name.$pristine, 'has-success': projectForm.name.$valid && projectForm.name.$touched }">
+              <label for="input-name" class="col-sm-2 control-label">
+                * Name
+              </label>
               <div class="col-sm-10">
                 <input type="text" id="input-name" class="form-control" name="name" ng-model="project.name" required>
+                <span class="help-block" ng-show="projectForm.name.$error.required && !projectForm.name.$pristine">Required field.</span>
               </div>
             </div>
+
             <!-- Validation: This field is optional and has no constraints -->
             <div class="form-group">
               <label for="input-description" class="col-sm-2 control-label">Description</label>
