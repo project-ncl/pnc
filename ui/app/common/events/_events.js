@@ -64,6 +64,8 @@
         if (authService.getPncUser().id === payload.userId) {
           if (payload.buildStatus === 'REJECTED') {
             Notifications.warn('Build #' + payload.id + ' rejected.');
+          } else if (payload.buildStatus === 'REJECTED_ALREADY_BUILT') {
+            Notifications.warn('Build #' + payload.id + ' was rejected because it has already been built.');
           } else if (payload.buildStatus === 'SYSTEM_ERROR') {
             Notifications.error('A system error prevented the Build #' + payload.id + ' from starting.');
           } else {
