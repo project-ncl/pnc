@@ -108,6 +108,9 @@
     $stateProvider.state('project.create', {
       url: '/project/create',
       templateUrl: 'project/views/project.create.html',
+      data: {
+        displayName: 'Create Project'
+      },
       controller: 'ProjectCreateController',
       controllerAs: 'createCtrl'
     });
