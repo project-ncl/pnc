@@ -21,48 +21,62 @@
   <div class="page-header">
     <h1>Create Product</h1>
   </div>
+  <div class="row">
+    <div class="col-md-8 col-lg-6">
+      <form class="form-horizontal" name="productForm" ng-submit="productCreateCtrl.submit()">
 
-  <form class="form-horizontal" name="productForm" ng-submit="productCreateCtrl.submit()">
-    <div class="form-group">
-      <label for="input-name" class="col-sm-2 control-label">Name     <span class="pficon pficon-info" title="The extended name of the Product, i.e. JBoss® Enterprise Application Platform"></span></label>
-      <div class="col-sm-10">
-        <input id="input-name" class="form-control" name="name" ng-model="productCreateCtrl.data.name" required>
-      </div>
-    </div>
+        <div class="panel panel-default">
+          <div class="panel-body">
+            <div class="form-group">
+              <label for="input-name" class="col-sm-2 control-label">Name     <span class="pficon pficon-info" title="The extended name of the Product, i.e. JBoss® Enterprise Application Platform"></span></label>
+              <div class="col-sm-10">
+                <input id="input-name" class="form-control" name="name" ng-model="productCreateCtrl.data.name" required>
+              </div>
+            </div>
 
-    <div class="form-group">
-      <label for="input-description" class="col-sm-2 control-label">Description     <span class="pficon pficon-info" title="Description of the Product, i.e. JBoss® Enterprise Application Platform 6 provides an innovative modular, cloud-ready architecture, powerful management and automation, and world class developer productivity, ..."></span></label>
-      <div class="col-sm-10">
-        <textarea id="input-description" class="form-control" name="description" ng-model="productCreateCtrl.data.description"></textarea>
-      </div>
-    </div>
+            <div class="form-group">
+              <label for="input-description" class="col-sm-2 control-label">Description     <span class="pficon pficon-info" title="Description of the Product, i.e. JBoss® Enterprise Application Platform 6 provides an innovative modular, cloud-ready architecture, powerful management and automation, and world class developer productivity, ..."></span></label>
+              <div class="col-sm-10">
+                <textarea id="input-description" class="form-control" name="description" ng-model="productCreateCtrl.data.description"></textarea>
+              </div>
+            </div>
+          </div>
+        </div>
 
-    <div class="form-group">
-      <label for="input-abbreviation" class="col-sm-2 control-label">Short Name     <span class="pficon pficon-info" title="The abbreviation of the Product, i.e. EAP"></span></label>
-      <div class="col-sm-10">
-        <input id="input-abbreviation" class="form-control" name="abbreviation" ng-model="productCreateCtrl.data.abbreviation">
-      </div>
-    </div>
+        <div class="panel panel-default">
+          <div class="panel-body">
+            <div class="form-group">
+              <label for="input-abbreviation" class="col-sm-2 control-label">Short Name     <span class="pficon pficon-info" title="The abbreviation of the Product, i.e. EAP"></span></label>
+              <div class="col-sm-10">
+                <input id="input-abbreviation" class="form-control" name="abbreviation" ng-model="productCreateCtrl.data.abbreviation">
+              </div>
+            </div>
 
-    <div class="form-group">
-      <label for="input-productCode" class="col-sm-2 control-label">Product Code     <span class="pficon pficon-info" title="The official Product code to be used in URLs, filenames, etc, i.e. eap"></span></label>
-      <div class="col-sm-10">
-        <input id="input-productCode" class="form-control" name="productCode" ng-model="productCreateCtrl.data.productCode">
-      </div>
-    </div>
+            <div class="form-group">
+              <label for="input-productCode" class="col-sm-2 control-label">Product Code     <span class="pficon pficon-info" title="The official Product code to be used in URLs, filenames, etc, i.e. eap"></span></label>
+              <div class="col-sm-10">
+                <input id="input-productCode" class="form-control" name="productCode" ng-model="productCreateCtrl.data.productCode">
+              </div>
+            </div>
 
-    <div class="form-group">
-      <label for="input-pgmSystemName" class="col-sm-2 control-label">System Code     <span class="pficon pficon-info" title="The eventual code needed to integrate with external systems, portals, etc, i.e. jbosseap"></span></label>
-      <div class="col-sm-10">
-        <input id="input-pgmSystemName" class="form-control" name="pgmSystemName" ng-model="productCreateCtrl.data.pgmSystemName">
-      </div>
-    </div>
+            <div class="form-group">
+              <label for="input-pgmSystemName" class="col-sm-2 control-label">System Code     <span class="pficon pficon-info" title="The eventual code needed to integrate with external systems, portals, etc, i.e. jbosseap"></span></label>
+              <div class="col-sm-10">
+                <input id="input-pgmSystemName" class="form-control" name="pgmSystemName" ng-model="productCreateCtrl.data.pgmSystemName">
+              </div>
+            </div>
+          </div>
+        </div>
 
-    <div class="form-group">
-      <div class="col-sm-offset-2 col-sm-10">
-        <input type="submit" class="btn btn-primary" value="Create">
-        <input type="reset" class="btn btn-default" value="Clear">
-      </div>
+        <div class="form-group">
+          <div class="col-sm-offset-2 col-sm-10">
+            <input type="submit" class="btn btn-primary" value="Create">
+            <input type="reset" class="btn btn-default" value="Clear">
+          </div>
+        </div>
+
+      </form>
+
     </div>
-  </form>
+  </div>
 </div>
