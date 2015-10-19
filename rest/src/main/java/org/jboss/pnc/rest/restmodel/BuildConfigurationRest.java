@@ -28,7 +28,6 @@ import org.jboss.pnc.rest.validation.groups.WhenUpdating;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
-import javax.validation.constraints.Pattern;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.Date;
 import java.util.Set;
@@ -45,7 +44,6 @@ public class BuildConfigurationRest implements GenericRestEntity<Integer> {
     private Integer id;
 
     @NotNull(groups = WhenCreatingNew.class)
-    @Pattern(regexp = "^[a-zA-Z0-9_.][a-zA-Z0-9_.-]*(?<!\\.git)$", groups = { WhenCreatingNew.class, WhenUpdating.class })
     private String name;
 
     private String description;
