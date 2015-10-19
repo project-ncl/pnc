@@ -23,13 +23,16 @@
   </div>
   <div class="row">
     <div class="col-md-8 col-lg-6">
-      <form class="form-horizontal" name="configurationSetForm" ng-submit="createSetCtrl.submit()">
+      <form class="form-horizontal" name="configurationSetForm" ng-submit="createSetCtrl.submit()" novalidate>
         <div class="panel panel-default">
           <div class="panel-body">
-            <div class="form-group">
-              <label for="input-name" class="col-sm-2 control-label">Name</label>
+            <div class="form-group" ng-class="{ 'has-error': configurationSetForm.name.$invalid && !configurationSetForm.name.$pristine, 'has-success': configurationSetForm.name.$valid && configurationSetForm.name.$touched }">
+              <label for="input-name" class="col-sm-2 control-label">
+                * Name
+              </label>
               <div class="col-sm-10">
                 <input id="input-name" class="form-control" name="name" ng-model="createSetCtrl.data.name" required>
+                <span class="help-block" ng-show="configurationSetForm.name.$error.required && !configurationSetForm.name.$pristine">Required field.</span>
               </div>
             </div>
           </div>
@@ -65,7 +68,7 @@
 
         <div class="form-group">
           <div class="col-sm-offset-2 col-sm-10">
-            <input type="submit" class="btn btn-primary" value="Create">
+            <input type="submit" class="btn btn-primary" value="Create" ng-disabled="configurationSetForm.$invalid">
             <input type="reset" class="btn btn-default" value="Clear">
           </div>
         </div>
