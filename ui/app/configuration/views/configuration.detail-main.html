@@ -44,12 +44,14 @@
 
   <div class="row">
     <div class="col-md-12">
-      <form editable-form class="form-horizontal" name="configurationForm" onbeforesave="detailCtrl.update()">
+      <form editable-form class="form-horizontal" name="configurationForm" onbeforesave="detailCtrl.update()" novalidate>
 
-        <div class="form-group">
+        <div class="form-group" ng-class="{ 'has-error' : configurationForm.name.$invalid && !configurationForm.name.$pristine, 'has-success': configurationForm.name.$valid && configurationForm.name.$touched }">
           <label for="input-name" class="col-sm-2 control-label">Name</label>
           <div class="col-sm-10">
-            <p id="input-name" class="form-control-static" e-class="form-control" editable-text="detailCtrl.configuration.name" e-name="name" e-required>{{ detailCtrl.configuration.name || 'Empty' }}</p>
+            <p id="input-name" class="form-control-static" e-pattern="^[a-zA-Z0-9_.][a-zA-Z0-9_.-]*(?!\.git)+$" e-class="form-control" editable-text="detailCtrl.configuration.name" e-name="name" e-required>{{ detailCtrl.configuration.name || 'Empty' }}</p>
+            <span class="help-block" ng-show="configurationForm.name.$error.required && !configurationForm.name.$pristine">Required field.</span>
+            <span class="help-block" ng-show="configurationForm.name.$error.pattern && !configurationForm.name.$pristine">The name contains not allowed characters (e.g spaces, commas, semicolons, apex, quotes) </span>
           </div>
         </div>
 
@@ -150,7 +152,7 @@
 
         <div class="form-group" ng-show="configurationForm.$visible">
           <div class="col-sm-offset-2 col-sm-10">
-            <button type="submit" class="btn btn-primary" ng-disabled="configurationForm.$waiting">
+            <button type="submit" class="btn btn-primary" ng-disabled="configurationForm.$waiting || configurationForm.$invalid">
               Save
             </button>
             <button type="button" class="btn btn-default" ng-disabled="configurationForm.$waiting" ng-click="configurationForm.$cancel()">
