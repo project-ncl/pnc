@@ -175,7 +175,14 @@
           });
         },
         configurations: function(BuildConfigurationDAO) {
-          return BuildConfigurationDAO.query();
+          // TODO temporary hack for 0.7 release. The correct implementation
+          // will use paged scrolling.
+          return BuildConfigurationDAO._getAll({
+            pageSize: 10000,
+            sort: '=asc=name'
+          }).$promise.then(function(result) {
+            return result.content;
+          });
         },
         linkedProductVersions: function(BuildConfigurationDAO, $stateParams) {
           return BuildConfigurationDAO.getProductVersions({
