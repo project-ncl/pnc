@@ -21,33 +21,59 @@
   <div class="page-header">
     <h1>Create New Project</h1>
   </div>
-  <div class="well semi-responsive-well push-down">
-    <form name="projectForm" novalidate class>
-      <!-- Validation: This field is mandatory and must not be empty -->
-      <div class="form-group" ng-class="{ 'has-error': projectForm.name.$invalid && projectForm.name.$touched, 'has-success': projectForm.name.$valid && projectForm.name.$touched }">
-        <label for="input-name" class="control-label">Name <span class="text-danger">*</span></label>
-        <input type="text" id="input-name" class="form-control" name="name" ng-model="project.name" required>
-      </div>
-      <!-- Validation: This field is optional and has no constraints -->
-      <div class="form-group">
-        <label for="input-description" class="control-label">Description</label>
-          <textarea id="input-description" class="form-control" name="description" ng-model="project.description">
-          </textarea>
-      </div>
-      <!-- Validation: This field is optional, however if it is not empty it must be a valid URL -->
-      <div class="form-group" ng-class="{ 'has-error': projectForm.projectUrl.$invalid, 'has-success': projectForm.projectUrl.$valid && project.projectUrl }">
-        <label for="input-url" class="control-label">Project URL</label>
-        <input type="url" id="input-url" class="form-control" name="projectUrl" ng-model="project.projectUrl">
-      </div>
-      <!-- Validation: This field is optional, however if it is not empty it must be a valid URL -->
-      <div class="form-group" ng-class="{ 'has-error': projectForm.issueTrackerUrl.$invalid, 'has-success': projectForm.issueTrackerUrl.$valid && project.issueTrackerUrl }">
-        <label for="input-issue-tracker" class="control-label">Issue Tracker URL</label>
-        <input type="url" id="input-issue-tracker" class="form-control" name="issueTrackerUrl" ng-model="project.issueTrackerUrl">
-      </div>
-      <div class="form-group">
-        <input type="submit" class="btn btn-primary" value="Create" ng-click="createCtrl.create(project)" ng-disabled="projectForm.$invalid">
-        <input type="reset" class="btn btn-default" value="Clear" ng-click="createCtrl.reset(projectForm)">
-      </div>
-    </form>
+  <div class="row">
+    <div class="col-md-8 col-lg-6">
+      <form name="projectForm" class="form-horizontal" novalidate>
+        <div class="panel panel-default">
+          <div class="panel-body">
+            <!-- Validation: This field is mandatory and must not be empty -->
+            <div class="form-group" ng-class="{ 'has-error': projectForm.name.$invalid && !projectForm.name.$pristine, 'has-success': projectForm.name.$valid && projectForm.name.$touched }">
+              <label for="input-name" class="col-sm-2 control-label">
+                * Name
+              </label>
+              <div class="col-sm-10">
+                <input type="text" id="input-name" class="form-control" name="name" ng-model="project.name" required>
+                <span class="help-block" ng-show="projectForm.name.$error.required && !projectForm.name.$pristine">Required field.</span>
+              </div>
+            </div>
+
+            <!-- Validation: This field is optional and has no constraints -->
+            <div class="form-group">
+              <label for="input-description" class="col-sm-2 control-label">Description</label>
+                <div class="col-sm-10">
+                  <textarea id="input-description" class="form-control" name="description" ng-model="project.description"></textarea>
+                </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel panel-default">
+          <div class="panel-body">
+            <!-- Validation: This field is optional, however if it is not empty it must be a valid URL -->
+            <div class="form-group" ng-class="{ 'has-error': projectForm.projectUrl.$invalid, 'has-success': projectForm.projectUrl.$valid && project.projectUrl }">
+              <label for="input-url" class="col-sm-2 control-label">Project URL</label>
+              <div class="col-sm-10">
+                <input type="url" id="input-url" class="form-control" name="projectUrl" ng-model="project.projectUrl">
+              </div>
+            </div>
+            <!-- Validation: This field is optional, however if it is not empty it must be a valid URL -->
+            <div class="form-group" ng-class="{ 'has-error': projectForm.issueTrackerUrl.$invalid, 'has-success': projectForm.issueTrackerUrl.$valid && project.issueTrackerUrl }">
+              <label for="input-issue-tracker" class="col-sm-2 control-label">Issue Tracker URL</label>
+              <div class="col-sm-10">
+                <input type="url" id="input-issue-tracker" class="form-control" name="issueTrackerUrl" ng-model="project.issueTrackerUrl">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <div class="col-sm-offset-2 col-sm-10">
+            <input type="submit" class="btn btn-primary" value="Create" ng-click="createCtrl.create(project)" ng-disabled="projectForm.$invalid">
+            <input type="reset" class="btn btn-default" value="Clear" ng-click="createCtrl.reset(projectForm)">
+          </div>
+        </div>
+
+      </form>
+    </div>
   </div>
 </div>

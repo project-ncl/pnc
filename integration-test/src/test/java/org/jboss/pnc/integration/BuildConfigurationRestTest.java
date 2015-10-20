@@ -177,6 +177,19 @@ public class BuildConfigurationRestTest {
     }
 
     @Test
+    public void shouldFailToCreateBuildConfigurationWhichDoesntMatchRegexp() throws IOException {
+        JsonTemplateBuilder configurationTemplate = JsonTemplateBuilder.fromResource("buildConfiguration_create_template");
+        configurationTemplate.addValue("_projectId", String.valueOf(projectId));
+        configurationTemplate.addValue("_environmentId", String.valueOf(environmentId));
+        configurationTemplate.addValue("_name", ":");
+
+        given().header("Accept", "application/json").header("Authorization", "Bearer " + access_token)
+                .body(configurationTemplate.fillTemplate()).contentType(ContentType.JSON).port(getHttpPort()).when().post(
+                CONFIGURATION_REST_ENDPOINT).then()
+                .statusCode(400);
+    }
+
+    @Test
     public void shouldCreateNewBuildConfigurationWithCreateAndModifiedTime() throws IOException {
         JsonTemplateBuilder configurationTemplate = JsonTemplateBuilder.fromResource("buildConfiguration_WithEmptyCreateDate_template");
         configurationTemplate.addValue("_projectId", String.valueOf(projectId));

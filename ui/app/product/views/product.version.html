@@ -30,11 +30,13 @@
     </pnc-header-buttons>
   </pnc-header>
 
-  <form editable-form class="form-horizontal" name="productVersionForm" onbeforesave="versionCtrl.update()">
-    <div class="form-group">
+  <form editable-form class="form-horizontal" name="productVersionForm" onbeforesave="versionCtrl.update()" novalidate>
+    <div class="form-group" ng-class="{ 'has-error': productVersionForm.version.$invalid && !productVersionForm.version.$pristine, 'has-success': productVersionForm.version.$valid && productVersionForm.version.$touched }">
       <label for="input-version" class="col-sm-1 control-label">Version</label>
       <div class="col-sm-11">
-        <p id="input-version" e-class="form-control" editable-text="versionCtrl.version.version" e-name="version" e-required>{{ versionCtrl.version.version || 'Empty' }}</p>
+        <p id="input-version" e-pattern="^[0-9]+\.[0-9]+$" e-class="form-control" editable-text="versionCtrl.version.version" e-name="version" e-required>{{ versionCtrl.version.version || 'Empty' }} </p>
+        <span class="help-block" ng-show="productVersionForm.version.$error.required && !productVersionForm.version.$pristine">Required field.</span>
+        <span class="help-block" ng-show="productVersionForm.version.$error.pattern && !productVersionForm.version.$pristine">The version should consist of two numeric parts separated by a dot (e.g 7.0).</span>
       </div>
     </div>
 
@@ -56,7 +58,7 @@
 
     <div class="form-group" ng-show="productVersionForm.$visible">
       <div class="col-sm-offset-1 col-sm-11">
-        <button type="submit" class="btn btn-primary" ng-disabled="productVersionForm.$waiting">
+        <button type="submit" class="btn btn-primary" ng-disabled="productVersionForm.$waiting || productVersionForm.version.$invalid">
           Save
         </button>
         <button type="button" class="btn btn-default" ng-disabled="productVersionForm.$waiting" ng-click="productVersionForm.$cancel()">
