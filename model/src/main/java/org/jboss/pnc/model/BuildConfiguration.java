@@ -22,10 +22,29 @@ import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
 import org.hibernate.envers.RelationTargetAuditMode;
 
-import javax.persistence.*;
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.PersistenceException;
+import javax.persistence.PreRemove;
+import javax.persistence.SequenceGenerator;
+import javax.persistence.Transient;
+import javax.persistence.UniqueConstraint;
+import javax.persistence.Version;
 import javax.validation.constraints.NotNull;
-
 import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
@@ -48,8 +67,10 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
 
     private static final long serialVersionUID = -5890729679489304114L;
 
-    public static final String DEFAULT_SORTING_FIELD = "name";
     public static final String SEQUENCE_NAME = "build_configuration_id_seq";
+
+    @Transient
+    private transient static final DateTimeFormatter CLONED_DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
 
     @Id
     @SequenceGenerator(name = SEQUENCE_NAME, sequenceName = SEQUENCE_NAME, allocationSize = 1)
@@ -547,7 +568,7 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
     public BuildConfiguration clone() {
         try {
             BuildConfiguration clone = (BuildConfiguration) super.clone();
-            clone.name = "_" + name;
+            clone.name = CLONED_DATE_FORMATTER.format(LocalDateTime.now()) + "_" + name;
             clone.creationTime = Date.from(Instant.now());
             clone.id = null;
             return clone;
