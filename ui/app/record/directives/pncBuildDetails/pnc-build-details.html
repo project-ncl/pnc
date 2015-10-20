@@ -25,8 +25,8 @@
   <dd><a href ui-sref="project.detail({ projectId: ctrl.project.id })">{{ ctrl.project.name }}</a></dd>
   <dt>User:</dt>
   <dd>{{ ctrl.user.username }}</dd>
-  <dt>Started:</dt>
-  <dd>{{ ctrl.record.startTime | date : 'medium' }}</dd>
+  <dt ng-show="ctrl.record.startTime">Started:</dt>
+  <dd ng-show="ctrl.record.startTime">{{ ctrl.record.startTime | date : 'medium' }}</dd>
   <dt ng-show="ctrl.record.endTime">Finshed:</dt>
   <dd ng-show="ctrl.record.endTime">{{ (ctrl.record.endTime | date : 'medium') || '&mdash;' }}</dd>
   <dt>Result:</dt>
