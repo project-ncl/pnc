@@ -23,17 +23,15 @@
   <div class="panel panel-default">
     <div class="panel-body">
 
-      <div class="form-group" ng-class="finishForm.inputf1.$dirty && finishForm.inputf1.$invalid ? 'has-error' : ''">
-        <label for="inputf1" class="col-sm-4 control-label">BC set name
-          &nbsp;<span class="pficon pficon-info"
+      <div class="form-group" ng-class="{ 'has-error' : finishForm.inputf1.$invalid, 'has-success': finishForm.inputf1.$valid && finishForm.inputf1.$touched }">
+        <label for="inputf1" class="col-sm-4 control-label">
+          * BC set name&nbsp;<span class="pficon pficon-info"
                       title="Name of the build configurations set that will contain selected configurations."></span>
         </label>
 
         <div class="col-sm-8">
-          <input id="inputf1" name="inputf1" class="form-control" ng-model="bcSetName">
-          <div ng-show="finishForm.inputf1.$dirty && finishForm.inputf1.$error.required" class="help-block">
-            <p class="text-danger">Required field.</p>
-          </div>
+          <input id="inputf1" name="inputf1" class="form-control" ng-model="bcSetName" required>
+          <span class="help-block" ng-show="finishForm.inputf1.$error.required">Required field.</span>
         </div>
       </div>
 
@@ -52,7 +50,7 @@
   <div class="form-group">
     <div class="col-sm-12">
       <div class="pull-right">
-        <input type="submit" class="btn btn-primary" value="Finish process" ng-disabled="submitDisabled">
+        <input type="submit" class="btn btn-primary" value="Finish process" ng-disabled="submitDisabled || finishForm.$invalid">
         <input type="reset" class="btn btn-default"
                pnc-confirm-click="reset()"
                pnc-confirm-message="Reset the entire import process and start over?" value="Reset">

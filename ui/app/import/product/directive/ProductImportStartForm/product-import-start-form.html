@@ -20,45 +20,34 @@
 
 <form class="form-horizontal" name="startForm" ng-submit="submit()" novalidate>
 
-
   <div class="panel panel-default">
     <div class="panel-body">
 
       <div class="form-group"
-           ng-class="startForm.input1.$dirty && startForm.input1.$invalid ? 'has-error' : ''">
-        <label for="input1" class="col-sm-2 control-label">Product Name
-          &nbsp;<span class="pficon pficon-info" title="Name of the Product you are importing."></span>
+          ng-class="{ 'has-error' : startForm.input1.$invalid && !startForm.input1.$pristine, 'has-success': startForm.input1.$valid && startForm.input1.$touched }">
+        <label for="input1" class="col-sm-2 control-label">
+          * Product Name&nbsp;<span class="pficon pficon-info" title="Name of the Product you are importing."></span>
         </label>
 
         <div class="col-sm-10">
           <input id="input1" name="input1" class="form-control" ng-model="data.name" required>
-
-          <div ng-show="startForm.input1.$dirty && startForm.input1.$error.required" class="help-block">
-            <p class="text-danger">Required field.</p>
-          </div>
+          <span class="help-block" ng-show="startForm.input1.$error.required && !startForm.input1.$pristine">Required field.</span>
         </div>
       </div>
 
 
       <div class="form-group"
-           ng-class="startForm.input11.$dirty && startForm.input11.$invalid ? 'has-error' : ''">
-        <label for="input11" class="col-sm-2 control-label">Product version
-          &nbsp;<span class="pficon pficon-info" title="Major.minor version of a product, i.e. 7.0"></span>
+          ng-class="{ 'has-error' : startForm.input11.$invalid && !startForm.input11.$pristine, 'has-success': startForm.input11.$valid && startForm.input11.$touched }">
+        <label for="input11" class="col-sm-2 control-label">
+          * Product version&nbsp;<span class="pficon pficon-info" title="Major.minor version of a product, i.e. 7.0"></span>
         </label>
 
         <div class="col-sm-10">
           <input id="input11" name="input11" class="form-control" ng-model="data.productVersion"
                  pattern="^[0-9]+\.[0-9]+$"
                  required>
-
-          <div ng-show="startForm.input11.$dirty && startForm.input11.$error.required"
-               class="help-block">
-            <p class="text-danger">Required field.</p>
-          </div>
-          <div ng-show="startForm.input11.$dirty && startForm.input11.$error.pattern"
-               class="help-block">
-            <p class="text-danger">Product version must consist of two integers joined by a dot.</p>
-          </div>
+          <span class="help-block" ng-show="startForm.input11.$error.required && !startForm.input11.$pristine">Required field.</span>
+          <span class="help-block" ng-show="startForm.input11.$error.pattern && !startForm.input11.$pristine">The version should consist of two numeric parts separated by a dot (e.g 7.0).</span>
         </div>
       </div>
 
@@ -70,26 +59,21 @@
     <div class="panel-body">
 
       <div class="form-group"
-           ng-class="startForm.input2.$dirty && startForm.input2.$invalid ? 'has-error' : ''">
-        <label for="input2" class="col-sm-2 control-label">Git URL
-          &nbsp;<span class="pficon pficon-info" title="URL of the product code repository."></span>
+           ng-class="{ 'has-error' : startForm.input2.$invalid && !startForm.input2.$pristine, 'has-success': startForm.input2.$valid && startForm.input2.$touched }">
+        <label for="input2" class="col-sm-2 control-label">
+          * Git URL&nbsp;<span class="pficon pficon-info" title="URL of the product code repository."></span>
         </label>
 
         <div class="col-sm-10">
           <input type="url" id="input2" name="input2" class="form-control" ng-model="data.scmUrl" required>
-
-          <div ng-show="startForm.input2.$dirty && startForm.input2.$error.required" class="help-block">
-            <p class="text-danger">Required field.</p>
-          </div>
-          <div ng-show="startForm.input2.$dirty && startForm.input2.$error.url" class="help-block">
-            <p class="text-danger">Invalid URL.</p>
-          </div>
+          <span class="help-block" ng-show="startForm.input2.$error.required && !startForm.input2.$pristine">Required field.</span>
+          <span class="help-block" ng-show="startForm.input2.$error.url && !startForm.input2.$pristine">Invalid URL.</span>
         </div>
       </div>
 
       <div class="form-group">
-        <label for="input3" class="col-sm-2 control-label">Revision
-          &nbsp;<span class="pficon pficon-info" title="SCM revision to use."></span>
+        <label for="input3" class="col-sm-2 control-label">
+          Revision&nbsp;<span class="pficon pficon-info" title="SCM revision to use."></span>
         </label>
 
         <div class="col-sm-10">
@@ -101,11 +85,9 @@
       </div>
 
       <div class="form-group">
-        <label for="input4" class="col-sm-2 control-label">Path to root POM
-          &nbsp;<span class="pficon pficon-info"
-                      title="Location of the product's root POM file within the repository."></span>
+        <label for="input4" class="col-sm-2 control-label">
+          Path to root POM&nbsp;<span class="pficon pficon-info" title="Location of the product's root POM file within the repository."></span>
         </label>
-
         <div class="col-sm-10">
           <input placeholder="./pom.xml" id="input4" name="input4" class="form-control" ng-model="data.pomPath">
         </div>
@@ -117,10 +99,8 @@
 
   <div class="form-group pull-right">
     <div class="col-sm-offset-2 col-sm-10">
-      <input type="submit" class="btn btn-primary" value="Start process" ng-disabled="submitDisabled">
+      <input type="submit" class="btn btn-primary" value="Start process" ng-disabled="submitDisabled || startForm.$invalid">
       <input type="reset" class="btn btn-default" value="Clear">
     </div>
   </div>
-
-
 </form>
