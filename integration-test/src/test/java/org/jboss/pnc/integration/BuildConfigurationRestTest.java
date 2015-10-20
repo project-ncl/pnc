@@ -279,9 +279,8 @@ public class BuildConfigurationRestTest {
                 clonedBuildConfiguration.body().jsonPath().getString("content.creationTime"));
         assertThat(originalBuildConfiguration.body().jsonPath().getInt("content.id")).isNotEqualTo(
                 "_" + clonedBuildConfiguration.body().jsonPath().getInt("content.id"));
-
-        assertThat("_" + originalBuildConfiguration.body().jsonPath().getString("content.name")).isEqualTo(
-                clonedBuildConfiguration.body().jsonPath().getString("content.name"));
+        assertThat(clonedBuildConfiguration.body().jsonPath().getString("content.name")).matches("\\d{14}_" + originalBuildConfiguration
+                        .body().jsonPath().getString("content.name"));
         assertThat(originalBuildConfiguration.body().jsonPath().getString("content.buildScript")).isEqualTo(
                 clonedBuildConfiguration.body().jsonPath().getString("content.buildScript"));
         assertThat(originalBuildConfiguration.body().jsonPath().getString("content.scmRepoURL")).isEqualTo(
