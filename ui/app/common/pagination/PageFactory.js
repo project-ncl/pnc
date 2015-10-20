@@ -222,6 +222,7 @@
       factory.decorateNonPaged = function (resource, methodName, newMethodName) {
         var origMethod = resource[methodName];
         resource[newMethodName] = function (origArgs) {
+          origArgs = origArgs || {};
           var args = _(origArgs).extend({
             pageIndex: 0,
             pageSize: 50 // sufficiently large number to prevent to many second calls
