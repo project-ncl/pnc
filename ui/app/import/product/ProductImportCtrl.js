@@ -335,6 +335,7 @@
           ProductImportDAO.finishProcess(data).then(function (r) {
             if(r.success) {
               Notifications.success('Product import completed!');
+              scope.display = 'start';
               goToProductVersion(r.productVersionId);
             } else {
               Notifications.error('Product import failed. ' + r.message);
