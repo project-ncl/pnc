@@ -180,10 +180,12 @@
 
         var recursiveParse = function (node, dataNode) {
           var subNode = find(node, dataNode);
+          var subNodeData = _.omit(dataNode, 'dependencies');
           if (_.isUndefined(subNode)) {
-            var subNodeData = _.omit(dataNode, 'dependencies');
             subNode = node.append(subNodeData);
             processNode(subNode);
+          } else {
+            subNode.nodeData = subNodeData;
           }
           if (_.isArray(dataNode.dependencies)) {
             var res = true;
