@@ -140,6 +140,7 @@
     'ProductDAO',
     'BuildConfigurationDAO',
     'configurationDetail',
+    'environments',
     'environmentDetail',
     'projectDetail',
     'linkedProductVersions',
@@ -147,13 +148,17 @@
     'allProducts',
     'configurations',
     function($log, $state, $filter, Notifications, ProductDAO, BuildConfigurationDAO,
-      configurationDetail, environmentDetail, projectDetail,
+      configurationDetail, environments, environmentDetail, projectDetail,
       linkedProductVersions, dependencies, allProducts, configurations) {
 
       this.configuration = configurationDetail;
-      this.environment = environmentDetail;
+      this.environments = environments;
       this.project = projectDetail;
       this.allProducts = allProducts;
+
+      // We need to set environment from existing environments collections to be able to preselect
+      // dropdown element when editing 
+      this.environment = findEnvironment(this.configuration.environmentId, this.environments);
 
       var that = this;
 
@@ -246,6 +251,10 @@
         this.configuration.$update();
       };
 
+      this.updateEnvironment = function() {
+          this.configuration.environmentId = this.environment.id;
+      };
+
       // Cloning a build configuration
       this.clone = function() {
         this.configuration.$clone().then(function(result) {
@@ -283,6 +292,13 @@
     }
   ]);
 
+  function findEnvironment(id, environments) {
+    for (var i = 0; i < environments.length; i++) {
+      if (id === environments[i].id) {
+        return environments[i];
+      }
+    }
+  }
 
   function gatherIds(array) {
     var result = [];
