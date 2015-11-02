@@ -69,44 +69,16 @@
       controllerAs: 'createCtrl',
       resolve: {
         environments: function(EnvironmentDAO) {
-          // TODO temporary hack for 0.7 release. The correct implementation
-          // will use paged scrolling.
-          return EnvironmentDAO._getAll({
-            pageSize: 10000,
-            sort: '=asc=name'
-          }).$promise.then(function(result) {
-            return result.content;
-          });
+          return EnvironmentDAO.query();
         },
         projects: function(ProjectDAO) {
-          // TODO temporary hack for 0.7 release. The correct implementation
-          // will use paged scrolling.
-          return ProjectDAO._getAll({
-            pageSize: 10000,
-            sort: '=asc=name'
-          }).$promise.then(function(result) {
-            return result.content;
-          });
+          return ProjectDAO.query();
         },
         products: function(ProductDAO) {
-          // TODO temporary hack for 0.7 release. The correct implementation
-          // will use paged scrolling.
-          return ProductDAO._getAll({
-            pageSize: 10000,
-            sort: '=asc=name'
-          }).$promise.then(function(result) {
-            return result.content;
-          });
+          return ProductDAO.query();
         },
         configurations: function(BuildConfigurationDAO) {
-          // TODO temporary hack for 0.7 release. The correct implementation
-          // will use paged scrolling.
-          return BuildConfigurationDAO._getAll({
-            pageSize: 10000,
-            sort: '=asc=name'
-          }).$promise.then(function(result) {
-            return result.content;
-          });
+          return BuildConfigurationDAO.query();
         }
       },
     });
@@ -165,14 +137,7 @@
           return RunningBuildRecordDAO.query();
         },
         allProducts: function(ProductDAO) {
-          // TODO temporary hack for 0.7 release. The correct implementation
-          // will use paged scrolling.
-          return ProductDAO._getAll({
-            pageSize: 10000,
-            sort: '=asc=name'
-          }).$promise.then(function(result) {
-            return result.content;
-          });
+          return ProductDAO.query();
         },
         configurations: function(BuildConfigurationDAO) {
           return BuildConfigurationDAO.query();
