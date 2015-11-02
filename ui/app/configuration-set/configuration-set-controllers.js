@@ -132,6 +132,10 @@
         }
       };
 
+      self.reset = function() {
+          self.getBuildConfigurations(null);
+      };
+
       self.submit = function() {
         // Retrieve all the last builds (based on ID, not date) of all the build configurations
         angular.forEach(self.configurations, function(configuration) {
