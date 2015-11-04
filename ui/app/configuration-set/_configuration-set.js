@@ -23,7 +23,8 @@
     'ui.router',
     'xeditable',
     'pnc.common.restclient',
-    'angularUtils.directives.uiBreadcrumbs'
+    'angularUtils.directives.uiBreadcrumbs',
+    'pnc.common.events'
   ]);
 
   module.config(['$stateProvider', function($stateProvider) {
