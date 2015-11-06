@@ -19,7 +19,7 @@
 
 (function () {
 
-  var module = angular.module('pnc.record');
+  var module = angular.module('pnc.configuration-set');
 
   /**
    * @author Jakub Senko
@@ -30,7 +30,8 @@
     'BuildConfigurationSetDAO',
     'BuildRecordDAO',
     'Notifications',
-    function ($log, $state, BuildConfigurationSetDAO, BuildRecordDAO, Notifications) {
+    'eventTypes',
+    function ($log, $state, BuildConfigurationSetDAO, BuildRecordDAO, Notifications, eventTypes) {
 
       return {
         restrict: 'E',
@@ -55,7 +56,17 @@
             });
           });
 
-          scope.remove = function(configurationId) {
+          var processEvent = function (event, payload) {
+            if (_.isArray(scope.buildConfigurationSet.buildConfigurationIds) &&
+              _(scope.buildConfigurationSet.buildConfigurationIds).contains(payload.buildConfigurationId)) {
+              delete scope.latestBuildRecords[payload.buildConfigurationId];
+              scope.page.reload();
+            }
+          };
+
+          scope.$on(eventTypes.BUILD_FINISHED, processEvent);
+
+          scope.remove = function (configurationId) {
             $log.debug('**Removing configurationId: %0**', configurationId);
 
             BuildConfigurationSetDAO.removeConfiguration({
