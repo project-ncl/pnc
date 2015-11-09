@@ -119,6 +119,9 @@
           return BuildConfigurationDAO.get({
             configurationId: $stateParams.configurationId }).$promise;
         },
+        environments: function(EnvironmentDAO) {
+          return EnvironmentDAO.query();
+        },
         environmentDetail: function(EnvironmentDAO, $stateParams,
                                     configurationDetail) {
           return EnvironmentDAO.get({
