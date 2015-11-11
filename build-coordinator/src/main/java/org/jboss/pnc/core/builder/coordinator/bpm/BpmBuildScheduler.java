@@ -163,6 +163,7 @@ public class BpmBuildScheduler implements BuildScheduler {
                 .map(bc -> bc.getName())
                 .collect(Collectors.toList()));//Is it correct?
         params.put("CommunityBuild", Optional.ofNullable(moduleConfig.getCommunityBuild()).orElse("true"));
+        params.put("RepourAdjust", Optional.ofNullable(moduleConfig.getRepourAdjust()).orElse("false"));
         params.put("EnvironmentId", Optional.of(buildTask.getBuildConfiguration())
                 .map(BuildConfiguration::getBuildEnvironment)
                 .map(BuildEnvironment::getId)
