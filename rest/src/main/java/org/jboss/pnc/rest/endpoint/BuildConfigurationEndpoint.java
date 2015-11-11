@@ -356,7 +356,7 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
                 if (taskOptional.isPresent()) {
                     userTriggered = taskOptional.get().getUser();
                 } else {
-                    userTriggered = currentUser;
+                    userTriggered = currentUser; //in case of BPM this is a predefined user that BPM uses to authenticate
                 }
             }
 
