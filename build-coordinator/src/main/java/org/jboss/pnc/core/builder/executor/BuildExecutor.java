@@ -126,6 +126,8 @@ public class BuildExecutor {
 
     public void startBuilding(BuildExecutionTask buildExecutionTask, Consumer<BuildStatus> onComplete) throws CoreException {
 
+        log.info("Staring build execution task: {}; Build Configuration id: {}.", buildExecutionTask.getId(), buildExecutionTask.getBuildConfiguration().getId());
+
         runningExecutions.put(buildExecutionTask.getId(), buildExecutionTask);
         Consumer<BuildStatus> onCompleteInternal = (buildStatus) -> {
             log.debug("Removing buildExecutionTask [" + buildExecutionTask.getId() + "] form list of running tasks.");
