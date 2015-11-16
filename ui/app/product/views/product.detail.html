@@ -33,7 +33,8 @@
   <form editable-form class="form-horizontal" name="productForm" onbeforesave="detailCtrl.update()" novalidate>
 
     <div class="form-group" ng-class="{ 'has-error': productForm.name.$invalid && !productForm.name.$pristine, 'has-success': productForm.name.$valid && productForm.name.$touched }">
-      <label for="input-name" class="col-sm-1 control-label">Name</label>
+      <label for="input-name" class="col-sm-1 control-label" ng-show="productForm.$visible">* Name</label>
+      <label for="input-name" class="col-sm-1 control-label" ng-show="!productForm.$visible">Name</label>
       <div class="col-sm-11">
         <p id="input-name" class="form-control-static" e-class="form-control" editable-text="detailCtrl.product.name" e-name="name" e-required>{{ detailCtrl.product.name || 'Empty' }}</p>
         <span class="help-block" ng-show="productForm.name.$error.required && !productForm.name.$pristine">Required field.</span>
@@ -73,7 +74,7 @@
         <button type="submit" class="btn btn-primary" ng-disabled="productForm.$waiting || productForm.name.$invalid">
           Save
         </button>
-        <button type="button" class="btn btn-default" ng-disabled="productForm.$waiting" ng-click="productForm.$cancel()">
+        <button type="button" class="btn btn-default" ng-disabled="productForm.$waiting" ng-click="productForm.$cancel(); productForm.$setPristine(); productForm.$setUntouched();">
           Cancel
         </button>
       </div>
