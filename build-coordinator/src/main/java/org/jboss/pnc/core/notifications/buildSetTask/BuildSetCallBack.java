@@ -28,6 +28,11 @@ public class BuildSetCallBack {
     private Integer buildSetTaskId;
     private Consumer<BuildSetStatusChangedEvent> callback;
 
+    @Deprecated //CDI workaround
+    public BuildSetCallBack() {
+        buildSetTaskId = -1;//CDI arquillian workaround
+    }
+
     public BuildSetCallBack(int buildSetTaskId, Consumer<BuildSetStatusChangedEvent> callback) {
         this.buildSetTaskId = buildSetTaskId;
         this.callback = callback;
@@ -38,6 +43,8 @@ public class BuildSetCallBack {
     }
 
     public void callback(BuildSetStatusChangedEvent buildSetStatusChangedEvent) {
-        callback.accept(buildSetStatusChangedEvent);
+        if (callback != null) {
+            callback.accept(buildSetStatusChangedEvent);
+        }
     }
 }

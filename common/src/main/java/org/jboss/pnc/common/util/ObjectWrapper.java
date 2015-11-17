@@ -39,4 +39,7 @@ public class ObjectWrapper<T> {
         return obj;
     }
 
+    public Boolean isSet() {
+        return obj != null;
+    }
 }
