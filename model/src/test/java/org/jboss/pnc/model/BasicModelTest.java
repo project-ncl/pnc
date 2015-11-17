@@ -17,6 +17,8 @@
  */
 package org.jboss.pnc.model;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Set;
 
 import javax.persistence.EntityManager;
@@ -87,7 +89,7 @@ public class BasicModelTest {
 
     @Test
     public void testInsertProduct() throws Exception {
-        
+
         EntityManager em = emFactory.createEntityManager();
         EntityTransaction tx = em.getTransaction();
 
@@ -210,14 +212,16 @@ public class BasicModelTest {
             tx2.begin();
             buildConfiguration1 = em.find(BuildConfiguration.class, buildConfiguration1.getId());
             buildConfiguration1.setDescription("Updated build config description");
-            em.merge(buildConfiguration1);;
+            em.merge(buildConfiguration1);
+            ;
             tx2.commit();
 
-            Query rowCountQuery = em.createQuery("select count(*) from BuildConfigurationAudited bca where id=" + buildConfiguration1.getId());
+            Query rowCountQuery = em
+                    .createQuery("select count(*) from BuildConfigurationAudited bca where id=" + buildConfiguration1.getId());
             Long count = (Long) rowCountQuery.getSingleResult();
             // Should have 2 audit records, 1 for insert, and 1 for update
             Assert.assertEquals(2, count.longValue());
-            
+
         } catch (RuntimeException e) {
             if (tx1 != null && tx1.isActive()) {
                 tx1.rollback();
@@ -228,9 +232,9 @@ public class BasicModelTest {
         }
     }
 
-    @Test(expected=RollbackException.class)
+    @Test(expected = RollbackException.class)
     public void testProjectInsertConstraintFailure() throws Exception {
-        
+
         EntityManager em = emFactory.createEntityManager();
         EntityTransaction tx = em.getTransaction();
 
@@ -250,7 +254,6 @@ public class BasicModelTest {
 
     }
 
-
     /**
      * Test validation of the version string regex
      * 
@@ -258,17 +261,12 @@ public class BasicModelTest {
      */
     @Test
     public void testVersionStringValidation() throws Exception {
-        
+
         ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
         Validator validator = factory.getValidator();
 
-        Product product = Product.Builder.newBuilder()
-                .name("Test Product")
-                .build();
-        ProductVersion productVersion = ProductVersion.Builder.newBuilder()
-                .product(product)
-                .version("1.0")
-                .build();
+        Product product = Product.Builder.newBuilder().name("Test Product").build();
+        ProductVersion productVersion = ProductVersion.Builder.newBuilder().product(product).version("1.0").build();
 
         // Test validation of product version
         Set<ConstraintViolation<ProductVersion>> productVersionViolations = validator.validate(productVersion);
@@ -283,9 +281,7 @@ public class BasicModelTest {
         Assert.assertTrue(productVersionViolations.size() == 1);
 
         // Test product milestone versions
-        ProductMilestone milestone = ProductMilestone.Builder.newBuilder()
-                .productVersion(productVersion)
-                .version("1.0.0.ER1")
+        ProductMilestone milestone = ProductMilestone.Builder.newBuilder().productVersion(productVersion).version("1.0.0.ER1")
                 .build();
         Set<ConstraintViolation<ProductMilestone>> milestoneVersionViolations = validator.validate(milestone);
         Assert.assertTrue(milestoneVersionViolations.size() == 0);
@@ -303,10 +299,7 @@ public class BasicModelTest {
         Assert.assertTrue(milestoneVersionViolations.size() == 1);
 
         // Test product release versions
-        ProductRelease release = ProductRelease.Builder.newBuilder()
-                .productMilestone(milestone)
-                .version("1.0.0.GA")
-                .build();
+        ProductRelease release = ProductRelease.Builder.newBuilder().productMilestone(milestone).version("1.0.0.GA").build();
         Set<ConstraintViolation<ProductRelease>> releaseVersionViolations = validator.validate(release);
         Assert.assertTrue(releaseVersionViolations.size() == 0);
 
@@ -324,13 +317,49 @@ public class BasicModelTest {
 
     }
 
+    /**
+     * Test validation of the cloned name of BuildConfigurations
+     * 
+     * Example: clone1 of pslegr-BC on Wednesday October,21st, 2015: 20151021095415_pslegr-BC
+     * 
+     * clone2 of 20151021095415_pslegr-BC on Thursday October,22nd, 2015: 20151022nnnnnn_pslegr-BC
+     * 
+     * clone3 of pslegr-BC on Friday October,23rd, 2015: 20151023nnnnnn_pslegr-BC
+     * 
+     * 
+     * @throws Exception
+     */
+    @Test
+    public void testClonedBcNameStringValidation() throws Exception {
+
+        Date day21 = new SimpleDateFormat(BuildConfiguration.CLONE_PREFIX_DATE_FORMAT).parse("20151021095415");
+        Date day22 = new SimpleDateFormat(BuildConfiguration.CLONE_PREFIX_DATE_FORMAT).parse("20151022095415");
+        Date day23 = new SimpleDateFormat(BuildConfiguration.CLONE_PREFIX_DATE_FORMAT).parse("20151023095415");
+
+        // Clone on day 21
+        String clonedName1 = BuildConfiguration.retrieveCloneName("pslegr-BC", day21);
+        Assert.assertEquals("20151021095415_pslegr-BC", clonedName1);
+
+        // Clone of clone on day 22
+        String clonedName2 = BuildConfiguration.retrieveCloneName(clonedName1, day22);
+        Assert.assertEquals("20151022095415_pslegr-BC", clonedName2);
+
+        // Clone on day 23
+        String clonedName3 = BuildConfiguration.retrieveCloneName("pslegr-BC", day23);
+        Assert.assertEquals("20151023095415_pslegr-BC", clonedName3);
+
+        // Clone wiht not valid prefix date (must be also CLONE_PREFIX_DATE_FORMAT.lenght())
+        String clonedName4 = BuildConfiguration.retrieveCloneName("2015102309541_pslegr-BC", day23);
+        Assert.assertEquals("20151023095415_2015102309541_pslegr-BC", clonedName4);
+
+    }
+
     @Test
     public void testBeanValidationFailureOnCommit() throws Exception {
-                
+
         Product product1 = ModelTestDataFactory.getInstance().getProduct1();
-        ProductVersion productVersion1 = ProductVersion.Builder.newBuilder()
-                .product(product1)
-                .version("foo") // Invalid version string
+        ProductVersion productVersion1 = ProductVersion.Builder.newBuilder().product(product1).version("foo") // Invalid version
+                                                                                                              // string
                 .build();
 
         EntityManager em = emFactory.createEntityManager();
