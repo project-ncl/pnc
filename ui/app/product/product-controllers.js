@@ -31,11 +31,12 @@
 
   module.controller('ProductDetailController', [
     '$log',
+    '$state',
     'productDetail',
     'productVersions',
     'ProductMilestoneDAO',
     'ProductReleaseDAO',
-    function($log, productDetail, productVersions, ProductMilestoneDAO, ProductReleaseDAO) {
+    function($log, $state, productDetail, productVersions, ProductMilestoneDAO, ProductReleaseDAO) {
 
       var that = this;
       that.product = productDetail;
@@ -44,7 +45,16 @@
       // Update a product after editing
       that.update = function() {
         $log.debug('Updating product: %O', that.product);
-        that.product.$update();
+        that.product.$update().then(
+          function() {
+
+            $state.go('product.detail', {
+              productId: that.product.id
+            }, {
+              reload: true
+            });
+          }
+        );
       };
 
       // Build wrapper objects
@@ -94,6 +104,7 @@
         that.version.$update(
         ).then(
           function() {
+
             $state.go('product.detail.version', {
               productId: productDetail.id,
               versionId: versionDetail.id
@@ -122,6 +133,14 @@
           });
         });
       };
+
+      that.reset = function(form) {
+        if (form) {
+          form.$setPristine();
+          form.$setUntouched();
+          that.data = new ProductDAO();
+        }
+      };
     }
   ]);
 
@@ -147,6 +166,14 @@
             });
           }
         );
+      };
+
+      that.reset = function(form) {
+        if (form) {
+          form.$setPristine();
+          form.$setUntouched();
+          that.data = new ProductVersionDAO();
+        }
       };
     }
   ]);

@@ -99,16 +99,19 @@
         all: [],
 
         update: function() {
-          ProductDAO.getVersions({
-            productId: that.products.selected.id
-          }).then(function(data) {
-            that.productVersions.all = data;
 
-            // TOFIX - Ugly but quick - avibelli
-            data.forEach(function ( prodVers ) {
-                that.allProductNamesMaps[ prodVers.id ] = that.allProductsMaps[ prodVers.productId ].name + ' - ';
+          if (that.products.selected) {
+            ProductDAO.getVersions({
+              productId: that.products.selected.id
+            }).then(function(data) {
+              that.productVersions.all = data;
+
+              // TOFIX - Ugly but quick - avibelli
+              data.forEach(function ( prodVers ) {
+                  that.allProductNamesMaps[ prodVers.id ] = that.allProductsMaps[ prodVers.productId ].name + ' - ';
+              });
             });
-          });
+          }
         },
         getItems: function($viewValue) {
           return $filter('filter')(that.productVersions.all, {
@@ -125,6 +128,18 @@
           return $filter('filter')(configurations, {
             name: $viewValue
           });
+        }
+      };
+
+      that.reset = function(form) {
+        if (form) {
+          form.$setPristine();
+          form.$setUntouched();
+          that.products.selected = null;
+          that.productVersions.all = [];
+          that.productVersions.selected = [];
+          that.dependencies.selected = [];
+          that.data = new BuildConfigurationDAO();
         }
       };
     }
@@ -157,13 +172,13 @@
       this.allProducts = allProducts;
 
       // We need to set environment from existing environments collections to be able to preselect
-      // dropdown element when editing 
+      // dropdown element when editing
       this.environment = findEnvironment(this.configuration.environmentId, this.environments);
 
       var that = this;
 
       // Filtering and selection of linked ProductVersions.
-      this.products = {
+      that.products = {
         all: allProducts,
         selected: null
       };
@@ -180,7 +195,7 @@
           that.allProductNamesMaps[ prodVers.id ] = that.allProductsMaps[ prodVers.productId ].name + ' - ';
       });
 
-      this.productVersions = {
+      that.productVersions = {
         selected: linkedProductVersions,
         all: [],
 
@@ -211,7 +226,7 @@
       }
 
       // Selection of dependencies.
-      this.dependencies = {
+      that.dependencies = {
         selected: dependencies,
 
         getItems: function($viewValue) {
@@ -222,42 +237,48 @@
       };
 
       // Executing a build of a configuration forcing a rebuild
-      this.forceBuild = function() {
-        $log.debug('Initiating FORCED build of: %O', this.configuration);
+      that.forceBuild = function() {
+        $log.debug('Initiating FORCED build of: %O', that.configuration);
         BuildConfigurationDAO.forceBuild({
           configurationId: that.configuration.id
         }, {});
       };
 
       // Executing a build of a configuration
-      this.build = function() {
-        $log.debug('Initiating build of: %O', this.configuration);
+      that.build = function() {
+        $log.debug('Initiating build of: %O', that.configuration);
         BuildConfigurationDAO.build({
           configurationId: that.configuration.id
         }, {});
       };
 
       // Update a build configuration after editting
-      this.update = function() {
-        $log.debug('Updating configuration: %O', this.configuration);
+      that.update = function() {
+        $log.debug('Updating configuration: %O', that.configuration);
 
         // The REST API takes integer Ids so we need to extract them from
         // our collection of objects first and attach them to our data object
         // for sending back to the server.
-        this.configuration.productVersionIds =
-          gatherIds(this.productVersions.selected);
-        this.configuration.dependencyIds = gatherIds(this.dependencies.selected);
+        that.configuration.productVersionIds =
+          gatherIds(that.productVersions.selected);
+        that.configuration.dependencyIds = gatherIds(that.dependencies.selected);
 
-        this.configuration.$update();
+        that.configuration.$update().then(function() {
+          $state.go('configuration.detail.show', {
+            configurationId: that.configuration.id
+          }, {
+            reload: true
+          });
+        });
       };
 
-      this.updateEnvironment = function() {
-          this.configuration.environmentId = this.environment.id;
+      that.updateEnvironment = function() {
+          that.configuration.environmentId = that.environment.id;
       };
 
       // Cloning a build configuration
-      this.clone = function() {
-        this.configuration.$clone().then(function(result) {
+      that.clone = function() {
+        that.configuration.$clone().then(function(result) {
           $state.go('configuration.detail.show', {
             configurationId: result.id
           }, {
@@ -267,14 +288,24 @@
       };
 
       // Deleting a build configuration
-      this.delete = function() {
-        this.configuration.$delete().then(function() {
+      that.delete = function() {
+        that.configuration.$delete().then(function() {
           $state.go('configuration.list', {}, {
             reload: true,
             inherit: false,
             notify: true
           });
         });
+      };
+
+      that.cancel = function(form) {
+        if (form) {
+          $state.go('configuration.detail.show', {
+            configurationId: that.configuration.id
+          }, {
+            reload: true
+          });
+        }
       };
 
     }

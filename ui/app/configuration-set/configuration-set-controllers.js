@@ -38,7 +38,7 @@
     'ProductVersionDAO',
     function($log, $state, products, BuildConfigurationSetDAO, ProductVersionDAO) {
       var self = this;
-      this.data = new BuildConfigurationSetDAO();
+      self.data = new BuildConfigurationSetDAO();
       self.products = products;
       self.productVersions = [];
 
@@ -74,7 +74,7 @@
         }
       };
 
-      this.submit = function() {
+      self.submit = function() {
         self.data.$save().then(
           function() {
             if (self.data.productVersionId) {
@@ -92,6 +92,16 @@
             }
           }
         );
+      };
+
+      self.reset = function(configurationSetForm) {
+        if (configurationSetForm) {
+          configurationSetForm.$setPristine();
+          configurationSetForm.$setUntouched();
+          self.data = new BuildConfigurationSetDAO();
+          self.selectedProductId = '';
+          self.getProductVersions(null);
+        }
       };
     }
   ]);
@@ -256,8 +266,17 @@
 
       // Update a build configuration set after editing
       self.update = function() {
-        $log.debug('Updating configuration-set: %O', this.set);
-        this.set.$update();
+        $log.debug('Updating configuration-set: %O', self.set);
+        self.set.$update(
+        ).then(
+          function() {
+            $state.go('configuration-set.detail', {
+              configurationSetId: self.set.id
+            }, {
+              reload: true
+            });
+          }
+        );
       };
 
       self.getProductVersions = function(productId) {

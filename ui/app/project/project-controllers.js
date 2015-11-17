@@ -29,16 +29,29 @@
   ]);
 
   module.controller('ProjectDetailController', [
+    '$log',
+    '$state',
     'projectDetail',
     'projectConfigurationList',
-    function(projectDetail, projectConfigurationList) {
-      this.project = projectDetail;
-      this.projectConfigurationList = projectConfigurationList;
+    function($log, $state, projectDetail, projectConfigurationList) {
+      var that = this;
+      that.project = projectDetail;
+      that.projectConfigurationList = projectConfigurationList;
 
-      this.update = function() {
-        this.project.$update();
+      // Update a project after editing
+      that.update = function() {
+        $log.debug('Updating project: %O', that.project);
+        that.project.$update(
+        ).then(
+          function() {
+            $state.go('project.detail', {
+              projectId: that.project.id
+            }, {
+              reload: true
+            });
+          }
+        );
       };
-
     }
   ]);
 
@@ -62,6 +75,7 @@
         if (form) {
           form.$setPristine();
           form.$setUntouched();
+          $scope.project = new ProjectDAO();
         }
       };
     }

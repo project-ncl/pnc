@@ -37,7 +37,6 @@
       <th>SCM Revision</th>
       <th>Created</th>
       <th>Modified</th>
-      <th>User</th>
     </thead>
     <tbody>
       <tr ng-repeat="configuration in listCtrl.configurations.data">
@@ -52,7 +51,6 @@
         <td>{{ configuration.scmRevision }}</td>
         <td>{{ configuration.creationTime | date:'medium'}}</td>
         <td>{{ configuration.lastModificationTime | date:'medium'}}</td>
-        <td></td>
       </tr>
     </tbody>
   </table>
