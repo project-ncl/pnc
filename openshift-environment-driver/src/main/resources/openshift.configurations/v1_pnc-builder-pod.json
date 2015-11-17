@@ -7,9 +7,9 @@
             {"pnc-build-agent-pod" : "${pod-name}"}
     },
     "spec": {
-        "nodeSelector":
-            { "nodename" : "os03" }
-        ,
+        "nodeSelector": {
+            "acceptpncbuildagent" : "true"
+        },
         "containers": [
             {
                 "name": "pnc-build-agent-container",
