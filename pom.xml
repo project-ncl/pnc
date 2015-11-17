@@ -434,7 +434,7 @@
       <dependency>
         <groupId>org.jboss</groupId>
         <artifactId>jboss-common-core</artifactId>
-        <version>2.2.22.GA</version>
+        <version>2.2.22.GA</version> <!-- TODO upgrade to 2.5-->
       </dependency>
 
       <dependency>
@@ -501,7 +501,7 @@
       <dependency>
         <groupId>org.jboss.weld</groupId>
         <artifactId>weld-core</artifactId>
-        <version>1.1.5.Final</version>
+        <version>1.1.5.Final</version> <!-- TODO upgrade to weld 2.3.1 or at least 1.1.29 -->
       </dependency>
 
       <dependency>
