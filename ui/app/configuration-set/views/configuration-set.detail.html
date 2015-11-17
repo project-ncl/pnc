@@ -47,7 +47,8 @@
 
   <form editable-form class="form-horizontal" name="setEditForm" onbeforesave="detailSetCtrl.update()" novalidate>
     <div class="form-group" ng-class="{ 'has-error': setEditForm.name.$invalid && !setEditForm.name.$pristine, 'has-success': setEditForm.name.$valid && setEditForm.name.$touched }">
-      <label for="input-name" class="col-sm-1 control-label">Name</label>
+      <label for="input-name" class="col-sm-1 control-label" ng-show="setEditForm.$visible">* Name</label>
+      <label for="input-name" class="col-sm-1 control-label" ng-show="!setEditForm.$visible">Name</label>
       <div class="col-sm-11">
         <p id="input-name" class="form-control-static" e-class="form-control" editable-text="detailSetCtrl.set.name" e-name="name" e-required>{{ detailSetCtrl.set.name || 'Empty' }}</p>
         <span class="help-block" ng-show="setEditForm.name.$error.required && !setEditForm.name.$pristine">Required field.</span>
@@ -58,7 +59,7 @@
         <button type="submit" class="btn btn-primary" ng-disabled="setEditForm.$waiting || setEditForm.name.$invalid">
           Save
         </button>
-        <button type="button" class="btn btn-default" ng-disabled="setEditForm.$waiting" ng-click="setEditForm.$cancel()">
+        <button type="button" class="btn btn-default" ng-disabled="setEditForm.$waiting" ng-click="setEditForm.$cancel(); setEditForm.$setPristine(); setEditForm.$setUntouched();">
           Cancel
         </button>
       </div>

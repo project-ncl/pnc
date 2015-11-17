@@ -134,6 +134,11 @@
         return _.isString(str) && str.length > 0;
       };
 
+      var isValidBCName = function (name) {
+        var BC_NAME_REGEXP = /^[a-zA-Z0-9_.][a-zA-Z0-9_.-]*(?!\.git)+$/;
+        return BC_NAME_REGEXP.test(name);
+      };
+
       var isValidURL = function (url) {
         var URL_REGEXP = /^(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@\-\/]))?$/;
         return URL_REGEXP.test(url);
@@ -142,6 +147,7 @@
       var nodeValidate = function (node) {
         node.valid = isStrNonEmpty(node.nodeData.name) &&
           (!isStrNonEmpty(node.nodeData.scmUrl) || isValidURL(node.nodeData.scmUrl)) &&
+          (!isStrNonEmpty(node.nodeData.name) || isValidBCName(node.nodeData.name)) &&
           (node.nodeData.environmentId !== null) &&
           (node.nodeData.projectId !== null);
         return node.valid;

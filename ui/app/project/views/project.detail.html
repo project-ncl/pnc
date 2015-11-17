@@ -33,7 +33,8 @@
   <form editable-form name="projectForm" class="form-horizontal" onbeforesave="detailCtrl.update()" novalidate>
 
     <div class="form-group" ng-class="{ 'has-error': projectForm.name.$invalid && !projectForm.name.$pristine, 'has-success': projectForm.name.$valid && projectForm.name.$touched }">
-      <label for="input-name" class="col-sm-1 control-label">Name</label>
+      <label for="input-name" class="col-sm-1 control-label" ng-show="projectForm.$visible">* Name</label>
+      <label for="input-name" class="col-sm-1 control-label" ng-show="!projectForm.$visible">Name</label>
       <div class="col-sm-11">
         <p id="input-name" e-class="form-control" editable-text="detailCtrl.project.name" e-name="name" e-required>{{ detailCtrl.project.name || 'Empty' }}</p>
         <span class="help-block" ng-show="projectForm.name.$error.required && !projectForm.name.$pristine">Required field.</span>
@@ -45,16 +46,18 @@
         <p id="static-description" class="form-control-static">{{ detailCtrl.project.description || 'Empty' }}</p>
       </div>
     </div>
-    <div class="form-group">
+    <div class="form-group" ng-class="{ 'has-error': projectForm.projectUrl.$invalid && !projectForm.projectUrl.$pristine, 'has-success': projectForm.projectUrl.$valid && project.projectUrl }">
       <label for="input-url" class="col-sm-1 control-label">URL</label>
       <div class="col-sm-11">
-        <p id="input-url" e-class="form-control" editable-text="detailCtrl.project.projectUrl" e-name="projectUrl">{{ detailCtrl.project.projectUrl || 'Empty' }}</p>
+        <p id="input-url" e-type="url" e-class="form-control" editable-text="detailCtrl.project.projectUrl" e-name="projectUrl">{{ detailCtrl.project.projectUrl || 'Empty' }}</p>
+        <span class="help-block" ng-show="projectForm.projectUrl.$invalid && !projectForm.projectUrl.$pristine">Malformed URL.</span>
       </div>
     </div>
-    <div class="form-group">
+    <div class="form-group" ng-class="{ 'has-error': projectForm.issueTrackerUrl.$invalid && !projectForm.issueTrackerUrl.$pristine, 'has-success': projectForm.issueTrackerUrl.$valid && project.issueTrackerUrl }">
       <label for="input-issue-tracker" class="col-sm-1 control-label">Issue tracker</label>
       <div class="col-sm-11">
-        <p id="input-issue-tracker" e-class="form-control" editable-text="detailCtrl.project.issueTrackerUrl" e-name="issueTrackerUrl">{{ detailCtrl.project.issueTrackerUrl || 'Empty' }}</p>
+        <p id="input-issue-tracker" e-type="url" e-class="form-control" editable-text="detailCtrl.project.issueTrackerUrl" e-name="issueTrackerUrl">{{ detailCtrl.project.issueTrackerUrl || 'Empty' }}</p>
+        <span class="help-block" ng-show="projectForm.issueTrackerUrl.$invalid && !projectForm.issueTrackerUrl.$pristine">Malformed URL.</span>
       </div>
     </div>
 
@@ -63,7 +66,7 @@
         <button type="submit" class="btn btn-primary" ng-disabled="projectForm.$waiting || projectForm.$invalid">
           Save
         </button>
-        <button type="button" class="btn btn-default" ng-disabled="projectForm.$waiting" ng-click="projectForm.$cancel()">
+        <button type="button" class="btn btn-default" ng-disabled="projectForm.$waiting" ng-click="projectForm.$cancel(); projectForm.$setPristine(); projectForm.$setUntouched();">
           Cancel
         </button>
       </div>

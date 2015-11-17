@@ -69,7 +69,7 @@
         <div class="form-group">
           <div class="col-sm-offset-2 col-sm-10">
             <input type="submit" class="btn btn-primary" value="Create" ng-disabled="configurationSetForm.$invalid">
-            <input type="reset" class="btn btn-default" value="Clear">
+            <input type="reset" class="btn btn-default" value="Clear" ng-click="createSetCtrl.reset(configurationSetForm)">
           </div>
         </div>
       </form>
