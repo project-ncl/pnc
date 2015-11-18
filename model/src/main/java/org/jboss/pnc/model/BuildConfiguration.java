@@ -60,6 +60,7 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
     @NotNull
     private String name;
 
+    @Lob
     private String buildScript;
 
     /**

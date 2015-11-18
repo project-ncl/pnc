@@ -52,6 +52,7 @@ public class BuildConfigurationAudited implements GenericEntity<IdRev> {
     @NotNull
     private String name;
 
+    @Lob
     private String buildScript;
 
     private String scmRepoURL;
@@ -61,7 +62,7 @@ public class BuildConfigurationAudited implements GenericEntity<IdRev> {
     private String scmMirrorRepoURL;
 
     private String scmMirrorRevision;
-
+    
     private String description;
 
     @NotNull
