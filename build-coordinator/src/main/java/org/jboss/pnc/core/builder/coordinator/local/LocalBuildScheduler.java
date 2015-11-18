@@ -70,6 +70,6 @@ public class LocalBuildScheduler implements BuildScheduler {
                 buildTask.getId(),
                 buildTask.getSubmitTime()
         );
-        buildExecutor.startBuilding(buildExecutionTask, onComplete);
+        buildExecutor.startBuilding(buildExecutionTask, onComplete); //TODO can we use buildExecutor.build and make startBuilding private
     }
 }

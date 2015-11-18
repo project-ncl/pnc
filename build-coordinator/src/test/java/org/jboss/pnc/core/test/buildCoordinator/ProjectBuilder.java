@@ -24,18 +24,26 @@ import org.jboss.pnc.core.builder.coordinator.BuildCoordinator;
 import org.jboss.pnc.core.builder.coordinator.BuildSetTask;
 import org.jboss.pnc.core.builder.coordinator.BuildTask;
 import org.jboss.pnc.core.builder.coordinator.filtering.BuildTaskFilter;
+import org.jboss.pnc.core.builder.datastore.DatastoreAdapter;
+import org.jboss.pnc.core.builder.executor.BuildExecutor;
 import org.jboss.pnc.core.content.ContentIdentityManager;
+import org.jboss.pnc.core.events.DefaultBuildStatusChangedEvent;
 import org.jboss.pnc.core.exception.CoreException;
+import org.jboss.pnc.core.notifications.buildSetTask.BuildSetCallBack;
+import org.jboss.pnc.core.notifications.buildTask.BuildCallBack;
 import org.jboss.pnc.core.test.buildCoordinator.event.TestCDIBuildStatusChangedReceiver;
 import org.jboss.pnc.core.test.configurationBuilders.TestProjectConfigurationBuilder;
 import org.jboss.pnc.core.test.mock.BuildDriverMock;
 import org.jboss.pnc.core.test.mock.DatastoreMock;
+import org.jboss.pnc.core.test.mock.EnvironmentDriverMock;
+import org.jboss.pnc.core.test.mock.RepositoryManagerMock;
+import org.jboss.pnc.core.test.mock.RepositorySessionMock;
+import org.jboss.pnc.core.test.mock.TestEntitiesFactory;
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationSet;
-import org.jboss.pnc.model.mock.MockUser;
 import org.jboss.pnc.model.BuildEnvironment;
-import org.jboss.pnc.model.User;
+import org.jboss.pnc.model.mock.MockUser;
 import org.jboss.pnc.spi.BuildSetStatus;
 import org.jboss.pnc.spi.BuildStatus;
 import org.jboss.pnc.spi.datastore.DatastoreException;
@@ -85,12 +93,27 @@ public class ProjectBuilder {
                 .addClass(Configuration.class)
                 .addClass(BuildEnvironment.Builder.class)
                 .addClass(TestCDIBuildStatusChangedReceiver.class)
+                .addPackages(false,
+                        BuildDriverFactory.class.getPackage())
                 .addPackages(true,
-                        BuildDriverFactory.class.getPackage(),
-                        BuildDriverMock.class.getPackage(),
+                        BuildCoordinator.class.getPackage(),
+                        DatastoreAdapter.class.getPackage(),
+                        BuildExecutor.class.getPackage(),
+                        TestProjectConfigurationBuilder.class.getPackage(),
                         ContentIdentityManager.class.getPackage(),
                         BuildConfigSetRecordRepository.class.getPackage(),
-                        BuildTaskFilter.class.getPackage())
+                        BuildTaskFilter.class.getPackage(),
+                        TestCDIBuildStatusChangedReceiver.class.getPackage(),
+                        BuildSetCallBack.class.getPackage(),
+                        BuildCallBack.class.getPackage(),
+                        BuildStatus.class.getPackage(),
+                        DefaultBuildStatusChangedEvent.class.getPackage())
+                .addClass(BuildDriverMock.class)
+                .addClass(DatastoreMock.class)
+                .addClass(EnvironmentDriverMock.class)
+                .addClass(RepositoryManagerMock.class)
+                .addClass(RepositorySessionMock.class)
+                .addClass(TestEntitiesFactory.class)
                 .addAsManifestResource(EmptyAsset.INSTANCE, "beans.xml")
                 .addAsResource("META-INF/logging.properties");
 

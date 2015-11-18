@@ -34,6 +34,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2015-03-26.
@@ -101,12 +102,22 @@ public class BuildSetTask {
     void taskStatusUpdated(BuildStatusChangedEvent buildStatusChangedEvent) {
         // If any of the build tasks have failed or all are complete, then the build set is done
         if(buildTasks.stream().anyMatch(bt -> bt.getStatus().hasFailed())) {
+            log.debug("Marking build set as FAILED as one or more tasks failed.");
+            if (log.isDebugEnabled()) {
+                logTasksStatus(buildTasks);
+            }
             buildConfigSetRecord.setStatus(org.jboss.pnc.model.BuildStatus.FAILED);
             finishBuildSetTask();
         } else if (buildTasks.stream().allMatch(bt -> bt.getStatus().isCompleted())) {
+            log.debug("Marking build set as SUCCESS.");
             buildConfigSetRecord.setStatus(org.jboss.pnc.model.BuildStatus.SUCCESS);
             finishBuildSetTask();
         }
+    }
+
+    private void logTasksStatus(Set<BuildTask> buildTasks) {
+        String taskStatuses = buildTasks.stream().map(bt -> "TaskId " + bt.getId() + ":" + bt.getStatus()).collect(Collectors.joining("; "));
+        log.debug("Tasks statuses: {}", taskStatuses);
     }
 
     private void finishBuildSetTask() {
