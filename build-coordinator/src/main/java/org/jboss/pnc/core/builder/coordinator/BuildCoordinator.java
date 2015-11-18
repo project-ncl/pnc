@@ -157,13 +157,13 @@ public class BuildCoordinator {
 
         Date buildSubmitTime = new Date();
         BuildSetTask buildSetTask = new BuildSetTask(
-                this,
+                this, //TODO decouple
                 buildConfigSetRecord,
                 getProductMilestone(buildConfigurationSet),
                 buildSubmitTime,
                 rebuildAll);
 
-        initializeBuildTasksInSet(buildSetTask, rebuildAll);
+        initializeBuildTasksInSet(buildSetTask, user, rebuildAll);
         return buildSetTask;
     }
 
@@ -173,7 +173,7 @@ public class BuildCoordinator {
      * @param buildSetTask The build set task which will contain the build tasks.  This must already have
      * initialized the BuildConfigSet, BuildConfigSetRecord, Milestone, etc.
      */
-    private void initializeBuildTasksInSet(BuildSetTask buildSetTask, boolean rebuildAll) {
+    private void initializeBuildTasksInSet(BuildSetTask buildSetTask, User user, boolean rebuildAll) {
 
         // Loop to create the build tasks
         for(BuildConfiguration buildConfig : buildSetTask.getBuildConfigurationSet().getBuildConfigurations()) {
@@ -182,7 +182,7 @@ public class BuildCoordinator {
             BuildTask buildTask = BuildTask.build(
                     buildConfig,
                     buildConfigAudited,
-                    buildSetTask.getBuildConfigSetRecord().getUser(),
+                    user,
                     getBuildStatusChangedEventNotifier(),
                     (bt) -> processBuildTask(bt),
                     datastoreAdapter.getNextBuildRecordId(),

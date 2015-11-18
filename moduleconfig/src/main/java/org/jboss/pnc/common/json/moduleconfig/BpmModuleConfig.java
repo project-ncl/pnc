@@ -34,6 +34,7 @@ public class BpmModuleConfig extends AbstractModuleConfig {
     private String deploymentId;
     private String processId;
     private String communityBuild;
+    private String repourAdjust;
 
     public BpmModuleConfig(@JsonProperty("username") String username,
             @JsonProperty("password") String password,
@@ -45,7 +46,8 @@ public class BpmModuleConfig extends AbstractModuleConfig {
             @JsonProperty("aproxBaseUrl") String aproxBaseUrl,
             @JsonProperty("repourBaseUrl") String repourBaseUrl,
             @JsonProperty("daBaseUrl") String daBaseUrl,
-            @JsonProperty("communityBuild") String communityBuild)
+            @JsonProperty("communityBuild") String communityBuild,
+            @JsonProperty("repourAdjust") String repourAdjust)
             throws MalformedURLException {
         this.username = username;
         this.password = password;
@@ -58,6 +60,7 @@ public class BpmModuleConfig extends AbstractModuleConfig {
         this.repourBaseUrl = repourBaseUrl;
         this.daBaseUrl = daBaseUrl;
         this.communityBuild = communityBuild;
+        this.repourAdjust = repourAdjust;
     }
 
     public String getUsername() {
@@ -112,6 +115,10 @@ public class BpmModuleConfig extends AbstractModuleConfig {
         return communityBuild;
     }
 
+    public String getRepourAdjust() {
+        return repourAdjust;
+    }
+
     @Override
     public String toString() {
         return "BpmModuleConfig{" +
@@ -125,6 +132,8 @@ public class BpmModuleConfig extends AbstractModuleConfig {
                 ", deploymentId='" + deploymentId + '\'' +
                 ", processId='" + processId + '\'' +
                 ", communityBuild='" + communityBuild + '\'' +
+                ", repourAdjust='" + repourAdjust + '\'' +
                 '}';
     }
+
 }
