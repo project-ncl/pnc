@@ -64,8 +64,8 @@ public class ProductVersionRest implements GenericRestEntity<Integer> {
         this.id = productVersion.getId();
         this.version = productVersion.getVersion();
         this.productId = productVersion.getProduct().getId();
-        this.currentProductMilestoneId = productVersion.getCurrentProductMilestone() != null ? productVersion
-                .getCurrentProductMilestone().getId() : null;
+        this.currentProductMilestoneId = productVersion.getCurrentProductMilestone() != null
+                ? productVersion.getCurrentProductMilestone().getId() : null;
 
         for (ProductMilestone milestone : productVersion.getProductMilestones()) {
             productMilestoneIds.add(milestone.getId());
@@ -158,6 +158,21 @@ public class ProductVersionRest implements GenericRestEntity<Integer> {
 
     public ProductVersion toProductVersion(ProductVersion productVersion) {
         productVersion.setVersion(version);
+
+        if (currentProductMilestoneId != null) {
+            List<ProductMilestone> productMilestones = nullableStreamOf(productVersion.getProductMilestones())
+                    .filter(productMilestone -> productMilestone.getId().equals(currentProductMilestoneId))
+                    .collect(Collectors.toList());
+
+            if (!productMilestones.isEmpty()) {
+                productVersion.setCurrentProductMilestone(productMilestones.get(0));
+            } else {
+                productVersion.setCurrentProductMilestone(null);
+            }
+        } else {
+            productVersion.setCurrentProductMilestone(null);
+        }
+
         return productVersion;
     }
 
@@ -165,8 +180,8 @@ public class ProductVersionRest implements GenericRestEntity<Integer> {
      * Checks if ProductVersion is present in Product. If it is true - returns it or creates new one otherwise.
      */
     private ProductVersion getProductVersionFromProductOrNewOne(Product product) {
-        List<ProductVersion> productVersionsInProduct = nullableStreamOf(product.getProductVersions()).filter(
-                productVersion -> productVersion.getId().equals(id)).collect(Collectors.toList());
+        List<ProductVersion> productVersionsInProduct = nullableStreamOf(product.getProductVersions())
+                .filter(productVersion -> productVersion.getId().equals(id)).collect(Collectors.toList());
 
         if (!productVersionsInProduct.isEmpty()) {
             return productVersionsInProduct.get(0);
