@@ -25,6 +25,8 @@ import org.hibernate.envers.RelationTargetAuditMode;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Date;
@@ -35,8 +37,8 @@ import java.util.stream.Collectors;
 
 /**
  * The Class BuildConfiguration cointains the informations needed to trigger the build of a project, i.e. the sources and the
- * build script, the build system image needed to run, the project configurations that need to be triggered after a successful build.
- * It contains also creation and last modification time for historical purposes
+ * build script, the build system image needed to run, the project configurations that need to be triggered after a successful
+ * build. It contains also creation and last modification time for historical purposes
  * <p>
  * (project + name) should be unique
  *
@@ -74,14 +76,14 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
     private String scmRevision;
 
     /**
-     * The URL of the internal mirror of the upstream repository.  For builds which 
-     * require the sources to be mirrored to a secured location before building.
+     * The URL of the internal mirror of the upstream repository. For builds which require the sources to be mirrored to a
+     * secured location before building.
      */
     private String scmMirrorRepoURL;
 
     /**
-     * The SCM revision of the internal mirror of the upstream repository.  Contains the 
-     * revision after any automated source changes have been made by the build system.
+     * The SCM revision of the internal mirror of the upstream repository. Contains the revision after any automated source
+     * changes have been made by the build system.
      */
     private String scmMirrorRevision;
 
@@ -89,12 +91,10 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
 
     @NotAudited
     @ManyToMany
-    @JoinTable(
-        name = "build_configuration_product_versions_map", 
-        joinColumns = { @JoinColumn(name = "build_configuration_id", referencedColumnName = "id") }, 
-        inverseJoinColumns = { @JoinColumn(name = "product_version_id", referencedColumnName = "id") },
-        uniqueConstraints = @UniqueConstraint(name = "UK_build_configuration_id_product_version_id",
-          columnNames = {"build_configuration_id", "product_version_id"}))
+    @JoinTable(name = "build_configuration_product_versions_map", joinColumns = {
+            @JoinColumn(name = "build_configuration_id", referencedColumnName = "id") }, inverseJoinColumns = {
+                    @JoinColumn(name = "product_version_id", referencedColumnName = "id") }, uniqueConstraints = @UniqueConstraint(name = "UK_build_configuration_id_product_version_id", columnNames = {
+                            "build_configuration_id", "product_version_id" }) )
     @ForeignKey(name = "fk_build_configuration_product_versions_map_buildconfiguration", inverseName = "fk_build_configuration_product_versions_map_productversion")
     private Set<ProductVersion> productVersions;
 
@@ -118,12 +118,12 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
     private Set<BuildConfigurationSet> buildConfigurationSets;
 
     @NotNull
-    @Column(columnDefinition="timestamp with time zone")
+    @Column(columnDefinition = "timestamp with time zone")
     private Date creationTime;
 
     @NotNull
     @Version
-    @Column(columnDefinition="timestamp with time zone")
+    @Column(columnDefinition = "timestamp with time zone")
     private Date lastModificationTime;
 
     /**
@@ -138,7 +138,9 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
      */
     @NotAudited
     @ManyToMany(cascade = { CascadeType.REFRESH })
-    @JoinTable(name = "build_configuration_dep_map", joinColumns = { @JoinColumn(name = "dependency_id", referencedColumnName = "id") }, inverseJoinColumns = { @JoinColumn(name = "dependant_id", referencedColumnName = "id") })
+    @JoinTable(name = "build_configuration_dep_map", joinColumns = {
+            @JoinColumn(name = "dependency_id", referencedColumnName = "id") }, inverseJoinColumns = {
+                    @JoinColumn(name = "dependant_id", referencedColumnName = "id") })
     @ForeignKey(name = "fk_build_configuration_dep_map_dependency", inverseName = "fk_build_configuration_dep_map_dependant")
     private Set<BuildConfiguration> dependencies;
 
@@ -151,7 +153,8 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
     private Set<BuildConfiguration> dependants;
 
     // TODO: What data format does Aprox need?
-    // [jdcasey] I'm not sure what this is supposed to do in the repository manager...so hard to say what format is required.
+    // [jdcasey] I'm not sure what this is supposed to do in the repository
+    // manager...so hard to say what format is required.
     // @Column(name = "repositories")
     private String repositories;
 
@@ -290,8 +293,7 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
     public void setBuildConfigurationSets(Set<BuildConfigurationSet> buildConfigurationSets) {
         if (buildConfigurationSets == null) {
             this.buildConfigurationSets.clear();
-        }
-        else {
+        } else {
             this.buildConfigurationSets = buildConfigurationSets;
         }
     }
@@ -328,8 +330,7 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
         if (dependency.getAllDependencies().contains(this)) {
             List<BuildConfiguration> depPath = dependency.dependencyDepthFirstSearch(this);
             String depPathString = depPath.stream().map(dep -> dep.getName()).collect(Collectors.joining(" -> "));
-            throw new PersistenceException(
-                    "Unable to add dependency, would create a circular reference: " + depPathString);
+            throw new PersistenceException("Unable to add dependency, would create a circular reference: " + depPathString);
         }
 
         boolean result = dependencies.add(dependency);
@@ -348,20 +349,19 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
     }
 
     /**
-     * Gets the full set of indirect dependencies (dependencies of dependencies).
-     * In cases where a particular dependency is both a direct dependency and is
-     * an indirect dependency, it will be included in the set.
-     * 
+     * Gets the full set of indirect dependencies (dependencies of dependencies). In cases where a particular dependency is both
+     * a direct dependency and is an indirect dependency, it will be included in the set.
+     *
      * @return The set of indirect dependencies
      */
     public Set<BuildConfiguration> getIndirectDependencies() {
         Set<BuildConfiguration> indirectDependencies = new HashSet<BuildConfiguration>();
         List<BuildConfiguration> configsToCheck = new ArrayList<BuildConfiguration>();
         configsToCheck.addAll(getDependencies());
-        while(!configsToCheck.isEmpty()) {
+        while (!configsToCheck.isEmpty()) {
             BuildConfiguration nextConfig = configsToCheck.get(0);
             for (BuildConfiguration nextDep : nextConfig.getDependencies()) {
-                if(!indirectDependencies.contains(nextDep)) {
+                if (!indirectDependencies.contains(nextDep)) {
                     indirectDependencies.add(nextDep);
                     configsToCheck.add(nextDep);
                 }
@@ -372,9 +372,9 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
     }
 
     /**
-     * Perform a depth first search of the dependencies to find a match of the given build config.
-     * Returns a list with a single build config (this), if no match is found.
-     * 
+     * Perform a depth first search of the dependencies to find a match of the given build config. Returns a list with a single
+     * build config (this), if no match is found.
+     *
      * @param buildConfig The build config to search for
      * @return A list of the build configurations in the path between this config and the given config.
      */
@@ -402,7 +402,7 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
 
     /**
      * Get the full set of both the direct and indirect dependencies.
-     * 
+     *
      * @return A set containing both direct and indirect dependencies
      */
     public Set<BuildConfiguration> getAllDependencies() {
@@ -424,10 +424,9 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
     }
 
     /**
-     * This method is private because a dependant should never be added
-     * externally.  Instead the dependency relation should be set up
-     * using the addDependency method
-     * 
+     * This method is private because a dependant should never be added externally. Instead the dependency relation should be
+     * set up using the addDependency method
+     *
      * @param dependant
      * @return
      */
@@ -440,10 +439,9 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
     }
 
     /**
-     * This method is private because a dependant should never be removed
-     * externally.  Instead the dependency relation should be set up
-     * using the removeDependency method
-     * 
+     * This method is private because a dependant should never be removed externally. Instead the dependency relation should be
+     * set up using the removeDependency method
+     *
      * @param dependant
      * @return
      */
@@ -539,6 +537,8 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
         return id != null ? id.hashCode() : 0;
     }
 
+    public static final String CLONE_PREFIX_DATE_FORMAT = "yyyyMMddHHmmss";
+
     /**
      * Creates a shallow based clone and overrides {@link #creationTime}, {@link #name} and erases {@link #id}.
      *
@@ -548,13 +548,65 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
     public BuildConfiguration clone() {
         try {
             BuildConfiguration clone = (BuildConfiguration) super.clone();
-            clone.name = "_" + name;
-            clone.creationTime = Date.from(Instant.now());
+            Date now = Date.from(Instant.now());
+            clone.name = retrieveCloneName(name, now);
+            clone.creationTime = now;
             clone.id = null;
             return clone;
         } catch (CloneNotSupportedException e) {
             throw new IllegalStateException("Cloning error" + e);
         }
+    }
+
+    /**
+     * Change the BC clone name into date_original-BC-name where date will be for every clone updated and for original BC names
+     * will be added.
+     * 
+     * Example: clone1 of pslegr-BC on Wednesday October,21st, 2015: 20151021095415_pslegr-BC
+     * 
+     * clone2 of 20151021095415_pslegr-BC on Thursday October,22nd, 2015: 20151022nnnnnn_pslegr-BC
+     * 
+     * clone3 of pslegr-BC on Friday October,23rd, 2015: 20151023nnnnnn_pslegr-BC
+     * 
+     * @param bcName
+     * @param now
+     * @return A correct name for the cloned BuildConfiguration
+     */
+    public static String retrieveCloneName(String bcName, Date now) {
+
+        String bcNameToAppend = "";
+
+        int index = bcName.indexOf("_");
+
+        if (index == -1) {
+            // No '_' was found, need to append date prefix to whole bcName
+            bcNameToAppend = bcName;
+
+        } else {
+            // A '_' char was found, need to analyze if the prefix is a date (to
+            // be replaced with new one)
+            String prefix = bcName.substring(0, index);
+
+            if (prefix.length() == CLONE_PREFIX_DATE_FORMAT.length()) {
+                try {
+                    new SimpleDateFormat(CLONE_PREFIX_DATE_FORMAT).parse(prefix);
+                    // The prefix was a date, need to append new date to a substring
+                    // of original bcName
+                    bcNameToAppend = bcName.substring(index + 1);
+                } catch (ParseException ex) {
+                    // The prefix was not a date, need to append date prefix to
+                    // whole bcName
+                    bcNameToAppend = bcName;
+                }
+            } else {
+                bcNameToAppend = bcName;
+            }
+        }
+
+        StringBuilder sb = new StringBuilder();
+        sb.append(new SimpleDateFormat(CLONE_PREFIX_DATE_FORMAT).format(now)).append("_").append(bcNameToAppend);
+        return sb.toString();
+
     }
 
     public static class Builder {
