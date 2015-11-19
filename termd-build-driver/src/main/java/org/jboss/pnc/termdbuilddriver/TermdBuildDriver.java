@@ -144,7 +144,6 @@ public class TermdBuildDriver implements BuildDriver {
             TermdCommandInvoker termdCommandInvoker = new TermdCommandInvoker(URI.create(termdRunningBuild.getRunningEnvironment().getInternalBuildAgentUrl()), termdRunningBuild.getRunningEnvironment().getWorkingDirectory());
             termdCommandInvoker.startSession();
 
-            currentBuildExecution.setLogsWebSocketLink(termdCommandInvoker.getLogsURI());
             termdCommandInvoker.performCommand("sh " + scriptPath).join();
 
             currentBuildExecution.clearLogsWebSocketLink();
