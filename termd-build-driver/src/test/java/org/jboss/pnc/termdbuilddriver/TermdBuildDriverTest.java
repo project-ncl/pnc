@@ -27,6 +27,7 @@ import org.jboss.pnc.termdbuilddriver.commands.InvocatedCommandResult;
 import org.jboss.pnc.termdbuilddriver.commands.TermdCommandBatchExecutionResult;
 import org.jboss.pnc.termdbuilddriver.commands.TermdCommandExecutionException;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.net.URI;
@@ -109,7 +110,7 @@ public class TermdBuildDriverTest extends AbstractLocalBuildAgentTest {
         assertThat(buildResult.get().getBuildResult().getBuildDriverStatus()).isEqualTo(BuildDriverStatus.FAILED);
     }
 
-    @Test(timeout = 60_000)
+    @Test(timeout = 60_000) @Ignore //ignoring as WebSocket Log URL is provided by EnvDriver
     public void shouldSetLogsInBuildExecution() throws Exception {
         //given
         TermdBuildDriver driver = new TermdBuildDriver() {
