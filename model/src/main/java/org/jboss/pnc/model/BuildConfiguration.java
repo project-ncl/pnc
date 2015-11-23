@@ -18,6 +18,7 @@
 package org.jboss.pnc.model;
 
 import org.hibernate.annotations.ForeignKey;
+import org.hibernate.annotations.Type;
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
 import org.hibernate.envers.RelationTargetAuditMode;
@@ -87,6 +88,8 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
      */
     private String scmMirrorRevision;
 
+    @Lob
+    @Type(type = "org.hibernate.type.TextType")
     private String description;
 
     @NotAudited
