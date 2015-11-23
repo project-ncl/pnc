@@ -53,6 +53,7 @@ import javax.annotation.PreDestroy;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
+import java.net.URI;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -198,6 +199,9 @@ public class DefaultBuildExecutor implements BuildExecutor {
     private RunningBuild buildSetUp(BuildExecutionTask buildExecutionTask, RunningEnvironment runningEnvironment) {
         buildExecutionTask.setStatus(BuildStatus.BUILD_SETTING_UP);
         try {
+            String liveLogWebSocketUrl = runningEnvironment.getJenkinsUrl();
+            log.debug("Setting live log websocket url: {}", liveLogWebSocketUrl);
+            buildExecutionTask.setLogsWebSocketLink(new URI(liveLogWebSocketUrl));
             buildExecutionTask.setStartTime(new Date());
             BuildDriver buildDriver = buildDriverFactory.getBuildDriver(buildExecutionTask.getBuildConfigurationAudited().getBuildEnvironment().getBuildType());
             return buildDriver.startProjectBuild(buildExecutionTask, buildExecutionTask.getBuildConfigurationAudited(), runningEnvironment);

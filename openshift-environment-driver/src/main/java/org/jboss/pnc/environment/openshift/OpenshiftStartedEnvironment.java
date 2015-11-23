@@ -208,7 +208,7 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
     }
 
     private String getPublicEndpointUrl() {
-        return "http://" + route.getHost() + "/" + route.getPath() + "/" + environmentConfiguration.getBuildAgentBindPath();
+        return "http://" + route.getHost() + "/" + route.getPath() + "/" + environmentConfiguration.getBuildAgentBindPath() + "?sessionId=reconnect"; //TODO get parameters (if any required) from BuildAgent
     }
 
     private String getInternalEndpointUrl() {
