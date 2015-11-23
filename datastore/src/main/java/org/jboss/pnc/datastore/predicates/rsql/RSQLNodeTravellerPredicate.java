@@ -57,7 +57,6 @@ public class RSQLNodeTravellerPredicate<Entity extends GenericEntity<? extends N
     private final Map<Class<? extends ComparisonNode>, Transformer<Entity>> operations = new HashMap<>();
 
     public RSQLNodeTravellerPredicate(Class<Entity> entityClass, String rsql) throws RSQLParserException {
-        String preprocessedText = removeUnwantedCharacters(rsql);
         operations.put(EqualNode.class, new AbstractTransformer<Entity>() {
             @Override
             Predicate transform(Root<Entity> r, Path<?> selectedPath, CriteriaBuilder cb, String operand, List<Object> convertedArguments) {
@@ -80,7 +79,7 @@ public class RSQLNodeTravellerPredicate<Entity extends GenericEntity<? extends N
         operations.put(NotInNode.class, (r, cb, clazz, operand, arguments) -> cb.not((Path)selectWithOperand(r, operand)).in(arguments));
         operations.put(LikeNode.class, (r, cb, clazz, operand, arguments) -> cb.like(cb.lower((Path)selectWithOperand(r, operand)), arguments.get(0).toLowerCase()));
 
-        rootNode = new RSQLParser(new ExtendedRSQLNodesFactory()).parse(preprocessedText);
+        rootNode = new RSQLParser(new ExtendedRSQLNodesFactory()).parse(rsql);
         selectingClass = entityClass;
     }
 
@@ -90,12 +89,12 @@ public class RSQLNodeTravellerPredicate<Entity extends GenericEntity<? extends N
         RSQLNodeTraveller<Predicate> visitor = new RSQLNodeTraveller<Predicate>() {
 
             public Predicate visit(LogicalNode node) {
-                logger.debug("Parsing LogicalNode {}", node);
+                logger.info("Parsing LogicalNode {}", node);
                 return proceedEmbeddedNodes(node);
             }
 
             public Predicate visit(ComparisonNode node) {
-                logger.debug("Parsing ComparisonNode {}", node);
+                logger.info("Parsing ComparisonNode {}", node);
                 return proceedSelection(node);
             }
 
@@ -119,9 +118,5 @@ public class RSQLNodeTravellerPredicate<Entity extends GenericEntity<? extends N
         };
 
         return rootNode.accept(visitor);
-    }
-
-    private final String removeUnwantedCharacters(String text) {
-        return text.replaceAll(" ", "_").trim();
     }
 }
