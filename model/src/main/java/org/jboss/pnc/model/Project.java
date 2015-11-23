@@ -18,6 +18,7 @@
 package org.jboss.pnc.model;
 
 import org.hibernate.annotations.ForeignKey;
+import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
 import javax.persistence.Column;
@@ -49,6 +50,8 @@ public class Project implements GenericEntity<Integer> {
     @NotNull
     private String name;
 
+    @Lob
+    @Type(type = "org.hibernate.type.TextType")
     private String description;
 
     private String issueTrackerUrl;

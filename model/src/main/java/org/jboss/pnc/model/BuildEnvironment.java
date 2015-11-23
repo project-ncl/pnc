@@ -17,6 +17,8 @@
  */
 package org.jboss.pnc.model;
 
+import org.hibernate.annotations.Type;
+
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 
@@ -41,6 +43,8 @@ public class BuildEnvironment implements GenericEntity<Integer> {
     @Column(unique=true)
     private String name;
 
+    @Lob
+    @Type(type = "org.hibernate.type.TextType")
     private String description;
 
     /**
