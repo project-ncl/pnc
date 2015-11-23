@@ -43,6 +43,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static org.jboss.pnc.datastore.predicates.rsql.AbstractTransformer.selectWithOperand;
 
@@ -55,6 +57,8 @@ public class RSQLNodeTravellerPredicate<Entity extends GenericEntity<? extends N
     private final Class<Entity> selectingClass;
 
     private final Map<Class<? extends ComparisonNode>, Transformer<Entity>> operations = new HashMap<>();
+
+    private final static Pattern likePattern = Pattern.compile("(\\%[a-zA-Z0-9\\s]+\\%)");
 
     public RSQLNodeTravellerPredicate(Class<Entity> entityClass, String rsql) throws RSQLParserException {
         operations.put(EqualNode.class, new AbstractTransformer<Entity>() {
@@ -79,7 +83,7 @@ public class RSQLNodeTravellerPredicate<Entity extends GenericEntity<? extends N
         operations.put(NotInNode.class, (r, cb, clazz, operand, arguments) -> cb.not((Path)selectWithOperand(r, operand)).in(arguments));
         operations.put(LikeNode.class, (r, cb, clazz, operand, arguments) -> cb.like(cb.lower((Path)selectWithOperand(r, operand)), arguments.get(0).toLowerCase()));
 
-        rootNode = new RSQLParser(new ExtendedRSQLNodesFactory()).parse(rsql);
+        rootNode = new RSQLParser(new ExtendedRSQLNodesFactory()).parse(preprocessRSQL(rsql));
         selectingClass = entityClass;
     }
 
@@ -118,5 +122,14 @@ public class RSQLNodeTravellerPredicate<Entity extends GenericEntity<? extends N
         };
 
         return rootNode.accept(visitor);
+    }
+
+    private final String preprocessRSQL(String rsql) {
+        String result = rsql;
+        Matcher matcher = likePattern.matcher(rsql);
+        while (matcher.find()) {
+            result = rsql.replaceAll(matcher.group(1), matcher.group(1).replaceAll("\\s", "_"));
+        }
+        return result;
     }
 }
