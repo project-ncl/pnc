@@ -17,17 +17,12 @@
  */
 package org.jboss.pnc.model;
 
+import org.hibernate.annotations.Type;
+
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.OneToMany;
-import javax.persistence.SequenceGenerator;
+import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 
 /**
@@ -51,6 +46,8 @@ public class Product implements GenericEntity<Integer> {
     @NotNull
     private String name;
 
+    @Lob
+    @Type(type = "org.hibernate.type.TextType")
     private String description;
 
     @Column(unique = true)

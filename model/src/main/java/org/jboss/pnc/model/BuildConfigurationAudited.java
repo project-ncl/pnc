@@ -18,6 +18,7 @@
 package org.jboss.pnc.model;
 
 import org.hibernate.annotations.ForeignKey;
+import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -62,6 +63,8 @@ public class BuildConfigurationAudited implements GenericEntity<IdRev> {
 
     private String scmMirrorRevision;
 
+    @Lob
+    @Type(type = "org.hibernate.type.TextType")
     private String description;
 
     @NotNull

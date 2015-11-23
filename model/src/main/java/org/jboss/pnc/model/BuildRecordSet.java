@@ -19,6 +19,7 @@ package org.jboss.pnc.model;
 
 
 import org.hibernate.annotations.ForeignKey;
+import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
 import java.util.HashSet;
@@ -41,6 +42,8 @@ public class BuildRecordSet implements GenericEntity<Integer> {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = SEQUENCE_NAME)
     private Integer id;
 
+    @Lob
+    @Type(type = "org.hibernate.type.TextType")
     private String description;
 
     /**
