@@ -25,11 +25,7 @@
    * @author Jakub Senko
    */
   module.directive('pncProductVersionReleases', [
-    '$log',
-    '$state',
-    'ProductVersionDAO',
-    'ProductReleaseDAO',
-    function ($log, $state, ProductVersionDAO, ProductReleaseDAO) {
+    function () {
 
       return {
         restrict: 'E',
@@ -39,19 +35,11 @@
         },
         link: function (scope) {
 
-          var productmilestones = scope.version.getMilestones();
-
-          scope.page = ProductReleaseDAO.getPagedByProductVersion({versionId: scope.version.id });
-
-          scope.getMilestoneVersion = function(milestoneId) {
-            var milestoneVersion = '';
-            angular.forEach(productmilestones, function(versionMilestone) {
-              if (versionMilestone.id === milestoneId) {
-                milestoneVersion = versionMilestone.version;
-              }
-            });
-            return milestoneVersion;
-          };
+          var productmilestones = scope.version.productMilestones;
+          scope.versionMilestoneNames = {};
+          angular.forEach(productmilestones, function(versionMilestone) {
+            scope.versionMilestoneNames[versionMilestone.id] = versionMilestone.version;
+          });
         }
       };
     }

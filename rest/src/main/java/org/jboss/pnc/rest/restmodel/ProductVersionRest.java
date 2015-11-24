@@ -49,13 +49,13 @@ public class ProductVersionRest implements GenericRestEntity<Integer> {
 
     private Integer currentProductMilestoneId;
 
-    List<Integer> productMilestoneIds = new ArrayList<Integer>();
+    List<ProductMilestoneRest> productMilestones = new ArrayList<ProductMilestoneRest>();
 
-    List<Integer> productReleaseIds = new ArrayList<Integer>();
+    List<ProductReleaseRest> productReleases = new ArrayList<ProductReleaseRest>();
 
-    List<Integer> buildConfigurationSetIds = new ArrayList<Integer>();
+    List<BuildConfigurationSetRest> buildConfigurationSets = new ArrayList<BuildConfigurationSetRest>();
 
-    List<Integer> buildConfigurationIds = new ArrayList<Integer>();
+    List<BuildConfigurationRest> buildConfigurations = new ArrayList<BuildConfigurationRest>();
 
     public ProductVersionRest() {
     }
@@ -68,19 +68,18 @@ public class ProductVersionRest implements GenericRestEntity<Integer> {
                 ? productVersion.getCurrentProductMilestone().getId() : null;
 
         for (ProductMilestone milestone : productVersion.getProductMilestones()) {
-            productMilestoneIds.add(milestone.getId());
-        }
-
-        for (ProductRelease release : productVersion.getProductReleases()) {
-            productReleaseIds.add(release.getId());
+            productMilestones.add(new ProductMilestoneRest(milestone));
+            if (milestone.getProductRelease() != null) {
+                productReleases.add(new ProductReleaseRest(milestone.getProductRelease()));
+            }
         }
 
         for (BuildConfiguration buildConfiguration : productVersion.getBuildConfigurations()) {
-            buildConfigurationIds.add(buildConfiguration.getId());
+            buildConfigurations.add(new BuildConfigurationRest(buildConfiguration));
         }
 
         for (BuildConfigurationSet buildConfigurationSet : productVersion.getBuildConfigurationSets()) {
-            buildConfigurationSetIds.add(buildConfigurationSet.getId());
+            buildConfigurationSets.add(new BuildConfigurationSetRest(buildConfigurationSet));
         }
 
     }
@@ -111,36 +110,36 @@ public class ProductVersionRest implements GenericRestEntity<Integer> {
         this.productId = productId;
     }
 
-    public List<Integer> getBuildConfigurationSetIds() {
-        return buildConfigurationSetIds;
+    public List<ProductMilestoneRest> getProductMilestones() {
+        return productMilestones;
     }
 
-    public void setBuildConfigurationSetIds(List<Integer> buildConfigurationSetIds) {
-        this.buildConfigurationSetIds = buildConfigurationSetIds;
+    public void setProductMilestones(List<ProductMilestoneRest> productMilestones) {
+        this.productMilestones = productMilestones;
     }
 
-    public List<Integer> getBuildConfigurationIds() {
-        return buildConfigurationIds;
+    public List<ProductReleaseRest> getProductReleases() {
+        return productReleases;
     }
 
-    public void setBuildConfigurationIds(List<Integer> buildConfigurationIds) {
-        this.buildConfigurationIds = buildConfigurationIds;
+    public void setProductReleases(List<ProductReleaseRest> productReleases) {
+        this.productReleases = productReleases;
     }
 
-    public List<Integer> getProductMilestones() {
-        return this.productMilestoneIds;
+    public List<BuildConfigurationSetRest> getBuildConfigurationSets() {
+        return buildConfigurationSets;
     }
 
-    public void setProductMilestoneIds(List<Integer> productMilestoneIds) {
-        this.productMilestoneIds = productMilestoneIds;
+    public void setBuildConfigurationSets(List<BuildConfigurationSetRest> buildConfigurationSets) {
+        this.buildConfigurationSets = buildConfigurationSets;
     }
 
-    public List<Integer> getProductReleases() {
-        return this.productReleaseIds;
+    public List<BuildConfigurationRest> getBuildConfigurations() {
+        return buildConfigurations;
     }
 
-    public void setProductReleaseIds(List<Integer> productReleaseIds) {
-        this.productReleaseIds = productReleaseIds;
+    public void setBuildConfigurations(List<BuildConfigurationRest> buildConfigurations) {
+        this.buildConfigurations = buildConfigurations;
     }
 
     public Integer getCurrentProductMilestoneId() {

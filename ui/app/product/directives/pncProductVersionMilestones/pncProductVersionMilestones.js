@@ -27,9 +27,7 @@
   module.directive('pncProductVersionMilestones', [
     '$log',
     '$state',
-    'ProductVersionDAO',
-    'ProductMilestoneDAO',
-    function ($log, $state, ProductVersionDAO, ProductMilestoneDAO) {
+    function ($log, $state) {
 
       return {
         restrict: 'E',
@@ -41,7 +39,6 @@
 
           var versionDetail = scope.version;
           var productDetail = scope.version.getProduct();
-          scope.page = ProductMilestoneDAO.getPagedByProductVersion({versionId: scope.version.id});
 
           scope.unreleaseMilestone = function (milestone) {
             $log.debug('Unreleasing milestone: %O', milestone);

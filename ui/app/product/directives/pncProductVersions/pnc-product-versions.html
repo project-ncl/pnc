@@ -34,9 +34,9 @@
         {{ version.version }}
       </a>
     </td>
-    <td> {{ getVersionMilestones(version.id) }}
+    <td>
        <span
-         ng-repeat="productmilestone in versionMilestones[version.id] | orderBy: '-productmilestone.startingDate'">
+         ng-repeat="productmilestone in version.productMilestones | orderBy: '-productmilestone.startingDate'">
              <span data-tooltip-html-unsafe="{{ getMilestoneTooltip(productmilestone) }}"
                    data-tooltip-placement="right"
                    class="label label-default"
@@ -46,13 +46,13 @@
        </span>
     </td>
     <td>
-           <span ng-repeat="productrelease in versionReleases[version.id] | orderBy: '-productrelease.releaseDate'">
-             <span data-tooltip-html-unsafe="{{ getReleaseTooltip(productrelease) }}"
-                   data-tooltip-placement="right"
-                   class="label label-success">
-               {{ productrelease.version }}
-             </span>
+         <span ng-repeat="productrelease in version.productReleases | orderBy: '-productrelease.releaseDate'">
+           <span data-tooltip-html-unsafe="{{ getReleaseTooltip(productrelease) }}"
+                 data-tooltip-placement="right"
+                 class="label label-success">
+             {{ productrelease.version }}
            </span>
+         </span>
     </td>
   </tr>
   </tbody>
