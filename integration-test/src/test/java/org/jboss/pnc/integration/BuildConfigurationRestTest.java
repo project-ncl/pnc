@@ -366,13 +366,13 @@ public class BuildConfigurationRestTest {
 
         BuildConfigurationRest parentBuildConfiguration = new BuildConfigurationRest();
         parentBuildConfiguration.setName(UUID.randomUUID().toString());
-        parentBuildConfiguration.setProjectId(projectRestClient.getValue().getId());
-        parentBuildConfiguration.setEnvironmentId(environmentRestClient.getValue().getId());
+        parentBuildConfiguration.setProject(projectRestClient.getValue());
+        parentBuildConfiguration.setEnvironment(environmentRestClient.getValue());
 
         BuildConfigurationRest childBuildConfiguration = new BuildConfigurationRest();
         childBuildConfiguration.setName(UUID.randomUUID().toString());
-        childBuildConfiguration.setProjectId(projectRestClient.getValue().getId());
-        childBuildConfiguration.setEnvironmentId(environmentRestClient.getValue().getId());
+        childBuildConfiguration.setProject(projectRestClient.getValue());
+        childBuildConfiguration.setEnvironment(environmentRestClient.getValue());
 
         // when
         RestResponse<BuildConfigurationRest> parentConfiguration = this.buildConfigurationRestClient
