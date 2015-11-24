@@ -165,7 +165,7 @@ public class BuildRecordRestTest {
         ResponseAssertion.assertThat(response).hasStatus(200);
         ResponseAssertion.assertThat(response).hasJsonValueEqual("content.id", configurationId);
 
-        projectId = response.body().jsonPath().getInt("content.projectId");
+        projectId = response.body().jsonPath().getInt("content.project.id");
 
         logger.info("projectId: {} ", projectId);
 
@@ -187,7 +187,7 @@ public class BuildRecordRestTest {
         ResponseAssertion.assertThat(response).hasStatus(200);
         ResponseAssertion.assertThat(response).hasJsonValueEqual("content.id", configurationId);
 
-        projectId = response.body().jsonPath().getInt("content.projectId");
+        projectId = response.body().jsonPath().getInt("content.project.id");
 
         logger.info("projectId: {} ", projectId);
 
