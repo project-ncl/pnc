@@ -56,6 +56,8 @@ public class BuildRecordRest implements GenericRestEntity<Integer> {
 
     private Integer userId;
 
+    private String username;
+
     private String scmRepoURL;
 
     private String scmRevision;
@@ -78,14 +80,13 @@ public class BuildRecordRest implements GenericRestEntity<Integer> {
     private Set<Integer> buildRecordSetIds;
 
     /**
-     * The IDs of the build record sets which represent the builds performed for a milestone
-     * to which this build record belongs
+     * The IDs of the build record sets which represent the builds performed for a milestone to which this build record belongs
      */
     private Set<Integer> performedMilestoneBuildRecordSetIds;
 
     /**
-     * The IDs of the build record sets which represent the builds distributed for a milestone
-     * to which this build record belongs
+     * The IDs of the build record sets which represent the builds distributed for a milestone to which this build record
+     * belongs
      */
     private Set<Integer> distributedMilestoneBuildRecordSetIds;
 
@@ -100,26 +101,27 @@ public class BuildRecordRest implements GenericRestEntity<Integer> {
         this.scmRepoURL = buildRecord.getScmRepoURL();
         this.scmRevision = buildRecord.getScmRevision();
         this.externalArchiveId = buildRecord.getExternalArchiveId();
-        performIfNotNull(buildRecord.getBuildConfigurationAudited(), () -> buildConfigurationId = buildRecord
-                .getBuildConfigurationAudited().getId().getId());
-        performIfNotNull(buildRecord.getBuildConfigurationAudited(), () -> buildConfigurationRev = buildRecord
-                .getBuildConfigurationAudited().getRev());
+        performIfNotNull(buildRecord.getBuildConfigurationAudited(),
+                () -> buildConfigurationId = buildRecord.getBuildConfigurationAudited().getId().getId());
+        performIfNotNull(buildRecord.getBuildConfigurationAudited(),
+                () -> buildConfigurationRev = buildRecord.getBuildConfigurationAudited().getRev());
         performIfNotNull(buildRecord.getUser(), () -> userId = buildRecord.getUser().getId());
+        performIfNotNull(buildRecord.getUser(), () -> username = buildRecord.getUser().getUsername());
         performIfNotNull(buildRecord.getSystemImage(), () -> systemImageId = buildRecord.getSystemImage().getId());
         this.status = buildRecord.getStatus();
         this.buildDriverId = buildRecord.getBuildDriverId();
-        if(buildRecord.getBuildConfigSetRecord() != null)
+        if (buildRecord.getBuildConfigSetRecord() != null)
             this.buildConfigSetRecordId = buildRecord.getBuildConfigSetRecord().getId();
 
         this.buildContentId = buildRecord.getBuildContentId();
-        this.buildRecordSetIds = nullableStreamOf(buildRecord.getBuildRecordSets()).map(buildRecordSet -> buildRecordSet.getId())
-                .collect(Collectors.toSet());
-        this.performedMilestoneBuildRecordSetIds = nullableStreamOf(buildRecord.getBuildRecordSets()).filter(buildRecordSet -> buildRecordSet.getPerformedInProductMilestone() != null)
-                .map(buildRecordSet -> buildRecordSet.getId())
-                .collect(Collectors.toSet());
-        this.distributedMilestoneBuildRecordSetIds = nullableStreamOf(buildRecord.getBuildRecordSets()).filter(buildRecordSet -> buildRecordSet.getDistributedInProductMilestone() != null)
-                .map(buildRecordSet -> buildRecordSet.getId())
-                .collect(Collectors.toSet());
+        this.buildRecordSetIds = nullableStreamOf(buildRecord.getBuildRecordSets())
+                .map(buildRecordSet -> buildRecordSet.getId()).collect(Collectors.toSet());
+        this.performedMilestoneBuildRecordSetIds = nullableStreamOf(buildRecord.getBuildRecordSets())
+                .filter(buildRecordSet -> buildRecordSet.getPerformedInProductMilestone() != null)
+                .map(buildRecordSet -> buildRecordSet.getId()).collect(Collectors.toSet());
+        this.distributedMilestoneBuildRecordSetIds = nullableStreamOf(buildRecord.getBuildRecordSets())
+                .filter(buildRecordSet -> buildRecordSet.getDistributedInProductMilestone() != null)
+                .map(buildRecordSet -> buildRecordSet.getId()).collect(Collectors.toSet());
     }
 
     public BuildRecordRest(BuildExecutionTask buildExecutionTask, Date submitTime) {
@@ -134,9 +136,11 @@ public class BuildRecordRest implements GenericRestEntity<Integer> {
         // FIXME Why masking i.e. BUILD_WAITING status with BUILDING ?
         this.status = BuildStatus.BUILDING;
         buildExecutionTask.getLogsWebSocketLink().ifPresent(logsUri -> this.liveLogsUri = logsUri.toString());
-        performIfNotNull(buildExecutionTask.getBuildConfigSetRecordId(), () -> this.buildConfigSetRecordId = buildExecutionTask.getBuildConfigSetRecordId());
-        if(buildExecutionTask.getUser() != null) {
+        performIfNotNull(buildExecutionTask.getBuildConfigSetRecordId(),
+                () -> this.buildConfigSetRecordId = buildExecutionTask.getBuildConfigSetRecordId());
+        if (buildExecutionTask.getUser() != null) {
             this.userId = buildExecutionTask.getUser().getId();
+            this.username = buildExecutionTask.getUser().getUsername();
         }
         this.buildContentId = buildExecutionTask.getBuildContentId();
     }
@@ -205,6 +209,14 @@ public class BuildRecordRest implements GenericRestEntity<Integer> {
 
     public void setUserId(Integer userId) {
         this.userId = userId;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     public String getScmRepoURL() {
