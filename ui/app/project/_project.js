@@ -68,11 +68,7 @@
         projectDetail: function(ProjectDAO, $stateParams) {
           return ProjectDAO.get({
             projectId: $stateParams.projectId}).$promise;
-        },
-        projectConfigurationList: function(BuildConfigurationDAO, $stateParams) {
-          return BuildConfigurationDAO.getAllForProject({
-            projectId: $stateParams.projectId});
-        },
+        }
       }
     });
 
