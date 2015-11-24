@@ -36,6 +36,7 @@
   <table class="table table-bordered table-striped table-hover">
     <thead>
     <th>Name</th>
+    <th>Project</th>
     <th>Created</th>
     <th>Modified</th>
     <th>Last Executed Build</th>
@@ -48,6 +49,7 @@
           {{ configuration.name }}
         </a>
       </td>
+      <td>{{ configuration.project.name}}</td>
       <td>{{ configuration.creationTime | date:'medium'}}</td>
       <td>{{ configuration.lastModificationTime | date:'medium'}}</td>
       <td>
