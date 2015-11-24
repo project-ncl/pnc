@@ -43,6 +43,8 @@ public class BuildConfigSetRecordRest implements GenericRestEntity<Integer> {
 
     private Integer buildConfigurationSetId;
 
+    private String buildConfigurationSetName;
+
     private Date startTime;
 
     private Date endTime;
@@ -67,6 +69,8 @@ public class BuildConfigSetRecordRest implements GenericRestEntity<Integer> {
         this.endTime = buildConfigSetRecord.getEndTime();
         performIfNotNull(buildConfigSetRecord.getBuildConfigurationSet(),
                 () -> buildConfigurationSetId = buildConfigSetRecord.getBuildConfigurationSet().getId());
+        performIfNotNull(buildConfigSetRecord.getBuildConfigurationSet(),
+                () -> buildConfigurationSetName = buildConfigSetRecord.getBuildConfigurationSet().getName());
         performIfNotNull(buildConfigSetRecord.getUser(), () -> userId = buildConfigSetRecord.getUser().getId());
         performIfNotNull(buildConfigSetRecord.getUser(), () -> username = buildConfigSetRecord.getUser().getUsername());
         performIfNotNull(buildConfigSetRecord.getProductVersion(),
@@ -117,6 +121,14 @@ public class BuildConfigSetRecordRest implements GenericRestEntity<Integer> {
 
     public void setBuildConfigurationSetId(Integer buildConfigurationSetId) {
         this.buildConfigurationSetId = buildConfigurationSetId;
+    }
+
+    public String getBuildConfigurationSetName() {
+        return buildConfigurationSetName;
+    }
+
+    public void setBuildConfigurationSetName(String buildConfigurationSetName) {
+        this.buildConfigurationSetName = buildConfigurationSetName;
     }
 
     public Integer getUserId() {
