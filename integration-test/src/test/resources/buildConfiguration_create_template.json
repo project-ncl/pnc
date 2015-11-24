@@ -6,7 +6,7 @@
     "lastModificationTime":1418382545038,
     "repositories":null,
     "project": {
-      "id": "${_projectId}",
+      "id": ${_projectId},
       "name": "Maven Plugin Test",
       "description": "Sample Maven Project with plugins and external downloads",
       "issueTrackerUrl": null,
@@ -17,7 +17,7 @@
       "licenseId": null
     },
     "environment": {
-      "id": ${_environmentId}"
+      "id": ${_environmentId},
       "name": "Demo Environment 1",
       "description": null,
       "imageRepositoryUrl": null,
