@@ -67,9 +67,6 @@
         productDetail: function(ProductDAO, $stateParams) {
           return ProductDAO.get({ productId: $stateParams.productId })
           .$promise;
-        },
-        productVersions: function(ProductDAO, productDetail) {
-          return ProductDAO.getVersions({ productId: productDetail.id });
         }
       }
     });
@@ -96,16 +93,6 @@
           return ProductVersionDAO.get({
             productId: $stateParams.productId,
             versionId: $stateParams.versionId }).$promise;
-        },
-        buildConfigurationSets: function(ProductVersionDAO, $stateParams) {
-          return ProductVersionDAO.getAllBuildConfigurationSets({
-            productId: $stateParams.productId,
-            versionId: $stateParams.versionId }).$promise;
-        },
-        buildConfigurations: function(BuildConfigurationDAO, $stateParams) {
-          return BuildConfigurationDAO.getAllForProductVersion({
-            productId: $stateParams.productId,
-            versionId: $stateParams.versionId });
         }
       }
     });
