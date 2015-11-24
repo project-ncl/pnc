@@ -33,14 +33,10 @@
     '$log',
     '$state',
     'productDetail',
-    'productVersions',
-    'ProductMilestoneDAO',
-    'ProductReleaseDAO',
-    function($log, $state, productDetail, productVersions, ProductMilestoneDAO, ProductReleaseDAO) {
+    function($log, $state, productDetail) {
 
       var that = this;
       that.product = productDetail;
-      that.versions = productVersions;
 
       // Update a product after editing
       that.update = function() {
@@ -56,34 +52,6 @@
           }
         );
       };
-
-      // Build wrapper objects
-      that.versionMilestones = [];
-      that.versionReleases = [];
-
-      // Retrieve all the artifacts of all the build records of the build configurations set
-      angular.forEach(that.versions, function(version) {
-
-        ProductMilestoneDAO.getAllForProductVersion({
-          versionId: version.id
-        }).then(
-          function(results) {
-            angular.forEach(results, function(result) {
-              that.versionMilestones.push(result);
-            });
-          }
-        );
-
-        ProductReleaseDAO.getAllForProductVersion({
-          versionId: version.id
-        }).then(
-          function(results) {
-            angular.forEach(results, function(result) {
-              that.versionReleases.push(result);
-            });
-          }
-        );
-      });
     }
   ]);
 

@@ -35,7 +35,7 @@
   <th>Actions</th>
   </thead>
   <tbody>
-  <tr ng-repeat="productrelease in page.data">
+  <tr ng-repeat="productrelease in version.productReleases">
     <td><span class="label label-success">{{ productrelease.version }}</span></td>
     <td>{{ productrelease.releaseDate | date:'yyyy/MM/dd'}}</td>
     <td class="text-center">
@@ -44,7 +44,7 @@
         <i class="glyphicon glyphicon-download-alt"></i>
       </a>
     </td>
-    <td>Released from Milestone <strong>{{ getMilestoneVersion(productrelease.productMilestoneId) }}</strong></td>
+    <td>Released from Milestone <strong>{{ versionMilestoneNames[productrelease.productMilestoneId] }}</strong></td>
     <td>{{ productrelease.supportLevel }}</td>
     <td>
       <button type="button" class="btn btn-sm btn-default" data-toggle="tooltip" title="Edit Release" ui-sref="product.detail.version.releaseUpdate({ releaseId: productrelease.id })">
@@ -57,4 +57,3 @@
   </tr>
   </tbody>
 </table>
-<pnc-pager class="pull-right" page="page"></pnc-pager>
