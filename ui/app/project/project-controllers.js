@@ -32,11 +32,9 @@
     '$log',
     '$state',
     'projectDetail',
-    'projectConfigurationList',
-    function($log, $state, projectDetail, projectConfigurationList) {
+    function($log, $state, projectDetail) {
       var that = this;
       that.project = projectDetail;
-      that.projectConfigurationList = projectConfigurationList;
 
       // Update a project after editing
       that.update = function() {
