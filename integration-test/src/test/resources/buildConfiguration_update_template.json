@@ -5,6 +5,23 @@
     "creationTime": ${_creationTime},
     "lastModificationTime": ${_lastModificationTime},
     "repositories": "${_repositories}",
-    "projectId": "${_projectId}",
-    "environmentId": "${_environmentId}"
+    "project": {
+      "id": "${_projectId}",
+      "name": "Maven Plugin Test",
+      "description": "Sample Maven Project with plugins and external downloads",
+      "issueTrackerUrl": null,
+      "projectUrl": "https://github.com/rnc/mvn-plugin-test",
+      "configurationIds": [
+        5
+      ],
+      "licenseId": null
+    },
+    "environment": {
+      "id": ${_environmentId}"
+      "name": "Demo Environment 1",
+      "description": null,
+      "imageRepositoryUrl": null,
+      "buildType": "JAVA",
+      "imageId": null
+    }
 }
