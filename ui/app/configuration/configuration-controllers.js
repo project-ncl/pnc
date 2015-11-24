@@ -25,24 +25,8 @@
     '$log',
     '$state',
     'configurationList',
-    'ProjectDAO',
-    function($log, $state, configurationList, ProjectDAO) {
-      var that = this;
-
+    function($log, $state, configurationList) {
       this.configurations = configurationList;
-      this.projects = [];
-
-      angular.forEach(this.configurations.data, function(configuration) {
-        ProjectDAO.get({
-          projectId: configuration.projectId
-        }).$promise.then(
-          function(result) {
-            if (result) {
-              that.projects.push(result);
-            }
-          }
-        );
-      });
     }
   ]);
 

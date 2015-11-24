@@ -70,9 +70,9 @@ public class BuildConfigurationRest implements GenericRestEntity<Integer> {
     private String repositories;
 
     @NotNull(groups = WhenCreatingNew.class)
-    private Integer projectId;
+    private ProjectRest project;
 
-    private Integer environmentId;
+    private BuildEnvironmentRest environment;
 
     private Set<Integer> dependencyIds;
 
@@ -94,13 +94,14 @@ public class BuildConfigurationRest implements GenericRestEntity<Integer> {
         this.lastModificationTime = buildConfiguration.getLastModificationTime();
         this.buildStatus = buildConfiguration.getBuildStatus();
         this.repositories = buildConfiguration.getRepositories();
-        performIfNotNull(buildConfiguration.getProject(), () -> this.projectId = buildConfiguration.getProject()
-                .getId());
-        performIfNotNull(buildConfiguration.getBuildEnvironment(), () -> this.environmentId = buildConfiguration.getBuildEnvironment().getId());
-        this.dependencyIds = nullableStreamOf(buildConfiguration.getDependencies()).map(dependencyConfig -> dependencyConfig.getId())
-                .collect(Collectors.toSet());
-        this.productVersionIds = nullableStreamOf(buildConfiguration.getProductVersions()).map(productVersion -> productVersion.getId())
-                .collect(Collectors.toSet());
+        performIfNotNull(buildConfiguration.getProject(),
+                () -> this.project = new ProjectRest(buildConfiguration.getProject()));
+        performIfNotNull(buildConfiguration.getBuildEnvironment(),
+                () -> this.environment = new BuildEnvironmentRest(buildConfiguration.getBuildEnvironment()));
+        this.dependencyIds = nullableStreamOf(buildConfiguration.getDependencies())
+                .map(dependencyConfig -> dependencyConfig.getId()).collect(Collectors.toSet());
+        this.productVersionIds = nullableStreamOf(buildConfiguration.getProductVersions())
+                .map(productVersion -> productVersion.getId()).collect(Collectors.toSet());
     }
 
     @Override
@@ -221,12 +222,12 @@ public class BuildConfigurationRest implements GenericRestEntity<Integer> {
         this.repositories = repositories;
     }
 
-    public Integer getProjectId() {
-        return projectId;
+    public ProjectRest getProject() {
+        return project;
     }
 
-    public void setProjectId(Integer projectId) {
-        this.projectId = projectId;
+    public void setProject(ProjectRest project) {
+        this.project = project;
     }
 
     public Set<Integer> getProductVersionIds() {
@@ -261,12 +262,12 @@ public class BuildConfigurationRest implements GenericRestEntity<Integer> {
         return dependencyIds.remove(dependencyId);
     }
 
-    public Integer getEnvironmentId() {
-        return environmentId;
+    public BuildEnvironmentRest getEnvironment() {
+        return environment;
     }
 
-    public void setEnvironmentId(Integer environmentId) {
-        this.environmentId = environmentId;
+    public void setEnvironment(BuildEnvironmentRest environment) {
+        this.environment = environment;
     }
 
     public BuildConfiguration toBuildConfiguration(BuildConfiguration buildConfiguration) {
@@ -284,8 +285,8 @@ public class BuildConfigurationRest implements GenericRestEntity<Integer> {
         builder.buildStatus(buildStatus);
         builder.repositories(repositories);
 
-        performIfNotNull(projectId, () -> builder.project(Project.Builder.newBuilder().id(projectId).build()));
-        performIfNotNull(environmentId, () -> builder.buildEnvironment(BuildEnvironment.Builder.newBuilder().id(environmentId).build()));
+        performIfNotNull(project, () -> builder.project(project.toProject()));
+        performIfNotNull(environment, () -> builder.buildEnvironment(environment.toBuildSystemImage()));
 
         nullableStreamOf(dependencyIds).forEach(dependencyId -> {
             BuildConfiguration.Builder buildConfigurationBuilder = BuildConfiguration.Builder.newBuilder().id(dependencyId);
@@ -300,7 +301,8 @@ public class BuildConfigurationRest implements GenericRestEntity<Integer> {
         return builder.build();
     }
 
-    private void overrideWithDataFromOriginalConfiguration(BuildConfiguration buildConfiguration, BuildConfiguration.Builder builder) {
+    private void overrideWithDataFromOriginalConfiguration(BuildConfiguration buildConfiguration,
+            BuildConfiguration.Builder builder) {
         performIfNotNull(buildConfiguration, () -> {
             builder.lastModificationTime(buildConfiguration.getLastModificationTime());
             builder.creationTime(buildConfiguration.getCreationTime());
