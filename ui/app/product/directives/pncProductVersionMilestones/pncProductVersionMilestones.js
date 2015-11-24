@@ -33,12 +33,13 @@
         restrict: 'E',
         templateUrl: 'product/directives/pncProductVersionMilestones/pnc-product-version-milestones.html',
         scope: {
-          version: '='
+          version: '=',
+          product: '='
         },
         link: function (scope) {
 
           var versionDetail = scope.version;
-          var productDetail = scope.version.getProduct();
+          var productDetail = scope.product;
 
           scope.unreleaseMilestone = function (milestone) {
             $log.debug('Unreleasing milestone: %O', milestone);
