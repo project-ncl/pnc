@@ -52,6 +52,8 @@ public class BuildRecordRest implements GenericRestEntity<Integer> {
 
     private Integer buildConfigurationId;
 
+    private String buildConfigurationName;
+
     private Integer buildConfigurationRev;
 
     private Integer userId;
@@ -104,6 +106,8 @@ public class BuildRecordRest implements GenericRestEntity<Integer> {
         performIfNotNull(buildRecord.getBuildConfigurationAudited(),
                 () -> buildConfigurationId = buildRecord.getBuildConfigurationAudited().getId().getId());
         performIfNotNull(buildRecord.getBuildConfigurationAudited(),
+                () -> buildConfigurationName = buildRecord.getBuildConfigurationAudited().getName());
+        performIfNotNull(buildRecord.getBuildConfigurationAudited(),
                 () -> buildConfigurationRev = buildRecord.getBuildConfigurationAudited().getRev());
         performIfNotNull(buildRecord.getUser(), () -> userId = buildRecord.getUser().getId());
         performIfNotNull(buildRecord.getUser(), () -> username = buildRecord.getUser().getUsername());
@@ -131,6 +135,7 @@ public class BuildRecordRest implements GenericRestEntity<Integer> {
         this.endTime = buildExecutionTask.getEndTime();
         if (buildExecutionTask.getBuildConfigurationAudited() != null) {
             this.buildConfigurationId = buildExecutionTask.getBuildConfigurationAudited().getId().getId();
+            this.buildConfigurationName = buildExecutionTask.getBuildConfigurationAudited().getName();
             this.buildConfigurationRev = buildExecutionTask.getBuildConfigurationAudited().getRev();
         }
         // FIXME Why masking i.e. BUILD_WAITING status with BUILDING ?
@@ -201,6 +206,14 @@ public class BuildRecordRest implements GenericRestEntity<Integer> {
 
     public void setBuildConfigurationRev(Integer buildConfigurationRev) {
         this.buildConfigurationRev = buildConfigurationRev;
+    }
+
+    public String getBuildConfigurationName() {
+        return buildConfigurationName;
+    }
+
+    public void setBuildConfigurationName(String buildConfigurationName) {
+        this.buildConfigurationName = buildConfigurationName;
     }
 
     public Integer getUserId() {
