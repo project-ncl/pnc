@@ -254,7 +254,7 @@ public class BuildConfigurationRestTest {
         ResponseAssertion.assertThat(response).hasJsonValueEqual("content.id", configurationId)
                 .hasJsonValueEqual("content.name", updatedName).hasJsonValueEqual("content.buildScript", updatedBuildScript)
                 .hasJsonValueEqual("content.scmRepoURL", updatedScmUrl).hasJsonValueEqual("content.project.id", updatedProjectId)
-                .hasJsonValueEqual("content.environmentId", environmentId);
+                .hasJsonValueEqual("content.environment.id", environmentId);
         assertThat(projectResponseBeforeTheUpdate.getBody().print()).isEqualTo(projectResponseAfterTheUpdate.getBody().print());
         assertThat(environmentResponseBeforeTheUpdate.getBody().print())
                 .isEqualTo(environmentResponseAfterTheUpdate.getBody().print());
