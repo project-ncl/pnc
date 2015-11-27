@@ -1,22 +1,9 @@
 {
     "name": "${_name}",
     "project": {
-      "id": ${_projectId},
-      "name": "Maven Plugin Test",
-      "description": "Sample Maven Project with plugins and external downloads",
-      "issueTrackerUrl": null,
-      "projectUrl": "https://github.com/rnc/mvn-plugin-test",
-      "configurationIds": [
-        5
-      ],
-      "licenseId": null
+      "id": ${_projectId}
     },
     "environment": {
-      "id": ${_environmentId},
-      "name": "Demo Environment 1",
-      "description": null,
-      "imageRepositoryUrl": null,
-      "buildType": "JAVA",
-      "imageId": null
+      "id": ${_environmentId}
     }
 }
