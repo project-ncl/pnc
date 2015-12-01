@@ -102,15 +102,15 @@ public abstract class AbstractProvider<DBEntity extends GenericEntity<Integer>, 
         return null;
     }
 
-    public Integer store(RESTEntity licenseRest) throws ValidationException {
-        validateBeforeSaving(licenseRest);
-        return repository.save(toDBModelModel().apply(licenseRest)).getId();
+    public Integer store(RESTEntity restEntity) throws ValidationException {
+        validateBeforeSaving(restEntity);
+        return repository.save(toDBModelModel().apply(restEntity)).getId();
     }
 
-    public void update(Integer id, RESTEntity licenseRest) throws ValidationException {
-        licenseRest.setId(id);
-        validateBeforeUpdating(id, licenseRest);
-        repository.save(toDBModelModel().apply(licenseRest));
+    public void update(Integer id, RESTEntity restEntity) throws ValidationException {
+        restEntity.setId(id);
+        validateBeforeUpdating(id, restEntity);
+        repository.save(toDBModelModel().apply(restEntity));
     }
 
     public void delete(Integer id) throws ValidationException {

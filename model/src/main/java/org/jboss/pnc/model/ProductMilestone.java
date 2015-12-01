@@ -74,9 +74,14 @@ public class ProductMilestone implements GenericEntity<Integer> {
      */
     private String downloadUrl;
 
+    /**
+     * The product major.minor version associated with this milestone.  After
+     * initial creation of the milestone, the product version should never change.
+     */
     @NotNull
     @ManyToOne(cascade = { CascadeType.REFRESH })
     @ForeignKey(name = "fk_productmilestone_productversion")
+    @JoinColumn(updatable = false)
     private ProductVersion productVersion;
 
     @OneToOne(mappedBy = "productMilestone")
@@ -89,8 +94,13 @@ public class ProductMilestone implements GenericEntity<Integer> {
      * The intent of this field is to track total effort of a milestone, so for example, 
      * failed builds consumed machine and human resources even though they were not delivered 
      * with the product distribution.
+     * 
+     * The BuildRecordSets associated with a milestone should be created when the milestone
+     * is first created, and never updated after that.
      */
-    @OneToOne(cascade = { CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH })
+    @OneToOne(cascade = { CascadeType.REFRESH })
+    @NotNull
+    @JoinColumn(updatable = false)
     private BuildRecordSet performedBuildRecordSet;
 
     /**
@@ -99,8 +109,13 @@ public class ProductMilestone implements GenericEntity<Integer> {
      * the milestone cycle but then later replaced by subsequent builds.
      * The intent of this field is to provide a way to lookup a build that produced a 
      * specific artifact included in a particular product distribution.
+     * 
+     * The BuildRecordSets associated with a milestone should be created when the milestone
+     * is first created, and never updated after that.
      */
-    @OneToOne(cascade = { CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH })
+    @OneToOne(cascade = { CascadeType.REFRESH })
+    @NotNull
+    @JoinColumn(updatable = false)
     private BuildRecordSet distributedBuildRecordSet;
 
     @Override

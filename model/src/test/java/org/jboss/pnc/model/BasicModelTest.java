@@ -118,11 +118,12 @@ public class BasicModelTest {
         Product product1 = ModelTestDataFactory.getInstance().getProduct1();
         ProductVersion productVersion1 = ModelTestDataFactory.getInstance().getProductVersion1();
         productVersion1.setProduct(product1);
-        BuildRecordSet buildRecordSet1 = ModelTestDataFactory.getInstance().getBuildRecordSet("Set 1");
         ProductMilestone productMilestone1 = ModelTestDataFactory.getInstance().getProductMilestone1version1();
         productMilestone1.setProductVersion(productVersion1);
-        productMilestone1.setPerformedBuildRecordSet(buildRecordSet1);
+        BuildRecordSet buildRecordSet1 = ModelTestDataFactory.getInstance().getBuildRecordSet("Set 1");
+        productMilestone1.setDistributedBuildRecordSet(buildRecordSet1);
         BuildRecordSet buildRecordSet2 = ModelTestDataFactory.getInstance().getBuildRecordSet("Set 2");
+        productMilestone1.setPerformedBuildRecordSet(buildRecordSet2);
         ProductRelease productRelease1 = ModelTestDataFactory.getInstance().getProductRelease1();
         productRelease1.setProductMilestone(productMilestone1);
 
@@ -134,8 +135,8 @@ public class BasicModelTest {
             em.persist(product1);
             em.persist(productVersion1);
             em.persist(buildRecordSet1);
-            em.persist(productMilestone1);
             em.persist(buildRecordSet2);
+            em.persist(productMilestone1);
             em.persist(productRelease1);
             tx.commit();
 

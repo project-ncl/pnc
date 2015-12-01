@@ -17,10 +17,12 @@
  */
 package org.jboss.pnc.rest.provider;
 
+import org.jboss.pnc.model.BuildRecordSet;
 import org.jboss.pnc.model.ProductMilestone;
 import org.jboss.pnc.model.ProductVersion;
 import org.jboss.pnc.rest.provider.collection.CollectionInfo;
 import org.jboss.pnc.rest.restmodel.ProductMilestoneRest;
+import org.jboss.pnc.spi.datastore.repositories.BuildRecordSetRepository;
 import org.jboss.pnc.spi.datastore.repositories.PageInfoProducer;
 import org.jboss.pnc.spi.datastore.repositories.ProductMilestoneRepository;
 import org.jboss.pnc.spi.datastore.repositories.ProductVersionRepository;
@@ -36,13 +38,17 @@ import static org.jboss.pnc.spi.datastore.predicates.ProductMilestonePredicates.
 @Stateless
 public class ProductMilestoneProvider extends AbstractProvider<ProductMilestone, ProductMilestoneRest> {
 
+    private BuildRecordSetRepository buildRecordSetRepository;
+
     private ProductVersionRepository productVersionRepository;
 
     @Inject
-    public ProductMilestoneProvider(ProductMilestoneRepository productMilestoneRepository,
+    public ProductMilestoneProvider(BuildRecordSetRepository buildRecordSetRepository, 
+            ProductMilestoneRepository productMilestoneRepository,
             ProductVersionRepository productVersionRepository, RSQLPredicateProducer rsqlPredicateProducer,
             SortInfoProducer sortInfoProducer, PageInfoProducer pageInfoProducer) {
         super(productMilestoneRepository, rsqlPredicateProducer, sortInfoProducer, pageInfoProducer);
+        this.buildRecordSetRepository = buildRecordSetRepository;
         this.productVersionRepository = productVersionRepository;
     }
 
@@ -62,15 +68,43 @@ public class ProductMilestoneProvider extends AbstractProvider<ProductMilestone,
 
     @Override
     protected Function<? super ProductMilestoneRest, ? extends ProductMilestone> toDBModelModel() {
-        return productMilestone -> {
-            if(productMilestone.getProductVersionId() != null) {
-                ProductVersion productVersionFromDB = productVersionRepository.queryById(productMilestone.getProductVersionId());
-                return productMilestone.toProductMilestone(productVersionFromDB);
-            }
+        return productMilestoneRest -> {
+            // Check if we are creating a new product milestone
+            ProductMilestone productMilestone = null;
+            if(productMilestoneRest.getId() == null) {
+                productMilestone = ProductMilestone.Builder.newBuilder().build();
 
-            ProductMilestone productMilestoneFromDB = repository.queryById(productMilestone.getId());
-            return productMilestone.toProductMilestone(productMilestoneFromDB);
+                BuildRecordSet distributedBuildRecordSet = productMilestone.getDistributedBuildRecordSet();
+                productMilestone.setDistributedBuildRecordSet(buildRecordSetRepository.save(distributedBuildRecordSet));
+                BuildRecordSet performedBuildRecordSet = productMilestone.getPerformedBuildRecordSet();
+                productMilestone.setPerformedBuildRecordSet(buildRecordSetRepository.save(performedBuildRecordSet));
+
+                ProductVersion productVersion = productVersionRepository.queryById(productMilestoneRest.getProductVersionId());
+                productMilestone.setProductVersion(productVersion);
+
+            } else {
+                productMilestone = repository.queryById(productMilestoneRest.getId());
+            }
+            return mergeRestToDB(productMilestoneRest, productMilestone);
         };
     }
 
+    /**
+     * Merge the fields of the product milestone rest with the given product milestone
+     * Note: Changing the product version or the build record sets of a product milestone is 
+     * not allowed.  If the product version of the given milestone is different than the 
+     * current milestone, the change will be ignored.
+     * 
+     * @param productMilestoneRest Supplies the updated values
+     * @param productMilestone The object to be updated
+     * @return The product milestone with updated attributes to match thecj ProductMilestoneRest
+     */
+    private ProductMilestone mergeRestToDB(ProductMilestoneRest productMilestoneRest, ProductMilestone productMilestone) {
+        productMilestone.setVersion(productMilestoneRest.getVersion());
+        productMilestone.setStartingDate(productMilestoneRest.getStartingDate());
+        productMilestone.setEndDate(productMilestoneRest.getEndDate());
+        productMilestone.setPlannedEndDate(productMilestoneRest.getPlannedEndDate());
+        productMilestone.setDownloadUrl(productMilestoneRest.getDownloadUrl());
+        return productMilestone;
+    }
 }
