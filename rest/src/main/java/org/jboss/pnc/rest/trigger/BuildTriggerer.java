@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.rest.trigger;
 
+import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import org.jboss.logging.Logger;
 import org.jboss.pnc.core.builder.coordinator.BuildCoordinator;
@@ -36,6 +37,7 @@ import org.jboss.pnc.model.BuildRecordSet;
 import org.jboss.pnc.model.IdRev;
 import org.jboss.pnc.model.ProductVersion;
 import org.jboss.pnc.model.User;
+import org.jboss.pnc.rest.restmodel.BuildRecordRest;
 import org.jboss.pnc.rest.utils.BpmNotifier;
 import org.jboss.pnc.rest.utils.HibernateLazyInitializer;
 import org.jboss.pnc.spi.BuildStatus;
@@ -112,7 +114,7 @@ public class BuildTriggerer {
         this.sortInfoProducer = sortInfoProducer;
     }
 
-    public int triggerBuild(final Integer buildConfigurationId, User currentUser, boolean rebuildAll, URL callBackUrl)
+    public BuildRecordRest triggerBuild(final Integer buildConfigurationId, User currentUser, boolean rebuildAll, URL callBackUrl)
             throws BuildConflictException {
         Consumer<BuildStatusChangedEvent> onStatusUpdate = (statusChangedEvent) -> {
             if (statusChangedEvent.getNewStatus().isCompleted()) {
@@ -121,12 +123,12 @@ public class BuildTriggerer {
             }
         };
 
-        int buildTaskId = triggerBuild(buildConfigurationId, currentUser, rebuildAll);
-        buildStatusNotifications.subscribe(new BuildCallBack(buildTaskId, onStatusUpdate));
-        return buildTaskId;
+        BuildRecordRest buildRecordRest = triggerBuild(buildConfigurationId, currentUser, rebuildAll);
+        buildStatusNotifications.subscribe(new BuildCallBack(buildRecordRest.getId(), onStatusUpdate));
+        return buildRecordRest;
     }
 
-    public int triggerBuild(final Integer configurationId, User currentUser, boolean rebuildAll) throws BuildConflictException {
+    public BuildRecordRest triggerBuild(final Integer configurationId, User currentUser, boolean rebuildAll) throws BuildConflictException {
         final BuildConfiguration configuration = buildConfigurationRepository.queryById(configurationId);
         Preconditions.checkArgument(configuration != null, "Can't find configuration with given id=" + configurationId);
 
@@ -136,11 +138,11 @@ public class BuildTriggerer {
             buildRecordSet.setPerformedInProductMilestone(productVersion.getCurrentProductMilestone());
         }
 
-        Integer taskId = buildCoordinator.build(
-                hibernateLazyInitializer.initializeBuildConfigurationBeforeTriggeringIt(configuration),
-                currentUser,
-                rebuildAll).getId();
-        return taskId;
+        BuildTask buildTask = buildCoordinator
+                .build(hibernateLazyInitializer.initializeBuildConfigurationBeforeTriggeringIt(configuration), currentUser,
+                        rebuildAll);
+
+        return toBuildExecutionTask().apply(buildTask);
     }
 
     public BuildConfigurationSetTriggerResult triggerBuildConfigurationSet(final Integer buildConfigurationSetId,
@@ -236,6 +238,24 @@ public class BuildTriggerer {
         } else {
             return null;
         }
+    }
+
+    private Function<BuildTask, BuildRecordRest> toBuildExecutionTask() {
+        return buildTask -> {
+            BuildExecutionTask waitingExecution = BuildExecutionTask.build(
+                    buildTask.getId(),
+                    buildTask.getBuildConfiguration(),
+                    buildTask.getBuildConfigurationAudited(),
+                    buildTask.getUser(),
+                    buildTask.getBuildRecordSetIds(),
+                    buildTask.getBuildConfigSetRecordId(),
+                    Optional.empty(),
+                    buildTask.getId(),
+                    buildTask.getSubmitTime()
+            );
+            waitingExecution.setStatus(BuildStatus.BUILD_WAITING);
+            return new BuildRecordRest(waitingExecution, buildTask.getSubmitTime());
+        };
     }
 
 }

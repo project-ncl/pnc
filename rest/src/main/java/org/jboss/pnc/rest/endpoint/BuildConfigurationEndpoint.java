@@ -26,10 +26,7 @@ import org.jboss.pnc.auth.AuthenticationProvider;
 import org.jboss.pnc.core.builder.coordinator.BuildCoordinator;
 import org.jboss.pnc.core.builder.coordinator.BuildTask;
 import org.jboss.pnc.core.builder.executor.BuildExecutionTask;
-import org.jboss.pnc.core.builder.executor.BuildExecutor;
 import org.jboss.pnc.model.BuildConfiguration;
-import org.jboss.pnc.model.BuildConfigurationAudited;
-import org.jboss.pnc.model.IdRev;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.rest.provider.BuildConfigurationProvider;
 import org.jboss.pnc.rest.provider.BuildRecordProvider;
@@ -50,10 +47,7 @@ import org.jboss.pnc.rest.utils.BpmNotifier;
 import org.jboss.pnc.rest.utils.HibernateLazyInitializer;
 import org.jboss.pnc.rest.validation.exceptions.InvalidEntityException;
 import org.jboss.pnc.rest.validation.exceptions.ValidationException;
-import org.jboss.pnc.spi.BuildStatus;
 import org.jboss.pnc.spi.datastore.Datastore;
-import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationAuditedRepository;
-import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationRepository;
 import org.jboss.pnc.spi.exception.BuildConflictException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -79,12 +73,8 @@ import java.lang.invoke.MethodHandles;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.Optional;
-import java.util.Set;
-import java.util.function.Consumer;
-import java.util.stream.Collectors;
 
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.CONFLICTED_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.CONFLICTED_DESCRIPTION;
@@ -273,17 +263,17 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
                         + " user must be initialized through /users/getLoggedUser"); 
             }
             
-            Integer runningBuildId = null;
+            BuildRecordRest runningBuild;
             // if callbackUrl is provided trigger build accordingly
             if (callbackUrl == null || callbackUrl.isEmpty()) {
-                runningBuildId = buildTriggerer.triggerBuild(id, currentUser, rebuildAll);
+                runningBuild = buildTriggerer.triggerBuild(id, currentUser, rebuildAll);
             } else {
-                runningBuildId = buildTriggerer.triggerBuild(id, currentUser, rebuildAll, new URL(callbackUrl));
+                runningBuild = buildTriggerer.triggerBuild(id, currentUser, rebuildAll, new URL(callbackUrl));
             }
             
             UriBuilder uriBuilder = UriBuilder.fromUri(uriInfo.getBaseUri()).path("/build-config-set-records/{id}");
-            URI uri = uriBuilder.build(runningBuildId);
-            return Response.ok(uri).header("location", uri).entity(new Singleton(buildRecordProvider.getSpecificRunning(runningBuildId))).build();
+            URI uri = uriBuilder.build(runningBuild);
+            return Response.ok(uri).header("location", uri).entity(new Singleton(runningBuild.getId())).build();
         } catch (BuildConflictException e) {
             return Response.status(Response.Status.CONFLICT).entity(
                     new Singleton(buildRecordProvider.getSpecificRunning(e.getBuildTaskId()))).build();
