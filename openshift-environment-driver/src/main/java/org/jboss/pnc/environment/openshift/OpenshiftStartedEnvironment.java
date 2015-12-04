@@ -167,10 +167,10 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
 
         pullingMonitor.monitor(onEnvironmentInitComplete(onCompleteInternal, Selector.POD), onError, () -> isPodRunning());
         pullingMonitor.monitor(onEnvironmentInitComplete(onCompleteInternal, Selector.SERVICE), onError, () -> isServiceRunning());
-        //pullingMonitor.monitor(onEnvironmentInitComplete(onComplete, Selector.ROUTE), onError, () -> isRouteRunning());
-        //logger.info("Waiting to start a pod [{}], service [{}] and route [{}].", pod.getName(), service.getName(), route.getName());
+        pullingMonitor.monitor(onEnvironmentInitComplete(onComplete, Selector.ROUTE), onError, () -> isRouteRunning());
+        logger.info("Waiting to start a pod [{}], service [{}] and route [{}].", pod.getName(), service.getName(), route.getName());
 
-        logger.info("Waiting to start a pod [{}], service [{}].", pod.getName(), service.getName());
+        //logger.info("Waiting to start a pod [{}], service [{}].", pod.getName(), service.getName());
     }
 
     private boolean isServletAvailable(URL servletUrl) {
@@ -208,7 +208,7 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
     }
 
     private String getPublicEndpointUrl() {
-        return "http://" + route.getHost() + "/" + route.getPath() + "/" + environmentConfiguration.getBuildAgentBindPath() + "?sessionId=reconnect"; //TODO get parameters (if any required) from BuildAgent
+        return "http://" + route.getHost() + "" + route.getPath() + "/" + environmentConfiguration.getBuildAgentBindPath(); //TODO get parameters (if any required) from BuildAgent
     }
 
     private String getInternalEndpointUrl() {
@@ -220,7 +220,12 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
             return false;
         }
         pod = client.get(pod.getKind(), pod.getName(), environmentConfiguration.getPncNamespace());
-        return "Running".equals(pod.getStatus());
+        boolean isRunning = "Running".equals(pod.getStatus());
+        if (isRunning) {
+            logger.debug("Pod {} running.", pod.getName());
+            return true;
+        }
+        return false;
     }
 
     private boolean isServiceRunning() {
@@ -228,7 +233,12 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
             return false;
         }
         service = client.get(service.getKind(), service.getName(), environmentConfiguration.getPncNamespace());
-        return service.getPods().size() > 0;
+        boolean isRunning = service.getPods().size() > 0;
+        if (isRunning) {
+            logger.debug("Service {} running.", service.getName());
+            return true;
+        }
+        return false;
     }
 
     private boolean isRouteRunning() {
@@ -238,6 +248,7 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
         try {
             if (connectToPingUrl(new URL(getPublicEndpointUrl()))) {
                 route = client.get(route.getKind(), route.getName(), environmentConfiguration.getPncNamespace());
+                logger.debug("Route {} running.", route.getName());
                 return true;
             } else {
                 return false;
@@ -286,8 +297,8 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
 
     private enum Selector {
         POD,
-        SERVICE;
-//        ROUTE;
+        SERVICE,
+        ROUTE;
     }
 
     private boolean connectToPingUrl(URL url) throws IOException {
