@@ -272,7 +272,7 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
             }
             
             UriBuilder uriBuilder = UriBuilder.fromUri(uriInfo.getBaseUri()).path("/build-config-set-records/{id}");
-            URI uri = uriBuilder.build(runningBuild);
+            URI uri = uriBuilder.build(runningBuild.getId());
             return Response.ok(uri).header("location", uri).entity(new Singleton(runningBuild.getId())).build();
         } catch (BuildConflictException e) {
             return Response.status(Response.Status.CONFLICT).entity(
