@@ -57,6 +57,7 @@ public class AbstractWebSocketsConnection implements AutoCloseable {
         if (session.isPresent()) {
             try {
                 session.get().close();
+                logger.debug("Session {} closed.", uri);
             } catch (IOException e) {
                 logger.warn("Unable to closeSession WebSockets session", e);
             }
