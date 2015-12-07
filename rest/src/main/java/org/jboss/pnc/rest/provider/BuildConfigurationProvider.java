@@ -153,8 +153,8 @@ public class BuildConfigurationProvider extends AbstractProvider<BuildConfigurat
         BuildConfiguration dependency = repository.queryById(dependencyId);
 
         ValidationBuilder.validateObject(buildConfig, WhenCreatingNew.class)
-                .validateCondition(configId.equals(dependencyId), "A build configuration cannot depend on itself")
-                .validateCondition(dependency.getAllDependencies().contains(buildConfig), "Cannot add dependency from : " + configId + " to: " + dependencyId + " because it would introduce a cyclic dependency");
+                .validateCondition(!configId.equals(dependencyId), "A build configuration cannot depend on itself")
+                .validateCondition(!dependency.getAllDependencies().contains(buildConfig), "Cannot add dependency from : " + configId + " to: " + dependencyId + " because it would introduce a cyclic dependency");
 
         buildConfig.addDependency(dependency);
         repository.save(buildConfig);
