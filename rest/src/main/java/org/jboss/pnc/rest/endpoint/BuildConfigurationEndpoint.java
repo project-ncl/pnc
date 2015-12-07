@@ -238,12 +238,12 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
             @Context UriInfo uriInfo) throws ValidationException {
         UriBuilder uriBuilder = UriBuilder.fromUri(uriInfo.getBaseUri()).path("/build-configurations/{id}");
         int newId = buildConfigurationProvider.clone(id);
-        return Response.created(uriBuilder.build(newId)).entity(buildConfigurationProvider.getSpecific(newId)).build();
+        return Response.created(uriBuilder.build(newId)).entity(new Singleton(buildConfigurationProvider.getSpecific(newId))).build();
     }
 
-    @ApiOperation(value = "Triggers the build of a specific Build Configuration", response = BuildRecordSingleton.class)
+    @ApiOperation(value = "Triggers the build of a specific Build Configuration")
     @ApiResponses(value = {
-            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION),
+            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION, response = BuildRecordSingleton.class),
             @ApiResponse(code = CONFLICTED_CODE, message = CONFLICTED_DESCRIPTION, response = ErrorResponseRest.class),
             @ApiResponse(code = INVLID_CODE, message = INVALID_DESCRIPTION, response = ErrorResponseRest.class),
             @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION, response = ErrorResponseRest.class)
