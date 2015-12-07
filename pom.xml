@@ -94,6 +94,7 @@
     <version.kie-services-client>6.2.0.Final</version.kie-services-client>
     <version.keycloak>1.2.0.Final</version.keycloak>
     <version.hibernate-jpamodelgen>4.3.4.Final</version.hibernate-jpamodelgen>
+    <version.undertow-websockets-jsr>1.2.6.Final</version.undertow-websockets-jsr>
 
     <datetime>${timestamp}</datetime>
     <pushChanges>true</pushChanges>
@@ -409,6 +410,12 @@
         <groupId>org.commonjava.maven.atlas</groupId>
         <artifactId>atlas-identities</artifactId>
         <version>${atlasVersion}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>io.undertow</groupId>
+        <artifactId>undertow-websockets-jsr</artifactId>
+        <version>${version.undertow-websockets-jsr}</version>
       </dependency>
 
       <dependency>
