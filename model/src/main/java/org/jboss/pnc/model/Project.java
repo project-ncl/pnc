@@ -19,6 +19,7 @@ package org.jboss.pnc.model;
 
 import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Type;
+import org.jboss.pnc.model.event.EntityUpdateEventNotifier;
 
 import javax.persistence.*;
 import javax.persistence.Column;
@@ -34,6 +35,7 @@ import java.util.Set;
  * linked to a list of buildRecords, that contains the result of the build triggered with a BuildConfiguration
  */
 @Entity
+@EntityListeners(EntityUpdateEventNotifier.class)
 public class Project implements GenericEntity<Integer> {
 
     private static final long serialVersionUID = -4644857058640271044L;

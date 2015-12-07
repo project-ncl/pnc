@@ -18,6 +18,7 @@
 package org.jboss.pnc.model;
 
 import org.hibernate.annotations.Type;
+import org.jboss.pnc.model.event.EntityUpdateEventNotifier;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -28,6 +29,7 @@ import java.util.List;
  * The Class License maps the different licenses to be linked to the projects, i.e. APACHE 2.0, MIT, GLPL, etc
  */
 @Entity
+@EntityListeners(EntityUpdateEventNotifier.class)
 public class License implements GenericEntity<Integer> {
 
     private static final long serialVersionUID = 8893552998204511626L;

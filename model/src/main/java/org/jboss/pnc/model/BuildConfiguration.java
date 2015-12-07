@@ -22,6 +22,7 @@ import org.hibernate.annotations.Type;
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
 import org.hibernate.envers.RelationTargetAuditMode;
+import org.jboss.pnc.model.event.EntityUpdateEventNotifier;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -47,6 +48,7 @@ import java.util.stream.Collectors;
  */
 @Entity
 @Audited
+@EntityListeners(EntityUpdateEventNotifier.class)
 public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
 
     private static final long serialVersionUID = -5890729679489304114L;

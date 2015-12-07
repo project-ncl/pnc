@@ -18,5 +18,5 @@
 package org.jboss.pnc.spi.notifications.model;
 
 public enum EventType {
-    BUILD_STATUS_CHANGED, BUILD_SET_STATUS_CHANGED
+    BUILD_STATUS_CHANGED, BUILD_SET_STATUS_CHANGED, ENTITY_UPDATE_EVENT
 }

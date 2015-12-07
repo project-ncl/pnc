@@ -17,11 +17,13 @@
  */
 package org.jboss.pnc.rest.notifications.websockets;
 
+import org.jboss.pnc.model.event.EntityUpdateEvent;
 import org.jboss.pnc.rest.provider.BuildRecordProvider;
 import org.jboss.pnc.spi.events.BuildSetStatusChangedEvent;
 import org.jboss.pnc.spi.events.BuildStatusChangedEvent;
 import org.jboss.pnc.spi.notifications.Notifier;
 import org.jboss.pnc.spi.notifications.OutputConverter;
+import org.jboss.pnc.spi.notifications.model.Notification;
 import org.jboss.pnc.spi.notifications.model.NotificationFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -81,5 +83,11 @@ public class NotificationsEndpoint {
 
     public void collectBuildSetStatusChangedEvent(@Observes BuildSetStatusChangedEvent buildSetStatusChangedEvent) {
         notifier.sendMessage(notificationFactory.createNotification(buildSetStatusChangedEvent));
+    }
+
+    public void collectDatastoreUpdateEvent(@Observes EntityUpdateEvent event) {
+        Notification n = notificationFactory.createNotification(event);
+        if(n != null)
+            notifier.sendMessage(n);
     }
 }
