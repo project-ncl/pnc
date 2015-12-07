@@ -41,6 +41,8 @@
           scope.search = _.throttle(function() {
             scope.page.search(scope.searchText);
           }, 1500);
+
+          scope.searchText = scope.page.getSearchText();
         });
       }
     };
