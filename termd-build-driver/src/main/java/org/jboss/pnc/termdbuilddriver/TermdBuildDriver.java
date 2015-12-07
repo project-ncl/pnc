@@ -164,12 +164,12 @@ public class TermdBuildDriver implements BuildDriver {
 
     protected TermdRunningBuild updateStatus(TermdRunningBuild termdRunningBuild, TermdCommandBatchExecutionResult commandBatchResult, Throwable throwable) {
         logger.debug("[{}] Command result {}", termdRunningBuild.getRunningEnvironment().getId(), commandBatchResult);
-        logger.debug("[{}] Exception {}", termdRunningBuild.getRunningEnvironment().getId(), throwable);
-
 
         if(throwable != null) {
+            logger.warn("[{}] Exception {}", termdRunningBuild.getRunningEnvironment().getId(), throwable);
             termdRunningBuild.setBuildPromiseError((Exception) throwable);
         } else {
+            logger.debug("[{}] No Exceptions.", termdRunningBuild.getRunningEnvironment().getId());
             AtomicReference<String> aggregatedLogs = new AtomicReference<>();
             try {
                 aggregatedLogs.set(aggregateLogs(termdRunningBuild, commandBatchResult).get().toString());

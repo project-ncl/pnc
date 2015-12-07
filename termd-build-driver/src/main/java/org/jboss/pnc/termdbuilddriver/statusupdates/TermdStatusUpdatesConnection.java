@@ -20,11 +20,11 @@ package org.jboss.pnc.termdbuilddriver.statusupdates;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.jboss.pnc.termdbuilddriver.statusupdates.event.UpdateEvent;
 import org.jboss.pnc.termdbuilddriver.websockets.AbstractWebSocketsConnection;
+import org.jboss.pnc.termdbuilddriver.websockets.ClientEndpoint;
+import org.jboss.pnc.termdbuilddriver.websockets.ClientMessageHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.websocket.ClientEndpoint;
-import javax.websocket.OnClose;
 import javax.websocket.OnMessage;
 import java.io.IOException;
 import java.lang.invoke.MethodHandles;
@@ -33,7 +33,6 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Consumer;
 
-@ClientEndpoint
 public class TermdStatusUpdatesConnection extends AbstractWebSocketsConnection {
 
     private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
@@ -41,34 +40,51 @@ public class TermdStatusUpdatesConnection extends AbstractWebSocketsConnection {
     private static final String WEB_SOCKET_TERMINAL_PATH = "socket/process-status-updates";
 
     private final ObjectMapper mapper = new ObjectMapper();
+    private final org.jboss.pnc.termdbuilddriver.websockets.ClientEndpoint clientEndpoint;
 
     private List<Consumer<UpdateEvent>> updateConsumers = new CopyOnWriteArrayList<>();
 
     public TermdStatusUpdatesConnection(URI serverBaseUri) {
         super(serverBaseUri.resolve(WEB_SOCKET_TERMINAL_PATH));
+        clientEndpoint = new ClientEndpoint(new StatusUpdateMessageHandler());
     }
 
-    @OnMessage
-    public void onTextData(String data) {
-        try {
-            logger.debug("Received status update notification {} ", data);
-            UpdateEvent updateEvent = mapper.readValue(data, UpdateEvent.class);
-            updateConsumers.forEach(consumer -> consumer.accept(updateEvent));
-        } catch (IOException e) {
-            new TermdMarshallingException("Could not map '" + data + "' to Object", e);
-        }
+    @Override
+    protected ClientEndpoint getClientEndpoint() {
+        return clientEndpoint;
     }
 
-    @OnClose
-    public void onClose() {
-        super.onClose();
+    @Override
+    public void disconnect() {
+        clearConsumers();
+        super.disconnect();
     }
 
-    public void clearConsumers() {
+    private void clearConsumers() {
         updateConsumers.clear();
     }
 
     public void addUpdateConsumer(Consumer<UpdateEvent> consumer) {
         updateConsumers.add(consumer);
+    }
+
+    public void removeUpdateConsumer(Consumer<UpdateEvent> consumer) {
+        updateConsumers.remove(consumer);
+    }
+
+    private class StatusUpdateMessageHandler implements ClientMessageHandler {
+        @Override
+        public void onMessage(byte[] bytes) {}
+
+        @Override
+        public void onMessage(String data) {
+            try {
+                logger.debug("Received status update notification {} ", data);
+                UpdateEvent updateEvent = mapper.readValue(data, UpdateEvent.class);
+                updateConsumers.forEach(consumer -> consumer.accept(updateEvent));
+            } catch (IOException e) {
+                new TermdMarshallingException("Could not map '" + data + "' to Object", e);
+            }
+        }
     }
 }
