@@ -17,27 +17,35 @@
  */
 package org.jboss.pnc.termdbuilddriver.websockets;
 
-import javax.websocket.ClientEndpoint;
-import javax.websocket.OnClose;
 import java.net.URI;
 
-@ClientEndpoint
 public class TermdTerminalConnection extends AbstractWebSocketsConnection {
 
     private static final String WEB_SOCKET_TERMINAL_PATH = "socket/term";
+    ClientEndpoint clientEndpoint;
 
     public TermdTerminalConnection(URI serverBaseUri) {
         super(serverBaseUri.resolve(WEB_SOCKET_TERMINAL_PATH));
+        clientEndpoint = new ClientEndpoint(new TerminalConnectionMessageHandler());
     }
 
-    @OnClose
     @Override
-    public void onClose() {
-        super.onClose();
+    protected ClientEndpoint getClientEndpoint() {
+        return clientEndpoint;
     }
 
     public URI getLogsURI() {
         return URI.create(uri.toString() + "?sessionId=reconnect");
     }
 
+    private class TerminalConnectionMessageHandler implements ClientMessageHandler {
+        @Override
+        public void onMessage(byte[] bytes) {
+            //deal with response data
+        }
+
+        @Override
+        public void onMessage(String message) {
+        }
+    }
 }

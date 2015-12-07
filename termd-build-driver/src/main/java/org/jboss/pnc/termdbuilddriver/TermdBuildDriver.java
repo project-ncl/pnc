@@ -42,6 +42,9 @@ public class TermdBuildDriver implements BuildDriver {
 
     private static final Logger logger = LoggerFactory.getLogger(TermdBuildDriver.class);
 
+    //connect to build agent on internal or on public address
+    private boolean useInternalNetwork = false; //TODO configurable
+
     public TermdBuildDriver() {
     }
 
@@ -128,7 +131,7 @@ public class TermdBuildDriver implements BuildDriver {
             logger.debug("[{}] Uploading script", termdRunningBuild.getRunningEnvironment().getId());
             logger.debug("[{}] Full script:\n {}", termdRunningBuild.getRunningEnvironment().getId(), commandAppender.toString());
 
-            new TermdFileTranser(URI.create(termdRunningBuild.getRunningEnvironment().getInternalBuildAgentUrl()))
+            new TermdFileTranser(URI.create(getBuildAgentUrl(termdRunningBuild)))
                     .uploadScript(commandAppender,
                             Paths.get(termdRunningBuild.getRunningEnvironment().getWorkingDirectory().toAbsolutePath().toString(), "run.sh"));
 
@@ -141,7 +144,7 @@ public class TermdBuildDriver implements BuildDriver {
         return CompletableFuture.supplyAsync(() -> {
             logger.debug("[{}] Invoking script from path {}", termdRunningBuild.getRunningEnvironment().getId(), scriptPath);
 
-            TermdCommandInvoker termdCommandInvoker = new TermdCommandInvoker(URI.create(termdRunningBuild.getRunningEnvironment().getInternalBuildAgentUrl()), termdRunningBuild.getRunningEnvironment().getWorkingDirectory());
+            TermdCommandInvoker termdCommandInvoker = new TermdCommandInvoker(URI.create(getBuildAgentUrl(termdRunningBuild)), termdRunningBuild.getRunningEnvironment().getWorkingDirectory());
             termdCommandInvoker.startSession();
 
             termdCommandInvoker.performCommand("sh " + scriptPath).join();
@@ -151,14 +154,22 @@ public class TermdBuildDriver implements BuildDriver {
         });
     }
 
+    private String getBuildAgentUrl(TermdRunningBuild termdRunningBuild) {
+        if (useInternalNetwork) {
+            return termdRunningBuild.getRunningEnvironment().getInternalBuildAgentUrl();
+        } else {
+            return termdRunningBuild.getRunningEnvironment().getJenkinsUrl();
+        }
+    }
+
     protected TermdRunningBuild updateStatus(TermdRunningBuild termdRunningBuild, TermdCommandBatchExecutionResult commandBatchResult, Throwable throwable) {
         logger.debug("[{}] Command result {}", termdRunningBuild.getRunningEnvironment().getId(), commandBatchResult);
-        logger.debug("[{}] Exception {}", termdRunningBuild.getRunningEnvironment().getId(), throwable);
-
 
         if(throwable != null) {
+            logger.warn("[{}] Exception {}", termdRunningBuild.getRunningEnvironment().getId(), throwable);
             termdRunningBuild.setBuildPromiseError((Exception) throwable);
         } else {
+            logger.debug("[{}] No Exceptions.", termdRunningBuild.getRunningEnvironment().getId());
             AtomicReference<String> aggregatedLogs = new AtomicReference<>();
             try {
                 aggregatedLogs.set(aggregateLogs(termdRunningBuild, commandBatchResult).get().toString());

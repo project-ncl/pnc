@@ -17,6 +17,8 @@
  */
 package org.jboss.pnc.termdbuilddriver.websockets;
 
+import io.undertow.websockets.jsr.ServerWebSocketContainer;
+import io.undertow.websockets.jsr.UndertowContainerProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,13 +30,11 @@ import java.net.URI;
 import java.nio.ByteBuffer;
 import java.util.Optional;
 
-@ClientEndpoint
-public class AbstractWebSocketsConnection implements AutoCloseable {
+public abstract class AbstractWebSocketsConnection implements AutoCloseable {
 
     private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
     protected final URI uri;
-    protected volatile Optional<Session> session = Optional.empty();
 
     public AbstractWebSocketsConnection(URI uri) {
         UriBuilder uriBuilder = UriBuilder.fromUri(uri);
@@ -45,37 +45,38 @@ public class AbstractWebSocketsConnection implements AutoCloseable {
     public void connect() {
         try {
             logger.debug("Connecting to Web Sockets URI {}", uri);
-            this.session = Optional.of(ContainerProvider.getWebSocketContainer().connectToServer(this, uri));
-            logger.debug("Connected to Web Sockets URI {}", uri);
+
+            WebSocketContainer webSocketContainer = new WSContainerProvider().getContainer();
+            ClientEndpointConfig config = ClientEndpointConfig.Builder.create().build();
+            logger.debug("Connecting to WebSocket server using [{}] provider.", webSocketContainer.getClass());
+            Session session = webSocketContainer.connectToServer(getClientEndpoint(), config, uri);
+            logger.debug("Connected session [{}] to Web Sockets URI {}", session.getId(), uri);
         } catch (Exception e) {
             throw new TermdConnectionException("Could not connect to Web Sockets " + uri, e);
         }
     }
 
+    protected abstract ClientEndpoint getClientEndpoint();
+
     public void disconnect() {
         logger.debug("Disconnecting from Web Sockets URI {}", uri);
-        if (session.isPresent()) {
-            try {
-                session.get().close();
-            } catch (IOException e) {
-                logger.warn("Unable to closeSession WebSockets session", e);
-            }
-        }
-        session = Optional.empty();
+        getClientEndpoint().close();
     }
 
     public void sendAsBinary(ByteBuffer data) throws IOException {
-        Session currentSession = session.orElseThrow(() -> new TermdConnectionException("Not connected"));
-        currentSession.getBasicRemote().sendBinary(data);
-    }
-
-    @OnClose
-    public void onClose() {
-        this.session = Optional.empty();
+        getClientEndpoint().sendBinary(data);
     }
 
     @Override
     public void close() throws Exception {
         disconnect();
     }
+
+    private class WSContainerProvider extends UndertowContainerProvider {
+        @Override
+        protected WebSocketContainer getContainer() {
+            return super.getContainer();
+        }
+    }
+
 }
