@@ -18,13 +18,16 @@
 'use strict';
 
 (function () {
-
+  /* jshint unused: false */
   var module = angular.module('pnc.common.directives');
 
   /**
    * @author Jakub Senko
    */
-  module.directive('pncSearchField', function () {
+  module.directive('pncSearchField', [
+    '$timeout',
+    '$q',
+    function ($timeout, $q) {
     return {
       restrict: 'E',
       scope: {
@@ -33,11 +36,14 @@
       },
       templateUrl: 'common/pagination/directives/search-field.html',
       link: function (scope) {
-        scope.search = _.throttle(function() {
-          scope.page.search(scope.searchText);
-        }, 1500);
+        $q.when(scope.page).then(function(page) {
+          scope.page = page;
+          scope.search = _.throttle(function() {
+            scope.page.search(scope.searchText);
+          }, 1500);
+        });
       }
     };
-  });
+  }]);
 
 })();

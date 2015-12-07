@@ -96,6 +96,10 @@
           });
         };
 
+        page.getSearchText = function() {
+          return page._searchText;
+        };
+
         page.getPageIndex = function () {
           return page._rawData.pageIndex;
         };
