@@ -101,7 +101,6 @@ public class TermdCommandInvoker {
     public TermdCommandBatchExecutionResult closeSession() {
         logger.debug("Closing command session");
         termdTerminalConnection.disconnect();
-        termdStatusUpdatesConnection.clearConsumers();
         termdStatusUpdatesConnection.disconnect();
 
         TermdCommandBatchExecutionResult returnedResults = new TermdCommandBatchExecutionResult(invokedCommands);
