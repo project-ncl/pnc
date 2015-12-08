@@ -50,8 +50,13 @@
       controller: 'ConfigurationSetListController',
       controllerAs: 'setlistCtrl',
       resolve: {
-        configurationSetList: function(BuildConfigurationSetDAO) {
-          return BuildConfigurationSetDAO.getAll();
+        configurationSetList: function(PncCache, BuildConfigurationSetDAO) {
+          return PncCache.key('pnc.configuration-set.ConfigurationSetListController').key('configurationSetList').getOrSet(function() {
+            return BuildConfigurationSetDAO.getAllPaged();
+          }).then(function(page) {
+            page.reload();
+            return page;
+          });
         }
       }
     });
@@ -67,15 +72,13 @@
       resolve: {
         configurationSetDetail: function(BuildConfigurationSetDAO, $stateParams) {
           return BuildConfigurationSetDAO.get({
-            configurationSetId: $stateParams.configurationSetId }).$promise;
-        },
-        configurations: function(BuildConfigurationSetDAO, $stateParams) {
-          return BuildConfigurationSetDAO.getConfigurations({
             configurationSetId: $stateParams.configurationSetId });
         },
-        records: function(BuildConfigurationSetDAO, $stateParams) {
-          return BuildConfigurationSetDAO.getRecords({
-            configurationSetId: $stateParams.configurationSetId});
+        configurations: function(configurationSetDetail) {
+          return configurationSetDetail.getBuildConfigurations();
+        },
+        records: function(configurationSetDetail) {
+          return configurationSetDetail.getBuildRecords();
         },
         previousState: ['$state', function ($state) {
           var currentStateData = {
@@ -98,7 +101,7 @@
       controllerAs: 'createSetCtrl',
       resolve: {
         products: function(ProductDAO) {
-          return ProductDAO.query();
+          return ProductDAO.getAll();
         },
       },
     });
@@ -114,10 +117,10 @@
       resolve: {
         configurationSetDetail: function(BuildConfigurationSetDAO, $stateParams) {
           return BuildConfigurationSetDAO.get({
-            configurationSetId: $stateParams.configurationSetId }).$promise;
+            configurationSetId: $stateParams.configurationSetId });
         },
         projects: function(ProjectDAO) {
-          return ProjectDAO.query();
+          return ProjectDAO.getAll();
         }
       }
     });

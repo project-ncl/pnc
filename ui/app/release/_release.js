@@ -61,8 +61,7 @@
       },
       resolve: {
         releaseDetail: function(ProductReleaseDAO, $stateParams) {
-          return ProductReleaseDAO.get({ releaseId: $stateParams.releaseId })
-          .$promise;
+          return ProductReleaseDAO.get({ releaseId: $stateParams.releaseId });
         },
       },
     });

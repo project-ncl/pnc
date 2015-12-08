@@ -22,7 +22,8 @@
   var module = angular.module('pnc.configuration-set-record', [
     'ui.router',
     'angularUtils.directives.uiBreadcrumbs',
-    'pnc.common.restclient'
+    'pnc.common.restclient',
+    'pnc.common.loader'
   ]);
 
   module.config([
@@ -72,9 +73,9 @@
           // we cannot use csRecord.getConfigurationSet() from BuildConfigurationSetRecordDAO
           // we have to load it immediately for displayName to work
           csRecordDetail: function (BuildConfigurationSetRecordDAO, BuildConfigurationSetDAO, $stateParams) {
-            return BuildConfigurationSetRecordDAO.get({recordId: $stateParams.recordId}).$promise
+            return BuildConfigurationSetRecordDAO.get({recordId: $stateParams.recordId})
               .then(function (csRecord) {
-                return BuildConfigurationSetDAO.get({configurationSetId: csRecord.buildConfigurationSetId}).$promise
+                return BuildConfigurationSetDAO.get({configurationSetId: csRecord.buildConfigurationSetId})
                   .then(function (configurationSet) {
                     csRecord.configurationSet = configurationSet;
                     return csRecord;
@@ -83,7 +84,7 @@
           },
           // only records that belong to the current csRecord
           records: function ($q, csRecordDetail, BuildRecordDAO) {
-            return BuildRecordDAO.query().then(function (r) {
+            return BuildRecordDAO.getAll().then(function (r) {
               return _(r).where({buildConfigSetRecordId: csRecordDetail.id});
             });
           }
@@ -139,7 +140,7 @@
           // load artifacts for each record
           recordsArtifacts: function ($q, BuildRecordDAO, records) {
             var promises = _(records).map(function (record) {
-              return BuildRecordDAO.getArtifacts({recordId: record.id})
+              return record.getArtifacts()
                 .then(function (artifacts) {
                   var recordCopy = _.clone(record);
                   recordCopy.artifacts = artifacts;

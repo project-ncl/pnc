@@ -24,7 +24,7 @@
     'angularUtils.directives.uiBreadcrumbs',
     'pnc.common.events',
     'pnc.common.directives',
-    'pnc.common.restclient',
+    'pnc.common.restclient'
   ]);
 
   module.config([
@@ -63,9 +63,7 @@
             }).$promise;
           },
           configurationDetail: function (BuildConfigurationDAO, recordDetail) {
-            return BuildConfigurationDAO.get({
-              configurationId: recordDetail.buildConfigurationId
-            }).$promise;
+            return recordDetail.getBC();
           }
         }
       });
@@ -106,10 +104,8 @@
           displayName: '{{ recordDetail.id }}',
         },
         resolve: {
-          artifacts: function (BuildRecordDAO, recordDetail) {
-            return BuildRecordDAO.getArtifacts({
-              recordId: recordDetail.id
-            });
+          artifacts: function (recordDetail) {
+            return recordDetail.getArtifacts();
           }
         }
       });

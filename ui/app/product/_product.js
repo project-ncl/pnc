@@ -26,6 +26,7 @@
   ]);
 
   module.config(['$stateProvider', function($stateProvider) {
+
     $stateProvider.state('product', {
       url: '/product',
       abstract: true,
@@ -49,8 +50,13 @@
       controller: 'ProductListController',
       controllerAs: 'listCtrl',
       resolve: {
-        productList: function(ProductDAO) {
-          return ProductDAO.getAll();
+        productList: function(PncCache, ProductDAO) {
+          return PncCache.key('pnc.product.ProductListController').key('productList').getOrSet(function() {
+            return ProductDAO.getAllPaged();
+          }).then(function(page) {
+            page.reload();
+            return page;
+          });
         }
       }
     });
@@ -65,11 +71,10 @@
       controllerAs: 'detailCtrl',
       resolve: {
         productDetail: function(ProductDAO, $stateParams) {
-          return ProductDAO.get({ productId: $stateParams.productId })
-          .$promise;
+          return ProductDAO.get({ productId: $stateParams.productId });
         },
-        productVersions: function(ProductDAO, productDetail) {
-          return ProductDAO.getVersions({ productId: productDetail.id });
+        productVersions: function(productDetail) {
+          return productDetail.getProductVersions();
         }
       }
     });
@@ -89,23 +94,18 @@
       },
       resolve: {
         productDetail: function(ProductDAO, $stateParams) {
-          return ProductDAO.get({ productId: $stateParams.productId })
-          .$promise;
+          return ProductDAO.get({ productId: $stateParams.productId });
         },
         versionDetail: function(ProductVersionDAO, $stateParams) {
           return ProductVersionDAO.get({
             productId: $stateParams.productId,
-            versionId: $stateParams.versionId }).$promise;
-        },
-        buildConfigurationSets: function(ProductVersionDAO, $stateParams) {
-          return ProductVersionDAO.getAllBuildConfigurationSets({
-            productId: $stateParams.productId,
-            versionId: $stateParams.versionId }).$promise;
-        },
-        buildConfigurations: function(BuildConfigurationDAO, $stateParams) {
-          return BuildConfigurationDAO.getAllForProductVersion({
-            productId: $stateParams.productId,
             versionId: $stateParams.versionId });
+        },
+        buildConfigurationSets: function(versionDetail) {
+          return versionDetail.getBCSets();
+        },
+        buildConfigurations: function(versionDetail) {
+          return versionDetail.getBCs();
         }
       }
     });
@@ -134,8 +134,7 @@
       },
       resolve: {
         productDetail: function(ProductDAO, $stateParams) {
-          return ProductDAO.get({ productId: $stateParams.productId })
-          .$promise;
+          return ProductDAO.get({ productId: $stateParams.productId });
         },
       },
     });
