@@ -45,7 +45,7 @@
       if (parseInt($state.params.productId) !== -1) {
         self.selectedProductId = parseInt($state.params.productId);
 
-        ProductVersionDAO.getAllForProduct({
+        ProductVersionDAO.getByProduct({
             productId: self.selectedProductId
           }).then(
             function(result) {
@@ -59,7 +59,7 @@
         $log.debug('**Getting productVersions of Product: %0**', productId);
 
         if (productId) {
-          ProductVersionDAO.getAllForProduct({
+          ProductVersionDAO.getByProduct({
             productId: productId
           }).then(
             function(result) {
@@ -127,7 +127,7 @@
         $log.debug('**Getting build configurations of Project: %0**', projectId);
 
         if (projectId) {
-          BuildConfigurationDAO.getAllForProject({
+          BuildConfigurationDAO.getByProject({
             projectId: projectId
           }).then(
             function(result) {
@@ -198,9 +198,9 @@
       // Retrieve all the last builds (based on ID, not date) of all the build configurations
       angular.forEach(configurations, function(configuration) {
 
-        BuildRecordDAO.getLatestForConfiguration({
+        BuildRecordDAO.getLatestByBC({
           configurationId: configuration.id
-        }).then(
+        }).$promise.then(
           function(result) {
             if (result[0]) {
               self.lastBuildRecords.push(result[0]);
@@ -217,9 +217,7 @@
       // Retrieve all the artifacts of all the build records of the build configurations set
       angular.forEach(records, function(record) {
 
-        BuildRecordDAO.getArtifacts({
-          recordId: record.id
-        }).then(
+        record.getArtifacts().then(
           function(results) {
 
             var buildRecordArtifactWO = {};
@@ -281,9 +279,9 @@
 
       self.getProductVersions = function(productId) {
         if (productId) {
-          ProductVersionDAO.getAllForProduct({
+          ProductVersionDAO.getByProduct({
             productId: productId
-          }).$promise.then(
+          }).then(
             function(result) {
               self.productVersions = result;
               if (result) {

@@ -95,7 +95,7 @@
       angular.forEach(this.configurations.data, function(configuration) {
         ProjectDAO.get({
           projectId: configuration.projectId
-        }).$promise.then(
+        }).then(
           function(result) {
             if (result) {
               that.projects.push(result);
@@ -157,9 +157,7 @@
         all: [],
 
         update: function() {
-          ProductDAO.getVersions({
-            productId: that.products.selected.id
-          }).then(function(data) {
+          that.products.selected.getProductVersions().then(function(data) {
             that.productVersions.all = data;
 
             // TOFIX - Ugly but quick - avibelli

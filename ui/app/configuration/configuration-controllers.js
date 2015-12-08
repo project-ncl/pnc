@@ -35,7 +35,7 @@
       angular.forEach(this.configurations.data, function(configuration) {
         ProjectDAO.get({
           projectId: configuration.projectId
-        }).$promise.then(
+        }).then(
           function(result) {
             if (result) {
               that.projects.push(result);
@@ -99,11 +99,8 @@
         all: [],
 
         update: function() {
-
           if (that.products.selected) {
-            ProductDAO.getVersions({
-              productId: that.products.selected.id
-            }).then(function(data) {
+            that.products.selected.getProductVersions().then(function(data) {
               that.productVersions.all = data;
 
               // TOFIX - Ugly but quick - avibelli
@@ -200,9 +197,7 @@
         all: [],
 
         update: function() {
-          ProductDAO.getVersions({
-            productId: that.products.selected.id
-          }).then(function(data) {
+          that.products.selected.getProductVersions().then(function(data) {
             that.productVersions.all = data;
           });
         },
@@ -219,7 +214,7 @@
 
         ProductDAO.get({
           productId: linkedProductVersions[0].productId
-        }).$promise.then(function(result) {
+        }).then(function(result) {
           that.products.selected = result;
           that.productVersions.update();
         });

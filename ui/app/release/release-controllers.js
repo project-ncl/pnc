@@ -59,7 +59,7 @@
       }
 
       // I need to gather the existing Releases, as Milestone can be associated with only one Release at the most
-      ProductReleaseDAO.getAllForProductVersion({
+      ProductReleaseDAO.getByProductVersion({
         versionId: that.productVersion.id
       }, {}).then(
         function(results) {
@@ -68,7 +68,7 @@
           });
 
           // Only Milestones that are not yet used in this Product Version will be listed
-          ProductMilestoneDAO.getAllForProductVersion({
+          ProductMilestoneDAO.getByProductVersion({
             versionId: that.productVersion.id
           }, {}).then(
             function(results) {
@@ -85,7 +85,7 @@
         }
       );
 
-      ProductReleaseDAO.getAllSupportLevel({
+      ProductReleaseDAO.getSupportLevels({
         versionId: that.productVersion.id
       }, {}).then(
         function(results) {
