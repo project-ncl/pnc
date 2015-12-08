@@ -43,7 +43,7 @@ public class TermdBuildDriver implements BuildDriver {
     private static final Logger logger = LoggerFactory.getLogger(TermdBuildDriver.class);
 
     //connect to build agent on internal or on public address
-    private boolean useInternalNetwork = false; //TODO configurable
+    private boolean useInternalNetwork = true; //TODO configurable
 
     public TermdBuildDriver() {
     }
