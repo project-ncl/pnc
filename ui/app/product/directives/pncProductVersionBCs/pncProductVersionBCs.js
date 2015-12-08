@@ -27,8 +27,9 @@
   module.directive('pncProductVersionBCs', [
     '$log',
     '$state',
+    'PncCache',
     'BuildConfigurationDAO',
-    function ($log, $state, BuildConfigurationDAO) {
+    function ($log, $state, PncCache, BuildConfigurationDAO) {
 
       return {
         restrict: 'E',
@@ -38,8 +39,13 @@
         },
         link: function (scope) {
 
-          scope.page = BuildConfigurationDAO.getPagedByProductVersion({
-            productId: scope.version.productId, versionId: scope.version.id });
+          scope.page = PncCache.key('pnc.record.pncProductVersionBCs').key('versionId:' + scope.version.id).key('page').getOrSet(function() {
+            return BuildConfigurationDAO.getPagedByProductVersion({
+                      productId: scope.version.productId, versionId: scope.version.id });
+          }).then(function(page) {
+            page.reload();
+            return page;
+          });
 
           // Executing a build of a configuration forcing all the rebuilds
           scope.forceBuildConfig = function(config) {

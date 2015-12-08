@@ -27,11 +27,13 @@
   module.directive('pncBCTab', [
     '$log',
     '$state',
+    '$q',
+    'PncCache',
     'BuildConfigurationSetDAO',
     'BuildRecordDAO',
     'Notifications',
     'eventTypes',
-    function ($log, $state, BuildConfigurationSetDAO, BuildRecordDAO, Notifications, eventTypes) {
+    function ($log, $state, $q, PncCache, BuildConfigurationSetDAO, BuildRecordDAO, Notifications, eventTypes) {
 
       return {
         restrict: 'E',
@@ -41,30 +43,28 @@
         },
         link: function (scope) {
 
-          scope.latestBuildRecords = {};
+          scope.page = $q.when(scope.buildConfigurationSet).then(function(bcSet) {
 
-          scope.page = BuildConfigurationSetDAO.getPagedConfigurations({
-            configurationSetId: scope.buildConfigurationSet.id });
-
-          scope.page.onUpdate(function(page) {
-            _(page.data).each(function(bc) {
-              if(!_(scope.latestBuildRecords).has(bc.id)) { // avoid unnecessary requests
-                BuildRecordDAO.getLatestForConfiguration({ configurationId: bc.id }).then(function (data) {
-                  scope.latestBuildRecords[bc.id] = data;
-                });
-              }
+            return PncCache.key('pnc.record.pncBCTab').key('buildConfigurationSetId:' + scope.buildConfigurationSet.id).key('page').getOrSet(function() {
+              return bcSet.getPagedBuildConfigurations();
             });
+
+          }).then(function(page) {
+            page.reload();
+            return page;
+          }).then(function(page) {
+
+            var update = function (event, payload) {
+              if (_.isArray(scope.buildConfigurationSet.buildConfigurationIds) &&
+                _(scope.buildConfigurationSet.buildConfigurationIds).contains(payload.buildConfigurationId)) {
+                page.reload();
+              }
+            };
+
+            scope.$on(eventTypes.BUILD_FINISHED, update);
+
+            return page;
           });
-
-          var processEvent = function (event, payload) {
-            if (_.isArray(scope.buildConfigurationSet.buildConfigurationIds) &&
-              _(scope.buildConfigurationSet.buildConfigurationIds).contains(payload.buildConfigurationId)) {
-              delete scope.latestBuildRecords[payload.buildConfigurationId];
-              scope.page.reload();
-            }
-          };
-
-          scope.$on(eventTypes.BUILD_FINISHED, processEvent);
 
           scope.remove = function (configurationId) {
             $log.debug('**Removing configurationId: %0**', configurationId);

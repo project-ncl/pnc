@@ -25,24 +25,34 @@
    * @author Jakub Senko
    */
   module.directive('pncRunningBuilds', [
+    'PncCache',
     'RunningBuildRecordDAO',
     'eventTypes',
-    function (RunningBuildRecordDAO, eventTypes) {
+    function (PncCache, RunningBuildRecordDAO, eventTypes) {
 
       return {
         restrict: 'E',
         templateUrl: 'record/directives/pncRunningBuilds/pnc-running-builds.html',
         scope: {},
         link: function (scope) {
-          scope.page = RunningBuildRecordDAO.getAll();
 
-          var update = function (event, payload) {
-            /* jshint unused: false */
-            scope.page.reload();
-          };
+          scope.page = PncCache.key('pnc.record.pncRunningBuilds').key('page').getOrSet(function() {
+            return RunningBuildRecordDAO.getAllPaged();
+          }).then(function(page) {
+            page.reload();
+            return page;
+          }).then(function(page) {
 
-          scope.$on(eventTypes.BUILD_STARTED, update);
-          scope.$on(eventTypes.BUILD_FINISHED, update);
+            var update = function (event, payload) {
+              /* jshint unused: false */
+              page.reload();
+            };
+
+            scope.$on(eventTypes.BUILD_STARTED, update);
+            scope.$on(eventTypes.BUILD_FINISHED, update);
+
+            return page;
+          });
         }
       };
     }
