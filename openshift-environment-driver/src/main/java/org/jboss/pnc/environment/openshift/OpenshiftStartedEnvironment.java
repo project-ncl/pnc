@@ -231,7 +231,7 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
         if (createRoute) {
             return "http://" + route.getHost() + "" + route.getPath() + "/" + environmentConfiguration.getBuildAgentBindPath(); //TODO get parameters (if any required) from BuildAgent
         } else {
-            return "PUBLIC ENDPOINT NOT AVAILABLE BECAUSE ROUTE CREATION IS DISABLED";
+            return getInternalEndpointUrl();
         }
     }
 
