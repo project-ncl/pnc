@@ -21,6 +21,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.URI;
+import java.nio.ByteBuffer;
+import java.util.Arrays;
 
 public class TermdTerminalConnection extends AbstractWebSocketsConnection {
 
@@ -45,10 +47,19 @@ public class TermdTerminalConnection extends AbstractWebSocketsConnection {
     }
 
     private class TerminalConnectionMessageHandler implements ClientMessageHandler {
+
+        StringBuilder responseBuffer = new StringBuilder();
+
         @Override
         public void onMessage(byte[] bytes) {
-            if (logger.isDebugEnabled()) {
-                logger.debug(new String(bytes));
+            if (logger.isTraceEnabled()) {
+                String string = new String(bytes);
+                if (string.equals("\r\n")) {
+                    logger.trace(responseBuffer.toString());
+                    responseBuffer = new StringBuilder();
+                } else {
+                    responseBuffer.append(string);
+                }
             }
         }
 
