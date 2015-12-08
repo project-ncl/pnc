@@ -74,6 +74,8 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
 
     private final String buildAgentContextPath;
 
+    private final boolean createRoute;
+
     public OpenshiftStartedEnvironment(
             ExecutorService executor,
             OpenshiftEnvironmentDriverModuleConfig environmentConfiguration,
@@ -85,6 +87,8 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
         this.environmentConfiguration = environmentConfiguration;
         this.pullingMonitor = pullingMonitor;
         this.repositorySession = repositorySession;
+
+        createRoute = environmentConfiguration.getExposeBuildAgentOnPublicUrl();
 
         client = new ClientFactory().create(environmentConfiguration.getRestEndpointUrl(), new NoopSSLCertificateCallback());
         client.setAuthorizationStrategy(new TokenAuthorizationStrategy(environmentConfiguration.getRestAuthToken()));
@@ -127,18 +131,20 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
         };
         executor.submit(createService);
 
-        ModelNode routeConfigurationNode = createModelNode(Configurations.V1_PNC_BUILDER_ROUTE.getContentAsString(), runtimeProperties);
-        route = new Route(routeConfigurationNode, client, ResourcePropertiesRegistry.getInstance().get(OSE_API_VERSION, ResourceKind.ROUTE));
-        route.setNamespace(environmentConfiguration.getPncNamespace());
-        Runnable createRoute = () -> {
-            try {
-                client.create(route, route.getNamespace());
-                routeCreated = true;
-            } catch (Throwable e) {
-                logger.error("Cannot create route.", e);
-            }
-        };
-        executor.submit(createRoute);
+        if (createRoute) {
+            ModelNode routeConfigurationNode = createModelNode(Configurations.V1_PNC_BUILDER_ROUTE.getContentAsString(), runtimeProperties);
+            route = new Route(routeConfigurationNode, client, ResourcePropertiesRegistry.getInstance().get(OSE_API_VERSION, ResourceKind.ROUTE));
+            route.setNamespace(environmentConfiguration.getPncNamespace());
+            Runnable createRoute = () -> {
+                try {
+                    client.create(route, route.getNamespace());
+                    routeCreated = true;
+                } catch (Throwable e) {
+                    logger.error("Cannot create route.", e);
+                }
+            };
+            executor.submit(createRoute);
+        }
     }
 
     private ModelNode createModelNode(String resourceDefinition, Map<String, String> runtimeProperties) {
@@ -167,8 +173,13 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
 
         pullingMonitor.monitor(onEnvironmentInitComplete(onCompleteInternal, Selector.POD), onError, () -> isPodRunning());
         pullingMonitor.monitor(onEnvironmentInitComplete(onCompleteInternal, Selector.SERVICE), onError, () -> isServiceRunning());
-        pullingMonitor.monitor(onEnvironmentInitComplete(onComplete, Selector.ROUTE), onError, () -> isRouteRunning());
-        logger.info("Waiting to start a pod [{}], service [{}] and route [{}].", pod.getName(), service.getName(), route.getName());
+
+        logger.info("Waiting to initialize environment. Pod [{}]; Service [{}].", pod.getName(), service.getName());
+
+        if (createRoute) {
+            pullingMonitor.monitor(onEnvironmentInitComplete(onComplete, Selector.ROUTE), onError, () -> isRouteRunning());
+            logger.info("Route [{}].", route.getName());
+        }
 
         //logger.info("Waiting to start a pod [{}], service [{}].", pod.getName(), service.getName());
     }
@@ -185,12 +196,21 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
         return () -> {
             synchronized (this) {
                 initialized.add(selector);
-                if (!initialized.containsAll(Arrays.asList(Selector.values()))) {
-                    return;
+                if (createRoute) {
+                    if (!initialized.containsAll(Arrays.asList(Selector.POD, Selector.SERVICE, Selector.ROUTE))) {
+                        return;
+                    }
+                } else {
+                    if (!initialized.containsAll(Arrays.asList(Selector.POD, Selector.SERVICE))) {
+                        return;
+                    }
                 }
             }
 
-            logger.info("Pod [{}] and service [{}] successfully initialized.", pod.getName(), service.getName());
+            logger.info("Environment successfully initialized. Pod [{}]; Service [{}].", pod.getName(), service.getName());
+            if (createRoute) {
+                logger.info("Route [{}].", route.getName());
+            }
 
             Supplier<? extends RuntimeException> exceptionSupplier = () -> new RuntimeException("Cannot find container ports.");
             RunningEnvironment runningEnvironment = RunningEnvironment.createInstance(
@@ -208,7 +228,11 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
     }
 
     private String getPublicEndpointUrl() {
-        return "http://" + route.getHost() + "" + route.getPath() + "/" + environmentConfiguration.getBuildAgentBindPath(); //TODO get parameters (if any required) from BuildAgent
+        if (createRoute) {
+            return "http://" + route.getHost() + "" + route.getPath() + "/" + environmentConfiguration.getBuildAgentBindPath(); //TODO get parameters (if any required) from BuildAgent
+        } else {
+            return "PUBLIC ENDPOINT NOT AVAILABLE BECAUSE ROUTE CREATION IS DISABLED";
+        }
     }
 
     private String getInternalEndpointUrl() {
@@ -267,7 +291,9 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
     @Override
     public void destroyEnvironment() {
         if (!environmentConfiguration.getKeepBuildAgentInstance()) {
-            client.delete(route);
+            if (createRoute) {
+                client.delete(route);
+            }
             client.delete(service);
             client.delete(pod);
         }
