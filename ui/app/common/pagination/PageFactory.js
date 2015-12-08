@@ -98,10 +98,6 @@
           return page._rawData.pageIndex;
         };
 
-        page.getPageIndex = function () {
-          return page._rawData.pageIndex;
-        };
-
         page.getPageSize = function () {
           return page._rawData.pageSize;
         };
@@ -158,10 +154,6 @@
 
         page.reload = function () {
           return page._refresh(page.getPageIndex(), page.getPageSize(), page._searchText);
-        };
-
-        page.first = function () {
-          return page.hasPageIndex(0);
         };
 
         page.last = function () {
