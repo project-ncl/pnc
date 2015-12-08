@@ -34,7 +34,15 @@
     <tbody>
       <tr ng-repeat="record in page.data">
         <td><build-status-icon status="record.status"></build-status-icon> {{ record.status }}</td>
-        <td><a href ui-sref="record.detail.info({ recordId: record.id })">{{ record.getBuildConfiguration().name }}</a></td>
+        <td>
+          <pnc-loader loader="record.getBuildConfiguration()">
+            <!--
+              <a href ui-sref="record.detail.info({ recordId: record.id })">
+                {{ data.name }}
+              </a>
+            -->
+          </pnc-loader>
+        </td>
         <td>{{ record.startTime | date:'medium' }}</td>
         <td>{{ record.endTime | date:'medium' }}</td>
       </tr>

@@ -51,13 +51,21 @@
       <td>{{ configuration.creationTime | date:'medium'}}</td>
       <td>{{ configuration.lastModificationTime | date:'medium'}}</td>
       <td>
-        <div ng-repeat="buildRecord in latestBuildRecords[configuration.id]">
-          <build-status-icon status="buildRecord.status"></build-status-icon>
-          <span><a href ui-sref="record.detail.info({recordId: buildRecord.id})"> # {{ buildRecord.id }}  </a></span>
-          {{ buildRecord.endTime | date:'medium'}},
-          <span class="text-bold">   {{ buildRecord.getUser().username }}</span>
-        </div>
-        <em ng-hide="latestBuildRecords[configuration.id].length">none</em>
+        <pnc-loader loader="configuration.getLatestBuildRecord()">
+          <!--
+            <div ng-show="data.id">
+              <build-status-icon status="data.status"></build-status-icon>
+              <a href ui-sref="record.detail.info({recordId: data.id})"> # {{ data.id }}  </a>
+                {{ data.endTime | date:'medium'}},
+              <span class="text-bold">
+                <pnc-loader loader="data.getUser()">
+                  {{ data.username }}
+                </pnc-loader>
+              </span>
+            </div>
+            <em ng-hide="data.id">none</em>
+          -->
+        </pnc-loader>
       </td>
       <td class="text-center">
           <span class="btn-group" role="group" aria-label="Action Tools">
