@@ -40,6 +40,7 @@ public class OpenshiftEnvironmentDriverModuleConfig extends EnvironmentDriverMod
     private String restAuthToken;
     private String containerPort;
     private boolean keepBuildAgentInstance;
+    private boolean exposeBuildAgentOnPublicUrl;
 
     public OpenshiftEnvironmentDriverModuleConfig(@JsonProperty("restEndpointUrl") String restEndpointUrl,
                                                   @JsonProperty("imageId") String imageId,
@@ -53,7 +54,8 @@ public class OpenshiftEnvironmentDriverModuleConfig extends EnvironmentDriverMod
                                                   @JsonProperty("containerPort") String containerPort,
                                                   @JsonProperty("workingDirectory") String workingDirectory,
                                                   @JsonProperty("disabled") Boolean disabled,
-                                                  @JsonProperty("keepBuildAgentInstance") Boolean keepBuildAgentInstance) {
+                                                  @JsonProperty("keepBuildAgentInstance") Boolean keepBuildAgentInstance,
+                                                  @JsonProperty("exposeBuildAgentOnPublicUrl") Boolean exposeBuildAgentOnPublicUrl) {
         super(imageId, firewallAllowedDestinations, proxyServer, proxyPort, nonProxyHosts,workingDirectory, disabled);
 
         this.restEndpointUrl = restEndpointUrl;
@@ -62,6 +64,7 @@ public class OpenshiftEnvironmentDriverModuleConfig extends EnvironmentDriverMod
         this.restAuthToken = restAuthToken;
         this.containerPort = containerPort;
         this.keepBuildAgentInstance = keepBuildAgentInstance;
+        this.exposeBuildAgentOnPublicUrl = exposeBuildAgentOnPublicUrl;
 
         log.debug("Created new instance {}", toString());
     }
@@ -90,6 +93,10 @@ public class OpenshiftEnvironmentDriverModuleConfig extends EnvironmentDriverMod
         return keepBuildAgentInstance;
     }
 
+    public boolean getExposeBuildAgentOnPublicUrl() {
+        return exposeBuildAgentOnPublicUrl;
+    }
+
     @Override
     public String toString() {
         return "OpenshiftEnvironmentDriverModuleConfig{" +
@@ -105,6 +112,7 @@ public class OpenshiftEnvironmentDriverModuleConfig extends EnvironmentDriverMod
                 ", containerPort='" + containerPort + '\'' +
                 ", disabled='" + disabled + '\'' +
                 ", keepBuildAgentInstance='" + keepBuildAgentInstance + '\'' +
+                ", exposeBuildAgentOnPublicUrl='" + exposeBuildAgentOnPublicUrl + '\'' +
                 '}';
     }
 
