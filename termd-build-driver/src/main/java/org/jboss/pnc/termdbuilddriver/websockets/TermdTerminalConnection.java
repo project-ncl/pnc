@@ -17,9 +17,15 @@
  */
 package org.jboss.pnc.termdbuilddriver.websockets;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.net.URI;
 
 public class TermdTerminalConnection extends AbstractWebSocketsConnection {
+
+    private final Logger logger = LoggerFactory.getLogger(TermdTerminalConnection.class);
+
 
     private static final String WEB_SOCKET_TERMINAL_PATH = "socket/term";
     ClientEndpoint clientEndpoint;
@@ -41,7 +47,9 @@ public class TermdTerminalConnection extends AbstractWebSocketsConnection {
     private class TerminalConnectionMessageHandler implements ClientMessageHandler {
         @Override
         public void onMessage(byte[] bytes) {
-            //deal with response data
+            if (logger.isDebugEnabled()) {
+                logger.debug(new String(bytes));
+            }
         }
 
         @Override
