@@ -24,15 +24,20 @@
   module.value('PRODUCT_ENDPOINT', '/products/:productId');
 
   /**
+   * DAO methods MUST return the same resource type they are defined on.
    *
+   * @author Alex Creasy
+   * @author Jakub Senko
    */
   module.factory('ProductDAO', [
     '$resource',
+    '$injector',
     'REST_BASE_URL',
     'PRODUCT_ENDPOINT',
     'PageFactory',
     'QueryHelper',
-    function ($resource, REST_BASE_URL, PRODUCT_ENDPOINT, PageFactory, qh) {
+    'PncCacheUtil',
+    function ($resource, $injector, REST_BASE_URL, PRODUCT_ENDPOINT, PageFactory, qh, PncCacheUtil) {
       var ENDPOINT = REST_BASE_URL + PRODUCT_ENDPOINT;
 
       var resource = $resource(ENDPOINT, {
@@ -45,16 +50,25 @@
         update: {
           method: 'PUT'
         },
-        _getVersions: {
-          method: 'GET',
-          url: ENDPOINT + '/product-versions'
-        }
       });
 
-      PageFactory.decorateNonPaged(resource, '_getAll', 'query');
-      PageFactory.decorateNonPaged(resource, '_getVersions', 'getVersions');
+      PncCacheUtil.decorateIndexId(resource, 'Product', 'get');
 
-      PageFactory.decorate(resource, '_getAll', 'getAll');
+      _([['_getAll']]).each(function(e) {
+        PncCacheUtil.decorate(resource, 'Product', e[0]);
+      });
+
+      _([['_getAll', 'getAll']]).each(function(e) {
+        PageFactory.decorateNonPaged(resource, e[0], e[1]);
+      });
+
+      _([['_getAll', 'getAllPaged']]).each(function(e) {
+        PageFactory.decorate(resource, e[0], e[1]);
+      });
+
+      resource.prototype.getProductVersions = function () {
+        return $injector.get('ProductVersionDAO').getByProduct({productId: this.id});
+      };
 
       return resource;
     }

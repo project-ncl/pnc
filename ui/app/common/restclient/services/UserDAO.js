@@ -24,6 +24,8 @@
   module.value('USER_ENDPOINT', '/users/:userId');
 
   /**
+   * DAO methods MUST return the same resource type they are defined on.
+   *
    * @author Alex Creasy
    * @author Jakub Senko
    */
@@ -32,7 +34,8 @@
     'REST_BASE_URL',
     'USER_ENDPOINT',
     'PageFactory',
-    function ($resource, REST_BASE_URL, USER_ENDPOINT, PageFactory) {
+    'PncCacheUtil',
+    function ($resource, REST_BASE_URL, USER_ENDPOINT, PageFactory, PncCacheUtil) {
       var ENDPOINT = REST_BASE_URL + USER_ENDPOINT;
 
       var resource = $resource(ENDPOINT, {
@@ -50,7 +53,11 @@
         }
       });
 
-      PageFactory.decorateNonPaged(resource, '_getAll', 'query');
+      PncCacheUtil.decorateIndexId(resource, 'User', 'get');
+
+      PncCacheUtil.decorate(resource, 'User', '_getAll');
+
+      PageFactory.decorateNonPaged(resource, '_getAll', 'getAll');
 
       return resource;
     }

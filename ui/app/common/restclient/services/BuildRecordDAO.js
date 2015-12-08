@@ -24,19 +24,21 @@
   module.value('BUILD_RECORD_ENDPOINT', '/build-records/:recordId');
 
   /**
+   * DAO methods MUST return the same resource type they are defined on.
    *
+   * @author Alex Creasy
+   * @author Jakub Senko
    */
   module.factory('BuildRecordDAO', [
     '$resource',
-    'cachedGetter',
+    '$injector',
     'REST_BASE_URL',
     'BUILD_RECORD_ENDPOINT',
-    'BuildConfigurationDAO',
-    'UserDAO',
     'PageFactory',
     'QueryHelper',
-    function($resource, cachedGetter, REST_BASE_URL, BUILD_RECORD_ENDPOINT,
-             BuildConfigurationDAO, UserDAO, PageFactory, qh) {
+    'PncCacheUtil',
+    function($resource, $injector, REST_BASE_URL, BUILD_RECORD_ENDPOINT,
+              PageFactory, qh, PncCacheUtil) {
       var ENDPOINT = REST_BASE_URL + BUILD_RECORD_ENDPOINT;
 
       var resource = $resource(ENDPOINT, {
@@ -52,11 +54,7 @@
           url: ENDPOINT + '/log',
           transformResponse: function(data) { return { payload: data }; }
         },
-        _getArtifacts: {
-          method: 'GET',
-          url: ENDPOINT + '/artifacts'
-        },
-        _getByConfiguration: {
+        _getByBC: {
           method: 'GET',
           url: REST_BASE_URL + '/build-records/build-configurations/:configurationId' +
             qh.searchOnly(['buildConfigurationAudited.name'])
@@ -65,13 +63,13 @@
           method: 'GET',
           url: ENDPOINT + '/?q=user.id==:userId'
         },
-        _getAllForProject: {
+        _getByProject: {
           method: 'GET',
           url: REST_BASE_URL + 'record/projects/:projectId'
         },
-        _getLatestForConfiguration: {
+        getLatestByBC: {
           method: 'GET',
-          url: REST_BASE_URL + '/build-records/build-configurations/:configurationId?pageIndex=0&pageSize=1&sort==desc=id'
+          url: REST_BASE_URL + '/build-configurations/:configurationId/build-records/latest'
         },
         getAuditedBuildConfiguration: {
           method: 'GET',
@@ -86,31 +84,54 @@
           url: REST_BASE_URL + '/build-records' +
           '?q=' + qh.search(['buildConfigSetRecord.buildConfigurationSet.name']) +
           ';buildConfigSetRecord.id==:bcSetRecordId'
+        },
+        _getByBCSet: {
+          method: 'GET',
+          url: REST_BASE_URL + '/build-configuration-sets/:configurationSetId/build-records'
         }
       });
 
-      PageFactory.decorateNonPaged(resource, '_getAll', 'query');
-      PageFactory.decorateNonPaged(resource, '_getArtifacts', 'getArtifacts');
-      PageFactory.decorateNonPaged(resource, '_getByConfiguration', 'getByConfiguration');
-      PageFactory.decorateNonPaged(resource, '_getAllForProject', 'getAllForProject');
-      PageFactory.decorateNonPaged(resource, '_getLatestForConfiguration', 'getLatestForConfiguration');
 
-      PageFactory.decorate(resource, '_getAll', 'getPaged');
-      PageFactory.decorate(resource, '_getByConfiguration', 'getPagedByConfiguration');
-      PageFactory.decorate(resource, '_getByBCSetRecord', 'getPagedByBCSetRecord');
-      PageFactory.decorate(resource, '_getByUser', 'getPagedByUser');
+      _([['get']]).each(function(e) {
+        PncCacheUtil.decorateIndexId(resource, 'BuildRecord', e[0]);
+      });
 
-      resource.prototype.getBuildConfiguration = cachedGetter(
-        function(buildRecord) {
-          return BuildConfigurationDAO.get({ configurationId: buildRecord.buildConfigurationId });
-        }
-      );
+      _([['_getAll'],
+         ['_getByBC'],
+         ['_getByBCSet'],
+         ['_getByBCSetRecord'],
+         ['_getByProject'],
+         ['_getByUser'],
+         ['_getLatestByBC']]).each(function(e) {
+        PncCacheUtil.decorate(resource, 'BuildRecord', e[0]);
+      });
 
-      resource.prototype.getUser = cachedGetter(
-        function(record) {
-          return UserDAO.get({ userId: record.userId });
-        }
-      );
+      _([['_getAll', 'getAll'],
+         ['_getByBC', 'getByBC'],
+         ['_getByBCSet', 'getByBCSet'],
+         ['_getByProject', 'getByProject']]).each(function(e) {
+        PageFactory.decorateNonPaged(resource, e[0], e[1]);
+      });
+
+      _([['_getAll', 'getAllPaged'],
+         ['_getByBC', 'getPagedByBC'],
+         ['_getByBCSetRecord', 'getPagedByBCSetRecord'],
+         ['_getByUser', 'getPagedByUser']]).each(function(e) {
+        PageFactory.decorate(resource, e[0], e[1]);
+      });
+
+      resource.prototype.getArtifacts = function() {
+        return $injector.get('ArtifactDAO').getByBuildRecord({ recordId: this.id });
+      };
+
+      resource.prototype.getUser = function() {
+        return $injector.get('UserDAO').get({ userId: this.userId });
+      };
+
+      resource.prototype.getBC = function() {
+        return $injector.get('BuildConfigurationDAO').get({ configurationId: this.buildConfigurationId });
+        //.then(function(e) { throw 'fooo'; });
+      };
 
       return resource;
     }

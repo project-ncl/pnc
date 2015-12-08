@@ -24,16 +24,21 @@
   module.value('BUILD_CONFIGURATION_SET_ENDPOINT', '/build-configuration-sets/:configurationSetId');
 
   /**
+   * DAO methods MUST return the same resource type they are defined on.
+   *
    * @author Alex Creasy
    * @author Jakub Senko
    */
   module.factory('BuildConfigurationSetDAO', [
     '$resource',
+    '$injector',
     'REST_BASE_URL',
     'BUILD_CONFIGURATION_SET_ENDPOINT',
     'PageFactory',
     'QueryHelper',
-    function($resource, REST_BASE_URL, BUILD_CONFIGURATION_SET_ENDPOINT, PageFactory, qh) {
+    'PncCacheUtil',
+    function($resource, $injector, REST_BASE_URL, BUILD_CONFIGURATION_SET_ENDPOINT, PageFactory, qh,
+              PncCacheUtil) {
       var ENDPOINT = REST_BASE_URL + BUILD_CONFIGURATION_SET_ENDPOINT;
 
       var resource = $resource(ENDPOINT, {
@@ -45,10 +50,6 @@
         },
         update: {
           method: 'PUT'
-        },
-        _getConfigurations: {
-          method: 'GET',
-          url: ENDPOINT + '/build-configurations' + qh.searchOnly(['name'])
         },
         forceBuild: {
           method: 'POST',
@@ -71,18 +72,40 @@
           method: 'POST',
           url: ENDPOINT + '/build-configurations'
         },
-        _getRecords: {
+        _getByProductVersion: {
           method: 'GET',
-          url: ENDPOINT + '/build-records'
+          url: REST_BASE_URL + '/product-versions/:versionId/build-configuration-sets' + qh.searchOnly(['name'])
         }
       });
 
-      PageFactory.decorateNonPaged(resource, '_getAll', 'query');
-      PageFactory.decorateNonPaged(resource, '_getConfigurations', 'getConfigurations');
-      PageFactory.decorateNonPaged(resource, '_getRecords', 'getRecords');
+      PncCacheUtil.decorateIndexId(resource, 'BuildConfigurationSet', 'get');
 
-      PageFactory.decorate(resource, '_getAll', 'getAll');
-      PageFactory.decorate(resource, '_getConfigurations', 'getPagedConfigurations');
+      _([['_getAll'],
+         ['_getByProductVersion']]).each(function(e) {
+        PncCacheUtil.decorate(resource, 'BuildConfigurationSet', e[0]);
+      });
+
+      _([['_getAll', 'getAll'],
+         ['_getByProductVersion', 'getByProductVersion']]).each(function(e) {
+        PageFactory.decorateNonPaged(resource, e[0], e[1]);
+      });
+
+      _([['_getAll', 'getAllPaged'],
+         ['_getByProductVersion', 'getPagedByProductVersion']]).each(function(e) {
+        PageFactory.decorate(resource, e[0], e[1]);
+      });
+
+      resource.prototype.getBuildConfigurations = function () {
+        return $injector.get('BuildConfigurationDAO').getByBCSet({ configurationSetId: this.id });
+      };
+
+      resource.prototype.getPagedBuildConfigurations = function () {
+        return $injector.get('BuildConfigurationDAO').getPagedByBCSet({ configurationSetId: this.id });
+      };
+
+      resource.prototype.getBuildRecords = function () {
+        return $injector.get('BuildRecordDAO').getByBCSet({ configurationSetId: this.id });
+      };
 
       return resource;
     }

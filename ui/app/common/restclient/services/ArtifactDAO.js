@@ -17,51 +17,36 @@
  */
 'use strict';
 
-(function () {
+(function() {
 
   var module = angular.module('pnc.common.restclient');
 
-  module.value('BUILD_RECORD_SET_ENDPOINT', '/build-record-sets/:recordsetId');
+
 
   /**
    * DAO methods MUST return the same resource type they are defined on.
    *
-   * @author Alex Creasy
    * @author Jakub Senko
    */
-  module.factory('BuildRecordSetDAO', [
+  module.factory('ArtifactDAO', [
     '$resource',
     'REST_BASE_URL',
-    'BUILD_RECORD_SET_ENDPOINT',
     'PageFactory',
+    'QueryHelper',
     'PncCacheUtil',
-    function ($resource, REST_BASE_URL, BUILD_RECORD_SET_ENDPOINT, PageFactory,
-               PncCacheUtil) {
-      var ENDPOINT = REST_BASE_URL + BUILD_RECORD_SET_ENDPOINT;
+    function($resource, REST_BASE_URL, PageFactory, qh, PncCacheUtil) {
 
-      var resource = $resource(ENDPOINT, {
-        recordsetId: '@id'
-      }, {
-        _getAll: {
-          method: 'GET'
-        },
-        _getByProductVersion: {
+      var resource = $resource('', {}, {
+
+        _getByBuildRecord: {
           method: 'GET',
-          url: REST_BASE_URL + '/build-record-sets/product-versions/:versionId'
+          url: REST_BASE_URL + '/build-records/:recordId/artifacts'
         }
       });
 
-      PncCacheUtil.decorateIndexId(resource, 'BuildRecordSet', 'get');
+      PncCacheUtil.decorate(resource, 'Artifact', '_getByBuildRecord');
 
-      _([['_getAll'],
-         ['_getByProductVersion']]).each(function(e) {
-        PncCacheUtil.decorate(resource, 'BuildRecordSet', e[0]);
-      });
-
-      _([['_getAll', 'getAll'],
-         ['_getByProductVersion', 'getByProductVersion']]).each(function(e) {
-        PageFactory.decorateNonPaged(resource, e[0], e[1]);
-      });
+      PageFactory.decorateNonPaged(resource, '_getByBuildRecord', 'getByBuildRecord');
 
       return resource;
     }

@@ -24,16 +24,20 @@
   module.value('PROJECT_ENDPOINT', '/projects/:projectId');
 
   /**
+   * DAO methods MUST return the same resource type they are defined on.
+   *
    * @author Alex Creasy
    * @author Jakub Senko
    */
   module.factory('ProjectDAO', [
     '$resource',
+    '$injector',
     'REST_BASE_URL',
     'PROJECT_ENDPOINT',
     'PageFactory',
     'QueryHelper',
-    function($resource, REST_BASE_URL, PROJECT_ENDPOINT, PageFactory, qh) {
+    'PncCacheUtil',
+    function($resource, $injector, REST_BASE_URL, PROJECT_ENDPOINT, PageFactory, qh, PncCacheUtil) {
       var ENDPOINT = REST_BASE_URL + PROJECT_ENDPOINT;
 
       var resource = $resource(ENDPOINT, {
@@ -42,21 +46,24 @@
         update: {
           method: 'PUT'
         },
-        _getAllForProductVersion: {
-          method: 'GET',
-          url: REST_BASE_URL +
-          '/projects/products/:productId/product-versions/:versionId'
-        },
         _getAll: {
           method: 'GET',
           url: ENDPOINT + qh.searchOnly(['name', 'description'])
         }
       });
 
-      PageFactory.decorateNonPaged(resource, '_getAll', 'query');
-      PageFactory.decorateNonPaged(resource, '_getAllForProductVersion', 'getAllForProductVersion');
 
-      PageFactory.decorate(resource, '_getAll', 'getAll');
+      PncCacheUtil.decorateIndexId(resource, 'Project', 'get');
+
+      PncCacheUtil.decorate(resource, 'Project', '_getAll');
+
+      PageFactory.decorateNonPaged(resource, '_getAll', 'getAll');
+
+      PageFactory.decorate(resource, '_getAll', 'getAllPaged');
+
+      resource.prototype.getBCs = function() {
+        return $injector.get('BuildConfigurationDAO').getByProject({ projectId: this.id });
+      };
 
       return resource;
     }
