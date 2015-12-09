@@ -52,7 +52,7 @@ public class CustomSequenceConfiguration {
                 logger.info("Dropping sequence {} ...", BuildRecord.SEQUENCE_NAME);
                 sequenceHandlerRepository.dropSequence(BuildRecord.SEQUENCE_NAME);
             } catch (Exception e) {
-                logger.error(e.getMessage());
+                logger.debug("Error encountered when dropping sequence {} in 'create' or 'create-drop' schema phase. This can be safely ignored, as is due to db schema and/or sequence not yet existing.", BuildRecord.SEQUENCE_NAME);
             }
 
             try {
@@ -71,6 +71,7 @@ public class CustomSequenceConfiguration {
                 logger.info("Updating sequence {} ...", BuildRecord.SEQUENCE_NAME);
                 sequenceHandlerRepository.createSequence(BuildRecord.SEQUENCE_NAME);
             } catch (Exception e) {
+                logger.debug("Error encountered when creating sequence {} in 'update' schema phase. This can be safely ignored, as is due to sequence already existing.", BuildRecord.SEQUENCE_NAME);
             }
 
         }
