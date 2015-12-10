@@ -163,3 +163,8 @@ button.debutton {
   display: block;
   max-width: 50%; /* Max Width of the popover (depending on the container!) */
 }
+
+/* angular-patternfly override */
+.notification-area .close {
+  display: block !important;
+}
