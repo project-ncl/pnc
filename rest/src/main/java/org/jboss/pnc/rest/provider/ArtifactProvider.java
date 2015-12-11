@@ -54,7 +54,7 @@ public class ArtifactProvider extends AbstractProvider<Artifact, ArtifactRest> {
     }
 
     @Override
-    protected Function<? super ArtifactRest, ? extends Artifact> toDBModelModel() {
+    protected Function<? super ArtifactRest, ? extends Artifact> toDBModel() {
         throw new UnsupportedOperationException();
     }
 }

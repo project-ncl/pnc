@@ -104,13 +104,13 @@ public abstract class AbstractProvider<DBEntity extends GenericEntity<Integer>, 
 
     public Integer store(RESTEntity restEntity) throws ValidationException {
         validateBeforeSaving(restEntity);
-        return repository.save(toDBModelModel().apply(restEntity)).getId();
+        return repository.save(toDBModel().apply(restEntity)).getId();
     }
 
     public void update(Integer id, RESTEntity restEntity) throws ValidationException {
         restEntity.setId(id);
         validateBeforeUpdating(id, restEntity);
-        repository.save(toDBModelModel().apply(restEntity));
+        repository.save(toDBModel().apply(restEntity));
     }
 
     public void delete(Integer id) throws ValidationException {
@@ -138,7 +138,7 @@ public abstract class AbstractProvider<DBEntity extends GenericEntity<Integer>, 
 
     protected abstract Function<? super DBEntity, ? extends RESTEntity> toRESTModel();
 
-    protected abstract Function<? super RESTEntity, ? extends DBEntity> toDBModelModel();
+    protected abstract Function<? super RESTEntity, ? extends DBEntity> toDBModel();
 
     public Class<DBEntity> getDBEntityClass() {
         ParameterizedType superclass = (ParameterizedType) getClass().getGenericSuperclass();

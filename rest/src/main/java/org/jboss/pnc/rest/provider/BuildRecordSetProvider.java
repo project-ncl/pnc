@@ -50,7 +50,7 @@ public class BuildRecordSetProvider extends AbstractProvider<BuildRecordSet, Bui
     }
 
     @Override
-    protected Function<? super BuildRecordSetRest, ? extends BuildRecordSet> toDBModelModel() {
+    protected Function<? super BuildRecordSetRest, ? extends BuildRecordSet> toDBModel() {
         return buildRecordSet -> buildRecordSet.toBuildRecordSet();
     }
 

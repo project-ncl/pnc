@@ -130,7 +130,7 @@ public class BuildConfigurationProvider extends AbstractProvider<BuildConfigurat
     }
 
     @Override
-    protected Function<? super BuildConfigurationRest, ? extends BuildConfiguration> toDBModelModel() {
+    protected Function<? super BuildConfigurationRest, ? extends BuildConfiguration> toDBModel() {
         return buildConfigRest -> {
 
             BuildConfiguration.Builder builder = BuildConfiguration.Builder.newBuilder();

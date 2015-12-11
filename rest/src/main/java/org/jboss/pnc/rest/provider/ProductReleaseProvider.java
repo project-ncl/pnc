@@ -56,7 +56,7 @@ public class ProductReleaseProvider extends AbstractProvider<ProductRelease, Pro
     }
 
     @Override
-    protected Function<? super ProductReleaseRest, ? extends ProductRelease> toDBModelModel() {
+    protected Function<? super ProductReleaseRest, ? extends ProductRelease> toDBModel() {
         return productReleaseRest -> {
             ProductRelease productRelease = null;
             if (productReleaseRest.getId() != null) {

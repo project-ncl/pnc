@@ -68,7 +68,7 @@ public class BuildConfigurationSetProvider extends AbstractProvider<BuildConfigu
     }
 
     @Override
-    protected Function<? super BuildConfigurationSetRest, ? extends BuildConfigurationSet> toDBModelModel() {
+    protected Function<? super BuildConfigurationSetRest, ? extends BuildConfigurationSet> toDBModel() {
         return buildConfigurationSet -> {
             if(buildConfigurationSet.getId() != null) {
                 BuildConfigurationSet buildConfigurationSetFromDB = repository.queryById(buildConfigurationSet.getId());

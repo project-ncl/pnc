@@ -46,7 +46,7 @@ public class BuildConfigSetRecordProvider extends AbstractProvider<BuildConfigSe
     }
 
     @Override
-    protected Function<? super BuildConfigSetRecordRest, ? extends BuildConfigSetRecord> toDBModelModel() {
+    protected Function<? super BuildConfigSetRecordRest, ? extends BuildConfigSetRecord> toDBModel() {
         throw new UnsupportedOperationException("Not supported by this provider");
     }
 }

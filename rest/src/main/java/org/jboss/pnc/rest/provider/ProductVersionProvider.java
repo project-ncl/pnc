@@ -67,7 +67,7 @@ public class ProductVersionProvider extends AbstractProvider<ProductVersion, Pro
     }
 
     @Override
-    protected Function<? super ProductVersionRest, ? extends ProductVersion> toDBModelModel() {
+    protected Function<? super ProductVersionRest, ? extends ProductVersion> toDBModel() {
         return productVersion -> {
             if(productVersion.getId() != null) {
                 ProductVersion productVersionFromDB = repository.queryById(productVersion.getId());

@@ -67,7 +67,7 @@ public class ProductMilestoneProvider extends AbstractProvider<ProductMilestone,
     }
 
     @Override
-    protected Function<? super ProductMilestoneRest, ? extends ProductMilestone> toDBModelModel() {
+    protected Function<? super ProductMilestoneRest, ? extends ProductMilestone> toDBModel() {
         return productMilestoneRest -> {
             // Check if we are creating a new product milestone
             ProductMilestone productMilestone = null;
