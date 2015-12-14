@@ -27,7 +27,8 @@
     'pnc.util.confirmClick',
     'angularUtils.directives.uiBreadcrumbs',
     'pnc.common.directives',
-    'pnc.record'
+    'pnc.record',
+    'infinite-scroll'
   ]);
 
   module.config(['$stateProvider', function($stateProvider) {
@@ -72,7 +73,7 @@
           return EnvironmentDAO.query();
         },
         projects: function(ProjectDAO) {
-          return ProjectDAO.query();
+          return ProjectDAO.getAll();
         },
         products: function(ProductDAO) {
           return ProductDAO.query();
