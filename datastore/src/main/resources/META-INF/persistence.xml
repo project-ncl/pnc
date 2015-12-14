@@ -32,6 +32,7 @@
           <property name="hibernate.hbm2ddl.auto" value="@persistence.hibernate.hbm2ddl.auto@"/>
           <property name="hibernate.show_sql" value="false"/>
           <property name="hibernate.format_sql" value="true"/>
+          <property name="hibernate.jdbc.use_streams_for_binary" value="true"/>
       </properties>
    </persistence-unit>
 </persistence>
