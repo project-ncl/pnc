@@ -173,6 +173,9 @@ public class BpmBuildScheduler implements BuildScheduler {
                 .map(BuildConfiguration::getProject)
                 .map(Project::getId)
                 .orElse(null));
+        params.put("dependencyIds", buildTask.getBuildConfigurationDependencies().stream()
+                .map(dep -> dep.getId().toString())
+                .collect(Collectors.joining(",")));
         parameters.put("paramsJSON", objectMapper.writeValueAsString(params));
     }
 
@@ -197,9 +200,6 @@ public class BpmBuildScheduler implements BuildScheduler {
                         .map(BuildConfigurationAudited::getIdRev)
                         .map(IdRev::getRev)
                         .orElse(null));
-        buildRequest.put("dependencyIds", buildTask.getBuildConfigurationDependencies().stream()
-                .map(dep -> dep.getId().toString())
-                .collect(Collectors.joining(",")));
         buildRequest.put("buildRecordSetIdsCSV", StringUtils.toCVS(buildTask.getBuildRecordSetIds()));
         buildRequest.put("buildConfigSetRecordId", buildTask.getBuildConfigSetRecordId());
         buildRequest.put("buildContentId", ContentIdentityManager.getBuildContentId(buildTask.getBuildConfiguration()));
