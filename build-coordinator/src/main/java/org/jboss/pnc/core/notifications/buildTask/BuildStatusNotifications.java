@@ -41,7 +41,8 @@ public class BuildStatusNotifications {
         subscribers.add(buildCallBack);
     }
 
-    public void observeEvent(@Observes BuildStatusChangedEvent buildStatusChangedEvent) {
+    public void observeEvent(@Observes BuildStatusChangedEvent event) {
+        BuildStatusChangedEvent buildStatusChangedEvent = event; // Avoid CDI runtime issue issue NCL-1505
         Predicate<BuildCallBack> filterSubscribersMatchingTaskId =
                 (callBackUrl) -> callBackUrl.getBuildTaskId().equals(buildStatusChangedEvent.getBuildTaskId());
 
