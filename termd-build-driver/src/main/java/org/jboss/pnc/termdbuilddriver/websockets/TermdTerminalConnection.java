@@ -17,27 +17,54 @@
  */
 package org.jboss.pnc.termdbuilddriver.websockets;
 
-import javax.websocket.ClientEndpoint;
-import javax.websocket.OnClose;
-import java.net.URI;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-@ClientEndpoint
+import java.net.URI;
+import java.nio.ByteBuffer;
+import java.util.Arrays;
+
 public class TermdTerminalConnection extends AbstractWebSocketsConnection {
 
+    private final Logger logger = LoggerFactory.getLogger(TermdTerminalConnection.class);
+
+
     private static final String WEB_SOCKET_TERMINAL_PATH = "socket/term";
+    ClientEndpoint clientEndpoint;
 
     public TermdTerminalConnection(URI serverBaseUri) {
         super(serverBaseUri.resolve(WEB_SOCKET_TERMINAL_PATH));
+        clientEndpoint = new ClientEndpoint(new TerminalConnectionMessageHandler());
     }
 
-    @OnClose
     @Override
-    public void onClose() {
-        super.onClose();
+    protected ClientEndpoint getClientEndpoint() {
+        return clientEndpoint;
     }
 
     public URI getLogsURI() {
         return URI.create(uri.toString() + "?sessionId=reconnect");
     }
 
+    private class TerminalConnectionMessageHandler implements ClientMessageHandler {
+
+        StringBuilder responseBuffer = new StringBuilder();
+
+        @Override
+        public void onMessage(byte[] bytes) {
+            if (logger.isTraceEnabled()) {
+                String string = new String(bytes);
+                if (string.equals("\r\n")) {
+                    logger.trace(responseBuffer.toString());
+                    responseBuffer = new StringBuilder();
+                } else {
+                    responseBuffer.append(string);
+                }
+            }
+        }
+
+        @Override
+        public void onMessage(String message) {
+        }
+    }
 }

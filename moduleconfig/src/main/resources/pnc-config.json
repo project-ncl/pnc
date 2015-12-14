@@ -44,7 +44,8 @@
             "containerPort":"${env.PNC_CONTAINER_PORT}",
             "imageId":"${env.PNC_BUILDER_IMAGE_ID}",
             "disabled":"true",
-            "keepBuildAgentInstance" : true
+            "keepBuildAgentInstance" : true,
+            "exposeBuildAgentOnPublicUrl" : false
           },
           {
             "@module-config":"authentication-config",
