@@ -26,7 +26,7 @@
   module.config([
     'webSocketBusProvider',
     function(webSocketBusProvider) {
-      var host = window.location.host; // 'localhost:8080'
+      var host = 'localhost:8080';
       webSocketBusProvider.newEndpoint(
         'ws://' + host + '/pnc-rest/ws/build-records/notifications',
         'eventBroadcastingWebSocketListener'
