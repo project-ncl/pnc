@@ -115,9 +115,9 @@ public class BuildRecord implements GenericEntity<Integer> {
     private String scmRevision;
 
     @Lob
-    // Type below is compatible with Oracle and PostgreSQL ("org.hibernate.type.TextType" not with Oracle)
     // Use "org.hibernate.type.MaterializedClobType" from Hibernate 4.2.x
-    @Type(type = "org.hibernate.type.StringClobType")
+    @Type(type = "org.hibernate.type.MaterializedClobType")
+    @Basic(fetch = FetchType.LAZY)
     private String buildLog;
 
     @Enumerated(value = EnumType.STRING)
