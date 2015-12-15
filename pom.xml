@@ -45,7 +45,6 @@
     <tag>HEAD</tag>
   </scm>
 
-
   <modules>
     <module>test-common</module>
     <module>test-arquillian-container</module>
@@ -481,17 +480,10 @@
 
       <dependency>
         <groupId>org.jboss.spec</groupId>
-        <artifactId>jboss-javaee6-specs-bom</artifactId>
-        <version>1.0.1.Final</version>
+        <artifactId>jboss-javaee-6.0</artifactId>
+        <version>3.0.3.Final</version>
         <type>pom</type>
         <scope>import</scope>
-      </dependency>
-
-      <dependency>
-        <groupId>org.jboss.spec</groupId>
-        <artifactId>jboss-javaee-6.0</artifactId>
-        <version>1.0.0.Final</version>
-        <type>pom</type>
       </dependency>
 
       <dependency>
