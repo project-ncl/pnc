@@ -115,8 +115,9 @@ public class BuildRecord implements GenericEntity<Integer> {
     private String scmRevision;
 
     @Lob
+    // org.hibernate.type.StringClobType works for all DBs
     // Use "org.hibernate.type.MaterializedClobType" from Hibernate 4.2.x
-    @Type(type = "org.hibernate.type.MaterializedClobType")
+    @Type(type = "org.hibernate.type.StringClobType")
     @Basic(fetch = FetchType.LAZY)
     private String buildLog;
 
