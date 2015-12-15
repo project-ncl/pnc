@@ -27,6 +27,7 @@ import org.jboss.pnc.rest.provider.collection.CollectionInfoCollector;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationAuditedRest;
 import org.jboss.pnc.rest.restmodel.BuildRecordRest;
 import org.jboss.pnc.spi.BuildStatus;
+import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationAuditedRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
 import org.jboss.pnc.spi.datastore.repositories.PageInfoProducer;
 import org.jboss.pnc.spi.datastore.repositories.SortInfoProducer;
@@ -55,7 +56,6 @@ import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.*;
 public class BuildRecordProvider extends AbstractProvider<BuildRecord, BuildRecordRest> {
 
     private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
-
     private BuildCoordinator buildCoordinator;
     private BuildExecutor buildExecutor;
 
@@ -177,7 +177,7 @@ public class BuildRecordProvider extends AbstractProvider<BuildRecord, BuildReco
     }
 
     public String getBuildRecordLog(Integer id) {
-        BuildRecord buildRecord = repository.queryById(id);
+        BuildRecord buildRecord = ((BuildRecordRepository)repository).findByIdFetchAllProperties(id);
         if(buildRecord != null)
             return buildRecord.getBuildLog();
         else

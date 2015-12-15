@@ -20,7 +20,12 @@ package org.jboss.pnc.datastore.repositories.internal;
 import org.jboss.pnc.model.BuildRecord;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Query;
 
-public interface BuildRecordSpringRepository extends JpaRepository<BuildRecord, Integer>, JpaSpecificationExecutor<BuildRecord> {
+public interface BuildRecordSpringRepository
+        extends JpaRepository<BuildRecord, Integer>, JpaSpecificationExecutor<BuildRecord> {
+
+    @Query("select br from BuildRecord br fetch all properties where br.id = ?1")
+    BuildRecord findByIdFetchAllProperties(Integer id);
 
 }
