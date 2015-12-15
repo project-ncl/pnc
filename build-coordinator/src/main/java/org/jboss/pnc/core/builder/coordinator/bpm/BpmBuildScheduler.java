@@ -49,8 +49,10 @@ import javax.inject.Inject;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -173,16 +175,15 @@ public class BpmBuildScheduler implements BuildScheduler {
                 .map(BuildConfiguration::getProject)
                 .map(Project::getId)
                 .orElse(null));
-        params.put("dependencyIds", getDependencyIds(buildTask));
+        params.put("dependencyIds", getDependencyIds(buildTask.getBuildConfigurationDependencies()));
 
         parameters.put("paramsJSON", objectMapper.writeValueAsString(params));
     }
 
-    private String getDependencyIds(BuildTask buildTask) {
-        String ids = buildTask.getBuildConfigurationDependencies().stream()
-                .map(dep -> dep.getId().toString())
-                .collect(Collectors.joining(","));
-        return ids.isEmpty() ? null : ids;
+    private List<Integer> getDependencyIds(Set<BuildConfiguration> buildConfigurationDependencies) {
+        return buildConfigurationDependencies.stream()
+                .map(dep -> dep.getId())
+                .collect(Collectors.toList());
     }
 
     void fillUrls(Map<String, Object> parameters) throws ConfigurationParseException {
