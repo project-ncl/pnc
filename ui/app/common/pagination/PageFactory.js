@@ -31,6 +31,10 @@
       /*jshint newcap:false*/
       var factory = this;
 
+      var unwrap$promise = function(obj) {
+        return _(obj).has('$promise') ? obj.$promise : obj;
+      };
+
       /**
        * Create a new page from resource.
        * @return the page (respectively, dynamic page, not a single one).
@@ -74,8 +78,6 @@
           page.isLoaded = false;
           return loader(index, pageSize, searchText).then(function (data) {
             if (!factory.verifyPageFormat(data)) {
-              console.log('Warning! Data \'' + JSON.stringify(data) + '\' does not have correct format ' +
-                '(not a paged resource). Using empty page instead.');
               data = factory._getEmptyPage();
             }
             if (data.totalPages === 0) {
@@ -92,6 +94,10 @@
             page.isLoaded = true;
             return page;
           });
+        };
+
+        page.getSearchText = function() {
+          return page._searchText;
         };
 
         page.getPageIndex = function () {
@@ -197,7 +203,7 @@
               search: searchText, // search must be done in backend, either via RSQL or directly
               sort: 'sort=desc=id' // if the data are not sorted, pagination makes no sense
             }).extend(origArgs); // args overwrite the paging properties, but no sense other that sorting
-            return origMethod(args).$promise;
+            return unwrap$promise(origMethod(args));
           });
         };
       };
@@ -222,16 +228,11 @@
             // would be the best option
           });
           var result = origMethod(args);
-          if (_(result).has('$promise')) {
-            return result.$promise.then(function (data) {
-              return factory._maybeTryAgain(data, origMethod, args);
-            }).then(function (data) {
-              return factory._convertToResource(data.content, resource);
-            });
-          } else {
-            throw 'Error. Result of call to \'' + methodName + '\' does not have $promise property. ' +
-            'Make sure that the method belongs to the standard angular resource.';
-          }
+          return unwrap$promise(result).then(function (data) {
+            return factory._maybeTryAgain(data, origMethod, args);
+          }).then(function (data) {
+            return factory._convertToResource(data.content, resource);
+          });
         };
       };
 
@@ -275,16 +276,14 @@
 
       factory._maybeTryAgain = function (data, origMethod, args) {
         if (!factory.verifyPageFormat(data)) {
-          console.log('Warning! Data \'' + JSON.stringify(data) + '\' does not have correct format ' +
-            '(not a paged resource). Using empty page instead.');
           return factory._getEmptyPage();
         }
         if (data.totalPages > 1) {
           // Must perform a second request to load all data. This should not happen too often.
-          return origMethod(_(args).extend({
+          return unwrap$promise(origMethod(_(args).extend({
             pageIndex: 0,
             pageSize: data.pageSize * data.totalPages
-          })).$promise;
+          })));
         } else {
           return data;
         }

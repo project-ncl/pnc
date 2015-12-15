@@ -18,6 +18,7 @@
 package org.jboss.pnc.model;
 
 import org.hibernate.annotations.Type;
+import org.jboss.pnc.model.event.EntityUpdateEventNotifier;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -30,6 +31,7 @@ import javax.validation.constraints.NotNull;
  *
  */
 @Entity
+@EntityListeners(EntityUpdateEventNotifier.class)
 public class Product implements GenericEntity<Integer> {
 
     private static final long serialVersionUID = -9022966336791211855L;

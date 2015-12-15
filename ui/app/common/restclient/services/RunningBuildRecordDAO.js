@@ -24,18 +24,18 @@
   module.value('RUNNING_BUILD_ENDPOINT', '/running-build-records/:recordId');
 
   /**
+   * DAO methods MUST return the same resource type they are defined on.
+   *
    * @author Alex Creasy
    * @author Jakub Senko
    */
   module.factory('RunningBuildRecordDAO', [
     '$resource',
+    '$injector',
     'REST_BASE_URL',
     'RUNNING_BUILD_ENDPOINT',
-    'cachedGetter',
-    'BuildConfigurationDAO',
-    'UserDAO',
     'PageFactory',
-    function($resource, REST_BASE_URL, RUNNING_BUILD_ENDPOINT, cachedGetter, BuildConfigurationDAO, UserDAO, PageFactory) {
+    function($resource, $injector, REST_BASE_URL, RUNNING_BUILD_ENDPOINT, PageFactory) {
       var ENDPOINT = REST_BASE_URL + RUNNING_BUILD_ENDPOINT;
 
       var resource = $resource(ENDPOINT, {
@@ -45,7 +45,7 @@
           method: 'GET',
           isArray: false
         },
-        _getByConfiguration: {
+        _getByBC: {
           method: 'GET',
           url: REST_BASE_URL + '/running-build-records/build-configurations/:configurationId',
           isArray: false
@@ -63,24 +63,25 @@
         }
       });
 
-      PageFactory.decorateNonPaged(resource, '_getAll', 'query');
-      PageFactory.decorateNonPaged(resource, '_getByConfiguration', 'getByConfiguration');
 
-      PageFactory.decorate(resource, '_getAll', 'getAll');
-      PageFactory.decorate(resource, '_getByConfiguration', 'getPagedByConfiguration');
-      PageFactory.decorate(resource, '_getByBCSetRecord', 'getPagedByBCSetRecord');
+      _([['_getAll', 'getAll'],
+         ['_getByBC', 'getByBC']]).each(function(e) {
+        PageFactory.decorateNonPaged(resource, e[0], e[1]);
+      });
 
-      resource.prototype.getBuildConfiguration = cachedGetter(
-        function(buildRecord) {
-          return BuildConfigurationDAO.get({ configurationId: buildRecord.buildConfigurationId });
-        }
-      );
+      _([['_getAll', 'getAllPaged'],
+         ['_getByBC', 'getPagedByBC'],
+         ['_getByBCSetRecord', 'getPagedByBCSetRecord']]).each(function(e) {
+        PageFactory.decorate(resource, e[0], e[1]);
+      });
 
-      resource.prototype.getUser = cachedGetter(
-        function(record) {
-          return UserDAO.get({ userId: record.userId });
-        }
-      );
+      resource.prototype.getBuildConfiguration = function() {
+        return $injector.get('BuildConfigurationDAO').get({ configurationId: this.buildConfigurationId });
+      };
+
+      resource.prototype.getUser = function() {
+        return $injector.get('UserDAO').get({ userId: this.userId });
+      };
 
       return resource;
     }

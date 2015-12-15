@@ -24,7 +24,7 @@
   /**
    * @author Jakub Senko
    */
-  module.directive('pncPager', function () {
+  module.directive('pncPager', ['$q', function ($q) {
     return {
       restrict: 'E',
       scope: {
@@ -33,20 +33,23 @@
       },
       templateUrl: 'common/pagination/directives/pager.html',
       link: function (scope) {
-        var SIZE = 8;
-        var size = _.isUndefined(scope.size) ? SIZE : scope.size;
-        size = Math.floor(size / 2);
-        var refresh = function () {
-          var index = scope.page.getPageIndex();
-          var count = scope.page.getPageCount();
-          var left = Math.max(0, index - size);
-          var right = Math.min(index + size + 1, count);
-          scope.range = _.range(left, right);
-        };
-        scope.page.onUpdate(refresh);
-        refresh();
+        $q.when(scope.page).then(function(page) {
+          scope.page = page;
+          var SIZE = 8;
+          var size = _.isUndefined(scope.size) ? SIZE : scope.size;
+          size = Math.floor(size / 2);
+          var refresh = function () {
+            var index = scope.page.getPageIndex();
+            var count = scope.page.getPageCount();
+            var left = Math.max(0, index - size);
+            var right = Math.min(index + size + 1, count);
+            scope.range = _.range(left, right);
+          };
+          scope.page.onUpdate(refresh);
+          refresh();
+        });
       }
     };
-  });
+  }]);
 
 })();

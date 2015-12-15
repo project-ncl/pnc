@@ -27,7 +27,8 @@
     'pnc.util.confirmClick',
     'angularUtils.directives.uiBreadcrumbs',
     'pnc.common.directives',
-    'pnc.record'
+    'pnc.record',
+    'pnc.common.loader'
   ]);
 
   module.config(['$stateProvider', function($stateProvider) {
@@ -53,8 +54,13 @@
       controller: 'ConfigurationListController',
       controllerAs: 'listCtrl',
       resolve: {
-        configurationList: function(BuildConfigurationDAO) {
-          return BuildConfigurationDAO.getAll();
+        configurationList: function(PncCache, BuildConfigurationDAO) {
+          return PncCache.key('pnc.configuration.ConfigurationListController').key('configurationList').getOrSet(function() {
+            return BuildConfigurationDAO.getAllPaged();
+          }).then(function(page) {
+            page.reload();
+            return page;
+          });
         }
       }
     });
@@ -69,16 +75,16 @@
       controllerAs: 'createCtrl',
       resolve: {
         environments: function(EnvironmentDAO) {
-          return EnvironmentDAO.query();
+          return EnvironmentDAO.getAll();
         },
         projects: function(ProjectDAO) {
-          return ProjectDAO.query();
+          return ProjectDAO.getAll();
         },
         products: function(ProductDAO) {
-          return ProductDAO.query();
+          return ProductDAO.getAll();
         },
         configurations: function(BuildConfigurationDAO) {
-          return BuildConfigurationDAO.query();
+          return BuildConfigurationDAO.getAll();
         }
       },
     });
@@ -117,7 +123,7 @@
       resolve: {
         configurationDetail: function(BuildConfigurationDAO, $stateParams) {
           return BuildConfigurationDAO.get({
-            configurationId: $stateParams.configurationId }).$promise;
+            configurationId: $stateParams.configurationId });
         },
         environments: function(EnvironmentDAO) {
           return EnvironmentDAO.query();
@@ -125,33 +131,31 @@
         environmentDetail: function(EnvironmentDAO, $stateParams,
                                     configurationDetail) {
           return EnvironmentDAO.get({
-            environmentId: configurationDetail.environmentId  }).$promise;
+            environmentId: configurationDetail.environmentId  });
         },
         projectDetail: function(ProjectDAO, $stateParams,
                                  configurationDetail) {
           return ProjectDAO.get({
-            projectId: configurationDetail.projectId }).$promise;
+            projectId: configurationDetail.projectId });
         },
         buildRecordList: function(BuildRecordDAO, $stateParams) {
-          return BuildRecordDAO.getByConfiguration({
+          return BuildRecordDAO.getByBC({
             configurationId: $stateParams.configurationId });
         },
         runningBuildRecordList: function(RunningBuildRecordDAO) {
-          return RunningBuildRecordDAO.query();
+          return RunningBuildRecordDAO.getAll();
         },
         allProducts: function(ProductDAO) {
-          return ProductDAO.query();
+          return ProductDAO.getAll();
         },
         configurations: function(BuildConfigurationDAO) {
-          return BuildConfigurationDAO.query();
+          return BuildConfigurationDAO.getAll();
         },
-        linkedProductVersions: function(BuildConfigurationDAO, $stateParams) {
-          return BuildConfigurationDAO.getProductVersions({
-            configurationId: $stateParams.configurationId });
+        linkedProductVersions: function(configurationDetail) {
+          return configurationDetail.getProductVersions();
         },
-        dependencies: function(BuildConfigurationDAO, $stateParams) {
-          return BuildConfigurationDAO.getDependencies({
-            configurationId: $stateParams.configurationId });
+        dependencies: function(configurationDetail) {
+          return configurationDetail.getDependencies();
         }
       }
     });

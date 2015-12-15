@@ -69,7 +69,7 @@
           } else if (payload.buildStatus === 'SYSTEM_ERROR') {
             Notifications.error('A system error prevented the Build #' + payload.id + ' from starting.');
           } else {
-            BuildRecordDAO.get({recordId: payload.id}).$promise.then(
+            BuildRecordDAO.get({recordId: payload.id}).then(
               function (result) {
                 if (result.status === 'SUCCESS') {
                   Notifications.success('Build #' + payload.id + ' completed');

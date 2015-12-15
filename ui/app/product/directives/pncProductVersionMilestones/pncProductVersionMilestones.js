@@ -27,9 +27,10 @@
   module.directive('pncProductVersionMilestones', [
     '$log',
     '$state',
+    'PncCache',
     'ProductVersionDAO',
     'ProductMilestoneDAO',
-    function ($log, $state, ProductVersionDAO, ProductMilestoneDAO) {
+    function ($log, $state, PncCache, ProductVersionDAO, ProductMilestoneDAO) {
 
       return {
         restrict: 'E',
@@ -41,7 +42,13 @@
 
           var versionDetail = scope.version;
           var productDetail = scope.version.getProduct();
-          scope.page = ProductMilestoneDAO.getPagedByProductVersion({versionId: scope.version.id});
+
+          scope.page = PncCache.key('pnc.record.pncProductVersionMilestones').key('versionId:' + scope.version.id).key('page').getOrSet(function() {
+            return ProductMilestoneDAO.getPagedByProductVersion({versionId: scope.version.id});
+          }).then(function(page) {
+            page.reload();
+            return page;
+          });
 
           scope.unreleaseMilestone = function (milestone) {
             $log.debug('Unreleasing milestone: %O', milestone);

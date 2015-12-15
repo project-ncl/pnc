@@ -19,6 +19,7 @@ package org.jboss.pnc.model;
 
 import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Type;
+import org.jboss.pnc.model.event.EntityUpdateEventNotifier;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -31,6 +32,7 @@ import java.util.Set;
  */
 @Entity
 @Table(name = "buildconfiguration_aud")
+@EntityListeners(EntityUpdateEventNotifier.class)
 public class BuildConfigurationAudited implements GenericEntity<IdRev> {
 
     private static final long serialVersionUID = 0L;

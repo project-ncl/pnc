@@ -26,7 +26,8 @@
    */
   module.directive('pncProductVersions', [
     'ProductVersionDAO',
-    function (ProductVersionDAO) {
+    'PncCache',
+    function (ProductVersionDAO, PncCache) {
 
       return {
         restrict: 'E',
@@ -36,21 +37,15 @@
         },
         link: function (scope) {
 
-          scope.page = ProductVersionDAO.getPagedByProduct({productId: scope.productId});
-
           scope.versionMilestones = {};
 
           scope.versionReleases = {};
 
-          scope.page.onUpdate(function(page) {
-            _(page.data).each(function(version) {
-              version.getMilestones().then(function(data) {
-                scope.versionMilestones[version.id] = data;
-              });
-              version.getReleases().then(function(data) {
-                scope.versionReleases[version.id] = data;
-              });
-            });
+          PncCache.key('pnc.record.pncProductVersions').key('productId:' + scope.productId).key('page').getOrSet(function() {
+            return ProductVersionDAO.getPagedByProduct({productId: scope.productId});
+          }).then(function(page) {
+            page.reload();
+            scope.page = page;
           });
 
           var formatDate = function(date) {

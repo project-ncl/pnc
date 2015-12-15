@@ -596,7 +596,7 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
     @GET
     @Path("/{id}/build-records/latest")
     public Response getLatestBuildRecord(@ApiParam(value = "Build configuration id", required = true) @PathParam("id") Integer id) {
-        return this.fromSingleton(buildRecordProvider.getLatestBuildRecord(id));
+        return Response.ok().entity(new Singleton(buildRecordProvider.getLatestBuildRecord(id))).build();
     }
 
 }

@@ -18,6 +18,7 @@
 package org.jboss.pnc.model;
 
 import org.hibernate.annotations.ForeignKey;
+import org.jboss.pnc.model.event.EntityUpdateEventNotifier;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -30,6 +31,7 @@ import java.util.Set;
  * time, links to the build records for the executed builds, and the overall status (success/failure) of the set execution.
  */
 @Entity
+@EntityListeners(EntityUpdateEventNotifier.class)
 public class BuildConfigSetRecord implements GenericEntity<Integer> {
 
     private static final long serialVersionUID = 1L;

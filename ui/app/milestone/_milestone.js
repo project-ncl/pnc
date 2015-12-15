@@ -61,8 +61,7 @@
       },
       resolve: {
         milestoneDetail: function (ProductMilestoneDAO, $stateParams) {
-          return ProductMilestoneDAO.get({milestoneId: $stateParams.milestoneId})
-            .$promise;
+          return ProductMilestoneDAO.get({milestoneId: $stateParams.milestoneId});
         }
       }
     })
@@ -80,8 +79,7 @@
       },
       resolve: {
         milestoneDetail: function (ProductMilestoneDAO, $stateParams) {
-          return ProductMilestoneDAO.get({milestoneId: $stateParams.milestoneId})
-            .$promise;
+          return ProductMilestoneDAO.get({milestoneId: $stateParams.milestoneId});
         }
       }
     });

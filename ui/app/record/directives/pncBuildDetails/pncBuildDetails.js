@@ -60,11 +60,11 @@
           if(record.status === 'BUILDING') {
             return BuildConfigurationDAO.get({
               configurationId: record.buildConfigurationId
-            }).$promise;
+            });
           } else {
             return BuildRecordDAO.getAuditedBuildConfiguration({
               recordId: record.id
-            }).$promise;
+            });
           }
         }
 
@@ -79,7 +79,7 @@
               fetchConfiguration(response),
               UserDAO.get({
                 userId: response.userId
-              }).$promise
+              })
             ]);
           }
         ).then(
@@ -91,11 +91,11 @@
             return $q.all([
               ProjectDAO.get({
                 projectId: responses[0].projectId
-              }).$promise,
+              }),
 
               EnvironmentDAO.get({
                 environmentId: responses[0].environmentId
-              }).$promise
+              })
 
             ]);
           }

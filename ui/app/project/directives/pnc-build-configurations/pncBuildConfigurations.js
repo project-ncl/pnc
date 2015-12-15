@@ -32,8 +32,10 @@
    * @author Alex Creasy
    */
   module.directive('pncBuildConfigurations', [
+    '$q',
+    'PncCache',
     'BuildConfigurationDAO',
-    function (BuildConfigurationDAO) {
+    function ($q, PncCache, BuildConfigurationDAO) {
 
       return {
         restrict: 'E',
@@ -42,7 +44,17 @@
           pncProject: '='
         },
         link: function (scope) {
-          scope.page = BuildConfigurationDAO.getPagedByProject({ projectId: scope.pncProject.id });
+
+          scope.page = $q.when(scope.pncProject).then(function(project) {
+
+            return PncCache.key('pnc.record.pncBuildConfigurations').key('projectId:' + project.id).key('page').getOrSet(function() {
+              return BuildConfigurationDAO.getPagedByProject({ projectId: project.id });
+            }).then(function(page) {
+              page.reload();
+              return page;
+            });
+
+          });
         }
       };
     }

@@ -18,6 +18,7 @@
 package org.jboss.pnc.model;
 
 import org.hibernate.annotations.ForeignKey;
+import org.jboss.pnc.model.event.EntityUpdateEventNotifier;
 
 import javax.persistence.*;
 import javax.persistence.Table;
@@ -35,6 +36,7 @@ import java.util.Date;
 @Table(uniqueConstraints = {
         @UniqueConstraint(columnNames = {"version", "productVersion_id"})
 })
+@EntityListeners(EntityUpdateEventNotifier.class)
 public class ProductMilestone implements GenericEntity<Integer> {
 
     private static final long serialVersionUID = 6314079319551264379L;

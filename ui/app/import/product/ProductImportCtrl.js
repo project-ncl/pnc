@@ -325,7 +325,7 @@
       };
 
       var goToProductVersion = function(id) { // TODO unnecessary rest call
-        ProductVersionDAO.get({versionId:id}).$promise.then(function(r) {
+        ProductVersionDAO.get({versionId:id}).then(function(r) {
           $state.go('product.detail.version', {productId: r.productId,versionId: r.id});
         });
       };

@@ -64,7 +64,7 @@
       // Retrieve all the artifacts of all the build records of the build configurations set
       angular.forEach(that.versions, function(version) {
 
-        ProductMilestoneDAO.getAllForProductVersion({
+        ProductMilestoneDAO.getByProductVersion({
           versionId: version.id
         }).then(
           function(results) {
@@ -74,7 +74,7 @@
           }
         );
 
-        ProductReleaseDAO.getAllForProductVersion({
+        ProductReleaseDAO.getByProductVersion({
           versionId: version.id
         }).then(
           function(results) {

@@ -17,6 +17,8 @@
  */
 package org.jboss.pnc.model;
 
+import org.jboss.pnc.model.event.EntityUpdateEventNotifier;
+
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
@@ -31,6 +33,7 @@ import javax.persistence.Column;
 @Entity
 @Table(name = "Users", uniqueConstraints = { @UniqueConstraint(name = "uk_user_email", columnNames = { "email" }),
         @UniqueConstraint(name = "uk_user_username", columnNames = { "username" }) })
+@EntityListeners(EntityUpdateEventNotifier.class)
 public class User implements GenericEntity<Integer> {
 
     private static final long serialVersionUID = 8437525005838384722L;

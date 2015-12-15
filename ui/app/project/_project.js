@@ -50,8 +50,13 @@
       controller: 'ProjectListController',
       controllerAs: 'listCtrl',
       resolve: {
-        projectList: function(ProjectDAO) {
-          return ProjectDAO.getAll();
+        projectList: function(PncCache, ProjectDAO) {
+          return PncCache.key('pnc.project.ProjectListController').key('projectList').getOrSet(function() {
+            return ProjectDAO.getAllPaged();
+          }).then(function(page) {
+            page.reload();
+            return page;
+          });
         }
       }
     });
@@ -67,11 +72,10 @@
       resolve: {
         projectDetail: function(ProjectDAO, $stateParams) {
           return ProjectDAO.get({
-            projectId: $stateParams.projectId}).$promise;
-        },
-        projectConfigurationList: function(BuildConfigurationDAO, $stateParams) {
-          return BuildConfigurationDAO.getAllForProject({
             projectId: $stateParams.projectId});
+        },
+        projectConfigurationList: function(projectDetail) {
+          return projectDetail.getBCs();
         },
       }
     });
@@ -83,10 +87,10 @@
       controllerAs: 'ctrl',
       resolve: {
         environments: function(EnvironmentDAO) {
-          return EnvironmentDAO.query();
+          return EnvironmentDAO.getAll();
         },
         products: function(ProductDAO) {
-          return ProductDAO.query();
+          return ProductDAO.getAll();
         }
       }
     });

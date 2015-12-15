@@ -22,8 +22,9 @@
     <div class="page-header">
       <h1>
         <build-status-icon status="ctrl.csRecordDetail.status"></build-status-icon>
-        # {{ ctrl.csRecordDetail.id }} &mdash; {{ ctrl.csRecordDetail.getConfigurationSet().name }} &mdash; {{ ctrl.csRecordDetail.startTime |
-        date:'medium'}}
+        # {{ ctrl.csRecordDetail.id }}
+          &mdash; <pnc-loader loader="ctrl.csRecordDetail.getConfigurationSet()"><!-- {{ data.name }} --></pnc-loader>
+          &mdash; {{ ctrl.csRecordDetail.startTime | date:'medium'}}
       </h1>
     </div>
   </div>

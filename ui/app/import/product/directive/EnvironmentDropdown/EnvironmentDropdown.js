@@ -38,7 +38,7 @@
 
           scope.selectedName = 'Select';
 
-          var loader = EnvironmentDAO.query();
+          var loader = EnvironmentDAO.getAll();
           loader.then(function (r) {
             scope.items = r;
           });

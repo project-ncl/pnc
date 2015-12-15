@@ -38,7 +38,9 @@
 
     BUILD_SET_STARTED: 'BUILD_SET_STARTED',
 
-    BUILD_SET_FINISHED: 'BUILD_SET_FINISHED'
+    BUILD_SET_FINISHED: 'BUILD_SET_FINISHED',
+
+    ENTITY_UPDATE_EVENT: 'ENTITY_UPDATE_EVENT'
   }));
 
   module.factory('eventBroadcastingWebSocketListener', [
@@ -77,7 +79,8 @@
    */
   module.factory('pncEventAdaptor', [
     'eventTypes',
-    function (eventTypes) {
+    'PncCacheUtil',
+    function (eventTypes, PncCacheUtil) {
       return {
         convert: function (event) {
 
@@ -132,6 +135,21 @@
             }
           });
 
+          adaptors.push({
+            supports: function (event) {
+              return event.eventType === 'ENTITY_UPDATE_EVENT' &&
+                _(['id', 'entityClass', 'operationType'])
+                  .every(function(e) { return _(event.payload).has(e); });
+            },
+            convert: function (event) {
+              PncCacheUtil.processEntityUpdateEvent(event.payload);
+              return {
+                eventType: eventTypes.ENTITY_UPDATE_EVENT,
+                payload: event.payload
+              };
+            }
+          });
+
           var adaptor = _(adaptors).find(function (e) {
             return e.supports(event);
           });
@@ -139,7 +157,7 @@
           if(!_.isUndefined(adaptor)) {
             return adaptor.convert(event);
           } else {
-            throw 'Invalid event format: ' + JSON.stringify(event);
+            throw new  Error('No adaptor for event: ' + JSON.stringify(event));
           }
         }
       };

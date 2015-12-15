@@ -24,14 +24,19 @@
   module.value('BUILD_RECORD_SET_ENDPOINT', '/build-record-sets/:recordsetId');
 
   /**
+   * DAO methods MUST return the same resource type they are defined on.
    *
+   * @author Alex Creasy
+   * @author Jakub Senko
    */
   module.factory('BuildRecordSetDAO', [
     '$resource',
     'REST_BASE_URL',
     'BUILD_RECORD_SET_ENDPOINT',
     'PageFactory',
-    function ($resource, REST_BASE_URL, BUILD_RECORD_SET_ENDPOINT, PageFactory) {
+    'PncCacheUtil',
+    function ($resource, REST_BASE_URL, BUILD_RECORD_SET_ENDPOINT, PageFactory,
+               PncCacheUtil) {
       var ENDPOINT = REST_BASE_URL + BUILD_RECORD_SET_ENDPOINT;
 
       var resource = $resource(ENDPOINT, {
@@ -40,19 +45,23 @@
         _getAll: {
           method: 'GET'
         },
-        _getAllForProductVersion: {
+        _getByProductVersion: {
           method: 'GET',
           url: REST_BASE_URL + '/build-record-sets/product-versions/:versionId'
-        },
-        _getRecords: {
-          method: 'GET',
-          url: REST_BASE_URL + '/build-record-sets/build-records/:recordId'
         }
       });
 
-      PageFactory.decorateNonPaged(resource, '_getAll', 'query');
-      PageFactory.decorateNonPaged(resource, '_getAllForProductVersion', 'getAllForProductVersion');
-      PageFactory.decorateNonPaged(resource, '_getRecords', 'getRecords');
+      PncCacheUtil.decorateIndexId(resource, 'BuildRecordSet', 'get');
+
+      _([['_getAll'],
+         ['_getByProductVersion']]).each(function(e) {
+        PncCacheUtil.decorate(resource, 'BuildRecordSet', e[0]);
+      });
+
+      _([['_getAll', 'getAll'],
+         ['_getByProductVersion', 'getByProductVersion']]).each(function(e) {
+        PageFactory.decorateNonPaged(resource, e[0], e[1]);
+      });
 
       return resource;
     }

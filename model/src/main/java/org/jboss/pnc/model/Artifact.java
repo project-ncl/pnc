@@ -18,6 +18,7 @@
 package org.jboss.pnc.model;
 
 import org.hibernate.annotations.ForeignKey;
+import org.jboss.pnc.model.event.EntityUpdateEventNotifier;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -45,6 +46,7 @@ import javax.validation.constraints.NotNull;
 // Ordinarily, I'd model this as a common base class and two subclasses to capture the variant info.
 // I'm not sure how it would need to be modeled for efficient storage via JPA.
 @Entity
+@EntityListeners(EntityUpdateEventNotifier.class)
 public class Artifact implements GenericEntity<Integer> {
 
     private static final long serialVersionUID = -2368833657284575734L;

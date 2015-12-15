@@ -22,7 +22,8 @@
 
   var module = angular.module('pnc.common.restclient', [
     'ngResource',
-    'pnc.util'
+    'pnc.util',
+    'pnc.common.cache'
   ]);
 
   module.value('REST_BASE_URL', '/pnc-rest/rest');

@@ -25,9 +25,10 @@
    * @author Jakub Senko
    */
   module.directive('pncRunningBuildsPanel', [
+    'PncCache',
     'RunningBuildRecordDAO',
     'eventTypes',
-    function (RunningBuildRecordDAO, eventTypes) {
+    function (PncCache, RunningBuildRecordDAO, eventTypes) {
 
       return {
         restrict: 'E',
@@ -36,15 +37,24 @@
           configurationId: '='
         },
         link: function (scope) {
-          scope.page = RunningBuildRecordDAO.getPagedByConfiguration({ configurationId: scope.configurationId });
 
-          var update = function (event, payload) { console.log('!!!!!!!!!!!!!', event);
-            /* jshint unused: false */
-            scope.page.reload();
-          };
+          scope.page = PncCache.key('pnc.record.pncRunningBuildsPanel').key('configurationId:' + scope.configurationId).key('page').getOrSet(function() {
+            return RunningBuildRecordDAO.getPagedByBC({ configurationId: scope.configurationId });
+          }).then(function(page) {
+            page.reload();
+            return page;
+          }).then(function(page) {
 
-          scope.$on(eventTypes.BUILD_STARTED, update);
-          scope.$on(eventTypes.BUILD_FINISHED, update);
+            var update = function (event, payload) {
+              /* jshint unused: false */
+              page.reload();
+            };
+
+            scope.$on(eventTypes.BUILD_STARTED, update);
+            scope.$on(eventTypes.BUILD_FINISHED, update);
+
+            return page;
+          });
         }
       };
     }

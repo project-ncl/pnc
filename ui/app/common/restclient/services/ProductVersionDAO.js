@@ -24,21 +24,21 @@
   module.value('PRODUCT_VERSION_ENDPOINT', '/product-versions/:versionId');
 
   /**
+   * DAO methods MUST return the same resource type they are defined on.
+   *
    * @author Alex Creasy
    * @author Jakub Senko
    */
   module.factory('ProductVersionDAO', [
     '$resource',
+    '$injector',
     'REST_BASE_URL',
     'PRODUCT_VERSION_ENDPOINT',
     'PageFactory',
-    'ProductDAO',
-    'ProductMilestoneDAO',
-    'cachedGetter',
-    'ProductReleaseDAO',
     'QueryHelper',
-    function($resource, REST_BASE_URL, PRODUCT_VERSION_ENDPOINT,
-             PageFactory, ProductDAO, ProductMilestoneDAO, cachedGetter, ProductReleaseDAO, qh) {
+    'PncCacheUtil',
+    function($resource, $injector, REST_BASE_URL, PRODUCT_VERSION_ENDPOINT,
+             PageFactory, qh, PncCacheUtil) {
       var ENDPOINT = REST_BASE_URL + PRODUCT_VERSION_ENDPOINT;
 
       var resource = $resource(ENDPOINT, {
@@ -50,40 +50,60 @@
         update: {
           method: 'PUT'
         },
-        _getBCSets: {
-          method: 'GET',
-          url: ENDPOINT + '/build-configuration-sets' + qh.searchOnly(['name'])
-        },
         _getByProduct: {
           method: 'GET',
           url: REST_BASE_URL + '/products/:productId/product-versions' + qh.searchOnly(['version'])
+        },
+        _getByBC: {
+          method: 'GET',
+          url: REST_BASE_URL + '/build-configurations/:configurationId/product-versions'
         }
       });
 
-      PageFactory.decorateNonPaged(resource, '_getAll', 'query');
-      PageFactory.decorateNonPaged(resource, '_getBCSets', 'getAllBuildConfigurationSets');
-      PageFactory.decorateNonPaged(resource, '_getByProduct', 'getAllForProduct');
+      _([['get', 'versionId']]).each(function(e) {
+        PncCacheUtil.decorateIndexId(resource, 'ProductVersion', e[0], e[1]);
+      });
 
-      PageFactory.decorate(resource, '_getBCSets', 'getPagedBCSets');
-      PageFactory.decorate(resource, '_getByProduct', 'getPagedByProduct');
+      _([['_getAll'],
+         ['_getByBC'],
+         ['_getByProduct']]).each(function(e) {
+        PncCacheUtil.decorate(resource, 'ProductVersion', e[0]);
+      });
 
-      resource.prototype.getProduct = cachedGetter(
-        function (version) {
-          return ProductDAO.get({productId: version.productId});
-        }
-      );
+      _([['_getAll', 'getAll'],
+         ['_getByBC', 'getByBC'],
+         ['_getByProduct', 'getByProduct']]).each(function(e) {
+        PageFactory.decorateNonPaged(resource, e[0], e[1]);
+      });
 
-      resource.prototype.getMilestones = cachedGetter(
-        function (version) {
-          return ProductMilestoneDAO.getAllForProductVersion({versionId: version.id});
-        }
-      );
+      _([['_getByProduct', 'getPagedByProduct']]).each(function(e) {
+        PageFactory.decorate(resource, e[0], e[1]);
+      });
 
-      resource.prototype.getReleases = cachedGetter(
-        function (version) {
-          return ProductReleaseDAO.getAllForProductVersion({versionId: version.id});
-        }
-      );
+      resource.prototype.getProduct = function () {
+        return $injector.get('ProductDAO').get({ productId: this.productId });
+      };
+
+      resource.prototype.getMilestones = function () {
+        return $injector.get('ProductMilestoneDAO').getByProductVersion({ versionId: this.id });
+      };
+
+      resource.prototype.getReleases = function () {
+        return $injector.get('ProductReleaseDAO').getByProductVersion({ versionId: this.id });
+      };
+
+      resource.prototype.getBCSets = function () {
+        return $injector.get('BuildConfigurationSetDAO').getByProductVersion({ versionId: this.id });
+      };
+
+      resource.prototype.getPagedBCSets = function () {
+        return $injector.get('BuildConfigurationSetDAO').getPagedByProductVersion({ versionId: this.id });
+      };
+
+      resource.prototype.getBCs = function () {
+        return $injector.get('BuildConfigurationDAO').getByProductVersion({ productId: this.productId, versionId: this.id });
+      };
+
       return resource;
     }
   ]);

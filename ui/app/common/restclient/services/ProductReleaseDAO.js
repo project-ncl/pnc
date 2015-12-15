@@ -22,7 +22,10 @@
   var module = angular.module('pnc.common.restclient');
 
   module.value('RELEASE_ENDPOINT', '/product-releases/:releaseId');
+
   /**
+   * DAO methods MUST return the same resource type they are defined on.
+   *
    * @author Alex Creasy
    * @author Jakub Senko
    */
@@ -31,7 +34,8 @@
     'REST_BASE_URL',
     'RELEASE_ENDPOINT',
     'PageFactory',
-    function($resource, REST_BASE_URL, RELEASE_ENDPOINT, PageFactory) {
+    'PncCacheUtil',
+    function($resource, REST_BASE_URL, RELEASE_ENDPOINT, PageFactory, PncCacheUtil) {
       var ENDPOINT = REST_BASE_URL + RELEASE_ENDPOINT;
 
       var resource = $resource(ENDPOINT, {
@@ -52,15 +56,24 @@
         save: {
           method: 'POST'
         },
-        _getAllSupportLevel: {
+        _getSupportLevels: {
           method: 'GET',
           url: REST_BASE_URL + '/product-releases/support-level'
         }
       });
 
-      PageFactory.decorateNonPaged(resource, '_getAll', 'query');
-      PageFactory.decorateNonPaged(resource, '_getByProductVersion', 'getAllForProductVersion');
-      PageFactory.decorateNonPaged(resource, '_getAllSupportLevel', 'getAllSupportLevel');
+      PncCacheUtil.decorateIndexId(resource, 'ProductRelease', 'get');
+
+      _([['_getAll'],
+         ['_getByProductVersion']]).each(function(e) {
+        PncCacheUtil.decorate(resource, 'ProductRelease', e[0]);
+      });
+
+      _([['_getAll', 'getAll'],
+         ['_getByProductVersion', 'getByProductVersion'],
+         ['_getSupportLevels', 'getSupportLevels']]).each(function(e) {
+        PageFactory.decorateNonPaged(resource, e[0], e[1]);
+      });
 
       PageFactory.decorate(resource, '_getByProductVersion', 'getPagedByProductVersion');
 

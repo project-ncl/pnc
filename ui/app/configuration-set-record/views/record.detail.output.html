@@ -37,7 +37,13 @@
         <td>{{ artifact.status }}</td>
         <td class="text-center"><a ng-href="{{ artifact.deployUrl }}" target="_self"
                                    class="btn btn-primary">Download</a></td>
-        <td>{{ record.getBuildConfiguration().name }}</td>
+        <td>
+          <pnc-loader loader="record.getBuildConfiguration()">
+            <!--
+              {{ data.name }}
+            -->
+          </pnc-loader>
+        </td>
         <td><a href ui-sref="record.detail.info({recordId: record.id})"># {{ record.id }}</a></td>
       </tr>
       </tbody>

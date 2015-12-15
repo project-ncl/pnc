@@ -25,17 +25,22 @@
     '/build-configurations/:configurationId');
 
   /**
+   * DAO methods MUST return the same resource type they are defined on.
    *
+   * @author Alex Creasy
+   * @author Jakub Senko
    */
   module.factory('BuildConfigurationDAO', [
     '$resource',
+    '$injector',
     'REST_BASE_URL',
     'BUILD_CONFIGURATION_ENDPOINT',
-    'ProjectDAO',
-    'cachedGetter',
     'PageFactory',
     'QueryHelper',
-    function ($resource, REST_BASE_URL, BUILD_CONFIGURATION_ENDPOINT, ProjectDAO, cachedGetter, PageFactory, qh) {
+    'PncCacheUtil',
+    function ($resource, $injector, REST_BASE_URL, BUILD_CONFIGURATION_ENDPOINT,
+      PageFactory, qh, PncCacheUtil) {
+
       var ENDPOINT = REST_BASE_URL + BUILD_CONFIGURATION_ENDPOINT;
 
       var resource = $resource(ENDPOINT, {
@@ -69,19 +74,11 @@
           url: ENDPOINT + '/build',
           successNotification: false
         },
-        _getBuildRecords: {
-          method: 'GET',
-          url: REST_BASE_URL + '/build-records?q=latestBuildConfiguration.id==:configurationId'
-        },
-        _getProductVersions: {
-          method: 'GET',
-          url: ENDPOINT + '/product-versions'
-        },
         _getDependencies: {
           method: 'GET',
-          url: ENDPOINT + '/dependencies'
+          url: REST_BASE_URL + '/build-configurations/:configurationId/dependencies'
         },
-        _getAllForProduct: {
+        _getByProduct: {
           method: 'GET',
           url: REST_BASE_URL + '/build-configurations/products/:productId'
         },
@@ -93,26 +90,56 @@
         _getByProject: {
           method: 'GET',
           url: REST_BASE_URL + '/build-configurations/projects/:projectId'
+        },
+        _getByBCSet: {
+          method: 'GET',
+          url: REST_BASE_URL + '/build-configuration-sets/:configurationSetId/build-configurations' +
+            qh.searchOnly(['name'])
         }
       });
 
-      PageFactory.decorateNonPaged(resource, '_getAll', 'query');
-      PageFactory.decorateNonPaged(resource, '_getBuildRecords', 'getBuildRecords');
-      PageFactory.decorateNonPaged(resource, '_getProductVersions', 'getProductVersions');
-      PageFactory.decorateNonPaged(resource, '_getDependencies', 'getDependencies');
-      PageFactory.decorateNonPaged(resource, '_getAllForProduct', 'getAllForProduct');
-      PageFactory.decorateNonPaged(resource, '_getByProductVersion', 'getAllForProductVersion');
-      PageFactory.decorateNonPaged(resource, '_getByProject', 'getAllForProject');
+      PncCacheUtil.decorateIndexId(resource, 'BuildConfiguration', 'get');
 
-      PageFactory.decorate(resource, '_getAll', 'getAll');
-      PageFactory.decorate(resource, '_getByProductVersion', 'getPagedByProductVersion');
-      PageFactory.decorate(resource, '_getByProject', 'getPagedByProject');
+      _([['_getAll'],
+         ['_getByBCSet'],
+         ['_getByProduct'],
+         ['_getByProductVersion'],
+         ['_getByProject'],
+         ['_getDependencies']]).each(function(e) {
+        PncCacheUtil.decorate(resource, 'BuildConfiguration', e[0]);
+      });
 
-      resource.prototype.getProject = cachedGetter(
-        function (configuration) {
-          return ProjectDAO.get({projectId: configuration.projectId});
-        }
-      );
+      _([['_getAll', 'getAll'],
+         ['_getByBCSet', 'getByBCSet'],
+         ['_getByProduct', 'getByProduct'],
+         ['_getByProductVersion', 'getByProductVersion'],
+         ['_getByProject', 'getByProject'],
+         ['_getDependencies', 'getDependencies']]).each(function(e) {
+        PageFactory.decorateNonPaged(resource, e[0], e[1]);
+      });
+
+      _([['_getAll', 'getAllPaged'],
+         ['_getByBCSet', 'getPagedByBCSet'],
+         ['_getByProductVersion', 'getPagedByProductVersion'],
+         ['_getByProject', 'getPagedByProject']]).each(function(e) {
+        PageFactory.decorate(resource, e[0], e[1]);
+      });
+
+      resource.prototype.getProject = function() {
+        return $injector.get('ProjectDAO').get({ projectId: this.projectId });
+      };
+
+      resource.prototype.getProductVersions = function() {
+        return $injector.get('ProductVersionDAO').getByBC({ configurationId: this.id });
+      };
+
+      resource.prototype.getLatestBuildRecord = function() {
+        return $injector.get('BuildRecordDAO').getLatestByBC({ configurationId: this.id }).$promise;
+      };
+
+      resource.prototype.getDependencies = function() {
+        return resource.getDependencies({ configurationId: this.id });
+      };
 
       return resource;
     }

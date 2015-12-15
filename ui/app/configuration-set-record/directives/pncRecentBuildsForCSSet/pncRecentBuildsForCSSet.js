@@ -26,9 +26,10 @@
    */
   module.directive('pncRecentBuildsForCSSet', [
     '$log',
+    'PncCache',
     'BuildRecordDAO',
     'eventTypes',
-    function ($log, BuildRecordDAO, eventTypes) {
+    function ($log, PncCache, BuildRecordDAO, eventTypes) {
 
       return {
         restrict: 'E',
@@ -38,15 +39,23 @@
         },
         link: function (scope) {
 
-          scope.page = BuildRecordDAO.getPagedByBCSetRecord({bcSetRecordId: scope.bcSetRecordId});
+          scope.page = PncCache.key('pnc.configuration-set-record.pncRecentBuildsForCSSet').key('bcSetRecordId:' + scope.bcSetRecordId).key('page').getOrSet(function() {
+              return BuildRecordDAO.getPagedByBCSetRecord({bcSetRecordId: scope.bcSetRecordId});
+          }).then(function(page) {
+            page.reload();
+            return page;
+          }).then(function(page) {
 
-          var update = function (event, payload) {
-            /* jshint unused: false */
-            scope.page.reload();
-          };
+            var update = function (event, payload) {
+              /* jshint unused: false */
+              page.reload();
+            };
 
-          scope.$on(eventTypes.BUILD_STARTED, update);
-          scope.$on(eventTypes.BUILD_FINISHED, update);
+            scope.$on(eventTypes.BUILD_STARTED, update);
+            scope.$on(eventTypes.BUILD_FINISHED, update);
+
+            return page;
+          });
         }
       };
     }

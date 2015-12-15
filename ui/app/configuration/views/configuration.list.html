@@ -46,7 +46,7 @@
           </a>
         </td>
         <td>{{ configuration.description }}</td>
-        <td>{{ configuration.getProject().name }}</td>
+        <td><pnc-loader loader="configuration.getProject()"><!-- {{ data.name }} --></pnc-loader></td>
         <td>{{ configuration.scmRepoURL }}</td>
         <td>{{ configuration.scmRevision }}</td>
         <td>{{ configuration.creationTime | date:'medium'}}</td>

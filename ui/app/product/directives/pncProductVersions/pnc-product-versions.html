@@ -34,25 +34,32 @@
         {{ version.version }}
       </a>
     </td>
-    <td> {{ getVersionMilestones(version.id) }}
-       <span
-         ng-repeat="productmilestone in versionMilestones[version.id] | orderBy: '-productmilestone.startingDate'">
-             <span data-tooltip-html-unsafe="{{ getMilestoneTooltip(productmilestone) }}"
-                   data-tooltip-placement="right"
-                   class="label label-default"
-                   ng-class="{ 'label label-primary' : productmilestone.id == version.currentProductMilestoneId }">
-               {{ productmilestone.version }}
-             </span>
-       </span>
+    <td>
+      <pnc-loader loader="version.getMilestones()">
+        <!--
+          <span ng-repeat="productmilestone in data | orderBy: '-productmilestone.startingDate'">
+            <span data-tooltip-html-unsafe="{{ getMilestoneTooltip(productmilestone) }}"
+                  data-tooltip-placement="right"
+                  class="label label-default"
+                  ng-class="{ 'label label-primary' : productmilestone.id == version.currentProductMilestoneId }">
+              {{ productmilestone.version }}
+            </span>
+          </span>
+        -->
+      </pnc-loader>
     </td>
     <td>
-           <span ng-repeat="productrelease in versionReleases[version.id] | orderBy: '-productrelease.releaseDate'">
-             <span data-tooltip-html-unsafe="{{ getReleaseTooltip(productrelease) }}"
-                   data-tooltip-placement="right"
-                   class="label label-success">
-               {{ productrelease.version }}
-             </span>
-           </span>
+      <pnc-loader loader="version.getReleases()">
+        <!--
+          <span ng-repeat="productrelease in data | orderBy: '-productrelease.releaseDate'">
+            <span data-tooltip-html-unsafe="{{ getReleaseTooltip(productrelease) }}"
+                  data-tooltip-placement="right"
+                  class="label label-success">
+              {{ productrelease.version }}
+            </span>
+          </span>
+        -->
+      </pnc-loader>
     </td>
   </tr>
   </tbody>

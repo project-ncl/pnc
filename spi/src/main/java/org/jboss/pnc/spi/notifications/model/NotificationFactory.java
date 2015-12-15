@@ -17,10 +17,12 @@
  */
 package org.jboss.pnc.spi.notifications.model;
 
+import org.jboss.pnc.model.event.EntityUpdateEvent;
 import org.jboss.pnc.spi.events.BuildSetStatusChangedEvent;
 import org.jboss.pnc.spi.events.BuildStatusChangedEvent;
 
 public interface NotificationFactory {
     Notification createNotification(BuildStatusChangedEvent event);
     Notification createNotification(BuildSetStatusChangedEvent event);
+    Notification createNotification(EntityUpdateEvent event);
 }

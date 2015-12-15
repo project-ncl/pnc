@@ -38,7 +38,7 @@
 
           scope.selectedName = 'Select';
 
-          var loader = ProjectDAO.query;
+          var loader = ProjectDAO.getAll;
           var promise = loader().then(function (r) {
             scope.items = r;
           });
