@@ -45,7 +45,6 @@
     <tag>HEAD</tag>
   </scm>
 
-
   <modules>
     <module>test-common</module>
     <module>test-arquillian-container</module>
@@ -86,6 +85,7 @@
     <version.org.apache.httpcomponents.httpclient>4.3.6</version.org.apache.httpcomponents.httpclient>
     <version.org.apache.httpcomponents.httpcore>4.3.3</version.org.apache.httpcomponents.httpcore>
     <version.org.postgresql>9.3-1102-jdbc41</version.org.postgresql>
+    <version.org.jboss.logging>3.1.0.GA</version.org.jboss.logging>
     <version.org.json>20141113</version.org.json>
     <version.jackson>2.4.4</version.jackson>
     <version.jackson.annotations>2.4.1</version.jackson.annotations>
@@ -480,17 +480,16 @@
 
       <dependency>
         <groupId>org.jboss.spec</groupId>
-        <artifactId>jboss-javaee6-specs-bom</artifactId>
-        <version>1.0.1.Final</version>
+        <artifactId>jboss-javaee-6.0</artifactId>
+        <version>3.0.3.Final</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
 
       <dependency>
-        <groupId>org.jboss.spec</groupId>
-        <artifactId>jboss-javaee-6.0</artifactId>
-        <version>1.0.0.Final</version>
-        <type>pom</type>
+        <groupId>org.jboss.logging</groupId>
+        <artifactId>jboss-logging</artifactId>
+        <version>${version.org.jboss.logging}</version>
       </dependency>
 
       <dependency>
@@ -568,6 +567,12 @@
         <groupId>org.jboss.resteasy</groupId>
         <artifactId>resteasy-jaxrs</artifactId>
         <version>2.3.5.Final</version>
+        <exclusions>
+          <exclusion>
+            <groupId>javax.annotation</groupId>
+            <artifactId>jsr250-api</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
 
       <dependency>

@@ -33,6 +33,7 @@
   <description>Data for DEMO</description>
 
   <dependencies>
+    <!-- Intermodule dependencies -->
     <dependency>
       <groupId>org.jboss.pnc</groupId>
       <artifactId>datastore</artifactId>
@@ -41,16 +42,24 @@
       <groupId>org.jboss.pnc</groupId>
       <artifactId>model</artifactId>
     </dependency>
-
     <dependency>
-      <groupId>org.jboss.spec</groupId>
-      <artifactId>jboss-javaee-6.0</artifactId>
-      <type>pom</type>
-      <scope>provided</scope>
+      <groupId>org.jboss.pnc</groupId>
+      <artifactId>spi</artifactId>
+    </dependency>
+
+    <!-- Compile time dependencies -->
+    <dependency>
+      <groupId>com.google.guava</groupId>
+      <artifactId>guava</artifactId>
     </dependency>
     <dependency>
       <groupId>javax.inject</groupId>
       <artifactId>javax.inject</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.logging</groupId>
+      <artifactId>jboss-logging</artifactId>
       <scope>provided</scope>
     </dependency>
     <dependency>
@@ -59,14 +68,10 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
-      <groupId>com.google.guava</groupId>
-      <artifactId>guava</artifactId>
+      <groupId>org.jboss.spec.javax.annotation</groupId>
+      <artifactId>jboss-annotations-api_1.1_spec</artifactId>
+      <scope>provided</scope>
     </dependency>
 
-    <dependency>
-      <groupId>org.jboss.pnc</groupId>
-      <artifactId>test-common</artifactId>
-      <scope>test</scope>
-    </dependency>
   </dependencies>
 </project>
