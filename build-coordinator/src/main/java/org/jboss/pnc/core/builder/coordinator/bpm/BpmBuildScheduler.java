@@ -173,10 +173,16 @@ public class BpmBuildScheduler implements BuildScheduler {
                 .map(BuildConfiguration::getProject)
                 .map(Project::getId)
                 .orElse(null));
-        params.put("dependencyIds", "\"" + buildTask.getBuildConfigurationDependencies().stream()
-                .map(dep -> dep.getId().toString())
-                .collect(Collectors.joining(","))  + "\"");
+        params.put("dependencyIds", getDependencyIds(buildTask));
+
         parameters.put("paramsJSON", objectMapper.writeValueAsString(params));
+    }
+
+    private String getDependencyIds(BuildTask buildTask) {
+        String ids = buildTask.getBuildConfigurationDependencies().stream()
+                .map(dep -> dep.getId().toString())
+                .collect(Collectors.joining(","));
+        return ids.isEmpty() ? null : ids;
     }
 
     void fillUrls(Map<String, Object> parameters) throws ConfigurationParseException {
