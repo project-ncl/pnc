@@ -18,6 +18,7 @@
 package org.jboss.pnc.model;
 
 import org.hibernate.annotations.ForeignKey;
+import org.hibernate.annotations.Index;
 
 import javax.persistence.*;
 import javax.persistence.Table;
@@ -58,6 +59,7 @@ public class ProductVersion implements GenericEntity<Integer> {
     @NotNull
     @ManyToOne(cascade = { CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH })
     @ForeignKey(name = "fk_productversion_product")
+    @Index(name="idx_productversion_product")
     private Product product;
 
     @OneToMany(mappedBy = "productVersion")
@@ -68,6 +70,7 @@ public class ProductVersion implements GenericEntity<Integer> {
 
     @OneToOne
     @ForeignKey(name = "fk_productversion_currentmilestone")
+    @Index(name="idx_productversion_currentmilestone")
     private ProductMilestone currentProductMilestone;
 
     @ManyToMany(mappedBy = "productVersions")

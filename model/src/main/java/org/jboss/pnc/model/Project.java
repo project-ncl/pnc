@@ -18,6 +18,7 @@
 package org.jboss.pnc.model;
 
 import org.hibernate.annotations.ForeignKey;
+import org.hibernate.annotations.Index;
 import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
@@ -60,6 +61,7 @@ public class Project implements GenericEntity<Integer> {
 
     @ManyToOne
     @ForeignKey(name = "fk_project_license")
+    @Index(name="idx_project_license")
     private License license;
 
     @OneToMany(mappedBy = "project", cascade = { CascadeType.REFRESH, CascadeType.REMOVE })

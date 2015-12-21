@@ -18,6 +18,7 @@
 package org.jboss.pnc.model;
 
 import org.hibernate.annotations.ForeignKey;
+import org.hibernate.annotations.Index;
 import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
@@ -71,11 +72,13 @@ public class BuildConfigurationAudited implements GenericEntity<IdRev> {
     @NotNull
     @ManyToOne
     @ForeignKey(name = "fk_buildconfiguration_aud_project")
+    @Index(name="idx_buildconfiguration_aud_project")
     private Project project;
 
     @NotNull
     @ManyToOne
     @ForeignKey(name = "fk_buildconfiguration_aud_buildenvironment")
+    @Index(name="idx_buildconfiguration_aud_buildenvironment")
     private BuildEnvironment buildEnvironment;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "buildConfigurationAudited")
