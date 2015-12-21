@@ -126,7 +126,7 @@ public class BuildRecordProvider extends AbstractProvider<BuildRecord, BuildReco
                     submittedBuild.getId(),
                     submittedBuild.getSubmitTime()
             );
-            waitingExecution.setStatus(BuildStatus.BUILD_WAITING);
+            waitingExecution.setStatus(BuildStatus.BUILD_WAITING); //TODO set status in constructor
             return new BuildRecordRest(waitingExecution, submittedBuild.getSubmitTime());
         }
     }

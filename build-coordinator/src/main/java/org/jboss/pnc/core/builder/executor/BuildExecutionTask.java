@@ -92,6 +92,7 @@ public class BuildExecutionTask implements BuildExecution {
             failed = true;
         }
         buildStatusChangedEventNotifier.ifPresent((notifier) -> notifier.fire(buildStatusChanged));
+        log.debug("Fired events after build execution task {} update.", id);
     }
 
     public BuildConfiguration getBuildConfiguration() {
