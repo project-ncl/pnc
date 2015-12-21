@@ -49,9 +49,7 @@
 
           $scope.loadOptions = function() {
             if (!$scope.searchText) {
-              $log.debug('Temporary implementation');
-              lastItem += lastItem === 0 ? 15 : 5; 
-              $scope.items._refresh(0, lastItem );
+              $scope.items.loadMore();
             }
           };
 
