@@ -18,6 +18,7 @@
 package org.jboss.pnc.model;
 
 import org.hibernate.annotations.ForeignKey;
+import org.hibernate.annotations.Index;
 import org.hibernate.annotations.Type;
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
@@ -99,17 +100,20 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
                     @JoinColumn(name = "product_version_id", referencedColumnName = "id") }, uniqueConstraints = @UniqueConstraint(name = "UK_build_configuration_id_product_version_id", columnNames = {
                             "build_configuration_id", "product_version_id" }) )
     @ForeignKey(name = "fk_build_configuration_product_versions_map_buildconfiguration", inverseName = "fk_build_configuration_product_versions_map_productversion")
+    @Index(name="idx_build_configuration_product_versions_map_buildconfiguration", columnNames={"build_configuration_id", "product_version_id"} )
     private Set<ProductVersion> productVersions;
 
     @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
     @NotNull
     @ManyToOne(cascade = { CascadeType.REFRESH, CascadeType.DETACH })
     @ForeignKey(name = "fk_buildconfiguration_project")
+    @Index(name="idx_buildconfiguration_project")
     private Project project;
 
     @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
     @ManyToOne(cascade = { CascadeType.REFRESH, CascadeType.DETACH })
     @ForeignKey(name = "fk_buildconfiguration_buildenvironment")
+    @Index(name="idx_buildconfiguration_buildenvironment")
     private BuildEnvironment buildEnvironment;
 
     @NotAudited
@@ -145,6 +149,7 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
             @JoinColumn(name = "dependency_id", referencedColumnName = "id") }, inverseJoinColumns = {
                     @JoinColumn(name = "dependant_id", referencedColumnName = "id") })
     @ForeignKey(name = "fk_build_configuration_dep_map_dependency", inverseName = "fk_build_configuration_dep_map_dependant")
+    @Index(name="idx_build_configuration_dep_map_dependency", columnNames={"dependency_id", "dependant_id"} )
     private Set<BuildConfiguration> dependencies;
 
     /**
