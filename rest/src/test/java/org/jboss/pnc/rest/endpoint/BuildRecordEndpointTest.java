@@ -77,7 +77,7 @@ public class BuildRecordEndpointTest {
         BuildRecord buildRecord = mock(BuildRecord.class);
 
         Mockito.when(buildRecord.getBuildLog()).thenReturn(logContent);
-        Mockito.when(buildRecordRepository.queryById(logId)).thenReturn(buildRecord);
+        Mockito.when(buildRecordRepository.findByIdFetchAllProperties(logId)).thenReturn(buildRecord);
         return buildRecordEndpoint;
     }
 
