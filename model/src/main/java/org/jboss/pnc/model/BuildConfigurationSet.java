@@ -18,6 +18,7 @@
 package org.jboss.pnc.model;
 
 import org.hibernate.annotations.ForeignKey;
+import org.hibernate.annotations.Index;
 
 import javax.persistence.*;
 import javax.persistence.Column;
@@ -44,11 +45,13 @@ public class BuildConfigurationSet implements GenericEntity<Integer> {
 
     @ManyToOne(cascade = { CascadeType.REFRESH, CascadeType.DETACH })
     @ForeignKey(name = "fk_buildconfigurationset_productversion")
+    @Index(name="idx_buildconfigurationset_productversion")
     private ProductVersion productVersion;
 
     @ManyToMany
     @JoinTable(name = "build_configuration_set_map", joinColumns = { @JoinColumn(name = "build_configuration_set_id", referencedColumnName = "id") }, inverseJoinColumns = { @JoinColumn(name = "build_configuration_id", referencedColumnName = "id") })
     @ForeignKey(name = "fk_build_configuration_set_map_buildconfigurationset", inverseName = "fk_build_configuration_set_map_buildconfiguration")
+    @Index(name="idx_build_configuration_set_map_buildconfigurationset", columnNames={"build_configuration_set_id", "build_configuration_id"} )
     private Set<BuildConfiguration> buildConfigurations = new HashSet<BuildConfiguration>();
 
     @OneToMany(mappedBy = "buildConfigurationSet")

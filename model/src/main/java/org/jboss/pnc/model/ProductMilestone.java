@@ -18,6 +18,7 @@
 package org.jboss.pnc.model;
 
 import org.hibernate.annotations.ForeignKey;
+import org.hibernate.annotations.Index;
 
 import javax.persistence.*;
 import javax.persistence.Table;
@@ -81,6 +82,7 @@ public class ProductMilestone implements GenericEntity<Integer> {
     @NotNull
     @ManyToOne(cascade = { CascadeType.REFRESH })
     @ForeignKey(name = "fk_productmilestone_productversion")
+    @Index(name="idx_productmilestone_productversion")
     @JoinColumn(updatable = false)
     private ProductVersion productVersion;
 
@@ -101,6 +103,8 @@ public class ProductMilestone implements GenericEntity<Integer> {
     @OneToOne(cascade = { CascadeType.REFRESH })
     @NotNull
     @JoinColumn(updatable = false)
+    @ForeignKey(name = "fk_productmilestone_performed_buildrecordset")
+    @Index(name="idx_productmilestone_performed_buildrecordset")
     private BuildRecordSet performedBuildRecordSet;
 
     /**
@@ -116,6 +120,8 @@ public class ProductMilestone implements GenericEntity<Integer> {
     @OneToOne(cascade = { CascadeType.REFRESH })
     @NotNull
     @JoinColumn(updatable = false)
+    @ForeignKey(name = "fk_productmilestone_distributed_buildrecordset")
+    @Index(name="idx_productmilestone_distributed_buildrecordset")
     private BuildRecordSet distributedBuildRecordSet;
 
     @Override

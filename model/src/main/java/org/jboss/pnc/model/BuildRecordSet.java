@@ -19,6 +19,7 @@ package org.jboss.pnc.model;
 
 
 import org.hibernate.annotations.ForeignKey;
+import org.hibernate.annotations.Index;
 import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
@@ -63,6 +64,7 @@ public class BuildRecordSet implements GenericEntity<Integer> {
     @ManyToMany
     @JoinTable(name = "build_record_set_map", joinColumns = { @JoinColumn(name = "build_record_set_id", referencedColumnName = "id") }, inverseJoinColumns = { @JoinColumn(name = "build_record_id", referencedColumnName = "id") })
     @ForeignKey(name = "fk_build_record_set_map_buildrecordset", inverseName = "fk_build_record_set_map_buildrecord")
+    @Index(name="idx_build_record_set_map_buildrecordset", columnNames={"build_record_set_id", "build_record_id"} )
     private Set<BuildRecord> buildRecords;
 
     /**

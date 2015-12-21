@@ -18,6 +18,7 @@
 package org.jboss.pnc.model;
 
 import org.hibernate.annotations.ForeignKey;
+import org.hibernate.annotations.Index;
 import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
@@ -56,6 +57,7 @@ public class BuildRecord implements GenericEntity<Integer> {
     @ManyToOne(cascade = { CascadeType.REFRESH })
     @JoinColumn(name = "buildconfiguration_id", insertable = false, updatable = false)
     @ForeignKey(name = "fk_buildrecord_buildconfiguration")
+    @Index(name="idx_buildrecord_buildconfiguration")
     private BuildConfiguration latestBuildConfiguration;
 
     /**
@@ -69,6 +71,7 @@ public class BuildRecord implements GenericEntity<Integer> {
     @JoinColumns({ @JoinColumn(name = "buildconfiguration_id", referencedColumnName = "id"),
             @JoinColumn(name = "buildconfiguration_rev", referencedColumnName = "rev") })
     @ForeignKey(name = "fk_buildrecord_buildconfiguration_aud")
+    @Index(name="idx_buildrecord_buildconfiguration_aud")
     private BuildConfigurationAudited buildConfigurationAudited;
 
     private String buildContentId;
@@ -97,6 +100,7 @@ public class BuildRecord implements GenericEntity<Integer> {
     // @NotNull //TODO uncomment
     @ManyToOne
     @ForeignKey(name = "fk_buildrecord_user")
+    @Index(name="idx_buildrecord_user")
     private User user;
 
     /**
@@ -140,6 +144,7 @@ public class BuildRecord implements GenericEntity<Integer> {
      */
     @ManyToOne
     @ForeignKey(name = "fk_buildrecord_systemimage")
+    @Index(name="idx_buildrecord_systemimage")
     private BuildEnvironment systemImage;
 
     // bi-directional many-to-many association to buildRecordSet
@@ -156,6 +161,7 @@ public class BuildRecord implements GenericEntity<Integer> {
      */
     @ManyToOne
     @ForeignKey(name = "fk_buildrecord_buildconfigsetrecord")
+    @Index(name="idx_buildrecord_buildconfigsetrecord")
     private BuildConfigSetRecord buildConfigSetRecord;
 
     /**

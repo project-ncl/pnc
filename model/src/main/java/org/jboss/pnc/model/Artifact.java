@@ -18,6 +18,7 @@
 package org.jboss.pnc.model;
 
 import org.hibernate.annotations.ForeignKey;
+import org.hibernate.annotations.Index;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -79,6 +80,7 @@ public class Artifact implements GenericEntity<Integer> {
     @NotNull
     @ManyToOne
     @ForeignKey(name = "fk_artifact_buildrecord")
+    @Index(name="idx_artifact_buildrecord")
     private BuildRecord buildRecord;
 
     /**

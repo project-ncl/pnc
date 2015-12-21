@@ -18,6 +18,7 @@
 package org.jboss.pnc.model;
 
 import org.hibernate.annotations.ForeignKey;
+import org.hibernate.annotations.Index;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -47,6 +48,7 @@ public class BuildConfigSetRecord implements GenericEntity<Integer> {
     @NotNull
     @ManyToOne
     @ForeignKey(name = "fk_buildconfigsetrecord_buildconfigset")
+    @Index(name="idx_buildconfigsetrecord_buildconfigset")
     private BuildConfigurationSet buildConfigurationSet;
 
     /**
@@ -69,6 +71,7 @@ public class BuildConfigSetRecord implements GenericEntity<Integer> {
     // @NotNull //TODO uncomment
     @ManyToOne
     @ForeignKey(name = "fk_buildconfigsetrecord_user")
+    @Index(name="idx_buildconfigsetrecord_user")
     private User user;
 
     /**
@@ -86,6 +89,7 @@ public class BuildConfigSetRecord implements GenericEntity<Integer> {
 
     @ManyToOne
     @ForeignKey(name = "fk_buildconfigsetrecord_productversion")
+    @Index(name="idx_buildconfigsetrecord_productversion")
     private ProductVersion productVersion;
 
     /**
