@@ -148,8 +148,8 @@
         node.valid = isStrNonEmpty(node.nodeData.name) &&
           (!isStrNonEmpty(node.nodeData.scmUrl) || isValidURL(node.nodeData.scmUrl)) &&
           (!isStrNonEmpty(node.nodeData.name) || isValidBCName(node.nodeData.name)) &&
-          (node.nodeData.environmentId !== null) &&
-          (node.nodeData.projectId !== null);
+          (node.nodeData.environment.id !== null) &&
+          (node.nodeData.project.id !== null);
         return node.valid;
       };
 
