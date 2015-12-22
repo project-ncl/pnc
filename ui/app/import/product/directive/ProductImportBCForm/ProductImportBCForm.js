@@ -54,7 +54,7 @@
 
 
           var validate = function () {
-            if (scope.bcForm.$valid && scope.data.environmentId !== null && scope.data.projectId !== null) {
+            if (scope.bcForm.$valid && scope.data.environment.id !== null && scope.data.project.id !== null) {
               return true;
             } else {
               dirtyForm();
