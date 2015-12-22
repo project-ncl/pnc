@@ -53,22 +53,22 @@
   <div class="panel panel-default" ng-hide="data.useExistingBc">
     <div class="panel-body">
 
-      <div class="form-group" ng-class="{ 'has-error' : bcForm.input1.$invalid, 'has-success': bcForm.input1.$valid && bcForm.input1.$touched }">
-        <label for="input1" class="col-sm-2 control-label">
+      <div class="form-group" ng-class="{ 'has-error' : bcForm.bcFormInput1.$invalid, 'has-success': bcForm.bcFormInput1.$valid && bcForm.bcFormInput1.$touched }">
+        <label for="bcFormInput1" class="col-sm-2 control-label">
           * BC Name&nbsp;<span class="pficon pficon-info" title="Name for the build configuration."></span>
         </label>
 
         <div class="col-sm-10">
-          <input id="input1" name="input1" class="form-control" ng-model="data.name" required pattern="^[a-zA-Z0-9_.][a-zA-Z0-9_.-]*(?!\.git)+$">
-          <span class="help-block" ng-show="bcForm.input1.$error.required">Required field.</span>
-          <span class="help-block" ng-show="bcForm.input1.$error.pattern">The name contains not allowed characters (e.g spaces, commas, semicolons, apex, quotes) </span>
+          <input id="bcFormInput1" name="bcFormInput1" class="form-control" ng-model="data.name" required pattern="^[a-zA-Z0-9_.][a-zA-Z0-9_.-]*(?!\.git)+$">
+          <span class="help-block" ng-show="bcForm.bcFormInput1.$error.required">Required field.</span>
+          <span class="help-block" ng-show="bcForm.bcFormInput1.$error.pattern">The name contains not allowed characters (e.g spaces, commas, semicolons, apex, quotes) </span>
         </div>
       </div>
 
       <div class="form-group">
-        <label for="input2" class="col-sm-2 control-label">Description</label>
+        <label for="bcFormInput2" class="col-sm-2 control-label">Description</label>
         <div class="col-sm-10">
-          <input id="input2" name="input2" class="form-control" ng-model="data.description">
+          <input id="bcFormInput2" name="bcFormInput2" class="form-control" ng-model="data.description">
         </div>
       </div>
 
@@ -79,18 +79,18 @@
   <div class="panel panel-default" ng-hide="data.useExistingBc">
     <div class="panel-body">
 
-      <div class="form-group" ng-class="{ 'has-error' : bcForm.input3.$invalid && !bcForm.input3.$pristine, 'has-success': bcForm.input3.$valid && bcForm.input3.$touched }">
-        <label for="input3" class="col-sm-2 control-label">Git URL</label>
+      <div class="form-group" ng-class="{ 'has-error' : bcForm.bcFormInput3.$invalid && !bcForm.bcFormInput3.$pristine, 'has-success': bcForm.bcFormInput3.$valid && bcForm.bcFormInput3.$touched }">
+        <label for="bcFormInput3" class="col-sm-2 control-label">Git URL</label>
         <div class="col-sm-10">
-          <input type="url" id="input3" name="input3" class="form-control" ng-model="data.scmUrl">
-          <span class="help-block" ng-show="bcForm.input3.$error.url && !bcForm.input3.$pristine">Invalid URL.</span>
+          <input type="url" id="bcFormInput3" name="bcFormInput3" class="form-control" ng-model="data.scmUrl">
+          <span class="help-block" ng-show="bcForm.bcFormInput3.$error.url && !bcForm.bcFormInput3.$pristine">Invalid URL.</span>
         </div>
       </div>
 
       <div class="form-group">
-        <label for="input5" class="col-sm-2 control-label">Revision</label>
+        <label for="bcFormInput4" class="col-sm-2 control-label">Revision</label>
         <div class="col-sm-10">
-          <input id="input5" class="form-control" name="input5" ng-model="data.scmRevision">
+          <input id="bcFormInput4" class="form-control" name="bcFormInput4" ng-model="data.scmRevision">
           <div class="help-block">
             <p>Use branch or tag name only, not hash.</p>
           </div>
@@ -105,9 +105,9 @@
     <div class="panel-body">
 
       <div class="form-group">
-        <label for="input6" class="col-sm-2 control-label">Build script</label>
+        <label for="bcFormInput5" class="col-sm-2 control-label">Build script</label>
         <div class="col-sm-10">
-          <textarea id="input6" name="input6" rows="3" class="form-control" ng-model="data.buildScript"></textarea>
+          <textarea id="bcFormInput5" name="bcFormInput5" rows="3" class="form-control" ng-model="data.buildScript"></textarea>
         </div>
       </div>
 
