@@ -129,7 +129,15 @@
         </ul>
       </div>
     </nav>
-    <div class="notification-area"><pf-notification-list></pf-notification-list></div>
+    <div class="notification-area">
+        <div ng-show="showSpinner">
+          <div class="alert alert-info">
+            <span class="pficon spinner spinner-sm spinner-inline"></span>
+            <strong>Processing...</strong>
+          </div>
+        </div>
+        <pf-notification-list></pf-notification-list>
+    </div>
 
     <div class="container-fluid" ng-cloak>
       <div class="row"> <!-- breadcrumbs -->
