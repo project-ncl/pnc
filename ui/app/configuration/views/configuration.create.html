@@ -32,7 +32,7 @@
                 * Project
               </label>
               <div class="col-sm-10">
-                <select name="projectId" ng-model="createCtrl.data.projectId" required>
+                <select name="projectId" ng-model="createCtrl.data.project.id" required>
                   <option value="">Select a Project</option>
                   <option ng-repeat="project in createCtrl.projects" value="{{ project.id }}">
                     {{ project.name }}
@@ -93,7 +93,7 @@
                 * Environment
               </label>
               <div class="col-sm-10">
-                <select name="environmentId" ng-model="createCtrl.data.environmentId" required>
+                <select name="environmentId" ng-model="createCtrl.data.environment.id" required>
                   <option value="">Select an Environment</option>
                   <option ng-repeat="environment in createCtrl.environments" value="{{ environment.id }}">
                     {{ environment.name }}

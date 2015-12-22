@@ -157,7 +157,7 @@
 
       // We need to set environment from existing environments collections to be able to preselect
       // dropdown element when editing
-      this.environment = findEnvironment(this.configuration.environmentId, this.environments);
+      this.environment = findEnvironment(this.configuration.environment.id, this.environments);
 
       var that = this;
 
@@ -257,7 +257,7 @@
       };
 
       that.updateEnvironment = function() {
-          that.configuration.environmentId = that.environment.id;
+          that.configuration.environment.id = that.environment.id;
       };
 
       // Cloning a build configuration
