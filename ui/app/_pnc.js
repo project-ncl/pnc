@@ -121,6 +121,8 @@
         $log.error('Error navigating to "%s": %s %s', toState.url, error.status,
                    error.statusText);
 
+        $rootScope.showSpinner = false;
+
         switch (error.status) {
           case 401:
             keycloak.login();
@@ -135,6 +137,16 @@
       }
     );
 
+    $rootScope.$on('$stateChangeStart', function(event, toState, toParams, fromState, fromParams) {
+      if (toState.resolve) {
+        $rootScope.showSpinner = true;
+      }
+    });
+    $rootScope.$on('$stateChangeSuccess', function(event, toState, toParams, fromState, fromParams) {
+      if (toState.resolve) {
+        $rootScope.showSpinner = false;
+      }
+    });
   });
 
 })();
