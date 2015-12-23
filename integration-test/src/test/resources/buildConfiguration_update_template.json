@@ -5,6 +5,10 @@
     "creationTime": ${_creationTime},
     "lastModificationTime": ${_lastModificationTime},
     "repositories": "${_repositories}",
-    "projectId": "${_projectId}",
-    "environmentId": "${_environmentId}"
+    "project": {
+      "id": ${_projectId}
+    },
+    "environment": {
+      "id": ${_environmentId}
+    }
 }

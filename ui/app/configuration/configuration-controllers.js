@@ -25,24 +25,8 @@
     '$log',
     '$state',
     'configurationList',
-    'ProjectDAO',
-    function($log, $state, configurationList, ProjectDAO) {
-      var that = this;
-
+    function($log, $state, configurationList) {
       this.configurations = configurationList;
-      this.projects = [];
-
-      angular.forEach(this.configurations.data, function(configuration) {
-        ProjectDAO.get({
-          projectId: configuration.projectId
-        }).$promise.then(
-          function(result) {
-            if (result) {
-              that.projects.push(result);
-            }
-          }
-        );
-      });
     }
   ]);
 
@@ -173,7 +157,7 @@
 
       // We need to set environment from existing environments collections to be able to preselect
       // dropdown element when editing
-      this.environment = findEnvironment(this.configuration.environmentId, this.environments);
+      this.environment = findEnvironment(this.configuration.environment.id, this.environments);
 
       var that = this;
 
@@ -273,7 +257,7 @@
       };
 
       that.updateEnvironment = function() {
-          that.configuration.environmentId = that.environment.id;
+          that.configuration.environment.id = that.environment.id;
       };
 
       // Cloning a build configuration

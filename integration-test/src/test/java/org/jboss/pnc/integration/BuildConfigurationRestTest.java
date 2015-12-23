@@ -253,8 +253,8 @@ public class BuildConfigurationRestTest {
         ResponseAssertion.assertThat(response).hasStatus(200);
         ResponseAssertion.assertThat(response).hasJsonValueEqual("content.id", configurationId)
                 .hasJsonValueEqual("content.name", updatedName).hasJsonValueEqual("content.buildScript", updatedBuildScript)
-                .hasJsonValueEqual("content.scmRepoURL", updatedScmUrl).hasJsonValueEqual("content.projectId", updatedProjectId)
-                .hasJsonValueEqual("content.environmentId", environmentId);
+                .hasJsonValueEqual("content.scmRepoURL", updatedScmUrl).hasJsonValueEqual("content.project.id", updatedProjectId)
+                .hasJsonValueEqual("content.environment.id", environmentId);
         assertThat(projectResponseBeforeTheUpdate.getBody().print()).isEqualTo(projectResponseAfterTheUpdate.getBody().print());
         assertThat(environmentResponseBeforeTheUpdate.getBody().print())
                 .isEqualTo(environmentResponseAfterTheUpdate.getBody().print());
@@ -366,13 +366,13 @@ public class BuildConfigurationRestTest {
 
         BuildConfigurationRest parentBuildConfiguration = new BuildConfigurationRest();
         parentBuildConfiguration.setName(UUID.randomUUID().toString());
-        parentBuildConfiguration.setProjectId(projectRestClient.getValue().getId());
-        parentBuildConfiguration.setEnvironmentId(environmentRestClient.getValue().getId());
+        parentBuildConfiguration.setProject(projectRestClient.getValue());
+        parentBuildConfiguration.setEnvironment(environmentRestClient.getValue());
 
         BuildConfigurationRest childBuildConfiguration = new BuildConfigurationRest();
         childBuildConfiguration.setName(UUID.randomUUID().toString());
-        childBuildConfiguration.setProjectId(projectRestClient.getValue().getId());
-        childBuildConfiguration.setEnvironmentId(environmentRestClient.getValue().getId());
+        childBuildConfiguration.setProject(projectRestClient.getValue());
+        childBuildConfiguration.setEnvironment(environmentRestClient.getValue());
 
         // when
         RestResponse<BuildConfigurationRest> parentConfiguration = this.buildConfigurationRestClient

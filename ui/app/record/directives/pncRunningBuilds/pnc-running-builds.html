@@ -42,11 +42,11 @@
         <td><a href ui-sref="record.detail.info({recordId: record.id})"># {{ record.id }}</a></td>
         <td>
           <a href ui-sref="configuration.detail.show({ configurationId: record.buildConfigurationId })">
-            {{ record.getBuildConfiguration().name }}
+            {{ record.buildConfigurationName }}
           </a>
         </td>
         <td>{{ record.startTime | date:'medium'}}</td>
-        <td class="text-bold">{{ record.getUser().username }}</td>
+        <td class="text-bold">{{ record.username }}</td>
       </tr>
       <tr ng-hide="page.data.length">
         <td>

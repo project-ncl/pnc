@@ -38,21 +38,6 @@
 
           scope.page = ProductVersionDAO.getPagedByProduct({productId: scope.productId});
 
-          scope.versionMilestones = {};
-
-          scope.versionReleases = {};
-
-          scope.page.onUpdate(function(page) {
-            _(page.data).each(function(version) {
-              version.getMilestones().then(function(data) {
-                scope.versionMilestones[version.id] = data;
-              });
-              version.getReleases().then(function(data) {
-                scope.versionReleases[version.id] = data;
-              });
-            });
-          });
-
           var formatDate = function(date) {
             return date.getFullYear() + '/' + date.getMonth() + '/' + date.getDate();
           };

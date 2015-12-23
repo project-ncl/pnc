@@ -37,7 +37,7 @@
       <a ui-sref="configuration.detail.show({configurationId: configuration.id})" href>{{ configuration.name }}</a>
     </td>
     <td>{{ configuration.description }}</td>
-    <td>{{ configuration.getProject().name }}</td>
+    <td>{{ configuration.project.name }}</td>
     <td class="table-data-5-column-even-width">
       <div class="btn-group">
         <button class="btn btn-default ng-scope" tooltip="Start Build" tooltip-placement="bottom" ng-click="buildConfig(configuration)">

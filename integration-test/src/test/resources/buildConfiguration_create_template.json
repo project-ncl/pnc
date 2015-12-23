@@ -5,6 +5,10 @@
     "creationTime":1418382545021,
     "lastModificationTime":1418382545038,
     "repositories":null,
-    "projectId": "${_projectId}",
-    "environmentId": "${_environmentId}"
+    "project": {
+      "id": ${_projectId}
+    },
+    "environment": {
+      "id": ${_environmentId}
+    }
 }

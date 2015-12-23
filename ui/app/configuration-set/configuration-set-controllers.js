@@ -193,22 +193,6 @@
       $log.debug('ConfigurationSetDetailController >> this=%O', self);
       self.set = configurationSetDetail;
       self.configurations = configurations;
-      self.lastBuildRecords = [];
-
-      // Retrieve all the last builds (based on ID, not date) of all the build configurations
-      angular.forEach(configurations, function(configuration) {
-
-        BuildRecordDAO.getLatestForConfiguration({
-          configurationId: configuration.id
-        }).then(
-          function(result) {
-            if (result[0]) {
-              self.lastBuildRecords.push(result[0]);
-            }
-          }
-        );
-      });
-
       self.records = records;
 
       // Build a wrapper object that contains all is needed (to avoid 'ng-repeat' in the pages)

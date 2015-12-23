@@ -27,21 +27,19 @@
   module.directive('pncProductVersionMilestones', [
     '$log',
     '$state',
-    'ProductVersionDAO',
-    'ProductMilestoneDAO',
-    function ($log, $state, ProductVersionDAO, ProductMilestoneDAO) {
+    function ($log, $state) {
 
       return {
         restrict: 'E',
         templateUrl: 'product/directives/pncProductVersionMilestones/pnc-product-version-milestones.html',
         scope: {
-          version: '='
+          version: '=',
+          product: '='
         },
         link: function (scope) {
 
           var versionDetail = scope.version;
-          var productDetail = scope.version.getProduct();
-          scope.page = ProductMilestoneDAO.getPagedByProductVersion({versionId: scope.version.id});
+          var productDetail = scope.product;
 
           scope.unreleaseMilestone = function (milestone) {
             $log.debug('Unreleasing milestone: %O', milestone);

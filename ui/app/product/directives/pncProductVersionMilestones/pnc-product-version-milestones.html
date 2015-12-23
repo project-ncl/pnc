@@ -39,7 +39,7 @@
   <th>Actions</th>
   </thead>
   <tbody>
-  <tr ng-repeat="productmilestone in page.data">
+  <tr ng-repeat="productmilestone in version.productMilestones">
     <td>
       <span class="label label-default"
             ng-class="{ 'label label-primary' : productmilestone.id == version.currentProductMilestoneId }">{{ productmilestone.version }}</span>
@@ -73,4 +73,3 @@
   </tr>
   </tbody>
 </table>
-<pnc-pager class="pull-right" page="page"></pnc-pager>
