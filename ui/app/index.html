@@ -101,21 +101,19 @@
           <li ui-sref-active="active">
             <a ui-sref="product.list" href>Products</a>
           </li>
-          <li ui-sref-active="active">
-            <a ui-sref="project.list" href>Projects</a>
-          </li>
           <li class="dropdown" ui-sref-active="active">
-            <a href class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Configurations<span class="caret"></span></a>
+            <a href class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Build Configs<span class="caret"></span></a>
             <ul class="dropdown-menu" role="menu">
-              <li ui-sref-active="active"><a href ui-sref="configuration.list">Build Configurations</a></li>
-              <li ui-sref-active="active"><a href ui-sref="configuration-set.list">Build Configuration Sets</a></li>
+              <li ui-sref-active="active"><a href ui-sref="configuration.list">Build Configs</a></li>
+              <li ui-sref-active="active"><a href ui-sref="configuration-set.list">Build Groups</a></li>
+              <li ui-sref-active="active"><a href ui-sref="project.list">Project Metadata</a></li>
             </ul>
           </li>
           <li class="dropdown" ui-sref-active="active">
             <a href class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Builds<span class="caret"></span></a>
             <ul class="dropdown-menu" role="menu">
-              <li ui-sref-active="active"><a href ui-sref="record.list">Builds Records</a></li>
-              <li ui-sref-active="active"><a href ui-sref="configuration-set-record.list">Build Configuration Set Records</a></li>
+              <li ui-sref-active="active"><a href ui-sref="record.list">Builds Results</a></li>
+              <li ui-sref-active="active"><a href ui-sref="configuration-set-record.list">Build Group Results</a></li>
             </ul>
           </li>
           <li class="dropdown" ui-sref-active="active">
