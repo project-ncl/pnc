@@ -37,7 +37,7 @@ public class BuildSetStatusNotifications {
     /**
      * Subscriber is automatically removed once task reaches completed state.
      *
-     * @param buildSetCallBack
+     * @param buildSetCallBack object which callback method will be called when its id matches
      */
     public void subscribe(BuildSetCallBack buildSetCallBack) {
         subscribers.add(buildSetCallBack);

@@ -19,21 +19,21 @@ package org.jboss.pnc.rest.provider;
 
 import org.jboss.pnc.core.builder.coordinator.BuildCoordinator;
 import org.jboss.pnc.core.builder.coordinator.BuildTask;
-import org.jboss.pnc.core.builder.executor.BuildExecutionTask;
-import org.jboss.pnc.core.builder.executor.BuildExecutor;
 import org.jboss.pnc.model.BuildRecord;
+import org.jboss.pnc.model.User;
 import org.jboss.pnc.rest.provider.collection.CollectionInfo;
 import org.jboss.pnc.rest.provider.collection.CollectionInfoCollector;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationAuditedRest;
 import org.jboss.pnc.rest.restmodel.BuildRecordRest;
-import org.jboss.pnc.spi.BuildStatus;
-import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationAuditedRepository;
+import org.jboss.pnc.spi.BuildCoordinationStatus;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
 import org.jboss.pnc.spi.datastore.repositories.PageInfoProducer;
 import org.jboss.pnc.spi.datastore.repositories.SortInfoProducer;
 import org.jboss.pnc.spi.datastore.repositories.api.PageInfo;
 import org.jboss.pnc.spi.datastore.repositories.api.RSQLPredicateProducer;
 import org.jboss.pnc.spi.datastore.repositories.api.SortInfo;
+import org.jboss.pnc.spi.executor.BuildExecutionSession;
+import org.jboss.pnc.spi.executor.BuildExecutor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,7 +47,6 @@ import java.lang.invoke.MethodHandles;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
-import java.util.function.Predicate;
 
 import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
 import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.*;
@@ -111,23 +110,12 @@ public class BuildRecordProvider extends AbstractProvider<BuildRecord, BuildReco
     }
 
     private BuildRecordRest createNewBuildRecordRest(BuildTask submittedBuild) {
-        BuildExecutionTask runningExecution = buildExecutor.getRunningExecution(submittedBuild.getId());
+        BuildExecutionSession runningExecution = buildExecutor.getRunningExecution(submittedBuild.getId());
+        User user = submittedBuild.getUser();
         if (runningExecution != null) {
-            return new BuildRecordRest(runningExecution, submittedBuild.getSubmitTime());
+            return new BuildRecordRest(runningExecution, submittedBuild.getSubmitTime(), user);
         } else {
-            BuildExecutionTask waitingExecution = BuildExecutionTask.build(
-                    submittedBuild.getId(),
-                    submittedBuild.getBuildConfiguration(),
-                    submittedBuild.getBuildConfigurationAudited(),
-                    submittedBuild.getUser(),
-                    submittedBuild.getBuildRecordSetIds(),
-                    submittedBuild.getBuildConfigSetRecordId(),
-                    Optional.empty(),
-                    submittedBuild.getId(),
-                    submittedBuild.getSubmitTime()
-            );
-            waitingExecution.setStatus(BuildStatus.BUILD_WAITING); //TODO set status in constructor
-            return new BuildRecordRest(waitingExecution, submittedBuild.getSubmitTime());
+            return new BuildRecordRest(submittedBuild);
         }
     }
 

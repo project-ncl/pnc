@@ -32,7 +32,7 @@ import org.jboss.pnc.common.json.moduleconfig.MavenRepoDriverModuleConfig;
 import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.RepositoryType;
-import org.jboss.pnc.spi.BuildExecution;
+import org.jboss.pnc.spi.repositorymanager.BuildExecution;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManager;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerException;
 import org.jboss.pnc.spi.repositorymanager.model.RepositorySession;
@@ -141,8 +141,7 @@ public class RepositoryManagerDriver implements RepositoryManager {
                     e.getMessage());
         }
 
-        return new MavenRepositorySession(aprox, buildId, buildExecution.isPartOfBuildSet(),
-                new MavenRepositoryConnectionInfo(url));
+        return new MavenRepositorySession(aprox, buildId, new MavenRepositoryConnectionInfo(url));
     }
 
     /**

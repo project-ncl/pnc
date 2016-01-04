@@ -20,7 +20,7 @@ package org.jboss.pnc.spi.repositorymanager;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.BuildRecordSet;
 import org.jboss.pnc.model.RepositoryType;
-import org.jboss.pnc.spi.BuildExecution;
+import org.jboss.pnc.spi.repositorymanager.BuildExecution;
 import org.jboss.pnc.spi.repositorymanager.model.RepositorySession;
 import org.jboss.pnc.spi.repositorymanager.model.RunningRepositoryDeletion;
 import org.jboss.pnc.spi.repositorymanager.model.RunningRepositoryPromotion;

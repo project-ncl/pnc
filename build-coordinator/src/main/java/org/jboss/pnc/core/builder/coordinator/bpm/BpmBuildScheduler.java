@@ -36,7 +36,9 @@ import org.jboss.pnc.model.BuildEnvironment;
 import org.jboss.pnc.model.IdRev;
 import org.jboss.pnc.model.Project;
 import org.jboss.pnc.model.User;
-import org.jboss.pnc.spi.BuildStatus;
+import org.jboss.pnc.spi.BuildCoordinationStatus;
+import org.jboss.pnc.spi.executor.BuildExecutionResult;
+import org.jboss.pnc.spi.executor.exceptions.ExecutorException;
 import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.manager.RuntimeEngine;
 import org.kie.api.runtime.process.ProcessInstance;
@@ -87,7 +89,7 @@ public class BpmBuildScheduler implements BuildScheduler {
     }
 
     @Override
-    public void startBuilding(BuildTask buildTask, Consumer<BuildStatus> onComplete) throws CoreException {
+    public void startBuilding(BuildTask buildTask, Consumer<BuildExecutionResult> onComplete) throws CoreException, ExecutorException {
         try {
             ProcessInstance processInstance = startProcess(buildTask, Optional.of(buildTask)
                     .map(BuildTask::getBuildSetTask)
@@ -100,7 +102,7 @@ public class BpmBuildScheduler implements BuildScheduler {
         }
     }
 
-    private void registerCompleteListener(int taskId, Consumer<BuildStatus> onComplete) {
+    private void registerCompleteListener(int taskId, Consumer<BuildExecutionResult> onComplete) {
         BpmListener bpmListener = new BpmListener(taskId, onComplete);
         bpmCompleteListener.subscribe(bpmListener);
     }
@@ -197,6 +199,9 @@ public class BpmBuildScheduler implements BuildScheduler {
 
     void fillBuildRequest(Map<String, Object> parameters, BuildTask buildTask, Integer buildTaskSetId)
             throws JsonProcessingException {
+
+        String contentId = ContentIdentityManager.getBuildContentId(buildTask.getBuildConfiguration().getName());
+
         Map<String, Object> buildRequest = new HashMap<>();
         buildRequest.put("buildTaskId", buildTask.getId());
         buildRequest.put("buildTaskSetId", buildTaskSetId);
@@ -209,7 +214,7 @@ public class BpmBuildScheduler implements BuildScheduler {
                         .orElse(null));
         buildRequest.put("buildRecordSetIdsCSV", StringUtils.toCVS(buildTask.getBuildRecordSetIds()));
         buildRequest.put("buildConfigSetRecordId", buildTask.getBuildConfigSetRecordId());
-        buildRequest.put("buildContentId", ContentIdentityManager.getBuildContentId(buildTask.getBuildConfiguration()));
+        buildRequest.put("buildContentId", contentId);
         buildRequest.put("submitTimeMillis", buildTask.getSubmitTime().getTime());
         buildRequest.put("pncUsername", Optional.of(buildTask)
                 .map(BuildTask::getUser)

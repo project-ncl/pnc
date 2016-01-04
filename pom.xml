@@ -53,10 +53,11 @@
     <module>auth</module>
     <module>datastore</module>
     <module>ear-package</module>
-    <module>jenkins-build-driver</module>
+    <!--module>jenkins-build-driver</module TODO delete module-->
     <module>termd-build-driver</module>
     <module>maven-repository-manager</module>
     <module>build-coordinator</module>
+    <module>build-executor</module>
     <module>model</module>
     <module>rest</module>
     <module>spi</module>
@@ -238,6 +239,12 @@
       <dependency>
         <groupId>org.jboss.pnc</groupId>
         <artifactId>build-coordinator</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jboss.pnc</groupId>
+        <artifactId>build-executor</artifactId>
         <version>${project.version}</version>
       </dependency>
 
@@ -1362,6 +1369,7 @@
             <configuration>
               <detectOfflineLinks>false</detectOfflineLinks>
               <quiet>true</quiet>
+              <additionalparam>-Xdoclint:none</additionalparam>
             </configuration>
           </execution>
         </executions>

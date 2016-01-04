@@ -23,7 +23,7 @@ import org.jboss.pnc.core.builder.coordinator.BuildCoordinator;
 import org.jboss.pnc.core.builder.datastore.DatastoreAdapter;
 import org.jboss.pnc.core.events.DefaultBuildSetStatusChangedEvent;
 import org.jboss.pnc.core.notifications.buildSetTask.BuildSetStatusNotifications;
-import org.jboss.pnc.core.test.mock.BuildExecutorMock;
+import org.jboss.pnc.executor.mock.BuildExecutorMock;
 import org.jboss.pnc.core.test.mock.DatastoreMock;
 import org.jboss.pnc.spi.events.BuildSetStatusChangedEvent;
 import org.jboss.shrinkwrap.api.Archive;

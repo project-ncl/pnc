@@ -29,5 +29,4 @@ public interface BuildDriverResult {
 
     public BuildDriverStatus getBuildDriverStatus();
 
-    RunningEnvironment getRunningEnvironment();
 }

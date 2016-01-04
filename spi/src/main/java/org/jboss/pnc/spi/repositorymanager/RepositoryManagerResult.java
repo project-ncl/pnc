@@ -28,4 +28,6 @@ public interface RepositoryManagerResult {
     List<Artifact> getBuiltArtifacts();
 
     List<Artifact> getDependencies();
+
+    String getBuildContentId();
 }

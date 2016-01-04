@@ -18,7 +18,8 @@
 
 package org.jboss.pnc.core.builder.coordinator.bpm;
 
-import org.jboss.pnc.spi.BuildStatus;
+import org.jboss.pnc.spi.BuildCoordinationStatus;
+import org.jboss.pnc.spi.executor.BuildExecutionResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,10 +42,10 @@ public class BpmCompleteListener {
         listeners.put(bpmListener.getTaskId(), bpmListener);
     }
 
-    public void notifyCompleted(long taskId, BuildStatus buildStatus) {
+    public void notifyCompleted(long taskId, BuildExecutionResult buildExecutionResult) {
         logger.debug("Coordinating task id [{}] completed.", taskId);
         BpmListener bpmListener = listeners.get(taskId);
         listeners.remove(taskId);
-        bpmListener.onComplete(buildStatus);
+        bpmListener.onComplete(buildExecutionResult);
     }
 }

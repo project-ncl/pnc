@@ -27,25 +27,25 @@ import org.jboss.pnc.core.builder.coordinator.BuildCoordinator;
 import org.jboss.pnc.core.builder.coordinator.BuildSetTask;
 import org.jboss.pnc.core.builder.coordinator.BuildTask;
 import org.jboss.pnc.core.builder.datastore.DatastoreAdapter;
-import org.jboss.pnc.core.builder.executor.DefaultBuildExecutor;
+import org.jboss.pnc.executor.executor.DefaultBuildExecutor;
 import org.jboss.pnc.core.exception.CoreException;
 import org.jboss.pnc.core.notifications.buildSetTask.BuildSetCallBack;
 import org.jboss.pnc.core.notifications.buildSetTask.BuildSetStatusNotifications;
 import org.jboss.pnc.core.notifications.buildTask.BuildCallBack;
 import org.jboss.pnc.core.notifications.buildTask.BuildStatusNotifications;
 import org.jboss.pnc.core.test.configurationBuilders.TestProjectConfigurationBuilder;
-import org.jboss.pnc.core.test.mock.BuildDriverMock;
+import org.jboss.pnc.executor.mock.BuildDriverMock;
 import org.jboss.pnc.core.test.mock.DatastoreMock;
-import org.jboss.pnc.core.test.mock.EnvironmentDriverMock;
-import org.jboss.pnc.core.test.mock.RepositoryManagerMock;
-import org.jboss.pnc.core.test.mock.RepositorySessionMock;
+import org.jboss.pnc.executor.mock.EnvironmentDriverMock;
+import org.jboss.pnc.executor.mock.RepositoryManagerMock;
+import org.jboss.pnc.executor.mock.RepositorySessionMock;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.BuildSetStatus;
-import org.jboss.pnc.spi.BuildStatus;
+import org.jboss.pnc.spi.BuildCoordinationStatus;
 import org.jboss.pnc.spi.datastore.DatastoreException;
 import org.jboss.pnc.spi.events.BuildSetStatusChangedEvent;
-import org.jboss.pnc.spi.events.BuildStatusChangedEvent;
+import org.jboss.pnc.spi.events.BuildCoordinationStatusChangedEvent;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.asset.EmptyAsset;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
@@ -126,7 +126,7 @@ public class StatusUpdatesTest {
         testCDIBuildSetStatusChangedReceiver.addBuildSetStatusChangedEventListener(statusUpdateListener);
 
         Set<BuildTask> buildTasks = initializeBuildTask().getBuildTasks();
-        buildTasks.forEach((bt) -> bt.setStatus(BuildStatus.DONE));
+        buildTasks.forEach((bt) -> bt.setStatus(BuildCoordinationStatus.DONE));
         this.waitForConditionWithTimeout(() -> buildTasks.stream().allMatch(task -> task.getStatus().isCompleted()), 4);
 
         Assert.assertNotNull("Did not receive status update.", receivedBuildSetStatusChangedEvent.get());
@@ -148,9 +148,9 @@ public class StatusUpdatesTest {
         for (BuildTask buildTask : buildTasks) {
             i++;
             if (i < MIN_TASKS) {
-                buildTask.setStatus(BuildStatus.BUILD_WAITING);
+                buildTask.setStatus(BuildCoordinationStatus.BUILD_WAITING);
             } else {
-                buildTask.setStatus(BuildStatus.DONE);
+                buildTask.setStatus(BuildCoordinationStatus.DONE);
             }
         }
         Assert.assertEquals(BuildSetStatus.NEW, receivedBuildSetStatusChangedEvent.get().getNewStatus());
@@ -163,7 +163,7 @@ public class StatusUpdatesTest {
         Set<Integer> tasksIds = buildTasks.stream().map((buildTask -> buildTask.getId())).collect(Collectors.toSet());
 
         Set<Integer> receivedUpdatesForId = new HashSet<>();
-        Consumer<BuildStatusChangedEvent> statusChangeEventConsumer = (statusChangedEvent) -> {
+        Consumer<BuildCoordinationStatusChangedEvent> statusChangeEventConsumer = (statusChangedEvent) -> {
             receivedUpdatesForId.add(statusChangedEvent.getBuildTaskId());
         };
 
@@ -171,7 +171,7 @@ public class StatusUpdatesTest {
             buildStatusNotifications.subscribe(new BuildCallBack(id, statusChangeEventConsumer));
         });
 
-        buildTasks.forEach((bt) -> bt.setStatus(BuildStatus.DONE));
+        buildTasks.forEach((bt) -> bt.setStatus(BuildCoordinationStatus.DONE));
 
         tasksIds.forEach((id) -> {
             Assert.assertTrue("Did not receive update for task " + id, receivedUpdatesForId.contains(id));
@@ -191,7 +191,7 @@ public class StatusUpdatesTest {
 
         buildSetStatusNotifications.subscribe(new BuildSetCallBack(buildSetTask.getId(), statusChangeEventConsumer));
 
-        buildTasks.forEach((bt) -> bt.setStatus(BuildStatus.DONE));
+        buildTasks.forEach((bt) -> bt.setStatus(BuildCoordinationStatus.DONE));
 
         Assert.assertNotNull("Did not receive status update.", buildSetStatusChangedEvent.get());
         Assert.assertEquals("Did not receive status update to DONE for task set.", BuildSetStatus.DONE, buildSetStatusChangedEvent.get().getNewStatus());

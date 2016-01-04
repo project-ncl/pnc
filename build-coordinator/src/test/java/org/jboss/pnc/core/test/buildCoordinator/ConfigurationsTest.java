@@ -26,7 +26,7 @@ import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.BuildSetStatus;
-import org.jboss.pnc.spi.BuildStatus;
+import org.jboss.pnc.spi.BuildCoordinationStatus;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -52,7 +52,7 @@ public class ConfigurationsTest extends ProjectBuilder {
         User user = User.Builder.newBuilder().id(1).build();
 
         BuildTask buildTask = buildCoordinator.build(buildConfiguration, user, false);
-        Assert.assertEquals(BuildStatus.REJECTED, buildTask.getStatus());
+        Assert.assertEquals(BuildCoordinationStatus.REJECTED, buildTask.getStatus());
         Assert.assertTrue("Invalid status description: " + buildTask.getStatusDescription(), buildTask.getStatusDescription().contains("itself"));
     }
 

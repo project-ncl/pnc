@@ -18,11 +18,16 @@
 package org.jboss.pnc.rest.restmodel;
 
 import io.swagger.annotations.ApiModelProperty;
-import org.jboss.pnc.core.builder.executor.BuildExecutionTask;
+import org.jboss.pnc.core.builder.coordinator.BuildTask;
+import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.BuildStatus;
+import org.jboss.pnc.model.User;
 import org.jboss.pnc.rest.validation.groups.WhenCreatingNew;
 import org.jboss.pnc.rest.validation.groups.WhenUpdating;
+import org.jboss.pnc.spi.BuildCoordinationStatus;
+import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
+import org.jboss.pnc.spi.executor.BuildExecutionSession;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
@@ -48,7 +53,7 @@ public class BuildRecordRest implements GenericRestEntity<Integer> {
     private Date endTime;
 
     @ApiModelProperty(dataType = "string")
-    private BuildStatus status;
+    private BuildCoordinationStatus status;
 
     private Integer buildConfigurationId;
 
@@ -112,7 +117,7 @@ public class BuildRecordRest implements GenericRestEntity<Integer> {
         performIfNotNull(buildRecord.getUser(), () -> userId = buildRecord.getUser().getId());
         performIfNotNull(buildRecord.getUser(), () -> username = buildRecord.getUser().getUsername());
         performIfNotNull(buildRecord.getSystemImage(), () -> systemImageId = buildRecord.getSystemImage().getId());
-        this.status = buildRecord.getStatus();
+        this.status = BuildCoordinationStatus.fromBuildStatus(buildRecord.getStatus());
         this.buildDriverId = buildRecord.getBuildDriverId();
         if (buildRecord.getBuildConfigSetRecord() != null)
             this.buildConfigSetRecordId = buildRecord.getBuildConfigSetRecord().getId();
@@ -128,26 +133,46 @@ public class BuildRecordRest implements GenericRestEntity<Integer> {
                 .map(buildRecordSet -> buildRecordSet.getId()).collect(Collectors.toSet());
     }
 
-    public BuildRecordRest(BuildExecutionTask buildExecutionTask, Date submitTime) {
-        this.id = buildExecutionTask.getId();
+    public BuildRecordRest(BuildExecutionSession buildExecutionSession, Date submitTime, User user) {
+        this.id = buildExecutionSession.getId();
         this.submitTime = submitTime;
-        this.startTime = buildExecutionTask.getStartTime();
-        this.endTime = buildExecutionTask.getEndTime();
-        if (buildExecutionTask.getBuildConfigurationAudited() != null) {
-            this.buildConfigurationId = buildExecutionTask.getBuildConfigurationAudited().getId().getId();
-            this.buildConfigurationName = buildExecutionTask.getBuildConfigurationAudited().getName();
-            this.buildConfigurationRev = buildExecutionTask.getBuildConfigurationAudited().getRev();
+        this.startTime = buildExecutionSession.getStartTime();
+        this.endTime = buildExecutionSession.getEndTime();
+        BuildExecutionConfiguration buildExecutionConfig = buildExecutionSession.getBuildExecutionConfiguration();
+        if (buildExecutionConfig.getBuildConfigurationAudited() != null) {
+            this.buildConfigurationId = buildExecutionConfig.getBuildConfigurationAudited().getId().getId();
+            this.buildConfigurationName = buildExecutionConfig.getBuildConfigurationAudited().getName();
+            this.buildConfigurationRev = buildExecutionConfig.getBuildConfigurationAudited().getRev();
         }
         // FIXME Why masking i.e. BUILD_WAITING status with BUILDING ?
-        this.status = BuildStatus.BUILDING;
-        buildExecutionTask.getLogsWebSocketLink().ifPresent(logsUri -> this.liveLogsUri = logsUri.toString());
-        performIfNotNull(buildExecutionTask.getBuildConfigSetRecordId(),
-                () -> this.buildConfigSetRecordId = buildExecutionTask.getBuildConfigSetRecordId());
-        if (buildExecutionTask.getUser() != null) {
-            this.userId = buildExecutionTask.getUser().getId();
-            this.username = buildExecutionTask.getUser().getUsername();
+        this.status = BuildCoordinationStatus.fromBuildExecutionStatus(buildExecutionSession.getStatus());
+        buildExecutionSession.getLiveLogsUri().ifPresent(logsUri -> this.liveLogsUri = logsUri.toString());
+
+
+        this.userId = user.getId();
+        this.username = user.getUsername();
+
+        this.buildContentId = buildExecutionConfig.getBuildContentId();
+    }
+
+    public BuildRecordRest(BuildTask buildCoordinationTask) {
+        this.id = buildCoordinationTask.getId();
+        this.submitTime = buildCoordinationTask.getSubmitTime();
+        this.startTime = buildCoordinationTask.getStartTime();
+        this.endTime = buildCoordinationTask.getEndTime();
+
+        BuildConfigurationAudited buildConfigurationAudited = buildCoordinationTask.getBuildConfigurationAudited();
+
+        if (buildConfigurationAudited != null) {
+            this.buildConfigurationId = buildConfigurationAudited.getId().getId();
+            this.buildConfigurationName = buildConfigurationAudited.getName();
+            this.buildConfigurationRev = buildConfigurationAudited.getRev();
         }
-        this.buildContentId = buildExecutionTask.getBuildContentId();
+        this.status = buildCoordinationTask.getStatus();
+
+        User user = buildCoordinationTask.getUser();
+        this.userId = user.getId();
+        this.username = user.getUsername();
     }
 
     @Override
@@ -184,11 +209,11 @@ public class BuildRecordRest implements GenericRestEntity<Integer> {
         this.endTime = endTime;
     }
 
-    public BuildStatus getStatus() {
+    public BuildCoordinationStatus getStatus() {
         return status;
     }
 
-    public void setStatus(BuildStatus status) {
+    public void setStatus(BuildCoordinationStatus status) {
         this.status = status;
     }
 

@@ -18,7 +18,8 @@
 
 package org.jboss.pnc.core.builder.coordinator.bpm;
 
-import org.jboss.pnc.spi.BuildStatus;
+import org.jboss.pnc.spi.BuildCoordinationStatus;
+import org.jboss.pnc.spi.executor.BuildExecutionResult;
 
 import java.util.function.Consumer;
 
@@ -27,9 +28,9 @@ import java.util.function.Consumer;
  */
 public class BpmListener {
     private final long taskId;
-    private final Consumer<BuildStatus> onComplete;
+    private final Consumer<BuildExecutionResult> onComplete;
 
-    public BpmListener(long taskId, Consumer<BuildStatus> onComplete) {
+    public BpmListener(long taskId, Consumer<BuildExecutionResult> onComplete) {
         this.taskId = taskId;
         this.onComplete = onComplete;
     }
@@ -38,7 +39,7 @@ public class BpmListener {
         return taskId;
     }
 
-    public void onComplete(BuildStatus buildStatus) {
-        onComplete.accept(buildStatus);
+    public void onComplete(BuildExecutionResult buildExecutionResult) {
+        onComplete.accept(buildExecutionResult);
     }
 }

@@ -17,13 +17,13 @@
  */
 package org.jboss.pnc.core.events;
 
-import org.jboss.pnc.spi.BuildStatus;
-import org.jboss.pnc.spi.events.BuildStatusChangedEvent;
+import org.jboss.pnc.spi.BuildCoordinationStatus;
+import org.jboss.pnc.spi.events.BuildCoordinationStatusChangedEvent;
 
-public class DefaultBuildStatusChangedEvent implements BuildStatusChangedEvent {
+public class DefaultBuildStatusChangedEvent implements BuildCoordinationStatusChangedEvent {
 
-    private final BuildStatus oldStatus;
-    private final BuildStatus newStatus;
+    private final BuildCoordinationStatus oldStatus;
+    private final BuildCoordinationStatus newStatus;
     private final Integer buildTaskId;
     private final Integer userId;
     private final Integer buildConfigurationId;
@@ -60,20 +60,24 @@ public class DefaultBuildStatusChangedEvent implements BuildStatusChangedEvent {
     }
 
     @Override
-    public BuildStatus getOldStatus() {
+    public BuildCoordinationStatus getOldStatus() {
         return oldStatus;
     }
 
     @Override
-    public BuildStatus getNewStatus() {
+    public BuildCoordinationStatus getNewStatus() {
         return newStatus;
     }
 
     @Override
     public String toString() {
-        return "DefaultBuildStatusChangedEvent{" + "oldStatus=" + oldStatus + ", newStatus=" + newStatus + ", buildTaskId="
-                + buildTaskId + ", userId=" + userId + ", buildConfigurationId=" + buildConfigurationId
-                + ", buildConfigurationName=" + buildConfigurationName + '}';
+        return "DefaultBuildStatusChangedEvent{" +
+                "oldStatus=" + oldStatus +
+                ", newStatus=" + newStatus +
+                ", buildTaskId=" + buildTaskId +
+                ", userId=" + userId +
+                ", buildConfigurationId=" + buildConfigurationId +
+                ", buildConfigurationName=" + buildConfigurationName +
+                '}';
     }
-
 }

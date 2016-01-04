@@ -25,11 +25,7 @@ import io.swagger.annotations.ApiResponses;
 import org.jboss.pnc.auth.AuthenticationProvider;
 import org.jboss.pnc.core.builder.coordinator.BuildCoordinator;
 import org.jboss.pnc.core.builder.coordinator.BuildTask;
-import org.jboss.pnc.core.builder.executor.BuildExecutionTask;
-import org.jboss.pnc.core.builder.executor.BuildExecutor;
 import org.jboss.pnc.model.BuildConfiguration;
-import org.jboss.pnc.model.BuildConfigurationAudited;
-import org.jboss.pnc.model.IdRev;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.rest.provider.BuildConfigurationProvider;
 import org.jboss.pnc.rest.provider.BuildRecordProvider;
@@ -50,11 +46,9 @@ import org.jboss.pnc.rest.utils.BpmNotifier;
 import org.jboss.pnc.rest.utils.HibernateLazyInitializer;
 import org.jboss.pnc.rest.validation.exceptions.InvalidEntityException;
 import org.jboss.pnc.rest.validation.exceptions.ValidationException;
-import org.jboss.pnc.spi.BuildStatus;
 import org.jboss.pnc.spi.datastore.Datastore;
-import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationAuditedRepository;
-import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationRepository;
 import org.jboss.pnc.spi.exception.BuildConflictException;
+import org.jboss.pnc.spi.executor.BuildExecutionSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -79,12 +73,8 @@ import java.lang.invoke.MethodHandles;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.Optional;
-import java.util.Set;
-import java.util.function.Consumer;
-import java.util.stream.Collectors;
 
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.CONFLICTED_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.CONFLICTED_DESCRIPTION;
@@ -360,7 +350,7 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
                 }
             }
 
-            BuildExecutionTask buildExecutionTask = buildTriggerer.executeBuild(
+            BuildExecutionSession buildExecutionSession = buildTriggerer.executeBuild(
                     buildTaskId,
                     buildConfigurationId,
                     buildConfigurationRevision,
@@ -372,7 +362,7 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
 
             UriBuilder uriBuilder = UriBuilder.fromUri(uriInfo.getBaseUri()).path("/result/running/{id}");
             URI uri = uriBuilder.build(buildTaskId);
-            BuildRecordRest buildRecordRest = new BuildRecordRest(buildExecutionTask, new Date(submitTimeMillis));
+            BuildRecordRest buildRecordRest = new BuildRecordRest(buildExecutionSession, new Date(submitTimeMillis), userTriggered);
             Response response = Response.ok(uri).header("location", uri).entity(new Singleton(buildRecordRest)).build();
             return response;
         } catch (Exception e) {

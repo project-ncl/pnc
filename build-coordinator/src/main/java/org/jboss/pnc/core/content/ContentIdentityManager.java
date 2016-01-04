@@ -46,14 +46,15 @@ public class ContentIdentityManager {
                 safeIdPart(productVersion.getVersion()));
     }
 
+    @Deprecated
     public static String getBuildSetContentId(String name) {
         String timestamp = generateTimestamp();
         return String.format(BUILD_SET_CONTENT_ID_FORMAT, safeIdPart(name), timestamp);
     }
 
-    public static String getBuildContentId(BuildConfiguration buildConfiguration) {
+    public static String getBuildContentId(String identifier) {
         String timestamp = generateTimestamp();
-        return String.format(BUILD_CONTENT_ID_FORMAT, safeIdPart(buildConfiguration.getName()), timestamp);
+        return String.format(BUILD_CONTENT_ID_FORMAT, safeIdPart(identifier), timestamp);
     }
 
     private static String generateTimestamp() {

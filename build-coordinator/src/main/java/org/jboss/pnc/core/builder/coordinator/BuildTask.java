@@ -24,8 +24,8 @@ import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.ProductVersion;
 import org.jboss.pnc.model.User;
-import org.jboss.pnc.spi.BuildStatus;
-import org.jboss.pnc.spi.events.BuildStatusChangedEvent;
+import org.jboss.pnc.spi.BuildCoordinationStatus;
+import org.jboss.pnc.spi.events.BuildCoordinationStatusChangedEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,8 +40,8 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
 /**
- * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-12-23.
- */
+* Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-12-23.
+*/
 public class BuildTask {
 
     public static final Logger log = LoggerFactory.getLogger(BuildTask.class);
@@ -54,10 +54,10 @@ public class BuildTask {
     private Date startTime;
     private Date endTime;
 
-    private BuildStatus status = BuildStatus.NEW;
+    private BuildCoordinationStatus status = BuildCoordinationStatus.NEW;
     private String statusDescription;
 
-    private Event<BuildStatusChangedEvent> buildStatusChangedEventNotifier;
+    private Event<BuildCoordinationStatusChangedEvent> buildStatusChangedEventNotifier;
 
     /**
      * A list of builds waiting for this build to complete.
@@ -76,15 +76,23 @@ public class BuildTask {
     private final AtomicReference<URI> logsWebSocketLink = new AtomicReference<>();
     private boolean hasFailed = false;
 
-    // called when all dependencies are built
+    //called when all dependencies are built
     private Consumer<BuildTask> onAllDependenciesCompleted;
     private Integer buildConfigSetRecordId;
     private final boolean rebuildAll;
 
-    private BuildTask(BuildConfiguration buildConfiguration, BuildConfigurationAudited buildConfigurationAudited,
-            String topContentId, String buildContentId, User user, Date submitTime, BuildSetTask buildSetTask, int id,
-            Event<BuildStatusChangedEvent> buildStatusChangedEventNotifier, Consumer<BuildTask> onAllDependenciesCompleted,
-            Integer buildConfigSetRecordId, boolean rebuildAll) {
+    private BuildTask(BuildConfiguration buildConfiguration,
+                      BuildConfigurationAudited buildConfigurationAudited,
+                      String topContentId,
+                      String buildContentId,
+                      User user,
+                      Date submitTime,
+                      BuildSetTask buildSetTask,
+                      int id,
+                      Event<BuildCoordinationStatusChangedEvent> buildStatusChangedEventNotifier,
+                      Consumer<BuildTask> onAllDependenciesCompleted,
+                      Integer buildConfigSetRecordId,
+                      boolean rebuildAll) {
 
         this.id = id;
         this.buildConfiguration = buildConfiguration;
@@ -111,14 +119,14 @@ public class BuildTask {
 
     }
 
-    public void setStatus(BuildStatus status) {
-        BuildStatus oldStatus = this.status;
+    public void setStatus(BuildCoordinationStatus status) {
+        BuildCoordinationStatus oldStatus = this.status;
         this.status = status;
         if (status.hasFailed()) {
             setHasFailed(true);
         }
         Integer userId = Optional.ofNullable(getUser()).map(user -> user.getId()).orElse(null);
-        BuildStatusChangedEvent buildStatusChanged = new DefaultBuildStatusChangedEvent(oldStatus, status, getId(),
+        BuildCoordinationStatusChangedEvent buildStatusChanged = new DefaultBuildStatusChangedEvent(oldStatus, status, getId(),
                 buildConfigurationAudited.getId().getId(), buildConfigurationAudited.getName(), userId);
         log.debug("Updating build task {} status to {}", this.getId(), buildStatusChanged);
         if (buildSetTask != null) {
@@ -155,7 +163,7 @@ public class BuildTask {
 
     private void requiredBuildCompleted(BuildTask completed) {
         if (dependencies.contains(completed) && completed.hasFailed()) {
-            this.setStatus(BuildStatus.REJECTED);
+            this.setStatus(BuildCoordinationStatus.REJECTED);
         } else if (dependencies.stream().allMatch(dep -> dep.getStatus().isCompleted())) {
             onAllDependenciesCompleted.accept(this);
         }
@@ -164,7 +172,7 @@ public class BuildTask {
     /**
      * @return current status
      */
-    public BuildStatus getStatus() {
+    public BuildCoordinationStatus getStatus() {
         return status;
     }
 
@@ -195,7 +203,8 @@ public class BuildTask {
     }
 
     /**
-     * A build task is equal to another build task if they are using the same build configuration ID and version.
+     * A build task is equal to another build task if they are using the same
+     * build configuration ID and version.
      */
     @Override
     public boolean equals(Object o) {
@@ -218,12 +227,12 @@ public class BuildTask {
         this.statusDescription = statusDescription;
     }
 
-    public boolean hasFailed() {
+    public boolean hasFailed(){
         return this.hasFailed;
     }
 
-    public void setHasFailed(boolean hasFailed) {
-        this.hasFailed = hasFailed;
+    public void setHasFailed(boolean hasFailed){
+       this.hasFailed = hasFailed;
     }
 
     public int getId() {
@@ -251,13 +260,14 @@ public class BuildTask {
     }
 
     /**
-     * Check if this build is ready to build, for example if all dependency builds are complete.
+     * Check if this build is ready to build, for example if all dependency builds
+     * are complete.
      * 
      * @return
      */
     public boolean readyToBuild() {
         for (BuildTask buildTask : dependencies) {
-            if (!buildTask.getStatus().isCompleted()) {
+            if(!buildTask.getStatus().isCompleted()) {
                 return false;
             }
         }
@@ -269,23 +279,38 @@ public class BuildTask {
         return "Build Task id:" + id + ", name: " + buildConfigurationAudited.getName() + ", status: " + status;
     }
 
-    public static BuildTask build(BuildConfiguration buildConfiguration, BuildConfigurationAudited buildConfigAudited,
-            User user, Event<BuildStatusChangedEvent> buildStatusChangedEventNotifier,
-            Consumer<BuildTask> onAllDependenciesCompleted, int buildTaskId, BuildSetTask buildSetTask, Date submitTime,
+    public static BuildTask build(BuildConfiguration buildConfiguration,
+            BuildConfigurationAudited buildConfigAudited,
+            User user,
+            Event<BuildCoordinationStatusChangedEvent> buildStatusChangedEventNotifier,
+            Consumer<BuildTask> onAllDependenciesCompleted,
+            int buildTaskId,
+            BuildSetTask buildSetTask,
+            Date submitTime,
             boolean rebuildAll) {
-        String topContentId = ContentIdentityManager
-                .getProductContentId(BuildConfigurationUtils.getFirstProductVersion(buildConfiguration));
-        String buildContentId = ContentIdentityManager.getBuildContentId(buildConfiguration);
+        String topContentId = ContentIdentityManager.getProductContentId(BuildConfigurationUtils.getFirstProductVersion(buildConfiguration));
+        String buildContentId = ContentIdentityManager.getBuildContentId(buildConfiguration.getName());
 
         Integer buildConfigSetRecordId = null;
         if (buildSetTask != null && buildSetTask.getBuildConfigSetRecord() != null) {
             buildConfigSetRecordId = buildSetTask.getBuildConfigSetRecord().getId();
         }
 
-        return new BuildTask(buildConfiguration, buildConfigAudited, topContentId, buildContentId, user, submitTime,
-                buildSetTask, buildTaskId, buildStatusChangedEventNotifier, onAllDependenciesCompleted, buildConfigSetRecordId,
+        return new BuildTask(
+                buildConfiguration,
+                buildConfigAudited,
+                topContentId,
+                buildContentId,
+                user,
+                submitTime,
+                buildSetTask,
+                buildTaskId,
+                buildStatusChangedEventNotifier,
+                onAllDependenciesCompleted,
+                buildConfigSetRecordId,
                 rebuildAll);
     }
+
 
     public Integer getBuildConfigSetRecordId() {
         return buildConfigSetRecordId;

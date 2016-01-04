@@ -21,14 +21,13 @@ import com.google.common.base.Preconditions;
 import org.jboss.logging.Logger;
 import org.jboss.pnc.core.builder.coordinator.BuildCoordinator;
 import org.jboss.pnc.core.builder.coordinator.BuildSetTask;
-import org.jboss.pnc.core.builder.coordinator.BuildTask;
-import org.jboss.pnc.core.builder.executor.BuildExecutionTask;
-import org.jboss.pnc.core.builder.executor.BuildExecutor;
+import org.jboss.pnc.core.content.ContentIdentityManager;
 import org.jboss.pnc.core.exception.CoreException;
 import org.jboss.pnc.core.notifications.buildSetTask.BuildSetCallBack;
 import org.jboss.pnc.core.notifications.buildSetTask.BuildSetStatusNotifications;
 import org.jboss.pnc.core.notifications.buildTask.BuildCallBack;
 import org.jboss.pnc.core.notifications.buildTask.BuildStatusNotifications;
+import org.jboss.pnc.executor.DefaultBuildExecutionConfiguration;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildConfigurationSet;
@@ -38,16 +37,21 @@ import org.jboss.pnc.model.ProductVersion;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.rest.utils.BpmNotifier;
 import org.jboss.pnc.rest.utils.HibernateLazyInitializer;
-import org.jboss.pnc.spi.BuildStatus;
+import org.jboss.pnc.spi.BuildCoordinationStatus;
 import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
 import org.jboss.pnc.spi.datastore.DatastoreException;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationAuditedRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationSetRepository;
 import org.jboss.pnc.spi.datastore.repositories.SortInfoProducer;
+import org.jboss.pnc.spi.events.BuildCoordinationStatusChangedEvent;
+import org.jboss.pnc.spi.events.BuildExecutionStatusChangedEvent;
 import org.jboss.pnc.spi.events.BuildSetStatusChangedEvent;
-import org.jboss.pnc.spi.events.BuildStatusChangedEvent;
 import org.jboss.pnc.spi.exception.BuildConflictException;
+import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
+import org.jboss.pnc.spi.executor.BuildExecutionSession;
+import org.jboss.pnc.spi.executor.BuildExecutor;
+import org.jboss.pnc.spi.executor.exceptions.ExecutorException;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerException;
 
 import javax.ejb.Stateless;
@@ -56,7 +60,6 @@ import java.net.URL;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -114,7 +117,7 @@ public class BuildTriggerer {
 
     public int triggerBuild(final Integer buildConfigurationId, User currentUser, boolean rebuildAll, URL callBackUrl)
             throws BuildConflictException {
-        Consumer<BuildStatusChangedEvent> onStatusUpdate = (statusChangedEvent) -> {
+        Consumer<BuildCoordinationStatusChangedEvent> onStatusUpdate = (statusChangedEvent) -> {
             if (statusChangedEvent.getNewStatus().isCompleted()) {
                 // Expecting URL like: http://host:port/business-central/rest/runtime/org.test:Test1:1.0/process/instance/7/signal?signal=testSig
                 bpmNotifier.signalBpmEvent(callBackUrl.toString() + "&event=" + statusChangedEvent.getNewStatus());
@@ -187,14 +190,14 @@ public class BuildTriggerer {
         };
     }
 
-    public BuildExecutionTask executeBuild(
+    public BuildExecutionSession executeBuild(
             Integer buildTaskId,
             Integer buildConfigurationId,
             Integer buildConfigurationRevision,
             String buildRecordSetIdsCSV,
             String buildConfigSetRecordId,
             User userTriggered,
-            Long submitTimeMillis, String callbackUrl) throws CoreException {
+            Long submitTimeMillis, String callbackUrl) throws CoreException, ExecutorException {
         final BuildConfiguration configuration = buildConfigurationRepository.queryById(buildConfigurationId);
         IdRev idRev = new IdRev(buildConfigurationId, buildConfigurationRevision);
         log.debug("Querying for configurationAudited by idRev: " + idRev.toString());
@@ -202,7 +205,7 @@ public class BuildTriggerer {
         log.debug("Building configurationAudited " + configurationAudited.toString());
         log.debug("User triggered the process " + userTriggered.getUsername());
 
-        Consumer<BuildStatus> onComplete = (buildStatus) -> {
+        Consumer<BuildCoordinationStatus> onComplete = (buildStatus) -> {
             if (callbackUrl != null && !callbackUrl.isEmpty()) {
                 // Expecting URL like: http://host:port/business-central/rest/runtime/org.test:Test1:1.0/process/instance/7/signal?signal=testSig
                 bpmNotifier.signalBpmEvent(callbackUrl.toString() + "&event=" + buildStatus);
@@ -216,18 +219,21 @@ public class BuildTriggerer {
             buildConfigSetRecordIdInt = Integer.parseInt(buildConfigSetRecordId);
         }
 
-        Date submitTime = new Date(submitTimeMillis);
-        BuildExecutionTask buildExecutionTask = buildExecutor.build(
-                hibernateLazyInitializer.initializeBuildConfigurationBeforeTriggeringIt(configuration),
-                configurationAudited,
-                userTriggered,
-                onComplete,
-                buildRecordSetIds,
-                buildConfigSetRecordIdInt,
-                buildTaskId,
-                submitTime);
 
-        return buildExecutionTask;
+        String buildContentId = ContentIdentityManager.getBuildContentId(configuration.getName());
+
+        BuildExecutionConfiguration buildExecutionConfig = new DefaultBuildExecutionConfiguration(
+                buildTaskId, //TODO remove duplicate ID
+                configuration,
+                configurationAudited,
+                buildContentId,
+                userTriggered,
+                buildTaskId);
+
+        Consumer<BuildExecutionStatusChangedEvent> onExecutionStatusChange = (statusChangedEvent) -> {};
+        BuildExecutionSession buildExecutionSession = buildExecutor.startBuilding(buildExecutionConfig, onExecutionStatusChange);
+
+        return buildExecutionSession;
     }
 
     private Set<Integer> parseIntegers(String buildRecordSetIdsCSV) {

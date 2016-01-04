@@ -20,7 +20,7 @@ package org.jboss.pnc.rest.debug;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.jboss.pnc.spi.events.BuildSetStatusChangedEvent;
-import org.jboss.pnc.spi.events.BuildStatusChangedEvent;
+import org.jboss.pnc.spi.events.BuildCoordinationStatusChangedEvent;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
@@ -40,7 +40,7 @@ import javax.ws.rs.core.MediaType;
 public class TestEndpoint {
 
     @Inject
-    Event<BuildStatusChangedEvent> buildStatusChangedEventEvent;
+    Event<BuildCoordinationStatusChangedEvent> buildStatusChangedEventEvent;
 
     @Inject
     Event<BuildSetStatusChangedEvent> buildSetStatusChangedEventEvent;

@@ -17,27 +17,27 @@
  */
 package org.jboss.pnc.spi.notifications.model;
 
-import org.jboss.pnc.spi.BuildStatus;
+import org.jboss.pnc.spi.BuildCoordinationStatus;
 
 public class BuildChangedPayload implements NotificationPayload {
 
     private final Integer id;
-    private final BuildStatus buildStatus;
+    private final BuildCoordinationStatus buildCoordinationStatus;
     private final Integer userId;
     private final Integer buildConfigurationId;
     private final String buildConfigurationName;
 
-    public BuildChangedPayload(Integer id, BuildStatus eventType, Integer buildConfigurationId, String buildConfigurationName,
-            Integer userId) {
+    public BuildChangedPayload(Integer id, BuildCoordinationStatus eventType, Integer buildConfigurationId, String buildConfigurationName, Integer userId) {
         this.id = id;
-        this.buildStatus = eventType;
+        this.buildCoordinationStatus = eventType;
         this.userId = userId;
         this.buildConfigurationId = buildConfigurationId;
         this.buildConfigurationName = buildConfigurationName;
     }
 
-    public BuildStatus getBuildStatus() {
-        return buildStatus;
+
+    public BuildCoordinationStatus getBuildCoordinationStatus() {
+        return buildCoordinationStatus;
     }
 
     @Override

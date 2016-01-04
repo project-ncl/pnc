@@ -23,7 +23,7 @@ import org.jboss.pnc.core.builder.coordinator.BuildTask;
 import java.util.function.Predicate;
 
 /**
- * Represents different filtering policies for {@link org.jboss.pnc.core.builder.executor.BuildExecutionTask}.
+ * Represents different filtering policies for {@link org.jboss.pnc.executor.executor.BuildExecutionTask}.
  *
  * @author Sebastian Laskawiec
  */

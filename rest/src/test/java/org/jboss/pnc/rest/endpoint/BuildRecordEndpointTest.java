@@ -17,9 +17,9 @@
  */
 package org.jboss.pnc.rest.endpoint;
 
-import org.jboss.pnc.core.builder.executor.BuildExecutionTask;
-import org.jboss.pnc.core.builder.executor.BuildExecutor;
-import org.jboss.pnc.core.builder.executor.DefaultBuildExecutor;
+import org.jboss.pnc.executor.executor.BuildExecutionTask;
+import org.jboss.pnc.executor.executor.BuildExecutor;
+import org.jboss.pnc.executor.executor.DefaultBuildExecutor;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.User;

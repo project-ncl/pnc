@@ -67,11 +67,19 @@ public class MavenRepositorySession implements RepositorySession {
 
     // TODO: Create and pass in suitable parameters to Aprox to create the
     //       proxy repository.
+    @Deprecated
     public MavenRepositorySession(Aprox aprox, String buildRepoId, boolean isSetBuild,
                                   MavenRepositoryConnectionInfo info) {
         this.aprox = aprox;
         this.buildRepoId = buildRepoId;
         this.isSetBuild = isSetBuild;
+        this.connectionInfo = info;
+    }
+
+    public MavenRepositorySession(Aprox aprox, String buildRepoId, MavenRepositoryConnectionInfo info) {
+        this.aprox = aprox;
+        this.buildRepoId = buildRepoId;
+        this.isSetBuild = false; //TODO remove
         this.connectionInfo = info;
     }
 
@@ -136,7 +144,7 @@ public class MavenRepositorySession implements RepositorySession {
 
         promoteToBuildContentSet();
 
-        return new MavenRepositoryManagerResult(uploads, downloads);
+        return new MavenRepositoryManagerResult(uploads, downloads, buildRepoId); //TODO buildRepoId == buildContentId ?
     }
 
     /**

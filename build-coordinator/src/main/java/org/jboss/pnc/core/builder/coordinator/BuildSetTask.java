@@ -25,7 +25,7 @@ import org.jboss.pnc.model.ProductMilestone;
 import org.jboss.pnc.spi.BuildSetStatus;
 import org.jboss.pnc.spi.datastore.DatastoreException;
 import org.jboss.pnc.spi.events.BuildSetStatusChangedEvent;
-import org.jboss.pnc.spi.events.BuildStatusChangedEvent;
+import org.jboss.pnc.spi.events.BuildCoordinationStatusChangedEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -100,7 +100,7 @@ public class BuildSetTask {
      * 
      * @param buildStatusChangedEvent Event with information about the state change of the task
      */
-    void taskStatusUpdated(BuildStatusChangedEvent buildStatusChangedEvent) {
+    void taskStatusUpdated(BuildCoordinationStatusChangedEvent buildStatusChangedEvent) {
         // If any of the build tasks have failed or all are complete, then the build set is done
         if (buildTasks.stream().anyMatch(bt -> bt.getStatus().hasFailed())) {
             log.debug("Marking build set as FAILED as one or more tasks failed.");
