@@ -276,7 +276,7 @@ public class BuildConfigurationSetEndpoint extends AbstractEndpoint<BuildConfigu
     })
     @POST
     @Path("/{id}/build")
-    @Consumes(MediaType.WILDCARD)
+    @Consumes(MediaType.APPLICATION_JSON)
     public Response build(
             @ApiParam(value = "Build Configuration Set id", required = true) @PathParam("id") Integer id,
             @ApiParam(value = "Optional Callback URL", required = false) @QueryParam("callbackUrl") String callbackUrl,
