@@ -27,9 +27,8 @@ import org.jboss.pnc.core.builder.coordinator.BuildTask;
 import org.jboss.pnc.core.exception.CoreException;
 import org.jboss.pnc.core.notifications.buildSetTask.BuildSetCallBack;
 import org.jboss.pnc.core.notifications.buildSetTask.BuildSetStatusNotifications;
-import org.jboss.pnc.core.test.configurationBuilders.TestProjectConfigurationBuilder;
-import org.jboss.pnc.core.test.mock.TestEntitiesFactory;
-import org.jboss.pnc.model.BuildConfiguration;
+import org.jboss.pnc.mock.model.builders.TestProjectConfigurationBuilder;
+import org.jboss.pnc.mock.model.builders.TestEntitiesFactory;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.BuildStatus;
 import org.jboss.pnc.spi.BuildSetStatus;
@@ -42,11 +41,9 @@ import org.junit.runner.RunWith;
 
 import javax.inject.Inject;
 import java.time.temporal.ChronoUnit;
-import java.time.temporal.TemporalUnit;
 import java.util.Set;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
-import java.util.function.Supplier;
 
 import static org.jboss.pnc.core.test.buildCoordinator.BuildCoordinatorDeployments.Options.WITH_DATASTORE;
 

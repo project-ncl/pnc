@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package org.jboss.pnc.core.test.mock;
+package org.jboss.pnc.mock.model.builders;
 
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationSet;

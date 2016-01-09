@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.core.test.configurationBuilders;
+package org.jboss.pnc.mock.model.builders;
 
 import org.jboss.pnc.model.BuildRecordSet;
 import org.jboss.pnc.model.Product;

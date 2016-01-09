@@ -15,17 +15,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.executor.mock;
+package org.jboss.pnc.mock.executor;
 
 import org.jboss.logging.Logger;
 import org.jboss.pnc.common.util.RandomUtils;
-import org.jboss.pnc.executor.mock.configurationBuilders.TestProjectConfigurationBuilder;
+import org.jboss.pnc.mock.model.builders.TestProjectConfigurationBuilder;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildType;
-import org.jboss.pnc.spi.BuildExecution;
 import org.jboss.pnc.spi.builddriver.*;
 import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
 import org.jboss.pnc.spi.environment.RunningEnvironment;
+import org.jboss.pnc.spi.executor.BuildExecutionSession;
 
 import java.util.function.Consumer;
 
@@ -43,9 +43,8 @@ public class BuildDriverMock implements BuildDriver {
         return "termd-build-driver";
     }
 
-
     @Override
-    public RunningBuild startProjectBuild(BuildExecution currentBuildExecution, BuildConfigurationAudited buildConfiguration, final RunningEnvironment runningEnvironment) throws BuildDriverException {
+    public RunningBuild startProjectBuild(BuildExecutionSession buildExecutionSession, BuildConfigurationAudited buildConfiguration, RunningEnvironment runningEnvironment) throws BuildDriverException {
         try {
             log.debug("Building " + buildConfiguration);
             Thread.sleep(RandomUtils.randInt(100, 300));

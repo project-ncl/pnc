@@ -15,11 +15,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.core.test.configurationBuilders;
+package org.jboss.pnc.mock.model.builders;
 
-import org.jboss.pnc.core.test.mock.DatastoreMock;
+import org.jboss.pnc.mock.datastore.DatastoreMock;
 import org.jboss.pnc.model.BuildConfiguration;
-import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.BuildEnvironment;
 import org.jboss.pnc.model.Project;

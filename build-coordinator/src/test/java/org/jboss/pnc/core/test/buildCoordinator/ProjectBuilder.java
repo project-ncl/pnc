@@ -19,26 +19,21 @@ package org.jboss.pnc.core.test.buildCoordinator;
 
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.pnc.common.Configuration;
-import org.jboss.pnc.core.BuildDriverFactory;
 import org.jboss.pnc.core.builder.coordinator.BuildCoordinator;
 import org.jboss.pnc.core.builder.coordinator.BuildSetTask;
 import org.jboss.pnc.core.builder.coordinator.BuildTask;
 import org.jboss.pnc.core.builder.coordinator.filtering.BuildTaskFilter;
 import org.jboss.pnc.core.builder.datastore.DatastoreAdapter;
-import org.jboss.pnc.executor.executor.BuildExecutor;
 import org.jboss.pnc.core.content.ContentIdentityManager;
 import org.jboss.pnc.core.events.DefaultBuildStatusChangedEvent;
 import org.jboss.pnc.core.exception.CoreException;
 import org.jboss.pnc.core.notifications.buildSetTask.BuildSetCallBack;
 import org.jboss.pnc.core.notifications.buildTask.BuildCallBack;
 import org.jboss.pnc.core.test.buildCoordinator.event.TestCDIBuildStatusChangedReceiver;
-import org.jboss.pnc.core.test.configurationBuilders.TestProjectConfigurationBuilder;
-import org.jboss.pnc.executor.mock.BuildDriverMock;
-import org.jboss.pnc.core.test.mock.DatastoreMock;
-import org.jboss.pnc.executor.mock.EnvironmentDriverMock;
-import org.jboss.pnc.executor.mock.RepositoryManagerMock;
-import org.jboss.pnc.executor.mock.RepositorySessionMock;
-import org.jboss.pnc.core.test.mock.TestEntitiesFactory;
+import org.jboss.pnc.mock.datastore.DatastoreMock;
+import org.jboss.pnc.mock.model.builders.TestProjectConfigurationBuilder;
+import org.jboss.pnc.mock.model.builders.TestEntitiesFactory;
+import org.jboss.pnc.mock.executor.BuildExecutorMock;
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationSet;
@@ -46,11 +41,11 @@ import org.jboss.pnc.model.BuildEnvironment;
 import org.jboss.pnc.model.mock.MockUser;
 import org.jboss.pnc.spi.BuildSetStatus;
 import org.jboss.pnc.spi.BuildCoordinationStatus;
+import org.jboss.pnc.spi.datastore.Datastore;
 import org.jboss.pnc.spi.datastore.DatastoreException;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigSetRecordRepository;
 import org.jboss.pnc.spi.events.BuildCoordinationStatusChangedEvent;
 import org.jboss.pnc.spi.exception.BuildConflictException;
-import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.asset.EmptyAsset;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.slf4j.Logger;
@@ -89,16 +84,14 @@ public class ProjectBuilder {
 
     @Deployment
     public static JavaArchive createDeployment() {
-        JavaArchive jar = ShrinkWrap.create(JavaArchive.class)
+        JavaArchive jar = BuildCoordinatorDeployments.defaultDeployment();
+                jar.addPackage(BuildExecutorMock.class.getPackage())
                 .addClass(Configuration.class)
                 .addClass(BuildEnvironment.Builder.class)
                 .addClass(TestCDIBuildStatusChangedReceiver.class)
-                .addPackages(false,
-                        BuildDriverFactory.class.getPackage())
                 .addPackages(true,
                         BuildCoordinator.class.getPackage(),
                         DatastoreAdapter.class.getPackage(),
-                        BuildExecutor.class.getPackage(),
                         TestProjectConfigurationBuilder.class.getPackage(),
                         ContentIdentityManager.class.getPackage(),
                         BuildConfigSetRecordRepository.class.getPackage(),
@@ -107,12 +100,9 @@ public class ProjectBuilder {
                         BuildSetCallBack.class.getPackage(),
                         BuildCallBack.class.getPackage(),
                         BuildCoordinationStatus.class.getPackage(),
-                        DefaultBuildStatusChangedEvent.class.getPackage())
-                .addClass(BuildDriverMock.class)
-                .addClass(DatastoreMock.class)
-                .addClass(EnvironmentDriverMock.class)
-                .addClass(RepositoryManagerMock.class)
-                .addClass(RepositorySessionMock.class)
+                        DefaultBuildStatusChangedEvent.class.getPackage(),
+                        DatastoreMock.class.getPackage())
+                .addClass(Datastore.class)
                 .addClass(TestEntitiesFactory.class)
                 .addAsManifestResource(EmptyAsset.INSTANCE, "beans.xml")
                 .addAsResource("META-INF/logging.properties");
@@ -195,7 +185,11 @@ public class ProjectBuilder {
     }
 
     private void assertBuildStartedSuccessfully(BuildTask buildTask) {
-        List<BuildCoordinationStatus> errorStates = Arrays.asList(BuildCoordinationStatus.REJECTED, BuildCoordinationStatus.SYSTEM_ERROR, BuildCoordinationStatus.BUILD_ENV_SETUP_COMPLETE_WITH_ERROR);
+        List<BuildCoordinationStatus> errorStates = Arrays.asList(
+                BuildCoordinationStatus.REJECTED,
+                BuildCoordinationStatus.REJECTED_ALREADY_BUILT,
+                BuildCoordinationStatus.SYSTEM_ERROR,
+                BuildCoordinationStatus.DONE_WITH_ERRORS);
         if (errorStates.contains(buildTask.getStatus())) {
             fail("Build " + buildTask.getId() + " has status:" + buildTask.getStatus() + " with description: " + buildTask.getStatusDescription());
         }
@@ -215,29 +209,13 @@ public class ProjectBuilder {
     }
 
     private void assertAllStatusUpdateReceived(List<BuildCoordinationStatusChangedEvent> receivedStatuses, Integer buildTaskId) {
-        assertStatusUpdateReceived(receivedStatuses, BuildCoordinationStatus.BUILD_ENV_SETTING_UP, buildTaskId);
-        assertStatusUpdateReceived(receivedStatuses, BuildCoordinationStatus.BUILD_ENV_WAITING, buildTaskId);
-        assertStatusUpdateReceived(receivedStatuses, BuildCoordinationStatus.BUILD_ENV_SETUP_COMPLETE_SUCCESS, buildTaskId);
-        assertStatusUpdateReceived(receivedStatuses, BuildCoordinationStatus.REPO_SETTING_UP, buildTaskId);
-        assertStatusUpdateReceived(receivedStatuses, BuildCoordinationStatus.BUILD_SETTING_UP, buildTaskId);
-        assertStatusUpdateReceived(receivedStatuses, BuildCoordinationStatus.BUILD_WAITING, buildTaskId);
-        assertStatusUpdateReceived(receivedStatuses, BuildCoordinationStatus.BUILD_COMPLETED_SUCCESS, buildTaskId);
-        assertStatusUpdateReceived(receivedStatuses, BuildCoordinationStatus.BUILD_ENV_DESTROYING, buildTaskId);
-        assertStatusUpdateReceived(receivedStatuses, BuildCoordinationStatus.BUILD_ENV_DESTROYED, buildTaskId);
+        //TODO add all statuses
         assertStatusUpdateReceived(receivedStatuses, BuildCoordinationStatus.STORING_RESULTS, buildTaskId);
         assertStatusUpdateReceived(receivedStatuses, BuildCoordinationStatus.DONE, buildTaskId);
     }
 
     private void assertAllStatusUpdateReceivedForFailedBuild(List<BuildCoordinationStatusChangedEvent> receivedStatuses, Integer buildTaskId) {
-        assertStatusUpdateReceived(receivedStatuses, BuildCoordinationStatus.BUILD_ENV_SETTING_UP, buildTaskId);
-        assertStatusUpdateReceived(receivedStatuses, BuildCoordinationStatus.BUILD_ENV_WAITING, buildTaskId);
-        assertStatusUpdateReceived(receivedStatuses, BuildCoordinationStatus.BUILD_ENV_SETUP_COMPLETE_SUCCESS, buildTaskId);
-        assertStatusUpdateReceived(receivedStatuses, BuildCoordinationStatus.REPO_SETTING_UP, buildTaskId);
-        assertStatusUpdateReceived(receivedStatuses, BuildCoordinationStatus.BUILD_SETTING_UP, buildTaskId);
-        assertStatusUpdateReceived(receivedStatuses, BuildCoordinationStatus.BUILD_WAITING, buildTaskId);
-        assertStatusUpdateReceived(receivedStatuses, BuildCoordinationStatus.BUILD_COMPLETED_WITH_ERROR, buildTaskId);
-        assertStatusUpdateReceived(receivedStatuses, BuildCoordinationStatus.BUILD_ENV_DESTROYING, buildTaskId);
-        assertStatusUpdateReceived(receivedStatuses, BuildCoordinationStatus.BUILD_ENV_DESTROYED, buildTaskId);
+        //TODO add all statuses
         assertStatusUpdateReceived(receivedStatuses, BuildCoordinationStatus.STORING_RESULTS, buildTaskId);
         assertStatusUpdateReceived(receivedStatuses, BuildCoordinationStatus.DONE_WITH_ERRORS, buildTaskId);
     }

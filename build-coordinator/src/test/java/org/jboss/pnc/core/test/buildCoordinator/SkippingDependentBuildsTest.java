@@ -37,7 +37,7 @@ package org.jboss.pnc.core.test.buildCoordinator;
 
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.pnc.core.builder.coordinator.BuildCoordinator;
-import org.jboss.pnc.core.test.mock.DatastoreMock;
+import org.jboss.pnc.mock.datastore.DatastoreMock;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.User;
@@ -84,7 +84,7 @@ public class SkippingDependentBuildsTest extends ProjectBuilder {
         waitForBuild();
 
         //then
-        assertThat(datastore.getBuildRecords().size()).isEqualTo(1);
+        assertThat(datastoreMock.getBuildRecords().size()).isEqualTo(1);
     }
 
     @Test
@@ -97,7 +97,7 @@ public class SkippingDependentBuildsTest extends ProjectBuilder {
         waitForBuild();
 
         //then
-        assertThat(datastore.getBuildRecords().size()).isEqualTo(2);
+        assertThat(datastoreMock.getBuildRecords().size()).isEqualTo(2);
     }
 
     @Test
@@ -110,7 +110,7 @@ public class SkippingDependentBuildsTest extends ProjectBuilder {
         waitForBuild();
 
         //then
-        assertThat(datastore.getBuildRecords().size()).isEqualTo(5);
+        assertThat(datastoreMock.getBuildRecords().size()).isEqualTo(5);
     }
 
     @Test
@@ -123,7 +123,7 @@ public class SkippingDependentBuildsTest extends ProjectBuilder {
         waitForBuild();
 
         //then
-        assertThat(datastore.getBuildRecords().size()).isEqualTo(10);
+        assertThat(datastoreMock.getBuildRecords().size()).isEqualTo(10);
     }
 
     protected void waitForBuild() throws InterruptedException, TimeoutException {

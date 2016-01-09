@@ -22,30 +22,24 @@ import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.junit.InSequence;
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.util.ObjectWrapper;
-import org.jboss.pnc.core.BuildDriverFactory;
 import org.jboss.pnc.core.builder.coordinator.BuildCoordinator;
 import org.jboss.pnc.core.builder.coordinator.BuildSetTask;
 import org.jboss.pnc.core.builder.coordinator.BuildTask;
 import org.jboss.pnc.core.builder.datastore.DatastoreAdapter;
-import org.jboss.pnc.executor.executor.DefaultBuildExecutor;
 import org.jboss.pnc.core.exception.CoreException;
 import org.jboss.pnc.core.notifications.buildSetTask.BuildSetCallBack;
 import org.jboss.pnc.core.notifications.buildSetTask.BuildSetStatusNotifications;
 import org.jboss.pnc.core.notifications.buildTask.BuildCallBack;
 import org.jboss.pnc.core.notifications.buildTask.BuildStatusNotifications;
-import org.jboss.pnc.core.test.configurationBuilders.TestProjectConfigurationBuilder;
-import org.jboss.pnc.executor.mock.BuildDriverMock;
-import org.jboss.pnc.core.test.mock.DatastoreMock;
-import org.jboss.pnc.executor.mock.EnvironmentDriverMock;
-import org.jboss.pnc.executor.mock.RepositoryManagerMock;
-import org.jboss.pnc.executor.mock.RepositorySessionMock;
+import org.jboss.pnc.mock.datastore.DatastoreMock;
+import org.jboss.pnc.mock.model.builders.TestProjectConfigurationBuilder;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.User;
-import org.jboss.pnc.spi.BuildSetStatus;
 import org.jboss.pnc.spi.BuildCoordinationStatus;
+import org.jboss.pnc.spi.BuildSetStatus;
 import org.jboss.pnc.spi.datastore.DatastoreException;
-import org.jboss.pnc.spi.events.BuildSetStatusChangedEvent;
 import org.jboss.pnc.spi.events.BuildCoordinationStatusChangedEvent;
+import org.jboss.pnc.spi.events.BuildSetStatusChangedEvent;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.asset.EmptyAsset;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
@@ -99,17 +93,11 @@ public class StatusUpdatesTest {
                         BuildSetStatusChangedEvent.class.getPackage(),
                         Observes.class.getPackage())
                 .addPackages(false,
-                        BuildDriverFactory.class.getPackage(),
                         DatastoreAdapter.class.getPackage(),
                         BuildStatusNotifications.class.getPackage(),
                         BuildSetStatusNotifications.class.getPackage(),
-                        DefaultBuildExecutor.class.getPackage(),
                         TestProjectConfigurationBuilder.class.getPackage())
-                .addClass(BuildDriverMock.class)
                 .addClass(DatastoreMock.class)
-                .addClass(EnvironmentDriverMock.class)
-                .addClass(RepositoryManagerMock.class)
-                .addClass(RepositorySessionMock.class)
                 .addAsManifestResource(EmptyAsset.INSTANCE, "beans.xml")
                 .addAsResource("META-INF/logging.properties");
         log.debug(jar.toString(true));
@@ -148,7 +136,7 @@ public class StatusUpdatesTest {
         for (BuildTask buildTask : buildTasks) {
             i++;
             if (i < MIN_TASKS) {
-                buildTask.setStatus(BuildCoordinationStatus.BUILD_WAITING);
+                buildTask.setStatus(BuildCoordinationStatus.WAITING_FOR_DEPENDENCIES);
             } else {
                 buildTask.setStatus(BuildCoordinationStatus.DONE);
             }

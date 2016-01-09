@@ -23,8 +23,7 @@ import org.jboss.pnc.core.builder.coordinator.BuildCoordinator;
 import org.jboss.pnc.core.builder.datastore.DatastoreAdapter;
 import org.jboss.pnc.core.events.DefaultBuildSetStatusChangedEvent;
 import org.jboss.pnc.core.notifications.buildSetTask.BuildSetStatusNotifications;
-import org.jboss.pnc.executor.mock.BuildExecutorMock;
-import org.jboss.pnc.core.test.mock.DatastoreMock;
+import org.jboss.pnc.mock.datastore.DatastoreMock;
 import org.jboss.pnc.spi.events.BuildSetStatusChangedEvent;
 import org.jboss.shrinkwrap.api.Archive;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
@@ -65,7 +64,6 @@ public class BuildCoordinatorDeployments {
                 .addPackages(true, BuildSetStatusNotifications.class.getPackage())
                 .addClass(BuildSetStatusChangedEvent.class)
                 .addClass(DefaultBuildSetStatusChangedEvent.class)
-                .addClass(BuildExecutorMock.class)
                 .addAsManifestResource(EmptyAsset.INSTANCE, "beans.xml")
                 .addAsResource("META-INF/logging.properties");
 

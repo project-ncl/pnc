@@ -68,6 +68,7 @@
     <module>openshift-environment-driver</module>
     <module>demo-data</module>
     <module>integration-test</module>
+    <module>pnc-mock</module> <!-- keep pnc prefix as 'mock' is dy default ignored in some cases (intellij) -->
   </modules>
 
   <properties>
@@ -245,6 +246,12 @@
       <dependency>
         <groupId>org.jboss.pnc</groupId>
         <artifactId>build-executor</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jboss.pnc</groupId>
+        <artifactId>pnc-mock</artifactId>
         <version>${project.version}</version>
       </dependency>
 
