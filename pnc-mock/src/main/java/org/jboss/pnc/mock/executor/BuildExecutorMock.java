@@ -20,12 +20,20 @@ package org.jboss.pnc.mock.executor;
 
 import org.jboss.pnc.common.util.RandomUtils;
 import org.jboss.pnc.executor.DefaultBuildExecutionSession;
+import org.jboss.pnc.executor.DefaultBuildResult;
+import org.jboss.pnc.mock.builddriver.BuildDriverResultMock;
+import org.jboss.pnc.mock.repositorymanager.RepositoryManagerResultMock;
 import org.jboss.pnc.spi.BuildExecutionStatus;
+import org.jboss.pnc.spi.BuildResult;
+import org.jboss.pnc.spi.builddriver.BuildDriverResult;
+import org.jboss.pnc.spi.builddriver.BuildDriverStatus;
+import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
 import org.jboss.pnc.spi.events.BuildExecutionStatusChangedEvent;
 import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
 import org.jboss.pnc.spi.executor.BuildExecutionSession;
 import org.jboss.pnc.spi.executor.BuildExecutor;
 import org.jboss.pnc.spi.executor.exceptions.ExecutorException;
+import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -64,7 +72,7 @@ public class BuildExecutorMock implements BuildExecutor {
             buildExecutionSession.setStatus(buildStatus);
         };
 
-        CompletableFuture.supplyAsync(() -> mockBuild(), executor)
+        CompletableFuture.supplyAsync(() -> mockBuild(buildExecutionSession), executor)
                 .thenApplyAsync((buildTook) -> complete(onCompleteInternal), executor);
         return buildExecutionSession;
     }
@@ -74,9 +82,11 @@ public class BuildExecutorMock implements BuildExecutor {
         return -1;
     }
 
-    private Integer mockBuild() {
-
-        int sleep = RandomUtils.randInt(50, 500);
+    private Integer mockBuild(BuildExecutionSession buildExecutionSession) {
+        BuildDriverResult driverResult = BuildDriverResultMock.mockResult();
+        RepositoryManagerResult repositoryManagerResult = RepositoryManagerResultMock.mockResult();;
+        buildExecutionSession.setBuildResult(new DefaultBuildResult(driverResult, repositoryManagerResult));
+        int sleep = RandomUtils.randInt(0, 500);
         try {
             Thread.sleep(sleep);
         } catch (InterruptedException e) {
@@ -84,6 +94,7 @@ public class BuildExecutorMock implements BuildExecutor {
         }
         return sleep;
     }
+
 
     //    private CompletableFuture<Integer> mockBuild() {
 //        CompletableFuture<Integer> waitToCompleteFuture = new CompletableFuture<>();

@@ -31,6 +31,7 @@ import org.jboss.pnc.core.notifications.buildSetTask.BuildSetCallBack;
 import org.jboss.pnc.core.notifications.buildTask.BuildCallBack;
 import org.jboss.pnc.core.test.buildCoordinator.event.TestCDIBuildStatusChangedReceiver;
 import org.jboss.pnc.mock.datastore.DatastoreMock;
+import org.jboss.pnc.mock.model.builders.ArtifactBuilder;
 import org.jboss.pnc.mock.model.builders.TestProjectConfigurationBuilder;
 import org.jboss.pnc.mock.model.builders.TestEntitiesFactory;
 import org.jboss.pnc.mock.executor.BuildExecutorMock;
@@ -237,6 +238,6 @@ public class ProjectBuilder {
     public static void assertBuildArtifactsPresent(List<Artifact> builtArtifacts) {
         assertTrue("Missing built artifacts.", builtArtifacts.size() > 0);
         Artifact artifact = builtArtifacts.get(0);
-        assertTrue("Invalid built artifact in result.", artifact.getIdentifier().startsWith("test"));
+        assertTrue("Invalid built artifact in result.", artifact.getIdentifier().startsWith(ArtifactBuilder.IDENTIFIER_PREFIX));
     }
 }

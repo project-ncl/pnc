@@ -271,8 +271,8 @@ public class BuildCoordinator {
             try {
                 datastoreAdapter.storeResult(buildTask, buildExecutionResult);
             } catch (DatastoreException e) {
-                //TODO handle exceptions internally
-                e.printStackTrace();
+                log.error("Cannot store results to datastore.", e);
+                buildTask.setStatus(BuildCoordinationStatus.SYSTEM_ERROR);
             }
 
             BuildCoordinationStatus coordinationStatus;

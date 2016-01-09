@@ -93,7 +93,7 @@ public class DatastoreAdapter {
                 buildRecord.setDependencies(repositoryManagerResult.getDependencies());
             }
 
-            //TODO enable log log.debugf("Storing results of %s to datastore.", buildExecutionTask.getBuildConfigurationAudited().getName());
+            log.debugf("Storing results of buildTask [%s] to datastore.", buildTask.getId());
             return datastore.storeCompletedBuild(buildRecord, buildTask.getBuildRecordSetIds());
         } catch (Exception e) {
             throw new DatastoreException("Error storing the result to datastore.", e);
