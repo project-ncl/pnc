@@ -38,7 +38,6 @@ public class SingleProjectBuildTest extends ProjectBuilder {
         buildProject(configurationBuilder.build(1, "c1-java"));
     }
 
-
     @Test
     @InSequence(20)
     public void checkDatabaseForResult() {

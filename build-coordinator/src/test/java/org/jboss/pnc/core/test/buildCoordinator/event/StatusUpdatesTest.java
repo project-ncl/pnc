@@ -99,7 +99,7 @@ public class StatusUpdatesTest {
                         TestProjectConfigurationBuilder.class.getPackage())
                 .addClass(DatastoreMock.class)
                 .addAsManifestResource(EmptyAsset.INSTANCE, "beans.xml")
-                .addAsResource("META-INF/logging.properties");
+                .addAsResource("simplelogger.properties");
         log.debug(jar.toString(true));
         return jar;
     }

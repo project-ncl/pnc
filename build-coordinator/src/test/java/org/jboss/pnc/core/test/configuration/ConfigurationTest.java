@@ -53,7 +53,7 @@ public class ConfigurationTest {
                 .addClass(DockerEnvironmentDriverModuleConfig.class)
                 .addClass(OpenshiftEnvironmentDriverModuleConfig.class)
                 .addAsManifestResource(EmptyAsset.INSTANCE, "beans.xml")
-                .addAsResource("META-INF/logging.properties");
+                .addAsResource("simplelogger.properties");
 
         logger.debug(jar.toString(true));
         return jar;

@@ -29,9 +29,15 @@ import org.jboss.shrinkwrap.api.Archive;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.asset.EmptyAsset;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
+import org.jboss.shrinkwrap.resolver.api.maven.Maven;
+import org.jboss.shrinkwrap.resolver.api.maven.MavenFormatStage;
+import org.jboss.shrinkwrap.resolver.api.maven.coordinate.MavenCoordinate;
+import org.jboss.shrinkwrap.resolver.api.maven.coordinate.MavenDependency;
+import org.jboss.shrinkwrap.resolver.impl.maven.coordinate.MavenDependencyImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.util.function.Supplier;
 
 /**
@@ -57,7 +63,6 @@ public class BuildCoordinatorDeployments {
     private static final Logger log = LoggerFactory.getLogger(BuildCoordinatorDeployments.class);
 
     public static JavaArchive defaultDeployment() {
-
         JavaArchive jar = ShrinkWrap.create(JavaArchive.class)
                 .addClass(Configuration.class)
                 .addPackages(true, BuildCoordinator.class.getPackage())
@@ -65,10 +70,19 @@ public class BuildCoordinatorDeployments {
                 .addClass(BuildSetStatusChangedEvent.class)
                 .addClass(DefaultBuildSetStatusChangedEvent.class)
                 .addAsManifestResource(EmptyAsset.INSTANCE, "beans.xml")
-                .addAsResource("META-INF/logging.properties");
+                .addAsResource("simplelogger.properties");
+
+        addPomLibs(jar, "org.slf4j:slf4j-simple");
 
         log.debug(jar.toString(true));
         return jar;
+    }
+
+    private static void addPomLibs(JavaArchive jar, String gav) {
+        JavaArchive[] libs = Maven.resolver().loadPomFromFile("pom.xml").resolve(gav).withTransitivity().as(JavaArchive.class);
+        for (JavaArchive lib : libs) {
+            jar.merge(lib);
+        }
     }
 
     public static JavaArchive deployment(Options... options) {

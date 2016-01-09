@@ -97,6 +97,7 @@
     <version.keycloak>1.2.0.Final</version.keycloak>
     <version.hibernate-jpamodelgen>4.3.4.Final</version.hibernate-jpamodelgen>
     <version.undertow-websockets-jsr>1.2.6.Final</version.undertow-websockets-jsr>
+    <version.shrinkwrap>2.1.1</version.shrinkwrap>
 
     <datetime>${timestamp}</datetime>
     <pushChanges>true</pushChanges>
@@ -353,9 +354,30 @@
       <dependency>
         <groupId>org.jboss.shrinkwrap.resolver</groupId>
         <artifactId>shrinkwrap-resolver-bom</artifactId>
-        <version>2.1.1</version>
+        <version>${version.shrinkwrap}</version>
         <scope>import</scope>
         <type>pom</type>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jboss.shrinkwrap.resolver</groupId>
+        <artifactId>shrinkwrap-resolver-api-maven</artifactId>
+        <version>${version.shrinkwrap}</version>
+        <scope>test</scope>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jboss.shrinkwrap.resolver</groupId>
+        <artifactId>shrinkwrap-resolver-impl-maven-archive</artifactId>
+        <version>${version.shrinkwrap}</version>
+        <scope>test</scope>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jboss.shrinkwrap.resolver</groupId>
+        <artifactId>shrinkwrap-resolver-impl-maven</artifactId>
+        <version>${version.shrinkwrap}</version>
+        <scope>test</scope>
       </dependency>
 
       <dependency>
