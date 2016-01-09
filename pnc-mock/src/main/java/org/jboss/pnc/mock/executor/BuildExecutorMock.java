@@ -52,6 +52,8 @@ public class BuildExecutorMock implements BuildExecutor {
             BuildExecutionConfiguration buildExecutionConfiguration,
             Consumer<BuildExecutionStatusChangedEvent> onBuildExecutionStatusChangedEvent) throws ExecutorException {
 
+        log.debug("Starting mock build execution for configuration {}", buildExecutionConfiguration);
+
         BuildExecutionSession buildExecutionSession = new DefaultBuildExecutionSession(buildExecutionConfiguration, onBuildExecutionStatusChangedEvent);
         buildExecutionSession.setStatus(BuildExecutionStatus.NEW);
 
@@ -59,6 +61,7 @@ public class BuildExecutorMock implements BuildExecutor {
         Consumer<BuildExecutionStatus> onCompleteInternal = (buildStatus) -> {
             log.debug("Removing buildExecutionTask [" + buildExecutionConfiguration.getId() + "] form list of running tasks.");
             runningExecutions.remove(buildExecutionConfiguration.getId());
+            buildExecutionSession.setStatus(buildStatus);
         };
 
         CompletableFuture.supplyAsync(() -> mockBuild(), executor)

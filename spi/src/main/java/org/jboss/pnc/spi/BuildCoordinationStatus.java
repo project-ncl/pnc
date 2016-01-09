@@ -31,7 +31,7 @@ public enum BuildCoordinationStatus {
 
     BUILDING,
 
-    STORING_RESULTS,
+    BUILD_COMPLETED,
 
     /** Last build status which is set
      *  after storing to db and

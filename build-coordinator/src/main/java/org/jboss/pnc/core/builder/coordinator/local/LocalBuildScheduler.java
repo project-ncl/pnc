@@ -30,6 +30,8 @@ import org.jboss.pnc.spi.executor.BuildExecutionResult;
 import org.jboss.pnc.spi.executor.BuildExecutionSession;
 import org.jboss.pnc.spi.executor.BuildExecutor;
 import org.jboss.pnc.spi.executor.exceptions.ExecutorException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
@@ -41,6 +43,8 @@ import java.util.function.Consumer;
  */
 @ApplicationScoped
 public class LocalBuildScheduler implements BuildScheduler {
+
+    private static final Logger log = LoggerFactory.getLogger(LocalBuildScheduler.class);
 
     public static final String ID = "local-build-scheduler";
 
@@ -66,6 +70,7 @@ public class LocalBuildScheduler implements BuildScheduler {
             throws CoreException, ExecutorException {
 
         Consumer<BuildExecutionStatusChangedEvent> onBuildExecutionStatusChangedEvent = (statusChangedEvent) -> {
+            log.debug("Received execution status update {}.", statusChangedEvent);
             if (statusChangedEvent.getNewStatus().isCompleted()) {
                 BuildExecutionSession buildExecutionSession = statusChangedEvent.getBuildExecutionSession();
 
@@ -73,7 +78,7 @@ public class LocalBuildScheduler implements BuildScheduler {
                         buildExecutionSession.hasFailed(),
                         buildExecutionSession.getBuildResult()
                 );
-
+                log.debug("Notifying build execution completed {}.", statusChangedEvent);
                 onComplete.accept(buildExecutionResult);
             }
         };

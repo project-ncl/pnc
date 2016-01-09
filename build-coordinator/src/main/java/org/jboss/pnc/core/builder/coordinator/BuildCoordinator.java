@@ -266,21 +266,23 @@ public class BuildCoordinator {
     void processBuildTask(BuildTask buildTask) {
         Consumer<BuildExecutionResult> onComplete = (buildExecutionResult) -> {
 
-            BuildCoordinationStatus coordinationStatus;
-            if (buildExecutionResult.hasFailed()) {
-                coordinationStatus = BuildCoordinationStatus.DONE_WITH_ERRORS;
-            } else {
-                coordinationStatus = BuildCoordinationStatus.DONE;
-            }
+            buildTask.setStatus(BuildCoordinationStatus.BUILD_COMPLETED);
 
-            buildTask.setStatus(coordinationStatus);
-            activeBuildTasks.remove(buildTask);
             try {
                 datastoreAdapter.storeResult(buildTask, buildExecutionResult);
             } catch (DatastoreException e) {
                 //TODO handle exceptions internally
                 e.printStackTrace();
             }
+
+            BuildCoordinationStatus coordinationStatus;
+            if (buildExecutionResult.hasFailed()) {
+                coordinationStatus = BuildCoordinationStatus.DONE_WITH_ERRORS;
+            } else {
+                coordinationStatus = BuildCoordinationStatus.DONE;
+            }
+            buildTask.setStatus(coordinationStatus);
+            activeBuildTasks.remove(buildTask);
         };
 
         try {
@@ -294,6 +296,7 @@ public class BuildCoordinator {
 
             activeBuildTasks.add(buildTask);
             buildScheduler.startBuilding(buildTask, onComplete);
+            buildTask.setStatus(BuildCoordinationStatus.BUILDING);
         } catch (CoreException | ExecutorException e) {
             log.debug(" Build coordination task failed. Setting it as SYSTEM_ERROR.", e);
             buildTask.setStatus(BuildCoordinationStatus.SYSTEM_ERROR);

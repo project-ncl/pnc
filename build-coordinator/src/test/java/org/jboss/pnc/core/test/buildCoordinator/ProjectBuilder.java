@@ -79,7 +79,7 @@ public class ProjectBuilder {
     TestCDIBuildStatusChangedReceiver statusChangedReceiver;
 
     private static final Logger log = LoggerFactory.getLogger(ProjectBuilder.class);
-    public static final int N_STATUS_UPDATES_PER_TASK = 4;
+    public static final int N_STATUS_UPDATES_PER_TASK = 3;
     public static final int N_STATUS_UPDATES_PER_TASK_WAITING_FOR_FAILED_DEPS = 1;
 
     @Deployment
@@ -207,16 +207,14 @@ public class ProjectBuilder {
     }
 
     private void assertAllStatusUpdateReceived(List<BuildCoordinationStatusChangedEvent> receivedStatuses, Integer buildTaskId) {
-        assertStatusUpdateReceived(receivedStatuses, BuildCoordinationStatus.NEW, buildTaskId);
         assertStatusUpdateReceived(receivedStatuses, BuildCoordinationStatus.BUILDING, buildTaskId);
-        assertStatusUpdateReceived(receivedStatuses, BuildCoordinationStatus.STORING_RESULTS, buildTaskId);
+        assertStatusUpdateReceived(receivedStatuses, BuildCoordinationStatus.BUILD_COMPLETED, buildTaskId);
         assertStatusUpdateReceived(receivedStatuses, BuildCoordinationStatus.DONE, buildTaskId);
     }
 
     private void assertAllStatusUpdateReceivedForFailedBuild(List<BuildCoordinationStatusChangedEvent> receivedStatuses, Integer buildTaskId) {
-        assertStatusUpdateReceived(receivedStatuses, BuildCoordinationStatus.NEW, buildTaskId);
         assertStatusUpdateReceived(receivedStatuses, BuildCoordinationStatus.BUILDING, buildTaskId);
-        assertStatusUpdateReceived(receivedStatuses, BuildCoordinationStatus.STORING_RESULTS, buildTaskId);
+        assertStatusUpdateReceived(receivedStatuses, BuildCoordinationStatus.BUILD_COMPLETED, buildTaskId);
         assertStatusUpdateReceived(receivedStatuses, BuildCoordinationStatus.DONE_WITH_ERRORS, buildTaskId);
     }
 
