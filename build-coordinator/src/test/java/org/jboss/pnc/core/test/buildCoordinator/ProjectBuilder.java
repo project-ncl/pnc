@@ -85,30 +85,7 @@ public class ProjectBuilder {
 
     @Deployment
     public static JavaArchive createDeployment() {
-        JavaArchive jar = BuildCoordinatorDeployments.defaultDeployment();
-                jar.addPackage(BuildExecutorMock.class.getPackage())
-                .addClass(Configuration.class)
-                .addClass(BuildEnvironment.Builder.class)
-                .addPackages(true,
-                        BuildCoordinator.class.getPackage(),
-                        DatastoreAdapter.class.getPackage(),
-                        TestProjectConfigurationBuilder.class.getPackage(),
-                        ContentIdentityManager.class.getPackage(),
-                        BuildConfigSetRecordRepository.class.getPackage(),
-                        BuildTaskFilter.class.getPackage(),
-                        TestCDIBuildStatusChangedReceiver.class.getPackage(),
-                        BuildSetCallBack.class.getPackage(),
-                        BuildCallBack.class.getPackage(),
-                        BuildCoordinationStatus.class.getPackage(),
-                        DefaultBuildStatusChangedEvent.class.getPackage(),
-                        DatastoreMock.class.getPackage())
-                .addClass(Datastore.class)
-                .addClass(TestEntitiesFactory.class)
-                .addAsManifestResource(EmptyAsset.INSTANCE, "beans.xml")
-                .addAsResource("simplelogger.properties");
-
-        log.debug(jar.toString(true));
-        return jar;
+        return BuildCoordinatorDeployments.deployment(BuildCoordinatorDeployments.Options.WITH_DATASTORE);
     }
 
     void buildProject(BuildConfiguration buildConfiguration) throws BuildConflictException, InterruptedException {

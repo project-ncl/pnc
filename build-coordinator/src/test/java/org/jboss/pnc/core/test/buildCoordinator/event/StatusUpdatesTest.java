@@ -31,6 +31,7 @@ import org.jboss.pnc.core.notifications.buildSetTask.BuildSetCallBack;
 import org.jboss.pnc.core.notifications.buildSetTask.BuildSetStatusNotifications;
 import org.jboss.pnc.core.notifications.buildTask.BuildCallBack;
 import org.jboss.pnc.core.notifications.buildTask.BuildStatusNotifications;
+import org.jboss.pnc.core.test.buildCoordinator.BuildCoordinatorDeployments;
 import org.jboss.pnc.mock.datastore.DatastoreMock;
 import org.jboss.pnc.mock.model.builders.TestProjectConfigurationBuilder;
 import org.jboss.pnc.model.BuildConfigurationSet;
@@ -85,23 +86,7 @@ public class StatusUpdatesTest {
 
     @Deployment
     public static JavaArchive createDeployment() {
-        JavaArchive jar = ShrinkWrap.create(JavaArchive.class)
-                .addPackages(true,
-                        Configuration.class.getPackage(),
-                        StatusUpdatesTest.class.getPackage(),
-                        BuildCoordinator.class.getPackage(),
-                        BuildSetStatusChangedEvent.class.getPackage(),
-                        Observes.class.getPackage())
-                .addPackages(false,
-                        DatastoreAdapter.class.getPackage(),
-                        BuildStatusNotifications.class.getPackage(),
-                        BuildSetStatusNotifications.class.getPackage(),
-                        TestProjectConfigurationBuilder.class.getPackage())
-                .addClass(DatastoreMock.class)
-                .addAsManifestResource(EmptyAsset.INSTANCE, "beans.xml")
-                .addAsResource("simplelogger.properties");
-        log.debug(jar.toString(true));
-        return jar;
+        return BuildCoordinatorDeployments.deployment(BuildCoordinatorDeployments.Options.WITH_DATASTORE);
     }
 
     @Test
