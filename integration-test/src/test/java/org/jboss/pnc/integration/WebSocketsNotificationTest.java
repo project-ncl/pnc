@@ -91,7 +91,7 @@ public class WebSocketsNotificationTest {
     @Test
     public void shouldReceiveBuildStatusChangeNotification() throws Exception {
         //given
-        BuildCoordinationStatusChangedEvent buildStatusChangedEvent = new DefaultBuildStatusChangedEvent(BuildCoordinationStatus.NEW, BuildCoordinationStatus.BUILD_COMPLETED_SUCCESS, 1,
+        BuildCoordinationStatusChangedEvent buildStatusChangedEvent = new DefaultBuildStatusChangedEvent(BuildCoordinationStatus.NEW, BuildCoordinationStatus.DONE, 1,
                 1, "Build1", 1);
         String expectedJsonResponse = "{\"eventType\":\"BUILD_STATUS_CHANGED\",\"payload\":{\"id\":1,\"buildStatus\":\"BUILD_COMPLETED_SUCCESS\",\"userId\":1,\"buildConfigurationId\":1,\"buildConfigurationName\":\"Build1\"}}";
 
