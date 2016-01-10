@@ -32,6 +32,7 @@ import org.slf4j.LoggerFactory;
 import javax.enterprise.event.Event;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -89,9 +90,14 @@ public class BuildSetTask {
         BuildSetStatus oldStatus = this.status;
         this.status = status;
         Integer userId = Optional.ofNullable(buildConfigSetRecord.getUser()).map(user -> user.getId()).orElse(null);
-        BuildSetStatusChangedEvent buildSetStatusChangedEvent = new DefaultBuildSetStatusChangedEvent(oldStatus, status,
-                getId(), buildConfigSetRecord.getBuildConfigurationSet().getId(),
-                buildConfigSetRecord.getBuildConfigurationSet().getName(), userId);
+        BuildSetStatusChangedEvent buildSetStatusChangedEvent = new DefaultBuildSetStatusChangedEvent(
+                oldStatus,
+                status,
+                getId(),
+                buildConfigSetRecord.getBuildConfigurationSet().getId(),
+                buildConfigSetRecord.getBuildConfigurationSet().getName(),
+                userId);
+        log.debug("Notifying build set status update {}.", buildSetStatusChangedEvent);
         buildSetStatusChangedEventNotifier.fire(buildSetStatusChangedEvent);
     }
 
@@ -102,7 +108,7 @@ public class BuildSetTask {
      */
     void taskStatusUpdated(BuildCoordinationStatusChangedEvent buildStatusChangedEvent) {
         // If any of the build tasks have failed or all are complete, then the build set is done
-        if (buildTasks.stream().anyMatch(bt -> bt.getStatus().hasFailed())) {
+        if(buildTasks.stream().anyMatch(bt -> bt.getStatus().hasFailed())) {
             log.debug("Marking build set as FAILED as one or more tasks failed.");
             if (log.isDebugEnabled()) {
                 logTasksStatus(buildTasks);
@@ -113,23 +119,25 @@ public class BuildSetTask {
             log.debug("Marking build set as SUCCESS.");
             buildConfigSetRecord.setStatus(org.jboss.pnc.model.BuildStatus.SUCCESS);
             finishBuildSetTask();
+        } else {
+            List<Integer> running = buildTasks.stream()
+                    .filter(bt -> !bt.getStatus().isCompleted())
+                    .filter(bt -> !bt.getStatus().hasFailed())
+                    .map((bt) -> bt.getId())
+                    .collect(Collectors.toList());
+            log.trace("There are still running builds [{}].", running);
         }
     }
 
     private void logTasksStatus(Set<BuildTask> buildTasks) {
-        String taskStatuses = buildTasks.stream().map(bt -> "TaskId " + bt.getId() + ":" + bt.getStatus())
-                .collect(Collectors.joining("; "));
+        String taskStatuses = buildTasks.stream().map(bt -> "TaskId " + bt.getId() + ":" + bt.getStatus()).collect(Collectors.joining("; "));
         log.debug("Tasks statuses: {}", taskStatuses);
     }
 
     private void finishBuildSetTask() {
         buildConfigSetRecord.setEndTime(new Date());
         setStatus(BuildSetStatus.DONE);
-        try {
-            buildCoordinator.saveBuildConfigSetRecord(buildConfigSetRecord);
-        } catch (DatastoreException e) {
-            log.error("Unable to save build config set record", e);
-        }
+        buildCoordinator.notifyBuildSetTaskCompleted(buildConfigSetRecord);
     }
 
     public BuildSetStatus getStatus() {
@@ -175,8 +183,8 @@ public class BuildSetTask {
     }
 
     /**
-     * The product milestone during which this set of builds is executed. Will be null if this build set is not associated with
-     * any milestone.
+     * The product milestone during which this set of builds is executed.
+     * Will be null if this build set is not associated with any milestone.
      */
     public ProductMilestone getProductMilestone() {
         return productMilestone;

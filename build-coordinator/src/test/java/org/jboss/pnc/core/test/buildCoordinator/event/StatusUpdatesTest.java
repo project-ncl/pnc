@@ -20,19 +20,16 @@ package org.jboss.pnc.core.test.buildCoordinator.event;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.junit.InSequence;
-import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.util.ObjectWrapper;
 import org.jboss.pnc.core.builder.coordinator.BuildCoordinator;
 import org.jboss.pnc.core.builder.coordinator.BuildSetTask;
 import org.jboss.pnc.core.builder.coordinator.BuildTask;
-import org.jboss.pnc.core.builder.datastore.DatastoreAdapter;
 import org.jboss.pnc.core.exception.CoreException;
 import org.jboss.pnc.core.notifications.buildSetTask.BuildSetCallBack;
 import org.jboss.pnc.core.notifications.buildSetTask.BuildSetStatusNotifications;
 import org.jboss.pnc.core.notifications.buildTask.BuildCallBack;
 import org.jboss.pnc.core.notifications.buildTask.BuildStatusNotifications;
 import org.jboss.pnc.core.test.buildCoordinator.BuildCoordinatorDeployments;
-import org.jboss.pnc.mock.datastore.DatastoreMock;
 import org.jboss.pnc.mock.model.builders.TestProjectConfigurationBuilder;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.User;
@@ -41,8 +38,6 @@ import org.jboss.pnc.spi.BuildSetStatus;
 import org.jboss.pnc.spi.datastore.DatastoreException;
 import org.jboss.pnc.spi.events.BuildCoordinationStatusChangedEvent;
 import org.jboss.pnc.spi.events.BuildSetStatusChangedEvent;
-import org.jboss.shrinkwrap.api.ShrinkWrap;
-import org.jboss.shrinkwrap.api.asset.EmptyAsset;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.junit.Assert;
 import org.junit.Test;
@@ -50,10 +45,10 @@ import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -98,11 +93,11 @@ public class StatusUpdatesTest {
         };
         testCDIBuildSetStatusChangedReceiver.addBuildSetStatusChangedEventListener(statusUpdateListener);
 
-        Set<BuildTask> buildTasks = initializeBuildTask().getBuildTasks();
+        Set<BuildTask> buildTasks = initializeBuildTaskSet(buildCoordinator, configurationBuilder).getBuildTasks();
         buildTasks.forEach((bt) -> bt.setStatus(BuildCoordinationStatus.DONE));
         this.waitForConditionWithTimeout(() -> buildTasks.stream().allMatch(task -> task.getStatus().isCompleted()), 4);
 
-        Assert.assertNotNull("Did not receive status update.", receivedBuildSetStatusChangedEvent.get());
+        Assert.assertNotNull("Did not receive build set status update.", receivedBuildSetStatusChangedEvent.get());
         Assert.assertEquals(BuildSetStatus.DONE, receivedBuildSetStatusChangedEvent.get().getNewStatus());
     }
 
@@ -115,7 +110,7 @@ public class StatusUpdatesTest {
         };
         testCDIBuildSetStatusChangedReceiver.addBuildSetStatusChangedEventListener(statusUpdateListener);
 
-        Set<BuildTask> buildTasks = initializeBuildTask().getBuildTasks();
+        Set<BuildTask> buildTasks = initializeBuildTaskSet(buildCoordinator, configurationBuilder).getBuildTasks();
         Assert.assertTrue("There should be at least " + MIN_TASKS + " tasks in the set", buildTasks.size() > MIN_TASKS);
         int i = 0;
         for (BuildTask buildTask : buildTasks) {
@@ -132,7 +127,7 @@ public class StatusUpdatesTest {
     @Test
     @InSequence(30)
     public void BuildTaskCallbacksShouldBeCalled() throws DatastoreException {
-        Set<BuildTask> buildTasks = initializeBuildTask().getBuildTasks();
+        Set<BuildTask> buildTasks = initializeBuildTaskSet(buildCoordinator, configurationBuilder).getBuildTasks();
         Set<Integer> tasksIds = buildTasks.stream().map((buildTask -> buildTask.getId())).collect(Collectors.toSet());
 
         Set<Integer> receivedUpdatesForId = new HashSet<>();
@@ -151,29 +146,7 @@ public class StatusUpdatesTest {
         });
     }
 
-    @Test
-    @InSequence(40)
-    public void BuildSetTaskCallbacksShouldBeCalled() throws DatastoreException {
-        BuildSetTask buildSetTask = initializeBuildTask();
-        Set<BuildTask> buildTasks = buildSetTask.getBuildTasks();
-
-        ObjectWrapper<BuildSetStatusChangedEvent> buildSetStatusChangedEvent = new ObjectWrapper<>();
-        Consumer<BuildSetStatusChangedEvent> statusChangeEventConsumer = (statusChangedEvent) -> {
-            buildSetStatusChangedEvent.set(statusChangedEvent);
-        };
-
-        buildSetStatusNotifications.subscribe(new BuildSetCallBack(buildSetTask.getId(), statusChangeEventConsumer));
-
-        buildTasks.forEach((bt) -> bt.setStatus(BuildCoordinationStatus.DONE));
-
-        Assert.assertNotNull("Did not receive status update.", buildSetStatusChangedEvent.get());
-        Assert.assertEquals("Did not receive status update to DONE for task set.", BuildSetStatus.DONE, buildSetStatusChangedEvent.get().getNewStatus());
-    }
-
-    AtomicInteger buildTaskSetIdSupplier = new AtomicInteger(0);
-    AtomicInteger buildTaskIdSupplier = new AtomicInteger(0);
-
-    private BuildSetTask initializeBuildTask() throws DatastoreException {
+    public static BuildSetTask initializeBuildTaskSet(BuildCoordinator buildCoordinator, TestProjectConfigurationBuilder configurationBuilder) throws DatastoreException {
         BuildConfigurationSet buildConfigurationSet = configurationBuilder.buildConfigurationSet(1);
         User user = User.Builder.newBuilder().id(1).username("test-user").build();
         BuildSetTask buildSetTask = null;
@@ -187,11 +160,12 @@ public class StatusUpdatesTest {
     }
 
     /**
-     * Wait until the give boolean condition becomes true, or the given number of seconds passes
+     * use Wait.forCondition
      * 
      * @param sup
      * @param timeoutSeconds
      */
+    @Deprecated
     private void waitForConditionWithTimeout(Supplier<Boolean> sup, int timeoutSeconds) throws InterruptedException {
         int secondsPassed = 0;
         while (!sup.get() && secondsPassed < timeoutSeconds) {

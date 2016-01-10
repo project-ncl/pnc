@@ -231,25 +231,21 @@ public class BuildCoordinator {
     }
 
     private void build(BuildSetTask buildSetTask) throws CoreException {
-        Predicate<BuildTask> readyToBuild = (buildTask) -> {
-            return buildTask.readyToBuild();
-        };
-
-        Predicate<BuildTask> rejectAlreadySubmitted = (buildTask) -> {
-            if (isBuildAlreadySubmitted(buildTask)) {
-                buildTask.setStatus(BuildCoordinationStatus.REJECTED);
-                buildTask.setStatusDescription("The configuration is already in the build queue.");
-                return false;
-            } else {
-                return true;
-            }
-        };
-
         if (!BuildSetStatus.REJECTED.equals(buildSetTask.getStatus())) {
             buildSetTask.getBuildTasks().stream()
-                    .filter(readyToBuild)
-                    .filter(rejectAlreadySubmitted)
+                    .filter((buildTask) -> buildTask.readyToBuild())
+                    .filter((buildTask) -> rejectAlreadySubmitted(buildTask))
                     .forEach(v -> processBuildTask(v));
+        }
+    }
+
+    private boolean rejectAlreadySubmitted(BuildTask buildTask) {
+        if (isBuildAlreadySubmitted(buildTask)) {
+            buildTask.setStatus(BuildCoordinationStatus.REJECTED);
+            buildTask.setStatusDescription("The configuration is already in the build queue.");
+            return false;
+        } else {
+            return true;
         }
     }
 
@@ -341,5 +337,13 @@ public class BuildCoordinator {
 
     Event<BuildSetStatusChangedEvent> getBuildSetStatusChangedEventNotifier() {
         return buildSetStatusChangedEventNotifier;
+    }
+
+    public void notifyBuildSetTaskCompleted(BuildConfigSetRecord buildConfigSetRecord) {
+        try {
+            datastoreAdapter.saveBuildConfigSetRecord(buildConfigSetRecord);
+        } catch (DatastoreException e) {
+            log.error("Unable to save build config set record", e);
+        }
     }
 }

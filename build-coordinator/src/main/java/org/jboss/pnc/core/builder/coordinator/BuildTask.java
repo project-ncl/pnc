@@ -126,10 +126,16 @@ public class BuildTask {
             setHasFailed(true);
         }
         Integer userId = Optional.ofNullable(getUser()).map(user -> user.getId()).orElse(null);
-        BuildCoordinationStatusChangedEvent buildStatusChanged = new DefaultBuildStatusChangedEvent(oldStatus, status, getId(),
-                buildConfigurationAudited.getId().getId(), buildConfigurationAudited.getName(), userId);
+        BuildCoordinationStatusChangedEvent buildStatusChanged = new DefaultBuildStatusChangedEvent(
+                oldStatus,
+                status,
+                getId(),
+                buildConfigurationAudited.getId().getId(),
+                buildConfigurationAudited.getName(),
+                userId);
         log.debug("Updating build task {} status to {}", this.getId(), buildStatusChanged);
         if (buildSetTask != null) {
+            log.debug("Updating BuildSetTask {}.", buildSetTask.getId());
             buildSetTask.taskStatusUpdated(buildStatusChanged);
         }
         buildStatusChangedEventNotifier.fire(buildStatusChanged);
