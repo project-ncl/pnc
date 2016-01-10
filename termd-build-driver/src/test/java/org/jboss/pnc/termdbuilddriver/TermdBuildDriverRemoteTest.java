@@ -18,9 +18,9 @@
 package org.jboss.pnc.termdbuilddriver;
 
 import org.jboss.pnc.model.BuildConfigurationAudited;
-import org.jboss.pnc.spi.BuildExecution;
 import org.jboss.pnc.spi.builddriver.CompletedBuild;
 import org.jboss.pnc.spi.builddriver.RunningBuild;
+import org.jboss.pnc.spi.executor.BuildExecutionSession;
 import org.jboss.pnc.test.category.RemoteTest;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -64,7 +64,7 @@ public class TermdBuildDriverRemoteTest extends AbstractLocalBuildAgentTest {
     public void shouldBuildJSR107() throws Exception {
         //given
         TermdBuildDriver driver = new TermdBuildDriver();
-        BuildExecution buildExecution = mock(BuildExecution.class);
+        BuildExecutionSession buildExecution = mock(BuildExecutionSession.class);
 
         AtomicReference<CompletedBuild> buildResult = new AtomicReference<>();
 
