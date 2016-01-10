@@ -50,6 +50,8 @@ public interface BuildExecutionSession {
 
     void setStartTime(Date date);
 
+    ExecutorException getException();
+
     void setException(ExecutorException e);
 
     Date getEndTime();

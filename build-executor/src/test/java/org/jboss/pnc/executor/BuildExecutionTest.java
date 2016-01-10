@@ -90,7 +90,6 @@ public class BuildExecutionTest {
             BuildExecutionStatus.REPO_SETTING_UP,
             BuildExecutionStatus.BUILD_SETTING_UP,
             BuildExecutionStatus.BUILD_WAITING,
-            BuildExecutionStatus.BUILD_COMPLETED_SUCCESS,
             BuildExecutionStatus.BUILD_ENV_DESTROYING,
             BuildExecutionStatus.BUILD_ENV_DESTROYED,
             BuildExecutionStatus.FINALIZING_EXECUTION,
@@ -104,8 +103,7 @@ public class BuildExecutionTest {
 
         runBuild(buildConfiguration, statusChangedEvents, buildExecutionResultWrapper);
 
-        List<BuildExecutionStatus> expectedStatuses = getBaseBuildExecutionStatuses();
-        expectedStatuses.add(BuildExecutionStatus.DONE);
+        List<BuildExecutionStatus> expectedStatuses = getBuildExecutionStatusesSuccess();
 
         //check build statuses
         expectedStatuses.forEach(expectedStatus -> {
@@ -131,15 +129,22 @@ public class BuildExecutionTest {
         Assert.assertTrue("Missing build dependencies.", repositoryManagerResult.getDependencies().size() > 0);
 
         Artifact artifact = repositoryManagerResult.getBuiltArtifacts().get(0);
-        Assert.assertTrue("Invalid built artifact in result.", artifact.getIdentifier().startsWith(ArtifactBuilder.IDENTIFIER_PREFIX));
+        Assert.assertTrue("Invalid built artifact in the result.", artifact.getIdentifier().startsWith(ArtifactBuilder.IDENTIFIER_PREFIX));
 
     }
 
-    private ArrayList<BuildExecutionStatus> getBaseBuildExecutionStatuses() {
+    private List<BuildExecutionStatus> getBuildExecutionStatusesSuccess() {
+        List<BuildExecutionStatus> expectedStatuses = getBuildExecutionStatusesBase();
+        expectedStatuses.add(BuildExecutionStatus.DONE);
+        expectedStatuses.add(BuildExecutionStatus.BUILD_COMPLETED_SUCCESS);
+        return expectedStatuses;
+    }
+
+    private ArrayList<BuildExecutionStatus> getBuildExecutionStatusesBase() {
         return new ArrayList<>(Arrays.asList(baseBuildStatuses));
     }
 
-//    @Test //TODO enable
+    @Test
     public void buildShouldFail() throws ExecutorException, TimeoutException, InterruptedException, BuildDriverException {
         BuildConfiguration buildConfiguration = configurationBuilder.buildFailingConfiguration(2, "failed-build", null);
         Set<BuildExecutionStatusChangedEvent> statusChangedEvents = new HashSet<>();
@@ -147,7 +152,7 @@ public class BuildExecutionTest {
 
         runBuild(buildConfiguration, statusChangedEvents, buildExecutionResultWrapper);
 
-        List<BuildExecutionStatus> expectedStatuses = getBaseBuildExecutionStatuses();
+        List<BuildExecutionStatus> expectedStatuses = getBuildExecutionStatusesBase();
         expectedStatuses.add(BuildExecutionStatus.DONE_WITH_ERRORS);
 
         //check build statuses
@@ -177,13 +182,12 @@ public class BuildExecutionTest {
             log.debug("Received execution status update {}.", statusChangedEvent);
             statusChangedEvents.add(statusChangedEvent);
 
-            if (statusChangedEvent.getNewStatus().hasFailed()) {
-                log.error(statusChangedEvent.getBuildExecutionSession().get);
+            BuildExecutionSession buildExecutionSession = statusChangedEvent.getBuildExecutionSession();
+            if (buildExecutionSession.hasFailed()) {
+                log.error("Build execution failed.", buildExecutionSession.getException());
             }
 
             if (statusChangedEvent.getNewStatus().isCompleted()) {
-                BuildExecutionSession buildExecutionSession = statusChangedEvent.getBuildExecutionSession();
-
                  buildExecutionResultWrapper.set(BuildExecutionResult.build(
                          buildExecutionSession.hasFailed(),
                          buildExecutionSession.getBuildResult()

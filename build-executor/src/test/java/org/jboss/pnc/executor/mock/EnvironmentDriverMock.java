@@ -40,8 +40,10 @@ import java.util.function.Consumer;
 public class EnvironmentDriverMock implements EnvironmentDriver {
 
     @Override
-    public StartedEnvironment buildEnvironment(BuildEnvironment buildSystemImage,
-            final RepositorySession repositoryConfiguration) throws EnvironmentDriverException {
+    public StartedEnvironment buildEnvironment(
+            BuildEnvironment buildSystemImage,
+            final RepositorySession repositorySession) throws EnvironmentDriverException {
+
         return new StartedEnvironment() {
 
             @Override
@@ -57,7 +59,7 @@ public class EnvironmentDriverMock implements EnvironmentDriver {
 
                             @Override
                             public RepositorySession getRepositorySession() {
-                                return repositoryConfiguration;
+                                return repositorySession;
                             }
 
                             @Override

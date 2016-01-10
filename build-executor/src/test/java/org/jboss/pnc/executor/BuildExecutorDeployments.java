@@ -19,6 +19,8 @@
 package org.jboss.pnc.executor;
 
 import org.jboss.pnc.common.Configuration;
+import org.jboss.pnc.executor.mock.EnvironmentDriverMock;
+import org.jboss.pnc.executor.mock.RepositoryManagerMock;
 import org.jboss.pnc.executor.mock.builders.TestProjectConfigurationBuilder;
 import org.jboss.pnc.executor.servicefactories.BuildDriverFactory;
 import org.jboss.pnc.mock.builddriver.BuildDriverMock;
@@ -72,6 +74,8 @@ public class BuildExecutorDeployments {
                 .addClass(Configuration.class)
                 .addClass(BuildEnvironment.Builder.class)
                 .addClass(TestProjectConfigurationBuilder.class)
+                .addClass(RepositoryManagerMock.class)
+                .addClass(EnvironmentDriverMock.class)
                 .addPackages(true,
                         BuildDriverFactory.class.getPackage(),
                         BuildDriverMock.class.getPackage())

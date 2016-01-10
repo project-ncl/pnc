@@ -38,7 +38,7 @@ import java.util.function.Consumer;
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
-public class DefaultBuildExecutionSession implements BuildExecutionSession { //TODO implement me
+public class DefaultBuildExecutionSession implements BuildExecutionSession {
 
     private static final Logger log = LoggerFactory.getLogger(DefaultBuildExecutionSession.class);
 
@@ -49,10 +49,15 @@ public class DefaultBuildExecutionSession implements BuildExecutionSession { //T
     private ExecutorException executorException;
     private Optional<URI> liveLogsUri;
     private BuildResult buildResult;
+    private Date startTime;
+    private RunningEnvironment runningEnvironment;
+    private Date endTime;
+    private User user;
 
     public DefaultBuildExecutionSession(BuildExecutionConfiguration buildExecutionConfiguration, Consumer<BuildExecutionStatusChangedEvent> onBuildExecutionStatusChangedEvent) {
         this.buildExecutionConfiguration = buildExecutionConfiguration;
         this.onBuildExecutionStatusChangedEvent = onBuildExecutionStatusChangedEvent;
+        user = buildExecutionConfiguration.getUser();
     }
 
     @Override
@@ -100,12 +105,17 @@ public class DefaultBuildExecutionSession implements BuildExecutionSession { //T
     }
 
     public Integer getUserId() {
-        return null; //TODO
+        return user.getId();
     }
 
     @Override
     public Date getStartTime() {
-        return null;
+        return startTime;
+    }
+
+    @Override
+    public ExecutorException getException() {
+        return executorException;
     }
 
     @Override
@@ -116,12 +126,12 @@ public class DefaultBuildExecutionSession implements BuildExecutionSession { //T
 
     @Override
     public Date getEndTime() {
-        return null;
+        return endTime;
     }
 
     @Override
-    public void setEndTime(Date date) {
-
+    public void setEndTime(Date endTime) {
+        this.endTime = endTime;
     }
 
     @Override
@@ -141,21 +151,21 @@ public class DefaultBuildExecutionSession implements BuildExecutionSession { //T
 
     @Override
     public Integer getId() {
-        return null; //TODO
+        return getBuildExecutionConfiguration().getId();
     }
 
     @Override
-    public void setStartTime(Date date) {
-        //TODO
+    public void setStartTime(Date startTime) {
+        this.startTime = startTime;
     }
 
     @Override
     public RunningEnvironment getRunningEnvironment() {
-        return null; //TODO
+        return runningEnvironment;
     }
 
     @Override
     public void setRunningEnvironment(RunningEnvironment runningEnvironment) {
-        //TODO
+        this.runningEnvironment = runningEnvironment;
     }
 }

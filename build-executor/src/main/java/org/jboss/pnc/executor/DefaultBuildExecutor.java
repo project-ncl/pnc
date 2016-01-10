@@ -108,7 +108,7 @@ public class DefaultBuildExecutor implements BuildExecutor {
         CompletableFuture.supplyAsync(() -> configureRepository(buildExecutionSession), executor)
                 .thenApplyAsync(repositoryConfiguration -> setUpEnvironment(buildExecutionSession, repositoryConfiguration), executor)
                 .thenComposeAsync(startedEnvironment -> waitForEnvironmentInitialization(buildExecutionSession, startedEnvironment), executor)
-                .thenApplyAsync(runningEnvironment -> buildSetUp(buildExecutionSession, runningEnvironment), executor)
+                .thenApplyAsync(nul -> buildSetUp(buildExecutionSession), executor)
                 .thenComposeAsync(runningBuild -> waitBuildToComplete(buildExecutionSession, runningBuild), executor)
                 .thenApplyAsync(completedBuild -> retrieveBuildDriverResults(buildExecutionSession, completedBuild), executor)
                 .thenApplyAsync(buildDriverResult -> retrieveRepositoryManagerResults(buildExecutionSession, buildDriverResult), executor)
@@ -141,19 +141,21 @@ public class DefaultBuildExecutor implements BuildExecutor {
         try {
             EnvironmentDriver envDriver = environmentDriverFactory.getDriver(buildExecutionConfiguration.getBuildConfigurationAudited().getBuildEnvironment());
             StartedEnvironment startedEnv = envDriver.buildEnvironment(
-                    buildExecutionConfiguration.getBuildConfigurationAudited().getBuildEnvironment(), repositorySession);
+                    buildExecutionConfiguration.getBuildConfigurationAudited().getBuildEnvironment(),
+                    repositorySession);
             return startedEnv;
         } catch (Throwable e) {
             throw new BuildProcessException(e);
         }
     }
 
-    private CompletableFuture<RunningEnvironment> waitForEnvironmentInitialization(BuildExecutionSession buildExecutionSession, StartedEnvironment startedEnvironment) {
-        CompletableFuture<RunningEnvironment> waitToCompleteFuture = new CompletableFuture<>();
+    private CompletableFuture<Void> waitForEnvironmentInitialization(BuildExecutionSession buildExecutionSession, StartedEnvironment startedEnvironment) {
+        CompletableFuture<Void> waitToCompleteFuture = new CompletableFuture<>();
         try {
             Consumer<RunningEnvironment> onComplete = (runningEnvironment) -> {
+                buildExecutionSession.setRunningEnvironment(runningEnvironment);
                 buildExecutionSession.setStatus(BuildExecutionStatus.BUILD_ENV_SETUP_COMPLETE_SUCCESS);
-                waitToCompleteFuture.complete(runningEnvironment);
+                waitToCompleteFuture.complete(null);
             };
             Consumer<Exception> onError = (e) -> {
                 buildExecutionSession.setStatus(BuildExecutionStatus.BUILD_ENV_SETUP_COMPLETE_WITH_ERROR);
@@ -168,8 +170,9 @@ public class DefaultBuildExecutor implements BuildExecutor {
         return waitToCompleteFuture;
     }
 
-    private RunningBuild buildSetUp(BuildExecutionSession buildExecutionSession, RunningEnvironment runningEnvironment) {
+    private RunningBuild buildSetUp(BuildExecutionSession buildExecutionSession) {
         buildExecutionSession.setStatus(BuildExecutionStatus.BUILD_SETTING_UP);
+        RunningEnvironment runningEnvironment = buildExecutionSession.getRunningEnvironment();
         try {
             String liveLogWebSocketUrl = runningEnvironment.getJenkinsUrl();
             log.debug("Setting live log websocket url: {}", liveLogWebSocketUrl);
@@ -213,7 +216,6 @@ public class DefaultBuildExecutor implements BuildExecutor {
             } else {
                 buildExecutionSession.setStatus(BuildExecutionStatus.BUILD_COMPLETED_WITH_ERROR);
             }
-            buildExecutionSession.setEndTime(new Date());
             return buildResult;
         } catch (Throwable e) {
             throw new BuildProcessException(e, completedBuild.getRunningEnvironment());
@@ -227,7 +229,9 @@ public class DefaultBuildExecutor implements BuildExecutor {
             buildExecutionSession.setRunningEnvironment(runningEnvironment);
             BuildResult buildResult;
             if (BuildDriverStatus.SUCCESS.equals(buildDriverResult.getBuildDriverStatus())) {
-                RepositoryManagerResult repositoryManagerResult = runningEnvironment.getRepositorySession().extractBuildArtifacts();
+                log.debug("Build {} completed successfully", buildExecutionSession.getId());
+                RepositorySession repositorySession = runningEnvironment.getRepositorySession();
+                RepositoryManagerResult repositoryManagerResult = repositorySession.extractBuildArtifacts();
                 buildResult = new DefaultBuildResult(buildDriverResult, repositoryManagerResult);
             } else {
                 buildResult = new DefaultBuildResult(buildDriverResult, null);
@@ -256,7 +260,9 @@ public class DefaultBuildExecutor implements BuildExecutor {
         if (buildExecutionSession.getStartTime() == null) {
             buildExecutionSession.setException(new ExecutorException("Missing start time."));
         }
-        stopRunningEnvironment(e);
+        if (e != null) {
+            stopRunningEnvironment(e);
+        }
 
         if (e != null) {
             buildExecutionSession.setException(new ExecutorException(e));
@@ -268,31 +274,16 @@ public class DefaultBuildExecutor implements BuildExecutor {
             buildExecutionSession.setEndTime(new Date());
         }
 
-        log.debug("Removing buildExecutionTask [" + buildExecutionSession.getId() + "] form list of running tasks.");
-        runningExecutions.remove(buildExecutionSession.getId());
-
         //check if any of previous statuses indicated "failed" state
-        if (buildExecutionSession.hasFailed()) {
+        if (buildExecutionSession.hasFailed()) { //TODO differentiate build and system error
             buildExecutionSession.setStatus(BuildExecutionStatus.DONE_WITH_ERRORS);
         } else {
             buildExecutionSession.setStatus(BuildExecutionStatus.DONE);
         }
 
+        log.debug("Removing buildExecutionTask [" + buildExecutionSession.getId() + "] form list of running tasks.");
+        runningExecutions.remove(buildExecutionSession.getId());
 
-        //TODO move to caller
-//        try {
-//            if (buildResult != null) {
-//                buildExecutionTask.setStatus(BuildCoordinationStatus.BUILD_COMPLETED);
-//                datastoreAdapter.storeResult(buildExecutionTask, buildResult, buildExecutionTask.getId());
-//            } else {
-//                // If there are no build results, then there was a system failure
-//                // which means the build may not have started.
-//
-//                datastoreAdapter.storeResult(buildExecutionTask, e);
-//            }
-//        } catch (DatastoreException de) {
-//            log.error("Error storing results of build configuration: " + buildExecutionTask.getId()  + " to datastore.", de);
-//        }
         return null;
     }
 

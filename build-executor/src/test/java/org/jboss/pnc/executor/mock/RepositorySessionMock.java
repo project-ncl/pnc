@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.executor.mock;
 
+import org.jboss.pnc.mock.model.builders.ArtifactBuilder;
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.RepositoryType;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerException;
@@ -80,14 +81,14 @@ public class RepositorySessionMock implements RepositorySession {
             @Override
             public List<Artifact> getBuiltArtifacts() {
                 List<Artifact> builtArtifacts = new ArrayList<>();
-                builtArtifacts.add(getArtifact(1));
+                builtArtifacts.add(ArtifactBuilder.mockArtifact(1));
                 return builtArtifacts;
             }
 
             @Override
             public List<Artifact> getDependencies() {
                 List<Artifact> dependencies = new ArrayList<>();
-                dependencies.add(getArtifact(10));
+                dependencies.add(ArtifactBuilder.mockArtifact(10));
                 return dependencies;
             }
 
@@ -97,12 +98,4 @@ public class RepositorySessionMock implements RepositorySession {
             }
         };
     }
-
-    private Artifact getArtifact(int i) {
-        Artifact artifact = new Artifact();
-        artifact.setId(i);
-        artifact.setIdentifier("test" + i);
-        return artifact;
-    }
-
 }
