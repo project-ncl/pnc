@@ -29,7 +29,7 @@ public class BuildDriverResultMock {
 
     public static final String BUILD_LOG = "The quick brown fox jumps over the lazy dog.\nFinished: SUCCESS";
 
-    public static BuildDriverResult mockResult() {
+    public static BuildDriverResult mockResult(BuildDriverStatus status) {
         return new BuildDriverResult() {
             @Override
             public String getBuildLog() throws BuildDriverException {
@@ -38,7 +38,7 @@ public class BuildDriverResultMock {
 
             @Override
             public BuildDriverStatus getBuildDriverStatus() {
-                return BuildDriverStatus.SUCCESS;
+                return status;
             }
         };
     }

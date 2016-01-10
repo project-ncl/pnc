@@ -22,6 +22,7 @@ import org.jboss.pnc.common.util.RandomUtils;
 import org.jboss.pnc.executor.DefaultBuildExecutionSession;
 import org.jboss.pnc.executor.DefaultBuildResult;
 import org.jboss.pnc.mock.builddriver.BuildDriverResultMock;
+import org.jboss.pnc.mock.model.builders.TestProjectConfigurationBuilder;
 import org.jboss.pnc.mock.repositorymanager.RepositoryManagerResultMock;
 import org.jboss.pnc.spi.BuildExecutionStatus;
 import org.jboss.pnc.spi.BuildResult;
@@ -73,17 +74,32 @@ public class BuildExecutorMock implements BuildExecutor {
         };
 
         CompletableFuture.supplyAsync(() -> mockBuild(buildExecutionSession), executor)
-                .thenApplyAsync((buildTook) -> complete(onCompleteInternal), executor);
+                .thenApplyAsync((buildPassed) -> complete(buildPassed, onCompleteInternal), executor);
         return buildExecutionSession;
     }
 
-    private Integer complete(Consumer<BuildExecutionStatus> onCompleteInternal) {
-        onCompleteInternal.accept(BuildExecutionStatus.DONE);
+    private Integer complete(Boolean buildPassed, Consumer<BuildExecutionStatus> onCompleteInternal) {
+        if (buildPassed) {
+            onCompleteInternal.accept(BuildExecutionStatus.DONE);
+        } else {
+            onCompleteInternal.accept(BuildExecutionStatus.DONE_WITH_ERRORS);
+        }
         return -1;
     }
 
-    private Integer mockBuild(BuildExecutionSession buildExecutionSession) {
-        BuildDriverResult driverResult = BuildDriverResultMock.mockResult();
+    private Boolean mockBuild(BuildExecutionSession buildExecutionSession) {
+        String configurationDescription = buildExecutionSession.getBuildExecutionConfiguration().getBuildConfiguration().getDescription();
+        log.debug("Building {} with description [{}].", buildExecutionSession.getId(), configurationDescription);
+        BuildDriverResult driverResult;
+        Boolean buildPassed;
+        if (TestProjectConfigurationBuilder.FAIL.equals(configurationDescription)) {
+            driverResult = BuildDriverResultMock.mockResult(BuildDriverStatus.FAILED);
+            buildPassed = false;
+        } else {
+            driverResult = BuildDriverResultMock.mockResult(BuildDriverStatus.SUCCESS);
+            buildPassed = true;
+        }
+
         RepositoryManagerResult repositoryManagerResult = RepositoryManagerResultMock.mockResult();;
         buildExecutionSession.setBuildResult(new DefaultBuildResult(driverResult, repositoryManagerResult));
         int sleep = RandomUtils.randInt(0, 500);
@@ -92,7 +108,7 @@ public class BuildExecutorMock implements BuildExecutor {
         } catch (InterruptedException e) {
             log.warn("Mock build interrupted.", e);
         }
-        return sleep;
+        return buildPassed;
     }
 
 
