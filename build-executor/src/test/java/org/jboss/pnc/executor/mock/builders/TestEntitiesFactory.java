@@ -16,24 +16,29 @@
  * limitations under the License.
  */
 
-package org.jboss.pnc.core.builder.coordinator;
+package org.jboss.pnc.executor.mock.builders;
 
-import org.jboss.pnc.spi.exception.CoreException;
-import org.jboss.pnc.spi.executor.BuildExecutionResult;
-import org.jboss.pnc.spi.executor.exceptions.ExecutorException;
-
-import java.util.function.Consumer;
+import org.jboss.pnc.model.BuildConfigurationSet;
+import org.jboss.pnc.model.User;
 
 /**
- * BuildScheduler is used to direct the build to by scheduler defined execution engine.
- * Example: BuildCoordinator uses BuildScheduler to start the builds and depending on
- * BuildScheduler implementation builds can be pushed to BPM engine (BpmBuildScheduler)
- * or submitted directly (LocalBuildScheduler).
- *
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
-public interface BuildScheduler {
-    void startBuilding(BuildTask buildTask, Consumer<BuildExecutionResult> onComplete) throws CoreException, ExecutorException;
+public class TestEntitiesFactory {
+    public static User newUser() {
+        return User.Builder.newBuilder()
+                .id(1)
+                .username("medusa")
+                .firstName("Medusa")
+                .lastName("Poseidon's")
+                .build();
+    }
 
-    String getId();
+    public static BuildConfigurationSet newBuildConfigurationSet() {
+        return BuildConfigurationSet.Builder.newBuilder()
+                .id(1)
+                .name("test-build-configuration-set-1")
+                .build();
+    }
+
 }

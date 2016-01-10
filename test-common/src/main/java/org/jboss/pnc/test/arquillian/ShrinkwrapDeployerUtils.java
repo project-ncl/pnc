@@ -15,21 +15,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.core.exception;
+
+package org.jboss.pnc.test.arquillian;
+
+import org.jboss.shrinkwrap.api.spec.JavaArchive;
+import org.jboss.shrinkwrap.resolver.api.maven.Maven;
 
 /**
- * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-11-23.
+ * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
-public class CoreException extends Exception {
-    public CoreException(String message) {
-        super(message);
+public class ShrinkwrapDeployerUtils {
+
+    public static void addPomLibs(JavaArchive jar, String gav) {
+        JavaArchive[] libs = Maven.resolver().loadPomFromFile("pom.xml").resolve(gav).withTransitivity().as(JavaArchive.class);
+        for (JavaArchive lib : libs) {
+            jar.merge(lib);
+        }
     }
 
-    public CoreException(Exception e) {
-        super(e);
-    }
-
-    public CoreException(String message, Exception e) {
-        super(message, e);
-    }
 }

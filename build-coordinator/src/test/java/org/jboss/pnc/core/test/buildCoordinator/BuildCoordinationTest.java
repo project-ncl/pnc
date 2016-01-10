@@ -24,7 +24,7 @@ import org.jboss.pnc.common.util.ObjectWrapper;
 import org.jboss.pnc.core.builder.coordinator.BuildCoordinator;
 import org.jboss.pnc.core.builder.coordinator.BuildSetTask;
 import org.jboss.pnc.core.builder.coordinator.BuildTask;
-import org.jboss.pnc.core.exception.CoreException;
+import org.jboss.pnc.spi.exception.CoreException;
 import org.jboss.pnc.core.notifications.buildSetTask.BuildSetCallBack;
 import org.jboss.pnc.core.notifications.buildSetTask.BuildSetStatusNotifications;
 import org.jboss.pnc.mock.model.builders.TestEntitiesFactory;

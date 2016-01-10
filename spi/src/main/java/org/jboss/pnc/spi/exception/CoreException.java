@@ -15,21 +15,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.executor;
-
-import org.jboss.pnc.spi.BuildResult;
-import org.jboss.pnc.spi.builddriver.BuildDriverResult;
-import org.jboss.pnc.spi.environment.RunningEnvironment;
-import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
+package org.jboss.pnc.spi.exception;
 
 /**
- * @deprecated use BuildResult
- *
- * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2015-02-02.
+ * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-11-23.
  */
-@Deprecated
-public class DefaultBuildResult extends BuildResult {
-    public DefaultBuildResult(BuildDriverResult buildDriverResult, RepositoryManagerResult repositoryManagerResult) {
-        super(buildDriverResult, repositoryManagerResult);
+public class CoreException extends Exception {
+    public CoreException(String message) {
+        super(message);
+    }
+
+    public CoreException(Exception e) {
+        super(e);
+    }
+
+    public CoreException(String message, Exception e) {
+        super(message, e);
     }
 }

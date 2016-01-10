@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.mock.executor;
+package org.jboss.pnc.mock.builddriver;
 
 import org.jboss.logging.Logger;
 import org.jboss.pnc.common.util.RandomUtils;

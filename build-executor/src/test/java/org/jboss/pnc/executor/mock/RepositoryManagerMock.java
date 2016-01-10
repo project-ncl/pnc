@@ -19,7 +19,7 @@ package org.jboss.pnc.executor.mock;
 
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.RepositoryType;
-import org.jboss.pnc.spi.BuildExecution;
+import org.jboss.pnc.spi.repositorymanager.BuildExecution;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManager;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerException;
 import org.jboss.pnc.spi.repositorymanager.model.CompletedRepositoryDeletion;

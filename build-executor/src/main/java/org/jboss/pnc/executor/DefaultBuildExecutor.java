@@ -70,7 +70,6 @@ public class DefaultBuildExecutor implements BuildExecutor {
 
     private ExecutorService executor;
 
-    private Consumer<BuildCoordinationStatusChangedEvent> buildStatusChangedEventConsumer;
     private RepositoryManagerFactory repositoryManagerFactory;
     private BuildDriverFactory buildDriverFactory;
     private EnvironmentDriverFactory environmentDriverFactory;
@@ -84,19 +83,20 @@ public class DefaultBuildExecutor implements BuildExecutor {
     public DefaultBuildExecutor(
             RepositoryManagerFactory repositoryManagerFactory,
             BuildDriverFactory buildDriverFactory,
-            EnvironmentDriverFactory environmentDriverFactory,
-            Consumer<BuildCoordinationStatusChangedEvent> buildStatusChangedEventConsumer) {
+            EnvironmentDriverFactory environmentDriverFactory) {
+
         this.repositoryManagerFactory = repositoryManagerFactory;
         this.buildDriverFactory = buildDriverFactory;
         this.environmentDriverFactory = environmentDriverFactory;
-        this.buildStatusChangedEventConsumer = buildStatusChangedEventConsumer; //TODO remove ?
 
         executor = Executors.newFixedThreadPool(4); //TODO configurable
     }
 
 
     @Override
-    public BuildExecutionSession startBuilding(BuildExecutionConfiguration buildExecutionConfiguration, Consumer<BuildExecutionStatusChangedEvent> onBuildExecutionStatusChangedEvent) throws ExecutorException {
+    public BuildExecutionSession startBuilding(
+            BuildExecutionConfiguration buildExecutionConfiguration,
+            Consumer<BuildExecutionStatusChangedEvent> onBuildExecutionStatusChangedEvent) throws ExecutorException {
 
         BuildExecutionSession buildExecutionSession = new DefaultBuildExecutionSession(buildExecutionConfiguration, onBuildExecutionStatusChangedEvent);
         buildExecutionSession.setStatus(BuildExecutionStatus.NEW);
@@ -282,7 +282,7 @@ public class DefaultBuildExecutor implements BuildExecutor {
         //TODO move to caller
 //        try {
 //            if (buildResult != null) {
-//                buildExecutionTask.setStatus(BuildCoordinationStatus.STORING_RESULTS);
+//                buildExecutionTask.setStatus(BuildCoordinationStatus.BUILD_COMPLETED);
 //                datastoreAdapter.storeResult(buildExecutionTask, buildResult, buildExecutionTask.getId());
 //            } else {
 //                // If there are no build results, then there was a system failure

@@ -24,14 +24,15 @@ import static org.mockito.Mockito.mock;
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
 import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
-import org.jboss.pnc.core.exception.CoreException;
+import org.jboss.pnc.executor.servicefactories.BuildDriverFactory;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildType;
-import org.jboss.pnc.spi.BuildExecution;
 import org.jboss.pnc.spi.builddriver.BuildDriver;
 import org.jboss.pnc.spi.builddriver.RunningBuild;
 import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
 import org.jboss.pnc.spi.environment.RunningEnvironment;
+import org.jboss.pnc.spi.executor.BuildExecutionSession;
+import org.jboss.pnc.spi.executor.exceptions.ExecutorException;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -55,7 +56,7 @@ public class BuildDriverFactoryTest {
     }
     
 
-    @Test(expected = CoreException.class)
+    @Test(expected = ExecutorException.class)
     public void shouldSkipDriversWhichCanNotBuild() throws Exception {
         //given
         BuildDriverWhichCanNotBuild testedBuildDriver = new BuildDriverWhichCanNotBuild();
@@ -67,7 +68,7 @@ public class BuildDriverFactoryTest {
         factory.getBuildDriver(BuildType.JAVA);
     }
 
-    @Test(expected = CoreException.class)
+    @Test(expected = ExecutorException.class)
     public void shouldSkipDriversWhichAreNotMentionedInConfiguration() throws Exception {
         //given
         ProperDriver testedBuildDriver = new ProperDriver();
@@ -113,7 +114,9 @@ public class BuildDriverFactoryTest {
         }
 
         @Override
-        public RunningBuild startProjectBuild(BuildExecution currentBuildExecution, BuildConfigurationAudited buildConfiguration,
+        public RunningBuild startProjectBuild(
+                BuildExecutionSession currentBuildExecution,
+                BuildConfigurationAudited buildConfiguration,
                 RunningEnvironment runningEnvironment)
                 throws BuildDriverException {
             return null;
@@ -133,7 +136,7 @@ public class BuildDriverFactoryTest {
         }
 
         @Override
-        public RunningBuild startProjectBuild(BuildExecution currentBuildExecution, BuildConfigurationAudited buildConfiguration,
+        public RunningBuild startProjectBuild(BuildExecutionSession currentBuildExecution, BuildConfigurationAudited buildConfiguration,
                 RunningEnvironment runningEnvironment)
                 throws BuildDriverException {
             return null;

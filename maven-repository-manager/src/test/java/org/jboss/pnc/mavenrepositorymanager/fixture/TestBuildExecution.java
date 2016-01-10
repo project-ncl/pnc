@@ -17,7 +17,7 @@
  */
 package org.jboss.pnc.mavenrepositorymanager.fixture;
 
-import org.jboss.pnc.spi.BuildExecution;
+import org.jboss.pnc.spi.repositorymanager.BuildExecution;
 
 import java.net.URI;
 import java.util.Optional;
@@ -54,16 +54,6 @@ public class TestBuildExecution implements BuildExecution {
     }
 
     @Override
-    public String getTopContentId() {
-        return topContentId;
-    }
-
-    @Override
-    public String getBuildSetContentId() {
-        return buildSetContentId;
-    }
-
-    @Override
     public String getBuildContentId() {
         return buildContentId;
     }
@@ -87,26 +77,6 @@ public class TestBuildExecution implements BuildExecution {
 
     public void setProjectName(String projectName) {
         this.projectName = projectName;
-    }
-
-    @Override
-    public boolean isPartOfBuildSet() {
-        return isSetBuild;
-    }
-
-    @Override
-    public void setLogsWebSocketLink(URI link) {
-        logsWebSocketLink = link;
-    }
-
-    @Override
-    public void clearLogsWebSocketLink() {
-        logsWebSocketLink = null;
-    }
-
-    @Override
-    public Optional<URI> getLogsWebSocketLink() {
-        return Optional.ofNullable(logsWebSocketLink);
     }
 
 }

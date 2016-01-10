@@ -19,7 +19,7 @@ package org.jboss.pnc.core.builder.coordinator;
 
 import org.jboss.pnc.core.builder.coordinator.filtering.BuildTaskFilter;
 import org.jboss.pnc.core.builder.datastore.DatastoreAdapter;
-import org.jboss.pnc.core.exception.CoreException;
+import org.jboss.pnc.spi.exception.CoreException;
 import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;

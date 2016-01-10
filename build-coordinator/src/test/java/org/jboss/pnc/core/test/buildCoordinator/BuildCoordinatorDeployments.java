@@ -30,26 +30,22 @@ import org.jboss.pnc.core.notifications.buildSetTask.BuildSetStatusNotifications
 import org.jboss.pnc.core.notifications.buildTask.BuildCallBack;
 import org.jboss.pnc.core.test.buildCoordinator.event.TestCDIBuildStatusChangedReceiver;
 import org.jboss.pnc.mock.datastore.DatastoreMock;
-import org.jboss.pnc.mock.executor.BuildExecutorMock;
+import org.jboss.pnc.mock.environmentdriver.BuildExecutorMock;
 import org.jboss.pnc.mock.model.builders.TestEntitiesFactory;
 import org.jboss.pnc.mock.model.builders.TestProjectConfigurationBuilder;
 import org.jboss.pnc.model.BuildEnvironment;
 import org.jboss.pnc.spi.BuildCoordinationStatus;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigSetRecordRepository;
 import org.jboss.pnc.spi.events.BuildSetStatusChangedEvent;
+import org.jboss.pnc.test.arquillian.ShrinkwrapDeployerUtils;
 import org.jboss.shrinkwrap.api.Archive;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.asset.EmptyAsset;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.jboss.shrinkwrap.resolver.api.maven.Maven;
-import org.jboss.shrinkwrap.resolver.api.maven.MavenFormatStage;
-import org.jboss.shrinkwrap.resolver.api.maven.coordinate.MavenCoordinate;
-import org.jboss.shrinkwrap.resolver.api.maven.coordinate.MavenDependency;
-import org.jboss.shrinkwrap.resolver.impl.maven.coordinate.MavenDependencyImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
 import java.util.function.Supplier;
 
 /**
@@ -74,7 +70,19 @@ public class BuildCoordinatorDeployments {
 
     private static final Logger log = LoggerFactory.getLogger(BuildCoordinatorDeployments.class);
 
-    public static JavaArchive defaultDeployment() {
+    public static JavaArchive deployment(Options... options) {
+
+        JavaArchive jar = defaultLibs();
+
+        for (Options option : options) {
+            jar.merge(option.getArchive());
+        }
+
+        log.debug(jar.toString(true));
+        return jar;
+    }
+
+    private static JavaArchive defaultLibs() {
         JavaArchive jar = ShrinkWrap.create(JavaArchive.class)
                 .addClass(Configuration.class)
                 .addClass(BuildSetStatusChangedEvent.class)
@@ -97,27 +105,8 @@ public class BuildCoordinatorDeployments {
                 .addAsManifestResource(EmptyAsset.INSTANCE, "beans.xml")
                 .addAsResource("simplelogger.properties");
 
-        addPomLibs(jar, "org.slf4j:slf4j-simple");
+        ShrinkwrapDeployerUtils.addPomLibs(jar, "org.slf4j:slf4j-simple");
 
-        return jar;
-    }
-
-    private static void addPomLibs(JavaArchive jar, String gav) {
-        JavaArchive[] libs = Maven.resolver().loadPomFromFile("pom.xml").resolve(gav).withTransitivity().as(JavaArchive.class);
-        for (JavaArchive lib : libs) {
-            jar.merge(lib);
-        }
-    }
-
-    public static JavaArchive deployment(Options... options) {
-
-        JavaArchive jar = defaultDeployment();
-
-        for (Options option : options) {
-            jar.merge(option.getArchive());
-        }
-
-        log.debug(jar.toString(true));
         return jar;
     }
 

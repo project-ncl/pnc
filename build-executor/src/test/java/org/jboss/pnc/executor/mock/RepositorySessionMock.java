@@ -90,6 +90,11 @@ public class RepositorySessionMock implements RepositorySession {
                 dependencies.add(getArtifact(10));
                 return dependencies;
             }
+
+            @Override
+            public String getBuildContentId() {
+                return "build-content-id";
+            }
         };
     }
 

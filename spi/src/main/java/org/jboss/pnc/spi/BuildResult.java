@@ -24,13 +24,26 @@ import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2015-02-02.
  */
-public interface BuildResult {
+public class BuildResult {
 
-    BuildDriverResult getBuildDriverResult();
+    private BuildDriverResult buildDriverResult;
+
+    public BuildResult(BuildDriverResult buildDriverResult, RepositoryManagerResult repositoryManagerResult) {
+        this.buildDriverResult = buildDriverResult;
+        this.repositoryManagerResult = repositoryManagerResult;
+    }
+
+    private RepositoryManagerResult repositoryManagerResult;
+
+    public BuildDriverResult getBuildDriverResult() {
+        return buildDriverResult;
+    }
 
     /**
      * @return Note that RepositoryManagerResult can return nul if build was not successful completed.
      */
-    RepositoryManagerResult getRepositoryManagerResult();
+    public RepositoryManagerResult getRepositoryManagerResult() {
+        return repositoryManagerResult;
+    }
 
 }

@@ -16,11 +16,10 @@
  * limitations under the License.
  */
 
-package org.jboss.pnc.mock.executor;
+package org.jboss.pnc.mock.environmentdriver;
 
 import org.jboss.pnc.common.util.RandomUtils;
 import org.jboss.pnc.executor.DefaultBuildExecutionSession;
-import org.jboss.pnc.executor.DefaultBuildResult;
 import org.jboss.pnc.mock.builddriver.BuildDriverResultMock;
 import org.jboss.pnc.mock.model.builders.TestProjectConfigurationBuilder;
 import org.jboss.pnc.mock.repositorymanager.RepositoryManagerResultMock;
@@ -28,7 +27,6 @@ import org.jboss.pnc.spi.BuildExecutionStatus;
 import org.jboss.pnc.spi.BuildResult;
 import org.jboss.pnc.spi.builddriver.BuildDriverResult;
 import org.jboss.pnc.spi.builddriver.BuildDriverStatus;
-import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
 import org.jboss.pnc.spi.events.BuildExecutionStatusChangedEvent;
 import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
 import org.jboss.pnc.spi.executor.BuildExecutionSession;
@@ -101,7 +99,7 @@ public class BuildExecutorMock implements BuildExecutor {
         }
 
         RepositoryManagerResult repositoryManagerResult = RepositoryManagerResultMock.mockResult();;
-        buildExecutionSession.setBuildResult(new DefaultBuildResult(driverResult, repositoryManagerResult));
+        buildExecutionSession.setBuildResult(new BuildResult(driverResult, repositoryManagerResult));
         int sleep = RandomUtils.randInt(0, 500);
         try {
             Thread.sleep(sleep);

@@ -23,7 +23,7 @@ import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.jboss.pnc.auth.AuthenticationProvider;
-import org.jboss.pnc.core.exception.CoreException;
+import org.jboss.pnc.spi.exception.CoreException;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.rest.provider.BuildConfigurationProvider;

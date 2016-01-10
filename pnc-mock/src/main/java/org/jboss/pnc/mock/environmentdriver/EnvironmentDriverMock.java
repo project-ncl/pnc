@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.mock.executor;
+package org.jboss.pnc.mock.environmentdriver;
 
 import org.jboss.pnc.model.BuildEnvironment;
 import org.jboss.pnc.spi.environment.EnvironmentDriver;

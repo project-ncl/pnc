@@ -16,24 +16,24 @@
  * limitations under the License.
  */
 
-package org.jboss.pnc.core.builder.coordinator;
+package org.jboss.pnc.executor.mock.builders;
 
-import org.jboss.pnc.spi.exception.CoreException;
-import org.jboss.pnc.spi.executor.BuildExecutionResult;
-import org.jboss.pnc.spi.executor.exceptions.ExecutorException;
-
-import java.util.function.Consumer;
+import org.jboss.pnc.model.Artifact;
+import org.jboss.pnc.model.RepositoryType;
 
 /**
- * BuildScheduler is used to direct the build to by scheduler defined execution engine.
- * Example: BuildCoordinator uses BuildScheduler to start the builds and depending on
- * BuildScheduler implementation builds can be pushed to BPM engine (BpmBuildScheduler)
- * or submitted directly (LocalBuildScheduler).
- *
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
-public interface BuildScheduler {
-    void startBuilding(BuildTask buildTask, Consumer<BuildExecutionResult> onComplete) throws CoreException, ExecutorException;
+public class ArtifactBuilder {
+    public static final String IDENTIFIER_PREFIX = "org.jboss.pnc:mock.artifact";
 
-    String getId();
+    public static Artifact mockArtifact(int id) {
+        return Artifact.Builder.newBuilder()
+                .id(id)
+                .identifier(IDENTIFIER_PREFIX + ":" + id)
+                .deployUrl("deploy url " + id)
+                .repoType(RepositoryType.MAVEN)
+                .filename("File " + id + ".jar")
+                .build();
+    }
 }

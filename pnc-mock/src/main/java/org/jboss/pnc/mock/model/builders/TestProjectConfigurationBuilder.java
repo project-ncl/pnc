@@ -35,6 +35,7 @@ public class TestProjectConfigurationBuilder {
 
     BuildEnvironment javaBuildEnvironment = BuildEnvironment.Builder.newBuilder().build();
 
+    //TODO remove datastore dependency
     @Inject
     DatastoreMock datastore;
 
@@ -100,7 +101,7 @@ public class TestProjectConfigurationBuilder {
             buildConfigurationSet.addBuildConfiguration(buildConfiguration);
         }
         datastore.save(buildConfiguration);
-        
+
         return buildConfiguration;
     }
 
