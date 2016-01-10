@@ -22,7 +22,6 @@ import org.jboss.pnc.rest.notifications.DefaultNotificationFactory;
 import org.jboss.pnc.spi.BuildCoordinationStatus;
 import org.jboss.pnc.spi.events.BuildCoordinationStatusChangedEvent;
 import org.jboss.pnc.spi.notifications.model.BuildChangedPayload;
-import org.jboss.pnc.spi.notifications.model.BuildSetChangedPayload;
 import org.jboss.pnc.spi.notifications.model.EventType;
 import org.jboss.pnc.spi.notifications.model.Notification;
 import org.jboss.pnc.spi.notifications.model.NotificationFactory;
@@ -35,8 +34,8 @@ public class NotificationFactoryForBuildTest {
     @Test
     public void shouldConvertSuccessfulNotificationEvent() throws Exception {
         //given
-        BuildCoordinationStatusChangedEvent event = new DefaultBuildStatusChangedEvent(BuildCoordinationStatus.NEW, BuildCoordinationStatus.BUILD_COMPLETED_SUCCESS, 1,
-                1, "BuildSet1", 1);
+        BuildCoordinationStatusChangedEvent event = new DefaultBuildStatusChangedEvent(BuildCoordinationStatus.NEW, BuildCoordinationStatus.DONE, 1,
+                1, "Build1", 1);
         NotificationFactory notificationFactory = new DefaultNotificationFactory();
 
         //when
@@ -47,8 +46,7 @@ public class NotificationFactoryForBuildTest {
         assertThat(notification.getEventType()).isEqualTo(EventType.BUILD_STATUS_CHANGED);
         assertThat(((BuildChangedPayload)notification.getPayload()).getBuildCoordinationStatus()).isEqualTo(BuildCoordinationStatus.BUILD_COMPLETED_SUCCESS);
         assertThat(((BuildChangedPayload)notification.getPayload()).getBuildConfigurationId()).isEqualTo(1);
-        assertThat(((BuildSetChangedPayload)notification.getPayload()).getBuildSetConfigurationName()).isEqualTo("BuildSet1");
-        
+        assertThat(((BuildChangedPayload)notification.getPayload()).getBuildConfigurationName()).isEqualTo("BuildSet1");
         assertThat(notification.getPayload()).isNotNull();
         assertThat(notification.getPayload().getId()).isEqualTo(1);
         assertThat(notification.getPayload().getUserId()).isEqualTo(1);

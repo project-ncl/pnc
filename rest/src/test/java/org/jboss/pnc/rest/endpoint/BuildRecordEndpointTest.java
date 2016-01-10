@@ -17,15 +17,18 @@
  */
 package org.jboss.pnc.rest.endpoint;
 
-import org.jboss.pnc.executor.executor.BuildExecutionTask;
-import org.jboss.pnc.executor.executor.BuildExecutor;
-import org.jboss.pnc.executor.executor.DefaultBuildExecutor;
+import org.jboss.pnc.executor.DefaultBuildExecutionConfiguration;
+import org.jboss.pnc.executor.DefaultBuildExecutionSession;
+import org.jboss.pnc.executor.DefaultBuildExecutor;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.model.mock.MockUser;
 import org.jboss.pnc.rest.provider.BuildRecordProvider;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
+import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
+import org.jboss.pnc.spi.executor.BuildExecutionSession;
+import org.jboss.pnc.spi.executor.BuildExecutor;
 import org.junit.Test;
 import org.mockito.Mockito;
 
@@ -85,8 +88,18 @@ public class BuildRecordEndpointTest {
         BuildExecutor buildExecutor = mock(DefaultBuildExecutor.class);
         User user = MockUser.newTestUser(1);
         BuildConfiguration buildConfiguration = newBuildConfiguration();
-        BuildExecutionTask buildExecutionTask = BuildExecutionTask.build(buildExecutionTaskId, buildConfiguration, null, user, null, null, Optional.ofNullable(null), buildTaskId, new Date());
-        when(buildExecutor.getRunningExecution(buildExecutionTaskId)).thenReturn(buildExecutionTask);
+
+//        BuildExecutionTask.build(buildExecutionTaskId, buildConfiguration, null, user, null, null, Optional.ofNullable(null), buildTaskId, new Date());
+        BuildExecutionConfiguration buildExecutionConfiguration = new DefaultBuildExecutionConfiguration(
+                buildExecutionTaskId,
+                buildConfiguration,
+                null,
+                "build-content-id",
+                user,
+                buildTaskId);
+
+        BuildExecutionSession buildExecutionSession = new DefaultBuildExecutionSession(buildExecutionConfiguration, null);
+        when(buildExecutor.getRunningExecution(buildExecutionTaskId)).thenReturn(buildExecutionSession);
         return buildExecutor;
     }
 
