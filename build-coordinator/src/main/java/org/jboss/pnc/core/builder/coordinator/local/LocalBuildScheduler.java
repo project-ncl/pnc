@@ -21,11 +21,11 @@ package org.jboss.pnc.core.builder.coordinator.local;
 import org.jboss.pnc.core.builder.coordinator.BuildScheduler;
 import org.jboss.pnc.core.builder.coordinator.BuildTask;
 import org.jboss.pnc.core.content.ContentIdentityManager;
-import org.jboss.pnc.spi.exception.CoreException;
+import org.jboss.pnc.spi.BuildResult;
 import org.jboss.pnc.spi.events.BuildCoordinationStatusChangedEvent;
 import org.jboss.pnc.spi.events.BuildExecutionStatusChangedEvent;
+import org.jboss.pnc.spi.exception.CoreException;
 import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
-import org.jboss.pnc.spi.executor.BuildExecutionResult;
 import org.jboss.pnc.spi.executor.BuildExecutionSession;
 import org.jboss.pnc.spi.executor.BuildExecutor;
 import org.jboss.pnc.spi.executor.exceptions.ExecutorException;
@@ -65,20 +65,15 @@ public class LocalBuildScheduler implements BuildScheduler {
     }
 
     @Override
-    public void startBuilding(BuildTask buildTask, Consumer<BuildExecutionResult> onComplete)
+    public void startBuilding(BuildTask buildTask, Consumer<BuildResult> onComplete)
             throws CoreException, ExecutorException {
 
         Consumer<BuildExecutionStatusChangedEvent> onBuildExecutionStatusChangedEvent = (statusChangedEvent) -> {
             log.debug("Received execution status update {}.", statusChangedEvent);
             if (statusChangedEvent.getNewStatus().isCompleted()) {
-                BuildExecutionSession buildExecutionSession = statusChangedEvent.getBuildExecutionSession();
-
-                BuildExecutionResult buildExecutionResult = BuildExecutionResult.build(
-                        buildExecutionSession.hasFailed(),
-                        buildExecutionSession.getBuildResult()
-                );
+                BuildResult buildResult = statusChangedEvent.getBuildResult().get();
                 log.debug("Notifying build execution completed {}.", statusChangedEvent);
-                onComplete.accept(buildExecutionResult);
+                onComplete.accept(buildResult);
             }
         };
 

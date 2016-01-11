@@ -19,8 +19,10 @@
 package org.jboss.pnc.executor;
 
 import org.jboss.pnc.spi.BuildExecutionStatus;
+import org.jboss.pnc.spi.BuildResult;
 import org.jboss.pnc.spi.events.BuildExecutionStatusChangedEvent;
-import org.jboss.pnc.spi.executor.BuildExecutionSession;
+
+import java.util.Optional;
 
 public class DefaultBuildExecutorStatusChangedEvent implements BuildExecutionStatusChangedEvent {
 
@@ -29,7 +31,7 @@ public class DefaultBuildExecutorStatusChangedEvent implements BuildExecutionSta
     private final Integer buildTaskId;
     private final Integer userId;
     private final Integer buildConfigurationId;
-    private final BuildExecutionSession buildExecutionSession;
+    private final Optional<BuildResult> buildResult;
 
     public DefaultBuildExecutorStatusChangedEvent(
             BuildExecutionStatus oldStatus,
@@ -37,14 +39,14 @@ public class DefaultBuildExecutorStatusChangedEvent implements BuildExecutionSta
             Integer buildTaskId,
             Integer buildConfigurationId,
             Integer userId,
-            BuildExecutionSession buildExecutionSession) {
+            Optional<BuildResult> buildResult) {
 
         this.oldStatus = oldStatus;
         this.newStatus = newStatus;
         this.buildTaskId = buildTaskId;
         this.buildConfigurationId = buildConfigurationId;
         this.userId = userId;
-        this.buildExecutionSession = buildExecutionSession;
+        this.buildResult = buildResult;
     }
 
     @Override
@@ -63,8 +65,8 @@ public class DefaultBuildExecutorStatusChangedEvent implements BuildExecutionSta
     }
 
     @Override
-    public BuildExecutionSession getBuildExecutionSession() {
-        return buildExecutionSession;
+    public Optional<BuildResult> getBuildResult() {
+        return buildResult;
     }
 
     @Override
@@ -85,6 +87,7 @@ public class DefaultBuildExecutorStatusChangedEvent implements BuildExecutionSta
                 ", buildTaskId=" + buildTaskId +
                 ", userId=" + userId +
                 ", buildConfigurationId=" + buildConfigurationId +
+                ", buildResult=" + buildResult +
                 '}';
     }
 }

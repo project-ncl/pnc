@@ -29,6 +29,7 @@ import org.jboss.pnc.core.builder.coordinator.BuildScheduler;
 import org.jboss.pnc.core.builder.coordinator.BuildSetTask;
 import org.jboss.pnc.core.builder.coordinator.BuildTask;
 import org.jboss.pnc.core.content.ContentIdentityManager;
+import org.jboss.pnc.spi.BuildResult;
 import org.jboss.pnc.spi.exception.CoreException;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
@@ -36,7 +37,6 @@ import org.jboss.pnc.model.BuildEnvironment;
 import org.jboss.pnc.model.IdRev;
 import org.jboss.pnc.model.Project;
 import org.jboss.pnc.model.User;
-import org.jboss.pnc.spi.executor.BuildExecutionResult;
 import org.jboss.pnc.spi.executor.exceptions.ExecutorException;
 import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.manager.RuntimeEngine;
@@ -88,7 +88,7 @@ public class BpmBuildScheduler implements BuildScheduler {
     }
 
     @Override
-    public void startBuilding(BuildTask buildTask, Consumer<BuildExecutionResult> onComplete) throws CoreException, ExecutorException {
+    public void startBuilding(BuildTask buildTask, Consumer<BuildResult> onComplete) throws CoreException, ExecutorException {
         try {
             ProcessInstance processInstance = startProcess(buildTask, Optional.of(buildTask)
                     .map(BuildTask::getBuildSetTask)
@@ -101,7 +101,7 @@ public class BpmBuildScheduler implements BuildScheduler {
         }
     }
 
-    private void registerCompleteListener(int taskId, Consumer<BuildExecutionResult> onComplete) {
+    private void registerCompleteListener(int taskId, Consumer<BuildResult> onComplete) {
         BpmListener bpmListener = new BpmListener(taskId, onComplete);
         bpmCompleteListener.subscribe(bpmListener);
     }

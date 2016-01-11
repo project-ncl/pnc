@@ -50,7 +50,7 @@ public class ProjectWithFailedDepedenciesBuildTest extends ProjectBuilder {
 
         BuildConfigSetRecord buildConfigSetRecord = datastore.getBuildConfigSetRecords().get(0);
         System.out.println("status of failed buildconfigset: " + buildConfigSetRecord.getStatus());
-        Assert.assertNotNull(buildConfigSetRecord.getEndTime());
+        Assert.assertNotNull("End time is null.", buildConfigSetRecord.getEndTime());
         Assert.assertTrue(buildConfigSetRecord.getEndTime().getTime() > buildConfigSetRecord.getStartTime().getTime());
         Assert.assertEquals(BuildStatus.FAILED, buildConfigSetRecord.getStatus());
     }

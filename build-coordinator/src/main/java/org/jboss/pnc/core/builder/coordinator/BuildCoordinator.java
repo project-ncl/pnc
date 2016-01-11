@@ -19,20 +19,20 @@ package org.jboss.pnc.core.builder.coordinator;
 
 import org.jboss.pnc.core.builder.coordinator.filtering.BuildTaskFilter;
 import org.jboss.pnc.core.builder.datastore.DatastoreAdapter;
-import org.jboss.pnc.spi.exception.CoreException;
 import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.ProductMilestone;
 import org.jboss.pnc.model.User;
-import org.jboss.pnc.spi.BuildSetStatus;
 import org.jboss.pnc.spi.BuildCoordinationStatus;
+import org.jboss.pnc.spi.BuildResult;
+import org.jboss.pnc.spi.BuildSetStatus;
 import org.jboss.pnc.spi.datastore.DatastoreException;
-import org.jboss.pnc.spi.events.BuildSetStatusChangedEvent;
 import org.jboss.pnc.spi.events.BuildCoordinationStatusChangedEvent;
+import org.jboss.pnc.spi.events.BuildSetStatusChangedEvent;
 import org.jboss.pnc.spi.exception.BuildConflictException;
-import org.jboss.pnc.spi.executor.BuildExecutionResult;
+import org.jboss.pnc.spi.exception.CoreException;
 import org.jboss.pnc.spi.executor.exceptions.ExecutorException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -260,19 +260,19 @@ public class BuildCoordinator {
     }
 
     void processBuildTask(BuildTask buildTask) {
-        Consumer<BuildExecutionResult> onComplete = (buildExecutionResult) -> {
+        Consumer<BuildResult> onComplete = (buildResult) -> {
 
             buildTask.setStatus(BuildCoordinationStatus.BUILD_COMPLETED);
 
             try {
-                datastoreAdapter.storeResult(buildTask, buildExecutionResult);
+                datastoreAdapter.storeResult(buildTask, buildResult);
             } catch (DatastoreException e) {
                 log.error("Cannot store results to datastore.", e);
                 buildTask.setStatus(BuildCoordinationStatus.SYSTEM_ERROR);
             }
 
             BuildCoordinationStatus coordinationStatus;
-            if (buildExecutionResult.hasFailed()) {
+            if (buildResult.hasFailed()) {
                 coordinationStatus = BuildCoordinationStatus.DONE_WITH_ERRORS;
             } else {
                 coordinationStatus = BuildCoordinationStatus.DONE;

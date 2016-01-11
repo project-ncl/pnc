@@ -19,31 +19,47 @@ package org.jboss.pnc.spi;
 
 import org.jboss.pnc.spi.builddriver.BuildDriverResult;
 import org.jboss.pnc.spi.environment.RunningEnvironment;
+import org.jboss.pnc.spi.executor.exceptions.ExecutorException;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
+
+import java.util.Optional;
 
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2015-02-02.
  */
 public class BuildResult {
 
-    private BuildDriverResult buildDriverResult;
+    private Optional<BuildDriverResult> buildDriverResult;
+    private Optional<RepositoryManagerResult> repositoryManagerResult;
+    private final Optional<ExecutorException> executorException;
 
-    public BuildResult(BuildDriverResult buildDriverResult, RepositoryManagerResult repositoryManagerResult) {
+    public BuildResult(
+                       Optional<BuildDriverResult> buildDriverResult,
+                       Optional<RepositoryManagerResult> repositoryManagerResult,
+                       Optional<ExecutorException> executorException) {
         this.buildDriverResult = buildDriverResult;
         this.repositoryManagerResult = repositoryManagerResult;
+        this.executorException = executorException;
     }
 
-    private RepositoryManagerResult repositoryManagerResult;
-
-    public BuildDriverResult getBuildDriverResult() {
+    public Optional<BuildDriverResult> getBuildDriverResult() {
         return buildDriverResult;
     }
 
     /**
      * @return Note that RepositoryManagerResult can return nul if build was not successful completed.
      */
-    public RepositoryManagerResult getRepositoryManagerResult() {
+    public Optional<RepositoryManagerResult> getRepositoryManagerResult() {
         return repositoryManagerResult;
     }
+
+    public boolean hasFailed() {
+        return executorException.isPresent();
+    }
+
+    public Optional<ExecutorException> getException() {
+        return executorException;
+    }
+
 
 }

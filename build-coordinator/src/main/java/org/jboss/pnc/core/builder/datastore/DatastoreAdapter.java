@@ -28,7 +28,6 @@ import org.jboss.pnc.spi.BuildResult;
 import org.jboss.pnc.spi.builddriver.BuildDriverResult;
 import org.jboss.pnc.spi.datastore.Datastore;
 import org.jboss.pnc.spi.datastore.DatastoreException;
-import org.jboss.pnc.spi.executor.BuildExecutionResult;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
 
 import javax.inject.Inject;
@@ -71,13 +70,10 @@ public class DatastoreAdapter {
         return datastore.getLatestBuildConfigurationAudited(buildConfigurationId);
     }
 
-    public BuildRecord storeResult(BuildTask buildTask, BuildExecutionResult buildExecutionResult) throws DatastoreException {
+    public BuildRecord storeResult(BuildTask buildTask, BuildResult buildResult) throws DatastoreException {
         try {
-            BuildResult buildResult = buildExecutionResult.getBuildResult();
-
-
-            BuildDriverResult buildDriverResult = buildResult.getBuildDriverResult();
-            RepositoryManagerResult repositoryManagerResult = buildResult.getRepositoryManagerResult();
+            BuildDriverResult buildDriverResult = buildResult.getBuildDriverResult().get(); //TODO can be null ?
+            RepositoryManagerResult repositoryManagerResult = buildResult.getRepositoryManagerResult().get();  //TODO can be null ?
 
             BuildRecord buildRecord = createBuildRecord(buildTask, Optional.of(repositoryManagerResult.getBuildContentId()));
 

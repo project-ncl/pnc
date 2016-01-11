@@ -38,6 +38,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -99,8 +100,9 @@ public class BuildExecutorMock implements BuildExecutor {
         }
 
         RepositoryManagerResult repositoryManagerResult = RepositoryManagerResultMock.mockResult();;
-        buildExecutionSession.setBuildResult(new BuildResult(driverResult, repositoryManagerResult));
-        int sleep = RandomUtils.randInt(0, 500);
+        buildExecutionSession.setBuildDriverResult(driverResult);
+        buildExecutionSession.setRepositoryManagerResult(repositoryManagerResult);
+        int sleep = RandomUtils.randInt(0, 500); //TODO remove sleep
         try {
             Thread.sleep(sleep);
         } catch (InterruptedException e) {

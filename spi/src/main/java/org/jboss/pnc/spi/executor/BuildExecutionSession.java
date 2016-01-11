@@ -21,8 +21,10 @@ package org.jboss.pnc.spi.executor;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.BuildExecutionStatus;
 import org.jboss.pnc.spi.BuildResult;
+import org.jboss.pnc.spi.builddriver.BuildDriverResult;
 import org.jboss.pnc.spi.environment.RunningEnvironment;
 import org.jboss.pnc.spi.executor.exceptions.ExecutorException;
+import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
 
 import java.net.URI;
 import java.util.Date;
@@ -60,13 +62,16 @@ public interface BuildExecutionSession {
 
     boolean hasFailed();
 
-    void setBuildResult(BuildResult buildResult);
-
-    BuildResult getBuildResult();
+//    BuildResult getBuildResult();
 
     RunningEnvironment getRunningEnvironment();
 
     void setRunningEnvironment(RunningEnvironment runningEnvironment);
 
 
+    void setBuildDriverResult(BuildDriverResult buildDriverResult);
+
+    BuildDriverResult getBuildDriverResult();
+
+    void setRepositoryManagerResult(RepositoryManagerResult repositoryManagerResult);
 }

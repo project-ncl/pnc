@@ -24,11 +24,8 @@ import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.jboss.pnc.core.builder.coordinator.bpm.BpmCompleteListener;
-import org.jboss.pnc.executor.DefaultBuildResult;
 import org.jboss.pnc.rest.restmodel.response.Singleton;
-import org.jboss.pnc.spi.BuildCoordinationStatus;
 import org.jboss.pnc.spi.BuildResult;
-import org.jboss.pnc.spi.executor.BuildExecutionResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -75,11 +72,8 @@ public class BuildTaskEndpoint {
             @ApiParam(value = "Build status", required = true) @QueryParam("buildStatus") String buildStatusParam) {
         logger.debug("Received task completed notification for coordinating task id [{}]. Status received [{}]", taskId, buildStatusParam);
 
-        BuildCoordinationStatus buildCoordinationStatus = BuildCoordinationStatus.valueOf(buildStatusParam);
-
-        BuildResult buildResult = null; //TODO pass results trough BPM (new DefaultBuildResult());
-        BuildExecutionResult buildexecutionResult = BuildExecutionResult.build(buildCoordinationStatus.hasFailed(), buildResult);
-        bpmCompleteListener.notifyCompleted(taskId, buildexecutionResult);
+        BuildResult buildResult = null; //TODO pass results trough BPM and deserialize;
+        bpmCompleteListener.notifyCompleted(taskId, buildResult);
         return Response.ok().build();
     }
 

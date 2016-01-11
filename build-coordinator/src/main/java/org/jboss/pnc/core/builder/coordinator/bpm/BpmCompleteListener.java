@@ -18,8 +18,7 @@
 
 package org.jboss.pnc.core.builder.coordinator.bpm;
 
-import org.jboss.pnc.spi.BuildCoordinationStatus;
-import org.jboss.pnc.spi.executor.BuildExecutionResult;
+import org.jboss.pnc.spi.BuildResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,14 +34,14 @@ public class BpmCompleteListener {
 
     private static final Logger logger = LoggerFactory.getLogger(BpmCompleteListener.class);
 
-    Map<Long, BpmListener> listeners = new HashMap<>(); //TODO evict from map if there is no response from BPM server in specified time-out
+    Map<Long, BpmListener> listeners = new HashMap<>(); //TODO timeout: evict from map and notify completion error if there is no response from BPM server in specified time-out
 
     public void subscribe(BpmListener bpmListener) {
         logger.debug("Subscribing listener for coordinating task id [{}].", bpmListener.getTaskId());
         listeners.put(bpmListener.getTaskId(), bpmListener);
     }
 
-    public void notifyCompleted(long taskId, BuildExecutionResult buildExecutionResult) {
+    public void notifyCompleted(long taskId, BuildResult buildExecutionResult) {
         logger.debug("Coordinating task id [{}] completed.", taskId);
         BpmListener bpmListener = listeners.get(taskId);
         listeners.remove(taskId);

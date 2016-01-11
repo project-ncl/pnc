@@ -31,11 +31,11 @@ import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.mock.MockUser;
 import org.jboss.pnc.spi.BuildExecutionStatus;
+import org.jboss.pnc.spi.BuildResult;
 import org.jboss.pnc.spi.builddriver.BuildDriverResult;
 import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
 import org.jboss.pnc.spi.events.BuildExecutionStatusChangedEvent;
 import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
-import org.jboss.pnc.spi.executor.BuildExecutionResult;
 import org.jboss.pnc.spi.executor.BuildExecutionSession;
 import org.jboss.pnc.spi.executor.exceptions.ExecutorException;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
@@ -99,7 +99,7 @@ public class BuildExecutionTest {
     public void testBuild() throws ExecutorException, TimeoutException, InterruptedException, BuildDriverException {
         BuildConfiguration buildConfiguration = configurationBuilder.build(1, "c1-java");
         Set<BuildExecutionStatusChangedEvent> statusChangedEvents = new HashSet<>();
-        ObjectWrapper<BuildExecutionResult> buildExecutionResultWrapper = new ObjectWrapper<>();
+        ObjectWrapper<BuildResult> buildExecutionResultWrapper = new ObjectWrapper<>();
 
         runBuild(buildConfiguration, statusChangedEvents, buildExecutionResultWrapper);
 
@@ -116,15 +116,15 @@ public class BuildExecutionTest {
         });
 
         //check results
-        BuildExecutionResult buildExecutionResult = buildExecutionResultWrapper.get();
+        BuildResult buildResult = buildExecutionResultWrapper.get();
 
         //check results: logs
-        BuildDriverResult buildDriverResult = buildExecutionResult.getBuildResult().getBuildDriverResult();
+        BuildDriverResult buildDriverResult = buildResult.getBuildDriverResult().get();
         String buildLog = buildDriverResult.getBuildLog();
         Assert.assertTrue("Invalid build log.", buildLog.contains("Finished: SUCCESS"));
 
         //check results: artifacts
-        RepositoryManagerResult repositoryManagerResult = buildExecutionResult.getBuildResult().getRepositoryManagerResult();
+        RepositoryManagerResult repositoryManagerResult = buildResult.getRepositoryManagerResult().get();
         Assert.assertTrue("Missing build artifacts.", repositoryManagerResult.getBuiltArtifacts().size() > 0);
         Assert.assertTrue("Missing build dependencies.", repositoryManagerResult.getDependencies().size() > 0);
 
@@ -148,7 +148,7 @@ public class BuildExecutionTest {
     public void buildShouldFail() throws ExecutorException, TimeoutException, InterruptedException, BuildDriverException {
         BuildConfiguration buildConfiguration = configurationBuilder.buildFailingConfiguration(2, "failed-build", null);
         Set<BuildExecutionStatusChangedEvent> statusChangedEvents = new HashSet<>();
-        ObjectWrapper<BuildExecutionResult> buildExecutionResultWrapper = new ObjectWrapper<>();
+        ObjectWrapper<BuildResult> buildExecutionResultWrapper = new ObjectWrapper<>();
 
         runBuild(buildConfiguration, statusChangedEvents, buildExecutionResultWrapper);
 
@@ -166,7 +166,7 @@ public class BuildExecutionTest {
         });
     }
 
-    private void runBuild(BuildConfiguration buildConfiguration, Set<BuildExecutionStatusChangedEvent> statusChangedEvents, ObjectWrapper<BuildExecutionResult> buildExecutionResultWrapper) throws ExecutorException {
+    private void runBuild(BuildConfiguration buildConfiguration, Set<BuildExecutionStatusChangedEvent> statusChangedEvents, ObjectWrapper<BuildResult> buildExecutionResultWrapper) throws ExecutorException {
         BuildConfigurationAudited configurationAudited = BuildConfigurationAudited.Builder.newBuilder()
                 .buildConfiguration(buildConfiguration)
                 .rev(1)
@@ -182,16 +182,13 @@ public class BuildExecutionTest {
             log.debug("Received execution status update {}.", statusChangedEvent);
             statusChangedEvents.add(statusChangedEvent);
 
-            BuildExecutionSession buildExecutionSession = statusChangedEvent.getBuildExecutionSession();
-            if (buildExecutionSession.hasFailed()) {
-                log.error("Build execution failed.", buildExecutionSession.getException());
-            }
-
             if (statusChangedEvent.getNewStatus().isCompleted()) {
-                 buildExecutionResultWrapper.set(BuildExecutionResult.build(
-                         buildExecutionSession.hasFailed(),
-                         buildExecutionSession.getBuildResult()
-                 ));
+                BuildResult buildResult = statusChangedEvent.getBuildResult().get();
+                if (buildResult.hasFailed()) {
+                    log.error("Build execution failed.", buildResult.getException());
+                }
+
+                buildExecutionResultWrapper.set(buildResult);
             }
         };
 

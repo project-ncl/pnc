@@ -18,15 +18,16 @@
 
 package org.jboss.pnc.executor;
 
-import org.jboss.pnc.model.IdRev;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.BuildExecutionStatus;
 import org.jboss.pnc.spi.BuildResult;
+import org.jboss.pnc.spi.builddriver.BuildDriverResult;
 import org.jboss.pnc.spi.environment.RunningEnvironment;
 import org.jboss.pnc.spi.events.BuildExecutionStatusChangedEvent;
 import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
 import org.jboss.pnc.spi.executor.BuildExecutionSession;
 import org.jboss.pnc.spi.executor.exceptions.ExecutorException;
+import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,14 +46,16 @@ public class DefaultBuildExecutionSession implements BuildExecutionSession {
     private final BuildExecutionConfiguration buildExecutionConfiguration;
     private final Consumer<BuildExecutionStatusChangedEvent> onBuildExecutionStatusChangedEvent;
     private BuildExecutionStatus status;
-    private boolean failed;
     private ExecutorException executorException;
     private Optional<URI> liveLogsUri;
-    private BuildResult buildResult;
     private Date startTime;
     private RunningEnvironment runningEnvironment;
     private Date endTime;
     private User user;
+    private BuildDriverResult buildDriverResult;
+    private RepositoryManagerResult repositoryManagerResult;
+    //keep record of first received failed status
+    private BuildExecutionStatus failedResonStatus;
 
     public DefaultBuildExecutionSession(BuildExecutionConfiguration buildExecutionConfiguration, Consumer<BuildExecutionStatusChangedEvent> onBuildExecutionStatusChangedEvent) {
         this.buildExecutionConfiguration = buildExecutionConfiguration;
@@ -87,21 +90,46 @@ public class DefaultBuildExecutionSession implements BuildExecutionSession {
 
     @Override
     public void setStatus(BuildExecutionStatus status) {
+        if (status.hasFailed() && failedResonStatus == null) {
+            log.debug("Setting status {} as failed reason for session {}.", status, getId());
+            failedResonStatus = status;
+        }
+
+        Optional<BuildResult> buildResult;
+        if (status.isCompleted()) {
+            buildResult = Optional.of(getBuildResult());
+        } else {
+            buildResult = Optional.empty();
+        }
         BuildExecutionStatusChangedEvent statusChanged = new DefaultBuildExecutorStatusChangedEvent(
                 this.status,
                 status,
                 getId(),
                 buildExecutionConfiguration.getId(),
                 getUserId(),
-                this);
+                buildResult);
 
         log.debug("Updating build execution task {} status to {}. Task is linked to coordination task {}.", getId(), statusChanged, "//TODO"); //TODO update
         this.status = status;
-        if (status.hasFailed()) {
-            failed = true;
-        }
         onBuildExecutionStatusChangedEvent.accept(statusChanged);
         log.debug("Fired events after build execution task {} update.", getId()); //TODO update
+    }
+
+    //    @Override
+    private BuildResult getBuildResult() {
+        if (executorException == null) {
+            if (failedResonStatus == null) {
+                log.trace("Returning result of task {} with no exception.", getId());
+                return new BuildResult(Optional.ofNullable(buildDriverResult), Optional.ofNullable(repositoryManagerResult), Optional.empty());
+            } else {
+                ExecutorException exception = new ExecutorException("Build execution failed with status: " + failedResonStatus);
+                log.trace("Returning result of task " + getId() + " with exception.", exception);
+                return new BuildResult(Optional.ofNullable(buildDriverResult), Optional.ofNullable(repositoryManagerResult), Optional.of(exception));
+            }
+        } else {
+            log.trace("Returning result of task " + getId() + " with exception.", executorException);
+            return new BuildResult(Optional.ofNullable(buildDriverResult), Optional.ofNullable(repositoryManagerResult), Optional.of(executorException));
+        }
     }
 
     public Integer getUserId() {
@@ -121,7 +149,6 @@ public class DefaultBuildExecutionSession implements BuildExecutionSession {
     @Override
     public void setException(ExecutorException executorException) {
         this.executorException = executorException;
-        failed = true;
     }
 
     @Override
@@ -136,17 +163,7 @@ public class DefaultBuildExecutionSession implements BuildExecutionSession {
 
     @Override
     public boolean hasFailed() {
-        return failed;
-    }
-
-    @Override
-    public void setBuildResult(BuildResult buildResult) {
-        this.buildResult = buildResult;
-    }
-
-    @Override
-    public BuildResult getBuildResult() {
-        return buildResult;
+        return executorException != null || failedResonStatus != null;
     }
 
     @Override
@@ -167,5 +184,20 @@ public class DefaultBuildExecutionSession implements BuildExecutionSession {
     @Override
     public void setRunningEnvironment(RunningEnvironment runningEnvironment) {
         this.runningEnvironment = runningEnvironment;
+    }
+
+    @Override
+    public void setBuildDriverResult(BuildDriverResult buildDriverResult) {
+        this.buildDriverResult = buildDriverResult;
+    }
+
+    @Override
+    public BuildDriverResult getBuildDriverResult() {
+        return buildDriverResult;
+    }
+
+    @Override
+    public void setRepositoryManagerResult(RepositoryManagerResult repositoryManagerResult) {
+        this.repositoryManagerResult = repositoryManagerResult;
     }
 }

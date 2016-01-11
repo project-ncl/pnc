@@ -19,7 +19,10 @@
 package org.jboss.pnc.spi.events;
 
 import org.jboss.pnc.spi.BuildExecutionStatus;
+import org.jboss.pnc.spi.BuildResult;
 import org.jboss.pnc.spi.executor.BuildExecutionSession;
+
+import java.util.Optional;
 
 public interface BuildExecutionStatusChangedEvent {
 
@@ -29,5 +32,8 @@ public interface BuildExecutionStatusChangedEvent {
     Integer getUserId();
     Integer getBuildConfigurationId();
 
-    BuildExecutionSession getBuildExecutionSession(); //TODO remove reference to BuildExecutionSession
+    /**
+     * @return Returns non-empty only for completed states.
+     */
+    Optional<BuildResult> getBuildResult();
 }

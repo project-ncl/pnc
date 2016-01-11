@@ -111,7 +111,7 @@ public class DefaultBuildExecutor implements BuildExecutor {
                 .thenApplyAsync(nul -> buildSetUp(buildExecutionSession), executor)
                 .thenComposeAsync(runningBuild -> waitBuildToComplete(buildExecutionSession, runningBuild), executor)
                 .thenApplyAsync(completedBuild -> retrieveBuildDriverResults(buildExecutionSession, completedBuild), executor)
-                .thenApplyAsync(buildDriverResult -> retrieveRepositoryManagerResults(buildExecutionSession, buildDriverResult), executor)
+                .thenApplyAsync(nul -> retrieveRepositoryManagerResults(buildExecutionSession), executor)
                 .thenApplyAsync(nul -> destroyEnvironment(buildExecutionSession), executor)
                 .handleAsync((nul, e) -> completeExecution(buildExecutionSession, e), executor);
 
@@ -206,37 +206,34 @@ public class DefaultBuildExecutor implements BuildExecutor {
         return waitToCompleteFuture;
     }
 
-    private BuildDriverResult retrieveBuildDriverResults(BuildExecutionSession buildExecutionSession, CompletedBuild completedBuild) {
+    private Void retrieveBuildDriverResults(BuildExecutionSession buildExecutionSession, CompletedBuild completedBuild) {
         buildExecutionSession.setStatus(BuildExecutionStatus.COLLECTING_RESULTS_FROM_BUILD_DRIVER);
         try {
             BuildDriverResult buildResult = completedBuild.getBuildResult();
             BuildDriverStatus buildDriverStatus = buildResult.getBuildDriverStatus();
+            buildExecutionSession.setBuildDriverResult(buildResult);
             if (buildDriverStatus.completedSuccessfully()) {
                 buildExecutionSession.setStatus(BuildExecutionStatus.BUILD_COMPLETED_SUCCESS);
             } else {
                 buildExecutionSession.setStatus(BuildExecutionStatus.BUILD_COMPLETED_WITH_ERROR);
             }
-            return buildResult;
+            return null;
         } catch (Throwable e) {
             throw new BuildProcessException(e, completedBuild.getRunningEnvironment());
         }
     }
 
-    private Void retrieveRepositoryManagerResults(BuildExecutionSession buildExecutionSession, BuildDriverResult buildDriverResult) {
+    private Void retrieveRepositoryManagerResults(BuildExecutionSession buildExecutionSession) {
         try {
             buildExecutionSession.setStatus(BuildExecutionStatus.COLLECTING_RESULTS_FROM_REPOSITORY_NAMAGER);
             RunningEnvironment runningEnvironment = buildExecutionSession.getRunningEnvironment();
             buildExecutionSession.setRunningEnvironment(runningEnvironment);
-            BuildResult buildResult;
-            if (BuildDriverStatus.SUCCESS.equals(buildDriverResult.getBuildDriverStatus())) {
-                log.debug("Build {} completed successfully", buildExecutionSession.getId());
-                RepositorySession repositorySession = runningEnvironment.getRepositorySession();
-                RepositoryManagerResult repositoryManagerResult = repositorySession.extractBuildArtifacts();
-                buildResult = new DefaultBuildResult(buildDriverResult, repositoryManagerResult);
-            } else {
-                buildResult = new DefaultBuildResult(buildDriverResult, null);
-            }
-            buildExecutionSession.setBuildResult(buildResult);
+
+            BuildDriverResult buildDriverResult = buildExecutionSession.getBuildDriverResult();
+
+            RepositorySession repositorySession = runningEnvironment.getRepositorySession();
+            RepositoryManagerResult repositoryManagerResult = repositorySession.extractBuildArtifacts();
+            buildExecutionSession.setRepositoryManagerResult(repositoryManagerResult);
         } catch (Throwable e) {
             throw new BuildProcessException(e, buildExecutionSession.getRunningEnvironment());
         }
