@@ -239,12 +239,12 @@ public class DatabaseDataInitializer {
         buildConfiguration5 = buildConfigurationRepository.save(buildConfiguration5);
 
         // Build config set containing the three example build configs
-        buildConfigurationSet1 = BuildConfigurationSet.Builder.newBuilder().name("Build Config Set 1")
+        buildConfigurationSet1 = BuildConfigurationSet.Builder.newBuilder().name("Example Build Group 1")
                 .buildConfiguration(buildConfiguration1).buildConfiguration(buildConfiguration2)
                 .buildConfiguration(buildConfiguration3).productVersion(productVersion).build();
 
         BuildConfigurationSet buildConfigurationSet2 = BuildConfigurationSet.Builder.newBuilder()
-                .name("Fabric Configuration Set").buildConfiguration(buildConfiguration4).
+                .name("Fabric Build Group").buildConfiguration(buildConfiguration4).
                         productVersion(productVersion).build();
 
         demoUser = User.Builder.newBuilder().username("demo-user").firstName("Demo First Name").lastName("Demo Last Name")

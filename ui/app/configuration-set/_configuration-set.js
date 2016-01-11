@@ -92,7 +92,7 @@
       url: '/configuration-set/create/:productId/:versionId',
       templateUrl: 'configuration-set/views/configuration-set.create.html',
       data: {
-        displayName: 'Create Build Configuration Set'
+        displayName: 'Create Build Group'
       },
       controller: 'ConfigurationSetCreateController',
       controllerAs: 'createSetCtrl',
