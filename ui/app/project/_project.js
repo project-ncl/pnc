@@ -45,7 +45,7 @@
       url: '/project',
       templateUrl: 'project/views/project.list.html',
       data: {
-        displayName: 'Projects'
+        displayName: 'Projects Metadata'
       },
       controller: 'ProjectListController',
       controllerAs: 'listCtrl',
@@ -91,7 +91,7 @@
       url: '/project/create',
       templateUrl: 'project/views/project.create.html',
       data: {
-        displayName: 'Create Project'
+        displayName: 'Create Project Metadata'
       },
       controller: 'ProjectCreateController',
       controllerAs: 'createCtrl'

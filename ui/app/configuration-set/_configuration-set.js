@@ -45,7 +45,7 @@
       url: '/configuration-set',
       templateUrl: 'configuration-set/views/configuration-set.list.html',
       data: {
-        displayName: 'BuildConfiguration Sets'
+        displayName: 'Build Group Configs'
       },
       controller: 'ConfigurationSetListController',
       controllerAs: 'setlistCtrl',
@@ -92,7 +92,7 @@
       url: '/configuration-set/create/:productId/:versionId',
       templateUrl: 'configuration-set/views/configuration-set.create.html',
       data: {
-        displayName: 'Create Build Group'
+        displayName: 'Create Build Group Config'
       },
       controller: 'ConfigurationSetCreateController',
       controllerAs: 'createSetCtrl',
@@ -107,7 +107,7 @@
       url: '/configuration-set/{configurationSetId:int}/add-configuration',
       templateUrl: 'configuration-set/views/configuration-set.add.configuration.html',
       data: {
-        displayName: 'Add Build Configuration'
+        displayName: 'Add Build Config'
       },
       controller: 'ConfigurationSetAddConfigurationController',
       controllerAs: 'addConfigurationSetCtrl',

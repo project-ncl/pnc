@@ -36,7 +36,7 @@
             </li>
           </ul>
       </div>
-      <button type="button" class="btn btn-lg btn-default" data-toggle="tooltip" title="Edit Configuration" ng-click="setEditForm.$show()" ng-class="{ 'active': setEditForm.$visible }">
+      <button type="button" class="btn btn-lg btn-default" data-toggle="tooltip" title="Edit Build Group Config" ng-click="setEditForm.$show()" ng-class="{ 'active': setEditForm.$visible }">
         <i class="pficon pficon-edit"></i> Edit
       </button>
       <button ng-hide="true" type="button" class="btn btn-lg btn-danger" data-toggle="tooltip" title="Delete Set" pnc-confirm-click="detailSetCtrl.delete()" pnc-confirm-message="{{ 'Confirm the deletion of Build Configuration Set: ' + detailSetCtrl.set.name + ' ?'}}">
@@ -70,7 +70,7 @@
 
   <div class="tabbable"> <!-- Only required for left/right tabs -->
     <ul class="nav nav-tabs">
-      <li class="active"><a href="#tab1" data-toggle="tab">Build Configurations</a></li>
+      <li class="active"><a href="#tab1" data-toggle="tab">Build Configs</a></li>
       <li><a href="#tab2" data-toggle="tab">Build Outputs</a></li>
     </ul>
     <div class="tab-content">

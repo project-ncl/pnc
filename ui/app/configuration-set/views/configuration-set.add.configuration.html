@@ -19,7 +19,7 @@
 -->
 <div>
   <div class="page-header">
-    <h1>Add Build Configuration to {{ addConfigurationSetCtrl.configurationSetDetail.name }}</h1>
+    <h1>Add Build Config to {{ addConfigurationSetCtrl.configurationSetDetail.name }}</h1>
   </div>
 
   <form class="form-horizontal" name="configurationSetAddForm" ng-submit="addConfigurationSetCtrl.submit()">
@@ -36,7 +36,7 @@
       </div>
     </div>
     <div class="form-group">
-      <label for="input-project" class="col-sm-2 control-label">Build Configuration</label>
+      <label for="input-project" class="col-sm-2 control-label">Build Config</label>
       <div class="col-sm-10">
         <select ng-model="addConfigurationSetCtrl.data.configurationId">
           <option ng-repeat="configuration in addConfigurationSetCtrl.configurations" value="{{ configuration.id }}">

@@ -49,7 +49,7 @@
         url: '',
         templateUrl: 'configuration-set-record/views/record.list.html',
         data: {
-          displayName: 'Configuration Set Records'
+          displayName: 'Build Groups'
         },
         controller: 'CsRecordListController',
         controllerAs: 'ctrl'
@@ -63,8 +63,7 @@
         url: '/{recordId:int}',
         templateUrl: 'configuration-set-record/views/record.detail.html',
         data: {
-          displayName: '# {{ csRecordDetail.id }} \u2014 {{ csRecordDetail.configurationSet.name }} ' +
-          '\u2014 {{ csRecordDetail.startTime | date:"medium"}}'
+          displayName: '# {{ csRecordDetail.id }} \u2014 {{ csRecordDetail.configurationSet.name }} '
         },
         controller: 'CsRecordDetailController',
         controllerAs: 'ctrl',
@@ -95,7 +94,7 @@
         url: '/info',
         templateUrl: 'configuration-set-record/views/record.detail.info.html',
         data: {
-          displayName: 'Build Info'
+          displayName: 'Build Group Info'
         },
         controller: 'CsRecordInfoController',
         controllerAs: 'ctrl'
@@ -108,7 +107,7 @@
         controllerAs: 'ctrl',
         templateUrl: 'configuration-set-record/views/record.detail.result.html',
         data: {
-          displayName: 'Build Result'
+          displayName: 'Build Group Result'
         },
         resolve: {
           // load log for each record
@@ -133,7 +132,7 @@
         controllerAs: 'ctrl',
         templateUrl: 'configuration-set-record/views/record.detail.output.html',
         data: {
-          displayName: 'Build Output'
+          displayName: 'Build Group Output'
         },
         resolve: {
           // load artifacts for each record
