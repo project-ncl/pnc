@@ -141,25 +141,23 @@
     'configurationDetail',
     'environments',
     'environmentDetail',
-    'projectDetail',
     'linkedProductVersions',
     'dependencies',
     'allProducts',
     'configurations',
     function($log, $state, $filter, Notifications, ProductDAO, BuildConfigurationDAO,
-      configurationDetail, environments, environmentDetail, projectDetail,
+      configurationDetail, environments, environmentDetail,
       linkedProductVersions, dependencies, allProducts, configurations) {
 
-      this.configuration = configurationDetail;
-      this.environments = environments;
-      this.project = projectDetail;
-      this.allProducts = allProducts;
+      var that = this;
+
+      that.configuration = configurationDetail;
+      that.environments = environments;
+      that.allProducts = allProducts;
 
       // We need to set environment from existing environments collections to be able to preselect
       // dropdown element when editing
-      this.environment = findEnvironment(this.configuration.environment.id, this.environments);
-
-      var that = this;
+      that.environment = findEnvironment(that.configuration.environment.id, that.environments);
 
       // Filtering and selection of linked ProductVersions.
       that.products = {
@@ -209,7 +207,7 @@
         });
       }
 
-      // Selection of dependencies.
+      // Selection of dependencies
       that.dependencies = {
         selected: dependencies,
 
