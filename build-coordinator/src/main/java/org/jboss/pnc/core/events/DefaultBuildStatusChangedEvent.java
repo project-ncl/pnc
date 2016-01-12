@@ -27,13 +27,15 @@ public class DefaultBuildStatusChangedEvent implements BuildStatusChangedEvent {
     private final Integer buildTaskId;
     private final Integer userId;
     private final Integer buildConfigurationId;
+    private final String buildConfigurationName;
 
     public DefaultBuildStatusChangedEvent(BuildStatus oldStatus, BuildStatus newStatus, Integer buildTaskId,
-            Integer buildConfigurationId, Integer userId) {
+            Integer buildConfigurationId, String buildConfigurationName, Integer userId) {
         this.oldStatus = oldStatus;
         this.newStatus = newStatus;
         this.buildTaskId = buildTaskId;
         this.buildConfigurationId = buildConfigurationId;
+        this.buildConfigurationName = buildConfigurationName;
         this.userId = userId;
     }
 
@@ -53,6 +55,11 @@ public class DefaultBuildStatusChangedEvent implements BuildStatusChangedEvent {
     }
 
     @Override
+    public String getBuildConfigurationName() {
+        return buildConfigurationName;
+    }
+
+    @Override
     public BuildStatus getOldStatus() {
         return oldStatus;
     }
@@ -64,12 +71,9 @@ public class DefaultBuildStatusChangedEvent implements BuildStatusChangedEvent {
 
     @Override
     public String toString() {
-        return "DefaultBuildStatusChangedEvent{" +
-                "oldStatus=" + oldStatus +
-                ", newStatus=" + newStatus +
-                ", buildTaskId=" + buildTaskId +
-                ", userId=" + userId +
-                ", buildConfigurationId=" + buildConfigurationId +
-                '}';
+        return "DefaultBuildStatusChangedEvent{" + "oldStatus=" + oldStatus + ", newStatus=" + newStatus + ", buildTaskId="
+                + buildTaskId + ", userId=" + userId + ", buildConfigurationId=" + buildConfigurationId
+                + ", buildConfigurationName=" + buildConfigurationName + '}';
     }
+
 }

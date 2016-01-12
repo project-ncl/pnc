@@ -25,14 +25,16 @@ public class BuildChangedPayload implements NotificationPayload {
     private final BuildStatus buildStatus;
     private final Integer userId;
     private final Integer buildConfigurationId;
+    private final String buildConfigurationName;
 
-    public BuildChangedPayload(Integer id, BuildStatus eventType, Integer buildConfigurationId, Integer userId) {
+    public BuildChangedPayload(Integer id, BuildStatus eventType, Integer buildConfigurationId, String buildConfigurationName,
+            Integer userId) {
         this.id = id;
         this.buildStatus = eventType;
         this.userId = userId;
         this.buildConfigurationId = buildConfigurationId;
+        this.buildConfigurationName = buildConfigurationName;
     }
-
 
     public BuildStatus getBuildStatus() {
         return buildStatus;
@@ -51,4 +53,9 @@ public class BuildChangedPayload implements NotificationPayload {
     public Integer getBuildConfigurationId() {
         return buildConfigurationId;
     }
+
+    public String getBuildConfigurationName() {
+        return buildConfigurationName;
+    }
+
 }

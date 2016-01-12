@@ -58,13 +58,16 @@ public class BuildExecutionTask implements BuildExecution {
     private User user;
     private Set<Integer> buildRecordSetIds;
     private Integer buildConfigSetRecordId;
-    private Optional<Event<BuildStatusChangedEvent>> buildStatusChangedEventNotifier; //TODO decouple event notifications
+    private Optional<Event<BuildStatusChangedEvent>> buildStatusChangedEventNotifier; // TODO decouple event notifications
     private Integer buildTaskId;
     private boolean failed = false;
-    //BuildTask.submitTime
+    // BuildTask.submitTime
     private Date submitTime;
 
-    public BuildExecutionTask(int id, BuildConfiguration buildConfiguration, BuildConfigurationAudited buildConfigurationAudited, String topContentId, String buildContentId, User user, Set<Integer> buildRecordSetIds, Integer buildConfigSetRecordId, Optional<Event<BuildStatusChangedEvent>> buildStatusChangedEventNotifier, Integer buildTaskId, Date submitTime) {
+    public BuildExecutionTask(int id, BuildConfiguration buildConfiguration,
+            BuildConfigurationAudited buildConfigurationAudited, String topContentId, String buildContentId, User user,
+            Set<Integer> buildRecordSetIds, Integer buildConfigSetRecordId,
+            Optional<Event<BuildStatusChangedEvent>> buildStatusChangedEventNotifier, Integer buildTaskId, Date submitTime) {
         this.id = id;
         this.buildConfiguration = buildConfiguration;
         this.buildConfigurationAudited = buildConfigurationAudited;
@@ -81,9 +84,9 @@ public class BuildExecutionTask implements BuildExecution {
     public void setStatus(BuildStatus status) {
         IdRev idRev = buildConfigurationAudited.getId();
         BuildStatusChangedEvent buildStatusChanged = new DefaultBuildStatusChangedEvent(this.status, status, buildTaskId,
-                idRev.getId(),
-                user.getId());
-        log.debug("Updating build execution task {} status to {}. Task is linked to coordination task {}.", id, buildStatusChanged, buildTaskId);
+                idRev.getId(), buildConfigurationAudited.getName(), user.getId());
+        log.debug("Updating build execution task {} status to {}. Task is linked to coordination task {}.", id,
+                buildStatusChanged, buildTaskId);
         this.status = status;
         if (status.hasFailed()) {
             failed = true;
@@ -158,12 +161,12 @@ public class BuildExecutionTask implements BuildExecution {
     }
 
     @Override
-    public boolean isPartOfBuildSet() { //TODO remove, we are not promoting a build set
+    public boolean isPartOfBuildSet() { // TODO remove, we are not promoting a build set
         return false;
     }
 
     @Override
-    public String getBuildSetContentId() { //TODO remove, we are not promoting a build set
+    public String getBuildSetContentId() { // TODO remove, we are not promoting a build set
         return "";
     }
 
@@ -179,30 +182,18 @@ public class BuildExecutionTask implements BuildExecution {
         return buildRecordSetIds;
     }
 
-    public static BuildExecutionTask build (
-            int buildExecutionTaskId,
-            BuildConfiguration buildConfiguration,
-            BuildConfigurationAudited buildConfigAudited,
-            User user,
-            Set<Integer> buildRecordSetIds,
-            Integer buildConfigSetRecordId,
-            Optional<Event<BuildStatusChangedEvent>> buildStatusChangedEventNotifier,
-            Integer buildTaskId,
-            Date submitTime) {
-        String topContentId = ContentIdentityManager.getProductContentId(BuildConfigurationUtils.getFirstProductVersion(buildConfiguration)); //TODO is first always the correct one ?
+    public static BuildExecutionTask build(int buildExecutionTaskId, BuildConfiguration buildConfiguration,
+            BuildConfigurationAudited buildConfigAudited, User user, Set<Integer> buildRecordSetIds,
+            Integer buildConfigSetRecordId, Optional<Event<BuildStatusChangedEvent>> buildStatusChangedEventNotifier,
+            Integer buildTaskId, Date submitTime) {
+        String topContentId = ContentIdentityManager
+                .getProductContentId(BuildConfigurationUtils.getFirstProductVersion(buildConfiguration)); // TODO is first
+                                                                                                          // always the correct
+                                                                                                          // one ?
         String buildContentId = ContentIdentityManager.getBuildContentId(buildConfiguration);
 
-        return new BuildExecutionTask(
-                buildExecutionTaskId,
-                buildConfiguration,
-                buildConfigAudited,
-                topContentId,
-                buildContentId,
-                user,
-                buildRecordSetIds,
-                buildConfigSetRecordId,
-                buildStatusChangedEventNotifier,
-                buildTaskId,
+        return new BuildExecutionTask(buildExecutionTaskId, buildConfiguration, buildConfigAudited, topContentId,
+                buildContentId, user, buildRecordSetIds, buildConfigSetRecordId, buildStatusChangedEventNotifier, buildTaskId,
                 submitTime);
     }
 

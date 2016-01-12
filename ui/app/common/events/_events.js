@@ -51,9 +51,10 @@
       // current logged in user.
 
       scope.$on(eventTypes.BUILD_STARTED, function(event, payload) {
-        $log.debug('BUILD_STARTED_EVENT: payload=%O, authService.getPncUser=%O, payload.userId=%O', payload, authService.getPncUser(), payload.userId);
+        //$log.debug('BUILD_STARTED_EVENT: payload=%O, authService.getPncUser=%O, payload.userId=%O', payload, authService.getPncUser(), payload.userId);
+        $log.debug('BUILD_STARTED_EVENT: authService.getPncUser=%O, payload=%O', authService.getPncUser(), JSON.stringify(payload));
         if (authService.getPncUser().id === payload.userId) {
-          Notifications.info('Build #' + payload.id + ' in progress');
+          Notifications.info('Build ' + payload.buildConfigurationName + '#' + payload.id + ' in progress');
         }
       });
 
@@ -61,20 +62,21 @@
       // (see events-services.js for the conversion
       // between server and client BuildStatus)
       scope.$on(eventTypes.BUILD_FINISHED, function(event, payload) {
+        $log.debug('BUILD_FINISHED: payload=%O', JSON.stringify(payload));
         if (authService.getPncUser().id === payload.userId) {
           if (payload.buildStatus === 'REJECTED') {
-            Notifications.warn('Build #' + payload.id + ' rejected.');
+            Notifications.warn('Build ' + payload.buildConfigurationName + '#' + payload.id + ' rejected.');
           } else if (payload.buildStatus === 'REJECTED_ALREADY_BUILT') {
-            Notifications.warn('Build #' + payload.id + ' was rejected because it has already been built.');
+            Notifications.warn('Build ' + payload.buildConfigurationName + '#' + payload.id + ' was rejected because it has already been built.');
           } else if (payload.buildStatus === 'SYSTEM_ERROR') {
-            Notifications.error('A system error prevented the Build #' + payload.id + ' from starting.');
+            Notifications.error('A system error prevented the Build ' + payload.buildConfigurationName + '#' + payload.id + ' from starting.');
           } else {
             BuildRecordDAO.get({recordId: payload.id}).$promise.then(
               function (result) {
                 if (result.status === 'SUCCESS') {
-                  Notifications.success('Build #' + payload.id + ' completed');
+                  Notifications.success('Build ' + payload.buildConfigurationName + '#' + payload.id + ' completed');
                 } else {
-                  Notifications.warn('Build #' + payload.id + ' failed');
+                  Notifications.warn('Build ' + payload.buildConfigurationName + '#' + payload.id + ' failed');
                 }
               }
             );
