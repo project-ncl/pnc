@@ -127,11 +127,6 @@
           return EnvironmentDAO.get({
             environmentId: configurationDetail.environmentId  }).$promise;
         },
-        projectDetail: function(ProjectDAO, $stateParams,
-                                 configurationDetail) {
-          return ProjectDAO.get({
-            projectId: configurationDetail.projectId }).$promise;
-        },
         buildRecordList: function(BuildRecordDAO, $stateParams) {
           return BuildRecordDAO.getByConfiguration({
             configurationId: $stateParams.configurationId });

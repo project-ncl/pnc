@@ -46,7 +46,11 @@
           </a>
         </td>
         <td>{{ configuration.description }}</td>
-        <td>{{ configuration.project.name }}</td>
+        <td>
+          <a ui-sref="project.detail({projectId: configuration.project.id})" href>
+            {{ configuration.project.name }}
+          </a>
+        </td>
         <td>{{ configuration.scmRepoURL }}</td>
         <td>{{ configuration.scmRevision }}</td>
         <td>{{ configuration.creationTime | date:'medium'}}</td>
