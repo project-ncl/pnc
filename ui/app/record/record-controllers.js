@@ -56,11 +56,11 @@
       this.artifacts = artifacts;
 
       this.builtArtifacts = _.filter(this.artifacts,function(artifact) {
-        return artifact.status === "BINARY_BUILT"
+        return artifact.status === 'BINARY_BUILT';
       });
 
       this.importedArtifacts = _.filter(this.artifacts,function(artifact) {
-        return artifact.status === "BINARY_IMPORTED"
+        return artifact.status === 'BINARY_IMPORTED';
       });
 
       $log.debug('RecordOutputController >> builtArtifacts: %O', JSON.stringify(this.builtArtifacts));
