@@ -63,8 +63,8 @@ public class OpenshiftEnvironmentDriverModuleConfig extends EnvironmentDriverMod
         this.podNamespace = podNamespace;
         this.restAuthToken = restAuthToken;
         this.containerPort = containerPort;
-        this.keepBuildAgentInstance = keepBuildAgentInstance;
-        this.exposeBuildAgentOnPublicUrl = exposeBuildAgentOnPublicUrl;
+        this.keepBuildAgentInstance = keepBuildAgentInstance != null ? keepBuildAgentInstance: false;
+        this.exposeBuildAgentOnPublicUrl = exposeBuildAgentOnPublicUrl != null ? exposeBuildAgentOnPublicUrl: false;
 
         log.debug("Created new instance {}", toString());
     }
