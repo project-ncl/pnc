@@ -19,23 +19,56 @@
 -->
 <div>
   <h3>Build Artifacts</h3>
-  <div >
-  <input ng-model="searchText" placeholder="Filter artifacts...">
+  <br/>
+
+  <div class="tabbable">
+    <ul class="nav nav-tabs">
+      <li class="active"><a href="#built" data-toggle="tab">Binary Built</a></li>
+      <li><a href="#imported" data-toggle="tab">Binary Imported</a></li>
+    </ul>
+    <div class="tab-content">
+      <div class="tab-pane active" id="built">
+        <br/>
+        <div>
+          <input ng-model="searchBuiltText" placeholder="Filter built artifacts...">
+        </div>
+        <br/>
+        <table class="table table-bordered table-striped">
+          <thead>
+            <th>Identifier</th>
+            <th>File Name</th>
+            <th>Actions</th>
+          </thead>
+          <tbody>
+            <tr ng-repeat="artifact in outputCtrl.builtArtifacts | filter:searchBuiltText">
+              <td>{{ artifact.identifier }}</td>
+              <td>{{ artifact.filename }}</td>
+              <td class="text-center"><a ng-href="{{ artifact.deployUrl }}" target="_self" class="btn btn-primary">Download</a></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="tab-pane " id="imported">
+        <br/>
+        <div>
+          <input ng-model="searchImportedText" placeholder="Filter imported artifacts...">
+        </div>
+        <br/>
+        <table class="table table-bordered table-striped">
+          <thead>
+            <th>Identifier</th>
+            <th>File Name</th>
+            <th>Actions</th>
+          </thead>
+          <tbody>
+            <tr ng-repeat="artifact in outputCtrl.importedArtifacts | filter:searchImportedText">
+              <td>{{ artifact.identifier }}</td>
+              <td>{{ artifact.filename }}</td>
+              <td class="text-center"><a ng-href="{{ artifact.deployUrl }}" target="_self" class="btn btn-primary">Download</a></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
   </div>
-  <table class="table table-bordered table-striped">
-    <thead>
-      <th>Identifier</th>
-      <th>File Name</th>
-      <th>Status</th>
-      <th>Actions</th>
-    </thead>
-    <tbody>
-      <tr ng-repeat="artifact in outputCtrl.artifacts | filter:searchText">
-        <td>{{ artifact.identifier }}</td>
-        <td>{{ artifact.filename }}</td>
-        <td>{{ artifact.status }}</td>
-        <td class="text-center"><a ng-href="{{ artifact.deployUrl }}" target="_self" class="btn btn-primary">Download</a></td>
-      </tr>
-    </tbody>
-  </table>
 </div>
