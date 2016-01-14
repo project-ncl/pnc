@@ -104,7 +104,7 @@
               if (_.isUndefined(n.state)) {
                 n.state = {};
               }
-              n.state.checked = false;
+              //n.state.checked = false;
               _(n.nodes).each(function (e) {
                 recursiveUncheck(e);
               });
