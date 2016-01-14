@@ -70,7 +70,9 @@
          * Reload the page with new data using loader function.
          * @return the page as a promise
          */
-        page._refresh = function (index, pageSize, searchText) {
+        page._refresh = function (index, pageSize, searchText, add) {
+          add = typeof add !== 'undefined' ? add : false; // default parameter 
+
           page.isLoaded = false;
           return loader(index, pageSize, searchText).then(function (data) {
             if (!factory.verifyPageFormat(data)) {
@@ -83,7 +85,8 @@
               page.data = [];
             } else {
               page._rawData = data;
-              page.data = factory._convertToResource(data.content, resource);
+              var newData = factory._convertToResource(data.content, resource);
+              page.data = add ? page.data.concat(newData) : newData;
             }
             page._searchText = searchText;
             _(page._onUpdate).each(function (callback) {
@@ -113,9 +116,11 @@
         /**
          * Returns a promise of the page or throws an Error when index out of bounds.
          */
-        page.loadPageIndex = function (index) {
+        page.loadPageIndex = function (index, add) {
+          add = typeof add !== 'undefined' ? add : false; // default parameter 
+
           if (page.hasPageIndex(index)) {
-            return page._refresh(index, page.getPageSize(), page._searchText);
+            return page._refresh(index, page.getPageSize(), page._searchText, add);
           } else {
             throw 'Error: Invalid page index ' + index +
             '. Must be between 0 inclusive and ' + page.getPageCount() + ' exclusive.';
@@ -131,6 +136,15 @@
          */
         page.next = function () {
           return page.loadPageIndex(page.getPageIndex() + 1);
+        };
+
+        /** 
+         * New data are added to existing
+         */
+        page.loadMore = function () {
+          if (page.hasNext()) {
+            return page.loadPageIndex(page.getPageIndex() + 1, true);
+          }
         };
 
         page.hasPrevious = function () {

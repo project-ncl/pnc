@@ -27,8 +27,14 @@
     'pnc.util.confirmClick',
     'angularUtils.directives.uiBreadcrumbs',
     'pnc.common.directives',
-    'pnc.record'
+    'pnc.record',
+    'infinite-scroll'
   ]);
+
+  // Throttling scroll events
+  // Scroll events can be triggered very frequently, which can hurt performance and make scrolling appear jerky.
+  // To mitigate this, infiniteScroll can be configured to process scroll events a maximum of once every x milliseconds.
+  angular.module('infinite-scroll').value('THROTTLE_MILLISECONDS', 350);
 
   module.config(['$stateProvider', function($stateProvider) {
     $stateProvider.state('configuration', {
@@ -72,7 +78,7 @@
           return EnvironmentDAO.query();
         },
         projects: function(ProjectDAO) {
-          return ProjectDAO.query();
+          return ProjectDAO.getAll();
         },
         products: function(ProductDAO) {
           return ProductDAO.query();

@@ -1,0 +1,47 @@
+/**
+ * pnc-infinite-select
+ */
+.pnc-infinite-select {
+	width: 260px;
+}
+
+.pnc-infinite-select .dropdown-wrap {
+	position: absolute;
+	z-index: 99;
+	max-height: 120px; 
+	min-width: 260px;
+	overflow-y: scroll; 
+	background-color: white;
+
+    background-color: #ffffff;
+    border: 1px solid #b6b6b6;
+    border-radius: 1px;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175);
+    background-clip: padding-box;
+}
+
+.pnc-infinite-select .dropdown-list {
+	margin: 0;
+	padding: 0;
+	list-style-type: none;
+}
+
+.pnc-infinite-select .dropdown-item {
+	margin: 0;
+	font-size: 12px;
+	padding: 2px 5px;
+	border-width: 1px 0;
+	border-style: solid;
+	border-color: transparent;
+}
+
+.pnc-infinite-select .dropdown-item:hover {
+	cursor: pointer;
+	background-color: #0099d3;
+    border-color: #0076b7;
+    color: white;
+}
+
+.pnc-infinite-select .input-text {
+	width: 100%;
+}
