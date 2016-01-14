@@ -82,7 +82,7 @@
 
       /**
        * Handle toggling a checkbox in the tree.
-       * Also check the parent boxes.
+       * Does not check the parent boxes, but uncheckes recursively.
        */
       var nodeToggle = function (node) {
         $timeout(function () {
@@ -96,7 +96,7 @@
               if (_.isUndefined(n.state)) {
                 n.state = {};
               }
-              n.state.checked = true;
+              //n.state.checked = true;
               n = n.getParent();
             }
           } else {
