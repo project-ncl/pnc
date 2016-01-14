@@ -48,7 +48,7 @@
       url: '/configuration',
       templateUrl: 'configuration/views/configuration.list.html',
       data: {
-        displayName: 'Build Configurations'
+        displayName: 'Build Configs'
       },
       controller: 'ConfigurationListController',
       controllerAs: 'listCtrl',
@@ -63,7 +63,7 @@
       url: '/configuration/create',
       templateUrl: 'configuration/views/configuration.create.html',
       data: {
-        displayName: 'Create Build Configuration'
+        displayName: 'Create Build Config'
       },
       controller: 'ConfigurationCreateController',
       controllerAs: 'createCtrl',

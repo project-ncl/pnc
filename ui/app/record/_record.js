@@ -118,7 +118,7 @@
         url: '',
         templateUrl: 'record/views/record.list.html',
         data: {
-          displayName: 'Records'
+          displayName: 'Builds'
         },
         controller: 'RecordListController',
         controllerAs: 'ctrl'

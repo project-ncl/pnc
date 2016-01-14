@@ -27,14 +27,16 @@
   <table class="table table-striped table-hover" ng-show="page.isLoaded">
     <thead>
       <td>Status</td>
-      <td>Build</td>
+      <td>ID</td>
+      <td>Build Config</td>
       <td>Start Time</td>
       <td>End Time</td>
     </thead>
     <tbody>
       <tr ng-repeat="record in page.data">
         <td><build-status-icon status="record.status"></build-status-icon> {{ record.status }}</td>
-        <td><a href ui-sref="record.detail.info({ recordId: record.id })">{{ record.buildConfigurationName }}</a></td>
+        <td><a href ui-sref="record.detail.info({ recordId: record.id })"># {{ record.id }}</a></td>
+        <td><a href ui-sref="configuration.detail.show({ configurationId: record.buildConfigurationId })">{{ record.buildConfigurationName }}</a></td>
         <td>{{ record.startTime | date:'medium' }}</td>
         <td>{{ record.endTime | date:'medium' }}</td>
       </tr>
