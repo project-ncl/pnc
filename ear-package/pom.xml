@@ -68,6 +68,10 @@
     </dependency>
     <dependency>
       <groupId>org.jboss.pnc</groupId>
+      <artifactId>build-executor</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.pnc</groupId>
       <artifactId>model</artifactId>
     </dependency>
     <dependency>
@@ -143,6 +147,12 @@
             <jarModule>
               <groupId>org.jboss.pnc</groupId>
               <artifactId>build-coordinator</artifactId>
+              <includeInApplicationXml>true</includeInApplicationXml>
+              <bundleDir>/</bundleDir>
+            </jarModule>
+            <jarModule>
+              <groupId>org.jboss.pnc</groupId>
+              <artifactId>build-executor</artifactId>
               <includeInApplicationXml>true</includeInApplicationXml>
               <bundleDir>/</bundleDir>
             </jarModule>

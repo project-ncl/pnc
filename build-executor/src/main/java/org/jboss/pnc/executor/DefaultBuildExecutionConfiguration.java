@@ -38,21 +38,18 @@ public class DefaultBuildExecutionConfiguration implements BuildExecutionConfigu
     private BuildConfigurationAudited buildConfigurationAudited;
     private String buildContentId;
     private User user;
-    private Integer buildTaskId;
 
     public DefaultBuildExecutionConfiguration( //TODO and extract task methods in DefaultBuildExecutionTask
                                                int id,
                                                BuildConfiguration buildConfiguration,
                                                BuildConfigurationAudited buildConfigurationAudited,
                                                String buildContentId,
-                                               User user,
-                                               Integer buildTaskId) {
+                                               User user) {
         this.id = id;
         this.buildConfiguration = buildConfiguration;
         this.buildConfigurationAudited = buildConfigurationAudited;
         this.buildContentId = buildContentId;
         this.user = user;
-        this.buildTaskId = buildTaskId;
     }
 
 

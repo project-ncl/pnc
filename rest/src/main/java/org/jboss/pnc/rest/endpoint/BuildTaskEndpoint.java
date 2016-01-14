@@ -32,6 +32,7 @@ import org.slf4j.LoggerFactory;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.FormParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -69,10 +70,9 @@ public class BuildTaskEndpoint {
     @Path("/{taskId}/completed")
     public Response buildTaskCompleted(
             @ApiParam(value = "Build task id", required = true) @PathParam("taskId") Integer taskId,
-            @ApiParam(value = "Build status", required = true) @QueryParam("buildStatus") String buildStatusParam) {
-        logger.debug("Received task completed notification for coordinating task id [{}]. Status received [{}]", taskId, buildStatusParam);
+            @ApiParam(value = "Build result", required = true) @FormParam("buildResult") BuildResult buildResult) {
+        logger.debug("Received task completed notification for coordinating task id [{}].", taskId);
 
-        BuildResult buildResult = null; //TODO pass results trough BPM and deserialize;
         bpmCompleteListener.notifyCompleted(taskId, buildResult);
         return Response.ok().build();
     }

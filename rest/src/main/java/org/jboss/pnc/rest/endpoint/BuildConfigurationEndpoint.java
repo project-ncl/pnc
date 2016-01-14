@@ -41,6 +41,7 @@ import org.jboss.pnc.rest.swagger.response.BuildConfigurationSingleton;
 import org.jboss.pnc.rest.swagger.response.BuildRecordPage;
 import org.jboss.pnc.rest.swagger.response.BuildRecordSingleton;
 import org.jboss.pnc.rest.swagger.response.ProductVersionPage;
+import org.jboss.pnc.rest.trigger.BuildExecutorTriggerer;
 import org.jboss.pnc.rest.trigger.BuildTriggerer;
 import org.jboss.pnc.rest.utils.BpmNotifier;
 import org.jboss.pnc.rest.utils.HibernateLazyInitializer;
@@ -111,6 +112,7 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
 
     private BuildConfigurationProvider buildConfigurationProvider;
     private BuildTriggerer buildTriggerer;
+    private BuildExecutorTriggerer buildExecutorTriggerer;
     private BuildRecordProvider buildRecordProvider;
     private ProductVersionProvider productVersionProvider;
     private Datastore datastore;
@@ -129,6 +131,7 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
     public BuildConfigurationEndpoint(
             BuildConfigurationProvider buildConfigurationProvider,
             BuildTriggerer buildTriggerer,
+            BuildExecutorTriggerer buildExecutorTriggerer,
             BuildRecordProvider buildRecordProvider,
             ProductVersionProvider productVersionProvider,
             Datastore datastore,
@@ -138,6 +141,7 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
         super(buildConfigurationProvider);
         this.buildConfigurationProvider = buildConfigurationProvider;
         this.buildTriggerer = buildTriggerer;
+        this.buildExecutorTriggerer = buildExecutorTriggerer;
         this.buildRecordProvider = buildRecordProvider;
         this.productVersionProvider = productVersionProvider;
         this.datastore = datastore;
@@ -288,15 +292,11 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
             @ApiResponse(code = FORBIDDEN_CODE, message = FORBIDDEN_DESCRIPTION),
     })
     @POST
-    @Path("/{id}/execute-build")
+    @Path("/{id}/execute-build")  //TODO move to execution endpoint
     public Response build(@ApiParam(value = "Build Configuration id", required = true) @PathParam("id") Integer buildConfigurationId,
                           @ApiParam(value = "Build Configuration revision", required = true) @QueryParam("buildConfigurationRevision") String buildConfigurationRevisionParam,
                           @ApiParam(value = "Build task id", required = true) @QueryParam("buildTaskId") String buildTaskIdParam,
-                          @ApiParam(value = "Build set task id", required = false) @QueryParam("buildSetTaskId") String buildSetTaskId, //TODO redundant
                           @ApiParam(value = "Optional Callback URL", required = false) @QueryParam("callbackUrl") String callbackUrl,
-                          @ApiParam(value = "A CSV list of build record set ids.", required = false) @QueryParam("buildRecordSetIdsCSV") String buildRecordSetIdsCSV,
-                          @ApiParam(value = "Build configuration set record id.", required = false) @QueryParam("buildConfigSetRecordId") String buildConfigSetRecordId,
-                          @ApiParam(value = "BuildTask submit time in number of millis since epoch.", required = true) @QueryParam("submitTimeMillis") String submitTimeMillisParam,
                           @ApiParam(value = "Username who triggered the build. If empty current user is used.", required = false) @QueryParam("usernameTriggered") String usernameTriggered,
                           @Context UriInfo uriInfo,
                           @Context HttpServletRequest request) {
@@ -318,14 +318,6 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
                 return errorResponse;
             } else {
                 buildConfigurationRevision = Integer.parseInt(buildConfigurationRevisionParam);
-            }
-
-            Long submitTimeMillis;
-            if (submitTimeMillisParam == null || submitTimeMillisParam.equals("")) {
-                logger.warn("Missing required submitTimeMillis parameter. Using 'now' instead.");
-                submitTimeMillis = System.currentTimeMillis();
-            } else {
-                submitTimeMillis = Long.parseLong(submitTimeMillisParam);
             }
 
             AuthenticationProvider authProvider = new AuthenticationProvider(httpServletRequest);
@@ -350,19 +342,16 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
                 }
             }
 
-            BuildExecutionSession buildExecutionSession = buildTriggerer.executeBuild(
+            BuildExecutionSession buildExecutionSession = buildExecutorTriggerer.executeBuild(
                     buildTaskId,
                     buildConfigurationId,
                     buildConfigurationRevision,
-                    buildRecordSetIdsCSV,
-                    buildConfigSetRecordId,
                     userTriggered,
-                    submitTimeMillis,
                     callbackUrl);
 
             UriBuilder uriBuilder = UriBuilder.fromUri(uriInfo.getBaseUri()).path("/result/running/{id}");
             URI uri = uriBuilder.build(buildTaskId);
-            BuildRecordRest buildRecordRest = new BuildRecordRest(buildExecutionSession, new Date(submitTimeMillis), userTriggered);
+            BuildRecordRest buildRecordRest = new BuildRecordRest(buildExecutionSession, null, userTriggered);
             Response response = Response.ok(uri).header("location", uri).entity(new Singleton(buildRecordRest)).build();
             return response;
         } catch (Exception e) {

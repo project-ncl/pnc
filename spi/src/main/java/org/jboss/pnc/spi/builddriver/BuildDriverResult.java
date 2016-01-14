@@ -20,10 +20,12 @@ package org.jboss.pnc.spi.builddriver;
 import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
 import org.jboss.pnc.spi.environment.RunningEnvironment;
 
+import java.io.Serializable;
+
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-12-18.
  */
-public interface BuildDriverResult {
+public interface BuildDriverResult extends Serializable {
 
     public String getBuildLog() throws BuildDriverException;
 

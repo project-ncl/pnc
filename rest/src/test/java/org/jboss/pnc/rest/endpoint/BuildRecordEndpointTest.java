@@ -95,8 +95,7 @@ public class BuildRecordEndpointTest {
                 buildConfiguration,
                 null,
                 "build-content-id",
-                user,
-                buildTaskId);
+                user);
 
         BuildExecutionSession buildExecutionSession = new DefaultBuildExecutionSession(buildExecutionConfiguration, null);
         when(buildExecutor.getRunningExecution(buildExecutionTaskId)).thenReturn(buildExecutionSession);

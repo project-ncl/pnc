@@ -37,7 +37,6 @@ import org.jboss.pnc.model.ProductVersion;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.rest.utils.BpmNotifier;
 import org.jboss.pnc.rest.utils.HibernateLazyInitializer;
-import org.jboss.pnc.spi.BuildCoordinationStatus;
 import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
 import org.jboss.pnc.spi.datastore.DatastoreException;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationAuditedRepository;
@@ -64,7 +63,7 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 @Stateless
-public class BuildTriggerer {
+public class BuildTriggerer { //TODO rename to buildCoordinationTriggerer
 
     public interface BuildConfigurationSetTriggerResult {
         int getBuildRecordSetId();
@@ -74,10 +73,8 @@ public class BuildTriggerer {
     private final Logger log = Logger.getLogger(BuildTriggerer.class);
 
     private BuildCoordinator buildCoordinator;
-    private BuildExecutor buildExecutor;
 
     private BuildConfigurationRepository buildConfigurationRepository;
-    private BuildConfigurationAuditedRepository buildConfigurationAuditedRepository;
 
     private BuildConfigurationSetRepository buildConfigurationSetRepository;
     private BuildSetStatusNotifications buildSetStatusNotifications;
@@ -93,9 +90,7 @@ public class BuildTriggerer {
 
     @Inject
     public BuildTriggerer(final BuildCoordinator buildCoordinator,
-                          BuildExecutor buildExecutor,
                           final BuildConfigurationRepository buildConfigurationRepository,
-                          BuildConfigurationAuditedRepository buildConfigurationAuditedRepository,
                           final BuildConfigurationSetRepository buildConfigurationSetRepository,
                           BuildSetStatusNotifications buildSetStatusNotifications,
                           BuildStatusNotifications buildStatusNotifications,
@@ -103,9 +98,7 @@ public class BuildTriggerer {
                           HibernateLazyInitializer hibernateLazyInitializer,
                           SortInfoProducer sortInfoProducer) {
         this.buildCoordinator = buildCoordinator;
-        this.buildExecutor = buildExecutor;
         this.buildConfigurationRepository = buildConfigurationRepository;
-        this.buildConfigurationAuditedRepository = buildConfigurationAuditedRepository;
         this.buildConfigurationSetRepository = buildConfigurationSetRepository;
         this.buildSetStatusNotifications = buildSetStatusNotifications;
         this.buildStatusNotifications = buildStatusNotifications;
@@ -119,7 +112,7 @@ public class BuildTriggerer {
         Consumer<BuildCoordinationStatusChangedEvent> onStatusUpdate = (statusChangedEvent) -> {
             if (statusChangedEvent.getNewStatus().isCompleted()) {
                 // Expecting URL like: http://host:port/business-central/rest/runtime/org.test:Test1:1.0/process/instance/7/signal?signal=testSig
-                bpmNotifier.signalBpmEvent(callBackUrl.toString() + "&event=" + statusChangedEvent.getNewStatus());
+                bpmNotifier.simpleHttpPostCallback(callBackUrl.toString() + "&event=" + statusChangedEvent.getNewStatus());
             }
         };
 
@@ -151,7 +144,7 @@ public class BuildTriggerer {
         Consumer<BuildSetStatusChangedEvent> onStatusUpdate = (statusChangedEvent) -> {
             if (statusChangedEvent.getNewStatus().isCompleted()) {
                 // Expecting URL like: http://host:port/business-central/rest/runtime/org.test:Test1:1.0/process/instance/7/signal?signal=testSig
-                bpmNotifier.signalBpmEvent(callBackUrl.toString() + "&event=" + statusChangedEvent.getNewStatus());
+                bpmNotifier.simpleHttpPostCallback(callBackUrl.toString() + "&event=" + statusChangedEvent.getNewStatus());
             }
         };
 
@@ -187,52 +180,6 @@ public class BuildTriggerer {
                         .collect(Collectors.toList());
             }
         };
-    }
-
-    public BuildExecutionSession executeBuild(
-            Integer buildTaskId,
-            Integer buildConfigurationId,
-            Integer buildConfigurationRevision,
-            String buildRecordSetIdsCSV,
-            String buildConfigSetRecordId,
-            User userTriggered,
-            Long submitTimeMillis, String callbackUrl) throws CoreException, ExecutorException {
-        final BuildConfiguration configuration = buildConfigurationRepository.queryById(buildConfigurationId);
-        IdRev idRev = new IdRev(buildConfigurationId, buildConfigurationRevision);
-        log.debug("Querying for configurationAudited by idRev: " + idRev.toString());
-        final BuildConfigurationAudited configurationAudited = buildConfigurationAuditedRepository.queryById(idRev);
-        log.debug("Building configurationAudited " + configurationAudited.toString());
-        log.debug("User triggered the process " + userTriggered.getUsername());
-
-        Consumer<BuildCoordinationStatus> onComplete = (buildStatus) -> {
-            if (callbackUrl != null && !callbackUrl.isEmpty()) {
-                // Expecting URL like: http://host:port/business-central/rest/runtime/org.test:Test1:1.0/process/instance/7/signal?signal=testSig
-                bpmNotifier.signalBpmEvent(callbackUrl.toString() + "&event=" + buildStatus);
-            }
-        };
-
-        Set<Integer> buildRecordSetIds = parseIntegers(buildRecordSetIdsCSV);
-
-        Integer buildConfigSetRecordIdInt = null;
-        if (buildConfigSetRecordId != null && !buildConfigSetRecordId.equals("") && !buildConfigSetRecordId.equals("null") ) {
-            buildConfigSetRecordIdInt = Integer.parseInt(buildConfigSetRecordId);
-        }
-
-
-        String buildContentId = ContentIdentityManager.getBuildContentId(configuration.getName());
-
-        BuildExecutionConfiguration buildExecutionConfig = new DefaultBuildExecutionConfiguration(
-                buildTaskId, //TODO remove duplicate ID
-                configuration,
-                configurationAudited,
-                buildContentId,
-                userTriggered,
-                buildTaskId);
-
-        Consumer<BuildExecutionStatusChangedEvent> onExecutionStatusChange = (statusChangedEvent) -> {};
-        BuildExecutionSession buildExecutionSession = buildExecutor.startBuilding(buildExecutionConfig, onExecutionStatusChange);
-
-        return buildExecutionSession;
     }
 
     private Set<Integer> parseIntegers(String buildRecordSetIdsCSV) {

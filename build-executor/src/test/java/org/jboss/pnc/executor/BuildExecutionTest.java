@@ -197,8 +197,7 @@ public class BuildExecutionTest {
                 buildConfiguration,
                 configurationAudited,
                 "build-content-id",
-                MockUser.newTestUser(1),
-                1);
+                MockUser.newTestUser(1));
 
         executor.startBuilding(buildExecutionConfiguration, onBuildExecutionStatusChangedEvent);
     }
