@@ -19,7 +19,7 @@
 -->
 <div class="pnc-infinite-select">
 
-    <input ng-model="searchText" ng-change="search()" placeholder="Scroll & Filter" size="{{ text.length + 10 }}" 
+    <input ng-required="{{ infiniteSelectRequired }}" id="{{ infiniteSelectId }}" name="{{ infiniteSelectName }}" ng-model="searchText" ng-change="search()" placeholder="{{ placeholder }}" size="{{ text.length + 10 }}" 
         ng-focus="viewDropdown(true)" ng-blur="viewDropdown(false)" class="input-text">
 
     <div class="dropdown-wrap" ng-show="isDropdown"> 

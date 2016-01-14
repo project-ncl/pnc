@@ -37,13 +37,21 @@
       restrict: 'E',
       scope: {
         items: '=',
-        itemId: '='
+        itemId: '=',
+        placeholder: '@',
+        infiniteSelectId: '@',
+        infiniteSelectName: '@',
+        infiniteSelectRequired: '@'
       },
-      templateUrl: 'common/directives/pnc-infinite-select.html',
+      templateUrl: 'common/directives/views/pnc-infinite-select.html',
       controller: [
         '$log',
         '$scope',
         function($log, $scope) {
+
+          var PLACEHOLDER = 'Scroll & Filter';
+          $scope.placeholder = _.isUndefined($scope.placeholder) ? PLACEHOLDER : $scope.placeholder;
+          $scope.infiniteSelectRequired = _.isUndefined($scope.infiniteSelectRequired) ? false : $scope.infiniteSelectRequired;
 
           //var lastItem = $scope.items.getPageIndex();
 
