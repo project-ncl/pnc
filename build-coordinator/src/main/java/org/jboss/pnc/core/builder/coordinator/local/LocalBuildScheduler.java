@@ -21,6 +21,8 @@ package org.jboss.pnc.core.builder.coordinator.local;
 import org.jboss.pnc.core.builder.coordinator.BuildScheduler;
 import org.jboss.pnc.core.builder.coordinator.BuildTask;
 import org.jboss.pnc.core.content.ContentIdentityManager;
+import org.jboss.pnc.model.BuildConfiguration;
+import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.spi.BuildResult;
 import org.jboss.pnc.spi.events.BuildCoordinationStatusChangedEvent;
 import org.jboss.pnc.spi.events.BuildExecutionStatusChangedEvent;
@@ -78,14 +80,18 @@ public class LocalBuildScheduler implements BuildScheduler {
         };
 
         String contentId = ContentIdentityManager.getBuildContentId(buildTask.getBuildConfiguration().getName());
+        BuildConfiguration configuration = buildTask.getBuildConfiguration();
         BuildExecutionConfiguration buildExecutionConfiguration = BuildExecutionConfiguration.build(
                 buildTask.getId(),
-                buildTask.getBuildConfiguration(),
-                buildTask.getBuildConfigurationAudited(),
                 contentId,
-                buildTask.getBuildConfiguration().getProject().getName(),
-                buildTask.getUser()
-        );
+                buildTask.getUser().getId(),
+                configuration.getBuildScript(),
+                configuration.getName(),
+                configuration.getScmRepoURL(),
+                configuration.getScmRevision(),
+                configuration.getScmMirrorRepoURL(),
+                configuration.getScmMirrorRevision(),
+                configuration.getBuildEnvironment().getBuildType());
 
         buildExecutor.startBuilding(buildExecutionConfiguration, onBuildExecutionStatusChangedEvent);
     }

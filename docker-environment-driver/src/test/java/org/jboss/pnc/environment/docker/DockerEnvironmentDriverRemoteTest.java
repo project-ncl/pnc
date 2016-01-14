@@ -147,13 +147,9 @@ public class DockerEnvironmentDriverRemoteTest {
 
     @Test
     public void canBuildEnvironmentTest() {
-        final BuildEnvironment goodEnv = BuildEnvironment.Builder.newBuilder().buildType(BuildType.JAVA).build();
-        final BuildEnvironment badEnv1 = BuildEnvironment.Builder.newBuilder().buildType(null).build();
-        final BuildEnvironment badEnv2 = BuildEnvironment.Builder.newBuilder().buildType(BuildType.DOCKER).build();
-
-        assertTrue(dockerEnvDriver.canBuildEnvironment(goodEnv));
-        assertFalse(dockerEnvDriver.canBuildEnvironment(badEnv1));
-        assertFalse(dockerEnvDriver.canBuildEnvironment(badEnv2));
+        assertTrue(dockerEnvDriver.canBuildEnvironment(BuildType.JAVA));
+        assertFalse(dockerEnvDriver.canBuildEnvironment(null));
+        assertFalse(dockerEnvDriver.canBuildEnvironment(BuildType.DOCKER));
     }
 
     @Test
@@ -161,9 +157,8 @@ public class DockerEnvironmentDriverRemoteTest {
         final Semaphore mutex = new Semaphore(0);
 
         // Create container
-        final BuildEnvironment environment = BuildEnvironment.Builder.newBuilder().buildType(BuildType.JAVA).build();
         final DockerStartedEnvironment startedEnv = (DockerStartedEnvironment)
-                dockerEnvDriver.buildEnvironment(environment, DUMMY_REPOSITORY_CONFIGURATION);
+                dockerEnvDriver.buildEnvironment(BuildType.JAVA, DUMMY_REPOSITORY_CONFIGURATION);
 
         Consumer<RunningEnvironment> onComplete = (generalRunningEnv) -> {
             DockerRunningEnvironment runningEnv = (DockerRunningEnvironment) generalRunningEnv;

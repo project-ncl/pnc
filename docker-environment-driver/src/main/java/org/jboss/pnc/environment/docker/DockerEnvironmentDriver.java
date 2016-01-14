@@ -157,9 +157,9 @@ public class DockerEnvironmentDriver implements EnvironmentDriver {
     }
 
     @Override
-    public StartedEnvironment buildEnvironment(BuildEnvironment buildEnvironment,
+    public StartedEnvironment buildEnvironment(BuildType buildType,
             RepositorySession repositorySession) throws EnvironmentDriverException {
-        if (!canBuildEnvironment(buildEnvironment))
+        if (!canBuildEnvironment(buildType))
             throw new UnsupportedOperationException(
                     "DockerEnvironmentDriver currently provides support only for Linux environments on Docker.");
 
@@ -214,13 +214,13 @@ public class DockerEnvironmentDriver implements EnvironmentDriver {
     }
 
     @Override
-    public boolean canBuildEnvironment(BuildEnvironment environment) {
+    public boolean canBuildEnvironment(BuildType buildType) {
         if (disabled) {
             logger.info("Skipping driver as it is disabled by config.");
             return false;
         }
 
-        if (environment.getBuildType() == BuildType.JAVA)
+        if (buildType == BuildType.JAVA)
             return true;
         else
             return false;

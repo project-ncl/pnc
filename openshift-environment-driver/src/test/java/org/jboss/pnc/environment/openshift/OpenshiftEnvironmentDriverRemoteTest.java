@@ -77,7 +77,6 @@ public class OpenshiftEnvironmentDriverRemoteTest {
 
         configurationService = new Configuration();
 
-        final BuildEnvironment environment = BuildEnvironment.Builder.newBuilder().buildType(BuildType.JAVA).build();
         environmentDriver = new OpenshiftEnvironmentDriver(configurationService, new PullingMonitor());
     }
 
@@ -87,8 +86,7 @@ public class OpenshiftEnvironmentDriverRemoteTest {
         ObjectWrapper<Throwable> exceptionWrapper = new ObjectWrapper<>();
 
         // Create container
-        final BuildEnvironment environment = BuildEnvironment.Builder.newBuilder().buildType(BuildType.JAVA).build();
-        final StartedEnvironment startedEnv = environmentDriver.buildEnvironment(environment, DUMMY_REPOSITORY_CONFIGURATION);
+        final StartedEnvironment startedEnv = environmentDriver.buildEnvironment(BuildType.JAVA, DUMMY_REPOSITORY_CONFIGURATION);
 
         Consumer<RunningEnvironment> onEnvironmentStarted = (runningEnvironment) -> {
             boolean containerDestroyed = false;

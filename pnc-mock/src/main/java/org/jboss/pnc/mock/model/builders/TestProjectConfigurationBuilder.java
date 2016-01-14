@@ -30,8 +30,8 @@ import javax.inject.Inject;
  */
 public class TestProjectConfigurationBuilder {
 
-    public static final String FAIL = "Fail";
-    public static final String PASS = "Pass";
+    public static final String FAIL = "mvn clean install -Dmock.config=Fail";
+    public static final String PASS = "mvn clean install -Dmock.config=Pass";
 
     BuildEnvironment javaBuildEnvironment = BuildEnvironment.Builder.newBuilder().build();
 
@@ -92,7 +92,7 @@ public class TestProjectConfigurationBuilder {
         project.setName(name);
         BuildConfiguration buildConfiguration = new BuildConfiguration();
         buildConfiguration.setId(id);
-        buildConfiguration.setDescription(PASS);
+        buildConfiguration.setBuildScript(PASS);
         buildConfiguration.setName(id + "");
         buildConfiguration.setBuildEnvironment(javaBuildEnvironment);
         buildConfiguration.setProject(project);
@@ -107,7 +107,7 @@ public class TestProjectConfigurationBuilder {
 
     public BuildConfiguration buildFailingConfiguration(int id, String name, BuildConfigurationSet buildConfigurationSet) {
         BuildConfiguration buildConfiguration =  build(id, name, buildConfigurationSet);
-        buildConfiguration.setDescription(FAIL);
+        buildConfiguration.setBuildScript(FAIL);
         return buildConfiguration;
     }
 

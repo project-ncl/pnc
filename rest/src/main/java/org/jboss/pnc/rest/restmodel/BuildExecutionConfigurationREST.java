@@ -16,27 +16,22 @@
  * limitations under the License.
  */
 
-package org.jboss.pnc.executor;
+package org.jboss.pnc.rest.restmodel;
 
-import org.jboss.pnc.model.BuildConfiguration;
-import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildType;
-import org.jboss.pnc.model.Project;
-import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
-public class DefaultBuildExecutionConfiguration implements BuildExecutionConfiguration {
-
-    public static final Logger log = LoggerFactory.getLogger(DefaultBuildExecutionConfiguration.class);
+@XmlRootElement(name = "buildExecutionConfiguration")
+public class BuildExecutionConfigurationREST implements BuildExecutionConfiguration {
 
     private int id;
     private String buildContentId;
-    private Integer userId;
+    private UserRest user;
     private String buildScript;
     private String name;
     private String scmMirrorRepoURL;
@@ -45,27 +40,39 @@ public class DefaultBuildExecutionConfiguration implements BuildExecutionConfigu
     private String scmRevision;
     private BuildType buildType;
 
-    public DefaultBuildExecutionConfiguration(
-            int id,
-            String buildContentId,
-            Integer userId,
-            String buildScript,
-            String name,
-            String scmMirrorRepoURL,
-            String scmRepoURL,
-            String scmMirrorRevision,
-            String scmRevision, BuildType buildType) {
-        this.id = id;
+    public BuildExecutionConfigurationREST() {
+    }
 
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public void setBuildContentId(String buildContentId) {
         this.buildContentId = buildContentId;
-        this.userId = userId;
+    }
+
+    public void setBuildScript(String buildScript) {
         this.buildScript = buildScript;
+    }
+
+    public void setName(String name) {
         this.name = name;
+    }
+
+    public void setScmMirrorRepoURL(String scmMirrorRepoURL) {
         this.scmMirrorRepoURL = scmMirrorRepoURL;
+    }
+
+    public void setScmRepoURL(String scmRepoURL) {
         this.scmRepoURL = scmRepoURL;
+    }
+
+    public void setScmMirrorRevision(String scmMirrorRevision) {
         this.scmMirrorRevision = scmMirrorRevision;
+    }
+
+    public void setScmRevision(String scmRevision) {
         this.scmRevision = scmRevision;
-        this.buildType = buildType;
     }
 
     @Override
@@ -74,13 +81,13 @@ public class DefaultBuildExecutionConfiguration implements BuildExecutionConfigu
     }
 
     @Override
-    public String getBuildContentId() {
-        return buildContentId;
+    public Integer getUserId() {
+        return user.getId();
     }
 
     @Override
-    public Integer getUserId() {
-        return userId;
+    public String getBuildContentId() {
+        return buildContentId;
     }
 
     @Override
@@ -116,5 +123,17 @@ public class DefaultBuildExecutionConfiguration implements BuildExecutionConfigu
     @Override
     public BuildType getBuildType() {
         return buildType;
+    }
+
+    public UserRest getUser() {
+        return user;
+    }
+
+    public void setUser(UserRest user) {
+        this.user = user;
+    }
+
+    public void setBuildType(BuildType buildType) {
+        this.buildType = buildType;
     }
 }

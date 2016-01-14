@@ -157,7 +157,6 @@ public class RepositoryManagerDriver implements RepositoryManager {
             throws AproxClientException {
 
         String buildContentId = execution.getBuildContentId();
-        String projectName = execution.getProjectName();
         int id = execution.getId();
 
         // if the build-level group doesn't exist, create it.
@@ -168,14 +167,14 @@ public class RepositoryManagerDriver implements RepositoryManager {
                 buildArtifacts.setAllowSnapshots(true);
                 buildArtifacts.setAllowReleases(true);
 
-                buildArtifacts.setDescription(String.format("Build output for PNC build #%s (project: %s)", id, projectName));
+                buildArtifacts.setDescription(String.format("Build output for PNC build #%s", id));
 
                 aprox.stores().create(buildArtifacts,
-                        "Creating hosted repository for build: " + id + " (repo: " + buildContentId + ") of: " + projectName, HostedRepository.class);
+                        "Creating hosted repository for build: " + id + " (repo: " + buildContentId + ")", HostedRepository.class);
             }
 
             Group buildGroup = new Group(buildContentId);
-            buildGroup.setDescription(String.format("Aggregation group for PNC build #%s (project: %s)", id, projectName));
+            buildGroup.setDescription(String.format("Aggregation group for PNC build #%s", id));
 
             // build-local artifacts
             buildGroup.addConstituent(new StoreKey(StoreType.hosted, buildContentId));
@@ -184,8 +183,7 @@ public class RepositoryManagerDriver implements RepositoryManager {
             addGlobalConstituents(buildGroup);
 
             aprox.stores().create(buildGroup,
-                    "Creating repository group for resolving artifacts in build: " + id + " (repo: " + buildContentId + ") of: " + projectName,
-                    Group.class);
+                    "Creating repository group for resolving artifacts in build: " + id + " (repo: " + buildContentId + ")", Group.class);
         }
     }
 

@@ -23,9 +23,14 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import org.jboss.pnc.auth.AuthenticationProvider;
 import org.jboss.pnc.core.builder.coordinator.bpm.BpmCompleteListener;
+import org.jboss.pnc.rest.restmodel.BuildExecutionConfigurationREST;
+import org.jboss.pnc.rest.restmodel.BuildRecordRest;
 import org.jboss.pnc.rest.restmodel.response.Singleton;
+import org.jboss.pnc.rest.trigger.BuildExecutorTriggerer;
 import org.jboss.pnc.spi.BuildResult;
+import org.jboss.pnc.spi.executor.BuildExecutionSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,7 +46,17 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriBuilder;
+import javax.ws.rs.core.UriInfo;
 
+import java.net.URI;
+
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.FORBIDDEN_CODE;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.FORBIDDEN_DESCRIPTION;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.INVALID_DESCRIPTION;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.INVLID_CODE;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.SERVER_ERROR_CODE;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.SERVER_ERROR_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_DESCRIPTION;
 
@@ -56,6 +71,9 @@ public class BuildTaskEndpoint {
 
     @Inject
     private BpmCompleteListener bpmCompleteListener;
+
+    @Inject
+    private BuildExecutorTriggerer buildExecutorTriggerer;
 
     private static final Logger logger = LoggerFactory.getLogger(BuildTaskEndpoint.class);
 
@@ -75,6 +93,61 @@ public class BuildTaskEndpoint {
 
         bpmCompleteListener.notifyCompleted(taskId, buildResult);
         return Response.ok().build();
+    }
+
+    @ApiOperation(value = "Triggers the build execution for a given configuration.", response = Singleton.class)
+    @ApiResponses(value = {
+            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION),
+            @ApiResponse(code = INVLID_CODE, message = INVALID_DESCRIPTION),
+            @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION),
+            @ApiResponse(code = FORBIDDEN_CODE, message = FORBIDDEN_DESCRIPTION),
+    })
+    @POST
+    @Path("/execute-build")
+    public Response build(
+            @ApiParam(value = "Build Execution Configuration. See org.jboss.pnc.spi.executor.BuildExecutionConfiguration.", required = true)
+            @FormParam("buildExecutionConfiguration")
+            BuildExecutionConfigurationREST buildExecutionConfiguration,
+            @ApiParam(value = "Username who triggered the build. If empty current user is used.", required = false)
+            @FormParam("usernameTriggered")
+            String usernameTriggered,
+            @ApiParam(value = "Optional Callback URL", required = false)
+            @FormParam("callbackUrl")
+            String callbackUrl,
+            @Context UriInfo uriInfo,
+            @Context HttpServletRequest request) {
+
+        try {
+
+            logger.debug("Endpoint /execute-build requested for buildTaskId [{}], from [{}]", buildExecutionConfiguration.getId(), request.getRemoteAddr());
+
+//TODO input validation
+//            Integer buildTaskId;
+//            Response errorResponse = validateRequiredField(buildTaskIdParam, "buildTaskId");
+//            if (errorResponse != null) {
+//                return errorResponse;
+//            } else {
+//                buildTaskId = Integer.parseInt(buildTaskIdParam);
+//            }
+
+
+            AuthenticationProvider authProvider = new AuthenticationProvider(httpServletRequest);
+            String loggedUser = authProvider.getUserName();
+            if(loggedUser == null || loggedUser == "") {
+                return Response.status(Response.Status.FORBIDDEN).build();
+            }
+
+            BuildExecutionSession buildExecutionSession = buildExecutorTriggerer.executeBuild(buildExecutionConfiguration, callbackUrl);
+
+            UriBuilder uriBuilder = UriBuilder.fromUri(uriInfo.getBaseUri()).path("/result/running/{id}");
+            URI uri = uriBuilder.build(buildExecutionConfiguration.getId());
+            BuildRecordRest buildRecordRest = new BuildRecordRest(buildExecutionSession, null, buildExecutionConfiguration.getUser());
+            Response response = Response.ok(uri).header("location", uri).entity(new Singleton(buildRecordRest)).build();
+            return response;
+        } catch (Exception e) {
+            logger.error(e.getMessage(), e);
+            return Response.serverError().entity("Other error: " + e.getMessage()).build();
+        }
     }
 
 }

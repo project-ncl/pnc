@@ -66,20 +66,20 @@ public class OpenshiftEnvironmentDriver implements EnvironmentDriver {
     }
 
     @Override
-    public StartedEnvironment buildEnvironment(BuildEnvironment buildEnvironment, RepositorySession repositorySession) throws EnvironmentDriverException {
-        if (!canBuildEnvironment(buildEnvironment))
+    public StartedEnvironment buildEnvironment(BuildType buildType, RepositorySession repositorySession) throws EnvironmentDriverException {
+        if (!canBuildEnvironment(buildType))
             throw new UnsupportedOperationException("OpenshiftEnvironmentDriver currently provides support only for Linux and JAVA builds.");
 
         return new OpenshiftStartedEnvironment(executor, config, pullingMonitor, repositorySession);
     }
 
     @Override
-    public boolean canBuildEnvironment(BuildEnvironment environment) {
+    public boolean canBuildEnvironment(BuildType buildType) {
         if (config.isDisabled()) {
             logger.info("Skipping driver as it is disabled by config.");
             return false;
         }
-        return environment.getBuildType() == BuildType.JAVA;
+        return buildType == BuildType.JAVA;
     }
 
     @PreDestroy

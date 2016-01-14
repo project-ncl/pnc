@@ -40,14 +40,12 @@ import java.util.function.Consumer;
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
-public class BuildExecutorTriggerer { //TODO completely decouple datastore
+public class BuildExecutorTriggerer {
 
     private final Logger log = Logger.getLogger(BuildExecutorTriggerer.class);
 
     private BuildExecutor buildExecutor;
 
-    private BuildConfigurationRepository buildConfigurationRepository;
-    private BuildConfigurationAuditedRepository buildConfigurationAuditedRepository;
     private BpmNotifier bpmNotifier;
 
     public BuildExecutorTriggerer(
@@ -56,32 +54,10 @@ public class BuildExecutorTriggerer { //TODO completely decouple datastore
             BuildConfigurationAuditedRepository buildConfigurationAuditedRepository,
             BpmNotifier bpmNotifier) {
         this.buildExecutor = buildExecutor;
-        this.buildConfigurationRepository = buildConfigurationRepository;
-        this.buildConfigurationAuditedRepository = buildConfigurationAuditedRepository;
         this.bpmNotifier = bpmNotifier;
     }
 
-    public BuildExecutionSession executeBuild(
-            Integer buildTaskId,
-            Integer buildConfigurationId,
-            Integer buildConfigurationRevision,
-            User userTriggered,
-            String callbackUrl) throws CoreException, ExecutorException {
-        final BuildConfiguration configuration = buildConfigurationRepository.queryById(buildConfigurationId);
-        IdRev idRev = new IdRev(buildConfigurationId, buildConfigurationRevision);
-        log.debug("Querying for configurationAudited by idRev: " + idRev.toString());
-        final BuildConfigurationAudited configurationAudited = buildConfigurationAuditedRepository.queryById(idRev);
-        log.debug("Building configurationAudited " + configurationAudited.toString());
-        log.debug("User triggered the process " + userTriggered.getUsername());
-
-        String buildContentId = ContentIdentityManager.getBuildContentId(configuration.getName());
-
-        BuildExecutionConfiguration buildExecutionConfig = new DefaultBuildExecutionConfiguration(
-                buildTaskId,
-                configuration,
-                configurationAudited,
-                buildContentId,
-                userTriggered);
+    public BuildExecutionSession executeBuild(BuildExecutionConfiguration buildExecutionConfig, String callbackUrl) throws CoreException, ExecutorException {
 
         Consumer<BuildExecutionStatusChangedEvent> onExecutionStatusChange = (statusChangedEvent) -> {
             if (callbackUrl != null && !callbackUrl.isEmpty()) {

@@ -44,11 +44,11 @@ public class BuildDriverMock implements BuildDriver {
     }
 
     @Override
-    public RunningBuild startProjectBuild(BuildExecutionSession buildExecutionSession, BuildConfigurationAudited buildConfiguration, RunningEnvironment runningEnvironment) throws BuildDriverException {
+    public RunningBuild startProjectBuild(BuildExecutionSession buildExecutionSession, RunningEnvironment runningEnvironment) throws BuildDriverException {
         try {
-            log.debug("Building " + buildConfiguration);
+            log.debug("Building " + buildExecutionSession.getId());
             Thread.sleep(RandomUtils.randInt(100, 300));
-            setBuildDriverStatus(buildConfiguration.getDescription());
+            setBuildDriverStatus(buildExecutionSession.getBuildExecutionConfiguration().getBuildScript());
             return new RunningBuild() {
 
                 @Override
@@ -77,8 +77,8 @@ public class BuildDriverMock implements BuildDriver {
         }
     }
 
-    private void setBuildDriverStatus(String description){
-        if (description.equals(TestProjectConfigurationBuilder.FAIL))
+    private void setBuildDriverStatus(String buildScript){
+        if (buildScript.equals(TestProjectConfigurationBuilder.FAIL))
             buildDriverStatus = BuildDriverStatus.FAILED;
         else
             buildDriverStatus = BuildDriverStatus.SUCCESS;

@@ -167,11 +167,6 @@ public class BuildExecutionTest {
     }
 
     private void runBuild(BuildConfiguration buildConfiguration, Set<BuildExecutionStatusChangedEvent> statusChangedEvents, ObjectWrapper<BuildResult> buildExecutionResultWrapper) throws ExecutorException {
-        BuildConfigurationAudited configurationAudited = BuildConfigurationAudited.Builder.newBuilder()
-                .buildConfiguration(buildConfiguration)
-                .rev(1)
-                .build();
-
         DefaultBuildExecutor executor = new DefaultBuildExecutor(
                 repositoryManagerFactory,
                 buildDriverFactory,
@@ -194,10 +189,15 @@ public class BuildExecutionTest {
 
         BuildExecutionConfiguration buildExecutionConfiguration = new DefaultBuildExecutionConfiguration(
                 1,
-                buildConfiguration,
-                configurationAudited,
                 "build-content-id",
-                MockUser.newTestUser(1));
+                1,
+                buildConfiguration.getBuildScript(),
+                buildConfiguration.getName(),
+                buildConfiguration.getScmMirrorRepoURL(),
+                buildConfiguration.getScmRepoURL(),
+                buildConfiguration.getScmMirrorRevision(),
+                buildConfiguration.getScmRevision(),
+                buildConfiguration.getBuildEnvironment().getBuildType());
 
         executor.startBuilding(buildExecutionConfiguration, onBuildExecutionStatusChangedEvent);
     }

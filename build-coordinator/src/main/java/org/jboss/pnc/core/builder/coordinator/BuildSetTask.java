@@ -76,7 +76,7 @@ public class BuildSetTask {
         this.buildConfigSetRecord = buildConfigSetRecord;
         this.rebuildAll = rebuildAll;
         System.out.println("setting product milestone: " + productMilestone);
-        this.productMilestone = productMilestone;
+        this.productMilestone = productMilestone; //TODO do we need milestone here ?
         this.buildSetStatusChangedEventNotifier = buildCoordinator.getBuildSetStatusChangedEventNotifier();
         setStatus(BuildSetStatus.NEW);
         this.submitTime = submitTime;

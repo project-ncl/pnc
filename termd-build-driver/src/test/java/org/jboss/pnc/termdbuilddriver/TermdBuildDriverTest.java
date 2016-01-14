@@ -22,6 +22,7 @@ import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.spi.builddriver.BuildDriverStatus;
 import org.jboss.pnc.spi.builddriver.CompletedBuild;
 import org.jboss.pnc.spi.builddriver.RunningBuild;
+import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
 import org.jboss.pnc.spi.executor.BuildExecutionSession;
 import org.jboss.pnc.spi.repositorymanager.BuildExecution;
 import org.jboss.pnc.termdbuilddriver.commands.InvocatedCommandResult;
@@ -54,6 +55,8 @@ public class TermdBuildDriverTest extends AbstractLocalBuildAgentTest {
         doReturn("jsr107-test").when(jsr107BuildConfig).getName();
 
         buildExecutionMock = mock(BuildExecutionSession.class);
+        BuildExecutionConfiguration buildExecutionConfiguration = mock(BuildExecutionConfiguration.class);
+        doReturn(buildExecutionConfiguration).when(buildExecutionMock).getBuildExecutionConfiguration();
     }
 
     @Test(timeout = 60_000)
@@ -72,7 +75,7 @@ public class TermdBuildDriverTest extends AbstractLocalBuildAgentTest {
         };
 
         //when
-        RunningBuild runningBuild = driver.startProjectBuild(buildExecutionMock, jsr107BuildConfig, localEnvironmentPointer);
+        RunningBuild runningBuild = driver.startProjectBuild(buildExecutionMock, localEnvironmentPointer);
 
         //then
         runningBuild.monitor(completedBuild -> fail("this execution should fail"), exception -> System.out.println("OK"));
@@ -108,7 +111,7 @@ public class TermdBuildDriverTest extends AbstractLocalBuildAgentTest {
         AtomicReference<CompletedBuild> buildResult = new AtomicReference<>();
 
         //when
-        RunningBuild runningBuild = driver.startProjectBuild(buildExecutionMock, jsr107BuildConfig, localEnvironmentPointer);
+        RunningBuild runningBuild = driver.startProjectBuild(buildExecutionMock, localEnvironmentPointer);
         runningBuild.monitor(completedBuild -> buildResult.set(completedBuild), exception -> Assertions.fail("Unexpected error", exception));
 
         //then
@@ -131,7 +134,7 @@ public class TermdBuildDriverTest extends AbstractLocalBuildAgentTest {
         };
 
         //when
-        RunningBuild runningBuild = driver.startProjectBuild(buildExecutionMock, jsr107BuildConfig, localEnvironmentPointer);
+        RunningBuild runningBuild = driver.startProjectBuild(buildExecutionMock, localEnvironmentPointer);
         runningBuild.monitor(completedBuild -> {}, exception -> Assertions.fail("Unexpected error", exception));
 
         //then

@@ -75,7 +75,6 @@ public class DefaultBuildExecutor implements BuildExecutor {
     private EnvironmentDriverFactory environmentDriverFactory;
     private Map<Integer, BuildExecutionSession> runningExecutions = new HashMap<>();
 
-
     @Deprecated
     public DefaultBuildExecutor() {}; //CDI workaround for constructor injection
 
@@ -101,7 +100,7 @@ public class DefaultBuildExecutor implements BuildExecutor {
         BuildExecutionSession buildExecutionSession = new DefaultBuildExecutionSession(buildExecutionConfiguration, onBuildExecutionStatusChangedEvent);
         buildExecutionSession.setStatus(BuildExecutionStatus.NEW);
 
-        log.info("Staring build execution task: {}; Build Configuration id: {}.", buildExecutionConfiguration.getId(), buildExecutionConfiguration.getBuildConfiguration().getId());
+        //TODO update logging: log.info("Staring build execution task: {}; Build Configuration id: {}.", buildExecutionConfiguration.getId(), buildExecutionConfiguration.etBuildConfiguration().getId());
 
         runningExecutions.put(buildExecutionConfiguration.getId(), buildExecutionSession);
 
@@ -139,9 +138,9 @@ public class DefaultBuildExecutor implements BuildExecutor {
         buildExecutionSession.setStatus(BuildExecutionStatus.BUILD_ENV_SETTING_UP);
         BuildExecutionConfiguration buildExecutionConfiguration = buildExecutionSession.getBuildExecutionConfiguration();
         try {
-            EnvironmentDriver envDriver = environmentDriverFactory.getDriver(buildExecutionConfiguration.getBuildConfigurationAudited().getBuildEnvironment());
+            EnvironmentDriver envDriver = environmentDriverFactory.getDriver(buildExecutionConfiguration.getBuildType());
             StartedEnvironment startedEnv = envDriver.buildEnvironment(
-                    buildExecutionConfiguration.getBuildConfigurationAudited().getBuildEnvironment(),
+                    buildExecutionConfiguration.getBuildType(),
                     repositorySession);
             return startedEnv;
         } catch (Throwable e) {
@@ -176,11 +175,10 @@ public class DefaultBuildExecutor implements BuildExecutor {
         try {
             String liveLogWebSocketUrl = runningEnvironment.getJenkinsUrl();
             log.debug("Setting live log websocket url: {}", liveLogWebSocketUrl);
-            BuildConfigurationAudited buildConfigurationAudited = buildExecutionSession.getBuildExecutionConfiguration().getBuildConfigurationAudited();
             buildExecutionSession.setLiveLogsUri(Optional.of(new URI(liveLogWebSocketUrl)));
             buildExecutionSession.setStartTime(new Date());
-            BuildDriver buildDriver = buildDriverFactory.getBuildDriver(buildConfigurationAudited.getBuildEnvironment().getBuildType());
-            return buildDriver.startProjectBuild(buildExecutionSession, buildConfigurationAudited, runningEnvironment);
+            BuildDriver buildDriver = buildDriverFactory.getBuildDriver(buildExecutionSession.getBuildExecutionConfiguration().getBuildType());
+            return buildDriver.startProjectBuild(buildExecutionSession, runningEnvironment);
         } catch (Throwable e) {
             throw new BuildProcessException(e, runningEnvironment);
         }

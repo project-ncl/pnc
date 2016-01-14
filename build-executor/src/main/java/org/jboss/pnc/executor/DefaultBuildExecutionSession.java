@@ -51,7 +51,7 @@ public class DefaultBuildExecutionSession implements BuildExecutionSession {
     private Date startTime;
     private RunningEnvironment runningEnvironment;
     private Date endTime;
-    private User user;
+    private Integer userId;
     private BuildDriverResult buildDriverResult;
     private RepositoryManagerResult repositoryManagerResult;
     //keep record of first received failed status
@@ -60,7 +60,7 @@ public class DefaultBuildExecutionSession implements BuildExecutionSession {
     public DefaultBuildExecutionSession(BuildExecutionConfiguration buildExecutionConfiguration, Consumer<BuildExecutionStatusChangedEvent> onBuildExecutionStatusChangedEvent) {
         this.buildExecutionConfiguration = buildExecutionConfiguration;
         this.onBuildExecutionStatusChangedEvent = onBuildExecutionStatusChangedEvent;
-        user = buildExecutionConfiguration.getUser();
+        userId = buildExecutionConfiguration.getUserId();
     }
 
     @Override
@@ -132,8 +132,8 @@ public class DefaultBuildExecutionSession implements BuildExecutionSession {
         }
     }
 
-    public Integer getUserId() {
-        return user.getId();
+    public Integer getUserId() { //TODO why do we need userId ?
+        return userId;
     }
 
     @Override

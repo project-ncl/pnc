@@ -18,49 +18,47 @@
 
 package org.jboss.pnc.spi.executor;
 
-import org.jboss.pnc.model.BuildConfiguration;
-import org.jboss.pnc.model.BuildConfigurationAudited;
-import org.jboss.pnc.model.User;
-import org.jboss.pnc.spi.BuildExecutionStatus;
-import org.jboss.pnc.spi.events.BuildCoordinationStatusChangedEvent;
+import org.jboss.pnc.model.BuildEnvironment;
+import org.jboss.pnc.model.BuildType;
 import org.jboss.pnc.spi.repositorymanager.BuildExecution;
-
-import java.net.URI;
-import java.util.Date;
-import java.util.Optional;
-import java.util.Set;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
 public interface BuildExecutionConfiguration extends BuildExecution {
 
-    BuildConfiguration getBuildConfiguration();
-
-    BuildConfigurationAudited getBuildConfigurationAudited();
-
     int getId();
 
-    User getUser();
+    Integer getUserId();
+
+    String getBuildScript();
+
+    String getName();  //TODO used to be buildConfigurationName
+
+    @Deprecated  //TODO determine this before calling the execution
+    String getScmMirrorRepoURL();
+
+    String getScmRepoURL();
+
+    @Deprecated //TODO determine this before calling the execution
+    String getScmMirrorRevision();
+
+    String getScmRevision();
+
+    BuildType getBuildType();
 
     static BuildExecutionConfiguration build(
             int id,
-            BuildConfiguration buildConfiguration,
-            BuildConfigurationAudited buildConfigurationAudited,
             String buildContentId,
-            String projectName,
-            User user) {
+            Integer userId,
+            String buildScript,
+            String name,
+            String scmRepoURL,
+            String scmRevision,
+            String scmMirrorRepoURL,
+            String scmMirrorRevision,
+            BuildType buildType) {
         return new BuildExecutionConfiguration() {
-
-            @Override
-            public BuildConfiguration getBuildConfiguration() {
-                return buildConfiguration;
-            }
-
-            @Override
-            public BuildConfigurationAudited getBuildConfigurationAudited() {
-                return buildConfigurationAudited;
-            }
 
             @Override
             public int getId() {
@@ -73,14 +71,45 @@ public interface BuildExecutionConfiguration extends BuildExecution {
             }
 
             @Override
-            public String getProjectName() {
-                return projectName;
+            public Integer getUserId() {
+                return userId;
             }
 
             @Override
-            public User getUser() {
-                return user;
+            public String getBuildScript() {
+                return buildScript;
+            }
+
+            @Override
+            public String getName() {
+                return name;
+            }
+
+            @Override
+            public String getScmMirrorRepoURL() {
+                return scmMirrorRepoURL;
+            }
+
+            @Override
+            public String getScmRepoURL() {
+                return scmRepoURL;
+            }
+
+            @Override
+            public String getScmMirrorRevision() {
+                return scmMirrorRevision;
+            }
+
+            @Override
+            public String getScmRevision() {
+                return scmRevision;
+            }
+
+            @Override
+            public BuildType getBuildType() {
+                return buildType;
             }
         };
     }
+
 }

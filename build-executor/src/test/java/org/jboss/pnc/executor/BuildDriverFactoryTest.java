@@ -116,7 +116,6 @@ public class BuildDriverFactoryTest {
         @Override
         public RunningBuild startProjectBuild(
                 BuildExecutionSession currentBuildExecution,
-                BuildConfigurationAudited buildConfiguration,
                 RunningEnvironment runningEnvironment)
                 throws BuildDriverException {
             return null;
@@ -136,7 +135,8 @@ public class BuildDriverFactoryTest {
         }
 
         @Override
-        public RunningBuild startProjectBuild(BuildExecutionSession currentBuildExecution, BuildConfigurationAudited buildConfiguration,
+        public RunningBuild startProjectBuild(
+                BuildExecutionSession currentBuildExecution,
                 RunningEnvironment runningEnvironment)
                 throws BuildDriverException {
             return null;

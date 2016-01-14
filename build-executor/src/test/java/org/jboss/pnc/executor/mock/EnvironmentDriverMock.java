@@ -18,6 +18,7 @@
 package org.jboss.pnc.executor.mock;
 
 import org.jboss.pnc.model.BuildEnvironment;
+import org.jboss.pnc.model.BuildType;
 import org.jboss.pnc.spi.environment.EnvironmentDriver;
 import org.jboss.pnc.spi.environment.RunningEnvironment;
 import org.jboss.pnc.spi.environment.StartedEnvironment;
@@ -41,7 +42,7 @@ public class EnvironmentDriverMock implements EnvironmentDriver {
 
     @Override
     public StartedEnvironment buildEnvironment(
-            BuildEnvironment buildSystemImage,
+            BuildType buildType,
             final RepositorySession repositorySession) throws EnvironmentDriverException {
 
         return new StartedEnvironment() {
@@ -108,7 +109,7 @@ public class EnvironmentDriverMock implements EnvironmentDriver {
     }
 
     @Override
-    public boolean canBuildEnvironment(BuildEnvironment buildSystemImage) {
+    public boolean canBuildEnvironment(BuildType buildType) {
         return true;
     }
 

@@ -25,6 +25,7 @@ import org.jboss.pnc.rest.provider.collection.CollectionInfo;
 import org.jboss.pnc.rest.provider.collection.CollectionInfoCollector;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationAuditedRest;
 import org.jboss.pnc.rest.restmodel.BuildRecordRest;
+import org.jboss.pnc.rest.restmodel.UserRest;
 import org.jboss.pnc.spi.BuildCoordinationStatus;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
 import org.jboss.pnc.spi.datastore.repositories.PageInfoProducer;
@@ -111,7 +112,7 @@ public class BuildRecordProvider extends AbstractProvider<BuildRecord, BuildReco
 
     private BuildRecordRest createNewBuildRecordRest(BuildTask submittedBuild) {
         BuildExecutionSession runningExecution = buildExecutor.getRunningExecution(submittedBuild.getId());
-        User user = submittedBuild.getUser();
+        UserRest user = new UserRest(submittedBuild.getUser());
         if (runningExecution != null) {
             return new BuildRecordRest(runningExecution, submittedBuild.getSubmitTime(), user);
         } else {

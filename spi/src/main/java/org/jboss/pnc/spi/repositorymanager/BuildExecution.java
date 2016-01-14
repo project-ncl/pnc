@@ -26,7 +26,4 @@ public interface BuildExecution {
 
     String getBuildContentId();
 
-    @Deprecated
-    String getProjectName(); //TODO remove, used only for logging
-
 }

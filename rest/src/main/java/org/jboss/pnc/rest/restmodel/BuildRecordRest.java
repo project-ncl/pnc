@@ -133,17 +133,13 @@ public class BuildRecordRest implements GenericRestEntity<Integer> {
                 .map(buildRecordSet -> buildRecordSet.getId()).collect(Collectors.toSet());
     }
 
-    public BuildRecordRest(BuildExecutionSession buildExecutionSession, Date submitTime, User user) {
+    public BuildRecordRest(BuildExecutionSession buildExecutionSession, Date submitTime, UserRest user) {
         this.id = buildExecutionSession.getId();
         this.submitTime = submitTime;
         this.startTime = buildExecutionSession.getStartTime();
         this.endTime = buildExecutionSession.getEndTime();
         BuildExecutionConfiguration buildExecutionConfig = buildExecutionSession.getBuildExecutionConfiguration();
-        if (buildExecutionConfig.getBuildConfigurationAudited() != null) {
-            this.buildConfigurationId = buildExecutionConfig.getBuildConfigurationAudited().getId().getId();
-            this.buildConfigurationName = buildExecutionConfig.getBuildConfigurationAudited().getName();
-            this.buildConfigurationRev = buildExecutionConfig.getBuildConfigurationAudited().getRev();
-        }
+
         // FIXME Why masking i.e. BUILD_WAITING status with BUILDING ?
         this.status = BuildCoordinationStatus.fromBuildExecutionStatus(buildExecutionSession.getStatus());
         buildExecutionSession.getLiveLogsUri().ifPresent(logsUri -> this.liveLogsUri = logsUri.toString());

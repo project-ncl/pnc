@@ -70,11 +70,6 @@ public class TestBuildExecution implements BuildExecution {
         this.buildContentId = buildContentId;
     }
 
-    @Override
-    public String getProjectName() {
-        return projectName;
-    }
-
     public void setProjectName(String projectName) {
         this.projectName = projectName;
     }

@@ -66,13 +66,13 @@ public class TermdBuildDriver implements BuildDriver { //TODO rename class
     }
 
     @Override
-    public RunningBuild startProjectBuild(BuildExecutionSession buildExecutionSession, final BuildConfigurationAudited buildConfiguration,
+    public RunningBuild startProjectBuild(BuildExecutionSession buildExecutionSession,
             final RunningEnvironment runningEnvironment)
             throws BuildDriverException {
 
-        logger.info("[{}] Starting build for Build Configuration {}", runningEnvironment.getId(), buildConfiguration.getId());
+        logger.info("[{}] Starting build for Build Execution Session {}", runningEnvironment.getId(), buildExecutionSession.getId());
 
-        TermdRunningBuild termdRunningBuild = new TermdRunningBuild(runningEnvironment, buildConfiguration);
+        TermdRunningBuild termdRunningBuild = new TermdRunningBuild(runningEnvironment, buildExecutionSession.getBuildExecutionConfiguration());
 
         addScriptDebugOption(termdRunningBuild)
                 .thenCompose(returnedBuildScript -> changeToWorkingDirectory(termdRunningBuild, returnedBuildScript))

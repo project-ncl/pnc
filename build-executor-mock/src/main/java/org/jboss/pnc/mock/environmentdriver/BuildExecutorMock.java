@@ -87,14 +87,15 @@ public class BuildExecutorMock implements BuildExecutor {
     }
 
     private Boolean mockBuild(BuildExecutionSession buildExecutionSession) {
-        String configurationDescription = buildExecutionSession.getBuildExecutionConfiguration().getBuildConfiguration().getDescription();
-        log.debug("Building {} with description [{}].", buildExecutionSession.getId(), configurationDescription);
+        log.debug("Building {}.", buildExecutionSession.getId());
         BuildDriverResult driverResult;
         Boolean buildPassed;
-        if (TestProjectConfigurationBuilder.FAIL.equals(configurationDescription)) {
+        if (TestProjectConfigurationBuilder.FAIL.equals(buildExecutionSession.getBuildExecutionConfiguration().getBuildScript())) {
+            log.debug("Marking build {} as Failed.", buildExecutionSession.getId());
             driverResult = BuildDriverResultMock.mockResult(BuildDriverStatus.FAILED);
             buildPassed = false;
         } else {
+            log.debug("Marking build {} as Success.", buildExecutionSession.getId());
             driverResult = BuildDriverResultMock.mockResult(BuildDriverStatus.SUCCESS);
             buildPassed = true;
         }

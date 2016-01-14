@@ -33,7 +33,9 @@ public interface BuildDriver {
 
     boolean canBuild(BuildType buildType);
 
-    public RunningBuild startProjectBuild(BuildExecutionSession buildExecutionSession, BuildConfigurationAudited buildConfiguration,
-            RunningEnvironment runningEnvironment) throws BuildDriverException;
+    public RunningBuild startProjectBuild(
+            BuildExecutionSession buildExecutionSession,
+            RunningEnvironment runningEnvironment)
+            throws BuildDriverException;
 
 }

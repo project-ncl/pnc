@@ -20,10 +20,8 @@ package org.jboss.pnc.rest.endpoint;
 import org.jboss.pnc.executor.DefaultBuildExecutionConfiguration;
 import org.jboss.pnc.executor.DefaultBuildExecutionSession;
 import org.jboss.pnc.executor.DefaultBuildExecutor;
-import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildRecord;
-import org.jboss.pnc.model.User;
-import org.jboss.pnc.model.mock.MockUser;
+import org.jboss.pnc.model.BuildType;
 import org.jboss.pnc.rest.provider.BuildRecordProvider;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
 import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
@@ -31,9 +29,6 @@ import org.jboss.pnc.spi.executor.BuildExecutionSession;
 import org.jboss.pnc.spi.executor.BuildExecutor;
 import org.junit.Test;
 import org.mockito.Mockito;
-
-import java.util.Date;
-import java.util.Optional;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
@@ -86,26 +81,22 @@ public class BuildRecordEndpointTest {
 
     private BuildExecutor mockBuildExecutor(int buildExecutionTaskId, int buildTaskId) {
         BuildExecutor buildExecutor = mock(DefaultBuildExecutor.class);
-        User user = MockUser.newTestUser(1);
-        BuildConfiguration buildConfiguration = newBuildConfiguration();
 
-//        BuildExecutionTask.build(buildExecutionTaskId, buildConfiguration, null, user, null, null, Optional.ofNullable(null), buildTaskId, new Date());
         BuildExecutionConfiguration buildExecutionConfiguration = new DefaultBuildExecutionConfiguration(
                 buildExecutionTaskId,
-                buildConfiguration,
-                null,
                 "build-content-id",
-                user);
+                1,
+                "",
+                "build-1",
+                "",
+                "",
+                "",
+                "",
+                BuildType.JAVA);
 
         BuildExecutionSession buildExecutionSession = new DefaultBuildExecutionSession(buildExecutionConfiguration, null);
         when(buildExecutor.getRunningExecution(buildExecutionTaskId)).thenReturn(buildExecutionSession);
         return buildExecutor;
     }
 
-    private BuildConfiguration newBuildConfiguration() {
-        BuildConfiguration buildConfiguration = BuildConfiguration.Builder.newBuilder()
-            .name("build-1")
-            .build();
-        return buildConfiguration;
-    }
 }
