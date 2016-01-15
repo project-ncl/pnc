@@ -38,6 +38,7 @@
       scope: {
         items: '=',
         itemId: '=',
+        searchText: '@',
         placeholder: '@',
         infiniteSelectId: '@',
         infiniteSelectName: '@',
@@ -52,8 +53,6 @@
           var PLACEHOLDER = 'Scroll & Filter';
           $scope.placeholder = _.isUndefined($scope.placeholder) ? PLACEHOLDER : $scope.placeholder;
           $scope.infiniteSelectRequired = _.isUndefined($scope.infiniteSelectRequired) ? false : $scope.infiniteSelectRequired;
-
-          //var lastItem = $scope.items.getPageIndex();
 
           $scope.loadOptions = function() {
             if (!$scope.searchText) {
@@ -84,7 +83,6 @@
               $scope.searchText = undefined;
             }
           });
-
         }
       ]
 
