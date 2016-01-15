@@ -22,11 +22,19 @@ import org.jboss.pnc.model.ProductRelease;
 import org.jboss.pnc.model.ProductRelease.SupportLevel;
 import org.jboss.pnc.rest.validation.groups.WhenCreatingNew;
 import org.jboss.pnc.rest.validation.groups.WhenUpdating;
+import java.util.Date;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.Date;
+
+import org.jboss.pnc.model.ProductRelease;
+import org.jboss.pnc.model.ProductRelease.SupportLevel;
+import org.jboss.pnc.rest.validation.groups.WhenCreatingNew;
+import org.jboss.pnc.rest.validation.groups.WhenUpdating;
+
+import io.swagger.annotations.ApiModelProperty;
 
 @XmlRootElement(name = "ProductRelease")
 public class ProductReleaseRest implements GenericRestEntity<Integer> {

@@ -20,11 +20,15 @@ package org.jboss.pnc.rest.restmodel;
 import org.jboss.pnc.model.ProductMilestone;
 import org.jboss.pnc.rest.validation.groups.WhenCreatingNew;
 import org.jboss.pnc.rest.validation.groups.WhenUpdating;
+import java.util.Date;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
 import javax.xml.bind.annotation.XmlRootElement;
-import java.util.Date;
+
+import org.jboss.pnc.model.ProductMilestone;
+import org.jboss.pnc.rest.validation.groups.WhenCreatingNew;
+import org.jboss.pnc.rest.validation.groups.WhenUpdating;
 
 @XmlRootElement(name = "ProductMilestone")
 public class ProductMilestoneRest implements GenericRestEntity<Integer> {
