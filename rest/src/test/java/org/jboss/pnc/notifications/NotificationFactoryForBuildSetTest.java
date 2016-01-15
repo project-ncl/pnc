@@ -34,7 +34,7 @@ public class NotificationFactoryForBuildSetTest {
     public void shouldConvertSuccessfulNotificationEvent() throws Exception {
         //given
         DefaultBuildSetStatusChangedEvent event = new DefaultBuildSetStatusChangedEvent(BuildSetStatus.NEW, BuildSetStatus.DONE, 1,
-                1, 1);
+                1, "BuildSet1", 1);
         NotificationFactory notificationFactory = new DefaultNotificationFactory();
 
         //when
@@ -45,6 +45,7 @@ public class NotificationFactoryForBuildSetTest {
         assertThat(notification.getEventType()).isEqualTo(EventType.BUILD_SET_STATUS_CHANGED);
         assertThat(((BuildSetChangedPayload)notification.getPayload()).getBuildStatus()).isEqualTo(BuildSetStatus.DONE);
         assertThat(((BuildSetChangedPayload)notification.getPayload()).getBuildSetConfigurationId()).isEqualTo(1);
+        assertThat(((BuildSetChangedPayload)notification.getPayload()).getBuildSetConfigurationName()).isEqualTo("BuildSet1");
         assertThat(notification.getPayload()).isNotNull();
         assertThat(notification.getPayload().getId()).isEqualTo(1);
         assertThat(notification.getPayload().getUserId()).isEqualTo(1);

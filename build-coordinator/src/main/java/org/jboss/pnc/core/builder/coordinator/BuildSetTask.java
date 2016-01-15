@@ -89,8 +89,9 @@ public class BuildSetTask {
         BuildSetStatus oldStatus = this.status;
         this.status = status;
         Integer userId = Optional.ofNullable(buildConfigSetRecord.getUser()).map(user -> user.getId()).orElse(null);
-        BuildSetStatusChangedEvent buildSetStatusChangedEvent = new DefaultBuildSetStatusChangedEvent(oldStatus, status, getId(),
-                buildConfigSetRecord.getBuildConfigurationSet().getId(), userId);
+        BuildSetStatusChangedEvent buildSetStatusChangedEvent = new DefaultBuildSetStatusChangedEvent(oldStatus, status,
+                getId(), buildConfigSetRecord.getBuildConfigurationSet().getId(),
+                buildConfigSetRecord.getBuildConfigurationSet().getName(), userId);
         buildSetStatusChangedEventNotifier.fire(buildSetStatusChangedEvent);
     }
 
@@ -101,7 +102,7 @@ public class BuildSetTask {
      */
     void taskStatusUpdated(BuildStatusChangedEvent buildStatusChangedEvent) {
         // If any of the build tasks have failed or all are complete, then the build set is done
-        if(buildTasks.stream().anyMatch(bt -> bt.getStatus().hasFailed())) {
+        if (buildTasks.stream().anyMatch(bt -> bt.getStatus().hasFailed())) {
             log.debug("Marking build set as FAILED as one or more tasks failed.");
             if (log.isDebugEnabled()) {
                 logTasksStatus(buildTasks);
@@ -116,7 +117,8 @@ public class BuildSetTask {
     }
 
     private void logTasksStatus(Set<BuildTask> buildTasks) {
-        String taskStatuses = buildTasks.stream().map(bt -> "TaskId " + bt.getId() + ":" + bt.getStatus()).collect(Collectors.joining("; "));
+        String taskStatuses = buildTasks.stream().map(bt -> "TaskId " + bt.getId() + ":" + bt.getStatus())
+                .collect(Collectors.joining("; "));
         log.debug("Tasks statuses: {}", taskStatuses);
     }
 
@@ -173,8 +175,8 @@ public class BuildSetTask {
     }
 
     /**
-     * The product milestone during which this set of builds is executed.
-     * Will be null if this build set is not associated with any milestone.
+     * The product milestone during which this set of builds is executed. Will be null if this build set is not associated with
+     * any milestone.
      */
     public ProductMilestone getProductMilestone() {
         return productMilestone;

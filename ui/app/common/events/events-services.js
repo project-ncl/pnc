@@ -111,7 +111,7 @@
           adaptors.push({
             supports: function (event) {
               return event.eventType === 'BUILD_SET_STATUS_CHANGED' &&
-                _(['id', 'buildStatus', 'userId', 'buildSetConfigurationId'])
+                _(['id', 'buildStatus', 'userId', 'buildSetConfigurationId', 'buildSetConfigurationName'])
                   .every(function(e) { return _.has(event.payload, e); });
             },
             convert: function (event) {

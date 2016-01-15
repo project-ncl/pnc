@@ -34,5 +34,7 @@ public interface BuildSetStatusChangedEvent {
     Integer getBuildSetTaskId();
     Integer getUserId();
     Integer getBuildSetConfigurationId();
+    String getBuildSetConfigurationName();
+
 
 }
