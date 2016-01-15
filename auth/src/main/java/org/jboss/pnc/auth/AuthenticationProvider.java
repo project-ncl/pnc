@@ -17,18 +17,17 @@
  */
 package org.jboss.pnc.auth;
 
-import java.util.HashSet;
-import java.util.Set;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.core.SecurityContext;
-
 import org.jboss.logging.Logger;
 import org.jboss.resteasy.spi.HttpRequest;
 import org.keycloak.KeycloakPrincipal;
 import org.keycloak.KeycloakSecurityContext;
 import org.keycloak.representations.AccessToken;
 import org.keycloak.representations.AccessTokenResponse;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.core.SecurityContext;
+import java.util.HashSet;
+import java.util.Set;
 
 
 

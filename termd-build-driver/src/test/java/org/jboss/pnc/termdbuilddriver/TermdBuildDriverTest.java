@@ -24,7 +24,6 @@ import org.jboss.pnc.spi.builddriver.CompletedBuild;
 import org.jboss.pnc.spi.builddriver.RunningBuild;
 import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
 import org.jboss.pnc.spi.executor.BuildExecutionSession;
-import org.jboss.pnc.spi.repositorymanager.BuildExecution;
 import org.jboss.pnc.termdbuilddriver.commands.InvocatedCommandResult;
 import org.jboss.pnc.termdbuilddriver.commands.TermdCommandBatchExecutionResult;
 import org.jboss.pnc.termdbuilddriver.commands.TermdCommandExecutionException;
@@ -32,14 +31,14 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import java.net.URI;
 import java.util.Arrays;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
 
 public class TermdBuildDriverTest extends AbstractLocalBuildAgentTest {
 

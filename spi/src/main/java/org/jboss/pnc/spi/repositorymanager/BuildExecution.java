@@ -17,9 +17,6 @@
  */
 package org.jboss.pnc.spi.repositorymanager;
 
-import java.net.URI;
-import java.util.Optional;
-
 public interface BuildExecution {
 
     int getId();

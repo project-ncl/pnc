@@ -18,17 +18,10 @@
 
 package org.jboss.pnc.rest.restmodel;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonSubTypes;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.jboss.pnc.spi.BuildResult;
-import org.jboss.pnc.spi.builddriver.BuildDriverResult;
-import org.jboss.pnc.spi.builddriver.BuildDriverStatus;
 import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
 import org.jboss.pnc.spi.executor.exceptions.ExecutorException;
-import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import java.io.IOException;

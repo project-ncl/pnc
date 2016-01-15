@@ -17,8 +17,8 @@
  */
 package org.jboss.pnc.executor.servicefactories;
 
-import org.jboss.pnc.spi.executor.exceptions.ExecutorException;
 import org.jboss.pnc.model.RepositoryType;
+import org.jboss.pnc.spi.executor.exceptions.ExecutorException;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManager;
 
 import javax.enterprise.context.ApplicationScoped;

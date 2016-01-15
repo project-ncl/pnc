@@ -18,8 +18,6 @@
 package org.jboss.pnc.mavenrepositorymanager;
 
 import org.commonjava.aprox.folo.client.AproxFoloContentClientModule;
-import org.commonjava.aprox.model.core.Group;
-import org.commonjava.aprox.model.core.StoreKey;
 import org.commonjava.aprox.model.core.StoreType;
 import org.jboss.pnc.mavenrepositorymanager.fixture.TestBuildExecution;
 import org.jboss.pnc.model.Artifact;

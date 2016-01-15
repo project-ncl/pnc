@@ -17,7 +17,6 @@
  */
 package org.jboss.pnc.mock.environmentdriver;
 
-import org.jboss.pnc.model.BuildEnvironment;
 import org.jboss.pnc.model.BuildType;
 import org.jboss.pnc.spi.environment.EnvironmentDriver;
 import org.jboss.pnc.spi.environment.RunningEnvironment;
@@ -26,7 +25,6 @@ import org.jboss.pnc.spi.environment.exception.EnvironmentDriverException;
 import org.jboss.pnc.spi.repositorymanager.model.RepositorySession;
 
 import javax.enterprise.context.ApplicationScoped;
-
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;

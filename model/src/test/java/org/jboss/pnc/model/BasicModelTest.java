@@ -17,9 +17,11 @@
  */
 package org.jboss.pnc.model;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Set;
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Assert;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -32,12 +34,9 @@ import javax.validation.ConstraintViolationException;
 import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
-
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Set;
 
 public class BasicModelTest {
 

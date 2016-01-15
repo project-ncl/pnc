@@ -20,7 +20,6 @@ package org.jboss.pnc.mavenrepositorymanager.fixture;
 import org.jboss.pnc.spi.repositorymanager.BuildExecution;
 
 import java.net.URI;
-import java.util.Optional;
 
 public class TestBuildExecution implements BuildExecution {
 

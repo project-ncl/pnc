@@ -21,7 +21,6 @@ import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildRecord;
-import org.jboss.pnc.model.ProductVersion;
 import org.jboss.pnc.model.User;
 
 import java.util.Set;

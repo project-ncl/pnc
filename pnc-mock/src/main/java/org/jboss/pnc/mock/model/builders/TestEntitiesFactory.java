@@ -18,10 +18,7 @@
 
 package org.jboss.pnc.mock.model.builders;
 
-import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationSet;
-import org.jboss.pnc.model.BuildEnvironment;
-import org.jboss.pnc.model.Project;
 import org.jboss.pnc.model.User;
 
 /**

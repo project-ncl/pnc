@@ -18,7 +18,6 @@
 package org.jboss.pnc.processes.util;
 
 import org.jboss.logging.Logger;
-
 import org.kie.api.runtime.process.WorkItem;
 import org.kie.api.runtime.process.WorkItemHandler;
 import org.kie.api.runtime.process.WorkItemManager;

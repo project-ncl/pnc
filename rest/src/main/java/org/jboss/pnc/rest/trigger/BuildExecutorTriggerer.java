@@ -19,15 +19,7 @@
 package org.jboss.pnc.rest.trigger;
 
 import org.jboss.logging.Logger;
-import org.jboss.pnc.core.content.ContentIdentityManager;
-import org.jboss.pnc.executor.DefaultBuildExecutionConfiguration;
-import org.jboss.pnc.model.BuildConfiguration;
-import org.jboss.pnc.model.BuildConfigurationAudited;
-import org.jboss.pnc.model.IdRev;
-import org.jboss.pnc.model.User;
 import org.jboss.pnc.rest.utils.BpmNotifier;
-import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationAuditedRepository;
-import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationRepository;
 import org.jboss.pnc.spi.events.BuildExecutionStatusChangedEvent;
 import org.jboss.pnc.spi.exception.CoreException;
 import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;

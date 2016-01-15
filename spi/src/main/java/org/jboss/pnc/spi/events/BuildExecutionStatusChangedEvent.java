@@ -20,7 +20,6 @@ package org.jboss.pnc.spi.events;
 
 import org.jboss.pnc.spi.BuildExecutionStatus;
 import org.jboss.pnc.spi.BuildResult;
-import org.jboss.pnc.spi.executor.BuildExecutionSession;
 
 import java.util.Optional;
 

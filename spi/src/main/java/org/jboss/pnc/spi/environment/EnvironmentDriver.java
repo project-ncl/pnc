@@ -17,7 +17,6 @@
  */
 package org.jboss.pnc.spi.environment;
 
-import org.jboss.pnc.model.BuildEnvironment;
 import org.jboss.pnc.model.BuildType;
 import org.jboss.pnc.spi.environment.exception.EnvironmentDriverException;
 import org.jboss.pnc.spi.repositorymanager.model.RepositorySession;

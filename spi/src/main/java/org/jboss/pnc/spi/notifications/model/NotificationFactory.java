@@ -17,8 +17,8 @@
  */
 package org.jboss.pnc.spi.notifications.model;
 
-import org.jboss.pnc.spi.events.BuildSetStatusChangedEvent;
 import org.jboss.pnc.spi.events.BuildCoordinationStatusChangedEvent;
+import org.jboss.pnc.spi.events.BuildSetStatusChangedEvent;
 
 public interface NotificationFactory {
     Notification createNotification(BuildCoordinationStatusChangedEvent event);

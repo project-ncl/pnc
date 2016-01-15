@@ -18,8 +18,8 @@
 package org.jboss.pnc.rest.restmodel;
 
 import io.swagger.annotations.ApiModelProperty;
-import org.jboss.pnc.model.BuildType;
 import org.jboss.pnc.model.BuildEnvironment;
+import org.jboss.pnc.model.BuildType;
 import org.jboss.pnc.rest.validation.groups.WhenCreatingNew;
 import org.jboss.pnc.rest.validation.groups.WhenUpdating;
 

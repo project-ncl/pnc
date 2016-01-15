@@ -17,9 +17,6 @@
  */
 package org.jboss.pnc.mavenrepositorymanager;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.Assert.assertThat;
-
 import org.commonjava.aprox.client.core.util.UrlUtils;
 import org.commonjava.aprox.model.core.StoreType;
 import org.jboss.pnc.mavenrepositorymanager.fixture.TestBuildExecution;
@@ -31,6 +28,9 @@ import org.junit.Test;
 
 import java.io.File;
 import java.util.List;
+
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.junit.Assert.assertThat;
 
 public class ImportDepVerifyPromotionToSharedImportsTest extends AbstractImportTest {
 

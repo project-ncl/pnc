@@ -18,7 +18,6 @@
 
 package org.jboss.pnc.rest.restmodel;
 
-import io.swagger.annotations.ApiModelProperty;
 import org.jboss.pnc.spi.builddriver.BuildDriverResult;
 import org.jboss.pnc.spi.builddriver.BuildDriverStatus;
 import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;

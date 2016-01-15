@@ -23,9 +23,8 @@ import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.ProductMilestone;
 import org.jboss.pnc.spi.BuildSetStatus;
-import org.jboss.pnc.spi.datastore.DatastoreException;
-import org.jboss.pnc.spi.events.BuildSetStatusChangedEvent;
 import org.jboss.pnc.spi.events.BuildCoordinationStatusChangedEvent;
+import org.jboss.pnc.spi.events.BuildSetStatusChangedEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

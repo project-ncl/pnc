@@ -18,7 +18,6 @@
 
 package org.jboss.pnc.rest.serialization;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.jboss.pnc.executor.DefaultBuildExecutionConfiguration;
 import org.jboss.pnc.model.BuildType;
 import org.jboss.pnc.rest.notifications.websockets.JSonOutputConverter;

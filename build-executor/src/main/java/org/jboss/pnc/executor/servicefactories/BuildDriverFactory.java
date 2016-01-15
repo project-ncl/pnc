@@ -22,9 +22,9 @@ import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
 import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
 import org.jboss.pnc.common.util.StringUtils;
-import org.jboss.pnc.spi.executor.exceptions.ExecutorException;
 import org.jboss.pnc.model.BuildType;
 import org.jboss.pnc.spi.builddriver.BuildDriver;
+import org.jboss.pnc.spi.executor.exceptions.ExecutorException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

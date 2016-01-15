@@ -17,25 +17,23 @@
  */
 package org.jboss.pnc.rest.restmodel;
 
-import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
-import static org.jboss.pnc.rest.utils.Utility.performIfNotNull;
-
-import java.util.Date;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Null;
-import javax.validation.constraints.Pattern;
-import javax.xml.bind.annotation.XmlRootElement;
-
+import io.swagger.annotations.ApiModelProperty;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildStatus;
 import org.jboss.pnc.model.ProductVersion;
 import org.jboss.pnc.rest.validation.groups.WhenCreatingNew;
 import org.jboss.pnc.rest.validation.groups.WhenUpdating;
 
-import io.swagger.annotations.ApiModelProperty;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Null;
+import javax.validation.constraints.Pattern;
+import javax.xml.bind.annotation.XmlRootElement;
+import java.util.Date;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
+import static org.jboss.pnc.rest.utils.Utility.performIfNotNull;
 
 @XmlRootElement(name = "Configuration")
 public class BuildConfigurationRest implements GenericRestEntity<Integer> {

@@ -18,7 +18,6 @@
 package org.jboss.pnc.spi.builddriver;
 
 import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
-import org.jboss.pnc.spi.environment.RunningEnvironment;
 
 import java.io.Serializable;
 

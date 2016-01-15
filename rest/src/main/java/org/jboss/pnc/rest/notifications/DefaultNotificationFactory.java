@@ -17,9 +17,13 @@
  */
 package org.jboss.pnc.rest.notifications;
 
-import org.jboss.pnc.spi.events.BuildSetStatusChangedEvent;
 import org.jboss.pnc.spi.events.BuildCoordinationStatusChangedEvent;
-import org.jboss.pnc.spi.notifications.model.*;
+import org.jboss.pnc.spi.events.BuildSetStatusChangedEvent;
+import org.jboss.pnc.spi.notifications.model.BuildChangedPayload;
+import org.jboss.pnc.spi.notifications.model.BuildSetChangedPayload;
+import org.jboss.pnc.spi.notifications.model.EventType;
+import org.jboss.pnc.spi.notifications.model.Notification;
+import org.jboss.pnc.spi.notifications.model.NotificationFactory;
 
 import javax.enterprise.context.ApplicationScoped;
 

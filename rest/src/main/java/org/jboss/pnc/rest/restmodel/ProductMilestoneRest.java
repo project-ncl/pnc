@@ -17,10 +17,7 @@
  */
 package org.jboss.pnc.rest.restmodel;
 
-import org.jboss.pnc.model.BuildRecordSet;
 import org.jboss.pnc.model.ProductMilestone;
-import org.jboss.pnc.model.ProductRelease;
-import org.jboss.pnc.model.ProductVersion;
 import org.jboss.pnc.rest.validation.groups.WhenCreatingNew;
 import org.jboss.pnc.rest.validation.groups.WhenUpdating;
 

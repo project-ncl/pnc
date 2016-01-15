@@ -18,9 +18,6 @@
 
 package org.jboss.pnc.rest.configuration;
 
-import org.jboss.pnc.rest.restmodel.response.Page;
-import org.jboss.pnc.rest.restmodel.response.Singleton;
-
 /**
  * Constants for Swagger documentation API.
  *

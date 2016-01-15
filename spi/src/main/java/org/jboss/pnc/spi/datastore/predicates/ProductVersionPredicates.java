@@ -18,8 +18,6 @@
 package org.jboss.pnc.spi.datastore.predicates;
 
 import org.jboss.pnc.model.BuildConfiguration;
-import org.jboss.pnc.model.BuildConfigurationSet;
-import org.jboss.pnc.model.BuildConfigurationSet_;
 import org.jboss.pnc.model.BuildConfiguration_;
 import org.jboss.pnc.model.Product;
 import org.jboss.pnc.model.ProductVersion;

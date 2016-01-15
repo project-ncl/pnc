@@ -17,7 +17,6 @@
  */
 package org.jboss.pnc.core.content;
 
-import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.ProductVersion;
 
 import java.text.SimpleDateFormat;

@@ -17,10 +17,6 @@
  */
 package org.jboss.pnc.mavenrepositorymanager;
 
-import static org.apache.commons.lang.StringUtils.join;
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.Assert.assertThat;
-
 import org.commonjava.aprox.client.core.Aprox;
 import org.commonjava.aprox.model.core.Group;
 import org.commonjava.aprox.model.core.StoreKey;
@@ -29,6 +25,10 @@ import org.jboss.pnc.mavenrepositorymanager.fixture.TestBuildExecution;
 import org.jboss.pnc.spi.repositorymanager.BuildExecution;
 import org.jboss.pnc.spi.repositorymanager.model.RepositorySession;
 import org.junit.Test;
+
+import static org.apache.commons.lang.StringUtils.join;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.junit.Assert.assertThat;
 
 public class BuildGroupIncludesProductVersionGroupTest extends AbstractRepositoryManagerDriverTest {
 

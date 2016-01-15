@@ -18,9 +18,8 @@
 package org.jboss.pnc.executor.servicefactories;
 
 import org.jboss.pnc.model.BuildType;
-import org.jboss.pnc.spi.executor.exceptions.ExecutorException;
-import org.jboss.pnc.model.BuildEnvironment;
 import org.jboss.pnc.spi.environment.EnvironmentDriver;
+import org.jboss.pnc.spi.executor.exceptions.ExecutorException;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Instance;

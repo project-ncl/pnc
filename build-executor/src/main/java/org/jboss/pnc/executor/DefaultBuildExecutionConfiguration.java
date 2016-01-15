@@ -18,11 +18,7 @@
 
 package org.jboss.pnc.executor;
 
-import org.jboss.pnc.model.BuildConfiguration;
-import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildType;
-import org.jboss.pnc.model.Project;
-import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

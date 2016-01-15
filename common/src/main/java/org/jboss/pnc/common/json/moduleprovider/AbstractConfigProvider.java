@@ -17,13 +17,12 @@
  */
 package org.jboss.pnc.common.json.moduleprovider;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.jboss.pnc.common.json.AbstractModuleConfig;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.jsontype.NamedType;
+import org.jboss.pnc.common.json.AbstractModuleConfig;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author <a href="mailto:pslegr@redhat.com">pslegr</a> on Aug 21, 2015

@@ -18,7 +18,6 @@
 
 package org.jboss.pnc.spi.executor;
 
-import org.jboss.pnc.model.BuildEnvironment;
 import org.jboss.pnc.model.BuildType;
 import org.jboss.pnc.spi.repositorymanager.BuildExecution;
 

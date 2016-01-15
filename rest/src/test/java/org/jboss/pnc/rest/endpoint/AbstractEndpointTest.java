@@ -24,7 +24,6 @@ import org.jboss.pnc.rest.restmodel.BuildConfigurationRest;
 import org.junit.Test;
 
 import javax.ws.rs.core.Response;
-
 import java.util.Arrays;
 import java.util.Collections;
 

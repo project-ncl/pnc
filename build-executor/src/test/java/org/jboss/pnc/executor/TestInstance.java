@@ -20,7 +20,11 @@ package org.jboss.pnc.executor;
 import javax.enterprise.inject.Instance;
 import javax.enterprise.util.TypeLiteral;
 import java.lang.annotation.Annotation;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
 import java.util.stream.Collectors;
 
 public class TestInstance<T> implements Instance<T> {

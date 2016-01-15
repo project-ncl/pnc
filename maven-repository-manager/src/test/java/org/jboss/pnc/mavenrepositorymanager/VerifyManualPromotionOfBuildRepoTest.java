@@ -17,10 +17,6 @@
  */
 package org.jboss.pnc.mavenrepositorymanager;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
-
 import org.commonjava.aprox.folo.client.AproxFoloContentClientModule;
 import org.commonjava.aprox.model.core.Group;
 import org.commonjava.aprox.model.core.StoreKey;
@@ -37,6 +33,10 @@ import org.junit.Test;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.util.List;
+
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 
 public class VerifyManualPromotionOfBuildRepoTest extends AbstractRepositoryManagerDriverTest {
 

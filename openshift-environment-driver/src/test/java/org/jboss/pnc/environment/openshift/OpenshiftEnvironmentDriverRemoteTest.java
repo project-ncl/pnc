@@ -21,9 +21,7 @@ import com.openshift.internal.restclient.DefaultClient;
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.monitor.PullingMonitor;
 import org.jboss.pnc.common.util.ObjectWrapper;
-import org.jboss.pnc.model.BuildEnvironment;
 import org.jboss.pnc.model.BuildType;
-import org.jboss.pnc.model.OperationalSystem;
 import org.jboss.pnc.model.RepositoryType;
 import org.jboss.pnc.spi.environment.EnvironmentDriver;
 import org.jboss.pnc.spi.environment.RunningEnvironment;
@@ -48,9 +46,7 @@ import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 

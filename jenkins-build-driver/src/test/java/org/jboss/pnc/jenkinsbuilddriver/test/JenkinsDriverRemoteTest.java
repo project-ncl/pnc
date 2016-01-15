@@ -49,7 +49,6 @@ import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 
 import javax.inject.Inject;
-
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;

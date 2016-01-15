@@ -26,11 +26,10 @@ import javax.websocket.Endpoint;
 import javax.websocket.EndpointConfig;
 import javax.websocket.MessageHandler;
 import javax.websocket.Session;
-
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
-import static javax.websocket.CloseReason.*;
+import static javax.websocket.CloseReason.CloseCodes;
 
 /**
 * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>

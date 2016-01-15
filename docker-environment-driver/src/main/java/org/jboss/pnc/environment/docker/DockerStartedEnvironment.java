@@ -19,7 +19,6 @@ package org.jboss.pnc.environment.docker;
 
 import org.jboss.pnc.common.monitor.PullingMonitor;
 import org.jboss.pnc.common.util.HttpUtils;
-import org.jboss.pnc.common.util.ObjectWrapper;
 import org.jboss.pnc.spi.environment.RunningEnvironment;
 import org.jboss.pnc.spi.environment.StartedEnvironment;
 import org.jboss.pnc.spi.environment.exception.EnvironmentDriverException;
@@ -29,9 +28,6 @@ import org.slf4j.LoggerFactory;
 
 import java.lang.invoke.MethodHandles;
 import java.nio.file.Path;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
 /**

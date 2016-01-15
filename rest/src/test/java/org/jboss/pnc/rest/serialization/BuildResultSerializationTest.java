@@ -18,7 +18,6 @@
 
 package org.jboss.pnc.rest.serialization;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.jboss.pnc.mock.spi.BuildResultMock;
 import org.jboss.pnc.rest.notifications.websockets.JSonOutputConverter;
 import org.jboss.pnc.rest.restmodel.BuildResultRest;

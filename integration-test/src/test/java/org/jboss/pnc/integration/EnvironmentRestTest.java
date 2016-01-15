@@ -33,7 +33,6 @@ import org.jboss.pnc.integration.deployments.Deployments;
 import org.jboss.pnc.integration.utils.AuthResource;
 import org.jboss.pnc.integration.utils.ResponseUtils;
 import org.jboss.pnc.model.BuildType;
-import org.jboss.pnc.model.OperationalSystem;
 import org.jboss.pnc.rest.endpoint.BuildEnvironmentEndpoint;
 import org.jboss.pnc.rest.provider.BuildEnvironmentProvider;
 import org.jboss.pnc.rest.restmodel.BuildEnvironmentRest;
