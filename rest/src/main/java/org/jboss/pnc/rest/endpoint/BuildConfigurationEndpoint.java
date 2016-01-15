@@ -120,8 +120,6 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
     private BuildRecordProvider buildRecordProvider;
     private ProductVersionProvider productVersionProvider;
     private Datastore datastore;
-    private BpmNotifier bpmNotifier;
-    private HibernateLazyInitializer hibernateLazyInitializer;
 
     @Context
     private HttpServletRequest httpServletRequest;
@@ -136,18 +134,14 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
             BuildTriggerer buildTriggerer,
             BuildRecordProvider buildRecordProvider,
             ProductVersionProvider productVersionProvider,
-            Datastore datastore,
-            BpmNotifier bpmNotifier,
-            HibernateLazyInitializer hibernateLazyInitializer,
-            BuildCoordinator buildCoordinator) {
+            Datastore datastore) {
+
         super(buildConfigurationProvider);
         this.buildConfigurationProvider = buildConfigurationProvider;
         this.buildTriggerer = buildTriggerer;
         this.buildRecordProvider = buildRecordProvider;
         this.productVersionProvider = productVersionProvider;
         this.datastore = datastore;
-        this.bpmNotifier = bpmNotifier;
-        this.hibernateLazyInitializer = hibernateLazyInitializer;
     }
 
     @ApiOperation(value = "Gets all Build Configurations")

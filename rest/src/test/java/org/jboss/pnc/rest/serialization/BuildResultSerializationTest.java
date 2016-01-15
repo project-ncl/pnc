@@ -49,31 +49,15 @@ public class BuildResultSerializationTest {
         String buildResultJson = converter.apply(buildResultRest);
         log.debug("BuildResultJson : {}", buildResultJson);
 
-        ObjectMapper mapper = new ObjectMapper();
-        BuildResultRest buildResultRestFromJson = mapper.readValue(buildResultJson, BuildResultRest.class);
+        BuildResultRest buildResultRestFromJson = new BuildResultRest(buildResultJson);
         BuildResult buildResultFromJson = buildResultRestFromJson.toBuildResult();
-        Assert.assertTrue("Deserialized object does not match the original.", resultsEquals(buildResult, buildResultFromJson));
-    }
+        String message = "Deserialized object does not match the original.";
 
-    private boolean resultsEquals(BuildResult buildResult, BuildResult buildResultFromJson) throws BuildDriverException {
-        if (buildResult.hasFailed() != buildResultFromJson.hasFailed()) {
-            return false;
-        }
-        if (!buildResult.getException().get().getMessage().equals(buildResultFromJson.getException().get().getMessage())) {
-            return false;
-        }
-        if (!buildResult.getRepositoryManagerResult().get().getBuildContentId().equals(buildResultFromJson.getRepositoryManagerResult().get().getBuildContentId())) {
-            return false;
-        }
-        if (!buildResult.getRepositoryManagerResult().get().getBuiltArtifacts().get(0).getId().equals(buildResultFromJson.getRepositoryManagerResult().get().getBuiltArtifacts().get(0).getId())) {
-            return false;
-        }
-        if (!buildResult.getBuildDriverResult().get().getBuildLog().equals(buildResultFromJson.getBuildDriverResult().get().getBuildLog())) {
-            return false;
-        }
-        if (!buildResult.getBuildDriverResult().get().getBuildDriverStatus().equals(buildResultFromJson.getBuildDriverResult().get().getBuildDriverStatus())) {
-            return false;
-        }
-        return true;
+        Assert.assertEquals(message, buildResult.hasFailed(), buildResultFromJson.hasFailed());
+        Assert.assertEquals(message, buildResult.getException().get().getMessage(), buildResultFromJson.getException().get().getMessage());
+        Assert.assertEquals(message, buildResult.getRepositoryManagerResult().get().getBuildContentId(), buildResultFromJson.getRepositoryManagerResult().get().getBuildContentId());
+        Assert.assertEquals(message, buildResult.getRepositoryManagerResult().get().getBuiltArtifacts().get(0).getId(), buildResultFromJson.getRepositoryManagerResult().get().getBuiltArtifacts().get(0).getId());
+        Assert.assertEquals(message, buildResult.getBuildDriverResult().get().getBuildLog(), buildResultFromJson.getBuildDriverResult().get().getBuildLog());
+        Assert.assertEquals(message, buildResult.getBuildDriverResult().get().getBuildDriverStatus(), buildResultFromJson.getBuildDriverResult().get().getBuildDriverStatus());
     }
 }

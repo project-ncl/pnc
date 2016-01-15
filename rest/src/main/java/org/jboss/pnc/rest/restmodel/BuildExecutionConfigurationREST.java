@@ -18,16 +18,24 @@
 
 package org.jboss.pnc.rest.restmodel;
 
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.swagger.annotations.ApiModelProperty;
+import org.jboss.pnc.executor.DefaultBuildExecutionConfiguration;
 import org.jboss.pnc.model.BuildType;
 import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
 
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
+import java.io.IOException;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
 @XmlRootElement(name = "buildExecutionConfiguration")
-public class BuildExecutionConfigurationREST implements BuildExecutionConfiguration {
+public class BuildExecutionConfigurationREST {
 
     private int id;
     private String buildContentId;
@@ -38,10 +46,57 @@ public class BuildExecutionConfigurationREST implements BuildExecutionConfigurat
     private String scmRepoURL;
     private String scmMirrorRevision;
     private String scmRevision;
+
     private BuildType buildType;
 
-    public BuildExecutionConfigurationREST() {
+    public BuildExecutionConfigurationREST() {}
+
+    public BuildExecutionConfigurationREST(String serialized) throws IOException {
+        ObjectMapper mapper = new ObjectMapper();
+        BuildExecutionConfigurationREST buildExecutionConfigurationRestFromJson = mapper.readValue(serialized, BuildExecutionConfigurationREST.class);
+        BuildExecutionConfiguration buildExecutionConfiguration = buildExecutionConfigurationRestFromJson.toBuildExecutionConfiguration();
+
+        id = buildExecutionConfiguration.getId();
+        buildContentId = buildExecutionConfiguration.getBuildContentId();
+        buildScript = buildExecutionConfiguration.getBuildScript();
+        name = buildExecutionConfiguration.getName();
+        scmMirrorRepoURL = buildExecutionConfiguration.getScmMirrorRepoURL();
+        scmRepoURL = buildExecutionConfiguration.getScmRepoURL();
+        scmMirrorRevision = buildExecutionConfiguration.getScmMirrorRevision();
+        scmRevision = buildExecutionConfiguration.getScmRevision();
+        buildType = buildExecutionConfiguration.getBuildType();
+        user = new UserRest(buildExecutionConfiguration.getUserId()); //TODO other user fields
+
     }
+
+    public BuildExecutionConfigurationREST(BuildExecutionConfiguration buildExecutionConfiguration) {
+        id = buildExecutionConfiguration.getId();
+        buildContentId = buildExecutionConfiguration.getBuildContentId();
+        buildScript = buildExecutionConfiguration.getBuildScript();
+        name = buildExecutionConfiguration.getName();
+        scmMirrorRepoURL = buildExecutionConfiguration.getScmMirrorRepoURL();
+        scmRepoURL = buildExecutionConfiguration.getScmRepoURL();
+        scmMirrorRevision = buildExecutionConfiguration.getScmMirrorRevision();
+        scmRevision = buildExecutionConfiguration.getScmRevision();
+        buildType = buildExecutionConfiguration.getBuildType();
+        user = new UserRest(buildExecutionConfiguration.getUserId()); //TODO other user fields
+    }
+
+    public BuildExecutionConfiguration toBuildExecutionConfiguration() {
+        return new DefaultBuildExecutionConfiguration(
+                id,
+                buildContentId,
+                user.getId(),
+                buildScript,
+                name,
+                scmMirrorRepoURL,
+                scmRepoURL,
+                scmMirrorRevision,
+                scmRevision,
+                buildType
+        );
+    }
+
 
     public void setId(int id) {
         this.id = id;
@@ -75,52 +130,38 @@ public class BuildExecutionConfigurationREST implements BuildExecutionConfigurat
         this.scmRevision = scmRevision;
     }
 
-    @Override
     public int getId() {
         return id;
     }
 
-    @Override
-    public Integer getUserId() {
-        return user.getId();
-    }
-
-    @Override
     public String getBuildContentId() {
         return buildContentId;
     }
 
-    @Override
     public String getBuildScript() {
         return buildScript;
     }
 
-    @Override
     public String getName() {
         return name;
     }
 
-    @Override
     public String getScmMirrorRepoURL() {
         return scmMirrorRepoURL;
     }
 
-    @Override
     public String getScmRepoURL() {
         return scmRepoURL;
     }
 
-    @Override
     public String getScmMirrorRevision() {
         return scmMirrorRevision;
     }
 
-    @Override
     public String getScmRevision() {
         return scmRevision;
     }
 
-    @Override
     public BuildType getBuildType() {
         return buildType;
     }
@@ -136,4 +177,5 @@ public class BuildExecutionConfigurationREST implements BuildExecutionConfigurat
     public void setBuildType(BuildType buildType) {
         this.buildType = buildType;
     }
+
 }

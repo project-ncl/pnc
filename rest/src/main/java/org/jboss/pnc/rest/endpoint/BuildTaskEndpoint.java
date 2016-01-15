@@ -27,6 +27,7 @@ import org.jboss.pnc.auth.AuthenticationProvider;
 import org.jboss.pnc.core.builder.coordinator.bpm.BpmCompleteListener;
 import org.jboss.pnc.rest.restmodel.BuildExecutionConfigurationREST;
 import org.jboss.pnc.rest.restmodel.BuildRecordRest;
+import org.jboss.pnc.rest.restmodel.BuildResultRest;
 import org.jboss.pnc.rest.restmodel.response.Singleton;
 import org.jboss.pnc.rest.trigger.BuildExecutorTriggerer;
 import org.jboss.pnc.spi.BuildResult;
@@ -88,10 +89,10 @@ public class BuildTaskEndpoint {
     @Path("/{taskId}/completed")
     public Response buildTaskCompleted(
             @ApiParam(value = "Build task id", required = true) @PathParam("taskId") Integer taskId,
-            @ApiParam(value = "Build result", required = true) @FormParam("buildResult") BuildResult buildResult) {
+            @ApiParam(value = "Build result", required = true) @FormParam("buildResult") BuildResultRest buildResult) {
         logger.debug("Received task completed notification for coordinating task id [{}].", taskId);
 
-        bpmCompleteListener.notifyCompleted(taskId, buildResult);
+        bpmCompleteListener.notifyCompleted(taskId, buildResult.toBuildResult());
         return Response.ok().build();
     }
 
@@ -137,7 +138,7 @@ public class BuildTaskEndpoint {
                 return Response.status(Response.Status.FORBIDDEN).build();
             }
 
-            BuildExecutionSession buildExecutionSession = buildExecutorTriggerer.executeBuild(buildExecutionConfiguration, callbackUrl);
+            BuildExecutionSession buildExecutionSession = buildExecutorTriggerer.executeBuild(buildExecutionConfiguration.toBuildExecutionConfiguration(), callbackUrl);
 
             UriBuilder uriBuilder = UriBuilder.fromUri(uriInfo.getBaseUri()).path("/result/running/{id}");
             URI uri = uriBuilder.build(buildExecutionConfiguration.getId());

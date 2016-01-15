@@ -52,6 +52,10 @@ public class UserRest implements GenericRestEntity<Integer> {
         this.username = user.getUsername();
     }
 
+    public UserRest(Integer id) {
+        this.id = id;
+    }
+
     @Override
     public Integer getId() {
         return id;

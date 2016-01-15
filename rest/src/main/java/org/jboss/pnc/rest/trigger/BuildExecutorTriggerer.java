@@ -48,10 +48,11 @@ public class BuildExecutorTriggerer {
 
     private BpmNotifier bpmNotifier;
 
+    @Deprecated //CDI workaround
+    public BuildExecutorTriggerer() {}
+
     public BuildExecutorTriggerer(
             BuildExecutor buildExecutor,
-            BuildConfigurationRepository buildConfigurationRepository,
-            BuildConfigurationAuditedRepository buildConfigurationAuditedRepository,
             BpmNotifier bpmNotifier) {
         this.buildExecutor = buildExecutor;
         this.bpmNotifier = bpmNotifier;
