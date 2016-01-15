@@ -21,6 +21,7 @@ import org.jboss.pnc.model.*;
 import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
 
 import javax.persistence.criteria.Join;
+import javax.persistence.criteria.SetJoin;
 
 /**
  * Predicates for {@link org.jboss.pnc.model.BuildConfigurationSet} entity.
@@ -40,5 +41,12 @@ public class BuildConfigurationSetPredicates {
 
     public static Predicate<BuildConfigurationSet> withName(String name) {
         return (root, query, cb) -> cb.equal(root.get(BuildConfigurationSet_.name), name);
+    }
+
+    public static Predicate<BuildConfigurationSet> withBuildConfigurationId(Integer buildConfigurationId) {
+        return (root, query, cb) -> {
+            SetJoin<BuildConfigurationSet, BuildConfiguration> buildConfigsJoin = root.join(BuildConfigurationSet_.buildConfigurations);
+            return cb.equal(buildConfigsJoin.get(BuildConfiguration_.id), buildConfigurationId);
+        };
     }
 }
