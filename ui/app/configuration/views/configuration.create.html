@@ -32,12 +32,8 @@
                 * Project
               </label>
               <div class="col-sm-10">
-                <select name="projectId" ng-model="createCtrl.data.project.id" required>
-                  <option value="">Select a Project</option>
-                  <option ng-repeat="project in createCtrl.projects" value="{{ project.id }}">
-                    {{ project.name }}
-                  </option>
-                </select>
+                <pnc-infinite-select infinite-select-required="true" infinite-select-id="input-project" infinite-select-name="projectId" placeholder="Scroll & Filter Projects..." 
+                    items="createCtrl.projects" item-id="createCtrl.data.project.id"></pnc-infinite-select>
                 <span class="help-block" ng-show="configurationForm.projectId.$error.required && !configurationForm.projectId.$pristine">Required field.</span>
               </div>
             </div>

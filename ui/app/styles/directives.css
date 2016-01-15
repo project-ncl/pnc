@@ -1,0 +1,65 @@
+/**
+ * JBoss, Home of Professional Open Source.
+ * Copyright 2014 Red Hat, Inc., and individual contributors
+ * as indicated by the @author tags.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+/**
+ * pnc-infinite-select
+ */
+.pnc-infinite-select {
+	width: 260px;
+}
+
+.pnc-infinite-select .dropdown-wrap {
+	position: absolute;
+	z-index: 99;
+	max-height: 120px; 
+	min-width: 260px;
+	overflow-y: scroll; 
+	background-color: white;
+
+    background-color: #ffffff;
+    border: 1px solid #b6b6b6;
+    border-radius: 1px;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175);
+    background-clip: padding-box;
+}
+
+.pnc-infinite-select .dropdown-list {
+	margin: 0;
+	padding: 0;
+	list-style-type: none;
+}
+
+.pnc-infinite-select .dropdown-item {
+	margin: 0;
+	font-size: 12px;
+	padding: 2px 5px;
+	border-width: 1px 0;
+	border-style: solid;
+	border-color: transparent;
+}
+
+.pnc-infinite-select .dropdown-item:hover {
+	cursor: pointer;
+	background-color: #0099d3;
+    border-color: #0076b7;
+    color: white;
+}
+
+.pnc-infinite-select .input-text {
+	width: 100%;
+}
