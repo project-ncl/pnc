@@ -17,8 +17,18 @@
  */
 'use strict';
 
+// DEFAULT PARAMETERS
 var LIVERELOAD_PORT = 35729;
-var PROXY_HOST = 'localhost';
+var DEFAULT_PROXY_CONFIG_FILE = './proxy-profiles.json';
+var DEFAULT_PROXY_PROFILE = {
+  'default': {
+      context: '/pnc-rest/rest',
+      host: 'localhost',
+      port: 8080,
+      ws: true
+  }
+};
+
 
 module.exports = function (grunt) {
 
@@ -33,8 +43,7 @@ module.exports = function (grunt) {
     app: require('./bower.json').appPath || 'app',
     dist: 'dist',
     lib: 'bower_components',
-    tmp: '.tmp',
-    proxyHost: PROXY_HOST
+    tmp: '.tmp'
   };
 
   /**
@@ -42,38 +51,33 @@ module.exports = function (grunt) {
    * Proxy is needed to avoid 'cross-origin resource sharing' (CORS) restriction.
    * See README.md for more details.
    */
-  grunt.registerTask('initRestConfig', function () {
+  grunt.registerTask('initCORSProxy', function () {
 
-    var DEFAULT_REST_CONFIG = {
-      endpointsLocalhost: PROXY_HOST
-    };
-
-    var REST_CONFIG_FILE_PATH = './rest-config.json';
-
-    var restConfig;
-
-    if (grunt.file.exists(REST_CONFIG_FILE_PATH)) {
-      restConfig = grunt.file.readJSON(REST_CONFIG_FILE_PATH);
-    } else {
-      grunt.file.write(REST_CONFIG_FILE_PATH, JSON.stringify(DEFAULT_REST_CONFIG, null, '\t'));
-      restConfig = DEFAULT_REST_CONFIG;
+    if (!grunt.file.exists(DEFAULT_PROXY_CONFIG_FILE)) {
+      grunt.file.write(DEFAULT_PROXY_CONFIG_FILE, JSON.stringify(DEFAULT_PROXY_PROFILE, null, '\t'));
     }
 
-    var target = grunt.option('target') || 'endpointsLocalhost';
+    var proxyProfiles = grunt.file.readJSON(DEFAULT_PROXY_CONFIG_FILE);
+    var target = grunt.option('target') || 'default';
 
-    var restUrl = restConfig[target];
+    var selectedProfiles = target.split(',');
+    var config = [];
 
-    if (typeof restUrl !== 'string' || restUrl.length === 0) {
-      grunt.fatal('URL of REST endpoint for target \'' + target +
-      '\' is undefined or invalid in \'' + REST_CONFIG_FILE_PATH + '\'.');
-    }
+    selectedProfiles.forEach(function(profile) {
+      if(proxyProfiles[profile] === undefined) {
+        grunt.fatal('Unknown CORS proxy profile: "' + profile +
+            '" - please check your desired profile exists in: ' +
+            DEFAULT_PROXY_CONFIG_FILE);
+      }
 
-    grunt.config('connect.proxies', [{
-      context: '/pnc-rest/rest',
-      host: restUrl,
-      port: 8080,
-      ws: true
-    }]);
+      if (Array.isArray(profile)) {
+        config = config.concat(proxyProfiles[profile]);
+      } else {
+        config.push(proxyProfiles[profile]);
+      }
+    });
+
+    grunt.config('connect.proxies', config);
   });
 
   // Define the configuration for all the tasks
@@ -138,7 +142,7 @@ module.exports = function (grunt) {
         hostname: 'localhost',
         livereload: LIVERELOAD_PORT
       },
-      proxies: [/* This value is set by initRestConfig task. */],
+      proxies: [/* This value is set by initCORSProxy task. */],
       livereload: {
         options: {
           open: true,
@@ -506,7 +510,7 @@ module.exports = function (grunt) {
     }
 
     grunt.task.run([
-      'initRestConfig',
+      'initCORSProxy',
       'clean:server',
       'wiredep',
       'includeSource:server',
@@ -525,7 +529,7 @@ module.exports = function (grunt) {
   });
 
   grunt.registerTask('test', [
-    'initRestConfig',
+    'initCORSProxy',
     'clean:server',
     'concurrent:test',
     'autoprefixer',
@@ -534,7 +538,7 @@ module.exports = function (grunt) {
   ]);
 
   grunt.registerTask('build', [
-    'initRestConfig',
+    'initCORSProxy',
     'clean:dist',
     'copy:fonts',
     'wiredep',
