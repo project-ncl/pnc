@@ -89,15 +89,14 @@
                 * Environment
               </label>
               <div class="col-sm-10">
-                <select id="input-environment" name="environmentId" ng-model="createCtrl.data.environment.id" required>
-                  <option value="">Select an Environment</option>
-                  <option ng-repeat="environment in createCtrl.environments" value="{{ environment.id }}">
-                    {{ environment.name }}
-                  </option>
-                </select>
+                <pnc-infinite-select 
+                    infinite-select-required="true" infinite-select-id="input-environment" 
+                    infinite-select-name="environmentId" placeholder="Scroll & Filter Environments..." 
+                    items="createCtrl.environments" item-id="createCtrl.data.environment.id"></pnc-infinite-select>
                 <span class="help-block" ng-show="configurationForm.environmentId.$error.required && !configurationForm.environmentId.$pristine">Required field.</span>
               </div>
             </div>
+
           </div>
         </div>
 
@@ -116,7 +115,8 @@
             <div class="form-group">
               <label for="input-product-versions" class="col-sm-2 control-label">Product Versions</label>
               <div class="col-sm-10 col-md-4" ng-show="createCtrl.products.selected">
-                <pnc-select selected-items="createCtrl.productVersions.selected" additional-display-items-by-id="createCtrl.allProductNamesMaps" display-property="version" query="createCtrl.productVersions.getItems($viewValue)" placeholder="Enter product version..."></pnc-select>
+                <pnc-select selected-items="createCtrl.productVersions.selected" additional-display-items-by-id="createCtrl.allProductNamesMaps" display-property="version" 
+                query="createCtrl.productVersions.getItems($viewValue)" placeholder="Enter product version..."></pnc-select>
               </div>
             </div>
 
@@ -128,7 +128,33 @@
             <div class="form-group">
               <label for="input-dependencies" class="col-sm-2 control-label">Dependencies</label>
               <div class="col-sm-10 col-md-4">
-                <pnc-select selected-items="createCtrl.dependencies.selected" display-property="name" query="createCtrl.dependencies.getItems($viewValue)" placeholder="Enter dependency name..."></pnc-select>
+
+                <pnc-infinite-select-list
+                    selected-items="createCtrl.dependencies.selected"
+                    infinite-select-required="false"
+                    infinite-select-id="input-dependencies"
+                    infinite-select-name="depsId"
+                    placeholder="Scroll & Filter Dependencies..."
+                    items="createCtrl.configurations"></pnc-infinite-select-list>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <div class="panel panel-default">
+          <div class="panel-body">
+            <div class="form-group">
+              <label for="input-build-group-configs" class="col-sm-2 control-label">Build Group Configs</label>
+              <div class="col-sm-10 col-md-4">
+
+                <pnc-infinite-select-list
+                    selected-items="createCtrl.buildgroupconfigs.selected"
+                    infinite-select-required="false"
+                    infinite-select-id="input-build-group-configs"
+                    infinite-select-name="bgConfigId"
+                    placeholder="Scroll & Filter Build Group Configs..."
+                    items="createCtrl.configurationSetList"></pnc-infinite-select-list>
               </div>
             </div>
 
