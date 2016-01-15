@@ -81,6 +81,10 @@
           method: 'GET',
           url: ENDPOINT + '/dependencies'
         },
+        _getConfigurationSets: {
+            method: 'GET',
+            url: ENDPOINT + '/build-configuration-sets'
+          },
         _getAllForProduct: {
           method: 'GET',
           url: REST_BASE_URL + '/build-configurations/products/:productId'
@@ -100,6 +104,7 @@
       PageFactory.decorateNonPaged(resource, '_getBuildRecords', 'getBuildRecords');
       PageFactory.decorateNonPaged(resource, '_getProductVersions', 'getProductVersions');
       PageFactory.decorateNonPaged(resource, '_getDependencies', 'getDependencies');
+      PageFactory.decorateNonPaged(resource, '_getConfigurationSets', 'getConfigurationSets');
       PageFactory.decorateNonPaged(resource, '_getAllForProduct', 'getAllForProduct');
       PageFactory.decorateNonPaged(resource, '_getByProductVersion', 'getAllForProductVersion');
       PageFactory.decorateNonPaged(resource, '_getByProject', 'getAllForProject');
