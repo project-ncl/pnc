@@ -17,7 +17,6 @@
  */
 package org.jboss.pnc.rest.notifications.websockets;
 
-import org.jboss.pnc.rest.provider.BuildRecordProvider;
 import org.jboss.pnc.spi.events.BuildCoordinationStatusChangedEvent;
 import org.jboss.pnc.spi.events.BuildSetStatusChangedEvent;
 import org.jboss.pnc.spi.notifications.Notifier;
@@ -52,9 +51,6 @@ public class NotificationsEndpoint {
 
     @Inject
     private Notifier notifier;
-
-    @Inject
-    private BuildRecordProvider buildRecordProvider;
 
     @Inject
     private NotificationFactory notificationFactory;

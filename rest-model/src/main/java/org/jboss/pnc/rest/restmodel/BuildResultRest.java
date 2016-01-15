@@ -19,6 +19,7 @@
 package org.jboss.pnc.rest.restmodel;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.jboss.pnc.rest.utils.JsonOutputConverterMapper;
 import org.jboss.pnc.spi.BuildResult;
 import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
 import org.jboss.pnc.spi.executor.exceptions.ExecutorException;
@@ -98,4 +99,8 @@ public class BuildResultRest implements Serializable {
         this.exception = exception;
     }
 
+    @Override
+    public String toString() {
+        return JsonOutputConverterMapper.apply(this);
+    }
 }

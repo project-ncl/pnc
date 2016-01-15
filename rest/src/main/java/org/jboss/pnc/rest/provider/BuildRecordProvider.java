@@ -115,7 +115,13 @@ public class BuildRecordProvider extends AbstractProvider<BuildRecord, BuildReco
         if (runningExecution != null) {
             return new BuildRecordRest(runningExecution, submittedBuild.getSubmitTime(), user);
         } else {
-            return new BuildRecordRest(submittedBuild);
+            return new BuildRecordRest(
+                    submittedBuild.getId(),
+                    submittedBuild.getStatus(),
+                    submittedBuild.getSubmitTime(),
+                    submittedBuild.getStartTime(),
+                    submittedBuild.getEndTime(),
+                    new UserRest(submittedBuild.getUser()));
         }
     }
 

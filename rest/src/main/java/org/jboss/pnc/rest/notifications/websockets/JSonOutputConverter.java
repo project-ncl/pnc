@@ -17,31 +17,13 @@
  */
 package org.jboss.pnc.rest.notifications.websockets;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import org.jboss.pnc.rest.utils.JsonOutputConverterMapper;
 import org.jboss.pnc.spi.notifications.OutputConverter;
 
-import javax.enterprise.context.ApplicationScoped;
-
-@ApplicationScoped
 public class JSonOutputConverter implements OutputConverter {
-
-    private ObjectMapper mapper = new ObjectMapper();
-
-    public JSonOutputConverter() {
-        mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-    }
 
     @Override
     public String apply(Object objectToBeConverted) {
-        if(objectToBeConverted != null) {
-            try {
-                return mapper.writeValueAsString(objectToBeConverted);
-            } catch (JsonProcessingException e) {
-                throw new IllegalArgumentException("Could not convert object to JSON", e);
-            }
-        }
-        return "{}";
+        return JsonOutputConverterMapper.apply(objectToBeConverted);
     }
 }

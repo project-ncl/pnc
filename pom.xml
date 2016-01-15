@@ -61,6 +61,7 @@
     <module>build-executor-mock</module>
     <module>model</module>
     <module>rest</module>
+    <module>rest-model</module>
     <module>spi</module>
     <module>ui</module>
     <module>web</module>
@@ -267,6 +268,12 @@
       <dependency>
         <groupId>org.jboss.pnc</groupId>
         <artifactId>model</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jboss.pnc</groupId>
+        <artifactId>rest-model</artifactId>
         <version>${project.version}</version>
       </dependency>
 

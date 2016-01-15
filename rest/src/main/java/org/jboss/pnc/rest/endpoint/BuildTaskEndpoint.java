@@ -25,7 +25,7 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.jboss.pnc.auth.AuthenticationProvider;
 import org.jboss.pnc.core.builder.coordinator.bpm.BpmCompleteListener;
-import org.jboss.pnc.rest.restmodel.BuildExecutionConfigurationREST;
+import org.jboss.pnc.rest.restmodel.BuildExecutionConfigurationRest;
 import org.jboss.pnc.rest.restmodel.BuildRecordRest;
 import org.jboss.pnc.rest.restmodel.BuildResultRest;
 import org.jboss.pnc.rest.restmodel.response.Singleton;
@@ -105,7 +105,7 @@ public class BuildTaskEndpoint {
     public Response build(
             @ApiParam(value = "Build Execution Configuration. See org.jboss.pnc.spi.executor.BuildExecutionConfiguration.", required = true)
             @FormParam("buildExecutionConfiguration")
-            BuildExecutionConfigurationREST buildExecutionConfiguration,
+            BuildExecutionConfigurationRest buildExecutionConfiguration,
             @ApiParam(value = "Username who triggered the build. If empty current user is used.", required = false)
             @FormParam("usernameTriggered")
             String usernameTriggered,

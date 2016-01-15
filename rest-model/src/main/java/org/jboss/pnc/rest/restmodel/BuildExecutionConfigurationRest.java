@@ -19,8 +19,8 @@
 package org.jboss.pnc.rest.restmodel;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.jboss.pnc.executor.DefaultBuildExecutionConfiguration;
 import org.jboss.pnc.model.BuildType;
+import org.jboss.pnc.rest.utils.JsonOutputConverterMapper;
 import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
 
 import javax.xml.bind.annotation.XmlRootElement;
@@ -30,7 +30,7 @@ import java.io.IOException;
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
 @XmlRootElement(name = "buildExecutionConfiguration")
-public class BuildExecutionConfigurationREST {
+public class BuildExecutionConfigurationRest {
 
     private int id;
     private String buildContentId;
@@ -44,11 +44,11 @@ public class BuildExecutionConfigurationREST {
 
     private BuildType buildType;
 
-    public BuildExecutionConfigurationREST() {}
+    public BuildExecutionConfigurationRest() {}
 
-    public BuildExecutionConfigurationREST(String serialized) throws IOException {
+    public BuildExecutionConfigurationRest(String serialized) throws IOException {
         ObjectMapper mapper = new ObjectMapper();
-        BuildExecutionConfigurationREST buildExecutionConfigurationRestFromJson = mapper.readValue(serialized, BuildExecutionConfigurationREST.class);
+        BuildExecutionConfigurationRest buildExecutionConfigurationRestFromJson = mapper.readValue(serialized, BuildExecutionConfigurationRest.class);
         BuildExecutionConfiguration buildExecutionConfiguration = buildExecutionConfigurationRestFromJson.toBuildExecutionConfiguration();
 
         id = buildExecutionConfiguration.getId();
@@ -60,11 +60,11 @@ public class BuildExecutionConfigurationREST {
         scmMirrorRevision = buildExecutionConfiguration.getScmMirrorRevision();
         scmRevision = buildExecutionConfiguration.getScmRevision();
         buildType = buildExecutionConfiguration.getBuildType();
-        user = new UserRest(buildExecutionConfiguration.getUserId()); //TODO other user fields
+        user = new UserRest(buildExecutionConfiguration.getUserId());
 
     }
 
-    public BuildExecutionConfigurationREST(BuildExecutionConfiguration buildExecutionConfiguration) {
+    public BuildExecutionConfigurationRest(BuildExecutionConfiguration buildExecutionConfiguration) {
         id = buildExecutionConfiguration.getId();
         buildContentId = buildExecutionConfiguration.getBuildContentId();
         buildScript = buildExecutionConfiguration.getBuildScript();
@@ -74,20 +74,20 @@ public class BuildExecutionConfigurationREST {
         scmMirrorRevision = buildExecutionConfiguration.getScmMirrorRevision();
         scmRevision = buildExecutionConfiguration.getScmRevision();
         buildType = buildExecutionConfiguration.getBuildType();
-        user = new UserRest(buildExecutionConfiguration.getUserId()); //TODO other user fields
+        user = new UserRest(buildExecutionConfiguration.getUserId());
     }
 
     public BuildExecutionConfiguration toBuildExecutionConfiguration() {
-        return new DefaultBuildExecutionConfiguration(
+        return BuildExecutionConfiguration.build(
                 id,
                 buildContentId,
                 user.getId(),
                 buildScript,
                 name,
-                scmMirrorRepoURL,
                 scmRepoURL,
-                scmMirrorRevision,
                 scmRevision,
+                scmMirrorRepoURL,
+                scmMirrorRevision,
                 buildType
         );
     }
@@ -173,4 +173,8 @@ public class BuildExecutionConfigurationREST {
         this.buildType = buildType;
     }
 
+    @Override
+    public String toString() {
+        return JsonOutputConverterMapper.apply(this);
+    }
 }

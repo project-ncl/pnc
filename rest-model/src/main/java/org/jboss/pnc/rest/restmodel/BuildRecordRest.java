@@ -18,10 +18,7 @@
 package org.jboss.pnc.rest.restmodel;
 
 import io.swagger.annotations.ApiModelProperty;
-import org.jboss.pnc.core.builder.coordinator.BuildTask;
-import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildRecord;
-import org.jboss.pnc.model.User;
 import org.jboss.pnc.rest.validation.groups.WhenCreatingNew;
 import org.jboss.pnc.rest.validation.groups.WhenUpdating;
 import org.jboss.pnc.spi.BuildCoordinationStatus;
@@ -150,22 +147,14 @@ public class BuildRecordRest implements GenericRestEntity<Integer> {
         this.buildContentId = buildExecutionConfig.getBuildContentId();
     }
 
-    public BuildRecordRest(BuildTask buildCoordinationTask) {
-        this.id = buildCoordinationTask.getId();
-        this.submitTime = buildCoordinationTask.getSubmitTime();
-        this.startTime = buildCoordinationTask.getStartTime();
-        this.endTime = buildCoordinationTask.getEndTime();
+    public BuildRecordRest(Integer id, BuildCoordinationStatus buildCoordinationStatus, Date submitTime, Date startTime, Date endTime, UserRest user) {
+        this.id = id;
+        this.submitTime = submitTime;
+        this.startTime = startTime;
+        this.endTime = endTime;
 
-        BuildConfigurationAudited buildConfigurationAudited = buildCoordinationTask.getBuildConfigurationAudited();
+        this.status = buildCoordinationStatus;
 
-        if (buildConfigurationAudited != null) {
-            this.buildConfigurationId = buildConfigurationAudited.getId().getId();
-            this.buildConfigurationName = buildConfigurationAudited.getName();
-            this.buildConfigurationRev = buildConfigurationAudited.getRev();
-        }
-        this.status = buildCoordinationTask.getStatus();
-
-        User user = buildCoordinationTask.getUser();
         this.userId = user.getId();
         this.username = user.getUsername();
     }

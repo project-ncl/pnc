@@ -16,11 +16,10 @@
  * limitations under the License.
  */
 
-package org.jboss.pnc.rest.serialization;
+package org.jboss.pnc.restmodel.serialization;
 
 import org.jboss.pnc.mock.spi.BuildResultMock;
 import org.jboss.pnc.rest.restmodel.BuildResultRest;
-import org.jboss.pnc.rest.notifications.websockets.JSonOutputConverter;
 import org.jboss.pnc.spi.BuildResult;
 import org.jboss.pnc.spi.builddriver.BuildDriverStatus;
 import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
@@ -44,8 +43,7 @@ public class BuildResultSerializationTest {
         BuildResult buildResult = BuildResultMock.mock(BuildDriverStatus.SUCCESS);
         BuildResultRest buildResultRest = new BuildResultRest(buildResult);
 
-        JSonOutputConverter converter = new JSonOutputConverter();
-        String buildResultJson = converter.apply(buildResultRest);
+        String buildResultJson = buildResultRest.toString();
         log.debug("BuildResultJson : {}", buildResultJson);
 
         BuildResultRest buildResultRestFromJson = new BuildResultRest(buildResultJson);

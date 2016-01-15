@@ -16,12 +16,10 @@
  * limitations under the License.
  */
 
-package org.jboss.pnc.rest.serialization;
+package org.jboss.pnc.restmodel.serialization;
 
-import org.jboss.pnc.executor.DefaultBuildExecutionConfiguration;
 import org.jboss.pnc.model.BuildType;
 import org.jboss.pnc.rest.restmodel.BuildExecutionConfigurationRest;
-import org.jboss.pnc.rest.notifications.websockets.JSonOutputConverter;
 import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
 import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
 import org.junit.Assert;
@@ -40,7 +38,7 @@ public class BuildExecutionConfigurationTest {
     @Test
     public void serializeAndDeserializeBuildResult() throws IOException, BuildDriverException {
 
-        BuildExecutionConfiguration buildExecutionConfiguration = new  DefaultBuildExecutionConfiguration(
+        BuildExecutionConfiguration buildExecutionConfiguration = BuildExecutionConfiguration.build(
                 1,
                 "condent-id",
                 1,
@@ -54,8 +52,7 @@ public class BuildExecutionConfigurationTest {
         );
         BuildExecutionConfigurationRest buildExecutionConfigurationREST = new BuildExecutionConfigurationRest(buildExecutionConfiguration);
 
-        JSonOutputConverter converter = new JSonOutputConverter();
-        String buildExecutionConfigurationJson = converter.apply(buildExecutionConfigurationREST);
+        String buildExecutionConfigurationJson = buildExecutionConfigurationREST.toString();
         log.debug("Json : {}", buildExecutionConfigurationJson);
 
         BuildExecutionConfigurationRest buildExecutionConfigurationRestFromJson = new BuildExecutionConfigurationRest(buildExecutionConfigurationJson);

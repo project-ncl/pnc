@@ -32,14 +32,12 @@ public interface BuildExecutionConfiguration extends BuildExecution {
 
     String getBuildScript();
 
-    String getName();  //TODO used to be buildConfigurationName
+    String getName();  //used to be buildConfiguration.name
 
-    @Deprecated  //TODO determine this before calling the execution
     String getScmMirrorRepoURL();
 
     String getScmRepoURL();
 
-    @Deprecated //TODO determine this before calling the execution
     String getScmMirrorRevision();
 
     String getScmRevision();

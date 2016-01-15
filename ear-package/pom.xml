@@ -76,6 +76,10 @@
     </dependency>
     <dependency>
       <groupId>org.jboss.pnc</groupId>
+      <artifactId>rest-model</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.pnc</groupId>
       <artifactId>rest</artifactId>
       <type>war</type>
     </dependency>
@@ -159,6 +163,12 @@
             <jarModule>
               <groupId>org.jboss.pnc</groupId>
               <artifactId>model</artifactId>
+              <includeInApplicationXml>true</includeInApplicationXml>
+              <bundleDir>/</bundleDir>
+            </jarModule>
+            <jarModule>
+              <groupId>org.jboss.pnc</groupId>
+              <artifactId>rest-model</artifactId>
               <includeInApplicationXml>true</includeInApplicationXml>
               <bundleDir>/</bundleDir>
             </jarModule>
