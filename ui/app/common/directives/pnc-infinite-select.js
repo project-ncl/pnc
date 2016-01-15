@@ -76,7 +76,15 @@
           $scope.search = _.throttle(function() {
             $scope.items.search($scope.searchText);
           }, 1500);
-          
+
+          // When resetting the forms, itemId is reset because it's bound in the form via the 'item-id' property, but 'searchText' is not.
+          // This makes sure the 'searchText' is reset also, to avoid refreshing problems
+          $scope.$watch('itemId', function(newValue) {
+            if (_.isUndefined(newValue)) {
+              $scope.searchText = undefined;
+            }
+          });
+
         }
       ]
 
