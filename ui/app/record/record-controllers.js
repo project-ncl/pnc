@@ -59,15 +59,23 @@
         return artifact.status === 'BINARY_BUILT';
       });
 
-      this.importedArtifacts = _.filter(this.artifacts,function(artifact) {
+      $log.debug('RecordOutputController >> builtArtifacts: %O', JSON.stringify(this.builtArtifacts));
+    }
+  ]);
+
+  module.controller('RecordDependenciesController', [
+    '$log',
+    'artifacts',
+    function($log, artifacts) {
+      this.artifacts = artifacts;
+
+      this.downloadedArtifacts = _.filter(this.artifacts,function(artifact) {
         return artifact.status === 'BINARY_IMPORTED';
       });
 
-      $log.debug('RecordOutputController >> builtArtifacts: %O', JSON.stringify(this.builtArtifacts));
-      $log.debug('RecordOutputController >> importedArtifacts: %O', JSON.stringify(this.importedArtifacts));
-
-    }
-  ]);
+      $log.debug('RecordOutputController >> downloadedArtifacts: %O', JSON.stringify(this.downloadedArtifacts));
+   }
+ ]);
 
 
   module.controller('RecordListController', [

@@ -114,6 +114,23 @@
         }
       });
 
+      $stateProvider.state('record.detail.dependencies', {
+          url: '/dependencies',
+          controller: 'RecordDependenciesController',
+          controllerAs: 'depsCtrl',
+          templateUrl: 'record/views/record.detail.dependencies.html',
+          data: {
+            displayName: '{{ recordDetail.id }}',
+          },
+          resolve: {
+            artifacts: function (BuildRecordDAO, recordDetail) {
+              return BuildRecordDAO.getArtifacts({
+                recordId: recordDetail.id
+              });
+            }
+          }
+        });
+
       $stateProvider.state('record.list', {
         url: '',
         templateUrl: 'record/views/record.list.html',

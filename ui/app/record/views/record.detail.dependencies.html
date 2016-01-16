@@ -19,11 +19,11 @@
 -->
 <div>
   <div class="page-header">
-    <h1>Built Artifacts</h1>
+    <h1>Downloaded Artifacts</h1>
   </div>
 
   <div>
-    <input ng-model="searchBuiltText" placeholder="Filter built artifacts...">
+    <input ng-model="searchDownloadedText" placeholder="Filter downloaded artifacts...">
   </div>
   <table class="table table-bordered table-striped">
     <thead>
@@ -32,7 +32,7 @@
       <th>Actions</th>
     </thead>
     <tbody>
-      <tr ng-repeat="artifact in outputCtrl.builtArtifacts | filter:searchBuiltText">
+      <tr ng-repeat="artifact in depsCtrl.downloadedArtifacts | filter:searchDownloadedText">
         <td>{{ artifact.identifier }}</td>
         <td>{{ artifact.filename }}</td>
         <td class="text-center"><a ng-href="{{ artifact.deployUrl }}" target="_self" class="btn btn-primary">Download</a></td>
