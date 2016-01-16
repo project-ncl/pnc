@@ -32,7 +32,7 @@ import java.util.stream.Collectors;
 
 @ApplicationScoped
 public class BuildStatusNotifications {
-    private Set<BuildCallBack> subscribers = new HashSet<>();
+    private final Set<BuildCallBack> subscribers = new HashSet<>();
 
     /**
      * Subscriber is automatically removed once task reaches completed state.
@@ -50,12 +50,8 @@ public class BuildStatusNotifications {
 
         Set<BuildCallBack> matchingTasks = subscribers.stream().filter(filterSubscribersMatchingTaskId).collect(Collectors.toSet());
 
-        matchingTasks.forEach((buildCallBack) -> {
-            removeListenersOfCompletedTasks(buildCallBack, buildStatusChangedEvent);
-        });
-        matchingTasks.forEach((buildCallBack) -> {
-            buildCallBack.callback(buildStatusChangedEvent);
-        });
+        matchingTasks.forEach((buildCallBack) -> removeListenersOfCompletedTasks(buildCallBack, buildStatusChangedEvent));
+        matchingTasks.forEach((buildCallBack) -> buildCallBack.callback(buildStatusChangedEvent));
     }
 
     private void removeListenersOfCompletedTasks(BuildCallBack buildCallBack, BuildCoordinationStatusChangedEvent buildStatusChangedEvent) {

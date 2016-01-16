@@ -25,7 +25,7 @@ import java.util.function.Consumer;
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
-public class BpmListener {
+class BpmListener {
     private final long taskId;
     private final Consumer<BuildResult> onComplete;
 

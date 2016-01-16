@@ -37,7 +37,7 @@ public class BuildSetStatusNotifications {
 
     private static final Logger log = LoggerFactory.getLogger(BuildSetStatusNotifications.class);
 
-    private Set<BuildSetCallBack> subscribers = new HashSet<>();
+    private final Set<BuildSetCallBack> subscribers = new HashSet<>();
 
     /**
      * Subscriber is automatically removed once task reaches completed state.
@@ -63,9 +63,7 @@ public class BuildSetStatusNotifications {
             buildSetCallBack.callback(buildSetStatusChangedEvent);
         });
 
-        matchingTask.forEach((buildSetCallBack) -> {
-            removeListenersOfCompletedTasks(buildSetCallBack, buildSetStatusChangedEvent);
-        });
+        matchingTask.forEach((buildSetCallBack) -> removeListenersOfCompletedTasks(buildSetCallBack, buildSetStatusChangedEvent));
     }
 
     private void removeListenersOfCompletedTasks(BuildSetCallBack buildSetCallBack, BuildSetStatusChangedEvent buildSetStatusChangedEvent) {

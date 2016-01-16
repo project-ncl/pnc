@@ -18,6 +18,7 @@
 package org.jboss.pnc.core.builder.datastore;
 
 import org.jboss.logging.Logger;
+import org.jboss.pnc.core.BuildCoordinationException;
 import org.jboss.pnc.core.builder.coordinator.BuildTask;
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.BuildConfigSetRecord;
@@ -70,10 +71,20 @@ public class DatastoreAdapter {
         return datastore.getLatestBuildConfigurationAudited(buildConfigurationId);
     }
 
-    public BuildRecord storeResult(BuildTask buildTask, BuildResult buildResult) throws DatastoreException {
+    public void storeResult(BuildTask buildTask, BuildResult buildResult) throws DatastoreException {
         try {
-            BuildDriverResult buildDriverResult = buildResult.getBuildDriverResult().get(); //TODO can be null ?
-            RepositoryManagerResult repositoryManagerResult = buildResult.getRepositoryManagerResult().get();  //TODO can be null ?
+            if (!buildResult.getBuildDriverResult().isPresent()) {
+                storeResult(buildTask, new BuildCoordinationException("Trying to store success build with incomplete result. Missing BuildDriverResult."));
+                return;
+            }
+
+            if (!buildResult.getRepositoryManagerResult().isPresent()) {
+                storeResult(buildTask, new BuildCoordinationException("Trying to store success build with incomplete result. Missing RepositoryManagerResult."));
+                return;
+            }
+
+            BuildDriverResult buildDriverResult = buildResult.getBuildDriverResult().get();
+            RepositoryManagerResult repositoryManagerResult = buildResult.getRepositoryManagerResult().get();
 
             BuildRecord buildRecord = createBuildRecord(buildTask, Optional.of(repositoryManagerResult.getBuildContentId()));
 
@@ -81,16 +92,13 @@ public class DatastoreAdapter {
             buildRecord.setBuildLog(buildDriverResult.getBuildLog());
             buildRecord.setStatus(buildDriverResult.getBuildDriverStatus().toBuildStatus());
 
-            // Repository manager results, it's null in case of failed build
-            if (repositoryManagerResult != null) {
-                linkArtifactsWithBuildRecord(repositoryManagerResult.getBuiltArtifacts(), buildRecord);
-                buildRecord.setBuiltArtifacts(repositoryManagerResult.getBuiltArtifacts());
-                linkArtifactsWithBuildRecord(repositoryManagerResult.getDependencies(), buildRecord);
-                buildRecord.setDependencies(repositoryManagerResult.getDependencies());
-            }
+            linkArtifactsWithBuildRecord(repositoryManagerResult.getBuiltArtifacts(), buildRecord);
+            buildRecord.setBuiltArtifacts(repositoryManagerResult.getBuiltArtifacts());
+            linkArtifactsWithBuildRecord(repositoryManagerResult.getDependencies(), buildRecord);
+            buildRecord.setDependencies(repositoryManagerResult.getDependencies());
 
             log.debugf("Storing results of buildTask [%s] to datastore.", buildTask.getId());
-            return datastore.storeCompletedBuild(buildRecord, buildTask.getBuildRecordSetIds());
+            datastore.storeCompletedBuild(buildRecord, buildTask.getBuildRecordSetIds());
         } catch (Exception e) {
             throw new DatastoreException("Error storing the result to datastore.", e);
         }

@@ -17,8 +17,6 @@
  */
 package org.jboss.pnc.core.builder.coordinator;
 
-import org.jboss.pnc.core.builder.datastore.BuildConfigurationUtils;
-import org.jboss.pnc.core.content.ContentIdentityManager;
 import org.jboss.pnc.core.events.DefaultBuildStatusChangedEvent;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
@@ -30,13 +28,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.enterprise.event.Event;
-import java.net.URI;
 import java.util.Date;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
 /**
@@ -44,47 +39,44 @@ import java.util.function.Consumer;
 */
 public class BuildTask {
 
-    public static final Logger log = LoggerFactory.getLogger(BuildTask.class);
+    private static final Logger log = LoggerFactory.getLogger(BuildTask.class);
 
-    private Integer id;
-    private BuildConfiguration buildConfiguration;
-    private BuildConfigurationAudited buildConfigurationAudited;
-    private User user;
-    private Date submitTime;
-    private Date startTime;
+    private final Integer id;
+    private final BuildConfiguration buildConfiguration;
+    private final BuildConfigurationAudited buildConfigurationAudited;
+    private final User user;
+    private final Date submitTime;
+    private Date startTime; //TODO where is startTime and endTime set ?
     private Date endTime;
 
     private BuildCoordinationStatus status = BuildCoordinationStatus.NEW;
     private String statusDescription;
 
-    private Event<BuildCoordinationStatusChangedEvent> buildStatusChangedEventNotifier;
+    private final Event<BuildCoordinationStatusChangedEvent> buildStatusChangedEventNotifier;
 
     /**
      * A list of builds waiting for this build to complete.
      */
-    private Set<BuildTask> dependants = new HashSet<>();
+    private final Set<BuildTask> dependants = new HashSet<>();
 
     /**
      * The builds which must be completed before this build can start
      */
     private Set<BuildTask> dependencies = new HashSet<>();
 
-    private BuildSetTask buildSetTask;
+    private final BuildSetTask buildSetTask;
 
-    private Set<Integer> buildRecordSetIds = new HashSet<>();
+    private final Set<Integer> buildRecordSetIds = new HashSet<>();
 
-    private final AtomicReference<URI> logsWebSocketLink = new AtomicReference<>();
     private boolean hasFailed = false;
 
     //called when all dependencies are built
-    private Consumer<BuildTask> onAllDependenciesCompleted;
-    private Integer buildConfigSetRecordId;
+    private final Consumer<BuildTask> onAllDependenciesCompleted;
+    private final Integer buildConfigSetRecordId;
     private final boolean rebuildAll;
 
     private BuildTask(BuildConfiguration buildConfiguration,
                       BuildConfigurationAudited buildConfigurationAudited,
-                      String topContentId,
-                      String buildContentId,
                       User user,
                       Date submitTime,
                       BuildSetTask buildSetTask,
@@ -136,7 +128,7 @@ public class BuildTask {
         log.debug("Updating build task {} status to {}", this.getId(), buildStatusChanged);
         if (buildSetTask != null) {
             log.debug("Updating BuildSetTask {}.", buildSetTask.getId());
-            buildSetTask.taskStatusUpdated(buildStatusChanged);
+            buildSetTask.taskStatusUpdated();
         }
         buildStatusChangedEventNotifier.fire(buildStatusChanged);
         if (status.isCompleted()) {
@@ -157,14 +149,6 @@ public class BuildTask {
             dependencies.add(buildTask);
             buildTask.addDependant(this);
         }
-    }
-
-    void setRequiredBuilds(List<BuildTask> dependencies) {
-        this.dependencies.addAll(dependencies);
-    }
-
-    void setRequiredBuilds(Set<BuildTask> dependencies) {
-        this.dependencies = dependencies;
     }
 
     private void requiredBuildCompleted(BuildTask completed) {
@@ -201,7 +185,7 @@ public class BuildTask {
         return buildConfiguration.getDependencies();
     }
 
-    public void addDependant(BuildTask buildTask) {
+    void addDependant(BuildTask buildTask) {
         if (!dependants.contains(buildTask)) {
             dependants.add(buildTask);
             buildTask.addDependency(this);
@@ -237,7 +221,7 @@ public class BuildTask {
         return this.hasFailed;
     }
 
-    public void setHasFailed(boolean hasFailed){
+    void setHasFailed(boolean hasFailed){
        this.hasFailed = hasFailed;
     }
 
@@ -294,8 +278,6 @@ public class BuildTask {
             BuildSetTask buildSetTask,
             Date submitTime,
             boolean rebuildAll) {
-        String topContentId = ContentIdentityManager.getProductContentId(BuildConfigurationUtils.getFirstProductVersion(buildConfiguration));
-        String buildContentId = ContentIdentityManager.getBuildContentId(buildConfiguration.getName());
 
         Integer buildConfigSetRecordId = null;
         if (buildSetTask != null && buildSetTask.getBuildConfigSetRecord() != null) {
@@ -305,8 +287,6 @@ public class BuildTask {
         return new BuildTask(
                 buildConfiguration,
                 buildConfigAudited,
-                topContentId,
-                buildContentId,
                 user,
                 submitTime,
                 buildSetTask,

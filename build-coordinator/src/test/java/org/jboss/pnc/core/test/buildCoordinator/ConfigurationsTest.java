@@ -43,7 +43,7 @@ public class ConfigurationsTest extends ProjectBuilder {
     @Inject
     BuildCoordinator buildCoordinator;
 
-    @Test(expected=PersistenceException.class)
+    @Test(expected=PersistenceException.class) //TODO test is not run as expected exception is thrown configurationBuilder.build...
     @InSequence(10)
     public void dependsOnItselfConfigurationTestCase() throws Exception {
 
@@ -56,7 +56,7 @@ public class ConfigurationsTest extends ProjectBuilder {
         Assert.assertTrue("Invalid status description: " + buildTask.getStatusDescription(), buildTask.getStatusDescription().contains("itself"));
     }
 
-    @Test(expected=PersistenceException.class)
+    @Test(expected=PersistenceException.class) //TODO test is not run as expected exception is thrown configurationBuilder.build...
     @InSequence(15)
     public void cycleConfigurationTestCase() throws Exception {
  

@@ -47,11 +47,11 @@ import java.util.function.Consumer;
  */
 public class BuildExecutorMock implements BuildExecutor {
 
-    private Logger log = LoggerFactory.getLogger(BuildExecutorMock.class);
+    private final Logger log = LoggerFactory.getLogger(BuildExecutorMock.class);
 
-    private Map<Integer, BuildExecutionSession> runningExecutions = new HashMap<>();
+    private final Map<Integer, BuildExecutionSession> runningExecutions = new HashMap<>();
 
-    private ExecutorService executor = Executors.newFixedThreadPool(4);
+    private final ExecutorService executor = Executors.newFixedThreadPool(4);
 
     @Override
     public BuildExecutionSession startBuilding(

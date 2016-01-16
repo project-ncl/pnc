@@ -20,26 +20,22 @@ package org.jboss.pnc.executor;
 
 import org.jboss.pnc.model.BuildType;
 import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
 public class DefaultBuildExecutionConfiguration implements BuildExecutionConfiguration {
 
-    public static final Logger log = LoggerFactory.getLogger(DefaultBuildExecutionConfiguration.class);
-
-    private int id;
-    private String buildContentId;
-    private Integer userId;
-    private String buildScript;
-    private String name;
-    private String scmMirrorRepoURL;
-    private String scmRepoURL;
-    private String scmMirrorRevision;
-    private String scmRevision;
-    private BuildType buildType;
+    private final int id;
+    private final String buildContentId;
+    private final Integer userId;
+    private final String buildScript;
+    private final String name;
+    private final String scmMirrorRepoURL;
+    private final String scmRepoURL;
+    private final String scmMirrorRevision;
+    private final String scmRevision;
+    private final BuildType buildType;
 
     public DefaultBuildExecutionConfiguration(
             int id,

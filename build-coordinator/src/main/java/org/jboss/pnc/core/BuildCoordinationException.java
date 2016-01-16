@@ -16,22 +16,17 @@
  * limitations under the License.
  */
 
-package org.jboss.pnc.spi.events;
+package org.jboss.pnc.core;
 
-import org.jboss.pnc.spi.BuildExecutionStatus;
-import org.jboss.pnc.spi.BuildResult;
+/**
+ * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
+ */
+public class BuildCoordinationException extends Exception {
+    public BuildCoordinationException(String message) {
+        super(message);
+    }
 
-import java.util.Optional;
-
-public interface BuildExecutionStatusChangedEvent {
-
-    BuildExecutionStatus getOldStatus();
-    BuildExecutionStatus getNewStatus();
-    Integer getBuildTaskId();
-    Integer getBuildConfigurationId();
-
-    /**
-     * @return Returns non-empty only for completed states.
-     */
-    Optional<BuildResult> getBuildResult();
+    public BuildCoordinationException(String message, Throwable cause) {
+        super(message, cause);
+    }
 }

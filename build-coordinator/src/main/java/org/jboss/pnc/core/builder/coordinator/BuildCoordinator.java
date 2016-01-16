@@ -59,14 +59,14 @@ import java.util.stream.Collectors;
 @ApplicationScoped
 public class BuildCoordinator {
 
-    private Logger log = LoggerFactory.getLogger(BuildCoordinator.class);
+    private final Logger log = LoggerFactory.getLogger(BuildCoordinator.class);
 
     /**
      * Build tasks which are either waiting to be run or currently running.
      * The task is removed from the queue when the build is complete and the results
      * are stored to the database.
      */
-    private Queue<BuildTask> activeBuildTasks = new ConcurrentLinkedQueue<>(); //TODO garbage collector (time-out, error state)
+    private final Queue<BuildTask> activeBuildTasks = new ConcurrentLinkedQueue<>(); //TODO garbage collector (time-out, error state)
 
     private DatastoreAdapter datastoreAdapter;
     private Event<BuildCoordinationStatusChangedEvent> buildStatusChangedEventNotifier;
@@ -230,7 +230,7 @@ public class BuildCoordinator {
         return buildConfigSet.getProductVersion().getCurrentProductMilestone();
     }
 
-    private void build(BuildSetTask buildSetTask) throws CoreException {
+    private void build(BuildSetTask buildSetTask) {
         if (!BuildSetStatus.REJECTED.equals(buildSetTask.getStatus())) {
             buildSetTask.getBuildTasks().stream()
                     .filter((buildTask) -> buildTask.readyToBuild())

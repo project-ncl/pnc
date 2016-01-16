@@ -50,16 +50,14 @@ public class DefaultBuildExecutionSession implements BuildExecutionSession {
     private Date startTime;
     private RunningEnvironment runningEnvironment;
     private Date endTime;
-    private Integer userId;
     private BuildDriverResult buildDriverResult;
     private RepositoryManagerResult repositoryManagerResult;
     //keep record of first received failed status
-    private BuildExecutionStatus failedResonStatus;
+    private BuildExecutionStatus failedReasonStatus;
 
     public DefaultBuildExecutionSession(BuildExecutionConfiguration buildExecutionConfiguration, Consumer<BuildExecutionStatusChangedEvent> onBuildExecutionStatusChangedEvent) {
         this.buildExecutionConfiguration = buildExecutionConfiguration;
         this.onBuildExecutionStatusChangedEvent = onBuildExecutionStatusChangedEvent;
-        userId = buildExecutionConfiguration.getUserId();
     }
 
     @Override
@@ -89,9 +87,9 @@ public class DefaultBuildExecutionSession implements BuildExecutionSession {
 
     @Override
     public void setStatus(BuildExecutionStatus status) {
-        if (status.hasFailed() && failedResonStatus == null) {
+        if (status.hasFailed() && failedReasonStatus == null) {
             log.debug("Setting status {} as failed reason for session {}.", status, getId());
-            failedResonStatus = status;
+            failedReasonStatus = status;
         }
 
         Optional<BuildResult> buildResult;
@@ -105,7 +103,6 @@ public class DefaultBuildExecutionSession implements BuildExecutionSession {
                 status,
                 getId(),
                 buildExecutionConfiguration.getId(),
-                getUserId(),
                 buildResult);
 
         log.debug("Updating build execution task {} status to {}. Task is linked to coordination task {}.", getId(), statusChanged, "//TODO"); //TODO update
@@ -117,11 +114,11 @@ public class DefaultBuildExecutionSession implements BuildExecutionSession {
     //    @Override
     private BuildResult getBuildResult() {
         if (executorException == null) {
-            if (failedResonStatus == null) {
+            if (failedReasonStatus == null) {
                 log.trace("Returning result of task {} with no exception.", getId());
                 return new BuildResult(Optional.ofNullable(buildDriverResult), Optional.ofNullable(repositoryManagerResult), Optional.empty());
             } else {
-                ExecutorException exception = new ExecutorException("Build execution failed with status: " + failedResonStatus);
+                ExecutorException exception = new ExecutorException("Build execution failed with status: " + failedReasonStatus);
                 log.trace("Returning result of task " + getId() + " with exception.", exception);
                 return new BuildResult(Optional.ofNullable(buildDriverResult), Optional.ofNullable(repositoryManagerResult), Optional.of(exception));
             }
@@ -129,10 +126,6 @@ public class DefaultBuildExecutionSession implements BuildExecutionSession {
             log.trace("Returning result of task " + getId() + " with exception.", executorException);
             return new BuildResult(Optional.ofNullable(buildDriverResult), Optional.ofNullable(repositoryManagerResult), Optional.of(executorException));
         }
-    }
-
-    public Integer getUserId() { //TODO why do we need userId ?
-        return userId;
     }
 
     @Override
@@ -162,7 +155,7 @@ public class DefaultBuildExecutionSession implements BuildExecutionSession {
 
     @Override
     public boolean hasFailed() {
-        return executorException != null || failedResonStatus != null;
+        return executorException != null || failedReasonStatus != null;
     }
 
     @Override

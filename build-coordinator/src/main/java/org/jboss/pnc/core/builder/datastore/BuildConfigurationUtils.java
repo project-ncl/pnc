@@ -26,12 +26,12 @@ import org.jboss.pnc.model.ProductVersion;
  */
 public class BuildConfigurationUtils {
 
-    private BuildConfigurationUtils() {};
+    private BuildConfigurationUtils() {}
 
     /**
      * Get the first product version (if any) associated with this build config.
      * @param buildConfig The build configuration to check
-     * @return The firstproduct version, or null if there is none
+     * @return The firstProduct version, or null if there is none
      */
     public static ProductVersion getFirstProductVersion(BuildConfiguration buildConfig) {
         if(buildConfig.getProductVersions() == null) {

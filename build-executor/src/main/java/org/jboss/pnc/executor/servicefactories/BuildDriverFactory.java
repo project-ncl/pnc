@@ -68,7 +68,7 @@ public class BuildDriverFactory {
     public void initConfiguration() throws ConfigurationParseException {
         try {
             String driverId = configuration
-                    .getModuleConfig(new PncConfigProvider<SystemConfig>(SystemConfig.class)).getBuildDriverId();
+                    .getModuleConfig(new PncConfigProvider<>(SystemConfig.class)).getBuildDriverId();
             if (!StringUtils.isEmpty(driverId)) {
                 configurationPredicate = buildDriver -> driverId.equals(buildDriver.getDriverId());
             }

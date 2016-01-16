@@ -23,7 +23,6 @@ import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.ProductMilestone;
 import org.jboss.pnc.spi.BuildSetStatus;
-import org.jboss.pnc.spi.events.BuildCoordinationStatusChangedEvent;
 import org.jboss.pnc.spi.events.BuildSetStatusChangedEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,15 +40,15 @@ import java.util.stream.Collectors;
  */
 public class BuildSetTask {
 
-    private Logger log = LoggerFactory.getLogger(BuildCoordinator.class);
+    private final Logger log = LoggerFactory.getLogger(BuildCoordinator.class);
 
-    private BuildConfigSetRecord buildConfigSetRecord;
+    private final BuildConfigSetRecord buildConfigSetRecord;
     private final boolean rebuildAll;
-    private ProductMilestone productMilestone;
+    private final ProductMilestone productMilestone;
 
-    private BuildCoordinator buildCoordinator;
+    private final BuildCoordinator buildCoordinator;
 
-    private Event<BuildSetStatusChangedEvent> buildSetStatusChangedEventNotifier;
+    private final Event<BuildSetStatusChangedEvent> buildSetStatusChangedEventNotifier;
 
     private BuildSetStatus status;
     private String statusDescription;
@@ -57,9 +56,9 @@ public class BuildSetTask {
     /**
      * The time at which the build config set was triggered.
      */
-    private Date submitTime;
+    private final Date submitTime;
 
-    private Set<BuildTask> buildTasks = new HashSet<>();
+    private final Set<BuildTask> buildTasks = new HashSet<>();
 
     /**
      * Create build set task for running a single build or set of builds
@@ -102,10 +101,9 @@ public class BuildSetTask {
 
     /**
      * Notify the set that the state of one of it's tasks has changed.
-     * 
-     * @param buildStatusChangedEvent Event with information about the state change of the task
+     *
      */
-    void taskStatusUpdated(BuildCoordinationStatusChangedEvent buildStatusChangedEvent) {
+    void taskStatusUpdated() {
         // If any of the build tasks have failed or all are complete, then the build set is done
         if(buildTasks.stream().anyMatch(bt -> bt.getStatus().hasFailed())) {
             log.debug("Marking build set as FAILED as one or more tasks failed.");
@@ -143,11 +141,11 @@ public class BuildSetTask {
         return status;
     }
 
-    public void setStatusDescription(String statusDescription) {
+    public void setStatusDescription(String statusDescription) { //TODO do we still need this, how do reject builds with cycle dependencies ?
         this.statusDescription = statusDescription;
     }
 
-    public String getStatusDescription() {
+    public String getStatusDescription() { //TODO remove, used only in tests
         return statusDescription;
     }
 

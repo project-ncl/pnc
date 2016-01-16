@@ -26,8 +26,8 @@ import java.util.function.Consumer;
  */
 public class BuildCallBack {
 
-    private Integer buildTaskId;
-    private Consumer<BuildCoordinationStatusChangedEvent> callback;
+    private final Integer buildTaskId;
+    private final Consumer<BuildCoordinationStatusChangedEvent> callback;
 
     public BuildCallBack(int buildTaskId, Consumer<BuildCoordinationStatusChangedEvent> callback) {
         this.buildTaskId = buildTaskId;

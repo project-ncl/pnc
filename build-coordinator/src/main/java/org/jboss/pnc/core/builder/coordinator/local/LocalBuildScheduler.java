@@ -23,7 +23,6 @@ import org.jboss.pnc.core.builder.coordinator.BuildTask;
 import org.jboss.pnc.core.content.ContentIdentityManager;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.spi.BuildResult;
-import org.jboss.pnc.spi.events.BuildCoordinationStatusChangedEvent;
 import org.jboss.pnc.spi.events.BuildExecutionStatusChangedEvent;
 import org.jboss.pnc.spi.exception.CoreException;
 import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
@@ -33,7 +32,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import java.util.function.Consumer;
 
@@ -48,7 +46,6 @@ public class LocalBuildScheduler implements BuildScheduler {
     public static final String ID = "local-build-scheduler";
 
     private BuildExecutor buildExecutor;
-    private Event<BuildCoordinationStatusChangedEvent> buildStatusChangedEventNotifier;
 
     @Override
     public String getId() {
@@ -59,9 +56,8 @@ public class LocalBuildScheduler implements BuildScheduler {
     public LocalBuildScheduler() {} //CDI workaround
 
     @Inject
-    public LocalBuildScheduler(BuildExecutor buildExecutor, Event<BuildCoordinationStatusChangedEvent> buildStatusChangedEventNotifier) {
+    public LocalBuildScheduler(BuildExecutor buildExecutor) {
         this.buildExecutor = buildExecutor;
-        this.buildStatusChangedEventNotifier = buildStatusChangedEventNotifier;
     }
 
     @Override

@@ -34,7 +34,7 @@ public class BpmCompleteListener {
 
     private static final Logger logger = LoggerFactory.getLogger(BpmCompleteListener.class);
 
-    Map<Long, BpmListener> listeners = new HashMap<>(); //TODO timeout: evict from map and notify completion error if there is no response from BPM server in specified time-out
+    private final Map<Long, BpmListener> listeners = new HashMap<>(); //TODO timeout: evict from map and notify completion error if there is no response from BPM server in specified time-out
 
     public void subscribe(BpmListener bpmListener) {
         logger.debug("Subscribing listener for coordinating task id [{}].", bpmListener.getTaskId());

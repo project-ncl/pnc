@@ -25,8 +25,8 @@ import java.util.function.Consumer;
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
 public class BuildSetCallBack {
-    private Integer buildSetConfigurationId;
-    private Consumer<BuildSetStatusChangedEvent> callback;
+    private final Integer buildSetConfigurationId;
+    private final Consumer<BuildSetStatusChangedEvent> callback;
 
     public BuildSetCallBack(int buildSetConfigurationId, Consumer<BuildSetStatusChangedEvent> callback) {
         this.buildSetConfigurationId = buildSetConfigurationId;

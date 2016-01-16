@@ -27,7 +27,7 @@ import org.jboss.logging.Logger;
  */
 public class Lifecycle {
 
-    public static final Logger log = Logger.getLogger(Lifecycle.class);
+    private static final Logger log = Logger.getLogger(Lifecycle.class);
 
     public Lifecycle() {
     }

@@ -43,7 +43,7 @@ public class BuildProcessException extends ExecutionExceptionWrapper { //TODO re
         this.destroyableEnvironment = destroyableEnvironment;
     }
 
-    public DestroyableEnvironment getDestroyableEnvironmnet() {
+    public DestroyableEnvironment getDestroyableEnvironment() {
         return destroyableEnvironment;
     }
 

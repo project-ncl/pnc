@@ -35,7 +35,7 @@ import java.util.concurrent.atomic.AtomicReference;
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
-public class BuildSchedulerFactory {
+class BuildSchedulerFactory {
 
     private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 

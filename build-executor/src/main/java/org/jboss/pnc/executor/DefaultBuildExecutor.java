@@ -65,14 +65,14 @@ import java.util.function.Consumer;
 @ApplicationScoped
 public class DefaultBuildExecutor implements BuildExecutor {
 
-    private Logger log = LoggerFactory.getLogger(DefaultBuildExecutor.class);
+    private final Logger log = LoggerFactory.getLogger(DefaultBuildExecutor.class);
 
     private ExecutorService executor;
 
     private RepositoryManagerFactory repositoryManagerFactory;
     private BuildDriverFactory buildDriverFactory;
     private EnvironmentDriverFactory environmentDriverFactory;
-    private Map<Integer, BuildExecutionSession> runningExecutions = new HashMap<>();
+    private final Map<Integer, BuildExecutionSession> runningExecutions = new HashMap<>();
 
     @Deprecated
     public DefaultBuildExecutor() {}; //CDI workaround for constructor injection
@@ -226,8 +226,6 @@ public class DefaultBuildExecutor implements BuildExecutor {
             RunningEnvironment runningEnvironment = buildExecutionSession.getRunningEnvironment();
             buildExecutionSession.setRunningEnvironment(runningEnvironment);
 
-            BuildDriverResult buildDriverResult = buildExecutionSession.getBuildDriverResult();
-
             RepositorySession repositorySession = runningEnvironment.getRepositorySession();
             RepositoryManagerResult repositoryManagerResult = repositorySession.extractBuildArtifacts();
             buildExecutionSession.setRepositoryManagerResult(repositoryManagerResult);
@@ -290,10 +288,10 @@ public class DefaultBuildExecutor implements BuildExecutor {
         DestroyableEnvironment destroyableEnvironment = null;
         if(ex instanceof BuildProcessException) {
             BuildProcessException bpEx = (BuildProcessException) ex;
-            destroyableEnvironment = bpEx.getDestroyableEnvironmnet();
+            destroyableEnvironment = bpEx.getDestroyableEnvironment();
         } else if(ex.getCause() instanceof BuildProcessException) {
             BuildProcessException bpEx = (BuildProcessException) ex.getCause();
-            destroyableEnvironment = bpEx.getDestroyableEnvironmnet();
+            destroyableEnvironment = bpEx.getDestroyableEnvironment();
         } else {
             //It shouldn't never happen - Throwable should be caught in all steps of build chain
             //and BuildProcessException should be thrown instead of that

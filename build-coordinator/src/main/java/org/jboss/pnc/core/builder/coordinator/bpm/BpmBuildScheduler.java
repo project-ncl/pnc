@@ -25,7 +25,6 @@ import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.moduleconfig.BpmModuleConfig;
 import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
 import org.jboss.pnc.core.builder.coordinator.BuildScheduler;
-import org.jboss.pnc.core.builder.coordinator.BuildSetTask;
 import org.jboss.pnc.core.builder.coordinator.BuildTask;
 import org.jboss.pnc.core.content.ContentIdentityManager;
 import org.jboss.pnc.model.BuildConfiguration;
@@ -75,7 +74,7 @@ public class BpmBuildScheduler implements BuildScheduler {
     }
 
     @Inject
-    public BpmBuildScheduler(Configuration configuration, BpmCompleteListener bpmCompleteListener) throws MalformedURLException {
+    public BpmBuildScheduler(Configuration configuration, BpmCompleteListener bpmCompleteListener) {
         this.bpmCompleteListener = bpmCompleteListener;
         this.configuration = configuration;
     }
@@ -83,10 +82,7 @@ public class BpmBuildScheduler implements BuildScheduler {
     @Override
     public void startBuilding(BuildTask buildTask, Consumer<BuildResult> onComplete) throws CoreException, ExecutorException {
         try {
-            ProcessInstance processInstance = startProcess(buildTask, Optional.of(buildTask)
-                    .map(BuildTask::getBuildSetTask)
-                    .map(BuildSetTask::getId)
-                    .orElse(null));
+            ProcessInstance processInstance = startProcess(buildTask);
             logger.info("New component build process started with process instance id {}.", processInstance.getId());
             registerCompleteListener(buildTask.getId(), onComplete);
         } catch (Exception e) {
@@ -99,7 +95,7 @@ public class BpmBuildScheduler implements BuildScheduler {
         bpmCompleteListener.subscribe(bpmListener);
     }
 
-    ProcessInstance startProcess(BuildTask buildTask, Integer buildTaskSetId) throws CoreException {
+    private ProcessInstance startProcess(BuildTask buildTask) throws CoreException {
         try {
             KieSession kieSession = createSession(buildTask);
             ProcessInstance processInstance = kieSession.startProcess(getProcessId(buildTask), createParameters(buildTask));
@@ -143,8 +139,7 @@ public class BpmBuildScheduler implements BuildScheduler {
         return objectMapper.writeValueAsString(params);
     }
 
-    String getBuildExecutionConfiguration(BuildTask buildTask)
-            throws JsonProcessingException {
+    String getBuildExecutionConfiguration(BuildTask buildTask) {
 
         BuildConfiguration buildConfiguration = buildTask.getBuildConfiguration();
         String contentId = ContentIdentityManager.getBuildContentId(buildConfiguration.getName());

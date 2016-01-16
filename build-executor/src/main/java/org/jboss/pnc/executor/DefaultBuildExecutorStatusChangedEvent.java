@@ -24,12 +24,11 @@ import org.jboss.pnc.spi.events.BuildExecutionStatusChangedEvent;
 
 import java.util.Optional;
 
-public class DefaultBuildExecutorStatusChangedEvent implements BuildExecutionStatusChangedEvent {
+class DefaultBuildExecutorStatusChangedEvent implements BuildExecutionStatusChangedEvent {
 
     private final BuildExecutionStatus oldStatus;
     private final BuildExecutionStatus newStatus;
     private final Integer buildTaskId;
-    private final Integer userId;
     private final Integer buildConfigurationId;
     private final Optional<BuildResult> buildResult;
 
@@ -38,25 +37,18 @@ public class DefaultBuildExecutorStatusChangedEvent implements BuildExecutionSta
             BuildExecutionStatus newStatus,
             Integer buildTaskId,
             Integer buildConfigurationId,
-            Integer userId,
             Optional<BuildResult> buildResult) {
 
         this.oldStatus = oldStatus;
         this.newStatus = newStatus;
         this.buildTaskId = buildTaskId;
         this.buildConfigurationId = buildConfigurationId;
-        this.userId = userId;
         this.buildResult = buildResult;
     }
 
     @Override
     public Integer getBuildTaskId() {
         return buildTaskId;
-    }
-
-    @Override
-    public Integer getUserId() {
-        return userId;
     }
 
     @Override
@@ -85,7 +77,6 @@ public class DefaultBuildExecutorStatusChangedEvent implements BuildExecutionSta
                 "oldStatus=" + oldStatus +
                 ", newStatus=" + newStatus +
                 ", buildTaskId=" + buildTaskId +
-                ", userId=" + userId +
                 ", buildConfigurationId=" + buildConfigurationId +
                 ", buildResult=" + buildResult +
                 '}';
