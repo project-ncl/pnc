@@ -29,7 +29,7 @@ public class DefaultBuildStatusChangedEvent implements BuildCoordinationStatusCh
     private final Integer buildConfigurationId;
     private final String buildConfigurationName;
 
-    public DefaultBuildStatusChangedEvent(BuildStatus oldStatus, BuildStatus newStatus, Integer buildTaskId,
+    public DefaultBuildStatusChangedEvent(BuildCoordinationStatus oldStatus, BuildCoordinationStatus newStatus, Integer buildTaskId,
             Integer buildConfigurationId, String buildConfigurationName, Integer userId) {
         this.oldStatus = oldStatus;
         this.newStatus = newStatus;

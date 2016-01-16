@@ -44,9 +44,9 @@ public class NotificationFactoryForBuildTest {
         //then
         assertThat(notification.getExceptionMessage()).isNull();
         assertThat(notification.getEventType()).isEqualTo(EventType.BUILD_STATUS_CHANGED);
-        assertThat(((BuildChangedPayload)notification.getPayload()).getBuildCoordinationStatus()).isEqualTo(BuildCoordinationStatus.BUILD_COMPLETED_SUCCESS);
+        assertThat(((BuildChangedPayload)notification.getPayload()).getBuildCoordinationStatus()).isEqualTo(BuildCoordinationStatus.DONE);
         assertThat(((BuildChangedPayload)notification.getPayload()).getBuildConfigurationId()).isEqualTo(1);
-        assertThat(((BuildChangedPayload)notification.getPayload()).getBuildConfigurationName()).isEqualTo("BuildSet1");
+        assertThat(((BuildChangedPayload)notification.getPayload()).getBuildConfigurationName()).isEqualTo("Build1");
         assertThat(notification.getPayload()).isNotNull();
         assertThat(notification.getPayload().getId()).isEqualTo(1);
         assertThat(notification.getPayload().getUserId()).isEqualTo(1);
