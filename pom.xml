@@ -53,7 +53,6 @@
     <module>auth</module>
     <module>datastore</module>
     <module>ear-package</module>
-    <!--module>jenkins-build-driver</module TODO delete module-->
     <module>termd-build-driver</module>
     <module>maven-repository-manager</module>
     <module>build-coordinator</module>
@@ -70,7 +69,7 @@
     <module>openshift-environment-driver</module>
     <module>demo-data</module>
     <module>integration-test</module>
-    <module>pnc-mock</module> <!-- keep pnc prefix as 'mock' is dy default ignored in some cases (intellij) -->
+    <module>pnc-mock</module> <!-- keep 'pnc' prefix as 'mock' is dy default ignored in some cases (intellij) -->
   </modules>
 
   <properties>
@@ -226,12 +225,6 @@
         <artifactId>ear-package</artifactId>
         <version>${project.version}</version>
         <type>pom</type>
-      </dependency>
-
-      <dependency>
-        <groupId>org.jboss.pnc</groupId>
-        <artifactId>jenkins-build-driver</artifactId>
-        <version>${project.version}</version>
       </dependency>
 
       <dependency>

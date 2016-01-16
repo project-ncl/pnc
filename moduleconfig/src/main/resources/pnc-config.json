@@ -7,11 +7,6 @@
             "buildSchedulerId":"local-build-scheduler"
           },
           {
-            "@module-config":"jenkins-build-driver",
-            "username":"${env.PNC_JENKINS_USERNAME}",
-            "password":"${env.PNC_JENKINS_PASSWORD}"
-          },
-          {
             "@module-config":"termd-build-driver",
             "username":"test",
             "password":"test"
