@@ -19,11 +19,7 @@ package org.jboss.pnc.datastore.predicates.rsql;
 
 import org.jboss.pnc.model.GenericEntity;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.Join;
-import javax.persistence.criteria.Path;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
+import javax.persistence.criteria.*;
 import java.util.List;
 
 abstract class AbstractTransformer<Entity extends GenericEntity<? extends Number>> implements Transformer<Entity> {

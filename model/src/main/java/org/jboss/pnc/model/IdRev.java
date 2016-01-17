@@ -17,8 +17,9 @@
  */
 package org.jboss.pnc.model;
 
-import javax.persistence.Column;
 import java.io.Serializable;
+
+import javax.persistence.Column;
 
 /**
  * This class represents the combination of an ID and table revision.

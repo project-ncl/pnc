@@ -17,16 +17,17 @@
  */
 package org.jboss.pnc.datastore.configuration;
 
-import org.jboss.pnc.datastore.repositories.SequenceHandlerRepository;
-import org.jboss.pnc.model.BuildRecord;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 import javax.annotation.PostConstruct;
 import javax.ejb.Singleton;
 import javax.ejb.Startup;
 import javax.inject.Inject;
-import java.lang.invoke.MethodHandles;
+
+import org.jboss.pnc.datastore.repositories.SequenceHandlerRepository;
+import org.jboss.pnc.model.BuildRecord;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Singleton
 @Startup

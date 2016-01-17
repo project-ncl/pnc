@@ -17,13 +17,12 @@
  */
 package org.jboss.pnc.common.json.moduleconfig;
 
+import static org.junit.Assert.*;
+
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
 import org.junit.Test;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 
 /**
  * 

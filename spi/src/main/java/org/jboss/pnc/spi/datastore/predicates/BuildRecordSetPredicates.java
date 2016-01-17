@@ -23,8 +23,10 @@ import org.jboss.pnc.model.BuildRecordSet_;
 import org.jboss.pnc.model.ProductMilestone;
 import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
 
-import javax.persistence.criteria.Join;
 import java.util.Set;
+
+import javax.persistence.criteria.Join;
+import javax.persistence.criteria.ListJoin;
 
 /**
  * Predicates for {@link org.jboss.pnc.model.BuildRecordSet} entity.

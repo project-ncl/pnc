@@ -17,9 +17,10 @@
  */
 package org.jboss.pnc.environment.docker;
 
-import javax.enterprise.context.ApplicationScoped;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import javax.enterprise.context.ApplicationScoped;
 
 /**
  * Generates unique container IDs

@@ -18,7 +18,10 @@
 
 package org.jboss.pnc.common.json.moduleconfig;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import org.jboss.pnc.common.json.AbstractModuleConfig;
+
+import java.nio.file.Path;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>

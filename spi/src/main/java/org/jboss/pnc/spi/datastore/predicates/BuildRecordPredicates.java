@@ -17,12 +17,7 @@
  */
 package org.jboss.pnc.spi.datastore.predicates;
 
-import org.jboss.pnc.model.BuildConfigSetRecord;
-import org.jboss.pnc.model.BuildConfigurationAudited;
-import org.jboss.pnc.model.BuildRecord;
-import org.jboss.pnc.model.BuildRecord_;
-import org.jboss.pnc.model.BuildStatus;
-import org.jboss.pnc.model.Project;
+import org.jboss.pnc.model.*;
 import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
 
 import javax.persistence.criteria.Join;

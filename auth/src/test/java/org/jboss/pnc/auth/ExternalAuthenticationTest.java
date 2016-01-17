@@ -17,6 +17,8 @@
  */
 package org.jboss.pnc.auth;
 
+import java.io.InputStream;
+
 import org.jboss.logging.Logger;
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.moduleconfig.AuthenticationModuleConfig;
@@ -25,8 +27,6 @@ import org.jboss.pnc.test.category.ContainerTest;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
-
-import java.io.InputStream;
 
 /**
  * @author pslegr
