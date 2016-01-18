@@ -83,8 +83,9 @@ public class BuildExecutionTask implements BuildExecution {
 
     public void setStatus(BuildStatus status) {
         IdRev idRev = buildConfigurationAudited.getId();
+
         BuildStatusChangedEvent buildStatusChanged = new DefaultBuildStatusChangedEvent(this.status, status, buildTaskId,
-                idRev.getId(), buildConfigurationAudited.getName(), user.getId());
+                idRev.getId(), buildConfigurationAudited.getName(), startTime, endTime, user.getId());
         log.debug("Updating build execution task {} status to {}. Task is linked to coordination task {}.", id,
                 buildStatusChanged, buildTaskId);
         this.status = status;
