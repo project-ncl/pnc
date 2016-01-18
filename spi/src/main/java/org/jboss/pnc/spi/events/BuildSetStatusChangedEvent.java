@@ -19,6 +19,8 @@ package org.jboss.pnc.spi.events;
 
 import org.jboss.pnc.spi.BuildSetStatus;
 
+import java.util.Date;
+
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
@@ -35,6 +37,7 @@ public interface BuildSetStatusChangedEvent {
     Integer getUserId();
     Integer getBuildSetConfigurationId();
     String getBuildSetConfigurationName();
-
+    Date getBuildSetStartTime();
+    Date getBuildSetEndTime();
 
 }

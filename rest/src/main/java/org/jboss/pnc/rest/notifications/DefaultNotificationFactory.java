@@ -40,7 +40,8 @@ public class DefaultNotificationFactory implements NotificationFactory {
     @Override
     public Notification createNotification(BuildSetStatusChangedEvent event) {
         BuildSetChangedPayload payload = new BuildSetChangedPayload(event.getBuildSetTaskId(), event.getNewStatus(),
-                event.getBuildSetConfigurationId(), event.getBuildSetConfigurationName(), event.getUserId());
+                event.getBuildSetConfigurationId(), event.getBuildSetConfigurationName(), event.getBuildSetStartTime(),
+                event.getBuildSetEndTime(), event.getUserId());
 
         return new Notification(EventType.BUILD_SET_STATUS_CHANGED, null, payload);
     }

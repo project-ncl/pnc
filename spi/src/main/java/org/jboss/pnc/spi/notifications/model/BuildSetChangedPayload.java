@@ -19,6 +19,8 @@ package org.jboss.pnc.spi.notifications.model;
 
 import org.jboss.pnc.spi.BuildSetStatus;
 
+import java.util.Date;
+
 public class BuildSetChangedPayload implements NotificationPayload {
 
     private final Integer id;
@@ -26,14 +28,18 @@ public class BuildSetChangedPayload implements NotificationPayload {
     private final Integer userId;
     private final Integer buildSetConfigurationId;
     private final String buildSetConfigurationName;
+    private final Date buildSetStartTime;
+    private final Date buildSetEndTime;
 
     public BuildSetChangedPayload(Integer id, BuildSetStatus newStatus, Integer buildSetConfigurationId,
-            String buildSetConfigurationName, Integer userId) {
+            String buildSetConfigurationName, Date buildSetStartTime, Date buildSetEndTime, Integer userId) {
         this.id = id;
         this.buildStatus = newStatus;
         this.userId = userId;
         this.buildSetConfigurationId = buildSetConfigurationId;
         this.buildSetConfigurationName = buildSetConfigurationName;
+        this.buildSetStartTime = buildSetStartTime;
+        this.buildSetEndTime = buildSetEndTime;
     }
 
     public BuildSetStatus getBuildStatus() {
@@ -56,6 +62,14 @@ public class BuildSetChangedPayload implements NotificationPayload {
 
     public String getBuildSetConfigurationName() {
         return buildSetConfigurationName;
+    }
+
+    public Date getBuildSetStartTime() {
+        return buildSetStartTime;
+    }
+
+    public Date getBuildSetEndTime() {
+        return buildSetEndTime;
     }
 
 }

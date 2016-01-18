@@ -91,7 +91,8 @@ public class BuildSetTask {
         Integer userId = Optional.ofNullable(buildConfigSetRecord.getUser()).map(user -> user.getId()).orElse(null);
         BuildSetStatusChangedEvent buildSetStatusChangedEvent = new DefaultBuildSetStatusChangedEvent(oldStatus, status,
                 getId(), buildConfigSetRecord.getBuildConfigurationSet().getId(),
-                buildConfigSetRecord.getBuildConfigurationSet().getName(), userId);
+                buildConfigSetRecord.getBuildConfigurationSet().getName(), buildConfigSetRecord.getStartTime(),
+                buildConfigSetRecord.getStartTime(), userId);
         buildSetStatusChangedEventNotifier.fire(buildSetStatusChangedEvent);
     }
 

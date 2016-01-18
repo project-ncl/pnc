@@ -45,6 +45,8 @@ import javax.websocket.ContainerProvider;
 import javax.websocket.WebSocketContainer;
 import java.lang.invoke.MethodHandles;
 import java.net.URI;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.function.Supplier;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -107,8 +109,8 @@ public class WebSocketsNotificationTest {
     public void shouldReceiveBuildSetStatusChangeNotification() throws Exception {
         // given
         BuildSetStatusChangedEvent buildStatusChangedEvent = new DefaultBuildSetStatusChangedEvent(BuildSetStatus.NEW,
-                BuildSetStatus.DONE, 1, 1, "BuildSet1", 1);
-        String expectedJsonResponse = "{\"eventType\":\"BUILD_SET_STATUS_CHANGED\",\"payload\":{\"id\":1,\"buildStatus\":\"DONE\",\"userId\":1,\"buildSetConfigurationId\":1,\"buildSetConfigurationName\":\"BuildSet1\"}}";
+                BuildSetStatus.DONE, 1, 1, "BuildSet1", new Date(1453118400000L), new Date(1453122000000L), 1);
+        String expectedJsonResponse = "{\"eventType\":\"BUILD_SET_STATUS_CHANGED\",\"payload\":{\"id\":1,\"buildStatus\":\"DONE\",\"userId\":1,\"buildSetConfigurationId\":1,\"buildSetConfigurationName\":\"BuildSet1\",\"buildSetStartTime\":1453118400000,\"buildSetEndTime\":1453122000000}}";
 
         // when
         buildSetStatusNotificationEvent.fire(buildStatusChangedEvent);
