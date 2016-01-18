@@ -50,7 +50,6 @@ public class BuildConfigurationSetProvider extends AbstractProvider<BuildConfigu
             SortInfoProducer sortInfoProducer, PageInfoProducer pageInfoProducer) {
         super(buildConfigurationSetRepository, rsqlPredicateProducer, sortInfoProducer, pageInfoProducer);
         this.buildConfigurationRepository = buildConfigurationRepository;
-        this.buildConfigurationRepository = buildConfigurationRepository;
     }
 
     @Override

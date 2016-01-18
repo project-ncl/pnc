@@ -38,9 +38,10 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
- * The Class BuildConfiguration cointains the informations needed to trigger the build of a project, i.e. the sources and the
- * build script, the build system image needed to run, the project configurations that need to be triggered after a successful
- * build. It contains also creation and last modification time for historical purposes
+ * The Class BuildConfiguration cointains the information needed to execute a build of a project, i.e. the sources,
+ * the build script, the build system image needed to run, the project configurations that need to be triggered after
+ * a successful build. Note that creationTime and lastModificationTime are handled internally via JPA settings
+ * and therefore do not have public setters.
  * <p>
  * (project + name) should be unique
  *
@@ -125,7 +126,7 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
     private Set<BuildConfigurationSet> buildConfigurationSets;
 
     @NotNull
-    @Column(columnDefinition = "timestamp with time zone")
+    @Column(columnDefinition = "timestamp with time zone", updatable=false)
     private Date creationTime;
 
     @NotNull
@@ -174,7 +175,14 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
         dependants = new HashSet<BuildConfiguration>();
         buildRecords = new HashSet<BuildRecord>();
         buildConfigurationSets = new HashSet<BuildConfigurationSet>();
-        creationTime = Date.from(Instant.now());
+    }
+
+    /**
+     * Set the creation time before persisting the config
+     */
+    @PrePersist
+    private void initCreationTime() {
+        this.creationTime = Date.from(Instant.now());
     }
 
     @PreRemove
@@ -316,7 +324,7 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
     }
 
     /**
-     * @return the set of build configs upon which this builds depends
+     * @return the dependency build configs (only direct dependencies)
      */
     public Set<BuildConfiguration> getDependencies() {
         return dependencies;
@@ -469,9 +477,9 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
     }
 
     /**
-     * @param creationTime the creationTime to set
+     * @param creationTime The time at which this config was created
      */
-    public void setCreationTime(Date creationTime) {
+    private void setCreationTime(Date creationTime) {
         this.creationTime = creationTime;
     }
 
@@ -483,9 +491,9 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
     }
 
     /**
-     * @param lastModificationTime the lastModificationTime to set
+     * @param lastModificationTime the time at which this config was last modified
      */
-    public void setLastModificationTime(Date lastModificationTime) {
+    private void setLastModificationTime(Date lastModificationTime) {
         this.lastModificationTime = lastModificationTime;
     }
 
@@ -660,7 +668,6 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
             dependants = new HashSet<BuildConfiguration>();
             buildConfigurationSets = new HashSet<BuildConfigurationSet>();
             productVersions = new HashSet<ProductVersion>();
-            creationTime = Date.from(Instant.now());
             lastModificationTime = Date.from(Instant.now());
         }
 
@@ -795,9 +802,7 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
         }
 
         public Builder creationTime(Date creationTime) {
-            if (creationTime != null) {
-                this.creationTime = creationTime;
-            }
+            this.creationTime = creationTime;
             return this;
         }
 

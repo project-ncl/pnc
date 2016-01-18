@@ -52,8 +52,9 @@ public class AbstractProviderTest {
 
         @Override
         protected Function<? super BuildConfigurationRest, ? extends BuildConfiguration> toDBModelModel() {
-            return buildConfiguration -> buildConfiguration.toBuildConfiguration(null);
+            return buildConfigurationRest -> BuildConfiguration.Builder.newBuilder().id(buildConfigurationRest.getId()).build();
         }
+
     }
 
     private RSQLPredicateProducer rsqlPredicateProducer;
