@@ -19,7 +19,9 @@
 
 -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
   <modelVersion>4.0.0</modelVersion>
 
@@ -31,7 +33,7 @@
 
   <artifactId>rest-model</artifactId>
   <packaging>jar</packaging>
-  
+
   <description>REST Data Objects.</description>
 
   <dependencies>
@@ -108,145 +110,92 @@
         <filtering>true</filtering>
       </resource>
     </resources>
-
-    <plugins>
-      <plugin>
-        <artifactId>maven-war-plugin</artifactId>
-        <configuration>
-          <attachClasses>true</attachClasses>
-          <webResources>
-            <resource>
-              <directory>src/main/webapp</directory>
-              <includes>
-                <include>apidocs/index.html</include>
-              </includes>
-              <filtering>true</filtering>
-            </resource>
-          </webResources>
-        </configuration>
-      </plugin>
-    </plugins>
   </build>
 
-  <profiles>    
-     <profile>
-        <id>auth</id>
-        <activation>
-            <property>
-                <name>auth</name>
-                <value>true</value>
-            </property>
-        </activation>
-        <build>
-            <plugins>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-resources-plugin</artifactId>
-                    <executions>
-                      <execution>
-                        <id>default-copy-resources</id>
-                        <phase>process-resources</phase>
-                        <goals>
-                          <goal>copy-resources</goal>
-                        </goals>
-                        <configuration>
-                          <overwrite>true</overwrite>
-                          <outputDirectory>${project.build.directory}/${project.artifactId}/WEB-INF/</outputDirectory>
-                          <resources>
-                            <resource>
-                              <directory>${project.basedir}/src/main/auth</directory>
-                            </resource>
-                          </resources>
-                        </configuration>
-                      </execution>
-                    </executions>
-                  </plugin>              
-            </plugins>
-         </build>
-     </profile>
-     
+  <profiles>
     <profile>
-        <id>auth-container-eap</id>
-        <activation>
-            <property>
-                <name>auth.eap.home</name>
-            </property>
-        </activation>
+      <id>auth-container-eap</id>
+      <activation>
+        <property>
+          <name>auth.eap.home</name>
+        </property>
+      </activation>
       <build>
         <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-dependency-plugin</artifactId>
-                <executions>
-                  <execution>
-                    <id>copy-keycloak-adapter</id>
-                    <phase>generate-test-resources</phase>
-                    <goals>
-                      <goal>unpack</goal>
-                    </goals>
-                    <configuration>
-                      <artifactItems>
-                        <artifactItem>
-                            <groupId>org.keycloak</groupId>
-                            <artifactId>keycloak-eap6-adapter-dist</artifactId>
-                            <version>${version.keycloak}</version>
-                            <type>zip</type>
-                            <overWrite>true</overWrite>
-                            <outputDirectory>${auth.eap.home}</outputDirectory>
-                        </artifactItem>
-                      </artifactItems>
-                    </configuration>
-                  </execution>
-                </executions>
-              </plugin>          
-              <plugin>
-                <groupId>org.jboss.as.plugins</groupId>
-                <artifactId>jboss-as-maven-plugin</artifactId>
-                <executions>
-                  <execution>
-                    <id>start-server</id>
-                    <phase>generate-test-resources</phase>
-                    <goals>
-                      <goal>start</goal>
-                    </goals>
-                    <configuration>
-                      <jbossHome>${auth.eap.home}</jbossHome>
-                    </configuration>
-                  </execution>
-                  <execution>
-                    <id>add-keycloak</id>
-                    <phase>generate-test-resources</phase>
-                    <goals>
-                      <goal>execute-commands</goal>
-                    </goals>
-                    <configuration>
-                      <execute-commands>
-                        <commands>
-                          <command>
-                           /extension=org.keycloak.keycloak-subsystem:add
-                          </command>
-                          <command>
-                            /subsystem=keycloak:add
-                          </command>
-                          <command>
-                            /subsystem=security/security-domain=keycloak:add
-                          </command>
-                          <command>
-                           /subsystem=security/security-domain=keycloak/authentication=classic:add(login-modules=[{"code"=&gt;"org.keycloak.adapters.jboss.KeycloakLoginModule", "flag"=&gt;"required"}])
-                          </command>
-                        </commands>
-                      </execute-commands>
-                    </configuration>
-                  </execution>
-                  <execution>
-                    <id>shutdown-server</id>
-                    <phase>process-test-resources</phase>
-                    <goals>
-                      <goal>shutdown</goal>
-                    </goals>
-                  </execution>
-                </executions>
-              </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-dependency-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>copy-keycloak-adapter</id>
+                <phase>generate-test-resources</phase>
+                <goals>
+                  <goal>unpack</goal>
+                </goals>
+                <configuration>
+                  <artifactItems>
+                    <artifactItem>
+                      <groupId>org.keycloak</groupId>
+                      <artifactId>keycloak-eap6-adapter-dist</artifactId>
+                      <version>${version.keycloak}</version>
+                      <type>zip</type>
+                      <overWrite>true</overWrite>
+                      <outputDirectory>${auth.eap.home}</outputDirectory>
+                    </artifactItem>
+                  </artifactItems>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>org.jboss.as.plugins</groupId>
+            <artifactId>jboss-as-maven-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>start-server</id>
+                <phase>generate-test-resources</phase>
+                <goals>
+                  <goal>start</goal>
+                </goals>
+                <configuration>
+                  <jbossHome>${auth.eap.home}</jbossHome>
+                </configuration>
+              </execution>
+              <execution>
+                <id>add-keycloak</id>
+                <phase>generate-test-resources</phase>
+                <goals>
+                  <goal>execute-commands</goal>
+                </goals>
+                <configuration>
+                  <execute-commands>
+                    <commands>
+                      <command>
+                        /extension=org.keycloak.keycloak-subsystem:add
+                      </command>
+                      <command>
+                        /subsystem=keycloak:add
+                      </command>
+                      <command>
+                        /subsystem=security/security-domain=keycloak:add
+                      </command>
+                      <command>
+                        /subsystem=security/security-domain=keycloak/authentication=classic:add(login-modules=[{"code"=&gt;"org.keycloak.adapters.jboss.KeycloakLoginModule",
+                        "flag"=&gt;"required"}])
+                      </command>
+                    </commands>
+                  </execute-commands>
+                </configuration>
+              </execution>
+              <execution>
+                <id>shutdown-server</id>
+                <phase>process-test-resources</phase>
+                <goals>
+                  <goal>shutdown</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
         </plugins>
       </build>
     </profile>

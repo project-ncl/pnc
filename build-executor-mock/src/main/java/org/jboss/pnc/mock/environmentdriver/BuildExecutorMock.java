@@ -101,7 +101,7 @@ public class BuildExecutorMock implements BuildExecutor {
         RepositoryManagerResult repositoryManagerResult = RepositoryManagerResultMock.mockResult();;
         buildExecutionSession.setBuildDriverResult(driverResult);
         buildExecutionSession.setRepositoryManagerResult(repositoryManagerResult);
-        int sleep = RandomUtils.randInt(0, 500); //TODO remove sleep
+        int sleep = RandomUtils.randInt(0, 500); //TODO remove sleep NCL-1569
         try {
             Thread.sleep(sleep);
         } catch (InterruptedException e) {
@@ -110,20 +110,6 @@ public class BuildExecutorMock implements BuildExecutor {
         return buildPassed;
     }
 
-
-    //    private CompletableFuture<Integer> mockBuild() {
-//        CompletableFuture<Integer> waitToCompleteFuture = new CompletableFuture<>();
-//        int sleep = RandomUtils.randInt(50, 500);
-//        try {
-//            Thread.sleep(sleep);
-//        } catch (InterruptedException e) {
-//            log.warn("Mock build interrupted.", e);
-//        }
-//        waitToCompleteFuture.complete(sleep);
-//
-//        return waitToCompleteFuture;
-//    }
-//
     @Override
     public BuildExecutionSession getRunningExecution(int buildExecutionTaskId) {
         return runningExecutions.get(buildExecutionTaskId);
