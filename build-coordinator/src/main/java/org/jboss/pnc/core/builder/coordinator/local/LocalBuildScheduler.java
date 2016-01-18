@@ -62,7 +62,7 @@ public class LocalBuildScheduler implements BuildScheduler {
 
     @Override
     public void startBuilding(BuildTask buildTask, Consumer<BuildResult> onComplete)
-            throws CoreException, ExecutorException {
+            throws CoreException {
 
         Consumer<BuildExecutionStatusChangedEvent> onBuildExecutionStatusChangedEvent = (statusChangedEvent) -> {
             log.debug("Received execution status update {}.", statusChangedEvent);
@@ -87,6 +87,10 @@ public class LocalBuildScheduler implements BuildScheduler {
                 configuration.getScmMirrorRevision(),
                 configuration.getBuildEnvironment().getBuildType());
 
-        buildExecutor.startBuilding(buildExecutionConfiguration, onBuildExecutionStatusChangedEvent);
+        try {
+            buildExecutor.startBuilding(buildExecutionConfiguration, onBuildExecutionStatusChangedEvent);
+        } catch (ExecutorException e) {
+            throw new CoreException("Could not start build execution.", e);
+        }
     }
 }

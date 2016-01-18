@@ -32,7 +32,6 @@ import org.jboss.pnc.rest.restmodel.BuildExecutionConfigurationRest;
 import org.jboss.pnc.spi.BuildResult;
 import org.jboss.pnc.spi.exception.CoreException;
 import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
-import org.jboss.pnc.spi.executor.exceptions.ExecutorException;
 import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.manager.RuntimeEngine;
 import org.kie.api.runtime.process.ProcessInstance;
@@ -80,7 +79,7 @@ public class BpmBuildScheduler implements BuildScheduler {
     }
 
     @Override
-    public void startBuilding(BuildTask buildTask, Consumer<BuildResult> onComplete) throws CoreException, ExecutorException {
+    public void startBuilding(BuildTask buildTask, Consumer<BuildResult> onComplete) throws CoreException {
         try {
             ProcessInstance processInstance = startProcess(buildTask);
             logger.info("New component build process started with process instance id {}.", processInstance.getId());
