@@ -53,12 +53,14 @@
     <module>auth</module>
     <module>datastore</module>
     <module>ear-package</module>
-    <module>jenkins-build-driver</module>
     <module>termd-build-driver</module>
     <module>maven-repository-manager</module>
     <module>build-coordinator</module>
+    <module>build-executor</module>
+    <module>build-executor-mock</module>
     <module>model</module>
     <module>rest</module>
+    <module>rest-model</module>
     <module>spi</module>
     <module>ui</module>
     <module>web</module>
@@ -67,6 +69,7 @@
     <module>openshift-environment-driver</module>
     <module>demo-data</module>
     <module>integration-test</module>
+    <module>pnc-mock</module> <!-- keep 'pnc' prefix as 'mock' is dy default ignored in some cases (intellij) -->
   </modules>
 
   <properties>
@@ -95,6 +98,7 @@
     <version.keycloak>1.2.0.Final</version.keycloak>
     <version.hibernate-jpamodelgen>4.3.4.Final</version.hibernate-jpamodelgen>
     <version.undertow-websockets-jsr>1.2.6.Final</version.undertow-websockets-jsr>
+    <version.shrinkwrap>2.1.1</version.shrinkwrap>
 
     <datetime>${timestamp}</datetime>
     <pushChanges>true</pushChanges>
@@ -225,12 +229,6 @@
 
       <dependency>
         <groupId>org.jboss.pnc</groupId>
-        <artifactId>jenkins-build-driver</artifactId>
-        <version>${project.version}</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.jboss.pnc</groupId>
         <artifactId>maven-repository-manager</artifactId>
         <version>${project.version}</version>
       </dependency>
@@ -243,7 +241,32 @@
 
       <dependency>
         <groupId>org.jboss.pnc</groupId>
+        <artifactId>build-executor</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jboss.pnc</groupId>
+        <artifactId>build-executor-mock</artifactId>
+        <version>${project.version}</version>
+        <scope>test</scope>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jboss.pnc</groupId>
+        <artifactId>pnc-mock</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jboss.pnc</groupId>
         <artifactId>model</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jboss.pnc</groupId>
+        <artifactId>rest-model</artifactId>
         <version>${project.version}</version>
       </dependency>
 
@@ -339,9 +362,27 @@
       <dependency>
         <groupId>org.jboss.shrinkwrap.resolver</groupId>
         <artifactId>shrinkwrap-resolver-bom</artifactId>
-        <version>2.1.1</version>
+        <version>${version.shrinkwrap}</version>
         <scope>import</scope>
         <type>pom</type>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jboss.shrinkwrap.resolver</groupId>
+        <artifactId>shrinkwrap-resolver-api-maven</artifactId>
+        <version>${version.shrinkwrap}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jboss.shrinkwrap.resolver</groupId>
+        <artifactId>shrinkwrap-resolver-impl-maven-archive</artifactId>
+        <version>${version.shrinkwrap}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jboss.shrinkwrap.resolver</groupId>
+        <artifactId>shrinkwrap-resolver-impl-maven</artifactId>
+        <version>${version.shrinkwrap}</version>
       </dependency>
 
       <dependency>
@@ -1362,6 +1403,7 @@
             <configuration>
               <detectOfflineLinks>false</detectOfflineLinks>
               <quiet>true</quiet>
+              <additionalparam>-Xdoclint:none</additionalparam>
             </configuration>
           </execution>
         </executions>

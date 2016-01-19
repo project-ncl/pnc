@@ -20,16 +20,19 @@ package org.jboss.pnc.core.builder.coordinator.local;
 
 import org.jboss.pnc.core.builder.coordinator.BuildScheduler;
 import org.jboss.pnc.core.builder.coordinator.BuildTask;
-import org.jboss.pnc.core.builder.executor.BuildExecutionTask;
-import org.jboss.pnc.core.builder.executor.BuildExecutor;
-import org.jboss.pnc.core.exception.CoreException;
-import org.jboss.pnc.spi.BuildStatus;
-import org.jboss.pnc.spi.events.BuildStatusChangedEvent;
+import org.jboss.pnc.core.content.ContentIdentityManager;
+import org.jboss.pnc.model.BuildConfiguration;
+import org.jboss.pnc.spi.BuildResult;
+import org.jboss.pnc.spi.events.BuildExecutionStatusChangedEvent;
+import org.jboss.pnc.spi.exception.CoreException;
+import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
+import org.jboss.pnc.spi.executor.BuildExecutor;
+import org.jboss.pnc.spi.executor.exceptions.ExecutorException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.event.Event;
 import javax.inject.Inject;
-import java.util.Optional;
 import java.util.function.Consumer;
 
 /**
@@ -38,10 +41,11 @@ import java.util.function.Consumer;
 @ApplicationScoped
 public class LocalBuildScheduler implements BuildScheduler {
 
+    private static final Logger log = LoggerFactory.getLogger(LocalBuildScheduler.class);
+
     public static final String ID = "local-build-scheduler";
 
     private BuildExecutor buildExecutor;
-    private Event<BuildStatusChangedEvent> buildStatusChangedEventNotifier;
 
     @Override
     public String getId() {
@@ -52,24 +56,41 @@ public class LocalBuildScheduler implements BuildScheduler {
     public LocalBuildScheduler() {} //CDI workaround
 
     @Inject
-    public LocalBuildScheduler(BuildExecutor buildExecutor, Event<BuildStatusChangedEvent> buildStatusChangedEventNotifier) {
+    public LocalBuildScheduler(BuildExecutor buildExecutor) {
         this.buildExecutor = buildExecutor;
-        this.buildStatusChangedEventNotifier = buildStatusChangedEventNotifier;
     }
 
     @Override
-    public void startBuilding(BuildTask buildTask, Consumer<BuildStatus> onComplete) throws CoreException {
-        BuildExecutionTask buildExecutionTask = BuildExecutionTask.build(
+    public void startBuilding(BuildTask buildTask, Consumer<BuildResult> onComplete)
+            throws CoreException {
+
+        Consumer<BuildExecutionStatusChangedEvent> onBuildExecutionStatusChangedEvent = (statusChangedEvent) -> {
+            log.debug("Received execution status update {}.", statusChangedEvent);
+            if (statusChangedEvent.getNewStatus().isCompleted()) {
+                BuildResult buildResult = statusChangedEvent.getBuildResult().get();
+                log.debug("Notifying build execution completed {}.", statusChangedEvent);
+                onComplete.accept(buildResult);
+            }
+        };
+
+        String contentId = ContentIdentityManager.getBuildContentId(buildTask.getBuildConfiguration().getName());
+        BuildConfiguration configuration = buildTask.getBuildConfiguration();
+        BuildExecutionConfiguration buildExecutionConfiguration = BuildExecutionConfiguration.build(
                 buildTask.getId(),
-                buildTask.getBuildConfiguration(),
-                buildTask.getBuildConfigurationAudited(),
-                buildTask.getUser(),
-                buildTask.getBuildRecordSetIds(),
-                buildTask.getBuildConfigSetRecordId(),
-                Optional.of(buildStatusChangedEventNotifier),
-                buildTask.getId(),
-                buildTask.getSubmitTime()
-        );
-        buildExecutor.startBuilding(buildExecutionTask, onComplete); //TODO can we use buildExecutor.build and make startBuilding private
+                contentId,
+                buildTask.getUser().getId(),
+                configuration.getBuildScript(),
+                configuration.getName(),
+                configuration.getScmRepoURL(),
+                configuration.getScmRevision(),
+                configuration.getScmMirrorRepoURL(),
+                configuration.getScmMirrorRevision(),
+                configuration.getBuildEnvironment().getBuildType());
+
+        try {
+            buildExecutor.startBuilding(buildExecutionConfiguration, onBuildExecutionStatusChangedEvent);
+        } catch (ExecutorException e) {
+            throw new CoreException("Could not start build execution.", e);
+        }
     }
 }

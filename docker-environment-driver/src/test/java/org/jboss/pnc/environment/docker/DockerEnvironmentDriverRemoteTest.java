@@ -17,27 +17,8 @@
  */
 package org.jboss.pnc.environment.docker;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
-import java.io.File;
-import java.io.IOException;
-import java.lang.invoke.MethodHandles;
-import java.net.Socket;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.Semaphore;
-import java.util.concurrent.TimeUnit;
-import java.util.function.Consumer;
-import java.util.logging.Logger;
-
-import javax.inject.Inject;
-
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.pnc.common.Configuration;
@@ -45,9 +26,7 @@ import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.moduleconfig.DockerEnvironmentDriverModuleConfig;
 import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
 import org.jboss.pnc.common.util.HttpUtils;
-import org.jboss.pnc.model.BuildEnvironment;
 import org.jboss.pnc.model.BuildType;
-import org.jboss.pnc.model.OperationalSystem;
 import org.jboss.pnc.model.RepositoryType;
 import org.jboss.pnc.spi.environment.RunningEnvironment;
 import org.jboss.pnc.spi.environment.exception.EnvironmentDriverException;
@@ -65,10 +44,26 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
-
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.LoggerFactory;
+
+import javax.inject.Inject;
+import java.io.File;
+import java.io.IOException;
+import java.lang.invoke.MethodHandles;
+import java.net.Socket;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 /**
  * Unit tests for DockerEnnvironmentDriver
@@ -147,13 +142,9 @@ public class DockerEnvironmentDriverRemoteTest {
 
     @Test
     public void canBuildEnvironmentTest() {
-        final BuildEnvironment goodEnv = BuildEnvironment.Builder.newBuilder().buildType(BuildType.JAVA).build();
-        final BuildEnvironment badEnv1 = BuildEnvironment.Builder.newBuilder().buildType(null).build();
-        final BuildEnvironment badEnv2 = BuildEnvironment.Builder.newBuilder().buildType(BuildType.DOCKER).build();
-
-        assertTrue(dockerEnvDriver.canBuildEnvironment(goodEnv));
-        assertFalse(dockerEnvDriver.canBuildEnvironment(badEnv1));
-        assertFalse(dockerEnvDriver.canBuildEnvironment(badEnv2));
+        assertTrue(dockerEnvDriver.canBuildEnvironment(BuildType.JAVA));
+        assertFalse(dockerEnvDriver.canBuildEnvironment(null));
+        assertFalse(dockerEnvDriver.canBuildEnvironment(BuildType.DOCKER));
     }
 
     @Test
@@ -161,9 +152,8 @@ public class DockerEnvironmentDriverRemoteTest {
         final Semaphore mutex = new Semaphore(0);
 
         // Create container
-        final BuildEnvironment environment = BuildEnvironment.Builder.newBuilder().buildType(BuildType.JAVA).build();
         final DockerStartedEnvironment startedEnv = (DockerStartedEnvironment)
-                dockerEnvDriver.buildEnvironment(environment, DUMMY_REPOSITORY_CONFIGURATION);
+                dockerEnvDriver.buildEnvironment(BuildType.JAVA, DUMMY_REPOSITORY_CONFIGURATION);
 
         Consumer<RunningEnvironment> onComplete = (generalRunningEnv) -> {
             DockerRunningEnvironment runningEnv = (DockerRunningEnvironment) generalRunningEnv;

@@ -24,19 +24,14 @@ import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.moduleconfig.BpmModuleConfig;
 import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
-import org.jboss.pnc.common.util.StringUtils;
 import org.jboss.pnc.core.builder.coordinator.BuildScheduler;
-import org.jboss.pnc.core.builder.coordinator.BuildSetTask;
 import org.jboss.pnc.core.builder.coordinator.BuildTask;
 import org.jboss.pnc.core.content.ContentIdentityManager;
-import org.jboss.pnc.core.exception.CoreException;
 import org.jboss.pnc.model.BuildConfiguration;
-import org.jboss.pnc.model.BuildConfigurationAudited;
-import org.jboss.pnc.model.BuildEnvironment;
-import org.jboss.pnc.model.IdRev;
-import org.jboss.pnc.model.Project;
-import org.jboss.pnc.model.User;
-import org.jboss.pnc.spi.BuildStatus;
+import org.jboss.pnc.rest.restmodel.BuildExecutionConfigurationRest;
+import org.jboss.pnc.spi.BuildResult;
+import org.jboss.pnc.spi.exception.CoreException;
+import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
 import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.manager.RuntimeEngine;
 import org.kie.api.runtime.process.ProcessInstance;
@@ -52,7 +47,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
@@ -79,18 +73,15 @@ public class BpmBuildScheduler implements BuildScheduler {
     }
 
     @Inject
-    public BpmBuildScheduler(Configuration configuration, BpmCompleteListener bpmCompleteListener) throws MalformedURLException {
+    public BpmBuildScheduler(Configuration configuration, BpmCompleteListener bpmCompleteListener) {
         this.bpmCompleteListener = bpmCompleteListener;
         this.configuration = configuration;
     }
 
     @Override
-    public void startBuilding(BuildTask buildTask, Consumer<BuildStatus> onComplete) throws CoreException {
+    public void startBuilding(BuildTask buildTask, Consumer<BuildResult> onComplete) throws CoreException {
         try {
-            ProcessInstance processInstance = startProcess(buildTask, Optional.of(buildTask)
-                    .map(BuildTask::getBuildSetTask)
-                    .map(BuildSetTask::getId)
-                    .orElse(null));
+            ProcessInstance processInstance = startProcess(buildTask);
             logger.info("New component build process started with process instance id {}.", processInstance.getId());
             registerCompleteListener(buildTask.getId(), onComplete);
         } catch (Exception e) {
@@ -98,15 +89,15 @@ public class BpmBuildScheduler implements BuildScheduler {
         }
     }
 
-    private void registerCompleteListener(int taskId, Consumer<BuildStatus> onComplete) {
+    private void registerCompleteListener(int taskId, Consumer<BuildResult> onComplete) {
         BpmListener bpmListener = new BpmListener(taskId, onComplete);
         bpmCompleteListener.subscribe(bpmListener);
     }
 
-    ProcessInstance startProcess(BuildTask buildTask, Integer buildTaskSetId) throws CoreException {
+    private ProcessInstance startProcess(BuildTask buildTask) throws CoreException {
         try {
             KieSession kieSession = createSession(buildTask);
-            ProcessInstance processInstance = kieSession.startProcess(getProcessId(buildTask), createParameters(buildTask, buildTaskSetId));
+            ProcessInstance processInstance = kieSession.startProcess(getProcessId(buildTask), createParameters(buildTask));
             if (processInstance == null) {
                 logger.warn("Failed to create new process instance.");
             } else {
@@ -122,103 +113,51 @@ public class BpmBuildScheduler implements BuildScheduler {
         }
     }
 
-    Map<String, Object> createParameters(BuildTask buildTask, Integer buildTaskSetId) throws JsonProcessingException, ConfigurationParseException {
+    Map<String, Object> createParameters(BuildTask buildTask) throws JsonProcessingException, ConfigurationParseException {
         logger.debug("[{}] Creating parameters", buildTask.getId());
         Map<String, Object> parameters = new HashMap<>();
-        fillBuildRequest(parameters, buildTask, buildTaskSetId);
-        fillUrls(parameters);
-        fillComponentParameters(parameters, buildTask);
+        parameters.put("processParameters", getProcessConfig());
+        parameters.put("buildExecutionConfiguration", getBuildExecutionConfiguration(buildTask));
         logger.debug("[{}] Created parameters", parameters);
         return parameters;
     }
 
-    void fillComponentParameters(Map<String, Object> parameters, BuildTask buildTask)
+    String getProcessConfig()
             throws JsonProcessingException, ConfigurationParseException {
-        /*
-        "GAV" : "org.artificer:artificer:1.0.0.Beta1",
-        "Description" : "a test",
-        "SCM" : "https://github.com/ArtificerRepo/artificer.git",
-        "Tag" : "artificer-1.0.0.Beta1-IDP-1",
-        "JavaVersion" : "1.7.0_55",
-        "MavenVersion" : "3.1.1",
-        "BuildCommand" : "mvn -Pgenerate-docs",
-        "CommandLineParams" : "-Xmx950m -XX:MaxPermSize=256m -Dmaven.artifact.threads=5",
-        "BuildArtifactsRequired" : "JBoss EAP 6.4",
-        "CommunityBuild" : "false",
-        "PatchBuild" : "false",
-        "ProjectId" : 1,
-        "EnvironmentId" : 1
-         */
+
         BpmModuleConfig moduleConfig = configuration.getModuleConfig(new PncConfigProvider<>(BpmModuleConfig.class));
         Map<String, Object> params = new HashMap<>();
-        params.put("BuildConfigName", buildTask.getBuildConfiguration().getName());
-        params.put("Description", buildTask.getBuildConfiguration().getDescription());
-        params.put("SCM", buildTask.getBuildConfiguration().getScmRepoURL());
-        params.put("Tag", buildTask.getBuildConfiguration().getScmRevision());//no such field in PNC, we have only revision
-        params.put("JavaVersion", null);//no such field in PNC - We use Environment id...
-        params.put("MavenVersion", null);//no such field in PNC
-        params.put("BuildCommand", buildTask.getBuildConfiguration().getBuildScript());
-        params.put("CommandLineParams", null);//no such field in PNC
-        params.put("BuildArtifactsRequired", buildTask.getBuildConfiguration().getAllDependencies().stream()
-                .map(bc -> bc.getName())
-                .collect(Collectors.toList()));//Is it correct?
-        params.put("CommunityBuild", Optional.ofNullable(moduleConfig.getCommunityBuild()).orElse("true"));
-        params.put("VersionAdjust", Optional.ofNullable(moduleConfig.getVersionAdjust()).orElse("false"));
-        params.put("EnvironmentId", Optional.of(buildTask.getBuildConfiguration())
-                .map(BuildConfiguration::getBuildEnvironment)
-                .map(BuildEnvironment::getId)
-                .orElse(null));
-        params.put("PatchBuild", "false");//hardcoded?
-        params.put("ProjectId", Optional.of(buildTask.getBuildConfiguration())
-                .map(BuildConfiguration::getProject)
-                .map(Project::getId)
-                .orElse(null));
-        params.put("dependencyIds", buildTask.getBuildConfigurationDependencies().stream()
-                .map(dep -> dep.getId().toString())
-                .collect(Collectors.joining(",")));
-        parameters.put("paramsJSON", objectMapper.writeValueAsString(params));
+
+        params.put("pncBaseUrl", moduleConfig.getPncBaseUrl());
+        params.put("aproxBaseUrl", moduleConfig.getAproxBaseUrl());
+        params.put("repourBaseUrl", moduleConfig.getRepourBaseUrl());
+        params.put("daBaseUrl", moduleConfig.getDaBaseUrl());
+        params.put("communityBuild", Optional.ofNullable(moduleConfig.getCommunityBuild()).orElse("true"));
+        params.put("versionAdjust", Optional.ofNullable(moduleConfig.getVersionAdjust()).orElse("false"));
+
+        return objectMapper.writeValueAsString(params);
     }
 
-    void fillUrls(Map<String, Object> parameters) throws ConfigurationParseException {
-        BpmModuleConfig moduleConfig = configuration.getModuleConfig(new PncConfigProvider<>(BpmModuleConfig.class));
-        parameters.put("pncBaseUrl", moduleConfig.getPncBaseUrl());
-        parameters.put("jenkinsBaseUrl", moduleConfig.getJenkinsBaseUrl());
-        parameters.put("aproxBaseUrl", moduleConfig.getAproxBaseUrl());
-        parameters.put("repourBaseUrl", moduleConfig.getRepourBaseUrl());
-        parameters.put("daBaseUrl", moduleConfig.getDaBaseUrl());
-    }
+    String getBuildExecutionConfiguration(BuildTask buildTask) {
 
-    void fillBuildRequest(Map<String, Object> parameters, BuildTask buildTask, Integer buildTaskSetId)
-            throws JsonProcessingException {
-        Map<String, Object> buildRequest = new HashMap<>();
-        buildRequest.put("buildTaskId", buildTask.getId());
-        buildRequest.put("buildTaskSetId", buildTaskSetId);
-        buildRequest.put("buildConfiguration",buildTask.getBuildConfiguration().getId());
-        buildRequest.put("buildConfigurationRevision",
-                Optional.of(buildTask)
-                        .map(BuildTask::getBuildConfigurationAudited)
-                        .map(BuildConfigurationAudited::getIdRev)
-                        .map(IdRev::getRev)
-                        .orElse(null));
-        buildRequest.put("buildRecordSetIdsCSV", StringUtils.toCVS(buildTask.getBuildRecordSetIds()));
-        buildRequest.put("buildConfigSetRecordId", buildTask.getBuildConfigSetRecordId());
-        buildRequest.put("buildContentId", ContentIdentityManager.getBuildContentId(buildTask.getBuildConfiguration()));
-        buildRequest.put("submitTimeMillis", buildTask.getSubmitTime().getTime());
-        buildRequest.put("pncUsername", Optional.of(buildTask)
-                .map(BuildTask::getUser)
-                .map(User::getUsername)
-                .orElse(null));
-        buildRequest.put("pncUserLoginToken", Optional.of(buildTask)
-                .map(BuildTask::getUser)
-                .map(User::getLoginToken)
-                .filter(token -> !"no-token".equals(token))
-                .orElse(null));
-        buildRequest.put("pncUserEmail", Optional.of(buildTask)
-                .map(BuildTask::getUser)
-                .map(User::getEmail)
-                .orElse(null));
+        BuildConfiguration buildConfiguration = buildTask.getBuildConfiguration();
+        String contentId = ContentIdentityManager.getBuildContentId(buildConfiguration.getName());
 
-        parameters.put("buildRequestJSON", objectMapper.writeValueAsString(buildRequest));
+        BuildExecutionConfiguration buildExecutionConfiguration = BuildExecutionConfiguration.build(
+                buildTask.getId(),
+                contentId,
+                buildTask.getUser().getId(),
+                buildConfiguration.getBuildScript(),
+                buildConfiguration.getName(),
+                buildConfiguration.getScmRepoURL(),
+                buildConfiguration.getScmRevision(),
+                buildConfiguration.getScmMirrorRepoURL(),
+                buildConfiguration.getScmMirrorRevision(),
+                buildConfiguration.getBuildEnvironment().getBuildType());
+
+        BuildExecutionConfigurationRest buildExecutionConfigurationREST = new BuildExecutionConfigurationRest(buildExecutionConfiguration);
+
+        return buildExecutionConfigurationREST.toString();
     }
 
     KieSession createSession(BuildTask buildTask) throws ConfigurationParseException, MalformedURLException {

@@ -17,15 +17,14 @@
  */
 package org.jboss.pnc.jenkinsbuilddriver;
 
-import java.io.IOException;
-import java.util.logging.Logger;
-
+import com.offbytwo.jenkins.JenkinsServer;
+import com.offbytwo.jenkins.model.JobWithDetails;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
 import org.jboss.pnc.spi.environment.RunningEnvironment;
 
-import com.offbytwo.jenkins.JenkinsServer;
-import com.offbytwo.jenkins.model.JobWithDetails;
+import java.io.IOException;
+import java.util.logging.Logger;
 
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-11-29.

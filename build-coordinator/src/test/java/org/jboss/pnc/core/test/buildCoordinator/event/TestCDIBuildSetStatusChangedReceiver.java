@@ -28,7 +28,7 @@ import java.util.function.Consumer;
 @ApplicationScoped
 public class TestCDIBuildSetStatusChangedReceiver {
 
-    public static final TestCDIBuildSetStatusChangedReceiver INSTANCE = new TestCDIBuildSetStatusChangedReceiver();
+    public static final TestCDIBuildSetStatusChangedReceiver INSTANCE = new TestCDIBuildSetStatusChangedReceiver(); //TODO do not instance in applicationScoped
 
     private List<Consumer<BuildSetStatusChangedEvent>> listeners = new LinkedList<>();
 

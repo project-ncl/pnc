@@ -27,7 +27,11 @@ import org.commonjava.aprox.folo.dto.TrackedContentEntryDTO;
 import org.commonjava.aprox.model.core.StoreKey;
 import org.commonjava.aprox.model.core.StoreType;
 import org.commonjava.aprox.promote.client.AproxPromoteClientModule;
-import org.commonjava.aprox.promote.model.*;
+import org.commonjava.aprox.promote.model.GroupPromoteRequest;
+import org.commonjava.aprox.promote.model.GroupPromoteResult;
+import org.commonjava.aprox.promote.model.PathsPromoteRequest;
+import org.commonjava.aprox.promote.model.PathsPromoteResult;
+import org.commonjava.aprox.promote.model.ValidationResult;
 import org.commonjava.maven.atlas.ident.ref.ArtifactRef;
 import org.commonjava.maven.atlas.ident.ref.SimpleArtifactRef;
 import org.commonjava.maven.atlas.ident.util.ArtifactPathInfo;
@@ -42,7 +46,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * {@link RepositorySession} implementation that works with the Maven {@link RepositoryManagerDriver} (which connects to an
@@ -67,11 +79,19 @@ public class MavenRepositorySession implements RepositorySession {
 
     // TODO: Create and pass in suitable parameters to Aprox to create the
     //       proxy repository.
+    @Deprecated
     public MavenRepositorySession(Aprox aprox, String buildRepoId, boolean isSetBuild,
                                   MavenRepositoryConnectionInfo info) {
         this.aprox = aprox;
         this.buildRepoId = buildRepoId;
         this.isSetBuild = isSetBuild;
+        this.connectionInfo = info;
+    }
+
+    public MavenRepositorySession(Aprox aprox, String buildRepoId, MavenRepositoryConnectionInfo info) {
+        this.aprox = aprox;
+        this.buildRepoId = buildRepoId;
+        this.isSetBuild = false; //TODO remove
         this.connectionInfo = info;
     }
 
@@ -136,7 +156,7 @@ public class MavenRepositorySession implements RepositorySession {
 
         promoteToBuildContentSet();
 
-        return new MavenRepositoryManagerResult(uploads, downloads);
+        return new MavenRepositoryManagerResult(uploads, downloads, buildRepoId); //TODO buildRepoId == buildContentId ?
     }
 
     /**

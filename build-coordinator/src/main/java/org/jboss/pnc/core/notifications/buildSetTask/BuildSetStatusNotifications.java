@@ -22,6 +22,8 @@ package org.jboss.pnc.core.notifications.buildSetTask;
  */
 
 import org.jboss.pnc.spi.events.BuildSetStatusChangedEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
@@ -32,35 +34,41 @@ import java.util.stream.Collectors;
 
 @ApplicationScoped
 public class BuildSetStatusNotifications {
-    private Set<BuildSetCallBack> subscribers = new HashSet<>();
+
+    private static final Logger log = LoggerFactory.getLogger(BuildSetStatusNotifications.class);
+
+    private final Set<BuildSetCallBack> subscribers = new HashSet<>();
 
     /**
      * Subscriber is automatically removed once task reaches completed state.
      *
-     * @param buildSetCallBack
+     * @param buildSetCallBack object which callback method will be called when its id matches
      */
     public void subscribe(BuildSetCallBack buildSetCallBack) {
+        log.debug("Registering new subscriber for buildSetConfigurationId {}.", buildSetCallBack.getBuildSetConfigurationId());
         subscribers.add(buildSetCallBack);
     }
 
     public void observeEvent(@Observes BuildSetStatusChangedEvent event) {
         BuildSetStatusChangedEvent buildSetStatusChangedEvent = event; // Avoid CDI runtime issue NCL-1505
         Predicate<BuildSetCallBack> filterSubscribersMatchingTaskId =
-                (callBackUrl) -> callBackUrl.getBuildSetTaskId().equals(buildSetStatusChangedEvent.getBuildSetTaskId());
+                (callBackUrl) -> callBackUrl.getBuildSetConfigurationId().equals(buildSetStatusChangedEvent.getBuildSetConfigurationId());
 
         Set<BuildSetCallBack> matchingTask = subscribers.stream().filter(filterSubscribersMatchingTaskId).collect(Collectors.toSet());
 
-        matchingTask.forEach((buildSetCallBack) -> {
-            removeListenersOfCompletedTasks(buildSetCallBack, buildSetStatusChangedEvent);
-        });
+        log.debug("Notifying {} of {} total subscribers with event {}.", matchingTask.size(), subscribers.size(), buildSetStatusChangedEvent);
 
         matchingTask.forEach((buildSetCallBack) -> {
+            log.trace("Executing buildSetCallBack for buildSetConfigurationId {} with {}.", buildSetCallBack.getBuildSetConfigurationId(), buildSetStatusChangedEvent);
             buildSetCallBack.callback(buildSetStatusChangedEvent);
         });
+
+        matchingTask.forEach((buildSetCallBack) -> removeListenersOfCompletedTasks(buildSetCallBack, buildSetStatusChangedEvent));
     }
 
     private void removeListenersOfCompletedTasks(BuildSetCallBack buildSetCallBack, BuildSetStatusChangedEvent buildSetStatusChangedEvent) {
         if (buildSetStatusChangedEvent.getNewStatus().isCompleted()) {
+            log.debug("Removing subscriber for buildSetConfigurationId {}.", buildSetCallBack.getBuildSetConfigurationId());
             subscribers.remove(buildSetCallBack);
         }
     }

@@ -32,7 +32,7 @@ import org.jboss.pnc.common.json.moduleconfig.MavenRepoDriverModuleConfig;
 import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.RepositoryType;
-import org.jboss.pnc.spi.BuildExecution;
+import org.jboss.pnc.spi.repositorymanager.BuildExecution;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManager;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerException;
 import org.jboss.pnc.spi.repositorymanager.model.RepositorySession;
@@ -45,7 +45,10 @@ import javax.annotation.PreDestroy;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import static org.jboss.pnc.mavenrepositorymanager.MavenRepositoryConstants.*;
+import static org.jboss.pnc.mavenrepositorymanager.MavenRepositoryConstants.DRIVER_ID;
+import static org.jboss.pnc.mavenrepositorymanager.MavenRepositoryConstants.PUBLIC_GROUP_ID;
+import static org.jboss.pnc.mavenrepositorymanager.MavenRepositoryConstants.SHARED_IMPORTS_ID;
+import static org.jboss.pnc.mavenrepositorymanager.MavenRepositoryConstants.UNTESTED_BUILDS_GROUP;
 
 /**
  * Implementation of {@link RepositoryManager} that manages an <a href="https://github.com/jdcasey/aprox">AProx</a> instance to
@@ -141,8 +144,7 @@ public class RepositoryManagerDriver implements RepositoryManager {
                     e.getMessage());
         }
 
-        return new MavenRepositorySession(aprox, buildId, buildExecution.isPartOfBuildSet(),
-                new MavenRepositoryConnectionInfo(url));
+        return new MavenRepositorySession(aprox, buildId, new MavenRepositoryConnectionInfo(url));
     }
 
     /**
@@ -158,7 +160,6 @@ public class RepositoryManagerDriver implements RepositoryManager {
             throws AproxClientException {
 
         String buildContentId = execution.getBuildContentId();
-        String projectName = execution.getProjectName();
         int id = execution.getId();
 
         // if the build-level group doesn't exist, create it.
@@ -169,14 +170,14 @@ public class RepositoryManagerDriver implements RepositoryManager {
                 buildArtifacts.setAllowSnapshots(true);
                 buildArtifacts.setAllowReleases(true);
 
-                buildArtifacts.setDescription(String.format("Build output for PNC build #%s (project: %s)", id, projectName));
+                buildArtifacts.setDescription(String.format("Build output for PNC build #%s", id));
 
                 aprox.stores().create(buildArtifacts,
-                        "Creating hosted repository for build: " + id + " (repo: " + buildContentId + ") of: " + projectName, HostedRepository.class);
+                        "Creating hosted repository for build: " + id + " (repo: " + buildContentId + ")", HostedRepository.class);
             }
 
             Group buildGroup = new Group(buildContentId);
-            buildGroup.setDescription(String.format("Aggregation group for PNC build #%s (project: %s)", id, projectName));
+            buildGroup.setDescription(String.format("Aggregation group for PNC build #%s", id));
 
             // build-local artifacts
             buildGroup.addConstituent(new StoreKey(StoreType.hosted, buildContentId));
@@ -185,8 +186,7 @@ public class RepositoryManagerDriver implements RepositoryManager {
             addGlobalConstituents(buildGroup);
 
             aprox.stores().create(buildGroup,
-                    "Creating repository group for resolving artifacts in build: " + id + " (repo: " + buildContentId + ") of: " + projectName,
-                    Group.class);
+                    "Creating repository group for resolving artifacts in build: " + id + " (repo: " + buildContentId + ")", Group.class);
         }
     }
 

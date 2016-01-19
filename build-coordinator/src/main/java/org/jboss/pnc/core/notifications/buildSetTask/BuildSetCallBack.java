@@ -25,16 +25,16 @@ import java.util.function.Consumer;
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
 public class BuildSetCallBack {
-    private Integer buildSetTaskId;
-    private Consumer<BuildSetStatusChangedEvent> callback;
+    private final Integer buildSetConfigurationId;
+    private final Consumer<BuildSetStatusChangedEvent> callback;
 
-    public BuildSetCallBack(int buildSetTaskId, Consumer<BuildSetStatusChangedEvent> callback) {
-        this.buildSetTaskId = buildSetTaskId;
+    public BuildSetCallBack(int buildSetConfigurationId, Consumer<BuildSetStatusChangedEvent> callback) {
+        this.buildSetConfigurationId = buildSetConfigurationId;
         this.callback = callback;
     }
 
-    public Integer getBuildSetTaskId() {
-        return buildSetTaskId;
+    public Integer getBuildSetConfigurationId() {
+        return buildSetConfigurationId;
     }
 
     public void callback(BuildSetStatusChangedEvent buildSetStatusChangedEvent) {

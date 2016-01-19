@@ -55,7 +55,7 @@ public class TermdTerminalConnection extends AbstractWebSocketsConnection {
             if (logger.isTraceEnabled()) {
                 String string = new String(bytes);
                 if (string.equals("\r\n")) {
-                    logger.trace(responseBuffer.toString());
+                    logger.trace(uri.getPath() + ": " + responseBuffer.toString());
                     responseBuffer = new StringBuilder();
                 } else {
                     responseBuffer.append(string);

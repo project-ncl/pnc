@@ -19,19 +19,21 @@ package org.jboss.pnc.core.builder.coordinator;
 
 import org.jboss.pnc.core.builder.coordinator.filtering.BuildTaskFilter;
 import org.jboss.pnc.core.builder.datastore.DatastoreAdapter;
-import org.jboss.pnc.core.exception.CoreException;
 import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.ProductMilestone;
 import org.jboss.pnc.model.User;
+import org.jboss.pnc.spi.BuildCoordinationStatus;
+import org.jboss.pnc.spi.BuildResult;
 import org.jboss.pnc.spi.BuildSetStatus;
-import org.jboss.pnc.spi.BuildStatus;
 import org.jboss.pnc.spi.datastore.DatastoreException;
+import org.jboss.pnc.spi.events.BuildCoordinationStatusChangedEvent;
 import org.jboss.pnc.spi.events.BuildSetStatusChangedEvent;
-import org.jboss.pnc.spi.events.BuildStatusChangedEvent;
 import org.jboss.pnc.spi.exception.BuildConflictException;
+import org.jboss.pnc.spi.exception.CoreException;
+import org.jboss.pnc.spi.executor.exceptions.ExecutorException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,17 +59,17 @@ import java.util.stream.Collectors;
 @ApplicationScoped
 public class BuildCoordinator {
 
-    private Logger log = LoggerFactory.getLogger(BuildCoordinator.class);
+    private final Logger log = LoggerFactory.getLogger(BuildCoordinator.class);
 
     /**
      * Build tasks which are either waiting to be run or currently running.
      * The task is removed from the queue when the build is complete and the results
      * are stored to the database.
      */
-    private Queue<BuildTask> activeBuildTasks = new ConcurrentLinkedQueue<>(); //TODO garbage collector (time-out, error state)
+    private final Queue<BuildTask> activeBuildTasks = new ConcurrentLinkedQueue<>(); //TODO garbage collector (time-out, error state)
 
     private DatastoreAdapter datastoreAdapter;
-    private Event<BuildStatusChangedEvent> buildStatusChangedEventNotifier;
+    private Event<BuildCoordinationStatusChangedEvent> buildStatusChangedEventNotifier;
     private Event<BuildSetStatusChangedEvent> buildSetStatusChangedEventNotifier;
 
     private BuildScheduler buildScheduler;
@@ -78,7 +80,7 @@ public class BuildCoordinator {
     public BuildCoordinator(){} //workaround for CDI constructor parameter injection
 
     @Inject
-    public BuildCoordinator(DatastoreAdapter datastoreAdapter, Event<BuildStatusChangedEvent> buildStatusChangedEventNotifier,
+    public BuildCoordinator(DatastoreAdapter datastoreAdapter, Event<BuildCoordinationStatusChangedEvent> buildStatusChangedEventNotifier,
             Event<BuildSetStatusChangedEvent> buildSetStatusChangedEventNotifier, BuildSchedulerFactory buildSchedulerFactory,
             Instance<BuildTaskFilter> taskFilters) {
         this.datastoreAdapter = datastoreAdapter;
@@ -228,26 +230,22 @@ public class BuildCoordinator {
         return buildConfigSet.getProductVersion().getCurrentProductMilestone();
     }
 
-    private void build(BuildSetTask buildSetTask) throws CoreException {
-        Predicate<BuildTask> readyToBuild = (buildTask) -> {
-            return buildTask.readyToBuild();
-        };
-
-        Predicate<BuildTask> rejectAlreadySubmitted = (buildTask) -> {
-            if (isBuildAlreadySubmitted(buildTask)) {
-                buildTask.setStatus(BuildStatus.REJECTED);
-                buildTask.setStatusDescription("The configuration is already in the build queue.");
-                return false;
-            } else {
-                return true;
-            }
-        };
-
+    private void build(BuildSetTask buildSetTask) {
         if (!BuildSetStatus.REJECTED.equals(buildSetTask.getStatus())) {
             buildSetTask.getBuildTasks().stream()
-                    .filter(readyToBuild)
-                    .filter(rejectAlreadySubmitted)
+                    .filter((buildTask) -> buildTask.readyToBuild())
+                    .filter((buildTask) -> rejectAlreadySubmitted(buildTask))
                     .forEach(v -> processBuildTask(v));
+        }
+    }
+
+    private boolean rejectAlreadySubmitted(BuildTask buildTask) {
+        if (isBuildAlreadySubmitted(buildTask)) {
+            buildTask.setStatus(BuildCoordinationStatus.REJECTED);
+            buildTask.setStatusDescription("The configuration is already in the build queue.");
+            return false;
+        } else {
+            return true;
         }
     }
 
@@ -262,24 +260,42 @@ public class BuildCoordinator {
     }
 
     void processBuildTask(BuildTask buildTask) {
-        Consumer<BuildStatus> onComplete = (buildStatus) -> {
-            buildTask.setStatus(buildStatus);
+        Consumer<BuildResult> onComplete = (buildResult) -> {
+
+            buildTask.setStatus(BuildCoordinationStatus.BUILD_COMPLETED);
+
+            try {
+                datastoreAdapter.storeResult(buildTask, buildResult);
+            } catch (DatastoreException e) {
+                log.error("Cannot store results to datastore.", e);
+                buildTask.setStatus(BuildCoordinationStatus.SYSTEM_ERROR);
+            }
+
+            BuildCoordinationStatus coordinationStatus;
+            if (buildResult.hasFailed()) {
+                coordinationStatus = BuildCoordinationStatus.DONE_WITH_ERRORS;
+            } else {
+                coordinationStatus = BuildCoordinationStatus.DONE;
+            }
+            buildTask.setStatus(coordinationStatus);
             activeBuildTasks.remove(buildTask);
         };
+
         try {
             log.info("[{}] Checking if task should be skipped(rebuildAll: {}, predicateResult: {})", buildTask.getId(), buildTask.getRebuildAll(), prepareBuildTaskFilterPredicate().test(buildTask));
             if(!buildTask.getRebuildAll() && prepareBuildTaskFilterPredicate().test(buildTask)) {
                 log.info("[{}] Marking task as REJECTED_ALREADY_BUILT, because it has been already built", buildTask.getId());
-                buildTask.setStatus(BuildStatus.REJECTED_ALREADY_BUILT);
+                buildTask.setStatus(BuildCoordinationStatus.REJECTED_ALREADY_BUILT);
                 buildTask.setStatusDescription("The configuration has already been built.");
                 return;
             }
 
             activeBuildTasks.add(buildTask);
             buildScheduler.startBuilding(buildTask, onComplete);
-        } catch (CoreException e) {
+            buildTask.setStatus(BuildCoordinationStatus.BUILDING);
+        } catch (CoreException | ExecutorException e) {
             log.debug(" Build coordination task failed. Setting it as SYSTEM_ERROR.", e);
-            buildTask.setStatus(BuildStatus.SYSTEM_ERROR);
+            buildTask.setStatus(BuildCoordinationStatus.SYSTEM_ERROR);
             buildTask.setStatusDescription(e.getMessage());
             activeBuildTasks.remove(buildTask);
             try {
@@ -315,11 +331,19 @@ public class BuildCoordinator {
         return activeBuildTasks.contains(buildTask);
     }
 
-    Event<BuildStatusChangedEvent> getBuildStatusChangedEventNotifier() {
+    Event<BuildCoordinationStatusChangedEvent> getBuildStatusChangedEventNotifier() {
         return buildStatusChangedEventNotifier;
     }
 
     Event<BuildSetStatusChangedEvent> getBuildSetStatusChangedEventNotifier() {
         return buildSetStatusChangedEventNotifier;
+    }
+
+    public void notifyBuildSetTaskCompleted(BuildConfigSetRecord buildConfigSetRecord) {
+        try {
+            datastoreAdapter.saveBuildConfigSetRecord(buildConfigSetRecord);
+        } catch (DatastoreException e) {
+            log.error("Unable to save build config set record", e);
+        }
     }
 }

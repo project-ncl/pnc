@@ -22,7 +22,7 @@ import org.commonjava.aprox.model.core.Group;
 import org.commonjava.aprox.model.core.StoreKey;
 import org.commonjava.aprox.model.core.StoreType;
 import org.jboss.pnc.mavenrepositorymanager.fixture.TestBuildExecution;
-import org.jboss.pnc.spi.BuildExecution;
+import org.jboss.pnc.spi.repositorymanager.BuildExecution;
 import org.jboss.pnc.spi.repositorymanager.model.RepositorySession;
 import org.junit.Test;
 
@@ -35,8 +35,7 @@ public class BuildGroupIncludesConfSetGroupTest extends AbstractRepositoryManage
     @Test
     public void verifyGroupComposition_ProductVersion_WithConfSet() throws Exception {
         // create a dummy composed (chained) build execution and a repo session based on it
-        BuildExecution execution = new TestBuildExecution("product_myproduct_1.1", "my-build-conf-set",
-                "build_myproject_67890", true);
+        BuildExecution execution = new TestBuildExecution("build_myproject_67890");
         Aprox aprox = driver.getAprox();
 
         RepositorySession repositoryConfiguration = driver.createBuildRepository(execution);
@@ -55,8 +54,7 @@ public class BuildGroupIncludesConfSetGroupTest extends AbstractRepositoryManage
         Group buildGroup = aprox.stores().load(StoreType.group, repoId, Group.class);
 
         System.out.printf("Constituents:\n  %s\n", join(buildGroup.getConstituents(), "\n  "));
-        assertGroupConstituents(buildGroup, new StoreKey(StoreType.hosted, execution.getBuildContentId()), new StoreKey(
-                StoreType.group, execution.getBuildSetContentId()), new StoreKey(StoreType.group, execution.getTopContentId()),
+        assertGroupConstituents(buildGroup, new StoreKey(StoreType.hosted, execution.getBuildContentId()),
                 new StoreKey(StoreType.group, MavenRepositoryConstants.UNTESTED_BUILDS_GROUP), new StoreKey(StoreType.hosted,
                         MavenRepositoryConstants.SHARED_IMPORTS_ID), new StoreKey(StoreType.group,
                         MavenRepositoryConstants.PUBLIC_GROUP_ID));

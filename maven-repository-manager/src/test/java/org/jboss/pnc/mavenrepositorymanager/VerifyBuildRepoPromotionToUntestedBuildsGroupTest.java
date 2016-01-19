@@ -17,16 +17,13 @@
  */
 package org.jboss.pnc.mavenrepositorymanager;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.Assert.assertThat;
-
 import org.commonjava.aprox.folo.client.AproxFoloContentClientModule;
 import org.commonjava.aprox.model.core.Group;
 import org.commonjava.aprox.model.core.StoreKey;
 import org.commonjava.aprox.model.core.StoreType;
 import org.jboss.pnc.mavenrepositorymanager.fixture.TestBuildExecution;
 import org.jboss.pnc.model.Artifact;
-import org.jboss.pnc.spi.BuildExecution;
+import org.jboss.pnc.spi.repositorymanager.BuildExecution;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
 import org.jboss.pnc.spi.repositorymanager.model.RepositorySession;
 import org.junit.Test;
@@ -34,6 +31,9 @@ import org.junit.Test;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.util.List;
+
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.junit.Assert.assertThat;
 
 public class VerifyBuildRepoPromotionToUntestedBuildsGroupTest extends AbstractRepositoryManagerDriverTest {
 
@@ -45,7 +45,7 @@ public class VerifyBuildRepoPromotionToUntestedBuildsGroupTest extends AbstractR
         String buildId = "build";
 
         // create a dummy build execution, and a repo session based on it
-        BuildExecution execution = new TestBuildExecution(null, null, buildId, true);
+        BuildExecution execution = new TestBuildExecution(buildId);
         RepositorySession session = driver.createBuildRepository(execution);
 
         // simulate a build deploying a file.

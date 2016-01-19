@@ -17,10 +17,10 @@
  */
 package org.jboss.pnc.termdbuilddriver;
 
-import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.spi.builddriver.CompletedBuild;
 import org.jboss.pnc.spi.builddriver.RunningBuild;
 import org.jboss.pnc.spi.environment.RunningEnvironment;
+import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,14 +39,13 @@ public class TermdRunningBuild implements RunningBuild {
     private static final TimeUnit MAX_TIMEOUT_UNIT = TimeUnit.HOURS;
 
     private final RunningEnvironment runningEnvironment;
-
-    private final BuildConfigurationAudited buildConfigAudited;
+    private final BuildExecutionConfiguration buildExecutionConfiguration;
 
     private CompletableFuture<CompletedBuild> buildPromise = new CompletableFuture<>();
 
-    public TermdRunningBuild(RunningEnvironment runningEnvironment, BuildConfigurationAudited buildConfigAudited) {
+    public TermdRunningBuild(RunningEnvironment runningEnvironment, BuildExecutionConfiguration buildExecutionConfiguration) {
         this.runningEnvironment = runningEnvironment;
-        this.buildConfigAudited = buildConfigAudited;
+        this.buildExecutionConfiguration = buildExecutionConfiguration;
     }
 
     @Override
@@ -76,26 +75,26 @@ public class TermdRunningBuild implements RunningBuild {
     }
 
     public String getBuildScript() {
-        return buildConfigAudited.getBuildScript();
+        return buildExecutionConfiguration.getBuildScript();
     }
 
     public String getName() {
-        return buildConfigAudited.getName();
+        return buildExecutionConfiguration.getName();
     }
 
-    public String getScmRepoURL() {
-        if (buildConfigAudited.getScmMirrorRepoURL() != null) {
-            return buildConfigAudited.getScmMirrorRepoURL();
+    public String getScmRepoURL() { //TODO determine this before calling the execution
+        if (buildExecutionConfiguration.getScmMirrorRepoURL() != null) {
+            return buildExecutionConfiguration.getScmMirrorRepoURL();
         } else {
-            return buildConfigAudited.getScmRepoURL();
+            return buildExecutionConfiguration.getScmRepoURL();
         }
     }
 
-    public String getScmRevision() {
-        if (buildConfigAudited.getScmMirrorRevision() != null) {
-            return buildConfigAudited.getScmMirrorRevision();
+    public String getScmRevision() { //TODO determine this before calling the execution
+        if (buildExecutionConfiguration.getScmMirrorRevision() != null) {
+            return buildExecutionConfiguration.getScmMirrorRevision();
         } else {
-            return buildConfigAudited.getScmRevision();
+            return buildExecutionConfiguration.getScmRevision();
         }
     }
 

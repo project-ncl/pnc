@@ -18,9 +18,10 @@
 package org.jboss.pnc.termdbuilddriver;
 
 import org.jboss.pnc.model.BuildConfigurationAudited;
-import org.jboss.pnc.spi.BuildExecution;
 import org.jboss.pnc.spi.builddriver.CompletedBuild;
 import org.jboss.pnc.spi.builddriver.RunningBuild;
+import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
+import org.jboss.pnc.spi.executor.BuildExecutionSession;
 import org.jboss.pnc.test.category.RemoteTest;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -64,7 +65,10 @@ public class TermdBuildDriverRemoteTest extends AbstractLocalBuildAgentTest {
     public void shouldBuildJSR107() throws Exception {
         //given
         TermdBuildDriver driver = new TermdBuildDriver();
-        BuildExecution buildExecution = mock(BuildExecution.class);
+        BuildExecutionSession buildExecution = mock(BuildExecutionSession.class);
+        BuildExecutionConfiguration buildExecutionConfiguration = mock(BuildExecutionConfiguration.class);
+        doReturn(buildExecutionConfiguration).when(buildExecution).getBuildExecutionConfiguration();
+
 
         AtomicReference<CompletedBuild> buildResult = new AtomicReference<>();
 
@@ -75,7 +79,7 @@ public class TermdBuildDriverRemoteTest extends AbstractLocalBuildAgentTest {
         doReturn("jsr107-test").when(jsr107BuildConfig).getName();
 
         //when
-        RunningBuild runningBuild = driver.startProjectBuild(buildExecution, jsr107BuildConfig, localEnvironmentPointer);
+        RunningBuild runningBuild = driver.startProjectBuild(buildExecution, localEnvironmentPointer);
         runningBuild.monitor(completedBuild -> buildResult.set(completedBuild), exception -> fail(exception.getMessage()));
 
         logger.info("==== shouldBuildJSR107 logs ====");

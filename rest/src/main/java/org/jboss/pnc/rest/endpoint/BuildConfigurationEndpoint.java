@@ -23,19 +23,12 @@ import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.jboss.pnc.auth.AuthenticationProvider;
-import org.jboss.pnc.core.builder.coordinator.BuildCoordinator;
-import org.jboss.pnc.core.builder.coordinator.BuildTask;
-import org.jboss.pnc.core.builder.executor.BuildExecutionTask;
-import org.jboss.pnc.core.builder.executor.BuildExecutor;
 import org.jboss.pnc.model.BuildConfiguration;
-import org.jboss.pnc.model.BuildConfigurationAudited;
-import org.jboss.pnc.model.IdRev;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.rest.provider.BuildConfigurationProvider;
 import org.jboss.pnc.rest.provider.BuildRecordProvider;
 import org.jboss.pnc.rest.provider.ProductVersionProvider;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationRest;
-import org.jboss.pnc.rest.restmodel.BuildRecordRest;
 import org.jboss.pnc.rest.restmodel.ProductVersionRest;
 import org.jboss.pnc.rest.restmodel.response.Singleton;
 import org.jboss.pnc.rest.restmodel.response.error.ErrorResponseRest;
@@ -46,14 +39,9 @@ import org.jboss.pnc.rest.swagger.response.BuildRecordPage;
 import org.jboss.pnc.rest.swagger.response.BuildRecordSingleton;
 import org.jboss.pnc.rest.swagger.response.ProductVersionPage;
 import org.jboss.pnc.rest.trigger.BuildTriggerer;
-import org.jboss.pnc.rest.utils.BpmNotifier;
-import org.jboss.pnc.rest.utils.HibernateLazyInitializer;
 import org.jboss.pnc.rest.validation.exceptions.InvalidEntityException;
 import org.jboss.pnc.rest.validation.exceptions.ValidationException;
-import org.jboss.pnc.spi.BuildStatus;
 import org.jboss.pnc.spi.datastore.Datastore;
-import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationAuditedRepository;
-import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationRepository;
 import org.jboss.pnc.spi.exception.BuildConflictException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -79,17 +67,9 @@ import java.lang.invoke.MethodHandles;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.Optional;
-import java.util.Set;
-import java.util.function.Consumer;
-import java.util.stream.Collectors;
 
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.CONFLICTED_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.CONFLICTED_DESCRIPTION;
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.FORBIDDEN_CODE;
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.FORBIDDEN_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.INVALID_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.INVLID_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.NOT_FOUND_CODE;
@@ -124,9 +104,6 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
     private BuildRecordProvider buildRecordProvider;
     private ProductVersionProvider productVersionProvider;
     private Datastore datastore;
-    private BpmNotifier bpmNotifier;
-    private HibernateLazyInitializer hibernateLazyInitializer;
-    private BuildCoordinator buildCoordinator;
 
     @Context
     private HttpServletRequest httpServletRequest;
@@ -141,19 +118,14 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
             BuildTriggerer buildTriggerer,
             BuildRecordProvider buildRecordProvider,
             ProductVersionProvider productVersionProvider,
-            Datastore datastore,
-            BpmNotifier bpmNotifier,
-            HibernateLazyInitializer hibernateLazyInitializer,
-            BuildCoordinator buildCoordinator) {
+            Datastore datastore) {
+
         super(buildConfigurationProvider);
         this.buildConfigurationProvider = buildConfigurationProvider;
         this.buildTriggerer = buildTriggerer;
         this.buildRecordProvider = buildRecordProvider;
         this.productVersionProvider = productVersionProvider;
         this.datastore = datastore;
-        this.bpmNotifier = bpmNotifier;
-        this.hibernateLazyInitializer = hibernateLazyInitializer;
-        this.buildCoordinator = buildCoordinator;
     }
 
     @ApiOperation(value = "Gets all Build Configurations")
@@ -287,97 +259,6 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
         } catch (BuildConflictException e) {
             return Response.status(Response.Status.CONFLICT).entity(
                     new Singleton(buildRecordProvider.getSpecificRunning(e.getBuildTaskId()))).build();
-        }
-    }
-
-    @ApiOperation(value = "Triggers the build execution only for a specific Build Configuration", response = Singleton.class)
-    @ApiResponses(value = {
-            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION),
-            @ApiResponse(code = INVLID_CODE, message = INVALID_DESCRIPTION),
-            @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION),
-            @ApiResponse(code = FORBIDDEN_CODE, message = FORBIDDEN_DESCRIPTION),
-    })
-    @POST
-    @Path("/{id}/execute-build")
-    public Response build(@ApiParam(value = "Build Configuration id", required = true) @PathParam("id") Integer buildConfigurationId,
-                          @ApiParam(value = "Build Configuration revision", required = true) @QueryParam("buildConfigurationRevision") String buildConfigurationRevisionParam,
-                          @ApiParam(value = "Build task id", required = true) @QueryParam("buildTaskId") String buildTaskIdParam,
-                          @ApiParam(value = "Build set task id", required = false) @QueryParam("buildSetTaskId") String buildSetTaskId, //TODO redundant
-                          @ApiParam(value = "Optional Callback URL", required = false) @QueryParam("callbackUrl") String callbackUrl,
-                          @ApiParam(value = "A CSV list of build record set ids.", required = false) @QueryParam("buildRecordSetIdsCSV") String buildRecordSetIdsCSV,
-                          @ApiParam(value = "Build configuration set record id.", required = false) @QueryParam("buildConfigSetRecordId") String buildConfigSetRecordId,
-                          @ApiParam(value = "BuildTask submit time in number of millis since epoch.", required = true) @QueryParam("submitTimeMillis") String submitTimeMillisParam,
-                          @ApiParam(value = "Username who triggered the build. If empty current user is used.", required = false) @QueryParam("usernameTriggered") String usernameTriggered,
-                          @Context UriInfo uriInfo,
-                          @Context HttpServletRequest request) {
-        try {
-
-            logger.debug("Endpoint /execute-build requested for buildTaskId [{}], by [{}]", buildTaskIdParam, request.getRemoteAddr());
-
-            Integer buildTaskId;
-            Response errorResponse = validateRequiredField(buildTaskIdParam, "buildTaskId");
-            if (errorResponse != null) {
-                return errorResponse;
-            } else {
-                buildTaskId = Integer.parseInt(buildTaskIdParam);
-            }
-
-            Integer buildConfigurationRevision;
-            errorResponse = validateRequiredField(buildConfigurationRevisionParam, "buildConfigurationRevision");
-            if (errorResponse != null) {
-                return errorResponse;
-            } else {
-                buildConfigurationRevision = Integer.parseInt(buildConfigurationRevisionParam);
-            }
-
-            Long submitTimeMillis;
-            if (submitTimeMillisParam == null || submitTimeMillisParam.equals("")) {
-                logger.warn("Missing required submitTimeMillis parameter. Using 'now' instead.");
-                submitTimeMillis = System.currentTimeMillis();
-            } else {
-                submitTimeMillis = Long.parseLong(submitTimeMillisParam);
-            }
-
-            AuthenticationProvider authProvider = new AuthenticationProvider(httpServletRequest);
-            String loggedUser = authProvider.getUserName();
-            User currentUser;
-            if(loggedUser == null || loggedUser == "") {
-                return Response.status(Response.Status.FORBIDDEN).build();
-            } else {
-                currentUser = datastore.retrieveUserByUsername(loggedUser);
-            }
-
-            User userTriggered;
-            if (usernameTriggered != null && !usernameTriggered.equals("") && !usernameTriggered.equals("null")) {
-                userTriggered = datastore.retrieveUserByUsername(usernameTriggered);
-            } else {
-                //TODO remove dependency on buildCoordinator as buildExecutor must be decoupled from buildCoordinator (different deployment). The dependency was introduced to workaround the missing user parameter which should be passed to restEndpoint.
-                Optional<BuildTask> taskOptional = buildCoordinator.getActiveBuildTasks().stream().filter(buildTask -> buildTask.getId() == buildTaskId.intValue()).findFirst();
-                if (taskOptional.isPresent()) {
-                    userTriggered = taskOptional.get().getUser();
-                } else {
-                    userTriggered = currentUser; //in case of BPM this is a predefined user that BPM uses to authenticate
-                }
-            }
-
-            BuildExecutionTask buildExecutionTask = buildTriggerer.executeBuild(
-                    buildTaskId,
-                    buildConfigurationId,
-                    buildConfigurationRevision,
-                    buildRecordSetIdsCSV,
-                    buildConfigSetRecordId,
-                    userTriggered,
-                    submitTimeMillis,
-                    callbackUrl);
-
-            UriBuilder uriBuilder = UriBuilder.fromUri(uriInfo.getBaseUri()).path("/result/running/{id}");
-            URI uri = uriBuilder.build(buildTaskId);
-            BuildRecordRest buildRecordRest = new BuildRecordRest(buildExecutionTask, new Date(submitTimeMillis));
-            Response response = Response.ok(uri).header("location", uri).entity(new Singleton(buildRecordRest)).build();
-            return response;
-        } catch (Exception e) {
-            logger.error(e.getMessage(), e);
-            return Response.serverError().entity("Other error: " + e.getMessage()).build();
         }
     }
 

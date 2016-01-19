@@ -18,40 +18,23 @@
 package org.jboss.pnc.core.test.buildCoordinator;
 
 import org.jboss.arquillian.container.test.api.Deployment;
-import org.jboss.pnc.common.Configuration;
-import org.jboss.pnc.core.BuildDriverFactory;
 import org.jboss.pnc.core.builder.coordinator.BuildCoordinator;
 import org.jboss.pnc.core.builder.coordinator.BuildSetTask;
 import org.jboss.pnc.core.builder.coordinator.BuildTask;
-import org.jboss.pnc.core.builder.coordinator.filtering.BuildTaskFilter;
-import org.jboss.pnc.core.builder.datastore.DatastoreAdapter;
-import org.jboss.pnc.core.builder.executor.BuildExecutor;
-import org.jboss.pnc.core.content.ContentIdentityManager;
-import org.jboss.pnc.core.events.DefaultBuildStatusChangedEvent;
-import org.jboss.pnc.core.exception.CoreException;
-import org.jboss.pnc.core.notifications.buildSetTask.BuildSetCallBack;
-import org.jboss.pnc.core.notifications.buildTask.BuildCallBack;
 import org.jboss.pnc.core.test.buildCoordinator.event.TestCDIBuildStatusChangedReceiver;
-import org.jboss.pnc.core.test.configurationBuilders.TestProjectConfigurationBuilder;
-import org.jboss.pnc.core.test.mock.BuildDriverMock;
-import org.jboss.pnc.core.test.mock.DatastoreMock;
-import org.jboss.pnc.core.test.mock.EnvironmentDriverMock;
-import org.jboss.pnc.core.test.mock.RepositoryManagerMock;
-import org.jboss.pnc.core.test.mock.RepositorySessionMock;
-import org.jboss.pnc.core.test.mock.TestEntitiesFactory;
+import org.jboss.pnc.mock.datastore.DatastoreMock;
+import org.jboss.pnc.mock.model.builders.ArtifactBuilder;
+import org.jboss.pnc.mock.model.builders.TestProjectConfigurationBuilder;
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationSet;
-import org.jboss.pnc.model.BuildEnvironment;
 import org.jboss.pnc.model.mock.MockUser;
+import org.jboss.pnc.spi.BuildCoordinationStatus;
 import org.jboss.pnc.spi.BuildSetStatus;
-import org.jboss.pnc.spi.BuildStatus;
 import org.jboss.pnc.spi.datastore.DatastoreException;
-import org.jboss.pnc.spi.datastore.repositories.BuildConfigSetRecordRepository;
-import org.jboss.pnc.spi.events.BuildStatusChangedEvent;
+import org.jboss.pnc.spi.events.BuildCoordinationStatusChangedEvent;
 import org.jboss.pnc.spi.exception.BuildConflictException;
-import org.jboss.shrinkwrap.api.ShrinkWrap;
-import org.jboss.shrinkwrap.api.asset.EmptyAsset;
+import org.jboss.pnc.spi.exception.CoreException;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -84,49 +67,19 @@ public class ProjectBuilder {
     TestCDIBuildStatusChangedReceiver statusChangedReceiver;
 
     private static final Logger log = LoggerFactory.getLogger(ProjectBuilder.class);
-    public static final int N_STATUS_UPDATES_PER_TASK = 14;
+    public static final int N_STATUS_UPDATES_PER_TASK = 3;
     public static final int N_STATUS_UPDATES_PER_TASK_WAITING_FOR_FAILED_DEPS = 1;
 
     @Deployment
     public static JavaArchive createDeployment() {
-        JavaArchive jar = ShrinkWrap.create(JavaArchive.class)
-                .addClass(Configuration.class)
-                .addClass(BuildEnvironment.Builder.class)
-                .addClass(TestCDIBuildStatusChangedReceiver.class)
-                .addPackages(false,
-                        BuildDriverFactory.class.getPackage())
-                .addPackages(true,
-                        BuildCoordinator.class.getPackage(),
-                        DatastoreAdapter.class.getPackage(),
-                        BuildExecutor.class.getPackage(),
-                        TestProjectConfigurationBuilder.class.getPackage(),
-                        ContentIdentityManager.class.getPackage(),
-                        BuildConfigSetRecordRepository.class.getPackage(),
-                        BuildTaskFilter.class.getPackage(),
-                        TestCDIBuildStatusChangedReceiver.class.getPackage(),
-                        BuildSetCallBack.class.getPackage(),
-                        BuildCallBack.class.getPackage(),
-                        BuildStatus.class.getPackage(),
-                        DefaultBuildStatusChangedEvent.class.getPackage())
-                .addClass(BuildDriverMock.class)
-                .addClass(DatastoreMock.class)
-                .addClass(EnvironmentDriverMock.class)
-                .addClass(RepositoryManagerMock.class)
-                .addClass(RepositorySessionMock.class)
-                .addClass(TestEntitiesFactory.class)
-                .addAsManifestResource(EmptyAsset.INSTANCE, "beans.xml")
-                .addAsResource("META-INF/logging.properties");
-
-        log.debug(jar.toString(true));
-        return jar;
+        return BuildCoordinatorDeployments.deployment(BuildCoordinatorDeployments.Options.WITH_DATASTORE);
     }
 
     void buildProject(BuildConfiguration buildConfiguration) throws BuildConflictException, InterruptedException {
         log.debug("Building project {}", buildConfiguration.getName());
-        List<BuildStatusChangedEvent> receivedStatuses = new CopyOnWriteArrayList<>();
+        List<BuildCoordinationStatusChangedEvent> receivedStatuses = new CopyOnWriteArrayList<>();
 
         //Defines a number of callbacks, which are executed after buildStatus update
-
         final Semaphore semaphore = registerReleaseListenersAndAcquireSemaphore(receivedStatuses, N_STATUS_UPDATES_PER_TASK);
 
 
@@ -140,7 +93,7 @@ public class ProjectBuilder {
 
     void buildProjects(BuildConfigurationSet buildConfigurationSet) throws InterruptedException, CoreException, DatastoreException {
         log.info("Building configuration set {}", buildConfigurationSet.getName());
-        List<BuildStatusChangedEvent> receivedStatuses = new CopyOnWriteArrayList<>();
+        List<BuildCoordinationStatusChangedEvent> receivedStatuses = new CopyOnWriteArrayList<>();
 
         //Defines a number of callbacks, which are executed after buildStatus update
         final int nStatusUpdates = N_STATUS_UPDATES_PER_TASK * buildConfigurationSet.getBuildConfigurations().size();
@@ -161,7 +114,7 @@ public class ProjectBuilder {
 
     void buildFailingProject(BuildConfigurationSet buildConfigurationSet, int numCompletedBuilds, int numLackingDependecies) throws InterruptedException, CoreException, DatastoreException {
         log.info("Building configuration set {}", buildConfigurationSet.getName());
-        List<BuildStatusChangedEvent> receivedStatuses = new CopyOnWriteArrayList<>();
+        List<BuildCoordinationStatusChangedEvent> receivedStatuses = new CopyOnWriteArrayList<>();
 
         //Defines a number of callbacks, which are executed after buildStatus update
         final int nStatusUpdates = N_STATUS_UPDATES_PER_TASK * numCompletedBuilds + N_STATUS_UPDATES_PER_TASK_WAITING_FOR_FAILED_DEPS;
@@ -174,15 +127,15 @@ public class ProjectBuilder {
         log.info("Waiting to receive all {} status updates...", nStatusUpdates);
         waitForStatusUpdates(nStatusUpdates, semaphore);
         log.info("Checking if received all status updates...");
-        buildSetTask.getBuildTasks().stream().filter(b -> BuildStatus.DONE_WITH_ERRORS.equals(b.getStatus())).forEach(bt -> assertAllStatusUpdateReceivedForFailedBuild(receivedStatuses, bt.getId()));
-        buildSetTask.getBuildTasks().stream().filter(b -> BuildStatus.REJECTED.equals(b.getStatus())).forEach(bt -> assertAllStatusUpdateReceivedForFailedWaitingForDeps(receivedStatuses, bt.getId()));
+        buildSetTask.getBuildTasks().stream().filter(b -> BuildCoordinationStatus.DONE_WITH_ERRORS.equals(b.getStatus())).forEach(bt -> assertAllStatusUpdateReceivedForFailedBuild(receivedStatuses, bt.getId()));
+        buildSetTask.getBuildTasks().stream().filter(b -> BuildCoordinationStatus.REJECTED.equals(b.getStatus())).forEach(bt -> assertAllStatusUpdateReceivedForFailedWaitingForDeps(receivedStatuses, bt.getId()));
     }
 
-    private Semaphore registerReleaseListenersAndAcquireSemaphore(List<BuildStatusChangedEvent> receivedStatuses, int nStatusUpdates) throws InterruptedException {
+    private Semaphore registerReleaseListenersAndAcquireSemaphore(List<BuildCoordinationStatusChangedEvent> receivedStatuses, int nStatusUpdates) throws InterruptedException {
         final Semaphore semaphore = new Semaphore(nStatusUpdates);
         statusChangedReceiver.addBuildStatusChangedEventListener(statusUpdate -> {
             log.debug("Received status update {}.", statusUpdate.toString());
-            if (!BuildStatus.WAITING_FOR_DEPENDENCIES.equals(statusUpdate.getNewStatus())) {
+            if (!BuildCoordinationStatus.WAITING_FOR_DEPENDENCIES.equals(statusUpdate.getNewStatus())) {
                 receivedStatuses.add(statusUpdate);
                 semaphore.release(1);
                 log.debug("Semaphore released, there are {} free entries", semaphore.availablePermits());
@@ -195,7 +148,11 @@ public class ProjectBuilder {
     }
 
     private void assertBuildStartedSuccessfully(BuildTask buildTask) {
-        List<BuildStatus> errorStates = Arrays.asList(BuildStatus.REJECTED, BuildStatus.SYSTEM_ERROR, BuildStatus.BUILD_ENV_SETUP_COMPLETE_WITH_ERROR);
+        List<BuildCoordinationStatus> errorStates = Arrays.asList(
+                BuildCoordinationStatus.REJECTED,
+                BuildCoordinationStatus.REJECTED_ALREADY_BUILT,
+                BuildCoordinationStatus.SYSTEM_ERROR,
+                BuildCoordinationStatus.DONE_WITH_ERRORS);
         if (errorStates.contains(buildTask.getStatus())) {
             fail("Build " + buildTask.getId() + " has status:" + buildTask.getStatus() + " with description: " + buildTask.getStatusDescription());
         }
@@ -214,41 +171,25 @@ public class ProjectBuilder {
         }
     }
 
-    private void assertAllStatusUpdateReceived(List<BuildStatusChangedEvent> receivedStatuses, Integer buildTaskId) {
-        assertStatusUpdateReceived(receivedStatuses, BuildStatus.BUILD_ENV_SETTING_UP, buildTaskId);
-        assertStatusUpdateReceived(receivedStatuses, BuildStatus.BUILD_ENV_WAITING, buildTaskId);
-        assertStatusUpdateReceived(receivedStatuses, BuildStatus.BUILD_ENV_SETUP_COMPLETE_SUCCESS, buildTaskId);
-        assertStatusUpdateReceived(receivedStatuses, BuildStatus.REPO_SETTING_UP, buildTaskId);
-        assertStatusUpdateReceived(receivedStatuses, BuildStatus.BUILD_SETTING_UP, buildTaskId);
-        assertStatusUpdateReceived(receivedStatuses, BuildStatus.BUILD_WAITING, buildTaskId);
-        assertStatusUpdateReceived(receivedStatuses, BuildStatus.BUILD_COMPLETED_SUCCESS, buildTaskId);
-        assertStatusUpdateReceived(receivedStatuses, BuildStatus.BUILD_ENV_DESTROYING, buildTaskId);
-        assertStatusUpdateReceived(receivedStatuses, BuildStatus.BUILD_ENV_DESTROYED, buildTaskId);
-        assertStatusUpdateReceived(receivedStatuses, BuildStatus.STORING_RESULTS, buildTaskId);
-        assertStatusUpdateReceived(receivedStatuses, BuildStatus.DONE, buildTaskId);
+    private void assertAllStatusUpdateReceived(List<BuildCoordinationStatusChangedEvent> receivedStatuses, Integer buildTaskId) {
+        assertStatusUpdateReceived(receivedStatuses, BuildCoordinationStatus.BUILDING, buildTaskId);
+        assertStatusUpdateReceived(receivedStatuses, BuildCoordinationStatus.BUILD_COMPLETED, buildTaskId);
+        assertStatusUpdateReceived(receivedStatuses, BuildCoordinationStatus.DONE, buildTaskId);
     }
 
-    private void assertAllStatusUpdateReceivedForFailedBuild(List<BuildStatusChangedEvent> receivedStatuses, Integer buildTaskId) {
-        assertStatusUpdateReceived(receivedStatuses, BuildStatus.BUILD_ENV_SETTING_UP, buildTaskId);
-        assertStatusUpdateReceived(receivedStatuses, BuildStatus.BUILD_ENV_WAITING, buildTaskId);
-        assertStatusUpdateReceived(receivedStatuses, BuildStatus.BUILD_ENV_SETUP_COMPLETE_SUCCESS, buildTaskId);
-        assertStatusUpdateReceived(receivedStatuses, BuildStatus.REPO_SETTING_UP, buildTaskId);
-        assertStatusUpdateReceived(receivedStatuses, BuildStatus.BUILD_SETTING_UP, buildTaskId);
-        assertStatusUpdateReceived(receivedStatuses, BuildStatus.BUILD_WAITING, buildTaskId);
-        assertStatusUpdateReceived(receivedStatuses, BuildStatus.BUILD_COMPLETED_WITH_ERROR, buildTaskId);
-        assertStatusUpdateReceived(receivedStatuses, BuildStatus.BUILD_ENV_DESTROYING, buildTaskId);
-        assertStatusUpdateReceived(receivedStatuses, BuildStatus.BUILD_ENV_DESTROYED, buildTaskId);
-        assertStatusUpdateReceived(receivedStatuses, BuildStatus.STORING_RESULTS, buildTaskId);
-        assertStatusUpdateReceived(receivedStatuses, BuildStatus.DONE_WITH_ERRORS, buildTaskId);
+    private void assertAllStatusUpdateReceivedForFailedBuild(List<BuildCoordinationStatusChangedEvent> receivedStatuses, Integer buildTaskId) {
+        assertStatusUpdateReceived(receivedStatuses, BuildCoordinationStatus.BUILDING, buildTaskId);
+        assertStatusUpdateReceived(receivedStatuses, BuildCoordinationStatus.BUILD_COMPLETED, buildTaskId);
+        assertStatusUpdateReceived(receivedStatuses, BuildCoordinationStatus.DONE_WITH_ERRORS, buildTaskId);
     }
 
-    private void assertAllStatusUpdateReceivedForFailedWaitingForDeps(List<BuildStatusChangedEvent> receivedStatuses, Integer buildTaskId) {
-        assertStatusUpdateReceived(receivedStatuses, BuildStatus.REJECTED, buildTaskId);
+    private void assertAllStatusUpdateReceivedForFailedWaitingForDeps(List<BuildCoordinationStatusChangedEvent> receivedStatuses, Integer buildTaskId) {
+        assertStatusUpdateReceived(receivedStatuses, BuildCoordinationStatus.REJECTED, buildTaskId);
     }
 
-    private void assertStatusUpdateReceived(List<BuildStatusChangedEvent> receivedStatusEvents, BuildStatus status, Integer buildTaskId) {
+    private void assertStatusUpdateReceived(List<BuildCoordinationStatusChangedEvent> receivedStatusEvents, BuildCoordinationStatus status, Integer buildTaskId) {
         boolean received = false;
-        for (BuildStatusChangedEvent receivedStatusEvent : receivedStatusEvents) {
+        for (BuildCoordinationStatusChangedEvent receivedStatusEvent : receivedStatusEvents) {
             if (receivedStatusEvent.getBuildTaskId().equals(buildTaskId) &&
                     receivedStatusEvent.getNewStatus().equals(status)) {
                 received = true;
@@ -261,6 +202,6 @@ public class ProjectBuilder {
     public static void assertBuildArtifactsPresent(List<Artifact> builtArtifacts) {
         assertTrue("Missing built artifacts.", builtArtifacts.size() > 0);
         Artifact artifact = builtArtifacts.get(0);
-        assertTrue("Invalid built artifact in result.", artifact.getIdentifier().startsWith("test"));
+        assertTrue("Invalid built artifact in result.", artifact.getIdentifier().startsWith(ArtifactBuilder.IDENTIFIER_PREFIX));
     }
 }

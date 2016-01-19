@@ -19,6 +19,7 @@ package org.jboss.pnc.core.test.buildCoordinator;
 
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.junit.InSequence;
+import org.jboss.pnc.mock.builddriver.BuildDriverResultMock;
 import org.jboss.pnc.model.BuildRecord;
 import org.junit.Assert;
 import org.junit.Test;
@@ -38,7 +39,6 @@ public class SingleProjectBuildTest extends ProjectBuilder {
         buildProject(configurationBuilder.build(1, "c1-java"));
     }
 
-
     @Test
     @InSequence(20)
     public void checkDatabaseForResult() {
@@ -47,7 +47,7 @@ public class SingleProjectBuildTest extends ProjectBuilder {
 
         BuildRecord buildRecord = buildRecords.get(0);
         String buildLog = buildRecord.getBuildLog();
-        Assert.assertTrue("Invalid build log.", buildLog.contains("Finished: SUCCESS"));
+        Assert.assertTrue("Invalid build log.", buildLog.contains(BuildDriverResultMock.BUILD_LOG));
 
         assertBuildArtifactsPresent(buildRecord.getBuiltArtifacts());
         assertBuildArtifactsPresent(buildRecord.getDependencies());

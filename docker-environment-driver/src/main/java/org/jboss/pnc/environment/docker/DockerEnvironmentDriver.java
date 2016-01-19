@@ -29,8 +29,6 @@ import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
 import org.jboss.pnc.common.monitor.PullingMonitor;
 import org.jboss.pnc.common.util.HttpUtils;
 import org.jboss.pnc.model.BuildType;
-import org.jboss.pnc.model.BuildEnvironment;
-import org.jboss.pnc.model.OperationalSystem;
 import org.jboss.pnc.spi.environment.EnvironmentDriver;
 import org.jboss.pnc.spi.environment.StartedEnvironment;
 import org.jboss.pnc.spi.environment.exception.EnvironmentDriverException;
@@ -50,7 +48,6 @@ import org.slf4j.LoggerFactory;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import java.lang.invoke.MethodHandles;
-import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -157,9 +154,9 @@ public class DockerEnvironmentDriver implements EnvironmentDriver {
     }
 
     @Override
-    public StartedEnvironment buildEnvironment(BuildEnvironment buildEnvironment,
+    public StartedEnvironment buildEnvironment(BuildType buildType,
             RepositorySession repositorySession) throws EnvironmentDriverException {
-        if (!canBuildEnvironment(buildEnvironment))
+        if (!canBuildEnvironment(buildType))
             throw new UnsupportedOperationException(
                     "DockerEnvironmentDriver currently provides support only for Linux environments on Docker.");
 
@@ -214,13 +211,13 @@ public class DockerEnvironmentDriver implements EnvironmentDriver {
     }
 
     @Override
-    public boolean canBuildEnvironment(BuildEnvironment environment) {
+    public boolean canBuildEnvironment(BuildType buildType) {
         if (disabled) {
             logger.info("Skipping driver as it is disabled by config.");
             return false;
         }
 
-        if (environment.getBuildType() == BuildType.JAVA)
+        if (buildType == BuildType.JAVA)
             return true;
         else
             return false;

@@ -20,12 +20,24 @@ package org.jboss.pnc.core.test.buildCoordinator;
 
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.core.builder.coordinator.BuildCoordinator;
+import org.jboss.pnc.core.builder.coordinator.filtering.BuildTaskFilter;
 import org.jboss.pnc.core.builder.datastore.DatastoreAdapter;
+import org.jboss.pnc.core.content.ContentIdentityManager;
 import org.jboss.pnc.core.events.DefaultBuildSetStatusChangedEvent;
+import org.jboss.pnc.core.events.DefaultBuildStatusChangedEvent;
+import org.jboss.pnc.core.notifications.buildSetTask.BuildSetCallBack;
 import org.jboss.pnc.core.notifications.buildSetTask.BuildSetStatusNotifications;
-import org.jboss.pnc.core.test.mock.BuildExecutorMock;
-import org.jboss.pnc.core.test.mock.DatastoreMock;
+import org.jboss.pnc.core.notifications.buildTask.BuildCallBack;
+import org.jboss.pnc.core.test.buildCoordinator.event.TestCDIBuildStatusChangedReceiver;
+import org.jboss.pnc.mock.datastore.DatastoreMock;
+import org.jboss.pnc.mock.environmentdriver.BuildExecutorMock;
+import org.jboss.pnc.mock.model.builders.TestEntitiesFactory;
+import org.jboss.pnc.mock.model.builders.TestProjectConfigurationBuilder;
+import org.jboss.pnc.model.BuildEnvironment;
+import org.jboss.pnc.spi.BuildCoordinationStatus;
+import org.jboss.pnc.spi.datastore.repositories.BuildConfigSetRecordRepository;
 import org.jboss.pnc.spi.events.BuildSetStatusChangedEvent;
+import org.jboss.pnc.test.arquillian.ShrinkwrapDeployerUtils;
 import org.jboss.shrinkwrap.api.Archive;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.asset.EmptyAsset;
@@ -57,31 +69,43 @@ public class BuildCoordinatorDeployments {
 
     private static final Logger log = LoggerFactory.getLogger(BuildCoordinatorDeployments.class);
 
-    public static JavaArchive defaultDeployment() {
-
-        JavaArchive jar = ShrinkWrap.create(JavaArchive.class)
-                .addClass(Configuration.class)
-                .addPackages(true, BuildCoordinator.class.getPackage())
-                .addPackages(true, BuildSetStatusNotifications.class.getPackage())
-                .addClass(BuildSetStatusChangedEvent.class)
-                .addClass(DefaultBuildSetStatusChangedEvent.class)
-                .addClass(BuildExecutorMock.class)
-                .addAsManifestResource(EmptyAsset.INSTANCE, "beans.xml")
-                .addAsResource("META-INF/logging.properties");
-
-        log.debug(jar.toString(true));
-        return jar;
-    }
-
     public static JavaArchive deployment(Options... options) {
 
-        JavaArchive jar = defaultDeployment();
+        JavaArchive jar = defaultLibs();
 
         for (Options option : options) {
             jar.merge(option.getArchive());
         }
 
         log.debug(jar.toString(true));
+        return jar;
+    }
+
+    private static JavaArchive defaultLibs() {
+        JavaArchive jar = ShrinkWrap.create(JavaArchive.class)
+                .addClass(Configuration.class)
+                .addClass(BuildSetStatusChangedEvent.class)
+                .addClass(DefaultBuildSetStatusChangedEvent.class)
+                .addClass(BuildEnvironment.Builder.class)
+                .addClass(TestEntitiesFactory.class)
+                .addPackages(true,
+                        BuildCoordinator.class.getPackage(),
+                        BuildSetStatusNotifications.class.getPackage(),
+                        TestProjectConfigurationBuilder.class.getPackage(),
+                        ContentIdentityManager.class.getPackage(),
+                        BuildConfigSetRecordRepository.class.getPackage(),
+                        BuildTaskFilter.class.getPackage(),
+                        TestCDIBuildStatusChangedReceiver.class.getPackage(),
+                        BuildSetCallBack.class.getPackage(),
+                        BuildCallBack.class.getPackage(),
+                        BuildCoordinationStatus.class.getPackage(),
+                        DefaultBuildStatusChangedEvent.class.getPackage(),
+                        BuildExecutorMock.class.getPackage())
+                .addAsManifestResource(EmptyAsset.INSTANCE, "beans.xml")
+                .addAsResource("simplelogger.properties");
+
+        ShrinkwrapDeployerUtils.addPomLibs(jar, "org.slf4j:slf4j-simple");
+
         return jar;
     }
 

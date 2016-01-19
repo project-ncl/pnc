@@ -18,9 +18,9 @@
 
 package org.jboss.pnc.core.builder.coordinator;
 
-import org.jboss.pnc.core.builder.coordinator.BuildTask;
-import org.jboss.pnc.core.exception.CoreException;
-import org.jboss.pnc.spi.BuildStatus;
+import org.jboss.pnc.spi.BuildResult;
+import org.jboss.pnc.spi.exception.CoreException;
+import org.jboss.pnc.spi.executor.exceptions.ExecutorException;
 
 import java.util.function.Consumer;
 
@@ -33,7 +33,7 @@ import java.util.function.Consumer;
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
 public interface BuildScheduler {
-    void startBuilding(BuildTask buildTask, Consumer<BuildStatus> onComplete) throws CoreException;
+    void startBuilding(BuildTask buildTask, Consumer<BuildResult> onComplete) throws CoreException, ExecutorException;
 
     String getId();
 }

@@ -24,10 +24,10 @@ import org.jboss.pnc.core.events.DefaultBuildStatusChangedEvent;
 import org.jboss.pnc.integration.deployments.Deployments;
 import org.jboss.pnc.integration.websockets.NotificationCollector;
 import org.jboss.pnc.rest.notifications.websockets.NotificationsEndpoint;
+import org.jboss.pnc.spi.BuildCoordinationStatus;
 import org.jboss.pnc.spi.BuildSetStatus;
-import org.jboss.pnc.spi.BuildStatus;
+import org.jboss.pnc.spi.events.BuildCoordinationStatusChangedEvent;
 import org.jboss.pnc.spi.events.BuildSetStatusChangedEvent;
-import org.jboss.pnc.spi.events.BuildStatusChangedEvent;
 import org.jboss.pnc.spi.notifications.Notifier;
 import org.jboss.pnc.test.category.ContainerTest;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
@@ -58,7 +58,7 @@ public class WebSocketsNotificationTest {
     NotificationCollector notificationCollector;
 
     @Inject
-    Event<BuildStatusChangedEvent> buildStatusNotificationEvent;
+    Event<BuildCoordinationStatusChangedEvent> buildStatusNotificationEvent;
 
     @Inject
     Event<BuildSetStatusChangedEvent> buildSetStatusNotificationEvent;
@@ -66,7 +66,7 @@ public class WebSocketsNotificationTest {
     @Inject
     Notifier notifier;
 
-    @Deployment(name = "WebSocketsNotificationTest")
+    @Deployment(name="WebSocketsNotificationTest")
     public static EnterpriseArchive deploy() {
         EnterpriseArchive enterpriseArchive = Deployments.baseEarWithTestDependencies();
         WebArchive restWar = enterpriseArchive.getAsType(WebArchive.class, "/rest.war");
@@ -90,31 +90,31 @@ public class WebSocketsNotificationTest {
 
     @Test
     public void shouldReceiveBuildStatusChangeNotification() throws Exception {
-        // given
-        BuildStatusChangedEvent buildStatusChangedEvent = new DefaultBuildStatusChangedEvent(BuildStatus.NEW,
-                BuildStatus.BUILD_COMPLETED_SUCCESS, 1, 1, "Build1", 1);
-        String expectedJsonResponse = "{\"eventType\":\"BUILD_STATUS_CHANGED\",\"payload\":{\"id\":1,\"buildStatus\":\"BUILD_COMPLETED_SUCCESS\",\"userId\":1,\"buildConfigurationId\":1,\"buildConfigurationName\":\"Build1\"}}";
+        //given
+        BuildCoordinationStatusChangedEvent buildStatusChangedEvent = new DefaultBuildStatusChangedEvent(BuildCoordinationStatus.NEW, BuildCoordinationStatus.DONE, 1,
+                1, "Build1", 1);
+        String expectedJsonResponse = "{\"eventType\":\"BUILD_STATUS_CHANGED\",\"payload\":{\"id\":1,\"buildCoordinationStatus\":\"DONE\",\"userId\":1,\"buildConfigurationId\":1,\"buildConfigurationName\":\"Build1\"}}";
 
-        // when
+        //when
         buildStatusNotificationEvent.fire(buildStatusChangedEvent);
         waitForMessages();
 
-        // then
+        //then
         assertThat(notificationCollector.getMessages().get(0)).isEqualTo(expectedJsonResponse);
     }
 
     @Test
     public void shouldReceiveBuildSetStatusChangeNotification() throws Exception {
-        // given
-        BuildSetStatusChangedEvent buildStatusChangedEvent = new DefaultBuildSetStatusChangedEvent(BuildSetStatus.NEW,
-                BuildSetStatus.DONE, 1, 1, "BuildSet1", 1);
+        //given
+        BuildSetStatusChangedEvent buildStatusChangedEvent = new DefaultBuildSetStatusChangedEvent(BuildSetStatus.NEW, BuildSetStatus.DONE, 1,
+                1, "BuildSet1", 1);
         String expectedJsonResponse = "{\"eventType\":\"BUILD_SET_STATUS_CHANGED\",\"payload\":{\"id\":1,\"buildStatus\":\"DONE\",\"userId\":1,\"buildSetConfigurationId\":1,\"buildSetConfigurationName\":\"BuildSet1\"}}";
 
-        // when
+        //when
         buildSetStatusNotificationEvent.fire(buildStatusChangedEvent);
         waitForMessages();
 
-        // then
+        //then
         assertThat(notificationCollector.getMessages().get(0)).isEqualTo(expectedJsonResponse);
     }
 
@@ -128,8 +128,8 @@ public class WebSocketsNotificationTest {
 
     private void awaitFor(Supplier<Boolean> condition, int timeMs) {
         long waitUntil = System.currentTimeMillis() + timeMs;
-        while (System.currentTimeMillis() < waitUntil) {
-            if (condition.get()) {
+        while(System.currentTimeMillis() < waitUntil) {
+            if(condition.get()) {
                 return;
             }
             Thread.currentThread().yield();

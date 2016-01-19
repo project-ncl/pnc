@@ -19,8 +19,8 @@ package org.jboss.pnc.notifications;
 
 import org.jboss.pnc.core.events.DefaultBuildStatusChangedEvent;
 import org.jboss.pnc.rest.notifications.DefaultNotificationFactory;
-import org.jboss.pnc.spi.BuildStatus;
-import org.jboss.pnc.spi.events.BuildStatusChangedEvent;
+import org.jboss.pnc.spi.BuildCoordinationStatus;
+import org.jboss.pnc.spi.events.BuildCoordinationStatusChangedEvent;
 import org.jboss.pnc.spi.notifications.model.BuildChangedPayload;
 import org.jboss.pnc.spi.notifications.model.EventType;
 import org.jboss.pnc.spi.notifications.model.Notification;
@@ -33,21 +33,20 @@ public class NotificationFactoryForBuildTest {
 
     @Test
     public void shouldConvertSuccessfulNotificationEvent() throws Exception {
-        // given
-        BuildStatusChangedEvent event = new DefaultBuildStatusChangedEvent(BuildStatus.NEW, BuildStatus.BUILD_COMPLETED_SUCCESS,
-                1, 1, "Build1", 1);
+        //given
+        BuildCoordinationStatusChangedEvent event = new DefaultBuildStatusChangedEvent(BuildCoordinationStatus.NEW, BuildCoordinationStatus.DONE, 1,
+                1, "Build1", 1);
         NotificationFactory notificationFactory = new DefaultNotificationFactory();
 
-        // when
+        //when
         Notification notification = notificationFactory.createNotification(event);
 
-        // then
+        //then
         assertThat(notification.getExceptionMessage()).isNull();
         assertThat(notification.getEventType()).isEqualTo(EventType.BUILD_STATUS_CHANGED);
-        assertThat(((BuildChangedPayload) notification.getPayload()).getBuildStatus())
-                .isEqualTo(BuildStatus.BUILD_COMPLETED_SUCCESS);
-        assertThat(((BuildChangedPayload) notification.getPayload()).getBuildConfigurationId()).isEqualTo(1);
-        assertThat(((BuildChangedPayload) notification.getPayload()).getBuildConfigurationName()).isEqualTo("Build1");
+        assertThat(((BuildChangedPayload)notification.getPayload()).getBuildCoordinationStatus()).isEqualTo(BuildCoordinationStatus.DONE);
+        assertThat(((BuildChangedPayload)notification.getPayload()).getBuildConfigurationId()).isEqualTo(1);
+        assertThat(((BuildChangedPayload)notification.getPayload()).getBuildConfigurationName()).isEqualTo("Build1");
         assertThat(notification.getPayload()).isNotNull();
         assertThat(notification.getPayload().getId()).isEqualTo(1);
         assertThat(notification.getPayload().getUserId()).isEqualTo(1);

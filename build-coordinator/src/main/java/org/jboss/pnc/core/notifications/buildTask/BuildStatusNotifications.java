@@ -21,7 +21,7 @@ package org.jboss.pnc.core.notifications.buildTask;
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
 
-import org.jboss.pnc.spi.events.BuildStatusChangedEvent;
+import org.jboss.pnc.spi.events.BuildCoordinationStatusChangedEvent;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
@@ -32,31 +32,29 @@ import java.util.stream.Collectors;
 
 @ApplicationScoped
 public class BuildStatusNotifications {
-    private Set<BuildCallBack> subscribers = new HashSet<>();
+    private final Set<BuildCallBack> subscribers = new HashSet<>();
 
     /**
      * Subscriber is automatically removed once task reaches completed state.
+     *
+     * @param buildCallBack object which callback method will be called when its taskId matches
      */
     public void subscribe(BuildCallBack buildCallBack) {
         subscribers.add(buildCallBack);
     }
 
-    public void observeEvent(@Observes BuildStatusChangedEvent event) {
-        BuildStatusChangedEvent buildStatusChangedEvent = event; // Avoid CDI runtime issue issue NCL-1505
+    public void observeEvent(@Observes BuildCoordinationStatusChangedEvent event) {
+        BuildCoordinationStatusChangedEvent buildStatusChangedEvent = event; // Avoid CDI runtime issue issue NCL-1505
         Predicate<BuildCallBack> filterSubscribersMatchingTaskId =
                 (callBackUrl) -> callBackUrl.getBuildTaskId().equals(buildStatusChangedEvent.getBuildTaskId());
 
         Set<BuildCallBack> matchingTasks = subscribers.stream().filter(filterSubscribersMatchingTaskId).collect(Collectors.toSet());
 
-        matchingTasks.forEach((buildCallBack) -> {
-            removeListenersOfCompletedTasks(buildCallBack, buildStatusChangedEvent);
-        });
-        matchingTasks.forEach((buildCallBack) -> {
-            buildCallBack.callback(buildStatusChangedEvent);
-        });
+        matchingTasks.forEach((buildCallBack) -> removeListenersOfCompletedTasks(buildCallBack, buildStatusChangedEvent));
+        matchingTasks.forEach((buildCallBack) -> buildCallBack.callback(buildStatusChangedEvent));
     }
 
-    private void removeListenersOfCompletedTasks(BuildCallBack buildCallBack, BuildStatusChangedEvent buildStatusChangedEvent) {
+    private void removeListenersOfCompletedTasks(BuildCallBack buildCallBack, BuildCoordinationStatusChangedEvent buildStatusChangedEvent) {
         if (buildStatusChangedEvent.getNewStatus().isCompleted()) {
             subscribers.remove(buildCallBack);
         }

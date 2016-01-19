@@ -17,12 +17,12 @@
  */
 package org.jboss.pnc.jenkinsbuilddriver;
 
-import java.io.IOException;
-import java.util.Properties;
-
 import org.jboss.pnc.common.util.IoUtils;
 import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
 import org.jboss.util.StringPropertyReplacer;
+
+import java.io.IOException;
+import java.util.Properties;
 
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-11-29.

@@ -17,36 +17,20 @@
  */
 package org.jboss.pnc.mavenrepositorymanager.fixture;
 
-import org.jboss.pnc.spi.BuildExecution;
-
-import java.net.URI;
-import java.util.Optional;
+import org.jboss.pnc.spi.repositorymanager.BuildExecution;
 
 public class TestBuildExecution implements BuildExecution {
 
     private int id = 1;
 
-    private String topContentId;
-
-    private String buildSetContentId;
-
     private String buildContentId;
 
-    private String projectName = "my project";
-
-    private boolean isSetBuild;
-
-    private URI logsWebSocketLink;
-
-    public TestBuildExecution(String topId, String setId, String buildId, boolean isSetBuild) {
-        this.topContentId = topId;
-        this.buildSetContentId = setId;
+    public TestBuildExecution(String buildId) {
         this.buildContentId = buildId;
-        this.isSetBuild = isSetBuild;
     }
 
     public TestBuildExecution() {
-        this("product+myproduct+1-0", null, "build+myproject+12345", false);
+        this("build+myproject+12345");
     }
 
     public int getId() {
@@ -54,59 +38,7 @@ public class TestBuildExecution implements BuildExecution {
     }
 
     @Override
-    public String getTopContentId() {
-        return topContentId;
-    }
-
-    @Override
-    public String getBuildSetContentId() {
-        return buildSetContentId;
-    }
-
-    @Override
     public String getBuildContentId() {
         return buildContentId;
     }
-
-    public void setTopContentId(String topContentId) {
-        this.topContentId = topContentId;
-    }
-
-    public void setBuildSetContentId(String buildSetContentId) {
-        this.buildSetContentId = buildSetContentId;
-    }
-
-    public void setBuildContentId(String buildContentId) {
-        this.buildContentId = buildContentId;
-    }
-
-    @Override
-    public String getProjectName() {
-        return projectName;
-    }
-
-    public void setProjectName(String projectName) {
-        this.projectName = projectName;
-    }
-
-    @Override
-    public boolean isPartOfBuildSet() {
-        return isSetBuild;
-    }
-
-    @Override
-    public void setLogsWebSocketLink(URI link) {
-        logsWebSocketLink = link;
-    }
-
-    @Override
-    public void clearLogsWebSocketLink() {
-        logsWebSocketLink = null;
-    }
-
-    @Override
-    public Optional<URI> getLogsWebSocketLink() {
-        return Optional.ofNullable(logsWebSocketLink);
-    }
-
 }

@@ -19,10 +19,11 @@ package org.jboss.pnc.termdbuilddriver;
 
 import org.assertj.core.api.Assertions;
 import org.jboss.pnc.model.BuildConfigurationAudited;
-import org.jboss.pnc.spi.BuildExecution;
 import org.jboss.pnc.spi.builddriver.BuildDriverStatus;
 import org.jboss.pnc.spi.builddriver.CompletedBuild;
 import org.jboss.pnc.spi.builddriver.RunningBuild;
+import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
+import org.jboss.pnc.spi.executor.BuildExecutionSession;
 import org.jboss.pnc.termdbuilddriver.commands.InvocatedCommandResult;
 import org.jboss.pnc.termdbuilddriver.commands.TermdCommandBatchExecutionResult;
 import org.jboss.pnc.termdbuilddriver.commands.TermdCommandExecutionException;
@@ -30,19 +31,19 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import java.net.URI;
 import java.util.Arrays;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
 
 public class TermdBuildDriverTest extends AbstractLocalBuildAgentTest {
 
     BuildConfigurationAudited jsr107BuildConfig;
-    BuildExecution buildExecutionMock;
+    BuildExecutionSession buildExecutionMock;
 
     @Before
     public void before() {
@@ -52,7 +53,9 @@ public class TermdBuildDriverTest extends AbstractLocalBuildAgentTest {
         doReturn("mvn validate").when(jsr107BuildConfig).getBuildScript();
         doReturn("jsr107-test").when(jsr107BuildConfig).getName();
 
-        buildExecutionMock = mock(BuildExecution.class);
+        buildExecutionMock = mock(BuildExecutionSession.class);
+        BuildExecutionConfiguration buildExecutionConfiguration = mock(BuildExecutionConfiguration.class);
+        doReturn(buildExecutionConfiguration).when(buildExecutionMock).getBuildExecutionConfiguration();
     }
 
     @Test(timeout = 60_000)
@@ -60,8 +63,10 @@ public class TermdBuildDriverTest extends AbstractLocalBuildAgentTest {
         //given
         TermdBuildDriver driver = new TermdBuildDriver() {
             @Override
-            protected CompletableFuture<TermdCommandBatchExecutionResult> invokeRemoteScript(TermdRunningBuild termdRunningBuild,
-                    String scriptPath, BuildExecution currentBuildExecution) {
+            protected CompletableFuture<TermdCommandBatchExecutionResult> invokeRemoteScript(
+                    TermdRunningBuild termdRunningBuild,
+                    String scriptPath,
+                    BuildExecutionSession currentBuildExecution) {
                 return CompletableFuture.supplyAsync(() -> {
                     throw new TermdCommandExecutionException("let's check it!", new NullPointerException());
                 });
@@ -69,7 +74,7 @@ public class TermdBuildDriverTest extends AbstractLocalBuildAgentTest {
         };
 
         //when
-        RunningBuild runningBuild = driver.startProjectBuild(buildExecutionMock, jsr107BuildConfig, localEnvironmentPointer);
+        RunningBuild runningBuild = driver.startProjectBuild(buildExecutionMock, localEnvironmentPointer);
 
         //then
         runningBuild.monitor(completedBuild -> fail("this execution should fail"), exception -> System.out.println("OK"));
@@ -85,8 +90,10 @@ public class TermdBuildDriverTest extends AbstractLocalBuildAgentTest {
             }
 
             @Override
-            protected CompletableFuture<TermdCommandBatchExecutionResult> invokeRemoteScript(TermdRunningBuild termdRunningBuild,
-                    String scriptPath, BuildExecution currentBuildExecution) {
+            protected CompletableFuture<TermdCommandBatchExecutionResult> invokeRemoteScript(
+                    TermdRunningBuild termdRunningBuild,
+                    String scriptPath,
+                    BuildExecutionSession currentBuildExecution) {
                 return CompletableFuture.supplyAsync(() -> {
                     InvocatedCommandResult result = mock(InvocatedCommandResult.class);
                     doReturn(false).when(result).isSucceed();
@@ -103,7 +110,7 @@ public class TermdBuildDriverTest extends AbstractLocalBuildAgentTest {
         AtomicReference<CompletedBuild> buildResult = new AtomicReference<>();
 
         //when
-        RunningBuild runningBuild = driver.startProjectBuild(buildExecutionMock, jsr107BuildConfig, localEnvironmentPointer);
+        RunningBuild runningBuild = driver.startProjectBuild(buildExecutionMock, localEnvironmentPointer);
         runningBuild.monitor(completedBuild -> buildResult.set(completedBuild), exception -> Assertions.fail("Unexpected error", exception));
 
         //then
@@ -126,12 +133,13 @@ public class TermdBuildDriverTest extends AbstractLocalBuildAgentTest {
         };
 
         //when
-        RunningBuild runningBuild = driver.startProjectBuild(buildExecutionMock, jsr107BuildConfig, localEnvironmentPointer);
+        RunningBuild runningBuild = driver.startProjectBuild(buildExecutionMock, localEnvironmentPointer);
         runningBuild.monitor(completedBuild -> {}, exception -> Assertions.fail("Unexpected error", exception));
 
         //then
-        verify(buildExecutionMock, times(1)).setLogsWebSocketLink(any(URI.class));
-        verify(buildExecutionMock, times(1)).clearLogsWebSocketLink();
+//TODO move to envDriver
+//        verify(buildExecutionMock, times(1)).setLogsWebSocketLink(any(URI.class));
+//        verify(buildExecutionMock, times(1)).clearLogsWebSocketLink();
     }
 
 }

@@ -17,12 +17,15 @@
  */
 package org.jboss.pnc.termdbuilddriver;
 
-import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildType;
-import org.jboss.pnc.spi.BuildExecution;
-import org.jboss.pnc.spi.builddriver.*;
+import org.jboss.pnc.spi.builddriver.BuildDriver;
+import org.jboss.pnc.spi.builddriver.BuildDriverResult;
+import org.jboss.pnc.spi.builddriver.BuildDriverStatus;
+import org.jboss.pnc.spi.builddriver.CompletedBuild;
+import org.jboss.pnc.spi.builddriver.RunningBuild;
 import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
 import org.jboss.pnc.spi.environment.RunningEnvironment;
+import org.jboss.pnc.spi.executor.BuildExecutionSession;
 import org.jboss.pnc.termdbuilddriver.commands.TermdCommandBatchExecutionResult;
 import org.jboss.pnc.termdbuilddriver.commands.TermdCommandInvoker;
 import org.jboss.pnc.termdbuilddriver.transfer.TermdFileTranser;
@@ -32,11 +35,12 @@ import org.slf4j.LoggerFactory;
 import javax.enterprise.context.ApplicationScoped;
 import java.net.URI;
 import java.nio.file.Paths;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicReference;
 
 @ApplicationScoped
-public class TermdBuildDriver implements BuildDriver {
+public class TermdBuildDriver implements BuildDriver { //TODO rename class
 
     public static final String DRIVER_ID = "termd-build-driver";
 
@@ -59,20 +63,20 @@ public class TermdBuildDriver implements BuildDriver {
     }
 
     @Override
-    public RunningBuild startProjectBuild(BuildExecution currentBuildExecution, final BuildConfigurationAudited buildConfiguration,
+    public RunningBuild startProjectBuild(BuildExecutionSession buildExecutionSession,
             final RunningEnvironment runningEnvironment)
             throws BuildDriverException {
 
-        logger.info("[{}] Starting build for Build Configuration {}", runningEnvironment.getId(), buildConfiguration.getId());
+        logger.info("[{}] Starting build for Build Execution Session {}", runningEnvironment.getId(), buildExecutionSession.getId());
 
-        TermdRunningBuild termdRunningBuild = new TermdRunningBuild(runningEnvironment, buildConfiguration);
+        TermdRunningBuild termdRunningBuild = new TermdRunningBuild(runningEnvironment, buildExecutionSession.getBuildExecutionConfiguration());
 
         addScriptDebugOption(termdRunningBuild)
                 .thenCompose(returnedBuildScript -> changeToWorkingDirectory(termdRunningBuild, returnedBuildScript))
                 .thenCompose(returnedBuildScript -> checkoutSources(termdRunningBuild, returnedBuildScript))
                 .thenCompose(returnedBuildScript -> build(termdRunningBuild, returnedBuildScript))
                 .thenCompose(returnedBuildScript -> uploadScript(termdRunningBuild, returnedBuildScript))
-                .thenCompose(scriptPath -> invokeRemoteScript(termdRunningBuild, scriptPath, currentBuildExecution))
+                .thenCompose(scriptPath -> invokeRemoteScript(termdRunningBuild, scriptPath, buildExecutionSession))
                 .handle((results, exception) -> updateStatus(termdRunningBuild, results, exception));
 
         return termdRunningBuild;
@@ -139,8 +143,10 @@ public class TermdBuildDriver implements BuildDriver {
         });
     }
 
-    protected CompletableFuture<TermdCommandBatchExecutionResult> invokeRemoteScript(TermdRunningBuild termdRunningBuild,
-            String scriptPath, BuildExecution currentBuildExecution) {
+    protected CompletableFuture<TermdCommandBatchExecutionResult> invokeRemoteScript(
+            TermdRunningBuild termdRunningBuild,
+            String scriptPath,
+            BuildExecutionSession currentBuildExecution) {
         return CompletableFuture.supplyAsync(() -> {
             logger.debug("[{}] Invoking script from path {}", termdRunningBuild.getRunningEnvironment().getId(), scriptPath);
 
@@ -149,7 +155,7 @@ public class TermdBuildDriver implements BuildDriver {
 
             termdCommandInvoker.performCommand("sh " + scriptPath).join();
 
-            currentBuildExecution.clearLogsWebSocketLink();
+            currentBuildExecution.setLiveLogsUri(Optional.empty());//TODO do we really need this ?
             return termdCommandInvoker.closeSession();
         });
     }
@@ -190,11 +196,6 @@ public class TermdBuildDriver implements BuildDriver {
                         @Override
                         public BuildDriverStatus getBuildDriverStatus() {
                             return commandBatchResult.isSuccessful() ? BuildDriverStatus.SUCCESS : BuildDriverStatus.FAILED;
-                        }
-
-                        @Override
-                        public RunningEnvironment getRunningEnvironment() {
-                            return termdRunningBuild.getRunningEnvironment();
                         }
                     };
                 }

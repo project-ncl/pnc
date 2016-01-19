@@ -28,10 +28,12 @@ import java.util.List;
 public class MavenRepositoryManagerResult implements RepositoryManagerResult {
     private final List<Artifact> builtArtifacts;
     private final List<Artifact> dependencies;
+    private final String buildContentId;
 
-    public MavenRepositoryManagerResult(List<Artifact> builtArtifacts, List<Artifact> dependencies) {
+    public MavenRepositoryManagerResult(List<Artifact> builtArtifacts, List<Artifact> dependencies, String buildContentId) {
         this.builtArtifacts = builtArtifacts;
         this.dependencies = dependencies;
+        this.buildContentId = buildContentId;
     }
 
     @Override
@@ -42,5 +44,10 @@ public class MavenRepositoryManagerResult implements RepositoryManagerResult {
     @Override
     public List<Artifact> getDependencies() {
         return dependencies;
+    }
+
+    @Override
+    public String getBuildContentId() {
+        return buildContentId;
     }
 }

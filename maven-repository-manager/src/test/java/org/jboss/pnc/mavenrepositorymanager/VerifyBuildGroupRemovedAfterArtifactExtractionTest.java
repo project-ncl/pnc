@@ -18,12 +18,10 @@
 package org.jboss.pnc.mavenrepositorymanager;
 
 import org.commonjava.aprox.folo.client.AproxFoloContentClientModule;
-import org.commonjava.aprox.model.core.Group;
-import org.commonjava.aprox.model.core.StoreKey;
 import org.commonjava.aprox.model.core.StoreType;
 import org.jboss.pnc.mavenrepositorymanager.fixture.TestBuildExecution;
 import org.jboss.pnc.model.Artifact;
-import org.jboss.pnc.spi.BuildExecution;
+import org.jboss.pnc.spi.repositorymanager.BuildExecution;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
 import org.jboss.pnc.spi.repositorymanager.model.RepositorySession;
 import org.junit.Test;
@@ -45,7 +43,7 @@ public class VerifyBuildGroupRemovedAfterArtifactExtractionTest extends Abstract
         String buildId = "build";
 
         // create a dummy composed (chained) build execution, and a repo session based on it
-        BuildExecution execution = new TestBuildExecution(null, null, buildId, true);
+        BuildExecution execution = new TestBuildExecution(buildId);
         RepositorySession session = driver.createBuildRepository(execution);
 
         // simulate a build deploying a file.

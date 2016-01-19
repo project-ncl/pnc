@@ -23,15 +23,14 @@ import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.ProductMilestone;
 import org.jboss.pnc.spi.BuildSetStatus;
-import org.jboss.pnc.spi.datastore.DatastoreException;
 import org.jboss.pnc.spi.events.BuildSetStatusChangedEvent;
-import org.jboss.pnc.spi.events.BuildStatusChangedEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.enterprise.event.Event;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -41,15 +40,15 @@ import java.util.stream.Collectors;
  */
 public class BuildSetTask {
 
-    private Logger log = LoggerFactory.getLogger(BuildCoordinator.class);
+    private final Logger log = LoggerFactory.getLogger(BuildCoordinator.class);
 
-    private BuildConfigSetRecord buildConfigSetRecord;
+    private final BuildConfigSetRecord buildConfigSetRecord;
     private final boolean rebuildAll;
-    private ProductMilestone productMilestone;
+    private final ProductMilestone productMilestone;
 
-    private BuildCoordinator buildCoordinator;
+    private final BuildCoordinator buildCoordinator;
 
-    private Event<BuildSetStatusChangedEvent> buildSetStatusChangedEventNotifier;
+    private final Event<BuildSetStatusChangedEvent> buildSetStatusChangedEventNotifier;
 
     private BuildSetStatus status;
     private String statusDescription;
@@ -57,9 +56,9 @@ public class BuildSetTask {
     /**
      * The time at which the build config set was triggered.
      */
-    private Date submitTime;
+    private final Date submitTime;
 
-    private Set<BuildTask> buildTasks = new HashSet<>();
+    private final Set<BuildTask> buildTasks = new HashSet<>();
 
     /**
      * Create build set task for running a single build or set of builds
@@ -75,7 +74,7 @@ public class BuildSetTask {
         this.buildConfigSetRecord = buildConfigSetRecord;
         this.rebuildAll = rebuildAll;
         System.out.println("setting product milestone: " + productMilestone);
-        this.productMilestone = productMilestone;
+        this.productMilestone = productMilestone; //TODO do we need milestone here ?
         this.buildSetStatusChangedEventNotifier = buildCoordinator.getBuildSetStatusChangedEventNotifier();
         setStatus(BuildSetStatus.NEW);
         this.submitTime = submitTime;
@@ -89,20 +88,24 @@ public class BuildSetTask {
         BuildSetStatus oldStatus = this.status;
         this.status = status;
         Integer userId = Optional.ofNullable(buildConfigSetRecord.getUser()).map(user -> user.getId()).orElse(null);
-        BuildSetStatusChangedEvent buildSetStatusChangedEvent = new DefaultBuildSetStatusChangedEvent(oldStatus, status,
-                getId(), buildConfigSetRecord.getBuildConfigurationSet().getId(),
-                buildConfigSetRecord.getBuildConfigurationSet().getName(), userId);
+        BuildSetStatusChangedEvent buildSetStatusChangedEvent = new DefaultBuildSetStatusChangedEvent(
+                oldStatus,
+                status,
+                getId(),
+                buildConfigSetRecord.getBuildConfigurationSet().getId(),
+                buildConfigSetRecord.getBuildConfigurationSet().getName(),
+                userId);
+        log.debug("Notifying build set status update {}.", buildSetStatusChangedEvent);
         buildSetStatusChangedEventNotifier.fire(buildSetStatusChangedEvent);
     }
 
     /**
      * Notify the set that the state of one of it's tasks has changed.
-     * 
-     * @param buildStatusChangedEvent Event with information about the state change of the task
+     *
      */
-    void taskStatusUpdated(BuildStatusChangedEvent buildStatusChangedEvent) {
+    void taskStatusUpdated() {
         // If any of the build tasks have failed or all are complete, then the build set is done
-        if (buildTasks.stream().anyMatch(bt -> bt.getStatus().hasFailed())) {
+        if(buildTasks.stream().anyMatch(bt -> bt.getStatus().hasFailed())) {
             log.debug("Marking build set as FAILED as one or more tasks failed.");
             if (log.isDebugEnabled()) {
                 logTasksStatus(buildTasks);
@@ -113,34 +116,36 @@ public class BuildSetTask {
             log.debug("Marking build set as SUCCESS.");
             buildConfigSetRecord.setStatus(org.jboss.pnc.model.BuildStatus.SUCCESS);
             finishBuildSetTask();
+        } else {
+            List<Integer> running = buildTasks.stream()
+                    .filter(bt -> !bt.getStatus().isCompleted())
+                    .filter(bt -> !bt.getStatus().hasFailed())
+                    .map((bt) -> bt.getId())
+                    .collect(Collectors.toList());
+            log.trace("There are still running builds [{}].", running);
         }
     }
 
     private void logTasksStatus(Set<BuildTask> buildTasks) {
-        String taskStatuses = buildTasks.stream().map(bt -> "TaskId " + bt.getId() + ":" + bt.getStatus())
-                .collect(Collectors.joining("; "));
+        String taskStatuses = buildTasks.stream().map(bt -> "TaskId " + bt.getId() + ":" + bt.getStatus()).collect(Collectors.joining("; "));
         log.debug("Tasks statuses: {}", taskStatuses);
     }
 
     private void finishBuildSetTask() {
         buildConfigSetRecord.setEndTime(new Date());
         setStatus(BuildSetStatus.DONE);
-        try {
-            buildCoordinator.saveBuildConfigSetRecord(buildConfigSetRecord);
-        } catch (DatastoreException e) {
-            log.error("Unable to save build config set record", e);
-        }
+        buildCoordinator.notifyBuildSetTaskCompleted(buildConfigSetRecord);
     }
 
     public BuildSetStatus getStatus() {
         return status;
     }
 
-    public void setStatusDescription(String statusDescription) {
+    public void setStatusDescription(String statusDescription) { //TODO do we still need this, how do reject builds with cycle dependencies ?
         this.statusDescription = statusDescription;
     }
 
-    public String getStatusDescription() {
+    public String getStatusDescription() { //TODO remove, used only in tests
         return statusDescription;
     }
 
@@ -175,8 +180,8 @@ public class BuildSetTask {
     }
 
     /**
-     * The product milestone during which this set of builds is executed. Will be null if this build set is not associated with
-     * any milestone.
+     * The product milestone during which this set of builds is executed.
+     * Will be null if this build set is not associated with any milestone.
      */
     public ProductMilestone getProductMilestone() {
         return productMilestone;

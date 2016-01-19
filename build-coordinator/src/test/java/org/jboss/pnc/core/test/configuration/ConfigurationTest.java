@@ -25,12 +25,7 @@ import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.moduleconfig.DockerEnvironmentDriverModuleConfig;
 import org.jboss.pnc.common.json.moduleconfig.OpenshiftEnvironmentDriverModuleConfig;
 import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
-import org.jboss.pnc.core.BuildDriverFactory;
-import org.jboss.pnc.core.EnvironmentDriverFactory;
-import org.jboss.pnc.core.exception.CoreException;
-import org.jboss.pnc.model.BuildType;
-import org.jboss.pnc.model.OperationalSystem;
-import org.jboss.pnc.spi.environment.EnvironmentDriver;
+import org.jboss.pnc.spi.exception.CoreException;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.asset.EmptyAsset;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
@@ -58,7 +53,7 @@ public class ConfigurationTest {
                 .addClass(DockerEnvironmentDriverModuleConfig.class)
                 .addClass(OpenshiftEnvironmentDriverModuleConfig.class)
                 .addAsManifestResource(EmptyAsset.INSTANCE, "beans.xml")
-                .addAsResource("META-INF/logging.properties");
+                .addAsResource("simplelogger.properties");
 
         logger.debug(jar.toString(true));
         return jar;

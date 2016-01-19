@@ -17,9 +17,13 @@
  */
 package org.jboss.pnc.rest.notifications;
 
+import org.jboss.pnc.spi.events.BuildCoordinationStatusChangedEvent;
 import org.jboss.pnc.spi.events.BuildSetStatusChangedEvent;
-import org.jboss.pnc.spi.events.BuildStatusChangedEvent;
-import org.jboss.pnc.spi.notifications.model.*;
+import org.jboss.pnc.spi.notifications.model.BuildChangedPayload;
+import org.jboss.pnc.spi.notifications.model.BuildSetChangedPayload;
+import org.jboss.pnc.spi.notifications.model.EventType;
+import org.jboss.pnc.spi.notifications.model.Notification;
+import org.jboss.pnc.spi.notifications.model.NotificationFactory;
 
 import javax.enterprise.context.ApplicationScoped;
 
@@ -30,17 +34,15 @@ public class DefaultNotificationFactory implements NotificationFactory {
     }
 
     @Override
-    public Notification createNotification(BuildStatusChangedEvent event) {
-        BuildChangedPayload payload = new BuildChangedPayload(event.getBuildTaskId(), event.getNewStatus(),
-                event.getBuildConfigurationId(), event.getBuildConfigurationName(), event.getUserId());
+    public Notification createNotification(BuildCoordinationStatusChangedEvent event) {
+        BuildChangedPayload payload = new BuildChangedPayload(event.getBuildTaskId(), event.getNewStatus(), event.getBuildConfigurationId(), event.getBuildConfigurationName(), event.getUserId());
 
         return new Notification(EventType.BUILD_STATUS_CHANGED, null, payload);
     }
 
     @Override
     public Notification createNotification(BuildSetStatusChangedEvent event) {
-        BuildSetChangedPayload payload = new BuildSetChangedPayload(event.getBuildSetTaskId(), event.getNewStatus(),
-                event.getBuildSetConfigurationId(), event.getBuildSetConfigurationName(), event.getUserId());
+        BuildSetChangedPayload payload = new BuildSetChangedPayload(event.getBuildSetTaskId(), event.getNewStatus(), event.getBuildSetConfigurationId(), event.getBuildSetConfigurationName(), event.getUserId());
 
         return new Notification(EventType.BUILD_SET_STATUS_CHANGED, null, payload);
     }

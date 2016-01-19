@@ -24,8 +24,6 @@ import org.jboss.pnc.common.json.moduleconfig.OpenshiftEnvironmentDriverModuleCo
 import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
 import org.jboss.pnc.common.monitor.PullingMonitor;
 import org.jboss.pnc.model.BuildType;
-import org.jboss.pnc.model.BuildEnvironment;
-import org.jboss.pnc.model.OperationalSystem;
 import org.jboss.pnc.spi.environment.EnvironmentDriver;
 import org.jboss.pnc.spi.environment.StartedEnvironment;
 import org.jboss.pnc.spi.environment.exception.EnvironmentDriverException;
@@ -36,7 +34,6 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.PreDestroy;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import java.lang.invoke.MethodHandles;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -66,20 +63,20 @@ public class OpenshiftEnvironmentDriver implements EnvironmentDriver {
     }
 
     @Override
-    public StartedEnvironment buildEnvironment(BuildEnvironment buildEnvironment, RepositorySession repositorySession) throws EnvironmentDriverException {
-        if (!canBuildEnvironment(buildEnvironment))
+    public StartedEnvironment buildEnvironment(BuildType buildType, RepositorySession repositorySession) throws EnvironmentDriverException {
+        if (!canBuildEnvironment(buildType))
             throw new UnsupportedOperationException("OpenshiftEnvironmentDriver currently provides support only for Linux and JAVA builds.");
 
         return new OpenshiftStartedEnvironment(executor, config, pullingMonitor, repositorySession);
     }
 
     @Override
-    public boolean canBuildEnvironment(BuildEnvironment environment) {
+    public boolean canBuildEnvironment(BuildType buildType) {
         if (config.isDisabled()) {
             logger.info("Skipping driver as it is disabled by config.");
             return false;
         }
-        return environment.getBuildType() == BuildType.JAVA;
+        return buildType == BuildType.JAVA;
     }
 
     @PreDestroy
