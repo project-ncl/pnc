@@ -43,11 +43,10 @@ public class VerifyManualDeletionOfBuildRepoTest extends AbstractRepositoryManag
         String path = "/org/myproj/myproj/1.0/myproj-1.0.pom";
         String content = "This is a test " + System.currentTimeMillis();
 
-        String chainId = "chain";
         String buildId = "build";
 
         // create a dummy non-chained build execution and a repo session based on it
-        BuildExecution execution = new TestBuildExecution(null, chainId, buildId, false);
+        BuildExecution execution = new TestBuildExecution(buildId);
         RepositorySession session = driver.createBuildRepository(execution);
 
         // simulate a build deploying a file.

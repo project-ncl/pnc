@@ -43,7 +43,7 @@ public class VerifyBuildGroupRemovedAfterArtifactExtractionTest extends Abstract
         String buildId = "build";
 
         // create a dummy composed (chained) build execution, and a repo session based on it
-        BuildExecution execution = new TestBuildExecution(null, null, buildId, true);
+        BuildExecution execution = new TestBuildExecution(buildId);
         RepositorySession session = driver.createBuildRepository(execution);
 
         // simulate a build deploying a file.

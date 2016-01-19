@@ -51,7 +51,7 @@ public class VerifyManualPromotionOfBuildRepoTest extends AbstractRepositoryMana
         String buildId = "build";
 
         // create a dummy non-chained build execution and a repo session based on it
-        BuildExecution execution = new TestBuildExecution(null, chainId, buildId, false);
+        BuildExecution execution = new TestBuildExecution(buildId);
         RepositorySession session = driver.createBuildRepository(execution);
 
         // simulate a build deploying a file.

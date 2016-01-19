@@ -35,8 +35,7 @@ public class BuildGroupIncludesProductVersionGroupTest extends AbstractRepositor
     @Test
     public void verifyGroupComposition_ProductVersion_NoConfSet() throws Exception {
         // create a dummy non-chained build execution and repo session based on it
-        BuildExecution execution = new TestBuildExecution("product_myproduct_1.0", null, "build_myproject_12345",
-                false);
+        BuildExecution execution = new TestBuildExecution("build_myproject_12345");
         Aprox aprox = driver.getAprox();
 
         RepositorySession repositoryConfiguration = driver.createBuildRepository(execution);
