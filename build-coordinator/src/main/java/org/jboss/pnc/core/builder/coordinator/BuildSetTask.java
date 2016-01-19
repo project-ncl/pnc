@@ -88,14 +88,18 @@ public class BuildSetTask {
         BuildSetStatus oldStatus = this.status;
         this.status = status;
         Integer userId = Optional.ofNullable(buildConfigSetRecord.getUser()).map(user -> user.getId()).orElse(null);
+
         BuildSetStatusChangedEvent buildSetStatusChangedEvent = new DefaultBuildSetStatusChangedEvent(
                 oldStatus,
                 status,
                 getId(),
                 buildConfigSetRecord.getBuildConfigurationSet().getId(),
                 buildConfigSetRecord.getBuildConfigurationSet().getName(),
+                buildConfigSetRecord.getStartTime(),
+                buildConfigSetRecord.getEndTime(),
                 userId);
         log.debug("Notifying build set status update {}.", buildSetStatusChangedEvent);
+
         buildSetStatusChangedEventNotifier.fire(buildSetStatusChangedEvent);
     }
 

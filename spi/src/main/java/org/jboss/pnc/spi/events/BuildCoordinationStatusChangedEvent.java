@@ -18,6 +18,7 @@
 package org.jboss.pnc.spi.events;
 
 import org.jboss.pnc.spi.BuildCoordinationStatus;
+import java.util.Date;
 
 public interface BuildCoordinationStatusChangedEvent {
 
@@ -27,6 +28,7 @@ public interface BuildCoordinationStatusChangedEvent {
     Integer getUserId();
     Integer getBuildConfigurationId();
     String getBuildConfigurationName();
-
+    Date getBuildStartTime();
+    Date getBuildEndTime();
 
 }

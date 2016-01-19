@@ -21,6 +21,7 @@ import org.jboss.pnc.spi.BuildCoordinationStatus;
 import org.jboss.pnc.spi.events.BuildCoordinationStatusChangedEvent;
 
 import javax.xml.bind.annotation.XmlRootElement;
+import java.util.Date;
 
 @XmlRootElement
 public class BuildStatusChangedEventRest implements BuildCoordinationStatusChangedEvent {
@@ -31,6 +32,8 @@ public class BuildStatusChangedEventRest implements BuildCoordinationStatusChang
     private Integer userId;
     private Integer buildConfigurationId;
     private String buildConfigurationName;
+    private Date buildStartTime;
+    private Date buildEndTime;
 
     public void setOldStatus(BuildCoordinationStatus oldStatus) {
         this.oldStatus = oldStatus;
@@ -54,6 +57,14 @@ public class BuildStatusChangedEventRest implements BuildCoordinationStatusChang
 
     public void setBuildConfigurationName(String buildConfigurationName) {
         this.buildConfigurationName = buildConfigurationName;
+    }
+
+    public void setBuildStartTime(Date buildStartTime) {
+        this.buildStartTime = buildStartTime;
+    }
+
+    public void setBuildEndTime(Date buildEndTime) {
+        this.buildEndTime = buildEndTime;
     }
 
     @Override
@@ -86,4 +97,13 @@ public class BuildStatusChangedEventRest implements BuildCoordinationStatusChang
         return buildConfigurationName;
     }
 
+    @Override
+    public Date getBuildStartTime() {
+        return buildStartTime;
+    }
+
+    @Override
+    public Date getBuildEndTime() {
+        return buildEndTime;
+    }
 }

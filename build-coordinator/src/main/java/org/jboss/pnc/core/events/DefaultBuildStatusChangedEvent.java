@@ -19,6 +19,7 @@ package org.jboss.pnc.core.events;
 
 import org.jboss.pnc.spi.BuildCoordinationStatus;
 import org.jboss.pnc.spi.events.BuildCoordinationStatusChangedEvent;
+import java.util.Date;
 
 public class DefaultBuildStatusChangedEvent implements BuildCoordinationStatusChangedEvent {
 
@@ -28,14 +29,18 @@ public class DefaultBuildStatusChangedEvent implements BuildCoordinationStatusCh
     private final Integer userId;
     private final Integer buildConfigurationId;
     private final String buildConfigurationName;
+    private final Date buildStartTime;
+    private final Date buildEndTime;
 
     public DefaultBuildStatusChangedEvent(BuildCoordinationStatus oldStatus, BuildCoordinationStatus newStatus, Integer buildTaskId,
-            Integer buildConfigurationId, String buildConfigurationName, Integer userId) {
+            Integer buildConfigurationId, String buildConfigurationName, Date buildStartTime, Date buildEndTime, Integer userId) {
         this.oldStatus = oldStatus;
         this.newStatus = newStatus;
         this.buildTaskId = buildTaskId;
         this.buildConfigurationId = buildConfigurationId;
         this.buildConfigurationName = buildConfigurationName;
+        this.buildStartTime = buildStartTime;
+        this.buildEndTime = buildEndTime;
         this.userId = userId;
     }
 
@@ -70,7 +75,18 @@ public class DefaultBuildStatusChangedEvent implements BuildCoordinationStatusCh
     }
 
     @Override
+    public Date getBuildStartTime() {
+        return buildStartTime;
+    }
+
+    @Override
+    public Date getBuildEndTime() {
+        return buildEndTime;
+    }
+
+    @Override
     public String toString() {
+
         return "DefaultBuildStatusChangedEvent{" +
                 "oldStatus=" + oldStatus +
                 ", newStatus=" + newStatus +
@@ -78,6 +94,8 @@ public class DefaultBuildStatusChangedEvent implements BuildCoordinationStatusCh
                 ", userId=" + userId +
                 ", buildConfigurationId=" + buildConfigurationId +
                 ", buildConfigurationName=" + buildConfigurationName +
+                ", buildStartTime=" + buildStartTime +
+                ", buildEndTime=" + buildEndTime +
                 '}';
     }
 }
