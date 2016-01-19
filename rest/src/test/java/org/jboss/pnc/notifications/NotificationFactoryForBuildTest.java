@@ -27,6 +27,8 @@ import org.jboss.pnc.spi.notifications.model.Notification;
 import org.jboss.pnc.spi.notifications.model.NotificationFactory;
 import org.junit.Test;
 
+import java.util.Date;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class NotificationFactoryForBuildTest {
@@ -35,7 +37,7 @@ public class NotificationFactoryForBuildTest {
     public void shouldConvertSuccessfulNotificationEvent() throws Exception {
         // given
         BuildStatusChangedEvent event = new DefaultBuildStatusChangedEvent(BuildStatus.NEW, BuildStatus.BUILD_COMPLETED_SUCCESS,
-                1, 1, "Build1", 1);
+                1, 1, "Build1", new Date(1453118400000L), new Date(1453122000000L), 1);
         NotificationFactory notificationFactory = new DefaultNotificationFactory();
 
         // when
@@ -48,6 +50,8 @@ public class NotificationFactoryForBuildTest {
                 .isEqualTo(BuildStatus.BUILD_COMPLETED_SUCCESS);
         assertThat(((BuildChangedPayload) notification.getPayload()).getBuildConfigurationId()).isEqualTo(1);
         assertThat(((BuildChangedPayload) notification.getPayload()).getBuildConfigurationName()).isEqualTo("Build1");
+        assertThat(((BuildChangedPayload) notification.getPayload()).getBuildStartTime()).isEqualTo(new Date(1453118400000L));
+        assertThat(((BuildChangedPayload) notification.getPayload()).getBuildEndTime()).isEqualTo(new Date(1453122000000L));
         assertThat(notification.getPayload()).isNotNull();
         assertThat(notification.getPayload().getId()).isEqualTo(1);
         assertThat(notification.getPayload().getUserId()).isEqualTo(1);

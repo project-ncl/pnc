@@ -19,6 +19,8 @@ package org.jboss.pnc.spi.events;
 
 import org.jboss.pnc.spi.BuildStatus;
 
+import java.util.Date;
+
 public interface BuildStatusChangedEvent {
 
     BuildStatus getOldStatus();
@@ -27,6 +29,8 @@ public interface BuildStatusChangedEvent {
     Integer getUserId();
     Integer getBuildConfigurationId();
     String getBuildConfigurationName();
+    Date getBuildStartTime();
+    Date getBuildEndTime();
 
 
 }
