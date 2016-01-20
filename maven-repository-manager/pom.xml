@@ -123,29 +123,5 @@
       </dependency>
     </dependencies>
   </dependencyManagement>
-  
-  <build>
-    <pluginManagement>
-      <plugins>
-        <plugin>
-          <artifactId>maven-surefire-plugin</artifactId>
-          <executions>
-            <execution>
-              <id>default-test</id>
-              <goals>
-                <goal>test</goal>
-              </goals>
-              <configuration>
-                <forkCount>2C</forkCount>
-                <reuseForks>false</reuseForks>
-                <redirectTestOutputToFile>true</redirectTestOutputToFile>
-                <excludedGroups>org.jboss.pnc.test.category.ContainerTest, org.jboss.pnc.test.category.RemoteTest</excludedGroups>
-              </configuration>
-            </execution>
-          </executions>
-        </plugin>
-      </plugins>
-    </pluginManagement>
-  </build>
 
 </project>
