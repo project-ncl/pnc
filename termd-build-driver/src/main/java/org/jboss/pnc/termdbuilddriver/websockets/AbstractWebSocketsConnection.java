@@ -17,12 +17,13 @@
  */
 package org.jboss.pnc.termdbuilddriver.websockets;
 
-import io.undertow.websockets.jsr.ServerWebSocketContainer;
 import io.undertow.websockets.jsr.UndertowContainerProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.websocket.*;
+import javax.websocket.ClientEndpointConfig;
+import javax.websocket.Session;
+import javax.websocket.WebSocketContainer;
 import javax.ws.rs.core.UriBuilder;
 import java.io.IOException;
 import java.lang.invoke.MethodHandles;
@@ -73,7 +74,7 @@ public abstract class AbstractWebSocketsConnection implements AutoCloseable {
         disconnect();
     }
 
-    private class WSContainerProvider extends UndertowContainerProvider {
+    private class WSContainerProvider extends UndertowContainerProvider { //TODO do we need to extend implementation specific ?
         @Override
         protected WebSocketContainer getContainer() {
             return super.getContainer();

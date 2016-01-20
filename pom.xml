@@ -99,6 +99,7 @@
     <version.hibernate-jpamodelgen>4.3.4.Final</version.hibernate-jpamodelgen>
     <version.undertow-websockets-jsr>1.2.6.Final</version.undertow-websockets-jsr>
     <version.shrinkwrap>2.1.1</version.shrinkwrap>
+    <version.buildagent>0.2-SNAPSHOT</version.buildagent>
 
     <datetime>${timestamp}</datetime>
     <pushChanges>true</pushChanges>
@@ -358,6 +359,18 @@
         <version>${project.version}</version>
       </dependency>
       <!-- END: Project modules -->
+
+      <dependency>
+        <groupId>org.jboss.pnc</groupId>
+        <artifactId>build-agent-client</artifactId>
+        <version>${version.buildagent}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jboss.pnc</groupId>
+        <artifactId>build-agent-server</artifactId>
+        <version>${version.buildagent}</version>
+      </dependency>
 
       <dependency>
         <groupId>org.jboss.shrinkwrap.resolver</groupId>
@@ -776,7 +789,7 @@
       <dependency>
         <groupId>org.jboss.pnc</groupId>
         <artifactId>build-agent</artifactId>
-        <version>0.1-SNAPSHOT</version>
+        <version>0.2-SNAPSHOT</version>
       </dependency>
 
     </dependencies>

@@ -66,9 +66,12 @@ public class TermdCommandInvoker {
         return CompletableFuture.supplyAsync(() -> {
             logger.debug("Performing command {}", command);
             try {
-                String data = "{\"action\":\"read\",\"data\":\"" + command + "\\r\\n\"}";
+                String data = "{\"action\":\"read\",\"data\":\"" + command + "\\n\"}";
                 termdTerminalConnection.sendAsBinary(ByteBuffer.wrap(data.getBytes()));
-                InvocatedCommandResult invocatedCommandResult = new InvocatedCommandResult(eventQueue.take(), baseServerUri, getLogsDirectory());
+                String logsDirectory = getLogsDirectory();
+                logger.debug("Taking event from queue...");
+                UpdateEvent updateEvent = eventQueue.take(); //TODO remove blocking operation
+                InvocatedCommandResult invocatedCommandResult = new InvocatedCommandResult(updateEvent, baseServerUri, logsDirectory);
                 logger.debug("Received command result {}", invocatedCommandResult);
                 invokedCommands.add(invocatedCommandResult);
                 return invocatedCommandResult;
@@ -84,12 +87,14 @@ public class TermdCommandInvoker {
 
     public void startSession() {
         logger.debug("Starting command session");
-        termdTerminalConnection.connect();
         termdStatusUpdatesConnection.connect();
+        termdTerminalConnection.connect();
 
         termdStatusUpdatesConnection.addUpdateConsumer(event -> {
+            logger.debug("Received event {}.", event);
             if(event.getEvent().getOldStatus() == Status.RUNNING) {
                 try {
+                    logger.debug("Adding event to queue {}.", event);
                     eventQueue.put(event);
                 } catch (InterruptedException e) {
                     throw new TermdCommandExecutionException("Interrupted while waiting for queue space", e);

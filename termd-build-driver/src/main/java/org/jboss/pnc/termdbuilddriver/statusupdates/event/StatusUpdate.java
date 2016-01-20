@@ -22,6 +22,7 @@ public class StatusUpdate {
     private int taskId;
     private Status oldStatus;
     private Status newStatus;
+    private String context;
 
     public int getTaskId() {
         return taskId;
@@ -47,12 +48,21 @@ public class StatusUpdate {
         this.newStatus = newStatus;
     }
 
+    public String getContext() {
+        return context;
+    }
+
+    public void setContext(String context) {
+        this.context = context;
+    }
+
     @Override
     public String toString() {
         return "StatusUpdate{" +
                 "taskId=" + taskId +
                 ", oldStatus=" + oldStatus +
                 ", newStatus=" + newStatus +
+                ", context=" + context +
                 '}';
     }
 }
