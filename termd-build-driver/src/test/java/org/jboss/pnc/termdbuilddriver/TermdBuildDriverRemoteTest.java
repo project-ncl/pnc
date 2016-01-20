@@ -24,6 +24,7 @@ import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
 import org.jboss.pnc.spi.executor.BuildExecutionSession;
 import org.jboss.pnc.test.category.RemoteTest;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.slf4j.Logger;
@@ -43,6 +44,7 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 
 @Category(RemoteTest.class)
+@Ignore("More details at https://projects.engineering.redhat.com/browse/NCL-1586")
 public class TermdBuildDriverRemoteTest extends AbstractLocalBuildAgentTest {
 
     private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
