@@ -106,9 +106,9 @@
               </label>
               <div class="col-sm-10">
                 <div class="input-group">
-                  <input required name="downloadurl" id="input-downloadurl" class="form-control" name="downloadUrl" maxlength="255" ng-model="releaseCreateUpdateCtrl.data.downloadUrl">
+                  <input type="url" required name="downloadurl" id="input-downloadurl" class="form-control" name="downloadUrl" maxlength="255" ng-model="releaseCreateUpdateCtrl.data.downloadUrl">
                 </div>
-                <span class="help-block" ng-show="releaseForm.downloadurl.$invalid && !releaseForm.downloadurl.$pristine">Required field.</span>
+                <span class="help-block" ng-show="releaseForm.downloadurl.$invalid && !releaseForm.downloadurl.$pristine">Malformed URL.</span>
               </div>
             </div>
           </div>
