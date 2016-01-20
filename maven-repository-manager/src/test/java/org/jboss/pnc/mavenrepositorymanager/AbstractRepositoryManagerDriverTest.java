@@ -28,11 +28,9 @@ import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.ModuleConfigJson;
 import org.jboss.pnc.common.json.moduleconfig.MavenRepoDriverModuleConfig;
 import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
-import org.jboss.pnc.test.category.ContainerTest;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
-import org.junit.experimental.categories.Category;
 import org.junit.rules.TemporaryFolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,7 +43,6 @@ import java.util.Properties;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
 
-@Category({ ContainerTest.class })
 public class AbstractRepositoryManagerDriverTest {
 
     protected static final String CONFIG_SYSPROP = "pnc-config-file";
