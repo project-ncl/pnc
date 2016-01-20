@@ -129,6 +129,10 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
     @Column(columnDefinition = "timestamp with time zone", updatable=false)
     private Date creationTime;
 
+    /**
+     * The time at which this entity was last modified and saved to the database.  This is automatically
+     * managed by JPA.
+     */
     @NotNull
     @Version
     @Column(columnDefinition = "timestamp with time zone")
@@ -175,10 +179,16 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
         dependants = new HashSet<BuildConfiguration>();
         buildRecords = new HashSet<BuildRecord>();
         buildConfigurationSets = new HashSet<BuildConfigurationSet>();
+
+        // The lastModificationTime needs to be non-null for certain use cases even though the
+        // actual value is managed by JPA.  For example, if saving an entity with a relation
+        // to BuildConfiguration, JPA will not allow the related entity to be saved unless
+        // the Build Configuration contains both an ID and a non-null lastModificationTime
+        lastModificationTime = Date.from(Instant.now());
     }
 
     /**
-     * Set the creation time before persisting the config
+     * Set the creation time immediately before the config is persisted
      */
     @PrePersist
     private void initCreationTime() {
@@ -494,7 +504,9 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
      * @param lastModificationTime the time at which this config was last modified
      */
     private void setLastModificationTime(Date lastModificationTime) {
-        this.lastModificationTime = lastModificationTime;
+        if(lastModificationTime != null) {
+            this.lastModificationTime = lastModificationTime;
+        }
     }
 
     public BuildStatus getBuildStatus() {
@@ -668,7 +680,6 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
             dependants = new HashSet<BuildConfiguration>();
             buildConfigurationSets = new HashSet<BuildConfigurationSet>();
             productVersions = new HashSet<ProductVersion>();
-            lastModificationTime = Date.from(Instant.now());
         }
 
         public static Builder newBuilder() {
@@ -806,15 +817,8 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
             return this;
         }
 
-        /**
-         * @param lastModificationTime Sets last update time and ignores Null values (since they may affect the entity
-         *        consistency).
-         * @return Builder
-         */
         public Builder lastModificationTime(Date lastModificationTime) {
-            if (lastModificationTime != null) {
-                this.lastModificationTime = lastModificationTime;
-            }
+            this.lastModificationTime = lastModificationTime;
             return this;
         }
 
