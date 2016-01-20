@@ -82,6 +82,7 @@ public class BuildConfigurationRestTest {
     private static final String PROJECT_SPECIFIC_REST_ENDPOINT = "/pnc-rest/rest/projects/%d";
     private static final String CONFIGURATION_REST_ENDPOINT = "/pnc-rest/rest/build-configurations/";
     private static final String CONFIGURATION_SPECIFIC_REST_ENDPOINT = "/pnc-rest/rest/build-configurations/%d";
+    private static final String CONFIGURATION_DEPENDENCIES_REST_ENDPOINT = "/pnc-rest/rest/build-configurations/%d/dependencies";
     private static final String CONFIGURATION_CLONE_REST_ENDPOINT = "/pnc-rest/rest/build-configurations/%d/clone";
     private static final String ENVIRONMENT_REST_ENDPOINT = "/pnc-rest/rest/environments";
     private static final String SPECIFIC_ENVIRONMENT_REST_ENDPOINT = "/pnc-rest/rest/environments/%d";
@@ -359,37 +360,43 @@ public class BuildConfigurationRestTest {
     }
 
     @Test
-    public void shouldAddChildBuildConfiguration() throws Exception {
+    public void shouldAddDependencyBuildConfiguration() throws Exception {
         // given
         RestResponse<ProjectRest> projectRestClient = this.projectRestClient.firstNotNull();
         RestResponse<BuildEnvironmentRest> environmentRestClient = this.environmentRestClient.firstNotNull();
 
-        BuildConfigurationRest parentBuildConfiguration = new BuildConfigurationRest();
-        parentBuildConfiguration.setName(UUID.randomUUID().toString());
-        parentBuildConfiguration.setProject(projectRestClient.getValue());
-        parentBuildConfiguration.setEnvironment(environmentRestClient.getValue());
+        BuildConfigurationRest buildConfiguration = new BuildConfigurationRest();
+        buildConfiguration.setName(UUID.randomUUID().toString());
+        buildConfiguration.setProject(projectRestClient.getValue());
+        buildConfiguration.setEnvironment(environmentRestClient.getValue());
 
-        BuildConfigurationRest childBuildConfiguration = new BuildConfigurationRest();
-        childBuildConfiguration.setName(UUID.randomUUID().toString());
-        childBuildConfiguration.setProject(projectRestClient.getValue());
-        childBuildConfiguration.setEnvironment(environmentRestClient.getValue());
+        BuildConfigurationRest dependencyBuildConfiguration = new BuildConfigurationRest();
+        dependencyBuildConfiguration.setName(UUID.randomUUID().toString());
+        dependencyBuildConfiguration.setProject(projectRestClient.getValue());
+        dependencyBuildConfiguration.setEnvironment(environmentRestClient.getValue());
 
         // when
-        RestResponse<BuildConfigurationRest> parentConfiguration = this.buildConfigurationRestClient
-                .createNew(parentBuildConfiguration);
-        RestResponse<BuildConfigurationRest> childConfiguration = this.buildConfigurationRestClient
-                .createNew(childBuildConfiguration);
+        RestResponse<BuildConfigurationRest> configurationResponse = this.buildConfigurationRestClient
+                .createNew(buildConfiguration);
+        RestResponse<BuildConfigurationRest> depConfigurationResponse = this.buildConfigurationRestClient
+                .createNew(dependencyBuildConfiguration);
 
-        Integer parentCreatedBuildConfigurationId = parentConfiguration.getValue().getId();
-        Integer childCreatedBuildConfigurationId = childConfiguration.getValue().getId();
+        Integer configId = configurationResponse.getValue().getId();
+        Integer depConfigId = depConfigurationResponse.getValue().getId();
 
-        parentBuildConfiguration.setDependencyIds(new HashSet<>(Arrays.asList(childCreatedBuildConfigurationId)));
+        BuildConfigurationRestClient buildConfigDependencyRestClient = new BuildConfigurationRestClient();
+        
+        String buildConfigDepRestURI = String.format(CONFIGURATION_DEPENDENCIES_REST_ENDPOINT, configId);
+        
+        Response addDepResponse = given().header("Accept", "application/json").header("Authorization", "Bearer " + access_token)
+                .body("{ \"id\": " + depConfigId + " }").contentType(ContentType.JSON).port(getHttpPort()).when().post(buildConfigDepRestURI);
 
-        RestResponse<BuildConfigurationRest> addedChildRestResponse = this.buildConfigurationRestClient
-                .update(parentCreatedBuildConfigurationId, parentBuildConfiguration);
+        RestResponse<BuildConfigurationRest> getUpdatedConfigResponse = this.buildConfigurationRestClient
+                .get(configId);
 
         // then
-        assertThat(addedChildRestResponse.getValue().getDependencyIds()).containsExactly(childCreatedBuildConfigurationId);
+        ResponseAssertion.assertThat(addDepResponse).hasStatus(200);
+        assertThat(getUpdatedConfigResponse.getValue().getDependencyIds()).containsExactly(depConfigId);
     }
 
     @Test

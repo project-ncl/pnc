@@ -20,7 +20,6 @@ package org.jboss.pnc.rest.restmodel;
 import io.swagger.annotations.ApiModelProperty;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildStatus;
-import org.jboss.pnc.model.ProductVersion;
 import org.jboss.pnc.rest.validation.groups.WhenCreatingNew;
 import org.jboss.pnc.rest.validation.groups.WhenUpdating;
 
@@ -268,42 +267,4 @@ public class BuildConfigurationRest implements GenericRestEntity<Integer> {
         this.environment = environment;
     }
 
-    public BuildConfiguration toBuildConfiguration(BuildConfiguration buildConfiguration) {
-        BuildConfiguration.Builder builder = BuildConfiguration.Builder.newBuilder();
-        builder.id(id);
-        builder.name(name);
-        builder.description(description);
-        builder.buildScript(buildScript);
-        builder.scmRepoURL(scmRepoURL);
-        builder.scmRevision(scmRevision);
-        builder.scmMirrorRepoURL(scmMirrorRepoURL);
-        builder.scmMirrorRevision(scmMirrorRevision);
-        builder.creationTime(creationTime);
-        builder.lastModificationTime(lastModificationTime);
-        builder.buildStatus(buildStatus);
-        builder.repositories(repositories);
-
-        performIfNotNull(project, () -> builder.project(project.toProject()));
-        performIfNotNull(environment, () -> builder.buildEnvironment(environment.toBuildSystemImage()));
-
-        nullableStreamOf(dependencyIds).forEach(dependencyId -> {
-            BuildConfiguration.Builder buildConfigurationBuilder = BuildConfiguration.Builder.newBuilder().id(dependencyId);
-            builder.dependency(buildConfigurationBuilder.build());
-        });
-        nullableStreamOf(productVersionIds).forEach(productVersionId -> {
-            ProductVersion.Builder productVersionBuilder = ProductVersion.Builder.newBuilder().id(productVersionId);
-            builder.productVersion(productVersionBuilder.build());
-        });
-
-        overrideWithDataFromOriginalConfiguration(buildConfiguration, builder);
-        return builder.build();
-    }
-
-    private void overrideWithDataFromOriginalConfiguration(BuildConfiguration buildConfiguration,
-            BuildConfiguration.Builder builder) {
-        performIfNotNull(buildConfiguration, () -> {
-            builder.lastModificationTime(buildConfiguration.getLastModificationTime());
-            builder.creationTime(buildConfiguration.getCreationTime());
-        });
-    }
 }
