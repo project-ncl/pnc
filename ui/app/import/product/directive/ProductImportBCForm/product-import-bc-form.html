@@ -59,7 +59,7 @@
         </label>
 
         <div class="col-sm-10">
-          <input id="bcFormInput1" name="bcFormInput1" class="form-control" ng-model="data.name" required pattern="^[a-zA-Z0-9_.][a-zA-Z0-9_.-]*(?!\.git)+$">
+          <input id="bcFormInput1" name="bcFormInput1" maxlength="255" class="form-control" ng-model="data.name" required pattern="^[a-zA-Z0-9_.][a-zA-Z0-9_.-]*(?!\.git)+$">
           <span class="help-block" ng-show="bcForm.bcFormInput1.$error.required">Required field.</span>
           <span class="help-block" ng-show="bcForm.bcFormInput1.$error.pattern">The name contains not allowed characters (e.g spaces, commas, semicolons, apex, quotes) </span>
         </div>
@@ -82,7 +82,7 @@
       <div class="form-group" ng-class="{ 'has-error' : bcForm.bcFormInput3.$invalid && !bcForm.bcFormInput3.$pristine, 'has-success': bcForm.bcFormInput3.$valid && bcForm.bcFormInput3.$touched }">
         <label for="bcFormInput3" class="col-sm-2 control-label">Git URL</label>
         <div class="col-sm-10">
-          <input type="url" id="bcFormInput3" name="bcFormInput3" class="form-control" ng-model="data.scmUrl">
+          <input type="url" id="bcFormInput3" name="bcFormInput3" maxlength="255" class="form-control" ng-model="data.scmUrl">
           <span class="help-block" ng-show="bcForm.bcFormInput3.$error.url && !bcForm.bcFormInput3.$pristine">Invalid URL.</span>
         </div>
       </div>
@@ -90,7 +90,7 @@
       <div class="form-group">
         <label for="bcFormInput4" class="col-sm-2 control-label">Revision</label>
         <div class="col-sm-10">
-          <input id="bcFormInput4" class="form-control" name="bcFormInput4" ng-model="data.scmRevision">
+          <input id="bcFormInput4" class="form-control" name="bcFormInput4" maxlength="255" ng-model="data.scmRevision">
           <div class="help-block">
             <p>Use branch or tag name only, not hash.</p>
           </div>

@@ -41,7 +41,7 @@
                   </label>
 
                   <div class="col-sm-8">
-                    <input id="inputp1" name="inputp1" class="form-control" ng-model="data.name" required>
+                    <input id="inputp1" name="inputp1" maxlength="255" class="form-control" ng-model="data.name" required>
 
                     <div ng-show="projectForm.inputp1.$dirty && projectForm.inputp1.$error.required" class="help-block">
                       <p class="text-danger">Required field.</p>
@@ -62,7 +62,7 @@
                   <label for="inputp3" class="control-label col-sm-4">Project URL</label>
 
                   <div class="col-sm-8">
-                    <input type="url" id="inputp3" name="inputp3" class="form-control" ng-model="data.projectUrl">
+                    <input type="url" id="inputp3" name="inputp3" maxlength="255" class="form-control" ng-model="data.projectUrl">
 
                     <div ng-show="projectForm.inputp3.$dirty && projectForm.inputp3.$error.url" class="help-block">
                       <p class="text-danger">URL is in bad format.</p>
@@ -75,7 +75,7 @@
                   <label for="inputp4" class="control-label col-sm-4">Issue Tracker URL</label>
 
                   <div class="col-sm-8">
-                    <input type="url" id="inputp4" name="inputp4" class="form-control" ng-model="data.issueTrackerUrl">
+                    <input type="url" id="inputp4" name="inputp4" maxlength="255" class="form-control" ng-model="data.issueTrackerUrl">
 
                     <div ng-show="projectForm.inputp4.$dirty && projectForm.inputp4.$error.url" class="help-block">
                       <p class="text-danger">URL is in bad format.</p>

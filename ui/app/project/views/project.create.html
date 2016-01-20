@@ -32,7 +32,7 @@
                 * Name
               </label>
               <div class="col-sm-10">
-                <input type="text" id="input-name" class="form-control" name="name" ng-model="project.name" required>
+                <input type="text" id="input-name" class="form-control" name="name" maxlength="255" ng-model="project.name" required>
                 <span class="help-block" ng-show="projectForm.name.$error.required && !projectForm.name.$pristine">Required field.</span>
               </div>
             </div>
@@ -53,7 +53,7 @@
             <div class="form-group" ng-class="{ 'has-error': projectForm.projectUrl.$invalid && !projectForm.projectUrl.$pristine, 'has-success': projectForm.projectUrl.$valid && project.projectUrl }">
               <label for="input-url" class="col-sm-2 control-label">Project URL</label>
               <div class="col-sm-10">
-                <input type="url" id="input-url" class="form-control" name="projectUrl" ng-model="project.projectUrl">
+                <input type="url" id="input-url" class="form-control" name="projectUrl" maxlength="255" ng-model="project.projectUrl">
                 <span class="help-block" ng-show="projectForm.projectUrl.$invalid && !projectForm.projectUrl.$pristine">Malformed URL.</span>
               </div>
             </div>
@@ -61,7 +61,7 @@
             <div class="form-group" ng-class="{ 'has-error': projectForm.issueTrackerUrl.$invalid && !projectForm.issueTrackerUrl.$pristine, 'has-success': projectForm.issueTrackerUrl.$valid && project.issueTrackerUrl }">
               <label for="input-issue-tracker" class="col-sm-2 control-label">Issue Tracker URL</label>
               <div class="col-sm-10">
-                <input type="url" id="input-issue-tracker" class="form-control" name="issueTrackerUrl" ng-model="project.issueTrackerUrl">
+                <input type="url" id="input-issue-tracker" class="form-control" name="issueTrackerUrl" maxlength="255" ng-model="project.issueTrackerUrl">
                 <span class="help-block" ng-show="projectForm.issueTrackerUrl.$invalid && !projectForm.issueTrackerUrl.$pristine">Malformed URL.</span>
               </div>
             </div>

@@ -36,7 +36,7 @@
       <label for="input-name" class="col-sm-1 control-label" ng-show="productForm.$visible">* Name</label>
       <label for="input-name" class="col-sm-1 control-label" ng-show="!productForm.$visible">Name</label>
       <div class="col-sm-11">
-        <p id="input-name" class="form-control-static" e-class="form-control" editable-text="detailCtrl.product.name" e-name="name" e-required>{{ detailCtrl.product.name || 'Empty' }}</p>
+        <p id="input-name" class="form-control-static" e-class="form-control" editable-text="detailCtrl.product.name" e-name="name" e-maxlength="255" e-required>{{ detailCtrl.product.name || 'Empty' }}</p>
         <span class="help-block" ng-show="productForm.name.$error.required && !productForm.name.$pristine">Required field.</span>
       </div>
     </div>
@@ -51,21 +51,21 @@
     <div class="form-group">
       <label for="input-abbreviation" class="col-sm-1 control-label">Short Name</label>
       <div class="col-sm-11">
-        <p id="input-abbreviation" class="form-control-static" e-class="form-control" editable-text="detailCtrl.product.abbreviation" e-name="abbreviation">{{ detailCtrl.product.abbreviation }}</p>
+        <p id="input-abbreviation" class="form-control-static" e-class="form-control" editable-text="detailCtrl.product.abbreviation" e-name="abbreviation" e-maxlength="255">{{ detailCtrl.product.abbreviation }}</p>
       </div>
     </div>
 
     <div class="form-group">
       <label for="input-productCode" class="col-sm-1 control-label">Product Code</label>
       <div class="col-sm-11">
-        <p id="input-productCode" class="form-control-static" e-class="form-control" editable-text="detailCtrl.product.productCode" e-name="productCode">{{ detailCtrl.product.productCode }}</p>
+        <p id="input-productCode" class="form-control-static" e-class="form-control" editable-text="detailCtrl.product.productCode" e-name="productCode" e-maxlength="255">{{ detailCtrl.product.productCode }}</p>
       </div>
     </div>
 
     <div class="form-group">
       <label for="input-pgmSystemName" class="col-sm-1 control-label">System Code</label>
       <div class="col-sm-11">
-        <p id="input-pgmSystemName" class="form-control-static" e-class="form-control" editable-text="detailCtrl.product.pgmSystemName" e-name="pgmSystemName">{{ detailCtrl.product.pgmSystemName }}</p>
+        <p id="input-pgmSystemName" class="form-control-static" e-class="form-control" editable-text="detailCtrl.product.pgmSystemName" e-name="pgmSystemName" e-maxlength="255">{{ detailCtrl.product.pgmSystemName }}</p>
       </div>
     </div>
 

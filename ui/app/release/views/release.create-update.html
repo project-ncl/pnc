@@ -37,7 +37,7 @@
               <div class="col-sm-10">
                 <div class="input-group">
                   <span class="input-group-addon">{{ releaseCreateUpdateCtrl.productVersion.version }}.</span>
-                  <input required id="input-version" class="form-control" name="version" ng-model="releaseCreateUpdateCtrl.version" pattern="^[0-9]+\.[\w]+$">
+                  <input required id="input-version" class="form-control" name="version" maxlength="255" ng-model="releaseCreateUpdateCtrl.version" pattern="^[0-9]+\.[\w]+$">
                 </div>
                 <span class="help-block" ng-show="releaseForm.version.$error.required && !releaseForm.version.$pristine">Required field.</span>
                 <span class="help-block" ng-show="releaseForm.version.$error.pattern && !releaseForm.version.$pristine">Version must start with a number, followed by a dot and then a qualifier (e.g GA)</span>
@@ -73,7 +73,7 @@
             <div class="form-group" ng-class="{ 'has-error' : releaseForm.milestone.$invalid && !releaseForm.milestone.$pristine }">
               <label for="input-milestone" class="col-sm-2 control-label">* From Milestone </label>
               <div ng-if="!releaseCreateUpdateCtrl.isUpdating" class="col-sm-10">
-                <select required name="milestone" ng-model="releaseCreateUpdateCtrl.productMilestoneId" >
+                <select id="input-milestone" required name="milestone" ng-model="releaseCreateUpdateCtrl.productMilestoneId" >
                   <option></option>
                   <option ng-repeat="milestone in releaseCreateUpdateCtrl.versionMilestones" value="{{ milestone.id }}">
                     {{ milestone.version }}
@@ -89,7 +89,7 @@
             <div class="form-group" ng-class="{ 'has-error' : releaseForm.supportlevel.$invalid && !releaseForm.supportlevel.$pristine }">
               <label for="input-supportlevel" class="col-sm-2 control-label">* Support Level </label>
               <div class="col-sm-10">
-                <select required name="supportlevel"  ng-model="releaseCreateUpdateCtrl.data.supportLevel"
+                <select id="input-supportlevel" required name="supportlevel"  ng-model="releaseCreateUpdateCtrl.data.supportLevel"
                   ng-options="supportLevel for supportLevel in releaseCreateUpdateCtrl.supportLevels">
                   <option></option>
                 </select>
@@ -106,7 +106,7 @@
               </label>
               <div class="col-sm-10">
                 <div class="input-group">
-                  <input required name="downloadurl" id="input-downloadurl" class="form-control" name="downloadUrl" ng-model="releaseCreateUpdateCtrl.data.downloadUrl">
+                  <input required name="downloadurl" id="input-downloadurl" class="form-control" name="downloadUrl" maxlength="255" ng-model="releaseCreateUpdateCtrl.data.downloadUrl">
                 </div>
                 <span class="help-block" ng-show="releaseForm.downloadurl.$invalid && !releaseForm.downloadurl.$pristine">Required field.</span>
               </div>

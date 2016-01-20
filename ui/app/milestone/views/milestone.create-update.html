@@ -38,7 +38,7 @@
               <div class="col-sm-10">
                 <div class="input-group">
                   <span class="input-group-addon">{{ milestoneCreateUpdateCtrl.productVersion.version }}.</span>
-                  <input required id="input-version" class="form-control" name="version" ng-model="milestoneCreateUpdateCtrl.version" pattern="^[0-9]+\.[\w]+$">
+                  <input required id="input-version" class="form-control" name="version" maxlength="255" ng-model="milestoneCreateUpdateCtrl.version" pattern="^[0-9]+\.[\w]+$">
                 </div>
                 <span class="help-block" ng-show="milestoneForm.version.$error.required && !milestoneForm.version.$pristine">Required field.</span>
                 <span class="help-block" ng-show="milestoneForm.version.$error.pattern && !milestoneForm.version.$pristine">Version must start with a number, followed by a dot and then a qualifier (e.g ER1)</span>

@@ -36,7 +36,7 @@
       <label for="input-name" class="col-sm-1 control-label" ng-show="projectForm.$visible">* Name</label>
       <label for="input-name" class="col-sm-1 control-label" ng-show="!projectForm.$visible">Name</label>
       <div class="col-sm-11">
-        <p id="input-name" e-class="form-control" editable-text="detailCtrl.project.name" e-name="name" e-required>{{ detailCtrl.project.name || 'Empty' }}</p>
+        <p id="input-name" e-class="form-control" editable-text="detailCtrl.project.name" e-name="name" e-maxlength="255" e-required>{{ detailCtrl.project.name || 'Empty' }}</p>
         <span class="help-block" ng-show="projectForm.name.$error.required && !projectForm.name.$pristine">Required field.</span>
       </div>
     </div>
@@ -49,14 +49,14 @@
     <div class="form-group" ng-class="{ 'has-error': projectForm.projectUrl.$invalid && !projectForm.projectUrl.$pristine, 'has-success': projectForm.projectUrl.$valid && project.projectUrl }">
       <label for="input-url" class="col-sm-1 control-label">URL</label>
       <div class="col-sm-11">
-        <p id="input-url" e-type="url" e-class="form-control" editable-text="detailCtrl.project.projectUrl" e-name="projectUrl">{{ detailCtrl.project.projectUrl || 'Empty' }}</p>
+        <p id="input-url" e-type="url" e-class="form-control" editable-text="detailCtrl.project.projectUrl" e-name="projectUrl" e-maxlength="255">{{ detailCtrl.project.projectUrl || 'Empty' }}</p>
         <span class="help-block" ng-show="projectForm.projectUrl.$invalid && !projectForm.projectUrl.$pristine">Malformed URL.</span>
       </div>
     </div>
     <div class="form-group" ng-class="{ 'has-error': projectForm.issueTrackerUrl.$invalid && !projectForm.issueTrackerUrl.$pristine, 'has-success': projectForm.issueTrackerUrl.$valid && project.issueTrackerUrl }">
       <label for="input-issue-tracker" class="col-sm-1 control-label">Issue tracker</label>
       <div class="col-sm-11">
-        <p id="input-issue-tracker" e-type="url" e-class="form-control" editable-text="detailCtrl.project.issueTrackerUrl" e-name="issueTrackerUrl">{{ detailCtrl.project.issueTrackerUrl || 'Empty' }}</p>
+        <p id="input-issue-tracker" e-type="url" e-class="form-control" editable-text="detailCtrl.project.issueTrackerUrl" e-name="issueTrackerUrl" e-maxlength="255">{{ detailCtrl.project.issueTrackerUrl || 'Empty' }}</p>
         <span class="help-block" ng-show="projectForm.issueTrackerUrl.$invalid && !projectForm.issueTrackerUrl.$pristine">Malformed URL.</span>
       </div>
     </div>

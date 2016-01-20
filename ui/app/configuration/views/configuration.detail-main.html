@@ -50,7 +50,7 @@
           <label for="input-name" class="col-sm-2 control-label" ng-show="configurationForm.$visible">* Name</label>
           <label for="input-name" class="col-sm-2 control-label" ng-show="!configurationForm.$visible">Name</label>
           <div class="col-sm-10">
-            <p id="input-name" class="form-control-static" e-pattern="^[a-zA-Z0-9_.][a-zA-Z0-9_.-]*(?!\.git)+$" e-class="form-control" editable-text="detailCtrl.configuration.name" e-name="name" e-required>{{ detailCtrl.configuration.name || 'Empty' }}</p>
+            <p id="input-name" class="form-control-static" e-pattern="^[a-zA-Z0-9_.][a-zA-Z0-9_.-]*(?!\.git)+$" e-class="form-control" editable-text="detailCtrl.configuration.name" e-name="name" e-maxlength="255" e-required>{{ detailCtrl.configuration.name || 'Empty' }}</p>
             <span class="help-block" ng-show="configurationForm.name.$error.required && !configurationForm.name.$pristine">Required field.</span>
             <span class="help-block" ng-show="configurationForm.name.$error.pattern && !configurationForm.name.$pristine">The name contains not allowed characters (e.g spaces, commas, semicolons, apex, quotes) </span>
           </div>
@@ -70,7 +70,7 @@
         <div class="form-group">
           <label for="static-description" class="col-sm-2 control-label">Description</label>
           <div class="col-sm-10">
-            <p id="input-description" class="form-control-static" e-class="form-control" editable-textarea="detailCtrl.configuration.description" e-name="description">{{ detailCtrl.configuration.description || 'Empty' }}</p>
+            <p id="static-description" class="form-control-static" e-class="form-control" editable-textarea="detailCtrl.configuration.description" e-name="description">{{ detailCtrl.configuration.description || 'Empty' }}</p>
           </div>
         </div>
 
@@ -78,7 +78,7 @@
           <label for="input-scm-repo-url" class="col-sm-2 control-label" ng-show="configurationForm.$visible">* SCM Url</label>
           <label for="input-scm-repo-url" class="col-sm-2 control-label" ng-show="!configurationForm.$visible">SCM Url</label>
           <div class="col-sm-10">
-            <p e-required e-type="url" id="input-scm-repo-url" class="form-control-static" e-class="form-control" editable-text="detailCtrl.configuration.scmRepoURL" e-name="scmRepoURL">{{ detailCtrl.configuration.scmRepoURL || 'Empty' }}</p>
+            <p e-required e-type="url" id="input-scm-repo-url" class="form-control-static" e-class="form-control" editable-text="detailCtrl.configuration.scmRepoURL" e-name="scmRepoURL" e-maxlength="255">{{ detailCtrl.configuration.scmRepoURL || 'Empty' }}</p>
             <span class="help-block" ng-show="configurationForm.scmRepoURL.$error.required && !configurationForm.scmRepoURL.$pristine">Required field.</span>
             <span class="help-block" ng-show="configurationForm.scmRepoURL.$error.url && !configurationForm.scmRepoURL.$pristine">Malformed URL.</span>
           </div>
@@ -87,7 +87,7 @@
         <div class="form-group">
           <label for="input-scm-revision" class="col-sm-2 control-label">SCM Revision</label>
           <div class="col-sm-10">
-            <p id="input-scm-revision" class="form-control-static" e-class="form-control" editable-text="detailCtrl.configuration.scmRevision" e-name="scmRevision">{{ detailCtrl.configuration.scmRevision || 'Empty' }}</p>
+            <p id="input-scm-revision" class="form-control-static" e-class="form-control" editable-text="detailCtrl.configuration.scmRevision" e-name="scmRevision" e-maxlength="255">{{ detailCtrl.configuration.scmRevision || 'Empty' }}</p>
           </div>
         </div>
 
