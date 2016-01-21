@@ -15,30 +15,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.jboss.pnc.termdbuilddriver.websockets;
 
 import org.jboss.pnc.termdbuilddriver.AbstractLocalBuildAgentTest;
-import org.jboss.pnc.termdbuilddriver.commands.InvocatedCommandResult;
 import org.jboss.pnc.termdbuilddriver.commands.TermdCommandInvoker;
 import org.junit.Test;
 
+import java.net.URI;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class TermdCommandInvokerTest extends AbstractLocalBuildAgentTest {
+public class LogsUriTest extends AbstractLocalBuildAgentTest {
 
-    @Test(timeout = 60_000)
-    public void shouldInvokeRemoteCommand() throws Exception {
+    @Test(timeout = 10_000)
+    public void shouldExposeLogsURI() throws Exception {
         //given
         TermdCommandInvoker termdCommandInvoker = new TermdCommandInvoker(baseBuildAgentUri, localEnvironmentPointer.getWorkingDirectory());
 
         //when
         termdCommandInvoker.startSession();
-        InvocatedCommandResult invocationData = termdCommandInvoker.performCommand("echo test").get();
+        URI logsUri = termdCommandInvoker.getLogsURI();
         termdCommandInvoker.closeSession();
 
         //then
-        assertThat(invocationData.getTaskId()).isNotEqualTo(-1);
-        assertThat(invocationData.isSucceed()).isEqualTo(true);
+        assertThat(logsUri.toString()).matches("ws://127.0.0.1:\\d+/socket/term/");
     }
 
 }

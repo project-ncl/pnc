@@ -25,7 +25,6 @@ import org.jboss.pnc.termdbuilddriver.websockets.ClientMessageHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.websocket.OnMessage;
 import java.io.IOException;
 import java.lang.invoke.MethodHandles;
 import java.net.URI;
@@ -37,7 +36,7 @@ public class TermdStatusUpdatesConnection extends AbstractWebSocketsConnection {
 
     private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-    private static final String WEB_SOCKET_TERMINAL_PATH = "socket/process-status-updates";
+    private static final String WEB_SOCKET_TERMINAL_PATH = "socket/process-status-updates/";
 
     private final ObjectMapper mapper = new ObjectMapper();
     private final org.jboss.pnc.termdbuilddriver.websockets.ClientEndpoint clientEndpoint;

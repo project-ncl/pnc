@@ -53,6 +53,12 @@
     </dependency>
 
     <!-- Remote dependencies -->
+
+    <dependency>
+      <groupId>org.jboss.pnc</groupId>
+      <artifactId>build-agent-client</artifactId>
+    </dependency>
+
     <dependency>
       <groupId>javax.enterprise</groupId>
       <artifactId>cdi-api</artifactId>
@@ -78,7 +84,13 @@
 
     <dependency>
       <groupId>org.jboss.pnc</groupId>
-      <artifactId>build-agent</artifactId>
+      <artifactId>build-agent-server</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-simple</artifactId>
       <scope>test</scope>
     </dependency>
 
