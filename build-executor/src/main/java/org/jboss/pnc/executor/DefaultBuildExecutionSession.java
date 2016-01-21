@@ -56,6 +56,7 @@ public class DefaultBuildExecutionSession implements BuildExecutionSession {
     private BuildExecutionStatus failedReasonStatus;
 
     public DefaultBuildExecutionSession(BuildExecutionConfiguration buildExecutionConfiguration, Consumer<BuildExecutionStatusChangedEvent> onBuildExecutionStatusChangedEvent) {
+        liveLogsUri = Optional.empty();
         this.buildExecutionConfiguration = buildExecutionConfiguration;
         this.onBuildExecutionStatusChangedEvent = onBuildExecutionStatusChangedEvent;
     }
