@@ -20,6 +20,7 @@ package org.jboss.pnc.mock.spi;
 
 import org.jboss.pnc.mock.builddriver.BuildDriverResultMock;
 import org.jboss.pnc.mock.repositorymanager.RepositoryManagerResultMock;
+import org.jboss.pnc.spi.BuildExecutionStatus;
 import org.jboss.pnc.spi.BuildResult;
 import org.jboss.pnc.spi.builddriver.BuildDriverResult;
 import org.jboss.pnc.spi.builddriver.BuildDriverStatus;
@@ -37,10 +38,18 @@ public class BuildResultMock {
         BuildDriverResult buildDriverResult = BuildDriverResultMock.mockResult(status);
         RepositoryManagerResult repositoryManagerResult = RepositoryManagerResultMock.mockResult();
         ExecutorException exception = new ExecutorException("Test exception.", new Exception("Test exception cause."));
+        BuildExecutionStatus buildExecutionStatus;
+        if (status.completedSuccessfully()) {
+            buildExecutionStatus = null;
+        } else {
+            buildExecutionStatus = BuildExecutionStatus.DONE_WITH_ERRORS;
+        }
+
         return new BuildResult(
                 Optional.ofNullable(buildDriverResult),
                 Optional.ofNullable(repositoryManagerResult),
-                Optional.ofNullable(exception));
+                Optional.ofNullable(exception),
+                Optional.ofNullable(buildExecutionStatus));
 
     }
 }

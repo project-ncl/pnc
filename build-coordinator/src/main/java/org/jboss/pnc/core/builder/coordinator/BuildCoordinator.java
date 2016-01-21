@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.core.builder.coordinator;
 
+import org.jboss.pnc.core.BuildCoordinationException;
 import org.jboss.pnc.core.builder.coordinator.filtering.BuildTaskFilter;
 import org.jboss.pnc.core.builder.datastore.DatastoreAdapter;
 import org.jboss.pnc.model.BuildConfigSetRecord;
@@ -264,15 +265,22 @@ public class BuildCoordinator {
             buildTask.setStatus(BuildCoordinationStatus.BUILD_COMPLETED);
             BuildCoordinationStatus coordinationStatus;
             try {
-                if (buildResult.getException().isPresent()) {
-                    ExecutorException exception = buildResult.getException().get();
-                    datastoreAdapter.storeResult(buildTask, exception);
-                    coordinationStatus = BuildCoordinationStatus.DONE_WITH_ERRORS;
+                if (buildResult.hasFailed()) {
+                    if (buildResult.getException().isPresent()) {
+                        ExecutorException exception = buildResult.getException().get();
+                        datastoreAdapter.storeResult(buildTask, exception);
+                        coordinationStatus = BuildCoordinationStatus.SYSTEM_ERROR;
+                    } else if (buildResult.getFailedReasonStatus().isPresent()) {
+                        datastoreAdapter.storeResult(buildTask, buildResult);
+                        coordinationStatus = BuildCoordinationStatus.DONE_WITH_ERRORS;
+                    } else {
+                        throw new BuildCoordinationException("Failed task should have set exception or failed reason status.");
+                    }
                 } else {
                     datastoreAdapter.storeResult(buildTask, buildResult);
                     coordinationStatus = BuildCoordinationStatus.DONE;
                 }
-            } catch (DatastoreException e) {
+            } catch (DatastoreException | BuildCoordinationException e ) {
                 log.error("Cannot store results to datastore.", e);
                 coordinationStatus = BuildCoordinationStatus.SYSTEM_ERROR;
             }
