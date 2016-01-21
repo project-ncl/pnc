@@ -59,7 +59,7 @@ public class Product implements GenericEntity<Integer> {
     @Column(unique = true)
     private String pgmSystemName;
 
-    @OneToMany(mappedBy = "product", cascade = { CascadeType.PERSIST, CascadeType.REFRESH, CascadeType.DETACH,
+    @OneToMany(mappedBy = "product", cascade = { CascadeType.REFRESH, CascadeType.DETACH,
             CascadeType.REMOVE })
     private Set<ProductVersion> productVersions;
 

@@ -121,20 +121,20 @@ public class ProductRest implements GenericRestEntity<Integer> {
         this.productVersionIds = productVersionIds;
     }
 
-    public Product toProduct() {
-        Product.Builder builder = Product.Builder.newBuilder();
+    public Product.Builder toDBEntityBuilder() {
+        Product.Builder builder = Product.Builder.newBuilder()
+                .id(id)
+                .name(name)
+                .description(description)
+                .abbreviation(abbreviation)
+                .productCode(productCode)
+                .pgmSystemName(pgmSystemName);
 
-        builder.id(id);
-        builder.name(name);
-        builder.description(description);
-        builder.abbreviation(abbreviation);
-        builder.productCode(productCode);
-        builder.pgmSystemName(pgmSystemName);
         nullableStreamOf(productVersionIds).forEach(productVersionId -> {
             ProductVersion.Builder productVersionBuilder = ProductVersion.Builder.newBuilder().id(productVersionId);
             builder.productVersion(productVersionBuilder);
         });
 
-        return builder.build();
+        return builder;
     }
 }

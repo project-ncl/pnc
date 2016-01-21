@@ -19,7 +19,6 @@ package org.jboss.pnc.rest.provider;
 
 import org.jboss.pnc.model.BuildRecordSet;
 import org.jboss.pnc.model.ProductMilestone;
-import org.jboss.pnc.model.ProductVersion;
 import org.jboss.pnc.rest.provider.collection.CollectionInfo;
 import org.jboss.pnc.rest.restmodel.ProductMilestoneRest;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordSetRepository;
@@ -69,42 +68,22 @@ public class ProductMilestoneProvider extends AbstractProvider<ProductMilestone,
     @Override
     protected Function<? super ProductMilestoneRest, ? extends ProductMilestone> toDBModel() {
         return productMilestoneRest -> {
-            // Check if we are creating a new product milestone
-            ProductMilestone productMilestone = null;
+            ProductMilestone.Builder builder = productMilestoneRest.toDBEntityBuilder();
             if(productMilestoneRest.getId() == null) {
-                productMilestone = ProductMilestone.Builder.newBuilder().build();
-
-                BuildRecordSet distributedBuildRecordSet = productMilestone.getDistributedBuildRecordSet();
-                productMilestone.setDistributedBuildRecordSet(buildRecordSetRepository.save(distributedBuildRecordSet));
-                BuildRecordSet performedBuildRecordSet = productMilestone.getPerformedBuildRecordSet();
-                productMilestone.setPerformedBuildRecordSet(buildRecordSetRepository.save(performedBuildRecordSet));
-
-                ProductVersion productVersion = productVersionRepository.queryById(productMilestoneRest.getProductVersionId());
-                productMilestone.setProductVersion(productVersion);
-
+                // When creating a new milestone, we need to also create a new performed and distributed build record set
+                BuildRecordSet distributedBuildRecordSet = BuildRecordSet.Builder.newBuilder().build();
+                builder.distributedBuildRecordSet(buildRecordSetRepository.save(distributedBuildRecordSet));
+                BuildRecordSet performedBuildRecordSet = BuildRecordSet.Builder.newBuilder().build();
+                builder.performedBuildRecordSet(buildRecordSetRepository.save(performedBuildRecordSet));
             } else {
-                productMilestone = repository.queryById(productMilestoneRest.getId());
+                // When updating a milestone, the record sets and the product version may not change
+                ProductMilestone milestone = repository.queryById(productMilestoneRest.getId());
+                builder.distributedBuildRecordSet(milestone.getDistributedBuildRecordSet());
+                builder.performedBuildRecordSet(milestone.getPerformedBuildRecordSet());
+                builder.productVersion(milestone.getProductVersion());
             }
-            return mergeRestToDB(productMilestoneRest, productMilestone);
+            return builder.build();
         };
     }
 
-    /**
-     * Merge the fields of the product milestone rest with the given product milestone
-     * Note: Changing the product version or the build record sets of a product milestone is 
-     * not allowed.  If the product version of the given milestone is different than the 
-     * current milestone, the change will be ignored.
-     * 
-     * @param productMilestoneRest Supplies the updated values
-     * @param productMilestone The object to be updated
-     * @return The product milestone with updated attributes to match thecj ProductMilestoneRest
-     */
-    private ProductMilestone mergeRestToDB(ProductMilestoneRest productMilestoneRest, ProductMilestone productMilestone) {
-        productMilestone.setVersion(productMilestoneRest.getVersion());
-        productMilestone.setStartingDate(productMilestoneRest.getStartingDate());
-        productMilestone.setEndDate(productMilestoneRest.getEndDate());
-        productMilestone.setPlannedEndDate(productMilestoneRest.getPlannedEndDate());
-        productMilestone.setDownloadUrl(productMilestoneRest.getDownloadUrl());
-        return productMilestone;
-    }
 }

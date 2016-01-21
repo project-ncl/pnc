@@ -92,28 +92,18 @@ public class BuildConfigurationSetRest implements GenericRestEntity<Integer> {
         this.buildConfigurationIds = buildConfigurationIds;
     }
 
-    public BuildConfigurationSet toBuildConfigurationSet() {
-        BuildConfigurationSet.Builder builder = BuildConfigurationSet.Builder.newBuilder();
-        builder.name(name);
+    public BuildConfigurationSet.Builder toDBEntityBuilder() {
+        BuildConfigurationSet.Builder builder = BuildConfigurationSet.Builder.newBuilder()
+                .id(id)
+                .name(name);
+
         performIfNotNull(productVersionId, () -> builder.productVersion(ProductVersion.Builder.newBuilder().id(productVersionId).build()));
 
         nullableStreamOf(buildConfigurationIds).forEach(buildConfigurationId -> {
             BuildConfiguration.Builder buildConfigurationBuilder = BuildConfiguration.Builder.newBuilder().id(buildConfigurationId);
             builder.buildConfiguration(buildConfigurationBuilder.build());
         });
-        return builder.build();
-    }
-
-    public BuildConfigurationSet toBuildConfigurationSet(BuildConfigurationSet buildConfigurationSet) {
-        buildConfigurationSet.setName(name);
-        performIfNotNull(productVersionId, () -> buildConfigurationSet.setProductVersion(ProductVersion.Builder.newBuilder().id(productVersionId).build()));
-
-        buildConfigurationSet.getBuildConfigurations().clear();
-        nullableStreamOf(buildConfigurationIds).forEach(buildConfigurationId -> {
-            BuildConfiguration.Builder buildConfigurationBuilder = BuildConfiguration.Builder.newBuilder().id(buildConfigurationId);
-            buildConfigurationSet.addBuildConfiguration(buildConfigurationBuilder.build());
-        });
-        return buildConfigurationSet;
+        return builder;
     }
 
 }

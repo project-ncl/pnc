@@ -146,16 +146,16 @@ public class LicenseRest implements GenericRestEntity<Integer> {
         this.projectsIds = projectsIds;
     }
 
-    public License toLicense() {
+    public License.Builder toDBEntityBuilder() {
         List<Project> projects = nullableStreamOf(projectsIds)
                 .map(projectId -> Project.Builder.newBuilder().id(projectId).build())
                 .collect(Collectors.toList());
-        License license = License.Builder.newBuilder()
+        License.Builder builder = License.Builder.newBuilder()
             .id(id).fullName(fullName)
             .fullContent(fullContent).refUrl(refUrl)
-            .shortName(shortName).projects(projects).build();
+            .shortName(shortName).projects(projects);
 
-        return license;
+        return builder;
     }
 
 }

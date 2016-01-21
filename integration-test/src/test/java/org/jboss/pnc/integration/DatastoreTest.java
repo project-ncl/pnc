@@ -116,6 +116,7 @@ public class DatastoreTest {
     @InSequence(-2)
     public void prepareDataForAuditTest() throws Exception {
         Product product = Product.Builder.newBuilder().name("test").build();
+        product = productRepository.save(product);
         ProductVersion productVersion = ProductVersion.Builder.newBuilder().version("1.0").product(product).build();
         BuildEnvironment environment = BuildEnvironment.Builder.newBuilder().name("Test Environment").build();
         Project project = Project.Builder.newBuilder().name("test").build();

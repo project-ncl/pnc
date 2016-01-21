@@ -17,7 +17,6 @@
  */
 package org.jboss.pnc.rest.provider;
 
-import org.jboss.pnc.model.ProductMilestone;
 import org.jboss.pnc.model.ProductRelease;
 import org.jboss.pnc.rest.provider.collection.CollectionInfo;
 import org.jboss.pnc.rest.restmodel.ProductReleaseRest;
@@ -57,24 +56,7 @@ public class ProductReleaseProvider extends AbstractProvider<ProductRelease, Pro
 
     @Override
     protected Function<? super ProductReleaseRest, ? extends ProductRelease> toDBModel() {
-        return productReleaseRest -> {
-            ProductRelease productRelease = null;
-            if (productReleaseRest.getId() != null) {
-                productRelease = repository.queryById(productReleaseRest.getId());
-            } else {
-                productRelease = ProductRelease.Builder.newBuilder().build();
-            }
-
-            // Merge the product release db entity with attributes from the product release rest
-            productRelease = productReleaseRest.toProductRelease(productRelease);
-            if (productReleaseRest.getProductMilestoneId() != null) {
-                ProductMilestone productMilestone = productMilestoneRepository.queryById(productReleaseRest.getProductMilestoneId());
-                productRelease.setProductMilestone(productMilestone);
-                productMilestone.setProductRelease(productRelease);
-            }
-
-            return productRelease;
-        };
+        return productReleaseRest ->  productReleaseRest.toDBEntityBuilder().build();
     }
 
     public CollectionInfo<ProductReleaseRest> getAllForProductVersion(int pageIndex, int pageSize, String sortingRsql,

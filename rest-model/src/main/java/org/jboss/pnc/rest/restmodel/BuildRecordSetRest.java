@@ -93,9 +93,9 @@ public class BuildRecordSetRest implements GenericRestEntity<Integer> {
         this.buildRecordIds = buildRecordIds;
     }
 
-    public BuildRecordSet toBuildRecordSet() {
-        BuildRecordSet.Builder builder = BuildRecordSet.Builder.newBuilder();
-        builder.id(id);
+    public BuildRecordSet.Builder toDBEntityBuilder() {
+        BuildRecordSet.Builder builder = BuildRecordSet.Builder.newBuilder()
+                .id(id);
 
         performIfNotNull(performedInProductMilestoneId,
                 () -> builder.performedInProductMilestone(ProductMilestone.Builder.newBuilder().id(performedInProductMilestoneId).build()));
@@ -107,7 +107,7 @@ public class BuildRecordSetRest implements GenericRestEntity<Integer> {
             builder.buildRecord(buildRecordBuilder.build());
         });
 
-        return builder.build();
+        return builder;
     }
 
 }

@@ -20,6 +20,7 @@ package org.jboss.pnc.rest.restmodel;
 import io.swagger.annotations.ApiModelProperty;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildStatus;
+import org.jboss.pnc.model.ProductVersion;
 import org.jboss.pnc.rest.validation.groups.WhenCreatingNew;
 import org.jboss.pnc.rest.validation.groups.WhenUpdating;
 
@@ -267,4 +268,31 @@ public class BuildConfigurationRest implements GenericRestEntity<Integer> {
         this.environment = environment;
     }
 
+    public BuildConfiguration.Builder toDBEntityBuilder() {
+        BuildConfiguration.Builder builder = BuildConfiguration.Builder.newBuilder()
+                .id(this.getId())
+                .name(this.getName())
+                .description(this.getDescription())
+                .buildScript(this.getBuildScript())
+                .scmRepoURL(this.getScmRepoURL())
+                .scmRevision(this.getScmRevision())
+                .scmMirrorRepoURL(this.getScmMirrorRepoURL())
+                .scmMirrorRevision(this.getScmMirrorRevision())
+                .buildStatus(this.getBuildStatus())
+                .repositories(this.getRepositories());
+
+        performIfNotNull(this.getProject(), () -> builder.project(this.getProject().toDBEntityBuilder().build()));
+        performIfNotNull(this.getEnvironment(), () -> builder.buildEnvironment(this.getEnvironment().toDBEntityBuilder().build()));
+
+        nullableStreamOf(this.getDependencyIds()).forEach(dependencyId -> {
+            BuildConfiguration.Builder buildConfigurationBuilder = BuildConfiguration.Builder.newBuilder().id(dependencyId);
+            builder.dependency(buildConfigurationBuilder.build());
+        });
+        nullableStreamOf(this.getProductVersionIds()).forEach(productVersionId -> {
+            ProductVersion.Builder productVersionBuilder = ProductVersion.Builder.newBuilder().id(productVersionId);
+            builder.productVersion(productVersionBuilder.build());
+        });
+        
+        return builder;
+    }
 }

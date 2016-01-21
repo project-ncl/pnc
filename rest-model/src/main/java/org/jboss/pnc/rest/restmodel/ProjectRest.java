@@ -191,25 +191,20 @@ public class ProjectRest implements GenericRestEntity<Integer> {
         this.licenseId = licenseId;
     }
 
-    /**
-     * Gets the project.
-     *
-     * @return the project
-     */
-    public Project toProject() {
-        Project.Builder builder = Project.Builder.newBuilder();
-        builder.id(id);
-        builder.name(name);
-        builder.description(description);
-        builder.issueTrackerUrl(issueTrackerUrl);
-        builder.projectUrl(projectUrl);
+    public Project.Builder toDBEntityBuilder() {
+        Project.Builder builder = Project.Builder.newBuilder()
+                .id(id)
+                .name(name)
+                .description(description)
+                .issueTrackerUrl(issueTrackerUrl)
+                .projectUrl(projectUrl);
 
         performIfNotNull(this.licenseId, () -> builder.license(License.Builder.newBuilder().id(licenseId).build()));
 
         nullableStreamOf(configurationIds).forEach(configurationId ->
                 builder.buildConfiguration(BuildConfiguration.Builder.newBuilder().id(configurationId).build()));
 
-        return builder.build();
+        return builder;
     }
 
 }

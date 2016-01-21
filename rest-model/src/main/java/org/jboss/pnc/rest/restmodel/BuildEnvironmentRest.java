@@ -112,14 +112,13 @@ public class BuildEnvironmentRest implements GenericRestEntity<Integer> {
         this.systemImageId = imageId;
     }
 
-    public BuildEnvironment toBuildSystemImage() {
+    public BuildEnvironment.Builder toDBEntityBuilder() {
         return BuildEnvironment.Builder.newBuilder()
-                .id(id)
-                .name(name)
-                .description(description)
-                .imageRepositoryUrl(imageRepositoryUrl)
-                .systemImageId(systemImageId)
-                .buildType(buildType)
-                .build();
+                .id(this.getId())
+                .name(this.getName())
+                .description(this.getDescription())
+                .imageRepositoryUrl(this.getImageRepositoryUrl())
+                .systemImageId(this.getImageId())
+                .buildType(this.getBuildType());
     }
 }

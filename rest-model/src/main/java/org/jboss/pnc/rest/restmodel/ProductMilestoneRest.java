@@ -17,7 +17,9 @@
  */
 package org.jboss.pnc.rest.restmodel;
 
+import org.jboss.pnc.model.BuildRecordSet;
 import org.jboss.pnc.model.ProductMilestone;
+import org.jboss.pnc.model.ProductVersion;
 import org.jboss.pnc.rest.validation.groups.WhenCreatingNew;
 import org.jboss.pnc.rest.validation.groups.WhenUpdating;
 
@@ -26,6 +28,8 @@ import javax.validation.constraints.Null;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.Date;
 
+import static org.jboss.pnc.rest.utils.Utility.performIfNotNull;
+
 @XmlRootElement(name = "ProductMilestone")
 public class ProductMilestoneRest implements GenericRestEntity<Integer> {
 
@@ -33,6 +37,7 @@ public class ProductMilestoneRest implements GenericRestEntity<Integer> {
     @Null(groups = WhenCreatingNew.class)
     private Integer id;
 
+    @NotNull(groups = {WhenCreatingNew.class, WhenUpdating.class})
     private String version;
 
     private Date endDate;
@@ -43,6 +48,7 @@ public class ProductMilestoneRest implements GenericRestEntity<Integer> {
 
     private String downloadUrl;
 
+    @NotNull(groups = {WhenCreatingNew.class, WhenUpdating.class})
     private Integer productVersionId;
 
     private Integer performedBuildRecordSetId;
@@ -52,6 +58,10 @@ public class ProductMilestoneRest implements GenericRestEntity<Integer> {
     private Integer productReleaseId;
 
     public ProductMilestoneRest() {
+    }
+
+    public ProductMilestoneRest(Integer id) {
+        this.id = id;
     }
 
     public ProductMilestoneRest(ProductMilestone productMilestone) {
@@ -155,4 +165,19 @@ public class ProductMilestoneRest implements GenericRestEntity<Integer> {
         this.distributedBuildRecordSetId = distributedBuildRecordSetId;
     }
 
+    public ProductMilestone.Builder toDBEntityBuilder() {
+        ProductMilestone.Builder builder = ProductMilestone.Builder.newBuilder()
+                .id(id)
+                .version(this.getVersion())
+                .startingDate(this.getStartingDate())
+                .endDate(this.getEndDate())
+                .plannedEndDate(this.getPlannedEndDate())
+                .downloadUrl(this.getDownloadUrl())
+                .productVersion(ProductVersion.Builder.newBuilder().id(productVersionId).build());
+
+        performIfNotNull(distributedBuildRecordSetId, () -> builder.distributedBuildRecordSet(BuildRecordSet.Builder.newBuilder().id(distributedBuildRecordSetId).build()));
+        performIfNotNull(performedBuildRecordSetId, () -> builder.performedBuildRecordSet(BuildRecordSet.Builder.newBuilder().id(performedBuildRecordSetId).build()));
+
+        return builder;
+    }
 }

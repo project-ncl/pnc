@@ -48,6 +48,6 @@ public class BuildEnvironmentProvider extends AbstractProvider<BuildEnvironment,
 
     @Override
     protected Function<? super BuildEnvironmentRest, ? extends BuildEnvironment> toDBModel() {
-        return buildSystemImageRest -> buildSystemImageRest.toBuildSystemImage();
+        return buildSystemImageRest -> buildSystemImageRest.toDBEntityBuilder().build();
     }
 }
