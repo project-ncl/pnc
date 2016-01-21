@@ -19,17 +19,19 @@
 -->
 <div>
   <div class="page-header">
-    <h1>Create Build Config</h1>
+    <h1>Create Build Configuration</h1>
   </div>
   <div class="row">
     <div class="col-md-8 col-lg-6">
-      <form class="form-horizontal" name="configurationForm" ng-submit="ctrl.submit()">
+      <form class="form-horizontal" name="configurationForm" ng-submit="ctrl.submit()" novalidate>
         <div class="panel panel-default">
           <div class="panel-body">
-            <div class="form-group">
-              <label for="input-name" class="col-sm-2 control-label">Name</label>
+            <div class="form-group" ng-class="{ 'has-error' : configurationForm.name.$invalid && !configurationForm.name.$pristine, 'has-success': configurationForm.name.$valid && configurationForm.name.$touched }">
+              <label for="input-name" class="col-sm-2 control-label">* Name</label>
               <div class="col-sm-10">
-                <input id="input-name" class="form-control" name="name" ng-model="ctrl.data.name" required>
+                <input id="input-name" class="form-control" name="name" maxlength="255" ng-model="ctrl.data.name" pattern="^[a-zA-Z0-9_.][a-zA-Z0-9_.-]*(?!\.git)+$" required>
+                <span class="help-block" ng-show="configurationForm.name.$error.required && !configurationForm.name.$pristine">Required field.</span>
+                <span class="help-block" ng-show="configurationForm.name.$error.pattern && !configurationForm.name.$pristine">The name contains not allowed characters (e.g spaces, commas, semicolons, apex, quotes) </span>
               </div>
             </div>
 
@@ -40,36 +42,42 @@
               </div>
             </div>
 
-            <div class="form-group">
-              <label for="input-scm-repo-url" class="col-sm-2 control-label">SCM Url</label>
+            <div class="form-group" ng-class="{ 'has-error': configurationForm.scmRepoURL.$invalid && !configurationForm.scmRepoURL.$pristine, 'has-success': configurationForm.scmRepoURL.$valid && configurationForm.scmRepoURL.$touched }">
+              <label for="input-scm-repo-url" class="col-sm-2 control-label">* SCM Url</label>
               <div class="col-sm-10">
-              <input id="input-scm-repo-url" class="form-control" name="scmRepoURL" ng-model="ctrl.data.scmRepoURL">
+              <input type="url" id="input-scm-repo-url" class="form-control" name="scmRepoURL" maxlength="255" ng-model="ctrl.data.scmRepoURL" required>
+              <span class="help-block" ng-show="configurationForm.scmRepoURL.$error.required && !configurationForm.scmRepoURL.$pristine">Required field.</span>
+              <span class="help-block" ng-show="configurationForm.scmRepoURL.$error.url && !configurationForm.scmRepoURL.$pristine">Malformed URL.</span>
               </div>
             </div>
 
             <div class="form-group">
               <label for="input-scm-revision" class="col-sm-2 control-label">SCM Revision</label>
               <div class="col-sm-10">
-              <input id="input-scm-revision" class="form-control" name="scmRevision" ng-model="ctrl.data.scmRevision">
+              <input id="input-scm-revision" class="form-control" name="scmRevision" maxlength="255" ng-model="ctrl.data.scmRevision">
               </div>
             </div>
 
-            <div class="form-group">
-              <label for="input-build-script" class="col-sm-2 control-label">Build Script</label>
+            <div class="form-group" ng-class="{ 'has-error': configurationForm.buildScript.$invalid && !configurationForm.buildScript.$pristine, 'has-success': configurationForm.buildScript.$valid && configurationForm.buildScript.$touched }">
+              <label for="input-build-script" class="col-sm-2 control-label">* Build Script</label>
               <div class="col-sm-10">
-              <textarea id="input-build-script" class="form-control" name="buildScript" spellcheck="false" ng-model="ctrl.data.buildScript"></textarea>
+              <textarea id="input-build-script" class="form-control" name="buildScript" spellcheck="false" ng-model="ctrl.data.buildScript" required></textarea>
+              <span class="help-block" ng-show="configurationForm.buildScript.$error.required && !configurationForm.buildScript.$pristine">Required field.</span>
               </div>
             </div>
 
-            <div class="form-group">
-              <label for="input-environment" class="col-sm-2 control-label">Environment</label>
+            <div class="form-group" ng-class="{ 'has-error' : configurationForm.environmentId.$invalid && !configurationForm.environmentId.$pristine, 'has-success': configurationForm.environmentId.$valid && configurationForm.environmentId.$touched }">
+              <label for="input-environment" class="col-sm-2 control-label">
+                * Environment
+              </label>
               <div class="col-sm-10">
-              <select ng-model="ctrl.data.environment.id" required>
+              <select id="input-environment" ng-model="ctrl.data.environment.id" required>
                 <option value="">Select an Environment</option>
-                  <option ng-repeat="environment in ctrl.environments" value="{{ environment.id }}">
+                <option ng-repeat="environment in ctrl.environments" value="{{ environment.id }}">
                     {{ environment.name }}
-                  </option>
+                </option>
                 </select>
+                <span class="help-block" ng-show="configurationForm.environmentId.$error.required && !configurationForm.environmentId.$pristine">Required field.</span>
               </div>
             </div>
           </div>
@@ -108,8 +116,8 @@
 
         <div class="form-group">
           <div class="col-sm-offset-2 col-sm-10">
-            <input type="submit" class="btn btn-primary" value="Create">
-            <input type="reset" class="btn btn-default" value="Clear">
+            <input type="submit" class="btn btn-primary" value="Create" ng-disabled="configurationForm.$invalid">
+            <input type="reset" class="btn btn-default" value="Clear" ng-click="ctrl.reset(configurationForm)">
           </div>
         </div>
 

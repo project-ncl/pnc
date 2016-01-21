@@ -27,7 +27,7 @@
     <div class="form-group">
       <label for="input-project" class="col-sm-2 control-label">Project</label>
       <div class="col-sm-10">
-        <select ng-model="addConfigurationSetCtrl.data.selectedProjectId" ng-change="addConfigurationSetCtrl.getBuildConfigurations(addConfigurationSetCtrl.data.selectedProjectId)">
+        <select id="input-project" ng-model="addConfigurationSetCtrl.data.selectedProjectId" ng-change="addConfigurationSetCtrl.getBuildConfigurations(addConfigurationSetCtrl.data.selectedProjectId)">
           <option value=""></option>
           <option ng-repeat="project in addConfigurationSetCtrl.projects" value="{{ project.id }}">
             {{ project.name }}

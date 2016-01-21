@@ -30,7 +30,7 @@
         </label>
 
         <div class="col-sm-10">
-          <input id="startFormInput1" name="startFormInput1" class="form-control" ng-model="data.name" required>
+          <input id="startFormInput1" name="startFormInput1" maxlength="255" class="form-control" ng-model="data.name" required>
           <span class="help-block" ng-show="startForm.startFormInput1.$error.required && !startForm.startFormInput1.$pristine">Required field.</span>
         </div>
       </div>
@@ -43,7 +43,7 @@
         </label>
 
         <div class="col-sm-10">
-          <input id="startFormInput2" name="startFormInput2" class="form-control" ng-model="data.productVersion"
+          <input id="startFormInput2" name="startFormInput2" maxlength="255" class="form-control" ng-model="data.productVersion"
                  pattern="^[0-9]+\.[0-9]+$"
                  required>
           <span class="help-block" ng-show="startForm.startFormInput2.$error.required && !startForm.startFormInput2.$pristine">Required field.</span>
@@ -65,7 +65,7 @@
         </label>
 
         <div class="col-sm-10">
-          <input type="url" id="startFormInput3" name="startFormInput3" class="form-control" ng-model="data.scmUrl" required>
+          <input type="url" id="startFormInput3" name="startFormInput3" maxlength="255" class="form-control" ng-model="data.scmUrl" required>
           <span class="help-block" ng-show="startForm.startFormInput3.$error.required && !startForm.startFormInput3.$pristine">Required field.</span>
           <span class="help-block" ng-show="startForm.startFormInput3.$error.url && !startForm.startFormInput3.$pristine">Invalid URL.</span>
         </div>
@@ -77,7 +77,7 @@
         </label>
 
         <div class="col-sm-10">
-          <input placeholder="master" id="startFormInput4" name="startFormInput4" class="form-control" ng-model="data.scmRevision">
+          <input placeholder="master" id="startFormInput4" name="startFormInput4" maxlength="255" class="form-control" ng-model="data.scmRevision">
           <div class="help-block">
             <p>Use branch or tag name only, not hash.</p>
           </div>
