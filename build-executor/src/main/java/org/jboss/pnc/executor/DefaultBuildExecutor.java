@@ -18,6 +18,10 @@
 
 package org.jboss.pnc.executor;
 
+import org.jboss.pnc.common.Configuration;
+import org.jboss.pnc.common.json.ConfigurationParseException;
+import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
+import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
 import org.jboss.pnc.executor.exceptions.BuildProcessException;
 import org.jboss.pnc.executor.servicefactories.BuildDriverFactory;
 import org.jboss.pnc.executor.servicefactories.EnvironmentDriverFactory;
@@ -81,13 +85,24 @@ public class DefaultBuildExecutor implements BuildExecutor {
     public DefaultBuildExecutor(
             RepositoryManagerFactory repositoryManagerFactory,
             BuildDriverFactory buildDriverFactory,
-            EnvironmentDriverFactory environmentDriverFactory) {
+            EnvironmentDriverFactory environmentDriverFactory,
+            Configuration configuration) {
 
         this.repositoryManagerFactory = repositoryManagerFactory;
         this.buildDriverFactory = buildDriverFactory;
         this.environmentDriverFactory = environmentDriverFactory;
 
-        executor = Executors.newFixedThreadPool(4); //TODO configurable
+        int executorThreadPoolSize = 12;
+        try {
+            String executorThreadPoolSizeStr = configuration.getModuleConfig(new PncConfigProvider<>(SystemConfig.class)).getExecutorThreadPoolSize();
+            if (executorThreadPoolSizeStr != null) {
+                executorThreadPoolSize = Integer.parseInt(executorThreadPoolSizeStr);
+            }
+        } catch (ConfigurationParseException e) {
+            log.warn("Unable parse config. Using defaults.");
+        }
+
+        executor = Executors.newFixedThreadPool(executorThreadPoolSize);
     }
 
 

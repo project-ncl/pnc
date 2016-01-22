@@ -88,7 +88,7 @@ public class BuildDriverFactoryTest {
         TestInstance<BuildDriver> allDrivers = new TestInstance<>(testedBuildDriver);
 
         Configuration configuration = mock(Configuration.class);
-        doReturn(new SystemConfig("ProperDriver", "local-build-scheduler")).when(configuration)
+        doReturn(new SystemConfig("ProperDriver", "local-build-scheduler", "10")).when(configuration)
             .getModuleConfig(new PncConfigProvider<SystemConfig>(SystemConfig.class));
 
         BuildDriverFactory factory = new BuildDriverFactory(allDrivers, configuration);

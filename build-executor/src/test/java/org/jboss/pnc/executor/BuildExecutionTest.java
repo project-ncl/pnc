@@ -20,6 +20,7 @@ package org.jboss.pnc.executor;
 
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
+import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.util.ObjectWrapper;
 import org.jboss.pnc.executor.mock.builders.TestProjectConfigurationBuilder;
 import org.jboss.pnc.executor.servicefactories.BuildDriverFactory;
@@ -167,7 +168,8 @@ public class BuildExecutionTest {
         DefaultBuildExecutor executor = new DefaultBuildExecutor(
                 repositoryManagerFactory,
                 buildDriverFactory,
-                environmentDriverFactory
+                environmentDriverFactory,
+                new Configuration()
         );
 
         Consumer<BuildExecutionStatusChangedEvent> onBuildExecutionStatusChangedEvent = (statusChangedEvent) -> {
