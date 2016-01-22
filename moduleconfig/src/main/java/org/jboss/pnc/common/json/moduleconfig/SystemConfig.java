@@ -24,12 +24,15 @@ public class SystemConfig extends AbstractModuleConfig {
 
     private String buildDriverId;
     private String buildSchedulerId;
+    private String executorThreadPoolSize;
 
     public SystemConfig(
             @JsonProperty("buildDriverId") String buildDriverId,
-            @JsonProperty("buildSchedulerId") String buildSchedulerId) {
+            @JsonProperty("buildSchedulerId") String buildSchedulerId,
+            @JsonProperty("executorThreadPoolSize") String executorThreadPoolSize) {
         this.buildDriverId = buildDriverId;
         this.buildSchedulerId = buildSchedulerId;
+        this.executorThreadPoolSize = executorThreadPoolSize;
     }
 
     public String getBuildDriverId() {
@@ -39,11 +42,18 @@ public class SystemConfig extends AbstractModuleConfig {
     public String getBuildSchedulerId() {
         return buildSchedulerId;
     }
+
+    public String getExecutorThreadPoolSize() {
+        return executorThreadPoolSize;
+    }
+
     @Override
     public String toString() {
         return "SystemConfig{" +
                 "buildDriverId='" + buildDriverId + '\'' +
-                "SchedulerId='" + buildSchedulerId + '\'' +
+                "buildSchedulerId='" + buildSchedulerId + '\'' +
+                "executorThreadPoolSize='" + executorThreadPoolSize + '\'' +
                 '}';
     }
+
 }
