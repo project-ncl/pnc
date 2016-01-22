@@ -210,7 +210,7 @@ public class DockerEnvironmentDriverRemoteTest {
 
         // Test if Jenkins is running
         try {
-            HttpUtils.testResponseHttpCode(200, runningEnv.getJenkinsUrl());
+            HttpUtils.testResponseHttpCode(200, runningEnv.getBuildAgentUrl());
             if (!shouldBeRunning) {
                 fail("Jenkins is running, but should be down");
             }
@@ -254,7 +254,7 @@ public class DockerEnvironmentDriverRemoteTest {
 
         // Test if Jenkins is running
         try {
-            HttpUtils.testResponseHttpCode(200, runningEnv.getJenkinsUrl());
+            HttpUtils.testResponseHttpCode(200, runningEnv.getBuildAgentUrl());
             if (!shouldBeRunning) {
                 fail("Jenkins is running, but should be down");
             }

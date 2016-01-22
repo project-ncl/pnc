@@ -145,7 +145,7 @@ public class OpenshiftEnvironmentDriverRemoteTest {
     }
 
     private boolean connectToPingUrl(RunningEnvironment runningEnvironment, int maxRepeats) throws IOException {
-        URL url = new URL(runningEnvironment.getJenkinsUrl());
+        URL url = new URL(runningEnvironment.getBuildAgentUrl());
         logger.info("Left {} attempts to connect to {}", maxRepeats, url);
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
         connection.setConnectTimeout(500);

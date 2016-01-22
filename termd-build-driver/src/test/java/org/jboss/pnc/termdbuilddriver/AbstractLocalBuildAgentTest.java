@@ -60,8 +60,8 @@ public class AbstractLocalBuildAgentTest {
 
         localEnvironmentPointer = mock(RunningEnvironment.class);
         when(localEnvironmentPointer.getId()).thenReturn("test");
-        when(localEnvironmentPointer.getJenkinsPort()).thenReturn(localBuildAgent.getPort());
-        when(localEnvironmentPointer.getJenkinsUrl()).thenReturn(baseBuildAgentUri.toString());
+        when(localEnvironmentPointer.getBuildAgentPort()).thenReturn(localBuildAgent.getPort());
+        when(localEnvironmentPointer.getBuildAgentUrl()).thenReturn(baseBuildAgentUri.toString());
         when(localEnvironmentPointer.getInternalBuildAgentUrl()).thenReturn(baseBuildAgentUri.toString());
         when(localEnvironmentPointer.getWorkingDirectory()).thenReturn(workingDirectory);
     }

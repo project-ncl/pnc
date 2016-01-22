@@ -80,7 +80,7 @@ public class DockerStartedEnvironment implements StartedEnvironment {
         pullingMonitor.monitor(
                 onEnvironmentInitComplete,
                 onEnvironmentInitError,
-                () -> checkServices(preparedRunningEnvironment.getJenkinsUrl()),
+                () -> checkServices(preparedRunningEnvironment.getBuildAgentUrl()),
                 CHECK_INTERVAL, MAX_CONTAINER_LOADING_TIME);
         
         logger.info("Waiting to init services in docker container. ID: " + preparedRunningEnvironment.getId());

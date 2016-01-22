@@ -71,18 +71,18 @@ public class DockerRunningEnvironment implements RunningEnvironment {
     }
 
     @Override
-    public int getJenkinsPort() {
+    public int getBuildAgentPort() {
         return jenkinsPort;
     }
 
     @Override
-    public String getJenkinsUrl() {
+    public String getBuildAgentUrl() {
         return containerUrl + ":" + jenkinsPort + "/";
     }
 
     @Override
     public String getInternalBuildAgentUrl() {
-        return getJenkinsUrl();
+        return getBuildAgentUrl();
     }
 
     @Override

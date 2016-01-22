@@ -57,6 +57,10 @@
                     {
                         "name": "buildAgentContextPath",
                         "value": "${buildAgentContextPath}"
+                    },
+                    {
+                        "name": "buildAgentBindPort",
+                        "value": "${containerPort}"
                     }
                 ],
                 "resources": {},
