@@ -20,6 +20,7 @@ package org.jboss.pnc.rest.restmodel;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.jboss.pnc.rest.utils.JsonOutputConverterMapper;
+import org.jboss.pnc.spi.BuildExecutionStatus;
 import org.jboss.pnc.spi.BuildResult;
 import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
 import org.jboss.pnc.spi.executor.exceptions.ExecutorException;
@@ -41,6 +42,8 @@ public class BuildResultRest implements Serializable {
 
     private ExecutorException exception;
 
+    private BuildExecutionStatus failedReasonStatus;
+
     public BuildResultRest() {
     }
 
@@ -50,6 +53,7 @@ public class BuildResultRest implements Serializable {
         this.buildDriverResult = buildResultRest.getBuildDriverResult();
         this.repositoryManagerResult = buildResultRest.getRepositoryManagerResult();
         this.exception = buildResultRest.getException();
+        this.failedReasonStatus = buildResultRest.getFailedReasonStatus();
     }
 
     public BuildResultRest(BuildResult buildResult) throws BuildDriverException {
@@ -72,7 +76,8 @@ public class BuildResultRest implements Serializable {
         return new BuildResult(
                 Optional.ofNullable(buildDriverResult),
                 Optional.ofNullable(repositoryManagerResult),
-                Optional.ofNullable(exception));
+                Optional.ofNullable(exception),
+                Optional.ofNullable(failedReasonStatus));
     }
 
     public BuildDriverResultRest getBuildDriverResult() {
@@ -97,6 +102,14 @@ public class BuildResultRest implements Serializable {
 
     public void setException(ExecutorException exception) {
         this.exception = exception;
+    }
+
+    public BuildExecutionStatus getFailedReasonStatus() {
+        return failedReasonStatus;
+    }
+
+    public void setFailedReasonStatus(BuildExecutionStatus failedReasonStatus) {
+        this.failedReasonStatus = failedReasonStatus;
     }
 
     @Override

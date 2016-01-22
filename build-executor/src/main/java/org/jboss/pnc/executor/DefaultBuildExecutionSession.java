@@ -117,15 +117,14 @@ public class DefaultBuildExecutionSession implements BuildExecutionSession {
         if (executorException == null) {
             if (failedReasonStatus == null) {
                 log.trace("Returning result of task {} with no exception.", getId());
-                return new BuildResult(Optional.ofNullable(buildDriverResult), Optional.ofNullable(repositoryManagerResult), Optional.empty());
+                return new BuildResult(Optional.ofNullable(buildDriverResult), Optional.ofNullable(repositoryManagerResult), Optional.empty(), Optional.empty());
             } else {
-                ExecutorException exception = new ExecutorException("Build execution failed with status: " + failedReasonStatus);
-                log.trace("Returning result of task " + getId() + " with exception.", exception);
-                return new BuildResult(Optional.ofNullable(buildDriverResult), Optional.ofNullable(repositoryManagerResult), Optional.of(exception));
+                log.trace("Returning result of task " + getId() + " with failed reason {}.", failedReasonStatus);
+                return new BuildResult(Optional.ofNullable(buildDriverResult), Optional.ofNullable(repositoryManagerResult), Optional.empty(), Optional.of(failedReasonStatus));
             }
         } else {
             log.trace("Returning result of task " + getId() + " with exception.", executorException);
-            return new BuildResult(Optional.ofNullable(buildDriverResult), Optional.ofNullable(repositoryManagerResult), Optional.of(executorException));
+            return new BuildResult(Optional.ofNullable(buildDriverResult), Optional.ofNullable(repositoryManagerResult), Optional.of(executorException), Optional.empty());
         }
     }
 

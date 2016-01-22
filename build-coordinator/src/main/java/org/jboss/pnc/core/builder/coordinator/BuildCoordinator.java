@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.core.builder.coordinator;
 
+import org.jboss.pnc.core.BuildCoordinationException;
 import org.jboss.pnc.core.builder.coordinator.filtering.BuildTaskFilter;
 import org.jboss.pnc.core.builder.datastore.DatastoreAdapter;
 import org.jboss.pnc.model.BuildConfigSetRecord;
@@ -261,21 +262,27 @@ public class BuildCoordinator {
 
     void processBuildTask(BuildTask buildTask) {
         Consumer<BuildResult> onComplete = (buildResult) -> {
-
             buildTask.setStatus(BuildCoordinationStatus.BUILD_COMPLETED);
-
-            try {
-                datastoreAdapter.storeResult(buildTask, buildResult);
-            } catch (DatastoreException e) {
-                log.error("Cannot store results to datastore.", e);
-                buildTask.setStatus(BuildCoordinationStatus.SYSTEM_ERROR);
-            }
-
             BuildCoordinationStatus coordinationStatus;
-            if (buildResult.hasFailed()) {
-                coordinationStatus = BuildCoordinationStatus.DONE_WITH_ERRORS;
-            } else {
-                coordinationStatus = BuildCoordinationStatus.DONE;
+            try {
+                if (buildResult.hasFailed()) {
+                    if (buildResult.getException().isPresent()) {
+                        ExecutorException exception = buildResult.getException().get();
+                        datastoreAdapter.storeResult(buildTask, exception);
+                        coordinationStatus = BuildCoordinationStatus.SYSTEM_ERROR;
+                    } else if (buildResult.getFailedReasonStatus().isPresent()) {
+                        datastoreAdapter.storeResult(buildTask, buildResult);
+                        coordinationStatus = BuildCoordinationStatus.DONE_WITH_ERRORS;
+                    } else {
+                        throw new BuildCoordinationException("Failed task should have set exception or failed reason status.");
+                    }
+                } else {
+                    datastoreAdapter.storeResult(buildTask, buildResult);
+                    coordinationStatus = BuildCoordinationStatus.DONE;
+                }
+            } catch (DatastoreException | BuildCoordinationException e ) {
+                log.error("Cannot store results to datastore.", e);
+                coordinationStatus = BuildCoordinationStatus.SYSTEM_ERROR;
             }
             buildTask.setStatus(coordinationStatus);
             activeBuildTasks.remove(buildTask);

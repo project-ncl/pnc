@@ -28,17 +28,20 @@ import java.util.Optional;
  */
 public class BuildResult {
 
-    private Optional<BuildDriverResult> buildDriverResult;
-    private Optional<RepositoryManagerResult> repositoryManagerResult;
+    private final Optional<BuildDriverResult> buildDriverResult;
+    private final Optional<RepositoryManagerResult> repositoryManagerResult;
     private final Optional<ExecutorException> executorException;
+    private final Optional<BuildExecutionStatus> failedReasonStatus;
 
     public BuildResult(
                        Optional<BuildDriverResult> buildDriverResult,
                        Optional<RepositoryManagerResult> repositoryManagerResult,
-                       Optional<ExecutorException> executorException) {
+                       Optional<ExecutorException> executorException,
+                       Optional<BuildExecutionStatus> failedReasonStatus) {
         this.buildDriverResult = buildDriverResult;
         this.repositoryManagerResult = repositoryManagerResult;
         this.executorException = executorException;
+        this.failedReasonStatus = failedReasonStatus;
     }
 
     public Optional<BuildDriverResult> getBuildDriverResult() {
@@ -53,12 +56,14 @@ public class BuildResult {
     }
 
     public boolean hasFailed() {
-        return executorException.isPresent();
+        return executorException.isPresent() || failedReasonStatus.isPresent();
     }
 
     public Optional<ExecutorException> getException() {
         return executorException;
     }
 
-
+    public Optional<BuildExecutionStatus> getFailedReasonStatus() {
+        return failedReasonStatus;
+    }
 }
