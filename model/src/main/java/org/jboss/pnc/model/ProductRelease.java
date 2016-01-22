@@ -60,6 +60,11 @@ public class ProductRelease implements GenericEntity<Integer> {
 
     private String downloadUrl;
 
+    /**
+     * Issue tracker URL containing the set of issues fixed in this release
+     */
+    private String issueTrackerUrl;
+
     @NotNull
     @OneToOne(cascade = { CascadeType.REFRESH })
     @ForeignKey(name = "fk_productrelease_milestone")
@@ -140,6 +145,14 @@ public class ProductRelease implements GenericEntity<Integer> {
         this.downloadUrl = downloadUrl;
     }
 
+    public String getIssueTrackerUrl() {
+        return issueTrackerUrl;
+    }
+
+    public void setIssueTrackerUrl(String issueTrackerUrl) {
+        this.issueTrackerUrl = issueTrackerUrl;
+    }
+
     public ProductMilestone getProductMilestone() {
         return productMilestone;
     }
@@ -175,6 +188,8 @@ public class ProductRelease implements GenericEntity<Integer> {
 
         private String downloadUrl;
 
+        private String issueTrackerUrl;
+
         private Builder() {
         }
 
@@ -189,6 +204,7 @@ public class ProductRelease implements GenericEntity<Integer> {
             productRelease.setSupportLevel(supportLevel);
             productRelease.setReleaseDate(releaseDate);
             productRelease.setDownloadUrl(downloadUrl);
+            productRelease.setIssueTrackerUrl(issueTrackerUrl);
 
             if (productMilestone != null) {
                 productMilestone.setProductRelease(productRelease);
@@ -220,6 +236,11 @@ public class ProductRelease implements GenericEntity<Integer> {
 
         public Builder downloadUrl(String downloadUrl) {
             this.downloadUrl = downloadUrl;
+            return this;
+        }
+
+        public Builder issueTrackerUrl(String issueTrackerUrl) {
+            this.issueTrackerUrl = issueTrackerUrl;
             return this;
         }
 
