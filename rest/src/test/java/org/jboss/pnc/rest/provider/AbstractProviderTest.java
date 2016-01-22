@@ -51,7 +51,7 @@ public class AbstractProviderTest {
         }
 
         @Override
-        protected Function<? super BuildConfigurationRest, ? extends BuildConfiguration> toDBModelModel() {
+        protected Function<? super BuildConfigurationRest, ? extends BuildConfiguration> toDBModel() {
             return buildConfigurationRest -> BuildConfiguration.Builder.newBuilder().id(buildConfigurationRest.getId()).build();
         }
 

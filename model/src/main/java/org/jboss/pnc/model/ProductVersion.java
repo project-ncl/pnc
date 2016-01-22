@@ -57,7 +57,7 @@ public class ProductVersion implements GenericEntity<Integer> {
     private String version;
 
     @NotNull
-    @ManyToOne(cascade = { CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH })
+    @ManyToOne(cascade = { CascadeType.REFRESH })
     @ForeignKey(name = "fk_productversion_product")
     @Index(name="idx_productversion_product")
     private Product product;
@@ -254,6 +254,11 @@ public class ProductVersion implements GenericEntity<Integer> {
 
         public Builder productMilestones(Set<ProductMilestone> productMilestones) {
             this.productMilestones = productMilestones;
+            return this;
+        }
+
+        public Builder productMilestone(ProductMilestone productMilestone) {
+            this.productMilestones.add(productMilestone);
             return this;
         }
 

@@ -94,7 +94,8 @@ public class TermdFileTranser {
             }
 
             if(200 != connection.getResponseCode()) {
-                throw new TermdConnectionException("Could not upload script to Build Agent. Returned status code " + connection.getResponseCode());
+                throw new TermdConnectionException("Could not upload script to Build Agent at url " + connection.getURL()
+                        + " - Returned status code " + connection.getResponseCode());
             }
             logger.debug("Uploaded successfully");
         } catch (IOException e) {

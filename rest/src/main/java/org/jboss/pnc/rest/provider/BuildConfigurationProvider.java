@@ -46,7 +46,6 @@ import java.util.List;
 import java.util.function.Function;
 
 import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
-import static org.jboss.pnc.rest.utils.Utility.performIfNotNull;
 import static org.jboss.pnc.spi.datastore.predicates.BuildConfigurationPredicates.withBuildConfigurationSetId;
 import static org.jboss.pnc.spi.datastore.predicates.BuildConfigurationPredicates.withDependantConfiguration;
 import static org.jboss.pnc.spi.datastore.predicates.BuildConfigurationPredicates.withName;
@@ -130,38 +129,17 @@ public class BuildConfigurationProvider extends AbstractProvider<BuildConfigurat
     }
 
     @Override
-    protected Function<? super BuildConfigurationRest, ? extends BuildConfiguration> toDBModelModel() {
+    protected Function<? super BuildConfigurationRest, ? extends BuildConfiguration> toDBModel() {
         return buildConfigRest -> {
 
-            BuildConfiguration.Builder builder = BuildConfiguration.Builder.newBuilder();
-            builder.id(buildConfigRest.getId());
-            builder.name(buildConfigRest.getName());
-            builder.description(buildConfigRest.getDescription());
-            builder.buildScript(buildConfigRest.getBuildScript());
-            builder.scmRepoURL(buildConfigRest.getScmRepoURL());
-            builder.scmRevision(buildConfigRest.getScmRevision());
-            builder.scmMirrorRepoURL(buildConfigRest.getScmMirrorRepoURL());
-            builder.scmMirrorRevision(buildConfigRest.getScmMirrorRevision());
-            builder.buildStatus(buildConfigRest.getBuildStatus());
-            builder.repositories(buildConfigRest.getRepositories());
+            BuildConfiguration.Builder builder = buildConfigRest.toDBEntityBuilder();
 
-            performIfNotNull(buildConfigRest.getProject(), () -> builder.project(buildConfigRest.getProject().toProject()));
-            performIfNotNull(buildConfigRest.getEnvironment(), () -> builder.buildEnvironment(buildConfigRest.getEnvironment().toBuildSystemImage()));
-
-            nullableStreamOf(buildConfigRest.getDependencyIds()).forEach(dependencyId -> {
-                BuildConfiguration.Builder buildConfigurationBuilder = BuildConfiguration.Builder.newBuilder().id(dependencyId);
-                builder.dependency(buildConfigurationBuilder.build());
-            });
-            nullableStreamOf(buildConfigRest.getProductVersionIds()).forEach(productVersionId -> {
-                ProductVersion.Builder productVersionBuilder = ProductVersion.Builder.newBuilder().id(productVersionId);
-                builder.productVersion(productVersionBuilder.build());
-            });
-
-            BuildConfiguration buildConfigDB = null;
-            if (buildConfigRest.getId() != null) {
-                buildConfigDB = repository.queryById(buildConfigRest.getId());
+            if (buildConfigRest.getId() == null) {
+                return builder.build();
             }
-            // If updating an existing record, need to replace several fields in the rest entity with values from DB
+
+            BuildConfiguration buildConfigDB = repository.queryById(buildConfigRest.getId());
+            // If updating an existing record, need to replace several fields from the rest entity with values from DB
             if (buildConfigDB != null) {
                 builder.lastModificationTime(buildConfigDB.getLastModificationTime()); // Handled by JPA @Version
                 builder.creationTime(buildConfigDB.getCreationTime()); // Immutable after creation

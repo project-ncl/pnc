@@ -99,13 +99,13 @@ public class UserRest implements GenericRestEntity<Integer> {
     }
 
     @XmlTransient
-    public User toUser() {
-        User.Builder builder = User.Builder.newBuilder();
-        builder.username(username);
-        builder.email(email);
-        builder.firstName(firstName);
-        builder.lastName(lastName);
-        return builder.build();
+    public User.Builder toDBEntityBuilder() {
+        User.Builder builder = User.Builder.newBuilder()
+                .username(username)
+                .email(email)
+                .firstName(firstName)
+                .lastName(lastName);
+        return builder;
     }
 
 }

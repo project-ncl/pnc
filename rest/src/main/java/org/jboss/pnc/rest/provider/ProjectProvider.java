@@ -59,7 +59,7 @@ public class ProjectProvider extends AbstractProvider<Project, ProjectRest> {
     }
 
     @Override
-    protected Function<? super ProjectRest, ? extends Project> toDBModelModel() {
-        return project -> project.toProject();
+    protected Function<? super ProjectRest, ? extends Project> toDBModel() {
+        return project -> project.toDBEntityBuilder().build();
     }
 }

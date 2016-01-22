@@ -166,7 +166,7 @@ public class BuildRecordProvider extends AbstractProvider<BuildRecord, BuildReco
     }
 
     @Override
-    protected Function<? super BuildRecordRest, ? extends BuildRecord> toDBModelModel() {
+    protected Function<? super BuildRecordRest, ? extends BuildRecord> toDBModel() {
         throw new UnsupportedOperationException("Not supported by BuildRecordProvider");
     }
 

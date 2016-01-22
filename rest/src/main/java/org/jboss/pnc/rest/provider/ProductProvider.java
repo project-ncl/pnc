@@ -46,8 +46,8 @@ public class ProductProvider extends AbstractProvider<Product, ProductRest> {
     }
 
     @Override
-    protected Function<? super ProductRest, ? extends Product> toDBModelModel() {
-        return product -> product.toProduct();
+    protected Function<? super ProductRest, ? extends Product> toDBModel() {
+        return product -> product.toDBEntityBuilder().build();
     }
 
 }

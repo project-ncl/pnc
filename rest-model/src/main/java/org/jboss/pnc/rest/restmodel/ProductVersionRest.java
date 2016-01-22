@@ -30,9 +30,9 @@ import javax.validation.constraints.Null;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
+import static org.jboss.pnc.rest.utils.Utility.performIfNotNull;
 
 @XmlRootElement(name = "ProductVersion")
 public class ProductVersionRest implements GenericRestEntity<Integer> {
@@ -43,6 +43,7 @@ public class ProductVersionRest implements GenericRestEntity<Integer> {
 
     private String version;
 
+    @NotNull(groups = {WhenCreatingNew.class, WhenUpdating.class})
     private Integer productId;
 
     private Integer currentProductMilestoneId;
@@ -79,7 +80,6 @@ public class ProductVersionRest implements GenericRestEntity<Integer> {
         for (BuildConfigurationSet buildConfigurationSet : productVersion.getBuildConfigurationSets()) {
             buildConfigurationSets.add(new BuildConfigurationSetRest(buildConfigurationSet));
         }
-
     }
 
     @Override
@@ -148,46 +148,19 @@ public class ProductVersionRest implements GenericRestEntity<Integer> {
         this.currentProductMilestoneId = currentProductMilestoneId;
     }
 
-    public ProductVersion toProductVersion(Product product) {
-        ProductVersion productVersionToBeUpdated = getProductVersionFromProductOrNewOne(product);
-        return toProductVersion(productVersionToBeUpdated);
-    }
+    public ProductVersion.Builder toDBEntityBuilder() {
+        ProductVersion.Builder builder = ProductVersion.Builder.newBuilder()
+                .id(id)
+                .version(version);
 
-    public ProductVersion toProductVersion(ProductVersion productVersion) {
-        productVersion.setVersion(version);
+        performIfNotNull(productId, () -> builder.product(Product.Builder.newBuilder().id(productId).build()));
+        performIfNotNull(currentProductMilestoneId, () -> builder
+                .currentProductMilestone(ProductMilestone.Builder.newBuilder().id(currentProductMilestoneId).build()));
+        nullableStreamOf(this.getProductMilestones()).forEach(milestone -> {
+            builder.productMilestone(ProductMilestone.Builder.newBuilder().id(milestone.getId()).build());
+        });
 
-        if (currentProductMilestoneId != null) {
-            List<ProductMilestone> productMilestones = nullableStreamOf(productVersion.getProductMilestones())
-                    .filter(productMilestone -> productMilestone.getId().equals(currentProductMilestoneId))
-                    .collect(Collectors.toList());
-
-            if (!productMilestones.isEmpty()) {
-                productVersion.setCurrentProductMilestone(productMilestones.get(0));
-            } else {
-                productVersion.setCurrentProductMilestone(null);
-            }
-        } else {
-            productVersion.setCurrentProductMilestone(null);
-        }
-
-        return productVersion;
-    }
-
-    /**
-     * Checks if ProductVersion is present in Product. If it is true - returns it or creates new one otherwise.
-     */
-    private ProductVersion getProductVersionFromProductOrNewOne(Product product) {
-        List<ProductVersion> productVersionsInProduct = nullableStreamOf(product.getProductVersions())
-                .filter(productVersion -> productVersion.getId().equals(id)).collect(Collectors.toList());
-
-        if (!productVersionsInProduct.isEmpty()) {
-            return productVersionsInProduct.get(0);
-        }
-
-        ProductVersion productVersion = new ProductVersion();
-        productVersion.setProduct(product);
-        product.getProductVersions().add(productVersion);
-        return productVersion;
+        return builder;
     }
 
 }

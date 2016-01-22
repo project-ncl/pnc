@@ -89,7 +89,7 @@ public class ProjectRestClientMappingTest {
         projectRest.setProjectUrl("projectUrl");
 
         //when
-        Project project = projectRest.toProject();
+        Project project = projectRest.toDBEntityBuilder().build();
         List<Integer> buildConfigurationIds = project.getBuildConfigurations().stream()
                 .map(buildConfiguration -> buildConfiguration.getId())
                 .collect(Collectors.toList());

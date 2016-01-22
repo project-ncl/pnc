@@ -50,8 +50,8 @@ public class BuildRecordSetProvider extends AbstractProvider<BuildRecordSet, Bui
     }
 
     @Override
-    protected Function<? super BuildRecordSetRest, ? extends BuildRecordSet> toDBModelModel() {
-        return buildRecordSet -> buildRecordSet.toBuildRecordSet();
+    protected Function<? super BuildRecordSetRest, ? extends BuildRecordSet> toDBModel() {
+        return buildRecordSet -> buildRecordSet.toDBEntityBuilder().build();
     }
 
     public CollectionInfo<BuildRecordSetRest> getAllForPerformedInProductMilestone(int pageIndex, int pageSize,

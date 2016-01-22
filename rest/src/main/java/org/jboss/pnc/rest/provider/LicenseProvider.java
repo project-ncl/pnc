@@ -46,8 +46,8 @@ public class LicenseProvider extends AbstractProvider<License, LicenseRest> {
     }
 
     @Override
-    protected Function<? super LicenseRest, ? extends License> toDBModelModel() {
-        return licenseRest -> licenseRest.toLicense();
+    protected Function<? super LicenseRest, ? extends License> toDBModel() {
+        return licenseRest -> licenseRest.toDBEntityBuilder().build();
     }
 
 }

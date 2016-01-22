@@ -49,8 +49,8 @@ public class UserProvider extends AbstractProvider<User, UserRest> {
     }
 
     @Override
-    protected Function<? super UserRest, ? extends User> toDBModelModel() {
-        return user -> user.toUser();
+    protected Function<? super UserRest, ? extends User> toDBModel() {
+        return user -> user.toDBEntityBuilder().build();
     }
 
     @Override

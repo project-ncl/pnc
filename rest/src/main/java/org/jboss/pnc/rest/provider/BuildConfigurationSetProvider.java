@@ -68,14 +68,8 @@ public class BuildConfigurationSetProvider extends AbstractProvider<BuildConfigu
     }
 
     @Override
-    protected Function<? super BuildConfigurationSetRest, ? extends BuildConfigurationSet> toDBModelModel() {
-        return buildConfigurationSet -> {
-            if(buildConfigurationSet.getId() != null) {
-                BuildConfigurationSet buildConfigurationSetFromDB = repository.queryById(buildConfigurationSet.getId());
-                return buildConfigurationSet.toBuildConfigurationSet(buildConfigurationSetFromDB);
-            }
-            return buildConfigurationSet.toBuildConfigurationSet();
-        };
+    protected Function<? super BuildConfigurationSetRest, ? extends BuildConfigurationSet> toDBModel() {
+        return buildConfigSetRest -> buildConfigSetRest.toDBEntityBuilder().build();
     }
 
     public void addConfiguration(Integer configurationSetId, Integer configurationId) throws ConflictedEntryException {

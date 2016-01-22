@@ -17,12 +17,10 @@
  */
 package org.jboss.pnc.rest.provider;
 
-import org.jboss.pnc.model.Product;
 import org.jboss.pnc.model.ProductVersion;
 import org.jboss.pnc.rest.provider.collection.CollectionInfo;
 import org.jboss.pnc.rest.restmodel.ProductVersionRest;
 import org.jboss.pnc.spi.datastore.repositories.PageInfoProducer;
-import org.jboss.pnc.spi.datastore.repositories.ProductRepository;
 import org.jboss.pnc.spi.datastore.repositories.ProductVersionRepository;
 import org.jboss.pnc.spi.datastore.repositories.SortInfoProducer;
 import org.jboss.pnc.spi.datastore.repositories.api.RSQLPredicateProducer;
@@ -37,14 +35,10 @@ import static org.jboss.pnc.spi.datastore.predicates.ProductVersionPredicates.wi
 @Stateless
 public class ProductVersionProvider extends AbstractProvider<ProductVersion, ProductVersionRest> {
 
-    private ProductRepository productRepository;
-
     @Inject
     public ProductVersionProvider(ProductVersionRepository productVersionRepository,
-            RSQLPredicateProducer rsqlPredicateProducer, SortInfoProducer sortInfoProducer, PageInfoProducer pageInfoProducer,
-            ProductRepository productRepository) {
+            RSQLPredicateProducer rsqlPredicateProducer, SortInfoProducer sortInfoProducer, PageInfoProducer pageInfoProducer) {
         super(productVersionRepository, rsqlPredicateProducer, sortInfoProducer, pageInfoProducer);
-        this.productRepository = productRepository;
     }
 
     // needed for EJB/CDI
@@ -67,15 +61,8 @@ public class ProductVersionProvider extends AbstractProvider<ProductVersion, Pro
     }
 
     @Override
-    protected Function<? super ProductVersionRest, ? extends ProductVersion> toDBModelModel() {
-        return productVersion -> {
-            if(productVersion.getId() != null) {
-                ProductVersion productVersionFromDB = repository.queryById(productVersion.getId());
-                return productVersion.toProductVersion(productVersionFromDB);
-            }
-            Product productFromDB = productRepository.queryById(productVersion.getProductId());
-            return productVersion.toProductVersion(productFromDB);
-        };
+    protected Function<? super ProductVersionRest, ? extends ProductVersion> toDBModel() {
+        return productVersionRest -> productVersionRest.toDBEntityBuilder().build();        
     }
 
 }

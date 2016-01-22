@@ -489,7 +489,7 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
     /**
      * @param creationTime The time at which this config was created
      */
-    private void setCreationTime(Date creationTime) {
+    public void setCreationTime(Date creationTime) {
         this.creationTime = creationTime;
     }
 
@@ -503,7 +503,7 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
     /**
      * @param lastModificationTime the time at which this config was last modified
      */
-    private void setLastModificationTime(Date lastModificationTime) {
+    public void setLastModificationTime(Date lastModificationTime) {
         if(lastModificationTime != null) {
             this.lastModificationTime = lastModificationTime;
         }

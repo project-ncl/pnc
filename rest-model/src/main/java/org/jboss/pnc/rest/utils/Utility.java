@@ -19,20 +19,15 @@ package org.jboss.pnc.rest.utils;
 
 public class Utility {
 
-    @FunctionalInterface
-    public interface Action {
-        void doIt();
-    }
-
     /**
      * Perform the given action if the object is not null
      * 
      * @param obj The object to check for null
      * @param action The action to perform if object is not null
      */
-    public static void performIfNotNull(Object obj, Action action) {
+    public static void performIfNotNull(Object obj, Runnable action) {
         if(obj != null) {
-            action.doIt();
+            action.run();
         }
     }
 

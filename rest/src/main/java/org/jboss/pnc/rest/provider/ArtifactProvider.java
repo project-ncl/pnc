@@ -17,7 +17,6 @@
  */
 package org.jboss.pnc.rest.provider;
 
-
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.rest.provider.collection.CollectionInfo;
 import org.jboss.pnc.rest.restmodel.ArtifactRest;
@@ -54,7 +53,7 @@ public class ArtifactProvider extends AbstractProvider<Artifact, ArtifactRest> {
     }
 
     @Override
-    protected Function<? super ArtifactRest, ? extends Artifact> toDBModelModel() {
+    protected Function<? super ArtifactRest, ? extends Artifact> toDBModel() {
         throw new UnsupportedOperationException();
     }
 }

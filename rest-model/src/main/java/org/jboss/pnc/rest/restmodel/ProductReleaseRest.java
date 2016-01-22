@@ -18,6 +18,8 @@
 package org.jboss.pnc.rest.restmodel;
 
 import io.swagger.annotations.ApiModelProperty;
+
+import org.jboss.pnc.model.ProductMilestone;
 import org.jboss.pnc.model.ProductRelease;
 import org.jboss.pnc.model.ProductRelease.SupportLevel;
 import org.jboss.pnc.rest.validation.groups.WhenCreatingNew;
@@ -27,6 +29,8 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.Date;
+
+import static org.jboss.pnc.rest.utils.Utility.performIfNotNull;
 
 @XmlRootElement(name = "ProductRelease")
 public class ProductReleaseRest implements GenericRestEntity<Integer> {
@@ -123,14 +127,18 @@ public class ProductReleaseRest implements GenericRestEntity<Integer> {
         this.supportLevel = supportLevel;
     }
 
-    public ProductRelease toProductRelease(ProductRelease productRelease) {
-        productRelease.setId(id);
-        productRelease.setVersion(version);
-        productRelease.setReleaseDate(releaseDate);
-        productRelease.setDownloadUrl(downloadUrl);
-        productRelease.setSupportLevel(supportLevel);
+    public ProductRelease.Builder toDBEntityBuilder() {
+        ProductRelease.Builder builder = ProductRelease.Builder.newBuilder()
+                .id(id)
+                .version(version)
+                .releaseDate(releaseDate)
+                .downloadUrl(downloadUrl)
+                .supportLevel(supportLevel);
 
-        return productRelease;
+        performIfNotNull(productMilestoneId,
+                () -> builder.productMilestone(ProductMilestone.Builder.newBuilder().id(productMilestoneId).build()));
+
+        return builder;
     }
 
 }
