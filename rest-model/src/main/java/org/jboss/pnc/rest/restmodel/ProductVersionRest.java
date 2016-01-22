@@ -24,23 +24,15 @@ import org.jboss.pnc.model.ProductMilestone;
 import org.jboss.pnc.model.ProductVersion;
 import org.jboss.pnc.rest.validation.groups.WhenCreatingNew;
 import org.jboss.pnc.rest.validation.groups.WhenUpdating;
-import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
 import javax.xml.bind.annotation.XmlRootElement;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
-import org.jboss.pnc.model.BuildConfiguration;
-import org.jboss.pnc.model.BuildConfigurationSet;
-import org.jboss.pnc.model.Product;
-import org.jboss.pnc.model.ProductMilestone;
-import org.jboss.pnc.model.ProductVersion;
-import org.jboss.pnc.rest.validation.groups.WhenCreatingNew;
-import org.jboss.pnc.rest.validation.groups.WhenUpdating;
+import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
 
 @XmlRootElement(name = "ProductVersion")
 public class ProductVersionRest implements GenericRestEntity<Integer> {
