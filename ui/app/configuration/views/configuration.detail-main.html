@@ -147,19 +147,53 @@
           <label for="input-dependencies" class="col-sm-2 control-label">Dependencies</label>
           <div class="col-sm-10">
             <ul class="list-unstyled form-control-static" ng-hide="configurationForm.$visible">
-              <li ng-repeat="dependency in detailCtrl.dependencies.selected"><a href ui-sref="configuration.detail.show({ configurationId: dependency.id })">{{ dependency.name }}</a></li>
+              <li ng-repeat="dependency in detailCtrl.dependencies.selected">
+                <a href ui-sref="configuration.detail.show({ configurationId: dependency.id })">{{ dependency.name }}</a>
+              </li>
             </ul>
-            <pnc-select id="input-dependencies" ng-show="configurationForm.$visible" selected-items="detailCtrl.dependencies.selected" display-property="name" query="detailCtrl.dependencies.getItems($viewValue)" placeholder="Enter dependency name..."></pnc-select>
+            <pnc-infinite-select-list
+               ng-show="configurationForm.$visible"
+               selected-items="detailCtrl.dependencies.selected"
+               infinite-select-required="false"
+               infinite-select-id="input-dependencies"
+               infinite-select-name="depsId"
+               placeholder="Scroll & Filter Dependencies..."
+               items="detailCtrl.configurations"></pnc-infinite-select-list>
+          </div>
+        </div>
+
+        <div class="form-group" ng-class="{ 'has-error' : configurationForm.environmentId.$invalid && !configurationForm.environmentId.$pristine, 'has-success': configurationForm.environmentId.$valid && configurationForm.environmentId.$touched }">
+          <label for="input-environment" class="col-sm-2 control-label" ng-show="configurationForm.$visible">* Environment</label>
+          <label for="input-environment" class="col-sm-2 control-label" ng-show="!configurationForm.$visible">Environment</label>
+          <div class="col-sm-10">
+
+             <p ng-hide="configurationForm.$visible" id="static-environment" class="form-control-static">{{ detailCtrl.environment.name }}</p>
+             <pnc-infinite-select 
+               search-text="{{ detailCtrl.environment.name }}"
+               ng-show="configurationForm.$visible"
+               infinite-select-required="true" infinite-select-id="input-environment" 
+               infinite-select-name="environmentId" placeholder="Scroll & Filter Environments..." 
+               items="detailCtrl.environments" item-id="detailCtrl.environment.id"></pnc-infinite-select>
+             <span class="help-block" ng-show="configurationForm.environmentId.$error.required && !configurationForm.environmentId.$pristine">Required field.</span>
           </div>
         </div>
 
         <div class="form-group">
-          <label for="input-environment" class="col-sm-2 control-label" ng-show="configurationForm.$visible">* Environment</label>
-          <label for="input-environment" class="col-sm-2 control-label" ng-show="!configurationForm.$visible">Environment</label>
+          <label for="input-build-group-configs" class="col-sm-2 control-label">Build Group Configs</label>
           <div class="col-sm-10">
-              <p id="input-environment" editable-select="detailCtrl.environment" e-ng-options="environment.name for environment in detailCtrl.environments" onaftersave="detailCtrl.updateEnvironment()">
-                  {{ detailCtrl.environment.name || 'Empty' }}
-              </p>
+            <ul class="list-unstyled form-control-static" ng-hide="configurationForm.$visible">
+              <li ng-repeat="buildgroupconfig in detailCtrl.buildgroupconfigs.selected">
+                <a href ui-sref="configuration-set.detail({ configurationSetId: buildgroupconfig.id })">{{ buildgroupconfig.name }}</a>
+              </li>
+            </ul>
+            <pnc-infinite-select-list
+               ng-show="configurationForm.$visible"
+               selected-items="detailCtrl.buildgroupconfigs.selected"
+               infinite-select-required="false"
+               infinite-select-id="input-build-group-configs"
+               infinite-select-name="bgConfigId"
+               placeholder="Scroll & Filter Build Group Configs..."
+               items="detailCtrl.configurationSetList"></pnc-infinite-select-list>
           </div>
         </div>
 

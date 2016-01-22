@@ -47,6 +47,7 @@
       });
 
       PageFactory.decorateNonPaged(resource, '_getAll', 'query');
+      PageFactory.decorate(resource, '_getAll', 'getAll');
 
       return resource;
     }

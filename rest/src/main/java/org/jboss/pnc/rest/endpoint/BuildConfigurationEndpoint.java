@@ -17,57 +17,6 @@
  */
 package org.jboss.pnc.rest.endpoint;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
-import org.jboss.pnc.auth.AuthenticationProvider;
-import org.jboss.pnc.model.BuildConfiguration;
-import org.jboss.pnc.model.User;
-import org.jboss.pnc.rest.provider.BuildConfigurationProvider;
-import org.jboss.pnc.rest.provider.BuildRecordProvider;
-import org.jboss.pnc.rest.provider.ProductVersionProvider;
-import org.jboss.pnc.rest.restmodel.BuildConfigurationRest;
-import org.jboss.pnc.rest.restmodel.ProductVersionRest;
-import org.jboss.pnc.rest.restmodel.response.Singleton;
-import org.jboss.pnc.rest.restmodel.response.error.ErrorResponseRest;
-import org.jboss.pnc.rest.swagger.response.BuildConfigurationAuditedSingleton;
-import org.jboss.pnc.rest.swagger.response.BuildConfigurationPage;
-import org.jboss.pnc.rest.swagger.response.BuildConfigurationSingleton;
-import org.jboss.pnc.rest.swagger.response.BuildRecordPage;
-import org.jboss.pnc.rest.swagger.response.BuildRecordSingleton;
-import org.jboss.pnc.rest.swagger.response.ProductVersionPage;
-import org.jboss.pnc.rest.trigger.BuildTriggerer;
-import org.jboss.pnc.rest.validation.exceptions.InvalidEntityException;
-import org.jboss.pnc.rest.validation.exceptions.ValidationException;
-import org.jboss.pnc.spi.datastore.Datastore;
-import org.jboss.pnc.spi.exception.BuildConflictException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.DefaultValue;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriBuilder;
-import javax.ws.rs.core.UriInfo;
-import java.lang.invoke.MethodHandles;
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URL;
-
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.CONFLICTED_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.CONFLICTED_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.INVALID_DESCRIPTION;
@@ -91,6 +40,61 @@ import static org.jboss.pnc.rest.configuration.SwaggerConstants.SORTING_QUERY_PA
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_DESCRIPTION;
 
+import java.lang.invoke.MethodHandles;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URL;
+
+import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.DefaultValue;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriBuilder;
+import javax.ws.rs.core.UriInfo;
+
+import org.jboss.pnc.auth.AuthenticationProvider;
+import org.jboss.pnc.model.BuildConfiguration;
+import org.jboss.pnc.model.User;
+import org.jboss.pnc.rest.provider.BuildConfigurationProvider;
+import org.jboss.pnc.rest.provider.BuildConfigurationSetProvider;
+import org.jboss.pnc.rest.provider.BuildRecordProvider;
+import org.jboss.pnc.rest.provider.ProductVersionProvider;
+import org.jboss.pnc.rest.restmodel.BuildConfigurationRest;
+import org.jboss.pnc.rest.restmodel.ProductVersionRest;
+import org.jboss.pnc.rest.restmodel.response.Singleton;
+import org.jboss.pnc.rest.restmodel.response.error.ErrorResponseRest;
+import org.jboss.pnc.rest.swagger.response.BuildConfigurationAuditedSingleton;
+import org.jboss.pnc.rest.swagger.response.BuildConfigurationPage;
+import org.jboss.pnc.rest.swagger.response.BuildConfigurationSetPage;
+import org.jboss.pnc.rest.swagger.response.BuildConfigurationSingleton;
+import org.jboss.pnc.rest.swagger.response.BuildRecordPage;
+import org.jboss.pnc.rest.swagger.response.BuildRecordSingleton;
+import org.jboss.pnc.rest.swagger.response.ProductVersionPage;
+import org.jboss.pnc.rest.trigger.BuildTriggerer;
+import org.jboss.pnc.rest.validation.exceptions.InvalidEntityException;
+import org.jboss.pnc.rest.validation.exceptions.ValidationException;
+import org.jboss.pnc.spi.datastore.Datastore;
+import org.jboss.pnc.spi.exception.BuildConflictException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
+
 @Api(value = "/build-configurations", description = "Build configuration entities")
 @Path("/build-configurations")
 @Produces(MediaType.APPLICATION_JSON)
@@ -100,6 +104,7 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
     private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
     private BuildConfigurationProvider buildConfigurationProvider;
+    private BuildConfigurationSetProvider buildConfigurationSetProvider;
     private BuildTriggerer buildTriggerer;
     private BuildRecordProvider buildRecordProvider;
     private ProductVersionProvider productVersionProvider;
@@ -115,6 +120,7 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
     @Inject
     public BuildConfigurationEndpoint(
             BuildConfigurationProvider buildConfigurationProvider,
+            BuildConfigurationSetProvider buildConfigurationSetProvider,
             BuildTriggerer buildTriggerer,
             BuildRecordProvider buildRecordProvider,
             ProductVersionProvider productVersionProvider,
@@ -122,6 +128,7 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
 
         super(buildConfigurationProvider);
         this.buildConfigurationProvider = buildConfigurationProvider;
+        this.buildConfigurationSetProvider = buildConfigurationSetProvider;
         this.buildTriggerer = buildTriggerer;
         this.buildRecordProvider = buildRecordProvider;
         this.productVersionProvider = productVersionProvider;
@@ -370,6 +377,26 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
             @ApiParam(value = "Build configuration id", required = true) @PathParam("dependencyId") Integer dependencyId) {
         buildConfigurationProvider.removeDependency(id, dependencyId);
         return fromEmpty();
+    }
+
+    @ApiOperation(value = "Gets BuildConfiguration Sets associated with the specified BuildConfiguration")
+    @ApiResponses(value = {
+            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION, response = BuildConfigurationSetPage.class),
+            @ApiResponse(code = NO_CONTENT_CODE, message = NO_CONTENT_DESCRIPTION, response = BuildConfigurationSetPage.class),
+            @ApiResponse(code = INVLID_CODE, message = INVALID_DESCRIPTION, response = ErrorResponseRest.class),
+            @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION, response = ErrorResponseRest.class)
+    })
+    @GET
+    @Path("/{id}/build-configuration-sets")
+    public Response getBuildConfigurationSets(
+            @ApiParam(value = PAGE_INDEX_DESCRIPTION) @QueryParam(PAGE_INDEX_QUERY_PARAM) @DefaultValue(PAGE_INDEX_DEFAULT_VALUE) int pageIndex,
+            @ApiParam(value = PAGE_SIZE_DESCRIPTION) @QueryParam(PAGE_SIZE_QUERY_PARAM) @DefaultValue(PAGE_SIZE_DEFAULT_VALUE) int pageSize,
+            @ApiParam(value = SORTING_DESCRIPTION) @QueryParam(SORTING_QUERY_PARAM) String sort,
+            @ApiParam(value = QUERY_DESCRIPTION, required = false) @QueryParam(QUERY_QUERY_PARAM) String q,
+            @ApiParam(value = "Build Configuration id", required = true) @PathParam("id") Integer id) {
+
+        return Response.ok().entity(buildConfigurationSetProvider.getAllForBuildConfiguration(pageIndex, pageSize, sort,
+                q, id)).build();
     }
 
     @ApiOperation(value = "Get associated Product Versions of the specified Configuration")

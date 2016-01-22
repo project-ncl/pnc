@@ -41,17 +41,19 @@
     'projects',
     'products',
     'configurations',
+    'configurationSetList',
     function($state, $log, $filter, BuildConfigurationDAO, ProductDAO, Notifications, environments,
-      projects, products, configurations) {
+      projects, products, configurations, configurationSetList) {
 
       var that = this;
 
-      this.data = new BuildConfigurationDAO(); // TODO is this correct?
-      this.environments = environments;
-      this.projects = projects;
+      that.data = new BuildConfigurationDAO();
+      that.environments = environments;
+      that.projects = projects;
+      that.configurations = configurations;
+      that.configurationSetList = configurationSetList;
 
-
-      this.submit = function() {
+      that.submit = function() {
         // The REST API takes integer Ids so we need to extract them from
         // our collection of objects first and attach them to our data object
         // for sending back to the server.
@@ -59,6 +61,13 @@
         that.data.dependencyIds = gatherIds(that.dependencies.selected);
 
         that.data.$save().then(function(result) {
+
+          // Saving the BuildConfig link into the BuildGroupConfig 
+          _.each(that.buildgroupconfigs.selected, function(buildgroupconfig) {
+            buildgroupconfig.buildConfigurationIds.push(result.id);
+            buildgroupconfig.$update();
+          });
+
           $state.go('configuration.detail.show', {
             configurationId: result.id
           });
@@ -66,19 +75,19 @@
       };
 
       // Filtering and selection of linked ProductVersions.
-      this.products = {
+      that.products = {
         all: products,
         selected: null
       };
 
-      // Could not make it work in a nicer way (i.e. via cachedGetter) - avibelli
-      this.allProductsMaps = {};
-      this.allProductNamesMaps = {};
-      this.products.all.forEach(function ( prod ) {
-          that.allProductsMaps[ prod.id ] = prod;
+      that.allProductsMaps = {};
+      that.allProductNamesMaps = {};
+
+      _.each(that.products.all, function(prod) {
+        that.allProductsMaps[ prod.id ] = prod;
       });
 
-      this.productVersions = {
+      that.productVersions = {
         selected: [],
         all: [],
 
@@ -91,8 +100,8 @@
               that.productVersions.all = data;
 
               // TOFIX - Ugly but quick - avibelli
-              data.forEach(function ( prodVers ) {
-                  that.allProductNamesMaps[ prodVers.id ] = that.allProductsMaps[ prodVers.productId ].name + ' - ';
+              _.each(data, function(prodVers) {
+                that.allProductNamesMaps[ prodVers.id ] = that.allProductsMaps[ prodVers.productId ].name + ' - ';
               });
             });
           }
@@ -105,25 +114,26 @@
       };
 
       // Selection of dependencies.
-      this.dependencies = {
-        selected: [],
+      that.dependencies = {
+        selected: []
+      };
 
-        getItems: function($viewValue) {
-          return $filter('filter')(configurations, {
-            name: $viewValue
-          });
-        }
+      // Selection of Build Group Configs.
+      that.buildgroupconfigs = {
+        selected: []
       };
 
       that.reset = function(form) {
         if (form) {
-          form.$setPristine();
-          form.$setUntouched();
           that.products.selected = null;
           that.productVersions.all = [];
           that.productVersions.selected = [];
           that.dependencies.selected = [];
+          that.buildgroupconfigs.selected = [];
           that.data = new BuildConfigurationDAO();
+
+          form.$setPristine();
+          form.$setUntouched();
         }
       };
     }
@@ -138,6 +148,7 @@
     'Notifications',
     'ProductDAO',
     'BuildConfigurationDAO',
+    'BuildConfigurationSetDAO',
     'configurationDetail',
     'environments',
     'environmentDetail',
@@ -145,37 +156,26 @@
     'dependencies',
     'allProducts',
     'configurations',
-    function($log, $state, $filter, Notifications, ProductDAO, BuildConfigurationDAO,
+    'configurationSetList',
+    'linkedConfigurationSetList',
+    function($log, $state, $filter, Notifications, ProductDAO, BuildConfigurationDAO, BuildConfigurationSetDAO,
       configurationDetail, environments, environmentDetail,
-      linkedProductVersions, dependencies, allProducts, configurations) {
+      linkedProductVersions, dependencies, allProducts, configurations, configurationSetList, linkedConfigurationSetList) {
 
       var that = this;
 
       that.configuration = configurationDetail;
+      that.environment = _.isUndefined(environmentDetail.content[0]) ? undefined : environmentDetail.content[0];
       that.environments = environments;
       that.allProducts = allProducts;
-
-      // We need to set environment from existing environments collections to be able to preselect
-      // dropdown element when editing
-      that.environment = findEnvironment(that.configuration.environment.id, that.environments);
+      that.configurations = configurations;
+      that.configurationSetList = configurationSetList;
 
       // Filtering and selection of linked ProductVersions.
       that.products = {
         all: allProducts,
         selected: null
       };
-
-      // Could not make it work in a nicer way (i.e. via cachedGetter) - avibelli
-      that.allProductsMaps = {};
-      that.allProducts.forEach(function ( prod ) {
-          that.allProductsMaps[ prod.id ] = prod;
-      });
-
-      // TOFIX - Ugly but quick - avibelli
-      that.allProductNamesMaps = {};
-      linkedProductVersions.forEach(function ( prodVers ) {
-          that.allProductNamesMaps[ prodVers.id ] = that.allProductsMaps[ prodVers.productId ].name + ' - ';
-      });
 
       that.productVersions = {
         selected: linkedProductVersions,
@@ -195,27 +195,34 @@
         }
       };
 
-      // Bootstrap products, depending on whether the BuildConfiguration
-      // already has a ProductVersion attached.
-      if (linkedProductVersions && linkedProductVersions.length > 0) {
+      that.allProductsMaps = {};
+      that.allProductNamesMaps = {};
 
-        ProductDAO.get({
-          productId: linkedProductVersions[0].productId
-        }).$promise.then(function(result) {
-          that.products.selected = result;
-          that.productVersions.update();
-        });
-      }
+      _.each(that.allProducts, function(prod) {
+        that.allProductsMaps[ prod.id ] = prod;
+
+        // Bootstrap products, depending on whether the BuildConfiguration
+        // already has a ProductVersion attached.
+        if (!_.isUndefined(linkedProductVersions) && linkedProductVersions.length > 0) {
+          if (linkedProductVersions[0].productId === prod.id) {
+            that.products.selected = prod;
+            that.productVersions.update();
+          }
+        }
+      });
+
+      _.each(linkedProductVersions, function(prodVers) {
+        that.allProductNamesMaps[ prodVers.id ] = that.allProductsMaps[ prodVers.productId ].name + ' - ';
+      });
 
       // Selection of dependencies
       that.dependencies = {
-        selected: dependencies,
+        selected: dependencies
+      };
 
-        getItems: function($viewValue) {
-          return $filter('filter')(configurations, {
-            name: $viewValue
-          });
-        }
+      // Selection of ConfigurationSets
+      that.buildgroupconfigs = {
+        selected: _.clone(linkedConfigurationSetList)
       };
 
       // Executing a build of a configuration forcing a rebuild
@@ -245,7 +252,24 @@
           gatherIds(that.productVersions.selected);
         that.configuration.dependencyIds = gatherIds(that.dependencies.selected);
 
+        var added = _.difference(that.buildgroupconfigs.selected, linkedConfigurationSetList);
+        var removed = _.difference(linkedConfigurationSetList, that.buildgroupconfigs.selected);
+
         that.configuration.$update().then(function() {
+
+          // Saving the BuildConfig link into the BuildGroupConfig for the added ones
+          _.each(added, function(buildgroupconfig) {
+            buildgroupconfig.buildConfigurationIds.push(that.configuration.id);
+            BuildConfigurationSetDAO.update(buildgroupconfig);
+          });
+
+          // Saving the BuildConfig link into the BuildGroupConfig for the added ones
+          _.each(removed, function(buildgroupconfig) {
+            var odds = _.reject(buildgroupconfig.buildConfigurationIds, function(thisBuildConfigId){ return thisBuildConfigId === that.configuration.id; });
+            buildgroupconfig.buildConfigurationIds = odds;
+            BuildConfigurationSetDAO.update(buildgroupconfig);
+          });
+
           $state.go('configuration.detail.show', {
             configurationId: that.configuration.id
           }, {
@@ -255,7 +279,7 @@
       };
 
       that.updateEnvironment = function() {
-          that.configuration.environment.id = that.environment.id;
+        that.configuration.environment.id = that.environment.id;
       };
 
       // Cloning a build configuration
@@ -304,14 +328,6 @@
 
     }
   ]);
-
-  function findEnvironment(id, environments) {
-    for (var i = 0; i < environments.length; i++) {
-      if (id === environments[i].id) {
-        return environments[i];
-      }
-    }
-  }
 
   function gatherIds(array) {
     var result = [];

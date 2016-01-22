@@ -75,7 +75,7 @@
       controllerAs: 'createCtrl',
       resolve: {
         environments: function(EnvironmentDAO) {
-          return EnvironmentDAO.query();
+          return EnvironmentDAO.getAll();
         },
         projects: function(ProjectDAO) {
           return ProjectDAO.getAll();
@@ -84,7 +84,10 @@
           return ProductDAO.query();
         },
         configurations: function(BuildConfigurationDAO) {
-          return BuildConfigurationDAO.query();
+          return BuildConfigurationDAO.getAll();
+        },
+        configurationSetList: function(BuildConfigurationSetDAO) {
+            return BuildConfigurationSetDAO.getAll();
         }
       },
     });
@@ -125,26 +128,10 @@
           return BuildConfigurationDAO.get({
             configurationId: $stateParams.configurationId }).$promise;
         },
-        environments: function(EnvironmentDAO) {
-          return EnvironmentDAO.query();
-        },
         environmentDetail: function(EnvironmentDAO, $stateParams,
                                     configurationDetail) {
           return EnvironmentDAO.get({
             environmentId: configurationDetail.environmentId  }).$promise;
-        },
-        buildRecordList: function(BuildRecordDAO, $stateParams) {
-          return BuildRecordDAO.getByConfiguration({
-            configurationId: $stateParams.configurationId });
-        },
-        runningBuildRecordList: function(RunningBuildRecordDAO) {
-          return RunningBuildRecordDAO.query();
-        },
-        allProducts: function(ProductDAO) {
-          return ProductDAO.query();
-        },
-        configurations: function(BuildConfigurationDAO) {
-          return BuildConfigurationDAO.query();
         },
         linkedProductVersions: function(BuildConfigurationDAO, $stateParams) {
           return BuildConfigurationDAO.getProductVersions({
@@ -153,6 +140,23 @@
         dependencies: function(BuildConfigurationDAO, $stateParams) {
           return BuildConfigurationDAO.getDependencies({
             configurationId: $stateParams.configurationId });
+        },
+        linkedConfigurationSetList: function(BuildConfigurationDAO, $stateParams) {
+          return BuildConfigurationDAO.getConfigurationSets({
+            configurationId: $stateParams.configurationId });
+        },
+
+        environments: function(EnvironmentDAO) {
+            return EnvironmentDAO.getAll();
+          },
+        allProducts: function(ProductDAO) {
+          return ProductDAO.query();
+        },
+        configurations: function(BuildConfigurationDAO) {
+          return BuildConfigurationDAO.getAll();
+        },
+        configurationSetList: function(BuildConfigurationSetDAO) {
+            return BuildConfigurationSetDAO.getAll();
         }
       }
     });

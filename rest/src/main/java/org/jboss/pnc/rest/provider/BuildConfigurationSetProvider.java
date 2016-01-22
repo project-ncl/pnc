@@ -103,4 +103,10 @@ public class BuildConfigurationSetProvider extends AbstractProvider<BuildConfigu
                 BuildConfigurationSetPredicates.withProductVersionId(productVersionId));
     }
 
+    public CollectionInfo<BuildConfigurationSetRest> getAllForBuildConfiguration(int pageIndex, int pageSize, String sortingRsql,
+            String rsql, Integer buildConfigurationId) {
+        return queryForCollection(pageIndex, pageSize, sortingRsql, rsql,
+                BuildConfigurationSetPredicates.withBuildConfigurationId(buildConfigurationId));
+    }
+
 }
