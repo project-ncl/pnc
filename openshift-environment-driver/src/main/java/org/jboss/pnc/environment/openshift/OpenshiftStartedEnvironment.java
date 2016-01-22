@@ -50,7 +50,6 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.function.Consumer;
-import java.util.function.Supplier;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
@@ -104,6 +103,7 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
         runtimeProperties.put("route-name", "pnc-ba-route-" + randString);
         runtimeProperties.put("route-path", "/" + buildAgentContextPath);
         runtimeProperties.put("buildAgentContextPath", "/" + buildAgentContextPath);
+        runtimeProperties.put("containerPort", environmentConfiguration.getContainerPort());
 
         ModelNode podConfigurationNode = createModelNode(Configurations.V1_PNC_BUILDER_POD.getContentAsString(), runtimeProperties);
         pod = new Pod(podConfigurationNode, client, ResourcePropertiesRegistry.getInstance().get(OSE_API_VERSION, ResourceKind.POD));
@@ -212,11 +212,10 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
                 logger.info("Route [{}].", route.getName());
             }
 
-            Supplier<? extends RuntimeException> exceptionSupplier = () -> new RuntimeException("Cannot find container ports.");
             RunningEnvironment runningEnvironment = RunningEnvironment.createInstance(
                     pod.getName(),
-                    pod.getContainerPorts().stream().findFirst().orElseThrow(exceptionSupplier).getContainerPort(),
-                    getPublicEndpointUrl(), //TODO configurable port and protocol
+                    Integer.parseInt(environmentConfiguration.getContainerPort()),
+                    getPublicEndpointUrl(),
                     getInternalEndpointUrl(),
                     repositorySession,
                     Paths.get(environmentConfiguration.getWorkingDirectory()),
@@ -229,7 +228,7 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
 
     private String getPublicEndpointUrl() {
         if (createRoute) {
-            return "http://" + route.getHost() + "" + route.getPath() + "/" + environmentConfiguration.getBuildAgentBindPath(); //TODO get parameters (if any required) from BuildAgent
+            return "http://" + route.getHost() + "" + route.getPath() + "/" + environmentConfiguration.getBuildAgentBindPath();
         } else {
             return getInternalEndpointUrl();
         }

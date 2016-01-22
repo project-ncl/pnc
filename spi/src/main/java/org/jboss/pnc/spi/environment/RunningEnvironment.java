@@ -41,13 +41,12 @@ public interface RunningEnvironment extends Serializable, DestroyableEnvironment
      * 
      * @return Port to connect to Jenkins UI
      */
-    int getJenkinsPort(); //TODO rename to getBuildAgent*
+    int getBuildAgentPort();
 
-    //TODO add external and internal URL (service and route)
     /**
      * @return Jenkins URL in format IP:PORT
      */
-    String getJenkinsUrl(); //TODO rename to getBuildAgent*
+    String getBuildAgentUrl();
 
     String getInternalBuildAgentUrl();
 
@@ -63,8 +62,8 @@ public interface RunningEnvironment extends Serializable, DestroyableEnvironment
 
     public static RunningEnvironment createInstance(
             String id,
-            int port,
-            String url,
+            int buildAgentPort,
+            String buildAgentUrl,
             String internalBuildAgentUrl,
             RepositorySession repositorySession,
             Path workingDirectory,
@@ -77,13 +76,13 @@ public interface RunningEnvironment extends Serializable, DestroyableEnvironment
             }
 
             @Override
-            public int getJenkinsPort() {
-                return port;
+            public int getBuildAgentPort() {
+                return buildAgentPort;
             }
 
             @Override
-            public String getJenkinsUrl() {
-                return url;
+            public String getBuildAgentUrl() {
+                return buildAgentUrl;
             }
 
             @Override
@@ -107,5 +106,4 @@ public interface RunningEnvironment extends Serializable, DestroyableEnvironment
             }
         };
     }
-
 }

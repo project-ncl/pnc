@@ -164,7 +164,7 @@ public class TermdBuildDriver implements BuildDriver { //TODO rename class
         if (useInternalNetwork) {
             return termdRunningBuild.getRunningEnvironment().getInternalBuildAgentUrl();
         } else {
-            return termdRunningBuild.getRunningEnvironment().getJenkinsUrl();
+            return termdRunningBuild.getRunningEnvironment().getBuildAgentUrl();
         }
     }
 

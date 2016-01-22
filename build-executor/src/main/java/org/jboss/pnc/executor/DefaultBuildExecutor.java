@@ -187,7 +187,7 @@ public class DefaultBuildExecutor implements BuildExecutor {
         buildExecutionSession.setStatus(BuildExecutionStatus.BUILD_SETTING_UP);
         RunningEnvironment runningEnvironment = buildExecutionSession.getRunningEnvironment();
         try {
-            String liveLogWebSocketUrl = runningEnvironment.getJenkinsUrl();
+            String liveLogWebSocketUrl = runningEnvironment.getBuildAgentUrl();
             log.debug("Setting live log websocket url: {}", liveLogWebSocketUrl);
             buildExecutionSession.setLiveLogsUri(Optional.of(new URI(liveLogWebSocketUrl)));
             buildExecutionSession.setStartTime(new Date());
