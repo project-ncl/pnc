@@ -45,8 +45,8 @@
             ng-class="{ 'label label-primary' : productmilestone.id == version.currentProductMilestoneId }">{{ productmilestone.version }}</span>
     </td>
     <td>{{ productmilestone.startingDate | date:'yyyy/MM/dd'}}</td>
-    <td>{{ productmilestone.plannedReleaseDate | date:'yyyy/MM/dd'}}</td>
-    <td>{{ productmilestone.releaseDate | date:'yyyy/MM/dd'}}</td>
+    <td>{{ productmilestone.plannedEndDate | date:'yyyy/MM/dd'}}</td>
+    <td>{{ productmilestone.endDate | date:'yyyy/MM/dd'}}</td>
     <td class="text-center">
       <a ng-show="productmilestone.downloadUrl != undefined" ng-href="{{ productmilestone.downloadUrl }}" target="_self"
          class="btn btn-default" title="Download Deliverables">
