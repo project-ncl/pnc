@@ -76,6 +76,11 @@ public class ProductMilestone implements GenericEntity<Integer> {
     private String downloadUrl;
 
     /**
+     * Issue tracker URL containing the set of issues fixed in this milestone
+     */
+    private String issueTrackerUrl;
+
+    /**
      * The product major.minor version associated with this milestone.  After
      * initial creation of the milestone, the product version should never change.
      */
@@ -202,6 +207,14 @@ public class ProductMilestone implements GenericEntity<Integer> {
         this.downloadUrl = downloadUrl;
     }
 
+    public String getIssueTrackerUrl() {
+        return issueTrackerUrl;
+    }
+
+    public void setIssueTrackerUrl(String issueTrackerUrl) {
+        this.issueTrackerUrl = issueTrackerUrl;
+    }
+
     public BuildRecordSet getPerformedBuildRecordSet() {
         return performedBuildRecordSet;
     }
@@ -252,6 +265,8 @@ public class ProductMilestone implements GenericEntity<Integer> {
 
         private String downloadUrl;
 
+        private String issueTrackerUrl;
+
         private BuildRecordSet performedBuildRecordSet;
 
         private BuildRecordSet distributedBuildRecordSet;
@@ -273,6 +288,7 @@ public class ProductMilestone implements GenericEntity<Integer> {
             productMilestone.setStartingDate(startingDate);
             productMilestone.setPlannedEndDate(plannedEndDate);
             productMilestone.setDownloadUrl(downloadUrl);
+            productMilestone.setIssueTrackerUrl(issueTrackerUrl);
 
             if (productVersion != null) {
                 productVersion.addProductMilestone(productMilestone);
@@ -330,6 +346,11 @@ public class ProductMilestone implements GenericEntity<Integer> {
 
         public Builder downloadUrl(String downloadUrl) {
             this.downloadUrl = downloadUrl;
+            return this;
+        }
+
+        public Builder issueTrackerUrl(String issueTrackerUrl) {
+            this.issueTrackerUrl = issueTrackerUrl;
             return this;
         }
 

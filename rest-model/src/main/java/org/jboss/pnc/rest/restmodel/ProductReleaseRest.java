@@ -45,6 +45,8 @@ public class ProductReleaseRest implements GenericRestEntity<Integer> {
 
     private String downloadUrl;
 
+    private String issueTrackerUrl;
+
     private Integer productVersionId;
 
     private Integer productMilestoneId;
@@ -59,8 +61,8 @@ public class ProductReleaseRest implements GenericRestEntity<Integer> {
         this.id = productRelease.getId();
         this.version = productRelease.getVersion();
         this.releaseDate = productRelease.getReleaseDate();
-
         this.downloadUrl = productRelease.getDownloadUrl();
+        this.issueTrackerUrl = productRelease.getIssueTrackerUrl();
         this.productVersionId = productRelease.getProductVersion().getId();
         if (productRelease.getProductMilestone() != null) {
             this.productMilestoneId = productRelease.getProductMilestone().getId();
@@ -103,6 +105,14 @@ public class ProductReleaseRest implements GenericRestEntity<Integer> {
         this.downloadUrl = downloadUrl;
     }
 
+    public String getIssueTrackerUrl() {
+        return issueTrackerUrl;
+    }
+
+    public void setIssueTrackerUrl(String issueTrackerUrl) {
+        this.issueTrackerUrl = issueTrackerUrl;
+    }
+
     public Integer getProductVersionId() {
         return productVersionId;
     }
@@ -133,6 +143,7 @@ public class ProductReleaseRest implements GenericRestEntity<Integer> {
                 .version(version)
                 .releaseDate(releaseDate)
                 .downloadUrl(downloadUrl)
+                .issueTrackerUrl(issueTrackerUrl)
                 .supportLevel(supportLevel);
 
         performIfNotNull(productMilestoneId,

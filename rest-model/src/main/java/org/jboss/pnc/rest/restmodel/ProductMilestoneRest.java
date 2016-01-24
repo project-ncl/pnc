@@ -48,6 +48,8 @@ public class ProductMilestoneRest implements GenericRestEntity<Integer> {
 
     private String downloadUrl;
 
+    private String issueTrackerUrl;
+
     @NotNull(groups = {WhenCreatingNew.class, WhenUpdating.class})
     private Integer productVersionId;
 
@@ -71,6 +73,7 @@ public class ProductMilestoneRest implements GenericRestEntity<Integer> {
         this.startingDate = productMilestone.getStartingDate();
         this.plannedEndDate = productMilestone.getPlannedEndDate();
         this.downloadUrl = productMilestone.getDownloadUrl();
+        this.issueTrackerUrl = productMilestone.getIssueTrackerUrl();
         this.productVersionId = productMilestone.getProductVersion().getId();
         if (productMilestone.getPerformedBuildRecordSet() != null) {
             this.performedBuildRecordSetId = productMilestone.getPerformedBuildRecordSet().getId();
@@ -133,6 +136,14 @@ public class ProductMilestoneRest implements GenericRestEntity<Integer> {
         this.downloadUrl = downloadUrl;
     }
 
+    public String getIssueTrackerUrl() {
+        return issueTrackerUrl;
+    }
+
+    public void setIssueTrackerUrl(String issueTrackerUrl) {
+        this.issueTrackerUrl = issueTrackerUrl;
+    }
+
     public Integer getProductVersionId() {
         return productVersionId;
     }
@@ -173,6 +184,7 @@ public class ProductMilestoneRest implements GenericRestEntity<Integer> {
                 .endDate(this.getEndDate())
                 .plannedEndDate(this.getPlannedEndDate())
                 .downloadUrl(this.getDownloadUrl())
+                .issueTrackerUrl(this.issueTrackerUrl)
                 .productVersion(ProductVersion.Builder.newBuilder().id(productVersionId).build());
 
         performIfNotNull(distributedBuildRecordSetId, () -> builder.distributedBuildRecordSet(BuildRecordSet.Builder.newBuilder().id(distributedBuildRecordSetId).build()));
