@@ -28,7 +28,9 @@ import org.jboss.pnc.spi.repositorymanager.BuildExecution;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
 import org.jboss.pnc.spi.repositorymanager.model.RepositorySession;
 import org.jboss.pnc.spi.repositorymanager.model.RunningRepositoryPromotion;
+import org.jboss.pnc.test.category.ContainerTest;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -38,6 +40,7 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
+@Category(ContainerTest.class)
 public class VerifyManualPromotionOfBuildRepoTest extends AbstractRepositoryManagerDriverTest {
 
     private static final String PUBLIC = "public";

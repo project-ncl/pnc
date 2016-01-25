@@ -29,7 +29,9 @@ import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.spi.repositorymanager.BuildExecution;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
 import org.jboss.pnc.spi.repositorymanager.model.RepositorySession;
+import org.jboss.pnc.test.category.ContainerTest;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
 import java.io.InputStream;
 import java.util.HashSet;
@@ -40,6 +42,7 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
 
+@Category(ContainerTest.class)
 public class DownloadTwoThenVerifyExtractedArtifactsContainThemTest 
  extends AbstractImportTest
 {
