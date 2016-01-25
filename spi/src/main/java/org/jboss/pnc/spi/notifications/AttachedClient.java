@@ -31,7 +31,7 @@ public interface AttachedClient {
      * Sends a message to the client
      *
      * @param messageBody Message body - depends on implementation how to deal with it.
-     * @throws Exception if there is a problem sending the message
+     * @param callback the callback from the asynch method
      */
-    void sendMessage(Object messageBody) throws Exception;
+    void sendMessage(Object messageBody, MessageCallback callback);
 }
