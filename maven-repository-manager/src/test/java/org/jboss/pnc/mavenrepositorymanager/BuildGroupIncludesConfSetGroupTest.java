@@ -24,12 +24,15 @@ import org.commonjava.aprox.model.core.StoreType;
 import org.jboss.pnc.mavenrepositorymanager.fixture.TestBuildExecution;
 import org.jboss.pnc.spi.repositorymanager.BuildExecution;
 import org.jboss.pnc.spi.repositorymanager.model.RepositorySession;
+import org.jboss.pnc.test.category.ContainerTest;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
 import static org.apache.commons.lang.StringUtils.join;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
 
+@Category(ContainerTest.class)
 public class BuildGroupIncludesConfSetGroupTest extends AbstractRepositoryManagerDriverTest {
 
     @Test
