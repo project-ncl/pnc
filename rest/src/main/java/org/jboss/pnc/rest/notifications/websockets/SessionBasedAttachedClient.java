@@ -46,13 +46,18 @@ public class SessionBasedAttachedClient implements AttachedClient {
     public void sendMessage(Object messageBody)
             throws IOException, ExecutionException, InterruptedException, CancellationException {
 
+        // The sendText methos returns before the message is transmitted. The returned Future object is used to track the
+        // progress of the transmission. The Future's get method returns null upon successful completion. Errors in transmission
+        // are wrapped in the ExecutionException thrown when the Future object is queried.
         Future<Void> future = session.getAsyncRemote().sendText(outputConverter.apply(messageBody));
+        
         // wait for completion (forever, no timeout)
         if (future.isDone()) {
             future.get();
         }
 
-        // // EXAMPLE on How to wait only prescribed amount of time for the send to complete, cancelling the message if the timeout occurs.
+        // // EXAMPLE on How to wait only prescribed amount of time for the send to complete, cancelling the message if the
+        // timeout occurs.
         //
         // Future<Void> fut = null;
         // try
