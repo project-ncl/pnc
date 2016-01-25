@@ -17,11 +17,15 @@
  */
 package org.jboss.pnc.rest.notifications.websockets;
 
-import org.jboss.pnc.spi.notifications.AttachedClient;
-import org.jboss.pnc.spi.notifications.OutputConverter;
+import java.io.IOException;
+import java.util.concurrent.CancellationException;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 import javax.websocket.Session;
-import java.io.IOException;
+
+import org.jboss.pnc.spi.notifications.AttachedClient;
+import org.jboss.pnc.spi.notifications.OutputConverter;
 
 public class SessionBasedAttachedClient implements AttachedClient {
 
@@ -39,8 +43,40 @@ public class SessionBasedAttachedClient implements AttachedClient {
     }
 
     @Override
-    public void sendMessage(Object messageBody) throws IOException {
-        session.getBasicRemote().sendText(outputConverter.apply(messageBody));
+    public void sendMessage(Object messageBody)
+            throws IOException, ExecutionException, InterruptedException, CancellationException {
+
+        Future<Void> future = session.getAsyncRemote().sendText(outputConverter.apply(messageBody));
+        // wait for completion (forever, no timeout)
+        if (future.isDone()) {
+            future.get();
+        }
+
+        // // EXAMPLE on How to wait only prescribed amount of time for the send to complete, cancelling the message if the timeout occurs.
+        //
+        // Future<Void> fut = null;
+        // try
+        // {
+        // fut = session.getAsyncRemote().sendText(outputConverter.apply(messageBody));
+        // // wait for completion (timeout)
+        // fut.get(2,TimeUnit.SECONDS);
+        // }
+        // catch (ExecutionException | InterruptedException | CancellationException e)
+        // {
+        // // Send failed
+        // e.printStackTrace();
+        // throw e;
+        // }
+        // catch (TimeoutException e)
+        // {
+        // // timeout
+        // e.printStackTrace();
+        // if (fut != null)
+        // {
+        // // cancel the message
+        // fut.cancel(true);
+        // }
+        // }
     }
 
     @Override
