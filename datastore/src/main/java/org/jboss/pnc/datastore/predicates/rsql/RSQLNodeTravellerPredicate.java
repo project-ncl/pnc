@@ -33,12 +33,19 @@ import cz.jirutka.rsql.parser.ast.Node;
 import cz.jirutka.rsql.parser.ast.NotEqualNode;
 import cz.jirutka.rsql.parser.ast.NotInNode;
 import cz.jirutka.rsql.parser.ast.OrNode;
+import org.apache.commons.beanutils.BeanUtils;
 import org.jboss.pnc.model.GenericEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.persistence.criteria.*;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.Path;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
 import java.lang.invoke.MethodHandles;
+import java.lang.reflect.InvocationTargetException;
+import java.text.NumberFormat;
+import java.text.ParseException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -48,7 +55,7 @@ import java.util.regex.Pattern;
 
 import static org.jboss.pnc.datastore.predicates.rsql.AbstractTransformer.selectWithOperand;
 
-public class RSQLNodeTravellerPredicate<Entity extends GenericEntity<? extends Number>> implements org.jboss.pnc.spi.datastore.repositories.api.Predicate<Entity> {
+public class RSQLNodeTravellerPredicate<Entity extends GenericEntity<? extends Number>> {
 
     private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
@@ -59,6 +66,7 @@ public class RSQLNodeTravellerPredicate<Entity extends GenericEntity<? extends N
     private final Map<Class<? extends ComparisonNode>, Transformer<Entity>> operations = new HashMap<>();
 
     private final static Pattern likePattern = Pattern.compile("(\\%[a-zA-Z0-9\\s]+\\%)");
+    private String UNKNOWN_PART_PLACEHOLDER = "_";
 
     public RSQLNodeTravellerPredicate(Class<Entity> entityClass, String rsql) throws RSQLParserException {
         operations.put(EqualNode.class, new AbstractTransformer<Entity>() {
@@ -87,48 +95,134 @@ public class RSQLNodeTravellerPredicate<Entity extends GenericEntity<? extends N
         selectingClass = entityClass;
     }
 
-    @Override
-    public javax.persistence.criteria.Predicate apply(Root root, CriteriaQuery query, CriteriaBuilder cb) {
+    public org.jboss.pnc.spi.datastore.repositories.api.Predicate<Entity> getEntityPredicate() {
+        return (root, query, cb) -> {
+            RSQLNodeTraveller<Predicate> visitor = new RSQLNodeTraveller<Predicate>() {
 
-        RSQLNodeTraveller<Predicate> visitor = new RSQLNodeTraveller<Predicate>() {
-
-            public Predicate visit(LogicalNode node) {
-                logger.info("Parsing LogicalNode {}", node);
-                return proceedEmbeddedNodes(node);
-            }
-
-            public Predicate visit(ComparisonNode node) {
-                logger.info("Parsing ComparisonNode {}", node);
-                return proceedSelection(node);
-            }
-
-            private Predicate proceedSelection(ComparisonNode node) {
-                Transformer<Entity> transformation = operations.get(node.getClass());
-                Preconditions.checkArgument(transformation != null, "Operation not supported");
-
-                return transformation.transform(root, cb, selectingClass, node.getSelector(), node.getArguments());
-            }
-
-            private Predicate proceedEmbeddedNodes(LogicalNode node) {
-                Iterator<Node> iterator = node.iterator();
-                if (node instanceof AndNode) {
-                    return cb.and(visit(iterator.next()), visit(iterator.next()));
-                } else if (node instanceof OrNode) {
-                    return cb.or(visit(iterator.next()), visit(iterator.next()));
-                } else {
-                    throw new UnsupportedOperationException("Logical operation not supported");
+                public Predicate visit(LogicalNode node) {
+                    logger.info("Parsing LogicalNode {}", node);
+                    return proceedEmbeddedNodes(node);
                 }
-            }
-        };
 
-        return rootNode.accept(visitor);
+                public Predicate visit(ComparisonNode node) {
+                    logger.info("Parsing ComparisonNode {}", node);
+                    return proceedSelection(node);
+                }
+
+                private Predicate proceedSelection(ComparisonNode node) {
+                    Transformer<Entity> transformation = operations.get(node.getClass());
+                    Preconditions.checkArgument(transformation != null, "Operation not supported");
+
+                    return transformation.transform(root, cb, selectingClass, node.getSelector(), node.getArguments());
+                }
+
+                private Predicate proceedEmbeddedNodes(LogicalNode node) {
+                    Iterator<Node> iterator = node.iterator();
+                    if (node instanceof AndNode) {
+                        return cb.and(visit(iterator.next()), visit(iterator.next()));
+                    } else if (node instanceof OrNode) {
+                        return cb.or(visit(iterator.next()), visit(iterator.next()));
+                    } else {
+                        throw new UnsupportedOperationException("Logical operation not supported");
+                    }
+                }
+            };
+
+            return rootNode.accept(visitor);
+        };
+    }
+
+    public java.util.function.Predicate<Entity> getStreamPredicate() {
+        return instance -> {
+            RSQLNodeTraveller<Boolean> visitor = new RSQLNodeTraveller<Boolean>() {
+
+                public Boolean visit(LogicalNode node) {
+                    logger.info("Parsing LogicalNode {}", node);
+                    Iterator<Node> iterator = node.iterator();
+                    if (node instanceof AndNode) {
+                        return visit(iterator.next()) && visit(iterator.next());
+                    } else if (node instanceof OrNode) {
+                        return visit(iterator.next()) || visit(iterator.next());
+                    } else {
+                        throw new UnsupportedOperationException("Logical operation not supported");
+                    }
+                }
+
+                public Boolean visit(ComparisonNode node) {
+                    logger.info("Parsing ComparisonNode {}", node);
+                    try {
+                        switch (node.getOperator()) {
+                            case "==": {
+                                String fieldName = node.getSelector();
+                                String argument = node.getArguments().get(0);
+                                return BeanUtils.getProperty(instance, fieldName).equals(argument);
+                            }
+
+                            case "!=": {
+                                String fieldName = node.getSelector();
+                                String argument = node.getArguments().get(0);
+                                return !BeanUtils.getProperty(instance, fieldName).equals(argument);
+                            }
+
+                            case ">":
+                            case "=gt=": {
+                                String fieldName = node.getSelector();
+                                NumberFormat numberFormat = NumberFormat.getInstance();
+                                Number argument = numberFormat.parse(node.getArguments().get(0));
+                                return numberFormat.parse(BeanUtils.getProperty(instance, fieldName)).intValue() < argument.intValue();
+                            }
+
+                            case ">=":
+                            case "=ge=": {
+                                String fieldName = node.getSelector();
+                                NumberFormat numberFormat = NumberFormat.getInstance();
+                                Number argument = numberFormat.parse(node.getArguments().get(0));
+                                return numberFormat.parse(BeanUtils.getProperty(instance, fieldName)).intValue() <= argument.intValue();
+                            }
+
+                            case "<":
+                            case "=lt=": {
+                                String fieldName = node.getSelector();
+                                NumberFormat numberFormat = NumberFormat.getInstance();
+                                Number argument = numberFormat.parse(node.getArguments().get(0));
+                                return numberFormat.parse(BeanUtils.getProperty(instance, fieldName)).intValue() > argument.intValue();
+                            }
+
+                            case "<=":
+                            case "=le=": {
+                                String fieldName = node.getSelector();
+                                NumberFormat numberFormat = NumberFormat.getInstance();
+                                Number argument = numberFormat.parse(node.getArguments().get(0));
+                                return numberFormat.parse(BeanUtils.getProperty(instance, fieldName)).intValue() >= argument.intValue();
+                            }
+
+                            case "=like=": {
+                                String fieldName = node.getSelector();
+                                String argument = node.getArguments().get(0).replaceAll(UNKNOWN_PART_PLACEHOLDER, ".*").replaceAll("%", ".*");
+                                return BeanUtils.getProperty(instance, fieldName).matches(argument);
+                            }
+
+                            default: {
+                                throw new UnsupportedOperationException("Not Implemented yet!");
+                            }
+                        }
+                    } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
+                        throw new IllegalStateException("Reflections exception", e);
+                    } catch (ParseException e) {
+                        throw new IllegalStateException("RSQL parse exception", e);
+                    }
+                }
+            };
+
+            return rootNode.accept(visitor);
+        };
     }
 
     private final String preprocessRSQL(String rsql) {
         String result = rsql;
         Matcher matcher = likePattern.matcher(rsql);
         while (matcher.find()) {
-            result = rsql.replaceAll(matcher.group(1), matcher.group(1).replaceAll("\\s", "_"));
+            result = rsql.replaceAll(matcher.group(1), matcher.group(1).replaceAll("\\s", UNKNOWN_PART_PLACEHOLDER));
         }
         return result;
     }
