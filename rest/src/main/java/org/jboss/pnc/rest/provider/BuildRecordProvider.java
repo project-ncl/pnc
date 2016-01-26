@@ -112,10 +112,11 @@ public class BuildRecordProvider extends AbstractProvider<BuildRecord, BuildReco
     private BuildRecordRest createNewBuildRecordRest(BuildTask submittedBuild) {
         BuildExecutionSession runningExecution = buildExecutor.getRunningExecution(submittedBuild.getId());
         UserRest user = new UserRest(submittedBuild.getUser());
+        BuildRecordRest buildRecRest = null;
         if (runningExecution != null) {
-            return new BuildRecordRest(runningExecution, submittedBuild.getSubmitTime(), user);
+            buildRecRest = new BuildRecordRest(runningExecution, submittedBuild.getSubmitTime(), user);
         } else {
-            return new BuildRecordRest(
+            buildRecRest = new BuildRecordRest(
                     submittedBuild.getId(),
                     submittedBuild.getStatus(),
                     submittedBuild.getSubmitTime(),
@@ -123,6 +124,9 @@ public class BuildRecordProvider extends AbstractProvider<BuildRecord, BuildReco
                     submittedBuild.getEndTime(),
                     new UserRest(submittedBuild.getUser()));
         }
+
+        buildRecRest.setBuildConfigurationId(submittedBuild.getBuildConfiguration().getId());
+        return buildRecRest;
     }
 
     public CollectionInfo<Object> getAllRunningForBCSetRecord(int pageIndex, int pageSize, String search, Integer bcSetRecordId) {
