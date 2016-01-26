@@ -20,14 +20,20 @@ package org.jboss.pnc.core.test.buildCoordinator;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.pnc.core.builder.coordinator.BuildSetTask;
 import org.jboss.pnc.core.builder.coordinator.BuildTask;
+import org.jboss.pnc.core.builder.coordinator.BuildTasksInitializer;
+import org.jboss.pnc.core.builder.datastore.DatastoreAdapter;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.datastore.DatastoreException;
+import org.jboss.pnc.spi.events.BuildCoordinationStatusChangedEvent;
 import org.jboss.pnc.spi.exception.CoreException;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import javax.enterprise.event.Event;
+import javax.inject.Inject;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -39,13 +45,19 @@ public class ReadDependenciesTest extends ProjectBuilder {
     AtomicInteger taskIdGenerator = new AtomicInteger(0);
     AtomicInteger taskSetIdGenerator = new AtomicInteger(0);
 
+    @Inject
+    private DatastoreAdapter datastoreAdapter;
+
+    @Inject
+    Event<BuildCoordinationStatusChangedEvent> buildStatusChangedEventNotifier;
+
     @Test
     public void createDependenciesTestCase() throws DatastoreException {
         BuildConfigurationSet buildConfigurationSet = configurationBuilder.buildConfigurationSet(1);
         User user = User.Builder.newBuilder().id(1).username("test-user").build();
         BuildSetTask buildSetTask = null;
         try {
-            buildSetTask = buildCoordinator.createBuildSetTask(buildConfigurationSet, user, true);
+            buildSetTask = createBuildSetTask(buildConfigurationSet, user);
         } catch (CoreException e) {
             Assert.fail(e.getMessage());
         }
@@ -53,5 +65,19 @@ public class ReadDependenciesTest extends ProjectBuilder {
         Assert.assertEquals("Missing build tasks in set.", 5, buildSetTask.getBuildTasks().size());
         BuildTask buildTask2 = buildSetTask.getBuildTasks().stream().filter(task -> task.getBuildConfiguration().getId().equals(2)).findFirst().get();
         Assert.assertEquals("Wrong number of dependencies.", 2, buildTask2.getDependencies().size());
+    }
+
+    public BuildSetTask createBuildSetTask(BuildConfigurationSet buildConfigurationSet, User user) throws CoreException {
+        BuildTasksInitializer buildTasksInitializer = new BuildTasksInitializer(datastoreAdapter, Optional.empty());
+        AtomicInteger atomicInteger = new AtomicInteger(1);
+
+        return buildTasksInitializer.createBuildSetTask(
+                buildConfigurationSet,
+                user,
+                true,
+                buildStatusChangedEventNotifier,
+                () -> atomicInteger.getAndIncrement(),
+                (buildTask) -> {},
+                (buildConfigSetRecord) -> {});
     }
 }

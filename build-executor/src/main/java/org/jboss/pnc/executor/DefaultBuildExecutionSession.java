@@ -106,10 +106,10 @@ public class DefaultBuildExecutionSession implements BuildExecutionSession {
                 buildExecutionConfiguration.getId(),
                 buildResult);
 
-        log.debug("Updating build execution task {} status to {}. Task is linked to coordination task {}.", getId(), statusChanged, "//TODO"); //TODO update
+        log.debug("Updating build execution task {} status to {}.", getId(), statusChanged);
         this.status = status;
         onBuildExecutionStatusChangedEvent.accept(statusChanged);
-        log.debug("Fired events after build execution task {} update.", getId()); //TODO update
+        log.trace("Fired events after build execution task {} update.", getId());
     }
 
     //    @Override

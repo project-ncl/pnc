@@ -24,7 +24,6 @@ import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildConfigurationSet;
-import org.jboss.pnc.model.ProductMilestone;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.BuildCoordinationStatus;
 import org.jboss.pnc.spi.BuildResult;
@@ -137,75 +136,22 @@ public class BuildCoordinator {
      */
     public BuildSetTask build(BuildConfigurationSet buildConfigurationSet, User user, boolean rebuildAll) throws CoreException {
 
-        BuildSetTask buildSetTask = createBuildSetTask(buildConfigurationSet, user, rebuildAll);
+        Consumer<BuildConfigSetRecord> onBuildSetTaskCompleted = (buildConfigSetRecord) -> {
+            notifyBuildSetTaskCompleted(buildConfigSetRecord);
+        };
+
+        BuildTasksInitializer buildTasksInitializer = new BuildTasksInitializer(datastoreAdapter, Optional.of(buildSetStatusChangedEventNotifier));
+        BuildSetTask buildSetTask = buildTasksInitializer.createBuildSetTask(
+                buildConfigurationSet,
+                user,
+                rebuildAll,
+                getBuildStatusChangedEventNotifier(),
+                () -> datastoreAdapter.getNextBuildRecordId(),
+                (bt) -> processBuildTask(bt),
+                onBuildSetTaskCompleted);
 
         build(buildSetTask);
         return buildSetTask;
-    }
-
-    public BuildSetTask createBuildSetTask(BuildConfigurationSet buildConfigurationSet, User user, boolean rebuildAll) throws CoreException {
-        BuildConfigSetRecord buildConfigSetRecord = BuildConfigSetRecord.Builder.newBuilder()
-                .buildConfigurationSet(buildConfigurationSet)
-                .user(user)
-                .startTime(new Date())
-                .status(org.jboss.pnc.model.BuildStatus.BUILDING)
-                .build();
-
-        try {
-            buildConfigSetRecord = this.saveBuildConfigSetRecord(buildConfigSetRecord);
-        } catch (DatastoreException e) {
-            log.error("Failed to store build config set record: " + e);
-            throw new CoreException(e);
-        }
-
-        Date buildSubmitTime = new Date();
-        BuildSetTask buildSetTask = new BuildSetTask(
-                this, //TODO decouple
-                buildConfigSetRecord,
-                getProductMilestone(buildConfigurationSet),
-                buildSubmitTime,
-                rebuildAll);
-
-        initializeBuildTasksInSet(buildSetTask, user, rebuildAll);
-        return buildSetTask;
-    }
-
-    /**
-     * Creates build tasks and sets up the appropriate dependency relations
-     * 
-     * @param buildSetTask The build set task which will contain the build tasks.  This must already have
-     * initialized the BuildConfigSet, BuildConfigSetRecord, Milestone, etc.
-     */
-    private void initializeBuildTasksInSet(BuildSetTask buildSetTask, User user, boolean rebuildAll) {
-
-        // Loop to create the build tasks
-        for(BuildConfiguration buildConfig : buildSetTask.getBuildConfigurationSet().getBuildConfigurations()) {
-            BuildConfigurationAudited buildConfigAudited = datastoreAdapter.getLatestBuildConfigurationAudited(buildConfig.getId());
-
-            BuildTask buildTask = BuildTask.build(
-                    buildConfig,
-                    buildConfigAudited,
-                    user,
-                    getBuildStatusChangedEventNotifier(),
-                    (bt) -> processBuildTask(bt),
-                    datastoreAdapter.getNextBuildRecordId(),
-                    buildSetTask,
-                    buildSetTask.getSubmitTime(),
-                    rebuildAll);
-
-            buildSetTask.addBuildTask(buildTask);
-        }
-        // Loop again to set dependencies
-        for (BuildTask buildTask : buildSetTask.getBuildTasks()) {
-            for (BuildConfiguration dep : buildTask.getBuildConfigurationDependencies()) {
-                if (buildSetTask.getBuildConfigurationSet().getBuildConfigurations().contains(dep)) {
-                    BuildTask depTask = buildSetTask.getBuildTask(dep);
-                    if (depTask != null) {
-                        buildTask.addDependency(depTask);
-                    }
-                }
-            }
-        }
     }
 
     /**
@@ -217,18 +163,6 @@ public class BuildCoordinator {
      */
     private Optional<BuildTask> getActiveBuildTask(BuildConfigurationAudited buildConfigAudited) {
         return activeBuildTasks.stream().filter(bt -> bt.getBuildConfigurationAudited().equals(buildConfigAudited)).findFirst();
-    }
-
-    /**
-     * Get the product milestone (if any) associated with this build config set.
-     * @param buildConfigSet
-     * @return The product milestone, or null if there is none
-     */
-    private ProductMilestone getProductMilestone(BuildConfigurationSet buildConfigSet) {
-        if(buildConfigSet.getProductVersion() == null || buildConfigSet.getProductVersion().getCurrentProductMilestone() == null) {
-            return null;
-        }
-        return buildConfigSet.getProductVersion().getCurrentProductMilestone();
     }
 
     private void build(BuildSetTask buildSetTask) {
@@ -289,7 +223,8 @@ public class BuildCoordinator {
         };
 
         try {
-            log.info("[{}] Checking if task should be skipped(rebuildAll: {}, predicateResult: {})", buildTask.getId(), buildTask.getRebuildAll(), prepareBuildTaskFilterPredicate().test(buildTask));
+            log.info("BuildTask.id [{}]: Checking if task should be skipped(rebuildAll: {}, predicateResult: {}). Task is linked to BuildConfigurationAudited.IdRev {}.",
+                    buildTask.getId(), buildTask.getRebuildAll(), prepareBuildTaskFilterPredicate().test(buildTask), buildTask.getBuildConfigurationAudited().getIdRev());
             if(!buildTask.getRebuildAll() && prepareBuildTaskFilterPredicate().test(buildTask)) {
                 log.info("[{}] Marking task as REJECTED_ALREADY_BUILT, because it has been already built", buildTask.getId());
                 buildTask.setStatus(BuildCoordinationStatus.REJECTED_ALREADY_BUILT);
@@ -297,9 +232,9 @@ public class BuildCoordinator {
                 return;
             }
 
+            buildTask.setStatus(BuildCoordinationStatus.BUILDING); //status must be updated before startBuild as if build takes 0 time it complete before having Building status.
             activeBuildTasks.add(buildTask);
             buildScheduler.startBuilding(buildTask, onComplete);
-            buildTask.setStatus(BuildCoordinationStatus.BUILDING);
         } catch (CoreException | ExecutorException e) {
             log.debug(" Build coordination task failed. Setting it as SYSTEM_ERROR.", e);
             buildTask.setStatus(BuildCoordinationStatus.SYSTEM_ERROR);
@@ -313,18 +248,6 @@ public class BuildCoordinator {
         }
     }
 
-    /**
-     * Save the build config set record using a single thread for all db operations.
-     * This ensures that database operations are done in the correct sequence, for example
-     * in the case of a build config set.
-     *
-     * @param buildConfigSetRecord
-     * @return The build config set record which has been saved to the db
-     * @throws DatastoreException if there is a db problem which prevents this record being stored
-     */
-    protected BuildConfigSetRecord saveBuildConfigSetRecord(BuildConfigSetRecord buildConfigSetRecord) throws DatastoreException {
-        return datastoreAdapter.saveBuildConfigSetRecord(buildConfigSetRecord);
-    }
 
     public List<BuildTask> getActiveBuildTasks() {
         return Collections.unmodifiableList(activeBuildTasks.stream().collect(Collectors.toList()));

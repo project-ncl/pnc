@@ -33,6 +33,7 @@ import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 /**
 * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-12-23.
@@ -108,7 +109,6 @@ public class BuildTask {
                 }
             }
         }
-
     }
 
     public void setStatus(BuildCoordinationStatus status) {
@@ -130,9 +130,9 @@ public class BuildTask {
                 userId);
 
         log.debug("Updating build task {} status to {}", this.getId(), buildStatusChanged);
-        if (buildSetTask != null) {
+        if (status.isCompleted() && buildSetTask != null) {
             log.debug("Updating BuildSetTask {}.", buildSetTask.getId());
-            buildSetTask.taskStatusUpdated();
+            buildSetTask.taskStatusUpdatedToFinalState();
         }
         buildStatusChangedEventNotifier.fire(buildStatusChanged);
         if (status.isCompleted()) {
@@ -156,9 +156,15 @@ public class BuildTask {
     }
 
     private void requiredBuildCompleted(BuildTask completed) {
+        if (log.isTraceEnabled()) {
+            String tasksWithStatus = dependencies.stream().map(d -> d.getId() +" - " + d.getStatus().toString()).collect(Collectors.joining(","));
+            log.trace("Checking if all dependencies of task {} completed. Dependencies statuses: {}.", this.getId(), tasksWithStatus);
+        }
+
         if (dependencies.contains(completed) && completed.hasFailed()) {
             this.setStatus(BuildCoordinationStatus.REJECTED);
         } else if (dependencies.stream().allMatch(dep -> dep.getStatus().isCompleted())) {
+            log.debug("All dependencies of task {} completed.", this.getId());
             onAllDependenciesCompleted.accept(this);
         }
     }

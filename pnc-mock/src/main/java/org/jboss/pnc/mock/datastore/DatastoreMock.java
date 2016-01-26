@@ -69,7 +69,7 @@ public class DatastoreMock implements Datastore {
     }
 
     public List<BuildRecord> getBuildRecords() {
-        return buildRecords;
+        return new ArrayList<>(buildRecords); //avoid concurrent modification exception
     }
 
     public List<BuildConfigSetRecord> getBuildConfigSetRecords() {
@@ -121,7 +121,7 @@ public class DatastoreMock implements Datastore {
 
     @Override
     public boolean hasSuccessfulBuildRecord(BuildConfiguration buildConfiguration) {
-        return buildRecords.stream()
+        return getBuildRecords().stream()
                 .filter(br -> br.getLatestBuildConfiguration().getId().equals(buildConfiguration.getId()))
                 .map(br -> br.getStatus())
                 .filter(status -> status == BuildStatus.SUCCESS)
