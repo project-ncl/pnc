@@ -58,10 +58,12 @@
         function fetchConfiguration(record) {
 
           if(record.status === 'BUILDING') {
+            // Returns a BuildConfigurationRest object
             return BuildConfigurationDAO.get({
               configurationId: record.buildConfigurationId
             }).$promise;
           } else {
+            // Returns a BuildConfigurationAuditedRest object
             return BuildRecordDAO.getAuditedBuildConfiguration({
               recordId: record.id
             }).$promise;
@@ -90,13 +92,12 @@
             // Get the BuildConfiguration's related entities in parallel.
             return $q.all([
               ProjectDAO.get({
-                projectId: responses[0].projectId
+                projectId: responses[0].project.id
               }).$promise,
 
               EnvironmentDAO.get({
-                environmentId: responses[0].environmentId
+                environmentId: responses[0].environment.id
               }).$promise
-
             ]);
           }
         ).then(
