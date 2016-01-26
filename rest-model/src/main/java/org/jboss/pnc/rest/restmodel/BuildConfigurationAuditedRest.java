@@ -61,6 +61,10 @@ public class BuildConfigurationAuditedRest implements GenericRestEntity<Integer>
 
     private Integer environmentId;
 
+    private ProjectRest project;
+
+    private BuildEnvironmentRest environment;
+
     public BuildConfigurationAuditedRest() {
     }
 
@@ -74,9 +78,14 @@ public class BuildConfigurationAuditedRest implements GenericRestEntity<Integer>
         this.scmRevision = buildConfigurationAudited.getScmRevision();
         this.scmMirrorRepoURL = buildConfigurationAudited.getScmMirrorRepoURL();
         this.scmMirrorRevision = buildConfigurationAudited.getScmMirrorRevision();
-        performIfNotNull(buildConfigurationAudited.getProject(), () -> this.projectId = buildConfigurationAudited.getProject()
-                .getId());
-        performIfNotNull(buildConfigurationAudited.getBuildEnvironment(), () -> this.environmentId = buildConfigurationAudited.getBuildEnvironment().getId());
+
+        performIfNotNull(buildConfigurationAudited.getProject(),
+                () -> this.project = new ProjectRest(buildConfigurationAudited.getProject()));
+        performIfNotNull(buildConfigurationAudited.getBuildEnvironment(),
+                () -> this.environment = new BuildEnvironmentRest(buildConfigurationAudited.getBuildEnvironment()));
+
+        performIfNotNull(this.project, () -> this.projectId = this.project.getId());
+        performIfNotNull(this.environment, () -> this.environmentId = this.environment.getId());
     }
 
     @Override
@@ -191,6 +200,22 @@ public class BuildConfigurationAuditedRest implements GenericRestEntity<Integer>
 
     public void setEnvironmentId(Integer environmentId) {
         this.environmentId = environmentId;
+    }
+
+    public ProjectRest getProject() {
+        return project;
+    }
+
+    public void setProject(ProjectRest project) {
+        this.project = project;
+    }
+
+    public BuildEnvironmentRest getEnvironment() {
+        return environment;
+    }
+
+    public void setEnvironment(BuildEnvironmentRest environment) {
+        this.environment = environment;
     }
 
 }

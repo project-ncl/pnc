@@ -89,26 +89,14 @@
             result.buildConfiguration = responses[0];
             result.user = responses[1];
 
-            var projId = null;
-            var envId = null;
-
-            if(result.buildRecord.status === 'BUILDING') {
-              projId = responses[0].project.id;
-              envId = responses[0].environment.id;
-            }
-            else {
-              projId = responses[0].projectId;
-              envId = responses[0].environmentId;
-            }
-
             // Get the BuildConfiguration's related entities in parallel.
             return $q.all([
               ProjectDAO.get({
-                projectId: projId
+                projectId: responses[0].project.id
               }).$promise,
 
               EnvironmentDAO.get({
-                environmentId: envId
+                environmentId: responses[0].environment.id
               }).$promise
             ]);
           }
