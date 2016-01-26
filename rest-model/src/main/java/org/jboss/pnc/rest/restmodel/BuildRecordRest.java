@@ -18,6 +18,7 @@
 package org.jboss.pnc.rest.restmodel;
 
 import io.swagger.annotations.ApiModelProperty;
+
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.rest.validation.groups.WhenCreatingNew;
 import org.jboss.pnc.rest.validation.groups.WhenUpdating;
@@ -145,6 +146,10 @@ public class BuildRecordRest implements GenericRestEntity<Integer> {
         this.username = user.getUsername();
 
         this.buildContentId = buildExecutionConfig.getBuildContentId();
+
+        this.buildConfigurationName = buildExecutionConfig.getName();
+        this.scmRepoURL = buildExecutionConfig.getScmRepoURL();
+        this.scmRevision = buildExecutionConfig.getScmRevision();
     }
 
     public BuildRecordRest(Integer id, BuildCoordinationStatus buildCoordinationStatus, Date submitTime, Date startTime, Date endTime, UserRest user) {
