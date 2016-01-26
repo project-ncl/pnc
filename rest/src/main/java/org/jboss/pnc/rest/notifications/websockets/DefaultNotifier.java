@@ -50,7 +50,7 @@ public class DefaultNotifier implements Notifier {
 
         @Override
         public void successful(AttachedClient attachedClient) {
-            // logger.debug("Seccessfully sent message to client ", attachedClient);
+            // logger.debug("Successfully sent message to client ", attachedClient);
         }
 
         @Override
