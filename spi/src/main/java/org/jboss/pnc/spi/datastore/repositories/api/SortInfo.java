@@ -17,6 +17,9 @@
  */
 package org.jboss.pnc.spi.datastore.repositories.api;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.Comparator;
 import java.util.List;
 
 public interface SortInfo {
@@ -25,4 +28,31 @@ public interface SortInfo {
     }
     List<String> getFields();
     SortingDirection getDirection();
+
+    default <T> Comparator<T> getComparator() {
+        return (x, y) -> {
+            Comparator<T> combinedComparator = (instance1, instance2) -> 0;
+            try {
+                for(String field : getFields()) {
+                    String getterName = "get" + Character.toString(field.charAt(0)).toUpperCase()+field.substring(1);
+                    Method toCompare = x.getClass().getDeclaredMethod(getterName, null);
+                    Object v1 = toCompare.invoke(x, null);
+                    Object v2 = toCompare.invoke(y, null);
+                    if (v1 instanceof Comparable<?> && v2 instanceof Comparable<?>){
+                        Comparable c1 = (Comparable) v1;
+                        Comparable c2 = (Comparable) v2;
+                        if(getDirection() == SortingDirection.ASC) {
+                            combinedComparator = combinedComparator.thenComparing((o1, o2) -> c1.compareTo(c2));
+                        } else {
+                            combinedComparator = combinedComparator.thenComparing((o1, o2) -> c2.compareTo(c1));
+                        }
+                    }
+                }
+            } catch (InvocationTargetException | IllegalAccessException | NoSuchMethodException e) {
+                throw new IllegalArgumentException("Field is not accessible via reflection", e);
+            }
+
+            return combinedComparator.compare(x, y);
+        };
+    }
 }
