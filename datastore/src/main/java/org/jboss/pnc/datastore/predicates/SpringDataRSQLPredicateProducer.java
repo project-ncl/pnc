@@ -37,7 +37,20 @@ public class SpringDataRSQLPredicateProducer implements RSQLPredicateProducer {
             if(rsql == null || rsql.isEmpty()) {
                 return new EmptyRSQLPredicate();
             }
-            return new RSQLNodeTravellerPredicate<>(selectingClass, rsql);
+            return new RSQLNodeTravellerPredicate<>(selectingClass, rsql).getEntityPredicate();
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Could not parse query: " + rsql, e);
+        }
+    }
+
+    @Override
+    public <T extends GenericEntity<? extends Number>> java.util.function.Predicate<T> getStreamPredicate(
+            Class<T> selectingClass, String rsql) {
+        try {
+            if(rsql == null || rsql.isEmpty()) {
+                return x -> true;
+            }
+            return new RSQLNodeTravellerPredicate<>(selectingClass, rsql).getStreamPredicate();
         } catch (Exception e) {
             throw new IllegalArgumentException("Could not parse query: " + rsql, e);
         }

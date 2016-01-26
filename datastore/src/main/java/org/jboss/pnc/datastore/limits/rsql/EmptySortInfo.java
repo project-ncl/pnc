@@ -20,6 +20,7 @@ package org.jboss.pnc.datastore.limits.rsql;
 import org.jboss.pnc.spi.datastore.repositories.api.SortInfo;
 
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 
 public class EmptySortInfo implements SortInfo {
@@ -32,5 +33,10 @@ public class EmptySortInfo implements SortInfo {
     @Override
     public SortingDirection getDirection() {
         return SortingDirection.ASC;
+    }
+
+    @Override
+    public <T> Comparator<T> getComparator() {
+        return (x, y) -> 0;
     }
 }

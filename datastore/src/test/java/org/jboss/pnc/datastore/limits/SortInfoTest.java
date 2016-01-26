@@ -20,12 +20,15 @@ package org.jboss.pnc.datastore.limits;
 import org.jboss.pnc.spi.datastore.repositories.api.SortInfo;
 import org.junit.Test;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class SortInfoTest {
 
     private final DefaultSortInfoProducer defaultSortInfoProducer = new DefaultSortInfoProducer();
-
 
     @Test
     public void shouldParseSimpleAscendingRSQL() throws Exception {
@@ -99,6 +102,92 @@ public class SortInfoTest {
 
         //when
         defaultSortInfoProducer.getSortInfo(sorting);
+    }
+
+    @Test
+    public void shouldCreateProperComparator() throws Exception {
+        //given
+        String sorting = "=asc=(field1)";
+
+        List<SortTester> tester = new ArrayList<>();
+        tester.add(new SortTester("b", "b"));
+        tester.add(new SortTester("a", "b"));
+
+        //when
+        SortInfo testedSorting = defaultSortInfoProducer.getSortInfo(sorting);
+        List<String> sorted = tester.stream()
+                .sorted(testedSorting.getComparator())
+                .map(value -> value.getField1())
+                .collect(Collectors.toList());
+
+        //then
+        assertThat(sorted).containsExactly("a", "b");
+    }
+
+    @Test
+    public void shouldCreateProperComparatorAndSortWithTwoDimensions() throws Exception {
+        //given
+        String sorting = "=asc=(field1,field2)";
+
+        List<SortTester> tester = new ArrayList<>();
+        tester.add(new SortTester("a", "b"));
+        tester.add(new SortTester("a", "a"));
+
+        //when
+        SortInfo testedSorting = defaultSortInfoProducer.getSortInfo(sorting);
+        List<String> sorted = tester.stream()
+                .sorted(testedSorting.getComparator())
+                .map(value -> value.getField2())
+                .collect(Collectors.toList());
+
+        //then
+        assertThat(sorted).containsExactly("a", "b");
+    }
+
+    @Test
+    public void shouldCreateProperComparatorAndSortDescending() throws Exception {
+        //given
+        String sorting = "=desc=(field1)";
+
+        List<SortTester> tester = new ArrayList<>();
+        tester.add(new SortTester("a", "b"));
+        tester.add(new SortTester("b", "a"));
+
+        //when
+        SortInfo testedSorting = defaultSortInfoProducer.getSortInfo(sorting);
+        List<String> sorted = tester.stream()
+                .sorted(testedSorting.getComparator())
+                .map(value -> value.getField1())
+                .collect(Collectors.toList());
+
+        //then
+        assertThat(sorted).containsExactly("b", "a");
+    }
+
+    public static class SortTester {
+        String field1;
+        String field2;
+
+        public SortTester(String field1, String field2) {
+            this.field1 = field1;
+            this.field2 = field2;
+        }
+
+        public String getField1() {
+            return field1;
+        }
+
+        public void setField1(String field1) {
+            this.field1 = field1;
+        }
+
+        public String getField2() {
+            return field2;
+        }
+
+        public void setField2(String field2) {
+            this.field2 = field2;
+        }
     }
 
 }
