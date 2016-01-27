@@ -17,14 +17,12 @@
  */
 package org.jboss.pnc.datastore.predicates.rsql;
 
-import org.jboss.pnc.model.GenericEntity;
-
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import java.util.List;
 
 @FunctionalInterface
-interface Transformer<Entity extends GenericEntity<? extends Number>> {
+interface Transformer<Entity> {
     Predicate transform(Root<Entity> r, CriteriaBuilder cb, Class<?> selectingClass, String operand, List<String> arguments);
 }

@@ -18,6 +18,7 @@
     limitations under the License.
 
 -->
+
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
   <modelVersion>4.0.0</modelVersion>
@@ -28,36 +29,20 @@
     <version>0.8-SNAPSHOT</version>
   </parent>
 
-  <artifactId>pnc-mock</artifactId>
+  <artifactId>build-coordinator-mock</artifactId>
   <packaging>jar</packaging>
 
-  <description>Mock implementation of build-executor to be used in tests.</description>
+  <description>Contains implementations of build executor, which include the business logic for executing builds. The build execution requires coordination across multiple remote services.</description>
 
   <dependencies>
     <!-- Intermodule dependencies -->
     <dependency>
       <groupId>org.jboss.pnc</groupId>
-      <artifactId>spi</artifactId>
+      <artifactId>build-coordinator</artifactId>
     </dependency>
     <dependency>
       <groupId>org.jboss.pnc</groupId>
-      <artifactId>model</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.jboss.pnc</groupId>
-      <artifactId>common</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.jboss.pnc</groupId>
-      <artifactId>moduleconfig</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.mockito</groupId>
-      <artifactId>mockito-all</artifactId>
+      <artifactId>pnc-mock</artifactId>
     </dependency>
     <!--remote dependencies -->
     <dependency>
@@ -81,7 +66,6 @@
       <artifactId>arquillian-junit-container</artifactId>
       <scope>test</scope>
     </dependency>
-
   </dependencies>
 
 </project>

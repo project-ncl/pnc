@@ -44,7 +44,7 @@ public class SpringDataRSQLPredicateProducer implements RSQLPredicateProducer {
     }
 
     @Override
-    public <T extends GenericEntity<? extends Number>> java.util.function.Predicate<T> getStreamPredicate(
+    public <T> java.util.function.Predicate<T> getStreamPredicate(
             Class<T> selectingClass, String rsql) {
         try {
             if(rsql == null || rsql.isEmpty()) {

@@ -70,8 +70,9 @@ public class RunningBuildRecordEndpoint extends AbstractEndpoint<BuildRecord, Bu
     @GET
     public Response getAll(@ApiParam(value = PAGE_INDEX_DESCRIPTION) @QueryParam(PAGE_INDEX_QUERY_PARAM) @DefaultValue(PAGE_INDEX_DEFAULT_VALUE) int pageIndex,
             @ApiParam(value = PAGE_SIZE_DESCRIPTION) @QueryParam(PAGE_SIZE_QUERY_PARAM) @DefaultValue(PAGE_SIZE_DEFAULT_VALUE) int pageSize,
+            @ApiParam(value = SORTING_DESCRIPTION) @QueryParam(SORTING_QUERY_PARAM) String sort,
             @ApiParam(value = SEARCH_DESCRIPTION) @QueryParam(SEARCH_QUERY_PARAM) @DefaultValue(SEARCH_DEFAULT_VALUE) String search) {
-        return fromCollection(buildRecordProvider.getAllRunning(pageIndex, pageSize, search));
+        return fromCollection(buildRecordProvider.getAllRunning(pageIndex, pageSize, search, sort));
     }
 
     @ApiOperation(value = "Gets specific running Build Record")

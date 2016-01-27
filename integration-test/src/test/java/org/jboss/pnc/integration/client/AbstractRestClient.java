@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.integration.client;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.restassured.http.ContentType;
 import com.jayway.restassured.response.Response;
 import com.jayway.restassured.specification.RequestSpecification;
@@ -34,11 +35,24 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.invoke.MethodHandles;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 import static com.jayway.restassured.RestAssured.given;
 import static org.jboss.pnc.integration.env.IntegrationTestEnv.getHttpPort;
 
 public abstract class AbstractRestClient<T> {
+
+    static class QueryParam {
+        final String paramName;
+        final String paramValue;
+
+        public QueryParam(String paramName, String paramValue) {
+            this.paramName = paramName;
+            this.paramValue = paramValue;
+        }
+    }
 
     protected Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
@@ -51,6 +65,10 @@ public abstract class AbstractRestClient<T> {
     protected Class<T> entityClass;
 
     protected AbstractRestClient(String collectionUrl, Class<T> entityClass) {
+        this(collectionUrl, entityClass, true);
+    }
+
+    protected AbstractRestClient(String collectionUrl, Class<T> entityClass, boolean withAuth) {
         this.entityClass = entityClass;
 
         if(collectionUrl.endsWith("/")) {
@@ -59,10 +77,12 @@ public abstract class AbstractRestClient<T> {
             this.collectionUrl = collectionUrl + "/";
         }
 
-        try {
-            initAuth();
-        } catch (IOException | ConfigurationParseException e) {
-            throw new AssertionError("Error while initializing auth", e);
+        if(withAuth) {
+            try {
+                initAuth();
+            } catch (IOException | ConfigurationParseException e) {
+                throw new AssertionError("Error while initializing auth", e);
+            }
         }
     }
 
@@ -89,8 +109,17 @@ public abstract class AbstractRestClient<T> {
         return request().when().delete(path);
     }
 
-    protected Response get(String path) {
-        return request().when().get(path);
+    protected Response get(String path, QueryParam... queryParams) {
+        RequestSpecification specification = request().when();
+        if(queryParams != null && queryParams.length > 0) {
+            for (QueryParam qp : queryParams) {
+                if(qp != null) {
+                    specification.queryParam(qp.paramName, qp.paramValue);
+                }
+            }
+        }
+
+        return specification.get(path);
     }
 
     protected RequestSpecification request() {
@@ -198,6 +227,42 @@ public abstract class AbstractRestClient<T> {
 
     public RestResponse<T> delete(int id) {
         return delete(id, true);
+    }
+
+    public RestResponse<List<T>> all(boolean withValidation, String rsql, String sort) {
+        QueryParam rsqlQueryParam = null;
+        QueryParam sortQueryParam = null;
+        if(rsql != null) {
+            rsqlQueryParam = new QueryParam("q", rsql);
+        }
+        if(sort != null) {
+            sortQueryParam = new QueryParam("sort", sort);
+        }
+        Response response = get(collectionUrl, rsqlQueryParam, sortQueryParam);
+
+        if(withValidation) {
+            response.then().statusCode(200);
+        }
+
+        List<T> object = new ArrayList<>();
+        try {
+            List<? extends Map> beforeMappingList = response.jsonPath().getList("content");
+            ObjectMapper objectMapper = new ObjectMapper();
+            for(Map obj : beforeMappingList) {
+                //because of the bug in RestAssured - we need to use another mapping library...
+                object.add(objectMapper.convertValue(obj, entityClass));
+            }
+        } catch (Exception e) {
+            if(withValidation) {
+                throw new AssertionError("JSON unmarshalling error", e);
+            }
+        }
+
+        return new RestResponse(response, object);
+    }
+
+    public RestResponse<List<T>> all() {
+        return all(true, null, null);
     }
 
 }

@@ -22,6 +22,7 @@ import org.jboss.pnc.rest.debug.TestEndpoint;
 import org.jboss.pnc.rest.endpoint.BuildConfigSetRecordEndpoint;
 import org.jboss.pnc.rest.endpoint.BuildConfigurationEndpoint;
 import org.jboss.pnc.rest.endpoint.BuildConfigurationSetEndpoint;
+import org.jboss.pnc.rest.endpoint.BuildEndpoint;
 import org.jboss.pnc.rest.endpoint.BuildEnvironmentEndpoint;
 import org.jboss.pnc.rest.endpoint.BuildRecordEndpoint;
 import org.jboss.pnc.rest.endpoint.BuildRecordSetEndpoint;
@@ -87,6 +88,7 @@ public class JaxRsActivator extends Application {
         resources.add(ValidationExceptionExceptionMapper.class);
         resources.add(AllOtherExceptionsMapper.class);
         resources.add(BuildTaskEndpoint.class);
+        resources.add(BuildEndpoint.class);
     }
 
     private void addSwaggerResources(Set<Class<?>> resources) {

@@ -34,7 +34,6 @@ import cz.jirutka.rsql.parser.ast.NotEqualNode;
 import cz.jirutka.rsql.parser.ast.NotInNode;
 import cz.jirutka.rsql.parser.ast.OrNode;
 import org.apache.commons.beanutils.BeanUtils;
-import org.jboss.pnc.model.GenericEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,7 +54,7 @@ import java.util.regex.Pattern;
 
 import static org.jboss.pnc.datastore.predicates.rsql.AbstractTransformer.selectWithOperand;
 
-public class RSQLNodeTravellerPredicate<Entity extends GenericEntity<? extends Number>> {
+public class RSQLNodeTravellerPredicate<Entity> {
 
     private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
