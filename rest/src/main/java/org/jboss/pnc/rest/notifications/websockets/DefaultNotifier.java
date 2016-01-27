@@ -18,6 +18,7 @@
 package org.jboss.pnc.rest.notifications.websockets;
 
 import org.jboss.pnc.spi.notifications.AttachedClient;
+import org.jboss.pnc.spi.notifications.MessageCallback;
 import org.jboss.pnc.spi.notifications.Notifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,6 +27,7 @@ import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import java.lang.invoke.MethodHandles;
 import java.util.Collections;
+import java.util.ConcurrentModificationException;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
@@ -45,6 +47,20 @@ public class DefaultNotifier implements Notifier {
 
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
+    private final MessageCallback messageCallback = new MessageCallback() {
+
+        @Override
+        public void successful(AttachedClient attachedClient) {
+            // logger.debug("Successfully sent message to client ", attachedClient);
+        }
+
+        @Override
+        public void failed(AttachedClient attachedClient, Throwable throwable) {
+            logger.error("Notification client threw an error, removing it", throwable);
+            detachClient(attachedClient);
+        }
+    };
+
     @PostConstruct
     public void init() {
         scheduler.scheduleAtFixedRate(this::cleanUp, 1, 1, TimeUnit.HOURS);
@@ -57,7 +73,11 @@ public class DefaultNotifier implements Notifier {
 
     @Override
     public void detachClient(AttachedClient attachedClient) {
-        attachedClients.remove(attachedClient);
+        try {
+            attachedClients.remove(attachedClient);
+        } catch (ConcurrentModificationException cme) {
+            logger.error("Error while removing attached client: ", cme);
+        }
     }
 
     @Override
@@ -66,26 +86,29 @@ public class DefaultNotifier implements Notifier {
     }
 
     @Override
+    public MessageCallback getCallback() {
+        return messageCallback;
+    }
+
+    @Override
     public void sendMessage(Object message) {
-        // See http://docs.oracle.com/javase/6/docs/api/java/util/Collections.html#synchronizedSet%28java.util.Set%29
-        synchronized(attachedClients) {
-            for(Iterator<AttachedClient> attachedClientIterator = attachedClients.iterator(); attachedClientIterator.hasNext();) {
+        try {
+            for (Iterator<AttachedClient> attachedClientIterator = attachedClients.iterator(); attachedClientIterator
+                    .hasNext();) {
                 AttachedClient client = attachedClientIterator.next();
                 if (client.isEnabled()) {
-                    try {
-                        client.sendMessage(message);
-                    } catch (Exception e) {
-                        logger.error("Notification client threw an error, removing it", e);
-                        attachedClientIterator.remove();
-                    }
+                    client.sendMessage(message, messageCallback);
                 }
             }
+        } catch (ConcurrentModificationException cme) {
+            logger.error("Error while removing attached client: ", cme);
         }
     }
 
     public void cleanUp() {
-        synchronized(attachedClients) {
-            for(Iterator<AttachedClient> attachedClientIterator = attachedClients.iterator(); attachedClientIterator.hasNext();) {
+        synchronized (attachedClients) {
+            for (Iterator<AttachedClient> attachedClientIterator = attachedClients.iterator(); attachedClientIterator
+                    .hasNext();) {
                 AttachedClient client = attachedClientIterator.next();
                 if (!client.isEnabled()) {
                     attachedClientIterator.remove();
@@ -93,4 +116,5 @@ public class DefaultNotifier implements Notifier {
             }
         }
     }
+
 }

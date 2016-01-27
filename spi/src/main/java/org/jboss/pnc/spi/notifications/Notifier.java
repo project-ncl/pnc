@@ -29,4 +29,6 @@ public interface Notifier {
     int getAttachedClientsCount();
 
     void sendMessage(Object message);
+
+    MessageCallback getCallback();
 }

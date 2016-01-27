@@ -17,21 +17,10 @@
  */
 package org.jboss.pnc.spi.notifications;
 
-/**
- * A generic WS client.
- */
-public interface AttachedClient {
+public interface MessageCallback {
 
-    /**
-     * @return Returns <code>true</code> if enabled.
-     */
-    boolean isEnabled();
+    void failed(AttachedClient attachedClient, Throwable throwable);
 
-    /**
-     * Sends a message to the client
-     *
-     * @param messageBody Message body - depends on implementation how to deal with it.
-     * @param callback the callback from the asynch method
-     */
-    void sendMessage(Object messageBody, MessageCallback callback);
+    void successful(AttachedClient attachedClient);
+
 }

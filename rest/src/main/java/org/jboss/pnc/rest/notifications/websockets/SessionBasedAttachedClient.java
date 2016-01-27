@@ -17,11 +17,13 @@
  */
 package org.jboss.pnc.rest.notifications.websockets;
 
-import org.jboss.pnc.spi.notifications.AttachedClient;
-import org.jboss.pnc.spi.notifications.OutputConverter;
-
+import javax.websocket.SendHandler;
+import javax.websocket.SendResult;
 import javax.websocket.Session;
-import java.io.IOException;
+
+import org.jboss.pnc.spi.notifications.AttachedClient;
+import org.jboss.pnc.spi.notifications.MessageCallback;
+import org.jboss.pnc.spi.notifications.OutputConverter;
 
 public class SessionBasedAttachedClient implements AttachedClient {
 
@@ -39,8 +41,18 @@ public class SessionBasedAttachedClient implements AttachedClient {
     }
 
     @Override
-    public void sendMessage(Object messageBody) throws IOException {
-        session.getBasicRemote().sendText(outputConverter.apply(messageBody));
+    public void sendMessage(Object messageBody, MessageCallback callback) {
+
+        session.getAsyncRemote().sendText(outputConverter.apply(messageBody), new SendHandler() {
+            @Override
+            public void onResult(SendResult sendResult) {
+                if (!sendResult.isOK()) {
+                    callback.failed(SessionBasedAttachedClient.this, sendResult.getException());
+                } else {
+                    callback.successful(SessionBasedAttachedClient.this);
+                }
+            }
+        });
     }
 
     @Override
