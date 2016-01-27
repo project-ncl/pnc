@@ -86,12 +86,13 @@ public class DatastoreAdapter {
             BuildDriverResult buildDriverResult = buildResult.getBuildDriverResult().get();
             RepositoryManagerResult repositoryManagerResult = buildResult.getRepositoryManagerResult().get();
 
-            BuildRecord buildRecord = createBuildRecord(buildTask, Optional.of(repositoryManagerResult.getBuildContentId()));
+            BuildRecord.Builder buildRecordBuilder = createBuildRecord(buildTask, Optional.of(repositoryManagerResult.getBuildContentId()));
 
             // Build driver results
-            buildRecord.setBuildLog(buildDriverResult.getBuildLog());
-            buildRecord.setStatus(buildDriverResult.getBuildDriverStatus().toBuildStatus());
+            buildRecordBuilder.buildLog(buildDriverResult.getBuildLog());
+            buildRecordBuilder.status(buildDriverResult.getBuildDriverStatus().toBuildStatus());
 
+            BuildRecord buildRecord = buildRecordBuilder.build();
             linkArtifactsWithBuildRecord(repositoryManagerResult.getBuiltArtifacts(), buildRecord);
             buildRecord.setBuiltArtifacts(repositoryManagerResult.getBuiltArtifacts());
             linkArtifactsWithBuildRecord(repositoryManagerResult.getDependencies(), buildRecord);
@@ -105,18 +106,18 @@ public class DatastoreAdapter {
     }
 
     public void storeResult(BuildTask buildTask, Throwable e) throws DatastoreException {
-        BuildRecord buildRecord = createBuildRecord(buildTask, Optional.<String>empty());
+        BuildRecord.Builder buildRecordBuilder = createBuildRecord(buildTask, Optional.<String>empty());
         StringWriter stackTraceWriter = new StringWriter();
         PrintWriter stackTracePrinter = new PrintWriter(stackTraceWriter);
         e.printStackTrace(stackTracePrinter);
-        buildRecord.setStatus(SYSTEM_ERROR);
+        buildRecordBuilder.status(SYSTEM_ERROR);
 
         String errorMessage = "Last build status: " + buildTask.getStatus().toString() + "\n";
         errorMessage += "Caught exception: " + stackTraceWriter.toString();
-        buildRecord.setBuildLog(errorMessage);
+        buildRecordBuilder.buildLog(errorMessage);
 
         log.debugf("Storing ERROR result of %s to datastore. Error: %s", buildTask.getBuildConfigurationAudited().getName() + "\n\n\n Exception: " + errorMessage, e);
-        datastore.storeCompletedBuild(buildRecord, buildTask.getBuildRecordSetIds());
+        datastore.storeCompletedBuild(buildRecordBuilder.build(), buildTask.getBuildRecordSetIds());
     }
 
     /**
@@ -124,26 +125,25 @@ public class DatastoreAdapter {
      * Note, this must be done inside a transaction because it fetches the BuildRecordSet entities from 
      * the database.
      * 
-     * @return The new (unsaved) build record
+     * @return The initialized build record builder
      */
-    private BuildRecord createBuildRecord(BuildTask buildTask, Optional<String> buildContentId) {
-        BuildRecord buildRecord = BuildRecord.Builder.newBuilder().id(buildTask.getId())
+    private BuildRecord.Builder createBuildRecord(BuildTask buildTask, Optional<String> buildContentId) {
+        BuildRecord.Builder builder = BuildRecord.Builder.newBuilder().id(buildTask.getId())
                 .buildConfigurationAudited(buildTask.getBuildConfigurationAudited())
                 .user(buildTask.getUser())
                 .submitTime(buildTask.getSubmitTime())
                 .startTime(buildTask.getStartTime())
-                .endTime(buildTask.getEndTime())
-                .build();
+                .endTime(buildTask.getEndTime());
 
-        buildContentId.ifPresent((id) -> buildRecord.setBuildContentId(id));
+        buildContentId.ifPresent((id) -> builder.buildContentId(id));
 
-        buildRecord.setLatestBuildConfiguration(buildTask.getBuildConfiguration());
+        builder.latestBuildConfiguration(buildTask.getBuildConfiguration());
         if (buildTask.getBuildConfigSetRecordId() != null) {
             BuildConfigSetRecord buildConfigSetRecord = datastore.getBuildConfigSetRecordById(buildTask.getBuildConfigSetRecordId());
-            buildRecord.setBuildConfigSetRecord(buildConfigSetRecord);
+            builder.buildConfigSetRecord(buildConfigSetRecord);
         }
 
-        return buildRecord;
+        return builder;
     }
 
     public Integer getNextBuildRecordId() {
