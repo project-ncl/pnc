@@ -92,14 +92,18 @@
                 payload: event.payload
               };
 
-              switch (event.payload.buildStatus) {
-                case 'REPO_SETTING_UP':
+              switch (event.payload.buildCoordinationStatus) {
+                case 'NEW':
+                case 'WAITING_FOR_DEPENDENCIES':
+                case 'BUILDING':
                   result.eventType = eventTypes.BUILD_STARTED;
                   break;
+                case 'BUILD_COMPLETED':
                 case 'DONE':
                 case 'REJECTED':
                 case 'REJECTED_ALREADY_BUILT':
                 case 'SYSTEM_ERROR':
+                case 'DONE_WITH_ERRORS':
                   result.eventType = eventTypes.BUILD_FINISHED;
                   break;
               }
@@ -124,7 +128,6 @@
                   break;
                 case 'DONE':
                 case 'REJECTED':
-                case 'REJECTED_ALREADY_BUILT':
                   result.eventType = eventTypes.BUILD_SET_FINISHED;
                   break;
               }

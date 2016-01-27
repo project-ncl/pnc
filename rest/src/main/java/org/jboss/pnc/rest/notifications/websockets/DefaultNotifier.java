@@ -27,6 +27,7 @@ import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import java.lang.invoke.MethodHandles;
 import java.util.Collections;
+import java.util.ConcurrentModificationException;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
@@ -56,9 +57,7 @@ public class DefaultNotifier implements Notifier {
         @Override
         public void failed(AttachedClient attachedClient, Throwable throwable) {
             logger.error("Notification client threw an error, removing it", throwable);
-            synchronized (attachedClients) {
-                attachedClients.remove(attachedClient);
-            }
+            detachClient(attachedClient);
         }
     };
 
@@ -74,7 +73,11 @@ public class DefaultNotifier implements Notifier {
 
     @Override
     public void detachClient(AttachedClient attachedClient) {
-        attachedClients.remove(attachedClient);
+        try {
+            attachedClients.remove(attachedClient);
+        } catch (ConcurrentModificationException cme) {
+            logger.error("Error while removing attached client: ", cme);
+        }
     }
 
     @Override
@@ -83,9 +86,13 @@ public class DefaultNotifier implements Notifier {
     }
 
     @Override
+    public MessageCallback getCallback() {
+        return messageCallback;
+    }
+
+    @Override
     public void sendMessage(Object message) {
-        // See http://docs.oracle.com/javase/6/docs/api/java/util/Collections.html#synchronizedSet%28java.util.Set%29
-        synchronized (attachedClients) {
+        try {
             for (Iterator<AttachedClient> attachedClientIterator = attachedClients.iterator(); attachedClientIterator
                     .hasNext();) {
                 AttachedClient client = attachedClientIterator.next();
@@ -93,6 +100,8 @@ public class DefaultNotifier implements Notifier {
                     client.sendMessage(message, messageCallback);
                 }
             }
+        } catch (ConcurrentModificationException cme) {
+            logger.error("Error while removing attached client: ", cme);
         }
     }
 
@@ -107,4 +116,5 @@ public class DefaultNotifier implements Notifier {
             }
         }
     }
+
 }

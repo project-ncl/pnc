@@ -53,6 +53,7 @@
       scope.$on(eventTypes.BUILD_STARTED, function(event, payload) {
         //$log.debug('BUILD_STARTED_EVENT: payload=%O, authService.getPncUser=%O, payload.userId=%O', payload, authService.getPncUser(), payload.userId);
         $log.debug('BUILD_STARTED_EVENT: authService.getPncUser=%O, payload=%O', authService.getPncUser(), JSON.stringify(payload));
+
         if (authService.getPncUser().id === payload.userId) {
           Notifications.info('Build ' + payload.buildConfigurationName + '#' + payload.id + ' in progress');
         }
@@ -60,15 +61,16 @@
 
       // Notify user when builds finish
       // (see events-services.js for the conversion
-      // between server and client BuildStatus)
+      // between server and client buildCoordinationStatus)
       scope.$on(eventTypes.BUILD_FINISHED, function(event, payload) {
         $log.debug('BUILD_FINISHED: payload=%O', JSON.stringify(payload));
+
         if (authService.getPncUser().id === payload.userId) {
-          if (payload.buildStatus === 'REJECTED') {
+          if (payload.buildCoordinationStatus === 'REJECTED') {
             Notifications.warn('Build ' + payload.buildConfigurationName + '#' + payload.id + ' rejected.');
-          } else if (payload.buildStatus === 'REJECTED_ALREADY_BUILT') {
-            Notifications.warn('Build ' + payload.buildConfigurationName + '#' + payload.id + ' was rejected because it has already been built.');
-          } else if (payload.buildStatus === 'SYSTEM_ERROR') {
+          } else if (payload.buildCoordinationStatus === 'REJECTED_ALREADY_BUILT') {
+            Notifications.warn('Build ' + payload.buildConfigurationName + '#' + payload.id + ' was rejected because already built.');
+          } else if (payload.buildCoordinationStatus === 'SYSTEM_ERROR') {
             Notifications.error('A system error prevented the Build ' + payload.buildConfigurationName + '#' + payload.id + ' from starting.');
           } else {
             BuildRecordDAO.get({recordId: payload.id}).$promise.then(
