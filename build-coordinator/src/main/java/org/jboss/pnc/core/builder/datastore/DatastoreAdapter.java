@@ -27,6 +27,7 @@ import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.spi.BuildResult;
 import org.jboss.pnc.spi.builddriver.BuildDriverResult;
+import org.jboss.pnc.spi.builddriver.GeneratedBuildConfig;
 import org.jboss.pnc.spi.datastore.Datastore;
 import org.jboss.pnc.spi.datastore.DatastoreException;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
@@ -87,6 +88,10 @@ public class DatastoreAdapter {
             RepositoryManagerResult repositoryManagerResult = buildResult.getRepositoryManagerResult().get();
 
             BuildRecord.Builder buildRecordBuilder = createBuildRecord(buildTask, Optional.of(repositoryManagerResult.getBuildContentId()));
+
+            GeneratedBuildConfig generatedBuildConfig = buildResult.getGeneratedBuildConfig().get();
+            buildRecordBuilder.scmRepoURL(generatedBuildConfig.getScmURL());
+            buildRecordBuilder.scmRevision(generatedBuildConfig.getScmRevision());
 
             // Build driver results
             buildRecordBuilder.buildLog(buildDriverResult.getBuildLog());
