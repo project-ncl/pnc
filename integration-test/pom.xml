@@ -86,6 +86,13 @@
       <groupId>org.json</groupId>
       <artifactId>json</artifactId>
     </dependency>
+
+    <!-- Mocks -->
+    <dependency>
+      <groupId>org.jboss.pnc</groupId>
+      <artifactId>build-coordinator-mock</artifactId>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
 </project>

@@ -21,5 +21,5 @@ import org.jboss.pnc.model.GenericEntity;
 
 public interface RSQLPredicateProducer {
     <T extends GenericEntity<? extends Number>> Predicate<T> getPredicate(Class<T> selectingClass, String rsql);
-    <T extends GenericEntity<? extends Number>> java.util.function.Predicate<T> getStreamPredicate(Class<T> selectingClass, String rsql);
+    <T> java.util.function.Predicate<T> getStreamPredicate(Class<T> selectingClass, String rsql);
 }

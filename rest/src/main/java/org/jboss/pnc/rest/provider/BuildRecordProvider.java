@@ -43,8 +43,10 @@ import java.io.BufferedWriter;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.lang.invoke.MethodHandles;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
 import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withBuildConfigSetId;
@@ -70,20 +72,14 @@ public class BuildRecordProvider extends AbstractProvider<BuildRecord, BuildReco
         this.buildExecutor = buildExecutor;
     }
 
-    public CollectionInfo<BuildRecordRest> getAllRunning(Integer pageIndex, Integer pageSize, String search) {
+    public CollectionInfo<BuildRecordRest> getAllRunning(Integer pageIndex, Integer pageSize, String search, String sort) {
         List<BuildTask> x = buildCoordinator.getActiveBuildTasks();
         return nullableStreamOf(x)
-                .filter(t -> t != null)
-                .filter(task -> search == null
-                        || "".equals(search)
-                        || String.valueOf(task.getId()).contains(search)
-                        || (task.getBuildConfigurationAudited() != null
-                        && task.getBuildConfigurationAudited().getName() != null
-                        && task.getBuildConfigurationAudited().getName().contains(search)))
-                .sorted((t1, t2) -> t1.getId() - t2.getId())
-                .map(submittedBuild -> createNewBuildRecordRest(submittedBuild))
+                .filter(rsqlPredicateProducer.getStreamPredicate(BuildTask.class, search))
+                .sorted(sortInfoProducer.getSortInfo(sort).getComparator())
                 .skip(pageIndex * pageSize)
                 .limit(pageSize)
+                .map(submittedBuild -> createNewBuildRecordRest(submittedBuild))
                 .collect(new CollectionInfoCollector<>(pageIndex, pageSize,
                         (int) Math.ceil((double) buildCoordinator.getActiveBuildTasks().size() / pageSize)));
     }
@@ -229,6 +225,26 @@ public class BuildRecordProvider extends AbstractProvider<BuildRecord, BuildReco
             return null;
         }
         return toRESTModel().apply(buildRecords.get(0));
+    }
 
+    public CollectionInfo<BuildRecordRest> getRunningAndArchivedBuildRecords(Integer pageIndex, Integer pageSize, String search, String sort) {
+        CollectionInfo<BuildRecordRest> buildRecords = getAll(pageIndex, pageSize, sort, search);
+        CollectionInfo<BuildRecordRest> allRunning = getAllRunning(pageIndex, pageSize, search, sort);
+
+        List<BuildRecordRest> allBuildRecords = new ArrayList<>();
+        allBuildRecords.addAll(buildRecords.getContent());
+        allBuildRecords.addAll(allRunning.getContent());
+
+        allBuildRecords = allBuildRecords.stream()
+                .filter(rsqlPredicateProducer.getStreamPredicate(BuildRecordRest.class, search))
+                .sorted(sortInfoProducer.getSortInfo(sort).getComparator())
+                .skip(pageIndex * pageSize)
+                .limit(pageSize)
+                .collect(Collectors.toList());
+
+        int totalPages = buildRecords.getTotalPages() + allRunning.getTotalPages();
+        CollectionInfo<BuildRecordRest> allBuildRecordsWithMetadata = new CollectionInfo<>(pageIndex, pageSize, totalPages, allBuildRecords);
+
+        return allBuildRecordsWithMetadata;
     }
 }
