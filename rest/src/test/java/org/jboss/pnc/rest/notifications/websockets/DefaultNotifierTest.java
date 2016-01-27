@@ -19,6 +19,7 @@ package org.jboss.pnc.rest.notifications.websockets;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyObject;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -76,6 +77,7 @@ public class DefaultNotifierTest {
 
         // then
         verify(attachedClient).sendMessage(messageBody, notifier.getCallback());
+        assertThat(notifier.getAttachedClientsCount()).isEqualTo(1);
     }
 
     @Test
@@ -98,6 +100,7 @@ public class DefaultNotifierTest {
         verify(attachedClient).sendMessage(anyObject(), messageCallback.capture());
 
         messageCallback.getValue().successful(attachedClient);
+        assertThat(notifier.getAttachedClientsCount()).isEqualTo(1);
     }
 
     @Test
@@ -115,23 +118,30 @@ public class DefaultNotifierTest {
 
         // then
         verify(attachedClient, new Times(0)).sendMessage(messageBody, notifier.getCallback());
+        assertThat(notifier.getAttachedClientsCount()).isEqualTo(1);
     }
 
-    // @Test
-    // public void shouldRemoveAttachedClientWhenItThrowsAnException() throws Exception {
-    // //given
-    // Notifier notifier = new DefaultNotifier();
-    // AttachedClient attachedClient = mock(AttachedClient.class);
-    // doReturn(true).when(attachedClient).isEnabled();
-    // doThrow(new Exception("expected")).when(attachedClient).sendMessage(anyObject());
-    // notifier.attachClient(attachedClient);
-    //
-    // //when
-    // notifier.sendMessage(new Object());
-    //
-    // //then
-    // assertThat(notifier.getAttachedClientsCount()).isEqualTo(0);
-    // }
+    @Test
+    public void shouldRemoveAttachedClientWhenItGetsAnException() throws Exception {
 
+        ArgumentCaptor<MessageCallback> messageCallback = ArgumentCaptor.forClass(MessageCallback.class);
+
+        // given
+        Notifier notifier = new DefaultNotifier();
+
+        AttachedClient attachedClient = mock(AttachedClient.class);
+        doReturn(true).when(attachedClient).isEnabled();
+
+        notifier.attachClient(attachedClient);
+
+        // when
+        notifier.sendMessage(new Object());
+
+        // then
+        verify(attachedClient).sendMessage(anyObject(), messageCallback.capture());
+
+        messageCallback.getValue().failed(attachedClient, new Throwable());
+        assertThat(notifier.getAttachedClientsCount()).isEqualTo(0);
+    }
 
 }
