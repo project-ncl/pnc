@@ -2,7 +2,7 @@
 <!--
 
     JBoss, Home of Professional Open Source.
-    Copyright 2016 Red Hat, Inc., and individual contributors
+    Copyright 2014 Red Hat, Inc., and individual contributors
     as indicated by the @author tags.
 
     Licensed under the Apache License, Version 2.0 (the "License");
@@ -64,53 +64,6 @@
         </executions>
       </plugin>
 
-      <!-- https://github.com/ktoso/maven-git-commit-id-plugin -->
-      <plugin>
-        <groupId>pl.project13.maven</groupId>
-        <artifactId>git-commit-id-plugin</artifactId>
-        <version>2.2.0</version>
-        <executions>
-          <execution>
-            <goals>
-              <goal>revision</goal>
-            </goals>
-          </execution>
-        </executions>
-
-        <configuration>
-          <!--
-            If you'd like to tell the plugin where your .git directory is,
-            use this setting, otherwise we'll perform a search trying to
-            figure out the right directory. It's better to add it explicite IMHO.
-          -->
-          <dotGitDirectory>${project.basedir}/.git</dotGitDirectory>
-
-          <!-- false is default here, it prints some more information during the build -->
-          <verbose>false</verbose>
-
-        </configuration>
-      </plugin>
-
-      <plugin>
-        <artifactId>maven-antrun-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>generate-html-version</id>
-            <goals>
-              <goal>run</goal>
-            </goals>
-            <phase>prepare-package</phase>
-            <configuration>
-              <target>
-                <replace dir="${project.build.outputDirectory}/META-INF/resources/scripts/" includes="pnc*.js" token="@project.version@" value="${project.version}" />
-                <replace dir="${project.build.outputDirectory}/META-INF/resources/scripts/" includes="pnc*.js" token="@datetime@" value="${datetime}" />
-                <replace dir="${project.build.outputDirectory}/META-INF/resources/scripts/" includes="pnc*.js" token="@git.commit.id.abbrev@" value="${git.commit.id.abbrev}" />
-              </target>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-      
       <!-- Download node.js and related modules to install 3rd party frontend libraries -->
       <plugin>
         <groupId>com.github.eirslett</groupId>
