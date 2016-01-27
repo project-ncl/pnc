@@ -86,7 +86,7 @@
           <dotGitDirectory>${project.basedir}/.git</dotGitDirectory>
 
           <!-- false is default here, it prints some more information during the build -->
-          <verbose>true</verbose>
+          <verbose>false</verbose>
 
         </configuration>
       </plugin>
