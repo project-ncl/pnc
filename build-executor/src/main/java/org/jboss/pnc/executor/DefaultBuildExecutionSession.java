@@ -112,19 +112,18 @@ public class DefaultBuildExecutionSession implements BuildExecutionSession {
         log.debug("Fired events after build execution task {} update.", getId()); //TODO update
     }
 
-    //    @Override
     private BuildResult getBuildResult() {
         if (executorException == null) {
             if (failedReasonStatus == null) {
                 log.trace("Returning result of task {} with no exception.", getId());
-                return new BuildResult(Optional.ofNullable(buildDriverResult), Optional.ofNullable(repositoryManagerResult), Optional.empty(), Optional.empty());
+                return new BuildResult(Optional.ofNullable(buildExecutionConfiguration), Optional.ofNullable(buildDriverResult), Optional.ofNullable(repositoryManagerResult), Optional.empty(), Optional.empty());
             } else {
                 log.trace("Returning result of task " + getId() + " with failed reason {}.", failedReasonStatus);
-                return new BuildResult(Optional.ofNullable(buildDriverResult), Optional.ofNullable(repositoryManagerResult), Optional.empty(), Optional.of(failedReasonStatus));
+                return new BuildResult(Optional.ofNullable(buildExecutionConfiguration), Optional.ofNullable(buildDriverResult), Optional.ofNullable(repositoryManagerResult), Optional.empty(), Optional.of(failedReasonStatus));
             }
         } else {
             log.trace("Returning result of task " + getId() + " with exception.", executorException);
-            return new BuildResult(Optional.ofNullable(buildDriverResult), Optional.ofNullable(repositoryManagerResult), Optional.of(executorException), Optional.empty());
+            return new BuildResult(Optional.ofNullable(buildExecutionConfiguration), Optional.ofNullable(buildDriverResult), Optional.ofNullable(repositoryManagerResult), Optional.of(executorException), Optional.empty());
         }
     }
 
@@ -192,4 +191,5 @@ public class DefaultBuildExecutionSession implements BuildExecutionSession {
     public void setRepositoryManagerResult(RepositoryManagerResult repositoryManagerResult) {
         this.repositoryManagerResult = repositoryManagerResult;
     }
+    
 }
