@@ -25,6 +25,8 @@ import org.jboss.pnc.model.BuildStatus;
 import org.jboss.pnc.model.IdRev;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.datastore.Datastore;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
 import java.util.ArrayList;
@@ -34,7 +36,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.logging.Logger;
 
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-11-24.
@@ -42,7 +43,7 @@ import java.util.logging.Logger;
 @ApplicationScoped
 public class DatastoreMock implements Datastore {
 
-    private Logger log = Logger.getLogger(DatastoreMock.class.getName());
+    private Logger log = LoggerFactory.getLogger(DatastoreMock.class.getName());
 
     private List<BuildRecord> buildRecords = Collections.synchronizedList(new ArrayList<BuildRecord>());
 
