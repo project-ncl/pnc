@@ -49,6 +49,7 @@ public class DatastoreAdapter {
     private static final Logger log = Logger.getLogger(DatastoreAdapter.class);
 
     // needed for EJB/CDI
+    @Deprecated
     public DatastoreAdapter() {
     }
 

@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.executor;
+package org.jboss.pnc.test.cdi;
 
 import javax.enterprise.inject.Instance;
 import javax.enterprise.util.TypeLiteral;
