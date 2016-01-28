@@ -18,7 +18,7 @@
 package org.jboss.pnc.spi;
 
 import org.jboss.pnc.spi.builddriver.BuildDriverResult;
-import org.jboss.pnc.spi.builddriver.GeneratedBuildConfig;
+import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
 import org.jboss.pnc.spi.executor.exceptions.ExecutorException;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
 
@@ -29,27 +29,27 @@ import java.util.Optional;
  */
 public class BuildResult {
 
-    private final Optional<GeneratedBuildConfig> generatedBuildConfig;
+    private final Optional<BuildExecutionConfiguration> buildExecutionConfiguration;
     private final Optional<BuildDriverResult> buildDriverResult;
     private final Optional<RepositoryManagerResult> repositoryManagerResult;
     private final Optional<ExecutorException> executorException;
     private final Optional<BuildExecutionStatus> failedReasonStatus;
 
     public BuildResult(
-                       Optional<GeneratedBuildConfig> generatedBuildConfig,
+                       Optional<BuildExecutionConfiguration> generatedBuildConfig,
                        Optional<BuildDriverResult> buildDriverResult,
                        Optional<RepositoryManagerResult> repositoryManagerResult,
                        Optional<ExecutorException> executorException,
                        Optional<BuildExecutionStatus> failedReasonStatus) {
-        this.generatedBuildConfig = generatedBuildConfig;
+        this.buildExecutionConfiguration = generatedBuildConfig;
         this.buildDriverResult = buildDriverResult;
         this.repositoryManagerResult = repositoryManagerResult;
         this.executorException = executorException;
         this.failedReasonStatus = failedReasonStatus;
     }
 
-    public Optional<GeneratedBuildConfig> getGeneratedBuildConfig() {
-        return generatedBuildConfig;
+    public Optional<BuildExecutionConfiguration> getBuildExecutionConfiguration() {
+        return buildExecutionConfiguration;
     }
 
     public Optional<BuildDriverResult> getBuildDriverResult() {

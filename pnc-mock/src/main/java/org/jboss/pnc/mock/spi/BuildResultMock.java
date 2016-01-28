@@ -19,12 +19,13 @@
 package org.jboss.pnc.mock.spi;
 
 import org.jboss.pnc.mock.builddriver.BuildDriverResultMock;
+import org.jboss.pnc.mock.executor.BuildExecutionConfigurationMock;
 import org.jboss.pnc.mock.repositorymanager.RepositoryManagerResultMock;
 import org.jboss.pnc.spi.BuildExecutionStatus;
 import org.jboss.pnc.spi.BuildResult;
 import org.jboss.pnc.spi.builddriver.BuildDriverResult;
 import org.jboss.pnc.spi.builddriver.BuildDriverStatus;
-import org.jboss.pnc.spi.builddriver.GeneratedBuildConfig;
+import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
 import org.jboss.pnc.spi.executor.exceptions.ExecutorException;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
 
@@ -36,7 +37,7 @@ import java.util.Optional;
 public class BuildResultMock {
 
     public static BuildResult mock(BuildDriverStatus status) {
-        GeneratedBuildConfig generatedBuildConfig = null;
+        BuildExecutionConfiguration buildExecutionConfig = BuildExecutionConfigurationMock.mockConfig();
         BuildDriverResult buildDriverResult = BuildDriverResultMock.mockResult(status);
         RepositoryManagerResult repositoryManagerResult = RepositoryManagerResultMock.mockResult();
         ExecutorException exception = new ExecutorException("Test exception.", new Exception("Test exception cause."));
@@ -48,7 +49,7 @@ public class BuildResultMock {
         }
 
         return new BuildResult(
-                Optional.ofNullable(generatedBuildConfig),
+                Optional.ofNullable(buildExecutionConfig),
                 Optional.ofNullable(buildDriverResult),
                 Optional.ofNullable(repositoryManagerResult),
                 Optional.ofNullable(exception),

@@ -21,7 +21,6 @@ package org.jboss.pnc.executor;
 import org.jboss.pnc.spi.BuildExecutionStatus;
 import org.jboss.pnc.spi.BuildResult;
 import org.jboss.pnc.spi.builddriver.BuildDriverResult;
-import org.jboss.pnc.spi.builddriver.GeneratedBuildConfig;
 import org.jboss.pnc.spi.environment.RunningEnvironment;
 import org.jboss.pnc.spi.events.BuildExecutionStatusChangedEvent;
 import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
@@ -117,30 +116,15 @@ public class DefaultBuildExecutionSession implements BuildExecutionSession {
         if (executorException == null) {
             if (failedReasonStatus == null) {
                 log.trace("Returning result of task {} with no exception.", getId());
-                return new BuildResult(Optional.ofNullable(getGeneratedBuildConfig()), Optional.ofNullable(buildDriverResult), Optional.ofNullable(repositoryManagerResult), Optional.empty(), Optional.empty());
+                return new BuildResult(Optional.ofNullable(buildExecutionConfiguration), Optional.ofNullable(buildDriverResult), Optional.ofNullable(repositoryManagerResult), Optional.empty(), Optional.empty());
             } else {
                 log.trace("Returning result of task " + getId() + " with failed reason {}.", failedReasonStatus);
-                return new BuildResult(Optional.ofNullable(getGeneratedBuildConfig()), Optional.ofNullable(buildDriverResult), Optional.ofNullable(repositoryManagerResult), Optional.empty(), Optional.of(failedReasonStatus));
+                return new BuildResult(Optional.ofNullable(buildExecutionConfiguration), Optional.ofNullable(buildDriverResult), Optional.ofNullable(repositoryManagerResult), Optional.empty(), Optional.of(failedReasonStatus));
             }
         } else {
             log.trace("Returning result of task " + getId() + " with exception.", executorException);
-            return new BuildResult(Optional.ofNullable(getGeneratedBuildConfig()), Optional.ofNullable(buildDriverResult), Optional.ofNullable(repositoryManagerResult), Optional.of(executorException), Optional.empty());
+            return new BuildResult(Optional.ofNullable(buildExecutionConfiguration), Optional.ofNullable(buildDriverResult), Optional.ofNullable(repositoryManagerResult), Optional.of(executorException), Optional.empty());
         }
-    }
-
-    private GeneratedBuildConfig getGeneratedBuildConfig() {
-        DefaultGeneratedBuildConfig generatedBuildConfig = new DefaultGeneratedBuildConfig();
-        if (buildExecutionConfiguration.getScmMirrorRepoURL() != null) {
-            generatedBuildConfig.setScmUrl(buildExecutionConfiguration.getScmMirrorRepoURL());
-        } else {
-            generatedBuildConfig.setScmUrl(buildExecutionConfiguration.getScmRepoURL());
-        }
-        if (buildExecutionConfiguration.getScmMirrorRevision() != null) {
-            generatedBuildConfig.setScmRevision(buildExecutionConfiguration.getScmMirrorRevision());
-        } else {
-            generatedBuildConfig.setScmRevision(buildExecutionConfiguration.getScmMirrorRevision());
-        }
-        return generatedBuildConfig;
     }
 
     @Override
@@ -208,28 +192,4 @@ public class DefaultBuildExecutionSession implements BuildExecutionSession {
         this.repositoryManagerResult = repositoryManagerResult;
     }
     
-    private class DefaultGeneratedBuildConfig implements GeneratedBuildConfig {
-
-        private String scmUrl;
-
-        private String scmRevision;
-
-        @Override
-        public String getScmURL() {
-            return scmUrl;
-        }
-
-        public void setScmUrl(String scmUrl) {
-            this.scmUrl = scmUrl;
-        }
-
-        @Override
-        public String getScmRevision() {
-            return scmRevision;
-        }
-
-        public void setScmRevision(String scmRevision) {
-            this.scmRevision = scmRevision;
-        }
-    }
 }
