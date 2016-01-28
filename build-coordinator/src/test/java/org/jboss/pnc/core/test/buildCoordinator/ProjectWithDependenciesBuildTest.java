@@ -25,14 +25,19 @@ import org.jboss.pnc.model.BuildStatus;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2015-01-06.
  */
 @RunWith(Arquillian.class)
 public class ProjectWithDependenciesBuildTest extends ProjectBuilder {
+
+    Logger log = LoggerFactory.getLogger(ProjectWithDependenciesBuildTest.class);
 
     @Test
     @InSequence(10)
@@ -44,6 +49,9 @@ public class ProjectWithDependenciesBuildTest extends ProjectBuilder {
     @InSequence(20)
     public void checkDatabaseForResult() {
         List<BuildRecord> buildRecords = datastore.getBuildRecords();
+        log.trace("Found build records: {}", buildRecords.stream()
+                .map(br -> "Br.id: " + br.getId() + ", " + br.getBuildConfigurationAudited().getId().toString())
+                .collect(Collectors.joining("; ")));
         Assert.assertEquals("Wrong datastore results count.", 5, buildRecords.size());
 
         BuildRecord buildRecord = buildRecords.get(0);

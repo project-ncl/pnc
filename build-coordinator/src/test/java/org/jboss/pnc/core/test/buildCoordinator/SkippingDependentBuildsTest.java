@@ -36,25 +36,33 @@
 package org.jboss.pnc.core.test.buildCoordinator;
 
 import org.jboss.arquillian.junit.Arquillian;
+import org.jboss.arquillian.junit.InSequence;
 import org.jboss.pnc.core.builder.coordinator.BuildCoordinator;
 import org.jboss.pnc.mock.datastore.DatastoreMock;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationSet;
+import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.model.mock.MockUser;
 import org.jboss.pnc.test.util.Wait;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
 import java.util.concurrent.TimeoutException;
+import java.util.stream.Collectors;
 
 import static org.fest.assertions.Assertions.assertThat;
 
 @RunWith(Arquillian.class)
 public class SkippingDependentBuildsTest extends ProjectBuilder {
+
+    Logger log = LoggerFactory.getLogger(SkippingDependentBuildsTest.class);
 
     @Inject
     private DatastoreMock datastoreMock;
@@ -68,6 +76,7 @@ public class SkippingDependentBuildsTest extends ProjectBuilder {
 
     @Before
     public void before() {
+        log.info("Resetting fields to initial state.");
         datastoreMock.clear();
         testConfiguration = configurationBuilder.build(1, "test");
         testUser = MockUser.newTestUser(1);
@@ -75,6 +84,7 @@ public class SkippingDependentBuildsTest extends ProjectBuilder {
     }
 
     @Test
+    @InSequence (10) //prevent parallel execution because we relay on datastore state
     public void shouldNotBuildTheSameBuildConfigurationTwice() throws Exception {
         //when
         buildCoordinator.build(testConfiguration, testUser, false);
@@ -88,6 +98,7 @@ public class SkippingDependentBuildsTest extends ProjectBuilder {
     }
 
     @Test
+    @InSequence (20)
     public void shouldRerunTheSameBuildConfigurationIfRebuildAllIsSpecified() throws Exception {
         //when
         buildCoordinator.build(testConfiguration, testUser, true);
@@ -97,10 +108,13 @@ public class SkippingDependentBuildsTest extends ProjectBuilder {
         waitForBuild();
 
         //then
-        assertThat(datastoreMock.getBuildRecords().size()).isEqualTo(2);
+        List<BuildRecord> buildRecords = datastoreMock.getBuildRecords();
+        logRecords(buildRecords);
+        assertThat(buildRecords.size()).isEqualTo(2);
     }
 
     @Test
+    @InSequence (30)
     public void shouldNotBuildTheSameBuildConfigurationSetTwice() throws Exception {
         //when
         buildCoordinator.build(testConfigurationSet, testUser, false);
@@ -110,10 +124,13 @@ public class SkippingDependentBuildsTest extends ProjectBuilder {
         waitForBuild();
 
         //then
-        assertThat(datastoreMock.getBuildRecords().size()).isEqualTo(5);
+        List<BuildRecord> buildRecords = datastoreMock.getBuildRecords();
+        logRecords(buildRecords);
+        assertThat(buildRecords.size()).isEqualTo(5);
     }
 
     @Test
+    @InSequence (40)
     public void shouldRerunTheSameBuildConfigurationSetIfRebuildAllIsSpecified() throws Exception {
         //when
         buildCoordinator.build(testConfigurationSet, testUser, true);
@@ -123,11 +140,18 @@ public class SkippingDependentBuildsTest extends ProjectBuilder {
         waitForBuild();
 
         //then
-        assertThat(datastoreMock.getBuildRecords().size()).isEqualTo(10);
+        List<BuildRecord> buildRecords = datastoreMock.getBuildRecords();
+        logRecords(buildRecords);
+        assertThat(buildRecords.size()).isEqualTo(10);
     }
 
     protected void waitForBuild() throws InterruptedException, TimeoutException {
         Wait.forCondition(() -> !buildCoordinator.hasActiveTasks(), 30, ChronoUnit.SECONDS);
     }
 
+    private void logRecords(List<BuildRecord> buildRecords) {
+        log.trace("Found build records: {}", buildRecords.stream()
+                .map(br -> "Br.id: " + br.getId() + ", " + br.getBuildConfigurationAudited().getId().toString())
+                .collect(Collectors.joining("; ")));
+    }
 }
