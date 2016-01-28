@@ -229,7 +229,7 @@ public abstract class AbstractRestClient<T> {
         return delete(id, true);
     }
 
-    public RestResponse<List<T>> all(boolean withValidation, String rsql, String sort) {
+    public RestResponse<List<T>> all(boolean withValidation, int pageIndex, int pageSize, String rsql, String sort) {
         QueryParam rsqlQueryParam = null;
         QueryParam sortQueryParam = null;
         if(rsql != null) {
@@ -238,7 +238,9 @@ public abstract class AbstractRestClient<T> {
         if(sort != null) {
             sortQueryParam = new QueryParam("sort", sort);
         }
-        Response response = get(collectionUrl, rsqlQueryParam, sortQueryParam);
+        QueryParam pageIndexQueryParam = new QueryParam("pageIndex", Integer.toString(pageIndex));
+        QueryParam pageSizeQueryParam = new QueryParam("pageSize", "" + Integer.toString(pageSize));
+        Response response = get(collectionUrl, rsqlQueryParam, sortQueryParam, pageIndexQueryParam, pageSizeQueryParam);
 
         if(withValidation) {
             response.then().statusCode(200);
@@ -262,7 +264,7 @@ public abstract class AbstractRestClient<T> {
     }
 
     public RestResponse<List<T>> all() {
-        return all(true, null, null);
+        return all(true, 0, 50, null, null);
     }
 
 }

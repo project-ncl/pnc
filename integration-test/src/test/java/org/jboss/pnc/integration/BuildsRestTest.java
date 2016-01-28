@@ -69,6 +69,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 
+@SuppressWarnings("ALL")
 @RunWith(Arquillian.class)
 @Category(ContainerTest.class)
 public class BuildsRestTest {
@@ -143,7 +144,7 @@ public class BuildsRestTest {
         buildCoordinatorMock.addActiveTask(mockedTask);
 
         //when
-        List<Integer> sorted = buildRestClient.all(true, null, sort).getValue().stream()
+        List<Integer> sorted = buildRestClient.all(true, 0, 50, null, sort).getValue().stream()
                 .map(value -> value.getId())
                 .collect(Collectors.toList());
 
@@ -160,12 +161,28 @@ public class BuildsRestTest {
         buildCoordinatorMock.addActiveTask(mockedTask);
 
         //when
-        List<Integer> sorted = buildRestClient.all(true, rsql, null).getValue().stream()
+        List<Integer> sorted = buildRestClient.all(true, 0, 50, rsql, null).getValue().stream()
                 .map(value -> value.getId())
                 .collect(Collectors.toList());
 
         //then
         assertThat(sorted).containsExactly(1);
+    }
+
+    @Test
+    public void shouldSupportPaging() throws Exception {
+        //given
+        String sort = "=desc=id";
+
+        buildCoordinatorMock.addActiveTask(mockBuildTask());
+
+        //when
+        List<BuildRecordRest> firstPage = buildRestClient.all(true, 0, 1, null, sort).getValue();
+        List<BuildRecordRest> secondPage = buildRestClient.all(true, 1, 1, null, sort).getValue();
+
+        //then
+        assertThat(firstPage).hasSize(1);
+        assertThat(secondPage).hasSize(1);
     }
 
     protected BuildTask mockBuildTask() {

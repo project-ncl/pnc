@@ -235,10 +235,11 @@ public class BuildRecordProvider extends AbstractProvider<BuildRecord, BuildReco
         allBuildRecords.addAll(buildRecords.getContent());
         allBuildRecords.addAll(allRunning.getContent());
 
+        //We don't need to skip the results... it has been done in the previous steps.
+        //However we need to limit them
         allBuildRecords = allBuildRecords.stream()
                 .filter(rsqlPredicateProducer.getStreamPredicate(BuildRecordRest.class, search))
                 .sorted(sortInfoProducer.getSortInfo(sort).getComparator())
-                .skip(pageIndex * pageSize)
                 .limit(pageSize)
                 .collect(Collectors.toList());
 
