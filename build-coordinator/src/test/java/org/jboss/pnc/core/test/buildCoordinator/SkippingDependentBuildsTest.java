@@ -127,7 +127,7 @@ public class SkippingDependentBuildsTest extends ProjectBuilder {
     }
 
     protected void waitForBuild() throws InterruptedException, TimeoutException {
-        Wait.forCondition(() -> !buildCoordinator.hasActiveTasks(), 60, ChronoUnit.SECONDS);
+        Wait.forCondition(() -> !buildCoordinator.hasActiveTasks(), 30, ChronoUnit.SECONDS);
     }
 
 }

@@ -208,6 +208,7 @@ public class BuildCoordinator {
                         datastoreAdapter.storeResult(buildTask, buildResult);
                         coordinationStatus = BuildCoordinationStatus.DONE_WITH_ERRORS;
                     } else {
+                        removeActiveTask(buildTask);
                         throw new BuildCoordinationException("Failed task should have set exception or failed reason status.");
                     }
                 } else {
@@ -218,8 +219,9 @@ public class BuildCoordinator {
                 log.error("Cannot store results to datastore.", e);
                 coordinationStatus = BuildCoordinationStatus.SYSTEM_ERROR;
             }
+            //remove before status update which could triggers further actions and cause dead lock
+            removeActiveTask(buildTask);
             buildTask.setStatus(coordinationStatus);
-            activeBuildTasks.remove(buildTask);
         };
 
         try {
@@ -239,7 +241,7 @@ public class BuildCoordinator {
             log.debug(" Build coordination task failed. Setting it as SYSTEM_ERROR.", e);
             buildTask.setStatus(BuildCoordinationStatus.SYSTEM_ERROR);
             buildTask.setStatusDescription(e.getMessage());
-            activeBuildTasks.remove(buildTask);
+            removeActiveTask(buildTask);
             try {
                 datastoreAdapter.storeResult(buildTask, e);
             } catch (DatastoreException e1) {
@@ -248,12 +250,21 @@ public class BuildCoordinator {
         }
     }
 
+    private void removeActiveTask(BuildTask buildTask) {
+        log.trace("Removing task {} from activeBuildTasks.", buildTask.getId());
+        activeBuildTasks.remove(buildTask);
+    }
+
 
     public List<BuildTask> getActiveBuildTasks() {
         return Collections.unmodifiableList(activeBuildTasks.stream().collect(Collectors.toList()));
     }
 
     public boolean hasActiveTasks() {
+        if (log.isTraceEnabled()) {
+            String activeTasks = activeBuildTasks.stream().map(bt -> bt.getId() + "-" + bt.getStatus()).collect(Collectors.joining(","));
+            log.trace("Build Coordinator Active Tasks {}", activeTasks);
+        }
         return activeBuildTasks.peek() != null;
     }
 

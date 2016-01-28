@@ -135,8 +135,10 @@ public class BuildTask {
             buildSetTask.taskStatusUpdatedToFinalState();
         }
         buildStatusChangedEventNotifier.fire(buildStatusChanged);
+        log.trace("Fired buildStatusChangedEventNotifier after task {} status update to {}.", getId(), status);
         if (status.isCompleted()) {
             dependants.forEach((dep) -> dep.requiredBuildCompleted(this));
+            log.trace("Sent completion notification of task {} to all dependants.", getId());
         }
     }
 
@@ -157,8 +159,8 @@ public class BuildTask {
 
     private void requiredBuildCompleted(BuildTask completed) {
         if (log.isTraceEnabled()) {
-            String tasksWithStatus = dependencies.stream().map(d -> d.getId() +" - " + d.getStatus().toString()).collect(Collectors.joining(","));
-            log.trace("Checking if all dependencies of task {} completed. Dependencies statuses: {}.", this.getId(), tasksWithStatus);
+            String tasksWithStatus = dependencies.stream().map(d -> d.getId() +"-" + d.getStatus().toString()).collect(Collectors.joining(","));
+            log.trace("Received notification of completed task {}. Checking if all dependencies of task {} completed. Dependencies statuses: {}.", completed.getId(), this.getId(), tasksWithStatus);
         }
 
         if (dependencies.contains(completed) && completed.hasFailed()) {
