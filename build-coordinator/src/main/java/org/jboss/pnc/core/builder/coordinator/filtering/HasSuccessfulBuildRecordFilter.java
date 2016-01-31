@@ -41,6 +41,14 @@ public class HasSuccessfulBuildRecordFilter implements BuildTaskFilter {
     @Inject
     DatastoreAdapter adapter;
 
+    @Deprecated //CDI workaround
+    public HasSuccessfulBuildRecordFilter() {
+    }
+
+    public HasSuccessfulBuildRecordFilter(DatastoreAdapter adapter) {
+        this.adapter = adapter;
+    }
+
     @Override
     public Predicate<BuildTask> filter() {
         return task -> {

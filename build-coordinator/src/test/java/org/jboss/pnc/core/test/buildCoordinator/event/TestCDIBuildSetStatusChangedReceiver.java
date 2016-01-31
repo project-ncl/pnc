@@ -18,6 +18,8 @@
 package org.jboss.pnc.core.test.buildCoordinator.event;
 
 import org.jboss.pnc.spi.events.BuildSetStatusChangedEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
@@ -28,15 +30,19 @@ import java.util.function.Consumer;
 @ApplicationScoped
 public class TestCDIBuildSetStatusChangedReceiver {
 
+    private static final Logger log = LoggerFactory.getLogger(TestCDIBuildSetStatusChangedReceiver.class);
+
     public static final TestCDIBuildSetStatusChangedReceiver INSTANCE = new TestCDIBuildSetStatusChangedReceiver(); //TODO do not instance in applicationScoped
 
     private List<Consumer<BuildSetStatusChangedEvent>> listeners = new LinkedList<>();
 
     public void addBuildSetStatusChangedEventListener(Consumer<BuildSetStatusChangedEvent> listener) {
+        log.info("Adding BuildSetStatusChangedEventListener {}.", listener);
         listeners.add(listener);
     }
 
     synchronized public void collectEvent(@Observes BuildSetStatusChangedEvent buildSetStatusChangedEvent) {
+        log.debug("Observed new BuildSetStatusChangedEvent {}.", buildSetStatusChangedEvent);
         listeners.stream().forEach(listener -> listener.accept(buildSetStatusChangedEvent));
     }
 

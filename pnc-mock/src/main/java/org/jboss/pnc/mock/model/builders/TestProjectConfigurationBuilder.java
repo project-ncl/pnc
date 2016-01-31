@@ -39,6 +39,14 @@ public class TestProjectConfigurationBuilder {
     @Inject
     DatastoreMock datastore;
 
+    @Deprecated //CDI workaround
+    public TestProjectConfigurationBuilder() {
+    }
+
+    public TestProjectConfigurationBuilder(DatastoreMock datastore) {
+        this.datastore = datastore;
+    }
+
     public BuildConfiguration buildConfigurationWhichDependsOnItself() {
         BuildConfiguration buildConfiguration = build(1, "depends-on-itself");
         buildConfiguration.addDependency(buildConfiguration);

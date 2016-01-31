@@ -37,97 +37,149 @@ package org.jboss.pnc.core.test.buildCoordinator;
 
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.pnc.core.builder.coordinator.BuildCoordinator;
+import org.jboss.pnc.core.builder.coordinator.BuildSchedulerFactory;
+import org.jboss.pnc.core.builder.coordinator.filtering.BuildTaskFilter;
+import org.jboss.pnc.core.builder.coordinator.filtering.HasSuccessfulBuildRecordFilter;
+import org.jboss.pnc.core.builder.datastore.DatastoreAdapter;
 import org.jboss.pnc.mock.datastore.DatastoreMock;
+import org.jboss.pnc.mock.model.builders.TestProjectConfigurationBuilder;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationSet;
+import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.model.mock.MockUser;
+import org.jboss.pnc.spi.events.BuildCoordinationStatusChangedEvent;
+import org.jboss.pnc.spi.events.BuildSetStatusChangedEvent;
+import org.jboss.pnc.test.cdi.TestInstance;
 import org.jboss.pnc.test.util.Wait;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import javax.enterprise.event.Event;
+import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
 import java.util.concurrent.TimeoutException;
+import java.util.stream.Collectors;
 
 import static org.fest.assertions.Assertions.assertThat;
 
 @RunWith(Arquillian.class)
 public class SkippingDependentBuildsTest extends ProjectBuilder {
 
-    @Inject
-    private DatastoreMock datastoreMock;
+    Logger log = LoggerFactory.getLogger(SkippingDependentBuildsTest.class);
 
     @Inject
-    BuildCoordinator buildCoordinator;
+    Event<BuildCoordinationStatusChangedEvent> buildStatusChangedEventNotifier;
+
+    @Inject
+    Event<BuildSetStatusChangedEvent> buildSetStatusChangedEventNotifier;
+
+    @Inject
+    BuildSchedulerFactory buildSchedulerFactory;
+
+    Instance<BuildTaskFilter> taskFilters;
 
     private BuildConfiguration testConfiguration;
     private User testUser;
     private BuildConfigurationSet testConfigurationSet;
 
-    @Before
-    public void before() {
-        datastoreMock.clear();
-        testConfiguration = configurationBuilder.build(1, "test");
-        testUser = MockUser.newTestUser(1);
-        testConfigurationSet = configurationBuilder.buildConfigurationSet(1);
-    }
-
     @Test
     public void shouldNotBuildTheSameBuildConfigurationTwice() throws Exception {
+        //given
+        DatastoreMock datastore = new DatastoreMock();
+        BuildCoordinator buildCoordinator = initializeBuildCoordinator(datastore);
+
         //when
         buildCoordinator.build(testConfiguration, testUser, false);
-        waitForBuild();
+        waitForBuild(buildCoordinator);
 
         buildCoordinator.build(testConfiguration, testUser, false);
-        waitForBuild();
+        waitForBuild(buildCoordinator);
 
         //then
-        assertThat(datastoreMock.getBuildRecords().size()).isEqualTo(1);
+        assertThat(datastore.getBuildRecords().size()).isEqualTo(1);
     }
 
     @Test
     public void shouldRerunTheSameBuildConfigurationIfRebuildAllIsSpecified() throws Exception {
+        //given
+        DatastoreMock datastore = new DatastoreMock();
+        BuildCoordinator buildCoordinator = initializeBuildCoordinator(datastore);
+
         //when
         buildCoordinator.build(testConfiguration, testUser, true);
-        waitForBuild();
+        waitForBuild(buildCoordinator);
 
         buildCoordinator.build(testConfiguration, testUser, true);
-        waitForBuild();
+        waitForBuild(buildCoordinator);
 
         //then
-        assertThat(datastoreMock.getBuildRecords().size()).isEqualTo(2);
+        List<BuildRecord> buildRecords = datastore.getBuildRecords();
+        logRecords(buildRecords);
+        assertThat(buildRecords.size()).isEqualTo(2);
     }
 
     @Test
     public void shouldNotBuildTheSameBuildConfigurationSetTwice() throws Exception {
+        //given
+        DatastoreMock datastore = new DatastoreMock();
+        BuildCoordinator buildCoordinator = initializeBuildCoordinator(datastore);
+
         //when
         buildCoordinator.build(testConfigurationSet, testUser, false);
-        waitForBuild();
+        waitForBuild(buildCoordinator);
 
         buildCoordinator.build(testConfigurationSet, testUser, false);
-        waitForBuild();
+        waitForBuild(buildCoordinator);
 
         //then
-        assertThat(datastoreMock.getBuildRecords().size()).isEqualTo(5);
+        List<BuildRecord> buildRecords = datastore.getBuildRecords();
+        logRecords(buildRecords);
+        assertThat(buildRecords.size()).isEqualTo(5);
     }
 
     @Test
     public void shouldRerunTheSameBuildConfigurationSetIfRebuildAllIsSpecified() throws Exception {
+        //given
+        DatastoreMock datastore = new DatastoreMock();
+        BuildCoordinator buildCoordinator = initializeBuildCoordinator(datastore);
+
         //when
         buildCoordinator.build(testConfigurationSet, testUser, true);
-        waitForBuild();
+        waitForBuild(buildCoordinator);
 
         buildCoordinator.build(testConfigurationSet, testUser, true);
-        waitForBuild();
+        waitForBuild(buildCoordinator);
 
         //then
-        assertThat(datastoreMock.getBuildRecords().size()).isEqualTo(10);
+        List<BuildRecord> buildRecords = datastore.getBuildRecords();
+        logRecords(buildRecords);
+        assertThat(buildRecords.size()).isEqualTo(10);
     }
 
-    protected void waitForBuild() throws InterruptedException, TimeoutException {
-        Wait.forCondition(() -> !buildCoordinator.hasActiveTasks(), 60, ChronoUnit.SECONDS);
+    protected void waitForBuild(BuildCoordinator buildCoordinator) throws InterruptedException, TimeoutException {
+        Wait.forCondition(() -> !buildCoordinator.hasActiveTasks(), 30, ChronoUnit.SECONDS);
     }
 
+    private void logRecords(List<BuildRecord> buildRecords) {
+        log.trace("Found build records: {}", buildRecords.stream()
+                .map(br -> "Br.id: " + br.getId() + ", " + br.getBuildConfigurationAudited().getId().toString())
+                .collect(Collectors.joining("; ")));
+    }
+
+    private BuildCoordinator initializeBuildCoordinator(DatastoreMock datastore) {
+        DatastoreAdapter datastoreAdapter = new DatastoreAdapter(datastore);
+        taskFilters = new TestInstance<>(new HasSuccessfulBuildRecordFilter(datastoreAdapter));
+
+        TestProjectConfigurationBuilder configurationBuilder = new TestProjectConfigurationBuilder(datastore);
+        testConfiguration = configurationBuilder.build(1, "test");
+        testUser = MockUser.newTestUser(1);
+        testConfigurationSet = configurationBuilder.buildConfigurationSet(1);
+
+        return new BuildCoordinator(datastoreAdapter, buildStatusChangedEventNotifier, buildSetStatusChangedEventNotifier, buildSchedulerFactory, taskFilters);
+    }
 }

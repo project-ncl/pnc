@@ -42,7 +42,6 @@ import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.User;
-import org.jboss.pnc.spi.datastore.DatastoreException;
 import org.jboss.pnc.spi.exception.BuildConflictException;
 import org.jboss.pnc.spi.exception.CoreException;
 import org.mockito.Mockito;
@@ -78,20 +77,6 @@ public class BuildCoordinatorMock extends BuildCoordinator {
     public BuildSetTask build(BuildConfigurationSet buildConfigurationSet, User user, boolean rebuildAll) throws CoreException {
         logger.warn("Invoking unimplemented method build");
         return Mockito.mock(BuildSetTask.class);
-    }
-
-    @Override
-    public BuildSetTask createBuildSetTask(BuildConfigurationSet buildConfigurationSet, User user, boolean rebuildAll)
-            throws CoreException {
-        logger.warn("Invoking unimplemented method createBuildSetTask");
-        return Mockito.mock(BuildSetTask.class);
-    }
-
-    @Override
-    protected BuildConfigSetRecord saveBuildConfigSetRecord(BuildConfigSetRecord buildConfigSetRecord)
-            throws DatastoreException {
-        logger.warn("Invoking unimplemented method saveBuildConfigSetRecord");
-        return Mockito.mock(BuildConfigSetRecord.class);
     }
 
     @Override

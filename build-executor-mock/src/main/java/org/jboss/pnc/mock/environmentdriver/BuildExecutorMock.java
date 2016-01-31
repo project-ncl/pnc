@@ -18,7 +18,6 @@
 
 package org.jboss.pnc.mock.environmentdriver;
 
-import org.jboss.pnc.common.util.RandomUtils;
 import org.jboss.pnc.executor.DefaultBuildExecutionSession;
 import org.jboss.pnc.mock.builddriver.BuildDriverResultMock;
 import org.jboss.pnc.mock.model.builders.TestProjectConfigurationBuilder;
@@ -58,14 +57,14 @@ public class BuildExecutorMock implements BuildExecutor {
             BuildExecutionConfiguration buildExecutionConfiguration,
             Consumer<BuildExecutionStatusChangedEvent> onBuildExecutionStatusChangedEvent) throws ExecutorException {
 
-        log.debug("Starting mock build execution for configuration {}", buildExecutionConfiguration);
+        log.debug("Starting mock build execution for buildExecutionConfiguration.id {}", buildExecutionConfiguration.getId());
 
         BuildExecutionSession buildExecutionSession = new DefaultBuildExecutionSession(buildExecutionConfiguration, onBuildExecutionStatusChangedEvent);
         buildExecutionSession.setStatus(BuildExecutionStatus.NEW);
 
         runningExecutions.put(buildExecutionConfiguration.getId(), buildExecutionSession);
         Consumer<BuildExecutionStatus> onCompleteInternal = (buildStatus) -> {
-            log.debug("Removing buildExecutionTask [" + buildExecutionConfiguration.getId() + "] form list of running tasks.");
+            log.debug("Removing buildExecutionConfiguration.id [" + buildExecutionConfiguration.getId() + "] form list of running tasks.");
             runningExecutions.remove(buildExecutionConfiguration.getId());
             buildExecutionSession.setStatus(buildStatus);
         };
@@ -101,12 +100,6 @@ public class BuildExecutorMock implements BuildExecutor {
         RepositoryManagerResult repositoryManagerResult = RepositoryManagerResultMock.mockResult();;
         buildExecutionSession.setBuildDriverResult(driverResult);
         buildExecutionSession.setRepositoryManagerResult(repositoryManagerResult);
-        int sleep = RandomUtils.randInt(0, 500); //TODO remove sleep NCL-1569
-        try {
-            Thread.sleep(sleep);
-        } catch (InterruptedException e) {
-            log.warn("Mock build interrupted.", e);
-        }
         return buildPassed;
     }
 
