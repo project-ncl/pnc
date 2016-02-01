@@ -28,6 +28,7 @@ import org.slf4j.LoggerFactory;
 
 import java.lang.invoke.MethodHandles;
 import java.nio.file.Path;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 /**
@@ -42,10 +43,10 @@ public class DockerStartedEnvironment implements StartedEnvironment {
 
 
     /** Time how long the driver waits until all services are fully up and running (in seconds) */
-    private static final int MAX_CONTAINER_LOADING_TIME = 180;
+    private static final int MAX_CONTAINER_LOADING_TIME = 60;
 
     /** Interval between two checks if the services are fully up and running (in second) */
-    private static final int CHECK_INTERVAL = 5;
+    private static final int CHECK_INTERVAL = 3;
 
     private final DockerRunningEnvironment preparedRunningEnvironment;
     
@@ -81,7 +82,7 @@ public class DockerStartedEnvironment implements StartedEnvironment {
                 onEnvironmentInitComplete,
                 onEnvironmentInitError,
                 () -> checkServices(preparedRunningEnvironment.getBuildAgentUrl()),
-                CHECK_INTERVAL, MAX_CONTAINER_LOADING_TIME);
+                CHECK_INTERVAL, MAX_CONTAINER_LOADING_TIME, TimeUnit.SECONDS);
         
         logger.info("Waiting to init services in docker container. ID: " + preparedRunningEnvironment.getId());
     }
