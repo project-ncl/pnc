@@ -132,8 +132,8 @@ public class BpmBuildScheduler implements BuildScheduler {
         params.put("aproxBaseUrl", moduleConfig.getAproxBaseUrl());
         params.put("repourBaseUrl", moduleConfig.getRepourBaseUrl());
         params.put("daBaseUrl", moduleConfig.getDaBaseUrl());
-        params.put("communityBuild", Optional.ofNullable(moduleConfig.getCommunityBuild()).orElse("true"));
-        params.put("versionAdjust", Optional.ofNullable(moduleConfig.getVersionAdjust()).orElse("false"));
+        params.put("communityBuild", Boolean.valueOf(Optional.ofNullable(moduleConfig.getCommunityBuild()).orElse("true")));
+        params.put("versionAdjust", Boolean.valueOf(Optional.ofNullable(moduleConfig.getVersionAdjust()).orElse("false")));
 
         return objectMapper.writeValueAsString(params);
     }
