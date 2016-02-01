@@ -37,8 +37,10 @@ public class BuildExecutionConfigurationRest {
     private UserRest user;
     private String buildScript;
     private String name;
+    @Deprecated
     private String scmMirrorRepoURL;
     private String scmRepoURL;
+    @Deprecated
     private String scmMirrorRevision;
     private String scmRevision;
 
@@ -109,6 +111,7 @@ public class BuildExecutionConfigurationRest {
         this.name = name;
     }
 
+    @Deprecated
     public void setScmMirrorRepoURL(String scmMirrorRepoURL) {
         this.scmMirrorRepoURL = scmMirrorRepoURL;
     }
@@ -117,6 +120,7 @@ public class BuildExecutionConfigurationRest {
         this.scmRepoURL = scmRepoURL;
     }
 
+    @Deprecated
     public void setScmMirrorRevision(String scmMirrorRevision) {
         this.scmMirrorRevision = scmMirrorRevision;
     }
@@ -141,6 +145,7 @@ public class BuildExecutionConfigurationRest {
         return name;
     }
 
+    @Deprecated
     public String getScmMirrorRepoURL() {
         return scmMirrorRepoURL;
     }
@@ -149,6 +154,7 @@ public class BuildExecutionConfigurationRest {
         return scmRepoURL;
     }
 
+    @Deprecated
     public String getScmMirrorRevision() {
         return scmMirrorRevision;
     }
