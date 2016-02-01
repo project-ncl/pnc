@@ -139,6 +139,15 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
     private Date lastModificationTime;
 
     /**
+     * If true, indicates that this build configuration should no longer be used.
+     * An archived build configuration should normally not be included in search 
+     * results.  It should only be visible if the user is looking for that specific
+     * configuration.  Defaults to false.
+     */
+    @NotNull
+    private boolean archived;
+
+    /**
      * Represents the status of the most recent execution of the current configuration.
      */
     @Enumerated(value = EnumType.STRING)
@@ -509,6 +518,17 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
         }
     }
 
+    /**
+     * @return true if this build config should no longer be used for builds
+     */
+    public boolean isArchived() {
+        return archived;
+    }
+
+    public void setArchived(boolean archived) {
+        this.archived = archived;
+    }
+
     public BuildStatus getBuildStatus() {
         return buildStatus;
     }
@@ -671,6 +691,8 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
 
         private Date lastModificationTime;
 
+        private boolean archived = false;
+
         private BuildStatus buildStatus;
 
         private String repositories;
@@ -706,6 +728,7 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
             buildConfiguration.setBuildEnvironment(buildEnvironment);
             buildConfiguration.setCreationTime(creationTime);
             buildConfiguration.setLastModificationTime(lastModificationTime);
+            buildConfiguration.setArchived(archived);
             buildConfiguration.setBuildStatus(buildStatus);
             buildConfiguration.setRepositories(repositories);
             buildConfiguration.setBuildConfigurationSets(buildConfigurationSets);
@@ -819,6 +842,11 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
 
         public Builder lastModificationTime(Date lastModificationTime) {
             this.lastModificationTime = lastModificationTime;
+            return this;
+        }
+
+        public Builder archived(boolean archived) { 
+            this.archived = archived;
             return this;
         }
 
