@@ -226,18 +226,25 @@ public class BuildCoordinator {
 
         try {
             //check if task is already been build or is currently building
-            //in case when task depends on two other tasks, both may call this method at the same time.
+            //in case when task depends on two other tasks, both call this method
+            //process only tasks with status NEW
+            synchronized (buildTask) {
+                if (!buildTask.getStatus().equals(BuildCoordinationStatus.NEW)) {
+                    log.debug("Skipping the execution of build task {} as it has been processed already.", buildTask.getId());
+                    return;
+                }
 
-            log.info("BuildTask.id [{}]: Checking if task should be skipped(rebuildAll: {}, predicateResult: {}). Task is linked to BuildConfigurationAudited.IdRev {}.",
-                    buildTask.getId(), buildTask.getRebuildAll(), prepareBuildTaskFilterPredicate().test(buildTask), buildTask.getBuildConfigurationAudited().getIdRev());
-            if(!buildTask.getRebuildAll() && prepareBuildTaskFilterPredicate().test(buildTask)) {
-                log.info("[{}] Marking task as REJECTED_ALREADY_BUILT, because it has been already built", buildTask.getId());
-                buildTask.setStatus(BuildCoordinationStatus.REJECTED_ALREADY_BUILT);
-                buildTask.setStatusDescription("The configuration has already been built.");
-                return;
+                log.info("BuildTask.id [{}]: Checking if task should be skipped(rebuildAll: {}, predicateResult: {}). Task is linked to BuildConfigurationAudited.IdRev {}.",
+                        buildTask.getId(), buildTask.getRebuildAll(), prepareBuildTaskFilterPredicate().test(buildTask), buildTask.getBuildConfigurationAudited().getIdRev());
+                if(!buildTask.getRebuildAll() && prepareBuildTaskFilterPredicate().test(buildTask)) {
+                    log.info("[{}] Marking task as REJECTED_ALREADY_BUILT, because it has been already built", buildTask.getId());
+                    buildTask.setStatus(BuildCoordinationStatus.REJECTED_ALREADY_BUILT);
+                    buildTask.setStatusDescription("The configuration has already been built.");
+                    return;
+                }
+
+                buildTask.setStatus(BuildCoordinationStatus.BUILDING); //status must be updated before startBuild as if build takes 0 time it complete before having Building status.
             }
-
-            buildTask.setStatus(BuildCoordinationStatus.BUILDING); //status must be updated before startBuild as if build takes 0 time it complete before having Building status.
             activeBuildTasks.add(buildTask);
             buildScheduler.startBuilding(buildTask, onComplete);
         } catch (CoreException | ExecutorException e) {
