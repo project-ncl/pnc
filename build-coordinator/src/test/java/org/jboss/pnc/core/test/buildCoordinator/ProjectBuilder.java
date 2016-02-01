@@ -92,6 +92,10 @@ public class ProjectBuilder {
     }
 
     void buildProjects(BuildConfigurationSet buildConfigurationSet) throws InterruptedException, CoreException, DatastoreException {
+        buildProjects(buildConfigurationSet, buildCoordinator);
+    }
+
+    void buildProjects(BuildConfigurationSet buildConfigurationSet, BuildCoordinator buildCoordinator) throws InterruptedException, CoreException, DatastoreException {
         log.info("Building configuration set {}", buildConfigurationSet.getName());
         List<BuildCoordinationStatusChangedEvent> receivedStatuses = new CopyOnWriteArrayList<>();
 
