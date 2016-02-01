@@ -49,6 +49,7 @@ import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
 import static org.jboss.pnc.spi.datastore.predicates.BuildConfigurationPredicates.withBuildConfigurationSetId;
 import static org.jboss.pnc.spi.datastore.predicates.BuildConfigurationPredicates.withDependantConfiguration;
 import static org.jboss.pnc.spi.datastore.predicates.BuildConfigurationPredicates.withName;
+import static org.jboss.pnc.spi.datastore.predicates.BuildConfigurationPredicates.isNotArchived;
 import static org.jboss.pnc.spi.datastore.predicates.BuildConfigurationPredicates.withProductId;
 import static org.jboss.pnc.spi.datastore.predicates.BuildConfigurationPredicates.withProductVersionId;
 import static org.jboss.pnc.spi.datastore.predicates.BuildConfigurationPredicates.withProjectId;
@@ -74,25 +75,30 @@ public class BuildConfigurationProvider extends AbstractProvider<BuildConfigurat
     public BuildConfigurationProvider() {
     }
 
+    public CollectionInfo<BuildConfigurationRest> getAllNonArchived(Integer pageIndex, Integer pageSize, String sortingRsql,
+            String query) {
+        return queryForCollection(pageIndex, pageSize, sortingRsql, query, isNotArchived());
+    }
+
     public CollectionInfo<BuildConfigurationRest> getAllForProject(Integer pageIndex, Integer pageSize, String sortingRsql,
             String query, Integer projectId) {
-        return queryForCollection(pageIndex, pageSize, sortingRsql, query, withProjectId(projectId));
+        return queryForCollection(pageIndex, pageSize, sortingRsql, query, withProjectId(projectId), isNotArchived());
     }
 
     public CollectionInfo<BuildConfigurationRest> getAllForProduct(int pageIndex, int pageSize, String sortingRsql,
             String query, Integer productId) {
-        return queryForCollection(pageIndex, pageSize, sortingRsql, query, withProductId(productId));
+        return queryForCollection(pageIndex, pageSize, sortingRsql, query, withProductId(productId), isNotArchived());
     }
 
     public CollectionInfo<BuildConfigurationRest> getAllForProductAndProductVersion(int pageIndex, int pageSize,
             String sortingRsql, String query, Integer productId, Integer versionId) {
-        return queryForCollection(pageIndex, pageSize, sortingRsql, query, withProductVersionId(versionId));
+        return queryForCollection(pageIndex, pageSize, sortingRsql, query, withProductVersionId(versionId), isNotArchived());
     }
 
     public CollectionInfo<BuildConfigurationRest> getAllForBuildConfigurationSet(int pageIndex, int pageSize,
             String sortingRsql, String query, Integer buildConfigurationSetId) {
         return queryForCollection(pageIndex, pageSize, sortingRsql, query,
-                withBuildConfigurationSetId(buildConfigurationSetId));
+                withBuildConfigurationSetId(buildConfigurationSetId), isNotArchived());
     }
 
     @Override
