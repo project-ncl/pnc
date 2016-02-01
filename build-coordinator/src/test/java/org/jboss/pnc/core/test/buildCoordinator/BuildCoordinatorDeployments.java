@@ -88,6 +88,7 @@ public class BuildCoordinatorDeployments {
                 .addClass(DefaultBuildSetStatusChangedEvent.class)
                 .addClass(BuildEnvironment.Builder.class)
                 .addClass(TestEntitiesFactory.class)
+                .addClass(BuildCoordinatorFactory.class)
                 .addPackages(true,
                         BuildCoordinator.class.getPackage(),
                         BuildSetStatusNotifications.class.getPackage(),

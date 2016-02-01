@@ -37,10 +37,6 @@ package org.jboss.pnc.core.test.buildCoordinator;
 
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.pnc.core.builder.coordinator.BuildCoordinator;
-import org.jboss.pnc.core.builder.coordinator.BuildSchedulerFactory;
-import org.jboss.pnc.core.builder.coordinator.filtering.BuildTaskFilter;
-import org.jboss.pnc.core.builder.coordinator.filtering.HasSuccessfulBuildRecordFilter;
-import org.jboss.pnc.core.builder.datastore.DatastoreAdapter;
 import org.jboss.pnc.mock.datastore.DatastoreMock;
 import org.jboss.pnc.mock.model.builders.TestProjectConfigurationBuilder;
 import org.jboss.pnc.model.BuildConfiguration;
@@ -48,17 +44,12 @@ import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.model.mock.MockUser;
-import org.jboss.pnc.spi.events.BuildCoordinationStatusChangedEvent;
-import org.jboss.pnc.spi.events.BuildSetStatusChangedEvent;
-import org.jboss.pnc.test.cdi.TestInstance;
 import org.jboss.pnc.test.util.Wait;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.enterprise.event.Event;
-import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
@@ -73,15 +64,7 @@ public class SkippingDependentBuildsTest extends ProjectBuilder {
     Logger log = LoggerFactory.getLogger(SkippingDependentBuildsTest.class);
 
     @Inject
-    Event<BuildCoordinationStatusChangedEvent> buildStatusChangedEventNotifier;
-
-    @Inject
-    Event<BuildSetStatusChangedEvent> buildSetStatusChangedEventNotifier;
-
-    @Inject
-    BuildSchedulerFactory buildSchedulerFactory;
-
-    Instance<BuildTaskFilter> taskFilters;
+    BuildCoordinatorFactory buildCoordinatorFactory;
 
     private BuildConfiguration testConfiguration;
     private User testUser;
@@ -172,14 +155,11 @@ public class SkippingDependentBuildsTest extends ProjectBuilder {
     }
 
     private BuildCoordinator initializeBuildCoordinator(DatastoreMock datastore) {
-        DatastoreAdapter datastoreAdapter = new DatastoreAdapter(datastore);
-        taskFilters = new TestInstance<>(new HasSuccessfulBuildRecordFilter(datastoreAdapter));
-
         TestProjectConfigurationBuilder configurationBuilder = new TestProjectConfigurationBuilder(datastore);
         testConfiguration = configurationBuilder.build(1, "test");
         testUser = MockUser.newTestUser(1);
         testConfigurationSet = configurationBuilder.buildConfigurationSet(1);
 
-        return new BuildCoordinator(datastoreAdapter, buildStatusChangedEventNotifier, buildSetStatusChangedEventNotifier, buildSchedulerFactory, taskFilters);
+        return buildCoordinatorFactory.createBuildCoordinator(datastore);
     }
 }

@@ -225,6 +225,9 @@ public class BuildCoordinator {
         };
 
         try {
+            //check if task is already been build or is currently building
+            //in case when task depends on two other tasks, both may call this method at the same time.
+
             log.info("BuildTask.id [{}]: Checking if task should be skipped(rebuildAll: {}, predicateResult: {}). Task is linked to BuildConfigurationAudited.IdRev {}.",
                     buildTask.getId(), buildTask.getRebuildAll(), prepareBuildTaskFilterPredicate().test(buildTask), buildTask.getBuildConfigurationAudited().getIdRev());
             if(!buildTask.getRebuildAll() && prepareBuildTaskFilterPredicate().test(buildTask)) {

@@ -18,7 +18,8 @@
 package org.jboss.pnc.core.test.buildCoordinator;
 
 import org.jboss.arquillian.junit.Arquillian;
-import org.jboss.arquillian.junit.InSequence;
+import org.jboss.pnc.mock.datastore.DatastoreMock;
+import org.jboss.pnc.mock.model.builders.TestProjectConfigurationBuilder;
 import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.BuildStatus;
@@ -28,6 +29,7 @@ import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Inject;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -39,16 +41,20 @@ public class ProjectWithDependenciesBuildTest extends ProjectBuilder {
 
     Logger log = LoggerFactory.getLogger(ProjectWithDependenciesBuildTest.class);
 
-    @Test
-    @InSequence(10)
-    public void buildProjectTestCase() throws Exception {
-        buildProjects(configurationBuilder.buildConfigurationSet(1));
-    }
+    @Inject
+    BuildCoordinatorFactory buildCoordinatorFactory;
 
     @Test
-    @InSequence(20)
-    public void checkDatabaseForResult() {
-        List<BuildRecord> buildRecords = datastore.getBuildRecords();
+    public void buildProjectTestCase() throws Exception {
+        //given
+        DatastoreMock datastoreMock = new DatastoreMock();
+        TestProjectConfigurationBuilder configurationBuilder = new TestProjectConfigurationBuilder(datastoreMock);
+
+        //when
+        buildProjects(configurationBuilder.buildConfigurationSet(1), buildCoordinatorFactory.createBuildCoordinator(datastoreMock));
+
+        //expect
+        List<BuildRecord> buildRecords = datastoreMock.getBuildRecords();
         log.trace("Found build records: {}", buildRecords.stream()
                 .map(br -> "Br.id: " + br.getId() + ", " + br.getBuildConfigurationAudited().getId().toString())
                 .collect(Collectors.joining("; ")));
@@ -60,10 +66,11 @@ public class ProjectWithDependenciesBuildTest extends ProjectBuilder {
 
         assertBuildArtifactsPresent(buildRecord.getBuiltArtifacts());
         assertBuildArtifactsPresent(buildRecord.getDependencies());
-        
-        BuildConfigSetRecord buildConfigSetRecord = datastore.getBuildConfigSetRecords().get(0);
+
+        BuildConfigSetRecord buildConfigSetRecord = datastoreMock.getBuildConfigSetRecords().get(0);
         Assert.assertNotNull(buildConfigSetRecord.getEndTime());
         Assert.assertTrue(buildConfigSetRecord.getEndTime().getTime() > buildConfigSetRecord.getStartTime().getTime());
         Assert.assertEquals(BuildStatus.SUCCESS, buildConfigSetRecord.getStatus());
     }
+
 }
