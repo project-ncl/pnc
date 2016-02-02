@@ -112,12 +112,11 @@ public class BuildTaskEndpoint {
             @ApiParam(value = "Optional Callback URL", required = false)
             @FormParam("callbackUrl")
             String callbackUrl,
-            @Context UriInfo uriInfo,
-            @Context HttpServletRequest request) {
+            @Context UriInfo uriInfo) {
 
         try {
 
-            logger.debug("Endpoint /execute-build requested for buildTaskId [{}], from [{}]", buildExecutionConfiguration.getId(), request.getRemoteAddr());
+            logger.debug("Endpoint /execute-build requested for buildTaskId [{}].", buildExecutionConfiguration.getId());
 
 //TODO input validation
 //            Integer buildTaskId;
