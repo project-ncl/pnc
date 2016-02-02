@@ -32,8 +32,15 @@
                 * Project
               </label>
               <div class="col-sm-10">
-                <pnc-infinite-select infinite-select-required="true" infinite-select-id="input-project" infinite-select-name="projectId" placeholder="Scroll & Filter Projects..."
-                    items="createCtrl.projects" item-id="createCtrl.data.project.id"></pnc-infinite-select>
+                <pnc-infinite-select-items 
+                  single-item="true"
+                  selected-items="createCtrl.projectSelection.selected"
+                  infinite-select-required="true" 
+                  infinite-select-id="input-project" 
+                  infinite-select-name="projectId" 
+                  placeholder="Scroll & Filter Projects..."
+                  items="createCtrl.projects" 
+                  item-id="createCtrl.data.project.id"></pnc-infinite-select-items>
                 <span class="help-block" ng-show="configurationForm.projectId.$error.required && !configurationForm.projectId.$pristine">Required field.</span>
               </div>
             </div>
@@ -89,10 +96,15 @@
                 * Environment
               </label>
               <div class="col-sm-10">
-                <pnc-infinite-select 
-                    infinite-select-required="true" infinite-select-id="input-environment" 
-                    infinite-select-name="environmentId" placeholder="Scroll & Filter Environments..." 
-                    items="createCtrl.environments" item-id="createCtrl.data.environment.id"></pnc-infinite-select>
+                <pnc-infinite-select-items 
+                  single-item="true"
+                  selected-items="createCtrl.environmentSelection.selected"
+                  infinite-select-required="true" 
+                  infinite-select-id="input-environment"
+                  infinite-select-name="environmentId" 
+                  placeholder="Scroll & Filter Environments..."
+                  items="createCtrl.environments" 
+                  item-id="createCtrl.data.environment.id"></pnc-infinite-select-items>
                 <span class="help-block" ng-show="configurationForm.environmentId.$error.required && !configurationForm.environmentId.$pristine">Required field.</span>
               </div>
             </div>
@@ -129,13 +141,13 @@
               <label for="input-dependencies" class="col-sm-2 control-label">Dependencies</label>
               <div class="col-sm-10 col-md-4">
 
-                <pnc-infinite-select-list
+                <pnc-infinite-select-items
                     selected-items="createCtrl.dependencies.selected"
                     infinite-select-required="false"
                     infinite-select-id="input-dependencies"
                     infinite-select-name="depsId"
                     placeholder="Scroll & Filter Dependencies..."
-                    items="createCtrl.configurations"></pnc-infinite-select-list>
+                    items="createCtrl.configurations"></pnc-infinite-select-items>
               </div>
             </div>
 
@@ -148,13 +160,13 @@
               <label for="input-build-group-configs" class="col-sm-2 control-label">Build Group Configs</label>
               <div class="col-sm-10 col-md-4">
 
-                <pnc-infinite-select-list
+                <pnc-infinite-select-items
                     selected-items="createCtrl.buildgroupconfigs.selected"
                     infinite-select-required="false"
                     infinite-select-id="input-build-group-configs"
                     infinite-select-name="bgConfigId"
                     placeholder="Scroll & Filter Build Group Configs..."
-                    items="createCtrl.configurationSetList"></pnc-infinite-select-list>
+                    items="createCtrl.configurationSetList"></pnc-infinite-select-items>
               </div>
             </div>
 

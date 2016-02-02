@@ -64,6 +64,11 @@
 	width: 100%;
 }
 
+.list-group-no-bottom-margin {
+    margin-bottom: 0px;
+    padding-left: 0px;
+}
+
 /**
  * pnc-live-log
  */
@@ -74,3 +79,4 @@
   overflow: auto;
   resize:both;
 }
+

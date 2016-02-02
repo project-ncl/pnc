@@ -151,14 +151,14 @@
                 <a href ui-sref="configuration.detail.show({ configurationId: dependency.id })">{{ dependency.name }}</a>
               </li>
             </ul>
-            <pnc-infinite-select-list
+            <pnc-infinite-select-items
                ng-show="configurationForm.$visible"
                selected-items="detailCtrl.dependencies.selected"
                infinite-select-required="false"
                infinite-select-id="input-dependencies"
                infinite-select-name="depsId"
                placeholder="Scroll & Filter Dependencies..."
-               items="detailCtrl.configurations"></pnc-infinite-select-list>
+               items="detailCtrl.configurations"></pnc-infinite-select-items>
           </div>
         </div>
 
@@ -168,12 +168,16 @@
           <div class="col-sm-10">
 
              <p ng-hide="configurationForm.$visible" id="static-environment" class="form-control-static">{{ detailCtrl.environment.name }}</p>
-             <pnc-infinite-select 
-               search-text="{{ detailCtrl.environment.name }}"
+             <pnc-infinite-select-items
                ng-show="configurationForm.$visible"
-               infinite-select-required="true" infinite-select-id="input-environment" 
-               infinite-select-name="environmentId" placeholder="Scroll & Filter Environments..." 
-               items="detailCtrl.environments" item-id="detailCtrl.environment.id"></pnc-infinite-select>
+               single-item="true" 
+               selected-items="detailCtrl.environmentSelection.selected"
+               infinite-select-required="true"
+               infinite-select-id="input-environment" 
+               infinite-select-name="environmentId"
+               placeholder="Scroll & Filter Environments..." 
+               items="detailCtrl.environments"
+               item-id="detailCtrl.environment.id"></pnc-infinite-select-items>
              <span class="help-block" ng-show="configurationForm.environmentId.$error.required && !configurationForm.environmentId.$pristine">Required field.</span>
           </div>
         </div>
@@ -186,14 +190,14 @@
                 <a href ui-sref="configuration-set.detail({ configurationSetId: buildgroupconfig.id })">{{ buildgroupconfig.name }}</a>
               </li>
             </ul>
-            <pnc-infinite-select-list
+            <pnc-infinite-select-items
                ng-show="configurationForm.$visible"
                selected-items="detailCtrl.buildgroupconfigs.selected"
                infinite-select-required="false"
                infinite-select-id="input-build-group-configs"
                infinite-select-name="bgConfigId"
                placeholder="Scroll & Filter Build Group Configs..."
-               items="detailCtrl.configurationSetList"></pnc-infinite-select-list>
+               items="detailCtrl.configurationSetList"></pnc-infinite-select-items>
           </div>
         </div>
 

@@ -123,6 +123,16 @@
         selected: []
       };
 
+      // Selection of Projects
+      that.projectSelection = {
+        selected: []
+      };
+
+      // Selection of Environments
+      that.environmentSelection = {
+        selected: []
+      };
+
       that.reset = function(form) {
         if (form) {
           that.products.selected = null;
@@ -130,6 +140,8 @@
           that.productVersions.selected = [];
           that.dependencies.selected = [];
           that.buildgroupconfigs.selected = [];
+          that.projectSelection.selected = [];
+          that.environmentSelection.selected = [];
           that.data = new BuildConfigurationDAO();
 
           form.$setPristine();
@@ -218,6 +230,11 @@
       // Selection of dependencies
       that.dependencies = {
         selected: dependencies
+      };
+
+      // Selection of environments
+      that.environmentSelection = {
+        selected: [that.environment]
       };
 
       // Selection of ConfigurationSets

@@ -75,6 +75,9 @@
     $stateProvider.state('project.detail.create-bc', {
       url: '/create-bc',
       templateUrl: 'project/views/project.detail.create-bc.html',
+      data: {
+          displayName: 'Create Build Config'
+        },
       controller: 'CreateBCController',
       controllerAs: 'ctrl',
       resolve: {
