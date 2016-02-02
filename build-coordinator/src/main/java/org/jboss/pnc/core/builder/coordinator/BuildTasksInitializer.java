@@ -117,6 +117,9 @@ public class BuildTasksInitializer {
             Consumer<BuildTask> onAllDependenciesCompleted) {
         // Loop to create the build tasks
         for(BuildConfiguration buildConfig : buildSetTask.getBuildConfigurationSet().getBuildConfigurations()) {
+            if (buildConfig.isArchived()) {
+                continue; // Don't build archived configurations
+            }
             BuildConfigurationAudited buildConfigAudited = datastoreAdapter.getLatestBuildConfigurationAudited(buildConfig.getId());
 
             BuildTask buildTask = BuildTask.build(

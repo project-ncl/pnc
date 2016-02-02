@@ -46,6 +46,14 @@ public class BuildConfigurationPredicates {
         return (root, query, cb) -> cb.equal(root.get(BuildConfiguration_.name), name);
     }
 
+    /**
+     * Return a predicate which excludes all archived build configurations
+     * @return
+     */
+    public static Predicate<BuildConfiguration> isNotArchived() {
+        return (root, query, cb) -> cb.isFalse(root.get(BuildConfiguration_.archived));
+    }
+
     public static Predicate<BuildConfiguration> withProductId(Integer productId) {
         return (root, query, cb) -> {
             SetJoin<BuildConfiguration, ProductVersion> productVersions = root.join(BuildConfiguration_.productVersions);

@@ -62,6 +62,8 @@ public class BuildConfigurationRest implements GenericRestEntity<Integer> {
 
     private Date lastModificationTime;
 
+    private boolean archived;
+
     @ApiModelProperty(dataType = "string")
     private BuildStatus buildStatus;
 
@@ -90,6 +92,7 @@ public class BuildConfigurationRest implements GenericRestEntity<Integer> {
         this.scmMirrorRevision = buildConfiguration.getScmMirrorRevision();
         this.creationTime = buildConfiguration.getCreationTime();
         this.lastModificationTime = buildConfiguration.getLastModificationTime();
+        this.archived = buildConfiguration.isArchived();
         this.buildStatus = buildConfiguration.getBuildStatus();
         this.repositories = buildConfiguration.getRepositories();
         performIfNotNull(buildConfiguration.getProject(),
@@ -204,6 +207,14 @@ public class BuildConfigurationRest implements GenericRestEntity<Integer> {
         this.lastModificationTime = lastModificationTime;
     }
 
+    public boolean isArchived() {
+        return archived;
+    }
+
+    public void setArchived(boolean archived) {
+        this.archived = archived;
+    }
+
     public BuildStatus getBuildStatus() {
         return buildStatus;
     }
@@ -278,6 +289,7 @@ public class BuildConfigurationRest implements GenericRestEntity<Integer> {
                 .scmRevision(this.getScmRevision())
                 .scmMirrorRepoURL(this.getScmMirrorRepoURL())
                 .scmMirrorRevision(this.getScmMirrorRevision())
+                .archived(this.isArchived())
                 .buildStatus(this.getBuildStatus())
                 .repositories(this.getRepositories());
 

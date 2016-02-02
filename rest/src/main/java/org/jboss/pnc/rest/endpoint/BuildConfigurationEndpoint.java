@@ -147,7 +147,7 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
             @ApiParam(value = PAGE_SIZE_DESCRIPTION) @QueryParam(PAGE_SIZE_QUERY_PARAM) @DefaultValue(PAGE_SIZE_DEFAULT_VALUE) int pageSize,
             @ApiParam(value = SORTING_DESCRIPTION) @QueryParam(SORTING_QUERY_PARAM) String sort,
             @ApiParam(value = QUERY_DESCRIPTION, required = false) @QueryParam(QUERY_QUERY_PARAM) String q) {
-        return super.getAll(pageIndex, pageSize, sort, q);
+        return fromCollection(buildConfigurationProvider.getAllNonArchived(pageIndex, pageSize, sort, q));
     }
 
     @ApiOperation(value = "Creates a new Build Configuration")
