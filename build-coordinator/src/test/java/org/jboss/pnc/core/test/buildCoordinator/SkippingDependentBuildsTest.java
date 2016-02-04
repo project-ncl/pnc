@@ -66,15 +66,15 @@ public class SkippingDependentBuildsTest extends ProjectBuilder {
     @Inject
     BuildCoordinatorFactory buildCoordinatorFactory;
 
-    private BuildConfiguration testConfiguration;
-    private User testUser;
-    private BuildConfigurationSet testConfigurationSet;
+    private User testUser = MockUser.newTestUser(1);
 
     @Test
     public void shouldNotBuildTheSameBuildConfigurationTwice() throws Exception {
         //given
         DatastoreMock datastore = new DatastoreMock();
-        BuildCoordinator buildCoordinator = initializeBuildCoordinator(datastore);
+        TestProjectConfigurationBuilder configurationBuilder = new TestProjectConfigurationBuilder(datastore);
+        BuildConfiguration testConfiguration = configurationBuilder.build(1, "test");
+        BuildCoordinator buildCoordinator = buildCoordinatorFactory.createBuildCoordinator(datastore);
 
         //when
         buildCoordinator.build(testConfiguration, testUser, false);
@@ -91,7 +91,9 @@ public class SkippingDependentBuildsTest extends ProjectBuilder {
     public void shouldRerunTheSameBuildConfigurationIfRebuildAllIsSpecified() throws Exception {
         //given
         DatastoreMock datastore = new DatastoreMock();
-        BuildCoordinator buildCoordinator = initializeBuildCoordinator(datastore);
+        TestProjectConfigurationBuilder configurationBuilder = new TestProjectConfigurationBuilder(datastore);
+        BuildConfiguration testConfiguration = configurationBuilder.build(1, "test");
+        BuildCoordinator buildCoordinator = buildCoordinatorFactory.createBuildCoordinator(datastore);
 
         //when
         buildCoordinator.build(testConfiguration, testUser, true);
@@ -110,13 +112,15 @@ public class SkippingDependentBuildsTest extends ProjectBuilder {
     public void shouldNotBuildTheSameBuildConfigurationSetTwice() throws Exception {
         //given
         DatastoreMock datastore = new DatastoreMock();
-        BuildCoordinator buildCoordinator = initializeBuildCoordinator(datastore);
+        TestProjectConfigurationBuilder configurationBuilder = new TestProjectConfigurationBuilder(datastore);
+        BuildConfigurationSet testConfigurationSet = configurationBuilder.buildConfigurationSet(1);
+        BuildCoordinator buildCoordinator = buildCoordinatorFactory.createBuildCoordinator(datastore);
 
         //when
-        buildCoordinator.build(testConfigurationSet, testUser, false);
+        buildCoordinator.build(testConfigurationSet, testUser, false); //first build
         waitForBuild(buildCoordinator);
 
-        buildCoordinator.build(testConfigurationSet, testUser, false);
+        buildCoordinator.build(testConfigurationSet, testUser, false); //forced rebuild build
         waitForBuild(buildCoordinator);
 
         //then
@@ -129,13 +133,15 @@ public class SkippingDependentBuildsTest extends ProjectBuilder {
     public void shouldRerunTheSameBuildConfigurationSetIfRebuildAllIsSpecified() throws Exception {
         //given
         DatastoreMock datastore = new DatastoreMock();
-        BuildCoordinator buildCoordinator = initializeBuildCoordinator(datastore);
+        TestProjectConfigurationBuilder configurationBuilder = new TestProjectConfigurationBuilder(datastore);
+        BuildConfigurationSet testConfigurationSet = configurationBuilder.buildConfigurationSet(1);
+        BuildCoordinator buildCoordinator = buildCoordinatorFactory.createBuildCoordinator(datastore);
 
         //when
-        buildCoordinator.build(testConfigurationSet, testUser, true);
+        buildCoordinator.build(testConfigurationSet, testUser, true); //first build
         waitForBuild(buildCoordinator);
 
-        buildCoordinator.build(testConfigurationSet, testUser, true);
+        buildCoordinator.build(testConfigurationSet, testUser, true); //forced rebuild build
         waitForBuild(buildCoordinator);
 
         //then
@@ -152,14 +158,5 @@ public class SkippingDependentBuildsTest extends ProjectBuilder {
         log.trace("Found build records: {}", buildRecords.stream()
                 .map(br -> "Br.id: " + br.getId() + ", " + br.getBuildConfigurationAudited().getId().toString())
                 .collect(Collectors.joining("; ")));
-    }
-
-    private BuildCoordinator initializeBuildCoordinator(DatastoreMock datastore) {
-        TestProjectConfigurationBuilder configurationBuilder = new TestProjectConfigurationBuilder(datastore);
-        testConfiguration = configurationBuilder.build(1, "test");
-        testUser = MockUser.newTestUser(1);
-        testConfigurationSet = configurationBuilder.buildConfigurationSet(1);
-
-        return buildCoordinatorFactory.createBuildCoordinator(datastore);
     }
 }
