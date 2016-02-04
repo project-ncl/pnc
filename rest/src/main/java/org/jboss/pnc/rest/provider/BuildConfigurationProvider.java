@@ -43,6 +43,7 @@ import javax.ejb.Stateless;
 import javax.inject.Inject;
 
 import java.util.List;
+import java.util.Set;
 import java.util.function.Function;
 
 import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
@@ -112,6 +113,26 @@ public class BuildConfigurationProvider extends AbstractProvider<BuildConfigurat
             throws ValidationException {
         super.validateBeforeUpdating(id, buildConfigurationRest);
         validateIfItsNotConflicted(buildConfigurationRest);
+        validateDependencies(buildConfigurationRest.getId(), buildConfigurationRest.getDependencyIds());
+    }
+
+    private void validateDependencies(Integer buildConfigId, Set<Integer> dependenciesIds) throws InvalidEntityException {
+
+        if (dependenciesIds == null || dependenciesIds.isEmpty()) {
+            return;
+        }
+
+        BuildConfiguration buildConfig = repository.queryById(buildConfigId);
+        for (Integer dependencyId : dependenciesIds) {
+
+            ValidationBuilder.validateObject(buildConfig, WhenUpdating.class).validateCondition(
+                    !buildConfig.getId().equals(dependencyId), "A build configuration cannot depend on itself");
+
+            BuildConfiguration dependency = repository.queryById(dependencyId);
+            ValidationBuilder.validateObject(buildConfig, WhenUpdating.class)
+                    .validateCondition(!dependency.getAllDependencies().contains(buildConfig), "Cannot add dependency from : "
+                            + buildConfig.getId() + " to: " + dependencyId + " because it would introduce a cyclic dependency");
+        }
     }
 
     private void validateIfItsNotConflicted(BuildConfigurationRest buildConfigurationRest)
@@ -149,7 +170,6 @@ public class BuildConfigurationProvider extends AbstractProvider<BuildConfigurat
             if (buildConfigDB != null) {
                 builder.lastModificationTime(buildConfigDB.getLastModificationTime()); // Handled by JPA @Version
                 builder.creationTime(buildConfigDB.getCreationTime()); // Immutable after creation
-                builder.dependencies(buildConfigDB.getDependencies()); // Update only via add/remove dependencies
             }
 
             return builder.build();
@@ -174,7 +194,8 @@ public class BuildConfigurationProvider extends AbstractProvider<BuildConfigurat
 
         ValidationBuilder.validateObject(buildConfig, WhenCreatingNew.class)
                 .validateCondition(!configId.equals(dependencyId), "A build configuration cannot depend on itself")
-                .validateCondition(!dependency.getAllDependencies().contains(buildConfig), "Cannot add dependency from : " + configId + " to: " + dependencyId + " because it would introduce a cyclic dependency");
+                .validateCondition(!dependency.getAllDependencies().contains(buildConfig), "Cannot add dependency from : "
+                        + configId + " to: " + dependencyId + " because it would introduce a cyclic dependency");
 
         buildConfig.addDependency(dependency);
         repository.save(buildConfig);
