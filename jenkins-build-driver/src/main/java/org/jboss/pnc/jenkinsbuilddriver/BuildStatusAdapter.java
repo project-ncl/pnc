@@ -40,7 +40,7 @@ class BuildStatusAdapter {
             case BUILDING:
                 return BuildDriverStatus.BUILDING;
             case ABORTED:
-                return BuildDriverStatus.ABORTED;
+                return BuildDriverStatus.CANCELED;
             case SUCCESS:
                 return BuildDriverStatus.SUCCESS;
             default:

@@ -87,7 +87,7 @@ public enum BuildCoordinationStatus {
     public static BuildCoordinationStatus fromBuildStatus(BuildStatus buildStatus) {
 
         BuildStatus[] done = {BuildStatus.SUCCESS};
-        BuildStatus[] doneWithErrors = {BuildStatus.FAILED, BuildStatus.UNSTABLE, BuildStatus.ABORTED, BuildStatus.CANCELLED};
+        BuildStatus[] doneWithErrors = {BuildStatus.FAILED, BuildStatus.UNSTABLE, BuildStatus.REJECTED, BuildStatus.CANCELLED};
         BuildStatus[] building = {BuildStatus.BUILDING};
 
         if (Arrays.asList(done).contains(buildStatus)) {
