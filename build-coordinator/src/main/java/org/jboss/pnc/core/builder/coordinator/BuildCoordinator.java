@@ -242,7 +242,7 @@ public class BuildCoordinator {
                     buildTask.setStatusDescription("The configuration has already been built.");
                     return;
                 }
-
+                buildTask.setStartTime(new Date());
                 buildTask.setStatus(BuildCoordinationStatus.BUILDING); //status must be updated before startBuild as if build takes 0 time it complete before having Building status.
             }
             activeBuildTasks.add(buildTask);

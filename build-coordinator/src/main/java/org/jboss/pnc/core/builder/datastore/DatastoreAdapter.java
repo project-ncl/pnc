@@ -35,6 +35,7 @@ import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
 import javax.inject.Inject;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -104,6 +105,8 @@ public class DatastoreAdapter {
             linkArtifactsWithBuildRecord(repositoryManagerResult.getDependencies(), buildRecord);
             buildRecord.setDependencies(repositoryManagerResult.getDependencies());
 
+            buildRecord.setEndTime(new Date());
+
             log.debugf("Storing results of buildTask [%s] to datastore.", buildTask.getId());
             datastore.storeCompletedBuild(buildRecord, buildTask.getBuildRecordSetIds());
         } catch (Exception e) {
@@ -122,8 +125,11 @@ public class DatastoreAdapter {
         errorMessage += "Caught exception: " + stackTraceWriter.toString();
         buildRecordBuilder.buildLog(errorMessage);
 
+        BuildRecord buildRecord = buildRecordBuilder.build();
+        buildRecord.setEndTime(new Date());
+
         log.debugf("Storing ERROR result of %s to datastore. Error: %s", buildTask.getBuildConfigurationAudited().getName() + "\n\n\n Exception: " + errorMessage, e);
-        datastore.storeCompletedBuild(buildRecordBuilder.build(), buildTask.getBuildRecordSetIds());
+        datastore.storeCompletedBuild(buildRecord, buildTask.getBuildRecordSetIds());
     }
 
     /**

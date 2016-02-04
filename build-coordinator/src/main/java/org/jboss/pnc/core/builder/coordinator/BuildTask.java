@@ -47,7 +47,7 @@ public class BuildTask {
     private final BuildConfigurationAudited buildConfigurationAudited;
     private final User user;
     private final Date submitTime;
-    private Date startTime; //TODO where is startTime and endTime set ?
+    private Date startTime;
     private Date endTime;
 
     private BuildCoordinationStatus status = BuildCoordinationStatus.NEW;
@@ -249,8 +249,16 @@ public class BuildTask {
         return startTime;
     }
 
+    public void setStartTime(Date startTime) {
+        this.startTime = startTime;
+    }
+
     public Date getEndTime() {
         return endTime;
+    }
+
+    public void setEndTime(Date endTime) {
+        this.endTime = endTime;
     }
 
     public User getUser() {

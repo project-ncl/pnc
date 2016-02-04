@@ -75,7 +75,12 @@ public class ProjectBuilder {
         return BuildCoordinatorDeployments.deployment(BuildCoordinatorDeployments.Options.WITH_DATASTORE);
     }
 
+    @Deprecated //provide your own instance of BC
     void buildProject(BuildConfiguration buildConfiguration) throws BuildConflictException, InterruptedException {
+        buildProject(buildConfiguration, buildCoordinator);
+    }
+
+    void buildProject(BuildConfiguration buildConfiguration, BuildCoordinator buildCoordinator) throws BuildConflictException, InterruptedException {
         log.debug("Building project {}", buildConfiguration.getName());
         List<BuildCoordinationStatusChangedEvent> receivedStatuses = new CopyOnWriteArrayList<>();
 
@@ -91,6 +96,7 @@ public class ProjectBuilder {
         assertAllStatusUpdateReceived(receivedStatuses, buildTask.getId());
     }
 
+    @Deprecated //provide your own instance of BC
     void buildProjects(BuildConfigurationSet buildConfigurationSet) throws InterruptedException, CoreException, DatastoreException {
         buildProjects(buildConfigurationSet, buildCoordinator);
     }

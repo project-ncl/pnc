@@ -18,13 +18,15 @@
 package org.jboss.pnc.core.test.buildCoordinator;
 
 import org.jboss.arquillian.junit.Arquillian;
-import org.jboss.arquillian.junit.InSequence;
 import org.jboss.pnc.mock.builddriver.BuildDriverResultMock;
+import org.jboss.pnc.mock.datastore.DatastoreMock;
+import org.jboss.pnc.mock.model.builders.TestProjectConfigurationBuilder;
 import org.jboss.pnc.model.BuildRecord;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import javax.inject.Inject;
 import java.util.List;
 
 /**
@@ -33,16 +35,20 @@ import java.util.List;
 @RunWith(Arquillian.class)
 public class SingleProjectBuildTest extends ProjectBuilder {
 
-    @Test
-    @InSequence(10)
-    public void buildSingleProjectTestCase() throws Exception {
-        buildProject(configurationBuilder.build(1, "c1-java"));
-    }
+    @Inject
+    BuildCoordinatorFactory buildCoordinatorFactory;
 
     @Test
-    @InSequence(20)
-    public void checkDatabaseForResult() {
-        List<BuildRecord> buildRecords = datastore.getBuildRecords();
+    public void buildSingleProjectTestCase() throws Exception {
+        //given
+        DatastoreMock datastoreMock = new DatastoreMock();
+        TestProjectConfigurationBuilder configurationBuilder = new TestProjectConfigurationBuilder(datastoreMock);
+
+        //when
+        buildProject(configurationBuilder.build(1, "c1-java"), buildCoordinatorFactory.createBuildCoordinator(datastoreMock));
+
+        //expect
+        List<BuildRecord> buildRecords = datastoreMock.getBuildRecords();
         Assert.assertEquals("Wrong datastore results count.", 1, buildRecords.size());
 
         BuildRecord buildRecord = buildRecords.get(0);
@@ -51,5 +57,9 @@ public class SingleProjectBuildTest extends ProjectBuilder {
 
         assertBuildArtifactsPresent(buildRecord.getBuiltArtifacts());
         assertBuildArtifactsPresent(buildRecord.getDependencies());
+
+        Assert.assertNotNull(buildRecord.getSubmitTime());
+        Assert.assertNotNull(buildRecord.getStartTime());
+        Assert.assertNotNull(buildRecord.getEndTime());
     }
 }
