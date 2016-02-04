@@ -149,7 +149,10 @@ public class BuildConfigurationProvider extends AbstractProvider<BuildConfigurat
             if (buildConfigDB != null) {
                 builder.lastModificationTime(buildConfigDB.getLastModificationTime()); // Handled by JPA @Version
                 builder.creationTime(buildConfigDB.getCreationTime()); // Immutable after creation
-                builder.dependencies(buildConfigDB.getDependencies()); // Update only via add/remove dependencies
+                if (buildConfigRest.getDependencyIds() == null) {
+                    // If the client request does not include a list of dependencies, just keep the current set
+                    builder.dependencies(buildConfigDB.getDependencies());
+                }
             }
 
             return builder.build();
