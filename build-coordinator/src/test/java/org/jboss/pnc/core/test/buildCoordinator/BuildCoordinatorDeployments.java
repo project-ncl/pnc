@@ -29,8 +29,9 @@ import org.jboss.pnc.core.notifications.buildSetTask.BuildSetCallBack;
 import org.jboss.pnc.core.notifications.buildSetTask.BuildSetStatusNotifications;
 import org.jboss.pnc.core.notifications.buildTask.BuildCallBack;
 import org.jboss.pnc.core.test.buildCoordinator.event.TestCDIBuildStatusChangedReceiver;
+import org.jboss.pnc.executor.DefaultBuildExecutor;
 import org.jboss.pnc.mock.datastore.DatastoreMock;
-import org.jboss.pnc.mock.environmentdriver.BuildExecutorMock;
+import org.jboss.pnc.mock.executor.BuildExecutorMock;
 import org.jboss.pnc.mock.model.builders.TestEntitiesFactory;
 import org.jboss.pnc.mock.model.builders.TestProjectConfigurationBuilder;
 import org.jboss.pnc.model.BuildEnvironment;
@@ -101,7 +102,8 @@ public class BuildCoordinatorDeployments {
                         BuildCallBack.class.getPackage(),
                         BuildCoordinationStatus.class.getPackage(),
                         DefaultBuildStatusChangedEvent.class.getPackage(),
-                        BuildExecutorMock.class.getPackage())
+                        BuildExecutorMock.class.getPackage(),
+                        DefaultBuildExecutor.class.getPackage())
                 .addAsManifestResource(EmptyAsset.INSTANCE, "beans.xml")
                 .addAsResource("simplelogger.properties");
 
