@@ -56,7 +56,8 @@ public class DatastoreMock implements Datastore {
     AtomicInteger buildConfigAuditedRevSequence = new AtomicInteger(0);
 
     @Override
-    public BuildRecord storeCompletedBuild(BuildRecord buildRecord, Set<Integer> buildRecordSetIds ) {
+    public BuildRecord storeCompletedBuild(BuildRecord.Builder buildRecordBuilder, Set<Integer> buildRecordSetIds ) {
+        BuildRecord buildRecord = buildRecordBuilder.build();
         log.info("Storing build " + buildRecord.getLatestBuildConfiguration());
         buildRecords.add(buildRecord);
         return buildRecord;

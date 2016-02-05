@@ -72,7 +72,8 @@ public class DefaultDatastore implements Datastore {
 
     @Override
     @TransactionAttribute(TransactionAttributeType.REQUIRED)
-    public BuildRecord storeCompletedBuild(BuildRecord buildRecord, Set<Integer> buildRecordSetIds) {
+    public BuildRecord storeCompletedBuild(BuildRecord.Builder buildRecordBuilder, Set<Integer> buildRecordSetIds) {
+        BuildRecord buildRecord = buildRecordBuilder.build();
         refreshBuildConfiguration(buildRecord);
         buildRecord = buildRecordRepository.save(buildRecord);
         for(BuildRecordSet buildRecordSet : buildRecordSetRepository.queryWithPredicates(withBuildRecordSetIdInSet(buildRecordSetIds))) {

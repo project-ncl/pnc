@@ -546,6 +546,11 @@ public class BuildRecord implements GenericEntity<Integer> {
             buildRecord.setSystemImage(systemImage);
             buildRecord.setExternalArchiveId(externalArchiveId);
 
+            if (buildConfigSetRecord != null) {
+                buildConfigSetRecord.addBuildRecord(buildRecord);
+                buildRecord.setBuildConfigSetRecord(buildConfigSetRecord);
+            }
+
             // Set the bi-directional mapping
             for (Artifact artifact : builtArtifacts) {
                 artifact.setBuildRecord(buildRecord);
