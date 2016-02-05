@@ -27,6 +27,7 @@ import org.jboss.pnc.spi.executor.BuildExecutionSession;
 import org.jboss.pnc.spi.executor.BuildExecutor;
 import org.jboss.pnc.spi.executor.exceptions.ExecutorException;
 
+import javax.inject.Inject;
 import java.util.function.Consumer;
 
 /**
@@ -43,6 +44,7 @@ public class BuildExecutorTriggerer {
     @Deprecated //CDI workaround
     public BuildExecutorTriggerer() {}
 
+    @Inject
     public BuildExecutorTriggerer(
             BuildExecutor buildExecutor,
             BpmNotifier bpmNotifier) {

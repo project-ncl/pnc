@@ -84,6 +84,7 @@ public class BuildTaskEndpoint {
     })
     @POST
     @Path("/{taskId}/completed")
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     public Response buildTaskCompleted(
             @ApiParam(value = "Build task id", required = true) @PathParam("taskId") Integer taskId,
             @ApiParam(value = "Build result", required = true) @FormParam("buildResult") BuildResultRest buildResult) {
@@ -102,6 +103,7 @@ public class BuildTaskEndpoint {
     })
     @POST
     @Path("/execute-build")
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     public Response build(
             @ApiParam(value = "Build Execution Configuration. See org.jboss.pnc.spi.executor.BuildExecutionConfiguration.", required = true)
             @FormParam("buildExecutionConfiguration")

@@ -93,6 +93,11 @@
       <artifactId>build-coordinator-mock</artifactId>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>org.jboss.pnc</groupId>
+      <artifactId>build-executor-mock</artifactId>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
 </project>

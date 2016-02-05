@@ -16,9 +16,10 @@
  * limitations under the License.
  */
 
-package org.jboss.pnc.mock.environmentdriver;
+package org.jboss.pnc.mock.executor;
 
 import org.jboss.pnc.executor.DefaultBuildExecutionSession;
+import org.jboss.pnc.executor.DefaultBuildExecutor;
 import org.jboss.pnc.mock.builddriver.BuildDriverResultMock;
 import org.jboss.pnc.mock.model.builders.TestProjectConfigurationBuilder;
 import org.jboss.pnc.mock.repositorymanager.RepositoryManagerResultMock;
@@ -34,6 +35,8 @@ import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.inject.Specializes;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -44,13 +47,24 @@ import java.util.function.Consumer;
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
-public class BuildExecutorMock implements BuildExecutor {
+@Specializes
+@ApplicationScoped
+public class BuildExecutorMock extends DefaultBuildExecutor implements BuildExecutor {
 
     private final Logger log = LoggerFactory.getLogger(BuildExecutorMock.class);
 
     private final Map<Integer, BuildExecutionSession> runningExecutions = new HashMap<>();
 
     private final ExecutorService executor = Executors.newFixedThreadPool(4);
+
+//    @Deprecated //CDI workaround
+//    public BuildExecutorMock() {
+//    }
+//
+//    @Inject
+//    public BuildExecutorMock(RepositoryManagerFactory repositoryManagerFactory, BuildDriverFactory buildDriverFactory, EnvironmentDriverFactory environmentDriverFactory, Configuration configuration) {
+//
+//    }
 
     @Override
     public BuildExecutionSession startBuilding(
