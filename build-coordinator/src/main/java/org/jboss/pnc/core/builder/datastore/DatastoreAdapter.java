@@ -20,6 +20,7 @@ package org.jboss.pnc.core.builder.datastore;
 import org.jboss.logging.Logger;
 import org.jboss.pnc.core.BuildCoordinationException;
 import org.jboss.pnc.core.builder.coordinator.BuildTask;
+import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
@@ -36,6 +37,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.time.Instant;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Optional;
 
 import static org.jboss.pnc.model.BuildStatus.SYSTEM_ERROR;

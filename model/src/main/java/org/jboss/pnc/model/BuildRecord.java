@@ -129,9 +129,9 @@ public class BuildRecord implements GenericEntity<Integer> {
     private BuildStatus status;
 
     @OneToMany(mappedBy = "buildRecord", cascade = CascadeType.ALL)
-    private List<Artifact> builtArtifacts;
+    private List<BuiltArtifact> builtArtifacts;
 
-    @OneToMany(mappedBy = "buildRecord", cascade = CascadeType.ALL)
+    @ManyToMany(mappedBy = "dependantBuildRecords", cascade = CascadeType.ALL)
     private List<Artifact> dependencies;
 
     /**
@@ -322,8 +322,12 @@ public class BuildRecord implements GenericEntity<Integer> {
      *
      * @return the built artifacts
      */
-    public List<Artifact> getBuiltArtifacts() {
+    public List<BuiltArtifact> getBuiltArtifacts() {
         return builtArtifacts;
+    }
+
+    public void addBuiltArtifact(BuiltArtifact builtArtifact) {
+        builtArtifacts.add(builtArtifact);
     }
 
     /**
@@ -331,7 +335,7 @@ public class BuildRecord implements GenericEntity<Integer> {
      *
      * @param builtArtifacts the new built artifacts
      */
-    public void setBuiltArtifacts(List<Artifact> builtArtifacts) {
+    public void setBuiltArtifacts(List<BuiltArtifact> builtArtifacts) {
         this.builtArtifacts = builtArtifacts;
     }
 
@@ -342,6 +346,10 @@ public class BuildRecord implements GenericEntity<Integer> {
      */
     public List<Artifact> getDependencies() {
         return dependencies;
+    }
+
+    public void addDependency(Artifact artifact) {
+        dependencies.add(artifact);
     }
 
     /**
@@ -501,7 +509,7 @@ public class BuildRecord implements GenericEntity<Integer> {
 
         private BuildStatus status;
 
-        private List<Artifact> builtArtifacts;
+        private List<BuiltArtifact> builtArtifacts;
 
         private List<Artifact> dependencies;
 
@@ -516,9 +524,9 @@ public class BuildRecord implements GenericEntity<Integer> {
         private BuildConfigSetRecord buildConfigSetRecord;
 
         public Builder() {
-            buildRecordSets = new HashSet<>();
-            dependencies = new ArrayList<>();
             builtArtifacts = new ArrayList<>();
+            dependencies = new ArrayList<>();
+            buildRecordSets = new HashSet<>();
         }
 
         public static Builder newBuilder() {
@@ -549,14 +557,14 @@ public class BuildRecord implements GenericEntity<Integer> {
             }
 
             // Set the bi-directional mapping
-            for (Artifact artifact : builtArtifacts) {
+            for (BuiltArtifact artifact : builtArtifacts) {
                 artifact.setBuildRecord(buildRecord);
             }
             buildRecord.setBuiltArtifacts(builtArtifacts);
 
             // Set the bi-directional mapping
             for (Artifact artifact : dependencies) {
-                artifact.setBuildRecord(buildRecord);
+                artifact.addDependantBuildRecord(buildRecord);
             }
             buildRecord.setDependencies(dependencies);
 
@@ -629,18 +637,18 @@ public class BuildRecord implements GenericEntity<Integer> {
             return this;
         }
 
-        public Builder builtArtifact(Artifact builtArtifact) {
+        public Builder builtArtifact(BuiltArtifact builtArtifact) {
             this.builtArtifacts.add(builtArtifact);
             return this;
         }
 
-        public Builder builtArtifacts(List<Artifact> builtArtifacts) {
+        public Builder builtArtifacts(List<BuiltArtifact> builtArtifacts) {
             this.builtArtifacts = builtArtifacts;
             return this;
         }
 
-        public Builder dependency(Artifact builtArtifact) {
-            this.dependencies.add(builtArtifact);
+        public Builder dependency(Artifact artifact) {
+            this.dependencies.add(artifact);
             return this;
         }
 

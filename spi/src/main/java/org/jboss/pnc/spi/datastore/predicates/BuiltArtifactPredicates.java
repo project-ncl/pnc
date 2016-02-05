@@ -17,8 +17,8 @@
  */
 package org.jboss.pnc.spi.datastore.predicates;
 
-import org.jboss.pnc.model.Artifact;
-import org.jboss.pnc.model.Artifact_;
+import org.jboss.pnc.model.BuiltArtifact;
+import org.jboss.pnc.model.BuiltArtifact_;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.BuildRecord_;
 import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
@@ -28,12 +28,12 @@ import javax.persistence.criteria.Join;
 /**
  * Predicates for {@link org.jboss.pnc.model.Artifact} entity.
  */
-public class ArtifactPredicates {
+public class BuiltArtifactPredicates {
 
-    public static Predicate<Artifact> withDependantBuildRecordId(Integer buildRecordId) {
+    public static Predicate<BuiltArtifact> withBuildRecordId(Integer buildRecordId) {
         return (root, query, cb) -> {
-            Join<Artifact, BuildRecord> buildRecords = root.join(Artifact_.dependantBuildRecords);
-            return cb.equal(buildRecords.get(BuildRecord_.id), buildRecordId);
+            Join<BuiltArtifact, BuildRecord> buildRecord = root.join(BuiltArtifact_.buildRecord);
+            return cb.equal(buildRecord.get(BuildRecord_.id), buildRecordId);
         };
     }
 

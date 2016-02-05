@@ -55,7 +55,7 @@ public class BuildResultSerializationTest {
         Assert.assertEquals(message, buildResult.hasFailed(), buildResultFromJson.hasFailed());
         Assert.assertEquals(message, buildResult.getException().get().getMessage(), buildResultFromJson.getException().get().getMessage());
         Assert.assertEquals(message, buildResult.getRepositoryManagerResult().get().getBuildContentId(), buildResultFromJson.getRepositoryManagerResult().get().getBuildContentId());
-        Assert.assertEquals(message, buildResult.getRepositoryManagerResult().get().getBuiltArtifacts().get(0).getId(), buildResultFromJson.getRepositoryManagerResult().get().getBuiltArtifacts().get(0).getId());
+        Assert.assertEquals(message, buildResult.getRepositoryManagerResult().get().getBuiltArtifacts().iterator().next().getId(), buildResultFromJson.getRepositoryManagerResult().get().getBuiltArtifacts().iterator().next().getId());
         Assert.assertEquals(message, buildResult.getBuildDriverResult().get().getBuildLog(), buildResultFromJson.getBuildDriverResult().get().getBuildLog());
         Assert.assertEquals(message, buildResult.getBuildDriverResult().get().getBuildDriverStatus(), buildResultFromJson.getBuildDriverResult().get().getBuildDriverStatus());
     }

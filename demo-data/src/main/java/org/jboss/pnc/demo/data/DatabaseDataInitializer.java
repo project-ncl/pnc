@@ -266,14 +266,14 @@ public class DatabaseDataInitializer {
     @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
     public void initiliazeBuildRecordDemoData() {
 
-        Artifact builtArtifact1 = Artifact.Builder.newBuilder().identifier("test").deployUrl("http://google.pl/built1")
+        BuiltArtifact builtArtifact1 = BuiltArtifact.Builder.newBuilder().filename("built demo artifact 1").checksum("abcd1234")
                 .status(ArtifactStatus.BINARY_BUILT).build();
-        Artifact builtArtifact2 = Artifact.Builder.newBuilder().identifier("test").deployUrl("http://google.pl/built2")
+        BuiltArtifact builtArtifact2 = BuiltArtifact.Builder.newBuilder().filename("built demo artifact 2").checksum("abcd2345")
                 .status(ArtifactStatus.BINARY_BUILT).build();
 
-        Artifact importedArtifact1 = Artifact.Builder.newBuilder().identifier("test").deployUrl("http://google.pl/imported1")
+        Artifact importedArtifact1 = Artifact.Builder.newBuilder().filename("imported demo artifact 1").deployUrl("http://google.pl/imported1")
                 .status(ArtifactStatus.BINARY_IMPORTED).build();
-        Artifact importedArtifact2 = Artifact.Builder.newBuilder().identifier("test").deployUrl("http://google.pl/imported2")
+        Artifact importedArtifact2 = Artifact.Builder.newBuilder().filename("imported demo artifact 2").deployUrl("http://google.pl/imported2")
                 .status(ArtifactStatus.BINARY_IMPORTED).build();
 
         Set<BuildRecord> buildRecords = new HashSet<BuildRecord>();
@@ -292,8 +292,10 @@ public class DatabaseDataInitializer {
                     .submitTime(Timestamp.from(Instant.now()))
                     .startTime(Timestamp.from(Instant.now()))
                     .endTime(Timestamp.from(Instant.now()))
-                    .builtArtifact(builtArtifact1).builtArtifact(builtArtifact2)
-                    .builtArtifact(importedArtifact1).builtArtifact(importedArtifact2)
+                    .builtArtifact(builtArtifact1)
+                    .builtArtifact(builtArtifact2)
+                    .dependency(importedArtifact1)
+                    .dependency(importedArtifact2)
                     .user(demoUser)
                     .buildLog("Very short demo log: The quick brown fox jumps over the lazy dog.")
                     .status(BuildStatus.SUCCESS)
@@ -310,9 +312,9 @@ public class DatabaseDataInitializer {
             buildRecordSetRepository.save(distributedBuildRecordSet);
         }
 
-        Artifact builtArtifact3 = Artifact.Builder.newBuilder().identifier("test").deployUrl("http://google.pl/built3")
+        BuiltArtifact builtArtifact3 = BuiltArtifact.Builder.newBuilder().filename("built demo artifact 3").identifier("test").deployUrl("http://google.pl/built3")
                 .status(ArtifactStatus.BINARY_BUILT).build();
-        Artifact builtArtifact4 = Artifact.Builder.newBuilder().identifier("test").deployUrl("http://google.pl/built4")
+        BuiltArtifact builtArtifact4 = BuiltArtifact.Builder.newBuilder().filename("built demo artifact 4").identifier("test").deployUrl("http://google.pl/built4")
                 .status(ArtifactStatus.BINARY_BUILT).build();
 
         IdRev buildConfig2AuditIdRev = new IdRev(buildConfiguration2.getId(), INITIAL_REVISION);
@@ -330,6 +332,8 @@ public class DatabaseDataInitializer {
                     .endTime(Timestamp.from(Instant.now()))
                     .builtArtifact(builtArtifact3)
                     .builtArtifact(builtArtifact4)
+                    .dependency(builtArtifact1)
+                    .dependency(importedArtifact1)
                     .user(demoUser)
                     .buildLog("Very short demo log: The quick brown fox jumps over the lazy dog.")
                     .status(BuildStatus.SUCCESS)

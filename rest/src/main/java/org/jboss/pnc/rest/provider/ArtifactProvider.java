@@ -29,7 +29,7 @@ import javax.ejb.Stateless;
 import javax.inject.Inject;
 import java.util.function.Function;
 
-import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withBuildRecordId;
+import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withDependantBuildRecordId;
 
 @Stateless
 public class ArtifactProvider extends AbstractProvider<Artifact, ArtifactRest> {
@@ -44,7 +44,7 @@ public class ArtifactProvider extends AbstractProvider<Artifact, ArtifactRest> {
 
     public CollectionInfo<ArtifactRest> getAllForBuildRecord(int pageIndex, int pageSize, String sortingRsql, String query,
             int buildRecordId) {
-        return queryForCollection(pageIndex, pageSize, sortingRsql, query, withBuildRecordId(buildRecordId));
+        return queryForCollection(pageIndex, pageSize, sortingRsql, query, withDependantBuildRecordId(buildRecordId));
     }
 
     @Override

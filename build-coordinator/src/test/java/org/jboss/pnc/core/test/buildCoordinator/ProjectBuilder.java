@@ -28,6 +28,7 @@ import org.jboss.pnc.mock.model.builders.TestProjectConfigurationBuilder;
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationSet;
+import org.jboss.pnc.model.BuiltArtifact;
 import org.jboss.pnc.model.mock.MockUser;
 import org.jboss.pnc.spi.BuildCoordinationStatus;
 import org.jboss.pnc.spi.BuildSetStatus;
@@ -209,7 +210,13 @@ public class ProjectBuilder {
         assertTrue("Did not received update for status: " + status + " for BuildTaskId: " + buildTaskId, received);
     }
 
-    public static void assertBuildArtifactsPresent(List<Artifact> builtArtifacts) {
+    public static void assertBuildArtifactsPresent(List<BuiltArtifact> builtArtifacts) {
+        assertTrue("Missing built artifacts.", builtArtifacts.size() > 0);
+        BuiltArtifact artifact = builtArtifacts.get(0);
+        assertTrue("Invalid built artifact in result.", artifact.getIdentifier().startsWith(ArtifactBuilder.IDENTIFIER_PREFIX));
+    }
+
+    public static void assertDependencyArtifactsPresent(List<Artifact> builtArtifacts) {
         assertTrue("Missing built artifacts.", builtArtifacts.size() > 0);
         Artifact artifact = builtArtifacts.get(0);
         assertTrue("Invalid built artifact in result.", artifact.getIdentifier().startsWith(ArtifactBuilder.IDENTIFIER_PREFIX));

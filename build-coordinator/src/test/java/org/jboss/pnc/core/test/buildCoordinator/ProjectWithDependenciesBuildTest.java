@@ -65,7 +65,7 @@ public class ProjectWithDependenciesBuildTest extends ProjectBuilder {
         Assert.assertTrue("Invalid build log.", buildLog.contains("Finished: SUCCESS"));
 
         assertBuildArtifactsPresent(buildRecord.getBuiltArtifacts());
-        assertBuildArtifactsPresent(buildRecord.getDependencies());
+        assertDependencyArtifactsPresent(buildRecord.getDependencies());
 
         BuildConfigSetRecord buildConfigSetRecord = datastoreMock.getBuildConfigSetRecords().get(0);
         Assert.assertNotNull(buildConfigSetRecord.getEndTime());

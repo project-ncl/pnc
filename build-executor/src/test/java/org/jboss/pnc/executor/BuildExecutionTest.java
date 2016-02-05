@@ -126,7 +126,7 @@ public class BuildExecutionTest {
         Assert.assertTrue("Missing build artifacts.", repositoryManagerResult.getBuiltArtifacts().size() > 0);
         Assert.assertTrue("Missing build dependencies.", repositoryManagerResult.getDependencies().size() > 0);
 
-        Artifact artifact = repositoryManagerResult.getBuiltArtifacts().get(0);
+        Artifact artifact = repositoryManagerResult.getBuiltArtifacts().iterator().next();
         Assert.assertTrue("Invalid built artifact in the result.", artifact.getIdentifier().startsWith(ArtifactBuilder.IDENTIFIER_PREFIX));
 
     }
