@@ -532,10 +532,7 @@ public class BuildRecord implements GenericEntity<Integer> {
             buildRecord.setSubmitTime(submitTime);
             buildRecord.setStartTime(startTime);
             buildRecord.setEndTime(endTime);
-            if (latestBuildConfiguration != null) {
-                latestBuildConfiguration.addBuildRecord(buildRecord);
-                buildRecord.setLatestBuildConfiguration(latestBuildConfiguration);
-            }
+            buildRecord.setLatestBuildConfiguration(latestBuildConfiguration);
             buildRecord.setBuildConfigurationAudited(buildConfigurationAudited);
             buildRecord.setUser(user);
             buildRecord.setScmRepoURL(scmRepoURL);
