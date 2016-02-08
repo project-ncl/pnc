@@ -40,47 +40,18 @@
       var self = this;
       self.data = new BuildConfigurationSetDAO();
       self.products = products;
-      self.productVersions = [];
 
-      if (parseInt($state.params.productId) !== -1) {
-        self.selectedProductId = parseInt($state.params.productId);
-
-        ProductVersionDAO.getAllForProduct({
-            productId: self.selectedProductId
-          }).then(
-            function(result) {
-              self.productVersions = result;
-              self.data.productVersionId = parseInt($state.params.versionId);
-            }
-          );
-      }
-
-      self.getProductVersions = function(productId) {
-        $log.debug('**Getting productVersions of Product: %0**', productId);
-
-        if (productId) {
-          ProductVersionDAO.getAllForProduct({
-            productId: productId
-          }).then(
-            function(result) {
-              self.productVersions = result;
-              if (result) {
-                self.data.productVersionId = result[0].id;
-              }
-            }
-          );
-        } else {
-          self.productVersions = [];
-        }
+      self.productVersions = {
+        selected: []
       };
 
       self.submit = function() {
         self.data.$save().then(
           function() {
-            if (self.data.productVersionId) {
+            if (!_.isEmpty(self.productVersions.selected)) {
               var params = {
-                productId: parseInt(self.selectedProductId),
-                versionId: self.data.productVersionId
+                productId: parseInt(self.productVersions.selected[0].productId),
+                versionId: parseInt(self.productVersions.selected[0].id)
               };
               $state.go('product.detail.version', params, {
                 reload: true,
@@ -96,11 +67,10 @@
 
       self.reset = function(configurationSetForm) {
         if (configurationSetForm) {
+          self.productVersions.selected = [];
+          self.data = new BuildConfigurationSetDAO();
           configurationSetForm.$setPristine();
           configurationSetForm.$setUntouched();
-          self.data = new BuildConfigurationSetDAO();
-          self.selectedProductId = '';
-          self.getProductVersions(null);
         }
       };
     }
