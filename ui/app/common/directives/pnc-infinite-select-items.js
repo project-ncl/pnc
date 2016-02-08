@@ -77,7 +77,6 @@
         itemId: '=',
         placeholder: '@',
         infiniteSelectId: '@',
-        infiniteSelectName: '@',
         infiniteSelectRequired: '@'
       },
       templateUrl: 'common/directives/views/pnc-infinite-select-items.html',
@@ -85,6 +84,15 @@
         '$log',
         '$scope',
         function($log, $scope) {
+
+          var findInArray = function(obj, array) {
+            for (var i = 0; i < array.length; i++) {
+              if (angular.equals(obj.id, array[i].id)) {
+                return i;
+              }
+            }
+            return -1;
+          };
 
        	  var PLACEHOLDER = 'Scroll & Filter';
           $scope.placeholder = _.isUndefined($scope.placeholder) ? PLACEHOLDER : $scope.placeholder;
@@ -94,10 +102,17 @@
        	  var DEFAULT_DISPLAY_PROPERTY = 'name';
           $scope.displayProperty = _.isUndefined($scope.displayProperty) ? DEFAULT_DISPLAY_PROPERTY : $scope.displayProperty;
 
+          // If selectedItems is not empty, populate the $scope.itemId and $scope.searchText, otherwise
+          // if 'infiniteSelectRequired' is true, the form would be invalid
+          if ($scope.singleItem === 'true' && !_.isUndefined($scope.selectedItems) && !_.isEmpty($scope.selectedItems)) {
+            $scope.itemId = $scope.selectedItems[0].id;
+            $scope.searchText = $scope.selectedItems[0][$scope.displayProperty];
+          }
+
           $scope.removeItem = function(item) {
-        	// Remove from selected items list
-            var i = _.indexOf($scope.selectedItems, item);
-        	if (i >= 0) {
+            // Remove from selected items list
+            var i = findInArray(item, $scope.selectedItems);
+            if (i >= 0) {
               $scope.selectedItems.splice(i, 1);
               if ($scope.singleItem === 'true') {
                 $scope.itemId = undefined;
@@ -111,7 +126,7 @@
           };
 
           $scope.shouldShowSelection = function() {
-              return !($scope.singleItem === 'true' && $scope.shouldShowList());
+            return !($scope.singleItem === 'true' && $scope.shouldShowList());
           };
 
           $scope.loadOptions = function() {
@@ -133,7 +148,7 @@
               $scope.searchText = item[$scope.displayProperty];
         	}
 
-            if (_.indexOf($scope.selectedItems, item) < 0) {
+            if (findInArray(item, $scope.selectedItems) < 0) {
               // If single item, clear the $scope.selectedItems
               if ($scope.singleItem === 'true') {
                 $scope.selectedItems.splice(0, $scope.selectedItems.length);
@@ -149,7 +164,6 @@
 
           $scope.search = _.throttle(function() {
             $scope.items.search($scope.searchText);
-            //TODO: set the field to dirty
           }, 1000);
 
           // When resetting the forms, itemId is reset because it's bound in the form via the 'item-id' property, but 'searchText' is not.

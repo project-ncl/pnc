@@ -52,6 +52,7 @@
       that.projects = projects;
       that.configurations = configurations;
       that.configurationSetList = configurationSetList;
+      that.products = products;
 
       that.submit = function() {
         // The REST API takes integer Ids so we need to extract them from
@@ -74,43 +75,8 @@
         });
       };
 
-      // Filtering and selection of linked ProductVersions.
-      that.products = {
-        all: products,
-        selected: null
-      };
-
-      that.allProductsMaps = {};
-      that.allProductNamesMaps = {};
-
-      _.each(that.products.all, function(prod) {
-        that.allProductsMaps[ prod.id ] = prod;
-      });
-
       that.productVersions = {
-        selected: [],
-        all: [],
-
-        update: function() {
-
-          if (that.products.selected) {
-            ProductDAO.getVersions({
-              productId: that.products.selected.id
-            }).then(function(data) {
-              that.productVersions.all = data;
-
-              // TOFIX - Ugly but quick - avibelli
-              _.each(data, function(prodVers) {
-                that.allProductNamesMaps[ prodVers.id ] = that.allProductsMaps[ prodVers.productId ].name + ' - ';
-              });
-            });
-          }
-        },
-        getItems: function($viewValue) {
-          return $filter('filter')(that.productVersions.all, {
-            version: $viewValue
-          });
-        }
+        selected: []
       };
 
       // Selection of dependencies.
@@ -135,8 +101,6 @@
 
       that.reset = function(form) {
         if (form) {
-          that.products.selected = null;
-          that.productVersions.all = [];
           that.productVersions.selected = [];
           that.dependencies.selected = [];
           that.buildgroupconfigs.selected = [];
@@ -163,69 +127,29 @@
     'BuildConfigurationSetDAO',
     'configurationDetail',
     'environments',
+    'products',
     'environmentDetail',
     'linkedProductVersions',
     'dependencies',
-    'allProducts',
     'configurations',
     'configurationSetList',
     'linkedConfigurationSetList',
     function($log, $state, $filter, Notifications, ProductDAO, BuildConfigurationDAO, BuildConfigurationSetDAO,
-      configurationDetail, environments, environmentDetail,
-      linkedProductVersions, dependencies, allProducts, configurations, configurationSetList, linkedConfigurationSetList) {
+      configurationDetail, environments, products, environmentDetail,
+      linkedProductVersions, dependencies, configurations, configurationSetList, linkedConfigurationSetList) {
 
       var that = this;
 
       that.configuration = configurationDetail;
       that.environment = _.isUndefined(environmentDetail.content[0]) ? undefined : environmentDetail.content[0];
       that.environments = environments;
-      that.allProducts = allProducts;
       that.configurations = configurations;
       that.configurationSetList = configurationSetList;
-
-      // Filtering and selection of linked ProductVersions.
-      that.products = {
-        all: allProducts,
-        selected: null
-      };
+      that.products = products;
 
       that.productVersions = {
-        selected: linkedProductVersions,
-        all: [],
-
-        update: function() {
-          ProductDAO.getVersions({
-            productId: that.products.selected.id
-          }).then(function(data) {
-            that.productVersions.all = data;
-          });
-        },
-        getItems: function($viewValue) {
-          return $filter('filter')(that.productVersions.all, {
-            version: $viewValue
-          });
-        }
+        selected: linkedProductVersions
       };
-
-      that.allProductsMaps = {};
-      that.allProductNamesMaps = {};
-
-      _.each(that.allProducts, function(prod) {
-        that.allProductsMaps[ prod.id ] = prod;
-
-        // Bootstrap products, depending on whether the BuildConfiguration
-        // already has a ProductVersion attached.
-        if (!_.isUndefined(linkedProductVersions) && linkedProductVersions.length > 0) {
-          if (linkedProductVersions[0].productId === prod.id) {
-            that.products.selected = prod;
-            that.productVersions.update();
-          }
-        }
-      });
-
-      _.each(linkedProductVersions, function(prodVers) {
-        that.allProductNamesMaps[ prodVers.id ] = that.allProductsMaps[ prodVers.productId ].name + ' - ';
-      });
 
       // Selection of dependencies
       that.dependencies = {
@@ -268,6 +192,7 @@
         that.configuration.productVersionIds =
           gatherIds(that.productVersions.selected);
         that.configuration.dependencyIds = gatherIds(that.dependencies.selected);
+        that.configuration.environment.id = that.environment.id;
 
         var added = _.difference(that.buildgroupconfigs.selected, linkedConfigurationSetList);
         var removed = _.difference(linkedConfigurationSetList, that.buildgroupconfigs.selected);
@@ -293,10 +218,6 @@
             reload: true
           });
         });
-      };
-
-      that.updateEnvironment = function() {
-        that.configuration.environment.id = that.environment.id;
       };
 
       // Cloning a build configuration

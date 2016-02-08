@@ -81,7 +81,7 @@
           return ProjectDAO.getAll();
         },
         products: function(ProductDAO) {
-          return ProductDAO.query();
+          return ProductDAO.getAll();
         },
         configurations: function(BuildConfigurationDAO) {
           return BuildConfigurationDAO.getAll();
@@ -147,16 +147,16 @@
         },
 
         environments: function(EnvironmentDAO) {
-            return EnvironmentDAO.getAll();
-          },
-        allProducts: function(ProductDAO) {
-          return ProductDAO.query();
+          return EnvironmentDAO.getAll();
+        },
+        products: function(ProductDAO) {
+          return ProductDAO.getAll();
         },
         configurations: function(BuildConfigurationDAO) {
           return BuildConfigurationDAO.getAll();
         },
         configurationSetList: function(BuildConfigurationSetDAO) {
-            return BuildConfigurationSetDAO.getAll();
+          return BuildConfigurationSetDAO.getAll();
         }
       }
     });
