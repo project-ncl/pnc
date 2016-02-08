@@ -50,6 +50,27 @@
               });
             }
           };
+          scope.addOptionalRepository = function() {
+            // check if it is defined. If no, define it
+            if (typeof scope.data.repositories === 'undefined') {
+              scope.data.repositories = [];
+            }
+            // add to the list
+            scope.data.repositories.push(scope.optionalRepository);
+
+            // clear the field in the UI
+            scope.optionalRepository = '';
+          };
+
+          scope.removeOptionalRepository = function(index) {
+            scope.data.repositories.splice(index, 1);
+          };
+
+          scope.formReset = function() {
+            scope.data = {};
+            scope.optionalRepository = '';
+            scope.startForm.$setPristine();
+          };
         }
       };
     }

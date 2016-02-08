@@ -96,11 +96,45 @@
     </div>
   </div>
 
+  <div class="panel panel-default">
+    <div class="panel-body">
+
+      <div class="form-group"
+           ng-class="{ 'has-error' : startForm.startFormInput6.$invalid && !startForm.startFormInput6.$pristine, 'has-success': startForm.startFormInput6.$valid  && startForm.startFormInput6.$touched }">
+        <label for="startFormInput6" class="col-sm-2 control-label">
+          Optional Repositories&nbsp;<span class="pficon pficon-info" title="URLs of the optional repositories used for the project."></span>
+        </label>
+
+
+        <div class="col-sm-9">
+          <input type="url" id="startFormInput6" name="startFormInput6" class="form-control" ng-model="optionalRepository">
+          <span class="help-block" ng-show="startForm.startFormInput6.$error.url && !startForm.startFormInput6.$pristine">Invalid URL.</span>
+        </div>
+        <div class="col-sm-1">
+          <button type="button" class="btn btn-primary" ng-click="addOptionalRepository()">Add</button>
+        </div>
+      </div>
+
+      <hr>
+      <div class="form-group">
+          <label for="added_repositories" class="col-sm-2 control-label">
+            Added Repositories
+          </label>
+          <div class="col-sm-10" id="added_repositories">
+            <div ng-repeat="repository in data.repositories track by $index">
+              {{repository}} <button type="button" class="close" aria-label="Close" ng-click="removeOptionalRepository($index)"><span aria-hidden="true">×</span></button>
+              <hr>
+            </div>
+          </div>
+      </div>
+    </div>
+  </div>
+
 
   <div class="form-group pull-right">
     <div class="col-sm-offset-2 col-sm-10">
       <input type="submit" class="btn btn-primary" value="Start process" ng-disabled="submitDisabled || startForm.$invalid">
-      <input type="reset" class="btn btn-default" value="Clear">
+      <button type="button" class="btn btn-default" ng-click="formReset()">Clear</button>
     </div>
   </div>
 </form>
