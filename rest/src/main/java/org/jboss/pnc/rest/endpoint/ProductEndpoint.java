@@ -26,7 +26,6 @@ import org.jboss.pnc.model.Product;
 import org.jboss.pnc.rest.provider.ProductProvider;
 import org.jboss.pnc.rest.provider.ProductVersionProvider;
 import org.jboss.pnc.rest.restmodel.ProductRest;
-import org.jboss.pnc.rest.restmodel.ProductVersionRest;
 import org.jboss.pnc.rest.restmodel.response.error.ErrorResponseRest;
 import org.jboss.pnc.rest.swagger.response.ProductPage;
 import org.jboss.pnc.rest.swagger.response.ProductVersionPage;

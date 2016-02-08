@@ -26,6 +26,7 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
@@ -49,6 +50,8 @@ public class ProductRest implements GenericRestEntity<Integer> {
 
     private List<Integer> productVersionIds;
 
+    private Set<ProductVersionRest> productVersions;
+
     public ProductRest() {
     }
 
@@ -61,6 +64,8 @@ public class ProductRest implements GenericRestEntity<Integer> {
         this.pgmSystemName = product.getPgmSystemName();
         this.productVersionIds = nullableStreamOf(product.getProductVersions()).map(productVersion -> productVersion.getId())
                 .collect(Collectors.toList());
+        this.productVersions = nullableStreamOf(product.getProductVersions()).map(productVersion -> new ProductVersionRest(productVersion))
+                .collect(Collectors.toSet());
     }
 
     @Override
@@ -119,6 +124,14 @@ public class ProductRest implements GenericRestEntity<Integer> {
 
     public void setProductVersionIds(List<Integer> productVersionIds) {
         this.productVersionIds = productVersionIds;
+    }
+
+    public Set<ProductVersionRest> getProductVersions() {
+        return productVersions;
+    }
+
+    public void setProductVersions(Set<ProductVersionRest> productVersions) {
+        this.productVersions = productVersions;
     }
 
     public Product.Builder toDBEntityBuilder() {

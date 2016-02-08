@@ -46,6 +46,8 @@ public class ProductVersionRest implements GenericRestEntity<Integer> {
     @NotNull(groups = {WhenCreatingNew.class, WhenUpdating.class})
     private Integer productId;
 
+    private String productName;
+
     private Integer currentProductMilestoneId;
 
     List<ProductMilestoneRest> productMilestones = new ArrayList<ProductMilestoneRest>();
@@ -63,6 +65,7 @@ public class ProductVersionRest implements GenericRestEntity<Integer> {
         this.id = productVersion.getId();
         this.version = productVersion.getVersion();
         this.productId = productVersion.getProduct().getId();
+        this.productName = productVersion.getProduct().getName();
         this.currentProductMilestoneId = productVersion.getCurrentProductMilestone() != null
                 ? productVersion.getCurrentProductMilestone().getId() : null;
 
@@ -106,6 +109,14 @@ public class ProductVersionRest implements GenericRestEntity<Integer> {
 
     public void setProductId(Integer productId) {
         this.productId = productId;
+    }
+
+    public String getProductName() {
+        return productName;
+    }
+
+    public void setProductName(String productName) {
+        this.productName = productName;
     }
 
     public List<ProductMilestoneRest> getProductMilestones() {
