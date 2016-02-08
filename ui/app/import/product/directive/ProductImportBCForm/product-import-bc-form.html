@@ -114,8 +114,8 @@
       <div class="form-group">
         <label class="col-sm-2 control-label">* Environment</label>
         <div class="col-sm-10">
-          <environment-dropdown selected-id="data.environment.id"></environment-dropdown>
-          <div ng-show="data.environment.id === null" class="help-block">
+          <environment-dropdown selected-id="data.environmentId"></environment-dropdown>
+          <div ng-show="data.environmentId === null" class="help-block">
             <p class="text-danger">Required field.</p>
           </div>
         </div>
@@ -124,8 +124,8 @@
       <div class="form-group">
         <label class="col-sm-2 control-label">* Project</label>
         <div class="col-sm-10">
-          <project-dropdown selected-id="data.project.id" refresh="refresh"></project-dropdown>
-          <div ng-show="data.project.id === null" class="help-block">
+          <project-dropdown selected-id="data.projectId" refresh="refresh"></project-dropdown>
+          <div ng-show="data.projectId === null" class="help-block">
             <p class="text-danger">Required field.</p>
           </div>
         </div>
