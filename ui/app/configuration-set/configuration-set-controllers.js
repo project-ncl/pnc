@@ -35,8 +35,7 @@
     '$state',
     'products',
     'BuildConfigurationSetDAO',
-    'ProductVersionDAO',
-    function($log, $state, products, BuildConfigurationSetDAO, ProductVersionDAO) {
+    function($log, $state, products, BuildConfigurationSetDAO) {
       var self = this;
       self.data = new BuildConfigurationSetDAO();
       self.products = products;
