@@ -25,8 +25,8 @@
    * @author Jakub Senko
    */
   module.directive('productImportStartForm', [
-
-    function () {
+    'ProductDAO',
+    function (ProductDAO) {
 
       return {
         restrict: 'E',
@@ -71,6 +71,8 @@
             scope.optionalRepository = '';
             scope.startForm.$setPristine();
           };
+
+          scope.products = ProductDAO.getAll();
         }
       };
     }

@@ -282,7 +282,7 @@
           scope.startSubmitDisabled = true;
           if (_(r).has('name')) {
             data = r;
-            scope.productName = data.name;
+            scope.id = data.id;
             scope.bcSetName = data.bcSetName;
             parseData(tree, data);
             tree.nodes[0].nlaSuccessful = true;
