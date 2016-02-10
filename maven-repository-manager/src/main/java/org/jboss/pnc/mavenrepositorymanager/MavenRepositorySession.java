@@ -225,8 +225,7 @@ public class MavenRepositorySession implements RepositorySession {
                 Artifact.Builder artifactBuilder = Artifact.Builder.newBuilder().checksum(download.getMd5())
                         .deployUrl(content.contentUrl(download.getStoreKey(), download.getPath()))
                         .filename(new File(path).getName()).identifier(aref.toString()).repoType(
-                                RepositoryType.MAVEN)
-                        .status(ArtifactStatus.BINARY_IMPORTED);
+                                RepositoryType.MAVEN);
 
                 deps.add(artifactBuilder.build());
             }
@@ -275,7 +274,7 @@ public class MavenRepositorySession implements RepositorySession {
                 BuiltArtifact.Builder artifactBuilder = BuiltArtifact.Builder.newBuilder().checksum(upload.getSha256())
                         .deployUrl(upload.getLocalUrl()).filename(new File(path).getName()).identifier(
                                 aref.toString())
-                        .repoType(RepositoryType.MAVEN).status(ArtifactStatus.BINARY_BUILT);
+                        .repoType(RepositoryType.MAVEN);
 
                 builds.add(artifactBuilder.build());
             }

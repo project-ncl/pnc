@@ -114,22 +114,18 @@ public class BuildRecordsTest {
         BuiltArtifact builtArtifact1 = new BuiltArtifact();
         builtArtifact1.setFilename("built artifact 1");
         builtArtifact1.setIdentifier("ba1-test");
-        builtArtifact1.setStatus(ArtifactStatus.BINARY_BUILT);
 
         BuiltArtifact builtArtifact2 = new BuiltArtifact();
         builtArtifact2.setFilename("built artifact 2");
         builtArtifact2.setIdentifier("ba2-test");
-        builtArtifact2.setStatus(ArtifactStatus.BINARY_BUILT);
 
         BuiltArtifact builtArtifact3 = new BuiltArtifact();
         builtArtifact3.setFilename("built artifact 3");
         builtArtifact3.setIdentifier("ba3-test");
-        builtArtifact3.setStatus(ArtifactStatus.BINARY_BUILT);
 
         Artifact importedArtifact = new Artifact();
         importedArtifact.setFilename("imported artifact 1");
         importedArtifact.setIdentifier("ia1-test");
-        importedArtifact.setStatus(ArtifactStatus.BINARY_IMPORTED);
 
         List<User> users = userRepository.queryAll();
         assertThat(users.size() > 0).isTrue();

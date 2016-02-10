@@ -267,14 +267,14 @@ public class DatabaseDataInitializer {
     public void initiliazeBuildRecordDemoData() {
 
         BuiltArtifact builtArtifact1 = BuiltArtifact.Builder.newBuilder().filename("built demo artifact 1").checksum("abcd1234")
-                .status(ArtifactStatus.BINARY_BUILT).build();
+                .build();
         BuiltArtifact builtArtifact2 = BuiltArtifact.Builder.newBuilder().filename("built demo artifact 2").checksum("abcd2345")
-                .status(ArtifactStatus.BINARY_BUILT).build();
+                .build();
 
-        Artifact importedArtifact1 = Artifact.Builder.newBuilder().filename("imported demo artifact 1").deployUrl("http://google.pl/imported1")
-                .status(ArtifactStatus.BINARY_IMPORTED).build();
-        Artifact importedArtifact2 = Artifact.Builder.newBuilder().filename("imported demo artifact 2").deployUrl("http://google.pl/imported2")
-                .status(ArtifactStatus.BINARY_IMPORTED).build();
+        Artifact importedArtifact1 = Artifact.Builder.newBuilder().filename("imported demo artifact 1")
+                .deployUrl("http://google.pl/imported1").build();
+        Artifact importedArtifact2 = Artifact.Builder.newBuilder().filename("imported demo artifact 2")
+                .deployUrl("http://google.pl/imported2").build();
 
         Set<BuildRecord> buildRecords = new HashSet<BuildRecord>();
 
@@ -312,10 +312,10 @@ public class DatabaseDataInitializer {
             buildRecordSetRepository.save(distributedBuildRecordSet);
         }
 
-        BuiltArtifact builtArtifact3 = BuiltArtifact.Builder.newBuilder().filename("built demo artifact 3").identifier("test").deployUrl("http://google.pl/built3")
-                .status(ArtifactStatus.BINARY_BUILT).build();
-        BuiltArtifact builtArtifact4 = BuiltArtifact.Builder.newBuilder().filename("built demo artifact 4").identifier("test").deployUrl("http://google.pl/built4")
-                .status(ArtifactStatus.BINARY_BUILT).build();
+        BuiltArtifact builtArtifact3 = BuiltArtifact.Builder.newBuilder().filename("built demo artifact 3").identifier("test")
+                .deployUrl("http://google.pl/built3").build();
+        BuiltArtifact builtArtifact4 = BuiltArtifact.Builder.newBuilder().filename("built demo artifact 4").identifier("test")
+                .deployUrl("http://google.pl/built4").build();
 
         IdRev buildConfig2AuditIdRev = new IdRev(buildConfiguration2.getId(), INITIAL_REVISION);
         BuildConfigurationAudited buildConfigAudited2 = buildConfigurationAuditedRepository.findOne(buildConfig2AuditIdRev);
@@ -339,6 +339,8 @@ public class DatabaseDataInitializer {
                     .status(BuildStatus.SUCCESS)
                     .build();
 
+            // TODO: this causes builtArtifact1 and importedArtifact1 to be duplicated 
+            // because of the cascading insert.  Need a way to prevent these duplicates
             buildRecordRepository.save(buildRecord2);
             buildRecords.add(buildRecord2);
         }

@@ -43,6 +43,9 @@ import javax.validation.constraints.NotNull;
  * (identifier + checksum) should be unique
  */
 @Entity
+@Inheritance(strategy=InheritanceType.SINGLE_TABLE)
+@DiscriminatorColumn(name="status")
+@DiscriminatorValue("BINARY_IMPORTED")
 public class Artifact implements GenericEntity<Integer> {
 
     private static final long serialVersionUID = -2368833657284575734L;
@@ -69,6 +72,7 @@ public class Artifact implements GenericEntity<Integer> {
     private String deployUrl;
 
     @Enumerated(EnumType.STRING)
+    @Column(insertable=false, updatable=false)
     private ArtifactStatus status;
 
     /**
@@ -196,15 +200,6 @@ public class Artifact implements GenericEntity<Integer> {
         return status;
     }
 
-    /**
-     * Sets the status.
-     *
-     * @param status the new status
-     */
-    public void setStatus(ArtifactStatus status) {
-        this.status = status;
-    }
-
     public Set<BuildRecord> getDependantBuildRecords() {
         return dependantBuildRecords;
     }
@@ -254,8 +249,6 @@ public class Artifact implements GenericEntity<Integer> {
 
         private String deployUrl;
 
-        private ArtifactStatus status;
-
         private Set<BuildRecord> dependantBuildRecords;
 
         public static Builder newBuilder() {
@@ -270,7 +263,6 @@ public class Artifact implements GenericEntity<Integer> {
             artifact.setChecksum(checksum);
             artifact.setFilename(filename);
             artifact.setDeployUrl(deployUrl);
-            artifact.setStatus(status);
             if (dependantBuildRecords != null) {
                 artifact.setDependantBuildRecords(dependantBuildRecords);
             }
@@ -307,11 +299,6 @@ public class Artifact implements GenericEntity<Integer> {
         @Deprecated
         public Builder deployUrl(String deployUrl) {
             this.deployUrl = deployUrl;
-            return this;
-        }
-
-        public Builder status(ArtifactStatus status) {
-            this.status = status;
             return this;
         }
 

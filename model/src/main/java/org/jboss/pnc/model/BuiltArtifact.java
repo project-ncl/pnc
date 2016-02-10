@@ -32,10 +32,10 @@ import javax.validation.constraints.NotNull;
  * 
  */
 @Entity
+@DiscriminatorValue("BINARY_BUILT")
 public class BuiltArtifact extends Artifact {
 
     private static final long serialVersionUID = 1L;
-
 
     /**
      * The build record of the build which produced this artifact
@@ -44,7 +44,7 @@ public class BuiltArtifact extends Artifact {
     @ManyToOne
     @ForeignKey(name = "fk_artifact_buildrecord")
     @Index(name="idx_artifact_buildrecord")
-    @Column(updatable=false)
+    @JoinColumn(updatable=false)
     private BuildRecord buildRecord;
 
     /**
@@ -94,8 +94,6 @@ public class BuiltArtifact extends Artifact {
 
         private String deployUrl;
 
-        private ArtifactStatus status;
-
         private Set<BuildRecord> dependantBuildRecords;
 
         private BuildRecord buildRecord;
@@ -116,7 +114,6 @@ public class BuiltArtifact extends Artifact {
             artifact.setChecksum(checksum);
             artifact.setFilename(filename);
             artifact.setDeployUrl(deployUrl);
-            artifact.setStatus(status);
             if (dependantBuildRecords != null) {
                 artifact.setDependantBuildRecords(dependantBuildRecords);
             }
@@ -153,11 +150,6 @@ public class BuiltArtifact extends Artifact {
 
         public Builder deployUrl(String deployUrl) {
             this.deployUrl = deployUrl;
-            return this;
-        }
-
-        public Builder status(ArtifactStatus status) {
-            this.status = status;
             return this;
         }
 
