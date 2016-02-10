@@ -304,7 +304,7 @@
         data = parseTree(tree);
         Notifications.info('Analyzing \'' + node.gavString + '\'. This may take a minute, please be patient.');
         ProductImportDAO.analyzeNextLevel(data).then(function (r) {
-          if (_(r).has('name')) {
+          if (_(r).has('id')) {
             data = r;
             if (parseData(tree, data)) {
               node.nlaSuccessful = true;
