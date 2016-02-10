@@ -203,32 +203,25 @@ public class BuildRecordsTest {
         Collection<ArtifactRest> artifacts = artifactProvider.getAllForBuildRecord(0, 999, null, null, buildRecordId).getContent();
 
         //then
+        assertThat(artifacts).hasSize(4);
+    }
+
+    @Test
+    public void shouldGetOnlyDependencyArtifacts() {
+        // when
+        Collection<ArtifactRest> artifacts = artifactProvider.getDependencyArtifactsForBuildRecord(0, 999, null, null, buildRecordId).getContent();
+
+        // then
         assertThat(artifacts).hasSize(2);
     }
 
     @Test
-    public void shouldGetOnlyImportedArtifacts() {
-        //given
-        String rsqlQuery = "status==BINARY_IMPORTED";
-
-        // when
-        Collection<ArtifactRest> artifacts = artifactProvider.getAllForBuildRecord(0, 999, null, rsqlQuery, buildRecordId).getContent();
-
-        // then
-        assertThat(artifacts).hasSize(1);
-        assertThat(artifacts).are(new IsImported());
-    }
-
-    @Test
     public void shouldGetOnlyBuiltArtifacts() {
-        //given
-        String rsqlQuery = "status==BINARY_BUILT";
-
         // when
-        Collection<ArtifactRest> artifacts = artifactProvider.getAllForBuildRecord(0, 999, null, rsqlQuery, buildRecordId).getContent();
+        Collection<ArtifactRest> artifacts = artifactProvider.getBuiltArtifactsForBuildRecord(0, 999, null, null, buildRecordId).getContent();
 
         // then
-        assertThat(artifacts).hasSize(1);
+        assertThat(artifacts).hasSize(2);
         assertThat(artifacts).are(new IsBuilt());
     }
 
