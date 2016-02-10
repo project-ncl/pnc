@@ -18,31 +18,66 @@
 package org.jboss.pnc.rest.provider;
 
 import org.jboss.pnc.model.Artifact;
+import org.jboss.pnc.model.BuildRecord;
+import org.jboss.pnc.model.BuiltArtifact;
 import org.jboss.pnc.rest.provider.collection.CollectionInfo;
+import org.jboss.pnc.rest.provider.collection.CollectionInfoCollector;
 import org.jboss.pnc.rest.restmodel.ArtifactRest;
 import org.jboss.pnc.spi.datastore.repositories.ArtifactRepository;
+import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
 import org.jboss.pnc.spi.datastore.repositories.PageInfoProducer;
 import org.jboss.pnc.spi.datastore.repositories.SortInfoProducer;
 import org.jboss.pnc.spi.datastore.repositories.api.RSQLPredicateProducer;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
+
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Function;
 
+import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
 import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withDependantBuildRecordId;
+import static org.jboss.pnc.spi.datastore.predicates.BuiltArtifactPredicates.withBuildRecordId;
 
 @Stateless
 public class ArtifactProvider extends AbstractProvider<Artifact, ArtifactRest> {
+
+    private BuildRecordRepository buildRecordRepository;
 
     public ArtifactProvider() {
     }
 
     @Inject
-    public ArtifactProvider(ArtifactRepository artifactRepository, RSQLPredicateProducer rsqlPredicateProducer, SortInfoProducer sortInfoProducer, PageInfoProducer pageInfoProducer) {
+    public ArtifactProvider(ArtifactRepository artifactRepository, RSQLPredicateProducer rsqlPredicateProducer,
+            SortInfoProducer sortInfoProducer, PageInfoProducer pageInfoProducer, BuildRecordRepository buildRecordRepository) {
         super(artifactRepository, rsqlPredicateProducer, sortInfoProducer, pageInfoProducer);
+        this.buildRecordRepository = buildRecordRepository;
     }
 
+    @Deprecated
     public CollectionInfo<ArtifactRest> getAllForBuildRecord(int pageIndex, int pageSize, String sortingRsql, String query,
+            int buildRecordId) {
+        BuildRecord buildRecord = buildRecordRepository.queryById(buildRecordId);
+        List<Artifact> artifactList = buildRecord.getDependencies();
+        if (artifactList == null) {
+            artifactList = new ArrayList<Artifact>();
+        }
+        for (BuiltArtifact artifact : buildRecord.getBuiltArtifacts()) {
+            artifactList.add(artifact);
+        }
+
+        return nullableStreamOf(artifactList).map(artifact -> new ArtifactRest(artifact)).skip(pageIndex * pageSize)
+                .limit(pageSize).collect(new CollectionInfoCollector<>(pageIndex, pageSize, artifactList.size()));
+    }
+    public CollectionInfo<ArtifactRest> getBuiltArtifactsForBuildRecord(int pageIndex, int pageSize, String sortingRsql, String query,
+            int buildRecordId) {
+        BuildRecord buildRecord = buildRecordRepository.queryById(buildRecordId);
+        return nullableStreamOf(buildRecord.getBuiltArtifacts()).map(artifact -> new ArtifactRest(artifact)).skip(pageIndex * pageSize)
+                .limit(pageSize).collect(new CollectionInfoCollector<>(pageIndex, pageSize, buildRecord.getBuiltArtifacts().size()));
+    }
+
+    public CollectionInfo<ArtifactRest> getDependencyArtifactsForBuildRecord(int pageIndex, int pageSize, String sortingRsql, String query,
             int buildRecordId) {
         return queryForCollection(pageIndex, pageSize, sortingRsql, query, withDependantBuildRecordId(buildRecordId));
     }
