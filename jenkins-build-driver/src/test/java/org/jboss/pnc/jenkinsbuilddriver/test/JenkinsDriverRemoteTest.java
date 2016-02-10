@@ -24,6 +24,7 @@ import org.jboss.pnc.common.util.ObjectWrapper;
 import org.jboss.pnc.jenkinsbuilddriver.JenkinsBuildDriver;
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.BuildConfigurationAudited;
+import org.jboss.pnc.model.BuiltArtifact;
 import org.jboss.pnc.model.Project;
 import org.jboss.pnc.model.RepositoryType;
 import org.jboss.pnc.spi.BuildExecution;
@@ -235,8 +236,8 @@ public class JenkinsDriverRemoteTest {
             public RepositoryManagerResult extractBuildArtifacts() throws RepositoryManagerException {
                 return new RepositoryManagerResult() {
                     @Override
-                    public List<Artifact> getBuiltArtifacts() {
-                        List<Artifact> builtArtifacts = Collections.emptyList();
+                    public List<BuiltArtifact> getBuiltArtifacts() {
+                        List<BuiltArtifact> builtArtifacts = Collections.emptyList();
                         builtArtifacts.add(getArtifact(1));
                         return builtArtifacts;
                     }
@@ -250,8 +251,8 @@ public class JenkinsDriverRemoteTest {
                 };
             }
 
-            private Artifact getArtifact(int i) {
-                Artifact artifact = new Artifact();
+            private BuiltArtifact getArtifact(int i) {
+                BuiltArtifact artifact = new BuiltArtifact();
                 artifact.setId(i);
                 artifact.setIdentifier("test" + i);
                 return artifact;

@@ -51,6 +51,7 @@ import java.lang.invoke.MethodHandles;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -110,38 +111,61 @@ public class BuildRecordsTest {
         buildConfigName = buildConfigurationAudited.getName();
         BuildConfiguration buildConfiguration = buildConfigurationRepository.queryById(buildConfigurationAudited.getId().getId());
 
-        Artifact builtArtifact = new Artifact();
-        builtArtifact.setIdentifier("test");
-        builtArtifact.setStatus(ArtifactStatus.BINARY_BUILT);
+        BuiltArtifact builtArtifact1 = new BuiltArtifact();
+        builtArtifact1.setFilename("built artifact 1");
+        builtArtifact1.setIdentifier("ba1-test");
+
+        BuiltArtifact builtArtifact2 = new BuiltArtifact();
+        builtArtifact2.setFilename("built artifact 2");
+        builtArtifact2.setIdentifier("ba2-test");
+
+        BuiltArtifact builtArtifact3 = new BuiltArtifact();
+        builtArtifact3.setFilename("built artifact 3");
+        builtArtifact3.setIdentifier("ba3-test");
 
         Artifact importedArtifact = new Artifact();
-        importedArtifact.setIdentifier("test");
-        importedArtifact.setStatus(ArtifactStatus.BINARY_IMPORTED);
+        importedArtifact.setFilename("imported artifact 1");
+        importedArtifact.setIdentifier("ia1-test");
 
         List<User> users = userRepository.queryAll();
         assertThat(users.size() > 0).isTrue();
         User user = users.get(0);
 
-        BuildRecord buildRecord = new BuildRecord();
-        buildRecord.setId(datastore.getNextBuildRecordId());
-        buildRecord.setBuildLog("test");
-        buildRecord.setStatus(BuildStatus.SUCCESS);
-        buildRecord.setLatestBuildConfiguration(buildConfiguration);
-        buildRecord.setBuildConfigurationAudited(buildConfigurationAudited);
-        buildRecord.setSubmitTime(Timestamp.from(Instant.now()));
-        buildRecord.setStartTime(Timestamp.from(Instant.now()));
-        buildRecord.setEndTime(Timestamp.from(Instant.now()));
-        logger.info(user.toString());
-        buildRecord.setUser(user);
+        BuildRecord buildRecord1 = BuildRecord.Builder.newBuilder()
+                .id(datastore.getNextBuildRecordId())
+                .buildLog("test build complete")
+                .status(BuildStatus.SUCCESS)
+                .latestBuildConfiguration(buildConfiguration)
+                .buildConfigurationAudited(buildConfigurationAudited)
+                .submitTime(Date.from(Instant.now()))
+                .startTime(Date.from(Instant.now()))
+                .endTime(Date.from(Instant.now()))
+                .user(user)
+                .builtArtifact(builtArtifact1)
+                .dependency(importedArtifact)
+                .build();
+                
+        buildRecord1 = buildRecordRepository.save(buildRecord1);
 
-        builtArtifact.setBuildRecord(buildRecord);
-        importedArtifact.setBuildRecord(buildRecord);
-        buildRecord.getBuiltArtifacts().add(builtArtifact);
-        buildRecord.getBuiltArtifacts().add(importedArtifact);
+        BuildRecord buildRecord2 = BuildRecord.Builder.newBuilder()
+                .id(datastore.getNextBuildRecordId())
+                .buildLog("test build complete")
+                .status(BuildStatus.SUCCESS)
+                .latestBuildConfiguration(buildConfiguration)
+                .buildConfigurationAudited(buildConfigurationAudited)
+                .submitTime(Date.from(Instant.now()))
+                .startTime(Date.from(Instant.now()))
+                .endTime(Date.from(Instant.now()))
+                .user(user)
+                .builtArtifact(builtArtifact2)
+                .builtArtifact(builtArtifact3)
+                .dependency(builtArtifact1)
+                .dependency(importedArtifact)
+                .build();
 
-        buildRecord = buildRecordRepository.save(buildRecord);
+        buildRecord2 = buildRecordRepository.save(buildRecord2);
 
-        buildRecordId = buildRecord.getId();
+        buildRecordId = buildRecord2.getId();
     }
 
     @Test
@@ -179,32 +203,25 @@ public class BuildRecordsTest {
         Collection<ArtifactRest> artifacts = artifactProvider.getAllForBuildRecord(0, 999, null, null, buildRecordId).getContent();
 
         //then
+        assertThat(artifacts).hasSize(4);
+    }
+
+    @Test
+    public void shouldGetOnlyDependencyArtifacts() {
+        // when
+        Collection<ArtifactRest> artifacts = artifactProvider.getDependencyArtifactsForBuildRecord(0, 999, null, null, buildRecordId).getContent();
+
+        // then
         assertThat(artifacts).hasSize(2);
     }
 
     @Test
-    public void shouldGetOnlyImportedArtifacts() {
-        //given
-        String rsqlQuery = "status==BINARY_IMPORTED";
-
-        // when
-        Collection<ArtifactRest> artifacts = artifactProvider.getAllForBuildRecord(0, 999, null, rsqlQuery, buildRecordId).getContent();
-
-        // then
-        assertThat(artifacts).hasSize(1);
-        assertThat(artifacts).are(new IsImported());
-    }
-
-    @Test
     public void shouldGetOnlyBuiltArtifacts() {
-        //given
-        String rsqlQuery = "status==BINARY_BUILT";
-
         // when
-        Collection<ArtifactRest> artifacts = artifactProvider.getAllForBuildRecord(0, 999, null, rsqlQuery, buildRecordId).getContent();
+        Collection<ArtifactRest> artifacts = artifactProvider.getBuiltArtifactsForBuildRecord(0, 999, null, null, buildRecordId).getContent();
 
         // then
-        assertThat(artifacts).hasSize(1);
+        assertThat(artifacts).hasSize(2);
         assertThat(artifacts).are(new IsBuilt());
     }
 

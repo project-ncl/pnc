@@ -91,7 +91,7 @@ public class MultipleProjectsBuildTest extends ProjectBuilder {
         Assert.assertTrue("Invalid build log: " + buildLog, buildLog.contains("Finished: SUCCESS"));
 
         assertBuildArtifactsPresent(buildRecord.getBuiltArtifacts());
-        assertBuildArtifactsPresent(buildRecord.getDependencies());
+        assertDependencyArtifactsPresent(buildRecord.getDependencies());
     }
 
 

@@ -20,6 +20,9 @@ package org.jboss.pnc.model;
 import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Index;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 
@@ -39,13 +42,10 @@ import javax.validation.constraints.NotNull;
  * 
  * (identifier + checksum) should be unique
  */
-// TODO: We need to capture two types of artifact:
-// 1. Build output, which has an associated build result
-// 2. Import, which has an origin repository that we probably need to track
-//
-// Ordinarily, I'd model this as a common base class and two subclasses to capture the variant info.
-// I'm not sure how it would need to be modeled for efficient storage via JPA.
 @Entity
+@Inheritance(strategy=InheritanceType.SINGLE_TABLE)
+@DiscriminatorColumn(name="status")
+@DiscriminatorValue("BINARY_IMPORTED")
 public class Artifact implements GenericEntity<Integer> {
 
     private static final long serialVersionUID = -2368833657284575734L;
@@ -56,37 +56,39 @@ public class Artifact implements GenericEntity<Integer> {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = SEQUENCE_NAME)
     private Integer id;
 
-    /**
-     * TODO: Is this meant to be a Maven GAV e.g. use ProjectVersionRef [jdcasey] Non-maven repo artifacts might not conform to
-     * GAV standard.
-     */
+    @Deprecated
     private String identifier;
 
     // The type of repository that hosts this artifact. This is also a sort of description for what type of artifatct this is
     // (maven, npm, etc.)
+    @Deprecated
     private RepositoryType repoType;
 
     private String checksum;
 
     private String filename;
 
-    // What is this used for?
+    @Deprecated
     private String deployUrl;
 
     @Enumerated(EnumType.STRING)
+    @Column(insertable=false, updatable=false)
     private ArtifactStatus status;
 
-    // bi-directional many-to-one association to buildRecord
+    /**
+     * The builds for which this artifact is a dependency
+     */
     @NotNull
-    @ManyToOne
+    @ManyToMany
     @ForeignKey(name = "fk_artifact_buildrecord")
     @Index(name="idx_artifact_buildrecord")
-    private BuildRecord buildRecord;
+    private Set<BuildRecord> dependantBuildRecords;
 
     /**
      * Instantiates a new artifact.
      */
     public Artifact() {
+        dependantBuildRecords = new HashSet<BuildRecord>();
     }
 
     /**
@@ -116,6 +118,7 @@ public class Artifact implements GenericEntity<Integer> {
      *
      * @return the identifier
      */
+    @Deprecated
     public String getIdentifier() {
         return identifier;
     }
@@ -125,6 +128,7 @@ public class Artifact implements GenericEntity<Integer> {
      *
      * @param identifier the new identifier
      */
+    @Deprecated
     public void setIdentifier(String identifier) {
         this.identifier = identifier;
     }
@@ -170,6 +174,7 @@ public class Artifact implements GenericEntity<Integer> {
      *
      * @return the deploy url
      */
+    @Deprecated
     public String getDeployUrl() {
         return deployUrl;
     }
@@ -179,6 +184,7 @@ public class Artifact implements GenericEntity<Integer> {
      *
      * @param deployUrl the new deploy url
      */
+    @Deprecated
     public void setDeployUrl(String deployUrl) {
         this.deployUrl = deployUrl;
     }
@@ -194,36 +200,24 @@ public class Artifact implements GenericEntity<Integer> {
         return status;
     }
 
-    /**
-     * Sets the status.
-     *
-     * @param status the new status
-     */
-    public void setStatus(ArtifactStatus status) {
-        this.status = status;
+    public Set<BuildRecord> getDependantBuildRecords() {
+        return dependantBuildRecords;
     }
 
-    /**
-     * Gets the project build record.
-     *
-     * @return the project build record
-     */
-    public BuildRecord getBuildRecord() {
-        return buildRecord;
+    public void setDependantBuildRecords(Set<BuildRecord> buildRecords) {
+        this.dependantBuildRecords = buildRecords;
     }
 
-    /**
-     * Sets the project build record.
-     *
-     * @param buildRecord the new project build record
-     */
-    public void setBuildRecord(BuildRecord buildRecord) {
-        this.buildRecord = buildRecord;
+    public void addDependantBuildRecord(BuildRecord buildRecord) {
+        if (!dependantBuildRecords.contains(buildRecord)) {
+            this.dependantBuildRecords.add(buildRecord);
+        }
     }
 
     /**
      * @return the repoType
      */
+    @Deprecated
     public RepositoryType getRepoType() {
         return repoType;
     }
@@ -231,16 +225,14 @@ public class Artifact implements GenericEntity<Integer> {
     /**
      * @param repoType the repoType to set
      */
+    @Deprecated
     public void setRepoType(RepositoryType repoType) {
         this.repoType = repoType;
     }
 
-    /*
-     * @see java.lang.Object#toString()
-     */
     @Override
     public String toString() {
-        return "Artifact [identifier=" + identifier + "]";
+        return "Artifact [id: " + id + ", filename=" + filename + "]";
     }
 
     public static class Builder {
@@ -257,9 +249,7 @@ public class Artifact implements GenericEntity<Integer> {
 
         private String deployUrl;
 
-        private ArtifactStatus status;
-
-        private BuildRecord buildRecord;
+        private Set<BuildRecord> dependantBuildRecords;
 
         public static Builder newBuilder() {
             return new Builder();
@@ -273,9 +263,9 @@ public class Artifact implements GenericEntity<Integer> {
             artifact.setChecksum(checksum);
             artifact.setFilename(filename);
             artifact.setDeployUrl(deployUrl);
-            artifact.setStatus(status);
-            artifact.setBuildRecord(buildRecord);
-
+            if (dependantBuildRecords != null) {
+                artifact.setDependantBuildRecords(dependantBuildRecords);
+            }
             return artifact;
         }
 
@@ -284,11 +274,13 @@ public class Artifact implements GenericEntity<Integer> {
             return this;
         }
 
+        @Deprecated
         public Builder identifier(String identifier) {
             this.identifier = identifier;
             return this;
         }
 
+        @Deprecated
         public Builder repoType(RepositoryType repoType) {
             this.repoType = repoType;
             return this;
@@ -304,18 +296,14 @@ public class Artifact implements GenericEntity<Integer> {
             return this;
         }
 
+        @Deprecated
         public Builder deployUrl(String deployUrl) {
             this.deployUrl = deployUrl;
             return this;
         }
 
-        public Builder status(ArtifactStatus status) {
-            this.status = status;
-            return this;
-        }
-
-        public Builder buildRecord(BuildRecord buildRecord) {
-            this.buildRecord = buildRecord;
+        public Builder dependantBuildRecords(Set<BuildRecord> dependantBuildRecords) {
+            this.dependantBuildRecords = dependantBuildRecords;
             return this;
         }
 

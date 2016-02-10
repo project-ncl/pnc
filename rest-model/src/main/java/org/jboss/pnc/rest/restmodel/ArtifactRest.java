@@ -28,7 +28,11 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
 import static org.jboss.pnc.rest.utils.Utility.performIfNotNull;
+
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @XmlRootElement(name = "Artifact")
 public class ArtifactRest implements GenericRestEntity<Integer> {
@@ -52,7 +56,7 @@ public class ArtifactRest implements GenericRestEntity<Integer> {
     @ApiModelProperty(dataType = "string")
     private ArtifactStatus status;
 
-    private Integer buildRecordId;
+    private Set<Integer> dependantBuildRecordIds;
 
     public ArtifactRest() {
     }
@@ -65,7 +69,8 @@ public class ArtifactRest implements GenericRestEntity<Integer> {
         this.filename = artifact.getFilename();
         this.deployUrl = artifact.getDeployUrl();
         this.status = artifact.getStatus();
-        performIfNotNull(artifact.getBuildRecord(), () -> this.buildRecordId = artifact.getBuildRecord().getId());
+        this.dependantBuildRecordIds = nullableStreamOf(artifact.getDependantBuildRecords())
+                .map(depBuild -> depBuild.getId()).collect(Collectors.toSet());
     }
 
     @Override
@@ -126,12 +131,12 @@ public class ArtifactRest implements GenericRestEntity<Integer> {
         this.status = status;
     }
 
-    public Integer getBuildRecordId() {
-        return buildRecordId;
+    public Set<Integer> getDependantBuildRecordIds() {
+        return dependantBuildRecordIds;
     }
 
-    public void setBuildRecordId(Integer buildRecordId) {
-        this.buildRecordId = buildRecordId;
+    public void setDependantBuildRecordIds(Set<Integer> dependantBuildRecordIds) {
+        this.dependantBuildRecordIds = dependantBuildRecordIds;
     }
 
 }

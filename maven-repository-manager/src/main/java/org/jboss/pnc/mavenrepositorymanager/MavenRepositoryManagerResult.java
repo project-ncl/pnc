@@ -18,6 +18,7 @@
 package org.jboss.pnc.mavenrepositorymanager;
 
 import org.jboss.pnc.model.Artifact;
+import org.jboss.pnc.model.BuiltArtifact;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
 
 import java.util.List;
@@ -26,18 +27,18 @@ import java.util.List;
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2015-02-02.
  */
 public class MavenRepositoryManagerResult implements RepositoryManagerResult {
-    private final List<Artifact> builtArtifacts;
+    private final List<BuiltArtifact> builtArtifacts;
     private final List<Artifact> dependencies;
     private final String buildContentId;
 
-    public MavenRepositoryManagerResult(List<Artifact> builtArtifacts, List<Artifact> dependencies, String buildContentId) {
+    public MavenRepositoryManagerResult(List<BuiltArtifact> builtArtifacts, List<Artifact> dependencies, String buildContentId) {
         this.builtArtifacts = builtArtifacts;
         this.dependencies = dependencies;
         this.buildContentId = buildContentId;
     }
 
     @Override
-    public List<Artifact> getBuiltArtifacts() {
+    public List<BuiltArtifact> getBuiltArtifacts() {
         return builtArtifacts;
     }
 
