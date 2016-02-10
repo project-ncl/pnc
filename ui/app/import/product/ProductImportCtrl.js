@@ -280,7 +280,7 @@
         Notifications.info('Preparing analysis. This may take a minute, please be patient.');
         ProductImportDAO.startProcess(scope.startData).then(function (r) {
           scope.startSubmitDisabled = true;
-          if (_(r).has('name')) {
+          if (_(r).has('id')) {
             data = r;
             scope.id = data.id;
             scope.bcSetName = data.bcSetName;
