@@ -33,7 +33,7 @@ import java.util.List;
  */
 
 @RunWith(Arquillian.class)
-public class ProjectWithFailedDepedenciesBuildTest extends ProjectBuilder {
+public class ProjectWithFailedDependenciesBuildTest extends ProjectBuilder {
 
     @Test
     @InSequence(10)
@@ -45,14 +45,19 @@ public class ProjectWithFailedDepedenciesBuildTest extends ProjectBuilder {
     @InSequence(20)
     public void checkDatabaseForResult() {
         List<BuildRecord> buildRecords = datastore.getBuildRecords();
-        Assert.assertEquals("Wrong datastore results count.", 1, buildRecords.size());
+
+        Assert.assertEquals("Wrong datastore results count.", 2, buildRecords.size());
         Assert.assertEquals(BuildStatus.FAILED, buildRecords.get(0).getStatus());
+        Assert.assertEquals(BuildStatus.REJECTED, buildRecords.get(1).getStatus());
 
         BuildConfigSetRecord buildConfigSetRecord = datastore.getBuildConfigSetRecords().get(0);
         System.out.println("status of failed buildconfigset: " + buildConfigSetRecord.getStatus());
         Assert.assertNotNull("End time is null.", buildConfigSetRecord.getEndTime());
         Assert.assertTrue(buildConfigSetRecord.getEndTime().getTime() > buildConfigSetRecord.getStartTime().getTime());
         Assert.assertEquals(BuildStatus.FAILED, buildConfigSetRecord.getStatus());
+
+
+
     }
 
 }

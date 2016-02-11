@@ -62,7 +62,7 @@ public class BuildCoordinator {
     private final Logger log = LoggerFactory.getLogger(BuildCoordinator.class);
 
     /**
-     * Build tasks which are either waiting to be run or currently running.
+     * Build tasks which are either waiting to be run or currently running. //TODO currently only running builds are in the queue, waiting for dependencies are not in but probably they should be too (it would be useful to handle rejectedTasks)
      * The task is removed from the queue when the build is complete and the results
      * are stored to the database.
      */
@@ -118,7 +118,8 @@ public class BuildCoordinator {
                 datastoreAdapter.getNextBuildRecordId(),
                 null,
                 new Date(),
-                rebuildAll);
+                rebuildAll,
+                (bt) -> storeRejectedTask(bt));
 
         processBuildTask(buildTask);
 
@@ -137,7 +138,7 @@ public class BuildCoordinator {
     public BuildSetTask build(BuildConfigurationSet buildConfigurationSet, User user, boolean rebuildAll) throws CoreException {
 
         Consumer<BuildConfigSetRecord> onBuildSetTaskCompleted = (buildConfigSetRecord) -> {
-            notifyBuildSetTaskCompleted(buildConfigSetRecord);
+            completeBuildSetTask(buildConfigSetRecord);
         };
 
         BuildTasksInitializer buildTasksInitializer = new BuildTasksInitializer(datastoreAdapter, Optional.of(buildSetStatusChangedEventNotifier));
@@ -148,7 +149,8 @@ public class BuildCoordinator {
                 getBuildStatusChangedEventNotifier(),
                 () -> datastoreAdapter.getNextBuildRecordId(),
                 (bt) -> processBuildTask(bt),
-                onBuildSetTaskCompleted);
+                onBuildSetTaskCompleted,
+                (bt) -> storeRejectedTask(bt));
 
         build(buildSetTask);
         return buildSetTask;
@@ -290,11 +292,20 @@ public class BuildCoordinator {
         return buildSetStatusChangedEventNotifier;
     }
 
-    public void notifyBuildSetTaskCompleted(BuildConfigSetRecord buildConfigSetRecord) {
+    private void completeBuildSetTask(BuildConfigSetRecord buildConfigSetRecord) {
         try {
             datastoreAdapter.saveBuildConfigSetRecord(buildConfigSetRecord);
         } catch (DatastoreException e) {
             log.error("Unable to save build config set record", e);
+        }
+    }
+
+    private void storeRejectedTask(BuildTask buildTask) {
+        try {
+            log.debug("Storing rejected task {}", buildTask);
+            datastoreAdapter.storeRejected(buildTask);
+        } catch (DatastoreException e) {
+            log.error("Unable to store rejected task.", e);
         }
     }
 }

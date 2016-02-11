@@ -182,7 +182,8 @@ public class StatusUpdatesTest {
                 buildStatusChangedEventNotifier,
                 () -> atomicInteger.getAndIncrement(),
                 (buildTask) -> {},
-                (buildConfigSetRecord) -> {});
+                (buildConfigSetRecord) -> {},
+                (buildTask) -> {});
     }
 
 

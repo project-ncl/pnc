@@ -75,6 +75,7 @@ public class BuildTask {
     private final Consumer<BuildTask> onAllDependenciesCompleted;
     private final Integer buildConfigSetRecordId;
     private final boolean rebuildAll;
+    private Consumer<BuildTask> onReject;
 
     private BuildTask(BuildConfiguration buildConfiguration,
                       BuildConfigurationAudited buildConfigurationAudited,
@@ -85,7 +86,8 @@ public class BuildTask {
                       Event<BuildCoordinationStatusChangedEvent> buildStatusChangedEventNotifier,
                       Consumer<BuildTask> onAllDependenciesCompleted,
                       Integer buildConfigSetRecordId,
-                      boolean rebuildAll) {
+                      boolean rebuildAll,
+                      Consumer<BuildTask> onReject) {
 
         this.id = id;
         this.buildConfiguration = buildConfiguration;
@@ -98,6 +100,7 @@ public class BuildTask {
         this.onAllDependenciesCompleted = onAllDependenciesCompleted;
         this.buildConfigSetRecordId = buildConfigSetRecordId;
         this.rebuildAll = rebuildAll;
+        this.onReject = onReject;
 
         if (buildSetTask != null && buildSetTask.getProductMilestone() != null) {
             buildRecordSetIds.add(buildSetTask.getProductMilestone().getPerformedBuildRecordSet().getId());
@@ -137,6 +140,9 @@ public class BuildTask {
         buildStatusChangedEventNotifier.fire(buildStatusChanged);
         log.trace("Fired buildStatusChangedEventNotifier after task {} status update to {}.", getId(), status);
         if (status.isCompleted()) {
+            if (status.equals(BuildCoordinationStatus.REJECTED_FAILED_DEPENDENCIES)) {
+                onReject.accept(this);
+            }
             dependants.forEach((dep) -> dep.requiredBuildCompleted(this));
             log.trace("Sent completion notification of task {} to all dependants.", getId());
         }
@@ -164,7 +170,8 @@ public class BuildTask {
         }
 
         if (dependencies.contains(completed) && completed.hasFailed()) {
-            this.setStatus(BuildCoordinationStatus.REJECTED);
+            setStatusDescription("Dependent build " + completed.getBuildConfiguration().getName() + " failed.");
+            this.setStatus(BuildCoordinationStatus.REJECTED_FAILED_DEPENDENCIES);
         } else if (dependencies.stream().allMatch(dep -> dep.getStatus().isCompleted())) {
             log.debug("All dependencies of task {} completed.", this.getId());
             onAllDependenciesCompleted.accept(this);
@@ -297,7 +304,8 @@ public class BuildTask {
             int buildTaskId,
             BuildSetTask buildSetTask,
             Date submitTime,
-            boolean rebuildAll) {
+            boolean rebuildAll,
+            Consumer<BuildTask> onReject) {
 
         Integer buildConfigSetRecordId = null;
         if (buildSetTask != null && buildSetTask.getBuildConfigSetRecord() != null) {
@@ -314,7 +322,8 @@ public class BuildTask {
                 buildStatusChangedEventNotifier,
                 onAllDependenciesCompleted,
                 buildConfigSetRecordId,
-                rebuildAll);
+                rebuildAll,
+                onReject);
     }
 
 

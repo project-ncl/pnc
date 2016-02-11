@@ -60,7 +60,8 @@ public class BuildTasksInitializer {
             Event<BuildCoordinationStatusChangedEvent> buildStatusChangedEventNotifier,
             Supplier<Integer> buildTaskIdProvider,
             Consumer<BuildTask> onAllTasksDependenciesCompleted,
-            Consumer<BuildConfigSetRecord> onBuildSetTaskCompleted) throws CoreException {
+            Consumer<BuildConfigSetRecord> onBuildSetTaskCompleted,
+            Consumer<BuildTask> onTaskRejected) throws CoreException {
         BuildConfigSetRecord buildConfigSetRecord = BuildConfigSetRecord.Builder.newBuilder()
                 .buildConfigurationSet(buildConfigurationSet)
                 .user(user)
@@ -97,7 +98,8 @@ public class BuildTasksInitializer {
                 rebuildAll,
                 buildStatusChangedEventNotifier,
                 buildTaskIdProvider,
-                onAllTasksDependenciesCompleted);
+                onAllTasksDependenciesCompleted,
+                onTaskRejected);
 
         return buildSetTask;
     }
@@ -114,7 +116,8 @@ public class BuildTasksInitializer {
             boolean rebuildAll,
             Event<BuildCoordinationStatusChangedEvent> buildStatusChangedEventNotifier,
             Supplier<Integer> buildTaskIdProvider,
-            Consumer<BuildTask> onAllDependenciesCompleted) {
+            Consumer<BuildTask> onAllDependenciesCompleted,
+            Consumer<BuildTask> onTaskRejected) {
         // Loop to create the build tasks
         for(BuildConfiguration buildConfig : buildSetTask.getBuildConfigurationSet().getBuildConfigurations()) {
             if (buildConfig.isArchived()) {
@@ -131,7 +134,8 @@ public class BuildTasksInitializer {
                     buildTaskIdProvider.get(),
                     buildSetTask,
                     buildSetTask.getSubmitTime(),
-                    rebuildAll);
+                    rebuildAll,
+                    onTaskRejected);
 
             buildSetTask.addBuildTask(buildTask);
         }

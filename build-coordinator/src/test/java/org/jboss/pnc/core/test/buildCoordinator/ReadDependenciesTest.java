@@ -78,6 +78,7 @@ public class ReadDependenciesTest extends ProjectBuilder {
                 buildStatusChangedEventNotifier,
                 () -> atomicInteger.getAndIncrement(),
                 (buildTask) -> {},
-                (buildConfigSetRecord) -> {});
+                (buildConfigSetRecord) -> {},
+                (buildTask) -> {});
     }
 }

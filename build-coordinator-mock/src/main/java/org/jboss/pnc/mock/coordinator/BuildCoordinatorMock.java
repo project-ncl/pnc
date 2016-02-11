@@ -38,7 +38,6 @@ package org.jboss.pnc.mock.coordinator;
 import org.jboss.pnc.core.builder.coordinator.BuildCoordinator;
 import org.jboss.pnc.core.builder.coordinator.BuildSetTask;
 import org.jboss.pnc.core.builder.coordinator.BuildTask;
-import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.User;
@@ -87,11 +86,6 @@ public class BuildCoordinatorMock extends BuildCoordinator {
     @Override
     public boolean hasActiveTasks() {
         return !activeTasks.isEmpty();
-    }
-
-    @Override
-    public void notifyBuildSetTaskCompleted(BuildConfigSetRecord buildConfigSetRecord) {
-        logger.warn("Invoking unimplemented method notifyBuildSetTaskCompleted");
     }
 
     public void addActiveTask(BuildTask task) {
