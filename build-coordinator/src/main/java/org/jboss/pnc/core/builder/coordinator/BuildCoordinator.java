@@ -62,11 +62,11 @@ public class BuildCoordinator {
     private final Logger log = LoggerFactory.getLogger(BuildCoordinator.class);
 
     /**
-     * Build tasks which are either waiting to be run or currently running. //TODO currently only running builds are in the queue, waiting for dependencies are not in but probably they should be too (it would be useful to handle rejectedTasks)
+     * Build tasks which are either waiting to be run or currently running.
      * The task is removed from the queue when the build is complete and the results
      * are stored to the database.
      */
-    private final Queue<BuildTask> activeBuildTasks = new ConcurrentLinkedQueue<>(); //TODO garbage collector (time-out, error state)
+    private final Queue<BuildTask> submittedBuildTasks = new ConcurrentLinkedQueue<>(); //TODO garbage collector (time-out, error state)
 
     private DatastoreAdapter datastoreAdapter;
     private Event<BuildCoordinationStatusChangedEvent> buildStatusChangedEventNotifier;
@@ -121,6 +121,7 @@ public class BuildCoordinator {
                 rebuildAll,
                 (bt) -> storeRejectedTask(bt));
 
+        addTaskToQueue(buildTask);
         processBuildTask(buildTask);
 
         return buildTask;
@@ -164,16 +165,22 @@ public class BuildCoordinator {
      * @return An Optional containing the matching build task if there is one.
      */
     private Optional<BuildTask> getActiveBuildTask(BuildConfigurationAudited buildConfigAudited) {
-        return activeBuildTasks.stream().filter(bt -> bt.getBuildConfigurationAudited().equals(buildConfigAudited)).findFirst();
+        return submittedBuildTasks.stream().filter(bt -> bt.getBuildConfigurationAudited().equals(buildConfigAudited)).findFirst();
     }
 
     private void build(BuildSetTask buildSetTask) {
         if (!BuildSetStatus.REJECTED.equals(buildSetTask.getStatus())) {
             buildSetTask.getBuildTasks().stream()
-                    .filter((buildTask) -> buildTask.readyToBuild())
                     .filter((buildTask) -> rejectAlreadySubmitted(buildTask))
+                    .map((buildTask) -> addTaskToQueue(buildTask))
+                    .filter((buildTask) -> buildTask.readyToBuild())
                     .forEach(v -> processBuildTask(v));
         }
+    }
+
+    private BuildTask addTaskToQueue(BuildTask buildTask) {
+        submittedBuildTasks.add(buildTask);
+        return buildTask;
     }
 
     private boolean rejectAlreadySubmitted(BuildTask buildTask) {
@@ -210,7 +217,7 @@ public class BuildCoordinator {
                         datastoreAdapter.storeResult(buildTask, buildResult);
                         coordinationStatus = BuildCoordinationStatus.DONE_WITH_ERRORS;
                     } else {
-                        removeActiveTask(buildTask);
+                        removeSubmittedTask(buildTask);
                         throw new BuildCoordinationException("Failed task should have set exception or failed reason status.");
                     }
                 } else {
@@ -222,7 +229,7 @@ public class BuildCoordinator {
                 coordinationStatus = BuildCoordinationStatus.SYSTEM_ERROR;
             }
             //remove before status update which could triggers further actions and cause dead lock
-            removeActiveTask(buildTask);
+            removeSubmittedTask(buildTask);
             buildTask.setStatus(coordinationStatus);
         };
 
@@ -240,6 +247,7 @@ public class BuildCoordinator {
                         buildTask.getId(), buildTask.getRebuildAll(), prepareBuildTaskFilterPredicate().test(buildTask), buildTask.getBuildConfigurationAudited().getIdRev());
                 if(!buildTask.getRebuildAll() && prepareBuildTaskFilterPredicate().test(buildTask)) {
                     log.info("[{}] Marking task as REJECTED_ALREADY_BUILT, because it has been already built", buildTask.getId());
+                    removeSubmittedTask(buildTask);
                     buildTask.setStatus(BuildCoordinationStatus.REJECTED_ALREADY_BUILT);
                     buildTask.setStatusDescription("The configuration has already been built.");
                     return;
@@ -247,13 +255,12 @@ public class BuildCoordinator {
                 buildTask.setStartTime(new Date());
                 buildTask.setStatus(BuildCoordinationStatus.BUILDING); //status must be updated before startBuild as if build takes 0 time it complete before having Building status.
             }
-            activeBuildTasks.add(buildTask);
             buildScheduler.startBuilding(buildTask, onComplete);
         } catch (CoreException | ExecutorException e) {
             log.debug(" Build coordination task failed. Setting it as SYSTEM_ERROR.", e);
             buildTask.setStatus(BuildCoordinationStatus.SYSTEM_ERROR);
             buildTask.setStatusDescription(e.getMessage());
-            removeActiveTask(buildTask);
+            removeSubmittedTask(buildTask);
             try {
                 datastoreAdapter.storeResult(buildTask, e);
             } catch (DatastoreException e1) {
@@ -262,34 +269,30 @@ public class BuildCoordinator {
         }
     }
 
-    private void removeActiveTask(BuildTask buildTask) {
-        log.trace("Removing task {} from activeBuildTasks.", buildTask.getId());
-        activeBuildTasks.remove(buildTask);
+    private void removeSubmittedTask(BuildTask buildTask) {
+        log.trace("Removing task {} from submittedBuildTasks.", buildTask.getId());
+        submittedBuildTasks.remove(buildTask);
     }
 
-
-    public List<BuildTask> getActiveBuildTasks() {
-        return Collections.unmodifiableList(activeBuildTasks.stream().collect(Collectors.toList()));
+    public List<BuildTask> getSubmittedBuildTasks() {
+        return Collections.unmodifiableList(submittedBuildTasks.stream().collect(Collectors.toList()));
     }
 
+    @Deprecated //Used only in tests
     public boolean hasActiveTasks() {
         if (log.isTraceEnabled()) {
-            String activeTasks = activeBuildTasks.stream().map(bt -> bt.getId() + "-" + bt.getStatus()).collect(Collectors.joining(","));
+            String activeTasks = submittedBuildTasks.stream().map(bt -> bt.getId() + "-" + bt.getStatus()).collect(Collectors.joining(","));
             log.trace("Build Coordinator Active Tasks {}", activeTasks);
         }
-        return activeBuildTasks.peek() != null;
+        return submittedBuildTasks.peek() != null;
     }
 
     private boolean isBuildAlreadySubmitted(BuildTask buildTask) {
-        return activeBuildTasks.contains(buildTask);
+        return submittedBuildTasks.contains(buildTask);
     }
 
     Event<BuildCoordinationStatusChangedEvent> getBuildStatusChangedEventNotifier() {
         return buildStatusChangedEventNotifier;
-    }
-
-    Event<BuildSetStatusChangedEvent> getBuildSetStatusChangedEventNotifier() {
-        return buildSetStatusChangedEventNotifier;
     }
 
     private void completeBuildSetTask(BuildConfigSetRecord buildConfigSetRecord) {
@@ -301,6 +304,7 @@ public class BuildCoordinator {
     }
 
     private void storeRejectedTask(BuildTask buildTask) {
+        removeSubmittedTask(buildTask);
         try {
             log.debug("Storing rejected task {}", buildTask);
             datastoreAdapter.storeRejected(buildTask);

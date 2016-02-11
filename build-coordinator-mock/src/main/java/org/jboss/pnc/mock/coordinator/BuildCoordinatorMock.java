@@ -79,7 +79,7 @@ public class BuildCoordinatorMock extends BuildCoordinator {
     }
 
     @Override
-    public List<BuildTask> getActiveBuildTasks() {
+    public List<BuildTask> getSubmittedBuildTasks() {
         return activeTasks;
     }
 
