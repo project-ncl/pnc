@@ -52,7 +52,7 @@ public class ArtifactRest implements GenericRestEntity<Integer> {
     // What is this used for?
     private String deployUrl;
 
-    private String origin;
+    private String type;
 
     private Set<Integer> dependantBuildRecordIds;
 
@@ -66,7 +66,7 @@ public class ArtifactRest implements GenericRestEntity<Integer> {
         this.checksum = artifact.getChecksum();
         this.filename = artifact.getFilename();
         this.deployUrl = artifact.getDeployUrl();
-        this.origin = artifact.getType();
+        this.type = artifact.getType();
         this.dependantBuildRecordIds = nullableStreamOf(artifact.getDependantBuildRecords())
                 .map(depBuild -> depBuild.getId()).collect(Collectors.toSet());
     }
@@ -122,16 +122,16 @@ public class ArtifactRest implements GenericRestEntity<Integer> {
     }
 
     public String getOrigin() {
-        return origin;
+        return type;
     }
 
-    public void setOrigin(String origin) {
-        this.origin = origin;
+    public void setType(String type) {
+        this.type = type;
     }
 
     @Deprecated
     public String getStatus() {
-        if (origin.equals(ArtifactType.BUILT)) {
+        if (type.equals(ArtifactType.BUILT)) {
             return "BINARY_BUILT";
         }
         return "BINARY_IMPORTED";
