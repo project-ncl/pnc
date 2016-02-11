@@ -41,10 +41,15 @@ public enum BuildCoordinationStatus {
     DONE(true),
 
     /**
-     * Missing configuration, un-satisfied dependencies, dependencies failed to build.
+     * Missing configuration, un-satisfied dependencies.
      * Rejected can be set before adding to the list of running builds or before dropping form list of running builds.
      */
     REJECTED(true, true),
+
+    /**
+     * Rejected due to failed dependencies.
+     */
+    REJECTED_FAILED_DEPENDENCIES(true, true),
 
     /**
      * Rejected because given {@link org.jboss.pnc.model.BuildConfiguration} has been already built.

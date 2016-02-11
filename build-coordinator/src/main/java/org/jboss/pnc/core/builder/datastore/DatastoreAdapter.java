@@ -20,7 +20,6 @@ package org.jboss.pnc.core.builder.datastore;
 import org.jboss.logging.Logger;
 import org.jboss.pnc.core.BuildCoordinationException;
 import org.jboss.pnc.core.builder.coordinator.BuildTask;
-import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
@@ -37,9 +36,9 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.time.Instant;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.Optional;
 
+import static org.jboss.pnc.model.BuildStatus.REJECTED;
 import static org.jboss.pnc.model.BuildStatus.SYSTEM_ERROR;
 
 /**
@@ -123,6 +122,17 @@ public class DatastoreAdapter {
         buildRecordBuilder.endTime(Date.from(Instant.now()));
 
         log.debugf("Storing ERROR result of %s to datastore. Error: %s", buildTask.getBuildConfigurationAudited().getName() + "\n\n\n Exception: " + errorMessage, e);
+        datastore.storeCompletedBuild(buildRecordBuilder, buildTask.getBuildRecordSetIds());
+    }
+
+    public void storeRejected(BuildTask buildTask) throws DatastoreException {
+        BuildRecord.Builder buildRecordBuilder = initBuildRecordBuilder(buildTask, Optional.<String>empty());
+        buildRecordBuilder.status(REJECTED);
+
+        buildRecordBuilder.buildLog(buildTask.getStatusDescription());
+        buildRecordBuilder.endTime(Date.from(Instant.now()));
+
+        log.debugf("Storing REJECTED build of %s to datastore. Reason: %s", buildTask.getBuildConfigurationAudited().getName(), buildTask.getStatusDescription());
         datastore.storeCompletedBuild(buildRecordBuilder, buildTask.getBuildRecordSetIds());
     }
 
