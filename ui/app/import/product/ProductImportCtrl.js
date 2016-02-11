@@ -280,9 +280,9 @@
         Notifications.info('Preparing analysis. This may take a minute, please be patient.');
         ProductImportDAO.startProcess(scope.startData).then(function (r) {
           scope.startSubmitDisabled = true;
-          if (_(r).has('name')) {
+          if (_(r).has('id')) {
             data = r;
-            scope.productName = data.name;
+            scope.id = data.id;
             scope.bcSetName = data.bcSetName;
             parseData(tree, data);
             tree.nodes[0].nlaSuccessful = true;
@@ -304,7 +304,7 @@
         data = parseTree(tree);
         Notifications.info('Analyzing \'' + node.gavString + '\'. This may take a minute, please be patient.');
         ProductImportDAO.analyzeNextLevel(data).then(function (r) {
-          if (_(r).has('name')) {
+          if (_(r).has('id')) {
             data = r;
             if (parseData(tree, data)) {
               node.nlaSuccessful = true;

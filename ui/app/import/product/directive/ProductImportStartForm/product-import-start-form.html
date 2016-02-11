@@ -26,11 +26,13 @@
       <div class="form-group"
           ng-class="{ 'has-error' : startForm.input1.$invalid && !startForm.startFormInput1.$pristine, 'has-success': startForm.startFormInput1.$valid && startForm.startFormInput1.$touched }">
         <label for="startFormInput1" class="col-sm-2 control-label">
-          * Product Name&nbsp;<span class="pficon pficon-info" title="Name of the Product you are importing."></span>
+          * Product&nbsp;<span class="pficon pficon-info" title="Select the Product to import into."></span>
         </label>
 
         <div class="col-sm-10">
-          <input id="startFormInput1" name="startFormInput1" maxlength="255" class="form-control" ng-model="data.name" required>
+          <!-- <input id="startFormInput1" name="startFormInput1" maxlength="255" class="form-control" ng-model="data.name" required> -->
+          <pnc-infinite-select infinite-select-required="true" infinite-select-id="startFormInput1" infinite-select-name="startFormInput1" placeholder="Scroll & Filter Products..."
+              items="products" item-id="data.id"></pnc-infinite-select>
           <span class="help-block" ng-show="startForm.startFormInput1.$error.required && !startForm.startFormInput1.$pristine">Required field.</span>
         </div>
       </div>
