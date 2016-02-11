@@ -123,7 +123,7 @@ public class BuildRecordsTest {
         builtArtifact3.setFilename("built artifact 3");
         builtArtifact3.setIdentifier("ba3-test");
 
-        Artifact importedArtifact = new Artifact();
+        ImportedArtifact importedArtifact = new ImportedArtifact();
         importedArtifact.setFilename("imported artifact 1");
         importedArtifact.setIdentifier("ia1-test");
 
@@ -257,14 +257,14 @@ public class BuildRecordsTest {
     class IsImported extends Condition<ArtifactRest> {
         @Override
         public boolean matches(ArtifactRest artifactRest) {
-            return artifactRest.getStatus() == ArtifactStatus.BINARY_IMPORTED;
+            return artifactRest.getOrigin() == ArtifactType.IMPORTED;
         }
     }
 
     class IsBuilt extends Condition<ArtifactRest> {
         @Override
         public boolean matches(ArtifactRest artifactRest) {
-            return artifactRest.getStatus() == ArtifactStatus.BINARY_BUILT;
+            return artifactRest.getOrigin() == ArtifactType.BUILT;
         }
     }
 

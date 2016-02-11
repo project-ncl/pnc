@@ -91,7 +91,7 @@ public class RepositorySessionMock implements RepositorySession {
             @Override
             public List<Artifact> getDependencies() {
                 List<Artifact> dependencies = new ArrayList<>();
-                dependencies.add(ArtifactBuilder.mockArtifact(10));
+                dependencies.add(ArtifactBuilder.mockImportedArtifact(10));
                 return dependencies;
             }
 

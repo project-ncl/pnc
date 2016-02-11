@@ -19,7 +19,7 @@ package org.jboss.pnc.rest.restmodel;
 
 import io.swagger.annotations.ApiModelProperty;
 import org.jboss.pnc.model.Artifact;
-import org.jboss.pnc.model.ArtifactStatus;
+import org.jboss.pnc.model.ArtifactType;
 import org.jboss.pnc.model.RepositoryType;
 import org.jboss.pnc.rest.validation.groups.WhenCreatingNew;
 import org.jboss.pnc.rest.validation.groups.WhenUpdating;
@@ -29,7 +29,6 @@ import javax.validation.constraints.Null;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
-import static org.jboss.pnc.rest.utils.Utility.performIfNotNull;
 
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -53,8 +52,7 @@ public class ArtifactRest implements GenericRestEntity<Integer> {
     // What is this used for?
     private String deployUrl;
 
-    @ApiModelProperty(dataType = "string")
-    private ArtifactStatus status;
+    private String origin;
 
     private Set<Integer> dependantBuildRecordIds;
 
@@ -68,7 +66,7 @@ public class ArtifactRest implements GenericRestEntity<Integer> {
         this.checksum = artifact.getChecksum();
         this.filename = artifact.getFilename();
         this.deployUrl = artifact.getDeployUrl();
-        this.status = artifact.getStatus();
+        this.origin = artifact.getType();
         this.dependantBuildRecordIds = nullableStreamOf(artifact.getDependantBuildRecords())
                 .map(depBuild -> depBuild.getId()).collect(Collectors.toSet());
     }
@@ -123,12 +121,20 @@ public class ArtifactRest implements GenericRestEntity<Integer> {
         this.deployUrl = deployUrl;
     }
 
-    public ArtifactStatus getStatus() {
-        return status;
+    public String getOrigin() {
+        return origin;
     }
 
-    public void setStatus(ArtifactStatus status) {
-        this.status = status;
+    public void setOrigin(String origin) {
+        this.origin = origin;
+    }
+
+    @Deprecated
+    public String getStatus() {
+        if (origin.equals(ArtifactType.BUILT)) {
+            return "BINARY_BUILT";
+        }
+        return "BINARY_IMPORTED";
     }
 
     public Set<Integer> getDependantBuildRecordIds() {

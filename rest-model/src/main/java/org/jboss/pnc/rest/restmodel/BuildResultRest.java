@@ -19,6 +19,9 @@
 package org.jboss.pnc.rest.restmodel;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import org.jboss.pnc.model.Artifact;
+import org.jboss.pnc.rest.utils.JsonMixInArtifact;
 import org.jboss.pnc.rest.utils.JsonOutputConverterMapper;
 import org.jboss.pnc.spi.BuildExecutionStatus;
 import org.jboss.pnc.spi.BuildResult;
@@ -52,6 +55,7 @@ public class BuildResultRest implements Serializable {
 
     public BuildResultRest(String serialized) throws IOException {
         ObjectMapper mapper = new ObjectMapper();
+        mapper.addMixInAnnotations(Artifact.class, JsonMixInArtifact.class);
         BuildResultRest buildResultRest = mapper.readValue(serialized, BuildResultRest.class);
         this.buildDriverResult = buildResultRest.getBuildDriverResult();
         this.repositoryManagerResult = buildResultRest.getRepositoryManagerResult();

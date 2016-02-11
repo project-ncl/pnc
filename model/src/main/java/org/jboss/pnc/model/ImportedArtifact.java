@@ -17,9 +17,7 @@
  */
 package org.jboss.pnc.model;
 
-import org.hibernate.annotations.ForeignKey;
-import org.hibernate.annotations.Index;
-
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -32,40 +30,40 @@ import javax.validation.constraints.NotNull;
  * 
  */
 @Entity
-@DiscriminatorValue(ArtifactType.BUILT)
-public class BuiltArtifact extends Artifact {
+@DiscriminatorValue(ArtifactType.IMPORTED)
+public class ImportedArtifact extends Artifact {
 
     private static final long serialVersionUID = 1L;
 
     /**
-     * The build record of the build which produced this artifact
+     * The location from which this artifact was originally downloaded
      */
     @NotNull
-    @ManyToOne
-    @ForeignKey(name = "fk_built_artifact_buildrecord")
-    @Index(name="idx_built_artifact_buildrecord")
-    @JoinColumn(updatable=false)
-    private BuildRecord buildRecord;
-
-    public BuiltArtifact() {
-    }
+    private String originUrl;
 
     /**
-     * Gets the project build record.
-     *
-     * @return the project build record
+     * The date when this artifact was originally downloaded
      */
-    public BuildRecord getBuildRecord() {
-        return buildRecord;
+    @NotNull
+    private Date downloadDate;
+
+    public ImportedArtifact() {
     }
 
-    /**
-     * Sets the project build record.
-     *
-     * @param buildRecord the new project build record
-     */
-    public void setBuildRecord(BuildRecord buildRecord) {
-        this.buildRecord = buildRecord;
+    public String getOriginUrl() {
+        return originUrl;
+    }
+
+    public void setOriginUrl(String originUrl) {
+        this.originUrl = originUrl;
+    }
+
+    public Date getDownloadDate() {
+        return downloadDate;
+    }
+
+    public void setDownloadDate(Date downloadDate) {
+        this.downloadDate = downloadDate;
     }
 
     /*
@@ -73,8 +71,7 @@ public class BuiltArtifact extends Artifact {
      */
     @Override
     public String toString() {
-        Integer buildRecordId = (getBuildRecord()==null)?null:getBuildRecord().getId();
-        return "Built Artifact [id: " + getId() + ", produced by build id:" + buildRecordId + "]";
+        return "Imported Artifact [id: " + getId() + ", retrieved from:" + this.getOriginUrl() + "]";
     }
 
     public static class Builder {
@@ -93,7 +90,9 @@ public class BuiltArtifact extends Artifact {
 
         private Set<BuildRecord> dependantBuildRecords;
 
-        private BuildRecord buildRecord;
+        private String originUrl;
+
+        private Date downloadDate;
 
         public Builder() {
             dependantBuildRecords = new HashSet<BuildRecord>();
@@ -103,9 +102,8 @@ public class BuiltArtifact extends Artifact {
             return new Builder();
         }
 
-        public BuiltArtifact build() {
-            BuiltArtifact artifact = new BuiltArtifact();
-            //artifact.setOrigin(ArtifactOrigin.BUILT);
+        public ImportedArtifact build() {
+            ImportedArtifact artifact = new ImportedArtifact();
             artifact.setId(id);
             artifact.setIdentifier(identifier);
             artifact.setRepoType(repoType);
@@ -115,7 +113,8 @@ public class BuiltArtifact extends Artifact {
             if (dependantBuildRecords != null) {
                 artifact.setDependantBuildRecords(dependantBuildRecords);
             }
-            artifact.setBuildRecord(buildRecord);
+            artifact.setOriginUrl(originUrl);
+            artifact.setDownloadDate(downloadDate);
 
             return artifact;
         }
@@ -156,8 +155,13 @@ public class BuiltArtifact extends Artifact {
             return this;
         }
 
-        public Builder buildRecord(BuildRecord buildRecord) {
-            this.buildRecord = buildRecord;
+        public Builder originUrl(String originUrl) {
+            this.originUrl = originUrl;
+            return this;
+        }
+
+        public Builder downloadDate(Date downloadDate) {
+            this.downloadDate = downloadDate;
             return this;
         }
 
