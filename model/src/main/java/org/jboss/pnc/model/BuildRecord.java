@@ -147,8 +147,6 @@ public class BuildRecord implements GenericEntity<Integer> {
     @Index(name="idx_buildrecord_systemimage")
     private BuildEnvironment systemImage;
 
-    // bi-directional many-to-many association to buildRecordSet
-
     /**
      * Sets of related build records in which this build record is included
      */
@@ -552,7 +550,6 @@ public class BuildRecord implements GenericEntity<Integer> {
             buildRecord.setExternalArchiveId(externalArchiveId);
 
             if (buildConfigSetRecord != null) {
-                buildConfigSetRecord.addBuildRecord(buildRecord);
                 buildRecord.setBuildConfigSetRecord(buildConfigSetRecord);
             }
 
@@ -568,10 +565,8 @@ public class BuildRecord implements GenericEntity<Integer> {
             }
             buildRecord.setDependencies(dependencies);
 
-            // Set the bi-directional mapping
-            for (BuildRecordSet buildRecordSet : buildRecordSets) {
-                buildRecordSet.getBuildRecords().add(buildRecord);
-            }
+            // Note: the buildRecordSet is the owning side, so new relations
+            // need to be saved by buildRecordSet
             buildRecord.setBuildRecordSets(buildRecordSets);
 
             return buildRecord;
