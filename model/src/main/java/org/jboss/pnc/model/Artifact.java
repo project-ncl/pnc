@@ -80,8 +80,8 @@ public class Artifact implements GenericEntity<Integer> {
      */
     @NotNull
     @ManyToMany
-    @ForeignKey(name = "fk_artifact_buildrecord")
-    @Index(name="idx_artifact_buildrecord")
+    @ForeignKey(name = "fk_artifact_dependant_buildrecord_map")
+    @Index(name="idx_artifact_dependant_buildrecord")
     private Set<BuildRecord> dependantBuildRecords;
 
     /**
