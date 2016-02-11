@@ -42,8 +42,8 @@ public class BuiltArtifact extends Artifact {
      */
     @NotNull
     @ManyToOne
-    @ForeignKey(name = "fk_artifact_buildrecord")
-    @Index(name="idx_artifact_buildrecord")
+    @ForeignKey(name = "fk_built_artifact_buildrecord")
+    @Index(name="idx_built_artifact_buildrecord")
     @JoinColumn(updatable=false)
     private BuildRecord buildRecord;
 
