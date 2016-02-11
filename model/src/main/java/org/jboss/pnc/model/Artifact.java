@@ -63,6 +63,7 @@ public abstract class Artifact implements GenericEntity<Integer> {
     @Deprecated
     private RepositoryType repoType;
 
+    @NotNull
     private String checksum;
 
     private String filename;
