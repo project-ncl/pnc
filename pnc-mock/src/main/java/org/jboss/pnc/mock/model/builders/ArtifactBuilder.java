@@ -20,6 +20,7 @@ package org.jboss.pnc.mock.model.builders;
 
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.BuiltArtifact;
+import org.jboss.pnc.model.ImportedArtifact;
 import org.jboss.pnc.model.RepositoryType;
 
 /**
@@ -28,8 +29,8 @@ import org.jboss.pnc.model.RepositoryType;
 public class ArtifactBuilder {
     public static final String IDENTIFIER_PREFIX = "org.jboss.pnc:mock.artifact";
 
-    public static Artifact mockArtifact(int id) {
-        return Artifact.Builder.newBuilder()
+    public static Artifact mockImportedArtifact(int id) {
+        return ImportedArtifact.Builder.newBuilder()
                 .id(id)
                 .identifier(IDENTIFIER_PREFIX + ":" + id)
                 .deployUrl("deploy url " + id)

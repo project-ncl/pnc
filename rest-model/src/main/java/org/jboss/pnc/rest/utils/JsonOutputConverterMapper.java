@@ -18,6 +18,8 @@
 
 package org.jboss.pnc.rest.utils;
 
+import org.jboss.pnc.model.Artifact;
+
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -31,6 +33,7 @@ public class JsonOutputConverterMapper {
 
     static {
         mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+        mapper.addMixInAnnotations(Artifact.class, JsonMixInArtifact.class);
     }
 
     public static String apply(Object objectToBeConverted) {
