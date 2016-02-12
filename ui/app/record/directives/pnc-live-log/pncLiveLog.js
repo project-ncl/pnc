@@ -32,9 +32,9 @@
       return {
         restrict: 'EA',
         scope: {
-          pncWsUri: '='
+          pncBuildRecord: '='
         },
-        controller: function($log, $scope, $websocket) {
+        controller: function($log, $scope, $websocket, $interval) {
           var socket;
 
           // Pnc REST Api only gives us an http link to the
@@ -72,12 +72,37 @@
             });
           }
 
-          connect(createWsUri($scope.pncWsUri));
+          /*
+           * Code handles fact that a livelog uri is not immediately available
+           * we retry at 10 second intervals a maximum of 10 times until a
+           * livelog uri is available, the attempt to connect to the build
+           * agent websocket.
+           */
+          var interval;
+          if (!_.isEmpty($scope.pncBuildRecord.liveLogsUri)) {
+            connect(createWsUri($scope.pncBuildRecord.liveLogsUri));
+          } else {
+            $log.debug('Live log uri not present, retrying in 10 seconds');
+            interval = $interval(function() {
+              $scope.pncBuildRecord.$getCompletedOrRunning().then(function(buildRecord) {
+                if (!_.isEmpty(buildRecord.liveLogsUri)) {
+                  connect(createWsUri(buildRecord.liveLogsUri));
+                  $interval.cancel(interval);
+                } else {
+                  $log.debug('Live log uri not present, retrying in 10 seconds');
+                }
+              });
+            }, 10000, 10, false);
+          }
+
 
           // Clean up the connection when user navigates away.
           $scope.$on('$destroy', function() {
             // Force close the websocket.
-            socket.close(true);
+            if (socket) {
+              socket.close(true);
+            }
+            $interval.cancel(interval);
           });
         }
       };

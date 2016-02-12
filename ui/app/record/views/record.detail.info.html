@@ -24,7 +24,7 @@
 </div>
 <div class="row">
   <div class="col-md-12">
-    <pnc-live-log ng-if="recordCtrl.record.status==='BUILDING'" pnc-ws-uri="recordCtrl.record.liveLogsUri">
+    <pnc-live-log ng-if="recordCtrl.record.status==='BUILDING'" pnc-build-record="recordCtrl.record">
       <div class="log-console well well-sm" pnc-log-canvas></div>
     </pnc-live-log>
   </div>
