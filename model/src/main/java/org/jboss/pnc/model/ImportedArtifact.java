@@ -47,7 +47,7 @@ public class ImportedArtifact extends Artifact {
     @NotNull
     private Date downloadDate;
 
-    public ImportedArtifact() {
+    private ImportedArtifact() {
     }
 
     public String getOriginUrl() {

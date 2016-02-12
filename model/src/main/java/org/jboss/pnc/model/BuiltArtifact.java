@@ -95,7 +95,7 @@ public class BuiltArtifact extends Artifact {
 
         private BuildRecord buildRecord;
 
-        public Builder() {
+        private Builder() {
             dependantBuildRecords = new HashSet<BuildRecord>();
         }
 
