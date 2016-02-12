@@ -71,13 +71,11 @@
          * @return the page as a promise
          */
         page._refresh = function (index, pageSize, searchText, add) {
-          add = typeof add !== 'undefined' ? add : false; // default parameter 
+          add = typeof add !== 'undefined' ? add : false; // default parameter
 
           page.isLoaded = false;
           return loader(index, pageSize, searchText).then(function (data) {
             if (!factory.verifyPageFormat(data)) {
-              console.log('Warning! Data \'' + JSON.stringify(data) + '\' does not have correct format ' +
-                '(not a paged resource). Using empty page instead.');
               data = factory._getEmptyPage();
             }
             if (data.totalPages === 0) {
@@ -117,7 +115,7 @@
          * Returns a promise of the page or throws an Error when index out of bounds.
          */
         page.loadPageIndex = function (index, add) {
-          add = typeof add !== 'undefined' ? add : false; // default parameter 
+          add = typeof add !== 'undefined' ? add : false; // default parameter
 
           if (page.hasPageIndex(index)) {
             return page._refresh(index, page.getPageSize(), page._searchText, add);
@@ -138,7 +136,7 @@
           return page.loadPageIndex(page.getPageIndex() + 1);
         };
 
-        /** 
+        /**
          * New data are added to existing
          */
         page.loadMore = function () {
@@ -289,8 +287,6 @@
 
       factory._maybeTryAgain = function (data, origMethod, args) {
         if (!factory.verifyPageFormat(data)) {
-          console.log('Warning! Data \'' + JSON.stringify(data) + '\' does not have correct format ' +
-            '(not a paged resource). Using empty page instead.');
           return factory._getEmptyPage();
         }
         if (data.totalPages > 1) {
