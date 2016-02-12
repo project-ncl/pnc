@@ -106,83 +106,79 @@
 
   module.controller('CreateBCController', [
     '$state',
-    '$stateParams',
     '$log',
-    '$filter',
     'BuildConfigurationDAO',
     'ProductDAO',
     'Notifications',
     'environments',
     'products',
-    function($state, $stateParams, $log, $filter, BuildConfigurationDAO, ProductDAO,
-             Notifications, environments, products) {
+    'configurations',
+    'configurationSetList',
+    'projectDetail',
+    function($state, $log, BuildConfigurationDAO, ProductDAO,
+             Notifications, environments, products, configurations, configurationSetList, projectDetail) {
 
       var that = this;
 
-      this.data = new BuildConfigurationDAO({ projectId: $stateParams.projectId }); // TODO is this correct?
-      this.environments = environments;
+      that.data = new BuildConfigurationDAO();
+      that.data.project = projectDetail;
+      that.environments = environments;
+      that.configurations = configurations;
+      that.configurationSetList = configurationSetList;
+      that.products = products;
 
-
-      this.submit = function() {
+      that.submit = function() {
         // The REST API takes integer Ids so we need to extract them from
         // our collection of objects first and attach them to our data object
         // for sending back to the server.
         that.data.productVersionIds = gatherIds(that.productVersions.selected);
         that.data.dependencyIds = gatherIds(that.dependencies.selected);
 
-        that.data.$save().then(function() {
+        that.data.$save().then(function(result) {
+
+          // Saving the BuildConfig link into the BuildGroupConfig 
+          _.each(that.buildgroupconfigs.selected, function(buildgroupconfig) {
+            buildgroupconfig.buildConfigurationIds.push(result.id);
+            buildgroupconfig.$update();
+          });
+
           $state.go('project.detail', {
-            projectId: $stateParams.projectId
+            projectId: projectDetail.id
           });
         });
       };
 
-      // Filtering and selection of linked ProductVersions.
-      this.products = {
-        all: products,
-        selected: null
-      };
-
-      // Could not make it work in a nicer way (i.e. via cachedGetter) - avibelli
-      this.allProductsMaps = {};
-      this.allProductNamesMaps = {};
-      this.products.all.forEach(function ( prod ) {
-          that.allProductsMaps[ prod.id ] = prod;
-      });
-
-      this.productVersions = {
-        selected: [],
-        all: [],
-
-        update: function() {
-          ProductDAO.getVersions({
-            productId: that.products.selected.id
-          }).then(function(data) {
-            that.productVersions.all = data;
-
-            // TOFIX - Ugly but quick - avibelli
-            data.forEach(function ( prodVers ) {
-                that.allProductNamesMaps[ prodVers.id ] = that.allProductsMaps[ prodVers.productId ].name + ' - ';
-            });
-          });
-        },
-        getItems: function($viewValue) {
-          return $filter('filter')(that.productVersions.all, {
-            version: $viewValue
-          });
-        }
+      that.productVersions = {
+        selected: []
       };
 
       // Selection of dependencies.
-      this.dependencies = {
-        selected: [],
-
-        getItems: function($viewValue) {
-          return BuildConfigurationDAO.querySearch({ name: $viewValue }).$promise.then(function(result) {
-            return result.content;
-          });
-        }
+      that.dependencies = {
+        selected: []
       };
+
+      // Selection of Build Group Configs.
+      that.buildgroupconfigs = {
+         selected: []
+      };
+
+      // Selection of Environments
+      that.environmentSelection = {
+        selected: []
+      };
+
+      that.reset = function(form) {
+        if (form) {
+          that.productVersions.selected = [];
+          that.dependencies.selected = [];
+          that.buildgroupconfigs.selected = [];
+          that.environmentSelection.selected = [];
+          that.data = new BuildConfigurationDAO();
+
+          form.$setPristine();
+          form.$setUntouched();
+          }
+        };
     }
   ]);
 
