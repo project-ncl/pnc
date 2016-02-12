@@ -55,12 +55,17 @@ public abstract class Artifact implements GenericEntity<Integer> {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = SEQUENCE_NAME)
     private Integer id;
 
-    @Deprecated
+    /**
+     * Contains a string which uniquely identifies the artifact in a repository.
+     * For example, for a maven artifact this is the GATVC (groupId:artifactId:type:version[:qualifier]
+     * The format of the identifier string is determined by the repoType
+     */
     private String identifier;
 
-    // The type of repository that hosts this artifact. This is also a sort of description for what type of artifatct this is
-    // (maven, npm, etc.)
-    @Deprecated
+    /**
+     * The type of repository which hosts this artifact (Maven, NPM, etc).  This field determines
+     * the format of the identifier string.
+     */
     private RepositoryType repoType;
 
     @NotNull
@@ -68,7 +73,9 @@ public abstract class Artifact implements GenericEntity<Integer> {
 
     private String filename;
 
-    @Deprecated
+    /**
+     * Repository URL where the artifact file is available.
+     */
     private String deployUrl;
 
     @Column(insertable=false, updatable=false)
@@ -117,7 +124,6 @@ public abstract class Artifact implements GenericEntity<Integer> {
      *
      * @return the identifier
      */
-    @Deprecated
     public String getIdentifier() {
         return identifier;
     }
@@ -127,7 +133,6 @@ public abstract class Artifact implements GenericEntity<Integer> {
      *
      * @param identifier the new identifier
      */
-    @Deprecated
     public void setIdentifier(String identifier) {
         this.identifier = identifier;
     }
@@ -173,7 +178,6 @@ public abstract class Artifact implements GenericEntity<Integer> {
      *
      * @return the deploy url
      */
-    @Deprecated
     public String getDeployUrl() {
         return deployUrl;
     }
@@ -183,15 +187,15 @@ public abstract class Artifact implements GenericEntity<Integer> {
      *
      * @param deployUrl the new deploy url
      */
-    @Deprecated
     public void setDeployUrl(String deployUrl) {
         this.deployUrl = deployUrl;
     }
 
     /**
      * Gets the type of the artifact, i.e. whether it has been imported or built internally.
+     * The possible types are defined by string constants in the ArtifactType interface.
      *
-     * @return the status
+     * @return the type
      */
     public String getType() {
         return type;
@@ -214,7 +218,6 @@ public abstract class Artifact implements GenericEntity<Integer> {
     /**
      * @return the repoType
      */
-    @Deprecated
     public RepositoryType getRepoType() {
         return repoType;
     }
@@ -222,7 +225,6 @@ public abstract class Artifact implements GenericEntity<Integer> {
     /**
      * @param repoType the repoType to set
      */
-    @Deprecated
     public void setRepoType(RepositoryType repoType) {
         this.repoType = repoType;
     }
