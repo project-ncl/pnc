@@ -26,9 +26,9 @@
 .pnc-infinite-select .dropdown-wrap {
 	position: absolute;
 	z-index: 99;
-	max-height: 120px; 
+	max-height: 120px;
 	min-width: 260px;
-	overflow-y: scroll; 
+	overflow-y: scroll;
 	background-color: white;
 
     background-color: #ffffff;
@@ -62,4 +62,15 @@
 
 .pnc-infinite-select .input-text {
 	width: 100%;
+}
+
+/**
+ * pnc-live-log
+ */
+ .log-console {
+  font-family: "courier new", monospace;
+  margin-top: 1rem;
+  height: 330px;
+  overflow: auto;
+  resize:both;
 }
