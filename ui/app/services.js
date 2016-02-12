@@ -41,7 +41,6 @@
     'UserDAO',
     function($window, kc, UserDAO) {
       var keycloak = kc;
-      var pncUser = null;
 
       return {
         isAuthenticated: function() {
@@ -57,12 +56,7 @@
         },
 
         getPncUser: function() {
-          if (!pncUser) {
-            return UserDAO.getAuthenticatedUser().$promise.then(function(result) {
-              pncUser = result;
-            });
-          }
-          return pncUser;
+          return UserDAO.getAuthenticatedUser();
         },
 
         logout: function() {

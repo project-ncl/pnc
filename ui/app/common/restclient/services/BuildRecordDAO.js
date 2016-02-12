@@ -50,6 +50,7 @@
         getLog: {
           method: 'GET',
           url: ENDPOINT + '/log',
+          cache: true,
           transformResponse: function(data) { return { payload: data }; }
         },
         _getArtifacts: {
