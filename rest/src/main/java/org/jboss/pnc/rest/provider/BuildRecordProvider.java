@@ -73,7 +73,7 @@ public class BuildRecordProvider extends AbstractProvider<BuildRecord, BuildReco
     }
 
     public CollectionInfo<BuildRecordRest> getAllRunning(Integer pageIndex, Integer pageSize, String search, String sort) {
-        List<BuildTask> x = buildCoordinator.getActiveBuildTasks();
+        List<BuildTask> x = buildCoordinator.getSubmittedBuildTasks();
         return nullableStreamOf(x)
                 .filter(rsqlPredicateProducer.getStreamPredicate(BuildTask.class, search))
                 .sorted(sortInfoProducer.getSortInfo(sort).getComparator())
@@ -81,12 +81,12 @@ public class BuildRecordProvider extends AbstractProvider<BuildRecord, BuildReco
                 .limit(pageSize)
                 .map(submittedBuild -> createNewBuildRecordRest(submittedBuild))
                 .collect(new CollectionInfoCollector<>(pageIndex, pageSize,
-                        (int) Math.ceil((double) buildCoordinator.getActiveBuildTasks().size() / pageSize)));
+                        (int) Math.ceil((double) buildCoordinator.getSubmittedBuildTasks().size() / pageSize)));
     }
 
 
     public CollectionInfo<BuildRecordRest> getAllRunningForBC(int pageIndex, int pageSize, String search, Integer bcId) {
-        List<BuildTask> x = buildCoordinator.getActiveBuildTasks();
+        List<BuildTask> x = buildCoordinator.getSubmittedBuildTasks();
         return nullableStreamOf(x)
                 .filter(t -> t != null)
                 .filter(t -> t.getBuildConfigurationAudited() != null
@@ -102,7 +102,7 @@ public class BuildRecordProvider extends AbstractProvider<BuildRecord, BuildReco
                 .skip(pageIndex * pageSize)
                 .limit(pageSize)
                 .collect(new CollectionInfoCollector<>(pageIndex, pageSize,
-                        (int) Math.ceil((double) buildCoordinator.getActiveBuildTasks().size() / pageSize)));
+                        (int) Math.ceil((double) buildCoordinator.getSubmittedBuildTasks().size() / pageSize)));
     }
 
     private BuildRecordRest createNewBuildRecordRest(BuildTask submittedBuild) {
@@ -126,7 +126,7 @@ public class BuildRecordProvider extends AbstractProvider<BuildRecord, BuildReco
     }
 
     public CollectionInfo<Object> getAllRunningForBCSetRecord(int pageIndex, int pageSize, String search, Integer bcSetRecordId) {
-        return nullableStreamOf(buildCoordinator.getActiveBuildTasks())
+        return nullableStreamOf(buildCoordinator.getSubmittedBuildTasks())
                 .filter(t -> t != null)
                 .filter(t -> t.getBuildSetTask() != null
                         && bcSetRecordId.equals(t.getBuildSetTask().getId()))
@@ -141,7 +141,7 @@ public class BuildRecordProvider extends AbstractProvider<BuildRecord, BuildReco
                 .skip(pageIndex * pageSize)
                 .limit(pageSize)
                 .collect(new CollectionInfoCollector<>(pageIndex, pageSize,
-                        (int) Math.ceil((double) buildCoordinator.getActiveBuildTasks().size() / pageSize)));
+                        (int) Math.ceil((double) buildCoordinator.getSubmittedBuildTasks().size() / pageSize)));
     }
 
 
@@ -201,7 +201,7 @@ public class BuildRecordProvider extends AbstractProvider<BuildRecord, BuildReco
     }
 
     private BuildTask getSubmittedBuild(Integer id) {
-        return buildCoordinator.getActiveBuildTasks().stream()
+        return buildCoordinator.getSubmittedBuildTasks().stream()
                 .filter(submittedBuild -> id.equals(submittedBuild.getId()))
                 .findFirst().orElse(null);
     }
