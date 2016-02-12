@@ -48,7 +48,6 @@ import org.slf4j.LoggerFactory;
 import javax.inject.Inject;
 import javax.ws.rs.core.StreamingOutput;
 import java.lang.invoke.MethodHandles;
-import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.Collection;
 import java.util.Date;
@@ -111,21 +110,31 @@ public class BuildRecordsTest {
         buildConfigName = buildConfigurationAudited.getName();
         BuildConfiguration buildConfiguration = buildConfigurationRepository.queryById(buildConfigurationAudited.getId().getId());
 
-        BuiltArtifact builtArtifact1 = new BuiltArtifact();
-        builtArtifact1.setFilename("built artifact 1");
-        builtArtifact1.setIdentifier("ba1-test");
+        BuiltArtifact builtArtifact1 = BuiltArtifact.Builder.newBuilder()
+                .filename("builtArtifact1.jar")
+                .identifier("ba1-test")
+                .checksum("abcd1234")
+                .build();
 
-        BuiltArtifact builtArtifact2 = new BuiltArtifact();
-        builtArtifact2.setFilename("built artifact 2");
-        builtArtifact2.setIdentifier("ba2-test");
+        BuiltArtifact builtArtifact2 = BuiltArtifact.Builder.newBuilder()
+                .filename("builtArtifact2.jar")
+                .identifier("ba2-test")
+                .checksum("abcd1234")
+                .build();
 
-        BuiltArtifact builtArtifact3 = new BuiltArtifact();
-        builtArtifact3.setFilename("built artifact 3");
-        builtArtifact3.setIdentifier("ba3-test");
+        BuiltArtifact builtArtifact3 = BuiltArtifact.Builder.newBuilder()
+                .filename("builtArtifact3.jar")
+                .identifier("ba3-test")
+                .checksum("abcd1234")
+                .build();
 
-        ImportedArtifact importedArtifact = new ImportedArtifact();
-        importedArtifact.setFilename("imported artifact 1");
-        importedArtifact.setIdentifier("ia1-test");
+        ImportedArtifact importedArtifact1 = ImportedArtifact.Builder.newBuilder()
+                .filename("importedArtifact1.jar")
+                .identifier("ia1-test")
+                .checksum("abcd1234")
+                .downloadDate(Date.from(Instant.now()))
+                .originUrl("http://central/importedArtifact1.jar")
+                .build();
 
         List<User> users = userRepository.queryAll();
         assertThat(users.size() > 0).isTrue();
@@ -142,7 +151,7 @@ public class BuildRecordsTest {
                 .endTime(Date.from(Instant.now()))
                 .user(user)
                 .builtArtifact(builtArtifact1)
-                .dependency(importedArtifact)
+                .dependency(importedArtifact1)
                 .build();
                 
         buildRecord1 = buildRecordRepository.save(buildRecord1);
@@ -160,7 +169,7 @@ public class BuildRecordsTest {
                 .builtArtifact(builtArtifact2)
                 .builtArtifact(builtArtifact3)
                 .dependency(builtArtifact1)
-                .dependency(importedArtifact)
+                .dependency(importedArtifact1)
                 .build();
 
         buildRecord2 = buildRecordRepository.save(buildRecord2);
@@ -257,14 +266,14 @@ public class BuildRecordsTest {
     class IsImported extends Condition<ArtifactRest> {
         @Override
         public boolean matches(ArtifactRest artifactRest) {
-            return artifactRest.getType() == ArtifactType.IMPORTED;
+            return artifactRest.getType().equals(ArtifactType.IMPORTED);
         }
     }
 
     class IsBuilt extends Condition<ArtifactRest> {
         @Override
         public boolean matches(ArtifactRest artifactRest) {
-            return artifactRest.getType() == ArtifactType.BUILT;
+            return artifactRest.getType().equals(ArtifactType.BUILT);
         }
     }
 
