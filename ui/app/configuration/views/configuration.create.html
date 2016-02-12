@@ -27,7 +27,7 @@
 
         <div class="panel panel-default">
           <div class="panel-body">
-            <div class="form-group" ng-class="{ 'has-error' : configurationForm.projectId.$invalid && configurationForm.projectId.$touched, 'has-success': configurationForm.projectId.$valid && configurationForm.projectId.$touched }">
+            <div class="form-group" ng-class="{ 'has-error' : !createCtrl.data.project.id && configurationForm.projectId.$touched, 'has-success': createCtrl.data.project.id && configurationForm.projectId.$touched }">
               <label for="input-project" class="col-sm-2 control-label">
                 * Project
               </label>
@@ -40,7 +40,7 @@
                   placeholder="Scroll & Filter Projects..."
                   items="createCtrl.projects" 
                   item-id="createCtrl.data.project.id"></pnc-infinite-select-items>
-                <span class="help-block" ng-show="configurationForm.projectId.$error.required && configurationForm.projectId.$touched">Required field.</span>
+                <span class="help-block" ng-show="!createCtrl.data.project.id && configurationForm.projectId.$touched">Required field.</span>
               </div>
             </div>
           </div>
@@ -90,7 +90,7 @@
               </div>
             </div>
 
-            <div class="form-group" ng-class="{ 'has-error' : configurationForm.environmentId.$invalid && configurationForm.environmentId.$touched, 'has-success': configurationForm.environmentId.$valid && configurationForm.environmentId.$touched }">
+            <div class="form-group" ng-class="{ 'has-error' : !createCtrl.data.environment.id && configurationForm.environmentId.$touched, 'has-success': createCtrl.data.environment.id && configurationForm.environmentId.$touched }">
               <label for="input-environment" class="col-sm-2 control-label">
                 * Environment
               </label>
@@ -103,7 +103,7 @@
                   placeholder="Scroll & Filter Environments..."
                   items="createCtrl.environments" 
                   item-id="createCtrl.data.environment.id"></pnc-infinite-select-items>
-                <span class="help-block" ng-show="configurationForm.environmentId.$error.required && configurationForm.environmentId.$touched">Required field.</span>
+                <span class="help-block" ng-show="!createCtrl.data.environment.id && configurationForm.environmentId.$touched">Required field.</span>
               </div>
             </div>
 
@@ -165,7 +165,7 @@
 
         <div class="form-group">
           <div class="col-sm-offset-2 col-sm-10">
-            <input type="submit" class="btn btn-primary" value="Create" ng-disabled="configurationForm.$invalid">
+            <input type="submit" class="btn btn-primary" value="Create" ng-disabled="configurationForm.$invalid || !createCtrl.data.environment.id || !createCtrl.data.project.id">
             <input type="reset" class="btn btn-default" value="Clear" ng-click="createCtrl.reset(configurationForm)">
           </div>
         </div>
