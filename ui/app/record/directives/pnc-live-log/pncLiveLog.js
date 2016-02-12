@@ -53,11 +53,12 @@
             socket = $websocket(uri);
 
             socket.onMessage(function(msg) {
-              $log.debug('receieved ws message: %O', msg);
+              $log.debug('Received logline: `%s`', msg.data);
               writelogln(msg.data);
             });
 
             socket.onOpen(function() {
+              $log.debug('Connected to build agent at: ' + socket.socket.url);
               writelogln('*** Connected to build agent ***');
             });
 
@@ -66,6 +67,7 @@
             });
 
             socket.onClose(function() {
+              $log.debug('Disconnected from build agent at: ' + socket.socket.url);
               writelogln('*** Connection to build agent closed ***');
             });
           }

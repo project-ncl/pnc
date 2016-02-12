@@ -50,23 +50,18 @@
       return {
 
         onMessage: function (message) {
-          $log.debug('Received WebSocket event: %O', message);
+          $log.debug('Received on notification WebSocket: %O', message);
           var event = pncEventAdaptor.convert(message);
           $rootScope.$broadcast(event.eventType, event.payload);
         },
 
         onOpen: function () {
-          $log.info('WebSocket opened successfully');
+          $log.info('Notification WebSocket opened successfully');
         },
 
         onClose: function () {
-          $log.info('WebSocket closed');
+          $log.info('Notification WebSocket closed');
         },
-
-        onError: function () {
-          $log.error('WebSocket Error: ', arguments);
-        }
-
       };
     }
   ]);
