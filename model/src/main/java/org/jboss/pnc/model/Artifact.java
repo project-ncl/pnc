@@ -44,9 +44,8 @@ import javax.validation.constraints.NotNull;
  */
 @Entity
 @Inheritance(strategy=InheritanceType.SINGLE_TABLE)
-@DiscriminatorColumn(name="status")
-@DiscriminatorValue("BINARY_IMPORTED")
-public class Artifact implements GenericEntity<Integer> {
+@DiscriminatorColumn(name="type")
+public abstract class Artifact implements GenericEntity<Integer> {
 
     private static final long serialVersionUID = -2368833657284575734L;
     public static final String SEQUENCE_NAME = "artifact_id_seq";
@@ -64,6 +63,7 @@ public class Artifact implements GenericEntity<Integer> {
     @Deprecated
     private RepositoryType repoType;
 
+    @NotNull
     private String checksum;
 
     private String filename;
@@ -71,9 +71,8 @@ public class Artifact implements GenericEntity<Integer> {
     @Deprecated
     private String deployUrl;
 
-    @Enumerated(EnumType.STRING)
     @Column(insertable=false, updatable=false)
-    private ArtifactStatus status;
+    private String type;
 
     /**
      * The builds for which this artifact is a dependency
@@ -190,14 +189,12 @@ public class Artifact implements GenericEntity<Integer> {
     }
 
     /**
-     * Gets the status.
-     * 
-     * The status (the genesis of the artifact, whether it has been imported or built internally).
+     * Gets the type of the artifact, i.e. whether it has been imported or built internally.
      *
      * @return the status
      */
-    public ArtifactStatus getStatus() {
-        return status;
+    public String getType() {
+        return type;
     }
 
     public Set<BuildRecord> getDependantBuildRecords() {
@@ -235,77 +232,4 @@ public class Artifact implements GenericEntity<Integer> {
         return "Artifact [id: " + id + ", filename=" + filename + "]";
     }
 
-    public static class Builder {
-
-        private Integer id;
-
-        private String identifier;
-
-        private RepositoryType repoType;
-
-        private String checksum;
-
-        private String filename;
-
-        private String deployUrl;
-
-        private Set<BuildRecord> dependantBuildRecords;
-
-        public static Builder newBuilder() {
-            return new Builder();
-        }
-
-        public Artifact build() {
-            Artifact artifact = new Artifact();
-            artifact.setId(id);
-            artifact.setIdentifier(identifier);
-            artifact.setRepoType(repoType);
-            artifact.setChecksum(checksum);
-            artifact.setFilename(filename);
-            artifact.setDeployUrl(deployUrl);
-            if (dependantBuildRecords != null) {
-                artifact.setDependantBuildRecords(dependantBuildRecords);
-            }
-            return artifact;
-        }
-
-        public Builder id(Integer id) {
-            this.id = id;
-            return this;
-        }
-
-        @Deprecated
-        public Builder identifier(String identifier) {
-            this.identifier = identifier;
-            return this;
-        }
-
-        @Deprecated
-        public Builder repoType(RepositoryType repoType) {
-            this.repoType = repoType;
-            return this;
-        }
-
-        public Builder checksum(String checksum) {
-            this.checksum = checksum;
-            return this;
-        }
-
-        public Builder filename(String filename) {
-            this.filename = filename;
-            return this;
-        }
-
-        @Deprecated
-        public Builder deployUrl(String deployUrl) {
-            this.deployUrl = deployUrl;
-            return this;
-        }
-
-        public Builder dependantBuildRecords(Set<BuildRecord> dependantBuildRecords) {
-            this.dependantBuildRecords = dependantBuildRecords;
-            return this;
-        }
-
-    }
 }

@@ -31,6 +31,7 @@ import javax.ejb.TransactionAttributeType;
 import javax.inject.Inject;
 import java.sql.Timestamp;
 import java.time.Instant;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.logging.Logger;
@@ -271,9 +272,11 @@ public class DatabaseDataInitializer {
         BuiltArtifact builtArtifact2 = BuiltArtifact.Builder.newBuilder().filename("built demo artifact 2").checksum("abcd2345")
                 .build();
 
-        Artifact importedArtifact1 = Artifact.Builder.newBuilder().filename("imported demo artifact 1")
+        ImportedArtifact importedArtifact1 = ImportedArtifact.Builder.newBuilder().filename("imported demo artifact 1")
+                .originUrl("http://central/import1.jar").downloadDate(Date.from(Instant.now())).checksum("abcd1234")
                 .deployUrl("http://google.pl/imported1").build();
-        Artifact importedArtifact2 = Artifact.Builder.newBuilder().filename("imported demo artifact 2")
+        ImportedArtifact importedArtifact2 = ImportedArtifact.Builder.newBuilder().filename("imported demo artifact 2")
+                .originUrl("http://central/import2.jar").downloadDate(Date.from(Instant.now())).checksum("abcd1234")
                 .deployUrl("http://google.pl/imported2").build();
 
         Set<BuildRecord> buildRecords = new HashSet<BuildRecord>();
@@ -312,9 +315,9 @@ public class DatabaseDataInitializer {
             buildRecordSetRepository.save(distributedBuildRecordSet);
         }
 
-        BuiltArtifact builtArtifact3 = BuiltArtifact.Builder.newBuilder().filename("built demo artifact 3").identifier("test")
+        BuiltArtifact builtArtifact3 = BuiltArtifact.Builder.newBuilder().filename("built demo artifact 3").identifier("test").checksum("abcd1234")
                 .deployUrl("http://google.pl/built3").build();
-        BuiltArtifact builtArtifact4 = BuiltArtifact.Builder.newBuilder().filename("built demo artifact 4").identifier("test")
+        BuiltArtifact builtArtifact4 = BuiltArtifact.Builder.newBuilder().filename("built demo artifact 4").identifier("test").checksum("abcd1234")
                 .deployUrl("http://google.pl/built4").build();
 
         IdRev buildConfig2AuditIdRev = new IdRev(buildConfiguration2.getId(), INITIAL_REVISION);

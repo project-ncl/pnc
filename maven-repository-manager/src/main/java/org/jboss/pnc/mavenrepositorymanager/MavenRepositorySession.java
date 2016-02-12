@@ -36,8 +36,8 @@ import org.commonjava.maven.atlas.ident.ref.ArtifactRef;
 import org.commonjava.maven.atlas.ident.ref.SimpleArtifactRef;
 import org.commonjava.maven.atlas.ident.util.ArtifactPathInfo;
 import org.jboss.pnc.model.Artifact;
-import org.jboss.pnc.model.ArtifactStatus;
 import org.jboss.pnc.model.BuiltArtifact;
+import org.jboss.pnc.model.ImportedArtifact;
 import org.jboss.pnc.model.RepositoryType;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerException;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
@@ -47,10 +47,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -222,10 +224,10 @@ public class MavenRepositorySession implements RepositorySession {
                 ArtifactRef aref = new SimpleArtifactRef(pathInfo.getProjectId(), pathInfo.getType(), pathInfo.getClassifier(), false);
                 logger.info("Recording download: {}", aref);
 
-                Artifact.Builder artifactBuilder = Artifact.Builder.newBuilder().checksum(download.getMd5())
+                ImportedArtifact.Builder artifactBuilder = ImportedArtifact.Builder.newBuilder().checksum(download.getMd5())
                         .deployUrl(content.contentUrl(download.getStoreKey(), download.getPath()))
-                        .filename(new File(path).getName()).identifier(aref.toString()).repoType(
-                                RepositoryType.MAVEN);
+                        .originUrl(download.getOriginUrl()).downloadDate(Date.from(Instant.now()))
+                        .filename(new File(path).getName()).identifier(aref.toString()).repoType(RepositoryType.MAVEN);
 
                 deps.add(artifactBuilder.build());
             }

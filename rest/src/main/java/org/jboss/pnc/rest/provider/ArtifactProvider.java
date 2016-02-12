@@ -38,7 +38,6 @@ import java.util.function.Function;
 
 import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
 import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withDependantBuildRecordId;
-import static org.jboss.pnc.spi.datastore.predicates.BuiltArtifactPredicates.withBuildRecordId;
 
 @Stateless
 public class ArtifactProvider extends AbstractProvider<Artifact, ArtifactRest> {

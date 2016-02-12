@@ -15,26 +15,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package org.jboss.pnc.rest.utils;
 
-package org.jboss.pnc.executor.mock.builders;
-
-import org.jboss.pnc.model.Artifact;
+import org.jboss.pnc.model.ArtifactType;
+import org.jboss.pnc.model.BuiltArtifact;
 import org.jboss.pnc.model.ImportedArtifact;
-import org.jboss.pnc.model.RepositoryType;
+
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.JsonSubTypes.Type;
 
 /**
- * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
+ * Provides annotations for serializing and deserializing from
+ * org.jboss.pnc.model.Artifact subclasses into JSON
  */
-public class ArtifactBuilder {
-    public static final String IDENTIFIER_PREFIX = "org.jboss.pnc:mock.artifact";
+@JsonTypeInfo(  
+        use = JsonTypeInfo.Id.NAME,  
+        include = JsonTypeInfo.As.PROPERTY,  
+        property = "type")  
+@JsonSubTypes({  
+        @Type(value = BuiltArtifact.class, name = ArtifactType.BUILT),  
+        @Type(value = ImportedArtifact.class, name = ArtifactType.IMPORTED) })
+public abstract class JsonMixInArtifact {
 
-    public static Artifact mockArtifact(int id) {
-        return ImportedArtifact.Builder.newBuilder()
-                .id(id)
-                .identifier(IDENTIFIER_PREFIX + ":" + id)
-                .deployUrl("deploy url " + id)
-                .repoType(RepositoryType.MAVEN)
-                .filename("File " + id + ".jar")
-                .build();
-    }
 }
