@@ -29,18 +29,13 @@ import javax.validation.constraints.NotNull;
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-11-23.
  * 
- * Class that maps the artifacts used by the builds of the projects.
+ * Class that maps the artifacts created and/or used by the builds of the projects.
+ * The "type" indicates the genesis of the artifact, whether it has been imported from 
+ * external repositories, or built internally.
  * 
- * Different types of artifacts should provide different logic for the identifier field.
+ * The repoType indicated the type of repository which is used to distributed the artifact.
+ * The repoType repo indicates the format for the identifier field.
  * 
- * The status indicates the genesis of the artifact, whether it has been imported from external repositories, or built
- * internally.
- * 
- * All the artifacts are mapped to the BuildRecord, that are the results deriving from a BuildConfiguration, so that given a
- * build, the artifacts used can be tracked
- * 
- * 
- * (identifier + checksum) should be unique
  */
 @Entity
 @Inheritance(strategy=InheritanceType.SINGLE_TABLE)
@@ -60,22 +55,29 @@ public abstract class Artifact implements GenericEntity<Integer> {
      * For example, for a maven artifact this is the GATVC (groupId:artifactId:type:version[:qualifier]
      * The format of the identifier string is determined by the repoType
      */
+    @NotNull
+    @Column(unique=true, updatable=false)
     private String identifier;
 
     /**
      * The type of repository which hosts this artifact (Maven, NPM, etc).  This field determines
      * the format of the identifier string.
      */
+    @NotNull
+    @Column(updatable=false)
     private RepositoryType repoType;
 
     @NotNull
+    @Column(updatable=false)
     private String checksum;
 
+    @Column(updatable=false)
     private String filename;
 
     /**
      * Repository URL where the artifact file is available.
      */
+    @Column(updatable=false)
     private String deployUrl;
 
     @Column(insertable=false, updatable=false)
