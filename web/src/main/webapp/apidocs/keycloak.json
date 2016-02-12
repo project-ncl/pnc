@@ -1,7 +1,7 @@
 {
   "realm": "pncredhat",
   "realm-public-key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAjG+B9bN0bQNDzpazVrpIG5SLEGmz7iehC/IjKLkFhwetP+nIVQi5hn59osJNrQ/vTGDdEYWLProLzkhJHRQzwZs2ucvyolaL/FcQ+l7UCxrewyhSsIubra14dJwhglKqQS+ZD2nRcQuiMJ97J9D9gqnk8z31mUO1Oq57HSIEwq/VH8YEWsOSnvd1ZDoYiKffnrghq1DTaEgPZm3aKPMmPkAS3n7ClC2Doww8r18EOEh+y8cea0M3fOpFL81137likn1m0phSHmdJ4MLVhUwgFn50UDGTjzB3pFAkUWE7s473C4zxAamLA1740hnUgXoCL36KKaMbZLQ4ZJnQEZQL6wIDAQAB",
-  "auth-server-url": "https://ncl-keycloak.stage.engineering.redhat.com/auth",
+  "auth-server-url": "@url-of-your-keycloak-server@",
   "ssl-required" : "none",
   "resource": "pncweb",
   "use-resource-role-mappings" : false,
