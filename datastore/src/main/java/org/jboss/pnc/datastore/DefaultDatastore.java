@@ -18,6 +18,7 @@
 package org.jboss.pnc.datastore;
 
 import org.jboss.pnc.datastore.repositories.SequenceHandlerRepository;
+import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
@@ -27,6 +28,7 @@ import org.jboss.pnc.model.BuildStatus;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.datastore.Datastore;
 import org.jboss.pnc.spi.datastore.predicates.UserPredicates;
+import org.jboss.pnc.spi.datastore.repositories.ArtifactRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigSetRecordRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationAuditedRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationRepository;
@@ -41,9 +43,11 @@ import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
 import javax.inject.Inject;
 import java.lang.invoke.MethodHandles;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withIdentifier;
 import static org.jboss.pnc.spi.datastore.predicates.BuildRecordSetPredicates.withBuildRecordSetIdInSet;
 
 @Stateless
@@ -52,11 +56,16 @@ public class DefaultDatastore implements Datastore {
     public static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
     @Inject
+    ArtifactRepository artifactRepository;
+
+    @Inject
     BuildRecordRepository buildRecordRepository;
 
-    @Inject BuildConfigurationRepository buildConfigurationRepository;
+    @Inject
+    BuildConfigurationRepository buildConfigurationRepository;
 
-    @Inject BuildConfigurationAuditedRepository buildConfigurationAuditedRepository;
+    @Inject
+    BuildConfigurationAuditedRepository buildConfigurationAuditedRepository;
 
     @Inject
     BuildConfigSetRecordRepository buildConfigSetRecordRepository;
@@ -75,6 +84,7 @@ public class DefaultDatastore implements Datastore {
     public BuildRecord storeCompletedBuild(BuildRecord.Builder buildRecordBuilder, Set<Integer> buildRecordSetIds) {
         BuildRecord buildRecord = buildRecordBuilder.build();
         refreshBuildConfiguration(buildRecord);
+        buildRecord.setDependencies(saveArtifacts(buildRecord.getDependencies()));
         buildRecord = buildRecordRepository.save(buildRecord);
         for(BuildRecordSet buildRecordSet : buildRecordSetRepository.queryWithPredicates(withBuildRecordSetIdInSet(buildRecordSetIds))) {
             buildRecordSet.addBuildRecord(buildRecord);
@@ -82,6 +92,25 @@ public class DefaultDatastore implements Datastore {
         }
         
         return buildRecord;
+    }
+
+    /**
+     * Match the artifacts in the list to existing artifacts in the database
+     * If no matching artifact exists in the db, the artifact is kept as-is
+     * 
+     * @param artifacts to store to the db
+     * @return List of artifacts stored in db
+     */
+    private List<Artifact> saveArtifacts(List<Artifact> artifacts) {
+        List<Artifact> dbArtifacts = new ArrayList<>();
+        for (Artifact artifact : artifacts) {
+            Artifact artifactFromDb = artifactRepository.queryByPredicates(withIdentifier(artifact.getIdentifier()));
+            if (artifactFromDb == null) {
+                artifactFromDb = artifactRepository.save(artifact);
+            }
+            dbArtifacts.add(artifactFromDb);
+        }
+        return dbArtifacts;
     }
 
     @Override
