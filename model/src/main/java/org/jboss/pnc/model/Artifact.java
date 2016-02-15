@@ -17,9 +17,6 @@
  */
 package org.jboss.pnc.model;
 
-import org.hibernate.annotations.ForeignKey;
-import org.hibernate.annotations.Index;
-
 import java.util.HashSet;
 import java.util.Set;
 
@@ -87,9 +84,7 @@ public abstract class Artifact implements GenericEntity<Integer> {
      * The builds for which this artifact is a dependency
      */
     @NotNull
-    @ManyToMany
-    @ForeignKey(name = "fk_artifact_dependant_buildrecord_map")
-    @Index(name="idx_artifact_dependant_buildrecord")
+    @ManyToMany(mappedBy = "dependencies")
     private Set<BuildRecord> dependantBuildRecords;
 
     /**
