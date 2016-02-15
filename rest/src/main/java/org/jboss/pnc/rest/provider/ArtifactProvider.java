@@ -58,17 +58,19 @@ public class ArtifactProvider extends AbstractProvider<Artifact, ArtifactRest> {
     public CollectionInfo<ArtifactRest> getAllForBuildRecord(int pageIndex, int pageSize, String sortingRsql, String query,
             int buildRecordId) {
         BuildRecord buildRecord = buildRecordRepository.queryById(buildRecordId);
-        List<Artifact> artifactList = buildRecord.getDependencies();
-        if (artifactList == null) {
-            artifactList = new ArrayList<Artifact>();
+
+        List<Artifact> fullArtifactList = new ArrayList<Artifact>();
+        for (Artifact artifact : buildRecord.getBuiltArtifacts()) {
+            fullArtifactList.add(artifact);
         }
-        for (BuiltArtifact artifact : buildRecord.getBuiltArtifacts()) {
-            artifactList.add(artifact);
+        for (Artifact artifact : buildRecord.getDependencies()) {
+            fullArtifactList.add(artifact);
         }
 
-        return nullableStreamOf(artifactList).map(artifact -> new ArtifactRest(artifact)).skip(pageIndex * pageSize)
-                .limit(pageSize).collect(new CollectionInfoCollector<>(pageIndex, pageSize, artifactList.size()));
+        return nullableStreamOf(fullArtifactList).map(artifact -> new ArtifactRest(artifact)).skip(pageIndex * pageSize)
+                .limit(pageSize).collect(new CollectionInfoCollector<>(pageIndex, pageSize, fullArtifactList.size()));
     }
+
     public CollectionInfo<ArtifactRest> getBuiltArtifactsForBuildRecord(int pageIndex, int pageSize, String sortingRsql, String query,
             int buildRecordId) {
         BuildRecord buildRecord = buildRecordRepository.queryById(buildRecordId);
