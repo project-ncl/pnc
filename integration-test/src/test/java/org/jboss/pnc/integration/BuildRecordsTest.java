@@ -30,6 +30,7 @@ import org.jboss.pnc.rest.restmodel.ArtifactRest;
 import org.jboss.pnc.rest.restmodel.BuildRecordRest;
 import org.jboss.pnc.rest.utils.StreamHelper;
 import org.jboss.pnc.spi.datastore.Datastore;
+import org.jboss.pnc.spi.datastore.repositories.ArtifactRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationAuditedRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
@@ -55,6 +56,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withIdentifier;
 
 @RunWith(Arquillian.class)
 @Category(ContainerTest.class)
@@ -65,6 +67,9 @@ public class BuildRecordsTest {
     private static Integer buildRecordId;
 
     private static String buildConfigName;
+
+    @Inject
+    private ArtifactRepository artifactRepository;
 
     @Inject
     private BuildRecordRepository buildRecordRepository;
@@ -112,29 +117,35 @@ public class BuildRecordsTest {
 
         BuiltArtifact builtArtifact1 = BuiltArtifact.Builder.newBuilder()
                 .filename("builtArtifact1.jar")
-                .identifier("ba1-test")
+                .identifier("integration-test:built-artifact1:jar:1.0")
+                .repoType(RepositoryType.MAVEN)
                 .checksum("abcd1234")
                 .build();
 
         BuiltArtifact builtArtifact2 = BuiltArtifact.Builder.newBuilder()
                 .filename("builtArtifact2.jar")
-                .identifier("ba2-test")
+                .identifier("integration-test:built-artifact2:jar:1.0")
+                .repoType(RepositoryType.MAVEN)
                 .checksum("abcd1234")
                 .build();
 
         BuiltArtifact builtArtifact3 = BuiltArtifact.Builder.newBuilder()
                 .filename("builtArtifact3.jar")
-                .identifier("ba3-test")
+                .identifier("integration-test:built-artifact3:jar:1.0")
+                .repoType(RepositoryType.MAVEN)
                 .checksum("abcd1234")
                 .build();
 
         ImportedArtifact importedArtifact1 = ImportedArtifact.Builder.newBuilder()
                 .filename("importedArtifact1.jar")
-                .identifier("ia1-test")
+                .identifier("integration-test:import-artifact1:jar:1.0")
+                .repoType(RepositoryType.MAVEN)
                 .checksum("abcd1234")
                 .downloadDate(Date.from(Instant.now()))
                 .originUrl("http://central/importedArtifact1.jar")
                 .build();
+
+        artifactRepository.save(importedArtifact1);
 
         List<User> users = userRepository.queryAll();
         assertThat(users.size() > 0).isTrue();
@@ -155,6 +166,7 @@ public class BuildRecordsTest {
                 .build();
                 
         buildRecord1 = buildRecordRepository.save(buildRecord1);
+        Artifact builtArtifact1FromDb = artifactRepository.queryByPredicates(withIdentifier(builtArtifact1.getIdentifier()));
 
         BuildRecord buildRecord2 = BuildRecord.Builder.newBuilder()
                 .id(datastore.getNextBuildRecordId())
@@ -168,7 +180,7 @@ public class BuildRecordsTest {
                 .user(user)
                 .builtArtifact(builtArtifact2)
                 .builtArtifact(builtArtifact3)
-                .dependency(builtArtifact1)
+                .dependency(builtArtifact1FromDb)
                 .dependency(importedArtifact1)
                 .build();
 
