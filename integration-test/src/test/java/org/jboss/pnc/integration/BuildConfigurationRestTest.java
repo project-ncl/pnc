@@ -47,6 +47,7 @@ import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
@@ -397,6 +398,7 @@ public class BuildConfigurationRestTest {
         assertThat(getUpdatedConfigResponse.getValue().getDependencyIds()).containsExactly(depConfigId);
     }
 
+    @Ignore("Deleting a build configuration is no longer allowed")
     @Test
     @InSequence(999)
     public void shouldDeleteBuildConfiguration() throws Exception {
