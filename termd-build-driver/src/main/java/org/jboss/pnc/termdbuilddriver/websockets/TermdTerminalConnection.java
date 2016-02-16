@@ -27,7 +27,7 @@ public class TermdTerminalConnection extends AbstractWebSocketsConnection {
     private final Logger logger = LoggerFactory.getLogger(TermdTerminalConnection.class);
 
 
-    private static final String WEB_SOCKET_TERMINAL_PATH = "socket/term/";
+    private static final String WEB_SOCKET_TERMINAL_PATH = "socket/term";
     ClientEndpoint clientEndpoint;
 
     public TermdTerminalConnection(URI serverBaseUri) {
