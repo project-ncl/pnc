@@ -58,7 +58,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
 
 /**
  * {@link RepositorySession} implementation that works with the Maven {@link RepositoryManagerDriver} (which connects to an
@@ -227,12 +226,8 @@ public class MavenRepositorySession implements RepositorySession {
 
                 ImportedArtifact.Builder artifactBuilder = ImportedArtifact.Builder.newBuilder().checksum(download.getMd5())
                         .deployUrl(content.contentUrl(download.getStoreKey(), download.getPath()))
-                        //.originUrl(download.getOriginUrl())
-                        .originUrl(UUID.randomUUID().toString()) //TODO
-                        .downloadDate(Date.from(Instant.now()))
-                        .filename(new File(path).getName())
-                        .identifier(aref.toString())
-                        .repoType(RepositoryType.MAVEN);
+                        .originUrl(download.getOriginUrl()).downloadDate(Date.from(Instant.now()))
+                        .filename(new File(path).getName()).identifier(aref.toString()).repoType(RepositoryType.MAVEN);
 
                 deps.add(artifactBuilder.build());
             }
