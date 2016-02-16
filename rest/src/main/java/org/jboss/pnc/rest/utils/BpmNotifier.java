@@ -65,7 +65,7 @@ public class BpmNotifier { //TODO rename: remove bpm for name
         List<NameValuePair> urlParameters = new ArrayList<>();
 
         JSonOutputConverter converter = new JSonOutputConverter();
-        urlParameters.add(new BasicNameValuePair("buildResult", converter.apply(buildResult)));
+        urlParameters.add(new BasicNameValuePair("event", converter.apply(buildResult)));
 
         try {
             request.setEntity(new UrlEncodedFormEntity(urlParameters));
