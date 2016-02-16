@@ -39,7 +39,7 @@ public class LogsUriTest extends AbstractLocalBuildAgentTest {
         termdCommandInvoker.closeSession();
 
         //then
-        assertThat(logsUri.toString()).matches("ws://127.0.0.1:\\d+/socket/term/");
+        assertThat(logsUri.toString()).matches("ws://127.0.0.1:\\d+/socket/term");
     }
 
 }
