@@ -37,4 +37,8 @@ public class ArtifactPredicates {
         };
     }
 
+    public static Predicate<Artifact> withIdentifier(String identifier) {
+        return (root, query, cb) -> cb.equal(root.get(Artifact_.identifier), identifier);
+    }
+
 }

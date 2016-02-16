@@ -36,6 +36,8 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.logging.Logger;
 
+import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withIdentifier;
+
 /**
  * Data for the DEMO. Note: The database initialization requires two separate transactions in order for the build configuration
  * audit record to be created and then linked to a build record.
@@ -51,6 +53,9 @@ public class DatabaseDataInitializer {
     private static final String PNC_PRODUCT_MILESTONE = "1.0.0.Build1";
     private static final String PNC_PROJECT_1_NAME = "Project Newcastle Demo Project 1";
     private static final String PNC_PROJECT_BUILD_CFG_ID = "pnc-1.0.0.DR1";
+
+    @Inject
+    ArtifactRepository artifactRepository;
 
     @Inject
     ProjectRepository projectRepository;
@@ -267,17 +272,20 @@ public class DatabaseDataInitializer {
     @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
     public void initiliazeBuildRecordDemoData() {
 
-        BuiltArtifact builtArtifact1 = BuiltArtifact.Builder.newBuilder().filename("built demo artifact 1").checksum("abcd1234")
-                .build();
-        BuiltArtifact builtArtifact2 = BuiltArtifact.Builder.newBuilder().filename("built demo artifact 2").checksum("abcd2345")
-                .build();
+        BuiltArtifact builtArtifact1 = BuiltArtifact.Builder.newBuilder().identifier("demo:built-artifact1:jar:1.0")
+                .repoType(RepositoryType.MAVEN).filename("demo built artifact 1").checksum("abcd1234").build();
+        BuiltArtifact builtArtifact2 = BuiltArtifact.Builder.newBuilder().identifier("demo:built-artifact2:jar:1.0")
+                .repoType(RepositoryType.MAVEN).filename("demo built artifact 2").checksum("abcd2345").build();
 
-        ImportedArtifact importedArtifact1 = ImportedArtifact.Builder.newBuilder().filename("imported demo artifact 1")
-                .originUrl("http://central/import1.jar").downloadDate(Date.from(Instant.now())).checksum("abcd1234")
-                .deployUrl("http://google.pl/imported1").build();
-        ImportedArtifact importedArtifact2 = ImportedArtifact.Builder.newBuilder().filename("imported demo artifact 2")
-                .originUrl("http://central/import2.jar").downloadDate(Date.from(Instant.now())).checksum("abcd1234")
-                .deployUrl("http://google.pl/imported2").build();
+        Artifact importedArtifact1 = ImportedArtifact.Builder.newBuilder().identifier("demo:imported-artifact1:jar:1.0")
+                .repoType(RepositoryType.MAVEN).filename("demo imported artifact 1").originUrl("http://central/import1.jar")
+                .downloadDate(Date.from(Instant.now())).checksum("abcd1234").deployUrl("http://google.pl/imported1").build();
+        Artifact importedArtifact2 = ImportedArtifact.Builder.newBuilder().identifier("demo:imported-artifact2:jar:1.0")
+                .repoType(RepositoryType.MAVEN).filename("demo imported artifact 2").originUrl("http://central/import2.jar")
+                .downloadDate(Date.from(Instant.now())).checksum("abcd1234").deployUrl("http://google.pl/imported2").build();
+
+        importedArtifact1 = artifactRepository.save(importedArtifact1);
+        importedArtifact2 = artifactRepository.save(importedArtifact2);
 
         Set<BuildRecord> buildRecords = new HashSet<BuildRecord>();
 
@@ -315,10 +323,14 @@ public class DatabaseDataInitializer {
             buildRecordSetRepository.save(distributedBuildRecordSet);
         }
 
-        BuiltArtifact builtArtifact3 = BuiltArtifact.Builder.newBuilder().filename("built demo artifact 3").identifier("test").checksum("abcd1234")
+        BuiltArtifact builtArtifact3 = BuiltArtifact.Builder.newBuilder().identifier("demo:built-artifact3:jar:1.0")
+                .repoType(RepositoryType.MAVEN).filename("demo built artifact 3").checksum("abcd1234")
                 .deployUrl("http://google.pl/built3").build();
-        BuiltArtifact builtArtifact4 = BuiltArtifact.Builder.newBuilder().filename("built demo artifact 4").identifier("test").checksum("abcd1234")
+        BuiltArtifact builtArtifact4 = BuiltArtifact.Builder.newBuilder().identifier("demo:built-artifact4:jar:1.0")
+                .repoType(RepositoryType.MAVEN).filename("demo built artifact 4").checksum("abcd1234")
                 .deployUrl("http://google.pl/built4").build();
+
+        Artifact dependencyBuiltArtifact1 = artifactRepository.queryByPredicates(withIdentifier(builtArtifact1.getIdentifier()));
 
         IdRev buildConfig2AuditIdRev = new IdRev(buildConfiguration2.getId(), INITIAL_REVISION);
         BuildConfigurationAudited buildConfigAudited2 = buildConfigurationAuditedRepository.findOne(buildConfig2AuditIdRev);
@@ -335,15 +347,13 @@ public class DatabaseDataInitializer {
                     .endTime(Timestamp.from(Instant.now()))
                     .builtArtifact(builtArtifact3)
                     .builtArtifact(builtArtifact4)
-                    .dependency(builtArtifact1)
+                    .dependency(dependencyBuiltArtifact1)
                     .dependency(importedArtifact1)
                     .user(demoUser)
                     .buildLog("Very short demo log: The quick brown fox jumps over the lazy dog.")
                     .status(BuildStatus.SUCCESS)
                     .build();
 
-            // TODO: this causes builtArtifact1 and importedArtifact1 to be duplicated 
-            // because of the cascading insert.  Need a way to prevent these duplicates
             buildRecordRepository.save(buildRecord2);
             buildRecords.add(buildRecord2);
         }

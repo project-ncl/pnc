@@ -49,7 +49,6 @@ public class ArtifactRest implements GenericRestEntity<Integer> {
 
     private String filename;
 
-    // What is this used for?
     private String deployUrl;
 
     private String type;

@@ -39,12 +39,14 @@ public class ImportedArtifact extends Artifact {
      * The location from which this artifact was originally downloaded
      */
     @NotNull
+    @Column(unique=true, updatable=false)
     private String originUrl;
 
     /**
      * The date when this artifact was originally downloaded
      */
     @NotNull
+    @Column(updatable=false)
     private Date downloadDate;
 
     private ImportedArtifact() {
@@ -129,7 +131,6 @@ public class ImportedArtifact extends Artifact {
             return this;
         }
 
-        @Deprecated
         public Builder repoType(RepositoryType repoType) {
             this.repoType = repoType;
             return this;

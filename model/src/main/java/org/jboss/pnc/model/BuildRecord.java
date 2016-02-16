@@ -128,10 +128,20 @@ public class BuildRecord implements GenericEntity<Integer> {
     @Enumerated(value = EnumType.STRING)
     private BuildStatus status;
 
+    /**
+     * Note, each builtArtifact belongs to a single build record, so we can cascade
+     * without risk of duplicate inserts.
+     */
     @OneToMany(mappedBy = "buildRecord", cascade = CascadeType.ALL)
     private List<BuiltArtifact> builtArtifacts;
 
-    @ManyToMany(mappedBy = "dependantBuildRecords", cascade = CascadeType.ALL)
+    @ManyToMany
+    @JoinTable(name = "build_record_artifact_dependencies_map", joinColumns = {
+            @JoinColumn(name = "build_record_id", referencedColumnName = "id") }, inverseJoinColumns = {
+                    @JoinColumn(name = "dependency_artifact_id", referencedColumnName = "id") }, uniqueConstraints = @UniqueConstraint(name = "uk_build_record_id_dependency_artifact_id", columnNames = {
+                            "build_record_id", "dependency_artifact_id" }) )
+    @ForeignKey(name = "fk_build_record_artifact_map_dependencies")
+    @Index(name = "idx_build_record_artifact_map_dependencies")
     private List<Artifact> dependencies;
 
     /**

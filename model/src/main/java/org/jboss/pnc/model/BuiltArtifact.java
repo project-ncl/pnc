@@ -129,7 +129,6 @@ public class BuiltArtifact extends Artifact {
             return this;
         }
 
-        @Deprecated
         public Builder repoType(RepositoryType repoType) {
             this.repoType = repoType;
             return this;
