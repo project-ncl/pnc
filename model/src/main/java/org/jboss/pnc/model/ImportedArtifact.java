@@ -38,7 +38,6 @@ public class ImportedArtifact extends Artifact {
     /**
      * The location from which this artifact was originally downloaded
      */
-    @NotNull
     @Column(unique=true, updatable=false)
     private String originUrl;
 
