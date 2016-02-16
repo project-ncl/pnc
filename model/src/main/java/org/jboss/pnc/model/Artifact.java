@@ -53,7 +53,7 @@ public abstract class Artifact implements GenericEntity<Integer> {
      * The format of the identifier string is determined by the repoType
      */
     @NotNull
-    @Column(unique=true, updatable=false)
+    @Column(updatable=false)
     private String identifier;
 
     /**
