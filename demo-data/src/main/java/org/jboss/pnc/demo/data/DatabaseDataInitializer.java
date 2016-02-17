@@ -36,7 +36,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.logging.Logger;
 
-import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withIdentifier;
+import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withIdentifierAndChecksum;
 
 /**
  * Data for the DEMO. Note: The database initialization requires two separate transactions in order for the build configuration
@@ -330,7 +330,8 @@ public class DatabaseDataInitializer {
                 .repoType(RepositoryType.MAVEN).filename("demo built artifact 4").checksum("abcd1234")
                 .deployUrl("http://google.pl/built4").build();
 
-        Artifact dependencyBuiltArtifact1 = artifactRepository.queryByPredicates(withIdentifier(builtArtifact1.getIdentifier()));
+        Artifact dependencyBuiltArtifact1 = artifactRepository
+                .queryByPredicates(withIdentifierAndChecksum(builtArtifact1.getIdentifier(), builtArtifact1.getChecksum()));
 
         IdRev buildConfig2AuditIdRev = new IdRev(buildConfiguration2.getId(), INITIAL_REVISION);
         BuildConfigurationAudited buildConfigAudited2 = buildConfigurationAuditedRepository.findOne(buildConfig2AuditIdRev);
