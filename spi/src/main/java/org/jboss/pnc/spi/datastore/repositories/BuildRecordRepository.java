@@ -20,11 +20,13 @@ package org.jboss.pnc.spi.datastore.repositories;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.spi.datastore.repositories.api.Repository;
 
+import java.util.Collection;
+
 /**
  * Interface for manipulating {@link org.jboss.pnc.model.BuildRecord} entity.
  */
 public interface BuildRecordRepository extends Repository<BuildRecord, Integer> {
 
     BuildRecord findByIdFetchAllProperties(Integer id);
-
+    Collection<Integer> findIdsOfBuildRecordsInDistributedRecordsetOfProductMilestone(Integer productMilestoneId);
 }

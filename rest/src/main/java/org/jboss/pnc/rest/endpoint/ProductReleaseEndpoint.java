@@ -17,39 +17,6 @@
  */
 package org.jboss.pnc.rest.endpoint;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
-import org.jboss.pnc.model.ProductRelease;
-import org.jboss.pnc.model.ProductRelease.SupportLevel;
-import org.jboss.pnc.rest.provider.ProductReleaseProvider;
-import org.jboss.pnc.rest.provider.collection.CollectionInfo;
-import org.jboss.pnc.rest.restmodel.ProductReleaseRest;
-import org.jboss.pnc.rest.restmodel.response.error.ErrorResponseRest;
-import org.jboss.pnc.rest.swagger.response.ProductReleasePage;
-import org.jboss.pnc.rest.swagger.response.ProductReleaseSingleton;
-import org.jboss.pnc.rest.swagger.response.SupportLevelPage;
-import org.jboss.pnc.rest.validation.exceptions.ValidationException;
-
-import javax.inject.Inject;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.DefaultValue;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
-import java.util.Arrays;
-import java.util.List;
-
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.CONFLICTED_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.CONFLICTED_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.INVALID_DESCRIPTION;
@@ -73,6 +40,43 @@ import static org.jboss.pnc.rest.configuration.SwaggerConstants.SORTING_QUERY_PA
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_DESCRIPTION;
 
+import org.jboss.pnc.model.ProductRelease;
+import org.jboss.pnc.model.ProductRelease.SupportLevel;
+import org.jboss.pnc.rest.provider.BuildRecordProvider;
+import org.jboss.pnc.rest.provider.ProductReleaseProvider;
+import org.jboss.pnc.rest.provider.collection.CollectionInfo;
+import org.jboss.pnc.rest.restmodel.ProductReleaseRest;
+import org.jboss.pnc.rest.restmodel.response.error.ErrorResponseRest;
+import org.jboss.pnc.rest.swagger.response.BuildRecordSetPage;
+import org.jboss.pnc.rest.swagger.response.ProductReleasePage;
+import org.jboss.pnc.rest.swagger.response.ProductReleaseSingleton;
+import org.jboss.pnc.rest.swagger.response.SupportLevelPage;
+import org.jboss.pnc.rest.validation.exceptions.ValidationException;
+
+import javax.inject.Inject;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DefaultValue;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
+
 @Api(value = "/product-releases", description = "Product Release related information")
 @Path("/product-releases")
 @Produces(MediaType.APPLICATION_JSON)
@@ -80,14 +84,16 @@ import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_DESCRIPT
 public class ProductReleaseEndpoint extends AbstractEndpoint<ProductRelease, ProductReleaseRest> {
 
     private ProductReleaseProvider productReleaseProvider;
+    private BuildRecordProvider buildRecordProvider;
 
     public ProductReleaseEndpoint() {
     }
 
     @Inject
-    public ProductReleaseEndpoint(ProductReleaseProvider productReleaseProvider) {
+    public ProductReleaseEndpoint(ProductReleaseProvider productReleaseProvider, BuildRecordProvider buildRecordProvider) {
         super(productReleaseProvider);
         this.productReleaseProvider = productReleaseProvider;
+        this.buildRecordProvider = buildRecordProvider;
     }
 
     @ApiOperation(value = "Gets all Product Releases")
@@ -174,6 +180,25 @@ public class ProductReleaseEndpoint extends AbstractEndpoint<ProductRelease, Pro
     public Response getAllSupportLevel() {
         List<SupportLevel> supportLevels = Arrays.asList(SupportLevel.values());
         return fromCollection(new CollectionInfo<>(0, supportLevels.size(), 1, supportLevels));
+    }
+
+    @ApiOperation(value = "Gets all BuildRecords distributed for Product Version")
+    @ApiResponses(value = {
+            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION, response = BuildRecordSetPage.class),
+            @ApiResponse(code = NO_CONTENT_CODE, message = NO_CONTENT_DESCRIPTION, response = BuildRecordSetPage.class),
+            @ApiResponse(code = INVLID_CODE, message = INVALID_DESCRIPTION, response = ErrorResponseRest.class),
+            @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION, response = ErrorResponseRest.class)
+    })
+    @GET
+    @Path("/{id}/allDistributedBuildIds")
+    public Response getAllBuildsInDistributedRecordsetOfProductRelease(
+            @ApiParam(value = "Product Release id", required = true) @PathParam("id") Integer id) {
+        ProductReleaseRest release = basicProvider.getSpecific(id);
+        if (release == null) {
+            return fromSingleton(null);
+        }
+        Collection<Integer> ids = buildRecordProvider.getAllBuildsInDistributedRecordsetOfProductMilestone(release.getProductMilestoneId());
+        return fromCollection(new CollectionInfo<>(1, ids.size(), 1, ids));
     }
 
 }
