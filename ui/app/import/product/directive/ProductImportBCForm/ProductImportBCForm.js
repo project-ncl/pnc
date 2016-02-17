@@ -25,9 +25,8 @@
    * @author Jakub Senko
    */
   module.directive('productImportBCForm', [
-    '$log',
     'Notifications',
-    function ($log, Notifications) {
+    function (Notifications) {
 
       return {
         restrict: 'E',
@@ -37,7 +36,6 @@
           validateFormCaller: '='
         },
         link: function (scope) {
-          $log.debug('node = %O', scope.node);
           scope.refresh = _.noop;
           scope.$watch('node', function () {
             scope.data = scope.node.nodeData;
