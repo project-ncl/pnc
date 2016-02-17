@@ -54,14 +54,17 @@
 
 
           var validate = function () {
-            if (scope.bcForm.$valid && scope.data.environmentId !== null && scope.data.projectId !== null) {
-              return true;
-            } else {
-              dirtyForm();
-              Notifications.warn('Some data are invalid or missing. Verify that form for ' +
-                scope.node.gavString + ' is correctly filled in.');
-              return false;
+            var valid = true;
+            scope.node.selected = !_.isUndefined(scope.node.state) && scope.node.state.checked;
+            if (scope.node.selected && !scope.node.nodeData.useExistingBc) {
+              if (!scope.bcForm.$valid || scope.data.environmentId === null || scope.data.projectId === null) {
+                valid = false;
+                dirtyForm();
+                Notifications.warn('Some data is invalid or missing. Verify that form for ' +
+                  scope.node.gavString + ' is correctly filled in.');
+              }
             }
+            return valid;
           };
 
 
