@@ -67,7 +67,8 @@ public class TermdBuildDriver implements BuildDriver { //TODO rename class
     public TermdBuildDriver(Configuration configuration) {
         int executorThreadPoolSize = 12;
         try {
-            String executorThreadPoolSizeStr = configuration.getModuleConfig(new PncConfigProvider<>(SystemConfig.class)).getBuilderThreadPoolSize();
+            String executorThreadPoolSizeStr = configuration.getModuleConfig(new PncConfigProvider<>(SystemConfig.class))
+                    .getBuilderThreadPoolSize();
             if (executorThreadPoolSizeStr != null) {
                 executorThreadPoolSize = Integer.parseInt(executorThreadPoolSizeStr);
             }

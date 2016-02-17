@@ -38,7 +38,6 @@ import org.jboss.pnc.termdbuilddriver.commands.TermdCommandExecutionException;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.mockito.Mock;
 
 import java.util.Arrays;
 import java.util.concurrent.CompletableFuture;
@@ -50,8 +49,7 @@ public class TermdBuildDriverTest extends AbstractLocalBuildAgentTest {
     BuildConfigurationAudited jsr107BuildConfig;
     BuildExecutionSession buildExecutionMock;
     
-    @Mock
-    private Configuration configuration;
+    private Configuration configuration = mock(Configuration.class);
 
     @Before
     public void before() throws ConfigurationParseException {
@@ -60,9 +58,10 @@ public class TermdBuildDriverTest extends AbstractLocalBuildAgentTest {
         doReturn("master").when(jsr107BuildConfig).getScmRevision();
         doReturn("mvn validate").when(jsr107BuildConfig).getBuildScript();
         doReturn("jsr107-test").when(jsr107BuildConfig).getName();
-        doReturn(new SystemConfig(null, null, null, null))
-            .when(configuration).getModuleConfig(new PncConfigProvider<>(SystemConfig.class));
-
+        
+        doReturn(new SystemConfig(null, null, null, "")).when(configuration).getModuleConfig(any());
+        
+        
         buildExecutionMock = mock(BuildExecutionSession.class);
         BuildExecutionConfiguration buildExecutionConfiguration = mock(BuildExecutionConfiguration.class);
         doReturn(buildExecutionConfiguration).when(buildExecutionMock).getBuildExecutionConfiguration();
@@ -71,7 +70,7 @@ public class TermdBuildDriverTest extends AbstractLocalBuildAgentTest {
     @Test(timeout = 60_000)
     public void shouldFailOnRemoteScriptInvokationException() throws Exception {
         //given
-        TermdBuildDriver driver = new TermdBuildDriver() {
+        TermdBuildDriver driver = new TermdBuildDriver(configuration) {
             @Override
             protected CompletableFuture<TermdCommandBatchExecutionResult> invokeRemoteScript(
                     TermdRunningBuild termdRunningBuild,
@@ -93,7 +92,7 @@ public class TermdBuildDriverTest extends AbstractLocalBuildAgentTest {
     @Test(timeout = 60_000)
     public void shouldReportBuildWithFailureWhenRemoteCommandFails() throws Exception {
         //given
-        TermdBuildDriver driver = new TermdBuildDriver() {
+        TermdBuildDriver driver = new TermdBuildDriver(configuration) {
             @Override
             protected CompletableFuture<String> uploadScript(TermdRunningBuild termdRunningBuild, StringBuilder commandAppender) {
                 return CompletableFuture.completedFuture("run.sh");
