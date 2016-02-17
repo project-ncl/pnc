@@ -23,16 +23,22 @@ import org.jboss.pnc.common.json.AbstractModuleConfig;
 public class SystemConfig extends AbstractModuleConfig {
 
     private String buildDriverId;
+
     private String buildSchedulerId;
+
     private String executorThreadPoolSize;
+
+    private String builderThreadPoolSize;
 
     public SystemConfig(
             @JsonProperty("buildDriverId") String buildDriverId,
             @JsonProperty("buildSchedulerId") String buildSchedulerId,
-            @JsonProperty("executorThreadPoolSize") String executorThreadPoolSize) {
+            @JsonProperty("executorThreadPoolSize") String executorThreadPoolSize,
+            @JsonProperty("builderThreadPoolSize") String builderThreadPoolSize) {
         this.buildDriverId = buildDriverId;
         this.buildSchedulerId = buildSchedulerId;
         this.executorThreadPoolSize = executorThreadPoolSize;
+        this.executorThreadPoolSize = builderThreadPoolSize;
     }
 
     public String getBuildDriverId() {
@@ -47,13 +53,23 @@ public class SystemConfig extends AbstractModuleConfig {
         return executorThreadPoolSize;
     }
 
+    public String getBuilderThreadPoolSize() {
+        return builderThreadPoolSize;
+    }
+
+    public void setBuilderThreadPoolSize(String builderThreadPoolSize) {
+        this.builderThreadPoolSize = builderThreadPoolSize;
+    }
+
     @Override
     public String toString() {
-        return "SystemConfig{" +
-                "buildDriverId='" + buildDriverId + '\'' +
-                "buildSchedulerId='" + buildSchedulerId + '\'' +
-                "executorThreadPoolSize='" + executorThreadPoolSize + '\'' +
-                '}';
+        return "SystemConfig ["
+                + (buildDriverId != null ? "buildDriverId=" + buildDriverId + ", " : "")
+                + (buildSchedulerId != null ? "buildSchedulerId=" + buildSchedulerId + ", " : "")
+                + (executorThreadPoolSize != null ? "executorThreadPoolSize="
+                        + executorThreadPoolSize + ", " : "")
+                + (builderThreadPoolSize != null ? "builderThreadPoolSize=" + builderThreadPoolSize
+                        : "") + "]";
     }
 
 }

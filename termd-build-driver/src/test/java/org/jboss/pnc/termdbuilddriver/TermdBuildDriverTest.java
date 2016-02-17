@@ -17,7 +17,15 @@
  */
 package org.jboss.pnc.termdbuilddriver;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.fail;
+import static org.mockito.Mockito.*;
+
 import org.assertj.core.api.Assertions;
+import org.jboss.pnc.common.Configuration;
+import org.jboss.pnc.common.json.ConfigurationParseException;
+import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
+import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.spi.builddriver.BuildDriverStatus;
 import org.jboss.pnc.spi.builddriver.CompletedBuild;
@@ -35,24 +43,25 @@ import java.util.Arrays;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicReference;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.fail;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-
 public class TermdBuildDriverTest extends AbstractLocalBuildAgentTest {
+    
 
     BuildConfigurationAudited jsr107BuildConfig;
     BuildExecutionSession buildExecutionMock;
+    
+    private Configuration configuration = mock(Configuration.class);
 
     @Before
-    public void before() {
+    public void before() throws ConfigurationParseException {
         jsr107BuildConfig = mock(BuildConfigurationAudited.class);
         doReturn("https://github.com/jsr107/jsr107spec.git").when(jsr107BuildConfig).getScmRepoURL();
         doReturn("master").when(jsr107BuildConfig).getScmRevision();
         doReturn("mvn validate").when(jsr107BuildConfig).getBuildScript();
         doReturn("jsr107-test").when(jsr107BuildConfig).getName();
-
+        
+        doReturn(new SystemConfig(null, null, null, "")).when(configuration).getModuleConfig(any());
+        
+        
         buildExecutionMock = mock(BuildExecutionSession.class);
         BuildExecutionConfiguration buildExecutionConfiguration = mock(BuildExecutionConfiguration.class);
         doReturn(buildExecutionConfiguration).when(buildExecutionMock).getBuildExecutionConfiguration();
@@ -61,7 +70,7 @@ public class TermdBuildDriverTest extends AbstractLocalBuildAgentTest {
     @Test(timeout = 60_000)
     public void shouldFailOnRemoteScriptInvokationException() throws Exception {
         //given
-        TermdBuildDriver driver = new TermdBuildDriver() {
+        TermdBuildDriver driver = new TermdBuildDriver(configuration) {
             @Override
             protected CompletableFuture<TermdCommandBatchExecutionResult> invokeRemoteScript(
                     TermdRunningBuild termdRunningBuild,
@@ -83,7 +92,7 @@ public class TermdBuildDriverTest extends AbstractLocalBuildAgentTest {
     @Test(timeout = 60_000)
     public void shouldReportBuildWithFailureWhenRemoteCommandFails() throws Exception {
         //given
-        TermdBuildDriver driver = new TermdBuildDriver() {
+        TermdBuildDriver driver = new TermdBuildDriver(configuration) {
             @Override
             protected CompletableFuture<String> uploadScript(TermdRunningBuild termdRunningBuild, StringBuilder commandAppender) {
                 return CompletableFuture.completedFuture("run.sh");
