@@ -17,6 +17,10 @@
  */
 package org.jboss.pnc.termdbuilddriver;
 
+import org.jboss.pnc.common.Configuration;
+import org.jboss.pnc.common.json.ConfigurationParseException;
+import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
+import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
 import org.jboss.pnc.model.BuildType;
 import org.jboss.pnc.spi.builddriver.BuildDriver;
 import org.jboss.pnc.spi.builddriver.BuildDriverResult;
@@ -33,10 +37,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+
 import java.net.URI;
 import java.nio.file.Paths;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicReference;
 
 @ApplicationScoped
@@ -49,7 +57,24 @@ public class TermdBuildDriver implements BuildDriver { //TODO rename class
     //connect to build agent on internal or on public address
     private boolean useInternalNetwork = true; //TODO configurable
 
+    private ExecutorService executor;
+
+    @Deprecated
     public TermdBuildDriver() {
+    }
+    
+    @Inject
+    public TermdBuildDriver(Configuration configuration) {
+        int executorThreadPoolSize = 12;
+        try {
+            String executorThreadPoolSizeStr = configuration.getModuleConfig(new PncConfigProvider<>(SystemConfig.class)).getBuilderThreadPoolSize();
+            if (executorThreadPoolSizeStr != null) {
+                executorThreadPoolSize = Integer.parseInt(executorThreadPoolSizeStr);
+            }
+        } catch (ConfigurationParseException e) {
+            logger.warn("Unable parse config. Using defaults.");
+        }
+        executor = Executors.newFixedThreadPool(executorThreadPoolSize);
     }
 
     @Override
@@ -61,7 +86,7 @@ public class TermdBuildDriver implements BuildDriver { //TODO rename class
     public boolean canBuild(BuildType buildType) {
         return BuildType.JAVA.equals(buildType);
     }
-
+    
     @Override
     public RunningBuild startProjectBuild(BuildExecutionSession buildExecutionSession,
             final RunningEnvironment runningEnvironment)
@@ -71,12 +96,13 @@ public class TermdBuildDriver implements BuildDriver { //TODO rename class
 
         TermdRunningBuild termdRunningBuild = new TermdRunningBuild(runningEnvironment, buildExecutionSession.getBuildExecutionConfiguration());
 
+        
         addScriptDebugOption(termdRunningBuild)
-                .thenCompose(returnedBuildScript -> changeToWorkingDirectory(termdRunningBuild, returnedBuildScript))
-                .thenCompose(returnedBuildScript -> checkoutSources(termdRunningBuild, returnedBuildScript))
-                .thenCompose(returnedBuildScript -> build(termdRunningBuild, returnedBuildScript))
-                .thenCompose(returnedBuildScript -> uploadScript(termdRunningBuild, returnedBuildScript))
-                .thenCompose(scriptPath -> invokeRemoteScript(termdRunningBuild, scriptPath, buildExecutionSession))
+                .thenComposeAsync(returnedBuildScript -> changeToWorkingDirectory(termdRunningBuild, returnedBuildScript), executor)
+                .thenComposeAsync(returnedBuildScript -> checkoutSources(termdRunningBuild, returnedBuildScript), executor)
+                .thenComposeAsync(returnedBuildScript -> build(termdRunningBuild, returnedBuildScript), executor)
+                .thenComposeAsync(returnedBuildScript -> uploadScript(termdRunningBuild, returnedBuildScript), executor)
+                .thenComposeAsync(scriptPath -> invokeRemoteScript(termdRunningBuild, scriptPath, buildExecutionSession), executor)
                 .handle((results, exception) -> updateStatus(termdRunningBuild, results, exception));
 
         return termdRunningBuild;
@@ -218,5 +244,6 @@ public class TermdBuildDriver implements BuildDriver { //TODO rename class
                         (stringBuffer, uri) -> transer.downloadFileToStringBuilder(stringBuffer, uri),
                         (builder1, builder2) -> builder1.append(builder2)));
     }
+
 
 }
