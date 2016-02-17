@@ -31,8 +31,9 @@ import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.moduleconfig.BpmModuleConfig;
 import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
 import org.jboss.pnc.common.util.HttpUtils;
-import org.jboss.pnc.rest.notifications.websockets.JSonOutputConverter;
+import org.jboss.pnc.rest.restmodel.BuildResultRest;
 import org.jboss.pnc.spi.BuildResult;
+import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -60,12 +61,19 @@ public class BpmNotifier { //TODO rename: remove bpm for name
     }
 
     public void sendBuildExecutionCompleted(String uri, BuildResult buildResult) {
+        BuildResultRest buildResultRest = null;
+        String errMessage = "";
+        try {
+            buildResultRest = new BuildResultRest(buildResult);
+        } catch (BuildDriverException e) {
+            log.error("Cannot construct rest result.", e);
+            errMessage = "Cannot construct rest result: " + e.getMessage();
+        }
+
         HttpPost request = new HttpPost(uri);
 
         List<NameValuePair> urlParameters = new ArrayList<>();
-
-        JSonOutputConverter converter = new JSonOutputConverter();
-        urlParameters.add(new BasicNameValuePair("event", converter.apply(buildResult)));
+        urlParameters.add(new BasicNameValuePair("event", buildResultRest != null ? buildResultRest.toString() : "{\"error\", \"" + errMessage + "\"}"));
 
         try {
             request.setEntity(new UrlEncodedFormEntity(urlParameters));
