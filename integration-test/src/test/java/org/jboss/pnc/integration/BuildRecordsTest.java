@@ -56,7 +56,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withIdentifier;
+import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withIdentifierAndChecksum;
 
 @RunWith(Arquillian.class)
 @Category(ContainerTest.class)
@@ -166,7 +166,8 @@ public class BuildRecordsTest {
                 .build();
                 
         buildRecord1 = buildRecordRepository.save(buildRecord1);
-        Artifact builtArtifact1FromDb = artifactRepository.queryByPredicates(withIdentifier(builtArtifact1.getIdentifier()));
+        Artifact builtArtifact1FromDb = artifactRepository
+                .queryByPredicates(withIdentifierAndChecksum(builtArtifact1.getIdentifier(), builtArtifact1.getChecksum()));
 
         BuildRecord buildRecord2 = BuildRecord.Builder.newBuilder()
                 .id(datastore.getNextBuildRecordId())

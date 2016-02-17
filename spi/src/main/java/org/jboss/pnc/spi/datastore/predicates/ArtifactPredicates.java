@@ -37,8 +37,9 @@ public class ArtifactPredicates {
         };
     }
 
-    public static Predicate<Artifact> withIdentifier(String identifier) {
-        return (root, query, cb) -> cb.equal(root.get(Artifact_.identifier), identifier);
+    public static Predicate<Artifact> withIdentifierAndChecksum(String identifier, String checksum) {
+        return (root, query, cb) -> cb.and(cb.equal(root.get(Artifact_.identifier), identifier),
+                cb.equal(root.get(Artifact_.checksum), checksum));
     }
 
 }
