@@ -47,7 +47,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withIdentifier;
+import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withIdentifierAndChecksum;
 import static org.jboss.pnc.spi.datastore.predicates.BuildRecordSetPredicates.withBuildRecordSetIdInSet;
 
 @Stateless
@@ -90,7 +90,7 @@ public class DefaultDatastore implements Datastore {
             buildRecordSet.addBuildRecord(buildRecord);
             buildRecordSetRepository.save(buildRecordSet);
         }
-        
+
         return buildRecord;
     }
 
@@ -104,7 +104,8 @@ public class DefaultDatastore implements Datastore {
     private List<Artifact> saveArtifacts(List<Artifact> artifacts) {
         List<Artifact> dbArtifacts = new ArrayList<>();
         for (Artifact artifact : artifacts) {
-            Artifact artifactFromDb = artifactRepository.queryByPredicates(withIdentifier(artifact.getIdentifier()));
+            Artifact artifactFromDb = artifactRepository
+                    .queryByPredicates(withIdentifierAndChecksum(artifact.getIdentifier(), artifact.getChecksum()));
             if (artifactFromDb == null) {
                 artifactFromDb = artifactRepository.save(artifact);
             }

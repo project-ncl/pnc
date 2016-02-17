@@ -35,8 +35,9 @@ import javax.validation.constraints.NotNull;
  * 
  */
 @Entity
-@Inheritance(strategy=InheritanceType.SINGLE_TABLE)
-@DiscriminatorColumn(name="type")
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+@DiscriminatorColumn(name = "type")
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = { "identifier", "checksum" }) )
 public abstract class Artifact implements GenericEntity<Integer> {
 
     private static final long serialVersionUID = -2368833657284575734L;
