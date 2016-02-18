@@ -18,7 +18,9 @@
 package org.jboss.pnc.rest.provider;
 
 import org.jboss.pnc.model.BuildConfigSetRecord;
+import org.jboss.pnc.rest.provider.collection.CollectionInfo;
 import org.jboss.pnc.rest.restmodel.BuildConfigSetRecordRest;
+import org.jboss.pnc.spi.datastore.predicates.BuildConfigSetRecordPredicates;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigSetRecordRepository;
 import org.jboss.pnc.spi.datastore.repositories.PageInfoProducer;
 import org.jboss.pnc.spi.datastore.repositories.SortInfoProducer;
@@ -48,5 +50,11 @@ public class BuildConfigSetRecordProvider extends AbstractProvider<BuildConfigSe
     @Override
     protected Function<? super BuildConfigSetRecordRest, ? extends BuildConfigSetRecord> toDBModel() {
         throw new UnsupportedOperationException("Not supported by this provider");
+    }
+    
+    public CollectionInfo<BuildConfigSetRecordRest> getAllForBuildConfigSet(int pageIndex, int pageSize, String sortingRsql,
+            String rsql, Integer buildConfigSetId) {
+        return queryForCollection(pageIndex, pageSize, sortingRsql, rsql,
+                BuildConfigSetRecordPredicates.withBuildConfigSetId(buildConfigSetId));
     }
 }

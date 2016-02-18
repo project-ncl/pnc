@@ -74,12 +74,17 @@
         _getRecords: {
           method: 'GET',
           url: ENDPOINT + '/build-records'
-        }
+        },
+        _getLatestBuildConfigSetRecordsForConfigSet: {
+          method: 'GET',
+          url: ENDPOINT + '/build-config-set-records?pageIndex=0&pageSize=1&sort==desc=id'
+        },
       });
 
       PageFactory.decorateNonPaged(resource, '_getAll', 'query');
       PageFactory.decorateNonPaged(resource, '_getConfigurations', 'getConfigurations');
       PageFactory.decorateNonPaged(resource, '_getRecords', 'getRecords');
+      PageFactory.decorateNonPaged(resource, '_getLatestBuildConfigSetRecordsForConfigSet', 'getLatestBuildConfigSetRecordsForConfigSet');
 
       PageFactory.decorate(resource, '_getAll', 'getAll');
       PageFactory.decorate(resource, '_getConfigurations', 'getPagedConfigurations');
