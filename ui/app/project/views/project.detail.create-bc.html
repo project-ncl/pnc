@@ -26,12 +26,12 @@
       <form class="form-horizontal" name="configurationForm" ng-submit="ctrl.submit()" novalidate>
         <div class="panel panel-default">
           <div class="panel-body">
-            <div class="form-group" ng-class="{ 'has-error' : configurationForm.name.$invalid && !configurationForm.name.$pristine, 'has-success': configurationForm.name.$valid && configurationForm.name.$touched }">
+            <div class="form-group" ng-class="{ 'has-error' : configurationForm.name.$invalid && configurationForm.name.$touched, 'has-success': configurationForm.name.$valid && configurationForm.name.$touched }">
               <label for="input-name" class="col-sm-2 control-label">* Name</label>
               <div class="col-sm-10">
                 <input id="input-name" class="form-control" name="name" maxlength="255" ng-model="ctrl.data.name" pattern="^[a-zA-Z0-9_.][a-zA-Z0-9_.-]*(?!\.git)+$" required>
-                <span class="help-block" ng-show="configurationForm.name.$error.required && !configurationForm.name.$pristine">Required field.</span>
-                <span class="help-block" ng-show="configurationForm.name.$error.pattern && !configurationForm.name.$pristine">The name contains not allowed characters (e.g spaces, commas, semicolons, apex, quotes) </span>
+                <span class="help-block" ng-show="configurationForm.name.$error.required && configurationForm.name.$touched">Required field.</span>
+                <span class="help-block" ng-show="configurationForm.name.$error.pattern && configurationForm.name.$touched">The name contains not allowed characters (e.g spaces, commas, semicolons, apex, quotes) </span>
               </div>
             </div>
 
@@ -42,12 +42,12 @@
               </div>
             </div>
 
-            <div class="form-group" ng-class="{ 'has-error': configurationForm.scmRepoURL.$invalid && !configurationForm.scmRepoURL.$pristine, 'has-success': configurationForm.scmRepoURL.$valid && configurationForm.scmRepoURL.$touched }">
+            <div class="form-group" ng-class="{ 'has-error': configurationForm.scmRepoURL.$invalid && configurationForm.scmRepoURL.$touched, 'has-success': configurationForm.scmRepoURL.$valid && configurationForm.scmRepoURL.$touched }">
               <label for="input-scm-repo-url" class="col-sm-2 control-label">* SCM Url</label>
               <div class="col-sm-10">
               <input type="url" id="input-scm-repo-url" class="form-control" name="scmRepoURL" maxlength="255" ng-model="ctrl.data.scmRepoURL" required>
-              <span class="help-block" ng-show="configurationForm.scmRepoURL.$error.required && !configurationForm.scmRepoURL.$pristine">Required field.</span>
-              <span class="help-block" ng-show="configurationForm.scmRepoURL.$error.url && !configurationForm.scmRepoURL.$pristine">Malformed URL.</span>
+              <span class="help-block" ng-show="configurationForm.scmRepoURL.$error.required && configurationForm.scmRepoURL.$touched">Required field.</span>
+              <span class="help-block" ng-show="configurationForm.scmRepoURL.$error.url && configurationForm.scmRepoURL.$touched">Malformed URL.</span>
               </div>
             </div>
 
@@ -58,46 +58,46 @@
               </div>
             </div>
 
-            <div class="form-group" ng-class="{ 'has-error': configurationForm.buildScript.$invalid && !configurationForm.buildScript.$pristine, 'has-success': configurationForm.buildScript.$valid && configurationForm.buildScript.$touched }">
+            <div class="form-group" ng-class="{ 'has-error': configurationForm.buildScript.$invalid && configurationForm.buildScript.$touched, 'has-success': configurationForm.buildScript.$valid && configurationForm.buildScript.$touched }">
               <label for="input-build-script" class="col-sm-2 control-label">* Build Script</label>
               <div class="col-sm-10">
               <textarea id="input-build-script" class="form-control" name="buildScript" spellcheck="false" ng-model="ctrl.data.buildScript" required></textarea>
-              <span class="help-block" ng-show="configurationForm.buildScript.$error.required && !configurationForm.buildScript.$pristine">Required field.</span>
+              <span class="help-block" ng-show="configurationForm.buildScript.$error.required && configurationForm.buildScript.$touched">Required field.</span>
               </div>
             </div>
 
-            <div class="form-group" ng-class="{ 'has-error' : configurationForm.environmentId.$invalid && !configurationForm.environmentId.$pristine, 'has-success': configurationForm.environmentId.$valid && configurationForm.environmentId.$touched }">
+            <div class="form-group" ng-class="{ 'has-error' : !ctrl.data.environment.id && configurationForm.environmentId.$touched, 'has-success': ctrl.data.environment.id && configurationForm.environmentId.$touched }">
               <label for="input-environment" class="col-sm-2 control-label">
                 * Environment
               </label>
               <div class="col-sm-10">
-              <select id="input-environment" ng-model="ctrl.data.environment.id" required>
-                <option value="">Select an Environment</option>
-                <option ng-repeat="environment in ctrl.environments" value="{{ environment.id }}">
-                    {{ environment.name }}
-                </option>
-                </select>
-                <span class="help-block" ng-show="configurationForm.environmentId.$error.required && !configurationForm.environmentId.$pristine">Required field.</span>
+                <pnc-infinite-select-items 
+                  single-item="true"
+                  selected-items="ctrl.environmentSelection.selected"
+                  infinite-select-required="true" 
+                  infinite-select-id="environmentId"
+                  placeholder="Scroll & Filter Environments..."
+                  items="ctrl.environments" 
+                  item-id="ctrl.data.environment.id"></pnc-infinite-select-items>
+                <span class="help-block" ng-show="!ctrl.data.environment.id && configurationForm.environmentId.$touched">Required field.</span>
               </div>
             </div>
+
           </div>
         </div>
 
         <div class="panel panel-default">
           <div class="panel-body">
             <div class="form-group">
-              <label for="input-product" class="col-sm-2 control-label">Product</label>
-              <div class="col-sm-10">
-                <select id="input-product" ng-model="ctrl.products.selected" ng-options="product.name for product in ctrl.products.all" ng-change="ctrl.productVersions.update()">
-                  <option value="">Select a Product</option>
-                </select>
-              </div>
-            </div>
-
-            <div class="form-group">
               <label for="input-product-versions" class="col-sm-2 control-label">Product Versions</label>
-              <div class="col-sm-10 col-md-4" ng-show="ctrl.products.selected">
-                <pnc-select selected-items="ctrl.productVersions.selected" additional-display-items-by-id="ctrl.allProductNamesMaps" display-property="version" query="ctrl.productVersions.getItems($viewValue)" placeholder="Enter product version..."></pnc-select>
+              <div class="col-sm-10 col-md-4">
+                <pnc-infinite-select-product-versions 
+                  selected-items="ctrl.productVersions.selected"
+                  infinite-select-required="false" 
+                  infinite-select-id="input-pv"
+                  placeholder="Scroll & Filter Product Versions..."
+                  items="ctrl.products">
+                </pnc-infinite-select-product-versions>
               </div>
             </div>
           </div>
@@ -108,7 +108,28 @@
             <div class="form-group">
               <label for="input-dependencies" class="col-sm-2 control-label">Dependencies</label>
               <div class="col-sm-10 col-md-4">
-                <pnc-select selected-items="ctrl.dependencies.selected" display-property="name" query="ctrl.dependencies.getItems($viewValue)" placeholder="Enter dependency name..."></pnc-select>
+                <pnc-infinite-select-items
+                    selected-items="ctrl.dependencies.selected"
+                    infinite-select-required="false"
+                    infinite-select-id="input-dependencies"
+                    placeholder="Scroll & Filter Dependencies..."
+                    items="ctrl.configurations"></pnc-infinite-select-items>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel panel-default">
+          <div class="panel-body">
+            <div class="form-group">
+              <label for="input-build-group-configs" class="col-sm-2 control-label">Build Group Configs</label>
+              <div class="col-sm-10 col-md-4">
+                <pnc-infinite-select-items
+                    selected-items="ctrl.buildgroupconfigs.selected"
+                    infinite-select-required="false"
+                    infinite-select-id="input-build-group-configs"
+                    placeholder="Scroll & Filter Build Group Configs..."
+                    items="ctrl.configurationSetList"></pnc-infinite-select-items>
               </div>
             </div>
           </div>
@@ -116,7 +137,7 @@
 
         <div class="form-group">
           <div class="col-sm-offset-2 col-sm-10">
-            <input type="submit" class="btn btn-primary" value="Create" ng-disabled="configurationForm.$invalid">
+            <input type="submit" class="btn btn-primary" value="Create" ng-disabled="configurationForm.$invalid || !ctrl.data.environment.id">
             <input type="reset" class="btn btn-default" value="Clear" ng-click="ctrl.reset(configurationForm)">
           </div>
         </div>

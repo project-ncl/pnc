@@ -98,7 +98,7 @@
       controllerAs: 'createSetCtrl',
       resolve: {
         products: function(ProductDAO) {
-          return ProductDAO.query();
+          return ProductDAO.getAll();
         },
       },
     });
