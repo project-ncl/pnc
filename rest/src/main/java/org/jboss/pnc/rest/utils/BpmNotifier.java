@@ -70,6 +70,7 @@ public class BpmNotifier { //TODO rename: remove bpm for name
             errMessage = "Cannot construct rest result: " + e.getMessage();
         }
 
+        log.debug("Sending build result to BPM " + buildResultRest.toString() + ".");
         HttpPost request = new HttpPost(uri);
 
         List<NameValuePair> urlParameters = new ArrayList<>();
