@@ -63,6 +63,7 @@
               if (_.has(scope.latestBuildRecords, payload.buildConfigurationId) && scope.latestBuildRecords[payload.buildConfigurationId][0].id === payload.id) {
                 // I update the status with no reloads to optimize refresh
                 scope.latestBuildRecords[payload.buildConfigurationId][0].status = payload.buildCoordinationStatus;
+                scope.latestBuildRecordSets[payload.buildSetConfigurationId][0].endTime = payload.buildEndTime;
               }
               else {
                 delete scope.latestBuildRecords[payload.buildConfigurationId];
