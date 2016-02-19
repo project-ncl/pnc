@@ -56,10 +56,18 @@
           });
 
           var processEvent = function (event, payload) {
-            var bcsetShown = _.filter(scope.page.data, function(buildConfSet){ return buildConfSet.id === payload.buildSetConfigurationId; });
-            if (_.isArray(bcsetShown) && !_.isEmpty(bcsetShown)) {
-              delete scope.latestBuildRecordSets[payload.buildSetConfigurationId];
-              scope.page.reload();
+            // If the BuildConfigurationdSet is shown in the page
+            var bcsetFiltered = _.filter(scope.page.data, function(buildConfSet){ return buildConfSet.id === payload.buildSetConfigurationId; });
+            if (_.isArray(bcsetFiltered) && !_.isEmpty(bcsetFiltered)) {
+              // If the latestBuildConfigSetRecord is already shown
+              if (_.has(scope.latestBuildRecordSets, payload.buildSetConfigurationId) && scope.latestBuildRecordSets[payload.buildSetConfigurationId][0].id === payload.id) {
+                // I update the status with no reloads to optimize refresh
+                scope.latestBuildRecordSets[payload.buildSetConfigurationId][0].status = payload.buildStatus;
+              }
+              else {
+                delete scope.latestBuildRecordSets[payload.buildSetConfigurationId];
+                scope.page.reload();
+              }
             }
           };
 
