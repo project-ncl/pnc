@@ -27,9 +27,10 @@
   module.directive('pncProductVersionBCSets', [
     '$log',
     '$state',
+    'eventTypes',
     'ProductVersionDAO',
     'BuildConfigurationSetDAO',
-    function ($log, $state, ProductVersionDAO, BuildConfigurationSetDAO) {
+    function ($log, $state, eventTypes, ProductVersionDAO, BuildConfigurationSetDAO) {
 
       return {
         restrict: 'E',
@@ -41,6 +42,37 @@
         link: function (scope) {
 
           scope.page = ProductVersionDAO.getPagedBCSets({versionId: scope.version.id });
+
+          scope.latestBuildRecordSets = {};
+
+          scope.page.onUpdate(function(page) {
+            _(page.data).each(function(bcset) {
+              if(!_(scope.latestBuildRecordSets).has(bcset.id)) { // avoid unnecessary requests
+                BuildConfigurationSetDAO.getLatestBuildConfigSetRecordsForConfigSet({ configurationSetId: bcset.id }).then(function (data) {
+                  scope.latestBuildRecordSets[bcset.id] = data;
+                });
+              }
+            });
+          });
+
+          var processEvent = function (event, payload) {
+            // If the BuildConfigurationdSet is shown in the page
+            var bcsetFiltered = _.filter(scope.page.data, function(buildConfSet){ return buildConfSet.id === payload.buildSetConfigurationId; });
+            if (_.isArray(bcsetFiltered) && !_.isEmpty(bcsetFiltered)) {
+              // If the latestBuildConfigSetRecord is already shown
+              if (_.has(scope.latestBuildRecordSets, payload.buildSetConfigurationId) && scope.latestBuildRecordSets[payload.buildSetConfigurationId][0].id === payload.id) {
+                // I update the status with no reloads to optimize refresh
+                scope.latestBuildRecordSets[payload.buildSetConfigurationId][0].status = payload.buildStatus;
+                scope.latestBuildRecordSets[payload.buildSetConfigurationId][0].endTime = payload.buildSetEndTime;
+              }
+              else {
+                delete scope.latestBuildRecordSets[payload.buildSetConfigurationId];
+                scope.page.reload();
+              }
+            }
+          };
+
+          scope.$on(eventTypes.BUILD_SET_FINISHED, processEvent);
 
           // Executing a build of a configurationSet forcing all the rebuilds
           scope.forceBuildConfigSet = function(configSet) {

@@ -31,11 +31,21 @@
 <table class="table table-bordered table-striped">
   <thead>
   <th>Name</th>
+  <th>Last Executed Build</th>
   <th>Action</th>
   </thead>
   <tbody>
   <tr ng-repeat="buildconfigurationset in page.data">
     <td><a href ui-sref="configuration-set.detail({ configurationSetId: buildconfigurationset.id })">{{ buildconfigurationset.name }}</a></td>
+    <td>
+      <div ng-repeat="buildRecordSet in latestBuildRecordSets[buildconfigurationset.id]">
+        <build-status-icon status="buildRecordSet.status"></build-status-icon>
+        <span><a href ui-sref="configuration-set-record.detail.info({recordId: buildRecordSet.id})"># {{ buildRecordSet.id }} </a></span>
+        {{ buildRecordSet.endTime | date:'medium'}},
+        <span class="text-bold">   {{ buildRecordSet.username }}</span>
+      </div>
+      <em ng-hide="latestBuildRecordSets[buildconfigurationset.id].length">none</em>
+    </td>
     <td class="table-data-5-column-even-width">
       <div class="btn-group">
         <button class="btn btn-default ng-scope" tooltip="Start Build" tooltip-placement="bottom" ng-click="buildConfigSet(buildconfigurationset)">

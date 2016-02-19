@@ -25,6 +25,7 @@ import io.swagger.annotations.ApiResponses;
 import org.jboss.pnc.auth.AuthenticationProvider;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.User;
+import org.jboss.pnc.rest.provider.BuildConfigSetRecordProvider;
 import org.jboss.pnc.rest.provider.BuildConfigurationProvider;
 import org.jboss.pnc.rest.provider.BuildConfigurationSetProvider;
 import org.jboss.pnc.rest.provider.BuildRecordProvider;
@@ -117,6 +118,7 @@ public class BuildConfigurationSetEndpoint extends AbstractEndpoint<BuildConfigu
     private BuildConfigurationSetProvider buildConfigurationSetProvider;
     private BuildConfigurationProvider buildConfigurationProvider;
     private BuildRecordProvider buildRecordProvider;
+    private BuildConfigSetRecordProvider buildConfigSetRecordProvider;
 
     public BuildConfigurationSetEndpoint() {
 
@@ -125,12 +127,13 @@ public class BuildConfigurationSetEndpoint extends AbstractEndpoint<BuildConfigu
     @Inject
     public BuildConfigurationSetEndpoint(BuildConfigurationSetProvider buildConfigurationSetProvider,
             BuildTriggerer buildTriggerer, BuildConfigurationProvider buildConfigurationProvider,
-            BuildRecordProvider buildRecordProvider) {
+            BuildRecordProvider buildRecordProvider, BuildConfigSetRecordProvider buildConfigSetRecordProvider) {
         super(buildConfigurationSetProvider);
         this.buildConfigurationSetProvider = buildConfigurationSetProvider;
         this.buildTriggerer = buildTriggerer;
         this.buildConfigurationProvider = buildConfigurationProvider;
         this.buildRecordProvider = buildRecordProvider;
+        this.buildConfigSetRecordProvider = buildConfigSetRecordProvider;
     }
 
     @ApiOperation(value = "Gets all Build Configuration Sets")
@@ -323,6 +326,24 @@ public class BuildConfigurationSetEndpoint extends AbstractEndpoint<BuildConfigu
                     .collect(Collectors.toList())));
 
         return Response.ok(uri).header("location", uri).entity(resultsToBeReturned).build();
+    }
+
+    @ApiOperation(value = "Get all build config set execution records associated with this build config set, returns empty list if none are found")
+    @ApiResponses(value = {
+            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION, response = BuildRecordPage.class),
+            @ApiResponse(code = NO_CONTENT_CODE, message = NO_CONTENT_DESCRIPTION, response = BuildRecordPage.class),
+            @ApiResponse(code = INVLID_CODE, message = INVALID_DESCRIPTION, response = ErrorResponseRest.class),
+            @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION, response = ErrorResponseRest.class)
+    })
+    @GET
+    @Path("/{id}/build-config-set-records")
+    public Response getAllBuildConfigSetRecords(
+            @ApiParam(value = PAGE_INDEX_DESCRIPTION) @QueryParam(PAGE_INDEX_QUERY_PARAM) @DefaultValue(PAGE_INDEX_DEFAULT_VALUE) int pageIndex,
+            @ApiParam(value = PAGE_SIZE_DESCRIPTION) @QueryParam(PAGE_SIZE_QUERY_PARAM) @DefaultValue(PAGE_SIZE_DEFAULT_VALUE) int pageSize,
+            @ApiParam(value = SORTING_DESCRIPTION) @QueryParam(SORTING_QUERY_PARAM) String sort,
+            @ApiParam(value = QUERY_DESCRIPTION, required = false) @QueryParam(QUERY_QUERY_PARAM) String q,
+            @ApiParam(value = "Build config set id", required = true) @PathParam("id") Integer id) {
+        return fromCollection(buildConfigSetRecordProvider.getAllForBuildConfigSet(pageIndex, pageSize, sort, q, id));
     }
 
 }

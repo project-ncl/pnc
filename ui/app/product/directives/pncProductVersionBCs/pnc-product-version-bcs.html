@@ -29,6 +29,7 @@
   <th>Name</th>
   <th>Description</th>
   <th>Project</th>
+  <th>Last Executed Build</th>
   <th>Action</th>
   </thead>
   <tbody>
@@ -38,6 +39,15 @@
     </td>
     <td>{{ configuration.description }}</td>
     <td>{{ configuration.project.name }}</td>
+    <td>
+      <div ng-repeat="buildRecord in latestBuildRecords[configuration.id]">
+        <build-status-icon status="buildRecord.status"></build-status-icon>
+        <span><a href ui-sref="record.detail.info({recordId: buildRecord.id})"> # {{ buildRecord.id }}  </a></span>
+        {{ buildRecord.endTime | date:'medium'}},
+        <span class="text-bold">   {{ buildRecord.username }}</span>
+      </div>
+      <em ng-hide="latestBuildRecords[configuration.id].length">none</em>
+    </td>
     <td class="table-data-5-column-even-width">
       <div class="btn-group">
         <button class="btn btn-default ng-scope" tooltip="Start Build" tooltip-placement="bottom" ng-click="buildConfig(configuration)">
