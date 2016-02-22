@@ -44,10 +44,10 @@ public class BuildExecutionConfigurationTest {
                 1,
                 "mvn clean install",
                 "configuration name",
-                "https://pathToMirrorRepo.git",
                 "https://pathToRepo.git",
-                "2222222",
                 "1111111",
+                "https://pathToMirrorRepo.git",
+                "2222222",
                 BuildType.JAVA
         );
         BuildExecutionConfigurationRest buildExecutionConfigurationREST = new BuildExecutionConfigurationRest(buildExecutionConfiguration);

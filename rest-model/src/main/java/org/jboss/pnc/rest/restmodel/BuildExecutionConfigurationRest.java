@@ -18,6 +18,7 @@
 
 package org.jboss.pnc.rest.restmodel;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.jboss.pnc.model.BuildType;
 import org.jboss.pnc.rest.utils.JsonOutputConverterMapper;
@@ -30,7 +31,7 @@ import java.io.IOException;
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
 @XmlRootElement(name = "buildExecutionConfiguration")
-public class BuildExecutionConfigurationRest {
+public class BuildExecutionConfigurationRest implements BuildExecutionConfiguration {
 
     private int id;
     private String buildContentId;
@@ -131,6 +132,12 @@ public class BuildExecutionConfigurationRest {
 
     public int getId() {
         return id;
+    }
+
+    @JsonIgnore
+    @Override
+    public Integer getUserId() {
+        return user.getId();
     }
 
     public String getBuildContentId() {

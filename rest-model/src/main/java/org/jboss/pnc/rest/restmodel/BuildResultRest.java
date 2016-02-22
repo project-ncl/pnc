@@ -40,7 +40,7 @@ import java.util.Optional;
 @XmlRootElement(name = "buildResult")
 public class BuildResultRest implements Serializable {
 
-    private BuildExecutionConfiguration buildExecutionConfig;
+    private BuildExecutionConfigurationRest buildExecutionConfiguration;
 
     private BuildDriverResultRest buildDriverResult;
 
@@ -57,6 +57,7 @@ public class BuildResultRest implements Serializable {
         ObjectMapper mapper = new ObjectMapper();
         mapper.addMixInAnnotations(Artifact.class, JsonMixInArtifact.class);
         BuildResultRest buildResultRest = mapper.readValue(serialized, BuildResultRest.class);
+        this.buildExecutionConfiguration = buildResultRest.getBuildExecutionConfiguration();
         this.buildDriverResult = buildResultRest.getBuildDriverResult();
         this.repositoryManagerResult = buildResultRest.getRepositoryManagerResult();
         this.exception = buildResultRest.getException();
@@ -65,7 +66,9 @@ public class BuildResultRest implements Serializable {
 
     public BuildResultRest(BuildResult buildResult) throws BuildDriverException {
 
-        buildResult.getBuildExecutionConfiguration().ifPresent((result) -> buildExecutionConfig = result);
+        buildResult.getBuildExecutionConfiguration().ifPresent((configuration) -> {
+            buildExecutionConfiguration = new BuildExecutionConfigurationRest(configuration);
+        });
 
         buildResult.getBuildDriverResult().ifPresent((result) -> {
             try {
@@ -84,11 +87,19 @@ public class BuildResultRest implements Serializable {
 
     public BuildResult toBuildResult() {
         return new BuildResult(
-                Optional.ofNullable(buildExecutionConfig),
+                Optional.ofNullable(buildExecutionConfiguration),
                 Optional.ofNullable(buildDriverResult),
                 Optional.ofNullable(repositoryManagerResult),
                 Optional.ofNullable(exception),
                 Optional.ofNullable(failedReasonStatus));
+    }
+
+    public void setBuildExecutionConfiguration(BuildExecutionConfigurationRest buildExecutionConfiguration) {
+        this.buildExecutionConfiguration = buildExecutionConfiguration;
+    }
+
+    public BuildExecutionConfigurationRest getBuildExecutionConfiguration() {
+        return buildExecutionConfiguration;
     }
 
     public BuildDriverResultRest getBuildDriverResult() {
