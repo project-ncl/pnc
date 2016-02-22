@@ -73,24 +73,35 @@
           }
 
           /*
-           * Code handles fact that a livelog uri is not immediately available
-           * we retry at 10 second intervals a maximum of 10 times until a
-           * livelog uri is available, the attempt to connect to the build
-           * agent websocket.
+           * A build agent is not assigned until a number of setup tasks have
+           * been completed by the PNC backend. Because of this the liveLogsUri
+           * of the BuilRecord will be null for a window of time. The below code
+           * handles this by refreshing the BuildRecord every 10 seconds (for a
+           * maximum of 10 attempts) until the liveLogsUri contains the address
+           * of the build agent then attempts to connect on the WebSocket.
            */
+           function notifyWaiting() {
+             $log.debug('BuildRecord property liveLogsUri is not present, retrying in 10 seconds');
+             writelogln('*** Waiting for build agent ***');
+           }
           var interval;
+
           if (!_.isEmpty($scope.pncBuildRecord.liveLogsUri)) {
             connect(createWsUri($scope.pncBuildRecord.liveLogsUri));
           } else {
-            $log.debug('Live log uri not present, retrying in 10 seconds');
+
+            notifyWaiting();
+
             interval = $interval(function() {
               $scope.pncBuildRecord.$getCompletedOrRunning().then(function(buildRecord) {
+
                 if (!_.isEmpty(buildRecord.liveLogsUri)) {
                   connect(createWsUri(buildRecord.liveLogsUri));
                   $interval.cancel(interval);
                 } else {
-                  $log.debug('Live log uri not present, retrying in 10 seconds');
+                  notifyWaiting();
                 }
+
               });
             }, 10000, 10, false);
           }
