@@ -18,6 +18,7 @@
 
 package org.jboss.pnc.rest.restmodel;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.jboss.pnc.model.BuildType;
 import org.jboss.pnc.rest.utils.JsonOutputConverterMapper;
@@ -133,6 +134,7 @@ public class BuildExecutionConfigurationRest implements BuildExecutionConfigurat
         return id;
     }
 
+    @JsonIgnore
     @Override
     public Integer getUserId() {
         return user.getId();
