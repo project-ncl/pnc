@@ -114,8 +114,6 @@ public class DefaultBuildExecutor implements BuildExecutor {
         BuildExecutionSession buildExecutionSession = new DefaultBuildExecutionSession(buildExecutionConfiguration, onBuildExecutionStatusChangedEvent);
         buildExecutionSession.setStatus(BuildExecutionStatus.NEW);
 
-        //TODO update logging: log.info("Staring build execution task: {}; Build Configuration id: {}.", buildExecutionConfiguration.getId(), buildExecutionConfiguration.etBuildConfiguration().getId());
-
         runningExecutions.put(buildExecutionConfiguration.getId(), buildExecutionSession);
 
         CompletableFuture.supplyAsync(() -> configureRepository(buildExecutionSession), executor)
