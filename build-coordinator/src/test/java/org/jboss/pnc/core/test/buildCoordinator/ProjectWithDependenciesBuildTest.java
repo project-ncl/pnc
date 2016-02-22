@@ -18,11 +18,13 @@
 package org.jboss.pnc.core.test.buildCoordinator;
 
 import org.jboss.arquillian.junit.Arquillian;
+import org.jboss.pnc.core.test.buildCoordinator.event.TestCDIBuildSetStatusChangedReceiver;
 import org.jboss.pnc.mock.datastore.DatastoreMock;
 import org.jboss.pnc.mock.model.builders.TestProjectConfigurationBuilder;
 import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.BuildStatus;
+import org.jboss.pnc.spi.events.BuildSetStatusChangedEvent;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -30,7 +32,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -44,14 +48,27 @@ public class ProjectWithDependenciesBuildTest extends ProjectBuilder {
     @Inject
     BuildCoordinatorFactory buildCoordinatorFactory;
 
+    @Inject
+    TestCDIBuildSetStatusChangedReceiver testCDIBuildSetStatusChangedReceiver;
+
+    private static final int BUILD_SET_ID = 14352;
+    Set<BuildSetStatusChangedEvent> eventsReceived = new HashSet<>();
+
+    private void collectEvent(BuildSetStatusChangedEvent buildSetStatusChangedEvent) {
+        if (buildSetStatusChangedEvent.getBuildSetConfigurationId() == BUILD_SET_ID) {
+            eventsReceived.add(buildSetStatusChangedEvent);
+        }
+    }
+
     @Test
     public void buildProjectTestCase() throws Exception {
         //given
+        testCDIBuildSetStatusChangedReceiver.addBuildSetStatusChangedEventListener((e) -> collectEvent(e));
         DatastoreMock datastoreMock = new DatastoreMock();
         TestProjectConfigurationBuilder configurationBuilder = new TestProjectConfigurationBuilder(datastoreMock);
 
         //when
-        buildProjects(configurationBuilder.buildConfigurationSet(1), buildCoordinatorFactory.createBuildCoordinator(datastoreMock));
+        buildProjects(configurationBuilder.buildConfigurationSet(14352), buildCoordinatorFactory.createBuildCoordinator(datastoreMock));
 
         //expect
         List<BuildRecord> buildRecords = datastoreMock.getBuildRecords();
@@ -71,6 +88,9 @@ public class ProjectWithDependenciesBuildTest extends ProjectBuilder {
         Assert.assertNotNull(buildConfigSetRecord.getEndTime());
         Assert.assertTrue(buildConfigSetRecord.getEndTime().getTime() > buildConfigSetRecord.getStartTime().getTime());
         Assert.assertEquals(BuildStatus.SUCCESS, buildConfigSetRecord.getStatus());
+
+        String events = eventsReceived.stream().map(e -> e.toString()).collect(Collectors.joining("; "));
+        Assert.assertEquals("Invalid number of received events. Received events: " + events, 2, eventsReceived.size());
     }
 
 }
