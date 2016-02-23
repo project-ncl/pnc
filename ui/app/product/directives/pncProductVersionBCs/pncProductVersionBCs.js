@@ -62,16 +62,22 @@
               // If the latestBuildConfigRecord is already shown
               if (_.has(scope.latestBuildRecords, payload.buildConfigurationId) && scope.latestBuildRecords[payload.buildConfigurationId][0].id === payload.id) {
                 // I update the status with no reloads to optimize refresh
+                console.log('Updating BuildRecord #' + scope.latestBuildRecords[payload.buildConfigurationId][0].id 
+                        + ' with status ' + payload.buildCoordinationStatus + ' and ' + payload.buildEndTime);
+
                 scope.latestBuildRecords[payload.buildConfigurationId][0].status = payload.buildCoordinationStatus;
                 scope.latestBuildRecordSets[payload.buildSetConfigurationId][0].endTime = payload.buildEndTime;
               }
               else {
+                console.log('Reloading page');
+
                 delete scope.latestBuildRecords[payload.buildConfigurationId];
                 scope.page.reload();
               }
             }
           };
 
+          scope.$on(eventTypes.BUILD_STARTED, processEvent);
           scope.$on(eventTypes.BUILD_FINISHED, processEvent);
 
           // Executing a build of a configuration forcing all the rebuilds
