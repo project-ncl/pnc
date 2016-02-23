@@ -43,8 +43,11 @@ public class BpmCompleteListener {
 
     public void notifyCompleted(long taskId, BuildResult buildExecutionResult) {
         logger.debug("Coordinating task id [{}] completed.", taskId);
-        BpmListener bpmListener = listeners.get(taskId);
-        listeners.remove(taskId);
-        bpmListener.onComplete(buildExecutionResult);
+        BpmListener bpmListener = listeners.remove(taskId);
+        if (bpmListener != null) {
+            bpmListener.onComplete(buildExecutionResult);
+        } else {
+            logger.warn("Missing complete listener for task id [{}].", taskId);
+        }
     }
 }
