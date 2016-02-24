@@ -75,7 +75,7 @@ public class ArtifactProvider extends AbstractProvider<Artifact, ArtifactRest> {
             int buildRecordId) {
         BuildRecord buildRecord = buildRecordRepository.queryById(buildRecordId);
         return nullableStreamOf(buildRecord.getBuiltArtifacts()).map(artifact -> new ArtifactRest(artifact)).skip(pageIndex * pageSize)
-                .limit(pageSize).collect(new CollectionInfoCollector<>(pageIndex, pageSize, buildRecord.getBuiltArtifacts().size()));
+                .limit(pageSize).collect(new CollectionInfoCollector<>(pageIndex, pageSize, (buildRecord.getBuiltArtifacts().size() + pageSize -1)/pageSize));
     }
 
     public CollectionInfo<ArtifactRest> getDependencyArtifactsForBuildRecord(int pageIndex, int pageSize, String sortingRsql, String query,
