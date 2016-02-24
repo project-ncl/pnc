@@ -190,7 +190,7 @@ public class ProductReleaseEndpoint extends AbstractEndpoint<ProductRelease, Pro
             @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION, response = ErrorResponseRest.class)
     })
     @GET
-    @Path("/{id}/allDistributedBuildIds")
+    @Path("/{id}/distributed-build-records-ids")
     public Response getAllBuildsInDistributedRecordsetOfProductRelease(
             @ApiParam(value = "Product Release id", required = true) @PathParam("id") Integer id) {
         ProductReleaseRest release = basicProvider.getSpecific(id);
@@ -198,7 +198,7 @@ public class ProductReleaseEndpoint extends AbstractEndpoint<ProductRelease, Pro
             return fromSingleton(null);
         }
         Collection<Integer> ids = buildRecordProvider.getAllBuildsInDistributedRecordsetOfProductMilestone(release.getProductMilestoneId());
-        return fromCollection(new CollectionInfo<>(1, ids.size(), 1, ids));
+        return fromCollection(new CollectionInfo<>(0, ids.size(), 1, ids));
     }
 
 }
