@@ -19,6 +19,7 @@
 package org.jboss.pnc.rest.utils; //TODO move out of utils
 
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.io.IOUtils;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -38,6 +39,8 @@ import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
@@ -88,6 +91,16 @@ public class BpmNotifier { //TODO rename: remove bpm for name
         try (CloseableHttpClient httpClient = HttpUtils.getPermissiveHttpClient()) {
             try (CloseableHttpResponse response = httpClient.execute(request)) {
                 log.info(response.getStatusLine());
+                try {
+                    if (response.getStatusLine().getStatusCode() != 200) {
+                        InputStream content = response.getEntity().getContent();
+                        StringWriter writer = new StringWriter();
+                        IOUtils.copy(content, writer);
+                        log.debug("Received message: {}" + writer.toString());
+                    }
+                } catch (Exception e) {
+                    log.warn("Cannot write http response message to log.", e);
+                }
             }
         } catch (IOException e) {
             log.error("Error occurred executing the callback.", e);
