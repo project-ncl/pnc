@@ -23,7 +23,16 @@ import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.junit.InSequence;
 import org.jboss.arquillian.transaction.api.annotation.Transactional;
 import org.jboss.pnc.integration.deployments.Deployments;
-import org.jboss.pnc.model.*;
+import org.jboss.pnc.model.Artifact;
+import org.jboss.pnc.model.ArtifactType;
+import org.jboss.pnc.model.BuildConfiguration;
+import org.jboss.pnc.model.BuildConfigurationAudited;
+import org.jboss.pnc.model.BuildRecord;
+import org.jboss.pnc.model.BuildStatus;
+import org.jboss.pnc.model.BuiltArtifact;
+import org.jboss.pnc.model.ImportedArtifact;
+import org.jboss.pnc.model.RepositoryType;
+import org.jboss.pnc.model.User;
 import org.jboss.pnc.rest.provider.ArtifactProvider;
 import org.jboss.pnc.rest.provider.BuildRecordProvider;
 import org.jboss.pnc.rest.restmodel.ArtifactRest;
@@ -57,7 +66,6 @@ import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withIdentifierAndChecksum;
-
 @RunWith(Arquillian.class)
 @Category(ContainerTest.class)
 public class BuildRecordsTest {
@@ -188,6 +196,7 @@ public class BuildRecordsTest {
         buildRecord2 = buildRecordRepository.save(buildRecord2);
 
         buildRecordId = buildRecord2.getId();
+
     }
 
     @Test
@@ -269,6 +278,13 @@ public class BuildRecordsTest {
 
         // then
         assertThat(buildRecords).isEmpty();
+    }
+
+    @Test
+    public void shouldGetBuildsInDistributedRecordsetOfProductMilestone() {
+        Collection<Integer> buildRecordIds = buildRecordProvider.getAllBuildsInDistributedRecordsetOfProductMilestone(1);
+
+        assertThat(buildRecordIds.iterator().next()).isEqualTo(1);
     }
 
     private List<BuildRecord> selectBuildRecords(String rsqlQuery) {
