@@ -29,14 +29,17 @@
     <thead>
       <th>Identifier</th>
       <th>File Name</th>
+      <th>Checksum</th>
       <th>Actions</th>
     </thead>
     <tbody>
-      <tr ng-repeat="artifact in depsCtrl.downloadedArtifacts | filter:searchDownloadedText">
+      <tr ng-repeat="artifact in depsCtrl.downloadedArtifacts.data | filter:searchDownloadedText">
         <td>{{ artifact.identifier }}</td>
         <td>{{ artifact.filename }}</td>
+        <td>{{ artifact.checksum }}</td>
         <td class="text-center"><a ng-href="{{ artifact.deployUrl }}" target="_self" class="btn btn-primary">Download</a></td>
       </tr>
     </tbody>
   </table>
+  <pnc-pager class="pull-right" page="depsCtrl.downloadedArtifacts"></pnc-pager>
 </div>

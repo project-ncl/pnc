@@ -50,30 +50,16 @@
   ]);
 
   module.controller('RecordOutputController', [
-    '$log',
     'artifacts',
-    function($log, artifacts) {
-      this.artifacts = artifacts;
-
-      this.builtArtifacts = _.filter(this.artifacts,function(artifact) {
-        return artifact.status === 'BINARY_BUILT';
-      });
-
-      $log.debug('RecordOutputController >> builtArtifacts: %O', JSON.stringify(this.builtArtifacts));
+    function(artifacts) {
+      this.builtArtifacts = artifacts;
     }
   ]);
 
   module.controller('RecordDependenciesController', [
-    '$log',
     'artifacts',
-    function($log, artifacts) {
-      this.artifacts = artifacts;
-
-      this.downloadedArtifacts = _.filter(this.artifacts,function(artifact) {
-        return artifact.status === 'BINARY_IMPORTED';
-      });
-
-      $log.debug('RecordOutputController >> downloadedArtifacts: %O', JSON.stringify(this.downloadedArtifacts));
+    function(artifacts) {
+      this.downloadedArtifacts = artifacts;
    }
  ]);
 
