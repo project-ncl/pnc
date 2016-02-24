@@ -185,6 +185,9 @@
             case 401:
               keycloak.login();
               break;
+            case 404:
+              Notifications.error('Requested resource not found');
+              break;
             case 409:
               Notifications.error('Build rejected because the same build configuration is already running', rejection);
               break;
