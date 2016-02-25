@@ -153,7 +153,10 @@ public class BuildRecordsTest {
                 .originUrl("http://central/importedArtifact1.jar")
                 .build();
 
-        artifactRepository.save(importedArtifact1);
+        builtArtifact1 = (BuiltArtifact)artifactRepository.save(builtArtifact1);
+        builtArtifact2 = (BuiltArtifact)artifactRepository.save(builtArtifact2);
+        builtArtifact3 = (BuiltArtifact)artifactRepository.save(builtArtifact3);
+        importedArtifact1 = (ImportedArtifact)artifactRepository.save(importedArtifact1);
 
         List<User> users = userRepository.queryAll();
         assertThat(users.size() > 0).isTrue();
