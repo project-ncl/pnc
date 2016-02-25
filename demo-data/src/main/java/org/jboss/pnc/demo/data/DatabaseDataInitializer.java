@@ -277,6 +277,9 @@ public class DatabaseDataInitializer {
         BuiltArtifact builtArtifact2 = BuiltArtifact.Builder.newBuilder().identifier("demo:built-artifact2:jar:1.0")
                 .repoType(RepositoryType.MAVEN).filename("demo built artifact 2").checksum("abcd2345").build();
 
+        builtArtifact1 = (BuiltArtifact)artifactRepository.save(builtArtifact1);
+        builtArtifact2 = (BuiltArtifact)artifactRepository.save(builtArtifact2);
+
         Artifact importedArtifact1 = ImportedArtifact.Builder.newBuilder().identifier("demo:imported-artifact1:jar:1.0")
                 .repoType(RepositoryType.MAVEN).filename("demo imported artifact 1").originUrl("http://central/import1.jar")
                 .downloadDate(Date.from(Instant.now())).checksum("abcd1234").deployUrl("http://google.pl/imported1").build();
@@ -329,6 +332,9 @@ public class DatabaseDataInitializer {
         BuiltArtifact builtArtifact4 = BuiltArtifact.Builder.newBuilder().identifier("demo:built-artifact4:jar:1.0")
                 .repoType(RepositoryType.MAVEN).filename("demo built artifact 4").checksum("abcd1234")
                 .deployUrl("http://google.pl/built4").build();
+
+        builtArtifact3 = (BuiltArtifact)artifactRepository.save(builtArtifact3);
+        builtArtifact4 = (BuiltArtifact)artifactRepository.save(builtArtifact4);
 
         Artifact dependencyBuiltArtifact1 = artifactRepository
                 .queryByPredicates(withIdentifierAndChecksum(builtArtifact1.getIdentifier(), builtArtifact1.getChecksum()));

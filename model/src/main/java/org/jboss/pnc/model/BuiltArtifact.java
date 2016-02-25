@@ -17,9 +17,6 @@
  */
 package org.jboss.pnc.model;
 
-import org.hibernate.annotations.ForeignKey;
-import org.hibernate.annotations.Index;
-
 import java.util.HashSet;
 import java.util.Set;
 
@@ -41,40 +38,39 @@ public class BuiltArtifact extends Artifact {
      * The build record of the build which produced this artifact
      */
     @NotNull
-    @ManyToOne
-    @ForeignKey(name = "fk_built_artifact_buildrecord")
-    @Index(name="idx_built_artifact_buildrecord")
-    @JoinColumn(updatable=false)
-    private BuildRecord buildRecord;
+    @ManyToMany(mappedBy = "dependencies")
+    private Set<BuildRecord> buildRecords;
 
     public BuiltArtifact() {
+        buildRecords = new HashSet<BuildRecord>();
     }
 
     /**
-     * Gets the project build record.
+     * Gets the set of build records.
      *
-     * @return the project build record
+     * @return the set of build records
      */
-    public BuildRecord getBuildRecord() {
-        return buildRecord;
+    public Set<BuildRecord> getBuildRecords() {
+        return buildRecords;
     }
 
     /**
      * Sets the project build record.
      *
-     * @param buildRecord the new project build record
+     * @param buildRecords the set of build records
      */
-    public void setBuildRecord(BuildRecord buildRecord) {
-        this.buildRecord = buildRecord;
+    public void setBuildRecords(Set<BuildRecord> buildRecords) {
+        this.buildRecords = buildRecords;
     }
 
-    /*
-     * @see java.lang.Object#toString()
+    /**
+     * Add a build record to the set of builds
+     *
+     * @param buildRecord the new project build record
+     * @return 
      */
-    @Override
-    public String toString() {
-        Integer buildRecordId = (getBuildRecord()==null)?null:getBuildRecord().getId();
-        return "Built Artifact [id: " + getId() + ", produced by build id:" + buildRecordId + "]";
+    public boolean addBuildRecord(BuildRecord buildRecord) {
+        return this.buildRecords.add(buildRecord);
     }
 
     public static class Builder {
@@ -93,10 +89,11 @@ public class BuiltArtifact extends Artifact {
 
         private Set<BuildRecord> dependantBuildRecords;
 
-        private BuildRecord buildRecord;
+        private Set<BuildRecord> buildRecords;
 
         private Builder() {
-            dependantBuildRecords = new HashSet<BuildRecord>();
+            buildRecords = new HashSet<>();
+            dependantBuildRecords = new HashSet<>();
         }
 
         public static Builder newBuilder() {
@@ -114,7 +111,7 @@ public class BuiltArtifact extends Artifact {
             if (dependantBuildRecords != null) {
                 artifact.setDependantBuildRecords(dependantBuildRecords);
             }
-            artifact.setBuildRecord(buildRecord);
+            artifact.setBuildRecords(buildRecords);
 
             return artifact;
         }
@@ -154,8 +151,8 @@ public class BuiltArtifact extends Artifact {
             return this;
         }
 
-        public Builder buildRecord(BuildRecord buildRecord) {
-            this.buildRecord = buildRecord;
+        public Builder buildRecord(Set<BuildRecord> buildRecords) {
+            this.buildRecords = buildRecords;
             return this;
         }
 
