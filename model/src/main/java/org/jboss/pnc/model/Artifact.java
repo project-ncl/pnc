@@ -229,7 +229,7 @@ public abstract class Artifact implements GenericEntity<Integer> {
 
     @Override
     public String toString() {
-        return "Artifact [id: " + id + ", filename=" + filename + "]";
+        return "Artifact [id: " + id + ", identifier=" + identifier + ", type=" + type + "]";
     }
 
 }
