@@ -129,19 +129,27 @@ public class BuildRecord implements GenericEntity<Integer> {
     private BuildStatus status;
 
     /**
-     * Note, each builtArtifact belongs to a single build record, so we can cascade
-     * without risk of duplicate inserts.
+     * Artifacts which were produced by this build
      */
-    @OneToMany(mappedBy = "buildRecord", cascade = CascadeType.ALL)
+    @ManyToMany
+    @JoinTable(name = "build_record_built_artifact_map", joinColumns = {
+            @JoinColumn(name = "build_record_id", referencedColumnName = "id") }, inverseJoinColumns = {
+                    @JoinColumn(name = "built_artifact_id", referencedColumnName = "id") }, uniqueConstraints = @UniqueConstraint(name = "uk_build_record_id_built_artifact_id", columnNames = {
+                            "build_record_id", "built_artifact_id" }) )
+    @ForeignKey(name = "fk_build_record_built_artifact_map")
+    @Index(name = "idx_build_record_built_artifact_map")
     private List<BuiltArtifact> builtArtifacts;
 
+    /**
+     * Artifacts which are required external dependencies of this build
+     */
     @ManyToMany
     @JoinTable(name = "build_record_artifact_dependencies_map", joinColumns = {
             @JoinColumn(name = "build_record_id", referencedColumnName = "id") }, inverseJoinColumns = {
                     @JoinColumn(name = "dependency_artifact_id", referencedColumnName = "id") }, uniqueConstraints = @UniqueConstraint(name = "uk_build_record_id_dependency_artifact_id", columnNames = {
                             "build_record_id", "dependency_artifact_id" }) )
-    @ForeignKey(name = "fk_build_record_artifact_map_dependencies")
-    @Index(name = "idx_build_record_artifact_map_dependencies")
+    @ForeignKey(name = "fk_build_record_artifact_dependencies_map")
+    @Index(name = "idx_build_record_artifact_dependencies_map")
     private List<Artifact> dependencies;
 
     /**
@@ -565,7 +573,7 @@ public class BuildRecord implements GenericEntity<Integer> {
 
             // Set the bi-directional mapping
             for (BuiltArtifact artifact : builtArtifacts) {
-                artifact.setBuildRecord(buildRecord);
+                artifact.addBuildRecord(buildRecord);
             }
             buildRecord.setBuiltArtifacts(builtArtifacts);
 
