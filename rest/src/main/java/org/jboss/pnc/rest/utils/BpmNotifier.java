@@ -81,7 +81,9 @@ public class BpmNotifier { //TODO rename: remove bpm for name
         parameters.add(new BasicNameValuePair("event", buildResultRest != null ? buildResultRest.toString() : "{\"error\", \"" + errMessage + "\"}"));
 
         try {
-            request.setEntity(new UrlEncodedFormEntity(parameters));
+            UrlEncodedFormEntity formEntity = new UrlEncodedFormEntity(parameters);
+            request.addHeader("Content-Length", String.valueOf(formEntity.getContentLength()));
+            request.setEntity(formEntity);
         } catch (UnsupportedEncodingException e) {
             log.error("Error occurred preparing callback request.", e);
         }
