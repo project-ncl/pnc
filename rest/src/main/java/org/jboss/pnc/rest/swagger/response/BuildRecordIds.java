@@ -15,18 +15,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.spi.datastore.repositories;
 
-import org.jboss.pnc.model.BuildRecord;
-import org.jboss.pnc.spi.datastore.repositories.api.Repository;
+package org.jboss.pnc.rest.swagger.response;
 
-import java.util.Collection;
+import org.jboss.pnc.rest.restmodel.response.Singleton;
 
-/**
- * Interface for manipulating {@link org.jboss.pnc.model.BuildRecord} entity.
- */
-public interface BuildRecordRepository extends Repository<BuildRecord, Integer> {
+public class BuildRecordIds extends Singleton<Integer> {
 
-    BuildRecord findByIdFetchAllProperties(Integer id);
-    Collection<Integer> findIdsOfBuildRecordsInDistributedRecordsetOfProductMilestone(Integer productMilestoneId);
 }

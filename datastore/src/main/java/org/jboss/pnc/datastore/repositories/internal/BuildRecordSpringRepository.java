@@ -22,10 +22,14 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 
+import java.util.Collection;
+
 public interface BuildRecordSpringRepository
         extends JpaRepository<BuildRecord, Integer>, JpaSpecificationExecutor<BuildRecord> {
 
     @Query("select br from BuildRecord br fetch all properties where br.id = ?1")
     BuildRecord findByIdFetchAllProperties(Integer id);
 
+    @Query("select buildRecord.id from BuildRecordSet as brs join brs.buildRecords buildRecord join brs.distributedInProductMilestone as pm where pm.id = ? ORDER BY buildRecord.id DESC")
+    Collection<Integer> findIdsOfBuildRecordsInDistributedRecordsetOfProductMilestone(Integer productMilestoneId);
 }
