@@ -22,6 +22,8 @@ package org.jboss.pnc.core.notifications.buildTask;
  */
 
 import org.jboss.pnc.spi.events.BuildCoordinationStatusChangedEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
@@ -32,6 +34,9 @@ import java.util.stream.Collectors;
 
 @ApplicationScoped
 public class BuildStatusNotifications {
+
+    private Logger log = LoggerFactory.getLogger(BuildStatusNotifications.class);
+
     private final Set<BuildCallBack> subscribers = new HashSet<>();
 
     /**
@@ -40,6 +45,7 @@ public class BuildStatusNotifications {
      * @param buildCallBack object which callback method will be called when its taskId matches
      */
     public void subscribe(BuildCallBack buildCallBack) {
+        log.debug("Subscribing new status update listener {}.", buildCallBack);
         subscribers.add(buildCallBack);
     }
 
@@ -56,6 +62,7 @@ public class BuildStatusNotifications {
 
     private void removeListenersOfCompletedTasks(BuildCallBack buildCallBack, BuildCoordinationStatusChangedEvent buildStatusChangedEvent) {
         if (buildStatusChangedEvent.getNewStatus().isCompleted()) {
+            log.debug("Subscribing new status update listener {}.", buildCallBack);
             subscribers.remove(buildCallBack);
         }
     }
