@@ -82,7 +82,6 @@ public class BpmNotifier { //TODO rename: remove bpm for name
 
         try {
             UrlEncodedFormEntity formEntity = new UrlEncodedFormEntity(parameters);
-            request.addHeader("Content-Length", String.valueOf(formEntity.getContentLength()));
             request.setEntity(formEntity);
         } catch (UnsupportedEncodingException e) {
             log.error("Error occurred preparing callback request.", e);
