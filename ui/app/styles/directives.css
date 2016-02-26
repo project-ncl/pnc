@@ -72,12 +72,12 @@
 /**
  * pnc-live-log
  */
- .log-console {
-  font-family: "courier new", monospace;
-  margin-top: 1rem;
-  height: 330px;
-  overflow: auto;
-  resize:both;
+.log-console {
+	font-family: "courier new", monospace;
+	margin-top: 1rem;
+	height: 330px;
+	overflow: auto;
+	resize:both;
 }
 
 /**
@@ -92,6 +92,12 @@
 .panel-heading .search {
 	margin-top: -5px;
 	margin-bottom: 0;
+
+/**
+ * my-builds-panel
+ */
+.build-panel {
+	min-height: 539px;
 }
 
 .pagination {
