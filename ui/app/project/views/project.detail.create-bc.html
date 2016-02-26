@@ -50,7 +50,6 @@
                      i.e. http(s)://, git://, git+ssh://, svn://, next_awesome_scm:// etc -->
               <input type="text" id="input-scm-repo-url" class="form-control" name="scmRepoURL" maxlength="255" ng-model="ctrl.data.scmRepoURL" required>
               <span class="help-block" ng-show="configurationForm.scmRepoURL.$error.required && configurationForm.scmRepoURL.$touched">Required field.</span>
-              <span class="help-block" ng-show="configurationForm.scmRepoURL.$error.url && configurationForm.scmRepoURL.$touched">Malformed URL.</span>
               </div>
             </div>
 
