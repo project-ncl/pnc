@@ -126,10 +126,11 @@
    });
 
   app.factory('httpResponseInterceptor', [
+    '$q',
     '$log',
     'Notifications',
     'keycloak',
-    function($log, Notifications, keycloak) {
+    function($q, $log, Notifications, keycloak) {
 
       function defaultSuccessNotification(response) {
         if (response.config.method !== 'GET') {
@@ -184,6 +185,9 @@
             case 401:
               keycloak.login();
               break;
+            case 404:
+              Notifications.error('Requested resource not found');
+              break;
             case 409:
               Notifications.error('Build rejected because the same build configuration is already running', rejection);
               break;
@@ -191,7 +195,7 @@
               handleError(rejection);
               break;
           }
-          return rejection;
+          return $q.reject(rejection);
         }
 
       };
