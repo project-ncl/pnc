@@ -17,6 +17,11 @@
  */
 package org.jboss.pnc.rest.provider;
 
+import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
+import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withBuildConfigSetId;
+import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withBuildConfigurationId;
+import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withProjectId;
+
 import org.jboss.pnc.core.builder.coordinator.BuildCoordinator;
 import org.jboss.pnc.core.builder.coordinator.BuildTask;
 import org.jboss.pnc.model.BuildRecord;
@@ -44,14 +49,10 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-
-import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
-import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withBuildConfigSetId;
-import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withBuildConfigurationId;
-import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withProjectId;
 
 @Stateless
 public class BuildRecordProvider extends AbstractProvider<BuildRecord, BuildRecordRest> {
@@ -153,6 +154,10 @@ public class BuildRecordProvider extends AbstractProvider<BuildRecord, BuildReco
     public CollectionInfo<BuildRecordRest> getAllForProject(int pageIndex, int pageSize, String sortingRsql, String query,
             Integer projectId) {
         return queryForCollection(pageIndex, pageSize, sortingRsql, query, withProjectId(projectId));
+    }
+
+    public Collection getAllBuildsInDistributedRecordsetOfProductMilestone(Integer milestoneId) {
+        return ((BuildRecordRepository)repository).findIdsOfBuildRecordsInDistributedRecordsetOfProductMilestone(milestoneId);
     }
 
     public CollectionInfo<BuildRecordRest> getAllForBuildConfigSetRecord(int pageIndex, int pageSize, String sortingRsql,
