@@ -42,4 +42,8 @@ public class BuildCallBack {
         callback.accept(buildStatusChangedEvent);
     }
 
+    @Override
+    public String toString() {
+        return "TaskId:" + buildTaskId + "; CallbackConsumer:" + callback.toString();
+    }
 }

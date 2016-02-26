@@ -35,6 +35,7 @@ import org.jboss.pnc.common.util.HttpUtils;
 import org.jboss.pnc.rest.restmodel.BuildResultRest;
 import org.jboss.pnc.spi.BuildResult;
 import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
+import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -68,25 +69,35 @@ public class BpmNotifier { //TODO rename: remove bpm for name
         String errMessage = "";
         try {
             buildResultRest = new BuildResultRest(buildResult);
+            log.debug("Sending build result to BPM " + buildResultRest.toString() + ".");
         } catch (BuildDriverException e) {
             log.error("Cannot construct rest result.", e);
             errMessage = "Cannot construct rest result: " + e.getMessage();
         }
 
-        log.debug("Sending build result to BPM " + buildResultRest.toString() + ".");
         HttpPost request = new HttpPost(uri);
 
-        List<NameValuePair> urlParameters = new ArrayList<>();
-        urlParameters.add(new BasicNameValuePair("event", buildResultRest != null ? buildResultRest.toString() : "{\"error\", \"" + errMessage + "\"}"));
+        List<NameValuePair> parameters = new ArrayList<>();
+        parameters.add(new BasicNameValuePair("event", buildResultRest != null ? buildResultRest.toString() : "{\"error\", \"" + errMessage + "\"}"));
 
         try {
-            request.setEntity(new UrlEncodedFormEntity(urlParameters));
+            request.setEntity(new UrlEncodedFormEntity(parameters));
         } catch (UnsupportedEncodingException e) {
             log.error("Error occurred preparing callback request.", e);
         }
 
         request.addHeader("Authorization", getAuthHeader());
-        log.info("Executing request " + request.getRequestLine());
+
+        //get id for logging
+        String buildExecutionConfigurationId;
+        if (buildResult.getBuildExecutionConfiguration().isPresent()) {
+            BuildExecutionConfiguration buildExecutionConfiguration = buildResult.getBuildExecutionConfiguration().get();
+            buildExecutionConfigurationId = buildExecutionConfiguration.getId() + "";
+        } else {
+            buildExecutionConfigurationId = "NO BuildExecutionConfiguration.";
+        }
+
+        log.info("Sending buildResult of buildExecutionConfiguration.id " + buildExecutionConfigurationId + ": " + request.getRequestLine());
 
         try (CloseableHttpClient httpClient = HttpUtils.getPermissiveHttpClient()) {
             try (CloseableHttpResponse response = httpClient.execute(request)) {
@@ -96,7 +107,7 @@ public class BpmNotifier { //TODO rename: remove bpm for name
                         InputStream content = response.getEntity().getContent();
                         StringWriter writer = new StringWriter();
                         IOUtils.copy(content, writer);
-                        log.debug("Received message: {}" + writer.toString());
+                        log.debug("Received message: " + writer.toString());
                     }
                 } catch (Exception e) {
                     log.warn("Cannot write http response message to log.", e);
