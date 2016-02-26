@@ -25,12 +25,12 @@
    * @ngdoc directive
    * @name pnc.configuration:pncBuildsPanel
    * @restrict E
-   * @param {number=} configuration-id
+   * @param {number=} pnc-configuration-id
    * The id of the BuildConfiguration to display builds for.
    * @description
    * Displays a panel with recently completed builds of the given BuildConfiguration.
    * @example
-      <pnc-builds-panel configuration-id="4"></pnc-builds-panel>
+      <pnc-builds-panel pnc-configuration-id="4"></pnc-builds-panel>
    * @author Alex Creasy
    */
   module.directive('pncBuildsPanel', [
@@ -56,7 +56,7 @@
         restrict: 'E',
         templateUrl: 'configuration/directives/pnc-builds-panel/pnc-builds-panel.html',
         scope: {
-          configurationId: '='
+          pncConfigurationId: '='
         },
         controller: PncBuildsPanelCtrl
       };
