@@ -31,11 +31,11 @@
 	overflow-y: scroll;
 	background-color: white;
 
-    background-color: #ffffff;
-    border: 1px solid #b6b6b6;
-    border-radius: 1px;
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175);
-    background-clip: padding-box;
+  background-color: #ffffff;
+  border: 1px solid #b6b6b6;
+  border-radius: 1px;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175);
+  background-clip: padding-box;
 }
 
 .pnc-infinite-select .dropdown-list {
@@ -56,8 +56,8 @@
 .pnc-infinite-select .dropdown-item:hover {
 	cursor: pointer;
 	background-color: #0099d3;
-    border-color: #0076b7;
-    color: white;
+  border-color: #0076b7;
+  color: white;
 }
 
 .pnc-infinite-select .input-text {
@@ -65,8 +65,8 @@
 }
 
 .list-group-no-bottom-margin {
-    margin-bottom: 0px;
-    padding-left: 0px;
+  margin-bottom: 0px;
+  padding-left: 0px;
 }
 
 /**
@@ -92,6 +92,7 @@
 .panel-heading .search {
 	margin-top: -5px;
 	margin-bottom: 0;
+}
 
 /**
  * my-builds-panel
@@ -100,9 +101,13 @@
 	min-height: 539px;
 }
 
+.running-build-panel {
+	min-height: 71px;
+}
+
 .pagination {
-    display: inline-block;
-    padding-left: 0;
-    margin: 2px 0;
-    border-radius: 1px;
+  display: inline-block;
+  padding-left: 0;
+  margin: 2px 0;
+  border-radius: 1px;
 }
