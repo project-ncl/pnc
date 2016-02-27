@@ -110,6 +110,24 @@
         <filtering>true</filtering>
       </resource>
     </resources>
+    <plugins>
+      <!-- workaround for "Caused by: java.io.IOException: Mark invalid"
+      which was triggered by adding BuildResult-long.json to test/resources
+      http://stackoverflow.com/questions/26281322/mavenfailed-to-execute-goal-org-apache-maven-pluginsmaven-resources-plugin2-7/28864641#28864641
+      -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-resources-plugin</artifactId>
+        <version>2.7</version>
+        <dependencies>
+          <dependency>
+            <groupId>org.apache.maven.shared</groupId>
+            <artifactId>maven-filtering</artifactId>
+            <version>1.3</version>
+          </dependency>
+        </dependencies>
+      </plugin>
+    </plugins>
   </build>
 
   <profiles>
