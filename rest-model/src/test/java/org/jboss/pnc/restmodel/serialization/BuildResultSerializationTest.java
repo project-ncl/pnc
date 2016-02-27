@@ -18,7 +18,10 @@
 
 package org.jboss.pnc.restmodel.serialization;
 
+import org.jboss.pnc.common.util.IoUtils;
 import org.jboss.pnc.mock.spi.BuildResultMock;
+import org.jboss.pnc.model.BuildType;
+import org.jboss.pnc.model.RepositoryType;
 import org.jboss.pnc.rest.restmodel.BuildResultRest;
 import org.jboss.pnc.spi.BuildResult;
 import org.jboss.pnc.spi.builddriver.BuildDriverStatus;
@@ -57,5 +60,23 @@ public class BuildResultSerializationTest {
         Assert.assertEquals(message, buildResult.getBuildDriverResult().get().getBuildLog(), buildResultFromJson.getBuildDriverResult().get().getBuildLog());
         Assert.assertEquals(message, buildResult.getBuildDriverResult().get().getBuildDriverStatus(), buildResultFromJson.getBuildDriverResult().get().getBuildDriverStatus());
         Assert.assertEquals(message, buildResult.getBuildExecutionConfiguration().get().getId(), buildResultFromJson.getBuildExecutionConfiguration().get().getId());
+    }
+
+    @Test
+    public void deserializeLongResult() throws IOException, BuildDriverException {
+        String serializedJson = IoUtils.readResource("BuildResult-long.json", this.getClass().getClassLoader());
+        BuildResultRest buildResultRest = new BuildResultRest(serializedJson);
+
+        Assert.assertEquals(34, buildResultRest.getBuildExecutionConfiguration().getId());
+        Assert.assertEquals(BuildType.JAVA, buildResultRest.getBuildExecutionConfiguration().getBuildType());
+
+        Assert.assertEquals(BuildDriverStatus.SUCCESS, buildResultRest.getBuildDriverResult().getBuildDriverStatus());
+        Assert.assertTrue(buildResultRest.getBuildDriverResult().getBuildLog().contains("Welcome sir"));
+        Assert.assertTrue(buildResultRest.getBuildDriverResult().getBuildLog().contains("Finished with status: COMPLETED"));
+
+        Assert.assertTrue(buildResultRest.getRepositoryManagerResult().getBuiltArtifacts().size() > 0);
+        Assert.assertEquals(RepositoryType.MAVEN, buildResultRest.getRepositoryManagerResult().getBuiltArtifacts().get(0).getRepoType());
+        Assert.assertTrue(buildResultRest.getRepositoryManagerResult().getDependencies().size() > 0);
+        Assert.assertEquals(RepositoryType.MAVEN, buildResultRest.getRepositoryManagerResult().getDependencies().get(0).getRepoType());
     }
 }
