@@ -95,7 +95,7 @@
                 <goals>
                   <goal>run</goal>
                 </goals>
-                <phase>generate-test-resources</phase>
+                <phase>pre-integration-test</phase>
                 <configuration>
                   <target>
                     <!-- If JBOSS_HOME is set it causes obscure errors with CLI in -->
@@ -151,7 +151,7 @@
             <executions>
               <execution>
                 <id>copy-keycloak-adapter</id>
-                <phase>generate-test-resources</phase>
+                <phase>pre-integration-test</phase>
                 <goals>
                   <goal>unpack</goal>
                 </goals>
@@ -177,7 +177,7 @@
             <executions>
               <execution>
                 <id>start-server</id>
-                <phase>generate-test-resources</phase>
+                <phase>pre-integration-test</phase>
                 <goals>
                   <goal>start</goal>
                 </goals>
@@ -187,7 +187,7 @@
               </execution>
               <execution>
                 <id>add-nio</id>
-                <phase>generate-test-resources</phase>
+                <phase>pre-integration-test</phase>
                 <goals>
                   <goal>execute-commands</goal>
                 </goals>
@@ -204,7 +204,7 @@
               </execution>
               <execution>
                 <id>add-keycloak</id>
-                <phase>generate-test-resources</phase>
+                <phase>pre-integration-test</phase>
                 <goals>
                   <goal>execute-commands</goal>
                 </goals>
@@ -230,7 +230,7 @@
               <!-- HSQLDB JDBC driver installation and datasource configuration -->
               <execution>
                 <id>deploy-hsql-jdbc-driver</id>
-                <phase>generate-test-resources</phase>
+                <phase>pre-integration-test</phase>
                 <goals>
                   <goal>deploy-artifact</goal>
                 </goals>
@@ -242,7 +242,7 @@
               </execution>
               <execution>
                 <id>add-hsql-datasource</id>
-                <phase>generate-test-resources</phase>
+                <phase>pre-integration-test</phase>
                 <goals>
                   <goal>add-resource</goal>
                 </goals>
@@ -264,7 +264,7 @@
               <!-- Postgresql JDBC driver installation and datasource configuration -->
               <execution>
                 <id>deploy-postgresql-jdbc-driver</id>
-                <phase>generate-test-resources</phase>
+                <phase>pre-integration-test</phase>
                 <goals>
                   <goal>deploy-artifact</goal>
                 </goals>
@@ -276,7 +276,7 @@
               </execution>
               <execution>
                 <id>add-postgresql-datasource</id>
-                <phase>generate-test-resources</phase>
+                <phase>pre-integration-test</phase>
                 <goals>
                   <goal>add-resource</goal>
                 </goals>
@@ -333,7 +333,7 @@
               <!-- End PostgreSQL configuration -->
               <execution>
                 <id>shutdown-server</id>
-                <phase>process-test-resources</phase>
+                <phase>post-integration-test</phase>
                 <goals>
                   <goal>shutdown</goal>
                 </goals>
