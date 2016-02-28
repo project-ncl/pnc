@@ -10,22 +10,79 @@ Requirements:
 * JDK 8
 * Maven 3.2
 
-The default build is executed by running `mvn clean install`.<br />
-By default the tests that require remote services and integration tests are disabled.<br />
+The default build is executed by running `mvn clean install`.
 
-Integration tests are placed in module "integration-test" and most of them needs a JEE server (Wildfly or EAP).
-In order to run them you need to specify `-Pcontainer-tests`.
+### Integration tests using application server
 
-Remote tests requires turning on additional Maven profile - `-Premote-tests`.
-In order to run remote and integration tests you have to specify remote services location and credentials by editing configuration file `common/src/main/resources/pnc-config.json` and use both profiles (`-Pcontainer-tests` and `-Premote-tests`)<br />
-By default the configuration file uses env variables, you can set required variables (see file for list of them) instead of editing the file itself.<br />
+By default the integration tests which require application server are disabled.
+
+Integration tests requiring JEE application server (Wildfly 9 or EAP 6.4) are placed in module "integration-test".
+To run integration tests use profile `-Pcontainer-tests` (eg. mvn clean install -Pcontainer-tests).
+
+Remote tests require enabling additional Maven profile `-Premote-tests`.
+
+In order to run remote and integration tests you have to specify remote services location and credentials by editing configuration file `common/src/main/resources/pnc-config.json` and use both profiles (`-Pcontainer-tests` and `-Premote-tests`)
+
+By default the configuration file uses env variables, you can set required variables (see file for list of them) instead of editing the file itself.
+
 If you want to use a different (external) config file location you can define a path to it with `-Dpnc-config-file=/path/to/pnc-config.json`.
 
+To run integration test you have to specify `install` phase by default. 
 
-Integration and Container tests
--------------------------------
-There is a slight difference between **integration** and **container** test. By a **container** test we understand a test which needs a JavaEE server to run.
-An **integration** test checks if several modules work correctly together.
+To use phase verify append property `-DuseTargetBuilds` (no value required) to use artifacts generated during package phase in target folder.
+
+### Installing application server for integration tests
+
+Application server is installed by default to folder target in project top level folder.
+During installation additional modules required to run integration tests are installed into the server.
+
+You must specify url to downloase server zip file `-Deap6.zip.url`.
+To specify local file use `-Deap6.zip.url=file://LOCAL_ZIP_PATH`, for example:
+
+	-Deap6.zip.url=file:///home/development/artifacts/JBEAP-6.4.5.GA/jboss-eap-6.4.5.GA.zip)
+
+#### Installation of application server to specific folder
+
+To run only installation of application server to specific folder use `-Dtest.server.unpack.dir=`. For example to install server to /tmp folder:
+
+	mvn clean verify -Pcontainer-tests -Deap6.zip.url=SERVER_ZIP_URL -pl :test-common,:test-arquillian-container -Dtest.server.unpack.dir=/tmp
+
+### Running integration tests using preinstalled and running application server
+
+1. Install application server (see Installation of application server to specific folder)
+2. start the server
+
+	sh /tmp/jboss-eap-6.4/bin/standalone.sh
+
+3. run integration tests with additional system properties and excluded module test-arquillian-container
+
+	-Darq.container.wf.configuration.jbossHome=/tmp/jboss-eap-6.4
+	-Darq.container.wf.configuration.allowConnectingToRunningServer=true
+	-pl \!:test-arquillian-container
+
+	mvn clean verify -Pcontainer-tests -pl \!:test-arquillian-container -Deap6.zip.url= -DuseTargetBuilds -Darq.container.wf.configuration.jbossHome=/tmp/jboss-eap-6.4 -Darq.container.wf.configuration.allowConnectingToRunningServer=true
+
+### Running integration tests in Intellij IDEA
+
+1. Install application server (see Installation of application server to specific folder)
+2. start the server
+
+	sh /tmp/jboss-eap-6.4/bin/standalone.sh
+
+3. Create new Run/Debug configuration of type Arquillian JUnit
+
+ - setup arquillian container - Click button Configure in Arquillian Container tab, add 'Manual container configuration', add 'Maven dependency' in dependencies, type in text field `org.jboss.as:jboss-as-arquillian-container-managed:7.2.0.Final`
+ - select test class or package or module in Configuration tab
+ - specify path to application server and allow to connect to running server in VM options:
+
+    -Darq.container.wf.configuration.jbossHome=/tmp/jboss-eap-6.4
+    -Darq.container.wf.configuration.allowConnectingToRunningServer=true
+
+  - optionally append following properties (no value required) to VM options:
+    -DcreateArchiveCopy - to write ear deployed by arquillian to project folder (eg. for content inspection)
+    -DuseTargetBuilds - to use artifact generated by package phase in target folder 
+    
+Property useTargetBuilds can be used together with configuration 'Run maven goal' `mvn package -DskipTests=true` in 'before lunch' tab to deploy code changes without actual need to run mvn clean install
 
 
 Module Overview
