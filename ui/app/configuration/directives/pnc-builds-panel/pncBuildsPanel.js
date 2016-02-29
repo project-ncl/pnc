@@ -38,17 +38,16 @@
 
       function PncBuildsPanelCtrl($log, $scope, BuildRecordDAO, eventTypes) {
         $scope.page = BuildRecordDAO.getPagedByConfiguration({
-          configurationId: $scope.configurationId
+          configurationId: $scope.pncConfigurationId
         });
 
         function update(event, payload) {
           $log.debug('PncBuildsPanelCtrl::update >> event = %O, payload = %O', event, payload);
-          if (payload.buildConfigurationId === $scope.configurationId) {
+          if (payload.buildConfigurationId === $scope.pncConfigurationId) {
             $scope.page.reload();
           }
         }
 
-        $scope.$on(eventTypes.BUILD_STARTED, update);
         $scope.$on(eventTypes.BUILD_FINISHED, update);
       }
 
