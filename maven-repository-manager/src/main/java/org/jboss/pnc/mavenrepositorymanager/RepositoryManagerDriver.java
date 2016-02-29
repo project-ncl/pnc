@@ -17,15 +17,15 @@
  */
 package org.jboss.pnc.mavenrepositorymanager;
 
-import org.commonjava.aprox.client.core.Aprox;
-import org.commonjava.aprox.client.core.AproxClientException;
-import org.commonjava.aprox.folo.client.AproxFoloAdminClientModule;
-import org.commonjava.aprox.folo.client.AproxFoloContentClientModule;
-import org.commonjava.aprox.model.core.Group;
-import org.commonjava.aprox.model.core.HostedRepository;
-import org.commonjava.aprox.model.core.StoreKey;
-import org.commonjava.aprox.model.core.StoreType;
-import org.commonjava.aprox.promote.client.AproxPromoteClientModule;
+import org.commonjava.indy.client.core.Indy;
+import org.commonjava.indy.client.core.IndyClientException;
+import org.commonjava.indy.folo.client.IndyFoloAdminClientModule;
+import org.commonjava.indy.folo.client.IndyFoloContentClientModule;
+import org.commonjava.indy.model.core.Group;
+import org.commonjava.indy.model.core.HostedRepository;
+import org.commonjava.indy.model.core.StoreKey;
+import org.commonjava.indy.model.core.StoreType;
+import org.commonjava.indy.promote.client.IndyPromoteClientModule;
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.moduleconfig.MavenRepoDriverModuleConfig;
@@ -51,7 +51,7 @@ import static org.jboss.pnc.mavenrepositorymanager.MavenRepositoryConstants.SHAR
 import static org.jboss.pnc.mavenrepositorymanager.MavenRepositoryConstants.UNTESTED_BUILDS_GROUP;
 
 /**
- * Implementation of {@link RepositoryManager} that manages an <a href="https://github.com/jdcasey/aprox">AProx</a> instance to
+ * Implementation of {@link RepositoryManager} that manages an <a href="https://github.com/jdcasey/indy">AProx</a> instance to
  * support repositories for Maven-ish builds.
  * <p>
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-11-25.
@@ -63,7 +63,7 @@ public class RepositoryManagerDriver implements RepositoryManager {
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
-    private Aprox aprox;
+    private Indy indy;
 
     @Deprecated
     public RepositoryManagerDriver() { // workaround for CDI constructor parameter injection bug
@@ -85,14 +85,14 @@ public class RepositoryManagerDriver implements RepositoryManager {
                 baseUrl += "/api";
             }
 
-            aprox = new Aprox(baseUrl, new AproxFoloAdminClientModule(), new AproxFoloContentClientModule(),
-                    new AproxPromoteClientModule()).connect();
+            indy = new Indy(baseUrl, new IndyFoloAdminClientModule(), new IndyFoloContentClientModule(),
+                    new IndyPromoteClientModule()).connect();
 
             setupGlobalRepos();
 
         } catch (ConfigurationParseException e) {
             throw new IllegalStateException("Cannot read configuration for " + DRIVER_ID + ".", e);
-        } catch (AproxClientException e) {
+        } catch (IndyClientException e) {
             throw new IllegalStateException("Failed to setup shared-releases or shared-imports hosted repository: "
                     + e.getMessage(), e);
         }
@@ -100,7 +100,7 @@ public class RepositoryManagerDriver implements RepositoryManager {
 
     @PreDestroy
     public void shutdown() {
-        aprox.close();
+        indy.close();
     }
 
     /**
@@ -125,7 +125,7 @@ public class RepositoryManagerDriver implements RepositoryManager {
         String buildId = buildExecution.getBuildContentId();
         try {
             setupBuildRepos(buildExecution);
-        } catch (AproxClientException e) {
+        } catch (IndyClientException e) {
             throw new RepositoryManagerException("Failed to setup repository or repository group for this build: %s", e,
                     e.getMessage());
         }
@@ -135,16 +135,16 @@ public class RepositoryManagerDriver implements RepositoryManager {
 
         try {
             // manually initialize the tracking record, just in case (somehow) nothing gets downloaded/uploaded.
-            aprox.module(AproxFoloAdminClientModule.class).initReport(buildId);
+            indy.module(IndyFoloAdminClientModule.class).initReport(buildId);
 
-            url = aprox.module(AproxFoloContentClientModule.class).trackingUrl(buildId, StoreType.group, buildId);
+            url = indy.module(IndyFoloContentClientModule.class).trackingUrl(buildId, StoreType.group, buildId);
             logger.info("Using '{}' for Maven repository access in build: {}", url, buildId);
-        } catch (AproxClientException e) {
+        } catch (IndyClientException e) {
             throw new RepositoryManagerException("Failed to retrieve AProx client module for the artifact tracker: %s", e,
                     e.getMessage());
         }
 
-        return new MavenRepositorySession(aprox, buildId, new MavenRepositoryConnectionInfo(url));
+        return new MavenRepositorySession(indy, buildId, new MavenRepositoryConnectionInfo(url));
     }
 
     /**
@@ -154,25 +154,25 @@ public class RepositoryManagerDriver implements RepositoryManager {
      * repository manager can keep track of downloads and uploads for the build.
      *
      * @param execution The execution object, which contains the content id for creating the repo, and the build id.
-     * @throws AproxClientException
+     * @throws IndyClientException
      */
     private void setupBuildRepos(BuildExecution execution)
-            throws AproxClientException {
+            throws IndyClientException {
 
         String buildContentId = execution.getBuildContentId();
         int id = execution.getId();
 
         // if the build-level group doesn't exist, create it.
-        if (!aprox.stores().exists(StoreType.group, buildContentId)) {
+        if (!indy.stores().exists(StoreType.group, buildContentId)) {
             // if the product-level storage repo (for in-progress product builds) doesn't exist, create it.
-            if (!aprox.stores().exists(StoreType.hosted, buildContentId)) {
+            if (!indy.stores().exists(StoreType.hosted, buildContentId)) {
                 HostedRepository buildArtifacts = new HostedRepository(buildContentId);
                 buildArtifacts.setAllowSnapshots(true);
                 buildArtifacts.setAllowReleases(true);
 
                 buildArtifacts.setDescription(String.format("Build output for PNC build #%s", id));
 
-                aprox.stores().create(buildArtifacts,
+                indy.stores().create(buildArtifacts,
                         "Creating hosted repository for build: " + id + " (repo: " + buildContentId + ")", HostedRepository.class);
             }
 
@@ -185,7 +185,7 @@ public class RepositoryManagerDriver implements RepositoryManager {
             // Global-level repos, for captured/shared artifacts and access to the outside world
             addGlobalConstituents(buildGroup);
 
-            aprox.stores().create(buildGroup,
+            indy.stores().create(buildGroup,
                     "Creating repository group for resolving artifacts in build: " + id + " (repo: " + buildContentId + ")", Group.class);
         }
     }
@@ -212,23 +212,23 @@ public class RepositoryManagerDriver implements RepositoryManager {
     /**
      * Lazily create the shared-releases and shared-imports global hosted repositories if they don't already exist.
      *
-     * @throws AproxClientException
+     * @throws IndyClientException
      */
-    private void setupGlobalRepos() throws AproxClientException {
+    private void setupGlobalRepos() throws IndyClientException {
         // if the global shared-releases repository doesn't exist, create it.
-        if (!aprox.stores().exists(StoreType.group, UNTESTED_BUILDS_GROUP)) {
+        if (!indy.stores().exists(StoreType.group, UNTESTED_BUILDS_GROUP)) {
             Group sharedArtifacts = new Group(UNTESTED_BUILDS_GROUP);
 
-            aprox.stores().create(sharedArtifacts, "Creating global shared-builds repository group.", Group.class);
+            indy.stores().create(sharedArtifacts, "Creating global shared-builds repository group.", Group.class);
         }
 
         // if the global imports repo doesn't exist, create it.
-        if (!aprox.stores().exists(StoreType.hosted, SHARED_IMPORTS_ID)) {
+        if (!indy.stores().exists(StoreType.hosted, SHARED_IMPORTS_ID)) {
             HostedRepository sharedImports = new HostedRepository(SHARED_IMPORTS_ID);
             sharedImports.setAllowSnapshots(false);
             sharedImports.setAllowReleases(true);
 
-            aprox.stores().create(sharedImports, "Creating global repository for hosting external imports used in builds.",
+            indy.stores().create(sharedImports, "Creating global repository for hosting external imports used in builds.",
                     HostedRepository.class);
         }
     }
@@ -236,8 +236,8 @@ public class RepositoryManagerDriver implements RepositoryManager {
     /**
      * Convenience method for tests.
      */
-    protected Aprox getAprox() {
-        return aprox;
+    protected Indy getIndy() {
+        return indy;
     }
 
     /**
@@ -250,12 +250,12 @@ public class RepositoryManagerDriver implements RepositoryManager {
     @Override
     public RunningRepositoryPromotion promoteBuild(BuildRecord buildRecord, String toGroup) throws RepositoryManagerException {
 
-        return new MavenRunningPromotion(StoreType.hosted, buildRecord.getBuildContentId(), toGroup, aprox);
+        return new MavenRunningPromotion(StoreType.hosted, buildRecord.getBuildContentId(), toGroup, indy);
     }
 
     @Override
     public RunningRepositoryDeletion deleteBuild(BuildRecord buildRecord) throws RepositoryManagerException {
-        return new MavenRunningDeletion(StoreType.hosted, buildRecord.getBuildContentId(), aprox);
+        return new MavenRunningDeletion(StoreType.hosted, buildRecord.getBuildContentId(), indy);
     }
 
 }

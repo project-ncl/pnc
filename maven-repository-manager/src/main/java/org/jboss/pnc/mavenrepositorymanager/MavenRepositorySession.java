@@ -18,20 +18,20 @@
 package org.jboss.pnc.mavenrepositorymanager;
 
 import org.apache.commons.lang.StringUtils;
-import org.commonjava.aprox.client.core.Aprox;
-import org.commonjava.aprox.client.core.AproxClientException;
-import org.commonjava.aprox.client.core.module.AproxContentClientModule;
-import org.commonjava.aprox.folo.client.AproxFoloAdminClientModule;
-import org.commonjava.aprox.folo.dto.TrackedContentDTO;
-import org.commonjava.aprox.folo.dto.TrackedContentEntryDTO;
-import org.commonjava.aprox.model.core.StoreKey;
-import org.commonjava.aprox.model.core.StoreType;
-import org.commonjava.aprox.promote.client.AproxPromoteClientModule;
-import org.commonjava.aprox.promote.model.GroupPromoteRequest;
-import org.commonjava.aprox.promote.model.GroupPromoteResult;
-import org.commonjava.aprox.promote.model.PathsPromoteRequest;
-import org.commonjava.aprox.promote.model.PathsPromoteResult;
-import org.commonjava.aprox.promote.model.ValidationResult;
+import org.commonjava.indy.client.core.Indy;
+import org.commonjava.indy.client.core.IndyClientException;
+import org.commonjava.indy.client.core.module.IndyContentClientModule;
+import org.commonjava.indy.folo.client.IndyFoloAdminClientModule;
+import org.commonjava.indy.folo.dto.TrackedContentDTO;
+import org.commonjava.indy.folo.dto.TrackedContentEntryDTO;
+import org.commonjava.indy.model.core.StoreKey;
+import org.commonjava.indy.model.core.StoreType;
+import org.commonjava.indy.promote.client.IndyPromoteClientModule;
+import org.commonjava.indy.promote.model.GroupPromoteRequest;
+import org.commonjava.indy.promote.model.GroupPromoteResult;
+import org.commonjava.indy.promote.model.PathsPromoteRequest;
+import org.commonjava.indy.promote.model.PathsPromoteResult;
+import org.commonjava.indy.promote.model.ValidationResult;
 import org.commonjava.maven.atlas.ident.ref.ArtifactRef;
 import org.commonjava.maven.atlas.ident.ref.SimpleArtifactRef;
 import org.commonjava.maven.atlas.ident.util.ArtifactPathInfo;
@@ -74,25 +74,25 @@ public class MavenRepositorySession implements RepositorySession {
     private static Set<String> IGNORED_PATH_SUFFIXES =
             Collections.unmodifiableSet(new HashSet<>(Arrays.asList("maven-metadata.xml", ".sha1", ".md5", ".asc")));
 
-    private Aprox aprox;
+    private Indy indy;
     private final String buildRepoId;
 
     private final RepositoryConnectionInfo connectionInfo;
     private boolean isSetBuild;
 
-    // TODO: Create and pass in suitable parameters to Aprox to create the
+    // TODO: Create and pass in suitable parameters to Indy to create the
     //       proxy repository.
     @Deprecated
-    public MavenRepositorySession(Aprox aprox, String buildRepoId, boolean isSetBuild,
+    public MavenRepositorySession(Indy indy, String buildRepoId, boolean isSetBuild,
                                   MavenRepositoryConnectionInfo info) {
-        this.aprox = aprox;
+        this.indy = indy;
         this.buildRepoId = buildRepoId;
         this.isSetBuild = isSetBuild;
         this.connectionInfo = info;
     }
 
-    public MavenRepositorySession(Aprox aprox, String buildRepoId, MavenRepositoryConnectionInfo info) {
-        this.aprox = aprox;
+    public MavenRepositorySession(Indy indy, String buildRepoId, MavenRepositoryConnectionInfo info) {
+        this.indy = indy;
         this.buildRepoId = buildRepoId;
         this.isSetBuild = false; //TODO remove
         this.connectionInfo = info;
@@ -130,8 +130,8 @@ public class MavenRepositorySession implements RepositorySession {
     public RepositoryManagerResult extractBuildArtifacts() throws RepositoryManagerException {
         TrackedContentDTO report;
         try {
-            report = aprox.module(AproxFoloAdminClientModule.class).getTrackingReport(buildRepoId);
-        } catch (AproxClientException e) {
+            report = indy.module(IndyFoloAdminClientModule.class).getTrackingReport(buildRepoId);
+        } catch (IndyClientException e) {
             throw new RepositoryManagerException("Failed to retrieve tracking report for: %s. Reason: %s", e, buildRepoId,
                     e.getMessage());
         }
@@ -148,8 +148,8 @@ public class MavenRepositorySession implements RepositorySession {
         Collections.sort(downloads, comp);
 
         try {
-            aprox.stores().delete(StoreType.group, buildRepoId, "[Post-Build] Removing build aggregation group: " + buildRepoId );
-        } catch (AproxClientException e) {
+            indy.stores().delete(StoreType.group, buildRepoId, "[Post-Build] Removing build aggregation group: " + buildRepoId );
+        } catch (IndyClientException e) {
             throw new RepositoryManagerException("Failed to retrieve AProx stores module. Reason: %s", e, e.getMessage());
         }
 
@@ -173,10 +173,10 @@ public class MavenRepositorySession implements RepositorySession {
     private List<Artifact> processDownloads(TrackedContentDTO report) throws RepositoryManagerException {
         Logger logger = LoggerFactory.getLogger(getClass());
 
-        AproxContentClientModule content;
+        IndyContentClientModule content;
         try {
-            content = aprox.content();
-        } catch (AproxClientException e) {
+            content = indy.content();
+        } catch (IndyClientException e) {
             throw new RepositoryManagerException("Failed to retrieve AProx client module. Reason: %s", e, e.getMessage());
         }
 
@@ -224,9 +224,15 @@ public class MavenRepositorySession implements RepositorySession {
                 ArtifactRef aref = new SimpleArtifactRef(pathInfo.getProjectId(), pathInfo.getType(), pathInfo.getClassifier(), false);
                 logger.info("Recording download: {}", aref);
 
+                String originUrl = download.getOriginUrl();
+                if (originUrl == null) {
+                    // this is from a hosted repository, either shared-imports or a build, or something like that.
+                    originUrl = download.getLocalUrl();
+                }
+
                 ImportedArtifact.Builder artifactBuilder = ImportedArtifact.Builder.newBuilder().checksum(download.getMd5())
                         .deployUrl(content.contentUrl(download.getStoreKey(), download.getPath()))
-                        .originUrl(download.getOriginUrl()).downloadDate(Date.from(Instant.now()))
+                        .originUrl(originUrl).downloadDate(Date.from(Instant.now()))
                         .filename(new File(path).getName()).identifier(aref.toString()).repoType(RepositoryType.MAVEN);
 
                 deps.add(artifactBuilder.build());
@@ -297,10 +303,10 @@ public class MavenRepositorySession implements RepositorySession {
      *         transport, or if the promotion process results in an error.
      */
     private void doPromoteByPath(PathsPromoteRequest req) throws RepositoryManagerException {
-        AproxPromoteClientModule promoter;
+        IndyPromoteClientModule promoter;
         try {
-            promoter = aprox.module(AproxPromoteClientModule.class);
-        } catch (AproxClientException e) {
+            promoter = indy.module(IndyPromoteClientModule.class);
+        } catch (IndyClientException e) {
             throw new RepositoryManagerException("Failed to retrieve AProx client module. Reason: %s", e, e.getMessage());
         }
 
@@ -314,7 +320,7 @@ public class MavenRepositorySession implements RepositorySession {
                         addendum = "\nROLLBACK WARNING: Promotion rollback also failed! Reason given: " + result.getError();
                     }
 
-                } catch (AproxClientException e) {
+                } catch (IndyClientException e) {
                     throw new RepositoryManagerException("Rollback failed for promotion of: %s. Reason: %s", e, req,
                             e.getMessage());
                 }
@@ -322,7 +328,7 @@ public class MavenRepositorySession implements RepositorySession {
                 throw new RepositoryManagerException("Failed to promote: %s. Reason given was: %s%s", req, result.getError(),
                         addendum);
             }
-        } catch (AproxClientException e) {
+        } catch (IndyClientException e) {
             throw new RepositoryManagerException("Failed to promote: %s. Reason: %s", e, req, e.getMessage());
         }
     }
@@ -333,10 +339,10 @@ public class MavenRepositorySession implements RepositorySession {
      * membership).
      */
     public void promoteToBuildContentSet() throws RepositoryManagerException {
-        AproxPromoteClientModule promoter;
+        IndyPromoteClientModule promoter;
         try {
-            promoter = aprox.module(AproxPromoteClientModule.class);
-        } catch (AproxClientException e) {
+            promoter = indy.module(IndyPromoteClientModule.class);
+        } catch (IndyClientException e) {
             throw new RepositoryManagerException("Failed to retrieve AProx client module. Reason: %s", e, e.getMessage());
         }
 
@@ -361,7 +367,7 @@ public class MavenRepositorySession implements RepositorySession {
 
                 throw new RepositoryManagerException("Failed to promote: %s to group: %s. Reason given was: %s", request.getSource(), request.getTargetGroup(), reason);
             }
-        } catch (AproxClientException e) {
+        } catch (IndyClientException e) {
             throw new RepositoryManagerException("Failed to promote: %s. Reason: %s", e, request, e.getMessage());
         }
     }

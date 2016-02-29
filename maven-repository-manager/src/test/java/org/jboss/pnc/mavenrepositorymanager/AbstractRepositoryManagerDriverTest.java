@@ -20,10 +20,10 @@ package org.jboss.pnc.mavenrepositorymanager;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.commonjava.aprox.boot.BootStatus;
-import org.commonjava.aprox.model.core.Group;
-import org.commonjava.aprox.model.core.StoreKey;
-import org.commonjava.aprox.test.fixture.core.CoreServerFixture;
+import org.commonjava.indy.boot.BootStatus;
+import org.commonjava.indy.model.core.Group;
+import org.commonjava.indy.model.core.StoreKey;
+import org.commonjava.indy.test.fixture.core.CoreServerFixture;
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.ModuleConfigJson;
 import org.jboss.pnc.common.json.moduleconfig.MavenRepoDriverModuleConfig;
@@ -118,8 +118,8 @@ public class AbstractRepositoryManagerDriverTest {
     {
         final CoreServerFixture fixture = new CoreServerFixture( temp );
 
-        etcDir = new File( fixture.getBootOptions().getAproxHome(), "etc/aprox" );
-        dataDir = new File( fixture.getBootOptions().getAproxHome(), "var/lib/aprox/data" );
+        etcDir = new File( fixture.getBootOptions().getIndyHome(), "etc/indy" );
+        dataDir = new File( fixture.getBootOptions().getIndyHome(), "var/lib/indy/data" );
 
         initBaseTestConfig( fixture );
         initTestConfig( fixture );
