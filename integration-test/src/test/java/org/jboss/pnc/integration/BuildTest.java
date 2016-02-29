@@ -43,7 +43,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(Arquillian.class)
 @Category({ContainerTest.class, RemoteTest.class})
-@Ignore("More details at https://projects.engineering.redhat.com/browse/NCL-1586")
 public class BuildTest {
 
     private static BuildConfigurationRestClient buildConfigurationRestClient;
