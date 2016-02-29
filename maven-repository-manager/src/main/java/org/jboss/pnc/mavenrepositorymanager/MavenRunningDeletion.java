@@ -17,9 +17,9 @@
  */
 package org.jboss.pnc.mavenrepositorymanager;
 
-import org.commonjava.aprox.client.core.Aprox;
-import org.commonjava.aprox.client.core.AproxClientException;
-import org.commonjava.aprox.model.core.StoreType;
+import org.commonjava.indy.client.core.Indy;
+import org.commonjava.indy.client.core.IndyClientException;
+import org.commonjava.indy.model.core.StoreType;
 import org.jboss.pnc.spi.repositorymanager.model.CompletedRepositoryDeletion;
 import org.jboss.pnc.spi.repositorymanager.model.RunningRepositoryDeletion;
 
@@ -29,12 +29,12 @@ public class MavenRunningDeletion implements RunningRepositoryDeletion {
 
     private StoreType fromType;
     private String fromId;
-    private Aprox aprox;
+    private Indy indy;
 
-    public MavenRunningDeletion(StoreType fromType, String fromId, Aprox aprox) {
+    public MavenRunningDeletion(StoreType fromType, String fromId, Indy indy) {
         this.fromType = fromType;
         this.fromId = fromId;
-        this.aprox = aprox;
+        this.indy = indy;
     }
 
     /**
@@ -46,13 +46,13 @@ public class MavenRunningDeletion implements RunningRepositoryDeletion {
     @Override
     public void monitor(Consumer<CompletedRepositoryDeletion> onComplete, Consumer<Exception> onError) {
         try {
-            if (aprox.stores().exists(fromType, fromId)) {
-                aprox.stores().delete(fromType, fromId, "Deleting artifacts for PNC build");
+            if (indy.stores().exists(fromType, fromId)) {
+                indy.stores().delete(fromType, fromId, "Deleting artifacts for PNC build");
             }
 
             onComplete.accept(new MavenCompletedDeletion(true));
 
-        } catch (AproxClientException e) {
+        } catch (IndyClientException e) {
             onError.accept(e);
         }
     }
