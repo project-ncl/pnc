@@ -80,3 +80,16 @@
   resize:both;
 }
 
+/**
+ * pnc-search-field
+ */
+.search {
+	float: right;
+	max-width: 300px;
+	margin-bottom: 1em;
+}
+
+.panel-heading .search {
+	margin-top: -5px;
+	margin-bottom: 0;
+}
