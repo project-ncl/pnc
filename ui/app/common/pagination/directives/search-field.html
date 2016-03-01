@@ -17,8 +17,14 @@
     limitations under the License.
 
 -->
-<form class="pull-right">
+<form class="form-inline">
   <div class="form-group">
-    <input ng-model="searchText" ng-change="search()" placeholder="{{ 'Search ' + text + '&hellip;' }}" size="{{ text.length + 10 }}">
+    <div class="input-group">
+      <input type="search" class="form-control" ng-model="searchText" ng-change="search()" placeholder="{{ 'Search ' + text + '&hellip;' }}">
+      <div class="input-group-addon">
+        <i class="glyphicon glyphicon-search" ng-show="page.isLoaded"></i>
+        <div class="spinner spinner-xs pull-right" ng-hide="page.isLoaded"></div>
+      </div>
+    </div>
   </div>
 </form>
