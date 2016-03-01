@@ -145,6 +145,12 @@
 
   <dependencyManagement>
     <dependencies>
+        
+      <dependency>
+        <groupId>org.eclipse.jetty</groupId>
+        <artifactId>jetty-servlets</artifactId>
+        <version>9.3.4.v20151007</version>
+      </dependency>
 
       <dependency>
           <groupId>org.codehaus.jackson</groupId>
