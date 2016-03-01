@@ -17,10 +17,10 @@
  */
 package org.jboss.pnc.mavenrepositorymanager;
 
-import org.commonjava.aprox.folo.client.AproxFoloContentClientModule;
-import org.commonjava.aprox.model.core.Group;
-import org.commonjava.aprox.model.core.StoreKey;
-import org.commonjava.aprox.model.core.StoreType;
+import org.commonjava.indy.folo.client.IndyFoloContentClientModule;
+import org.commonjava.indy.model.core.Group;
+import org.commonjava.indy.model.core.StoreKey;
+import org.commonjava.indy.model.core.StoreType;
 import org.jboss.pnc.mavenrepositorymanager.fixture.TestBuildExecution;
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.BuildRecord;
@@ -59,7 +59,7 @@ public class VerifyManualPromotionOfBuildRepoTest extends AbstractRepositoryMana
         RepositorySession session = driver.createBuildRepository(execution);
 
         // simulate a build deploying a file.
-        driver.getAprox().module(AproxFoloContentClientModule.class)
+        driver.getIndy().module(IndyFoloContentClientModule.class)
                 .store(buildId, StoreType.hosted, buildId, path, new ByteArrayInputStream(content.getBytes()));
 
         // now, extract the build artifacts. This will trigger promotion of the build hosted repo to the chain group.
@@ -86,7 +86,7 @@ public class VerifyManualPromotionOfBuildRepoTest extends AbstractRepositoryMana
         });
 
         // end result: the chain group should contain the build hosted repo.
-        Group publicGroup = driver.getAprox().stores().load(StoreType.group, PUBLIC, Group.class);
+        Group publicGroup = driver.getIndy().stores().load(StoreType.group, PUBLIC, Group.class);
         System.out.println("public group constituents: " + publicGroup.getConstituents());
         assertThat(publicGroup.getConstituents().contains(new StoreKey(StoreType.hosted, buildId)), equalTo(true));
     }

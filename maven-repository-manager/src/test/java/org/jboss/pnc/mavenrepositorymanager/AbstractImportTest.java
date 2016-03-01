@@ -25,11 +25,11 @@ import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
-import org.commonjava.aprox.client.core.Aprox;
-import org.commonjava.aprox.model.core.Group;
-import org.commonjava.aprox.model.core.RemoteRepository;
-import org.commonjava.aprox.model.core.StoreKey;
-import org.commonjava.aprox.model.core.StoreType;
+import org.commonjava.indy.client.core.Indy;
+import org.commonjava.indy.model.core.Group;
+import org.commonjava.indy.model.core.RemoteRepository;
+import org.commonjava.indy.model.core.StoreKey;
+import org.commonjava.indy.model.core.StoreType;
 import org.jboss.pnc.mavenrepositorymanager.fixture.TestHttpServer;
 import org.junit.Before;
 import org.junit.Rule;
@@ -48,24 +48,24 @@ public class AbstractImportTest extends AbstractRepositoryManagerDriverTest {
     @Rule
     public TestHttpServer server = new TestHttpServer("repos");
 
-    protected Aprox aprox;
+    protected Indy indy;
     
     @Before
     public void before() throws Exception
     {
-        aprox = driver.getAprox();
+        indy = driver.getIndy();
 
         // create a remote repo pointing at our server fixture's 'repo/test' directory.
-        aprox.stores().create(new RemoteRepository(STORE, server.formatUrl(STORE)), "Creating test remote repo",
+        indy.stores().create(new RemoteRepository(STORE, server.formatUrl(STORE)), "Creating test remote repo",
                 RemoteRepository.class);
         
-        Group publicGroup = aprox.stores().load(StoreType.group, PUBLIC, Group.class);
+        Group publicGroup = indy.stores().load(StoreType.group, PUBLIC, Group.class);
         if (publicGroup == null) {
             publicGroup = new Group(PUBLIC, new StoreKey(StoreType.remote, STORE));
-            aprox.stores().create(publicGroup, "creating public group", Group.class);
+            indy.stores().create(publicGroup, "creating public group", Group.class);
         } else {
             publicGroup.setConstituents(Collections.singletonList(new StoreKey(StoreType.remote, STORE)));
-            aprox.stores().update(publicGroup, "adding test remote to public group");
+            indy.stores().update(publicGroup, "adding test remote to public group");
         }
     }
 

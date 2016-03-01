@@ -17,10 +17,10 @@
  */
 package org.jboss.pnc.mavenrepositorymanager;
 
-import org.commonjava.aprox.client.core.Aprox;
-import org.commonjava.aprox.model.core.Group;
-import org.commonjava.aprox.model.core.StoreKey;
-import org.commonjava.aprox.model.core.StoreType;
+import org.commonjava.indy.client.core.Indy;
+import org.commonjava.indy.model.core.Group;
+import org.commonjava.indy.model.core.StoreKey;
+import org.commonjava.indy.model.core.StoreType;
 import org.jboss.pnc.mavenrepositorymanager.fixture.TestBuildExecution;
 import org.jboss.pnc.spi.repositorymanager.BuildExecution;
 import org.jboss.pnc.spi.repositorymanager.model.RepositorySession;
@@ -39,7 +39,7 @@ public class BuildGroupIncludesConfSetGroupTest extends AbstractRepositoryManage
     public void verifyGroupComposition_ProductVersion_WithConfSet() throws Exception {
         // create a dummy composed (chained) build execution and a repo session based on it
         BuildExecution execution = new TestBuildExecution("build_myproject_67890");
-        Aprox aprox = driver.getAprox();
+        Indy indy = driver.getIndy();
 
         RepositorySession repositoryConfiguration = driver.createBuildRepository(execution);
         String repoId = repositoryConfiguration.getBuildRepositoryId();
@@ -54,7 +54,7 @@ public class BuildGroupIncludesConfSetGroupTest extends AbstractRepositoryManage
         // - the "shared-imports" repo
         // - the public group
         // ...in that order
-        Group buildGroup = aprox.stores().load(StoreType.group, repoId, Group.class);
+        Group buildGroup = indy.stores().load(StoreType.group, repoId, Group.class);
 
         System.out.printf("Constituents:\n  %s\n", join(buildGroup.getConstituents(), "\n  "));
         assertGroupConstituents(buildGroup, new StoreKey(StoreType.hosted, execution.getBuildContentId()),

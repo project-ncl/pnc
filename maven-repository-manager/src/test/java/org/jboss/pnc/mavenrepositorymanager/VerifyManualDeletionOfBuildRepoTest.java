@@ -17,8 +17,8 @@
  */
 package org.jboss.pnc.mavenrepositorymanager;
 
-import org.commonjava.aprox.folo.client.AproxFoloContentClientModule;
-import org.commonjava.aprox.model.core.StoreType;
+import org.commonjava.indy.folo.client.IndyFoloContentClientModule;
+import org.commonjava.indy.model.core.StoreType;
 import org.jboss.pnc.mavenrepositorymanager.fixture.TestBuildExecution;
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.BuildRecord;
@@ -54,7 +54,7 @@ public class VerifyManualDeletionOfBuildRepoTest extends AbstractRepositoryManag
         RepositorySession session = driver.createBuildRepository(execution);
 
         // simulate a build deploying a file.
-        driver.getAprox().module(AproxFoloContentClientModule.class)
+        driver.getIndy().module(IndyFoloContentClientModule.class)
                 .store(buildId, StoreType.hosted, buildId, path, new ByteArrayInputStream(content.getBytes()));
 
         // now, extract the build artifacts. This will trigger promotion of the build hosted repo to the chain group.
@@ -81,7 +81,7 @@ public class VerifyManualDeletionOfBuildRepoTest extends AbstractRepositoryManag
         });
 
         // end result: the build hosted repo should no longer exist.
-        assertThat(driver.getAprox().stores().exists(StoreType.hosted, buildId), equalTo(false));
+        assertThat(driver.getIndy().stores().exists(StoreType.hosted, buildId), equalTo(false));
     }
 
 }

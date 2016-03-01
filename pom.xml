@@ -77,8 +77,8 @@
     <!-- minimum jdk and maven versions -->
     <jdk.min.version>1.8</jdk.min.version>
     <maven.min.version>3.2</maven.min.version>
-    <atlasVersion>0.15.0</atlasVersion>
-    <aproxVersion>0.25.0</aproxVersion>
+    <atlasVersion>0.16.0</atlasVersion>
+    <indyVersion>0.99.0</indyVersion>
     <version.jboss.maven.plugin>7.5.Final</version.jboss.maven.plugin>
     <version.jboss.bom>1.0.7.Final</version.jboss.bom>
     <version.junit>4.11</version.junit>
@@ -86,8 +86,8 @@
     <version.mockito-all>1.10.8</version.mockito-all>
     <version.catch-exception>1.2.0</version.catch-exception>
     <version.guava>17.0</version.guava>
-    <version.org.apache.httpcomponents.httpclient>4.3.6</version.org.apache.httpcomponents.httpclient>
-    <version.org.apache.httpcomponents.httpcore>4.3.3</version.org.apache.httpcomponents.httpcore>
+    <version.org.apache.httpcomponents.httpclient>4.4</version.org.apache.httpcomponents.httpclient>
+    <version.org.apache.httpcomponents.httpcore>4.4</version.org.apache.httpcomponents.httpcore>
     <version.org.postgresql>9.3-1102-jdbc41</version.org.postgresql>
     <version.org.jboss.logging>3.1.0.GA</version.org.jboss.logging>
     <version.org.json>20141113</version.org.json>
@@ -604,6 +604,16 @@
         <groupId>com.openshift</groupId>
         <artifactId>openshift-restclient-java</artifactId>
         <version>3.0.1.Final</version>
+        <exclusions>
+          <exclusion>
+            <groupId>log4j</groupId>
+            <artifactId>log4j</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-log4j12</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
 
       <dependency>
@@ -705,35 +715,35 @@
 
 
       <dependency>
-        <groupId>org.commonjava.aprox</groupId>
-        <artifactId>aprox-promote-client-java</artifactId>
-        <version>${aproxVersion}</version>
+        <groupId>org.commonjava.indy</groupId>
+        <artifactId>indy-promote-client-java</artifactId>
+        <version>${indyVersion}</version>
       </dependency>
       <dependency>
-        <groupId>org.commonjava.aprox</groupId>
-        <artifactId>aprox-folo-client-java</artifactId>
-        <version>${aproxVersion}</version>
+        <groupId>org.commonjava.indy</groupId>
+        <artifactId>indy-folo-client-java</artifactId>
+        <version>${indyVersion}</version>
       </dependency>
       <dependency>
-        <groupId>org.commonjava.aprox</groupId>
-        <artifactId>aprox-client-core-java</artifactId>
-        <version>${aproxVersion}</version>
+        <groupId>org.commonjava.indy</groupId>
+        <artifactId>indy-client-core-java</artifactId>
+        <version>${indyVersion}</version>
       </dependency>
       <dependency>
-        <groupId>org.commonjava.aprox.embed</groupId>
-        <artifactId>aprox-embedder-savant</artifactId>
-        <version>${aproxVersion}</version>
+        <groupId>org.commonjava.indy.embed</groupId>
+        <artifactId>indy-embedder-savant</artifactId>
+        <version>${indyVersion}</version>
         <scope>test</scope>
       </dependency>
       <dependency>
-        <groupId>org.commonjava.aprox</groupId>
-        <artifactId>aprox-test-fixtures-core</artifactId>
-        <version>${aproxVersion}</version>
+        <groupId>org.commonjava.indy</groupId>
+        <artifactId>indy-test-fixtures-core</artifactId>
+        <version>${indyVersion}</version>
         <scope>test</scope>
         <exclusions>
           <exclusion>
-            <groupId>org.commonjava.aprox.boot</groupId>
-            <artifactId>aprox-booter-api</artifactId>
+            <groupId>org.commonjava.indy.boot</groupId>
+            <artifactId>indy-booter-api</artifactId>
           </exclusion>
         </exclusions>
       </dependency>

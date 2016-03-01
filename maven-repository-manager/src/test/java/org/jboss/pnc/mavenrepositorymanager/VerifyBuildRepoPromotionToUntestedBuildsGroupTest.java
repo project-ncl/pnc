@@ -17,10 +17,10 @@
  */
 package org.jboss.pnc.mavenrepositorymanager;
 
-import org.commonjava.aprox.folo.client.AproxFoloContentClientModule;
-import org.commonjava.aprox.model.core.Group;
-import org.commonjava.aprox.model.core.StoreKey;
-import org.commonjava.aprox.model.core.StoreType;
+import org.commonjava.indy.folo.client.IndyFoloContentClientModule;
+import org.commonjava.indy.model.core.Group;
+import org.commonjava.indy.model.core.StoreKey;
+import org.commonjava.indy.model.core.StoreType;
 import org.jboss.pnc.mavenrepositorymanager.fixture.TestBuildExecution;
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.BuiltArtifact;
@@ -53,7 +53,7 @@ public class VerifyBuildRepoPromotionToUntestedBuildsGroupTest extends AbstractR
         RepositorySession session = driver.createBuildRepository(execution);
 
         // simulate a build deploying a file.
-        driver.getAprox().module(AproxFoloContentClientModule.class)
+        driver.getIndy().module(IndyFoloContentClientModule.class)
                 .store(buildId, StoreType.hosted, buildId, path, new ByteArrayInputStream(content.getBytes()));
 
         // now, extract the build artifacts. This will trigger promotion of the build hosted repo to the untested-builds group.
@@ -67,7 +67,7 @@ public class VerifyBuildRepoPromotionToUntestedBuildsGroupTest extends AbstractR
         assertThat(a.getFilename(), equalTo(new File(path).getName()));
 
         // end result: the untested-builds group should contain the build hosted repo.
-        Group untestedBuildsGroup = driver.getAprox().stores().load(StoreType.group, MavenRepositoryConstants.UNTESTED_BUILDS_GROUP, Group.class);
+        Group untestedBuildsGroup = driver.getIndy().stores().load(StoreType.group, MavenRepositoryConstants.UNTESTED_BUILDS_GROUP, Group.class);
         assertThat(untestedBuildsGroup.getConstituents().contains(new StoreKey(StoreType.hosted, buildId)), equalTo(true));
     }
 
