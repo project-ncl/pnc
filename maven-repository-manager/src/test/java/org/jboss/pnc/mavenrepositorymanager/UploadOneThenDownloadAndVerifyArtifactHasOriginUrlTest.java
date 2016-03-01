@@ -100,7 +100,7 @@ public class UploadOneThenDownloadAndVerifyArtifactHasOriginUrlTest
         assertThat(download(UrlUtils.buildUrl(baseUrl, path)), equalTo(content));
 
         ProjectVersionRef pvr = new SimpleProjectVersionRef("org.commonjava.indy", "indy-core", "0.17.0");
-        String aref = new SimpleArtifactRef(pvr, "pom", null, false).toString();
+        String aref = new SimpleArtifactRef(pvr, "pom", null).toString();
 
         // extract the "built" artifacts we uploaded above.
         RepositoryManagerResult repositoryManagerResult = rc.extractBuildArtifacts();

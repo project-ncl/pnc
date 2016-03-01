@@ -107,8 +107,8 @@ public class UploadTwoThenVerifyExtractedArtifactsContainThemTest
 
         ProjectVersionRef pvr = new SimpleProjectVersionRef("org.commonjava.indy", "indy-core", "0.17.0");
         Set<String> refs = new HashSet<>();
-        refs.add(new SimpleArtifactRef(pvr, "pom", null, false).toString());
-        refs.add(new SimpleArtifactRef(pvr, "jar", null, false).toString());
+        refs.add(new SimpleArtifactRef(pvr, "pom", null).toString());
+        refs.add(new SimpleArtifactRef(pvr, "jar", null).toString());
 
         // check that the artifact getIdentifier() stores GAVT[C] information in the standard Maven rendering
         for (Artifact artifact : artifacts) {

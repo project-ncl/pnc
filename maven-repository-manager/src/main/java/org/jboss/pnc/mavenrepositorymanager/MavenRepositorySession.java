@@ -221,7 +221,7 @@ public class MavenRepositorySession implements RepositorySession {
                     continue;
                 }
 
-                ArtifactRef aref = new SimpleArtifactRef(pathInfo.getProjectId(), pathInfo.getType(), pathInfo.getClassifier(), false);
+                ArtifactRef aref = new SimpleArtifactRef(pathInfo.getProjectId(), pathInfo.getType(), pathInfo.getClassifier());
                 logger.info("Recording download: {}", aref);
 
                 String originUrl = download.getOriginUrl();
@@ -276,7 +276,7 @@ public class MavenRepositorySession implements RepositorySession {
                     continue;
                 }
 
-                ArtifactRef aref = new SimpleArtifactRef(pathInfo.getProjectId(), pathInfo.getType(), pathInfo.getClassifier(), false);
+                ArtifactRef aref = new SimpleArtifactRef(pathInfo.getProjectId(), pathInfo.getType(), pathInfo.getClassifier());
                 logger.info("Recording upload: {}", aref);
 
                 BuiltArtifact.Builder artifactBuilder = BuiltArtifact.Builder.newBuilder().checksum(upload.getSha256())
