@@ -22,30 +22,29 @@
   var module = angular.module('pnc.configuration-set-record');
 
   /**
-   * @author Jakub Senko
+   * @ngdoc directive
+   * @name pnc.configuration:pncGroupBuilds
+   * @restrict E
+   * @description
+   * Displays a paginated panel showing running and completed group builds.
+   * @example
+      <pnc-group-builds></pnc-group-builds>
+   * @author Alex Creasy
    */
-  module.directive('pncRecentCsBuilds', [
-    '$log',
-    'BuildConfigurationSetRecordDAO',
-    'eventTypes',
-    function ($log, BuildConfigurationSetRecordDAO, eventTypes) {
+  module.directive('pncGroupBuilds', [
+    function () {
+      function PncGroupBuildsCtrl($log, $scope, BuildConfigurationSetRecordDAO, eventTypes) {
+        $scope.page = BuildConfigurationSetRecordDAO.getPagedRunning();
+
+        $scope.$on(eventTypes.BUILD_SET_STARTED, $scope.page.reload());
+        $scope.$on(eventTypes.BUILD_SET_FINISHED, $scope.page.reload());
+      }
 
       return {
         restrict: 'E',
-        templateUrl: 'configuration-set-record/directives/pncRecentCsBuilds/pnc-recent-cs-builds.html',
+        templateUrl: 'configuration-set-record/directives/pnc-group-builds/pnc-group-builds.html',
         scope: {},
-        link: function (scope) {
-
-          scope.page = BuildConfigurationSetRecordDAO.getPagedFinished();
-
-          var update = function (event, payload) {
-            /* jshint unused: false */
-            scope.page.reload();
-          };
-
-          scope.$on(eventTypes.BUILD_SET_STARTED, update);
-          scope.$on(eventTypes.BUILD_SET_FINISHED, update);
-        }
+        controller: PncGroupBuildsCtrl
       };
     }
   ]);
