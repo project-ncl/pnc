@@ -20,11 +20,10 @@
 <div class="panel panel-default">
 
   <div class="panel-heading">
-    <pnc-search-field page="page" text="recent builds"></pnc-search-field>
+    <pnc-search-field class="search" page="page" text="recent builds"></pnc-search-field>
     <h3 class="panel-title">Recently Completed Builds</h3>
   </div>
 
-  <div class="spinner spinner-sm" ng-hide="page.isLoaded"></div>
 
   <table class="table table-striped table-hover" ng-show="page.isLoaded">
     <thead ng-show="page.data.length">
@@ -51,11 +50,6 @@
         <td>{{ record.startTime | date:'medium' }}</td>
         <td>{{ record.endTime | date:'medium' }}</td>
         <td class="text-bold">{{ record.username }}</td>
-      </tr>
-      <tr ng-hide="page.data.length">
-        <td>
-          No recent builds
-        </td>
       </tr>
     </tbody>
   </table>
