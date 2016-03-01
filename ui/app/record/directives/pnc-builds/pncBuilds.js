@@ -22,28 +22,30 @@
   var module = angular.module('pnc.record');
 
   /**
-   * @author Jakub Senko
+   * @ngdoc directive
+   * @name pnc.configuration:pncBuilds
+   * @restrict E
+   * @description
+   * Displays a paginated panel showing running and completed builds.
+   * @example
+      <pnc-builds></pnc-builds>
+   * @author Alex Creasy
    */
-  module.directive('pncRunningBuilds', [
-    'RunningBuildRecordDAO',
-    'eventTypes',
-    function (RunningBuildRecordDAO, eventTypes) {
+  module.directive('pncBuilds', [
+    function () {
+
+      function PncBuildsCtrl($log, $scope, BuildsDAO, eventTypes) {
+        $scope.page = BuildsDAO.getPaged();
+
+        $scope.$on(eventTypes.BUILD_STARTED, $scope.page.reload);
+        $scope.$on(eventTypes.BUILD_FINISHED, $scope.page.reload);
+      }
 
       return {
         restrict: 'E',
-        templateUrl: 'record/directives/pncRunningBuilds/pnc-running-builds.html',
+        templateUrl: 'record/directives/pnc-builds/pnc-builds.html',
         scope: {},
-        link: function (scope) {
-          scope.page = RunningBuildRecordDAO.getAll();
-
-          var update = function (event, payload) {
-            /* jshint unused: false */
-            scope.page.reload();
-          };
-
-          scope.$on(eventTypes.BUILD_STARTED, update);
-          scope.$on(eventTypes.BUILD_FINISHED, update);
-        }
+        controller: PncBuildsCtrl
       };
     }
   ]);
