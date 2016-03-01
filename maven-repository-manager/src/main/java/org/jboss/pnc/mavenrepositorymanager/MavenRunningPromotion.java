@@ -17,11 +17,11 @@
  */
 package org.jboss.pnc.mavenrepositorymanager;
 
-import org.commonjava.aprox.client.core.Aprox;
-import org.commonjava.aprox.client.core.AproxClientException;
-import org.commonjava.aprox.model.core.Group;
-import org.commonjava.aprox.model.core.StoreKey;
-import org.commonjava.aprox.model.core.StoreType;
+import org.commonjava.indy.client.core.Indy;
+import org.commonjava.indy.client.core.IndyClientException;
+import org.commonjava.indy.model.core.Group;
+import org.commonjava.indy.model.core.StoreKey;
+import org.commonjava.indy.model.core.StoreType;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerException;
 import org.jboss.pnc.spi.repositorymanager.model.CompletedRepositoryPromotion;
 import org.jboss.pnc.spi.repositorymanager.model.RunningRepositoryPromotion;
@@ -33,13 +33,13 @@ public class MavenRunningPromotion implements RunningRepositoryPromotion {
     private StoreType fromType;
     private String fromId;
     private String toId;
-    private Aprox aprox;
+    private Indy indy;
 
-    public MavenRunningPromotion(StoreType fromType, String fromId, String toId, Aprox aprox) {
+    public MavenRunningPromotion(StoreType fromType, String fromId, String toId, Indy indy) {
         this.fromType = fromType;
         this.fromId = fromId;
         this.toId = toId;
-        this.aprox = aprox;
+        this.indy = indy;
     }
 
     /**
@@ -51,23 +51,23 @@ public class MavenRunningPromotion implements RunningRepositoryPromotion {
     @Override
     public void monitor(Consumer<CompletedRepositoryPromotion> onComplete, Consumer<Exception> onError) {
         try {
-            if (!aprox.stores().exists(fromType, fromId)) {
+            if (!indy.stores().exists(fromType, fromId)) {
                 throw new RepositoryManagerException("No such %s repository: %s", fromType.singularEndpointName(), fromId);
             }
 
-            Group recordSetGroup = aprox.stores().load(StoreType.group, toId, Group.class);
+            Group recordSetGroup = indy.stores().load(StoreType.group, toId, Group.class);
             if (recordSetGroup == null) {
                 throw new RepositoryManagerException("No such group: %s", toId);
             }
 
             recordSetGroup.addConstituent(new StoreKey(fromType, fromId));
 
-            boolean result = aprox.stores().update(recordSetGroup,
+            boolean result = indy.stores().update(recordSetGroup,
                     "Promoting " + fromType.singularEndpointName() + " repository : " + fromId + " to group: " + toId);
 
             onComplete.accept(new MavenCompletedPromotion(result));
 
-        } catch (AproxClientException | RepositoryManagerException e) {
+        } catch (IndyClientException | RepositoryManagerException e) {
             onError.accept(e);
         }
     }

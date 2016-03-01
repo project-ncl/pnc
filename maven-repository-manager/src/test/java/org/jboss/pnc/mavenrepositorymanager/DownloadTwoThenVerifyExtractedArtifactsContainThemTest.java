@@ -18,9 +18,9 @@
 package org.jboss.pnc.mavenrepositorymanager;
 
 import org.apache.commons.io.IOUtils;
-import org.commonjava.aprox.client.core.Aprox;
-import org.commonjava.aprox.client.core.util.UrlUtils;
-import org.commonjava.aprox.model.core.StoreType;
+import org.commonjava.indy.client.core.Indy;
+import org.commonjava.indy.client.core.util.UrlUtils;
+import org.commonjava.indy.model.core.StoreType;
 import org.commonjava.maven.atlas.ident.ref.ProjectVersionRef;
 import org.commonjava.maven.atlas.ident.ref.SimpleArtifactRef;
 import org.commonjava.maven.atlas.ident.ref.SimpleProjectVersionRef;
@@ -49,8 +49,8 @@ public class DownloadTwoThenVerifyExtractedArtifactsContainThemTest
 
     @Test
     public void extractBuildArtifacts_ContainsTwoDownloads() throws Exception {
-        String pomPath = "org/commonjava/aprox/aprox-core/0.17.0/aprox-core-0.17.0.pom";
-        String jarPath = "org/commonjava/aprox/aprox-core/0.17.0/aprox-core-0.17.0.jar";
+        String pomPath = "org/commonjava/indy/indy-core/0.17.0/indy-core-0.17.0.pom";
+        String jarPath = "org/commonjava/indy/indy-core/0.17.0/indy-core-0.17.0.jar";
         String content = "This is a test " + System.currentTimeMillis();
 
         // setup the expectation that the remote repo pointing at this server will request this file...and define its content.
@@ -80,10 +80,10 @@ public class DownloadTwoThenVerifyExtractedArtifactsContainThemTest
         assertThat(deps, notNullValue());
         assertThat(deps.size(), equalTo(2));
 
-        ProjectVersionRef pvr = new SimpleProjectVersionRef("org.commonjava.aprox", "aprox-core", "0.17.0");
+        ProjectVersionRef pvr = new SimpleProjectVersionRef("org.commonjava.indy", "indy-core", "0.17.0");
         Set<String> refs = new HashSet<>();
-        refs.add(new SimpleArtifactRef(pvr, "pom", null, false).toString());
-        refs.add(new SimpleArtifactRef(pvr, "jar", null, false).toString());
+        refs.add(new SimpleArtifactRef(pvr, "pom", null).toString());
+        refs.add(new SimpleArtifactRef(pvr, "jar", null).toString());
 
         // check that both files are in the dep artifacts list using getIdentifier() to match on GAVT[C]
         for (Artifact artifact : deps) {
@@ -91,11 +91,11 @@ public class DownloadTwoThenVerifyExtractedArtifactsContainThemTest
                     equalTo(true));
         }
 
-        Aprox aprox = driver.getAprox();
+        Indy indy = driver.getIndy();
 
         // check that the new imports are available from shared-imports
         for (String path : new String[] { pomPath, jarPath }) {
-            InputStream stream = aprox.content().get(StoreType.hosted, SHARED_IMPORTS, path);
+            InputStream stream = indy.content().get(StoreType.hosted, SHARED_IMPORTS, path);
             String downloaded = IOUtils.toString(stream);
             assertThat(downloaded, equalTo(content));
         }
