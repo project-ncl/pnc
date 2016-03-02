@@ -79,7 +79,7 @@ public class DefaultBuildExecutor implements BuildExecutor {
     private final Map<Integer, BuildExecutionSession> runningExecutions = new HashMap<>();
 
     @Deprecated
-    public DefaultBuildExecutor() {}; //CDI workaround for constructor injection
+    public DefaultBuildExecutor() {} //CDI workaround for constructor injection
 
     @Inject
     public DefaultBuildExecutor(
@@ -123,7 +123,6 @@ public class DefaultBuildExecutor implements BuildExecutor {
                 .thenComposeAsync(runningBuild -> waitBuildToComplete(buildExecutionSession, runningBuild), executor)
                 .thenApplyAsync(completedBuild -> retrieveBuildDriverResults(buildExecutionSession, completedBuild), executor)
                 .thenApplyAsync(nul -> retrieveRepositoryManagerResults(buildExecutionSession), executor)
-                .thenApplyAsync(nul -> destroyEnvironment(buildExecutionSession), executor)
                 .handleAsync((nul, e) -> completeExecution(buildExecutionSession, e), executor);
 
         //TODO re-connect running instances in case of crash
@@ -235,20 +234,22 @@ public class DefaultBuildExecutor implements BuildExecutor {
 
     private Void retrieveRepositoryManagerResults(BuildExecutionSession buildExecutionSession) {
         try {
-            buildExecutionSession.setStatus(BuildExecutionStatus.COLLECTING_RESULTS_FROM_REPOSITORY_NAMAGER);
-            RunningEnvironment runningEnvironment = buildExecutionSession.getRunningEnvironment();
-            buildExecutionSession.setRunningEnvironment(runningEnvironment);
+            if (!buildExecutionSession.getStatus().hasFailed()) {
+                buildExecutionSession.setStatus(BuildExecutionStatus.COLLECTING_RESULTS_FROM_REPOSITORY_NAMAGER);
+                RunningEnvironment runningEnvironment = buildExecutionSession.getRunningEnvironment();
+                buildExecutionSession.setRunningEnvironment(runningEnvironment);
 
-            RepositorySession repositorySession = runningEnvironment.getRepositorySession();
-            RepositoryManagerResult repositoryManagerResult = repositorySession.extractBuildArtifacts();
-            buildExecutionSession.setRepositoryManagerResult(repositoryManagerResult);
+                RepositorySession repositorySession = runningEnvironment.getRepositorySession();
+                RepositoryManagerResult repositoryManagerResult = repositorySession.extractBuildArtifacts();
+                buildExecutionSession.setRepositoryManagerResult(repositoryManagerResult);
+            }
         } catch (Throwable e) {
             throw new BuildProcessException(e, buildExecutionSession.getRunningEnvironment());
         }
         return null;
     }
 
-    private Void destroyEnvironment(BuildExecutionSession buildExecutionSession) {
+    private void destroyEnvironment(BuildExecutionSession buildExecutionSession) {
         try {
             buildExecutionSession.setStatus(BuildExecutionStatus.BUILD_ENV_DESTROYING);
             buildExecutionSession.getRunningEnvironment().destroyEnvironment();
@@ -256,7 +257,6 @@ public class DefaultBuildExecutor implements BuildExecutor {
         } catch (Throwable e) {
             throw new BuildProcessException(e);
         }
-        return null;
     }
 
     private Void completeExecution(BuildExecutionSession buildExecutionSession, Throwable e) {
@@ -267,6 +267,12 @@ public class DefaultBuildExecutor implements BuildExecutor {
         }
         if (e != null) {
             stopRunningEnvironment(e);
+        } else {
+            try {
+                destroyEnvironment(buildExecutionSession);
+            } catch (BuildProcessException destroyException) {
+                e = destroyException;
+            }
         }
 
         if (e != null) {
