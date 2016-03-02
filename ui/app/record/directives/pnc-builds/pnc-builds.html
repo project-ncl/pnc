@@ -18,21 +18,19 @@
 
 -->
 <div class="panel panel-default">
-
   <div class="panel-heading">
     <pnc-search-field class="search" page="page" text="recent builds"></pnc-search-field>
-    <h3 class="panel-title">Recently Completed Builds</h3>
+    <h3 class="panel-title">Builds</h3>
   </div>
 
-
-  <table class="table table-striped table-hover" ng-show="page.isLoaded">
-    <thead ng-show="page.data.length">
-      <td>Status</td>
-      <td>ID</td>
-      <td>Build Config</td>
-      <td>Start Time</td>
-      <td>End Time</td>
-      <td>Started by User</td>
+  <table class="table table-striped table-hover" ng-show="page.data.length">
+    <thead>
+      <th>Status</th>
+      <th>ID</th>
+      <th>Build Config</th>
+      <th>Start Time</th>
+      <th>End Time</th>
+      <th>Started by User</th>
     </thead>
     <tbody>
       <tr ng-repeat="record in page.data">
@@ -49,9 +47,12 @@
         </td>
         <td>{{ record.startTime | date:'medium' }}</td>
         <td>{{ record.endTime | date:'medium' }}</td>
-        <td class="text-bold">{{ record.username }}</td>
+        <td>{{ record.username }}</td>
       </tr>
     </tbody>
   </table>
+  <div class="panel-body" ng-hide="page.data.length || !page.isLoaded">
+    No builds
+  </div>
   <pnc-pager class="pull-right" page="page"></pnc-pager>
 </div>
