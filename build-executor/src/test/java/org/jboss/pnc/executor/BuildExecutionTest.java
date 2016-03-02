@@ -18,6 +18,7 @@
 
 package org.jboss.pnc.executor;
 
+import org.assertj.core.api.Assertions;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.pnc.common.Configuration;
@@ -49,6 +50,7 @@ import javax.inject.Inject;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -104,14 +106,7 @@ public class BuildExecutionTest {
         List<BuildExecutionStatus> expectedStatuses = getBuildExecutionStatusesSuccess();
 
         //check build statuses
-        expectedStatuses.forEach(expectedStatus -> {
-            try {
-                Wait.forCondition(() -> contains(statusChangedEvents, expectedStatus), 1, ChronoUnit.SECONDS, "Did not receive expected status " + expectedStatus.toString());
-            } catch (Exception e) {
-                log.error("Error in tests execution.", e);
-                Assert.fail(e.getMessage());
-            }
-        });
+        checkBuildStatuses(statusChangedEvents, expectedStatuses);
 
         //check results
         BuildResult buildResult = buildExecutionResultWrapper.get();
@@ -154,6 +149,10 @@ public class BuildExecutionTest {
         expectedStatuses.add(BuildExecutionStatus.DONE_WITH_ERRORS);
 
         //check build statuses
+        checkBuildStatuses(statusChangedEvents, expectedStatuses);
+    }
+
+    private void checkBuildStatuses(Set<BuildExecutionStatusChangedEvent> statusChangedEvents, List<BuildExecutionStatus> expectedStatuses) {
         expectedStatuses.forEach(expectedStatus -> {
             try {
                 Wait.forCondition(() -> contains(statusChangedEvents, expectedStatus), 1, ChronoUnit.SECONDS, "Did not receive expected status " + expectedStatus.toString());
@@ -164,7 +163,26 @@ public class BuildExecutionTest {
         });
     }
 
-    private void runBuild(BuildConfiguration buildConfiguration, Set<BuildExecutionStatusChangedEvent> statusChangedEvents, ObjectWrapper<BuildResult> buildExecutionResultWrapper) throws ExecutorException {
+    @Test
+    public void shouldNotContinueBuildOnMavenError() throws ExecutorException, InterruptedException, TimeoutException {
+        BuildConfiguration buildConfiguration = configurationBuilder.buildFailingConfiguration(3, "build-failed-on-maven", null);
+        Set<BuildExecutionStatusChangedEvent> statusChangedEvents = new HashSet<>();
+        ObjectWrapper<BuildResult> buildExecutionResultWrapper = new ObjectWrapper<>();
+
+        runBuild(buildConfiguration, statusChangedEvents, buildExecutionResultWrapper);
+
+        checkBuildStatuses(statusChangedEvents, Collections.singletonList(BuildExecutionStatus.DONE_WITH_ERRORS));
+
+        assertNoState(statusChangedEvents, BuildExecutionStatus.COLLECTING_RESULTS_FROM_REPOSITORY_NAMAGER);
+    }
+
+    private void assertNoState(Set<BuildExecutionStatusChangedEvent> statusEvents, BuildExecutionStatus state) {
+        Assertions.assertThat(statusEvents.stream().anyMatch(e -> e.getNewStatus() == state)).isFalse();
+    }
+
+    private void runBuild(BuildConfiguration buildConfiguration,
+                          Set<BuildExecutionStatusChangedEvent> statusChangedEvents,
+                          ObjectWrapper<BuildResult> buildExecutionResultWrapper) throws ExecutorException {
         DefaultBuildExecutor executor = new DefaultBuildExecutor(
                 repositoryManagerFactory,
                 buildDriverFactory,

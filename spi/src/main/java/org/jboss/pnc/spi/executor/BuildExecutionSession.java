@@ -34,9 +34,9 @@ import java.util.Optional;
 public interface BuildExecutionSession {
     Integer getId();
 
-    public Optional<URI> getLiveLogsUri();
+    Optional<URI> getLiveLogsUri();
 
-    public void setLiveLogsUri(Optional<URI> liveLogsUri);
+    void setLiveLogsUri(Optional<URI> liveLogsUri);
 
     void getEventLog();
 
