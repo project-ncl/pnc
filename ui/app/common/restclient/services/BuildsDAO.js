@@ -17,35 +17,36 @@
  */
 'use strict';
 
-(function () {
+(function() {
 
-  var module = angular.module('pnc.record');
+  var module = angular.module('pnc.common.restclient');
+
+  module.value('BUILDS_ENDPOINT', '/builds/:id');
 
   /**
-   * @author Jakub Senko
+   * @author Alex Creasy
    */
-  module.directive('pncRunningBuilds', [
-    'RunningBuildRecordDAO',
-    'eventTypes',
-    function (RunningBuildRecordDAO, eventTypes) {
+  module.factory('BuildsDAO', [
+    '$resource',
+    'REST_BASE_URL',
+    'BUILDS_ENDPOINT',
+    'PageFactory',
+    function($resource, REST_BASE_URL, BUILDS_ENDPOINT, PageFactory) {
+      var ENDPOINT = REST_BASE_URL + BUILDS_ENDPOINT;
 
-      return {
-        restrict: 'E',
-        templateUrl: 'record/directives/pncRunningBuilds/pnc-running-builds.html',
-        scope: {},
-        link: function (scope) {
-          scope.page = RunningBuildRecordDAO.getAll();
-
-          var update = function (event, payload) {
-            /* jshint unused: false */
-            scope.page.reload();
-          };
-
-          scope.$on(eventTypes.BUILD_STARTED, update);
-          scope.$on(eventTypes.BUILD_FINISHED, update);
+      var resource = $resource(ENDPOINT, {}, {
+        _getAll: {
+          method: 'GET',
+          url: ENDPOINT
         }
-      };
+      });
+
+      PageFactory.decorate(resource, '_getAll', 'getPaged');
+
+      return resource;
     }
+
   ]);
+
 
 })();

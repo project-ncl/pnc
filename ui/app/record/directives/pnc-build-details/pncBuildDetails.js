@@ -28,10 +28,10 @@
    * @example
    * @author Alex Creasy
   */
-  module.directive('pncBuildDetails', [
+  module.directive('pnc-build-details', [
     function() {
 
-    var DEFAULT_TEMPLATE = 'record/directives/pncBuildDetails/pnc-build-details.html';
+    var DEFAULT_TEMPLATE = 'record/directives/pnc-build-details/pnc-build-details.html';
 
     function Controller($scope, $q, eventTypes, Build, BuildRecordDAO,
         BuildConfigurationDAO, ProjectDAO, EnvironmentDAO, UserDAO) {
