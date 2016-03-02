@@ -17,34 +17,39 @@
     limitations under the License.
 
 -->
-<ul ng-show="page.getPageCount() > 1" class="pagination">
-  <li ng-show="page.hasPrevious()">
-    <a ng-click="page.first()" href>
-      <span class="i fa fa-angle-left"></span>
-      <span class="i fa fa-angle-left"></span>
-    </a>
-  </li>
+<div>
+  <div ng-show="page.getPageCount() > 1" class="pull-right">Page {{ page.getPageIndex()+1 }} of {{ page.getPageCount() }}</div>
+  <div class="text-center">
+    <ul ng-show="page.getPageCount() > 1" class="pagination">
+      <li ng-show="page.hasPrevious()">
+          <a ng-click="page.first()" href title="First Page">
+          <span class="i fa fa-angle-left"></span>
+          <span class="i fa fa-angle-left"></span>
+        </a>
+      </li>
 
-  <li ng-show="page.hasPrevious()">
-    <a ng-click="page.previous()" href>
-      <span class="i fa fa-angle-left"></span>
-    </a>
-  </li>
+      <li ng-show="page.hasPrevious()">
+        <a ng-click="page.previous()" href title="Previous Page">
+          <span class="i fa fa-angle-left"></span>
+        </a>
+      </li>
 
-  <li ng-repeat="index in range" ng-class="index === page.getPageIndex() ? 'active' : ''">
-    <a ng-click="page.loadPageIndex(index)" href>{{ index + 1 }}</a>
-  </li>
+      <li ng-repeat="index in range" ng-class="index === page.getPageIndex() ? 'active' : ''">
+        <a ng-click="page.loadPageIndex(index)" href>{{ index + 1 }}</a>
+      </li>
 
-  <li ng-show="page.hasNext()">
-    <a ng-click="page.next()"  href>
-      <span  class="i fa fa-angle-right"></span>
-    </a>
-  </li>
+      <li ng-show="page.hasNext()">
+        <a ng-click="page.next()"  href title="Next Page">
+          <span  class="i fa fa-angle-right"></span>
+        </a>
+      </li>
 
-  <li ng-show="page.hasNext()">
-    <a ng-click="page.last()"  href>
-      <span  class="i fa fa-angle-right"></span>
-      <span  class="i fa fa-angle-right"></span>
-    </a>
-  </li>
-</ul>
+      <li ng-show="page.hasNext()">
+        <a ng-click="page.last()"  href title="Last Page">
+          <span  class="i fa fa-angle-right"></span>
+          <span  class="i fa fa-angle-right"></span>
+        </a>
+      </li>
+    </ul>
+  </div>
+</div>
