@@ -30,12 +30,14 @@ import org.apache.http.impl.client.HttpClientBuilder;
 import org.commonjava.indy.client.core.Indy;
 import org.commonjava.indy.client.core.util.UrlUtils;
 import org.commonjava.indy.model.core.StoreType;
+import org.commonjava.maven.atlas.ident.ref.ArtifactRef;
 import org.commonjava.maven.atlas.ident.ref.ProjectVersionRef;
 import org.commonjava.maven.atlas.ident.ref.SimpleArtifactRef;
 import org.commonjava.maven.atlas.ident.ref.SimpleProjectVersionRef;
 import org.jboss.pnc.mavenrepositorymanager.fixture.TestBuildExecution;
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.BuiltArtifact;
+import org.jboss.pnc.model.ImportedArtifact;
 import org.jboss.pnc.spi.repositorymanager.BuildExecution;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
 import org.jboss.pnc.spi.repositorymanager.model.RepositorySession;
@@ -53,8 +55,8 @@ import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
 
 @Category(ContainerTest.class)
-public class UploadTwoThenVerifyExtractedArtifactsContainThemTest 
-    extends AbstractRepositoryManagerDriverTest
+public class UploadOneThenDownloadAndVerifyArtifactHasOriginUrlTest
+    extends AbstractImportTest
 {
 
     @Test
@@ -66,80 +68,68 @@ public class UploadTwoThenVerifyExtractedArtifactsContainThemTest
         assertThat(rc, notNullValue());
 
         String baseUrl = rc.getConnectionInfo().getDeployUrl();
-        String pomPath = "org/commonjava/indy/indy-core/0.17.0/indy-core-0.17.0.pom";
-        String jarPath = "org/commonjava/indy/indy-core/0.17.0/indy-core-0.17.0.jar";
+        String path = "org/commonjava/indy/indy-core/0.17.0/indy-core-0.17.0.pom";
+        String content = "This is a test";
 
         CloseableHttpClient client = HttpClientBuilder.create().build();
 
         // upload a couple files related to a single GAV using the repo session deployment url
         // this simulates a build deploying one jar and its associated POM
-        for (String path : new String[] { pomPath, jarPath }) {
-            final String url = UrlUtils.buildUrl(baseUrl, path);
+        final String url = UrlUtils.buildUrl(baseUrl, path);
 
-            HttpPut put = new HttpPut(url);
-            put.setEntity(new StringEntity("This is a test"));
+        HttpPut put = new HttpPut(url);
+        put.setEntity(new StringEntity(content));
 
-            boolean uploaded = client.execute(put, new ResponseHandler<Boolean>() {
-                @Override
-                public Boolean handleResponse(HttpResponse response) throws ClientProtocolException, IOException {
-                    try {
-                        return response.getStatusLine().getStatusCode() == 201;
-                    } finally {
-                        if (response instanceof CloseableHttpResponse) {
-                            IOUtils.closeQuietly((CloseableHttpResponse) response);
-                        }
+        boolean uploaded = client.execute(put, new ResponseHandler<Boolean>() {
+            @Override
+            public Boolean handleResponse(HttpResponse response) throws ClientProtocolException, IOException {
+                try {
+                    return response.getStatusLine().getStatusCode() == 201;
+                } finally {
+                    if (response instanceof CloseableHttpResponse) {
+                        IOUtils.closeQuietly((CloseableHttpResponse) response);
                     }
                 }
-            });
+            }
+        });
 
-            assertThat("Failed to upload: " + url, uploaded, equalTo(true));
-        }
+        assertThat("Failed to upload: " + url, uploaded, equalTo(true));
+
+        // download the two files via the repo session's dependency URL, which will proxy the test http server
+        // using the expectations above
+        assertThat(download(UrlUtils.buildUrl(baseUrl, path)), equalTo(content));
+
+        ProjectVersionRef pvr = new SimpleProjectVersionRef("org.commonjava.indy", "indy-core", "0.17.0");
+        String aref = new SimpleArtifactRef(pvr, "pom", null).toString();
 
         // extract the "built" artifacts we uploaded above.
         RepositoryManagerResult repositoryManagerResult = rc.extractBuildArtifacts();
 
         // check that both files are present in extracted result
-        List<BuiltArtifact> artifacts = repositoryManagerResult.getBuiltArtifacts();
-        System.out.println(artifacts);
+        List<BuiltArtifact> built = repositoryManagerResult.getBuiltArtifacts();
+        System.out.println(built);
 
-        assertThat(artifacts, notNullValue());
-        assertThat(artifacts.size(), equalTo(2));
+        assertThat(built, notNullValue());
+        assertThat(built.size(), equalTo(1));
 
-        ProjectVersionRef pvr = new SimpleProjectVersionRef("org.commonjava.indy", "indy-core", "0.17.0");
-        Set<String> refs = new HashSet<>();
-        refs.add(new SimpleArtifactRef(pvr, "pom", null).toString());
-        refs.add(new SimpleArtifactRef(pvr, "jar", null).toString());
+        BuiltArtifact builtArtifact = built.get(0);
+        assertThat(builtArtifact + " doesn't match pom ref: " + aref,
+                aref.equals(builtArtifact.getIdentifier()),
+                equalTo(true));
 
-        // check that the artifact getIdentifier() stores GAVT[C] information in the standard Maven rendering
-        for (Artifact artifact : artifacts) {
-            assertThat(artifact + " is not in the expected list of built artifacts: " + refs,
-                    refs.contains(artifact.getIdentifier()),
-                    equalTo(true));
-        }
+        List<Artifact> dependencies = repositoryManagerResult.getDependencies();
+        assertThat(dependencies, notNullValue());
+        assertThat(dependencies.size(), equalTo(1));
 
-        Indy indy = driver.getIndy();
+        Artifact dep = dependencies.get(0);
+        assertThat(dep.getIdentifier(), equalTo(aref));
 
-        // check that we can download the two files from the build repository
-        for (String path : new String[] { pomPath, jarPath }) {
-            final String url = indy.content().contentUrl(StoreType.hosted, rc.getBuildRepositoryId(), path);
-            boolean downloaded = client.execute(new HttpGet(url), new ResponseHandler<Boolean>() {
-                @Override
-                public Boolean handleResponse(HttpResponse response) throws ClientProtocolException, IOException {
-                    try {
-                        return response.getStatusLine().getStatusCode() == 200;
-                    } finally {
-                        if (response instanceof CloseableHttpResponse) {
-                            IOUtils.closeQuietly((CloseableHttpResponse) response);
-                        }
-                    }
-                }
-            });
+        assertThat((dep instanceof ImportedArtifact), equalTo(true));
 
-            assertThat("Failed to download: " + url, downloaded, equalTo(true));
-        }
+        ImportedArtifact idep = (ImportedArtifact) dep;
+        assertThat(idep.getOriginUrl(), notNullValue());
 
         client.close();
-
     }
 
 }

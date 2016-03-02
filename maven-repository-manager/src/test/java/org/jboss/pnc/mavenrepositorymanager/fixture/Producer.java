@@ -17,10 +17,10 @@
  */
 package org.jboss.pnc.mavenrepositorymanager.fixture;
 
-import org.commonjava.aprox.core.expire.ScheduleManager;
-import org.commonjava.aprox.inject.TestData;
-import org.commonjava.aprox.model.core.io.AproxObjectMapper;
-import org.commonjava.aprox.subsys.maven.MavenComponentManager;
+import org.commonjava.indy.core.expire.ScheduleManager;
+import org.commonjava.indy.inject.TestData;
+import org.commonjava.indy.model.core.io.IndyObjectMapper;
+import org.commonjava.indy.subsys.maven.MavenComponentManager;
 import org.commonjava.maven.galley.auth.AttributePasswordManager;
 import org.commonjava.maven.galley.spi.auth.PasswordManager;
 import org.commonjava.maven.galley.transport.htcli.Http;
@@ -33,7 +33,7 @@ import javax.enterprise.inject.Produces;
 @ApplicationScoped
 public class Producer {
 
-    private AproxObjectMapper objectMapper;
+    private IndyObjectMapper objectMapper;
 
     private MavenComponentManager componentManager;
 
@@ -42,7 +42,7 @@ public class Producer {
     private Http http;
 
     public Producer() {
-        objectMapper = new AproxObjectMapper(true);
+        objectMapper = new IndyObjectMapper(true);
         PasswordManager passman = new AttributePasswordManager();
         http = new HttpImpl(passman);
 
@@ -71,7 +71,7 @@ public class Producer {
     @Produces
     @Default
     @TestData
-    public AproxObjectMapper getObjectMapper() {
+    public IndyObjectMapper getObjectMapper() {
         return objectMapper;
     }
 

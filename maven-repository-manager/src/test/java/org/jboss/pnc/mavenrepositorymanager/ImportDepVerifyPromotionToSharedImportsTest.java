@@ -17,8 +17,8 @@
  */
 package org.jboss.pnc.mavenrepositorymanager;
 
-import org.commonjava.aprox.client.core.util.UrlUtils;
-import org.commonjava.aprox.model.core.StoreType;
+import org.commonjava.indy.client.core.util.UrlUtils;
+import org.commonjava.indy.model.core.StoreType;
 import org.jboss.pnc.mavenrepositorymanager.fixture.TestBuildExecution;
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.spi.repositorymanager.BuildExecution;
@@ -63,7 +63,7 @@ public class ImportDepVerifyPromotionToSharedImportsTest extends AbstractImportT
         assertThat(a.getFilename(), equalTo(new File(path).getName()));
 
         // end result: you should be able to download this artifact from shared-imports now.
-        assertThat(download(aprox.content().contentUrl(StoreType.hosted, SHARED_IMPORTS, path)), equalTo(content));
+        assertThat(download(indy.content().contentUrl(StoreType.hosted, SHARED_IMPORTS, path)), equalTo(content));
     }
 
 }
