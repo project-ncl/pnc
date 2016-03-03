@@ -137,7 +137,7 @@ public class BuildTaskEndpoint {
                 return Response.status(Response.Status.FORBIDDEN).build();
             }
 
-            logger.info("Staring new build execution for configuration: {}.", buildExecutionConfiguration.toString());
+            logger.info("Staring new build execution for configuration: {}. Caller requested a callback to {}.", buildExecutionConfiguration.toString(), callbackUrl);
             BuildExecutionSession buildExecutionSession = buildExecutorTriggerer.executeBuild(buildExecutionConfiguration.toBuildExecutionConfiguration(), callbackUrl);
 
             UriBuilder uriBuilder = UriBuilder.fromUri(uriInfo.getBaseUri()).path("/result/running/{id}");
