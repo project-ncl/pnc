@@ -78,9 +78,8 @@
           <label for="input-scm-repo-url" class="col-sm-2 control-label" ng-show="configurationForm.$visible">* SCM Url</label>
           <label for="input-scm-repo-url" class="col-sm-2 control-label" ng-show="!configurationForm.$visible">SCM Url</label>
           <div class="col-sm-10">
-            <p e-required e-type="url" id="input-scm-repo-url" class="form-control-static" e-class="form-control" editable-text="detailCtrl.configuration.scmRepoURL" e-name="scmRepoURL" e-maxlength="255">{{ detailCtrl.configuration.scmRepoURL || 'Empty' }}</p>
+            <p e-required e-type="text" id="input-scm-repo-url" class="form-control-static" e-class="form-control" editable-text="detailCtrl.configuration.scmRepoURL" e-name="scmRepoURL" e-maxlength="255">{{ detailCtrl.configuration.scmRepoURL || 'Empty' }}</p>
             <span class="help-block" ng-show="configurationForm.scmRepoURL.$error.required && configurationForm.scmRepoURL.$touched">Required field.</span>
-            <span class="help-block" ng-show="configurationForm.scmRepoURL.$error.url && configurationForm.scmRepoURL.$touched">Malformed URL.</span>
           </div>
         </div>
 
@@ -132,10 +131,10 @@
                <a href ui-sref="product.detail.version({ productId: version.productId, versionId: version.id })"><span class="text-bold">{{ version.productName }}</span> - {{ version.version }}</a>
               </li>
             </ul>
-            <pnc-infinite-select-product-versions 
+            <pnc-infinite-select-product-versions
               ng-show="configurationForm.$visible"
               selected-items="detailCtrl.productVersions.selected"
-              infinite-select-required="false" 
+              infinite-select-required="false"
               infinite-select-id="input-pv"
               placeholder="Scroll & Filter Product Versions..."
               items="detailCtrl.products">
@@ -169,11 +168,11 @@
              <p ng-hide="configurationForm.$visible" id="input-environment" class="form-control-static">{{ detailCtrl.environment.name }}</p>
              <pnc-infinite-select-items
                 ng-show="configurationForm.$visible"
-                single-item="true" 
+                single-item="true"
                 selected-items="detailCtrl.environmentSelection.selected"
                 infinite-select-required="true"
-                infinite-select-id="environmentId" 
-                placeholder="Scroll & Filter Environments..." 
+                infinite-select-id="environmentId"
+                placeholder="Scroll & Filter Environments..."
                 items="detailCtrl.environments"
                 item-id="detailCtrl.environment.id">
               </pnc-infinite-select-items>
