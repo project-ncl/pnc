@@ -33,6 +33,8 @@
       },
       templateUrl: 'common/pagination/directives/search-field.html',
       link: function (scope) {
+        scope.inputId = _.uniqueId('search_');
+
         scope.search = _.throttle(function() {
           scope.page.search(scope.searchText);
         }, 1500);
