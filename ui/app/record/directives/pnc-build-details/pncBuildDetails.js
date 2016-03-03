@@ -28,7 +28,7 @@
    * @example
    * @author Alex Creasy
   */
-  module.directive('pnc-build-details', [
+  module.directive('pncBuildDetails', [
     function() {
 
     var DEFAULT_TEMPLATE = 'record/directives/pnc-build-details/pnc-build-details.html';
