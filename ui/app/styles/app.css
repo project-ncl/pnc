@@ -168,3 +168,9 @@ button.debutton {
 .notification-area .close {
   display: block !important;
 }
+
+/* angular xeditable override */
+form .editable-wrap {
+  width: 100%;
+  max-width: 500px;
+}
