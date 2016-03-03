@@ -33,7 +33,7 @@
 
     var DEFAULT_TEMPLATE = 'record/directives/pnc-build-details/pnc-build-details.html';
 
-    function Controller($scope, $q, eventTypes, Build, BuildRecordDAO,
+    function Controller($scope, $q, eventTypes, BuildRecordDAO,
         BuildConfigurationDAO, ProjectDAO, EnvironmentDAO, UserDAO) {
 
       var self = this;
@@ -143,7 +143,6 @@
         '$scope',
         '$q',
         'eventTypes',
-        'Build',
         'BuildRecordDAO',
         'BuildConfigurationDAO',
         'ProjectDAO',
