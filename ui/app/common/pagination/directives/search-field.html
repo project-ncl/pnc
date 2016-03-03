@@ -17,14 +17,13 @@
     limitations under the License.
 
 -->
-<form class="form-inline">
   <div class="form-group">
-    <div class="input-group">
-      <input type="search" class="form-control" ng-model="searchText" ng-change="search()" placeholder="{{ 'Search ' + text + '&hellip;' }}">
+    <div class="input-group" role="search">
+      <label class="sr-only" for="{{ inputId }}">Filter Results</label>
+      <input id="{{ inputId }}" type="search" class="form-control" ng-model="searchText" ng-change="search()" placeholder="{{ 'Search ' + text + '&hellip;' }}">
       <div class="input-group-addon">
-        <i class="glyphicon glyphicon-search" ng-show="page.isLoaded"></i>
+        <i class="fa fa-search" ng-show="page.isLoaded"></i>
         <div class="spinner spinner-xs pull-right" ng-hide="page.isLoaded"></div>
       </div>
     </div>
   </div>
-</form>
