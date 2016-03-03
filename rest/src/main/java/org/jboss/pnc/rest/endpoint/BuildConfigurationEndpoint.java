@@ -522,7 +522,7 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
             @ApiParam(value = SORTING_DESCRIPTION) @QueryParam(SORTING_QUERY_PARAM) String sort,
             @ApiParam(value = QUERY_DESCRIPTION, required = false) @QueryParam(QUERY_QUERY_PARAM) String q,
             @ApiParam(value = "Build configuration id", required = true) @PathParam("id") Integer id) {
-        return fromCollection(buildRecordProvider.getRunningAndArchivedBuildRecordsForBuildConfiguration(pageIndex, pageSize, sort, q, id));
+        return fromCollection(buildRecordProvider.getRunningAndArchivedBuildRecordsOfBuildConfiguration(pageIndex, pageSize, sort, q, id));
     }
 
 }

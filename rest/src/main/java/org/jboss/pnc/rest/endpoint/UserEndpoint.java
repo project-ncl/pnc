@@ -25,15 +25,15 @@ import io.swagger.annotations.ApiResponses;
 
 import org.jboss.pnc.auth.AuthenticationProvider;
 import org.jboss.pnc.model.User;
+import org.jboss.pnc.rest.provider.BuildRecordProvider;
 import org.jboss.pnc.rest.provider.UserProvider;
 import org.jboss.pnc.rest.restmodel.UserRest;
-import org.jboss.pnc.rest.restmodel.response.Singleton;
 import org.jboss.pnc.rest.restmodel.response.error.ErrorResponseRest;
+import org.jboss.pnc.rest.swagger.response.BuildRecordPage;
 import org.jboss.pnc.rest.swagger.response.UserPage;
 import org.jboss.pnc.rest.swagger.response.UserSingleton;
 import org.jboss.pnc.rest.validation.exceptions.ValidationException;
 import org.jboss.pnc.spi.datastore.Datastore;
-import org.jboss.pnc.spi.exception.BuildConflictException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,7 +52,6 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.CONFLICTED_CODE;
@@ -79,8 +78,6 @@ import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_DESCRIPTION;
 
 import java.lang.invoke.MethodHandles;
-import java.net.URI;
-import java.net.URL;
 
 @Api(value = "/users", description = "User related information")
 @Path("/users")
@@ -89,7 +86,9 @@ import java.net.URL;
 public class UserEndpoint extends AbstractEndpoint<User, UserRest> {
 
     private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
-    
+
+    private BuildRecordProvider buildRecordProvider;
+
     @Context
     private HttpServletRequest httpServletRequest;
     private Datastore datastore;
@@ -98,8 +97,9 @@ public class UserEndpoint extends AbstractEndpoint<User, UserRest> {
     }
 
     @Inject
-    public UserEndpoint(UserProvider userProvider, Datastore datastore) {
+    public UserEndpoint(UserProvider userProvider, BuildRecordProvider buildRecordProvider, Datastore datastore) {
         super(userProvider);
+        this.buildRecordProvider = buildRecordProvider;
         this.datastore = datastore;
     }
 
@@ -191,6 +191,24 @@ public class UserEndpoint extends AbstractEndpoint<User, UserRest> {
     public Response update(@ApiParam(value = "User id", required = true) @PathParam("id") Integer id,
             UserRest userRest) throws ValidationException {
        return super.update(id, userRest);
+    }
+
+    @ApiOperation(value = "Get all BuildRecords (running and archived) triggered by this User, returns empty list if no build records are found")
+    @ApiResponses(value = {
+            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION, response = BuildRecordPage.class),
+            @ApiResponse(code = NO_CONTENT_CODE, message = NO_CONTENT_DESCRIPTION, response = BuildRecordPage.class),
+            @ApiResponse(code = INVLID_CODE, message = INVALID_DESCRIPTION, response = ErrorResponseRest.class),
+            @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION, response = ErrorResponseRest.class)
+    })
+    @GET
+    @Path("/{id}/builds")
+    public Response getBuilds(
+            @ApiParam(value = PAGE_INDEX_DESCRIPTION) @QueryParam(PAGE_INDEX_QUERY_PARAM) @DefaultValue(PAGE_INDEX_DEFAULT_VALUE) int pageIndex,
+            @ApiParam(value = PAGE_SIZE_DESCRIPTION) @QueryParam(PAGE_SIZE_QUERY_PARAM) @DefaultValue(PAGE_SIZE_DEFAULT_VALUE) int pageSize,
+            @ApiParam(value = SORTING_DESCRIPTION) @QueryParam(SORTING_QUERY_PARAM) String sort,
+            @ApiParam(value = QUERY_DESCRIPTION, required = false) @QueryParam(QUERY_QUERY_PARAM) String q,
+            @ApiParam(value = "User id", required = true) @PathParam("id") Integer id) {
+        return fromCollection(buildRecordProvider.getRunningAndArchivedBuildRecordsOfUser(pageIndex, pageSize, sort, q, id));
     }
 
 }
