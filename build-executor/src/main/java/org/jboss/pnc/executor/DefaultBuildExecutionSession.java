@@ -109,7 +109,7 @@ public class DefaultBuildExecutionSession implements BuildExecutionSession {
         log.debug("Updating build execution task {} status to {}.", getId(), statusChanged);
         this.status = status;
         onBuildExecutionStatusChangedEvent.accept(statusChanged);
-        log.trace("Fired events after build execution task {} update.", getId());
+        log.debug("Fired events after build execution task {} update.", getId());
     }
 
     private BuildResult getBuildResult() {
@@ -139,6 +139,7 @@ public class DefaultBuildExecutionSession implements BuildExecutionSession {
 
     @Override
     public void setException(ExecutorException executorException) {
+        log.debug("Setting exception: {}", executorException != null ? executorException.getMessage() : "null");
         this.executorException = executorException;
     }
 
@@ -154,6 +155,7 @@ public class DefaultBuildExecutionSession implements BuildExecutionSession {
 
     @Override
     public boolean hasFailed() {
+        log.debug("Has failed ? executorException: {} || failedReasonStatus: {}", executorException == null ? "" : executorException.getMessage(), failedReasonStatus );
         return executorException != null || failedReasonStatus != null;
     }
 

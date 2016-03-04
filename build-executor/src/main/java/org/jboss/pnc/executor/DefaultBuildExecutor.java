@@ -260,6 +260,12 @@ public class DefaultBuildExecutor implements BuildExecutor {
     }
 
     private Void completeExecution(BuildExecutionSession buildExecutionSession, Throwable e) {
+        if (e != null) {
+            log.debug("Finalizing FAILED execution. Exception: {}", e.getMessage());
+        } else {
+            log.debug("Finalizing SUCCESS execution.");
+        }
+
         buildExecutionSession.setStatus(BuildExecutionStatus.FINALIZING_EXECUTION);
 
         if (buildExecutionSession.getStartTime() == null) {
