@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.rest.restmodel;
 
+import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.rest.validation.groups.WhenCreatingNew;
 import org.jboss.pnc.rest.validation.groups.WhenUpdating;
@@ -24,6 +25,8 @@ import org.jboss.pnc.rest.validation.groups.WhenUpdating;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
+
 import java.util.Date;
 
 import static org.jboss.pnc.rest.utils.Utility.performIfNotNull;
@@ -216,6 +219,18 @@ public class BuildConfigurationAuditedRest implements GenericRestEntity<Integer>
 
     public void setEnvironment(BuildEnvironmentRest environment) {
         this.environment = environment;
+    }
+
+    @XmlTransient
+    public BuildConfigurationAudited.Builder toDBEntityBuilder() {
+        BuildConfigurationAudited.Builder builder = BuildConfigurationAudited.Builder.newBuilder()
+                .buildConfiguration(BuildConfiguration.Builder.newBuilder().id(id).name(name).description(description)
+                        .buildScript(buildScript).scmRepoURL(scmRepoURL).scmMirrorRepoURL(scmMirrorRepoURL)
+                        .scmRevision(scmRevision).scmMirrorRevision(scmMirrorRevision).creationTime(creationTime)
+                        .lastModificationTime(lastModificationTime).repositories(repositories)
+                        .project(project.toDBEntityBuilder().build()).buildEnvironment(environment.toDBEntityBuilder().build())
+                        .build());
+        return builder;
     }
 
 }

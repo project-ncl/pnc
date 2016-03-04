@@ -142,7 +142,7 @@ public class BuildTaskEndpoint {
 
             UriBuilder uriBuilder = UriBuilder.fromUri(uriInfo.getBaseUri()).path("/result/running/{id}");
             URI uri = uriBuilder.build(buildExecutionConfiguration.getId());
-            BuildRecordRest buildRecordRest = new BuildRecordRest(buildExecutionSession, null, buildExecutionConfiguration.getUser());
+            BuildRecordRest buildRecordRest = new BuildRecordRest(buildExecutionSession, null, buildExecutionConfiguration.getUser(), buildExecutionConfiguration.toBuildConfigurationAudited());
             Response response = Response.ok(uri).header("location", uri).entity(new Singleton(buildRecordRest)).build();
             return response;
         } catch (Exception e) {

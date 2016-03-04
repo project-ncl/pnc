@@ -121,7 +121,7 @@ public class BuildRecordProvider extends AbstractProvider<BuildRecord, BuildReco
         UserRest user = new UserRest(submittedBuild.getUser());
         BuildRecordRest buildRecRest = null;
         if (runningExecution != null) {
-            buildRecRest = new BuildRecordRest(runningExecution, submittedBuild.getSubmitTime(), user);
+            buildRecRest = new BuildRecordRest(runningExecution, submittedBuild.getSubmitTime(), user, submittedBuild.getBuildConfigurationAudited());
         } else {
             buildRecRest = new BuildRecordRest(
                     submittedBuild.getId(),
@@ -129,7 +129,8 @@ public class BuildRecordProvider extends AbstractProvider<BuildRecord, BuildReco
                     submittedBuild.getSubmitTime(),
                     submittedBuild.getStartTime(),
                     submittedBuild.getEndTime(),
-                    new UserRest(submittedBuild.getUser()));
+                    new UserRest(submittedBuild.getUser()),
+                    submittedBuild.getBuildConfigurationAudited());
         }
 
         buildRecRest.setBuildConfigurationId(submittedBuild.getBuildConfiguration().getId());

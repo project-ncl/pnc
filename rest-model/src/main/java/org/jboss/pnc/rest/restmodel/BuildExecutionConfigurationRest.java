@@ -20,12 +20,33 @@ package org.jboss.pnc.rest.restmodel;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import org.hibernate.annotations.ForeignKey;
+import org.hibernate.annotations.Index;
+import org.hibernate.annotations.Type;
+import org.jboss.pnc.model.BuildConfiguration;
+import org.jboss.pnc.model.BuildConfigurationAudited;
+import org.jboss.pnc.model.BuildEnvironment;
+import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.BuildType;
+import org.jboss.pnc.model.IdRev;
+import org.jboss.pnc.model.Project;
 import org.jboss.pnc.rest.utils.JsonOutputConverterMapper;
 import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
 
+import javax.persistence.Column;
+import javax.persistence.EmbeddedId;
+import javax.persistence.FetchType;
+import javax.persistence.Lob;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.validation.constraints.NotNull;
 import javax.xml.bind.annotation.XmlRootElement;
+
+import static org.jboss.pnc.rest.utils.Utility.performIfNotNull;
+
 import java.io.IOException;
+import java.util.Set;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
@@ -93,6 +114,20 @@ public class BuildExecutionConfigurationRest implements BuildExecutionConfigurat
                 scmMirrorRevision,
                 buildType
         );
+    }
+
+    public BuildConfigurationAudited toBuildConfigurationAudited() {
+        BuildConfigurationAudited buildConfigAudited = new BuildConfigurationAudited();
+        buildConfigAudited.setBuildRecordId(id);
+        buildConfigAudited.setIdRev(new IdRev(id, null));
+        buildConfigAudited.setRev(null);
+        buildConfigAudited.setName(name);
+        buildConfigAudited.setBuildScript(buildScript);
+        buildConfigAudited.setScmRepoURL(scmRepoURL);
+        buildConfigAudited.setScmRevision(scmRevision);
+        buildConfigAudited.setScmMirrorRepoURL(scmMirrorRepoURL);
+        buildConfigAudited.setScmMirrorRevision(scmMirrorRevision);
+        return buildConfigAudited;
     }
 
 
