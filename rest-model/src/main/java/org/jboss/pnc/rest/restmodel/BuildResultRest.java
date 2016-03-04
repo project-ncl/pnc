@@ -19,14 +19,13 @@
 package org.jboss.pnc.rest.restmodel;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.rest.utils.JsonMixInArtifact;
 import org.jboss.pnc.rest.utils.JsonOutputConverterMapper;
 import org.jboss.pnc.spi.BuildExecutionStatus;
 import org.jboss.pnc.spi.BuildResult;
+import org.jboss.pnc.spi.builddriver.BuildDriverResult;
 import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
-import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
 import org.jboss.pnc.spi.executor.exceptions.ExecutorException;
 
 import javax.xml.bind.annotation.XmlRootElement;
@@ -70,13 +69,10 @@ public class BuildResultRest implements Serializable {
             buildExecutionConfiguration = new BuildExecutionConfigurationRest(configuration);
         });
 
-        buildResult.getBuildDriverResult().ifPresent((result) -> {
-            try {
-                buildDriverResult = new BuildDriverResultRest(result);
-            } catch (BuildDriverException e) {
-                new RuntimeException(e);
-            }
-        });
+        if (buildResult.getBuildDriverResult().isPresent()) {
+            BuildDriverResult result = buildResult.getBuildDriverResult().get();
+            buildDriverResult = new BuildDriverResultRest(result);
+        }
 
         buildResult.getRepositoryManagerResult().ifPresent((result) -> {
             repositoryManagerResult = new RepositoryManagerResultRest(result);
