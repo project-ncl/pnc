@@ -234,7 +234,7 @@ public class DefaultBuildExecutor implements BuildExecutor {
 
     private Void retrieveRepositoryManagerResults(BuildExecutionSession buildExecutionSession) {
         try {
-            if (!buildExecutionSession.getStatus().hasFailed()) {
+            if (!buildExecutionSession.hasFailed()) {
                 buildExecutionSession.setStatus(BuildExecutionStatus.COLLECTING_RESULTS_FROM_REPOSITORY_NAMAGER);
                 RunningEnvironment runningEnvironment = buildExecutionSession.getRunningEnvironment();
                 buildExecutionSession.setRunningEnvironment(runningEnvironment);
