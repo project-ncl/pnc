@@ -65,6 +65,7 @@ public class BpmNotifier { //TODO rename: remove bpm for name
     }
 
     public void sendBuildExecutionCompleted(String uri, BuildResult buildResult) {
+        log.debug("Preparing to send build result to BPM " + buildResult + ".");
         BuildResultRest buildResultRest = null;
         String errMessage = "";
         try {
