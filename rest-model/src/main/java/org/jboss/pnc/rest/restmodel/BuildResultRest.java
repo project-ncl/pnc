@@ -82,6 +82,8 @@ public class BuildResultRest implements Serializable {
             repositoryManagerResult = new RepositoryManagerResultRest(result);
         });
 
+        buildResult.getFailedReasonStatus().ifPresent(result -> failedReasonStatus = result);
+
         exception = buildResult.getException().orElse(null);
     }
 
