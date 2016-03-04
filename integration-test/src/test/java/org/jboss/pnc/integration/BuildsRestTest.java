@@ -185,6 +185,70 @@ public class BuildsRestTest {
         assertThat(secondPage).hasSize(1);
     }
 
+    @Test
+    public void shouldFilterByUserId() throws Exception {
+        // given
+        String rsql = "user.id==1";
+
+        BuildTask mockedTask = mockBuildTask();
+        buildCoordinatorMock.addActiveTask(mockedTask);
+
+        // when
+        List<Integer> sorted = buildRestClient.all(true, 0, 50, rsql, null).getValue().stream().map(value -> value.getId())
+                .collect(Collectors.toList());
+
+        // then
+        assertThat(sorted).containsExactly(2);
+    }
+
+    @Test
+    public void shouldFilterByUsername() throws Exception {
+        // given
+        String rsql = "user.username==pnc-admin";
+
+        BuildTask mockedTask = mockBuildTask();
+        buildCoordinatorMock.addActiveTask(mockedTask);
+
+        // when
+        List<Integer> sorted = buildRestClient.all(true, 0, 50, rsql, null).getValue().stream().map(value -> value.getId())
+                .collect(Collectors.toList());
+
+        // then
+        assertThat(sorted).containsExactly(2);
+    }
+
+    @Test
+    public void shouldFilterByBuildConfigurationId() throws Exception {
+        // given
+        String rsql = "buildConfigurationAudited.idRev.id==1";
+
+        BuildTask mockedTask = mockBuildTask();
+        buildCoordinatorMock.addActiveTask(mockedTask);
+
+        // when
+        List<Integer> sorted = buildRestClient.all(true, 0, 50, rsql, null).getValue().stream().map(value -> value.getId())
+                .collect(Collectors.toList());
+
+        // then
+        assertThat(sorted).containsExactly(1);
+    }
+
+    @Test
+    public void shouldFilterByBuildConfigurationName() throws Exception {
+        // given
+        String rsql = "buildConfigurationAudited.name==jboss-modules-1.5.0";
+
+        BuildTask mockedTask = mockBuildTask();
+        buildCoordinatorMock.addActiveTask(mockedTask);
+
+        // when
+        List<Integer> sorted = buildRestClient.all(true, 0, 50, rsql, null).getValue().stream().map(value -> value.getId())
+                .collect(Collectors.toList());
+
+        // then
+        assertThat(sorted).containsExactly(1);
+    }
+
     protected BuildTask mockBuildTask() {
         BuildTask mockedTask = mock(BuildTask.class);
         doReturn(99).when(mockedTask).getId();
