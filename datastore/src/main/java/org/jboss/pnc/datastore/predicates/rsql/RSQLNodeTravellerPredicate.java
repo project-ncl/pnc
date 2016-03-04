@@ -82,13 +82,13 @@ public class RSQLNodeTravellerPredicate<Entity> {
             }
         });
 
-        operations.put(GreaterThanNode.class, (r, cb, clazz, operand, arguments) -> cb.greaterThan((Path) selectWithOperand(r, operand), arguments.get(0)));
-        operations.put(GreaterThanOrEqualNode.class, (r, cb, clazz, operand, arguments) -> cb.greaterThanOrEqualTo((Path)selectWithOperand(r, operand), arguments.get(0)));
-        operations.put(LessThanNode.class, (r, cb, clazz, operand, arguments) -> cb.lessThan((Path)selectWithOperand(r, operand), arguments.get(0)));
-        operations.put(LessThanOrEqualNode.class, (r, cb, clazz, operand, arguments) -> cb.lessThanOrEqualTo((Path)selectWithOperand(r, operand), arguments.get(0)));
-        operations.put(InNode.class, (r, cb, clazz, operand, arguments) -> ((Path) selectWithOperand(r, operand)).in(arguments));
-        operations.put(NotInNode.class, (r, cb, clazz, operand, arguments) -> cb.not((Path)selectWithOperand(r, operand)).in(arguments));
-        operations.put(LikeNode.class, (r, cb, clazz, operand, arguments) -> cb.like(cb.lower((Path)selectWithOperand(r, operand)), arguments.get(0).toLowerCase()));
+        operations.put(GreaterThanNode.class, (r, cb, clazz, operand, arguments) -> cb.greaterThan((Path) selectWithOperand(r, operand, clazz), arguments.get(0)));
+        operations.put(GreaterThanOrEqualNode.class, (r, cb, clazz, operand, arguments) -> cb.greaterThanOrEqualTo((Path)selectWithOperand(r, operand, clazz), arguments.get(0)));
+        operations.put(LessThanNode.class, (r, cb, clazz, operand, arguments) -> cb.lessThan((Path)selectWithOperand(r, operand, clazz), arguments.get(0)));
+        operations.put(LessThanOrEqualNode.class, (r, cb, clazz, operand, arguments) -> cb.lessThanOrEqualTo((Path)selectWithOperand(r, operand, clazz), arguments.get(0)));
+        operations.put(InNode.class, (r, cb, clazz, operand, arguments) -> ((Path) selectWithOperand(r, operand, clazz)).in(arguments));
+        operations.put(NotInNode.class, (r, cb, clazz, operand, arguments) -> cb.not((Path)selectWithOperand(r, operand, clazz)).in(arguments));
+        operations.put(LikeNode.class, (r, cb, clazz, operand, arguments) -> cb.like(cb.lower((Path)selectWithOperand(r, operand, clazz)), arguments.get(0).toLowerCase()));
 
         rootNode = new RSQLParser(new ExtendedRSQLNodesFactory()).parse(preprocessRSQL(rsql));
         selectingClass = entityClass;
@@ -111,7 +111,6 @@ public class RSQLNodeTravellerPredicate<Entity> {
                 private Predicate proceedSelection(ComparisonNode node) {
                     Transformer<Entity> transformation = operations.get(node.getClass());
                     Preconditions.checkArgument(transformation != null, "Operation not supported");
-
                     return transformation.transform(root, cb, selectingClass, node.getSelector(), node.getArguments());
                 }
 
