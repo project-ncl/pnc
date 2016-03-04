@@ -55,6 +55,7 @@ public class BuildExecutorTriggerer {
     public BuildExecutionSession executeBuild(BuildExecutionConfiguration buildExecutionConfig, String callbackUrl) throws CoreException, ExecutorException {
 
         Consumer<BuildExecutionStatusChangedEvent> onExecutionStatusChange = (statusChangedEvent) -> {
+            log.debug("Received BuildExecutionStatusChangedEvent: " + statusChangedEvent);
             if (callbackUrl != null && !callbackUrl.isEmpty()) {
                 statusChangedEvent.getBuildResult().ifPresent((buildResult) -> {
                     bpmNotifier.sendBuildExecutionCompleted(callbackUrl.toString(), buildResult);
