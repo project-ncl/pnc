@@ -256,8 +256,8 @@ public class BuildsRestTest {
         doReturn(99).when(mockedTask).getId();
         doReturn(mock(User.class)).when(mockedTask).getUser();
         doReturn(mock(BuildConfiguration.class)).when(mockedTask).getBuildConfiguration();
-        doReturn(mock(BuildConfigurationAudited.class)).when(mockedTask).getBuildConfigurationAudited();
         doReturn(mock(IdRev.class)).when(mockedTask).getBuildConfigurationAudited().getId();
+        doReturn(mock(BuildConfigurationAudited.class)).when(mockedTask).getBuildConfigurationAudited();
         return mockedTask;
     }
 }
