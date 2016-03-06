@@ -1,60 +1,83 @@
 {
-"@class":"ModuleConfigJson","name":"pnc-config",
-        "configs":[
-          {
-            "@module-config":"system-config",
-            "buildDriverId":"termd-build-driver",
-            "buildSchedulerId":"local-build-scheduler"
-          },
-          {
-            "@module-config":"termd-build-driver",
-            "username":"test",
-            "password":"test"
-          },
-          {
-            "@module-config":"maven-repo-driver",
-            "baseUrl":"${env.PNC_APROX_URL}"
-          },
-          {
-            "@module-config":"docker-environment-driver",
-            "ip":"${env.PNC_DOCKER_IP}",
-            "inContainerUser":"${env.PNC_DOCKER_CONT_USER}",
-            "inContainerUserPassword":"${env.PNC_DOCKER_CONT_PASSWORD}",
-            "dockerImageId":"${env.PNC_DOCKER_IMAGE_ID}",
-            "proxyServer":"${env.PNC_DOCKER_PROXY_SERVER}",
-            "proxyPort":"${env.PNC_DOCKER_PROXY_PORT}",            
-            "nonProxyHosts":"${env.PNC_DOCKER_NON_PROXY_HOSTS}",
-            "firewallAllowedDestinations":"${env.PNC_DOCKER_IMAGE_FIREWALL_ALLOWED}",
-            "disabled":"false"
-          },
-          {
-            "@module-config":"openshift-environment-driver",
-            "proxyServer":"${env.PNC_DOCKER_PROXY_SERVER}",
-            "proxyPort":"${env.PNC_DOCKER_PROXY_PORT}",
-            "firewallAllowedDestinations":"${env.PNC_FIREWALL_ALLOWED_DESTINATIONS}",
-            "restEndpointUrl":"${env.PNC_REST_ENDPOINT_URL}",
-            "restAuthToken":"${env.PNC_REST_AUTH_TOKEN}",
-            "buildAgentBindPath":"${env.PNC_BUILD_AGENT_BIND_PATH}",
-            "podNamespace":"${env.PNC_POD_NAMESPACE}",
-            "containerPort":"${env.PNC_CONTAINER_PORT}",
-            "imageId":"${env.PNC_BUILDER_IMAGE_ID}",
-            "disabled":"true",
-            "keepBuildAgentInstance" : true,
-            "exposeBuildAgentOnPublicUrl" : false
-          },
-          {
-            "@module-config":"authentication-config",
-            "username":"${env.PNC_EXT_OAUTH_USERNAME}",
-            "password":"${env.PNC_EXT_OAUTH_PASSWORD}",
-            "baseAuthUrl":"${env.PNC_EXT_REST_BASE_URL}"
-          },
-          {
-            "@module-config":"bpm-config",
-            "username":"${env.PNC_BPM_USERNAME}",
-            "password":"${env.PNC_BPM_PASSWORD}",
-            "bpmInstanceUrl":"${env.BPM_INSTANCE_URL}",
-            "deploymentId":"${env.BPM_DEPLOYMENT_ID}",
-            "processId":"${env.BPM_PROCESS_ID}"
-          }
-        ]
+    "@class": "ModuleConfigJson",
+    "name": "pnc-config",
+    "configs": [
+        {
+            "@module-group": "global",
+            "config": {
+                "aproxUrl": "${env.PNC_APROX_URL}",
+                "bpmUrl": "${env.BPM_INSTANCE_URL}",
+                "pncUrl": "${env.PNC_URL}",
+                "repourUrl": "${env.PNC_REPOUR_URL}",
+                "daUrl": "${env.PNC_DA_URL}"
+            }
+        },
+        {
+            "@module-group": "pnc",
+            "configs": [
+                {
+                    "@module-config": "system-config",
+                    "buildDriverId": "termd-build-driver",
+                    "buildSchedulerId": "local-build-scheduler",
+                    "executorThreadPoolSize": "1",
+                    "builderThreadPoolSize": "1"
+                },
+                {
+                    "@module-config": "termd-build-driver",
+                    "username": "test",
+                    "password": "test"
+                },
+                {
+                    "@module-config": "maven-repo-driver",
+                    "baseUrl": "${env.PNC_APROX_URL}"
+                },
+                {
+                    "@module-config": "docker-environment-driver",
+                    "ip": "${env.PNC_DOCKER_IP}",
+                    "inContainerUser": "${env.PNC_DOCKER_CONT_USER}",
+                    "inContainerUserPassword": "${env.PNC_DOCKER_CONT_PASSWORD}",
+                    "dockerImageId": "${env.PNC_DOCKER_IMAGE_ID}",
+                    "proxyServer": "${env.PNC_DOCKER_PROXY_SERVER}",
+                    "proxyPort": "${env.PNC_DOCKER_PROXY_PORT}",
+                    "nonProxyHosts": "${env.PNC_DOCKER_NON_PROXY_HOSTS}",
+                    "firewallAllowedDestinations": "${env.PNC_DOCKER_IMAGE_FIREWALL_ALLOWED}",
+                    "disabled": "false"
+                },
+                {
+                    "@module-config": "openshift-environment-driver",
+                    "proxyServer": "${env.PNC_DOCKER_PROXY_SERVER}",
+                    "proxyPort": "${env.PNC_DOCKER_PROXY_PORT}",
+                    "firewallAllowedDestinations": "${env.PNC_FIREWALL_ALLOWED_DESTINATIONS}",
+                    "restEndpointUrl": "${env.PNC_REST_ENDPOINT_URL}",
+                    "restAuthToken": "${env.PNC_REST_AUTH_TOKEN}",
+                    "buildAgentBindPath": "${env.PNC_BUILD_AGENT_BIND_PATH}",
+                    "podNamespace": "${env.PNC_POD_NAMESPACE}",
+                    "containerPort": "${env.PNC_CONTAINER_PORT}",
+                    "imageId": "${env.PNC_BUILDER_IMAGE_ID}",
+                    "disabled": "true",
+                    "keepBuildAgentInstance": true,
+                    "exposeBuildAgentOnPublicUrl": false
+                },
+                {
+                    "@module-config": "authentication-config",
+                    "username": "${env.PNC_EXT_OAUTH_USERNAME}",
+                    "password": "${env.PNC_EXT_OAUTH_PASSWORD}",
+                    "baseAuthUrl": "${env.PNC_EXT_REST_BASE_URL}"
+                },
+                {
+                    "@module-config": "bpm-config",
+                    "username": "${env.PNC_BPM_USERNAME}",
+                    "password": "${env.PNC_BPM_PASSWORD}",
+                    "bpmInstanceUrl": "${env.BPM_INSTANCE_URL}",
+                    "deploymentId": "${env.BPM_DEPLOYMENT_ID}",
+                    "processId": "${env.BPM_PROCESS_ID}"
+                }
+            ]
+        },
+        {
+            "@module-group": "da",
+            "config": {
+            }
+        }
+    ]
 }
