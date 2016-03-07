@@ -18,11 +18,14 @@
 
 package org.jboss.pnc.rest.utils;
 
-import org.jboss.pnc.model.Artifact;
-
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jdk7.Jdk7Module;
+import org.jboss.pnc.model.Artifact;
+
+import java.io.IOException;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
@@ -34,16 +37,23 @@ public class JsonOutputConverterMapper {
     static {
         mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
         mapper.addMixInAnnotations(Artifact.class, JsonMixInArtifact.class);
+        mapper.registerModule(new Jdk7Module());
+
+        mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
     }
 
     public static String apply(Object objectToBeConverted) {
         if(objectToBeConverted != null) {
             try {
                 return mapper.writeValueAsString(objectToBeConverted);
-            } catch (JsonProcessingException e) {
+            } catch (JsonProcessingException e) { //TODO remove exception masking
                 throw new IllegalArgumentException("Could not convert object to JSON", e);
             }
         }
         return "{}";
+    }
+
+    public static <T> T readValue(String serialized, Class<T> clazz) throws IOException {
+        return mapper.readValue(serialized, clazz);
     }
 }
