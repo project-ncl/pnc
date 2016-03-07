@@ -18,6 +18,7 @@
 package org.jboss.pnc.integration.client;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.jayway.restassured.http.ContentType;
 import com.jayway.restassured.response.Response;
 import com.jayway.restassured.specification.RequestSpecification;
@@ -27,8 +28,10 @@ import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.moduleconfig.AuthenticationModuleConfig;
 import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
+import org.jboss.pnc.integration.client.util.BuildConfigurationAuditedDeserializer;
 import org.jboss.pnc.integration.client.util.RestResponse;
 import org.jboss.pnc.integration.utils.AuthResource;
+import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -71,13 +74,13 @@ public abstract class AbstractRestClient<T> {
     protected AbstractRestClient(String collectionUrl, Class<T> entityClass, boolean withAuth) {
         this.entityClass = entityClass;
 
-        if(collectionUrl.endsWith("/")) {
+        if (collectionUrl.endsWith("/")) {
             this.collectionUrl = collectionUrl;
         } else {
             this.collectionUrl = collectionUrl + "/";
         }
 
-        if(withAuth) {
+        if (withAuth) {
             try {
                 initAuth();
             } catch (IOException | ConfigurationParseException e) {
@@ -88,7 +91,8 @@ public abstract class AbstractRestClient<T> {
 
     protected void initAuth() throws IOException, ConfigurationParseException {
         if (AuthResource.authEnabled() && !authInitialized) {
-            AuthenticationModuleConfig config = new Configuration().getModuleConfig(new PncConfigProvider<>(AuthenticationModuleConfig.class));
+            AuthenticationModuleConfig config = new Configuration()
+                    .getModuleConfig(new PncConfigProvider<>(AuthenticationModuleConfig.class));
             InputStream is = AbstractRestClient.class.getResourceAsStream("/keycloak.json");
             ExternalAuthentication ea = new ExternalAuthentication(is);
             authProvider = ea.authenticate(config.getUsername(), config.getPassword());
@@ -111,9 +115,9 @@ public abstract class AbstractRestClient<T> {
 
     protected Response get(String path, QueryParam... queryParams) {
         RequestSpecification specification = request().when();
-        if(queryParams != null && queryParams.length > 0) {
+        if (queryParams != null && queryParams.length > 0) {
             for (QueryParam qp : queryParams) {
-                if(qp != null) {
+                if (qp != null) {
                     specification.queryParam(qp.paramName, qp.paramValue);
                 }
             }
@@ -123,20 +127,14 @@ public abstract class AbstractRestClient<T> {
     }
 
     protected RequestSpecification request() {
-        return given()
-                .log().all()
-                .header("Accept", "application/json")
-                .header("Authorization", "Bearer " + access_token)
-                .contentType(ContentType.JSON)
-                .port(getHttpPort())
-                    .expect().log().all()
-                .request();
+        return given().log().all().header("Accept", "application/json").header("Authorization", "Bearer " + access_token)
+                .contentType(ContentType.JSON).port(getHttpPort()).expect().log().all().request();
     }
 
     public RestResponse<T> firstNotNull(boolean withValidation) {
         Response response = get(collectionUrl);
 
-        if(withValidation) {
+        if (withValidation) {
             response.then().statusCode(200);
         }
 
@@ -144,7 +142,7 @@ public abstract class AbstractRestClient<T> {
         try {
             object = response.then().extract().body().jsonPath().getObject("content[0]", entityClass);
         } catch (Exception e) {
-            if(withValidation) {
+            if (withValidation) {
                 throw new AssertionError("JSON unmarshalling error", e);
             }
         }
@@ -159,7 +157,7 @@ public abstract class AbstractRestClient<T> {
     public RestResponse<T> get(int id, boolean withValidation) {
         Response response = get(collectionUrl + id);
 
-        if(withValidation) {
+        if (withValidation) {
             response.then().statusCode(200);
         }
 
@@ -167,7 +165,7 @@ public abstract class AbstractRestClient<T> {
         try {
             object = response.jsonPath().getObject("content", entityClass);
         } catch (Exception e) {
-            if(withValidation) {
+            if (withValidation) {
                 throw new AssertionError("JSON unmarshalling error", e);
             }
         }
@@ -182,7 +180,7 @@ public abstract class AbstractRestClient<T> {
     public RestResponse<T> createNew(T obj, boolean withValidation) {
         Response response = post(collectionUrl, obj);
 
-        if(withValidation) {
+        if (withValidation) {
             response.then().statusCode(201);
         }
 
@@ -190,7 +188,7 @@ public abstract class AbstractRestClient<T> {
         try {
             object = response.thenReturn().jsonPath().getObject("content", entityClass);
         } catch (Exception e) {
-            if(withValidation) {
+            if (withValidation) {
                 throw new AssertionError("JSON unmarshalling error", e);
             }
         }
@@ -204,7 +202,7 @@ public abstract class AbstractRestClient<T> {
     public RestResponse<T> update(int id, T obj, boolean withValidation) {
         Response response = put(collectionUrl + id, obj);
 
-        if(withValidation) {
+        if (withValidation) {
             response.then().statusCode(200);
         }
 
@@ -218,7 +216,7 @@ public abstract class AbstractRestClient<T> {
     public RestResponse<T> delete(int id, boolean withValidation) {
         Response response = delete(collectionUrl + id);
 
-        if(withValidation) {
+        if (withValidation) {
             response.then().statusCode(200);
         }
 
@@ -232,17 +230,18 @@ public abstract class AbstractRestClient<T> {
     public RestResponse<List<T>> all(boolean withValidation, int pageIndex, int pageSize, String rsql, String sort) {
         QueryParam rsqlQueryParam = null;
         QueryParam sortQueryParam = null;
-        if(rsql != null) {
+        if (rsql != null) {
             rsqlQueryParam = new QueryParam("q", rsql);
         }
-        if(sort != null) {
+        if (sort != null) {
             sortQueryParam = new QueryParam("sort", sort);
         }
         QueryParam pageIndexQueryParam = new QueryParam("pageIndex", Integer.toString(pageIndex));
         QueryParam pageSizeQueryParam = new QueryParam("pageSize", "" + Integer.toString(pageSize));
         Response response = get(collectionUrl, rsqlQueryParam, sortQueryParam, pageIndexQueryParam, pageSizeQueryParam);
+        logger.info("response {} ", response.prettyPrint());
 
-        if(withValidation) {
+        if (withValidation) {
             response.then().statusCode(200);
         }
 
@@ -250,12 +249,17 @@ public abstract class AbstractRestClient<T> {
         try {
             List<? extends Map> beforeMappingList = response.jsonPath().getList("content");
             ObjectMapper objectMapper = new ObjectMapper();
-            for(Map obj : beforeMappingList) {
-                //because of the bug in RestAssured - we need to use another mapping library...
+            SimpleModule module = new SimpleModule();
+            module.addDeserializer(BuildConfigurationAudited.class, new BuildConfigurationAuditedDeserializer());
+            objectMapper.registerModule(module);
+
+            for (Map obj : beforeMappingList) {
+                // because of the bug in RestAssured - we need to use another mapping library...
                 object.add(objectMapper.convertValue(obj, entityClass));
             }
         } catch (Exception e) {
-            if(withValidation) {
+            logger.error("JSON unmarshalling error", e);
+            if (withValidation) {
                 throw new AssertionError("JSON unmarshalling error", e);
             }
         }
