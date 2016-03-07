@@ -70,6 +70,7 @@ import java.util.stream.Collectors;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @SuppressWarnings("ALL")
 @RunWith(Arquillian.class)
@@ -256,8 +257,9 @@ public class BuildsRestTest {
         doReturn(99).when(mockedTask).getId();
         doReturn(mock(User.class)).when(mockedTask).getUser();
         doReturn(mock(BuildConfiguration.class)).when(mockedTask).getBuildConfiguration();
-        doReturn(mock(IdRev.class)).when(mockedTask).getBuildConfigurationAudited().getId();
         doReturn(mock(BuildConfigurationAudited.class)).when(mockedTask).getBuildConfigurationAudited();
+//        doReturn(mock(IdRev.class)).when(mockedTask).getBuildConfigurationAudited().getId();
+        when(mockedTask.getBuildConfigurationAudited().getId()).thenReturn(mock(IdRev.class));
         return mockedTask;
     }
 }
