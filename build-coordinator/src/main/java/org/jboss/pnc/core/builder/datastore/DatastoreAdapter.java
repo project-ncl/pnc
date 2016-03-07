@@ -26,6 +26,7 @@ import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.spi.BuildResult;
 import org.jboss.pnc.spi.builddriver.BuildDriverResult;
+import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
 import org.jboss.pnc.spi.datastore.Datastore;
 import org.jboss.pnc.spi.datastore.DatastoreException;
 import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
@@ -77,12 +78,12 @@ public class DatastoreAdapter {
     public void storeResult(BuildTask buildTask, BuildResult buildResult) throws DatastoreException {
 
         if (!buildResult.getBuildDriverResult().isPresent()) {
-            storeResult(buildTask, new BuildCoordinationException("Trying to store success build with incomplete result. Missing BuildDriverResult."));
+            storeResult(buildTask, buildResult, new BuildCoordinationException("Trying to store success build with incomplete result. Missing BuildDriverResult."));
             return;
         }
 
         if (!buildResult.getRepositoryManagerResult().isPresent()) {
-            storeResult(buildTask, new BuildCoordinationException("Trying to store success build with incomplete result. Missing RepositoryManagerResult."));
+            storeResult(buildTask, buildResult, new BuildCoordinationException("Trying to store success build with incomplete result. Missing RepositoryManagerResult."));
             return;
         }
 
@@ -106,23 +107,37 @@ public class DatastoreAdapter {
             log.debugf("Storing results of buildTask [%s] to datastore.", buildTask.getId());
             datastore.storeCompletedBuild(buildRecordBuilder, buildTask.getBuildRecordSetIds());
         } catch (Exception e) {
-            storeResult(buildTask, e);
+            storeResult(buildTask, buildResult, e);
         }
     }
 
     public void storeResult(BuildTask buildTask, Throwable e) throws DatastoreException {
+        storeResult(buildTask, null, e);
+    }
+
+    private void storeResult(BuildTask buildTask, BuildResult buildResult, Throwable e) throws DatastoreException {
         BuildRecord.Builder buildRecordBuilder = initBuildRecordBuilder(buildTask, Optional.<String>empty());
-        StringWriter stackTraceWriter = new StringWriter();
-        PrintWriter stackTracePrinter = new PrintWriter(stackTraceWriter);
-        e.printStackTrace(stackTracePrinter);
         buildRecordBuilder.status(SYSTEM_ERROR);
 
-        String errorMessage = "Last build status: " + buildTask.getStatus().toString() + "\n";
-        errorMessage += "Caught exception: " + stackTraceWriter.toString();
-        buildRecordBuilder.buildLog(errorMessage);
+        StringBuilder errorLog = new StringBuilder();
+        if (buildResult != null && buildResult.getBuildDriverResult().isPresent()) {
+            try {
+                errorLog.append(buildResult.getBuildDriverResult().get().getBuildLog());
+                errorLog.append("\n---- End Build Log ----\n");
+            } catch (BuildDriverException e1) {
+                errorLog.append("Unable to retrieve build log\n");
+            }
+        }
+        errorLog.append("Last build status: " + buildTask.getStatus().toString() + "\n");
+        errorLog.append("Caught exception: " + e.toString() + "\n");
+        StringWriter stackTraceWriter = new StringWriter();
+        e.printStackTrace(new PrintWriter(stackTraceWriter));
+        errorLog.append(stackTraceWriter.getBuffer());
+        buildRecordBuilder.buildLog(errorLog.toString());
+
         buildRecordBuilder.endTime(Date.from(Instant.now()));
 
-        log.debugf("Storing ERROR result of %s to datastore. Error: %s", buildTask.getBuildConfigurationAudited().getName() + "\n\n\n Exception: " + errorMessage, e);
+        log.debugf("Storing ERROR result of %s to datastore. Error: %s", buildTask.getBuildConfigurationAudited().getName() + "\n\n\n Exception: " + errorLog, e);
         datastore.storeCompletedBuild(buildRecordBuilder, buildTask.getBuildRecordSetIds());
     }
 
