@@ -20,16 +20,19 @@ package org.jboss.pnc.mock.spi;
 
 import org.jboss.pnc.mock.builddriver.BuildDriverResultMock;
 import org.jboss.pnc.mock.executor.BuildExecutionConfigurationMock;
+import org.jboss.pnc.mock.executor.BuildProcessExceptionMock;
 import org.jboss.pnc.mock.repositorymanager.RepositoryManagerResultMock;
 import org.jboss.pnc.spi.BuildExecutionStatus;
 import org.jboss.pnc.spi.BuildResult;
 import org.jboss.pnc.spi.builddriver.BuildDriverResult;
 import org.jboss.pnc.spi.builddriver.BuildDriverStatus;
+import org.jboss.pnc.spi.environment.DestroyableEnvironment;
 import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
 import org.jboss.pnc.spi.executor.exceptions.ExecutorException;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
 
 import java.util.Optional;
+import java.util.concurrent.CompletionException;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
@@ -40,7 +43,8 @@ public class BuildResultMock {
         BuildExecutionConfiguration buildExecutionConfig = BuildExecutionConfigurationMock.mockConfig();
         BuildDriverResult buildDriverResult = BuildDriverResultMock.mockResult(status);
         RepositoryManagerResult repositoryManagerResult = RepositoryManagerResultMock.mockResult();
-        ExecutorException exception = new ExecutorException("Test exception.", new Exception("Test exception cause."));
+        ExecutorException exception = buildException();
+
         BuildExecutionStatus buildExecutionStatus;
         if (status.completedSuccessfully()) {
             buildExecutionStatus = null;
@@ -56,4 +60,13 @@ public class BuildResultMock {
                 Optional.ofNullable(buildExecutionStatus));
 
     }
+
+    private static ExecutorException buildException() {
+        DestroyableEnvironment destroyableEnvironment = DestroyableEnvironmentMock.build();
+        return new ExecutorException("",
+                new CompletionException(
+                        new BuildProcessExceptionMock(
+                                new Exception(""), destroyableEnvironment)));
+    }
+
 }
