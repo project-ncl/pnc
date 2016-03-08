@@ -17,27 +17,19 @@
  */
 package org.jboss.pnc.rest.restmodel;
 
-import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.rest.validation.groups.WhenCreatingNew;
 import org.jboss.pnc.rest.validation.groups.WhenUpdating;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
 import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlTransient;
-
-import java.lang.invoke.MethodHandles;
 import java.util.Date;
 
 import static org.jboss.pnc.rest.utils.Utility.performIfNotNull;
 
 @XmlRootElement(name = "BuildConfigurationAudited")
 public class BuildConfigurationAuditedRest implements GenericRestEntity<Integer> {
-
-    public static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
     @NotNull(groups = WhenUpdating.class)
     @Null(groups = WhenCreatingNew.class)
@@ -224,23 +216,6 @@ public class BuildConfigurationAuditedRest implements GenericRestEntity<Integer>
 
     public void setEnvironment(BuildEnvironmentRest environment) {
         this.environment = environment;
-    }
-
-    @XmlTransient
-    public BuildConfigurationAudited.Builder toDBEntityBuilder() {
-
-        BuildConfiguration.Builder buildConfigBuilder = BuildConfiguration.Builder.newBuilder().id(id).name(name)
-                .description(description).buildScript(buildScript).scmRepoURL(scmRepoURL).scmMirrorRepoURL(scmMirrorRepoURL)
-                .scmRevision(scmRevision).scmMirrorRevision(scmMirrorRevision).creationTime(creationTime)
-                .lastModificationTime(lastModificationTime).repositories(repositories);
-
-        performIfNotNull(this.project, () -> buildConfigBuilder.project(this.project.toDBEntityBuilder().build()));
-        performIfNotNull(this.environment,
-                () -> buildConfigBuilder.buildEnvironment(this.environment.toDBEntityBuilder().build()));
-
-        BuildConfigurationAudited.Builder builder = BuildConfigurationAudited.Builder.newBuilder()
-                .buildConfiguration(buildConfigBuilder.build());
-        return builder;
     }
 
 }
