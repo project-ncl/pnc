@@ -108,12 +108,12 @@ public class BuildExecutorMock extends DefaultBuildExecutor implements BuildExec
         } else {
             log.debug("Marking build {} as Success.", buildExecutionSession.getId());
             driverResult = BuildDriverResultMock.mockResult(BuildDriverStatus.SUCCESS);
+            RepositoryManagerResult repositoryManagerResult = RepositoryManagerResultMock.mockResult();
+            buildExecutionSession.setRepositoryManagerResult(repositoryManagerResult);
             buildPassed = true;
         }
 
-        RepositoryManagerResult repositoryManagerResult = RepositoryManagerResultMock.mockResult();;
         buildExecutionSession.setBuildDriverResult(driverResult);
-        buildExecutionSession.setRepositoryManagerResult(repositoryManagerResult);
         return buildPassed;
     }
 

@@ -211,10 +211,10 @@ public class BuildCoordinator {
                 if (buildResult.hasFailed()) {
                     if (buildResult.getException().isPresent()) {
                         ExecutorException exception = buildResult.getException().get();
-                        datastoreAdapter.storeResult(buildTask, exception);
+                        datastoreAdapter.storeErroneousResult(buildTask, exception);
                         coordinationStatus = BuildCoordinationStatus.SYSTEM_ERROR;
                     } else if (buildResult.getFailedReasonStatus().isPresent()) {
-                        datastoreAdapter.storeResult(buildTask, buildResult);
+                        datastoreAdapter.storeFailedResult(buildTask, buildResult);
                         coordinationStatus = BuildCoordinationStatus.DONE_WITH_ERRORS;
                     } else {
                         removeSubmittedTask(buildTask);
@@ -262,7 +262,7 @@ public class BuildCoordinator {
             buildTask.setStatusDescription(e.getMessage());
             removeSubmittedTask(buildTask);
             try {
-                datastoreAdapter.storeResult(buildTask, e);
+                datastoreAdapter.storeErroneousResult(buildTask, e);
             } catch (DatastoreException e1) {
                 log.error("Unable to store error [" + e.getMessage() + "] of build coordination task [" + buildTask.getId() + "].", e1);
             }
