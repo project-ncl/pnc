@@ -38,13 +38,19 @@ import org.jboss.pnc.termdbuilddriver.commands.TermdCommandExecutionException;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.lang.invoke.MethodHandles;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class TermdBuildDriverTest extends AbstractLocalBuildAgentTest {
-    
+
+    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
     BuildConfigurationAudited jsr107BuildConfig;
     BuildExecutionSession buildExecutionMock;
@@ -149,6 +155,47 @@ public class TermdBuildDriverTest extends AbstractLocalBuildAgentTest {
 //TODO move to envDriver
 //        verify(buildExecutionMock, times(1)).setLogsWebSocketLink(any(URI.class));
 //        verify(buildExecutionMock, times(1)).clearLogsWebSocketLink();
+    }
+
+    @Test(timeout = 60_000)
+    public void shouldFetchFromGitAndBuild() throws Exception {
+        //given
+        Path tmpRepo = Files.createTempDirectory("tmpRepo");
+        String repoPath = "file://" + tmpRepo.toAbsolutePath().toString() + "/test-repo";
+        ZipUtils.unzipToDir(tmpRepo, "/repo.zip");
+        String dirName = "test-repo-cloned";
+
+        TermdBuildDriver driver = new TermdBuildDriver(getConfiguration());
+        BuildExecutionSession buildExecution = mock(BuildExecutionSession.class);
+        BuildExecutionConfiguration buildExecutionConfiguration = mock(BuildExecutionConfiguration.class);
+        doReturn(repoPath).when(buildExecutionConfiguration).getScmRepoURL();
+        doReturn("master").when(buildExecutionConfiguration).getScmRevision();
+        doReturn("mvn validate").when(buildExecutionConfiguration).getBuildScript();
+        doReturn(dirName).when(buildExecutionConfiguration).getName();
+        doReturn(buildExecutionConfiguration).when(buildExecution).getBuildExecutionConfiguration();
+
+        AtomicReference<CompletedBuild> buildResult = new AtomicReference<>();
+
+        //when
+        RunningBuild runningBuild = driver.startProjectBuild(buildExecution, localEnvironmentPointer);
+        runningBuild.monitor(buildResult::set, exception -> fail(exception.getMessage()));
+
+        logger.info("==== shouldFetchFromGitAndBuild logs ====");
+        logger.info(buildResult.get().getBuildResult().getBuildLog());
+        logger.info("==== /shouldFetchFromGitAndBuild logs ====");
+
+        //then
+        assertThat(buildResult.get().getBuildResult()).isNotNull();
+        assertThat(buildResult.get().getBuildResult().getBuildLog()).isNotEmpty();
+        assertThat(Files.exists(localEnvironmentPointer.getWorkingDirectory())).isTrue();
+        assertThat(Files.exists(localEnvironmentPointer.getWorkingDirectory().resolve(dirName))).isTrue();
+    }
+
+    private Configuration getConfiguration() throws ConfigurationParseException {
+        SystemConfig systemConfig = mock(SystemConfig.class);
+        Configuration configuration = mock(Configuration.class);
+        doReturn(systemConfig).when(configuration).getModuleConfig(any());
+        return configuration;
     }
 
 }
