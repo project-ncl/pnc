@@ -241,10 +241,6 @@ public abstract class AbstractRestClient<T> {
         Response response = get(collectionUrl, rsqlQueryParam, sortQueryParam, pageIndexQueryParam, pageSizeQueryParam);
         logger.info("response {} ", response.prettyPrint());
 
-        if (withValidation) {
-            response.then().statusCode(200);
-        }
-
         List<T> object = new ArrayList<>();
         try {
             List<? extends Map> beforeMappingList = response.jsonPath().getList("content");
@@ -261,6 +257,14 @@ public abstract class AbstractRestClient<T> {
             logger.error("JSON unmarshalling error", e);
             if (withValidation) {
                 throw new AssertionError("JSON unmarshalling error", e);
+            }
+        }
+
+        if (withValidation) {
+            if (!object.isEmpty()) {
+                response.then().statusCode(200);
+            } else {
+                response.then().statusCode(204);
             }
         }
 

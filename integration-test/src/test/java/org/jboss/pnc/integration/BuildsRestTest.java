@@ -206,7 +206,7 @@ public class BuildsRestTest {
     @Test
     public void shouldFilterByUsername() throws Exception {
         // given
-        String rsql = "user.username==pnc-admin";
+        String rsql = "user.username==demo-user";
 
         BuildTask mockedTask = mockBuildTask();
         buildCoordinatorMock.addActiveTask(mockedTask);
