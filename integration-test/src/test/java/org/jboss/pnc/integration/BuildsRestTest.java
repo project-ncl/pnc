@@ -41,15 +41,12 @@ import org.jboss.arquillian.junit.InSequence;
 import org.jboss.pnc.core.builder.coordinator.BuildTask;
 import org.jboss.pnc.integration.client.AbstractRestClient;
 import org.jboss.pnc.integration.client.BuildRestClient;
-import org.jboss.pnc.integration.client.util.BuildConfigurationAuditedDeserializer;
 import org.jboss.pnc.integration.client.util.RestResponse;
 import org.jboss.pnc.integration.deployments.Deployments;
 import org.jboss.pnc.integration.env.IntegrationTestEnv;
 import org.jboss.pnc.integration.utils.AuthResource;
 import org.jboss.pnc.mock.coordinator.BuildCoordinatorMock;
 import org.jboss.pnc.model.BuildConfiguration;
-import org.jboss.pnc.model.BuildConfigurationAudited;
-import org.jboss.pnc.model.IdRev;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.rest.provider.BuildRecordProvider;
 import org.jboss.pnc.rest.restmodel.BuildRecordRest;
@@ -71,7 +68,6 @@ import java.util.stream.Collectors;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 @SuppressWarnings("ALL")
 @RunWith(Arquillian.class)
@@ -102,7 +98,6 @@ public class BuildsRestTest {
     protected static void addRestClientClasses(WebArchive war) {
         war.addClass(BuildRestClient.class);
         war.addClass(AbstractRestClient.class);
-        war.addClass(BuildConfigurationAuditedDeserializer.class);
         war.addClass(AuthResource.class);
         war.addClass(IntegrationTestEnv.class);
         war.addClass(RestResponse.class);
@@ -111,7 +106,7 @@ public class BuildsRestTest {
 
     @Before
     public void before() {
-        if (buildRestClient == null) {
+        if(buildRestClient == null) {
             buildRestClient = new BuildRestClient();
         }
         buildCoordinatorMock.clearActiveTasks();
@@ -120,7 +115,8 @@ public class BuildsRestTest {
     @Test
     @InSequence(-1)
     public void sanityTests() throws Exception {
-        assertThat(buildRecordProvider.getAll(0, 99, "", "").getContent()).hasSize(2)
+        assertThat(buildRecordProvider.getAll(0, 99, "", "").getContent())
+                .hasSize(2)
                 .overridingErrorMessage("2 BuildRecords are expected in DB before running this test");
 
         assertThat(buildCoordinatorMock).isNotNull();
@@ -128,143 +124,65 @@ public class BuildsRestTest {
 
     @Test
     public void shouldGetAllArchivedBuildRecords() throws Exception {
-        // given
+        //given
         buildCoordinatorMock.addActiveTask(mockBuildTask());
         buildCoordinatorMock.addActiveTask(mockBuildTask());
 
-        // when
+        //when
         RestResponse<List<BuildRecordRest>> all = buildRestClient.all();
 
-        // then
+        //then
         assertThat(all.getValue()).hasSize(4);
     }
 
     @Test
     public void shouldSortResults() throws Exception {
-        // given
+        //given
         String sort = "=desc=id";
 
         BuildTask mockedTask = mockBuildTask();
         buildCoordinatorMock.addActiveTask(mockedTask);
 
-        // when
-        List<Integer> sorted = buildRestClient.all(true, 0, 50, null, sort).getValue().stream().map(value -> value.getId())
+        //when
+        List<Integer> sorted = buildRestClient.all(true, 0, 50, null, sort).getValue().stream()
+                .map(value -> value.getId())
                 .collect(Collectors.toList());
 
-        // then
+        //then
         assertThat(sorted).containsExactly(99, 2, 1);
     }
 
     @Test
     public void shouldFilterResults() throws Exception {
-        // given
+        //given
         String rsql = "id==1";
 
         BuildTask mockedTask = mockBuildTask();
         buildCoordinatorMock.addActiveTask(mockedTask);
 
-        // when
-        List<Integer> sorted = buildRestClient.all(true, 0, 50, rsql, null).getValue().stream().map(value -> value.getId())
+        //when
+        List<Integer> sorted = buildRestClient.all(true, 0, 50, rsql, null).getValue().stream()
+                .map(value -> value.getId())
                 .collect(Collectors.toList());
 
-        // then
+        //then
         assertThat(sorted).containsExactly(1);
     }
 
     @Test
     public void shouldSupportPaging() throws Exception {
-        // given
+        //given
         String sort = "=desc=id";
 
         buildCoordinatorMock.addActiveTask(mockBuildTask());
 
-        // when
+        //when
         List<BuildRecordRest> firstPage = buildRestClient.all(true, 0, 1, null, sort).getValue();
         List<BuildRecordRest> secondPage = buildRestClient.all(true, 1, 1, null, sort).getValue();
 
-        // then
+        //then
         assertThat(firstPage).hasSize(1);
         assertThat(secondPage).hasSize(1);
-    }
-
-    @Test
-    public void shouldFilterByUserId() throws Exception {
-        // given
-        String rsql = "user.id==1";
-
-        BuildTask mockedTask = mockBuildTask();
-        buildCoordinatorMock.addActiveTask(mockedTask);
-
-        // when
-        List<Integer> sorted = buildRestClient.all(true, 0, 50, rsql, null).getValue().stream().map(value -> value.getId())
-                .collect(Collectors.toList());
-
-        // then
-        assertThat(sorted).containsExactly(1, 2);
-    }
-
-    @Test
-    public void shouldFilterByUsername() throws Exception {
-        // given
-        String rsql = "user.username==demo-user";
-
-        BuildTask mockedTask = mockBuildTask();
-        buildCoordinatorMock.addActiveTask(mockedTask);
-
-        // when
-        List<Integer> sorted = buildRestClient.all(true, 0, 50, rsql, null).getValue().stream().map(value -> value.getId())
-                .collect(Collectors.toList());
-
-        // then
-        assertThat(sorted).containsExactly(1, 2);
-    }
-
-    @Test
-    public void shouldFilterByBuildConfigurationId() throws Exception {
-        // given
-        String rsql = "buildConfigurationAudited.idRev.id==1";
-
-        BuildTask mockedTask = mockBuildTask();
-        buildCoordinatorMock.addActiveTask(mockedTask);
-
-        // when
-        List<Integer> sorted = buildRestClient.all(true, 0, 50, rsql, null).getValue().stream().map(value -> value.getId())
-                .collect(Collectors.toList());
-
-        // then
-        assertThat(sorted).containsExactly(1);
-    }
-
-    @Test
-    public void shouldFilterByBuildConfigurationName() throws Exception {
-        // given
-        String rsql = "buildConfigurationAudited.name==jboss-modules-1.5.0";
-
-        BuildTask mockedTask = mockBuildTask();
-        buildCoordinatorMock.addActiveTask(mockedTask);
-
-        // when
-        List<Integer> sorted = buildRestClient.all(true, 0, 50, rsql, null).getValue().stream().map(value -> value.getId())
-                .collect(Collectors.toList());
-
-        // then
-        assertThat(sorted).containsExactly(2);
-    }
-
-    @Test
-    public void shouldFilterByNotExistingBuildConfigurationName() throws Exception {
-        // given
-        String rsql = "buildConfigurationAudited.name==jboss-modules-1.5.1";
-
-        BuildTask mockedTask = mockBuildTask();
-        buildCoordinatorMock.addActiveTask(mockedTask);
-
-        // when
-        List<Integer> sorted = buildRestClient.all(true, 0, 50, rsql, null).getValue().stream().map(value -> value.getId())
-                .collect(Collectors.toList());
-
-        // then
-        assertThat(sorted).isEmpty();
     }
 
     protected BuildTask mockBuildTask() {
@@ -272,11 +190,6 @@ public class BuildsRestTest {
         doReturn(99).when(mockedTask).getId();
         doReturn(mock(User.class)).when(mockedTask).getUser();
         doReturn(mock(BuildConfiguration.class)).when(mockedTask).getBuildConfiguration();
-        when(mockedTask.getBuildConfigurationAudited()).thenReturn(mock(BuildConfigurationAudited.class));
-        when(mockedTask.getBuildConfigurationAudited().getId()).thenReturn(mock(IdRev.class));
-        when(mockedTask.getBuildConfigurationAudited().getId().getId()).thenReturn(999);
-        when(mockedTask.getUser().getId()).thenReturn(99);
-        when(mockedTask.getUser().getUsername()).thenReturn("test-username");
         return mockedTask;
     }
 }

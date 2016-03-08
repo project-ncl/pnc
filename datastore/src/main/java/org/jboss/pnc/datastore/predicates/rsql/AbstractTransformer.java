@@ -17,74 +17,33 @@
  */
 package org.jboss.pnc.datastore.predicates.rsql;
 
-import javax.persistence.EmbeddedId;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Join;
 import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.lang.invoke.MethodHandles;
-import java.lang.reflect.Field;
 import java.util.List;
 
 abstract class AbstractTransformer<Entity> implements Transformer<Entity> {
 
-    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
-
     private final ArgumentHelper argumentHelper = new ArgumentHelper();
 
     @Override
-    public Predicate transform(Root<Entity> r, CriteriaBuilder cb, Class<?> selectingClass, String operand,
-            List<String> arguments) {
-        return transform(r, selectWithOperand(r, operand, selectingClass), cb, operand,
-                argumentHelper.getConvertedType(selectingClass, operand, arguments));
+    public Predicate transform(Root<Entity> r, CriteriaBuilder cb, Class<?> selectingClass, String operand, List<String> arguments) {
+        return transform(r, selectWithOperand(r, operand), cb, operand, argumentHelper.getConvertedType(selectingClass, operand, arguments));
     }
 
-    public static Path<?> selectWithOperand(Root<?> root, String operand, Class clazz) {
-        Class<?> currentClass = clazz;
-        boolean isFieldEmbedded = false;
-        String[] fields = operand.split("\\.");
-
+    public static Path<?> selectWithOperand(Root<?> root, String operand) {
+        String [] fields = operand.split("\\.");
         Path<?> path = root;
-        for (int i = 0; i < fields.length - 1; i++) {
-
-            try {
-                // Get the field declaration
-                Field field = currentClass.getDeclaredField(fields[i]);
-                // Is the field annotated with EmbeddedId class?
-                isFieldEmbedded = field.getAnnotation(EmbeddedId.class) != null ? true : false;
-                // search the field class recursively
-                currentClass = field.getType();
-            } catch (NoSuchFieldException e) {
-                throw new RSQLConverterException("Unable to get class for field " + fields[i], e);
-            }
-
-            logger.info("field {} is EMBEDDED {}", fields[i], isFieldEmbedded);
-
-            if (i == 0) {
-                if (!isFieldEmbedded) {
-                    path = ((Root<?>) path).join(fields[i]);
-                } else {
-                    // do not join as it's embedded
-                    path = ((Root<?>) path).get(fields[i]);
-                }
-            } else {
-                if (!isFieldEmbedded) {
-                    path = ((Join<?, ?>) path).join(fields[i]);
-                } else {
-                    // do not join as it's embedded
-                    path = ((Join<?, ?>) path).get(fields[i]);
-                }
-            }
+        for(int i = 0; i < fields.length - 1; i++) {
+            if(i == 0)
+                path = ((Root<?>)path).join(fields[i]);
+            else
+                path = ((Join<?, ?>)path).join(fields[i]);
         }
-
         return path.get(fields[fields.length - 1]);
     }
 
-    abstract Predicate transform(Root<Entity> r, Path<?> selectedPath, CriteriaBuilder cb, String operand,
-            List<Object> convertedArguments);
+    abstract Predicate transform(Root<Entity> r, Path<?> selectedPath, CriteriaBuilder cb, String operand, List<Object> convertedArguments);
 }

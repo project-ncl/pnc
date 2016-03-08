@@ -247,10 +247,6 @@ public class BuildRecordEndpoint extends AbstractEndpoint<BuildRecord, BuildReco
         return fromSingleton(buildRecordProvider.getBuildConfigurationAudited(id));
     }
 
-    /**
-     * @deprecated
-     * Use /builds/{id}
-     */
     @ApiOperation(value = "Gets a BuildRecord which is completed or in running state")
     @ApiResponses(value = {
             @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION, response = BuildRecordSingleton.class),

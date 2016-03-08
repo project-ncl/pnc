@@ -300,10 +300,5 @@ public class BuildConfigurationAudited implements GenericEntity<IdRev> {
             return this;
         }
 
-        public Builder buildRecord(Integer id) {
-            this.id = id;
-            return this;
-        }
-
     }
 }
