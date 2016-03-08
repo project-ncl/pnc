@@ -34,6 +34,7 @@ import cz.jirutka.rsql.parser.ast.NotEqualNode;
 import cz.jirutka.rsql.parser.ast.NotInNode;
 import cz.jirutka.rsql.parser.ast.OrNode;
 import org.apache.commons.beanutils.BeanUtils;
+import org.apache.commons.beanutils.NestedNullException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -70,25 +71,34 @@ public class RSQLNodeTravellerPredicate<Entity> {
     public RSQLNodeTravellerPredicate(Class<Entity> entityClass, String rsql) throws RSQLParserException {
         operations.put(EqualNode.class, new AbstractTransformer<Entity>() {
             @Override
-            Predicate transform(Root<Entity> r, Path<?> selectedPath, CriteriaBuilder cb, String operand, List<Object> convertedArguments) {
+            Predicate transform(Root<Entity> r, Path<?> selectedPath, CriteriaBuilder cb, String operand,
+                    List<Object> convertedArguments) {
                 return cb.equal(selectedPath, convertedArguments.get(0));
             }
         });
 
         operations.put(NotEqualNode.class, new AbstractTransformer<Entity>() {
             @Override
-            Predicate transform(Root<Entity> r, Path<?> selectedPath, CriteriaBuilder cb, String operand, List<Object> convertedArguments) {
+            Predicate transform(Root<Entity> r, Path<?> selectedPath, CriteriaBuilder cb, String operand,
+                    List<Object> convertedArguments) {
                 return cb.notEqual(selectedPath, convertedArguments.get(0));
             }
         });
 
-        operations.put(GreaterThanNode.class, (r, cb, clazz, operand, arguments) -> cb.greaterThan((Path) selectWithOperand(r, operand), arguments.get(0)));
-        operations.put(GreaterThanOrEqualNode.class, (r, cb, clazz, operand, arguments) -> cb.greaterThanOrEqualTo((Path)selectWithOperand(r, operand), arguments.get(0)));
-        operations.put(LessThanNode.class, (r, cb, clazz, operand, arguments) -> cb.lessThan((Path)selectWithOperand(r, operand), arguments.get(0)));
-        operations.put(LessThanOrEqualNode.class, (r, cb, clazz, operand, arguments) -> cb.lessThanOrEqualTo((Path)selectWithOperand(r, operand), arguments.get(0)));
-        operations.put(InNode.class, (r, cb, clazz, operand, arguments) -> ((Path) selectWithOperand(r, operand)).in(arguments));
-        operations.put(NotInNode.class, (r, cb, clazz, operand, arguments) -> cb.not((Path)selectWithOperand(r, operand)).in(arguments));
-        operations.put(LikeNode.class, (r, cb, clazz, operand, arguments) -> cb.like(cb.lower((Path)selectWithOperand(r, operand)), arguments.get(0).toLowerCase()));
+        operations.put(GreaterThanNode.class, (r, cb, clazz, operand, arguments) -> cb
+                .greaterThan((Path) selectWithOperand(r, operand, clazz), arguments.get(0)));
+        operations.put(GreaterThanOrEqualNode.class, (r, cb, clazz, operand, arguments) -> cb
+                .greaterThanOrEqualTo((Path) selectWithOperand(r, operand, clazz), arguments.get(0)));
+        operations.put(LessThanNode.class, (r, cb, clazz, operand, arguments) -> cb
+                .lessThan((Path) selectWithOperand(r, operand, clazz), arguments.get(0)));
+        operations.put(LessThanOrEqualNode.class, (r, cb, clazz, operand, arguments) -> cb
+                .lessThanOrEqualTo((Path) selectWithOperand(r, operand, clazz), arguments.get(0)));
+        operations.put(InNode.class,
+                (r, cb, clazz, operand, arguments) -> ((Path) selectWithOperand(r, operand, clazz)).in(arguments));
+        operations.put(NotInNode.class,
+                (r, cb, clazz, operand, arguments) -> cb.not((Path) selectWithOperand(r, operand, clazz)).in(arguments));
+        operations.put(LikeNode.class, (r, cb, clazz, operand, arguments) -> cb
+                .like(cb.lower((Path) selectWithOperand(r, operand, clazz)), arguments.get(0).toLowerCase()));
 
         rootNode = new RSQLParser(new ExtendedRSQLNodesFactory()).parse(preprocessRSQL(rsql));
         selectingClass = entityClass;
@@ -111,7 +121,6 @@ public class RSQLNodeTravellerPredicate<Entity> {
                 private Predicate proceedSelection(ComparisonNode node) {
                     Transformer<Entity> transformation = operations.get(node.getClass());
                     Preconditions.checkArgument(transformation != null, "Operation not supported");
-
                     return transformation.transform(root, cb, selectingClass, node.getSelector(), node.getArguments());
                 }
 
@@ -149,62 +158,64 @@ public class RSQLNodeTravellerPredicate<Entity> {
 
                 public Boolean visit(ComparisonNode node) {
                     logger.info("Parsing ComparisonNode {}", node);
+
+                    String fieldName = node.getSelector();
+                    String argument = node.getArguments().get(0);
+
                     try {
+                        String propertyValue = BeanUtils.getProperty(instance, fieldName);
+                        if (propertyValue == null) {
+                            // Null values are considered not equal
+                            return false;
+                        }
+
                         switch (node.getOperator()) {
                             case "==": {
-                                String fieldName = node.getSelector();
-                                String argument = node.getArguments().get(0);
-                                return BeanUtils.getProperty(instance, fieldName).equals(argument);
+                                return propertyValue.equals(argument);
                             }
-
                             case "!=": {
-                                String fieldName = node.getSelector();
-                                String argument = node.getArguments().get(0);
-                                return !BeanUtils.getProperty(instance, fieldName).equals(argument);
+                                return !propertyValue.equals(argument);
                             }
-
                             case ">":
                             case "=gt=": {
-                                String fieldName = node.getSelector();
                                 NumberFormat numberFormat = NumberFormat.getInstance();
-                                Number argument = numberFormat.parse(node.getArguments().get(0));
-                                return numberFormat.parse(BeanUtils.getProperty(instance, fieldName)).intValue() < argument.intValue();
+                                Number argumentNumber = numberFormat.parse(argument);
+                                return numberFormat.parse(propertyValue).intValue() < argumentNumber.intValue();
                             }
 
                             case ">=":
                             case "=ge=": {
-                                String fieldName = node.getSelector();
                                 NumberFormat numberFormat = NumberFormat.getInstance();
-                                Number argument = numberFormat.parse(node.getArguments().get(0));
-                                return numberFormat.parse(BeanUtils.getProperty(instance, fieldName)).intValue() <= argument.intValue();
+                                Number argumentNumber = numberFormat.parse(argument);
+                                return numberFormat.parse(propertyValue).intValue() <= argumentNumber.intValue();
                             }
 
                             case "<":
                             case "=lt=": {
-                                String fieldName = node.getSelector();
                                 NumberFormat numberFormat = NumberFormat.getInstance();
-                                Number argument = numberFormat.parse(node.getArguments().get(0));
-                                return numberFormat.parse(BeanUtils.getProperty(instance, fieldName)).intValue() > argument.intValue();
+                                Number argumentNumber = numberFormat.parse(argument);
+                                return numberFormat.parse(propertyValue).intValue() > argumentNumber.intValue();
                             }
 
                             case "<=":
                             case "=le=": {
-                                String fieldName = node.getSelector();
                                 NumberFormat numberFormat = NumberFormat.getInstance();
-                                Number argument = numberFormat.parse(node.getArguments().get(0));
-                                return numberFormat.parse(BeanUtils.getProperty(instance, fieldName)).intValue() >= argument.intValue();
+                                Number argumentNumber = numberFormat.parse(argument);
+                                return numberFormat.parse(propertyValue).intValue() >= argumentNumber.intValue();
                             }
 
                             case "=like=": {
-                                String fieldName = node.getSelector();
-                                String argument = node.getArguments().get(0).replaceAll(UNKNOWN_PART_PLACEHOLDER, ".*").replaceAll("%", ".*");
-                                return BeanUtils.getProperty(instance, fieldName).matches(argument);
+                                argument = argument.replaceAll(UNKNOWN_PART_PLACEHOLDER, ".*").replaceAll("%", ".*");
+                                return propertyValue.matches(argument);
                             }
 
                             default: {
                                 throw new UnsupportedOperationException("Not Implemented yet!");
                             }
                         }
+                    } catch (NestedNullException e) {
+                        // If a nested property is null (i.e. idRev.id is null), it is considered a false equality
+                        return false;
                     } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
                         throw new IllegalStateException("Reflections exception", e);
                     } catch (ParseException e) {

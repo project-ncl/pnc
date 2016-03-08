@@ -19,7 +19,9 @@ package org.jboss.pnc.rest.restmodel;
 
 import io.swagger.annotations.ApiModelProperty;
 
+import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildRecord;
+import org.jboss.pnc.model.User;
 import org.jboss.pnc.rest.validation.groups.WhenCreatingNew;
 import org.jboss.pnc.rest.validation.groups.WhenUpdating;
 import org.jboss.pnc.spi.BuildCoordinationStatus;
@@ -94,6 +96,16 @@ public class BuildRecordRest implements GenericRestEntity<Integer> {
      */
     private Set<Integer> distributedMilestoneBuildRecordSetIds;
 
+    /**
+     * Required in order to use rsql on user
+     */
+    private User user;
+
+    /**
+     * Required in order to use rsql on buildConfiguration
+     */
+    private BuildConfigurationAudited buildConfigurationAudited;
+
     public BuildRecordRest() {
     }
 
@@ -128,9 +140,20 @@ public class BuildRecordRest implements GenericRestEntity<Integer> {
         this.distributedMilestoneBuildRecordSetIds = nullableStreamOf(buildRecord.getBuildRecordSets())
                 .filter(buildRecordSet -> buildRecordSet.getDistributedInProductMilestone() != null)
                 .map(buildRecordSet -> buildRecordSet.getId()).collect(Collectors.toSet());
+
+        // To prevent lazy loading of collections, go through the transformation chain
+        UserRest userRest = new UserRest(buildRecord.getUser());
+        this.user = userRest.toDBEntityBuilder().id(buildRecord.getUser().getId()).build();
+
+        BuildConfigurationAuditedRest buildConfigurationAuditedRest = new BuildConfigurationAuditedRest(
+                buildRecord.getBuildConfigurationAudited());
+        this.buildConfigurationAudited = buildConfigurationAuditedRest.toDBEntityBuilder()
+                .buildRecord(buildRecord.getBuildConfigurationAudited().getId().getId())
+                .rev(buildRecord.getBuildConfigurationAudited().getRev()).build();
     }
 
-    public BuildRecordRest(BuildExecutionSession buildExecutionSession, Date submitTime, UserRest user) {
+    public BuildRecordRest(BuildExecutionSession buildExecutionSession, Date submitTime, UserRest user,
+            BuildConfigurationAudited buildConfigurationAudited) {
         this.id = buildExecutionSession.getId();
         this.submitTime = submitTime;
         this.startTime = buildExecutionSession.getStartTime();
@@ -141,7 +164,6 @@ public class BuildRecordRest implements GenericRestEntity<Integer> {
         this.status = BuildCoordinationStatus.fromBuildExecutionStatus(buildExecutionSession.getStatus());
         buildExecutionSession.getLiveLogsUri().ifPresent(logsUri -> setLiveLogsUri(logsUri.toString()));
 
-
         this.userId = user.getId();
         this.username = user.getUsername();
 
@@ -150,9 +172,16 @@ public class BuildRecordRest implements GenericRestEntity<Integer> {
         this.buildConfigurationName = buildExecutionConfig.getName();
         this.scmRepoURL = buildExecutionConfig.getScmRepoURL();
         this.scmRevision = buildExecutionConfig.getScmRevision();
+
+        this.user = user.toDBEntityBuilder().id(user.getId()).build();
+        BuildConfigurationAuditedRest buildConfigurationAuditedRest = new BuildConfigurationAuditedRest(
+                buildConfigurationAudited);
+        this.buildConfigurationAudited = buildConfigurationAuditedRest.toDBEntityBuilder()
+                .buildRecord(buildConfigurationAudited.getId().getId()).rev(buildConfigurationAudited.getRev()).build();
     }
 
-    public BuildRecordRest(Integer id, BuildCoordinationStatus buildCoordinationStatus, Date submitTime, Date startTime, Date endTime, UserRest user) {
+    public BuildRecordRest(Integer id, BuildCoordinationStatus buildCoordinationStatus, Date submitTime, Date startTime,
+            Date endTime, UserRest user, BuildConfigurationAudited buildConfigurationAudited) {
         this.id = id;
         this.submitTime = submitTime;
         this.startTime = startTime;
@@ -162,6 +191,12 @@ public class BuildRecordRest implements GenericRestEntity<Integer> {
 
         this.userId = user.getId();
         this.username = user.getUsername();
+
+        this.user = user.toDBEntityBuilder().id(user.getId()).build();
+        BuildConfigurationAuditedRest buildConfigurationAuditedRest = new BuildConfigurationAuditedRest(
+                buildConfigurationAudited);
+        this.buildConfigurationAudited = buildConfigurationAuditedRest.toDBEntityBuilder()
+                .buildRecord(buildConfigurationAudited.getId().getId()).rev(buildConfigurationAudited.getRev()).build();
     }
 
     @Override
@@ -317,4 +352,13 @@ public class BuildRecordRest implements GenericRestEntity<Integer> {
     public Set<Integer> getDistributedMilestoneBuildRecordSetIds() {
         return distributedMilestoneBuildRecordSetIds;
     }
+
+    public User getUser() {
+        return user;
+    }
+
+    public BuildConfigurationAudited getBuildConfigurationAudited() {
+        return buildConfigurationAudited;
+    }
+
 }

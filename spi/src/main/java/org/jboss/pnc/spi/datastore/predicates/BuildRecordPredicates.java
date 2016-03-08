@@ -64,13 +64,19 @@ public class BuildRecordPredicates {
         }
     }
 
-
     public static Predicate<BuildRecord> withProjectId(Integer projectId) {
         return (root, query, cb) -> {
             Join<BuildRecord, BuildConfigurationAudited> buildConfigurationAudited = root.join(BuildRecord_.buildConfigurationAudited);
             Join<BuildConfigurationAudited, Project> project = buildConfigurationAudited.join(
                     org.jboss.pnc.model.BuildConfigurationAudited_.project);
             return cb.equal(project.get(org.jboss.pnc.model.Project_.id), projectId);
+        };
+    }
+
+    public static Predicate<BuildRecord> withUserId(Integer userId) {
+        return (root, query, cb) -> {
+            Join<BuildRecord, User> buildRecordJoinedUsers = root.join(BuildRecord_.user);
+            return cb.equal(buildRecordJoinedUsers.get(org.jboss.pnc.model.User_.id), userId);
         };
     }
 
