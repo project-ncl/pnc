@@ -101,7 +101,9 @@
                 addAuthHeaders(config, keycloak.token);
                 deferred.resolve(config);
               }).error(function () {
-                deferred.reject('Failed to refresh token');
+                $log.warn('Failed to refresh authentication token');
+                keycloak.clearToken();
+                deferred.resolve(config);
               });
 
               return deferred.promise;
