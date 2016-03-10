@@ -36,7 +36,6 @@ public class JsonOutputConverterMapper {
 
     static {
         mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-        mapper.addMixInAnnotations(Artifact.class, JsonMixInArtifact.class);
         mapper.registerModule(new Jdk7Module());
 
         mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);

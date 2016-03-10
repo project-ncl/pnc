@@ -36,8 +36,6 @@ import org.commonjava.maven.atlas.ident.ref.SimpleArtifactRef;
 import org.commonjava.maven.atlas.ident.ref.SimpleProjectVersionRef;
 import org.jboss.pnc.mavenrepositorymanager.fixture.TestBuildExecution;
 import org.jboss.pnc.model.Artifact;
-import org.jboss.pnc.model.BuiltArtifact;
-import org.jboss.pnc.model.ImportedArtifact;
 import org.jboss.pnc.spi.repositorymanager.BuildExecution;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
 import org.jboss.pnc.spi.repositorymanager.model.RepositorySession;
@@ -106,13 +104,13 @@ public class UploadOneThenDownloadAndVerifyArtifactHasOriginUrlTest
         RepositoryManagerResult repositoryManagerResult = rc.extractBuildArtifacts();
 
         // check that both files are present in extracted result
-        List<BuiltArtifact> built = repositoryManagerResult.getBuiltArtifacts();
+        List<Artifact> built = repositoryManagerResult.getBuiltArtifacts();
         System.out.println(built);
 
         assertThat(built, notNullValue());
         assertThat(built.size(), equalTo(1));
 
-        BuiltArtifact builtArtifact = built.get(0);
+        Artifact builtArtifact = built.get(0);
         assertThat(builtArtifact + " doesn't match pom ref: " + aref,
                 aref.equals(builtArtifact.getIdentifier()),
                 equalTo(true));
@@ -123,11 +121,8 @@ public class UploadOneThenDownloadAndVerifyArtifactHasOriginUrlTest
 
         Artifact dep = dependencies.get(0);
         assertThat(dep.getIdentifier(), equalTo(aref));
-
-        assertThat((dep instanceof ImportedArtifact), equalTo(true));
-
-        ImportedArtifact idep = (ImportedArtifact) dep;
-        assertThat(idep.getOriginUrl(), notNullValue());
+        assertThat(dep.getImported(), equalTo(true));
+        assertThat(dep.getOriginUrl(), notNullValue());
 
         client.close();
     }

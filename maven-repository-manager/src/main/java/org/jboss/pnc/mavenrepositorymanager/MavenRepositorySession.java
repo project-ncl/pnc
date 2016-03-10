@@ -36,8 +36,6 @@ import org.commonjava.maven.atlas.ident.ref.ArtifactRef;
 import org.commonjava.maven.atlas.ident.ref.SimpleArtifactRef;
 import org.commonjava.maven.atlas.ident.util.ArtifactPathInfo;
 import org.jboss.pnc.model.Artifact;
-import org.jboss.pnc.model.BuiltArtifact;
-import org.jboss.pnc.model.ImportedArtifact;
 import org.jboss.pnc.model.RepositoryType;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerException;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
@@ -141,7 +139,7 @@ public class MavenRepositorySession implements RepositorySession {
 
         Comparator<Artifact> comp = (one, two) -> one.getIdentifier().compareTo(two.getIdentifier());
 
-        List<BuiltArtifact> uploads = processUploads(report);
+        List<Artifact> uploads = processUploads(report);
         Collections.sort(uploads, comp);
 
         List<Artifact> downloads = processDownloads(report);
@@ -230,9 +228,9 @@ public class MavenRepositorySession implements RepositorySession {
                     originUrl = download.getLocalUrl();
                 }
 
-                ImportedArtifact.Builder artifactBuilder = ImportedArtifact.Builder.newBuilder().checksum(download.getMd5())
+                Artifact.Builder artifactBuilder = Artifact.Builder.newBuilder().checksum(download.getMd5())
                         .deployUrl(content.contentUrl(download.getStoreKey(), download.getPath()))
-                        .originUrl(originUrl).downloadDate(Date.from(Instant.now()))
+                        .imported(true).originUrl(originUrl).downloadDate(Date.from(Instant.now()))
                         .filename(new File(path).getName()).identifier(aref.toString()).repoType(RepositoryType.MAVEN);
 
                 deps.add(artifactBuilder.build());
@@ -254,13 +252,13 @@ public class MavenRepositorySession implements RepositorySession {
      * @return List of output artifacts meta data
      * @throws RepositoryManagerException In case of a client API transport error or an error during promotion of artifacts
      */
-    private List<BuiltArtifact> processUploads(TrackedContentDTO report)
+    private List<Artifact> processUploads(TrackedContentDTO report)
             throws RepositoryManagerException {
         Logger logger = LoggerFactory.getLogger(getClass());
 
         Set<TrackedContentEntryDTO> uploads = report.getUploads();
         if (uploads != null) {
-            List<BuiltArtifact> builds = new ArrayList<>();
+            List<Artifact> builds = new ArrayList<>();
 
             for (TrackedContentEntryDTO upload : uploads) {
                 String path = upload.getPath();
@@ -279,7 +277,7 @@ public class MavenRepositorySession implements RepositorySession {
                 ArtifactRef aref = new SimpleArtifactRef(pathInfo.getProjectId(), pathInfo.getType(), pathInfo.getClassifier());
                 logger.info("Recording upload: {}", aref);
 
-                BuiltArtifact.Builder artifactBuilder = BuiltArtifact.Builder.newBuilder().checksum(upload.getSha256())
+                Artifact.Builder artifactBuilder = Artifact.Builder.newBuilder().checksum(upload.getSha256())
                         .deployUrl(upload.getLocalUrl()).filename(new File(path).getName()).identifier(
                                 aref.toString())
                         .repoType(RepositoryType.MAVEN);

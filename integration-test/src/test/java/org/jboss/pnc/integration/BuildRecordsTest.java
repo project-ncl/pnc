@@ -29,8 +29,6 @@ import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.BuildStatus;
-import org.jboss.pnc.model.BuiltArtifact;
-import org.jboss.pnc.model.ImportedArtifact;
 import org.jboss.pnc.model.RepositoryType;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.rest.provider.ArtifactProvider;
@@ -123,40 +121,41 @@ public class BuildRecordsTest {
         buildConfigName = buildConfigurationAudited.getName();
         BuildConfiguration buildConfiguration = buildConfigurationRepository.queryById(buildConfigurationAudited.getId().getId());
 
-        BuiltArtifact builtArtifact1 = BuiltArtifact.Builder.newBuilder()
+        Artifact builtArtifact1 = Artifact.Builder.newBuilder()
                 .filename("builtArtifact1.jar")
                 .identifier("integration-test:built-artifact1:jar:1.0")
                 .repoType(RepositoryType.MAVEN)
                 .checksum("abcd1234")
                 .build();
 
-        BuiltArtifact builtArtifact2 = BuiltArtifact.Builder.newBuilder()
+        Artifact builtArtifact2 = Artifact.Builder.newBuilder()
                 .filename("builtArtifact2.jar")
                 .identifier("integration-test:built-artifact2:jar:1.0")
                 .repoType(RepositoryType.MAVEN)
                 .checksum("abcd1234")
                 .build();
 
-        BuiltArtifact builtArtifact3 = BuiltArtifact.Builder.newBuilder()
+        Artifact builtArtifact3 = Artifact.Builder.newBuilder()
                 .filename("builtArtifact3.jar")
                 .identifier("integration-test:built-artifact3:jar:1.0")
                 .repoType(RepositoryType.MAVEN)
                 .checksum("abcd1234")
                 .build();
 
-        ImportedArtifact importedArtifact1 = ImportedArtifact.Builder.newBuilder()
+        Artifact importedArtifact1 = Artifact.Builder.newBuilder()
                 .filename("importedArtifact1.jar")
                 .identifier("integration-test:import-artifact1:jar:1.0")
                 .repoType(RepositoryType.MAVEN)
                 .checksum("abcd1234")
+                .imported(true)
                 .downloadDate(Date.from(Instant.now()))
                 .originUrl("http://central/importedArtifact1.jar")
                 .build();
 
-        builtArtifact1 = (BuiltArtifact)artifactRepository.save(builtArtifact1);
-        builtArtifact2 = (BuiltArtifact)artifactRepository.save(builtArtifact2);
-        builtArtifact3 = (BuiltArtifact)artifactRepository.save(builtArtifact3);
-        importedArtifact1 = (ImportedArtifact)artifactRepository.save(importedArtifact1);
+        builtArtifact1 = artifactRepository.save(builtArtifact1);
+        builtArtifact2 = artifactRepository.save(builtArtifact2);
+        builtArtifact3 = artifactRepository.save(builtArtifact3);
+        importedArtifact1 = artifactRepository.save(importedArtifact1);
 
         List<User> users = userRepository.queryAll();
         assertThat(users.size() > 0).isTrue();
@@ -298,14 +297,14 @@ public class BuildRecordsTest {
     class IsImported extends Condition<ArtifactRest> {
         @Override
         public boolean matches(ArtifactRest artifactRest) {
-            return artifactRest.getType().equals(ArtifactType.IMPORTED);
+            return artifactRest.getImported();
         }
     }
 
     class IsBuilt extends Condition<ArtifactRest> {
         @Override
         public boolean matches(ArtifactRest artifactRest) {
-            return artifactRest.getType().equals(ArtifactType.BUILT);
+            return artifactRest.getBuildRecordIds().size() > 0;
         }
     }
 

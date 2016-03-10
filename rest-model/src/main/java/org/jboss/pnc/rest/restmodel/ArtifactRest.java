@@ -30,6 +30,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
 
+import java.util.Date;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -51,9 +52,15 @@ public class ArtifactRest implements GenericRestEntity<Integer> {
 
     private String deployUrl;
 
-    private String type;
+    private Set<Integer> buildRecordIds;
 
     private Set<Integer> dependantBuildRecordIds;
+
+    private boolean imported;
+
+    private Date downloadDate;
+
+    private String originUrl;
 
     public ArtifactRest() {
     }
@@ -65,7 +72,11 @@ public class ArtifactRest implements GenericRestEntity<Integer> {
         this.checksum = artifact.getChecksum();
         this.filename = artifact.getFilename();
         this.deployUrl = artifact.getDeployUrl();
-        this.type = artifact.getType();
+        this.imported = artifact.getImported();
+        this.downloadDate = artifact.getDownloadDate();
+        this.originUrl = artifact.getOriginUrl();
+        this.buildRecordIds = nullableStreamOf(artifact.getBuildRecords())
+                .map(build -> build.getId()).collect(Collectors.toSet());
         this.dependantBuildRecordIds = nullableStreamOf(artifact.getDependantBuildRecords())
                 .map(depBuild -> depBuild.getId()).collect(Collectors.toSet());
     }
@@ -120,20 +131,44 @@ public class ArtifactRest implements GenericRestEntity<Integer> {
         this.deployUrl = deployUrl;
     }
 
-    public String getType() {
-        return type;
+    public boolean getImported() {
+        return imported;
     }
 
-    public void setType(String type) {
-        this.type = type;
+    public void setImported(boolean imported) {
+        this.imported = imported;
+    }
+
+    public Date getDonwloadDate() {
+        return downloadDate;
+    }
+
+    public void setDownloadDate(Date downloadDate) {
+        this.downloadDate = downloadDate;
+    }
+
+    public String getOriginUrl() {
+        return originUrl;
+    }
+
+    public void setOriginUrl(String originUrl) {
+        this.originUrl = originUrl;
     }
 
     @Deprecated
     public String getStatus() {
-        if (type.equals(ArtifactType.BUILT)) {
-            return "BINARY_BUILT";
+        if (imported) {
+            return "BINARY_IMPORTED";
         }
-        return "BINARY_IMPORTED";
+        return "BINARY_BUILT";
+    }
+
+    public Set<Integer> getBuildRecordIds() {
+        return buildRecordIds;
+    }
+
+    public void setBuildRecordIds(Set<Integer> buildRecordIds) {
+        this.buildRecordIds = buildRecordIds;
     }
 
     public Set<Integer> getDependantBuildRecordIds() {

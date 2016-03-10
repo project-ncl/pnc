@@ -138,7 +138,7 @@ public class BuildRecord implements GenericEntity<Integer> {
                             "build_record_id", "built_artifact_id" }) )
     @ForeignKey(name = "fk_build_record_built_artifact_map")
     @Index(name = "idx_build_record_built_artifact_map")
-    private List<BuiltArtifact> builtArtifacts;
+    private List<Artifact> builtArtifacts;
 
     /**
      * Artifacts which are required external dependencies of this build
@@ -338,11 +338,11 @@ public class BuildRecord implements GenericEntity<Integer> {
      *
      * @return the built artifacts
      */
-    public List<BuiltArtifact> getBuiltArtifacts() {
+    public List<Artifact> getBuiltArtifacts() {
         return builtArtifacts;
     }
 
-    public void addBuiltArtifact(BuiltArtifact builtArtifact) {
+    public void addBuiltArtifact(Artifact builtArtifact) {
         builtArtifacts.add(builtArtifact);
     }
 
@@ -351,7 +351,7 @@ public class BuildRecord implements GenericEntity<Integer> {
      *
      * @param builtArtifacts the new built artifacts
      */
-    public void setBuiltArtifacts(List<BuiltArtifact> builtArtifacts) {
+    public void setBuiltArtifacts(List<Artifact> builtArtifacts) {
         this.builtArtifacts = builtArtifacts;
     }
 
@@ -525,7 +525,7 @@ public class BuildRecord implements GenericEntity<Integer> {
 
         private BuildStatus status;
 
-        private List<BuiltArtifact> builtArtifacts;
+        private List<Artifact> builtArtifacts;
 
         private List<Artifact> dependencies;
 
@@ -572,7 +572,7 @@ public class BuildRecord implements GenericEntity<Integer> {
             }
 
             // Set the bi-directional mapping
-            for (BuiltArtifact artifact : builtArtifacts) {
+            for (Artifact artifact : builtArtifacts) {
                 artifact.addBuildRecord(buildRecord);
             }
             buildRecord.setBuiltArtifacts(builtArtifacts);
@@ -650,12 +650,12 @@ public class BuildRecord implements GenericEntity<Integer> {
             return this;
         }
 
-        public Builder builtArtifact(BuiltArtifact builtArtifact) {
+        public Builder builtArtifact(Artifact builtArtifact) {
             this.builtArtifacts.add(builtArtifact);
             return this;
         }
 
-        public Builder builtArtifacts(List<BuiltArtifact> builtArtifacts) {
+        public Builder builtArtifacts(List<Artifact> builtArtifacts) {
             this.builtArtifacts = builtArtifacts;
             return this;
         }

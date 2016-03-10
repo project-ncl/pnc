@@ -18,7 +18,6 @@
 package org.jboss.pnc.spi.repositorymanager;
 
 import org.jboss.pnc.model.Artifact;
-import org.jboss.pnc.model.BuiltArtifact;
 
 import java.io.Serializable;
 import java.util.List;
@@ -27,7 +26,7 @@ import java.util.List;
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2015-02-02.
  */
 public interface RepositoryManagerResult extends Serializable {
-    List<BuiltArtifact> getBuiltArtifacts();
+    List<Artifact> getBuiltArtifacts();
 
     List<Artifact> getDependencies();
 

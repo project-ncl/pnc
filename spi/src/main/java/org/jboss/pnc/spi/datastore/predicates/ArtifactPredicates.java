@@ -30,6 +30,13 @@ import javax.persistence.criteria.Join;
  */
 public class ArtifactPredicates {
 
+    public static Predicate<Artifact> withBuildRecordId(Integer buildRecordId) {
+        return (root, query, cb) -> {
+            Join<Artifact, BuildRecord> buildRecords = root.join(Artifact_.buildRecords);
+            return cb.equal(buildRecords.get(BuildRecord_.id), buildRecordId);
+        };
+    }
+
     public static Predicate<Artifact> withDependantBuildRecordId(Integer buildRecordId) {
         return (root, query, cb) -> {
             Join<Artifact, BuildRecord> buildRecords = root.join(Artifact_.dependantBuildRecords);
