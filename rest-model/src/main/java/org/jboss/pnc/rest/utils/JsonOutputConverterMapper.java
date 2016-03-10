@@ -23,6 +23,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jdk7.Jdk7Module;
+import org.jboss.logging.Logger;
 import org.jboss.pnc.model.Artifact;
 
 import java.io.IOException;
@@ -31,6 +32,8 @@ import java.io.IOException;
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
 public class JsonOutputConverterMapper {
+
+    public final static Logger log = Logger.getLogger(JsonOutputConverterMapper.class);
 
     private static final ObjectMapper mapper = new ObjectMapper();
 
@@ -46,6 +49,7 @@ public class JsonOutputConverterMapper {
             try {
                 return mapper.writeValueAsString(objectToBeConverted);
             } catch (JsonProcessingException e) { //TODO remove exception masking
+                log.warn("Could not convert object to JSON", e);
                 throw new IllegalArgumentException("Could not convert object to JSON", e);
             }
         }

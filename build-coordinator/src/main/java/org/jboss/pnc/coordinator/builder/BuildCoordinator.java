@@ -217,7 +217,6 @@ public class BuildCoordinator {
                         datastoreAdapter.storeResult(buildTask, buildResult);
                         coordinationStatus = BuildCoordinationStatus.DONE_WITH_ERRORS;
                     } else {
-                        removeSubmittedTask(buildTask);
                         throw new BuildCoordinationException("Failed task should have set exception or failed reason status.");
                     }
                 } else {
@@ -227,9 +226,10 @@ public class BuildCoordinator {
             } catch (DatastoreException | BuildCoordinationException e ) {
                 log.error("Cannot store results to datastore.", e);
                 coordinationStatus = BuildCoordinationStatus.SYSTEM_ERROR;
+            } finally {
+                removeSubmittedTask(buildTask);
             }
             //remove before status update which could triggers further actions and cause dead lock
-            removeSubmittedTask(buildTask);
             buildTask.setStatus(coordinationStatus);
         };
 
