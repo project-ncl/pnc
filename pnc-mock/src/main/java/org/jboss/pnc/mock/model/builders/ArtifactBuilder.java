@@ -19,6 +19,7 @@
 package org.jboss.pnc.mock.model.builders;
 
 import org.jboss.pnc.model.Artifact;
+import org.jboss.pnc.model.ArtifactQuality;
 import org.jboss.pnc.model.RepositoryType;
 
 /**
@@ -31,10 +32,11 @@ public class ArtifactBuilder {
         return Artifact.Builder.newBuilder()
                 .id(id)
                 .identifier(IDENTIFIER_PREFIX + ":" + id)
+                .checksum("ABCD1234")
+                .artifactQuality(ArtifactQuality.IMPORTED)
                 .deployUrl("deploy url " + id)
                 .repoType(RepositoryType.MAVEN)
                 .filename("File " + id + ".jar")
-                .imported(true)
                 .build();
     }
 
@@ -42,9 +44,12 @@ public class ArtifactBuilder {
         return Artifact.Builder.newBuilder()
                 .id(id)
                 .identifier(IDENTIFIER_PREFIX + ":" + id)
+                .checksum("ABCDABCD")
+                .artifactQuality(ArtifactQuality.BUILT)
                 .deployUrl("deploy url " + id)
                 .repoType(RepositoryType.MAVEN)
                 .filename("File " + id + ".jar")
+                
                 .build();
     }
 }

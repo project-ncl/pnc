@@ -19,7 +19,7 @@ package org.jboss.pnc.rest.restmodel;
 
 import io.swagger.annotations.ApiModelProperty;
 import org.jboss.pnc.model.Artifact;
-import org.jboss.pnc.model.ArtifactType;
+import org.jboss.pnc.model.ArtifactQuality;
 import org.jboss.pnc.model.RepositoryType;
 import org.jboss.pnc.rest.validation.groups.WhenCreatingNew;
 import org.jboss.pnc.rest.validation.groups.WhenUpdating;
@@ -44,6 +44,9 @@ public class ArtifactRest implements GenericRestEntity<Integer> {
     private String identifier;
 
     @ApiModelProperty(dataType = "string")
+    private ArtifactQuality artifactQuality;
+
+    @ApiModelProperty(dataType = "string")
     private RepositoryType repoType;
 
     private String checksum;
@@ -56,9 +59,7 @@ public class ArtifactRest implements GenericRestEntity<Integer> {
 
     private Set<Integer> dependantBuildRecordIds;
 
-    private boolean imported;
-
-    private Date downloadDate;
+    private Date importDate;
 
     private String originUrl;
 
@@ -72,8 +73,8 @@ public class ArtifactRest implements GenericRestEntity<Integer> {
         this.checksum = artifact.getChecksum();
         this.filename = artifact.getFilename();
         this.deployUrl = artifact.getDeployUrl();
-        this.imported = artifact.getImported();
-        this.downloadDate = artifact.getDownloadDate();
+        this.artifactQuality = artifact.getArtifactQuality();
+        this.importDate = artifact.getImportDate();
         this.originUrl = artifact.getOriginUrl();
         this.buildRecordIds = nullableStreamOf(artifact.getBuildRecords())
                 .map(build -> build.getId()).collect(Collectors.toSet());
@@ -115,6 +116,14 @@ public class ArtifactRest implements GenericRestEntity<Integer> {
         this.checksum = checksum;
     }
 
+    public ArtifactQuality getArtifactQuality() {
+        return artifactQuality;
+    }
+
+    public void setArtifactQuality(ArtifactQuality artifactQuality) {
+        this.artifactQuality = artifactQuality;
+    }
+
     public String getFilename() {
         return filename;
     }
@@ -131,20 +140,12 @@ public class ArtifactRest implements GenericRestEntity<Integer> {
         this.deployUrl = deployUrl;
     }
 
-    public boolean getImported() {
-        return imported;
+    public Date getImportDate() {
+        return importDate;
     }
 
-    public void setImported(boolean imported) {
-        this.imported = imported;
-    }
-
-    public Date getDonwloadDate() {
-        return downloadDate;
-    }
-
-    public void setDownloadDate(Date downloadDate) {
-        this.downloadDate = downloadDate;
+    public void setImportDate(Date importDate) {
+        this.importDate = importDate;
     }
 
     public String getOriginUrl() {
@@ -157,7 +158,7 @@ public class ArtifactRest implements GenericRestEntity<Integer> {
 
     @Deprecated
     public String getStatus() {
-        if (imported) {
+        if (ArtifactQuality.IMPORTED.equals(artifactQuality)) {
             return "BINARY_IMPORTED";
         }
         return "BINARY_BUILT";

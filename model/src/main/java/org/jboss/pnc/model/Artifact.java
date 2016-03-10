@@ -56,6 +56,14 @@ public class Artifact implements GenericEntity<Integer> {
     @Column(updatable=false)
     private String identifier;
 
+    @NotNull
+    @Column(updatable=false)
+    private String checksum;
+
+    @NotNull
+    @Enumerated(value = EnumType.STRING)
+    private ArtifactQuality artifactQuality;
+
     /**
      * The type of repository which hosts this artifact (Maven, NPM, etc).  This field determines
      * the format of the identifier string.
@@ -63,10 +71,6 @@ public class Artifact implements GenericEntity<Integer> {
     @NotNull
     @Column(updatable=false)
     private RepositoryType repoType;
-
-    @NotNull
-    @Column(updatable=false)
-    private String checksum;
 
     @Column(updatable=false)
     private String filename;
@@ -76,12 +80,6 @@ public class Artifact implements GenericEntity<Integer> {
      */
     @Column(updatable=false)
     private String deployUrl;
-
-    /**
-     * Whether this artifact was imported from a remote system.
-     * If false, there should be at least one buildRecord which produced this artifact
-     */
-    private boolean imported;
 
     /**
      * The record of the build which produced this artifact
@@ -96,16 +94,16 @@ public class Artifact implements GenericEntity<Integer> {
     private Set<BuildRecord> dependantBuildRecords;
 
     /**
-     * The location from which this artifact was originally downloaded
+     * The location from which this artifact was originally downloaded for import
      */
     @Column(unique=true, updatable=false)
     private String originUrl;
 
     /**
-     * The date when this artifact was originally downloaded
+     * The date when this artifact was originally imported
      */
     @Column(updatable=false)
-    private Date downloadDate;
+    private Date importDate;
 
     /**
      * Basic no-arg constructor.  Initializes the buildRecords and dependantBuildRecords to 
@@ -174,6 +172,14 @@ public class Artifact implements GenericEntity<Integer> {
         this.checksum = checksum;
     }
 
+    public ArtifactQuality getArtifactQuality() {
+        return artifactQuality;
+    }
+
+    public void setArtifactQuality(ArtifactQuality artifactQuality) {
+        this.artifactQuality = artifactQuality;
+    }
+
     /**
      * Gets the filename.
      *
@@ -208,20 +214,6 @@ public class Artifact implements GenericEntity<Integer> {
      */
     public void setDeployUrl(String deployUrl) {
         this.deployUrl = deployUrl;
-    }
-
-    /**
-     * Indicates whether the artifact was downloaded from a remote repository.
-     * If false, it indicates that this artifact was built from source.
-     *
-     * @return true if the artifact was imported, otherwise false
-     */
-    public boolean getImported() {
-        return imported;
-    }
-
-    public void setImported(boolean imported) {
-        this.imported = imported;
     }
 
     /**
@@ -288,17 +280,17 @@ public class Artifact implements GenericEntity<Integer> {
         this.originUrl = originUrl;
     }
 
-    public Date getDownloadDate() {
-        return downloadDate;
+    public Date getImportDate() {
+        return importDate;
     }
 
-    public void setDownloadDate(Date downloadDate) {
-        this.downloadDate = downloadDate;
+    public void setImportDate(Date importDate) {
+        this.importDate = importDate;
     }
 
     @Override
     public String toString() {
-        return "Artifact [id: " + id + ", identifier=" + identifier + ", imported=" + imported + "]";
+        return "Artifact [id: " + id + ", identifier=" + identifier + ", quality=" + artifactQuality + "]";
     }
 
     public static class Builder {
@@ -307,9 +299,11 @@ public class Artifact implements GenericEntity<Integer> {
 
         private String identifier;
 
-        private RepositoryType repoType;
-
         private String checksum;
+
+        private ArtifactQuality artifactQuality;
+
+        private RepositoryType repoType;
 
         private String filename;
 
@@ -319,11 +313,9 @@ public class Artifact implements GenericEntity<Integer> {
 
         private Set<BuildRecord> buildRecords;
 
-        private boolean imported;
-
         private String originUrl;
 
-        private Date downloadDate;
+        private Date importDate;
 
         private Builder() {
             buildRecords = new HashSet<>();
@@ -338,17 +330,17 @@ public class Artifact implements GenericEntity<Integer> {
             Artifact artifact = new Artifact();
             artifact.setId(id);
             artifact.setIdentifier(identifier);
-            artifact.setRepoType(repoType);
             artifact.setChecksum(checksum);
+            artifact.setArtifactQuality(artifactQuality);
+            artifact.setRepoType(repoType);
             artifact.setFilename(filename);
             artifact.setDeployUrl(deployUrl);
             if (dependantBuildRecords != null) {
                 artifact.setDependantBuildRecords(dependantBuildRecords);
             }
             artifact.setBuildRecords(buildRecords);
-            artifact.setImported(imported);
             artifact.setOriginUrl(originUrl);
-            artifact.setDownloadDate(downloadDate);
+            artifact.setImportDate(importDate);
 
             return artifact;
         }
@@ -363,13 +355,18 @@ public class Artifact implements GenericEntity<Integer> {
             return this;
         }
 
-        public Builder repoType(RepositoryType repoType) {
-            this.repoType = repoType;
+        public Builder checksum(String checksum) {
+            this.checksum = checksum;
             return this;
         }
 
-        public Builder checksum(String checksum) {
-            this.checksum = checksum;
+        public Builder artifactQuality(ArtifactQuality artifactQuality) {
+            this.artifactQuality = artifactQuality;
+            return this;
+        }
+
+        public Builder repoType(RepositoryType repoType) {
+            this.repoType = repoType;
             return this;
         }
 
@@ -393,18 +390,13 @@ public class Artifact implements GenericEntity<Integer> {
             return this;
         }
 
-        public Builder imported(boolean imported) {
-            this.imported = imported;
-            return this;
-        }
-
         public Builder originUrl(String originUrl) {
             this.originUrl = originUrl;
             return this;
         }
 
-        public Builder downloadDate(Date downloadDate) {
-            this.downloadDate = downloadDate;
+        public Builder importDate(Date importDate) {
+            this.importDate = importDate;
             return this;
         }
 

@@ -128,6 +128,10 @@ public class BuildRecord implements GenericEntity<Integer> {
     @Enumerated(value = EnumType.STRING)
     private BuildStatus status;
 
+    private boolean tested;
+
+    private boolean deprecated;
+
     /**
      * Artifacts which were produced by this build
      */
