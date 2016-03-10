@@ -35,7 +35,6 @@ import org.commonjava.maven.atlas.ident.ref.SimpleArtifactRef;
 import org.commonjava.maven.atlas.ident.ref.SimpleProjectVersionRef;
 import org.jboss.pnc.mavenrepositorymanager.fixture.TestBuildExecution;
 import org.jboss.pnc.model.Artifact;
-import org.jboss.pnc.model.BuiltArtifact;
 import org.jboss.pnc.spi.repositorymanager.BuildExecution;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
 import org.jboss.pnc.spi.repositorymanager.model.RepositorySession;
@@ -99,7 +98,7 @@ public class UploadTwoThenVerifyExtractedArtifactsContainThemTest
         RepositoryManagerResult repositoryManagerResult = rc.extractBuildArtifacts();
 
         // check that both files are present in extracted result
-        List<BuiltArtifact> artifacts = repositoryManagerResult.getBuiltArtifacts();
+        List<Artifact> artifacts = repositoryManagerResult.getBuiltArtifacts();
         System.out.println(artifacts);
 
         assertThat(artifacts, notNullValue());

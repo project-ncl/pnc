@@ -25,7 +25,6 @@ import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.BuildRecordSet;
 import org.jboss.pnc.model.BuildStatus;
-import org.jboss.pnc.model.BuiltArtifact;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.datastore.Datastore;
 import org.jboss.pnc.spi.datastore.predicates.UserPredicates;
@@ -86,7 +85,7 @@ public class DefaultDatastore implements Datastore {
         BuildRecord buildRecord = buildRecordBuilder.build();
         refreshBuildConfiguration(buildRecord);
         buildRecord.setDependencies(saveArtifacts(buildRecord.getDependencies()));
-        buildRecord.setBuiltArtifacts(saveBuiltArtifacts(buildRecord.getBuiltArtifacts()));
+        buildRecord.setBuiltArtifacts(saveArtifacts(buildRecord.getBuiltArtifacts()));
         buildRecord = buildRecordRepository.save(buildRecord);
         for(BuildRecordSet buildRecordSet : buildRecordSetRepository.queryWithPredicates(withBuildRecordSetIdInSet(buildRecordSetIds))) {
             buildRecordSet.addBuildRecord(buildRecord);
@@ -97,9 +96,8 @@ public class DefaultDatastore implements Datastore {
     }
 
     /**
-     * Save the unsaved artifacts in the list to the database.  For each artifact in the given list,
-     * check if the artifact exists in the database.  If it already exists, replace it with the JPA
-     * entity loaded from the database.  If it does not exist, add it to the database.
+     * Checks the given list against the existing database and creates a new list containing 
+     * artifacts which have been saved to or loaded from the database.
      * 
      * @param List of in-memory artifacts to either insert to the database or find the matching record in the db
      * @return List of up to date JPA artifact entities
@@ -113,30 +111,6 @@ public class DefaultDatastore implements Datastore {
                 artifactFromDb = artifactRepository.save(artifact);
             }
             savedArtifacts.add(artifactFromDb);
-        }
-        return savedArtifacts;
-    }
-
-    /**
-     * Match the built artifacts in the list to existing artifacts in the database
-     * If no matching artifact exists in the db, the artifact is kept as-is
-     * 
-     * @param artifacts to store to the db
-     * @return List of artifacts stored in db
-     */
-    private List<BuiltArtifact> saveBuiltArtifacts(List<BuiltArtifact> builtArtifacts) {
-        List<BuiltArtifact> savedArtifacts = new ArrayList<>();
-        for (BuiltArtifact builtArtifact : builtArtifacts) {
-            Artifact artifactFromDb = artifactRepository
-                    .queryByPredicates(withIdentifierAndChecksum(builtArtifact.getIdentifier(), builtArtifact.getChecksum()));
-            if (artifactFromDb == null) {
-                BuiltArtifact buildArtifactFromDb = (BuiltArtifact)artifactRepository.save(builtArtifact);
-                savedArtifacts.add(buildArtifactFromDb);
-            } else if (artifactFromDb instanceof BuiltArtifact) {
-                savedArtifacts.add((BuiltArtifact)artifactFromDb);
-            } else {
-                // TODO: how should we handle when a built artifact matches an existing imported artifact?
-            }
         }
         return savedArtifacts;
     }

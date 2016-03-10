@@ -20,7 +20,6 @@ package org.jboss.pnc.mock.repositorymanager;
 
 import org.jboss.pnc.mock.model.builders.ArtifactBuilder;
 import org.jboss.pnc.model.Artifact;
-import org.jboss.pnc.model.BuiltArtifact;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
 
 import java.util.Arrays;
@@ -33,8 +32,8 @@ public class RepositoryManagerResultMock {
     public static RepositoryManagerResult mockResult() {
         return new RepositoryManagerResult() {
             @Override
-            public List<BuiltArtifact> getBuiltArtifacts() {
-                BuiltArtifact[] artifacts = {ArtifactBuilder.mockBuiltArtifact(11), ArtifactBuilder.mockBuiltArtifact(12)};
+            public List<Artifact> getBuiltArtifacts() {
+                Artifact[] artifacts = {ArtifactBuilder.mockBuiltArtifact(11), ArtifactBuilder.mockBuiltArtifact(12)};
                 return Arrays.asList(artifacts);
             }
 

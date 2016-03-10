@@ -34,8 +34,6 @@
     <class>org.jboss.pnc.model.BuildEnvironment</class>
     <class>org.jboss.pnc.model.BuildRecord</class>
     <class>org.jboss.pnc.model.BuildRecordSet</class>
-    <class>org.jboss.pnc.model.BuiltArtifact</class>
-    <class>org.jboss.pnc.model.ImportedArtifact</class>
     <class>org.jboss.pnc.model.License</class>
     <class>org.jboss.pnc.model.Product</class>
     <class>org.jboss.pnc.model.ProductMilestone</class>

@@ -19,7 +19,6 @@
 package org.jboss.pnc.rest.restmodel;
 
 import org.jboss.pnc.model.Artifact;
-import org.jboss.pnc.model.BuiltArtifact;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
 
 import javax.xml.bind.annotation.XmlRootElement;
@@ -30,7 +29,7 @@ import java.util.List;
  */
 @XmlRootElement(name = "repositoryManagerResult")
 public class RepositoryManagerResultRest implements RepositoryManagerResult{
-    private List<BuiltArtifact> builtArtifacts;
+    private List<Artifact> builtArtifacts;
     private List<Artifact> dependencies;
     private String buildContentId;
 
@@ -43,7 +42,7 @@ public class RepositoryManagerResultRest implements RepositoryManagerResult{
     }
 
     @Override
-    public List<BuiltArtifact> getBuiltArtifacts() {
+    public List<Artifact> getBuiltArtifacts() {
         return builtArtifacts;
     }
 

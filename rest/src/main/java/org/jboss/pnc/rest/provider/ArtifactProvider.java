@@ -19,7 +19,6 @@ package org.jboss.pnc.rest.provider;
 
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.BuildRecord;
-import org.jboss.pnc.model.BuiltArtifact;
 import org.jboss.pnc.rest.provider.collection.CollectionInfo;
 import org.jboss.pnc.rest.provider.collection.CollectionInfoCollector;
 import org.jboss.pnc.rest.restmodel.ArtifactRest;

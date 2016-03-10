@@ -22,7 +22,6 @@ import org.commonjava.indy.model.core.StoreType;
 import org.jboss.pnc.mavenrepositorymanager.fixture.TestBuildExecution;
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.BuildRecord;
-import org.jboss.pnc.model.BuiltArtifact;
 import org.jboss.pnc.spi.repositorymanager.BuildExecution;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
 import org.jboss.pnc.spi.repositorymanager.model.RepositorySession;
@@ -61,7 +60,7 @@ public class VerifyManualDeletionOfBuildRepoTest extends AbstractRepositoryManag
         RepositoryManagerResult result = session.extractBuildArtifacts();
 
         // do some sanity checks while we're here
-        List<BuiltArtifact> deps = result.getBuiltArtifacts();
+        List<Artifact> deps = result.getBuiltArtifacts();
         assertThat(deps.size(), equalTo(1));
 
         Artifact a = deps.get(0);

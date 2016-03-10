@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.model;
 
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -35,12 +36,10 @@ import javax.validation.constraints.NotNull;
  * 
  */
 @Entity
-@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
-@DiscriminatorColumn(name = "type")
 @Table(uniqueConstraints = @UniqueConstraint(columnNames = { "identifier", "checksum" }) )
-public abstract class Artifact implements GenericEntity<Integer> {
+public class Artifact implements GenericEntity<Integer> {
 
-    private static final long serialVersionUID = -2368833657284575734L;
+    private static final long serialVersionUID = 1L;
     public static final String SEQUENCE_NAME = "artifact_id_seq";
 
     @Id
@@ -78,20 +77,42 @@ public abstract class Artifact implements GenericEntity<Integer> {
     @Column(updatable=false)
     private String deployUrl;
 
-    @Column(insertable=false, updatable=false)
-    private String type;
+    /**
+     * Whether this artifact was imported from a remote system.
+     * If false, there should be at least one buildRecord which produced this artifact
+     */
+    private boolean imported;
 
     /**
-     * The builds for which this artifact is a dependency
+     * The record of the build which produced this artifact
      */
-    @NotNull
+    @ManyToMany(mappedBy = "builtArtifacts")
+    private Set<BuildRecord> buildRecords;
+
+    /**
+     * The builds which depend on this artifact
+     */
     @ManyToMany(mappedBy = "dependencies")
     private Set<BuildRecord> dependantBuildRecords;
 
     /**
-     * Instantiates a new artifact.
+     * The location from which this artifact was originally downloaded
+     */
+    @Column(unique=true, updatable=false)
+    private String originUrl;
+
+    /**
+     * The date when this artifact was originally downloaded
+     */
+    @Column(updatable=false)
+    private Date downloadDate;
+
+    /**
+     * Basic no-arg constructor.  Initializes the buildRecords and dependantBuildRecords to 
+     * empty set.
      */
     public Artifact() {
+        buildRecords = new HashSet<BuildRecord>();
         dependantBuildRecords = new HashSet<BuildRecord>();
     }
 
@@ -190,13 +211,45 @@ public abstract class Artifact implements GenericEntity<Integer> {
     }
 
     /**
-     * Gets the type of the artifact, i.e. whether it has been imported or built internally.
-     * The possible types are defined by string constants in the ArtifactType interface.
+     * Indicates whether the artifact was downloaded from a remote repository.
+     * If false, it indicates that this artifact was built from source.
      *
-     * @return the type
+     * @return true if the artifact was imported, otherwise false
      */
-    public String getType() {
-        return type;
+    public boolean getImported() {
+        return imported;
+    }
+
+    public void setImported(boolean imported) {
+        this.imported = imported;
+    }
+
+    /**
+     * Gets the set of build records which produced this artifact.
+     *
+     * @return the set of build records
+     */
+    public Set<BuildRecord> getBuildRecords() {
+        return buildRecords;
+    }
+
+    /**
+     * Sets the project build record.
+     *
+     * @param buildRecords the set of build records
+     */
+    public void setBuildRecords(Set<BuildRecord> buildRecords) {
+        this.buildRecords = buildRecords;
+    }
+
+    /**
+     * Add a build record which produced this artifact
+     *
+     * @param buildRecord the new project build record
+     * @return 
+     */
+    public boolean addBuildRecord(BuildRecord buildRecord) {
+        return this.buildRecords.add(buildRecord);
     }
 
     public Set<BuildRecord> getDependantBuildRecords() {
@@ -227,9 +280,133 @@ public abstract class Artifact implements GenericEntity<Integer> {
         this.repoType = repoType;
     }
 
-    @Override
-    public String toString() {
-        return "Artifact [id: " + id + ", identifier=" + identifier + ", type=" + type + "]";
+    public String getOriginUrl() {
+        return originUrl;
     }
 
+    public void setOriginUrl(String originUrl) {
+        this.originUrl = originUrl;
+    }
+
+    public Date getDownloadDate() {
+        return downloadDate;
+    }
+
+    public void setDownloadDate(Date downloadDate) {
+        this.downloadDate = downloadDate;
+    }
+
+    @Override
+    public String toString() {
+        return "Artifact [id: " + id + ", identifier=" + identifier + ", imported=" + imported + "]";
+    }
+
+    public static class Builder {
+
+        private Integer id;
+
+        private String identifier;
+
+        private RepositoryType repoType;
+
+        private String checksum;
+
+        private String filename;
+
+        private String deployUrl;
+
+        private Set<BuildRecord> dependantBuildRecords;
+
+        private Set<BuildRecord> buildRecords;
+
+        private boolean imported;
+
+        private String originUrl;
+
+        private Date downloadDate;
+
+        private Builder() {
+            buildRecords = new HashSet<>();
+            dependantBuildRecords = new HashSet<>();
+        }
+
+        public static Builder newBuilder() {
+            return new Builder();
+        }
+
+        public Artifact build() {
+            Artifact artifact = new Artifact();
+            artifact.setId(id);
+            artifact.setIdentifier(identifier);
+            artifact.setRepoType(repoType);
+            artifact.setChecksum(checksum);
+            artifact.setFilename(filename);
+            artifact.setDeployUrl(deployUrl);
+            if (dependantBuildRecords != null) {
+                artifact.setDependantBuildRecords(dependantBuildRecords);
+            }
+            artifact.setBuildRecords(buildRecords);
+            artifact.setImported(imported);
+            artifact.setOriginUrl(originUrl);
+            artifact.setDownloadDate(downloadDate);
+
+            return artifact;
+        }
+
+        public Builder id(Integer id) {
+            this.id = id;
+            return this;
+        }
+
+        public Builder identifier(String identifier) {
+            this.identifier = identifier;
+            return this;
+        }
+
+        public Builder repoType(RepositoryType repoType) {
+            this.repoType = repoType;
+            return this;
+        }
+
+        public Builder checksum(String checksum) {
+            this.checksum = checksum;
+            return this;
+        }
+
+        public Builder filename(String filename) {
+            this.filename = filename;
+            return this;
+        }
+
+        public Builder deployUrl(String deployUrl) {
+            this.deployUrl = deployUrl;
+            return this;
+        }
+
+        public Builder dependantBuildRecords(Set<BuildRecord> dependantBuildRecords) {
+            this.dependantBuildRecords = dependantBuildRecords;
+            return this;
+        }
+
+        public Builder buildRecord(Set<BuildRecord> buildRecords) {
+            this.buildRecords = buildRecords;
+            return this;
+        }
+
+        public Builder imported(boolean imported) {
+            this.imported = imported;
+            return this;
+        }
+
+        public Builder originUrl(String originUrl) {
+            this.originUrl = originUrl;
+            return this;
+        }
+
+        public Builder downloadDate(Date downloadDate) {
+            this.downloadDate = downloadDate;
+            return this;
+        }
+
+    }
 }
