@@ -177,6 +177,10 @@ public class Artifact implements GenericEntity<Integer> {
     }
 
     public void setArtifactQuality(ArtifactQuality artifactQuality) {
+        if(ArtifactQuality.IMPORTED.equals(artifactQuality) && buildRecords != null && buildRecords.size() > 0) {
+            // Don't allow the quality to be set to IMPORTED if there is a build record
+            return;
+        }
         this.artifactQuality = artifactQuality;
     }
 

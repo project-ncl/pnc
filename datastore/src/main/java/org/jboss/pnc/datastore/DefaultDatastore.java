@@ -19,6 +19,7 @@ package org.jboss.pnc.datastore;
 
 import org.jboss.pnc.datastore.repositories.SequenceHandlerRepository;
 import org.jboss.pnc.model.Artifact;
+import org.jboss.pnc.model.ArtifactQuality;
 import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
@@ -47,6 +48,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import static org.jboss.pnc.model.ArtifactQuality.*;
 import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withIdentifierAndChecksum;
 import static org.jboss.pnc.spi.datastore.predicates.BuildRecordSetPredicates.withBuildRecordSetIdInSet;
 
@@ -109,6 +111,9 @@ public class DefaultDatastore implements Datastore {
                     .queryByPredicates(withIdentifierAndChecksum(artifact.getIdentifier(), artifact.getChecksum()));
             if (artifactFromDb == null) {
                 artifactFromDb = artifactRepository.save(artifact);
+            } else if (BUILT.equals(artifact.getArtifactQuality()) && IMPORTED.equals(artifactFromDb.getArtifactQuality())) {
+                artifactFromDb.setArtifactQuality(BUILT);
+                artifactFromDb = artifactRepository.save(artifactFromDb);
             }
             savedArtifacts.add(artifactFromDb);
         }

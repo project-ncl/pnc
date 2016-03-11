@@ -40,11 +40,6 @@ public enum ArtifactQuality {
     TESTED,
 
     /**
-     * The artifact is part of a currently supported product runtime.
-     */
-    SUPPORTED,
-
-    /**
      * The artifact should no longer be used due to lack of support and/or a better alternative
      * being available.
      */
