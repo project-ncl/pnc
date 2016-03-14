@@ -19,6 +19,9 @@ package org.jboss.pnc.model;
 
 import org.hibernate.annotations.Type;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 
@@ -59,7 +62,12 @@ public class BuildEnvironment implements GenericEntity<Integer> {
     @Column(updatable=false)
     private String systemImageId;
 
-    @Enumerated(EnumType.STRING)
+    @ElementCollection
+    @CollectionTable(name="build_environment_attributes", joinColumns=@JoinColumn(name="build_environment_id"))
+    @MapKeyColumn(name="name")
+    @Column(name="value")
+    private Map<String, String> attributes = new HashMap<String, String>();
+
     private BuildType buildType;
 
     public BuildEnvironment() {
@@ -103,6 +111,22 @@ public class BuildEnvironment implements GenericEntity<Integer> {
         return systemImageId;
     }
 
+    public Map<String, String> getAttributes() {
+        return attributes;
+    }
+
+    public void setAttributes(Map<String, String> attributes) {
+        this.attributes = attributes;
+    }
+
+    public String getAttribute(String key) {
+        return attributes.get(key);
+    }
+
+    public String putAttribute(String key, String value) {
+        return attributes.put(key, value);
+    }
+
     public BuildType getBuildType() {
         return buildType;
     }
@@ -128,6 +152,8 @@ public class BuildEnvironment implements GenericEntity<Integer> {
 
         private String systemImageId;
 
+        private Map<String, String> attributes = new HashMap<>();
+
         private BuildType buildType = BuildType.JAVA;
 
         private Builder() {
@@ -145,6 +171,7 @@ public class BuildEnvironment implements GenericEntity<Integer> {
             buildSystemImage.setDescription(description);
             buildSystemImage.setSystemImageRepositoryUrl(systemImageRepositoryUrl);
             buildSystemImage.systemImageId = systemImageId;
+            buildSystemImage.setAttributes(attributes);
             buildSystemImage.setBuildType(buildType);
             return buildSystemImage;
         }
@@ -171,6 +198,16 @@ public class BuildEnvironment implements GenericEntity<Integer> {
 
         public Builder systemImageId(String systemImageId) {
             this.systemImageId = systemImageId;
+            return this;
+        }
+
+        public Builder attributes(Map<String, String> attributes) {
+            this.attributes = attributes;
+            return this;
+        }
+
+        public Builder attribute(String key, String value) {
+            this.attributes.put(key, value);
             return this;
         }
 

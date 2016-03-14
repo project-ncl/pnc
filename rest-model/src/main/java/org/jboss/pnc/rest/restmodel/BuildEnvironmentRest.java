@@ -23,6 +23,8 @@ import org.jboss.pnc.model.BuildType;
 import org.jboss.pnc.rest.validation.groups.WhenCreatingNew;
 import org.jboss.pnc.rest.validation.groups.WhenUpdating;
 
+import java.util.Map;
+
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -46,6 +48,8 @@ public class BuildEnvironmentRest implements GenericRestEntity<Integer> {
     @ApiModelProperty(dataType = "string")
     private String systemImageId;
 
+    private Map<String, String> attributes;
+
     @ApiModelProperty(dataType = "string")
     private BuildType buildType;
 
@@ -58,6 +62,7 @@ public class BuildEnvironmentRest implements GenericRestEntity<Integer> {
         this.description = buildSystemImage.getDescription();
         this.systemImageRepositoryUrl = buildSystemImage.getSystemImageRepositoryUrl();
         this.systemImageId = buildSystemImage.getSystemImageId();
+        this.attributes = buildSystemImage.getAttributes();
         this.buildType = buildSystemImage.getBuildType();
     }
 
@@ -122,6 +127,14 @@ public class BuildEnvironmentRest implements GenericRestEntity<Integer> {
         this.systemImageId = imageId;
     }
 
+    public Map<String, String> getAttributes() {
+        return attributes;
+    }
+
+    public void setAttributes(Map<String, String> attributes) {
+        this.attributes = attributes;
+    }
+
     public BuildEnvironment.Builder toDBEntityBuilder() {
         return BuildEnvironment.Builder.newBuilder()
                 .id(this.getId())
@@ -129,6 +142,7 @@ public class BuildEnvironmentRest implements GenericRestEntity<Integer> {
                 .description(this.getDescription())
                 .systemImageRepositoryUrl(this.getSystemImageRepositoryUrl())
                 .systemImageId(this.getImageId())
+                .attributes(this.getAttributes())
                 .buildType(this.getBuildType());
     }
 }
