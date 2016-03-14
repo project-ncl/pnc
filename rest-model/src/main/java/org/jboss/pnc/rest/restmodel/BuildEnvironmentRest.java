@@ -41,7 +41,7 @@ public class BuildEnvironmentRest implements GenericRestEntity<Integer> {
     private String description;
 
     @ApiModelProperty(dataType = "string")
-    private String imageRepositoryUrl;
+    private String systemImageRepositoryUrl;
 
     @ApiModelProperty(dataType = "string")
     private String systemImageId;
@@ -56,7 +56,7 @@ public class BuildEnvironmentRest implements GenericRestEntity<Integer> {
         this.id = buildSystemImage.getId();
         this.name = buildSystemImage.getName();
         this.description = buildSystemImage.getDescription();
-        this.imageRepositoryUrl = buildSystemImage.getImageRepositoryUrl();
+        this.systemImageRepositoryUrl = buildSystemImage.getSystemImageRepositoryUrl();
         this.systemImageId = buildSystemImage.getSystemImageId();
         this.buildType = buildSystemImage.getBuildType();
     }
@@ -96,12 +96,22 @@ public class BuildEnvironmentRest implements GenericRestEntity<Integer> {
         this.description = description;
     }
 
+    @Deprecated
     public String getImageRepositoryUrl() {
-        return imageRepositoryUrl;
+        return systemImageRepositoryUrl;
     }
 
-    public void setImageRepositoryUrl(String imageRepositoryUrl) {
-        this.imageRepositoryUrl = imageRepositoryUrl;
+    @Deprecated
+    public void setImageRepositoryUrl(String systemImageRepositoryUrl) {
+        this.systemImageRepositoryUrl = systemImageRepositoryUrl;
+    }
+
+    public String getSystemImageRepositoryUrl() {
+        return systemImageRepositoryUrl;
+    }
+
+    public void setSystemImageRepositoryUrl(String systemImageRepositoryUrl) {
+        this.systemImageRepositoryUrl = systemImageRepositoryUrl;
     }
 
     public String getImageId() {
@@ -117,7 +127,7 @@ public class BuildEnvironmentRest implements GenericRestEntity<Integer> {
                 .id(this.getId())
                 .name(this.getName())
                 .description(this.getDescription())
-                .imageRepositoryUrl(this.getImageRepositoryUrl())
+                .systemImageRepositoryUrl(this.getSystemImageRepositoryUrl())
                 .systemImageId(this.getImageId())
                 .buildType(this.getBuildType());
     }

@@ -48,9 +48,9 @@ public class BuildEnvironment implements GenericEntity<Integer> {
     private String description;
 
     /**
-     * The URL of the repository which contains the build system images.
+     * The URL of the repository which contains the build system image.
      */
-    private String imageRepositoryUrl;
+    private String systemImageRepositoryUrl;
 
     /**
      * A unique identifier representing the system image, for example a Docker container ID.
@@ -91,12 +91,12 @@ public class BuildEnvironment implements GenericEntity<Integer> {
         this.description = description;
     }
 
-    public String getImageRepositoryUrl() {
-        return imageRepositoryUrl;
+    public String getSystemImageRepositoryUrl() {
+        return systemImageRepositoryUrl;
     }
 
-    public void setImageRepositoryUrl(String imageRepositoryUrl) {
-        this.imageRepositoryUrl = imageRepositoryUrl;
+    public void setSystemImageRepositoryUrl(String systemImageRepositoryUrl) {
+        this.systemImageRepositoryUrl = systemImageRepositoryUrl;
     }
 
     public String getSystemImageId() {
@@ -124,7 +124,7 @@ public class BuildEnvironment implements GenericEntity<Integer> {
 
         private String description;
 
-        private String imageRepositoryUrl;
+        private String systemImageRepositoryUrl;
 
         private String systemImageId;
 
@@ -143,7 +143,7 @@ public class BuildEnvironment implements GenericEntity<Integer> {
             buildSystemImage.setId(id);
             buildSystemImage.setName(name);
             buildSystemImage.setDescription(description);
-            buildSystemImage.setImageRepositoryUrl(imageRepositoryUrl);
+            buildSystemImage.setSystemImageRepositoryUrl(systemImageRepositoryUrl);
             buildSystemImage.systemImageId = systemImageId;
             buildSystemImage.setBuildType(buildType);
             return buildSystemImage;
@@ -164,8 +164,8 @@ public class BuildEnvironment implements GenericEntity<Integer> {
             return this;
         }
 
-        public Builder imageRepositoryUrl(String imageRepositoryUrl) {
-            this.imageRepositoryUrl = imageRepositoryUrl;
+        public Builder systemImageRepositoryUrl(String systemImageRepositoryUrl) {
+            this.systemImageRepositoryUrl = systemImageRepositoryUrl;
             return this;
         }
 
