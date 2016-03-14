@@ -56,6 +56,7 @@ public class BuildEnvironment implements GenericEntity<Integer> {
      * A unique identifier representing the system image, for example a Docker container ID.
      * This should never be modified once the db record has been created.
      */
+    @Column(updatable=false)
     private String systemImageId;
 
     @Enumerated(EnumType.STRING)
