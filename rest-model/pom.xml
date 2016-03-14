@@ -89,6 +89,11 @@
       <artifactId>swagger-jaxrs</artifactId>
     </dependency>
 
+    <dependency>
+      <groupId>commons-validator</groupId>
+      <artifactId>commons-validator</artifactId>
+    </dependency>
+
     <!-- Test dependencies -->
     <dependency>
       <groupId>org.jboss.pnc</groupId>

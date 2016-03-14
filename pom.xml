@@ -822,6 +822,12 @@
         <version>0.2-SNAPSHOT</version>
       </dependency>
 
+      <dependency>
+        <groupId>commons-validator</groupId>
+        <artifactId>commons-validator</artifactId>
+        <version>1.5.0</version>
+      </dependency>
+
     </dependencies>
   </dependencyManagement>
 
