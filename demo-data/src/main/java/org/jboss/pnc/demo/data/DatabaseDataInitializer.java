@@ -158,6 +158,9 @@ public class DatabaseDataInitializer {
 
         BuildEnvironment environment1Unsaved = BuildEnvironment.Builder.newBuilder()
                 .name("Demo Environment 1")
+                .description("Basic Java and Maven Environment")
+                .attribute("JDK", "1.7.0")
+                .attribute("OS", "Linux")
                 .build();
         BuildEnvironment environment1 = environmentRepository.save(environment1Unsaved);
 
