@@ -38,7 +38,6 @@
 
       that.product = productDetail;
       that.productVersion = versionDetail;
-      that.setCurrentMilestone = false;
       that.isUpdating = false;
 
       that.data = new ProductMilestoneDAO();
@@ -54,6 +53,11 @@
         that.data.startingDate = dateUtilConverter.convertFromTimestampNoonUTC(that.data.startingDate);
         that.data.plannedEndDate = dateUtilConverter.convertFromTimestampNoonUTC(that.data.plannedEndDate);
       }
+
+      that.setCurrentMilestone = that.productVersion.currentProductMilestoneId === that.data.id;
+
+      // milestone can be only marked as current, not unmarked
+      that.setCurrentMilestoneDisabled = that.setCurrentMilestone;
 
       that.invalidStartingPlannedEndDates = function(sDate, prDate) {
         if (sDate === undefined || prDate === undefined) {
@@ -111,16 +115,20 @@
             }
           );
         } else {
-          that.data.$update().then(
-            function() {
+          if (that.setCurrentMilestone) {
+            that.productVersion.currentProductMilestoneId = that.data.id;
+          }
+          
+          that.productVersion.$update().then(function(){
+            that.data.$update().then(function() {
               $state.go('product.detail.version', {
                 productId: productDetail.id,
                 versionId: versionDetail.id
               }, {
                 reload: true
               });
-            }
-          );
+            });
+          });
         }
       };
 
