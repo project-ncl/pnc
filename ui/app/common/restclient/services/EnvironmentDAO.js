@@ -32,14 +32,16 @@
     'REST_BASE_URL',
     'ENVIRONMENT_ENDPOINT',
     'PageFactory',
-    function($resource, REST_BASE_URL, ENVIRONMENT_ENDPOINT, PageFactory) {
+    'QueryHelper',
+    function($resource, REST_BASE_URL, ENVIRONMENT_ENDPOINT, PageFactory, qh) {
       var ENDPOINT = REST_BASE_URL + ENVIRONMENT_ENDPOINT;
 
       var resource = $resource(ENDPOINT, {
         environmentId: '@id'
       },{
         _getAll: {
-          method: 'GET'
+          method: 'GET',
+          url: ENDPOINT + qh.searchOnly(['name', 'description'])
         },
         update: {
           method: 'PUT'
