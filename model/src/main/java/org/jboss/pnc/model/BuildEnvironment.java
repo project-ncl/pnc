@@ -19,6 +19,9 @@ package org.jboss.pnc.model;
 
 import org.hibernate.annotations.Type;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 
@@ -48,17 +51,23 @@ public class BuildEnvironment implements GenericEntity<Integer> {
     private String description;
 
     /**
-     * The URL of the repository which contains the build system images.
+     * The URL of the repository which contains the build system image.
      */
-    private String imageRepositoryUrl;
+    private String systemImageRepositoryUrl;
 
     /**
      * A unique identifier representing the system image, for example a Docker container ID.
      * This should never be modified once the db record has been created.
      */
+    @Column(updatable=false)
     private String systemImageId;
 
-    @Enumerated(EnumType.STRING)
+    @ElementCollection
+    @CollectionTable(name="build_environment_attributes", joinColumns=@JoinColumn(name="build_environment_id"))
+    @MapKeyColumn(name="name")
+    @Column(name="value")
+    private Map<String, String> attributes = new HashMap<String, String>();
+
     private BuildType buildType;
 
     public BuildEnvironment() {
@@ -90,16 +99,32 @@ public class BuildEnvironment implements GenericEntity<Integer> {
         this.description = description;
     }
 
-    public String getImageRepositoryUrl() {
-        return imageRepositoryUrl;
+    public String getSystemImageRepositoryUrl() {
+        return systemImageRepositoryUrl;
     }
 
-    public void setImageRepositoryUrl(String imageRepositoryUrl) {
-        this.imageRepositoryUrl = imageRepositoryUrl;
+    public void setSystemImageRepositoryUrl(String systemImageRepositoryUrl) {
+        this.systemImageRepositoryUrl = systemImageRepositoryUrl;
     }
 
     public String getSystemImageId() {
         return systemImageId;
+    }
+
+    public Map<String, String> getAttributes() {
+        return attributes;
+    }
+
+    public void setAttributes(Map<String, String> attributes) {
+        this.attributes = attributes;
+    }
+
+    public String getAttribute(String key) {
+        return attributes.get(key);
+    }
+
+    public String putAttribute(String key, String value) {
+        return attributes.put(key, value);
     }
 
     public BuildType getBuildType() {
@@ -123,9 +148,11 @@ public class BuildEnvironment implements GenericEntity<Integer> {
 
         private String description;
 
-        private String imageRepositoryUrl;
+        private String systemImageRepositoryUrl;
 
         private String systemImageId;
+
+        private Map<String, String> attributes = new HashMap<>();
 
         private BuildType buildType = BuildType.JAVA;
 
@@ -142,8 +169,9 @@ public class BuildEnvironment implements GenericEntity<Integer> {
             buildSystemImage.setId(id);
             buildSystemImage.setName(name);
             buildSystemImage.setDescription(description);
-            buildSystemImage.setImageRepositoryUrl(imageRepositoryUrl);
+            buildSystemImage.setSystemImageRepositoryUrl(systemImageRepositoryUrl);
             buildSystemImage.systemImageId = systemImageId;
+            buildSystemImage.setAttributes(attributes);
             buildSystemImage.setBuildType(buildType);
             return buildSystemImage;
         }
@@ -163,13 +191,23 @@ public class BuildEnvironment implements GenericEntity<Integer> {
             return this;
         }
 
-        public Builder imageRepositoryUrl(String imageRepositoryUrl) {
-            this.imageRepositoryUrl = imageRepositoryUrl;
+        public Builder systemImageRepositoryUrl(String systemImageRepositoryUrl) {
+            this.systemImageRepositoryUrl = systemImageRepositoryUrl;
             return this;
         }
 
         public Builder systemImageId(String systemImageId) {
             this.systemImageId = systemImageId;
+            return this;
+        }
+
+        public Builder attributes(Map<String, String> attributes) {
+            this.attributes = attributes;
+            return this;
+        }
+
+        public Builder attribute(String key, String value) {
+            this.attributes.put(key, value);
             return this;
         }
 
