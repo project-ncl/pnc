@@ -1,10 +1,15 @@
 {
-"@class":"ModuleConfigJson","name":"pnc-config",
-        "configs":[
-          {
-            "@module-config":"system-config",
-            "buildDriverId":"not me",
-            "buildSchedulerId":"not me"
-          }
-        ]
+  "@class":"ModuleConfigJson","name":"pnc-config",
+  "configs":[
+    {
+      "@module-group":"pnc",
+      "configs": [
+        {
+          "@module-config":"system-config",
+          "buildDriverId":"not me",
+          "buildSchedulerId":"not me"
+        }
+      ]
+    }
+  ]
 }

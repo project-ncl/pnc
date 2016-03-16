@@ -41,6 +41,7 @@ import java.util.List;
 import java.util.Properties;
 
 import static org.hamcrest.CoreMatchers.equalTo;
+import org.jboss.pnc.common.json.PNCModuleGroup;
 import static org.junit.Assert.assertThat;
 
 public class AbstractRepositoryManagerDriverTest {
@@ -69,7 +70,9 @@ public class AbstractRepositoryManagerDriverTest {
         File configFile = temp.newFile("pnc-config.json");
         ModuleConfigJson moduleConfigJson = new ModuleConfigJson("pnc-config");
         MavenRepoDriverModuleConfig mavenRepoDriverModuleConfig = new MavenRepoDriverModuleConfig(fixture.getUrl());
-        moduleConfigJson.addConfig(mavenRepoDriverModuleConfig);
+        PNCModuleGroup pncGroup = new PNCModuleGroup();
+        pncGroup.addConfig(mavenRepoDriverModuleConfig);
+        moduleConfigJson.addConfig(pncGroup);
 
         ObjectMapper mapper = new ObjectMapper();
         PncConfigProvider<MavenRepoDriverModuleConfig> pncProvider = 

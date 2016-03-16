@@ -22,10 +22,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.IOException;
 
 /**
  * @author Pavel Slegr
  * @author Jakub Bartecek &lt;jbartece@redhat.com&gt;
+ * @author Honza Brazdil &lt;jbrazdil@redhat.com&gt;
  */
 public class ConfigurationJSONParser {
 
@@ -40,23 +42,47 @@ public class ConfigurationJSONParser {
      * @return Loaded configuration
      * @throws ConfigurationParseException Thrown if configuration string is malformed
      */
-    public <T extends AbstractModuleConfig> T parseJSONConfig(
+    public <T extends AbstractModuleConfig> T parseJSONPNCConfig(
             String configContent, ConfigProvider<T> provider) throws ConfigurationParseException {
         try {
             ObjectMapper mapper = new ObjectMapper();
             provider.registerProvider(mapper);
             
-            ModuleConfigJson jsonConfig = mapper.readValue(configContent, ModuleConfigJson.class);
+            PNCModuleGroup pncGroup = getModuleGroup(mapper, configContent,
+                    PNCModuleGroup.class);
 
-            for (AbstractModuleConfig config : jsonConfig.getConfigs()) {
+            for (AbstractModuleConfig config : pncGroup.getConfigs()) {
                 if (config.getClass().isAssignableFrom(provider.getType())) {
                     return (T) config;
                 }
             }
+
             throw new ConfigurationParseException("Config could not be parsed");
-        } catch (Exception e) {
+        } catch (IOException | RuntimeException e) {
             log.error(e.getMessage());
             throw new ConfigurationParseException("Config could not be parsed", e);
         }
     }
+
+    public GlobalModuleGroup parseJSONGlobalConfig(String configContent) throws ConfigurationParseException {
+        try {
+            return getModuleGroup(new ObjectMapper(), configContent,
+                    GlobalModuleGroup.class);
+        } catch (IOException | RuntimeException e) {
+            throw new ConfigurationParseException("Config could not be parsed", e);
+        }
+    }
+
+    private <T> T getModuleGroup(ObjectMapper mapper, String configContent, Class<T> type) throws IOException, ConfigurationParseException {
+        mapper.registerSubtypes(type);
+        ModuleConfigJson jsonConfig = mapper.readValue(configContent, ModuleConfigJson.class);
+
+        for (AbstractModuleGroup group : jsonConfig.getConfigs()) {
+            if (group.getClass().isAssignableFrom(type)) {
+                return (T) group;
+            }
+        }
+        throw new ConfigurationParseException("Config group could not be parsed");
+    }
+
 }

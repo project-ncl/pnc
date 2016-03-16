@@ -1,24 +1,38 @@
 {
-"@class":"ModuleConfigJson","name":"pnc-config",
-        "configs":[
-          {
-            "@module-config":"jenkins-build-driver",
-            "username":"user",
-            "password":"pass"
-          },
-          {
-            "@module-config":"maven-repo-driver",
-            "baseUrl":"1.1.1.1"
-          },
-          {
-            "@module-config":"docker-environment-driver",
-            "ip":"2.2.2.2",
-            "inContainerUser":"contUser",
-            "inContainerUserPassword":"contPass",
-            "dockerImageId":"imageId",
-            "proxyServer":"1.2.3.4",           
-            "proxyPort":"3128",
-            "firewallAllowedDestinations":"3.3.3.3:44"
-          }
-        ]
+    "@class": "ModuleConfigJson",
+    "name": "pnc-config",
+    "configs": [
+        {
+            "@module-group": "global",
+            "aproxUrl": "127.0.0.1",
+            "bpmUrl": "1.2.3.4",
+            "pncUrl": "1.2.3.5",
+            "repourUrl": "1.2.3.6",
+            "daUrl": "1.2.3.7"
+        },
+        {
+            "@module-group": "pnc",
+            "configs": [
+                {
+                    "@module-config": "jenkins-build-driver",
+                    "username": "user",
+                    "password": "pass"
+                },
+                {
+                    "@module-config": "maven-repo-driver",
+                    "baseUrl": "1.1.1.1"
+                },
+                {
+                    "@module-config": "docker-environment-driver",
+                    "ip": "2.2.2.2",
+                    "inContainerUser": "contUser",
+                    "inContainerUserPassword": "contPass",
+                    "dockerImageId": "imageId",
+                    "proxyServer": "1.2.3.4",
+                    "proxyPort": "3128",
+                    "firewallAllowedDestinations": "3.3.3.3:44"
+                }
+            ]
+        }
+    ]
 }
