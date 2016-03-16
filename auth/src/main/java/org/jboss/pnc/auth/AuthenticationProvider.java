@@ -51,77 +51,74 @@ public class AuthenticationProvider {
     public AuthenticationProvider(HttpServletRequest req){
         try {
             KeycloakSecurityContext keycloakSecurityContext = (KeycloakSecurityContext) req.getAttribute(KeycloakSecurityContext.class.getName());
-            if(req == null || keycloakSecurityContext == null) { 
-                throw new SecurityContextNotAvailable(SecurityContextNotAvailable.MSG);
+            if(keycloakSecurityContext == null) {
+                warnDemoUserUsage("KeycloakSecurityContext not abailable in the HttpServletRequest.");
+            } else {
+                this.auth = keycloakSecurityContext.getToken();
             }
-            this.auth = keycloakSecurityContext.getToken();
         }
         catch (NoClassDefFoundError ncdfe) {
-            log.warn(MSG + ": " + ncdfe.getMessage());
-            log.warn("using " + DemoUser.username + " instead");
-        }
-        catch (SecurityContextNotAvailable scnae) {
-            log.warn(MSG + ": " + scnae.getMessage());
-            log.warn("using " + DemoUser.username + " instead");
+            warnDemoUserUsage(ncdfe.getMessage(), ncdfe);
         }
     }
     
     public AuthenticationProvider(HttpRequest req){
         try {
             KeycloakSecurityContext keycloakSecurityContext = (KeycloakSecurityContext) req.getAttribute(KeycloakSecurityContext.class.getName());
-            if(req == null || keycloakSecurityContext == null) { 
-                throw new SecurityContextNotAvailable(SecurityContextNotAvailable.MSG);
+            if(keycloakSecurityContext == null) {
+                warnDemoUserUsage("KeycloakSecurityContext not abailable in the HttpRequest.");
+            } else {
+                this.auth = keycloakSecurityContext.getToken();
             }
-            this.auth = keycloakSecurityContext.getToken();
         }
         catch (NoClassDefFoundError ncdfe) {
-            log.warn(MSG + ": " + ncdfe.getMessage());
-            log.warn("using " + DemoUser.username + " instead");
-        }
-        catch (SecurityContextNotAvailable scnae) {
-            log.warn(MSG + ": " + scnae.getMessage());
-            log.warn("using " + DemoUser.username + " instead");
+            warnDemoUserUsage(ncdfe.getMessage(), ncdfe);
         }
     }
-    
+
     public AuthenticationProvider(SecurityContext securityContext){
         try {
             KeycloakPrincipal principal =
                     (KeycloakPrincipal)securityContext.getUserPrincipal();
-            if(securityContext == null || principal == null) { 
-                throw new SecurityContextNotAvailable(SecurityContextNotAvailable.MSG);
+            if(principal == null) {
+                warnDemoUserUsage("No principal found in SecurityContext");
+            } else {
+                KeycloakSecurityContext keycloakSecurityContext = principal.getKeycloakSecurityContext();
+                if (keycloakSecurityContext == null) {
+                    warnDemoUserUsage("No keycloak security context found in principal");
+                } else {
+                    this.auth = keycloakSecurityContext.getToken();
+                }
             }
-            KeycloakSecurityContext keycloakSecurityContext = principal.getKeycloakSecurityContext();
-            if(keycloakSecurityContext == null) { 
-                throw new SecurityContextNotAvailable(SecurityContextNotAvailable.MSG);
-            }
-            this.auth = keycloakSecurityContext.getToken();
-        }
-        catch (NoClassDefFoundError ncdfe) {
-            log.warn(MSG + ": " + ncdfe.getMessage());
-            log.warn("using " + DemoUser.username + " instead");
-        }
-        catch (SecurityContextNotAvailable scnae) {
-            log.warn(MSG + ": " + scnae.getMessage());
-            log.warn("using " + DemoUser.username + " instead");
+        } catch (NoClassDefFoundError ncdfe) {
+            warnDemoUserUsage(ncdfe.getMessage(), ncdfe);
         }
     }
-    
+
+    private void warnDemoUserUsage(String warning) {
+        warnDemoUserUsage(warning, null);
+    }
+
+    private void warnDemoUserUsage(String warning, Throwable cause) {
+        if (cause == null) {
+            // todo remove
+            cause = new Exception(warning);
+        }
+        log.warn(MSG + ": " + warning, cause);
+        log.warn("using " + DemoUser.username + " instead");
+    }
+
     public AuthenticationProvider(AccessToken accessToken, AccessTokenResponse atr){
         try {
             if(accessToken == null || atr == null) {
-                throw new SecurityContextNotAvailable(SecurityContextNotAvailable.MSG);
-            } 
-            this.auth = accessToken;
-            this.atr = atr;
+                warnDemoUserUsage(accessToken == null ? "No access token" : "No access token response");
+            } else {
+                this.auth = accessToken;
+                this.atr = atr;
+            }
         }
         catch (NoClassDefFoundError ncdfe) {
-            log.warn(MSG + ": " + ncdfe.getMessage());
-            log.warn("using " + DemoUser.username + " instead");
-        }
-        catch (SecurityContextNotAvailable scnae) {
-            log.warn(MSG + ": " + scnae.getMessage());
-            log.warn("using " + DemoUser.username + " instead");
+            warnDemoUserUsage(ncdfe.getMessage(), ncdfe);
         }
     }
     
@@ -185,7 +182,7 @@ public class AuthenticationProvider {
         static String firstname = "Demo First Name";
         static String lastname = "Demo Last Name";
         static String email = "demo-user@pnc.com";
-        static Set<String> roles = new HashSet<String>();
+        static Set<String> roles = new HashSet<>();
         static {
             roles.add("user");
         }
