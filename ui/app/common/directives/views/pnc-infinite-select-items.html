@@ -30,7 +30,7 @@
 
     <input ng-required="{{ infiniteSelectRequired }}" id="{{ infiniteSelectId }}" name="{{ infiniteSelectId }}" 
         ng-model="searchText" ng-change="search()" placeholder="{{ placeholder }}" size="{{ text.length + 10 }}" 
-        ng-focus="viewDropdown(true)" ng-blur="viewDropdown(false)" class="input-text">
+        ng-focus="viewDropdown(true)" ng-blur="viewDropdown(false)" class="input-text" autocomplete="off">
 
     <div class="dropdown-wrap" ng-show="isDropdown"> 
         <ul infinite-scroll="loadOptions()" 
