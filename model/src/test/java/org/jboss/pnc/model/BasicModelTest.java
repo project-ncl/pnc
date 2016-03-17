@@ -18,6 +18,7 @@
 package org.jboss.pnc.model;
 
 import java.text.SimpleDateFormat;
+import java.time.Instant;
 import java.util.Date;
 import java.util.Set;
 
@@ -120,8 +121,11 @@ public class BasicModelTest {
         productVersion1.setProduct(product1);
         ProductMilestone productMilestone1 = ModelTestDataFactory.getInstance().getProductMilestone1version1();
         productMilestone1.setProductVersion(productVersion1);
-        BuildRecordSet buildRecordSet1 = ModelTestDataFactory.getInstance().getBuildRecordSet("Set 1");
-        productMilestone1.setDistributedBuildRecordSet(buildRecordSet1);
+        Artifact artifact1 = Artifact.Builder.newBuilder().identifier("org.test:artifact1:1.0:jar").checksum("987654321")
+                .filename("artifact1.jar").artifactQuality(ArtifactQuality.IMPORTED)
+                .originUrl("http://central.maven.org/maven2/test.jar").importDate(Date.from(Instant.now()))
+                .repoType(RepositoryType.MAVEN).build();
+        productMilestone1.addDistributedArtifact(artifact1);
         BuildRecordSet buildRecordSet2 = ModelTestDataFactory.getInstance().getBuildRecordSet("Set 2");
         productMilestone1.setPerformedBuildRecordSet(buildRecordSet2);
         ProductRelease productRelease1 = ModelTestDataFactory.getInstance().getProductRelease1();
@@ -132,9 +136,9 @@ public class BasicModelTest {
 
         try {
             tx.begin();
+            em.persist(artifact1);
             em.persist(product1);
             em.persist(productVersion1);
-            em.persist(buildRecordSet1);
             em.persist(buildRecordSet2);
             em.persist(productMilestone1);
             em.persist(productRelease1);

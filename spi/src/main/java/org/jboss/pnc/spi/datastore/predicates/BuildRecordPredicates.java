@@ -21,6 +21,9 @@ import org.jboss.pnc.model.*;
 import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
 
 import javax.persistence.criteria.Join;
+import javax.persistence.criteria.ListJoin;
+import javax.persistence.criteria.SetJoin;
+
 import java.util.Collection;
 
 /**
@@ -64,13 +67,20 @@ public class BuildRecordPredicates {
         }
     }
 
-
     public static Predicate<BuildRecord> withProjectId(Integer projectId) {
         return (root, query, cb) -> {
             Join<BuildRecord, BuildConfigurationAudited> buildConfigurationAudited = root.join(BuildRecord_.buildConfigurationAudited);
             Join<BuildConfigurationAudited, Project> project = buildConfigurationAudited.join(
                     org.jboss.pnc.model.BuildConfigurationAudited_.project);
             return cb.equal(project.get(org.jboss.pnc.model.Project_.id), projectId);
+        };
+    }
+
+    public static Predicate<BuildRecord> withArtifactDistributedInMilestone(Integer productMilestoneId) {
+        return (root, query, cb) -> {
+            ListJoin<BuildRecord, Artifact> builtArtifacts = root.join(BuildRecord_.builtArtifacts);
+            SetJoin<Artifact, ProductMilestone> productMilestones = builtArtifacts.join(Artifact_.distributedInProductMilestones);
+            return cb.equal(productMilestones.get(ProductMilestone_.id), productMilestoneId);
         };
     }
 

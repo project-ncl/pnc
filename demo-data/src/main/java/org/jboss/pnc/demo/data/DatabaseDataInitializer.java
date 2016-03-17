@@ -120,6 +120,7 @@ public class DatabaseDataInitializer {
         Preconditions.checkState(buildConfigurationRepository.count() > 0, "Expecting number of BuildConfigurations > 0");
         Preconditions.checkState(productVersionRepository.count() > 0, "Expecting number of ProductVersions > 0");
         Preconditions.checkState(buildConfigurationSetRepository.count() > 0, "Expecting number of BuildRepositorySets > 0");
+        Preconditions.checkState(artifactRepository.count() > 0, "Expecting number of Artifacts > 0");
 
         BuildConfiguration buildConfigurationDB = buildConfigurationRepository.queryAll().get(0);
 
@@ -180,7 +181,6 @@ public class DatabaseDataInitializer {
 
         demoProductMilestone = ProductMilestone.Builder.newBuilder().version(PNC_PRODUCT_MILESTONE)
                 .productVersion(productVersion).build();
-        buildRecordSetRepository.save(demoProductMilestone.getDistributedBuildRecordSet());
         buildRecordSetRepository.save(demoProductMilestone.getPerformedBuildRecordSet());
         demoProductMilestone = productMilestoneRepository.save(demoProductMilestone);
 
@@ -328,9 +328,6 @@ public class DatabaseDataInitializer {
             BuildRecordSet performedBuildRecordSet = demoProductMilestone.getPerformedBuildRecordSet();
             performedBuildRecordSet.addBuildRecord(buildRecord1);
             buildRecordSetRepository.save(performedBuildRecordSet);
-            BuildRecordSet distributedBuildRecordSet = demoProductMilestone.getDistributedBuildRecordSet();
-            distributedBuildRecordSet.addBuildRecord(buildRecord1);
-            buildRecordSetRepository.save(distributedBuildRecordSet);
         }
 
         Artifact builtArtifact3 = Artifact.Builder.newBuilder().identifier("demo:built-artifact3:jar:1.0")
@@ -383,6 +380,13 @@ public class DatabaseDataInitializer {
                 .buildRecords(buildRecords).startTime(Timestamp.from(Instant.now())).endTime(Timestamp.from(Instant.now()))
                 .user(demoUser).status(BuildStatus.SUCCESS).build();
         buildConfigSetRecordRepository.save(buildConfigSetRecord2);
+
+        demoProductMilestone = productMilestoneRepository.queryById(demoProductMilestone.getId());
+        demoProductMilestone.addDistributedArtifact(builtArtifact1);
+        demoProductMilestone.addDistributedArtifact(builtArtifact3);
+        demoProductMilestone.addDistributedArtifact(importedArtifact2);
+        demoProductMilestone = productMilestoneRepository.save(demoProductMilestone);
+
     }
 
 }

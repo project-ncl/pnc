@@ -54,13 +54,6 @@ public class BuildRecordSet implements GenericEntity<Integer> {
     @OneToOne(mappedBy = "performedBuildRecordSet")
     private ProductMilestone performedInProductMilestone;
 
-    /**
-     * If this field is non-null it means that the current build record set represents
-     * the builds which produced artifacts shipped/distributed with the linked product milestone.
-     */
-    @OneToOne(mappedBy = "distributedBuildRecordSet")
-    private ProductMilestone distributedInProductMilestone;
-
     @ManyToMany
     @JoinTable(name = "build_record_set_map", joinColumns = { @JoinColumn(name = "build_record_set_id", referencedColumnName = "id") }, inverseJoinColumns = { @JoinColumn(name = "build_record_id", referencedColumnName = "id") })
     @ForeignKey(name = "fk_build_record_set_map_buildrecordset", inverseName = "fk_build_record_set_map_buildrecord")
@@ -100,14 +93,6 @@ public class BuildRecordSet implements GenericEntity<Integer> {
         this.performedInProductMilestone = performedInProductMilestone;
     }
 
-    public ProductMilestone getDistributedInProductMilestone() {
-        return distributedInProductMilestone;
-    }
-
-    public void setDistributedInProductMilestone(ProductMilestone distributedInProductMilestone) {
-        this.distributedInProductMilestone = distributedInProductMilestone;
-    }
-
     public Set<BuildRecord> getBuildRecords() {
         return buildRecords;
     }
@@ -135,8 +120,6 @@ public class BuildRecordSet implements GenericEntity<Integer> {
 
         private ProductMilestone performedInProductMilestone;
 
-        private ProductMilestone distributedInProductMilestone;
-
         private Set<BuildRecord> buildRecords;
 
         private Builder() {
@@ -158,11 +141,6 @@ public class BuildRecordSet implements GenericEntity<Integer> {
             }
             buildRecordSet.setPerformedInProductMilestone(performedInProductMilestone);
 
-            if (distributedInProductMilestone != null) {
-                distributedInProductMilestone.setDistributedBuildRecordSet(buildRecordSet);
-            }
-            buildRecordSet.setDistributedInProductMilestone(distributedInProductMilestone);
-
             for (BuildRecord buildRecord : buildRecords) {
                 buildRecord.getBuildRecordSets().add(buildRecordSet);
             }
@@ -183,11 +161,6 @@ public class BuildRecordSet implements GenericEntity<Integer> {
 
         public Builder performedInProductMilestone(ProductMilestone performedInProductMilestone) {
             this.performedInProductMilestone = performedInProductMilestone;
-            return this;
-        }
-
-        public Builder distributedInProductMilestone(ProductMilestone distributedInProductMilestone) {
-            this.distributedInProductMilestone = distributedInProductMilestone;
             return this;
         }
 

@@ -28,5 +28,4 @@ import java.util.Collection;
 public interface BuildRecordRepository extends Repository<BuildRecord, Integer> {
 
     BuildRecord findByIdFetchAllProperties(Integer id);
-    Collection<Integer> findIdsOfBuildRecordsInDistributedRecordsetOfProductMilestone(Integer productMilestoneId);
 }

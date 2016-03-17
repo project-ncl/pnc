@@ -192,13 +192,17 @@ public class ProductReleaseEndpoint extends AbstractEndpoint<ProductRelease, Pro
     @GET
     @Path("/{id}/distributed-build-records-ids")
     public Response getAllBuildsInDistributedRecordsetOfProductRelease(
+            @ApiParam(value = PAGE_INDEX_DESCRIPTION) @QueryParam(PAGE_INDEX_QUERY_PARAM) @DefaultValue(PAGE_INDEX_DEFAULT_VALUE) int pageIndex,
+            @ApiParam(value = PAGE_SIZE_DESCRIPTION) @QueryParam(PAGE_SIZE_QUERY_PARAM) @DefaultValue(PAGE_SIZE_DEFAULT_VALUE) int pageSize,
+            @ApiParam(value = SORTING_DESCRIPTION) @QueryParam(SORTING_QUERY_PARAM) String sort,
+            @ApiParam(value = QUERY_DESCRIPTION, required = false) @QueryParam(QUERY_QUERY_PARAM) String query,
             @ApiParam(value = "Product Release id", required = true) @PathParam("id") Integer id) {
         ProductReleaseRest release = basicProvider.getSpecific(id);
         if (release == null) {
             return fromSingleton(null);
         }
-        Collection<Integer> ids = buildRecordProvider.getAllBuildsInDistributedRecordsetOfProductMilestone(release.getProductMilestoneId());
-        return fromCollection(new CollectionInfo<>(0, ids.size(), 1, ids));
+        return fromCollection(buildRecordProvider.getAllBuildRecordsWithArtifactsDistributedInProductMilestone(pageIndex,
+                pageSize, sort, query, release.getProductMilestoneId()));
     }
 
 }

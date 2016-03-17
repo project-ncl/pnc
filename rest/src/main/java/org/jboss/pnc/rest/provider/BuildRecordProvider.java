@@ -18,6 +18,7 @@
 package org.jboss.pnc.rest.provider;
 
 import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
+import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withArtifactDistributedInMilestone;
 import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withBuildConfigSetId;
 import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withBuildConfigurationId;
 import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withProjectId;
@@ -156,8 +157,17 @@ public class BuildRecordProvider extends AbstractProvider<BuildRecord, BuildReco
         return queryForCollection(pageIndex, pageSize, sortingRsql, query, withProjectId(projectId));
     }
 
-    public Collection getAllBuildsInDistributedRecordsetOfProductMilestone(Integer milestoneId) {
-        return ((BuildRecordRepository)repository).findIdsOfBuildRecordsInDistributedRecordsetOfProductMilestone(milestoneId);
+    public CollectionInfo<BuildRecordRest> getAllBuildRecordsWithArtifactsDistributedInProductMilestone(int pageIndex, int pageSize, String sortingRsql, String query, Integer milestoneId) {
+        return queryForCollection(pageIndex, pageSize, sortingRsql, query, withArtifactDistributedInMilestone(milestoneId));
+    }
+
+    /**
+     * @deprecated Use getAllBuildRecordsWithArtifactsDistributedInProductMilestone
+     */
+    @Deprecated
+    public Collection<Integer> getAllBuildsInDistributedRecordsetOfProductMilestone(Integer milestoneId) {
+        return this.getAllBuildRecordsWithArtifactsDistributedInProductMilestone(0, 50, null, null, milestoneId).getContent()
+                .stream().map(buildRecord -> buildRecord.getId()).collect(Collectors.toSet());
     }
 
     public CollectionInfo<BuildRecordRest> getAllForBuildConfigSetRecord(int pageIndex, int pageSize, String sortingRsql,

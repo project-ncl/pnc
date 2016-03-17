@@ -41,8 +41,6 @@ public class BuildRecordSetRest implements GenericRestEntity<Integer> {
 
     private Integer performedInProductMilestoneId;
 
-    private Integer distributedInProductMilestoneId;
-
     private List<Integer> buildRecordIds;
 
     public BuildRecordSetRest() {
@@ -52,8 +50,6 @@ public class BuildRecordSetRest implements GenericRestEntity<Integer> {
         this.id = buildRecordSet.getId();
         performIfNotNull(buildRecordSet.getPerformedInProductMilestone(),
                 () -> this.performedInProductMilestoneId = buildRecordSet.getPerformedInProductMilestone().getId());
-        performIfNotNull(buildRecordSet.getDistributedInProductMilestone(),
-                () -> this.distributedInProductMilestoneId = buildRecordSet.getDistributedInProductMilestone().getId());
         this.buildRecordIds = nullableStreamOf(buildRecordSet.getBuildRecords()).map(buildRecord -> buildRecord.getId())
                 .collect(Collectors.toList());
 
@@ -77,14 +73,6 @@ public class BuildRecordSetRest implements GenericRestEntity<Integer> {
         this.performedInProductMilestoneId = performedInProductMilestoneId;
     }
 
-    public Integer getDistributedInProductMilestoneId() {
-        return this.distributedInProductMilestoneId;
-    }
-
-    public void setDistributedInProductMilestoneId(Integer distributedInProductMilestoneId) {
-        this.distributedInProductMilestoneId = distributedInProductMilestoneId;
-    }
-
     public List<Integer> getBuildRecordIds() {
         return buildRecordIds;
     }
@@ -99,8 +87,6 @@ public class BuildRecordSetRest implements GenericRestEntity<Integer> {
 
         performIfNotNull(performedInProductMilestoneId,
                 () -> builder.performedInProductMilestone(ProductMilestone.Builder.newBuilder().id(performedInProductMilestoneId).build()));
-        performIfNotNull(distributedInProductMilestoneId,
-                () -> builder.distributedInProductMilestone(ProductMilestone.Builder.newBuilder().id(distributedInProductMilestoneId).build()));
 
         nullableStreamOf(buildRecordIds).forEach(buildRecordId -> {
             BuildRecord.Builder buildRecordBuilder = BuildRecord.Builder.newBuilder().id(buildRecordId);

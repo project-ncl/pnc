@@ -88,12 +88,6 @@ public class BuildRecordRest implements GenericRestEntity<Integer> {
      */
     private Set<Integer> performedMilestoneBuildRecordSetIds;
 
-    /**
-     * The IDs of the build record sets which represent the builds distributed for a milestone to which this build record
-     * belongs
-     */
-    private Set<Integer> distributedMilestoneBuildRecordSetIds;
-
     public BuildRecordRest() {
     }
 
@@ -124,9 +118,6 @@ public class BuildRecordRest implements GenericRestEntity<Integer> {
                 .map(buildRecordSet -> buildRecordSet.getId()).collect(Collectors.toSet());
         this.performedMilestoneBuildRecordSetIds = nullableStreamOf(buildRecord.getBuildRecordSets())
                 .filter(buildRecordSet -> buildRecordSet.getPerformedInProductMilestone() != null)
-                .map(buildRecordSet -> buildRecordSet.getId()).collect(Collectors.toSet());
-        this.distributedMilestoneBuildRecordSetIds = nullableStreamOf(buildRecord.getBuildRecordSets())
-                .filter(buildRecordSet -> buildRecordSet.getDistributedInProductMilestone() != null)
                 .map(buildRecordSet -> buildRecordSet.getId()).collect(Collectors.toSet());
     }
 
@@ -312,9 +303,5 @@ public class BuildRecordRest implements GenericRestEntity<Integer> {
 
     public Set<Integer> getPerformedMilestoneBuildRecordSetIds() {
         return performedMilestoneBuildRecordSetIds;
-    }
-
-    public Set<Integer> getDistributedMilestoneBuildRecordSetIds() {
-        return distributedMilestoneBuildRecordSetIds;
     }
 }
