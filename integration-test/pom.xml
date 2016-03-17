@@ -29,8 +29,13 @@
   </parent>
 
   <artifactId>integration-test</artifactId>
+  <packaging>jar</packaging>
 
   <dependencies>
+    <dependency>
+      <groupId>org.jboss.pnc</groupId>
+      <artifactId>test-common</artifactId>
+    </dependency>
     <dependency>
       <groupId>org.jboss.pnc</groupId>
       <artifactId>ear-package</artifactId>
@@ -85,6 +90,7 @@
     <dependency>
       <groupId>org.json</groupId>
       <artifactId>json</artifactId>
+      <scope>test</scope>
     </dependency>
 
     <!-- Mocks -->
@@ -100,4 +106,26 @@
     </dependency>
   </dependencies>
 
+  <build>
+    <finalName>integration-test</finalName>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>copy-dependencies</id>
+            <phase>prepare-package</phase>
+            <goals>
+              <goal>copy-dependencies</goal>
+            </goals>
+            <configuration>
+              <outputDirectory>${project.build.directory}/classes/lib</outputDirectory>
+              <includeScope>runtime</includeScope>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
 </project>
