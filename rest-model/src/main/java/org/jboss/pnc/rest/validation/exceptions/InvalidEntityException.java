@@ -34,13 +34,23 @@ public class InvalidEntityException extends ValidationException {
     }
 
     public InvalidEntityException(Field field) {
-        super("Field validation error occurred");
+        super("Field validation error occurred. Field: " + field.getName());
         this.field = field.getName();
     }
 
     public InvalidEntityException(ConstraintViolation<?> validationProblem) {
-        super("Field validation error occurred");
-        this.field = validationProblem.getPropertyPath().iterator().next().getName();
+        super("Field validation error occurred. " + getErrorDescription(validationProblem));
+        this.field = getFieldName(validationProblem);
+    }
+
+    private static String getErrorDescription(ConstraintViolation<?> validationProblem) {
+        String field = getFieldName(validationProblem);
+        String message = validationProblem.getMessage();
+        return "Field: " + field + ", problem: " + message;
+    }
+
+    private static String getFieldName(ConstraintViolation<?> validationProblem) {
+        return validationProblem.getPropertyPath().iterator().next().getName();
     }
 
     public String getField() {

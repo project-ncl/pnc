@@ -85,6 +85,7 @@ public class BuildConfigurationRestTest {
     private static final String CONFIGURATION_CLONE_REST_ENDPOINT = "/pnc-rest/rest/build-configurations/%d/clone";
     private static final String ENVIRONMENT_REST_ENDPOINT = "/pnc-rest/rest/environments";
     private static final String SPECIFIC_ENVIRONMENT_REST_ENDPOINT = "/pnc-rest/rest/environments/%d";
+    public static final String PNC_REPO = "https://github.com/project-ncl/pnc.git";
 
     private static int productId;
     private static int projectId;
@@ -198,6 +199,7 @@ public class BuildConfigurationRestTest {
         configurationTemplate.addValue("_projectId", String.valueOf(projectId));
         configurationTemplate.addValue("_environmentId", String.valueOf(environmentId));
         configurationTemplate.addValue("_name", UUID.randomUUID().toString());
+        configurationTemplate.addValue("_scmRepoUrl", PNC_REPO);
 
         Response response = given().header("Accept", "application/json").header("Authorization", "Bearer " + access_token)
                 .body(configurationTemplate.fillTemplate()).contentType(ContentType.JSON).port(getHttpPort()).when()
@@ -335,6 +337,7 @@ public class BuildConfigurationRestTest {
         configurationTemplate.addValue("_projectId", String.valueOf(projectId));
         configurationTemplate.addValue("_environmentId", String.valueOf(environmentId));
         configurationTemplate.addValue("_name", UUID.randomUUID().toString());
+        configurationTemplate.addValue("_scmRepoUrl", PNC_REPO);
 
         Response firstAttempt = given().header("Accept", "application/json").header("Authorization", "Bearer " + access_token)
                 .body(configurationTemplate.fillTemplate()).contentType(ContentType.JSON).port(getHttpPort()).when()
@@ -368,11 +371,13 @@ public class BuildConfigurationRestTest {
         buildConfiguration.setName(UUID.randomUUID().toString());
         buildConfiguration.setProject(projectRestClient.getValue());
         buildConfiguration.setEnvironment(environmentRestClient.getValue());
+        buildConfiguration.setScmRepoURL(PNC_REPO);
 
         BuildConfigurationRest dependencyBuildConfiguration = new BuildConfigurationRest();
         dependencyBuildConfiguration.setName(UUID.randomUUID().toString());
         dependencyBuildConfiguration.setProject(projectRestClient.getValue());
         dependencyBuildConfiguration.setEnvironment(environmentRestClient.getValue());
+        dependencyBuildConfiguration.setScmRepoURL(PNC_REPO);
 
         // when
         RestResponse<BuildConfigurationRest> configurationResponse = this.buildConfigurationRestClient

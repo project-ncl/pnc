@@ -23,6 +23,7 @@ import org.jboss.pnc.model.BuildStatus;
 import org.jboss.pnc.model.ProductVersion;
 import org.jboss.pnc.rest.validation.groups.WhenCreatingNew;
 import org.jboss.pnc.rest.validation.groups.WhenUpdating;
+import org.jboss.pnc.rest.validation.validators.ScmUrl;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
@@ -50,10 +51,13 @@ public class BuildConfigurationRest implements GenericRestEntity<Integer> {
 
     private String buildScript;
 
+    @NotNull(groups = WhenCreatingNew.class)
+    @ScmUrl(groups = { WhenCreatingNew.class, WhenUpdating.class })
     private String scmRepoURL;
 
     private String scmRevision;
 
+    @ScmUrl(groups = { WhenCreatingNew.class, WhenUpdating.class })
     private String scmMirrorRepoURL;
 
     private String scmMirrorRevision;
