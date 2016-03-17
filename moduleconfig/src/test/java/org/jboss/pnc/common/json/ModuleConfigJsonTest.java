@@ -43,8 +43,10 @@ public class ModuleConfigJsonTest {
                 new JenkinsBuildDriverModuleConfig("user", "pass");
         MavenRepoDriverModuleConfig mavenRepoDriverModuleConfig =
                 new MavenRepoDriverModuleConfig("http://something/base");
-        moduleConfigJson.addConfig(jenkinsBuildDriverModuleConfig);
-        moduleConfigJson.addConfig(mavenRepoDriverModuleConfig);
+        PNCModuleGroup pncGroup = new PNCModuleGroup();
+        pncGroup.addConfig(jenkinsBuildDriverModuleConfig);
+        pncGroup.addConfig(mavenRepoDriverModuleConfig);
+        moduleConfigJson.addConfig(pncGroup);
 
         ObjectMapper mapper = new ObjectMapper();
         PncConfigProvider<AuthenticationModuleConfig> pncProvider = new PncConfigProvider<AuthenticationModuleConfig>(AuthenticationModuleConfig.class);
@@ -60,10 +62,13 @@ public class ModuleConfigJsonTest {
         ObjectMapper mapper = new ObjectMapper();
         PncConfigProvider<AuthenticationModuleConfig> pncProvider = new PncConfigProvider<AuthenticationModuleConfig>(AuthenticationModuleConfig.class);
         pncProvider.registerProvider(mapper);
+        mapper.registerSubtypes(PNCModuleGroup.class);
         ModuleConfigJson config = mapper.readValue(loadConfig("testConfigNoSpaces.json"), ModuleConfigJson.class);
 
         assertNotNull(config);
-        assertEquals(2, config.getConfigs().size());
+        assertEquals(1, config.getConfigs().size());
+        PNCModuleGroup group = (PNCModuleGroup) config.getConfigs().get(0);
+        assertEquals(2, group.getConfigs().size());
     }
 
     private String loadConfig(String name) throws IOException {

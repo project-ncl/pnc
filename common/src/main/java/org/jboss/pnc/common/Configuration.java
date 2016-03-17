@@ -30,6 +30,7 @@ import javax.enterprise.context.ApplicationScoped;
 import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
+import org.jboss.pnc.common.json.GlobalModuleGroup;
 
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-12-02.
@@ -45,6 +46,8 @@ public class Configuration {
     
     private Map<Class<?>, AbstractModuleConfig> configCache = new HashMap<>();
     
+    private GlobalModuleGroup globalConfig;
+
     private ConfigurationJSONParser configurationJsonParser = new ConfigurationJSONParser();
     
     /**
@@ -70,9 +73,30 @@ public class Configuration {
                 String configString = StringUtils.replaceEnv(IoUtils.readStreamAsString(configStream));
                 log.debug("Config string with replaced environment variables: {}", configString);
                 
-                T config = configurationJsonParser.parseJSONConfig(configString,  provider);
+                T config = configurationJsonParser.parseJSONPNCConfig(configString,  provider);
                 configCache.put(moduleClass, config);
                 return config;
+            } catch (IOException e) {
+                throw new ConfigurationParseException("Config could not be parsed", e);
+            }
+        }
+    }
+
+    public GlobalModuleGroup getGlobalConfig() throws ConfigurationParseException{
+        if(globalConfig != null)
+            return globalConfig;
+
+        synchronized(this){
+            if(globalConfig != null)
+                return globalConfig;
+
+            try (InputStream configStream = this.getConfigStream()) {
+                log.info("Loading global configuration.");
+                String configString = StringUtils.replaceEnv(IoUtils.readStreamAsString(configStream));
+                log.debug("Config string with replaced environment variables: {}", configString);
+
+                globalConfig = configurationJsonParser.parseJSONGlobalConfig(configString);
+                return globalConfig;
             } catch (IOException e) {
                 throw new ConfigurationParseException("Config could not be parsed", e);
             }

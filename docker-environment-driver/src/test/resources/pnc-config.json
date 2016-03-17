@@ -1,6 +1,9 @@
 {
-"@class":"ModuleConfigJson","name":"pnc-config",
-        "configs":[
+  "@class":"ModuleConfigJson","name":"pnc-config",
+  "configs":[
+      {
+      "@module-group":"pnc",
+      "configs": [
           {
             "@module-config":"docker-environment-driver",
             "ip":"${env.PNC_DOCKER_IP}",
@@ -13,5 +16,7 @@
             "firewallAllowedDestinations":"${env.PNC_DOCKER_IMAGE_FIREWALL_ALLOWED}"
           }
         ]
+      }
+  ]
 }
 
