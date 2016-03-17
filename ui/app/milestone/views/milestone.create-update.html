@@ -105,7 +105,7 @@
           <div class="col-sm-offset-2 col-sm-10">
             <div class="checkbox">
               <label>
-                <input type="checkbox" id="input-set-current" name="current" ng-model="milestoneCreateUpdateCtrl.setCurrentMilestone">
+                <input type="checkbox" id="input-set-current" name="current" ng-disabled="milestoneCreateUpdateCtrl.setCurrentMilestoneDisabled" ng-model="milestoneCreateUpdateCtrl.setCurrentMilestone">
                 Set as the current milestone for {{ milestoneCreateUpdateCtrl.product.name }} {{ milestoneCreateUpdateCtrl.productVersion.version }}
               </label>
             </div>
