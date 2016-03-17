@@ -34,7 +34,7 @@
   module.directive('pncGroupBuilds', [
     function () {
       function PncGroupBuildsCtrl($log, $scope, BuildConfigurationSetRecordDAO, eventTypes) {
-        $scope.page = BuildConfigurationSetRecordDAO.getPagedRunning();
+        $scope.page = BuildConfigurationSetRecordDAO.getPaged();
 
         $scope.$on(eventTypes.BUILD_SET_STARTED, $scope.page.reload());
         $scope.$on(eventTypes.BUILD_SET_FINISHED, $scope.page.reload());

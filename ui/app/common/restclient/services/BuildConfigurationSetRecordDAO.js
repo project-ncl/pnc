@@ -64,6 +64,7 @@
 
       PageFactory.decorateNonPaged(resource, '_getAll', 'query');
 
+      PageFactory.decorate(resource, '_getAll', 'getPaged');
       PageFactory.decorate(resource, '_getRunning', 'getPagedRunning');
       PageFactory.decorate(resource, '_getFinished', 'getPagedFinished');
       PageFactory.decorate(resource, '_getByUser', 'getPagedByUser');
