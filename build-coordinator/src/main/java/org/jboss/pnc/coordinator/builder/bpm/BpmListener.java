@@ -15,34 +15,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.rest.configuration;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
-import javax.ejb.Singleton;
-import javax.ejb.Startup;
-import javax.inject.Inject;
+package org.jboss.pnc.coordinator.builder.bpm;
 
-import org.jboss.pnc.coordinator.Lifecycle;
+import org.jboss.pnc.spi.BuildResult;
+
+import java.util.function.Consumer;
 
 /**
- * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-12-16.
+ * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
-@Singleton
-@Startup
-public class LifecycleListener {
+class BpmListener {
+    private final long taskId;
+    private final Consumer<BuildResult> onComplete;
 
-    @Inject
-    Lifecycle coreLifecycle;
-
-    @PostConstruct
-    void atStartup() {
-        coreLifecycle.start();
+    public BpmListener(long taskId, Consumer<BuildResult> onComplete) {
+        this.taskId = taskId;
+        this.onComplete = onComplete;
     }
 
-    @PreDestroy
-    void atShutdown() {
-        coreLifecycle.stop();
+    public long getTaskId() {
+        return taskId;
     }
 
+    public void onComplete(BuildResult buildExecutionResult) {
+        onComplete.accept(buildExecutionResult);
+    }
 }

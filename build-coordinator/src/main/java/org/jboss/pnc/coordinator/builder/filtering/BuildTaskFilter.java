@@ -15,34 +15,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.rest.configuration;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
-import javax.ejb.Singleton;
-import javax.ejb.Startup;
-import javax.inject.Inject;
+package org.jboss.pnc.coordinator.builder.filtering;
 
-import org.jboss.pnc.coordinator.Lifecycle;
+import java.util.function.Predicate;
+
+import org.jboss.pnc.coordinator.builder.BuildTask;
 
 /**
- * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-12-16.
+ * Represents different filtering policies for {@link org.jboss.pnc.executor.executor.BuildExecutionTask}.
+ *
+ * @author Sebastian Laskawiec
  */
-@Singleton
-@Startup
-public class LifecycleListener {
-
-    @Inject
-    Lifecycle coreLifecycle;
-
-    @PostConstruct
-    void atStartup() {
-        coreLifecycle.start();
-    }
-
-    @PreDestroy
-    void atShutdown() {
-        coreLifecycle.stop();
-    }
-
+public interface BuildTaskFilter {
+    Predicate<BuildTask> filter();
 }

@@ -15,34 +15,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.rest.configuration;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
-import javax.ejb.Singleton;
-import javax.ejb.Startup;
-import javax.inject.Inject;
-
-import org.jboss.pnc.coordinator.Lifecycle;
+package org.jboss.pnc.coordinator;
 
 /**
- * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-12-16.
+ * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
-@Singleton
-@Startup
-public class LifecycleListener {
-
-    @Inject
-    Lifecycle coreLifecycle;
-
-    @PostConstruct
-    void atStartup() {
-        coreLifecycle.start();
+public class BuildCoordinationException extends Exception {
+    public BuildCoordinationException(String message) {
+        super(message);
     }
 
-    @PreDestroy
-    void atShutdown() {
-        coreLifecycle.stop();
+    public BuildCoordinationException(String message, Throwable cause) {
+        super(message, cause);
     }
-
 }

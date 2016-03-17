@@ -19,12 +19,12 @@ package org.jboss.pnc.rest.trigger;
 
 import com.google.common.base.Preconditions;
 import org.jboss.logging.Logger;
-import org.jboss.pnc.core.builder.coordinator.BuildCoordinator;
-import org.jboss.pnc.core.builder.coordinator.BuildSetTask;
-import org.jboss.pnc.core.notifications.buildSetTask.BuildSetCallBack;
-import org.jboss.pnc.core.notifications.buildSetTask.BuildSetStatusNotifications;
-import org.jboss.pnc.core.notifications.buildTask.BuildCallBack;
-import org.jboss.pnc.core.notifications.buildTask.BuildStatusNotifications;
+import org.jboss.pnc.coordinator.builder.BuildCoordinator;
+import org.jboss.pnc.coordinator.builder.BuildSetTask;
+import org.jboss.pnc.coordinator.notifications.buildSetTask.BuildSetCallBack;
+import org.jboss.pnc.coordinator.notifications.buildSetTask.BuildSetStatusNotifications;
+import org.jboss.pnc.coordinator.notifications.buildTask.BuildCallBack;
+import org.jboss.pnc.coordinator.notifications.buildTask.BuildStatusNotifications;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.BuildRecordSet;

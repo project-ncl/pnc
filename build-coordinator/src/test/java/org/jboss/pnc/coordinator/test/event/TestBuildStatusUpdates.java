@@ -15,34 +15,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.rest.configuration;
+package org.jboss.pnc.coordinator.test.event;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
-import javax.ejb.Singleton;
-import javax.ejb.Startup;
-import javax.inject.Inject;
+import org.jboss.pnc.spi.events.BuildCoordinationStatusChangedEvent;
+import org.junit.Assert;
 
-import org.jboss.pnc.coordinator.Lifecycle;
+import javax.enterprise.event.Observes;
 
 /**
- * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-12-16.
+ * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
-@Singleton
-@Startup
-public class LifecycleListener {
-
-    @Inject
-    Lifecycle coreLifecycle;
-
-    @PostConstruct
-    void atStartup() {
-        coreLifecycle.start();
+public class TestBuildStatusUpdates {
+    public void collectEvent(@Observes BuildCoordinationStatusChangedEvent buildStatusChangedEvent) {
+        Assert.assertNotEquals("Status update event should not be fired if there is no status updates. " + buildStatusChangedEvent, buildStatusChangedEvent.getNewStatus(), buildStatusChangedEvent.getOldStatus());
     }
-
-    @PreDestroy
-    void atShutdown() {
-        coreLifecycle.stop();
-    }
-
 }
