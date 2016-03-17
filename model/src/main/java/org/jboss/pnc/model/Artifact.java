@@ -106,12 +106,19 @@ public class Artifact implements GenericEntity<Integer> {
     private Date importDate;
 
     /**
+     * The product milestone releases which distribute this artifact
+     */
+    @ManyToMany(mappedBy = "distributedArtifacts")
+    private Set<ProductMilestone> distributedInProductMilestones;
+
+    /**
      * Basic no-arg constructor.  Initializes the buildRecords and dependantBuildRecords to 
      * empty set.
      */
     public Artifact() {
-        buildRecords = new HashSet<BuildRecord>();
-        dependantBuildRecords = new HashSet<BuildRecord>();
+        buildRecords = new HashSet<>();
+        dependantBuildRecords = new HashSet<>();
+        distributedInProductMilestones = new HashSet<>();
     }
 
     /**
@@ -290,6 +297,18 @@ public class Artifact implements GenericEntity<Integer> {
 
     public void setImportDate(Date importDate) {
         this.importDate = importDate;
+    }
+
+    public Set<ProductMilestone> getDistributedInProductMilestones() {
+        return distributedInProductMilestones;
+    }
+
+    public void setDistributedInProductMilestones(Set<ProductMilestone> distributedInProductMilestones) {
+        this.distributedInProductMilestones = distributedInProductMilestones;
+    }
+
+    public boolean addDistributedInProductMilestone(ProductMilestone productMilestone) {
+        return this.distributedInProductMilestones.add(productMilestone);
     }
 
     @Override

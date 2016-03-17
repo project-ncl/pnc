@@ -26,7 +26,6 @@ import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
 import java.util.Set;
 
 import javax.persistence.criteria.Join;
-import javax.persistence.criteria.ListJoin;
 
 /**
  * Predicates for {@link org.jboss.pnc.model.BuildRecordSet} entity.

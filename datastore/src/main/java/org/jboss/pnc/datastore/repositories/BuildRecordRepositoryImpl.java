@@ -24,7 +24,6 @@ import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
-import java.util.Collection;
 
 @Stateless
 public class BuildRecordRepositoryImpl extends AbstractRepository<BuildRecord, Integer> implements BuildRecordRepository {
@@ -48,10 +47,6 @@ public class BuildRecordRepositoryImpl extends AbstractRepository<BuildRecord, I
     @Override
     public BuildRecord findByIdFetchAllProperties(Integer id) {
         return repository.findByIdFetchAllProperties(id);
-    }
-
-    public Collection<Integer> findIdsOfBuildRecordsInDistributedRecordsetOfProductMilestone(Integer productMilestoneId) {
-        return repository.findIdsOfBuildRecordsInDistributedRecordsetOfProductMilestone(productMilestoneId);
     }
 
 }

@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.rest.restmodel;
 
+import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.BuildRecordSet;
 import org.jboss.pnc.model.ProductMilestone;
 import org.jboss.pnc.model.ProductVersion;
@@ -27,7 +28,10 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.Date;
+import java.util.Set;
+import java.util.stream.Collectors;
 
+import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
 import static org.jboss.pnc.rest.utils.Utility.performIfNotNull;
 
 @XmlRootElement(name = "ProductMilestone")
@@ -55,7 +59,7 @@ public class ProductMilestoneRest implements GenericRestEntity<Integer> {
 
     private Integer performedBuildRecordSetId;
 
-    private Integer distributedBuildRecordSetId;
+    private Set<Integer> distributedArtifactIds;
 
     private Integer productReleaseId;
 
@@ -78,9 +82,8 @@ public class ProductMilestoneRest implements GenericRestEntity<Integer> {
         if (productMilestone.getPerformedBuildRecordSet() != null) {
             this.performedBuildRecordSetId = productMilestone.getPerformedBuildRecordSet().getId();
         }
-        if (productMilestone.getDistributedBuildRecordSet() != null) {
-            this.distributedBuildRecordSetId = productMilestone.getDistributedBuildRecordSet().getId();
-        }
+        this.distributedArtifactIds = nullableStreamOf(productMilestone.getDistributedArtifacts())
+                .map(artifact -> artifact.getId()).collect(Collectors.toSet());
         if (productMilestone.getProductRelease() != null) {
             this.productReleaseId = productMilestone.getProductRelease().getId();
         }
@@ -168,12 +171,12 @@ public class ProductMilestoneRest implements GenericRestEntity<Integer> {
         this.performedBuildRecordSetId = performedBuildRecordSetId;
     }
 
-    public Integer getDistributedBuildRecordSetId() {
-        return distributedBuildRecordSetId;
+    public Set<Integer> getDistributedArtifactIds() {
+        return distributedArtifactIds;
     }
 
-    public void setDistributedBuildRecordSetId(Integer distributedBuildRecordSetId) {
-        this.distributedBuildRecordSetId = distributedBuildRecordSetId;
+    public void setDistributedBuildRecordSetId(Set<Integer> distributedArtifactIds) {
+        this.distributedArtifactIds = distributedArtifactIds;
     }
 
     public ProductMilestone.Builder toDBEntityBuilder() {
@@ -187,7 +190,10 @@ public class ProductMilestoneRest implements GenericRestEntity<Integer> {
                 .issueTrackerUrl(this.issueTrackerUrl)
                 .productVersion(ProductVersion.Builder.newBuilder().id(productVersionId).build());
 
-        performIfNotNull(distributedBuildRecordSetId, () -> builder.distributedBuildRecordSet(BuildRecordSet.Builder.newBuilder().id(distributedBuildRecordSetId).build()));
+        nullableStreamOf(this.getDistributedArtifactIds()).forEach(artifactId -> {
+            Artifact.Builder artifactBuilder = Artifact.Builder.newBuilder().id(artifactId);
+            builder.distributedArtifact(artifactBuilder.build());
+        });
         performIfNotNull(performedBuildRecordSetId, () -> builder.performedBuildRecordSet(BuildRecordSet.Builder.newBuilder().id(performedBuildRecordSetId).build()));
 
         return builder;

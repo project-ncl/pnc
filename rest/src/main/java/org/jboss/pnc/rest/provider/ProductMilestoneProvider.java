@@ -70,15 +70,12 @@ public class ProductMilestoneProvider extends AbstractProvider<ProductMilestone,
         return productMilestoneRest -> {
             ProductMilestone.Builder builder = productMilestoneRest.toDBEntityBuilder();
             if(productMilestoneRest.getId() == null) {
-                // When creating a new milestone, we need to also create a new performed and distributed build record set
-                BuildRecordSet distributedBuildRecordSet = BuildRecordSet.Builder.newBuilder().build();
-                builder.distributedBuildRecordSet(buildRecordSetRepository.save(distributedBuildRecordSet));
+                // When creating a new milestone, we need to also create a new performed build record set
                 BuildRecordSet performedBuildRecordSet = BuildRecordSet.Builder.newBuilder().build();
                 builder.performedBuildRecordSet(buildRecordSetRepository.save(performedBuildRecordSet));
             } else {
                 // When updating a milestone, the record sets and the product version may not change
                 ProductMilestone milestone = repository.queryById(productMilestoneRest.getId());
-                builder.distributedBuildRecordSet(milestone.getDistributedBuildRecordSet());
                 builder.performedBuildRecordSet(milestone.getPerformedBuildRecordSet());
                 builder.productVersion(milestone.getProductVersion());
             }

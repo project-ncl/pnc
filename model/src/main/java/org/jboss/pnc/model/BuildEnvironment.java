@@ -62,7 +62,7 @@ public class BuildEnvironment implements GenericEntity<Integer> {
     @Column(updatable=false)
     private String systemImageId;
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name="build_environment_attributes", joinColumns=@JoinColumn(name="build_environment_id"))
     @MapKeyColumn(name="name")
     @Column(name="value")

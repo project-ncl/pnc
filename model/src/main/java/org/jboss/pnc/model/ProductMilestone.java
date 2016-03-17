@@ -21,11 +21,11 @@ import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Index;
 
 import javax.persistence.*;
-import javax.persistence.Table;
-import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Represents a product milestone. A single product version, for example "1.0", can be associated with several product
@@ -113,21 +113,21 @@ public class ProductMilestone implements GenericEntity<Integer> {
     private BuildRecordSet performedBuildRecordSet;
 
     /**
-     * Set of build records which represents the builds which generated artifacts included
-     * in this product distribution.  Should not include builds which were run during
-     * the milestone cycle but then later replaced by subsequent builds.
-     * The intent of this field is to provide a way to lookup a build that produced a 
-     * specific artifact included in a particular product distribution.
+     * Set of artifacts which were distributed in this product milestone.  At a minimum, this includes
+     * the runtime artifacts of a product.  Some additional artifacts could be included if they 
+     * are supported  and could include some
      * 
      * The BuildRecordSets associated with a milestone should be created when the milestone
      * is first created, and never updated after that.
      */
-    @OneToOne(cascade = { CascadeType.REFRESH })
-    @NotNull
-    @JoinColumn(updatable = false)
-    @ForeignKey(name = "fk_productmilestone_distributed_buildrecordset")
-    @Index(name="idx_productmilestone_distributed_buildrecordset")
-    private BuildRecordSet distributedBuildRecordSet;
+    @ManyToMany
+    @JoinTable(name = "product_milestone_distributed_artifacts_map", joinColumns = {
+            @JoinColumn(name = "product_milestone_id", referencedColumnName = "id") }, inverseJoinColumns = {
+                    @JoinColumn(name = "artifact_id", referencedColumnName = "id") })
+    @ForeignKey(name = "fk_product_milestone_distributed_artifacts_map", inverseName = "fk_distributed_artifacts_product_milestone_map")
+    @Index(name = "idx_product_milestone_distributed_artifacts_map", columnNames = { "product_milestone_id",
+            "artifact_id" })
+    private Set<Artifact> distributedArtifacts;
 
     @Override
     public Integer getId() {
@@ -223,12 +223,16 @@ public class ProductMilestone implements GenericEntity<Integer> {
         this.performedBuildRecordSet = performedBuildRecordSet;
     }
 
-    public BuildRecordSet getDistributedBuildRecordSet() {
-        return distributedBuildRecordSet;
+    public Set<Artifact> getDistributedArtifacts() {
+        return distributedArtifacts;
     }
 
-    public void setDistributedBuildRecordSet(BuildRecordSet distributedBuildRecordSet) {
-        this.distributedBuildRecordSet = distributedBuildRecordSet;
+    public void setDistributedArtifacts(Set<Artifact> distributedArtifacts) {
+        this.distributedArtifacts = distributedArtifacts;
+    }
+
+    public boolean addDistributedArtifact(Artifact distributedArtifact) {
+        return this.distributedArtifacts.add(distributedArtifact);
     }
 
     /**
@@ -269,7 +273,7 @@ public class ProductMilestone implements GenericEntity<Integer> {
 
         private BuildRecordSet performedBuildRecordSet;
 
-        private BuildRecordSet distributedBuildRecordSet;
+        private Set<Artifact> distributedArtifacts = new HashSet<>();
 
         private ProductRelease productRelease;
 
@@ -303,13 +307,10 @@ public class ProductMilestone implements GenericEntity<Integer> {
             performedBuildRecordSet.setPerformedInProductMilestone(productMilestone);
             productMilestone.setPerformedBuildRecordSet(performedBuildRecordSet);
 
-            if (distributedBuildRecordSet == null) {
-                distributedBuildRecordSet = BuildRecordSet.Builder.newBuilder()
-                        .description("Distributed in " + getProductName() + " " + productMilestone.getVersion())
-                        .build();
+            if (distributedArtifacts == null) {
+                distributedArtifacts = new HashSet<>();
             }
-            distributedBuildRecordSet.setDistributedInProductMilestone(productMilestone);
-            productMilestone.setDistributedBuildRecordSet(distributedBuildRecordSet);
+            productMilestone.setDistributedArtifacts(distributedArtifacts);
 
             if (productRelease != null) {
                 productRelease.setProductMilestone(productMilestone);
@@ -364,8 +365,13 @@ public class ProductMilestone implements GenericEntity<Integer> {
             return this;
         }
 
-        public Builder distributedBuildRecordSet(BuildRecordSet distributedBuildRecordSet) {
-            this.distributedBuildRecordSet = distributedBuildRecordSet;
+        public Builder distributedArtifacts(Set<Artifact> distributedArtifacts) {
+            this.distributedArtifacts = distributedArtifacts;
+            return this;
+        }
+
+        public Builder distributedArtifact(Artifact distributedArtifact) {
+            this.distributedArtifacts.add(distributedArtifact);
             return this;
         }
 
