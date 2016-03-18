@@ -47,6 +47,7 @@ public class BuildEnvironmentRest implements GenericRestEntity<Integer> {
     private String systemImageId;
 
     @ApiModelProperty(dataType = "string")
+    @NotNull(groups = {WhenCreatingNew.class, WhenUpdating.class})
     private BuildType buildType;
 
     public BuildEnvironmentRest() {
