@@ -71,6 +71,7 @@ public class BuildEnvironment implements GenericEntity<Integer> {
     @Column(name="value")
     private Map<String, String> attributes = new HashMap<String, String>();
 
+    @NotNull
     private BuildType buildType;
 
     public BuildEnvironment() {
