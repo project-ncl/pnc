@@ -32,6 +32,7 @@ import org.jboss.arquillian.transaction.api.annotation.Transactional;
 import org.jboss.pnc.integration.deployments.Deployments;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildEnvironment;
+import org.jboss.pnc.model.BuildType;
 import org.jboss.pnc.model.Product;
 import org.jboss.pnc.model.ProductVersion;
 import org.jboss.pnc.model.Project;
@@ -118,7 +119,8 @@ public class DatastoreTest {
         Product product = Product.Builder.newBuilder().name("test").build();
         product = productRepository.save(product);
         ProductVersion productVersion = ProductVersion.Builder.newBuilder().version("1.0").product(product).build();
-        BuildEnvironment environment = BuildEnvironment.Builder.newBuilder().name("Test Environment").build();
+        BuildEnvironment environment = BuildEnvironment.Builder.newBuilder().name("DatastoreTest Test Environment")
+                .buildType(BuildType.JAVA).systemImageId("92387492739").build();
         Project project = Project.Builder.newBuilder().name("test").build();
         environment = environmentRepository.save(environment);
         productVersion = productVersionRepository.save(productVersion);

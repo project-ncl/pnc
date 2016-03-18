@@ -41,6 +41,7 @@ public class ArtifactRest implements GenericRestEntity<Integer> {
     @Null(groups = WhenCreatingNew.class)
     private Integer id;
 
+    @NotNull(groups = {WhenCreatingNew.class, WhenUpdating.class})
     private String identifier;
 
     @ApiModelProperty(dataType = "string")
@@ -49,6 +50,7 @@ public class ArtifactRest implements GenericRestEntity<Integer> {
     @ApiModelProperty(dataType = "string")
     private RepositoryType repoType;
 
+    @NotNull(groups = {WhenCreatingNew.class, WhenUpdating.class})
     private String checksum;
 
     private String filename;

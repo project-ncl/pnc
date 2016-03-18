@@ -166,6 +166,7 @@ public class EnvironmentRestTest {
         BuildEnvironmentRest environmentRest = new BuildEnvironmentRest();
         environmentRest.setName("Test Environment");
         environmentRest.setBuildType(BuildType.NATIVE);
+        environmentRest.setImageId("abcd1234");
         return environmentRest;
     }
 }
