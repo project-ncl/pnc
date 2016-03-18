@@ -15,34 +15,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.rest.configuration;
+package org.jboss.pnc.coordinator;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
-import javax.ejb.Singleton;
-import javax.ejb.Startup;
-import javax.inject.Inject;
+import org.jboss.logging.Logger;
 
-import org.jboss.pnc.coordinator.Lifecycle;
 
 /**
+ * Not in use
+ *
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-12-16.
  */
-@Singleton
-@Startup
-public class LifecycleListener {
+public class Lifecycle {
 
-    @Inject
-    Lifecycle coreLifecycle;
+    private static final Logger log = Logger.getLogger(Lifecycle.class);
 
-    @PostConstruct
-    void atStartup() {
-        coreLifecycle.start();
+    public Lifecycle() {
     }
 
-    @PreDestroy
-    void atShutdown() {
-        coreLifecycle.stop();
+    public void start() {
+        log.info("Core started.");
     }
+
+    public void stop() {
+        log.info("Core stopped.");
+    }
+
 
 }

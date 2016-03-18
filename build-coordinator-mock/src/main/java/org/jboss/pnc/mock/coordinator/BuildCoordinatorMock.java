@@ -35,9 +35,9 @@
  */
 package org.jboss.pnc.mock.coordinator;
 
-import org.jboss.pnc.core.builder.coordinator.BuildCoordinator;
-import org.jboss.pnc.core.builder.coordinator.BuildSetTask;
-import org.jboss.pnc.core.builder.coordinator.BuildTask;
+import org.jboss.pnc.coordinator.builder.BuildCoordinator;
+import org.jboss.pnc.coordinator.builder.BuildSetTask;
+import org.jboss.pnc.coordinator.builder.BuildTask;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.User;

@@ -19,8 +19,8 @@ package org.jboss.pnc.integration;
 
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
-import org.jboss.pnc.core.events.DefaultBuildSetStatusChangedEvent;
-import org.jboss.pnc.core.events.DefaultBuildStatusChangedEvent;
+import org.jboss.pnc.coordinator.events.DefaultBuildSetStatusChangedEvent;
+import org.jboss.pnc.coordinator.events.DefaultBuildStatusChangedEvent;
 import org.jboss.pnc.integration.deployments.Deployments;
 import org.jboss.pnc.integration.websockets.NotificationCollector;
 import org.jboss.pnc.rest.notifications.websockets.NotificationsEndpoint;
