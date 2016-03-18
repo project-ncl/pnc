@@ -19,6 +19,7 @@
 
  (function() {
   var app = angular.module('pnc', [
+    'angular-loading-bar',
     'ui.router',
     'ui.bootstrap',
     'patternfly.notification',

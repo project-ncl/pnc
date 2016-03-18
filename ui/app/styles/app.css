@@ -174,3 +174,24 @@ form .editable-wrap {
   width: 100%;
   max-width: 500px;
 }
+
+#loading-bar .bar {
+  background: #FFA500;
+  height: 4px;
+}
+#loading-bar-spinner .spinner-icon {
+  border-top-color:  #FFA500;
+  border-left-color: #FFA500;
+}
+#loading-bar .peg {
+  -moz-box-shadow: #FFA500 1px 0 6px 1px;
+  -ms-box-shadow: #FFA500 1px 0 6px 1px;
+  -webkit-box-shadow: #FFA500 1px 0 6px 1px;
+  box-shadow: #FFA500 1px 0 6px 1px;
+}
+
+.loading-spinner {
+  -webkit-animation:spin 1s linear infinite;
+  -moz-animation:spin 1s linear infinite;
+  animation:spin 1s linear infinite;
+}
