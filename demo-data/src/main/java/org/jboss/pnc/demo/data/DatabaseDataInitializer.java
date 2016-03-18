@@ -162,6 +162,7 @@ public class DatabaseDataInitializer {
                 .description("Basic Java and Maven Environment")
                 .attribute("JDK", "1.7.0")
                 .attribute("OS", "Linux")
+                .systemImageId("12345678")
                 .build();
         BuildEnvironment environment1 = environmentRepository.save(environment1Unsaved);
 

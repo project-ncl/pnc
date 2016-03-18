@@ -115,6 +115,7 @@ public class ModelTestDataFactory {
         return BuildEnvironment.Builder.newBuilder()
                 .name("Fake test build system")
                 .description("Fake build system to use for testing")
+                .systemImageId("123456")
                 .build();
     }
 

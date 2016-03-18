@@ -45,6 +45,7 @@ public class BuildEnvironmentRest implements GenericRestEntity<Integer> {
     @ApiModelProperty(dataType = "string")
     private String systemImageRepositoryUrl;
 
+    @NotNull(groups = {WhenCreatingNew.class, WhenUpdating.class})
     @ApiModelProperty(dataType = "string")
     private String systemImageId;
 

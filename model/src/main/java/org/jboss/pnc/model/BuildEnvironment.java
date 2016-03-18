@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.model;
 
+import org.hibernate.annotations.Index;
 import org.hibernate.annotations.Type;
 
 import java.util.HashMap;
@@ -59,7 +60,9 @@ public class BuildEnvironment implements GenericEntity<Integer> {
      * A unique identifier representing the system image, for example a Docker container ID.
      * This should never be modified once the db record has been created.
      */
-    @Column(updatable=false)
+    @NotNull
+    @Column(unique=true, updatable=false)
+    @Index(name="idx_buildenvironment_systemimageid")
     private String systemImageId;
 
     @ElementCollection(fetch = FetchType.EAGER)
