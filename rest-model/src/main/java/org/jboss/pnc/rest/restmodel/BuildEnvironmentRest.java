@@ -51,6 +51,7 @@ public class BuildEnvironmentRest implements GenericRestEntity<Integer> {
     private Map<String, String> attributes;
 
     @ApiModelProperty(dataType = "string")
+    @NotNull(groups = {WhenCreatingNew.class, WhenUpdating.class})
     private BuildType buildType;
 
     public BuildEnvironmentRest() {
