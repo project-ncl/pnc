@@ -68,7 +68,6 @@
       <activation>
         <property>
           <name>auth</name>
-          <value>true</value>
         </property>
       </activation>
       <properties>
