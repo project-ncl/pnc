@@ -30,7 +30,7 @@
 
   <artifactId>rest</artifactId>
   <packaging>war</packaging>
-  
+
   <description>REST API. This is a series of classes that use JAX-RS to translate HTTP communications to calls into the action controllers in the core, and format any output (such as constructing resource URLs, etc.).</description>
 
     <properties>
@@ -202,13 +202,12 @@
     </plugins>
   </build>
 
-  <profiles>    
+  <profiles>
      <profile>
         <id>auth</id>
         <activation>
             <property>
                 <name>auth</name>
-                <value>true</value>
             </property>
         </activation>
         <build>
@@ -218,8 +217,8 @@
                     <artifactId>maven-resources-plugin</artifactId>
                     <executions>
                       <execution>
-                        <id>default-copy-resources</id>
-                        <phase>process-resources</phase>
+                        <id>copy-webconfig</id>
+                        <phase>prepare-package</phase>
                         <goals>
                           <goal>copy-resources</goal>
                         </goals>
@@ -228,17 +227,51 @@
                           <outputDirectory>${project.build.directory}/${project.artifactId}/WEB-INF/</outputDirectory>
                           <resources>
                             <resource>
-                              <directory>${project.basedir}/src/main/auth</directory>
+                              <directory>${project.basedir}/src/main/webconfig/auth</directory>
                             </resource>
                           </resources>
                         </configuration>
                       </execution>
                     </executions>
-                  </plugin>              
+                  </plugin>
             </plugins>
          </build>
      </profile>
-     
+     <profile>
+        <id>noauth</id>
+        <activation>
+            <property>
+                <name>!auth</name>
+            </property>
+        </activation>
+        <build>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-resources-plugin</artifactId>
+                    <executions>
+                      <execution>
+                        <id>copy-webconfig</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                          <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                          <overwrite>true</overwrite>
+                          <outputDirectory>${project.build.directory}/${project.artifactId}/WEB-INF/</outputDirectory>
+                          <resources>
+                            <resource>
+                              <directory>${project.basedir}/src/main/webconfig/noauth</directory>
+                            </resource>
+                          </resources>
+                        </configuration>
+                      </execution>
+                    </executions>
+                  </plugin>
+            </plugins>
+         </build>
+     </profile>
+
     <profile>
         <id>auth-container-eap</id>
         <activation>
@@ -272,7 +305,7 @@
                     </configuration>
                   </execution>
                 </executions>
-              </plugin>          
+              </plugin>
               <plugin>
                 <groupId>org.jboss.as.plugins</groupId>
                 <artifactId>jboss-as-maven-plugin</artifactId>

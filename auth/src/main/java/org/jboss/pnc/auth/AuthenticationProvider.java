@@ -52,7 +52,7 @@ public class AuthenticationProvider {
         try {
             KeycloakSecurityContext keycloakSecurityContext = (KeycloakSecurityContext) req.getAttribute(KeycloakSecurityContext.class.getName());
             if(keycloakSecurityContext == null) {
-                warnDemoUserUsage("KeycloakSecurityContext not abailable in the HttpServletRequest.");
+                warnDemoUserUsage("KeycloakSecurityContext not available in the HttpServletRequest.");
             } else {
                 this.auth = keycloakSecurityContext.getToken();
             }
