@@ -128,11 +128,6 @@
           return BuildConfigurationDAO.get({
             configurationId: $stateParams.configurationId }).$promise;
         },
-        environmentDetail: function(EnvironmentDAO, $stateParams,
-                                    configurationDetail) {
-          return EnvironmentDAO.get({
-            environmentId: configurationDetail.environmentId  }).$promise;
-        },
         linkedProductVersions: function(BuildConfigurationDAO, $stateParams) {
           return BuildConfigurationDAO.getProductVersions({
             configurationId: $stateParams.configurationId });

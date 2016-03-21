@@ -128,20 +128,19 @@
     'configurationDetail',
     'environments',
     'products',
-    'environmentDetail',
     'linkedProductVersions',
     'dependencies',
     'configurations',
     'configurationSetList',
     'linkedConfigurationSetList',
     function($log, $state, $filter, Notifications, ProductDAO, BuildConfigurationDAO, BuildConfigurationSetDAO,
-      configurationDetail, environments, products, environmentDetail,
+      configurationDetail, environments, products,
       linkedProductVersions, dependencies, configurations, configurationSetList, linkedConfigurationSetList) {
 
       var that = this;
 
       that.configuration = configurationDetail;
-      that.environment = _.isUndefined(environmentDetail.content[0]) ? undefined : environmentDetail.content[0];
+      that.environment = configurationDetail.environment;
       that.environments = environments;
       that.configurations = configurations;
       that.configurationSetList = configurationSetList;
