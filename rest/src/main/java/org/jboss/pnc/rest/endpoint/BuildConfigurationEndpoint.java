@@ -22,6 +22,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import org.apache.commons.lang3.StringUtils;
 import org.jboss.pnc.auth.AuthenticationProvider;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.User;
@@ -239,7 +240,7 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
             AuthenticationProvider authProvider = new AuthenticationProvider(httpServletRequest);
             String loggedUser = authProvider.getUserName();
             User currentUser = null;
-            if(loggedUser != null && loggedUser != "") {
+            if(StringUtils.isNotEmpty(loggedUser)) {
                 currentUser = datastore.retrieveUserByUsername(loggedUser);
             }
             if(currentUser != null) {

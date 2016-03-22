@@ -67,7 +67,7 @@ public class DatastoreAdapter {
 
     /**
      * Get the latest audited revision for the given build configuration ID
-     * 
+     *
      * @param buildConfigurationId
      * @return The latest revision of the given build configuration
      */
@@ -76,33 +76,39 @@ public class DatastoreAdapter {
     }
 
     public void storeResult(BuildTask buildTask, BuildResult buildResult) throws DatastoreException {
-
-        if (!buildResult.getBuildDriverResult().isPresent()) {
-            storeResult(buildTask, buildResult, new BuildCoordinationException("Trying to store success build with incomplete result. Missing BuildDriverResult."));
-            return;
-        }
-
-        if (!buildResult.getRepositoryManagerResult().isPresent()) {
-            storeResult(buildTask, buildResult, new BuildCoordinationException("Trying to store success build with incomplete result. Missing RepositoryManagerResult."));
-            return;
-        }
-
-        BuildDriverResult buildDriverResult = buildResult.getBuildDriverResult().get();
-        RepositoryManagerResult repositoryManagerResult = buildResult.getRepositoryManagerResult().get();
-
-        BuildRecord.Builder buildRecordBuilder = initBuildRecordBuilder(buildTask, Optional.of(repositoryManagerResult.getBuildContentId()));
-
-        BuildExecutionConfiguration buildExecutionConfig = buildResult.getBuildExecutionConfiguration().get();
-        buildRecordBuilder.scmRepoURL(buildExecutionConfig.getScmRepoURL());
-        buildRecordBuilder.scmRevision(buildExecutionConfig.getScmRevision());
-
         try {
+            BuildRecord.Builder buildRecordBuilder = initBuildRecordBuilder(buildTask);
+
+            if (buildResult.getBuildDriverResult().isPresent()) {
+                BuildDriverResult buildDriverResult = buildResult.getBuildDriverResult().get();
+                buildRecordBuilder.buildLog(buildDriverResult.getBuildLog());
+                buildRecordBuilder.status(buildDriverResult.getBuildDriverStatus().toBuildStatus());
+            } else if (!buildResult.hasFailed()) {
+                storeResult(buildTask, buildResult, new BuildCoordinationException("Trying to store success build with incomplete result. Missing BuildDriverResult."));
+                return;
+            }
+
+            if (buildResult.getRepositoryManagerResult().isPresent()) {
+                RepositoryManagerResult repositoryManagerResult = buildResult.getRepositoryManagerResult().get();
+                buildRecordBuilder.buildContentId(repositoryManagerResult.getBuildContentId());
+                buildRecordBuilder.builtArtifacts(repositoryManagerResult.getBuiltArtifacts());
+                buildRecordBuilder.dependencies(repositoryManagerResult.getDependencies());
+            } else if (!buildResult.hasFailed()) {
+                storeResult(buildTask, buildResult, new BuildCoordinationException("Trying to store success build with incomplete result. Missing RepositoryManagerResult."));
+                return;
+            }
+
+            if (buildResult.getBuildExecutionConfiguration().isPresent()) {
+                BuildExecutionConfiguration buildExecutionConfig = buildResult.getBuildExecutionConfiguration().get();
+                buildRecordBuilder.scmRepoURL(buildExecutionConfig.getScmRepoURL());
+                buildRecordBuilder.scmRevision(buildExecutionConfig.getScmRevision());
+            } else if (!buildResult.hasFailed()) {
+                storeResult(buildTask, buildResult, new BuildCoordinationException("Trying to store success build with incomplete result. Missing BuildExecutionConfiguration."));
+                return;
+            }
+
             // Build driver results
-            buildRecordBuilder.buildLog(buildDriverResult.getBuildLog());
-            buildRecordBuilder.status(buildDriverResult.getBuildDriverStatus().toBuildStatus());
             buildRecordBuilder.endTime(Date.from(Instant.now()));
-            buildRecordBuilder.builtArtifacts(repositoryManagerResult.getBuiltArtifacts());
-            buildRecordBuilder.dependencies(repositoryManagerResult.getDependencies());
 
             log.debugf("Storing results of buildTask [%s] to datastore.", buildTask.getId());
             datastore.storeCompletedBuild(buildRecordBuilder, buildTask.getBuildRecordSetIds());
@@ -116,7 +122,7 @@ public class DatastoreAdapter {
     }
 
     private void storeResult(BuildTask buildTask, BuildResult buildResult, Throwable e) throws DatastoreException {
-        BuildRecord.Builder buildRecordBuilder = initBuildRecordBuilder(buildTask, Optional.<String>empty());
+        BuildRecord.Builder buildRecordBuilder = initBuildRecordBuilder(buildTask);
         buildRecordBuilder.status(SYSTEM_ERROR);
 
         StringBuilder errorLog = new StringBuilder();
@@ -142,7 +148,7 @@ public class DatastoreAdapter {
     }
 
     public void storeRejected(BuildTask buildTask) throws DatastoreException {
-        BuildRecord.Builder buildRecordBuilder = initBuildRecordBuilder(buildTask, Optional.<String>empty());
+        BuildRecord.Builder buildRecordBuilder = initBuildRecordBuilder(buildTask);
         buildRecordBuilder.status(REJECTED);
 
         buildRecordBuilder.buildLog(buildTask.getStatusDescription());
@@ -152,22 +158,21 @@ public class DatastoreAdapter {
         datastore.storeCompletedBuild(buildRecordBuilder, buildTask.getBuildRecordSetIds());
     }
 
+
     /**
      * Initialize a new BuildRecord.Builder based on the data contained in the BuildTask.
-     * Note, this must be done inside a transaction because it fetches the BuildRecordSet entities from 
+     * Note, this must be done inside a transaction because it fetches the BuildRecordSet entities from
      * the database.
-     * 
+     *
      * @return The initialized build record builder
      */
-    private BuildRecord.Builder initBuildRecordBuilder(BuildTask buildTask, Optional<String> buildContentId) {
+    private BuildRecord.Builder initBuildRecordBuilder(BuildTask buildTask) {
         BuildRecord.Builder builder = BuildRecord.Builder.newBuilder().id(buildTask.getId())
                 .buildConfigurationAudited(buildTask.getBuildConfigurationAudited())
                 .user(buildTask.getUser())
                 .submitTime(buildTask.getSubmitTime())
                 .startTime(buildTask.getStartTime())
                 .endTime(buildTask.getEndTime());
-
-        buildContentId.ifPresent((id) -> builder.buildContentId(id));
 
         builder.latestBuildConfiguration(buildTask.getBuildConfiguration());
         if (buildTask.getBuildConfigSetRecordId() != null) {
