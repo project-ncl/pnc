@@ -24,7 +24,7 @@
 
   <groupId>org.jboss.pnc</groupId>
   <artifactId>parent</artifactId>
-  <version>0.8-SNAPSHOT</version>
+  <version>0.9-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <name>pnc</name>
