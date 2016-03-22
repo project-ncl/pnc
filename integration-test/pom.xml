@@ -106,6 +106,41 @@
     </dependency>
   </dependencies>
 
+
+  <profiles>
+    <profile>
+      <id>auth</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-resources-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>copy-auth-properties</id>
+                <phase>generate-resources</phase>
+                <goals>
+                  <goal>copy-resources</goal>
+                </goals>
+                <configuration>
+                  <overwrite>true</overwrite>
+                  <outputDirectory>${project.build.testOutputDirectory}/</outputDirectory>
+                  <resources>
+                    <resource>
+                      <directory>${project.basedir}/src/main/auth/</directory>
+                      <includes>
+                        <include>auth.properties</include>
+                      </includes>
+                    </resource>
+                  </resources>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
   <build>
     <finalName>integration-test</finalName>
     <plugins>

@@ -65,11 +65,6 @@
   <profiles>
     <profile>
       <id>auth</id>
-      <activation>
-        <property>
-          <name>auth</name>
-        </property>
-      </activation>
       <properties>
         <enable.security.start>--&gt;</enable.security.start>
         <enable.security.end>&lt;!--</enable.security.end>
