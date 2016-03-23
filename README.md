@@ -220,7 +220,7 @@ By default the Keycloak server comes with "master realm", which is for demo purp
 
 ###Authentication - build & configure your PNC<br/>
 By default PNC project comes with no security at all, it is up to you to turn it on.
-In case you want to enable authentication use `-Dauth=true` together with your build command.
+In case you want to enable authentication use `-Pauth` together with your build command.
 Enabling authentication means following<br/>
 
 1. Your backend REST endpoints will become secured

@@ -101,7 +101,6 @@ public class BuildsRestTest {
         war.addClass(AuthResource.class);
         war.addClass(IntegrationTestEnv.class);
         war.addClass(RestResponse.class);
-        war.addAsResource("auth.properties");
     }
 
     @Before

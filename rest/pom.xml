@@ -205,11 +205,6 @@
   <profiles>
      <profile>
         <id>auth</id>
-        <activation>
-            <property>
-                <name>auth</name>
-            </property>
-        </activation>
         <build>
             <plugins>
                 <plugin>
@@ -240,9 +235,7 @@
      <profile>
         <id>noauth</id>
         <activation>
-            <property>
-                <name>!auth</name>
-            </property>
+            <activeByDefault>true</activeByDefault>
         </activation>
         <build>
             <plugins>
