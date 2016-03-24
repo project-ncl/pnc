@@ -17,14 +17,16 @@
  */
 package org.jboss.pnc.auth;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashSet;
+import java.util.Properties;
 import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.SecurityContext;
 
 import org.jboss.logging.Logger;
-import org.jboss.resteasy.spi.HttpRequest;
 import org.keycloak.KeycloakPrincipal;
 import org.keycloak.KeycloakSecurityContext;
 import org.keycloak.representations.AccessToken;
@@ -44,35 +46,38 @@ public class AuthenticationProvider {
     public final static Logger log = Logger.getLogger(AuthenticationProvider.class);
     public final static String MSG = "Authentication could not be enabled";
 
+    private static boolean enabled;
+
+    static {
+        InputStream propertiesStream = AuthenticationProvider.class.getResourceAsStream("/authentication.properties");
+        if (propertiesStream == null) {
+            throw new AuthenticationException("authentication.properties not found");
+        }
+
+        Properties properties = new Properties();
+        try {
+            properties.load(propertiesStream);
+            String enabledProperty = properties.getProperty("authentication.enabled");
+            enabled = Boolean.valueOf(enabledProperty);
+        } catch (IOException e) {
+            throw new AuthenticationException("Error processing authentication.properties", e);
+        }
+    }
+
     private AccessToken auth;
     private AccessTokenResponse atr;
-
 
     public AuthenticationProvider(HttpServletRequest req){
         try {
             KeycloakSecurityContext keycloakSecurityContext = (KeycloakSecurityContext) req.getAttribute(KeycloakSecurityContext.class.getName());
             if(keycloakSecurityContext == null) {
-                warnDemoUserUsage("KeycloakSecurityContext not available in the HttpServletRequest.");
+                handleAuthenticationProblem("KeycloakSecurityContext not available in the HttpServletRequest.");
             } else {
                 this.auth = keycloakSecurityContext.getToken();
             }
         }
         catch (NoClassDefFoundError ncdfe) {
-            warnDemoUserUsage(ncdfe.getMessage(), ncdfe);
-        }
-    }
-
-    public AuthenticationProvider(HttpRequest req){
-        try {
-            KeycloakSecurityContext keycloakSecurityContext = (KeycloakSecurityContext) req.getAttribute(KeycloakSecurityContext.class.getName());
-            if(keycloakSecurityContext == null) {
-                warnDemoUserUsage("KeycloakSecurityContext not available in the HttpRequest.");
-            } else {
-                this.auth = keycloakSecurityContext.getToken();
-            }
-        }
-        catch (NoClassDefFoundError ncdfe) {
-            warnDemoUserUsage(ncdfe.getMessage(), ncdfe);
+            handleAuthenticationProblem(ncdfe.getMessage(), ncdfe);
         }
     }
 
@@ -81,44 +86,44 @@ public class AuthenticationProvider {
             KeycloakPrincipal principal =
                     (KeycloakPrincipal)securityContext.getUserPrincipal();
             if(principal == null) {
-                warnDemoUserUsage("No principal found in SecurityContext");
+                handleAuthenticationProblem("No principal found in SecurityContext");
             } else {
                 KeycloakSecurityContext keycloakSecurityContext = principal.getKeycloakSecurityContext();
                 if (keycloakSecurityContext == null) {
-                    warnDemoUserUsage("No keycloak security context found in principal");
+                    handleAuthenticationProblem("No keycloak security context found in principal");
                 } else {
                     this.auth = keycloakSecurityContext.getToken();
                 }
             }
         } catch (NoClassDefFoundError ncdfe) {
-            warnDemoUserUsage(ncdfe.getMessage(), ncdfe);
+            handleAuthenticationProblem(ncdfe.getMessage(), ncdfe);
         }
-    }
-
-    private void warnDemoUserUsage(String warning) {
-        warnDemoUserUsage(warning, null);
-    }
-
-    private void warnDemoUserUsage(String warning, Throwable cause) {
-        if (cause == null) {
-            // todo remove
-            cause = new Exception(warning);
-        }
-        log.warn(MSG + ": " + warning, cause);
-        log.warn("using " + DemoUser.username + " instead");
     }
 
     public AuthenticationProvider(AccessToken accessToken, AccessTokenResponse atr){
         try {
             if(accessToken == null || atr == null) {
-                warnDemoUserUsage(accessToken == null ? "No access token" : "No access token response");
+                handleAuthenticationProblem(accessToken == null ? "No access token" : "No access token response");
             } else {
                 this.auth = accessToken;
                 this.atr = atr;
             }
         }
         catch (NoClassDefFoundError ncdfe) {
-            warnDemoUserUsage(ncdfe.getMessage(), ncdfe);
+            handleAuthenticationProblem(ncdfe.getMessage(), ncdfe);
+        }
+    }
+
+    private void handleAuthenticationProblem(String warning) {
+        handleAuthenticationProblem(warning, null);
+    }
+
+    private void handleAuthenticationProblem(String warning, Throwable cause) {
+        log.warn(MSG + ": " + warning, cause);
+        if (enabled) {
+            throw new AuthenticationException(MSG + warning, cause);
+        } else {
+            log.warn("using " + DemoUser.username + " instead");
         }
     }
 
@@ -176,6 +181,13 @@ public class AuthenticationProvider {
         return DemoUser.token;
     }
 
+    @Override
+    public String toString() {
+        return "AuthenticationProvider [auth=" + auth + ", atr=" + atr + ", getEmail()=" + getEmail() + ", getUserName()="
+                + getUserName() + ", getFirstName()=" + getFirstName() + ", getLastName()=" + getLastName() + ", getRole()="
+                + getRole() + ", getAccessToken()=" + getAccessToken() + ", getTokenString()=" + getTokenString() + "]";
+    }
+
     private final static class DemoUser {
         static String token = "no-token";
         static String username = "demo-user";
@@ -189,12 +201,5 @@ public class AuthenticationProvider {
         public final static boolean hasRole(String role) {
             return role.contains(role);
         }
-    }
-
-    @Override
-    public String toString() {
-        return "AuthenticationProvider [auth=" + auth + ", atr=" + atr + ", getEmail()=" + getEmail() + ", getUserName()="
-                + getUserName() + ", getFirstName()=" + getFirstName() + ", getLastName()=" + getLastName() + ", getRole()="
-                + getRole() + ", getAccessToken()=" + getAccessToken() + ", getTokenString()=" + getTokenString() + "]";
     }
 }
