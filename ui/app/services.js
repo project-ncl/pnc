@@ -37,9 +37,10 @@
 
   app.factory('authService', [
     '$window',
+    '$q',
     'keycloak',
     'UserDAO',
-    function($window, kc, UserDAO) {
+    function($window, $q, kc, UserDAO) {
       var keycloak = kc;
 
       return {
@@ -57,6 +58,22 @@
 
         getPncUser: function() {
           return UserDAO.getAuthenticatedUser();
+        },
+
+        forUserId: function(userId) {
+          var user = UserDAO.getAuthenticatedUser().$promise;
+          var deferred = $q.defer();
+          user.then(function(pncUser) {
+            if (pncUser.id === userId) {
+              deferred.resolve();
+            } else {
+              deferred.reject('userId: ' + pncUser.id + ' didn\'t match: ' + userId);
+            }
+          }, function(error) {
+            deferred.reject(error);
+          });
+
+          return deferred.promise;
         },
 
         logout: function() {
