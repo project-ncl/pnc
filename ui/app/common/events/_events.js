@@ -54,9 +54,9 @@
         //$log.debug('BUILD_STARTED_EVENT: payload=%O, authService.getPncUser=%O, payload.userId=%O', payload, authService.getPncUser(), payload.userId);
         $log.debug('BUILD_STARTED_EVENT: authService.getPncUser=%O, payload=%O', authService.getPncUser(), JSON.stringify(payload));
 
-        if (authService.getPncUser().id === payload.userId) {
+        authService.forUserId(payload.userId).then(function() {
           Notifications.info('Build ' + payload.buildConfigurationName + '#' + payload.id + ' in progress');
-        }
+        });
       });
 
       // Notify user when builds finish
@@ -65,7 +65,7 @@
       scope.$on(eventTypes.BUILD_FINISHED, function(event, payload) {
         $log.debug('BUILD_FINISHED: payload=%O', JSON.stringify(payload));
 
-        if (authService.getPncUser().id === payload.userId) {
+        authService.forUserId(payload.userId).then(function() {
           if (payload.buildCoordinationStatus === 'REJECTED') {
             Notifications.warn('Build ' + payload.buildConfigurationName + '#' + payload.id + ' rejected.');
           } else if (payload.buildCoordinationStatus === 'REJECTED_ALREADY_BUILT') {
@@ -83,9 +83,8 @@
               }
             );
           }
-        }
+        });
       });
-
     }
   ]);
 
