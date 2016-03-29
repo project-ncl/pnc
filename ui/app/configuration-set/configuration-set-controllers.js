@@ -112,7 +112,8 @@
       };
 
       self.reset = function() {
-          self.getBuildConfigurations(null);
+        self.data = null;
+        self.getBuildConfigurations(null);
       };
 
       self.submit = function() {
