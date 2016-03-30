@@ -129,7 +129,13 @@ public class MavenRepositorySession implements RepositorySession {
     public RepositoryManagerResult extractBuildArtifacts() throws RepositoryManagerException {
         TrackedContentDTO report;
         try {
-            report = indy.module(IndyFoloAdminClientModule.class).getTrackingReport(buildRepoId);
+            IndyFoloAdminClientModule foloAdmin = indy.module(IndyFoloAdminClientModule.class);
+            boolean sealed = foloAdmin.sealTrackingRecord(buildRepoId);
+            if (!sealed) {
+                throw new RepositoryManagerException("Failed to seal content-tracking record for: %s.", buildRepoId);
+            }
+
+            report = foloAdmin.getTrackingReport(buildRepoId);
         } catch (IndyClientException e) {
             throw new RepositoryManagerException("Failed to retrieve tracking report for: %s. Reason: %s", e, buildRepoId,
                     e.getMessage());
