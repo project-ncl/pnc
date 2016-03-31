@@ -108,7 +108,7 @@
         },
         resolve: {
           artifacts: function (BuildRecordDAO, recordDetail) {
-            return BuildRecordDAO.getArtifacts({
+            return BuildRecordDAO.getPagedBuiltArtifacts({
               recordId: recordDetail.id
             });
           }
@@ -125,7 +125,7 @@
           },
           resolve: {
             artifacts: function (BuildRecordDAO, recordDetail) {
-              return BuildRecordDAO.getArtifacts({
+              return BuildRecordDAO.getPagedDependencyArtifacts({
                 recordId: recordDetail.id
               });
             }
