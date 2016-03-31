@@ -95,6 +95,18 @@ public class BuildExecutionConfigurationRest implements BuildExecutionConfigurat
         );
     }
 
+    public BuildConfigurationAuditedRest createBuildConfigurationAuditedRest() {
+        BuildConfigurationAuditedRest buildConfigAuditedRest = new BuildConfigurationAuditedRest();
+        buildConfigAuditedRest.setId(id);
+        buildConfigAuditedRest.setRev(null);
+        buildConfigAuditedRest.setName(name);
+        buildConfigAuditedRest.setBuildScript(buildScript);
+        buildConfigAuditedRest.setScmRepoURL(scmRepoURL);
+        buildConfigAuditedRest.setScmRevision(scmRevision);
+        buildConfigAuditedRest.setScmMirrorRepoURL(scmMirrorRepoURL);
+        buildConfigAuditedRest.setScmMirrorRevision(scmMirrorRevision);
+        return buildConfigAuditedRest;
+    }
 
     public void setId(int id) {
         this.id = id;

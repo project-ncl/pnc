@@ -84,4 +84,11 @@ public class BuildRecordPredicates {
         };
     }
 
+    public static Predicate<BuildRecord> withUserId(Integer userId) {
+        return (root, query, cb) -> {
+            Join<BuildRecord, User> buildRecordJoinedUsers = root.join(BuildRecord_.user);
+            return cb.equal(buildRecordJoinedUsers.get(org.jboss.pnc.model.User_.id), userId);
+        };
+    }
+
 }

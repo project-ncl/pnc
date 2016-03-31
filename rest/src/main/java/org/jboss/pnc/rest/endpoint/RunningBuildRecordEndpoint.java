@@ -104,7 +104,7 @@ public class RunningBuildRecordEndpoint extends AbstractEndpoint<BuildRecord, Bu
             @ApiParam(value = PAGE_SIZE_DESCRIPTION) @QueryParam(PAGE_SIZE_QUERY_PARAM) @DefaultValue(PAGE_SIZE_DEFAULT_VALUE) int pageSize,
             @ApiParam(value = SEARCH_DESCRIPTION) @QueryParam(SEARCH_QUERY_PARAM) @DefaultValue(SEARCH_DEFAULT_VALUE) String search,
             @ApiParam(value = "Build Configuration id", required = true) @PathParam("id") Integer bcId) {
-        return fromCollection(buildRecordProvider.getAllRunningForBC(pageIndex, pageSize, search, bcId));
+        return fromCollection(buildRecordProvider.getAllRunningForBuildConfiguration(pageIndex, pageSize, search, "", bcId));
     }
 
 
