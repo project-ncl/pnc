@@ -57,6 +57,14 @@
           method: 'GET',
           url: ENDPOINT + '/artifacts'
         },
+        _getDependencyArtifacts: {
+          method: 'GET',
+          url: ENDPOINT + '/dependency-artifacts'
+        },
+        _getBuiltArtifacts: {
+          method: 'GET',
+          url: ENDPOINT + '/built-artifacts'
+        },
         _getByConfiguration: {
           method: 'GET',
           url: REST_BASE_URL + '/build-records/build-configurations/:configurationId' +
@@ -100,6 +108,8 @@
       PageFactory.decorate(resource, '_getByConfiguration', 'getPagedByConfiguration');
       PageFactory.decorate(resource, '_getByBCSetRecord', 'getPagedByBCSetRecord');
       PageFactory.decorate(resource, '_getByUser', 'getPagedByUser');
+      PageFactory.decorate(resource, '_getDependencyArtifacts', 'getPagedDependencyArtifacts');
+      PageFactory.decorate(resource, '_getBuiltArtifacts', 'getPagedBuiltArtifacts');
 
       resource.prototype.getBuildConfiguration = cachedGetter(
         function(buildRecord) {
