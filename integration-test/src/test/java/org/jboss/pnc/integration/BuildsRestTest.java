@@ -15,24 +15,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-/**
- * JBoss, Home of Professional Open Source.
- * Copyright 2014 Red Hat, Inc., and individual contributors
- * as indicated by the @author tags.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package org.jboss.pnc.integration;
 
 import org.jboss.arquillian.container.test.api.Deployment;
@@ -47,6 +29,8 @@ import org.jboss.pnc.integration.env.IntegrationTestEnv;
 import org.jboss.pnc.integration.utils.AuthResource;
 import org.jboss.pnc.mock.coordinator.BuildCoordinatorMock;
 import org.jboss.pnc.model.BuildConfiguration;
+import org.jboss.pnc.model.BuildConfigurationAudited;
+import org.jboss.pnc.model.IdRev;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.rest.provider.BuildRecordProvider;
 import org.jboss.pnc.rest.restmodel.BuildRecordRest;
@@ -68,6 +52,7 @@ import java.util.stream.Collectors;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @SuppressWarnings("ALL")
 @RunWith(Arquillian.class)
@@ -184,11 +169,96 @@ public class BuildsRestTest {
         assertThat(secondPage).hasSize(1);
     }
 
+    @Test
+    public void shouldFilterByUserId() throws Exception {
+        // given
+        String rsql = "user.id==1";
+
+        BuildTask mockedTask = mockBuildTask();
+        buildCoordinatorMock.addActiveTask(mockedTask);
+
+        // when
+        List<Integer> sorted = buildRestClient.all(true, 0, 50, rsql, null).getValue().stream().map(value -> value.getId())
+                .collect(Collectors.toList());
+
+        // then
+        assertThat(sorted).containsExactly(1, 2);
+    }
+
+    @Test
+    public void shouldFilterByUsername() throws Exception {
+        // given
+        String rsql = "user.username==demo-user";
+
+        BuildTask mockedTask = mockBuildTask();
+        buildCoordinatorMock.addActiveTask(mockedTask);
+
+        // when
+        List<Integer> sorted = buildRestClient.all(true, 0, 50, rsql, null).getValue().stream().map(value -> value.getId())
+                .collect(Collectors.toList());
+
+        // then
+        assertThat(sorted).containsExactly(1, 2);
+    }
+
+    @Test
+    public void shouldFilterByBuildConfigurationId() throws Exception {
+        // given
+        String rsql = "buildConfigurationAudited.idRev.id==1";
+
+        BuildTask mockedTask = mockBuildTask();
+        buildCoordinatorMock.addActiveTask(mockedTask);
+
+        // when
+        List<Integer> sorted = buildRestClient.all(true, 0, 50, rsql, null).getValue().stream().map(value -> value.getId())
+                .collect(Collectors.toList());
+
+        // then
+        assertThat(sorted).containsExactly(1);
+    }
+
+    @Test
+    public void shouldFilterByBuildConfigurationName() throws Exception {
+        // given
+        String rsql = "buildConfigurationAudited.name==jboss-modules-1.5.0";
+
+        BuildTask mockedTask = mockBuildTask();
+        buildCoordinatorMock.addActiveTask(mockedTask);
+
+        // when
+        List<Integer> sorted = buildRestClient.all(true, 0, 50, rsql, null).getValue().stream().map(value -> value.getId())
+                .collect(Collectors.toList());
+
+        // then
+        assertThat(sorted).containsExactly(2);
+    }
+
+    @Test
+    public void shouldFilterByNotExistingBuildConfigurationName() throws Exception {
+        // given
+        String rsql = "buildConfigurationAudited.name==jboss-modules-1.5.1";
+
+        BuildTask mockedTask = mockBuildTask();
+        buildCoordinatorMock.addActiveTask(mockedTask);
+
+        // when
+        List<Integer> sorted = buildRestClient.all(true, 0, 50, rsql, null).getValue().stream().map(value -> value.getId())
+                .collect(Collectors.toList());
+
+        // then
+        assertThat(sorted).isEmpty();
+    }
+
     protected BuildTask mockBuildTask() {
         BuildTask mockedTask = mock(BuildTask.class);
         doReturn(99).when(mockedTask).getId();
         doReturn(mock(User.class)).when(mockedTask).getUser();
         doReturn(mock(BuildConfiguration.class)).when(mockedTask).getBuildConfiguration();
+        doReturn(mock(BuildConfigurationAudited.class)).when(mockedTask).getBuildConfigurationAudited();
+        when(mockedTask.getBuildConfigurationAudited().getIdRev()).thenReturn(mock(IdRev.class));
+        when(mockedTask.getBuildConfigurationAudited().getIdRev().getId()).thenReturn(99);
+        when(mockedTask.getUser().getId()).thenReturn(99);
+        when(mockedTask.getUser().getUsername()).thenReturn("test-username");
         return mockedTask;
     }
 }

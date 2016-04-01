@@ -508,4 +508,23 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
         return this.fromSingleton(buildRecordProvider.getLatestBuildRecord(id));
     }
 
+    //TODO To be removed after testing, will be available via pnc-rest/rest/builds?q=buildConfigurationAudited.idRev.id==1
+    @ApiOperation(value = "Get all BuildRecords (running and archived) associated with this Build Configuration, returns empty list if no build records are found")
+    @ApiResponses(value = {
+            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION, response = BuildRecordPage.class),
+            @ApiResponse(code = NO_CONTENT_CODE, message = NO_CONTENT_DESCRIPTION, response = BuildRecordPage.class),
+            @ApiResponse(code = INVLID_CODE, message = INVALID_DESCRIPTION, response = ErrorResponseRest.class),
+            @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION, response = ErrorResponseRest.class)
+    })
+    @GET
+    @Path("/{id}/builds")
+    public Response getBuilds(
+            @ApiParam(value = PAGE_INDEX_DESCRIPTION) @QueryParam(PAGE_INDEX_QUERY_PARAM) @DefaultValue(PAGE_INDEX_DEFAULT_VALUE) int pageIndex,
+            @ApiParam(value = PAGE_SIZE_DESCRIPTION) @QueryParam(PAGE_SIZE_QUERY_PARAM) @DefaultValue(PAGE_SIZE_DEFAULT_VALUE) int pageSize,
+            @ApiParam(value = SORTING_DESCRIPTION) @QueryParam(SORTING_QUERY_PARAM) String sort,
+            @ApiParam(value = QUERY_DESCRIPTION, required = false) @QueryParam(QUERY_QUERY_PARAM) String q,
+            @ApiParam(value = "Build configuration id", required = true) @PathParam("id") Integer id) {
+        return fromCollection(buildRecordProvider.getRunningAndArchivedBuildRecordsOfBuildConfiguration(pageIndex, pageSize, sort, q, id));
+    }
+
 }
