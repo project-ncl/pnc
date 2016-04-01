@@ -31,12 +31,15 @@ import org.jboss.pnc.rest.restmodel.BuildRecordRest;
 import org.jboss.pnc.rest.restmodel.BuildResultRest;
 import org.jboss.pnc.rest.restmodel.response.Singleton;
 import org.jboss.pnc.rest.trigger.BuildExecutorTriggerer;
+import org.jboss.pnc.spi.BuildExecutionStatus;
+import org.jboss.pnc.spi.BuildResult;
 import org.jboss.pnc.spi.executor.BuildExecutionSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.POST;
@@ -49,7 +52,9 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 import java.net.URI;
+import java.util.Optional;
 
+import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.FORBIDDEN_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.FORBIDDEN_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.INVALID_DESCRIPTION;
@@ -90,9 +95,23 @@ public class BuildTaskEndpoint {
             @ApiParam(value = "Build task id", required = true) @PathParam("taskId") Integer taskId,
             @ApiParam(value = "Build result", required = true) @FormParam("buildResult") BuildResultRest buildResult) {
         logger.debug("Received task completed notification for coordinating task id [{}].", taskId);
-
-        bpmCompleteListener.notifyCompleted(taskId, buildResult.toBuildResult());
+        if (taskId == null) {
+            logger.error("{taskId}/completed got invalid request. taskId not provided. BuildResult: {}", buildResult);
+            return Response.status(BAD_REQUEST).build();
+        } else if (buildResult == null) {
+            logger.error("{taskId}/completed got invalid request. No build result for taskId: {}", taskId);
+            bpmCompleteListener.notifyCompleted(taskId, erroneousBuildResult());
+            return Response.status(BAD_REQUEST).build();
+        } else {
+            bpmCompleteListener.notifyCompleted(taskId, buildResult.toBuildResult());
+        }
         return Response.ok().build();
+    }
+
+    private BuildResult erroneousBuildResult() {
+        return new BuildResult(Optional.empty(),
+                Optional.empty(), Optional.empty(), Optional.empty(),
+                Optional.of(BuildExecutionStatus.SYSTEM_ERROR));
     }
 
     @ApiOperation(value = "Triggers the build execution for a given configuration.", response = Singleton.class)
