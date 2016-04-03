@@ -27,7 +27,7 @@ import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 
 /**
- * The BuildSystemImage, selected by the Environment Driver to run a build, based on the buildConfiguration requirements
+ * The BuildEnvironment, selected by the Environment Driver to run a build, based on the buildConfiguration requirements
  *
  * @author avibelli
  */
@@ -141,7 +141,7 @@ public class BuildEnvironment implements GenericEntity<Integer> {
 
     @Override
     public String toString() {
-        return "SystemImage [name=" + name + "]";
+        return "Build Environment [name: " + name + ", image id: " + this.systemImageId + "]";
     }
 
     public static class Builder {
@@ -169,15 +169,15 @@ public class BuildEnvironment implements GenericEntity<Integer> {
         }
 
         public BuildEnvironment build() {
-            BuildEnvironment buildSystemImage = new BuildEnvironment();
-            buildSystemImage.setId(id);
-            buildSystemImage.setName(name);
-            buildSystemImage.setDescription(description);
-            buildSystemImage.setSystemImageRepositoryUrl(systemImageRepositoryUrl);
-            buildSystemImage.systemImageId = systemImageId;
-            buildSystemImage.setAttributes(attributes);
-            buildSystemImage.setBuildType(buildType);
-            return buildSystemImage;
+            BuildEnvironment buildEnvironment = new BuildEnvironment();
+            buildEnvironment.setId(id);
+            buildEnvironment.setName(name);
+            buildEnvironment.setDescription(description);
+            buildEnvironment.setSystemImageRepositoryUrl(systemImageRepositoryUrl);
+            buildEnvironment.systemImageId = systemImageId;
+            buildEnvironment.setAttributes(attributes);
+            buildEnvironment.setBuildType(buildType);
+            return buildEnvironment;
         }
 
         public Builder id(Integer id) {

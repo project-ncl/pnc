@@ -15,13 +15,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.datastore.repositories.internal;
+package org.jboss.pnc.spi.datastore.repositories;
 
 import org.jboss.pnc.model.BuildEnvironment;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.jboss.pnc.spi.datastore.repositories.api.Repository;
 
-public interface BuildSystemImageSpringRepository extends JpaRepository<BuildEnvironment, Integer>,
-        JpaSpecificationExecutor<BuildEnvironment> {
-
+/**
+ * Interface for manipulating {@link org.jboss.pnc.model.BuildEnvironment} entity.
+ */
+public interface BuildEnvironmentRepository extends Repository<BuildEnvironment, Integer> {
 }

@@ -94,7 +94,7 @@ public class DatabaseDataInitializer {
     BuildConfigSetRecordRepository buildConfigSetRecordRepository;
 
     @Inject
-    BuildSystemImageRepository environmentRepository;
+    BuildEnvironmentRepository environmentRepository;
 
     @Inject
     SequenceHandlerRepository sequenceHandlerRepository;

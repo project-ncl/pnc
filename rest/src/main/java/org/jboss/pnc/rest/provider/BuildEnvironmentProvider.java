@@ -19,7 +19,7 @@ package org.jboss.pnc.rest.provider;
 
 import org.jboss.pnc.model.BuildEnvironment;
 import org.jboss.pnc.rest.restmodel.BuildEnvironmentRest;
-import org.jboss.pnc.spi.datastore.repositories.BuildSystemImageRepository;
+import org.jboss.pnc.spi.datastore.repositories.BuildEnvironmentRepository;
 import org.jboss.pnc.spi.datastore.repositories.PageInfoProducer;
 import org.jboss.pnc.spi.datastore.repositories.SortInfoProducer;
 import org.jboss.pnc.spi.datastore.repositories.api.RSQLPredicateProducer;
@@ -36,18 +36,18 @@ public class BuildEnvironmentProvider extends AbstractProvider<BuildEnvironment,
     }
 
     @Inject
-    public BuildEnvironmentProvider(BuildSystemImageRepository environmentRepository, RSQLPredicateProducer rsqlPredicateProducer,
+    public BuildEnvironmentProvider(BuildEnvironmentRepository environmentRepository, RSQLPredicateProducer rsqlPredicateProducer,
             SortInfoProducer sortInfoProducer, PageInfoProducer pageInfoProducer) {
         super(environmentRepository, rsqlPredicateProducer, sortInfoProducer, pageInfoProducer);
     }
 
     @Override
     protected Function<? super BuildEnvironment, ? extends BuildEnvironmentRest> toRESTModel() {
-        return buildSystemImage -> new BuildEnvironmentRest(buildSystemImage);
+        return buildEnvironment -> new BuildEnvironmentRest(buildEnvironment);
     }
 
     @Override
     protected Function<? super BuildEnvironmentRest, ? extends BuildEnvironment> toDBModel() {
-        return buildSystemImageRest -> buildSystemImageRest.toDBEntityBuilder().build();
+        return buildEnvironmentRest -> buildEnvironmentRest.toDBEntityBuilder().build();
     }
 }

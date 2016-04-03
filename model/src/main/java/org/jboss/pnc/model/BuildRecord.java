@@ -157,12 +157,12 @@ public class BuildRecord implements GenericEntity<Integer> {
     private List<Artifact> dependencies;
 
     /**
-     * Image that was used to instantiate a build server.
+     * Environment configuration (including system image) that was used to instantiate the build host.
      */
     @ManyToOne
-    @ForeignKey(name = "fk_buildrecord_systemimage")
-    @Index(name="idx_buildrecord_systemimage")
-    private BuildEnvironment systemImage;
+    @ForeignKey(name = "fk_buildrecord_buildenvironment")
+    @Index(name="idx_buildrecord_buildenvironment")
+    private BuildEnvironment buildEnvironment;
 
     /**
      * Sets of related build records in which this build record is included
@@ -377,21 +377,21 @@ public class BuildRecord implements GenericEntity<Integer> {
     }
 
     /**
-     * Gets the system image.
+     * Gets the build environment.
      *
-     * @return the system image
+     * @return the environment settings used on the build host
      */
-    public BuildEnvironment getSystemImage() {
-        return systemImage;
+    public BuildEnvironment getBuildEnvironment() {
+        return buildEnvironment;
     }
 
     /**
-     * Sets the system image.
+     * Sets the build environment.
      *
-     * @param systemImage the new system image
+     * @param buildEnvironment the build environment configuration
      */
-    public void setSystemImage(BuildEnvironment systemImage) {
-        this.systemImage = systemImage;
+    public void setBuildEnvironment(BuildEnvironment buildEnvironment) {
+        this.buildEnvironment = buildEnvironment;
     }
 
     /**
@@ -510,7 +510,7 @@ public class BuildRecord implements GenericEntity<Integer> {
 
         private List<Artifact> dependencies;
 
-        private BuildEnvironment systemImage;
+        private BuildEnvironment buildEnvironment;
 
         private Set<BuildRecordSet> buildRecordSets;
 
@@ -542,7 +542,7 @@ public class BuildRecord implements GenericEntity<Integer> {
             buildRecord.setScmRevision(scmRevision);
             buildRecord.setBuildLog(buildLog);
             buildRecord.setStatus(status);
-            buildRecord.setSystemImage(systemImage);
+            buildRecord.setBuildEnvironment(buildEnvironment);
             buildRecord.setExternalArchiveId(externalArchiveId);
 
             if (buildConfigSetRecord != null) {
@@ -648,8 +648,8 @@ public class BuildRecord implements GenericEntity<Integer> {
             return this;
         }
 
-        public Builder systemImage(BuildEnvironment systemImage) {
-            this.systemImage = systemImage;
+        public Builder buildEnvironment(BuildEnvironment buildEnvironment) {
+            this.buildEnvironment = buildEnvironment;
             return this;
         }
 
