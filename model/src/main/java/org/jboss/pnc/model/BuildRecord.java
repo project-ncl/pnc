@@ -157,11 +157,6 @@ public class BuildRecord implements GenericEntity<Integer> {
     private List<Artifact> dependencies;
 
     /**
-     * Driver that was used to run the build.
-     */
-    private String buildDriverId;
-
-    /**
      * Image that was used to instantiate a build server.
      */
     @ManyToOne
@@ -382,24 +377,6 @@ public class BuildRecord implements GenericEntity<Integer> {
     }
 
     /**
-     * Gets the builds the driver id.
-     *
-     * @return the builds the driver id
-     */
-    public String getBuildDriverId() {
-        return buildDriverId;
-    }
-
-    /**
-     * Sets the builds the driver id.
-     *
-     * @param buildDriverId the new builds the driver id
-     */
-    public void setBuildDriverId(String buildDriverId) {
-        this.buildDriverId = buildDriverId;
-    }
-
-    /**
      * Gets the system image.
      *
      * @return the system image
@@ -533,8 +510,6 @@ public class BuildRecord implements GenericEntity<Integer> {
 
         private List<Artifact> dependencies;
 
-        private String buildDriverId;
-
         private BuildEnvironment systemImage;
 
         private Set<BuildRecordSet> buildRecordSets;
@@ -567,7 +542,6 @@ public class BuildRecord implements GenericEntity<Integer> {
             buildRecord.setScmRevision(scmRevision);
             buildRecord.setBuildLog(buildLog);
             buildRecord.setStatus(status);
-            buildRecord.setBuildDriverId(buildDriverId);
             buildRecord.setSystemImage(systemImage);
             buildRecord.setExternalArchiveId(externalArchiveId);
 
@@ -671,11 +645,6 @@ public class BuildRecord implements GenericEntity<Integer> {
 
         public Builder dependencies(List<Artifact> dependencies) {
             this.dependencies = dependencies;
-            return this;
-        }
-
-        public Builder buildDriverId(String buildDriverId) {
-            this.buildDriverId = buildDriverId;
             return this;
         }
 
