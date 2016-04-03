@@ -76,6 +76,7 @@ public class BuildConfigurationRest implements GenericRestEntity<Integer> {
     @NotNull(groups = WhenCreatingNew.class)
     private ProjectRest project;
 
+    @NotNull(groups = { WhenCreatingNew.class, WhenUpdating.class })
     private BuildEnvironmentRest environment;
 
     private Set<Integer> dependencyIds;
