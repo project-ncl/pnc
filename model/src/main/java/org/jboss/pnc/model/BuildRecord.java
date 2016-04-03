@@ -157,17 +157,12 @@ public class BuildRecord implements GenericEntity<Integer> {
     private List<Artifact> dependencies;
 
     /**
-     * Driver that was used to run the build.
-     */
-    private String buildDriverId;
-
-    /**
-     * Image that was used to instantiate a build server.
+     * Environment configuration (including system image) that was used to instantiate the build host.
      */
     @ManyToOne
-    @ForeignKey(name = "fk_buildrecord_systemimage")
-    @Index(name="idx_buildrecord_systemimage")
-    private BuildEnvironment systemImage;
+    @ForeignKey(name = "fk_buildrecord_buildenvironment")
+    @Index(name="idx_buildrecord_buildenvironment")
+    private BuildEnvironment buildEnvironment;
 
     /**
      * Sets of related build records in which this build record is included
@@ -382,39 +377,21 @@ public class BuildRecord implements GenericEntity<Integer> {
     }
 
     /**
-     * Gets the builds the driver id.
+     * Gets the build environment.
      *
-     * @return the builds the driver id
+     * @return the environment settings used on the build host
      */
-    public String getBuildDriverId() {
-        return buildDriverId;
+    public BuildEnvironment getBuildEnvironment() {
+        return buildEnvironment;
     }
 
     /**
-     * Sets the builds the driver id.
+     * Sets the build environment.
      *
-     * @param buildDriverId the new builds the driver id
+     * @param buildEnvironment the build environment configuration
      */
-    public void setBuildDriverId(String buildDriverId) {
-        this.buildDriverId = buildDriverId;
-    }
-
-    /**
-     * Gets the system image.
-     *
-     * @return the system image
-     */
-    public BuildEnvironment getSystemImage() {
-        return systemImage;
-    }
-
-    /**
-     * Sets the system image.
-     *
-     * @param systemImage the new system image
-     */
-    public void setSystemImage(BuildEnvironment systemImage) {
-        this.systemImage = systemImage;
+    public void setBuildEnvironment(BuildEnvironment buildEnvironment) {
+        this.buildEnvironment = buildEnvironment;
     }
 
     /**
@@ -533,9 +510,7 @@ public class BuildRecord implements GenericEntity<Integer> {
 
         private List<Artifact> dependencies;
 
-        private String buildDriverId;
-
-        private BuildEnvironment systemImage;
+        private BuildEnvironment buildEnvironment;
 
         private Set<BuildRecordSet> buildRecordSets;
 
@@ -567,8 +542,7 @@ public class BuildRecord implements GenericEntity<Integer> {
             buildRecord.setScmRevision(scmRevision);
             buildRecord.setBuildLog(buildLog);
             buildRecord.setStatus(status);
-            buildRecord.setBuildDriverId(buildDriverId);
-            buildRecord.setSystemImage(systemImage);
+            buildRecord.setBuildEnvironment(buildEnvironment);
             buildRecord.setExternalArchiveId(externalArchiveId);
 
             if (buildConfigSetRecord != null) {
@@ -674,13 +648,8 @@ public class BuildRecord implements GenericEntity<Integer> {
             return this;
         }
 
-        public Builder buildDriverId(String buildDriverId) {
-            this.buildDriverId = buildDriverId;
-            return this;
-        }
-
-        public Builder systemImage(BuildEnvironment systemImage) {
-            this.systemImage = systemImage;
+        public Builder buildEnvironment(BuildEnvironment buildEnvironment) {
+            this.buildEnvironment = buildEnvironment;
             return this;
         }
 

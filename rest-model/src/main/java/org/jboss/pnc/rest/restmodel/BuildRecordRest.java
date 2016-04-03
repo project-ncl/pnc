@@ -66,9 +66,7 @@ public class BuildRecordRest implements GenericRestEntity<Integer> {
 
     private String scmRevision;
 
-    private String buildDriverId;
-
-    private Integer systemImageId;
+    private Integer buildEnvironmentId;
 
     private Integer externalArchiveId;
 
@@ -117,9 +115,8 @@ public class BuildRecordRest implements GenericRestEntity<Integer> {
                 () -> buildConfigurationRev = buildRecord.getBuildConfigurationAudited().getRev());
         performIfNotNull(buildRecord.getUser(), () -> userId = buildRecord.getUser().getId());
         performIfNotNull(buildRecord.getUser(), () -> username = buildRecord.getUser().getUsername());
-        performIfNotNull(buildRecord.getSystemImage(), () -> systemImageId = buildRecord.getSystemImage().getId());
+        performIfNotNull(buildRecord.getBuildEnvironment(), () -> buildEnvironmentId = buildRecord.getBuildEnvironment().getId());
         this.status = BuildCoordinationStatus.fromBuildStatus(buildRecord.getStatus());
-        this.buildDriverId = buildRecord.getBuildDriverId();
         if (buildRecord.getBuildConfigSetRecord() != null)
             this.buildConfigSetRecordId = buildRecord.getBuildConfigSetRecord().getId();
 
@@ -275,20 +272,12 @@ public class BuildRecordRest implements GenericRestEntity<Integer> {
         this.scmRevision = scmRevision;
     }
 
-    public String getBuildDriverId() {
-        return buildDriverId;
+    public Integer getBuildEnvironmentId() {
+        return buildEnvironmentId;
     }
 
-    public void setBuildDriverId(String buildDriverId) {
-        this.buildDriverId = buildDriverId;
-    }
-
-    public Integer getSystemImageId() {
-        return systemImageId;
-    }
-
-    public void setSystemImageId(Integer systemImageId) {
-        this.systemImageId = systemImageId;
+    public void setBuildEnvironmentId(Integer buildEnvironmentId) {
+        this.buildEnvironmentId = buildEnvironmentId;
     }
 
     public Integer getExternalArchiveId() {

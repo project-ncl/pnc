@@ -150,7 +150,7 @@ public class BuildConfigSetRecordRest implements GenericRestEntity<Integer> {
         return productVersionId;
     }
 
-    public void setSystemImageId(Integer productVersionId) {
+    public void setProductVersionId(Integer productVersionId) {
         this.productVersionId = productVersionId;
     }
 
