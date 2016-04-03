@@ -112,6 +112,7 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
     private Project project;
 
     @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
+    @NotNull
     @ManyToOne(cascade = { CascadeType.REFRESH, CascadeType.DETACH })
     @ForeignKey(name = "fk_buildconfiguration_buildenvironment")
     @Index(name="idx_buildconfiguration_buildenvironment")

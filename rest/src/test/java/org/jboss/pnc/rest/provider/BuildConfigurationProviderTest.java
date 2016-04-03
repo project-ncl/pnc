@@ -19,6 +19,7 @@ package org.jboss.pnc.rest.provider;
 
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationRest;
+import org.jboss.pnc.rest.restmodel.BuildEnvironmentRest;
 import org.jboss.pnc.rest.restmodel.ProjectRest;
 import org.jboss.pnc.rest.validation.exceptions.InvalidEntityException;
 import org.jboss.pnc.rest.validation.exceptions.ValidationException;
@@ -98,6 +99,7 @@ public class BuildConfigurationProviderTest {
         configuration.setProject(createProject());
         configuration.setName("config");
         configuration.setScmRepoURL(VALID_URL);
+        configuration.setEnvironment(new BuildEnvironmentRest());
         return configuration;
     }
 
