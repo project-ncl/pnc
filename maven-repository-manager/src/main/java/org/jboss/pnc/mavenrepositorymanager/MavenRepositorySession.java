@@ -33,8 +33,10 @@ import org.commonjava.indy.promote.model.PathsPromoteRequest;
 import org.commonjava.indy.promote.model.PathsPromoteResult;
 import org.commonjava.indy.promote.model.ValidationResult;
 import org.commonjava.maven.atlas.ident.ref.ArtifactRef;
+import org.commonjava.maven.atlas.ident.ref.ProjectVersionRef;
 import org.commonjava.maven.atlas.ident.ref.SimpleArtifactRef;
 import org.commonjava.maven.atlas.ident.util.ArtifactPathInfo;
+import org.commonjava.maven.atlas.ident.version.VersionSpec;
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.BuiltArtifact;
 import org.jboss.pnc.model.ImportedArtifact;
@@ -141,19 +143,33 @@ public class MavenRepositorySession implements RepositorySession {
 
         Comparator<Artifact> comp = (one, two) -> one.getIdentifier().compareTo(two.getIdentifier());
 
-        List<BuiltArtifact> uploads = processUploads(report);
+        Map<String, Set<String>> toDeletePathsByGroupName = new HashMap<>();
+        List<BuiltArtifact> uploads = processUploads(report, toDeletePathsByGroupName);
         Collections.sort(uploads, comp);
 
-        List<Artifact> downloads = processDownloads(report);
+        List<Artifact> downloads = processDownloads(report, toDeletePathsByGroupName);
         Collections.sort(downloads, comp);
 
+        Logger logger = LoggerFactory.getLogger(getClass());
+
+        // Pending NCL-1815, remove the content deletion loop here, and the toDeletePathsByGroupName map above.
         try {
+            IndyContentClientModule content = indy.content();
+            toDeletePathsByGroupName.forEach((groupName, paths)->{
+                paths.forEach((path)->{
+                    try {
+                        content.delete(StoreType.group, groupName, path);
+                    } catch (IndyClientException e) {
+                        logger.error(String.format("Failed to delete group metadata: group:%s %s", groupName, path), e);
+                    }
+                });
+            });
+
             indy.stores().delete(StoreType.group, buildRepoId, "[Post-Build] Removing build aggregation group: " + buildRepoId );
         } catch (IndyClientException e) {
-            throw new RepositoryManagerException("Failed to retrieve AProx stores module. Reason: %s", e, e.getMessage());
+            throw new RepositoryManagerException("Failed to retrieve AProx content or stores module. Reason: %s", e, e.getMessage());
         }
 
-        Logger logger = LoggerFactory.getLogger(getClass());
         logger.info("Returning built artifacts / dependencies:\nUploads:\n  {}\n\nDownloads:\n  {}\n\n",
                 StringUtils.join(uploads, "\n  "), StringUtils.join(downloads, "\n  "));
 
@@ -167,10 +183,11 @@ public class MavenRepositorySession implements RepositorySession {
      * return dependency artifacts meta data.
      *
      * @param report The tracking report that contains info about artifacts downloaded by the build
+     * @param toDeletePathsByGroupName <b>TEMPORARY</b>, pending NCL-1815. This is metadata to be deleted from the group level.
      * @return List of dependency artifacts meta data
      * @throws RepositoryManagerException In case of a client API transport error or an error during promotion of artifacts
      */
-    private List<Artifact> processDownloads(TrackedContentDTO report) throws RepositoryManagerException {
+    private List<Artifact> processDownloads(TrackedContentDTO report, Map<String, Set<String>> toDeletePathsByGroupName) throws RepositoryManagerException {
         Logger logger = LoggerFactory.getLogger(getClass());
 
         IndyContentClientModule content;
@@ -224,6 +241,14 @@ public class MavenRepositorySession implements RepositorySession {
                 ArtifactRef aref = new SimpleArtifactRef(pathInfo.getProjectId(), pathInfo.getType(), pathInfo.getClassifier());
                 logger.info("Recording download: {}", aref);
 
+                Set<String> paths = toDeletePathsByGroupName.get(MavenRepositoryConstants.PUBLIC_GROUP_ID);
+                if (paths == null) {
+                    paths = new HashSet<>();
+                    toDeletePathsByGroupName.put(MavenRepositoryConstants.PUBLIC_GROUP_ID, paths);
+                }
+
+                paths.add(formatMetadataUrl(pathInfo.getProjectId()));
+
                 String originUrl = download.getOriginUrl();
                 if (originUrl == null) {
                     // this is from a hosted repository, either shared-imports or a build, or something like that.
@@ -251,10 +276,12 @@ public class MavenRepositorySession implements RepositorySession {
      * Return output artifacts metadata.
      *
      * @param report The tracking report that contains info about artifacts uploaded (output) from the build
+     * @param metadataPathsToScrub <b>TEMPORARY</b>, pending NCL-1815. Collect group metadata paths to manually delete.
+     *                             This is a mapping of groupName to set of paths.
      * @return List of output artifacts meta data
      * @throws RepositoryManagerException In case of a client API transport error or an error during promotion of artifacts
      */
-    private List<BuiltArtifact> processUploads(TrackedContentDTO report)
+    private List<BuiltArtifact> processUploads(TrackedContentDTO report, Map<String, Set<String>> metadataPathsToScrub )
             throws RepositoryManagerException {
         Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -277,6 +304,15 @@ public class MavenRepositorySession implements RepositorySession {
                 }
 
                 ArtifactRef aref = new SimpleArtifactRef(pathInfo.getProjectId(), pathInfo.getType(), pathInfo.getClassifier());
+
+                Set<String> paths = metadataPathsToScrub.get(MavenRepositoryConstants.UNTESTED_BUILDS_GROUP);
+                if (paths == null) {
+                    paths = new HashSet<>();
+                    metadataPathsToScrub.put(MavenRepositoryConstants.UNTESTED_BUILDS_GROUP, paths);
+                }
+
+                paths.add(formatMetadataUrl(pathInfo.getProjectId()));
+
                 logger.info("Recording upload: {}", aref);
 
                 BuiltArtifact.Builder artifactBuilder = BuiltArtifact.Builder.newBuilder().checksum(upload.getSha256())
@@ -291,6 +327,49 @@ public class MavenRepositorySession implements RepositorySession {
         }
         return Collections.emptyList();
     }
+
+    // START: This is TEMPORARY, pending NCL-1815
+    private static final String METADATA_FILENAME = "maven-metadata.xml";
+
+    private String formatMetadataUrl(ProjectVersionRef ref) throws RepositoryManagerException {
+        final StringBuilder sb = new StringBuilder();
+        sb.append( ref.getGroupId()
+                .replace( '.', '/' ) )
+                .append( '/' )
+                .append( ref.getArtifactId() );
+
+        // not needed for now...hopefully we can remove this code before we start handling snapshots.
+//        if ( ref instanceof ProjectVersionRef )
+//        {
+//            sb.append( '/' )
+//                    .append( formatVersionDirectoryPart( (ProjectVersionRef) ref ) );
+//        }
+
+        sb.append( '/' ).append(METADATA_FILENAME);
+
+        return sb.toString();
+    }
+
+    // not needed for now...hopefully we can remove this code before we start handling snapshots.
+//    private String formatVersionDirectoryPart( final ProjectVersionRef ref ) throws RepositoryManagerException {
+//        final VersionSpec vs = ref.getVersionSpec();
+//        if ( !vs.isSingle() )
+//        {
+//            throw new RepositoryManagerException( "Cannot format version directory part for: '{}'. Version is compound.", ref );
+//        }
+//
+//        if ( vs.isSnapshot() )
+//        {
+//            return vs.getSingleVersion()
+//                    .getBaseVersion()
+//                    .renderStandard() + "-SNAPSHOT";
+//        }
+//        else
+//        {
+//            return vs.renderStandard();
+//        }
+//    }
+    // END: This is TEMPORARY, pending NCL-1815
 
     /**
      * Promotes a set of artifact paths (or everything, if the path-set is missing) from a particular AProx artifact store to
