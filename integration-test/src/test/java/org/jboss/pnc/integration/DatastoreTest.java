@@ -40,7 +40,7 @@ import org.jboss.pnc.spi.datastore.audit.AuditRepository;
 import org.jboss.pnc.spi.datastore.audit.Revision;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
-import org.jboss.pnc.spi.datastore.repositories.BuildSystemImageRepository;
+import org.jboss.pnc.spi.datastore.repositories.BuildEnvironmentRepository;
 import org.jboss.pnc.spi.datastore.repositories.ProductRepository;
 import org.jboss.pnc.spi.datastore.repositories.ProductVersionRepository;
 import org.jboss.pnc.spi.datastore.repositories.ProjectRepository;
@@ -84,7 +84,7 @@ public class DatastoreTest {
     BuildRecordRepository buildRecordRepository;
 
     @Inject
-    BuildSystemImageRepository environmentRepository;
+    BuildEnvironmentRepository environmentRepository;
 
     @Inject
     UserRepository userRepository;

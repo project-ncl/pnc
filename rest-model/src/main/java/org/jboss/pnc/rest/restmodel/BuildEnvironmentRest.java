@@ -29,7 +29,7 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
 import javax.xml.bind.annotation.XmlRootElement;
 
-@XmlRootElement(name = "BuildSystemImage")
+@XmlRootElement(name = "BuildEnvironment")
 public class BuildEnvironmentRest implements GenericRestEntity<Integer> {
 
     @NotNull(groups = WhenUpdating.class)
@@ -58,14 +58,14 @@ public class BuildEnvironmentRest implements GenericRestEntity<Integer> {
     public BuildEnvironmentRest() {
     }
 
-    public BuildEnvironmentRest(BuildEnvironment buildSystemImage) {
-        this.id = buildSystemImage.getId();
-        this.name = buildSystemImage.getName();
-        this.description = buildSystemImage.getDescription();
-        this.systemImageRepositoryUrl = buildSystemImage.getSystemImageRepositoryUrl();
-        this.systemImageId = buildSystemImage.getSystemImageId();
-        this.attributes = buildSystemImage.getAttributes();
-        this.buildType = buildSystemImage.getBuildType();
+    public BuildEnvironmentRest(BuildEnvironment buildEnvironment) {
+        this.id = buildEnvironment.getId();
+        this.name = buildEnvironment.getName();
+        this.description = buildEnvironment.getDescription();
+        this.systemImageRepositoryUrl = buildEnvironment.getSystemImageRepositoryUrl();
+        this.systemImageId = buildEnvironment.getSystemImageId();
+        this.attributes = buildEnvironment.getAttributes();
+        this.buildType = buildEnvironment.getBuildType();
     }
 
     @Override

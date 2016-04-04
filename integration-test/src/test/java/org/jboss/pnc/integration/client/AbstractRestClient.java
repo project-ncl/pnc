@@ -242,21 +242,33 @@ public abstract class AbstractRestClient<T> {
         QueryParam pageSizeQueryParam = new QueryParam("pageSize", "" + Integer.toString(pageSize));
         Response response = get(collectionUrl, rsqlQueryParam, sortQueryParam, pageIndexQueryParam, pageSizeQueryParam);
 
-        if(withValidation) {
-            response.then().statusCode(200);
-        }
+        logger.info("response {} ", response.prettyPrint());
 
         List<T> object = new ArrayList<>();
-        try {
-            List<? extends Map> beforeMappingList = response.jsonPath().getList("content");
-            ObjectMapper objectMapper = new ObjectMapper();
-            for(Map obj : beforeMappingList) {
-                //because of the bug in RestAssured - we need to use another mapping library...
-                object.add(objectMapper.convertValue(obj, entityClass));
+        String responseBody = response.getBody().asString();
+
+        // Response body may be null, if the query did not return any result! This would need to deliver a response with 204
+        // status, with no errors
+        if (responseBody != null && !responseBody.isEmpty()) {
+            try {
+                List<? extends Map> beforeMappingList = response.jsonPath().getList("content");
+                ObjectMapper objectMapper = new ObjectMapper();
+                for (Map obj : beforeMappingList) {
+                    // because of the bug in RestAssured - we need to use another mapping library...
+                    object.add(objectMapper.convertValue(obj, entityClass));
+                }
+            } catch (Exception e) {
+                logger.error("JSON unmarshalling error", e);
+                if (withValidation) {
+                    throw new AssertionError("JSON unmarshalling error", e);
+                }
             }
-        } catch (Exception e) {
-            if(withValidation) {
-                throw new AssertionError("JSON unmarshalling error", e);
+        }
+        if (withValidation) {
+            if (!object.isEmpty()) {
+                response.then().statusCode(200);
+            } else {
+                response.then().statusCode(204);
             }
         }
 

@@ -17,13 +17,16 @@
  */
 package org.jboss.pnc.rest.restmodel;
 
+import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
+import org.jboss.pnc.model.IdRev;
 import org.jboss.pnc.rest.validation.groups.WhenCreatingNew;
 import org.jboss.pnc.rest.validation.groups.WhenUpdating;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
 import java.util.Date;
 
 import static org.jboss.pnc.rest.utils.Utility.performIfNotNull;
@@ -36,6 +39,9 @@ public class BuildConfigurationAuditedRest implements GenericRestEntity<Integer>
     private Integer id;
 
     private Integer rev;
+
+    // Required for rsql queries
+    private IdRev idRev;
 
     private String name;
 
@@ -69,7 +75,8 @@ public class BuildConfigurationAuditedRest implements GenericRestEntity<Integer>
     }
 
     public BuildConfigurationAuditedRest(BuildConfigurationAudited buildConfigurationAudited) {
-        this.id = buildConfigurationAudited.getId().getId();
+        this.idRev = buildConfigurationAudited.getId();
+        this.id = buildConfigurationAudited.getIdRev().getId();
         this.rev = buildConfigurationAudited.getRev();
         this.name = buildConfigurationAudited.getName();
         this.description = buildConfigurationAudited.getDescription();
@@ -104,6 +111,14 @@ public class BuildConfigurationAuditedRest implements GenericRestEntity<Integer>
 
     public void setRev(Integer rev) {
         this.rev = rev;
+    }
+
+    public IdRev getIdRev() {
+        return idRev;
+    }
+
+    public void setIdRev(IdRev idRev) {
+        this.idRev = idRev;
     }
 
     public String getName() {
@@ -216,6 +231,23 @@ public class BuildConfigurationAuditedRest implements GenericRestEntity<Integer>
 
     public void setEnvironment(BuildEnvironmentRest environment) {
         this.environment = environment;
+    }
+
+    @XmlTransient
+    public BuildConfigurationAudited.Builder toDBEntityBuilder() {
+
+        BuildConfiguration.Builder buildConfigBuilder = BuildConfiguration.Builder.newBuilder().id(id).name(name)
+                .description(description).buildScript(buildScript).scmRepoURL(scmRepoURL).scmMirrorRepoURL(scmMirrorRepoURL)
+                .scmRevision(scmRevision).scmMirrorRevision(scmMirrorRevision).creationTime(creationTime)
+                .lastModificationTime(lastModificationTime).repositories(repositories);
+
+        performIfNotNull(this.project, () -> buildConfigBuilder.project(this.project.toDBEntityBuilder().build()));
+        performIfNotNull(this.environment,
+                () -> buildConfigBuilder.buildEnvironment(this.environment.toDBEntityBuilder().build()));
+
+        BuildConfigurationAudited.Builder builder = BuildConfigurationAudited.Builder.newBuilder()
+                .buildConfiguration(buildConfigBuilder.build()).buildRecord(id);
+        return builder;
     }
 
 }

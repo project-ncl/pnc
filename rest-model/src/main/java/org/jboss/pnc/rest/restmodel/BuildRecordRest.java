@@ -66,9 +66,7 @@ public class BuildRecordRest implements GenericRestEntity<Integer> {
 
     private String scmRevision;
 
-    private String buildDriverId;
-
-    private Integer systemImageId;
+    private Integer buildEnvironmentId;
 
     private Integer externalArchiveId;
 
@@ -87,6 +85,16 @@ public class BuildRecordRest implements GenericRestEntity<Integer> {
      * The IDs of the build record sets which represent the builds performed for a milestone to which this build record belongs
      */
     private Set<Integer> performedMilestoneBuildRecordSetIds;
+
+    /**
+     * Required in order to use rsql on user
+     */
+    private UserRest user;
+
+    /**
+     * Required in order to use rsql on buildConfiguration
+     */
+    private BuildConfigurationAuditedRest buildConfigurationAudited;
 
     public BuildRecordRest() {
     }
@@ -107,9 +115,8 @@ public class BuildRecordRest implements GenericRestEntity<Integer> {
                 () -> buildConfigurationRev = buildRecord.getBuildConfigurationAudited().getRev());
         performIfNotNull(buildRecord.getUser(), () -> userId = buildRecord.getUser().getId());
         performIfNotNull(buildRecord.getUser(), () -> username = buildRecord.getUser().getUsername());
-        performIfNotNull(buildRecord.getSystemImage(), () -> systemImageId = buildRecord.getSystemImage().getId());
+        performIfNotNull(buildRecord.getBuildEnvironment(), () -> buildEnvironmentId = buildRecord.getBuildEnvironment().getId());
         this.status = BuildCoordinationStatus.fromBuildStatus(buildRecord.getStatus());
-        this.buildDriverId = buildRecord.getBuildDriverId();
         if (buildRecord.getBuildConfigSetRecord() != null)
             this.buildConfigSetRecordId = buildRecord.getBuildConfigSetRecord().getId();
 
@@ -119,9 +126,15 @@ public class BuildRecordRest implements GenericRestEntity<Integer> {
         this.performedMilestoneBuildRecordSetIds = nullableStreamOf(buildRecord.getBuildRecordSets())
                 .filter(buildRecordSet -> buildRecordSet.getPerformedInProductMilestone() != null)
                 .map(buildRecordSet -> buildRecordSet.getId()).collect(Collectors.toSet());
+
+        performIfNotNull(buildRecord.getUser(), () -> user = new UserRest(buildRecord.getUser()));
+        performIfNotNull(buildRecord.getBuildConfigurationAudited(),
+                () -> buildConfigurationAudited = new BuildConfigurationAuditedRest(
+                        buildRecord.getBuildConfigurationAudited()));
     }
 
-    public BuildRecordRest(BuildExecutionSession buildExecutionSession, Date submitTime, UserRest user) {
+    public BuildRecordRest(BuildExecutionSession buildExecutionSession, Date submitTime, UserRest user,
+            BuildConfigurationAuditedRest buildConfigurationAudited) {
         this.id = buildExecutionSession.getId();
         this.submitTime = submitTime;
         this.startTime = buildExecutionSession.getStartTime();
@@ -132,9 +145,11 @@ public class BuildRecordRest implements GenericRestEntity<Integer> {
         this.status = BuildCoordinationStatus.fromBuildExecutionStatus(buildExecutionSession.getStatus());
         buildExecutionSession.getLiveLogsUri().ifPresent(logsUri -> setLiveLogsUri(logsUri.toString()));
 
-
         this.userId = user.getId();
         this.username = user.getUsername();
+
+        this.user = user;
+        this.buildConfigurationAudited = buildConfigurationAudited;
 
         this.buildContentId = buildExecutionConfig.getBuildContentId();
 
@@ -143,7 +158,8 @@ public class BuildRecordRest implements GenericRestEntity<Integer> {
         this.scmRevision = buildExecutionConfig.getScmRevision();
     }
 
-    public BuildRecordRest(Integer id, BuildCoordinationStatus buildCoordinationStatus, Date submitTime, Date startTime, Date endTime, UserRest user) {
+    public BuildRecordRest(Integer id, BuildCoordinationStatus buildCoordinationStatus, Date submitTime, Date startTime,
+            Date endTime, UserRest user, BuildConfigurationAuditedRest buildConfigurationAudited) {
         this.id = id;
         this.submitTime = submitTime;
         this.startTime = startTime;
@@ -153,6 +169,9 @@ public class BuildRecordRest implements GenericRestEntity<Integer> {
 
         this.userId = user.getId();
         this.username = user.getUsername();
+
+        this.user = user;
+        this.buildConfigurationAudited = buildConfigurationAudited;
     }
 
     @Override
@@ -253,20 +272,12 @@ public class BuildRecordRest implements GenericRestEntity<Integer> {
         this.scmRevision = scmRevision;
     }
 
-    public String getBuildDriverId() {
-        return buildDriverId;
+    public Integer getBuildEnvironmentId() {
+        return buildEnvironmentId;
     }
 
-    public void setBuildDriverId(String buildDriverId) {
-        this.buildDriverId = buildDriverId;
-    }
-
-    public Integer getSystemImageId() {
-        return systemImageId;
-    }
-
-    public void setSystemImageId(Integer systemImageId) {
-        this.systemImageId = systemImageId;
+    public void setBuildEnvironmentId(Integer buildEnvironmentId) {
+        this.buildEnvironmentId = buildEnvironmentId;
     }
 
     public Integer getExternalArchiveId() {
@@ -303,5 +314,13 @@ public class BuildRecordRest implements GenericRestEntity<Integer> {
 
     public Set<Integer> getPerformedMilestoneBuildRecordSetIds() {
         return performedMilestoneBuildRecordSetIds;
+    }
+
+    public UserRest getUser() {
+        return user;
+    }
+
+    public BuildConfigurationAuditedRest getBuildConfigurationAudited() {
+        return buildConfigurationAudited;
     }
 }
