@@ -31,6 +31,8 @@ import javax.ejb.TransactionAttributeType;
 import javax.inject.Inject;
 import java.sql.Timestamp;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalUnit;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
@@ -311,8 +313,8 @@ public class DatabaseDataInitializer {
             BuildRecord buildRecord1 = BuildRecord.Builder.newBuilder().id(nextId)
                     .latestBuildConfiguration(buildConfiguration1)
                     .buildConfigurationAudited(buildConfigAudited1)
-                    .submitTime(Timestamp.from(Instant.now()))
-                    .startTime(Timestamp.from(Instant.now()))
+                    .submitTime(Timestamp.from(Instant.now().minus(8, ChronoUnit.MINUTES)))
+                    .startTime(Timestamp.from(Instant.now().minus(5, ChronoUnit.MINUTES)))
                     .endTime(Timestamp.from(Instant.now()))
                     .builtArtifact(builtArtifact1)
                     .builtArtifact(builtArtifact2)
@@ -354,8 +356,8 @@ public class DatabaseDataInitializer {
             BuildRecord buildRecord2 = BuildRecord.Builder.newBuilder().id(nextId)
                     .latestBuildConfiguration(buildConfiguration2)
                     .buildConfigurationAudited(buildConfigAudited2)
-                    .submitTime(Timestamp.from(Instant.now()))
-                    .startTime(Timestamp.from(Instant.now()))
+                    .submitTime(Timestamp.from(Instant.now().minus(8, ChronoUnit.MINUTES)))
+                    .startTime(Timestamp.from(Instant.now().minus(5, ChronoUnit.MINUTES)))
                     .endTime(Timestamp.from(Instant.now()))
                     .builtArtifact(builtArtifact3)
                     .builtArtifact(builtArtifact4)
