@@ -118,9 +118,6 @@ public class DatastoreAdapter {
                 return;
             }
 
-            // Build driver results
-            buildRecordBuilder.endTime(Date.from(Instant.now()));
-
             log.debugf("Storing results of buildTask [%s] to datastore.", buildTask.getId());
             datastore.storeCompletedBuild(buildRecordBuilder, buildTask.getBuildRecordSetIds());
         } catch (Exception e) {
@@ -152,8 +149,6 @@ public class DatastoreAdapter {
         errorLog.append(stackTraceWriter.getBuffer());
         buildRecordBuilder.buildLog(errorLog.toString());
 
-        buildRecordBuilder.endTime(Date.from(Instant.now()));
-
         log.debugf("Storing ERROR result of %s to datastore. Error: %s", buildTask.getBuildConfigurationAudited().getName() + "\n\n\n Exception: " + errorLog, e);
         datastore.storeCompletedBuild(buildRecordBuilder, buildTask.getBuildRecordSetIds());
     }
@@ -167,9 +162,7 @@ public class DatastoreAdapter {
     public void storeRejected(BuildTask buildTask) throws DatastoreException {
         BuildRecord.Builder buildRecordBuilder = initBuildRecordBuilder(buildTask);
         buildRecordBuilder.status(REJECTED);
-
         buildRecordBuilder.buildLog(buildTask.getStatusDescription());
-        buildRecordBuilder.endTime(Date.from(Instant.now()));
 
         log.debugf("Storing REJECTED build of %s to datastore. Reason: %s", buildTask.getBuildConfigurationAudited().getName(), buildTask.getStatusDescription());
         datastore.storeCompletedBuild(buildRecordBuilder, buildTask.getBuildRecordSetIds());
@@ -188,8 +181,13 @@ public class DatastoreAdapter {
                 .buildConfigurationAudited(buildTask.getBuildConfigurationAudited())
                 .user(buildTask.getUser())
                 .submitTime(buildTask.getSubmitTime())
-                .startTime(buildTask.getStartTime())
-                .endTime(buildTask.getEndTime());
+                .startTime(buildTask.getStartTime());
+
+        if (buildTask.getEndTime() != null) {
+            builder.endTime(buildTask.getEndTime());
+        } else {
+            builder.endTime(Date.from(Instant.now()));
+        }
 
         builder.latestBuildConfiguration(buildTask.getBuildConfiguration());
         if (buildTask.getBuildConfigSetRecordId() != null) {
