@@ -75,7 +75,7 @@ public class ProductVersionRestTest {
 
         ProductVersionRest productVersion = new ProductVersionRest();
         productVersion.setProductId(productId);
-        productVersion.setVersion("1.0");
+        productVersion.setVersion("99.0");
 
         //when
         RestResponse<ProductVersionRest> clientResponse = productVersionRestClient.createNew(productVersion);
@@ -89,7 +89,7 @@ public class ProductVersionRestTest {
     public void shouldUpdateProductVersion() throws Exception {
         //given
         ProductVersionRest productVersionRest = productVersionRestClient.firstNotNull().getValue();
-        productVersionRest.setVersion("2.0");
+        productVersionRest.setVersion("100.0");
 
         //when
         RestResponse<ProductVersionRest> updateResponse = productVersionRestClient.update(productVersionRest.getId(),
@@ -97,6 +97,6 @@ public class ProductVersionRestTest {
 
         //then
         assertThat(updateResponse.hasValue()).isEqualTo(true);
-        assertThat(updateResponse.getValue().getVersion()).isEqualTo("2.0");
+        assertThat(updateResponse.getValue().getVersion()).isEqualTo("100.0");
     }
 }
