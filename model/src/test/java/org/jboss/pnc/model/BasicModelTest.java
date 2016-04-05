@@ -69,7 +69,6 @@ public class BasicModelTest {
             em.createNativeQuery("delete from ProductMilestone").executeUpdate();
             em.createNativeQuery("delete from ProductVersion").executeUpdate();
             em.createNativeQuery("delete from Product").executeUpdate();
-            em.createNativeQuery("delete from BuildRecordSet").executeUpdate();
             em.createNativeQuery("delete from BuildConfiguration_aud").executeUpdate();
             em.createNativeQuery("delete from BuildConfiguration").executeUpdate();
             em.createNativeQuery("delete from Project").executeUpdate();
@@ -126,8 +125,6 @@ public class BasicModelTest {
                 .originUrl("http://central.maven.org/maven2/test.jar").importDate(Date.from(Instant.now()))
                 .repoType(RepositoryType.MAVEN).build();
         productMilestone1.addDistributedArtifact(artifact1);
-        BuildRecordSet buildRecordSet2 = ModelTestDataFactory.getInstance().getBuildRecordSet("Set 2");
-        productMilestone1.setPerformedBuildRecordSet(buildRecordSet2);
         ProductRelease productRelease1 = ModelTestDataFactory.getInstance().getProductRelease1();
         productRelease1.setProductMilestone(productMilestone1);
 
@@ -139,7 +136,6 @@ public class BasicModelTest {
             em.persist(artifact1);
             em.persist(product1);
             em.persist(productVersion1);
-            em.persist(buildRecordSet2);
             em.persist(productMilestone1);
             em.persist(productRelease1);
             tx.commit();

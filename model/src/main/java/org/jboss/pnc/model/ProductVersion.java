@@ -73,7 +73,7 @@ public class ProductVersion implements GenericEntity<Integer> {
     @Index(name="idx_productversion_currentmilestone")
     private ProductMilestone currentProductMilestone;
 
-    @ManyToMany(mappedBy = "productVersions")
+    @OneToMany(mappedBy = "productVersion")
     private Set<BuildConfiguration> buildConfigurations;
 
     public ProductVersion() {
@@ -221,12 +221,6 @@ public class ProductVersion implements GenericEntity<Integer> {
                 buildConfigurationSet.setProductVersion(productVersion);
             }
             productVersion.setBuildConfigurationSets(buildConfigurationSets);
-
-            for (BuildConfiguration buildConfiguration : buildConfigurations) {
-                if (!buildConfiguration.getProductVersions().contains(productVersion)) {
-                    buildConfiguration.addProductVersion(productVersion);
-                }
-            }
             productVersion.setBuildConfigurations(buildConfigurations);
 
             for (ProductMilestone productMilestone : productMilestones) {

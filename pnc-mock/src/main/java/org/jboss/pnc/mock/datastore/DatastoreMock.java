@@ -34,7 +34,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -56,7 +55,7 @@ public class DatastoreMock implements Datastore {
     AtomicInteger buildConfigAuditedRevSequence = new AtomicInteger(0);
 
     @Override
-    public BuildRecord storeCompletedBuild(BuildRecord.Builder buildRecordBuilder, Set<Integer> buildRecordSetIds ) {
+    public BuildRecord storeCompletedBuild(BuildRecord.Builder buildRecordBuilder) {
         BuildRecord buildRecord = buildRecordBuilder.build();
         log.info("Storing build " + buildRecord.getLatestBuildConfiguration());
         buildRecords.add(buildRecord);

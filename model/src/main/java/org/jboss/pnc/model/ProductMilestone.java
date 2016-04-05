@@ -95,22 +95,14 @@ public class ProductMilestone implements GenericEntity<Integer> {
     private ProductRelease productRelease;
 
     /**
-     * Set of build records which represents the builds which were executed/performed during 
-     * this milestone build cycle.  This includes failed builds and builds which produced
-     * artifacts which were later replaced by subsequent builds.
-     * The intent of this field is to track total effort of a milestone, so for example, 
-     * failed builds consumed machine and human resources even though they were not delivered 
-     * with the product distribution.
-     * 
-     * The BuildRecordSets associated with a milestone should be created when the milestone
-     * is first created, and never updated after that.
+     * The builds which were executed/performed during this milestone build cycle. This includes 
+     * failed builds and builds which produced artifacts which were later replaced by subsequent 
+     * builds. The intent of this field is to track total effort of a milestone, so for example, 
+     * failed builds consumed machine and human resources even though they were not delivered with
+     * the product distribution.
      */
-    @OneToOne(cascade = { CascadeType.REFRESH })
-    @NotNull
-    @JoinColumn(updatable = false)
-    @ForeignKey(name = "fk_productmilestone_performed_buildrecordset")
-    @Index(name="idx_productmilestone_performed_buildrecordset")
-    private BuildRecordSet performedBuildRecordSet;
+    @OneToMany(mappedBy = "productMilestone", fetch = FetchType.EAGER)
+    private Set<BuildRecord> performedBuilds;
 
     /**
      * Set of artifacts which were distributed in this product milestone.  At a minimum, this includes
@@ -215,12 +207,12 @@ public class ProductMilestone implements GenericEntity<Integer> {
         this.issueTrackerUrl = issueTrackerUrl;
     }
 
-    public BuildRecordSet getPerformedBuildRecordSet() {
-        return performedBuildRecordSet;
+    public Set<BuildRecord> getPerformedBuilds() {
+        return performedBuilds;
     }
 
-    public void setPerformedBuildRecordSet(BuildRecordSet performedBuildRecordSet) {
-        this.performedBuildRecordSet = performedBuildRecordSet;
+    public void setPerformedBuilds(Set<BuildRecord> performedBuilds) {
+        this.performedBuilds = performedBuilds;
     }
 
     public Set<Artifact> getDistributedArtifacts() {
@@ -271,7 +263,7 @@ public class ProductMilestone implements GenericEntity<Integer> {
 
         private String issueTrackerUrl;
 
-        private BuildRecordSet performedBuildRecordSet;
+        private Set<BuildRecord> performedBuilds = new HashSet<>();
 
         private Set<Artifact> distributedArtifacts = new HashSet<>();
 
@@ -299,13 +291,10 @@ public class ProductMilestone implements GenericEntity<Integer> {
                 productMilestone.setProductVersion(productVersion);
             }
 
-            if (performedBuildRecordSet == null) {
-                performedBuildRecordSet = BuildRecordSet.Builder.newBuilder()
-                        .description("Performed in " + getProductName() + " " + productMilestone.getVersion())
-                        .build();
+            if (performedBuilds == null) {
+                performedBuilds = new HashSet<>();
             }
-            performedBuildRecordSet.setPerformedInProductMilestone(productMilestone);
-            productMilestone.setPerformedBuildRecordSet(performedBuildRecordSet);
+            productMilestone.setPerformedBuilds(performedBuilds);
 
             if (distributedArtifacts == null) {
                 distributedArtifacts = new HashSet<>();
@@ -360,8 +349,13 @@ public class ProductMilestone implements GenericEntity<Integer> {
             return this;
         }
 
-        public Builder performedBuildRecordSet(BuildRecordSet performedBuildRecordSet) {
-            this.performedBuildRecordSet = performedBuildRecordSet;
+        public Builder performedBuilds(Set<BuildRecord> performedBuilds) {
+            this.performedBuilds = performedBuilds;
+            return this;
+        }
+
+        public Builder performedBuild(BuildRecord performedBuild) {
+            this.performedBuilds.add(performedBuild);
             return this;
         }
 

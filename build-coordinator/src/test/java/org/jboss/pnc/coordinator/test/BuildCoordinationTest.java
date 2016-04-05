@@ -81,7 +81,7 @@ public class BuildCoordinationTest {
     }
 
     @Test
-    public void buildRecordSetShouldBeMarkedSuccessWhenAllBuildsAreSuccess() throws CoreException, TimeoutException, InterruptedException {
+    public void buildConfigSetRecordShouldBeMarkedSuccessWhenAllBuildsAreSuccess() throws CoreException, TimeoutException, InterruptedException {
         BuildConfigurationSet buildConfigurationSet = TestEntitiesFactory.newBuildConfigurationSet();
         testProjectConfigurationBuilder.buildConfigurationWithDependencies(buildConfigurationSet);
 
@@ -97,7 +97,7 @@ public class BuildCoordinationTest {
     }
 
     @Test
-    public void buildRecordSetShouldBeMarkedFailedOnFailure() throws CoreException, TimeoutException, InterruptedException {
+    public void buildConfigSetRecordShouldBeMarkedFailedOnFailure() throws CoreException, TimeoutException, InterruptedException {
         BuildConfigurationSet buildConfigurationSet = TestEntitiesFactory.newBuildConfigurationSet();
         testProjectConfigurationBuilder.buildConfigurationWithDependenciesThatFail(buildConfigurationSet);
 

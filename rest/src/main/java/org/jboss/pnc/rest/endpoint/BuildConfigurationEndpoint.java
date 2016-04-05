@@ -427,8 +427,8 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
     @Path("/{id}/product-versions")
     public Response addProductVersion(
             @ApiParam(value = "Build Configuration id", required = true) @PathParam("id") Integer id,
-            ProductVersionRest productVersion) {
-        buildConfigurationProvider.addProductVersion(id, productVersion.getId());
+            ProductVersionRest productVersion) {        
+        buildConfigurationProvider.setProductVersion(id, productVersion.getId());
         return fromEmpty();
     }
 
@@ -443,7 +443,7 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
     public Response removeProductVersion(
             @ApiParam(value = "Build configuration set id", required = true) @PathParam("id") Integer id,
             @ApiParam(value = "Product version id", required = true) @PathParam("productVersionId") Integer productVersionId) {
-        buildConfigurationProvider.removeProductVersion(id, productVersionId);
+        buildConfigurationProvider.setProductVersion(id, null);
         return fromEmpty();
     }
 

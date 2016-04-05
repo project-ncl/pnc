@@ -17,11 +17,9 @@
  */
 package org.jboss.pnc.rest.provider;
 
-import org.jboss.pnc.model.BuildRecordSet;
 import org.jboss.pnc.model.ProductMilestone;
 import org.jboss.pnc.rest.provider.collection.CollectionInfo;
 import org.jboss.pnc.rest.restmodel.ProductMilestoneRest;
-import org.jboss.pnc.spi.datastore.repositories.BuildRecordSetRepository;
 import org.jboss.pnc.spi.datastore.repositories.PageInfoProducer;
 import org.jboss.pnc.spi.datastore.repositories.ProductMilestoneRepository;
 import org.jboss.pnc.spi.datastore.repositories.ProductVersionRepository;
@@ -37,18 +35,11 @@ import static org.jboss.pnc.spi.datastore.predicates.ProductMilestonePredicates.
 @Stateless
 public class ProductMilestoneProvider extends AbstractProvider<ProductMilestone, ProductMilestoneRest> {
 
-    private BuildRecordSetRepository buildRecordSetRepository;
-
-    private ProductVersionRepository productVersionRepository;
-
     @Inject
-    public ProductMilestoneProvider(BuildRecordSetRepository buildRecordSetRepository, 
-            ProductMilestoneRepository productMilestoneRepository,
-            ProductVersionRepository productVersionRepository, RSQLPredicateProducer rsqlPredicateProducer,
+    public ProductMilestoneProvider(ProductMilestoneRepository productMilestoneRepository,
+            RSQLPredicateProducer rsqlPredicateProducer,
             SortInfoProducer sortInfoProducer, PageInfoProducer pageInfoProducer) {
         super(productMilestoneRepository, rsqlPredicateProducer, sortInfoProducer, pageInfoProducer);
-        this.buildRecordSetRepository = buildRecordSetRepository;
-        this.productVersionRepository = productVersionRepository;
     }
 
     // needed for EJB/CDI
@@ -67,20 +58,7 @@ public class ProductMilestoneProvider extends AbstractProvider<ProductMilestone,
 
     @Override
     protected Function<? super ProductMilestoneRest, ? extends ProductMilestone> toDBModel() {
-        return productMilestoneRest -> {
-            ProductMilestone.Builder builder = productMilestoneRest.toDBEntityBuilder();
-            if(productMilestoneRest.getId() == null) {
-                // When creating a new milestone, we need to also create a new performed build record set
-                BuildRecordSet performedBuildRecordSet = BuildRecordSet.Builder.newBuilder().build();
-                builder.performedBuildRecordSet(buildRecordSetRepository.save(performedBuildRecordSet));
-            } else {
-                // When updating a milestone, the record sets and the product version may not change
-                ProductMilestone milestone = repository.queryById(productMilestoneRest.getId());
-                builder.performedBuildRecordSet(milestone.getPerformedBuildRecordSet());
-                builder.productVersion(milestone.getProductVersion());
-            }
-            return builder.build();
-        };
+        return productMilestoneRest -> productMilestoneRest.toDBEntityBuilder().build();
     }
 
 }

@@ -212,23 +212,19 @@ public class BuildConfigurationProvider extends AbstractProvider<BuildConfigurat
         repository.save(buildConfig);
     }
 
+    public void setProductVersion(Integer configId, Integer productVersionId) {
+        BuildConfiguration buildConfig = repository.queryById(configId);
+        ProductVersion productVersion = null;
+        if (productVersionId != null) {
+            productVersion = productVersionRepository.queryById(productVersionId);
+        }
+        buildConfig.setProductVersion(productVersion);
+        repository.save(buildConfig);
+    }
+
     public CollectionInfo<BuildConfigurationRest> getDependencies(int pageIndex, int pageSize, String sortingRsql, String query,
             Integer configId) {
         return queryForCollection(pageIndex, pageSize, sortingRsql, query, withDependantConfiguration(configId));
-    }
-
-    public void addProductVersion(Integer configId, Integer productVersionId) {
-        BuildConfiguration buildConfig = repository.queryById(configId);
-        ProductVersion productVersion = productVersionRepository.queryById(productVersionId);
-        buildConfig.addProductVersion(productVersion);
-        repository.save(buildConfig);
-    }
-
-    public void removeProductVersion(Integer configId, Integer productVersionId) {
-        BuildConfiguration buildConfig = repository.queryById(configId);
-        ProductVersion productVersion = productVersionRepository.queryById(productVersionId);
-        buildConfig.removeProductVersion(productVersion);
-        repository.save(buildConfig);
     }
 
     public CollectionInfo<BuildConfigurationAuditedRest> getRevisions(int pageIndex, int pageSize, Integer id) {

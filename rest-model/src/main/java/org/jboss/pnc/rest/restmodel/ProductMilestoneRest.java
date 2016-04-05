@@ -18,7 +18,7 @@
 package org.jboss.pnc.rest.restmodel;
 
 import org.jboss.pnc.model.Artifact;
-import org.jboss.pnc.model.BuildRecordSet;
+import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.ProductMilestone;
 import org.jboss.pnc.model.ProductVersion;
 import org.jboss.pnc.rest.validation.groups.WhenCreatingNew;
@@ -57,7 +57,7 @@ public class ProductMilestoneRest implements GenericRestEntity<Integer> {
     @NotNull(groups = {WhenCreatingNew.class, WhenUpdating.class})
     private Integer productVersionId;
 
-    private Integer performedBuildRecordSetId;
+    private Set<Integer> performedBuilds;
 
     private Set<Integer> distributedArtifactIds;
 
@@ -79,9 +79,8 @@ public class ProductMilestoneRest implements GenericRestEntity<Integer> {
         this.downloadUrl = productMilestone.getDownloadUrl();
         this.issueTrackerUrl = productMilestone.getIssueTrackerUrl();
         this.productVersionId = productMilestone.getProductVersion().getId();
-        if (productMilestone.getPerformedBuildRecordSet() != null) {
-            this.performedBuildRecordSetId = productMilestone.getPerformedBuildRecordSet().getId();
-        }
+        this.performedBuilds = nullableStreamOf(productMilestone.getPerformedBuilds())
+                .map(buildRecord -> buildRecord.getId()).collect(Collectors.toSet());
         this.distributedArtifactIds = nullableStreamOf(productMilestone.getDistributedArtifacts())
                 .map(artifact -> artifact.getId()).collect(Collectors.toSet());
         if (productMilestone.getProductRelease() != null) {
@@ -163,12 +162,12 @@ public class ProductMilestoneRest implements GenericRestEntity<Integer> {
         this.productReleaseId = productReleaseId;
     }
 
-    public Integer getPerformedBuildRecordSetId() {
-        return performedBuildRecordSetId;
+    public Set<Integer> getPerformedBuilds() {
+        return performedBuilds;
     }
 
-    public void setPerformedBuildRecordSetId(Integer performedBuildRecordSetId) {
-        this.performedBuildRecordSetId = performedBuildRecordSetId;
+    public void setPerformedBuildRecordSetId(Set<Integer> performedBuilds) {
+        this.performedBuilds = performedBuilds;
     }
 
     public Set<Integer> getDistributedArtifactIds() {
@@ -194,7 +193,10 @@ public class ProductMilestoneRest implements GenericRestEntity<Integer> {
             Artifact.Builder artifactBuilder = Artifact.Builder.newBuilder().id(artifactId);
             builder.distributedArtifact(artifactBuilder.build());
         });
-        performIfNotNull(performedBuildRecordSetId, () -> builder.performedBuildRecordSet(BuildRecordSet.Builder.newBuilder().id(performedBuildRecordSetId).build()));
+        nullableStreamOf(this.getPerformedBuilds()).forEach(buildRecordId -> {
+            BuildRecord.Builder buildRecordBuilder = BuildRecord.Builder.newBuilder().id(buildRecordId);
+            builder.performedBuild(buildRecordBuilder.build());
+        });
 
         return builder;
     }

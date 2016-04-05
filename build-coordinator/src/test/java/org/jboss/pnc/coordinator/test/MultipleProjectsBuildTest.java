@@ -39,7 +39,6 @@ public class MultipleProjectsBuildTest extends ProjectBuilder {
     private static final Logger log = Logger.getLogger(MultipleProjectsBuildTest.class.getName());
     private final int N_PROJECTS = 100;
 
-
     @Test
     @InSequence(10)
     public void buildMultipleProjectsTestCase() throws Exception {

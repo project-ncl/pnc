@@ -35,11 +35,7 @@ public class HibernateLazyInitializer {
 
     @TransactionAttribute(TransactionAttributeType.MANDATORY)
     public BuildConfiguration initializeBuildConfigurationBeforeTriggeringIt(BuildConfiguration bc) {
-        bc.getProductVersions().size();
-        bc.getProductVersions().stream()
-                .forEach(pv -> {
-                    pv.getProduct();
-                });
+        bc.getProductVersion().getProduct();
         return bc;
     }
 

@@ -77,14 +77,9 @@ public class BuildRecordRest implements GenericRestEntity<Integer> {
     private String buildContentId;
 
     /**
-     * The IDs of all the build record sets to which this build record belongs
-     */
-    private Set<Integer> buildRecordSetIds;
-
-    /**
      * The IDs of the build record sets which represent the builds performed for a milestone to which this build record belongs
      */
-    private Set<Integer> performedMilestoneBuildRecordSetIds;
+    private Integer productMilestoneId;
 
     /**
      * Required in order to use rsql on user
@@ -121,12 +116,8 @@ public class BuildRecordRest implements GenericRestEntity<Integer> {
             this.buildConfigSetRecordId = buildRecord.getBuildConfigSetRecord().getId();
 
         this.buildContentId = buildRecord.getBuildContentId();
-        this.buildRecordSetIds = nullableStreamOf(buildRecord.getBuildRecordSets())
-                .map(buildRecordSet -> buildRecordSet.getId()).collect(Collectors.toSet());
-        this.performedMilestoneBuildRecordSetIds = nullableStreamOf(buildRecord.getBuildRecordSets())
-                .filter(buildRecordSet -> buildRecordSet.getPerformedInProductMilestone() != null)
-                .map(buildRecordSet -> buildRecordSet.getId()).collect(Collectors.toSet());
-
+        
+        performIfNotNull(buildRecord.getProductMilestone(), () -> productMilestoneId = buildRecord.getProductMilestone().getId());
         performIfNotNull(buildRecord.getUser(), () -> user = new UserRest(buildRecord.getUser()));
         performIfNotNull(buildRecord.getBuildConfigurationAudited(),
                 () -> buildConfigurationAudited = new BuildConfigurationAuditedRest(
@@ -308,12 +299,12 @@ public class BuildRecordRest implements GenericRestEntity<Integer> {
         this.buildContentId = buildContentId;
     }
 
-    public Set<Integer> getBuildRecordSetIds() {
-        return buildRecordSetIds;
+    public Integer getProductMilestoneId() {
+        return productMilestoneId;
     }
 
-    public Set<Integer> getPerformedMilestoneBuildRecordSetIds() {
-        return performedMilestoneBuildRecordSetIds;
+    public void setProductMilestoneId(Integer productMilestoneId) {
+        this.productMilestoneId = productMilestoneId;
     }
 
     public UserRest getUser() {

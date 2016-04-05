@@ -56,7 +56,7 @@ public class BuildConfigurationPredicates {
 
     public static Predicate<BuildConfiguration> withProductId(Integer productId) {
         return (root, query, cb) -> {
-            SetJoin<BuildConfiguration, ProductVersion> productVersions = root.join(BuildConfiguration_.productVersions);
+            Join<BuildConfiguration, ProductVersion> productVersions = root.join(BuildConfiguration_.productVersion);
             Join<ProductVersion, Product> product = productVersions.join(ProductVersion_.product);
             return cb.equal(product.get(Product_.id), productId);
         };
@@ -64,7 +64,7 @@ public class BuildConfigurationPredicates {
 
     public static Predicate<BuildConfiguration> withProductVersionId(Integer productVersionId) {
         return (root, query, cb) -> {
-            SetJoin<BuildConfiguration, ProductVersion> productVersions = root.join(BuildConfiguration_.productVersions);
+            Join<BuildConfiguration, ProductVersion> productVersions = root.join(BuildConfiguration_.productVersion);
             return cb.equal(productVersions.get(ProductVersion_.id), productVersionId);
         };
     }

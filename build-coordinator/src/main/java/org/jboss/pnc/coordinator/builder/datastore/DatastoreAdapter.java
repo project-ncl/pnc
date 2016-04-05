@@ -119,7 +119,7 @@ public class DatastoreAdapter {
             }
 
             log.debugf("Storing results of buildTask [%s] to datastore.", buildTask.getId());
-            datastore.storeCompletedBuild(buildRecordBuilder, buildTask.getBuildRecordSetIds());
+            datastore.storeCompletedBuild(buildRecordBuilder);
         } catch (Exception e) {
             storeResult(buildTask, Optional.of(buildResult), e);
         }
@@ -150,7 +150,7 @@ public class DatastoreAdapter {
         buildRecordBuilder.buildLog(errorLog.toString());
 
         log.debugf("Storing ERROR result of %s to datastore. Error: %s", buildTask.getBuildConfigurationAudited().getName() + "\n\n\n Exception: " + errorLog, e);
-        datastore.storeCompletedBuild(buildRecordBuilder, buildTask.getBuildRecordSetIds());
+        datastore.storeCompletedBuild(buildRecordBuilder);
     }
 
     private BuildExecutionStatus getLastBuildStatus(Optional<BuildResult> buildResult) {
@@ -165,7 +165,7 @@ public class DatastoreAdapter {
         buildRecordBuilder.buildLog(buildTask.getStatusDescription());
 
         log.debugf("Storing REJECTED build of %s to datastore. Reason: %s", buildTask.getBuildConfigurationAudited().getName(), buildTask.getStatusDescription());
-        datastore.storeCompletedBuild(buildRecordBuilder, buildTask.getBuildRecordSetIds());
+        datastore.storeCompletedBuild(buildRecordBuilder);
     }
 
 
@@ -181,7 +181,8 @@ public class DatastoreAdapter {
                 .buildConfigurationAudited(buildTask.getBuildConfigurationAudited())
                 .user(buildTask.getUser())
                 .submitTime(buildTask.getSubmitTime())
-                .startTime(buildTask.getStartTime());
+                .startTime(buildTask.getStartTime())
+                .productMilestone(buildTask.getProductMilestone());
 
         if (buildTask.getEndTime() != null) {
             builder.endTime(buildTask.getEndTime());
@@ -189,6 +190,12 @@ public class DatastoreAdapter {
             builder.endTime(Date.from(Instant.now()));
         }
 
+        if (buildTask.getEndTime() == null) {
+            builder.endTime(Date.from(Instant.now()));
+        } else {
+            builder.endTime(buildTask.getEndTime());
+        }
+        
         builder.latestBuildConfiguration(buildTask.getBuildConfiguration());
         if (buildTask.getBuildConfigSetRecordId() != null) {
             BuildConfigSetRecord buildConfigSetRecord = datastore.getBuildConfigSetRecordById(buildTask.getBuildConfigSetRecordId());

@@ -89,9 +89,6 @@ public class DatabaseDataInitializer {
     BuildRecordRepository buildRecordRepository;
 
     @Inject
-    BuildRecordSetRepository buildRecordSetRepository;
-
-    @Inject
     BuildConfigSetRecordRepository buildConfigSetRecordRepository;
 
     @Inject
@@ -183,7 +180,6 @@ public class DatabaseDataInitializer {
 
         demoProductMilestone = ProductMilestone.Builder.newBuilder().version(PNC_PRODUCT_MILESTONE)
                 .productVersion(productVersion).build();
-        buildRecordSetRepository.save(demoProductMilestone.getPerformedBuildRecordSet());
         demoProductMilestone = productMilestoneRepository.save(demoProductMilestone);
 
         ProductRelease productRelease = ProductRelease.Builder.newBuilder().version(PNC_PRODUCT_RELEASE)
@@ -322,14 +318,12 @@ public class DatabaseDataInitializer {
                     .user(demoUser)
                     .buildLog("Very short demo log: The quick brown fox jumps over the lazy dog.")
                     .status(BuildStatus.SUCCESS)
+                    .productMilestone(demoProductMilestone)
                     .build();
 
             buildRecordRepository.save(buildRecord1);
             buildRecords.add(buildRecord1);
 
-            BuildRecordSet performedBuildRecordSet = demoProductMilestone.getPerformedBuildRecordSet();
-            performedBuildRecordSet.addBuildRecord(buildRecord1);
-            buildRecordSetRepository.save(performedBuildRecordSet);
         }
 
         Artifact builtArtifact3 = Artifact.Builder.newBuilder().identifier("demo:built-artifact3:jar:1.0")
