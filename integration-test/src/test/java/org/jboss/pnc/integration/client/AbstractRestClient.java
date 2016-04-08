@@ -28,7 +28,7 @@ import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.moduleconfig.AuthenticationModuleConfig;
 import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
 import org.jboss.pnc.integration.client.util.RestResponse;
-import org.jboss.pnc.integration.utils.AuthResource;
+import org.jboss.pnc.integration.utils.AuthUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -87,7 +87,7 @@ public abstract class AbstractRestClient<T> {
     }
 
     protected void initAuth() throws IOException, ConfigurationParseException {
-        if (AuthResource.authEnabled() && !authInitialized) {
+        if (AuthUtils.authEnabled() && !authInitialized) {
             AuthenticationModuleConfig config = new Configuration().getModuleConfig(new PncConfigProvider<>(AuthenticationModuleConfig.class));
             InputStream is = AbstractRestClient.class.getResourceAsStream("/keycloak.json");
             ExternalAuthentication ea = new ExternalAuthentication(is);

@@ -122,7 +122,7 @@ public class BuildRecordProvider extends AbstractProvider<BuildRecord, BuildReco
         UserRest user = new UserRest(submittedBuild.getUser());
         BuildConfigurationAuditedRest buildConfigAuditedRest = new BuildConfigurationAuditedRest(submittedBuild.getBuildConfigurationAudited());
 
-        BuildRecordRest buildRecRest = null;
+        BuildRecordRest buildRecRest;
         if (runningExecution != null) {
             buildRecRest = new BuildRecordRest(runningExecution, submittedBuild.getSubmitTime(), user, buildConfigAuditedRest);
         } else {

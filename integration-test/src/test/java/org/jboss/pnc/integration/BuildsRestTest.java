@@ -26,7 +26,7 @@ import org.jboss.pnc.integration.client.BuildRestClient;
 import org.jboss.pnc.integration.client.util.RestResponse;
 import org.jboss.pnc.integration.deployments.Deployments;
 import org.jboss.pnc.integration.env.IntegrationTestEnv;
-import org.jboss.pnc.integration.utils.AuthResource;
+import org.jboss.pnc.integration.utils.AuthUtils;
 import org.jboss.pnc.mock.coordinator.BuildCoordinatorMock;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
@@ -83,7 +83,7 @@ public class BuildsRestTest {
     protected static void addRestClientClasses(WebArchive war) {
         war.addClass(BuildRestClient.class);
         war.addClass(AbstractRestClient.class);
-        war.addClass(AuthResource.class);
+        war.addClass(AuthUtils.class);
         war.addClass(IntegrationTestEnv.class);
         war.addClass(RestResponse.class);
     }
