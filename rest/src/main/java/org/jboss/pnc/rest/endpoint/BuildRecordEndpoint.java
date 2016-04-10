@@ -142,6 +142,7 @@ public class BuildRecordEndpoint extends AbstractEndpoint<BuildRecord, BuildReco
      * or
      * /build-records/{id}/dependency-artifacts/
      */
+    @Deprecated
     @ApiOperation(value = "Gets artifacts for specific Build Record")
     @ApiResponses(value = {
             @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION, response = ArtifactPage.class),
