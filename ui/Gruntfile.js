@@ -424,6 +424,13 @@ module.exports = function (grunt) {
             cwd: '<%= yeoman.lib %>/patternfly/dist/fonts/',
             dest: '<%= yeoman.tmp %>/fonts/',
             src: [ '**' ]
+          },
+          {
+            expand: true,
+            dot: true,
+            cwd: '<%= yeoman.lib %>/patternfly/components/bootstrap/fonts/',
+            dest: '<%= yeoman.tmp %>/fonts/',
+            src: [ '**' ]
           }
         ]
       },
