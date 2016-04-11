@@ -27,6 +27,7 @@ import org.jboss.pnc.rest.validation.groups.WhenUpdating;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
+import javax.validation.constraints.Pattern;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.List;
@@ -41,6 +42,8 @@ public class ProductVersionRest implements GenericRestEntity<Integer> {
     @Null(groups = WhenCreatingNew.class)
     private Integer id;
 
+    @NotNull(groups = {WhenCreatingNew.class, WhenUpdating.class})
+    @Pattern(message="The version should consist of two numeric parts separated by a dot" , regexp="^[0-9]+\\.[0-9]+$", groups = {WhenCreatingNew.class, WhenUpdating.class})
     private String version;
 
     @NotNull(groups = {WhenCreatingNew.class, WhenUpdating.class})
