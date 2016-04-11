@@ -38,7 +38,7 @@
             <div class="form-group">
               <label for="input-description" class="col-sm-2 control-label">Description</label>
               <div class="col-sm-10">
-              <textarea id="input-description" class="form-control" name="description" ng-model="ctrl.data.description"></textarea>
+                <textarea id="input-description" class="form-control" name="description" ng-model="ctrl.data.description"></textarea>
               </div>
             </div>
 
@@ -48,23 +48,29 @@
                 <!-- ** Input type changed from `url` to `text` to resolve: NCL-1657. We're not validating URLs as we don't
                      know which protocols need to be accepted now, or in the future.
                      i.e. http(s)://, git://, git+ssh://, svn://, next_awesome_scm:// etc -->
-              <input type="text" id="input-scm-repo-url" class="form-control" name="scmRepoURL" maxlength="255" ng-model="ctrl.data.scmRepoURL" required>
-              <span class="help-block" ng-show="configurationForm.scmRepoURL.$error.required && configurationForm.scmRepoURL.$touched">Required field.</span>
+                <input type="text" id="input-scm-repo-url" class="form-control" name="scmRepoURL" maxlength="255" ng-model="ctrl.data.scmRepoURL" required>
+                <span class="help-block" ng-show="configurationForm.scmRepoURL.$error.required && configurationForm.scmRepoURL.$touched">Required field.</span>
               </div>
             </div>
 
-            <div class="form-group">
-              <label for="input-scm-revision" class="col-sm-2 control-label">SCM Revision</label>
+            <div class="form-group" ng-class="{ 'has-error': configurationForm.scmRevision.$invalid && configurationForm.scmRevision.$touched, 'has-success': configurationForm.scmRevision.$valid && configurationForm.scmRevision.$touched }">
+              <label for="input-scm-revision" class="col-sm-2 control-label">* SCM Revision</label>
               <div class="col-sm-10">
-              <input id="input-scm-revision" class="form-control" name="scmRevision" maxlength="255" ng-model="ctrl.data.scmRevision">
+                <input id="input-scm-revision" class="form-control" name="scmRevision" maxlength="255" ng-model="ctrl.data.scmRevision" required>
+                <span class="help-block" ng-show="configurationForm.scmRevision.$error.required && configurationForm.scmRevision.$touched">Required field.</span>
               </div>
             </div>
 
-            <div class="form-group" ng-class="{ 'has-error': configurationForm.buildScript.$invalid && configurationForm.buildScript.$touched, 'has-success': configurationForm.buildScript.$valid && configurationForm.buildScript.$touched }">
+            <div class="form-group" ng-class="{ 'has-error': (configurationForm.buildScript.$invalid || configurationForm.buildScript.$error.invalidBuildScript) 
+              && configurationForm.buildScript.$touched, 'has-success': configurationForm.buildScript.$valid && configurationForm.buildScript.$touched }">
               <label for="input-build-script" class="col-sm-2 control-label">* Build Script</label>
               <div class="col-sm-10">
-              <textarea id="input-build-script" class="form-control" name="buildScript" spellcheck="false" ng-model="ctrl.data.buildScript" required></textarea>
-              <span class="help-block" ng-show="configurationForm.buildScript.$error.required && configurationForm.buildScript.$touched">Required field.</span>
+                <textarea id="input-build-script" class="form-control" name="buildScript" spellcheck="false" required ng-model="ctrl.data.buildScript" 
+                  pnc-build-script-validator></textarea>
+                <span class="help-block" ng-show="configurationForm.buildScript.$error.required && configurationForm.buildScript.$touched">Required field.</span>
+                <span class="help-block" ng-show="configurationForm.buildScript.$error.invalidBuildScript && configurationForm.buildScript.$touched">
+                  The use of 'deploy' is mandatory when using Maven.
+                </span>
               </div>
             </div>
 
@@ -94,6 +100,7 @@
               <label for="input-product-versions" class="col-sm-2 control-label">Product Versions</label>
               <div class="col-sm-10 col-md-4">
                 <pnc-infinite-select-product-versions
+                  single-item="true"
                   selected-items="ctrl.productVersions.selected"
                   infinite-select-required="false"
                   infinite-select-id="input-pv"
