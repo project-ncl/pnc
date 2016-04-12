@@ -25,35 +25,35 @@
     function () {
       
       function PncConfigurationCreateController($log, $state, $filter, $scope, Notifications, 
-    		  EnvironmentDAO, ProjectDAO, ProductDAO, BuildConfigurationDAO, BuildConfigurationSetDAO) {
+        EnvironmentDAO, ProjectDAO, ProductDAO, BuildConfigurationDAO, BuildConfigurationSetDAO) {
 
-    	// Selection of Product Versions.
+        // Selection of Product Versions.
         $scope.productVersions = {
-    	  selected: []
-    	};
+          selected: []
+        };
 
-    	// Selection of dependencies.
-    	$scope.dependencies = {
-    	  selected: []
-    	};
+        // Selection of dependencies.
+        $scope.dependencies = {
+          selected: []
+        };
 
-    	// Selection of Build Group Configs.
-    	$scope.buildgroupconfigs = {
-    	  selected: []
-    	};
+        // Selection of Build Group Configs.
+        $scope.buildgroupconfigs = {
+          selected: []
+        };
 
-    	// Selection of Projects
-    	$scope.projectSelection = {
-    	  selected: []
-    	};
+        // Selection of Projects
+        $scope.projectSelection = {
+          selected: []
+        };
 
-    	// Selection of Environments
-    	$scope.environmentSelection = {
-    	  selected: []
-    	};
+        // Selection of Environments
+        $scope.environmentSelection = {
+          selected: []
+        };
     	  
         $scope.data = new BuildConfigurationDAO();
-    	$scope.environments = EnvironmentDAO.getAll();
+        $scope.environments = EnvironmentDAO.getAll();
         $scope.products = ProductDAO.getAll();
         $scope.configurations = BuildConfigurationDAO.getAll();
         $scope.configurationSetList = BuildConfigurationSetDAO.getAll();
@@ -66,14 +66,14 @@
         }
 
         $scope.submit = function() {
+
           // The REST API takes integer Ids so we need to extract them from
           // our collection of objects first and attach them to our data object
           // for sending back to the server.
           $scope.data.productVersionIds = gatherIds($scope.productVersions.selected);
           $scope.data.dependencyIds = gatherIds($scope.dependencies.selected);
-          
-          $scope.data.$save().then(function(result) {
 
+          $scope.data.$save().then(function(result) {
             // Saving the BuildConfig link into the BuildGroupConfig 
             _.each($scope.buildgroupconfigs.selected, function(buildgroupconfig) {
               buildgroupconfig.buildConfigurationIds.push(result.id);
@@ -94,15 +94,15 @@
 
         $scope.reset = function(form) {
           if (form) {
-        	$scope.productVersions.selected = [];
+            $scope.productVersions.selected = [];
             $scope.dependencies.selected = [];
-        	$scope.buildgroupconfigs.selected = [];
-        	$scope.environmentSelection.selected = [];
-        	$scope.data = new BuildConfigurationDAO();
+            $scope.buildgroupconfigs.selected = [];
+            $scope.environmentSelection.selected = [];
+            $scope.data = new BuildConfigurationDAO();
 
-        	if (_.isUndefined($scope.fixedProject)) {
+            if (_.isUndefined($scope.fixedProject)) {
               $scope.projectSelection.selected = [];
-        	}
+            }
 
             form.$setPristine();
             form.$setUntouched();
@@ -116,11 +116,11 @@
         $scope.isProjectSelectable = function() {
           return (_.isUndefined($scope.fixedProject));
         };
-        
+
         function gatherIds(array) {
           var result = [];
           for (var i = 0; i < array.length; i++) {
-        	result.push(array[i].id);
+            result.push(array[i].id);
           }
           return result;
         }
@@ -134,10 +134,8 @@
         },
         controller: PncConfigurationCreateController
       };
+
     }
   ]);
-
-  
-
 })();
 
