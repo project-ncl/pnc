@@ -38,10 +38,15 @@
         _getAll: {
           method: 'GET',
           url: ENDPOINT
+        },
+        _getByConfiguration: {
+          method: 'GET',
+          url: REST_BASE_URL + '/builds?q=buildConfigurationAudited.idRev.id==:id'
         }
       });
 
       PageFactory.decorate(resource, '_getAll', 'getPaged');
+      PageFactory.decorate(resource, '_getByConfiguration', 'getByConfiguration');
 
       return resource;
     }

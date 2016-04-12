@@ -20,22 +20,25 @@
 <div class="panel panel-default build-panel">
   <div class="panel-heading">
     <div class="spinner spinner-sm pull-right" ng-hide="page.isLoaded"></div>
-    <h3 class="panel-title">Recent Builds</h3>
+    <h3 class="panel-title">Build History</h3>
   </div>
 
   <table class="table table-striped table-hover" ng-show="page.data.length">
     <tbody>
-      <tr ng-repeat="record in page.data">
+      <tr ng-repeat="record in page.data" 
+          data-tooltip-html-unsafe="<strong>Started: </strong>{{ record.startTime | date:'medium'}}<br><strong>Ended: </strong>{{ record.endTime | date:'medium' }}"
+          data-tooltip-placement="left">
         <td>
           <build-status-icon status="record.status"></build-status-icon>
         </td>
         <td><a href ui-sref="record.detail.info({recordId: record.id})"># {{ record.id }}</a></td>
-        <td>{{ record.endTime | date:'medium' }}</td>
+        <td ng-show="record.status==='BUILDING'">{{ record.startTime | date:'medium'}}</td>
+        <td ng-show="record.status!=='BUILDING'">{{ record.endTime | date:'medium'}}</td>
       </tr>
     </tbody>
   </table>
   <div class="panel-body" ng-hide="page.data.length || !page.isLoaded">
-    No recent builds
+    No builds
   </div>
   <pnc-pager class="pull-right" page="page"></pnc-pager>
 </div>
