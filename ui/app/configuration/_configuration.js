@@ -70,26 +70,7 @@
       templateUrl: 'configuration/views/configuration.create.html',
       data: {
         displayName: 'Create Build Config'
-      },
-      controller: 'ConfigurationCreateController',
-      controllerAs: 'createCtrl',
-      resolve: {
-        environments: function(EnvironmentDAO) {
-          return EnvironmentDAO.getAll();
-        },
-        projects: function(ProjectDAO) {
-          return ProjectDAO.getAll();
-        },
-        products: function(ProductDAO) {
-          return ProductDAO.getAll();
-        },
-        configurations: function(BuildConfigurationDAO) {
-          return BuildConfigurationDAO.getAll();
-        },
-        configurationSetList: function(BuildConfigurationSetDAO) {
-            return BuildConfigurationSetDAO.getAll();
-        }
-      },
+      }
     });
 
     // Sets up a view with a sidebar
