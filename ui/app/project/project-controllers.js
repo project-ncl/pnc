@@ -105,89 +105,11 @@
   ]);
 
   module.controller('CreateBCController', [
-    '$state',
-    '$log',
-    'BuildConfigurationDAO',
-    'ProductDAO',
-    'Notifications',
-    'environments',
-    'products',
-    'configurations',
-    'configurationSetList',
     'projectDetail',
-    function($state, $log, BuildConfigurationDAO, ProductDAO,
-             Notifications, environments, products, configurations, configurationSetList, projectDetail) {
-
-      var that = this;
-
-      that.data = new BuildConfigurationDAO();
-      that.data.project = projectDetail;
-      that.environments = environments;
-      that.configurations = configurations;
-      that.configurationSetList = configurationSetList;
-      that.products = products;
-
-      that.submit = function() {
-        // The REST API takes integer Ids so we need to extract them from
-        // our collection of objects first and attach them to our data object
-        // for sending back to the server.
-        that.data.productVersionIds = gatherIds(that.productVersions.selected);
-        that.data.dependencyIds = gatherIds(that.dependencies.selected);
-
-        that.data.$save().then(function(result) {
-
-          // Saving the BuildConfig link into the BuildGroupConfig 
-          _.each(that.buildgroupconfigs.selected, function(buildgroupconfig) {
-            buildgroupconfig.buildConfigurationIds.push(result.id);
-            buildgroupconfig.$update();
-          });
-
-          $state.go('project.detail', {
-            projectId: projectDetail.id
-          });
-        });
-      };
-
-      that.productVersions = {
-        selected: []
-      };
-
-      // Selection of dependencies.
-      that.dependencies = {
-        selected: []
-      };
-
-      // Selection of Build Group Configs.
-      that.buildgroupconfigs = {
-         selected: []
-      };
-
-      // Selection of Environments
-      that.environmentSelection = {
-        selected: []
-      };
-
-      that.reset = function(form) {
-        if (form) {
-          that.productVersions.selected = [];
-          that.dependencies.selected = [];
-          that.buildgroupconfigs.selected = [];
-          that.environmentSelection.selected = [];
-          that.data = new BuildConfigurationDAO();
-
-          form.$setPristine();
-          form.$setUntouched();
-          }
-        };
+    function(projectDetail) {
+      // To be passed as parameter to the directive
+      this.fixedProject = projectDetail;
     }
   ]);
-
-  function gatherIds(array) {
-    var result = [];
-    for (var i = 0; i < array.length; i++) {
-      result.push(array[i].id);
-    }
-    return result;
-  }
 
 })();

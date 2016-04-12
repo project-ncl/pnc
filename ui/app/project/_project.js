@@ -81,18 +81,6 @@
       controller: 'CreateBCController',
       controllerAs: 'ctrl',
       resolve: {
-        environments: function(EnvironmentDAO) {
-          return EnvironmentDAO.getAll();
-        },
-        products: function(ProductDAO) {
-          return ProductDAO.getAll();
-        },
-        configurations: function(BuildConfigurationDAO) {
-          return BuildConfigurationDAO.getAll();
-        },
-        configurationSetList: function(BuildConfigurationSetDAO) {
-          return BuildConfigurationSetDAO.getAll();
-        },
         projectDetail: function(ProjectDAO, $stateParams) {
           return ProjectDAO.get({
             projectId: $stateParams.projectId}).$promise;
