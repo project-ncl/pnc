@@ -33,6 +33,7 @@
           tree: '=',
           bcSetName: '=',
           submitDisabled: '=',
+          finishTooltipIsOpen: '=',
           onFinish: '&',
           onReset: '&'
         },

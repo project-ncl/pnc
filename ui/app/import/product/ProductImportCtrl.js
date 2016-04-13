@@ -19,7 +19,7 @@
 
 (function () {
 
-  var module = angular.module('pnc.project');
+  var module = angular.module('pnc.import');
 
   module.controller('ProductImportCtrl', [
     'ProductImportDAO',
@@ -39,7 +39,9 @@
       var data = {}; // data loaded from analyzer endpoints
       scope.startData = {};
       scope.startSubmitDisabled = false;
+      scope.startTooltipIsOpen = false;
       scope.finishSubmitDisabled = false;
+      scope.finishTooltipIsOpen = false;
       scope.bcData = {}; // data for the left-side form
       var tree = TreeFactory.build();
       scope.tree = tree;
@@ -297,9 +299,9 @@
 
       scope.startProcess = function () {
         scope.startSubmitDisabled = true;
+        scope.startTooltipIsOpen = false;
         Notifications.info('Preparing analysis. This may take a minute, please be patient.');
         ProductImportDAO.startProcess(scope.startData).then(function (r) {
-          scope.startSubmitDisabled = true;
           if (_(r).has('id')) {
             data = r;
             scope.id = data.id;
@@ -312,6 +314,10 @@
           } else {
             Notifications.error('Something went wrong. Make sure that you entered correct data.');
           }
+        }, function() {
+          scope.startTooltipIsOpen = true;
+        }).finally(function() {
+          scope.startSubmitDisabled = false;
         });
       };
 
@@ -359,6 +365,7 @@
         data = parseTreeFinish(tree);
         if (validateTree(tree)) {
           scope.finishSubmitDisabled = true;
+          scope.finishTooltipIsOpen = false;
           Notifications.info('Product is being imported. This may take a minute, please be patient.');
           ProductImportDAO.finishProcess(data).then(function (r) {
             if(r.success) {
@@ -368,6 +375,9 @@
             } else {
               Notifications.error('Product import failed. ' + r.message);
             }
+          }, function() {
+            scope.finishTooltipIsOpen = true;
+          }).finally(function() {
             scope.finishSubmitDisabled = false;
           });
         } else {
