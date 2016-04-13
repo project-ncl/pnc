@@ -22,7 +22,6 @@ import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.ConfigurationParseException;
-import org.jboss.pnc.common.json.moduleconfig.DockerEnvironmentDriverModuleConfig;
 import org.jboss.pnc.common.json.moduleconfig.OpenshiftEnvironmentDriverModuleConfig;
 import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
 import org.jboss.pnc.spi.exception.CoreException;
@@ -50,7 +49,6 @@ public class ConfigurationTest {
     public static JavaArchive createDeployment() {
         JavaArchive jar = ShrinkWrap.create(JavaArchive.class)
                 .addClass(Configuration.class)
-                .addClass(DockerEnvironmentDriverModuleConfig.class)
                 .addClass(OpenshiftEnvironmentDriverModuleConfig.class)
                 .addAsManifestResource(EmptyAsset.INSTANCE, "beans.xml")
                 .addAsResource("simplelogger.properties");
@@ -65,8 +63,7 @@ public class ConfigurationTest {
     @Test
     public void isEnvDriverEnabled() throws CoreException, ConfigurationParseException {
         OpenshiftEnvironmentDriverModuleConfig openShiftConfig = configuration.getModuleConfig(new PncConfigProvider<>(OpenshiftEnvironmentDriverModuleConfig.class));
-        DockerEnvironmentDriverModuleConfig dockerConfig = configuration.getModuleConfig(new PncConfigProvider<>(DockerEnvironmentDriverModuleConfig.class));
 
-        Assert.assertTrue("All environment driver disabled.", !openShiftConfig.isDisabled() || !dockerConfig.isDisabled());
+        Assert.assertTrue("Environment driver disabled.", !openShiftConfig.isDisabled());
     }
 }
