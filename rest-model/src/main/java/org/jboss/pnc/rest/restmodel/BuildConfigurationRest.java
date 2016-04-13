@@ -81,7 +81,7 @@ public class BuildConfigurationRest implements GenericRestEntity<Integer> {
 
     private Set<Integer> dependencyIds;
 
-    private Set<Integer> productVersionIds;
+    private Integer productVersionId;
 
     public BuildConfigurationRest() {
     }
@@ -106,8 +106,8 @@ public class BuildConfigurationRest implements GenericRestEntity<Integer> {
                 () -> this.environment = new BuildEnvironmentRest(buildConfiguration.getBuildEnvironment()));
         this.dependencyIds = nullableStreamOf(buildConfiguration.getDependencies())
                 .map(dependencyConfig -> dependencyConfig.getId()).collect(Collectors.toSet());
-        this.productVersionIds = nullableStreamOf(buildConfiguration.getProductVersions())
-                .map(productVersion -> productVersion.getId()).collect(Collectors.toSet());
+        performIfNotNull(buildConfiguration.getProductVersion(),
+                () -> this.productVersionId = buildConfiguration.getProductVersion().getId());
     }
 
     @Override
@@ -244,20 +244,12 @@ public class BuildConfigurationRest implements GenericRestEntity<Integer> {
         this.project = project;
     }
 
-    public Set<Integer> getProductVersionIds() {
-        return productVersionIds;
+    public Integer getProductVersionId() {
+        return productVersionId;
     }
 
-    public void setProductVersionIds(Set<Integer> productVersionIds) {
-        this.productVersionIds = productVersionIds;
-    }
-
-    public boolean addProductVersion(Integer productVersionId) {
-        return this.productVersionIds.add(productVersionId);
-    }
-
-    public boolean removeProductVersion(Integer productVersionId) {
-        return this.productVersionIds.remove(productVersionId);
+    public void setProductVersionId(Integer productVersionId) {
+        this.productVersionId = productVersionId;
     }
 
     public Set<Integer> getDependencyIds() {
@@ -300,14 +292,11 @@ public class BuildConfigurationRest implements GenericRestEntity<Integer> {
 
         performIfNotNull(this.getProject(), () -> builder.project(this.getProject().toDBEntityBuilder().build()));
         performIfNotNull(this.getEnvironment(), () -> builder.buildEnvironment(this.getEnvironment().toDBEntityBuilder().build()));
+        performIfNotNull(this.getProductVersionId(), () -> builder.productVersion(ProductVersion.Builder.newBuilder().id(productVersionId).build()));
 
         nullableStreamOf(this.getDependencyIds()).forEach(dependencyId -> {
             BuildConfiguration.Builder buildConfigurationBuilder = BuildConfiguration.Builder.newBuilder().id(dependencyId);
             builder.dependency(buildConfigurationBuilder.build());
-        });
-        nullableStreamOf(this.getProductVersionIds()).forEach(productVersionId -> {
-            ProductVersion.Builder productVersionBuilder = ProductVersion.Builder.newBuilder().id(productVersionId);
-            builder.productVersion(productVersionBuilder.build());
         });
         
         return builder;

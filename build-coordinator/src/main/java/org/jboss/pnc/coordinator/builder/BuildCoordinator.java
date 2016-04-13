@@ -227,9 +227,9 @@ public class BuildCoordinator {
                 log.error("Cannot store results to datastore.", e);
                 coordinationStatus = BuildCoordinationStatus.SYSTEM_ERROR;
             } finally {
+                //remove before status update which could triggers further actions and cause dead lock
                 removeSubmittedTask(buildTask);
             }
-            //remove before status update which could triggers further actions and cause dead lock
             buildTask.setStatus(coordinationStatus);
         };
 

@@ -118,11 +118,8 @@ public class DatastoreAdapter {
                 return;
             }
 
-            // Build driver results
-            buildRecordBuilder.endTime(Date.from(Instant.now()));
-
             log.debugf("Storing results of buildTask [%s] to datastore.", buildTask.getId());
-            datastore.storeCompletedBuild(buildRecordBuilder, buildTask.getBuildRecordSetIds());
+            datastore.storeCompletedBuild(buildRecordBuilder);
         } catch (Exception e) {
             storeResult(buildTask, Optional.of(buildResult), e);
         }
@@ -152,10 +149,8 @@ public class DatastoreAdapter {
         errorLog.append(stackTraceWriter.getBuffer());
         buildRecordBuilder.buildLog(errorLog.toString());
 
-        buildRecordBuilder.endTime(Date.from(Instant.now()));
-
         log.debugf("Storing ERROR result of %s to datastore. Error: %s", buildTask.getBuildConfigurationAudited().getName() + "\n\n\n Exception: " + errorLog, e);
-        datastore.storeCompletedBuild(buildRecordBuilder, buildTask.getBuildRecordSetIds());
+        datastore.storeCompletedBuild(buildRecordBuilder);
     }
 
     private BuildExecutionStatus getLastBuildStatus(Optional<BuildResult> buildResult) {
@@ -167,12 +162,10 @@ public class DatastoreAdapter {
     public void storeRejected(BuildTask buildTask) throws DatastoreException {
         BuildRecord.Builder buildRecordBuilder = initBuildRecordBuilder(buildTask);
         buildRecordBuilder.status(REJECTED);
-
         buildRecordBuilder.buildLog(buildTask.getStatusDescription());
-        buildRecordBuilder.endTime(Date.from(Instant.now()));
 
         log.debugf("Storing REJECTED build of %s to datastore. Reason: %s", buildTask.getBuildConfigurationAudited().getName(), buildTask.getStatusDescription());
-        datastore.storeCompletedBuild(buildRecordBuilder, buildTask.getBuildRecordSetIds());
+        datastore.storeCompletedBuild(buildRecordBuilder);
     }
 
 
@@ -189,8 +182,20 @@ public class DatastoreAdapter {
                 .user(buildTask.getUser())
                 .submitTime(buildTask.getSubmitTime())
                 .startTime(buildTask.getStartTime())
-                .endTime(buildTask.getEndTime());
+                .productMilestone(buildTask.getProductMilestone());
 
+        if (buildTask.getEndTime() != null) {
+            builder.endTime(buildTask.getEndTime());
+        } else {
+            builder.endTime(Date.from(Instant.now()));
+        }
+
+        if (buildTask.getEndTime() == null) {
+            builder.endTime(Date.from(Instant.now()));
+        } else {
+            builder.endTime(buildTask.getEndTime());
+        }
+        
         builder.latestBuildConfiguration(buildTask.getBuildConfiguration());
         if (buildTask.getBuildConfigSetRecordId() != null) {
             BuildConfigSetRecord buildConfigSetRecord = datastore.getBuildConfigSetRecordById(buildTask.getBuildConfigSetRecordId());

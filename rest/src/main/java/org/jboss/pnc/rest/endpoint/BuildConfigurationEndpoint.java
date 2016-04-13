@@ -400,6 +400,9 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
                 q, id)).build();
     }
 
+    /**
+     * @deprecated use the productVersionId field instead
+     */
     @ApiOperation(value = "Get associated Product Versions of the specified Configuration")
     @ApiResponses(value = {
             @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION, response = ProductVersionPage.class),
@@ -409,6 +412,7 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
     })
     @GET
     @Path("/{id}/product-versions")
+    @Deprecated
     public Response getProductVersions(@ApiParam(value = PAGE_INDEX_DESCRIPTION) @QueryParam(PAGE_INDEX_QUERY_PARAM) @DefaultValue(PAGE_INDEX_DEFAULT_VALUE) int pageIndex,
             @ApiParam(value = PAGE_SIZE_DESCRIPTION) @QueryParam(PAGE_SIZE_QUERY_PARAM) @DefaultValue(PAGE_SIZE_DEFAULT_VALUE) int pageSize,
             @ApiParam(value = SORTING_DESCRIPTION) @QueryParam(SORTING_QUERY_PARAM) String sort,
@@ -417,6 +421,9 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
         return fromCollection(productVersionProvider.getAllForBuildConfiguration(pageIndex, pageSize, sort, q, id));
     }
 
+    /**
+     * @deprecated use the productVersionId field instead
+     */
     @ApiOperation(value = "Associates a product version to the specified config")
     @ApiResponses(value = {
             @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION),
@@ -425,13 +432,17 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
     })
     @POST
     @Path("/{id}/product-versions")
+    @Deprecated
     public Response addProductVersion(
             @ApiParam(value = "Build Configuration id", required = true) @PathParam("id") Integer id,
-            ProductVersionRest productVersion) {
-        buildConfigurationProvider.addProductVersion(id, productVersion.getId());
+            ProductVersionRest productVersion) {        
+        buildConfigurationProvider.setProductVersion(id, productVersion.getId());
         return fromEmpty();
     }
 
+    /**
+     * @deprecated use the productVersionId field instead
+     */
     @ApiOperation(value = "Removes a product version from the specified config set")
     @ApiResponses(value = {
             @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION),
@@ -440,10 +451,11 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
     })
     @DELETE
     @Path("/{id}/product-versions/{productVersionId}")
+    @Deprecated
     public Response removeProductVersion(
             @ApiParam(value = "Build configuration set id", required = true) @PathParam("id") Integer id,
             @ApiParam(value = "Product version id", required = true) @PathParam("productVersionId") Integer productVersionId) {
-        buildConfigurationProvider.removeProductVersion(id, productVersionId);
+        buildConfigurationProvider.setProductVersion(id, null);
         return fromEmpty();
     }
 

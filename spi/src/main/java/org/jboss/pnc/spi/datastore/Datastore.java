@@ -21,6 +21,7 @@ import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildRecord;
+import org.jboss.pnc.model.ProductMilestone;
 import org.jboss.pnc.model.User;
 
 import java.util.Set;
@@ -33,12 +34,11 @@ public interface Datastore {
     /**
      * Stores a completed build.
      *
-     * @param buildRecord Completed BuildRecord.
-     * @param buildRecordSetIds The IDs of the build record sets to which this BuildRecord will be added.
+     * @param buildRecord The build record builder which has been intialized with appropriate data.
      * @return The updated BuildRecord
      * @throws DatastoreException Thrown if database is unable to process the request.
      */
-    BuildRecord storeCompletedBuild(BuildRecord.Builder buildRecordBuilder, Set<Integer> buildRecordSetIds) throws DatastoreException;
+    BuildRecord storeCompletedBuild(BuildRecord.Builder buildRecordBuilder) throws DatastoreException;
 
     /**
      * Returns User upon its username.

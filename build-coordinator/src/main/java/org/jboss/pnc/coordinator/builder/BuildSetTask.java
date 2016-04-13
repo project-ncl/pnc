@@ -73,7 +73,6 @@ public class BuildSetTask {
             Consumer<BuildSetStatusChangedEvent> buildSetStatusChangedEventNotifier) {
         this.buildConfigSetRecord = buildConfigSetRecord;
         this.rebuildAll = rebuildAll;
-        System.out.println("setting product milestone: " + productMilestone);
         this.productMilestone = productMilestone; //TODO do we need milestone here ?
         this.buildSetStatusChangedEventNotifier = buildSetStatusChangedEventNotifier;
         setStatus(BuildSetStatus.NEW);

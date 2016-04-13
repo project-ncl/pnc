@@ -34,15 +34,12 @@ import org.jboss.pnc.integration.utils.AuthUtils;
 import org.jboss.pnc.rest.endpoint.BuildConfigurationEndpoint;
 import org.jboss.pnc.rest.endpoint.BuildConfigurationSetEndpoint;
 import org.jboss.pnc.rest.endpoint.BuildRecordEndpoint;
-import org.jboss.pnc.rest.endpoint.BuildRecordSetEndpoint;
 import org.jboss.pnc.rest.provider.BuildConfigurationProvider;
 import org.jboss.pnc.rest.provider.BuildConfigurationSetProvider;
 import org.jboss.pnc.rest.provider.BuildRecordProvider;
-import org.jboss.pnc.rest.provider.BuildRecordSetProvider;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationRest;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationSetRest;
 import org.jboss.pnc.rest.restmodel.BuildRecordRest;
-import org.jboss.pnc.rest.restmodel.BuildRecordSetRest;
 import org.jboss.pnc.rest.restmodel.response.Page;
 import org.jboss.pnc.test.category.ContainerTest;
 import org.jboss.pnc.test.util.Wait;
@@ -100,9 +97,6 @@ public class SystemErrorTest {
         EnterpriseArchive enterpriseArchive = Deployments.baseEar();
 
         WebArchive restWar = enterpriseArchive.getAsType(WebArchive.class, "/rest.war");
-        restWar.addClass(BuildRecordSetProvider.class);
-        restWar.addClass(BuildRecordSetEndpoint.class);
-        restWar.addClass(BuildRecordSetRest.class);
         restWar.addClass(BuildRecordProvider.class);
         restWar.addClass(BuildRecordEndpoint.class);
         restWar.addClass(BuildRecordRest.class);

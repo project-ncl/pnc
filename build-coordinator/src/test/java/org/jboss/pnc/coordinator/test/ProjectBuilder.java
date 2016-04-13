@@ -75,7 +75,7 @@ public class ProjectBuilder {
         return BuildCoordinatorDeployments.deployment(BuildCoordinatorDeployments.Options.WITH_DATASTORE);
     }
 
-    @Deprecated //provide your own instance of BC
+    @Deprecated //provide your own instance of build coordinator
     void buildProject(BuildConfiguration buildConfiguration) throws BuildConflictException, InterruptedException {
         buildProject(buildConfiguration, buildCoordinator);
     }

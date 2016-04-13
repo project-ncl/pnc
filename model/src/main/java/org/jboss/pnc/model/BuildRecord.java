@@ -165,10 +165,12 @@ public class BuildRecord implements GenericEntity<Integer> {
     private BuildEnvironment buildEnvironment;
 
     /**
-     * Sets of related build records in which this build record is included
+     * The product milestone for which this build was performed.  Even though the artifacts
+     * from this build may be included in multiple product milestones/releases, there
+     * should only be a single primary product milestone which originally produced this build.
      */
-    @ManyToMany(mappedBy = "buildRecords")
-    private Set<BuildRecordSet> buildRecordSets;
+    @ManyToOne
+    private ProductMilestone productMilestone;
 
     /**
      * If this build was executed as part of a set, this will contain the link to the overall results of the set. Otherwise,
@@ -188,16 +190,8 @@ public class BuildRecord implements GenericEntity<Integer> {
      * Instantiates a new project build result.
      */
     public BuildRecord() {
-        buildRecordSets = new HashSet<>();
         dependencies = new ArrayList<>();
         builtArtifacts = new ArrayList<>();
-    }
-
-    @PreRemove
-    private void removeBuildRecordFromSets() {
-        for (BuildRecordSet brs : buildRecordSets) {
-            brs.getBuildRecords().remove(this);
-        }
     }
 
     /**
@@ -417,34 +411,15 @@ public class BuildRecord implements GenericEntity<Integer> {
     }
 
     /**
-     * @return the buildRecordSets
+     * The product milestone for which this build was performed
+     * @return The product milestone
      */
-    public Set<BuildRecordSet> getBuildRecordSets() {
-        return buildRecordSets;
+    public ProductMilestone getProductMilestone() {
+        return productMilestone;
     }
 
-    /**
-     * @param buildRecordSets the buildRecordSets to set
-     */
-    public void setBuildRecordSets(Set<BuildRecordSet> buildRecordSets) {
-        if (buildRecordSets == null) {
-            this.buildRecordSets = new HashSet<>();
-        } else {
-            this.buildRecordSets = buildRecordSets;
-        }
-    }
-
-    /**
-     * Add this build record to a build record set.
-     * 
-     * @param buildRecordSet The set to which this record will be added
-     * @return True if the build record was successfully added to the given set
-     */
-    public boolean addBuildRecordSet(BuildRecordSet buildRecordSet) {
-        if (!buildRecordSet.getBuildRecords().contains(this)) {
-            buildRecordSet.getBuildRecords().add(this);
-        }
-        return this.buildRecordSets.add(buildRecordSet);
+    public void setProductMilestone(ProductMilestone productMilestone) {
+        this.productMilestone = productMilestone;
     }
 
     public String getBuildContentId() {
@@ -512,7 +487,7 @@ public class BuildRecord implements GenericEntity<Integer> {
 
         private BuildEnvironment buildEnvironment;
 
-        private Set<BuildRecordSet> buildRecordSets;
+        private ProductMilestone productMilestone;
 
         private Integer externalArchiveId;
 
@@ -521,7 +496,6 @@ public class BuildRecord implements GenericEntity<Integer> {
         public Builder() {
             builtArtifacts = new ArrayList<>();
             dependencies = new ArrayList<>();
-            buildRecordSets = new HashSet<>();
         }
 
         public static Builder newBuilder() {
@@ -544,6 +518,7 @@ public class BuildRecord implements GenericEntity<Integer> {
             buildRecord.setStatus(status);
             buildRecord.setBuildEnvironment(buildEnvironment);
             buildRecord.setExternalArchiveId(externalArchiveId);
+            buildRecord.setProductMilestone(productMilestone);
 
             if (buildConfigSetRecord != null) {
                 buildRecord.setBuildConfigSetRecord(buildConfigSetRecord);
@@ -560,10 +535,6 @@ public class BuildRecord implements GenericEntity<Integer> {
                 artifact.addDependantBuildRecord(buildRecord);
             }
             buildRecord.setDependencies(dependencies);
-
-            // Note: the buildRecordSet is the owning side, so new relations
-            // need to be saved by buildRecordSet
-            buildRecord.setBuildRecordSets(buildRecordSets);
 
             return buildRecord;
         }
@@ -653,8 +624,8 @@ public class BuildRecord implements GenericEntity<Integer> {
             return this;
         }
 
-        public Builder buildRecordSets(Set<BuildRecordSet> buildRecordSets) {
-            this.buildRecordSets = buildRecordSets;
+        public Builder productMilestone(ProductMilestone productMilestone) {
+            this.productMilestone = productMilestone;
             return this;
         }
 

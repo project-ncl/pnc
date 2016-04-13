@@ -61,17 +61,10 @@ public class ModelTestDataFactory {
                 .build();
     }
 
-    public BuildRecordSet getBuildRecordSet(String description) {
-        return BuildRecordSet.Builder.newBuilder()
-                .description(description)
-                .build();
-    }
-
     public ProductMilestone getProductMilestone1version1() {
         return ProductMilestone.Builder.newBuilder()
                 .version("1.0.0.ER1")
                 .productVersion(getProductVersion1())
-                .performedBuildRecordSet(getBuildRecordSet("Performed for 1.0.0.ER1"))
                 .build();
     }
 
@@ -79,7 +72,6 @@ public class ModelTestDataFactory {
         return ProductMilestone.Builder.newBuilder()
                 .version("1.0.0.ER2")
                 .productVersion(getProductVersion1())
-                .performedBuildRecordSet(getBuildRecordSet("Performed for 1.0.0.ER2"))
                 .build();
     }
 
