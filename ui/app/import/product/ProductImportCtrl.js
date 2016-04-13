@@ -169,9 +169,28 @@
 
 
       /**
+       * Set checkbox state depending on the REST data
+       */
+      var processCheckbox = function (node) {
+        if (_.isUndefined(node.state)) {
+          node.state = {};
+        }
+
+        node.state.checked = node.nodeData.selected;
+      };
+
+
+      /**
        * Given a tree and the JSON data structure from the analyzer REST endpoint,
        * parse the structure to add nodes on the tree as needed.
        * @return true on success
+       *
+       * @param tree    
+       * Tree representation which is displayed
+       *
+       * @param data    
+       * Tree data coming from REST
+       *
        */
       var parseData = function (tree, data) {
         /**
@@ -193,6 +212,7 @@
           } else {
             subNode.nodeData = subNodeData;
           }
+          processCheckbox(subNode);
           if (_.isArray(dataNode.dependencies)) {
             var res = true;
             _(dataNode.dependencies).each(function (dependency) {
