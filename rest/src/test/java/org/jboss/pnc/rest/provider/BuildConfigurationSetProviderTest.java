@@ -19,7 +19,7 @@ package org.jboss.pnc.rest.provider;
 
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationSet;
-import org.jboss.pnc.rest.validation.exceptions.ConflictedEntryException;
+import org.jboss.pnc.rest.validation.exceptions.ValidationException;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationSetRepository;
 import org.junit.Test;
@@ -51,7 +51,7 @@ public class BuildConfigurationSetProviderTest {
         try {
             buildConfigurationSetProvider.addConfiguration(1, 2);
             fail();
-        } catch (ConflictedEntryException ignoreMe) {
+        } catch (ValidationException ignoreMe) {
             //then
         }
     }

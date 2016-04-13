@@ -234,7 +234,7 @@ public class BuildConfigurationSetEndpoint extends AbstractEndpoint<BuildConfigu
     @Path("/{id}/build-configurations")
     public Response addConfiguration(
             @ApiParam(value = "Build Configuration Set id", required = true) @PathParam("id") Integer id,
-            BuildConfigurationRest buildConfig) throws ConflictedEntryException {
+            BuildConfigurationRest buildConfig) throws ValidationException {
         buildConfigurationSetProvider.addConfiguration(id, buildConfig.getId());
         return fromEmpty();
     }
