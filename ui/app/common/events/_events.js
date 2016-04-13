@@ -75,7 +75,7 @@
           } else {
             BuildRecordDAO.get({recordId: payload.id}).$promise.then(
               function (result) {
-                if (result.status === 'SUCCESS') {
+                if (result.status === 'BUILD_COMPLETED' || result.status === 'DONE' || result.status === 'SUCCESS') {
                   Notifications.success('Build ' + payload.buildConfigurationName + '#' + payload.id + ' completed');
                 } else {
                   Notifications.warn('Build ' + payload.buildConfigurationName + '#' + payload.id + ' failed');
