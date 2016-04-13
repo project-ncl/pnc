@@ -45,11 +45,11 @@ public class DatastoreMock implements Datastore {
 
     private Logger log = LoggerFactory.getLogger(DatastoreMock.class.getName());
 
-    private List<BuildRecord> buildRecords = Collections.synchronizedList(new ArrayList<BuildRecord>());
+    private List<BuildRecord> buildRecords = Collections.synchronizedList(new ArrayList<>());
 
-    private List<BuildConfigSetRecord> buildConfigSetRecords = Collections.synchronizedList(new ArrayList<BuildConfigSetRecord>());
+    private List<BuildConfigSetRecord> buildConfigSetRecords = Collections.synchronizedList(new ArrayList<>());
     
-    private Map<Integer, BuildConfiguration> buildConfigurations = Collections.synchronizedMap(new HashMap<Integer, BuildConfiguration>());
+    private Map<Integer, BuildConfiguration> buildConfigurations = Collections.synchronizedMap(new HashMap<>());
 
     AtomicInteger buildRecordSequence = new AtomicInteger(0);
     AtomicInteger buildRecordSetSequence = new AtomicInteger(0);

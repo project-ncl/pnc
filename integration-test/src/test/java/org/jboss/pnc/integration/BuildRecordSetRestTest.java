@@ -22,16 +22,11 @@ import com.jayway.restassured.response.Response;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.junit.InSequence;
-import org.jboss.pnc.auth.AuthenticationProvider;
-import org.jboss.pnc.auth.ExternalAuthentication;
-import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.ConfigurationParseException;
-import org.jboss.pnc.common.json.moduleconfig.AuthenticationModuleConfig;
-import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
 import org.jboss.pnc.integration.assertions.ResponseAssertion;
 import org.jboss.pnc.integration.deployments.Deployments;
 import org.jboss.pnc.integration.template.JsonTemplateBuilder;
-import org.jboss.pnc.integration.utils.AuthResource;
+import org.jboss.pnc.integration.utils.AuthUtils;
 import org.jboss.pnc.rest.endpoint.BuildRecordEndpoint;
 import org.jboss.pnc.rest.endpoint.BuildRecordSetEndpoint;
 import org.jboss.pnc.rest.provider.BuildRecordProvider;
@@ -77,8 +72,7 @@ public class BuildRecordSetRestTest {
     private static int buildRecordId;
     private static int newBuildRecordSetId;
 
-    private static AuthenticationProvider authProvider;
-    private static String access_token =  "no-auth";
+    private static String access_token;
 
     @Deployment(testable = false)
     public static EnterpriseArchive deploy() {
@@ -98,14 +92,7 @@ public class BuildRecordSetRestTest {
 
     @BeforeClass
     public static void setupAuth() throws IOException, ConfigurationParseException {
-        if(AuthResource.authEnabled()) {
-            Configuration configuration = new Configuration();
-            AuthenticationModuleConfig config = configuration.getModuleConfig(new PncConfigProvider<AuthenticationModuleConfig>(AuthenticationModuleConfig.class));
-            InputStream is = BuildRecordRestTest.class.getResourceAsStream("/keycloak.json");
-            ExternalAuthentication ea = new ExternalAuthentication(is);
-            authProvider = ea.authenticate(config.getUsername(), config.getPassword());
-            access_token = authProvider.getTokenString();
-        }
+        access_token = AuthUtils.generateToken();
     }
 
     @Test

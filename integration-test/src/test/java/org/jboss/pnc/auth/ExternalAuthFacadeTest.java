@@ -18,7 +18,7 @@
 package org.jboss.pnc.auth;
 
 import org.jboss.logging.Logger;
-import org.jboss.pnc.integration.utils.AuthResource;
+import org.jboss.pnc.integration.utils.AuthUtils;
 import org.jboss.pnc.test.category.ContainerTest;
 import org.jboss.pnc.test.category.RemoteTest;
 import org.junit.Assert;
@@ -52,7 +52,7 @@ public class ExternalAuthFacadeTest {
     @Test
     public void testProductEndpoint() {
         try {
-            if(AuthResource.authEnabled()) {
+            if(AuthUtils.authEnabled()) {
                 log.info(">>> testProductEndpoint()");            
                 InputStream is = this.getClass().getResourceAsStream("/keycloak.json");
                 log.info("is is: " + is);
@@ -72,7 +72,7 @@ public class ExternalAuthFacadeTest {
     @Ignore //Ignore this test for now, we need to define the roles/users/authorized sets properly
     public void testConfigEndpointUnauthorized() {
         try {
-            if(AuthResource.authEnabled()) {
+            if(AuthUtils.authEnabled()) {
                 log.info(">>> testConfigEndpointUnauthorized()");            
                 InputStream is = this.getClass().getResourceAsStream("/keycloak.json");
                 ExternalAuthFacade externalAuthFacade = new ExternalAuthFacade(is);
@@ -93,7 +93,7 @@ public class ExternalAuthFacadeTest {
     @Test
     public void testProductEndpointWrongCredentials() {
         try {
-            if(AuthResource.authEnabled()) {
+            if(AuthUtils.authEnabled()) {
                 InputStream is = this.getClass().getResourceAsStream("/keycloak.json");
                 ExternalAuthFacade externalAuthFacade = 
                         new ExternalAuthFacade("mr.wrong","mr.wrong",is,"http://localhost:8080/pnc-rest/rest");
