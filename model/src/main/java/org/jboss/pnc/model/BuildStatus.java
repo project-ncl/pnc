@@ -18,11 +18,49 @@
 package org.jboss.pnc.model;
 
 /**
- * Statuses of build process.
+ * Status of a running or completed build.
  * 
  * @author Jakub Bartecek &lt;jbartece@redhat.com&gt;
  *
  */
 public enum BuildStatus {
-    SUCCESS, FAILED, UNSTABLE, BUILDING, REJECTED, CANCELLED, SYSTEM_ERROR, UNKNOWN
+    /**
+     * Build completed successfully
+     */
+    SUCCESS,
+
+    /**
+     * Build failed
+     */
+    FAILED,
+
+    /**
+     * Build completed with test failures
+     */
+    UNSTABLE,
+
+    /**
+     * Build currently running
+     */
+    BUILDING,
+
+    /**
+     * Build rejected due to conflict with another build, or failed dependency build
+     */
+    REJECTED,
+
+    /**
+     * User cancelled the build
+     */
+    CANCELLED,
+
+    /**
+     * A system error prevented the build from completing
+     */
+    SYSTEM_ERROR,
+
+    /**
+     * It is not known what the build status is at this time
+     */
+    UNKNOWN
 }
