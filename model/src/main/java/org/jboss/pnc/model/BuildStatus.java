@@ -62,5 +62,11 @@ public enum BuildStatus {
     /**
      * It is not known what the build status is at this time
      */
-    UNKNOWN
+    UNKNOWN, 
+
+    /**
+     * There have not been any builds of this configuration, essentially the same meaning
+     * as a null status
+     */
+    NONE
 }

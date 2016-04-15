@@ -221,6 +221,9 @@ public class BuildConfigurationRest implements GenericRestEntity<Integer> {
     }
 
     public BuildStatus getBuildStatus() {
+        if (buildStatus == null) {
+            return BuildStatus.NONE;
+        }
         return buildStatus;
     }
 
