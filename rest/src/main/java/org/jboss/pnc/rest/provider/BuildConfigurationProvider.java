@@ -196,24 +196,31 @@ public class BuildConfigurationProvider extends AbstractProvider<BuildConfigurat
         BuildConfiguration buildConfig = repository.queryById(configId);
         BuildConfiguration dependency = repository.queryById(dependencyId);
 
-        ValidationBuilder.validateObject(buildConfig, WhenCreatingNew.class)
+        ValidationBuilder.validateObject(buildConfig, WhenUpdating.class)
+                .validateCondition(buildConfig != null, "No build config exists with id: " + configId)
+                .validateCondition(dependency != null, "No dependency build config exists with id: " + dependencyId)
                 .validateCondition(!configId.equals(dependencyId), "A build configuration cannot depend on itself")
                 .validateCondition(!dependency.getAllDependencies().contains(buildConfig), "Cannot add dependency from : "
                         + configId + " to: " + dependencyId + " because it would introduce a cyclic dependency");
-
+        System.out.println("didn't throw any validation errors");
         buildConfig.addDependency(dependency);
         repository.save(buildConfig);
     }
 
-    public void removeDependency(Integer configId, Integer dependencyId) {
+    public void removeDependency(Integer configId, Integer dependencyId) throws ValidationException {
         BuildConfiguration buildConfig = repository.queryById(configId);
         BuildConfiguration dependency = repository.queryById(dependencyId);
+        ValidationBuilder.validateObject(buildConfig, WhenUpdating.class)
+                .validateCondition(buildConfig != null, "No build config exists with id: " + configId)
+                .validateCondition(dependency != null, "No dependency build config exists with id: " + dependencyId);
         buildConfig.removeDependency(dependency);
         repository.save(buildConfig);
     }
 
-    public void setProductVersion(Integer configId, Integer productVersionId) {
+    public void setProductVersion(Integer configId, Integer productVersionId) throws ValidationException {
         BuildConfiguration buildConfig = repository.queryById(configId);
+        ValidationBuilder.validateObject(buildConfig, WhenUpdating.class)
+                .validateCondition(buildConfig!=null, "No build config exists with id: " + configId);
         ProductVersion productVersion = null;
         if (productVersionId != null) {
             productVersion = productVersionRepository.queryById(productVersionId);

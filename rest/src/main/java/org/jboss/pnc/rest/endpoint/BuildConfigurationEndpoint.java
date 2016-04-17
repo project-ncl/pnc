@@ -375,7 +375,7 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
     @Path("/{id}/dependencies/{dependencyId}")
     public Response removeDependency(
             @ApiParam(value = "Build configuration set id", required = true) @PathParam("id") Integer id,
-            @ApiParam(value = "Build configuration id", required = true) @PathParam("dependencyId") Integer dependencyId) {
+            @ApiParam(value = "Build configuration id", required = true) @PathParam("dependencyId") Integer dependencyId) throws ValidationException {
         buildConfigurationProvider.removeDependency(id, dependencyId);
         return fromEmpty();
     }
@@ -435,7 +435,7 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
     @Deprecated
     public Response addProductVersion(
             @ApiParam(value = "Build Configuration id", required = true) @PathParam("id") Integer id,
-            ProductVersionRest productVersion) {        
+            ProductVersionRest productVersion) throws ValidationException {        
         buildConfigurationProvider.setProductVersion(id, productVersion.getId());
         return fromEmpty();
     }
@@ -454,7 +454,7 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
     @Deprecated
     public Response removeProductVersion(
             @ApiParam(value = "Build configuration set id", required = true) @PathParam("id") Integer id,
-            @ApiParam(value = "Product version id", required = true) @PathParam("productVersionId") Integer productVersionId) {
+            @ApiParam(value = "Product version id", required = true) @PathParam("productVersionId") Integer productVersionId) throws ValidationException {
         buildConfigurationProvider.setProductVersion(id, null);
         return fromEmpty();
     }

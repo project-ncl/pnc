@@ -249,7 +249,7 @@ public class BuildConfigurationSetEndpoint extends AbstractEndpoint<BuildConfigu
     @Path("/{id}/build-configurations/{configId}")
     public Response removeConfiguration(
             @ApiParam(value = "Build configuration set id", required = true) @PathParam("id") Integer id,
-            @ApiParam(value = "Build configuration id", required = true) @PathParam("configId") Integer configId) {
+            @ApiParam(value = "Build configuration id", required = true) @PathParam("configId") Integer configId) throws ValidationException {
         buildConfigurationSetProvider.removeConfiguration(id, configId);
         return fromEmpty();
     }
