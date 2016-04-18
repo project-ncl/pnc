@@ -34,25 +34,46 @@ angular.module('pnc.record')
       restrict: 'EA',
       template: '<div></div>',
       link: function(scope, element) {
-        var autoscroll = true;
-
         // Find the child div specified in `template`
         var div = element.find('div');
         var parent = element[0];
+
+        var autoscroll = true;
+        var startPosition = parent.scrollTop;
+
+        // Catch scroll events so we can enable / disable scrolling based
+        // on whether the user is scrolled to the bottom.
+        parent.onscroll = function () {
+          var endPosition = parent.scrollTop;
+          var height = element.innerHeight();
+          var bottom = parent.scrollHeight;
+
+          if (endPosition >= startPosition) {
+            // User is scrolling downwards, if they scroll to the bottom
+            // enable autoscroll.
+            if (endPosition + height >= bottom) {
+              autoscroll = true;
+            }
+          } else {
+            // User is scrolling up so disable autoscroll
+            autoscroll = false;
+          }
+          // Reset the start position so we can detect which direction the user
+          // has scrolled in next time.
+          startPosition = parent.scrollTop;
+        };
 
         function addToLog(event, payload) {
           div.append(payload + '<br>');
           if (autoscroll) {
             parent.scrollTop = parent.scrollHeight;
+            // Reset the start position so we can detect which direction the user
+            // has scrolled in next time.
+            startPosition = parent.scrollTop;
           }
         }
 
-        function toggleAutoscroll() {
-          autoscroll = !autoscroll;
-        }
-
         scope.$on('pnc-log-canvas::add_line', addToLog);
-        scope.$on('pnc-log-canvas::toggle_autoscroll', toggleAutoscroll);
       }
     };
 
