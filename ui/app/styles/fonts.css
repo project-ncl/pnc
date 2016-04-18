@@ -15,12 +15,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import hudson.model.*;
-import jenkins.model.*;
 
+/*
+ * Overrides for PatternFly 1.1.4
+ */
+@font-face {
+  font-family: 'Glyphicons Halflings';
 
-Thread.start {
-      sleep 10000
-      println "--> setting agent port for jnlp"
-      Jenkins.instance.setSlaveAgentPort(50000)
+  src: url('../fonts/glyphicons-halflings-regular.eot');
+  src: url('../fonts/glyphicons-halflings-regular.eot?#iefix') format('embedded-opentype'), url('../fonts/glyphicons-halflings-regular.woff') format('woff'), url('../fonts/glyphicons-halflings-regular.ttf') format('truetype'), url('../fonts/glyphicons-halflings-regular.svg#glyphicons_halflingsregular') format('svg');
 }

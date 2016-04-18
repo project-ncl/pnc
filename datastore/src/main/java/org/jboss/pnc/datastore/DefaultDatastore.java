@@ -24,8 +24,8 @@ import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildRecord;
-import org.jboss.pnc.model.BuildRecordSet;
 import org.jboss.pnc.model.BuildStatus;
+import org.jboss.pnc.model.ProductMilestone;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.datastore.Datastore;
 import org.jboss.pnc.spi.datastore.predicates.UserPredicates;
@@ -34,7 +34,6 @@ import org.jboss.pnc.spi.datastore.repositories.BuildConfigSetRecordRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationAuditedRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
-import org.jboss.pnc.spi.datastore.repositories.BuildRecordSetRepository;
 import org.jboss.pnc.spi.datastore.repositories.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,7 +49,6 @@ import java.util.Set;
 
 import static org.jboss.pnc.model.ArtifactQuality.*;
 import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withIdentifierAndChecksum;
-import static org.jboss.pnc.spi.datastore.predicates.BuildRecordSetPredicates.withBuildRecordSetIdInSet;
 
 @Stateless
 public class DefaultDatastore implements Datastore {
@@ -73,9 +71,6 @@ public class DefaultDatastore implements Datastore {
     BuildConfigSetRecordRepository buildConfigSetRecordRepository;
 
     @Inject
-    BuildRecordSetRepository buildRecordSetRepository;
-
-    @Inject
     UserRepository userRepository;
 
     @Inject
@@ -83,16 +78,12 @@ public class DefaultDatastore implements Datastore {
 
     @Override
     @TransactionAttribute(TransactionAttributeType.REQUIRED)
-    public BuildRecord storeCompletedBuild(BuildRecord.Builder buildRecordBuilder, Set<Integer> buildRecordSetIds) {
+    public BuildRecord storeCompletedBuild(BuildRecord.Builder buildRecordBuilder) {
         BuildRecord buildRecord = buildRecordBuilder.build();
         refreshBuildConfiguration(buildRecord);
         buildRecord.setDependencies(saveArtifacts(buildRecord.getDependencies()));
         buildRecord.setBuiltArtifacts(saveArtifacts(buildRecord.getBuiltArtifacts()));
         buildRecord = buildRecordRepository.save(buildRecord);
-        for(BuildRecordSet buildRecordSet : buildRecordSetRepository.queryWithPredicates(withBuildRecordSetIdInSet(buildRecordSetIds))) {
-            buildRecordSet.addBuildRecord(buildRecord);
-            buildRecordSetRepository.save(buildRecordSet);
-        }
 
         return buildRecord;
     }

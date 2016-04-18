@@ -21,8 +21,11 @@ import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.rest.provider.collection.CollectionInfo;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationSetRest;
+import org.jboss.pnc.rest.validation.ValidationBuilder;
 import org.jboss.pnc.rest.validation.exceptions.ConflictedEntryException;
+import org.jboss.pnc.rest.validation.exceptions.InvalidEntityException;
 import org.jboss.pnc.rest.validation.exceptions.ValidationException;
+import org.jboss.pnc.rest.validation.groups.WhenUpdating;
 import org.jboss.pnc.spi.datastore.predicates.BuildConfigurationSetPredicates;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationSetRepository;
@@ -72,21 +75,27 @@ public class BuildConfigurationSetProvider extends AbstractProvider<BuildConfigu
         return buildConfigSetRest -> buildConfigSetRest.toDBEntityBuilder().build();
     }
 
-    public void addConfiguration(Integer configurationSetId, Integer configurationId) throws ConflictedEntryException {
-        BuildConfigurationSet buildConfigSet = repository.queryById(configurationSetId);
-        BuildConfiguration buildConfig = buildConfigurationRepository.queryById(configurationId);
+    public void addConfiguration(Integer configSetId, Integer configId) throws ValidationException {
+        BuildConfigurationSet buildConfigSet = repository.queryById(configSetId);
+        BuildConfiguration buildConfig = buildConfigurationRepository.queryById(configId);
+        ValidationBuilder.validateObject(buildConfigSet, WhenUpdating.class)
+                .validateCondition(buildConfigSet != null, "No build configuration set exists with id: " + configSetId)
+                .validateCondition(buildConfig != null, "No build configuration exists with id: " + configId);
         if (buildConfigSet.getBuildConfigurations().contains(buildConfig)) {
             throw new ConflictedEntryException("BuildConfiguration is already in the BuildConfigurationSet",
-                    BuildConfigurationSet.class, configurationSetId);
+                    BuildConfigurationSet.class, configSetId);
         }
 
         buildConfigSet.addBuildConfiguration(buildConfig);
         repository.save(buildConfigSet);
     }
 
-    public void removeConfiguration(Integer configurationSetId, Integer configurationId) {
-        BuildConfigurationSet buildConfigSet = repository.queryById(configurationSetId);
-        BuildConfiguration buildConfig = buildConfigurationRepository.queryById(configurationId);
+    public void removeConfiguration(Integer configSetId, Integer configId) throws ValidationException {
+        BuildConfigurationSet buildConfigSet = repository.queryById(configSetId);
+        BuildConfiguration buildConfig = buildConfigurationRepository.queryById(configId);
+        ValidationBuilder.validateObject(buildConfigSet, WhenUpdating.class)
+                .validateCondition(buildConfigSet != null, "No build configuration set exists with id: " + configSetId)
+                .validateCondition(buildConfig != null, "No build configuration exists with id: " + configId);
         buildConfigSet.removeBuildConfiguration(buildConfig);
         repository.save(buildConfigSet);
     }

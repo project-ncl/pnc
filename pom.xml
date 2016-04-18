@@ -67,7 +67,6 @@
     <module>ui</module>
     <module>web</module>
     <module>processes</module>
-    <module>docker-environment-driver</module>
     <module>openshift-environment-driver</module>
     <module>demo-data</module>
     <module>integration-test</module>
@@ -347,12 +346,6 @@
         <artifactId>web</artifactId>
         <version>${project.version}</version>
         <type>war</type>
-      </dependency>
-
-      <dependency>
-        <groupId>org.jboss.pnc</groupId>
-        <artifactId>docker-environment-driver</artifactId>
-        <version>${project.version}</version>
       </dependency>
 
       <dependency>

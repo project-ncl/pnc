@@ -33,6 +33,7 @@
         templateUrl: 'import/product/directive/ProductImportStartForm/product-import-start-form.html',
         scope: {
           submitDisabled: '=',
+          startTooltipIsOpen: '=',
           data: '=',
           onSubmit: '&'
         },

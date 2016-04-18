@@ -123,7 +123,7 @@ public class DefaultBuildExecutionSession implements BuildExecutionSession {
             }
         } else {
             log.trace("Returning result of task " + getId() + " with exception.", executorException);
-            return new BuildResult(Optional.ofNullable(buildExecutionConfiguration), Optional.ofNullable(buildDriverResult), Optional.ofNullable(repositoryManagerResult), Optional.of(executorException), Optional.empty());
+            return new BuildResult(Optional.ofNullable(buildExecutionConfiguration), Optional.ofNullable(buildDriverResult), Optional.ofNullable(repositoryManagerResult), Optional.of(executorException), Optional.ofNullable(failedReasonStatus));
         }
     }
 

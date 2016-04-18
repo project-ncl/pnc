@@ -22,18 +22,12 @@ import com.jayway.restassured.response.Response;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.junit.InSequence;
-import org.jboss.pnc.auth.AuthenticationProvider;
-import org.jboss.pnc.auth.ExternalAuthentication;
-import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.ConfigurationParseException;
-import org.jboss.pnc.common.json.moduleconfig.AuthenticationModuleConfig;
-import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
 import org.jboss.pnc.integration.assertions.ResponseAssertion;
 import org.jboss.pnc.integration.deployments.Deployments;
-import org.jboss.pnc.integration.utils.AuthResource;
+import org.jboss.pnc.integration.utils.AuthUtils;
 import org.jboss.pnc.integration.utils.ResponseUtils;
 import org.jboss.pnc.model.BuildType;
-import org.jboss.pnc.model.OperationalSystem;
 import org.jboss.pnc.rest.endpoint.BuildEnvironmentEndpoint;
 import org.jboss.pnc.rest.provider.BuildEnvironmentProvider;
 import org.jboss.pnc.rest.restmodel.BuildEnvironmentRest;
@@ -48,7 +42,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.lang.invoke.MethodHandles;
 
 import static com.jayway.restassured.RestAssured.given;
@@ -67,8 +60,7 @@ public class EnvironmentRestTest {
 
     private static Integer environmentId;
     
-    private static AuthenticationProvider authProvider;
-    private static String access_token =  "no-auth";
+    private static String access_token;
     
 
     @Deployment(testable = false)
@@ -85,14 +77,7 @@ public class EnvironmentRestTest {
     }
     @BeforeClass
     public static void setupAuth() throws IOException, ConfigurationParseException {
-        if(AuthResource.authEnabled()) {
-            Configuration configuration = new Configuration();
-            AuthenticationModuleConfig config = configuration.getModuleConfig(new PncConfigProvider<>(AuthenticationModuleConfig.class));
-            InputStream is = BuildRecordRestTest.class.getResourceAsStream("/keycloak.json");
-            ExternalAuthentication ea = new ExternalAuthentication(is);
-            authProvider = ea.authenticate(config.getUsername(), config.getPassword());
-            access_token = authProvider.getTokenString();
-        }
+        access_token = AuthUtils.generateToken();
     }
 
     @Test

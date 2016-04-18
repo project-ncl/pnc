@@ -28,7 +28,7 @@
    * @param {number=} pnc-configuration-id
    * The id of the BuildConfiguration to display builds for.
    * @description
-   * Displays a panel with recently completed builds of the given BuildConfiguration.
+   * Displays a panel with the build history of the given BuildConfiguration.
    * @example
       <pnc-builds-panel pnc-configuration-id="4"></pnc-builds-panel>
    * @author Alex Creasy
@@ -36,9 +36,9 @@
   module.directive('pncBuildsPanel', [
     function () {
 
-      function PncBuildsPanelCtrl($log, $scope, BuildRecordDAO, eventTypes) {
-        $scope.page = BuildRecordDAO.getPagedByConfiguration({
-          configurationId: $scope.pncConfigurationId
+      function PncBuildsPanelCtrl($log, $scope, BuildsDAO, eventTypes) {
+        $scope.page = BuildsDAO.getByConfiguration({
+          id: $scope.pncConfigurationId
         });
 
         function update(event, payload) {
@@ -48,6 +48,7 @@
           }
         }
 
+        $scope.$on(eventTypes.BUILD_STARTED, update);
         $scope.$on(eventTypes.BUILD_FINISHED, update);
       }
 

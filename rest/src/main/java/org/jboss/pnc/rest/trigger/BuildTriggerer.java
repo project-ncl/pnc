@@ -27,7 +27,6 @@ import org.jboss.pnc.coordinator.notifications.buildTask.BuildCallBack;
 import org.jboss.pnc.coordinator.notifications.buildTask.BuildStatusNotifications;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationSet;
-import org.jboss.pnc.model.BuildRecordSet;
 import org.jboss.pnc.model.ProductVersion;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.rest.utils.BpmNotifier;
@@ -114,12 +113,6 @@ public class BuildTriggerer { //TODO rename to buildCoordinationTriggerer
     public int triggerBuild(final Integer configurationId, User currentUser, boolean rebuildAll) throws BuildConflictException {
         final BuildConfiguration configuration = buildConfigurationRepository.queryById(configurationId);
         Preconditions.checkArgument(configuration != null, "Can't find configuration with given id=" + configurationId);
-
-        final BuildRecordSet buildRecordSet = new BuildRecordSet();
-        if (configuration.getProductVersions() != null && !configuration.getProductVersions().isEmpty()) {
-            ProductVersion productVersion = configuration.getProductVersions().iterator().next();
-            buildRecordSet.setPerformedInProductMilestone(productVersion.getCurrentProductMilestone());
-        }
 
         Integer taskId = buildCoordinator.build(
                 hibernateLazyInitializer.initializeBuildConfigurationBeforeTriggeringIt(configuration),

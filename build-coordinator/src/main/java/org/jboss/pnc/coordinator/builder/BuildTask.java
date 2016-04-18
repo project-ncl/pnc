@@ -20,6 +20,7 @@ package org.jboss.pnc.coordinator.builder;
 import org.jboss.pnc.coordinator.events.DefaultBuildStatusChangedEvent;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
+import org.jboss.pnc.model.ProductMilestone;
 import org.jboss.pnc.model.ProductVersion;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.BuildCoordinationStatus;
@@ -67,7 +68,7 @@ public class BuildTask {
 
     private final BuildSetTask buildSetTask;
 
-    private final Set<Integer> buildRecordSetIds = new HashSet<>();
+    private ProductMilestone productMilestone;
 
     private boolean hasFailed = false;
 
@@ -103,14 +104,9 @@ public class BuildTask {
         this.onReject = onReject;
 
         if (buildSetTask != null && buildSetTask.getProductMilestone() != null) {
-            buildRecordSetIds.add(buildSetTask.getProductMilestone().getPerformedBuildRecordSet().getId());
-        }
-        if (buildConfiguration.getProductVersions() != null) {
-            for (ProductVersion productVersion : buildConfiguration.getProductVersions()) {
-                if (productVersion.getCurrentProductMilestone() != null) {
-                    buildRecordSetIds.add(productVersion.getCurrentProductMilestone().getPerformedBuildRecordSet().getId());
-                }
-            }
+            productMilestone = buildSetTask.getProductMilestone();
+        } else if (buildConfiguration.getProductVersion() != null){
+            productMilestone = buildConfiguration.getProductVersion().getCurrentProductMilestone();
         }
     }
 
@@ -148,8 +144,8 @@ public class BuildTask {
         }
     }
 
-    public Set<Integer> getBuildRecordSetIds() {
-        return buildRecordSetIds;
+    public ProductMilestone getProductMilestone() {
+        return productMilestone;
     }
 
     public Set<BuildTask> getDependencies() {

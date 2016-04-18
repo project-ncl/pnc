@@ -22,6 +22,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import org.apache.commons.lang3.StringUtils;
 import org.jboss.pnc.auth.AuthenticationProvider;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.User;
@@ -233,7 +234,7 @@ public class BuildConfigurationSetEndpoint extends AbstractEndpoint<BuildConfigu
     @Path("/{id}/build-configurations")
     public Response addConfiguration(
             @ApiParam(value = "Build Configuration Set id", required = true) @PathParam("id") Integer id,
-            BuildConfigurationRest buildConfig) throws ConflictedEntryException {
+            BuildConfigurationRest buildConfig) throws ValidationException {
         buildConfigurationSetProvider.addConfiguration(id, buildConfig.getId());
         return fromEmpty();
     }
@@ -248,7 +249,7 @@ public class BuildConfigurationSetEndpoint extends AbstractEndpoint<BuildConfigu
     @Path("/{id}/build-configurations/{configId}")
     public Response removeConfiguration(
             @ApiParam(value = "Build configuration set id", required = true) @PathParam("id") Integer id,
-            @ApiParam(value = "Build configuration id", required = true) @PathParam("configId") Integer configId) {
+            @ApiParam(value = "Build configuration id", required = true) @PathParam("configId") Integer configId) throws ValidationException {
         buildConfigurationSetProvider.removeConfiguration(id, configId);
         return fromEmpty();
     }
@@ -292,7 +293,7 @@ public class BuildConfigurationSetEndpoint extends AbstractEndpoint<BuildConfigu
         AuthenticationProvider authProvider = new AuthenticationProvider(httpServletRequest);
         String loggedUser = authProvider.getUserName();
         User currentUser = null;
-        if(loggedUser != null && loggedUser != "") {
+        if(StringUtils.isNotEmpty(loggedUser)) {
             currentUser = datastore.retrieveUserByUsername(loggedUser);
             if(currentUser != null) {
                 currentUser.setLoginToken(authProvider.getTokenString());

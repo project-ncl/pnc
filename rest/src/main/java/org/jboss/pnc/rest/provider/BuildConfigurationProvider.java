@@ -196,39 +196,42 @@ public class BuildConfigurationProvider extends AbstractProvider<BuildConfigurat
         BuildConfiguration buildConfig = repository.queryById(configId);
         BuildConfiguration dependency = repository.queryById(dependencyId);
 
-        ValidationBuilder.validateObject(buildConfig, WhenCreatingNew.class)
+        ValidationBuilder.validateObject(buildConfig, WhenUpdating.class)
+                .validateCondition(buildConfig != null, "No build config exists with id: " + configId)
+                .validateCondition(dependency != null, "No dependency build config exists with id: " + dependencyId)
                 .validateCondition(!configId.equals(dependencyId), "A build configuration cannot depend on itself")
                 .validateCondition(!dependency.getAllDependencies().contains(buildConfig), "Cannot add dependency from : "
                         + configId + " to: " + dependencyId + " because it would introduce a cyclic dependency");
-
+        System.out.println("didn't throw any validation errors");
         buildConfig.addDependency(dependency);
         repository.save(buildConfig);
     }
 
-    public void removeDependency(Integer configId, Integer dependencyId) {
+    public void removeDependency(Integer configId, Integer dependencyId) throws ValidationException {
         BuildConfiguration buildConfig = repository.queryById(configId);
         BuildConfiguration dependency = repository.queryById(dependencyId);
+        ValidationBuilder.validateObject(buildConfig, WhenUpdating.class)
+                .validateCondition(buildConfig != null, "No build config exists with id: " + configId)
+                .validateCondition(dependency != null, "No dependency build config exists with id: " + dependencyId);
         buildConfig.removeDependency(dependency);
+        repository.save(buildConfig);
+    }
+
+    public void setProductVersion(Integer configId, Integer productVersionId) throws ValidationException {
+        BuildConfiguration buildConfig = repository.queryById(configId);
+        ValidationBuilder.validateObject(buildConfig, WhenUpdating.class)
+                .validateCondition(buildConfig!=null, "No build config exists with id: " + configId);
+        ProductVersion productVersion = null;
+        if (productVersionId != null) {
+            productVersion = productVersionRepository.queryById(productVersionId);
+        }
+        buildConfig.setProductVersion(productVersion);
         repository.save(buildConfig);
     }
 
     public CollectionInfo<BuildConfigurationRest> getDependencies(int pageIndex, int pageSize, String sortingRsql, String query,
             Integer configId) {
         return queryForCollection(pageIndex, pageSize, sortingRsql, query, withDependantConfiguration(configId));
-    }
-
-    public void addProductVersion(Integer configId, Integer productVersionId) {
-        BuildConfiguration buildConfig = repository.queryById(configId);
-        ProductVersion productVersion = productVersionRepository.queryById(productVersionId);
-        buildConfig.addProductVersion(productVersion);
-        repository.save(buildConfig);
-    }
-
-    public void removeProductVersion(Integer configId, Integer productVersionId) {
-        BuildConfiguration buildConfig = repository.queryById(configId);
-        ProductVersion productVersion = productVersionRepository.queryById(productVersionId);
-        buildConfig.removeProductVersion(productVersion);
-        repository.save(buildConfig);
     }
 
     public CollectionInfo<BuildConfigurationAuditedRest> getRevisions(int pageIndex, int pageSize, Integer id) {

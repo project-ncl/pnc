@@ -61,7 +61,6 @@ public class BuildConfigurationDependencyTest {
             em.createNativeQuery("delete from ProductMilestone").executeUpdate();
             em.createNativeQuery("delete from ProductVersion").executeUpdate();
             em.createNativeQuery("delete from Product").executeUpdate();
-            em.createNativeQuery("delete from BuildRecordSet").executeUpdate();
             em.createNativeQuery("delete from BuildConfiguration_aud").executeUpdate();
             em.createNativeQuery("delete from BuildConfiguration").executeUpdate();
             em.createNativeQuery("delete from Project").executeUpdate();

@@ -20,6 +20,7 @@ package org.jboss.pnc.rest.utils;
 
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationSet;
+import org.jboss.pnc.model.ProductVersion;
 
 import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
@@ -35,11 +36,10 @@ public class HibernateLazyInitializer {
 
     @TransactionAttribute(TransactionAttributeType.MANDATORY)
     public BuildConfiguration initializeBuildConfigurationBeforeTriggeringIt(BuildConfiguration bc) {
-        bc.getProductVersions().size();
-        bc.getProductVersions().stream()
-                .forEach(pv -> {
-                    pv.getProduct();
-                });
+        ProductVersion productVersion = bc.getProductVersion();
+        if (productVersion != null) {
+            productVersion.getProduct();
+        }
         return bc;
     }
 

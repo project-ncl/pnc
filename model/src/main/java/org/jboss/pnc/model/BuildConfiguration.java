@@ -95,14 +95,10 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
     private String description;
 
     @NotAudited
-    @ManyToMany
-    @JoinTable(name = "build_configuration_product_versions_map", joinColumns = {
-            @JoinColumn(name = "build_configuration_id", referencedColumnName = "id") }, inverseJoinColumns = {
-                    @JoinColumn(name = "product_version_id", referencedColumnName = "id") }, uniqueConstraints = @UniqueConstraint(name = "UK_build_configuration_id_product_version_id", columnNames = {
-                            "build_configuration_id", "product_version_id" }) )
-    @ForeignKey(name = "fk_build_configuration_product_versions_map_buildconfiguration", inverseName = "fk_build_configuration_product_versions_map_productversion")
-    @Index(name="idx_build_configuration_product_versions_map_buildconfiguration", columnNames={"build_configuration_id", "product_version_id"} )
-    private Set<ProductVersion> productVersions;
+    @ManyToOne
+    @ForeignKey(name = "fk_build_configuration_product_version")
+    @Index(name="idx_build_configuration_product_version")
+    private ProductVersion productVersion;
 
     @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
     @NotNull
@@ -289,23 +285,15 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
     /**
      * @return the productVersions associated with this build config
      */
-    public Set<ProductVersion> getProductVersions() {
-        return productVersions;
+    public ProductVersion getProductVersion() {
+        return productVersion;
     }
 
     /**
      * @param productVersions the set of productVersions associated with this build config
      */
-    public void setProductVersions(Set<ProductVersion> productVersions) {
-        this.productVersions = productVersions;
-    }
-
-    public boolean addProductVersion(ProductVersion productVersion) {
-        return this.productVersions.add(productVersion);
-    }
-
-    public boolean removeProductVersion(ProductVersion productVersion) {
-        return this.productVersions.remove(productVersion);
+    public void setProductVersion(ProductVersion productVersion) {
+        this.productVersion = productVersion;
     }
 
     public BuildEnvironment getBuildEnvironment() {
@@ -680,7 +668,7 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
 
         private BuildEnvironment buildEnvironment;
 
-        private Set<ProductVersion> productVersions;
+        private ProductVersion productVersion;
 
         private Set<BuildConfiguration> dependencies;
 
@@ -702,7 +690,6 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
             dependencies = new HashSet<BuildConfiguration>();
             dependants = new HashSet<BuildConfiguration>();
             buildConfigurationSets = new HashSet<BuildConfigurationSet>();
-            productVersions = new HashSet<ProductVersion>();
         }
 
         public static Builder newBuilder() {
@@ -733,7 +720,7 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
             buildConfiguration.setBuildStatus(buildStatus);
             buildConfiguration.setRepositories(repositories);
             buildConfiguration.setBuildConfigurationSets(buildConfigurationSets);
-            buildConfiguration.setProductVersions(productVersions);
+            buildConfiguration.setProductVersion(productVersion);
 
             for (BuildConfigurationSet buildConfigurationSet : buildConfigurationSets) {
                 buildConfigurationSet.addBuildConfiguration(buildConfiguration);
@@ -806,13 +793,8 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
             return this;
         }
 
-        public Builder productVersions(Set<ProductVersion> productVersions) {
-            this.productVersions = productVersions;
-            return this;
-        }
-
         public Builder productVersion(ProductVersion productVersion) {
-            this.productVersions.add(productVersion);
+            this.productVersion = productVersion;
             return this;
         }
 

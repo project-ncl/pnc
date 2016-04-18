@@ -31,6 +31,7 @@ import javax.ejb.TransactionAttributeType;
 import javax.inject.Inject;
 import java.sql.Timestamp;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
@@ -48,7 +49,8 @@ public class DatabaseDataInitializer {
     public static final Logger log = Logger.getLogger(DatabaseDataInitializer.class.getName());
 
     private static final String PNC_PRODUCT_NAME = "Project Newcastle Demo Product";
-    private static final String PNC_PRODUCT_VERSION = "1.0";
+    private static final String PNC_PRODUCT_VERSION_1 = "1.0";
+    private static final String PNC_PRODUCT_VERSION_2 = "2.0";
     private static final String PNC_PRODUCT_RELEASE = "1.0.0.GA";
     private static final String PNC_PRODUCT_MILESTONE = "1.0.0.Build1";
     private static final String PNC_PROJECT_1_NAME = "Project Newcastle Demo Project 1";
@@ -86,9 +88,6 @@ public class DatabaseDataInitializer {
 
     @Inject
     BuildRecordRepository buildRecordRepository;
-
-    @Inject
-    BuildRecordSetRepository buildRecordSetRepository;
 
     @Inject
     BuildConfigSetRecordRepository buildConfigSetRecordRepository;
@@ -137,13 +136,13 @@ public class DatabaseDataInitializer {
         // Check that mapping between Product and Build Configuration via BuildConfigurationSet is correct
         Preconditions.checkState(buildConfigurationSetDB.getProductVersion().getProduct().getName().equals(PNC_PRODUCT_NAME),
                 "Product mapped to Project must be " + PNC_PRODUCT_NAME);
-        Preconditions.checkState(buildConfigurationSetDB.getProductVersion().getVersion().equals(PNC_PRODUCT_VERSION),
-                "Product version mapped to Project must be " + PNC_PRODUCT_VERSION);
+        Preconditions.checkState(buildConfigurationSetDB.getProductVersion().getVersion().equals(PNC_PRODUCT_VERSION_1),
+                "Product version mapped to Project must be " + PNC_PRODUCT_VERSION_1);
 
         // Check that BuildConfiguration and BuildConfigurationSet have a ProductVersion associated
         Preconditions.checkState(buildConfigurationDB.getBuildConfigurationSets().iterator().next().getProductVersion()
-                .getVersion().equals(PNC_PRODUCT_VERSION), "Product version mapped to BuildConfiguration must be "
-                + PNC_PRODUCT_VERSION);
+                .getVersion().equals(PNC_PRODUCT_VERSION_1), "Product version mapped to BuildConfiguration must be "
+                + PNC_PRODUCT_VERSION_1);
         Preconditions.checkState(buildConfigurationDB.getBuildConfigurationSets().iterator().next().getProductVersion()
                 .getProduct().getName().equals(PNC_PRODUCT_NAME), "Product mapped to BuildConfiguration must be "
                 + PNC_PRODUCT_NAME);
@@ -176,13 +175,16 @@ public class DatabaseDataInitializer {
         product = productRepository.save(product);
 
         // Example product version, release, and milestone of the product
-        ProductVersion productVersion = ProductVersion.Builder.newBuilder().version(PNC_PRODUCT_VERSION).product(product)
+        ProductVersion productVersion1 = ProductVersion.Builder.newBuilder().version(PNC_PRODUCT_VERSION_1).product(product)
                 .build();
-        productVersion = productVersionRepository.save(productVersion);
+        productVersion1 = productVersionRepository.save(productVersion1);
+
+        ProductVersion productVersion2 = ProductVersion.Builder.newBuilder().version(PNC_PRODUCT_VERSION_2).product(product)
+                .build();
+        productVersion2 = productVersionRepository.save(productVersion2);
 
         demoProductMilestone = ProductMilestone.Builder.newBuilder().version(PNC_PRODUCT_MILESTONE)
-                .productVersion(productVersion).build();
-        buildRecordSetRepository.save(demoProductMilestone.getPerformedBuildRecordSet());
+                .productVersion(productVersion1).build();
         demoProductMilestone = productMilestoneRepository.save(demoProductMilestone);
 
         ProductRelease productRelease = ProductRelease.Builder.newBuilder().version(PNC_PRODUCT_RELEASE)
@@ -190,8 +192,8 @@ public class DatabaseDataInitializer {
                 .build();
         productRelease = productReleaseRepository.save(productRelease);
 
-        productVersion.setCurrentProductMilestone(demoProductMilestone);
-        productVersion = productVersionRepository.save(productVersion);
+        productVersion1.setCurrentProductMilestone(demoProductMilestone);
+        productVersion1 = productVersionRepository.save(productVersion1);
 
         // Example projects
         Project project1 = Project.Builder.newBuilder().name(PNC_PROJECT_1_NAME)
@@ -220,19 +222,19 @@ public class DatabaseDataInitializer {
         buildConfiguration1 = BuildConfiguration.Builder.newBuilder().name(PNC_PROJECT_BUILD_CFG_ID).project(project1)
                 .description("Test build config for project newcastle").buildEnvironment(environment1)
                 .buildScript("mvn clean deploy -DskipTests=true").scmRepoURL("https://github.com/project-ncl/pnc.git")
-                .scmRevision("*/v0.2").build();
+                .productVersion(productVersion1).scmRevision("*/v0.2").build();
         buildConfiguration1 = buildConfigurationRepository.save(buildConfiguration1);
 
         buildConfiguration2 = BuildConfiguration.Builder.newBuilder().name("jboss-modules-1.5.0").project(project2)
                 .description("Test config for JBoss modules build master branch.").buildEnvironment(environment1)
-                .buildScript("mvn clean deploy -DskipTests=true")
+                .buildScript("mvn clean deploy -DskipTests=true").productVersion(productVersion1)
                 .scmRepoURL("https://github.com/jboss-modules/jboss-modules.git")
                 .scmRevision("9e7115771a791feaa5be23b1255416197f2cda38").build();
         buildConfiguration2 = buildConfigurationRepository.save(buildConfiguration2);
 
         BuildConfiguration buildConfiguration3 = BuildConfiguration.Builder.newBuilder().name("jboss-servlet-spec-api-1.0.1")
                 .project(project3).description("Test build for jboss java servlet api").buildEnvironment(environment1)
-                .buildScript("mvn clean deploy -DskipTests=true")
+                .buildScript("mvn clean deploy -DskipTests=true").productVersion(productVersion2)
                 .scmRepoURL("https://github.com/jboss/jboss-servlet-api_spec.git").dependency(buildConfiguration2).build();
         buildConfiguration3 = buildConfigurationRepository.save(buildConfiguration3);
 
@@ -251,11 +253,11 @@ public class DatabaseDataInitializer {
         // Build config set containing the three example build configs
         buildConfigurationSet1 = BuildConfigurationSet.Builder.newBuilder().name("Example Build Group 1")
                 .buildConfiguration(buildConfiguration1).buildConfiguration(buildConfiguration2)
-                .buildConfiguration(buildConfiguration3).productVersion(productVersion).build();
+                .buildConfiguration(buildConfiguration3).productVersion(productVersion1).build();
 
         BuildConfigurationSet buildConfigurationSet2 = BuildConfigurationSet.Builder.newBuilder()
                 .name("Fabric Build Group").buildConfiguration(buildConfiguration4).
-                        productVersion(productVersion).build();
+                        productVersion(productVersion1).build();
 
         demoUser = User.Builder.newBuilder().username("demo-user").firstName("Demo First Name").lastName("Demo Last Name")
                 .email("demo-user@pnc.com").build();
@@ -311,8 +313,8 @@ public class DatabaseDataInitializer {
             BuildRecord buildRecord1 = BuildRecord.Builder.newBuilder().id(nextId)
                     .latestBuildConfiguration(buildConfiguration1)
                     .buildConfigurationAudited(buildConfigAudited1)
-                    .submitTime(Timestamp.from(Instant.now()))
-                    .startTime(Timestamp.from(Instant.now()))
+                    .submitTime(Timestamp.from(Instant.now().minus(8, ChronoUnit.MINUTES)))
+                    .startTime(Timestamp.from(Instant.now().minus(5, ChronoUnit.MINUTES)))
                     .endTime(Timestamp.from(Instant.now()))
                     .builtArtifact(builtArtifact1)
                     .builtArtifact(builtArtifact2)
@@ -321,14 +323,12 @@ public class DatabaseDataInitializer {
                     .user(demoUser)
                     .buildLog("Very short demo log: The quick brown fox jumps over the lazy dog.")
                     .status(BuildStatus.SUCCESS)
+                    .productMilestone(demoProductMilestone)
                     .build();
 
             buildRecordRepository.save(buildRecord1);
             buildRecords.add(buildRecord1);
 
-            BuildRecordSet performedBuildRecordSet = demoProductMilestone.getPerformedBuildRecordSet();
-            performedBuildRecordSet.addBuildRecord(buildRecord1);
-            buildRecordSetRepository.save(performedBuildRecordSet);
         }
 
         Artifact builtArtifact3 = Artifact.Builder.newBuilder().identifier("demo:built-artifact3:jar:1.0")
@@ -354,8 +354,8 @@ public class DatabaseDataInitializer {
             BuildRecord buildRecord2 = BuildRecord.Builder.newBuilder().id(nextId)
                     .latestBuildConfiguration(buildConfiguration2)
                     .buildConfigurationAudited(buildConfigAudited2)
-                    .submitTime(Timestamp.from(Instant.now()))
-                    .startTime(Timestamp.from(Instant.now()))
+                    .submitTime(Timestamp.from(Instant.now().minus(8, ChronoUnit.MINUTES)))
+                    .startTime(Timestamp.from(Instant.now().minus(5, ChronoUnit.MINUTES)))
                     .endTime(Timestamp.from(Instant.now()))
                     .builtArtifact(builtArtifact3)
                     .builtArtifact(builtArtifact4)

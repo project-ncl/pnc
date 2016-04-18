@@ -30,93 +30,6 @@
     }
   ]);
 
-  module.controller('ConfigurationCreateController', [
-    '$state',
-    '$log',
-    '$filter',
-    'BuildConfigurationDAO',
-    'ProductDAO',
-    'Notifications',
-    'environments',
-    'projects',
-    'products',
-    'configurations',
-    'configurationSetList',
-    function($state, $log, $filter, BuildConfigurationDAO, ProductDAO, Notifications, environments,
-      projects, products, configurations, configurationSetList) {
-
-      var that = this;
-
-      that.data = new BuildConfigurationDAO();
-      that.environments = environments;
-      that.projects = projects;
-      that.configurations = configurations;
-      that.configurationSetList = configurationSetList;
-      that.products = products;
-
-      that.submit = function() {
-        // The REST API takes integer Ids so we need to extract them from
-        // our collection of objects first and attach them to our data object
-        // for sending back to the server.
-        that.data.productVersionIds = gatherIds(that.productVersions.selected);
-        that.data.dependencyIds = gatherIds(that.dependencies.selected);
-
-        that.data.$save().then(function(result) {
-
-          // Saving the BuildConfig link into the BuildGroupConfig 
-          _.each(that.buildgroupconfigs.selected, function(buildgroupconfig) {
-            buildgroupconfig.buildConfigurationIds.push(result.id);
-            buildgroupconfig.$update();
-          });
-
-          $state.go('configuration.detail.show', {
-            configurationId: result.id
-          });
-        });
-      };
-
-      that.productVersions = {
-        selected: []
-      };
-
-      // Selection of dependencies.
-      that.dependencies = {
-        selected: []
-      };
-
-      // Selection of Build Group Configs.
-      that.buildgroupconfigs = {
-        selected: []
-      };
-
-      // Selection of Projects
-      that.projectSelection = {
-        selected: []
-      };
-
-      // Selection of Environments
-      that.environmentSelection = {
-        selected: []
-      };
-
-      that.reset = function(form) {
-        if (form) {
-          that.productVersions.selected = [];
-          that.dependencies.selected = [];
-          that.buildgroupconfigs.selected = [];
-          that.projectSelection.selected = [];
-          that.environmentSelection.selected = [];
-          that.data = new BuildConfigurationDAO();
-
-          form.$setPristine();
-          form.$setUntouched();
-        }
-      };
-    }
-  ]);
-
-
-
   module.controller('ConfigurationDetailController', [
     '$log',
     '$state',
@@ -128,20 +41,19 @@
     'configurationDetail',
     'environments',
     'products',
-    'environmentDetail',
     'linkedProductVersions',
     'dependencies',
     'configurations',
     'configurationSetList',
     'linkedConfigurationSetList',
     function($log, $state, $filter, Notifications, ProductDAO, BuildConfigurationDAO, BuildConfigurationSetDAO,
-      configurationDetail, environments, products, environmentDetail,
+      configurationDetail, environments, products,
       linkedProductVersions, dependencies, configurations, configurationSetList, linkedConfigurationSetList) {
 
       var that = this;
 
       that.configuration = configurationDetail;
-      that.environment = _.isUndefined(environmentDetail.content[0]) ? undefined : environmentDetail.content[0];
+      that.environment = configurationDetail.environment;
       that.environments = environments;
       that.configurations = configurations;
       that.configurationSetList = configurationSetList;

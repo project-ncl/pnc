@@ -34,7 +34,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -45,18 +44,18 @@ public class DatastoreMock implements Datastore {
 
     private Logger log = LoggerFactory.getLogger(DatastoreMock.class.getName());
 
-    private List<BuildRecord> buildRecords = Collections.synchronizedList(new ArrayList<BuildRecord>());
+    private List<BuildRecord> buildRecords = Collections.synchronizedList(new ArrayList<>());
 
-    private List<BuildConfigSetRecord> buildConfigSetRecords = Collections.synchronizedList(new ArrayList<BuildConfigSetRecord>());
+    private List<BuildConfigSetRecord> buildConfigSetRecords = Collections.synchronizedList(new ArrayList<>());
     
-    private Map<Integer, BuildConfiguration> buildConfigurations = Collections.synchronizedMap(new HashMap<Integer, BuildConfiguration>());
+    private Map<Integer, BuildConfiguration> buildConfigurations = Collections.synchronizedMap(new HashMap<>());
 
     AtomicInteger buildRecordSequence = new AtomicInteger(0);
     AtomicInteger buildRecordSetSequence = new AtomicInteger(0);
     AtomicInteger buildConfigAuditedRevSequence = new AtomicInteger(0);
 
     @Override
-    public BuildRecord storeCompletedBuild(BuildRecord.Builder buildRecordBuilder, Set<Integer> buildRecordSetIds ) {
+    public BuildRecord storeCompletedBuild(BuildRecord.Builder buildRecordBuilder) {
         BuildRecord buildRecord = buildRecordBuilder.build();
         log.info("Storing build " + buildRecord.getLatestBuildConfiguration());
         buildRecords.add(buildRecord);

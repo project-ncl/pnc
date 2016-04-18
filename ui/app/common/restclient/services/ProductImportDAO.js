@@ -33,7 +33,6 @@
 
       resource.startProcess = function (data) {
         return Configuration.then(function (config) {
-          console.log(config.dependencyAnalyzerURL + '/start-process');
           return $http.post(config.dependencyAnalyzerURL + '/start-process', data);
         }).then(function (r) {
           return r.data;
