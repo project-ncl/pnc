@@ -382,7 +382,7 @@
           });
         } else {
           tree._refresh();
-          Notifications.warn('Some data are invalid or missing. Verify  all checked BCs.');
+          Notifications.warn('Some data is invalid or missing. Verify all checked BCs.');
         }
       };
 
