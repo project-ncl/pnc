@@ -42,11 +42,16 @@
         _getByConfiguration: {
           method: 'GET',
           url: REST_BASE_URL + '/builds?q=buildConfigurationAudited.idRev.id==:id'
+        },
+        _getLastByConfiguration: {
+          method: 'GET',
+          url: REST_BASE_URL + '/builds?q=buildConfigurationAudited.idRev.id==:id&pageIndex=0&pageSize=1&sort==desc=id'
         }
       });
 
       PageFactory.decorate(resource, '_getAll', 'getPaged');
       PageFactory.decorate(resource, '_getByConfiguration', 'getByConfiguration');
+      PageFactory.decorate(resource, '_getLastByConfiguration', 'getLastByConfiguration');
 
       return resource;
     }
