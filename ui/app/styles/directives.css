@@ -29,13 +29,11 @@
 	max-height: 120px;
 	min-width: 260px;
 	overflow-y: scroll;
-	background-color: white;
-
-  background-color: #ffffff;
-  border: 1px solid #b6b6b6;
-  border-radius: 1px;
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175);
-  background-clip: padding-box;
+    background-color: #ffffff;
+    border: 1px solid #b6b6b6;
+    border-radius: 1px;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175);
+    background-clip: padding-box;
 }
 
 .pnc-infinite-select .dropdown-list {

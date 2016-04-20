@@ -195,3 +195,8 @@ form .editable-wrap {
   -moz-animation:spin 1s linear infinite;
   animation:spin 1s linear infinite;
 }
+
+.sort-icon {
+    font-size: 9px;
+    margin-left: 5px;
+}
