@@ -1,0 +1,118 @@
+<!--
+
+    JBoss, Home of Professional Open Source.
+    Copyright 2014 Red Hat, Inc., and individual contributors
+    as indicated by the @author tags.
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+<div class="row">
+  <div class="col-md-6 col-lg-4">
+
+    <pnc-header>
+      <pnc-header-title>Find the whitelisted artifacts of a Product</pnc-header-title>
+    </pnc-header>
+
+    <form class="form-horizontal" name="productShippedArtifactForm" novalidate>
+	  
+	  <div class="panel panel-default">
+	    <div class="panel-body">
+
+	      <div class="form-group"
+	          ng-class="{ 'has-error' : !productShippedReportCtrl.selectedProductId && productShippedArtifactForm.productId.$touched, 'has-success': productShippedReportCtrl.selectedProductId && productShippedArtifactForm.productId.$touched }">
+
+	        <label for="input1" class="col-sm-4 control-label">
+	          * Product&nbsp;<span class="pficon pficon-info" title="Select the Product to analyze."></span>
+	        </label>
+	
+	        <div class="col-sm-8">
+              <pnc-select-items
+                single-item="true"
+                selected-items="productShippedReportCtrl.productSelection.selected"
+                select-required="true"
+                select-id="productId"
+                select-name="productId"
+                placeholder="Scroll & Filter Products..."
+                items="productShippedReportCtrl.products"
+                item-id="productShippedReportCtrl.selectedProductId">
+              </pnc-select-items>
+	          <span class="help-block" ng-show="!productShippedReportCtrl.selectedProductId && productShippedArtifactForm.productId.$touched">Required field.</span>
+	        </div>
+	      </div>
+	    </div>
+	  </div>
+	
+	  <div class="form-group text-right">
+	    <div class="col-sm-offset-2 col-sm-10">
+	      <input type="submit" class="btn btn-primary" value="Search" ng-disabled="productShippedArtifactForm.$invalid" ng-click="productShippedReportCtrl.search()">
+	      <button type="button" class="btn btn-default" ng-click="productShippedReportCtrl.reset(productShippedArtifactForm)">Clear</button>
+	    </div>
+	  </div>
+    </form>
+  </div>
+</div>
+<br /><br />
+<div ng-show="productShippedReportCtrl.isResultNotEmpty()">
+  <div class="col-md-12">
+  
+    <div style="min-height: 100px !important;">
+      <dl class="dl-horizontal">
+        <dt>Product:</dt>
+        <dd>{{ productShippedReportCtrl.reportSearchFilter.name }}</dd>
+        <dt>Version:</dt>
+        <dd>{{ productShippedReportCtrl.reportSearchFilter.version }}</dd>
+        <dt>Support Status:</dt>
+        <dd>{{ productShippedReportCtrl.reportSearchFilter.supportStatus }}</dd>
+      </dl>
+    </div>
+
+    <div class="search">
+      <div class="form-group">
+        <div class="input-group" role="search">
+          <label class="sr-only" for="{{ inputId }}">Filter Results</label>
+          <input id="{{ inputId }}" type="search" class="form-control" ng-model="searchText" placeholder="Filter gavs">
+          <div class="input-group-addon">
+            <i class="fa fa-search"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <table class="table table-bordered table-striped table-hover">
+      <thead>
+        <th style="cursor: pointer;" ng-click="productShippedReportCtrl.sort('gav.groupId')">GroupId
+          <span class="glyphicon sort-icon" ng-show="productShippedReportCtrl.sortKey=='gav.groupId'" 
+            ng-class="{'glyphicon-chevron-up':productShippedReportCtrl.reverse,'glyphicon-chevron-down':!productShippedReportCtrl.reverse}"></span>
+        </th>
+        <th style="cursor: pointer;" ng-click="productShippedReportCtrl.sort('gav.artifactId')">ArtifactId
+          <span class="glyphicon sort-icon" ng-show="productShippedReportCtrl.sortKey=='gav.artifactId'" 
+            ng-class="{'glyphicon-chevron-up':productShippedReportCtrl.reverse,'glyphicon-chevron-down':!productShippedReportCtrl.reverse}"></span>        
+        </th>
+        <th style="cursor: pointer;" ng-click="productShippedReportCtrl.sort('gav.version')">Version
+          <span class="glyphicon sort-icon" ng-show="productShippedReportCtrl.sortKey=='gav.version'" 
+            ng-class="{'glyphicon-chevron-up':productShippedReportCtrl.reverse,'glyphicon-chevron-down':!productShippedReportCtrl.reverse}"></span>        
+        </th>
+      </thead>
+      <tbody>
+      <tr dir-paginate="result in productShippedReportCtrl.reportResults |orderBy:productShippedReportCtrl.sortKey:productShippedReportCtrl.reverse | filter:searchText | itemsPerPage:productShippedReportCtrl.defaultPageSize">
+        <td>{{ result.gav.groupId }}</td>
+        <td>{{ result.gav.artifactId }}</td>
+        <td>{{ result.gav.version }}</td>
+      </tr>
+      </tbody>
+    </table>
+    <dir-pagination-controls max-size="productShippedReportCtrl.defaultPageSize" direction-links="true" boundary-links="true" ></dir-pagination-controls>
+  </div>
+</div>
+
