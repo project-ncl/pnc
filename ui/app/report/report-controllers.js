@@ -33,20 +33,20 @@
     	that.reportResults = [];
     	that.products = {};
     	that.products.data = _.clone(whitelistProducts);
-    	
+
     	that.defaultPageSize = 50;
     	that.defaultSortKey = 'gav.groupId';
     	that.defaultReverse = false;
-        
+
     	that.productSelection = {
           selected: []
         };
 
         /* Enrich the data to use pnc-select-items directive */
         _.each(that.products.data, function(product){
-        	product.displayBoldText = product.name;
-        	product.displayText = ' - ' + product.version + ' (' + product.supportStatus + ')';
-        	product.fullDisplayText = product.displayBoldText + product.displayText;
+          product.displayBoldText = product.name;
+          product.displayText = ' - ' + product.version + ' (' + product.supportStatus + ')';
+          product.fullDisplayText = product.displayBoldText + product.displayText;
         });
 
         that.isProductSelected = function() {
@@ -59,15 +59,15 @@
 
         that.reset = function(form) {
           if (form) {
-        	that.productSelection.selected = [];
-        	that.selectedProductId = undefined;
-        	that.reportResults = [];
-        	that.reportSearchFilter = {};
+            that.productSelection.selected = [];
+            that.selectedProductId = undefined;
+            that.reportResults = [];
+            that.reportSearchFilter = {};
             form.$setPristine();
             form.$setUntouched();
           }
         };
-        
+
         that.search = function() {
           ReportDAO.getWhitelistProductArtifacts(that.productSelection.selected[0]).then(function(result) {
             that.reportResults = result;
@@ -83,7 +83,6 @@
           that.sortKey = keyname;   //set the sortKey to the param passed
           that.reverse = !that.reverse; //if true make it false and vice versa
         };
-        
     }
   ]);
 
