@@ -70,7 +70,7 @@
           // The REST API takes integer Ids so we need to extract them from
           // our collection of objects first and attach them to our data object
           // for sending back to the server.
-          $scope.data.productVersionIds = gatherIds($scope.productVersions.selected);
+          $scope.data.productVersionId = getFirstId($scope.productVersions.selected);
           $scope.data.dependencyIds = gatherIds($scope.dependencies.selected);
 
           $scope.data.$save().then(function(result) {
@@ -123,6 +123,13 @@
             result.push(array[i].id);
           }
           return result;
+        }
+
+        function getFirstId(array) {
+            if (array.length > 0) {
+                return array[0];
+            }
+            return null;
         }
       }
 

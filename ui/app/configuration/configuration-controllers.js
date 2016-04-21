@@ -101,8 +101,8 @@
         // The REST API takes integer Ids so we need to extract them from
         // our collection of objects first and attach them to our data object
         // for sending back to the server.
-        that.configuration.productVersionIds =
-          gatherIds(that.productVersions.selected);
+        that.configuration.productVersionId =
+          getFirstId(that.productVersions.selected);
         that.configuration.dependencyIds = gatherIds(that.dependencies.selected);
         that.configuration.environment.id = that.environment.id;
 
@@ -187,4 +187,10 @@
     return result;
   }
 
+  function getFirstId(array) {
+      if (array.length > 0) {
+          return array[0].id;
+      }
+      return null;
+  }
 })();
