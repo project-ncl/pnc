@@ -35,6 +35,7 @@ import org.jboss.pnc.rest.restmodel.ProductVersionRest;
 import org.jboss.pnc.rest.restmodel.response.Singleton;
 import org.jboss.pnc.rest.restmodel.response.error.ErrorResponseRest;
 import org.jboss.pnc.rest.swagger.response.BuildConfigurationAuditedSingleton;
+import org.jboss.pnc.rest.swagger.response.BuildConfigurationAuditedPage;
 import org.jboss.pnc.rest.swagger.response.BuildConfigurationPage;
 import org.jboss.pnc.rest.swagger.response.BuildConfigurationSetPage;
 import org.jboss.pnc.rest.swagger.response.BuildConfigurationSingleton;
@@ -461,8 +462,8 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
 
     @ApiOperation(value = "Gets audited revisions of this build configuration")
     @ApiResponses(value = {
-            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION, response = BuildConfigurationPage.class),
-            @ApiResponse(code = NO_CONTENT_CODE, message = NO_CONTENT_DESCRIPTION, response = BuildConfigurationPage.class),
+            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION, response = BuildConfigurationAuditedPage.class),
+            @ApiResponse(code = NO_CONTENT_CODE, message = NO_CONTENT_DESCRIPTION, response = BuildConfigurationAuditedPage.class),
             @ApiResponse(code = INVLID_CODE, message = INVALID_DESCRIPTION, response = ErrorResponseRest.class),
             @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION, response = ErrorResponseRest.class)
     })
