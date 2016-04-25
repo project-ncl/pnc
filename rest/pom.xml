@@ -83,6 +83,7 @@
     <dependency>
       <groupId>commons-codec</groupId>
       <artifactId>commons-codec</artifactId>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>javax.enterprise</groupId>
@@ -160,6 +161,16 @@
     <dependency>
       <groupId>org.jboss.pnc</groupId>
       <artifactId>test-common</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.hibernate</groupId>
+      <artifactId>hibernate-validator</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>commons-validator</groupId>
+      <artifactId>commons-validator</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>
