@@ -69,6 +69,11 @@ public class JaxRsActivator extends Application {
     }
 
     private void addProjectResources(Set<Class<?>> resources) {
+        addEndpoints(resources);
+        addExceptionMappers(resources);
+    }
+
+    private void addEndpoints(Set<Class<?>> resources) {
         resources.add(ProductEndpoint.class);
         resources.add(ProductVersionEndpoint.class);
         resources.add(ProductMilestoneEndpoint.class);
@@ -83,11 +88,16 @@ public class JaxRsActivator extends Application {
         resources.add(LicenseEndpoint.class);
         resources.add(BuildEnvironmentEndpoint.class);
         resources.add(TestEndpoint.class);
-        resources.add(ValidationExceptionExceptionMapper.class);
-        resources.add(AllOtherExceptionsMapper.class);
         resources.add(BuildTaskEndpoint.class);
         resources.add(BuildEndpoint.class);
     }
+
+    private void addExceptionMappers(Set<Class<?>> resources) {
+        resources.add(ValidationExceptionExceptionMapper.class);
+        resources.add(BuildConflictExceptionMapper.class);
+        resources.add(AllOtherExceptionsMapper.class);
+    }
+
 
     private void addSwaggerResources(Set<Class<?>> resources) {
         resources.add(io.swagger.jaxrs.listing.ApiListingResource.class);
