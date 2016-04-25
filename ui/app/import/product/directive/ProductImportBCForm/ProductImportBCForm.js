@@ -36,22 +36,20 @@
           validateFormCaller: '='
         },
         link: function (scope) {
+
+          var setFormDirty = function() {
+            angular.forEach(scope.bcForm.$error.required, function(field) {
+              field.$setTouched();  
+              field.$setDirty(); 
+            });
+          };
+
           scope.refresh = _.noop;
           scope.$watch('node', function () {
             scope.data = scope.node.nodeData;
             scope.analyzeNextLevelDisabled = scope.node.nlaSuccessful;
-            dirtyForm();
+            setFormDirty();
           });
-
-
-          var dirtyForm = function() {
-            _(scope.bcForm).each(function (field) {
-              if (_(field).has('$dirty') && field.$pristine) {
-                field.$dirty = true;
-              }
-            });
-          };
-
 
           var validate = function () {
             var valid = true;
@@ -59,7 +57,7 @@
             if (scope.node.selected && !scope.node.nodeData.useExistingBc) {
               if (!scope.bcForm.$valid || scope.data.environmentId === null || scope.data.projectId === null) {
                 valid = false;
-                dirtyForm();
+                setFormDirty();
                 Notifications.warn('Some data is invalid or missing. Verify that form for ' +
                   scope.node.gavString + ' is correctly filled in.');
               }
