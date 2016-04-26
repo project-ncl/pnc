@@ -1,0 +1,127 @@
+<!--
+
+    JBoss, Home of Professional Open Source.
+    Copyright 2014 Red Hat, Inc., and individual contributors
+    as indicated by the @author tags.
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+<div class="row">
+  <div class="col-lg-4 col-md-6">
+
+    <pnc-header>
+      <pnc-header-title>Find the products for the whitelisted artifacts</pnc-header-title>
+    </pnc-header>
+
+    <form class="form-horizontal" name="productsForArtifactReportForm" novalidate>
+    
+      <div class="panel panel-default">
+        <div class="panel-body">
+          
+          <!-- no autocomplete until backend is ready -->
+
+          <div class="form-group"
+            ng-class="{ 'has-error' : !productsForArtifactReportCtrl.gav.groupId && productsForArtifactReportForm.gavGroupId.$touched, 'has-success': productsForArtifactReportCtrl.gav.groupId && productsForArtifactReportForm.gavGroupId.$touched }">
+            <label for="gavGroupId" class="col-sm-3 control-label">* Group ID:</label>
+            <div class="col-sm-9">
+              <input id="gavGroupId" class="form-control" name="gavGroupId" ng-model="productsForArtifactReportCtrl.gav.groupId" maxlength="255" placeholder="org.jboss.xnio" required>
+              <span class="help-block" ng-show="productsForArtifactReportForm.gavGroupId.$error.required && productsForArtifactReportForm.gavGroupId.$touched">Required field.</span>
+            </div>
+          </div>
+
+          <div class="form-group"
+            ng-class="{ 'has-error' : !productsForArtifactReportCtrl.gav.artifactId && productsForArtifactReportForm.gavArtifactId.$touched, 'has-success': productsForArtifactReportCtrl.gav.artifactId && productsForArtifactReportForm.gavArtifactId.$touched }">
+            <label for="gavArtifactId" class="col-sm-3 control-label">* Artifact ID:</label>
+            <div class="col-sm-9">
+              <input id="gavArtifactId" class="form-control" name="gavArtifactId" ng-model="productsForArtifactReportCtrl.gav.artifactId" maxlength="255" placeholder="xnio-api" required>
+              <span class="help-block" ng-show="productsForArtifactReportForm.gavArtifactId.$error.required && productsForArtifactReportForm.gavArtifactId.$touched">Required field.</span>
+            </div>
+          </div>
+
+          <div class="form-group"
+            ng-class="{ 'has-error' : !productsForArtifactReportCtrl.gav.version && productsForArtifactReportForm.gavVersion.$touched, 'has-success': productsForArtifactReportCtrl.gav.version && productsForArtifactReportForm.gavVersion.$touched }">
+            <label for="gavVersion" class="col-sm-3 control-label">* Version:</label>
+            <div class="col-sm-9">
+              <input id="gavVersion" class="form-control" name="gavVersion" ng-model="productsForArtifactReportCtrl.gav.version" maxlength="255" placeholder="3.0.14.GA-redhat-1" required>
+              <span class="help-block" ng-show="productsForArtifactReportForm.gavVersion.$error.required && productsForArtifactReportForm.gavVersion.$touched">Required field.</span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    
+      <div class="form-group text-right">
+        <div class="col-sm-offset-2 col-sm-10">
+          <input type="submit" class="btn btn-primary" value="Search" ng-disabled="productsForArtifactReportForm.$invalid" ng-click="productsForArtifactReportCtrl.search()">
+          <button type="button" class="btn btn-default" ng-click="productsForArtifactReportCtrl.reset(productsForArtifactReportForm)">Clear</button>
+        </div>
+      </div>
+
+    </form>
+
+  </div>
+</div>
+
+<br /><br />
+
+<div ng-show="productsForArtifactReportCtrl.isResultNotEmpty()">
+  <div class="col-md-12">
+
+    <div class="search">
+      <div class="form-group">
+        <div class="input-group" role="search">
+          <label class="sr-only" for="{{ inputId }}">Filter Results</label>
+          <input id="{{ inputId }}" type="search" class="form-control" ng-model="searchText" placeholder="Filter">
+          <div class="input-group-addon">
+            <i class="fa fa-search"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <table class="table table-bordered table-striped table-hover">
+      <thead>
+        <th style="cursor: pointer;" ng-click="productsForArtifactReportCtrl.sort('name')">Name
+          <span class="glyphicon sort-icon" ng-show="productsForArtifactReportCtrl.sortKey=='name'" 
+            ng-class="{'glyphicon-chevron-up':productsForArtifactReportCtrl.reverse,'glyphicon-chevron-down':!productsForArtifactReportCtrl.reverse}"></span>
+        </th>
+        <th style="cursor: pointer;" ng-click="productsForArtifactReportCtrl.sort('version')">Version
+          <span class="glyphicon sort-icon" ng-show="productsForArtifactReportCtrl.sortKey=='version'" 
+            ng-class="{'glyphicon-chevron-up':productsForArtifactReportCtrl.reverse,'glyphicon-chevron-down':!productsForArtifactReportCtrl.reverse}"></span>        
+        </th>
+        <th style="cursor: pointer;" ng-click="productsForArtifactReportCtrl.sort('supportStatus')">Support Status
+          <span class="glyphicon sort-icon" ng-show="productsForArtifactReportCtrl.sortKey=='supportStatus'" 
+            ng-class="{'glyphicon-chevron-up':productsForArtifactReportCtrl.reverse,'glyphicon-chevron-down':!productsForArtifactReportCtrl.reverse}"></span>        
+        </th>
+      </thead>
+      <tbody>
+        <tr ng-repeat="result in productsForArtifactReportCtrl.reportResults | orderBy:productsForArtifactReportCtrl.sortKey:productsForArtifactReportCtrl.reverse | filter:searchText">
+          <td>{{ result.name }}</td>
+          <td>{{ result.version }}</td>
+          <td>{{ result.supportStatus }}</td>
+        </tr>
+      </tbody>
+    </table>
+
+  </div>
+</div>
+
+
+<div ng-hide="productsForArtifactReportCtrl.isResultNotEmpty() || !productsForArtifactReportCtrl.afterSearch">
+  <div class="col-md-12">
+    <div class="text-center lead">
+      There are no results to display.
+    </div>
+  </div>
+</div>
