@@ -37,7 +37,8 @@
     'pnc.common.buildNotifications',
     'pnc.configuration-set-record',
     'pnc.common.restclient',
-    'pnc.import'
+    'pnc.import',
+    'pnc.report'
   ]);
 
   var keycloak;
