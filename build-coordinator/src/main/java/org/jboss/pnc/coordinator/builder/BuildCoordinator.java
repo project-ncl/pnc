@@ -106,7 +106,8 @@ public class BuildCoordinator {
         BuildConfigurationAudited buildConfigAudited = datastoreAdapter.getLatestBuildConfigurationAudited(buildConfiguration.getId());
         Optional<BuildTask> alreadyActiveBuildTask = this.getActiveBuildTask(buildConfigAudited);
         if (alreadyActiveBuildTask.isPresent()) {
-            throw new BuildConflictException("Active build task found using the same configuration", alreadyActiveBuildTask.get().getId());
+            throw new BuildConflictException("Active build task found using the same configuration",
+                    alreadyActiveBuildTask.get().getId());
         }
 
         BuildTask buildTask = BuildTask.build(
