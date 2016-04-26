@@ -93,7 +93,7 @@
        	  var PLACEHOLDER = 'Scroll & Filter';
           $scope.placeholder = _.isUndefined($scope.placeholder) ? PLACEHOLDER : $scope.placeholder;
           $scope.selectRequired = _.isUndefined($scope.selectRequired) ? false : $scope.selectRequired;
-          $scope.singleItem = convertToBooleanString($scope.singleItem);
+          $scope.singleItem = (_.isUndefined($scope.singleItem) || $scope.singleItem !== 'true') ? 'false' : 'true';
 
           $scope.displayProperty = 'fullDisplayText';
 
@@ -163,12 +163,5 @@
     };
 
   });
-
-  function convertToBooleanString(value) {
-    if (_.isUndefined(value) || value !== 'true') {
-    	return 'false';
-    }
-   	return 'true';
-  }
 
 })();
