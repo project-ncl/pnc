@@ -444,7 +444,7 @@ public class BuildRecord implements GenericEntity<Integer> {
     @Override
     public String toString() {
         return "BuildRecord [id=" + id + ", project=" + buildConfigurationAudited.getProject().getName()
-                + ", buildConfiguration=" + buildConfigurationAudited + "]";
+                + ", buildConfiguration=" + buildConfigurationAudited + ", status=" + status + "]";
     }
 
     public Integer getExternalArchiveId() {

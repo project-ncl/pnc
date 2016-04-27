@@ -19,8 +19,12 @@ package org.jboss.pnc.common.json.moduleconfig;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.jboss.pnc.common.json.AbstractModuleConfig;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SystemConfig extends AbstractModuleConfig {
+
+    private final static Logger log = LoggerFactory.getLogger(SystemConfig.class);
 
     private String buildDriverId;
 
@@ -30,15 +34,23 @@ public class SystemConfig extends AbstractModuleConfig {
 
     private String builderThreadPoolSize;
 
+    private int coordinatorThreadPoolSize;
+
+    private int coordinatorMaxConcurrentBuilds;
+
     public SystemConfig(
             @JsonProperty("buildDriverId") String buildDriverId,
             @JsonProperty("buildSchedulerId") String buildSchedulerId,
             @JsonProperty("executorThreadPoolSize") String executorThreadPoolSize,
-            @JsonProperty("builderThreadPoolSize") String builderThreadPoolSize) {
+            @JsonProperty("builderThreadPoolSize") String builderThreadPoolSize,
+            @JsonProperty("coordinatorThreadPoolSize") String coordinatorThreadPoolSize,
+            @JsonProperty("coordinatorMaxConcurrentBuilds") String coordinatorMaxConcurrentBuilds) {
         this.buildDriverId = buildDriverId;
         this.buildSchedulerId = buildSchedulerId;
         this.executorThreadPoolSize = executorThreadPoolSize;
         this.executorThreadPoolSize = builderThreadPoolSize;
+        this.coordinatorThreadPoolSize = toIntWithDefault("coordinatorThreadPoolSize", coordinatorThreadPoolSize, 1);
+        this.coordinatorMaxConcurrentBuilds = toIntWithDefault("coordinatorMaxConcurrentBuilds", coordinatorMaxConcurrentBuilds, 10);
     }
 
     public String getBuildDriverId() {
@@ -59,6 +71,24 @@ public class SystemConfig extends AbstractModuleConfig {
 
     public void setBuilderThreadPoolSize(String builderThreadPoolSize) {
         this.builderThreadPoolSize = builderThreadPoolSize;
+    }
+
+    public int getCoordinatorThreadPoolSize() {
+        return coordinatorThreadPoolSize;
+    }
+
+    public int getCoordinatorMaxConcurrentBuilds() {
+        return coordinatorMaxConcurrentBuilds;
+    }
+
+    private int toIntWithDefault(String fieldName, String numberAsString, int defaultValue) {
+        int result = defaultValue;
+        try {
+            result =  Integer.parseInt(numberAsString);
+        } catch (NumberFormatException nfe) {
+            log.error("Invalid value in field: " + fieldName +". Expected an integer, got: {}. Will use default value: {}", numberAsString, defaultValue, nfe);
+        }
+        return result;
     }
 
     @Override

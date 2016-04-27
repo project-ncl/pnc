@@ -17,10 +17,13 @@
  */
 package org.jboss.pnc.coordinator.builder;
 
+import org.jboss.pnc.common.Configuration;
+import org.jboss.pnc.common.json.ConfigurationParseException;
+import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
+import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
 import org.jboss.pnc.coordinator.BuildCoordinationException;
 import org.jboss.pnc.coordinator.builder.datastore.DatastoreAdapter;
 import org.jboss.pnc.coordinator.builder.filtering.BuildTaskFilter;
-import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildConfigurationSet;
@@ -37,20 +40,19 @@ import org.jboss.pnc.spi.executor.exceptions.ExecutorException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
 import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Queue;
-import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 /**
  *
@@ -61,13 +63,7 @@ public class BuildCoordinator {
 
     private final Logger log = LoggerFactory.getLogger(BuildCoordinator.class);
 
-    /**
-     * Build tasks which are either waiting to be run or currently running.
-     * The task is removed from the queue when the build is complete and the results
-     * are stored to the database.
-     */
-    private final Queue<BuildTask> submittedBuildTasks = new ConcurrentLinkedQueue<>(); //TODO garbage collector (time-out, error state)
-
+    private Configuration configuration;
     private DatastoreAdapter datastoreAdapter;
     private Event<BuildCoordinationStatusChangedEvent> buildStatusChangedEventNotifier;
     private Event<BuildSetStatusChangedEvent> buildSetStatusChangedEventNotifier;
@@ -76,18 +72,23 @@ public class BuildCoordinator {
 
     private Instance<BuildTaskFilter> taskFilters;
 
+    private BuildQueue buildQueue;
+
     @Deprecated
     public BuildCoordinator(){} //workaround for CDI constructor parameter injection
 
     @Inject
     public BuildCoordinator(DatastoreAdapter datastoreAdapter, Event<BuildCoordinationStatusChangedEvent> buildStatusChangedEventNotifier,
-            Event<BuildSetStatusChangedEvent> buildSetStatusChangedEventNotifier, BuildSchedulerFactory buildSchedulerFactory,
-            Instance<BuildTaskFilter> taskFilters) {
+                            Event<BuildSetStatusChangedEvent> buildSetStatusChangedEventNotifier, BuildSchedulerFactory buildSchedulerFactory,
+                            Instance<BuildTaskFilter> taskFilters, BuildQueue buildQueue,
+                            Configuration configuration) {
         this.datastoreAdapter = datastoreAdapter;
         this.buildStatusChangedEventNotifier = buildStatusChangedEventNotifier;
         this.buildSetStatusChangedEventNotifier = buildSetStatusChangedEventNotifier;
         this.buildScheduler = buildSchedulerFactory.getBuildScheduler();
         this.taskFilters = taskFilters;
+        this.configuration = configuration;
+        this.buildQueue = buildQueue;
     }
 
     /**
@@ -103,8 +104,8 @@ public class BuildCoordinator {
      */
     public BuildTask build(BuildConfiguration buildConfiguration, User user, boolean rebuildAll) throws BuildConflictException {
 
-        BuildConfigurationAudited buildConfigAudited = datastoreAdapter.getLatestBuildConfigurationAudited(buildConfiguration.getId());
-        Optional<BuildTask> alreadyActiveBuildTask = this.getActiveBuildTask(buildConfigAudited);
+        BuildConfigurationAudited config = datastoreAdapter.getLatestBuildConfigurationAudited(buildConfiguration.getId());
+        Optional<BuildTask> alreadyActiveBuildTask = buildQueue.getTask(config);
         if (alreadyActiveBuildTask.isPresent()) {
             throw new BuildConflictException("Active build task found using the same configuration",
                     alreadyActiveBuildTask.get().getId());
@@ -112,26 +113,23 @@ public class BuildCoordinator {
 
         BuildTask buildTask = BuildTask.build(
                 buildConfiguration,
-                buildConfigAudited,
+                config,
                 user,
                 getBuildStatusChangedEventNotifier(),
-                (bt) -> processBuildTask(bt),
                 datastoreAdapter.getNextBuildRecordId(),
                 null,
                 new Date(),
-                rebuildAll,
-                (bt) -> storeRejectedTask(bt));
+                rebuildAll);
 
-        addTaskToQueue(buildTask);
-        processBuildTask(buildTask);
+        buildQueue.enqueueTask(buildTask);
 
         return buildTask;
     }
 
     /**
      * Run a set of builds.  Only the current/latest version of builds in the given set will be executed.  The
-     * order of execution is determined by the dependency relations between the build configurations. 
-     * 
+     * order of execution is determined by the dependency relations between the build configurations.
+     *
      * @param buildConfigurationSet The set of builds to be executed.
      * @param user The user who triggered the build.
      * @return The new build set task
@@ -139,58 +137,23 @@ public class BuildCoordinator {
      */
     public BuildSetTask build(BuildConfigurationSet buildConfigurationSet, User user, boolean rebuildAll) throws CoreException {
 
-        Consumer<BuildConfigSetRecord> onBuildSetTaskCompleted = (buildConfigSetRecord) -> {
-            completeBuildSetTask(buildConfigSetRecord);
-        };
-
         BuildTasksInitializer buildTasksInitializer = new BuildTasksInitializer(datastoreAdapter, Optional.of(buildSetStatusChangedEventNotifier));
         BuildSetTask buildSetTask = buildTasksInitializer.createBuildSetTask(
                 buildConfigurationSet,
                 user,
                 rebuildAll,
                 getBuildStatusChangedEventNotifier(),
-                () -> datastoreAdapter.getNextBuildRecordId(),
-                (bt) -> processBuildTask(bt),
-                onBuildSetTaskCompleted,
-                (bt) -> storeRejectedTask(bt));
+                () -> datastoreAdapter.getNextBuildRecordId());
+        BuildSetStatusChangedEvent event = buildSetTask.setStatus(BuildSetStatus.NEW);
+        buildSetStatusChangedEventNotifier.fire(event);
 
         build(buildSetTask);
         return buildSetTask;
     }
 
-    /**
-     * Searches the active build tasks to see if there is already one running the give audited
-     * build config.  If yes, returns the associated build task.  If none are found, returns null.
-     * 
-     * @param buildConfigAudited The build config to look for in the active build tasks
-     * @return An Optional containing the matching build task if there is one.
-     */
-    private Optional<BuildTask> getActiveBuildTask(BuildConfigurationAudited buildConfigAudited) {
-        return submittedBuildTasks.stream().filter(bt -> bt.getBuildConfigurationAudited().equals(buildConfigAudited)).findFirst();
-    }
-
     private void build(BuildSetTask buildSetTask) {
         if (!BuildSetStatus.REJECTED.equals(buildSetTask.getStatus())) {
-            buildSetTask.getBuildTasks().stream()
-                    .filter((buildTask) -> rejectAlreadySubmitted(buildTask))
-                    .map((buildTask) -> addTaskToQueue(buildTask))
-                    .filter((buildTask) -> buildTask.readyToBuild())
-                    .forEach(v -> processBuildTask(v));
-        }
-    }
-
-    private BuildTask addTaskToQueue(BuildTask buildTask) {
-        submittedBuildTasks.add(buildTask);
-        return buildTask;
-    }
-
-    private boolean rejectAlreadySubmitted(BuildTask buildTask) {
-        if (isBuildAlreadySubmitted(buildTask)) {
-            buildTask.setStatus(BuildCoordinationStatus.REJECTED);
-            buildTask.setStatusDescription("The configuration is already in the build queue.");
-            return false;
-        } else {
-            return true;
+            buildQueue.enqueueTaskSet(buildSetTask);
         }
     }
 
@@ -204,113 +167,187 @@ public class BuildCoordinator {
         return filteringPredicate;
     }
 
-    void processBuildTask(BuildTask buildTask) {
-        Consumer<BuildResult> onComplete = (buildResult) -> {
-            buildTask.setStatus(BuildCoordinationStatus.BUILD_COMPLETED);
-            BuildCoordinationStatus coordinationStatus;
-            try {
-                if (buildResult.hasFailed()) {
-                    if (buildResult.getException().isPresent()) {
-                        ExecutorException exception = buildResult.getException().get();
-                        datastoreAdapter.storeResult(buildTask, Optional.of(buildResult), exception);
-                        coordinationStatus = BuildCoordinationStatus.SYSTEM_ERROR;
-                    } else if (buildResult.getFailedReasonStatus().isPresent()) {
-                        datastoreAdapter.storeResult(buildTask, buildResult);
-                        coordinationStatus = BuildCoordinationStatus.DONE_WITH_ERRORS;
-                    } else {
-                        throw new BuildCoordinationException("Failed task should have set exception or failed reason status.");
-                    }
-                } else {
-                    datastoreAdapter.storeResult(buildTask, buildResult);
-                    coordinationStatus = BuildCoordinationStatus.DONE;
-                }
-            } catch (DatastoreException | BuildCoordinationException e ) {
-                log.error("Cannot store results to datastore.", e);
-                coordinationStatus = BuildCoordinationStatus.SYSTEM_ERROR;
-            } finally {
-                //remove before status update which could triggers further actions and cause dead lock
-                removeSubmittedTask(buildTask);
-            }
-            buildTask.setStatus(coordinationStatus);
-        };
+    private void processBuildTask(BuildTask task) {
+        Consumer<BuildResult> onComplete = (result) ->  updateBuildStatus(task, result);
 
         try {
             //check if task is already been build or is currently building
             //in case when task depends on two other tasks, both call this method
             //process only tasks with status NEW
-            synchronized (buildTask) {
-                if (!buildTask.getStatus().equals(BuildCoordinationStatus.NEW)) {
-                    log.debug("Skipping the execution of build task {} as it has been processed already.", buildTask.getId());
+            synchronized (task) {
+                if (!task.getStatus().equals(BuildCoordinationStatus.NEW)) {
+                    log.debug("Skipping the execution of build task {} as it has been processed already.", task.getId());
                     return;
                 }
 
                 log.info("BuildTask.id [{}]: Checking if task should be skipped(rebuildAll: {}, predicateResult: {}). Task is linked to BuildConfigurationAudited.IdRev {}.",
-                        buildTask.getId(), buildTask.getRebuildAll(), prepareBuildTaskFilterPredicate().test(buildTask), buildTask.getBuildConfigurationAudited().getIdRev());
-                if(!buildTask.getRebuildAll() && prepareBuildTaskFilterPredicate().test(buildTask)) {
-                    log.info("[{}] Marking task as REJECTED_ALREADY_BUILT, because it has been already built", buildTask.getId());
-                    removeSubmittedTask(buildTask);
-                    buildTask.setStatus(BuildCoordinationStatus.REJECTED_ALREADY_BUILT);
-                    buildTask.setStatusDescription("The configuration has already been built.");
+                        task.getId(), task.getRebuildAll(), prepareBuildTaskFilterPredicate().test(task), task.getBuildConfigurationAudited().getIdRev());
+                if(!task.getRebuildAll() && prepareBuildTaskFilterPredicate().test(task)) {
+                    log.info("[{}] Marking task as REJECTED_ALREADY_BUILT, because it has been already built", task.getId());
+                    task.setStatus(BuildCoordinationStatus.REJECTED_ALREADY_BUILT);
+                    task.setStatusDescription("The configuration has already been built.");
+                    markFinished(task);
                     return;
                 }
-                buildTask.setStartTime(new Date());
-                buildTask.setStatus(BuildCoordinationStatus.BUILDING); //status must be updated before startBuild as if build takes 0 time it complete before having Building status.
+                task.setStartTime(new Date());
+                task.setStatus(BuildCoordinationStatus.BUILDING); //status must be updated before startBuild as if build takes 0 time it complete before having Building status.
             }
-            buildScheduler.startBuilding(buildTask, onComplete);
+            buildScheduler.startBuilding(task, onComplete);
         } catch (CoreException | ExecutorException e) {
             log.debug(" Build coordination task failed. Setting it as SYSTEM_ERROR.", e);
-            buildTask.setStatus(BuildCoordinationStatus.SYSTEM_ERROR);
-            buildTask.setStatusDescription(e.getMessage());
-            removeSubmittedTask(buildTask);
+            task.setStatus(BuildCoordinationStatus.SYSTEM_ERROR);
+            task.setStatusDescription(e.getMessage());
             try {
-                datastoreAdapter.storeResult(buildTask, Optional.empty(), e);
+                datastoreAdapter.storeResult(task, Optional.empty(), e);
             } catch (DatastoreException e1) {
-                log.error("Unable to store error [" + e.getMessage() + "] of build coordination task [" + buildTask.getId() + "].", e1);
+                log.error("Unable to store error [" + e.getMessage() + "] of build coordination task [" + task.getId() + "].", e1);
             }
         }
     }
 
-    private void removeSubmittedTask(BuildTask buildTask) {
-        log.trace("Removing task {} from submittedBuildTasks.", buildTask.getId());
-        submittedBuildTasks.remove(buildTask);
-    }
+    public void updateBuildStatus(BuildTask buildTask, BuildResult buildResult) {
 
-    public List<BuildTask> getSubmittedBuildTasks() {
-        return Collections.unmodifiableList(submittedBuildTasks.stream().collect(Collectors.toList()));
-    }
+        buildTask.setStatus(BuildCoordinationStatus.BUILD_COMPLETED);
 
-    @Deprecated //Used only in tests
-    public boolean hasActiveTasks() {
-        if (log.isTraceEnabled()) {
-            String activeTasks = submittedBuildTasks.stream().map(bt -> bt.getId() + "-" + bt.getStatus()).collect(Collectors.joining(","));
-            log.trace("Build Coordinator Active Tasks {}", activeTasks);
+        BuildCoordinationStatus coordinationStatus = BuildCoordinationStatus.SYSTEM_ERROR;
+        try {
+            if (buildResult.hasFailed()) {
+                if (buildResult.getException().isPresent()) {
+                    ExecutorException exception = buildResult.getException().get();
+                    datastoreAdapter.storeResult(buildTask, Optional.of(buildResult), exception);
+                    coordinationStatus = BuildCoordinationStatus.SYSTEM_ERROR;
+                } else if (buildResult.getFailedReasonStatus().isPresent()) {
+                    datastoreAdapter.storeResult(buildTask, buildResult);
+                    coordinationStatus = BuildCoordinationStatus.DONE_WITH_ERRORS;
+                } else {
+                    throw new BuildCoordinationException("Failed task should have set exception or failed reason status.");
+                }
+            } else {
+                datastoreAdapter.storeResult(buildTask, buildResult);
+                coordinationStatus = BuildCoordinationStatus.DONE;
+            }
+        } catch (DatastoreException | BuildCoordinationException e ) {
+            log.error("Cannot store results to datastore.", e);
+            coordinationStatus = BuildCoordinationStatus.SYSTEM_ERROR;
+        } finally {
+            buildTask.setStatus(coordinationStatus);
+            markFinished(buildTask);
         }
-        return submittedBuildTasks.peek() != null;
     }
 
-    private boolean isBuildAlreadySubmitted(BuildTask buildTask) {
-        return submittedBuildTasks.contains(buildTask);
+    public synchronized void markFinished(BuildTask task) {
+        buildQueue.removeTask(task);
+        switch (task.getStatus()) {
+            case DONE:
+            case REJECTED_ALREADY_BUILT:
+                buildQueue.executeNewReadyTasks();
+                break;
+            case REJECTED:
+            case REJECTED_FAILED_DEPENDENCIES:
+            case SYSTEM_ERROR:
+            case DONE_WITH_ERRORS:
+                handleErroneousFinish(task);
+                break;
+            default:
+                throw new IllegalArgumentException("Unhandled build task status: " + task.getStatus() + ". Build task: " + task);
+        }
+
+        BuildSetTask buildSetTask = task.getBuildSetTask();
+        if (buildSetTask != null && isFinished(buildSetTask)) {
+            completeBuildSetTask(buildSetTask);
+        }
+    }
+
+    private boolean isFinished(BuildSetTask buildSetTask) {
+        return buildSetTask
+                .getBuildTasks()
+                .stream()
+                .allMatch(t -> t.getStatus().isCompleted());
+    }
+
+    private void handleErroneousFinish(BuildTask failedTask) {
+        BuildSetTask taskSet = failedTask.getBuildSetTask();
+        if (taskSet != null) {
+            taskSet.getBuildTasks().stream()
+                    .filter(t -> isDependentOn(failedTask, t))
+                    .forEach(t -> finishDueToFailedDependency(failedTask, t));
+        }
+    }
+
+    /**
+     * checks if the possible dependant depends on the possible dependency
+     * @param dependency - possible dependency
+     * @param dependant - task to be checked
+     * @return true if dependant indeed depends on the dependency
+     */
+    private boolean isDependentOn(BuildTask dependency, BuildTask dependant) {
+        return dependant.getDependencies().contains(dependency);
     }
 
     Event<BuildCoordinationStatusChangedEvent> getBuildStatusChangedEventNotifier() {
         return buildStatusChangedEventNotifier;
     }
 
-    private void completeBuildSetTask(BuildConfigSetRecord buildConfigSetRecord) {
-        try {
-            datastoreAdapter.saveBuildConfigSetRecord(buildConfigSetRecord);
-        } catch (DatastoreException e) {
-            log.error("Unable to save build config set record", e);
-        }
-    }
-
     private void storeRejectedTask(BuildTask buildTask) {
-        removeSubmittedTask(buildTask);
         try {
             log.debug("Storing rejected task {}", buildTask);
             datastoreAdapter.storeRejected(buildTask);
         } catch (DatastoreException e) {
             log.error("Unable to store rejected task.", e);
+        }
+    }
+
+    public void completeBuildSetTask(BuildSetTask buildSetTask) {
+        buildQueue.removeSet(buildSetTask);
+        Optional<BuildSetStatusChangedEvent> eventOption = buildSetTask.taskStatusUpdatedToFinalState();
+        eventOption.ifPresent(buildSetStatusChangedEventNotifier::fire);
+        try {
+            datastoreAdapter.saveBuildConfigSetRecord(buildSetTask.getBuildConfigSetRecord());
+        } catch (DatastoreException e) {
+            log.error("Unable to save build config set record", e);
+        }
+    }
+
+    public void finishDueToFailedDependency(BuildTask failedTask, BuildTask task) {
+        task.setStatusDescription("Dependent build " + failedTask.getBuildConfiguration().getName() + " failed.");
+        task.setStatus(BuildCoordinationStatus.REJECTED_FAILED_DEPENDENCIES);
+        storeRejectedTask(task);
+        buildQueue.removeTask(task);
+    }
+
+    public List<BuildTask> getSubmittedBuildTasks() {
+        return buildQueue.getSubmittedBuildTasks();
+    }
+
+    @PostConstruct
+    public void start() {
+        startThreads();
+    }
+
+    protected void startThreads() {
+        int threadPoolSize = 1;
+        try {
+            SystemConfig systemConfig = configuration.getModuleConfig(new PncConfigProvider<>(SystemConfig.class));
+            threadPoolSize = systemConfig.getCoordinatorThreadPoolSize();
+        } catch (ConfigurationParseException e) {
+            log.error("Error parsing configuration. Will set BuildCoordinator.threadPoolSize to {}", threadPoolSize, e);
+        }
+        ExecutorService executorService = Executors.newFixedThreadPool(threadPoolSize);
+        for (int i = 0; i < threadPoolSize; i++) {
+            executorService.execute(this::takeAndProcessTask);
+        }
+    }
+
+    private void takeAndProcessTask() {
+        while (true) {
+            try {
+                BuildTask task = buildQueue.take();
+                processBuildTask(task);
+                log.info("Build task: {}, will pick up next task");
+            } catch (InterruptedException e) {
+                log.warn("BuildCoordinator thread interrupted. Possibly the system is being shut down", e);
+                break;
+            }
         }
     }
 }

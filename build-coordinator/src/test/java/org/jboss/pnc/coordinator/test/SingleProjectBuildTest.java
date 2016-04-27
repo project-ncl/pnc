@@ -45,7 +45,7 @@ public class SingleProjectBuildTest extends ProjectBuilder {
         TestProjectConfigurationBuilder configurationBuilder = new TestProjectConfigurationBuilder(datastoreMock);
 
         //when
-        buildProject(configurationBuilder.build(1, "c1-java"), buildCoordinatorFactory.createBuildCoordinator(datastoreMock));
+        buildProject(configurationBuilder.build(1, "c1-java"), buildCoordinatorFactory.createBuildCoordinator(datastoreMock).coordinator);
 
         //expect
         List<BuildRecord> buildRecords = datastoreMock.getBuildRecords();

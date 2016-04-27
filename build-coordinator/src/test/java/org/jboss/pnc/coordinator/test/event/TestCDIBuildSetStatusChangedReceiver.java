@@ -36,12 +36,12 @@ public class TestCDIBuildSetStatusChangedReceiver {
 
     private List<Consumer<BuildSetStatusChangedEvent>> listeners = new LinkedList<>();
 
-    public void addBuildSetStatusChangedEventListener(Consumer<BuildSetStatusChangedEvent> listener) {
+    public synchronized void addBuildSetStatusChangedEventListener(Consumer<BuildSetStatusChangedEvent> listener) {
         log.info("Adding BuildSetStatusChangedEventListener {}.", listener);
         listeners.add(listener);
     }
 
-    synchronized public void collectEvent(@Observes BuildSetStatusChangedEvent buildSetStatusChangedEvent) {
+    public synchronized void collectEvent(@Observes BuildSetStatusChangedEvent buildSetStatusChangedEvent) {
         log.debug("Observed new BuildSetStatusChangedEvent {}.", buildSetStatusChangedEvent);
         listeners.stream().forEach(listener -> listener.accept(buildSetStatusChangedEvent));
     }

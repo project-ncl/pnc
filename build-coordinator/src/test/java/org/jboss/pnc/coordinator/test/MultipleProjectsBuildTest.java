@@ -24,6 +24,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
@@ -37,7 +38,11 @@ import java.util.logging.Logger;
 public class MultipleProjectsBuildTest extends ProjectBuilder {
 
     private static final Logger log = Logger.getLogger(MultipleProjectsBuildTest.class.getName());
+//    private final int N_PROJECTS = 2;
     private final int N_PROJECTS = 100;
+
+    @Inject
+    BuildCoordinatorFactory buildCoordinatorFactory;
 
     @Test
     @InSequence(10)
@@ -50,7 +55,9 @@ public class MultipleProjectsBuildTest extends ProjectBuilder {
             Integer id = i;
             list.add(() -> {
                 try {
-                    buildProject(configurationBuilder.build(id, "c" + id + "-java"));
+                    //noinspection deprecation
+                    buildProject(configurationBuilder.build(id, "c" + id + "-java"), buildCoordinatorFactory.createBuildCoordinator(datastore).coordinator);
+                    clearSemaphores();
                 } catch (Exception e) {
                     throw new AssertionError(e);
                 }
@@ -74,7 +81,7 @@ public class MultipleProjectsBuildTest extends ProjectBuilder {
 
 //        List<Thread> threads = list.stream().map(runInNewThread).collect(Collectors.toList());
 //        threads.forEach(waitToComplete);
-        list.forEach((r) -> r.run()); //TODO re-enable parallel builds
+        list.forEach(Runnable::run); //TODO re-enable parallel builds
 
         log.info("Completed multiple projects build test in " + (System.currentTimeMillis() - startTime) + "ms.");
     }

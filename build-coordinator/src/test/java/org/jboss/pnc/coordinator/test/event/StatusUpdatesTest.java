@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.coordinator.test.event;
 
+import org.apache.commons.lang3.RandomStringUtils;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.junit.InSequence;
@@ -30,12 +31,17 @@ import org.jboss.pnc.coordinator.notifications.buildSetTask.BuildSetStatusNotifi
 import org.jboss.pnc.coordinator.notifications.buildTask.BuildCallBack;
 import org.jboss.pnc.coordinator.notifications.buildTask.BuildStatusNotifications;
 import org.jboss.pnc.coordinator.test.BuildCoordinatorDeployments;
+import org.jboss.pnc.mavenrepositorymanager.MavenRepositoryManagerResult;
 import org.jboss.pnc.mock.model.builders.TestProjectConfigurationBuilder;
 import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.BuildCoordinationStatus;
+import org.jboss.pnc.spi.BuildResult;
 import org.jboss.pnc.spi.BuildSetStatus;
+import org.jboss.pnc.spi.builddriver.BuildDriverResult;
+import org.jboss.pnc.spi.builddriver.BuildDriverStatus;
+import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
 import org.jboss.pnc.spi.datastore.DatastoreException;
 import org.jboss.pnc.spi.events.BuildCoordinationStatusChangedEvent;
 import org.jboss.pnc.spi.events.BuildSetStatusChangedEvent;
@@ -49,6 +55,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
@@ -107,7 +114,10 @@ public class StatusUpdatesTest {
 
         User user = User.Builder.newBuilder().id(1).username("test-user-1").build();
         Set<BuildTask> buildTasks = initializeBuildTaskSet(configurationBuilder, user, (buildConfigSetRecord) -> {}).getBuildTasks();
-        buildTasks.forEach((bt) -> bt.setStatus(BuildCoordinationStatus.DONE));
+        buildTasks.forEach((bt) -> {
+            bt.setStatus(BuildCoordinationStatus.DONE);
+            buildCoordinator.updateBuildStatus(bt, createBuildResult());
+        });
         this.waitForConditionWithTimeout(() -> buildTasks.stream().allMatch(task -> task.getStatus().isCompleted()), 4);
 
         Assert.assertNotNull("Did not receive build set status update.", receivedBuildSetStatusChangedEvent.get());
@@ -115,35 +125,11 @@ public class StatusUpdatesTest {
     }
 
     @Test
-    @InSequence(20)
-    public void buildSetStatusShouldNotUpdateWhenAllBuildStatusChangeToNonCompletedState() throws DatastoreException, CoreException {
-        ObjectWrapper<BuildSetStatusChangedEvent> receivedBuildSetStatusChangedEvent = new ObjectWrapper<>();
-        Consumer<BuildSetStatusChangedEvent> statusUpdateListener = (event) -> {
-            receivedBuildSetStatusChangedEvent.set(event);
-        };
-        testCDIBuildSetStatusChangedReceiver.addBuildSetStatusChangedEventListener(statusUpdateListener);
-
-        User user = User.Builder.newBuilder().id(2).username("test-user-2").build();
-        Set<BuildTask> buildTasks = initializeBuildTaskSet(configurationBuilder, user, (buildConfigSetRecord) -> {}).getBuildTasks();
-        Assert.assertTrue("There should be at least " + MIN_TASKS + " tasks in the set", buildTasks.size() > MIN_TASKS);
-        int i = 0;
-        for (BuildTask buildTask : buildTasks) {
-            i++;
-            if (i < MIN_TASKS) {
-                buildTask.setStatus(BuildCoordinationStatus.WAITING_FOR_DEPENDENCIES);
-            } else {
-                buildTask.setStatus(BuildCoordinationStatus.DONE);
-            }
-        }
-        Assert.assertEquals(BuildSetStatus.NEW, receivedBuildSetStatusChangedEvent.get().getNewStatus());
-    }
-
-    @Test
     @InSequence(30)
     public void BuildTaskCallbacksShouldBeCalled() throws DatastoreException, CoreException {
         User user = User.Builder.newBuilder().id(3).username("test-user-3").build();
         Set<BuildTask> buildTasks = initializeBuildTaskSet(configurationBuilder, user, (buildConfigSetRecord) -> {}).getBuildTasks();
-        Set<Integer> tasksIds = buildTasks.stream().map((buildTask -> buildTask.getId())).collect(Collectors.toSet());
+        Set<Integer> tasksIds = buildTasks.stream().map((BuildTask::getId)).collect(Collectors.toSet());
 
         Set<Integer> receivedUpdatesForId = new HashSet<>();
         Consumer<BuildCoordinationStatusChangedEvent> statusChangeEventConsumer = (statusChangedEvent) -> {
@@ -180,10 +166,7 @@ public class StatusUpdatesTest {
                 user,
                 true,
                 buildStatusChangedEventNotifier,
-                () -> atomicInteger.getAndIncrement(),
-                (buildTask) -> {},
-                (buildConfigSetRecord) -> {},
-                (buildTask) -> {});
+                () -> atomicInteger.getAndIncrement());
     }
 
 
@@ -200,5 +183,21 @@ public class StatusUpdatesTest {
             Thread.sleep(1000);
             secondsPassed++;
         }
+    }
+
+    private BuildResult createBuildResult() {
+        MavenRepositoryManagerResult repoManagerResult = new MavenRepositoryManagerResult(Collections.emptyList(), Collections.emptyList(), RandomStringUtils.randomNumeric(4));
+        BuildDriverResult driverResult = new BuildDriverResult() {
+            @Override
+            public String getBuildLog() throws BuildDriverException {
+                return "";
+            }
+
+            @Override
+            public BuildDriverStatus getBuildDriverStatus() {
+                return BuildDriverStatus.SUCCESS;
+            }
+        };
+        return new BuildResult(Optional.empty(), Optional.of(driverResult), Optional.of(repoManagerResult), Optional.empty(), Optional.empty());
     }
 }

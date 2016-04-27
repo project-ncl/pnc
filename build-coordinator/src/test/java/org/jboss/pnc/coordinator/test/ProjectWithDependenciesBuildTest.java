@@ -25,6 +25,7 @@ import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.BuildStatus;
 import org.jboss.pnc.spi.events.BuildSetStatusChangedEvent;
+import org.jboss.pnc.test.util.Wait;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -32,6 +33,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
+import java.time.temporal.ChronoUnit;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -55,20 +57,24 @@ public class ProjectWithDependenciesBuildTest extends ProjectBuilder {
     Set<BuildSetStatusChangedEvent> eventsReceived = new HashSet<>();
 
     private void collectEvent(BuildSetStatusChangedEvent buildSetStatusChangedEvent) {
+        log.info("Got: build set status changed event for build id: " + BUILD_SET_ID);
         if (buildSetStatusChangedEvent.getBuildSetConfigurationId() == BUILD_SET_ID) {
+            log.info("correct id, saving {}", buildSetStatusChangedEvent);
             eventsReceived.add(buildSetStatusChangedEvent);
         }
     }
 
     @Test
     public void buildProjectTestCase() throws Exception {
+        clearSemaphores();
         //given
-        testCDIBuildSetStatusChangedReceiver.addBuildSetStatusChangedEventListener((e) -> collectEvent(e));
+        testCDIBuildSetStatusChangedReceiver.addBuildSetStatusChangedEventListener(this::collectEvent);
         DatastoreMock datastoreMock = new DatastoreMock();
         TestProjectConfigurationBuilder configurationBuilder = new TestProjectConfigurationBuilder(datastoreMock);
 
         //when
-        buildProjects(configurationBuilder.buildConfigurationSet(14352), buildCoordinatorFactory.createBuildCoordinator(datastoreMock));
+        BuildCoordinatorBeans coordinator = buildCoordinatorFactory.createBuildCoordinator(datastoreMock);
+        buildProjects(configurationBuilder.buildConfigurationSet(14352), coordinator.coordinator);
 
         //expect
         List<BuildRecord> buildRecords = datastoreMock.getBuildRecords();
@@ -85,12 +91,13 @@ public class ProjectWithDependenciesBuildTest extends ProjectBuilder {
         assertArtifactsPresent(buildRecord.getDependencies());
 
         BuildConfigSetRecord buildConfigSetRecord = datastoreMock.getBuildConfigSetRecords().get(0);
-        Assert.assertNotNull(buildConfigSetRecord.getEndTime());
+        Assert.assertNotNull("End time not set! Record: " + buildConfigSetRecord, buildConfigSetRecord.getEndTime());
         Assert.assertTrue(buildConfigSetRecord.getEndTime().getTime() > buildConfigSetRecord.getStartTime().getTime());
         Assert.assertEquals(BuildStatus.SUCCESS, buildConfigSetRecord.getStatus());
 
-        String events = eventsReceived.stream().map(e -> e.toString()).collect(Collectors.joining("; "));
+        String events = eventsReceived.stream().map(Object::toString).collect(Collectors.joining("; "));
         Assert.assertEquals("Invalid number of received events. Received events: " + events, 2, eventsReceived.size());
+        Wait.forCondition(coordinator.queue::isEmpty, 1, ChronoUnit.SECONDS, "Not empty build queue: " + coordinator.queue);
     }
 
 }

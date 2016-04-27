@@ -96,7 +96,7 @@ public class BuildConfigSetRecord implements GenericEntity<Integer> {
      * Instantiates a new project build result.
      */
     public BuildConfigSetRecord() {
-        buildRecords = new HashSet<BuildRecord>();
+        buildRecords = new HashSet<>();
     }
 
     /**
@@ -229,7 +229,7 @@ public class BuildConfigSetRecord implements GenericEntity<Integer> {
 
     @Override
     public String toString() {
-        return "BuildConfigSetRecord [id=" + id + ", buildConfigurationSet=" + buildConfigurationSet.getName() + "]";
+        return "BuildConfigSetRecord [id=" + id + ", buildConfigurationSet=" + buildConfigurationSet.getName() + ", status=" + status + "]";
     }
 
     public static class Builder {
@@ -251,7 +251,7 @@ public class BuildConfigSetRecord implements GenericEntity<Integer> {
         private Set<BuildRecord> buildRecords;
 
         public Builder() {
-            buildRecords = new HashSet<BuildRecord>();
+            buildRecords = new HashSet<>();
         }
 
         public static Builder newBuilder() {

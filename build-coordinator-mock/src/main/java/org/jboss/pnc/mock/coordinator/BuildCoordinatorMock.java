@@ -83,16 +83,16 @@ public class BuildCoordinatorMock extends BuildCoordinator {
         return activeTasks;
     }
 
-    @Override
-    public boolean hasActiveTasks() {
-        return !activeTasks.isEmpty();
-    }
-
     public void addActiveTask(BuildTask task) {
         activeTasks.add(task);
     }
 
     public void clearActiveTasks() {
         activeTasks.clear();
+    }
+
+    @Override
+    protected void startThreads() {
+        logger.info("Called start threads");
     }
 }
