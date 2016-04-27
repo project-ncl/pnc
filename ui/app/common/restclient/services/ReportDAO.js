@@ -46,7 +46,7 @@
 
       resource.getProductsByGAV = function (groupId, artifactId, version) {
         return Configuration.then(function (config) {
-          return $http.get(config.dependencyAnalyzerReportsURL + '/v-0.4/listings/whitelist/artifacts/gav', {
+          return $http.get(config.dependencyAnalyzerReportsURL + config.daReportsProductsByGavEndpoint, {
             params: {
               groupid:    groupId,
               artifactid: artifactId,
