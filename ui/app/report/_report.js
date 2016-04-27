@@ -37,10 +37,7 @@
 	    'content@': {
 	      templateUrl: 'common/templates/single-col.tmpl.html'
         }
-      },
-      data: {
-        proxy: 'report.product-shipped'
-	  }
+      }
     });
 
     $stateProvider.state('report.product-shipped', {
@@ -56,6 +53,16 @@
 	       return ReportDAO.getWhitelistProducts();
 	     }
       }
+    });
+
+    $stateProvider.state('report.products-for-artifact', {
+      url: '/products-for-artifact',
+      templateUrl: 'report/views/products.for.artifact.html',
+      data: {
+        displayName: 'Products for whitelisted artifacts'
+      },
+      controller: 'ProductsForArtifactReportController',
+      controllerAs: 'productsForArtifactReportCtrl'
     });
 
   }]);

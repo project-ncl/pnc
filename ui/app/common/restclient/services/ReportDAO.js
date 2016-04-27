@@ -44,6 +44,20 @@
         });
       };
 
+      resource.getProductsByGAV = function (groupId, artifactId, version) {
+        return Configuration.then(function (config) {
+          return $http.get(config.dependencyAnalyzerReportsURL + config.daReportsProductsByGavEndpoint, {
+            params: {
+              groupid:    groupId,
+              artifactid: artifactId,
+              version:    version
+            }
+          });
+        }).then(function (r) {
+          return r.data;
+        });
+      };
+
       return resource;
     }
   ]);
