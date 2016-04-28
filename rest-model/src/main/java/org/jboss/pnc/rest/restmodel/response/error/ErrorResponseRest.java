@@ -18,6 +18,7 @@
 package org.jboss.pnc.rest.restmodel.response.error;
 
 import org.jboss.pnc.rest.validation.exceptions.ValidationException;
+import org.jboss.pnc.spi.exception.BuildConflictException;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
@@ -41,6 +42,12 @@ public class ErrorResponseRest {
         this.errorType = e.getClass().getSimpleName();
         this.errorMessage = e.getMessage();
         this.details = e.getRestModelForException().orElse(null);
+    }
+
+    public ErrorResponseRest(BuildConflictException e) {
+        this.errorType = e.getClass().getSimpleName();
+        this.errorMessage = e.getMessage() + ": " +  e.getBuildTaskId();
+        this.details = null;
     }
 
     public String getErrorType() {

@@ -152,8 +152,8 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
 
     @ApiOperation(value = "Creates a new Build Configuration")
     @ApiResponses(value = {
-            @ApiResponse(code = INVLID_CODE, message = INVALID_DESCRIPTION, response = BuildConfigurationSingleton.class),
             @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION, response = BuildConfigurationSingleton.class),
+            @ApiResponse(code = INVLID_CODE, message = INVALID_DESCRIPTION, response = ErrorResponseRest.class),
             @ApiResponse(code = CONFLICTED_CODE, message = CONFLICTED_DESCRIPTION, response = ErrorResponseRest.class),
             @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION, response = ErrorResponseRest.class)
     })
@@ -233,42 +233,37 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
             @ApiParam(value = "Optional Callback URL") @QueryParam("callbackUrl") String callbackUrl,
             @ApiParam(value = "Rebuild all dependencies") @QueryParam("rebuildAll") @DefaultValue("false") boolean rebuildAll,
             @Context UriInfo uriInfo,
-            @Context HttpServletRequest request) throws InvalidEntityException, MalformedURLException {
-        try {
+            @Context HttpServletRequest request) throws InvalidEntityException, MalformedURLException, BuildConflictException {
 
-            logger.debug("Endpoint /build requested for buildConfigurationId [{}], by [{}]", id, request.getRemoteAddr());
+        logger.debug("Endpoint /build requested for buildConfigurationId [{}], by [{}]", id, request.getRemoteAddr());
 
-            AuthenticationProvider authProvider = new AuthenticationProvider(httpServletRequest);
-            String loggedUser = authProvider.getUserName();
-            User currentUser = null;
-            if(StringUtils.isNotEmpty(loggedUser)) {
-                currentUser = datastore.retrieveUserByUsername(loggedUser);
-            }
-            if(currentUser != null) {
-                currentUser.setLoginToken(authProvider.getTokenString());
-            }
-            else{
-                throw new InvalidEntityException("No such user exists to trigger builds. Before triggering builds"
-                        + " user must be initialized through /users/getLoggedUser"); 
-            }
-            
-            Integer runningBuildId = null;
-            // if callbackUrl is provided trigger build accordingly
-            if (callbackUrl == null || callbackUrl.isEmpty()) {
-                logger.debug("Triggering build for buildConfigurationId {} without callback URL.", id);
-                runningBuildId = buildTriggerer.triggerBuild(id, currentUser, rebuildAll);
-            } else {
-                logger.debug("Triggering build for buildConfigurationId {} with callback URL {}.", id, callbackUrl);
-                runningBuildId = buildTriggerer.triggerBuild(id, currentUser, rebuildAll, new URL(callbackUrl));
-            }
-            
-            UriBuilder uriBuilder = UriBuilder.fromUri(uriInfo.getBaseUri()).path("/build-config-set-records/{id}");
-            URI uri = uriBuilder.build(runningBuildId);
-            return Response.ok(uri).header("location", uri).entity(new Singleton(buildRecordProvider.getSpecificRunning(runningBuildId))).build();
-        } catch (BuildConflictException e) {
-            return Response.status(Response.Status.CONFLICT).entity(
-                    new Singleton(buildRecordProvider.getSpecificRunning(e.getBuildTaskId()))).build();
+        AuthenticationProvider authProvider = new AuthenticationProvider(httpServletRequest);
+        String loggedUser = authProvider.getUserName();
+        User currentUser = null;
+        if(StringUtils.isNotEmpty(loggedUser)) {
+            currentUser = datastore.retrieveUserByUsername(loggedUser);
         }
+        if(currentUser != null) {
+            currentUser.setLoginToken(authProvider.getTokenString());
+        }
+        else{
+            throw new InvalidEntityException("No such user exists to trigger builds. Before triggering builds"
+                    + " user must be initialized through /users/getLoggedUser");
+        }
+
+        Integer runningBuildId = null;
+        // if callbackUrl is provided trigger build accordingly
+        if (callbackUrl == null || callbackUrl.isEmpty()) {
+            logger.debug("Triggering build for buildConfigurationId {} without callback URL.", id);
+            runningBuildId = buildTriggerer.triggerBuild(id, currentUser, rebuildAll);
+        } else {
+            logger.debug("Triggering build for buildConfigurationId {} with callback URL {}.", id, callbackUrl);
+            runningBuildId = buildTriggerer.triggerBuild(id, currentUser, rebuildAll, new URL(callbackUrl));
+        }
+
+        UriBuilder uriBuilder = UriBuilder.fromUri(uriInfo.getBaseUri()).path("/build-config-set-records/{id}");
+        URI uri = uriBuilder.build(runningBuildId);
+        return Response.ok(uri).header("location", uri).entity(new Singleton<>(buildRecordProvider.getSpecificRunning(runningBuildId))).build();
     }
 
     private Response validateRequiredField(String parameter, String parameterName) {
