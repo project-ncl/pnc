@@ -35,7 +35,7 @@ public interface SwaggerConstants {
     public static final int NO_CONTENT_CODE = 204;
 
     public static final String INVALID_DESCRIPTION = "Invalid input parameters or validation error";
-    public static final int INVLID_CODE = 400;
+    public static final int INVALID_CODE = 400;
 
     public static final String CONFLICTED_DESCRIPTION = "Conflict while saving an entity";
     public static final int CONFLICTED_CODE = 409;
