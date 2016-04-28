@@ -36,10 +36,14 @@
     <dd ng-show="ctrl.record.endTime">{{ (ctrl.record.endTime | date : 'medium') }}</dd>
     <dt>Result:</dt>
     <dd ng-class="ctrl.record.status === 'SUCCESS' ? 'text-success' : 'text-danger'">{{ ctrl.record.status }}</dd>
-    <dt>SCM Repo:</dt>
+    <dt>Origin SCM Repo:</dt>
     <dd><a ng-href="{{ ctrl.configuration.scmRepoURL }}">{{ ctrl.configuration.scmRepoURL || '&mdash;' }}</a></dd>
-    <dt>SCM Revision:</dt>
+    <dt>Origin SCM Revision:</dt>
     <dd>{{ ctrl.configuration.scmRevision || '&mdash;'}}</dd>
+    <dt>Cloned SCM Repo:</dt>
+    <dd><a ng-href="{{ ctrl.configuration.scmRepoURL }}">{{ ctrl.record.scmRepoURL || '&mdash;' }}</a></dd>
+    <dt title="The SCM revision after automated source updates">Cloned SCM Revision:</dt>
+    <dd>{{ ctrl.record.scmRevision || '&mdash;'}}</dd>
     <dt>Environment:</dt>
     <dd>{{ ctrl.environment.name || '&mdash;' }}</dd>
     <dt>Script:</dt>
