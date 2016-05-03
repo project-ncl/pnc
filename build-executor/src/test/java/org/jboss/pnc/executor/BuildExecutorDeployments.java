@@ -19,11 +19,12 @@
 package org.jboss.pnc.executor;
 
 import org.jboss.pnc.common.Configuration;
-import org.jboss.pnc.executor.mock.EnvironmentDriverMock;
-import org.jboss.pnc.executor.mock.RepositoryManagerMock;
-import org.jboss.pnc.executor.mock.builders.TestProjectConfigurationBuilder;
 import org.jboss.pnc.executor.servicefactories.BuildDriverFactory;
 import org.jboss.pnc.mock.builddriver.BuildDriverMock;
+import org.jboss.pnc.mock.datastore.DatastoreMock;
+import org.jboss.pnc.mock.environmentdriver.EnvironmentDriverMock;
+import org.jboss.pnc.mock.model.builders.TestProjectConfigurationBuilder;
+import org.jboss.pnc.mock.repositorymanager.RepositoryManagerMock;
 import org.jboss.pnc.model.BuildEnvironment;
 import org.jboss.pnc.test.arquillian.ShrinkwrapDeployerUtils;
 import org.jboss.shrinkwrap.api.Archive;
@@ -73,6 +74,7 @@ public class BuildExecutorDeployments {
         JavaArchive jar = ShrinkWrap.create(JavaArchive.class)
                 .addClass(Configuration.class)
                 .addClass(BuildEnvironment.Builder.class)
+                .addClass(DatastoreMock.class)
                 .addClass(TestProjectConfigurationBuilder.class)
                 .addClass(RepositoryManagerMock.class)
                 .addClass(EnvironmentDriverMock.class)
