@@ -53,6 +53,18 @@
       <artifactId>spi</artifactId>
     </dependency>
 
+    <dependency>
+      <groupId>org.jboss</groupId>
+      <artifactId>jboss-common-core</artifactId>
+      <exclusions>
+        <exclusion>
+          <groupId>org.jboss.logging</groupId>
+          <artifactId>jboss-logging-spi</artifactId>
+        </exclusion>
+      </exclusions>
+      <scope>provided</scope>
+    </dependency>
+
     <!-- Remote dependencies -->
 
     <!-- Test dependencies -->
