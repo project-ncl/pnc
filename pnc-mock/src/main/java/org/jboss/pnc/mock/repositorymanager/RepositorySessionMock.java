@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.mock.repositorymanager;
 
+import org.jboss.pnc.mock.model.builders.ArtifactBuilder;
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.RepositoryType;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerException;
@@ -101,7 +102,7 @@ public class RepositorySessionMock implements RepositorySession {
     private Artifact getArtifact(int i) {
         Artifact artifact = new Artifact();
         artifact.setId(i);
-        artifact.setIdentifier("test" + i);
+        artifact.setIdentifier(ArtifactBuilder.IDENTIFIER_PREFIX + i);
         return artifact;
     }
 
