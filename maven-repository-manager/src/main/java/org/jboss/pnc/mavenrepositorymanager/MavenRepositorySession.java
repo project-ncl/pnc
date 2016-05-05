@@ -284,7 +284,7 @@ public class MavenRepositorySession implements RepositorySession {
                 ArtifactRef aref = new SimpleArtifactRef(pathInfo.getProjectId(), pathInfo.getType(), pathInfo.getClassifier());
                 logger.info("Recording upload: {}", aref);
 
-                Artifact.Builder artifactBuilder = Artifact.Builder.newBuilder().checksum(upload.getSha256())
+                Artifact.Builder artifactBuilder = Artifact.Builder.newBuilder().checksum(upload.getMd5())
                         .artifactQuality(ArtifactQuality.BUILT).deployUrl(upload.getLocalUrl())
                         .filename(new File(path).getName()).identifier(aref.toString()).repoType(RepositoryType.MAVEN);
 
