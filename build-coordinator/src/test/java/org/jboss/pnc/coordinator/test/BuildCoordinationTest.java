@@ -22,6 +22,7 @@ import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.pnc.common.util.ObjectWrapper;
 import org.jboss.pnc.coordinator.builder.BuildCoordinator;
+import org.jboss.pnc.coordinator.builder.BuildQueue;
 import org.jboss.pnc.coordinator.builder.BuildSetTask;
 import org.jboss.pnc.coordinator.notifications.buildSetTask.BuildSetCallBack;
 import org.jboss.pnc.coordinator.notifications.buildSetTask.BuildSetStatusNotifications;
@@ -52,6 +53,7 @@ import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
+import static org.assertj.core.api.Assertions.fail;
 import static org.jboss.pnc.coordinator.test.BuildCoordinatorDeployments.Options.WITH_DATASTORE;
 
 /**
@@ -64,6 +66,9 @@ public class BuildCoordinationTest {
 
     @Inject
     BuildCoordinator buildCoordinator;
+
+    @Inject
+    BuildQueue queue;
 
     @Inject
     TestProjectConfigurationBuilder testProjectConfigurationBuilder;
@@ -94,6 +99,7 @@ public class BuildCoordinationTest {
         //check the result
         Assert.assertEquals(BuildSetStatus.DONE, lastBuildSetStatus.get());
         Assert.assertEquals(BuildStatus.SUCCESS, buildSetTask.getBuildConfigSetRecord().getStatus());
+        assertEmptyQueue();
     }
 
     @Test
@@ -115,6 +121,7 @@ public class BuildCoordinationTest {
         Collection<BuildStatus> statuses = getBuildStatuses();
         Assert.assertTrue(statuses.contains(BuildStatus.FAILED));
         Assert.assertFalse(statuses.contains(BuildStatus.SYSTEM_ERROR));
+        assertEmptyQueue();
     }
 
     @Test
@@ -135,6 +142,15 @@ public class BuildCoordinationTest {
 
         Wait.forCondition(() -> contains(buildSetStatusChangedEvents, BuildSetStatus.NEW), 2000, ChronoUnit.MILLIS, "Did not receive status update to NEW for task set.");
         Wait.forCondition(() -> contains(buildSetStatusChangedEvents, BuildSetStatus.DONE), 2000, ChronoUnit.MILLIS, "Did not receive status update to DONE for task set.");
+        assertEmptyQueue();
+    }
+
+    private void assertEmptyQueue() {
+        try {
+            Wait.forCondition(queue::isEmpty, 1, ChronoUnit.SECONDS, "Not empty build queue: " + queue);
+        } catch (InterruptedException | TimeoutException ignored) {
+            fail("failed to wait for queue to be empty. Queue contents: " + queue);
+        }
     }
 
     private boolean contains(Set<BuildSetStatusChangedEvent> buildSetStatusChangedEvents, BuildSetStatus status) {

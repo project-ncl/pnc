@@ -91,7 +91,7 @@ public class DatastoreMock implements Datastore {
         if (buildConfigSetRecord.getId() == null) {
             buildConfigSetRecord.setId(buildRecordSetSequence.incrementAndGet());
         }
-        log.info("Storing build config set record with id: " + buildConfigSetRecord.getId());
+        log.info("Storing build config set record with id: " + buildConfigSetRecord);
         buildConfigSetRecords.add(buildConfigSetRecord);
         return buildConfigSetRecord;
     }

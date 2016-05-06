@@ -18,8 +18,6 @@
 package org.jboss.pnc.executor;
 
 import org.jboss.pnc.common.Configuration;
-import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
-import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
 import org.jboss.pnc.executor.servicefactories.BuildDriverFactory;
 import org.jboss.pnc.model.BuildType;
 import org.jboss.pnc.spi.builddriver.BuildDriver;
@@ -34,7 +32,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 
 public class BuildDriverFactoryTest {
@@ -89,8 +86,6 @@ public class BuildDriverFactoryTest {
         TestInstance<BuildDriver> allDrivers = new TestInstance<>(testedBuildDriver);
 
         Configuration configuration = mock(Configuration.class);
-        doReturn(new SystemConfig("ProperDriver", "local-build-scheduler", "10", "10")).when(configuration)
-            .getModuleConfig(new PncConfigProvider<SystemConfig>(SystemConfig.class));
 
         BuildDriverFactory factory = new BuildDriverFactory(allDrivers, configuration);
 

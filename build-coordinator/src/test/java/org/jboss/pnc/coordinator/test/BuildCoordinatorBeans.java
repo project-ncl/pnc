@@ -15,20 +15,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.coordinator.test.event;
+package org.jboss.pnc.coordinator.test;
 
-import org.jboss.pnc.spi.events.BuildCoordinationStatusChangedEvent;
-import org.junit.Assert;
-
-import javax.enterprise.event.Observes;
+import org.jboss.pnc.coordinator.builder.BuildCoordinator;
+import org.jboss.pnc.coordinator.builder.BuildQueue;
 
 /**
- * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
+ * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com
+ * Date: 4/26/16
+ * Time: 9:29 AM
  */
-public class TestBuildStatusUpdates {
-    public void collectEvent(@Observes BuildCoordinationStatusChangedEvent buildStatusChangedEvent) {
-        Assert.assertNotEquals("Status update event should not be fired if there is no status updates. " + buildStatusChangedEvent,
-                buildStatusChangedEvent.getNewStatus(),
-                buildStatusChangedEvent.getOldStatus());
+public class BuildCoordinatorBeans {
+    public final BuildQueue queue;
+    public final BuildCoordinator coordinator;
+
+    public BuildCoordinatorBeans(BuildQueue queue, BuildCoordinator coordinator) {
+        this.queue = queue;
+        this.coordinator = coordinator;
     }
 }

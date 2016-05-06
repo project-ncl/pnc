@@ -19,12 +19,7 @@
 package org.jboss.pnc.coordinator.builder;
 
 import org.jboss.pnc.coordinator.builder.datastore.DatastoreAdapter;
-import org.jboss.pnc.model.BuildConfigSetRecord;
-import org.jboss.pnc.model.BuildConfiguration;
-import org.jboss.pnc.model.BuildConfigurationAudited;
-import org.jboss.pnc.model.BuildConfigurationSet;
-import org.jboss.pnc.model.ProductMilestone;
-import org.jboss.pnc.model.User;
+import org.jboss.pnc.model.*;
 import org.jboss.pnc.spi.datastore.DatastoreException;
 import org.jboss.pnc.spi.events.BuildCoordinationStatusChangedEvent;
 import org.jboss.pnc.spi.events.BuildSetStatusChangedEvent;
@@ -35,7 +30,6 @@ import org.slf4j.LoggerFactory;
 import javax.enterprise.event.Event;
 import java.util.Date;
 import java.util.Optional;
-import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 /**
@@ -58,10 +52,7 @@ public class BuildTasksInitializer {
             User user,
             boolean rebuildAll,
             Event<BuildCoordinationStatusChangedEvent> buildStatusChangedEventNotifier,
-            Supplier<Integer> buildTaskIdProvider,
-            Consumer<BuildTask> onAllTasksDependenciesCompleted,
-            Consumer<BuildConfigSetRecord> onBuildSetTaskCompleted,
-            Consumer<BuildTask> onTaskRejected) throws CoreException {
+            Supplier<Integer> buildTaskIdProvider) throws CoreException {
         BuildConfigSetRecord buildConfigSetRecord = BuildConfigSetRecord.Builder.newBuilder()
                 .buildConfigurationSet(buildConfigurationSet)
                 .user(user)
@@ -69,37 +60,27 @@ public class BuildTasksInitializer {
                 .status(org.jboss.pnc.model.BuildStatus.BUILDING)
                 .build();
 
-        final BuildConfigSetRecord persistedBuildConfigSetRecord;
+        final BuildConfigSetRecord configSetRecord;
         try {
-            persistedBuildConfigSetRecord = saveBuildConfigSetRecord(buildConfigSetRecord);
+            configSetRecord = saveBuildConfigSetRecord(buildConfigSetRecord);
         } catch (DatastoreException e) {
             log.error("Failed to store build config set record: " + e);
             throw new CoreException(e);
         }
 
-        Consumer<BuildSetStatusChangedEvent> buildSetStatusChangedEventConsumer = (event) -> {
-            if (event.getNewStatus().isCompleted()) {
-                onBuildSetTaskCompleted.accept(persistedBuildConfigSetRecord);
-            }
-            buildSetStatusChangedEventNotifier.ifPresent(n -> n.fire(event));
-        };
-
         Date buildSubmitTime = new Date();
         BuildSetTask buildSetTask = new BuildSetTask(
-                persistedBuildConfigSetRecord,
+                configSetRecord,
                 getProductMilestone(buildConfigurationSet),
                 buildSubmitTime,
-                rebuildAll,
-                buildSetStatusChangedEventConsumer);
+                rebuildAll);
 
         initializeBuildTasksInSet(
                 buildSetTask,
                 user,
                 rebuildAll,
                 buildStatusChangedEventNotifier,
-                buildTaskIdProvider,
-                onAllTasksDependenciesCompleted,
-                onTaskRejected);
+                buildTaskIdProvider);
 
         return buildSetTask;
     }
@@ -115,9 +96,7 @@ public class BuildTasksInitializer {
             User user,
             boolean rebuildAll,
             Event<BuildCoordinationStatusChangedEvent> buildStatusChangedEventNotifier,
-            Supplier<Integer> buildTaskIdProvider,
-            Consumer<BuildTask> onAllDependenciesCompleted,
-            Consumer<BuildTask> onTaskRejected) {
+            Supplier<Integer> buildTaskIdProvider) {
         // Loop to create the build tasks
         for(BuildConfiguration buildConfig : buildSetTask.getBuildConfigurationSet().getBuildConfigurations()) {
             if (buildConfig.isArchived()) {
@@ -130,12 +109,10 @@ public class BuildTasksInitializer {
                     buildConfigAudited,
                     user,
                     buildStatusChangedEventNotifier,
-                    (bt) -> onAllDependenciesCompleted.accept(bt),
                     buildTaskIdProvider.get(),
                     buildSetTask,
                     buildSetTask.getSubmitTime(),
-                    rebuildAll,
-                    onTaskRejected);
+                    rebuildAll);
 
             buildSetTask.addBuildTask(buildTask);
         }

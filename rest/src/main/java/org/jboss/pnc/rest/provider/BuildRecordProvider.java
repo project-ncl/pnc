@@ -17,13 +17,6 @@
  */
 package org.jboss.pnc.rest.provider;
 
-import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
-import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withArtifactDistributedInMilestone;
-import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withBuildConfigSetId;
-import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withBuildConfigurationId;
-import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withProjectId;
-import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withUserId;
-
 import org.jboss.pnc.coordinator.builder.BuildCoordinator;
 import org.jboss.pnc.coordinator.builder.BuildTask;
 import org.jboss.pnc.model.BuildRecord;
@@ -56,12 +49,15 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
+import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.*;
+
 @Stateless
 public class BuildRecordProvider extends AbstractProvider<BuildRecord, BuildRecordRest> {
 
     private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
-    private BuildCoordinator buildCoordinator;
     private BuildExecutor buildExecutor;
+    private BuildCoordinator buildCoordinator;
 
     public BuildRecordProvider() {
     }

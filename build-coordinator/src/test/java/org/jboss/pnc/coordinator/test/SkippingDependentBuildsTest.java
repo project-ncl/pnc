@@ -37,6 +37,7 @@ package org.jboss.pnc.coordinator.test;
 
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.pnc.coordinator.builder.BuildCoordinator;
+import org.jboss.pnc.coordinator.builder.BuildQueue;
 import org.jboss.pnc.mock.datastore.DatastoreMock;
 import org.jboss.pnc.mock.model.builders.TestProjectConfigurationBuilder;
 import org.jboss.pnc.model.BuildConfiguration;
@@ -56,6 +57,7 @@ import java.util.List;
 import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 
+import static org.assertj.core.api.Assertions.fail;
 import static org.fest.assertions.Assertions.assertThat;
 
 @RunWith(Arquillian.class)
@@ -74,17 +76,19 @@ public class SkippingDependentBuildsTest extends ProjectBuilder {
         DatastoreMock datastore = new DatastoreMock();
         TestProjectConfigurationBuilder configurationBuilder = new TestProjectConfigurationBuilder(datastore);
         BuildConfiguration testConfiguration = configurationBuilder.build(1, "test");
-        BuildCoordinator buildCoordinator = buildCoordinatorFactory.createBuildCoordinator(datastore);
+        BuildCoordinatorBeans coordinator = buildCoordinatorFactory.createBuildCoordinator(datastore);
+        BuildCoordinator buildCoordinator = coordinator.coordinator;
 
         //when
         buildCoordinator.build(testConfiguration, testUser, false);
-        waitForBuild(buildCoordinator);
+        waitForBuild(coordinator.queue);
 
         buildCoordinator.build(testConfiguration, testUser, false);
-        waitForBuild(buildCoordinator);
+        waitForBuild(coordinator.queue);
 
         //then
         assertThat(datastore.getBuildRecords().size()).isEqualTo(1);
+        waitForEmptyQueue(coordinator);
     }
 
     @Test
@@ -93,19 +97,21 @@ public class SkippingDependentBuildsTest extends ProjectBuilder {
         DatastoreMock datastore = new DatastoreMock();
         TestProjectConfigurationBuilder configurationBuilder = new TestProjectConfigurationBuilder(datastore);
         BuildConfiguration testConfiguration = configurationBuilder.build(1, "test");
-        BuildCoordinator buildCoordinator = buildCoordinatorFactory.createBuildCoordinator(datastore);
+        BuildCoordinatorBeans coordinator = buildCoordinatorFactory.createBuildCoordinator(datastore);
+        BuildCoordinator buildCoordinator = coordinator.coordinator;
 
         //when
         buildCoordinator.build(testConfiguration, testUser, true);
-        waitForBuild(buildCoordinator);
+        waitForBuild(coordinator.queue);
 
         buildCoordinator.build(testConfiguration, testUser, true);
-        waitForBuild(buildCoordinator);
+        waitForBuild(coordinator.queue);
 
         //then
         List<BuildRecord> buildRecords = datastore.getBuildRecords();
         logRecords(buildRecords);
         assertThat(buildRecords.size()).isEqualTo(2);
+        waitForEmptyQueue(coordinator);
     }
 
     @Test
@@ -114,14 +120,15 @@ public class SkippingDependentBuildsTest extends ProjectBuilder {
         DatastoreMock datastore = new DatastoreMock();
         TestProjectConfigurationBuilder configurationBuilder = new TestProjectConfigurationBuilder(datastore);
         BuildConfigurationSet testConfigurationSet = configurationBuilder.buildConfigurationSet(1);
-        BuildCoordinator buildCoordinator = buildCoordinatorFactory.createBuildCoordinator(datastore);
+        BuildCoordinatorBeans coordinator = buildCoordinatorFactory.createBuildCoordinator(datastore);
+        BuildCoordinator buildCoordinator = coordinator.coordinator;
 
         //when
         buildCoordinator.build(testConfigurationSet, testUser, false); //first build
-        waitForBuild(buildCoordinator);
+        waitForBuild(coordinator.queue);
 
         buildCoordinator.build(testConfigurationSet, testUser, false); //forced rebuild build
-        waitForBuild(buildCoordinator);
+        waitForBuild(coordinator.queue);
 
         //then
         List<BuildRecord> buildRecords = datastore.getBuildRecords();
@@ -135,14 +142,15 @@ public class SkippingDependentBuildsTest extends ProjectBuilder {
         DatastoreMock datastore = new DatastoreMock();
         TestProjectConfigurationBuilder configurationBuilder = new TestProjectConfigurationBuilder(datastore);
         BuildConfigurationSet testConfigurationSet = configurationBuilder.buildConfigurationSet(1);
-        BuildCoordinator buildCoordinator = buildCoordinatorFactory.createBuildCoordinator(datastore);
+        BuildCoordinatorBeans coordinator = buildCoordinatorFactory.createBuildCoordinator(datastore);
+        BuildCoordinator buildCoordinator = coordinator.coordinator;
 
         //when
         buildCoordinator.build(testConfigurationSet, testUser, true); //first build
-        waitForBuild(buildCoordinator);
+        waitForBuild(coordinator.queue);
 
         buildCoordinator.build(testConfigurationSet, testUser, true); //forced rebuild build
-        waitForBuild(buildCoordinator);
+        waitForBuild(coordinator.queue);
 
         //then
         List<BuildRecord> buildRecords = datastore.getBuildRecords();
@@ -150,8 +158,20 @@ public class SkippingDependentBuildsTest extends ProjectBuilder {
         assertThat(buildRecords.size()).isEqualTo(10);
     }
 
-    protected void waitForBuild(BuildCoordinator buildCoordinator) throws InterruptedException, TimeoutException {
-        Wait.forCondition(() -> !buildCoordinator.hasActiveTasks(), 30, ChronoUnit.SECONDS);
+    private void waitForEmptyQueue(BuildCoordinatorBeans coordinator) {
+        waitForEmptyQueue(coordinator.queue, 1);
+    }
+
+    private void waitForEmptyQueue(BuildQueue queue, int seconds) {
+        try {
+            Wait.forCondition(queue::isEmpty, seconds, ChronoUnit.SECONDS, "Not empty build queue: " + queue);
+        } catch (InterruptedException | TimeoutException e) {
+            fail("failed to wait for coordinator queue to be empty. Queue: " + queue);
+        }
+    }
+
+    protected void waitForBuild(BuildQueue queue) throws InterruptedException, TimeoutException {
+        waitForEmptyQueue(queue, 30);
     }
 
     private void logRecords(List<BuildRecord> buildRecords) {

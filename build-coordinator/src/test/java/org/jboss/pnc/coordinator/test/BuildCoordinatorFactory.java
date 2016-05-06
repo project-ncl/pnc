@@ -18,7 +18,12 @@
 
 package org.jboss.pnc.coordinator.test;
 
+import org.jboss.pnc.common.Configuration;
+import org.jboss.pnc.common.json.ConfigurationParseException;
+import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
+import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
 import org.jboss.pnc.coordinator.builder.BuildCoordinator;
+import org.jboss.pnc.coordinator.builder.BuildQueue;
 import org.jboss.pnc.coordinator.builder.BuildSchedulerFactory;
 import org.jboss.pnc.coordinator.builder.datastore.DatastoreAdapter;
 import org.jboss.pnc.coordinator.builder.filtering.BuildTaskFilter;
@@ -31,6 +36,10 @@ import org.jboss.pnc.test.cdi.TestInstance;
 import javax.enterprise.event.Event;
 import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
+
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
@@ -46,11 +55,28 @@ public class BuildCoordinatorFactory {
     @Inject
     BuildSchedulerFactory buildSchedulerFactory;
 
-    public BuildCoordinator createBuildCoordinator(DatastoreMock datastore) {
+    public BuildCoordinatorBeans createBuildCoordinator(DatastoreMock datastore) {
         DatastoreAdapter datastoreAdapter = new DatastoreAdapter(datastore);
         Instance<BuildTaskFilter> taskFilters;
         taskFilters = new TestInstance<>(new HasSuccessfulBuildRecordFilter(datastoreAdapter));
 
-        return new BuildCoordinator(datastoreAdapter, buildStatusChangedEventNotifier, buildSetStatusChangedEventNotifier, buildSchedulerFactory, taskFilters);
+        Configuration configuration = createConfiguration();
+        BuildQueue queue = new BuildQueue(configuration);
+        BuildCoordinator coordinator = new BuildCoordinator(datastoreAdapter, buildStatusChangedEventNotifier, buildSetStatusChangedEventNotifier,
+                buildSchedulerFactory, taskFilters, queue, configuration);
+        coordinator.start();
+        queue.initSemaphore();
+        return new BuildCoordinatorBeans(queue, coordinator);
+    }
+
+    private Configuration createConfiguration() {
+        try {
+            Configuration configuration = mock(Configuration.class);
+            doReturn(new SystemConfig("ProperDriver", "local-build-scheduler", "10", "10", "10", "10")).when(configuration)
+                    .getModuleConfig(any(PncConfigProvider.class));
+            return configuration;
+        } catch (ConfigurationParseException e) {
+            throw new IllegalStateException("Unexpected exception while creating configuration mock", e);
+        }
     }
 }
