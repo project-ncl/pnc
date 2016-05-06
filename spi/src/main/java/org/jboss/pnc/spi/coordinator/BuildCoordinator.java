@@ -15,26 +15,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package org.jboss.pnc.spi.coordinator;
 
-package org.jboss.pnc.coordinator.builder;
-
+import org.jboss.pnc.model.BuildConfiguration;
+import org.jboss.pnc.model.BuildConfigurationSet;
+import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.BuildResult;
-import org.jboss.pnc.spi.coordinator.BuildTask;
+import org.jboss.pnc.spi.exception.BuildConflictException;
 import org.jboss.pnc.spi.exception.CoreException;
-import org.jboss.pnc.spi.executor.exceptions.ExecutorException;
 
-import java.util.function.Consumer;
+import java.util.List;
 
 /**
- * BuildScheduler is used to direct the build to by scheduler defined execution engine.
- * Example: BuildCoordinator uses BuildScheduler to start the builds and depending on
- * BuildScheduler implementation builds can be pushed to BPM engine (BpmBuildScheduler)
- * or submitted directly (LocalBuildScheduler).
- *
- * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
+ * @author Tomas Remes
  */
-public interface BuildScheduler {
-    void startBuilding(BuildTask buildTask, Consumer<BuildResult> onComplete) throws CoreException, ExecutorException;
+public interface BuildCoordinator {
 
-    String getId();
+    BuildTask build(BuildConfiguration buildConfiguration, User user, boolean rebuildAll) throws BuildConflictException;
+
+    BuildSetTask build(BuildConfigurationSet buildConfigurationSet, User user, boolean rebuildAll) throws CoreException;
+
+    List<BuildTask> getSubmittedBuildTasks();
+
+    void updateBuildStatus(BuildTask buildTask, BuildResult buildResult);
+
+    public void start();
+
 }

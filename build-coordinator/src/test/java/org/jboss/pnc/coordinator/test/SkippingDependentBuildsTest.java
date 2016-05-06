@@ -36,7 +36,6 @@
 package org.jboss.pnc.coordinator.test;
 
 import org.jboss.arquillian.junit.Arquillian;
-import org.jboss.pnc.coordinator.builder.BuildCoordinator;
 import org.jboss.pnc.coordinator.builder.BuildQueue;
 import org.jboss.pnc.mock.datastore.DatastoreMock;
 import org.jboss.pnc.mock.model.builders.TestProjectConfigurationBuilder;
@@ -45,6 +44,7 @@ import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.model.mock.MockUser;
+import org.jboss.pnc.spi.coordinator.BuildCoordinator;
 import org.jboss.pnc.test.util.Wait;
 import org.junit.Test;
 import org.junit.runner.RunWith;

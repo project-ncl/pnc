@@ -15,10 +15,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.coordinator.events;
+package org.jboss.pnc.spi.coordinator.events;
 
 import org.jboss.pnc.spi.BuildCoordinationStatus;
 import org.jboss.pnc.spi.events.BuildCoordinationStatusChangedEvent;
+
 import java.util.Date;
 
 public class DefaultBuildStatusChangedEvent implements BuildCoordinationStatusChangedEvent {

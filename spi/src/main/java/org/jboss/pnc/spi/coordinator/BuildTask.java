@@ -15,14 +15,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.coordinator.builder;
+package org.jboss.pnc.spi.coordinator;
 
-import org.jboss.pnc.coordinator.events.DefaultBuildStatusChangedEvent;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.ProductMilestone;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.BuildCoordinationStatus;
+import org.jboss.pnc.spi.coordinator.events.DefaultBuildStatusChangedEvent;
 import org.jboss.pnc.spi.events.BuildCoordinationStatusChangedEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,7 +36,7 @@ import java.util.Set;
 /**
 * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-12-23.
 */
-public class BuildTask {
+public class BuildTask {  // TODO make this class clear DTO
 
     private static final Logger log = LoggerFactory.getLogger(BuildTask.class);
 
@@ -167,7 +167,7 @@ public class BuildTask {
         return buildConfiguration.getDependencies();
     }
 
-    void addDependant(BuildTask buildTask) {
+    public void addDependant(BuildTask buildTask) {
         if (!dependants.contains(buildTask)) {
             dependants.add(buildTask);
             buildTask.addDependency(this);
@@ -195,7 +195,7 @@ public class BuildTask {
         return buildConfigurationAudited.hashCode();
     }
 
-    void setStatusDescription(String statusDescription) {
+    public void setStatusDescription(String statusDescription) {
         this.statusDescription = statusDescription;
     }
 

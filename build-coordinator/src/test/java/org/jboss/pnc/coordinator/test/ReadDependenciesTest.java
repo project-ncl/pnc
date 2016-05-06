@@ -18,12 +18,12 @@
 package org.jboss.pnc.coordinator.test;
 
 import org.jboss.arquillian.junit.Arquillian;
-import org.jboss.pnc.coordinator.builder.BuildSetTask;
-import org.jboss.pnc.coordinator.builder.BuildTask;
 import org.jboss.pnc.coordinator.builder.BuildTasksInitializer;
 import org.jboss.pnc.coordinator.builder.datastore.DatastoreAdapter;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.User;
+import org.jboss.pnc.spi.coordinator.BuildSetTask;
+import org.jboss.pnc.spi.coordinator.BuildTask;
 import org.jboss.pnc.spi.datastore.DatastoreException;
 import org.jboss.pnc.spi.events.BuildCoordinationStatusChangedEvent;
 import org.jboss.pnc.spi.exception.CoreException;

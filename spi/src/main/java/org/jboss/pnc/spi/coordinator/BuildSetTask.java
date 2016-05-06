@@ -15,11 +15,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.coordinator.builder;
+package org.jboss.pnc.spi.coordinator;
 
-import org.jboss.pnc.coordinator.events.DefaultBuildSetStatusChangedEvent;
-import org.jboss.pnc.model.*;
+import org.jboss.pnc.model.BuildConfigSetRecord;
+import org.jboss.pnc.model.BuildConfiguration;
+import org.jboss.pnc.model.BuildConfigurationSet;
+import org.jboss.pnc.model.BuildStatus;
+import org.jboss.pnc.model.ProductMilestone;
+import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.BuildSetStatus;
+import org.jboss.pnc.spi.coordinator.events.DefaultBuildSetStatusChangedEvent;
 import org.jboss.pnc.spi.events.BuildSetStatusChangedEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,7 +39,7 @@ import java.util.stream.Collectors;
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2015-03-26.
  */
-public class BuildSetTask {
+public class BuildSetTask { // TODO make this class clear DTO
 
     private final Logger log = LoggerFactory.getLogger(BuildCoordinator.class);
 
@@ -105,11 +110,11 @@ public class BuildSetTask {
             if (log.isDebugEnabled()) {
                 logTasksStatus(buildTasks);
             }
-            buildConfigSetRecord.setStatus(org.jboss.pnc.model.BuildStatus.FAILED);
+            buildConfigSetRecord.setStatus(BuildStatus.FAILED);
             return finishBuildSetTask();
         } else if (buildTasks.stream().allMatch(bt -> bt.getStatus().isCompleted())) {
             log.debug("Marking build set as SUCCESS.");
-            buildConfigSetRecord.setStatus(org.jboss.pnc.model.BuildStatus.SUCCESS);
+            buildConfigSetRecord.setStatus(BuildStatus.SUCCESS);
             return finishBuildSetTask();
         } else {
             if (log.isTraceEnabled()) {

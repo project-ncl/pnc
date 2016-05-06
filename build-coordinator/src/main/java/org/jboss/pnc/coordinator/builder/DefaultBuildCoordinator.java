@@ -31,6 +31,9 @@ import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.BuildCoordinationStatus;
 import org.jboss.pnc.spi.BuildResult;
 import org.jboss.pnc.spi.BuildSetStatus;
+import org.jboss.pnc.spi.coordinator.BuildCoordinator;
+import org.jboss.pnc.spi.coordinator.BuildSetTask;
+import org.jboss.pnc.spi.coordinator.BuildTask;
 import org.jboss.pnc.spi.datastore.DatastoreException;
 import org.jboss.pnc.spi.events.BuildCoordinationStatusChangedEvent;
 import org.jboss.pnc.spi.events.BuildSetStatusChangedEvent;
@@ -59,9 +62,9 @@ import java.util.function.Predicate;
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-12-20.
  */
 @ApplicationScoped
-public class BuildCoordinator {
+public class DefaultBuildCoordinator implements BuildCoordinator {
 
-    private final Logger log = LoggerFactory.getLogger(BuildCoordinator.class);
+    private final Logger log = LoggerFactory.getLogger(DefaultBuildCoordinator.class);
 
     private Configuration configuration;
     private DatastoreAdapter datastoreAdapter;
@@ -75,10 +78,10 @@ public class BuildCoordinator {
     private BuildQueue buildQueue;
 
     @Deprecated
-    public BuildCoordinator(){} //workaround for CDI constructor parameter injection
+    public DefaultBuildCoordinator(){} //workaround for CDI constructor parameter injection
 
     @Inject
-    public BuildCoordinator(DatastoreAdapter datastoreAdapter, Event<BuildCoordinationStatusChangedEvent> buildStatusChangedEventNotifier,
+    public DefaultBuildCoordinator(DatastoreAdapter datastoreAdapter, Event<BuildCoordinationStatusChangedEvent> buildStatusChangedEventNotifier,
                             Event<BuildSetStatusChangedEvent> buildSetStatusChangedEventNotifier, BuildSchedulerFactory buildSchedulerFactory,
                             Instance<BuildTaskFilter> taskFilters, BuildQueue buildQueue,
                             Configuration configuration) {

@@ -20,7 +20,6 @@ package org.jboss.pnc.integration;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.junit.InSequence;
-import org.jboss.pnc.coordinator.builder.BuildTask;
 import org.jboss.pnc.integration.client.AbstractRestClient;
 import org.jboss.pnc.integration.client.BuildRestClient;
 import org.jboss.pnc.integration.client.util.RestResponse;
@@ -34,6 +33,7 @@ import org.jboss.pnc.model.IdRev;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.rest.provider.BuildRecordProvider;
 import org.jboss.pnc.rest.restmodel.BuildRecordRest;
+import org.jboss.pnc.spi.coordinator.BuildTask;
 import org.jboss.pnc.test.category.ContainerTest;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
@@ -73,6 +73,7 @@ public class BuildsRestTest {
     public static EnterpriseArchive deploy() {
         EnterpriseArchive enterpriseArchive = Deployments.baseEarWithTestDependencies();
         WebArchive war = enterpriseArchive.getAsType(WebArchive.class, "/rest.war");
+        war.addAsWebInfResource("beans.xml", "beans.xml");
         war.addClass(BuildsRestTest.class);
         war.addClass(BuildCoordinatorMock.class);
         addRestClientClasses(war);

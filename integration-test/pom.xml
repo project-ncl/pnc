@@ -91,7 +91,7 @@
     <!-- Mocks -->
     <dependency>
       <groupId>org.jboss.pnc</groupId>
-      <artifactId>build-coordinator-mock</artifactId>
+      <artifactId>pnc-mock</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>

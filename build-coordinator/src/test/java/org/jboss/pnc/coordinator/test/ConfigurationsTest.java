@@ -19,14 +19,14 @@ package org.jboss.pnc.coordinator.test;
 
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.junit.InSequence;
-import org.jboss.pnc.coordinator.builder.BuildCoordinator;
-import org.jboss.pnc.coordinator.builder.BuildSetTask;
-import org.jboss.pnc.coordinator.builder.BuildTask;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.BuildCoordinationStatus;
 import org.jboss.pnc.spi.BuildSetStatus;
+import org.jboss.pnc.spi.coordinator.BuildCoordinator;
+import org.jboss.pnc.spi.coordinator.BuildSetTask;
+import org.jboss.pnc.spi.coordinator.BuildTask;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;

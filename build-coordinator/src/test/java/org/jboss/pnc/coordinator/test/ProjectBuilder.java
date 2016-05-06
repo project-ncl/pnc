@@ -18,9 +18,6 @@
 package org.jboss.pnc.coordinator.test;
 
 import org.jboss.arquillian.container.test.api.Deployment;
-import org.jboss.pnc.coordinator.builder.BuildCoordinator;
-import org.jboss.pnc.coordinator.builder.BuildSetTask;
-import org.jboss.pnc.coordinator.builder.BuildTask;
 import org.jboss.pnc.coordinator.test.event.TestCDIBuildSetStatusChangedReceiver;
 import org.jboss.pnc.coordinator.test.event.TestCDIBuildStatusChangedReceiver;
 import org.jboss.pnc.mock.datastore.DatastoreMock;
@@ -32,6 +29,9 @@ import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.mock.MockUser;
 import org.jboss.pnc.spi.BuildCoordinationStatus;
 import org.jboss.pnc.spi.BuildSetStatus;
+import org.jboss.pnc.spi.coordinator.BuildCoordinator;
+import org.jboss.pnc.spi.coordinator.BuildSetTask;
+import org.jboss.pnc.spi.coordinator.BuildTask;
 import org.jboss.pnc.spi.datastore.DatastoreException;
 import org.jboss.pnc.spi.events.BuildCoordinationStatusChangedEvent;
 import org.jboss.pnc.spi.events.BuildSetStatusChangedEvent;
@@ -52,6 +52,7 @@ import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+
 
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2015-01-06.

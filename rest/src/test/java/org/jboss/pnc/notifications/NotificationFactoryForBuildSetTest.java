@@ -17,16 +17,15 @@
  */
 package org.jboss.pnc.notifications;
 
-import org.jboss.pnc.coordinator.events.DefaultBuildSetStatusChangedEvent;
 import org.jboss.pnc.rest.notifications.DefaultNotificationFactory;
 import org.jboss.pnc.spi.BuildSetStatus;
+import org.jboss.pnc.spi.coordinator.events.DefaultBuildSetStatusChangedEvent;
 import org.jboss.pnc.spi.notifications.model.BuildSetChangedPayload;
 import org.jboss.pnc.spi.notifications.model.EventType;
 import org.jboss.pnc.spi.notifications.model.Notification;
 import org.jboss.pnc.spi.notifications.model.NotificationFactory;
 import org.junit.Test;
 
-import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import static org.assertj.core.api.Assertions.assertThat;

@@ -20,7 +20,7 @@ package org.jboss.pnc.coordinator.builder.filtering;
 
 import java.util.function.Predicate;
 
-import org.jboss.pnc.coordinator.builder.BuildTask;
+import org.jboss.pnc.spi.coordinator.BuildTask;
 
 /**
  * Represents different filtering policies for {@link org.jboss.pnc.executor.executor.BuildExecutionTask}.

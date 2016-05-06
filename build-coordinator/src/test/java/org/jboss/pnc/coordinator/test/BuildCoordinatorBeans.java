@@ -17,8 +17,8 @@
  */
 package org.jboss.pnc.coordinator.test;
 
-import org.jboss.pnc.coordinator.builder.BuildCoordinator;
 import org.jboss.pnc.coordinator.builder.BuildQueue;
+import org.jboss.pnc.spi.coordinator.BuildCoordinator;
 
 /**
  * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com
