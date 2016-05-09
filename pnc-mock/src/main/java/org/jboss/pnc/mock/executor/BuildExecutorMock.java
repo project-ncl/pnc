@@ -18,8 +18,6 @@
 
 package org.jboss.pnc.mock.executor;
 
-import org.jboss.pnc.executor.DefaultBuildExecutionSession;
-import org.jboss.pnc.executor.DefaultBuildExecutor;
 import org.jboss.pnc.mock.builddriver.BuildDriverResultMock;
 import org.jboss.pnc.mock.model.builders.TestProjectConfigurationBuilder;
 import org.jboss.pnc.mock.repositorymanager.RepositoryManagerResultMock;
@@ -36,7 +34,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.inject.Specializes;
+import javax.enterprise.inject.Alternative;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -47,9 +45,9 @@ import java.util.function.Consumer;
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
-@Specializes
 @ApplicationScoped
-public class BuildExecutorMock extends DefaultBuildExecutor implements BuildExecutor {
+@Alternative
+public class BuildExecutorMock implements BuildExecutor {
 
     private final Logger log = LoggerFactory.getLogger(BuildExecutorMock.class);
 
@@ -73,7 +71,7 @@ public class BuildExecutorMock extends DefaultBuildExecutor implements BuildExec
 
         log.debug("Starting mock build execution for buildExecutionConfiguration.id {}", buildExecutionConfiguration.getId());
 
-        BuildExecutionSession buildExecutionSession = new DefaultBuildExecutionSession(buildExecutionConfiguration, onBuildExecutionStatusChangedEvent);
+        BuildExecutionSession buildExecutionSession = new BuildExecutionSessionMock(buildExecutionConfiguration, onBuildExecutionStatusChangedEvent);
         buildExecutionSession.setStatus(BuildExecutionStatus.NEW);
 
         runningExecutions.put(buildExecutionConfiguration.getId(), buildExecutionSession);
