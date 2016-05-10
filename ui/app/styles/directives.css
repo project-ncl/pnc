@@ -108,3 +108,16 @@
     margin: 2px 0;
     border-radius: 1px;
 }
+
+
+/**
+ * product-import-bc-form
+ */
+.available-versions {
+	margin-left: -10px;
+}
+.available-versions-item {
+	display: inline-block;
+	padding-left: 10px;
+	min-width: 150px;
+}
