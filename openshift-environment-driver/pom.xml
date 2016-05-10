@@ -78,12 +78,17 @@
       <artifactId>slf4j-simple</artifactId>
       <scope>test</scope>
     </dependency>
-
     <dependency>
-      <groupId>org.jboss.pnc</groupId>
-      <artifactId>test-arquillian-container</artifactId>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>org.jboss.pnc</groupId>
+      <artifactId>test-common</artifactId>
+      <scope>test</scope>
+    </dependency>
+
     <!-- /Test dependencies -->
 
     <dependency>
