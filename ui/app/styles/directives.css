@@ -121,3 +121,23 @@
     padding-left: 10px;
     min-width: 150px;
 }
+
+
+/**
+ * product-import-tree
+ */
+.bc-tree .node-sucess {
+    color: #3f9c35;
+}
+.bc-tree .node-warning {
+    color: #ec7a08;
+}
+.bc-tree .node-critical {
+    color: #cc0000;
+}
+
+.bc-tree .node-selected .node-sucess,
+.bc-tree .node-selected .node-warning,
+.bc-tree .node-selected .node-critical {
+    color: white;
+}
