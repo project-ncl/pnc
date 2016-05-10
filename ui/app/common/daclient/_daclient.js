@@ -15,40 +15,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-'use strict';
+(function() {
+  'use strict';
 
-(function () {
+  angular.module('pnc.common.daclient', []);
 
-  var module = angular.module('pnc.import', [
-    'ui.router',
-    'ui.bootstrap',
-    'pnc.common.restclient',
-    'pnc.util.date_utils',
-    'angularUtils.directives.uiBreadcrumbs',
-    'pnc.util.confirmClick',
-    'angular-websocket'
-  ]);
-
-
-  module.config(['$stateProvider', function ($stateProvider) {
-
-
-    $stateProvider.state('import', {
-      abstract: true,
-      url: '/import',
-      views: {
-        'content@': {
-          templateUrl: 'common/templates/single-col.tmpl.html'
-        }
-      },
-      data: {
-        displayName: 'Product Import',
-        proxy: 'import.product'
-      },
-      resolve: {
-      }
-    });
-
-
-  }]);
 })();
