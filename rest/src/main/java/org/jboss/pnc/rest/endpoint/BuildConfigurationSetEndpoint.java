@@ -306,7 +306,7 @@ public class BuildConfigurationSetEndpoint extends AbstractEndpoint<BuildConfigu
                     .email(authProvider.getEmail()).build();
             datastore.createNewUser(currentUser);
         }
-        BuildTriggerer.BuildConfigurationSetTriggerResult result = null;
+        BuildTriggerer.BuildConfigurationSetTriggerResult result;
         // if callbackUrl is provided trigger build accordingly
         if (callbackUrl == null || callbackUrl.isEmpty()) {
             result = buildTriggerer.triggerBuildConfigurationSet(id, currentUser, rebuildAll);

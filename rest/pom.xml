@@ -199,6 +199,11 @@
       <artifactId>resteasy-jaxrs</artifactId>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>org.jboss.pnc</groupId>
+      <artifactId>datastore</artifactId>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
   <build>
