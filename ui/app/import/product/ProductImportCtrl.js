@@ -51,9 +51,27 @@
        * Given node, return string label to use in the tree.
        */
       var getNodeText = function (node) {
-        return node.nodeData.gav.groupId + ':<strong>' +
+
+        var nodeClass = 'text-';
+        var nodeTitle = '';
+
+        if (!node.getParent().nodeData) {
+          nodeClass = '';
+        } else if (node.nodeData.internallyBuilt) {
+          nodeClass += 'success';
+          nodeTitle = 'The artifact was already built.';
+        } else if (node.nodeData.availableVersions && node.nodeData.availableVersions.length) {
+          nodeClass += 'warning';
+          nodeTitle = 'Another version of the artifact was already built.';
+        } else {
+          nodeClass += 'danger';
+          nodeTitle = 'The artifact hasn\'t been built yet.';
+        }
+
+        return '<span class="' + nodeClass + '" title="' + nodeTitle + '">' +
+          node.nodeData.gav.groupId + ':<strong>' +
           node.nodeData.gav.artifactId + '</strong>:' +
-          node.nodeData.gav.version + (nodeIsValid(node) ? '' : '<span class="fa fa-exclamation-triangle" style="color: #ec7a08;"></span>');
+          node.nodeData.gav.version + (nodeIsValid(node) ? '' : '<span class="fa fa-exclamation-triangle" style="color: #ec7a08;"></span>') + '<span>';
       };
 
 

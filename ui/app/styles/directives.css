@@ -121,3 +121,13 @@
     padding-left: 10px;
     min-width: 150px;
 }
+
+
+/**
+ * product-import-tree
+ */
+.bc-tree .node-selected .text-success,
+.bc-tree .node-selected .text-warning,
+.bc-tree .node-selected .text-danger {
+    color: white;
+}
