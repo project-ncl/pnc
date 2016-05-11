@@ -59,11 +59,11 @@
         },
         _getDependencyArtifacts: {
           method: 'GET',
-          url: ENDPOINT + '/dependency-artifacts'
+          url: ENDPOINT + '/dependency-artifacts' + qh.searchOnly(['identifier', 'filename', 'checksum'])
         },
         _getBuiltArtifacts: {
           method: 'GET',
-          url: ENDPOINT + '/built-artifacts'
+          url: ENDPOINT + '/built-artifacts' + qh.searchOnly(['identifier', 'filename', 'checksum'])
         },
         _getByConfiguration: {
           method: 'GET',

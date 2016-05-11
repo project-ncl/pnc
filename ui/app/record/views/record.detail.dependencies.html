@@ -23,7 +23,7 @@
   </div>
 
   <div>
-    <input ng-model="searchDownloadedText" placeholder="Filter downloaded artifacts...">
+    <pnc-search-field class="search" page="depsCtrl.downloadedArtifacts" text="artifacts"></pnc-search-field>
   </div>
   <table class="table table-bordered table-striped">
     <thead>
@@ -33,7 +33,7 @@
       <th>Actions</th>
     </thead>
     <tbody>
-      <tr ng-repeat="artifact in depsCtrl.downloadedArtifacts.data | filter:searchDownloadedText">
+      <tr ng-repeat="artifact in depsCtrl.downloadedArtifacts.data">
         <td>{{ artifact.identifier }}</td>
         <td>{{ artifact.filename }}</td>
         <td>{{ artifact.checksum }}</td>
