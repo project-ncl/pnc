@@ -20,6 +20,7 @@ package org.jboss.pnc.rest.restmodel;
 import io.swagger.annotations.ApiModelProperty;
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.ArtifactQuality;
+import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.RepositoryType;
 import org.jboss.pnc.rest.validation.groups.WhenCreatingNew;
 import org.jboss.pnc.rest.validation.groups.WhenUpdating;
@@ -27,12 +28,11 @@ import org.jboss.pnc.rest.validation.groups.WhenUpdating;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
 import javax.xml.bind.annotation.XmlRootElement;
-
-import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
-
 import java.util.Date;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
 
 @XmlRootElement(name = "Artifact")
 public class ArtifactRest implements GenericRestEntity<Integer> {
@@ -79,9 +79,9 @@ public class ArtifactRest implements GenericRestEntity<Integer> {
         this.importDate = artifact.getImportDate();
         this.originUrl = artifact.getOriginUrl();
         this.buildRecordIds = nullableStreamOf(artifact.getBuildRecords())
-                .map(build -> build.getId()).collect(Collectors.toSet());
+                .map(BuildRecord::getId).collect(Collectors.toSet());
         this.dependantBuildRecordIds = nullableStreamOf(artifact.getDependantBuildRecords())
-                .map(depBuild -> depBuild.getId()).collect(Collectors.toSet());
+                .map(BuildRecord::getId).collect(Collectors.toSet());
     }
 
     @Override
@@ -182,4 +182,20 @@ public class ArtifactRest implements GenericRestEntity<Integer> {
         this.dependantBuildRecordIds = dependantBuildRecordIds;
     }
 
+    @Override
+    public String toString() {
+        return "ArtifactRest{" +
+                "id=" + id +
+                ", identifier='" + identifier + '\'' +
+                ", artifactQuality=" + artifactQuality +
+                ", repoType=" + repoType +
+                ", checksum='" + checksum + '\'' +
+                ", filename='" + filename + '\'' +
+                ", deployUrl='" + deployUrl + '\'' +
+                ", buildRecordIds=" + buildRecordIds +
+                ", dependantBuildRecordIds=" + dependantBuildRecordIds +
+                ", importDate=" + importDate +
+                ", originUrl='" + originUrl + '\'' +
+                '}';
+    }
 }

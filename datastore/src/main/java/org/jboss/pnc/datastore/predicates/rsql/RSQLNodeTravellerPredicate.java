@@ -139,9 +139,19 @@ public class RSQLNodeTravellerPredicate<Entity> {
                     logger.info("Parsing LogicalNode {}", node);
                     Iterator<Node> iterator = node.iterator();
                     if (node instanceof AndNode) {
-                        return visit(iterator.next()) && visit(iterator.next());
+                        boolean result = true;
+                        while (iterator.hasNext()) {
+                            Node next = iterator.next();
+                            result &= visit(next);
+                        }
+                        return result;
                     } else if (node instanceof OrNode) {
-                        return visit(iterator.next()) || visit(iterator.next());
+                        boolean result = false;
+                        while (iterator.hasNext()) {
+                            Node next = iterator.next();
+                            result |= visit(next);
+                        }
+                        return result;
                     } else {
                         throw new UnsupportedOperationException("Logical operation not supported");
                     }
@@ -219,7 +229,7 @@ public class RSQLNodeTravellerPredicate<Entity> {
         };
     }
 
-    private final String preprocessRSQL(String rsql) {
+    private String preprocessRSQL(String rsql) {
         String result = rsql;
         Matcher matcher = likePattern.matcher(rsql);
         while (matcher.find()) {

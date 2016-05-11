@@ -18,13 +18,8 @@
 package org.jboss.pnc.mavenrepositorymanager;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPut;
-import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.commonjava.indy.client.core.Indy;
@@ -42,7 +37,6 @@ import org.jboss.pnc.test.category.ContainerTest;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
-import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -75,23 +69,7 @@ public class UploadTwoThenVerifyExtractedArtifactsContainThemTest
         for (String path : new String[] { pomPath, jarPath }) {
             final String url = UrlUtils.buildUrl(baseUrl, path);
 
-            HttpPut put = new HttpPut(url);
-            put.setEntity(new StringEntity("This is a test"));
-
-            boolean uploaded = client.execute(put, new ResponseHandler<Boolean>() {
-                @Override
-                public Boolean handleResponse(HttpResponse response) throws ClientProtocolException, IOException {
-                    try {
-                        return response.getStatusLine().getStatusCode() == 201;
-                    } finally {
-                        if (response instanceof CloseableHttpResponse) {
-                            IOUtils.closeQuietly((CloseableHttpResponse) response);
-                        }
-                    }
-                }
-            });
-
-            assertThat("Failed to upload: " + url, uploaded, equalTo(true));
+            assertThat("Failed to upload: " + url, ArtifactUploadUtils.put(client, url, "This is a test"), equalTo(true));
         }
 
         // extract the "built" artifacts we uploaded above.
@@ -121,15 +99,12 @@ public class UploadTwoThenVerifyExtractedArtifactsContainThemTest
         // check that we can download the two files from the build repository
         for (String path : new String[] { pomPath, jarPath }) {
             final String url = indy.content().contentUrl(StoreType.hosted, rc.getBuildRepositoryId(), path);
-            boolean downloaded = client.execute(new HttpGet(url), new ResponseHandler<Boolean>() {
-                @Override
-                public Boolean handleResponse(HttpResponse response) throws ClientProtocolException, IOException {
-                    try {
-                        return response.getStatusLine().getStatusCode() == 200;
-                    } finally {
-                        if (response instanceof CloseableHttpResponse) {
-                            IOUtils.closeQuietly((CloseableHttpResponse) response);
-                        }
+            boolean downloaded = client.execute(new HttpGet(url), response -> {
+                try {
+                    return response.getStatusLine().getStatusCode() == 200;
+                } finally {
+                    if (response instanceof CloseableHttpResponse) {
+                        IOUtils.closeQuietly((CloseableHttpResponse) response);
                     }
                 }
             });
