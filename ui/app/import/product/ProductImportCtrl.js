@@ -52,19 +52,19 @@
        */
       var getNodeText = function (node) {
 
-        var nodeClass = 'node-';
+        var nodeClass = 'text-';
         var nodeTitle = '';
 
         if (!node.getParent().nodeData) {
           nodeClass = '';
         } else if (node.nodeData.internallyBuilt) {
-          nodeClass += 'sucess';
+          nodeClass += 'success';
           nodeTitle = 'The artifact was already built.';
         } else if (node.nodeData.availableVersions && node.nodeData.availableVersions.length) {
           nodeClass += 'warning';
           nodeTitle = 'Another version of the artifact was already built.';
         } else {
-          nodeClass += 'critical';
+          nodeClass += 'danger';
           nodeTitle = 'The artifact hasn\'t been built yet.';
         }
 
