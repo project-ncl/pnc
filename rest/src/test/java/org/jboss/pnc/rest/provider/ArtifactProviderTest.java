@@ -45,18 +45,19 @@ public class ArtifactProviderTest {
     private final SpringDataRSQLPredicateProducer predicateProvider = new SpringDataRSQLPredicateProducer();
     private final SortInfoProducer sortInfoProducer = new DefaultSortInfoProducer();
 
-    private final Artifact a1 = createArtifact(100, "booya");
-    private final Artifact a2 = createArtifact(1, "woohoo");
-    private final Artifact a3 = createArtifact(2, "aaa");
+    private final Artifact a1 = createArtifact(100, "booya", "asdf");
+    private final Artifact a2 = createArtifact(1, "woohoo", "fdsa");
+    private final Artifact a3 = createArtifact(2, "aaa", "gggg");
 
     private final ArtifactRest a1Rest = new ArtifactRest(a1);
     private final ArtifactRest a2Rest = new ArtifactRest(a2);
     private final ArtifactRest a3Rest = new ArtifactRest(a3);
 
-    private Artifact createArtifact(int id, String filename) {
+    private Artifact createArtifact(int id, String filename, String checkSum) {
         Artifact artifact = new Artifact();
         artifact.setId(id);
         artifact.setFilename(filename);
+        artifact.setChecksum(checkSum);
         return artifact;
     }
 
@@ -88,6 +89,60 @@ public class ArtifactProviderTest {
         CollectionInfo<ArtifactRest> artifacts = provider.getBuiltArtifactsForBuildRecord(0, 100, null, "filename==woohoo", 12);
         // then
         assertThat(artifacts.getContent()).usingFieldByFieldElementComparator().containsExactly(a2Rest);
+    }
+
+    @Test
+    public void shouldFilterBuiltArtifactsByFilenameIdOrChecksum() {
+        // given
+        ArtifactProvider provider = artifactProviderWithBuiltResult();
+        //when
+        CollectionInfo<ArtifactRest> artifacts = provider.getBuiltArtifactsForBuildRecord(0, 100, null, "id==2 or checksum == asdf or filename==woohoo", 12);
+        // then
+        assertThat(artifacts.getContent()).usingFieldByFieldElementComparator().containsExactly(a1Rest, a2Rest, a3Rest);
+    }
+
+    @Test
+    public void shouldFilterBuiltArtifactsByFilenameIdAndChecksum() {
+        // given
+        ArtifactProvider provider = artifactProviderWithBuiltResult();
+
+
+        String matchingFilter = "id==100 and checksum == asdf and filename==booya";
+        CollectionInfo<ArtifactRest> artifacts = provider.getBuiltArtifactsForBuildRecord(0, 100, null, matchingFilter, 12);
+        assertThat(artifacts.getContent()).usingFieldByFieldElementComparator().containsExactly(a1Rest);
+
+
+        String nonMatchingFilter = "id==100 and checksum == asdf and filename==woohoo";
+        artifacts = provider.getBuiltArtifactsForBuildRecord(0, 100, null, nonMatchingFilter, 12);
+        assertThat(artifacts.getContent()).isEmpty();
+    }
+
+    @Test
+    public void shouldReturnAllWithoutFilterAndSort() {
+        // given
+        ArtifactProvider provider = artifactProviderWithBuiltResult();
+        //when
+        CollectionInfo<ArtifactRest> artifacts = provider.getBuiltArtifactsForBuildRecord(0, 100, null, null, 12);
+        // then
+        assertThat(artifacts.getContent()).usingFieldByFieldElementComparator().containsExactly(a1Rest, a2Rest, a3Rest);
+    }
+
+    @Test
+    public void shouldPaginateProperly() {
+        // given
+        ArtifactProvider provider = artifactProviderWithBuiltResult();
+
+        //when
+        CollectionInfo<ArtifactRest> artifacts = provider.getBuiltArtifactsForBuildRecord(0, 1, null, "id == 2 or checksum == asdf", 12);
+        // then
+        assertThat(artifacts.getContent()).usingFieldByFieldElementComparator().containsExactly(a1Rest);
+        assertThat(artifacts.getTotalPages()).isEqualTo(2);
+
+        //when
+        artifacts = provider.getBuiltArtifactsForBuildRecord(1, 1, null, "id == 2 or checksum == asdf", 12);
+        // then
+        assertThat(artifacts.getContent()).usingFieldByFieldElementComparator().containsExactly(a3Rest);
+        assertThat(artifacts.getTotalPages()).isEqualTo(2);
     }
 
     private ArtifactProvider artifactProviderWithBuiltResult() {

@@ -35,6 +35,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
 import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withDependantBuildRecordId;
@@ -60,34 +62,39 @@ public class ArtifactProvider extends AbstractProvider<Artifact, ArtifactRest> {
         BuildRecord buildRecord = buildRecordRepository.queryById(buildRecordId);
 
         List<Artifact> fullArtifactList = new ArrayList<>();
-        for (Artifact artifact : buildRecord.getBuiltArtifacts()) {
-            fullArtifactList.add(artifact);
-        }
-        for (Artifact artifact : buildRecord.getDependencies()) {
-            fullArtifactList.add(artifact);
-        }
+        fullArtifactList.addAll(buildRecord.getBuiltArtifacts());
+        fullArtifactList.addAll(buildRecord.getDependencies());
 
-        Predicate<ArtifactRest> queryPredicate = rsqlPredicateProducer.getStreamPredicate(ArtifactRest.class, query);
-        SortInfo sortInfo = sortInfoProducer.getSortInfo(sortingRsql);
-
-        return nullableStreamOf(fullArtifactList)
-                .map(ArtifactRest::new).skip(pageIndex * pageSize)
-                .filter(queryPredicate).sorted(sortInfo.getComparator())
-                .limit(pageSize).collect(new CollectionInfoCollector<>(pageIndex, pageSize, fullArtifactList.size()));
+        return filterAndSort(pageIndex, pageSize, sortingRsql, query,
+                ArtifactRest.class, fullArtifactList,
+                ArtifactRest::new);
     }
 
     public CollectionInfo<ArtifactRest> getBuiltArtifactsForBuildRecord(int pageIndex, int pageSize, String sortingRsql, String query,
             int buildRecordId) {
         BuildRecord buildRecord = buildRecordRepository.queryById(buildRecordId);
 
-        Predicate<ArtifactRest> queryPredicate = rsqlPredicateProducer.getStreamPredicate(ArtifactRest.class, query);
+        List<Artifact> builtArtifacts = buildRecord.getBuiltArtifacts();
+
+        return filterAndSort(pageIndex, pageSize, sortingRsql, query,
+                ArtifactRest.class, builtArtifacts,
+                ArtifactRest::new);
+    }
+
+    private <DTO, Model> CollectionInfo<DTO> filterAndSort(int pageIndex, int pageSize, String sortingRsql, String query,
+                                                       Class<DTO> selectingClass, List<Model> builtArtifacts,
+                                                           DtoMapper<Model, DTO> dtoSupplier) {
+        Predicate<DTO> queryPredicate = rsqlPredicateProducer.getStreamPredicate(selectingClass, query);
         SortInfo sortInfo = sortInfoProducer.getSortInfo(sortingRsql);
 
-        return nullableStreamOf(buildRecord.getBuiltArtifacts())
-                .map(ArtifactRest::new)
-                .filter(queryPredicate).sorted(sortInfo.getComparator())
+        Stream<DTO> filteredStream = nullableStreamOf(builtArtifacts)
+                .map(dtoSupplier::map)
+                .filter(queryPredicate).sorted(sortInfo.getComparator());
+        List<DTO> filteredList = filteredStream.collect(Collectors.toList());
+
+        return filteredList.stream()
                 .skip(pageIndex * pageSize)
-                .limit(pageSize).collect(new CollectionInfoCollector<>(pageIndex, pageSize, (buildRecord.getBuiltArtifacts().size() + pageSize -1)/pageSize));
+                .limit(pageSize).collect(new CollectionInfoCollector<>(pageIndex, pageSize, (filteredList.size() + pageSize -1)/pageSize));
     }
 
     public CollectionInfo<ArtifactRest> getDependencyArtifactsForBuildRecord(int pageIndex, int pageSize, String sortingRsql, String query,
@@ -103,5 +110,9 @@ public class ArtifactProvider extends AbstractProvider<Artifact, ArtifactRest> {
     @Override
     protected Function<? super ArtifactRest, ? extends Artifact> toDBModel() {
         throw new UnsupportedOperationException();
+    }
+
+    public interface DtoMapper<Model, DTO> {
+        DTO map(Model m);
     }
 }
