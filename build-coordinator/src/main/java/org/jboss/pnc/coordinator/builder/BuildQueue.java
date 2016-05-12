@@ -22,7 +22,6 @@ import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
 import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
 import org.jboss.pnc.model.BuildConfigurationAudited;
-import org.jboss.pnc.spi.BuildCoordinationStatus;
 import org.jboss.pnc.spi.coordinator.BuildSetTask;
 import org.jboss.pnc.spi.coordinator.BuildTask;
 import org.slf4j.Logger;
@@ -112,9 +111,6 @@ public class BuildQueue {
     public synchronized void enqueueTaskSet(BuildSetTask taskSet) {
         log.debug("adding task set: {}", taskSet);
         taskSets.add(taskSet);
-        taskSet.getBuildTasks().stream()
-                .filter(this::rejectAlreadySubmitted)
-                .forEach(this::addTask);
     }
 
     /**
@@ -188,18 +184,8 @@ public class BuildQueue {
     }
 
 
-    private boolean isBuildAlreadySubmitted(BuildTask buildTask) {
+    public boolean isBuildAlreadySubmitted(BuildTask buildTask) {
         return waitingTasks.contains(buildTask) || tasksInProgress.contains(buildTask);
-    }
-
-    private boolean rejectAlreadySubmitted(BuildTask buildTask) {
-        if (isBuildAlreadySubmitted(buildTask)) {
-            buildTask.setStatus(BuildCoordinationStatus.REJECTED);
-            buildTask.setStatusDescription("The configuration is already in the build queue.");
-            return false;
-        } else {
-            return true;
-        }
     }
 
     private List<BuildTask> extractReadyTasks() {
@@ -228,7 +214,7 @@ public class BuildQueue {
                 '}';
     }
 
-    public boolean isEmpty() {
+    public synchronized boolean isEmpty() {
         return tasksInProgress.isEmpty() && waitingTasks.isEmpty() && readyTasks.isEmpty() && taskSets.isEmpty();
     }
 }

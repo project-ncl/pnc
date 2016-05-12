@@ -20,15 +20,13 @@ package org.jboss.pnc.spi.coordinator;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.User;
+import org.jboss.pnc.spi.BuildCoordinationStatus;
 import org.jboss.pnc.spi.BuildResult;
 import org.jboss.pnc.spi.exception.BuildConflictException;
 import org.jboss.pnc.spi.exception.CoreException;
 
 import java.util.List;
 
-/**
- * @author Tomas Remes
- */
 public interface BuildCoordinator {
 
     BuildTask build(BuildConfiguration buildConfiguration, User user, boolean rebuildAll) throws BuildConflictException;
@@ -38,6 +36,8 @@ public interface BuildCoordinator {
     List<BuildTask> getSubmittedBuildTasks();
 
     void updateBuildStatus(BuildTask buildTask, BuildResult buildResult);
+
+    void updateBuildTaskStatus(BuildTask task, BuildCoordinationStatus status);
 
     public void start();
 

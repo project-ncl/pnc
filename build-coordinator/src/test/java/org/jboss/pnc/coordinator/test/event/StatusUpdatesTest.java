@@ -115,7 +115,7 @@ public class StatusUpdatesTest {
         User user = User.Builder.newBuilder().id(1).username("test-user-1").build();
         Set<BuildTask> buildTasks = initializeBuildTaskSet(configurationBuilder, user, (buildConfigSetRecord) -> {}).getBuildTasks();
         buildTasks.forEach((bt) -> {
-            bt.setStatus(BuildCoordinationStatus.DONE);
+            buildCoordinator.updateBuildTaskStatus(bt, BuildCoordinationStatus.DONE);
             buildCoordinator.updateBuildStatus(bt, createBuildResult());
         });
         this.waitForConditionWithTimeout(() -> buildTasks.stream().allMatch(task -> task.getStatus().isCompleted()), 4);
@@ -140,7 +140,9 @@ public class StatusUpdatesTest {
             buildStatusNotifications.subscribe(new BuildCallBack(id, statusChangeEventConsumer));
         });
 
-        buildTasks.forEach((bt) -> bt.setStatus(BuildCoordinationStatus.DONE));
+        buildTasks.forEach((bt) -> {
+            buildCoordinator.updateBuildTaskStatus(bt, BuildCoordinationStatus.DONE);
+        });
 
         tasksIds.forEach((id) -> {
             Assert.assertTrue("Did not receive update for task " + id, receivedUpdatesForId.contains(id));

@@ -22,24 +22,20 @@ import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.BuildStatus;
 import org.jboss.pnc.model.ProductMilestone;
-import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.BuildSetStatus;
-import org.jboss.pnc.spi.coordinator.events.DefaultBuildSetStatusChangedEvent;
-import org.jboss.pnc.spi.events.BuildSetStatusChangedEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2015-03-26.
  */
-public class BuildSetTask { // TODO make this class clear DTO
+public class BuildSetTask {
 
     private final Logger log = LoggerFactory.getLogger(BuildCoordinator.class);
 
@@ -79,31 +75,15 @@ public class BuildSetTask { // TODO make this class clear DTO
         return buildConfigSetRecord.getBuildConfigurationSet();
     }
 
-    public BuildSetStatusChangedEvent setStatus(BuildSetStatus status) {
-        log.trace("Setting new status {} on buildSetTask.id {}.", status, getId());
-        BuildSetStatus oldStatus = this.status;
+    public void setStatus(BuildSetStatus status) {
         this.status = status;
-        Integer userId = Optional.ofNullable(buildConfigSetRecord.getUser()).map(User::getId).orElse(null);
-
-        BuildSetStatusChangedEvent buildSetStatusChangedEvent = new DefaultBuildSetStatusChangedEvent(
-                oldStatus,
-                status,
-                getId(),
-                buildConfigSetRecord.getBuildConfigurationSet().getId(),
-                buildConfigSetRecord.getBuildConfigurationSet().getName(),
-                buildConfigSetRecord.getStartTime(),
-                buildConfigSetRecord.getEndTime(),
-                userId);
-        log.debug("Notifying build set status update {}.", buildSetStatusChangedEvent);
-
-        return buildSetStatusChangedEvent;
     }
 
     /**
      * Notify the set that the state of one of it's tasks has changed.
      *
      */
-    public Optional<BuildSetStatusChangedEvent> taskStatusUpdatedToFinalState() {
+    public void taskStatusUpdatedToFinalState() {
         // If any of the build tasks have failed or all are complete, then the build set is done
         if(buildTasks.stream().anyMatch(bt -> bt.getStatus().hasFailed())) {
             log.debug("Marking build set as FAILED as one or more tasks failed.");
@@ -111,11 +91,11 @@ public class BuildSetTask { // TODO make this class clear DTO
                 logTasksStatus(buildTasks);
             }
             buildConfigSetRecord.setStatus(BuildStatus.FAILED);
-            return finishBuildSetTask();
+            finishBuildSetTask();
         } else if (buildTasks.stream().allMatch(bt -> bt.getStatus().isCompleted())) {
             log.debug("Marking build set as SUCCESS.");
             buildConfigSetRecord.setStatus(BuildStatus.SUCCESS);
-            return finishBuildSetTask();
+            finishBuildSetTask();
         } else {
             if (log.isTraceEnabled()) {
                 List<Integer> running = buildTasks.stream()
@@ -125,7 +105,6 @@ public class BuildSetTask { // TODO make this class clear DTO
                         .collect(Collectors.toList());
                 log.trace("There are still running or waiting builds [{}].", running);
             }
-            return Optional.empty();
         }
     }
 
@@ -134,9 +113,8 @@ public class BuildSetTask { // TODO make this class clear DTO
         log.debug("Tasks statuses: {}", taskStatuses);
     }
 
-    private Optional<BuildSetStatusChangedEvent> finishBuildSetTask() {
+    private void finishBuildSetTask() {
         buildConfigSetRecord.setEndTime(new Date());
-        return Optional.of(setStatus(BuildSetStatus.DONE));
     }
 
     public BuildSetStatus getStatus() {

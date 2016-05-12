@@ -38,6 +38,7 @@ package org.jboss.pnc.mock.coordinator;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.User;
+import org.jboss.pnc.spi.BuildCoordinationStatus;
 import org.jboss.pnc.spi.BuildResult;
 import org.jboss.pnc.spi.coordinator.BuildCoordinator;
 import org.jboss.pnc.spi.coordinator.BuildSetTask;
@@ -86,6 +87,10 @@ public class BuildCoordinatorMock implements BuildCoordinator {
     @Override
     public void updateBuildStatus(BuildTask buildTask, BuildResult buildResult) {
 
+    }
+
+    @Override
+    public void updateBuildTaskStatus(BuildTask task, BuildCoordinationStatus status) {
     }
 
     public void addActiveTask(BuildTask task) {
