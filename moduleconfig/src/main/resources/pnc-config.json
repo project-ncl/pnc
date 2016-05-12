@@ -20,7 +20,9 @@
                     "buildDriverId": "termd-build-driver",
                     "buildSchedulerId": "local-build-scheduler",
                     "executorThreadPoolSize": "1",
-                    "builderThreadPoolSize": "1"
+                    "builderThreadPoolSize": "1",
+                    "coordinatorThreadPoolSize": "1",
+                    "coordinatorMaxConcurrentBuilds": "10"
                 },
                 {
                     "@module-config": "termd-build-driver",

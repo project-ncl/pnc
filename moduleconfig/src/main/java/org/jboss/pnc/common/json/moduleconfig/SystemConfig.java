@@ -30,12 +30,27 @@ public class SystemConfig extends AbstractModuleConfig {
 
     private String buildSchedulerId;
 
+    /**
+     * Number of threads that are used to run executor operations
+     * (setting up the repos, configuring the build, triggering the build, collecting the results)
+     */
     private String executorThreadPoolSize;
 
+    /**
+     * Number of threads that are used to run the build and listen for completion.
+     */
     private String builderThreadPoolSize;
 
+    /**
+     * number of threads that are taking a build task to be build and starting the building process
+     * (their job finishes at starting bpm build, then they go back to grab the next build task)
+     */
     private int coordinatorThreadPoolSize;
 
+    /**
+     * maximum number of build tasks processed at a time (build tasks that are in progress,
+     * regardless of whether they are starting bpm process, being build by executor, etc)
+     */
     private int coordinatorMaxConcurrentBuilds;
 
     public SystemConfig(
@@ -48,7 +63,7 @@ public class SystemConfig extends AbstractModuleConfig {
         this.buildDriverId = buildDriverId;
         this.buildSchedulerId = buildSchedulerId;
         this.executorThreadPoolSize = executorThreadPoolSize;
-        this.executorThreadPoolSize = builderThreadPoolSize;
+        this.builderThreadPoolSize = builderThreadPoolSize;
         this.coordinatorThreadPoolSize = toIntWithDefault("coordinatorThreadPoolSize", coordinatorThreadPoolSize, 1);
         this.coordinatorMaxConcurrentBuilds = toIntWithDefault("coordinatorMaxConcurrentBuilds", coordinatorMaxConcurrentBuilds, 10);
     }

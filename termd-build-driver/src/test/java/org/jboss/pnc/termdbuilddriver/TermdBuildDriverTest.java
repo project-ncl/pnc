@@ -64,7 +64,7 @@ public class TermdBuildDriverTest extends AbstractLocalBuildAgentTest {
         doReturn("mvn validate").when(jsr107BuildConfig).getBuildScript();
         doReturn("jsr107-test").when(jsr107BuildConfig).getName();
         
-        doReturn(new SystemConfig(null, null, null, "", null, null)).when(configuration).getModuleConfig(any());
+        doReturn(new SystemConfig(null, null, null, null, null, null)).when(configuration).getModuleConfig(any());
         
         
         buildExecutionMock = mock(BuildExecutionSession.class);
