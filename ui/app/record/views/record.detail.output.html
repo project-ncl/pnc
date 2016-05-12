@@ -23,7 +23,7 @@
   </div>
 
   <div>
-    <input ng-model="searchBuiltText" placeholder="Filter built artifacts...">
+    <pnc-search-field class="search" page="outputCtrl.builtArtifacts" text="artifacts"></pnc-search-field>
   </div>
   <table class="table table-bordered table-striped">
     <thead>
@@ -33,7 +33,7 @@
       <th>Actions</th>
     </thead>
     <tbody>
-      <tr ng-repeat="artifact in outputCtrl.builtArtifacts.data | filter:searchBuiltText">
+      <tr ng-repeat="artifact in outputCtrl.builtArtifacts.data">
         <td>{{ artifact.identifier }}</td>
         <td>{{ artifact.filename }}</td>
         <td>{{ artifact.checksum }}</td>
