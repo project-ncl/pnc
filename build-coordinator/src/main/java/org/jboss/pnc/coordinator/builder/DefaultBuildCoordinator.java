@@ -167,8 +167,8 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
 
     private boolean rejectAlreadySubmitted(BuildTask buildTask) {
         if (buildQueue.isBuildAlreadySubmitted(buildTask)) {
-            updateBuildTaskStatus(buildTask, BuildCoordinationStatus.REJECTED);
-            buildTask.setStatusDescription("The configuration is already in the build queue.");
+            updateBuildTaskStatus(buildTask, BuildCoordinationStatus.REJECTED,
+                    "The configuration is already in the build queue.");
             return false;
         } else {
             return true;
@@ -177,6 +177,10 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
 
 
     public void updateBuildTaskStatus(BuildTask task, BuildCoordinationStatus status){
+        updateBuildTaskStatus(task, status, null);
+    }
+
+    public void updateBuildTaskStatus(BuildTask task, BuildCoordinationStatus status, String statusDescription){
         BuildCoordinationStatus oldStatus = task.getStatus();
         Integer userId = Optional.ofNullable(task.getUser()).map(User::getId).orElse(null);
 
@@ -196,6 +200,7 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
         buildStatusChangedEventNotifier.fire(buildStatusChanged);
         log.trace("Fired buildStatusChangedEventNotifier after task {} status update to {}.", task.getId(), status);
         task.setStatus(status);
+        task.setStatusDescription(statusDescription);
     }
 
     public void updateBuildSetTaskStatus(BuildSetTask buildSetTask, BuildSetStatus status){
@@ -244,24 +249,32 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
                         task.getId(), task.getRebuildAll(), prepareBuildTaskFilterPredicate().test(task), task.getBuildConfigurationAudited().getIdRev());
                 if(!task.getRebuildAll() && prepareBuildTaskFilterPredicate().test(task)) {
                     log.info("[{}] Marking task as REJECTED_ALREADY_BUILT, because it has been already built", task.getId());
-                    updateBuildTaskStatus(task, BuildCoordinationStatus.REJECTED_ALREADY_BUILT);
-                    task.setStatusDescription("The configuration has already been built.");
+                    updateBuildTaskStatus(task, BuildCoordinationStatus.REJECTED_ALREADY_BUILT, "The configuration has already been built.");
                     markFinished(task);
                     return;
                 }
                 task.setStartTime(new Date());
-                updateBuildTaskStatus(task,BuildCoordinationStatus.BUILDING);
+                updateBuildTaskStatus(task, BuildCoordinationStatus.BUILDING);
             }
             buildScheduler.startBuilding(task, onComplete);
         } catch (CoreException | ExecutorException e) {
             log.debug(" Build coordination task failed. Setting it as SYSTEM_ERROR.", e);
-            updateBuildTaskStatus(task,BuildCoordinationStatus.SYSTEM_ERROR);
-            task.setStatusDescription(e.getMessage());
+            updateBuildTaskStatus(task, BuildCoordinationStatus.SYSTEM_ERROR, e.getMessage());
             try {
                 datastoreAdapter.storeResult(task, Optional.empty(), e);
             } catch (DatastoreException e1) {
                 log.error("Unable to store error [" + e.getMessage() + "] of build coordination task [" + task.getId() + "].", e1);
             }
+        } catch (Error error) {
+            log.error("Build coordination task failed with error! Setting it as SYSTEM_ERROR.", error);
+            log.error("The system probably is in an invalid state!");
+            updateBuildTaskStatus(task,BuildCoordinationStatus.SYSTEM_ERROR, error.getMessage());
+            try {
+                datastoreAdapter.storeResult(task, Optional.empty(), error);
+            } catch (DatastoreException e1) {
+                log.error("Unable to store error [" + error.getMessage() + "] of build coordination task [" + task.getId() + "].", e1);
+            }
+            throw error;
         }
     }
 
@@ -370,8 +383,8 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
     }
 
     public void finishDueToFailedDependency(BuildTask failedTask, BuildTask task) {
-        updateBuildTaskStatus(task, BuildCoordinationStatus.REJECTED_FAILED_DEPENDENCIES);
-        task.setStatusDescription("Dependent build " + failedTask.getBuildConfiguration().getName() + " failed.");
+        updateBuildTaskStatus(task, BuildCoordinationStatus.REJECTED_FAILED_DEPENDENCIES,
+                "Dependent build " + failedTask.getBuildConfiguration().getName() + " failed.");
         storeRejectedTask(task);
         buildQueue.removeTask(task);
     }

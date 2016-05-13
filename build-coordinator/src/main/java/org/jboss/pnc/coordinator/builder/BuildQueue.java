@@ -40,17 +40,20 @@ import java.util.stream.Collectors;
 /**
  * <h3>Build task queue.</h3>
  *
- * The queue consists of 4 collections:
+ * The queue consists of 5 collections:
  * <ul>
  * <li>taskSets - set of currently processed task sets</li>
  * <li>tasksInProgress - set of tasks that are being executed at the moment</li>
  * <li>readyTasks - queue of tasks that are ready to be executed but are waiting for a free executor (and throttling mechanism)</li>
  * <li>waitingTasks - tasks waiting for a dependency. As soon as the dependency is built, they are moved to readyTasks</li>
+ * <li>unfinishedTasks - tasks either waiting, ready or in progress.
+ * This collection is introduced to fix the race condition in {@link #take()},
+ * where a task is taken from readyTask, and later put into tasksInProgress and the method cannot be synchronized</li>
  * </ul>
  *
- * TODO: 1. taskSets can probably be removed
+ * TODO: 1. taskSets can probably be removed <br>
  * TODO: 2. Currently it throttles the number of tasks in progress. Is this necessary?
- *
+ * <p/>
  * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com
  * Date: 4/18/16
  * Time: 12:47 PM
@@ -61,6 +64,8 @@ public class BuildQueue {
     private final Logger log = LoggerFactory.getLogger(BuildQueue.class);
 
     private Configuration configuration;
+
+    private final Set<BuildTask> unfinishedTasks = new HashSet<>();
 
     private final BlockingQueue<BuildTask> readyTasks = new LinkedBlockingQueue<>();
     private final List<BuildTask> waitingTasks = new ArrayList<>();
@@ -136,6 +141,7 @@ public class BuildQueue {
         }
         readyTasks.remove(task);
         waitingTasks.remove(task);
+        unfinishedTasks.remove(task);
     }
 
     /**
@@ -184,8 +190,8 @@ public class BuildQueue {
     }
 
 
-    public boolean isBuildAlreadySubmitted(BuildTask buildTask) {
-        return waitingTasks.contains(buildTask) || tasksInProgress.contains(buildTask);
+    public synchronized boolean isBuildAlreadySubmitted(BuildTask buildTask) {
+        return unfinishedTasks.contains(buildTask);
     }
 
     private List<BuildTask> extractReadyTasks() {
@@ -197,6 +203,7 @@ public class BuildQueue {
     }
 
     private void addTask(BuildTask task) {
+        unfinishedTasks.add(task);
         if (task.readyToBuild()) {
             readyTasks.add(task);
         } else {
@@ -215,6 +222,7 @@ public class BuildQueue {
     }
 
     public synchronized boolean isEmpty() {
-        return tasksInProgress.isEmpty() && waitingTasks.isEmpty() && readyTasks.isEmpty() && taskSets.isEmpty();
+        return tasksInProgress.isEmpty() && waitingTasks.isEmpty() && readyTasks.isEmpty()
+                && unfinishedTasks.isEmpty() && taskSets.isEmpty();
     }
 }
