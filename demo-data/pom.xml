@@ -30,7 +30,7 @@
 
   <artifactId>demo-data</artifactId>
 
-  <description>Data for DEMO</description>
+  <description>Imports for initial DEMO data.</description>
 
   <dependencies>
     <!-- Intermodule dependencies -->

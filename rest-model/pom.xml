@@ -34,7 +34,7 @@
   <artifactId>rest-model</artifactId>
   <packaging>jar</packaging>
 
-  <description>REST Data Objects.</description>
+  <description>REST DTO.</description>
 
   <dependencies>
     <!-- Project dependencies -->

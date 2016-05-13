@@ -30,7 +30,7 @@
 
   <artifactId>maven-repository-manager</artifactId>
 
-  <description>Implementation of spi:org.jboss.pnc.spi.repositorymanager</description>
+  <description>Logic to operate with remote Indy repository manager (Implementation of spi:org.jboss.pnc.spi.repositorymanager).</description>
 
   <dependencies>
     <dependency>

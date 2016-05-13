@@ -31,7 +31,7 @@
   <artifactId>datastore</artifactId>
   <packaging>ejb</packaging>
 
-  <description>Implementation of spi:org.jboss.pnc.spi.datastore</description>
+  <description>Business logic for all DB operations (Implementation of spi:org.jboss.pnc.spi.datastore).</description>
 
   <dependencies>
     <!-- Project dependencies -->

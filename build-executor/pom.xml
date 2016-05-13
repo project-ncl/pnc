@@ -31,7 +31,7 @@
   <artifactId>build-executor</artifactId>
   <packaging>jar</packaging>
 
-  <description>Contains implementations of build executor, which include the business logic for executing builds. The build execution requires coordination across multiple remote services.</description>
+  <description>Contains implementations of build executor, which include the business logic for setting up the build environment, repositories and run the builds. Build execution coordinates the actions that run on remote services.</description>
 
   <dependencies>
     <!-- Intermodule dependencies -->
