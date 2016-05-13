@@ -32,6 +32,8 @@
   <artifactId>web</artifactId>
   <packaging>war</packaging>
 
+  <description>Web UI packaging (UI resources, Swagger).</description>
+
   <dependencies>
     <dependency>
       <groupId>org.jboss.pnc</groupId>

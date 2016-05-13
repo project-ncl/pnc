@@ -31,6 +31,8 @@
   <artifactId>ui</artifactId>
   <packaging>jar</packaging>
 
+  <description>UI resources and npm builds.</description>
+
   <properties>
     <grunt.build.arguments>dist</grunt.build.arguments>
   </properties>

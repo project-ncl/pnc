@@ -31,6 +31,8 @@
   <artifactId>auth</artifactId>
   <packaging>jar</packaging>
 
+  <description>Authentication related classes and KeyCloak integration.</description>
+
   <dependencies>
     <dependency>
       <groupId>org.apache.httpcomponents</groupId>

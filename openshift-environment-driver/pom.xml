@@ -29,6 +29,8 @@
 
   <artifactId>openshift-environment-driver</artifactId>
 
+  <description>Logic to operate with remote OpenShift environment provider (Implementation of org.jboss.pnc.spi.environment).</description>
+
   <properties>
     <java.util.logging.manager>org.jboss.logmanager.LogManager</java.util.logging.manager>
   </properties>

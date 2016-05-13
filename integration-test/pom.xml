@@ -31,6 +31,8 @@
   <artifactId>integration-test</artifactId>
   <packaging>jar</packaging>
 
+  <description>Tests for REST endpoints. REST to DB related tests run against im memory database. REST to executor related tests use mocked executor to avoid using remote services.</description>
+
   <dependencies>
     <dependency>
       <groupId>org.jboss.pnc</groupId>
