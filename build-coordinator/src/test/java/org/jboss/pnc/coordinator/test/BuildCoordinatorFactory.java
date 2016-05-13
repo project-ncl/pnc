@@ -22,13 +22,14 @@ import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
 import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
-import org.jboss.pnc.coordinator.builder.BuildCoordinator;
 import org.jboss.pnc.coordinator.builder.BuildQueue;
 import org.jboss.pnc.coordinator.builder.BuildSchedulerFactory;
+import org.jboss.pnc.coordinator.builder.DefaultBuildCoordinator;
 import org.jboss.pnc.coordinator.builder.datastore.DatastoreAdapter;
 import org.jboss.pnc.coordinator.builder.filtering.BuildTaskFilter;
 import org.jboss.pnc.coordinator.builder.filtering.HasSuccessfulBuildRecordFilter;
 import org.jboss.pnc.mock.datastore.DatastoreMock;
+import org.jboss.pnc.spi.coordinator.BuildCoordinator;
 import org.jboss.pnc.spi.events.BuildCoordinationStatusChangedEvent;
 import org.jboss.pnc.spi.events.BuildSetStatusChangedEvent;
 import org.jboss.pnc.test.cdi.TestInstance;
@@ -62,7 +63,7 @@ public class BuildCoordinatorFactory {
 
         Configuration configuration = createConfiguration();
         BuildQueue queue = new BuildQueue(configuration);
-        BuildCoordinator coordinator = new BuildCoordinator(datastoreAdapter, buildStatusChangedEventNotifier, buildSetStatusChangedEventNotifier,
+        BuildCoordinator coordinator = new DefaultBuildCoordinator(datastoreAdapter, buildStatusChangedEventNotifier, buildSetStatusChangedEventNotifier,
                 buildSchedulerFactory, taskFilters, queue, configuration);
         coordinator.start();
         queue.initSemaphore();

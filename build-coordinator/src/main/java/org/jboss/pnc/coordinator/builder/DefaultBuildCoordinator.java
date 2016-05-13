@@ -31,6 +31,11 @@ import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.BuildCoordinationStatus;
 import org.jboss.pnc.spi.BuildResult;
 import org.jboss.pnc.spi.BuildSetStatus;
+import org.jboss.pnc.spi.coordinator.BuildCoordinator;
+import org.jboss.pnc.spi.coordinator.BuildSetTask;
+import org.jboss.pnc.spi.coordinator.BuildTask;
+import org.jboss.pnc.spi.coordinator.events.DefaultBuildSetStatusChangedEvent;
+import org.jboss.pnc.spi.coordinator.events.DefaultBuildStatusChangedEvent;
 import org.jboss.pnc.spi.datastore.DatastoreException;
 import org.jboss.pnc.spi.events.BuildCoordinationStatusChangedEvent;
 import org.jboss.pnc.spi.events.BuildSetStatusChangedEvent;
@@ -59,9 +64,9 @@ import java.util.function.Predicate;
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-12-20.
  */
 @ApplicationScoped
-public class BuildCoordinator {
+public class DefaultBuildCoordinator implements BuildCoordinator {
 
-    private final Logger log = LoggerFactory.getLogger(BuildCoordinator.class);
+    private final Logger log = LoggerFactory.getLogger(DefaultBuildCoordinator.class);
 
     private Configuration configuration;
     private DatastoreAdapter datastoreAdapter;
@@ -74,11 +79,13 @@ public class BuildCoordinator {
 
     private BuildQueue buildQueue;
 
+    private Optional<BuildSetStatusChangedEvent> buildSetStatusChangedEvent;
+
     @Deprecated
-    public BuildCoordinator(){} //workaround for CDI constructor parameter injection
+    public DefaultBuildCoordinator(){} //workaround for CDI constructor parameter injection
 
     @Inject
-    public BuildCoordinator(DatastoreAdapter datastoreAdapter, Event<BuildCoordinationStatusChangedEvent> buildStatusChangedEventNotifier,
+    public DefaultBuildCoordinator(DatastoreAdapter datastoreAdapter, Event<BuildCoordinationStatusChangedEvent> buildStatusChangedEventNotifier,
                             Event<BuildSetStatusChangedEvent> buildSetStatusChangedEventNotifier, BuildSchedulerFactory buildSchedulerFactory,
                             Instance<BuildTaskFilter> taskFilters, BuildQueue buildQueue,
                             Configuration configuration) {
@@ -144,9 +151,7 @@ public class BuildCoordinator {
                 rebuildAll,
                 getBuildStatusChangedEventNotifier(),
                 () -> datastoreAdapter.getNextBuildRecordId());
-        BuildSetStatusChangedEvent event = buildSetTask.setStatus(BuildSetStatus.NEW);
-        buildSetStatusChangedEventNotifier.fire(event);
-
+        updateBuildSetTaskStatus(buildSetTask, BuildSetStatus.NEW);
         build(buildSetTask);
         return buildSetTask;
     }
@@ -154,7 +159,62 @@ public class BuildCoordinator {
     private void build(BuildSetTask buildSetTask) {
         if (!BuildSetStatus.REJECTED.equals(buildSetTask.getStatus())) {
             buildQueue.enqueueTaskSet(buildSetTask);
+            buildSetTask.getBuildTasks().stream()
+                    .filter(this::rejectAlreadySubmitted)
+                    .forEach(buildQueue::enqueueTask);
         }
+    }
+
+    private boolean rejectAlreadySubmitted(BuildTask buildTask) {
+        if (buildQueue.isBuildAlreadySubmitted(buildTask)) {
+            updateBuildTaskStatus(buildTask, BuildCoordinationStatus.REJECTED);
+            buildTask.setStatusDescription("The configuration is already in the build queue.");
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+
+    public void updateBuildTaskStatus(BuildTask task, BuildCoordinationStatus status){
+        BuildCoordinationStatus oldStatus = task.getStatus();
+        Integer userId = Optional.ofNullable(task.getUser()).map(User::getId).orElse(null);
+
+        BuildCoordinationStatusChangedEvent buildStatusChanged = new DefaultBuildStatusChangedEvent(
+                oldStatus,
+                status,
+                task.getId(),
+                task.getBuildConfigurationAudited().getId().getId(),
+                task.getBuildConfigurationAudited().getName(),
+                task.getStartTime(),
+                task.getEndTime(),
+                userId);
+        log.debug("Updating build task {} status to {}", task.getId(), buildStatusChanged);
+        if (status.isCompleted() && task.getBuildSetTask() != null) {
+            log.debug("Updating BuildSetTask {}.", task.getBuildSetTask().getId());
+        }
+        buildStatusChangedEventNotifier.fire(buildStatusChanged);
+        log.trace("Fired buildStatusChangedEventNotifier after task {} status update to {}.", task.getId(), status);
+        task.setStatus(status);
+    }
+
+    public void updateBuildSetTaskStatus(BuildSetTask buildSetTask, BuildSetStatus status){
+        log.trace("Setting new status {} on buildSetTask.id {}.", status, buildSetTask.getId());
+        BuildSetStatus oldStatus = buildSetTask.getStatus();
+        Integer userId = Optional.ofNullable( buildSetTask.getBuildConfigSetRecord().getUser()).map(User::getId).orElse(null);
+
+        buildSetStatusChangedEvent = Optional.of(new DefaultBuildSetStatusChangedEvent(
+                oldStatus,
+                status,
+                buildSetTask.getId(),
+                buildSetTask.getBuildConfigSetRecord().getBuildConfigurationSet().getId(),
+                buildSetTask.getBuildConfigSetRecord().getBuildConfigurationSet().getName(),
+                buildSetTask.getBuildConfigSetRecord().getStartTime(),
+                buildSetTask.getBuildConfigSetRecord().getEndTime(),
+                userId));
+        log.debug("Notifying build set status update {}.", buildSetStatusChangedEvent);
+        buildSetStatusChangedEventNotifier.fire(buildSetStatusChangedEvent.get());
+        buildSetTask.setStatus(status);
     }
 
     private Predicate<BuildTask> prepareBuildTaskFilterPredicate() {
@@ -184,18 +244,18 @@ public class BuildCoordinator {
                         task.getId(), task.getRebuildAll(), prepareBuildTaskFilterPredicate().test(task), task.getBuildConfigurationAudited().getIdRev());
                 if(!task.getRebuildAll() && prepareBuildTaskFilterPredicate().test(task)) {
                     log.info("[{}] Marking task as REJECTED_ALREADY_BUILT, because it has been already built", task.getId());
-                    task.setStatus(BuildCoordinationStatus.REJECTED_ALREADY_BUILT);
+                    updateBuildTaskStatus(task, BuildCoordinationStatus.REJECTED_ALREADY_BUILT);
                     task.setStatusDescription("The configuration has already been built.");
                     markFinished(task);
                     return;
                 }
                 task.setStartTime(new Date());
-                task.setStatus(BuildCoordinationStatus.BUILDING); //status must be updated before startBuild as if build takes 0 time it complete before having Building status.
+                updateBuildTaskStatus(task,BuildCoordinationStatus.BUILDING);
             }
             buildScheduler.startBuilding(task, onComplete);
         } catch (CoreException | ExecutorException e) {
             log.debug(" Build coordination task failed. Setting it as SYSTEM_ERROR.", e);
-            task.setStatus(BuildCoordinationStatus.SYSTEM_ERROR);
+            updateBuildTaskStatus(task,BuildCoordinationStatus.SYSTEM_ERROR);
             task.setStatusDescription(e.getMessage());
             try {
                 datastoreAdapter.storeResult(task, Optional.empty(), e);
@@ -207,7 +267,7 @@ public class BuildCoordinator {
 
     public void updateBuildStatus(BuildTask buildTask, BuildResult buildResult) {
 
-        buildTask.setStatus(BuildCoordinationStatus.BUILD_COMPLETED);
+        updateBuildTaskStatus(buildTask, BuildCoordinationStatus.BUILD_COMPLETED);
 
         BuildCoordinationStatus coordinationStatus = BuildCoordinationStatus.SYSTEM_ERROR;
         try {
@@ -230,7 +290,7 @@ public class BuildCoordinator {
             log.error("Cannot store results to datastore.", e);
             coordinationStatus = BuildCoordinationStatus.SYSTEM_ERROR;
         } finally {
-            buildTask.setStatus(coordinationStatus);
+            updateBuildTaskStatus(buildTask, coordinationStatus);
             markFinished(buildTask);
         }
     }
@@ -299,8 +359,9 @@ public class BuildCoordinator {
 
     public void completeBuildSetTask(BuildSetTask buildSetTask) {
         buildQueue.removeSet(buildSetTask);
-        Optional<BuildSetStatusChangedEvent> eventOption = buildSetTask.taskStatusUpdatedToFinalState();
-        eventOption.ifPresent(buildSetStatusChangedEventNotifier::fire);
+        buildSetTask.taskStatusUpdatedToFinalState();
+        updateBuildSetTaskStatus(buildSetTask, BuildSetStatus.DONE);
+        buildSetStatusChangedEvent.ifPresent(buildSetStatusChangedEventNotifier::fire);
         try {
             datastoreAdapter.saveBuildConfigSetRecord(buildSetTask.getBuildConfigSetRecord());
         } catch (DatastoreException e) {
@@ -309,8 +370,8 @@ public class BuildCoordinator {
     }
 
     public void finishDueToFailedDependency(BuildTask failedTask, BuildTask task) {
+        updateBuildTaskStatus(task, BuildCoordinationStatus.REJECTED_FAILED_DEPENDENCIES);
         task.setStatusDescription("Dependent build " + failedTask.getBuildConfiguration().getName() + " failed.");
-        task.setStatus(BuildCoordinationStatus.REJECTED_FAILED_DEPENDENCIES);
         storeRejectedTask(task);
         buildQueue.removeTask(task);
     }

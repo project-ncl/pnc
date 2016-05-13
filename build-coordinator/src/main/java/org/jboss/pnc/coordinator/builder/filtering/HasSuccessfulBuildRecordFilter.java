@@ -18,8 +18,8 @@
 
 package org.jboss.pnc.coordinator.builder.filtering;
 
-import org.jboss.pnc.coordinator.builder.BuildTask;
 import org.jboss.pnc.coordinator.builder.datastore.DatastoreAdapter;
+import org.jboss.pnc.spi.coordinator.BuildTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -19,12 +19,10 @@
 package org.jboss.pnc.coordinator.test;
 
 import org.jboss.pnc.common.Configuration;
-import org.jboss.pnc.coordinator.builder.BuildCoordinator;
+import org.jboss.pnc.coordinator.builder.DefaultBuildCoordinator;
 import org.jboss.pnc.coordinator.builder.datastore.DatastoreAdapter;
 import org.jboss.pnc.coordinator.builder.filtering.BuildTaskFilter;
 import org.jboss.pnc.coordinator.content.ContentIdentityManager;
-import org.jboss.pnc.coordinator.events.DefaultBuildSetStatusChangedEvent;
-import org.jboss.pnc.coordinator.events.DefaultBuildStatusChangedEvent;
 import org.jboss.pnc.coordinator.notifications.buildSetTask.BuildSetCallBack;
 import org.jboss.pnc.coordinator.notifications.buildSetTask.BuildSetStatusNotifications;
 import org.jboss.pnc.coordinator.notifications.buildTask.BuildCallBack;
@@ -36,6 +34,9 @@ import org.jboss.pnc.mock.model.builders.TestEntitiesFactory;
 import org.jboss.pnc.mock.model.builders.TestProjectConfigurationBuilder;
 import org.jboss.pnc.model.BuildEnvironment;
 import org.jboss.pnc.spi.BuildCoordinationStatus;
+import org.jboss.pnc.spi.coordinator.BuildCoordinator;
+import org.jboss.pnc.spi.coordinator.events.DefaultBuildSetStatusChangedEvent;
+import org.jboss.pnc.spi.coordinator.events.DefaultBuildStatusChangedEvent;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigSetRecordRepository;
 import org.jboss.pnc.spi.events.BuildSetStatusChangedEvent;
 import org.jboss.pnc.test.arquillian.ShrinkwrapDeployerUtils;
@@ -92,6 +93,7 @@ public class BuildCoordinatorDeployments {
                 .addClass(BuildCoordinatorFactory.class)
                 .addPackages(true,
                         BuildCoordinator.class.getPackage(),
+                        DefaultBuildCoordinator.class.getPackage(),
                         BuildSetStatusNotifications.class.getPackage(),
                         TestProjectConfigurationBuilder.class.getPackage(),
                         ContentIdentityManager.class.getPackage(),

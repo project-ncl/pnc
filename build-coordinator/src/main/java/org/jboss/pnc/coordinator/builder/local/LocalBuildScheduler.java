@@ -19,10 +19,10 @@
 package org.jboss.pnc.coordinator.builder.local;
 
 import org.jboss.pnc.coordinator.builder.BuildScheduler;
-import org.jboss.pnc.coordinator.builder.BuildTask;
 import org.jboss.pnc.coordinator.content.ContentIdentityManager;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.spi.BuildResult;
+import org.jboss.pnc.spi.coordinator.BuildTask;
 import org.jboss.pnc.spi.events.BuildExecutionStatusChangedEvent;
 import org.jboss.pnc.spi.exception.CoreException;
 import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;

@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.coordinator.events;
+package org.jboss.pnc.spi.coordinator.events;
 
 import org.jboss.pnc.spi.BuildSetStatus;
 import org.jboss.pnc.spi.events.BuildSetStatusChangedEvent;

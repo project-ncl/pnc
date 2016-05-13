@@ -15,9 +15,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.coordinator.builder;
+package org.jboss.pnc.spi.coordinator;
 
-import org.jboss.pnc.coordinator.events.DefaultBuildStatusChangedEvent;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.ProductMilestone;
@@ -30,7 +29,6 @@ import org.slf4j.LoggerFactory;
 import javax.enterprise.event.Event;
 import java.util.Date;
 import java.util.HashSet;
-import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -50,8 +48,6 @@ public class BuildTask {
 
     private BuildCoordinationStatus status = BuildCoordinationStatus.NEW;
     private String statusDescription;
-
-    private final Event<BuildCoordinationStatusChangedEvent> buildStatusChangedEventNotifier;
 
     /**
      * A list of builds waiting for this build to complete.
@@ -89,7 +85,6 @@ public class BuildTask {
         this.user = user;
         this.submitTime = submitTime;
 
-        this.buildStatusChangedEventNotifier = buildStatusChangedEventNotifier;
         this.buildSetTask = buildSetTask;
         this.buildConfigSetRecordId = buildConfigSetRecordId;
         this.rebuildAll = rebuildAll;
@@ -102,28 +97,8 @@ public class BuildTask {
     }
 
     public void setStatus(BuildCoordinationStatus status) {
-        BuildCoordinationStatus oldStatus = this.status;
         this.status = status;
-        if (status.hasFailed()) {
-            setHasFailed(true);
-        }
-        Integer userId = Optional.ofNullable(getUser()).map(User::getId).orElse(null);
-
-        BuildCoordinationStatusChangedEvent buildStatusChanged = new DefaultBuildStatusChangedEvent(
-                oldStatus,
-                status,
-                getId(),
-                buildConfigurationAudited.getId().getId(),
-                buildConfigurationAudited.getName(),
-                startTime,
-                endTime,
-                userId);
-        log.debug("Updating build task {} status to {}", this.getId(), buildStatusChanged);
-        if (status.isCompleted() && buildSetTask != null) {
-            log.debug("Updating BuildSetTask {}.", buildSetTask.getId());
-        }
-        buildStatusChangedEventNotifier.fire(buildStatusChanged);
-        log.trace("Fired buildStatusChangedEventNotifier after task {} status update to {}.", getId(), status);
+        setHasFailed(status.hasFailed());
     }
 
     public ProductMilestone getProductMilestone() {
@@ -167,7 +142,7 @@ public class BuildTask {
         return buildConfiguration.getDependencies();
     }
 
-    void addDependant(BuildTask buildTask) {
+    public void addDependant(BuildTask buildTask) {
         if (!dependants.contains(buildTask)) {
             dependants.add(buildTask);
             buildTask.addDependency(this);
@@ -195,7 +170,7 @@ public class BuildTask {
         return buildConfigurationAudited.hashCode();
     }
 
-    void setStatusDescription(String statusDescription) {
+    public void setStatusDescription(String statusDescription) {
         this.statusDescription = statusDescription;
     }
 

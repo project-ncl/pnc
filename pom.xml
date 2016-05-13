@@ -56,7 +56,6 @@
     <module>termd-build-driver</module>
     <module>maven-repository-manager</module>
     <module>build-coordinator</module>
-    <module>build-coordinator-mock</module>
     <module>build-executor</module>
     <module>build-executor-mock</module>
     <module>model</module>

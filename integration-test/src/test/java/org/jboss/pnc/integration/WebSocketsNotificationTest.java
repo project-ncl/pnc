@@ -19,13 +19,13 @@ package org.jboss.pnc.integration;
 
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
-import org.jboss.pnc.coordinator.events.DefaultBuildSetStatusChangedEvent;
-import org.jboss.pnc.coordinator.events.DefaultBuildStatusChangedEvent;
 import org.jboss.pnc.integration.deployments.Deployments;
 import org.jboss.pnc.integration.websockets.NotificationCollector;
 import org.jboss.pnc.rest.notifications.websockets.NotificationsEndpoint;
 import org.jboss.pnc.spi.BuildCoordinationStatus;
 import org.jboss.pnc.spi.BuildSetStatus;
+import org.jboss.pnc.spi.coordinator.events.DefaultBuildSetStatusChangedEvent;
+import org.jboss.pnc.spi.coordinator.events.DefaultBuildStatusChangedEvent;
 import org.jboss.pnc.spi.events.BuildCoordinationStatusChangedEvent;
 import org.jboss.pnc.spi.events.BuildSetStatusChangedEvent;
 import org.jboss.pnc.spi.notifications.Notifier;
@@ -45,7 +45,6 @@ import javax.websocket.ContainerProvider;
 import javax.websocket.WebSocketContainer;
 import java.lang.invoke.MethodHandles;
 import java.net.URI;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.function.Supplier;
 

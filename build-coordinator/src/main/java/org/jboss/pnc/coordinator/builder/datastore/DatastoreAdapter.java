@@ -19,7 +19,6 @@ package org.jboss.pnc.coordinator.builder.datastore;
 
 import org.jboss.logging.Logger;
 import org.jboss.pnc.coordinator.BuildCoordinationException;
-import org.jboss.pnc.coordinator.builder.BuildTask;
 import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
@@ -28,6 +27,7 @@ import org.jboss.pnc.spi.BuildExecutionStatus;
 import org.jboss.pnc.spi.BuildResult;
 import org.jboss.pnc.spi.builddriver.BuildDriverResult;
 import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
+import org.jboss.pnc.spi.coordinator.BuildTask;
 import org.jboss.pnc.spi.datastore.Datastore;
 import org.jboss.pnc.spi.datastore.DatastoreException;
 import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
