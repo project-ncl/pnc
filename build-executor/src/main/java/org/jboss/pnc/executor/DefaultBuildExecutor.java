@@ -188,7 +188,7 @@ public class DefaultBuildExecutor implements BuildExecutor {
             log.debug("Setting live log websocket url: {}", liveLogWebSocketUrl);
             buildExecutionSession.setLiveLogsUri(Optional.of(new URI(liveLogWebSocketUrl)));
             buildExecutionSession.setStartTime(new Date());
-            BuildDriver buildDriver = buildDriverFactory.getBuildDriver(buildExecutionSession.getBuildExecutionConfiguration().getBuildType());
+            BuildDriver buildDriver = buildDriverFactory.getBuildDriver();
             return buildDriver.startProjectBuild(buildExecutionSession, runningEnvironment);
         } catch (Throwable e) {
             throw new BuildProcessException(e, runningEnvironment);

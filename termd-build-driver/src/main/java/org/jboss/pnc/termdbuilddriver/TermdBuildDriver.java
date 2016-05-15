@@ -84,11 +84,6 @@ public class TermdBuildDriver implements BuildDriver { //TODO rename class
     }
 
     @Override
-    public boolean canBuild(BuildType buildType) {
-        return BuildType.JAVA.equals(buildType);
-    }
-    
-    @Override
     public RunningBuild startProjectBuild(BuildExecutionSession buildExecutionSession,
             final RunningEnvironment runningEnvironment)
             throws BuildDriverException {

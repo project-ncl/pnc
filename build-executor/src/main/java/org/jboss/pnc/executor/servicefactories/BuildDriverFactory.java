@@ -22,7 +22,6 @@ import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
 import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
 import org.jboss.pnc.common.util.StringUtils;
-import org.jboss.pnc.model.BuildType;
 import org.jboss.pnc.spi.builddriver.BuildDriver;
 import org.jboss.pnc.spi.executor.exceptions.ExecutorException;
 import org.slf4j.Logger;
@@ -78,15 +77,14 @@ public class BuildDriverFactory {
 
     }
 
-    public BuildDriver getBuildDriver(BuildType buildType) throws ExecutorException {
+    public BuildDriver getBuildDriver() throws ExecutorException {
         Optional<BuildDriver> match = StreamSupport
                 .stream(availableDrivers.spliterator(), false)
                 .filter(configurationPredicate)
-                .filter(driver -> driver.canBuild(buildType))
                 .findFirst();
 
         return match.
-                orElseThrow(() -> new ExecutorException("No build driver available for " + buildType + " build type."
+                orElseThrow(() -> new ExecutorException("No valid build driver available."
                         + " Available drivers: " + availableDriverIds()));
     }
 

@@ -17,7 +17,6 @@
  */
 package org.jboss.pnc.spi.builddriver;
 
-import org.jboss.pnc.model.BuildType;
 import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
 import org.jboss.pnc.spi.environment.RunningEnvironment;
 import org.jboss.pnc.spi.executor.BuildExecutionSession;
@@ -28,8 +27,6 @@ import org.jboss.pnc.spi.executor.BuildExecutionSession;
 public interface BuildDriver {
 
     String getDriverId();
-
-    boolean canBuild(BuildType buildType);
 
     public RunningBuild startProjectBuild(
             BuildExecutionSession buildExecutionSession,

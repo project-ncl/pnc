@@ -19,7 +19,6 @@ package org.jboss.pnc.executor;
 
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.executor.servicefactories.BuildDriverFactory;
-import org.jboss.pnc.model.BuildType;
 import org.jboss.pnc.spi.builddriver.BuildDriver;
 import org.jboss.pnc.spi.builddriver.RunningBuild;
 import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
@@ -54,18 +53,6 @@ public class BuildDriverFactoryTest {
     
 
     @Test(expected = ExecutorException.class)
-    public void shouldSkipDriversWhichCanNotBuild() throws Exception {
-        //given
-        BuildDriverWhichCanNotBuild testedBuildDriver = new BuildDriverWhichCanNotBuild();
-        TestInstance<BuildDriver> allDrivers = new TestInstance<>(testedBuildDriver);
-
-        BuildDriverFactory factory = new BuildDriverFactory(allDrivers, new Configuration());
-
-        //when
-        factory.getBuildDriver(BuildType.JAVA);
-    }
-
-    @Test(expected = ExecutorException.class)
     public void shouldSkipDriversWhichAreNotMentionedInConfiguration() throws Exception {
         //given
         ProperDriver testedBuildDriver = new ProperDriver();
@@ -76,7 +63,7 @@ public class BuildDriverFactoryTest {
         factory.initConfiguration();
 
         //when
-        factory.getBuildDriver(BuildType.JAVA);
+        factory.getBuildDriver();
     }
 
     @Test
@@ -90,7 +77,7 @@ public class BuildDriverFactoryTest {
         BuildDriverFactory factory = new BuildDriverFactory(allDrivers, configuration);
 
         //when
-        BuildDriver buildDriver = factory.getBuildDriver(BuildType.JAVA);
+        BuildDriver buildDriver = factory.getBuildDriver();
 
         //then
         assertThat(buildDriver).isEqualTo(testedBuildDriver);
@@ -101,11 +88,6 @@ public class BuildDriverFactoryTest {
         @Override
         public String getDriverId() {
             return null;
-        }
-
-        @Override
-        public boolean canBuild(BuildType buildType) {
-            return false;
         }
 
         @Override
@@ -122,11 +104,6 @@ public class BuildDriverFactoryTest {
         @Override
         public String getDriverId() {
             return null;
-        }
-
-        @Override
-        public boolean canBuild(BuildType buildType) {
-            return true;
         }
 
         @Override

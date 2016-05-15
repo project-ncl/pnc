@@ -102,9 +102,4 @@ public class BuildDriverMock implements BuildDriver {
         };
     }
 
-    @Override
-    public boolean canBuild(BuildType buildType) {
-        return true;
-    }
-
 }
