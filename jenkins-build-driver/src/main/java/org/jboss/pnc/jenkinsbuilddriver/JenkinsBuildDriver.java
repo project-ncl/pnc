@@ -19,7 +19,7 @@ package org.jboss.pnc.jenkinsbuilddriver;
 
 import org.jboss.logging.Logger;
 import org.jboss.pnc.model.BuildConfigurationAudited;
-import org.jboss.pnc.model.BuildType;
+import org.jboss.pnc.model.SystemImageType;
 import org.jboss.pnc.spi.BuildExecution;
 import org.jboss.pnc.spi.builddriver.BuildDriver;
 import org.jboss.pnc.spi.builddriver.RunningBuild;
@@ -58,11 +58,6 @@ public class JenkinsBuildDriver implements BuildDriver {
         return DRIVER_ID;
     }
 
-    @Override
-    public boolean canBuild(BuildType buildType) {
-        return BuildType.JAVA.equals(buildType);
-    }
-    
     public void init(RunningEnvironment runningEnvironment) {
         try {
             this.isCrumbUsed = jenkinsServerFactory.isJenkinsServerSecuredWithCSRF(runningEnvironment.getJenkinsUrl());    

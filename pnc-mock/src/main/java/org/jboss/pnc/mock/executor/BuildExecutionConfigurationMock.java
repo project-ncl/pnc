@@ -18,7 +18,7 @@
 
 package org.jboss.pnc.mock.executor;
 
-import org.jboss.pnc.model.BuildType;
+import org.jboss.pnc.model.SystemImageType;
 import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
 
 /**
@@ -35,7 +35,9 @@ public class BuildExecutionConfigurationMock implements BuildExecutionConfigurat
     private String scmRepoURL;
     private String scmMirrorRevision;
     private String scmRevision;
-    private BuildType buildType;
+    private String systemImageId;
+    private String systemImageRepositoryUrl;
+    private SystemImageType systemImageType;
 
     public static BuildExecutionConfiguration mockConfig() {
         BuildExecutionConfigurationMock mock = new BuildExecutionConfigurationMock();
@@ -43,6 +45,9 @@ public class BuildExecutionConfigurationMock implements BuildExecutionConfigurat
         mock.setBuildScript("mvn install");
         mock.setScmRepoURL("http://www.github.com");
         mock.setScmRevision("1234567890");
+        mock.setSystemImageId("abcd1234");
+        mock.setSystemImageRepositoryUrl("image.repo.url/repo");
+        mock.setSystemImageType(SystemImageType.DOCKER_IMAGE);
         return mock;
     }
     public int getId() {
@@ -117,12 +122,24 @@ public class BuildExecutionConfigurationMock implements BuildExecutionConfigurat
         this.scmRevision = scmRevision;
     }
 
-    public BuildType getBuildType() {
-        return buildType;
+    public String getSystemImageId() {
+        return systemImageId;
+    }
+    public void setSystemImageId(String systemImageId) {
+        this.systemImageId = systemImageId;
+    }
+    public String getSystemImageRepositoryUrl() {
+        return systemImageRepositoryUrl;
+    }
+    public void setSystemImageRepositoryUrl(String systemImageRepositoryUrl) {
+        this.systemImageRepositoryUrl = systemImageRepositoryUrl;
+    }
+    public SystemImageType getSystemImageType() {
+        return systemImageType;
     }
 
-    public void setBuildType(BuildType buildType) {
-        this.buildType = buildType;
+    public void setSystemImageType(SystemImageType systemImageType) {
+        this.systemImageType = systemImageType;
     }
 
 }

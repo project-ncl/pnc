@@ -149,9 +149,11 @@ public class DefaultBuildExecutor implements BuildExecutor {
         buildExecutionSession.setStatus(BuildExecutionStatus.BUILD_ENV_SETTING_UP);
         BuildExecutionConfiguration buildExecutionConfiguration = buildExecutionSession.getBuildExecutionConfiguration();
         try {
-            EnvironmentDriver envDriver = environmentDriverFactory.getDriver(buildExecutionConfiguration.getBuildType());
-            StartedEnvironment startedEnv = envDriver.buildEnvironment(
-                    buildExecutionConfiguration.getBuildType(),
+            EnvironmentDriver envDriver = environmentDriverFactory.getDriver(buildExecutionConfiguration.getSystemImageType());
+            StartedEnvironment startedEnv = envDriver.startEnvironment(
+                    buildExecutionConfiguration.getSystemImageId(),
+                    buildExecutionConfiguration.getSystemImageRepositoryUrl(),
+                    buildExecutionConfiguration.getSystemImageType(),
                     repositorySession);
             return startedEnv;
         } catch (Throwable e) {

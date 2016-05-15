@@ -21,7 +21,7 @@ import org.jboss.pnc.executor.DefaultBuildExecutionConfiguration;
 import org.jboss.pnc.executor.DefaultBuildExecutionSession;
 import org.jboss.pnc.executor.DefaultBuildExecutor;
 import org.jboss.pnc.model.BuildRecord;
-import org.jboss.pnc.model.BuildType;
+import org.jboss.pnc.model.SystemImageType;
 import org.jboss.pnc.rest.provider.BuildRecordProvider;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
 import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
@@ -92,7 +92,9 @@ public class BuildRecordEndpointTest {
                 "",
                 "",
                 "",
-                BuildType.JAVA);
+                "",
+                "",
+                SystemImageType.DOCKER_IMAGE);
 
         BuildExecutionSession buildExecutionSession = new DefaultBuildExecutionSession(buildExecutionConfiguration, null);
         when(buildExecutor.getRunningExecution(buildExecutionTaskId)).thenReturn(buildExecutionSession);

@@ -214,7 +214,9 @@ public class BuildExecutionTest {
                 buildConfiguration.getScmRepoURL(),
                 buildConfiguration.getScmMirrorRevision(),
                 buildConfiguration.getScmRevision(),
-                buildConfiguration.getBuildEnvironment().getBuildType());
+                buildConfiguration.getBuildEnvironment().getSystemImageId(),
+                buildConfiguration.getBuildEnvironment().getSystemImageRepositoryUrl(),
+                buildConfiguration.getBuildEnvironment().getSystemImageType());
 
         executor.startBuilding(buildExecutionConfiguration, onBuildExecutionStatusChangedEvent);
     }

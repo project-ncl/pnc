@@ -30,7 +30,7 @@ import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.pnc.common.util.HttpUtils;
 import org.jboss.pnc.integration.deployments.Deployments;
 import org.jboss.pnc.mock.executor.BuildExecutorMock;
-import org.jboss.pnc.model.BuildType;
+import org.jboss.pnc.model.SystemImageType;
 import org.jboss.pnc.rest.endpoint.BuildTaskEndpoint;
 import org.jboss.pnc.rest.restmodel.BuildExecutionConfigurationRest;
 import org.jboss.pnc.rest.trigger.BuildExecutorTriggerer;
@@ -81,7 +81,7 @@ public class BuildTasksRestTest {
         HttpPost request = new HttpPost(BUILD_TASKS_ENDPOINT + "/execute-build");
 
         BuildExecutionConfiguration buildExecutionConfig = BuildExecutionConfiguration.build(
-                1, "test-content-id", 1, "mvn clean install", "jboss-modules", "scm-url", "master", "scm-mirror", "master", BuildType.JAVA);
+                1, "test-content-id", 1, "mvn clean install", "jboss-modules", "scm-url", "master", "scm-mirror", "master", "dummy-docker-image-id", "dummy.repo.url/repo", SystemImageType.DOCKER_IMAGE);
 
         BuildExecutionConfigurationRest buildExecutionConfigurationRest = new BuildExecutionConfigurationRest(buildExecutionConfig);
 

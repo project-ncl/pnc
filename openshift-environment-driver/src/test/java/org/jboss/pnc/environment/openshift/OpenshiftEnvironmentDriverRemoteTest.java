@@ -21,7 +21,7 @@ import com.openshift.internal.restclient.DefaultClient;
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.monitor.PullingMonitor;
 import org.jboss.pnc.common.util.ObjectWrapper;
-import org.jboss.pnc.model.BuildType;
+import org.jboss.pnc.model.SystemImageType;
 import org.jboss.pnc.model.RepositoryType;
 import org.jboss.pnc.spi.environment.EnvironmentDriver;
 import org.jboss.pnc.spi.environment.RunningEnvironment;
@@ -81,8 +81,11 @@ public class OpenshiftEnvironmentDriverRemoteTest {
         final Semaphore mutex = new Semaphore(0);
         ObjectWrapper<Throwable> exceptionWrapper = new ObjectWrapper<>();
 
+        String dummyImageId = "abcd1234";
+        String dummyRepoUrl = "test.repo.url/repo";
+
         // Create container
-        final StartedEnvironment startedEnv = environmentDriver.buildEnvironment(BuildType.JAVA, DUMMY_REPOSITORY_CONFIGURATION);
+        final StartedEnvironment startedEnv = environmentDriver.startEnvironment(dummyImageId, dummyRepoUrl, SystemImageType.DOCKER_IMAGE, DUMMY_REPOSITORY_CONFIGURATION);
 
         Consumer<RunningEnvironment> onEnvironmentStarted = (runningEnvironment) -> {
             boolean containerDestroyed = false;

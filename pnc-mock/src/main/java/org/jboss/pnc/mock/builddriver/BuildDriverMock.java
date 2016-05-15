@@ -20,7 +20,6 @@ package org.jboss.pnc.mock.builddriver;
 import org.jboss.logging.Logger;
 import org.jboss.pnc.common.util.RandomUtils;
 import org.jboss.pnc.mock.model.builders.TestProjectConfigurationBuilder;
-import org.jboss.pnc.model.BuildType;
 import org.jboss.pnc.spi.builddriver.BuildDriver;
 import org.jboss.pnc.spi.builddriver.BuildDriverResult;
 import org.jboss.pnc.spi.builddriver.BuildDriverStatus;

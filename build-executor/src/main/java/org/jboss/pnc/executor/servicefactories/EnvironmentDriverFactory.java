@@ -17,7 +17,7 @@
  */
 package org.jboss.pnc.executor.servicefactories;
 
-import org.jboss.pnc.model.BuildType;
+import org.jboss.pnc.model.SystemImageType;
 import org.jboss.pnc.spi.environment.EnvironmentDriver;
 import org.jboss.pnc.spi.executor.exceptions.ExecutorException;
 
@@ -43,12 +43,12 @@ public class EnvironmentDriverFactory {
      * @return Available driver for given environment
      * @throws ExecutorException Throw if no suitable driver for selected environment was found
      */
-    public EnvironmentDriver getDriver(BuildType buildType) throws ExecutorException {
+    public EnvironmentDriver getDriver(SystemImageType systemImageType) throws ExecutorException {
         for (EnvironmentDriver driver : availableDrivers) {
-            if (driver.canBuildEnvironment(buildType))
+            if (driver.canRunImageType(systemImageType))
                 return driver;
         }
 
-        throw new ExecutorException("No environment driver available for " + buildType + " environment type.");
+        throw new ExecutorException("No environment driver available for " + systemImageType + " system image type.");
     }
 }

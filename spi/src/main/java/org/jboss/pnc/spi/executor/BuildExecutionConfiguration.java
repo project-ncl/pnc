@@ -18,7 +18,7 @@
 
 package org.jboss.pnc.spi.executor;
 
-import org.jboss.pnc.model.BuildType;
+import org.jboss.pnc.model.SystemImageType;
 import org.jboss.pnc.spi.repositorymanager.BuildExecution;
 
 /**
@@ -44,7 +44,11 @@ public interface BuildExecutionConfiguration extends BuildExecution {
 
     String getScmRevision();
 
-    BuildType getBuildType();
+    String getSystemImageId();
+
+    String getSystemImageRepositoryUrl();
+
+    SystemImageType getSystemImageType();
 
     static BuildExecutionConfiguration build(
             int id,
@@ -56,7 +60,10 @@ public interface BuildExecutionConfiguration extends BuildExecution {
             String scmRevision,
             String scmMirrorRepoURL,
             String scmMirrorRevision,
-            BuildType buildType) {
+            String systemImageId,
+            String systemImageRepositoryUrl,
+            SystemImageType systemImageType) {
+
         return new BuildExecutionConfiguration() {
 
             @Override
@@ -107,8 +114,18 @@ public interface BuildExecutionConfiguration extends BuildExecution {
             }
 
             @Override
-            public BuildType getBuildType() {
-                return buildType;
+            public String getSystemImageId() {
+                return systemImageId;
+            }
+
+            @Override
+            public String getSystemImageRepositoryUrl() {
+                return systemImageRepositoryUrl;
+            }
+
+            @Override
+            public SystemImageType getSystemImageType() {
+                return systemImageType;
             }
         };
     }

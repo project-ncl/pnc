@@ -17,7 +17,7 @@
  */
 package org.jboss.pnc.spi.environment;
 
-import org.jboss.pnc.model.BuildType;
+import org.jboss.pnc.model.SystemImageType;
 import org.jboss.pnc.spi.environment.exception.EnvironmentDriverException;
 import org.jboss.pnc.spi.repositorymanager.model.RepositorySession;
 
@@ -33,21 +33,23 @@ public interface EnvironmentDriver {
     /**
      * Creates and starts new clean environment.
      * 
-     * @param buildType Specification of requested environment
+     * @param systemImageId The unique identifier or checksum of the build system image
+     * @param systemImageRepositoryUrl The URL containing the system image
+     * @param systemImageType The type of image to be initialized
      * @param repositorySession Configuration of repository to store built artifacts
      * 
      * @return New started environment in initialization phase
      * @throws EnvironmentDriverException Thrown if any error occurs during starting new environment
      */
-    StartedEnvironment buildEnvironment(BuildType buildType,
+    StartedEnvironment startEnvironment(String systemImageId, String systemImageRepositoryUrl, SystemImageType systemImageType,
             RepositorySession repositorySession) throws EnvironmentDriverException;
 
     /**
      * Test if selected driver can build requested environment
      * 
-     * @param buildType Specification of requested environment
-     * @return True, if selected driver can build requested environment, otherwise false.
+     * @param systemImageType The type of image to be used to initialize the build environment
+     * @return True, if selected driver can instantiate an image of the given type, otherwise false.
      */
-    boolean canBuildEnvironment(BuildType buildType);
+    boolean canRunImageType(SystemImageType buildType);
 
 }

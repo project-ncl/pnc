@@ -19,7 +19,7 @@ package org.jboss.pnc.rest.restmodel;
 
 import io.swagger.annotations.ApiModelProperty;
 import org.jboss.pnc.model.BuildEnvironment;
-import org.jboss.pnc.model.BuildType;
+import org.jboss.pnc.model.SystemImageType;
 import org.jboss.pnc.rest.validation.groups.WhenCreatingNew;
 import org.jboss.pnc.rest.validation.groups.WhenUpdating;
 
@@ -53,7 +53,7 @@ public class BuildEnvironmentRest implements GenericRestEntity<Integer> {
 
     @ApiModelProperty(dataType = "string")
     @NotNull(groups = {WhenCreatingNew.class, WhenUpdating.class})
-    private BuildType buildType;
+    private SystemImageType systemImageType;
 
     public BuildEnvironmentRest() {
     }
@@ -65,7 +65,7 @@ public class BuildEnvironmentRest implements GenericRestEntity<Integer> {
         this.systemImageRepositoryUrl = buildEnvironment.getSystemImageRepositoryUrl();
         this.systemImageId = buildEnvironment.getSystemImageId();
         this.attributes = buildEnvironment.getAttributes();
-        this.buildType = buildEnvironment.getBuildType();
+        this.systemImageType = buildEnvironment.getSystemImageType();
     }
 
     @Override
@@ -78,12 +78,12 @@ public class BuildEnvironmentRest implements GenericRestEntity<Integer> {
         this.id = id;
     }
 
-    public BuildType getBuildType() {
-        return buildType;
+    public SystemImageType getSystemImageType() {
+        return systemImageType;
     }
 
-    public void setBuildType(BuildType buildType) {
-        this.buildType = buildType;
+    public void setSystemImageType(SystemImageType systemImageType) {
+        this.systemImageType = systemImageType;
     }
 
 
@@ -145,6 +145,6 @@ public class BuildEnvironmentRest implements GenericRestEntity<Integer> {
                 .systemImageRepositoryUrl(this.getSystemImageRepositoryUrl())
                 .systemImageId(this.getImageId())
                 .attributes(this.getAttributes())
-                .buildType(this.getBuildType());
+                .systemImageType(this.getSystemImageType());
     }
 }

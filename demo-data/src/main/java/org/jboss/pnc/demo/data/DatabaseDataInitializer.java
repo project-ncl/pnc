@@ -162,6 +162,8 @@ public class DatabaseDataInitializer {
                 .attribute("JDK", "1.7.0")
                 .attribute("OS", "Linux")
                 .systemImageId("12345678")
+                .systemImageRepositoryUrl("my.registry/newcastle")
+                .systemImageType(SystemImageType.DOCKER_IMAGE)
                 .build();
         BuildEnvironment environment1 = environmentRepository.save(environment1Unsaved);
 
