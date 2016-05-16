@@ -58,6 +58,22 @@
         });
       };
 
+
+      resource.getBlacklistedArtifactsInProject = function (scmUrl) {
+        return Configuration.then(function (config) {
+          return $http.post(config.dependencyAnalyzerReportsURL + config.daReportsAlign, {
+            products: [],
+            searchUnknownProducts: false,
+            scmUrl: scmUrl,
+            revision: '0.6.1'
+          });
+        }).then(function (r) {
+          return r.data.blacklisted;
+        });
+      };
+
+
+
       return resource;
     }
   ]);
