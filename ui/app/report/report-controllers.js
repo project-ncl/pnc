@@ -158,6 +158,8 @@
       that.defaultSortKey = 'groupId';
       that.defaultReverse = false;
 
+      that.additionalRepos = [];
+
       that.isResultNotEmpty = function() {
         return !_.isEmpty(that.reportResults);
       };

@@ -131,3 +131,13 @@
 .bc-tree .node-selected .text-danger {
     color: white;
 }
+
+/**
+ * pnc-multiple-input
+ */
+.pnc-multiple-input .btn-select-item {
+    float: right;
+}
+.pnc-multiple-input .input-item {
+    width: calc(100% - 50px);
+}
