@@ -64,7 +64,6 @@
     <module>spi</module>
     <module>ui</module>
     <module>web</module>
-    <module>processes</module>
     <module>openshift-environment-driver</module>
     <module>demo-data</module>
     <module>integration-test</module>
