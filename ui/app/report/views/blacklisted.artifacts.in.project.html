@@ -38,13 +38,28 @@
             </div>
           </div>
 
+          <div class="form-group"
+            ng-class="{ 'has-error' : !blacklistedArtifactsInProjectReportCtrl.revision && blacklistedArtifactsInProjectReportForm.revision.$touched, 'has-success': blacklistedArtifactsInProjectReportCtrl.revision && blacklistedArtifactsInProjectReportForm.revision.$touched }">
+            <label for="revision" class="col-sm-3 control-label">* Revision:</label>
+            <div class="col-sm-9">
+              <input id="revision" class="form-control" name="revision" ng-model="blacklistedArtifactsInProjectReportCtrl.revision" maxlength="255" placeholder="master" required>
+              <span class="help-block" ng-show="blacklistedArtifactsInProjectReportForm.revision.$error.required && blacklistedArtifactsInProjectReportForm.revision.$touched">Required field.</span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="pomPath" class="col-sm-3 control-label">Path to root POM:</label>
+            <div class="col-sm-9">
+              <input id="pomPath" class="form-control" name="pomPath" ng-model="blacklistedArtifactsInProjectReportCtrl.pomPath" maxlength="255" placeholder="./pom.xml">
+            </div>
+          </div>
 
           <div class="form-group">
             <label for="additionalRepos" class="col-sm-3 control-label">Additional repos:</label>
             <div class="col-sm-9">
               <pnc-multiple-input 
                 selected-items="blacklistedArtifactsInProjectReportCtrl.additionalRepos" 
-                placeholder="placeholder.." select-id="additionalRepos" select-name="additionalRepos">
+                placeholder="" select-id="additionalRepos" select-name="additionalRepos">
               </pnc-multiple-input>
             </div>
           </div>

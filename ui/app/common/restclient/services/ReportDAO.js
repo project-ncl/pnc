@@ -58,21 +58,20 @@
         });
       };
 
-
-      resource.getBlacklistedArtifactsInProject = function (scmUrl) {
+      resource.getBlacklistedArtifactsInProject = function (scmUrl, revision, pomPath, additionalRepos) {
         return Configuration.then(function (config) {
           return $http.post(config.dependencyAnalyzerReportsURL + config.daReportsAlign, {
             products: [],
             searchUnknownProducts: false,
             scmUrl: scmUrl,
-            revision: '0.6.1'
+            revision: revision,
+            pomPath: pomPath,
+            additionalRepos: additionalRepos
           });
         }).then(function (r) {
           return r.data.blacklisted;
         });
       };
-
-
 
       return resource;
     }

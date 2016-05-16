@@ -151,14 +151,15 @@
 
       var that = this;
 
-      that.reportResults = [];
+      // fields
       that.scmUrl = '';
-      that.afterSearch = false;
+      that.revision = '';
+      that.pomPath = '';
+      that.additionalRepos = [];
 
+      that.afterSearch = false;
       that.defaultSortKey = 'groupId';
       that.defaultReverse = false;
-
-      that.additionalRepos = [];
 
       that.isResultNotEmpty = function() {
         return !_.isEmpty(that.reportResults);
@@ -166,7 +167,13 @@
       
       that.reset = function(form) {
         if (form) {
+
+          // fields
           that.scmUrl = '';
+          that.revision = '';
+          that.pomPath = '';
+          that.additionalRepos = [];
+
           that.reportResults = [];
           that.afterSearch = false;
           form.$setPristine();
@@ -175,7 +182,9 @@
       };
 
       that.search = function() {
-        ReportDAO.getBlacklistedArtifactsInProject(that.scmUrl).then(function(result) {
+        ReportDAO.getBlacklistedArtifactsInProject(that.scmUrl, that.revision, that.pomPath, that.additionalRepos).then(function(result) {
+
+          that.reportResults = [];
 
           // Show all unique artifacts
           _(result).each(function(topLevelDependency){
@@ -195,6 +204,10 @@
           // Default sorting 
           that.reportResults = _.chain(that.reportResults).sortBy(function(result){ return result[that.defaultSortKey]; }).value();
           
+        }, function() {
+          // error
+
+          that.reportResults = [];
         });
       };
 
