@@ -18,7 +18,7 @@
 
 package org.jboss.pnc.executor;
 
-import org.jboss.pnc.model.BuildType;
+import org.jboss.pnc.model.SystemImageType;
 import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
 
 /**
@@ -35,7 +35,9 @@ public class DefaultBuildExecutionConfiguration implements BuildExecutionConfigu
     private final String scmRepoURL;
     private final String scmMirrorRevision;
     private final String scmRevision;
-    private final BuildType buildType;
+    private final String systemImageId;
+    private final String systemImageRepositoryUrl;
+    private final SystemImageType systemImageType;
 
     public DefaultBuildExecutionConfiguration(
             int id,
@@ -46,9 +48,12 @@ public class DefaultBuildExecutionConfiguration implements BuildExecutionConfigu
             String scmMirrorRepoURL,
             String scmRepoURL,
             String scmMirrorRevision,
-            String scmRevision, BuildType buildType) {
-        this.id = id;
+            String scmRevision,
+            String systemImageId,
+            String systemImageRepositoryUrl,
+            SystemImageType systemImageType) {
 
+        this.id = id;
         this.buildContentId = buildContentId;
         this.userId = userId;
         this.buildScript = buildScript;
@@ -57,7 +62,9 @@ public class DefaultBuildExecutionConfiguration implements BuildExecutionConfigu
         this.scmRepoURL = scmRepoURL;
         this.scmMirrorRevision = scmMirrorRevision;
         this.scmRevision = scmRevision;
-        this.buildType = buildType;
+        this.systemImageId = systemImageId;
+        this.systemImageRepositoryUrl = systemImageRepositoryUrl;
+        this.systemImageType = systemImageType;
     }
 
     @Override
@@ -106,7 +113,17 @@ public class DefaultBuildExecutionConfiguration implements BuildExecutionConfigu
     }
 
     @Override
-    public BuildType getBuildType() {
-        return buildType;
+    public String getSystemImageId() {
+        return systemImageId;
+    }
+
+    @Override
+    public String getSystemImageRepositoryUrl() {
+        return systemImageRepositoryUrl;
+    }
+
+    @Override
+    public SystemImageType getSystemImageType() {
+        return systemImageType;
     }
 }

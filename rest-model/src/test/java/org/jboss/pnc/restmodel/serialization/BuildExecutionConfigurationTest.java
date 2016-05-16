@@ -18,7 +18,7 @@
 
 package org.jboss.pnc.restmodel.serialization;
 
-import org.jboss.pnc.model.BuildType;
+import org.jboss.pnc.model.SystemImageType;
 import org.jboss.pnc.rest.restmodel.BuildExecutionConfigurationRest;
 import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
 import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
@@ -48,7 +48,9 @@ public class BuildExecutionConfigurationTest {
                 "1111111",
                 "https://pathToMirrorRepo.git",
                 "2222222",
-                BuildType.JAVA
+                "abcd1234",
+                "image.repo.url/repo",
+                SystemImageType.DOCKER_IMAGE
         );
         BuildExecutionConfigurationRest buildExecutionConfigurationREST = new BuildExecutionConfigurationRest(buildExecutionConfiguration);
 
@@ -61,7 +63,6 @@ public class BuildExecutionConfigurationTest {
 
         Assert.assertEquals(message, buildExecutionConfiguration.getId(), buildExecutionConfigurationFromJson.getId());
         Assert.assertEquals(message, buildExecutionConfiguration.getBuildScript(), buildExecutionConfigurationFromJson.getBuildScript());
-        Assert.assertEquals(message, buildExecutionConfiguration.getBuildType(), buildExecutionConfigurationFromJson.getBuildType());
         Assert.assertEquals(message, buildExecutionConfiguration.getName(), buildExecutionConfigurationFromJson.getName());
         Assert.assertEquals(message, buildExecutionConfiguration.getScmRepoURL(), buildExecutionConfigurationFromJson.getScmRepoURL());
         Assert.assertEquals(message, buildExecutionConfiguration.getScmRevision(), buildExecutionConfigurationFromJson.getScmRevision());

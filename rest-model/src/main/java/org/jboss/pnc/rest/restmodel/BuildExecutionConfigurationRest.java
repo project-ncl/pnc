@@ -20,7 +20,7 @@ package org.jboss.pnc.rest.restmodel;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.jboss.pnc.model.BuildType;
+import org.jboss.pnc.model.SystemImageType;
 import org.jboss.pnc.rest.utils.JsonOutputConverterMapper;
 import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
 
@@ -44,8 +44,9 @@ public class BuildExecutionConfigurationRest implements BuildExecutionConfigurat
     @Deprecated
     private String scmMirrorRevision;
     private String scmRevision;
-
-    private BuildType buildType;
+    private String systemImageId;
+    private String systemImageRepositoryUrl;
+    private SystemImageType systemImageType;
 
     public BuildExecutionConfigurationRest() {}
 
@@ -62,7 +63,9 @@ public class BuildExecutionConfigurationRest implements BuildExecutionConfigurat
         scmRepoURL = buildExecutionConfiguration.getScmRepoURL();
         scmMirrorRevision = buildExecutionConfiguration.getScmMirrorRevision();
         scmRevision = buildExecutionConfiguration.getScmRevision();
-        buildType = buildExecutionConfiguration.getBuildType();
+        systemImageId = buildExecutionConfiguration.getSystemImageId();
+        systemImageRepositoryUrl = buildExecutionConfiguration.getSystemImageRepositoryUrl();
+        systemImageType = buildExecutionConfiguration.getSystemImageType();
         user = new UserRest(buildExecutionConfiguration.getUserId());
 
     }
@@ -76,7 +79,9 @@ public class BuildExecutionConfigurationRest implements BuildExecutionConfigurat
         scmRepoURL = buildExecutionConfiguration.getScmRepoURL();
         scmMirrorRevision = buildExecutionConfiguration.getScmMirrorRevision();
         scmRevision = buildExecutionConfiguration.getScmRevision();
-        buildType = buildExecutionConfiguration.getBuildType();
+        systemImageId = buildExecutionConfiguration.getSystemImageId();
+        systemImageRepositoryUrl = buildExecutionConfiguration.getSystemImageRepositoryUrl();
+        systemImageType = buildExecutionConfiguration.getSystemImageType();
         user = new UserRest(buildExecutionConfiguration.getUserId());
     }
 
@@ -91,7 +96,9 @@ public class BuildExecutionConfigurationRest implements BuildExecutionConfigurat
                 scmRevision,
                 scmMirrorRepoURL,
                 scmMirrorRevision,
-                buildType
+                systemImageId,
+                systemImageRepositoryUrl,
+                systemImageType
         );
     }
 
@@ -182,8 +189,12 @@ public class BuildExecutionConfigurationRest implements BuildExecutionConfigurat
         return scmRevision;
     }
 
-    public BuildType getBuildType() {
-        return buildType;
+    /**
+     * This is no longer used so it returns an empty string, for more info see NCL-1778
+     */
+    @Deprecated
+    public String getBuildType() {
+        return "";
     }
 
     public UserRest getUser() {
@@ -194,8 +205,35 @@ public class BuildExecutionConfigurationRest implements BuildExecutionConfigurat
         this.user = user;
     }
 
-    public void setBuildType(BuildType buildType) {
-        this.buildType = buildType;
+    /**
+     * This is no longer used so it does nothing, for more info see NCL-1778
+     */
+    @Deprecated
+    public void setBuildType(String buildType) {
+    }
+
+    public String getSystemImageId() {
+        return systemImageId;
+    }
+
+    public void setSystemImageId(String systemImageId) {
+        this.systemImageId = systemImageId;
+    }
+
+    public String getSystemImageRepositoryUrl() {
+        return systemImageRepositoryUrl;
+    }
+
+    public void setSystemImageRepositoryUrl(String systemImageRepositoryUrl) {
+        this.systemImageRepositoryUrl = systemImageRepositoryUrl;
+    }
+
+    public SystemImageType getSystemImageType() {
+        return systemImageType;
+    }
+
+    public void setSystemImageType(SystemImageType systemImageType) {
+        this.systemImageType = systemImageType;
     }
 
     @Override

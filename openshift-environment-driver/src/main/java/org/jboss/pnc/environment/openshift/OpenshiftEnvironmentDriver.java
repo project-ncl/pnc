@@ -23,7 +23,7 @@ import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.moduleconfig.OpenshiftEnvironmentDriverModuleConfig;
 import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
 import org.jboss.pnc.common.monitor.PullingMonitor;
-import org.jboss.pnc.model.BuildType;
+import org.jboss.pnc.model.SystemImageType;
 import org.jboss.pnc.spi.environment.EnvironmentDriver;
 import org.jboss.pnc.spi.environment.StartedEnvironment;
 import org.jboss.pnc.spi.environment.exception.EnvironmentDriverException;
@@ -34,6 +34,9 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.PreDestroy;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+
+import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -44,6 +47,8 @@ import java.util.concurrent.Executors;
 public class OpenshiftEnvironmentDriver implements EnvironmentDriver {
 
     private static final Logger logger = LoggerFactory.getLogger(OpenshiftEnvironmentDriver.class);
+
+    public static List<SystemImageType> compatibleImageTypes = Arrays.asList(SystemImageType.DOCKER_IMAGE);
 
     private ExecutorService executor = Executors.newFixedThreadPool(4); //TODO configurable
 
@@ -63,20 +68,21 @@ public class OpenshiftEnvironmentDriver implements EnvironmentDriver {
     }
 
     @Override
-    public StartedEnvironment buildEnvironment(BuildType buildType, RepositorySession repositorySession) throws EnvironmentDriverException {
-        if (!canBuildEnvironment(buildType))
-            throw new UnsupportedOperationException("OpenshiftEnvironmentDriver currently provides support only for Linux and JAVA builds.");
+    public StartedEnvironment startEnvironment(String systemImageId, String systemImageRepositoryUrl, SystemImageType systemImageType, RepositorySession repositorySession) throws EnvironmentDriverException {
+        if (!canRunImageType(systemImageType))
+            throw new UnsupportedOperationException("OpenshiftEnvironmentDriver currently provides support only for the following system image types:" + compatibleImageTypes);
 
+        //TODO: Need to pass the systemImageId and repoUrl to the new environment instead of using system wide environment config
         return new OpenshiftStartedEnvironment(executor, config, pullingMonitor, repositorySession);
     }
 
     @Override
-    public boolean canBuildEnvironment(BuildType buildType) {
+    public boolean canRunImageType(SystemImageType systemImageType) {
         if (config.isDisabled()) {
             logger.info("Skipping driver as it is disabled by config.");
             return false;
         }
-        return buildType == BuildType.JAVA;
+        return compatibleImageTypes.contains(systemImageType);
     }
 
     @PreDestroy

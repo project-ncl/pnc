@@ -57,22 +57,24 @@ public class BuildEnvironment implements GenericEntity<Integer> {
     private String systemImageRepositoryUrl;
 
     /**
-     * A unique identifier representing the system image, for example a Docker container ID.
-     * This should never be modified once the db record has been created.
+     * A unique identifier such representing the system image, 
+     * for example a Docker container ID or a checksum of a VM image.
+     * This must never be modified to ensure build reproducibility.
      */
     @NotNull
     @Column(unique=true, updatable=false)
     @Index(name="idx_buildenvironment_systemimageid")
     private String systemImageId;
 
+    @NotNull
+    @Column(updatable=false)
+    private SystemImageType systemImageType;
+
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name="build_environment_attributes", joinColumns=@JoinColumn(name="build_environment_id"))
     @MapKeyColumn(name="name")
     @Column(name="value")
     private Map<String, String> attributes = new HashMap<String, String>();
-
-    @NotNull
-    private BuildType buildType;
 
     public BuildEnvironment() {
     }
@@ -131,12 +133,12 @@ public class BuildEnvironment implements GenericEntity<Integer> {
         return attributes.put(key, value);
     }
 
-    public BuildType getBuildType() {
-        return buildType;
+    public SystemImageType getSystemImageType() {
+        return systemImageType;
     }
 
-    public void setBuildType(BuildType buildType) {
-        this.buildType = buildType;
+    public void setSystemImageType(SystemImageType systemImageType) {
+        this.systemImageType = systemImageType;
     }
 
     @Override
@@ -158,7 +160,7 @@ public class BuildEnvironment implements GenericEntity<Integer> {
 
         private Map<String, String> attributes = new HashMap<>();
 
-        private BuildType buildType = BuildType.JAVA;
+        private SystemImageType systemImageType;
 
         private Builder() {
             
@@ -176,7 +178,7 @@ public class BuildEnvironment implements GenericEntity<Integer> {
             buildEnvironment.setSystemImageRepositoryUrl(systemImageRepositoryUrl);
             buildEnvironment.systemImageId = systemImageId;
             buildEnvironment.setAttributes(attributes);
-            buildEnvironment.setBuildType(buildType);
+            buildEnvironment.setSystemImageType(systemImageType);
             return buildEnvironment;
         }
 
@@ -215,8 +217,8 @@ public class BuildEnvironment implements GenericEntity<Integer> {
             return this;
         }
 
-        public Builder buildType(BuildType buildType) {
-            this.buildType = buildType;
+        public Builder systemImageType(SystemImageType systemImageType) {
+            this.systemImageType = systemImageType;
             return this;
         }
 

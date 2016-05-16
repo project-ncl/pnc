@@ -108,6 +108,7 @@ public class ModelTestDataFactory {
                 .name("Fake test build system")
                 .description("Fake build system to use for testing")
                 .systemImageId("123456")
+                .systemImageType(SystemImageType.DOCKER_IMAGE)
                 .build();
     }
 

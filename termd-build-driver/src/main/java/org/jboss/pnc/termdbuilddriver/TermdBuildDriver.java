@@ -21,7 +21,7 @@ import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
 import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
-import org.jboss.pnc.model.BuildType;
+import org.jboss.pnc.model.SystemImageType;
 import org.jboss.pnc.spi.builddriver.BuildDriver;
 import org.jboss.pnc.spi.builddriver.BuildDriverResult;
 import org.jboss.pnc.spi.builddriver.BuildDriverStatus;
@@ -62,7 +62,7 @@ public class TermdBuildDriver implements BuildDriver { //TODO rename class
     @Deprecated
     public TermdBuildDriver() {
     }
-    
+
     @Inject
     public TermdBuildDriver(Configuration configuration) {
         int executorThreadPoolSize = 12;
@@ -83,11 +83,6 @@ public class TermdBuildDriver implements BuildDriver { //TODO rename class
         return DRIVER_ID;
     }
 
-    @Override
-    public boolean canBuild(BuildType buildType) {
-        return BuildType.JAVA.equals(buildType);
-    }
-    
     @Override
     public RunningBuild startProjectBuild(BuildExecutionSession buildExecutionSession,
             final RunningEnvironment runningEnvironment)

@@ -153,7 +153,9 @@ public class BpmBuildScheduler implements BuildScheduler {
                 buildConfiguration.getScmRevision(),
                 buildConfiguration.getScmMirrorRepoURL(),
                 buildConfiguration.getScmMirrorRevision(),
-                buildConfiguration.getBuildEnvironment().getBuildType());
+                buildConfiguration.getBuildEnvironment().getSystemImageId(),
+                buildConfiguration.getBuildEnvironment().getSystemImageRepositoryUrl(),
+                buildConfiguration.getBuildEnvironment().getSystemImageType());
 
         BuildExecutionConfigurationRest buildExecutionConfigurationREST = new BuildExecutionConfigurationRest(buildExecutionConfiguration);
 

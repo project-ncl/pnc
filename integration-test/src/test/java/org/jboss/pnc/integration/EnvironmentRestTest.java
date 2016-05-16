@@ -27,7 +27,7 @@ import org.jboss.pnc.integration.assertions.ResponseAssertion;
 import org.jboss.pnc.integration.deployments.Deployments;
 import org.jboss.pnc.integration.utils.AuthUtils;
 import org.jboss.pnc.integration.utils.ResponseUtils;
-import org.jboss.pnc.model.BuildType;
+import org.jboss.pnc.model.SystemImageType;
 import org.jboss.pnc.rest.endpoint.BuildEnvironmentEndpoint;
 import org.jboss.pnc.rest.provider.BuildEnvironmentProvider;
 import org.jboss.pnc.rest.restmodel.BuildEnvironmentRest;
@@ -104,7 +104,7 @@ public class EnvironmentRestTest {
     public void shouldUpdateEnvironment() throws Exception {
         //given
         BuildEnvironmentRest environmentModified = exampleEnvironment();
-        environmentModified.setBuildType(BuildType.JAVA);
+        environmentModified.setSystemImageType(SystemImageType.DOCKER_IMAGE);
 
         //when
         Response putResponse = given()
@@ -124,7 +124,7 @@ public class EnvironmentRestTest {
         //then
         ResponseAssertion.assertThat(putResponse).hasStatus(200);
         ResponseAssertion.assertThat(getResponse).hasStatus(200);
-        assertThat(noLoremIpsum.getBuildType()).isEqualTo(BuildType.JAVA);
+        assertThat(noLoremIpsum.getSystemImageType()).isEqualTo(SystemImageType.DOCKER_IMAGE);
     }
 
     @Test
@@ -150,7 +150,7 @@ public class EnvironmentRestTest {
     private BuildEnvironmentRest exampleEnvironment() {
         BuildEnvironmentRest environmentRest = new BuildEnvironmentRest();
         environmentRest.setName("Test Environment");
-        environmentRest.setBuildType(BuildType.NATIVE);
+        environmentRest.setSystemImageType(SystemImageType.DOCKER_IMAGE);
         environmentRest.setImageId("abcd1234");
         return environmentRest;
     }

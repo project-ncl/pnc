@@ -19,7 +19,7 @@
 package org.jboss.pnc.rest.serialization;
 
 import org.jboss.pnc.executor.DefaultBuildExecutionConfiguration;
-import org.jboss.pnc.model.BuildType;
+import org.jboss.pnc.model.SystemImageType;
 import org.jboss.pnc.rest.restmodel.BuildExecutionConfigurationRest;
 import org.jboss.pnc.rest.notifications.websockets.JSonOutputConverter;
 import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
@@ -50,7 +50,9 @@ public class BuildExecutionConfigurationTest {
                 "https://pathToRepo.git",
                 "2222222",
                 "1111111",
-                BuildType.JAVA
+                "abcd1234",
+                "image.repo.url/repo",
+                SystemImageType.DOCKER_IMAGE
         );
         BuildExecutionConfigurationRest buildExecutionConfigurationREST = new BuildExecutionConfigurationRest(buildExecutionConfiguration);
 
@@ -64,10 +66,12 @@ public class BuildExecutionConfigurationTest {
 
         Assert.assertEquals(message, buildExecutionConfiguration.getId(), buildExecutionConfigurationFromJson.getId());
         Assert.assertEquals(message, buildExecutionConfiguration.getBuildScript(), buildExecutionConfigurationFromJson.getBuildScript());
-        Assert.assertEquals(message, buildExecutionConfiguration.getBuildType(), buildExecutionConfigurationFromJson.getBuildType());
         Assert.assertEquals(message, buildExecutionConfiguration.getName(), buildExecutionConfigurationFromJson.getName());
         Assert.assertEquals(message, buildExecutionConfiguration.getScmRepoURL(), buildExecutionConfigurationFromJson.getScmRepoURL());
         Assert.assertEquals(message, buildExecutionConfiguration.getScmRevision(), buildExecutionConfigurationFromJson.getScmRevision());
+        Assert.assertEquals(message, buildExecutionConfiguration.getSystemImageId(), buildExecutionConfigurationFromJson.getSystemImageId());
+        Assert.assertEquals(message, buildExecutionConfiguration.getSystemImageRepositoryUrl(), buildExecutionConfigurationFromJson.getSystemImageRepositoryUrl());
+        Assert.assertEquals(message, buildExecutionConfiguration.getSystemImageType(), buildExecutionConfigurationFromJson.getSystemImageType());
         Assert.assertEquals(message, buildExecutionConfiguration.getUserId(), buildExecutionConfigurationFromJson.getUserId());
     }
 

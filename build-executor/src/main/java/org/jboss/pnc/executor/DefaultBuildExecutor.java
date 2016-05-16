@@ -149,9 +149,11 @@ public class DefaultBuildExecutor implements BuildExecutor {
         buildExecutionSession.setStatus(BuildExecutionStatus.BUILD_ENV_SETTING_UP);
         BuildExecutionConfiguration buildExecutionConfiguration = buildExecutionSession.getBuildExecutionConfiguration();
         try {
-            EnvironmentDriver envDriver = environmentDriverFactory.getDriver(buildExecutionConfiguration.getBuildType());
-            StartedEnvironment startedEnv = envDriver.buildEnvironment(
-                    buildExecutionConfiguration.getBuildType(),
+            EnvironmentDriver envDriver = environmentDriverFactory.getDriver(buildExecutionConfiguration.getSystemImageType());
+            StartedEnvironment startedEnv = envDriver.startEnvironment(
+                    buildExecutionConfiguration.getSystemImageId(),
+                    buildExecutionConfiguration.getSystemImageRepositoryUrl(),
+                    buildExecutionConfiguration.getSystemImageType(),
                     repositorySession);
             return startedEnv;
         } catch (Throwable e) {
@@ -188,7 +190,7 @@ public class DefaultBuildExecutor implements BuildExecutor {
             log.debug("Setting live log websocket url: {}", liveLogWebSocketUrl);
             buildExecutionSession.setLiveLogsUri(Optional.of(new URI(liveLogWebSocketUrl)));
             buildExecutionSession.setStartTime(new Date());
-            BuildDriver buildDriver = buildDriverFactory.getBuildDriver(buildExecutionSession.getBuildExecutionConfiguration().getBuildType());
+            BuildDriver buildDriver = buildDriverFactory.getBuildDriver();
             return buildDriver.startProjectBuild(buildExecutionSession, runningEnvironment);
         } catch (Throwable e) {
             throw new BuildProcessException(e, runningEnvironment);
