@@ -140,4 +140,87 @@
   ]);
 
 
+
+
+  module.controller('BlacklistedArtifactsInProjectReportController', [
+    '$scope',
+    '$state',
+    '$log',
+    'ReportDAO',
+    function($scope, $state, $log, ReportDAO) {
+
+      var that = this;
+
+      // fields
+      that.scmUrl = '';
+      that.revision = '';
+      that.pomPath = '';
+      that.additionalRepos = [];
+
+      that.afterSearch = false;
+      that.defaultSortKey = 'groupId';
+      that.defaultReverse = false;
+
+      that.isResultNotEmpty = function() {
+        return !_.isEmpty(that.reportResults);
+      };
+      
+      that.reset = function(form) {
+        if (form) {
+
+          // fields
+          that.scmUrl = '';
+          that.revision = '';
+          that.pomPath = '';
+          that.additionalRepos = [];
+
+          that.reportResults = [];
+          that.afterSearch = false;
+          form.$setPristine();
+          form.$setUntouched();
+        }
+      };
+
+      that.search = function() {
+        ReportDAO.getBlacklistedArtifactsInProject(that.scmUrl, that.revision, that.pomPath, that.additionalRepos).then(function(result) {
+
+          that.reportResults = [];
+
+          // Show all unique artifacts
+          _(result).each(function(topLevelDependency){
+            _(topLevelDependency.gavs).each(function(a){
+              that.reportResults.push(a);
+            });
+          });
+
+          that.reportResults = _(that.reportResults).uniq(function(a){
+            return JSON.stringify(_.pick(a, ['groupId', 'artifactId', 'version']));
+          });
+   
+          that.sortKey = that.defaultSortKey;
+          that.reverse = that.defaultReverse;
+          that.afterSearch = true;
+
+          // Default sorting 
+          that.reportResults = _.chain(that.reportResults).sortBy(function(result){ return result[that.defaultSortKey]; }).value();
+          
+        }, function() {
+          // error
+
+          that.reportResults = [];
+        });
+      };
+
+      that.sort = function(keyname){
+        that.sortKey = keyname;   
+        that.reverse = !that.reverse;
+      };
+
+    }
+
+  ]);
+
+
+
+
 })();

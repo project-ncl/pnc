@@ -65,6 +65,17 @@
       controllerAs: 'productsForArtifactReportCtrl'
     });
 
+
+    $stateProvider.state('report.blacklisted-artifacts-in-project', {
+      url: '/blacklisted-artifacts-in-project',
+      templateUrl: 'report/views/blacklisted.artifacts.in.project.html',
+      data: {
+        displayName: 'Show blacklisted artifacts in a project'
+      },
+      controller: 'BlacklistedArtifactsInProjectReportController',
+      controllerAs: 'blacklistedArtifactsInProjectReportCtrl'
+    });
+
   }]);
 
 })();

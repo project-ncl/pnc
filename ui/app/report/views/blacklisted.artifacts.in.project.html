@@ -1,0 +1,133 @@
+<!--
+
+    JBoss, Home of Professional Open Source.
+    Copyright 2014 Red Hat, Inc., and individual contributors
+    as indicated by the @author tags.
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+<div class="row">
+  <div class="col-lg-6 col-md-8">
+
+    <pnc-header>
+      <pnc-header-title>Show blacklisted artifacts in a project</pnc-header-title>
+    </pnc-header>
+
+    <form class="form-horizontal" name="blacklistedArtifactsInProjectReportForm" novalidate>
+    
+      <div class="panel panel-default">
+        <div class="panel-body">
+          
+          <div class="form-group"
+            ng-class="{ 'has-error' : !blacklistedArtifactsInProjectReportCtrl.scmUrl && blacklistedArtifactsInProjectReportForm.scmUrl.$touched, 'has-success': blacklistedArtifactsInProjectReportCtrl.scmUrl && blacklistedArtifactsInProjectReportForm.scmUrl.$touched }">
+            <label for="scmUrl" class="col-sm-3 control-label">* SCM Url:</label>
+            <div class="col-sm-9">
+              <input id="scmUrl" class="form-control" name="scmUrl" ng-model="blacklistedArtifactsInProjectReportCtrl.scmUrl" maxlength="255" placeholder="" required>
+              <span class="help-block" ng-show="blacklistedArtifactsInProjectReportForm.scmUrl.$error.required && blacklistedArtifactsInProjectReportForm.scmUrl.$touched">Required field.</span>
+            </div>
+          </div>
+
+          <div class="form-group"
+            ng-class="{ 'has-error' : !blacklistedArtifactsInProjectReportCtrl.revision && blacklistedArtifactsInProjectReportForm.revision.$touched, 'has-success': blacklistedArtifactsInProjectReportCtrl.revision && blacklistedArtifactsInProjectReportForm.revision.$touched }">
+            <label for="revision" class="col-sm-3 control-label">* Revision:</label>
+            <div class="col-sm-9">
+              <input id="revision" class="form-control" name="revision" ng-model="blacklistedArtifactsInProjectReportCtrl.revision" maxlength="255" placeholder="master" required>
+              <span class="help-block" ng-show="blacklistedArtifactsInProjectReportForm.revision.$error.required && blacklistedArtifactsInProjectReportForm.revision.$touched">Required field.</span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="pomPath" class="col-sm-3 control-label">Path to root POM:</label>
+            <div class="col-sm-9">
+              <input id="pomPath" class="form-control" name="pomPath" ng-model="blacklistedArtifactsInProjectReportCtrl.pomPath" maxlength="255" placeholder="./pom.xml">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="additionalRepos" class="col-sm-3 control-label">Additional repos:</label>
+            <div class="col-sm-9">
+              <pnc-multiple-input 
+                selected-items="blacklistedArtifactsInProjectReportCtrl.additionalRepos" 
+                placeholder="" select-id="additionalRepos" select-name="additionalRepos">
+              </pnc-multiple-input>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    
+      <div class="form-group text-right">
+        <div class="col-sm-offset-2 col-sm-10">
+          <input type="submit" class="btn btn-primary" value="Search" ng-disabled="blacklistedArtifactsInProjectReportForm.$invalid" ng-click="blacklistedArtifactsInProjectReportCtrl.search()">
+          <button type="button" class="btn btn-default" ng-click="blacklistedArtifactsInProjectReportCtrl.reset(blacklistedArtifactsInProjectReportForm)">Clear</button>
+        </div>
+      </div>
+
+    </form>
+
+  </div>
+</div>
+
+<br /><br />
+
+<div ng-show="blacklistedArtifactsInProjectReportCtrl.isResultNotEmpty()">
+  <div class="col-md-12">
+
+    <div class="search">
+      <div class="form-group">
+        <div class="input-group" role="search">
+          <label class="sr-only" for="{{ inputId }}">Filter Results</label>
+          <input id="{{ inputId }}" type="search" class="form-control" ng-model="searchText" placeholder="Filter">
+          <div class="input-group-addon">
+            <i class="fa fa-search"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <table class="table table-bordered table-striped table-hover">
+      <thead>
+        <th style="cursor: pointer;" ng-click="blacklistedArtifactsInProjectReportCtrl.sort('groupId')">GroupId
+          <span class="glyphicon sort-icon" ng-show="blacklistedArtifactsInProjectReportCtrl.sortKey=='groupId'" 
+            ng-class="{'glyphicon-chevron-up':blacklistedArtifactsInProjectReportCtrl.reverse,'glyphicon-chevron-down':!blacklistedArtifactsInProjectReportCtrl.reverse}"></span>
+        </th>
+        <th style="cursor: pointer;" ng-click="blacklistedArtifactsInProjectReportCtrl.sort('artifactId')">ArtifactId
+          <span class="glyphicon sort-icon" ng-show="blacklistedArtifactsInProjectReportCtrl.sortKey=='artifactId'" 
+            ng-class="{'glyphicon-chevron-up':blacklistedArtifactsInProjectReportCtrl.reverse,'glyphicon-chevron-down':!blacklistedArtifactsInProjectReportCtrl.reverse}"></span>        
+        </th>
+        <th style="cursor: pointer;" ng-click="blacklistedArtifactsInProjectReportCtrl.sort('version')">Version
+          <span class="glyphicon sort-icon" ng-show="blacklistedArtifactsInProjectReportCtrl.sortKey=='version'" 
+            ng-class="{'glyphicon-chevron-up':blacklistedArtifactsInProjectReportCtrl.reverse,'glyphicon-chevron-down':!blacklistedArtifactsInProjectReportCtrl.reverse}"></span>        
+        </th>
+      </thead>
+      <tbody>
+        <tr ng-repeat="result in blacklistedArtifactsInProjectReportCtrl.reportResults | orderBy:blacklistedArtifactsInProjectReportCtrl.sortKey:blacklistedArtifactsInProjectReportCtrl.reverse | filter:searchText">
+          <td>{{ result.groupId }}</td>
+          <td>{{ result.artifactId }}</td>
+          <td>{{ result.version }}</td>
+        </tr>
+      </tbody>
+    </table>
+
+  </div>
+</div>
+
+
+<div ng-hide="blacklistedArtifactsInProjectReportCtrl.isResultNotEmpty() || !blacklistedArtifactsInProjectReportCtrl.afterSearch">
+  <div class="col-md-12">
+    <div class="text-center lead">
+      There are no results to display.
+    </div>
+  </div>
+</div>
