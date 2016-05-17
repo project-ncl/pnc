@@ -42,8 +42,10 @@ import org.jboss.pnc.spi.events.BuildSetStatusChangedEvent;
 import org.jboss.pnc.test.arquillian.ShrinkwrapDeployerUtils;
 import org.jboss.shrinkwrap.api.Archive;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
-import org.jboss.shrinkwrap.api.asset.EmptyAsset;
+import org.jboss.shrinkwrap.api.asset.StringAsset;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
+import org.jboss.shrinkwrap.descriptor.api.Descriptors;
+import org.jboss.shrinkwrap.descriptor.api.beans10.BeansDescriptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -106,7 +108,7 @@ public class BuildCoordinatorDeployments {
                         DefaultBuildStatusChangedEvent.class.getPackage(),
                         BuildExecutorMock.class.getPackage(),
                         DefaultBuildExecutor.class.getPackage())
-                .addAsManifestResource(EmptyAsset.INSTANCE, "beans.xml")
+                .addAsManifestResource(new StringAsset(Descriptors.create(BeansDescriptor.class).getOrCreateAlternatives().clazz(BuildExecutorMock.class.getName()).up().exportAsString()), "beans.xml")
                 .addAsResource("simplelogger.properties");
 
         ShrinkwrapDeployerUtils.addPomLibs(jar, "org.slf4j:slf4j-simple");

@@ -57,7 +57,6 @@
     <module>maven-repository-manager</module>
     <module>build-coordinator</module>
     <module>build-executor</module>
-    <module>build-executor-mock</module>
     <module>model</module>
     <module>rest</module>
     <module>rest-model</module>
@@ -97,6 +96,7 @@
     <version.hibernate-jpamodelgen>4.3.4.Final</version.hibernate-jpamodelgen>
     <version.undertow-websockets-jsr>1.2.6.Final</version.undertow-websockets-jsr>
     <version.shrinkwrap>2.1.1</version.shrinkwrap>
+    <version.shrinkwrap.descriptors>2.0.0-alpha-9</version.shrinkwrap.descriptors>
     <version.buildagent>0.2-SNAPSHOT</version.buildagent>
 
     <datetime>${timestamp}</datetime>
@@ -246,21 +246,8 @@
 
       <dependency>
         <groupId>org.jboss.pnc</groupId>
-        <artifactId>build-coordinator-mock</artifactId>
-        <version>${project.version}</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.jboss.pnc</groupId>
         <artifactId>build-executor</artifactId>
         <version>${project.version}</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.jboss.pnc</groupId>
-        <artifactId>build-executor-mock</artifactId>
-        <version>${project.version}</version>
-        <scope>test</scope>
       </dependency>
 
       <dependency>
@@ -400,6 +387,12 @@
         <groupId>org.jboss.shrinkwrap.resolver</groupId>
         <artifactId>shrinkwrap-resolver-impl-maven</artifactId>
         <version>${version.shrinkwrap}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jboss.shrinkwrap.descriptors</groupId>
+        <artifactId>shrinkwrap-descriptors-impl-javaee</artifactId>
+        <version>${version.shrinkwrap.descriptors}</version>
       </dependency>
 
       <dependency>

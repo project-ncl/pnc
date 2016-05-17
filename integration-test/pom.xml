@@ -97,11 +97,6 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.jboss.pnc</groupId>
-      <artifactId>build-executor-mock</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
       <groupId>commons-validator</groupId>
       <artifactId>commons-validator</artifactId>
       <scope>test</scope>
