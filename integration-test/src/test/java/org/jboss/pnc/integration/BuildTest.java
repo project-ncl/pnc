@@ -19,6 +19,7 @@ package org.jboss.pnc.integration;
 
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
+import org.jboss.pnc.AbstractTest;
 import org.jboss.pnc.integration.client.BuildConfigurationRestClient;
 import org.jboss.pnc.integration.client.BuildConfigurationSetRestClient;
 import org.jboss.pnc.integration.client.BuildRecordRestClient;
@@ -32,7 +33,6 @@ import org.jboss.pnc.test.category.RemoteTest;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
@@ -52,7 +52,7 @@ public class BuildTest {
     @Deployment(testable = false)
     public static EnterpriseArchive deploy() {
         EnterpriseArchive enterpriseArchive = Deployments.baseEar();
-        WebArchive war = enterpriseArchive.getAsType(WebArchive.class, "/rest.war");
+        WebArchive war = enterpriseArchive.getAsType(WebArchive.class, AbstractTest.REST_WAR_PATH);
         war.addClass(BuildTest.class);
         return enterpriseArchive;
     }

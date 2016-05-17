@@ -20,6 +20,7 @@ package org.jboss.pnc.integration;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.transaction.api.annotation.Transactional;
+import org.jboss.pnc.AbstractTest;
 import org.jboss.pnc.integration.deployments.Deployments;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.datastore.repositories.PageInfoProducer;
@@ -45,10 +46,8 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
 import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
 
 @RunWith(Arquillian.class)
@@ -75,7 +74,7 @@ public class RSQLTest {
     @Deployment
     public static EnterpriseArchive deploy() {
         EnterpriseArchive enterpriseArchive = Deployments.baseEarWithTestDependencies();
-        WebArchive war = enterpriseArchive.getAsType(WebArchive.class, "/rest.war");
+        WebArchive war = enterpriseArchive.getAsType(WebArchive.class, AbstractTest.REST_WAR_PATH);
         war.addClass(RSQLTest.class);
         logger.info(enterpriseArchive.toString(true));
         return enterpriseArchive;

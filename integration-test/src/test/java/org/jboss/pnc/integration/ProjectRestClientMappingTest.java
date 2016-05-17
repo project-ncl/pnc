@@ -31,12 +31,12 @@ import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.junit.InSequence;
 import org.jboss.arquillian.transaction.api.annotation.TransactionMode;
 import org.jboss.arquillian.transaction.api.annotation.Transactional;
+import org.jboss.pnc.AbstractTest;
 import org.jboss.pnc.integration.deployments.Deployments;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.Project;
 import org.jboss.pnc.rest.restmodel.ProjectRest;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationRepository;
-import org.jboss.pnc.spi.datastore.repositories.ProjectRepository;
 import org.jboss.pnc.test.category.ContainerTest;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
@@ -49,22 +49,19 @@ import org.slf4j.LoggerFactory;
 @RunWith(Arquillian.class)
 @Transactional(TransactionMode.ROLLBACK)
 @Category(ContainerTest.class)
-public class ProjectRestClientMappingTest {
+public class ProjectRestClientMappingTest{
 
     public static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
     @Inject
     private BuildConfigurationRepository buildConfigurationRepository;
 
-    @Inject
-    private ProjectRepository projectRepository;
-
     private int configurationId;
 
     @Deployment
     public static EnterpriseArchive deploy() {
         EnterpriseArchive enterpriseArchive = Deployments.baseEarWithTestDependencies();
-        WebArchive war = enterpriseArchive.getAsType(WebArchive.class, "/rest.war");
+        WebArchive war = enterpriseArchive.getAsType(WebArchive.class, AbstractTest.REST_WAR_PATH);
         war.addClass(ProjectRestClientMappingTest.class);
         logger.info(enterpriseArchive.toString(true));
         return enterpriseArchive;

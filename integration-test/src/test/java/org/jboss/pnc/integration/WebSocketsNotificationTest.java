@@ -19,6 +19,7 @@ package org.jboss.pnc.integration;
 
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
+import org.jboss.pnc.AbstractTest;
 import org.jboss.pnc.integration.deployments.Deployments;
 import org.jboss.pnc.integration.websockets.NotificationCollector;
 import org.jboss.pnc.rest.notifications.websockets.NotificationsEndpoint;
@@ -70,7 +71,7 @@ public class WebSocketsNotificationTest {
     @Deployment(name="WebSocketsNotificationTest")
     public static EnterpriseArchive deploy() {
         EnterpriseArchive enterpriseArchive = Deployments.baseEarWithTestDependencies();
-        WebArchive restWar = enterpriseArchive.getAsType(WebArchive.class, "/rest.war");
+        WebArchive restWar = enterpriseArchive.getAsType(WebArchive.class, AbstractTest.REST_WAR_PATH);
         restWar.addClass(WebSocketsNotificationTest.class);
         restWar.addClass(NotificationCollector.class);
         restWar.addPackage(NotificationsEndpoint.class.getPackage());

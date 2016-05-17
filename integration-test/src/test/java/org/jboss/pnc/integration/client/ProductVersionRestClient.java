@@ -21,7 +21,7 @@ import org.jboss.pnc.rest.restmodel.ProductVersionRest;
 
 public class ProductVersionRestClient extends AbstractRestClient<ProductVersionRest> {
 
-    private static final String PRODUCT_VERSION_REST_ENDPOINT = "/pnc-rest/rest/product-versions/";
+    public static final String PRODUCT_VERSION_REST_ENDPOINT = "/pnc-rest/rest/product-versions/";
 
     public ProductVersionRestClient() {
         super(PRODUCT_VERSION_REST_ENDPOINT, ProductVersionRest.class);

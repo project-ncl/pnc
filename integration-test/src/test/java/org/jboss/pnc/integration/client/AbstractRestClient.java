@@ -59,6 +59,7 @@ public abstract class AbstractRestClient<T> {
     protected AuthenticationProvider authProvider;
     protected String access_token = "no-auth";
     protected boolean authInitialized = false;
+    public static final String CONTENT = "content";
 
     protected String collectionUrl;
 
@@ -165,7 +166,7 @@ public abstract class AbstractRestClient<T> {
 
         T object = null;
         try {
-            object = response.jsonPath().getObject("content", entityClass);
+            object = response.jsonPath().getObject(CONTENT, entityClass);
         } catch (Exception e) {
             if(withValidation) {
                 throw new AssertionError("JSON unmarshalling error", e);
@@ -188,7 +189,7 @@ public abstract class AbstractRestClient<T> {
 
         T object = null;
         try {
-            object = response.thenReturn().jsonPath().getObject("content", entityClass);
+            object = response.thenReturn().jsonPath().getObject(CONTENT, entityClass);
         } catch (Exception e) {
             if(withValidation) {
                 throw new AssertionError("JSON unmarshalling error", e);
@@ -251,7 +252,7 @@ public abstract class AbstractRestClient<T> {
         // status, with no errors
         if (responseBody != null && !responseBody.isEmpty()) {
             try {
-                List<? extends Map> beforeMappingList = response.jsonPath().getList("content");
+                List<? extends Map> beforeMappingList = response.jsonPath().getList(CONTENT);
                 ObjectMapper objectMapper = new ObjectMapper();
                 for (Map obj : beforeMappingList) {
                     // because of the bug in RestAssured - we need to use another mapping library...
