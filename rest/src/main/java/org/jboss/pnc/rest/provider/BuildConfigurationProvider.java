@@ -138,8 +138,7 @@ public class BuildConfigurationProvider extends AbstractProvider<BuildConfigurat
     private void validateIfItsNotConflicted(BuildConfigurationRest buildConfigurationRest)
             throws ConflictedEntryException, InvalidEntityException {
         ValidationBuilder.validateObject(buildConfigurationRest, WhenUpdating.class).validateConflict(() -> {
-            BuildConfiguration buildConfigurationFromDB = repository.queryByPredicates(
-                    withProjectId(buildConfigurationRest.getProject().getId()), withName(buildConfigurationRest.getName()));
+            BuildConfiguration buildConfigurationFromDB = repository.queryByPredicates(withName(buildConfigurationRest.getName()));
 
             // don't validate against myself
             if (buildConfigurationFromDB != null && !buildConfigurationFromDB.getId().equals(buildConfigurationRest.getId())) {
