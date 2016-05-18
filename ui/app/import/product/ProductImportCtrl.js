@@ -22,14 +22,15 @@
   var module = angular.module('pnc.import');
 
   module.controller('ProductImportCtrl', [
-    'ProductImportDAO',
+    '$log',
+    'productImport',
     'TreeFactory',
     '$scope',
     '$timeout',
     'Notifications',
     '$state',
     'ProductVersionDAO',
-    function (ProductImportDAO, TreeFactory, scope, $timeout, Notifications, $state, ProductVersionDAO) {
+    function ($log, productImport, TreeFactory, scope, $timeout, Notifications, $state, ProductVersionDAO) {
 
       scope.started = false;
       scope.display = 'start';
@@ -205,10 +206,10 @@
        * parse the structure to add nodes on the tree as needed.
        * @return true on success
        *
-       * @param tree    
+       * @param tree
        * Tree representation which is displayed
        *
-       * @param data    
+       * @param data
        * Tree data coming from REST
        *
        */
@@ -319,7 +320,7 @@
         scope.startSubmitDisabled = true;
         scope.startTooltipIsOpen = false;
         Notifications.info('Preparing analysis. This may take a minute, please be patient.');
-        ProductImportDAO.startProcess(scope.startData).then(function (r) {
+        productImport.start(scope.startData).then(function (r) {
           if (_(r).has('id')) {
             data = r;
             scope.id = data.id;
@@ -332,7 +333,9 @@
           } else {
             Notifications.error('Something went wrong. Make sure that you entered correct data.');
           }
-        }, function() {
+        }, function(error) {
+          $log.error('Error starting import process: %s', JSON.stringify(error, null, 2));
+          Notifications.error('RPC Server Error ' + error.code + ': ' + error.message);
           scope.startTooltipIsOpen = true;
         }).finally(function() {
           scope.startSubmitDisabled = false;
@@ -347,7 +350,7 @@
         node.nodeData.selected = true;
         data = parseTree(tree);
         Notifications.info('Analyzing \'' + node.gavString + '\'. This may take a minute, please be patient.');
-        ProductImportDAO.analyzeNextLevel(data).then(function (r) {
+        productImport.nextLevel(data).then(function (r) {
           if (_(r).has('id')) {
             data = r;
             if (parseData(tree, data)) {
@@ -365,6 +368,9 @@
             node.select();
             Notifications.error('Could not analyze \'' + node.gavString + '\'. Check that the information in the form is correct.');
           }
+        }, function(error) {
+          $log.error('Remote error analyzing next level: ' + JSON.stringify(error, null, 2));
+          Notifications.error('Error analyzing next level: ' + error.message);
         });
       };
 
@@ -385,7 +391,7 @@
           scope.finishSubmitDisabled = true;
           scope.finishTooltipIsOpen = false;
           Notifications.info('Product is being imported. This may take a minute, please be patient.');
-          ProductImportDAO.finishProcess(data).then(function (r) {
+          productImport.finish(data).then(function (r) {
             if(r.success) {
               Notifications.success('Product import completed!');
               scope.reset();
@@ -393,7 +399,9 @@
             } else {
               Notifications.error('Product import failed. ' + r.message);
             }
-          }, function() {
+          }, function(error) {
+            $log.error('Remote error finishing import process: ' + JSON.stringify(error, null, 2));
+            Notifications.error('Product import failed: ' + error.message);
             scope.finishTooltipIsOpen = true;
           }).finally(function() {
             scope.finishSubmitDisabled = false;

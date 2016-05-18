@@ -90,16 +90,23 @@
     $httpProvider.interceptors.push('httpAuthenticationInterceptor');
   });
 
-  // Configure all the remote api base URLs with the pncProperties
-  // retrieved in initialise.js.
+  /**
+   * Configure remote api clients with addresses from the pncProperties
+   * retrieved in initialise.js.
+   */
   app.config([
     'pncProperties',
     'restConfigProvider',
-    function (pncProperties, restConfigProvider) {
-       restConfigProvider.setPncUrl(pncProperties.pncUrl);
-       restConfigProvider.setPncNotificationsUrl(pncProperties.pncNotificationsUrl);
-       restConfigProvider.setDaUrl(pncProperties.daUrl);
-       restConfigProvider.setDaImportUrl(pncProperties.daImportUrl);
+    'daConfigProvider',
+    function (pncProperties, restConfigProvider, daConfigProvider) {
+      restConfigProvider.setPncUrl(pncProperties.pncUrl);
+      restConfigProvider.setPncNotificationsUrl(pncProperties.pncNotificationsUrl);
+      restConfigProvider.setDaUrl(pncProperties.daUrl);
+      restConfigProvider.setDaImportUrl(pncProperties.daImportUrl);
+
+      daConfigProvider.setDaUrl(pncProperties.daUrl);
+      daConfigProvider.setDaImportUrl(pncProperties.daImportUrl);
+      daConfigProvider.setDaImportRpcUrl(pncProperties.daImportRpcUrl);
   }]);
 
   app.run(function($rootScope, $log, $state, authService, keycloak) {

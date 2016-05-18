@@ -21,16 +21,19 @@
   var module = angular.module('pnc.common.daclient');
 
   module.factory('productImport', [
+    '$log',
+    'daConfig',
     'jsonrpc',
-    function (jsonrpc) {
+    function ($log, daConfig, jsonrpc) {
 
-      var rpc = jsonrpc.wsClient(URL);
+      var rpc = jsonrpc.wsClient(daConfig.getDaImportRpcUrl());
       var productImport = {};
 
       /**
        *
        */
       productImport.start = function (params) {
+        $log.debug('productImport.start() %O', params);
         return rpc.invoke('buildConfiguration.product.start', params);
       };
 
@@ -38,6 +41,7 @@
        *
        */
       productImport.nextLevel = function (params) {
+        $log.debug('productImport.nextLevel() %O', params);
         return rpc.invoke('buildConfiguration.product.nextLevel', params);
       };
 
@@ -45,6 +49,7 @@
        *
        */
       productImport.finish = function (params) {
+        $log.debug('productImport.finish() %O', params);
         return rpc.invoke('buildConfiguration.product.finish', params);
       };
 
