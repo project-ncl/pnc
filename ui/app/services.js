@@ -166,7 +166,7 @@
         if (rejection && rejection.data && rejection.data.errorMessage) {
           error = rejection.data;
         } else {
-          Notifications.error('PNC REST Api returned an error in an invalid format.');
+          Notifications.error('PNC REST Api returned an error in an invalid format: ' + rejection.status + ' ' + rejection.statusText);
           $log.error('PNC REST Api returned an error in an invalid format: response: %O', rejection);
           return rejection;
         }
@@ -177,7 +177,7 @@
 
         Notifications.error(error.errorMessage);
         $log.error('PNC REST API returned the following error: type: "%s", message: "%s", details: "%s"',
-            error.errorType, error.errorMessage, error.errorDetails);
+            error.errorType, error.errorMessage, error.details);
 
       }
 

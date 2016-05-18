@@ -165,6 +165,9 @@ button.debutton {
 }
 
 /* angular-patternfly override */
+.notification-area {
+  word-break: break-all;
+}
 .notification-area .close {
   display: block !important;
 }
