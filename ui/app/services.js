@@ -177,7 +177,7 @@
 
         Notifications.error(error.errorMessage);
         $log.error('PNC REST API returned the following error: type: "%s", message: "%s", details: "%s"',
-            error.errorType, error.errorMessage, error.errorDetails);
+            error.errorType, error.errorMessage, error.details);
 
       }
 
