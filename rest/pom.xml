@@ -93,7 +93,6 @@
     <dependency>
       <groupId>org.apache.httpcomponents</groupId>
       <artifactId>httpclient</artifactId>
-      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.jboss.spec.javax.servlet</groupId>
@@ -166,6 +165,10 @@
     <dependency>
       <groupId>org.eclipse.jetty</groupId>
       <artifactId>jetty-servlets</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>commons-io</groupId>
+      <artifactId>commons-io</artifactId>
     </dependency>
 
     <!-- Test dependencies -->

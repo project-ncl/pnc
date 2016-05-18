@@ -58,6 +58,10 @@
       <artifactId>spi</artifactId>
       <scope>provided</scope>
     </dependency>
+    <dependency>
+      <groupId>commons-io</groupId>
+      <artifactId>commons-io</artifactId>
+    </dependency>
 
     <!-- Remote dependencies -->
 
