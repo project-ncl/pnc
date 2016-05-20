@@ -39,6 +39,6 @@ public interface BuildCoordinator {
 
     void updateBuildTaskStatus(BuildTask task, BuildCoordinationStatus status);
 
-    public void start();
+    void start();
 
 }

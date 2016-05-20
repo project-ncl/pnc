@@ -22,7 +22,6 @@ import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
 import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
 import org.jboss.pnc.model.BuildConfigurationAudited;
-import org.jboss.pnc.spi.coordinator.BuildSetTask;
 import org.jboss.pnc.spi.coordinator.BuildTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,7 +29,10 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -42,15 +44,17 @@ import java.util.stream.Collectors;
  *
  * The queue consists of 4 collections:
  * <ul>
- * <li>taskSets - set of currently processed task sets</li>
  * <li>tasksInProgress - set of tasks that are being executed at the moment</li>
  * <li>readyTasks - queue of tasks that are ready to be executed but are waiting for a free executor (and throttling mechanism)</li>
  * <li>waitingTasks - tasks waiting for a dependency. As soon as the dependency is built, they are moved to readyTasks</li>
  * </ul>
  *
- * TODO: 1. taskSets can probably be removed
- * TODO: 2. Currently it throttles the number of tasks in progress. Is this necessary?
+ * NOTE: This implementation is not entirely thread safe. It might happen that {@link #isBuildAlreadySubmitted(BuildTask)} returns fails
+ * while the build task is being taken from the queue. The same applies to the results of {@link BuildQueue#getSubmittedBuildTasks()}
  *
+ *
+ * TODO: Currently it throttles the number of tasks in progress. Is this necessary?
+ * <p/>
  * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com
  * Date: 4/18/16
  * Time: 12:47 PM
@@ -63,9 +67,8 @@ public class BuildQueue {
     private Configuration configuration;
 
     private final BlockingQueue<BuildTask> readyTasks = new LinkedBlockingQueue<>();
-    private final List<BuildTask> waitingTasks = new ArrayList<>();
+    private final Set<BuildTask> waitingTasks = ConcurrentHashMap.newKeySet();
     private final Set<BuildTask> tasksInProgress = ConcurrentHashMap.newKeySet();
-    private final Set<BuildSetTask> taskSets = new HashSet<>();
 
     private final Semaphore availableBuildSlots = new Semaphore(0);
 
@@ -98,29 +101,9 @@ public class BuildQueue {
      *
      * @param task task to be enqueued
      */
-    public synchronized void enqueueTask(BuildTask task) {
+    public void enqueueTask(BuildTask task) {
         log.debug("adding task: {}", task);
         addTask(task);
-    }
-
-    /**
-     * Enqueue all tasks of a task set
-     *
-     * @param taskSet task set to be built
-     */
-    public synchronized void enqueueTaskSet(BuildSetTask taskSet) {
-        log.debug("adding task set: {}", taskSet);
-        taskSets.add(taskSet);
-    }
-
-    /**
-     * remove task set from queue. This method should be invoked after whole task set is processed
-     *
-     * @param taskSet processed task set
-     */
-    public synchronized void removeSet(BuildSetTask taskSet) {
-        log.debug("removing task set: {}", taskSet);
-        taskSets.remove(taskSet);
     }
 
     /**
@@ -129,7 +112,7 @@ public class BuildQueue {
      *
      * @param task task to be removed
      */
-    public synchronized void removeTask(BuildTask task) {
+    public void removeTask(BuildTask task) {
         log.debug("removing task: {}", task);
         if (tasksInProgress.remove(task)) {
             availableBuildSlots.release();
@@ -142,10 +125,10 @@ public class BuildQueue {
      * Trigger searching for ready tasks in the waiting queue.
      * This method should be invoked if one task has finished and there's a possibility that other tasks became ready to be built.
      */
-    public synchronized void executeNewReadyTasks() {
+    public void executeNewReadyTasks() {
         List<BuildTask> newReadyTasks = extractReadyTasks();
-        log.debug("starting new ready tasks. New ready tasks: {}", newReadyTasks);
         readyTasks.addAll(newReadyTasks);
+        log.debug("starting new ready tasks. New ready tasks: {}", newReadyTasks);
     }
 
     /**
@@ -154,7 +137,7 @@ public class BuildQueue {
      * @param buildConfigAudited build configuration
      * @return Optional.of(build task for the configuration) if build task is enqueued/in progress, Optional.empty() otherwise
      */
-    public synchronized Optional<BuildTask> getTask(BuildConfigurationAudited buildConfigAudited) {
+    public Optional<BuildTask> getTask(BuildConfigurationAudited buildConfigAudited) {
         Optional<BuildTask> ready = readyTasks.stream().filter(bt -> bt.getBuildConfigurationAudited().equals(buildConfigAudited)).findAny();
         Optional<BuildTask> waiting = waitingTasks.stream().filter(bt -> bt.getBuildConfigurationAudited().equals(buildConfigAudited)).findAny();
         Optional<BuildTask> inProgress = tasksInProgress.stream().filter(bt -> bt.getBuildConfigurationAudited().equals(buildConfigAudited)).findAny();
@@ -166,7 +149,7 @@ public class BuildQueue {
      *
      * @return list of all build tasks in the queue
      */
-    public synchronized List<BuildTask> getSubmittedBuildTasks() {
+    public List<BuildTask> getSubmittedBuildTasks() {
         ArrayList<BuildTask> result = new ArrayList<>();
         result.addAll(waitingTasks);
         result.addAll(readyTasks);
@@ -185,7 +168,7 @@ public class BuildQueue {
 
 
     public boolean isBuildAlreadySubmitted(BuildTask buildTask) {
-        return waitingTasks.contains(buildTask) || tasksInProgress.contains(buildTask);
+        return tasksInProgress.contains(buildTask) || readyTasks.contains(buildTask) || waitingTasks.contains(buildTask);
     }
 
     private List<BuildTask> extractReadyTasks() {
@@ -209,12 +192,10 @@ public class BuildQueue {
         return "BuildQueue{" +
                 "readyTasks=" + readyTasks +
                 ", waitingTasks=" + waitingTasks +
-                ", tasksInProgress=" + tasksInProgress +
-                ", taskSets=" + taskSets +
-                '}';
+                ", tasksInProgress=" + tasksInProgress + '}';
     }
 
-    public synchronized boolean isEmpty() {
-        return tasksInProgress.isEmpty() && waitingTasks.isEmpty() && readyTasks.isEmpty() && taskSets.isEmpty();
+    public boolean isEmpty() {
+        return tasksInProgress.isEmpty() && waitingTasks.isEmpty() && readyTasks.isEmpty();
     }
 }
