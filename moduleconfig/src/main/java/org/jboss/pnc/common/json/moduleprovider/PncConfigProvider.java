@@ -18,13 +18,7 @@
 package org.jboss.pnc.common.json.moduleprovider;
 
 import org.jboss.pnc.common.json.AbstractModuleConfig;
-import org.jboss.pnc.common.json.moduleconfig.AuthenticationModuleConfig;
-import org.jboss.pnc.common.json.moduleconfig.BpmModuleConfig;
-import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
-import org.jboss.pnc.common.json.moduleconfig.JenkinsBuildDriverModuleConfig;
-import org.jboss.pnc.common.json.moduleconfig.MavenRepoDriverModuleConfig;
-import org.jboss.pnc.common.json.moduleconfig.OpenshiftEnvironmentDriverModuleConfig;
-import org.jboss.pnc.common.json.moduleconfig.TermdBuildDriverModuleConfig;
+import org.jboss.pnc.common.json.moduleconfig.*;
 
 /**
  * @author <a href="mailto:pslegr@redhat.com">pslegr</a> on Aug 21, 2015
@@ -43,5 +37,6 @@ public class PncConfigProvider <T extends AbstractModuleConfig>
       addModuleConfig(new ProviderNameType(AuthenticationModuleConfig.class, "authentication-config"));
       addModuleConfig(new ProviderNameType(BpmModuleConfig.class, "bpm-config"));
       addModuleConfig(new ProviderNameType(OpenshiftEnvironmentDriverModuleConfig.class, OpenshiftEnvironmentDriverModuleConfig.MODULE_NAME));
+        addModuleConfig(new ProviderNameType(UIModuleConfig.class, UIModuleConfig.MODULE_NAME));
     }
 }

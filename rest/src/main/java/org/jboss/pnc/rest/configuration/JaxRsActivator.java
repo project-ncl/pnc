@@ -19,21 +19,7 @@ package org.jboss.pnc.rest.configuration;
 
 import io.swagger.jaxrs.config.BeanConfig;
 import org.jboss.pnc.rest.debug.TestEndpoint;
-import org.jboss.pnc.rest.endpoint.BuildConfigSetRecordEndpoint;
-import org.jboss.pnc.rest.endpoint.BuildConfigurationEndpoint;
-import org.jboss.pnc.rest.endpoint.BuildConfigurationSetEndpoint;
-import org.jboss.pnc.rest.endpoint.BuildEndpoint;
-import org.jboss.pnc.rest.endpoint.BuildEnvironmentEndpoint;
-import org.jboss.pnc.rest.endpoint.BuildRecordEndpoint;
-import org.jboss.pnc.rest.endpoint.BuildTaskEndpoint;
-import org.jboss.pnc.rest.endpoint.LicenseEndpoint;
-import org.jboss.pnc.rest.endpoint.ProductEndpoint;
-import org.jboss.pnc.rest.endpoint.ProductMilestoneEndpoint;
-import org.jboss.pnc.rest.endpoint.ProductReleaseEndpoint;
-import org.jboss.pnc.rest.endpoint.ProductVersionEndpoint;
-import org.jboss.pnc.rest.endpoint.ProjectEndpoint;
-import org.jboss.pnc.rest.endpoint.RunningBuildRecordEndpoint;
-import org.jboss.pnc.rest.endpoint.UserEndpoint;
+import org.jboss.pnc.rest.endpoint.*;
 
 import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.core.Application;
@@ -90,6 +76,7 @@ public class JaxRsActivator extends Application {
         resources.add(TestEndpoint.class);
         resources.add(BuildTaskEndpoint.class);
         resources.add(BuildEndpoint.class);
+        resources.add(UIConfigurationEndpoint.class);
     }
 
     private void addExceptionMappers(Set<Class<?>> resources) {
