@@ -23,7 +23,7 @@ import org.jboss.pnc.rest.restmodel.BuildConfigurationSetRest;
 
 public class BuildConfigurationSetRestClient extends AbstractRestClient<BuildConfigurationSetRest> {
 
-    private static final String BUILD_CONFIGURATION_SET_REST_ENDPOINT = "/pnc-rest/rest/build-configuration-sets/";
+    public static final String BUILD_CONFIGURATION_SET_REST_ENDPOINT = "/pnc-rest/rest/build-configuration-sets/";
 
     public BuildConfigurationSetRestClient() {
         super(BUILD_CONFIGURATION_SET_REST_ENDPOINT, BuildConfigurationSetRest.class);

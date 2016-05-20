@@ -24,13 +24,12 @@ import com.jayway.restassured.specification.RequestSpecification;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.junit.InSequence;
-import org.jboss.pnc.common.json.ConfigurationParseException;
+import org.jboss.pnc.AbstractTest;
 import org.jboss.pnc.integration.assertions.ResponseAssertion;
 import org.jboss.pnc.integration.client.BuildConfigurationSetRestClient;
 import org.jboss.pnc.integration.deployments.Deployments;
 import org.jboss.pnc.integration.matchers.JsonMatcher;
 import org.jboss.pnc.integration.template.JsonTemplateBuilder;
-import org.jboss.pnc.integration.utils.AuthUtils;
 import org.jboss.pnc.rest.endpoint.BuildConfigurationEndpoint;
 import org.jboss.pnc.rest.endpoint.BuildConfigurationSetEndpoint;
 import org.jboss.pnc.rest.endpoint.BuildRecordEndpoint;
@@ -46,7 +45,6 @@ import org.jboss.pnc.test.util.Wait;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
@@ -68,18 +66,12 @@ import static org.jboss.pnc.integration.env.IntegrationTestEnv.getHttpPort;
  */
 @RunWith(Arquillian.class)
 @Category(ContainerTest.class)
-public class SystemErrorTest {
+public class SystemErrorTest extends AbstractTest {
 
     public static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-    private static final String PRODUCT_REST_ENDPOINT = "/pnc-rest/rest/products/";
-    private static final String PRODUCT_VERSION_REST_ENDPOINT = "/pnc-rest/rest/products/%d/product-versions/";
-    private static final String BUILD_CONFIGURATION_REST_ENDPOINT = "/pnc-rest/rest/build-configurations/";
-
-    private static final String BUILD_CONFIGURATION_SET_REST_ENDPOINT = "/pnc-rest/rest/build-configuration-sets/";
     private static final String BUILD_CONFIGURATION_SET_REST_BUILD_ENDPOINT = "/pnc-rest/rest/build-configuration-sets/%d/build";
     private static final String BUILD_RECORD_LOG = "/pnc-rest/rest/build-records/%s/log";
-
     private static final String BUILD_CONFIGURATION_SET_NAME = "Rest Test Build Config Set 1";
 
     private static int productId;
@@ -90,13 +82,11 @@ public class SystemErrorTest {
 
     private static BuildConfigurationSetRestClient buildConfigurationSetRestClient;
 
-    private static String access_token;
-
     @Deployment(testable = false)
     public static EnterpriseArchive deploy() {
         EnterpriseArchive enterpriseArchive = Deployments.baseEar();
 
-        WebArchive restWar = enterpriseArchive.getAsType(WebArchive.class, "/rest.war");
+        WebArchive restWar = enterpriseArchive.getAsType(WebArchive.class, REST_WAR_PATH);
         restWar.addClass(BuildRecordProvider.class);
         restWar.addClass(BuildRecordEndpoint.class);
         restWar.addClass(BuildRecordRest.class);
@@ -109,11 +99,6 @@ public class SystemErrorTest {
 
         logger.info(enterpriseArchive.toString(true));
         return enterpriseArchive;
-    }
-
-    @BeforeClass
-    public static void setupAuth() throws IOException, ConfigurationParseException {
-        access_token = AuthUtils.generateToken();
     }
 
     @Before
@@ -131,19 +116,19 @@ public class SystemErrorTest {
         // Need to get a product version and a build configuration from the database
         authenticatedJsonCall()
                 .port(getHttpPort()).when().get(PRODUCT_REST_ENDPOINT).then().statusCode(200)
-                .body(JsonMatcher.containsJsonAttribute("content[0].id", value -> productId = Integer.valueOf(value)));
+                .body(JsonMatcher.containsJsonAttribute(FIRST_CONTENT_ID, value -> productId = Integer.valueOf(value)));
 
         Response responseProdVer = authenticatedJsonCall()
                 .port(getHttpPort()).when()
                 .get(String.format(PRODUCT_VERSION_REST_ENDPOINT, productId));
         ResponseAssertion.assertThat(responseProdVer).hasStatus(200);
-        productVersionId = responseProdVer.body().jsonPath().getInt("content[0].id");
+        productVersionId = responseProdVer.body().jsonPath().getInt(FIRST_CONTENT_ID);
 
         Response responseBuildConf = authenticatedJsonCall()
                 .port(getHttpPort()).when()
-                .get(BUILD_CONFIGURATION_REST_ENDPOINT);
+                .get(CONFIGURATION_REST_ENDPOINT);
         ResponseAssertion.assertThat(responseBuildConf).hasStatus(200);
-        buildConfId = responseBuildConf.body().jsonPath().getInt("content[0].id");
+        buildConfId = responseBuildConf.body().jsonPath().getInt(FIRST_CONTENT_ID);
     }
 
     @Test
@@ -156,7 +141,7 @@ public class SystemErrorTest {
 
         Response response = authenticatedJsonCall()
                 .body(buildConfSetTemplate.fillTemplate())
-                .port(getHttpPort()).when().post(BUILD_CONFIGURATION_SET_REST_ENDPOINT);
+                .port(getHttpPort()).when().post(BuildConfigurationSetRestClient.BUILD_CONFIGURATION_SET_REST_ENDPOINT);
 
         ResponseAssertion.assertThat(response).hasStatus(201).hasLocationMatches(".*\\/pnc-rest\\/rest\\/build-configuration-sets\\/\\d+");
 
@@ -195,10 +180,10 @@ public class SystemErrorTest {
     }
 
     private RequestSpecification authenticatedJsonCall() {
-        return given().header("Accept", "application/json").header("Authorization", "Bearer " + access_token).contentType(ContentType.JSON);
+        return given().headers(testHeaders).contentType(ContentType.JSON);
     }
 
     private RequestSpecification authenticatedTextCall() {
-        return given().header("Accept", "text/plain").header("Authorization", "Bearer " + access_token).contentType(ContentType.JSON);
+        return given().header("Accept", "text/plain").header(authHeader).contentType(ContentType.JSON);
     }
 }

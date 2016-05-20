@@ -24,18 +24,17 @@ import org.assertj.core.api.Assertions;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.junit.InSequence;
-import org.jboss.pnc.auth.AuthenticationProvider;
-import org.jboss.pnc.common.json.ConfigurationParseException;
+import org.jboss.pnc.AbstractTest;
 import org.jboss.pnc.common.util.IoUtils;
+import org.jboss.pnc.integration.client.AbstractRestClient;
+import org.jboss.pnc.integration.client.ProductVersionRestClient;
 import org.jboss.pnc.integration.deployments.Deployments;
 import org.jboss.pnc.integration.matchers.JsonMatcher;
-import org.jboss.pnc.integration.utils.AuthUtils;
 import org.jboss.pnc.integration.utils.JsonUtils;
 import org.jboss.pnc.rest.restmodel.ProductRest;
 import org.jboss.pnc.rest.restmodel.ProjectRest;
 import org.jboss.pnc.test.category.ContainerTest;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
@@ -51,9 +50,13 @@ import static org.jboss.pnc.integration.env.IntegrationTestEnv.getHttpPort;
 
 @RunWith(Arquillian.class)
 @Category(ContainerTest.class)
-public class RestTest {
+public class RestTest extends AbstractTest {
 
     public static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+
+    private static final String USER_REST_ENDPOINT = "/pnc-rest/rest/users/";
+    private static final String SPECIFIC_USER_REST_ENDPOINT = USER_REST_ENDPOINT + "%d";
+    private static final String NEW_AWESOME_PROJECT = "New Awesome Project";
 
     private static int productId;
     private static int productVersionId;
@@ -63,14 +66,6 @@ public class RestTest {
     private static Integer newProductId;
     private static Integer newProjectId;
 
-    private static final String PRODUCT_REST_ENDPOINT = "/pnc-rest/rest/products/";
-    private static final String PROJECT_REST_ENDPOINT = "/pnc-rest/rest/projects/";
-    private static final String PROJECT_REST_ENDPOINT_SPECIFIC = PROJECT_REST_ENDPOINT + "%d";
-    
-    private static AuthenticationProvider authProvider;
-    private static String access_token =  "no-auth";
-
-
     @Deployment(testable = false)
     public static EnterpriseArchive deploy() {
         EnterpriseArchive enterpriseArchive = Deployments.baseEar();
@@ -78,62 +73,57 @@ public class RestTest {
         return enterpriseArchive;
     }
     
-    @BeforeClass
-    public static void setupAuth() throws IOException, ConfigurationParseException {
-        access_token = AuthUtils.generateToken();
-    }
-
     @Test
     @InSequence(0)
     public void shouldGetAllProducts() {
-        given().header("Accept", "application/json").header("Authorization", "Bearer " + access_token)
-                    .contentType(ContentType.JSON).port(getHttpPort()).when().get("/pnc-rest/rest/products").then().statusCode(200)
-                .body(JsonMatcher.containsJsonAttribute("content[0].id", value -> productId = Integer.valueOf(value)));
+        given().headers(testHeaders)
+                    .contentType(ContentType.JSON).port(getHttpPort()).when().get(PRODUCT_REST_ENDPOINT).then().statusCode(200)
+                .body(JsonMatcher.containsJsonAttribute(FIRST_CONTENT_ID, value -> productId = Integer.valueOf(value)));
     }
 
     @Test
     @InSequence(1)
     public void shouldGetSpecificProduct() {
-        given().header("Accept", "application/json").header("Authorization", "Bearer " + access_token)
+        given().headers(testHeaders)
                     .contentType(ContentType.JSON).port(getHttpPort()).when()
-                .get(String.format("/pnc-rest/rest/products/%d", productId)).then().statusCode(200)
-                .body(JsonMatcher.containsJsonAttribute("content.id"));
+                .get(String.format(PRODUCT_SPECIFIC_REST_ENDPOINT, productId)).then().statusCode(200)
+                .body(JsonMatcher.containsJsonAttribute(CONTENT_ID));
     }
 
     @Test
     @InSequence(2)
     public void shouldGetAllProductsVersions() {
-        given().header("Accept", "application/json").header("Authorization", "Bearer " + access_token)
+        given().headers(testHeaders)
                     .contentType(ContentType.JSON).port(getHttpPort()).when()
-                .get("/pnc-rest/rest/product-versions/").then().statusCode(200)
-                .body(JsonMatcher.containsJsonAttribute("content[0].id", value -> productVersionId = Integer.valueOf(value)));
+                .get(ProductVersionRestClient.PRODUCT_VERSION_REST_ENDPOINT).then().statusCode(200)
+                .body(JsonMatcher.containsJsonAttribute(FIRST_CONTENT_ID, value -> productVersionId = Integer.valueOf(value)));
     }
 
     @Test
     @InSequence(3)
     public void shouldSpecificProductsVersions() {
-        given().header("Accept", "application/json").header("Authorization", "Bearer " + access_token)
+        given().headers(testHeaders)
                     .contentType(ContentType.JSON).port(getHttpPort()).when()
-                .get(String.format("/pnc-rest/rest/product-versions/%d", productVersionId)).then().statusCode(200)
-                .body(JsonMatcher.containsJsonAttribute("content.id"));
+                .get(String.format(ProductVersionRestClient.PRODUCT_VERSION_REST_ENDPOINT + "%d", productVersionId)).then().statusCode(200)
+                .body(JsonMatcher.containsJsonAttribute(CONTENT_ID));
     }
 
     @Test
     @InSequence(4)
     public void shouldGetFirstProject() {
-        given().header("Accept", "application/json").header("Authorization", "Bearer " + access_token)
+        given().headers(testHeaders)
                     .contentType(ContentType.JSON).port(getHttpPort()).when()
-                .get("/pnc-rest/rest/projects/").then()
-                .statusCode(200).body(JsonMatcher.containsJsonAttribute("content[0].id", value -> projectId = Integer.valueOf(value)));
+                .get(PROJECT_REST_ENDPOINT).then()
+                .statusCode(200).body(JsonMatcher.containsJsonAttribute(FIRST_CONTENT_ID, value -> projectId = Integer.valueOf(value)));
     }
 
     @Test
     @InSequence(5)
     public void shouldGetSpecificProject() {
-        given().header("Accept", "application/json").header("Authorization", "Bearer " + access_token)
+        given().headers(testHeaders)
                     .contentType(ContentType.JSON).port(getHttpPort()).when()
-                .get(String.format("/pnc-rest/rest/projects/%d", projectId)).then().statusCode(200)
-                .body(JsonMatcher.containsJsonAttribute("content.id"));
+                .get(String.format(PROJECT_SPECIFIC_REST_ENDPOINT, projectId)).then().statusCode(200)
+                .body(JsonMatcher.containsJsonAttribute(CONTENT_ID));
     }
 
     @Test
@@ -142,20 +132,19 @@ public class RestTest {
         final String toMatch = "{\"pageIndex\":0,\"pageSize\":50,\"totalPages\":1,\"content\":[{\"id\":1,\"email\":\"demo-user@pnc.com\",\"firstName\":\"Demo First Name\",\"lastName\":\"Demo Last Name\",\"username\":\"demo-user\"},{\"id\":2,\"email\":\"pnc-admin@pnc.com\",\"firstName\":\"pnc-admin\",\"lastName\":\"pnc-admin\",\"username\":\"pnc-admin\"}]}";
 
         given()
-            .header("Accept", "application/json")
-            .header("Authorization", "Bearer " + access_token)
-            .contentType(ContentType.JSON).port(getHttpPort()).when().get("/pnc-rest/rest/users").then().assertThat()
+            .headers(testHeaders)
+            .contentType(ContentType.JSON).port(getHttpPort()).when().get(USER_REST_ENDPOINT).then().assertThat()
             .body(equalTo(StringEscapeUtils.unescapeJava(toMatch)))
-            .body(JsonMatcher.containsJsonAttribute("content[0].id", value -> userId = Integer.valueOf(value)));
+            .body(JsonMatcher.containsJsonAttribute(FIRST_CONTENT_ID, value -> userId = Integer.valueOf(value)));
 
     }
 
     @Test
     @InSequence(7)
     public void shouldGetSpecificUser() {
-        given().header("Accept", "application/json").header("Authorization", "Bearer " + access_token)
-                    .contentType(ContentType.JSON).port(getHttpPort()).when().get(String.format("/pnc-rest/rest/users/%d", userId))
-                .then().statusCode(200).body(JsonMatcher.containsJsonAttribute("content.id"));
+        given().headers(testHeaders)
+                    .contentType(ContentType.JSON).port(getHttpPort()).when().get(String.format(SPECIFIC_USER_REST_ENDPOINT, userId))
+                .then().statusCode(200).body(JsonMatcher.containsJsonAttribute(CONTENT_ID));
     }
 
     @Test
@@ -163,8 +152,8 @@ public class RestTest {
     public void shouldCreateNewUser() throws IOException {
         String rawJson = IoUtils.readFileOrResource("user", "user.json", getClass().getClassLoader());
         logger.info(rawJson);
-        given().header("Accept", "application/json").header("Authorization", "Bearer " + access_token)
-                .body(rawJson).contentType(ContentType.JSON).port(getHttpPort()).when().post("/pnc-rest/rest/users/").then()
+        given().headers(testHeaders)
+                .body(rawJson).contentType(ContentType.JSON).port(getHttpPort()).when().post(USER_REST_ENDPOINT).then()
                 .statusCode(201);
     }
 
@@ -174,9 +163,9 @@ public class RestTest {
         String rawJson = IoUtils.readFileOrResource("product", "product.json", getClass().getClassLoader());
         logger.info(rawJson);
 
-        Response response = given().header("Accept", "application/json").header("Authorization", "Bearer " + access_token)
+        Response response = given().headers(testHeaders)
                 .body(rawJson).contentType(ContentType.JSON).port(getHttpPort()).when()
-                .post("/pnc-rest/rest/products/");
+                .post(PRODUCT_REST_ENDPOINT);
         Assertions.assertThat(response.statusCode()).isEqualTo(201);
 
         String location = response.getHeader("Location");
@@ -193,31 +182,31 @@ public class RestTest {
     public void shouldUpdateProduct() throws Exception {
         logger.info("### newProductId: " + newProductId);
 
-        Response response = given().header("Accept", "application/json").header("Authorization", "Bearer " + access_token)
+        Response response = given().headers(testHeaders)
                     .contentType(ContentType.JSON).port(getHttpPort()).when()
-                .get(String.format("/pnc-rest/rest/products/%d", newProductId));
+                .get(String.format(PRODUCT_SPECIFIC_REST_ENDPOINT, newProductId));
 
         Assertions.assertThat(response.statusCode()).isEqualTo(200);
 
-        ProductRest productRest = response.body().jsonPath().getObject("content", ProductRest.class);
+        ProductRest productRest = response.body().jsonPath().getObject(AbstractRestClient.CONTENT, ProductRest.class);
 
         Assertions.assertThat(productRest.getId()).isEqualTo(newProductId);
         Assertions.assertThat(productRest.getName()).isEqualTo("JBoss Enterprise Application Platform 6");
 
         productRest.setName("JBoss Enterprise Application Platform 7");
 
-        given().header("Accept", "application/json").header("Authorization", "Bearer " + access_token)
+        given().headers(testHeaders)
                     .body(JsonUtils.toJson(productRest)).contentType(ContentType.JSON).port(getHttpPort()).when()
-                .put(String.format("/pnc-rest/rest/products/%d", newProductId)).then().statusCode(200);
+                .put(String.format(PRODUCT_SPECIFIC_REST_ENDPOINT, newProductId)).then().statusCode(200);
 
         // Reading updated resource
-        Response updateResponse = given().header("Accept", "application/json").header("Authorization", "Bearer " + access_token)
+        Response updateResponse = given().headers(testHeaders)
                     .contentType(ContentType.JSON).port(getHttpPort()).when()
-                .get(String.format("/pnc-rest/rest/products/%d", newProductId));
+                .get(String.format(PRODUCT_SPECIFIC_REST_ENDPOINT, newProductId));
 
         Assertions.assertThat(updateResponse.statusCode()).isEqualTo(200);
-        Assertions.assertThat(updateResponse.body().jsonPath().getInt("content.id")).isEqualTo(newProductId);
-        Assertions.assertThat(updateResponse.body().jsonPath().getString("content.name")).isEqualTo(
+        Assertions.assertThat(updateResponse.body().jsonPath().getInt(CONTENT_ID)).isEqualTo(newProductId);
+        Assertions.assertThat(updateResponse.body().jsonPath().getString(CONTENT_NAME)).isEqualTo(
                 "JBoss Enterprise Application Platform 7");
 
     }
@@ -229,8 +218,7 @@ public class RestTest {
         logger.info(rawJson);
 
         Response response = given()
-                .header("Accept", "application/json")
-                .header("Authorization", "Bearer " + access_token)
+                .headers(testHeaders)
                 .body(rawJson).contentType(ContentType.JSON).port(getHttpPort())
                 .header("Content-Type", "application/json; charset=UTF-8").when().post(PROJECT_REST_ENDPOINT);
         Assertions.assertThat(response.statusCode()).isEqualTo(201);
@@ -250,31 +238,30 @@ public class RestTest {
         logger.info("### newProjectId: " + newProjectId);
 
         Response response = given()
-                .header("Accept", "application/json")
-                .header("Authorization", "Bearer " + access_token)
+                .headers(testHeaders)
                 .contentType(ContentType.JSON).port(getHttpPort()).when()
-                .get(String.format(PROJECT_REST_ENDPOINT_SPECIFIC, newProjectId));
+                .get(String.format(PROJECT_SPECIFIC_REST_ENDPOINT, newProjectId));
 
         Assertions.assertThat(response.statusCode()).isEqualTo(200);
 
-        ProjectRest projectRest = response.body().jsonPath().getObject("content", ProjectRest.class);
+        ProjectRest projectRest = response.body().jsonPath().getObject(AbstractRestClient.CONTENT, ProjectRest.class);
 
         Assertions.assertThat(projectRest.getId()).isEqualTo(newProjectId);
         Assertions.assertThat(projectRest.getName()).isEqualTo("New Project");
 
-        projectRest.setName("New Awesome Project");
+        projectRest.setName(NEW_AWESOME_PROJECT);
 
-        given().header("Accept", "application/json").header("Authorization", "Bearer " + access_token)
+        given().headers(testHeaders)
                     .body(JsonUtils.toJson(projectRest)).contentType(ContentType.JSON).port(getHttpPort()).when()
-                .put(String.format(PROJECT_REST_ENDPOINT_SPECIFIC, newProjectId)).then().statusCode(200);
+                .put(String.format(PROJECT_SPECIFIC_REST_ENDPOINT, newProjectId)).then().statusCode(200);
 
         // Reading updated resource
-        Response updateResponse = given().header("Accept", "application/json").header("Authorization", "Bearer " + access_token)
+        Response updateResponse = given().headers(testHeaders)
                     .contentType(ContentType.JSON).port(getHttpPort()).when()
-                .get(String.format(PROJECT_REST_ENDPOINT_SPECIFIC, newProjectId));
+                .get(String.format(PROJECT_SPECIFIC_REST_ENDPOINT, newProjectId));
 
         Assertions.assertThat(updateResponse.statusCode()).isEqualTo(200);
-        Assertions.assertThat(updateResponse.body().jsonPath().getInt("content.id")).isEqualTo(newProjectId);
-        Assertions.assertThat(updateResponse.body().jsonPath().getString("content.name")).isEqualTo("New Awesome Project");
+        Assertions.assertThat(updateResponse.body().jsonPath().getInt(CONTENT_ID)).isEqualTo(newProjectId);
+        Assertions.assertThat(updateResponse.body().jsonPath().getString(CONTENT_NAME)).isEqualTo(NEW_AWESOME_PROJECT);
     }
 }

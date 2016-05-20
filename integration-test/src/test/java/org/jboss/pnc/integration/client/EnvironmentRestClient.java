@@ -21,7 +21,7 @@ import org.jboss.pnc.rest.restmodel.BuildEnvironmentRest;
 
 public class EnvironmentRestClient extends AbstractRestClient<BuildEnvironmentRest> {
 
-    private static final String ENVIRONMENT_REST_ENDPOINT = "/pnc-rest/rest/environments/";
+    public static final String ENVIRONMENT_REST_ENDPOINT = "/pnc-rest/rest/environments/";
 
     public EnvironmentRestClient() {
         super(ENVIRONMENT_REST_ENDPOINT, BuildEnvironmentRest.class);

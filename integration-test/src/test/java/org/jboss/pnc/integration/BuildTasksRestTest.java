@@ -23,10 +23,13 @@ import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.message.BasicHeader;
 import org.apache.http.message.BasicNameValuePair;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.container.test.api.RunAsClient;
 import org.jboss.arquillian.junit.Arquillian;
+import org.jboss.arquillian.test.api.ArquillianResource;
+import org.jboss.pnc.AbstractTest;
 import org.jboss.pnc.common.util.HttpUtils;
 import org.jboss.pnc.integration.deployments.Deployments;
 import org.jboss.pnc.mock.executor.BuildExecutorMock;
@@ -39,7 +42,6 @@ import org.jboss.pnc.test.category.ContainerTest;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
@@ -48,6 +50,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -56,16 +59,18 @@ import java.util.List;
  */
 @RunWith(Arquillian.class)
 @Category(ContainerTest.class)
-public class BuildTasksRestTest {
+@RunAsClient
+public class BuildTasksRestTest extends AbstractTest{
 
-    private final String BUILD_TASKS_ENDPOINT = "http://localhost:8080/pnc-rest/rest/build-tasks";
+    @ArquillianResource
+    URL url;
 
     private static Logger log = LoggerFactory.getLogger(BuildTasksRestTest.class);
 
-    @Deployment
+    @Deployment(testable = false)
     public static EnterpriseArchive deploy() {
         EnterpriseArchive enterpriseArchive = Deployments.baseEarWithTestDependencies();
-        WebArchive war = enterpriseArchive.getAsType(WebArchive.class, "/rest.war");
+        WebArchive war = enterpriseArchive.getAsType(WebArchive.class, AbstractTest.REST_WAR_PATH);
         war.addClass(BuildTaskEndpoint.class);
         war.addClass(BuildExecutorMock.class);
         war.addClass(BuildExecutorTriggerer.class);
@@ -74,11 +79,10 @@ public class BuildTasksRestTest {
         return enterpriseArchive;
     }
 
-    @Ignore //TODO fails on CI due to missing Auth token
     @Test
-    @RunAsClient
     public void shouldTriggerBuildExecution() {
-        HttpPost request = new HttpPost(BUILD_TASKS_ENDPOINT + "/execute-build");
+        HttpPost request = new HttpPost(url + "/pnc-rest/rest/build-tasks/execute-build");
+        request.addHeader(new BasicHeader(authHeader.getName(), authHeader.getValue()));
 
         BuildExecutionConfiguration buildExecutionConfig = BuildExecutionConfiguration.build(
                 1, "test-content-id", 1, "mvn clean install", "jboss-modules", "scm-url", "master", "scm-mirror", "master", "dummy-docker-image-id", "dummy.repo.url/repo", SystemImageType.DOCKER_IMAGE);

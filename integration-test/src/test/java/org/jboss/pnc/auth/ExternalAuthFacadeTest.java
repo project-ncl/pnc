@@ -20,7 +20,6 @@ package org.jboss.pnc.auth;
 import org.jboss.logging.Logger;
 import org.jboss.pnc.integration.utils.AuthUtils;
 import org.jboss.pnc.test.category.ContainerTest;
-import org.jboss.pnc.test.category.RemoteTest;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -43,7 +42,7 @@ import static org.junit.Assert.assertNotNull;
  *  is defined to fulfill all above conditions 
  *
  */
-@Category({ContainerTest.class, RemoteTest.class})
+@Category({ContainerTest.class})
 public class ExternalAuthFacadeTest {
     
     protected Logger log = Logger.getLogger(ExternalAuthFacadeTest.class);

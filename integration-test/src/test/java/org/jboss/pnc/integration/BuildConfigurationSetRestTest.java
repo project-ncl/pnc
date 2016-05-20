@@ -23,14 +23,13 @@ import com.jayway.restassured.response.ValidatableResponse;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.junit.InSequence;
-import org.jboss.pnc.common.json.ConfigurationParseException;
+import org.jboss.pnc.AbstractTest;
 import org.jboss.pnc.integration.assertions.ResponseAssertion;
 import org.jboss.pnc.integration.client.BuildConfigurationSetRestClient;
 import org.jboss.pnc.integration.client.util.RestResponse;
 import org.jboss.pnc.integration.deployments.Deployments;
 import org.jboss.pnc.integration.matchers.JsonMatcher;
 import org.jboss.pnc.integration.template.JsonTemplateBuilder;
-import org.jboss.pnc.integration.utils.AuthUtils;
 import org.jboss.pnc.rest.endpoint.BuildConfigurationEndpoint;
 import org.jboss.pnc.rest.endpoint.BuildConfigurationSetEndpoint;
 import org.jboss.pnc.rest.provider.BuildConfigurationProvider;
@@ -42,7 +41,6 @@ import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.json.JSONObject;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
@@ -59,15 +57,10 @@ import static org.jboss.pnc.integration.env.IntegrationTestEnv.getHttpPort;
 
 @RunWith(Arquillian.class)
 @Category(ContainerTest.class)
-public class BuildConfigurationSetRestTest {
+public class BuildConfigurationSetRestTest extends AbstractTest {
 
     public static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-    private static final String PRODUCT_REST_ENDPOINT = "/pnc-rest/rest/products/";
-    private static final String PRODUCT_VERSION_REST_ENDPOINT = "/pnc-rest/rest/products/%d/product-versions/";
-    private static final String BUILD_CONFIGURATION_REST_ENDPOINT = "/pnc-rest/rest/build-configurations/";
-
-    private static final String BUILD_CONFIGURATION_SET_REST_ENDPOINT = "/pnc-rest/rest/build-configuration-sets/";
     private static final String BUILD_CONFIGURATION_SET_SPECIFIC_REST_ENDPOINT = "/pnc-rest/rest/build-configuration-sets/%d";
     private static final String BUILD_CONFIGURATION_SET_PRODUCT_VERSION_REST_ENDPOINT = "/pnc-rest/rest/product-versions/%d/build-configuration-sets";
     private static final String BUILD_CONFIGURATION_SET_CONFIGURATIONS_REST_ENDPOINT = "/pnc-rest/rest/build-configuration-sets/%d/build-configurations";
@@ -83,16 +76,13 @@ public class BuildConfigurationSetRestTest {
     private static int buildConfId2;
     private static int newBuildConfSetId;
     
-    private static String access_token;
-
     private static BuildConfigurationSetRestClient buildConfigurationSetRestClient;
-    
 
     @Deployment(testable = false)
     public static EnterpriseArchive deploy() {
         EnterpriseArchive enterpriseArchive = Deployments.baseEar();
 
-        WebArchive restWar = enterpriseArchive.getAsType(WebArchive.class, "/rest.war");
+        WebArchive restWar = enterpriseArchive.getAsType(WebArchive.class, REST_WAR_PATH);
         restWar.addClass(BuildConfigurationSetProvider.class);
         restWar.addClass(BuildConfigurationSetEndpoint.class);
         restWar.addClass(BuildConfigurationSetRest.class);
@@ -104,10 +94,6 @@ public class BuildConfigurationSetRestTest {
         return enterpriseArchive;
     }
 
-    @BeforeClass
-    public static void setupAuth() throws IOException, ConfigurationParseException {
-        access_token = AuthUtils.generateToken();
-    }
 
     @Before
     public void before() {
@@ -121,22 +107,22 @@ public class BuildConfigurationSetRestTest {
     public void prepareBaseData() {
 
         // Need to get a product version and a build configuration from the database
-        ValidatableResponse responseProd = given().header("Accept", "application/json").header("Authorization", "Bearer " + access_token)
+        ValidatableResponse responseProd = given().headers(testHeaders)
                     .contentType(ContentType.JSON).port(getHttpPort()).when().get(PRODUCT_REST_ENDPOINT).then().statusCode(200)
-                .body(JsonMatcher.containsJsonAttribute("content[0].id", value -> productId = Integer.valueOf(value)));
+                .body(JsonMatcher.containsJsonAttribute(FIRST_CONTENT_ID, value -> productId = Integer.valueOf(value)));
 
-        Response responseProdVer = given().header("Accept", "application/json").header("Authorization", "Bearer " + access_token)
+        Response responseProdVer = given().headers(testHeaders)
                     .contentType(ContentType.JSON).port(getHttpPort()).when()
                 .get(String.format(PRODUCT_VERSION_REST_ENDPOINT, productId));
         ResponseAssertion.assertThat(responseProdVer).hasStatus(200);
-        productVersionId = responseProdVer.body().jsonPath().getInt("content[0].id");
+        productVersionId = responseProdVer.body().jsonPath().getInt(FIRST_CONTENT_ID);
         productVersionName = responseProdVer.body().jsonPath().getString("content[0].version");
 
-        Response responseBuildConf = given().header("Accept", "application/json").header("Authorization", "Bearer " + access_token)
+        Response responseBuildConf = given().headers(testHeaders)
                     .contentType(ContentType.JSON).port(getHttpPort()).when()
-                .get(BUILD_CONFIGURATION_REST_ENDPOINT);
+                .get(CONFIGURATION_REST_ENDPOINT);
         ResponseAssertion.assertThat(responseBuildConf).hasStatus(200);
-        buildConfId = responseBuildConf.body().jsonPath().getInt("content[0].id");
+        buildConfId = responseBuildConf.body().jsonPath().getInt(FIRST_CONTENT_ID);
         buildConfId2 = responseBuildConf.body().jsonPath().getInt("content[1].id");
         buildConfName = responseBuildConf.body().jsonPath().getString("content[0].name");
 
@@ -154,9 +140,9 @@ public class BuildConfigurationSetRestTest {
         buildConfSetTemplate.addValue("_productVersionId", String.valueOf(productVersionId));
         buildConfSetTemplate.addValue("_buildRecordIds", String.valueOf(buildConfId));
 
-        Response response = given().header("Accept", "application/json").header("Authorization", "Bearer " + access_token)
+        Response response = given().headers(testHeaders)
                     .body(buildConfSetTemplate.fillTemplate()).contentType(ContentType.JSON)
-                .port(getHttpPort()).when().post(BUILD_CONFIGURATION_SET_REST_ENDPOINT);
+                .port(getHttpPort()).when().post(BuildConfigurationSetRestClient.BUILD_CONFIGURATION_SET_REST_ENDPOINT);
 
         ResponseAssertion.assertThat(response).hasStatus(201).hasLocationMatches(".*\\/pnc-rest\\/rest\\/build-configuration-sets\\/\\d+");
 
@@ -174,7 +160,7 @@ public class BuildConfigurationSetRestTest {
         buildConfSetTemplate.addValue("_productVersionId", String.valueOf(productVersionId));
         buildConfSetTemplate.addValue("_buildRecordIds", String.valueOf(buildConfId));
 
-        Response response = given().header("Accept", "application/json").header("Authorization", "Bearer " + access_token)
+        Response response = given().headers(testHeaders)
                     .body(buildConfSetTemplate.fillTemplate()).contentType(ContentType.JSON)
                 .port(getHttpPort()).when().put(String.format(BUILD_CONFIGURATION_SET_SPECIFIC_REST_ENDPOINT, newBuildConfSetId));
 
@@ -185,9 +171,9 @@ public class BuildConfigurationSetRestTest {
     @InSequence(2)
     public void testGetBuildConfigurationSets() {
 
-        Response response = given().header("Accept", "application/json").header("Authorization", "Bearer " + access_token)
+        Response response = given().headers(testHeaders)
                     .contentType(ContentType.JSON).port(getHttpPort()).when()
-                .get(BUILD_CONFIGURATION_SET_REST_ENDPOINT);
+                .get(BuildConfigurationSetRestClient.BUILD_CONFIGURATION_SET_REST_ENDPOINT);
         ResponseAssertion.assertThat(response).hasStatus(200);
         ResponseAssertion.assertThat(response).hasJsonValueNotNullOrEmpty("content[0]");
     }
@@ -196,24 +182,24 @@ public class BuildConfigurationSetRestTest {
     @InSequence(3)
     public void testGetSpecificBuildRecordSet() {
 
-        Response response = given().header("Accept", "application/json").header("Authorization", "Bearer " + access_token)
+        Response response = given().headers(testHeaders)
                     .contentType(ContentType.JSON).port(getHttpPort()).when()
                 .get(String.format(BUILD_CONFIGURATION_SET_SPECIFIC_REST_ENDPOINT, newBuildConfSetId));
 
         ResponseAssertion.assertThat(response).hasStatus(200);
-        ResponseAssertion.assertThat(response).hasJsonValueEqual("content.name", BUILD_CONFIGURATION_SET_NAME_UPDATED);
+        ResponseAssertion.assertThat(response).hasJsonValueEqual(CONTENT_NAME, BUILD_CONFIGURATION_SET_NAME_UPDATED);
     }
 
     @Test
     @InSequence(4)
     public void testGetBuildConfigurationsForProductVersion() {
 
-        Response response = given().header("Accept", "application/json").header("Authorization", "Bearer " + access_token)
+        Response response = given().headers(testHeaders)
                     .contentType(ContentType.JSON).port(getHttpPort()).when()
                 .get(String.format(BUILD_CONFIGURATION_SET_PRODUCT_VERSION_REST_ENDPOINT, productVersionId));
 
         ResponseAssertion.assertThat(response).hasStatus(200);
-        ResponseAssertion.assertThat(response).hasJsonValueNotNullOrEmpty("content[0].id");
+        ResponseAssertion.assertThat(response).hasJsonValueNotNullOrEmpty(FIRST_CONTENT_ID);
     }
 
     @Test
@@ -222,7 +208,7 @@ public class BuildConfigurationSetRestTest {
         JSONObject buildConfig = new JSONObject();
         buildConfig.put("id", buildConfId2);
 
-        Response response = given().header("Accept", "application/json").header("Authorization", "Bearer " + access_token)
+        Response response = given().headers(testHeaders)
                     .body(buildConfig.toString())
                 .contentType(ContentType.JSON).port(getHttpPort()).when()
                 .post(String.format(BUILD_CONFIGURATION_SET_CONFIGURATIONS_REST_ENDPOINT, newBuildConfSetId));
@@ -234,7 +220,7 @@ public class BuildConfigurationSetRestTest {
     @InSequence(5)
     public void testRemoveBuildConfigurationToBuildConfigurationSet() {
 
-        Response response = given().header("Accept", "application/json").header("Authorization", "Bearer " + access_token)
+        Response response = given().headers(testHeaders)
                     .port(getHttpPort()).when()
                 .delete(String.format(BUILD_CONFIGURATION_SET_CONFIGURATIONS_REST_ENDPOINT + "/%d", newBuildConfSetId, buildConfId2));
 
@@ -245,19 +231,19 @@ public class BuildConfigurationSetRestTest {
     @InSequence(5)
     public void testGetBuildConfigurationsForBuildConfigurationSet() {
 
-        Response response = given().header("Accept", "application/json").header("Authorization", "Bearer " + access_token)
+        Response response = given().headers(testHeaders)
                     .contentType(ContentType.JSON).port(getHttpPort()).when()
                 .get(String.format(BUILD_CONFIGURATION_SET_CONFIGURATIONS_REST_ENDPOINT, newBuildConfSetId));
 
         ResponseAssertion.assertThat(response).hasStatus(200);
-        ResponseAssertion.assertThat(response).hasJsonValueEqual("content[0].id", buildConfId);
+        ResponseAssertion.assertThat(response).hasJsonValueEqual(FIRST_CONTENT_ID, buildConfId);
     }
 
     @Test
     @InSequence(6)
     public void testDeleteBuildConfigurationSet() {
 
-        Response response = given().header("Accept", "application/json").header("Authorization", "Bearer " + access_token)
+        Response response = given().headers(testHeaders)
                     .contentType(ContentType.JSON).port(getHttpPort()).when()
                 .delete(String.format(BUILD_CONFIGURATION_SET_SPECIFIC_REST_ENDPOINT, newBuildConfSetId));
 

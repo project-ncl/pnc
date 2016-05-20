@@ -39,7 +39,7 @@ import org.jboss.pnc.rest.restmodel.BuildRecordRest;
 
 public class BuildRecordRestClient extends AbstractRestClient<BuildRecordRest> {
 
-    private static final String BUILD_RECORD_REST_ENDPOINT = "/pnc-rest/rest/build-records/";
+    public static final String BUILD_RECORD_REST_ENDPOINT = "/pnc-rest/rest/build-records/";
 
     public BuildRecordRestClient() {
         super(BUILD_RECORD_REST_ENDPOINT, BuildRecordRest.class);

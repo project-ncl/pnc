@@ -20,6 +20,7 @@ package org.jboss.pnc.integration;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.junit.InSequence;
+import org.jboss.pnc.AbstractTest;
 import org.jboss.pnc.integration.client.AbstractRestClient;
 import org.jboss.pnc.integration.client.BuildRestClient;
 import org.jboss.pnc.integration.client.util.RestResponse;
@@ -35,8 +36,11 @@ import org.jboss.pnc.rest.provider.BuildRecordProvider;
 import org.jboss.pnc.rest.restmodel.BuildRecordRest;
 import org.jboss.pnc.spi.coordinator.BuildTask;
 import org.jboss.pnc.test.category.ContainerTest;
+import org.jboss.shrinkwrap.api.asset.StringAsset;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
+import org.jboss.shrinkwrap.descriptor.api.Descriptors;
+import org.jboss.shrinkwrap.descriptor.api.beans10.BeansDescriptor;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -72,8 +76,12 @@ public class BuildsRestTest {
     @Deployment
     public static EnterpriseArchive deploy() {
         EnterpriseArchive enterpriseArchive = Deployments.baseEarWithTestDependencies();
-        WebArchive war = enterpriseArchive.getAsType(WebArchive.class, "/rest.war");
-        war.addAsWebInfResource("beans.xml", "beans.xml");
+        WebArchive war = enterpriseArchive.getAsType(WebArchive.class, AbstractTest.REST_WAR_PATH);
+        war.addAsWebInfResource(new StringAsset(
+                Descriptors.create(BeansDescriptor.class).
+                        getOrCreateAlternatives().
+                        clazz(BuildCoordinatorMock.class.
+                                getName()).up().exportAsString()), "beans.xml");
         war.addClass(BuildsRestTest.class);
         war.addClass(BuildCoordinatorMock.class);
         addRestClientClasses(war);

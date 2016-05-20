@@ -29,6 +29,7 @@ import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.junit.InSequence;
 import org.jboss.arquillian.transaction.api.annotation.TransactionMode;
 import org.jboss.arquillian.transaction.api.annotation.Transactional;
+import org.jboss.pnc.AbstractTest;
 import org.jboss.pnc.integration.deployments.Deployments;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildEnvironment;
@@ -39,12 +40,10 @@ import org.jboss.pnc.model.Project;
 import org.jboss.pnc.spi.datastore.audit.AuditRepository;
 import org.jboss.pnc.spi.datastore.audit.Revision;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationRepository;
-import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildEnvironmentRepository;
 import org.jboss.pnc.spi.datastore.repositories.ProductRepository;
 import org.jboss.pnc.spi.datastore.repositories.ProductVersionRepository;
 import org.jboss.pnc.spi.datastore.repositories.ProjectRepository;
-import org.jboss.pnc.spi.datastore.repositories.UserRepository;
 import org.jboss.pnc.test.category.ContainerTest;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
@@ -81,13 +80,7 @@ public class DatastoreTest {
     ProductVersionRepository productVersionRepository;
 
     @Inject
-    BuildRecordRepository buildRecordRepository;
-
-    @Inject
     BuildEnvironmentRepository environmentRepository;
-
-    @Inject
-    UserRepository userRepository;
 
     @Inject
     BuildConfigurationRepository buildConfigurationRepository;
@@ -100,7 +93,7 @@ public class DatastoreTest {
     @Deployment
     public static EnterpriseArchive deploy() {
         EnterpriseArchive enterpriseArchive = Deployments.baseEarWithTestDependencies();
-        WebArchive restWar = enterpriseArchive.getAsType(WebArchive.class, "/rest.war");
+        WebArchive restWar = enterpriseArchive.getAsType(WebArchive.class, AbstractTest.REST_WAR_PATH);
         restWar.addClass(DatastoreTest.class);
 
         JavaArchive pncModel = enterpriseArchive.getAsType(JavaArchive.class, "/model.jar");

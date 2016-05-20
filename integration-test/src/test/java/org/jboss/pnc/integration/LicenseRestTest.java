@@ -22,10 +22,10 @@ import com.jayway.restassured.response.Response;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.junit.InSequence;
-import org.jboss.pnc.common.json.ConfigurationParseException;
+import org.jboss.pnc.AbstractTest;
 import org.jboss.pnc.integration.assertions.ResponseAssertion;
+import org.jboss.pnc.integration.client.AbstractRestClient;
 import org.jboss.pnc.integration.deployments.Deployments;
-import org.jboss.pnc.integration.utils.AuthUtils;
 import org.jboss.pnc.integration.utils.ResponseUtils;
 import org.jboss.pnc.rest.endpoint.LicenseEndpoint;
 import org.jboss.pnc.rest.provider.LicenseProvider;
@@ -33,14 +33,12 @@ import org.jboss.pnc.rest.restmodel.LicenseRest;
 import org.jboss.pnc.test.category.ContainerTest;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.lang.invoke.MethodHandles;
 
 import static com.jayway.restassured.RestAssured.given;
@@ -50,7 +48,7 @@ import static org.jboss.pnc.integration.utils.JsonUtils.toJson;
 
 @RunWith(Arquillian.class)
 @Category(ContainerTest.class)
-public class LicenseRestTest {
+public class LicenseRestTest extends AbstractTest {
 
     private static final String LICENSE_REST_ENDPOINT = "/pnc-rest/rest/licenses/";
     private static final String LICENSE_REST_ENDPOINT_SPECIFIC = LICENSE_REST_ENDPOINT + "%d";
@@ -58,24 +56,18 @@ public class LicenseRestTest {
     public static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
     private static Integer licenseId;
-    private static String access_token;
 
     @Deployment(testable = false)
     public static EnterpriseArchive deploy() {
         EnterpriseArchive enterpriseArchive = Deployments.baseEar();
 
-        WebArchive restWar = enterpriseArchive.getAsType(WebArchive.class, "/rest.war");
+        WebArchive restWar = enterpriseArchive.getAsType(WebArchive.class, REST_WAR_PATH);
         restWar.addClass(LicenseProvider.class);
         restWar.addClass(LicenseEndpoint.class);
         restWar.addClass(LicenseRest.class);
 
         logger.info(enterpriseArchive.toString(true));
         return enterpriseArchive;
-    }
-
-    @BeforeClass
-    public static void setupAuth() throws IOException, ConfigurationParseException {
-        access_token = AuthUtils.generateToken();
     }
 
     @Test
@@ -86,8 +78,7 @@ public class LicenseRestTest {
 
         //when
         Response response = given()
-                .header("Accept", "application/json")
-                .header("Authorization", "Bearer " + access_token)
+                .headers(testHeaders)
                 .body(loremIpsumLicense).contentType(ContentType.JSON).port(getHttpPort())
                 .header("Content-Type", "application/json; charset=UTF-8").when().post(LICENSE_REST_ENDPOINT);
         licenseId = ResponseUtils.getIdFromLocationHeader(response);
@@ -107,18 +98,16 @@ public class LicenseRestTest {
 
         //when
         Response putResponse = given()
-                .header("Accept", "application/json")
-                .header("Authorization", "Bearer " + access_token)
+                .headers(testHeaders)
                 .body(toJson(loremIpsumLicenseModified)).contentType(ContentType.JSON).port(getHttpPort()).when()
                 .put(String.format(LICENSE_REST_ENDPOINT_SPECIFIC, licenseId));
 
         Response getResponse = given()
-                .header("Accept", "application/json")
-                .header("Authorization", "Bearer " + access_token)
+                .headers(testHeaders)
                 .contentType(ContentType.JSON).port(getHttpPort()).when()
                 .get(String.format(LICENSE_REST_ENDPOINT_SPECIFIC, licenseId));
 
-        LicenseRest noLoremIpsum = getResponse.jsonPath().getObject("content", LicenseRest.class);
+        LicenseRest noLoremIpsum = getResponse.jsonPath().getObject(AbstractRestClient.CONTENT, LicenseRest.class);
 
         //then
         ResponseAssertion.assertThat(putResponse).hasStatus(200);
@@ -132,13 +121,11 @@ public class LicenseRestTest {
     public void shouldDeleteLicense() throws Exception {
         //when
         Response deleteResponse = given()
-                .header("Accept", "application/json")
-                .header("Authorization", "Bearer " + access_token).port(getHttpPort()).when()
+                .headers(testHeaders).port(getHttpPort()).when()
                 .delete(String.format(LICENSE_REST_ENDPOINT_SPECIFIC, licenseId));
 
         Response getResponse = given()
-                .header("Accept", "application/json")
-                .header("Authorization", "Bearer " + access_token)
+                .headers(testHeaders)
                 .contentType(ContentType.JSON).port(getHttpPort()).when()
                 .get(String.format(LICENSE_REST_ENDPOINT_SPECIFIC, licenseId));
 
