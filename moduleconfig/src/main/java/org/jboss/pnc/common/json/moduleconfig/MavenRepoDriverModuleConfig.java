@@ -25,13 +25,16 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class MavenRepoDriverModuleConfig extends AbstractModuleConfig{
     
     public static String MODULE_NAME = "maven-repo-driver";
-    
+
+    /**
+     * Base url to maven repository manager (Indy)
+     */
+    private String baseUrl;
+
     public MavenRepoDriverModuleConfig(@JsonProperty("base-url") String baseUrl) {
         super();
         this.baseUrl = baseUrl;
     }
-
-    private String baseUrl;
 
     public String getBaseUrl() {
         return baseUrl;

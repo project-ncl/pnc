@@ -25,9 +25,20 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class AuthenticationModuleConfig extends AbstractModuleConfig{
     
     public static String MODULE_NAME = "authentication-config";
-    
+
+    /**
+     * Username to be able to authenticate against pnc authentication service provider
+     */
     private String username;
+
+    /**
+     * Password to be able to authenticate against pnc authentication service provider
+     */
     private String password;
+
+    /**
+     * Base URL of REST endpoint services to be accessed from external resources
+     */
     private String baseAuthUrl;
 
     public AuthenticationModuleConfig(@JsonProperty("username") String username, 

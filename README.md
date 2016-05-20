@@ -21,13 +21,7 @@ To run integration tests use profile `-Pcontainer-tests` (eg. mvn clean install 
 
 Remote tests require enabling additional Maven profile `-Premote-tests`.
 
-In order to run remote and integration tests you have to specify remote services location and credentials by editing configuration file `common/src/main/resources/pnc-config.json` and use both profiles (`-Pcontainer-tests` and `-Premote-tests`)
-
-By default the configuration file uses env variables, you can set required variables (see file for list of them) instead of editing the file itself.
-
-If you want to use a different (external) config file location you can define a path to it with `-Dpnc-config-file=/path/to/pnc-config.json`.
-
-To run integration test you have to specify `install` phase by default. 
+To run integration test you have to specify `install` phase by default.
 
 To use phase verify append property `-DuseTargetBuilds` (no value required) to use artifacts generated during package phase in target folder.
 
@@ -85,44 +79,16 @@ To run only installation of application server to specific folder use `-Dtest.se
 Property useTargetBuilds can be used together with configuration 'Run maven goal' `mvn package -DskipTests=true` in 'before lunch' tab to deploy code changes without actual need to run mvn clean install
 
 
-Module Overview
----------------
-* `datastore`: Implementation of spi:org.jboss.pnc.spi.datastore
-* `jenkins-build-driver`: Implementation of spi:org.jboss.pnc.spi.builddriver
-* `maven-repository-manager`: Implementation of spi:org.jboss.pnc.spi.repositorymanager
-* `build-coordinator`: Contains implementations of action-controllers, which include the business logic for orchestrating builds, test runs, etc. Action controllers are used to isolate logic from the REST API, so it can be reused in embedded scenarios
-* `model`: Contains domain model for the orchestrator. This is just model classes + serialization helpers, and would also be suitable for writing a java client api to support integration
-* `rest`: REST API. This is a series of classes that use JAX-RS to translate HTTP communications to calls into the action controllers in the core, and format any output (such as constructing resource URLs, etc.)
-* `spi`: Contains all SPI interfaces the orchestrator will use to coordinate its sub-services for provisioning environments and repositories, triggering builds, storing domain objects. It is meant to be used in conjunction with pnc-model
-* `processes`: Contains jBPM processes for PNC
-* `ui`: Contains the source code for the angular ui.
-* `web`: Contains resources to be served via the web, this module sucks in the ui jar and holds the swagger REST API documentation.
+Configuration
+-------------
 
+All configurations are centralized in configuration file `moduleconfig/src/main/resources/pnc-config.json`.
 
-Environmental variables
------------------------
+Configuration file is filled with env variables, you can set required variables instead of editing the file itself. See the config file for list of available env variables.*
 
-Environment variables, which can be used to set up application:
+If you want to use a different (external) config file location you can define a path to it with `-Dpnc-config-file=/path/to/pnc-config.json`.
 
-* `PNC_JENKINS_USERNAME` - Username of user created in Jenkins server inside the Docker container
-* `PNC_JENKINS_PASSWORD` - Password of user specified with `PNC_JENKINS_USERNAME`
-* `PNC_JENKINS_URL` - URL of Jenkins instance dedicated or in docker container
-* `PNC_JENKINS_PORT` - Port of Jenkins dedicated or in docker container specified with `PNC_JENKINS_URL`
-* `PNC_APROX_URL` - URL to AProx repository
-* `PNC_DOCKER_IP` - IP address of host with Docker daemon
-* `PNC_DOCKER_CONT_USER` - User account in image used in Docker
-* `PNC_DOCKER_CONT_PASSWORD` - User's password set up by variable `PNC_DOCKER_CONT_USER`
-* `PNC_DOCKER_IMAGE_ID` - ImageID of image on Docker host
-* `PNC_DOCKER_PROXY_SERVER` - IP address or hostname of proxy server
-* `PNC_DOCKER_PROXY_PORT` - port of proxy server where it is listening
-* `PNC_DOCKER_IMAGE_FIREWALL_ALLOWED` - List of allowed destinations by firewall in Docker container. <br /> Format: \<IPv4>:\<Port>(,\<IPv4>:\<Port>)+
-You can set it to "all" and network isolation will be skipped, in case of not setting it up at all
-all network traffic will be dropped
-* `PNC_EXT_REST_BASE_URL` - Base URL of REST endpoint services to be accessed from external resources
-* `PNC_EXT_OAUTH_USERNAME` - Username to be able to authenticate against pnc authentication service provider
-* `PNC_EXT_OAUTH_PASSWORD` -  Password to be able to authenticate against pnc authentication service provider
-* `PNC_BPM_USERNAME` -  Username user to authenticate against remote BPM server for build signal callbacks
-* `PNC_BPM_PASSWORD` -  Password for `PNC_BPM_USERNAME`
+For the configuration descriptions see api doc of classes in `moduleconfig/src/main/java/org/jboss/pnc/common/json/moduleconfig`
 
 
 Building for Production (Postgresql DB)
