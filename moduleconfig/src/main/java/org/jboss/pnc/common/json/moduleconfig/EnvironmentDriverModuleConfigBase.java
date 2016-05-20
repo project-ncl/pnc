@@ -18,20 +18,44 @@
 
 package org.jboss.pnc.common.json.moduleconfig;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import org.jboss.pnc.common.json.AbstractModuleConfig;
-
-import java.nio.file.Path;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
 public class EnvironmentDriverModuleConfigBase extends AbstractModuleConfig {
+
+    /**
+     * Image to use for build container
+     */
+    @Deprecated //moving to BuildConfiguration
     protected String imageId;
+
+    /**
+     * List of allowed destinations by firewall in Docker container. <br /> Format: \<IPv4>:\<Port>(,\<IPv4>:\<Port>)+
+     * You can set it to "all" and network isolation will be skipped, in case of not setting it up at all
+     * all network traffic will be dropped
+     */
     protected String firewallAllowedDestinations;
+
+    /**
+     * Persistent http proxy hostname
+     */
     protected String proxyServer;
+
+    /**
+     * Persistent http proxy port
+     */
     protected String proxyPort;
+
+    /**
+     * List of hosts that are not proxied.
+     */
     protected String nonProxyHosts;
+
+    /**
+     * Working directory on the remote environment
+     */
     private String workingDirectory;
     protected boolean disabled;
 

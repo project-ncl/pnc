@@ -23,8 +23,17 @@ import org.jboss.pnc.common.json.AbstractModuleConfig;
 import java.net.MalformedURLException;
 
 public class BpmModuleConfig extends AbstractModuleConfig {
+
+    /**
+     * Username to authenticate against remote BPM server for build signal callbacks
+     */
     private String username;
+
+    /**
+     * Password to authenticate against remote BPM server for build signal callbacks
+     */
     private String password;
+
     private String bpmInstanceUrl;
     private final String pncBaseUrl;
     private final String jenkinsBaseUrl;
