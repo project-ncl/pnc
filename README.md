@@ -103,27 +103,6 @@ The container tests can also be run against postgresql by activating the `contai
     mvn install -Pproduction,container-tests
 
 
-Set up of Docker host
-------------
-This part describes an expected way how to set up host with running Docker daemon with systemd.
-Currently is used Docker daemon, which listens on unprotected Docker control socket (port 2375).
-
-Steps to set up Docker daemon:
-
-1. Install docker with `yum install docker-io` (the package on Fedora 22 was renamed to _docker_)
-2. Edit /etc/sysconfig/docker file to enable tcp connection, using external data storage on disk outside root filesystem and you can set up an additional docker image registry to official hub.docker.com:
-
-```
-OPTIONS='--selinux-enabled -H tcp://0.0.0.0:2375 -H unix:///var/run/docker.sock -g /mnt/docker/data'
-INSECURE_REGISTRY='--insecure-registry <your-internal-remote-docker-registry>'
-```
-
-3. Enable `docker` service: Run `sudo systemctl enable docker`
-4. Start `docker` service: Run `sudo systemctl start docker`
-5. Verify the service: Run `docker -H tcp://127.0.0.1:2375 version`. If you get response in 1-2 seconds without errors, the service is running.
-6. Add image to Docker daemon: The Docker daemon has to have imported image, which is specified by environment variable `PNC_DOCKER_IMAGE_ID` (or is set in pnc-config.json file) You can use `docker pull` to download image from remote repository or `docker build` to create image from Dockerfile.
-
-
 ##Authentication:
 This project comes with possibility to be secured. Security is delivered via Keycloak project http://keycloak.jboss.org/.
 To be able to turn on whole project on secure side you need 2 parts to fulfill.
