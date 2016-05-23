@@ -19,8 +19,6 @@ package org.jboss.pnc.common.json.moduleconfig;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.jboss.pnc.common.json.AbstractModuleConfig;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * @author Alex Creasy
@@ -29,14 +27,35 @@ public class UIModuleConfig extends AbstractModuleConfig {
 
     public static final String MODULE_NAME = "ui";
 
-    private final String daOrigin;
+    private final String pncUrl;
+    private final String pncNotificationsUrl;
+    private final String daUrl;
+    private final String daReportsUrl;
 
-    public UIModuleConfig(@JsonProperty("da-origin") String daOrigin) {
-        this.daOrigin = daOrigin;
+    public UIModuleConfig(
+            @JsonProperty("pnc-url") String pncUrl,
+            @JsonProperty("pnc-notifications-url") String pncNotificationsUrl,
+            @JsonProperty("da-url") String daUrl,
+            @JsonProperty("da-reports-url") String daReportsUrl) {
+        this.pncUrl = pncUrl;
+        this.pncNotificationsUrl = pncNotificationsUrl;
+        this.daUrl = daUrl;
+        this.daReportsUrl = daReportsUrl;
     }
 
-    public String getDaOrigin() {
-        return daOrigin;
+    public String getPncUrl() {
+        return pncUrl;
     }
 
+    public String getPncNotificationsUrl() {
+        return pncNotificationsUrl;
+    }
+
+    public String getDaUrl() {
+        return daUrl;
+    }
+
+    public String getDaReportsUrl() {
+        return daReportsUrl;
+    }
 }
