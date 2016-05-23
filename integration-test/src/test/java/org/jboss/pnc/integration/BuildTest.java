@@ -29,7 +29,6 @@ import org.jboss.pnc.integration.utils.ResponseUtils;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationRest;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationSetRest;
 import org.jboss.pnc.test.category.ContainerTest;
-import org.jboss.pnc.test.category.RemoteTest;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.junit.Before;
@@ -42,7 +41,7 @@ import java.util.concurrent.TimeUnit;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(Arquillian.class)
-@Category({ContainerTest.class, RemoteTest.class})
+@Category(ContainerTest.class)
 public class BuildTest {
 
     private static BuildConfigurationRestClient buildConfigurationRestClient;

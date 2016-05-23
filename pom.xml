@@ -131,12 +131,7 @@
     <arquillian.container.type>managed</arquillian.container.type>
     <jboss.port.offset>0</jboss.port.offset>
     <jboss.management.port>${default.management.port}</jboss.management.port>
-    <failsafe.test.skip>true</failsafe.test.skip>
-    <failsafe.test.remote.skip>true</failsafe.test.remote.skip>
-    <failsafe.test.container.skip>true</failsafe.test.container.skip>
     <surefire.test.remote.skip>true</surefire.test.remote.skip>
-    <failsafe.test.integration.skip>true</failsafe.test.integration.skip>
-    <failsafe.test.settings>${user.home}/.m2/settings.xml</failsafe.test.settings>
     <auth>false</auth>
   </properties>
 
@@ -1374,6 +1369,7 @@
       <plugin>
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
+          <argLine>${itCoverageAgent}</argLine>
           <properties>
             <property>
               <name>listener</name>
@@ -1381,7 +1377,7 @@
             </property>
           </properties>
           <redirectTestOutputToFile>true</redirectTestOutputToFile>
-          <excludedGroups>org.jboss.pnc.test.category.ContainerTest, org.jboss.pnc.test.category.RemoteTest</excludedGroups>
+          <excludedGroups>org.jboss.pnc.test.category.ContainerTest, org.jboss.pnc.test.category.DebugTest</excludedGroups>
         </configuration>
         <executions>
           <execution>
@@ -1390,46 +1386,13 @@
               <goal>test</goal>
             </goals>
             <configuration>
+              <argLine>${itCoverageAgent}</argLine>
               <!-- To be uncommented when NCL-724 is done -->
               <!--<parallel>all</parallel>-->
               <!--<threadCount>2</threadCount>-->
               <!--<perCoreThreadCount>true</perCoreThreadCount>-->
-              <excludedGroups>org.jboss.pnc.test.category.ContainerTest, org.jboss.pnc.test.category.RemoteTest</excludedGroups>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
-        <artifactId>maven-failsafe-plugin</artifactId>
-        <configuration>
-          <!-- property set by jacoco-maven-plugin -->
-          <argLine>${itCoverageAgent}</argLine>
-          <includes>
-            <include>**/*.java</include>
-          </includes>
-          <properties>
-            <property>
-              <name>listener</name>
-              <value>org.jboss.pnc.test.listener.PrintTestNameListener</value>
-            </property>
-          </properties>
-          <skip>${failsafe.test.skip}</skip>
-          <redirectTestOutputToFile>true</redirectTestOutputToFile>
-          <systemPropertyVariables>
-            <org.apache.maven.user-settings>${failsafe.test.settings}</org.apache.maven.user-settings>
-          </systemPropertyVariables>
-        </configuration>
-        <executions>
-          <execution>
-            <!-- Invoked for container AND remote tests -->
-            <id>container-and-remote-tests</id>
-            <goals>
-              <goal>integration-test</goal>
-              <goal>verify</goal>
-            </goals>
-            <configuration>
-              <groups>org.jboss.pnc.test.category.ContainerTest, org.jboss.pnc.test.category.RemoteTest</groups>
-              <skip>${failsafe.test.remote.skip}</skip>
+              <excludedGroups>org.jboss.pnc.test.category.ContainerTest, org.jboss.pnc.test.category.DebugTest</excludedGroups>
+              <redirectTestOutputToFile>true</redirectTestOutputToFile>
             </configuration>
           </execution>
         </executions>
@@ -1484,11 +1447,6 @@
 
     <profile>
       <id>container-tests</id>
-      <properties>
-        <failsafe.test.skip>false</failsafe.test.skip>
-        <failsafe.test.container.skip>false</failsafe.test.container.skip>
-        <failsafe.test.integration.skip>false</failsafe.test.integration.skip>
-      </properties>
       <build>
         <plugins>
           <plugin>
@@ -1522,7 +1480,8 @@
                   <goal>test</goal>
                 </goals>
                 <configuration>
-                  <excludedGroups>org.jboss.pnc.test.category.RemoteTest</excludedGroups>
+                  <groups>org.jboss.pnc.test.category.ContainerTest</groups>
+                  <excludedGroups>org.jboss.pnc.test.category.DebugTest</excludedGroups>
                   <test>${test}</test>
                 </configuration>
               </execution>
@@ -1534,13 +1493,6 @@
 
     <profile>
       <id>remote-tests</id>
-      <properties>
-        <!-- if container tests are disabled, we don't want to prevent container-remote tests from executing -->
-        <failsafe.test.remote.skip>${failsafe.test.skip}</failsafe.test.remote.skip>
-        <!-- Container tests are performed in container-and-remote group -->
-        <failsafe.test.integration.skip>true</failsafe.test.integration.skip>
-        <surefire.test.remote.skip>false</surefire.test.remote.skip>
-      </properties>
       <build>
         <plugins>
           <plugin>
@@ -1553,6 +1505,7 @@
                   <goal>test</goal>
                 </goals>
                 <configuration>
+                  <groups>org.jboss.pnc.test.category.DebugTest</groups>
                   <excludedGroups>org.jboss.pnc.test.category.ContainerTest</excludedGroups>
                   <test>${test}</test>
                 </configuration>

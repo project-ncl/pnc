@@ -21,8 +21,8 @@ import com.openshift.internal.restclient.DefaultClient;
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.monitor.PullingMonitor;
 import org.jboss.pnc.common.util.ObjectWrapper;
-import org.jboss.pnc.model.SystemImageType;
 import org.jboss.pnc.model.RepositoryType;
+import org.jboss.pnc.model.SystemImageType;
 import org.jboss.pnc.spi.environment.EnvironmentDriver;
 import org.jboss.pnc.spi.environment.RunningEnvironment;
 import org.jboss.pnc.spi.environment.StartedEnvironment;
@@ -31,8 +31,7 @@ import org.jboss.pnc.spi.repositorymanager.RepositoryManagerException;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
 import org.jboss.pnc.spi.repositorymanager.model.RepositoryConnectionInfo;
 import org.jboss.pnc.spi.repositorymanager.model.RepositorySession;
-import org.jboss.pnc.test.category.RemoteTest;
-import org.junit.Ignore;
+import org.jboss.pnc.test.category.DebugTest;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.slf4j.LoggerFactory;
@@ -53,8 +52,7 @@ import static org.junit.Assert.fail;
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
-@Category({ RemoteTest.class })
-@Ignore //ignore by default as it requires REST auth token
+@Category({ DebugTest.class })
 public class OpenshiftEnvironmentDriverRemoteTest {
 
     private static final org.slf4j.Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass().getName());
