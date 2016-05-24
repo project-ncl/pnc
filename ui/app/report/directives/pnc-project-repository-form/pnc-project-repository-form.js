@@ -25,25 +25,59 @@
    * @ngdoc directive
    * @name pnc.report:pncProjectRepositoryForm
    * @restrict E
-   * @param {string@} search
-   * TODO
+   * @param {string@} searchCallback
+   * Search logic which needs to be done once search button is clicked.
+   * @param {string@} resetCallback
+   * Additional reset logic which needs to be done once reset button is clicked.
    * @description
-   * TODO
+   * A directive that allows users to enter project repository related information.
    * @example
-   * TODO
+   * <pnc-project-repository-form
+      search-callback="search(scmUrl, revision, pomPath, additionalRepos)"
+      reset-callback="reset()">
+     </pnc-project-repository-form>
    */
   module.directive('pncProjectRepositoryForm', function() {
     return {
       restrict: 'E',
       scope: {
-        search: '&'
+        searchCallback: '&',
+        resetCallback: '&'
       },
       templateUrl: 'report/directives/pnc-project-repository-form/pnc-project-repository-form.html',
       controller: [
         '$scope',
         function($scope) {
           
-          $scope.test = 1;
+          var resetFields = function() {
+            // fields
+            $scope.scmUrl = '';
+            $scope.revision = '';
+            $scope.pomPath = '';
+            $scope.additionalRepos = [];
+          }
+
+          resetFields();
+
+          $scope.reset = function(form) {
+            if (form) {
+              resetFields();
+
+              $scope.resetCallback();
+
+              form.$setPristine();
+              form.$setUntouched();
+            }
+          };
+
+          $scope.search = function() {
+            $scope.searchCallback({
+              scmUrl: $scope.scmUrl, 
+              revision: $scope.revision, 
+              pomPath: $scope.pomPath, 
+              additionalRepos: $scope.additionalRepos
+            });
+          }
 
         }
       ]

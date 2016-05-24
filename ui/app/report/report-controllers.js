@@ -151,12 +151,6 @@
 
       var that = this;
 
-      // fields
-      that.scmUrl = '';
-      that.revision = '';
-      that.pomPath = '';
-      that.additionalRepos = [];
-
       that.afterSearch = false;
       that.defaultSortKey = 'groupId';
       that.defaultReverse = false;
@@ -166,23 +160,12 @@
       };
       
       that.reset = function(form) {
-        if (form) {
-
-          // fields
-          that.scmUrl = '';
-          that.revision = '';
-          that.pomPath = '';
-          that.additionalRepos = [];
-
-          that.reportResults = [];
-          that.afterSearch = false;
-          form.$setPristine();
-          form.$setUntouched();
-        }
+        that.reportResults = [];
+        that.afterSearch = false;
       };
 
-      that.search = function() {
-        ReportDAO.getBlacklistedArtifactsInProject(that.scmUrl, that.revision, that.pomPath, that.additionalRepos).then(function(result) {
+      that.search = function(scmUrl, revision, pomPath, additionalRepos) {
+        ReportDAO.getBlacklistedArtifactsInProject(scmUrl, revision, pomPath, additionalRepos).then(function(result) {
 
           that.reportResults = [];
 
