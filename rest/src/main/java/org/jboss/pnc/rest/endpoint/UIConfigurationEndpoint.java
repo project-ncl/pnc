@@ -6,6 +6,7 @@ import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.moduleconfig.UIModuleConfig;
 import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
+import org.jboss.pnc.rest.utils.JsonOutputConverterMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,7 +39,7 @@ public class UIConfigurationEndpoint {
     @ApiOperation(value = "Gets the UI configuration")
     @GET
     public Response get() {
-        return Response.ok().entity(uiConfig).build();
+        return Response.ok().entity(JsonOutputConverterMapper.apply(uiConfig)).build();
     }
 
 }

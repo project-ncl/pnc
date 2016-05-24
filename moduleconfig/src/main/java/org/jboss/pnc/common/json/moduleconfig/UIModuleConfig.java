@@ -18,7 +18,6 @@
 package org.jboss.pnc.common.json.moduleconfig;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.sun.javafx.collections.MappingChange;
 import org.jboss.pnc.common.json.AbstractModuleConfig;
 
 import java.util.Map;
@@ -49,22 +48,27 @@ public class UIModuleConfig extends AbstractModuleConfig {
         this.keycloak = keycloak;
     }
 
+    @JsonProperty("pnc-url")
     public String getPncUrl() {
         return pncUrl;
     }
 
+    @JsonProperty("pnc-notifications-url")
     public String getPncNotificationsUrl() {
         return pncNotificationsUrl;
     }
 
+    @JsonProperty("da-url")
     public String getDaUrl() {
         return daUrl;
     }
 
+    @JsonProperty("da-reports-url")
     public String getDaReportsUrl() {
         return daReportsUrl;
     }
 
+    @JsonProperty("keycloak")
     public Keycloak getKeycloak() {
         return keycloak;
     }
@@ -107,42 +111,52 @@ public class UIModuleConfig extends AbstractModuleConfig {
             this.credentials = credentials;
         }
 
+        @JsonProperty("realm")
         public String getRealm() {
             return realm;
         }
 
+        @JsonProperty("realm-public-key")
         public String getRealmPublicKey() {
             return realmPublicKey;
         }
 
+        @JsonProperty("auth-server-url")
         public String getAuthServerUrl() {
             return authServerUrl;
         }
 
+        @JsonProperty("ssl-required")
         public String getSslRequired() {
             return sslRequired;
         }
 
+        @JsonProperty("resource")
         public String getResource() {
             return resource;
         }
 
+        @JsonProperty("use-resource-role-mappings")
         public boolean isResourceRoleMappings() {
             return isResourceRoleMappings;
         }
 
+        @JsonProperty("bearer-only")
         public boolean isBearerOnly() {
             return bearerOnly;
         }
 
+        @JsonProperty("enable-basic-auth")
         public boolean isEnableBasicAuth() {
             return enableBasicAuth;
         }
 
+        @JsonProperty("expose-token")
         public boolean isExposeToken() {
             return exposeToken;
         }
 
+        @JsonProperty("credentials")
         public Map<String, String> getCredentials() {
             return credentials;
         }
