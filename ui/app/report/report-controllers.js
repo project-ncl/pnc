@@ -159,7 +159,7 @@
         return !_.isEmpty(that.reportResults);
       };
       
-      that.reset = function(form) {
+      that.reset = function() {
         that.reportResults = [];
         that.afterSearch = false;
       };
@@ -358,7 +358,7 @@
         return !_.isEmpty(that.reportResults);
       };
       
-      that.reset = function(form) {
+      that.reset = function() {
         that.reportResults = [];
         that.afterSearch = false;
       }; 

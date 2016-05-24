@@ -55,7 +55,7 @@
             $scope.revision = '';
             $scope.pomPath = '';
             $scope.additionalRepos = [];
-          }
+          };
 
           resetFields();
 
@@ -77,7 +77,7 @@
               pomPath: $scope.pomPath, 
               additionalRepos: $scope.additionalRepos
             });
-          }
+          };
 
         }
       ]
