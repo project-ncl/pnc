@@ -1,0 +1,11 @@
+.nowrap {
+  white-space: nowrap;
+}
+
+.w-min-150 {
+  min-width: 150px;
+}
+
+.cursor-pointer {
+  cursor: pointer;
+}
