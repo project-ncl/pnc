@@ -61,6 +61,29 @@
                     "bpmInstanceUrl": "${env.BPM_INSTANCE_URL}",
                     "deploymentId": "${env.BPM_DEPLOYMENT_ID}",
                     "processId": "${env.BPM_PROCESS_ID}"
+                },
+                {
+                    "@module-config": "ui",
+                    "pnc-url": "${env.PNC_UI_PNC_URL}",
+                    "pnc-notifications-url": "${env.PNC_UI_PNC_NOTIFICATIONS_URL}",
+                    "da-url": "${env.PNC_UI_DA_URL}",
+                    "da-import-url": "${env.PNC_UI_DA_IMPORT_URL}",
+                    "keycloak":
+                    {
+                        "realm": "${env.PNC_UI_KEYCLOAK_REALM}",
+                        "realm-public-key": "${env.PNC_UI_KEYCLOAK_REALM_PUBLIC_KEY}",
+                        "auth-server-url": "${env.PNC_UI_KEYCLOAK_AUTH_SERVER_URL}",
+                        "ssl-required" : "${env.PNC_UI_KEYCLOAK_SSL_REQUIRED}",
+                        "resource": "${env.PNC_UI_KEYCLOAK_RESOURCE}",
+                        "use-resource-role-mappings" : "${env.PNC_UI_KEYCLOAK_USE_RESOURCE_ROLE_MAPPINGS}",
+                        "bearer-only" : "${env.PNC_UI_KEYCLOAK_BEARER_ONLY}",
+                        "enable-basic-auth" : "${env.PNC_UI_KEYCLOAK_ENABLE_BASIC_AUTH}",
+                        "expose-token" : "${env.PNC_UI_KEYCLOAK_EXPOSE_TOKEN}",
+                        "credentials":
+                        {
+                            "secret": "${env.PNC_UI_KEYCLOAK_CREDENTIALS_SECRET}"
+                        }
+                    }
                 }
             ]
         },
