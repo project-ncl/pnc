@@ -24,7 +24,7 @@ import org.jboss.pnc.common.json.AbstractModuleConfig;
 import java.util.Map;
 
 /**
- * Runtime configuration paramaters for the Web UI.
+ * Runtime configuration parameters for the Web UI.
  *
  * @author Alex Creasy
  */
@@ -36,19 +36,19 @@ public class UIModuleConfig extends AbstractModuleConfig {
     private final String pncUrl;
     private final String pncNotificationsUrl;
     private final String daUrl;
-    private final String daReportsUrl;
+    private final String daImportUrl;
     private final Keycloak keycloak;
 
     public UIModuleConfig(
             @JsonProperty("pnc-url") String pncUrl,
             @JsonProperty("pnc-notifications-url") String pncNotificationsUrl,
             @JsonProperty("da-url") String daUrl,
-            @JsonProperty("da-reports-url") String daReportsUrl,
+            @JsonProperty("da-import-url") String daImportUrl,
             @JsonProperty("keycloak") Keycloak keycloak) {
         this.pncUrl = pncUrl;
         this.pncNotificationsUrl = pncNotificationsUrl;
         this.daUrl = daUrl;
-        this.daReportsUrl = daReportsUrl;
+        this.daImportUrl = daImportUrl;
         this.keycloak = keycloak;
     }
 
@@ -69,7 +69,7 @@ public class UIModuleConfig extends AbstractModuleConfig {
     }
 
     /**
-     * @return String representation of the Dependency Analyzer import API base URL.
+     * @return String representation of the Dependency Analyzer API base URL.
      */
     @JsonProperty("da-url")
     public String getDaUrl() {
@@ -77,15 +77,15 @@ public class UIModuleConfig extends AbstractModuleConfig {
     }
 
     /**
-     * @return String representation of the Dependency Analyzer reports API base URL.
+     * @return String representation of the Dependency Analyzer Import API base URL.
      */
-    @JsonProperty("da-reports-url")
-    public String getDaReportsUrl() {
-        return daReportsUrl;
+    @JsonProperty("da-import-url")
+    public String getDaImportUrl() {
+        return daImportUrl;
     }
 
     /**
-     * @return Keycloak object of Web UI configuration paramaters for the Keycloak JavaScript adapter.
+     * @return Keycloak object of Web UI configuration parameters for the Keycloak JavaScript adapter.
      */
     @JsonProperty("keycloak")
     public Keycloak getKeycloak() {
@@ -93,9 +93,9 @@ public class UIModuleConfig extends AbstractModuleConfig {
     }
 
     /**
-     * Web UI configuration paramaters for Keycloak JavaScript adapter.
-     *
+     * Web UI configuration parameters for Keycloak JavaScript adapter.
      * @author Alex Creasy
+     * @see <a href="http://keycloak.github.io/docs/userguide/keycloak-server/html/ch08.html#javascript-adapter">Keycloak JS Adapter Documentation</a>
      */
     static class Keycloak {
         private final String realm;
@@ -103,7 +103,7 @@ public class UIModuleConfig extends AbstractModuleConfig {
         private final String authServerUrl;
         private final String sslRequired;
         private final String resource;
-        private final boolean isResourceRoleMappings;
+        private final boolean useResourceRoleMappings;
         private final boolean bearerOnly;
         private final boolean enableBasicAuth;
         private final boolean exposeToken;
@@ -115,7 +115,7 @@ public class UIModuleConfig extends AbstractModuleConfig {
                 @JsonProperty("auth-server-url") String authServerUrl,
                 @JsonProperty("ssl-required") String sslRequired,
                 @JsonProperty("resource") String resource,
-                @JsonProperty("use-resource-role-mappings") boolean isResourceRoleMappings,
+                @JsonProperty("use-resource-role-mappings") boolean useResourceRoleMappings,
                 @JsonProperty("bearer-only") boolean bearerOnly,
                 @JsonProperty("enable-basic-auth") boolean enableBasicAuth,
                 @JsonProperty("expose-token") boolean exposeToken,
@@ -125,7 +125,7 @@ public class UIModuleConfig extends AbstractModuleConfig {
             this.authServerUrl = authServerUrl;
             this.sslRequired = sslRequired;
             this.resource = resource;
-            this.isResourceRoleMappings = isResourceRoleMappings;
+            this.useResourceRoleMappings = useResourceRoleMappings;
             this.bearerOnly = bearerOnly;
             this.enableBasicAuth = enableBasicAuth;
             this.exposeToken = exposeToken;
@@ -158,8 +158,8 @@ public class UIModuleConfig extends AbstractModuleConfig {
         }
 
         @JsonProperty("use-resource-role-mappings")
-        public boolean isResourceRoleMappings() {
-            return isResourceRoleMappings;
+        public boolean isUseResourceRoleMappings() {
+            return useResourceRoleMappings;
         }
 
         @JsonProperty("bearer-only")
