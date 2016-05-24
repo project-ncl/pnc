@@ -17,14 +17,18 @@
  */
 package org.jboss.pnc.common.json.moduleconfig;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.jboss.pnc.common.json.AbstractModuleConfig;
 
 import java.util.Map;
 
 /**
+ * Runtime configuration paramaters for the Web UI.
+ *
  * @author Alex Creasy
  */
+@JsonIgnoreProperties({ "@module-config"})
 public class UIModuleConfig extends AbstractModuleConfig {
 
     public static final String MODULE_NAME = "ui";
@@ -48,33 +52,50 @@ public class UIModuleConfig extends AbstractModuleConfig {
         this.keycloak = keycloak;
     }
 
+    /**
+     * @return String representation of the PNC REST API base URL.
+     */
     @JsonProperty("pnc-url")
     public String getPncUrl() {
         return pncUrl;
     }
 
+    /**
+     * @return String representation of the PNC notification WebSocket URL.
+     */
     @JsonProperty("pnc-notifications-url")
     public String getPncNotificationsUrl() {
         return pncNotificationsUrl;
     }
 
+    /**
+     * @return String representation of the Dependency Analyzer import API base URL.
+     */
     @JsonProperty("da-url")
     public String getDaUrl() {
         return daUrl;
     }
 
+    /**
+     * @return String representation of the Dependency Analyzer reports API base URL.
+     */
     @JsonProperty("da-reports-url")
     public String getDaReportsUrl() {
         return daReportsUrl;
     }
 
+    /**
+     * @return Keycloak object of Web UI configuration paramaters for the Keycloak JavaScript adapter.
+     */
     @JsonProperty("keycloak")
     public Keycloak getKeycloak() {
         return keycloak;
     }
 
     /**
+     * Web UI configuration paramaters for Keycloak JavaScript adapter.
      *
+     * @author Alex Creasy
      */
     static class Keycloak {
         private final String realm;
