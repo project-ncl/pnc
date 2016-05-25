@@ -15,15 +15,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-/* jshint unused: false */
 'use strict';
 
 (function() {
 
   var module = angular.module('pnc.common.restclient', [
     'ngResource',
-    'pnc.util'
+    'pnc.util',
   ]);
 
-  module.value('REST_BASE_URL', '/pnc-rest/rest');
+  // TODO: Remove this unnecessary layer of indirection.
+  module.factory('REST_BASE_URL', [
+    'restConfig',
+    function(restConfig) {
+      return restConfig.getPncUrl();
+    }
+  ]);
 })();

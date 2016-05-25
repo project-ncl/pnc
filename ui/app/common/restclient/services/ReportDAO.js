@@ -22,52 +22,54 @@
   var module = angular.module('pnc.common.restclient');
   module.factory('ReportDAO', [
     '$http',
-    'Configuration',
-    function ($http, Configuration) {
+    'restConfig',
+    function ($http, restConfig) {
+
+      var DA_URL = restConfig.getDaUrl();
+      var WHITELIST_PRODUCT_ENDPOINT = DA_URL + '/listings/whitelist/products';
+      var WHITELIST_PRODUCT_ARTIFACTS_ENDPOINT = DA_URL + '/listings/whitelist/artifacts/product';
+      var PRODUCTS_BY_GAV_ENDPOINT = DA_URL + '/listings/whitelist/artifacts/gav';
+      var DA_REPORTS_ALIGN = DA_URL + '/reports/align';
 
       var resource = {};
 
       resource.getWhitelistProducts = function () {
-        return Configuration.then(function (config) {
-          return $http.get(config.dependencyAnalyzerReportsURL + config.daReportsWhitelistProductsEndpoint);
-        }).then(function (r) {
+        return $http.get(WHITELIST_PRODUCT_ENDPOINT).then(function (r) {
           return r.data;
         });
       };
 
       resource.getWhitelistProductArtifacts = function (product) {
-        return Configuration.then(function (config) {
-          var reportEndpoint = config.daReportsWhitelistProductArtifactsEndpoint.replace(':productName', product.name).replace(':productVersion', product.version);
-          return $http.get(config.dependencyAnalyzerReportsURL + reportEndpoint);
+        return $http.get(WHITELIST_PRODUCT_ARTIFACTS_ENDPOINT, {
+          params: {
+            name: product.name,
+            version: product.version
+          }
         }).then(function (r) {
           return r.data;
         });
       };
 
       resource.getProductsByGAV = function (groupId, artifactId, version) {
-        return Configuration.then(function (config) {
-          return $http.get(config.dependencyAnalyzerReportsURL + config.daReportsProductsByGavEndpoint, {
+          return $http.get(PRODUCTS_BY_GAV_ENDPOINT, {
             params: {
-              groupid:    groupId,
+              groupid: groupId,
               artifactid: artifactId,
-              version:    version
+              version: version
             }
-          });
-        }).then(function (r) {
+          }).then(function (r) {
           return r.data;
         });
       };
 
       resource.getBlacklistedArtifactsInProject = function (scmUrl, revision, pomPath, additionalRepos) {
-        return Configuration.then(function (config) {
-          return $http.post(config.dependencyAnalyzerReportsURL + config.daReportsAlign, {
-            products: [],
-            searchUnknownProducts: false,
-            scmUrl: scmUrl,
-            revision: revision,
-            pomPath: pomPath,
-            additionalRepos: additionalRepos
-          });
+        return $http.post(DA_REPORTS_ALIGN, {
+          products: [],
+          searchUnknownProducts: false,
+          scmUrl: scmUrl,
+          revision: revision,
+          pomPath: pomPath,
+          additionalRepos: additionalRepos
         }).then(function (r) {
           return r.data.blacklisted;
         });

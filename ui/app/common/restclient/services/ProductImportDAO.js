@@ -23,34 +23,32 @@
 
   /**
    * @author Jakub Senko
+   * @author Alex Creasy
    */
   module.factory('ProductImportDAO', [
     '$http',
-    'Configuration',
-    function ($http, Configuration) {
+    'restConfig',
+    function ($http, restConfig) {
+
+      var BCG_PATH = '/build-configuration/generate/product';
+      var API_URL = restConfig.getDaImportUrl() +  BCG_PATH;
 
       var resource = {};
 
       resource.startProcess = function (data) {
-        return Configuration.then(function (config) {
-          return $http.post(config.dependencyAnalyzerURL + '/start-process', data);
-        }).then(function (r) {
+        return $http.post(API_URL + '/start-process', data).then(function (r) {
           return r.data;
         });
       };
 
       resource.analyzeNextLevel = function (data) {
-        return Configuration.then(function (config) {
-          return $http.post(config.dependencyAnalyzerURL + '/analyse-next-level', data);
-        }).then(function (r) {
+        return $http.post(API_URL + '/analyse-next-level', data).then(function (r) {
           return r.data;
         });
       };
 
       resource.finishProcess = function (data) {
-        return Configuration.then(function (config) {
-          return $http.post(config.dependencyAnalyzerURL + '/finish-process', data);
-        }).then(function (r) {
+        return $http.post(API_URL + '/finish-process', data).then(function (r) {
           return r.data;
         });
       };
