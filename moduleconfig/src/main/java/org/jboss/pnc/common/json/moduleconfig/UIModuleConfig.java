@@ -40,10 +40,10 @@ public class UIModuleConfig extends AbstractModuleConfig {
     private final Keycloak keycloak;
 
     public UIModuleConfig(
-            @JsonProperty("pnc-url") String pncUrl,
-            @JsonProperty("pnc-notifications-url") String pncNotificationsUrl,
-            @JsonProperty("da-url") String daUrl,
-            @JsonProperty("da-import-url") String daImportUrl,
+            @JsonProperty("pncUrl") String pncUrl,
+            @JsonProperty("pncNotificationsUrl") String pncNotificationsUrl,
+            @JsonProperty("daUrl") String daUrl,
+            @JsonProperty("daImportUrl") String daImportUrl,
             @JsonProperty("keycloak") Keycloak keycloak) {
         this.pncUrl = pncUrl;
         this.pncNotificationsUrl = pncNotificationsUrl;
@@ -55,7 +55,7 @@ public class UIModuleConfig extends AbstractModuleConfig {
     /**
      * @return String representation of the PNC REST API base URL.
      */
-    @JsonProperty("pnc-url")
+    @JsonProperty("pncUrl")
     public String getPncUrl() {
         return pncUrl;
     }
@@ -63,7 +63,7 @@ public class UIModuleConfig extends AbstractModuleConfig {
     /**
      * @return String representation of the PNC notification WebSocket URL.
      */
-    @JsonProperty("pnc-notifications-url")
+    @JsonProperty("pncNotificationsUrl")
     public String getPncNotificationsUrl() {
         return pncNotificationsUrl;
     }
@@ -71,7 +71,7 @@ public class UIModuleConfig extends AbstractModuleConfig {
     /**
      * @return String representation of the Dependency Analyzer API base URL.
      */
-    @JsonProperty("da-url")
+    @JsonProperty("daUrl")
     public String getDaUrl() {
         return daUrl;
     }
@@ -79,7 +79,7 @@ public class UIModuleConfig extends AbstractModuleConfig {
     /**
      * @return String representation of the Dependency Analyzer Import API base URL.
      */
-    @JsonProperty("da-import-url")
+    @JsonProperty("daImportUrl")
     public String getDaImportUrl() {
         return daImportUrl;
     }
@@ -92,44 +92,41 @@ public class UIModuleConfig extends AbstractModuleConfig {
         return keycloak;
     }
 
+    @Override
+    public String toString() {
+        return "UIModuleConfig{" +
+                "pncUrl='" + pncUrl + '\'' +
+                ", pncNotificationsUrl='" + pncNotificationsUrl + '\'' +
+                ", daUrl='" + daUrl + '\'' +
+                ", daImportUrl='" + daImportUrl + '\'' +
+                ", keycloak=" + keycloak +
+                '}';
+    }
+
     /**
      * Web UI configuration parameters for Keycloak JavaScript adapter.
+     *
      * @author Alex Creasy
      * @see <a href="http://keycloak.github.io/docs/userguide/keycloak-server/html/ch08.html#javascript-adapter">Keycloak JS Adapter Documentation</a>
      */
     static class Keycloak {
+
+        private final String url;
         private final String realm;
-        private final String realmPublicKey;
-        private final String authServerUrl;
-        private final String sslRequired;
-        private final String resource;
-        private final boolean useResourceRoleMappings;
-        private final boolean bearerOnly;
-        private final boolean enableBasicAuth;
-        private final boolean exposeToken;
-        private final Map<String, String> credentials;
+        private final String clientId;
 
         public Keycloak(
+                @JsonProperty("url") String url,
                 @JsonProperty("realm") String realm,
-                @JsonProperty("realm-public-key") String realmPublicKey,
-                @JsonProperty("auth-server-url") String authServerUrl,
-                @JsonProperty("ssl-required") String sslRequired,
-                @JsonProperty("resource") String resource,
-                @JsonProperty("use-resource-role-mappings") boolean useResourceRoleMappings,
-                @JsonProperty("bearer-only") boolean bearerOnly,
-                @JsonProperty("enable-basic-auth") boolean enableBasicAuth,
-                @JsonProperty("expose-token") boolean exposeToken,
-                @JsonProperty("credentials") Map<String, String> credentials) {
+                @JsonProperty("clientId") String clientId) {
+            this.url = url;
             this.realm = realm;
-            this.realmPublicKey = realmPublicKey;
-            this.authServerUrl = authServerUrl;
-            this.sslRequired = sslRequired;
-            this.resource = resource;
-            this.useResourceRoleMappings = useResourceRoleMappings;
-            this.bearerOnly = bearerOnly;
-            this.enableBasicAuth = enableBasicAuth;
-            this.exposeToken = exposeToken;
-            this.credentials = credentials;
+            this.clientId = clientId;
+        }
+
+        @JsonProperty("url")
+        public String getUrl() {
+            return url;
         }
 
         @JsonProperty("realm")
@@ -137,49 +134,18 @@ public class UIModuleConfig extends AbstractModuleConfig {
             return realm;
         }
 
-        @JsonProperty("realm-public-key")
-        public String getRealmPublicKey() {
-            return realmPublicKey;
+        @JsonProperty("clientId")
+        public String getClientId() {
+            return clientId;
         }
 
-        @JsonProperty("auth-server-url")
-        public String getAuthServerUrl() {
-            return authServerUrl;
-        }
-
-        @JsonProperty("ssl-required")
-        public String getSslRequired() {
-            return sslRequired;
-        }
-
-        @JsonProperty("resource")
-        public String getResource() {
-            return resource;
-        }
-
-        @JsonProperty("use-resource-role-mappings")
-        public boolean isUseResourceRoleMappings() {
-            return useResourceRoleMappings;
-        }
-
-        @JsonProperty("bearer-only")
-        public boolean isBearerOnly() {
-            return bearerOnly;
-        }
-
-        @JsonProperty("enable-basic-auth")
-        public boolean isEnableBasicAuth() {
-            return enableBasicAuth;
-        }
-
-        @JsonProperty("expose-token")
-        public boolean isExposeToken() {
-            return exposeToken;
-        }
-
-        @JsonProperty("credentials")
-        public Map<String, String> getCredentials() {
-            return credentials;
+        @Override
+        public String toString() {
+            return "Keycloak{" +
+                    "url='" + url + '\'' +
+                    ", realm='" + realm + '\'' +
+                    ", clientId='" + clientId + '\'' +
+                    '}';
         }
     }
 }
