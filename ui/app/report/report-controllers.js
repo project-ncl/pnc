@@ -220,6 +220,143 @@
 
   ]);
 
+  module.controller('DifferentArtifactsInProductsReportController', [
+    '$scope',
+    '$state',
+    '$log',
+    'ReportDAO',
+    'whitelistProducts',
+    function($scope, $state, $log, ReportDAO, whitelistProducts) {
+
+      var that = this;
+      that.afterSearch = false;
+      that.gavsAdded = [];
+      that.gavsRemoved = [];
+      that.gavsChanged = [];
+      that.gavsUnchanged = [];
+      that.products = {};
+      that.products.data = _.clone(whitelistProducts);
+
+      that.defaultPageSize = 50;
+
+      that.defaultAddedSortKey = 'groupId';
+      that.defaultRemovedSortKey = 'groupId';
+      that.defaultChangedSortKey = 'groupId';
+      that.defaultUnchangedSortKey = 'groupId';
+      that.defaultAddedReverse = false;
+      that.defaultRemovedReverse = false;
+      that.defaultChangedReverse = false;
+      that.defaultUnchangedReverse = false;
+
+      that.productLeftSelection = {
+        selected: []
+      };
+      that.productRightSelection = {
+        selected: []
+      };
+
+      /* Enrich the data to use pnc-select-items directive */
+      _.each(that.products.data, function(product){
+        product.displayBoldText = product.name;
+        product.displayText = ' - ' + product.version + ' (' + product.supportStatus + ')';
+        product.fullDisplayText = product.displayBoldText + product.displayText;
+      });
+
+      that.isProductLeftSelected = function() {
+        return (!_.isUndefined(that.productLeftSelection) && that.productLeftSelection.selected.length > 0);
+      };
+      that.isProductRightSelected = function() {
+        return (!_.isUndefined(that.productRightSelection) && that.productRightSelection.selected.length > 0);
+      };
+
+      that.isGavAddedNotEmpty = function() {
+        return (!_.isUndefined(that.gavsAdded) && that.gavsAdded.length > 0);
+      };
+      that.isGavRemovedNotEmpty = function() {
+        return (!_.isUndefined(that.gavsRemoved) && that.gavsRemoved.length > 0);
+      };
+      that.isGavChangedNotEmpty = function() {
+        return (!_.isUndefined(that.gavsChanged) && that.gavsChanged.length > 0);
+      };
+      that.isGavUnchangedNotEmpty = function() {
+        return (!_.isUndefined(that.gavsUnchanged) && that.gavsUnchanged.length > 0);
+      };
+
+      that.isFormValid = function() {
+        return (!_.isUndefined(that.productLeftSelection) && that.productLeftSelection.selected.length > 0) && 
+          (!_.isUndefined(that.productRightSelection) && that.productRightSelection.selected.length > 0) && 
+          that.productLeftSelection.selected[0].id !== that.productRightSelection.selected[0].id;
+      };
+
+      that.reset = function(form) {
+        if (form) {
+
+          that.productLeftSelection.selected = [];
+          that.productRightSelection.selected = [];
+          that.selectedProductLeftId = undefined;
+          that.selectedProductRightId = undefined;
+          that.afterSearch = false;
+          that.gavsAdded = [];
+          that.gavsRemoved = [];
+          that.gavsChanged = [];
+          that.gavsUnchanged = [];
+          that.reportLeftProductSearchFilter = {};
+          that.reportRightProductSearchFilter = {};
+          form.$setPristine();
+          form.$setUntouched();
+        }
+      };
+
+      that.search = function() {
+        ReportDAO.getDifferentArtifactsInProducts(that.productLeftSelection.selected[0], that.productRightSelection.selected[0]).then(function(result) {
+
+          that.reportLeftProductSearchFilter = that.productLeftSelection.selected[0];
+          that.reportRightProductSearchFilter = that.productRightSelection.selected[0];
+          that.afterSearch = true;
+          that.gavsAdded = result.added;
+          that.gavsRemoved = result.removed;
+          that.gavsChanged = result.changed;
+          that.gavsUnchanged = result.unchanged;
+
+          // Default sorting is ascending on gav.groupId
+          that.gavsAdded = _.chain(that.gavsAdded).sortBy(function(result){ return result.groupId; }).value();
+          that.gavsRemoved = _.chain(that.gavsRemoved).sortBy(function(result){ return result.groupId; }).value();
+          that.gavsChanged = _.chain(that.gavsChanged).sortBy(function(result){ return result.groupId; }).value();
+          that.gavsUnchanged = _.chain(that.gavsUnchanged).sortBy(function(result){ return result.groupId; }).value();
+
+          that.sortKeyAdded = that.defaultAddedSortKey;
+          that.reverseAdded = that.defaultAddedReverse;
+
+          that.sortKeyRemoved = that.defaultRemovedSortKey;
+          that.reverseRemoved = that.defaultRemovedReverse;
+
+          that.sortKeyChanged = that.defaultChangedSortKey;
+          that.reverseChanged = that.defaultChangedReverse;
+
+          that.sortKeyUnchanged = that.defaultUnchangedSortKey;
+          that.reverseUnchanged = that.defaultUnchangedReverse;
+        });
+      };
+
+      that.sortAdded = function(keyname){
+        that.sortKeyAdded = keyname;
+        that.reverseAdded = !that.reverseAdded;
+      };
+      that.sortRemoved = function(keyname){
+        that.sortKeyRemoved = keyname;
+        that.reverseRemoved = !that.reverseRemoved;
+      };
+      that.sortChanged = function(keyname){
+        that.sortKeyChanged = keyname;
+        that.reverseChanged = !that.reverseChanged;
+      };
+      that.sortUnchanged = function(keyname){
+        that.sortKeyUnchanged = keyname;
+        that.reverseUnchanged = !that.reverseUnchanged;
+      };
+    }
+  ]);
+
 
 
 

@@ -1,0 +1,295 @@
+<!--
+
+    JBoss, Home of Professional Open Source.
+    Copyright 2014 Red Hat, Inc., and individual contributors
+    as indicated by the @author tags.
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+<div class="row">
+  <div class="col-md-6 col-lg-4">
+
+    <pnc-header>
+      <pnc-header-title>Analyze the artifacts difference between 2 Products</pnc-header-title>
+    </pnc-header>
+
+    <form class="form-horizontal" name="differentArtifactsForm" novalidate>
+      
+      <div class="panel panel-default">
+        <div class="panel-body">
+          <div class="form-group"
+              ng-class="{ 'has-error' : !diffGAVInProdReportCtrl.selectedProductLeftId && differentArtifactsForm.productLeftId.$touched, 
+                'has-success': diffGAVInProdReportCtrl.selectedProductLeftId && differentArtifactsForm.productLeftId.$touched }">
+
+            <label for="input1" class="col-sm-4 control-label">
+              * Product 1&nbsp;<span class="pficon pficon-info" title="Select the first Product."></span>
+            </label>
+    
+            <div class="col-sm-8">
+              <pnc-select-items
+                single-item="true"
+                selected-items="diffGAVInProdReportCtrl.productLeftSelection.selected"
+                select-required="true"
+                select-id="productLeftId"
+                select-name="productLeftId"
+                placeholder="Scroll & Filter Products..."
+                items="diffGAVInProdReportCtrl.products"
+                item-id="diffGAVInProdReportCtrl.selectedProductLeftId">
+              </pnc-select-items>
+              <span class="help-block" ng-show="!diffGAVInProdReportCtrl.selectedProductLeftId && differentArtifactsForm.productLeftId.$touched">Required field.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel panel-default">
+        <div class="panel-body">
+
+          <div class="form-group"
+              ng-class="{ 'has-error' : !diffGAVInProdReportCtrl.selectedProductRightId && differentArtifactsForm.productRightId.$touched, 
+                'has-success': diffGAVInProdReportCtrl.selectedProductRightId && differentArtifactsForm.productRightId.$touched }">
+
+            <label for="input2" class="col-sm-4 control-label">
+              * Product 2&nbsp;<span class="pficon pficon-info" title="Select the second Product."></span>
+            </label>
+    
+            <div class="col-sm-8">
+              <pnc-select-items
+                single-item="true"
+                selected-items="diffGAVInProdReportCtrl.productRightSelection.selected"
+                select-required="true"
+                select-id="productRightId"
+                select-name="productRightId"
+                placeholder="Scroll & Filter Products..."
+                items="diffGAVInProdReportCtrl.products"
+                item-id="diffGAVInProdReportCtrl.selectedProductRightId">
+              </pnc-select-items>
+              <span class="help-block" ng-show="!diffGAVInProdReportCtrl.selectedProductRightId && differentArtifactsForm.productRightId.$touched">Required field.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    
+      <div class="form-group text-right">
+        <div class="col-sm-offset-2 col-sm-10">
+          <input type="submit" class="btn btn-primary" value="Search" ng-disabled="!diffGAVInProdReportCtrl.isFormValid()" ng-click="diffGAVInProdReportCtrl.search()">
+          <button type="button" class="btn btn-default" ng-click="diffGAVInProdReportCtrl.reset(differentArtifactsForm)">Clear</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+<br /><br />
+<div>
+  <div class="col-md-12">
+  
+    <div style="min-height: 100px !important;" ng-show="diffGAVInProdReportCtrl.afterSearch">
+      <dl class="dl-horizontal">
+        <dt>Product 1:</dt>
+        <dd>{{ diffGAVInProdReportCtrl.reportLeftProductSearchFilter.name }}</dd>
+        <dt>Version:</dt>
+        <dd>{{ diffGAVInProdReportCtrl.reportLeftProductSearchFilter.version }}</dd>
+        <dt>Support Status:</dt>
+        <dd>{{ diffGAVInProdReportCtrl.reportLeftProductSearchFilter.supportStatus }}</dd>
+      </dl>
+      <dl class="dl-horizontal">
+        <dt>Product 2:</dt>
+        <dd>{{ diffGAVInProdReportCtrl.reportRightProductSearchFilter.name }}</dd>
+        <dt>Version:</dt>
+        <dd>{{ diffGAVInProdReportCtrl.reportRightProductSearchFilter.version }}</dd>
+        <dt>Support Status:</dt>
+        <dd>{{ diffGAVInProdReportCtrl.reportRightProductSearchFilter.supportStatus }}</dd>
+      </dl>
+    </div>
+
+    <div ng-show="diffGAVInProdReportCtrl.isGavAddedNotEmpty()">
+        <pnc-header>
+          <pnc-header-title><small>Artifacts added in {{ diffGAVInProdReportCtrl.reportRightProductSearchFilter.name }}-{{ diffGAVInProdReportCtrl.reportRightProductSearchFilter.version }} 
+           from {{ diffGAVInProdReportCtrl.reportLeftProductSearchFilter.name }}-{{ diffGAVInProdReportCtrl.reportLeftProductSearchFilter.version }}</small>
+          </pnc-header-title>
+        </pnc-header>
+	    <div class="search">
+	      <div class="form-group">
+	        <div class="input-group" role="search">
+	          <label class="sr-only" for="{{ inputAddedId }}">Filter Results</label>
+	          <input id="{{ inputAddedId }}" type="search" class="form-control" ng-model="searchAddedText" placeholder="Filter added artifacts">
+	          <div class="input-group-addon">
+	            <i class="fa fa-search"></i>
+	          </div>
+	        </div>
+	      </div>
+	    </div>
+        <table class="table table-bordered table-striped table-hover">
+          <thead>
+            <th style="cursor: pointer;" ng-click="diffGAVInProdReportCtrl.sortAdded('groupId')">GroupId
+              <span class="glyphicon sort-icon" ng-show="diffGAVInProdReportCtrl.sortKeyAdded=='groupId'" 
+                ng-class="{'glyphicon-chevron-up':diffGAVInProdReportCtrl.reverseAdded,'glyphicon-chevron-down':!diffGAVInProdReportCtrl.reverseAdded}"></span>
+            </th>
+            <th style="cursor: pointer;" ng-click="diffGAVInProdReportCtrl.sortAdded('artifactId')">ArtifactId
+              <span class="glyphicon sort-icon" ng-show="diffGAVInProdReportCtrl.sortKeyAdded=='artifactId'" 
+                ng-class="{'glyphicon-chevron-up':diffGAVInProdReportCtrl.reverseAdded,'glyphicon-chevron-down':!diffGAVInProdReportCtrl.reverseAdded}"></span>        
+            </th>
+            <th style="cursor: pointer;" ng-click="diffGAVInProdReportCtrl.sortAdded('version')">Version
+              <span class="glyphicon sort-icon" ng-show="diffGAVInProdReportCtrl.sortKeyAdded=='version'" 
+                ng-class="{'glyphicon-chevron-up':diffGAVInProdReportCtrl.reverseAdded,'glyphicon-chevron-down':!diffGAVInProdReportCtrl.reverseAdded}"></span>        
+            </th>
+          </thead>
+          <tbody>
+          <tr pagination-id="added" dir-paginate="result in diffGAVInProdReportCtrl.gavsAdded |orderBy:diffGAVInProdReportCtrl.sortKeyAdded:diffGAVInProdReportCtrl.reverseAdded | filter:searchAddedText | itemsPerPage:diffGAVInProdReportCtrl.defaultPageSize">
+            <td>{{ result.groupId }}</td>
+            <td>{{ result.artifactId }}</td>
+            <td>{{ result.version }}</td>
+          </tr>
+          </tbody>
+        </table>
+        <dir-pagination-controls pagination-id="added" max-size="diffGAVInProdReportCtrl.defaultPageSize" direction-links="true" boundary-links="true" ></dir-pagination-controls>
+    </div>
+
+    <div ng-show="diffGAVInProdReportCtrl.isGavRemovedNotEmpty()">
+        <pnc-header>
+          <pnc-header-title><small>Artifacts removed in {{ diffGAVInProdReportCtrl.reportRightProductSearchFilter.name }}-{{ diffGAVInProdReportCtrl.reportRightProductSearchFilter.version }} 
+           from {{ diffGAVInProdReportCtrl.reportLeftProductSearchFilter.name }}-{{ diffGAVInProdReportCtrl.reportLeftProductSearchFilter.version }}</small>
+          </pnc-header-title>
+        </pnc-header>
+        <div class="search">
+          <div class="form-group">
+            <div class="input-group" role="search">
+              <label class="sr-only" for="{{ inputRemovedId }}">Filter Results</label>
+              <input id="{{ inputRemovedId }}" type="search" class="form-control" ng-model="searchRemovedText" placeholder="Filter removed artifacts">
+              <div class="input-group-addon">
+                <i class="fa fa-search"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+        <table class="table table-bordered table-striped table-hover">
+          <thead>
+            <th style="cursor: pointer;" ng-click="diffGAVInProdReportCtrl.sortRemoved('groupId')">GroupId
+              <span class="glyphicon sort-icon" ng-show="diffGAVInProdReportCtrl.sortKeyRemoved=='groupId'" 
+                ng-class="{'glyphicon-chevron-up':diffGAVInProdReportCtrl.reverseRemoved,'glyphicon-chevron-down':!diffGAVInProdReportCtrl.reverseRemoved}"></span>
+            </th>
+            <th style="cursor: pointer;" ng-click="diffGAVInProdReportCtrl.sortRemoved('artifactId')">ArtifactId
+              <span class="glyphicon sort-icon" ng-show="diffGAVInProdReportCtrl.sortKeyRemoved=='artifactId'" 
+                ng-class="{'glyphicon-chevron-up':diffGAVInProdReportCtrl.reverseRemoved,'glyphicon-chevron-down':!diffGAVInProdReportCtrl.reverseRemoved}"></span>        
+            </th>
+            <th style="cursor: pointer;" ng-click="diffGAVInProdReportCtrl.sortRemoved('version')">Version
+              <span class="glyphicon sort-icon" ng-show="diffGAVInProdReportCtrl.sortKeyRemoved=='version'" 
+                ng-class="{'glyphicon-chevron-up':diffGAVInProdReportCtrl.reverseRemoved,'glyphicon-chevron-down':!diffGAVInProdReportCtrl.reverseRemoved}"></span>        
+            </th>
+          </thead>
+          <tbody>
+          <tr pagination-id="removed" dir-paginate="result in diffGAVInProdReportCtrl.gavsRemoved |orderBy:diffGAVInProdReportCtrl.sortKeyRemoved:diffGAVInProdReportCtrl.reverseRemoved | filter:searchRemovedText | itemsPerPage:diffGAVInProdReportCtrl.defaultPageSize">
+            <td>{{ result.groupId }}</td>
+            <td>{{ result.artifactId }}</td>
+            <td>{{ result.version }}</td>
+          </tr>
+          </tbody>
+        </table>
+        <dir-pagination-controls pagination-id="removed" max-size="diffGAVInProdReportCtrl.defaultPageSize" direction-links="true" boundary-links="true" ></dir-pagination-controls>
+    </div>
+
+    <div ng-show="diffGAVInProdReportCtrl.isGavChangedNotEmpty()">
+        <pnc-header>
+          <pnc-header-title><small>Artifacts changed in {{ diffGAVInProdReportCtrl.reportRightProductSearchFilter.name }}-{{ diffGAVInProdReportCtrl.reportRightProductSearchFilter.version }} 
+           from {{ diffGAVInProdReportCtrl.reportLeftProductSearchFilter.name }}-{{ diffGAVInProdReportCtrl.reportLeftProductSearchFilter.version }}</small>
+          </pnc-header-title>
+        </pnc-header>
+        <div class="search">
+          <div class="form-group">
+            <div class="input-group" role="search">
+              <label class="sr-only" for="{{ inputChangedId }}">Filter Results</label>
+              <input id="{{ inputChangedId }}" type="search" class="form-control" ng-model="searchChangedText" placeholder="Filter changed artifacts">
+              <div class="input-group-addon">
+                <i class="fa fa-search"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+        <table class="table table-bordered table-striped table-hover">
+          <thead>
+            <th style="cursor: pointer;" ng-click="diffGAVInProdReportCtrl.sortChanged('groupId')">GroupId
+              <span class="glyphicon sort-icon" ng-show="diffGAVInProdReportCtrl.sortKeyChanged=='groupId'" 
+                ng-class="{'glyphicon-chevron-up':diffGAVInProdReportCtrl.reverseChanged,'glyphicon-chevron-down':!diffGAVInProdReportCtrl.reverseChanged}"></span>
+            </th>
+            <th style="cursor: pointer;" ng-click="diffGAVInProdReportCtrl.sortChanged('artifactId')">ArtifactId
+              <span class="glyphicon sort-icon" ng-show="diffGAVInProdReportCtrl.sortKeyChanged=='artifactId'" 
+                ng-class="{'glyphicon-chevron-up':diffGAVInProdReportCtrl.reverseChanged,'glyphicon-chevron-down':!diffGAVInProdReportCtrl.reverseChanged}"></span>        
+            </th>
+            <th style="cursor: pointer;" ng-click="diffGAVInProdReportCtrl.sortChanged('rightVersion')">Version
+              <span class="glyphicon sort-icon" ng-show="diffGAVInProdReportCtrl.sortKeyChanged=='rightVersion'" 
+                ng-class="{'glyphicon-chevron-up':diffGAVInProdReportCtrl.reverseChanged,'glyphicon-chevron-down':!diffGAVInProdReportCtrl.reverseChanged}"></span>        
+            </th>
+            <th style="cursor: pointer;" ng-click="diffGAVInProdReportCtrl.sortChanged('leftVersion')">From Version
+              <span class="glyphicon sort-icon" ng-show="diffGAVInProdReportCtrl.sortKeyChanged=='leftVersion'" 
+                ng-class="{'glyphicon-chevron-up':diffGAVInProdReportCtrl.reverseChanged,'glyphicon-chevron-down':!diffGAVInProdReportCtrl.reverseChanged}"></span>        
+            </th>
+          </thead>
+          <tbody>
+          <tr pagination-id="changed" dir-paginate="result in diffGAVInProdReportCtrl.gavsChanged |orderBy:diffGAVInProdReportCtrl.sortKeyChanged:diffGAVInProdReportCtrl.reverseChanged | filter:searchChangedText | itemsPerPage:diffGAVInProdReportCtrl.defaultPageSize">
+            <td>{{ result.groupId }}</td>
+            <td>{{ result.artifactId }}</td>
+            <td>{{ result.rightVersion }}</td>
+            <td>{{ result.leftVersion }}</td>
+          </tr>
+          </tbody>
+        </table>
+        <dir-pagination-controls pagination-id="changed" max-size="diffGAVInProdReportCtrl.defaultPageSize" direction-links="true" boundary-links="true" ></dir-pagination-controls>
+    </div>
+
+    <div ng-show="diffGAVInProdReportCtrl.isGavUnchangedNotEmpty()">
+        <pnc-header>
+          <pnc-header-title><small>Artifacts unchanged between {{ diffGAVInProdReportCtrl.reportRightProductSearchFilter.name }}-{{ diffGAVInProdReportCtrl.reportRightProductSearchFilter.version }}
+           and {{ diffGAVInProdReportCtrl.reportLeftProductSearchFilter.name }}-{{ diffGAVInProdReportCtrl.reportLeftProductSearchFilter.version }}</small></pnc-header-title>
+        </pnc-header>
+        <div class="search">
+          <div class="form-group">
+            <div class="input-group" role="search">
+              <label class="sr-only" for="{{ inputUnchangedId }}">Filter Results</label>
+              <input id="{{ inputUnchangedId }}" type="search" class="form-control" ng-model="searchUnchangedText" placeholder="Filter unchanged artifacts">
+              <div class="input-group-addon">
+                <i class="fa fa-search"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+        <table class="table table-bordered table-striped table-hover">
+          <thead>
+            <th style="cursor: pointer;" ng-click="diffGAVInProdReportCtrl.sortUnchanged('groupId')">GroupId
+              <span class="glyphicon sort-icon" ng-show="diffGAVInProdReportCtrl.sortKeyUnchanged=='groupId'" 
+                ng-class="{'glyphicon-chevron-up':diffGAVInProdReportCtrl.reverseUnchanged,'glyphicon-chevron-down':!diffGAVInProdReportCtrl.reverseUnchanged}"></span>
+            </th>
+            <th style="cursor: pointer;" ng-click="diffGAVInProdReportCtrl.sortUnchanged('artifactId')">ArtifactId
+              <span class="glyphicon sort-icon" ng-show="diffGAVInProdReportCtrl.sortKeyUnchanged=='artifactId'" 
+                ng-class="{'glyphicon-chevron-up':diffGAVInProdReportCtrl.reverseUnchanged,'glyphicon-chevron-down':!diffGAVInProdReportCtrl.reverseUnchanged}"></span>        
+            </th>
+            <th style="cursor: pointer;" ng-click="diffGAVInProdReportCtrl.sortUnchanged('version')">Version
+              <span class="glyphicon sort-icon" ng-show="diffGAVInProdReportCtrl.sortKeyUnchanged=='version'" 
+                ng-class="{'glyphicon-chevron-up':diffGAVInProdReportCtrl.reverseUnchanged,'glyphicon-chevron-down':!diffGAVInProdReportCtrl.reverseUnchanged}"></span>        
+            </th>
+          </thead>
+          <tbody>
+          <tr pagination-id="unchanged" dir-paginate="result in diffGAVInProdReportCtrl.gavsUnchanged |orderBy:diffGAVInProdReportCtrl.sortKeyUnchanged:diffGAVInProdReportCtrl.reverseUnchanged | filter:searchUnchangedText | itemsPerPage:diffGAVInProdReportCtrl.defaultPageSize">
+            <td>{{ result.groupId }}</td>
+            <td>{{ result.artifactId }}</td>
+            <td>{{ result.version }}</td>
+          </tr>
+          </tbody>
+        </table>
+        <dir-pagination-controls pagination-id="unchanged" max-size="diffGAVInProdReportCtrl.defaultPageSize" direction-links="true" boundary-links="true" ></dir-pagination-controls>
+    </div>
+
+
+  </div>
+</div>
+
