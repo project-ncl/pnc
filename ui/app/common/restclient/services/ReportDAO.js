@@ -77,7 +77,6 @@
       };
 
       resource.getDifferentArtifactsInProducts = function (product1, product2) {
-          //var reportEndpoint = config.daReportsProductsArtifactsDifferenceEndpoint.replace(':leftProduct', product1.id).replace(':rightProduct', product2.id);
           return $http.get(PRODUCTS_ARTIFACTS_DIFFERENCE_ENDPOINT, {
             params: {
               leftProduct: product1.id,

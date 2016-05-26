@@ -1,9 +1,0 @@
-{
-  "dependencyAnalyzerURL": "@@DA_REST_URL@@",
-  "dependencyAnalyzerReportsURL": "@@DA_REPORT_REST_URL@@",
-  "daReportsWhitelistProductsEndpoint": "/v-0.4/listings/whitelist/products",
-  "daReportsWhitelistProductArtifactsEndpoint": "/v-0.4/listings/whitelist/artifacts/product?name=:productName&version=:productVersion",
-  "daReportsProductsByGavEndpoint": "/v-0.4/listings/whitelist/artifacts/gav",
-  "daReportsAlign": "/v-0.4/reports/align",
-  "daReportsProductsArtifactsDifferenceEndpoint": "/v-0.4/products/diff?leftProduct=:leftProduct&rightProduct=:rightProduct"
-}
