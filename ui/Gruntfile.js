@@ -19,15 +19,15 @@
 
 // DEFAULT PARAMETERS
 var LIVERELOAD_PORT = 35729;
-// var DEFAULT_PROXY_CONFIG_FILE = './proxy-profiles.json';
-// var DEFAULT_PROXY_PROFILE = {
-//   'default': {
-//       context: '/pnc-rest/rest',
-//       host: 'localhost',
-//       port: 8080,
-//       ws: true
-//   }
-// };
+var DEFAULT_PROXY_CONFIG_FILE = './proxy-profiles.json';
+var DEFAULT_PROXY_PROFILE = {
+  'default': {
+      context: '/pnc-rest/rest',
+      host: 'localhost',
+      port: 8080,
+      ws: true
+  }
+};
 
 
 module.exports = function (grunt) {
@@ -51,52 +51,73 @@ module.exports = function (grunt) {
    * Proxy is needed to avoid 'cross-origin resource sharing' (CORS) restriction.
    * See README.md for more details.
    */
-  // grunt.registerTask('initCORSProxy', function () {
-  //
-  //   if (!grunt.file.exists(DEFAULT_PROXY_CONFIG_FILE)) {
-  //     grunt.file.write(DEFAULT_PROXY_CONFIG_FILE, JSON.stringify(DEFAULT_PROXY_PROFILE, null, '\t'));
-  //   }
-  //
-  //   var proxyProfiles = grunt.file.readJSON(DEFAULT_PROXY_CONFIG_FILE);
-  //   var target = grunt.option('target') || 'default';
-  //
-  //   var selectedProfiles = target.split(',');
-  //   var config = [];
-  //
-  //   selectedProfiles.forEach(function(profile) {
-  //     if(proxyProfiles[profile] === undefined) {
-  //       grunt.fatal('Unknown CORS proxy profile: "' + profile +
-  //           '" - please check your desired profile exists in: ' +
-  //           DEFAULT_PROXY_CONFIG_FILE);
-  //     }
-  //
-  //     if (Array.isArray(profile)) {
-  //       config = config.concat(proxyProfiles[profile]);
-  //     } else {
-  //       config.push(proxyProfiles[profile]);
-  //     }
-  //   });
-  //
-  //   grunt.config('connect.proxies', config);
-  // });
+  grunt.registerTask('initCORSProxy', function () {
+
+    if (!grunt.file.exists(DEFAULT_PROXY_CONFIG_FILE)) {
+      grunt.file.write(DEFAULT_PROXY_CONFIG_FILE, JSON.stringify(DEFAULT_PROXY_PROFILE, null, '\t'));
+    }
+
+    var proxyProfiles = grunt.file.readJSON(DEFAULT_PROXY_CONFIG_FILE);
+    var target = grunt.option('target') || 'default';
+
+    var selectedProfiles = target.split(',');
+    var config = [];
+
+    selectedProfiles.forEach(function(profile) {
+      if(proxyProfiles[profile] === undefined) {
+        grunt.fatal('Unknown CORS proxy profile: "' + profile +
+            '" - please check your desired profile exists in: ' +
+            DEFAULT_PROXY_CONFIG_FILE);
+      }
+
+      if (Array.isArray(profile)) {
+        config = config.concat(proxyProfiles[profile]);
+      } else {
+        config.push(proxyProfiles[profile]);
+      }
+    });
+
+    grunt.config('connect.proxies', config);
+  });
 
   grunt.registerTask('injectConfiguration', function () {
-    var cfgPath,
-        cfgFile;
+
+    function getOpt(cmdLineArg, envVar, defaultVal) {
+      return grunt.option(cmdLineArg) || process.env[envVar] || defaultVal;
+    }
 
     function convertToJsString(obj) {
       return 'var pnc = pnc || {}; pnc.config = ' + JSON.stringify(obj) + ';';
     }
 
-    cfgPath = grunt.option('config-file');
-
-    if (!cfgPath) {
-      return;
+    function writeConfig(cfg) {
+      grunt.log.writeflags(cfg, 'Using UI Config');
+      grunt.file.write(appConfig.tmp + '/scripts/config.js', convertToJsString(cfg));
     }
 
-    cfgFile = grunt.file.readJSON(cfgPath);
+    var cfg;
 
-    grunt.file.write(appConfig.tmp + '/scripts/config.js', convertToJsString(cfgFile));
+    var cfgPath = grunt.option('config-file');
+
+    if (cfgPath) {
+      cfg = grunt.file.readJSON(cfgPath);
+    } else {
+      cfg = {
+        'pncUrl': getOpt('pnc-url', 'PNC_UI_PNC_URL'),
+        'pncNotificationsUrl': getOpt('pnc-notifications-url', 'PNC_UI_PNC_NOTIFICATIONS_URL'),
+        'daUrl': getOpt('da-url', 'PNC_UI_DA_URL'),
+        'daImportUrl': getOpt('da-import-url', 'PNC_UI_DA_IMPORT_URL'),
+        'keycloak':
+        {
+            'url': getOpt('keycloak-url', 'PNC_UI_KEYCLOAK_URL'),
+            'realm': getOpt('keycloak-realm', 'PNCUI_KEYCLOAK_REALM'),
+            'clientId': getOpt('keycloak-client-id', 'PNC_UI_KEYCLOAK_CLIENT_ID')
+        }
+      };
+    }
+
+    writeConfig(cfg);
+
   });
 
   // Define the configuration for all the tasks
@@ -161,7 +182,7 @@ module.exports = function (grunt) {
         hostname: 'localhost',
         livereload: LIVERELOAD_PORT
       },
-      // proxies: [/* This value is set by initCORSProxy task. */],
+      proxies: [/* This value is set by initCORSProxy task. */],
       livereload: {
         options: {
           open: true,
@@ -172,8 +193,8 @@ module.exports = function (grunt) {
                 '/bower_components',
                 connect.static('./bower_components')
               ),
-              connect.static(appConfig.app)//,
-              //require('grunt-connect-proxy/lib/utils').proxyRequest
+              connect.static(appConfig.app),
+              require('grunt-connect-proxy/lib/utils').proxyRequest
             ];
           }
         }
@@ -191,7 +212,7 @@ module.exports = function (grunt) {
               connect.static('./<%= yeoman.lib %>')
             ));
             middlewares.push(connect.static(appConfig.app));
-            //middlewares.push(require('grunt-connect-proxy/lib/utils').proxyRequest);
+            middlewares.push(require('grunt-connect-proxy/lib/utils').proxyRequest);
 
             return middlewares;
           }
@@ -536,7 +557,7 @@ module.exports = function (grunt) {
     }
 
     grunt.task.run([
-      //'initCORSProxy',
+      'initCORSProxy',
       'clean:server',
       'injectConfiguration',
       'wiredep',
@@ -544,7 +565,7 @@ module.exports = function (grunt) {
       'concurrent:server',
       'copy:fonts',
       'autoprefixer',
-      //'configureProxies',
+      'configureProxies',
       'connect:livereload',
       'watch'
     ]);
@@ -556,7 +577,7 @@ module.exports = function (grunt) {
   });
 
   grunt.registerTask('test', [
-    //'initCORSProxy',
+    'initCORSProxy',
     'clean:server',
     'concurrent:test',
     'autoprefixer',
@@ -565,7 +586,7 @@ module.exports = function (grunt) {
   ]);
 
   grunt.registerTask('build', [
-    //'initCORSProxy',
+    'initCORSProxy',
     'clean:dist',
     'copy:fonts',
     'wiredep',
