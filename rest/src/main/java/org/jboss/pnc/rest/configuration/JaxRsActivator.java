@@ -33,7 +33,6 @@ import org.jboss.pnc.rest.endpoint.ProductReleaseEndpoint;
 import org.jboss.pnc.rest.endpoint.ProductVersionEndpoint;
 import org.jboss.pnc.rest.endpoint.ProjectEndpoint;
 import org.jboss.pnc.rest.endpoint.RunningBuildRecordEndpoint;
-import org.jboss.pnc.rest.endpoint.UIConfigurationEndpoint;
 import org.jboss.pnc.rest.endpoint.UserEndpoint;
 
 import javax.ws.rs.ApplicationPath;
@@ -91,7 +90,6 @@ public class JaxRsActivator extends Application {
         resources.add(TestEndpoint.class);
         resources.add(BuildTaskEndpoint.class);
         resources.add(BuildEndpoint.class);
-        resources.add(UIConfigurationEndpoint.class);
     }
 
     private void addExceptionMappers(Set<Class<?>> resources) {
