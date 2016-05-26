@@ -55,8 +55,7 @@ public class UIConfigurationServlet extends HttpServlet {
     }
 
     private String generateJS(String configJson) {
-        return String.format("var %s = %s || {}; var %s.%s = %s;", PNC_GLOBAL_MODULE, PNC_GLOBAL_MODULE,
-                PNC_GLOBAL_MODULE, CONFIG_PROPERTY, configJson);
+        return String.format("var %1$s = %1$s || {}; %1$s.%2$s = %3$s;", PNC_GLOBAL_MODULE, CONFIG_PROPERTY, configJson);
     }
 
     @Override
