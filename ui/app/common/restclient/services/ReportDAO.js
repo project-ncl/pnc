@@ -30,6 +30,7 @@
       var WHITELIST_PRODUCT_ARTIFACTS_ENDPOINT = DA_URL + '/listings/whitelist/artifacts/product';
       var PRODUCTS_BY_GAV_ENDPOINT = DA_URL + '/listings/whitelist/artifacts/gav';
       var DA_REPORTS_ALIGN = DA_URL + '/reports/align';
+      var PRODUCTS_ARTIFACTS_DIFFERENCE_ENDPOINT = DA_URL + '/products/diff';
 
       var resource = {};
 
@@ -76,12 +77,15 @@
       };
 
       resource.getDifferentArtifactsInProducts = function (product1, product2) {
-        return Configuration.then(function (config) {
-          var reportEndpoint = config.daReportsProductsArtifactsDifferenceEndpoint.replace(':leftProduct', product1.id).replace(':rightProduct', product2.id);
-          return $http.get(config.dependencyAnalyzerReportsURL + reportEndpoint);
-        }).then(function (r) {
-          return r.data;
-        });
+          //var reportEndpoint = config.daReportsProductsArtifactsDifferenceEndpoint.replace(':leftProduct', product1.id).replace(':rightProduct', product2.id);
+          return $http.get(PRODUCTS_ARTIFACTS_DIFFERENCE_ENDPOINT, {
+            params: {
+              leftProduct: product1.id,
+              rightProduct: product2.id
+            }
+          }).then(function (r) {
+            return r.data;
+          });
       };
 
       return resource;
