@@ -76,6 +76,21 @@
       controllerAs: 'blacklistedArtifactsInProjectReportCtrl'
     });
 
+    $stateProvider.state('report.different-artifacts-in-products', {
+        url: '/different-artifacts-in-products',
+        templateUrl: 'report/views/different.artifacts.in.products.html',
+        data: {
+          displayName: 'Different artifacts between products'
+        },
+        controller: 'DifferentArtifactsInProductsReportController',
+        controllerAs: 'diffGAVInProdReportCtrl',
+        resolve: {
+           whitelistProducts: function(ReportDAO) {
+             return ReportDAO.getWhitelistProducts();
+           }
+        }
+      });
+
   }]);
 
 })();

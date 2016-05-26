@@ -73,6 +73,15 @@
         });
       };
 
+      resource.getDifferentArtifactsInProducts = function (product1, product2) {
+        return Configuration.then(function (config) {
+          var reportEndpoint = config.daReportsProductsArtifactsDifferenceEndpoint.replace(':leftProduct', product1.id).replace(':rightProduct', product2.id);
+          return $http.get(config.dependencyAnalyzerReportsURL + reportEndpoint);
+        }).then(function (r) {
+          return r.data;
+        });
+      };
+
       return resource;
     }
   ]);
