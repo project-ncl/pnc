@@ -35,7 +35,6 @@
   <th>Planned release date</th>
   <th>Release date</th>
   <th>Deliverables</th>
-  <th>Build Record Set</th>
   <th>Actions</th>
   </thead>
   <tbody>
@@ -53,7 +52,6 @@
         <i class="glyphicon glyphicon-download-alt"></i>
       </a>
     </td>
-    <td>{{ productmilestone.buildRecordSetId }}</td>
     <td class="text-center">
       <a ng-show="productmilestone.releaseDate == undefined"
          pnc-confirm-click="markCurrentMilestone(productmilestone)"
