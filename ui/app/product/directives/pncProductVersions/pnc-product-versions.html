@@ -21,6 +21,22 @@
 
 <pnc-search-field class="search" page="page" text="product versions"></pnc-search-field>
 
+<script type="text/ng-template" id="milestoneTooltipTemplate.html">
+     <strong>-- {{milestone.version}} --</strong><br>
+     <strong>Phase: </strong> &lt;tbd&gt; <br>
+     <strong>Starting Date: </strong>{{milestone.startingDate | date:'mediumDate'}}<br>
+     <strong>Planned Release Date: </strong>{{milestone.plannedEndDate | date:'mediumDate'}}<br>
+     <strong>Release Date: </strong>{{milestone.endDate | date:'mediumDate'}}<br>
+</script>
+
+<script type="text/ng-template" id="releaseTooltipTemplate.html">
+     <strong>-- {{release.version}} --</strong><br>
+     <strong>Phase: </strong> &lt;tbd&gt; <br>
+     <strong>Release Date: </strong>{{release.releaseDate | date:'mediumDate'}}<br>
+     <strong>Milestone: </strong>{{release.productMilestone.version }}<br>
+     <strong>Support Level: </strong>{{release.supportLevel }}<br>
+</script>
+
 <table class="table table-bordered table-striped" ng-show="page.isLoaded">
   <thead>
   <th>Version</th>
@@ -36,21 +52,21 @@
     </td>
     <td>
        <span
-         ng-repeat="productmilestone in version.productMilestones | orderBy: '-productmilestone.startingDate'">
-             <span data-tooltip-html-unsafe="{{ getMilestoneTooltip(productmilestone) }}"
+         ng-repeat="milestone in version.productMilestones | orderBy: '-milestone.startingDate'">
+             <span data-tooltip-template="'milestoneTooltipTemplate.html'"
                    data-tooltip-placement="right"
                    class="label label-default"
-                   ng-class="{ 'label label-primary' : productmilestone.id == version.currentProductMilestoneId }">
-               {{ productmilestone.version }}
+                   ng-class="{ 'label label-primary' : milestone.id == version.currentProductMilestoneId }">
+               {{ milestone.version }}
              </span>
        </span>
     </td>
     <td>
-         <span ng-repeat="productrelease in version.productReleases | orderBy: '-productrelease.releaseDate'">
-           <span data-tooltip-html-unsafe="{{ getReleaseTooltip(productrelease) }}"
+         <span ng-repeat="release in version.productReleases | orderBy: '-release.releaseDate'">
+           <span data-tooltip-template="'releaseTooltipTemplate.html'"
                  data-tooltip-placement="right"
                  class="label label-success">
-             {{ productrelease.version }}
+             {{ release.version }}
            </span>
          </span>
     </td>
