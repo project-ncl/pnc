@@ -22,7 +22,7 @@ var LIVERELOAD_PORT = 35729;
 var DEFAULT_PROXY_CONFIG_FILE = './proxy-profiles.json';
 var DEFAULT_PROXY_PROFILE = {
   'default': {
-      context: '/pnc-rest/rest',
+      context: '/pnc-rest',
       host: 'localhost',
       port: 8080,
       ws: true
@@ -103,8 +103,8 @@ module.exports = function (grunt) {
       cfg = grunt.file.readJSON(cfgPath);
     } else {
       cfg = {
-        'pncUrl': getOpt('pnc-url', 'PNC_UI_PNC_URL'),
-        'pncNotificationsUrl': getOpt('pnc-notifications-url', 'PNC_UI_PNC_NOTIFICATIONS_URL'),
+        'pncUrl': getOpt('pnc-url', 'PNC_UI_PNC_URL', 'http://localhost:9000/pnc-rest/rest'),
+        'pncNotificationsUrl': getOpt('pnc-notifications-url', 'PNC_UI_PNC_NOTIFICATIONS_URL', 'ws://localhost:9000/pnc-rest/ws/build-records/notifications'),
         'daUrl': getOpt('da-url', 'PNC_UI_DA_URL'),
         'daImportUrl': getOpt('da-import-url', 'PNC_UI_DA_IMPORT_URL'),
         'keycloak':
@@ -114,6 +114,11 @@ module.exports = function (grunt) {
             'clientId': getOpt('keycloak-client-id', 'PNC_UI_KEYCLOAK_CLIENT_ID')
         }
       };
+    }
+
+    // Allows UI initialization to setup a dummy keycloak setup if no keycloak config is present.
+    if (cfg.keycloak && !cfg.keycloak.url && !cfg.keycloak.realm && !cfg.keycloak.clientId) {
+      delete cfg.keycloak;
     }
 
     writeConfig(cfg);

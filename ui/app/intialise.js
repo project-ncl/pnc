@@ -21,18 +21,25 @@
 (function(pnc) {
   'use strict';
 
+  var DEFAULT_CONFIG = {
+    pncUrl: '/pnc-rest/rest',
+    pncNotificationsUrl: 'ws://' + window.location.host + '/pnc-rest/ws/build-records/notifications'
+  };
+
   /**
    * Entrypoint to the application. Initializes the UI with the supplied
-   * configuration. These paramaters can be accessed in the angular application
-   * through the 'properties' constant in the pnc.properties module.
+   * configuration.
    *
    * @param config - An object containing configuration paramaters for the UI.
    */
   function bootstrap(config) {
 
     if (!config) {
-      throw new Error('UI startup error: No configuration provided.');
+      console.warn('No UI configuration provided: using defaults');
+      config = DEFAULT_CONFIG;
     }
+
+    console.info('Starting UI with configuration: ' + JSON.stringify(config, null, 2));
 
     angular.element(document).ready(function () {
       var keycloak;
