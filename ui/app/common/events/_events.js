@@ -20,17 +20,20 @@
 (function () {
 
   var module = angular.module('pnc.common.events', [
+    'pnc.properties',
     'pnc.common.websockets'
   ]);
 
+  // TODO: Refactor to use restConfig service instead of accessing
+  // pncProperties directly (in order to decouple the module). At present
+  // this is not possible since a service cannot be injected into a config block
+  // the webSocketBus will need to be refactored.
   module.config([
+    'pncProperties',
     'webSocketBusProvider',
-    function(webSocketBusProvider) {
-      var host = window.location.host; // 'localhost:8080'
-      webSocketBusProvider.newEndpoint(
-        'ws://' + host + '/pnc-rest/ws/build-records/notifications',
-        'eventBroadcastingWebSocketListener'
-      );
+    function(pncProperties, webSocketBusProvider) {
+      webSocketBusProvider.newEndpoint(pncProperties.pncNotificationsUrl,
+        'eventBroadcastingWebSocketListener');
     }
   ]);
 

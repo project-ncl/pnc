@@ -38,25 +38,12 @@
     'pnc.configuration-set-record',
     'pnc.common.restclient',
     'pnc.import',
-    'pnc.report'
+    'pnc.report',
+    'pnc.properties'
   ]);
 
-  var keycloak;
-
-  // Bootstrap UI.
-  angular.element(document).ready(function () {
-    keycloak = new Keycloak('keycloak.json');
-
-    keycloak.init({ onLoad: 'check-sso' }).success(function () {
-      angular.bootstrap(document, ['pnc']);
-    }).error(function () {
-      $(document.body).append('<div class="page-header"><h1>Error in authentication bootstrap process</h1></div>');
-      $(document.body).append('<p>Please report this error to the system administrator.</p>');
-    });
-  });
-
   app.config(function($stateProvider, $urlRouterProvider, $locationProvider,
-    $httpProvider, keycloakProvider, NotificationsProvider) {
+    $httpProvider, NotificationsProvider) {
 
     $locationProvider.html5Mode(false);
 
@@ -100,10 +87,20 @@
 
     $httpProvider.interceptors.push('httpResponseInterceptor');
     $httpProvider.interceptors.push('unwrapPageResponseInterceptor');
-
-    keycloakProvider.setKeycloak(keycloak);
     $httpProvider.interceptors.push('httpAuthenticationInterceptor');
   });
+
+  // Configure all the remote api base URLs with the pncProperties
+  // retrieved in initialise.js.
+  app.config([
+    'pncProperties',
+    'restConfigProvider',
+    function (pncProperties, restConfigProvider) {
+       restConfigProvider.setPncUrl(pncProperties.pncUrl);
+       restConfigProvider.setPncNotificationsUrl(pncProperties.pncNotificationsUrl);
+       restConfigProvider.setDaUrl(pncProperties.daUrl);
+       restConfigProvider.setDaImportUrl(pncProperties.daImportUrl);
+  }]);
 
   app.run(function($rootScope, $log, $state, authService, keycloak) {
 

@@ -21,7 +21,7 @@
     "angular": false,
     "$": false,
     "Keycloak": false,
-    "pnc_globals": false,
+    "pnc": false,
     "buckets": false,
     "_": false,
     "$": false

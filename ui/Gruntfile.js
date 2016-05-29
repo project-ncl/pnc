@@ -80,6 +80,46 @@ module.exports = function (grunt) {
     grunt.config('connect.proxies', config);
   });
 
+  grunt.registerTask('injectConfiguration', function () {
+
+    function getOpt(cmdLineArg, envVar, defaultVal) {
+      return grunt.option(cmdLineArg) || process.env[envVar] || defaultVal;
+    }
+
+    function convertToJsString(obj) {
+      return 'var pnc = pnc || {}; pnc.config = ' + JSON.stringify(obj) + ';';
+    }
+
+    function writeConfig(cfg) {
+      grunt.log.writeflags(cfg, 'Using UI Config');
+      grunt.file.write(appConfig.tmp + '/scripts/config.js', convertToJsString(cfg));
+    }
+
+    var cfg;
+
+    var cfgPath = grunt.option('config-file');
+
+    if (cfgPath) {
+      cfg = grunt.file.readJSON(cfgPath);
+    } else {
+      cfg = {
+        'pncUrl': getOpt('pnc-url', 'PNC_UI_PNC_URL'),
+        'pncNotificationsUrl': getOpt('pnc-notifications-url', 'PNC_UI_PNC_NOTIFICATIONS_URL'),
+        'daUrl': getOpt('da-url', 'PNC_UI_DA_URL'),
+        'daImportUrl': getOpt('da-import-url', 'PNC_UI_DA_IMPORT_URL'),
+        'keycloak':
+        {
+            'url': getOpt('keycloak-url', 'PNC_UI_KEYCLOAK_URL'),
+            'realm': getOpt('keycloak-realm', 'PNCUI_KEYCLOAK_REALM'),
+            'clientId': getOpt('keycloak-client-id', 'PNC_UI_KEYCLOAK_CLIENT_ID')
+        }
+      };
+    }
+
+    writeConfig(cfg);
+
+  });
+
   // Define the configuration for all the tasks
   grunt.initConfig({
 
@@ -519,6 +559,7 @@ module.exports = function (grunt) {
     grunt.task.run([
       'initCORSProxy',
       'clean:server',
+      'injectConfiguration',
       'wiredep',
       'includeSource:server',
       'concurrent:server',
