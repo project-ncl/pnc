@@ -37,6 +37,7 @@ public class UIModuleConfig extends AbstractModuleConfig {
     private final String pncNotificationsUrl;
     private final String daUrl;
     private final String daImportUrl;
+    private final String daImportRpcUrl;
     private final Keycloak keycloak;
 
     public UIModuleConfig(
@@ -44,11 +45,13 @@ public class UIModuleConfig extends AbstractModuleConfig {
             @JsonProperty("pncNotificationsUrl") String pncNotificationsUrl,
             @JsonProperty("daUrl") String daUrl,
             @JsonProperty("daImportUrl") String daImportUrl,
+            @JsonProperty("daImportRpcUrl") String daImportRpcUrl,
             @JsonProperty("keycloak") Keycloak keycloak) {
         this.pncUrl = pncUrl;
         this.pncNotificationsUrl = pncNotificationsUrl;
         this.daUrl = daUrl;
         this.daImportUrl = daImportUrl;
+        this.daImportRpcUrl = daImportRpcUrl;
         this.keycloak = keycloak;
     }
 
@@ -85,6 +88,14 @@ public class UIModuleConfig extends AbstractModuleConfig {
     }
 
     /**
+     * @return String representation of the Dependency Analyzer Import RPC WebSocket URL.
+     */
+    @JsonProperty("daImportRpcUrl")
+    public String getDaImportRpcUrl() {
+        return daImportRpcUrl;
+    }
+
+    /**
      * @return Keycloak object of Web UI configuration parameters for the Keycloak JavaScript adapter.
      */
     @JsonProperty("keycloak")
@@ -99,6 +110,7 @@ public class UIModuleConfig extends AbstractModuleConfig {
                 ", pncNotificationsUrl='" + pncNotificationsUrl + '\'' +
                 ", daUrl='" + daUrl + '\'' +
                 ", daImportUrl='" + daImportUrl + '\'' +
+                ", daImportRpcUrl='" + daImportRpcUrl + '\'' +
                 ", keycloak=" + keycloak +
                 '}';
     }

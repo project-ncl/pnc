@@ -107,6 +107,7 @@ module.exports = function (grunt) {
         'pncNotificationsUrl': getOpt('pnc-notifications-url', 'PNC_UI_PNC_NOTIFICATIONS_URL', 'ws://localhost:9000/pnc-rest/ws/build-records/notifications'),
         'daUrl': getOpt('da-url', 'PNC_UI_DA_URL'),
         'daImportUrl': getOpt('da-import-url', 'PNC_UI_DA_IMPORT_URL'),
+        'daImportRpcUrl': getOpt('da-import-rpc-url', 'PNC_UI_DA_IMPORT_RPC_URL'),
         'keycloak':
         {
             'url': getOpt('keycloak-url', 'PNC_UI_KEYCLOAK_URL'),
