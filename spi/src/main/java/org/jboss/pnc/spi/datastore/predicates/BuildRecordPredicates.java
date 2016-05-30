@@ -93,6 +93,13 @@ public class BuildRecordPredicates {
         };
     }
 
+    public static Predicate<BuildRecord> withPerformedInMilestone(Integer productMilestoneId) {
+        return (root, query, cb) -> {
+            Join<BuildRecord, ProductMilestone> productMilestone = root.join(BuildRecord_.productMilestone);
+            return cb.equal(productMilestone.get(org.jboss.pnc.model.ProductMilestone_.id), productMilestoneId);
+        };
+    }
+
     public static Predicate<BuildRecord> withUserId(Integer userId) {
         return (root, query, cb) -> {
             Join<BuildRecord, User> buildRecordJoinedUsers = root.join(BuildRecord_.user);

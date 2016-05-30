@@ -62,4 +62,11 @@ public class ArtifactPredicates {
         return (root, query, cb) -> cb.equal(root.get(Artifact_.originUrl), originUrl);
     }
 
+    public static Predicate<Artifact> withDistributedInMilestone(Integer productMilestoneId) {
+        return (root, query, cb) -> {
+            Join<Artifact, ProductMilestone> productMilestone = root.join(Artifact_.distributedInProductMilestones);
+            return cb.equal(productMilestone.get(org.jboss.pnc.model.ProductMilestone_.id), productMilestoneId);
+        };
+    }
+
 }
