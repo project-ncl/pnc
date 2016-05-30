@@ -36,12 +36,12 @@
   });
 
   app.factory('authService', [
+    '$log',
     '$window',
     '$q',
     'keycloak',
     'UserDAO',
-    function($window, $q, kc, UserDAO) {
-      var keycloak = kc;
+    function($log, $window, $q, keycloak, UserDAO) {
 
       return {
         isAuthenticated: function() {
@@ -76,12 +76,16 @@
           return deferred.promise;
         },
 
-        logout: function() {
-          keycloak.logout({ redirectUri: $window.location.href });
+        logout: function(redirectUri) {
+          var redirectTo = redirectUri || $window.location.href;
+          $log.info('Login requested with post-login redirect to: ' + redirectTo);
+          keycloak.logout(redirectTo);
         },
 
-        login: function() {
-          keycloak.login({ redirectUri: $window.location.href });
+        login: function(redirectUri) {
+          var redirectTo = redirectUri || $window.location.href;
+          $log.info('Login requested with post-login redirect to: ' + redirectTo);
+          keycloak.login(redirectTo);
         }
       };
     }

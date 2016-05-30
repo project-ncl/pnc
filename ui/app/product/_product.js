@@ -41,7 +41,7 @@
     });
 
     $stateProvider.state('product.list', {
-      url: '',
+      url: '/',
       templateUrl: 'product/views/product.list.html',
       data: {
         displayName: 'Products'

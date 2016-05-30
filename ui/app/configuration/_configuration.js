@@ -69,7 +69,8 @@
       url: '/configuration/create',
       templateUrl: 'configuration/views/configuration.create.html',
       data: {
-        displayName: 'Create Build Config'
+        displayName: 'Create Build Config',
+        requireAuth: true
       }
     });
 
