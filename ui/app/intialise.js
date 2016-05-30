@@ -45,6 +45,7 @@
       var keycloak;
       var kcInitParams = {
         onLoad: 'check-sso',
+        responseMode: 'query'
       };
 
       // In case PNC is running with authentication disabled we give the

@@ -20,21 +20,6 @@
  (function() {
   var app = angular.module('pnc');
 
-  app.provider('keycloak', function() {
-    var keycloak;
-
-    return {
-      setKeycloak: function(kc) {
-        keycloak = kc;
-      },
-
-      $get: ['$log', function($log) {
-        $log.debug('keycloak=%O', keycloak);
-        return keycloak;
-      }]
-    };
-  });
-
   app.factory('authService', [
     '$log',
     '$window',
@@ -78,12 +63,13 @@
 
         logout: function(redirectUri) {
           var redirectTo = redirectUri || $window.location.href;
-          $log.info('Login requested with post-login redirect to: ' + redirectTo);
+          $log.info('Logout requested with post-logout redirect to: ' + redirectTo);
           keycloak.logout(redirectTo);
         },
 
         login: function(redirectUri) {
           var redirectTo = redirectUri || $window.location.href;
+          $log.debug('RedirectUri=' + keycloak.createLoginUrl({ redirectUri: redirectTo }) );
           $log.info('Login requested with post-login redirect to: ' + redirectTo);
           keycloak.login(redirectTo);
         }
