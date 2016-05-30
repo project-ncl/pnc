@@ -44,13 +44,14 @@
     angular.element(document).ready(function () {
       var keycloak;
       var kcInitParams = {
-        onLoad: 'check-sso'
+        onLoad: 'check-sso',
+        responseMode: 'query'
       };
 
       // In case PNC is running with authentication disabled we give the
       // keycloak library just enough paramaters to function. That way the UI
       // can run as normal without further modification.
-      if (!config.keycloak) {
+      if (!config.keycloak || !config.keycloak.url) {
         config.keycloak = {
           url: 'none',
           clientId: 'none',

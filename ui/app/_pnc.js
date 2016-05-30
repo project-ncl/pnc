@@ -39,7 +39,8 @@
     'pnc.common.restclient',
     'pnc.import',
     'pnc.report',
-    'pnc.properties'
+    'pnc.properties',
+    'pnc.common.authentication'
   ]);
 
   app.config(function($stateProvider, $urlRouterProvider, $locationProvider,
