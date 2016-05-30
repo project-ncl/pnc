@@ -31,6 +31,8 @@ import javax.ejb.TransactionAttributeType;
 import javax.inject.Inject;
 import java.sql.Timestamp;
 import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.HashSet;
@@ -52,7 +54,8 @@ public class DatabaseDataInitializer {
     private static final String PNC_PRODUCT_VERSION_1 = "1.0";
     private static final String PNC_PRODUCT_VERSION_2 = "2.0";
     private static final String PNC_PRODUCT_RELEASE = "1.0.0.GA";
-    private static final String PNC_PRODUCT_MILESTONE = "1.0.0.Build1";
+    private static final String PNC_PRODUCT_MILESTONE1 = "1.0.0.Build1";
+    private static final String PNC_PRODUCT_MILESTONE2 = "1.0.0.Build2";
     private static final String PNC_PROJECT_1_NAME = "Project Newcastle Demo Project 1";
     private static final String PNC_PROJECT_BUILD_CFG_ID = "pnc-1.0.0.DR1";
 
@@ -107,7 +110,7 @@ public class DatabaseDataInitializer {
 
     BuildConfigurationSet buildConfigurationSet1;
 
-    ProductMilestone demoProductMilestone;
+    ProductMilestone demoProductMilestone1;
 
     User demoUser;
     User pncAdminUser;
@@ -185,16 +188,29 @@ public class DatabaseDataInitializer {
                 .build();
         productVersion2 = productVersionRepository.save(productVersion2);
 
-        demoProductMilestone = ProductMilestone.Builder.newBuilder().version(PNC_PRODUCT_MILESTONE)
+        final int DAYS_IN_A_WEEK = 7;
+        final Date TODAY = Date.from(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant());
+        final Date ONE_WEEK_BEFORE_TODAY = Date.from(LocalDateTime.now().minusDays(DAYS_IN_A_WEEK).atZone(ZoneId.systemDefault()).toInstant());
+        final Date ONE_WEEK_AFTER_TODAY = Date.from(LocalDateTime.now().plusDays(DAYS_IN_A_WEEK).atZone(ZoneId.systemDefault()).toInstant());
+
+        demoProductMilestone1 = ProductMilestone.Builder.newBuilder().version(PNC_PRODUCT_MILESTONE1)
+                .startingDate(ONE_WEEK_BEFORE_TODAY)
+                .plannedEndDate(TODAY)
                 .productVersion(productVersion1).build();
-        demoProductMilestone = productMilestoneRepository.save(demoProductMilestone);
+        demoProductMilestone1 = productMilestoneRepository.save(demoProductMilestone1);
+
+        ProductMilestone demoProductMilestone2 = ProductMilestone.Builder.newBuilder().version(PNC_PRODUCT_MILESTONE2)
+                .startingDate(TODAY)
+                .plannedEndDate(ONE_WEEK_AFTER_TODAY)
+                .productVersion(productVersion1).build();
+        demoProductMilestone2 = productMilestoneRepository.save(demoProductMilestone2);
 
         ProductRelease productRelease = ProductRelease.Builder.newBuilder().version(PNC_PRODUCT_RELEASE)
-                .productMilestone(demoProductMilestone).supportLevel(SupportLevel.EARLYACCESS)
+                .productMilestone(demoProductMilestone1).supportLevel(SupportLevel.EARLYACCESS)
                 .build();
         productRelease = productReleaseRepository.save(productRelease);
 
-        productVersion1.setCurrentProductMilestone(demoProductMilestone);
+        productVersion1.setCurrentProductMilestone(demoProductMilestone1);
         productVersion1 = productVersionRepository.save(productVersion1);
 
         // Example projects
@@ -325,7 +341,7 @@ public class DatabaseDataInitializer {
                     .user(demoUser)
                     .buildLog("Very short demo log: The quick brown fox jumps over the lazy dog.")
                     .status(BuildStatus.SUCCESS)
-                    .productMilestone(demoProductMilestone)
+                    .productMilestone(demoProductMilestone1)
                     .build();
 
             buildRecordRepository.save(buildRecord1);
@@ -384,11 +400,11 @@ public class DatabaseDataInitializer {
                 .user(demoUser).status(BuildStatus.SUCCESS).build();
         buildConfigSetRecordRepository.save(buildConfigSetRecord2);
 
-        demoProductMilestone = productMilestoneRepository.queryById(demoProductMilestone.getId());
-        demoProductMilestone.addDistributedArtifact(builtArtifact1);
-        demoProductMilestone.addDistributedArtifact(builtArtifact3);
-        demoProductMilestone.addDistributedArtifact(importedArtifact2);
-        demoProductMilestone = productMilestoneRepository.save(demoProductMilestone);
+        demoProductMilestone1 = productMilestoneRepository.queryById(demoProductMilestone1.getId());
+        demoProductMilestone1.addDistributedArtifact(builtArtifact1);
+        demoProductMilestone1.addDistributedArtifact(builtArtifact3);
+        demoProductMilestone1.addDistributedArtifact(importedArtifact2);
+        demoProductMilestone1 = productMilestoneRepository.save(demoProductMilestone1);
 
     }
 
