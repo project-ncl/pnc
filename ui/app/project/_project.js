@@ -76,7 +76,8 @@
       url: '/create-bc',
       templateUrl: 'project/views/project.detail.create-bc.html',
       data: {
-          displayName: 'Create Build Config'
+          displayName: 'Create Build Config',
+          requireAuth: true
         },
       controller: 'CreateBCController',
       controllerAs: 'ctrl',
@@ -92,7 +93,8 @@
       url: '/project/create',
       templateUrl: 'project/views/project.create.html',
       data: {
-        displayName: 'Create Project Metadata'
+        displayName: 'Create Project Metadata',
+        requireAuth: true
       },
       controller: 'ProjectCreateController',
       controllerAs: 'createCtrl'

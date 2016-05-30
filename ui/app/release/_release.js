@@ -41,7 +41,8 @@
         }
       },
       data: {
-        displayName: 'Create Release'
+        displayName: 'Create Release',
+        requireAuth: true
       },
       resolve: {
         releaseDetail: function() { return null; }
@@ -57,7 +58,8 @@
         }
       },
       data: {
-        displayName: 'Update Release'
+        displayName: 'Update Release',
+        requireAuth: true
       },
       resolve: {
         releaseDetail: function(ProductReleaseDAO, $stateParams) {

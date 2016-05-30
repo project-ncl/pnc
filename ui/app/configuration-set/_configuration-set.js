@@ -92,7 +92,8 @@
       url: '/configuration-set/create/:productId/:versionId',
       templateUrl: 'configuration-set/views/configuration-set.create.html',
       data: {
-        displayName: 'Create Build Group Config'
+        displayName: 'Create Build Group Config',
+        requireAuth: true
       },
       controller: 'ConfigurationSetCreateController',
       controllerAs: 'createSetCtrl',
@@ -107,7 +108,8 @@
       url: '/configuration-set/{configurationSetId:int}/add-configuration',
       templateUrl: 'configuration-set/views/configuration-set.add.configuration.html',
       data: {
-        displayName: 'Add Build Config'
+        displayName: 'Add Build Config',
+        requireAuth: true
       },
       controller: 'ConfigurationSetAddConfigurationController',
       controllerAs: 'addConfigurationSetCtrl',

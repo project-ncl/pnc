@@ -101,7 +101,8 @@
       url: '/create',
       templateUrl: 'product/views/product.create.html',
       data: {
-        displayName: 'Create Product'
+        displayName: 'Create Product',
+        requireAuth: true
       },
       controller: 'ProductCreateController',
       controllerAs: 'productCreateCtrl'
