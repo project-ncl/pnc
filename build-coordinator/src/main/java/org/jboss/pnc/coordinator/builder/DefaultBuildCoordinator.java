@@ -194,17 +194,14 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
                 task.getEndTime(),
                 userId);
         log.debug("Updating build task {} status to {}", task.getId(), buildStatusChanged);
-        if (status.isCompleted() && task.getBuildSetTask() != null) {
-            log.debug("Updating BuildSetTask {}.", task.getBuildSetTask().getId());
-        }
-        buildStatusChangedEventNotifier.fire(buildStatusChanged);
-        log.trace("Fired buildStatusChangedEventNotifier after task {} status update to {}.", task.getId(), status);
         task.setStatus(status);
         task.setStatusDescription(statusDescription);
+        buildStatusChangedEventNotifier.fire(buildStatusChanged);
+        log.debug("Fired buildStatusChangedEventNotifier after task {} status update to {}.", task.getId(), status);
     }
 
     public void updateBuildSetTaskStatus(BuildSetTask buildSetTask, BuildSetStatus status){
-        log.trace("Setting new status {} on buildSetTask.id {}.", status, buildSetTask.getId());
+        log.debug("Setting new status {} on buildSetTask.id {}.", status, buildSetTask.getId());
         BuildSetStatus oldStatus = buildSetTask.getStatus();
         Integer userId = Optional.ofNullable( buildSetTask.getBuildConfigSetRecord().getUser()).map(User::getId).orElse(null);
 

@@ -50,6 +50,7 @@ public class BuildStatusNotifications {
     }
 
     public void observeEvent(@Observes BuildCoordinationStatusChangedEvent event) {
+        log.debug("Observed new status changed event {}.", event);
         BuildCoordinationStatusChangedEvent buildStatusChangedEvent = event; // Avoid CDI runtime issue issue NCL-1505
         Predicate<BuildCallBack> filterSubscribersMatchingTaskId =
                 (callBackUrl) -> callBackUrl.getBuildTaskId().equals(buildStatusChangedEvent.getBuildTaskId());
@@ -58,6 +59,7 @@ public class BuildStatusNotifications {
 
         matchingTasks.forEach((buildCallBack) -> removeListenersOfCompletedTasks(buildCallBack, buildStatusChangedEvent));
         matchingTasks.forEach((buildCallBack) -> buildCallBack.callback(buildStatusChangedEvent));
+        log.debug("Status changed event processed {}.", event);
     }
 
     private void removeListenersOfCompletedTasks(BuildCallBack buildCallBack, BuildCoordinationStatusChangedEvent buildStatusChangedEvent) {
