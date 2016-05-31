@@ -324,7 +324,10 @@ module.exports = function (grunt) {
     wiredep: {
       app: {
         src: ['<%= yeoman.app %>/index.html'],
-        exclude: ['<%= yeoman.lib %>/bootstrap/dist/css/bootstrap.css'],
+        exclude: [
+          '<%= yeoman.lib %>/bootstrap/dist/css/bootstrap.css',
+          '<%= yeoman.lib %>/angular-patternfly/dist/angular-patternfly.min.js'
+        ],
         ignorePath:  /\.\.\//
       }
     },

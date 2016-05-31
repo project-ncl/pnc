@@ -16,7 +16,6 @@
     "angular-utils-ui-breadcrumbs": "~0.2.1",
     "angular-websocket": "1.0.9",
     "keycloak": "1.5.0",
-    "bucketsjs": "~1.90.0",
     "underscore": "~1.8.3",
     "bootstrap-treeview": "~1.2.0",
     "ngInfiniteScroll": "~1.2.1",
