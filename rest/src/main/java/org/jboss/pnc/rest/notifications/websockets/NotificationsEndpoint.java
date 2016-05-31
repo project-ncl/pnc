@@ -72,7 +72,9 @@ public class NotificationsEndpoint {
     }
 
     public void collectBuildStatusChangedEvent(@Observes BuildCoordinationStatusChangedEvent buildStatusChangedEvent) {
+        logger.debug("Observed new status changed event {}.", buildStatusChangedEvent);
         notifier.sendMessage(notificationFactory.createNotification(buildStatusChangedEvent));
+        logger.debug("Status changed event processed {}.", buildStatusChangedEvent);
     }
 
     public void collectBuildSetStatusChangedEvent(@Observes BuildSetStatusChangedEvent buildSetStatusChangedEvent) {
