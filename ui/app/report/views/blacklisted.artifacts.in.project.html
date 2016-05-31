@@ -24,57 +24,9 @@
       <pnc-header-title>Show blacklisted artifacts in a project</pnc-header-title>
     </pnc-header>
 
-    <form class="form-horizontal" name="blacklistedArtifactsInProjectReportForm" novalidate>
-    
-      <div class="panel panel-default">
-        <div class="panel-body">
-          
-          <div class="form-group"
-            ng-class="{ 'has-error' : !blacklistedArtifactsInProjectReportCtrl.scmUrl && blacklistedArtifactsInProjectReportForm.scmUrl.$touched, 'has-success': blacklistedArtifactsInProjectReportCtrl.scmUrl && blacklistedArtifactsInProjectReportForm.scmUrl.$touched }">
-            <label for="scmUrl" class="col-sm-3 control-label">* SCM Url:</label>
-            <div class="col-sm-9">
-              <input id="scmUrl" class="form-control" name="scmUrl" ng-model="blacklistedArtifactsInProjectReportCtrl.scmUrl" maxlength="255" placeholder="" required>
-              <span class="help-block" ng-show="blacklistedArtifactsInProjectReportForm.scmUrl.$error.required && blacklistedArtifactsInProjectReportForm.scmUrl.$touched">Required field.</span>
-            </div>
-          </div>
-
-          <div class="form-group"
-            ng-class="{ 'has-error' : !blacklistedArtifactsInProjectReportCtrl.revision && blacklistedArtifactsInProjectReportForm.revision.$touched, 'has-success': blacklistedArtifactsInProjectReportCtrl.revision && blacklistedArtifactsInProjectReportForm.revision.$touched }">
-            <label for="revision" class="col-sm-3 control-label">* Revision:</label>
-            <div class="col-sm-9">
-              <input id="revision" class="form-control" name="revision" ng-model="blacklistedArtifactsInProjectReportCtrl.revision" maxlength="255" placeholder="master" required>
-              <span class="help-block" ng-show="blacklistedArtifactsInProjectReportForm.revision.$error.required && blacklistedArtifactsInProjectReportForm.revision.$touched">Required field.</span>
-            </div>
-          </div>
-
-          <div class="form-group">
-            <label for="pomPath" class="col-sm-3 control-label">Path to root POM:</label>
-            <div class="col-sm-9">
-              <input id="pomPath" class="form-control" name="pomPath" ng-model="blacklistedArtifactsInProjectReportCtrl.pomPath" maxlength="255" placeholder="./pom.xml">
-            </div>
-          </div>
-
-          <div class="form-group">
-            <label for="additionalRepos" class="col-sm-3 control-label">Additional repos:</label>
-            <div class="col-sm-9">
-              <pnc-multiple-input 
-                selected-items="blacklistedArtifactsInProjectReportCtrl.additionalRepos" 
-                placeholder="" select-id="additionalRepos" select-name="additionalRepos">
-              </pnc-multiple-input>
-            </div>
-          </div>
-
-        </div>
-      </div>
-    
-      <div class="form-group text-right">
-        <div class="col-sm-offset-2 col-sm-10">
-          <input type="submit" class="btn btn-primary" value="Search" ng-disabled="blacklistedArtifactsInProjectReportForm.$invalid" ng-click="blacklistedArtifactsInProjectReportCtrl.search()">
-          <button type="button" class="btn btn-default" ng-click="blacklistedArtifactsInProjectReportCtrl.reset(blacklistedArtifactsInProjectReportForm)">Clear</button>
-        </div>
-      </div>
-
-    </form>
+    <pnc-project-repository-form
+      search-callback="blacklistedArtifactsInProjectReportCtrl.search(scmUrl, revision, pomPath, additionalRepos)"
+      reset-callback="blacklistedArtifactsInProjectReportCtrl.reset()"></pnc-project-repository-form>
 
   </div>
 </div>

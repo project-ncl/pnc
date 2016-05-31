@@ -91,6 +91,16 @@
         }
       });
 
+    $stateProvider.state('report.built-artifacts-in-project', {
+      url: '/built-artifacts-in-project',
+      templateUrl: 'report/views/built.artifacts.in.project.html',
+      data: {
+        displayName: 'Show built artifacts in a project'
+      },
+      controller: 'BuiltArtifactsInProjectReportController',
+      controllerAs: 'builtArtifactsInProjectReportCtrl'
+    });
+
   }]);
 
 })();

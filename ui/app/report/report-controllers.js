@@ -151,12 +151,6 @@
 
       var that = this;
 
-      // fields
-      that.scmUrl = '';
-      that.revision = '';
-      that.pomPath = '';
-      that.additionalRepos = [];
-
       that.afterSearch = false;
       that.defaultSortKey = 'groupId';
       that.defaultReverse = false;
@@ -165,24 +159,13 @@
         return !_.isEmpty(that.reportResults);
       };
       
-      that.reset = function(form) {
-        if (form) {
-
-          // fields
-          that.scmUrl = '';
-          that.revision = '';
-          that.pomPath = '';
-          that.additionalRepos = [];
-
-          that.reportResults = [];
-          that.afterSearch = false;
-          form.$setPristine();
-          form.$setUntouched();
-        }
+      that.reset = function() {
+        that.reportResults = [];
+        that.afterSearch = false;
       };
 
-      that.search = function() {
-        ReportDAO.getBlacklistedArtifactsInProject(that.scmUrl, that.revision, that.pomPath, that.additionalRepos).then(function(result) {
+      that.search = function(scmUrl, revision, pomPath, additionalRepos) {
+        ReportDAO.getBlacklistedArtifactsInProject(scmUrl, revision, pomPath, additionalRepos).then(function(result) {
 
           that.reportResults = [];
 
@@ -355,6 +338,55 @@
         that.reverseUnchanged = !that.reverseUnchanged;
       };
     }
+  ]);
+
+
+  module.controller('BuiltArtifactsInProjectReportController', [
+    '$scope',
+    '$state',
+    '$log',
+    'ReportDAO',
+    function($scope, $state, $log, ReportDAO) {
+
+      var that = this;
+
+      that.afterSearch = false;
+      that.defaultSortKey = 'groupId';
+      that.defaultReverse = false;
+
+      that.isResultNotEmpty = function() {
+        return !_.isEmpty(that.reportResults);
+      };
+      
+      that.reset = function() {
+        that.reportResults = [];
+        that.afterSearch = false;
+      }; 
+ 
+      that.search = function(scmUrl, revision, pomPath, additionalRepos) {
+        ReportDAO.getBuiltArtifactsInProject(scmUrl, revision, pomPath, additionalRepos).then(function(result) {
+          that.reportResults = result;
+          that.sortKey = that.defaultSortKey;
+          that.reverse = that.defaultReverse;
+          that.afterSearch = true;
+
+          // Default sorting 
+          that.reportResults = _.chain(that.reportResults).sortBy(function(result){ return result[that.defaultSortKey]; }).value();
+          
+        }, function() {
+          // error 
+
+          that.reportResults = [];
+        });
+      };
+
+      that.sort = function(keyname){
+        that.sortKey = keyname;   
+        that.reverse = !that.reverse;
+      };
+
+    }
+
   ]);
 
 

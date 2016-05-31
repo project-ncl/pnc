@@ -31,6 +31,7 @@
       var PRODUCTS_BY_GAV_ENDPOINT = DA_URL + '/listings/whitelist/artifacts/gav';
       var DA_REPORTS_ALIGN = DA_URL + '/reports/align';
       var PRODUCTS_ARTIFACTS_DIFFERENCE_ENDPOINT = DA_URL + '/products/diff';
+      var DA_REPORTS_BUILT = DA_URL + '/reports/built';
 
       var resource = {};
 
@@ -85,6 +86,18 @@
           }).then(function (r) {
             return r.data;
           });
+      };
+
+
+      resource.getBuiltArtifactsInProject = function (scmUrl, revision, pomPath, additionalRepos) {
+        return $http.post(DA_REPORTS_BUILT, {
+          scmUrl: scmUrl,
+          revision: revision,
+          pomPath: pomPath,
+          additionalRepos: additionalRepos
+        }).then(function (r) {
+          return r.data;
+        });
       };
 
       return resource;

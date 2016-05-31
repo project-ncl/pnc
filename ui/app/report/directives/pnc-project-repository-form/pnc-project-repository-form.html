@@ -1,0 +1,71 @@
+<!--
+
+    JBoss, Home of Professional Open Source.
+    Copyright 2014 Red Hat, Inc., and individual contributors
+    as indicated by the @author tags.
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+
+<form class="form-horizontal" name="pncProjectRepositoryForm" novalidate>
+
+  <div class="panel panel-default">
+    <div class="panel-body">
+      
+      <div class="form-group"
+        ng-class="{ 'has-error' : !scmUrl && pncProjectRepositoryForm.scmUrl.$touched, 'has-success': scmUrl && pncProjectRepositoryForm.scmUrl.$touched }">
+        <label for="scmUrl" class="col-sm-3 control-label">* SCM Url:</label>
+        <div class="col-sm-9">
+          <input id="scmUrl" class="form-control" name="scmUrl" ng-model="scmUrl" maxlength="255" placeholder="" required>
+          <span class="help-block" ng-show="pncProjectRepositoryForm.scmUrl.$error.required && pncProjectRepositoryForm.scmUrl.$touched">Required field.</span>
+        </div>
+      </div>
+
+      <div class="form-group"
+        ng-class="{ 'has-error' : !revision && pncProjectRepositoryForm.revision.$touched, 'has-success': revision && pncProjectRepositoryForm.revision.$touched }">
+        <label for="revision" class="col-sm-3 control-label">* Revision:</label>
+        <div class="col-sm-9">
+          <input id="revision" class="form-control" name="revision" ng-model="revision" maxlength="255" placeholder="master" required>
+          <span class="help-block" ng-show="pncProjectRepositoryForm.revision.$error.required && pncProjectRepositoryForm.revision.$touched">Required field.</span>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="pomPath" class="col-sm-3 control-label">Path to root POM:</label>
+        <div class="col-sm-9">
+          <input id="pomPath" class="form-control" name="pomPath" ng-model="pomPath" maxlength="255" placeholder="./pom.xml">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="additionalRepos" class="col-sm-3 control-label">Additional repos:</label>
+        <div class="col-sm-9">
+          <pnc-multiple-input 
+            selected-items="additionalRepos" 
+            placeholder="" select-id="additionalRepos" select-name="additionalRepos">
+          </pnc-multiple-input>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="form-group text-right">
+    <div class="col-sm-offset-2 col-sm-10">
+      <input type="submit" class="btn btn-primary" value="Search" ng-disabled="pncProjectRepositoryForm.$invalid" ng-click="search()">
+      <button type="button" class="btn btn-default" ng-click="reset(pncProjectRepositoryForm)">Clear</button>
+    </div>
+  </div>
+
+</form>

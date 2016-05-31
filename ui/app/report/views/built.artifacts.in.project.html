@@ -1,0 +1,96 @@
+<!--
+
+    JBoss, Home of Professional Open Source.
+    Copyright 2014 Red Hat, Inc., and individual contributors
+    as indicated by the @author tags.
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+<div class="row">
+  <div class="col-lg-6 col-md-8">
+
+    <pnc-header>
+      <pnc-header-title>Show built artifacts in a project</pnc-header-title>
+    </pnc-header>
+
+    <pnc-project-repository-form
+      search-callback="builtArtifactsInProjectReportCtrl.search(scmUrl, revision, pomPath, additionalRepos)"
+      reset-callback="builtArtifactsInProjectReportCtrl.reset()"></pnc-project-repository-form>
+
+  </div>
+</div>
+
+<br /><br />
+
+<div ng-show="builtArtifactsInProjectReportCtrl.isResultNotEmpty()">
+  <div class="col-md-12">
+
+    <div class="search">
+      <div class="form-group">
+        <div class="input-group" role="search">
+          <label class="sr-only" for="{{ inputId }}">Filter Results</label>
+          <input id="{{ inputId }}" type="search" class="form-control" ng-model="searchText" placeholder="Filter">
+          <div class="input-group-addon">
+            <i class="fa fa-search"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <table class="table table-bordered table-striped table-hover">
+      <thead>
+        <th class="cursor-pointer" ng-click="builtArtifactsInProjectReportCtrl.sort('groupId')">GroupId
+          <span class="glyphicon sort-icon" ng-show="builtArtifactsInProjectReportCtrl.sortKey=='groupId'" 
+            ng-class="{'glyphicon-chevron-up':builtArtifactsInProjectReportCtrl.reverse,'glyphicon-chevron-down':!builtArtifactsInProjectReportCtrl.reverse}"></span>
+        </th>
+        <th class="cursor-pointer" ng-click="builtArtifactsInProjectReportCtrl.sort('artifactId')">ArtifactId
+          <span class="glyphicon sort-icon" ng-show="builtArtifactsInProjectReportCtrl.sortKey=='artifactId'" 
+            ng-class="{'glyphicon-chevron-up':builtArtifactsInProjectReportCtrl.reverse,'glyphicon-chevron-down':!builtArtifactsInProjectReportCtrl.reverse}"></span>        
+        </th>
+        <th class="cursor-pointer w-min-150" ng-click="builtArtifactsInProjectReportCtrl.sort('version')">Version
+          <span class="glyphicon sort-icon" ng-show="builtArtifactsInProjectReportCtrl.sortKey=='version'" 
+            ng-class="{'glyphicon-chevron-up':builtArtifactsInProjectReportCtrl.reverse,'glyphicon-chevron-down':!builtArtifactsInProjectReportCtrl.reverse}"></span>        
+        </th>
+        <th class="cursor-pointer w-min-150" ng-click="builtArtifactsInProjectReportCtrl.sort('version')">Built Version
+          <span class="glyphicon sort-icon" ng-show="builtArtifactsInProjectReportCtrl.sortKey=='version'" 
+            ng-class="{'glyphicon-chevron-up':builtArtifactsInProjectReportCtrl.reverse,'glyphicon-chevron-down':!builtArtifactsInProjectReportCtrl.reverse}"></span>        
+        </th>
+        <th class="cursor-pointer">All Available Versions</th>
+      </thead>
+      <tbody>
+        <tr ng-repeat="result in builtArtifactsInProjectReportCtrl.reportResults | orderBy:builtArtifactsInProjectReportCtrl.sortKey:builtArtifactsInProjectReportCtrl.reverse | filter:searchText">
+          <td class="nowrap">{{ result.groupId }}</td>
+          <td class="nowrap">{{ result.artifactId }}</td>
+          <td>{{ result.version }}</td>
+          <td>{{ result.builtVersion }}</td>
+          <td>
+            <div class="available-versions">
+              <span ng-repeat="version in result.availableVersions" class="available-versions-item">{{ version }}</span>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+  </div>
+</div>
+
+
+<div ng-hide="builtArtifactsInProjectReportCtrl.isResultNotEmpty() || !builtArtifactsInProjectReportCtrl.afterSearch">
+  <div class="col-md-12">
+    <div class="text-center lead">
+      There are no results to display.
+    </div>
+  </div>
+</div>
