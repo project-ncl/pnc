@@ -109,7 +109,6 @@ public class BuildRecordsTest {
         war.addClass(BuildRecordsTest.class);
         war.addClass(ArtifactProvider.class);
 
-        logger.info(enterpriseArchive.toString(true));
         return enterpriseArchive;
     }
 

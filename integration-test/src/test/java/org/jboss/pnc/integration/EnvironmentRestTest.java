@@ -65,7 +65,6 @@ public class EnvironmentRestTest extends AbstractTest {
         restWar.addClass(BuildEnvironmentEndpoint.class);
         restWar.addClass(BuildEnvironmentRest.class);
 
-        logger.info(enterpriseArchive.toString(true));
         return enterpriseArchive;
     }
 

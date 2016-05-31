@@ -90,7 +90,6 @@ public class BuildConfigurationSetRestTest extends AbstractTest {
         restWar.addClass(BuildConfigurationEndpoint.class);
         restWar.addClass(BuildConfigurationRest.class);
 
-        logger.info(enterpriseArchive.toString(true));
         return enterpriseArchive;
     }
 

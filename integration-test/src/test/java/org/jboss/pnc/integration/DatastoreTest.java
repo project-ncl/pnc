@@ -99,7 +99,6 @@ public class DatastoreTest {
         JavaArchive pncModel = enterpriseArchive.getAsType(JavaArchive.class, "/model.jar");
         pncModel.addPackage(BuildConfiguration.class.getPackage());
 
-        logger.info(enterpriseArchive.toString(true));
         return enterpriseArchive;
     }
 

@@ -74,8 +74,6 @@ public class BuildTasksRestTest extends AbstractTest{
         war.addClass(BuildTaskEndpoint.class);
         war.addClass(BuildExecutorMock.class);
         war.addClass(BuildExecutorTriggerer.class);
-        log.info("EAR: " + enterpriseArchive.toString(true));
-        log.info("WAR: " + war.toString(true));
         return enterpriseArchive;
     }
 

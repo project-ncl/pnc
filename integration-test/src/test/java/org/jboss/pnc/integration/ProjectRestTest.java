@@ -54,7 +54,6 @@ public class ProjectRestTest {
     @Deployment(testable = false)
     public static EnterpriseArchive deploy() {
         EnterpriseArchive enterpriseArchive = Deployments.baseEar();
-        logger.info(enterpriseArchive.toString(true));
         return enterpriseArchive;
     }
 
