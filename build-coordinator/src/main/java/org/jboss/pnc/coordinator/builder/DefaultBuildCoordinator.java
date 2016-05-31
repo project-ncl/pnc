@@ -194,10 +194,10 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
                 task.getEndTime(),
                 userId);
         log.debug("Updating build task {} status to {}", task.getId(), buildStatusChanged);
-        buildStatusChangedEventNotifier.fire(buildStatusChanged);
-        log.trace("Fired buildStatusChangedEventNotifier after task {} status update to {}.", task.getId(), status);
         task.setStatus(status);
         task.setStatusDescription(statusDescription);
+        buildStatusChangedEventNotifier.fire(buildStatusChanged);
+        log.debug("Fired buildStatusChangedEventNotifier after task {} status update to {}.", task.getId(), status);
     }
 
     public void updateBuildSetTaskStatus(BuildSetTask buildSetTask, BuildSetStatus status){
