@@ -100,6 +100,12 @@
         });
       };
 
+      resource.diffProjectProduct = function (data) {
+        $http.post(DA_REPORTS_ALIGN, data).then(function (r) {
+          return r.data;
+        });
+      };
+
       return resource;
     }
   ]);

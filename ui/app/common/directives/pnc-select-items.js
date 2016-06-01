@@ -40,9 +40,15 @@
    * @param {string@} placeholder
    * The placeholder to show in the search text. Defaults to 'Scroll & Filter'
    * @param {array=} items
-   * The items to display
+   * The items to display, items.data property contains the actual data,
+   * Assign 'displayText' or 'displayBoldText' property to specify item label.
+   * Assign 'fullDisplayText' to display label for selected items.
    * @param {string=} item-id
    * The ui id of the items (for UI validation)
+   * @param {object=} control (not-required)
+   * Object with a set of methods for user to control and interact with this directive,
+   * that *the directive assigns* to the given variable as a type of callback.
+   * Currently: reset() to clear the form & data.
    * @description
    * A directive that allows users to select multiple options from a list of
    * possible types. The user finds possible items by typing into a input box. 
@@ -62,7 +68,8 @@
       </pnc-select-items>
    * @author Andrea Vibelli
    */
-  module.directive('pncSelectItems', function() {
+  module.directive('pncSelectItems', ['$parse', function($parse) {
+    var control = {};
     return {
       restrict: 'E',
       scope: {
@@ -73,9 +80,19 @@
         placeholder: '@',
         selectId: '@',
         selectName: '@',
-        selectRequired: '@'
+        selectRequired: '@',
+        control: '=' // not required
       },
       templateUrl: 'common/directives/views/pnc-select-items.html',
+      link: function($scope, element, attrs) {
+        var isAssignable = function(attrs, prop) {
+          var fn = $parse(attrs[prop]);
+          return _.isFunction(fn.assign);
+        };
+        if(isAssignable(attrs, 'control')) {
+          $scope.control = control; // a way to implement non-required parameter
+        }
+      },
       controller: [
         '$log',
         '$scope',
@@ -158,10 +175,16 @@
               $scope.searchText = undefined;
         	}
           });
+
+          control.reset = function() {
+              $scope.selectedItems = [];
+              $scope.itemId = undefined;
+              $scope.searchText = undefined;
+          };
         }
       ]
     };
 
-  });
+  }]);
 
 })();

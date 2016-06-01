@@ -391,5 +391,172 @@
 
 
 
+  module.controller('ProjectProductDiff', [
+    '$rootScope',
+    '$timeout',
+    'ReportDAO',
+    'productList',
+    function($rootScope, $timeout, ReportDAO, productList) {
+
+      var that = this;
+
+      var getProductLabel = function(product) {
+        return product.name + ' ' + product.version + ' (' + product.supportStatus + ')';
+      };
+
+      // initialize form variable with default (empty) data, this will be used to reset the form
+      var initData = function() {
+        that.form = {
+          scmUrl : {
+            error: false
+          },
+          productId : {
+            error: false,
+            productId: null,
+            products: {
+              data: []
+            },
+            selectedProducts: []
+          },
+          data: { // data that will be sent via REST in an expected format
+            scmUrl: null,
+            revision: null,
+            pomPath: null,
+            products: [],
+            searchUnknownProducts: false
+          }
+        };
+        // initialize the product dropdown
+        that.form.productId.products.data = _(productList).map(function(product) {
+          product.fullDisplayText = product.displayText = getProductLabel(product);
+          return product;
+        });
+      };
+
+      initData();
+
+      that.reset = function() {
+        initData();
+        that.productSelectControl.reset();
+      };
+
+      // validate form before submitting, returns true if valid
+      that.validate = function() {
+        that.form.scmUrl.error = !that.form.data.scmUrl;
+        that.form.productId.error = that.form.data.products.length === 0;
+        if(that.form.scmUrl.error || that.form.productId.error) { return false; }
+        if(!that.form.data.revision) { that.form.data.revision = 'master'; }
+        if(!that.form.data.pomPath) { that.form.data.pomPath = 'pom.xml'; }
+        return true;
+      };
+
+      that.showTable = false;
+      that.submitDisabled = false;
+
+      // main action upon form submit
+      that.computeDifference = function() {
+        $rootScope.showSpinner = true;
+        that.submitDisabled = true;
+        that.form.data.products = _(that.form.productId.selectedProducts).map(function(product) { return product.id; });
+        if(!that.validate()) { return; } // halt when invalid
+        // execute request
+        ReportDAO.diffProjectProduct(that.form.data).then(function(res) {
+          that.tableData = transform(res); // process the received data into presentable form
+          $timeout(function() {
+            that.collapseAll();
+          });
+          that.showTable = true;
+        }).catch(function() {
+          that.showTable = false;
+        }).finally(function() {
+          $rootScope.showSpinner = false;
+          that.submitDisabled = false;
+        });
+      };
+
+      // process the REST response data
+      var transform = function(data) {
+        var TYPE_NOTES = {
+          'internallyBuilt': 'INTERNALLY BUILT',
+          'builtInDifferentVersion': 'BUILT IN DIFFERENT VERSION',
+          'notBuilt': 'NOT BUILT',
+          'blacklisted': 'BLACKLISTED'
+        };
+
+        var res = { data: {}, productNames: [], moduleNames: [] };
+
+        _(TYPE_NOTES).each(function(note, type) {
+          _(data[type]).each(function(module) {
+            var moduleName = module.groupId + ':' + module.artifactId;
+            if(!_(res.moduleNames).contains(moduleName)) {
+              res.moduleNames.push(moduleName);
+            }
+            if(!_(res.data).has(moduleName)) {
+              res.data[moduleName] = [];
+            }
+
+            if(type === 'internallyBuilt' || type === 'builtInDifferentVersion') {
+              _(module.gavProducts).each(function(dependency) {
+                dependency.name = dependency.groupId + ':' + dependency.artifactId;
+                dependency._type = type;
+                dependency.versions = { '__project': dependency.version };
+                _(dependency.gavProducts).each(function(productAndVersion) {
+                  var productName = getProductLabel(productAndVersion.product);
+                  if(!_(res.productNames).contains(productName)) {
+                    res.productNames.push(productName);
+                  }
+                  dependency.versions[productName] = productAndVersion.version;
+                });
+                res.data[moduleName].push(dependency);
+              });
+            }
+
+            if(type === 'notBuilt' || type === 'blacklisted') {
+              _(module.gavs).each(function(dependency) {
+                dependency.name = dependency.groupId + ':' + dependency.artifactId;
+                dependency._type = type;
+                dependency.versions = { '__project': dependency.version };
+                res.data[moduleName].push(dependency);
+              });
+            }
+          });
+        });
+
+        // add notes to missing version values and find latest version to highlight
+        _(res.data).each(function(dependencies) {
+          _(dependencies).each(function(dependency) {
+            // select the latest version to highlight
+            dependency._latestVersion = _(dependency.versions).chain().values().sortBy(_.identity).value().reverse()[0];
+            // add note to empty version, either plain '-' or 'BLACKLISTED'
+            _(res.productNames).each(function(productName) {
+              if(_.isUndefined(dependency.versions[productName])) {
+                if(dependency._type === 'blacklisted') {
+                  dependency.versions[productName] = 'BLACKLISTED';
+                }
+                if(dependency._type === 'notBuilt') {
+                  dependency.versions[productName] = '-';
+                }
+              }
+            });
+          });
+        });
+
+        // sort dependencies inside modules alphabetically by artifactId
+        _(res.data).each(function(dependencies, moduleName) {
+          res.data[moduleName] = _(dependencies).sortBy(function(dependency) { return dependency.artifactId; });
+        });
+        return res;
+      };
+
+      that.expandAll = function() {
+        $('.collapse').collapse('show');
+      };
+
+      that.collapseAll = function() {
+        $('.collapse').collapse('hide');
+      };
+    }
+  ]);
+
 
 })();
