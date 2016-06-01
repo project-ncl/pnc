@@ -73,7 +73,7 @@
                     {
                         "url": "${env.PNC_UI_KEYCLOAK_URL}",
                         "realm": "${env.PNC_UI_KEYCLOAK_REALM}",
-                        "clientId": "${env.PNC_UI_KEYCLOAK_CLIENT_ID}",
+                        "clientId": "${env.PNC_UI_KEYCLOAK_CLIENT_ID}"
                     }
                 }
             ]
