@@ -19,13 +19,11 @@ package org.jboss.pnc.datastore;
 
 import org.jboss.pnc.datastore.repositories.SequenceHandlerRepository;
 import org.jboss.pnc.model.Artifact;
-import org.jboss.pnc.model.ArtifactQuality;
 import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.BuildStatus;
-import org.jboss.pnc.model.ProductMilestone;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.datastore.Datastore;
 import org.jboss.pnc.spi.datastore.predicates.UserPredicates;
@@ -45,7 +43,6 @@ import javax.inject.Inject;
 import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 import static org.jboss.pnc.model.ArtifactQuality.*;
 import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withIdentifierAndChecksum;
