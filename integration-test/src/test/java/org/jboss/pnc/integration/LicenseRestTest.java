@@ -66,7 +66,6 @@ public class LicenseRestTest extends AbstractTest {
         restWar.addClass(LicenseEndpoint.class);
         restWar.addClass(LicenseRest.class);
 
-        logger.info(enterpriseArchive.toString(true));
         return enterpriseArchive;
     }
 

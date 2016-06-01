@@ -85,7 +85,6 @@ public class BuildsRestTest {
         war.addClass(BuildsRestTest.class);
         war.addClass(BuildCoordinatorMock.class);
         addRestClientClasses(war);
-        logger.info(enterpriseArchive.toString(true));
         return enterpriseArchive;
     }
 

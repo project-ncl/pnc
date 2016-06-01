@@ -97,7 +97,6 @@ public class SystemErrorTest extends AbstractTest {
         restWar.addClass(BuildConfigurationEndpoint.class);
         restWar.addClass(BuildConfigurationRest.class);
 
-        logger.info(enterpriseArchive.toString(true));
         return enterpriseArchive;
     }
 

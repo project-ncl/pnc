@@ -63,7 +63,6 @@ public class ProjectRestClientMappingTest{
         EnterpriseArchive enterpriseArchive = Deployments.baseEarWithTestDependencies();
         WebArchive war = enterpriseArchive.getAsType(WebArchive.class, AbstractTest.REST_WAR_PATH);
         war.addClass(ProjectRestClientMappingTest.class);
-        logger.info(enterpriseArchive.toString(true));
         return enterpriseArchive;
     }
 

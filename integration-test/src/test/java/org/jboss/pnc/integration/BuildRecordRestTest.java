@@ -75,8 +75,6 @@ public class BuildRecordRestTest extends AbstractTest {
         restWar.addClass(BuildRecordEndpoint.class);
         restWar.addClass(BuildRecordRest.class);
 
-        logger.info(enterpriseArchive.toString(true));
-        logger.info("REST WAR: " + restWar.toString(true));
         return enterpriseArchive;
     }
 
