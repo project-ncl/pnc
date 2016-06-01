@@ -428,6 +428,26 @@
                   </resources>
                 </configuration>
               </execution>
+              <execution>
+                <id>change-logging-level</id>
+                <phase>test-compile</phase>
+                <goals>
+                  <goal>execute-commands</goal>
+                </goals>
+                <configuration>
+                  <execute-commands>
+                    <batch>true</batch>
+                    <commands>
+                      <command>
+                        /subsystem=logging/logger=org.jboss.pnc:add
+                      </command>
+                      <command>
+                        /subsystem=logging/logger=org.jboss.pnc:change-log-level(level=DEBUG)
+                      </command>
+                    </commands>
+                  </execute-commands>
+                </configuration>
+              </execution>
               <!-- End PostgreSQL configuration -->
               <execution>
                 <id>shutdown-server</id>
