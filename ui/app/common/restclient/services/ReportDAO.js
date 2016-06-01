@@ -100,6 +100,14 @@
         });
       };
 
+      resource.diffProjectProduct = function (data) {
+        return Configuration.then(function (config) {
+          return $http.post(DA_REPORTS_ALIGN, data);
+        }).then(function (r) {
+          return r.data;
+        });
+      };
+
       return resource;
     }
   ]);

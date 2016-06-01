@@ -91,6 +91,7 @@
         }
       });
 
+
     $stateProvider.state('report.built-artifacts-in-project', {
       url: '/built-artifacts-in-project',
       templateUrl: 'report/views/built.artifacts.in.project.html',
@@ -99,6 +100,26 @@
       },
       controller: 'BuiltArtifactsInProjectReportController',
       controllerAs: 'builtArtifactsInProjectReportCtrl'
+    });
+
+
+    $stateProvider.state('report.project-product-diff', {
+      url: '/project-product-diff',
+    	templateUrl: 'report/views/project.product.diff.html',
+    	data: {
+    	  displayName: 'Diff a project against a product'
+    	},
+    	controller: 'ProjectProductDiff',
+    	controllerAs: 'ctr',
+    	resolve: {
+    	  productList: function(ReportDAO) {
+          return ReportDAO.getWhitelistProducts().then(function(products) {
+            return _(products).sortBy(function(p) {
+              return p.name + p.version;
+            }).reverse();
+          });
+        }
+      }
     });
 
   }]);
