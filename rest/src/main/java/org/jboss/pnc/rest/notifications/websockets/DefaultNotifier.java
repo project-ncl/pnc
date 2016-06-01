@@ -97,7 +97,12 @@ public class DefaultNotifier implements Notifier {
                     .hasNext();) {
                 AttachedClient client = attachedClientIterator.next();
                 if (client.isEnabled()) {
-                    client.sendMessage(message, messageCallback);
+                    try {
+                        client.sendMessage(message, messageCallback);
+                    } catch (Exception e) {
+                        logger.error("Unable to send message, detaching client.", e);
+                        detachClient(client);
+                    }
                 }
             }
         } catch (ConcurrentModificationException cme) {
