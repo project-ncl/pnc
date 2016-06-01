@@ -22,7 +22,8 @@
   var module = angular.module('pnc.product', [
     'ui.router',
     'pnc.common.restclient',
-    'angularUtils.directives.uiBreadcrumbs'
+    'angularUtils.directives.uiBreadcrumbs',
+    'pnc.common.authentication'
   ]);
 
   module.config(['$stateProvider', function($stateProvider) {

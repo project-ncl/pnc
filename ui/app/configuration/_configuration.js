@@ -28,7 +28,8 @@
     'angularUtils.directives.uiBreadcrumbs',
     'pnc.common.directives',
     'pnc.record',
-    'infinite-scroll'
+    'infinite-scroll',
+    'pnc.common.authentication'
   ]);
 
   // Throttling scroll events
