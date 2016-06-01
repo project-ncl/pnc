@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package org.jboss.pnc.model.mock;
+package org.jboss.pnc.coordinator.test;
 
 import org.jboss.pnc.model.User;
 

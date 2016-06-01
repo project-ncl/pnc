@@ -43,7 +43,6 @@ import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.User;
-import org.jboss.pnc.model.mock.MockUser;
 import org.jboss.pnc.spi.coordinator.BuildCoordinator;
 import org.jboss.pnc.test.util.Wait;
 import org.junit.Test;

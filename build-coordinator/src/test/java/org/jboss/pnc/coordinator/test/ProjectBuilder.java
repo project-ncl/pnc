@@ -26,7 +26,6 @@ import org.jboss.pnc.mock.model.builders.TestProjectConfigurationBuilder;
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationSet;
-import org.jboss.pnc.model.mock.MockUser;
 import org.jboss.pnc.spi.BuildCoordinationStatus;
 import org.jboss.pnc.spi.BuildSetStatus;
 import org.jboss.pnc.spi.coordinator.BuildCoordinator;
