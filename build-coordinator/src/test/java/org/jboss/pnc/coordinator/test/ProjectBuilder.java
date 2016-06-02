@@ -45,6 +45,7 @@ import javax.inject.Inject;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
@@ -246,9 +247,9 @@ public class ProjectBuilder {
         statusChangedReceiver.clear();
     }
 
-    public static void assertArtifactsPresent(List<Artifact> builtArtifacts) {
-        assertTrue("Missing artifacts.", builtArtifacts.size() > 0);
-        Artifact artifact = builtArtifacts.get(0);
+    public static void assertArtifactsPresent(Set<Artifact> artifacts) {
+        assertTrue("Missing artifacts.", artifacts.size() > 0);
+        Artifact artifact = artifacts.iterator().next();
         assertTrue("Invalid artifact in result.", artifact.getIdentifier().startsWith(ArtifactBuilder.IDENTIFIER_PREFIX));
     }
 
