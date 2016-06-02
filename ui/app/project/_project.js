@@ -23,6 +23,7 @@
     'ui.router',
     'pnc.common.restclient',
     'pnc.common.directives',
+    'pnc.common.authentication',
     'angularUtils.directives.uiBreadcrumbs'
   ]);
 

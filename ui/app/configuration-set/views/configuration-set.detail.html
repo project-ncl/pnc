@@ -22,24 +22,24 @@
     <pnc-header-title>{{ detailSetCtrl.set.name }}</pnc-header-title>
     <pnc-header-buttons>
       <div class="btn-group">
-        <button class="btn btn-lg btn-default ng-scope" tooltip="Run Build Group" tooltip-placement="top" ng-click="detailSetCtrl.build()">
+        <button class="btn btn-lg btn-default ng-scope" tooltip="Run Build Group" tooltip-placement="top" ng-click="detailSetCtrl.build()" pnc-requires-auth>
           <i class="fa fa-play"></i>
           <span class="shrink">Build</span>
         </button>
         <ul class="dropdown-menu"></ul>
-          <button class="btn btn-lg btn-default dropdown-toggle ng-scope" tooltip="Start Build forcing rebuilds" tooltip-placement="top" data-toggle="dropdown">
+          <button class="btn btn-lg btn-default dropdown-toggle ng-scope" tooltip="Start Build forcing rebuilds" tooltip-placement="top" data-toggle="dropdown" pnc-requires-auth>
             <span class="caret"></span>
           </button>
           <ul class="dropdown-menu">
             <li>
-              <a href ng-click="detailSetCtrl.forceBuild()"><span><i class="fa fa-play fa-color-red"></i>   Build forcing all rebuilds</span></a>
+              <a href ng-click="detailSetCtrl.forceBuild()" pnc-requires-auth><span><i class="fa fa-play fa-color-red"></i>   Build forcing all rebuilds</span></a>
             </li>
           </ul>
       </div>
-      <button type="button" class="btn btn-lg btn-default" data-toggle="tooltip" title="Edit Build Group Config" ng-click="setEditForm.$show()" ng-class="{ 'active': setEditForm.$visible }">
+      <button type="button" class="btn btn-lg btn-default" data-toggle="tooltip" title="Edit Build Group Config" ng-click="setEditForm.$show()" ng-class="{ 'active': setEditForm.$visible }" pnc-requires-auth>
         <i class="pficon pficon-edit"></i> Edit
       </button>
-      <button ng-hide="true" type="button" class="btn btn-lg btn-danger" data-toggle="tooltip" title="Delete Set" pnc-confirm-click="detailSetCtrl.delete()" pnc-confirm-message="{{ 'Confirm the deletion of Build Configuration Set: ' + detailSetCtrl.set.name + ' ?'}}">
+      <button ng-hide="true" type="button" class="btn btn-lg btn-danger" data-toggle="tooltip" title="Delete Set" pnc-confirm-click="detailSetCtrl.delete()" pnc-confirm-message="{{ 'Confirm the deletion of Build Configuration Set: ' + detailSetCtrl.set.name + ' ?'}}" pnc-requires-auth>
         <i class="pficon pficon-delete"></i> Delete
       </button>
     </pnc-header-buttons>
