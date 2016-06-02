@@ -17,166 +17,191 @@
  */
 package org.jboss.pnc.model;
 
-import java.text.SimpleDateFormat;
+import java.io.InputStream;
 import java.time.Instant;
 import java.util.Date;
-import java.util.Set;
 
 import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityTransaction;
-import javax.persistence.Persistence;
 import javax.persistence.Query;
 import javax.persistence.RollbackException;
-import javax.validation.ConstraintViolation;
-import javax.validation.ConstraintViolationException;
-import javax.validation.Validation;
-import javax.validation.Validator;
-import javax.validation.ValidatorFactory;
 
+import org.dbunit.database.DatabaseConfig;
+import org.dbunit.database.DatabaseConnection;
+import org.dbunit.database.IDatabaseConnection;
+import org.dbunit.dataset.IDataSet;
+import org.dbunit.dataset.xml.FlatXmlDataSetBuilder;
+import org.dbunit.ext.hsqldb.HsqldbDataTypeFactory;
+import org.dbunit.operation.DatabaseOperation;
+import org.hibernate.internal.SessionImpl;
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Assert;
-import org.junit.BeforeClass;
+import org.junit.Before;
 import org.junit.Test;
 
-public class BasicModelTest {
+public class BasicModelTest extends AbstractModelTest {
 
-    private static EntityManagerFactory emFactory;
-
-    @BeforeClass
-    public static void initEntityManagerFactory() {
-        emFactory = Persistence.createEntityManagerFactory("newcastle-test");
-    }
-
-    @AfterClass
-    public static void closeEntityManagerFactory() {
-        emFactory.close();
-    }
+    /** located in src/test/resources */
+    private final static String DBUNIT_DATASET_FILE = "basic-model-test-data.xml";
 
     /**
-     * Clean up all the tables after each test run
+     * Initialize a basic data set before each test run
      */
+    @Before
+    public void initTestData() throws Exception {
+        // Initialize data from xml dataset file
+        EntityManager em = getEmFactory().createEntityManager();
+        IDatabaseConnection connection = new DatabaseConnection(em.unwrap(SessionImpl.class).connection());
+        connection.getConfig().setProperty(DatabaseConfig.PROPERTY_DATATYPE_FACTORY, new HsqldbDataTypeFactory());
+        FlatXmlDataSetBuilder flatXmlDataSetBuilder = new FlatXmlDataSetBuilder();
+        flatXmlDataSetBuilder.setColumnSensing(true);
+        InputStream dataSetStream = Thread.currentThread().getContextClassLoader().getResourceAsStream(DBUNIT_DATASET_FILE);
+        IDataSet dataSet = flatXmlDataSetBuilder.build(dataSetStream);
+        DatabaseOperation.INSERT.execute(connection, dataSet);
+
+        // Initialize sample build configurations, these cannot be done by DBUnit because of the Hibernate Envers Auditing
+        BuildConfiguration buildConfig1 = BuildConfiguration.Builder.newBuilder().name("Test Build Configuration 1")
+                .description("Test Build Configuration 1 Description").project(Project.Builder.newBuilder().id(1).build())
+                .scmRepoURL("http://www.github.com").buildScript("mvn install")
+                .buildEnvironment(BuildEnvironment.Builder.newBuilder().id(1).build()).build();
+
+        BuildConfiguration buildConfig2 = BuildConfiguration.Builder.newBuilder().name("Test Build Configuration 2")
+                .description("Test Build Configuration 2 Description").project(Project.Builder.newBuilder().id(1).build())
+                .scmRepoURL("http://www.github.com").buildScript("mvn install")
+                .buildEnvironment(BuildEnvironment.Builder.newBuilder().id(1).build()).build();
+
+        em.getTransaction().begin();
+        em.persist(buildConfig1);
+        em.persist(buildConfig2);
+        em.getTransaction().commit();
+        em.close();
+    }
+
     @After
-    public void cleanupDatabaseTables() {
-
-        EntityManager em = emFactory.createEntityManager();
-        EntityTransaction tx = em.getTransaction();
-        try {
-            tx.begin();
-            em.createNativeQuery("SET DATABASE REFERENTIAL INTEGRITY FALSE").executeUpdate();
-            em.createNativeQuery("delete from ProductRelease").executeUpdate();
-            em.createNativeQuery("delete from ProductMilestone").executeUpdate();
-            em.createNativeQuery("delete from ProductVersion").executeUpdate();
-            em.createNativeQuery("delete from Product").executeUpdate();
-            em.createNativeQuery("delete from BuildConfiguration_aud").executeUpdate();
-            em.createNativeQuery("delete from BuildConfiguration").executeUpdate();
-            em.createNativeQuery("delete from Project").executeUpdate();
-            em.createNativeQuery("delete from BuildEnvironment").executeUpdate();
-            em.createNativeQuery("delete from License").executeUpdate();
-            em.createNativeQuery("SET DATABASE REFERENTIAL INTEGRITY TRUE").executeUpdate();
-            tx.commit();
-
-        } catch (RuntimeException e) {
-            if (tx != null && tx.isActive()) {
-                tx.rollback();
-            }
-            throw e;
-        } finally {
-            em.close();
-        }
+    public void cleanup() {
+        clearDatabaseTables();
     }
 
     @Test
-    public void testInsertProduct() throws Exception {
-
-        EntityManager em = emFactory.createEntityManager();
-        EntityTransaction tx = em.getTransaction();
-
-        try {
-            tx.begin();
-            em.persist(ModelTestDataFactory.getInstance().getProduct1());
-            tx.commit();
-
-            Query rowCountQuery = em.createQuery("select count(*) from Product product");
-            Long count = (Long) rowCountQuery.getSingleResult();
-            Assert.assertEquals(1, count.longValue());
-        } catch (RuntimeException e) {
-            if (tx != null && tx.isActive()) {
-                tx.rollback();
-            }
-            throw e;
-        } finally {
-            em.close();
-        }
-
+    public void testDataInitializationIsWorking() {
+        EntityManager em = getEmFactory().createEntityManager();
+        Assert.assertEquals(2, em.createQuery("from Product").getResultList().size());
+        Assert.assertEquals(2, em.createQuery("from ProductVersion").getResultList().size());
+        Assert.assertEquals(2, em.createQuery("from ProductMilestone").getResultList().size());
+        Assert.assertEquals(2, em.createQuery("from License").getResultList().size());
+        Assert.assertEquals(2, em.createQuery("from BuildConfiguration").getResultList().size());
     }
 
     @Test
-    public void testInsertProductVersions() throws Exception {
+    public void testSimpleProductInsertAndUpdate() {
 
-        Product product1 = ModelTestDataFactory.getInstance().getProduct1();
-        ProductVersion productVersion1 = ModelTestDataFactory.getInstance().getProductVersion1();
-        productVersion1.setProduct(product1);
-        ProductMilestone productMilestone1 = ModelTestDataFactory.getInstance().getProductMilestone1version1();
-        productMilestone1.setProductVersion(productVersion1);
-        Artifact artifact1 = Artifact.Builder.newBuilder().identifier("org.test:artifact1:1.0:jar").checksum("987654321")
+        final String NEW_PRODUCT_INSERTED_NAME = "New Product Inserted";
+        final String NEW_PRODUCT_UPDATED_NAME = "New Product Updated";
+
+        EntityManager em = getEmFactory().createEntityManager();
+        em.getTransaction().begin();
+        Product newProduct = Product.Builder.newBuilder().name(NEW_PRODUCT_INSERTED_NAME).description("Product")
+                .abbreviation("foo").build();
+        em.persist(newProduct);
+        em.getTransaction().commit();
+        int productId = newProduct.getId();
+
+        em.getTransaction().begin();
+        Product productLoad = em.find(Product.class, productId);
+        Assert.assertEquals(NEW_PRODUCT_INSERTED_NAME, productLoad.getName());
+
+        productLoad.setName(NEW_PRODUCT_UPDATED_NAME);
+        em.persist(productLoad);
+        em.getTransaction().commit();
+
+        Product productReload = em.find(Product.class, productId);
+        Assert.assertEquals(NEW_PRODUCT_UPDATED_NAME, productReload.getName());
+    }
+
+    @Test
+    public void testCreateBuildRecordAndArtifacts() {
+        EntityManager em = getEmFactory().createEntityManager();
+
+        Artifact artifact1 = Artifact.Builder.newBuilder().identifier("org.jboss:artifact1").checksum("ABCD1234")
+                .filename("artifact1.jar").artifactQuality(ArtifactQuality.BUILT).repoType(RepositoryType.MAVEN).build();
+        Artifact artifact2 = Artifact.Builder.newBuilder().identifier("org.jboss:artifact2").checksum("BBCD1234")
+                .filename("artifact2.jar").artifactQuality(ArtifactQuality.BUILT).repoType(RepositoryType.MAVEN).build();
+        Artifact artifact3 = Artifact.Builder.newBuilder().identifier("org.jboss:artifact3").checksum("CBCD1234")
+                .filename("artifact3.jar").artifactQuality(ArtifactQuality.IMPORTED).repoType(RepositoryType.MAVEN).build();
+
+        BuildConfigurationAudited buildConfigAud = (BuildConfigurationAudited) em.createQuery("from BuildConfigurationAudited")
+                .getResultList().get(1);
+        BuildConfiguration buildConfig1 = BuildConfiguration.Builder.newBuilder().id(buildConfigAud.getIdRev().getId()).build();
+        BuildRecord buildRecord1 = BuildRecord.Builder.newBuilder().id(1).buildConfigurationAudited(buildConfigAud)
+                .latestBuildConfiguration(buildConfig1).buildLog("Bulid Complete").buildContentId("foo")
+                .submitTime(Date.from(Instant.now())).startTime(Date.from(Instant.now())).endTime(Date.from(Instant.now()))
+                .builtArtifact(artifact1).builtArtifact(artifact2).dependency(artifact3).build();
+
+        em.getTransaction().begin();
+        em.persist(artifact1);
+        em.persist(artifact2);
+        em.persist(artifact3);
+        em.persist(buildRecord1);
+        em.getTransaction().commit();
+    }
+
+    @Test
+    public void testBuildRecordPreventsAddingDuplicateArtifacts() {
+
+        EntityManager em = getEmFactory().createEntityManager();
+
+        Artifact builtArtifact = Artifact.Builder.newBuilder().identifier("org.jboss:builtArtifact").checksum("12345678")
+                .filename("buildArtifact.jar").artifactQuality(ArtifactQuality.BUILT).repoType(RepositoryType.MAVEN).build();
+        Artifact importedArtifact = Artifact.Builder.newBuilder().identifier("org.jboss:importedArtifact").checksum("12345678")
+                .filename("importedArtifact.jar").artifactQuality(ArtifactQuality.IMPORTED).repoType(RepositoryType.MAVEN)
+                .build();
+
+        BuildConfigurationAudited buildConfigAud = (BuildConfigurationAudited) em.createQuery("from BuildConfigurationAudited")
+                .getResultList().get(1);
+        BuildConfiguration buildConfig1 = BuildConfiguration.Builder.newBuilder().id(buildConfigAud.getIdRev().getId()).build();
+        BuildRecord buildRecord = BuildRecord.Builder.newBuilder().id(2).buildConfigurationAudited(buildConfigAud)
+                .latestBuildConfiguration(buildConfig1).buildLog("Bulid Complete").buildContentId("foo")
+                .submitTime(Date.from(Instant.now())).startTime(Date.from(Instant.now())).endTime(Date.from(Instant.now()))
+                //Add the built artifact and dependency artifact twice
+                .builtArtifact(builtArtifact).builtArtifact(builtArtifact).dependency(importedArtifact).dependency(importedArtifact)
+                .build();
+
+        em.getTransaction().begin();
+        em.persist(builtArtifact);
+        em.persist(importedArtifact);
+        em.persist(buildRecord);
+        em.getTransaction().commit();
+
+        em.close();
+    }
+
+    @Test
+    public void testProductMilestoneAndRelease() throws Exception {
+
+        EntityManager em = getEmFactory().createEntityManager();
+        ProductMilestone productMilestone1 = em.find(ProductMilestone.class, 1);
+
+        Artifact artifact = Artifact.Builder.newBuilder().identifier("org.test:artifact1:1.0:jar").checksum("987654321")
                 .filename("artifact1.jar").artifactQuality(ArtifactQuality.IMPORTED)
                 .originUrl("http://central.maven.org/maven2/test.jar").importDate(Date.from(Instant.now()))
                 .repoType(RepositoryType.MAVEN).build();
-        productMilestone1.addDistributedArtifact(artifact1);
-        ProductRelease productRelease1 = ModelTestDataFactory.getInstance().getProductRelease1();
+        productMilestone1.addDistributedArtifact(artifact);
+        ProductRelease productRelease1 = ProductRelease.Builder.newBuilder().version("1.0.0.Beta1")
+                .productMilestone(productMilestone1).build();
+
         productRelease1.setProductMilestone(productMilestone1);
 
-        EntityManager em = emFactory.createEntityManager();
         EntityTransaction tx = em.getTransaction();
 
         try {
             tx.begin();
-            em.persist(artifact1);
-            em.persist(product1);
-            em.persist(productVersion1);
+            em.persist(artifact);
             em.persist(productMilestone1);
             em.persist(productRelease1);
             tx.commit();
 
-            Query rowCountQuery = em.createQuery("select count(*) from ProductRelease product_release");
-            Long count = (Long) rowCountQuery.getSingleResult();
-            Assert.assertEquals(1, count.longValue());
-        } catch (RuntimeException e) {
-            if (tx != null && tx.isActive()) {
-                tx.rollback();
-            }
-            throw e;
-        } finally {
-            em.close();
-        }
-    }
-
-    @Test
-    public void testInsertProjects() throws Exception {
-
-        License licenseApache20 = ModelTestDataFactory.getInstance().getLicenseApache20();
-        License licenseGPLv3 = ModelTestDataFactory.getInstance().getLicenseGPLv3();
-        Project project1 = ModelTestDataFactory.getInstance().getProject1();
-        project1.setLicense(licenseApache20);
-        Project project2 = ModelTestDataFactory.getInstance().getProject2();
-        project2.setLicense(licenseGPLv3);
-
-        EntityManager em = emFactory.createEntityManager();
-        EntityTransaction tx = em.getTransaction();
-
-        try {
-            tx.begin();
-            em.persist(licenseApache20);
-            em.persist(project1);
-            em.persist(licenseGPLv3);
-            em.persist(project2);
-            tx.commit();
-
-            Query rowCountQuery = em.createQuery("select count(*) from Project project");
-            Long count = (Long) rowCountQuery.getSingleResult();
-            Assert.assertEquals(2, count.longValue());
+            ProductRelease release = em.find(ProductRelease.class, productRelease1.getId());
+            Assert.assertEquals(1, release.getProductMilestone().getDistributedArtifacts().size());
         } catch (RuntimeException e) {
             if (tx != null && tx.isActive()) {
                 tx.rollback();
@@ -190,23 +215,24 @@ public class BasicModelTest {
     @Test
     public void testBuildConfigurationAudit() throws Exception {
 
-        License licenseApache20 = ModelTestDataFactory.getInstance().getLicenseApache20();
-        Project project1 = ModelTestDataFactory.getInstance().getProject1();
-        project1.setLicense(licenseApache20);
-        BuildEnvironment defaultBuildEnvironment = ModelTestDataFactory.getInstance().getBuildEnvironmentDefault();
-        BuildConfiguration buildConfiguration1 = ModelTestDataFactory.getInstance().getBuildConfiguration1();
-        buildConfiguration1.setProject(project1);
-        buildConfiguration1.setBuildEnvironment(defaultBuildEnvironment);
+        BuildConfiguration buildConfiguration1 = BuildConfiguration.Builder.newBuilder()
+                .name("Build Configuration 1")
+                .description("Build Configuration 1 Description")
+                .project(Project.Builder.newBuilder().id(1).build())
+                .scmRepoURL("http://www.github.com")
+                .buildScript("mvn install")
+                .buildEnvironment(BuildEnvironment.Builder.newBuilder().id(1).build())
+                .build();
 
-        EntityManager em = emFactory.createEntityManager();
+        buildConfiguration1.setProject(Project.Builder.newBuilder().id(1).build());
+        buildConfiguration1.setBuildEnvironment(BuildEnvironment.Builder.newBuilder().id(1).build());
+
+        EntityManager em = getEmFactory().createEntityManager();
         EntityTransaction tx1 = em.getTransaction();
         EntityTransaction tx2 = em.getTransaction();
 
         try {
             tx1.begin();
-            em.persist(licenseApache20);
-            em.persist(defaultBuildEnvironment);
-            em.persist(project1);
             em.persist(buildConfiguration1);
             tx1.commit();
 
@@ -214,7 +240,6 @@ public class BasicModelTest {
             buildConfiguration1 = em.find(BuildConfiguration.class, buildConfiguration1.getId());
             buildConfiguration1.setDescription("Updated build config description");
             em.merge(buildConfiguration1);
-            ;
             tx2.commit();
 
             Query rowCountQuery = em
@@ -236,13 +261,16 @@ public class BasicModelTest {
     @Test(expected = RollbackException.class)
     public void testProjectInsertConstraintFailure() throws Exception {
 
-        EntityManager em = emFactory.createEntityManager();
+        EntityManager em = getEmFactory().createEntityManager();
         EntityTransaction tx = em.getTransaction();
+
+        Project project1 = Project.Builder.newBuilder().name("Project 1").description("Project 1 Description")
+                .license(License.Builder.newBuilder().id(100).build()).build();
 
         try {
             tx.begin();
             // Expect this to fail because of missing license foreign key
-            em.persist(ModelTestDataFactory.getInstance().getProject1());
+            em.persist(project1);
             tx.commit();
         } catch (RuntimeException e) {
             if (tx != null && tx.isActive()) {
@@ -252,135 +280,6 @@ public class BasicModelTest {
         } finally {
             em.close();
         }
-
-    }
-
-    /**
-     * Test validation of the version string regex
-     * 
-     * @throws Exception
-     */
-    @Test
-    public void testVersionStringValidation() throws Exception {
-
-        ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
-        Validator validator = factory.getValidator();
-
-        Product product = Product.Builder.newBuilder().name("Test Product").build();
-        ProductVersion productVersion = ProductVersion.Builder.newBuilder().product(product).version("1.0").build();
-
-        // Test validation of product version
-        Set<ConstraintViolation<ProductVersion>> productVersionViolations = validator.validate(productVersion);
-        Assert.assertTrue(productVersionViolations.size() == 0);
-
-        productVersion.setVersion("1.0.x");
-        productVersionViolations = validator.validate(productVersion);
-        Assert.assertTrue(productVersionViolations.size() == 1);
-
-        productVersion.setVersion("foo");
-        productVersionViolations = validator.validate(productVersion);
-        Assert.assertTrue(productVersionViolations.size() == 1);
-
-        // Test product milestone versions
-        ProductMilestone milestone = ProductMilestone.Builder.newBuilder().productVersion(productVersion).version("1.0.0.ER1")
-                .build();
-        Set<ConstraintViolation<ProductMilestone>> milestoneVersionViolations = validator.validate(milestone);
-        Assert.assertTrue(milestoneVersionViolations.size() == 0);
-
-        milestone.setVersion("1.0");
-        milestoneVersionViolations = validator.validate(milestone);
-        Assert.assertTrue(milestoneVersionViolations.size() == 1);
-
-        milestone.setVersion("1.0.DR1");
-        milestoneVersionViolations = validator.validate(milestone);
-        Assert.assertTrue(milestoneVersionViolations.size() == 1);
-
-        milestone.setVersion("1.0.x");
-        milestoneVersionViolations = validator.validate(milestone);
-        Assert.assertTrue(milestoneVersionViolations.size() == 1);
-
-        // Test product release versions
-        ProductRelease release = ProductRelease.Builder.newBuilder().productMilestone(milestone).version("1.0.0.GA").build();
-        Set<ConstraintViolation<ProductRelease>> releaseVersionViolations = validator.validate(release);
-        Assert.assertTrue(releaseVersionViolations.size() == 0);
-
-        release.setVersion("1.0");
-        releaseVersionViolations = validator.validate(release);
-        Assert.assertTrue(releaseVersionViolations.size() == 1);
-
-        release.setVersion("1.0.DR1");
-        releaseVersionViolations = validator.validate(release);
-        Assert.assertTrue(releaseVersionViolations.size() == 1);
-
-        release.setVersion("1.0.x");
-        releaseVersionViolations = validator.validate(release);
-        Assert.assertTrue(releaseVersionViolations.size() == 1);
-
-    }
-
-    /**
-     * Test validation of the cloned name of BuildConfigurations
-     * 
-     * Example: clone1 of pslegr-BC on Wednesday October,21st, 2015: 20151021095415_pslegr-BC
-     * 
-     * clone2 of 20151021095415_pslegr-BC on Thursday October,22nd, 2015: 20151022nnnnnn_pslegr-BC
-     * 
-     * clone3 of pslegr-BC on Friday October,23rd, 2015: 20151023nnnnnn_pslegr-BC
-     * 
-     * 
-     * @throws Exception
-     */
-    @Test
-    public void testClonedBcNameStringValidation() throws Exception {
-
-        Date day21 = new SimpleDateFormat(BuildConfiguration.CLONE_PREFIX_DATE_FORMAT).parse("20151021095415");
-        Date day22 = new SimpleDateFormat(BuildConfiguration.CLONE_PREFIX_DATE_FORMAT).parse("20151022095415");
-        Date day23 = new SimpleDateFormat(BuildConfiguration.CLONE_PREFIX_DATE_FORMAT).parse("20151023095415");
-
-        // Clone on day 21
-        String clonedName1 = BuildConfiguration.retrieveCloneName("pslegr-BC", day21);
-        Assert.assertEquals("20151021095415_pslegr-BC", clonedName1);
-
-        // Clone of clone on day 22
-        String clonedName2 = BuildConfiguration.retrieveCloneName(clonedName1, day22);
-        Assert.assertEquals("20151022095415_pslegr-BC", clonedName2);
-
-        // Clone on day 23
-        String clonedName3 = BuildConfiguration.retrieveCloneName("pslegr-BC", day23);
-        Assert.assertEquals("20151023095415_pslegr-BC", clonedName3);
-
-        // Clone wiht not valid prefix date (must be also CLONE_PREFIX_DATE_FORMAT.lenght())
-        String clonedName4 = BuildConfiguration.retrieveCloneName("2015102309541_pslegr-BC", day23);
-        Assert.assertEquals("20151023095415_2015102309541_pslegr-BC", clonedName4);
-
-    }
-
-    @Test
-    public void testBeanValidationFailureOnCommit() throws Exception {
-
-        Product product1 = ModelTestDataFactory.getInstance().getProduct1();
-        ProductVersion productVersion1 = ProductVersion.Builder.newBuilder().product(product1).version("foo") // Invalid version
-                                                                                                              // string
-                .build();
-
-        EntityManager em = emFactory.createEntityManager();
-        EntityTransaction tx1 = em.getTransaction();
-
-        try {
-            tx1.begin();
-            em.persist(product1);
-            em.persist(productVersion1);
-            tx1.commit(); // This should throw a Rollback exception caused by the constraint violation
-
-        } catch (RollbackException e) {
-            if (tx1 != null && tx1.isActive()) {
-                tx1.rollback();
-            }
-            Assert.assertTrue(e.getCause() instanceof ConstraintViolationException);
-        } finally {
-            em.close();
-        }
-
     }
 
 }

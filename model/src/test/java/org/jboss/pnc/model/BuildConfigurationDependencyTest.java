@@ -20,63 +20,54 @@ package org.jboss.pnc.model;
 import java.util.List;
 
 import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityTransaction;
-import javax.persistence.Persistence;
 import javax.persistence.PersistenceException;
 import javax.persistence.Query;
 
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Assert;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
-public class BuildConfigurationDependencyTest {
+public class BuildConfigurationDependencyTest extends AbstractModelTest {
 
-    private static EntityManagerFactory emFactory;
-
-    @BeforeClass
-    public static void initEntityManagerFactory() {
-        emFactory = Persistence.createEntityManagerFactory("newcastle-test");
-    }
-
-    @AfterClass
-    public static void closeEntityManagerFactory() {
-        emFactory.close();
-    }
-
-    /**
-     * Clean up all the tables after each test run
-     */
     @After
-    public void cleanupDatabaseTables() {
+    public void cleanup() {
+        clearDatabaseTables();
+    }
 
-        EntityManager em = emFactory.createEntityManager();
-        EntityTransaction tx = em.getTransaction();
-        try {
-            tx.begin();
-            em.createNativeQuery("SET DATABASE REFERENTIAL INTEGRITY FALSE").executeUpdate();
-            em.createNativeQuery("delete from ProductRelease").executeUpdate();
-            em.createNativeQuery("delete from ProductMilestone").executeUpdate();
-            em.createNativeQuery("delete from ProductVersion").executeUpdate();
-            em.createNativeQuery("delete from Product").executeUpdate();
-            em.createNativeQuery("delete from BuildConfiguration_aud").executeUpdate();
-            em.createNativeQuery("delete from BuildConfiguration").executeUpdate();
-            em.createNativeQuery("delete from Project").executeUpdate();
-            em.createNativeQuery("delete from BuildEnvironment").executeUpdate();
-            em.createNativeQuery("delete from License").executeUpdate();
-            em.createNativeQuery("SET DATABASE REFERENTIAL INTEGRITY TRUE").executeUpdate();
-            tx.commit();
+    public BuildEnvironment getBuildEnvironment() {
+        return BuildEnvironment.Builder.newBuilder()
+                .name("Test build system")
+                .description("Test build system description")
+                .systemImageId("123456")
+                .systemImageType(SystemImageType.DOCKER_IMAGE)
+                .build();
+    }
 
-        } catch (RuntimeException e) {
-            if (tx != null && tx.isActive()) {
-                tx.rollback();
-            }
-            throw e;
-        } finally {
-            em.close();
-        }
+    public License getLicense() {
+        return License.Builder.newBuilder()
+                .fullName("Sample License")
+                .shortName("SL")
+                .refUrl("http://license.org/license.txt")
+                .fullContent("Just a test")
+                .build();
+    }
+
+    public Project getProject() {
+        return Project.Builder.newBuilder()
+                .name("Test Project 1")
+                .description("Test Project 1 Description")
+                .issueTrackerUrl("http://isssues.jboss.org")
+                .license(getLicense())
+                .build();
+    }
+
+    public BuildConfiguration.Builder getBuildConfigBuilder() {
+        return BuildConfiguration.Builder.newBuilder()
+                .name("Generic Build Configuration")
+                .description("Generic Build Configuration Description")
+                .scmRepoURL("http://www.github.com")
+                .buildScript("mvn install");
     }
 
     @Test
@@ -84,22 +75,14 @@ public class BuildConfigurationDependencyTest {
 
         // Set up sample build configurations, the id needs to be set manually
         // because the configs are not stored to the database.
-        BuildConfiguration buildConfig1 = ModelTestDataFactory.getInstance().getGenericBuildConfigurationBuilderGeneric()
-                .id(1).build();
-        BuildConfiguration buildConfig2 = ModelTestDataFactory.getInstance().getGenericBuildConfigurationBuilderGeneric()
-                .id(2).build();
-        BuildConfiguration buildConfig3 = ModelTestDataFactory.getInstance().getGenericBuildConfigurationBuilderGeneric()
-                .id(3).build();
-        BuildConfiguration buildConfig4 = ModelTestDataFactory.getInstance().getGenericBuildConfigurationBuilderGeneric()
-                .id(4).build();
-        BuildConfiguration buildConfig5 = ModelTestDataFactory.getInstance().getGenericBuildConfigurationBuilderGeneric()
-                .id(5).build();
-        BuildConfiguration buildConfig6 = ModelTestDataFactory.getInstance().getGenericBuildConfigurationBuilderGeneric()
-                .id(6).build();
-        BuildConfiguration buildConfig7 = ModelTestDataFactory.getInstance().getGenericBuildConfigurationBuilderGeneric()
-                .id(7).build();
-        BuildConfiguration buildConfig8 = ModelTestDataFactory.getInstance().getGenericBuildConfigurationBuilderGeneric()
-                .id(8).build();
+        BuildConfiguration buildConfig1 = getBuildConfigBuilder().id(1).build();
+        BuildConfiguration buildConfig2 = getBuildConfigBuilder().id(2).build();
+        BuildConfiguration buildConfig3 = getBuildConfigBuilder().id(3).build();
+        BuildConfiguration buildConfig4 = getBuildConfigBuilder().id(4).build();
+        BuildConfiguration buildConfig5 = getBuildConfigBuilder().id(5).build();
+        BuildConfiguration buildConfig6 = getBuildConfigBuilder().id(6).build();
+        BuildConfiguration buildConfig7 = getBuildConfigBuilder().id(7).build();
+        BuildConfiguration buildConfig8 = getBuildConfigBuilder().id(8).build();
 
         // Set up the dependency relationships
         buildConfig1.addDependency(buildConfig2);
@@ -127,37 +110,34 @@ public class BuildConfigurationDependencyTest {
     @Test(expected=PersistenceException.class)
     public void testBuildConfigurationDependenciesInDatabase() throws Exception {
 
-        License licenseApache20 = ModelTestDataFactory.getInstance().getLicenseApache20();
-        Project project1 = ModelTestDataFactory.getInstance().getProject1();
-        project1.setLicense(licenseApache20);
-        BuildEnvironment buildEnvironmentDefault = ModelTestDataFactory.getInstance().getBuildEnvironmentDefault();
+        License license = getLicense();
+        Project project1 = getProject();
+        BuildEnvironment buildEnvironment = getBuildEnvironment();
 
-        // Set up sample build configurations, the id needs to be set manually
-        // because the configs are not stored to the database.
-        BuildConfiguration buildConfig1 = ModelTestDataFactory.getInstance().getGenericBuildConfigurationBuilderGeneric()
-                .project(project1).buildEnvironment(buildEnvironmentDefault).build();
-        BuildConfiguration buildConfig2 = ModelTestDataFactory.getInstance().getGenericBuildConfigurationBuilderGeneric()
-                .project(project1).buildEnvironment(buildEnvironmentDefault).build();
-        BuildConfiguration buildConfig3 = ModelTestDataFactory.getInstance().getGenericBuildConfigurationBuilderGeneric()
-                .project(project1).buildEnvironment(buildEnvironmentDefault).build();
-        BuildConfiguration buildConfig4 = ModelTestDataFactory.getInstance().getGenericBuildConfigurationBuilderGeneric()
-                .project(project1).buildEnvironment(buildEnvironmentDefault).build();
-        BuildConfiguration buildConfig5 = ModelTestDataFactory.getInstance().getGenericBuildConfigurationBuilderGeneric()
-                .project(project1).buildEnvironment(buildEnvironmentDefault).build();
-        BuildConfiguration buildConfig6 = ModelTestDataFactory.getInstance().getGenericBuildConfigurationBuilderGeneric()
-                .project(project1).buildEnvironment(buildEnvironmentDefault).build();
-        BuildConfiguration buildConfig7 = ModelTestDataFactory.getInstance().getGenericBuildConfigurationBuilderGeneric()
-                .project(project1).buildEnvironment(buildEnvironmentDefault).build();
-        BuildConfiguration buildConfig8 = ModelTestDataFactory.getInstance().getGenericBuildConfigurationBuilderGeneric()
-                .project(project1).buildEnvironment(buildEnvironmentDefault).build();
+        BuildConfiguration buildConfig1 = getBuildConfigBuilder().project(project1)
+                .buildEnvironment(buildEnvironment).build();
+        BuildConfiguration buildConfig2 = getBuildConfigBuilder().project(project1)
+                .buildEnvironment(buildEnvironment).build();
+        BuildConfiguration buildConfig3 = getBuildConfigBuilder().project(project1)
+                .buildEnvironment(buildEnvironment).build();
+        BuildConfiguration buildConfig4 = getBuildConfigBuilder().project(project1)
+                .buildEnvironment(buildEnvironment).build();
+        BuildConfiguration buildConfig5 = getBuildConfigBuilder().project(project1)
+                .buildEnvironment(buildEnvironment).build();
+        BuildConfiguration buildConfig6 = getBuildConfigBuilder().project(project1)
+                .buildEnvironment(buildEnvironment).build();
+        BuildConfiguration buildConfig7 = getBuildConfigBuilder().project(project1)
+                .buildEnvironment(buildEnvironment).build();
+        BuildConfiguration buildConfig8 = getBuildConfigBuilder().project(project1)
+                .buildEnvironment(buildEnvironment).build();
 
-        EntityManager em = emFactory.createEntityManager();
+        EntityManager em = getEmFactory().createEntityManager();
         EntityTransaction insertConfigTx = em.getTransaction();
 
         try {
             insertConfigTx.begin();
-            em.persist(licenseApache20);
-            em.persist(buildEnvironmentDefault);
+            em.persist(license);
+            em.persist(buildEnvironment);
             em.persist(project1);
             em.persist(buildConfig1);
             em.persist(buildConfig2);
@@ -173,7 +153,6 @@ public class BuildConfigurationDependencyTest {
             Long count = (Long) rowCountQuery.getSingleResult();
             // Should have 8 build configurations
             Assert.assertEquals(8, count.longValue());
-            
         } catch (RuntimeException e) {
             if (insertConfigTx != null && insertConfigTx.isActive()) {
                 insertConfigTx.rollback();
@@ -225,8 +204,7 @@ public class BuildConfigurationDependencyTest {
 
     @Test(expected=PersistenceException.class)
     public void testBuildConfigurationSelfReferenceCheck() throws Exception {
-        BuildConfiguration buildConfig1 = ModelTestDataFactory.getInstance().getGenericBuildConfigurationBuilderGeneric()
-                .id(1).build();
+        BuildConfiguration buildConfig1 = getBuildConfigBuilder().id(1).build();
         buildConfig1.addDependency(buildConfig1);
     }
 
@@ -234,28 +212,28 @@ public class BuildConfigurationDependencyTest {
     @Test
     public void testBuildConfigurationCircularDependencies() throws Exception {
 
-        License licenseApache20 = ModelTestDataFactory.getInstance().getLicenseApache20();
-        Project project1 = ModelTestDataFactory.getInstance().getProject1();
-        project1.setLicense(licenseApache20);
-        BuildEnvironment buildEnvironmentDefault = ModelTestDataFactory.getInstance().getBuildEnvironmentDefault();
+        License license = getLicense();
+        Project project1 = getProject();
+        project1.setLicense(license);
+        BuildEnvironment buildEnvironmentDefault = getBuildEnvironment();
 
         // Set up sample build configurations, the id needs to be set manually
         // because the configs are not stored to the database.
-        BuildConfiguration buildConfig1 = ModelTestDataFactory.getInstance().getGenericBuildConfigurationBuilderGeneric()
+        BuildConfiguration buildConfig1 = getBuildConfigBuilder()
                 .id(1).project(project1).buildEnvironment(buildEnvironmentDefault).build();
-        BuildConfiguration buildConfig2 = ModelTestDataFactory.getInstance().getGenericBuildConfigurationBuilderGeneric()
+        BuildConfiguration buildConfig2 = getBuildConfigBuilder()
                 .id(2).project(project1).buildEnvironment(buildEnvironmentDefault).build();
-        BuildConfiguration buildConfig3 = ModelTestDataFactory.getInstance().getGenericBuildConfigurationBuilderGeneric()
+        BuildConfiguration buildConfig3 = getBuildConfigBuilder()
                 .id(3).project(project1).buildEnvironment(buildEnvironmentDefault).build();
-        BuildConfiguration buildConfig4 = ModelTestDataFactory.getInstance().getGenericBuildConfigurationBuilderGeneric()
+        BuildConfiguration buildConfig4 = getBuildConfigBuilder()
                 .id(4).project(project1).buildEnvironment(buildEnvironmentDefault).build();
-        BuildConfiguration buildConfig5 = ModelTestDataFactory.getInstance().getGenericBuildConfigurationBuilderGeneric()
+        BuildConfiguration buildConfig5 = getBuildConfigBuilder()
                 .id(5).project(project1).buildEnvironment(buildEnvironmentDefault).build();
-        BuildConfiguration buildConfig6 = ModelTestDataFactory.getInstance().getGenericBuildConfigurationBuilderGeneric()
+        BuildConfiguration buildConfig6 = getBuildConfigBuilder()
                 .id(6).project(project1).buildEnvironment(buildEnvironmentDefault).build();
-        BuildConfiguration buildConfig7 = ModelTestDataFactory.getInstance().getGenericBuildConfigurationBuilderGeneric()
+        BuildConfiguration buildConfig7 = getBuildConfigBuilder()
                 .id(7).project(project1).buildEnvironment(buildEnvironmentDefault).build();
-        BuildConfiguration buildConfig8 = ModelTestDataFactory.getInstance().getGenericBuildConfigurationBuilderGeneric()
+        BuildConfiguration buildConfig8 = getBuildConfigBuilder()
                 .id(8).project(project1).buildEnvironment(buildEnvironmentDefault).build();
 
         // Set up the dependency relationships
