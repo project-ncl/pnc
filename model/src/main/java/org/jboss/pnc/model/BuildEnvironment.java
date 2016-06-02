@@ -68,6 +68,7 @@ public class BuildEnvironment implements GenericEntity<Integer> {
 
     @NotNull
     @Column(updatable=false)
+    @Enumerated(EnumType.STRING)
     private SystemImageType systemImageType;
 
     @ElementCollection(fetch = FetchType.EAGER)
