@@ -21,10 +21,10 @@
   <pnc-header>
     <pnc-header-title>{{ detailCtrl.project.name || 'Empty' }}</pnc-header-title>
     <pnc-header-buttons>
-      <button type="button" class="btn btn-lg btn-default" data-toggle="tooltip" title="Edit Project Metadata" ng-click="projectForm.$show()">
+      <button type="button" class="btn btn-lg btn-default" data-toggle="tooltip" title="Edit Project Metadata" ng-click="projectForm.$show()" pnc-requires-auth>
         <i class="pficon pficon-edit"></i> Edit
       </button>
-      <button ng-hide="true" type="button" class="btn btn-lg btn-danger disabled" data-toggle="tooltip" title="Delete Project">
+      <button ng-hide="true" type="button" class="btn btn-lg btn-danger disabled" data-toggle="tooltip" title="Delete Project" pnc-requires-auth>
         <i class="pficon pficon-delete"></i> Delete
       </button>
     </pnc-header-buttons>

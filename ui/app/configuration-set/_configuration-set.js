@@ -24,7 +24,8 @@
     'xeditable',
     'pnc.common.restclient',
     'angularUtils.directives.uiBreadcrumbs',
-    'pnc.common.events'
+    'pnc.common.events',
+    'pnc.common.authentication'
   ]);
 
   module.config(['$stateProvider', function($stateProvider) {
