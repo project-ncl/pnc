@@ -38,6 +38,7 @@ package org.jboss.pnc.coordinator.test;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.pnc.coordinator.builder.BuildQueue;
 import org.jboss.pnc.mock.datastore.DatastoreMock;
+import org.jboss.pnc.mock.model.MockUser;
 import org.jboss.pnc.mock.model.builders.TestProjectConfigurationBuilder;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationSet;
