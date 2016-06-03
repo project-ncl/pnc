@@ -142,7 +142,7 @@ public class BuildRecord implements GenericEntity<Integer> {
                             "build_record_id", "built_artifact_id" }) )
     @ForeignKey(name = "fk_build_record_built_artifact_map")
     @Index(name = "idx_build_record_built_artifact_map")
-    private List<Artifact> builtArtifacts;
+    private Set<Artifact> builtArtifacts;
 
     /**
      * Artifacts which are required external dependencies of this build
@@ -154,7 +154,7 @@ public class BuildRecord implements GenericEntity<Integer> {
                             "build_record_id", "dependency_artifact_id" }) )
     @ForeignKey(name = "fk_build_record_artifact_dependencies_map")
     @Index(name = "idx_build_record_artifact_dependencies_map")
-    private List<Artifact> dependencies;
+    private Set<Artifact> dependencies;
 
     /**
      * Environment configuration (including system image) that was used to instantiate the build host.
@@ -190,8 +190,8 @@ public class BuildRecord implements GenericEntity<Integer> {
      * Instantiates a new project build result.
      */
     public BuildRecord() {
-        dependencies = new ArrayList<>();
-        builtArtifacts = new ArrayList<>();
+        dependencies = new HashSet<>();
+        builtArtifacts = new HashSet<>();
     }
 
     /**
@@ -331,7 +331,7 @@ public class BuildRecord implements GenericEntity<Integer> {
      *
      * @return the built artifacts
      */
-    public List<Artifact> getBuiltArtifacts() {
+    public Set<Artifact> getBuiltArtifacts() {
         return builtArtifacts;
     }
 
@@ -344,7 +344,7 @@ public class BuildRecord implements GenericEntity<Integer> {
      *
      * @param builtArtifacts the new built artifacts
      */
-    public void setBuiltArtifacts(List<Artifact> builtArtifacts) {
+    public void setBuiltArtifacts(Set<Artifact> builtArtifacts) {
         this.builtArtifacts = builtArtifacts;
     }
 
@@ -353,7 +353,7 @@ public class BuildRecord implements GenericEntity<Integer> {
      *
      * @return the dependencies
      */
-    public List<Artifact> getDependencies() {
+    public Set<Artifact> getDependencies() {
         return dependencies;
     }
 
@@ -366,7 +366,7 @@ public class BuildRecord implements GenericEntity<Integer> {
      *
      * @param dependencies the new dependencies
      */
-    public void setDependencies(List<Artifact> dependencies) {
+    public void setDependencies(Set<Artifact> dependencies) {
         this.dependencies = dependencies;
     }
 
@@ -481,9 +481,9 @@ public class BuildRecord implements GenericEntity<Integer> {
 
         private BuildStatus status;
 
-        private List<Artifact> builtArtifacts;
+        private Set<Artifact> builtArtifacts;
 
-        private List<Artifact> dependencies;
+        private Set<Artifact> dependencies;
 
         private BuildEnvironment buildEnvironment;
 
@@ -494,8 +494,8 @@ public class BuildRecord implements GenericEntity<Integer> {
         private BuildConfigSetRecord buildConfigSetRecord;
 
         public Builder() {
-            builtArtifacts = new ArrayList<>();
-            dependencies = new ArrayList<>();
+            builtArtifacts = new HashSet<>();
+            dependencies = new HashSet<>();
         }
 
         public static Builder newBuilder() {
@@ -604,8 +604,13 @@ public class BuildRecord implements GenericEntity<Integer> {
             return this;
         }
 
-        public Builder builtArtifacts(List<Artifact> builtArtifacts) {
+        public Builder builtArtifacts(Set<Artifact> builtArtifacts) {
             this.builtArtifacts = builtArtifacts;
+            return this;
+        }
+
+        public Builder builtArtifacts(List<Artifact> builtArtifacts) {
+            this.builtArtifacts.addAll(builtArtifacts);
             return this;
         }
 
@@ -614,8 +619,13 @@ public class BuildRecord implements GenericEntity<Integer> {
             return this;
         }
 
-        public Builder dependencies(List<Artifact> dependencies) {
+        public Builder dependencies(Set<Artifact> dependencies) {
             this.dependencies = dependencies;
+            return this;
+        }
+
+        public Builder dependencies(List<Artifact> dependencies) {
+            this.dependencies.addAll(dependencies);
             return this;
         }
 

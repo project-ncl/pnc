@@ -78,7 +78,7 @@ public class BuildRecordPredicates {
 
     public static Predicate<BuildRecord> withArtifactDistributedInMilestone(Integer productMilestoneId) {
         return (root, query, cb) -> {
-            ListJoin<BuildRecord, Artifact> builtArtifacts = root.join(BuildRecord_.builtArtifacts);
+            SetJoin<BuildRecord, Artifact> builtArtifacts = root.join(BuildRecord_.builtArtifacts);
             SetJoin<Artifact, ProductMilestone> productMilestones = builtArtifacts.join(Artifact_.distributedInProductMilestones);
             return cb.equal(productMilestones.get(ProductMilestone_.id), productMilestoneId);
         };

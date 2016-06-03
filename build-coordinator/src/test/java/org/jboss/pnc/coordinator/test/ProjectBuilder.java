@@ -21,12 +21,12 @@ import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.pnc.coordinator.test.event.TestCDIBuildSetStatusChangedReceiver;
 import org.jboss.pnc.coordinator.test.event.TestCDIBuildStatusChangedReceiver;
 import org.jboss.pnc.mock.datastore.DatastoreMock;
+import org.jboss.pnc.mock.model.MockUser;
 import org.jboss.pnc.mock.model.builders.ArtifactBuilder;
 import org.jboss.pnc.mock.model.builders.TestProjectConfigurationBuilder;
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationSet;
-import org.jboss.pnc.model.mock.MockUser;
 import org.jboss.pnc.spi.BuildCoordinationStatus;
 import org.jboss.pnc.spi.BuildSetStatus;
 import org.jboss.pnc.spi.coordinator.BuildCoordinator;
@@ -46,6 +46,7 @@ import javax.inject.Inject;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
@@ -247,9 +248,9 @@ public class ProjectBuilder {
         statusChangedReceiver.clear();
     }
 
-    public static void assertArtifactsPresent(List<Artifact> builtArtifacts) {
-        assertTrue("Missing artifacts.", builtArtifacts.size() > 0);
-        Artifact artifact = builtArtifacts.get(0);
+    public static void assertArtifactsPresent(Set<Artifact> artifacts) {
+        assertTrue("Missing artifacts.", artifacts.size() > 0);
+        Artifact artifact = artifacts.iterator().next();
         assertTrue("Invalid artifact in result.", artifact.getIdentifier().startsWith(ArtifactBuilder.IDENTIFIER_PREFIX));
     }
 

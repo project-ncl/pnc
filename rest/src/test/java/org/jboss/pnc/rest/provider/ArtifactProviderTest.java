@@ -29,6 +29,7 @@ import org.jboss.pnc.spi.datastore.repositories.SortInfoProducer;
 import org.junit.Test;
 
 import java.util.Arrays;
+import java.util.HashSet;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -98,7 +99,7 @@ public class ArtifactProviderTest {
         //when
         CollectionInfo<ArtifactRest> artifacts = provider.getBuiltArtifactsForBuildRecord(0, 100, null, "id==2 or checksum == asdf or filename==woohoo", 12);
         // then
-        assertThat(artifacts.getContent()).usingFieldByFieldElementComparator().containsExactly(a1Rest, a2Rest, a3Rest);
+        assertThat(artifacts.getContent()).usingFieldByFieldElementComparator().contains(a1Rest, a2Rest, a3Rest);
     }
 
     @Test
@@ -124,7 +125,7 @@ public class ArtifactProviderTest {
         //when
         CollectionInfo<ArtifactRest> artifacts = provider.getBuiltArtifactsForBuildRecord(0, 100, null, null, 12);
         // then
-        assertThat(artifacts.getContent()).usingFieldByFieldElementComparator().containsExactly(a1Rest, a2Rest, a3Rest);
+        assertThat(artifacts.getContent()).usingFieldByFieldElementComparator().contains(a1Rest, a2Rest, a3Rest);
     }
 
     @Test
@@ -147,7 +148,7 @@ public class ArtifactProviderTest {
 
     private ArtifactProvider artifactProviderWithBuiltResult() {
         BuildRecord record = new BuildRecord();
-        record.setBuiltArtifacts(Arrays.asList(a1, a2, a3));
+        record.setBuiltArtifacts(new HashSet<>(Arrays.asList(a1, a2, a3)));
 
         BuildRecordRepository recordRepo = mock(BuildRecordRepository.class);
         when(recordRepo.queryById(any())).thenReturn(record);

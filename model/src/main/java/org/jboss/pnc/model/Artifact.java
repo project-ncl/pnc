@@ -316,6 +316,23 @@ public class Artifact implements GenericEntity<Integer> {
         return "Artifact [id: " + id + ", identifier=" + identifier + ", quality=" + artifactQuality + "]";
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof Artifact)) {
+            return false;
+        }
+        if (identifier == null || checksum == null) {
+            return this == obj;
+        }
+        Artifact compare = (Artifact)obj;
+        return (identifier.equals(compare.getIdentifier()) && checksum.equals(compare.getChecksum()));
+    }
+
+    @Override
+    public int hashCode() {
+        return (identifier + checksum).hashCode();
+    }
+
     public static class Builder {
 
         private Integer id;

@@ -31,8 +31,9 @@ import org.jboss.pnc.spi.datastore.repositories.api.SortInfo;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -61,7 +62,7 @@ public class ArtifactProvider extends AbstractProvider<Artifact, ArtifactRest> {
             int buildRecordId) {
         BuildRecord buildRecord = buildRecordRepository.queryById(buildRecordId);
 
-        List<Artifact> fullArtifactList = new ArrayList<>();
+        Set<Artifact> fullArtifactList = new HashSet<>();
         fullArtifactList.addAll(buildRecord.getBuiltArtifacts());
         fullArtifactList.addAll(buildRecord.getDependencies());
 
@@ -74,20 +75,18 @@ public class ArtifactProvider extends AbstractProvider<Artifact, ArtifactRest> {
             int buildRecordId) {
         BuildRecord buildRecord = buildRecordRepository.queryById(buildRecordId);
 
-        List<Artifact> builtArtifacts = buildRecord.getBuiltArtifacts();
-
         return filterAndSort(pageIndex, pageSize, sortingRsql, query,
-                ArtifactRest.class, builtArtifacts,
+                ArtifactRest.class, buildRecord.getBuiltArtifacts(),
                 ArtifactRest::new);
     }
 
     private <DTO, Model> CollectionInfo<DTO> filterAndSort(int pageIndex, int pageSize, String sortingRsql, String query,
-                                                       Class<DTO> selectingClass, List<Model> builtArtifacts,
+                                                       Class<DTO> selectingClass, Set<Model> artifacts,
                                                            DtoMapper<Model, DTO> dtoSupplier) {
         Predicate<DTO> queryPredicate = rsqlPredicateProducer.getStreamPredicate(selectingClass, query);
         SortInfo sortInfo = sortInfoProducer.getSortInfo(sortingRsql);
 
-        Stream<DTO> filteredStream = nullableStreamOf(builtArtifacts)
+        Stream<DTO> filteredStream = nullableStreamOf(artifacts)
                 .map(dtoSupplier::map)
                 .filter(queryPredicate).sorted(sortInfo.getComparator());
         List<DTO> filteredList = filteredStream.collect(Collectors.toList());
