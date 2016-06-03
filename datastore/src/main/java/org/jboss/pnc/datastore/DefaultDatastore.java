@@ -41,8 +41,10 @@ import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
 import javax.inject.Inject;
 import java.lang.invoke.MethodHandles;
-import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import static org.jboss.pnc.model.ArtifactQuality.*;
 import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withIdentifierAndChecksum;
@@ -92,8 +94,8 @@ public class DefaultDatastore implements Datastore {
      * @param List of in-memory artifacts to either insert to the database or find the matching record in the db
      * @return List of up to date JPA artifact entities
      */
-    private List<Artifact> saveArtifacts(List<Artifact> artifacts) {
-        List<Artifact> savedArtifacts = new ArrayList<>();
+    private Set<Artifact> saveArtifacts(Collection<Artifact> artifacts) {
+        Set<Artifact> savedArtifacts = new HashSet<>();
         for (Artifact artifact : artifacts) {
             Artifact artifactFromDb = artifactRepository
                     .queryByPredicates(withIdentifierAndChecksum(artifact.getIdentifier(), artifact.getChecksum()));
