@@ -36,6 +36,8 @@
         link: function (scope, elem, attrs) {
           if (!authService.isAuthenticated()) {
             attrs.$set('disabled', 'disabled');
+            attrs.$set('title', 'Log in to run this action');
+            elem.addClass('pointer-events-auto');
           }
         }
       };
