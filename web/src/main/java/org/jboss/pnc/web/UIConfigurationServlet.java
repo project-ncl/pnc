@@ -29,6 +29,7 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
 import java.io.PrintWriter;
 
@@ -36,6 +37,7 @@ import java.io.PrintWriter;
  * Dynamically serves a configuration file for the UI.
  *
  * @author Alex Creasy
+ * @author Jakub Bartecek &lt;jbartece@redhat.com&gt;
  */
 @WebServlet("/scripts/config.js")
 public class UIConfigurationServlet extends HttpServlet {
@@ -44,14 +46,19 @@ public class UIConfigurationServlet extends HttpServlet {
     public static final String PNC_GLOBAL_MODULE = "pnc";
     public static final String CONFIG_PROPERTY = "config";
 
-    private String uiConfig;
-
-    public UIConfigurationServlet() {}
-
     @Inject
-    public UIConfigurationServlet(Configuration configuration) throws ConfigurationParseException {
-        this.uiConfig = generateJS(JsonOutputConverterMapper.apply(configuration.getModuleConfig(
-                new PncConfigProvider<UIModuleConfig>(UIModuleConfig.class))));
+    private Configuration configuration;
+    
+    private String uiConfig;
+    
+    @Override
+    public void init() throws ServletException {
+        try {
+            this.uiConfig = generateJS(JsonOutputConverterMapper.apply(configuration.getModuleConfig(
+                    new PncConfigProvider<UIModuleConfig>(UIModuleConfig.class))));
+        } catch (ConfigurationParseException e) {
+            throw new ServletException("Initialization of configuration servlet failed because the servlet was not able to load configuration.", e);
+        }
     }
 
     private String generateJS(String configJson) {
@@ -68,6 +75,6 @@ public class UIConfigurationServlet extends HttpServlet {
 
         PrintWriter writer = resp.getWriter();
         writer.println(uiConfig);
-        writer.close();
+        writer.flush();
     }
 }
