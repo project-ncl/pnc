@@ -65,7 +65,7 @@
           $scope.data.project = $scope.projectSelection.selected[0];
         }
 
-        $scope.submit = function() {
+        $scope.submit = function(form) {
 
           // The REST API takes integer Ids so we need to extract them from
           // our collection of objects first and attach them to our data object
@@ -73,7 +73,10 @@
           $scope.data.productVersionId = getFirstId($scope.productVersions.selected);
           $scope.data.dependencyIds = gatherIds($scope.dependencies.selected);
 
-          $scope.data.$save().then(function(result) {
+          $scope.data.$save().then(
+
+            // success
+            function(result) {
             // Saving the BuildConfig link into the BuildGroupConfig 
             _.each($scope.buildgroupconfigs.selected, function(buildgroupconfig) {
               buildgroupconfig.buildConfigurationIds.push(result.id);
@@ -88,6 +91,13 @@
               $state.go('project.detail', {
                 projectId: $scope.data.project.id
               });
+            }
+          }, 
+
+          // error
+          function(errors) {
+            if (errors.data.details.field === 'scmRepoURL') {
+              form.scmRepoURL.$setValidity('invalidScmRepoURL', false);
             }
           });
         };
@@ -116,6 +126,10 @@
         $scope.isProjectSelectable = function() {
           return (_.isUndefined($scope.fixedProject));
         };
+
+        $scope.scmRepoURLChange = function(form){
+          form.scmRepoURL.$setValidity('invalidScmRepoURL', true);
+        }
 
         function gatherIds(array) {
           var result = [];
