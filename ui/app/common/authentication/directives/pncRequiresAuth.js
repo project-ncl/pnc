@@ -37,6 +37,7 @@
           if (!authService.isAuthenticated()) {
             attrs.$set('disabled', 'disabled');
             attrs.$set('title', 'Log in to run this action');
+            attrs.$set('tooltip', ''); // hack to hide bootstrap tooltip in FF
             elem.addClass('pointer-events-auto');
           }
         }
