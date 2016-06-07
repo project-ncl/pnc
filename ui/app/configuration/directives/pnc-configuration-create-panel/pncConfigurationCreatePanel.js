@@ -129,7 +129,7 @@
 
         $scope.scmRepoURLChange = function(form){
           form.scmRepoURL.$setValidity('invalidScmRepoURL', true);
-        }
+        };
 
         function gatherIds(array) {
           var result = [];
