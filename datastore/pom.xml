@@ -112,6 +112,26 @@
       <artifactId>test-common</artifactId>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>org.jboss.arquillian.junit</groupId>
+      <artifactId>arquillian-junit-container</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.as</groupId>
+      <artifactId>jboss-as-arquillian-container-managed</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.arquillian.protocol</groupId>
+      <artifactId>arquillian-protocol-servlet</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.arquillian.extension</groupId>
+      <artifactId>arquillian-transaction-jta</artifactId>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
   <build>
@@ -145,4 +165,146 @@
       </plugin>
     </plugins>
   </build>
+
+  <profiles>
+    <profile>
+      <id>download-server</id>
+      <activation>
+        <property>
+          <name>eap6.zip.url</name>
+        </property>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-antrun-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>download-and-extract-eap-server</id>
+                <goals>
+                  <goal>run</goal>
+                </goals>
+                <phase>test-compile</phase>
+                <configuration>
+                  <target>
+                    <!-- If JBOSS_HOME is set it causes obscure errors with CLI in -->
+                    <!-- jboss-as-maven-plugin. -->
+                    <property environment="env" />
+                    <fail message="JBOSS_HOME must not be set" if="env.JBOSS_HOME" />
+
+                    <echo>Preparing EAP 6.4 application server</echo>
+                    <echo>EAP URL ${eap6.zip.url}</echo>
+                    <fail message="Please specify EAP 6.4 zip file URL via: -Deap6.zip.url=" unless="eap6.zip.url" />
+                    <mkdir dir="${test.server.unpack.dir}" />
+                    <get usetimestamp="true" src="${eap6.zip.url}" skipexisting="true" dest="${test.server.unpack.dir}/${app.server}-${jboss.version}.zip" />
+                    <unzip src="${test.server.unpack.dir}/${app.server}-${jboss.version}.zip" dest="${test.server.unpack.dir}/" overwrite="true" />
+
+                  </target>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
+    <profile>
+      <id>configure-test-container</id>
+      <activation>
+        <property>
+          <name>eap6.zip.url</name>
+        </property>
+      </activation>
+      <dependencies>
+        <dependency>
+          <groupId>org.hsqldb</groupId>
+          <artifactId>hsqldb</artifactId>
+          <scope>test</scope>
+        </dependency>
+      </dependencies>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.jboss.as.plugins</groupId>
+            <artifactId>jboss-as-maven-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>start-server</id>
+                <phase>test-compile</phase>
+                <goals>
+                  <goal>start</goal>
+                </goals>
+                <configuration>
+                  <jbossHome>${test.server.build.dir}</jbossHome>
+                </configuration>
+              </execution>
+              <!-- HSQLDB JDBC driver installation and datasource configuration -->
+              <execution>
+                <id>deploy-hsql-jdbc-driver</id>
+                <phase>test-compile</phase>
+                <goals>
+                  <goal>deploy-artifact</goal>
+                </goals>
+                <configuration>
+                  <groupId>org.hsqldb</groupId>
+                  <artifactId>hsqldb</artifactId>
+                  <name>hsqldb.jar</name>
+                </configuration>
+              </execution>
+              <execution>
+                <id>add-hsql-datasource</id>
+                <phase>test-compile</phase>
+                <goals>
+                  <goal>add-resource</goal>
+                </goals>
+                <configuration>
+                  <address>subsystem=datasources,data-source=java:jboss/datasources/NewcastleTestDS</address>
+                  <resource>
+                    <enable-resource>true</enable-resource>
+                    <properties>
+                      <jndi-name>java:jboss/datasources/NewcastleTestDS</jndi-name>
+                      <enabled>true</enabled>
+                      <connection-url>jdbc:hsqldb:mem:newcastletestmemdb</connection-url>
+                      <driver-class>org.hsqldb.jdbc.JDBCDriver</driver-class>
+                      <driver-name>hsqldb.jar</driver-name>
+                    </properties>
+                  </resource>
+                </configuration>
+              </execution>
+              <!-- End HSQLDB configuraiton -->
+              <execution>
+                <id>change-logging-level</id>
+                <phase>test-compile</phase>
+                <goals>
+                  <goal>execute-commands</goal>
+                </goals>
+                <configuration>
+                  <execute-commands>
+                    <batch>true</batch>
+                    <commands>
+                      <command>
+                        /subsystem=logging/logger=org.jboss.pnc:add
+                      </command>
+                      <command>
+                        /subsystem=logging/logger=org.jboss.pnc:change-log-level(level=DEBUG)
+                      </command>
+                    </commands>
+                  </execute-commands>
+                </configuration>
+              </execution>
+              <execution>
+                <id>shutdown-server</id>
+                <phase>test-compile</phase>
+                <goals>
+                  <goal>shutdown</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
+  </profiles>
 </project>
