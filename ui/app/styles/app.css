@@ -178,18 +178,18 @@ form .editable-wrap {
 }
 
 #loading-bar .bar {
-  background: #FFA500;
+  background: #fff;
   height: 4px;
 }
 #loading-bar-spinner .spinner-icon {
-  border-top-color:  #FFA500;
-  border-left-color: #FFA500;
+  border-top-color:  #fff;
+  border-left-color: #fff;
 }
 #loading-bar .peg {
-  -moz-box-shadow: #FFA500 1px 0 6px 1px;
-  -ms-box-shadow: #FFA500 1px 0 6px 1px;
-  -webkit-box-shadow: #FFA500 1px 0 6px 1px;
-  box-shadow: #FFA500 1px 0 6px 1px;
+  -moz-box-shadow: #fff 1px 0 6px 1px;
+  -ms-box-shadow: #fff 1px 0 6px 1px;
+  -webkit-box-shadow: #fff 1px 0 6px 1px;
+  box-shadow: #fff 1px 0 6px 1px;
 }
 
 .loading-spinner {

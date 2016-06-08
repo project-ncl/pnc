@@ -44,7 +44,7 @@
   ]);
 
   app.config(function($stateProvider, $urlRouterProvider, $locationProvider,
-    $httpProvider, NotificationsProvider) {
+    $httpProvider, NotificationsProvider, cfpLoadingBarProvider) {
 
     $locationProvider.html5Mode(false);
 
@@ -85,6 +85,9 @@
 
     // Configure pop-up notifications
     NotificationsProvider.setDelay(12000);
+
+    // Show loading bar without additional spinner.
+    cfpLoadingBarProvider.includeSpinner = false;
 
     $httpProvider.interceptors.push('httpResponseInterceptor');
     $httpProvider.interceptors.push('unwrapPageResponseInterceptor');
@@ -128,7 +131,7 @@
         $log.error('Error navigating to "%s": %s %s', toState.url, error.status,
                    error.statusText);
 
-        $rootScope.showSpinner = false;
+        // $rootScope.showSpinner = false;
 
         switch (error.status) {
           case 401:
@@ -144,16 +147,16 @@
       }
     );
 
-    $rootScope.$on('$stateChangeStart', function(event, toState) {
-      if (toState.resolve) {
-        $rootScope.showSpinner = true;
-      }
-    });
-    $rootScope.$on('$stateChangeSuccess', function(event, toState) {
-      if (toState.resolve) {
-        $rootScope.showSpinner = false;
-      }
-    });
+    // $rootScope.$on('$stateChangeStart', function(event, toState) {
+    //   if (toState.resolve) {
+    //     $rootScope.showSpinner = true;
+    //   }
+    // });
+    // $rootScope.$on('$stateChangeSuccess', function(event, toState) {
+    //   if (toState.resolve) {
+    //     $rootScope.showSpinner = false;
+    //   }
+    // });
   });
 
 })();
