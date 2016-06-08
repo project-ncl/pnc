@@ -111,7 +111,7 @@ module.exports = function (grunt) {
         'keycloak':
         {
             'url': getOpt('keycloak-url', 'PNC_UI_KEYCLOAK_URL'),
-            'realm': getOpt('keycloak-realm', 'PNCUI_KEYCLOAK_REALM'),
+            'realm': getOpt('keycloak-realm', 'PNC_UI_KEYCLOAK_REALM'),
             'clientId': getOpt('keycloak-client-id', 'PNC_UI_KEYCLOAK_CLIENT_ID')
         }
       };
