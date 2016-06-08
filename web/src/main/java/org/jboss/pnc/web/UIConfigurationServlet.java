@@ -50,14 +50,13 @@ public class UIConfigurationServlet extends HttpServlet {
     private Configuration configuration;
     
     private String uiConfig;
-    
-    @Override
-    public void init() throws ServletException {
+
+    private void lazyLoadUiConfig() throws ServletException {
         try {
             this.uiConfig = generateJS(JsonOutputConverterMapper.apply(configuration.getModuleConfig(
-                    new PncConfigProvider<UIModuleConfig>(UIModuleConfig.class))));
+                    new PncConfigProvider<>(UIModuleConfig.class))));
         } catch (ConfigurationParseException e) {
-            throw new ServletException("Initialization of configuration servlet failed because the servlet was not able to load configuration.", e);
+            throw new ServletException("Lazy-loading of UI configuration failed because the servlet was not able to fetch the configuration.", e);
         }
     }
 
@@ -67,6 +66,14 @@ public class UIConfigurationServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        if (uiConfig == null) {
+            synchronized (this) {
+                if (uiConfig == null) {
+                    lazyLoadUiConfig();
+                }
+            }
+        }
+
         resp.setContentType("text/javascript");
 
         // Override our default javascript cache time of 10 years as we're not using the standard cache
