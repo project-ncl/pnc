@@ -491,7 +491,7 @@ module.exports = function (grunt) {
           dest: '<%= yeoman.dist %>',
           src: [
             '*.{ico,png,txt}',
-            'images/{,*/}*.{webp}',
+            'images/{,*/}*.{webp,svg}',
             'fonts/{,*/}*.*',
             'keycloak.json',
             'config.json'
@@ -539,7 +539,7 @@ module.exports = function (grunt) {
       ],
       dist: [
         'imagemin',
-        'svgmin'
+        // 'svgmin'
       ]
     },
 
