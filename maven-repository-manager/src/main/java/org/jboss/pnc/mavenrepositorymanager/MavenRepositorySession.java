@@ -45,6 +45,9 @@ import org.jboss.pnc.spi.repositorymanager.model.RepositorySession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.validation.ConstraintViolation;
+import javax.validation.Validation;
+import javax.validation.Validator;
 import java.io.File;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -79,6 +82,8 @@ public class MavenRepositorySession implements RepositorySession {
     private final RepositoryConnectionInfo connectionInfo;
     private boolean isSetBuild;
 
+    private Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
+
     // TODO: Create and pass in suitable parameters to Indy to create the
     //       proxy repository.
     @Deprecated
@@ -97,18 +102,15 @@ public class MavenRepositorySession implements RepositorySession {
         this.connectionInfo = info;
     }
 
-
     @Override
     public String toString() {
         return "MavenRepositoryConfiguration " + this.hashCode();
     }
 
-
     @Override
     public RepositoryType getType() {
         return RepositoryType.MAVEN;
     }
-
 
     @Override
     public String getBuildRepositoryId() {
@@ -240,7 +242,8 @@ public class MavenRepositorySession implements RepositorySession {
                         .artifactQuality(ArtifactQuality.IMPORTED).originUrl(originUrl).importDate(Date.from(Instant.now()))
                         .filename(new File(path).getName()).identifier(aref.toString()).repoType(RepositoryType.MAVEN);
 
-                deps.add(artifactBuilder.build());
+                Artifact artifact = validateArtifact(artifactBuilder.build());
+                deps.add(artifact);
             }
 
             for (Map.Entry<StoreKey, Set<String>> entry : toPromote.entrySet()) {
@@ -288,12 +291,29 @@ public class MavenRepositorySession implements RepositorySession {
                         .artifactQuality(ArtifactQuality.BUILT).deployUrl(upload.getLocalUrl())
                         .filename(new File(path).getName()).identifier(aref.toString()).repoType(RepositoryType.MAVEN);
 
-                builds.add(artifactBuilder.build());
+                Artifact artifact = validateArtifact(artifactBuilder.build());
+                builds.add(artifact);
             }
 
             return builds;
         }
         return Collections.emptyList();
+    }
+
+    /**
+     * Check artifact for any validation errors.  If there are constraint violations, then a RepositoryManagerException is thrown.
+     * Otherwise the artifact is returned.
+     *
+     * @param artifact to validate
+     * @return the same artifact
+     * @throws RepositoryManagerException if there are constraint violations
+     */
+    private Artifact validateArtifact(Artifact artifact) throws RepositoryManagerException {
+        Set<ConstraintViolation<Artifact>> violations = validator.validate(artifact);
+        if (!violations.isEmpty()) {
+            throw new RepositoryManagerException("Repository manager returned invalid artifact: " + artifact.toString(), violations);
+        }
+        return artifact;
     }
 
     /**
