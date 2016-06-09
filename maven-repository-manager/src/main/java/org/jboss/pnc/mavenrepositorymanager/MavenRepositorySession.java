@@ -242,7 +242,8 @@ public class MavenRepositorySession implements RepositorySession {
                         .artifactQuality(ArtifactQuality.IMPORTED).originUrl(originUrl).importDate(Date.from(Instant.now()))
                         .filename(new File(path).getName()).identifier(aref.toString()).repoType(RepositoryType.MAVEN);
 
-                deps.add(validateArtifact(artifactBuilder.build()));
+                Artifact artifact = validateArtifact(artifactBuilder.build());
+                deps.add(artifact);
             }
 
             for (Map.Entry<StoreKey, Set<String>> entry : toPromote.entrySet()) {
@@ -290,7 +291,8 @@ public class MavenRepositorySession implements RepositorySession {
                         .artifactQuality(ArtifactQuality.BUILT).deployUrl(upload.getLocalUrl())
                         .filename(new File(path).getName()).identifier(aref.toString()).repoType(RepositoryType.MAVEN);
 
-                builds.add(validateArtifact(artifactBuilder.build()));
+                Artifact artifact = validateArtifact(artifactBuilder.build());
+                builds.add(artifact);
             }
 
             return builds;
