@@ -66,22 +66,31 @@
           <span class="glyphicon sort-icon" ng-show="builtArtifactsInProjectReportCtrl.sortKey=='version'" 
             ng-class="{'glyphicon-chevron-up':builtArtifactsInProjectReportCtrl.reverse,'glyphicon-chevron-down':!builtArtifactsInProjectReportCtrl.reverse}"></span>        
         </th>
-        <th class="cursor-pointer">All Available Versions</th>
+        <th class="cursor-pointer">
+          All Available Versions
+          <button ng-click="builtArtifactsInProjectReportCtrl.expandAll()" title="Expand All Available Versions" class="btn btn-default btn-xs m-l-10" type="button">Expand all</button>
+        </th>
       </thead>
       <tbody>
-        <tr ng-repeat="result in builtArtifactsInProjectReportCtrl.reportResults | orderBy:builtArtifactsInProjectReportCtrl.sortKey:builtArtifactsInProjectReportCtrl.reverse | filter:searchText">
+        <tr dir-paginate="result in builtArtifactsInProjectReportCtrl.reportResults | orderBy:builtArtifactsInProjectReportCtrl.sortKey:builtArtifactsInProjectReportCtrl.reverse | filter:searchText | itemsPerPage:builtArtifactsInProjectReportCtrl.defaultPageSize" current-page="builtArtifactsInProjectReportCtrl.pagination.current">
           <td class="nowrap">{{ result.groupId }}</td>
           <td class="nowrap">{{ result.artifactId }}</td>
           <td>{{ result.version }}</td>
           <td>{{ result.builtVersion }}</td>
           <td>
-            <div class="available-versions">
-              <span ng-repeat="version in result.availableVersions" class="available-versions-item">{{ version }}</span>
+            <div class="available-versions" ng-init="builtArtifactsInProjectReportCtrl.availableVersionsLimits[$index] = 3">
+              <span ng-repeat="version in result.availableVersions | limitTo: builtArtifactsInProjectReportCtrl.availableVersionsLimits[$index] as results" class="available-versions-item">{{ version }}</span>
+              <span class="available-versions-item" ng-hide="results.length === result.availableVersions.length">
+                <button ng-click="builtArtifactsInProjectReportCtrl.availableVersionsLimits[$index] = result.availableVersions.length" 
+                title="Show All Available Versions" class="btn btn-default btn-xs" type="button">Show all</button>
+              </span>
             </div>
           </td>
         </tr>
       </tbody>
     </table>
+
+    <dir-pagination-controls max-size="builtArtifactsInProjectReportCtrl.defaultPageSize" direction-links="true" boundary-links="true" ></dir-pagination-controls>
 
   </div>
 </div>
