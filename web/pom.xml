@@ -57,10 +57,12 @@
     <dependency>
       <groupId>org.jboss.pnc</groupId>
       <artifactId>rest-model</artifactId>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.jboss.pnc</groupId>
       <artifactId>moduleconfig</artifactId>
+      <scope>provided</scope>
     </dependency>
   </dependencies>
 
