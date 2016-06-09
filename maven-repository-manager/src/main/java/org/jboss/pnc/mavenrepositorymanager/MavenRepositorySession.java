@@ -45,7 +45,6 @@ import org.jboss.pnc.spi.repositorymanager.model.RepositorySession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.inject.Inject;
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
@@ -83,8 +82,7 @@ public class MavenRepositorySession implements RepositorySession {
     private final RepositoryConnectionInfo connectionInfo;
     private boolean isSetBuild;
 
-    @Inject
-    private Validator validator;
+    private Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
 
     // TODO: Create and pass in suitable parameters to Indy to create the
     //       proxy repository.
@@ -95,9 +93,6 @@ public class MavenRepositorySession implements RepositorySession {
         this.buildRepoId = buildRepoId;
         this.isSetBuild = isSetBuild;
         this.connectionInfo = info;
-        if (validator == null) {
-            validator = Validation.buildDefaultValidatorFactory().getValidator();
-        }
     }
 
     public MavenRepositorySession(Indy indy, String buildRepoId, MavenRepositoryConnectionInfo info) {
@@ -105,9 +100,6 @@ public class MavenRepositorySession implements RepositorySession {
         this.buildRepoId = buildRepoId;
         this.isSetBuild = false; //TODO remove
         this.connectionInfo = info;
-        if (validator == null) {
-            validator = Validation.buildDefaultValidatorFactory().getValidator();
-        }
     }
 
     @Override
