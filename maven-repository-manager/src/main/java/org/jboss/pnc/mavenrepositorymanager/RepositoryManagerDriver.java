@@ -132,19 +132,21 @@ public class RepositoryManagerDriver implements RepositoryManager {
 
         // since we're setting up a group/hosted repo per build, we can pin the tracking ID to the build repo ID.
         String url;
+        String deployUrl;
 
         try {
             // manually initialize the tracking record, just in case (somehow) nothing gets downloaded/uploaded.
             indy.module(IndyFoloAdminClientModule.class).initReport(buildId);
 
             url = indy.module(IndyFoloContentClientModule.class).trackingUrl(buildId, StoreType.group, buildId);
+            deployUrl = indy.module(IndyFoloContentClientModule.class).trackingUrl(buildId, StoreType.hosted, buildId);
             logger.info("Using '{}' for Maven repository access in build: {}", url, buildId);
         } catch (IndyClientException e) {
             throw new RepositoryManagerException("Failed to retrieve AProx client module for the artifact tracker: %s", e,
                     e.getMessage());
         }
 
-        return new MavenRepositorySession(indy, buildId, new MavenRepositoryConnectionInfo(url));
+        return new MavenRepositorySession(indy, buildId, new MavenRepositoryConnectionInfo(url, deployUrl));
     }
 
     /**
