@@ -42,6 +42,7 @@
     <dependency>
       <groupId>org.jboss.pnc</groupId>
       <artifactId>common</artifactId>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.jboss.spec.javax.servlet</groupId>
