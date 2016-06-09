@@ -28,9 +28,11 @@ public class MavenRepositoryConnectionInfo implements RepositoryConnectionInfo {
     private static final String ALT_DEPLOY_FORMAT = "deploy::default::%s";
 
     private String url;
+    private String deployUrl;
 
-    public MavenRepositoryConnectionInfo(String url) {
+    public MavenRepositoryConnectionInfo(String url, String deployUrl) {
         this.url = url;
+        this.deployUrl = deployUrl;
     }
 
     @Override
@@ -53,7 +55,7 @@ public class MavenRepositoryConnectionInfo implements RepositoryConnectionInfo {
 
     @Override
     public String getDeployUrl() {
-        return url;
+        return deployUrl;
     }
 
 }
