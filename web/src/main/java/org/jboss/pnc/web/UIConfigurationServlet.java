@@ -29,7 +29,6 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
 import java.io.IOException;
 import java.io.PrintWriter;
 
@@ -53,8 +52,9 @@ public class UIConfigurationServlet extends HttpServlet {
 
     private void lazyLoadUiConfig() throws ServletException {
         try {
-            this.uiConfig = generateJS(JsonOutputConverterMapper.apply(configuration.getModuleConfig(
-                    new PncConfigProvider<>(UIModuleConfig.class))));
+            UIModuleConfig uiConfig = configuration.getModuleConfig(new PncConfigProvider<>(UIModuleConfig.class));
+            String json = JsonOutputConverterMapper.apply(uiConfig);
+            this.uiConfig = generateJS(json);
         } catch (ConfigurationParseException e) {
             throw new ServletException("Lazy-loading of UI configuration failed because the servlet was not able to fetch the configuration.", e);
         }
