@@ -44,6 +44,6 @@ public class PncConfigProvider <T extends AbstractModuleConfig>
       addModuleConfig(new ProviderNameType(AuthenticationModuleConfig.class, "authentication-config"));
       addModuleConfig(new ProviderNameType(BpmModuleConfig.class, "bpm-config"));
       addModuleConfig(new ProviderNameType(OpenshiftEnvironmentDriverModuleConfig.class, OpenshiftEnvironmentDriverModuleConfig.MODULE_NAME));
-        addModuleConfig(new ProviderNameType(UIModuleConfig.class, UIModuleConfig.MODULE_NAME));
+      addModuleConfig(new ProviderNameType(UIModuleConfig.class, UIModuleConfig.MODULE_NAME));
     }
 }
