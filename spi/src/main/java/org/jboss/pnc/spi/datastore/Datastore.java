@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.spi.datastore;
 
+import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
@@ -24,6 +25,9 @@ import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.ProductMilestone;
 import org.jboss.pnc.model.User;
 
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -31,10 +35,19 @@ import java.util.Set;
  */
 public interface Datastore {
 
+
+    /**
+     * Check a list of artifacts for conflicts with the existing artifacts in the db
+     *
+     * @param artifacts The artifacts to check
+     * @return A Map containing the conflicting artifact and an error message, empty if there are no conflicts
+     */
+    Map<Artifact, String> checkForConflictingArtifacts(Collection<Artifact> artifacts);
+
     /**
      * Stores a completed build.
      *
-     * @param buildRecord The build record builder which has been intialized with appropriate data.
+     * @param buildRecordBuilder The build record builder which has been intialized with appropriate data.
      * @return The updated BuildRecord
      * @throws DatastoreException Thrown if database is unable to process the request.
      */

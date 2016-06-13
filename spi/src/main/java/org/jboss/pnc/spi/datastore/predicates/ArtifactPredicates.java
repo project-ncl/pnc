@@ -49,4 +49,8 @@ public class ArtifactPredicates {
                 cb.equal(root.get(Artifact_.checksum), checksum));
     }
 
+    public static Predicate<Artifact> withOriginUrl(String originUrl) {
+        return (root, query, cb) -> cb.equal(root.get(Artifact_.originUrl), originUrl);
+    }
+
 }
