@@ -65,7 +65,7 @@
       restrict: 'E',
       scope: {
         singleItem: '@',
-    	selectedItems: '=',
+    	  selectedItems: '=',
         items: '=',
         itemId: '=',
         placeholder: '@',
