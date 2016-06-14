@@ -42,12 +42,15 @@ import javax.ejb.TransactionAttributeType;
 import javax.inject.Inject;
 import java.lang.invoke.MethodHandles;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import static org.jboss.pnc.model.ArtifactQuality.*;
 import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withIdentifierAndChecksum;
+import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withOriginUrl;
 
 @Stateless
 public class DefaultDatastore implements Datastore {
@@ -75,6 +78,27 @@ public class DefaultDatastore implements Datastore {
     @Inject
     SequenceHandlerRepository sequenceHandlerRepository;
 
+    private static final String ARITFACT_ORIGIN_URL_IDENTIFIER_CONFLICT_MESSAGE = "Another artifact with the same originUrl but a different identifier already exists";
+    private static final String ARITFACT_ORIGIN_URL_CHECKSUM_CONFLICT_MESSAGE = "Another artifact with the same originUrl but a different checksum already exists";
+
+    @Override
+    public Map<Artifact, String> checkForConflictingArtifacts(Collection<Artifact> artifacts) {
+        Map<Artifact, String> conflicts = new HashMap<>();
+        for (Artifact artifact : artifacts) {
+            // Check for matching URL with different identifier or checksum
+            if (artifact.getOriginUrl() != null) {
+                Artifact artifactFromDb = artifactRepository.queryByPredicates(withOriginUrl(artifact.getOriginUrl()));
+                if (artifactFromDb.getIdentifier().equals(artifact.getIdentifier())) {
+                    conflicts.put(artifact, ARITFACT_ORIGIN_URL_IDENTIFIER_CONFLICT_MESSAGE);
+                }
+                if (artifactFromDb.getChecksum().equals(artifact.getChecksum())) {
+                    conflicts.put(artifact, ARITFACT_ORIGIN_URL_CHECKSUM_CONFLICT_MESSAGE);
+                }
+            }
+        }
+        return conflicts;
+    }
+
     @Override
     @TransactionAttribute(TransactionAttributeType.REQUIRED)
     public BuildRecord storeCompletedBuild(BuildRecord.Builder buildRecordBuilder) {
@@ -91,12 +115,13 @@ public class DefaultDatastore implements Datastore {
      * Checks the given list against the existing database and creates a new list containing 
      * artifacts which have been saved to or loaded from the database.
      * 
-     * @param List of in-memory artifacts to either insert to the database or find the matching record in the db
-     * @return List of up to date JPA artifact entities
+     * @param Collection<Artifact> of in-memory artifacts to either insert to the database or find the matching record in the db
+     * @return Set of up to date JPA artifact entities
      */
     private Set<Artifact> saveArtifacts(Collection<Artifact> artifacts) {
         Set<Artifact> savedArtifacts = new HashSet<>();
         for (Artifact artifact : artifacts) {
+
             Artifact artifactFromDb = artifactRepository
                     .queryByPredicates(withIdentifierAndChecksum(artifact.getIdentifier(), artifact.getChecksum()));
             if (artifactFromDb == null) {

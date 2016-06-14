@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.mock.datastore;
 
+import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
@@ -30,6 +31,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -53,6 +55,11 @@ public class DatastoreMock implements Datastore {
     AtomicInteger buildRecordSequence = new AtomicInteger(0);
     AtomicInteger buildRecordSetSequence = new AtomicInteger(0);
     AtomicInteger buildConfigAuditedRevSequence = new AtomicInteger(0);
+
+    @Override
+    public Map<Artifact, String> checkForConflictingArtifacts(Collection<Artifact> artifacts) {
+        return new HashMap<Artifact, String>();
+    }
 
     @Override
     public BuildRecord storeCompletedBuild(BuildRecord.Builder buildRecordBuilder) {

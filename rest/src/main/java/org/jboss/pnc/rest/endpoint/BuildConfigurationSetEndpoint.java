@@ -41,6 +41,7 @@ import org.jboss.pnc.rest.swagger.response.BuildConfigurationSetPage;
 import org.jboss.pnc.rest.swagger.response.BuildConfigurationSetSingleton;
 import org.jboss.pnc.rest.swagger.response.BuildRecordPage;
 import org.jboss.pnc.rest.trigger.BuildTriggerer;
+import org.jboss.pnc.rest.validation.exceptions.EmptyEntityException;
 import org.jboss.pnc.rest.validation.exceptions.ValidationException;
 import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
 import org.jboss.pnc.spi.datastore.Datastore;
@@ -234,6 +235,9 @@ public class BuildConfigurationSetEndpoint extends AbstractEndpoint<BuildConfigu
     public Response addConfiguration(
             @ApiParam(value = "Build Configuration Set id", required = true) @PathParam("id") Integer id,
             BuildConfigurationRest buildConfig) throws ValidationException {
+        if (buildConfig == null || buildConfig.getId() == null) {
+            throw new EmptyEntityException("No valid build config included in request to add config to set id: " + id);
+        }
         buildConfigurationSetProvider.addConfiguration(id, buildConfig.getId());
         return fromEmpty();
     }

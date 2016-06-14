@@ -19,6 +19,7 @@ package org.jboss.pnc.coordinator.builder.datastore;
 
 import org.jboss.logging.Logger;
 import org.jboss.pnc.coordinator.BuildCoordinationException;
+import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
@@ -37,7 +38,9 @@ import javax.inject.Inject;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.time.Instant;
+import java.util.Collection;
 import java.util.Date;
+import java.util.Map;
 import java.util.Optional;
 
 import static org.jboss.pnc.model.BuildStatus.REJECTED;
@@ -102,7 +105,21 @@ public class DatastoreAdapter {
             if (buildResult.getRepositoryManagerResult().isPresent()) {
                 RepositoryManagerResult repositoryManagerResult = buildResult.getRepositoryManagerResult().get();
                 buildRecordBuilder.buildContentId(repositoryManagerResult.getBuildContentId());
+
+                Collection<Artifact> builtArtifacts = repositoryManagerResult.getBuiltArtifacts();
+                Map<Artifact, String> builtConflicts = datastore.checkForConflictingArtifacts(builtArtifacts);
+                if (builtConflicts.size() > 0) {
+                    storeResult(buildTask, Optional.of(buildResult), new BuildCoordinationException("Trying to store success build with invalid repository manager result. Conflicting artifact data found: " + builtConflicts.toString()));
+                    return;
+                }
                 buildRecordBuilder.builtArtifacts(repositoryManagerResult.getBuiltArtifacts());
+
+                Collection<Artifact> dependencyArtifacts = repositoryManagerResult.getDependencies();
+                Map<Artifact, String> depConflicts = datastore.checkForConflictingArtifacts(builtArtifacts);
+                if (depConflicts.size() > 0) {
+                    storeResult(buildTask, Optional.of(buildResult), new BuildCoordinationException("Trying to store success build with invalid repository manager result. Conflicting artifact data found: " + depConflicts.toString()));
+                    return;
+                }
                 buildRecordBuilder.dependencies(repositoryManagerResult.getDependencies());
             } else if (!buildResult.hasFailed()) {
                 storeResult(buildTask, Optional.of(buildResult), new BuildCoordinationException("Trying to store success build with incomplete result. Missing RepositoryManagerResult."));
@@ -125,6 +142,14 @@ public class DatastoreAdapter {
         }
     }
 
+    /**
+     * Store build result allong with error information appended to the build log
+     *
+     * @param buildTask
+     * @param buildResult
+     * @param e The error that occurred during the build process
+     * @throws DatastoreException
+     */
     public void storeResult(BuildTask buildTask, Optional<BuildResult> buildResult, Throwable e) throws DatastoreException {
         BuildRecord.Builder buildRecordBuilder = initBuildRecordBuilder(buildTask);
         buildRecordBuilder.status(SYSTEM_ERROR);
