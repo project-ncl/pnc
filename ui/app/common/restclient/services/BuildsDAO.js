@@ -31,13 +31,14 @@
     'REST_BASE_URL',
     'BUILDS_ENDPOINT',
     'PageFactory',
-    function($resource, REST_BASE_URL, BUILDS_ENDPOINT, PageFactory) {
+    'QueryHelper',
+    function($resource, REST_BASE_URL, BUILDS_ENDPOINT, PageFactory, qh) {
       var ENDPOINT = REST_BASE_URL + BUILDS_ENDPOINT;
 
       var resource = $resource(ENDPOINT, {}, {
         _getAll: {
           method: 'GET',
-          url: ENDPOINT
+          url: ENDPOINT + qh.searchOnly(['buildConfigurationAudited.name', 'user.username'])
         },
         _getByConfiguration: {
           method: 'GET',
