@@ -18,7 +18,7 @@
 
 -->
 <div class="row">
-  <div class="col-md-6 col-lg-4">
+  <div class="col-md-10 col-lg-7">
 
     <pnc-header>
       <pnc-header-title>Find the whitelisted artifacts of a Product</pnc-header-title>
@@ -32,11 +32,11 @@
 	      <div class="form-group"
 	          ng-class="{ 'has-error' : !productShippedReportCtrl.selectedProductId && productShippedArtifactForm.productId.$touched, 'has-success': productShippedReportCtrl.selectedProductId && productShippedArtifactForm.productId.$touched }">
 
-	        <label for="input1" class="col-sm-4 control-label">
+	        <label for="input1" class="col-sm-2 control-label">
 	          * Product&nbsp;<span class="pficon pficon-info" title="Select the Product to analyze."></span>
 	        </label>
 	
-	        <div class="col-sm-8">
+	        <div class="col-sm-10">
               <pnc-select-items
                 single-item="true"
                 selected-items="productShippedReportCtrl.productSelection.selected"

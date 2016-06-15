@@ -22,7 +22,7 @@
     <h1>Create Product</h1>
   </div>
   <div class="row">
-    <div class="col-md-8 col-lg-6">
+    <div class="col-md-10 col-lg-7">
       <form class="form-horizontal" name="productForm" ng-submit="productCreateCtrl.submit()" novalidate>
 
         <div class="panel panel-default">
@@ -71,7 +71,7 @@
           </div>
         </div>
 
-        <div class="form-group">
+        <div class="form-group text-right">
           <div class="col-sm-offset-2 col-sm-10">
             <input type="submit" class="btn btn-primary" value="Create" ng-disabled="productForm.$invalid">
             <input type="reset" class="btn btn-default" value="Clear" ng-click="productCreateCtrl.reset(productForm)">

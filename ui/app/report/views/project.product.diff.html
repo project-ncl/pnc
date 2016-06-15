@@ -18,7 +18,7 @@
 
 -->
 <div class="row">
-  <div class="col-md-8 col-lg-6">
+  <div class="col-md-10 col-lg-7">
 
     <pnc-header>
       <pnc-header-title>Diff a project against a product</pnc-header-title>
@@ -35,29 +35,29 @@
         <div class="panel-body">
 
           <div class="form-group" ng-class="{ 'has-error' : ctr.form.scmUrl.error }">
-            <label for="scmUrl" class="col-sm-4 control-label">
-              * SCM repository URL&nbsp;<span class="pficon pficon-info" title="SCM repository URL"></span>
+            <label for="scmUrl" class="col-sm-2 control-label">
+              * SCM Url&nbsp;<span class="pficon pficon-info" title="SCM repository URL"></span>
             </label>
-            <div class="col-sm-8">
+            <div class="col-sm-10">
               <input type="text" id="scmUrl" class="form-control" name="scmUrl" ng-model="ctr.form.data.scmUrl" maxlength="255">
               <span class="help-block" ng-show="ctr.form.scmUrl.error">Required field.</span>
             </div>
           </div>
 
           <div class="form-group">
-            <label for="revision" class="col-sm-4 control-label">
-              SCM revision&nbsp;<span class="pficon pficon-info" title="SCM branch, tag or commit id"></span>
+            <label for="revision" class="col-sm-2 control-label">
+              Revision&nbsp;<span class="pficon pficon-info" title="SCM branch, tag or commit id"></span>
             </label>
-            <div class="col-sm-8">
+            <div class="col-sm-10">
               <input type="text" id="revision" class="form-control" name="revision" ng-model="ctr.form.data.revision" maxlength="255" placeholder="master">
             </div>
           </div>
 
           <div class="form-group">
-            <label for="pomPath" class="col-sm-4 control-label">
-              Path to POM&nbsp;<span class="pficon pficon-info" title="Location of (parent) pom.xml within the repository."></span>
+            <label for="pomPath" class="col-sm-2 control-label">
+              Root POM path&nbsp;<span class="pficon pficon-info" title="Location of (parent) pom.xml within the repository."></span>
             </label>
-            <div class="col-sm-8">
+            <div class="col-sm-10">
               <input type="text" id="pomPath" class="form-control" name="pomPath" ng-model="ctr.form.data.pomPath" maxlength="255" placeholder="pom.xml">
             </div>
           </div>
@@ -72,10 +72,10 @@
         <div class="panel-body">
 
           <div class="form-group" ng-class="{ 'has-error' : ctr.form.productId.error }">
-            <label for="productId" class="col-sm-4 control-label">
+            <label for="productId" class="col-sm-2 control-label">
               * Product &nbsp;<span class="pficon pficon-info" title="Select a product."></span>
             </label>
-            <div class="col-sm-8">
+            <div class="col-sm-10">
               <pnc-select-items
                 single-item="false"
                 selected-items="ctr.form.productId.selectedProducts"
