@@ -19,7 +19,6 @@
 package org.jboss.pnc.mock.model.builders;
 
 import org.jboss.pnc.model.Artifact;
-import org.jboss.pnc.model.ArtifactQuality;
 import org.jboss.pnc.model.RepositoryType;
 
 import java.time.Instant;

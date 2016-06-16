@@ -19,7 +19,6 @@ package org.jboss.pnc.rest.restmodel;
 
 import io.swagger.annotations.ApiModelProperty;
 import org.jboss.pnc.model.Artifact;
-import org.jboss.pnc.model.ArtifactQuality;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.RepositoryType;
 import org.jboss.pnc.rest.validation.groups.WhenCreatingNew;
@@ -45,7 +44,7 @@ public class ArtifactRest implements GenericRestEntity<Integer> {
     private String identifier;
 
     @ApiModelProperty(dataType = "string")
-    private ArtifactQuality artifactQuality;
+    private Artifact.Quality artifactQuality;
 
     @ApiModelProperty(dataType = "string")
     private RepositoryType repoType;
@@ -118,11 +117,11 @@ public class ArtifactRest implements GenericRestEntity<Integer> {
         this.checksum = checksum;
     }
 
-    public ArtifactQuality getArtifactQuality() {
+    public Artifact.Quality getArtifactQuality() {
         return artifactQuality;
     }
 
-    public void setArtifactQuality(ArtifactQuality artifactQuality) {
+    public void setArtifactQuality(Artifact.Quality artifactQuality) {
         this.artifactQuality = artifactQuality;
     }
 
