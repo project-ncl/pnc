@@ -202,6 +202,10 @@ public class Artifact implements GenericEntity<Integer> {
         return (originUrl != null && !originUrl.isEmpty());
     }
 
+    public boolean isTrusted() {
+        return (isBuilt() || ArtifactRepo.isTrusted(originUrl));
+    }
+
     /**
      * Gets the filename.
      *
