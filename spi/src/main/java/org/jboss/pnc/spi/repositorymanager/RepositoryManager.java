@@ -18,7 +18,7 @@
 package org.jboss.pnc.spi.repositorymanager;
 
 import org.jboss.pnc.model.BuildRecord;
-import org.jboss.pnc.model.RepositoryType;
+import org.jboss.pnc.model.ArtifactRepo;
 import org.jboss.pnc.spi.repositorymanager.model.RepositorySession;
 import org.jboss.pnc.spi.repositorymanager.model.RunningRepositoryDeletion;
 import org.jboss.pnc.spi.repositorymanager.model.RunningRepositoryPromotion;
@@ -66,6 +66,6 @@ public interface RepositoryManager {
      */
     RunningRepositoryDeletion deleteBuild(BuildRecord buildRecord) throws RepositoryManagerException;
 
-    boolean canManage(RepositoryType managerType);
+    boolean canManage(ArtifactRepo.Type managerType);
 
 }

@@ -19,9 +19,8 @@ package org.jboss.pnc.rest.restmodel;
 
 import io.swagger.annotations.ApiModelProperty;
 import org.jboss.pnc.model.Artifact;
-import org.jboss.pnc.model.ArtifactQuality;
 import org.jboss.pnc.model.BuildRecord;
-import org.jboss.pnc.model.RepositoryType;
+import org.jboss.pnc.model.ArtifactRepo;
 import org.jboss.pnc.rest.validation.groups.WhenCreatingNew;
 import org.jboss.pnc.rest.validation.groups.WhenUpdating;
 
@@ -45,10 +44,10 @@ public class ArtifactRest implements GenericRestEntity<Integer> {
     private String identifier;
 
     @ApiModelProperty(dataType = "string")
-    private ArtifactQuality artifactQuality;
+    private Artifact.Quality artifactQuality;
 
     @ApiModelProperty(dataType = "string")
-    private RepositoryType repoType;
+    private ArtifactRepo.Type repoType;
 
     @NotNull(groups = {WhenCreatingNew.class, WhenUpdating.class})
     private String checksum;
@@ -102,11 +101,11 @@ public class ArtifactRest implements GenericRestEntity<Integer> {
         this.identifier = identifier;
     }
 
-    public RepositoryType getRepoType() {
+    public ArtifactRepo.Type getRepoType() {
         return repoType;
     }
 
-    public void setRepoType(RepositoryType repoType) {
+    public void setRepoType(ArtifactRepo.Type repoType) {
         this.repoType = repoType;
     }
 
@@ -118,11 +117,11 @@ public class ArtifactRest implements GenericRestEntity<Integer> {
         this.checksum = checksum;
     }
 
-    public ArtifactQuality getArtifactQuality() {
+    public Artifact.Quality getArtifactQuality() {
         return artifactQuality;
     }
 
-    public void setArtifactQuality(ArtifactQuality artifactQuality) {
+    public void setArtifactQuality(Artifact.Quality artifactQuality) {
         this.artifactQuality = artifactQuality;
     }
 
@@ -160,10 +159,10 @@ public class ArtifactRest implements GenericRestEntity<Integer> {
 
     @Deprecated
     public String getStatus() {
-        if (ArtifactQuality.IMPORTED.equals(artifactQuality)) {
-            return "BINARY_IMPORTED";
+        if (buildRecordIds != null && buildRecordIds.size() > 0) {
+            return "BINARY_BUILT";
         }
-        return "BINARY_BUILT";
+        return "BINARY_IMPORTED";
     }
 
     public Set<Integer> getBuildRecordIds() {

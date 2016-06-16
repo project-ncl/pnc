@@ -297,22 +297,22 @@ public class DatabaseDataInitializer {
     public void initiliazeBuildRecordDemoData() {
 
         Artifact builtArtifact1 = Artifact.Builder.newBuilder().identifier("demo:built-artifact1:jar:1.0")
-                .artifactQuality(ArtifactQuality.BUILT).repoType(RepositoryType.MAVEN).filename("demo built artifact 1")
+                .repoType(ArtifactRepo.Type.MAVEN).filename("demo built artifact 1")
                 .checksum("abcd1234").build();
         Artifact builtArtifact2 = Artifact.Builder.newBuilder().identifier("demo:built-artifact2:jar:1.0")
-                .artifactQuality(ArtifactQuality.BUILT).repoType(RepositoryType.MAVEN).filename("demo built artifact 2")
+                .repoType(ArtifactRepo.Type.MAVEN).filename("demo built artifact 2")
                 .checksum("abcd2345").build();
 
         builtArtifact1 = artifactRepository.save(builtArtifact1);
         builtArtifact2 = artifactRepository.save(builtArtifact2);
 
         Artifact importedArtifact1 = Artifact.Builder.newBuilder().identifier("demo:imported-artifact1:jar:1.0")
-                .repoType(RepositoryType.MAVEN).filename("demo imported artifact 1").originUrl("http://central/import1.jar")
-                .artifactQuality(ArtifactQuality.IMPORTED).importDate(Date.from(Instant.now())).checksum("abcd1234")
+                .repoType(ArtifactRepo.Type.MAVEN).filename("demo imported artifact 1").originUrl("http://central/import1.jar")
+                .importDate(Date.from(Instant.now())).checksum("abcd1234")
                 .deployUrl("http://google.pl/imported1").build();
         Artifact importedArtifact2 = Artifact.Builder.newBuilder().identifier("demo:imported-artifact2:jar:1.0")
-                .repoType(RepositoryType.MAVEN).filename("demo imported artifact 2").originUrl("http://central/import2.jar")
-                .artifactQuality(ArtifactQuality.IMPORTED).importDate(Date.from(Instant.now())).checksum("abcd1234")
+                .repoType(ArtifactRepo.Type.MAVEN).filename("demo imported artifact 2").originUrl("http://central/import2.jar")
+                .importDate(Date.from(Instant.now())).checksum("abcd1234")
                 .deployUrl("http://google.pl/imported2").build();
 
         importedArtifact1 = artifactRepository.save(importedArtifact1);
@@ -350,10 +350,10 @@ public class DatabaseDataInitializer {
         }
 
         Artifact builtArtifact3 = Artifact.Builder.newBuilder().identifier("demo:built-artifact3:jar:1.0")
-                .artifactQuality(ArtifactQuality.BUILT).repoType(RepositoryType.MAVEN).filename("demo built artifact 3")
+                .repoType(ArtifactRepo.Type.MAVEN).filename("demo built artifact 3")
                 .checksum("abcd1234").deployUrl("http://google.pl/built3").build();
         Artifact builtArtifact4 = Artifact.Builder.newBuilder().identifier("demo:built-artifact4:jar:1.0")
-                .artifactQuality(ArtifactQuality.BUILT).repoType(RepositoryType.MAVEN).filename("demo built artifact 4")
+                .repoType(ArtifactRepo.Type.MAVEN).filename("demo built artifact 4")
                 .checksum("abcd1234").deployUrl("http://google.pl/built4").build();
 
         builtArtifact3 = artifactRepository.save(builtArtifact3);

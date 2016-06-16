@@ -28,14 +28,13 @@ import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.junit.InSequence;
 import org.jboss.arquillian.transaction.api.annotation.Transactional;
 import org.jboss.pnc.model.Artifact;
-import org.jboss.pnc.model.ArtifactQuality;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildEnvironment;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.License;
 import org.jboss.pnc.model.Project;
-import org.jboss.pnc.model.RepositoryType;
+import org.jboss.pnc.model.ArtifactRepo;
 import org.jboss.pnc.model.SystemImageType;
 import org.jboss.pnc.spi.datastore.Datastore;
 import org.jboss.pnc.spi.datastore.repositories.ArtifactRepository;
@@ -143,9 +142,9 @@ public class DatastoreTest {
         Assert.assertNotNull(buildConfigAud);
 
         Artifact builtArtifact1 = Artifact.Builder.newBuilder().identifier(ARTIFACT_1_IDENTIFIER).checksum(ARTIFACT_1_CHECKSUM)
-                .artifactQuality(ArtifactQuality.BUILT).repoType(RepositoryType.MAVEN).build();
+                .repoType(ArtifactRepo.Type.MAVEN).build();
         Artifact importedArtifact2 = Artifact.Builder.newBuilder().identifier(ARTIFACT_2_IDENTIFIER).checksum(ARTIFACT_2_CHECKSUM)
-                .artifactQuality(ArtifactQuality.IMPORTED).repoType(RepositoryType.MAVEN).build();
+                .originUrl("http://test/artifact2.jar").importDate(Date.from(Instant.now())).repoType(ArtifactRepo.Type.MAVEN).build();
 
         BuildRecord buildRecord = BuildRecord.Builder.newBuilder().id(datastore.getNextBuildRecordId())
                 .buildConfigurationAudited(buildConfigAud).latestBuildConfiguration(buildConfig)
@@ -181,11 +180,11 @@ public class DatastoreTest {
         Assert.assertNotNull(buildConfigAud);
 
         Artifact builtArtifact1 = Artifact.Builder.newBuilder().identifier(ARTIFACT_1_IDENTIFIER).checksum(ARTIFACT_1_CHECKSUM)
-                .artifactQuality(ArtifactQuality.BUILT).repoType(RepositoryType.MAVEN).build();
+                .repoType(ArtifactRepo.Type.MAVEN).build();
         Artifact importedArtifact2 = Artifact.Builder.newBuilder().identifier(ARTIFACT_2_IDENTIFIER).checksum(ARTIFACT_2_CHECKSUM)
-                .artifactQuality(ArtifactQuality.IMPORTED).repoType(RepositoryType.MAVEN).build();
+                .originUrl("http://test/importArtifact2.jar").importDate(Date.from(Instant.now())).repoType(ArtifactRepo.Type.MAVEN).build();
         Artifact builtArtifact3 = Artifact.Builder.newBuilder().identifier(ARTIFACT_3_IDENTIFIER).checksum(ARTIFACT_3_CHECKSUM)
-                .artifactQuality(ArtifactQuality.IMPORTED).repoType(RepositoryType.MAVEN).build();
+                .originUrl("http://test/importArtifact2.jar").importDate(Date.from(Instant.now())).repoType(ArtifactRepo.Type.MAVEN).build();
 
         BuildRecord.Builder buildRecordBuilder = BuildRecord.Builder.newBuilder().id(datastore.getNextBuildRecordId())
                 .buildConfigurationAudited(buildConfigAud).latestBuildConfiguration(buildConfig)

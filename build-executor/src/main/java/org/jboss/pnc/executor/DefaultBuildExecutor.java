@@ -26,7 +26,7 @@ import org.jboss.pnc.executor.exceptions.BuildProcessException;
 import org.jboss.pnc.executor.servicefactories.BuildDriverFactory;
 import org.jboss.pnc.executor.servicefactories.EnvironmentDriverFactory;
 import org.jboss.pnc.executor.servicefactories.RepositoryManagerFactory;
-import org.jboss.pnc.model.RepositoryType;
+import org.jboss.pnc.model.ArtifactRepo;
 import org.jboss.pnc.spi.BuildExecutionStatus;
 import org.jboss.pnc.spi.builddriver.BuildDriver;
 import org.jboss.pnc.spi.builddriver.BuildDriverResult;
@@ -137,7 +137,7 @@ public class DefaultBuildExecutor implements BuildExecutor {
     private RepositorySession configureRepository(BuildExecutionSession buildExecutionSession) {
         buildExecutionSession.setStatus(BuildExecutionStatus.REPO_SETTING_UP);
         try {
-            RepositoryManager repositoryManager = repositoryManagerFactory.getRepositoryManager(RepositoryType.MAVEN);
+            RepositoryManager repositoryManager = repositoryManagerFactory.getRepositoryManager(ArtifactRepo.Type.MAVEN);
             BuildExecution buildExecution = buildExecutionSession.getBuildExecutionConfiguration();
             return repositoryManager.createBuildRepository(buildExecution);
         } catch (Throwable e) {

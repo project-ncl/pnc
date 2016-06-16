@@ -26,7 +26,7 @@ import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuiltArtifact;
 import org.jboss.pnc.model.Project;
-import org.jboss.pnc.model.RepositoryType;
+import org.jboss.pnc.model.ArtifactRepo;
 import org.jboss.pnc.spi.BuildExecution;
 import org.jboss.pnc.spi.builddriver.BuildDriverResult;
 import org.jboss.pnc.spi.builddriver.BuildDriverStatus;
@@ -199,7 +199,7 @@ public class JenkinsDriverRemoteTest {
         return new RepositorySession() {
             @Override
             public RepositoryType getType() {
-                return RepositoryType.MAVEN;
+                return ArtifactRepo.Type.MAVEN;
             }
 
             @Override

@@ -40,6 +40,7 @@ import javax.validation.constraints.NotNull;
 public class Artifact implements GenericEntity<Integer> {
 
     private static final long serialVersionUID = 1L;
+
     public static final String SEQUENCE_NAME = "artifact_id_seq";
 
     @Id
@@ -62,7 +63,7 @@ public class Artifact implements GenericEntity<Integer> {
 
     @NotNull
     @Enumerated(value = EnumType.STRING)
-    private ArtifactQuality artifactQuality;
+    private Artifact.Quality artifactQuality;
 
     /**
      * The type of repository which hosts this artifact (Maven, NPM, etc).  This field determines
@@ -70,7 +71,7 @@ public class Artifact implements GenericEntity<Integer> {
      */
     @NotNull
     @Column(updatable=false)
-    private RepositoryType repoType;
+    private ArtifactRepo.Type repoType;
 
     @Column(updatable=false)
     private String filename;
@@ -110,6 +111,37 @@ public class Artifact implements GenericEntity<Integer> {
      */
     @ManyToMany(mappedBy = "distributedArtifacts")
     private Set<ProductMilestone> distributedInProductMilestones;
+
+    public enum Quality {
+
+        /**
+         * The artifact has not yet been verified or tested
+         */
+        NEW,
+
+        /**
+         * The artifact has been verified by an automated process, but has not yet been tested against
+         * a complete product or other large set of components.
+         */
+        VERIFIED,
+
+        /**
+         * The artifact has passed integration testing.
+         */
+        TESTED,
+
+        /**
+         * The artifact should no longer be used due to lack of support and/or a better alternative
+         * being available.
+         */
+        DEPRECATED,
+
+        /**
+         * The artifact contains a severe defect, possibly a functional or security issue.
+         */
+        BLACKLISTED,
+
+    }
 
     /**
      * Basic no-arg constructor.  Initializes the buildRecords and dependantBuildRecords to 
@@ -179,16 +211,31 @@ public class Artifact implements GenericEntity<Integer> {
         this.checksum = checksum;
     }
 
-    public ArtifactQuality getArtifactQuality() {
+    public Artifact.Quality getArtifactQuality() {
         return artifactQuality;
     }
 
-    public void setArtifactQuality(ArtifactQuality artifactQuality) {
-        if(ArtifactQuality.IMPORTED.equals(artifactQuality) && buildRecords != null && buildRecords.size() > 0) {
-            // Don't allow the quality to be set to IMPORTED if there is a build record
-            return;
-        }
+    public void setArtifactQuality(Artifact.Quality artifactQuality) {
         this.artifactQuality = artifactQuality;
+    }
+
+    /**
+     * Check if this artifact has an associated build record
+     * @return true if there is a build record for this artifact, false otherwise
+     */
+    public boolean isBuilt() {
+        return (buildRecords != null && buildRecords.size() > 0);
+    }
+
+    /** Check if this artifact was imported from a remote URL
+     * @return true if there is an originUrl
+     */
+    public boolean isImported() {
+        return (originUrl != null && !originUrl.isEmpty());
+    }
+
+    public boolean isTrusted() {
+        return (isBuilt() || ArtifactRepo.isTrusted(originUrl));
     }
 
     /**
@@ -272,14 +319,14 @@ public class Artifact implements GenericEntity<Integer> {
     /**
      * @return the repoType
      */
-    public RepositoryType getRepoType() {
+    public ArtifactRepo.Type getRepoType() {
         return repoType;
     }
 
     /**
      * @param repoType the repoType to set
      */
-    public void setRepoType(RepositoryType repoType) {
+    public void setRepoType(ArtifactRepo.Type repoType) {
         this.repoType = repoType;
     }
 
@@ -341,9 +388,9 @@ public class Artifact implements GenericEntity<Integer> {
 
         private String checksum;
 
-        private ArtifactQuality artifactQuality;
+        private Quality artifactQuality;
 
-        private RepositoryType repoType;
+        private ArtifactRepo.Type repoType;
 
         private String filename;
 
@@ -371,6 +418,9 @@ public class Artifact implements GenericEntity<Integer> {
             artifact.setId(id);
             artifact.setIdentifier(identifier);
             artifact.setChecksum(checksum);
+            if (artifactQuality == null) {
+                artifactQuality = Quality.NEW;
+            }
             artifact.setArtifactQuality(artifactQuality);
             artifact.setRepoType(repoType);
             artifact.setFilename(filename);
@@ -400,12 +450,12 @@ public class Artifact implements GenericEntity<Integer> {
             return this;
         }
 
-        public Builder artifactQuality(ArtifactQuality artifactQuality) {
+        public Builder artifactQuality(Artifact.Quality artifactQuality) {
             this.artifactQuality = artifactQuality;
             return this;
         }
 
-        public Builder repoType(RepositoryType repoType) {
+        public Builder repoType(ArtifactRepo.Type repoType) {
             this.repoType = repoType;
             return this;
         }

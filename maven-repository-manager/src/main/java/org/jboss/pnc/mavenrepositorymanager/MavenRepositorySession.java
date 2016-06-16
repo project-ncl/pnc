@@ -36,8 +36,7 @@ import org.commonjava.maven.atlas.ident.ref.ArtifactRef;
 import org.commonjava.maven.atlas.ident.ref.SimpleArtifactRef;
 import org.commonjava.maven.atlas.ident.util.ArtifactPathInfo;
 import org.jboss.pnc.model.Artifact;
-import org.jboss.pnc.model.ArtifactQuality;
-import org.jboss.pnc.model.RepositoryType;
+import org.jboss.pnc.model.ArtifactRepo;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerException;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
 import org.jboss.pnc.spi.repositorymanager.model.RepositoryConnectionInfo;
@@ -108,8 +107,8 @@ public class MavenRepositorySession implements RepositorySession {
     }
 
     @Override
-    public RepositoryType getType() {
-        return RepositoryType.MAVEN;
+    public ArtifactRepo.Type getType() {
+        return ArtifactRepo.Type.MAVEN;
     }
 
     @Override
@@ -239,8 +238,8 @@ public class MavenRepositorySession implements RepositorySession {
 
                 Artifact.Builder artifactBuilder = Artifact.Builder.newBuilder().checksum(download.getMd5())
                         .deployUrl(content.contentUrl(download.getStoreKey(), download.getPath()))
-                        .artifactQuality(ArtifactQuality.IMPORTED).originUrl(originUrl).importDate(Date.from(Instant.now()))
-                        .filename(new File(path).getName()).identifier(aref.toString()).repoType(RepositoryType.MAVEN);
+                        .originUrl(originUrl).importDate(Date.from(Instant.now())).filename(new File(path).getName())
+                        .identifier(aref.toString()).repoType(ArtifactRepo.Type.MAVEN);
 
                 Artifact artifact = validateArtifact(artifactBuilder.build());
                 deps.add(artifact);
@@ -288,8 +287,8 @@ public class MavenRepositorySession implements RepositorySession {
                 logger.info("Recording upload: {}", aref);
 
                 Artifact.Builder artifactBuilder = Artifact.Builder.newBuilder().checksum(upload.getMd5())
-                        .artifactQuality(ArtifactQuality.BUILT).deployUrl(upload.getLocalUrl())
-                        .filename(new File(path).getName()).identifier(aref.toString()).repoType(RepositoryType.MAVEN);
+                        .deployUrl(upload.getLocalUrl()).filename(new File(path).getName()).identifier(aref.toString())
+                        .repoType(ArtifactRepo.Type.MAVEN);
 
                 Artifact artifact = validateArtifact(artifactBuilder.build());
                 builds.add(artifact);
