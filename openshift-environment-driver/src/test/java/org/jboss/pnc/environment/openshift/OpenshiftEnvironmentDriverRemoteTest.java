@@ -21,7 +21,7 @@ import com.openshift.internal.restclient.DefaultClient;
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.monitor.PullingMonitor;
 import org.jboss.pnc.common.util.ObjectWrapper;
-import org.jboss.pnc.model.RepositoryType;
+import org.jboss.pnc.model.ArtifactRepo;
 import org.jboss.pnc.model.SystemImageType;
 import org.jboss.pnc.spi.environment.EnvironmentDriver;
 import org.jboss.pnc.spi.environment.RunningEnvironment;
@@ -182,7 +182,7 @@ public class OpenshiftEnvironmentDriverRemoteTest {
     private static class DummyRepositoryConfiguration implements RepositorySession {
 
         @Override
-        public RepositoryType getType() {
+        public ArtifactRepo.Type getType() {
             return null;
         }
 

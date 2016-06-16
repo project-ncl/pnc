@@ -18,9 +18,29 @@
 package org.jboss.pnc.model;
 
 /**
- * Contains information related to artifact repositories
+ * Contains information related to a repository of build artifacts (i.e. Maven, NPM, etc)
  */
 public class ArtifactRepo {
+
+    /**
+     * Types of artifact repositories
+     */
+    public enum Type {
+        /**
+         * Maven artifact repository such as Maven central (http://central.maven.org/maven2/)
+         */
+        MAVEN,
+
+        /**
+         * Node.js package repository such as https://registry.npmjs.org/
+         */
+        NPM,
+
+        /**
+         * CocoaPod repository for managing Swift and Objective-C Cocoa dependencies
+         */
+        COCOA_POD
+    }
 
     /**
      * List of trusted repository URLs.  These repositories contain only artifacts which have been built

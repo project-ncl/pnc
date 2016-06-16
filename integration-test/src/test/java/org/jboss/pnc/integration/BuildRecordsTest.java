@@ -29,7 +29,7 @@ import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.BuildStatus;
-import org.jboss.pnc.model.RepositoryType;
+import org.jboss.pnc.model.ArtifactRepo;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.rest.provider.ArtifactProvider;
 import org.jboss.pnc.rest.provider.BuildRecordProvider;
@@ -124,28 +124,28 @@ public class BuildRecordsTest {
         Artifact builtArtifact1 = Artifact.Builder.newBuilder()
                 .filename("builtArtifact1.jar")
                 .identifier("integration-test:built-artifact1:jar:1.0")
-                .repoType(RepositoryType.MAVEN)
+                .repoType(ArtifactRepo.Type.MAVEN)
                 .checksum("abcd1234")
                 .build();
 
         Artifact builtArtifact2 = Artifact.Builder.newBuilder()
                 .filename("builtArtifact2.jar")
                 .identifier("integration-test:built-artifact2:jar:1.0")
-                .repoType(RepositoryType.MAVEN)
+                .repoType(ArtifactRepo.Type.MAVEN)
                 .checksum("abcd1234")
                 .build();
 
         Artifact builtArtifact3 = Artifact.Builder.newBuilder()
                 .filename("builtArtifact3.jar")
                 .identifier("integration-test:built-artifact3:jar:1.0")
-                .repoType(RepositoryType.MAVEN)
+                .repoType(ArtifactRepo.Type.MAVEN)
                 .checksum("abcd1234")
                 .build();
 
         Artifact importedArtifact1 = Artifact.Builder.newBuilder()
                 .filename("importedArtifact1.jar")
                 .identifier("integration-test:import-artifact1:jar:1.0")
-                .repoType(RepositoryType.MAVEN)
+                .repoType(ArtifactRepo.Type.MAVEN)
                 .checksum("abcd1234")
                 .importDate(Date.from(Instant.now()))
                 .originUrl("http://central/importedArtifact1.jar")

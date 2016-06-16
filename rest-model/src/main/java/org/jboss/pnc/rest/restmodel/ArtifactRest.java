@@ -20,7 +20,7 @@ package org.jboss.pnc.rest.restmodel;
 import io.swagger.annotations.ApiModelProperty;
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.BuildRecord;
-import org.jboss.pnc.model.RepositoryType;
+import org.jboss.pnc.model.ArtifactRepo;
 import org.jboss.pnc.rest.validation.groups.WhenCreatingNew;
 import org.jboss.pnc.rest.validation.groups.WhenUpdating;
 
@@ -47,7 +47,7 @@ public class ArtifactRest implements GenericRestEntity<Integer> {
     private Artifact.Quality artifactQuality;
 
     @ApiModelProperty(dataType = "string")
-    private RepositoryType repoType;
+    private ArtifactRepo.Type repoType;
 
     @NotNull(groups = {WhenCreatingNew.class, WhenUpdating.class})
     private String checksum;
@@ -101,11 +101,11 @@ public class ArtifactRest implements GenericRestEntity<Integer> {
         this.identifier = identifier;
     }
 
-    public RepositoryType getRepoType() {
+    public ArtifactRepo.Type getRepoType() {
         return repoType;
     }
 
-    public void setRepoType(RepositoryType repoType) {
+    public void setRepoType(ArtifactRepo.Type repoType) {
         this.repoType = repoType;
     }
 

@@ -71,7 +71,7 @@ public class Artifact implements GenericEntity<Integer> {
      */
     @NotNull
     @Column(updatable=false)
-    private RepositoryType repoType;
+    private ArtifactRepo.Type repoType;
 
     @Column(updatable=false)
     private String filename;
@@ -319,14 +319,14 @@ public class Artifact implements GenericEntity<Integer> {
     /**
      * @return the repoType
      */
-    public RepositoryType getRepoType() {
+    public ArtifactRepo.Type getRepoType() {
         return repoType;
     }
 
     /**
      * @param repoType the repoType to set
      */
-    public void setRepoType(RepositoryType repoType) {
+    public void setRepoType(ArtifactRepo.Type repoType) {
         this.repoType = repoType;
     }
 
@@ -390,7 +390,7 @@ public class Artifact implements GenericEntity<Integer> {
 
         private Quality artifactQuality;
 
-        private RepositoryType repoType;
+        private ArtifactRepo.Type repoType;
 
         private String filename;
 
@@ -455,7 +455,7 @@ public class Artifact implements GenericEntity<Integer> {
             return this;
         }
 
-        public Builder repoType(RepositoryType repoType) {
+        public Builder repoType(ArtifactRepo.Type repoType) {
             this.repoType = repoType;
             return this;
         }

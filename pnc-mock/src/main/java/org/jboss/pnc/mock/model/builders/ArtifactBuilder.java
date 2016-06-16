@@ -19,7 +19,7 @@
 package org.jboss.pnc.mock.model.builders;
 
 import org.jboss.pnc.model.Artifact;
-import org.jboss.pnc.model.RepositoryType;
+import org.jboss.pnc.model.ArtifactRepo;
 
 import java.time.Instant;
 import java.util.Date;
@@ -38,7 +38,7 @@ public class ArtifactBuilder {
                 .originUrl("http://central.maven.org/" + id + ".jar")
                 .importDate(Date.from(Instant.now()))
                 .deployUrl("deploy url " + id)
-                .repoType(RepositoryType.MAVEN)
+                .repoType(ArtifactRepo.Type.MAVEN)
                 .filename("File " + id + ".jar")
                 .build();
     }
@@ -49,7 +49,7 @@ public class ArtifactBuilder {
                 .identifier(IDENTIFIER_PREFIX + ":" + id)
                 .checksum("ABCDABCD")
                 .deployUrl("deploy url " + id)
-                .repoType(RepositoryType.MAVEN)
+                .repoType(ArtifactRepo.Type.MAVEN)
                 .filename("File " + id + ".jar")
                 .build();
     }

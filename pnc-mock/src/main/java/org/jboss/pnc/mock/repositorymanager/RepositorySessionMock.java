@@ -19,7 +19,7 @@ package org.jboss.pnc.mock.repositorymanager;
 
 import org.jboss.pnc.mock.model.builders.ArtifactBuilder;
 import org.jboss.pnc.model.Artifact;
-import org.jboss.pnc.model.RepositoryType;
+import org.jboss.pnc.model.ArtifactRepo;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerException;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
 import org.jboss.pnc.spi.repositorymanager.model.RepositoryConnectionInfo;
@@ -35,8 +35,8 @@ import java.util.Map;
  */
 public class RepositorySessionMock implements RepositorySession {
     @Override
-    public RepositoryType getType() {
-        return RepositoryType.MAVEN;
+    public ArtifactRepo.Type getType() {
+        return ArtifactRepo.Type.MAVEN;
     }
 
     @Override

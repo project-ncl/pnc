@@ -123,13 +123,13 @@ public class BasicModelTest extends AbstractModelTest {
         EntityManager em = getEmFactory().createEntityManager();
 
         Artifact artifact1 = Artifact.Builder.newBuilder().identifier("org.jboss:artifact1").checksum("ABCD1234")
-                .filename("artifact1.jar").repoType(RepositoryType.MAVEN).build();
+                .filename("artifact1.jar").repoType(ArtifactRepo.Type.MAVEN).build();
         Artifact artifact2 = Artifact.Builder.newBuilder().identifier("org.jboss:artifact2").checksum("BBCD1234")
                 .filename("artifact2.jar").originUrl("http://central/artifact2.jar").importDate(Date.from(Instant.now()))
-                .repoType(RepositoryType.MAVEN).build();
+                .repoType(ArtifactRepo.Type.MAVEN).build();
         Artifact artifact3 = Artifact.Builder.newBuilder().identifier("org.jboss:artifact3").checksum("CBCD1234")
                 .filename("artifact3.jar").originUrl("http://central/artifact3.jar").importDate(Date.from(Instant.now()))
-                .repoType(RepositoryType.MAVEN).build();
+                .repoType(ArtifactRepo.Type.MAVEN).build();
 
         BuildConfigurationAudited buildConfigAud = (BuildConfigurationAudited) em.createQuery("from BuildConfigurationAudited")
                 .getResultList().get(1);
@@ -153,10 +153,10 @@ public class BasicModelTest extends AbstractModelTest {
         EntityManager em = getEmFactory().createEntityManager();
 
         Artifact builtArtifact = Artifact.Builder.newBuilder().identifier("org.jboss:builtArtifact").checksum("12345678")
-                .filename("buildArtifact.jar").repoType(RepositoryType.MAVEN).build();
+                .filename("buildArtifact.jar").repoType(ArtifactRepo.Type.MAVEN).build();
         Artifact importedArtifact = Artifact.Builder.newBuilder().identifier("org.jboss:importedArtifact").checksum("12345678")
                 .filename("importedArtifact.jar").originUrl("http://central/importedArtifact.jar").importDate(Date.from(Instant.now()))
-                .repoType(RepositoryType.MAVEN).build();
+                .repoType(ArtifactRepo.Type.MAVEN).build();
 
         BuildConfigurationAudited buildConfigAud = (BuildConfigurationAudited) em.createQuery("from BuildConfigurationAudited")
                 .getResultList().get(1);
@@ -185,7 +185,7 @@ public class BasicModelTest extends AbstractModelTest {
 
         Artifact artifact = Artifact.Builder.newBuilder().identifier("org.test:artifact1:1.0:jar").checksum("987654321")
                 .filename("artifact1.jar").originUrl("http://central.maven.org/maven2/test.jar").importDate(Date.from(Instant.now()))
-                .repoType(RepositoryType.MAVEN).build();
+                .repoType(ArtifactRepo.Type.MAVEN).build();
         productMilestone1.addDistributedArtifact(artifact);
         ProductRelease productRelease1 = ProductRelease.Builder.newBuilder().version("1.0.0.Beta1")
                 .productMilestone(productMilestone1).build();

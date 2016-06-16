@@ -31,7 +31,7 @@ import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.moduleconfig.MavenRepoDriverModuleConfig;
 import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
 import org.jboss.pnc.model.BuildRecord;
-import org.jboss.pnc.model.RepositoryType;
+import org.jboss.pnc.model.ArtifactRepo;
 import org.jboss.pnc.spi.repositorymanager.BuildExecution;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManager;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerException;
@@ -104,11 +104,11 @@ public class RepositoryManagerDriver implements RepositoryManager {
     }
 
     /**
-     * Only supports {@link RepositoryType#MAVEN}.
+     * Only supports {@link ArtifactRepo.Type#MAVEN}.
      */
     @Override
-    public boolean canManage(RepositoryType managerType) {
-        return (managerType == RepositoryType.MAVEN);
+    public boolean canManage(ArtifactRepo.Type managerType) {
+        return (managerType == ArtifactRepo.Type.MAVEN);
     }
 
     /**
