@@ -143,9 +143,9 @@ public class DatastoreTest {
         Assert.assertNotNull(buildConfigAud);
 
         Artifact builtArtifact1 = Artifact.Builder.newBuilder().identifier(ARTIFACT_1_IDENTIFIER).checksum(ARTIFACT_1_CHECKSUM)
-                .artifactQuality(ArtifactQuality.BUILT).repoType(RepositoryType.MAVEN).build();
+                .repoType(RepositoryType.MAVEN).build();
         Artifact importedArtifact2 = Artifact.Builder.newBuilder().identifier(ARTIFACT_2_IDENTIFIER).checksum(ARTIFACT_2_CHECKSUM)
-                .artifactQuality(ArtifactQuality.IMPORTED).repoType(RepositoryType.MAVEN).build();
+                .originUrl("http://test/artifact2.jar").importDate(Date.from(Instant.now())).repoType(RepositoryType.MAVEN).build();
 
         BuildRecord buildRecord = BuildRecord.Builder.newBuilder().id(datastore.getNextBuildRecordId())
                 .buildConfigurationAudited(buildConfigAud).latestBuildConfiguration(buildConfig)
@@ -181,11 +181,11 @@ public class DatastoreTest {
         Assert.assertNotNull(buildConfigAud);
 
         Artifact builtArtifact1 = Artifact.Builder.newBuilder().identifier(ARTIFACT_1_IDENTIFIER).checksum(ARTIFACT_1_CHECKSUM)
-                .artifactQuality(ArtifactQuality.BUILT).repoType(RepositoryType.MAVEN).build();
+                .repoType(RepositoryType.MAVEN).build();
         Artifact importedArtifact2 = Artifact.Builder.newBuilder().identifier(ARTIFACT_2_IDENTIFIER).checksum(ARTIFACT_2_CHECKSUM)
-                .artifactQuality(ArtifactQuality.IMPORTED).repoType(RepositoryType.MAVEN).build();
+                .originUrl("http://test/importArtifact2.jar").importDate(Date.from(Instant.now())).repoType(RepositoryType.MAVEN).build();
         Artifact builtArtifact3 = Artifact.Builder.newBuilder().identifier(ARTIFACT_3_IDENTIFIER).checksum(ARTIFACT_3_CHECKSUM)
-                .artifactQuality(ArtifactQuality.IMPORTED).repoType(RepositoryType.MAVEN).build();
+                .originUrl("http://test/importArtifact2.jar").importDate(Date.from(Instant.now())).repoType(RepositoryType.MAVEN).build();
 
         BuildRecord.Builder buildRecordBuilder = BuildRecord.Builder.newBuilder().id(datastore.getNextBuildRecordId())
                 .buildConfigurationAudited(buildConfigAud).latestBuildConfiguration(buildConfig)

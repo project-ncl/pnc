@@ -22,6 +22,9 @@ import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.ArtifactQuality;
 import org.jboss.pnc.model.RepositoryType;
 
+import java.time.Instant;
+import java.util.Date;
+
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
@@ -33,7 +36,8 @@ public class ArtifactBuilder {
                 .id(id)
                 .identifier(IDENTIFIER_PREFIX + ":" + id)
                 .checksum("ABCD1234")
-                .artifactQuality(ArtifactQuality.IMPORTED)
+                .originUrl("http://central.maven.org/" + id + ".jar")
+                .importDate(Date.from(Instant.now()))
                 .deployUrl("deploy url " + id)
                 .repoType(RepositoryType.MAVEN)
                 .filename("File " + id + ".jar")
@@ -45,11 +49,9 @@ public class ArtifactBuilder {
                 .id(id)
                 .identifier(IDENTIFIER_PREFIX + ":" + id)
                 .checksum("ABCDABCD")
-                .artifactQuality(ArtifactQuality.BUILT)
                 .deployUrl("deploy url " + id)
                 .repoType(RepositoryType.MAVEN)
                 .filename("File " + id + ".jar")
-                
                 .build();
     }
 }

@@ -184,11 +184,22 @@ public class Artifact implements GenericEntity<Integer> {
     }
 
     public void setArtifactQuality(ArtifactQuality artifactQuality) {
-        if(ArtifactQuality.IMPORTED.equals(artifactQuality) && buildRecords != null && buildRecords.size() > 0) {
-            // Don't allow the quality to be set to IMPORTED if there is a build record
-            return;
-        }
         this.artifactQuality = artifactQuality;
+    }
+
+    /**
+     * Check if this artifact has an associated build record
+     * @return true if there is a build record for this artifact, false otherwise
+     */
+    public boolean isBuilt() {
+        return (buildRecords != null && buildRecords.size() > 0);
+    }
+
+    /** Check if this artifact was imported from a remote URL
+     * @return true if there is an originUrl
+     */
+    public boolean isImported() {
+        return (originUrl != null && !originUrl.isEmpty());
     }
 
     /**
@@ -371,6 +382,9 @@ public class Artifact implements GenericEntity<Integer> {
             artifact.setId(id);
             artifact.setIdentifier(identifier);
             artifact.setChecksum(checksum);
+            if (artifactQuality == null) {
+                artifactQuality = ArtifactQuality.NEW;
+            }
             artifact.setArtifactQuality(artifactQuality);
             artifact.setRepoType(repoType);
             artifact.setFilename(filename);

@@ -126,9 +126,6 @@ public class DefaultDatastore implements Datastore {
                     .queryByPredicates(withIdentifierAndChecksum(artifact.getIdentifier(), artifact.getChecksum()));
             if (artifactFromDb == null) {
                 artifactFromDb = artifactRepository.save(artifact);
-            } else if (BUILT.equals(artifact.getArtifactQuality()) && IMPORTED.equals(artifactFromDb.getArtifactQuality())) {
-                artifactFromDb.setArtifactQuality(BUILT);
-                artifactFromDb = artifactRepository.save(artifactFromDb);
             }
             savedArtifacts.add(artifactFromDb);
         }

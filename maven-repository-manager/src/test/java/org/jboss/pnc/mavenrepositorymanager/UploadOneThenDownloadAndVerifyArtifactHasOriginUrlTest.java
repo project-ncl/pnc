@@ -38,6 +38,7 @@ import java.util.List;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 @Category(ContainerTest.class)
 public class UploadOneThenDownloadAndVerifyArtifactHasOriginUrlTest
@@ -92,7 +93,7 @@ public class UploadOneThenDownloadAndVerifyArtifactHasOriginUrlTest
 
         Artifact dep = dependencies.get(0);
         assertThat(dep.getIdentifier(), equalTo(aref));
-        assertThat(dep.getArtifactQuality(), equalTo(ArtifactQuality.IMPORTED));
+        assertTrue(dep.isImported());
         assertThat(dep.getOriginUrl(), notNullValue());
 
         client.close();

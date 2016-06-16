@@ -23,10 +23,9 @@ package org.jboss.pnc.model;
 public enum ArtifactQuality {
 
     /** 
-     * The artifact has been built in a controlled environment, but has not yet been verified
-     * or tested
+     * The artifact has not yet been verified or tested
      */
-    BUILT,
+    NEW,
 
     /**
      * The artifact has been verified by an automated process, but has not yet been tested against
@@ -49,11 +48,5 @@ public enum ArtifactQuality {
      * The artifact contains a severe defect, possibly a functional or security issue.
      */
     BLACKLISTED,
-
-    /**
-     * The artifact was imported from an external system and is not known to have been built in
-     * a controlled build environment.
-     */
-    IMPORTED;
 
 }

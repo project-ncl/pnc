@@ -160,10 +160,10 @@ public class ArtifactRest implements GenericRestEntity<Integer> {
 
     @Deprecated
     public String getStatus() {
-        if (ArtifactQuality.IMPORTED.equals(artifactQuality)) {
-            return "BINARY_IMPORTED";
+        if (buildRecordIds != null && buildRecordIds.size() > 0) {
+            return "BINARY_BUILT";
         }
-        return "BINARY_BUILT";
+        return "BINARY_IMPORTED";
     }
 
     public Set<Integer> getBuildRecordIds() {
