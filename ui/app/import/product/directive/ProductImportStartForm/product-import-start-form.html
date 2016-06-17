@@ -26,7 +26,7 @@
       <div class="form-group"
           ng-class="{ 'has-error' : startForm.input1.$invalid && !startForm.startFormInput1.$pristine, 'has-success': startForm.startFormInput1.$valid && startForm.startFormInput1.$touched }">
         <label for="startFormInput1" class="col-sm-3 control-label">
-          * Product&nbsp;<span class="pficon pficon-info" title="Select the Product to import into."></span>
+          * Product&nbsp;<a uib-popover="Select the product you wish to import into" popover-placement="top-left" popover-trigger="outsideClick" href><span class="fa fa-info-circle"></span></a>
         </label>
 
         <div class="col-sm-9">

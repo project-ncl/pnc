@@ -21,7 +21,13 @@
   <pnc-header>
     <pnc-header-title>Build Configs</pnc-header-title>
     <pnc-header-buttons>
-      <button type="button" class="btn btn-lg btn-default" data-toggle="tooltip" title="Create Build Config" ui-sref="configuration.create">
+      <button type="button"
+              class="btn btn-lg btn-default"
+              uib-tooltip="Create a new build configuration"
+              tooltip-popup-delay="2500"
+              tooltip-placement="top"
+              tooltip-append-to-body="true"
+              ui-sref="configuration.create">
         <i class="pficon pficon-add"></i> Create
       </button>
     </pnc-header-buttons>

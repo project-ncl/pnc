@@ -22,23 +22,23 @@
     <pnc-header-title>{{ detailCtrl.configuration.name || 'Empty' }}</pnc-header-title>
     <pnc-header-buttons>
       <div class="btn-group">
-        <button class="btn btn-lg btn-default ng-scope" tooltip="Start Build" tooltip-placement="top" ng-click="detailCtrl.build()" pnc-requires-auth>
+        <button type="button" class="btn btn-lg btn-default ng-scope" uib-tooltip="Start a build of this configuration" tooltip-popup-delay="2500" tooltip-placement="top" tooltip-append-to-body="true" ng-click="detailCtrl.build()" pnc-requires-auth>
           <i class="fa fa-play"></i>
           <span class="shrink">Build</span>
         </button>
         <ul class="dropdown-menu"></ul>
-          <button class="btn btn-lg btn-default dropdown-toggle ng-scope" tooltip="Start Build forcing rebuilds" tooltip-placement="top" data-toggle="dropdown" pnc-requires-auth>
+          <button class="btn btn-lg btn-default dropdown-toggle ng-scope" data-toggle="dropdown" pnc-requires-auth>
             <span class="caret"></span>
           </button>
           <ul class="dropdown-menu">
             <li>
-              <a href ng-click="detailCtrl.forceBuild()"><span><i class="fa fa-play fa-color-red"></i>   Build forcing all rebuilds</span></a>
+              <a href ng-click="detailCtrl.forceBuild()" uib-tooltip="Start a build of this configuration, forcing a rebuild if a successful build already exists" tooltip-popup-delay="2500" tooltip-append-to-body="true"><span><i class="fa fa-play fa-color-red"></i> Force Rebuild</span></a>
             </li>
           </ul>
       </div>
-      <button type="button" class="btn btn-lg btn-default" data-toggle="tooltip" title="Clone Build Config" ng-click="detailCtrl.clone()" pnc-requires-auth><i class="fa fa-files-o"></i> Clone</button>
-      <button type="button" class="btn btn-lg btn-default" data-toggle="tooltip" title="Edit Build Config" ng-click="configurationForm.$show()" ng-class="{ 'active': configurationForm.$visible }" pnc-requires-auth><i class="pficon pficon-edit"></i> Edit</button>
-      <button type="button" class="btn btn-lg btn-danger" data-toggle="tooltip" title="Delete Build Config" pnc-confirm-click="detailCtrl.delete()" pnc-confirm-message="{{ 'Confirm the deletion of Build Configuration: ' + detailCtrl.configuration.name + ' ?'}}" pnc-requires-auth><i class="pficon pficon-delete"></i> Delete</button>
+      <button type="button" class="btn btn-lg btn-default" uib-tooltip="Clone Build Config" tooltip-placement="top" tooltip-append-to-body="true" tooltip-popup-delay="2500" ng-click="detailCtrl.clone()" pnc-requires-auth><i class="fa fa-files-o"></i> Clone</button>
+      <button type="button" class="btn btn-lg btn-default" uib-tooltip="Edit Build Config" tooltip-placement="top" tooltip-append-to-body="true" tooltip-popup-delay="2500" ng-click="configurationForm.$show()" ng-class="{ 'active': configurationForm.$visible }" pnc-requires-auth><i class="pficon pficon-edit"></i> Edit</button>
+      <button type="button" class="btn btn-lg btn-danger" uib-tooltip="Delete Build Config" tooltip-placement="top" tooltip-append-to-body="true" tooltip-popup-delay="2500" pnc-confirm-click="detailCtrl.delete()" pnc-confirm-message="{{ 'Confirm the deletion of Build Configuration: ' + detailCtrl.configuration.name + ' ?'}}" pnc-requires-auth><i class="pficon pficon-delete"></i> Delete</button>
     </pnc-header-buttons>
   </pnc-header>
 
