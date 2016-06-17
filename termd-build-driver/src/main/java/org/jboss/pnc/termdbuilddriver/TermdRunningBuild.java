@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.termdbuilddriver;
 
+import org.jboss.pnc.buildagent.client.BuildAgentClient;
 import org.jboss.pnc.spi.builddriver.CompletedBuild;
 import org.jboss.pnc.spi.builddriver.RunningBuild;
 import org.jboss.pnc.spi.environment.RunningEnvironment;
@@ -25,6 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.invoke.MethodHandles;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -42,6 +44,7 @@ public class TermdRunningBuild implements RunningBuild {
     private final BuildExecutionConfiguration buildExecutionConfiguration;
 
     private CompletableFuture<CompletedBuild> buildPromise = new CompletableFuture<>();
+    private BuildAgentClient buildAgentClient;
 
     public TermdRunningBuild(RunningEnvironment runningEnvironment, BuildExecutionConfiguration buildExecutionConfiguration) {
         this.runningEnvironment = runningEnvironment;
@@ -76,7 +79,7 @@ public class TermdRunningBuild implements RunningBuild {
 
     @Override
     public void cancel() {
-
+        buildAgentClient.executeNow('C' - 64); //send ctrl+C
     }
 
     public String getBuildScript() {
@@ -103,4 +106,11 @@ public class TermdRunningBuild implements RunningBuild {
         }
     }
 
+    public void setBuildAgentClient(BuildAgentClient buildAgentClient) {
+        this.buildAgentClient = buildAgentClient;
+    }
+
+    public Optional<BuildAgentClient> getBuildAgentClient() {
+        return Optional.ofNullable(buildAgentClient);
+    }
 }

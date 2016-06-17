@@ -50,6 +50,7 @@ import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
 
 import static org.jboss.pnc.buildagent.api.Status.COMPLETED;
+import static org.jboss.pnc.buildagent.api.Status.INTERRUPTED;
 
 @ApplicationScoped
 public class TermdBuildDriver implements BuildDriver { //TODO rename class
@@ -138,22 +139,29 @@ public class TermdBuildDriver implements BuildDriver { //TODO rename class
             invocation.completeExceptionally(new BuildDriverException("Cannot connect build agent client.", e));
         }
 
+        termdRunningBuild.setBuildAgentClient(buildAgentClient);
+
         try {
             buildAgentClient.executeCommand("sh " + scriptPath);
         } catch (TimeoutException e) {
             invocation.completeExceptionally(new BuildDriverException("Cannot execute remote script.", e));
-        }
-
-        try {
-            buildAgentClient.close();
-        } catch (IOException e) {
-            invocation.completeExceptionally(new BuildDriverException("Cannot close build agent connections.", e));
         }
         return invocation;
     }
 
     private CompletableFuture<CompletedBuild> collectResults(TermdRunningBuild termdRunningBuild, org.jboss.pnc.buildagent.api.Status completionStatus) {
         return CompletableFuture.supplyAsync(() -> {
+            if (termdRunningBuild.getBuildAgentClient().isPresent()) {
+                BuildAgentClient buildAgentClient = termdRunningBuild.getBuildAgentClient().get();
+                try {
+                    buildAgentClient.close();
+                } catch (IOException e) {
+                    throw new RuntimeException("Cannot close build agent connections.", e);
+                }
+            } else {
+                throw new RuntimeException("Build Agent Client is not available.");
+            }
+
             CompletedBuild completedBuild = new CompletedBuild() { //TODO use concrete class
                 @Override
                 public BuildDriverResult getBuildResult() throws BuildDriverException {
@@ -169,9 +177,8 @@ public class TermdBuildDriver implements BuildDriver { //TODO rename class
                                 URI logsUri = new URI(getBuildAgentUrl(termdRunningBuild)).resolve("servlet/download" + logsDirectory + "/console.log");
                                 transfer.downloadFileToStringBuilder(stringBuffer, logsUri);
                             } catch (URISyntaxException e) {
-                                e.printStackTrace();
+                                throw new RuntimeException("Cannot construct logs uri.", e);
                             }
-
                             return stringBuffer.toString();
                         }
 
@@ -179,6 +186,8 @@ public class TermdBuildDriver implements BuildDriver { //TODO rename class
                         public BuildDriverStatus getBuildDriverStatus() {
                             if (COMPLETED.equals(completionStatus)) {
                                 return BuildDriverStatus.SUCCESS;
+                            } else if (INTERRUPTED.equals(completionStatus)) {
+                                return BuildDriverStatus.CANCELLED;
                             } else {
                                 return BuildDriverStatus.FAILED;
                             }
@@ -191,6 +200,7 @@ public class TermdBuildDriver implements BuildDriver { //TODO rename class
                     return termdRunningBuild.getRunningEnvironment();
                 }
             };
+
             return completedBuild;
         });
     }
@@ -207,11 +217,6 @@ public class TermdBuildDriver implements BuildDriver { //TODO rename class
         buildScript.append(termdRunningBuild.getBuildScript() + "\n");
 
         return buildScript.toString();
-    }
-
-    @Override
-    public void cancelBuild(RunningBuild runningBuild) {
-        runningBuild.cancel();
     }
 
     private CompletableFuture<String> uploadScript(TermdRunningBuild termdRunningBuild, String command) {
@@ -234,6 +239,4 @@ public class TermdBuildDriver implements BuildDriver { //TODO rename class
             return termdRunningBuild.getRunningEnvironment().getBuildAgentUrl();
         }
     }
-
-
 }
