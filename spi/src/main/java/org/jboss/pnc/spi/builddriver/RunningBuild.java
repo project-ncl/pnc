@@ -28,4 +28,6 @@ public interface RunningBuild {
     void monitor(Consumer<CompletedBuild> onComplete, Consumer<Throwable> onError);
 
     RunningEnvironment getRunningEnvironment();
+
+    void cancel();
 }

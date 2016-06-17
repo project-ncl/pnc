@@ -98,10 +98,14 @@ public class SystemConfig extends AbstractModuleConfig {
 
     private int toIntWithDefault(String fieldName, String numberAsString, int defaultValue) {
         int result = defaultValue;
-        try {
-            result =  Integer.parseInt(numberAsString);
-        } catch (NumberFormatException nfe) {
-            log.error("Invalid value in field: " + fieldName +". Expected an integer, got: {}. Will use default value: {}", numberAsString, defaultValue, nfe);
+        if (numberAsString == null) {
+            log.warn("Value in field: " + fieldName + " not set. Will use default value: {}", defaultValue);
+        } else {
+            try {
+                result = Integer.parseInt(numberAsString);
+            } catch (NumberFormatException nfe) {
+                log.warn("Invalid value in field: " + fieldName + ". Expected an integer, got: {}. Will use default value: {}", numberAsString, defaultValue, nfe);
+            }
         }
         return result;
     }

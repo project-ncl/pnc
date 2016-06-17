@@ -74,6 +74,11 @@ public class TermdRunningBuild implements RunningBuild {
         return runningEnvironment;
     }
 
+    @Override
+    public void cancel() {
+
+    }
+
     public String getBuildScript() {
         return buildExecutionConfiguration.getBuildScript();
     }

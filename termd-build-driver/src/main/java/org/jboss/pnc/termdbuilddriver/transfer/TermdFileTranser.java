@@ -73,8 +73,8 @@ public class TermdFileTranser {
         }
     }
 
-    public void uploadScript(StringBuilder script, Path remoteFilePath) {
-        logger.debug("Uploading build script to remote path {}, build script {}", remoteFilePath, script.toString());
+    public void uploadScript(String script, Path remoteFilePath) {
+        logger.debug("Uploading build script to remote path {}, build script {}", remoteFilePath, script);
         String scriptPath = UPLOAD_PATH + remoteFilePath.toAbsolutePath().toString();
         logger.debug("Resolving script path {} to base uri {}", scriptPath, baseServerUri);
         URI uploadUri = baseServerUri.resolve(scriptPath);
@@ -85,12 +85,11 @@ public class TermdFileTranser {
             connection.setDoOutput(true);
             connection.setDoInput(true);
 
-            String fileContent = script.toString();
-            byte[] fileContentBytes = fileContent.getBytes();
-            connection.setRequestProperty("Content-Length", "" + Integer.toString(fileContentBytes.length));
+            byte[] fileContent = script.getBytes();
+            connection.setRequestProperty("Content-Length", "" + Integer.toString(fileContent.length));
 
             try (OutputStream outputStream = connection.getOutputStream()) {
-                outputStream.write(fileContentBytes);
+                outputStream.write(fileContent);
             }
 
             if(200 != connection.getResponseCode()) {

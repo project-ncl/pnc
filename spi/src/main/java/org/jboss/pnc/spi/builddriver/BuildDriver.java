@@ -28,9 +28,9 @@ public interface BuildDriver {
 
     String getDriverId();
 
-    public RunningBuild startProjectBuild(
-            BuildExecutionSession buildExecutionSession,
-            RunningEnvironment runningEnvironment)
+    RunningBuild startProjectBuild(BuildExecutionSession buildExecutionSession, RunningEnvironment runningEnvironment)
             throws BuildDriverException;
+
+    void cancelBuild(RunningBuild runningBuild);
 
 }
