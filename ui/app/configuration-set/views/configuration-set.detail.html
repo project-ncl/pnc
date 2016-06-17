@@ -22,17 +22,17 @@
     <pnc-header-title>{{ detailSetCtrl.set.name }}</pnc-header-title>
     <pnc-header-buttons>
       <div class="btn-group">
-        <button class="btn btn-lg btn-default ng-scope" tooltip="Run Build Group" tooltip-placement="top" ng-click="detailSetCtrl.build()" pnc-requires-auth>
+        <button class="btn btn-lg btn-default ng-scope" ng-click="detailSetCtrl.build()" pnc-requires-auth>
           <i class="fa fa-play"></i>
           <span class="shrink">Build</span>
         </button>
         <ul class="dropdown-menu"></ul>
-          <button class="btn btn-lg btn-default dropdown-toggle ng-scope" tooltip="Start Build forcing rebuilds" tooltip-placement="top" data-toggle="dropdown" pnc-requires-auth>
+          <button class="btn btn-lg btn-default dropdown-toggle ng-scope" data-toggle="dropdown" pnc-requires-auth>
             <span class="caret"></span>
           </button>
           <ul class="dropdown-menu">
             <li>
-              <a href ng-click="detailSetCtrl.forceBuild()" pnc-requires-auth><span><i class="fa fa-play fa-color-red"></i>   Build forcing all rebuilds</span></a>
+              <a href ng-click="detailSetCtrl.forceBuild()" pnc-requires-auth><span><i class="fa fa-play fa-color-red"></i> Force Rebuild</span></a>
             </li>
           </ul>
       </div>
