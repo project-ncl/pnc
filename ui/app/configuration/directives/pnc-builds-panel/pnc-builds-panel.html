@@ -25,9 +25,7 @@
 
   <table class="table table-striped table-hover" ng-show="page.data.length">
     <tbody>
-      <tr ng-repeat="record in page.data" 
-          data-tooltip-html-unsafe="<strong>Started: </strong>{{ record.startTime | date:'medium'}}<br><strong>Ended: </strong>{{ record.endTime | date:'medium' }}"
-          data-tooltip-placement="left">
+      <tr ng-repeat="record in page.data">
         <td>
           <build-status-icon status="record.status"></build-status-icon>
         </td>
