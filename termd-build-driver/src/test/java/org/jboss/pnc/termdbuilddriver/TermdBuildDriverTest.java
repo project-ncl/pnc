@@ -22,6 +22,7 @@ import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
 import org.jboss.pnc.spi.builddriver.CompletedBuild;
 import org.jboss.pnc.spi.builddriver.RunningBuild;
+import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
 import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
 import org.jboss.pnc.spi.executor.BuildExecutionSession;
 import org.junit.Before;
@@ -35,6 +36,7 @@ import java.nio.file.Path;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.jboss.pnc.spi.builddriver.BuildDriverStatus.CANCELLED;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.doReturn;
@@ -83,6 +85,36 @@ public class TermdBuildDriverTest extends AbstractLocalBuildAgentTest {
         assertThat(buildResult.get().getBuildResult().getBuildLog()).isNotEmpty();
         assertThat(Files.exists(localEnvironmentPointer.getWorkingDirectory())).isTrue();
         assertThat(Files.exists(localEnvironmentPointer.getWorkingDirectory().resolve(dirName))).isTrue();
+    }
+
+    @Test
+    public void shouldStartAndCancelTheCommand() throws ConfigurationParseException, BuildDriverException {
+        //given
+        String dirName = "test-workdir";
+        String logStart = "Running the command...";
+        String logEnd = "Command completed.";
+
+        TermdBuildDriver driver = new TermdBuildDriver(getConfiguration());
+        BuildExecutionSession buildExecution = mock(BuildExecutionSession.class);
+        BuildExecutionConfiguration buildExecutionConfiguration = mock(BuildExecutionConfiguration.class);
+        doReturn("echo \"" + logStart + "\"; mvn sleep").when(buildExecutionConfiguration).getBuildScript(); //TODO fix command
+        doReturn(dirName).when(buildExecutionConfiguration).getName();
+        doReturn(buildExecutionConfiguration).when(buildExecution).getBuildExecutionConfiguration();
+
+        AtomicReference<CompletedBuild> buildResult = new AtomicReference<>();
+
+        //when
+        RunningBuild runningBuild = driver.startProjectBuild(buildExecution, localEnvironmentPointer);
+        runningBuild.monitor(buildResult::set, exception -> fail(exception.getMessage()));
+        runningBuild.cancel();
+
+        logger.info(buildResult.get().getBuildResult().getBuildLog());
+
+        //then
+        assertThat(buildResult.get().getBuildResult()).isNotNull();
+        assertThat(buildResult.get().getBuildResult().getBuildLog()).contains(logStart);
+        assertThat(buildResult.get().getBuildResult().getBuildLog()).doesNotContain(logEnd);
+        assertThat(buildResult.get().getBuildResult().getBuildDriverStatus()).isEqualTo(CANCELLED);
     }
 
     private Configuration getConfiguration() throws ConfigurationParseException {
