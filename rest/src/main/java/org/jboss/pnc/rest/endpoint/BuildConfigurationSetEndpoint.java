@@ -79,8 +79,8 @@ import java.util.stream.Collectors;
 
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.CONFLICTED_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.CONFLICTED_DESCRIPTION;
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.INVALID_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.INVALID_CODE;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.INVALID_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.NOT_FOUND_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.NOT_FOUND_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.NO_CONTENT_CODE;
@@ -322,10 +322,10 @@ public class BuildConfigurationSetEndpoint extends AbstractEndpoint<BuildConfigu
         URI uri = uriBuilder.build(result.getBuildRecordSetId());
 
         Page<BuildRecordRest> resultsToBeReturned = new Page<>(new CollectionInfo<>(0,
-                result.getBuildRecordsIds().size(),
+                result.getBuildTasks().size(),
                 1,
-                result.getBuildRecordsIds().stream()
-                    .map(runningBuildRecordId -> buildRecordProvider.getSpecificRunning(runningBuildRecordId))
+                result.getBuildTasks().stream()
+                    .map(runningBuildRecordId -> buildRecordProvider.getBuildRecordForTask(runningBuildRecordId))
                     .filter(Objects::nonNull)
                     .collect(Collectors.toList())));
 
