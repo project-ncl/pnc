@@ -26,7 +26,7 @@
       <div class="form-group"
           ng-class="{ 'has-error' : startForm.input1.$invalid && !startForm.startFormInput1.$pristine, 'has-success': startForm.startFormInput1.$valid && startForm.startFormInput1.$touched }">
         <label for="startFormInput1" class="col-sm-3 control-label">
-          * Product&nbsp;<a uib-popover="Select the product you wish to import into" popover-placement="top-left" popover-trigger="outsideClick" href><span class="fa fa-info-circle"></span></a>
+          * Product&nbsp;<a uib-popover="Select the product you wish to import into." popover-placement="top-left" popover-trigger="outsideClick" href><span class="fa fa-info-circle"></span></a>
         </label>
 
         <div class="col-sm-9">
@@ -41,11 +41,20 @@
       <div class="form-group"
           ng-class="{ 'has-error' : startForm.startFormInput2.$invalid && !startForm.startFormInput2.$pristine, 'has-success': startForm.startFormInput2.$valid && startForm.startFormInput2.$touched }">
         <label for="startFormInput2" class="col-sm-3 control-label">
-          * Product version&nbsp;<span class="pficon pficon-info" title="Major.minor version of a product, i.e. 7.0"></span>
+          * Product Version&nbsp;
+          <a uib-popover="Enter the product version to import into using format major.minor, e.g. 7.0 -- If the version does not exist it will be created for you."
+             popover-placement="top-left"
+             popover-trigger="outsideClick"
+             href>
+            <span class="fa fa-info-circle"></span>
+          </a>
         </label>
-
         <div class="col-sm-9">
-          <input id="startFormInput2" name="startFormInput2" maxlength="255" class="form-control" ng-model="data.productVersion"
+          <input id="startFormInput2"
+                 name="startFormInput2"
+                 maxlength="255"
+                 class="form-control"
+                 ng-model="data.productVersion"
                  pattern="^[0-9]+\.[0-9]+$"
                  required>
           <span class="help-block" ng-show="startForm.startFormInput2.$error.required && !startForm.startFormInput2.$pristine">Required field.</span>
@@ -63,7 +72,13 @@
       <div class="form-group"
            ng-class="{ 'has-error' : startForm.startFormInput3.$invalid && !startForm.startFormInput3.$pristine, 'has-success': startForm.startFormInput3.$valid && startForm.startFormInput3.$touched }">
         <label for="startFormInput3" class="col-sm-3 control-label">
-          * Git URL&nbsp;<span class="pficon pficon-info" title="URL of the product code repository."></span>
+          * SCM URL&nbsp;
+          <a uib-popover="URL of the source code repository to import from."
+             popover-placement="top-left"
+             popover-trigger="outsideClick"
+             href>
+            <span class="fa fa-info-circle"></span>
+          </a>
         </label>
 
         <div class="col-sm-9">
@@ -82,20 +97,32 @@
 
       <div class="form-group">
         <label for="startFormInput4" class="col-sm-3 control-label">
-          Revision&nbsp;<span class="pficon pficon-info" title="SCM revision to use."></span>
+          Revision&nbsp;
+          <a uib-popover="Revision of the source code repository to import from, this can be a branch or tag only, not a commit-sha."
+             popover-placement="top-left"
+             popover-trigger="outsideClick"
+             href>
+            <span class="fa fa-info-circle"></span>
+          </a>
         </label>
 
         <div class="col-sm-9">
           <input placeholder="master" id="startFormInput4" name="startFormInput4" maxlength="255" class="form-control" ng-model="data.scmRevision">
           <div class="help-block">
-            <p>Use branch or tag name only, not hash.</p>
+            <p>Use branch or tag name only, not commit sha.</p>
           </div>
         </div>
       </div>
 
       <div class="form-group">
         <label for="startFormInput5" class="col-sm-3 control-label">
-          Root POM path&nbsp;<span class="pficon pficon-info" title="Location of the product's root POM file within the repository."></span>
+          Path to root POM&nbsp;
+          <a uib-popover="Location of the project's root pom.xml file within the scm repository."
+             popover-placement="top-left"
+             popover-trigger="outsideClick"
+             href>
+            <span class="fa fa-info-circle"></span>
+          </a>
         </label>
         <div class="col-sm-9">
           <input placeholder="./pom.xml" id="startFormInput5" name="startFormInput5" class="form-control" ng-model="data.pomPath">
@@ -110,20 +137,30 @@
 
       <div class="form-group"
            ng-class="{ 'has-error' : startForm.startFormInput6.$invalid && !startForm.startFormInput6.$pristine, 'has-success': startForm.startFormInput6.$valid  && startForm.startFormInput6.$touched }">
-        <label for="startFormInput6" class="col-sm-3 col-xs-12 control-label">
-          Optional Repositories&nbsp;<span class="pficon pficon-info" title="URLs of the optional repositories used for the project."></span>
+        <label for="startFormInput6" class="col-sm-3 control-label">
+          Optional Repositories&nbsp;
+          <a uib-popover="Add additional scm repository URLs used by the project."
+             popover-placement="top-left"
+             popover-trigger="outsideClick"
+             href>
+            <span class="fa fa-info-circle"></span>
+          </a>
         </label>
 
 
-        <div class="col-sm-7 col-xs-9">
-          <input type="url" id="startFormInput6" name="startFormInput6" class="form-control" ng-model="optionalRepository">
-          <span class="help-block" ng-show="startForm.startFormInput6.$error.url && !startForm.startFormInput6.$pristine">Invalid URL.</span>
-        </div>
-        <div class="col-sm-2 col-xs-3">
-          <button type="button" class="btn btn-primary" ng-click="addOptionalRepository()">Add</button>
+        <div class="col-sm-9">
+          <div class="input-group">
+
+            <input type="url" id="startFormInput6" name="startFormInput6" class="form-control" ng-model="optionalRepository">
+            <span class="input-group-btn" id="button6">
+              <button type="button" class="btn btn-default" ng-click="addOptionalRepository()"><i class="fa fa-plus"></i></button>
+            </span>
+          </div>
+          <div>
+            <span class="help-block" ng-show="startForm.startFormInput6.$error.url && !startForm.startFormInput6.$pristine">Invalid URL.</span>
+          </div>
         </div>
       </div>
-
       <hr>
       <div class="form-group">
           <label for="added_repositories" class="col-sm-3 control-label">
