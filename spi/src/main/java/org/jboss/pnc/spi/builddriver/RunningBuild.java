@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.spi.builddriver;
 
+import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
 import org.jboss.pnc.spi.environment.RunningEnvironment;
 
 import java.util.function.Consumer;
@@ -29,5 +30,5 @@ public interface RunningBuild {
 
     RunningEnvironment getRunningEnvironment();
 
-    void cancel();
+    void cancel() throws BuildDriverException;
 }

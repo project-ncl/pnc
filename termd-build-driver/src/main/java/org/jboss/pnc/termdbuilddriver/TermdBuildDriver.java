@@ -19,6 +19,7 @@ package org.jboss.pnc.termdbuilddriver;
 
 import org.jboss.pnc.buildagent.api.TaskStatusUpdateEvent;
 import org.jboss.pnc.buildagent.client.BuildAgentClient;
+import org.jboss.pnc.buildagent.client.BuildAgentClientException;
 import org.jboss.pnc.buildagent.client.Client;
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.ConfigurationParseException;
@@ -143,7 +144,7 @@ public class TermdBuildDriver implements BuildDriver { //TODO rename class
 
         try {
             buildAgentClient.executeCommand("sh " + scriptPath);
-        } catch (TimeoutException e) {
+        } catch (TimeoutException | BuildAgentClientException e) {
             invocation.completeExceptionally(new BuildDriverException("Cannot execute remote script.", e));
         }
         return invocation;
