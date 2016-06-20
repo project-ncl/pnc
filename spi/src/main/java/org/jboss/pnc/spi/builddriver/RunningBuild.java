@@ -20,13 +20,10 @@ package org.jboss.pnc.spi.builddriver;
 import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
 import org.jboss.pnc.spi.environment.RunningEnvironment;
 
-import java.util.function.Consumer;
-
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-12-23.
  */
 public interface RunningBuild {
-    void monitor(Consumer<CompletedBuild> onComplete, Consumer<Throwable> onError);
 
     RunningEnvironment getRunningEnvironment();
 

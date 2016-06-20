@@ -26,6 +26,7 @@ import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
 import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
 import org.jboss.pnc.spi.executor.BuildExecutionSession;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,7 +34,9 @@ import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.jboss.pnc.spi.builddriver.BuildDriverStatus.CANCELLED;
@@ -48,12 +51,22 @@ public class TermdBuildDriverTest extends AbstractLocalBuildAgentTest {
 
     private Configuration configuration = mock(Configuration.class);
 
+//    @BeforeClass
+//    public static void init() throws Exception {
+//        AbstractLocalBuildAgentTest.beforeClass();
+//    }
+//
+//    @AfterClass
+//    public static void destroy() throws Exception {
+//        AbstractLocalBuildAgentTest.afterClass();
+//    }
+
     @Before
     public void before() throws ConfigurationParseException {
         doReturn(new SystemConfig(null, null, null, null, null, null)).when(configuration).getModuleConfig(any());
     }
 
-    @Test(timeout = 60_000)
+    @Test(timeout = 15_000)
     public void shouldFetchFromGitAndBuild() throws Exception {
         //given
         Path tmpRepo = Files.createTempDirectory("tmpRepo");
@@ -72,14 +85,22 @@ public class TermdBuildDriverTest extends AbstractLocalBuildAgentTest {
 
         AtomicReference<CompletedBuild> buildResult = new AtomicReference<>();
 
+        CountDownLatch latch = new CountDownLatch(1);
+        Consumer<CompletedBuild> onComplete = (completedBuild) -> {
+            buildResult.set(completedBuild);
+            latch.countDown();
+        };
+        Consumer<Throwable> onError = (throwable) -> {
+            logger.error("Error received: ", throwable);
+            fail(throwable.getMessage());
+        };
+//        runningBuild.monitor(onComplete, onError);
+
         //when
-        RunningBuild runningBuild = driver.startProjectBuild(buildExecution, localEnvironmentPointer);
-        runningBuild.monitor(buildResult::set, exception -> fail(exception.getMessage()));
+        RunningBuild runningBuild = driver.startProjectBuild(buildExecution, localEnvironmentPointer, onComplete, onError); //TODO set monitor before the build starts
 
-        logger.info("==== shouldFetchFromGitAndBuild logs ====");
-        logger.info(buildResult.get().getBuildResult().getBuildLog());
-        logger.info("==== /shouldFetchFromGitAndBuild logs ====");
 
+        latch.await();
         //then
         assertThat(buildResult.get().getBuildResult()).isNotNull();
         assertThat(buildResult.get().getBuildResult().getBuildLog()).isNotEmpty();
@@ -87,8 +108,9 @@ public class TermdBuildDriverTest extends AbstractLocalBuildAgentTest {
         assertThat(Files.exists(localEnvironmentPointer.getWorkingDirectory().resolve(dirName))).isTrue();
     }
 
-    @Test
-    public void shouldStartAndCancelTheCommand() throws ConfigurationParseException, BuildDriverException {
+    @Ignore
+    @Test(timeout = 15_000)
+    public void shouldStartAndCancelTheCommand() throws ConfigurationParseException, BuildDriverException, InterruptedException {
         //given
         String dirName = "test-workdir";
         String logStart = "Running the command...";
@@ -97,18 +119,27 @@ public class TermdBuildDriverTest extends AbstractLocalBuildAgentTest {
         TermdBuildDriver driver = new TermdBuildDriver(getConfiguration());
         BuildExecutionSession buildExecution = mock(BuildExecutionSession.class);
         BuildExecutionConfiguration buildExecutionConfiguration = mock(BuildExecutionConfiguration.class);
-        doReturn("echo \"" + logStart + "\"; mvn sleep").when(buildExecutionConfiguration).getBuildScript(); //TODO fix command
+        doReturn("echo \"" + logStart + "\"; mvn validate; echo \"" + logEnd + "\";").when(buildExecutionConfiguration).getBuildScript();
         doReturn(dirName).when(buildExecutionConfiguration).getName();
         doReturn(buildExecutionConfiguration).when(buildExecution).getBuildExecutionConfiguration();
 
         AtomicReference<CompletedBuild> buildResult = new AtomicReference<>();
 
         //when
-        RunningBuild runningBuild = driver.startProjectBuild(buildExecution, localEnvironmentPointer);
-        runningBuild.monitor(buildResult::set, exception -> fail(exception.getMessage()));
+        CountDownLatch latch = new CountDownLatch(1);
+        Consumer<CompletedBuild> onComplete = (completedBuild) -> {
+            buildResult.set(completedBuild);
+            latch.countDown();
+        };
+        Consumer<Throwable> onError = (throwable) -> {
+            logger.error("Error received: ", throwable);
+            fail(throwable.getMessage());
+        };
+        RunningBuild runningBuild = driver.startProjectBuild(buildExecution, localEnvironmentPointer, onComplete, onError);
+
         runningBuild.cancel();
 
-        logger.info(buildResult.get().getBuildResult().getBuildLog());
+        latch.await();
 
         //then
         assertThat(buildResult.get().getBuildResult()).isNotNull();

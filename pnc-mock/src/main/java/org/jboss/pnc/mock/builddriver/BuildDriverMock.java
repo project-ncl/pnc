@@ -46,37 +46,54 @@ public class BuildDriverMock implements BuildDriver {
     }
 
     @Override
-    public RunningBuild startProjectBuild(BuildExecutionSession buildExecutionSession, RunningEnvironment runningEnvironment) throws BuildDriverException {
-        try {
-            log.debug("Building " + buildExecutionSession.getId());
-            Thread.sleep(RandomUtils.randInt(100, 300));
-            setBuildDriverStatus(buildExecutionSession.getBuildExecutionConfiguration().getBuildScript());
-            return new RunningBuild() {
+    public RunningBuild startProjectBuild(
+            BuildExecutionSession buildExecutionSession,
+            RunningEnvironment runningEnvironment,
+            Consumer<CompletedBuild> onComplete,
+            Consumer<Throwable> onError)
+           throws BuildDriverException {
 
-                @Override
-                public void monitor(Consumer<CompletedBuild> onComplete, Consumer<Throwable> onError) {
-                    onComplete.accept(new CompletedBuild() {
-                        @Override
-                        public BuildDriverResult getBuildResult() throws BuildDriverException {
-                            return getBuildResultMock(runningEnvironment);
-                        }
 
-                        @Override
-                        public RunningEnvironment getRunningEnvironment() {
-                            return runningEnvironment;
-                        }
-                    });
-                }
+        log.debug("Building " + buildExecutionSession.getId());
 
-                @Override
-                public RunningEnvironment getRunningEnvironment() {
-                    return runningEnvironment;
-                }
-            };
-        } catch (InterruptedException e) {
-            log.error(e);
-            return null;
-        }
+        new Thread(() -> {
+            try {
+                complete(buildExecutionSession, runningEnvironment, onComplete);
+            } catch (InterruptedException e) {
+                log.error(e);
+            }
+        }).start();
+
+
+        return new RunningBuild() {
+
+            @Override
+            public RunningEnvironment getRunningEnvironment() {
+                return runningEnvironment;
+            }
+
+            @Override
+            public void cancel() throws BuildDriverException {
+                //TODO
+            }
+        };
+}
+
+    private void complete(BuildExecutionSession buildExecutionSession, final RunningEnvironment runningEnvironment, Consumer<CompletedBuild> onComplete) throws InterruptedException {
+        Thread.sleep(RandomUtils.randInt(100, 300));
+        setBuildDriverStatus(buildExecutionSession.getBuildExecutionConfiguration().getBuildScript());
+
+        onComplete.accept(new CompletedBuild() {
+            @Override
+            public BuildDriverResult getBuildResult() throws BuildDriverException {
+                return getBuildResultMock(runningEnvironment);
+            }
+
+            @Override
+            public RunningEnvironment getRunningEnvironment() {
+                return runningEnvironment;
+            }
+        });
     }
 
     private void setBuildDriverStatus(String buildScript){

@@ -19,6 +19,7 @@
 package org.jboss.pnc.termdbuilddriver;
 
 import org.jboss.pnc.buildagent.server.BuildAgent;
+import org.jboss.pnc.buildagent.server.BuildAgentException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,7 +61,11 @@ public class TermdServer {
         mutex.acquire();
         BuildAgent buildAgent = new BuildAgent();
         serverThread = new Thread(() -> {
-            buildAgent.start(host, port, bindPath, logFolder, onStart);
+            try {
+                buildAgent.start(host, port, bindPath, logFolder, onStart);
+            } catch (BuildAgentException e) {
+                throw new RuntimeException("Cannot start build agent.", e);
+            }
         }, "termd-serverThread-thread");
         serverThread.start();
 

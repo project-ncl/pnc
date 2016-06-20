@@ -49,9 +49,6 @@ public class AbstractLocalBuildAgentTest {
         workingDirectory = Files.createTempDirectory("termd-build-agent");
         workingDirectory.toFile().deleteOnExit();
 
-//        Runnable onStart = () -> {
-//            log.info("Build Agent started on {}:{}", localBuildAgent.getHost(), localBuildAgent.getPort());
-//        };
         localBuildAgent = TermdServer.startServer("127.0.0.1", 0, "", Optional.of(workingDirectory));
     }
 
