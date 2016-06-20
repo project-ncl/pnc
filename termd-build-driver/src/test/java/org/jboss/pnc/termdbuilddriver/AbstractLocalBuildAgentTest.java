@@ -17,11 +17,13 @@
  */
 package org.jboss.pnc.termdbuilddriver;
 
-import org.jboss.pnc.buildagent.BuildAgent;
+import org.jboss.pnc.buildagent.server.BuildAgent;
 import org.jboss.pnc.spi.environment.RunningEnvironment;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.URI;
@@ -40,18 +42,22 @@ public class AbstractLocalBuildAgentTest {
 
     protected URI baseBuildAgentUri;
 
+    private static Logger log = LoggerFactory.getLogger(AbstractLocalBuildAgentTest.class);
+
     @BeforeClass
     public static void beforeClass() throws Exception {
         workingDirectory = Files.createTempDirectory("termd-build-agent");
         workingDirectory.toFile().deleteOnExit();
 
-        localBuildAgent = new BuildAgent();
-        localBuildAgent.start("127.0.0.1", 0, "", Optional.of(workingDirectory), null);
+//        Runnable onStart = () -> {
+//            log.info("Build Agent started on {}:{}", localBuildAgent.getHost(), localBuildAgent.getPort());
+//        };
+        localBuildAgent = TermdServer.startServer("127.0.0.1", 0, "", Optional.of(workingDirectory));
     }
 
     @AfterClass
     public static void afterClass() throws IOException {
-        localBuildAgent.stop();
+        TermdServer.stopServer();
     }
 
     @Before

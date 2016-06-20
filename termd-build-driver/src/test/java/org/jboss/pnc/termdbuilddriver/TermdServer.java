@@ -18,12 +18,11 @@
 
 package org.jboss.pnc.termdbuilddriver;
 
-import org.jboss.pnc.buildagent.BuildAgent;
+import org.jboss.pnc.buildagent.server.BuildAgent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Optional;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -52,20 +51,21 @@ public class TermdServer {
      * @param port
      * @param bindPath
      */
-    public static void startServer(String host, int port, String bindPath) throws InterruptedException {
+    public static BuildAgent startServer(String host, int port, String bindPath, Optional<Path> logFolder) throws InterruptedException {
         Semaphore mutex = new Semaphore(1);
         Runnable onStart = () ->  {
             log.info("Server started.");
             mutex.release();
         };
         mutex.acquire();
+        BuildAgent buildAgent = new BuildAgent();
         serverThread = new Thread(() -> {
-            Optional<Path> logFolder = Optional.of(Paths.get("").toAbsolutePath());
-            new BuildAgent().start(host, port, bindPath, logFolder, onStart);
+            buildAgent.start(host, port, bindPath, logFolder, onStart);
         }, "termd-serverThread-thread");
         serverThread.start();
 
-        mutex.acquire();
+        mutex.acquire(); //wait to start the server
+        return buildAgent;
     }
 
     public static void stopServer() {
