@@ -132,7 +132,7 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
     private BuildEnvironment buildEnvironment;
 
     @NotAudited
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "latestBuildConfiguration")
+    @OneToMany(cascade = CascadeType.REFRESH, mappedBy = "latestBuildConfiguration")
     private Set<BuildRecord> buildRecords;
 
     @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
