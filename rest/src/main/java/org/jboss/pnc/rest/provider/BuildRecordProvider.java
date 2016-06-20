@@ -50,7 +50,11 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
-import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.*;
+import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withArtifactDistributedInMilestone;
+import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withBuildConfigSetId;
+import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withBuildConfigurationId;
+import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withProjectId;
+import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withUserId;
 
 @Stateless
 public class BuildRecordProvider extends AbstractProvider<BuildRecord, BuildRecordRest> {
@@ -113,25 +117,25 @@ public class BuildRecordProvider extends AbstractProvider<BuildRecord, BuildReco
                         (int) Math.ceil((double) buildCoordinator.getSubmittedBuildTasks().size() / pageSize)));
     }
 
-    private BuildRecordRest createNewBuildRecordRest(BuildTask submittedBuild) {
-        BuildExecutionSession runningExecution = buildExecutor.getRunningExecution(submittedBuild.getId());
-        UserRest user = new UserRest(submittedBuild.getUser());
-        BuildConfigurationAuditedRest buildConfigAuditedRest = new BuildConfigurationAuditedRest(submittedBuild.getBuildConfigurationAudited());
+    private BuildRecordRest createNewBuildRecordRest(BuildTask buildTask) {
+        BuildExecutionSession runningExecution = buildExecutor.getRunningExecution(buildTask.getId());
+        UserRest user = new UserRest(buildTask.getUser());
+        BuildConfigurationAuditedRest buildConfigAuditedRest = new BuildConfigurationAuditedRest(buildTask.getBuildConfigurationAudited());
 
         BuildRecordRest buildRecRest;
         if (runningExecution != null) {
-            buildRecRest = new BuildRecordRest(runningExecution, submittedBuild.getSubmitTime(), user, buildConfigAuditedRest);
+            buildRecRest = new BuildRecordRest(runningExecution, buildTask.getSubmitTime(), user, buildConfigAuditedRest);
         } else {
             buildRecRest = new BuildRecordRest(
-                    submittedBuild.getId(),
-                    submittedBuild.getStatus(),
-                    submittedBuild.getSubmitTime(),
-                    submittedBuild.getStartTime(),
-                    submittedBuild.getEndTime(),
+                    buildTask.getId(),
+                    buildTask.getStatus(),
+                    buildTask.getSubmitTime(),
+                    buildTask.getStartTime(),
+                    buildTask.getEndTime(),
                     user, buildConfigAuditedRest);
         }
 
-        buildRecRest.setBuildConfigurationId(submittedBuild.getBuildConfiguration().getId());
+        buildRecRest.setBuildConfigurationId(buildTask.getBuildConfiguration().getId());
         return buildRecRest;
     }
 
@@ -222,10 +226,11 @@ public class BuildRecordProvider extends AbstractProvider<BuildRecord, BuildReco
             return null;
         }
         BuildTask buildTask = getSubmittedBuild(id);
-        if (buildTask != null) {
-            return createNewBuildRecordRest(buildTask);
-        }
-        return null;
+        return getBuildRecordForTask(buildTask);
+    }
+
+    public BuildRecordRest getBuildRecordForTask(BuildTask task) {
+        return task == null ? null : createNewBuildRecordRest(task);
     }
 
     private BuildTask getSubmittedBuild(Integer id) {

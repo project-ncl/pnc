@@ -31,6 +31,7 @@ import org.jboss.pnc.rest.utils.HibernateLazyInitializer;
 import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
 import org.jboss.pnc.spi.coordinator.BuildCoordinator;
 import org.jboss.pnc.spi.coordinator.BuildSetTask;
+import org.jboss.pnc.spi.coordinator.BuildTask;
 import org.jboss.pnc.spi.datastore.DatastoreException;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationSetRepository;
@@ -45,7 +46,7 @@ import javax.ejb.Stateless;
 import javax.inject.Inject;
 import java.net.URL;
 import java.util.Arrays;
-import java.util.List;
+import java.util.Collection;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -55,7 +56,7 @@ public class BuildTriggerer { //TODO rename to buildCoordinationTriggerer
 
     public interface BuildConfigurationSetTriggerResult {
         int getBuildRecordSetId();
-        List<Integer> getBuildRecordsIds();
+        Collection<BuildTask> getBuildTasks();
     }
 
     private final Logger log = Logger.getLogger(BuildTriggerer.class);
@@ -156,10 +157,8 @@ public class BuildTriggerer { //TODO rename to buildCoordinationTriggerer
             }
 
             @Override
-            public List<Integer> getBuildRecordsIds() {
-                return buildSetTask.getBuildTasks().stream()
-                        .map(buildTask -> buildTask.getId())
-                        .collect(Collectors.toList());
+            public Collection<BuildTask> getBuildTasks() {
+                return buildSetTask.getBuildTasks();
             }
         };
     }
