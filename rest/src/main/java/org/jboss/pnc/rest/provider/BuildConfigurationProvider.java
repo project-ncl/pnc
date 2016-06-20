@@ -179,6 +179,14 @@ public class BuildConfigurationProvider extends AbstractProvider<BuildConfigurat
         };
     }
 
+    public void archive(Integer buildConfigurationId)  throws ValidationException {
+        ValidationBuilder.validateObject(WhenUpdating.class).validateAgainstRepository(repository, buildConfigurationId,
+                true);
+        BuildConfiguration buildConfiguration = repository.queryById(buildConfigurationId);
+        buildConfiguration.setArchived(true);
+        repository.save(buildConfiguration);
+    }
+
     public Integer clone(Integer buildConfigurationId) throws ValidationException {
         ValidationBuilder.validateObject(WhenCreatingNew.class).validateAgainstRepository(repository, buildConfigurationId,
                 true);
