@@ -201,7 +201,8 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
     @Path("/{id}")
     public Response deleteSpecific(@ApiParam(value = "Build Configuration id", required = true) @PathParam("id") Integer id)
             throws ValidationException {
-        return super.delete(id);
+        buildConfigurationProvider.archive(id);
+        return Response.ok().build();
     }
 
     @ApiOperation(value = "Clones an existing Build Configuration")
