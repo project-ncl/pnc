@@ -22,7 +22,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-
+import org.apache.commons.lang3.StringUtils;
 import org.jboss.pnc.auth.AuthenticationProvider;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.rest.provider.BuildRecordProvider;
@@ -53,11 +53,12 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
+import java.lang.invoke.MethodHandles;
 
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.CONFLICTED_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.CONFLICTED_DESCRIPTION;
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.INVALID_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.INVALID_CODE;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.INVALID_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.NOT_FOUND_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.NOT_FOUND_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.NO_CONTENT_CODE;
@@ -76,8 +77,6 @@ import static org.jboss.pnc.rest.configuration.SwaggerConstants.SORTING_DESCRIPT
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.SORTING_QUERY_PARAM;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_DESCRIPTION;
-
-import java.lang.invoke.MethodHandles;
 
 @Api(value = "/users", description = "User related information")
 @Path("/users")
@@ -157,19 +156,17 @@ public class UserEndpoint extends AbstractEndpoint<User, UserRest> {
             AuthenticationProvider authProvider = new AuthenticationProvider(httpServletRequest);
             String loggedUser = authProvider.getUserName();
             User currentUser = null;
-            if(loggedUser != null && loggedUser != "") {
+            if(StringUtils.isNotEmpty(loggedUser)) {
                 currentUser = datastore.retrieveUserByUsername(loggedUser);
             }
-            if(currentUser != null) {
+            if (currentUser != null) {
                 return super.getSpecific(currentUser.getId());
-            } 
-            if(currentUser == null) { 
-                currentUser = User.Builder.newBuilder()
-                        .username(loggedUser)
-                        .firstName(authProvider.getFirstName())
-                        .lastName(authProvider.getLastName())
-                        .email(authProvider.getEmail()).build();
             }
+            currentUser = User.Builder.newBuilder()
+                    .username(loggedUser)
+                    .firstName(authProvider.getFirstName())
+                    .lastName(authProvider.getLastName())
+                    .email(authProvider.getEmail()).build();
             return super.createNew(new UserRest(currentUser), uriInfo);
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
