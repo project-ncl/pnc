@@ -97,7 +97,7 @@
     <version.undertow-websockets-jsr>1.2.6.Final</version.undertow-websockets-jsr>
     <version.shrinkwrap>2.1.1</version.shrinkwrap>
     <version.shrinkwrap.descriptors>2.0.0-alpha-9</version.shrinkwrap.descriptors>
-    <version.buildagent>0.2-SNAPSHOT</version.buildagent>
+    <version.buildagent>0.3-SNAPSHOT</version.buildagent>
 
     <datetime>${timestamp}</datetime>
     <pushChanges>true</pushChanges>
@@ -347,14 +347,14 @@
       <!-- END: Project modules -->
 
       <dependency>
-        <groupId>org.jboss.pnc</groupId>
-        <artifactId>build-agent-client</artifactId>
+        <groupId>org.jboss.pnc.build-agent</groupId>
+        <artifactId>client</artifactId>
         <version>${version.buildagent}</version>
       </dependency>
 
       <dependency>
-        <groupId>org.jboss.pnc</groupId>
-        <artifactId>build-agent-server</artifactId>
+        <groupId>org.jboss.pnc.build-agent</groupId>
+        <artifactId>server</artifactId>
         <version>${version.buildagent}</version>
       </dependency>
 

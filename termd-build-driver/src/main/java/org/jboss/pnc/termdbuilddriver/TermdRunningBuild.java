@@ -17,61 +17,64 @@
  */
 package org.jboss.pnc.termdbuilddriver;
 
+import org.jboss.pnc.buildagent.client.BuildAgentClient;
+import org.jboss.pnc.buildagent.client.BuildAgentClientException;
 import org.jboss.pnc.spi.builddriver.CompletedBuild;
 import org.jboss.pnc.spi.builddriver.RunningBuild;
+import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
 import org.jboss.pnc.spi.environment.RunningEnvironment;
 import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.invoke.MethodHandles;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
+import java.util.Optional;
 import java.util.function.Consumer;
 
 public class TermdRunningBuild implements RunningBuild {
 
     private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-    private static final long MAX_TIMEOUT = 2;
-    private static final TimeUnit MAX_TIMEOUT_UNIT = TimeUnit.HOURS;
-
     private final RunningEnvironment runningEnvironment;
     private final BuildExecutionConfiguration buildExecutionConfiguration;
 
-    private CompletableFuture<CompletedBuild> buildPromise = new CompletableFuture<>();
+    private BuildAgentClient buildAgentClient;
+    private Consumer<CompletedBuild> onComplete;
+    private Consumer<Throwable> onError;
 
-    public TermdRunningBuild(RunningEnvironment runningEnvironment, BuildExecutionConfiguration buildExecutionConfiguration) {
+    public TermdRunningBuild(RunningEnvironment runningEnvironment, BuildExecutionConfiguration buildExecutionConfiguration, Consumer<CompletedBuild> onComplete, Consumer<Throwable> onError) {
         this.runningEnvironment = runningEnvironment;
         this.buildExecutionConfiguration = buildExecutionConfiguration;
-    }
-
-    @Override
-    public void monitor(Consumer<CompletedBuild> onComplete, Consumer<Throwable> onError) {
-        try {
-            logger.debug("[{}] The client started monitoring the build", runningEnvironment.getId());
-            onComplete.accept(buildPromise.get(MAX_TIMEOUT, MAX_TIMEOUT_UNIT));
-        } catch (InterruptedException | TimeoutException e) {
-            onError.accept(e);
-        } catch (ExecutionException e) {
-            onError.accept(e.getCause());
-        }
+        this.onComplete = onComplete;
+        this.onError = onError;
     }
 
     public void setCompletedBuild(CompletedBuild completedBuild) {
         logger.debug("[{}] Setting completed build {}", runningEnvironment.getId(), completedBuild);
-        buildPromise.complete(completedBuild);
+        onComplete.accept(completedBuild);
     }
 
-    public void setBuildPromiseError(Exception error) {
-        buildPromise.completeExceptionally(error);
+    public void setBuildError(Exception error) {
+        onError.accept(error);
     }
 
     @Override
     public RunningEnvironment getRunningEnvironment() {
         return runningEnvironment;
+    }
+
+    @Override
+    public void cancel() throws BuildDriverException {
+        //TODO cancel at any step (if we are not in the running execution the execution is not canceled)
+        try {
+            if (buildAgentClient != null) {
+                buildAgentClient.executeNow('C' - 64); //send ctrl+C
+            } else {
+                logger.warn("Cannot cancel build at his point. It loks like there is no running build. TBD.");
+            }
+        } catch (BuildAgentClientException e) {
+            throw new BuildDriverException("Cannot cancel the execution.", e);
+        }
     }
 
     public String getBuildScript() {
@@ -98,4 +101,11 @@ public class TermdRunningBuild implements RunningBuild {
         }
     }
 
+    public void setBuildAgentClient(BuildAgentClient buildAgentClient) {
+        this.buildAgentClient = buildAgentClient;
+    }
+
+    public Optional<BuildAgentClient> getBuildAgentClient() {
+        return Optional.ofNullable(buildAgentClient);
+    }
 }

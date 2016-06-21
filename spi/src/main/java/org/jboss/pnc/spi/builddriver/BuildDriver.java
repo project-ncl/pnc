@@ -21,6 +21,8 @@ import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
 import org.jboss.pnc.spi.environment.RunningEnvironment;
 import org.jboss.pnc.spi.executor.BuildExecutionSession;
 
+import java.util.function.Consumer;
+
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-11-23.
  */
@@ -28,9 +30,6 @@ public interface BuildDriver {
 
     String getDriverId();
 
-    public RunningBuild startProjectBuild(
-            BuildExecutionSession buildExecutionSession,
-            RunningEnvironment runningEnvironment)
+    RunningBuild startProjectBuild(BuildExecutionSession buildExecutionSession, RunningEnvironment runningEnvironment, Consumer<CompletedBuild> onComplete, Consumer<Throwable> onError)
             throws BuildDriverException;
-
 }

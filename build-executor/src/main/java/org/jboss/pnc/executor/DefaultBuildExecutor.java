@@ -32,7 +32,6 @@ import org.jboss.pnc.spi.builddriver.BuildDriver;
 import org.jboss.pnc.spi.builddriver.BuildDriverResult;
 import org.jboss.pnc.spi.builddriver.BuildDriverStatus;
 import org.jboss.pnc.spi.builddriver.CompletedBuild;
-import org.jboss.pnc.spi.builddriver.RunningBuild;
 import org.jboss.pnc.spi.environment.DestroyableEnvironment;
 import org.jboss.pnc.spi.environment.EnvironmentDriver;
 import org.jboss.pnc.spi.environment.RunningEnvironment;
@@ -116,11 +115,11 @@ public class DefaultBuildExecutor implements BuildExecutor {
 
         runningExecutions.put(buildExecutionConfiguration.getId(), buildExecutionSession);
 
+        //TODO add an option to cancel at any point
         CompletableFuture.supplyAsync(() -> configureRepository(buildExecutionSession), executor)
                 .thenApplyAsync(repositoryConfiguration -> setUpEnvironment(buildExecutionSession, repositoryConfiguration), executor)
                 .thenComposeAsync(startedEnvironment -> waitForEnvironmentInitialization(buildExecutionSession, startedEnvironment), executor)
-                .thenApplyAsync(nul -> buildSetUp(buildExecutionSession), executor)
-                .thenComposeAsync(runningBuild -> waitBuildToComplete(buildExecutionSession, runningBuild), executor)
+                .thenComposeAsync(runningBuild -> runTheBuild(buildExecutionSession), executor)
                 .thenApplyAsync(completedBuild -> retrieveBuildDriverResults(buildExecutionSession, completedBuild), executor)
                 .thenApplyAsync(nul -> retrieveRepositoryManagerResults(buildExecutionSession), executor)
                 .handleAsync((nul, e) -> completeExecution(buildExecutionSession, e), executor);
@@ -182,37 +181,30 @@ public class DefaultBuildExecutor implements BuildExecutor {
         return waitToCompleteFuture;
     }
 
-    private RunningBuild buildSetUp(BuildExecutionSession buildExecutionSession) {
+    private CompletableFuture<CompletedBuild> runTheBuild(BuildExecutionSession buildExecutionSession) {
         buildExecutionSession.setStatus(BuildExecutionStatus.BUILD_SETTING_UP);
         RunningEnvironment runningEnvironment = buildExecutionSession.getRunningEnvironment();
+
+        CompletableFuture<CompletedBuild> waitToCompleteFuture = new CompletableFuture<>();
+
         try {
+
+            Consumer<CompletedBuild> onComplete = (completedBuild) -> {
+                waitToCompleteFuture.complete(completedBuild);
+            };
+            Consumer<Throwable> onError = (e) -> {
+                waitToCompleteFuture.completeExceptionally(new BuildProcessException(e, runningEnvironment));
+            };
+
             String liveLogWebSocketUrl = runningEnvironment.getBuildAgentUrl();
             log.debug("Setting live log websocket url: {}", liveLogWebSocketUrl);
             buildExecutionSession.setLiveLogsUri(Optional.of(new URI(liveLogWebSocketUrl)));
             buildExecutionSession.setStartTime(new Date());
             BuildDriver buildDriver = buildDriverFactory.getBuildDriver();
-            return buildDriver.startProjectBuild(buildExecutionSession, runningEnvironment);
+            buildDriver.startProjectBuild(buildExecutionSession, runningEnvironment, onComplete, onError);
+            buildExecutionSession.setStatus(BuildExecutionStatus.BUILD_WAITING);
         } catch (Throwable e) {
             throw new BuildProcessException(e, runningEnvironment);
-        }
-    }
-
-    private CompletableFuture<CompletedBuild> waitBuildToComplete(BuildExecutionSession buildExecutionSession, RunningBuild runningBuild) {
-        CompletableFuture<CompletedBuild> waitToCompleteFuture = new CompletableFuture<>();
-        try {
-            Consumer<CompletedBuild> onComplete = (completedBuild) -> {
-                waitToCompleteFuture.complete(completedBuild);
-            };
-            Consumer<Throwable> onError = (e) -> {
-                waitToCompleteFuture.completeExceptionally(new BuildProcessException(e, runningBuild.getRunningEnvironment()));
-            };
-
-            buildExecutionSession.setStatus(BuildExecutionStatus.BUILD_WAITING);
-
-            runningBuild.monitor(onComplete, onError);
-        } catch (Throwable exception) {
-            waitToCompleteFuture.completeExceptionally(
-                    new BuildProcessException(exception, runningBuild.getRunningEnvironment()));
         }
         return waitToCompleteFuture;
     }

@@ -17,11 +17,13 @@
  */
 package org.jboss.pnc.termdbuilddriver;
 
+import org.jboss.pnc.buildagent.api.TaskStatusUpdateEvent;
+import org.jboss.pnc.buildagent.client.BuildAgentClient;
+import org.jboss.pnc.buildagent.client.BuildAgentClientException;
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
 import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
-import org.jboss.pnc.model.SystemImageType;
 import org.jboss.pnc.spi.builddriver.BuildDriver;
 import org.jboss.pnc.spi.builddriver.BuildDriverResult;
 import org.jboss.pnc.spi.builddriver.BuildDriverStatus;
@@ -30,22 +32,25 @@ import org.jboss.pnc.spi.builddriver.RunningBuild;
 import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
 import org.jboss.pnc.spi.environment.RunningEnvironment;
 import org.jboss.pnc.spi.executor.BuildExecutionSession;
-import org.jboss.pnc.termdbuilddriver.commands.TermdCommandBatchExecutionResult;
-import org.jboss.pnc.termdbuilddriver.commands.TermdCommandInvoker;
 import org.jboss.pnc.termdbuilddriver.transfer.TermdFileTranser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-
+import java.io.IOException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.file.Paths;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.TimeoutException;
+import java.util.function.Consumer;
+
+import static org.jboss.pnc.buildagent.api.Status.COMPLETED;
+import static org.jboss.pnc.buildagent.api.Status.INTERRUPTED;
 
 @ApplicationScoped
 public class TermdBuildDriver implements BuildDriver { //TODO rename class
@@ -65,7 +70,7 @@ public class TermdBuildDriver implements BuildDriver { //TODO rename class
 
     @Inject
     public TermdBuildDriver(Configuration configuration) {
-        int executorThreadPoolSize = 12;
+        int executorThreadPoolSize = 12; //TODO configurable
         try {
             String executorThreadPoolSizeStr = configuration.getModuleConfig(new PncConfigProvider<>(SystemConfig.class))
                     .getBuilderThreadPoolSize();
@@ -75,6 +80,7 @@ public class TermdBuildDriver implements BuildDriver { //TODO rename class
         } catch (ConfigurationParseException e) {
             logger.warn("Unable parse config. Using defaults.");
         }
+
         executor = Executors.newFixedThreadPool(executorThreadPoolSize);
     }
 
@@ -84,140 +90,113 @@ public class TermdBuildDriver implements BuildDriver { //TODO rename class
     }
 
     @Override
-    public RunningBuild startProjectBuild(BuildExecutionSession buildExecutionSession,
-            final RunningEnvironment runningEnvironment)
+    public RunningBuild startProjectBuild(BuildExecutionSession buildExecutionSession, RunningEnvironment runningEnvironment, Consumer<CompletedBuild> onComplete, Consumer<Throwable> onError)
             throws BuildDriverException {
 
         logger.info("[{}] Starting build for Build Execution Session {}", runningEnvironment.getId(), buildExecutionSession.getId());
 
-        TermdRunningBuild termdRunningBuild = new TermdRunningBuild(runningEnvironment, buildExecutionSession.getBuildExecutionConfiguration());
+        TermdRunningBuild termdRunningBuild = new TermdRunningBuild(runningEnvironment, buildExecutionSession.getBuildExecutionConfiguration(), onComplete, onError);
 
-        
-        addScriptDebugOption(termdRunningBuild)
-                .thenComposeAsync(returnedBuildScript -> changeToWorkingDirectory(termdRunningBuild, returnedBuildScript), executor)
-                .thenComposeAsync(returnedBuildScript -> checkoutSources(termdRunningBuild, returnedBuildScript), executor)
-                .thenComposeAsync(returnedBuildScript -> build(termdRunningBuild, returnedBuildScript), executor)
-                .thenComposeAsync(returnedBuildScript -> uploadScript(termdRunningBuild, returnedBuildScript), executor)
-                .thenComposeAsync(scriptPath -> invokeRemoteScript(termdRunningBuild, scriptPath, buildExecutionSession), executor)
-                .handle((results, exception) -> updateStatus(termdRunningBuild, results, exception));
+        String buildScript = prepareBuildScript(termdRunningBuild);
+
+        //TODO add an option to cancel at any point
+        uploadScript(termdRunningBuild, buildScript)
+                .thenComposeAsync(scriptPath -> invokeRemoteScript(termdRunningBuild, scriptPath), executor)
+                .thenComposeAsync(status -> collectResults(termdRunningBuild, status), executor)
+                .handle((completedBuild, exception) -> complete(termdRunningBuild, completedBuild, exception));
 
         return termdRunningBuild;
     }
 
-    protected CompletableFuture<StringBuilder> addScriptDebugOption(TermdRunningBuild termdRunningBuild) {
-        return CompletableFuture.supplyAsync(() -> {
-            logger.debug("[{}] Adding debug option", termdRunningBuild.getRunningEnvironment().getId());
-
-            StringBuilder commandAppender = new StringBuilder();
-            String debugOption = "set -x";
-            commandAppender.append(debugOption).append("\n");
-            return commandAppender;
-        });
-    }
-
-    protected CompletableFuture<StringBuilder> changeToWorkingDirectory(TermdRunningBuild termdRunningBuild, StringBuilder commandAppender) {
-        return CompletableFuture.supplyAsync(() -> {
-            logger.debug("[{}] Changing current directory", termdRunningBuild.getRunningEnvironment().getId());
-
-            String cdCommand = "cd " + termdRunningBuild.getRunningEnvironment().getWorkingDirectory().toAbsolutePath().toString();
-            commandAppender.append(cdCommand).append("\n");
-            return commandAppender;
-        });
-    }
-
-    protected CompletableFuture<StringBuilder> checkoutSources(TermdRunningBuild termdRunningBuild, StringBuilder commandAppender) {
-        return CompletableFuture.supplyAsync(() -> {
-            logger.debug("[{}] Checking out sources", termdRunningBuild.getRunningEnvironment().getId());
-
-            String cloneCommand = "git clone " + termdRunningBuild.getScmRepoURL() + " " + termdRunningBuild.getName();
-            commandAppender.append(cloneCommand).append("\n");
-
-            String cdCommand = "cd " + termdRunningBuild.getName();
-            commandAppender.append(cdCommand).append("\n");
-
-            String resetCommand = "git reset --hard " + termdRunningBuild.getScmRevision();
-            commandAppender.append(resetCommand).append("\n");
-
-            return commandAppender;
-        });
-    }
-
-    protected CompletableFuture<StringBuilder> build(TermdRunningBuild termdRunningBuild, StringBuilder commandAppender) {
-        return CompletableFuture.supplyAsync(() -> {
-            logger.debug("[{}] Building", termdRunningBuild.getRunningEnvironment().getId());
-
-            String buildCommand = termdRunningBuild.getBuildScript();
-            commandAppender.append(buildCommand).append("\n");
-            return commandAppender;
-        });
-    }
-
-    protected CompletableFuture<String> uploadScript(TermdRunningBuild termdRunningBuild, StringBuilder commandAppender) {
-        return CompletableFuture.supplyAsync(() -> {
+    private CompletableFuture<String> uploadScript(TermdRunningBuild termdRunningBuild, String command) {
+        CompletableFuture<String> future = CompletableFuture.supplyAsync(() -> {
             logger.debug("[{}] Uploading script", termdRunningBuild.getRunningEnvironment().getId());
-            logger.debug("[{}] Full script:\n {}", termdRunningBuild.getRunningEnvironment().getId(), commandAppender.toString());
+            logger.debug("[{}] Full script:\n {}", termdRunningBuild.getRunningEnvironment().getId(), command);
 
             new TermdFileTranser(URI.create(getBuildAgentUrl(termdRunningBuild)))
-                    .uploadScript(commandAppender,
+                    .uploadScript(command,
                             Paths.get(termdRunningBuild.getRunningEnvironment().getWorkingDirectory().toAbsolutePath().toString(), "run.sh"));
 
             return termdRunningBuild.getRunningEnvironment().getWorkingDirectory().toAbsolutePath().toString() + "/run.sh";
         });
+        return future;
     }
 
-    protected CompletableFuture<TermdCommandBatchExecutionResult> invokeRemoteScript(
-            TermdRunningBuild termdRunningBuild,
-            String scriptPath,
-            BuildExecutionSession currentBuildExecution) {
-        return CompletableFuture.supplyAsync(() -> {
-            logger.debug("[{}] Invoking script from path {}", termdRunningBuild.getRunningEnvironment().getId(), scriptPath);
+    private CompletableFuture<org.jboss.pnc.buildagent.api.Status> invokeRemoteScript(TermdRunningBuild termdRunningBuild, String scriptPath) {
+        CompletableFuture invocation = new CompletableFuture();
 
-            TermdCommandInvoker termdCommandInvoker = new TermdCommandInvoker(URI.create(getBuildAgentUrl(termdRunningBuild)), termdRunningBuild.getRunningEnvironment().getWorkingDirectory());
-            termdCommandInvoker.startSession();
+        Consumer<TaskStatusUpdateEvent> onStatusUpdate = (event) -> {
+            org.jboss.pnc.buildagent.api.Status newStatus = event.getNewStatus();
+            logger.debug("Driver received new status update {}.", newStatus);
+            if (newStatus.isFinal()) {
+                invocation.complete(newStatus);
+            }
+        };
+        String terminalUrl = getBuildAgentUrl(termdRunningBuild);
 
-            termdCommandInvoker.performCommand("sh " + scriptPath).join();
-
-            currentBuildExecution.setLiveLogsUri(Optional.empty());//TODO do we really need this ?
-            return termdCommandInvoker.closeSession();
-        });
-    }
-
-    private String getBuildAgentUrl(TermdRunningBuild termdRunningBuild) {
-        if (useInternalNetwork) {
-            return termdRunningBuild.getRunningEnvironment().getInternalBuildAgentUrl();
-        } else {
-            return termdRunningBuild.getRunningEnvironment().getBuildAgentUrl();
+        BuildAgentClient buildAgentClient = null;
+        try {
+            buildAgentClient = new BuildAgentClient(terminalUrl.replace("http://", "ws://"), Optional.empty(), onStatusUpdate, "");
+        } catch (Exception e) {
+            invocation.completeExceptionally(new BuildDriverException("Cannot connect build agent client.", e));
         }
+
+        termdRunningBuild.setBuildAgentClient(buildAgentClient);
+
+        try {
+            String command = "sh " + scriptPath;
+            logger.info("Invoking remote command {}.", command);
+            buildAgentClient.executeCommand(command);
+            logger.debug("Remote command invoked.");
+        } catch (TimeoutException | BuildAgentClientException e) {
+            invocation.completeExceptionally(new BuildDriverException("Cannot execute remote script.", e));
+        }
+        return invocation;
     }
 
-    protected TermdRunningBuild updateStatus(TermdRunningBuild termdRunningBuild, TermdCommandBatchExecutionResult commandBatchResult, Throwable throwable) {
-        logger.debug("[{}] Command result {}", termdRunningBuild.getRunningEnvironment().getId(), commandBatchResult);
-
-        if(throwable != null) {
-            logger.warn("[{}] Exception {}", termdRunningBuild.getRunningEnvironment().getId(), throwable);
-            termdRunningBuild.setBuildPromiseError((Exception) throwable);
-        } else {
-            logger.debug("[{}] No Exceptions.", termdRunningBuild.getRunningEnvironment().getId());
-            AtomicReference<String> aggregatedLogs = new AtomicReference<>();
-            try {
-                aggregatedLogs.set(aggregateLogs(termdRunningBuild, commandBatchResult).get().toString());
-            } catch (Exception e) {
-                termdRunningBuild.setBuildPromiseError(e);
-                return termdRunningBuild;
+    private CompletableFuture<CompletedBuild> collectResults(TermdRunningBuild termdRunningBuild, org.jboss.pnc.buildagent.api.Status completionStatus) {
+        return CompletableFuture.supplyAsync(() -> {
+            logger.info("Collecting results ...");
+            if (termdRunningBuild.getBuildAgentClient().isPresent()) {
+                BuildAgentClient buildAgentClient = termdRunningBuild.getBuildAgentClient().get();
+                try {
+                    buildAgentClient.close();
+                } catch (IOException e) {
+                    throw new RuntimeException("Cannot close build agent connections.", e);
+                }
+            } else {
+                throw new RuntimeException("Build Agent Client is not available.");
             }
 
-            termdRunningBuild.setCompletedBuild(new CompletedBuild() {
+            CompletedBuild completedBuild = new CompletedBuild() { //TODO use concrete class
                 @Override
                 public BuildDriverResult getBuildResult() throws BuildDriverException {
                     return new BuildDriverResult() {
                         @Override
-                        public String getBuildLog() {
-                            return aggregatedLogs.get();
+                        public String getBuildLog() throws BuildDriverException {
+                            TermdFileTranser transfer = new TermdFileTranser();
+                            StringBuffer stringBuffer = new StringBuffer();
+
+                            String logsDirectory = termdRunningBuild.getRunningEnvironment().getWorkingDirectory().toString();
+
+                            try {
+                                URI logsUri = new URI(getBuildAgentUrl(termdRunningBuild)).resolve("servlet/download" + logsDirectory + "/console.log");
+                                transfer.downloadFileToStringBuilder(stringBuffer, logsUri);
+                            } catch (URISyntaxException e) {
+                                throw new RuntimeException("Cannot construct logs uri.", e);
+                            }
+                            return stringBuffer.toString();
                         }
 
                         @Override
                         public BuildDriverStatus getBuildDriverStatus() {
-                            return commandBatchResult.isSuccessful() ? BuildDriverStatus.SUCCESS : BuildDriverStatus.FAILED;
+                            if (COMPLETED.equals(completionStatus)) {
+                                return BuildDriverStatus.SUCCESS;
+                            } else if (INTERRUPTED.equals(completionStatus)) {
+                                return BuildDriverStatus.CANCELLED;
+                            } else {
+                                return BuildDriverStatus.FAILED;
+                            }
                         }
                     };
                 }
@@ -225,21 +204,46 @@ public class TermdBuildDriver implements BuildDriver { //TODO rename class
                 @Override
                 public RunningEnvironment getRunningEnvironment() {
                     return termdRunningBuild.getRunningEnvironment();
-                }});
+                }
+            };
+
+            return completedBuild;
+        });
+    }
+
+    private Void complete(TermdRunningBuild termdRunningBuild, CompletedBuild completedBuild, Throwable throwable) {
+        logger.debug("[{}] Command result {}", termdRunningBuild.getRunningEnvironment().getId(), completedBuild);
+        if(throwable != null) {
+            logger.warn("[{}] Exception {}", termdRunningBuild.getRunningEnvironment().getId(), throwable);
+            termdRunningBuild.setBuildError((Exception) throwable);
+        } else if(completedBuild == null ) {
+            termdRunningBuild.setBuildError(new BuildDriverException("Completed build should not be null."));
+        } else {
+            termdRunningBuild.setCompletedBuild(completedBuild);
         }
-        return termdRunningBuild;
+        return null;
     }
 
-    protected CompletableFuture<StringBuffer> aggregateLogs(TermdRunningBuild termdRunningBuild, TermdCommandBatchExecutionResult allInvokedCommands) {
-        logger.debug("[{}] Aggregating logs", termdRunningBuild.getRunningEnvironment().getId());
+    private String prepareBuildScript(TermdRunningBuild termdRunningBuild) {
+        StringBuilder buildScript = new StringBuilder();
+        buildScript.append("set -x" + "\n");
+        buildScript.append("cd " + termdRunningBuild.getRunningEnvironment().getWorkingDirectory().toAbsolutePath().toString() + "\n");
 
-        TermdFileTranser transer = new TermdFileTranser();
-        return CompletableFuture.supplyAsync(() -> allInvokedCommands.getCommandResults().stream()
-                .map(invocationResult -> invocationResult.getLogsUri())
-                .reduce(new StringBuffer(),
-                        (stringBuffer, uri) -> transer.downloadFileToStringBuilder(stringBuffer, uri),
-                        (builder1, builder2) -> builder1.append(builder2)));
+        buildScript.append("git clone " + termdRunningBuild.getScmRepoURL() + " " + termdRunningBuild.getName() + "\n");
+        buildScript.append("cd " + termdRunningBuild.getName() + "\n");
+        buildScript.append("git reset --hard " + termdRunningBuild.getScmRevision() + "\n");
+
+        buildScript.append(termdRunningBuild.getBuildScript() + "\n");
+
+        return buildScript.toString();
     }
 
-
+    private String getBuildAgentUrl(TermdRunningBuild termdRunningBuild) {
+        RunningEnvironment runningEnvironment = termdRunningBuild.getRunningEnvironment();
+        if (useInternalNetwork) {
+            return runningEnvironment.getInternalBuildAgentUrl();
+        } else {
+            return runningEnvironment.getBuildAgentUrl();
+        }
+    }
 }

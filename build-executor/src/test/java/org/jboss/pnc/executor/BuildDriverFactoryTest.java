@@ -20,6 +20,7 @@ package org.jboss.pnc.executor;
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.executor.servicefactories.BuildDriverFactory;
 import org.jboss.pnc.spi.builddriver.BuildDriver;
+import org.jboss.pnc.spi.builddriver.CompletedBuild;
 import org.jboss.pnc.spi.builddriver.RunningBuild;
 import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
 import org.jboss.pnc.spi.environment.RunningEnvironment;
@@ -29,6 +30,8 @@ import org.jboss.pnc.test.cdi.TestInstance;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
+
+import java.util.function.Consumer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -93,7 +96,9 @@ public class BuildDriverFactoryTest {
         @Override
         public RunningBuild startProjectBuild(
                 BuildExecutionSession currentBuildExecution,
-                RunningEnvironment runningEnvironment)
+                RunningEnvironment runningEnvironment,
+                Consumer<CompletedBuild> onComplete,
+                Consumer<Throwable> onError)
                 throws BuildDriverException {
             return null;
         }
@@ -109,7 +114,9 @@ public class BuildDriverFactoryTest {
         @Override
         public RunningBuild startProjectBuild(
                 BuildExecutionSession currentBuildExecution,
-                RunningEnvironment runningEnvironment)
+                RunningEnvironment runningEnvironment,
+                Consumer<CompletedBuild> onComplete,
+                Consumer<Throwable> onError)
                 throws BuildDriverException {
             return null;
         }
