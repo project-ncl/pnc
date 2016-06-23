@@ -347,14 +347,14 @@
       <!-- END: Project modules -->
 
       <dependency>
-        <groupId>org.jboss.pnc</groupId>
-        <artifactId>build-agent-client</artifactId>
+        <groupId>org.jboss.pnc.build-agent</groupId>
+        <artifactId>client</artifactId>
         <version>${version.buildagent}</version>
       </dependency>
 
       <dependency>
-        <groupId>org.jboss.pnc</groupId>
-        <artifactId>build-agent-server</artifactId>
+        <groupId>org.jboss.pnc.build-agent</groupId>
+        <artifactId>server</artifactId>
         <version>${version.buildagent}</version>
       </dependency>
 
