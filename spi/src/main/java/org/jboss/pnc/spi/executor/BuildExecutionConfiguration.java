@@ -50,6 +50,8 @@ public interface BuildExecutionConfiguration extends BuildExecution {
 
     SystemImageType getSystemImageType();
 
+    boolean isPodKeptOnFailure();
+
     static BuildExecutionConfiguration build(
             int id,
             String buildContentId,
@@ -62,7 +64,8 @@ public interface BuildExecutionConfiguration extends BuildExecution {
             String scmMirrorRevision,
             String systemImageId,
             String systemImageRepositoryUrl,
-            SystemImageType systemImageType) {
+            SystemImageType systemImageType,
+            boolean podKeptAfterFailure) {
 
         return new BuildExecutionConfiguration() {
 
@@ -126,6 +129,11 @@ public interface BuildExecutionConfiguration extends BuildExecution {
             @Override
             public SystemImageType getSystemImageType() {
                 return systemImageType;
+            }
+
+            @Override
+            public boolean isPodKeptOnFailure() {
+                return podKeptAfterFailure;
             }
         };
     }

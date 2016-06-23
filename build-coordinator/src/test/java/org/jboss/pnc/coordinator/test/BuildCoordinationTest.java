@@ -92,7 +92,7 @@ public class BuildCoordinationTest {
 
         ObjectWrapper<BuildSetStatus> lastBuildSetStatus = registerCallback(buildConfigurationSet);
 
-        BuildSetTask buildSetTask = buildCoordinator.build(buildConfigurationSet, TestEntitiesFactory.newUser(), true);
+        BuildSetTask buildSetTask = buildCoordinator.build(buildConfigurationSet, TestEntitiesFactory.newUser(), false, true);
 
         Wait.forCondition(lastBuildSetStatus::isSet, 5, ChronoUnit.SECONDS);
 
@@ -109,7 +109,7 @@ public class BuildCoordinationTest {
 
         ObjectWrapper<BuildSetStatus> lastBuildSetStatus = registerCallback(buildConfigurationSet);
 
-        BuildSetTask buildSetTask = buildCoordinator.build(buildConfigurationSet, TestEntitiesFactory.newUser(), true);
+        BuildSetTask buildSetTask = buildCoordinator.build(buildConfigurationSet, TestEntitiesFactory.newUser(), false, true);
 
         Wait.forCondition(lastBuildSetStatus::isSet, 5, ChronoUnit.SECONDS);
 
@@ -138,7 +138,7 @@ public class BuildCoordinationTest {
 
         log.info("Running builds ...");
 
-        buildCoordinator.build(buildConfigurationSet, TestEntitiesFactory.newUser(), true);
+        buildCoordinator.build(buildConfigurationSet, TestEntitiesFactory.newUser(), false, true);
 
         Wait.forCondition(() -> contains(buildSetStatusChangedEvents, BuildSetStatus.NEW), 2000, ChronoUnit.MILLIS, "Did not receive status update to NEW for task set.");
         Wait.forCondition(() -> contains(buildSetStatusChangedEvents, BuildSetStatus.DONE), 2000, ChronoUnit.MILLIS, "Did not receive status update to DONE for task set.");

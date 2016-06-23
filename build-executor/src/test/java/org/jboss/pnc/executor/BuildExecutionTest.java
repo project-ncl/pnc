@@ -57,6 +57,10 @@ import java.util.Set;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
 
+import static org.jboss.pnc.spi.BuildExecutionStatus.BUILD_ENV_DESTROYED;
+import static org.jboss.pnc.spi.BuildExecutionStatus.BUILD_ENV_DESTROYING;
+import static org.jboss.pnc.spi.BuildExecutionStatus.DONE_WITH_ERRORS;
+
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
@@ -90,8 +94,8 @@ public class BuildExecutionTest {
             BuildExecutionStatus.REPO_SETTING_UP,
             BuildExecutionStatus.BUILD_SETTING_UP,
             BuildExecutionStatus.BUILD_WAITING,
-            BuildExecutionStatus.BUILD_ENV_DESTROYING,
-            BuildExecutionStatus.BUILD_ENV_DESTROYED,
+            BUILD_ENV_DESTROYING,
+            BUILD_ENV_DESTROYED,
             BuildExecutionStatus.FINALIZING_EXECUTION,
     };
 
@@ -146,7 +150,7 @@ public class BuildExecutionTest {
         runBuild(buildConfiguration, statusChangedEvents, buildExecutionResultWrapper);
 
         List<BuildExecutionStatus> expectedStatuses = getBuildExecutionStatusesBase();
-        expectedStatuses.add(BuildExecutionStatus.DONE_WITH_ERRORS);
+        expectedStatuses.add(DONE_WITH_ERRORS);
 
         //check build statuses
         checkBuildStatuses(statusChangedEvents, expectedStatuses);
@@ -171,9 +175,24 @@ public class BuildExecutionTest {
 
         runBuild(buildConfiguration, statusChangedEvents, buildExecutionResultWrapper);
 
-        checkBuildStatuses(statusChangedEvents, Collections.singletonList(BuildExecutionStatus.DONE_WITH_ERRORS));
+        checkBuildStatuses(statusChangedEvents, Arrays.asList(DONE_WITH_ERRORS, BUILD_ENV_DESTROYED, BUILD_ENV_DESTROYING));
 
         assertNoState(statusChangedEvents, BuildExecutionStatus.COLLECTING_RESULTS_FROM_REPOSITORY_NAMAGER);
+    }
+
+    @Test
+    public void shouldNotDestroyEnvironmentWhenPodKeptAliveSet() throws ExecutorException, InterruptedException, TimeoutException {
+        BuildConfiguration buildConfiguration = configurationBuilder.buildFailingConfiguration(4, "build-failed-on-maven", null);
+        Set<BuildExecutionStatusChangedEvent> statusChangedEvents = new HashSet<>();
+        ObjectWrapper<BuildResult> buildExecutionResultWrapper = new ObjectWrapper<>();
+
+        runBuild(buildConfiguration, statusChangedEvents, buildExecutionResultWrapper, true);
+
+        checkBuildStatuses(statusChangedEvents, Collections.singletonList(DONE_WITH_ERRORS));
+
+        assertNoState(statusChangedEvents, BuildExecutionStatus.COLLECTING_RESULTS_FROM_REPOSITORY_NAMAGER);
+        assertNoState(statusChangedEvents, BUILD_ENV_DESTROYED);
+        assertNoState(statusChangedEvents, BUILD_ENV_DESTROYING);
     }
 
     private void assertNoState(Set<BuildExecutionStatusChangedEvent> statusEvents, BuildExecutionStatus state) {
@@ -183,6 +202,12 @@ public class BuildExecutionTest {
     private void runBuild(BuildConfiguration buildConfiguration,
                           Set<BuildExecutionStatusChangedEvent> statusChangedEvents,
                           ObjectWrapper<BuildResult> buildExecutionResultWrapper) throws ExecutorException {
+        runBuild(buildConfiguration, statusChangedEvents, buildExecutionResultWrapper, false);
+    }
+    private void runBuild(BuildConfiguration buildConfiguration,
+                          Set<BuildExecutionStatusChangedEvent> statusChangedEvents,
+                          ObjectWrapper<BuildResult> buildExecutionResultWrapper,
+                          boolean keepAliveOnFailure) throws ExecutorException {
         DefaultBuildExecutor executor = new DefaultBuildExecutor(
                 repositoryManagerFactory,
                 buildDriverFactory,
@@ -216,7 +241,8 @@ public class BuildExecutionTest {
                 buildConfiguration.getScmRevision(),
                 buildConfiguration.getBuildEnvironment().getSystemImageId(),
                 buildConfiguration.getBuildEnvironment().getSystemImageRepositoryUrl(),
-                buildConfiguration.getBuildEnvironment().getSystemImageType());
+                buildConfiguration.getBuildEnvironment().getSystemImageType(),
+                keepAliveOnFailure);
 
         executor.startBuilding(buildExecutionConfiguration, onBuildExecutionStatusChangedEvent);
     }

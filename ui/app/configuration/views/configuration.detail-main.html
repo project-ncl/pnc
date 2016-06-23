@@ -33,6 +33,7 @@
           <ul class="dropdown-menu">
             <li>
               <a href ng-click="detailCtrl.forceBuild()" uib-tooltip="Start a build of this configuration, forcing a rebuild if a successful build already exists" tooltip-popup-delay="2500" tooltip-append-to-body="true"><span><i class="fa fa-play fa-color-red"></i> Force Rebuild</span></a>
+              <a href ng-click="detailCtrl.buildAndKeepAliveOnError()" uib-tooltip="Start a build of this configuration, and keep its pod alive in the case of failure"><span><i class="fa fa-play fa-color-red"></i>Build and keep alive on failure</span></a>
             </li>
           </ul>
       </div>

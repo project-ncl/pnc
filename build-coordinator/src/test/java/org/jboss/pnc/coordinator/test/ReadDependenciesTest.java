@@ -33,7 +33,6 @@ import org.junit.runner.RunWith;
 
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
-import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -75,7 +74,7 @@ public class ReadDependenciesTest extends ProjectBuilder {
                 buildConfigurationSet,
                 user,
                 true,
-                buildStatusChangedEventNotifier,
+                false,
                 atomicInteger::getAndIncrement);
     }
 }

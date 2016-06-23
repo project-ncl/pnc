@@ -56,6 +56,15 @@
           method: 'POST',
           url: ENDPOINT + '/clone'
         },
+        buildAndKeepAliveOnError: {
+          method: 'POST',
+          url: ENDPOINT + '/build',
+          successNotification: false,
+          params: {
+            rebuildAll: true,
+            keepPodAliveOnFailure: true
+          }
+        },
         forceBuild: {
           method: 'POST',
           url: ENDPOINT + '/build',

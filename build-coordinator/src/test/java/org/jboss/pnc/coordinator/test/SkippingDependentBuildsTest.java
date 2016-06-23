@@ -80,10 +80,10 @@ public class SkippingDependentBuildsTest extends ProjectBuilder {
         BuildCoordinator buildCoordinator = coordinator.coordinator;
 
         //when
-        buildCoordinator.build(testConfiguration, testUser, false);
+        buildCoordinator.build(testConfiguration, testUser, false, false);
         waitForBuild(coordinator.queue);
 
-        buildCoordinator.build(testConfiguration, testUser, false);
+        buildCoordinator.build(testConfiguration, testUser, false, false);
         waitForBuild(coordinator.queue);
 
         //then
@@ -101,10 +101,10 @@ public class SkippingDependentBuildsTest extends ProjectBuilder {
         BuildCoordinator buildCoordinator = coordinator.coordinator;
 
         //when
-        buildCoordinator.build(testConfiguration, testUser, true);
+        buildCoordinator.build(testConfiguration, testUser, false, true);
         waitForBuild(coordinator.queue);
 
-        buildCoordinator.build(testConfiguration, testUser, true);
+        buildCoordinator.build(testConfiguration, testUser, false, true);
         waitForBuild(coordinator.queue);
 
         //then
@@ -124,10 +124,10 @@ public class SkippingDependentBuildsTest extends ProjectBuilder {
         BuildCoordinator buildCoordinator = coordinator.coordinator;
 
         //when
-        buildCoordinator.build(testConfigurationSet, testUser, false); //first build
+        buildCoordinator.build(testConfigurationSet, testUser, false, false); //first build
         waitForBuild(coordinator.queue);
 
-        buildCoordinator.build(testConfigurationSet, testUser, false); //forced rebuild build
+        buildCoordinator.build(testConfigurationSet, testUser, false, false); //forced rebuild build
         waitForBuild(coordinator.queue);
 
         //then
@@ -146,10 +146,10 @@ public class SkippingDependentBuildsTest extends ProjectBuilder {
         BuildCoordinator buildCoordinator = coordinator.coordinator;
 
         //when
-        buildCoordinator.build(testConfigurationSet, testUser, true); //first build
+        buildCoordinator.build(testConfigurationSet, testUser, false, true); //first build
         waitForBuild(coordinator.queue);
 
-        buildCoordinator.build(testConfigurationSet, testUser, true); //forced rebuild build
+        buildCoordinator.build(testConfigurationSet, testUser, false, true); //forced rebuild build
         waitForBuild(coordinator.queue);
 
         //then

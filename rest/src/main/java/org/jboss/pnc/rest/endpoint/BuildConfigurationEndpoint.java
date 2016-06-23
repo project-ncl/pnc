@@ -34,8 +34,8 @@ import org.jboss.pnc.rest.restmodel.BuildConfigurationRest;
 import org.jboss.pnc.rest.restmodel.ProductVersionRest;
 import org.jboss.pnc.rest.restmodel.response.Singleton;
 import org.jboss.pnc.rest.restmodel.response.error.ErrorResponseRest;
-import org.jboss.pnc.rest.swagger.response.BuildConfigurationAuditedSingleton;
 import org.jboss.pnc.rest.swagger.response.BuildConfigurationAuditedPage;
+import org.jboss.pnc.rest.swagger.response.BuildConfigurationAuditedSingleton;
 import org.jboss.pnc.rest.swagger.response.BuildConfigurationPage;
 import org.jboss.pnc.rest.swagger.response.BuildConfigurationSetPage;
 import org.jboss.pnc.rest.swagger.response.BuildConfigurationSingleton;
@@ -74,8 +74,8 @@ import java.net.URL;
 
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.CONFLICTED_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.CONFLICTED_DESCRIPTION;
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.INVALID_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.INVALID_CODE;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.INVALID_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.NOT_FOUND_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.NOT_FOUND_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.NO_CONTENT_CODE;
@@ -233,6 +233,7 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
     public Response trigger(@ApiParam(value = "Build Configuration id", required = true) @PathParam("id") Integer id,
             @ApiParam(value = "Optional Callback URL") @QueryParam("callbackUrl") String callbackUrl,
             @ApiParam(value = "Rebuild all dependencies") @QueryParam("rebuildAll") @DefaultValue("false") boolean rebuildAll,
+            @ApiParam(value = "Keep pod alive when the build fails") @QueryParam("keepPodAliveOnFailure") @DefaultValue("false") boolean keepPodAliveOnFailure,
             @Context UriInfo uriInfo,
             @Context HttpServletRequest request) throws InvalidEntityException, MalformedURLException, BuildConflictException {
 
@@ -256,10 +257,10 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
         // if callbackUrl is provided trigger build accordingly
         if (callbackUrl == null || callbackUrl.isEmpty()) {
             logger.debug("Triggering build for buildConfigurationId {} without callback URL.", id);
-            runningBuildId = buildTriggerer.triggerBuild(id, currentUser, rebuildAll);
+            runningBuildId = buildTriggerer.triggerBuild(id, currentUser, keepPodAliveOnFailure, rebuildAll);
         } else {
             logger.debug("Triggering build for buildConfigurationId {} with callback URL {}.", id, callbackUrl);
-            runningBuildId = buildTriggerer.triggerBuild(id, currentUser, rebuildAll, new URL(callbackUrl));
+            runningBuildId = buildTriggerer.triggerBuild(id, currentUser, keepPodAliveOnFailure, rebuildAll, new URL(callbackUrl));
         }
 
         UriBuilder uriBuilder = UriBuilder.fromUri(uriInfo.getBaseUri()).path("/build-config-set-records/{id}");

@@ -38,6 +38,7 @@ public class DefaultBuildExecutionConfiguration implements BuildExecutionConfigu
     private final String systemImageId;
     private final String systemImageRepositoryUrl;
     private final SystemImageType systemImageType;
+    private final boolean podKeptAfterFailure;
 
     public DefaultBuildExecutionConfiguration(
             int id,
@@ -51,7 +52,8 @@ public class DefaultBuildExecutionConfiguration implements BuildExecutionConfigu
             String scmRevision,
             String systemImageId,
             String systemImageRepositoryUrl,
-            SystemImageType systemImageType) {
+            SystemImageType systemImageType,
+            boolean podKeptAfterFailure) {
 
         this.id = id;
         this.buildContentId = buildContentId;
@@ -65,6 +67,7 @@ public class DefaultBuildExecutionConfiguration implements BuildExecutionConfigu
         this.systemImageId = systemImageId;
         this.systemImageRepositoryUrl = systemImageRepositoryUrl;
         this.systemImageType = systemImageType;
+        this.podKeptAfterFailure = podKeptAfterFailure;
     }
 
     @Override
@@ -125,5 +128,10 @@ public class DefaultBuildExecutionConfiguration implements BuildExecutionConfigu
     @Override
     public SystemImageType getSystemImageType() {
         return systemImageType;
+    }
+
+    @Override
+    public boolean isPodKeptOnFailure() {
+        return podKeptAfterFailure;
     }
 }

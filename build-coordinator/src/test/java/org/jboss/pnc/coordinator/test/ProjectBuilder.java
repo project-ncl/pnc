@@ -98,7 +98,7 @@ public class ProjectBuilder {
         final Semaphore semaphore = registerReleaseListenersAndAcquireSemaphore(receivedStatuses, N_STATUS_UPDATES_PER_TASK);
 
 
-        BuildTask buildTask = buildCoordinator.build(buildConfiguration, MockUser.newTestUser(1), false);
+        BuildTask buildTask = buildCoordinator.build(buildConfiguration, MockUser.newTestUser(1), false, false);
         log.info("Started build task {}", buildTask);
 
         assertBuildStartedSuccessfully(buildTask);
@@ -145,7 +145,7 @@ public class ProjectBuilder {
         final Semaphore semaphore = registerReleaseListenersAndAcquireSemaphore(receivedStatuses, nStatusUpdates);
         final Semaphore buildSetSemaphore = registerBuildSetListeners(receivedSetStatuses, BUILD_SET_STATUS_UPDATES);
 
-        BuildSetTask buildSetTask = buildCoordinator.build(buildConfigurationSet, MockUser.newTestUser(1), true);
+        BuildSetTask buildSetTask = buildCoordinator.build(buildConfigurationSet, MockUser.newTestUser(1), false, true);
 
         assertBuildStartedSuccessfully(buildSetTask);
 

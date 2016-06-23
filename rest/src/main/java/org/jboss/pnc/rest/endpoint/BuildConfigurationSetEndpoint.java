@@ -311,12 +311,13 @@ public class BuildConfigurationSetEndpoint extends AbstractEndpoint<BuildConfigu
                     .email(authProvider.getEmail()).build();
             datastore.createNewUser(currentUser);
         }
+
         BuildTriggerer.BuildConfigurationSetTriggerResult result;
         // if callbackUrl is provided trigger build accordingly
         if (callbackUrl == null || callbackUrl.isEmpty()) {
-            result = buildTriggerer.triggerBuildConfigurationSet(id, currentUser, rebuildAll);
+            result = buildTriggerer.triggerBuildConfigurationSet(id, currentUser, false, rebuildAll);
         } else {
-            result = buildTriggerer.triggerBuildConfigurationSet(id, currentUser, rebuildAll, new URL(callbackUrl));
+            result = buildTriggerer.triggerBuildConfigurationSet(id, currentUser, false, rebuildAll, new URL(callbackUrl));
         }
 
         UriBuilder uriBuilder = UriBuilder.fromUri(uriInfo.getBaseUri()).path("/build-config-set-records/{id}");

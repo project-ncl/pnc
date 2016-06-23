@@ -18,6 +18,7 @@
 
 package org.jboss.pnc.integration;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -25,6 +26,7 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.message.BasicHeader;
 import org.apache.http.message.BasicNameValuePair;
+import org.assertj.core.api.Assertions;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.container.test.api.RunAsClient;
 import org.jboss.arquillian.junit.Arquillian;
@@ -49,6 +51,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -85,7 +88,8 @@ public class BuildTasksRestTest extends AbstractTest{
         request.addHeader(new BasicHeader(authHeader.getName(), authHeader.getValue()));
 
         BuildExecutionConfiguration buildExecutionConfig = BuildExecutionConfiguration.build(
-                1, "test-content-id", 1, "mvn clean install", "jboss-modules", "scm-url", "master", "scm-mirror", "master", "dummy-docker-image-id", "dummy.repo.url/repo", SystemImageType.DOCKER_IMAGE);
+                1, "test-content-id", 1, "mvn clean install", "jboss-modules", "scm-url", "master", "scm-mirror",
+                "master", "dummy-docker-image-id", "dummy.repo.url/repo", SystemImageType.DOCKER_IMAGE, false);
 
         BuildExecutionConfigurationRest buildExecutionConfigurationRest = new BuildExecutionConfigurationRest(buildExecutionConfig);
 
@@ -99,16 +103,21 @@ public class BuildTasksRestTest extends AbstractTest{
             Assert.fail("Cannot prepare request." + e.getMessage());
         }
 
-        log.info("Executing request " + request.getRequestLine());
+        log.info("Executing request {} with parameters: {}", request.getRequestLine(), requestParameters);
 
         int statusCode = -1;
         try (CloseableHttpClient httpClient = HttpUtils.getPermissiveHttpClient()) {
             try (CloseableHttpResponse response = httpClient.execute(request)) {
                 statusCode = response.getStatusLine().getStatusCode();
+                Assert.assertEquals("Received error response code. Response: " + printEntity(response), 200, statusCode);
             }
         } catch (IOException e) {
-            log.error("Cannot invoke remote endpoint.", e);
+            Assertions.fail("Cannot invoke remote endpoint.", e);
         }
-        Assert.assertEquals("Received error response code.", 200, statusCode);
+    }
+
+    private String printEntity(CloseableHttpResponse response) throws IOException {
+        InputStream stream = response.getEntity().getContent();
+        return IOUtils.toString(stream);
     }
 }
