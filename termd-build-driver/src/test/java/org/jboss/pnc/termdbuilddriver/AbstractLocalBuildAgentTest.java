@@ -17,7 +17,7 @@
  */
 package org.jboss.pnc.termdbuilddriver;
 
-import org.jboss.pnc.buildagent.BuildAgent;
+import org.jboss.pnc.buildagent.server.BuildAgent;
 import org.jboss.pnc.spi.environment.RunningEnvironment;
 import org.junit.AfterClass;
 import org.junit.Before;
