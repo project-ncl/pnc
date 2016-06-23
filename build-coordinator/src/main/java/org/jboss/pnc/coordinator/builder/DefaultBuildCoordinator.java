@@ -196,6 +196,9 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
         log.debug("Updating build task {} status to {}", task.getId(), buildStatusChanged);
         task.setStatus(status);
         task.setStatusDescription(statusDescription);
+        if (status.isCompleted()) {
+            markFinished(task);
+        }
         buildStatusChangedEventNotifier.fire(buildStatusChanged);
         log.debug("Fired buildStatusChangedEventNotifier after task {} status update to {}.", task.getId(), status);
     }
@@ -247,7 +250,6 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
                 if(!task.getRebuildAll() && prepareBuildTaskFilterPredicate().test(task)) {
                     log.info("[{}] Marking task as REJECTED_ALREADY_BUILT, because it has been already built", task.getId());
                     updateBuildTaskStatus(task, BuildCoordinationStatus.REJECTED_ALREADY_BUILT, "The configuration has already been built.");
-                    markFinished(task);
                     return;
                 }
                 task.setStartTime(new Date());
