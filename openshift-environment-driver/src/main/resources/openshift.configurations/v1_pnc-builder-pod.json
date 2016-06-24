@@ -82,7 +82,7 @@
                 "imagePullPolicy": "IfNotPresent",
                 "securityContext": {
                     "capabilities": {
-                        "add": ["ALL"]
+                        "add": ["NET_ADMIN"]
                     }
                 }
             }
