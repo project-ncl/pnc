@@ -40,6 +40,7 @@
                     "firewallAllowedDestinations": "${env.PNC_FIREWALL_ALLOWED_DESTINATIONS}",
                     "restEndpointUrl": "${env.PNC_REST_ENDPOINT_URL}",
                     "restAuthToken": "${env.PNC_REST_AUTH_TOKEN}",
+                    "buildAgentHost": "${env.PNC_BUILD_AGENT_HOST}",
                     "buildAgentBindPath": "${env.PNC_BUILD_AGENT_BIND_PATH}",
                     "podNamespace": "${env.PNC_POD_NAMESPACE}",
                     "containerPort": "${env.PNC_CONTAINER_PORT}",
