@@ -442,7 +442,7 @@
                         /subsystem=logging/logger=org.jboss.pnc:add
                       </command>
                       <command>
-                        /subsystem=logging/logger=org.jboss.pnc:change-log-level(level=DEBUG)
+                        /subsystem=logging/logger=org.jboss.pnc:write-attribute(name="level", value="DEBUG")
                       </command>
                     </commands>
                   </execute-commands>
