@@ -238,7 +238,7 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
     }
 
     private String getInternalEndpointUrl() {
-        return "http://" + service.getPortalIP() + "/" + buildAgentContextPath + "/" + environmentConfiguration.getBuildAgentBindPath();
+        return environmentConfiguration.getRestEndpointUrl() + "/" + buildAgentContextPath + "/" + environmentConfiguration.getBuildAgentBindPath();
     }
 
     private boolean isPodRunning() {
