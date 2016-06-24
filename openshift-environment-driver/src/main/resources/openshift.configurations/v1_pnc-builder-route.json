@@ -5,7 +5,7 @@
         "name": "${route-name}"
     },
     "spec": {
-        "host" : "ncl-test-os-01.host.prod.eng.bos.redhat.com",
+        "host" : "${build-agent-host}",
         "path" : "${route-path}",
         "to" : {
             "kind" : "Service",

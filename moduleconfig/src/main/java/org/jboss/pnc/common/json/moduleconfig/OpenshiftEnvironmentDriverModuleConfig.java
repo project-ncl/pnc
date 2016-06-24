@@ -34,6 +34,7 @@ public class OpenshiftEnvironmentDriverModuleConfig extends EnvironmentDriverMod
     public static String MODULE_NAME = "openshift-environment-driver";
 
     private String restEndpointUrl;
+    private String buildAgentHost;
     private String buildAgentBindPath;
 
     private String podNamespace;
@@ -43,6 +44,7 @@ public class OpenshiftEnvironmentDriverModuleConfig extends EnvironmentDriverMod
     private boolean exposeBuildAgentOnPublicUrl;
 
     public OpenshiftEnvironmentDriverModuleConfig(@JsonProperty("restEndpointUrl") String restEndpointUrl,
+                                                  @JsonProperty("buildAgentHost") String buildAgentHost,
                                                   @JsonProperty("imageId") String imageId,
                                                   @JsonProperty("firewallAllowedDestinations") String firewallAllowedDestinations,
                                                   @JsonProperty("proxyServer") String proxyServer,
@@ -59,6 +61,7 @@ public class OpenshiftEnvironmentDriverModuleConfig extends EnvironmentDriverMod
         super(imageId, firewallAllowedDestinations, proxyServer, proxyPort, nonProxyHosts,workingDirectory, disabled);
 
         this.restEndpointUrl = restEndpointUrl;
+        this.buildAgentHost = buildAgentHost;
         this.buildAgentBindPath = buildAgentBindPath;
         this.podNamespace = podNamespace;
         this.restAuthToken = restAuthToken;
@@ -71,6 +74,10 @@ public class OpenshiftEnvironmentDriverModuleConfig extends EnvironmentDriverMod
 
     public String getRestEndpointUrl() {
         return restEndpointUrl;
+    }
+
+    public String getBuildAgentHost() {
+        return buildAgentHost;
     }
 
     public String getPncNamespace() {
@@ -107,6 +114,7 @@ public class OpenshiftEnvironmentDriverModuleConfig extends EnvironmentDriverMod
                 ", proxyPort='" + proxyPort + '\'' +
                 ", nonProxyHosts='" + nonProxyHosts + '\'' +
                 ", podNamespace='" + podNamespace + '\'' +
+                ", buildAgentHost='" + buildAgentHost + '\'' +
                 ", buildAgentBindPath='" + buildAgentBindPath + '\'' +
                 ", restAuthToken= HIDDEN " +
                 ", containerPort='" + containerPort + '\'' +

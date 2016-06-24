@@ -98,9 +98,12 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
         String randString = RandomUtils.randString(6);//note the 24 char limit
         buildAgentContextPath = "pnc-ba-" + randString;
 
+        final String buildAgentHost = environmentConfiguration.getBuildAgentHost();
+
+        runtimeProperties.put("build-agent-host", buildAgentHost);
         runtimeProperties.put("pod-name", "pnc-ba-pod-" + randString);
         runtimeProperties.put("service-name", "pnc-ba-service-" + randString);
-        runtimeProperties.put("route-name", "pnc-ba-route-" + randString);
+        runtimeProperties.put("route-name", "pnc-ba-route-" + buildAgentHost + "-" + randString);
         runtimeProperties.put("route-path", "/" + buildAgentContextPath);
         runtimeProperties.put("buildAgentContextPath", "/" + buildAgentContextPath);
         runtimeProperties.put("containerPort", environmentConfiguration.getContainerPort());
