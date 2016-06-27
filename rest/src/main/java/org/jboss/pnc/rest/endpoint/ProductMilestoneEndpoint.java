@@ -23,6 +23,7 @@ import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.jboss.pnc.model.ProductMilestone;
+import org.jboss.pnc.rest.provider.BuildRecordProvider;
 import org.jboss.pnc.rest.provider.ProductMilestoneProvider;
 import org.jboss.pnc.rest.restmodel.ProductMilestoneRest;
 import org.jboss.pnc.rest.restmodel.response.error.ErrorResponseRest;
@@ -76,13 +77,16 @@ public class ProductMilestoneEndpoint extends AbstractEndpoint<ProductMilestone,
 
     private ProductMilestoneProvider productMilestoneProvider;
 
+    private BuildRecordProvider buildRecordProvider;
+
     public ProductMilestoneEndpoint() {
     }
 
     @Inject
-    public ProductMilestoneEndpoint(ProductMilestoneProvider productMilestoneProvider) {
+    public ProductMilestoneEndpoint(ProductMilestoneProvider productMilestoneProvider, BuildRecordProvider buildRecordProvider) {
         super(productMilestoneProvider);
         this.productMilestoneProvider = productMilestoneProvider;
+        this.buildRecordProvider = buildRecordProvider;
     }
 
     @ApiOperation(value = "Gets all Product Milestones")
@@ -157,6 +161,24 @@ public class ProductMilestoneEndpoint extends AbstractEndpoint<ProductMilestone,
     public Response update(@ApiParam(value = "Product Milestone id", required = true) @PathParam("id") Integer id,
             ProductMilestoneRest productMilestoneRest, @Context UriInfo uriInfo) throws ValidationException {
         return super.update(id, productMilestoneRest);
+    }
+
+    @ApiOperation(value = "Gets the set of builds which produced artifacts distributed/shipped in a Product Milestone")
+    @ApiResponses(value = {
+            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION, response = ProductMilestoneSingleton.class),
+            @ApiResponse(code = NOT_FOUND_CODE, message = NOT_FOUND_DESCRIPTION, response = ProductMilestoneSingleton.class),
+            @ApiResponse(code = INVALID_CODE, message = INVALID_DESCRIPTION, response = ErrorResponseRest.class),
+            @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION, response = ErrorResponseRest.class)
+    })
+    @GET
+    @Path("/{id}/distributed-builds")
+    public Response getDistributedBuilds (
+            @ApiParam(value = PAGE_INDEX_DESCRIPTION) @QueryParam(PAGE_INDEX_QUERY_PARAM) @DefaultValue(PAGE_INDEX_DEFAULT_VALUE) int pageIndex,
+            @ApiParam(value = PAGE_SIZE_DESCRIPTION) @QueryParam(PAGE_SIZE_QUERY_PARAM) @DefaultValue(PAGE_SIZE_DEFAULT_VALUE) int pageSize,
+            @ApiParam(value = SORTING_DESCRIPTION) @QueryParam(SORTING_QUERY_PARAM) String sort,
+            @ApiParam(value = QUERY_DESCRIPTION, required = false) @QueryParam(QUERY_QUERY_PARAM) String q,
+            @ApiParam(value = "Product Milestone id", required = true) @PathParam("id") Integer milestoneId) {
+        return fromCollection(buildRecordProvider.getAllBuildRecordsWithArtifactsDistributedInProductMilestone(pageIndex, pageSize, sort, q, milestoneId));
     }
 
 }
