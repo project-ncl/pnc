@@ -44,7 +44,12 @@
 
   module.controller('RecordResultController', [
     'buildLog',
-    function(buildLog) {
+    'REST_BASE_URL',
+    'BUILD_RECORD_ENDPOINT',
+    'recordDetail',
+    function(buildLog, REST_BASE_URL, BUILD_RECORD_ENDPOINT, recordDetail) {
+      this.logUrl = REST_BASE_URL + BUILD_RECORD_ENDPOINT.replace(':recordId', recordDetail.id) + '/log';
+      this.logFileName = recordDetail.id + '_' + recordDetail.buildConfigurationName + '_' + recordDetail.status + '.txt';
       this.log = buildLog.payload;
     }
   ]);
