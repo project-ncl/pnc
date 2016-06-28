@@ -354,6 +354,23 @@
       that.defaultSortKey = 'groupId';
       that.defaultReverse = false;
 
+      that.pagination = {
+        current: 1
+      };
+
+      that.defaultPageSize = 30;
+      that.availableVersionsLimits = [];
+
+      that.expandAll = function() {
+        // get boundaries for current page
+        var start = that.defaultPageSize * (that.pagination.current - 1);
+        var end = start + that.defaultPageSize;
+
+        that.reportResults.slice(start, end).forEach(function(value, index) {
+          that.availableVersionsLimits[index] = value.availableVersions.length;
+        });
+      };
+
       that.isResultNotEmpty = function() {
         return !_.isEmpty(that.reportResults);
       };
