@@ -24,7 +24,7 @@
   <parent>
     <artifactId>parent</artifactId>
     <groupId>org.jboss.pnc</groupId>
-    <version>0.9-SNAPSHOT</version>
+    <version>0.9</version>
   </parent>
 
   <artifactId>model</artifactId>
@@ -91,16 +91,15 @@
             <id>Instrument domain classes</id>
             <configuration>
               <tasks>
-                <taskdef name="instrument"
-                  classname="org.hibernate.tool.instrument.javassist.InstrumentTask">
+                <taskdef name="instrument" classname="org.hibernate.tool.instrument.javassist.InstrumentTask">
                   <classpath>
-                    <path refid="maven.dependency.classpath"/>
-                    <path refid="maven.plugin.classpath"/>
+                    <path refid="maven.dependency.classpath" />
+                    <path refid="maven.plugin.classpath" />
                   </classpath>
                 </taskdef>
                 <instrument verbose="true">
                   <fileset dir="${project.build.outputDirectory}">
-                    <include name="org/jboss/pnc/model/**/*.class"/>
+                    <include name="org/jboss/pnc/model/**/*.class" />
                   </fileset>
                 </instrument>
               </tasks>
