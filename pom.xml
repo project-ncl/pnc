@@ -1609,18 +1609,6 @@
     <profile>
       <id>release</id>
       <build>
-        <pluginManagement>
-          <plugins>
-            <plugin>
-              <artifactId>maven-scm-plugin</artifactId>
-              <version>1.8.1</version>
-              <configuration>
-                <includes>ui/bower.json,ui/package.json,ui/npm-shrinkwrap.json</includes>
-                <message>Update JSON Versions</message>
-              </configuration>
-            </plugin>
-          </plugins>
-        </pluginManagement>
         <plugins>
           <plugin>
             <groupId>com.mycila</groupId>
@@ -1632,38 +1620,6 @@
                 <goals>
                   <goal>check</goal>
                 </goals>
-              </execution>
-            </executions>
-          </plugin>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-antrun-plugin</artifactId>
-            <executions>
-              <execution>
-                <id>patch-json-versions</id>
-                <phase>generate-sources</phase>
-                <goals>
-                  <goal>run</goal>
-                </goals>
-                <configuration>
-                  <target>
-                    <loadproperties srcFile="${executionRoot}/release.properties">
-                      <filterchain>
-                        <linecontains>
-                          <contains value="project.rel.org.jboss.pnc\:parent" />
-                        </linecontains>
-                      </filterchain>
-                    </loadproperties>
-
-                    <property name="newversion" value="${project.rel.org.jboss.pnc:parent}.0" />
-
-                    <replaceregexp byline="false" flags="m" file="${basedir}/bower.json" match="ui&quot;,&#xA; &quot;version&quot;: &quot;[0-9].*&quot;" replace="ui&quot;,&#xA; &quot;version&quot;: &quot;${newversion}&quot;" />
-                    <replaceregexp byline="false" flags="m" file="${basedir}/package.json" match="ui&quot;,&#xA; &quot;version&quot;: &quot;[0-9].*&quot;" replace="ui&quot;,&#xA; &quot;version&quot;: &quot;${newversion}&quot;" />
-
-                    <replaceregexp byline="false" flags="m" file="${basedir}/npm-shrinkwrap.json" match="ui&quot;,&#xA; &quot;version&quot;: &quot;[0-9].*&quot;" replace="ui&quot;,&#xA; &quot;version&quot;: &quot;${newversion}&quot;" />
-
-                  </target>
-                </configuration>
               </execution>
             </executions>
           </plugin>
