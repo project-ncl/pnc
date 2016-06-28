@@ -28,6 +28,7 @@
   <packaging>pom</packaging>
 
   <name>pnc</name>
+  <description>A system for managing, executing, and tracking builds.</description>
   <url>https://github.com/project-ncl</url>
   <inceptionYear>2014</inceptionYear>
 
