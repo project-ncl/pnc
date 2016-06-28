@@ -17,10 +17,15 @@
  */
 package org.jboss.pnc.rest.provider;
 
+import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.ProductMilestone;
 import org.jboss.pnc.rest.provider.collection.CollectionInfo;
 import org.jboss.pnc.rest.restmodel.BuildRecordRest;
 import org.jboss.pnc.rest.restmodel.ProductMilestoneRest;
+import org.jboss.pnc.rest.validation.ValidationBuilder;
+import org.jboss.pnc.rest.validation.exceptions.ValidationException;
+import org.jboss.pnc.rest.validation.groups.WhenUpdating;
+import org.jboss.pnc.spi.datastore.repositories.ArtifactRepository;
 import org.jboss.pnc.spi.datastore.repositories.PageInfoProducer;
 import org.jboss.pnc.spi.datastore.repositories.ProductMilestoneRepository;
 import org.jboss.pnc.spi.datastore.repositories.ProductVersionRepository;
@@ -36,11 +41,15 @@ import static org.jboss.pnc.spi.datastore.predicates.ProductMilestonePredicates.
 @Stateless
 public class ProductMilestoneProvider extends AbstractProvider<ProductMilestone, ProductMilestoneRest> {
 
+    ArtifactRepository artifactRepository;
+
     @Inject
     public ProductMilestoneProvider(ProductMilestoneRepository productMilestoneRepository,
+            ArtifactRepository artifactRepository,
             RSQLPredicateProducer rsqlPredicateProducer,
             SortInfoProducer sortInfoProducer, PageInfoProducer pageInfoProducer) {
         super(productMilestoneRepository, rsqlPredicateProducer, sortInfoProducer, pageInfoProducer);
+        this.artifactRepository = artifactRepository;
     }
 
     // needed for EJB/CDI
@@ -60,6 +69,27 @@ public class ProductMilestoneProvider extends AbstractProvider<ProductMilestone,
     @Override
     protected Function<? super ProductMilestoneRest, ? extends ProductMilestone> toDBModel() {
         return productMilestoneRest -> productMilestoneRest.toDBEntityBuilder().build();
+    }
+
+    public void addDistributedArtifact(Integer milestoneId, Integer artifactId) throws ValidationException {
+        ProductMilestone milestone = repository.queryById(milestoneId);
+        Artifact artifact = artifactRepository.queryById(artifactId);
+        ValidationBuilder.validateObject(milestone, WhenUpdating.class)
+                .validateCondition(milestone != null, "No product milestone set exists with id: " + milestoneId)
+                .validateCondition(artifact != null, "No artiffact exists with id: " + artifactId);
+
+        milestone.addDistributedArtifact(artifact);
+        repository.save(milestone);
+    }
+
+    public void removeDistributedArtifact(Integer milestoneId, Integer artifactId) throws ValidationException {
+        ProductMilestone milestone = repository.queryById(milestoneId);
+        Artifact artifact = artifactRepository.queryById(artifactId);
+        ValidationBuilder.validateObject(milestone, WhenUpdating.class)
+                .validateCondition(milestone != null, "No build configuration set exists with id: " + milestoneId)
+                .validateCondition(artifact != null, "No build configuration exists with id: " + artifactId);
+        milestone.removeDistributedArtifact(artifact);
+        repository.save(milestone);
     }
 
 }
