@@ -18,6 +18,14 @@
 
 -->
 <div class="push-down">
+
+  <div class="text-right">
+    <a class="btn btn-default btn-xs" href="{{resultCtrl.logUrl}}" target="_blank" title="View log as a plain text">View</a>
+    <a class="btn btn-primary btn-xs" href="{{resultCtrl.logUrl}}" target="_blank" title="Download log as a plain text" download="{{resultCtrl.logFileName}}">Download</a>
+  </div>
+
+  <br>
+
   <pre>
     {{ resultCtrl.log || 'Log not available.' }}
   </pre>
