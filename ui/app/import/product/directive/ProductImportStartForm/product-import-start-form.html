@@ -25,11 +25,11 @@
 
       <div class="form-group"
           ng-class="{ 'has-error' : startForm.input1.$invalid && !startForm.startFormInput1.$pristine, 'has-success': startForm.startFormInput1.$valid && startForm.startFormInput1.$touched }">
-        <label for="startFormInput1" class="col-sm-2 control-label">
+        <label for="startFormInput1" class="col-sm-3 control-label">
           * Product&nbsp;<span class="pficon pficon-info" title="Select the Product to import into."></span>
         </label>
 
-        <div class="col-sm-10">
+        <div class="col-sm-9">
           <!-- <input id="startFormInput1" name="startFormInput1" maxlength="255" class="form-control" ng-model="data.name" required> -->
           <pnc-infinite-select infinite-select-required="true" infinite-select-id="startFormInput1" infinite-select-name="startFormInput1" placeholder="Scroll & Filter Products..."
               items="products" item-id="data.id"></pnc-infinite-select>
@@ -40,11 +40,11 @@
 
       <div class="form-group"
           ng-class="{ 'has-error' : startForm.startFormInput2.$invalid && !startForm.startFormInput2.$pristine, 'has-success': startForm.startFormInput2.$valid && startForm.startFormInput2.$touched }">
-        <label for="startFormInput2" class="col-sm-2 control-label">
+        <label for="startFormInput2" class="col-sm-3 control-label">
           * Product version&nbsp;<span class="pficon pficon-info" title="Major.minor version of a product, i.e. 7.0"></span>
         </label>
 
-        <div class="col-sm-10">
+        <div class="col-sm-9">
           <input id="startFormInput2" name="startFormInput2" maxlength="255" class="form-control" ng-model="data.productVersion"
                  pattern="^[0-9]+\.[0-9]+$"
                  required>
@@ -62,11 +62,11 @@
 
       <div class="form-group"
            ng-class="{ 'has-error' : startForm.startFormInput3.$invalid && !startForm.startFormInput3.$pristine, 'has-success': startForm.startFormInput3.$valid && startForm.startFormInput3.$touched }">
-        <label for="startFormInput3" class="col-sm-2 control-label">
+        <label for="startFormInput3" class="col-sm-3 control-label">
           * Git URL&nbsp;<span class="pficon pficon-info" title="URL of the product code repository."></span>
         </label>
 
-        <div class="col-sm-10">
+        <div class="col-sm-9">
           <!-- ** Input type changed from `url` to `text` to resolve: NCL-1657. We're not validating URLs as we don't
                know which protocols need to be accepted now, or in the future.
                i.e. http(s)://, git://, git+ssh://, svn://, next_awesome_scm:// etc -->
@@ -81,11 +81,11 @@
       </div>
 
       <div class="form-group">
-        <label for="startFormInput4" class="col-sm-2 control-label">
+        <label for="startFormInput4" class="col-sm-3 control-label">
           Revision&nbsp;<span class="pficon pficon-info" title="SCM revision to use."></span>
         </label>
 
-        <div class="col-sm-10">
+        <div class="col-sm-9">
           <input placeholder="master" id="startFormInput4" name="startFormInput4" maxlength="255" class="form-control" ng-model="data.scmRevision">
           <div class="help-block">
             <p>Use branch or tag name only, not hash.</p>
@@ -94,10 +94,10 @@
       </div>
 
       <div class="form-group">
-        <label for="startFormInput5" class="col-sm-2 control-label">
-          Path to root POM&nbsp;<span class="pficon pficon-info" title="Location of the product's root POM file within the repository."></span>
+        <label for="startFormInput5" class="col-sm-3 control-label">
+          Root POM path&nbsp;<span class="pficon pficon-info" title="Location of the product's root POM file within the repository."></span>
         </label>
-        <div class="col-sm-10">
+        <div class="col-sm-9">
           <input placeholder="./pom.xml" id="startFormInput5" name="startFormInput5" class="form-control" ng-model="data.pomPath">
         </div>
       </div>
@@ -110,26 +110,26 @@
 
       <div class="form-group"
            ng-class="{ 'has-error' : startForm.startFormInput6.$invalid && !startForm.startFormInput6.$pristine, 'has-success': startForm.startFormInput6.$valid  && startForm.startFormInput6.$touched }">
-        <label for="startFormInput6" class="col-sm-2 control-label">
+        <label for="startFormInput6" class="col-sm-3 col-xs-12 control-label">
           Optional Repositories&nbsp;<span class="pficon pficon-info" title="URLs of the optional repositories used for the project."></span>
         </label>
 
 
-        <div class="col-sm-9">
+        <div class="col-sm-7 col-xs-9">
           <input type="url" id="startFormInput6" name="startFormInput6" class="form-control" ng-model="optionalRepository">
           <span class="help-block" ng-show="startForm.startFormInput6.$error.url && !startForm.startFormInput6.$pristine">Invalid URL.</span>
         </div>
-        <div class="col-sm-1">
+        <div class="col-sm-2 col-xs-3">
           <button type="button" class="btn btn-primary" ng-click="addOptionalRepository()">Add</button>
         </div>
       </div>
 
       <hr>
       <div class="form-group">
-          <label for="added_repositories" class="col-sm-2 control-label">
+          <label for="added_repositories" class="col-sm-3 control-label">
             Added Repositories
           </label>
-          <div class="col-sm-10" id="added_repositories">
+          <div class="col-sm-9" id="added_repositories">
             <div ng-repeat="repository in data.repositories track by $index">
               {{repository}} <button type="button" class="close" aria-label="Close" ng-click="removeOptionalRepository($index)"><span aria-hidden="true">×</span></button>
               <hr>

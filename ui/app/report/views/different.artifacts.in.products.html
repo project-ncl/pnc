@@ -18,7 +18,7 @@
 
 -->
 <div class="row">
-  <div class="col-md-6 col-lg-4">
+  <div class="col-md-10 col-lg-7">
 
     <pnc-header>
       <pnc-header-title>Analyze the artifacts difference between 2 Products</pnc-header-title>
@@ -32,11 +32,11 @@
               ng-class="{ 'has-error' : !diffGAVInProdReportCtrl.selectedProductLeftId && differentArtifactsForm.productLeftId.$touched, 
                 'has-success': diffGAVInProdReportCtrl.selectedProductLeftId && differentArtifactsForm.productLeftId.$touched }">
 
-            <label for="input1" class="col-sm-4 control-label">
+            <label for="input1" class="col-sm-2 control-label">
               * Product 1&nbsp;<span class="pficon pficon-info" title="Select the first Product."></span>
             </label>
     
-            <div class="col-sm-8">
+            <div class="col-sm-10">
               <pnc-select-items
                 single-item="true"
                 selected-items="diffGAVInProdReportCtrl.productLeftSelection.selected"
@@ -60,11 +60,11 @@
               ng-class="{ 'has-error' : !diffGAVInProdReportCtrl.selectedProductRightId && differentArtifactsForm.productRightId.$touched, 
                 'has-success': diffGAVInProdReportCtrl.selectedProductRightId && differentArtifactsForm.productRightId.$touched }">
 
-            <label for="input2" class="col-sm-4 control-label">
+            <label for="input2" class="col-sm-2 control-label">
               * Product 2&nbsp;<span class="pficon pficon-info" title="Select the second Product."></span>
             </label>
     
-            <div class="col-sm-8">
+            <div class="col-sm-10">
               <pnc-select-items
                 single-item="true"
                 selected-items="diffGAVInProdReportCtrl.productRightSelection.selected"

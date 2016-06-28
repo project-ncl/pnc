@@ -112,7 +112,7 @@
       <div class="panel-body">
         <div class="form-group">
           <label for="input-product-versions" class="col-sm-2 control-label">Product Versions</label>
-          <div class="col-sm-10 col-md-4">
+          <div class="col-sm-10 col-md-5">
             <pnc-infinite-select-product-versions
               selected-items="productVersions.selected"
               single-item="true"
@@ -131,7 +131,7 @@
       <div class="panel-body">
         <div class="form-group">
           <label for="input-dependencies" class="col-sm-2 control-label">Dependencies</label>
-          <div class="col-sm-10 col-md-4">
+          <div class="col-sm-10 col-md-5">
             <pnc-infinite-select-items
               selected-items="dependencies.selected"
               infinite-select-required="false"
@@ -147,7 +147,7 @@
       <div class="panel-body">
         <div class="form-group">
           <label for="input-build-group-configs" class="col-sm-2 control-label">Build Group Configs</label>
-          <div class="col-sm-10 col-md-4">
+          <div class="col-sm-10 col-md-5">
             <pnc-infinite-select-items
               selected-items="buildgroupconfigs.selected"
               infinite-select-required="false"
@@ -159,7 +159,7 @@
       </div>
     </div>
 
-    <div class="form-group">
+    <div class="form-group text-right">
       <div class="col-sm-offset-2 col-sm-10">
         <input type="submit" class="btn btn-primary" value="Create" ng-disabled="isCreateEnabled(configurationForm)">
         <input type="reset" class="btn btn-default" value="Clear" ng-click="reset(configurationForm)">
