@@ -47,6 +47,13 @@
     <tag>HEAD</tag>
   </scm>
 
+  <developers>
+    <developer>
+      <organization>RedHat</organization>
+      <organizationUrl>http://www.redhat.com</organizationUrl>
+    </developer>
+  </developers>
+
   <modules>
     <module>test-common</module>
     <module>common</module>
