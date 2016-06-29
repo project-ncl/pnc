@@ -55,6 +55,7 @@ public class BuildConfigurationAudited implements GenericEntity<IdRev> {
     private String name;
 
     @Lob
+    @Type(type = "org.hibernate.type.TextType")
     private String buildScript;
 
     private String scmRepoURL;
