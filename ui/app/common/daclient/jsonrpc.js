@@ -26,151 +26,152 @@
     '$websocket',
     function($log, $q, $websocket) {
 
-      var JSON_RPC_VERSION = '2.0';
-      var ID_PREFIX = 'request_';
+        var JSON_RPC_VERSION = '2.0';
+        var ID_PREFIX = 'request_';
 
-      function wsClient(url) {
-        var instance = {};
+        function wsClient(url) {
+          var instance = {};
 
-        /*
-         * Instance private fields
-         */
+          /*
+           * Instance private fields
+           */
 
-        var socket;
-        var deferrals = {}; // Map of id => deferred
+          var socket;
+          var deferrals = {}; // Map of id => deferred
 
-        /*
-         * Instance private methods
-         */
-        function sendOnSocket(msg) {
-          return instance.connect().then(function() {
-            return socket.send(msg);
-          });
-        }
-
-        function makeRpcRequest(request) {
-          var deferred = $q.defer();
-
-          request.id = _.uniqueId(ID_PREFIX);
-
-          // As rpc invocations are asynchronous and request -> response may
-          // interleave with other requests we store the id => deferred entry
-          // in the map so we can resolve / reject  the correct promise
-          // when we receive the rpc response.
-          deferrals[request.id] = deferred;
-
-          sendOnSocket(request).catch(function () {
-            deferred.reject({
-              code: 0,
-              message: 'Error connecting to server'
+          /*
+           * Instance private methods
+           */
+          function sendOnSocket(msg) {
+            return instance.connect().then(function() {
+              return socket.send(msg);
             });
-          });
-
-          $log.debug('Making RPC request: ' + JSON.stringify(request, null, 2));
-
-          return deferred.promise;
-        }
-
-        function handleRpcResponse(response) {
-          $log.debug('Received RPC response: ' + JSON.stringify(response, null, 2));
-
-          if (!deferrals.hasOwnProperty(response.id)) {
-            // This code path should be unreachable!
-            throw new Error('Illegal State: Received JSON-RPC response with unknown id: ' + response.id);
           }
 
-          var deferred = deferrals[response.id];
+          function makeRpcRequest(request) {
+            var deferred = $q.defer();
 
-          if (response.hasOwnProperty('error')) {
-            deferred.reject(response.error);
-          } else {
-            deferred.resolve(response.result);
+            request.id = _.uniqueId(ID_PREFIX);
+
+            // As rpc invocations are asynchronous and request -> response may
+            // interleave with other requests we store the id => deferred entry
+            // in the map so we can resolve / reject  the correct promise
+            // when we receive the rpc response.
+            deferrals[request.id] = deferred;
+
+            sendOnSocket(request).catch(function () {
+              deferred.reject({
+                code: 0,
+                message: 'Error connecting to server'
+              });
+            });
+
+            $log.debug('Making RPC request: ' + JSON.stringify(request, null, 2));
+
+            return deferred.promise;
           }
-        }
 
-        /*
-         * Instance public methods
-         */
+          function handleRpcResponse(response) {
+            $log.debug('Received RPC response: ' + JSON.stringify(response, null, 2));
 
-        /**
-         *
-         */
-        instance.connect = function () {
+            if (!deferrals.hasOwnProperty(response.id)) {
+              // This code path should be unreachable!
+              throw new Error('Illegal State: Received JSON-RPC response with unknown id: ' + response.id);
+            }
 
-          if (instance.isConnected()) {
-            // Return a pre-resolved promise if it's already connected.
-            return $q.when();
+            var deferred = deferrals[response.id];
+
+            if (response.hasOwnProperty('error')) {
+              deferred.reject(response.error);
+            } else {
+              deferred.resolve(response.result);
+            }
           }
 
-          var deferred = $q.defer();
+          /*
+           * Instance public methods
+           */
 
-          $log.debug('Attempting to connect to WebSocket at: ' + url);
-          socket = $websocket(url);
+          /**
+           *
+           */
+          instance.connect = function () {
 
-          socket.onMessage(function(msg) {
-            var data = JSON.parse(msg.data);
-            handleRpcResponse(data);
-          });
+            if (instance.isConnected()) {
+              // Return a pre-resolved promise if it's already connected.
+              return $q.when();
+            }
 
-          socket.onOpen(function() {
-            $log.debug('Connected to WebSocket at: ' + socket.socket.url);
-            deferred.resolve();
-          });
+            var deferred = $q.defer();
 
-          socket.onError(function() {
-            $log.error('Error with WebSocket connection to: ' + socket.socket.url);
-            deferred.reject();
-          });
+            $log.debug('Attempting to connect to WebSocket at: ' + url);
+            socket = $websocket(url);
 
-          socket.onClose(function() {
-            $log.debug('Disconnected from WebSocket at: ' + socket.socket.url);
-          });
+            socket.onMessage(function(msg) {
+              var data = JSON.parse(msg.data);
+              handleRpcResponse(data);
+            });
 
-          // var sendFn = socket.send;
-          // socket.send = function(msg) {
-          //   $log.debug('Making RPC request: ' + JSON.stringify(msg, null, 2));
-          //   sendFn.call(socket, arguments);
-          // };
+            socket.onOpen(function() {
+              $log.debug('Connected to WebSocket at: ' + socket.socket.url);
+              deferred.resolve();
+            });
 
-          return deferred.promise;
-        };
+            socket.onError(function() {
+              $log.error('Error with WebSocket connection to: ' + socket.socket.url);
+              deferred.reject();
+            });
 
-        /**
-         *
-         */
-        instance.disconnect = function (force) {
-          socket.close(force);
-        };
+            socket.onClose(function() {
+              $log.debug('Disconnected from WebSocket at: ' + socket.socket.url);
+            });
 
-        /**
-         *
-         */
-        instance.isConnected = function () {
-          if (_.isUndefined(socket)) {
-            return false;
-          }
-          return socket.readyState === 1;
-        };
+            // var sendFn = socket.send;
+            // socket.send = function(msg) {
+            //   $log.debug('Making RPC request: ' + JSON.stringify(msg, null, 2));
+            //   sendFn.call(socket, arguments);
+            // };
 
-        /**
-         *
-         */
-        instance.invoke = function (method, params) {
-          var request = {
-            jsonrpc: JSON_RPC_VERSION,
-            method: method,
-            params: params
+            return deferred.promise;
           };
 
-          return makeRpcRequest(request);
+          /**
+           *
+           */
+          instance.disconnect = function (force) {
+            socket.close(force);
+          };
+
+          /**
+           *
+           */
+          instance.isConnected = function () {
+            if (_.isUndefined(socket)) {
+              return false;
+            }
+            return socket.readyState === 1;
+          };
+
+          /**
+           *
+           */
+          instance.invoke = function (method, params) {
+            var request = {
+              jsonrpc: JSON_RPC_VERSION,
+              method: method,
+              params: params
+            };
+
+            return makeRpcRequest(request);
+          };
+
+          return instance;
+        }
+
+        return {
+          wsClient: wsClient
         };
-
-        return instance;
-      }
-
-      return {
-        wsClient: wsClient
-      };
+        
     }
   ]);
 
