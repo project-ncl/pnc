@@ -23,6 +23,7 @@ import java.util.Set;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-11-23.
@@ -54,10 +55,12 @@ public class Artifact implements GenericEntity<Integer> {
      * The format of the identifier string is determined by the repoType
      */
     @NotNull
+    @Size(max=255)
     @Column(updatable=false)
     private String identifier;
 
     @NotNull
+    @Size(max=255)
     @Column(updatable=false)
     private String checksum;
 
@@ -73,12 +76,14 @@ public class Artifact implements GenericEntity<Integer> {
     @Column(updatable=false)
     private ArtifactRepo.Type repoType;
 
+    @Size(max=255)
     @Column(updatable=false)
     private String filename;
 
     /**
      * Repository URL where the artifact file is available.
      */
+    @Size(max=255)
     @Column(updatable=false)
     private String deployUrl;
 
@@ -97,6 +102,7 @@ public class Artifact implements GenericEntity<Integer> {
     /**
      * The location from which this artifact was originally downloaded for import
      */
+    @Size(max=255)
     @Column(unique=true, updatable=false)
     private String originUrl;
 

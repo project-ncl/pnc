@@ -25,6 +25,7 @@ import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
+import javax.validation.constraints.Size;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -54,6 +55,7 @@ public class ProductVersion implements GenericEntity<Integer> {
      */
     @Pattern(message="The version should consist of two numeric parts separated by a dot" , regexp="^[0-9]+\\.[0-9]+$")
     @NotNull
+    @Size(max=50)
     private String version;
 
     @NotNull

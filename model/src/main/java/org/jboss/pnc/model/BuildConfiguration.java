@@ -44,6 +44,7 @@ import javax.persistence.PreRemove;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Version;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
@@ -80,31 +81,37 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
 
     @Column(unique = true)
     @NotNull
+    @Size(max=255)
     private String name;
 
     @Lob
+    @Type(type = "org.hibernate.type.TextType")
     private String buildScript;
 
     /**
      * The upstream/community scm repo URL submitted by the user.
      */
+    @Size(max=255)
     private String scmRepoURL;
 
     /**
      * The upstream/community scm revision (commit ID/tag/branch) submitted by the user.
      */
+    @Size(max=255)
     private String scmRevision;
 
     /**
      * The URL of the internal mirror of the upstream repository. For builds which require the sources to be mirrored to a
      * secured location before building.
      */
+    @Size(max=255)
     private String scmMirrorRepoURL;
 
     /**
      * The SCM revision of the internal mirror of the upstream repository. Contains the revision after any automated source
      * changes have been made by the build system.
      */
+    @Size(max=255)
     private String scmMirrorRevision;
 
     @Lob
