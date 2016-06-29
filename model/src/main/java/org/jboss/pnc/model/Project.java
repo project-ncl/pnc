@@ -24,6 +24,7 @@ import org.hibernate.annotations.Type;
 import javax.persistence.*;
 import javax.persistence.Column;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -49,14 +50,17 @@ public class Project implements GenericEntity<Integer> {
 
     @Column(unique = true)
     @NotNull
+    @Size(max=255)
     private String name;
 
     @Lob
     @Type(type = "org.hibernate.type.TextType")
     private String description;
 
+    @Size(max=255)
     private String issueTrackerUrl;
 
+    @Size(max=255)
     private String projectUrl;
 
     @ManyToOne

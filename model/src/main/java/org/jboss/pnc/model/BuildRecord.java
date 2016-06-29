@@ -23,6 +23,7 @@ import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.util.*;
 
 /**
@@ -74,6 +75,7 @@ public class BuildRecord implements GenericEntity<Integer> {
     @Index(name="idx_buildrecord_buildconfiguration_aud")
     private BuildConfigurationAudited buildConfigurationAudited;
 
+    @Size(max=100)
     private String buildContentId;
 
     /**
@@ -108,6 +110,7 @@ public class BuildRecord implements GenericEntity<Integer> {
      * than the repository URL contained in the linked build configuration due to pre-build 
      * processing tasks such as repository mirroring and automated build changes.
      */
+    @Size(max=255)
     private String scmRepoURL;
 
     /**
@@ -116,6 +119,7 @@ public class BuildRecord implements GenericEntity<Integer> {
      * the sources before executing the build.  This should always be an unmodifiable commit ID
      * and should never be a tag or branch.
      */
+    @Size(max=255)
     private String scmRevision;
 
     @Lob

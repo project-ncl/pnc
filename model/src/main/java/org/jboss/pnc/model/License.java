@@ -21,6 +21,7 @@ import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -41,14 +42,18 @@ public class License implements GenericEntity<Integer> {
     private Integer id;
 
     @NotNull
+    @Size(max=255)
     private String fullName;
 
     @NotNull
+    @Lob
     @Type(type = "org.hibernate.type.TextType")
     private String fullContent;
 
+    @Size(max=255)
     private String refUrl;
 
+    @Size(max=255)
     private String shortName;
 
     // bi-directional many-to-one association to Project

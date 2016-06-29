@@ -23,6 +23,7 @@ import org.hibernate.annotations.Index;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
+import javax.validation.constraints.Size;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
@@ -53,6 +54,7 @@ public class ProductMilestone implements GenericEntity<Integer> {
      */
     @Pattern(message="The version should consist of three numeric parts and one alphanumeric qualifier each separated by a dot" , regexp="^[0-9]+\\.[0-9]+\\.[0-9]+\\.[\\w]+$")
     @NotNull
+    @Size(max=255)
     private String version;
 
     /**
@@ -73,11 +75,13 @@ public class ProductMilestone implements GenericEntity<Integer> {
     /**
      * URL which can be used to download the product distribution
      */
+    @Size(max=255)
     private String downloadUrl;
 
     /**
      * Issue tracker URL containing the set of issues fixed in this milestone
      */
+    @Size(max=255)
     private String issueTrackerUrl;
 
     /**

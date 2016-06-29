@@ -23,6 +23,7 @@ import org.hibernate.annotations.Index;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
+import javax.validation.constraints.Size;
 import java.util.Date;
 
 /**
@@ -49,6 +50,7 @@ public class ProductRelease implements GenericEntity<Integer> {
      */
     @Pattern(message="The version should consist of three numeric parts and one alphanumeric qualifier each separated by a dot" , regexp="^[0-9]+\\.[0-9]+\\.[0-9]+\\.[\\w]+$")
     @NotNull
+    @Size(max=255)
     private String version;
 
     @Enumerated(EnumType.STRING)
@@ -56,11 +58,13 @@ public class ProductRelease implements GenericEntity<Integer> {
 
     private Date releaseDate;
 
+    @Size(max=255)
     private String downloadUrl;
 
     /**
      * Issue tracker URL containing the set of issues fixed in this release
      */
+    @Size(max=255)
     private String issueTrackerUrl;
 
     @NotNull

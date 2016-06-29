@@ -24,6 +24,7 @@ import java.util.Set;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
 /**
  * @author avibelli
@@ -44,6 +45,7 @@ public class Product implements GenericEntity<Integer> {
 
     @Column(unique = true)
     @NotNull
+    @Size(max=255)
     private String name;
 
     @Lob
@@ -51,12 +53,15 @@ public class Product implements GenericEntity<Integer> {
     private String description;
 
     @Column(unique = true)
+    @Size(max=20)
     private String abbreviation;
 
     @Column(unique = true)
+    @Size(max=50)
     private String productCode;
 
     @Column(unique = true)
+    @Size(max=50)
     private String pgmSystemName;
 
     @OneToMany(mappedBy = "product", cascade = { CascadeType.REFRESH, CascadeType.DETACH,

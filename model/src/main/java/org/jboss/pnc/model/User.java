@@ -23,6 +23,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.Column;
+import javax.validation.constraints.Size;
+
 /**
  * The Class User maps the user that triggered the builds, and are linked to the BuildRecord
  *
@@ -45,10 +47,13 @@ public class User implements GenericEntity<Integer> {
 
     @Column(unique = true)
     @NotNull
+    @Size(max=255)
     private String email;
 
+    @Size(max=50)
     private String firstName;
 
+    @Size(max=50)
     private String lastName;
 
     /**
@@ -60,6 +65,7 @@ public class User implements GenericEntity<Integer> {
 
     @Column(unique = true)
     @NotNull
+    @Size(max=50)
     private String username;
 
     @OneToMany(mappedBy = "user")

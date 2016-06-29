@@ -25,6 +25,7 @@ import java.util.Map;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
 /**
  * The BuildEnvironment, selected by the Environment Driver to run a build, based on the buildConfiguration requirements
@@ -45,6 +46,7 @@ public class BuildEnvironment implements GenericEntity<Integer> {
 
     @NotNull
     @Column(unique=true)
+    @Size(max=255)
     private String name;
 
     @Lob
@@ -54,6 +56,7 @@ public class BuildEnvironment implements GenericEntity<Integer> {
     /**
      * The URL of the repository which contains the build system image.
      */
+    @Size(max=255)
     private String systemImageRepositoryUrl;
 
     /**
@@ -64,6 +67,7 @@ public class BuildEnvironment implements GenericEntity<Integer> {
     @NotNull
     @Column(unique=true, updatable=false)
     @Index(name="idx_buildenvironment_systemimageid")
+    @Size(max=255)
     private String systemImageId;
 
     @NotNull
