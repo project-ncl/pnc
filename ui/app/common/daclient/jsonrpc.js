@@ -20,11 +20,17 @@
 
   var module = angular.module('pnc.common.daclient');
 
-  module.factory('jsonrpc', [
-    '$log',
-    '$q',
-    '$websocket',
-    function($log, $q, $websocket) {
+  module.provider('jsonrpc', function() {
+
+    this.interceptors = [];
+
+    this.$get = [
+      '$log',
+      '$q',
+      '$websocket',
+      function($log, $q, $websocket) {
+
+        var that = this;
 
         var JSON_RPC_VERSION = '2.0';
         var ID_PREFIX = 'request_';
@@ -67,6 +73,10 @@
             });
 
             $log.debug('Making RPC request: ' + JSON.stringify(request, null, 2));
+
+            that.interceptors.forEach(function(interceptor) {
+              interceptor().requestStarted(deferred.promise);
+            });
 
             return deferred.promise;
           }
@@ -171,8 +181,9 @@
         return {
           wsClient: wsClient
         };
+
+    }];
         
-    }
-  ]);
+  });
 
 })();

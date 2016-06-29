@@ -20,6 +20,23 @@
 
   var module = angular.module('pnc.common.daclient');
 
+  module.config([
+    'jsonrpcProvider',
+    function(jsonrpcProvider) {
+      jsonrpcProvider.interceptors.push(function(){
+        return {
+          requestStarted: function(requestFinishedPromise) {
+            console.log('socket request started');
+
+            requestFinishedPromise.finally(function(){
+              console.log('socket request finished');
+            });
+          }
+        }
+      })
+    }
+  ]);
+
   module.factory('productImport', [
     '$log',
     'daConfig',
