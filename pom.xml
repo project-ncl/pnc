@@ -28,6 +28,7 @@
   <packaging>pom</packaging>
 
   <name>pnc</name>
+  <description>A system for managing, executing, and tracking builds.</description>
   <url>https://github.com/project-ncl</url>
   <inceptionYear>2014</inceptionYear>
 
@@ -45,6 +46,13 @@
     <url>https://github.com/project-ncl/pnc/</url>
     <tag>HEAD</tag>
   </scm>
+
+  <developers>
+    <developer>
+      <organization>RedHat</organization>
+      <organizationUrl>http://www.redhat.com</organizationUrl>
+    </developer>
+  </developers>
 
   <modules>
     <module>test-common</module>
@@ -1246,6 +1254,34 @@
             </lifecycleMappingMetadata>
           </configuration>
         </plugin>
+
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-gpg-plugin</artifactId>
+          <version>1.6</version>
+          <executions>
+            <execution>
+              <id>sign-artifacts</id>
+              <phase>verify</phase>
+              <goals>
+                <goal>sign</goal>
+              </goals>
+            </execution>
+          </executions>
+        </plugin>
+
+        <plugin>
+          <groupId>org.sonatype.plugins</groupId>
+          <artifactId>nexus-staging-maven-plugin</artifactId>
+          <version>1.6.7</version>
+          <extensions>true</extensions>
+          <configuration>
+            <serverId>ossrh</serverId>
+            <nexusUrl>https://oss.sonatype.org/</nexusUrl>
+            <autoReleaseAfterClose>false</autoReleaseAfterClose>
+          </configuration>
+        </plugin>
+
       </plugins>
     </pluginManagement>
 
@@ -1581,18 +1617,6 @@
     <profile>
       <id>release</id>
       <build>
-        <pluginManagement>
-          <plugins>
-            <plugin>
-              <artifactId>maven-scm-plugin</artifactId>
-              <version>1.8.1</version>
-              <configuration>
-                <includes>ui/bower.json,ui/package.json,ui/npm-shrinkwrap.json</includes>
-                <message>Update JSON Versions</message>
-              </configuration>
-            </plugin>
-          </plugins>
-        </pluginManagement>
         <plugins>
           <plugin>
             <groupId>com.mycila</groupId>
@@ -1609,38 +1633,6 @@
           </plugin>
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-antrun-plugin</artifactId>
-            <executions>
-              <execution>
-                <id>patch-json-versions</id>
-                <phase>generate-sources</phase>
-                <goals>
-                  <goal>run</goal>
-                </goals>
-                <configuration>
-                  <target>
-                    <loadproperties srcFile="${executionRoot}/release.properties">
-                      <filterchain>
-                        <linecontains>
-                          <contains value="project.rel.org.jboss.pnc\:parent" />
-                        </linecontains>
-                      </filterchain>
-                    </loadproperties>
-
-                    <property name="newversion" value="${project.rel.org.jboss.pnc:parent}.0" />
-
-                    <replaceregexp byline="false" flags="m" file="${basedir}/bower.json" match="ui&quot;,&#xA; &quot;version&quot;: &quot;[0-9].*&quot;" replace="ui&quot;,&#xA; &quot;version&quot;: &quot;${newversion}&quot;" />
-                    <replaceregexp byline="false" flags="m" file="${basedir}/package.json" match="ui&quot;,&#xA; &quot;version&quot;: &quot;[0-9].*&quot;" replace="ui&quot;,&#xA; &quot;version&quot;: &quot;${newversion}&quot;" />
-
-                    <replaceregexp byline="false" flags="m" file="${basedir}/npm-shrinkwrap.json" match="ui&quot;,&#xA; &quot;version&quot;: &quot;[0-9].*&quot;" replace="ui&quot;,&#xA; &quot;version&quot;: &quot;${newversion}&quot;" />
-
-                  </target>
-                </configuration>
-              </execution>
-            </executions>
-          </plugin>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-source-plugin</artifactId>
             <executions>
               <execution>
@@ -1650,6 +1642,14 @@
                 </goals>
               </execution>
             </executions>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-gpg-plugin</artifactId>
+          </plugin>
+          <plugin>
+            <groupId>org.sonatype.plugins</groupId>
+            <artifactId>nexus-staging-maven-plugin</artifactId>
           </plugin>
         </plugins>
       </build>
