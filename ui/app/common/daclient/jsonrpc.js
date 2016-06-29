@@ -20,6 +20,17 @@
 
   var module = angular.module('pnc.common.daclient');
 
+  /** 
+   * This provider can be enhanced with interceptors:
+   *
+   * module.config(['jsonrpcProvider', function(jsonrpcProvider) {
+   *   jsonrpcProvider.interceptors.push(function(){
+   *     return {
+   *       requestStarted: function(requestFinishedPromise, cfpLoadingBar) { ..custom logic }
+   *     }
+   *   });
+   * }]);
+   */
   module.provider('jsonrpc', function() {
 
     this.interceptors = [];
@@ -28,7 +39,8 @@
       '$log',
       '$q',
       '$websocket',
-      function($log, $q, $websocket) {
+      'cfpLoadingBar',
+      function($log, $q, $websocket, cfpLoadingBar) {
 
         var that = this;
 
@@ -75,7 +87,7 @@
             $log.debug('Making RPC request: ' + JSON.stringify(request, null, 2));
 
             that.interceptors.forEach(function(interceptor) {
-              interceptor().requestStarted(deferred.promise);
+              interceptor().requestStarted(deferred.promise, cfpLoadingBar);
             });
 
             return deferred.promise;
