@@ -476,13 +476,23 @@ public class Artifact implements GenericEntity<Integer> {
             return this;
         }
 
-        public Builder dependantBuildRecords(Set<BuildRecord> dependantBuildRecords) {
-            this.dependantBuildRecords = dependantBuildRecords;
+        public Builder buildRecord(BuildRecord buildRecord) {
+            this.buildRecords.add(buildRecord);
             return this;
         }
 
-        public Builder buildRecord(Set<BuildRecord> buildRecords) {
+        public Builder buildRecords(Set<BuildRecord> buildRecords) {
             this.buildRecords = buildRecords;
+            return this;
+        }
+
+        public Builder dependantBuildRecord(BuildRecord dependantBuildRecord) {
+            this.dependantBuildRecords.add(dependantBuildRecord);
+            return this;
+        }
+
+        public Builder dependantBuildRecords(Set<BuildRecord> dependantBuildRecords) {
+            this.dependantBuildRecords = dependantBuildRecords;
             return this;
         }
 
