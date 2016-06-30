@@ -310,7 +310,7 @@ public class MavenRepositorySession implements RepositorySession {
     private Artifact validateArtifact(Artifact artifact) throws RepositoryManagerException {
         Set<ConstraintViolation<Artifact>> violations = validator.validate(artifact);
         if (!violations.isEmpty()) {
-            throw new RepositoryManagerException("Repository manager returned invalid artifact: " + artifact.toString(), violations);
+            throw new RepositoryManagerException("Repository manager returned invalid artifact: " + artifact.toString() + " Constraint Violations: %s", violations);
         }
         return artifact;
     }
