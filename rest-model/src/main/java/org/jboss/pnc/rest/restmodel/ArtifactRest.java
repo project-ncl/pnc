@@ -159,6 +159,11 @@ public class ArtifactRest implements GenericRestEntity<Integer> {
         this.originUrl = originUrl;
     }
 
+    @JsonIgnore
+    public boolean isImported() {
+        return (originUrl != null && !originUrl.isEmpty());
+    }
+
     @Deprecated
     @JsonIgnore
     public String getStatus() {
@@ -174,6 +179,11 @@ public class ArtifactRest implements GenericRestEntity<Integer> {
 
     public void setBuildRecordIds(Set<Integer> buildRecordIds) {
         this.buildRecordIds = buildRecordIds;
+    }
+
+    @JsonIgnore
+    public boolean isBuilt() {
+        return (buildRecordIds != null && buildRecordIds.size() > 0);
     }
 
     public Set<Integer> getDependantBuildRecordIds() {
