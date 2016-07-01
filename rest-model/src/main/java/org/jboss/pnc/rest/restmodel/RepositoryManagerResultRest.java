@@ -22,37 +22,71 @@ import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
 
 import javax.xml.bind.annotation.XmlRootElement;
+import java.io.Serializable;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
 @XmlRootElement(name = "repositoryManagerResult")
-public class RepositoryManagerResultRest implements RepositoryManagerResult{
-    private List<Artifact> builtArtifacts;
-    private List<Artifact> dependencies;
+public class RepositoryManagerResultRest implements Serializable {
+    private List<ArtifactRest> builtArtifacts;
+    private List<ArtifactRest> dependencies;
     private String buildContentId;
 
     public RepositoryManagerResultRest() {}
 
     public RepositoryManagerResultRest(RepositoryManagerResult result) {
-        builtArtifacts = result.getBuiltArtifacts();
-        dependencies = result.getDependencies();
+        builtArtifacts = result.getBuiltArtifacts().stream().map(artifact -> new ArtifactRest(artifact)).collect(Collectors.toList());
+        dependencies = result.getDependencies().stream().map(artifact -> new ArtifactRest(artifact)).collect(Collectors.toList());
         buildContentId = result.getBuildContentId();
     }
 
-    @Override
-    public List<Artifact> getBuiltArtifacts() {
+    public List<ArtifactRest> getBuiltArtifacts() {
         return builtArtifacts;
     }
 
-    @Override
-    public List<Artifact> getDependencies() {
+    public List<ArtifactRest> getDependencies() {
         return dependencies;
     }
 
-    @Override
     public String getBuildContentId() {
         return buildContentId;
+    }
+
+    public RepositoryManagerResult toRepositoryManagerResult() {
+        List<Artifact> builtArtifacts = getBuiltArtifacts().stream().map(artifactRest -> artifactRest.toDBEntityBuilder().build()).collect(Collectors.toList());
+        List<Artifact> dependencies = getDependencies().stream().map(artifactRest -> artifactRest.toDBEntityBuilder().build()).collect(Collectors.toList());
+        String buildContentId = getBuildContentId();
+
+        return new GenericRepositoryManagerResult(builtArtifacts, dependencies, buildContentId);
+    }
+
+    private class GenericRepositoryManagerResult implements RepositoryManagerResult {
+        private List<Artifact> builtArtifacts;
+        private List<Artifact> dependencies;
+        private String buildContentId;
+
+        public GenericRepositoryManagerResult(List<Artifact> builtArtifacts, List<Artifact> dependencies, String buildContentId) {
+            this.builtArtifacts = builtArtifacts;
+            this.dependencies = dependencies;
+            this.buildContentId = buildContentId;
+        }
+
+        @Override
+        public List<Artifact> getBuiltArtifacts() {
+            return builtArtifacts;
+        }
+
+        @Override
+        public List<Artifact> getDependencies() {
+            return dependencies;
+        }
+
+        @Override
+        public String getBuildContentId() {
+            return buildContentId;
+        }
     }
 }

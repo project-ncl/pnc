@@ -33,14 +33,14 @@ public class RepositoryManagerResultMock {
         return new RepositoryManagerResult() {
             @Override
             public List<Artifact> getBuiltArtifacts() {
-                Artifact[] artifacts = {ArtifactBuilder.mockBuiltArtifact(11), ArtifactBuilder.mockBuiltArtifact(12)};
+                Artifact[] artifacts = {ArtifactBuilder.mockArtifact(11), ArtifactBuilder.mockArtifact(12)};
                 return Arrays.asList(artifacts);
             }
 
             @Override
             public List<Artifact> getDependencies() {
                 Artifact[] artifacts = { ArtifactBuilder.mockImportedArtifact(21), ArtifactBuilder.mockImportedArtifact(22),
-                        ArtifactBuilder.mockBuiltArtifact(13) };
+                        ArtifactBuilder.mockArtifact(13) };
                 return Arrays.asList(artifacts);
             }
 

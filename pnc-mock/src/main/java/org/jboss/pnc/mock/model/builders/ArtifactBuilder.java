@@ -28,29 +28,34 @@ import java.util.Date;
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
 public class ArtifactBuilder {
+
     public static final String IDENTIFIER_PREFIX = "org.jboss.pnc:mock.artifact";
 
-    public static Artifact mockImportedArtifact(int id) {
+    private static Artifact.Builder getArtifactBuilder(int id) {
         return Artifact.Builder.newBuilder()
                 .id(id)
                 .identifier(IDENTIFIER_PREFIX + ":" + id)
-                .checksum("ABCD1234")
-                .originUrl("http://central.maven.org/" + id + ".jar")
-                .importDate(Date.from(Instant.now()))
-                .deployUrl("deploy url " + id)
+                .checksum("ABCDABCD" + id)
+                .deployUrl("http://myrepo.com/org/jboss/mock/artifactFile" + id + ".jar")
                 .repoType(ArtifactRepo.Type.MAVEN)
-                .filename("File " + id + ".jar")
+                .filename("artifactFile" + id + ".jar");
+    }
+
+    /**
+     * Create a generic mock artifact with no associated build record or import URL
+     */
+    public static Artifact mockArtifact(int id) {
+        return getArtifactBuilder(id).build();
+    }
+
+    /**
+     * Create an artifact with an import date and origin url
+     */
+    public static Artifact mockImportedArtifact(int id) {
+        return getArtifactBuilder(id)
+                .importDate(Date.from(Instant.now()))
+                .originUrl("http://central.maven.org/org/jboss/mock/artifactFile" + id + ".jar")
                 .build();
     }
 
-    public static Artifact mockBuiltArtifact(int id) {
-        return Artifact.Builder.newBuilder()
-                .id(id)
-                .identifier(IDENTIFIER_PREFIX + ":" + id)
-                .checksum("ABCDABCD")
-                .deployUrl("deploy url " + id)
-                .repoType(ArtifactRepo.Type.MAVEN)
-                .filename("File " + id + ".jar")
-                .build();
-    }
 }
