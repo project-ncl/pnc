@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.rest.restmodel;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.annotations.ApiModelProperty;
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.BuildRecord;
@@ -27,6 +28,7 @@ import org.jboss.pnc.rest.validation.groups.WhenUpdating;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
 import java.util.Date;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -158,6 +160,7 @@ public class ArtifactRest implements GenericRestEntity<Integer> {
     }
 
     @Deprecated
+    @JsonIgnore
     public String getStatus() {
         if (buildRecordIds != null && buildRecordIds.size() > 0) {
             return "BINARY_BUILT";
@@ -179,6 +182,28 @@ public class ArtifactRest implements GenericRestEntity<Integer> {
 
     public void setDependantBuildRecordIds(Set<Integer> dependantBuildRecordIds) {
         this.dependantBuildRecordIds = dependantBuildRecordIds;
+    }
+
+    public Artifact.Builder toDBEntityBuilder() {
+        Artifact.Builder builder = Artifact.Builder.newBuilder()
+                .id(this.getId())
+                .identifier(this.getIdentifier())
+                .checksum(this.getChecksum())
+                .repoType(this.getRepoType())
+                .artifactQuality(this.getArtifactQuality())
+                .deployUrl(this.getDeployUrl())
+                .importDate(this.getImportDate())
+                .originUrl(this.getOriginUrl())
+                .filename(this.getFilename());
+
+        nullableStreamOf(this.getBuildRecordIds()).forEach(buildRecordId -> {
+            builder.buildRecord(BuildRecord.Builder.newBuilder().id(buildRecordId).build());
+        });
+        nullableStreamOf(this.getDependantBuildRecordIds()).forEach(depBuildRecordId -> {
+            builder.dependantBuildRecord(BuildRecord.Builder.newBuilder().id(depBuildRecordId).build());
+        });
+
+        return builder;
     }
 
     @Override

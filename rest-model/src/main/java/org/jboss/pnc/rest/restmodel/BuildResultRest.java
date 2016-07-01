@@ -82,7 +82,7 @@ public class BuildResultRest implements Serializable {
         return new BuildResult(
                 Optional.ofNullable(buildExecutionConfiguration),
                 Optional.ofNullable(buildDriverResult),
-                Optional.ofNullable(repositoryManagerResult),
+                Optional.ofNullable(repositoryManagerResult.toRepositoryManagerResult()),
                 Optional.ofNullable(exception),
                 Optional.ofNullable(failedReasonStatus));
     }
