@@ -209,7 +209,7 @@ public class ProductMilestoneEndpoint extends AbstractEndpoint<ProductMilestone,
         return fromEmpty();
     }
 
-    @ApiOperation(value = "Removes a configuration from the specified config set")
+    @ApiOperation(value = "Removes an artifact from the specified product milestone")
     @ApiResponses(value = {
             @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION),
             @ApiResponse(code = INVALID_CODE, message = INVALID_DESCRIPTION, response = ErrorResponseRest.class),
@@ -218,8 +218,8 @@ public class ProductMilestoneEndpoint extends AbstractEndpoint<ProductMilestone,
     @DELETE
     @Path("/{id}/distributed-artifacts/{artifactId}")
     public Response removeConfiguration(
-            @ApiParam(value = "Build configuration set id", required = true) @PathParam("id") Integer id,
-            @ApiParam(value = "Build configuration id", required = true) @PathParam("artifactId") Integer artifactId) throws ValidationException {
+            @ApiParam(value = "Product milestone id", required = true) @PathParam("id") Integer id,
+            @ApiParam(value = "Artifact id", required = true) @PathParam("artifactId") Integer artifactId) throws ValidationException {
         productMilestoneProvider.removeDistributedArtifact(id, artifactId);
         return fromEmpty();
     }
