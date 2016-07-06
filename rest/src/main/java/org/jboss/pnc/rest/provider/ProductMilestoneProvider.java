@@ -86,8 +86,8 @@ public class ProductMilestoneProvider extends AbstractProvider<ProductMilestone,
         ProductMilestone milestone = repository.queryById(milestoneId);
         Artifact artifact = artifactRepository.queryById(artifactId);
         ValidationBuilder.validateObject(milestone, WhenUpdating.class)
-                .validateCondition(milestone != null, "No build configuration set exists with id: " + milestoneId)
-                .validateCondition(artifact != null, "No build configuration exists with id: " + artifactId);
+                .validateCondition(milestone != null, "No product milestone exists with id: " + milestoneId)
+                .validateCondition(artifact != null, "No artifact exists with id: " + artifactId);
         milestone.removeDistributedArtifact(artifact);
         repository.save(milestone);
     }
