@@ -33,6 +33,7 @@ import org.jboss.pnc.model.ArtifactRepo;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.rest.provider.ArtifactProvider;
 import org.jboss.pnc.rest.provider.BuildRecordProvider;
+import org.jboss.pnc.rest.provider.collection.CollectionInfo;
 import org.jboss.pnc.rest.restmodel.ArtifactRest;
 import org.jboss.pnc.rest.restmodel.BuildRecordRest;
 import org.jboss.pnc.rest.utils.StreamHelper;
@@ -283,9 +284,9 @@ public class BuildRecordsTest {
 
     @Test
     public void shouldGetBuildsInDistributedRecordsetOfProductMilestone() {
-        Collection<Integer> buildRecordIds = buildRecordProvider.getAllBuildsInDistributedRecordsetOfProductMilestone(1);
+        CollectionInfo<BuildRecordRest> buildRecords = buildRecordProvider.getAllBuildRecordsWithArtifactsDistributedInProductMilestone(0, 50, null, null, 1);
 
-        assertThat(buildRecordIds.iterator().next()).isEqualTo(1);
+        assertThat(buildRecords.getContent().iterator().next().getId()).isEqualTo(1);
     }
 
     private List<BuildRecord> selectBuildRecords(String rsqlQuery) {

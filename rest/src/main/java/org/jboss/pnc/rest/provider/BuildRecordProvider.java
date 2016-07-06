@@ -183,8 +183,8 @@ public class BuildRecordProvider extends AbstractProvider<BuildRecord, BuildReco
      */
     @Deprecated
     public Collection<Integer> getAllBuildsInDistributedRecordsetOfProductMilestone(Integer milestoneId) {
-        return this.getAllBuildRecordsWithArtifactsDistributedInProductMilestone(0, 50, null, null, milestoneId).getContent()
-                .stream().map(buildRecord -> buildRecord.getId()).collect(Collectors.toSet());
+        return getAllBuildRecordsWithArtifactsDistributedInProductMilestone(0, 50, null, null, milestoneId).getContent()
+                .stream().map(buildRecord -> buildRecord.getId()).collect(Collectors.toList());
     }
 
     public CollectionInfo<BuildRecordRest> getAllForBuildConfigSetRecord(int pageIndex, int pageSize, String sortingRsql,

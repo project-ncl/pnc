@@ -23,15 +23,21 @@ import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.jboss.pnc.model.ProductMilestone;
+import org.jboss.pnc.rest.provider.ArtifactProvider;
+import org.jboss.pnc.rest.provider.BuildRecordProvider;
 import org.jboss.pnc.rest.provider.ProductMilestoneProvider;
+import org.jboss.pnc.rest.restmodel.ArtifactRest;
 import org.jboss.pnc.rest.restmodel.ProductMilestoneRest;
 import org.jboss.pnc.rest.restmodel.response.error.ErrorResponseRest;
+import org.jboss.pnc.rest.swagger.response.ArtifactPage;
 import org.jboss.pnc.rest.swagger.response.ProductMilestonePage;
 import org.jboss.pnc.rest.swagger.response.ProductMilestoneSingleton;
+import org.jboss.pnc.rest.validation.exceptions.EmptyEntityException;
 import org.jboss.pnc.rest.validation.exceptions.ValidationException;
 
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -68,6 +74,8 @@ import static org.jboss.pnc.rest.configuration.SwaggerConstants.SORTING_QUERY_PA
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_DESCRIPTION;
 
+import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withDistributedInProductMilestone;
+
 @Api(value = "/product-milestones", description = "Product Milestone related information")
 @Path("/product-milestones")
 @Produces(MediaType.APPLICATION_JSON)
@@ -76,13 +84,20 @@ public class ProductMilestoneEndpoint extends AbstractEndpoint<ProductMilestone,
 
     private ProductMilestoneProvider productMilestoneProvider;
 
+    private ArtifactProvider artifactProvider;
+
+    private BuildRecordProvider buildRecordProvider;
+
     public ProductMilestoneEndpoint() {
     }
 
     @Inject
-    public ProductMilestoneEndpoint(ProductMilestoneProvider productMilestoneProvider) {
+    public ProductMilestoneEndpoint(ProductMilestoneProvider productMilestoneProvider, ArtifactProvider artifactProvider,
+                                    BuildRecordProvider buildRecordProvider) {
         super(productMilestoneProvider);
         this.productMilestoneProvider = productMilestoneProvider;
+        this.artifactProvider = artifactProvider;
+        this.buildRecordProvider = buildRecordProvider;
     }
 
     @ApiOperation(value = "Gets all Product Milestones")
@@ -157,6 +172,74 @@ public class ProductMilestoneEndpoint extends AbstractEndpoint<ProductMilestone,
     public Response update(@ApiParam(value = "Product Milestone id", required = true) @PathParam("id") Integer id,
             ProductMilestoneRest productMilestoneRest, @Context UriInfo uriInfo) throws ValidationException {
         return super.update(id, productMilestoneRest);
+    }
+
+    @ApiOperation(value = "Get the artifacts distributed in this milestone")
+    @ApiResponses(value = {
+            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION, response = ArtifactPage.class),
+            @ApiResponse(code = NO_CONTENT_CODE, message = NO_CONTENT_DESCRIPTION, response = ArtifactPage.class),
+            @ApiResponse(code = INVALID_CODE, message = INVALID_DESCRIPTION, response = ErrorResponseRest.class),
+            @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION, response = ErrorResponseRest.class)
+    })
+    @GET
+    @Path("/{id}/distributed-artifacts")
+    public Response getDistributedArtifacts(@ApiParam(value = PAGE_INDEX_DESCRIPTION) @QueryParam(PAGE_INDEX_QUERY_PARAM) @DefaultValue(PAGE_INDEX_DEFAULT_VALUE) int pageIndex,
+                                      @ApiParam(value = PAGE_SIZE_DESCRIPTION) @QueryParam(PAGE_SIZE_QUERY_PARAM) @DefaultValue(PAGE_SIZE_DEFAULT_VALUE) int pageSize,
+                                      @ApiParam(value = SORTING_DESCRIPTION) @QueryParam(SORTING_QUERY_PARAM) String sort,
+                                      @ApiParam(value = QUERY_DESCRIPTION, required = false) @QueryParam(QUERY_QUERY_PARAM) String q,
+                                      @ApiParam(value = "Product milestone id", required = true) @PathParam("id") Integer id) {
+        return fromCollection(artifactProvider.queryForCollection(pageIndex, pageSize, sort, q, withDistributedInProductMilestone(id)));
+    }
+
+    @ApiOperation(value = "Adds an artifact to the list of distributed artifacts for this product milestone")
+    @ApiResponses(value = {
+            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION),
+            @ApiResponse(code = INVALID_CODE, message = INVALID_DESCRIPTION, response = ErrorResponseRest.class),
+            @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION, response = ErrorResponseRest.class)
+    })
+    @POST
+    @Path("/{id}/distributed-artifacts/")
+    public Response addDistributedArtifact(
+            @ApiParam(value = "Product milestone id", required = true) @PathParam("id") Integer id,
+            ArtifactRest artifact) throws ValidationException {
+        if (artifact == null || artifact.getId() == null) {
+            throw new EmptyEntityException("No valid artifact included in request to add artifact to product milestone id: " + id);
+        }
+        productMilestoneProvider.addDistributedArtifact(id, artifact.getId());
+        return fromEmpty();
+    }
+
+    @ApiOperation(value = "Removes an artifact from the specified product milestone")
+    @ApiResponses(value = {
+            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION),
+            @ApiResponse(code = INVALID_CODE, message = INVALID_DESCRIPTION, response = ErrorResponseRest.class),
+            @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION, response = ErrorResponseRest.class)
+    })
+    @DELETE
+    @Path("/{id}/distributed-artifacts/{artifactId}")
+    public Response removeConfiguration(
+            @ApiParam(value = "Product milestone id", required = true) @PathParam("id") Integer id,
+            @ApiParam(value = "Artifact id", required = true) @PathParam("artifactId") Integer artifactId) throws ValidationException {
+        productMilestoneProvider.removeDistributedArtifact(id, artifactId);
+        return fromEmpty();
+    }
+
+    @ApiOperation(value = "Gets the set of builds which produced artifacts distributed/shipped in a Product Milestone")
+    @ApiResponses(value = {
+            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION, response = ProductMilestoneSingleton.class),
+            @ApiResponse(code = NOT_FOUND_CODE, message = NOT_FOUND_DESCRIPTION, response = ProductMilestoneSingleton.class),
+            @ApiResponse(code = INVALID_CODE, message = INVALID_DESCRIPTION, response = ErrorResponseRest.class),
+            @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION, response = ErrorResponseRest.class)
+    })
+    @GET
+    @Path("/{id}/distributed-builds")
+    public Response getDistributedBuilds (
+            @ApiParam(value = PAGE_INDEX_DESCRIPTION) @QueryParam(PAGE_INDEX_QUERY_PARAM) @DefaultValue(PAGE_INDEX_DEFAULT_VALUE) int pageIndex,
+            @ApiParam(value = PAGE_SIZE_DESCRIPTION) @QueryParam(PAGE_SIZE_QUERY_PARAM) @DefaultValue(PAGE_SIZE_DEFAULT_VALUE) int pageSize,
+            @ApiParam(value = SORTING_DESCRIPTION) @QueryParam(SORTING_QUERY_PARAM) String sort,
+            @ApiParam(value = QUERY_DESCRIPTION, required = false) @QueryParam(QUERY_QUERY_PARAM) String q,
+            @ApiParam(value = "Product Milestone id", required = true) @PathParam("id") Integer milestoneId) {
+        return fromCollection(buildRecordProvider.getAllBuildRecordsWithArtifactsDistributedInProductMilestone(pageIndex, pageSize, sort, q, milestoneId));
     }
 
 }

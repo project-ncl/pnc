@@ -231,6 +231,10 @@ public class ProductMilestone implements GenericEntity<Integer> {
         return this.distributedArtifacts.add(distributedArtifact);
     }
 
+    public boolean removeDistributedArtifact(Artifact distributedArtifact) {
+        return this.distributedArtifacts.remove(distributedArtifact);
+    }
+
     /**
      * If this milestone was promoted to a release, this field will be set. Will be null if the milestone was not relesed.
      * 
