@@ -33,6 +33,7 @@ import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
 import org.jboss.pnc.spi.environment.RunningEnvironment;
 import org.jboss.pnc.spi.executor.BuildExecutionSession;
 import org.jboss.pnc.termdbuilddriver.transfer.TermdFileTranser;
+import org.jboss.pnc.termdbuilddriver.transfer.TransferException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -109,16 +110,22 @@ public class TermdBuildDriver implements BuildDriver { //TODO rename class
     }
 
     private CompletableFuture<String> uploadScript(TermdRunningBuild termdRunningBuild, String command) {
-        CompletableFuture<String> future = CompletableFuture.supplyAsync(() -> {
+        CompletableFuture<String> future = new CompletableFuture();
+        CompletableFuture.runAsync(() -> {
             logger.debug("[{}] Uploading script", termdRunningBuild.getRunningEnvironment().getId());
             logger.debug("[{}] Full script:\n {}", termdRunningBuild.getRunningEnvironment().getId(), command);
 
-            new TermdFileTranser(URI.create(getBuildAgentUrl(termdRunningBuild)))
-                    .uploadScript(command,
-                            Paths.get(termdRunningBuild.getRunningEnvironment().getWorkingDirectory().toAbsolutePath().toString(), "run.sh"));
+            try {
+                new TermdFileTranser(URI.create(getBuildAgentUrl(termdRunningBuild)))
+                        .uploadScript(command,
+                                Paths.get(termdRunningBuild.getRunningEnvironment().getWorkingDirectory().toAbsolutePath().toString(), "run.sh"));
+            } catch (TransferException e) {
+                future.completeExceptionally(e);
+            }
 
-            return termdRunningBuild.getRunningEnvironment().getWorkingDirectory().toAbsolutePath().toString() + "/run.sh";
-        });
+            String result = termdRunningBuild.getRunningEnvironment().getWorkingDirectory().toAbsolutePath().toString() + "/run.sh";
+            future.complete(result);
+        }, executor);
         return future;
     }
 
@@ -155,17 +162,18 @@ public class TermdBuildDriver implements BuildDriver { //TODO rename class
     }
 
     private CompletableFuture<CompletedBuild> collectResults(TermdRunningBuild termdRunningBuild, org.jboss.pnc.buildagent.api.Status completionStatus) {
-        return CompletableFuture.supplyAsync(() -> {
+        CompletableFuture<CompletedBuild> future = new CompletableFuture();
+        CompletableFuture.runAsync(() -> {
             logger.info("Collecting results ...");
             if (termdRunningBuild.getBuildAgentClient().isPresent()) {
                 BuildAgentClient buildAgentClient = termdRunningBuild.getBuildAgentClient().get();
                 try {
                     buildAgentClient.close();
                 } catch (IOException e) {
-                    throw new RuntimeException("Cannot close build agent connections.", e);
+                    future.completeExceptionally(new BuildDriverException("Cannot close build agent connections.", e));
                 }
             } else {
-                throw new RuntimeException("Build Agent Client is not available.");
+                future.completeExceptionally(new BuildDriverException("Build Agent Client is not available."));
             }
 
             CompletedBuild completedBuild = new CompletedBuild() { //TODO use concrete class
@@ -183,7 +191,7 @@ public class TermdBuildDriver implements BuildDriver { //TODO rename class
                                 URI logsUri = new URI(getBuildAgentUrl(termdRunningBuild)).resolve("servlet/download" + logsDirectory + "/console.log");
                                 transfer.downloadFileToStringBuilder(stringBuffer, logsUri);
                             } catch (URISyntaxException e) {
-                                throw new RuntimeException("Cannot construct logs uri.", e);
+                                throw new BuildDriverException("Cannot construct logs uri.", e);
                             }
                             return stringBuffer.toString();
                         }
@@ -207,8 +215,9 @@ public class TermdBuildDriver implements BuildDriver { //TODO rename class
                 }
             };
 
-            return completedBuild;
-        });
+            future.complete(completedBuild);
+        }, executor);
+        return future;
     }
 
     private Void complete(TermdRunningBuild termdRunningBuild, CompletedBuild completedBuild, Throwable throwable) {

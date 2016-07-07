@@ -47,7 +47,7 @@ public class TermdFileTranser {
         this.baseServerUri = null;
     }
 
-    public StringBuffer downloadFileToStringBuilder(StringBuffer logsAggregate, URI uri) {
+    public StringBuffer downloadFileToStringBuilder(StringBuffer logsAggregate, URI uri) throws TransferException {
         try {
             logger.debug("Downloading file to String Buffer from {}", uri);
 
@@ -68,11 +68,11 @@ public class TermdFileTranser {
             logger.trace("Downloaded {}", writer.getBuffer().toString());
             return logsAggregate;
         } catch (IOException e) {
-            throw new TermdTransferException("Could not obtain log file: " + uri.toString(), e);
+            throw new TransferException("Could not obtain log file: " + uri.toString(), e);
         }
     }
 
-    public void uploadScript(String script, Path remoteFilePath) {
+    public void uploadScript(String script, Path remoteFilePath) throws TransferException {
         logger.debug("Uploading build script to remote path {}, build script {}", remoteFilePath, script);
         String scriptPath = UPLOAD_PATH + remoteFilePath.toAbsolutePath().toString();
         logger.debug("Resolving script path {} to base uri {}", scriptPath, baseServerUri);
@@ -92,12 +92,12 @@ public class TermdFileTranser {
             }
 
             if(200 != connection.getResponseCode()) {
-                throw new TermdTransferException("Could not upload script to Build Agent at url " + connection.getURL()
+                throw new TransferException("Could not upload script to Build Agent at url " + connection.getURL()
                         + " - Returned status code " + connection.getResponseCode());
             }
             logger.debug("Uploaded successfully");
         } catch (IOException e) {
-            throw new TermdTransferException("Could not upload build script: " + uploadUri.toString(), e);
+            throw new TransferException("Could not upload build script: " + uploadUri.toString(), e);
         }
     }
 

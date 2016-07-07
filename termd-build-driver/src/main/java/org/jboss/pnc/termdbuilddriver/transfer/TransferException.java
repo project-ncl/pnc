@@ -15,15 +15,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.termdbuilddriver;
+package org.jboss.pnc.termdbuilddriver.transfer;
 
-public class TermdException extends RuntimeException {
+import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
 
-    public TermdException(String message, Exception cause) {
+public class TransferException extends BuildDriverException {
+
+    public TransferException(String message, Exception cause) {
         super(message, cause);
     }
 
-    public TermdException(String message) {
+    public TransferException(String message) {
         super(message);
     }
 }
