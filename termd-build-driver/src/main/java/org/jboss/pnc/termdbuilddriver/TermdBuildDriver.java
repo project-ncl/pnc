@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.termdbuilddriver;
 
+import org.jboss.pnc.buildagent.api.Status;
 import org.jboss.pnc.buildagent.api.TaskStatusUpdateEvent;
 import org.jboss.pnc.buildagent.client.BuildAgentClient;
 import org.jboss.pnc.buildagent.client.BuildAgentClientException;
@@ -25,7 +26,6 @@ import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
 import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
 import org.jboss.pnc.spi.builddriver.BuildDriver;
-import org.jboss.pnc.spi.builddriver.BuildDriverResult;
 import org.jboss.pnc.spi.builddriver.BuildDriverStatus;
 import org.jboss.pnc.spi.builddriver.CompletedBuild;
 import org.jboss.pnc.spi.builddriver.RunningBuild;
@@ -165,6 +165,7 @@ public class TermdBuildDriver implements BuildDriver { //TODO rename class
         CompletableFuture<CompletedBuild> future = new CompletableFuture();
         CompletableFuture.runAsync(() -> {
             logger.info("Collecting results ...");
+
             if (termdRunningBuild.getBuildAgentClient().isPresent()) {
                 BuildAgentClient buildAgentClient = termdRunningBuild.getBuildAgentClient().get();
                 try {
@@ -176,48 +177,36 @@ public class TermdBuildDriver implements BuildDriver { //TODO rename class
                 future.completeExceptionally(new BuildDriverException("Build Agent Client is not available."));
             }
 
-            CompletedBuild completedBuild = new CompletedBuild() { //TODO use concrete class
-                @Override
-                public BuildDriverResult getBuildResult() throws BuildDriverException {
-                    return new BuildDriverResult() {
-                        @Override
-                        public String getBuildLog() throws BuildDriverException {
-                            TermdFileTranser transfer = new TermdFileTranser();
-                            StringBuffer stringBuffer = new StringBuffer();
+            TermdFileTranser transfer = new TermdFileTranser();
+            StringBuffer stringBuffer = new StringBuffer();
 
-                            String logsDirectory = termdRunningBuild.getRunningEnvironment().getWorkingDirectory().toString();
+            String logsDirectory = termdRunningBuild.getRunningEnvironment().getWorkingDirectory().toString();
 
-                            try {
-                                URI logsUri = new URI(getBuildAgentUrl(termdRunningBuild)).resolve("servlet/download" + logsDirectory + "/console.log");
-                                transfer.downloadFileToStringBuilder(stringBuffer, logsUri);
-                            } catch (URISyntaxException e) {
-                                throw new BuildDriverException("Cannot construct logs uri.", e);
-                            }
-                            return stringBuffer.toString();
-                        }
+            try {
+                URI logsUri = new URI(getBuildAgentUrl(termdRunningBuild)).resolve("servlet/download" + logsDirectory + "/console.log");
+                transfer.downloadFileToStringBuilder(stringBuffer, logsUri);
+            } catch (URISyntaxException e) {
+                future.completeExceptionally(new BuildDriverException("Cannot construct logs uri.", e));
+            } catch (TransferException e) {
+                future.completeExceptionally(new BuildDriverException("Cannot transfer file.", e));
+            }
 
-                        @Override
-                        public BuildDriverStatus getBuildDriverStatus() {
-                            if (COMPLETED.equals(completionStatus)) {
-                                return BuildDriverStatus.SUCCESS;
-                            } else if (INTERRUPTED.equals(completionStatus)) {
-                                return BuildDriverStatus.CANCELLED;
-                            } else {
-                                return BuildDriverStatus.FAILED;
-                            }
-                        }
-                    };
-                }
-
-                @Override
-                public RunningEnvironment getRunningEnvironment() {
-                    return termdRunningBuild.getRunningEnvironment();
-                }
-            };
+            CompletedBuild completedBuild = new DefaultCompletedBuild(
+                    termdRunningBuild.getRunningEnvironment(), getBuildDriverStatus(completionStatus), stringBuffer.toString());
 
             future.complete(completedBuild);
         }, executor);
         return future;
+    }
+
+    private BuildDriverStatus getBuildDriverStatus(Status completionStatus) {
+        if (COMPLETED.equals(completionStatus)) {
+            return BuildDriverStatus.SUCCESS;
+        } else if (INTERRUPTED.equals(completionStatus)) {
+            return BuildDriverStatus.CANCELLED;
+        } else {
+            return BuildDriverStatus.FAILED;
+        }
     }
 
     private Void complete(TermdRunningBuild termdRunningBuild, CompletedBuild completedBuild, Throwable throwable) {

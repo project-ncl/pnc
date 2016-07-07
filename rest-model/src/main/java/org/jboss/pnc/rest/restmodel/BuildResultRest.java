@@ -22,7 +22,6 @@ import org.jboss.pnc.rest.utils.JsonOutputConverterMapper;
 import org.jboss.pnc.spi.BuildExecutionStatus;
 import org.jboss.pnc.spi.BuildResult;
 import org.jboss.pnc.spi.builddriver.BuildDriverResult;
-import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
 import org.jboss.pnc.spi.executor.exceptions.ExecutorException;
 
 import javax.xml.bind.annotation.XmlRootElement;
@@ -58,7 +57,7 @@ public class BuildResultRest implements Serializable {
         this.failedReasonStatus = buildResultRest.getFailedReasonStatus();
     }
 
-    public BuildResultRest(BuildResult buildResult) throws BuildDriverException {
+    public BuildResultRest(BuildResult buildResult) {
 
         buildResult.getBuildExecutionConfiguration().ifPresent((configuration) -> {
             buildExecutionConfiguration = new BuildExecutionConfigurationRest(configuration);

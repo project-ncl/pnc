@@ -38,7 +38,6 @@ import org.jboss.pnc.spi.BuildResult;
 import org.jboss.pnc.spi.BuildSetStatus;
 import org.jboss.pnc.spi.builddriver.BuildDriverResult;
 import org.jboss.pnc.spi.builddriver.BuildDriverStatus;
-import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
 import org.jboss.pnc.spi.coordinator.BuildCoordinator;
 import org.jboss.pnc.spi.coordinator.BuildSetTask;
 import org.jboss.pnc.spi.coordinator.BuildTask;
@@ -191,7 +190,7 @@ public class StatusUpdatesTest {
         MavenRepositoryManagerResult repoManagerResult = new MavenRepositoryManagerResult(Collections.emptyList(), Collections.emptyList(), RandomStringUtils.randomNumeric(4));
         BuildDriverResult driverResult = new BuildDriverResult() {
             @Override
-            public String getBuildLog() throws BuildDriverException {
+            public String getBuildLog() {
                 return "";
             }
 

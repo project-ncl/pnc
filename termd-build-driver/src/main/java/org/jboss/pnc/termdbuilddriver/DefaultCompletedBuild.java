@@ -16,44 +16,36 @@
  * limitations under the License.
  */
 
-package org.jboss.pnc.rest.restmodel;
+package org.jboss.pnc.termdbuilddriver;
 
 import org.jboss.pnc.spi.builddriver.BuildDriverResult;
 import org.jboss.pnc.spi.builddriver.BuildDriverStatus;
-
-import javax.xml.bind.annotation.XmlRootElement;
+import org.jboss.pnc.spi.builddriver.CompletedBuild;
+import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
+import org.jboss.pnc.spi.environment.RunningEnvironment;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
-@XmlRootElement(name = "buildDriverResult")
-public class BuildDriverResultRest implements BuildDriverResult {
+public class DefaultCompletedBuild implements CompletedBuild {
 
-    private String buildLog;
+    private RunningEnvironment runningEnvironment;
     private BuildDriverStatus buildDriverStatus;
+    private String buildLog;
 
-    public BuildDriverResultRest() {}
-
-    public BuildDriverResultRest(BuildDriverResult buildDriverResult) {
-        this.buildLog = buildDriverResult.getBuildLog();
-        this.buildDriverStatus = buildDriverResult.getBuildDriverStatus();
-    }
-
-    @Override
-    public String getBuildLog() {
-        return buildLog;
-    }
-
-    @Override
-    public BuildDriverStatus getBuildDriverStatus() {
-        return buildDriverStatus;
-    }
-
-    public void setBuildDriverStatus(BuildDriverStatus buildDriverStatus) {
+    public DefaultCompletedBuild(RunningEnvironment runningEnvironment, BuildDriverStatus buildDriverStatus, String buildLog) {
+        this.runningEnvironment = runningEnvironment;
         this.buildDriverStatus = buildDriverStatus;
+        this.buildLog = buildLog;
     }
 
-    public void setBuildLog(String buildLog) {
-        this.buildLog = buildLog;
+    @Override
+    public BuildDriverResult getBuildResult() throws BuildDriverException {
+        return new DefaultBuildDriverResult(buildLog, buildDriverStatus);
+    }
+
+    @Override
+    public RunningEnvironment getRunningEnvironment() {
+        return runningEnvironment;
     }
 }

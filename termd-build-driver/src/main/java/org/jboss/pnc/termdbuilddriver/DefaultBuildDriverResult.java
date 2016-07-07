@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package org.jboss.pnc.mock.builddriver;
+package org.jboss.pnc.termdbuilddriver;
 
 import org.jboss.pnc.spi.builddriver.BuildDriverResult;
 import org.jboss.pnc.spi.builddriver.BuildDriverStatus;
@@ -24,22 +24,23 @@ import org.jboss.pnc.spi.builddriver.BuildDriverStatus;
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
-public class BuildDriverResultMock {
+public class DefaultBuildDriverResult implements BuildDriverResult {
 
-    public static final String BUILD_LOG = "The quick brown fox jumps over the lazy dog.\nFinished: SUCCESS";
+    String buildLog;
+    BuildDriverStatus buildDriverStatus;
 
-    public static BuildDriverResult mockResult(BuildDriverStatus status) {
-        return new BuildDriverResult() {
-            @Override
-            public String getBuildLog() {
-                return BUILD_LOG;
-            }
-
-            @Override
-            public BuildDriverStatus getBuildDriverStatus() {
-                return status;
-            }
-        };
+    public DefaultBuildDriverResult(String buildLog, BuildDriverStatus buildDriverStatus) {
+        this.buildLog = buildLog;
+        this.buildDriverStatus = buildDriverStatus;
     }
 
+    @Override
+    public String getBuildLog() {
+        return buildLog;
+    }
+
+    @Override
+    public BuildDriverStatus getBuildDriverStatus() {
+        return buildDriverStatus;
+    }
 }

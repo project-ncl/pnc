@@ -17,8 +17,6 @@
  */
 package org.jboss.pnc.spi.builddriver;
 
-import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
-
 import java.io.Serializable;
 
 /**
@@ -26,7 +24,7 @@ import java.io.Serializable;
  */
 public interface BuildDriverResult extends Serializable {
 
-    public String getBuildLog() throws BuildDriverException;
+    public String getBuildLog();
 
     public BuildDriverStatus getBuildDriverStatus();
 
