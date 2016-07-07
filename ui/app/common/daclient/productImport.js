@@ -33,7 +33,7 @@
               cfpLoadingBar.complete(); 
             });
           }
-        }
+        };
       });
 
     }
