@@ -40,7 +40,7 @@ public class BuildSetTask {
     private final Logger log = LoggerFactory.getLogger(BuildCoordinator.class);
 
     private final BuildConfigSetRecord buildConfigSetRecord;
-    private final boolean rebuildAll;
+    private final boolean forceRebuildAll;
     private final ProductMilestone productMilestone;
 
     private BuildSetStatus status;
@@ -64,9 +64,9 @@ public class BuildSetTask {
             BuildConfigSetRecord buildConfigSetRecord, //TODO decouple datastore entity
             ProductMilestone productMilestone,
             Date submitTime,
-            boolean rebuildAll) {
+            boolean forceRebuildAll) {
         this.buildConfigSetRecord = buildConfigSetRecord;
-        this.rebuildAll = rebuildAll;
+        this.forceRebuildAll = forceRebuildAll;
         this.productMilestone = productMilestone; //TODO do we need milestone here ?
         this.submitTime = submitTime;
     }
@@ -167,8 +167,8 @@ public class BuildSetTask {
         return productMilestone;
     }
 
-    public boolean getRebuildAll() {
-        return rebuildAll;
+    public boolean getForceRebuildAll() {
+        return forceRebuildAll;
     }
 
     @Override

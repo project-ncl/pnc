@@ -52,7 +52,7 @@ public class BuildTasksInitializer {
     public BuildSetTask createBuildSetTask(
             BuildConfigurationSet buildConfigurationSet,
             User user,
-            boolean rebuildAll,
+            boolean forceRebuildAll,
             Event<BuildCoordinationStatusChangedEvent> buildStatusChangedEventNotifier,
             Supplier<Integer> buildTaskIdProvider) throws CoreException {
         BuildConfigSetRecord buildConfigSetRecord = BuildConfigSetRecord.Builder.newBuilder()
@@ -75,12 +75,12 @@ public class BuildTasksInitializer {
                 configSetRecord,
                 getProductMilestone(buildConfigurationSet),
                 buildSubmitTime,
-                rebuildAll);
+                forceRebuildAll);
 
         initializeBuildTasksInSet(
                 buildSetTask,
                 user,
-                rebuildAll,
+                forceRebuildAll,
                 buildStatusChangedEventNotifier,
                 buildTaskIdProvider);
 
@@ -96,7 +96,7 @@ public class BuildTasksInitializer {
     public void initializeBuildTasksInSet(
             BuildSetTask buildSetTask,
             User user,
-            boolean rebuildAll,
+            boolean forceRebuildAll,
             Event<BuildCoordinationStatusChangedEvent> buildStatusChangedEventNotifier,
             Supplier<Integer> buildTaskIdProvider) {
         // Loop to create the build tasks
@@ -114,7 +114,7 @@ public class BuildTasksInitializer {
                     buildTaskIdProvider.get(),
                     buildSetTask,
                     buildSetTask.getSubmitTime(),
-                    rebuildAll);
+                    forceRebuildAll);
 
             buildSetTask.addBuildTask(buildTask);
         }

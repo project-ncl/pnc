@@ -104,12 +104,12 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
      * @param buildConfiguration The build configuration which will be used.  The latest version of this
      * build config will be built.
      * @param user The user who triggered the build.
-     * @param rebuildAll Run the build even if it has been already built
+     * @param forceRebuild Run the build even if it has been already built
      *
      * @return The new build task
      * @throws BuildConflictException If there is already a build running with the same build configuration Id and version
      */
-    public BuildTask build(BuildConfiguration buildConfiguration, User user, boolean rebuildAll) throws BuildConflictException {
+    public BuildTask build(BuildConfiguration buildConfiguration, User user, boolean forceRebuild) throws BuildConflictException {
 
         BuildConfigurationAudited config = datastoreAdapter.getLatestBuildConfigurationAudited(buildConfiguration.getId());
         Optional<BuildTask> alreadyActiveBuildTask = buildQueue.getTask(config);
@@ -126,7 +126,7 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
                 datastoreAdapter.getNextBuildRecordId(),
                 null,
                 new Date(),
-                rebuildAll);
+                forceRebuild);
 
         buildQueue.enqueueTask(buildTask);
 
@@ -139,16 +139,18 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
      *
      * @param buildConfigurationSet The set of builds to be executed.
      * @param user The user who triggered the build.
+     * @param forceRebuildAll Rebuild all configs in the set even if some of them have already been built
+     *
      * @return The new build set task
      * @throws CoreException Thrown if there is a problem initializing the build
      */
-    public BuildSetTask build(BuildConfigurationSet buildConfigurationSet, User user, boolean rebuildAll) throws CoreException {
+    public BuildSetTask build(BuildConfigurationSet buildConfigurationSet, User user, boolean forceRebuildAll) throws CoreException {
 
         BuildTasksInitializer buildTasksInitializer = new BuildTasksInitializer(datastoreAdapter, Optional.of(buildSetStatusChangedEventNotifier));
         BuildSetTask buildSetTask = buildTasksInitializer.createBuildSetTask(
                 buildConfigurationSet,
                 user,
-                rebuildAll,
+                forceRebuildAll,
                 getBuildStatusChangedEventNotifier(),
                 () -> datastoreAdapter.getNextBuildRecordId());
         updateBuildSetTaskStatus(buildSetTask, BuildSetStatus.NEW);
@@ -174,7 +176,6 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
             return true;
         }
     }
-
 
     public void updateBuildTaskStatus(BuildTask task, BuildCoordinationStatus status){
         updateBuildTaskStatus(task, status, null);
@@ -245,9 +246,9 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
                     return;
                 }
 
-                log.info("BuildTask.id [{}]: Checking if task should be skipped(rebuildAll: {}, predicateResult: {}). Task is linked to BuildConfigurationAudited.IdRev {}.",
-                        task.getId(), task.getRebuildAll(), prepareBuildTaskFilterPredicate().test(task), task.getBuildConfigurationAudited().getIdRev());
-                if(!task.getRebuildAll() && prepareBuildTaskFilterPredicate().test(task)) {
+                log.info("BuildTask.id [{}]: Checking if task should be skipped(forceRebuild: {}, predicateResult: {}). Task is linked to BuildConfigurationAudited.IdRev {}.",
+                        task.getId(), task.getForceRebuild(), prepareBuildTaskFilterPredicate().test(task), task.getBuildConfigurationAudited().getIdRev());
+                if(!task.getForceRebuild() && prepareBuildTaskFilterPredicate().test(task)) {
                     log.info("[{}] Marking task as REJECTED_ALREADY_BUILT, because it has been already built", task.getId());
                     updateBuildTaskStatus(task, BuildCoordinationStatus.REJECTED_ALREADY_BUILT, "The configuration has already been built.");
                     return;
@@ -303,7 +304,6 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
             coordinationStatus = BuildCoordinationStatus.SYSTEM_ERROR;
         } finally {
             updateBuildTaskStatus(buildTask, coordinationStatus);
-            markFinished(buildTask);
         }
     }
 
