@@ -18,7 +18,6 @@
 package org.jboss.pnc.termdbuilddriver.transfer;
 
 import org.apache.commons.io.IOUtils;
-import org.jboss.pnc.termdbuilddriver.websockets.TermdConnectionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -93,12 +92,12 @@ public class TermdFileTranser {
             }
 
             if(200 != connection.getResponseCode()) {
-                throw new TermdConnectionException("Could not upload script to Build Agent at url " + connection.getURL()
+                throw new TermdTransferException("Could not upload script to Build Agent at url " + connection.getURL()
                         + " - Returned status code " + connection.getResponseCode());
             }
             logger.debug("Uploaded successfully");
         } catch (IOException e) {
-            throw new TermdConnectionException("Could not upload build script: " + uploadUri.toString(), e);
+            throw new TermdTransferException("Could not upload build script: " + uploadUri.toString(), e);
         }
     }
 
