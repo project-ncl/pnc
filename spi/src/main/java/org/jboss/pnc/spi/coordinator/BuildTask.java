@@ -67,7 +67,8 @@ public class BuildTask {
 
     //called when all dependencies are built
     private final Integer buildConfigSetRecordId;
-    private final boolean rebuildAll;
+
+    private final boolean forceRebuild;
 
     private BuildTask(BuildConfiguration buildConfiguration,
                       BuildConfigurationAudited buildConfigurationAudited,
@@ -77,7 +78,7 @@ public class BuildTask {
                       int id,
                       Event<BuildCoordinationStatusChangedEvent> buildStatusChangedEventNotifier,
                       Integer buildConfigSetRecordId,
-                      boolean rebuildAll) {
+                      boolean forceRebuild) {
 
         this.id = id;
         this.buildConfiguration = buildConfiguration;
@@ -87,7 +88,7 @@ public class BuildTask {
 
         this.buildSetTask = buildSetTask;
         this.buildConfigSetRecordId = buildConfigSetRecordId;
-        this.rebuildAll = rebuildAll;
+        this.forceRebuild = forceRebuild;
 
         if (buildSetTask != null && buildSetTask.getProductMilestone() != null) {
             productMilestone = buildSetTask.getProductMilestone();
@@ -241,7 +242,7 @@ public class BuildTask {
             int buildTaskId,
             BuildSetTask buildSetTask,
             Date submitTime,
-            boolean rebuildAll) {
+            boolean forceRebuild) {
 
         Integer buildConfigSetRecordId = null;
         if (buildSetTask != null && buildSetTask.getBuildConfigSetRecord() != null) {
@@ -257,7 +258,7 @@ public class BuildTask {
                 buildTaskId,
                 buildStatusChangedEventNotifier,
                 buildConfigSetRecordId,
-                rebuildAll);
+                forceRebuild);
     }
 
 
@@ -265,7 +266,7 @@ public class BuildTask {
         return buildConfigSetRecordId;
     }
 
-    public boolean getRebuildAll() {
-        return rebuildAll;
+    public boolean getForceRebuild() {
+        return forceRebuild;
     }
 }
