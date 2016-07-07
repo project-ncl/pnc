@@ -304,7 +304,6 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
             coordinationStatus = BuildCoordinationStatus.SYSTEM_ERROR;
         } finally {
             updateBuildTaskStatus(buildTask, coordinationStatus);
-            markFinished(buildTask);
         }
     }
 
