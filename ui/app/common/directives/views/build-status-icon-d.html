@@ -18,14 +18,14 @@
 
 -->
 <span ng-switch on="status">
-  <img ng-switch-when="BUILDING" tooltip="Build in progress" alt="Building" src="images/blue_anime_small.gif">
-  <img ng-switch-when="SUCCESS" tooltip="Build completed successfully" alt="Success" src="images/success_small.png">
-  <img ng-switch-when="DONE" tooltip="Build completed successfully" alt="Success" src="images/success_small.png">
-  <img ng-switch-when="UNSTABLE" tooltip="Unstable build" alt="Unstable" src="images/red_small.png">
-  <img ng-switch-when="FAILED" tooltip="Build Failed" alt="Failed" src="images/red_small.png">
-  <img ng-switch-when="DONE_WITH_ERRORS" tooltip="Build Failed" alt="Failed" src="images/red_small.png">
-  <img ng-switch-when="ABORTED" tooltip="Build aborted" alt="Aborted" src="images/aborted_small.png">
-  <img ng-switch-when="CANCELLED" tooltip="Build cancelled" alt="Cancelled" src="images/aborted_small.png">
-  <img ng-switch-when="SYSTEM_ERROR" tooltip="A system error occurred" alt="System Error" src="images/red_small.png">
-  <img ng-switch-default tooltip="UNKNOWN" alt="UNKNOWN" src="images/unknown_small.png">
+  <img ng-switch-when="BUILDING" uib-tooltip="Build in progress" tooltip-popup-delay="1000" alt="Building" src="images/blue_anime_small.gif">
+  <img ng-switch-when="SUCCESS" uib-tooltip="Build completed successfully" tooltip-popup-delay="1000" alt="Success" src="images/success_small.png">
+  <img ng-switch-when="DONE" uib-tooltip="Build completed successfully" tooltip-popup-delay="1000" alt="Success" src="images/success_small.png">
+  <img ng-switch-when="UNSTABLE" uib-tooltip="Unstable build" tooltip-popup-delay="1000" alt="Unstable" src="images/red_small.png">
+  <img ng-switch-when="FAILED" uib-tooltip="Build Failed" tooltip-popup-delay="1000" alt="Failed" src="images/red_small.png">
+  <img ng-switch-when="DONE_WITH_ERRORS" uib-tooltip="Build Failed" tooltip-popup-delay="1000" alt="Failed" src="images/red_small.png">
+  <img ng-switch-when="ABORTED" uib-tooltip="Build aborted" tooltip-popup-delay="1000" alt="Aborted" src="images/aborted_small.png">
+  <img ng-switch-when="CANCELLED" uib-tooltip="Build cancelled" tooltip-popup-delay="1000" alt="Cancelled" src="images/aborted_small.png">
+  <img ng-switch-when="SYSTEM_ERROR" uib-tooltip="A system error occurred" tooltip-popup-delay="1000" alt="System Error" src="images/red_small.png">
+  <img ng-switch-default uib-tooltip="Unknown build status" alt="UNKNOWN" tooltip-popup-delay="1000" src="images/unknown_small.png">
 </span>

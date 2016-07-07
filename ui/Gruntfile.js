@@ -325,8 +325,19 @@ module.exports = function (grunt) {
       app: {
         src: ['<%= yeoman.app %>/index.html'],
         exclude: [
-          '<%= yeoman.lib %>/bootstrap/dist/css/bootstrap.css',
-          '<%= yeoman.lib %>/angular-patternfly/dist/angular-patternfly.min.js'
+          'bower_components/bootstrap-combobox/css/bootstrap-combobox.css',
+          'bower_components/bootstrap-datepicker/dist/css/bootstrap-datepicker.css',
+          'bower_components/bootstrap-datepicker/dist/css/bootstrap-datepicker3.css',
+          'bower_components/bootstrap-select/dist/css/bootstrap-select.css',
+          'bower_components/bootstrap-switch/dist/css/bootstrap3/bootstrap-switch.css',
+          'bower_components/bootstrap-treeview/dist/bootstrap-treeview.min.css',
+          'bower_components/c3/c3.css',
+          'bower_components/datatables/media/css/jquery.dataTables.css',
+          'bower_components/datatables-colreorder/css/dataTables.colReorder.css',
+          'bower_components/datatables-colvis/css/dataTables.colVis.css',
+          'bower_components/eonasdan-bootstrap-datetimepicker/build/css/bootstrap-datetimepicker.min.css',
+          'bower_components/font-awesome/css/font-awesome.css',
+          'bower_components/google-code-prettify/bin/prettify.min.css'
         ],
         ignorePath:  /\.\.\//
       }

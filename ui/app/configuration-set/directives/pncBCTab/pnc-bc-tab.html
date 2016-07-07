@@ -19,10 +19,10 @@
 -->
 <div>
   <div class="btn-group pull-right">
-    <button type="button" class="btn btn-lg btn-default" data-toggle="tooltip" title="Add an existing Build Config" ui-sref="configuration-set.add-configuration({ configurationSetId: buildConfigurationSet.id })">
+    <button type="button" class="btn btn-lg btn-default" uib-tooltip="Add an existing Build Config" tooltip-popup-delay="2500" tooltip-placement="top" tooltip-append-to-body="true" ui-sref="configuration-set.add-configuration({ configurationSetId: buildConfigurationSet.id })">
       <i class="pficon pficon-add"></i> Add
     </button>
-    <button type="button" class="btn btn-lg btn-default disabled" data-toggle="tooltip" title="Create a new Build Config">
+    <button type="button" class="btn btn-lg btn-default disabled" uib-tooltip="Create a new Build Config" tooltip-popup-delay="2500" tooltip-placement="top" tooltip-append-to-body="true">
       <i class="pficon pficon-add"></i> Create
     </button>
   </div>
@@ -58,8 +58,8 @@
       <td class="text-center">
           <span class="btn-group" role="group" aria-label="Action Tools">
             <button class="btn btn-xs btn-default disabled">Edit</button>
-            <button class="btn btn-xs btn-default" data-toggle="tooltip" title="Remove Build Configuration from Build Configuration Set" pnc-confirm-click="remove(configuration.id)" pnc-confirm-message="{{ 'Confirm the removal of Build Configuration: ' + configuration.name +  ' from Build Configuration Set: ' + detailSetCtrl.set.name + ' ?'}}">Remove</button>
-            <button type="button" class="btn btn-xs btn-danger" data-toggle="tooltip" title="Delete Build Configuration" pnc-confirm-click="delete(configuration)" pnc-confirm-message="{{ 'Confirm the deletion of Build Configuration: ' + configuration.name + ' ?'}}"><i class="pficon pficon-delete"></i> Delete</button>
+            <button class="btn btn-xs btn-default" uib-tooltip="Remove Build Configuration from Build Configuration Set" tooltip-popup-delay="2500" tooltip-placement="top" tooltip-append-to-body="true" pnc-confirm-click="remove(configuration.id)" pnc-confirm-message="{{ 'Confirm the removal of Build Configuration: ' + configuration.name +  ' from Build Configuration Set: ' + detailSetCtrl.set.name + ' ?'}}">Remove</button>
+            <button type="button" class="btn btn-xs btn-danger" uib-tooltip="Delete Build Configuration" tooltip-popup-delay="2500" tooltip-placement="top" tooltip-append-to-body="true" pnc-confirm-click="delete(configuration)" pnc-confirm-message="{{ 'Confirm the deletion of Build Configuration: ' + configuration.name + ' ?'}}"><i class="pficon pficon-delete"></i> Delete</button>
           </span>
       </td>
     </tr>
