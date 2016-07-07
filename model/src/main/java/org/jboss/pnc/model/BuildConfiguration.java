@@ -169,12 +169,6 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
     private boolean archived;
 
     /**
-     * Represents the status of the most recent execution of the current configuration.
-     */
-    @Enumerated(value = EnumType.STRING)
-    private BuildStatus buildStatus;
-
-    /**
      * The set of build configs upon which this build depends. The build configs contained in dependencies should normally be
      * completed before this build config is executed. Similar to Maven dependencies.
      */
@@ -542,14 +536,6 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
         this.archived = archived;
     }
 
-    public BuildStatus getBuildStatus() {
-        return buildStatus;
-    }
-
-    public void setBuildStatus(BuildStatus buildStatus) {
-        this.buildStatus = buildStatus;
-    }
-
     /**
      * @return the repositories
      */
@@ -706,8 +692,6 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
 
         private boolean archived = false;
 
-        private BuildStatus buildStatus;
-
         private String repositories;
 
         private Builder() {
@@ -741,7 +725,6 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
             buildConfiguration.setCreationTime(creationTime);
             buildConfiguration.setLastModificationTime(lastModificationTime);
             buildConfiguration.setArchived(archived);
-            buildConfiguration.setBuildStatus(buildStatus);
             buildConfiguration.setRepositories(repositories);
             buildConfiguration.setBuildConfigurationSets(buildConfigurationSets);
             buildConfiguration.setProductVersion(productVersion);
@@ -854,11 +837,6 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
 
         public Builder archived(boolean archived) { 
             this.archived = archived;
-            return this;
-        }
-
-        public Builder buildStatus(BuildStatus buildStatus) {
-            this.buildStatus = buildStatus;
             return this;
         }
 

@@ -68,9 +68,6 @@ public class BuildConfigurationRest implements GenericRestEntity<Integer> {
 
     private boolean archived;
 
-    @ApiModelProperty(dataType = "string")
-    private BuildStatus buildStatus;
-
     private String repositories;
 
     @NotNull(groups = WhenCreatingNew.class)
@@ -98,7 +95,6 @@ public class BuildConfigurationRest implements GenericRestEntity<Integer> {
         this.creationTime = buildConfiguration.getCreationTime();
         this.lastModificationTime = buildConfiguration.getLastModificationTime();
         this.archived = buildConfiguration.isArchived();
-        this.buildStatus = buildConfiguration.getBuildStatus();
         this.repositories = buildConfiguration.getRepositories();
         performIfNotNull(buildConfiguration.getProject(),
                 () -> this.project = new ProjectRest(buildConfiguration.getProject()));
@@ -220,17 +216,6 @@ public class BuildConfigurationRest implements GenericRestEntity<Integer> {
         this.archived = archived;
     }
 
-    public BuildStatus getBuildStatus() {
-        if (buildStatus == null) {
-            return BuildStatus.NONE;
-        }
-        return buildStatus;
-    }
-
-    public void setBuildStatus(BuildStatus buildStatus) {
-        this.buildStatus = buildStatus;
-    }
-
     public String getRepositories() {
         return repositories;
     }
@@ -290,7 +275,6 @@ public class BuildConfigurationRest implements GenericRestEntity<Integer> {
                 .scmMirrorRepoURL(this.getScmMirrorRepoURL())
                 .scmMirrorRevision(this.getScmMirrorRevision())
                 .archived(this.isArchived())
-                .buildStatus(this.getBuildStatus())
                 .repositories(this.getRepositories());
 
         performIfNotNull(this.getProject(), () -> builder.project(this.getProject().toDBEntityBuilder().build()));
