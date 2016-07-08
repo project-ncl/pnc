@@ -124,8 +124,9 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
                 user,
                 getBuildStatusChangedEventNotifier(),
                 datastoreAdapter.getNextBuildRecordId(),
-                null,
+                null,  // null build set
                 new Date(),
+                buildConfiguration.getCurrentProductMilestone(),
                 forceRebuild);
 
         buildQueue.enqueueTask(buildTask);

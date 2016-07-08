@@ -559,6 +559,18 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
         return this;
     }
 
+    /**
+     * Get the current product milestone (if any) associated with this build config.
+     *
+     * @return The current product milestone for the product version associated with this build config, or null if there is none
+     */
+    public ProductMilestone getCurrentProductMilestone() {
+        if(getProductVersion() == null) {
+            return null;
+        }
+        return getProductVersion().getCurrentProductMilestone();
+    }
+
     @Override
     public String toString() {
         return "BuildConfiguration " + getId() + " [project=" + getProject() + ", name=" + getName() + "]";

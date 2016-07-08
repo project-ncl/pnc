@@ -78,6 +78,7 @@ public class BuildTask {
                       int id,
                       Event<BuildCoordinationStatusChangedEvent> buildStatusChangedEventNotifier,
                       Integer buildConfigSetRecordId,
+                      ProductMilestone productMilestone,
                       boolean forceRebuild) {
 
         this.id = id;
@@ -88,13 +89,9 @@ public class BuildTask {
 
         this.buildSetTask = buildSetTask;
         this.buildConfigSetRecordId = buildConfigSetRecordId;
+        this.productMilestone = productMilestone;
         this.forceRebuild = forceRebuild;
 
-        if (buildSetTask != null && buildSetTask.getProductMilestone() != null) {
-            productMilestone = buildSetTask.getProductMilestone();
-        } else if (buildConfiguration.getProductVersion() != null){
-            productMilestone = buildConfiguration.getProductVersion().getCurrentProductMilestone();
-        }
     }
 
     public void setStatus(BuildCoordinationStatus status) {
@@ -242,6 +239,7 @@ public class BuildTask {
             int buildTaskId,
             BuildSetTask buildSetTask,
             Date submitTime,
+            ProductMilestone productMilestone,
             boolean forceRebuild) {
 
         Integer buildConfigSetRecordId = null;
@@ -258,6 +256,7 @@ public class BuildTask {
                 buildTaskId,
                 buildStatusChangedEventNotifier,
                 buildConfigSetRecordId,
+                productMilestone,
                 forceRebuild);
     }
 

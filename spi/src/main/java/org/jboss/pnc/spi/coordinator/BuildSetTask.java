@@ -40,10 +40,11 @@ public class BuildSetTask {
     private final Logger log = LoggerFactory.getLogger(BuildCoordinator.class);
 
     private final BuildConfigSetRecord buildConfigSetRecord;
+
     private final boolean forceRebuildAll;
-    private final ProductMilestone productMilestone;
 
     private BuildSetStatus status;
+
     private String statusDescription;
 
     private final Set<BuildTask> buildTasks = new HashSet<>();
@@ -52,16 +53,13 @@ public class BuildSetTask {
      * Create build set task for running a single build or set of builds
      * 
      * @param buildConfigSetRecord The config set record which will be stored to the db
-     * @param productMilestone The milestone, if any, for which these builds will be executed
      * @param forceRebuildAll Rebuild all configs in the set regardless of whether they were built previously
      */
     public BuildSetTask(
             BuildConfigSetRecord buildConfigSetRecord, //TODO decouple datastore entity
-            ProductMilestone productMilestone,
             boolean forceRebuildAll) {
         this.buildConfigSetRecord = buildConfigSetRecord;
         this.forceRebuildAll = forceRebuildAll;
-        this.productMilestone = productMilestone; //TODO do we need milestone here ?
     }
 
     public BuildConfigurationSet getBuildConfigurationSet() {
@@ -150,14 +148,6 @@ public class BuildSetTask {
 
     public BuildConfigSetRecord getBuildConfigSetRecord() {
         return buildConfigSetRecord;
-    }
-
-    /**
-     * The product milestone during which this set of builds is executed.
-     * Will be null if this build set is not associated with any milestone.
-     */
-    public ProductMilestone getProductMilestone() {
-        return productMilestone;
     }
 
     public boolean getForceRebuildAll() {
