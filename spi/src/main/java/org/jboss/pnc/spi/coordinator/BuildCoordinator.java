@@ -29,9 +29,9 @@ import java.util.List;
 
 public interface BuildCoordinator {
 
-    BuildTask build(BuildConfiguration buildConfiguration, User user, boolean rebuildAll) throws BuildConflictException;
+    BuildTask build(BuildConfiguration buildConfiguration, User user, boolean forceRebuild) throws BuildConflictException;
 
-    BuildSetTask build(BuildConfigurationSet buildConfigurationSet, User user, boolean rebuildAll) throws CoreException;
+    BuildSetTask build(BuildConfigurationSet buildConfigurationSet, User user, boolean forceRebuildAll) throws CoreException;
 
     List<BuildTask> getSubmittedBuildTasks();
 
