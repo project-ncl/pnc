@@ -159,7 +159,7 @@ public class StatusUpdatesTest {
     }
 
     public BuildSetTask createBuildSetTask(BuildConfigurationSet buildConfigurationSet, User user) throws CoreException {
-        BuildTasksInitializer buildTasksInitializer = new BuildTasksInitializer(datastoreAdapter, Optional.of(buildSetStatusChangedEventNotifier));
+        BuildTasksInitializer buildTasksInitializer = new BuildTasksInitializer(datastoreAdapter);
         AtomicInteger atomicInteger = new AtomicInteger(1);
 
         return buildTasksInitializer.createBuildSetTask(

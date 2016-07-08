@@ -146,7 +146,7 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
      */
     public BuildSetTask build(BuildConfigurationSet buildConfigurationSet, User user, boolean forceRebuildAll) throws CoreException {
 
-        BuildTasksInitializer buildTasksInitializer = new BuildTasksInitializer(datastoreAdapter, Optional.of(buildSetStatusChangedEventNotifier));
+        BuildTasksInitializer buildTasksInitializer = new BuildTasksInitializer(datastoreAdapter);
         BuildSetTask buildSetTask = buildTasksInitializer.createBuildSetTask(
                 buildConfigurationSet,
                 user,

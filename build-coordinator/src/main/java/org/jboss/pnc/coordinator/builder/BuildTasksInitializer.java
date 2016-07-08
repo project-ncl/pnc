@@ -24,14 +24,12 @@ import org.jboss.pnc.spi.coordinator.BuildSetTask;
 import org.jboss.pnc.spi.coordinator.BuildTask;
 import org.jboss.pnc.spi.datastore.DatastoreException;
 import org.jboss.pnc.spi.events.BuildCoordinationStatusChangedEvent;
-import org.jboss.pnc.spi.events.BuildSetStatusChangedEvent;
 import org.jboss.pnc.spi.exception.CoreException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.enterprise.event.Event;
 import java.util.Date;
-import java.util.Optional;
 import java.util.function.Supplier;
 
 /**
@@ -42,11 +40,9 @@ public class BuildTasksInitializer {
     private final Logger log = LoggerFactory.getLogger(BuildTasksInitializer.class);
 
     DatastoreAdapter datastoreAdapter; //TODO remove datastore dependency
-    private final Optional<Event<BuildSetStatusChangedEvent>> buildSetStatusChangedEventNotifier;
 
-    public BuildTasksInitializer(DatastoreAdapter datastoreAdapter, Optional<Event<BuildSetStatusChangedEvent>> buildSetStatusChangedEventNotifier) {
+    public BuildTasksInitializer(DatastoreAdapter datastoreAdapter) {
         this.datastoreAdapter = datastoreAdapter;
-        this.buildSetStatusChangedEventNotifier = buildSetStatusChangedEventNotifier;
     }
 
     public BuildSetTask createBuildSetTask(
