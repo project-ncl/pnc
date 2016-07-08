@@ -181,7 +181,7 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
         updateBuildTaskStatus(task, status, null);
     }
 
-    public void updateBuildTaskStatus(BuildTask task, BuildCoordinationStatus status, String statusDescription){
+    private void updateBuildTaskStatus(BuildTask task, BuildCoordinationStatus status, String statusDescription){
         BuildCoordinationStatus oldStatus = task.getStatus();
         Integer userId = Optional.ofNullable(task.getUser()).map(User::getId).orElse(null);
 
@@ -204,7 +204,7 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
         log.debug("Fired buildStatusChangedEventNotifier after task {} status update to {}.", task.getId(), status);
     }
 
-    public void updateBuildSetTaskStatus(BuildSetTask buildSetTask, BuildSetStatus status){
+    private void updateBuildSetTaskStatus(BuildSetTask buildSetTask, BuildSetStatus status){
         log.debug("Setting new status {} on buildSetTask.id {}.", status, buildSetTask.getId());
         BuildSetStatus oldStatus = buildSetTask.getStatus();
         Integer userId = Optional.ofNullable( buildSetTask.getBuildConfigSetRecord().getUser()).map(User::getId).orElse(null);
@@ -307,7 +307,7 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
         }
     }
 
-    public synchronized void markFinished(BuildTask task) {
+    private synchronized void markFinished(BuildTask task) {
         buildQueue.removeTask(task);
         switch (task.getStatus()) {
             case DONE:
@@ -356,7 +356,7 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
         return dependant.getDependencies().contains(dependency);
     }
 
-    Event<BuildCoordinationStatusChangedEvent> getBuildStatusChangedEventNotifier() {
+    private Event<BuildCoordinationStatusChangedEvent> getBuildStatusChangedEventNotifier() {
         return buildStatusChangedEventNotifier;
     }
 
@@ -369,7 +369,7 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
         }
     }
 
-    public void completeBuildSetTask(BuildSetTask buildSetTask) {
+    private void completeBuildSetTask(BuildSetTask buildSetTask) {
         buildQueue.removeSet(buildSetTask);
         buildSetTask.taskStatusUpdatedToFinalState();
         updateBuildSetTaskStatus(buildSetTask, BuildSetStatus.DONE);
@@ -381,7 +381,7 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
         }
     }
 
-    public void finishDueToFailedDependency(BuildTask failedTask, BuildTask task) {
+    private void finishDueToFailedDependency(BuildTask failedTask, BuildTask task) {
         updateBuildTaskStatus(task, BuildCoordinationStatus.REJECTED_FAILED_DEPENDENCIES,
                 "Dependent build " + failedTask.getBuildConfiguration().getName() + " failed.");
         storeRejectedTask(task);
@@ -397,7 +397,7 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
         startThreads();
     }
 
-    protected void startThreads() {
+    private void startThreads() {
         int threadPoolSize = 1;
         try {
             SystemConfig systemConfig = configuration.getModuleConfig(new PncConfigProvider<>(SystemConfig.class));

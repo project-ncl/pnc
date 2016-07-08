@@ -89,7 +89,7 @@ public class BuildTasksInitializer {
      * @param buildSetTask The build set task which will contain the build tasks.  This must already have
      * initialized the BuildConfigSet, BuildConfigSetRecord, Milestone, etc.
      */
-    public void initializeBuildTasksInSet(
+    private void initializeBuildTasksInSet(
             BuildSetTask buildSetTask,
             User user,
             boolean forceRebuildAll,
@@ -136,7 +136,7 @@ public class BuildTasksInitializer {
      * @return The build config set record which has been saved to the db
      * @throws org.jboss.pnc.spi.datastore.DatastoreException if there is a db problem which prevents this record being stored
      */
-    protected BuildConfigSetRecord saveBuildConfigSetRecord(BuildConfigSetRecord buildConfigSetRecord) throws DatastoreException {
+    private BuildConfigSetRecord saveBuildConfigSetRecord(BuildConfigSetRecord buildConfigSetRecord) throws DatastoreException {
         return datastoreAdapter.saveBuildConfigSetRecord(buildConfigSetRecord);
     }
 
