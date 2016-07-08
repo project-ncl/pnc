@@ -132,7 +132,7 @@ public class BuildTasksInitializer {
      * This ensures that database operations are done in the correct sequence, for example
      * in the case of a build config set.
      *
-     * @param buildConfigSetRecord
+     * @param buildConfigSetRecord The bcs record to save
      * @return The build config set record which has been saved to the db
      * @throws org.jboss.pnc.spi.datastore.DatastoreException if there is a db problem which prevents this record being stored
      */
