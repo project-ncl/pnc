@@ -46,11 +46,6 @@ public class BuildSetTask {
     private BuildSetStatus status;
     private String statusDescription;
 
-    /**
-     * The time at which the build config set was triggered.
-     */
-    private final Date submitTime;
-
     private final Set<BuildTask> buildTasks = new HashSet<>();
 
     /**
@@ -58,17 +53,15 @@ public class BuildSetTask {
      * 
      * @param buildConfigSetRecord The config set record which will be stored to the db
      * @param productMilestone The milestone, if any, for which these builds will be executed
-     * @param submitTime The time at which the user submitted the request to run the builds
+     * @param forceRebuildAll Rebuild all configs in the set regardless of whether they were built previously
      */
     public BuildSetTask(
             BuildConfigSetRecord buildConfigSetRecord, //TODO decouple datastore entity
             ProductMilestone productMilestone,
-            Date submitTime,
             boolean forceRebuildAll) {
         this.buildConfigSetRecord = buildConfigSetRecord;
         this.forceRebuildAll = forceRebuildAll;
         this.productMilestone = productMilestone; //TODO do we need milestone here ?
-        this.submitTime = submitTime;
     }
 
     public BuildConfigurationSet getBuildConfigurationSet() {
@@ -129,8 +122,8 @@ public class BuildSetTask {
         return statusDescription;
     }
 
-    public Date getSubmitTime() {
-        return this.submitTime;
+    public Date getStartTime() {
+        return this.getBuildConfigSetRecord().getStartTime();
     }
 
     public Set<BuildTask> getBuildTasks() {
@@ -176,7 +169,7 @@ public class BuildSetTask {
         return "BuildSetTask{" +
                 "status=" + status +
                 ", statusDescription='" + statusDescription + '\'' +
-                ", submitTime=" + submitTime +
+                ", submitTime=" + getStartTime() +
                 ", buildTasks=" + buildTasks +
                 '}';
     }

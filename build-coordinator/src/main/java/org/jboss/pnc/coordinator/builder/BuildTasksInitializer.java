@@ -70,7 +70,6 @@ public class BuildTasksInitializer {
         BuildSetTask buildSetTask = new BuildSetTask(
                 configSetRecord,
                 buildConfigurationSet.getCurrentProductMilestone(),
-                buildSubmitTime,
                 forceRebuildAll);
 
         initializeBuildTasksInSet(
@@ -109,7 +108,7 @@ public class BuildTasksInitializer {
                     buildStatusChangedEventNotifier,
                     buildTaskIdProvider.get(),
                     buildSetTask,
-                    buildSetTask.getSubmitTime(),
+                    buildSetTask.getStartTime(),
                     forceRebuildAll);
 
             buildSetTask.addBuildTask(buildTask);
