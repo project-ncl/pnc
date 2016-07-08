@@ -155,7 +155,7 @@ public class BuildConfigurationSet implements GenericEntity<Integer> {
      * @return The current product milestone for the product version associated with this build config set, or null if there is none
      */
     public ProductMilestone getCurrentProductMilestone() {
-        if(getProductVersion() == null || getProductVersion().getCurrentProductMilestone() == null) {
+        if(getProductVersion() == null) {
             return null;
         }
         return getProductVersion().getCurrentProductMilestone();
