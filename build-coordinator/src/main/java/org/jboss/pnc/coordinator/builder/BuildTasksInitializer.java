@@ -39,7 +39,7 @@ public class BuildTasksInitializer {
 
     private final Logger log = LoggerFactory.getLogger(BuildTasksInitializer.class);
 
-    DatastoreAdapter datastoreAdapter; //TODO remove datastore dependency
+    private DatastoreAdapter datastoreAdapter; //TODO remove datastore dependency
 
     public BuildTasksInitializer(DatastoreAdapter datastoreAdapter) {
         this.datastoreAdapter = datastoreAdapter;
