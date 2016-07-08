@@ -107,7 +107,7 @@ public class BuildDriverMock implements BuildDriver {
     private BuildDriverResult getBuildResultMock(final RunningEnvironment runningEnvironment) {
         return new BuildDriverResult() {
             @Override
-            public String getBuildLog() throws BuildDriverException {
+            public String getBuildLog() {
                 return "Building in workspace ... Finished: SUCCESS";
             }
 

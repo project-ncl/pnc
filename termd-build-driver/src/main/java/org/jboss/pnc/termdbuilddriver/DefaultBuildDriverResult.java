@@ -15,17 +15,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.termdbuilddriver.websockets;
 
-import org.jboss.pnc.termdbuilddriver.TermdException;
+package org.jboss.pnc.termdbuilddriver;
 
-public class TermdConnectionException extends TermdException {
+import org.jboss.pnc.spi.builddriver.BuildDriverResult;
+import org.jboss.pnc.spi.builddriver.BuildDriverStatus;
 
-    public TermdConnectionException(String message, Exception cause) {
-        super(message, cause);
+/**
+ * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
+ */
+public class DefaultBuildDriverResult implements BuildDriverResult {
+
+    String buildLog;
+    BuildDriverStatus buildDriverStatus;
+
+    public DefaultBuildDriverResult(String buildLog, BuildDriverStatus buildDriverStatus) {
+        this.buildLog = buildLog;
+        this.buildDriverStatus = buildDriverStatus;
     }
 
-    public TermdConnectionException(String message) {
-        super(message);
+    @Override
+    public String getBuildLog() {
+        return buildLog;
+    }
+
+    @Override
+    public BuildDriverStatus getBuildDriverStatus() {
+        return buildDriverStatus;
     }
 }

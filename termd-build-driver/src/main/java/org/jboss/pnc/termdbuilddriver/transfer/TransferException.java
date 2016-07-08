@@ -15,13 +15,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package org.jboss.pnc.termdbuilddriver.transfer;
 
-package org.jboss.pnc.termdbuilddriver.websockets;
+import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
 
-/**
-* @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
-*/
-public interface ClientMessageHandler {
-    public void onMessage(byte[] bytes);
-    public void onMessage(String message);
+public class TransferException extends BuildDriverException {
+
+    public TransferException(String message, Exception cause) {
+        super(message, cause);
+    }
+
+    public TransferException(String message) {
+        super(message);
+    }
 }

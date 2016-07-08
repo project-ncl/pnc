@@ -71,12 +71,9 @@ public class BpmNotifier { //TODO rename: remove bpm for name
         try {
             buildResultRest = new BuildResultRest(buildResult);
             log.debug("Sending build result to BPM " + buildResultRest.toString() + ".");
-        } catch (BuildDriverException e) {
+        } catch (Throwable e) {
             log.error("Cannot construct rest result.", e);
             errMessage = "Cannot construct rest result: " + e.getMessage();
-        } catch (Throwable e) {
-            log.error("UNCAUGHT: Cannot construct rest result.", e);
-            errMessage = "UNCAUGHT: Cannot construct rest result: " + e.getMessage();
         }
 
         HttpPost request = new HttpPost(uri);

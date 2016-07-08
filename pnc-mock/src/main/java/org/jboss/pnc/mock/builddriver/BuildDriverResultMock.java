@@ -20,7 +20,6 @@ package org.jboss.pnc.mock.builddriver;
 
 import org.jboss.pnc.spi.builddriver.BuildDriverResult;
 import org.jboss.pnc.spi.builddriver.BuildDriverStatus;
-import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
@@ -32,7 +31,7 @@ public class BuildDriverResultMock {
     public static BuildDriverResult mockResult(BuildDriverStatus status) {
         return new BuildDriverResult() {
             @Override
-            public String getBuildLog() throws BuildDriverException {
+            public String getBuildLog() {
                 return BUILD_LOG;
             }
 

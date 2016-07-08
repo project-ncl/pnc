@@ -27,7 +27,6 @@ import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.spi.BuildExecutionStatus;
 import org.jboss.pnc.spi.BuildResult;
 import org.jboss.pnc.spi.builddriver.BuildDriverResult;
-import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
 import org.jboss.pnc.spi.coordinator.BuildTask;
 import org.jboss.pnc.spi.datastore.Datastore;
 import org.jboss.pnc.spi.datastore.DatastoreException;
@@ -158,12 +157,8 @@ public class DatastoreAdapter {
 
         buildResult.ifPresent(r -> r.getBuildDriverResult().ifPresent(
                 buildDriverResult -> {
-                    try {
-                        errorLog.append(buildDriverResult.getBuildLog());
-                        errorLog.append("\n---- End Build Log ----\n");
-                    } catch (BuildDriverException e1) {
-                        errorLog.append("Unable to retrieve build log\n");
-                    }
+                    errorLog.append(buildDriverResult.getBuildLog());
+                    errorLog.append("\n---- End Build Log ----\n");
                 }
         ));
 
