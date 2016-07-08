@@ -73,7 +73,7 @@ public class BuildTasksInitializer {
         Date buildSubmitTime = new Date();
         BuildSetTask buildSetTask = new BuildSetTask(
                 configSetRecord,
-                getProductMilestone(buildConfigurationSet),
+                buildConfigurationSet.getCurrentProductMilestone(),
                 buildSubmitTime,
                 forceRebuildAll);
 
@@ -144,15 +144,4 @@ public class BuildTasksInitializer {
         return datastoreAdapter.saveBuildConfigSetRecord(buildConfigSetRecord);
     }
 
-    /**
-     * Get the product milestone (if any) associated with this build config set.
-     * @param buildConfigSet
-     * @return The product milestone, or null if there is none
-     */
-    private ProductMilestone getProductMilestone(BuildConfigurationSet buildConfigSet) {
-        if(buildConfigSet.getProductVersion() == null || buildConfigSet.getProductVersion().getCurrentProductMilestone() == null) {
-            return null;
-        }
-        return buildConfigSet.getProductVersion().getCurrentProductMilestone();
-    }
 }
