@@ -24,14 +24,12 @@ import org.jboss.pnc.spi.coordinator.BuildSetTask;
 import org.jboss.pnc.spi.coordinator.BuildTask;
 import org.jboss.pnc.spi.datastore.DatastoreException;
 import org.jboss.pnc.spi.events.BuildCoordinationStatusChangedEvent;
-import org.jboss.pnc.spi.events.BuildSetStatusChangedEvent;
 import org.jboss.pnc.spi.exception.CoreException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.enterprise.event.Event;
 import java.util.Date;
-import java.util.Optional;
 import java.util.function.Supplier;
 
 /**
@@ -41,12 +39,10 @@ public class BuildTasksInitializer {
 
     private final Logger log = LoggerFactory.getLogger(BuildTasksInitializer.class);
 
-    DatastoreAdapter datastoreAdapter; //TODO remove datastore dependency
-    private final Optional<Event<BuildSetStatusChangedEvent>> buildSetStatusChangedEventNotifier;
+    private DatastoreAdapter datastoreAdapter; //TODO remove datastore dependency
 
-    public BuildTasksInitializer(DatastoreAdapter datastoreAdapter, Optional<Event<BuildSetStatusChangedEvent>> buildSetStatusChangedEventNotifier) {
+    public BuildTasksInitializer(DatastoreAdapter datastoreAdapter) {
         this.datastoreAdapter = datastoreAdapter;
-        this.buildSetStatusChangedEventNotifier = buildSetStatusChangedEventNotifier;
     }
 
     public BuildSetTask createBuildSetTask(
@@ -73,7 +69,7 @@ public class BuildTasksInitializer {
         Date buildSubmitTime = new Date();
         BuildSetTask buildSetTask = new BuildSetTask(
                 configSetRecord,
-                getProductMilestone(buildConfigurationSet),
+                buildConfigurationSet.getCurrentProductMilestone(),
                 buildSubmitTime,
                 forceRebuildAll);
 
@@ -93,7 +89,7 @@ public class BuildTasksInitializer {
      * @param buildSetTask The build set task which will contain the build tasks.  This must already have
      * initialized the BuildConfigSet, BuildConfigSetRecord, Milestone, etc.
      */
-    public void initializeBuildTasksInSet(
+    private void initializeBuildTasksInSet(
             BuildSetTask buildSetTask,
             User user,
             boolean forceRebuildAll,
@@ -136,23 +132,12 @@ public class BuildTasksInitializer {
      * This ensures that database operations are done in the correct sequence, for example
      * in the case of a build config set.
      *
-     * @param buildConfigSetRecord
+     * @param buildConfigSetRecord The bcs record to save
      * @return The build config set record which has been saved to the db
      * @throws org.jboss.pnc.spi.datastore.DatastoreException if there is a db problem which prevents this record being stored
      */
-    protected BuildConfigSetRecord saveBuildConfigSetRecord(BuildConfigSetRecord buildConfigSetRecord) throws DatastoreException {
+    private BuildConfigSetRecord saveBuildConfigSetRecord(BuildConfigSetRecord buildConfigSetRecord) throws DatastoreException {
         return datastoreAdapter.saveBuildConfigSetRecord(buildConfigSetRecord);
     }
 
-    /**
-     * Get the product milestone (if any) associated with this build config set.
-     * @param buildConfigSet
-     * @return The product milestone, or null if there is none
-     */
-    private ProductMilestone getProductMilestone(BuildConfigurationSet buildConfigSet) {
-        if(buildConfigSet.getProductVersion() == null || buildConfigSet.getProductVersion().getCurrentProductMilestone() == null) {
-            return null;
-        }
-        return buildConfigSet.getProductVersion().getCurrentProductMilestone();
-    }
 }

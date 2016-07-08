@@ -68,7 +68,7 @@ public class ReadDependenciesTest extends ProjectBuilder {
     }
 
     public BuildSetTask createBuildSetTask(BuildConfigurationSet buildConfigurationSet, User user) throws CoreException {
-        BuildTasksInitializer buildTasksInitializer = new BuildTasksInitializer(datastoreAdapter, Optional.empty());
+        BuildTasksInitializer buildTasksInitializer = new BuildTasksInitializer(datastoreAdapter);
         AtomicInteger atomicInteger = new AtomicInteger(1);
 
         return buildTasksInitializer.createBuildSetTask(
