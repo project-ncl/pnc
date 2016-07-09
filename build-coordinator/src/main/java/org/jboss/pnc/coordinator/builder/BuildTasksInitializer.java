@@ -69,8 +69,6 @@ public class BuildTasksInitializer {
         Date buildSubmitTime = new Date();
         BuildSetTask buildSetTask = new BuildSetTask(
                 configSetRecord,
-                buildConfigurationSet.getCurrentProductMilestone(),
-                buildSubmitTime,
                 forceRebuildAll);
 
         initializeBuildTasksInSet(
@@ -78,7 +76,8 @@ public class BuildTasksInitializer {
                 user,
                 forceRebuildAll,
                 buildStatusChangedEventNotifier,
-                buildTaskIdProvider);
+                buildTaskIdProvider,
+                buildConfigurationSet.getCurrentProductMilestone());
 
         return buildSetTask;
     }
@@ -94,7 +93,9 @@ public class BuildTasksInitializer {
             User user,
             boolean forceRebuildAll,
             Event<BuildCoordinationStatusChangedEvent> buildStatusChangedEventNotifier,
-            Supplier<Integer> buildTaskIdProvider) {
+            Supplier<Integer> buildTaskIdProvider,
+            ProductMilestone productMilestone) {
+
         // Loop to create the build tasks
         for(BuildConfiguration buildConfig : buildSetTask.getBuildConfigurationSet().getBuildConfigurations()) {
             if (buildConfig.isArchived()) {
@@ -109,7 +110,8 @@ public class BuildTasksInitializer {
                     buildStatusChangedEventNotifier,
                     buildTaskIdProvider.get(),
                     buildSetTask,
-                    buildSetTask.getSubmitTime(),
+                    buildSetTask.getStartTime(),
+                    productMilestone,
                     forceRebuildAll);
 
             buildSetTask.addBuildTask(buildTask);

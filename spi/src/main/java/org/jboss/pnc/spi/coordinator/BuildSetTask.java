@@ -40,16 +40,12 @@ public class BuildSetTask {
     private final Logger log = LoggerFactory.getLogger(BuildCoordinator.class);
 
     private final BuildConfigSetRecord buildConfigSetRecord;
+
     private final boolean forceRebuildAll;
-    private final ProductMilestone productMilestone;
 
     private BuildSetStatus status;
-    private String statusDescription;
 
-    /**
-     * The time at which the build config set was triggered.
-     */
-    private final Date submitTime;
+    private String statusDescription;
 
     private final Set<BuildTask> buildTasks = new HashSet<>();
 
@@ -57,18 +53,13 @@ public class BuildSetTask {
      * Create build set task for running a single build or set of builds
      * 
      * @param buildConfigSetRecord The config set record which will be stored to the db
-     * @param productMilestone The milestone, if any, for which these builds will be executed
-     * @param submitTime The time at which the user submitted the request to run the builds
+     * @param forceRebuildAll Rebuild all configs in the set regardless of whether they were built previously
      */
     public BuildSetTask(
             BuildConfigSetRecord buildConfigSetRecord, //TODO decouple datastore entity
-            ProductMilestone productMilestone,
-            Date submitTime,
             boolean forceRebuildAll) {
         this.buildConfigSetRecord = buildConfigSetRecord;
         this.forceRebuildAll = forceRebuildAll;
-        this.productMilestone = productMilestone; //TODO do we need milestone here ?
-        this.submitTime = submitTime;
     }
 
     public BuildConfigurationSet getBuildConfigurationSet() {
@@ -129,8 +120,8 @@ public class BuildSetTask {
         return statusDescription;
     }
 
-    public Date getSubmitTime() {
-        return this.submitTime;
+    public Date getStartTime() {
+        return this.getBuildConfigSetRecord().getStartTime();
     }
 
     public Set<BuildTask> getBuildTasks() {
@@ -159,14 +150,6 @@ public class BuildSetTask {
         return buildConfigSetRecord;
     }
 
-    /**
-     * The product milestone during which this set of builds is executed.
-     * Will be null if this build set is not associated with any milestone.
-     */
-    public ProductMilestone getProductMilestone() {
-        return productMilestone;
-    }
-
     public boolean getForceRebuildAll() {
         return forceRebuildAll;
     }
@@ -176,7 +159,7 @@ public class BuildSetTask {
         return "BuildSetTask{" +
                 "status=" + status +
                 ", statusDescription='" + statusDescription + '\'' +
-                ", submitTime=" + submitTime +
+                ", submitTime=" + getStartTime() +
                 ", buildTasks=" + buildTasks +
                 '}';
     }
