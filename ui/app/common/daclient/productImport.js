@@ -20,25 +20,6 @@
 
   var module = angular.module('pnc.common.daclient');
 
-  module.config([
-    'jsonrpcProvider',
-    function(jsonrpcProvider) {
-
-      jsonrpcProvider.interceptors.push(function(){
-        return {
-          requestStarted: function(requestFinishedPromise, cfpLoadingBar) {
-            cfpLoadingBar.start();
-
-            requestFinishedPromise.finally(function(){
-              cfpLoadingBar.complete(); 
-            });
-          }
-        };
-      });
-
-    }
-  ]);
-
   module.factory('productImport', [
     '$log',
     'daConfig',

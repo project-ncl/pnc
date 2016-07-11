@@ -20,27 +20,35 @@
 
   var module = angular.module('pnc.common.daclient');
 
+
+  module.config([
+    'jsonrpcProvider',
+    function(jsonrpcProvider) {
+      jsonrpcProvider.interceptors.push('loadingBarInterceptor');
+    }
+  ]);
+
+
   /** 
    * This provider can be enhanced with interceptors:
    *
-   * module.config(['jsonrpcProvider', function(jsonrpcProvider) {
-   *   jsonrpcProvider.interceptors.push(function(){
-   *     return {
-   *       requestStarted: function(requestFinishedPromise, cfpLoadingBar) { ..custom logic }
-   *     }
-   *   });
-   * }]);
+   * module.config([
+   *   'jsonrpcProvider',
+   *   function(jsonrpcProvider) {
+   *     jsonrpcProvider.interceptors.push('customInterceptorService');
+   *   }
+   * ]);
    */
   module.provider('jsonrpc', function() {
 
     this.interceptors = [];
 
     this.$get = [
+      '$injector',
       '$log',
       '$q',
       '$websocket',
-      'cfpLoadingBar',
-      function($log, $q, $websocket, cfpLoadingBar) {
+      function($injector, $log, $q, $websocket) {
 
         var that = this;
 
@@ -87,7 +95,11 @@
             $log.debug('Making RPC request: ' + JSON.stringify(request, null, 2));
 
             that.interceptors.forEach(function(interceptor) {
-              interceptor().requestStarted(deferred.promise, cfpLoadingBar);
+              try {
+                $injector.get(interceptor).requestStarted(deferred.promise);
+              } catch (e) {
+                throw 'Invalid interceptor (' + interceptor + ').';
+              }
             });
 
             return deferred.promise;
