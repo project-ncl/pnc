@@ -23,6 +23,7 @@ import org.jboss.pnc.spi.BuildExecutionStatus;
 import org.jboss.pnc.spi.BuildResult;
 import org.jboss.pnc.spi.builddriver.BuildDriverResult;
 import org.jboss.pnc.spi.executor.exceptions.ExecutorException;
+import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import java.io.IOException;
@@ -78,10 +79,14 @@ public class BuildResultRest implements Serializable {
     }
 
     public BuildResult toBuildResult() {
+        RepositoryManagerResult repositoryManagerResult = null;
+        if (getRepositoryManagerResult() != null) {
+            repositoryManagerResult = getRepositoryManagerResult().toRepositoryManagerResult();
+        }
         return new BuildResult(
                 Optional.ofNullable(buildExecutionConfiguration),
                 Optional.ofNullable(buildDriverResult),
-                Optional.ofNullable(repositoryManagerResult.toRepositoryManagerResult()),
+                Optional.ofNullable(repositoryManagerResult),
                 Optional.ofNullable(exception),
                 Optional.ofNullable(failedReasonStatus));
     }
