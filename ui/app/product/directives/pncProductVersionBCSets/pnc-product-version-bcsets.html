@@ -48,12 +48,12 @@
     </td>
     <td class="table-data-5-column-even-width">
       <div class="btn-group">
-        <button class="btn btn-default ng-scope" tooltip="Start Build" tooltip-placement="top" ng-click="buildConfigSet(buildconfigurationset)">
+        <button class="btn btn-default ng-scope" uib-tooltip="Start Build" tooltip-placement="top" ng-click="buildConfigSet(buildconfigurationset)">
           <i class="fa fa-play"></i>
           <span class="shrink">Build</span>
         </button>
-        <ul class="dropdown-menu"></ul>
-          <button class="btn btn-default dropdown-toggle ng-scope" tooltip="Start Build forcing rebuilds" tooltip-placement="top" data-toggle="dropdown">
+        <span><!-- needs to be wrapped to correct behavior -->
+          <button class="btn btn-default dropdown-toggle ng-scope" data-toggle="dropdown">
             <span class="caret"></span>
           </button>
           <ul class="dropdown-menu">
@@ -61,6 +61,7 @@
               <a href ng-click="forceBuildConfigSet(buildconfigurationset)"><span><i class="fa fa-play fa-color-red"></i>   Build forcing all rebuilds</span></a>
             </li>
           </ul>
+        </span>
       </div>
     </td>
   </tr>

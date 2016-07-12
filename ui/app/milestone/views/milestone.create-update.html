@@ -60,7 +60,7 @@
                       <i class="glyphicon glyphicon-calendar"></i>
                     </button>
                   </span>
-                  <input name="startingDate" required id="input-start-date" type="text" class="form-control" datepicker-popup="{{format}}"
+                  <input name="startingDate" required id="input-start-date" type="text" class="form-control" uib-datepicker-popup="{{format}}"
                          ng-model="milestoneCreateUpdateCtrl.data.startingDate" is-open="opened[1]" close-text="Close" placeholder="{{format}}"/>
                 </div>
                 <span class="help-block" ng-show="milestoneForm.startingDate.$error.required && !milestoneForm.startingDate.$pristine">Required field.</span>
@@ -78,7 +78,7 @@
                       <i class="glyphicon glyphicon-calendar"></i>
                     </button>
                   </span>
-                  <input name="plannedEndDate" required id="input-end-date" type="text" class="form-control" datepicker-popup="{{format}}"
+                  <input name="plannedEndDate" required id="input-end-date" type="text" class="form-control" uib-datepicker-popup="{{format}}"
                          ng-model="milestoneCreateUpdateCtrl.data.plannedEndDate" is-open="opened[2]" close-text="Close" placeholder="{{format}}"/>
                 </div>
                 <span class="help-block" ng-show="milestoneForm.plannedEndDate.$error.required && !milestoneForm.plannedEndDate.$pristine">Required field.</span>
