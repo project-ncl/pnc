@@ -20,8 +20,8 @@ package org.jboss.pnc.rest.serialization;
 
 import org.jboss.pnc.executor.DefaultBuildExecutionConfiguration;
 import org.jboss.pnc.model.SystemImageType;
-import org.jboss.pnc.rest.restmodel.BuildExecutionConfigurationRest;
 import org.jboss.pnc.rest.notifications.websockets.JSonOutputConverter;
+import org.jboss.pnc.rest.restmodel.BuildExecutionConfigurationRest;
 import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
 import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
 import org.junit.Assert;
@@ -52,7 +52,8 @@ public class BuildExecutionConfigurationTest {
                 "1111111",
                 "abcd1234",
                 "image.repo.url/repo",
-                SystemImageType.DOCKER_IMAGE
+                SystemImageType.DOCKER_IMAGE,
+                false
         );
         BuildExecutionConfigurationRest buildExecutionConfigurationREST = new BuildExecutionConfigurationRest(buildExecutionConfiguration);
 

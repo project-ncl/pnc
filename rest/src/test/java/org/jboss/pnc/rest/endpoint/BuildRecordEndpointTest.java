@@ -94,7 +94,8 @@ public class BuildRecordEndpointTest {
                 "",
                 "",
                 "",
-                SystemImageType.DOCKER_IMAGE);
+                SystemImageType.DOCKER_IMAGE,
+                false);
 
         BuildExecutionSession buildExecutionSession = new DefaultBuildExecutionSession(buildExecutionConfiguration, null);
         when(buildExecutor.getRunningExecution(buildExecutionTaskId)).thenReturn(buildExecutionSession);

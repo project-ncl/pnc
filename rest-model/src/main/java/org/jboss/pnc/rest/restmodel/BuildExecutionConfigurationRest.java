@@ -47,6 +47,7 @@ public class BuildExecutionConfigurationRest implements BuildExecutionConfigurat
     private String systemImageId;
     private String systemImageRepositoryUrl;
     private SystemImageType systemImageType;
+    private boolean podKeptOnFailure = false;
 
     public BuildExecutionConfigurationRest() {}
 
@@ -67,6 +68,7 @@ public class BuildExecutionConfigurationRest implements BuildExecutionConfigurat
         systemImageRepositoryUrl = buildExecutionConfiguration.getSystemImageRepositoryUrl();
         systemImageType = buildExecutionConfiguration.getSystemImageType();
         user = new UserRest(buildExecutionConfiguration.getUserId());
+        podKeptOnFailure = buildExecutionConfiguration.isPodKeptOnFailure();
 
     }
 
@@ -83,6 +85,7 @@ public class BuildExecutionConfigurationRest implements BuildExecutionConfigurat
         systemImageRepositoryUrl = buildExecutionConfiguration.getSystemImageRepositoryUrl();
         systemImageType = buildExecutionConfiguration.getSystemImageType();
         user = new UserRest(buildExecutionConfiguration.getUserId());
+        podKeptOnFailure = buildExecutionConfiguration.isPodKeptOnFailure();
     }
 
     public BuildExecutionConfiguration toBuildExecutionConfiguration() {
@@ -98,7 +101,8 @@ public class BuildExecutionConfigurationRest implements BuildExecutionConfigurat
                 scmMirrorRevision,
                 systemImageId,
                 systemImageRepositoryUrl,
-                systemImageType
+                systemImageType,
+                podKeptOnFailure
         );
     }
 
@@ -230,6 +234,15 @@ public class BuildExecutionConfigurationRest implements BuildExecutionConfigurat
 
     public SystemImageType getSystemImageType() {
         return systemImageType;
+    }
+
+    @Override
+    public boolean isPodKeptOnFailure() {
+        return podKeptOnFailure;
+    }
+
+    public void setPodKeptOnFailure(boolean podKeptOnFailure) {
+        this.podKeptOnFailure = podKeptOnFailure;
     }
 
     public void setSystemImageType(SystemImageType systemImageType) {

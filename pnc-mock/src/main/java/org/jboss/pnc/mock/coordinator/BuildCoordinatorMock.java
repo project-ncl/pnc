@@ -69,13 +69,13 @@ public class BuildCoordinatorMock implements BuildCoordinator {
     }
 
     @Override
-    public BuildTask build(BuildConfiguration buildConfiguration, User user, boolean rebuildAll) throws BuildConflictException {
+    public BuildTask build(BuildConfiguration buildConfiguration, User user, boolean keepAliveOnFailure, boolean rebuildAll) throws BuildConflictException {
         logger.warn("Invoking unimplemented method build");
         return Mockito.mock(BuildTask.class);
     }
 
     @Override
-    public BuildSetTask build(BuildConfigurationSet buildConfigurationSet, User user, boolean rebuildAll) throws CoreException {
+    public BuildSetTask build(BuildConfigurationSet buildConfigurationSet, User user, boolean keepAliveOnFailure, boolean rebuildAll) throws CoreException {
         logger.warn("Invoking unimplemented method build");
         return Mockito.mock(BuildSetTask.class);
     }

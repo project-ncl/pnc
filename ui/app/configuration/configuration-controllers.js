@@ -86,6 +86,13 @@
         }, {});
       };
 
+      that.buildAndKeepAliveOnError = function() {
+        $log.debug('Initiating FORCED build of :%0 with keeping pod alive on failure enabled', that.configuration);
+        BuildConfigurationDAO.buildAndKeepAliveOnError({
+          configurationId: that.configuration.id
+        }, {});
+      };
+
       // Executing a build of a configuration
       that.build = function() {
         $log.debug('Initiating build of: %O', that.configuration);

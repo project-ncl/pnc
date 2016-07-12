@@ -104,12 +104,14 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
      * @param buildConfiguration The build configuration which will be used.  The latest version of this
      * build config will be built.
      * @param user The user who triggered the build.
+     * @param keepPodAliveAfterFailure Don't stop the pod in which the build is running after build failure
      * @param forceRebuild Run the build even if it has been already built
      *
      * @return The new build task
      * @throws BuildConflictException If there is already a build running with the same build configuration Id and version
      */
-    public BuildTask build(BuildConfiguration buildConfiguration, User user, boolean forceRebuild) throws BuildConflictException {
+    public BuildTask build(BuildConfiguration buildConfiguration, User user,
+                           boolean keepPodAliveAfterFailure, boolean forceRebuild) throws BuildConflictException {
 
         BuildConfigurationAudited config = datastoreAdapter.getLatestBuildConfigurationAudited(buildConfiguration.getId());
         Optional<BuildTask> alreadyActiveBuildTask = buildQueue.getTask(config);
@@ -121,10 +123,10 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
         BuildTask buildTask = BuildTask.build(
                 buildConfiguration,
                 config,
+                keepPodAliveAfterFailure,
                 user,
-                getBuildStatusChangedEventNotifier(),
                 datastoreAdapter.getNextBuildRecordId(),
-                null,  // null build set
+                null,
                 new Date(),
                 buildConfiguration.getCurrentProductMilestone(),
                 forceRebuild);
@@ -141,18 +143,20 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
      * @param buildConfigurationSet The set of builds to be executed.
      * @param user The user who triggered the build.
      * @param forceRebuildAll Rebuild all configs in the set even if some of them have already been built
+     * @param keepPodAliveAfterFailure Don't kill the pod after build failure
      *
      * @return The new build set task
      * @throws CoreException Thrown if there is a problem initializing the build
      */
-    public BuildSetTask build(BuildConfigurationSet buildConfigurationSet, User user, boolean forceRebuildAll) throws CoreException {
+    public BuildSetTask build(BuildConfigurationSet buildConfigurationSet, User user,
+                              boolean keepPodAliveAfterFailure, boolean forceRebuildAll) throws CoreException {
 
         BuildTasksInitializer buildTasksInitializer = new BuildTasksInitializer(datastoreAdapter);
         BuildSetTask buildSetTask = buildTasksInitializer.createBuildSetTask(
                 buildConfigurationSet,
                 user,
                 forceRebuildAll,
-                getBuildStatusChangedEventNotifier(),
+                keepPodAliveAfterFailure,
                 () -> datastoreAdapter.getNextBuildRecordId());
         updateBuildSetTaskStatus(buildSetTask, BuildSetStatus.NEW);
         build(buildSetTask);
@@ -355,10 +359,6 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
      */
     private boolean isDependentOn(BuildTask dependency, BuildTask dependant) {
         return dependant.getDependencies().contains(dependency);
-    }
-
-    private Event<BuildCoordinationStatusChangedEvent> getBuildStatusChangedEventNotifier() {
-        return buildStatusChangedEventNotifier;
     }
 
     private void storeRejectedTask(BuildTask buildTask) {

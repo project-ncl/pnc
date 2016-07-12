@@ -138,6 +138,11 @@ public class BuildExecutionConfigurationMock implements BuildExecutionConfigurat
         return systemImageType;
     }
 
+    @Override
+    public boolean isPodKeptOnFailure() {
+        return false;
+    }
+
     public void setSystemImageType(SystemImageType systemImageType) {
         this.systemImageType = systemImageType;
     }

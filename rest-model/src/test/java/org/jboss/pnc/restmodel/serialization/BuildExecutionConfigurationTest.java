@@ -50,7 +50,8 @@ public class BuildExecutionConfigurationTest {
                 "2222222",
                 "abcd1234",
                 "image.repo.url/repo",
-                SystemImageType.DOCKER_IMAGE
+                SystemImageType.DOCKER_IMAGE,
+                false
         );
         BuildExecutionConfigurationRest buildExecutionConfigurationREST = new BuildExecutionConfigurationRest(buildExecutionConfiguration);
 

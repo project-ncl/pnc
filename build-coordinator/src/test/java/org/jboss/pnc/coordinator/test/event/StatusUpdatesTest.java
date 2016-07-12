@@ -166,7 +166,7 @@ public class StatusUpdatesTest {
                 buildConfigurationSet,
                 user,
                 true,
-                buildStatusChangedEventNotifier,
+                false,
                 () -> atomicInteger.getAndIncrement());
     }
 

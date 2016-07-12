@@ -23,12 +23,10 @@ import org.jboss.pnc.model.*;
 import org.jboss.pnc.spi.coordinator.BuildSetTask;
 import org.jboss.pnc.spi.coordinator.BuildTask;
 import org.jboss.pnc.spi.datastore.DatastoreException;
-import org.jboss.pnc.spi.events.BuildCoordinationStatusChangedEvent;
 import org.jboss.pnc.spi.exception.CoreException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.enterprise.event.Event;
 import java.util.Date;
 import java.util.function.Supplier;
 
@@ -48,8 +46,8 @@ public class BuildTasksInitializer {
     public BuildSetTask createBuildSetTask(
             BuildConfigurationSet buildConfigurationSet,
             User user,
-            boolean forceRebuildAll,
-            Event<BuildCoordinationStatusChangedEvent> buildStatusChangedEventNotifier,
+            boolean rebuildAll,
+            boolean keepAfterFailure,
             Supplier<Integer> buildTaskIdProvider) throws CoreException {
         BuildConfigSetRecord buildConfigSetRecord = BuildConfigSetRecord.Builder.newBuilder()
                 .buildConfigurationSet(buildConfigurationSet)
@@ -66,16 +64,15 @@ public class BuildTasksInitializer {
             throw new CoreException(e);
         }
 
-        Date buildSubmitTime = new Date();
         BuildSetTask buildSetTask = new BuildSetTask(
                 configSetRecord,
-                forceRebuildAll);
+                rebuildAll,
+                keepAfterFailure);
 
         initializeBuildTasksInSet(
                 buildSetTask,
                 user,
-                forceRebuildAll,
-                buildStatusChangedEventNotifier,
+                rebuildAll,
                 buildTaskIdProvider,
                 buildConfigurationSet.getCurrentProductMilestone());
 
@@ -92,10 +89,8 @@ public class BuildTasksInitializer {
             BuildSetTask buildSetTask,
             User user,
             boolean forceRebuildAll,
-            Event<BuildCoordinationStatusChangedEvent> buildStatusChangedEventNotifier,
             Supplier<Integer> buildTaskIdProvider,
             ProductMilestone productMilestone) {
-
         // Loop to create the build tasks
         for(BuildConfiguration buildConfig : buildSetTask.getBuildConfigurationSet().getBuildConfigurations()) {
             if (buildConfig.isArchived()) {
@@ -106,8 +101,8 @@ public class BuildTasksInitializer {
             BuildTask buildTask = BuildTask.build(
                     buildConfig,
                     buildConfigAudited,
+                    buildSetTask.isKeepAfterFailure(),
                     user,
-                    buildStatusChangedEventNotifier,
                     buildTaskIdProvider.get(),
                     buildSetTask,
                     buildSetTask.getStartTime(),

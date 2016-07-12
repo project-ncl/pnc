@@ -96,7 +96,7 @@ public class BuildTriggerer { //TODO rename to buildCoordinationTriggerer
         this.sortInfoProducer = sortInfoProducer;
     }
 
-    public int triggerBuild(final Integer buildConfigurationId, User currentUser, boolean rebuildAll, URL callBackUrl)
+    public int triggerBuild(final Integer buildConfigurationId, User currentUser, boolean keepPodAliveAfterFailure, boolean rebuildAll, URL callBackUrl)
             throws BuildConflictException {
         Consumer<BuildCoordinationStatusChangedEvent> onStatusUpdate = (statusChangedEvent) -> {
             if (statusChangedEvent.getNewStatus().isCompleted()) {
@@ -105,24 +105,24 @@ public class BuildTriggerer { //TODO rename to buildCoordinationTriggerer
             }
         };
 
-        int buildTaskId = triggerBuild(buildConfigurationId, currentUser, rebuildAll);
+        int buildTaskId = triggerBuild(buildConfigurationId, currentUser, keepPodAliveAfterFailure, rebuildAll);
         buildStatusNotifications.subscribe(new BuildCallBack(buildTaskId, onStatusUpdate));
         return buildTaskId;
     }
 
-    public int triggerBuild(final Integer configurationId, User currentUser, boolean rebuildAll) throws BuildConflictException {
+    public int triggerBuild(final Integer configurationId, User currentUser, boolean keepPodAliveAfterFailure, boolean rebuildAll) throws BuildConflictException {
         final BuildConfiguration configuration = buildConfigurationRepository.queryById(configurationId);
         Preconditions.checkArgument(configuration != null, "Can't find configuration with given id=" + configurationId);
 
-        Integer taskId = buildCoordinator.build(
+        return buildCoordinator.build(
                 hibernateLazyInitializer.initializeBuildConfigurationBeforeTriggeringIt(configuration),
                 currentUser,
+                keepPodAliveAfterFailure,
                 rebuildAll).getId();
-        return taskId;
     }
 
     public BuildConfigurationSetTriggerResult triggerBuildConfigurationSet(final Integer buildConfigurationSetId,
-            User currentUser, boolean rebuildAll, URL callBackUrl)
+            User currentUser, boolean keepPodAliveAfterFailure, boolean rebuildAll, URL callBackUrl)
             throws InterruptedException, CoreException, BuildDriverException, RepositoryManagerException, DatastoreException {
         Consumer<BuildSetStatusChangedEvent> onStatusUpdate = (statusChangedEvent) -> {
             if (statusChangedEvent.getNewStatus().isCompleted()) {
@@ -132,13 +132,14 @@ public class BuildTriggerer { //TODO rename to buildCoordinationTriggerer
         };
 
         BuildConfigurationSetTriggerResult result = triggerBuildConfigurationSet(buildConfigurationSetId, currentUser,
+                keepPodAliveAfterFailure,
                 rebuildAll);
         buildSetStatusNotifications.subscribe(new BuildSetCallBack(result.getBuildRecordSetId(), onStatusUpdate));
         return result;
     }
 
     public BuildConfigurationSetTriggerResult triggerBuildConfigurationSet(final Integer buildConfigurationSetId,
-            User currentUser, boolean rebuildAll)
+            User currentUser, boolean keepPodAliveAfterFailure, boolean rebuildAll)
             throws InterruptedException, CoreException, BuildDriverException, RepositoryManagerException, DatastoreException {
         final BuildConfigurationSet buildConfigurationSet = buildConfigurationSetRepository.queryById(buildConfigurationSetId);
         Preconditions.checkArgument(buildConfigurationSet != null,
@@ -147,6 +148,7 @@ public class BuildTriggerer { //TODO rename to buildCoordinationTriggerer
         BuildSetTask buildSetTask = buildCoordinator.build(
                 hibernateLazyInitializer.initializeBuildConfigurationSetBeforeTriggeringIt(buildConfigurationSet),
                 currentUser,
+                keepPodAliveAfterFailure,
                 rebuildAll);
 
         return new BuildConfigurationSetTriggerResult() {
@@ -165,7 +167,7 @@ public class BuildTriggerer { //TODO rename to buildCoordinationTriggerer
 
     private Set<Integer> parseIntegers(String buildRecordSetIdsCSV) {
         if (buildRecordSetIdsCSV != null && !buildRecordSetIdsCSV.equals("") && !buildRecordSetIdsCSV.equals("null") ) {
-            return Arrays.asList(buildRecordSetIdsCSV.split(",")).stream().map((s) -> Integer.parseInt(s)).collect(Collectors.toSet());
+            return Arrays.asList(buildRecordSetIdsCSV.split(",")).stream().map(Integer::parseInt).collect(Collectors.toSet());
         } else {
             return null;
         }

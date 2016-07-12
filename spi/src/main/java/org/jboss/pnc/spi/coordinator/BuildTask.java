@@ -22,11 +22,9 @@ import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.ProductMilestone;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.BuildCoordinationStatus;
-import org.jboss.pnc.spi.events.BuildCoordinationStatusChangedEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.enterprise.event.Event;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
@@ -41,6 +39,9 @@ public class BuildTask {
     private final Integer id;
     private final BuildConfiguration buildConfiguration;
     private final BuildConfigurationAudited buildConfigurationAudited;
+
+    private final boolean podKeptAfterFailure;
+
     private final User user;
     private final Date submitTime;
     private Date startTime;
@@ -72,11 +73,11 @@ public class BuildTask {
 
     private BuildTask(BuildConfiguration buildConfiguration,
                       BuildConfigurationAudited buildConfigurationAudited,
+                      boolean podKeptAfterFailure,
                       User user,
                       Date submitTime,
                       BuildSetTask buildSetTask,
                       int id,
-                      Event<BuildCoordinationStatusChangedEvent> buildStatusChangedEventNotifier,
                       Integer buildConfigSetRecordId,
                       ProductMilestone productMilestone,
                       boolean forceRebuild) {
@@ -84,6 +85,7 @@ public class BuildTask {
         this.id = id;
         this.buildConfiguration = buildConfiguration;
         this.buildConfigurationAudited = buildConfigurationAudited;
+        this.podKeptAfterFailure = podKeptAfterFailure;
         this.user = user;
         this.submitTime = submitTime;
 
@@ -234,8 +236,8 @@ public class BuildTask {
 
     public static BuildTask build(BuildConfiguration buildConfiguration,
             BuildConfigurationAudited buildConfigAudited,
+            boolean podKeptAfterFailure,
             User user,
-            Event<BuildCoordinationStatusChangedEvent> buildStatusChangedEventNotifier,
             int buildTaskId,
             BuildSetTask buildSetTask,
             Date submitTime,
@@ -250,11 +252,11 @@ public class BuildTask {
         return new BuildTask(
                 buildConfiguration,
                 buildConfigAudited,
+                podKeptAfterFailure,
                 user,
                 submitTime,
                 buildSetTask,
                 buildTaskId,
-                buildStatusChangedEventNotifier,
                 buildConfigSetRecordId,
                 productMilestone,
                 forceRebuild);
@@ -267,5 +269,9 @@ public class BuildTask {
 
     public boolean getForceRebuild() {
         return forceRebuild;
+    }
+
+    public boolean isPodKeptAfterFailure() {
+        return podKeptAfterFailure;
     }
 }

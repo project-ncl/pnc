@@ -42,6 +42,7 @@ public class BuildSetTask {
     private final BuildConfigSetRecord buildConfigSetRecord;
 
     private final boolean forceRebuildAll;
+    private final boolean keepAfterFailure;
 
     private BuildSetStatus status;
 
@@ -54,12 +55,15 @@ public class BuildSetTask {
      * 
      * @param buildConfigSetRecord The config set record which will be stored to the db
      * @param forceRebuildAll Rebuild all configs in the set regardless of whether they were built previously
+     * @param keepAfterFailure Don't stop the pod after build failure
      */
     public BuildSetTask(
             BuildConfigSetRecord buildConfigSetRecord, //TODO decouple datastore entity
-            boolean forceRebuildAll) {
+            boolean forceRebuildAll,
+            boolean keepAfterFailure) {
         this.buildConfigSetRecord = buildConfigSetRecord;
         this.forceRebuildAll = forceRebuildAll;
+        this.keepAfterFailure = keepAfterFailure;
     }
 
     public BuildConfigurationSet getBuildConfigurationSet() {
@@ -152,6 +156,10 @@ public class BuildSetTask {
 
     public boolean getForceRebuildAll() {
         return forceRebuildAll;
+    }
+
+    public boolean isKeepAfterFailure() {
+        return keepAfterFailure;
     }
 
     @Override

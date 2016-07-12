@@ -245,9 +245,12 @@ public class DefaultBuildExecutor implements BuildExecutor {
 
     private void destroyEnvironment(BuildExecutionSession buildExecutionSession) {
         try {
-            buildExecutionSession.setStatus(BuildExecutionStatus.BUILD_ENV_DESTROYING);
-            buildExecutionSession.getRunningEnvironment().destroyEnvironment();
-            buildExecutionSession.setStatus(BuildExecutionStatus.BUILD_ENV_DESTROYED);
+            if (!buildExecutionSession.hasFailed()
+                    || !buildExecutionSession.getBuildExecutionConfiguration().isPodKeptOnFailure()) {
+                buildExecutionSession.setStatus(BuildExecutionStatus.BUILD_ENV_DESTROYING);
+                buildExecutionSession.getRunningEnvironment().destroyEnvironment();
+                buildExecutionSession.setStatus(BuildExecutionStatus.BUILD_ENV_DESTROYED);
+            }
         } catch (Throwable e) {
             throw new BuildProcessException(e);
         }
