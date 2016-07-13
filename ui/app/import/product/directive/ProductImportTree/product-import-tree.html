@@ -25,8 +25,10 @@
 
       <div class="form-group" ng-class="{ 'has-error' : finishForm.inputf1.$invalid, 'has-success': finishForm.inputf1.$valid && finishForm.inputf1.$touched }">
         <label for="inputf1" class="col-sm-4 control-label">
-          * BC set name&nbsp;<span class="pficon pficon-info"
-                      title="Name of the build configurations set that will contain selected configurations."></span>
+          * BC set name&nbsp;<a uib-popover="Name of the build configurations set that will contain selected configurations."
+                                 popover-placement="top-left"
+                                 popover-trigger="outsideClick"
+                                 href><span class="fa fa-info-circle"></span></a>
         </label>
 
         <div class="col-sm-8">

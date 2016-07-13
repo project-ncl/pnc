@@ -32,7 +32,10 @@
           <div class="panel-body">
             <div class="form-group" ng-class="{ 'has-error' : releaseForm.version.$invalid && !releaseForm.version.$pristine }">
               <label for="input-version" class="col-sm-2 control-label">
-                * Version <span class="pficon pficon-info" title="Release part of the product version, e.g. '0.GA' for product version '1.0'."></span>
+                * Version&nbsp;<a uib-popover="Release part of the product version, e.g. '0.GA' for product version '1.0'."
+                   popover-placement="top-left"
+                   popover-trigger="outsideClick"
+                   href><span class="fa fa-info-circle"></span></a>
               </label>
               <div class="col-sm-10">
                 <div class="input-group">
@@ -50,7 +53,10 @@
           <div class="panel-body">
             <div class="form-group" ng-class="{ 'has-error' : releaseForm.releaseDate.$invalid && !releaseForm.releaseDate.$pristine }">
               <label for="input-end-date" class="col-sm-2 control-label">
-                * Release date <span class="pficon pficon-info" title="Release date, e.g. '2035/01/15', time is set to noon UTC."></span>
+                * Release date&nbsp;<a uib-popover="Release date, e.g. '2035/01/15', time is set to noon UTC."
+                   popover-placement="top-left"
+                   popover-trigger="outsideClick"
+                   href><span class="fa fa-info-circle"></span></a>
               </label>
               <div class="col-sm-10">
                 <div class="input-group">
@@ -102,7 +108,10 @@
           <div class="panel-body">
             <div class="form-group" ng-class="{ 'has-error' : releaseForm.downloadurl.$invalid && !releaseForm.downloadurl.$pristine }">
               <label for="input-downloadurl" class="col-sm-2 control-label">
-                * Download URL <span class="pficon pficon-info" title="Download URL of the release"></span>
+                * Download URL&nbsp;<a uib-popover="Download URL of the release"
+                   popover-placement="top-left"
+                   popover-trigger="outsideClick"
+                   href><span class="fa fa-info-circle"></span></a>
               </label>
               <div class="col-sm-10">
                 <div class="input-group">
@@ -117,7 +126,10 @@
           <div class="panel-body">
             <div class="form-group" ng-class="{ 'has-error' : releaseForm.issuetrackerurl.$invalid && !releaseForm.issuetrackerurl.$pristine }">
               <label for="input-issuetrackerurl" class="col-sm-2 control-label">
-                * Issue Tracker URL <span class="pficon pficon-info" title="Issue tracker URL of the release notes"></span>
+                * Issue Tracker URL&nbsp;<a uib-popover="Issue tracker URL of the release notes"
+                   popover-placement="top-left"
+                   popover-trigger="outsideClick"
+                   href><span class="fa fa-info-circle"></span></a>
               </label>
               <div class="col-sm-10">
                 <div class="input-group">
