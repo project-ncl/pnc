@@ -113,8 +113,7 @@ public class BuildTasksInitializer {
                     buildTaskIdProvider.get(),
                     buildSetTask,
                     buildSetTask.getStartTime(),
-                    productMilestone,
-                    forceRebuildAll);
+                    productMilestone);
 
             buildSetTask.addBuildTask(buildTask);
         }

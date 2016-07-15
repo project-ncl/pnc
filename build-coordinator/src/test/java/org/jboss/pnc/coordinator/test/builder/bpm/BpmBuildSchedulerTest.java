@@ -81,7 +81,7 @@ public class BpmBuildSchedulerTest {
         user.setLoginToken("no-token");
 
         BuildTask buildTask = BuildTask.build(buildConfiguration, buildConfigurationAudited, false, user,
-                1, mock(BuildSetTask.class), new Date(), null, true);
+                1, mock(BuildSetTask.class), new Date(), null);
 
         BpmModuleConfig bpmConfiguration = mock(BpmModuleConfig.class);
         doReturn("http://localhost/aprox").when(bpmConfiguration).getAproxBaseUrl();

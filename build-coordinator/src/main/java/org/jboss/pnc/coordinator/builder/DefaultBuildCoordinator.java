@@ -130,8 +130,7 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
                     datastoreAdapter.getNextBuildRecordId(),
                     null,
                     new Date(),
-                    buildConfiguration.getCurrentProductMilestone(),
-                    forceRebuild);
+                    buildConfiguration.getCurrentProductMilestone());
 
             buildQueue.enqueueTask(buildTask);
             return buildTask;
@@ -144,8 +143,7 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
                     REJECTED_BUILD_TASK_ID,
                     null,
                     new Date(),
-                    buildConfiguration.getCurrentProductMilestone(),
-                    forceRebuild);
+                    buildConfiguration.getCurrentProductMilestone());
 
             updateBuildTaskStatus(buildTask, BuildCoordinationStatus.REJECTED_ALREADY_BUILT, "The configuration has already been built");
             return buildTask;
