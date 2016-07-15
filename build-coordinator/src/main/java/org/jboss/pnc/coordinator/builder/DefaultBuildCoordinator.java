@@ -81,6 +81,8 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
 
     private Optional<BuildSetStatusChangedEvent> buildSetStatusChangedEvent;
 
+    private BuildTasksInitializer buildTasksInitializer;
+
     @Deprecated
     public DefaultBuildCoordinator(){} //workaround for CDI constructor parameter injection
 
@@ -96,6 +98,7 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
         this.taskFilters = taskFilters;
         this.configuration = configuration;
         this.buildQueue = buildQueue;
+        this.buildTasksInitializer = new BuildTasksInitializer(datastoreAdapter);
     }
 
     /**
@@ -151,7 +154,6 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
     public BuildSetTask build(BuildConfigurationSet buildConfigurationSet, User user,
                               boolean keepPodAliveAfterFailure, boolean forceRebuildAll) throws CoreException {
 
-        BuildTasksInitializer buildTasksInitializer = new BuildTasksInitializer(datastoreAdapter);
         BuildSetTask buildSetTask = buildTasksInitializer.createBuildSetTask(
                 buildConfigurationSet,
                 user,
