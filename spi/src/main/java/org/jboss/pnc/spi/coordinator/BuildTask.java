@@ -69,8 +69,6 @@ public class BuildTask {
     //called when all dependencies are built
     private final Integer buildConfigSetRecordId;
 
-    private final boolean forceRebuild;
-
     private BuildTask(BuildConfiguration buildConfiguration,
                       BuildConfigurationAudited buildConfigurationAudited,
                       boolean podKeptAfterFailure,
@@ -79,8 +77,7 @@ public class BuildTask {
                       BuildSetTask buildSetTask,
                       int id,
                       Integer buildConfigSetRecordId,
-                      ProductMilestone productMilestone,
-                      boolean forceRebuild) {
+                      ProductMilestone productMilestone) {
 
         this.id = id;
         this.buildConfiguration = buildConfiguration;
@@ -92,7 +89,6 @@ public class BuildTask {
         this.buildSetTask = buildSetTask;
         this.buildConfigSetRecordId = buildConfigSetRecordId;
         this.productMilestone = productMilestone;
-        this.forceRebuild = forceRebuild;
 
     }
 
@@ -138,8 +134,20 @@ public class BuildTask {
         return buildConfigurationAudited;
     }
 
-    public Set<BuildConfiguration> getBuildConfigurationDependencies() {
-        return buildConfiguration.getDependencies();
+    /**
+     * Check if this build task has a build configuration dependency on the given build task
+     *
+     * @param buildTask The buildTask with the config to check
+     * @return true if this task's build config has a dependency on the build config of the given task, otherwise false
+     */
+    public boolean hasConfigDependencyOn(BuildTask buildTask) {
+        if (buildTask == null || this.equals(buildTask)) {
+            return false;
+        }
+        if (buildConfiguration == null || buildConfiguration.getAllDependencies() == null) {
+            return false;
+        }
+        return buildConfiguration.getAllDependencies().contains(buildTask.getBuildConfiguration());
     }
 
     public void addDependant(BuildTask buildTask) {
@@ -241,8 +249,7 @@ public class BuildTask {
             int buildTaskId,
             BuildSetTask buildSetTask,
             Date submitTime,
-            ProductMilestone productMilestone,
-            boolean forceRebuild) {
+            ProductMilestone productMilestone) {
 
         Integer buildConfigSetRecordId = null;
         if (buildSetTask != null && buildSetTask.getBuildConfigSetRecord() != null) {
@@ -258,17 +265,12 @@ public class BuildTask {
                 buildSetTask,
                 buildTaskId,
                 buildConfigSetRecordId,
-                productMilestone,
-                forceRebuild);
+                productMilestone);
     }
 
 
     public Integer getBuildConfigSetRecordId() {
         return buildConfigSetRecordId;
-    }
-
-    public boolean getForceRebuild() {
-        return forceRebuild;
     }
 
     public boolean isPodKeptAfterFailure() {

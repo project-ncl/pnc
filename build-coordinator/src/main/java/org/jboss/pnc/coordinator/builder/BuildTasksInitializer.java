@@ -94,8 +94,15 @@ public class BuildTasksInitializer {
         // Loop to create the build tasks
         for(BuildConfiguration buildConfig : buildSetTask.getBuildConfigurationSet().getBuildConfigurations()) {
             if (buildConfig.isArchived()) {
+                log.debug("Ignoring build config [{}]. This build config is archived", buildConfig.getId());
                 continue; // Don't build archived configurations
             }
+
+            if (!forceRebuildAll && datastoreAdapter.hasSuccessfulBuildRecord(buildConfig)) {
+                log.debug("Skipping build config [{}]. Already has a successful BuildRecord", buildConfig.getId());
+                continue;
+            }
+
             BuildConfigurationAudited buildConfigAudited = datastoreAdapter.getLatestBuildConfigurationAudited(buildConfig.getId());
 
             BuildTask buildTask = BuildTask.build(
@@ -106,19 +113,15 @@ public class BuildTasksInitializer {
                     buildTaskIdProvider.get(),
                     buildSetTask,
                     buildSetTask.getStartTime(),
-                    productMilestone,
-                    forceRebuildAll);
+                    productMilestone);
 
             buildSetTask.addBuildTask(buildTask);
         }
         // Loop again to set dependencies
         for (BuildTask buildTask : buildSetTask.getBuildTasks()) {
-            for (BuildConfiguration dep : buildTask.getBuildConfigurationDependencies()) {
-                if (buildSetTask.getBuildConfigurationSet().getBuildConfigurations().contains(dep)) {
-                    BuildTask depTask = buildSetTask.getBuildTask(dep);
-                    if (depTask != null) {
-                        buildTask.addDependency(depTask);
-                    }
+            for (BuildTask checkDepBuildTask : buildSetTask.getBuildTasks()) {
+                if (buildTask.hasConfigDependencyOn(checkDepBuildTask)) {
+                    buildTask.addDependency(checkDepBuildTask);
                 }
             }
         }

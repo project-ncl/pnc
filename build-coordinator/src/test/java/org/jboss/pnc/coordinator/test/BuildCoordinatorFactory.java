@@ -26,16 +26,12 @@ import org.jboss.pnc.coordinator.builder.BuildQueue;
 import org.jboss.pnc.coordinator.builder.BuildSchedulerFactory;
 import org.jboss.pnc.coordinator.builder.DefaultBuildCoordinator;
 import org.jboss.pnc.coordinator.builder.datastore.DatastoreAdapter;
-import org.jboss.pnc.coordinator.builder.filtering.BuildTaskFilter;
-import org.jboss.pnc.coordinator.builder.filtering.HasSuccessfulBuildRecordFilter;
 import org.jboss.pnc.mock.datastore.DatastoreMock;
 import org.jboss.pnc.spi.coordinator.BuildCoordinator;
 import org.jboss.pnc.spi.events.BuildCoordinationStatusChangedEvent;
 import org.jboss.pnc.spi.events.BuildSetStatusChangedEvent;
-import org.jboss.pnc.test.cdi.TestInstance;
 
 import javax.enterprise.event.Event;
-import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 
 import static org.mockito.Matchers.any;
@@ -58,13 +54,11 @@ public class BuildCoordinatorFactory {
 
     public BuildCoordinatorBeans createBuildCoordinator(DatastoreMock datastore) {
         DatastoreAdapter datastoreAdapter = new DatastoreAdapter(datastore);
-        Instance<BuildTaskFilter> taskFilters;
-        taskFilters = new TestInstance<>(new HasSuccessfulBuildRecordFilter(datastoreAdapter));
 
         Configuration configuration = createConfiguration();
         BuildQueue queue = new BuildQueue(configuration);
         BuildCoordinator coordinator = new DefaultBuildCoordinator(datastoreAdapter, buildStatusChangedEventNotifier, buildSetStatusChangedEventNotifier,
-                buildSchedulerFactory, taskFilters, queue, configuration);
+                buildSchedulerFactory, queue, configuration);
         coordinator.start();
         queue.initSemaphore();
         return new BuildCoordinatorBeans(queue, coordinator);

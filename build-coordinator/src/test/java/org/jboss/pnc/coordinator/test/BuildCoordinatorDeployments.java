@@ -21,7 +21,6 @@ package org.jboss.pnc.coordinator.test;
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.coordinator.builder.DefaultBuildCoordinator;
 import org.jboss.pnc.coordinator.builder.datastore.DatastoreAdapter;
-import org.jboss.pnc.coordinator.builder.filtering.BuildTaskFilter;
 import org.jboss.pnc.coordinator.content.ContentIdentityManager;
 import org.jboss.pnc.coordinator.notifications.buildSetTask.BuildSetCallBack;
 import org.jboss.pnc.coordinator.notifications.buildSetTask.BuildSetStatusNotifications;
@@ -100,7 +99,6 @@ public class BuildCoordinatorDeployments {
                         TestProjectConfigurationBuilder.class.getPackage(),
                         ContentIdentityManager.class.getPackage(),
                         BuildConfigSetRecordRepository.class.getPackage(),
-                        BuildTaskFilter.class.getPackage(),
                         TestCDIBuildStatusChangedReceiver.class.getPackage(),
                         BuildSetCallBack.class.getPackage(),
                         BuildCallBack.class.getPackage(),
