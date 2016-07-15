@@ -23,7 +23,6 @@ import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
 import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
 import org.jboss.pnc.coordinator.BuildCoordinationException;
 import org.jboss.pnc.coordinator.builder.datastore.DatastoreAdapter;
-import org.jboss.pnc.coordinator.builder.filtering.BuildTaskFilter;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildConfigurationSet;
@@ -48,16 +47,13 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
-import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 import java.util.Date;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.Consumer;
-import java.util.function.Predicate;
 
 /**
  *
@@ -75,13 +71,16 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
 
     private BuildScheduler buildScheduler;
 
-    private Instance<BuildTaskFilter> taskFilters;
-
     private BuildQueue buildQueue;
 
     private Optional<BuildSetStatusChangedEvent> buildSetStatusChangedEvent;
 
     private BuildTasksInitializer buildTasksInitializer;
+
+    /**
+     * Task ID used for a build which has not yet been assigned a real build record ID
+     */
+    private static final int REJECTED_BUILD_TASK_ID = -1;
 
     @Deprecated
     public DefaultBuildCoordinator(){} //workaround for CDI constructor parameter injection
@@ -89,13 +88,12 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
     @Inject
     public DefaultBuildCoordinator(DatastoreAdapter datastoreAdapter, Event<BuildCoordinationStatusChangedEvent> buildStatusChangedEventNotifier,
                             Event<BuildSetStatusChangedEvent> buildSetStatusChangedEventNotifier, BuildSchedulerFactory buildSchedulerFactory,
-                            Instance<BuildTaskFilter> taskFilters, BuildQueue buildQueue,
+                            BuildQueue buildQueue,
                             Configuration configuration) {
         this.datastoreAdapter = datastoreAdapter;
         this.buildStatusChangedEventNotifier = buildStatusChangedEventNotifier;
         this.buildSetStatusChangedEventNotifier = buildSetStatusChangedEventNotifier;
         this.buildScheduler = buildSchedulerFactory.getBuildScheduler();
-        this.taskFilters = taskFilters;
         this.configuration = configuration;
         this.buildQueue = buildQueue;
         this.buildTasksInitializer = new BuildTasksInitializer(datastoreAdapter);
@@ -116,27 +114,43 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
     public BuildTask build(BuildConfiguration buildConfiguration, User user,
                            boolean keepPodAliveAfterFailure, boolean forceRebuild) throws BuildConflictException {
 
-        BuildConfigurationAudited config = datastoreAdapter.getLatestBuildConfigurationAudited(buildConfiguration.getId());
-        Optional<BuildTask> alreadyActiveBuildTask = buildQueue.getTask(config);
+        BuildConfigurationAudited auditedBuildConfig = datastoreAdapter.getLatestBuildConfigurationAudited(buildConfiguration.getId());
+        Optional<BuildTask> alreadyActiveBuildTask = buildQueue.getTask(auditedBuildConfig);
         if (alreadyActiveBuildTask.isPresent()) {
             throw new BuildConflictException("Active build task found using the same configuration",
                     alreadyActiveBuildTask.get().getId());
         }
 
-        BuildTask buildTask = BuildTask.build(
-                buildConfiguration,
-                config,
-                keepPodAliveAfterFailure,
-                user,
-                datastoreAdapter.getNextBuildRecordId(),
-                null,
-                new Date(),
-                buildConfiguration.getCurrentProductMilestone(),
-                forceRebuild);
+        if (forceRebuild || !datastoreAdapter.hasSuccessfulBuildRecord(buildConfiguration)) {
+            BuildTask buildTask = BuildTask.build(
+                    buildConfiguration,
+                    auditedBuildConfig,
+                    keepPodAliveAfterFailure,
+                    user,
+                    datastoreAdapter.getNextBuildRecordId(),
+                    null,
+                    new Date(),
+                    buildConfiguration.getCurrentProductMilestone(),
+                    forceRebuild);
 
-        buildQueue.enqueueTask(buildTask);
+            buildQueue.enqueueTask(buildTask);
+            return buildTask;
+        } else {
+            BuildTask buildTask = BuildTask.build(
+                    buildConfiguration,
+                    auditedBuildConfig,
+                    keepPodAliveAfterFailure,
+                    user,
+                    REJECTED_BUILD_TASK_ID,
+                    null,
+                    new Date(),
+                    buildConfiguration.getCurrentProductMilestone(),
+                    forceRebuild);
 
-        return buildTask;
+            updateBuildTaskStatus(buildTask, BuildCoordinationStatus.REJECTED_ALREADY_BUILT, "The configuration has already been built");
+            return buildTask;
+        }
+
     }
 
     /**
@@ -161,6 +175,7 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
                 keepPodAliveAfterFailure,
                 () -> datastoreAdapter.getNextBuildRecordId());
         updateBuildSetTaskStatus(buildSetTask, BuildSetStatus.NEW);
+        checkForEmptyBuildSetTask(buildSetTask);
         build(buildSetTask);
         return buildSetTask;
     }
@@ -171,6 +186,20 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
             buildSetTask.getBuildTasks().stream()
                     .filter(this::rejectAlreadySubmitted)
                     .forEach(buildQueue::enqueueTask);
+        }
+    }
+
+    /**
+     * Check if the given build set task is empty and update the status message appropriately
+     */
+    private void checkForEmptyBuildSetTask(BuildSetTask buildSetTask) {
+        if (buildSetTask.getBuildTasks() == null || buildSetTask.getBuildTasks().isEmpty()) {
+            if (buildSetTask.getBuildConfigurationSet().getBuildConfigurations() == null
+                    || buildSetTask.getBuildConfigurationSet().getBuildConfigurations().isEmpty()) {
+                updateBuildSetTaskStatus(buildSetTask, BuildSetStatus.REJECTED, "Build config set is empty");
+            } else {
+                updateBuildSetTaskStatus(buildSetTask, BuildSetStatus.REJECTED, "All build configs were previously built");
+            }
         }
     }
 
@@ -211,7 +240,11 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
         log.debug("Fired buildStatusChangedEventNotifier after task {} status update to {}.", task.getId(), status);
     }
 
-    private void updateBuildSetTaskStatus(BuildSetTask buildSetTask, BuildSetStatus status){
+    private void updateBuildSetTaskStatus(BuildSetTask buildSetTask, BuildSetStatus status) {
+        updateBuildSetTaskStatus(buildSetTask, status, null);
+    }
+
+    private void updateBuildSetTaskStatus(BuildSetTask buildSetTask, BuildSetStatus status, String description) {
         log.debug("Setting new status {} on buildSetTask.id {}.", status, buildSetTask.getId());
         BuildSetStatus oldStatus = buildSetTask.getStatus();
         Integer userId = Optional.ofNullable( buildSetTask.getBuildConfigSetRecord().getUser()).map(User::getId).orElse(null);
@@ -228,16 +261,7 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
         log.debug("Notifying build set status update {}.", buildSetStatusChangedEvent);
         buildSetStatusChangedEventNotifier.fire(buildSetStatusChangedEvent.get());
         buildSetTask.setStatus(status);
-    }
-
-    private Predicate<BuildTask> prepareBuildTaskFilterPredicate() {
-        Predicate<BuildTask> filteringPredicate = Objects::nonNull;
-        if(!taskFilters.isUnsatisfied()) {
-            for(BuildTaskFilter filter : taskFilters) {
-                filteringPredicate = filteringPredicate.and(filter.filter());
-            }
-        }
-        return filteringPredicate;
+        buildSetTask.setStatusDescription(description);
     }
 
     private void processBuildTask(BuildTask task) {
@@ -250,14 +274,6 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
             synchronized (task) {
                 if (!task.getStatus().equals(BuildCoordinationStatus.NEW)) {
                     log.debug("Skipping the execution of build task {} as it has been processed already.", task.getId());
-                    return;
-                }
-
-                log.info("BuildTask.id [{}]: Checking if task should be skipped(forceRebuild: {}, predicateResult: {}). Task is linked to BuildConfigurationAudited.IdRev {}.",
-                        task.getId(), task.getForceRebuild(), prepareBuildTaskFilterPredicate().test(task), task.getBuildConfigurationAudited().getIdRev());
-                if(!task.getForceRebuild() && prepareBuildTaskFilterPredicate().test(task)) {
-                    log.info("[{}] Marking task as REJECTED_ALREADY_BUILT, because it has been already built", task.getId());
-                    updateBuildTaskStatus(task, BuildCoordinationStatus.REJECTED_ALREADY_BUILT, "The configuration has already been built.");
                     return;
                 }
                 task.setStartTime(new Date());
