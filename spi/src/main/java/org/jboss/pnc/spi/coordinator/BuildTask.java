@@ -138,8 +138,20 @@ public class BuildTask {
         return buildConfigurationAudited;
     }
 
-    public Set<BuildConfiguration> getBuildConfigurationDependencies() {
-        return buildConfiguration.getDependencies();
+    /**
+     * Check if this build task has a build configuration dependency on the given build task
+     *
+     * @param buildTask The buildTask with the config to check
+     * @return true if this task's build config has a dependency on the build config of the given task, otherwise false
+     */
+    public boolean hasConfigDependencyOn(BuildTask buildTask) {
+        if (buildTask == null || this.equals(buildTask)) {
+            return false;
+        }
+        if (buildConfiguration == null || buildConfiguration.getAllDependencies() == null) {
+            return false;
+        }
+        return buildConfiguration.getAllDependencies().contains(buildTask.getBuildConfiguration());
     }
 
     public void addDependant(BuildTask buildTask) {

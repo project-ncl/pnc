@@ -113,12 +113,9 @@ public class BuildTasksInitializer {
         }
         // Loop again to set dependencies
         for (BuildTask buildTask : buildSetTask.getBuildTasks()) {
-            for (BuildConfiguration dep : buildTask.getBuildConfigurationDependencies()) {
-                if (buildSetTask.getBuildConfigurationSet().getBuildConfigurations().contains(dep)) {
-                    BuildTask depTask = buildSetTask.getBuildTask(dep);
-                    if (depTask != null) {
-                        buildTask.addDependency(depTask);
-                    }
+            for (BuildTask checkDepBuildTask : buildSetTask.getBuildTasks()) {
+                if (buildTask.hasConfigDependencyOn(checkDepBuildTask)) {
+                    buildTask.addDependency(checkDepBuildTask);
                 }
             }
         }
