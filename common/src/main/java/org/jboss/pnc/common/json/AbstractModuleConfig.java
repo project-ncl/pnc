@@ -19,6 +19,6 @@ package org.jboss.pnc.common.json;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
- 
+
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = As.PROPERTY, property = "@module-config")
-public abstract class AbstractModuleConfig {}
+public abstract class AbstractModuleConfig{}
