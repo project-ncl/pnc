@@ -24,8 +24,8 @@ import java.io.Serializable;
  */
 public interface BuildDriverResult extends Serializable {
 
-    public String getBuildLog();
+    String getBuildLog();
 
-    public BuildDriverStatus getBuildDriverStatus();
+    BuildDriverStatus getBuildDriverStatus();
 
 }

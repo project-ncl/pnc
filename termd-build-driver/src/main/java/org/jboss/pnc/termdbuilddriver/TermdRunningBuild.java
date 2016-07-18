@@ -42,6 +42,8 @@ public class TermdRunningBuild implements RunningBuild {
     private Consumer<CompletedBuild> onComplete;
     private Consumer<Throwable> onError;
 
+    private StringBuilder buildLogFooter = new StringBuilder();
+
     public TermdRunningBuild(RunningEnvironment runningEnvironment, BuildExecutionConfiguration buildExecutionConfiguration, Consumer<CompletedBuild> onComplete, Consumer<Throwable> onError) {
         this.runningEnvironment = runningEnvironment;
         this.buildExecutionConfiguration = buildExecutionConfiguration;
@@ -107,5 +109,13 @@ public class TermdRunningBuild implements RunningBuild {
 
     public Optional<BuildAgentClient> getBuildAgentClient() {
         return Optional.ofNullable(buildAgentClient);
+    }
+
+    public void appendToBuildLog(String message) {
+        buildLogFooter.append(message);
+    }
+
+    public String getBuildLogFooter() {
+        return buildLogFooter.toString();
     }
 }

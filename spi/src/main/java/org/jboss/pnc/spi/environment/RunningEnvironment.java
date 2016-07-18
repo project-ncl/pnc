@@ -48,6 +48,8 @@ public interface RunningEnvironment extends Serializable, DestroyableEnvironment
      */
     String getBuildAgentUrl();
 
+    String getHost();
+
     String getInternalBuildAgentUrl();
 
     /**
@@ -60,9 +62,10 @@ public interface RunningEnvironment extends Serializable, DestroyableEnvironment
      */
     Path getWorkingDirectory();
 
-    public static RunningEnvironment createInstance(
+    static RunningEnvironment createInstance(
             String id,
             int buildAgentPort,
+            String host,
             String buildAgentUrl,
             String internalBuildAgentUrl,
             RepositorySession repositorySession,
@@ -78,6 +81,11 @@ public interface RunningEnvironment extends Serializable, DestroyableEnvironment
             @Override
             public int getBuildAgentPort() {
                 return buildAgentPort;
+            }
+
+            @Override
+            public String getHost() {
+                return host;
             }
 
             @Override

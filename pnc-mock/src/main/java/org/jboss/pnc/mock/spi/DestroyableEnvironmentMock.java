@@ -37,6 +37,7 @@ public class DestroyableEnvironmentMock {
         return RunningEnvironment.createInstance(
                 "1",
                 8080,
+                "localhost",
                 "build/agent/url",
                 "internal,build/agent/url",
                 repositorySession,
