@@ -76,6 +76,11 @@ public class EnvironmentDriverMock implements EnvironmentDriver {
                             }
 
                             @Override
+                            public String getHost() {
+                                return "10.10.10.10";
+                            }
+
+                            @Override
                             public String getInternalBuildAgentUrl() {
                                 return getBuildAgentUrl();
                             }

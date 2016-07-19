@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.termdbuilddriver;
 
+import org.apache.commons.lang3.RandomStringUtils;
 import org.jboss.pnc.buildagent.api.Status;
 import org.jboss.pnc.buildagent.api.TaskStatusUpdateEvent;
 import org.jboss.pnc.buildagent.client.BuildAgentClient;
@@ -99,10 +100,11 @@ public class TermdBuildDriver implements BuildDriver { //TODO rename class
         TermdRunningBuild termdRunningBuild = new TermdRunningBuild(runningEnvironment, buildExecutionSession.getBuildExecutionConfiguration(), onComplete, onError);
 
         String buildScript = prepareBuildScript(termdRunningBuild);
+        boolean enableSshOnFailure = buildExecutionSession.getBuildExecutionConfiguration().isPodKeptOnFailure();
 
         //TODO add an option to cancel at any point
         uploadScript(termdRunningBuild, buildScript)
-                .thenComposeAsync(scriptPath -> invokeRemoteScript(termdRunningBuild, scriptPath), executor)
+                .thenComposeAsync(scriptPath -> invokeRemoteScript(termdRunningBuild, scriptPath, enableSshOnFailure), executor)
                 .thenComposeAsync(status -> collectResults(termdRunningBuild, status), executor)
                 .handle((completedBuild, exception) -> complete(termdRunningBuild, completedBuild, exception));
 
@@ -110,7 +112,7 @@ public class TermdBuildDriver implements BuildDriver { //TODO rename class
     }
 
     private CompletableFuture<String> uploadScript(TermdRunningBuild termdRunningBuild, String command) {
-        CompletableFuture<String> future = new CompletableFuture();
+        CompletableFuture<String> future = new CompletableFuture<>();
         CompletableFuture.runAsync(() -> {
             logger.debug("[{}] Uploading script", termdRunningBuild.getRunningEnvironment().getId());
             logger.debug("[{}] Full script:\n {}", termdRunningBuild.getRunningEnvironment().getId(), command);
@@ -129,24 +131,21 @@ public class TermdBuildDriver implements BuildDriver { //TODO rename class
         return future;
     }
 
-    private CompletableFuture<org.jboss.pnc.buildagent.api.Status> invokeRemoteScript(TermdRunningBuild termdRunningBuild, String scriptPath) {
-        CompletableFuture invocation = new CompletableFuture();
+    private CompletableFuture<org.jboss.pnc.buildagent.api.Status> invokeRemoteScript(TermdRunningBuild termdRunningBuild, String scriptPath, boolean enableSshOnFailure) {
+        CompletableFuture<org.jboss.pnc.buildagent.api.Status> invocation = new CompletableFuture<>();
 
         Consumer<TaskStatusUpdateEvent> onStatusUpdate = (event) -> {
             org.jboss.pnc.buildagent.api.Status newStatus = event.getNewStatus();
             logger.debug("Driver received new status update {}.", newStatus);
             if (newStatus.isFinal()) {
+                if (newStatus == org.jboss.pnc.buildagent.api.Status.FAILED && enableSshOnFailure) {
+                    enableSsh(termdRunningBuild);
+                }
                 invocation.complete(newStatus);
             }
         };
-        String terminalUrl = getBuildAgentUrl(termdRunningBuild);
 
-        BuildAgentClient buildAgentClient = null;
-        try {
-            buildAgentClient = new BuildAgentClient(terminalUrl.replace("http://", "ws://"), Optional.empty(), onStatusUpdate, "");
-        } catch (Exception e) {
-            invocation.completeExceptionally(new BuildDriverException("Cannot connect build agent client.", e));
-        }
+        BuildAgentClient buildAgentClient = createBuildAgentClient(termdRunningBuild, invocation, onStatusUpdate);
 
         termdRunningBuild.setBuildAgentClient(buildAgentClient);
 
@@ -161,8 +160,41 @@ public class TermdBuildDriver implements BuildDriver { //TODO rename class
         return invocation;
     }
 
+
+    private void enableSsh(TermdRunningBuild termd) {
+        String password = RandomStringUtils.randomAlphanumeric(10);
+
+        Optional<BuildAgentClient> maybeClient = termd.getBuildAgentClient();
+        if (maybeClient.isPresent()) {
+            BuildAgentClient client = maybeClient.get();
+            try {
+                String command = "/usr/bin/startSshdWithPassword.sh " + password;
+                client.executeCommand(command);
+                termd.appendToBuildLog("\n-----------------------------------------------------------------------\n");
+                termd.appendToBuildLog("SSH server enabled. Log in using: ssh root@" + termd.getRunningEnvironment().getHost() + " and password: " + password);
+                termd.appendToBuildLog("\n-----------------------------------------------------------------------\n");
+            } catch (TimeoutException | BuildAgentClientException e) {
+                termd.appendToBuildLog("Failed to enable ssh access: " + e.getLocalizedMessage());
+                logger.error("Failed to enable ssh access", e);
+            }
+        } else {
+            logger.error("No build agent client present to enable ssh access");
+        }
+    }
+
+    private BuildAgentClient createBuildAgentClient(TermdRunningBuild termdRunningBuild, CompletableFuture<Status> invocation, Consumer<TaskStatusUpdateEvent> onStatusUpdate) {
+        BuildAgentClient buildAgentClient = null;
+        try {
+            String terminalUrl = getBuildAgentUrl(termdRunningBuild);
+            buildAgentClient = new BuildAgentClient(terminalUrl.replace("http://", "ws://"), Optional.empty(), onStatusUpdate, "");
+        } catch (Exception e) {
+            invocation.completeExceptionally(new BuildDriverException("Cannot connect build agent client.", e));
+        }
+        return buildAgentClient;
+    }
+
     private CompletableFuture<CompletedBuild> collectResults(TermdRunningBuild termdRunningBuild, org.jboss.pnc.buildagent.api.Status completionStatus) {
-        CompletableFuture<CompletedBuild> future = new CompletableFuture();
+        CompletableFuture<CompletedBuild> future = new CompletableFuture<>();
         CompletableFuture.runAsync(() -> {
             logger.info("Collecting results ...");
 
@@ -190,6 +222,7 @@ public class TermdBuildDriver implements BuildDriver { //TODO rename class
             } catch (TransferException e) {
                 future.completeExceptionally(new BuildDriverException("Cannot transfer file.", e));
             }
+            stringBuffer.append(termdRunningBuild.getBuildLogFooter());
 
             CompletedBuild completedBuild = new DefaultCompletedBuild(
                     termdRunningBuild.getRunningEnvironment(), getBuildDriverStatus(completionStatus), stringBuffer.toString());

@@ -218,6 +218,7 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
             RunningEnvironment runningEnvironment = RunningEnvironment.createInstance(
                     pod.getName(),
                     Integer.parseInt(environmentConfiguration.getContainerPort()),
+                    route.getHost(),
                     getPublicEndpointUrl(),
                     getInternalEndpointUrl(),
                     repositorySession,
