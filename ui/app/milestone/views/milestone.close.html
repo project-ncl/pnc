@@ -37,7 +37,10 @@
 
     <div class="form-group" ng-class="{ 'has-error' : milestoneForm.endDate.$invalid && !milestoneForm.endDate.$pristine }">
       <label for="input-end-date" class="col-sm-2 control-label">
-        * Release date <span class="pficon pficon-info" title="Release date, e.g. '2035/01/15', time is set to noon UTC."></span>
+        * Release date&nbsp;<a uib-popover="Release date, e.g. '2035/01/15', time is set to noon UTC."
+                   popover-placement="top-left"
+                   popover-trigger="outsideClick"
+                   href><span class="fa fa-info-circle"></span></a>
       </label>
       <div class="col-sm-10">
         <div class="input-group">
@@ -55,7 +58,10 @@
 
     <div class="form-group" ng-class="{ 'has-error' : milestoneForm.downloadurl.$invalid && !milestoneForm.downloadurl.$pristine }">
       <label for="input-downloadurl" class="col-sm-2 control-label">
-        * Download URL <span class="pficon pficon-info" title="Download URL of the milestone"></span>
+        * Download URL&nbsp;<a uib-popover="Download URL of the milestone"
+                   popover-placement="top-left"
+                   popover-trigger="outsideClick"
+                   href><span class="fa fa-info-circle"></span></a>
       </label>
       <div class="col-sm-10">
         <div class="input-group">
@@ -67,7 +73,10 @@
 
     <div class="form-group" ng-class="{ 'has-error' : milestoneForm.issuetrackerurl.$invalid && !milestoneForm.issuetrackerurl.$pristine }">
       <label for="input-issuetrackerurl" class="col-sm-2 control-label">
-        * Issue Tracker URL <span class="pficon pficon-info" title="Issue Tracker URL of the milestone"></span>
+        * Issue Tracker URL&nbsp;<a uib-popover="Issue Tracker URL of the milestone"
+                   popover-placement="top-left"
+                   popover-trigger="outsideClick"
+                   href><span class="fa fa-info-circle"></span></a>
       </label>
       <div class="col-sm-10">
         <div class="input-group">

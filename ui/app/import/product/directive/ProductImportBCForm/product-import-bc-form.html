@@ -69,7 +69,10 @@
 
       <div class="form-group" ng-class="{ 'has-error' : bcForm.bcFormInput1.$invalid, 'has-success': bcForm.bcFormInput1.$valid && bcForm.bcFormInput1.$touched }">
         <label for="bcFormInput1" class="col-sm-3 control-label">
-          * BC Name&nbsp;<span class="pficon pficon-info" title="Name for the build configuration."></span>
+          * BC Name&nbsp;<a uib-popover="Name for the build configuration."
+                             popover-placement="top-left"
+                             popover-trigger="outsideClick"
+                             href><span class="fa fa-info-circle"></span></a>
         </label>
 
         <div class="col-sm-9">

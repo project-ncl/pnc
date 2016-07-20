@@ -33,7 +33,10 @@
 	          ng-class="{ 'has-error' : !productShippedReportCtrl.selectedProductId && productShippedArtifactForm.productId.$touched, 'has-success': productShippedReportCtrl.selectedProductId && productShippedArtifactForm.productId.$touched }">
 
 	        <label for="input1" class="col-sm-2 control-label">
-	          * Product&nbsp;<span class="pficon pficon-info" title="Select the Product to analyze."></span>
+	          * Product&nbsp;<a uib-popover="Select the Product to analyze."
+                               popover-placement="top-left"
+                               popover-trigger="outsideClick"
+                               href><span class="fa fa-info-circle"></span></a>
 	        </label>
 	
 	        <div class="col-sm-10">

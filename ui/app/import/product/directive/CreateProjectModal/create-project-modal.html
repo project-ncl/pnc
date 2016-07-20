@@ -36,8 +36,11 @@
 
                 <div class="form-group"
                      ng-class="projectForm.inputp1.$dirty && projectForm.inputp1.$invalid ? 'has-error' : ''">
-                  <label for="inputp1" class="control-label col-sm-4">Name
-                    &nbsp;<span class="pficon pficon-info" title="Name of the Product you are importing."></span>
+                  <label for="inputp1" class="control-label col-sm-4">
+                    Name&nbsp;<a uib-popover="Name of the Product you are importing."
+                                 popover-placement="top-left"
+                                 popover-trigger="outsideClick"
+                                 href><span class="fa fa-info-circle"></span></a>
                   </label>
 
                   <div class="col-sm-8">
