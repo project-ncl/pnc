@@ -132,8 +132,8 @@ form .editable-wrap {
 }
 
 #loading-bar .bar {
-  background: #fff;
-  height: 4px;
+  background: #f39d3c;
+  height: 3px;
 }
 #loading-bar-spinner .spinner-icon {
   border-top-color:  #fff;
