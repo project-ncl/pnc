@@ -65,7 +65,7 @@
                       <i class="glyphicon glyphicon-calendar"></i>
                     </button>
                   </span>
-                  <input name="releaseDate" required id="input-end-date" type="text" class="form-control" datepicker-popup="{{format}}"
+                  <input name="releaseDate" required id="input-end-date" type="text" class="form-control" uib-datepicker-popup="{{format}}"
                          ng-model="releaseCreateUpdateCtrl.data.releaseDate" is-open="opened[1]" close-text="Close" placeholder="{{format}}"/>
                 </div>
                 <span class="help-block" ng-show="releaseForm.releaseDate.$error.required && !releaseForm.releaseDate.$pristine">Required field.</span>

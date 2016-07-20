@@ -49,7 +49,7 @@
               <i class="glyphicon glyphicon-calendar"></i>
             </button>
           </span>
-          <input name="endDate" required id="input-end-date" type="text" class="form-control" datepicker-popup="{{format}}"
+          <input name="endDate" required id="input-end-date" type="text" class="form-control" uib-datepicker-popup="{{format}}"
                  ng-model="milestoneCloseCtrl.data.endDate" is-open="opened[1]" close-text="Close" placeholder="{{format}}"/>
         </div>
         <span class="help-block" ng-show="milestoneForm.endDate.$error.required && !milestoneForm.endDate.$pristine">Required field.</span>
