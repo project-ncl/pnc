@@ -125,8 +125,8 @@ public class BuildEnvironmentRest implements GenericRestEntity<Integer> {
         return systemImageId;
     }
 
-    public void setImageId(String imageId) {
-        this.systemImageId = imageId;
+    public void setImageId(String systemImageId) {
+        this.systemImageId = systemImageId;
     }
 
     public Map<String, String> getAttributes() {
