@@ -43,7 +43,14 @@
     'pnc.common.authentication'
   ]);
 
-  app.config(function($stateProvider, $urlRouterProvider, $locationProvider,
+  app.config([
+    '$stateProvider',
+    '$urlRouterProvider',
+    '$locationProvider',
+    '$httpProvider',
+    'NotificationsProvider',
+    'cfpLoadingBarProvider',
+    function($stateProvider, $urlRouterProvider, $locationProvider,
     $httpProvider, NotificationsProvider, cfpLoadingBarProvider) {
 
     $locationProvider.html5Mode(false);
@@ -83,7 +90,7 @@
     $httpProvider.interceptors.push('httpResponseInterceptor');
     $httpProvider.interceptors.push('unwrapPageResponseInterceptor');
     $httpProvider.interceptors.push('httpAuthenticationInterceptor');
-  });
+  }]);
 
   /**
    * Configure remote api clients with addresses from the pncProperties
@@ -104,7 +111,12 @@
       daConfigProvider.setDaImportRpcUrl(pncProperties.daImportRpcUrl);
   }]);
 
-  app.run(function($rootScope, $log, $state, authService) {
+  app.run([
+    '$rootScope',
+    '$log',
+    '$state',
+    'authService',
+    function($rootScope, $log, $state, authService) {
 
     if (authService.isAuthenticated()) {
       authService.getPncUser().$promise.then(function(result) {
@@ -124,6 +136,6 @@
       }
     );
 
-  });
+  }]);
 
 })();
