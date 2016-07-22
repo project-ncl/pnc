@@ -69,6 +69,10 @@
                     {
                         "name": "buildAgentBindPort",
                         "value": "${containerPort}"
+                    },
+                    {
+                        "name": "workerUserPassword",
+                        "value": "${workerUserPassword}"
                     }
                 ],
                 "resources": {},

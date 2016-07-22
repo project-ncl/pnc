@@ -17,7 +17,6 @@
  */
 package org.jboss.pnc.termdbuilddriver;
 
-import org.apache.commons.lang3.RandomStringUtils;
 import org.jboss.pnc.buildagent.api.Status;
 import org.jboss.pnc.buildagent.api.TaskStatusUpdateEvent;
 import org.jboss.pnc.buildagent.client.BuildAgentClient;
@@ -29,6 +28,7 @@ import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
 import org.jboss.pnc.model.BuildStatus;
 import org.jboss.pnc.spi.builddriver.BuildDriver;
 import org.jboss.pnc.spi.builddriver.CompletedBuild;
+import org.jboss.pnc.spi.builddriver.DebugData;
 import org.jboss.pnc.spi.builddriver.RunningBuild;
 import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
 import org.jboss.pnc.spi.environment.RunningEnvironment;
@@ -92,7 +92,9 @@ public class TermdBuildDriver implements BuildDriver { //TODO rename class
     }
 
     @Override
-    public RunningBuild startProjectBuild(BuildExecutionSession buildExecutionSession, RunningEnvironment runningEnvironment, Consumer<CompletedBuild> onComplete, Consumer<Throwable> onError)
+    public RunningBuild startProjectBuild(BuildExecutionSession buildExecutionSession,
+                                          RunningEnvironment runningEnvironment,
+                                          Consumer<CompletedBuild> onComplete, Consumer<Throwable> onError)
             throws BuildDriverException {
 
         logger.info("[{}] Starting build for Build Execution Session {}", runningEnvironment.getId(), buildExecutionSession.getId());
@@ -100,11 +102,11 @@ public class TermdBuildDriver implements BuildDriver { //TODO rename class
         TermdRunningBuild termdRunningBuild = new TermdRunningBuild(runningEnvironment, buildExecutionSession.getBuildExecutionConfiguration(), onComplete, onError);
 
         String buildScript = prepareBuildScript(termdRunningBuild);
-        boolean enableSshOnFailure = buildExecutionSession.getBuildExecutionConfiguration().isPodKeptOnFailure();
+        DebugData debugData = buildExecutionSession.getRunningEnvironment().getDebugData();
 
         //TODO add an option to cancel at any point
         uploadScript(termdRunningBuild, buildScript)
-                .thenComposeAsync(scriptPath -> invokeRemoteScript(termdRunningBuild, scriptPath, enableSshOnFailure), executor)
+                .thenComposeAsync(scriptPath -> invokeRemoteScript(termdRunningBuild, scriptPath, debugData), executor)
                 .thenComposeAsync(status -> collectResults(termdRunningBuild, status), executor)
                 .handle((completedBuild, exception) -> complete(termdRunningBuild, completedBuild, exception));
 
@@ -131,14 +133,18 @@ public class TermdBuildDriver implements BuildDriver { //TODO rename class
         return future;
     }
 
-    private CompletableFuture<org.jboss.pnc.buildagent.api.Status> invokeRemoteScript(TermdRunningBuild termdRunningBuild, String scriptPath, boolean enableSshOnFailure) {
+    private CompletableFuture<org.jboss.pnc.buildagent.api.Status> invokeRemoteScript(
+            TermdRunningBuild termdRunningBuild,
+            String scriptPath,
+            DebugData debugData) {
         CompletableFuture<org.jboss.pnc.buildagent.api.Status> invocation = new CompletableFuture<>();
 
         Consumer<TaskStatusUpdateEvent> onStatusUpdate = (event) -> {
             org.jboss.pnc.buildagent.api.Status newStatus = event.getNewStatus();
             logger.debug("Driver received new status update {}.", newStatus);
             if (newStatus.isFinal()) {
-                if (newStatus == org.jboss.pnc.buildagent.api.Status.FAILED && enableSshOnFailure) {
+                if (newStatus == org.jboss.pnc.buildagent.api.Status.FAILED && debugData.isEnableDebugOnFailure()) {
+                    debugData.setDebugEnabled(true);
                     enableSsh(termdRunningBuild);
                 }
                 invocation.complete(newStatus);
@@ -162,17 +168,11 @@ public class TermdBuildDriver implements BuildDriver { //TODO rename class
 
 
     private void enableSsh(TermdRunningBuild termd) {
-        String password = RandomStringUtils.randomAlphanumeric(10);
-
         Optional<BuildAgentClient> maybeClient = termd.getBuildAgentClient();
         if (maybeClient.isPresent()) {
             BuildAgentClient client = maybeClient.get();
             try {
-                String command = "/usr/bin/startSshdWithPassword.sh " + password;
-                client.executeCommand(command);
-                termd.appendToBuildLog("\n-----------------------------------------------------------------------\n");
-                termd.appendToBuildLog("SSH server enabled. Log in using: ssh root@" + termd.getRunningEnvironment().getHost() + " and password: " + password);
-                termd.appendToBuildLog("\n-----------------------------------------------------------------------\n");
+                client.executeCommand("/usr/bin/startSshd.sh");
             } catch (TimeoutException | BuildAgentClientException e) {
                 termd.appendToBuildLog("Failed to enable ssh access: " + e.getLocalizedMessage());
                 logger.error("Failed to enable ssh access", e);

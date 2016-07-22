@@ -193,5 +193,5 @@ public class BuildExecutionSessionMock implements BuildExecutionSession {
     public void setRepositoryManagerResult(RepositoryManagerResult repositoryManagerResult) {
         this.repositoryManagerResult = repositoryManagerResult;
     }
-    
+
 }

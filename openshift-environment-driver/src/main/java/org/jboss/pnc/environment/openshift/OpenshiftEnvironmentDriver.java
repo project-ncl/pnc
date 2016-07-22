@@ -24,6 +24,7 @@ import org.jboss.pnc.common.json.moduleconfig.OpenshiftEnvironmentDriverModuleCo
 import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
 import org.jboss.pnc.common.monitor.PullingMonitor;
 import org.jboss.pnc.model.SystemImageType;
+import org.jboss.pnc.spi.builddriver.DebugData;
 import org.jboss.pnc.spi.environment.EnvironmentDriver;
 import org.jboss.pnc.spi.environment.StartedEnvironment;
 import org.jboss.pnc.spi.environment.exception.EnvironmentDriverException;
@@ -34,7 +35,6 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.PreDestroy;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -68,12 +68,16 @@ public class OpenshiftEnvironmentDriver implements EnvironmentDriver {
     }
 
     @Override
-    public StartedEnvironment startEnvironment(String systemImageId, String systemImageRepositoryUrl, SystemImageType systemImageType, RepositorySession repositorySession) throws EnvironmentDriverException {
+    public StartedEnvironment startEnvironment(String systemImageId,
+                                               String systemImageRepositoryUrl,
+                                               SystemImageType systemImageType,
+                                               RepositorySession repositorySession,
+                                               DebugData debugData) throws EnvironmentDriverException {
         if (!canRunImageType(systemImageType))
             throw new UnsupportedOperationException("OpenshiftEnvironmentDriver currently provides support only for the following system image types:" + compatibleImageTypes);
 
         //TODO: Need to pass the systemImageId and repoUrl to the new environment instead of using system wide environment config
-        return new OpenshiftStartedEnvironment(executor, config, pullingMonitor, repositorySession);
+        return new OpenshiftStartedEnvironment(executor, config, pullingMonitor, repositorySession, debugData);
     }
 
     @Override
