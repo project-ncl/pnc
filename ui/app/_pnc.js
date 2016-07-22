@@ -34,7 +34,6 @@
     'pnc.common.directives',
     'pnc.common.websockets',
     'pnc.common.events',
-    'pnc.common.buildNotifications',
     'pnc.configuration-set-record',
     'pnc.common.restclient',
     'pnc.import',
