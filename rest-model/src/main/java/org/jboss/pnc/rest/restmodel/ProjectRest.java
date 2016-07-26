@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.rest.restmodel;
 
+import io.swagger.annotations.ApiModelProperty;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.License;
 import org.jboss.pnc.model.Project;
@@ -47,6 +48,7 @@ public class ProjectRest implements GenericRestEntity<Integer> {
 
     private String projectUrl;
 
+    @ApiModelProperty(notes = "Projects cannot set build configurations", readOnly = true)
     private List<Integer> configurationIds;
 
     private Integer licenseId;
