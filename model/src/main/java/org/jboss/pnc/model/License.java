@@ -22,8 +22,6 @@ import org.hibernate.annotations.Type;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * The Class License maps the different licenses to be linked to the projects, i.e. APACHE 2.0, MIT, GLPL, etc
@@ -55,10 +53,6 @@ public class License implements GenericEntity<Integer> {
 
     @Size(max=255)
     private String shortName;
-
-    // bi-directional many-to-one association to Project
-    @OneToMany(mappedBy = "license")
-    private List<Project> projects;
 
     /**
      * Instantiates a new license.
@@ -153,49 +147,6 @@ public class License implements GenericEntity<Integer> {
         this.shortName = shortName;
     }
 
-    /**
-     * Gets the projects.
-     *
-     * @return the projects
-     */
-    public List<Project> getProjects() {
-        return this.projects;
-    }
-
-    /**
-     * Sets the projects.
-     *
-     * @param projects the new projects
-     */
-    public void setProjects(List<Project> projects) {
-        this.projects = projects;
-    }
-
-    /**
-     * Adds the project.
-     *
-     * @param project the project
-     * @return the project
-     */
-    public Project addProject(Project project) {
-        getProjects().add(project);
-        project.setLicense(this);
-
-        return project;
-    }
-
-    /**
-     * Removes the project.
-     *
-     * @param project the project
-     * @return the project
-     */
-    public Project removeProject(Project project) {
-        getProjects().remove(project);
-        project.setLicense(null);
-
-        return project;
-    }
 
     /*
      * (non-Javadoc)
@@ -219,12 +170,6 @@ public class License implements GenericEntity<Integer> {
 
         private String shortName;
 
-        private List<Project> projects;
-
-        private Builder() {
-            projects = new ArrayList<>();
-        }
-
         public static Builder newBuilder() {
             return new Builder();
         }
@@ -237,12 +182,6 @@ public class License implements GenericEntity<Integer> {
             license.setFullContent(fullContent);
             license.setRefUrl(refUrl);
             license.setShortName(shortName);
-
-            // Set the bi-directional mapping
-            for (Project project : projects) {
-                project.setLicense(license);
-            }
-            license.setProjects(projects);
 
             return license;
         }
@@ -271,11 +210,5 @@ public class License implements GenericEntity<Integer> {
             this.shortName = shortName;
             return this;
         }
-
-        public Builder projects(List<Project> projects) {
-            this.projects = projects;
-            return this;
-        }
-
     }
 }

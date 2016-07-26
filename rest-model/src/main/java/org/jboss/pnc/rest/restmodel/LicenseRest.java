@@ -18,17 +18,12 @@
 package org.jboss.pnc.rest.restmodel;
 
 import org.jboss.pnc.model.License;
-import org.jboss.pnc.model.Project;
 import org.jboss.pnc.rest.validation.groups.WhenCreatingNew;
 import org.jboss.pnc.rest.validation.groups.WhenUpdating;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
 import javax.xml.bind.annotation.XmlRootElement;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
 
 @XmlRootElement(name = "License")
 public class LicenseRest implements GenericRestEntity<Integer> {
@@ -45,8 +40,6 @@ public class LicenseRest implements GenericRestEntity<Integer> {
 
     private String shortName;
 
-    private List<Integer> projectsIds;
-
     public LicenseRest() {
 
     }
@@ -57,7 +50,6 @@ public class LicenseRest implements GenericRestEntity<Integer> {
         this.fullContent = license.getFullContent();
         this.refUrl = license.getRefUrl();
         this.shortName = license.getShortName();
-        this.projectsIds = nullableStreamOf(license.getProjects()).map(project -> project.getId()).collect(Collectors.toList());
     }
 
     /**
@@ -132,28 +124,12 @@ public class LicenseRest implements GenericRestEntity<Integer> {
         this.shortName = shortName;
     }
 
-    /**
-     * @return the projects
-     */
-    public List<Integer> getProjectsIds() {
-        return projectsIds;
-    }
-
-    /**
-     * @param projectsIds the projects to set
-     */
-    public void setProjectsIds(List<Integer> projectsIds) {
-        this.projectsIds = projectsIds;
-    }
 
     public License.Builder toDBEntityBuilder() {
-        List<Project> projects = nullableStreamOf(projectsIds)
-                .map(projectId -> Project.Builder.newBuilder().id(projectId).build())
-                .collect(Collectors.toList());
         License.Builder builder = License.Builder.newBuilder()
             .id(id).fullName(fullName)
             .fullContent(fullContent).refUrl(refUrl)
-            .shortName(shortName).projects(projects);
+            .shortName(shortName);
 
         return builder;
     }
