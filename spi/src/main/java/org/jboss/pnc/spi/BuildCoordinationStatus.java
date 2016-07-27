@@ -22,7 +22,11 @@ import org.jboss.pnc.model.BuildStatus;
 import java.util.Arrays;
 
 /**
-* Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-12-22.
+ * Represents the status of BuildTask in the coordinator.
+ * Status is used in dependency resolution and external status update notification.
+ * It is not mean to be used as status of DB entity.
+ *
+ * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-12-22.
 */
 public enum BuildCoordinationStatus {
     NEW,

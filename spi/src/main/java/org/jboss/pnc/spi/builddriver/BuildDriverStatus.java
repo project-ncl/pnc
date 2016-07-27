@@ -20,10 +20,11 @@ package org.jboss.pnc.spi.builddriver;
 import org.jboss.pnc.model.BuildStatus;
 
 /**
- * List of Jenkins job statuses.
- *
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-11-23.
+ *
+ * @deprecated  Use {@link BuildStatus} instead
  */
+@Deprecated
 public enum BuildDriverStatus {
     SUCCESS(true), FAILED, UNSTABLE(true), BUILDING, REJECTED, CANCELLED, UNKNOWN;
 
