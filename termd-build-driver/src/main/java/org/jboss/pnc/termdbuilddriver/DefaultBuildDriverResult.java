@@ -18,8 +18,8 @@
 
 package org.jboss.pnc.termdbuilddriver;
 
+import org.jboss.pnc.model.BuildStatus;
 import org.jboss.pnc.spi.builddriver.BuildDriverResult;
-import org.jboss.pnc.spi.builddriver.BuildDriverStatus;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
@@ -27,11 +27,11 @@ import org.jboss.pnc.spi.builddriver.BuildDriverStatus;
 public class DefaultBuildDriverResult implements BuildDriverResult {
 
     String buildLog;
-    BuildDriverStatus buildDriverStatus;
+    BuildStatus buildStatus;
 
-    public DefaultBuildDriverResult(String buildLog, BuildDriverStatus buildDriverStatus) {
+    public DefaultBuildDriverResult(String buildLog, BuildStatus buildStatus) {
         this.buildLog = buildLog;
-        this.buildDriverStatus = buildDriverStatus;
+        this.buildStatus = buildStatus;
     }
 
     @Override
@@ -40,7 +40,7 @@ public class DefaultBuildDriverResult implements BuildDriverResult {
     }
 
     @Override
-    public BuildDriverStatus getBuildDriverStatus() {
-        return buildDriverStatus;
+    public BuildStatus getBuildStatus() {
+        return buildStatus;
     }
 }

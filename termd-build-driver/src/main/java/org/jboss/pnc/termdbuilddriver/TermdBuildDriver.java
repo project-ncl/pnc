@@ -26,8 +26,8 @@ import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
 import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
+import org.jboss.pnc.model.BuildStatus;
 import org.jboss.pnc.spi.builddriver.BuildDriver;
-import org.jboss.pnc.spi.builddriver.BuildDriverStatus;
 import org.jboss.pnc.spi.builddriver.CompletedBuild;
 import org.jboss.pnc.spi.builddriver.RunningBuild;
 import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
@@ -225,20 +225,20 @@ public class TermdBuildDriver implements BuildDriver { //TODO rename class
             stringBuffer.append(termdRunningBuild.getBuildLogFooter());
 
             CompletedBuild completedBuild = new DefaultCompletedBuild(
-                    termdRunningBuild.getRunningEnvironment(), getBuildDriverStatus(completionStatus), stringBuffer.toString());
+                    termdRunningBuild.getRunningEnvironment(), getBuildStatus(completionStatus), stringBuffer.toString());
 
             future.complete(completedBuild);
         }, executor);
         return future;
     }
 
-    private BuildDriverStatus getBuildDriverStatus(Status completionStatus) {
+    private BuildStatus getBuildStatus(Status completionStatus) {
         if (COMPLETED.equals(completionStatus)) {
-            return BuildDriverStatus.SUCCESS;
+            return BuildStatus.SUCCESS;
         } else if (INTERRUPTED.equals(completionStatus)) {
-            return BuildDriverStatus.CANCELLED;
+            return BuildStatus.CANCELLED;
         } else {
-            return BuildDriverStatus.FAILED;
+            return BuildStatus.FAILED;
         }
     }
 

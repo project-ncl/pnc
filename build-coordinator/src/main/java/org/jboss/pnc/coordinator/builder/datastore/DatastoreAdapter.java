@@ -95,7 +95,7 @@ public class DatastoreAdapter {
             if (buildResult.getBuildDriverResult().isPresent()) {
                 BuildDriverResult buildDriverResult = buildResult.getBuildDriverResult().get();
                 buildRecordBuilder.buildLog(buildDriverResult.getBuildLog());
-                buildRecordBuilder.status(buildDriverResult.getBuildDriverStatus().toBuildStatus());
+                buildRecordBuilder.status(buildDriverResult.getBuildStatus());
             } else if (!buildResult.hasFailed()) {
                 storeResult(buildTask, Optional.of(buildResult), new BuildCoordinationException("Trying to store success build with incomplete result. Missing BuildDriverResult."));
                 return;

@@ -18,8 +18,8 @@
 
 package org.jboss.pnc.mock.builddriver;
 
+import org.jboss.pnc.model.BuildStatus;
 import org.jboss.pnc.spi.builddriver.BuildDriverResult;
-import org.jboss.pnc.spi.builddriver.BuildDriverStatus;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
@@ -28,7 +28,7 @@ public class BuildDriverResultMock {
 
     public static final String BUILD_LOG = "The quick brown fox jumps over the lazy dog.\nFinished: SUCCESS";
 
-    public static BuildDriverResult mockResult(BuildDriverStatus status) {
+    public static BuildDriverResult mockResult(BuildStatus status) {
         return new BuildDriverResult() {
             @Override
             public String getBuildLog() {
@@ -36,7 +36,7 @@ public class BuildDriverResultMock {
             }
 
             @Override
-            public BuildDriverStatus getBuildDriverStatus() {
+            public BuildStatus getBuildStatus() {
                 return status;
             }
         };

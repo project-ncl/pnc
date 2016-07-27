@@ -17,6 +17,8 @@
  */
 package org.jboss.pnc.spi.builddriver;
 
+import org.jboss.pnc.model.BuildStatus;
+
 import java.io.Serializable;
 
 /**
@@ -26,6 +28,6 @@ public interface BuildDriverResult extends Serializable {
 
     String getBuildLog();
 
-    BuildDriverStatus getBuildDriverStatus();
+    BuildStatus getBuildStatus();
 
 }

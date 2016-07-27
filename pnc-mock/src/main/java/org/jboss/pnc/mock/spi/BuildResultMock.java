@@ -22,10 +22,10 @@ import org.jboss.pnc.mock.builddriver.BuildDriverResultMock;
 import org.jboss.pnc.mock.executor.BuildExecutionConfigurationMock;
 import org.jboss.pnc.mock.executor.BuildProcessExceptionMock;
 import org.jboss.pnc.mock.repositorymanager.RepositoryManagerResultMock;
+import org.jboss.pnc.model.BuildStatus;
 import org.jboss.pnc.spi.BuildExecutionStatus;
 import org.jboss.pnc.spi.BuildResult;
 import org.jboss.pnc.spi.builddriver.BuildDriverResult;
-import org.jboss.pnc.spi.builddriver.BuildDriverStatus;
 import org.jboss.pnc.spi.environment.DestroyableEnvironment;
 import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
 import org.jboss.pnc.spi.executor.exceptions.ExecutorException;
@@ -39,7 +39,7 @@ import java.util.concurrent.CompletionException;
  */
 public class BuildResultMock {
 
-    public static BuildResult mock(BuildDriverStatus status) {
+    public static BuildResult mock(BuildStatus status) {
         BuildExecutionConfiguration buildExecutionConfig = BuildExecutionConfigurationMock.mockConfig();
         BuildDriverResult buildDriverResult = BuildDriverResultMock.mockResult(status);
         RepositoryManagerResult repositoryManagerResult = RepositoryManagerResultMock.mockResult();
