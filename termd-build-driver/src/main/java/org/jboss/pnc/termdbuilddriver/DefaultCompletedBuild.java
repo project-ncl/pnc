@@ -18,8 +18,8 @@
 
 package org.jboss.pnc.termdbuilddriver;
 
+import org.jboss.pnc.model.BuildStatus;
 import org.jboss.pnc.spi.builddriver.BuildDriverResult;
-import org.jboss.pnc.spi.builddriver.BuildDriverStatus;
 import org.jboss.pnc.spi.builddriver.CompletedBuild;
 import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
 import org.jboss.pnc.spi.environment.RunningEnvironment;
@@ -30,18 +30,18 @@ import org.jboss.pnc.spi.environment.RunningEnvironment;
 public class DefaultCompletedBuild implements CompletedBuild {
 
     private RunningEnvironment runningEnvironment;
-    private BuildDriverStatus buildDriverStatus;
+    private BuildStatus buildStatus;
     private String buildLog;
 
-    public DefaultCompletedBuild(RunningEnvironment runningEnvironment, BuildDriverStatus buildDriverStatus, String buildLog) {
+    public DefaultCompletedBuild(RunningEnvironment runningEnvironment, BuildStatus buildStatus, String buildLog) {
         this.runningEnvironment = runningEnvironment;
-        this.buildDriverStatus = buildDriverStatus;
+        this.buildStatus = buildStatus;
         this.buildLog = buildLog;
     }
 
     @Override
     public BuildDriverResult getBuildResult() throws BuildDriverException {
-        return new DefaultBuildDriverResult(buildLog, buildDriverStatus);
+        return new DefaultBuildDriverResult(buildLog, buildStatus);
     }
 
     @Override

@@ -27,10 +27,10 @@ import org.jboss.pnc.executor.servicefactories.BuildDriverFactory;
 import org.jboss.pnc.executor.servicefactories.EnvironmentDriverFactory;
 import org.jboss.pnc.executor.servicefactories.RepositoryManagerFactory;
 import org.jboss.pnc.model.ArtifactRepo;
+import org.jboss.pnc.model.BuildStatus;
 import org.jboss.pnc.spi.BuildExecutionStatus;
 import org.jboss.pnc.spi.builddriver.BuildDriver;
 import org.jboss.pnc.spi.builddriver.BuildDriverResult;
-import org.jboss.pnc.spi.builddriver.BuildDriverStatus;
 import org.jboss.pnc.spi.builddriver.CompletedBuild;
 import org.jboss.pnc.spi.environment.DestroyableEnvironment;
 import org.jboss.pnc.spi.environment.EnvironmentDriver;
@@ -213,9 +213,9 @@ public class DefaultBuildExecutor implements BuildExecutor {
         buildExecutionSession.setStatus(BuildExecutionStatus.COLLECTING_RESULTS_FROM_BUILD_DRIVER);
         try {
             BuildDriverResult buildResult = completedBuild.getBuildResult();
-            BuildDriverStatus buildDriverStatus = buildResult.getBuildDriverStatus();
+            BuildStatus buildStatus = buildResult.getBuildStatus();
             buildExecutionSession.setBuildDriverResult(buildResult);
-            if (buildDriverStatus.completedSuccessfully()) {
+            if (buildStatus.completedSuccessfully()) {
                 buildExecutionSession.setStatus(BuildExecutionStatus.BUILD_COMPLETED_SUCCESS);
             } else {
                 buildExecutionSession.setStatus(BuildExecutionStatus.BUILD_COMPLETED_WITH_ERROR);

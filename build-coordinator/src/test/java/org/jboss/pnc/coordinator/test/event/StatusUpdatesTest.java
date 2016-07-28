@@ -32,12 +32,12 @@ import org.jboss.pnc.mavenrepositorymanager.MavenRepositoryManagerResult;
 import org.jboss.pnc.mock.model.builders.TestProjectConfigurationBuilder;
 import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildConfigurationSet;
+import org.jboss.pnc.model.BuildStatus;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.BuildCoordinationStatus;
 import org.jboss.pnc.spi.BuildResult;
 import org.jboss.pnc.spi.BuildSetStatus;
 import org.jboss.pnc.spi.builddriver.BuildDriverResult;
-import org.jboss.pnc.spi.builddriver.BuildDriverStatus;
 import org.jboss.pnc.spi.coordinator.BuildCoordinator;
 import org.jboss.pnc.spi.coordinator.BuildSetTask;
 import org.jboss.pnc.spi.coordinator.BuildTask;
@@ -195,8 +195,8 @@ public class StatusUpdatesTest {
             }
 
             @Override
-            public BuildDriverStatus getBuildDriverStatus() {
-                return BuildDriverStatus.SUCCESS;
+            public BuildStatus getBuildStatus() {
+                return BuildStatus.SUCCESS;
             }
         };
         return new BuildResult(Optional.empty(), Optional.of(driverResult), Optional.of(repoManagerResult), Optional.empty(), Optional.empty());

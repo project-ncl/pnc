@@ -20,9 +20,9 @@ package org.jboss.pnc.mock.builddriver;
 import org.jboss.logging.Logger;
 import org.jboss.pnc.common.util.RandomUtils;
 import org.jboss.pnc.mock.model.builders.TestProjectConfigurationBuilder;
+import org.jboss.pnc.model.BuildStatus;
 import org.jboss.pnc.spi.builddriver.BuildDriver;
 import org.jboss.pnc.spi.builddriver.BuildDriverResult;
-import org.jboss.pnc.spi.builddriver.BuildDriverStatus;
 import org.jboss.pnc.spi.builddriver.CompletedBuild;
 import org.jboss.pnc.spi.builddriver.RunningBuild;
 import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
@@ -38,7 +38,7 @@ public class BuildDriverMock implements BuildDriver {
 
     public static final Logger log = Logger.getLogger(BuildDriverMock.class);
 
-    private BuildDriverStatus buildDriverStatus;
+    private BuildStatus buildStatus;
 
     @Override
     public String getDriverId() {
@@ -81,7 +81,7 @@ public class BuildDriverMock implements BuildDriver {
 
     private void complete(BuildExecutionSession buildExecutionSession, final RunningEnvironment runningEnvironment, Consumer<CompletedBuild> onComplete) throws InterruptedException {
         Thread.sleep(RandomUtils.randInt(100, 300));
-        setBuildDriverStatus(buildExecutionSession.getBuildExecutionConfiguration().getBuildScript());
+        setBuildStatus(buildExecutionSession.getBuildExecutionConfiguration().getBuildScript());
 
         onComplete.accept(new CompletedBuild() {
             @Override
@@ -96,11 +96,11 @@ public class BuildDriverMock implements BuildDriver {
         });
     }
 
-    private void setBuildDriverStatus(String buildScript){
+    private void setBuildStatus(String buildScript){
         if (buildScript.equals(TestProjectConfigurationBuilder.FAIL))
-            buildDriverStatus = BuildDriverStatus.FAILED;
+            buildStatus = BuildStatus.FAILED;
         else
-            buildDriverStatus = BuildDriverStatus.SUCCESS;
+            buildStatus = BuildStatus.SUCCESS;
 
     }
 
@@ -112,8 +112,8 @@ public class BuildDriverMock implements BuildDriver {
             }
 
             @Override
-            public BuildDriverStatus getBuildDriverStatus() {
-                return buildDriverStatus;
+            public BuildStatus getBuildStatus() {
+                return buildStatus;
             }
         };
     }

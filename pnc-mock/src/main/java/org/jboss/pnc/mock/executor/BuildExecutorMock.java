@@ -21,9 +21,9 @@ package org.jboss.pnc.mock.executor;
 import org.jboss.pnc.mock.builddriver.BuildDriverResultMock;
 import org.jboss.pnc.mock.model.builders.TestProjectConfigurationBuilder;
 import org.jboss.pnc.mock.repositorymanager.RepositoryManagerResultMock;
+import org.jboss.pnc.model.BuildStatus;
 import org.jboss.pnc.spi.BuildExecutionStatus;
 import org.jboss.pnc.spi.builddriver.BuildDriverResult;
-import org.jboss.pnc.spi.builddriver.BuildDriverStatus;
 import org.jboss.pnc.spi.events.BuildExecutionStatusChangedEvent;
 import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
 import org.jboss.pnc.spi.executor.BuildExecutionSession;
@@ -101,11 +101,11 @@ public class BuildExecutorMock implements BuildExecutor {
         Boolean buildPassed;
         if (TestProjectConfigurationBuilder.FAIL.equals(buildExecutionSession.getBuildExecutionConfiguration().getBuildScript())) {
             log.debug("Marking build {} as Failed.", buildExecutionSession.getId());
-            driverResult = BuildDriverResultMock.mockResult(BuildDriverStatus.FAILED);
+            driverResult = BuildDriverResultMock.mockResult(BuildStatus.FAILED);
             buildPassed = false;
         } else {
             log.debug("Marking build {} as Success.", buildExecutionSession.getId());
-            driverResult = BuildDriverResultMock.mockResult(BuildDriverStatus.SUCCESS);
+            driverResult = BuildDriverResultMock.mockResult(BuildStatus.SUCCESS);
             RepositoryManagerResult repositoryManagerResult = RepositoryManagerResultMock.mockResult();
             buildExecutionSession.setRepositoryManagerResult(repositoryManagerResult);
             buildPassed = true;

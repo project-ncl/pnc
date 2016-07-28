@@ -18,8 +18,8 @@
 
 package org.jboss.pnc.rest.restmodel;
 
+import org.jboss.pnc.model.BuildStatus;
 import org.jboss.pnc.spi.builddriver.BuildDriverResult;
-import org.jboss.pnc.spi.builddriver.BuildDriverStatus;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
@@ -30,13 +30,13 @@ import javax.xml.bind.annotation.XmlRootElement;
 public class BuildDriverResultRest implements BuildDriverResult {
 
     private String buildLog;
-    private BuildDriverStatus buildDriverStatus;
+    private BuildStatus buildStatus;
 
     public BuildDriverResultRest() {}
 
     public BuildDriverResultRest(BuildDriverResult buildDriverResult) {
         this.buildLog = buildDriverResult.getBuildLog();
-        this.buildDriverStatus = buildDriverResult.getBuildDriverStatus();
+        this.buildStatus = buildDriverResult.getBuildStatus();
     }
 
     @Override
@@ -45,12 +45,12 @@ public class BuildDriverResultRest implements BuildDriverResult {
     }
 
     @Override
-    public BuildDriverStatus getBuildDriverStatus() {
-        return buildDriverStatus;
+    public BuildStatus getBuildStatus() {
+        return buildStatus;
     }
 
-    public void setBuildDriverStatus(BuildDriverStatus buildDriverStatus) {
-        this.buildDriverStatus = buildDriverStatus;
+    public void setBuildStatus(BuildStatus buildStatus) {
+        this.buildStatus = buildStatus;
     }
 
     public void setBuildLog(String buildLog) {

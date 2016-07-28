@@ -17,6 +17,8 @@
  */
 package org.jboss.pnc.model;
 
+import javax.persistence.Transient;
+
 /**
  * Status of a running or completed build.
  * 
@@ -27,7 +29,7 @@ public enum BuildStatus {
     /**
      * Build completed successfully
      */
-    SUCCESS,
+    SUCCESS (true),
 
     /**
      * Build failed
@@ -37,7 +39,7 @@ public enum BuildStatus {
     /**
      * Build completed with test failures
      */
-    UNSTABLE,
+    UNSTABLE (true),
 
     /**
      * Build currently running
@@ -68,5 +70,20 @@ public enum BuildStatus {
      * There have not been any builds of this configuration, essentially the same meaning
      * as a null status
      */
-    NONE
+    NONE;
+
+    private final boolean completedSuccessfully;
+
+    BuildStatus() {
+        this.completedSuccessfully = false;
+    }
+
+    BuildStatus(boolean completedSuccessfully) {
+        this.completedSuccessfully = completedSuccessfully;
+    }
+
+    @Transient
+    public boolean completedSuccessfully() {
+        return completedSuccessfully;
+    }
 }

@@ -39,7 +39,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.jboss.pnc.spi.builddriver.BuildDriverStatus.CANCELLED;
+import static org.jboss.pnc.model.BuildStatus.CANCELLED;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.doReturn;
@@ -145,7 +145,7 @@ public class TermdBuildDriverTest extends AbstractLocalBuildAgentTest {
         assertThat(buildResult.get().getBuildResult()).isNotNull();
         assertThat(buildResult.get().getBuildResult().getBuildLog()).contains(logStart);
         assertThat(buildResult.get().getBuildResult().getBuildLog()).doesNotContain(logEnd);
-        assertThat(buildResult.get().getBuildResult().getBuildDriverStatus()).isEqualTo(CANCELLED);
+        assertThat(buildResult.get().getBuildResult().getBuildStatus()).isEqualTo(CANCELLED);
     }
 
     private Configuration getConfiguration() throws ConfigurationParseException {

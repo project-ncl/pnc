@@ -19,10 +19,10 @@
 package org.jboss.pnc.rest.serialization;
 
 import org.jboss.pnc.mock.spi.BuildResultMock;
-import org.jboss.pnc.rest.restmodel.BuildResultRest;
+import org.jboss.pnc.model.BuildStatus;
 import org.jboss.pnc.rest.notifications.websockets.JSonOutputConverter;
+import org.jboss.pnc.rest.restmodel.BuildResultRest;
 import org.jboss.pnc.spi.BuildResult;
-import org.jboss.pnc.spi.builddriver.BuildDriverStatus;
 import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
 import org.junit.Assert;
 import org.junit.Test;
@@ -41,7 +41,7 @@ public class BuildResultSerializationTest {
     @Test
     public void serializeAndDeserializeBuildResult() throws IOException, BuildDriverException {
 
-        BuildResult buildResult = BuildResultMock.mock(BuildDriverStatus.SUCCESS);
+        BuildResult buildResult = BuildResultMock.mock(BuildStatus.SUCCESS);
         BuildResultRest buildResultRest = new BuildResultRest(buildResult);
 
         JSonOutputConverter converter = new JSonOutputConverter();
@@ -57,6 +57,6 @@ public class BuildResultSerializationTest {
         Assert.assertEquals(message, buildResult.getRepositoryManagerResult().get().getBuildContentId(), buildResultFromJson.getRepositoryManagerResult().get().getBuildContentId());
         Assert.assertEquals(message, buildResult.getRepositoryManagerResult().get().getBuiltArtifacts().iterator().next().getId(), buildResultFromJson.getRepositoryManagerResult().get().getBuiltArtifacts().iterator().next().getId());
         Assert.assertEquals(message, buildResult.getBuildDriverResult().get().getBuildLog(), buildResultFromJson.getBuildDriverResult().get().getBuildLog());
-        Assert.assertEquals(message, buildResult.getBuildDriverResult().get().getBuildDriverStatus(), buildResultFromJson.getBuildDriverResult().get().getBuildDriverStatus());
+        Assert.assertEquals(message, buildResult.getBuildDriverResult().get().getBuildStatus(), buildResultFromJson.getBuildDriverResult().get().getBuildStatus());
     }
 }

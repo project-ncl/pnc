@@ -18,6 +18,8 @@
 package org.jboss.pnc.spi;
 
 /**
+ * Status represent the status of the BuildSet has in the BuildCoordinator.
+ *
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2015-05-15.
  */
 public enum BuildSetStatus {
