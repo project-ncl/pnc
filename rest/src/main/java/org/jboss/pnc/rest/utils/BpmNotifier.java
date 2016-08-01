@@ -32,9 +32,8 @@ import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.moduleconfig.BpmModuleConfig;
 import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
 import org.jboss.pnc.common.util.HttpUtils;
-import org.jboss.pnc.rest.restmodel.BuildResultRest;
+import org.jboss.pnc.rest.restmodel.bpm.BuildResultRest;
 import org.jboss.pnc.spi.BuildResult;
-import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
 import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
 
 import javax.enterprise.context.ApplicationScoped;

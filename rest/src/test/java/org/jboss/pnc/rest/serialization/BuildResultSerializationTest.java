@@ -20,8 +20,8 @@ package org.jboss.pnc.rest.serialization;
 
 import org.jboss.pnc.mock.spi.BuildResultMock;
 import org.jboss.pnc.model.BuildStatus;
+import org.jboss.pnc.rest.restmodel.bpm.BuildResultRest;
 import org.jboss.pnc.rest.notifications.websockets.JSonOutputConverter;
-import org.jboss.pnc.rest.restmodel.BuildResultRest;
 import org.jboss.pnc.spi.BuildResult;
 import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
 import org.junit.Assert;
