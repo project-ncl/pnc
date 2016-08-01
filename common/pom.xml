@@ -34,6 +34,11 @@
   <dependencies>
 
     <dependency>
+      <groupId>org.jboss.pnc</groupId>
+      <artifactId>model</artifactId>
+    </dependency>
+
+    <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-core</artifactId>
     </dependency>

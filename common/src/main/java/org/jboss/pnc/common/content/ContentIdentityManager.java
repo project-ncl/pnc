@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.coordinator.content;
+package org.jboss.pnc.common.content;
 
 import org.jboss.pnc.model.ProductVersion;
 

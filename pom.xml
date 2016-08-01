@@ -75,6 +75,7 @@
     <module>demo-data</module>
     <module>integration-test</module>
     <module>pnc-mock</module> <!-- keep 'pnc' prefix as 'mock' is dy default ignored in some cases (intellij) -->
+    <module>bpm</module>
   </modules>
 
   <properties>
@@ -268,6 +269,12 @@
       <dependency>
         <groupId>org.jboss.pnc</groupId>
         <artifactId>rest-model</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jboss.pnc</groupId>
+        <artifactId>bpm</artifactId>
         <version>${project.version}</version>
       </dependency>
 
@@ -689,6 +696,12 @@
             <artifactId>jackson-core-asl</artifactId>
           </exclusion>
         </exclusions>
+      </dependency>
+
+      <dependency>
+        <groupId>org.projectlombok</groupId>
+        <artifactId>lombok</artifactId>
+        <version>1.16.10</version>
       </dependency>
 
       <!-- Test dependencies -->
