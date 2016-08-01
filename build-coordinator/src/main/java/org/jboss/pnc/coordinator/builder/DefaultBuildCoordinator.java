@@ -313,7 +313,7 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
                     datastoreAdapter.storeResult(buildTask, Optional.of(buildResult), exception);
                     coordinationStatus = BuildCoordinationStatus.SYSTEM_ERROR;
                 } else if (buildResult.getFailedReasonStatus().isPresent()) {
-                    log.debug("[buildTaskId: {}] Storing failed build result. FailedReasonStatus: {}", buildTaskId, buildResult.getFailedReasonStatus());
+                    log.debug("[buildTaskId: {}] Storing failed build result. FailedReasonStatus: {}", buildTaskId, buildResult.getFailedReasonStatus().get());
                     datastoreAdapter.storeResult(buildTask, buildResult);
                     coordinationStatus = BuildCoordinationStatus.DONE_WITH_ERRORS;
                 } else {
