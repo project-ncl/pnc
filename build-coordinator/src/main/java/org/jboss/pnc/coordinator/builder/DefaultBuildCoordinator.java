@@ -300,6 +300,7 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
     }
 
     public void updateBuildStatus(BuildTask buildTask, BuildResult buildResult) {
+        int buildTaskId = buildTask.getId();
 
         updateBuildTaskStatus(buildTask, BuildCoordinationStatus.BUILD_COMPLETED);
 
@@ -308,15 +309,18 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
             if (buildResult.hasFailed()) {
                 if (buildResult.getException().isPresent()) {
                     ExecutorException exception = buildResult.getException().get();
+                    log.debug("[buildTaskId: {}] Storing build result with exception {}.", buildTaskId, exception.getMessage());
                     datastoreAdapter.storeResult(buildTask, Optional.of(buildResult), exception);
                     coordinationStatus = BuildCoordinationStatus.SYSTEM_ERROR;
                 } else if (buildResult.getFailedReasonStatus().isPresent()) {
+                    log.debug("[buildTaskId: {}] Storing failed build result. FailedReasonStatus: {}", buildTaskId, buildResult.getFailedReasonStatus());
                     datastoreAdapter.storeResult(buildTask, buildResult);
                     coordinationStatus = BuildCoordinationStatus.DONE_WITH_ERRORS;
                 } else {
                     throw new BuildCoordinationException("Failed task should have set exception or failed reason status.");
                 }
             } else {
+                log.debug("[buildTaskId: {}] Storing success build result.", buildTaskId);
                 datastoreAdapter.storeResult(buildTask, buildResult);
                 coordinationStatus = BuildCoordinationStatus.DONE;
             }
