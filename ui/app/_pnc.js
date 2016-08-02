@@ -34,7 +34,6 @@
     'pnc.common.directives',
     'pnc.common.websockets',
     'pnc.common.events',
-    'pnc.common.buildNotifications',
     'pnc.configuration-set-record',
     'pnc.common.restclient',
     'pnc.import',
@@ -43,19 +42,17 @@
     'pnc.common.authentication'
   ]);
 
-  app.config(function($stateProvider, $urlRouterProvider, $locationProvider,
+  app.config([
+    '$stateProvider',
+    '$urlRouterProvider',
+    '$locationProvider',
+    '$httpProvider',
+    'NotificationsProvider',
+    'cfpLoadingBarProvider',
+    function($stateProvider, $urlRouterProvider, $locationProvider,
     $httpProvider, NotificationsProvider, cfpLoadingBarProvider) {
 
     $locationProvider.html5Mode(false);
-
-    // Redirects URLS with the old '#!' URL prefix to the newer
-    // format without the !. This should be removed after 0.7.
-    $urlRouterProvider.rule(function ($injector, $location) {
-        var path = $location.path();
-        if (path.indexOf('!') > -1) {
-          return path.replace(/\/!/, '');
-        }
-    });
 
     // Allows dashboard to be root state.
     $urlRouterProvider.when('', '/');
@@ -92,7 +89,7 @@
     $httpProvider.interceptors.push('httpResponseInterceptor');
     $httpProvider.interceptors.push('unwrapPageResponseInterceptor');
     $httpProvider.interceptors.push('httpAuthenticationInterceptor');
-  });
+  }]);
 
   /**
    * Configure remote api clients with addresses from the pncProperties
@@ -113,7 +110,12 @@
       daConfigProvider.setDaImportRpcUrl(pncProperties.daImportRpcUrl);
   }]);
 
-  app.run(function($rootScope, $log, $state, authService, keycloak) {
+  app.run([
+    '$rootScope',
+    '$log',
+    '$state',
+    'authService',
+    function($rootScope, $log, $state, authService) {
 
     if (authService.isAuthenticated()) {
       authService.getPncUser().$promise.then(function(result) {
@@ -130,33 +132,9 @@
                    event, toState, toParams, fromState, fromParams, error);
         $log.error('Error navigating to "%s": %s %s', toState.url, error.status,
                    error.statusText);
-
-        // $rootScope.showSpinner = false;
-
-        switch (error.status) {
-          case 401:
-            keycloak.login();
-            break;
-          case 403:
-            $state.go('error', {
-              message: 'You do not have the required permission to access this resource'
-            });
-            break;
-        }
-
       }
     );
 
-    // $rootScope.$on('$stateChangeStart', function(event, toState) {
-    //   if (toState.resolve) {
-    //     $rootScope.showSpinner = true;
-    //   }
-    // });
-    // $rootScope.$on('$stateChangeSuccess', function(event, toState) {
-    //   if (toState.resolve) {
-    //     $rootScope.showSpinner = false;
-    //   }
-    // });
-  });
+  }]);
 
 })();
