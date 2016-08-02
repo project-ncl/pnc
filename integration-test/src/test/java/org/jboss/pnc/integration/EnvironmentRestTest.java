@@ -135,7 +135,7 @@ public class EnvironmentRestTest extends AbstractTest {
         BuildEnvironmentRest environmentRest = new BuildEnvironmentRest();
         environmentRest.setName("Test Environment");
         environmentRest.setSystemImageType(SystemImageType.DOCKER_IMAGE);
-        environmentRest.setImageId("abcd1234");
+        environmentRest.setSystemImageId("abcd1234");
         return environmentRest;
     }
 }

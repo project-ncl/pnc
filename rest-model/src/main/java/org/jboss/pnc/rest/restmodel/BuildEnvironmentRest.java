@@ -121,12 +121,12 @@ public class BuildEnvironmentRest implements GenericRestEntity<Integer> {
         this.systemImageRepositoryUrl = systemImageRepositoryUrl;
     }
 
-    public String getImageId() {
+    public String getSystemImageId() {
         return systemImageId;
     }
 
-    public void setImageId(String imageId) {
-        this.systemImageId = imageId;
+    public void setSystemImageId(String systemImageId) {
+        this.systemImageId = systemImageId;
     }
 
     public Map<String, String> getAttributes() {
@@ -143,7 +143,7 @@ public class BuildEnvironmentRest implements GenericRestEntity<Integer> {
                 .name(this.getName())
                 .description(this.getDescription())
                 .systemImageRepositoryUrl(this.getSystemImageRepositoryUrl())
-                .systemImageId(this.getImageId())
+                .systemImageId(this.getSystemImageId())
                 .attributes(this.getAttributes())
                 .systemImageType(this.getSystemImageType());
     }
