@@ -17,13 +17,22 @@
  */
 package org.jboss.pnc.spi.datastore.predicates;
 
-import org.jboss.pnc.model.*;
+import org.jboss.pnc.model.Artifact;
+import org.jboss.pnc.model.Artifact_;
+import org.jboss.pnc.model.BuildConfigSetRecord;
+import org.jboss.pnc.model.BuildConfigurationAudited;
+import org.jboss.pnc.model.BuildRecord;
+import org.jboss.pnc.model.BuildRecord_;
+import org.jboss.pnc.model.BuildStatus;
+import org.jboss.pnc.model.ProductMilestone;
+import org.jboss.pnc.model.ProductMilestone_;
+import org.jboss.pnc.model.Project;
+import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
 
 import javax.persistence.criteria.Join;
-import javax.persistence.criteria.ListJoin;
+import javax.persistence.criteria.MapJoin;
 import javax.persistence.criteria.SetJoin;
-
 import java.util.Collection;
 
 /**
@@ -88,6 +97,13 @@ public class BuildRecordPredicates {
         return (root, query, cb) -> {
             Join<BuildRecord, User> buildRecordJoinedUsers = root.join(BuildRecord_.user);
             return cb.equal(buildRecordJoinedUsers.get(org.jboss.pnc.model.User_.id), userId);
+        };
+    }
+
+    public static Predicate<BuildRecord> withLabel(String name, String value) {
+        return (root, query, cb) -> {
+            MapJoin<Object, Object, Object> mapJoinLabels = root.joinMap(BuildRecord_.labels.getName());
+            return query.where(cb.and(cb.equal(mapJoinLabels.key(), name), cb.equal(mapJoinLabels.value(), value))).getRestriction();
         };
     }
 

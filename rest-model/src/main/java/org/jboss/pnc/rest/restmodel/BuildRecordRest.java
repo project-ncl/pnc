@@ -30,6 +30,8 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 import static org.jboss.pnc.rest.utils.Utility.performIfNotNull;
 
@@ -65,7 +67,7 @@ public class BuildRecordRest implements GenericRestEntity<Integer> {
 
     private Integer buildEnvironmentId;
 
-    private Integer externalArchiveId;
+    private Map<String, String> labels = new HashMap<>();
 
     private String liveLogsUri;
 
@@ -98,7 +100,7 @@ public class BuildRecordRest implements GenericRestEntity<Integer> {
         this.endTime = buildRecord.getEndTime();
         this.scmRepoURL = buildRecord.getScmRepoURL();
         this.scmRevision = buildRecord.getScmRevision();
-        this.externalArchiveId = buildRecord.getExternalArchiveId();
+        this.labels = buildRecord.getLabels();
         performIfNotNull(buildRecord.getBuildConfigurationAudited(),
                 () -> buildConfigurationId = buildRecord.getBuildConfigurationAudited().getId().getId());
         performIfNotNull(buildRecord.getBuildConfigurationAudited(),
@@ -268,12 +270,16 @@ public class BuildRecordRest implements GenericRestEntity<Integer> {
         this.buildEnvironmentId = buildEnvironmentId;
     }
 
-    public Integer getExternalArchiveId() {
-        return externalArchiveId;
+    public Map<String, String> getLabels() {
+        return labels;
     }
 
-    public void setExternalArchiveId(Integer externalArchiveId) {
-        this.externalArchiveId = externalArchiveId;
+    public void setLabels(Map<String, String> labels) {
+        this.labels = labels;
+    }
+
+    public void putLabel(String name, String value) {
+        this.labels.put(name, value);
     }
 
     public String getLiveLogsUri() {

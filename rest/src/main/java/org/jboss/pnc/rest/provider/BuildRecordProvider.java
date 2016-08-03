@@ -46,6 +46,7 @@ import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -53,6 +54,7 @@ import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
 import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withArtifactDistributedInMilestone;
 import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withBuildConfigSetId;
 import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withBuildConfigurationId;
+import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withLabel;
 import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withProjectId;
 import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withUserId;
 
@@ -325,4 +327,27 @@ public class BuildRecordProvider extends AbstractProvider<BuildRecord, BuildReco
 
         return allBuildRecordsWithMetadata;
     }
+
+    public Map<String, String> putLabel(Integer id, String name, String value) {
+        BuildRecord buildRecord = repository.queryById(id);
+        buildRecord.putLabel(name, value);
+        return buildRecord.getLabels();
+    }
+
+    public void removeLabel(Integer id, String name) {
+        BuildRecord buildRecord = repository.queryById(id);
+        buildRecord.removeLabel(name);
+
+    }
+
+    public Map<String, String> getLabels(Integer id) {
+        BuildRecord buildRecord = repository.queryById(id);
+        return buildRecord.getLabels();
+    }
+
+    public Collection<BuildRecordRest> getByLabel(String name, String value) {
+        List<BuildRecord> buildRecords = repository.queryWithPredicates(withLabel(name, value));
+        return buildRecords.stream().map(br -> new BuildRecordRest(br)).collect(Collectors.toList());
+    }
+
 }
