@@ -185,10 +185,12 @@ public class BuildRecord implements GenericEntity<Integer> {
     @Index(name="idx_buildrecord_buildconfigsetrecord")
     private BuildConfigSetRecord buildConfigSetRecord;
 
-    /**
-     * Contains the ID of the matching build record store in an external system.  For example, Koji/Brew build ID.
-     */
-    private Integer externalArchiveId;
+
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name="build_record_attributes", joinColumns=@JoinColumn(name="build_record_id"))
+    @MapKeyColumn(name="key")
+    @Column(name="value")
+    private Map<String, String> attributes = new HashMap<String, String>();
 
     /**
      * Instantiates a new project build result.
@@ -451,13 +453,26 @@ public class BuildRecord implements GenericEntity<Integer> {
                 + ", buildConfiguration=" + buildConfigurationAudited + ", status=" + status + "]";
     }
 
-    public Integer getExternalArchiveId() {
-        return externalArchiveId;
+    public Map<String, String> getAttributes() {
+        return attributes;
     }
 
-    public void setExternalArchiveId(Integer externalArchiveId) {
-        this.externalArchiveId = externalArchiveId;
+    public void setAttributes(Map<String, String> attributes) {
+        this.attributes = attributes;
     }
+
+    public String getAttribute(String key) {
+        return attributes.get(key);
+    }
+
+    public String putAttribute(String key, String value) {
+        return attributes.put(key, value);
+    }
+
+    public void removeAttribute(String key) {
+        attributes.remove(key);
+    }
+
 
     public static class Builder {
 
@@ -493,9 +508,9 @@ public class BuildRecord implements GenericEntity<Integer> {
 
         private ProductMilestone productMilestone;
 
-        private Integer externalArchiveId;
-
         private BuildConfigSetRecord buildConfigSetRecord;
+
+        private Map<String, String> attributes = new HashMap<>();
 
         public Builder() {
             builtArtifacts = new HashSet<>();
@@ -521,8 +536,8 @@ public class BuildRecord implements GenericEntity<Integer> {
             buildRecord.setBuildLog(buildLog);
             buildRecord.setStatus(status);
             buildRecord.setBuildEnvironment(buildEnvironment);
-            buildRecord.setExternalArchiveId(externalArchiveId);
             buildRecord.setProductMilestone(productMilestone);
+            buildRecord.setAttributes(attributes);
 
             if (buildConfigSetRecord != null) {
                 buildRecord.setBuildConfigSetRecord(buildConfigSetRecord);
@@ -648,10 +663,16 @@ public class BuildRecord implements GenericEntity<Integer> {
             return this;
         }
 
-        public Builder externalArchiveId(Integer externalArchiveId) {
-            this.externalArchiveId = externalArchiveId;
+        public BuildRecord.Builder attributes(Map<String, String> attributes) {
+            this.attributes = attributes;
             return this;
         }
+
+        public BuildRecord.Builder attribute(String key, String value) {
+            this.attributes.put(key, value);
+            return this;
+        }
+
     }
 
 }

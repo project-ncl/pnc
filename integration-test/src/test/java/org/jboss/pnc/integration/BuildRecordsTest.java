@@ -61,17 +61,23 @@ import java.time.Instant;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withIdentifierAndChecksum;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 @RunWith(Arquillian.class)
 @Category(ContainerTest.class)
 public class BuildRecordsTest {
 
     public static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-    private static Integer buildRecordId;
+    private static Integer buildRecord1Id;
+
+    private static Integer buildRecord2Id;
 
     private static String buildConfigName;
 
@@ -173,9 +179,12 @@ public class BuildRecordsTest {
                 .user(user)
                 .builtArtifact(builtArtifact1)
                 .dependency(importedArtifact1)
+                .attribute("attributeKey", "attributeValue1")
                 .build();
                 
         buildRecord1 = buildRecordRepository.save(buildRecord1);
+        buildRecord1Id = buildRecord1.getId();
+
         Artifact builtArtifact1FromDb = artifactRepository
                 .queryByPredicates(withIdentifierAndChecksum(builtArtifact1.getIdentifier(), builtArtifact1.getChecksum()));
 
@@ -193,11 +202,12 @@ public class BuildRecordsTest {
                 .builtArtifact(builtArtifact3)
                 .dependency(builtArtifact1FromDb)
                 .dependency(importedArtifact1)
+                .attribute("attributeKey", "attributeValue2")
                 .build();
 
         buildRecord2 = buildRecordRepository.save(buildRecord2);
 
-        buildRecordId = buildRecord2.getId();
+        buildRecord2Id = buildRecord2.getId();
 
     }
 
@@ -214,7 +224,7 @@ public class BuildRecordsTest {
     @Test
     public void shouldGetSpecificBuildRecord() {
         // when
-        BuildRecordRest buildRecords = buildRecordProvider.getSpecific(buildRecordId);
+        BuildRecordRest buildRecords = buildRecordProvider.getSpecific(buildRecord2Id);
 
         // then
         assertThat(buildRecords).isNotNull();
@@ -223,7 +233,7 @@ public class BuildRecordsTest {
     @Test
     public void shouldGetLogsForSpecificBuildRecord() {
         // when
-        String buildRecordLog = buildRecordProvider.getBuildRecordLog(buildRecordId);
+        String buildRecordLog = buildRecordProvider.getBuildRecordLog(buildRecord2Id);
         StreamingOutput logs = buildRecordProvider.getLogsForBuild(buildRecordLog);
 
         // then
@@ -233,7 +243,7 @@ public class BuildRecordsTest {
     @Test
     public void shouldGetArtifactsForSpecificBuildRecord() {
         // when
-        Collection<ArtifactRest> artifacts = artifactProvider.getAllForBuildRecord(0, 999, null, null, buildRecordId).getContent();
+        Collection<ArtifactRest> artifacts = artifactProvider.getAllForBuildRecord(0, 999, null, null, buildRecord2Id).getContent();
 
         //then
         assertThat(artifacts).hasSize(4);
@@ -242,7 +252,7 @@ public class BuildRecordsTest {
     @Test
     public void shouldGetOnlyDependencyArtifacts() {
         // when
-        Collection<ArtifactRest> artifacts = artifactProvider.getDependencyArtifactsForBuildRecord(0, 999, null, null, buildRecordId).getContent();
+        Collection<ArtifactRest> artifacts = artifactProvider.getDependencyArtifactsForBuildRecord(0, 999, null, null, buildRecord2Id).getContent();
 
         // then
         assertThat(artifacts).hasSize(2);
@@ -251,7 +261,7 @@ public class BuildRecordsTest {
     @Test
     public void shouldGetOnlyBuiltArtifacts() {
         // when
-        Collection<ArtifactRest> artifacts = artifactProvider.getBuiltArtifactsForBuildRecord(0, 999, null, null, buildRecordId).getContent();
+        Collection<ArtifactRest> artifacts = artifactProvider.getBuiltArtifactsForBuildRecord(0, 999, null, null, buildRecord2Id).getContent();
 
         // then
         assertThat(artifacts).hasSize(2);
@@ -287,6 +297,74 @@ public class BuildRecordsTest {
         CollectionInfo<BuildRecordRest> buildRecords = buildRecordProvider.getAllBuildRecordsWithArtifactsDistributedInProductMilestone(0, 50, null, null, 1);
 
         assertThat(buildRecords.getContent().iterator().next().getId()).isEqualTo(1);
+    }
+
+    @Test
+    public void shouldGetBuildRecordAttributes() {
+        //given
+        buildRecordProvider.putAttribute(buildRecord1Id, "shouldGetBuildRecordAttributes-1", "true");
+        buildRecordProvider.putAttribute(buildRecord1Id, "shouldGetBuildRecordAttributes-2", "true");
+        buildRecordProvider.putAttribute(buildRecord1Id, "shouldGetBuildRecordAttributes-3", "true");
+
+        // when
+        Map<String, String> attributes = buildRecordProvider.getAttributes(buildRecord1Id);
+
+        // then
+        assertTrue(attributes.size() > 2);
+        assertEquals("true", attributes.get("shouldGetBuildRecordAttributes-1"));
+    }
+
+    @Test
+    public void shouldGetBuildRecordByAttribute() {
+        //given
+        buildRecordProvider.putAttribute(buildRecord1Id, "shouldGetBuildRecordByAttribute-2", "true");
+
+        // when
+        Collection<BuildRecordRest> buildRecords = buildRecordProvider.getByAttribute("shouldGetBuildRecordByAttribute-2", "true");
+
+        // then
+        assertThat(buildRecords).hasSize(1);
+    }
+
+    @Test
+    public void shouldNotGetBuildRecordWithoutAttribute() {
+        // when
+        Collection<BuildRecordRest> buildRecords = buildRecordProvider.getByAttribute("missing", "true");
+
+        // then
+        assertThat(buildRecords).hasSize(0);
+    }
+
+    @Test
+    public void shouldPutAttributeToBuildRecord() {
+        //given
+        buildRecordProvider.putAttribute(buildRecord1Id, "shouldPutAttributeToBuildRecord-3", "true");
+        buildRecordProvider.putAttribute(buildRecord2Id, "shouldPutAttributeToBuildRecord-3", "true");
+
+        // when
+        Collection<BuildRecordRest> buildRecords = buildRecordProvider.getByAttribute("shouldPutAttributeToBuildRecord-3", "true");
+
+        // then
+        assertThat(buildRecords).hasSize(2);
+    }
+
+    @Test
+    public void shouldRemoveAttributeFromBuildRecord() {
+        //given
+        buildRecordProvider.putAttribute(buildRecord1Id, "shouldRemoveAttributeFromBuildRecord", "true");
+        buildRecordProvider.putAttribute(buildRecord2Id, "shouldRemoveAttributeFromBuildRecord", "true");
+
+        Collection<BuildRecordRest> buildRecords = buildRecordProvider.getByAttribute("shouldRemoveAttributeFromBuildRecord", "true");
+        assertThat(buildRecords).hasSize(2);
+
+        buildRecordProvider.removeAttribute(buildRecord1Id, "shouldRemoveAttributeFromBuildRecord");
+        buildRecordProvider.removeAttribute(buildRecord2Id, "shouldRemoveAttributeFromBuildRecord");
+
+        // when
+        buildRecords = buildRecordProvider.getByAttribute("shouldRemoveAttributeFromBuildRecord", "true");
+
+        // then
+        assertThat(buildRecords).hasSize(0);
     }
 
     private List<BuildRecord> selectBuildRecords(String rsqlQuery) {

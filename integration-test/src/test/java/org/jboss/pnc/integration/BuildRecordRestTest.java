@@ -174,5 +174,4 @@ public class BuildRecordRestTest extends AbstractTest {
         ResponseAssertion.assertThat(response2).hasStatus(200);
         ResponseAssertion.assertThat(response2).hasJsonValueEqual(FIRST_CONTENT_ID, buildRecordId);
     }
-
 }

@@ -34,8 +34,10 @@ import org.jboss.pnc.rest.swagger.response.BuildRecordSingleton;
 
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -44,8 +46,8 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.INVALID_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.INVALID_CODE;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.INVALID_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.NOT_FOUND_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.NOT_FOUND_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.NO_CONTENT_CODE;
@@ -249,11 +251,71 @@ public class BuildRecordEndpoint extends AbstractEndpoint<BuildRecord, BuildReco
         return fromSingleton(buildRecordProvider.getBuildConfigurationAudited(id));
     }
 
+    @ApiOperation(value = "Add attribute to the BuildRecord.")
+    @ApiResponses(value = {
+            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION),
+            @ApiResponse(code = NOT_FOUND_CODE, message = NOT_FOUND_DESCRIPTION),
+            @ApiResponse(code = INVALID_CODE, message = INVALID_DESCRIPTION, response = ErrorResponseRest.class),
+            @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION, response = ErrorResponseRest.class)
+    })
+    @POST
+    @Path("/{id}/put-attribute")
+    public Response putAttribute(@ApiParam(value = "BuildRecord id", required = true) @PathParam("id") Integer id,
+                              @ApiParam(value = "Attribute key", required = true) @QueryParam("key") String key,
+                              @ApiParam(value = "Attribute value", required = true) @QueryParam("value") String value) {
+        buildRecordProvider.putAttribute(id, key, value);
+        return Response.ok().build();
+    }
+
+    @ApiOperation(value = "Remove attribute from BuildRecord.")
+    @ApiResponses(value = {
+            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION),
+            @ApiResponse(code = NOT_FOUND_CODE, message = NOT_FOUND_DESCRIPTION),
+            @ApiResponse(code = INVALID_CODE, message = INVALID_DESCRIPTION, response = ErrorResponseRest.class),
+            @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION, response = ErrorResponseRest.class)
+    })
+    @DELETE
+    @Path("/{id}/remove-attribute")
+    public Response removeAttribute(@ApiParam(value = "BuildRecord id", required = true) @PathParam("id") Integer id,
+                              @ApiParam(value = "Attribute key", required = true) @QueryParam("key") String key) {
+        buildRecordProvider.removeAttribute(id, key);
+        return Response.ok().build();
+    }
+
+    @ApiOperation(value = "Get Build Record attributes.")
+    @ApiResponses(value = {
+            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION),
+            @ApiResponse(code = NOT_FOUND_CODE, message = NOT_FOUND_DESCRIPTION),
+            @ApiResponse(code = INVALID_CODE, message = INVALID_DESCRIPTION, response = ErrorResponseRest.class),
+            @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION, response = ErrorResponseRest.class)
+    })
+    @GET
+    @Path("/{id}/get-attributes")
+    public Response getAttributes(@ApiParam(value = "BuildRecord id", required = true) @PathParam("id") Integer id) {
+        return fromSingleton(buildRecordProvider.getAttributes(id));
+    }
+
+    @ApiOperation(value = "Get Build Records by attribute.")
+    @ApiResponses(value = {
+            @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION, response = BuildRecordRest.class),
+            @ApiResponse(code = NOT_FOUND_CODE, message = NOT_FOUND_DESCRIPTION, response = BuildRecordRest.class),
+            @ApiResponse(code = INVALID_CODE, message = INVALID_DESCRIPTION, response = ErrorResponseRest.class),
+            @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION, response = ErrorResponseRest.class)
+    })
+    @GET
+    @Path("/get-by-attribute")
+    public Response queryByAttribute(@ApiParam(value = "Attribute key", required = true) @QueryParam("key") String key,
+                                     @ApiParam(value = "Attribute value", required = true) @QueryParam("value") String value) {
+        return fromSingleton(buildRecordProvider.getByAttribute(key, value));
+    }
+
     /**
      * @deprecated
      * Use /builds/{id}
+     *
+     * Gets a BuildRecord which is completed or in running state
      */
-    @ApiOperation(value = "Gets a BuildRecord which is completed or in running state")
+    @ApiOperation(value = "Deprecated, use /builds/{id}")
     @ApiResponses(value = {
             @ApiResponse(code = SUCCESS_CODE, message = SUCCESS_DESCRIPTION, response = BuildRecordSingleton.class),
             @ApiResponse(code = NOT_FOUND_CODE, message = NOT_FOUND_DESCRIPTION, response = BuildRecordSingleton.class),
