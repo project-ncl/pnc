@@ -100,10 +100,10 @@ public class BuildRecordPredicates {
         };
     }
 
-    public static Predicate<BuildRecord> withLabel(String name, String value) {
+    public static Predicate<BuildRecord> withAttribute(String key, String value) {
         return (root, query, cb) -> {
-            MapJoin<Object, Object, Object> mapJoinLabels = root.joinMap(BuildRecord_.labels.getName());
-            return query.where(cb.and(cb.equal(mapJoinLabels.key(), name), cb.equal(mapJoinLabels.value(), value))).getRestriction();
+            MapJoin<Object, Object, Object> mapJoinAttributes = root.joinMap(BuildRecord_.attributes.getName());
+            return query.where(cb.and(cb.equal(mapJoinAttributes.key(), key), cb.equal(mapJoinAttributes.value(), value))).getRestriction();
         };
     }
 

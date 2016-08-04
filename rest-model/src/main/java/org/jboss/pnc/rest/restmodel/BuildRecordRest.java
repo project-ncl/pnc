@@ -100,7 +100,7 @@ public class BuildRecordRest implements GenericRestEntity<Integer> {
         this.endTime = buildRecord.getEndTime();
         this.scmRepoURL = buildRecord.getScmRepoURL();
         this.scmRevision = buildRecord.getScmRevision();
-        this.labels = buildRecord.getLabels();
+        this.labels = buildRecord.getAttributes();
         performIfNotNull(buildRecord.getBuildConfigurationAudited(),
                 () -> buildConfigurationId = buildRecord.getBuildConfigurationAudited().getId().getId());
         performIfNotNull(buildRecord.getBuildConfigurationAudited(),

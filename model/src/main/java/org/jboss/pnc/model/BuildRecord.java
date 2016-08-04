@@ -187,10 +187,10 @@ public class BuildRecord implements GenericEntity<Integer> {
 
 
     @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(name="build_record_labels", joinColumns=@JoinColumn(name="build_record_id"))
-    @MapKeyColumn(name="name")
+    @CollectionTable(name="build_record_attributes", joinColumns=@JoinColumn(name="build_record_id"))
+    @MapKeyColumn(name="key")
     @Column(name="value")
-    private Map<String, String> labels = new HashMap<String, String>();
+    private Map<String, String> attributes = new HashMap<String, String>();
 
     /**
      * Instantiates a new project build result.
@@ -453,24 +453,24 @@ public class BuildRecord implements GenericEntity<Integer> {
                 + ", buildConfiguration=" + buildConfigurationAudited + ", status=" + status + "]";
     }
 
-    public Map<String, String> getLabels() {
-        return labels;
+    public Map<String, String> getAttributes() {
+        return attributes;
     }
 
-    public void setLabels(Map<String, String> labels) {
-        this.labels = labels;
+    public void setAttributes(Map<String, String> attributes) {
+        this.attributes = attributes;
     }
 
-    public String getLabel(String name) {
-        return labels.get(name);
+    public String getAttribute(String key) {
+        return attributes.get(key);
     }
 
-    public String putLabel(String name, String value) {
-        return labels.put(name, value);
+    public String putAttribute(String key, String value) {
+        return attributes.put(key, value);
     }
 
-    public void removeLabel(String name) {
-        labels.remove(name);
+    public void removeAttribute(String key) {
+        attributes.remove(key);
     }
 
 
@@ -510,7 +510,7 @@ public class BuildRecord implements GenericEntity<Integer> {
 
         private BuildConfigSetRecord buildConfigSetRecord;
 
-        private Map<String, String> labels = new HashMap<>();
+        private Map<String, String> attributes = new HashMap<>();
 
         public Builder() {
             builtArtifacts = new HashSet<>();
@@ -537,7 +537,7 @@ public class BuildRecord implements GenericEntity<Integer> {
             buildRecord.setStatus(status);
             buildRecord.setBuildEnvironment(buildEnvironment);
             buildRecord.setProductMilestone(productMilestone);
-            buildRecord.setLabels(labels);
+            buildRecord.setAttributes(attributes);
 
             if (buildConfigSetRecord != null) {
                 buildRecord.setBuildConfigSetRecord(buildConfigSetRecord);
@@ -663,13 +663,13 @@ public class BuildRecord implements GenericEntity<Integer> {
             return this;
         }
 
-        public BuildRecord.Builder labels(Map<String, String> labels) {
-            this.labels = labels;
+        public BuildRecord.Builder attributes(Map<String, String> attributes) {
+            this.attributes = attributes;
             return this;
         }
 
-        public BuildRecord.Builder label(String key, String value) {
-            this.labels.put(key, value);
+        public BuildRecord.Builder attribute(String key, String value) {
+            this.attributes.put(key, value);
             return this;
         }
 

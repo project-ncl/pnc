@@ -54,7 +54,7 @@ import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
 import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withArtifactDistributedInMilestone;
 import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withBuildConfigSetId;
 import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withBuildConfigurationId;
-import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withLabel;
+import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withAttribute;
 import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withProjectId;
 import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withUserId;
 
@@ -328,25 +328,25 @@ public class BuildRecordProvider extends AbstractProvider<BuildRecord, BuildReco
         return allBuildRecordsWithMetadata;
     }
 
-    public Map<String, String> putLabel(Integer id, String name, String value) {
+    public Map<String, String> putAttribute(Integer id, String name, String value) {
         BuildRecord buildRecord = repository.queryById(id);
-        buildRecord.putLabel(name, value);
-        return buildRecord.getLabels();
+        buildRecord.putAttribute(name, value);
+        return buildRecord.getAttributes();
     }
 
-    public void removeLabel(Integer id, String name) {
+    public void removeAttribute(Integer id, String name) {
         BuildRecord buildRecord = repository.queryById(id);
-        buildRecord.removeLabel(name);
+        buildRecord.removeAttribute(name);
 
     }
 
-    public Map<String, String> getLabels(Integer id) {
+    public Map<String, String> getAttributes(Integer id) {
         BuildRecord buildRecord = repository.queryById(id);
-        return buildRecord.getLabels();
+        return buildRecord.getAttributes();
     }
 
-    public Collection<BuildRecordRest> getByLabel(String name, String value) {
-        List<BuildRecord> buildRecords = repository.queryWithPredicates(withLabel(name, value));
+    public Collection<BuildRecordRest> getByAttribute(String key, String value) {
+        List<BuildRecord> buildRecords = repository.queryWithPredicates(withAttribute(key, value));
         return buildRecords.stream().map(br -> new BuildRecordRest(br)).collect(Collectors.toList());
     }
 

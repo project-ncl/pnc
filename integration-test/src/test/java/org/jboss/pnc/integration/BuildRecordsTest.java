@@ -179,7 +179,7 @@ public class BuildRecordsTest {
                 .user(user)
                 .builtArtifact(builtArtifact1)
                 .dependency(importedArtifact1)
-                .label("labelName", "labelValue1")
+                .attribute("attributeKey", "attributeValue1")
                 .build();
                 
         buildRecord1 = buildRecordRepository.save(buildRecord1);
@@ -202,7 +202,7 @@ public class BuildRecordsTest {
                 .builtArtifact(builtArtifact3)
                 .dependency(builtArtifact1FromDb)
                 .dependency(importedArtifact1)
-                .label("labelName", "labelValue2")
+                .attribute("attributeKey", "attributeValue2")
                 .build();
 
         buildRecord2 = buildRecordRepository.save(buildRecord2);
@@ -300,65 +300,68 @@ public class BuildRecordsTest {
     }
 
     @Test
-    public void shouldGetBuildRecordLabels() {
+    public void shouldGetBuildRecordAttributes() {
         //given
-        buildRecordProvider.putLabel(buildRecord1Id, "shouldGetBuildRecordLabels-1", "true");
-        buildRecordProvider.putLabel(buildRecord1Id, "shouldGetBuildRecordLabels-2", "true");
-        buildRecordProvider.putLabel(buildRecord1Id, "shouldGetBuildRecordLabels-3", "true");
+        buildRecordProvider.putAttribute(buildRecord1Id, "shouldGetBuildRecordAttributes-1", "true");
+        buildRecordProvider.putAttribute(buildRecord1Id, "shouldGetBuildRecordAttributes-2", "true");
+        buildRecordProvider.putAttribute(buildRecord1Id, "shouldGetBuildRecordAttributes-3", "true");
 
         // when
-        Map<String, String> labels = buildRecordProvider.getLabels(buildRecord1Id);
+        Map<String, String> attributes = buildRecordProvider.getAttributes(buildRecord1Id);
 
         // then
-        assertTrue(labels.size() > 2);
-        assertEquals("true", labels.get("shouldGetBuildRecordLabels-1"));
+        assertTrue(attributes.size() > 2);
+        assertEquals("true", attributes.get("shouldGetBuildRecordAttributes-1"));
     }
 
     @Test
-    public void shouldGetBuildRecordByLabel() {
+    public void shouldGetBuildRecordByAttribute() {
         //given
-        buildRecordProvider.putLabel(buildRecord1Id, "shouldGetBuildRecordByLabel-2", "true");
+        buildRecordProvider.putAttribute(buildRecord1Id, "shouldGetBuildRecordByAttribute-2", "true");
 
         // when
-        Collection<BuildRecordRest> buildRecords = buildRecordProvider.getByLabel("shouldGetBuildRecordByLabel-2", "true");
+        Collection<BuildRecordRest> buildRecords = buildRecordProvider.getByAttribute("shouldGetBuildRecordByAttribute-2", "true");
 
         // then
         assertThat(buildRecords).hasSize(1);
     }
 
     @Test
-    public void shouldNotGetBuildRecordWithoutLabel() {
-        //given
-        BuildRecord buildRecord = buildRecordRepository.queryById(buildRecord1Id);
-
+    public void shouldNotGetBuildRecordWithoutAttribute() {
         // when
-        Collection<BuildRecordRest> buildRecords = buildRecordProvider.getByLabel("missing", "true");
+        Collection<BuildRecordRest> buildRecords = buildRecordProvider.getByAttribute("missing", "true");
 
         // then
         assertThat(buildRecords).hasSize(0);
     }
 
     @Test
-    public void shouldPutLabelToBuildRecord() {
+    public void shouldPutAttributeToBuildRecord() {
         //given
-        buildRecordProvider.putLabel(buildRecord1Id, "shouldPutLabelToBuildRecord-3", "true");
-        buildRecordProvider.putLabel(buildRecord2Id, "shouldPutLabelToBuildRecord-3", "true");
+        buildRecordProvider.putAttribute(buildRecord1Id, "shouldPutAttributeToBuildRecord-3", "true");
+        buildRecordProvider.putAttribute(buildRecord2Id, "shouldPutAttributeToBuildRecord-3", "true");
 
         // when
-        Collection<BuildRecordRest> buildRecords = buildRecordProvider.getByLabel("shouldPutLabelToBuildRecord-3", "true");
+        Collection<BuildRecordRest> buildRecords = buildRecordProvider.getByAttribute("shouldPutAttributeToBuildRecord-3", "true");
 
         // then
         assertThat(buildRecords).hasSize(2);
     }
 
     @Test
-    public void shouldRemoveLabelFromBuildRecord() {
+    public void shouldRemoveAttributeFromBuildRecord() {
         //given
-        buildRecordProvider.removeLabel(buildRecord1Id, "labelName");
-        buildRecordProvider.removeLabel(buildRecord2Id, "labelName");
+        buildRecordProvider.putAttribute(buildRecord1Id, "shouldRemoveAttributeFromBuildRecord", "true");
+        buildRecordProvider.putAttribute(buildRecord2Id, "shouldRemoveAttributeFromBuildRecord", "true");
+
+        Collection<BuildRecordRest> buildRecords = buildRecordProvider.getByAttribute("shouldRemoveAttributeFromBuildRecord", "true");
+        assertThat(buildRecords).hasSize(2);
+
+        buildRecordProvider.removeAttribute(buildRecord1Id, "shouldRemoveAttributeFromBuildRecord");
+        buildRecordProvider.removeAttribute(buildRecord2Id, "shouldRemoveAttributeFromBuildRecord");
 
         // when
-        Collection<BuildRecordRest> buildRecords = buildRecordProvider.getByLabel("labelName", "labelValue1");
+        buildRecords = buildRecordProvider.getByAttribute("shouldRemoveAttributeFromBuildRecord", "true");
 
         // then
         assertThat(buildRecords).hasSize(0);
