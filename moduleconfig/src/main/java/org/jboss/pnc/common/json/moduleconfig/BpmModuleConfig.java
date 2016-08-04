@@ -41,7 +41,8 @@ public class BpmModuleConfig extends AbstractModuleConfig {
     private final String repourBaseUrl;
     private final String daBaseUrl;
     private String deploymentId;
-    private String processId;
+    private String componentBuildProcessId;
+    private String bcCreationProcessId;
     private String communityBuild;
     private String versionAdjust;
 
@@ -49,7 +50,8 @@ public class BpmModuleConfig extends AbstractModuleConfig {
             @JsonProperty("password") String password,
             @JsonProperty("bpmInstanceUrl") String bpmInstanceUrl,
             @JsonProperty("deploymentId") String deploymentId,
-            @JsonProperty("processId") String processId,
+            @JsonProperty("componentBuildProcessId") String componentBuildProcessId,
+            @JsonProperty("bcCreationProcessId") String bcCreationProcessId,
             @JsonProperty("pncBaseUrl") String pncBaseUrl,
             @JsonProperty("jenkinsBaseUrl") String jenkinsBaseUrl,
             @JsonProperty("aproxBaseUrl") String aproxBaseUrl,
@@ -61,7 +63,8 @@ public class BpmModuleConfig extends AbstractModuleConfig {
         this.username = username;
         this.password = password;
         this.deploymentId = deploymentId;
-        this.processId = processId;
+        this.componentBuildProcessId = componentBuildProcessId;
+        this.bcCreationProcessId = bcCreationProcessId;
         this.bpmInstanceUrl = bpmInstanceUrl;
         this.pncBaseUrl = pncBaseUrl;
         this.jenkinsBaseUrl = jenkinsBaseUrl;
@@ -96,8 +99,12 @@ public class BpmModuleConfig extends AbstractModuleConfig {
         return deploymentId;
     }
 
-    public String getProcessId() {
-        return processId;
+    public String getComponentBuildProcessId() {
+        return componentBuildProcessId;
+    }
+
+    public String getBcCreationProcessId() {
+        return bcCreationProcessId;
     }
 
     public String getPncBaseUrl() {
@@ -139,7 +146,8 @@ public class BpmModuleConfig extends AbstractModuleConfig {
                 ", repourBaseUrl='" + repourBaseUrl + '\'' +
                 ", daBaseUrl='" + daBaseUrl + '\'' +
                 ", deploymentId='" + deploymentId + '\'' +
-                ", processId='" + processId + '\'' +
+                ", bcCreationProcessId='" + bcCreationProcessId + '\'' +
+                ", componentBuildProcessId='" + componentBuildProcessId + '\'' +
                 ", communityBuild='" + communityBuild + '\'' +
                 ", versionAdjust='" + versionAdjust + '\'' +
                 '}';

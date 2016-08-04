@@ -25,12 +25,13 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.apache.commons.lang3.StringUtils;
 import org.jboss.pnc.auth.AuthenticationProvider;
-import org.jboss.pnc.coordinator.builder.bpm.BpmCompleteListener;
+import org.jboss.pnc.bpm.BpmManager;
 import org.jboss.pnc.rest.restmodel.BuildExecutionConfigurationRest;
 import org.jboss.pnc.rest.restmodel.BuildRecordRest;
-import org.jboss.pnc.rest.restmodel.BuildResultRest;
+import org.jboss.pnc.rest.restmodel.bpm.BuildResultRest;
 import org.jboss.pnc.rest.restmodel.response.Singleton;
 import org.jboss.pnc.rest.trigger.BuildExecutorTriggerer;
+import org.jboss.pnc.spi.exception.CoreException;
 import org.jboss.pnc.spi.executor.BuildExecutionSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -69,7 +70,7 @@ public class BuildTaskEndpoint {
     private HttpServletRequest httpServletRequest;
 
     @Inject
-    private BpmCompleteListener bpmCompleteListener;
+    private BpmManager bpmManager;
 
     @Inject
     private BuildExecutorTriggerer buildExecutorTriggerer;
@@ -87,11 +88,15 @@ public class BuildTaskEndpoint {
     @Path("/{taskId}/completed")
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     public Response buildTaskCompleted(
-            @ApiParam(value = "Build task id", required = true) @PathParam("taskId") Integer taskId,
-            @ApiParam(value = "Build result", required = true) @FormParam("buildResult") BuildResultRest buildResult) {
-        logger.debug("Received task completed notification for coordinating task id [{}].", taskId);
+            @ApiParam(value = "Build task id", required = true) @PathParam("taskId") Integer buildId,
+            @ApiParam(value = "Build result", required = true) @FormParam("buildResult") BuildResultRest buildResult) throws CoreException {
+        logger.debug("Received task completed notification for coordinating task id [{}].", buildId);
 
-        bpmCompleteListener.notifyCompleted(taskId, buildResult.toBuildResult());
+        Integer taskId = bpmManager.getTaskIdByBuildId(buildId);
+        if(taskId == null) {
+            throw new CoreException("Could not find BPM task for build with ID " + buildId);
+        }
+        bpmManager.notify(taskId, buildResult);
         return Response.ok().build();
     }
 

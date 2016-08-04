@@ -16,8 +16,11 @@
  * limitations under the License.
  */
 
-package org.jboss.pnc.rest.restmodel;
+package org.jboss.pnc.rest.restmodel.bpm;
 
+import org.jboss.pnc.rest.restmodel.BuildDriverResultRest;
+import org.jboss.pnc.rest.restmodel.BuildExecutionConfigurationRest;
+import org.jboss.pnc.rest.restmodel.RepositoryManagerResultRest;
 import org.jboss.pnc.rest.utils.JsonOutputConverterMapper;
 import org.jboss.pnc.spi.BuildExecutionStatus;
 import org.jboss.pnc.spi.BuildResult;
@@ -34,7 +37,7 @@ import java.util.Optional;
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
 @XmlRootElement(name = "buildResult")
-public class BuildResultRest implements Serializable {
+public class BuildResultRest extends BpmNotificationRest implements Serializable {
 
     private BuildExecutionConfigurationRest buildExecutionConfiguration;
 

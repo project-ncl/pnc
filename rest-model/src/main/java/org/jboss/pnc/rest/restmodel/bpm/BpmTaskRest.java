@@ -15,30 +15,38 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package org.jboss.pnc.rest.restmodel.bpm;
 
-package org.jboss.pnc.coordinator.builder.bpm;
-
-import org.jboss.pnc.spi.BuildResult;
-
-import java.util.function.Consumer;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 
 /**
- * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
+ * @author Jakub Senko
  */
-class BpmListener {
-    private final long taskId;
-    private final Consumer<BuildResult> onComplete;
+@ToString
+@AllArgsConstructor
+public class BpmTaskRest {
 
-    public BpmListener(long taskId, Consumer<BuildResult> onComplete) {
-        this.taskId = taskId;
-        this.onComplete = onComplete;
-    }
+    /**
+     * Id of the task within BpmManager.
+     */
+    @Getter
+    @Setter
+    private Integer taskId;
 
-    public long getTaskId() {
-        return taskId;
-    }
+    /**
+     * Id of the process instance within BPM engine.
+     */
+    @Getter
+    @Setter
+    private Long processInstanceId;
 
-    public void onComplete(BuildResult buildExecutionResult) {
-        onComplete.accept(buildExecutionResult);
-    }
+    /**
+     * Name of the process executing this task.
+     */
+    @Getter
+    @Setter
+    private String processName;
 }

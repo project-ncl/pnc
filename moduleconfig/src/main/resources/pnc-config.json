@@ -61,7 +61,8 @@
                     "password": "${env.PNC_BPM_PASSWORD}",
                     "bpmInstanceUrl": "${env.BPM_INSTANCE_URL}",
                     "deploymentId": "${env.BPM_DEPLOYMENT_ID}",
-                    "processId": "${env.BPM_PROCESS_ID}"
+                    "bcCreationProcessId": "${env.BPM_BC_CREATION_PROCESS_ID}",
+                    "componentBuildProcessId": "${env.BPM_COMPONENT_BUILD_PROCESS_ID}"
                 },
                 {
                     "@module-config": "ui",
