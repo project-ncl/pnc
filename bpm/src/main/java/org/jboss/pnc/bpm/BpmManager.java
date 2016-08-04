@@ -147,15 +147,17 @@ public class BpmManager {
     }
 
     public synchronized void cleanup() {
-        tasks.values().stream()
+        Set<Integer> toBeRemoved = tasks.values().stream()
                 .filter(t -> {
                     ProcessInstance processInstance = session.getProcessInstance(t.getProcessInstanceId());
-                    if(processInstance == null) // instance has been terminated from outside
+                    if (processInstance == null) // instance has been terminated from outside
                         return true;
                     int state = processInstance.getState();
                     return state == STATE_COMPLETED || state == STATE_ABORTED;
                 })
-                .forEach(t -> tasks.remove(t.getTaskId()));
+                .map(BpmTask::getTaskId)
+                .collect(Collectors.toSet());
+        toBeRemoved.forEach(id -> tasks.remove(id));
     }
 
     /**
