@@ -35,6 +35,7 @@ import org.jboss.pnc.model.User;
 import org.jboss.pnc.rest.provider.BuildRecordProvider;
 import org.jboss.pnc.rest.restmodel.BuildRecordRest;
 import org.jboss.pnc.spi.coordinator.BuildTask;
+import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
 import org.jboss.pnc.test.category.ContainerTest;
 import org.jboss.shrinkwrap.api.asset.StringAsset;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
@@ -54,18 +55,19 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @SuppressWarnings("ALL")
 @RunWith(Arquillian.class)
 @Category(ContainerTest.class)
-public class BuildsRestTest {
+public class BuildsRestTest  {
 
     public static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
     private static BuildRestClient buildRestClient;
+
+    @Inject
+    private BuildRecordRepository buildRecordRepository;
 
     @Inject
     private BuildRecordProvider buildRecordProvider;
@@ -143,6 +145,7 @@ public class BuildsRestTest {
 
         //then
         assertThat(sorted).containsExactly(99, 2, 1);
+
     }
 
     @Test
@@ -172,10 +175,47 @@ public class BuildsRestTest {
         //when
         List<BuildRecordRest> firstPage = buildRestClient.all(true, 0, 1, null, sort).getValue();
         List<BuildRecordRest> secondPage = buildRestClient.all(true, 1, 1, null, sort).getValue();
+        List<BuildRecordRest> thirdPage = buildRestClient.all(true, 2, 1, null, sort).getValue();
+
 
         //then
         assertThat(firstPage).hasSize(1);
         assertThat(secondPage).hasSize(1);
+        assertThat(thirdPage).hasSize(1);  // Added to ensure running and finished records interleave correctly.
+
+    }
+
+    @Test
+    public void shouldBeAbleToReachAllBuildsWhenPaging() throws Exception {
+        //given
+        String sort = "=desc=id";
+
+        BuildTask mockedTask = mockBuildTask();
+        buildCoordinatorMock.addActiveTask(mockedTask);
+
+        //when
+        List<BuildRecordRest> firstPage = buildRestClient.all(true, 0, 1, null, sort).getValue();
+        List<BuildRecordRest> secondPage = buildRestClient.all(true, 1, 1, null, sort).getValue();
+        List<BuildRecordRest> thirdPage = buildRestClient.all(true, 2, 1, null, sort).getValue();
+
+        //then
+        assertThat(firstPage.get(0).getId()).isEqualTo(99);
+        assertThat(secondPage.get(0).getId()).isEqualTo(2);
+        assertThat(thirdPage.get(0).getId()).isEqualTo(1);
+    }
+
+    @Test
+    public void shouldReturnCorrectPageCount() throws Exception {
+        // Given
+        String sort = "=desc=id";
+
+        buildCoordinatorMock.addActiveTask(mockBuildTask());
+
+        // When
+        int totalPages = buildRestClient.all(true, 0, 1, null, sort).getRestCallResponse().getBody().jsonPath().getInt("totalPages");
+
+        //then
+        assertThat(totalPages).isEqualTo(3);
     }
 
     @Test
