@@ -41,16 +41,16 @@ public final class BpmEventType<T> {
     public static final BpmEventType<BuildResult> BUILD_COMPLETE
             = new BpmEventType<>("BUILD_COMPLETE", BuildResult.class);
 
-    public static final BpmEventType<BpmStringMapNotificationRest> BC_CREATION_SUCCESS
-            = new BpmEventType<>("BC_CREATION_SUCCESS", BpmStringMapNotificationRest.class);
+    public static final BpmEventType<BpmStringMapNotificationRest> BUILD_CONFIGURATION_CREATION_SUCCESS
+            = new BpmEventType<>("BUILD_CONFIGURATION_CREATION_SUCCESS", BpmStringMapNotificationRest.class);
 
-    public static final BpmEventType<BpmStringMapNotificationRest> BC_CREATION_ERROR
-            = new BpmEventType<>("BC_CREATION_ERROR", BpmStringMapNotificationRest.class);
+    public static final BpmEventType<BpmStringMapNotificationRest> BUILD_CONFIGURATION_CREATION_ERROR
+            = new BpmEventType<>("BUILD_CONFIGURATION_CREATION_ERROR", BpmStringMapNotificationRest.class);
 
     /**
      * Used for {@link BpmEventType#valueOf(String)}.
      */
-    private static final BpmEventType[] events = {BUILD_COMPLETE, BC_CREATION_SUCCESS, BC_CREATION_ERROR};
+    private static final BpmEventType[] events = {BUILD_COMPLETE, BUILD_CONFIGURATION_CREATION_SUCCESS, BUILD_CONFIGURATION_CREATION_ERROR};
 
 
     public static BpmEventType<?> valueOf(String name) {

@@ -20,7 +20,7 @@ package org.jboss.pnc.bpm.task;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.ToString;
 import org.jboss.pnc.bpm.BpmTask;
-import org.jboss.pnc.rest.restmodel.bpm.BpmBCCreationRest;
+import org.jboss.pnc.rest.restmodel.bpm.BpmBuildConfigurationCreationRest;
 import org.jboss.pnc.spi.exception.CoreException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,13 +32,13 @@ import java.util.Map;
  * @author Jakub Senko
  */
 @ToString(callSuper = true)
-public class BpmBCCreationTask extends BpmTask {
+public class BpmBuildConfigurationCreationTask extends BpmTask {
 
-    private static final Logger logger = LoggerFactory.getLogger(BpmBCCreationTask.class);
+    private static final Logger logger = LoggerFactory.getLogger(BpmBuildConfigurationCreationTask.class);
 
-    private final BpmBCCreationRest taskData;
+    private final BpmBuildConfigurationCreationRest taskData;
 
-    public BpmBCCreationTask(BpmBCCreationRest taskData) {
+    public BpmBuildConfigurationCreationTask(BpmBuildConfigurationCreationRest taskData) {
         this.taskData = taskData;
     }
 

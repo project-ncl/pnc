@@ -23,9 +23,9 @@ import io.swagger.annotations.*;
 import org.jboss.pnc.bpm.BpmEventType;
 import org.jboss.pnc.bpm.BpmManager;
 import org.jboss.pnc.bpm.BpmTask;
-import org.jboss.pnc.bpm.task.BpmBCCreationTask;
+import org.jboss.pnc.bpm.task.BpmBuildConfigurationCreationTask;
 import org.jboss.pnc.rest.provider.collection.CollectionInfo;
-import org.jboss.pnc.rest.restmodel.bpm.BpmBCCreationRest;
+import org.jboss.pnc.rest.restmodel.bpm.BpmBuildConfigurationCreationRest;
 import org.jboss.pnc.rest.restmodel.bpm.BpmNotificationRest;
 import org.jboss.pnc.rest.restmodel.bpm.BpmTaskRest;
 import org.jboss.pnc.rest.restmodel.response.Singleton;
@@ -121,16 +121,16 @@ public class BpmEndpoint extends AbstractEndpoint {
     @Path("/tasks/start-build-configuration-creation")
     @Consumes(MediaType.APPLICATION_JSON)
     public Response startBCCreationTask(
-            @ApiParam(value = "Task parameters.", required = true) BpmBCCreationRest taskData) throws CoreException {
+            @ApiParam(value = "Task parameters.", required = true) BpmBuildConfigurationCreationRest taskData) throws CoreException {
 
         LOG.debug("Received request to start BC creation: " + taskData);
 
-        BpmBCCreationTask task = new BpmBCCreationTask(taskData);
-        task.addListener(BpmEventType.BC_CREATION_SUCCESS, x -> {
-            LOG.debug("Received BPM event BC_CREATION_SUCCESS: " + x);
+        BpmBuildConfigurationCreationTask task = new BpmBuildConfigurationCreationTask(taskData);
+        task.addListener(BpmEventType.BUILD_CONFIGURATION_CREATION_SUCCESS, x -> {
+            LOG.debug("Received BPM event BUILD_CONFIGURATION_CREATION_SUCCESS: " + x);
         });
-        task.addListener(BpmEventType.BC_CREATION_ERROR, x -> {
-            LOG.debug("Received BPM event BC_CREATION_ERROR: " + x);
+        task.addListener(BpmEventType.BUILD_CONFIGURATION_CREATION_ERROR, x -> {
+            LOG.debug("Received BPM event BUILD_CONFIGURATION_CREATION_ERROR: " + x);
         });
         try {
             bpmManager.startTask(task);

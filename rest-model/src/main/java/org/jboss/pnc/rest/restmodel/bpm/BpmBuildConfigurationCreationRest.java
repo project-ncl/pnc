@@ -32,9 +32,9 @@ import java.util.Set;
  * cloned into an internal mirror.
  * This is done when the scmExternal* fields are set.
  */
-@XmlRootElement(name = "BpmBCCreation")
+@XmlRootElement(name = "BpmBuildConfigurationCreation")
 @ToString
-public class BpmBCCreationRest {
+public class BpmBuildConfigurationCreationRest {
 
     @NotNull
     @Pattern(regexp = "^[a-zA-Z0-9_.][a-zA-Z0-9_.-]*(?<!\\.git)$")
