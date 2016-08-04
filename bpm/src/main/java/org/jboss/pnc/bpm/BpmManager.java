@@ -149,7 +149,10 @@ public class BpmManager {
     public synchronized void cleanup() {
         tasks.values().stream()
                 .filter(t -> {
-                    int state = session.getProcessInstance(t.getProcessInstanceId()).getState();
+                    ProcessInstance processInstance = session.getProcessInstance(t.getProcessInstanceId());
+                    if(processInstance == null) // instance has been terminated from outside
+                        return true;
+                    int state = processInstance.getState();
                     return state == STATE_COMPLETED || state == STATE_ABORTED;
                 })
                 .forEach(t -> tasks.remove(t.getTaskId()));
