@@ -48,7 +48,7 @@ public enum BuildExecutionStatus {
     FINALIZING_EXECUTION,
 
     /** Last build status which is set
-     *  after storing to db and
+     *  after sending the response and
      *  just before dropping from list of running builds.
      *  Used to signal via callback that the build is going to be dropped from queue.
      */
