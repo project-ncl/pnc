@@ -19,11 +19,17 @@ package org.jboss.pnc.datastore.repositories;
 
 import org.jboss.pnc.datastore.repositories.internal.AbstractRepository;
 import org.jboss.pnc.datastore.repositories.internal.BuildRecordSpringRepository;
+import org.jboss.pnc.datastore.repositories.internal.PageableMapper;
+import org.jboss.pnc.datastore.repositories.internal.SpecificationsMapper;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
+import org.jboss.pnc.spi.datastore.repositories.api.PageInfo;
+import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
+import org.jboss.pnc.spi.datastore.repositories.api.SortInfo;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
+import java.util.List;
 
 @Stateless
 public class BuildRecordRepositoryImpl extends AbstractRepository<BuildRecord, Integer> implements BuildRecordRepository {
@@ -48,5 +54,14 @@ public class BuildRecordRepositoryImpl extends AbstractRepository<BuildRecord, I
     public BuildRecord findByIdFetchAllProperties(Integer id) {
         return repository.findByIdFetchAllProperties(id);
     }
+
+
+    @Override
+    public List<BuildRecord> queryWithPredicatesUsingCursor(PageInfo pageInfo, SortInfo sortInfo, Predicate<BuildRecord>... predicates) {
+        return repository.findAll(SpecificationsMapper.map(predicates), PageableMapper.mapCursored(pageInfo, sortInfo)).getContent();
+       // return springSpecificationsExecutor.findAll(SpecificationsMapper.map(predicates), PageableMapper.mapCursored(pageInfo, sortInfo));
+    }
+
+
 
 }

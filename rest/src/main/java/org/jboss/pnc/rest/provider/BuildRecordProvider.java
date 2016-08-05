@@ -32,6 +32,7 @@ import org.jboss.pnc.spi.datastore.repositories.SortInfoProducer;
 import org.jboss.pnc.spi.datastore.repositories.api.PageInfo;
 import org.jboss.pnc.spi.datastore.repositories.api.RSQLPredicateProducer;
 import org.jboss.pnc.spi.datastore.repositories.api.SortInfo;
+import org.jboss.pnc.spi.datastore.repositories.api.impl.DefaultPageInfo;
 import org.jboss.pnc.spi.executor.BuildExecutionSession;
 import org.jboss.pnc.spi.executor.BuildExecutor;
 import org.slf4j.Logger;
@@ -44,11 +45,9 @@ import java.io.BufferedWriter;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.lang.invoke.MethodHandles;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
@@ -263,26 +262,54 @@ public class BuildRecordProvider extends AbstractProvider<BuildRecord, BuildReco
         return toRESTModel().apply(buildRecords.get(0));
     }
 
-    public CollectionInfo<BuildRecordRest> getRunningAndArchivedBuildRecords(Integer pageIndex, Integer pageSize, String search, String sort) {
-        CollectionInfo<BuildRecordRest> buildRecords = getAll(pageIndex, pageSize, sort, search);
-        CollectionInfo<BuildRecordRest> allRunning = getAllRunning(pageIndex, pageSize, search, sort);
-
-        List<BuildRecordRest> allBuildRecords = new ArrayList<>();
-        allBuildRecords.addAll(buildRecords.getContent());
-        allBuildRecords.addAll(allRunning.getContent());
-
-        //We don't need to skip the results... it has been done in the previous steps.
-        //However we need to limit them
-        allBuildRecords = allBuildRecords.stream()
-                .filter(rsqlPredicateProducer.getStreamPredicate(BuildRecordRest.class, search))
+    public CollectionInfo<BuildRecordRest> getRunningandCompletedBuildRecords(Integer pageIndex, Integer pageSize, String search, String sort) {
+        Set<BuildRecordRest> running = nullableStreamOf(buildCoordinator.getSubmittedBuildTasks())
+                .filter(rsqlPredicateProducer.getStreamPredicate(BuildTask.class, search))
                 .sorted(sortInfoProducer.getSortInfo(sort).getComparator())
-                .limit(pageSize)
+                .map(this::createNewBuildRecordRest)
+                .collect(Collectors.toSet());
+
+        final int maxOffset = running.size();
+
+        CollectionInfo<BuildRecordRest> result = null;
+
+        for (int i = 0; i <= pageIndex; i++) {
+            int offset = maxOffset - running.size();
+
+            // Performance optimization
+            if (offset == maxOffset) {
+                result = createInterleavedPage(pageIndex, pageSize, offset, maxOffset, sort, search, running);
+                break;
+            }
+
+            result = createInterleavedPage(i, pageSize, offset, maxOffset, sort, search, running);
+            running.removeAll(result.getContent());
+        }
+
+        return result;
+    }
+
+    private CollectionInfo<BuildRecordRest> createInterleavedPage(int index, int size, int offset,
+                int totalRunning, String sort, String search, Set<BuildRecordRest> running) {
+
+        PageInfo pageInfo = new DefaultPageInfo(index * size - offset, size);
+        SortInfo sortInfo = sortInfoProducer.getSortInfo(sort);
+
+        List<BuildRecordRest> result = nullableStreamOf(((BuildRecordRepository) repository).queryWithPredicatesUsingCursor(pageInfo, sortInfo, rsqlPredicateProducer.getPredicate(BuildRecord.class, search)))
+                .map(toRESTModel())
                 .collect(Collectors.toList());
 
-        int totalPages = (int) Math.ceil((double) allBuildRecords.size() / pageSize);
-        CollectionInfo<BuildRecordRest> allBuildRecordsWithMetadata = new CollectionInfo<>(pageIndex, pageSize, totalPages, allBuildRecords);
+        result.addAll(running);
 
-        return allBuildRecordsWithMetadata;
+        result = result.stream()
+                .sorted(sortInfoProducer.getSortInfo(sort).getComparator())
+                .limit(size)
+                .collect(Collectors.toList());
+
+        double totalCompleted = (double) repository.count(rsqlPredicateProducer.getPredicate(BuildRecord.class, search));
+        int totalPages = (int) Math.ceil((totalCompleted + (double) totalRunning) / size);
+
+        return new CollectionInfo<>(index, size, totalPages, result);
     }
 
     public CollectionInfo<BuildRecordRest> getRunningAndArchivedBuildRecordsOfBuildConfiguration (Integer pageIndex, Integer pageSize, String search, String sort, Integer configurationId) {
