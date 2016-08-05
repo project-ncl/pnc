@@ -177,7 +177,7 @@ public class BuildExecutionTest {
 
         checkBuildStatuses(statusChangedEvents, Arrays.asList(DONE_WITH_ERRORS, BUILD_ENV_DESTROYED, BUILD_ENV_DESTROYING));
 
-        assertNoState(statusChangedEvents, BuildExecutionStatus.COLLECTING_RESULTS_FROM_REPOSITORY_NAMAGER);
+        assertNoState(statusChangedEvents, BuildExecutionStatus.COLLECTING_RESULTS_FROM_REPOSITORY_MANAGER);
     }
 
     @Test
@@ -190,7 +190,7 @@ public class BuildExecutionTest {
 
         checkBuildStatuses(statusChangedEvents, Collections.singletonList(DONE_WITH_ERRORS));
 
-        assertNoState(statusChangedEvents, BuildExecutionStatus.COLLECTING_RESULTS_FROM_REPOSITORY_NAMAGER);
+        assertNoState(statusChangedEvents, BuildExecutionStatus.COLLECTING_RESULTS_FROM_REPOSITORY_MANAGER);
         assertNoState(statusChangedEvents, BUILD_ENV_DESTROYED);
         assertNoState(statusChangedEvents, BUILD_ENV_DESTROYING);
     }

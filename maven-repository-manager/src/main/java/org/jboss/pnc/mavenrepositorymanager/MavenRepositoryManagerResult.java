@@ -19,6 +19,7 @@ package org.jboss.pnc.mavenrepositorymanager;
 
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
+import org.jboss.pnc.spi.repositorymanager.RepositoryManagerStatus;
 
 import java.util.List;
 
@@ -29,11 +30,33 @@ public class MavenRepositoryManagerResult implements RepositoryManagerResult {
     private final List<Artifact> builtArtifacts;
     private final List<Artifact> dependencies;
     private final String buildContentId;
+    private final String log;
+    private final RepositoryManagerStatus repositoryManagerStatus;
 
+    /**
+     *
+     * @deprecated Use constructor which status and log parameter
+     */
+    @Deprecated
     public MavenRepositoryManagerResult(List<Artifact> builtArtifacts, List<Artifact> dependencies, String buildContentId) {
         this.builtArtifacts = builtArtifacts;
         this.dependencies = dependencies;
         this.buildContentId = buildContentId;
+        this.repositoryManagerStatus = RepositoryManagerStatus.SUCCESS;
+        this.log = "";
+    }
+
+    public MavenRepositoryManagerResult(
+            List<Artifact> builtArtifacts,
+            List<Artifact> dependencies,
+            String buildContentId,
+            String log,
+            RepositoryManagerStatus status) {
+        this.builtArtifacts = builtArtifacts;
+        this.dependencies = dependencies;
+        this.buildContentId = buildContentId;
+        this.log = log;
+        this.repositoryManagerStatus = status;
     }
 
     @Override
@@ -49,5 +72,15 @@ public class MavenRepositoryManagerResult implements RepositoryManagerResult {
     @Override
     public String getBuildContentId() {
         return buildContentId;
+    }
+
+    @Override
+    public String getLog() {
+        return log;
+    }
+
+    @Override
+    public RepositoryManagerStatus getStatus() {
+        return repositoryManagerStatus;
     }
 }

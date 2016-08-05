@@ -21,6 +21,7 @@ package org.jboss.pnc.mock.repositorymanager;
 import org.jboss.pnc.mock.model.builders.ArtifactBuilder;
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
+import org.jboss.pnc.spi.repositorymanager.RepositoryManagerStatus;
 
 import java.util.Arrays;
 import java.util.List;
@@ -29,7 +30,12 @@ import java.util.List;
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
 public class RepositoryManagerResultMock {
+
     public static RepositoryManagerResult mockResult() {
+        return mockResult(false);
+    }
+
+    public static RepositoryManagerResult mockResult(boolean failed) {
         return new RepositoryManagerResult() {
             @Override
             public List<Artifact> getBuiltArtifacts() {
@@ -47,6 +53,24 @@ public class RepositoryManagerResultMock {
             @Override
             public String getBuildContentId() {
                 return "mock-content-id";
+            }
+
+            @Override
+            public String getLog() {
+                if (failed) {
+                    return "Validation of org.jboss.pnc:pnc-mock:1.0 failed due to: invalid pom file.";
+                } else {
+                    return "Repository manager has promoted all collected artifacts.";
+                }
+            }
+
+            @Override
+            public RepositoryManagerStatus getStatus() {
+                if (failed) {
+                    return RepositoryManagerStatus.VALIDATION_ERROR;
+                } else {
+                    return RepositoryManagerStatus.SUCCESS;
+                }
             }
         };
     }

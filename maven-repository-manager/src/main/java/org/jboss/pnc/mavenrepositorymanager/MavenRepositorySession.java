@@ -163,7 +163,7 @@ public class MavenRepositorySession implements RepositorySession {
         logger.info("Returning built artifacts / dependencies:\nUploads:\n  {}\n\nDownloads:\n  {}\n\n",
                 StringUtils.join(uploads, "\n  "), StringUtils.join(downloads, "\n  "));
 
-        promoteToBuildContentSet();
+        promoteToBuildContentSet(); //TODO report user readable responses using MavenRepositoryManagerResult with log and status
 
         return new MavenRepositoryManagerResult(uploads, downloads, buildRepoId); //TODO buildRepoId == buildContentId ?
     }
