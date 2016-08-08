@@ -67,7 +67,7 @@ public class BuildRecordRest implements GenericRestEntity<Integer> {
 
     private Integer buildEnvironmentId;
 
-    private Map<String, String> labels = new HashMap<>();
+    private Map<String, String> attributes = new HashMap<>();
 
     private String liveLogsUri;
 
@@ -100,7 +100,7 @@ public class BuildRecordRest implements GenericRestEntity<Integer> {
         this.endTime = buildRecord.getEndTime();
         this.scmRepoURL = buildRecord.getScmRepoURL();
         this.scmRevision = buildRecord.getScmRevision();
-        this.labels = buildRecord.getAttributes();
+        this.attributes = buildRecord.getAttributes();
         performIfNotNull(buildRecord.getBuildConfigurationAudited(),
                 () -> buildConfigurationId = buildRecord.getBuildConfigurationAudited().getId().getId());
         performIfNotNull(buildRecord.getBuildConfigurationAudited(),
@@ -270,16 +270,16 @@ public class BuildRecordRest implements GenericRestEntity<Integer> {
         this.buildEnvironmentId = buildEnvironmentId;
     }
 
-    public Map<String, String> getLabels() {
-        return labels;
+    public Map<String, String> getAttributes() {
+        return attributes;
     }
 
-    public void setLabels(Map<String, String> labels) {
-        this.labels = labels;
+    public void setAttributes(Map<String, String> attributes) {
+        this.attributes = attributes;
     }
 
-    public void putLabel(String name, String value) {
-        this.labels.put(name, value);
+    public void putAttribute(String name, String value) {
+        this.attributes.put(name, value);
     }
 
     public String getLiveLogsUri() {
