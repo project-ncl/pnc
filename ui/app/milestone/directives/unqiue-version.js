@@ -21,9 +21,9 @@
 
     var module = angular.module('pnc.milestone');
 
-    module.directive('versionUnique',['$q','$parse','versionFactory',
+    module.directive('versionUnique',['$q','versionFactory',
 
-    function ($q, $parse, versionFactory) {
+    function ($q, versionFactory) {
         return {
             restrict: 'A',
             require: 'ngModel',

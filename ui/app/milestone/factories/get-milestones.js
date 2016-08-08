@@ -28,7 +28,7 @@
                 factory = {};
 
             factory.checkUniqueValue = function (productVersionId, milestoneVersion, productVersion) {
-                return $http.get(restUrl + productVersionId).then(
+                return $http.get(restUrl + productVersionId, {cache: true}).then(
                     function (results) {
                         for (var i =0; i < results.data.content.length; i++){
                             var milestone = results.data.content[i];
