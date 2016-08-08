@@ -19,6 +19,7 @@
 package org.jboss.pnc.mock.spi;
 
 import org.jboss.pnc.mock.repositorymanager.RepositorySessionMock;
+import org.jboss.pnc.spi.builddriver.DebugData;
 import org.jboss.pnc.spi.environment.DestroyableEnvironment;
 import org.jboss.pnc.spi.environment.RunningEnvironment;
 import org.jboss.pnc.spi.repositorymanager.model.RepositorySession;
@@ -43,7 +44,8 @@ public class DestroyableEnvironmentMock {
                 repositorySession,
                 workingDir,
                 () -> {
-                });
+                },
+                new DebugData(false));
 
     }
 }

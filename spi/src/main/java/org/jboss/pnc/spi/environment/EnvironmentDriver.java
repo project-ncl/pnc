@@ -18,6 +18,7 @@
 package org.jboss.pnc.spi.environment;
 
 import org.jboss.pnc.model.SystemImageType;
+import org.jboss.pnc.spi.builddriver.DebugData;
 import org.jboss.pnc.spi.environment.exception.EnvironmentDriverException;
 import org.jboss.pnc.spi.repositorymanager.model.RepositorySession;
 
@@ -42,12 +43,12 @@ public interface EnvironmentDriver {
      * @throws EnvironmentDriverException Thrown if any error occurs during starting new environment
      */
     StartedEnvironment startEnvironment(String systemImageId, String systemImageRepositoryUrl, SystemImageType systemImageType,
-            RepositorySession repositorySession) throws EnvironmentDriverException;
+                                        RepositorySession repositorySession, DebugData debugData) throws EnvironmentDriverException;
 
     /**
      * Test if selected driver can build requested environment
      * 
-     * @param systemImageType The type of image to be used to initialize the build environment
+     * @param buildType The type of image to be used to initialize the build environment
      * @return True, if selected driver can instantiate an image of the given type, otherwise false.
      */
     boolean canRunImageType(SystemImageType buildType);

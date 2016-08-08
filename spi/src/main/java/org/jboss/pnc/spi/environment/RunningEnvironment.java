@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.spi.environment;
 
+import org.jboss.pnc.spi.builddriver.DebugData;
 import org.jboss.pnc.spi.environment.exception.EnvironmentDriverException;
 import org.jboss.pnc.spi.repositorymanager.model.RepositorySession;
 
@@ -62,6 +63,8 @@ public interface RunningEnvironment extends Serializable, DestroyableEnvironment
      */
     Path getWorkingDirectory();
 
+    DebugData getDebugData();
+
     static RunningEnvironment createInstance(
             String id,
             int buildAgentPort,
@@ -70,7 +73,8 @@ public interface RunningEnvironment extends Serializable, DestroyableEnvironment
             String internalBuildAgentUrl,
             RepositorySession repositorySession,
             Path workingDirectory,
-            Runnable destroyer) {
+            Runnable destroyer,
+            DebugData debugData) {
 
         return new RunningEnvironment() {
             @Override
@@ -111,6 +115,11 @@ public interface RunningEnvironment extends Serializable, DestroyableEnvironment
             @Override
             public void destroyEnvironment() throws EnvironmentDriverException {
                 destroyer.run();
+            }
+
+            @Override
+            public DebugData getDebugData() {
+                return debugData;
             }
         };
     }

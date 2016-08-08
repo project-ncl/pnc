@@ -26,11 +26,13 @@ import com.openshift.restclient.IClient;
 import com.openshift.restclient.NoopSSLCertificateCallback;
 import com.openshift.restclient.ResourceKind;
 import com.openshift.restclient.authorization.TokenAuthorizationStrategy;
+import org.apache.commons.lang.RandomStringUtils;
 import org.jboss.dmr.ModelNode;
 import org.jboss.pnc.common.json.moduleconfig.OpenshiftEnvironmentDriverModuleConfig;
 import org.jboss.pnc.common.monitor.PullingMonitor;
 import org.jboss.pnc.common.util.RandomUtils;
 import org.jboss.pnc.common.util.StringUtils;
+import org.jboss.pnc.spi.builddriver.DebugData;
 import org.jboss.pnc.spi.environment.RunningEnvironment;
 import org.jboss.pnc.spi.environment.StartedEnvironment;
 import org.jboss.pnc.spi.repositorymanager.model.RepositorySession;
@@ -57,6 +59,7 @@ import java.util.function.Consumer;
 public class OpenshiftStartedEnvironment implements StartedEnvironment {
 
     private static final Logger logger = LoggerFactory.getLogger(OpenshiftStartedEnvironment.class);
+    public static final String SSH_SERVICE_PORT_NAME = "22-ssh";
     private boolean serviceCreated = false;
     private boolean podCreated = false;
     private boolean routeCreated = false;
@@ -69,23 +72,29 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
     private Pod pod;
     private Service service;
     private Route route;
+    private Service sshService;
+    private final DebugData debugData;
     private final Set<Selector> initialized = new HashSet<>();
+    private final Map<String, String> runtimeProperties;
 
     private final String buildAgentContextPath;
 
     private final boolean createRoute;
 
+
     public OpenshiftStartedEnvironment(
             ExecutorService executor,
             OpenshiftEnvironmentDriverModuleConfig environmentConfiguration,
             PullingMonitor pullingMonitor,
-            RepositorySession repositorySession) {
+            RepositorySession repositorySession,
+            DebugData debugData) {
 
         logger.info("Creating new build environment using image id: " + environmentConfiguration.getImageId());
 
         this.environmentConfiguration = environmentConfiguration;
         this.pullingMonitor = pullingMonitor;
         this.repositorySession = repositorySession;
+        this.debugData = debugData;
 
         createRoute = environmentConfiguration.getExposeBuildAgentOnPublicUrl();
 
@@ -94,7 +103,7 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
         //TODO use something else as system uer don't have permissions and causes 403 - Unauthorized exception
         client.getCurrentUser(); //make sure client is connected
 
-        Map<String, String> runtimeProperties = new HashMap<>();
+        runtimeProperties = new HashMap<>();
         String randString = RandomUtils.randString(6);//note the 24 char limit
         buildAgentContextPath = "pnc-ba-" + randString;
 
@@ -103,10 +112,13 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
         runtimeProperties.put("build-agent-host", buildAgentHost);
         runtimeProperties.put("pod-name", "pnc-ba-pod-" + randString);
         runtimeProperties.put("service-name", "pnc-ba-service-" + randString);
+        runtimeProperties.put("ssh-service-name", "pnc-ba-ssh-" + randString);
         runtimeProperties.put("route-name", "pnc-ba-route-" + randString);
         runtimeProperties.put("route-path", "/" + buildAgentContextPath);
         runtimeProperties.put("buildAgentContextPath", "/" + buildAgentContextPath);
         runtimeProperties.put("containerPort", environmentConfiguration.getContainerPort());
+
+        initDebug();
 
         ModelNode podConfigurationNode = createModelNode(Configurations.V1_PNC_BUILDER_POD.getContentAsString(), runtimeProperties);
         pod = new Pod(podConfigurationNode, client, ResourcePropertiesRegistry.getInstance().get(OSE_API_VERSION, ResourceKind.POD));
@@ -150,6 +162,20 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
         }
     }
 
+    private void initDebug() {
+        if (debugData.isEnableDebugOnFailure()) {
+            String password = RandomStringUtils.randomAlphanumeric(10);
+            debugData.setSshPassword(password);
+            runtimeProperties.put("workerUserPassword", password);
+
+            debugData.setSshServiceInitializer(d -> {
+                Integer port = startSshService();
+                d.setSshPort(port);
+                d.setSshHost(route.getHost());
+            });
+        }
+    }
+
     private ModelNode createModelNode(String resourceDefinition, Map<String, String> runtimeProperties) {
         String definition = replaceConfigurationVariables(resourceDefinition, runtimeProperties);
         logger.info("Node definition: " + definition);
@@ -174,13 +200,13 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
             }
         };
 
-        pullingMonitor.monitor(onEnvironmentInitComplete(onCompleteInternal, Selector.POD), onError, () -> isPodRunning());
-        pullingMonitor.monitor(onEnvironmentInitComplete(onCompleteInternal, Selector.SERVICE), onError, () -> isServiceRunning());
+        pullingMonitor.monitor(onEnvironmentInitComplete(onCompleteInternal, Selector.POD), onError, this::isPodRunning);
+        pullingMonitor.monitor(onEnvironmentInitComplete(onCompleteInternal, Selector.SERVICE), onError, this::isServiceRunning);
 
         logger.info("Waiting to initialize environment. Pod [{}]; Service [{}].", pod.getName(), service.getName());
 
         if (createRoute) {
-            pullingMonitor.monitor(onEnvironmentInitComplete(onComplete, Selector.ROUTE), onError, () -> isRouteRunning());
+            pullingMonitor.monitor(onEnvironmentInitComplete(onComplete, Selector.ROUTE), onError, this::isRouteRunning);
             logger.info("Route [{}].", route.getName());
         }
 
@@ -223,7 +249,8 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
                     getInternalEndpointUrl(),
                     repositorySession,
                     Paths.get(environmentConfiguration.getWorkingDirectory()),
-                    this::destroyEnvironment
+                    this::destroyEnvironment,
+                    debugData
             );
 
             onComplete.accept(runningEnvironment);
@@ -293,12 +320,17 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
 
     @Override
     public void destroyEnvironment() {
-        if (!environmentConfiguration.getKeepBuildAgentInstance()) {
-            if (createRoute) {
-                client.delete(route);
+        if (!debugData.isDebugEnabled()) {
+            if (!environmentConfiguration.getKeepBuildAgentInstance()) {
+                if (createRoute) {
+                    client.delete(route);
+                }
+                client.delete(service);
+                if (sshService != null) {
+                    client.delete(sshService);
+                }
+                client.delete(pod);
             }
-            client.delete(service);
-            client.delete(pod);
         }
     }
 
@@ -322,6 +354,30 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
         properties.putAll(runtimeProperties);
 
         return StringPropertyReplacer.replaceProperties(podConfiguration, properties);
+    }
+
+    /**
+     * Enable ssh forwarding
+     *
+     * @return port, to which ssh is forwarded
+     */
+    private Integer startSshService() {
+        ModelNode serviceConfigurationNode = createModelNode(Configurations.V1_PNC_BUILDER_SSH_SERVICE.getContentAsString(), runtimeProperties);
+        sshService = new Service(serviceConfigurationNode, client, ResourcePropertiesRegistry.getInstance().get(OSE_API_VERSION, ResourceKind.SERVICE));
+        sshService.setNamespace(environmentConfiguration.getPncNamespace());
+        try {
+            Service resultService = client.create(this.sshService, sshService.getNamespace());
+            return resultService.getNode()
+                    .get("spec")
+                    .get("ports").asList()
+                    .stream()
+                    .filter(m -> m.get("name").asString().equals(SSH_SERVICE_PORT_NAME))
+                    .findAny().orElseThrow(() -> new RuntimeException("No ssh service in response!"))
+                    .get("nodePort").asInt();
+        } catch (Throwable e) {
+            logger.error("Cannot create service.", e);
+            return null;
+        }
     }
 
     private enum Selector {

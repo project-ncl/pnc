@@ -55,7 +55,8 @@ public class DefaultBuildExecutionSession implements BuildExecutionSession {
     //keep record of first received failed status
     private BuildExecutionStatus failedReasonStatus;
 
-    public DefaultBuildExecutionSession(BuildExecutionConfiguration buildExecutionConfiguration, Consumer<BuildExecutionStatusChangedEvent> onBuildExecutionStatusChangedEvent) {
+    public DefaultBuildExecutionSession(BuildExecutionConfiguration buildExecutionConfiguration,
+                                        Consumer<BuildExecutionStatusChangedEvent> onBuildExecutionStatusChangedEvent) {
         liveLogsUri = Optional.empty();
         this.buildExecutionConfiguration = buildExecutionConfiguration;
         this.onBuildExecutionStatusChangedEvent = onBuildExecutionStatusChangedEvent;
@@ -193,5 +194,5 @@ public class DefaultBuildExecutionSession implements BuildExecutionSession {
     public void setRepositoryManagerResult(RepositoryManagerResult repositoryManagerResult) {
         this.repositoryManagerResult = repositoryManagerResult;
     }
-    
+
 }
