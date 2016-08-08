@@ -24,6 +24,7 @@ import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildRecord;
+import org.jboss.pnc.model.BuildStatus;
 import org.jboss.pnc.spi.BuildExecutionStatus;
 import org.jboss.pnc.spi.BuildResult;
 import org.jboss.pnc.spi.builddriver.BuildDriverResult;
@@ -42,8 +43,10 @@ import java.util.Date;
 import java.util.Map;
 import java.util.Optional;
 
+import static org.jboss.pnc.model.BuildStatus.FAILED;
 import static org.jboss.pnc.model.BuildStatus.REJECTED;
 import static org.jboss.pnc.model.BuildStatus.SYSTEM_ERROR;
+import static org.jboss.pnc.model.BuildStatus.UNKNOWN;
 
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-12-15.
@@ -90,12 +93,14 @@ public class DatastoreAdapter {
 
     public void storeResult(BuildTask buildTask, BuildResult buildResult) throws DatastoreException {
         try {
+            BuildStatus buildRecordStatus = UNKNOWN;
+
             BuildRecord.Builder buildRecordBuilder = initBuildRecordBuilder(buildTask);
 
             if (buildResult.getBuildDriverResult().isPresent()) {
                 BuildDriverResult buildDriverResult = buildResult.getBuildDriverResult().get();
-                buildRecordBuilder.buildLog(buildDriverResult.getBuildLog());
-                buildRecordBuilder.status(buildDriverResult.getBuildStatus());
+                buildRecordBuilder.appendLog(buildDriverResult.getBuildLog());
+                buildRecordStatus = buildDriverResult.getBuildStatus();
             } else if (!buildResult.hasFailed()) {
                 storeResult(buildTask, Optional.of(buildResult), new BuildCoordinationException("Trying to store success build with incomplete result. Missing BuildDriverResult."));
                 return;
@@ -103,6 +108,12 @@ public class DatastoreAdapter {
 
             if (buildResult.getRepositoryManagerResult().isPresent()) {
                 RepositoryManagerResult repositoryManagerResult = buildResult.getRepositoryManagerResult().get();
+
+                buildRecordBuilder.appendLog(repositoryManagerResult.getLog());
+                if (repositoryManagerResult.getStatus().hasFailed()) {
+                    buildRecordStatus = FAILED; //TODO, do not mix statuses
+                }
+
                 buildRecordBuilder.buildContentId(repositoryManagerResult.getBuildContentId());
 
                 Collection<Artifact> builtArtifacts = repositoryManagerResult.getBuiltArtifacts();
@@ -113,7 +124,6 @@ public class DatastoreAdapter {
                 }
                 buildRecordBuilder.builtArtifacts(repositoryManagerResult.getBuiltArtifacts());
 
-                Collection<Artifact> dependencyArtifacts = repositoryManagerResult.getDependencies();
                 Map<Artifact, String> depConflicts = datastore.checkForConflictingArtifacts(builtArtifacts);
                 if (depConflicts.size() > 0) {
                     storeResult(buildTask, Optional.of(buildResult), new BuildCoordinationException("Trying to store success build with invalid repository manager result. Conflicting artifact data found: " + depConflicts.toString()));
@@ -124,6 +134,9 @@ public class DatastoreAdapter {
                 storeResult(buildTask, Optional.of(buildResult), new BuildCoordinationException("Trying to store success build with incomplete result. Missing RepositoryManagerResult."));
                 return;
             }
+
+            buildRecordBuilder.status(buildRecordStatus);
+
 
             if (buildResult.getBuildExecutionConfiguration().isPresent()) {
                 BuildExecutionConfiguration buildExecutionConfig = buildResult.getBuildExecutionConfiguration().get();
@@ -155,12 +168,18 @@ public class DatastoreAdapter {
 
         StringBuilder errorLog = new StringBuilder();
 
-        buildResult.ifPresent(r -> r.getBuildDriverResult().ifPresent(
+        buildResult.ifPresent(r -> {
+            r.getBuildDriverResult().ifPresent(
                 buildDriverResult -> {
                     errorLog.append(buildDriverResult.getBuildLog());
                     errorLog.append("\n---- End Build Log ----\n");
-                }
-        ));
+            });
+            r.getRepositoryManagerResult().ifPresent(
+                rmr -> {
+                    errorLog.append(rmr.getLog());
+                    errorLog.append("\n---- End Repository Manager Log ----\n");
+            });
+        });
 
         errorLog.append("Last build status: ").append(getLastBuildStatus(buildResult)).append("\n");
         errorLog.append("Caught exception: ").append(e.toString()).append("\n");

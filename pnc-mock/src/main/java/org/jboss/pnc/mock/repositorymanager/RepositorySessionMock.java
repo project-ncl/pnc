@@ -22,6 +22,7 @@ import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.ArtifactRepo;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerException;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
+import org.jboss.pnc.spi.repositorymanager.RepositoryManagerStatus;
 import org.jboss.pnc.spi.repositorymanager.model.RepositoryConnectionInfo;
 import org.jboss.pnc.spi.repositorymanager.model.RepositorySession;
 
@@ -95,6 +96,16 @@ public class RepositorySessionMock implements RepositorySession {
             @Override
             public String getBuildContentId() {
                 return "mock-content-id";
+            }
+
+            @Override
+            public String getLog() {
+                return "";
+            }
+
+            @Override
+            public RepositoryManagerStatus getStatus() {
+                return RepositoryManagerStatus.SUCCESS;
             }
         };
     }

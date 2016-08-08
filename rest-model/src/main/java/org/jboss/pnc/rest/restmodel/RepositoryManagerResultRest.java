@@ -20,6 +20,7 @@ package org.jboss.pnc.rest.restmodel;
 
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
+import org.jboss.pnc.spi.repositorymanager.RepositoryManagerStatus;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import java.io.Serializable;
@@ -34,6 +35,8 @@ public class RepositoryManagerResultRest implements Serializable {
     private List<ArtifactRest> builtArtifacts;
     private List<ArtifactRest> dependencies;
     private String buildContentId;
+    private String log;
+    private RepositoryManagerStatus status;
 
     public RepositoryManagerResultRest() {}
 
@@ -41,6 +44,8 @@ public class RepositoryManagerResultRest implements Serializable {
         builtArtifacts = result.getBuiltArtifacts().stream().map(artifact -> new ArtifactRest(artifact)).collect(Collectors.toList());
         dependencies = result.getDependencies().stream().map(artifact -> new ArtifactRest(artifact)).collect(Collectors.toList());
         buildContentId = result.getBuildContentId();
+        log = result.getLog();
+        status = result.getStatus();
     }
 
     public List<ArtifactRest> getBuiltArtifacts() {
@@ -55,23 +60,40 @@ public class RepositoryManagerResultRest implements Serializable {
         return buildContentId;
     }
 
+    public String getLog() {
+        return log;
+    }
+
+    public RepositoryManagerStatus getStatus() {
+        return status;
+    }
+
     public RepositoryManagerResult toRepositoryManagerResult() {
         List<Artifact> builtArtifacts = getBuiltArtifacts().stream().map(artifactRest -> artifactRest.toDBEntityBuilder().build()).collect(Collectors.toList());
         List<Artifact> dependencies = getDependencies().stream().map(artifactRest -> artifactRest.toDBEntityBuilder().build()).collect(Collectors.toList());
         String buildContentId = getBuildContentId();
 
-        return new GenericRepositoryManagerResult(builtArtifacts, dependencies, buildContentId);
+        return new GenericRepositoryManagerResult(builtArtifacts, dependencies, buildContentId, log, status);
     }
 
     private class GenericRepositoryManagerResult implements RepositoryManagerResult {
-        private List<Artifact> builtArtifacts;
-        private List<Artifact> dependencies;
-        private String buildContentId;
+        private final List<Artifact> builtArtifacts;
+        private final List<Artifact> dependencies;
+        private final String buildContentId;
+        private final String log;
+        private final RepositoryManagerStatus status;
 
-        public GenericRepositoryManagerResult(List<Artifact> builtArtifacts, List<Artifact> dependencies, String buildContentId) {
+        public GenericRepositoryManagerResult(
+                List<Artifact> builtArtifacts,
+                List<Artifact> dependencies,
+                String buildContentId,
+                String log,
+                RepositoryManagerStatus status) {
             this.builtArtifacts = builtArtifacts;
             this.dependencies = dependencies;
             this.buildContentId = buildContentId;
+            this.log = log;
+            this.status = status;
         }
 
         @Override
@@ -87,6 +109,16 @@ public class RepositoryManagerResultRest implements Serializable {
         @Override
         public String getBuildContentId() {
             return buildContentId;
+        }
+
+        @Override
+        public String getLog() {
+            return log;
+        }
+
+        @Override
+        public RepositoryManagerStatus getStatus() {
+            return status;
         }
     }
 }

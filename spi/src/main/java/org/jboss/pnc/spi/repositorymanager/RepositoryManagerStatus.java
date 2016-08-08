@@ -15,25 +15,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.jboss.pnc.spi.repositorymanager;
 
-import org.jboss.pnc.model.Artifact;
-
-import java.io.Serializable;
-import java.util.List;
-
 /**
- * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2015-02-02.
+ * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
-public interface RepositoryManagerResult extends Serializable {
-    List<Artifact> getBuiltArtifacts();
+public enum RepositoryManagerStatus {
+    SUCCESS (false),
 
-    List<Artifact> getDependencies();
+    VALIDATION_ERROR (true);
 
-    String getBuildContentId();
+    private boolean hasFailed;
 
-    String getLog();
+    RepositoryManagerStatus(boolean hasFailed) {
+        this.hasFailed = hasFailed;
+    }
 
-    RepositoryManagerStatus getStatus();
-
+    public boolean hasFailed() {
+        return hasFailed;
+    }
 }

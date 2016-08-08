@@ -41,14 +41,15 @@ public enum BuildExecutionStatus {
     BUILD_COMPLETED_WITH_ERROR(false, true),
 
     COLLECTING_RESULTS_FROM_BUILD_DRIVER,
-    COLLECTING_RESULTS_FROM_REPOSITORY_NAMAGER,
+    COLLECTING_RESULTS_FROM_REPOSITORY_MANAGER,
+    COLLECTING_RESULTS_FROM_REPOSITORY_MANAGER_COMPLETED_WITH_ERROR(false, true),
 
     BUILD_ENV_DESTROYING,
     BUILD_ENV_DESTROYED,
     FINALIZING_EXECUTION,
 
     /** Last build status which is set
-     *  after storing to db and
+     *  after sending the response and
      *  just before dropping from list of running builds.
      *  Used to signal via callback that the build is going to be dropped from queue.
      */

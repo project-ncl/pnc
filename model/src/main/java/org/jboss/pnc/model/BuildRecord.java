@@ -496,7 +496,7 @@ public class BuildRecord implements GenericEntity<Integer> {
 
         private String scmRevision;
 
-        private String buildLog;
+        private String buildLog = "";
 
         private BuildStatus status;
 
@@ -610,6 +610,11 @@ public class BuildRecord implements GenericEntity<Integer> {
 
         public Builder buildLog(String buildLog) {
             this.buildLog = buildLog;
+            return this;
+        }
+
+        public Builder appendLog(String buildLog) {
+            this.buildLog += buildLog;
             return this;
         }
 
