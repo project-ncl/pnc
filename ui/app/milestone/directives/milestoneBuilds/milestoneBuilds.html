@@ -22,17 +22,21 @@
     <small>Builds Performed</small>
   </pnc-header-title>
 </pnc-header>
-<table class="table table-bordered table-striped">
+<table class="table table-bordered table-striped" ng-show="performedBuilds.data.length">
   <thead>
     <th>Config Name</th>
     <th>Build Date</th>
     <th>Build Status</th>
   </thead>
   <tbody>
-  <tr ng-repeat="buildrecord in performedBuilds">
+  <tr ng-repeat="buildrecord in performedBuilds.data">
     <td>{{ buildrecord.buildConfigurationName}}</td>
     <td>{{ buildrecord.endTime | date:'yyyy/MM/dd'}}</td>
     <td>{{ buildrecord.status}}</td>
   </tr>
   </tbody>
 </table>
+
+<div ng-hide="performedBuilds.data.length" class="text-center">
+  There are no results to display.
+</div>

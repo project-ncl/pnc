@@ -22,17 +22,21 @@
     <small>Shipped Artifacts</small>
   </pnc-header-title>
 </pnc-header>
-<table class="table table-bordered table-striped">
+<table class="table table-bordered table-striped" ng-show="distributedArtifacts.data.length">
   <thead>
     <th>Artifact ID</th>
     <th>Deployed URL</th>
     <th>Quality</th>
   </thead>
   <tbody>
-  <tr ng-repeat="artifact in distributedArtifacts">
+  <tr ng-repeat="artifact in distributedArtifacts.data">
     <td>{{ artifact.identifier }}</td>
-    <td>{{ artifact.deployUrl }}</td>
+    <td><a href="{{ artifact.deployUrl }}" title="Deployed URL">link</a></td>
     <td>{{ artifact.artifactQuality }}</td>
   </tr>
   </tbody>
 </table>
+
+<div ng-hide="distributedArtifacts.data.length" class="text-center">
+  There are no results to display.
+</div>

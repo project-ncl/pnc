@@ -22,8 +22,7 @@
   var module = angular.module('pnc.milestone');
 
   module.directive('pncMilestoneBuilds', [
-    '$log',
-    function ($log) {
+    function () {
 
       return {
         restrict: 'E',
@@ -32,8 +31,7 @@
           milestone: '=',
           performedBuilds: '='
         },
-        link: function (scope) {
-          $log.debug('Loading performed builds: ' + scope.performedBuilds);
+        link: function () {
         }
       };
     }

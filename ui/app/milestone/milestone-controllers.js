@@ -37,8 +37,8 @@
       that.product = productDetail;
       that.productVersion = versionDetail;
       that.milestone = milestoneDetail;
-      that.distributedArtifacts = distributedArtifacts.data;
-      that.performedBuilds = performedBuilds.data;
+      that.distributedArtifacts = distributedArtifacts;
+      that.performedBuilds = performedBuilds;
     }
   ]);
 

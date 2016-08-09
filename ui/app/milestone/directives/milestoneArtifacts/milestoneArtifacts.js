@@ -22,8 +22,7 @@
   var module = angular.module('pnc.milestone');
 
   module.directive('pncMilestoneArtifacts', [
-    '$log',
-    function ($log) {
+    function () {
 
       return {
         restrict: 'E',
@@ -32,9 +31,7 @@
           milestone: '=',
           distributedArtifacts: '='
         },
-        link: function (scope) {
-          $log.debug('Viewing artifacts for milestone: %0', scope.milestone);
-
+        link: function () {
         }
       };
     }
