@@ -36,7 +36,13 @@ import javax.annotation.PreDestroy;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import java.net.URL;
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static java.lang.Integer.MAX_VALUE;
@@ -135,6 +141,7 @@ public class BpmManager {
     }
 
     public synchronized void notify(int taskId, BpmNotificationRest notification) {
+        LOG.error("will process notification for taskId: {}", taskId);       // mstodo remove
         tasks.values().stream()
                 .filter(t -> t.getTaskId() == taskId)
                 .forEach(t -> {
@@ -143,10 +150,12 @@ public class BpmManager {
                         t.notify((BpmEventType<BpmNotificationRest>) bpmEventType, notification);
                     }
                 });
+        LOG.error("finished notifying for taskId: {}", taskId);         // mstodo remove
         cleanup();
     }
 
     public synchronized void cleanup() {
+        LOG.error("starting cleanup");         // mstodo remove
         Set<Integer> toBeRemoved = tasks.values().stream()
                 .filter(t -> {
                     ProcessInstance processInstance = session.getProcessInstance(t.getProcessInstanceId());
@@ -158,6 +167,7 @@ public class BpmManager {
                 .map(BpmTask::getTaskId)
                 .collect(Collectors.toSet());
         toBeRemoved.forEach(id -> tasks.remove(id));
+        LOG.error("finished cleanup");         // mstodo remove
     }
 
     /**

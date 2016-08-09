@@ -53,8 +53,8 @@ import java.net.URI;
 
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.FORBIDDEN_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.FORBIDDEN_DESCRIPTION;
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.INVALID_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.INVALID_CODE;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.INVALID_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.SERVER_ERROR_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.SERVER_ERROR_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_CODE;
@@ -90,13 +90,16 @@ public class BuildTaskEndpoint {
     public Response buildTaskCompleted(
             @ApiParam(value = "Build task id", required = true) @PathParam("taskId") Integer buildId,
             @ApiParam(value = "Build result", required = true) @FormParam("buildResult") BuildResultRest buildResult) throws CoreException {
-        logger.debug("Received task completed notification for coordinating task id [{}].", buildId);
+        logger.error("Received task completed notification for coordinating task id [{}].", buildId); // mstodo change to debug
 
         Integer taskId = bpmManager.getTaskIdByBuildId(buildId);
         if(taskId == null) {
+            logger.error("No task for id [{}].", buildId); // mstodo remove
             throw new CoreException("Could not find BPM task for build with ID " + buildId);
         }
+        logger.error("Will notify for taskId[{}].", taskId); // mstodo remove
         bpmManager.notify(taskId, buildResult);
+        logger.error("Notified for taskId [{}]. Will return 200", buildId); // mstodo remove
         return Response.ok().build();
     }
 
