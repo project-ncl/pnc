@@ -143,7 +143,7 @@ public class UserRestTest {
         RestResponse<List<BuildRecordRest>> all = userRestClient.allUserBuilds(1);
 
         // then
-        assertThat(all.getValue()).hasSize(4).;
+        assertThat(all.getValue()).hasSize(4);
     }
 
     @Test
@@ -220,6 +220,38 @@ public class UserRestTest {
 
         //then
         assertThat(totalPages).isEqualTo(3);
+    }
+
+    @Test
+    public void shouldSupportFilteringByBcIdWhenGettingUserBuilds() throws Exception {
+        // given
+        String rsql = "buildConfigurationAudited.idRev.id==1";
+
+        buildCoordinatorMock.addActiveTask(mockBuildTask(101, 1, "demo-user"));
+
+        // when
+        List<Integer> sorted = userRestClient.allUserBuilds(1, true, 0, 50, rsql, null).getValue()
+                .stream()
+                .map(BuildRecordRest::getId)
+                .collect(Collectors.toList());
+
+        // then
+        assertThat(sorted).containsExactly(1);
+    }
+
+    @Test
+    public void shouldFilterByNonExistantBuildConfigurationIdWhenGettingUserBuilds() throws Exception {
+        // given
+        String rsql = "buildConfigurationAudited.idRev.id==9000";
+
+        // when
+        List<Integer> sorted = userRestClient.allUserBuilds(1, true, 0, 50, rsql, null).getValue()
+                .stream()
+                .map(BuildRecordRest::getId)
+                .collect(Collectors.toList());
+
+        // then
+        assertThat(sorted).isEmpty();
     }
 
 
